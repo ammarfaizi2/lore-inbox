@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267144AbUBMSWe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 13:22:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267152AbUBMSWe
+	id S267164AbUBMShi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 13:37:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267167AbUBMShi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 13:22:34 -0500
-Received: from fw.osdl.org ([65.172.181.6]:63711 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267144AbUBMSWc (ORCPT
+	Fri, 13 Feb 2004 13:37:38 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:11220 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267164AbUBMSeT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 13:22:32 -0500
-Date: Fri, 13 Feb 2004 10:22:30 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: =?iso-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: why are capabilities disabled?
-Message-ID: <20040213102230.B14506@build.pdx.osdl.net>
-References: <c0iqrq$erh$1@sea.gmane.org> <200402131601.i1DG1Nsl020006@turing-police.cc.vt.edu> <402D0F6D.7090803@upb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 13 Feb 2004 13:34:19 -0500
+Date: Fri, 13 Feb 2004 10:33:55 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andi Kleen <ak@suse.de>, Jamie Lokier <jamie@shareable.org>
+cc: torvalds@osdl.org, mingo@elte.hu, benh@kernel.crashing.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, drepper@redhat.com
+Subject: Re: [BUG] get_unmapped_area() change -> non booting machine
+Message-ID: <38670000.1076697235@flay>
+In-Reply-To: <20040215062544.5e554a61.ak@suse.de>
+References: <1076384799.893.5.camel@gaston><Pine.LNX.4.58.0402100814410.2128@home.osdl.org><20040210173738.GA9894@mail.shareable.org><20040213002358.1dd5c93a.ak@suse.de><20040212100446.GA2862@elte.hu><Pine.LNX.4.58.0402120833000.5816@home.osdl.org><20040213032604.GI25499@mail.shareable.org> <20040215062544.5e554a61.ak@suse.de>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <402D0F6D.7090803@upb.de>; from skoehler@upb.de on Fri, Feb 13, 2004 at 06:54:53PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Sven Köhler (skoehler@upb.de) wrote:
-> >>"getpcaps 1" shows, that the init-process is started without 
-> >>cap_setpcap, and i know that i can change that somehow.
-> >>So why are capabilities disabled? and how do i enable them?
+--On Sunday, February 15, 2004 06:25:44 +0100 Andi Kleen <ak@suse.de> wrote:
 
-Oh, I see.  Not having cap_setpcap does not mean capabilities are
-disabled.  It's the standard set.
+> On Fri, 13 Feb 2004 03:26:04 +0000
+> Jamie Lokier <jamie@shareable.org> wrote:
+> 
+>> Linus Torvalds wrote:
+>> > One option is to mark the brk() VMA's as being grow-up (which they are), 
+>> > and make get_unmapped_area() realize that it should avoid trying to 
+>> > allocate just above grow-up segments or just below grow-down segments. 
+>> > That's still something of a special case, but at least it's not "magic" 
+>> > any more, now it's more of a "makes sense".
+>> 
+>> That reminds me.  What happens when grow-down stack VMAs finally bump
+>> into another VMA.  Is there an unmapped guard page retained to segfault
+>> the program, or does the program silently start overwriting the VMA it
+>> bumped into?
+> 
+> In the standard kernel it silently overwrites, but in 2.4-aa there was a patch forever
+> that adds a guard page.
 
-> i found the hint again: i have to change the value CAP_INIT_EFF_SET in 
-> capability.h, so that init-process is not started with disabled 
-> cap_setpcap, but is this still a security risk?
+Do you happen to remember the name of the patch? Hunting in Andrea's tree
+isn't always easy ;-)
 
-Yes.  Don't do that.
+M.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130451AbRCIIQQ>; Fri, 9 Mar 2001 03:16:16 -0500
+	id <S130452AbRCIIjg>; Fri, 9 Mar 2001 03:39:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130450AbRCIIQG>; Fri, 9 Mar 2001 03:16:06 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:37144 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S130452AbRCIIP4>; Fri, 9 Mar 2001 03:15:56 -0500
-Date: Fri, 9 Mar 2001 02:15:23 -0600
-From: Philipp Rumpf <prumpf@mandrakesoft.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] documentation mm.h + swap.h
-Message-ID: <20010309021523.A13408@mandrakesoft.mandrakesoft.com>
-In-Reply-To: <Pine.LNX.4.33.0103081807260.1314-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
+	id <S130453AbRCIIj1>; Fri, 9 Mar 2001 03:39:27 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:2053 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S130452AbRCIIjI>; Fri, 9 Mar 2001 03:39:08 -0500
+Message-ID: <3AA89624.46DBADD7@idb.hist.no>
+Date: Fri, 09 Mar 2001 09:36:52 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: no, da, en
+MIME-Version: 1.0
+To: Manoj Sontakke <manojs@sasken.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: quicksort for linked list
+In-Reply-To: <3AA88891.294C17A0@sasken.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <Pine.LNX.4.33.0103081807260.1314-100000@duckman.distro.conectiva>; from Rik van Riel on Thu, Mar 08, 2001 at 06:10:16PM -0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 08, 2001 at 06:10:16PM -0300, Rik van Riel wrote:
-> --- linux-2.4.2-doc/include/linux/mm.h.orig	Wed Mar  7 15:36:32 2001
-> +++ linux-2.4.2-doc/include/linux/mm.h	Thu Mar  8 09:54:22 2001
-> @@ -39,32 +39,37 @@
->   * library, the executable area etc).
->   */
->  struct vm_area_struct {
-> -	struct mm_struct * vm_mm;	/* VM area parameters */
-> -	unsigned long vm_start;
-> -	unsigned long vm_end;
-> +	struct mm_struct * vm_mm;	/* The address space we belong to. */
-> +	unsigned long vm_start;		/* Our start address within vm_mm. */
-> +	unsigned long vm_end;		/* Our end address within vm_mm. */
+Manoj Sontakke wrote:
+> 
+> Hi
+>         Sorry, these questions do not belog here but i could not find any
+> better place.
+> 
+> 1. Is quicksort on doubly linked list is implemented anywhere? I need it
+> for sk_buff queues.
 
-it might be a good idea to point out that this is the address of the byte
-after the last one covered by the vma, not the address of the last byte.
+I cannot see how the quicksort algorithm could work on a doubly
+linked list, as it relies on being able to look
+up elements directly as in an array.
 
-(are there any architectures where we allow a vma at the end of memory ?  Is
-the mm/ code handling ->vm_end = 0 correctly ?)
+You can probably find algorithms for sorting a linked list, but
+it won't be quicksort.
 
->  /*
-> + * Each physical page in the system has a struct page associated with
-> + * it to keep track of whatever it is we are using the page for at the
-> + * moment. Note that we have no way to track which tasks are using
-> + * a page.
-> + *
+You can however quicksort the list _if_ you have room enough for an
+additional data structure:
 
-Each page of "real" RAM.  In particular I think MMIO pages still don't have
-a struct page.
+1. find out how many elements there are.  (Count them if necessary)
+2. Allocate a pointer array of this size.
+3. fill the pointer array with pointers to list members.
+4. quicksort the pointer array
+5. Traverse the pointer array and set the links for each
+   list member to point to next/previous element pointed
+   to by the array.  Now you have a sorted linked list!
 
->   * Try to keep the most commonly accessed fields in single cache lines
->   * here (16 bytes or greater).  This ordering should be particularly
->   * beneficial on 32-bit processors.
->   *
->   * The first line is data used in page cache lookup, the second line
->   * is used for linear searches (eg. clock algorithm scans).
-> + *
-> + * TODO: make this structure smaller, it could be as small as 32 bytes.
+Steps 1,2,3 & 5 are all O(n), better than the O(nlgn) for
+quicksort.  
 
-Or make it cover large pages, which might be even more of a win ..
+
+Helge Hafting

@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbTDLHrX (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 03:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263186AbTDLHrX (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 03:47:23 -0400
-Received: from pdbn-d9bb86ba.pool.mediaWays.net ([217.187.134.186]:57102 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id S263185AbTDLHrW (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 03:47:22 -0400
-Date: Sat, 12 Apr 2003 09:58:59 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: USB Keyboard in 2.5 bitkeeper...
-Message-ID: <20030412075859.GA19294@citd.de>
-References: <200304111941.16563.ivg2@cornell.edu> <1050112147.3778.5.camel@sharra.ivimey.org> <200304112339.19484.ivg2@cornell.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S263187AbTDLHxP (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 03:53:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263190AbTDLHxP (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 03:53:15 -0400
+Received: from Mail1.KONTENT.De ([81.88.34.36]:44241 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S263187AbTDLHxO (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Apr 2003 03:53:14 -0400
+From: Oliver Neukum <oliver@neukum.org>
+Reply-To: oliver@neukum.name
+To: Andrew Morton <akpm@digeo.com>, Tim Hockin <thockin@hockin.org>
+Subject: Re: [ANNOUNCE] udev 0.1 release
+Date: Sat, 12 Apr 2003 10:04:56 +0200
+User-Agent: KMail/1.5
+Cc: sdake@mvista.com, kpfleming@cox.net,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       message-bus-list@redhat.com, greg@kroah.com
+References: <20030411150933.43fd9a84.akpm@digeo.com> <200304112219.h3BMJMG11078@www.hockin.org> <20030411154709.379a139c.akpm@digeo.com>
+In-Reply-To: <20030411154709.379a139c.akpm@digeo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200304112339.19484.ivg2@cornell.edu>
-User-Agent: Mutt/1.3.27i
+Message-Id: <200304121004.56697.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 11, 2003 at 11:39:19PM -0400, Ivan Gyurdiev wrote:
-> On Friday 11 April 2003 21:49, Ruth Ivimey-Cook wrote:
-> > On Sat, 2003-04-12 at 00:41, Ivan Gyurdiev wrote:
-> > > input1: USB HID v1.00 Keyboard [NOVATEK Keyboard NT6881] on usb1:3.0
-> > > input2: USB HID v1.00 Mouse [NOVATEK Keyboard NT6881] on usb1:3.1
-> > >
-> > > That's only a keyboard, but interestingly it shows up as a keyboard AND
-> > > mouse. (This kernel is 2.4.21-pre5-ac3)
-> >
-> > I have a USB keyboard (a BTC model 9000) that has a PS/2 mouse port on
-> > the back. When USB enumerates it I get a keyboard controller and a mouse
-> > controller connection... I guess that's the sort of thing you have.
-> >
-> > Ruth
-> 
-> my keyboard has no mouse port on the back.
 
-Exists a version of the keyboard with a mouse-port, or a version with a
-"mouse"-thing. (Track-Point, Track-Ball, Glide-Point, or whatever you
-call it today.)
+> Right now, if you plug and then quickly unplug a device, the unplug event
+> can be handled first.
+>
+> It may not happen much in practice, but we have had problem with cardbus
+> contact bounce causing an event storm in the past.  The daemon could just
+> swallow the first 5 insert/remove pairs and process the final insert only.
+>
+> The kernel would have to drop messages on the floor at some point though.
 
-Then there is a chance that they only use a single version of the
-chipset, which includes a mouse-port.
+That is unavoidable in _any_ scheme. The hotplug spawn scheme wishes
+to weasle through this by letting kmalloc determine, when to throw away
+an event. No system can process an infinite amount of events.
 
+What's important is an ability to report loss of events and to export
+a consistent view of devices connected, that can be read at will.
 
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
+	Regards
+		Oliver
 

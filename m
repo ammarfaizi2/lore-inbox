@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVAHVla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVAHVoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261632AbVAHVla (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 16:41:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVAHVl3
+	id S261769AbVAHVoK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 16:44:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVAHVnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 16:41:29 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:29188 "HELO
+	Sat, 8 Jan 2005 16:43:31 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:31492 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261632AbVAHVkK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 16:40:10 -0500
-Date: Sat, 8 Jan 2005 22:40:03 +0100
+	id S261769AbVAHVkU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 16:40:20 -0500
+Date: Sat, 8 Jan 2005 22:40:12 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: patrick@tykepenguin.com, Steve Whitehouse <SteveW@ACM.org>,
-       linux-decnet-user@lists.sourceforge.net, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] net/decnet/: misc possible cleanups (fwd)
-Message-ID: <20050108214003.GS14108@stusta.de>
+Cc: ipslinux@adaptec.com, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] SCSI ips.c: make some code static (fwd) (fwd)
+Message-ID: <20050108214012.GU14108@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,241 +23,414 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch forwarded below (already ACK'ed by Patrick Caulfield) still 
-applies and compiles against 2.6.10-mm2.
+The patch forwarded below still applies and compiles against 2.6.10-mm2.
 
 Please apply.
 
 
 ----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Date:	Tue, 14 Dec 2004 13:58:38 +0100
+Date:	Tue, 21 Dec 2004 01:41:46 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: patrick@tykepenguin.com, Steve Whitehouse <SteveW@ACM.org>
-Cc: linux-decnet-user@lists.sourceforge.net, netdev@oss.sgi.com,
+To: Andrew Morton <akpm@osdl.org>
+Cc: ipslinux@adaptec.com, James.Bottomley@SteelEye.com,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] SCSI ips.c: make some code static (fwd)
+
+The patch forwarded below still applies and compiles against 
+2.6.10-rc3-mm1.
+
+Please apply.
+
+
+----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
+
+Date:	Mon, 15 Nov 2004 03:11:56 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: ipslinux@adaptec.com
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [2.6 patch] net/decnet/: misc possible cleanups
+Subject: [2.6 patch] SCSI ips.c: make some code static
 
-The patch below contains the following possible cleanups:
-- make needlessly global code static
-- dn_fib.c: remove the write-only global variable dn_fib_info_cnt
-- dn_fib.c: remove the unused global function dn_fib_rt_message
-- dn_neigh.c: remove the unused global function dn_neigh_pointopoint_notify
-- dn_timer.c: remove the fast timer code that isn't used
-
-Please review and comment on this patch.
+The patch below makes some needlessly global code static.
 
 
 diffstat output:
- include/net/dn.h       |    2 -
- include/net/dn_fib.h   |    1 
- net/decnet/af_decnet.c |    6 +----
- net/decnet/dn_fib.c    |   15 -------------
- net/decnet/dn_neigh.c  |    8 ------
- net/decnet/dn_route.c  |    6 ++---
- net/decnet/dn_timer.c  |   47 -----------------------------------------
- 7 files changed, 5 insertions(+), 80 deletions(-)
+ drivers/scsi/ips.c |  244 ++++++++++++++++++++++-----------------------
+ drivers/scsi/ips.h |   12 --
+ 2 files changed, 123 insertions(+), 133 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc3-mm1-full/net/decnet/af_decnet.c.old	2004-12-14 03:30:13.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/net/decnet/af_decnet.c	2004-12-14 03:47:00.000000000 +0100
-@@ -246,7 +246,7 @@
- 	write_unlock_bh(&dn_hash_lock);
- }
+--- linux-2.6.10-rc1-mm5-full/drivers/scsi/ips.h.old	2004-11-13 22:29:51.000000000 +0100
++++ linux-2.6.10-rc1-mm5-full/drivers/scsi/ips.h	2004-11-13 22:40:47.000000000 +0100
+@@ -53,14 +53,6 @@
+    #include <asm/uaccess.h>
+    #include <asm/io.h>
  
--struct hlist_head *listen_hash(struct sockaddr_dn *addr)
-+static struct hlist_head *listen_hash(struct sockaddr_dn *addr)
- {
- 	int i;
- 	unsigned hash = addr->sdn_objnum;
-@@ -447,7 +447,7 @@
- 	dst_release(xchg(&sk->sk_dst_cache, NULL));
- }
- 
--struct sock *dn_alloc_sock(struct socket *sock, int gfp)
-+static struct sock *dn_alloc_sock(struct socket *sock, int gfp)
- {
- 	struct dn_scp *scp;
- 	struct sock *sk = sk_alloc(PF_DECnet, gfp, sizeof(struct dn_sock),
-@@ -578,7 +578,6 @@
- 	if (sk->sk_socket)
- 		return 0;
- 
--	dn_stop_fast_timer(sk); /* unlikely, but possible that this is runninng */
- 	if ((jiffies - scp->stamp) >= (HZ * decnet_time_wait)) {
- 		dn_unhash_sock(sk);
- 		sock_put(sk);
-@@ -631,7 +630,6 @@
- 		default:
- 			printk(KERN_DEBUG "DECnet: dn_destroy_sock passed socket in invalid state\n");
- 		case DN_O:
--			dn_stop_fast_timer(sk);
- 			dn_stop_slow_timer(sk);
- 
- 			dn_unhash_sock_bh(sk);
---- linux-2.6.10-rc3-mm1-full/include/net/dn_fib.h.old	2004-12-14 03:32:14.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/include/net/dn_fib.h	2004-12-14 03:32:19.000000000 +0100
-@@ -117,7 +117,6 @@
- extern void dn_fib_init(void);
- extern void dn_fib_cleanup(void);
- 
--extern int dn_fib_rt_message(struct sk_buff *skb);
- extern int dn_fib_ioctl(struct socket *sock, unsigned int cmd, 
- 			unsigned long arg);
- extern struct dn_fib_info *dn_fib_create_info(const struct rtmsg *r, 
---- linux-2.6.10-rc3-mm1-full/net/decnet/dn_fib.c.old	2004-12-14 03:31:33.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/net/decnet/dn_fib.c	2004-12-14 03:32:31.000000000 +0100
-@@ -60,7 +60,6 @@
- static spinlock_t dn_fib_multipath_lock = SPIN_LOCK_UNLOCKED;
- static struct dn_fib_info *dn_fib_info_list;
- static rwlock_t dn_fib_info_lock = RW_LOCK_UNLOCKED;
--int dn_fib_info_cnt;
- 
- static struct
- {
-@@ -93,7 +92,6 @@
- 			dev_put(nh->nh_dev);
- 		nh->nh_dev = NULL;
- 	} endfor_nexthops(fi);
--	dn_fib_info_cnt--;
- 	kfree(fi);
- }
- 
-@@ -388,7 +386,6 @@
- 	if (dn_fib_info_list)
- 		dn_fib_info_list->fib_prev = fi;
- 	dn_fib_info_list = fi;
--	dn_fib_info_cnt++;
- 	write_unlock(&dn_fib_info_lock);
- 	return fi;
- 
-@@ -486,18 +483,6 @@
- }
- 
- 
--/*
-- * Punt to user via netlink for example, but for now
-- * we just drop it.
-- */
--int dn_fib_rt_message(struct sk_buff *skb)
--{
--	kfree_skb(skb);
+-   /* Prototypes */
+-   extern int ips_detect(Scsi_Host_Template *);
+-   extern int ips_release(struct Scsi_Host *);
+-   extern int ips_eh_abort(Scsi_Cmnd *);
+-   extern int ips_eh_reset(Scsi_Cmnd *);
+-   extern int ips_queue(Scsi_Cmnd *, void (*) (Scsi_Cmnd *));
+-   extern const char * ips_info(struct Scsi_Host *);
 -
--	return 0;
--}
--
--
- static int dn_fib_check_attr(struct rtmsg *r, struct rtattr **rta)
- {
- 	int i;
---- linux-2.6.10-rc3-mm1-full/net/decnet/dn_neigh.c.old	2004-12-14 03:32:55.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/net/decnet/dn_neigh.c	2004-12-14 03:33:29.000000000 +0100
-@@ -355,14 +355,6 @@
-  * basically does a neigh_lookup(), but without comparing the device
-  * field. This is required for the On-Ethernet cache
-  */
--/*
-- * Any traffic on a pointopoint link causes the timer to be reset
-- * for the entry in the neighbour table.
-- */
--void dn_neigh_pointopoint_notify(struct sk_buff *skb)
--{
--	return;
--}
+    /*
+     * Some handy macros
+     */
+@@ -457,10 +449,10 @@
+    static void ips_select_queue_depth(struct Scsi_Host *, Scsi_Device *);
+    static int ips_biosparam(Disk *disk, kdev_t dev, int geom[]);
+ #else
+-   int ips_proc_info(struct Scsi_Host *, char *, char **, off_t, int, int);
++   static int ips_proc_info(struct Scsi_Host *, char *, char **, off_t, int, int);
+    static int ips_biosparam(struct scsi_device *sdev, struct block_device *bdev,
+ 		sector_t capacity, int geom[]);
+-   int ips_slave_configure(Scsi_Device *SDptr);
++   static int ips_slave_configure(Scsi_Device *SDptr);
+ #endif
  
  /*
-  * Pointopoint link receives a hello message
---- linux-2.6.10-rc3-mm1-full/net/decnet/dn_route.c.old	2004-12-14 03:33:53.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/net/decnet/dn_route.c	2004-12-14 03:34:54.000000000 +0100
-@@ -99,9 +99,9 @@
- 
- static unsigned char dn_hiord_addr[6] = {0xAA,0x00,0x04,0x00,0x00,0x00};
- 
--int dn_rt_min_delay = 2 * HZ;
--int dn_rt_max_delay = 10 * HZ;
--int dn_rt_mtu_expires = 10 * 60 * HZ;
-+static const int dn_rt_min_delay = 2 * HZ;
-+static const int dn_rt_max_delay = 10 * HZ;
-+static const int dn_rt_mtu_expires = 10 * 60 * HZ;
- 
- static unsigned long dn_rt_deadline;
- 
---- linux-2.6.10-rc3-mm1-full/include/net/dn.h.old	2004-12-14 03:35:13.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/include/net/dn.h	2004-12-14 03:46:38.000000000 +0100
-@@ -220,8 +220,6 @@
- 
- extern void dn_start_slow_timer(struct sock *sk);
- extern void dn_stop_slow_timer(struct sock *sk);
--extern void dn_start_fast_timer(struct sock *sk);
--extern void dn_stop_fast_timer(struct sock *sk);
- 
- extern dn_address decnet_address;
- extern int decnet_debug_level;
---- linux-2.6.10-rc3-mm1-full/net/decnet/dn_timer.c.old	2004-12-14 03:35:29.000000000 +0100
-+++ linux-2.6.10-rc3-mm1-full/net/decnet/dn_timer.c	2004-12-14 03:48:49.000000000 +0100
-@@ -27,11 +27,9 @@
- #include <net/dn.h>
+--- linux-2.6.10-rc1-mm5-full/drivers/scsi/ips.c.old	2004-11-13 22:28:43.000000000 +0100
++++ linux-2.6.10-rc1-mm5-full/drivers/scsi/ips.c	2004-11-13 22:38:30.000000000 +0100
+@@ -246,6 +246,117 @@
+ #endif
  
  /*
-- * Fast timer is for delayed acks (200mS max)
-  * Slow timer is for everything else (n * 500mS)
++ * Function prototypes
++ */
++static int ips_detect(Scsi_Host_Template *);
++static int ips_release(struct Scsi_Host *);
++static int ips_eh_abort(Scsi_Cmnd *);
++static int ips_eh_reset(Scsi_Cmnd *);
++static int ips_queue(Scsi_Cmnd *, void (*)(Scsi_Cmnd *));
++static const char *ips_info(struct Scsi_Host *);
++static irqreturn_t do_ipsintr(int, void *, struct pt_regs *);
++static int ips_hainit(ips_ha_t *);
++static int ips_map_status(ips_ha_t *, ips_scb_t *, ips_stat_t *);
++static int ips_send_wait(ips_ha_t *, ips_scb_t *, int, int);
++static int ips_send_cmd(ips_ha_t *, ips_scb_t *);
++static int ips_online(ips_ha_t *, ips_scb_t *);
++static int ips_inquiry(ips_ha_t *, ips_scb_t *);
++static int ips_rdcap(ips_ha_t *, ips_scb_t *);
++static int ips_msense(ips_ha_t *, ips_scb_t *);
++static int ips_reqsen(ips_ha_t *, ips_scb_t *);
++static int ips_deallocatescbs(ips_ha_t *, int);
++static int ips_allocatescbs(ips_ha_t *);
++static int ips_reset_copperhead(ips_ha_t *);
++static int ips_reset_copperhead_memio(ips_ha_t *);
++static int ips_reset_morpheus(ips_ha_t *);
++static int ips_issue_copperhead(ips_ha_t *, ips_scb_t *);
++static int ips_issue_copperhead_memio(ips_ha_t *, ips_scb_t *);
++static int ips_issue_i2o(ips_ha_t *, ips_scb_t *);
++static int ips_issue_i2o_memio(ips_ha_t *, ips_scb_t *);
++static int ips_isintr_copperhead(ips_ha_t *);
++static int ips_isintr_copperhead_memio(ips_ha_t *);
++static int ips_isintr_morpheus(ips_ha_t *);
++static int ips_wait(ips_ha_t *, int, int);
++static int ips_write_driver_status(ips_ha_t *, int);
++static int ips_read_adapter_status(ips_ha_t *, int);
++static int ips_read_subsystem_parameters(ips_ha_t *, int);
++static int ips_read_config(ips_ha_t *, int);
++static int ips_clear_adapter(ips_ha_t *, int);
++static int ips_readwrite_page5(ips_ha_t *, int, int);
++static int ips_init_copperhead(ips_ha_t *);
++static int ips_init_copperhead_memio(ips_ha_t *);
++static int ips_init_morpheus(ips_ha_t *);
++static int ips_isinit_copperhead(ips_ha_t *);
++static int ips_isinit_copperhead_memio(ips_ha_t *);
++static int ips_isinit_morpheus(ips_ha_t *);
++static int ips_erase_bios(ips_ha_t *);
++static int ips_program_bios(ips_ha_t *, char *, uint32_t, uint32_t);
++static int ips_verify_bios(ips_ha_t *, char *, uint32_t, uint32_t);
++static int ips_erase_bios_memio(ips_ha_t *);
++static int ips_program_bios_memio(ips_ha_t *, char *, uint32_t, uint32_t);
++static int ips_verify_bios_memio(ips_ha_t *, char *, uint32_t, uint32_t);
++static int ips_flash_copperhead(ips_ha_t *, ips_passthru_t *, ips_scb_t *);
++static int ips_flash_bios(ips_ha_t *, ips_passthru_t *, ips_scb_t *);
++static int ips_flash_firmware(ips_ha_t *, ips_passthru_t *, ips_scb_t *);
++static void ips_free_flash_copperhead(ips_ha_t * ha);
++static void ips_get_bios_version(ips_ha_t *, int);
++static void ips_identify_controller(ips_ha_t *);
++static void ips_chkstatus(ips_ha_t *, IPS_STATUS *);
++static void ips_enable_int_copperhead(ips_ha_t *);
++static void ips_enable_int_copperhead_memio(ips_ha_t *);
++static void ips_enable_int_morpheus(ips_ha_t *);
++static int ips_intr_copperhead(ips_ha_t *);
++static int ips_intr_morpheus(ips_ha_t *);
++static void ips_next(ips_ha_t *, int);
++static void ipsintr_blocking(ips_ha_t *, struct ips_scb *);
++static void ipsintr_done(ips_ha_t *, struct ips_scb *);
++static void ips_done(ips_ha_t *, ips_scb_t *);
++static void ips_free(ips_ha_t *);
++static void ips_init_scb(ips_ha_t *, ips_scb_t *);
++static void ips_freescb(ips_ha_t *, ips_scb_t *);
++static void ips_setup_funclist(ips_ha_t *);
++static void ips_statinit(ips_ha_t *);
++static void ips_statinit_memio(ips_ha_t *);
++static void ips_fix_ffdc_time(ips_ha_t *, ips_scb_t *, time_t);
++static void ips_ffdc_reset(ips_ha_t *, int);
++static void ips_ffdc_time(ips_ha_t *);
++static uint32_t ips_statupd_copperhead(ips_ha_t *);
++static uint32_t ips_statupd_copperhead_memio(ips_ha_t *);
++static uint32_t ips_statupd_morpheus(ips_ha_t *);
++static ips_scb_t *ips_getscb(ips_ha_t *);
++static void ips_putq_scb_head(ips_scb_queue_t *, ips_scb_t *);
++static void ips_putq_wait_tail(ips_wait_queue_t *, Scsi_Cmnd *);
++static void ips_putq_copp_tail(ips_copp_queue_t *,
++				      ips_copp_wait_item_t *);
++static ips_scb_t *ips_removeq_scb_head(ips_scb_queue_t *);
++static ips_scb_t *ips_removeq_scb(ips_scb_queue_t *, ips_scb_t *);
++static Scsi_Cmnd *ips_removeq_wait_head(ips_wait_queue_t *);
++static Scsi_Cmnd *ips_removeq_wait(ips_wait_queue_t *, Scsi_Cmnd *);
++static ips_copp_wait_item_t *ips_removeq_copp(ips_copp_queue_t *,
++						     ips_copp_wait_item_t *);
++static ips_copp_wait_item_t *ips_removeq_copp_head(ips_copp_queue_t *);
++
++static int ips_is_passthru(Scsi_Cmnd *);
++static int ips_make_passthru(ips_ha_t *, Scsi_Cmnd *, ips_scb_t *, int);
++static int ips_usrcmd(ips_ha_t *, ips_passthru_t *, ips_scb_t *);
++static void ips_cleanup_passthru(ips_ha_t *, ips_scb_t *);
++static void ips_scmd_buf_write(Scsi_Cmnd * scmd, void *data,
++			       unsigned int count);
++static void ips_scmd_buf_read(Scsi_Cmnd * scmd, void *data, unsigned int count);
++
++static int ips_proc_info(struct Scsi_Host *, char *, char **, off_t, int, int);
++static int ips_host_info(ips_ha_t *, char *, off_t, int);
++static void copy_mem_info(IPS_INFOSTR *, char *, int);
++static int copy_info(IPS_INFOSTR *, char *, ...);
++static int ips_get_version_info(ips_ha_t * ha, dma_addr_t, int intr);
++static void ips_version_check(ips_ha_t * ha, int intr);
++static int ips_abort_init(ips_ha_t * ha, int index);
++static int ips_init_phase2(int index);
++
++static int ips_init_phase1(struct pci_dev *pci_dev, int *indexPtr);
++static int ips_register_scsi(int index);
++
++/*
+  * global variables
   */
+ static const char ips_name[] = "ips";
+@@ -293,7 +404,7 @@
+ #endif
+ };
  
--#define FAST_INTERVAL (HZ/5)
- #define SLOW_INTERVAL (HZ/2)
+-IPS_DEFINE_COMPAT_TABLE( Compatable );	/* Version Compatability Table      */
++static IPS_DEFINE_COMPAT_TABLE( Compatable );	/* Version Compatability Table      */
  
- static void dn_slow_timer(unsigned long arg);
-@@ -109,48 +107,3 @@
- 	bh_unlock_sock(sk);
- 	sock_put(sk);
- }
+ 
+ /* This table describes all ServeRAID Adapters */
+@@ -311,7 +422,7 @@
+ static int __devinit  ips_insert_device(struct pci_dev *pci_dev, const struct pci_device_id *ent);
+ static void __devexit ips_remove_device(struct pci_dev *pci_dev);
+    
+-struct pci_driver ips_pci_driver = {
++static struct pci_driver ips_pci_driver = {
+ 	.name		= ips_hot_plug_name,
+ 	.id_table	= ips_pci_table,
+ 	.probe		= ips_insert_device,
+@@ -408,119 +519,6 @@
+ 	IPS_DATA_UNK, IPS_DATA_UNK, IPS_DATA_UNK, IPS_DATA_UNK, IPS_DATA_UNK
+ };
+ 
+-/*
+- * Function prototypes
+- */
+-int ips_detect(Scsi_Host_Template *);
+-int ips_release(struct Scsi_Host *);
+-int ips_eh_abort(Scsi_Cmnd *);
+-int ips_eh_reset(Scsi_Cmnd *);
+-int ips_queue(Scsi_Cmnd *, void (*)(Scsi_Cmnd *));
+-const char *ips_info(struct Scsi_Host *);
+-irqreturn_t do_ipsintr(int, void *, struct pt_regs *);
+-static int ips_hainit(ips_ha_t *);
+-static int ips_map_status(ips_ha_t *, ips_scb_t *, ips_stat_t *);
+-static int ips_send_wait(ips_ha_t *, ips_scb_t *, int, int);
+-static int ips_send_cmd(ips_ha_t *, ips_scb_t *);
+-static int ips_online(ips_ha_t *, ips_scb_t *);
+-static int ips_inquiry(ips_ha_t *, ips_scb_t *);
+-static int ips_rdcap(ips_ha_t *, ips_scb_t *);
+-static int ips_msense(ips_ha_t *, ips_scb_t *);
+-static int ips_reqsen(ips_ha_t *, ips_scb_t *);
+-static int ips_deallocatescbs(ips_ha_t *, int);
+-static int ips_allocatescbs(ips_ha_t *);
+-static int ips_reset_copperhead(ips_ha_t *);
+-static int ips_reset_copperhead_memio(ips_ha_t *);
+-static int ips_reset_morpheus(ips_ha_t *);
+-static int ips_issue_copperhead(ips_ha_t *, ips_scb_t *);
+-static int ips_issue_copperhead_memio(ips_ha_t *, ips_scb_t *);
+-static int ips_issue_i2o(ips_ha_t *, ips_scb_t *);
+-static int ips_issue_i2o_memio(ips_ha_t *, ips_scb_t *);
+-static int ips_isintr_copperhead(ips_ha_t *);
+-static int ips_isintr_copperhead_memio(ips_ha_t *);
+-static int ips_isintr_morpheus(ips_ha_t *);
+-static int ips_wait(ips_ha_t *, int, int);
+-static int ips_write_driver_status(ips_ha_t *, int);
+-static int ips_read_adapter_status(ips_ha_t *, int);
+-static int ips_read_subsystem_parameters(ips_ha_t *, int);
+-static int ips_read_config(ips_ha_t *, int);
+-static int ips_clear_adapter(ips_ha_t *, int);
+-static int ips_readwrite_page5(ips_ha_t *, int, int);
+-static int ips_init_copperhead(ips_ha_t *);
+-static int ips_init_copperhead_memio(ips_ha_t *);
+-static int ips_init_morpheus(ips_ha_t *);
+-static int ips_isinit_copperhead(ips_ha_t *);
+-static int ips_isinit_copperhead_memio(ips_ha_t *);
+-static int ips_isinit_morpheus(ips_ha_t *);
+-static int ips_erase_bios(ips_ha_t *);
+-static int ips_program_bios(ips_ha_t *, char *, uint32_t, uint32_t);
+-static int ips_verify_bios(ips_ha_t *, char *, uint32_t, uint32_t);
+-static int ips_erase_bios_memio(ips_ha_t *);
+-static int ips_program_bios_memio(ips_ha_t *, char *, uint32_t, uint32_t);
+-static int ips_verify_bios_memio(ips_ha_t *, char *, uint32_t, uint32_t);
+-static int ips_flash_copperhead(ips_ha_t *, ips_passthru_t *, ips_scb_t *);
+-static int ips_flash_bios(ips_ha_t *, ips_passthru_t *, ips_scb_t *);
+-static int ips_flash_firmware(ips_ha_t *, ips_passthru_t *, ips_scb_t *);
+-static void ips_free_flash_copperhead(ips_ha_t * ha);
+-static void ips_get_bios_version(ips_ha_t *, int);
+-static void ips_identify_controller(ips_ha_t *);
+-static void ips_chkstatus(ips_ha_t *, IPS_STATUS *);
+-static void ips_enable_int_copperhead(ips_ha_t *);
+-static void ips_enable_int_copperhead_memio(ips_ha_t *);
+-static void ips_enable_int_morpheus(ips_ha_t *);
+-static int ips_intr_copperhead(ips_ha_t *);
+-static int ips_intr_morpheus(ips_ha_t *);
+-static void ips_next(ips_ha_t *, int);
+-static void ipsintr_blocking(ips_ha_t *, struct ips_scb *);
+-static void ipsintr_done(ips_ha_t *, struct ips_scb *);
+-static void ips_done(ips_ha_t *, ips_scb_t *);
+-static void ips_free(ips_ha_t *);
+-static void ips_init_scb(ips_ha_t *, ips_scb_t *);
+-static void ips_freescb(ips_ha_t *, ips_scb_t *);
+-static void ips_setup_funclist(ips_ha_t *);
+-static void ips_statinit(ips_ha_t *);
+-static void ips_statinit_memio(ips_ha_t *);
+-static void ips_fix_ffdc_time(ips_ha_t *, ips_scb_t *, time_t);
+-static void ips_ffdc_reset(ips_ha_t *, int);
+-static void ips_ffdc_time(ips_ha_t *);
+-static uint32_t ips_statupd_copperhead(ips_ha_t *);
+-static uint32_t ips_statupd_copperhead_memio(ips_ha_t *);
+-static uint32_t ips_statupd_morpheus(ips_ha_t *);
+-static ips_scb_t *ips_getscb(ips_ha_t *);
+-static void ips_putq_scb_head(ips_scb_queue_t *, ips_scb_t *);
+-static void ips_putq_wait_tail(ips_wait_queue_t *, Scsi_Cmnd *);
+-static void ips_putq_copp_tail(ips_copp_queue_t *,
+-				      ips_copp_wait_item_t *);
+-static ips_scb_t *ips_removeq_scb_head(ips_scb_queue_t *);
+-static ips_scb_t *ips_removeq_scb(ips_scb_queue_t *, ips_scb_t *);
+-static Scsi_Cmnd *ips_removeq_wait_head(ips_wait_queue_t *);
+-static Scsi_Cmnd *ips_removeq_wait(ips_wait_queue_t *, Scsi_Cmnd *);
+-static ips_copp_wait_item_t *ips_removeq_copp(ips_copp_queue_t *,
+-						     ips_copp_wait_item_t *);
+-static ips_copp_wait_item_t *ips_removeq_copp_head(ips_copp_queue_t *);
 -
--static void dn_fast_timer(unsigned long arg)
--{
--	struct sock *sk = (struct sock *)arg;
--	struct dn_scp *scp = DN_SK(sk);
+-static int ips_is_passthru(Scsi_Cmnd *);
+-static int ips_make_passthru(ips_ha_t *, Scsi_Cmnd *, ips_scb_t *, int);
+-static int ips_usrcmd(ips_ha_t *, ips_passthru_t *, ips_scb_t *);
+-static void ips_cleanup_passthru(ips_ha_t *, ips_scb_t *);
+-static void ips_scmd_buf_write(Scsi_Cmnd * scmd, void *data,
+-			       unsigned int count);
+-static void ips_scmd_buf_read(Scsi_Cmnd * scmd, void *data, unsigned int count);
 -
--	bh_lock_sock(sk);
--	if (sock_owned_by_user(sk)) {
--		scp->delack_timer.expires = jiffies + HZ / 20;
--		add_timer(&scp->delack_timer);
--		goto out;
--	}
+-int ips_proc_info(struct Scsi_Host *, char *, char **, off_t, int, int);
+-static int ips_host_info(ips_ha_t *, char *, off_t, int);
+-static void copy_mem_info(IPS_INFOSTR *, char *, int);
+-static int copy_info(IPS_INFOSTR *, char *, ...);
+-static int ips_get_version_info(ips_ha_t * ha, dma_addr_t, int intr);
+-static void ips_version_check(ips_ha_t * ha, int intr);
+-static int ips_abort_init(ips_ha_t * ha, int index);
+-static int ips_init_phase2(int index);
 -
--	scp->delack_pending = 0;
+-static int ips_init_phase1(struct pci_dev *pci_dev, int *indexPtr);
+-static int ips_register_scsi(int index);
+-/*--------------------------------------------------------------------------*/
+-/* Exported Functions                                                       */
+-/*--------------------------------------------------------------------------*/
+ 
+ /****************************************************************************/
+ /*                                                                          */
+@@ -589,7 +587,7 @@
+ /* NOTE: this routine is called under the io_request_lock spinlock          */
+ /*                                                                          */
+ /****************************************************************************/
+-int
++static int
+ ips_detect(Scsi_Host_Template * SHT)
+ {
+ 	int i;
+@@ -678,7 +676,7 @@
+ /*   Remove a driver                                                        */
+ /*                                                                          */
+ /****************************************************************************/
+-int
++static int
+ ips_release(struct Scsi_Host *sh)
+ {
+ 	ips_scb_t *scb;
+@@ -874,7 +872,7 @@
+ /* NOTE: this routine is called under the io_request_lock spinlock          */
+ /*                                                                          */
+ /****************************************************************************/
+-int
++static int
+ ips_eh_reset(Scsi_Cmnd * SC)
+ {
+ 	int ret;
+@@ -1074,7 +1072,7 @@
+ /*    Linux obtains io_request_lock before calling this function            */
+ /*                                                                          */
+ /****************************************************************************/
+-int
++static int
+ ips_queue(Scsi_Cmnd * SC, void (*done) (Scsi_Cmnd *))
+ {
+ 	ips_ha_t *ha;
+@@ -1297,7 +1295,7 @@
+ /*   Set queue depths on devices once scan is complete                      */
+ /*                                                                          */
+ /****************************************************************************/
+-int
++static int
+ ips_slave_configure(Scsi_Device * SDptr)
+ {
+ 	ips_ha_t *ha;
+@@ -1323,7 +1321,7 @@
+ /*   Wrapper for the interrupt handler                                      */
+ /*                                                                          */
+ /****************************************************************************/
+-irqreturn_t
++static irqreturn_t
+ do_ipsintr(int irq, void *dev_id, struct pt_regs * regs)
+ {
+ 	ips_ha_t *ha;
+@@ -1502,7 +1500,7 @@
+ /*   Return info about the driver                                           */
+ /*                                                                          */
+ /****************************************************************************/
+-const char *
++static const char *
+ ips_info(struct Scsi_Host *SH)
+ {
+ 	static char buffer[256];
+@@ -1540,7 +1538,7 @@
+ /*   The passthru interface for the driver                                  */
+ /*                                                                          */
+ /****************************************************************************/
+-int
++static int
+ ips_proc_info(struct Scsi_Host *host, char *buffer, char **start, off_t offset,
+ 	      int length, int func)
+ {
+
 -
--	if (scp->delack_fxn)
--		scp->delack_fxn(sk);
--out:
--	bh_unlock_sock(sk);
--}
--
--void dn_start_fast_timer(struct sock *sk)
--{
--	struct dn_scp *scp = DN_SK(sk);
--
--	if (!scp->delack_pending) {
--		scp->delack_pending = 1;
--		init_timer(&scp->delack_timer);
--		scp->delack_timer.expires = jiffies + FAST_INTERVAL;
--		scp->delack_timer.data = (unsigned long)sk;
--		scp->delack_timer.function = dn_fast_timer;
--		add_timer(&scp->delack_timer);
--	}
--}
--
--void dn_stop_fast_timer(struct sock *sk)
--{
--	struct dn_scp *scp = DN_SK(sk);
--
--	if (scp->delack_pending) {
--		scp->delack_pending = 0;
--		del_timer(&scp->delack_timer);
--	}
--}
--
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312803AbSDOOvP>; Mon, 15 Apr 2002 10:51:15 -0400
+	id <S312817AbSDOPDi>; Mon, 15 Apr 2002 11:03:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312817AbSDOOvO>; Mon, 15 Apr 2002 10:51:14 -0400
-Received: from ns.izier.com ([213.242.167.66]:30878 "EHLO ns.izier.com")
-	by vger.kernel.org with ESMTP id <S312803AbSDOOvN> convert rfc822-to-8bit;
-	Mon, 15 Apr 2002 10:51:13 -0400
-Subject: make menuconfig crashed
-MIME-Version: 1.0
-Date: Mon, 15 Apr 2002 16:51:08 +0200
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <1008BB50C289CF45B54AD435E4359458025F90@ns.izier.com>
-X-MIMEOLE: Produced By Microsoft Exchange V6.0.5762.3
-X-MS-Has-Attach: 
-content-class: urn:content-classes:message
-X-MS-TNEF-Correlator: 
-Thread-Topic: make menuconfig crashed
-Thread-Index: AcHkjPm2dIaDowUMS/qC9cM1eqiSQw==
-From: "Rabi Abacioglu" <rabi@izier.com>
-To: <mec@shout.net>, <linux-kernel@vger.kernel.org>
+	id <S312828AbSDOPDh>; Mon, 15 Apr 2002 11:03:37 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:64903 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S312817AbSDOPDh>;
+	Mon, 15 Apr 2002 11:03:37 -0400
+Date: Mon, 15 Apr 2002 07:55:36 -0700 (PDT)
+Message-Id: <20020415.075536.69463397.davem@redhat.com>
+To: kernel@Expansa.sns.it
+Cc: joe@tmsusa.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.8 final -
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0204151607480.26730-100000@Expansa.sns.it>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+   From: Luigi Genoni <kernel@Expansa.sns.it>
+   Date: Mon, 15 Apr 2002 16:15:04 +0200 (CEST)
 
-make menuconfig crashed when I choose "Networking options  --->"
+   OH well, on sparc64 setup_per_cpu_areas()  simply is
+   not declared, since it is not a GENERIC_PER_CPU.
+   
+   then asm/cacheflush.h, required by linux/highmem.h,
+   does not exist.
+   
+   And then PREEMPT_ACTIVE is not defined...
+   
+   it seems that I could not test under sparc64 also this release, sigh!
 
-It's a Alpha Miata processor
-
-Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
-
- Q> scripts/Menuconfig: MCmenu14: command not found
-
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
-
-Please indicate the kernel version you are trying to configure and
-which menu you were trying to enter when this error occurred.
-
-ake: *** [menuconfig] Error 1
-
-
-______________________
-Rabi Abacioglu
-Izier AB
-Fabriksvägen 5
-S-171 48 SOLNA
-Sweden
-tel +46 8 27 42 70
-fax +46 8 27 72 71
-www.izier.com
+I just haven't pushed my tree yet, it will be fixed soon.
+I've been busy with other things this weekend...

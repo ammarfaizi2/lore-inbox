@@ -1,85 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284039AbRLAJ6c>; Sat, 1 Dec 2001 04:58:32 -0500
+	id <S284042AbRLAKBw>; Sat, 1 Dec 2001 05:01:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281553AbRLAJ6W>; Sat, 1 Dec 2001 04:58:22 -0500
-Received: from linux2.viasys.com ([194.100.28.129]:60676 "HELO mail.viasys.com")
-	by vger.kernel.org with SMTP id <S284039AbRLAJ6J>;
-	Sat, 1 Dec 2001 04:58:09 -0500
-Date: Sat, 1 Dec 2001 11:58:03 +0200
-From: Ville Herva <vherva@viasys.com>
-To: linux-kernel@vger.kernel.org
-Cc: thockin@sun.com, andre@linux-ide.org, support@highpoint-tech.com
-Subject: HPT370 (KT7A-RAID) *corrupts* data - SAMSUNG SV8004H does it as well
-Message-ID: <20011201115803.B10839@viasys.com>
-Mime-Version: 1.0
+	id <S284041AbRLAKBn>; Sat, 1 Dec 2001 05:01:43 -0500
+Received: from [193.252.19.61] ([193.252.19.61]:1698 "EHLO mel-rta7.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S284040AbRLAKB2>;
+	Sat, 1 Dec 2001 05:01:28 -0500
+Message-ID: <3C08AA05.C3218C82@wanadoo.fr>
+Date: Sat, 01 Dec 2001 10:59:33 +0100
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Organization: Home PC
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.1-pre2 i686)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: 2.5.1-pre5 not easy to boot with devfs
+In-Reply-To: <3C085FF3.813BAA57@wanadoo.fr>
+			<9u9qas$1eo$1@penguin.transmeta.com> <200112010701.fB171N824084@vindaloo.ras.ucalgary.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an addition to my reports about HPT370 corrupting data with a pair
-of IBM-DPTA-373420's on linux. As a summary, my testing showed that hpt370 +
-IBM-DPTA-373420 corrupt data on
-                                                                                
-- 2.2.18pre19 + ide patch 
-- 2.2.20 + ide patch
-- 2.2.20 + ide patch + Tim Hockin's hpt366.c patch                                      
-- 2.2.20 + ide patch + Tim Hockin's hpt366.c patch, in UDMA33 mode (rather than UDMA66)  
-- 2.4.15 + Tim Hockin's hpt366.c patch
+This Oops comes after starting devfsd by hand, it is possibly more
+reliable than the previous one :
 
-The test involved reading /dev/md0 (that consists of /dev/hde and /dev/hdg)
-several times and comparing the md5sums. I also tried reading /dev/hde and
-/dev/hdg in parallel, and it did show errors. The problem disappeared when I
-moved the drives over to Via 868B interface.
+Unable to handle kernel paging request at virtual address 5a5a5a5e 
+ printing eip: 
+c01516f9 
+*pde = 00000000 
+Oops: 0002 
+CPU:    0 
+EIP:    0010:[devfs_put+13/188]    Tainted: P  
+EFLAGS: 00013206 
+eax: 5a5a5a5a   ebx: 5a5a5a5a   ecx: 00000016   edx: 5a5a5a5a 
+esi: 00000000   edi: 00000026   ebp: 00000000   esp: cf631f40 
+ds: 0018   es: 0018   ss: 0018 
+Process devfsd (pid: 144, stackpage=cf631000) 
+Stack: 00000026 c015419c 5a5a5a5a cf96ba34 ffffffea 00000000 00000420
+cfb80800  
+c01e7200 cf4f2240 5a5a5a5a 000003fa 00000000 00000000 00000001 00000000  
+cf630000 00000000 00000000 00000000 cf630000 c01e722c c01e722c c012f5e6  
+Call Trace: [devfsd_read+852/972] [sys_read+150/204]
+[system_call+51/56]  
+ 
+Code: ff 4b 04 0f 94 c0 84 c0 0f 84 9e 00 00 00 3b 1d 00 15 21 c0  
 
-I reported the problem to Highpoint Tech Inc as well (they do explicitly
-list IBM-DPTA-373420 as tested and compatible with HPT370), but as
-anticipated, they didn't answer.
+ksymoops 2.4.3 on i686 2.5.1-pre5.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.1-pre5/ (default)
+     -m /usr/src/linux/System.map (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Unable to handle kernel paging request at virtual address 5a5a5a5e 
+c01516f9 
+*pde = 00000000 
+Oops: 0002 
+CPU:    0 
+EIP:    0010:[devfs_put+13/188]    Tainted: P  
+EFLAGS: 00013206 
+eax: 5a5a5a5a   ebx: 5a5a5a5a   ecx: 00000016   edx: 5a5a5a5a 
+esi: 00000000   edi: 00000026   ebp: 00000000   esp: cf631f40 
+ds: 0018   es: 0018   ss: 0018 
+Process devfsd (pid: 144, stackpage=cf631000) 
+Stack: 00000026 c015419c 5a5a5a5a cf96ba34 ffffffea 00000000 00000420
+cfb80800  
+c01e7200 cf4f2240 5a5a5a5a 000003fa 00000000 00000000 00000001 00000000  
+cf630000 00000000 00000000 00000000 cf630000 c01e722c c01e722c c012f5e6  
+Call Trace: [devfsd_read+852/972] [sys_read+150/204]
+[system_call+51/56]  
+Code: ff 4b 04 0f 94 c0 84 c0 0f 84 9e 00 00 00 3b 1d 00 15 21 c0  
+Using defaults from ksymoops -t elf32-i386 -a i386
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   ff 4b 04                  decl   0x4(%ebx)
+Code;  00000002 Before first symbol
+   3:   0f 94 c0                  sete   %al
+Code;  00000006 Before first symbol
+   6:   84 c0                     test   %al,%al
+Code;  00000008 Before first symbol
+   8:   0f 84 9e 00 00 00         je     ac <_EIP+0xac> 000000ac Before
+first symbol
+Code;  0000000e Before first symbol
+   e:   3b 1d 00 15 21 c0         cmp    0xc0211500,%ebx
 
 
-Now I bought a pair of SAMSUNG SV8004H's. Since the drives were blank, I was
-able to do a write test. The test (see http://v.iki.fi/~vherva/tmp/wrchk.c
-for the quick'n'dirty proggie) writes the /dev/md1 (which again consists of
-the two SAMSUNG SV8004H's) full of a certain randomish 64MB block and then
-tries to read it back. The write and read cycles are done over and over
-again.
+1 warning issued.  Results may not be reliable.
 
-This is with 2.2.20 + ide + Hockin's patch. Drives are in UDMA100 mode (the
-default) and no hdparm adjustions have been made.
-
-The first write-read cycle went well, but one block mismatched already on
-the second run. I've only run the test over night, but there are already
-several mimatches (see http://v.iki.fi/~vherva/tmp/samsung-log for
-complete log.)
-
-Even during the succesfull first run, the IDE system gave these warningins:
-
-  hdg: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-  hdg: drive not ready for command
-
-Later during the night, I got 27 of those errors. I also got 10 of these:
-
-  probable hardware bug: clock timer configuration lost - probably a VIA686a.
-
-I didn't get either of these with the IBM disks.
-
-Smartctl shows 'No Errors Logged' for both drives. Also, it reports the
-temperature of the drives being always under 35 degrees Celsius, at times
-even under 30. I reckon temperatur is not a problem.
-
-Right now I'm wondering two things:
-
-- how come anyone else is not seeing this corruption (Abit KT7A, nevermind 
-  HPT370 is fairly popular)?
-- is it safe to solder the bugger off the motherboard so I can introduce it
-  to my shotgun? 
-
-
-regards,
-
+Pierre
 -- 
-Ville Herva            vherva@viasys.com             +358-40-5756996
-Viasys Oy              Hannuntie 6  FIN-02360 Espoo  +358-9-2313-2160
-PGP key available: http://www.iki.fi/v/pgp.html  fax +358-9-2313-2250
+------------------------------------------------
+ Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------

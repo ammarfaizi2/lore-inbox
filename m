@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264617AbSK0CO7>; Tue, 26 Nov 2002 21:14:59 -0500
+	id <S264716AbSK0CWJ>; Tue, 26 Nov 2002 21:22:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264620AbSK0CO7>; Tue, 26 Nov 2002 21:14:59 -0500
-Received: from bitmover.com ([192.132.92.2]:43711 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S264617AbSK0CO6>;
-	Tue, 26 Nov 2002 21:14:58 -0500
-Date: Tue, 26 Nov 2002 18:22:10 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Thomas Molina <tmolina@copper.net>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: 2.5 problem with SMC2632W adapter
-Message-ID: <20021126182210.C24374@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Thomas Molina <tmolina@copper.net>, linux-kernel@vger.kernel.org,
-	alan@lxorguk.ukuu.org.uk
-References: <Pine.LNX.4.44.0211261926230.964-100000@lap.molina>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0211261926230.964-100000@lap.molina>; from tmolina@copper.net on Tue, Nov 26, 2002 at 08:06:39PM -0600
-X-MailScanner: Found to be clean
+	id <S264723AbSK0CWJ>; Tue, 26 Nov 2002 21:22:09 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54290 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264716AbSK0CWI>; Tue, 26 Nov 2002 21:22:08 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: uml-patch-2.5.49-1
+Date: 26 Nov 2002 18:29:15 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <as1alr$1bs$1@cesium.transmeta.com>
+References: <20021126141409.GA4589@ncsu.edu> <200211261833.NAA02294@ccure.karaya.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 26, 2002 at 08:06:39PM -0600, Thomas Molina wrote:
-> I've previously written about my problems getting the above wireless 
-> PCMCIA network card working with 2.5.  Since Alan seems to have added some 
-> network and cardbus changes I tried 2.5.49-ac2.  I'm getting the same 
-> symptoms.  Thus far, in addition to 2.5.49-ac2 I've tried 2.5.49 (latest 
-> bk), 2.5.48, 2.5.47, 2.4.18-18.8.0 (RedHat), and 2.4.19.  
+Followup to:  <200211261833.NAA02294@ccure.karaya.com>
+By author:    Jeff Dike <jdike@karaya.com>
+In newsgroup: linux.dev.kernel
+>
+> jlnance@unity.ncsu.edu said:
+> > I think /proc/mm would be better implemented as /dev/mm.
+> 
+> What major and minor numbers should I assign to it?  And what would be
+> the point of giving it a major and minor, anyway?
+> 
 
-In the "for what it is worth" department, I have this card too as well as
-an Orinoco, and I've never gotten the SMC card to work under recent kernels.
-The weird thing is that I distinctly remember it working once upon a time.
-So we've regressed as far as I can tell.
+Access control, ability to work in a chroot, ...
+
+For major/minor, this is presumably a misc device (major 10) or, if
+you don't need module support, a kernel core device (major 1), and
+write to device@lanana.org to have a minor number assigned.
+
+	-hpa
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

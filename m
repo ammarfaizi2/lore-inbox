@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131349AbRC3KeJ>; Fri, 30 Mar 2001 05:34:09 -0500
+	id <S131309AbRC3LQ0>; Fri, 30 Mar 2001 06:16:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131344AbRC3KeA>; Fri, 30 Mar 2001 05:34:00 -0500
-Received: from apollo.nbase.co.il ([194.90.137.2]:2568 "EHLO
-	apollo.nbase.co.il") by vger.kernel.org with ESMTP
-	id <S131345AbRC3Kdu>; Fri, 30 Mar 2001 05:33:50 -0500
-Message-ID: <3AC461DE.65B4049@nbase.co.il>
-Date: Fri, 30 Mar 2001 12:37:18 +0200
-From: Eran Mann <eran@nbase.co.il>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Linus Torvalds <torvalds@transmeta.com>,
-   Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Subject: [patch] 2.4.3 fails to link when IPX compiled in
-Content-Type: text/plain; charset=x-user-defined
-Content-Transfer-Encoding: 7bit
+	id <S131316AbRC3LQR>; Fri, 30 Mar 2001 06:16:17 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:24536 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S131309AbRC3LQO>;
+	Fri, 30 Mar 2001 06:16:14 -0500
+Date: Fri, 30 Mar 2001 13:15:31 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200103301115.NAA61753.aeb@vlet.cwi.nl>
+To: Jochen.Hoenicke@informatik.uni-oldenburg.de, linux-kernel@vger.kernel.org
+Subject: Re: Bug in EZ-Drive remapping code (ide.c)
+Cc: andre@linux-ide.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-When compiling linux-2.4.3 with IPX built in one gets:
-ld -m elf_i386 -T /mdk/src/linux-2.4.3/arch/i386/vmlinux.lds -e stext
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-init/version.o \
-	--start-group \
-	arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o
-fs/fs.o ipc/ipc.o \
-	drivers/block/block.o drivers/char/char.o drivers/misc/misc.o
-drivers/net/net.o drivers/media/media.o  drivers/char/agp/agp.o
-drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o
-drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o
-drivers/pnp/pnp.o drivers/video/video.o \
-	net/network.o \
-	/mdk/src/linux-2.4.3/arch/i386/lib/lib.a /mdk/src/linux-2.4.3/lib/lib.a
-/mdk/src/linux-2.4.3/arch/i386/lib/lib.a \
-	--end-group \
-	-o vmlinux
-net/network.o(.data+0x2ee4): undefined reference to
-`sysctl_ipx_pprop_broadcasting'
-make: *** [vmlinux] Error 1
+Jochen Hoenicke writes:
 
-The patchlet below seems to solve it.
-================================================================
---- linux-2.4.3.orig/net/ipx/af_ipx.c	Fri Mar 30 11:54:55 2001
-+++ linux/net/ipx/af_ipx.c	Fri Mar 30 12:29:23 2001
-@@ -123,7 +123,7 @@
- static unsigned char ipxcfg_max_hops = 16;
- static char ipxcfg_auto_select_primary;
- static char ipxcfg_auto_create_interfaces;
--static int sysctl_ipx_pprop_broadcasting = 1;
-+int sysctl_ipx_pprop_broadcasting = 1;
- 
- /* Global Variables */
- static struct datalink_proto *p8022_datalink;
+    The EZ-Drive remapping code remaps to many sectors, if they are read
+    together with sector 0 in one bunch.  This is even documented:
+
+    From linux-2.4.0/drivers/ide/ide.c line 1165:
+    /* Yecch - this will shift the entire interval,
+       possibly killing some innocent following sector */
+
+Yes, I know - I added that comment.
+
+    This problem hit a GRUB user using linux-2.4.2 but it exists for a
+    long time; the remapping code is already in 2.0.xx.  The reason that
+    nobody cares is probably because there are only a few programs that
+    access /dev/hda directly.
+
+    This is what happened: Grub reads the first track in one bunch and
+    since a track has an odd number of sectors, linux adds the first
+    sector of the next track to this bunch.  This sector contains the boot
+    sector of the first FAT partition.  The result of the remapping is
+    that grub can't access that partition.
+
+What one wants is to remap access to sector 0 to sector 1,
+and leave all other sectors alone. Thus, if someone asks
+for sectors 0 1 2 3 4, she should get sectors 1 1 2 3 4.
+Ugly, but can be done. But if someone wants to write
+sectors 0 1 2 3 4 then what? Only sectors 1 2 3 4 should be
+written, but what to write in sector 1? Nobody knows.
+(Probably a write to 0 1 2 3 4 should discard the write to 1.)
+
+Doing this would be a very ugly wart on the IDE driver, and
+Mark Lord implemented a much smaller wart: shift transports by 1
+if they start at sector 0. This was enough at that time
+since only *fdisk and LILO access sector 0 and they do not
+read an entire track but just one sector or one block.
+
+So yes, the problem is known, but I do not see a clean solution,
+unless the solution is to rip out all this EZ drive nonsense.
+(I can well imagine that this would happen in 2.5:
+the task of the IDE driver is to transport bits from and to
+the disk, not to worry about the contents.)
+And even if it were fixed somehow in a 2.4 kernel, lots of
+people will have a 2.2 or older system for quite some time
+to come. So probably grub should regard this as a quirk in
+the Linux handling of disks with EZ drive and adapt
+(that is, read sector 0, and then read sectors 1-N,
+but do not read 0-N).
+
+Andries

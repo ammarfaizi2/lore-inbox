@@ -1,46 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVB0WKH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVB0WLj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbVB0WKH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 17:10:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVB0WKH
+	id S261423AbVB0WLj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 17:11:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVB0WLj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 17:10:07 -0500
-Received: from mail.suse.de ([195.135.220.2]:35750 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261387AbVB0WKD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 17:10:03 -0500
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH 1/8] lib/sort: Heapsort implementation of sort()
-Date: Sun, 27 Feb 2005 23:10:00 +0100
-User-Agent: KMail/1.7.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <2.416337461@selenic.com> <20050227212536.GG3120@waste.org> <200502272253.23732.agruen@suse.de>
-In-Reply-To: <200502272253.23732.agruen@suse.de>
+	Sun, 27 Feb 2005 17:11:39 -0500
+Received: from 81-223-104-78.krugerstrasse.xdsl-line.inode.at ([81.223.104.78]:27526
+	"EHLO mail.sk-tech.net") by vger.kernel.org with ESMTP
+	id S261423AbVB0WLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 17:11:16 -0500
+Date: Sun, 27 Feb 2005 23:11:13 +0100 (CET)
+From: Kianusch Sayah Karadji <kianusch@sk-tech.net>
+To: davej@codemonkey.org.uk, hpa@zytor.com
+cc: linux-kernel@vger.kernel.org
+Subject: Support for GEODE CPU's in Kernel 2.6.10.
+Message-ID: <Pine.LNX.4.61.0502272255090.1693@merlin.sk-tech.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502272310.01238.agruen@suse.de>
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463783569-906303254-1109542196=:1693"
+Content-ID: <Pine.LNX.4.61.0502272310550.1693@merlin.sk-tech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 27 February 2005 22:53, Andreas Gruenbacher wrote:
-> Okay, I didn't notice the off-by-one fix. It's still broken though; see the
-> attached user-space test.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Found it. I didn't have the off-by-one fix and the bug triggered; then the 
-test case had a useless comparison function:
+---1463783569-906303254-1109542196=:1693
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; format=flowed
+Content-ID: <Pine.LNX.4.61.0502272310551.1693@merlin.sk-tech.net>
 
-int cmp(const int *a, const int *b)
-{
-        return b - a;
-}
+Hi!
 
-Works fine now.
+This is a small patch for GEODE CPU support in Kernel 2.6.10.
 
-Thanks,
--- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX PRODUCTS GMBH
+Those CPU's are found mostly in embedded systems ... one of the most 
+prominent Hardware using GEODE CPU is probably soekris net4801 
+(http://www.soekris.com).
+
+This patch has been on my homepage 
+(http://www.sk-tech.net/support/soekris.html) for quite a time - but I've 
+been asked several time to have it included in the main kernel.
+
+Regards
+   Kianusch
+---1463783569-906303254-1109542196=:1693
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="geode.patch.2.6.10"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.61.0502272309560.1693@merlin.sk-tech.net>
+Content-Description: geode.patch.2.6.10
+Content-Disposition: ATTACHMENT; FILENAME="geode.patch.2.6.10"
+
+ZGlmZiAtTnVyIGxpbnV4LTIuNi4xMC9hcmNoL2kzODYvS2NvbmZpZyBsaW51
+eC0yLjYuMTBfZ2VvZGUvYXJjaC9pMzg2L0tjb25maWcNCi0tLSBsaW51eC0y
+LjYuMTAvYXJjaC9pMzg2L0tjb25maWcJRnJpIERlYyAyNCAyMjozNDowMSAy
+MDA0DQorKysgbGludXgtMi42LjEwX2dlb2RlL2FyY2gvaTM4Ni9LY29uZmln
+CVN1biBGZWIgMjcgMjI6Mzc6NDggMjAwNQ0KQEAgLTE4Myw2ICsxODMsNyBA
+QA0KIAkgIC0gIldpbmNoaXAtQzYiIGZvciBvcmlnaW5hbCBJRFQgV2luY2hp
+cC4NCiAJICAtICJXaW5jaGlwLTIiIGZvciBJRFQgV2luY2hpcCAyLg0KIAkg
+IC0gIldpbmNoaXAtMkEiIGZvciBJRFQgV2luY2hpcHMgd2l0aCAzZE5vdyEg
+Y2FwYWJpbGl0aWVzLg0KKwkgIC0gIk1lZGlhR1gvR2VvZGUiIGZvciBDeXJp
+eCBNZWRpYUdYIGFrYSBHZW9kZS4NCiAJICAtICJDeXJpeElJSS9WSUEgQzMi
+IGZvciBWSUEgQ3lyaXggSUlJIG9yIFZJQSBDMy4NCiAJICAtICJWSUEgQzMt
+MiBmb3IgVklBIEMzLTIgIk5laGVtaWFoIiAobW9kZWwgOSBhbmQgYWJvdmUp
+Lg0KIA0KQEAgLTMxMCw2ICszMTEsMTMgQEANCiAJICBzdG9yZXMgZm9yIHRo
+aXMgQ1BVLCB3aGljaCBjYW4gaW5jcmVhc2UgcGVyZm9ybWFuY2Ugb2Ygc29t
+ZQ0KIAkgIG9wZXJhdGlvbnMuDQogDQorY29uZmlnIE1HRU9ERQ0KKwlib29s
+ICJNZWRpYUdYL0dlb2RlIg0KKwloZWxwDQorCSAgU2VsZWN0IHRoaXMgZm9y
+IGEgQ3lyaXggTWVkaWFHWCBha2EgR2VvZGUgY2hpcC4gTGludXggYW5kIEdD
+Qw0KKyAgICAgICAgICB0cmVhdCB0aGlzIGNoaXAgYXMgYSA1ODZUU0Mgd2l0
+aCBzb21lIGV4dGVuZGVkIGluc3RydWN0aW9ucw0KKyAgICAgICAgICBhbmQg
+YWxpZ25tZW50IHJlcWlyZW1lbnRzLg0KKw0KIGNvbmZpZyBNQ1lSSVhJSUkN
+CiAJYm9vbCAiQ3lyaXhJSUkvVklBLUMzIg0KIAloZWxwDQpAQCAtMzYwLDcg
+KzM2OCw3IEBADQogCWludA0KIAlkZWZhdWx0ICI3IiBpZiBNUEVOVElVTTQg
+fHwgWDg2X0dFTkVSSUMNCiAJZGVmYXVsdCAiNCIgaWYgWDg2X0VMQU4gfHwg
+TTQ4NiB8fCBNMzg2DQotCWRlZmF1bHQgIjUiIGlmIE1XSU5DSElQM0QgfHwg
+TVdJTkNISVAyIHx8IE1XSU5DSElQQzYgfHwgTUNSVVNPRSB8fCBNRUZGSUNF
+T04gfHwgTUNZUklYSUlJIHx8IE1LNiB8fCBNUEVOVElVTUlJSSB8fCBNUEVO
+VElVTUlJIHx8IE02ODYgfHwgTTU4Nk1NWCB8fCBNNTg2VFNDIHx8IE01ODYg
+fHwgTVZJQUMzXzINCisJZGVmYXVsdCAiNSIgaWYgTVdJTkNISVAzRCB8fCBN
+V0lOQ0hJUDIgfHwgTVdJTkNISVBDNiB8fCBNQ1JVU09FIHx8IE1FRkZJQ0VP
+TiB8fCBNQ1lSSVhJSUkgfHwgTUs2IHx8IE1QRU5USVVNSUlJIHx8IE1QRU5U
+SVVNSUkgfHwgTTY4NiB8fCBNNTg2TU1YIHx8IE01ODZUU0MgfHwgTTU4NiB8
+fCBNVklBQzNfMiB8fCBNR0VPREUNCiAJZGVmYXVsdCAiNiIgaWYgTUs3IHx8
+IE1LOCB8fCBNUEVOVElVTU0NCiANCiBjb25maWcgUldTRU1fR0VORVJJQ19T
+UElOTE9DSw0KQEAgLTM3NSw3ICszODMsNyBAQA0KIA0KIGNvbmZpZyBYODZf
+UFBST19GRU5DRQ0KIAlib29sDQotCWRlcGVuZHMgb24gTTY4NiB8fCBNNTg2
+TU1YIHx8IE01ODZUU0MgfHwgTTU4NiB8fCBNNDg2IHx8IE0zODYNCisJZGVw
+ZW5kcyBvbiBNNjg2IHx8IE01ODZNTVggfHwgTTU4NlRTQyB8fCBNNTg2IHx8
+IE00ODYgfHwgTTM4NiB8fCBNR0VPREUNCiAJZGVmYXVsdCB5DQogDQogY29u
+ZmlnIFg4Nl9GMDBGX0JVRw0KQEAgLTQwNSw3ICs0MTMsNyBAQA0KIA0KIGNv
+bmZpZyBYODZfQUxJR05NRU5UXzE2DQogCWJvb2wNCi0JZGVwZW5kcyBvbiBN
+V0lOQ0hJUDNEIHx8IE1XSU5DSElQMiB8fCBNV0lOQ0hJUEM2IHx8IE1DWVJJ
+WElJSSB8fCBYODZfRUxBTiB8fCBNSzYgfHwgTTU4Nk1NWCB8fCBNNTg2VFND
+IHx8IE01ODYgfHwgTTQ4NiB8fCBNVklBQzNfMg0KKwlkZXBlbmRzIG9uIE1X
+SU5DSElQM0QgfHwgTVdJTkNISVAyIHx8IE1XSU5DSElQQzYgfHwgTUNZUklY
+SUlJIHx8IFg4Nl9FTEFOIHx8IE1LNiB8fCBNNTg2TU1YIHx8IE01ODZUU0Mg
+fHwgTTU4NiB8fCBNNDg2IHx8IE1WSUFDM18yIHx8IE1HRU9ERQ0KIAlkZWZh
+dWx0IHkNCiANCiBjb25maWcgWDg2X0dPT0RfQVBJQw0KQEAgLTQzMCw3ICs0
+MzgsNyBAQA0KIA0KIGNvbmZpZyBYODZfT09TVE9SRQ0KIAlib29sDQotCWRl
+cGVuZHMgb24gKE1XSU5DSElQM0QgfHwgTVdJTkNISVAyIHx8IE1XSU5DSElQ
+QzYpICYmIE1UUlINCisJZGVwZW5kcyBvbiAoTVdJTkNISVAzRCB8fCBNV0lO
+Q0hJUDIgfHwgTVdJTkNISVBDNiB8fCBNR0VPREUpICYmIE1UUlINCiAJZGVm
+YXVsdCB5DQogDQogY29uZmlnIEhQRVRfVElNRVINCkBAIC01NTUsNyArNTYz
+LDcgQEANCiANCiBjb25maWcgWDg2X1RTQw0KIAlib29sDQotCWRlcGVuZHMg
+b24gKE1XSU5DSElQM0QgfHwgTVdJTkNISVAyIHx8IE1DUlVTT0UgfHwgTUVG
+RklDRU9OIHx8IE1DWVJJWElJSSB8fCBNSzcgfHwgTUs2IHx8IE1QRU5USVVN
+NCB8fCBNUEVOVElVTU0gfHwgTVBFTlRJVU1JSUkgfHwgTVBFTlRJVU1JSSB8
+fCBNNjg2IHx8IE01ODZNTVggfHwgTTU4NlRTQyB8fCBNSzggfHwgTVZJQUMz
+XzIpICYmICFYODZfTlVNQVENCisJZGVwZW5kcyBvbiAoTVdJTkNISVAzRCB8
+fCBNV0lOQ0hJUDIgfHwgTUNSVVNPRSB8fCBNRUZGSUNFT04gfHwgTUNZUklY
+SUlJIHx8IE1LNyB8fCBNSzYgfHwgTVBFTlRJVU00IHx8IE1QRU5USVVNTSB8
+fCBNUEVOVElVTUlJSSB8fCBNUEVOVElVTUlJIHx8IE02ODYgfHwgTTU4Nk1N
+WCB8fCBNNTg2VFNDIHx8IE1LOCB8fCBNVklBQzNfMiB8fCBNR0VPREUpICYm
+ICFYODZfTlVNQVENCiAJZGVmYXVsdCB5DQogDQogY29uZmlnIFg4Nl9NQ0UN
+CmRpZmYgLU51ciBsaW51eC0yLjYuMTAvYXJjaC9pMzg2L01ha2VmaWxlIGxp
+bnV4LTIuNi4xMF9nZW9kZS9hcmNoL2kzODYvTWFrZWZpbGUNCi0tLSBsaW51
+eC0yLjYuMTAvYXJjaC9pMzg2L01ha2VmaWxlCUZyaSBEZWMgMjQgMjI6MzQ6
+MzEgMjAwNA0KKysrIGxpbnV4LTIuNi4xMF9nZW9kZS9hcmNoL2kzODYvTWFr
+ZWZpbGUJU3VuIEZlYiAyNyAyMjo1MzoxOCAyMDA1DQpAQCAtMTQsNiArMTQs
+OCBAQA0KICMgMTk5OTA3MTMgIEFydHVyIFNrYXdpbmEgPHNrYXdpbmFAZ2Vv
+Y2l0aWVzLmNvbT4NCiAjICAgICAgICAgICBBZGRlZCAnLW1hcmNoJyBhbmQg
+Jy1tcHJlZmVycmVkLXN0YWNrLWJvdW5kYXJ5JyBzdXBwb3J0DQogIw0KKyMg
+ICAgICAgICAgIEtpYW51c2NoIFNheWFoIEthcmFkamkgPGtpYW51c2NoQHNr
+LXRlY2gubmV0Pg0KKyMgICAgICAgICAgIEFkZGVkIHN1cHBvcnQgZm9yIEdF
+T0RFIENQVQ0KIA0KIExERkxBR1MJCTo9IC1tIGVsZl9pMzg2DQogT0JKQ09Q
+WUZMQUdTCTo9IC1PIGJpbmFyeSAtUiAubm90ZSAtUiAuY29tbWVudCAtUw0K
+QEAgLTUxLDYgKzUzLDkgQEANCiANCiAjIEFNRCBFbGFuIHN1cHBvcnQNCiBj
+ZmxhZ3MtJChDT05GSUdfWDg2X0VMQU4pCSs9IC1tYXJjaD1pNDg2DQorDQor
+IyBNZWRpYUdYIGFrYSBHZW9kZSBzdXBwb3J0DQorY2ZsYWdzLSQoQ09ORklH
+X01HRU9ERSkJCSs9ICQoY2FsbCBjYy1vcHRpb24sLW1hcmNoPXBlbnRpdW0t
+bW14LC1tYXJjaD1pNTg2KQ0KIA0KICMgLW1yZWdwYXJtPTMgd29ya3Mgb2sg
+b24gZ2NjLTMuMCBhbmQgbGF0ZXINCiAjDQpkaWZmIC1OdXIgbGludXgtMi42
+LjEwL2luY2x1ZGUvYXNtLWkzODYvbW9kdWxlLmggbGludXgtMi42LjEwX2dl
+b2RlL2luY2x1ZGUvYXNtLWkzODYvbW9kdWxlLmgNCi0tLSBsaW51eC0yLjYu
+MTAvaW5jbHVkZS9hc20taTM4Ni9tb2R1bGUuaAlGcmkgRGVjIDI0IDIyOjM0
+OjAwIDIwMDQNCisrKyBsaW51eC0yLjYuMTBfZ2VvZGUvaW5jbHVkZS9hc20t
+aTM4Ni9tb2R1bGUuaAlTdW4gRmViIDI3IDIyOjM0OjE5IDIwMDUNCkBAIC01
+Miw2ICs1Miw4IEBADQogI2RlZmluZSBNT0RVTEVfUFJPQ19GQU1JTFkgIkNZ
+UklYSUlJICINCiAjZWxpZiBkZWZpbmVkIENPTkZJR19NVklBQzNfMg0KICNk
+ZWZpbmUgTU9EVUxFX1BST0NfRkFNSUxZICJWSUFDMy0yICINCisjZWxpZiBD
+T05GSUdfTUdFT0RFDQorI2RlZmluZSBNT0RVTEVfUFJPQ19GQU1JTFkgIkdF
+T0RFICINCiAjZWxzZQ0KICNlcnJvciB1bmtub3duIHByb2Nlc3NvciBmYW1p
+bHkNCiAjZW5kaWYNCg==
+
+---1463783569-906303254-1109542196=:1693--

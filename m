@@ -1,100 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273043AbRIOUpD>; Sat, 15 Sep 2001 16:45:03 -0400
+	id <S273047AbRIOUvX>; Sat, 15 Sep 2001 16:51:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273041AbRIOUoy>; Sat, 15 Sep 2001 16:44:54 -0400
-Received: from f191.pav1.hotmail.com ([64.4.31.191]:27655 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S273040AbRIOUoq>;
-	Sat, 15 Sep 2001 16:44:46 -0400
-X-Originating-IP: [128.61.74.37]
-From: "Scott McLeod" <halcyon_blue@hotmail.com>
+	id <S273040AbRIOUvE>; Sat, 15 Sep 2001 16:51:04 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:19450
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S273046AbRIOUvA>; Sat, 15 Sep 2001 16:51:00 -0400
+Date: Sat, 15 Sep 2001 13:51:18 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: AMD 760 support
-Date: Sat, 15 Sep 2001 16:45:04 -0400
+Subject: Re: [PATCH] lazy umount (1/4)
+Message-ID: <20010915135118.A24067@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0109141427070.11172-100000@weyl.math.psu.edu> <20010915083236.A9271@bessie.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F191TgVt6u81bMM2rUS0000759d@hotmail.com>
-X-OriginalArrivalTime: 15 Sep 2001 20:45:04.0617 (UTC) FILETIME=[4C336D90:01C13E27]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010915083236.A9271@bessie.localdomain>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't mean to step on anybody's toes but I spent my Friday learning what I 
-could about how to get the gart to support the 761 northbridge
-reading up on kernel coding style etc... I then patched against 2.4.9 and 
-tested.  I would have posted this last night but to my dismay I've been 
-unable to determine who the maintainer of the gart is.  Feel free to test 
-this, and if you can point me in the right direction of the maintainer for 
-this code I'd really appreciate it.  This patch also allows one to pass 
-AGP_TRYUNSUPPORTED as a kernel param.
+On Sat, Sep 15, 2001 at 08:32:36AM -0400, jlnance@intrex.net wrote:
+> On Fri, Sep 14, 2001 at 03:01:26PM -0400, Alexander Viro wrote:
+> 
+> > convenient when you are doing fs hacking ;-)  Actually I've got into
+> > a habit of using that instead of normal umount in all cases except
+> > the shutdown scripts - works just fine (for obvious reasons in case
+> > of shutdown non-lazy behaviour is precisely what we want).
+> 
+> Why not shutdown?  This is the place I think it would help me the most.
+> 
+> Thanks,
+> 
+> Jim
 
-Thanks,
--Scott
+If you have a FS with a process stuck in D state, and you shutdown with an
+umount that *always* does lazy unmounting you get the same affect, because
+you'd want the kernel to pause the shutdown until the FS was properly
+unmounted.
 
+Either way, you'd have a system you can't reboot without hardware reset if
+you have a process stuck in D state on a rw FS.
 
+I have a system with badblocks and shutdown stuck in D state.  Kernel is
+2.2.19 on PPC with the freeswan1.9 patch.
 
-diff -ur linux-2.4.9.orig/drivers/char/agp/agp.h 
-linux-2.4.9.agpgart-amd760/drivers/char/agp/agp.h
---- linux-2.4.9.orig/drivers/char/agp/agp.h	Wed Aug 15 08:22:15 2001
-+++ linux-2.4.9.agpgart-amd760/drivers/char/agp/agp.h	Fri Sep 14 16:01:18 
-2001
-@@ -195,6 +195,9 @@
-#ifndef PCI_DEVICE_ID_AMD_IRONGATE_0
-#define PCI_DEVICE_ID_AMD_IRONGATE_0    0x7006
-#endif
-+#ifndef PCI_DEVICE_ID_AMD_761_0
-+#define PCI_DEVICE_ID_AMD_761_0		0x700e
-+#endif
-#ifndef PCI_VENDOR_ID_AL
-#define PCI_VENDOR_ID_AL		0x10b9
-#endif
-diff -ur linux-2.4.9.orig/drivers/char/agp/agpgart_be.c 
-linux-2.4.9.agpgart-amd760/drivers/char/agp/agpgart_be.c
---- linux-2.4.9.orig/drivers/char/agp/agpgart_be.c	Wed Aug 15 08:22:15 2001
-+++ linux-2.4.9.agpgart-amd760/drivers/char/agp/agpgart_be.c	Fri Sep 14 
-17:11:58 2001
-@@ -2877,6 +2877,12 @@
-		"AMD",
-		"Irongate",
-		amd_irongate_setup },
-+	{ PCI_DEVICE_ID_AMD_761_0,
-+		PCI_VENDOR_ID_AMD,
-+		AMD_760,
-+		"AMD",
-+		"760",
-+		amd_irongate_setup },
-	{ 0,
-		PCI_VENDOR_ID_AMD,
-		AMD_GENERIC,
-@@ -3457,3 +3463,15 @@
+It has been stuck for about two weeks, but operating normally otherwise.
+I'm going to have to sync; sync; and power off, as I need to update the
+kernel anyway.
 
-module_init(agp_init);
-module_exit(agp_cleanup);
-+
-+/* kernel args */
-+#ifndef MODULE
-+static int __init agp_parms(char* str)
-+{
-+	int ints[2];
-+	str = get_options(str, ARRAY_SIZE(ints), ints);
-+	agp_try_unsupported = ints[1];
-+        return 1;
-+}
-+__setup("agpgart.agp_try_unsupported=", agp_parms);
-+#endif
-diff -ur linux-2.4.9.orig/include/linux/agp_backend.h 
-linux-2.4.9.agpgart-amd760/include/linux/agp_backend.h
---- linux-2.4.9.orig/include/linux/agp_backend.h	Mon Jul  2 22:27:56 2001
-+++ linux-2.4.9.agpgart-amd760/include/linux/agp_backend.h	Fri Sep 14 
-16:51:36 2001
-@@ -58,6 +58,7 @@
-	SIS_GENERIC,
-	AMD_GENERIC,
-	AMD_IRONGATE,
-+	AMD_760,
-	ALI_M1541,
-	ALI_M1621,
-	ALI_M1631,
+I too would like to see a way to force umount, but I don't see a safe way.
+OTOH, I'm also not a kernel hacker.  Does anyone see a solution?
 
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
-
+Mike

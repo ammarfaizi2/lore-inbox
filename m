@@ -1,47 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261238AbSJHPaB>; Tue, 8 Oct 2002 11:30:01 -0400
+	id <S261296AbSJHPaN>; Tue, 8 Oct 2002 11:30:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261296AbSJHPaB>; Tue, 8 Oct 2002 11:30:01 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:3820 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S261238AbSJHPaA>; Tue, 8 Oct 2002 11:30:00 -0400
-Date: Tue, 8 Oct 2002 17:35:36 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: James Bottomley <James.Bottomley@HansenPartnership.com>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-cc: Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.41-ac1 
-In-Reply-To: <200210081501.g98F1DR02225@localhost.localdomain>
-Message-ID: <Pine.NEB.4.44.0210081732250.8340-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S261298AbSJHPaN>; Tue, 8 Oct 2002 11:30:13 -0400
+Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:9114 "HELO
+	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id <S261296AbSJHPaJ>; Tue, 8 Oct 2002 11:30:09 -0400
+From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+To: "'Ofer Raz'" <oraz@checkpoint.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: 2.4.9/2.4.18 max kernel allocation size
+Date: Tue, 8 Oct 2002 10:35:35 -0500
+Message-ID: <008b01c26ee0$5ee52380$9d893841@joe>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+In-Reply-To: <027801c26ede$0f37deb0$8b705a3e@checkpoint.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Oct 2002, James Bottomley wrote:
+I might be thinking of something totally different than what you're
+talking about, but here it goes:
 
-> bunk@fs.tum.de said:
-> > make[1]: *** No rule to make target `arch/i386/mach-voyager/
-> > trampoline.o', needed by `arch/i386/mach-voyager/built-in.o'.  Stop.
-> > make: *** [arch/i386/mach-voyager] Error 2
->
-> That one's pulled in from ../kernel by the vpath in mach-voyager (or should
-> be).  It builds for me, so it could be the version of make you are using?
+Change line 18 of mmzone.h from:
+	#define MAX_ORDER 10
+	to
+	#define MAX_ORDER 24
 
-Ah, then Kai's changes to the build system in 2.5.41 broke it.
+This allows larger contiguous chunks of memory to be allocated, up to
+32GB.
 
-Kai, what's the recommended way to get this working again?
+I'd be very appreciative if you could send me back whatever statistics
+you get as a result of this change.  (To be honest, I'm not a good
+kernel hacker, and I wanted to gather statistics on this for some time
+but don't know how.)
 
-> James
+Thanks in advance.
 
-cu
-Adrian
+Joseph Wagner
 
--- 
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Ofer Raz
+Sent: Tuesday, October 08, 2002 10:19 AM
+To: linux-kernel@vger.kernel.org
+Subject: FW: 2.4.9/2.4.18 max kernel allocation size
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+
+
+-----Original Message-----
+From: Ofer Raz [mailto:oraz@checkpoint.com]
+Sent: Tuesday, October 08, 2002 2:19 PM
+To: 'linux-kernel-owner@vger.kernel.org'
+Subject: 2.4.9/2.4.18 max kernel allocation size
+
+
+I'm trying to obtain the largest kernel allocation possible using
+vmalloc.
+
+I have tested both Linux 2.4.9-7 and 2.4.18-10 max kernel allocation
+using
+vmalloc on Intel platform with different physical memory configurations.
+>From my experience, playing with the Virtual/Physical memory split
+issues
+different results (which makes sense)
+
+Following are the results on 2.4.9-7 when the 4GB highmem config option
+is
+set:
+
+Config Option	Physical Memory	Max Allocation
+CONFIG_1GB		512MB			400
+			1024MB		900
+			1536MB		1400
+			2048MB		981
+
+CONFIG_2GB		512MB			400
+			1024MB		900
+			1536MB		461
+			2048MB		VFS Panic on boot
+
+CONFIG_3GB		512MB			400
+			1024MB		85
+			1536MB		VFS Panic on boot
+			2048MB		VFS Panic on boot
+
+Please note that CONFIG_3GB is the default and results 85MB max
+allocation
+for 1GB machine.
+
+For my surprise, I have discovered that the
+CONFIG_1GB/CONFIG_2GB/CONFIG_3GB
+configuration options were removed from 2.4.18-10, it seems that the
+kernel
+is set for the CONFIG_3GB option (by looking at the PAGE_OFFSET mask
+(0xc0000000)).
+
+Any idea how can I make the kernel allocation on 2.4.18-10 larger than
+85MB
+on 1GB machine?
+
+Cheers,
+	Ofer
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

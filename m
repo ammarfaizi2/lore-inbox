@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbUL3TlA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbUL3TvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261703AbUL3TlA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 14:41:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUL3TlA
+	id S261707AbUL3TvD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 14:51:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbUL3TvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 14:41:00 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:50115 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261703AbUL3Tkw (ORCPT
+	Thu, 30 Dec 2004 14:51:03 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:63574 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S261704AbUL3Tu6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 14:40:52 -0500
-From: Jesse Barnes <jbarnes@sgi.com>
-To: Anton Blanchard <anton@samba.org>
-Subject: Re: 3 ways to represent cpu affinity in /sys and counting
-Date: Thu, 30 Dec 2004 11:40:19 -0800
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, greg@kroah.com, miltonm@bga.com
-References: <20041226002744.GC21710@krispykreme.ozlabs.ibm.com>
-In-Reply-To: <20041226002744.GC21710@krispykreme.ozlabs.ibm.com>
+	Thu, 30 Dec 2004 14:50:58 -0500
+Message-ID: <41D45C1F.5030307@tls.msk.ru>
+Date: Thu, 30 Dec 2004 22:50:55 +0300
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "Peter T. Breuer" <ptb@lab.it.uc3m.es>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+       dm-crypt@saout.de
+Subject: Re: PROBLEM: Kernel 2.6.10 crashing repeatedly and hard
+References: <m3is6k4oeu.fsf@reason.gnu-hamburg> <m38y7fn4ay.fsf@reason.gnu-hamburg> <v3rda2-hjn.ln1@news.it.uc3m.es>
+In-Reply-To: <v3rda2-hjn.ln1@news.it.uc3m.es>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412301140.20366.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, December 25, 2004 4:27 pm, Anton Blanchard wrote:
-> Hi,
->
-> We have a patch to change pcibus_to_cpumask to pcibus_to_node. This makes
-> it more consistent with cpu_to_node, and when you want a cpumask you
-> use node_to_cpumask.
+Peter T. Breuer wrote:
+> In gmane.linux.raid Georg C. F. Greve <greve@fsfeurope.org> wrote:
+> 
+> Yes, well, don't put the journal on the raid partition. Put it
+> elsewhere (anyway, journalling and raid do not mix, as write ordering
+> is not - deliberately - preserved in raid, as far as I can tell).
 
-Great!  I think Matt Dobson said he was going to do something similar, but he 
-got sidetracked (and iirc, ak also didn't like the idea).  FWIW, I like it, 
-with the caveat that the node returned from pcibus_to_node may not have any 
-memory or CPUs associated with it.
+This is a sort of a nonsense, really.  Both claims, it seems.
+I can't say for sure whenever write ordering is preserved by
+raid -- it should, and if it isn't, it's a bug and should be
+fixed.  Nothing else is wrong with placing journal into raid
+(the same as the filesystem in question).  Suggesting to remove
+journal just isn't fair: the journal is here for a reason.
+And, finally, the kernel should not crash.  If something like
+this is unsupported, it should refuse to do so, instead of
+crashing randomly.
 
-> A pci device has a local_cpus property:
->
-> /sys/devices/pci000a:00/000a:00:02.6/local_cpus
->
-> A pci_bus has a cpuaffinity property:
->
-> /sys/class/pci_bus/000d:d8/cpuaffinity
-
-I don't know how these two got different names...
-
-> A node has a cpumap property:
->
-> /sys/devices/system/node/node3/cpumap
->
-> Can we standardize on a single property name for this? :)
-
-Seems like nodes should have a cpumap and PCI busses should have a node.
-
-> Furthermore, looking at node linkages:
->
-> A node has symlinks to cpus:
->
-> /sys/devices/system/node/node0/cpu0 -> /sys/devices/system/cpu/cpu0
->
-> But doesnt have symlinks to pci devices.
-
-Yep, this would be nice to have.
-
-Jesse
+/mjt

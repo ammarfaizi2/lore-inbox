@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264917AbUADFnK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 00:43:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbUADFnK
+	id S265137AbUADFrz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 00:47:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265140AbUADFrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 00:43:10 -0500
-Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:54932
+	Sun, 4 Jan 2004 00:47:55 -0500
+Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:55956
 	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
-	id S264917AbUADFnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 00:43:07 -0500
-Message-ID: <3FF7A7F2.9060009@tmr.com>
-Date: Sun, 04 Jan 2004 00:43:14 -0500
+	id S265137AbUADFrx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 00:47:53 -0500
+Message-ID: <3FF7A910.40703@tmr.com>
+Date: Sun, 04 Jan 2004 00:48:00 -0500
 From: Bill Davidsen <davidsen@tmr.com>
 Organization: TMR Associates Inc, Schenectady NY
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: viro@parcelfarce.linux.theplanet.co.uk
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Should struct inode be made available to userspace?
-References: <200312292040.00409.mmazur@kernel.pl> <20031229195742.GL4176@parcelfarce.linux.theplanet.co.uk> <bt71ip$cer$1@gatekeeper.tmr.com> <20040103185712.GV4176@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20040103185712.GV4176@parcelfarce.linux.theplanet.co.uk>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: GCC 3.4 Heads-up
+References: <bsgav5$4qh$1@cesium.transmeta.com>	<Pine.LNX.4.58.0312252021540.14874@home.osdl.org>	<3FF5E952.70308@tmr.com> <m365fsu48n.fsf@defiant.pm.waw.pl>
+In-Reply-To: <m365fsu48n.fsf@defiant.pm.waw.pl>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Sat, Jan 03, 2004 at 01:39:41PM -0500, Bill Davidsen wrote:
-> 
->>viro@parcelfarce.linux.theplanet.co.uk wrote:
->>
->>
->>>struct inode and structures containing it should not be used outside of 
->>>kernel.
->>>Moreover, foo_fs.h should be seriously trimmed down and everything _not_
->>>useful outside of kernel should be taken into fs/foo/*; other kernel code
->>>also doesn't give a fsck for that stuff, so it should be private to 
->>>filesystem
->>>instead of polluting include/linux/*.
->>
->>Moving the definitions is fine, but some user programs, like backup 
->>programs, do benefit from direct interpretation of the inode. Clearly 
->>that's not a normal user program, but this information is not only 
->>useful inside the kernel.
+Krzysztof Halasa wrote:
+> Bill Davidsen <davidsen@tmr.com> writes:
 > 
 > 
-> No, they do not.  They care about on-disk structures, not the in-core
-> ones fs driver happens to build.
+>>I would probably write
+>>   ( a ? b : c ) = d;
+>>instead, having learned C when some compilers parsed ? wrong without
+>>parens. Actually I can't imagine writing that at all, but at least
+>>with parens humans can read it easily. Ugly code.
+>>
+>>Your suggestion is not portable, if b or c are declared "register"
+>>there are compilers which will not allow taking the address, and gcc
+>>will give you a warning.
+> 
+> 
+> One can write as well:
+> 
+> if (a)
+>         b = d;
+> else
+>         c = d;
+> 
+> Might be more readable and it is what the compiler does.
 
-Pardon, I thought that was exactly what was being suggested to hide.
+Since that's a matter of taste I can't disagree. The point was that the 
+original post used
+   *(a ? &b : &c) = d;
+which generates either warnings or errors if b or c is a register 
+variable, because you are not allowed to take the address of a register. 
+It seems gcc does it anyway by intuiting what you mean, but it's not 
+portable in the sense of being error-free code.
+
+It was a nit, I didn't mean to start a controversy, although if "d" is 
+actually a complex expression it is certainly less typing as I showed 
+it, and prevents a future maintainer from changing one RHS and not the 
+other. That's defensive programming.
+
 
 -- 
 bill davidsen <davidsen@tmr.com>

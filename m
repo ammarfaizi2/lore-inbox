@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbUDNTQa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 15:16:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbUDNTQa
+	id S261300AbUDNTXP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 15:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUDNTXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 15:16:30 -0400
-Received: from mail.shareable.org ([81.29.64.88]:43169 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261451AbUDNTQ2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 15:16:28 -0400
-Date: Wed, 14 Apr 2004 20:14:09 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: davidm@hpl.hp.com
-Cc: linux-ia64@linuxia64.org, "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Andrew Morton <akpm@osdl.org>, Kurt Garloff <garloff@suse.de>,
-       linux-kernel@vger.kernel.org, mingo@redhat.com
-Subject: Re: [PATCH] (IA64) Fix ugly __[PS]* macros in <asm-ia64/pgtable.h>
-Message-ID: <20040414191409.GC12105@mail.shareable.org>
-References: <9AB83E4717F13F419BD880F5254709E5011EBABA@scsmsx402.sc.intel.com> <20040414082355.GA8303@mail.shareable.org> <20040414113753.GA9413@mail.shareable.org> <16509.25006.96933.584153@napali.hpl.hp.com> <20040414184603.GA12105@mail.shareable.org> <16509.35554.807689.904871@napali.hpl.hp.com>
+	Wed, 14 Apr 2004 15:23:15 -0400
+Received: from ns.suse.de ([195.135.220.2]:46243 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261300AbUDNTXO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 15:23:14 -0400
+Date: Wed, 14 Apr 2004 21:21:45 +0200
+From: Andi Kleen <ak@suse.de>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: READONLY_EXEC is a curious name
+Message-Id: <20040414212145.707555f6.ak@suse.de>
+In-Reply-To: <20040414190653.GB12105@mail.shareable.org>
+References: <20040414190653.GB12105@mail.shareable.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16509.35554.807689.904871@napali.hpl.hp.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger wrote:
-> If the ia64 break builds, the Alpha maintainer won't fix it up for
-> me, after all.
+On Wed, 14 Apr 2004 20:06:53 +0100
+Jamie Lokier <jamie@shareable.org> wrote:
 
-Ok.  In this case PAGE_COPY_EXEC, PAGE_SHARED_EXEC and
-PAGE_READONLY_EXEC are in x86_64, so those names are fairly safe.
+> This is not important.
+> 
+> PAGE_READONLY_EXEC is defined in <asm-x86_64/pgtable.h>.
+> 
+> Does anyone else think PAGE_READONLY_EXEC is an odd name for a set of
+> flags which enables read _and_ execute permission?  What about
+> PAGE_READEXEC instead?
 
-You could write the other one as IA64_PAGE_EXECONLY to be very safe.
+It just follows the pattern there (default is with NX and _EXEC is the variant
+without NX). I don't care much either ways.
 
--- Jamie
+-Andi 

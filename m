@@ -1,69 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289307AbSA2OBk>; Tue, 29 Jan 2002 09:01:40 -0500
+	id <S288854AbSA2OMM>; Tue, 29 Jan 2002 09:12:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289191AbSA2OBb>; Tue, 29 Jan 2002 09:01:31 -0500
-Received: from [193.105.113.102] ([193.105.113.102]:46044 "EHLO
-	mailrennes.rennes.si.fr.atosorigin.com") by vger.kernel.org
-	with ESMTP id <S289307AbSA2OBW>; Tue, 29 Jan 2002 09:01:22 -0500
-Message-ID: <02c801c1a8cd$027ccd20$8a140237@rennes.si.fr.atosorigin.com>
-From: "Yann E. MORIN" <yann.morin.1998@anciens.enib.fr>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: "lkml" <linux-kernel@vger.kernel.org>, <ext2-devel@lists.sourceforge.net>
-In-Reply-To: <008f01c1a815$d8cdcc70$8a140237@rennes.si.fr.atosorigin.com> <20020129114222.B2298@redhat.com>
-Subject: Re: Assertion failure / do_get_write_acess() / loop / samba
-Date: Tue, 29 Jan 2002 14:58:20 +0100
-Organization: ENIB - Promo `98
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-x-mimeole: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-OriginalArrivalTime: 29 Jan 2002 13:58:20.0685 (UTC) FILETIME=[0280EBD0:01C1A8CD]
+	id <S289191AbSA2OMD>; Tue, 29 Jan 2002 09:12:03 -0500
+Received: from pc-80-195-34-66-ed.blueyonder.co.uk ([80.195.34.66]:49536 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S288854AbSA2OLv>; Tue, 29 Jan 2002 09:11:51 -0500
+Date: Tue, 29 Jan 2002 14:11:46 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: frode <frode@freenix.no>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>, ext3-users@redhat.com
+Subject: Re: OOPS: kernel BUG at transaction.c:1857 on 2.4.17 while rm'ing 700mb file on ext3 partition.
+Message-ID: <20020129141146.B1873@redhat.com>
+In-Reply-To: <3C502E3A.9070909@freenix.no> <20020124191927.A9564@redhat.com> <3C509067.20108@freenix.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C509067.20108@freenix.no>; from frode@freenix.no on Thu, Jan 24, 2002 at 11:53:27PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stephen! Hi lists!
+Hi,
 
-> > Assertion failure in do_get_write_access() at transaction.c:728:
-> > "(((jh2bh(jh))->b_state & (1UL << BH_Uptodate)) != 0)"
->
-> Are there any other log messages in the kernel log?
+On Thu, Jan 24, 2002 at 11:53:27PM +0100, frode wrote:
 
-No. This is the only one. Even when I enter 'reboot' and hit enter, it
-just freezes without any message. For quite a while (more than 5').
-Nothing more appears, niether on screen nor on my serial console.
+> >>I got the following error while rm'ing a 700mb file from an ext3 partition:
+> >>Assertion failure in journal_unmap_buffer() at transaction.c:1857:
+> >>"transaction == journal->j_running_transaction"
+> > Hmm --- this is not one I think I've ever seen before.
+ 
+> OK, I rebooted and gzip'ed the NVdriver in /lib/modules... to make sure the 
+> module doesn't load (lsmod now says my kernel isn't tainted). I'll try using the 
+> plain 'nv' driver shipped with XFree instead for a while. I tried making another 
+> 700mb iso image and fool around with it (loopback mount it, umount it, then rm 
+> it) but couldn't trigger anything - but I just spent five minutes trying.
 
-> The only easy way I can see for this to be triggered is if there is a
-> bad block on disk being accessed.  That ought to appear in the log.
+Have you been able to reproduce any problems yet?
 
-That I tested. No bad block on the remote host (assertion happens
-only when writing to a loop residing on a samba share, on a Win2k
-host).
+> As I mentioned I have had quite a few oopses lately, most of them regarding 
+> paging etc. (but I'm no kernel expert). See for example
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=101096234600708&w=2
+> and
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=101128528029736&w=2
 
-> Could you also please run ksymoops to decode the log trace?
+iput() crash; page list crash; jbd transaction crash.  These look
+perfectly consistent with random memory corruption.
+> 
+> I'm running linux on an old p100 as well but don't see any problems, so as you 
+> say I suspected a hardware problem. I ran MemTest86 for about half an hour 
 
-Unfortunately no, I haven't got enough place on the machine to test
-more than two kernel at a time. Now is time for the 2.4.18-pre7 with
-the ext3 debug patch. But this one will get ksymoops run against.
+Try leaving it running overnight --- half an hour is very little time
+for a proper memory test.
 
-Regards,
-Yann.
-
-PS. Because I'm  often away from work in these days, and because my
-test machine is a plain old Pentium Pro, I can't do tests as often as
-I might want to... Please forgive slowliness...
-YEM.
-
-PPS. I'm not subscribed to ext2-devel, please copy me (or lkml).
-YEM.
-
---
-.---------------------------.----------------------.------------------.
-|       Yann E. MORIN       |  Real-Time Embedded  | ASCII RIBBON /"\ |
-| Phone: (33/0) 662 376 056 |  Software  Designer  |   CAMPAIGN   \ / |
-|   http://ymorin.free.fr   °----------------------:   AGAINST     X  |
-| yann.morin.1998@anciens.enib.fr                  |  HTML MAIL   / \ |
-°--------------------------------------------------°------------------°
-
-
-
+Cheers,
+ Stephen

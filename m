@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316253AbSEZSdb>; Sun, 26 May 2002 14:33:31 -0400
+	id <S316251AbSEZSdW>; Sun, 26 May 2002 14:33:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316254AbSEZSda>; Sun, 26 May 2002 14:33:30 -0400
+	id <S316252AbSEZSdV>; Sun, 26 May 2002 14:33:21 -0400
 Received: from [195.39.17.254] ([195.39.17.254]:63387 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316252AbSEZSd2>;
-	Sun, 26 May 2002 14:33:28 -0400
-Date: Sun, 26 May 2002 20:32:00 +0200
+	by vger.kernel.org with ESMTP id <S316251AbSEZSdU>;
+	Sun, 26 May 2002 14:33:20 -0400
+Date: Sun, 26 May 2002 20:31:28 +0200
 From: Pavel Machek <pavel@ucw.cz>
 To: kernel list <linux-kernel@vger.kernel.org>,
         Rusty trivial patch monkey Russell 
 	<trivial@rustcorp.com.au>
-Subject: trivial: vmscan extra {}s
-Message-ID: <20020526183200.GA11613@elf.ucw.cz>
+Subject: trivial: reiserfs whitespace
+Message-ID: <20020526183128.GA11385@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,22 +23,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-Extra { } look ugly, too, they are not consistant with rest of code and I introduced them :-(
+Kill space at EOLN.
 
---- clean/mm/vmscan.c	Sun May 26 19:32:05 2002
-+++ linux-swsusp/mm/vmscan.c	Sun May 26 19:55:34 2002
-@@ -794,10 +794,8 @@
- 		add_wait_queue(&kswapd_wait, &wait);
+									Pavel
+
+--- clean/fs/reiserfs/journal.c	Sun May 26 19:32:02 2002
++++ linux-swsusp/fs/reiserfs/journal.c	Sun May 26 19:52:04 2002
+@@ -57,7 +57,7 @@
+ #include <linux/stat.h>
+ #include <linux/string.h>
+ #include <linux/smp_lock.h>
+-#include <linux/suspend.h> 
++#include <linux/suspend.h>
+ #include <linux/buffer_head.h>
  
- 		mb();
--		if (kswapd_can_sleep()) {
-+		if (kswapd_can_sleep())
- 			schedule();
--		}
--		
- 
- 		__set_current_state(TASK_RUNNING);
- 		remove_wait_queue(&kswapd_wait, &wait);
+ /* the number of mounted filesystems.  This is used to decide when to
+
+
 
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.

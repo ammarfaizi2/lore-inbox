@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293448AbSCABKj>; Thu, 28 Feb 2002 20:10:39 -0500
+	id <S310214AbSB1XxR>; Thu, 28 Feb 2002 18:53:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310159AbSCABHT>; Thu, 28 Feb 2002 20:07:19 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:56960 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S310275AbSCABFe>;
-	Thu, 28 Feb 2002 20:05:34 -0500
-Date: Thu, 28 Feb 2002 17:03:17 -0800 (PST)
-Message-Id: <20020228.170317.70477069.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: rui.p.m.sousa@clix.pt, german@piraos.com, jcm@netcabo.pt,
-        linux-kernel@vger.kernel.org, emu10k1-devel@lists.sourceforge.net,
-        steve@math.upatras.gr, d.bertrand@ieee.org, dledford@redhat.com
-Subject: Re: [Emu10k1-devel] Re: Emu10k1 SPDIF passthru doesn't work if
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E16gbWB-0001rm-00@the-village.bc.nu>
-In-Reply-To: <Pine.LNX.4.44.0202282042150.1215-100000@sophia-sousar2.nice.mindspeed.com>
-	<E16gbWB-0001rm-00@the-village.bc.nu>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S310206AbSB1XvL>; Thu, 28 Feb 2002 18:51:11 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37637 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S310235AbSB1Xsh>; Thu, 28 Feb 2002 18:48:37 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: question about running program from a RAM disk
+Date: 28 Feb 2002 15:48:26 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a5mfka$jgl$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.3.95.1020228170705.2670A-100000@chaos.analogic.com> <01bc01c1c0a6$a3c315e0$bb3147ab@amer.cisco.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: Fri, 1 Mar 2002 01:07:27 +0000 (GMT)
-   
-   The cast befor ethe cpu_to_ is safe if its 32bit I/O only. Maybe we should
-   have cpu_to_le_dma_addr_t 8)
+Followup to:  <01bc01c1c0a6$a3c315e0$bb3147ab@amer.cisco.com>
+By author:    "Hua Zhong" <hzhong@cisco.com>
+In newsgroup: linux.dev.kernel
+>
+> In the final system we are going to turn off swap. I had dreamed that Linux
+> could directly use the page frame on the RAM disk instead of doing another
+> copy :-)
+> 
 
-Actually, the cast to 32-bit is safe if you've set your DMA mask
-properly :-)
+However, the reply you got was completely irrelevant; he didn't answer
+your question at all (even though he probably thought.)
+
+The answer to your question is that a ramdisk lives directly in the
+block cache and does not have to be copied.
+
+You may want to consider migrating to a ramfs or tmpfs, which lives
+directly in the *page* cache and therefore reduces overhead further.
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

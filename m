@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265597AbTGLNLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 09:11:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265612AbTGLNLJ
+	id S265612AbTGLNVT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 09:21:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265617AbTGLNVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 09:11:09 -0400
-Received: from pat.uio.no ([129.240.130.16]:8093 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S265597AbTGLNLH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 09:11:07 -0400
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5 'what to expect'
-References: <fa.eq8e50t.1hkoiqh@ifi.uio.no>
-From: Terje Kvernes <terjekv@math.uio.no>
-Organization: The friends of mr. Tux
-X-URL: http://terje.kvernes.no/
-Date: Sat, 12 Jul 2003 15:25:43 +0200
-In-Reply-To: <fa.eq8e50t.1hkoiqh@ifi.uio.no> (Dave Jones's message of "Fri,
- 11 Jul 2003 14:02:48 GMT")
-Message-ID: <wxx3chb98rs.fsf@nommo.uio.no>
-User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.1 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+	Sat, 12 Jul 2003 09:21:19 -0400
+Received: from RJ161046.user.veloxzone.com.br ([200.149.161.46]:4339 "EHLO
+	mf.dnsalias.org") by vger.kernel.org with ESMTP id S265612AbTGLNVS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 09:21:18 -0400
+Subject: Re: [patch] SCHED_SOFTRR linux scheduler policy ...
+From: Miguel Freitas <miguel@cetuc.puc-rio.br>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 12 Jul 2003 10:43:10 -0300
+Message-Id: <1058017391.1197.24.camel@mf>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@codemonkey.org.uk> writes:
+Hi Davide,
 
-  [ ... ]
+I've found your SCHED_SOFTRR patch pretty interesting, the idea sounds
+amazingly simple and effective :)
 
-> CPU frequency scaling.
-> ~~~~~~~~~~~~~~~~~~~~~~
-> Certain processors have the facility to scale their
-> voltage/clockspeed.  2.5 introduces an interface to this feature,
-> see Documentation/cpufreq for more information. This functionality
-> also covers features like Intel's speedstep, and the Powernow!
-> feature present in mobile AMD Athlons.  In addition to x86 variants,
-> this framework also supports various ARM CPUs.  You can find a
-> userspace daemon that monitors battery life and adjusts accordingly
-> at: http://www.staikos.net/~staikos/cpufreqd/
+Some months ago i did experiments with multimedia performance on linux
+kernel and ideas on what could be improved.
 
-  the cpufreqd project has been assimilated by a sourceforge project
-  with the same name, that can be found here:
-  <url: http://sourceforge.net/projects/cpufreqd/ >
+http://cambuca.ldhs.cetuc.puc-rio.br/~miguel/multimedia_sim/
 
-  [ ... ]
+I think it should be a general consensus that joe user must not need to
+patch his kernel or run the multimedia player as root just to be able to
+watch videos with good quality.
 
--- 
-Terje
+As a xine developer i'm very interested in help improving that
+situation. Please let me know if you think this patch has chance of
+being accepted into main tree, we can add support in xine for it.
+
+regards,
+
+Miguel
+

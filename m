@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263807AbTJETnG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 15:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263837AbTJETnG
+	id S263792AbTJETbm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 15:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbTJETbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 15:43:06 -0400
-Received: from zero.aec.at ([193.170.194.10]:45319 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263807AbTJETnE (ORCPT
+	Sun, 5 Oct 2003 15:31:42 -0400
+Received: from h1ab.lcom.net ([216.51.237.171]:5760 "EHLO digitasaru.net")
+	by vger.kernel.org with ESMTP id S263792AbTJETbj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 15:43:04 -0400
-To: "Breno" <brenosp@brasilsec.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Freeing unused kernel memnory - bug
-From: Andi Kleen <ak@muc.de>
-Date: Sun, 05 Oct 2003 21:42:45 +0200
-In-Reply-To: <Dkyr.4PZ.1@gated-at.bofh.it> ("Breno"'s message of "Sun, 05
- Oct 2003 19:10:07 +0200")
-Message-ID: <m3d6dbbhe2.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <Dkyr.4PZ.1@gated-at.bofh.it>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 5 Oct 2003 15:31:39 -0400
+Date: Sun, 5 Oct 2003 14:31:36 -0500
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: linux-kernel@vger.kernel.org
+Subject: Lockup when switching from X to a VC (or when X goes away) in 2.6.0-test6-bk6
+Message-ID: <20031005193136.GB3445@digitasaru.net>
+Reply-To: trelane@digitasaru.net
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Breno" <brenosp@brasilsec.com.br> writes:
+Hello.
 
-> Hi ,
->
-> I´m using 2.4.22 and when i reboot my system , the boot process stop when
-> "freeing unused memory" message appear.
->
-> What can be ?
+There is a curious lockup that happens when I switch from X to a VC or when
+  exiting X.
+The whole system hangs; no Magic SysRq keys have any effect (as observed on
+  screen and by watching the disk activity light).  No oops is printed to
+  screen that I can see.
+What should I do to trace this further?  Or is it known (I couldn't find it
+  looking at the list archives)?
+Thanks!
 
-It's failing when the kernel first enters user space.
-
-This often happens after a miscompilation, e.g. when some files are
-not uptodate. Do a make distclean and try again.
-
--Andi
+-Joseph
+-- 
+Joseph===============================================trelane@digitasaru.net
+"Asked by CollabNet CTO Brian Behlendorf whether Microsoft will enforce its
+ patents against open source projects, Mundie replied, 'Yes, absolutely.'
+ An audience member pointed out that many open source projects aren't
+ funded and so can't afford legal representation to rival Microsoft's. 'Oh
+ well,' said Mundie. 'Get your money, and let's go to court.' 
+Microsoft's patents only defensive? http://swpat.ffii.org/players/microsoft

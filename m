@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266186AbTBPJnr>; Sun, 16 Feb 2003 04:43:47 -0500
+	id <S266161AbTBPJx1>; Sun, 16 Feb 2003 04:53:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266199AbTBPJnq>; Sun, 16 Feb 2003 04:43:46 -0500
-Received: from c16639.thoms1.vic.optusnet.com.au ([210.49.244.5]:7822 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id <S266186AbTBPJno>;
-	Sun, 16 Feb 2003 04:43:44 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [BENCHMARK] 2.5.61-mm1 +/- as or cfq with contest
-Date: Sun, 16 Feb 2003 20:53:36 +1100
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
-       Nick Piggin <piggin@cyberone.com.au>
-References: <200302162046.42103.kernel@kolivas.org> <20030216095149.GA6521@suse.de>
-In-Reply-To: <20030216095149.GA6521@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id <S266175AbTBPJx1>; Sun, 16 Feb 2003 04:53:27 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:34692 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S266161AbTBPJx0>; Sun, 16 Feb 2003 04:53:26 -0500
+From: David Woodhouse <dwmw2@infradead.org>
+To: Kunihiro Ishiguro <kunihiro@ipinfusion.com>
+Cc: Matthias Andree <matthias.andree@gmx.de>, rct@gherkin.frus.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <87ptptx9z1.wl@ipinfusion.com>
+References: <Pine.LNX.4.44.0302141709410.1376-100000@penguin.transmeta.com>
+	 <20030215135345.GA16783@merlin.emma.line.org>
+	 <87ptptx9z1.wl@ipinfusion.com>
+Organization: 
+Message-Id: <1045389793.2068.39.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 16 Feb 2003 10:03:13 +0000
+Subject: Re: Linux v2.5.61
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302162053.36119.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Feb 2003 08:51 pm, Jens Axboe wrote:
-> On Sun, Feb 16 2003, Con Kolivas wrote:
-> > Here are contest (http://contest.kolivas.org) results with osdl
-> > (http://www.osdl.org) hardware for 2.5.61-mm1 with either the as i/o
-> > scheduler or the cfq scheduler.
-> >
-> > io_load:
-> > Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
-> > 2.5.60-mm1          3   112     67.0    15.7    7.1     1.42
-> > 2.5.61              2   143     52.4    32.9    13.3    1.81
-> > 2.5.61-mm1          2   634     12.5    257.3   24.6    7.83
-> > 2.5.61-mm1cfq       3   397     19.6    123.3   18.1    5.03
->
-> These loo fishy, could be some other interaction. I'm consistently
-> beating 2.5.60-mm1/2.5.61 on io_load here, but that is 2.5.61 base and
-> not 2.5.61-mm1 base. Could be something odd happening there.
+On Sun, 2003-02-16 at 01:58, Kunihiro Ishiguro wrote:
+> >Well, the kernel doesn't link for me when IPV6 is compiled as a module (config
+> >below) -- linking IPv6 in is fine.
+> 
+> Here is a fix for xfrm6_get_type() link problem when IPv6 is
+> configured as a module.
 
-I dont think they're fishy - taken in the mm1 context -. I have tested cfq3a 
-without mm1 and it does beat the baseline. See a previous email I posted with 
-it.
+> +#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
 
-Con
+No. Do not ever use #ifdef CONFIG_xxx_MODULE. You should be able to
+build modules later by adding them to your config.
+
+-- 
+dwmw2
+

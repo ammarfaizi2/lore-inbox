@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265994AbUBCMvm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 07:51:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265995AbUBCMvm
+	id S265999AbUBCNUj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 08:20:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266000AbUBCNUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 07:51:42 -0500
-Received: from [216.218.244.58] ([216.218.244.58]:52708 "EHLO
-	www.kerneltrap.org") by vger.kernel.org with ESMTP id S265994AbUBCMvl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 07:51:41 -0500
-Date: Tue, 3 Feb 2004 07:51:18 -0500
-From: Jeremy Andrews <jeremy@kerneltrap.org>
-To: Markus =?ISO-8859-1?B?SORzdGJhY2th?= <midian@ihme.org>
+	Tue, 3 Feb 2004 08:20:39 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:35032 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S265999AbUBCNUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 08:20:37 -0500
+Subject: Re: IRQ 9: nobody cared ;_;
+From: Len Brown <len.brown@intel.com>
+To: DaMouse Networks <damouse@ntlworld.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops with 2.6.2-rc3
-Message-Id: <20040203075118.2dd12a4a.jeremy@kerneltrap.org>
-In-Reply-To: <1075755810.15169.4.camel@midux>
-References: <20040202201411.GA19268@home.kerneltrap.org>
-	<1075755810.15169.4.camel@midux>
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+In-Reply-To: <20040203064920.087d5546@EozVul.WORKGROUP>
+References: <BF1FE1855350A0479097B3A0D2A80EE0CC8A93@hdsmsx402.hd.intel.com>
+	 <20040203064920.087d5546@EozVul.WORKGROUP>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1075814415.13728.75.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 03 Feb 2004 08:20:15 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 02 Feb 2004 23:03:30 +0200
-Markus Hästbacka <midian@ihme.org> wrote:
+> ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 dfl dfl)
 
-> I heard that the PREEMPT is causing problems, earlier, try without
-> CONFIG_PREEMPT
+> NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect: 
+> 09 003 03  0    1    0   1   0    1    1    71
 
-Indeed the machine appears stable without PREEMPT at the moment, though I
-also made other configuration changes as well.  I'll keep adding back
-things I need one by one to see if the instability returns / which causes
-it.
+Looks like we're setting up IRQ9 correctly -- level/low -- which is what
+default/default is.  Other systems break if dfl/dfl is not interpreted
+as level/low.
 
-> Could you please describe what the server is serving (router or
-> something else?)
+>  9:     100000          0   IO-APIC-level  acpi
 
-It's my primary desktop computer (so I certainly hope that PREEMPT is not
-triggering the problem).
+But ACPI (alone on the IRQ) is getting an interrupt storm -- IRQ9 is low
+and ACPI doesn't know why.
 
-Cheers,
- -Jeremy
+Please verify that you've got the latest BIOS for this box,
+and send along
+1. /proc/interrupts and demsg from booting same kernel with "acpi=off"
+2. output from dmidecode available in /usr/sbin/, or here:
+http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
+
+i'll send a patch later to force IRQ9 to level/high -- for if the ACPI
+interrupt works properly with that setting, then we know we've
+mis-interpreted what we think should be dfl/dfl on this box.
+
+thanks,
+-Len
+
+

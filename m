@@ -1,49 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266184AbUFJGOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263204AbUFJGS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266184AbUFJGOp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 02:14:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266220AbUFJGOp
+	id S263204AbUFJGS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 02:18:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUFJGS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 02:14:45 -0400
-Received: from 81-203-228-43.user.ono.com ([81.203.228.43]:31755 "HELO
-	actionline.com.au") by vger.kernel.org with SMTP id S266237AbUFJGOL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 02:14:11 -0400
-Message-ID: <e09501c44eb1$c277470c$553ab671@actionline.com.au>
-From: "Anastasia Sizemore" <anastasiasizemore_jr@dada.it>
-To: linux-kernel@vger.kernel.org
-Subject: Powerful weightloss now available for you.
-Date: Thu, 10 Jun 2004 14:11:51 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Thu, 10 Jun 2004 02:18:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5292 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263204AbUFJGS4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 02:18:56 -0400
+Date: Wed, 9 Jun 2004 23:18:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alasdair G Kergon <agk@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2/5: Device-mapper: kcopyd
+Message-Id: <20040609231805.029672aa.akpm@osdl.org>
+In-Reply-To: <20040602154129.GO6302@agk.surrey.redhat.com>
+References: <20040602154129.GO6302@agk.surrey.redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, I have a special_offer for you...
-WANT TO LOSE WEIGHT?
-The most powerful weightloss is now available
-without prescription. All natural Adipren720
-100% Money Back Guarantée!
-- Lose up to 19% Total Body Weight.
-- Up to 300% more Weight Loss while dieting.
-- Loss of 20-35% abdominal Fat.
-- Reduction of 40-70% overall Fat under skin.
-- Increase metabolic rate by 76.9% without Exercise.
-- Boost your Confidence level and Self Esteem.
-- Burns calorized fat.
-- Suppresses appetite for sugar.
-Get the facts about all-natural Adipren720 <http://3adipren.com/>
+Alasdair G Kergon <agk@redhat.com> wrote:
+>
+> kcopyd
+> 
+> ...
+> +/* FIXME: this should scale with the number of pages */
+> +#define MIN_JOBS 512
 
+This pins at least 2MB of RAM up-front, even if devicemapper is not in use.
 
-
----- system information ----
-numbers indicated implementation HTML class disclose lies there 
-interoperate wildly field collating writes scenarios session-like header
-
-inferred affected reflection subject conventions XML Distinguishing Locale
-
-respect referred zones construct service Because exposed endorsement 
-The methods Traditional resource of) non-Java Negotiation] Most 
-
+Have you any plans to fix that up?

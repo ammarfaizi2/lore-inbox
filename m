@@ -1,93 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBMRnB>; Tue, 13 Feb 2001 12:43:01 -0500
+	id <S129032AbRBMRmv>; Tue, 13 Feb 2001 12:42:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129101AbRBMRmv>; Tue, 13 Feb 2001 12:42:51 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:59117 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129027AbRBMRmj>; Tue, 13 Feb 2001 12:42:39 -0500
-From: Christoph Rohland <cr@sap.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org,
-        "Andreas J. Koenig" <andreas.koenig@anima.de>
-Subject: [Patch] correct tmpfs link count for directories
-Organisation: SAP LinuxLab
-Date: 13 Feb 2001 18:47:43 +0100
-Message-ID: <m3zofq3268.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
+	id <S129101AbRBMRml>; Tue, 13 Feb 2001 12:42:41 -0500
+Received: from 041imtd176.chartermi.net ([24.247.41.176]:58772 "EHLO
+	oof.netnation.com") by vger.kernel.org with ESMTP
+	id <S129032AbRBMRm3>; Tue, 13 Feb 2001 12:42:29 -0500
+Date: Tue, 13 Feb 2001 12:42:26 -0500
+From: Simon Kirby <sim@stormix.com>
+To: linux-kernel@vger.kernel.org
+Subject: LDT allocated for cloned task!
+Message-ID: <20010213124226.A15600@stormix.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+LDT allocated for cloned task!
 
-The attached patch makes tmpfs behave more like other fs's. Apparently
-perl expects this.
+I'm seeing this message come up fairly often while running vanilla
+2.4.2-pre3 on my dual Celeron system.  I don't think I saw it before
+while running 2.4.1, but I may have just missed it.
 
-Greetings
-		Christoph
+My system has been up around two days and has 11 of these messages in the
+ring buffer.
 
-diff -uNr 2.4.1-ac10/mm/shmem.c 2.4.1-ac10-nlink/mm/shmem.c
---- 2.4.1-ac10/mm/shmem.c	Mon Feb 12 15:01:47 2001
-+++ 2.4.1-ac10-nlink/mm/shmem.c	Tue Feb 13 13:48:49 2001
-@@ -465,6 +465,7 @@
- 			inode->i_fop = &shmem_file_operations;
- 			break;
- 		case S_IFDIR:
-+			inode->i_nlink++;
- 			inode->i_op = &shmem_dir_inode_operations;
- 			inode->i_fop = &shmem_dir_operations;
- 			break;
-@@ -743,7 +744,12 @@
- 
- static int shmem_mkdir(struct inode * dir, struct dentry * dentry, int mode)
- {
--	return shmem_mknod(dir, dentry, mode | S_IFDIR, 0);
-+	int error;
-+
-+	if ((error = shmem_mknod(dir, dentry, mode | S_IFDIR, 0)))
-+		return error;
-+	dir->i_nlink++;
-+	return 0;
- }
- 
- static int shmem_create(struct inode *dir, struct dentry *dentry, int mode)
-@@ -801,25 +807,21 @@
- 	return 1;
- }
- 
--/*
-- * This works for both directories and regular files.
-- * (non-directories will always have empty subdirs)
-- */
- static int shmem_unlink(struct inode * dir, struct dentry *dentry)
- {
--	int retval = -ENOTEMPTY;
-+	dentry->d_inode->i_nlink--;
-+	dput(dentry);	/* Undo the count from "create" - this does all the work */
-+	return 0;
-+}
- 
--	if (shmem_empty(dentry)) {
--		struct inode *inode = dentry->d_inode;
-+static int shmem_rmdir(struct inode * dir, struct dentry *dentry)
-+{
-+	if (!shmem_empty(dentry))
-+		return -ENOTEMPTY;
- 
--		inode->i_nlink--;
--		dput(dentry);	/* Undo the count from "create" - this does all the work */
--		retval = 0;
--	}
--	return retval;
-+	dir->i_nlink--;
-+	return shmem_unlink(dir, dentry);
- }
--
--#define shmem_rmdir shmem_unlink
- 
- /*
-  * The VFS layer already does all the dentry stuff for rename,
+Actually, I just remembered that I'm using the mga DRI driver module
+from the DRI CVS tree rather than the built-in module, so that's not part
+of the official kernel...maybe that is causing the messages.
 
+Simon-
 
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

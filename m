@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbUHJJ0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262837AbUHJJhi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbUHJJ0O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 05:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUHJJ0O
+	id S262837AbUHJJhi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 05:37:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUHJJhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 05:26:14 -0400
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:64146 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S263772AbUHJJZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 05:25:47 -0400
-Date: Tue, 10 Aug 2004 11:25:48 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: skraw@ithnet.com, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <20040810092548.GG10361@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	skraw@ithnet.com, axboe@suse.de, linux-kernel@vger.kernel.org
-References: <200408091346.i79DkDRi010405@burner.fokus.fraunhofer.de>
+	Tue, 10 Aug 2004 05:37:38 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:61359 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S262837AbUHJJhg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 05:37:36 -0400
+Date: Tue, 10 Aug 2004 11:37:34 +0200
+From: Sascha Wilde <wilde@sha-bang.de>
+To: "David N. Welton" <davidw@eidetix.com>
+Cc: jamesl@appliedminds.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
+Message-ID: <20040810093734.GA1089@kenny.sha-bang.local>
+References: <auto-000000462036@appliedminds.com> <411735BD.3000303@eidetix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408091346.i79DkDRi010405@burner.fokus.fraunhofer.de>
+In-Reply-To: <411735BD.3000303@eidetix.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2004-08-09:
+On Mon, Aug 09, 2004 at 10:28:45AM +0200, David N. Welton wrote:
 
-> While this works for most if not all OS, it does not work for Linux.
-> 
-> For Linux, the percentage of things that are reported incorrect to me is higher
-> than 80%, so I need to use my own extertise. If I would not, cdrecord would be
-> unusable.
+> The shutdown sequence is not hanging, though, as far as I can tell.
 
-What ratio (percentage) of installed copies makes Linux up for? 90%? 95%?
+Yes, I think I pointed out before, that not any code of the kernel,
+but the hardware itself hangs during the reboot.
 
-I don't know the figures but if it were like 80% of problems for 90% of
-installations, that would mean the problem count was below average.
+> You can triple fault the machine immediately after the first WCTR
+> command during initialization (triple fault reboots it just fine
+> just before the same command) and it doesn't cause a reboot, and yet
+> it's no longer executing instructions from the kernel (or at least
+> not printk's or anything meaningful).  I don't think it's the
+> parameters that it's passing to the WCTR command either, because if
+> you look in the previous batch of printk's, it's putting back in
+> exactly what it got out.
 
-Just a thought.
+Right, in fact the problem occures from the first writing to the i8042
+register.  When you comment out all of the lines sending a
+"I8042_CMD_CTL_WCTR" from i8042.c the resulting kernel will reboot
+under al conditions (at least it does here) -- but unfortunatly that
+renders the local Keyboard unusable...
 
+Putting only one of them back in, (for example the one in
+i8042_activate_port(), which brings the keyboard back to life) the
+reboot hangs again.
+
+Big question:  how was the initialisation of the PS/2 ports managed in
+2.4.x?  Ther seems to be no similar code to i8042.c in it[0], and all I
+have found till now is a bunch ob obscure jump-rables in
+arch/i386/kernel/setup.c ...
+
+cheers
+sascha
+
+[0] In fact, the only code mentioning the i8042 in 2.4 is related to
+    HP HIL devices...
 -- 
-Matthias Andree
-
-NOTE YOU WILL NOT RECEIVE MY MAIL IF YOU'RE USING SPF!
-Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)
+Sascha Wilde : "Lies, was ich meine, nicht, was ich schreibe."
+             : (Urs Traenkner in de.alt.admin)

@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261823AbRFBWLq>; Sat, 2 Jun 2001 18:11:46 -0400
+	id <S261840AbRFBWTG>; Sat, 2 Jun 2001 18:19:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261840AbRFBWLg>; Sat, 2 Jun 2001 18:11:36 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:51218 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261823AbRFBWL1>; Sat, 2 Jun 2001 18:11:27 -0400
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Message-ID: <3B19646F.CBB6DB65@transmeta.com>
-Date: Sat, 02 Jun 2001 15:10:55 -0700
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S261843AbRFBWS5>; Sat, 2 Jun 2001 18:18:57 -0400
+Received: from pat.uio.no ([129.240.130.16]:36744 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S261840AbRFBWSo>;
+	Sat, 2 Jun 2001 18:18:44 -0400
 MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: missing sysrq
-In-Reply-To: <Pine.LNX.4.10.10106011050380.2614-100000@coffee.psychology.mcmaster.ca> <20010601203841Z261493-933+3160@vger.kernel.org> <9f97hu$83v$1@cesium.transmeta.com> <20010602230815.A22390@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <15129.25972.433708.994343@charged.uio.no>
+Date: Sun, 3 Jun 2001 00:15:16 +0200
+To: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [newbie] NFS client: port-unreachable
+In-Reply-To: <Pine.LNX.4.31.0106022258210.17342-100000@pc40.e18.physik.tu-muenchen.de>
+In-Reply-To: <shsd78o2h84.fsf@charged.uio.no>
+	<Pine.LNX.4.31.0106022258210.17342-100000@pc40.e18.physik.tu-muenchen.de>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> 
-> On Fri, Jun 01, 2001 at 04:13:02PM -0700, H. Peter Anvin wrote:
-> > Let me guess... you're using a RedHat system?  RedHat, for some
-> > idiotic reason, defaults to actively turning this off for you (and
-> > they turn Stop-A off on SPARC, too.)
-> 
-> Umm, its off by default in 2.4.5 kernels, unless altered by a
-> distributions boot scripts.
-> 
+>>>>> " " == Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de> writes:
 
-That seems like a very bad idea.  What if there is a boot script bug?
+     > No, I have no port specific rules in the firewall (iptables),
+     > but this machine does SNAT for 32 other linux boxes which also
+     > get some directories from the same server (including YP). I had
+     > some trouble with the YPSERV-calls until I bound two more IPs
+     > to the network card and masqueraded the 32 boxes via these
+     > additional addresses. What might happen is that the specific
+     > port gets allocated by some port remapping in iptables during
+     > the request, but I don't see why this should happen only for
+     > specific directories (e.g. /home works and /compass doesn't
+     > while both are from the same server).
 
-	-hpa
+Are /home and /compass on the same mount point on the client though? 
+If not, then they won't share the same port.
+
+IOW: they will only share the same port if you have '/' as the NFS
+mountpoint.
+
+Cheers,
+  Trond

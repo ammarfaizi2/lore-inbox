@@ -1,55 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316909AbSFDWzu>; Tue, 4 Jun 2002 18:55:50 -0400
+	id <S316900AbSFDWzo>; Tue, 4 Jun 2002 18:55:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316912AbSFDWzt>; Tue, 4 Jun 2002 18:55:49 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:32273 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S316909AbSFDWzr>;
-	Tue, 4 Jun 2002 18:55:47 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Alexander.Riesen@synopsys.com
-Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, release 3.0 is available 
-In-Reply-To: Your message of "Tue, 04 Jun 2002 11:16:46 +0200."
-             <20020604091646.GB29455@riesen-pc.gr05.synopsys.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 05 Jun 2002 08:55:35 +1000
-Message-ID: <17931.1023231335@ocs3.intra.ocs.com.au>
+	id <S316909AbSFDWzn>; Tue, 4 Jun 2002 18:55:43 -0400
+Received: from h-64-105-34-84.SNVACAID.covad.net ([64.105.34.84]:24979 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S316900AbSFDWzl>; Tue, 4 Jun 2002 18:55:41 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 4 Jun 2002 15:54:52 -0700
+Message-Id: <200206042254.PAA00940@baldur.yggdrasil.com>
+To: dalecki@evision-ventures.com, rmk@arm.linux.org.uk
+Subject: Re: IDE{,-SCSI} trouble [2.5.20]
+Cc: linux-kernel@vger.kernel.org, zlatko.calusic@iskon.hr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Jun 2002 11:16:46 +0200, 
-Alex Riesen <Alexander.Riesen@synopsys.com> wrote:
->Got this trying to compile 2.5.20 with Debian's gcc 2.95.4.
->Why it took the system-wide zlib.h?
->In file included from /export/home/riesen-pc0/riesen/compile/v2.5/fs/isofs/compress.c:38:
->include/linux/zlib.h:34: zconf.h: No such file or directory
+Russell King wrote:
+>On Tue, Jun 04, 2002 at 02:37:55PM -0700, Adam J. Richter wrote:
+>> --- linux/drivers/ide/icside.c	2002-06-03 00:46:21.000000000 -0700
+>> +++ linux-2.5.20/drivers/ide/icside.c	2002-06-02 18:44:41.000000000 -0700
+>> @@ -275,9 +275,8 @@
+>>  #define NR_ENTRIES 256
+>>  #define TABLE_SIZE (NR_ENTRIES * 8)
+>>  
+>> -static int ide_build_sglist(struct ata_device *drive, struct request *rq)
+>> +static int ide_build_sglist(struct ata_channel *ch, struct request *rq)
+>>  {
+>> -	struct ata_channel *ch = drive->channel;
+>>  	struct scatterlist *sg = ch->sg_table;
+>>  	int nents;
+>>  
 
-In order to do separate source and object correctly, kbuild 2.5
-enforces the rule that #include "" comes from the local directory,
-#include <> comes from the include path.  include/linux/zlib.h
-incorrectly does #include "zconf.h" instead of #include <linux/zconf.h>,
-breaking the rules.
+>Umm, you sure this is right?  ide_build_sglist takes an ata_channel
+>argument in my 2.5.20.
 
-This was not detected by common-2.5.20-1 because the nostdinc check was
-incomplete, common-2.5.20-2 does nostdinc correctly.  I avoid changing
-the source code for kbuild 2.5, instead I workaround these incorrect
-includes by adding extra_cflags() with FIXME comments to correct the
-code later.  I will do a common-2.5.20-3 to workaround zlib.h, in the
-meantime try this quick and dirty fix
 
---- 2.5.20-pristine/include/linux/zlib.h	Mon Apr 15 05:18:43 2002
-+++ 2.5.20-kbuild-2.5/include/linux/zlib.h	Tue Jun  4 11:03:05 2002
-@@ -31,7 +31,7 @@
- #ifndef _ZLIB_H
- #define _ZLIB_H
+	Right.  As the order of the file names in the diff confirms,
+I accidentally submitted a diff in reverse order.  You are also
+correct about:
+
+>If this is reversed, you also forgot to change where it is used in
+>icside.c.
+
+	Russell: sorry for not cc'ing you in my original patch
+submission to Martin.  I infer that since you are adding another patch
+of your own and adding Martin to the recipient list that it is OK with
+you to volunteer Martin to combine your patch and mine in this case
+and submit them to Linus.
+
+	Martin: unless you, Russell, or anyone else sees a problem
+with this, could you please also apply the attached patch to icside.c,
+which I should have included in my original submission.  I missed my
+error when I checked for compiler warnings, because icside is not
+built on x86.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+
+
+--- before/drivers/ide/icside.c	2002-06-02 18:44:41.000000000 -0700
++++ linux/drivers/ide/icside.c	2002-06-04 15:31:21.000000000 -0700
+@@ -491,7 +492,7 @@
+ 	 */
+ 	BUG_ON(dma_channel_active(ch->hw.dma));
  
--#include "zconf.h"
-+#include <linux/zconf.h>
+-	count = ch->sg_nents = ide_build_sglist(ch, rq);
++	count = ch->sg_nents = ide_build_sglist(drive, rq);
+ 	if (!count)
+ 		return 1;
  
- #ifdef __cplusplus
- extern "C" {
-
-

@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbUL1DXC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262042AbUL1DXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262053AbUL1DXC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 22:23:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbUL1DKs
+	id S262042AbUL1DXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 22:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbUL1DXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 22:10:48 -0500
-Received: from holomorphy.com ([207.189.100.168]:15318 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262046AbUL1DJc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 22:09:32 -0500
-Date: Mon, 27 Dec 2004 19:09:17 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Hirokazu Takata <takata@linux-m32r.org>
-Cc: oleg@tv-sign.ru, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       James.Bottomley@HansenPartnership.com, paulus@samba.org,
-       davem@davemloft.net, lethal@linux-sh.org, davidm@hpl.hp.com,
-       schwidefsky@de.ibm.com, ak@suse.de, rth@twiddle.net, matthew@wil.cx
-Subject: Re: [PATCH] fix conflicting cpu_idle() declarations
-Message-ID: <20041228030917.GJ771@holomorphy.com>
-References: <41D033FE.7AD17627@tv-sign.ru> <20041228.115516.783400549.takata.hirokazu@renesas.com>
+	Mon, 27 Dec 2004 22:23:15 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:37798
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262042AbUL1DUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 22:20:19 -0500
+Date: Mon, 27 Dec 2004 19:15:35 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] net/ipv4/: misc possible cleanups
+Message-Id: <20041227191535.5edce690.davem@davemloft.net>
+In-Reply-To: <20041215005139.GJ23151@stusta.de>
+References: <20041215005139.GJ23151@stusta.de>
+X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041228.115516.783400549.takata.hirokazu@renesas.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 28, 2004 at 11:55:16AM +0900, Hirokazu Takata wrote:
-> I think it is OK for m32r.
-> BTW, you moved the definition of cpu_idle() to smp.h.
-> It may not be included from arch/*/process.c in some archs.
-> Is it OK?
+On Wed, 15 Dec 2004 01:51:39 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
-It should be okay to include even on UP-only arches, IIRC it has stubs
-for UP versions of various locking primitives etc. used widely
-throughout the kernel.
+> - remove the following unneeded EXPORT_SYMBOL:
+>   - tcp_timer.c: tcp_timer_bug_msg
 
-
--- wli
+This one is wrong.  It is needed for the ipv6 module
+via the call tcp_ipv6.c makes to tcp_done() which
+invokes tcp_clear_xmit_timer() which uses
+tcp_timer_bug_msg.

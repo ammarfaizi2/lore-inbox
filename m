@@ -1,69 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283541AbRK3Hhx>; Fri, 30 Nov 2001 02:37:53 -0500
+	id <S283543AbRK3HlD>; Fri, 30 Nov 2001 02:41:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283539AbRK3Hho>; Fri, 30 Nov 2001 02:37:44 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:53428 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S283538AbRK3Hhb>;
-	Fri, 30 Nov 2001 02:37:31 -0500
-Date: Fri, 30 Nov 2001 02:37:22 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jens Axboe <axboe@suse.de>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Linux-Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH 2.5.1.4: fix rd.c build
-In-Reply-To: <20011130082855.E16796@suse.de>
-Message-ID: <Pine.GSO.4.21.0111300229570.13367-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S283540AbRK3Hky>; Fri, 30 Nov 2001 02:40:54 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:21522 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S283543AbRK3Hkm>;
+	Fri, 30 Nov 2001 02:40:42 -0500
+Date: Fri, 30 Nov 2001 08:40:15 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Udo A. Steinberg" <reality@delusion.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Stuff that needs fixing in 2.5.1-pre4
+Message-ID: <20011130084015.H16796@suse.de>
+In-Reply-To: <3C06F3A5.D407607A@delusion.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C06F3A5.D407607A@delusion.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 30 Nov 2001, Jens Axboe wrote:
-
-> On Fri, Nov 30 2001, Alexander Viro wrote:
-> > 
-> > 
-> > On Fri, 30 Nov 2001, Jens Axboe wrote:
-> > 
-> > > Actually, this is not even enough if rd receives a multi page bio.
-> > > Something like this should work, untested.
-> > > 
-> > > @@ -237,9 +238,9 @@
-> > >  	err = -EIO;
-> > 
-> > Make it err = 0...
+On Fri, Nov 30 2001, Udo A. Steinberg wrote:
 > 
-> Explain
+> Hi all,
+> 
+> Below a few things that should probably be fixed in the current 2.5. tree.
 
-Think what happens if you have all these pages in page cache.  Already.
-Returning -EIO is hardly a good idea in that case.  Look through the
-loop - we assign err in the body only if we have to allocate a new
-page.
+Make the get_block long argument for block a sector_t. Once you have
+that warning free, send on the fix.
 
-Notice that any bh brings the page in.  I.e. for smaller-than-page ones
-you are going to have a lot of fun...
-
->From -pre2:
-
-@@ -227,19 +227,18 @@
-        commit_write: ramdisk_commit_write,
- };
- 
--static int rd_blkdev_pagecache_IO(int rw, struct buffer_head * sbh, int minor)
-+static int rd_blkdev_pagecache_IO(int rw, struct bio *sbh, int minor)
- {
-        struct address_space * mapping;
-        unsigned long index;
-        int offset, size, err;
- 
-        err = -EIO;
--       err = 0;
-        mapping = rd_bdev[minor]->bd_inode->i_mapping;
-
-Sure, one of these assignments had to go away.  You'd picked the wrong one,
-though...
+-- 
+Jens Axboe
 

@@ -1,55 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262485AbVA0AnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbVA0AnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262485AbVA0AnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 19:43:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbVA0AW5
+	id S262532AbVA0AnP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 19:43:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbVA0AUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 19:22:57 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:24773 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S262494AbVAZXXc (ORCPT
+	Wed, 26 Jan 2005 19:20:07 -0500
+Received: from smtpout.mac.com ([17.250.248.89]:36813 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S262478AbVAZWpo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 18:23:32 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E5705B83A31@exa-atlanta>
-From: "Mukker, Atul" <Atulm@lsil.com>
-To: "'Greg KH'" <greg@kroah.com>
-Cc: "'Patrick Mansfield'" <patmans@us.ibm.com>,
-       "'James Bottomley'" <James.Bottomley@steeleye.com>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
-       "'SCSI Mailing List'" <linux-scsi@vger.kernel.org>
-Subject: RE: How to add/drop SCSI drives from within the driver?
-Date: Wed, 26 Jan 2005 18:23:16 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+	Wed, 26 Jan 2005 17:45:44 -0500
+In-Reply-To: <41F7377E.8050106@sbcglobal.net>
+References: <41F7377E.8050106@sbcglobal.net>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <52ed6271f4e0d15a41b17d691b18ab0f@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Felipe Alfaro Solana <lkml@mac.com>
+Subject: Re: porting Linux to a virtual machine
+Date: Wed, 26 Jan 2005 23:45:50 +0100
+To: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> And what do you mean "different implementations for /sbin/hotplug"?
-> What distros do not use the standard "linux-hotplug" type 
-> scripts, or if not the scripts, the same functionality?
+On 26 Jan 2005, at 07:23, Robert W. Fuller wrote:
 
-You are right, even though distributions (I checked Red Hat and SuSE) have
-different /sbin/hotplug scripts (e.g., SuSE 9.2 will not execute files from
-/etc/hotplug.d whereas Red Hat does) udev will be invoked in all cases,
-which will take care of creating device nodes.
+> Has anybody ported Linux to a virtual machine?
 
-But our concern is that how would the applications get the cue that udev has
-actually created the nodes for the new devices? 
+http://xen.sf.net
 
-Make sure an agent is called after the, e.g., scsi agents are executed from
-/etc/hotplug directory (which happen to be scsi.agent, scsi_device.agent,
-scsi_host.agent in one and only scsi.agent in other distribution), by
-writing an rc like script?
-
-Or more likely, by placing our agent in /etc/dev.d directory. Unfortunately,
-there seems be not a consensus here as well. On system has "default" and
-"net" directories and other has "block", "input", "net", "tty"?
-
-
-Thanks
-
---------------------------------
-Atul Mukker
-Architect, RAID Drivers and BIOS
-LSI Logic Corporation

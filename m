@@ -1,93 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267374AbUHPDFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267376AbUHPDGI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267374AbUHPDFy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 23:05:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267376AbUHPDFx
+	id S267376AbUHPDGI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 23:06:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267378AbUHPDGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 23:05:53 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:28034 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267374AbUHPDFu (ORCPT
+	Sun, 15 Aug 2004 23:06:08 -0400
+Received: from smtp2.cwidc.net ([154.33.63.112]:22700 "EHLO smtp2.cwidc.net")
+	by vger.kernel.org with ESMTP id S267376AbUHPDGE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 23:05:50 -0400
-Date: Mon, 16 Aug 2004 05:06:01 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P0
-Message-ID: <20040816030601.GA10616@elte.hu>
-References: <1092432929.3450.78.camel@mindpipe> <20040814072009.GA6535@elte.hu> <20040815115649.GA26259@elte.hu> <20040816022554.16c3c84a@mango.fruits.de> <1092622121.867.109.camel@krustophenia.net> <20040816023655.GA8746@elte.hu> <1092624221.867.118.camel@krustophenia.net> <20040816025051.GA9481@elte.hu> <20040816025846.GA10240@elte.hu> <1092625400.867.126.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="zhXaljGHf11kAtnf"
-Content-Disposition: inline
-In-Reply-To: <1092625400.867.126.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 15 Aug 2004 23:06:04 -0400
+Message-ID: <41202487.8030302@tequila.co.jp>
+Date: Mon, 16 Aug 2004 12:05:43 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040724
+X-Accept-Language: en-us, en, ja
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Radeon FB slightly broken in 2.6.8.x
+References: <411F5F7F.9050403@tequila.co.jp>	 <1092608961.9529.23.camel@gaston>  <411FFC3B.9050808@tequila.co.jp> <1092622048.9529.38.camel@gaston>
+In-Reply-To: <1092622048.9529.38.camel@gaston>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Benjamin Herrenschmidt wrote:
+~ >
+| Does it disappear if you use video=radeonfb:noaccel on the kernel
+| command line ?
 
+I will try that when I come back home.
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.co.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-> On Sun, 2004-08-15 at 22:58, Ingo Molnar wrote:
-> > * Ingo Molnar <mingo@elte.hu> wrote:
-> > i've attached mlock-test2.cc that should test this theory. The code
-> > breaks up the mlock-ed region into 8 equal pieces and does mlock() on
-> > them separately. It's basically a lock-break done in user-space. Does
-> > this change the nature of xruns?
-> 
-> -ENOATTACHMENT
-
--ESTILLTOOEARLY. attached now.
-
-	Ingo
-
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="mlock-test2.cc"
-
-// here is the code i used to test the mlockall caused xruns
-#include <sys/mman.h>
-#include <iostream>
-#include <sstream>
-#include <unistd.h>
-
-#define INTERVALS 8
-
-int main (int argc, char *argv[]) {
-        if (argc < 2) {
-                std::cout << "how many kbytes you want allocated and mlockall'ed?" << std::endl;
-        }
-
-        std::stringstream stream(argv[1]);
-        int kbytes, error = 0, i, chunk;
-
-        stream >> kbytes;
-        char *mem = new char[kbytes*1024];
-        std::cout << "filling with 0's" << std::endl;
-        for (int i = 0; i < kbytes*1024; ++i) {
-                mem[i] = 0;
-        }
-
-        std::cout << "ok, you want " << kbytes << "kb of memory mlocked.  going for it.." << std::endl;
-	chunk = kbytes*1024/INTERVALS;
-	for (i = 0; i < INTERVALS; i++)
-        	error |= mlock(mem + i*chunk, chunk);
-        if (error != 0) { std::cout << "mlock error" << std::endl; }
-        else { std::cout << "mlock successfull" << std::endl;}
-}
-
-
---zhXaljGHf11kAtnf--
+iD8DBQFBICSGjBz/yQjBxz8RAvpLAKDD3EWaYdvfP/ZmzGGA304BlTHrwQCfU6Ro
+IgDv+MHXl7qBYtUCTZuKBkA=
+=/DFb
+-----END PGP SIGNATURE-----

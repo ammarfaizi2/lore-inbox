@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbTDDGbr (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 01:31:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbTDDGbr (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 01:31:47 -0500
-Received: from [12.47.58.55] ([12.47.58.55]:3278 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S261366AbTDDGbf (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 01:31:35 -0500
-Date: Thu, 3 Apr 2003 22:43:46 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
+	id S263425AbTDDGhk (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 01:37:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbTDDGhk (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 01:37:40 -0500
+Received: from flrtn-2-m1-133.vnnyca.adelphia.net ([24.55.67.133]:16769 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id S263425AbTDDGh3 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 01:37:29 -0500
+Message-ID: <3E8D2AD4.10701@tmsusa.com>
+Date: Thu, 03 Apr 2003 22:48:52 -0800
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch for show_task
-Message-Id: <20030403224346.51d9680e.akpm@digeo.com>
-In-Reply-To: <20030404013829.A30163@devserv.devel.redhat.com>
-References: <20030404013829.A30163@devserv.devel.redhat.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: [patch] acpi compile fix
+References: <20030403130505.199294c7.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Apr 2003 06:42:56.0928 (UTC) FILETIME=[6D287200:01C2FA75]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev <zaitcev@redhat.com> wrote:
+Andrew Morton wrote:
+
+>ACPI is performing a spin_lock() on a `void *'.  That's OK when spin_lock is
+>implemented via an inline function.  But when it is implemented via macros
+>(eg, with spinlock debugging enabled) we get:
 >
-> Andrew, bkbits says you changed the line above to be p->thread_info.
-> Unfortunately, there's another.
-> 
-> --- linux-2.5.66/kernel/sched.c	2003-03-24 14:01:16.000000000 -0800
-> +++ linux-2.5.66-sparc/kernel/sched.c	2003-04-03 22:33:29.000000000 -0800
-> @@ -2197,7 +2197,7 @@
->  		unsigned long * n = (unsigned long *) (p->thread_info+1);
->  		while (!*n)
->  			n++;
-> -		free = (unsigned long) n - (unsigned long)(p+1);
-> +		free = (unsigned long) n - (unsigned long) (p->thread_info+1);
->  	}
->  	printk("%5lu %5d %6d ", free, p->pid, p->parent->pid);
->  	if ((relative = eldest_child(p)))
-> 
+>drivers/acpi/osl.c:739: warning: dereferencing `void *' pointer
+>drivers/acpi/osl.c:739: request for member `owner' in something not a structure or union
+>
+>So cast it to the right type.
+>
 
-Yup.  But the whole thing's dead anyway - we do not clear the kernel stack
-when it is allocated hence the attempt to work out how much was used cannot
-work.
+Yep 2.5.66 is happy with my config now
+and is running nicely - thanks for the fix!
 
-That's what
+Joe
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.66/2.5.66-mm3/broken-out/show_task-free-stack-fix.patch
-
-is about, but it needs finishing off.

@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263846AbTHZODS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 10:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263832AbTHZOBG
+	id S262658AbTHZOHU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 10:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263935AbTHZODq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 10:01:06 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:40111 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S263782AbTHZOAA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 10:00:00 -0400
-Subject: [PATCH] Fix typo in #ifdef for ext2 xattr support
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       ext2-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
+	Tue, 26 Aug 2003 10:03:46 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:34565 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S263861AbTHZODQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 10:03:16 -0400
+Subject: Re: [ACPI] 2.4.22, My bios is to old?
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Ian Kumlien <pomac@vapor.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1061901388.7167.19.camel@big.pomac.com>
+References: <1061901388.7167.19.camel@big.pomac.com>
 Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1061906380.23880.80.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1061906591.678.0.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 26 Aug 2003 09:59:40 -0400
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 26 Aug 2003 16:03:12 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch corrects a typo in an ifdef that enables xattr operations for
-special files in the ext2 code; otherwise, extended attributes cannot be
-obtained or set on such inodes.
+On Tue, 2003-08-26 at 14:36, Ian Kumlien wrote:
 
- fs/ext2/namei.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+> I just updated $other machine to 2.4.22, and now i have several ACPI
+> tools screaming at me because /proc/acpi dosn't exist.
+> (it was running 2.4.21-pre1, it has aslo been running with several acpi
+> patches)
 
-Index: linux-2.5/fs/ext2/namei.c
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.5/fs/ext2/namei.c,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 namei.c
---- linux-2.5/fs/ext2/namei.c	11 Jul 2003 14:20:17 -0000	1.1.1.2
-+++ linux-2.5/fs/ext2/namei.c	25 Aug 2003 16:57:27 -0000
-@@ -143,7 +143,7 @@
- 	int err = PTR_ERR(inode);
- 	if (!IS_ERR(inode)) {
- 		init_special_inode(inode, inode->i_mode, rdev);
--#ifdef CONFIG_EXT2_FS_EXT_ATTR
-+#ifdef CONFIG_EXT2_FS_XATTR
- 		inode->i_op = &ext2_special_inode_operations;
- #endif
- 		mark_inode_dirty(inode);
-
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Boot the kernel using "acpi=force"...
 

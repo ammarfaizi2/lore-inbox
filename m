@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263442AbUCTPXo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 10:23:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263443AbUCTPXo
+	id S263443AbUCTP1f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 10:27:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263444AbUCTP1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 10:23:44 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:24254 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263442AbUCTPXn (ORCPT
+	Sat, 20 Mar 2004 10:27:34 -0500
+Received: from holomorphy.com ([207.189.100.168]:32392 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263443AbUCTP1d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 10:23:43 -0500
-Date: Sat, 20 Mar 2004 16:23:28 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cowlinks v2
-Message-ID: <20040320152328.GA8089@wohnheim.fh-wedel.de>
-References: <20040320083411.GA25934@wohnheim.fh-wedel.de> <s5gznab4lhm.fsf@patl=users.sf.net>
+	Sat, 20 Mar 2004 10:27:33 -0500
+Date: Sat, 20 Mar 2004 07:27:30 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: can device drivers return non-ram via vm_ops->nopage?
+Message-ID: <20040320152730.GF2045@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+References: <20040320133025.GH9009@dualathlon.random> <20040320144022.GC2045@holomorphy.com> <20040320150621.GO9009@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <s5gznab4lhm.fsf@patl=users.sf.net>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040320150621.GO9009@dualathlon.random>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 March 2004 10:03:05 -0500, Patrick J. LoPresti wrote:
-> 
-> What happens if the disk fills while you are making the copy?  Will
-> open(2) on an *existing file* then return ENOSPC?
+On Sat, Mar 20, 2004 at 04:06:21PM +0100, Andrea Arcangeli wrote:
+> I'm afraid I'll have to teach ->nopage how to deal with non-ram with
+> this page_t API too (changing it to pfn sounds too intrusive in the
+> short term), it seems to me that alsa can return non-ram (in the nopage
+> callback there's a virt_to_page on some iomm region), and changing alsa
+> to use remap_file_pages sounds too intrusive too. 
+> So in short I believe alsa can corrupt memory randomly starting with
+> 2.6.5-rc1, and it could only generate machine check crashes in previous
+> kernels.
+> So for the short term (i.e. next few weeks) we'll have to deal with
+> page_t still there...
 
-Correct.  It would be possible to always succeed and return -ENOSPC
-on every write().  But then mmap() has the same problem again, so
-serious headache would be the only gain from this little excercise.
+I've developed an interest in drivers recently, so I may be able to do
+some of the footwork here in a timely fashion if we want to go the pfn-
+based API route. That actually sounded like the less intrusive of the
+two methods I mentioned as well as easily mergeable within a stable
+series. OTOH, if there are objections, it may have to wait.
 
-> I do not think you can implement this without changing the interface
-> to open(2).  Which means applications have to be made aware of it
-> anyway.  Which means you might as well leave your implementation as-is
-> and let userspace worry about creating the copy (and dealing with the
-> resulting errors).
+I don't believe devolving larger swaths of the fault path to drivers
+would be very difficult to restructure drivers to use. The hard parts
+are that it would be time-consuming and would likely merit a support
+API exported by architectures to make driver writers' lives easier (i.e.
+not introduce more bugs than it resolves) that would need to be agreed
+upon, or at least backed by a feature request survey. And, of course,
+it would need an implementation for every architecture, which could be
+difficult to arrange for the less documented and/or less frequently
+updated architectures if features the core doesn't already rely upon
+would be required. And that's a certainty, since the core not
+understanding the needs of those drivers would be the primary motive
+for the more intrusive approach.
 
-Good point.  Vote is now 2:0 for the simple approach.
 
-Jörn
-
--- 
-"Translations are and will always be problematic. They inflict violence 
-upon two languages." (translation from German)
+-- wli

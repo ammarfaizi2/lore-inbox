@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262787AbTEAXpv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 19:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbTEAXpv
+	id S262790AbTEAXty (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 19:49:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262797AbTEAXtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 19:45:51 -0400
+	Thu, 1 May 2003 19:49:53 -0400
 Received: from rth.ninka.net ([216.101.162.244]:46553 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S262787AbTEAXpu (ORCPT
+	by vger.kernel.org with ESMTP id S262790AbTEAXtv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 19:45:50 -0400
-Subject: Re: kernel BUG at net/socket.c:147
+	Thu, 1 May 2003 19:49:51 -0400
+Subject: Re: [RFC][PATCH] Faster generic_fls
 From: "David S. Miller" <davem@redhat.com>
-To: "Michael D. Harnois" <mharnois@cpinternet.com>
-Cc: linux-kernel@vger.kernel.org, acme@conectiva.com.br
-In-Reply-To: <1051821220.4440.1.camel@mharnois.mdharnois.net>
-References: <1051821220.4440.1.camel@mharnois.mdharnois.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <b8q8gq$4o3$1@penguin.transmeta.com>
+References: <87d6j34jad.fsf@student.uni-tuebingen.de.suse.lists.linux.kernel>
+	 <Pine.LNX.4.44.0304301801210.20283-100000@home.transmeta.com.suse.lists.linux.kernel>
+	 <p73ade730d1.fsf@oldwotan.suse.de>  <b8q8gq$4o3$1@penguin.transmeta.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1051822567.10731.1.camel@rth.ninka.net>
+Message-Id: <1051790452.8772.18.camel@rth.ninka.net>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 May 2003 13:56:07 -0700
+Date: 01 May 2003 05:00:52 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-05-01 at 13:33, Michael D. Harnois wrote:
-> May  1 15:30:20 mharnois kernel: Process vmnet-bridge (pid: 9886,
+On Wed, 2003-04-30 at 21:40, Linus Torvalds wrote:
+> And inline asms schedule as well as any built-in, unless they are marked
+> volatile (either explicitly or implicitly by not having any outputs).
 
-VMWARE is buggy in it's socket/protocol handling.
+This actually is false.  GCC does not know what resources the
+instruction uses, therefore it cannot perform accurate instruction
+scheduling.
 
-Arnaldo, it triggered the net_family_bug() :-)
+Richard and I discussed at some time providing a way for inline
+asms to give the instruction attributes.
+
+An easier way is to provide a per-platform way to get at the
+"weird" instructions a cpu has.  This is precisely what GCC currently
+provides in the form of __builtin_${CPU}_${WEIRD_INSN}(args...) type
+interfaces.  These give you what you want (complete control) yet
+also let GCC schedule the thing accurately.
+
+I know you think GCC is a pile of dogshit, in many ways I do too, but I
+think it's just as important to point out the good parts where they
+exist.
 
 -- 
 David S. Miller <davem@redhat.com>

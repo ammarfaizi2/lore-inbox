@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263299AbTDIMrf (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 08:47:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263300AbTDIMrf (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 08:47:35 -0400
-Received: from mailout.zma.compaq.com ([161.114.64.104]:34576 "EHLO
-	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
-	id S263299AbTDIMre (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 08:47:34 -0400
-Subject: [ANNOUNCE]OpenSSI 0.9.6 is now available
-From: "Aneesh Kumar K.V" <aneesh.kumar@digital.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Digital India
-Message-Id: <1049893911.24945.44.camel@satan.xko.dec.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2-3mdk 
-Date: 09 Apr 2003 18:41:51 +0530
-Content-Transfer-Encoding: 7bit
+	id S263303AbTDINDO (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 09:03:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263305AbTDINDO (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 09:03:14 -0400
+Received: from filesrv1.baby-dragons.com ([199.33.245.55]:3973 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id S263303AbTDINDM (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 09:03:12 -0400
+Date: Wed, 9 Apr 2003 09:14:03 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Mark Mielke <mark@mark.mielke.cc>
+cc: Jamie Lokier <jamie@shareable.org>, Larry McVoy <lm@work.bitmover.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+In-Reply-To: <20030409020921.GA16313@mark.mielke.cc>
+Message-ID: <Pine.LNX.4.53.0304090911140.12211@filesrv1.baby-dragons.com>
+References: <200304081354_MC3-1-3386-1A33@compuserve.com>
+ <20030408180225.GC27912@work.bitmover.com> <20030408231949.GB31923@mail.jlokier.co.uk>
+ <20030409020921.GA16313@mark.mielke.cc>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+	Hello All ,  In the last week rather than the discussion of
+	technical merit of an idea We have decent (i'll admit) discussion
+	of (imo) legal & emotive matters have surround the idea .
 
-This was announced in ssi mailing list. 
+	Also imo doing it on a list devoted to the discussions on the
+	linux kernel ,  Instead of on it own list or privately .
+	Please move the discussion of the Kernel list !  Tia ,  JimL
 
--aneesh 
-
-List:     ssic-linux-devel
-Subject:  [SSI-devel] OpenSSI 0.9.6 is now available
-From:     "Brian J. Watson" <Brian.J.Watson () hp ! com>
-Date:     2003-04-04 23:19:33
-[Download message RAW]
-
-Since 0.8.0, OpenSSI has been booted on more than 67 IA-32 nodes.
-It includes a first cut of HA-CFS, which allows the cluster to lose
-its CFS root filesystem server node and continue running, if another
-node is attached to the same disk. The Lustre and NFS clients were
-integrated (non-root). LVS now automatically registers any socket
-that does a listen(). Unix domain sockets, SysV shared memory, and
-SysV semaphores are all clusterwide.
-
-A /proc interface can now be used to migrate a process, rather than
-SIGMIGRATE. An ssidevfs mount is now done for every node, and /dev
-is a context symlink into the ssidevfs for a process' node. CFS now
-supports file locking via fcntl(). The SSI version of util-linux has
-been merged with 2.11z. The xinetd server is now run on all nodes by
-default.
-
-Various bugs have been fixed, including races, hangs, panics, and
-problems with strace on IA64 and Alpha.
-
-The latest version of OpenSSI is 0.9.6. Both binary RPMs and source
-code can be found on http://openssi.org/.
-
-Enjoy,
-
-Brian
-
+-- 
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+

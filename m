@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267482AbUIWWvB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267474AbUIWWbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267482AbUIWWvB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 18:51:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267540AbUIWWr4
+	id S267474AbUIWWbI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 18:31:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267408AbUIWW3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 18:47:56 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:5892 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S267478AbUIWWpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 18:45:22 -0400
-In-Reply-To: <415339D3.2080206@skynet.be>
-References: <4151E749.7060107@skynet.be> <47612A96-0CDB-11D9-BC62-000D9352858E@linuxmail.org> <415339D3.2080206@skynet.be>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <3E89F45D-0DB2-11D9-BBF4-000D9352858E@linuxmail.org>
+	Thu, 23 Sep 2004 18:29:32 -0400
+Received: from fw.osdl.org ([65.172.181.6]:34495 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267478AbUIWW0l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 18:26:41 -0400
+Date: Thu, 23 Sep 2004 15:30:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: janitor@sternwelten.at
+Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
+Subject: Re: [patch 12/26]  char/istallion: replace 	schedule_timeout() with
+ msleep_interruptible()
+Message-Id: <20040923153027.36a2eedd.akpm@osdl.org>
+In-Reply-To: <E1CAa9g-0008HI-0z@sputnik>
+References: <E1CAa9g-0008HI-0z@sputnik>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: 2.6.x ( unable to open an initial console & unable to mount devfs, err: -5 )
-Date: Fri, 24 Sep 2004 00:45:18 +0200
-To: Madnux <madnux@skynet.be>
-X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 23, 2004, at 23:02, Madnux wrote:
-
-> Sorry but i'm not running udev !
-
-That's the problem... FC3T2 is supposed to use udev.
+janitor@sternwelten.at wrote:
 >
-> I've run /sbin/MAKEDEV but it doesn't work anymore.
+> @@ -2504,7 +2484,8 @@ static void stli_waituntilsent(struct tt
+>  	while (test_bit(ST_TXBUSY, &portp->state)) {
+>  		if (signal_pending(current))
+>  			break;
+> -		stli_delay(2);
+> +		set_current_state(TASK_INTERRUPTIBLE);
+> +		schedule_timeout(2);
+>  		if (time_after_eq(jiffies, tend))
+>  			break;
+>  	}
 
-How? What commands did you run?
->
-> I still get "Unable to open an initial console"
+I'll replace this with msleep_interruptible(20), which is presumably what
+the driver was trying to do originally.
 
-Please, check if /dev/console exists. I guess this special chardev is 
-missing.
-
+Again, all of these delays become accidental busyloops if the calling task
+has a signal pending.  Sigh.  Probably they should all be using
+TASK_UNINTERRUPTIBLE.  

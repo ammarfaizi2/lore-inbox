@@ -1,43 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135946AbREGNfz>; Mon, 7 May 2001 09:35:55 -0400
+	id <S136094AbREGNhZ>; Mon, 7 May 2001 09:37:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136094AbREGNfp>; Mon, 7 May 2001 09:35:45 -0400
-Received: from smtp.kpnqwest.com ([193.242.92.8]:59653 "EHLO ntexgswp02.DMZ")
-	by vger.kernel.org with ESMTP id <S135946AbREGNfc>;
-	Mon, 7 May 2001 09:35:32 -0400
-Message-ID: <5F6171E541C8D311B9F200508B63D32801C31F52@ntexgvie01>
-From: "Bene, Martin" <Martin.Bene@KPNQwest.com>
-To: "'Simon Richter'" <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: what causes Machine Check exception? revisited (2.2.18)
-Date: Mon, 7 May 2001 15:33:54 +0200 
+	id <S136098AbREGNhP>; Mon, 7 May 2001 09:37:15 -0400
+Received: from dsl081-067-005.sfo1.dsl.speakeasy.net ([64.81.67.5]:39431 "EHLO
+	renegade") by vger.kernel.org with ESMTP id <S136094AbREGNhE>;
+	Mon, 7 May 2001 09:37:04 -0400
+Date: Mon, 7 May 2001 06:36:57 -0700 (PDT)
+From: Zack Brown <zbrown@tumblerings.org>
+To: Phillipus Gunawan <mr_phillipus@yahoo.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Help: kernel-2.4.4 and iptables: Error?
+In-Reply-To: <02f101c0d6c9$4b0197a0$d830a4cb@co3042727a>
+Message-ID: <Pine.LNX.3.96.1010507063343.8114I-100000@renegade>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: MULTIPART/ALTERNATIVE; BOUNDARY="----=_NextPart_000_02EE_01C0D71D.1BDC4DE0"
+Content-ID: <Pine.LNX.3.96.1010507063343.8114J@renegade>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Simon,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> On Mon, 7 May 2001, Bene, Martin wrote:
+------=_NextPart_000_02EE_01C0D71D.1BDC4DE0
+Content-Type: TEXT/PLAIN; CHARSET=iso-8859-1
+Content-ID: <Pine.LNX.3.96.1010507063343.8114K@renegade>
+
+Can someone help this guy?
+
+-- 
+Zack Brown
+
+On Mon, 7 May 2001, Phillipus Gunawan wrote:
+
+> I'm having problem with iptables...
+> I just upgrade my kernel from 2.2.16 to 2.4.3
+> I also upgrade the iptables with: iptables-1.2.1a-1.i386.rpm
+> After the installation finished, I try to test it with: iptables -L
+> Here's what I've seen on my screen:
 > 
-> > Definitely not caused by:
-> > 	Bad Rams, mb-chipset.
+> modprobe: Can't locate module ip_tables
+> iptables v1.2.1a: can't initialise iptables table 'filter': Module is wrong version
+> Perhaps iptables or your kernel needs to be upgraded.
 > 
-> Erm, it was bad RAM everytime it happened to me. On standard PCs, you
-> don't see those because you don't have ECC and the error is simply not
-> detected.
+> I install the iptables-1.2.1a-1.i386.rpm first and then upgrade my kernel.
+> The way I upgrade my kernel:
+> 
+> make mrproper
+> make dep bzImage
+> make modules
+> make modules_install
+> cp .........
+> cp....
+> 
+> I've choose all option regarding iptables 'netfilter'
+> My friend said I might built netfilter with the ipfwadm
+> compatibility compiled in, which is mutually exclusive with iptables
+> and ipchains support. I didn't build ipfwadm and all other modules I compiled as modules ('M' instead of 'Y')
+> 
+> But I still can't understand, it still doesn't work...
+> 
+> Could you please help me. I've tried everywhere asking this question, still, nobody can answer it
+> 
+> Thank You.
+> Best Regards,
+> 
+> 
+> Phillipus.
+> 
 
-Strange - definitely, strange. Of course you're correct about memory errors
-going undetected on standard PC hardware, and usually these undetected
-errors lead to other failures later on:
-
-You get SIG11 errors when running programs(kernel compile seems to be agood
-example), you get crashing processes, you get all sorts of weird funnies but
-you really shouldn't get machine check exceptions.
-
-I don't think there is a way a machine check exception can be triggered by
-software - which it would have to be in order to be caused by bad RAMs.
-
-Bye, Martin
+------=_NextPart_000_02EE_01C0D71D.1BDC4DE0--

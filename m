@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUIWT6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264443AbUIWUSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264639AbUIWT6i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 15:58:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUIWT6h
+	id S264443AbUIWUSE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 16:18:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUIWUSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 15:58:37 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:2201
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S264639AbUIWT6U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 15:58:20 -0400
-Date: Thu, 23 Sep 2004 12:57:08 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: cfriesen@nortelnetworks.com, albert@users.sourceforge.net,
-       linux-kernel@vger.kernel.org, ak@muc.de, gandalf@wlug.westbo.se
-Subject: Re: [PATCH] Warn people that ipchains and ipfwadm are going away.
-Message-Id: <20040923125708.770d5922.davem@davemloft.net>
-In-Reply-To: <1095968193.4969.980.camel@cube>
-References: <1095962839.4974.965.camel@cube>
-	<41532504.3000005@nortelnetworks.com>
-	<1095968193.4969.980.camel@cube>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Sep 2004 16:18:04 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:16790 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S264443AbUIWUR6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 16:17:58 -0400
+Subject: [patch 2/3]  remove old ifdefs dmascc
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, domen@coderock.org
+From: janitor@sternwelten.at
+Date: Thu, 23 Sep 2004 22:17:59 +0200
+Message-ID: <E1CAa2R-0006xi-RJ@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Sep 2004 15:36:34 -0400
-Albert Cahalan <albert@users.sf.net> wrote:
 
-> I'm still not seeing a need to run an x86-64 kernel
-> with an i386 iptables.
 
-Me neither.  And it's not like the netfilter tools have
-any interesting library dependencies either, ldd on
-iptables for example is merely:
+ Patches to remove some old ifdefs.
+ remove most of the #include <linux/version.h>
+ kill compat cruft like #define ahd_pci_set_dma_mask pci_set_dma_mask
 
-        libdl.so.2 => /lib/ultra3/libdl.so.2 (0x7002c000)
-        libnsl.so.1 => /lib/ultra3/libnsl.so.1 (0x70040000)
-        libc.so.6 => /lib/ultra3/libc.so.6 (0x70068000)
-        /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x70000000)
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
-And that's just libc.
+---
 
-If Andi would code on kernel bug fixes for these problems
-as much as he complained about them, he wouldn't have anything
-to complain about :-)
+ linux-2.6.9-rc2-bk7-max/drivers/net/hamradio/dmascc.c |    1 -
+ 1 files changed, 1 deletion(-)
 
-I would like to see a netfilter compat layer translater engine
-of some sort, none the less.  With the right design it won't
-be hard to implement things properly.
-
+diff -puN drivers/net/hamradio/dmascc.c~remove-old-ifdefs-dmascc drivers/net/hamradio/dmascc.c
+--- linux-2.6.9-rc2-bk7/drivers/net/hamradio/dmascc.c~remove-old-ifdefs-dmascc	2004-09-21 20:46:56.000000000 +0200
++++ linux-2.6.9-rc2-bk7-max/drivers/net/hamradio/dmascc.c	2004-09-21 20:46:56.000000000 +0200
+@@ -37,7 +37,6 @@
+ #include <linux/rtnetlink.h>
+ #include <linux/sockios.h>
+ #include <linux/workqueue.h>
+-#include <linux/version.h>
+ #include <asm/atomic.h>
+ #include <asm/bitops.h>
+ #include <asm/dma.h>
+_

@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261296AbSIZOYa>; Thu, 26 Sep 2002 10:24:30 -0400
+	id <S261306AbSIZOhS>; Thu, 26 Sep 2002 10:37:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261300AbSIZOY3>; Thu, 26 Sep 2002 10:24:29 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:10159
-	"EHLO Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
-	id <S261296AbSIZOY3>; Thu, 26 Sep 2002 10:24:29 -0400
-Date: Thu, 26 Sep 2002 07:29:27 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Meelis Roos <mroos@linux.ee>
-Cc: linux-kernel@vger.kernel.org, bjorn@haxx.se, greg@kroah.com
-Subject: Re: PPC: unresolved module symbols in 2.4.20-pre7+bk
-Message-ID: <20020926142927.GE5746@opus.bloom.county>
-References: <20020924234815.GE788@opus.bloom.county> <Pine.GSO.4.44.0209261127110.27736-100000@rubiin.physic.ut.ee>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.GSO.4.44.0209261127110.27736-100000@rubiin.physic.ut.ee>
-User-Agent: Mutt/1.4i
+	id <S261308AbSIZOhS>; Thu, 26 Sep 2002 10:37:18 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:27804 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S261306AbSIZOhQ>; Thu, 26 Sep 2002 10:37:16 -0400
+Date: Thu, 26 Sep 2002 11:42:16 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Con Kolivas <conman@kolivas.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Useful fork info? WAS Re: [BENCHMARK] fork_load module tested
+ for contest
+In-Reply-To: <Pine.LNX.4.44.0209261023500.2944-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44L.0209261141280.15154-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 11:31:20AM +0300, Meelis Roos wrote:
+On Thu, 26 Sep 2002, Ingo Molnar wrote:
 
-> The errors are still there in 2.4.20-pre8 and none of them went away
-> after make mrproper.
+> > fork_load:
+> > Kernel                  Time            CPU             Ratio
+> > 2.4.19                  97.11           67%             1.33
+> > 2.4.19-ck7              72.34           92%             0.99
+> > 2.5.38                  75.32           92%             1.03
+> > 2.5.38-mm2              74.99           92%             1.03
+>
+> shouldnt the CPU load be 100% for such a test?
 
-Thanks for the .config, I see most of them now.
+The total load, yes.  The CPU has one 'make -j4' on the kernel
+source and one fork load.
 
-[re-ordered slightly]
-> > > depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre7/kernel/drivers/macintosh/nvram.o
-> > > depmod: 	pmac_get_partition
-> > > depmod: 	nvram_write_byte_R9ce3f83f
-> > > depmod: 	nvram_read_byte_R0f28cb91
-> > > depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre7/kernel/drivers/sound/dmasound/dmasound_pmac.o
-> > > depmod: 	pmac_xpram_read
+What I don't understand is why the fork load only gets 8% of
+the CPU, instead of the 20% that is its right...
 
-CONFIG_NVRAM cannot really be =m as you have in your .config on
-CONFIG_ALL_PPC.  I'll send Marcelo a bit more Makefile gunk to work
-around this.  For now just set it to y.
+regards,
 
-> > > depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre7/kernel/drivers/media/video/tda7432.o
-> > > depmod: 	__fixdfsi
-> > > depmod: 	__floatsidf
-> > > depmod: 	__divdf3
-> > > depmod: 	__muldf3
-> > > depmod: 	__subdf3
-
-This driver is doing floating point operations inside the kernel, and is
-therefore broken.
-
-> > > depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre7/kernel/drivers/usb/storage/usb-storage.o
-> > > depmod: 	ppc_generic_ide_fix_driveid
-
-Configuration issue.  CONFIG_USB_STORAGE_ISD200 needs to depend on
-CONFIG_IDE, since it calls ide_fixup_driveid().  Greg? Björn?
-
+Rik
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+A: No.
+Q: Should I include quotations after my reply?
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,33 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264631AbSKVMTU>; Fri, 22 Nov 2002 07:19:20 -0500
+	id <S264699AbSKVMrI>; Fri, 22 Nov 2002 07:47:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264639AbSKVMTT>; Fri, 22 Nov 2002 07:19:19 -0500
-Received: from ns.tasking.nl ([195.193.207.2]:524 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id <S264631AbSKVMTT>;
-	Fri, 22 Nov 2002 07:19:19 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15838.8775.731832.967888@koli.tasking.nl>
-Date: Fri, 22 Nov 2002 13:25:43 +0100
-From: Kees Bakker <rnews@altium.nl>
-To: linux-kernel@vger.kernel.org
-Subject: How to migrate from modutils to module-init-tools?
-X-Mailer: VM 7.03 under Emacs 20.7.2
-Reply-To: kees.bakker@altium.nl (Kees Bakker)
-Organisation: ALTIUM Software B.V.
-X-Bill: Go away
-X-Attribution: kb
+	id <S264702AbSKVMrI>; Fri, 22 Nov 2002 07:47:08 -0500
+Received: from pop.gmx.net ([213.165.65.60]:2421 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S264699AbSKVMrH>;
+	Fri, 22 Nov 2002 07:47:07 -0500
+Message-Id: <5.1.1.6.2.20021122134045.00cc9680@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Fri, 22 Nov 2002 13:51:10 +0100
+To: jim.houston@attbi.com, linux-kernel@vger.kernel.org
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: 2.5.47 scheduler problems?
+Cc: riel@conectiva.com.br
+In-Reply-To: <5.1.1.6.2.20021122120405.00c236e8@pop.gmx.net>
+References: <3DDDC37F.5AC219D5@attbi.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="=====================_12009625==_"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since 2.5.48 I seem to be needing module-init-tools. Is there documentation
-that describes what I must do to use/install module-init-tools? And how do
-I set up my system if I want to boot older kernels as well?
+--=====================_12009625==_
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 
-I have downloaded module-init-tools 0.7, but the command interface of
-the new modprobe is not the same as the old one. In other words if I
-install module-init-tools I cannot boot pre 2.5.48 without many errors
-loading the modules. Is there a way to solve this?
--- 
+At 12:07 PM 11/22/2002 +0100, Mike Galbraith wrote:
+>At 12:41 AM 11/22/2002 -0500, Jim Houston wrote:
+>
+>>I just gave this a spin with.  The patches still apply cleanly
+>>to linux-2.5.48 and it seems well behaved:-)
+>
+>It seems a little choppy still for a not swapping load, but greatly improved.
+>
+>Thanks!
+
+(I put it into virgin 2.5.47 fwiw)   I have some very odd behavior.  I 
+wanted to see how the kernel did at make -j30 bzImage on my test box to see 
+what effect it has on throughput (box is 500 Mhz PIII + 128Mb ram), and get 
+vmstat output like the attached.  I should be roughly 30Mb into swap and 
+paging heftily at this point.
+
+         -Mike
+--=====================_12009625==_
+Content-Type: text/plain; name="vmstat.out";
+ x-mac-type="42494E41"; x-mac-creator="74747874"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="vmstat.out"
+
+cHJvY3MgLS0tLS0tLS0tLS1tZW1vcnktLS0tLS0tLS0tIC0tLXN3YXAtLSAtLS0tLWlvLS0tLSAt
+LXN5c3RlbS0tIC0tLS1jcHUtLS0tCiBiICB3ICAgc3dwZCAgIGZyZWUgICBidWZmICBjYWNoZSAg
+IHNpICAgc28gICAgYmkgICAgYm8gICBpbiAgICBjcyB1cyBzeSBpZCB3YQo0MSAgOCAgICA3NjQg
+IDU5OTQwICAgMTU5NiAgMTg0ODQgICAgMCAgICAwICAgICA0ICAgIDI3IDEwMjcgICAxMjkgOTAg
+MTAgIDAgIDAKMzUgMTAgICAgNzY0ICA1ODkzMiAgIDE2MDQgIDE4NjE2ICAgIDAgICAgMCAgIDEy
+MCAgICAgMCAxMDI2ICAgMTM0IDkyICA4ICAwICAwCjM0ICA4ICAgIDc2NCAgNTM1NDAgICAxNjA4
+ICAxODgwNCAgICAwICAgIDAgICAgMjkgICAgIDAgMTAyMyAgIDE0MSA4NyAxMyAgMCAgMAozOCAg
+NyAgICA3NjQgIDQ3NzgwICAgMTYxNiAgMTkzMDAgICAgMCAgICAwICAgIDEwICAgICAwIDEwNzUg
+ICAxNjggOTIgIDggIDAgIDAKMzggMTEgICAgNzY0ICA1NDQ3NiAgIDE2MTYgIDE5Njg0ICAgIDAg
+ICAgMCAgICAgOCAgICAgMCAxMDE4ICAgMTMwIDkwIDEwICAwICAwCjMzIDEyICAgIDc2NCAgNDc1
+OTYgICAxNjMyICAyMDA0OCAgICAwICAgIDAgICAgMTQgICA0NzQgMTA2MiAgIDE0MyA4OSAxMSAg
+MCAgMAozMyAgNiAgICA3NjQgIDQxNTY0ICAgMTYzNiAgMTk0MTIgICAgMCAgICAwICAgIDg4ICAg
+ICAwIDExMDQgICAxNTggOTAgMTAgIDAgIDAKMzIgIDQgICAgNzY0ICAzNDk0MCAgIDE2NDAgIDE5
+NzI4ICAgIDAgICAgMCAgICA5MyAgICAgMCAxMDI0ICAgMTU3IDkxICA5ICAwICAwCjM3ICA2ICAg
+IDc2NCAgMzQ2NTIgICAxNjQwICAyMDAxMiAgICAwICAgIDAgICAgMzggICAgIDAgMTAyMiAgIDE0
+MyA5MyAgNyAgMCAgMAozNiAgOCAgICA3NjQgIDMzMTk2ICAgMTY0OCAgMjAxMDggICAgMCAgICAw
+ICAgIDE4ICAgICAwIDEwMjMgICAxNjggODkgMTEgIDAgIDAKMzUgIDggICAgNzY0ICAzMjY2OCAg
+IDE2NTIgIDIwNTI4ICAgIDAgICAgMCAgICAgOCAgIDExMCAxMDI5ICAgMTU5IDkxICA5ICAwICAw
+CjM0ICA2ICAgIDc2NCAgMjgzNjQgICAxNjY0ICAyMDg1MiAgICAwICAgIDAgICAgODQgICAgIDEg
+MTAyMyAgIDE2NyA5MiAgOCAgMCAgMAozMiAgNiAgICA3NjQgIDIzMTQwICAgMTY2NCAgMjA2MDgg
+ICAgMCAgICAwICAgICA0ICAgICAwIDEwMjAgICAxNjUgOTMgIDcgIDAgIDAKMzQgIDcgICAgNzY0
+ICAyODM3MiAgIDE2NjQgIDIwNDI0ICAgIDAgICAgMCAgICAxMiAgICAgMCAxMDIwICAgMTQ3IDkz
+ICA3ICAwICAwCjM4ICA3ICAgIDc2NCAgMjM0NzYgICAxNjY4ICAyMDQ4MCAgICAwICAgIDAgICAg
+NDUgICAgIDAgMTEyMyAgIDE5NCA5MyAgNyAgMCAgMAozMiAgOCAgICA3NjQgIDMyOTg4ICAgMTY2
+OCAgMjA5NTIgICAgMCAgICAwICAgICA0ICAgMTMyIDEwMjcgICAxNTEgOTQgIDYgIDAgIDAKMzUg
+IDkgICAgNzY0ICAyOTI2MCAgIDE2NzIgIDIwMzMyICAgIDAgICAgMCAgICAgNCAgICAgMSAxMDIw
+ICAgMTUyIDg5IDExICAwICAwCjMyICA2ICAgIDc2NCAgMzExMDAgICAxNjcyICAyMDY4OCAgICAw
+ICAgIDAgICAgIDAgICAgIDAgMTEwNiAgIDE1NiA5MiAgOCAgMCAgMAozMSAgOCAgICA3NjQgIDMy
+MDc2ICAgMTY4MCAgMjAyNjQgICAgMCAgICAwICAgMTA4ICAgICAwIDEwMjMgICAxNjEgOTEgIDkg
+IDAgIDAKMzUgIDggICAgNzY0ICA0MjMzMiAgIDE2ODQgIDIwODM2ICAgIDAgICAgMCAgICAxNyAg
+ICAgMCAxMDIzICAgMTU3IDg2IDE0ICAwICAwCjM0IDExICAgIDc2NCAgNDg5MTYgICAxNjg4ICAy
+MDc1MiAgICAwICAgIDAgICAgNTIgICAyMzQgMTAzMyAgIDE1MSA4OCAxMiAgMCAgMApwcm9jcyAt
+LS0tLS0tLS0tLW1lbW9yeS0tLS0tLS0tLS0gLS0tc3dhcC0tIC0tLS0taW8tLS0tIC0tc3lzdGVt
+LS0gLS0tLWNwdS0tLS0KIGIgIHcgICBzd3BkICAgZnJlZSAgIGJ1ZmYgIGNhY2hlICAgc2kgICBz
+byAgICBiaSAgICBibyAgIGluICAgIGNzIHVzIHN5IGlkIHdhCjM3ICA1ICAgIDc2NCAgNDU3OTYg
+ICAxNjkyICAyMDk1NiAgICAwICAgIDAgICAgMTIgICAgIDEgMTAyMCAgIDEzNiA4OSAxMSAgMCAg
+MAozMiAgNiAgICA3NjQgIDQ2ODIwICAgMTY5MiAgMjA2MTYgICAgMCAgICAwICAgICAwICAgICAw
+IDEwMTcgICAxNDkgODkgMTEgIDAgIDAKMzQgIDggICAgNzY0ICA0NjgyMCAgIDE2OTIgIDIwNjUy
+ICAgIDAgICAgMCAgICAgMCAgICAgMCAxMDE3ICAgMTMwIDkxICA5ICAwICAwCjMxICA4ICAgIDc2
+NCAgNDEzMTYgICAxNjkyICAyMDQ5NiAgICAwICAgIDAgICAgIDggICAgIDAgMTA4MyAgIDE1MyA5
+MiAgOCAgMCAgMAo=
+--=====================_12009625==_--
+

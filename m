@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317258AbSGNWWt>; Sun, 14 Jul 2002 18:22:49 -0400
+	id <S317261AbSGNW1J>; Sun, 14 Jul 2002 18:27:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317260AbSGNWWs>; Sun, 14 Jul 2002 18:22:48 -0400
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:12634 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S317258AbSGNWWr>; Sun, 14 Jul 2002 18:22:47 -0400
-Date: Sun, 14 Jul 2002 16:25:38 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Pozsar Balazs <pozsy@uhulinux.hu>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Q] APM realmode poweroff
-In-Reply-To: <Pine.GSO.4.30.0207150013070.27346-100000@balu>
-Message-ID: <Pine.LNX.4.44.0207141624130.3452-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam; Germany
+	id <S317267AbSGNW1I>; Sun, 14 Jul 2002 18:27:08 -0400
+Received: from 12-237-135-160.client.attbi.com ([12.237.135.160]:1040 "EHLO
+	Midgard.attbi.com") by vger.kernel.org with ESMTP
+	id <S317261AbSGNW1I> convert rfc822-to-8bit; Sun, 14 Jul 2002 18:27:08 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kelledin <kelledin+LKML@skarpsey.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: apm power_off on smp
+Date: Sun, 14 Jul 2002 17:30:08 -0500
+User-Agent: KMail/1.4.2
+References: <Pine.GSO.4.30.0207150010030.27346-100000@balu>
+In-Reply-To: <Pine.GSO.4.30.0207150010030.27346-100000@balu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207141730.08342.kelledin+LKML@skarpsey.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> APM's poweroff function is explicitly turned off on smp systems by
+> default. Could someone tell me please what is the reason for that?
 
-On Mon, 15 Jul 2002, Pozsar Balazs wrote:
-> Just a quick question: are there any systems on which realmode poweroff
-> doesn't work?
+(as of kernel 2.4.18) pretty much *all* APM functions are disabled on SMP 
+kernels--the simple reason being that APM isn't SMP safe, and making it SMP 
+safe is not a trivial task.
 
-Yes, I once experienced a reboot on some early Via 100MHz board + AMD K6-2 
-400. Meanwhile I don't have the board any more, so I can't tell. BTW, I 
-didn't try realmode poweroff on the board I'm currently running...
+If all you want is a soft power-off, you're better off using ACPI (assuming 
+your system supports it).  Since this is probably a desktop (and not a 
+laptop), I doubt there's much else you want in the way of power management...
 
-							Regards,
-							Thunder
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+Kelledin
+"If a server crashes in a server farm and no one pings it, does it still cost 
+four figures to fix?"
 

@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264737AbTIDGqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 02:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264741AbTIDGqQ
+	id S264736AbTIDGxx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 02:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264754AbTIDGxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 02:46:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:15491 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264737AbTIDGqM (ORCPT
+	Thu, 4 Sep 2003 02:53:53 -0400
+Received: from hermes.iil.intel.com ([192.198.152.99]:29889 "EHLO
+	hermes.iil.intel.com") by vger.kernel.org with ESMTP
+	id S264736AbTIDGxw convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 02:46:12 -0400
-Date: Wed, 3 Sep 2003 23:44:05 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: jmorris@intercode.com.au, davem@redhat.com
-Subject: [PATCH] [crypto] remove duplicate #include
-Message-Id: <20030903234405.01b61dad.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Sep 2003 02:53:52 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: Re: Re: [PATCH]: non-readable binaries - binfmt_misc 2.6.0-test4
+Date: Thu, 4 Sep 2003 09:53:44 +0300
+Message-ID: <2C83850C013A2540861D03054B478C0601CF64F6@hasmsx403.iil.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Re: Re: [PATCH]: non-readable binaries - binfmt_misc 2.6.0-test4
+Thread-Index: AcNyrkUvZTB1AvgFT/SbybLF8OGwUwAACeTg
+From: "Zach, Yoav" <yoav.zach@intel.com>
+To: <insecure@mail.od.ua>
+Cc: <akpm@osdl.org>, <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 04 Sep 2003 06:53:44.0908 (UTC) FILETIME=[489618C0:01C372B1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> --- insecure <insecure@mail.od.ua> wrote:
+>
+> > If the binary resides on a NFS drive ( which 
+> > is a very common practice )
+> > then the suid-wrapper solution will not work 
+> > because root permissions
+> > are squashed on the remote drive.
+> 
+> 
+> This is a NFS promlem. Do not work around it by
+> adding crap elsewhere.
+> NFS has to get a decent user auth/crypto features.
+> I did not try it yet, but NFSv4 will address that.
+> --
 
-Hi,
-Please apply to 2.6.0-current.
+This is not a workaround - it's a solution for systems
+that use the unix user identification mechanism.
+Considering the conservative nature of system-administrators,
+this mechanism will still be in use for quite a while.
 
---
-~Randy
-
-
-patch_name:	crypto_incdups.patch
-patch_version:	2003-09-03.22:37:00
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	remove duplicate #includes in crypto/
-product:	Linux
-product_versions: 2.6.0-test4
-maintainer:	jmorris@intercode.com.au, davem@redhat.com
-diffstat:	=
- crypto/tcrypt.c |    1 -
- 1 files changed, 1 deletion(-)
-
-diff -Naurp ./crypto/tcrypt.c~incdups ./crypto/tcrypt.c
---- ./crypto/tcrypt.c~incdups	2003-09-03 16:34:34.000000000 -0700
-+++ ./crypto/tcrypt.c	2003-09-03 17:29:54.000000000 -0700
-@@ -15,7 +15,6 @@
-  */
- #include <linux/init.h>
- #include <linux/module.h>
--#include <linux/string.h>
- #include <linux/mm.h>
- #include <linux/slab.h>
- #include <asm/scatterlist.h>
+Thanks,
+Yoav.

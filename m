@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310666AbSEELm3>; Sun, 5 May 2002 07:42:29 -0400
+	id <S310769AbSEELwU>; Sun, 5 May 2002 07:52:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310769AbSEELm2>; Sun, 5 May 2002 07:42:28 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:42624 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S310666AbSEELm2>; Sun, 5 May 2002 07:42:28 -0400
-Date: Sun, 5 May 2002 13:40:41 +0200
-From: Erich Schubert <erich.schubert@mucl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Broken URL Update for drivers/pci/quirks.c
-Message-ID: <20020505114041.GA20668@marvin.xmldesign.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+	id <S310835AbSEELwT>; Sun, 5 May 2002 07:52:19 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:39688 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S310769AbSEELwT>; Sun, 5 May 2002 07:52:19 -0400
+Message-Id: <200205051149.g45BnGX13620@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Tomas Szepe <szepe@pinerecords.com>,
+        "M. Edward Borasky" <znmeb@aracnet.com>
+Subject: Re: IO stats in /proc/partitions
+Date: Sun, 5 May 2002 14:55:03 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <UTC200205041959.g44JxQa20044.aeb@smtp.cwi.nl> <HBEHIIBBKKNOBLMPKCBBCEAOEMAA.znmeb@aracnet.com> <20020504213534.GA3034@louise.pinerecords.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
-X-GPG: 4B3A135C 6073 C874 8488 BCDA A6A9  B761 9ED0 78EF 4B3A 135C
-X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/pci/quirks.c references
-  http://home.tiscalinet.de/au-ja/review-kt133a-1-en.html
-which is now at
-  http://www.au-ja.org/review-kt133a-1-en.phtml
-(original german version is http://www.au-ja.org/review-kt133a-1.phtml)
+On 4 May 2002 19:35, Tomas Szepe wrote:
+> > I recently spent a week trying to track down the units used for the disk
+> > stats in /proc/stat. Through a combination of queries on the LKML and
+> > trucking through the source with rgrep, I managed to get my questions
+> > answered. It matters to me and to the people I work for exactly how many
+> > bytes the I/O subsystem is handling per second, and how close to the
+> > capacity of the I/O subsystem a machine is operating. I consider the fact
+> > that I had to dig for and ask for this information unacceptable.
+>
+> But hey, you've suffered thru it, which, guess what, makes you the perfect
+> candidate to have the honor of writing the docs!
 
-I'll now try using quirk_viaetbf, too...
-The system seems to run a bit better under high loads already with the
-southbridge workaround enabled (well, "fastdep" segfaulted a few times,
-but gcc hasn't segfaultet yet, this definitely is an improvement...)
+And peppering code with cute little comments + feeding patches to Rusty's
+'trivial' patchbot.
 
-Gruss,
-Erich Schubert
-
+BTW, are units consistent? Kilobytes? Pages? Sectors?
 --
-erich@(mucl.de|debian.org)        --        GPG Key ID: 4B3A135C
-A polar bear is a rectangular bear after a coordinate transform.
-Die kürzeste Verbindung zwischen zwei Menschen ist ein Lächeln.
+vda

@@ -1,57 +1,788 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265823AbUBBTuw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 14:50:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265992AbUBBTtV
+	id S265833AbUBBThV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 14:37:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265836AbUBBThV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 14:49:21 -0500
-Received: from mailr-2.tiscali.it ([212.123.84.82]:33396 "EHLO
-	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S265980AbUBBTsZ
+	Mon, 2 Feb 2004 14:37:21 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:56247 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S265833AbUBBTe3 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 14:48:25 -0500
-Date: Mon, 2 Feb 2004 20:48:24 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [Compile Regression in 2.4.25-pre8][PATCH 20/42]
-Message-ID: <20040202194824.GT6785@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 2 Feb 2004 14:34:29 -0500
+From: Max Asbock <masbock@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Driver for IBM RSA service processor (2/2)
+Date: Mon, 2 Feb 2004 11:29:56 -0800
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040202180940.GA6367@dreamland.darkstar.lan>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200402021129.56837.masbock@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here is a device driver for the IBM xSeries RSA service processor.
+The ibmasm driver is mainly intended to be used in conjunction with a user space 
+API and systems management applications that need to get in-band access to
+the service processor, such as sending commands or waiting for events.
+For the remote video feature the driver relays remote mouse and keyboard 
+events to user space. 
+By itself the driver also allows the OS to make use the UART on the service
+processor board as a regular serial line.
 
-i2o_block.c:510: warning: `i2ob_flush' defined but not used
+The user interface to the driver is a custom file system. It does not use sysfs since
+the operations on the files are somewhat beyond the one file / one value rule for sysfs.
+Since it is not strictly a char driver I put it into the drivers/misc directory.
 
-i2ob_flush is unused: wrap it with #if 0
+The patch is fairly big, therefore I split it up into the file system part and the
+everything-else part.
 
-diff -Nru -X dontdiff linux-2.4-vanilla/drivers/message/i2o/i2o_block.c linux-2.4/drivers/message/i2o/i2o_block.c
---- linux-2.4-vanilla/drivers/message/i2o/i2o_block.c	Sat Aug  3 02:39:44 2002
-+++ linux-2.4/drivers/message/i2o/i2o_block.c	Sat Jan 31 17:56:39 2004
-@@ -506,6 +506,7 @@
- 	return 1;
- }
- 
-+#if 0 /* Currently unused */
- static int i2ob_flush(struct i2o_controller *c, struct i2ob_device *d, int unit)
- {
- 	unsigned long msg;
-@@ -531,6 +532,7 @@
- 	i2o_post_message(c,m);
- 	return 0;
- }
-+#endif
- 			
- /*
-  *	OSM reply handler. This gets all the message replies
+Any feedback is greatly appreciated.
 
--- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-Quando un uomo porta dei fiori a sua moglie senza motivo, 
-un motivo c'e`.
+Regards,
+
+Max
+
+Here is the filesytem part:
+
+diff -urN linux-2.6.1/drivers/misc/ibmasm/ibmasmfs.c linux-2.6.1-ibmasm/drivers/misc/ibmasm/ibmasmfs.c
+--- linux-2.6.1/drivers/misc/ibmasm/ibmasmfs.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.1-ibmasm/drivers/misc/ibmasm/ibmasmfs.c	2004-01-23 15:39:00.000000000 -0800
+@@ -0,0 +1,734 @@
++/*
++ * IBM ASM Service Processor Device Driver
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
++ *
++ * Copyright (C) IBM Corporation, 2004
++ *
++ * Author: Max Asböck <amax@us.ibm.com> 
++ *
++ */
++
++/*
++ * Parts of this code are based on an article by Jonathan Corbet 
++ * that appeared in Linux Weekly News.
++ */
++
++
++/*
++ * The IBMASM file virtual filesystem. It creates the following hierarchy
++ * dymamically when mounted from user space:
++ *
++ *    /ibmasm
++ *    |-- 0
++ *    |   |-- command
++ *    |   |-- event
++ *    |   |-- reverse_heartbeat
++ *    |   `-- remote_video
++ *    |       |-- connected
++ *    |       |-- depth
++ *    |       |-- events
++ *    |       |-- height
++ *    |       `-- width
++ *    .
++ *    .
++ *    .
++ *    `-- n
++ *        |-- command
++ *        |-- event
++ *        |-- reverse_heartbeat
++ *        `-- remote_video
++ *            |-- connected
++ *            |-- depth
++ *            |-- events
++ *            |-- height
++ *            `-- width
++ *
++ * For each service processor the following files are created:
++ *
++ * command: execute dot commands
++ * 	write: execute a dot command on the service processor
++ * 	read: return the result of a previously executed dot command
++ *
++ * events: listen for service processor events
++ * 	read: sleep (interruptible) until an event occurs
++ *
++ * reverse_heartbeat: send a heartbeat to the service processor
++ * 	read: sleep (interruptible) until the reverse heartbeat fails
++ *
++ * remote_video/width
++ * remote_video/height
++ * remote_video/width: control remote display settings
++ * 	write: set value
++ * 	read: read value
++ *
++ * remote_video/connected
++ * 	read: return "1" if web browser VNC java applet is connected, 
++ * 		"0" otherwise
++ *
++ * remote_video/events
++ * 	read: sleep until a remote mouse or keyboard event occurs, then return
++ * 		then event.
++ */
++
++#include <linux/fs.h>
++#include <linux/pagemap.h>
++#include <asm/uaccess.h>
++#include <asm/io.h>
++#include "ibmasm.h"
++#include "remote.h"
++#include "dot_command.h"
++
++#define IBMASMFS_MAGIC 0x66726f67
++
++static LIST_HEAD(service_processors);
++
++static struct inode *ibmasmfs_make_inode(struct super_block *sb, int mode);
++static void ibmasmfs_create_files (struct super_block *sb, struct dentry *root);
++static int ibmasmfs_fill_super (struct super_block *sb, void *data, int silent);
++
++
++static struct super_block *ibmasmfs_get_super(struct file_system_type *fst,
++			int flags, const char *name, void *data)
++{
++	return get_sb_single(fst, flags, data, ibmasmfs_fill_super);
++}
++
++static struct super_operations ibmasmfs_s_ops = {
++	.statfs		= simple_statfs,
++	.drop_inode	= generic_delete_inode,
++};
++
++static struct file_operations *ibmasmfs_dir_ops = &simple_dir_operations;
++
++static struct file_system_type ibmasmfs_type = {
++	.owner          = THIS_MODULE,
++	.name           = "ibmasmfs",
++	.get_sb         = ibmasmfs_get_super,
++	.kill_sb        = kill_litter_super,
++};
++
++static int ibmasmfs_fill_super (struct super_block *sb, void *data, int silent)
++{
++	struct inode *root;
++	struct dentry *root_dentry;
++
++	sb->s_blocksize = PAGE_CACHE_SIZE;
++	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
++	sb->s_magic = IBMASMFS_MAGIC;
++	sb->s_op = &ibmasmfs_s_ops;
++
++	root = ibmasmfs_make_inode (sb, S_IFDIR | 0500);
++	if (!root)
++		return -ENOMEM;
++
++	root->i_op = &simple_dir_inode_operations;
++	root->i_fop = ibmasmfs_dir_ops;
++
++	root_dentry = d_alloc_root(root);
++	if (!root_dentry) {
++		iput(root);
++		return -ENOMEM;
++	}
++	sb->s_root = root_dentry;
++
++	ibmasmfs_create_files(sb, root_dentry);
++	return 0;
++}
++
++static struct inode *ibmasmfs_make_inode(struct super_block *sb, int mode)
++{
++	struct inode *ret = new_inode(sb);
++
++	if (ret) {
++		ret->i_mode = mode;
++		ret->i_uid = ret->i_gid = 0;
++		ret->i_blksize = PAGE_CACHE_SIZE;
++		ret->i_blocks = 0;
++		ret->i_atime = ret->i_mtime = ret->i_ctime = CURRENT_TIME;
++	}
++	return ret;
++}
++
++static struct dentry *ibmasmfs_create_file (struct super_block *sb,
++			struct dentry *parent,
++		       	const char *name,
++			struct file_operations *fops,
++			void *data,
++			int mode)
++{
++	struct dentry *dentry;
++	struct inode *inode;
++	struct qstr qname;
++
++	qname.name = name;
++	qname.len = strlen (name);
++	qname.hash = full_name_hash(name, qname.len);
++
++	dentry = d_alloc(parent, &qname);
++	if (!dentry)
++		return NULL;
++
++	inode = ibmasmfs_make_inode(sb, S_IFREG | mode);
++	if (!inode) {
++		dput(dentry);
++		return NULL;
++	}
++
++	inode->i_fop = fops;
++	inode->u.generic_ip = data;
++
++	d_add(dentry, inode);
++	return dentry;
++}
++
++static struct dentry *ibmasmfs_create_dir (struct super_block *sb,
++				struct dentry *parent,
++				const char *name)
++{
++	struct dentry *dentry;
++	struct inode *inode;
++	struct qstr qname;
++
++	qname.name = name;
++	qname.len = strlen (name);
++	qname.hash = full_name_hash(name, qname.len);
++	dentry = d_alloc(parent, &qname);
++	if (!dentry)
++		return NULL;
++
++	inode = ibmasmfs_make_inode(sb, S_IFDIR | 0500);
++	if (!inode) {
++		dput(dentry);
++		return NULL;
++	}
++
++	inode->i_op = &simple_dir_inode_operations;
++	inode->i_fop = ibmasmfs_dir_ops;
++
++	d_add(dentry, inode);
++	return dentry;
++}
++
++int ibmasmfs_register()
++{
++	return register_filesystem(&ibmasmfs_type);
++}
++
++void ibmasmfs_unregister()
++{
++	unregister_filesystem(&ibmasmfs_type);
++}
++
++void ibmasmfs_add_sp(struct service_processor *sp)
++{
++	list_add(&sp->node, &service_processors);
++}
++
++/* struct to save state between command file operations */
++struct ibmasmfs_command_data {
++	struct service_processor	*sp;
++	struct command			*command;
++};
++
++/* struct to save state between event file operations */
++struct ibmasmfs_event_data {
++	struct service_processor	*sp;
++	struct event_reader		reader;
++	int				active;
++};
++
++/* struct to save state between reverse heartbeat file operations */
++struct ibmasmfs_heartbeat_data {
++	struct service_processor	*sp;
++	struct reverse_heartbeat	heartbeat;
++	int				active;
++	spinlock_t			lock;
++};
++
++static int command_file_open(struct inode *inode, struct file *file)
++{
++	struct ibmasmfs_command_data *command_data;
++
++	if ( !inode->u.generic_ip )
++		return -ENODEV;
++
++	command_data = kmalloc(sizeof(struct ibmasmfs_command_data), GFP_KERNEL);
++	if ( !command_data )
++		return -ENOMEM;
++
++	command_data->command = NULL;
++	command_data->sp = inode->u.generic_ip;
++	file->private_data = command_data;
++	return 0;
++}
++
++static int command_file_close(struct inode *inode, struct file *file)
++{
++	struct ibmasmfs_command_data *command_data = file->private_data;
++
++	if (command_data->command)
++		command_put(command_data->command);	
++
++	kfree(command_data);
++	return 0;
++}
++
++static ssize_t command_file_read(struct file *file, char *buf, size_t count, loff_t *offset)
++{
++	struct ibmasmfs_command_data *command_data = file->private_data;
++	struct command *cmd;
++	int len;
++	unsigned long flags;
++
++	if (*offset < 0)
++		return -EINVAL;
++	if (count == 0 || count > IBMASM_CMD_MAX_BUFFER_SIZE)
++		return 0;
++	if (*offset != 0)
++		return 0;
++
++	spin_lock_irqsave(&command_data->sp->lock, flags);
++	cmd = command_data->command;
++	if (cmd == NULL) {
++		spin_unlock_irqrestore(&command_data->sp->lock, flags);
++		return 0;
++	}
++	command_data->command = NULL;
++	spin_unlock_irqrestore(&command_data->sp->lock, flags);
++
++	if (cmd->status != IBMASM_CMD_COMPLETE) {
++		command_put(cmd);
++		return -EIO;
++	}
++	len = min(count, cmd->buffer_size);
++	if ( copy_to_user(buf, cmd->buffer, len) ) {
++		command_put(cmd);
++		return -EFAULT;
++	}
++	command_put(cmd);
++
++	return len;
++}
++
++static ssize_t command_file_write(struct file *file, const char *ubuff, size_t count, loff_t *offset)
++{
++	struct ibmasmfs_command_data *command_data = file->private_data;
++	struct command *cmd;
++	unsigned long flags;
++
++	if (*offset < 0)
++		return -EINVAL;
++	if (count == 0 || count > IBMASM_CMD_MAX_BUFFER_SIZE)
++		return 0;
++	if (*offset != 0)
++		return 0;
++
++	/* commands are executed sequentially, only one command at a time */
++	if (command_data->command)
++		return -EAGAIN;
++
++	cmd = ibmasm_new_command(count);
++	if (!cmd)
++		return -ENOMEM;
++
++	if ( copy_from_user((void *)cmd->buffer, (void *)ubuff, count) ) {
++		command_put(cmd);
++		return -EFAULT;
++	}
++
++	spin_lock_irqsave(&command_data->sp->lock, flags);
++	if (command_data->command) {
++		spin_unlock_irqrestore(&command_data->sp->lock, flags);
++		command_put(cmd);
++		return -EAGAIN;
++	}
++	command_data->command = cmd;
++	spin_unlock_irqrestore(&command_data->sp->lock, flags);
++
++	ibmasm_exec_command(command_data->sp, cmd);
++	ibmasm_wait_for_response(cmd, get_dot_command_timeout(cmd->buffer));
++
++	return count;
++}
++
++static int command_file_ioctl(struct inode *inode, struct file *file, unsigned int ioctl_cmd, unsigned long arg)
++{
++	struct ibmasmfs_command_data *command_data = file->private_data;
++	struct command *cmd;
++	unsigned long flags;
++
++	if (ioctl_cmd != IBMASM_IO_CANCEL)
++		return -ENOTTY;
++
++	spin_lock_irqsave(&command_data->sp->lock, flags);
++	cmd = command_data->command;
++	if (cmd == NULL) {
++		spin_unlock_irqrestore(&command_data->sp->lock, flags);
++		return 0;
++	}
++	wake_up_interruptible(&cmd->wait);
++	spin_lock_irqsave(&command_data->sp->lock, flags);
++	return 0;
++}
++
++
++static int event_file_open(struct inode *inode, struct file *file)
++{
++	struct ibmasmfs_event_data *event_data;
++	struct service_processor *sp; 
++
++	if ( !inode->u.generic_ip )
++		return -ENODEV;
++
++	sp = inode->u.generic_ip;
++
++	event_data = kmalloc(sizeof(struct ibmasmfs_event_data), GFP_KERNEL);
++	if (!event_data)
++		return -ENOMEM;
++
++	ibmasm_event_reader_register(sp, &event_data->reader);
++
++	event_data->sp = sp;
++	file->private_data = event_data;
++	return 0;
++}
++
++static int event_file_close(struct inode *inode, struct file *file)
++{
++	struct ibmasmfs_event_data *event_data = file->private_data;
++
++	ibmasm_event_reader_unregister(event_data->sp, &event_data->reader);
++	kfree(event_data);
++	return 0;
++}
++
++static ssize_t event_file_read(struct file *file, char *buf, size_t count, loff_t *offset)
++{
++	struct ibmasmfs_event_data *event_data = file->private_data;
++	struct event_reader *reader = &event_data->reader;
++	int ret;
++
++	if (*offset < 0)
++		return -EINVAL;
++	if (count == 0 || count > IBMASM_EVENT_MAX_SIZE)
++		return 0;
++	if (*offset != 0)
++		return 0;
++
++	ret = ibmasm_get_next_event(event_data->sp, reader);
++	if (ret <= 0)
++		return ret;
++
++	if (count < reader->data_size)
++		return -EINVAL;
++
++        if (copy_to_user(buf, reader->data, reader->data_size))
++		return -EFAULT;
++
++	return reader->data_size;
++}
++
++static int event_file_ioctl(struct inode *inode, struct file *file, unsigned int ioctl_cmd, unsigned long arg)
++{
++	struct ibmasmfs_event_data *event_data = file->private_data;
++
++	if (ioctl_cmd != IBMASM_IO_CANCEL)
++		return -ENOTTY;
++
++	wake_up_interruptible(&event_data->reader.wait);
++	return 0;
++}
++
++static int r_heartbeat_file_open(struct inode *inode, struct file *file)
++{
++	struct ibmasmfs_heartbeat_data *rhbeat;
++
++	if ( !inode->u.generic_ip )
++		return -ENODEV;
++
++	rhbeat = kmalloc(sizeof(struct ibmasmfs_heartbeat_data), GFP_KERNEL);
++	if (!rhbeat)
++		return -ENOMEM;
++
++	rhbeat->sp = (struct service_processor *)inode->u.generic_ip;
++	rhbeat->lock = SPIN_LOCK_UNLOCKED;
++	rhbeat->active = 0;
++	ibmasm_init_reverse_heartbeat(rhbeat->sp, &rhbeat->heartbeat);
++	file->private_data = rhbeat;
++	return 0;
++}
++
++static int r_heartbeat_file_close(struct inode *inode, struct file *file)
++{
++	struct ibmasmfs_heartbeat_data *rhbeat = file->private_data;
++
++	kfree(rhbeat);
++	return 0;
++}
++
++static ssize_t r_heartbeat_file_read(struct file *file, char *buf, size_t count, loff_t *offset)
++{
++	struct ibmasmfs_heartbeat_data *rhbeat = file->private_data;
++	unsigned long flags;
++	int result;
++
++	if (*offset < 0)
++		return -EINVAL;
++	if (count == 0 || count > 1024)
++		return 0;
++	if (*offset != 0)
++		return 0;
++
++	/* allow only one reverse heartbeat per process */
++	spin_lock_irqsave(&rhbeat->lock, flags);
++	if (rhbeat->active) {
++		spin_unlock_irqrestore(&rhbeat->lock, flags);
++		return -EBUSY;
++	}
++	rhbeat->active = 1;
++	spin_unlock_irqrestore(&rhbeat->lock, flags);
++
++	result = ibmasm_start_reverse_heartbeat(rhbeat->sp, &rhbeat->heartbeat);
++
++	spin_lock_irqsave(&rhbeat->lock, flags);
++	rhbeat->active = 0;
++	ibmasm_init_reverse_heartbeat(rhbeat->sp, &rhbeat->heartbeat);
++	spin_unlock_irqrestore(&rhbeat->lock, flags);
++
++	return result;
++}
++
++static int r_heartbeat_file_ioctl(struct inode *inode, struct file *file, unsigned int ioctl_cmd, unsigned long arg)
++{
++	struct ibmasmfs_heartbeat_data *rhbeat = file->private_data;
++	unsigned long flags;
++
++	if (ioctl_cmd != IBMASM_IO_CANCEL)
++		return -ENOTTY;
++
++	spin_lock_irqsave(&rhbeat->lock, flags);
++	if (!rhbeat->active) {
++		spin_unlock_irqrestore(&rhbeat->lock, flags);
++		return 0;
++	}
++	spin_unlock_irqrestore(&rhbeat->lock, flags);
++
++	ibmasm_stop_reverse_heartbeat(&rhbeat->heartbeat);
++	return 0;
++}
++
++static int remote_settings_file_open(struct inode *inode, struct file *file)
++{
++	file->private_data = inode->u.generic_ip;
++	return 0;
++}
++
++static int remote_settings_file_close(struct inode *inode, struct file *file)
++{
++	return 0;
++}
++
++static ssize_t remote_settings_file_read(struct file *file, char *buf, size_t count, loff_t *offset)
++{
++	unsigned long address = (unsigned long)file->private_data;
++	unsigned char *page;
++	int retval;
++	int len = 0;
++	unsigned int value;
++
++	if (*offset < 0)
++		return -EINVAL;
++	if (count == 0 || count > 1024)
++		return 0;
++	if (*offset != 0)
++		return 0;
++
++	page = (unsigned char *)__get_free_page(GFP_KERNEL);
++	if (!page)
++		return -ENOMEM;
++
++	value = readl(address);
++	len = sprintf(page, "%d\n", value);
++
++	if (copy_to_user(buf, page, len)) {
++		retval = -EFAULT;
++		goto exit;
++	}
++	*offset += len;
++	retval = len;
++
++exit:
++	free_page((unsigned long)page);
++	return retval;
++}
++
++static ssize_t remote_settings_file_write(struct file *file, const char *ubuff, size_t count, loff_t *offset)
++{
++	unsigned long address = (unsigned long)file->private_data;
++	char *buff;
++	unsigned int value;
++
++	if (*offset < 0)
++		return -EINVAL;
++	if (count == 0 || count > 1024)
++		return 0;
++	if (*offset != 0)
++		return 0;
++
++	buff = kmalloc (count + 1, GFP_KERNEL);
++	if (!buff)
++		return -ENOMEM;
++
++	memset(buff, 0x0, count + 1);
++
++	if ( copy_from_user((void *)buff, (void *)ubuff, count) ) {
++		kfree(buff);
++		return -EFAULT;
++	}
++	
++	value = simple_strtoul(buff, NULL, 10);
++	writel(value, address);
++	kfree(buff);
++
++	return count;
++}
++
++static int remote_event_file_open(struct inode *inode, struct file *file)
++{
++	struct service_processor *sp;
++	unsigned long flags;
++	struct remote_queue *q;
++	
++	file->private_data = inode->u.generic_ip;
++	sp = file->private_data;
++	q = &sp->remote_queue;
++
++	/* allow only one event reader */
++	spin_lock_irqsave(&sp->lock, flags);
++	if (q->open) {
++		spin_unlock_irqrestore(&sp->lock, flags);
++		return -EBUSY;
++	}
++	q->open = 1;
++	spin_unlock_irqrestore(&sp->lock, flags);
++
++	enable_mouse_interrupts(sp);
++	
++	return 0;
++}
++
++static int remote_event_file_close(struct inode *inode, struct file *file)
++{
++	struct service_processor *sp = file->private_data;
++
++	disable_mouse_interrupts(sp);
++	wake_up_interruptible(&sp->remote_queue.wait);
++	sp->remote_queue.open = 0;
++
++	return 0;
++}
++
++static ssize_t remote_event_file_read(struct file *file, char *buf, size_t count, loff_t *offset)
++{
++	struct service_processor *sp = file->private_data;
++	struct remote_queue *q = &sp->remote_queue;
++	size_t data_size;
++	struct remote_event *reader = q->reader;
++	size_t num_events;
++
++	if (wait_event_interruptible(q->wait, q->reader != q->writer))
++		return -ERESTARTSYS;
++
++	/* only get multiples of struct remote_event */
++	num_events = min((count/sizeof(struct remote_event)), ibmasm_events_available(q));
++	if (!num_events)
++		return 0;
++
++	data_size = num_events * sizeof(struct remote_event);
++
++	if (copy_to_user(buf, reader, data_size))
++		return -EFAULT;
++
++	ibmasm_advance_reader(q, num_events);
++
++	return data_size;
++}
++
++
++static struct file_operations command_fops = {
++	.open =		command_file_open,
++	.release =	command_file_close,
++	.read =		command_file_read,
++	.write =	command_file_write,
++	.ioctl = 	command_file_ioctl,
++};
++
++static struct file_operations event_fops = {
++	.open =		event_file_open,
++	.release =	event_file_close,
++	.read =		event_file_read,
++	.ioctl 		event_file_ioctl,
++};
++
++static struct file_operations r_heartbeat_fops = {
++	.open =		r_heartbeat_file_open,
++	.release =	r_heartbeat_file_close,
++	.read =		r_heartbeat_file_read,
++	.ioctl =	r_heartbeat_file_ioctl,
++};
++
++static struct file_operations remote_settings_fops = {
++	.open =		remote_settings_file_open,
++	.release =	remote_settings_file_close,
++	.read =		remote_settings_file_read,
++	.write =	remote_settings_file_write,
++};
++
++static struct file_operations remote_event_fops = {
++	.open =		remote_event_file_open,
++	.release =	remote_event_file_close,
++	.read =		remote_event_file_read,
++};
++
++
++static void ibmasmfs_create_files (struct super_block *sb, struct dentry *root)
++{
++	struct list_head *entry;
++	struct service_processor *sp;
++
++	list_for_each(entry, &service_processors) {
++		struct dentry *dir;
++		struct dentry *remote_dir;
++		sp = list_entry(entry, struct service_processor, node);
++		dir = ibmasmfs_create_dir(sb, root, sp->dirname);
++		if (!dir)
++			continue;
++
++		ibmasmfs_create_file(sb, dir, "command", &command_fops, sp, 0600);
++		ibmasmfs_create_file(sb, dir, "event", &event_fops, sp, 0400);
++		ibmasmfs_create_file(sb, dir, "reverse_heartbeat", &r_heartbeat_fops, sp, 0400);
++
++		remote_dir = ibmasmfs_create_dir(sb, dir, "remote_video");
++		if (!remote_dir)
++			continue;
++
++		ibmasmfs_create_file(sb, remote_dir, "width", &remote_settings_fops, (void *)display_width(sp), 0600);
++		ibmasmfs_create_file(sb, remote_dir, "height", &remote_settings_fops, (void *)display_height(sp), 0600);
++		ibmasmfs_create_file(sb, remote_dir, "depth", &remote_settings_fops, (void *)display_depth(sp), 0600);
++		ibmasmfs_create_file(sb, remote_dir, "connected", &remote_settings_fops, (void *)vnc_status(sp), 0400);
++		ibmasmfs_create_file(sb, remote_dir, "events", &remote_event_fops, (void *)sp, 0400);
++	}
++}
+

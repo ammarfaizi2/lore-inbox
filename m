@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264930AbTL1CeH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 21:34:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbTL1CeH
+	id S264933AbTL1CgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 21:36:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264935AbTL1CgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 21:34:07 -0500
-Received: from smtp2.att.ne.jp ([165.76.15.138]:24269 "EHLO smtp2.att.ne.jp")
-	by vger.kernel.org with ESMTP id S264930AbTL1CeC (ORCPT
+	Sat, 27 Dec 2003 21:36:08 -0500
+Received: from smtp2.att.ne.jp ([165.76.15.138]:28877 "EHLO smtp2.att.ne.jp")
+	by vger.kernel.org with ESMTP id S264933AbTL1CeI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 21:34:02 -0500
-Message-ID: <173a01c3cceb$0432e110$43ee4ca5@DIAMONDLX60>
+	Sat, 27 Dec 2003 21:34:08 -0500
+Message-ID: <173c01c3cceb$07352490$43ee4ca5@DIAMONDLX60>
 From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
 To: <linux-kernel@vger.kernel.org>
-Subject: 2.6.0 vs. vga option
-Date: Sun, 28 Dec 2003 11:32:44 +0900
+Subject: 2.6.0 swsusp
+Date: Sun, 28 Dec 2003 11:33:12 +0900
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-2022-jp"
@@ -25,21 +25,38 @@ X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a machine with a Neomagic NM2200 [MagicGraph 256AV] VGA controller, under
-2.6.0, boot parameter vga=0x317 causes a blank screen and might be hanging
-the entire machine.  There is no response to Ctrl-Alt-Del.  Holding the
-power switch for 4 seconds results in a warning beep from the BIOS and then
-power down.
+On a machine with working ACPI, I compiled 2.6.0 with Software Suspend
+(Experimental).
 
-This is very similar to problems that were reported during 2.6.0-test days,
-with an older Neomagic chip and smaller screen.  I don't recall if
-Ctrl-Alt-Del might have yielded a reboot at that time.
+1.  Help information says that the next boot can be done with
+"resume=/dev/swappartition" or with "noresume".  It does not say how the
+swsusp command decides which swap partition to save to.  The man page (which
+still isn't sure if the command is named swsusp or suspend) also doesn't
+say.  How can I guess which swap partition to designate at resume time?  For
+the moment this is a hypothetical question because I haven't needed to make
+a second swap partition on this machine yet.
 
-As always, this can be fixed by booting 2.4.20.  Or by omitting the vga=
-parameter.
+2.  When I forgot to say either "resume" or "noresume", the kernel detected
+that it could not use the swap partition, but it did not offer the
+possibility to resume.  Surely it could detect early enough that the swap
+partition is not usable for swap but is usable for resume, and could ask the
+user whether to do a "resume" or "noresume".
 
-Oddly, I have found some combination of drivers to compile as built-in and
-some to compile as modules, so that early in the boot sequence the screen
-automatically switches from 80x25 to somewhere around 128x40 even without
-the vga= parameter.  No free penguin though.
+3.  When swsusp completed its writing, it decided that my ACPI BIOS could
+not power off automatically.  I wonder why.  No other OS has trouble
+powering off this machine.  Also on machines with older APM BIOSes, no OS
+had trouble powering off the machines, not even Linux with APM drivers.  So
+I could hold the power switch for 4 seconds and the BIOS beeped a warning
+before powering off, but I wonder why it was necessary.
+
+By the way on this machine, the keyboard's hotkey Fn+F7 correctly causes
+hibernation performed by the BIOS, and Fn+F10 correctly causes suspend to
+RAM.  In both cases the power key correctly causes a resume, with resume
+from hibernation being done by the BIOS.  Even though this is an ACPI
+machine, the BIOS still has hibernation (using a dedicated partition)
+because it was originally sold with Windows 98.  On my previous crash box
+with APM, hotkeys Fn+F7 and Fn+F10 (and others) got broken by 2.6.0-test
+kernels and could only be fixed by booting 2.4.nn kernels.  Since I sold my
+previous crash box, I can't check if 2.6.0 solved that breakage or if APM
+still necessitates using 2.4.20.
 

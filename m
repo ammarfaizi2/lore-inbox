@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264709AbTD0RcL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 13:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264710AbTD0RcL
+	id S264688AbTD0RhR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 13:37:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264693AbTD0RhR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 13:32:11 -0400
-Received: from codepoet.org ([166.70.99.138]:140 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S264709AbTD0RcK (ORCPT
+	Sun, 27 Apr 2003 13:37:17 -0400
+Received: from pop.gmx.net ([213.165.64.20]:33557 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264688AbTD0RhQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 13:32:10 -0400
-Date: Sun, 27 Apr 2003 11:44:24 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel <linux-kernel@vger.kernel.org>, alan@redhat.com
-Subject: Re: [PATCH] 2.4.21-rc1 pointless IDE noise reduction
-Message-ID: <20030427174424.GA17680@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Adrian Bunk <bunk@fs.tum.de>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel <linux-kernel@vger.kernel.org>, alan@redhat.com
-References: <20030424093443.GA7180@codepoet.org> <20030427122104.GK10256@fs.tum.de>
+	Sun, 27 Apr 2003 13:37:16 -0400
+Message-Id: <5.2.0.9.2.20030427195004.021ead80@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Sun, 27 Apr 2003 19:54:00 +0200
+To: linux-kernel@vger.kernel.org
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: Houston, I think we have a problem
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>
+In-Reply-To: <5.2.0.9.2.20030427193908.0220bee8@pop.gmx.net>
+References: <32170000.1051464570@[10.10.2.4]>
+ <5.2.0.9.2.20030427191459.00caed60@pop.gmx.net>
+ <5.2.0.9.2.20030427090009.01f89870@pop.gmx.net>
+ <5.2.0.9.2.20030427090009.01f89870@pop.gmx.net>
+ <5.2.0.9.2.20030427191459.00caed60@pop.gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030427122104.GK10256@fs.tum.de>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun Apr 27, 2003 at 02:21:04PM +0200, Adrian Bunk wrote:
-> Looking at the only user of this function it seems we can completely 
-> remove it (patch below).
-> 
-> Alan:
-> Is the patch below OK or are there any future plans for more uses of
-> idedisk_supports_host_protected_area?
-> 
-> >  -Erik
+At 07:41 PM 4/27/2003 +0200, Mike Galbraith wrote:
+>At 10:29 AM 4/27/2003 -0700, Martin J. Bligh wrote:
+>> >> > To reproduce this 100% of the time, simply compile virgin 2.5.68
+>> >> > up/preempt, reduce your ram to 128mb, and using gcc-2.95.3 as to not
+>> >> > overload the vm, run a make -j30 bzImage in an ext3 partition on a
+>> >> > P3/500 single ide disk box.  No, you don't really need to meet all of
+>> >> > those restrictions... you'll see the problem on a big hairy chested
+>> >> > box as well, just not as bad as I see it on my little box.  The first
+>> >> > symptom of the problem you will notice is a complete lack of swap
+>> >> > activity along with highly improbable quantities of unused ram were
+>> >> > all those hungry cc1's getting regular CPU feedings.
+>> >>
+>> >> Yes, that's why I don't use ext3 ;-) It's known broken, akpm is fixing
+>> >> it.
+>> >
+>> > I'm not at all convinced (must say I wouldn't mind at _all_ being
+>> > convinced) that it's ext3... that just _seems_ to be worst easily
+>> > reproducible case for some un-(expletive deleted)-known reason.
+>>
+>>Well, that's easy to test. Mount the fs as ext2, and see if it goes away.
+>
+>
+>Sure, btdt very first thing, and that's why I'm not convinced that ext3 is 
+>the core problem.  I see "it" in ext2 as well, just less so.
 
-Looks fine to me.  Even better,
+P.S.  I'm fishing for hints.  I'm (severely) hooked by the problem. 
 
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--

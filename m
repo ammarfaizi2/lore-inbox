@@ -1,105 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132801AbRDZPnr>; Thu, 26 Apr 2001 11:43:47 -0400
+	id <S132860AbRDZPqR>; Thu, 26 Apr 2001 11:46:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132767AbRDZPng>; Thu, 26 Apr 2001 11:43:36 -0400
-Received: from [195.6.125.97] ([195.6.125.97]:14095 "EHLO looping.sycomore.fr")
-	by vger.kernel.org with ESMTP id <S131472AbRDZPna>;
-	Thu, 26 Apr 2001 11:43:30 -0400
-Date: Thu, 26 Apr 2001 17:40:57 +0200
-From: =?ISO-8859-1?Q?s=E9bastien?= person <sebastien.person@sycomore.fr>
-To: Eric PENNAMEN <pennamen@caramail.com>
-Cc: liste noyau linux <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: Re: Fw: where can I find the IP address ?
-Message-Id: <20010426174057.230044fd.sebastien.person@sycomore.fr>
-In-Reply-To: <988309323021359@caramail.com>
-In-Reply-To: <988309323021359@caramail.com>
-X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.6; i586-pc-linux-gnu)
+	id <S133062AbRDZPqH>; Thu, 26 Apr 2001 11:46:07 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:49944 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S132860AbRDZPp7>; Thu, 26 Apr 2001 11:45:59 -0400
+Date: Thu, 26 Apr 2001 17:45:53 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Bob McElrath <rsmcelrath@students.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: it isn't aa's rwsem-generic-6 bug but something else [Re: aa's rwsem-generic-6 bug?  Process stuck in 'R' state.]
+Message-ID: <20010426174553.B819@athlon.random>
+In-Reply-To: <20010425223939.A26763@draal.physics.wisc.edu> <20010426061110.A819@athlon.random> <20010426003802.A738@draal.physics.wisc.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010426003802.A738@draal.physics.wisc.edu>; from rsmcelrath@students.wisc.edu on Thu, Apr 26, 2001 at 12:38:02AM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Thu, 26 Apr 2001 17:22:03 GMT+1
-Eric PENNAMEN <pennamen@caramail.com> à écrit :
+On Thu, Apr 26, 2001 at 12:38:02AM -0500, Bob McElrath wrote:
+> When I posted this bug originally, you came right out and said it was
+> probably the rwsemaphores.  I really have no idea how the rwsemaphores
 
-> Je ne suis pas un expert Linux et je ne pourrais peut etre pas 
-> t'aider mais je le probleme n'es-t pas tres clair :
-> Est il de recuperer l'adresse IP du poste (transfert de donne entre le script
-> et le driver au chargement) ?
-> ou bien que le driver doit ouvrir dans le kernel une socket a l'adresse IP donne dans le script 
-> et que tu ne sais pas comment faire ?
+You were talking about the ps table hang when I told you about the rwsem
+races. I had the same trouble on my alpha and I reproduced the races
+trivially by lanucing:
 
-en fait mon driver commande une sorte de carte réseau dont l'ip est attribué dans un script,
-le but est de recuperer l'ip attribuée. je crois que ca correspond plus a ta première proposition
+	make MAKE='make -j2' -j2 &
 
-mais effectivement j'ai bien quelques idées mais elles n'ont abouti a rien (appel ioctl, 
-utiliser la structure device qui doit contenir l'adresse du protocol utilisé dev->pa_addr [
-malheureusement je me fais jeter à la compil car ce champs n'existerait pas ... a til disparu depuis
-les noyaux 2.2.14 ??])
+	while :; do ps xa ; sleep 1 ; done
 
-pourtant c'est ce que preconise le bouquin de rubini (edition 1)
+After a few seconds ps deadlocked. Try that on the old asm semaphores.
 
-voila si t'as une piste ...
+It was 100% reproducible, and after I rewrote the rwsemaphores the
+deadlock gone away completly.
 
-merci
+Your X hanging in R state is completly unrelated to the rwsem ps table
+hang problem as far I can tell.
 
-> 
-> 
-> 
-> sébastien person a écrit :
-> 
->  Début du message transféré :
-> 
->  Date: Wed, 25 Apr 2001 16:45:48 +0200
->  From: sébastien person <sebastien.person@sycomore.fr>
->  To: Helge Hafting <helgehaf@idb.hist.no>
->  Subject: Re: Fw: where can I find the IP address ?
-> 
->  Le Wed, 25 Apr 2001 15:17:59 +0200
->  Helge Hafting <helgehaf@idb.hist.no> à écrit :
-> 
->  > sébastien person wrote:
->  > >
->  > > Début du message transféré :
->  > >
->  > > Date: Tue, 24 Apr 2001 16:43:18 +0200
->  > > From: sébastien person <sebastien.person@sycomore.fr>
->  > > To: liste noyau linux <linux-kernel@vger.kernel.org>
->  > > Subject: where can I find the IP address ?
->  > >
->  > > I'm dealing with a driver wich need the IP address for specifics using.
->  > >
->  > The IP address of what?
->  > Rememeber, a computer can have an arbitrary number of different
->  > IP addresses assigned to various interfaces. It may even have
->  > several IP addresses on the same network card.
->  >
->  > So, which of them do you want?
->  >
->  > Helge Hafting
-> 
->  Yes that's right. In fact (excuse my bad english), my driver is 'iconfiged- up' with an
->  IP in a script, and there is only one IP attach to the adapter. The adapter is a serial
->  modem wich will work like an ethernet card, I'm working on the encapsulation of packets
->  on the serial line and I need the IP that ifconfig attach to it.
-> 
->  I've seen in the rubini linux device driver that it exists one field in the struture
->  that contain the IP but it doesn't exist in my structure so I though that I can find it
->  elsewhere. So the IP that I need for the driver of the device, is the one the device is
->  attached to. I expect to explain myself clearly else don't hesitate to tell me more.
-> 
->  thanks
-> 
->  sebastien person
-> 
->  -
->  To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->  the body of a message to majordomo@vger.kernel.org
->  More majordomo info at http://vger.kernel.org/majordomo-info.html
->  Please read the FAQ at http://www.tux.org/lkml/
-> ______________________________________________________
-> Boîte aux lettres - Caramail - http://www.caramail.com
-> 
-> 
+> I'm running a debug X build at this point, and have identified at least
+
+If you can reproduce without starting X I will be interested in fixing
+the hang. Maybe you have a graphics card with a fb driver that doesn't
+need VESA that maybe works on the alpha, then you could run X without
+privilegies. (btw, in theory we could make the VESA thing working as
+well using the x86 emulator in SRM but nobody attempted to implement
+that yet)
+
+> instead of gcc...then figured what the hell)  The rest were with egcs
+> 1.1.2.  I'll use egcs 1.1.2 in the future.
+
+good.
+
+Andrea

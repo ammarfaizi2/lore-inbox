@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266213AbUHNJKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266254AbUHNJYK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266213AbUHNJKT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 05:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266254AbUHNJKT
+	id S266254AbUHNJYK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 05:24:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266257AbUHNJYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 05:10:19 -0400
-Received: from alhambra.mulix.org ([192.117.103.203]:40152 "EHLO
-	granada.merseine.nu") by vger.kernel.org with ESMTP id S266213AbUHNJKM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 05:10:12 -0400
-Date: Sat, 14 Aug 2004 12:11:06 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org, gene.heskett@verizon.net
-Subject: Re: [RFC] HOWTO find oops location
-Message-ID: <20040814091106.GO17907@granada.merseine.nu>
-References: <200408141153.06625.vda@port.imtp.ilyichevsk.odessa.ua>
+	Sat, 14 Aug 2004 05:24:10 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:4022 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266254AbUHNJYH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 05:24:07 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc4-O8
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <20040814072009.GA6535@elte.hu>
+References: <20040726124059.GA14005@elte.hu>
+	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
+	 <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
+	 <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu>
+	 <1092382825.3450.19.camel@mindpipe> <20040813104817.GI8135@elte.hu>
+	 <1092432929.3450.78.camel@mindpipe>  <20040814072009.GA6535@elte.hu>
+Content-Type: text/plain
+Message-Id: <1092475486.803.70.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WoqaC9TUMqqIOlla"
-Content-Disposition: inline
-In-Reply-To: <200408141153.06625.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.5.6+20040803i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 14 Aug 2004 05:24:46 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2004-08-14 at 03:20, Ingo Molnar wrote:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
+> 
+> > Here is the trace resulting from the apt-get filemap_sync() issue:
+> > 
+> >  0.000ms (+0.000ms): filemap_sync_pte_range (filemap_sync)
+> >  0.000ms (+0.000ms): filemap_sync_pte (filemap_sync_pte_range)
+> 
+> ok, this is one that is fixed in -mm already. I've put the fix into -O8:
+> 
+>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc4-O8
+> 
+> other changes in -O8: the massive kallsyms-lookup speedup from Paulo
+> Marque, and tracing is default-on now.
+> 
 
---WoqaC9TUMqqIOlla
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The extract_entropy issue seems to be the worst offender on my system. I
+have collected some traces here:
 
-On Sat, Aug 14, 2004 at 11:53:06AM +0300, Denis Vlasenko wrote:
-> Hi folks,
->=20
-> Is this draft HOWTO useful? Comments?
+http://krustophenia.net/testresults.php?dataset=2.6.8-rc4-bk3-O7
 
-Looks very nice. One small niggle:=20
+Lee
 
-> EIP is at prune_dcache+0x147/0x1c0
->           ^^^^^^^^^^^^^^^^^^^^^^^^
-
-> Let's try to find out where did that exactly happened.
-> Grep in your kernel tree for prune_dcache. Aha, it is defined in
-> fs/dcache.c! Ok, execute these two commands:
->=20
-> # objdump -d fs/dcache.o > fs/dcache.disasm
-> # make fs/cache.s
-
-you mean 'make fs/dcache.s' here, I believe.=20
-
-Cheers,=20
-Muli
---=20
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
-
-
---WoqaC9TUMqqIOlla
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBHdcqKRs727/VN8sRAn5xAKC9xloBp+jaH4grqJC9ly26DYz4sgCcDO9L
-ogOVSVGQSMV3doe2vOLgeIk=
-=raqU
------END PGP SIGNATURE-----
-
---WoqaC9TUMqqIOlla--

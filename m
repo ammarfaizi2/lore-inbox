@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270978AbUJUVYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270980AbUJUVYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270978AbUJUVYq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 17:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270928AbUJUVYo
+	id S270980AbUJUVYP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 17:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270971AbUJUVWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 17:24:44 -0400
-Received: from jstevenson.plus.com ([212.159.71.212]:55175 "EHLO
-	beast.stev.org") by vger.kernel.org with ESMTP id S270809AbUJUVXd
+	Thu, 21 Oct 2004 17:22:45 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:45458 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S270969AbUJUVPs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 17:23:33 -0400
-Date: Thu, 21 Oct 2004 22:56:56 +0100 (BST)
-From: James Stevenson <james@stev.org>
-To: Hans-Peter Jansen <hpj@urpla.net>
-cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       <linux-ide@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <kernelnewbies@nl.linux.org>
-Subject: Re: ATA/133 Problems with multiple cards
-In-Reply-To: <200410212200.35037.hpj@urpla.net>
-Message-ID: <Pine.LNX.4.44.0410212251300.28663-100000@beast.stev.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 21 Oct 2004 17:15:48 -0400
+Subject: [PATCH] zap_pte_range should not mark non-uptodate pages dirty
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andrea Arcangeli <andrea@novell.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Content-Type: text/plain
+Message-Id: <1098393346.7157.112.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 21 Oct 2004 16:15:46 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Oct 2004, Hans-Peter Jansen wrote:
+zap_pte_range should not mark non-uptodate pages dirty
 
-> On Thursday 21 October 2004 20:43, Bartlomiej Zolnierkiewicz wrote:
-> > On Wed, 20 Oct 2004 16:23:21 +0200, Hans-Peter Jansen 
-> <hpj@urpla.net> wrote:
-> > > Hmm, I'm running 3 TX2/100 (even with different revisions)
-> > > without big problems here:
-> > >
-> > > 00:09.0 Unknown mass storage controller: Promise Technology, Inc.
-> > > 20268 (rev 02) 00:0a.0 Unknown mass storage controller: Promise
-> > > Technology, Inc. 20268 (rev 02) 00:0b.0 Unknown mass storage
-> > > controller: Promise Technology, Inc. 20268 (rev 01)
-> >
-> > lspci -xxx ?
-> 
-> With pleasure. Let me know, if I can provide anything else useful.
-> BTW, Bart, I suspect James' problem is, that his system is running in 
-> pic mode, while mine is in apic mode.
+Doing O_DIRECT writes to an mmapped file caused pages in the page cache to
+be marked dirty but not uptodate.  This led to a bug in mpage_writepage.
 
-i dont actually think that this is a problem i was reading an artical from
-a website (cant find address now) which was stating that the promise 
-card's fireware on the PDC20269 was limited by the firmware to 2 cards
-and the 3rd did not work in other cases. The author had setup various 
-other systems in the same way using other promise hardware but slightly 
-different cards.
+Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+Signed-off-by: Andrea Arcangeli <andrea@novell.com>
 
-I have replaced the 3rd promise card with a highpoint card and everything 
-is working fine and has been for the last 36 hours.
+diff -urp linux-2.6.9/mm/memory.c linux/mm/memory.c
+--- linux-2.6.9/mm/memory.c	2004-10-21 10:49:26.598031488 -0500
++++ linux/mm/memory.c	2004-10-21 16:01:44.902376232 -0500
+@@ -414,7 +414,15 @@ static void zap_pte_range(struct mmu_gat
+ 			    && linear_page_index(details->nonlinear_vma,
+ 					address+offset) != page->index)
+ 				set_pte(ptep, pgoff_to_pte(page->index));
+-			if (pte_dirty(pte))
++			/*
++			 * PG_uptodate can be cleared by
++			 * invalidate_inode_pages2, so we must not try to write
++			 * not uptodate pages.  Otherwise we risk invalidating
++			 * underlying O_DIRECT writes, and secondly because
++			 * pdflush would BUG().  Coherency of mmaps against
++			 * O_DIRECT still cannot be guaranteed though.
++			 */
++			if (pte_dirty(pte) && PageUptodate(page))
+ 				set_page_dirty(page);
+ 			if (pte_young(pte) && !PageAnon(page))
+ 				mark_page_accessed(page);
 
-	James
-
--- 
---------------------------
-Mobile: +44 07779080838
-http://www.stev.org
- 10:50pm  up 1 day,  9:16,  3 users,  load average: 0.07, 0.02, 0.00
 

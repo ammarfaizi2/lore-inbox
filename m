@@ -1,39 +1,168 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270280AbRHMQmG>; Mon, 13 Aug 2001 12:42:06 -0400
+	id <S270273AbRHMQl0>; Mon, 13 Aug 2001 12:41:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270299AbRHMQl5>; Mon, 13 Aug 2001 12:41:57 -0400
-Received: from guestpc.physics.umanitoba.ca ([130.179.72.122]:8452 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S270293AbRHMQln>; Mon, 13 Aug 2001 12:41:43 -0400
-Date: Mon, 13 Aug 2001 11:41:27 -0500
-Message-Id: <200108131641.f7DGfRX01182@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@mobilix.ras.ucalgary.ca
-Subject: [PATCH] devfs v187 available
+	id <S270280AbRHMQlH>; Mon, 13 Aug 2001 12:41:07 -0400
+Received: from palrel1.hp.com ([156.153.255.242]:44516 "HELO palrel1.hp.com")
+	by vger.kernel.org with SMTP id <S270273AbRHMQk5>;
+	Mon, 13 Aug 2001 12:40:57 -0400
+Message-ID: <F341E03C8ED6D311805E00902761278C04728E71@xfc04.fc.hp.com>
+From: "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: re: Performance 2.4.8 is worse than 2.4.x<8 (SPEC NFS results sho
+	w this)
+Date: Mon, 13 Aug 2001 09:40:59 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 187 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
+Here are some SPEC SFS NFS testing (http://www.spec.org/osg/sfs97) results
+I've been doing over the past few weeks that shows NFS performance degrading
+since the 2.4.5pre1 kernel.  I've kept the hardware constant, only changing
+the kernel.  I'm prevented by management from releasing our top numbers, but
+have given our results normalized to the 2.4.5pre1 kernel.  I've also shown
+the results from the first three SPEC runs to show the response time trend.
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
+Normally, response time should start out very low, increasing slowly until
+the maximum load of the system under test is reached.  Starting with
+2.4.8pre8, the response time starts very high, and then decreases.  Very
+bizarre behaviour.
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
+The spec results consist of the following data (only the first three numbers
+are significant for this discussion)
+- load.  The load the SPEC prime client will try to get out of the system
+under test.  Measured in I/O's per second (IOPS).
+- throughput.  The load seen from the system under test.  Measured in IOPS
+- response time.  Measured in milliseconds
+- total operations
+- elapsed time.  Measured in seconds
+- NFS version. 2 or 3
+- Protocol. UDP (U) or TCP (T)
+- file set size in megabytes
+- number of clients
+- number of SPEC SFS processes
+- biod reads
+- biod writes
+- SPEC SFS version
 
-This is against 2.4.9-pre2. Highlights of this release:
+The 2.4.8pre4 and 2.4.8 tests were invalid.  Too many (> 1%) of the RPC
+calls between the SPEC prime client and the system under test failed.  This
+is not a good thing.
 
-- Fixed drivers/char/stallion.c for devfs
+I'm willing to try out any ideas on this system to help find and fix the
+performance degradation.
 
-- Fixed drivers/char/rocket.c for devfs
+Erik Habbinga
+Hewlett Packard
 
-- Fixed bug in <devfs_alloc_unique_number>: limited to 128 numbers
+Hardware:
+4 processors, 4GB ram
+45 fibre channel drives, set up in hardware RAID 0/1
+2 direct Gigabit Ethernet connections between SPEC SFS prime client and
+system under test
+reiserfs
+all NFS filesystems exported with sync,no_wdelay to insure O_SYNC writes to
+storage
+NFS v3 UDP
 
-				Regards,
+Results:
+2.4.5pre1
+            500     497     0.8   149116  300 3 U    5070624   1 48  2  2
+2.0
+           1000    1004     1.0   300240  299 3 U   10141248   1 48  2  2
+2.0
+           1500    1501     1.0   448807  299 3 U   15210624   1 48  2  2
+2.0
+peak IOPS: 100% of 2.4.5pre1
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+2.4.5pre2
+            500     497     1.0   149195  300 3 U    5070624   1 48  2  2
+2.0
+           1000    1005     1.2   300449  299 3 U   10141248   1 48  2  2
+2.0
+           1500    1502     1.2   449057  299 3 U   15210624   1 48  2  2
+2.0
+peak IOPS: 91% of 2.4.5pre1
+
+2.4.5pre3
+            500     497     1.0   149095  300 3 U    5070624   1 48  2  2
+2.0
+           1000    1004     1.1   300135  299 3 U   10141248   1 48  2  2
+2.0
+           1500    1502     1.2   449069  299 3 U   15210624   1 48  2  2
+2.0
+peak IOPS: 91% of 2.4.5pre1
+
+2.4.5pre4
+   wouldn't run (stale NFS file handle error)
+
+2.4.5pre5
+   wouldn't run (stale NFS file handle error)
+
+2.4.5pre6
+   wouldn't run (stale NFS file handle error)
+
+2.4.7
+            500     497     1.2   149206  300 3 U    5070624   1 48  2  2
+2.0
+           1000    1005     1.5   300503  299 3 U   10141248   1 48  2  2
+2.0
+           1500    1502     1.3   449232  299 3 U   15210624   1 48  2  2
+2.0
+peak IOPS: 65% of 2.4.5pre1
+
+2.4.8pre1
+   wouldn't run
+
+2.4.8pre4
+            500     497     1.1   149180  300 3 U    5070624   1 48  2  2
+2.0
+           1000    1002     1.2   299465  299 3 U   10141248   1 48  2  2
+2.0
+           1500    1502     1.3   449190  299 3 U   15210624   1 48  2  2
+2.0
+INVALID
+peak IOPS: 54% of 2.4.5pre1
+
+2.4.8pre6
+            500     497     1.1   149168  300 3 U    5070624   1 48  2  2
+2.0
+           1000    1004     1.3   300246  299 3 U   10141248   1 48  2  2
+2.0
+           1500    1502     1.3   449135  299 3 U   15210624   1 48  2  2
+2.0
+peak IOPS 55% of 2.4.5pre1
+
+2.4.8pre7
+            500     498     1.5   149367  300 3 U    5070624   1 48  2  2
+2.0
+           1000    1006     2.2   301829  300 3 U   10141248   1 48  2  2
+2.0
+           1500    1502     2.2   449244  299 3 U   15210624   1 48  2  2
+2.0
+peak IOPS: 58% of 2.4.5pre1
+
+2.4.8pre8
+            500     597     8.3   179030  300 3 U    5070624   1 48  2  2
+2.0
+           1000    1019     6.5   304614  299 3 U   10141248   1 48  2  2
+2.0
+           1500    1538     4.5   461335  300 3 U   15210624   1 48  2  2
+2.0
+peak IOPS: 48% of 2.4.5pre1
+
+2.4.8
+            500     607     7.1   181981  300 3 U    5070624   1 48  2  2
+2.0
+           1000     997     7.0   299243  300 3 U   10141248   1 48  2  2
+2.0
+           1500    1497     2.9   447475  299 3 U   15210624   1 48  2  2
+2.0
+INVALID
+peak IOPS: 45% of 2.4.5pre1
+
+2.4.9pre2
+   wouldn't run (NFS readdir errors)

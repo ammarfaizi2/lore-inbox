@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262874AbTGAQ6o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 12:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbTGAQ6o
+	id S263025AbTGARGr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 13:06:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbTGARGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 12:58:44 -0400
-Received: from moraine.clusterfs.com ([216.138.243.178]:33160 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S262874AbTGAQ6i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 12:58:38 -0400
-Date: Tue, 1 Jul 2003 11:12:45 -0600
-From: "Peter J. Braam" <braam@clusterfs.com>
-To: chyang@clusterfs.com
-Cc: Miles T Lane <miles_lane@yahoo.com>, linux-kernel@vger.kernel.org,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, Ben Pfaff <pfaffben@debian.org>
-Subject: Re: 2.5.73-bk5 -- intermezzo.ko needs unknown symbol set_fs_root, vga16fb.ko needs unknown symbol screen_info
-Message-ID: <20030701171245.GZ9463@peter.cfs>
-References: <20030628014710.32726.qmail@web40602.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030628014710.32726.qmail@web40602.mail.yahoo.com>
-User-Agent: Mutt/1.4i
+	Tue, 1 Jul 2003 13:06:34 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:55450 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263103AbTGARFO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 13:05:14 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 1 Jul 2003 10:11:41 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Diego Zuccato <diego@otello.alma.unibo.it>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SIS IO-APIC troubles
+In-Reply-To: <3F014378.6D3F598C@otello.alma.unibo.it>
+Message-ID: <Pine.LNX.4.55.0307011009540.4730@bigblue.dev.mcafeelabs.com>
+References: <3F014378.6D3F598C@otello.alma.unibo.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chen, 
+On Tue, 1 Jul 2003, Diego Zuccato wrote:
 
-This requires a small patch to the kernel/ksyms.c file and possibly a
-prototyp in fs.h. 
+> Hello.
+>
+> I'm trying to install Linux on an Acer Aspire 1700. To be able to boot,
+> I've had to use "noapic" parameter. But, then, many peripherals won't
+> work (like USB2) or they'll be sluggish (like nic that reaches about
+> 80KB/s in a direct 100Mbps link).
+> I've put all the info I could gather at
+> http://otello.alma.unibo.it/~diego/Aspire1700/ .
+> Since it's not my machine, but a friend lets me experiment with it, it's
+> better if I have a list of tests to try.
 
-Can you fix it and send to Linus.
+You have a SiS650 chipset and this will help the IRQ routing :
 
-- Peter -
+http://www.xmailserver.org/linux-patches/misc.html#SiSRt
 
-On Fri, Jun 27, 2003 at 06:47:10PM -0700, Miles T Lane wrote:
-> if [ -r System.map ]; then /sbin/depmod -ae -F
-> System.map  2.5.73-bk5; fi
-> WARNING:
-> /lib/modules/2.5.73-bk5/kernel/fs/intermezzo/intermezzo.ko
-> needs unknown symbol set_fs_root
-> WARNING:
-> /lib/modules/2.5.73-bk5/kernel/fs/intermezzo/intermezzo.ko
-> needs unknown symbol set_fs_pwd
-> WARNING:
-> /lib/modules/2.5.73-bk5/kernel/drivers/video/vga16fb.ko
-> needs unknown symbol screen_info
-> 
-> 
-> __________________________________
-> Do you Yahoo!?
-> SBC Yahoo! DSL - Now only $29.95 per month!
-> http://sbc.yahoo.com
-- Peter -
+
+
+- Davide
+

@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbULTTDB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbULTTKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbULTTDB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 14:03:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbULTTDB
+	id S261597AbULTTKh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 14:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbULTTKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 14:03:01 -0500
-Received: from utopia.booyaka.com ([206.168.112.107]:22166 "EHLO
-	utopia.booyaka.com") by vger.kernel.org with ESMTP id S261613AbULTTCq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 14:02:46 -0500
-Date: Mon, 20 Dec 2004 12:02:45 -0700 (MST)
-From: Paul Walmsley <paul@booyaka.com>
-To: Juergen Botz <jurgen@botz.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Thinkpad T42, keyboard sometimes hosed when waking from sleep
-In-Reply-To: <cpl6n2$ivd$1@sea.gmane.org>
-Message-ID: <Pine.LNX.4.44.0412201147230.24228-100000@utopia.booyaka.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Dec 2004 14:10:37 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:7053 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261597AbULTTKc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 14:10:32 -0500
+Date: Tue, 21 Dec 2004 00:55:58 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Reimplementation of linux dynamic percpu memory allocator
+Message-ID: <20041220192558.GA17194@in.ibm.com>
+References: <41C35DD6.1050804@colorfullife.com> <20041220182057.GA16859@in.ibm.com> <41C718C7.1020908@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41C718C7.1020908@colorfullife.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Dec 2004, Juergen Botz wrote:
+On Mon, Dec 20, 2004 at 07:24:07PM +0100, Manfred Spraul wrote:
+> >
+> No, not fast path. But it can happen a few thousand times. The slab 
+> implementation failed due to heavy internal fragmentation. If your code 
+> runs fine with a few thousand users, then there shouldn't be a problem.
 
-> I have a new IBM Thinkpad T42, FC3 with all updates, stock
-> 2.6.9-1.681_FC3 kernel + iwp2200 driver (0.13).  Everyone once
-> in a while when I wake from ACPI S3 sleep my keyboard is hosed...
-> the first key I press starts rapidly auto-repeating, which can't
-> be stopped, and pressing any key produces either no visible
-> action or some other character (not the one normally on that
-> key) which also auto repeats madly.
+If there is a stress test I can use, I can try running it.
 
-I'm also seeing this behavior on an HP Omnibook 6000 laptop running Red
-Hat's latest release of 2.6.9 - same kernel version as the above poster.  
-Upon resume, the keyboard malfunctions but the touchpad works fine. It
-happens with either ACPI or APM.  (I did notice that during ACPI resume,
-the machine spits out several error messages from atkbd.c to the kernel
-message log - when I've next got serial console access, I'll post them 
-here.)
+> >>>     
+> >..
+> For non-NUMA systems, I would use get_free_pages() to allocate a 
+> multi-page area instead of map_vm_area(). Typically, get_free_pages() is 
+> backed by large pte memory and map_vm_area() by normal virtual memory.
 
-This behavior happens about 2/3rds of the time that the machine comes out
-of suspend.  It did not occur with any of the 2.6 kernels that shipped
-with Fedora Core 2 before FC3 came out.
+Hmm...the arithmetic becomes tricky then.  Right now I allocate
+NR_CPUS * PCU_BLOCKSIZE + BLOCK_MANAGEMENT_SIZE amount of KVA for a block,
+allocate pages for cpu_possible cpus and map corresponding va space
+with allocated pages using map_vm_area.  We may fragment if
+NR_CPUS * PCPU_BLOCKSIZE doesn't fit into a proper page order,
+also we'd be wasting pages for !cpu_possible(cpus) of NR_CPUS
 
-
-- Paul
-
+Thanks,
+Kiran

@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261852AbSJJRo4>; Thu, 10 Oct 2002 13:44:56 -0400
+	id <S261923AbSJJRsY>; Thu, 10 Oct 2002 13:48:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261861AbSJJRo4>; Thu, 10 Oct 2002 13:44:56 -0400
-Received: from netrealtor.ca ([216.209.85.42]:39689 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S261852AbSJJRoz>;
-	Thu, 10 Oct 2002 13:44:55 -0400
-Date: Thu, 10 Oct 2002 13:50:43 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-Message-ID: <20021010175043.GA16962@mark.mielke.cc>
-References: <1034104637.29468.1483.camel@phantasy> <XFMail.20021009103325.pochini@shiny.it> <20021009170517.GA5608@mark.mielke.cc> <3DA4852B.7CC89C09@denise.shiny.it> <20021009222438.GD5608@mark.mielke.cc> <20021009232002.GC2654@bjl1.asuk.net> <20021010030736.GA8805@mark.mielke.cc> <3DA55C8C.760584EE@aitel.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DA55C8C.760584EE@aitel.hist.no>
-User-Agent: Mutt/1.4i
+	id <S261934AbSJJRsY>; Thu, 10 Oct 2002 13:48:24 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22031 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261923AbSJJRsX>; Thu, 10 Oct 2002 13:48:23 -0400
+Date: Thu, 10 Oct 2002 13:46:07 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: lell02 <lell02@stud.uni-passau.de>
+cc: Jens Axboe <axboe@suse.de>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Status of UDF CD packet writing?
+In-Reply-To: <200210091042.g99Agwjm009964@tom.rz.uni-passau.de>
+Message-ID: <Pine.LNX.3.96.1021010134148.17862C-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 10, 2002 at 12:55:08PM +0200, Helge Hafting wrote:
-> Mark Mielke wrote:
-> > I might be wrong, but it seems to me that O_STREAMING isn't the answer
-> > to everything. The primary benefactors of O_STREAMING would be
-> > applications that read very large files that do not fit into RAM, from
-> > start to finish.
-> It don't have to be a file that don't fit into RAM.  Remember, other
-> running apps wants memory and cache too, so the "fair share" of memory
-> for _this_ process is much smaller than all of RAM.
-> So, O_STREAMING makes sense for all files where we know that we're going
-> sequentially and that caching this for long won't help. 
-> (Because the contents likely will be pushed out before we need
-> them again anyway (DVD case) or we know were going to delete
-> the file, or we simply don't want to push anything else
-> out even if we could cache this.)
+On Wed, 9 Oct 2002, lell02 wrote:
 
-Then perhaps O_STREAMING should be called O_EXTENDEDSTREAMING.
+> >You might be talking about two different patches -- one for cd-rw
+> >support (this is the pktcdvd (or -packet) patch that Peter Osterlund has
+> >been maintaining) and the other for cd-mrw. The cd-mrw patch is very
+> >small, not a lot is required to support that in the cd driver.
+> >Supporting cd-rw is a lot harder, basically you have to do in software
+> >what cd-mrw does in hardware (defect management, read-modify-write
+> >packet gathering, etc).
+> >
+> >cd-mrw will definitely be in 2.6. cd-rw support maybe, I haven't even
+> >looked at that lately.
+> >
+> 
+> thanx for clearing out these differences. 
+> 
+> but, isn't cd-mrw supposed to replace the old packet-writing technique?
+> so, in the end, there wouldn't be any need for packet-writing, if every burner 
+> ships with cd-mrw-support... i read in the "specs", that the technology would 
+> be much better.
 
-If you overload O_STREAMING to contain all possibile uses for sequential
-reads, you end up hurting yourself.
+When will you be sending me my replacement writers which support cd-mrw?
+Hum, I thought not. You ignore the fact that there are at least hundreds
+of thousands of devices in use which don't have that feature, but which
+will support packet with the existing patches. AFAIK the code exists for
+2.4, so perhaps only a port is needed.
 
-Small files are different beasts from large files. If you want O_STREAMING
-to work in all cases, you really want standard mode to work in all cases,
-and O_STREAMING is not for you.
-
-mark
+Hopefully someone using this can clarify, I tried the code a while ago,
+and it worked but was pretty slow. I would still find it useful in many
+cases, however, I'm getting smarter about using slow writers :-(
 
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

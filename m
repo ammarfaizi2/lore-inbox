@@ -1,134 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVAROW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVAROYS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbVAROW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 09:22:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVAROWr
+	id S261305AbVAROYS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 09:24:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVAROYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 09:22:47 -0500
-Received: from mail12.syd.optusnet.com.au ([211.29.132.193]:35297 "EHLO
-	mail12.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261309AbVAROVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 09:21:49 -0500
-Message-ID: <41ED1B74.8040008@kolivas.org>
-Date: Wed, 19 Jan 2005 01:21:40 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Tue, 18 Jan 2005 09:24:18 -0500
+Received: from mail45.messagelabs.com ([140.174.2.179]:54937 "HELO
+	mail45.messagelabs.com") by vger.kernel.org with SMTP
+	id S261307AbVAROYG convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 09:24:06 -0500
+X-VirusChecked: Checked
+X-Env-Sender: justin.piszcz@mitretek.org
+X-Msg-Ref: server-20.tower-45.messagelabs.com!1106058245!9532863!1
+X-StarScan-Version: 5.4.5; banners=-,-,-
+X-Originating-IP: [66.10.26.57]
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>,
-       ck kernel <ck@vds.kolivas.org>
-Subject: 2.6.10-ck5
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig39527BBAA6F1C249330777A3"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.4: "access beyond end of device" after ext2 mount
+Date: Tue, 18 Jan 2005 09:24:03 -0500
+Message-ID: <2E314DE03538984BA5634F12115B3A4E01BC42B3@email1.mitretek.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.4: "access beyond end of device" after ext2 mount
+thread-index: AcT9aEm0rV89UYGzSimjKZBC7dXyGQAALmWw
+From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
+To: "Mario Holbe" <Mario.Holbe@TU-Ilmenau.DE>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig39527BBAA6F1C249330777A3
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Is the problem with the drive on the promise board or the drive on the
+VIA chipset?
 
-These are patches designed to improve system responsiveness. It is 
-configurable to any workload but the default ck* patch is aimed at the 
-desktop and ck*-server is available with more emphasis on serverspace.
+(from google)
+Soyo SY-7VBA133U VIA 694T SY-7VBA133U : ComputerHQ.com3
+... Main Specifications. Product Description, SOYO Socket 370
+SY-7VBA133U - mainboard -
+ATX - Pro133T. ... Audio Output, Sound card - VIA VT82C686B - 16-bit -
+stereo. ...
 
-http://ck.kolivas.org/patches/2.6/2.6.10/2.6.10-ck5/
+I have the -EXACT- same chipset on an older Soyo Motherboard and have
+the same problem you are having, the motherboard did not support drives
+over 32GB or it was because I had the 32GB clip (pins on the back of the
+hard drive) shorted.  Did you check your HDD manual to see if you have
+the 32GB clip enabled?  If so, you need to disable this.
 
-web:
-http://kernel.kolivas.org
-all patches:
-http://ck.kolivas.org/patches/
-
-This is a maintenance release concentrating on getting a stable and 
-hopefully last 2.6.10 release.
-
-A lot of instability manifested by processes stuck in D was caused by 
-the early adoption of cfq-timeslices with priority support. This project 
-is very exciting, but is not yet suitable for a stable patchset.
-
-Note that gamers are reporting very good audio performance with 
-staircase10.3 and higher even on cedega/wineX games.
+Justin.
 
 
-Removed:
--inc_total_scanned.diff
--2.6.10-capabilities_fix.diff
--linux-2.6.7-CAN-2004-1056.patch
--linux-2.6.9-smbfs.patch
--2.6.10-mm1-brk-locked.patch
--random-poolsize-int-overflow.diff
--rlimit-memlock-dos.diff
--scsi-int-overflow-information-leak.diff
--moxa-int-overflow.diff
-All rolled up with -as patchset
+-----Original Message-----
+From: Mario Holbe [mailto:Mario.Holbe@TU-Ilmenau.DE] 
+Sent: Tuesday, January 18, 2005 9:15 AM
+To: Piszcz, Justin Michael
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4: "access beyond end of device" after ext2 mount
 
--cfq-ts-20.diff
--isobatch_ionice.diff
--rt_ionice.diff
--cfq_writeprio_on.diff
-The cfq timeslices patch and related changes
+On Tue, Jan 18, 2005 at 09:05:05AM -0500, Piszcz, Justin Michael wrote:
+> Okay but what hard drive model and IDE Chipset/Controller are you
+using?
 
+VIA vt82c686b onboard
+PDC20269 (Promise U133TX2) on PCI
 
-Added:
-+patch-2.6.10-as2
-The nifty -as patchset containing security and obvious fixes.
+hda: WDC WD400EB-00CPF0, ATA DISK drive
+hdc: IC35L080AVVA07-0, ATA DISK drive
+hdd: HL-DT-ST DVDRAM GSA-4082B, ATAPI CD/DVD-ROM drive
+hdg: SAMSUNG SP1614N, ATA DISK drive
 
-+s10.3_s10.4.diff
-+s10.4_s10.5.diff
-Updated staircase code.
+hda: 78165360 sectors (40021 MB) w/2048KiB Cache, CHS=4865/255/63,
+UDMA(100)
+hdc: 160836480 sectors (82348 MB) w/1863KiB Cache, CHS=159560/16/63,
+UDMA(100)
+hdg: 312581808 sectors (160042 MB) w/8192KiB Cache, CHS=19457/255/63,
+UDMA(100)
 
-
-Full patchlist:
-patch-2.6.10-as2
-2.6.10_to_staircase9.2.diff
-schedrange.diff
-schedbatch2.6.diff
-schediso2.8.diff
-mwII.diff
-1g_lowmem1_i386.diff
-defaultcfq.diff
-2.6.10-mingoll.diff
-cddvd-cmdfilter-drop.patch
-vm-pageout-throttling.patch
-nvidia_6111-6629_compat2.diff
-fix-ll-resume.diff
-s9.2_s9.3.diff
-i2.8_i2.9.diff
-s9.3_s9.4.diff
-i2.9_i2.10.diff
-b2.6_b2.7.diff
-s9.4_s10.diff
-s10_test1.diff
-s10_s10.1.diff
-s10.1_s10.2.diff
-s10.2_s10.3.diff
-1504_vmscan-writeback-pages.patch
-s10.3_s10.4.diff
-s10.4_s10.5.diff
-2610ck5-version.diff
-
-and available in patches/ separately:
-supermount-ng208-10ck5.diff
+However, it doesn't matter :)
 
 
-Cheers,
-Con
-
---------------enig39527BBAA6F1C249330777A3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB7Rt0ZUg7+tp6mRURAnCrAJ9gczdOh4KzTUleFZsDzki8bThjqwCgjrxn
-WWukjT/hN08P+VZQR86yOaw=
-=efyO
------END PGP SIGNATURE-----
-
---------------enig39527BBAA6F1C249330777A3--
+Mario
+-- 
+<delta> talk softly and carry a keen sword

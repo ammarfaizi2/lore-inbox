@@ -1,59 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275573AbRJOR54>; Mon, 15 Oct 2001 13:57:56 -0400
+	id <S275110AbRJOR7g>; Mon, 15 Oct 2001 13:59:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275110AbRJOR5r>; Mon, 15 Oct 2001 13:57:47 -0400
-Received: from web10704.mail.yahoo.com ([216.136.130.212]:21266 "HELO
-	web10704.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S274875AbRJOR5g>; Mon, 15 Oct 2001 13:57:36 -0400
-Message-ID: <20011015175808.85935.qmail@web10704.mail.yahoo.com>
-Date: Mon, 15 Oct 2001 10:58:08 -0700 (PDT)
-From: Mal hacker <malhacker@yahoo.com>
-Subject: Re: network device driver
-To: "Mehta, Phoram Kirtikumar \(UMKC-Student\)" <pkm722@umkc.edu>
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S275739AbRJOR70>; Mon, 15 Oct 2001 13:59:26 -0400
+Received: from postfix1-2.free.fr ([213.228.0.130]:9740 "HELO
+	postfix1-2.free.fr") by vger.kernel.org with SMTP
+	id <S275110AbRJOR7I>; Mon, 15 Oct 2001 13:59:08 -0400
+Date: Mon, 15 Oct 2001 19:59:34 +0200
+From: christophe barbe <christophe.barbe.ml@online.fr>
+To: linux-kernel@vger.kernel.org
+Cc: gibbs@plutotech.com
+Subject: [PATCH] export pci_table in aic7xxx for Hotplug
+Message-ID: <20011015195934.C2665@turing>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="AWniW0JNca5xppdA"
+Content-Transfer-Encoding: 8bit
+X-Mailer: Balsa 1.2.pre3
+X-Operating-System: debian SID Gnu/Linux 2.4.12 on i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Kirti, 
-rather than doing it in kernel space why don't u do in userspace.
-There's a lot of tools and libraries available! Take for example
-tcpdump, ethereal, dniff and others as tools, libpcap (*nix packet
-capturing library) or wincap (windows packet capturing library) and
-many more. The kernel also provides a lot of other features via the
-socket call to do these stuff. Could u please detail out what exactly
-do u want to do and your major reason of getting inside the kernel ?
 
-hope this helps..
-mal
--------------------------------------------------------------------
+--AWniW0JNca5xppdA
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-On Sun, 14 Oct 2001, Mehta, Phoram Kirtikumar (UMKC-Student) wrote: >
-1. how does ifconfig and netstat get teh net statistics, where can i
-get
-> the source to that funtion or source file. They are from /proc/net/.
-> 2. is there any funtion in the network device driver source by
-accessing
-> which i can get the packets received or the type of packets. if not
-can
-> anybody gimme some tips on how can i write it. You can use a packet
-filter. > i am trying to write or modify the eth device driver(3c509.c)
-in such
-a
-> way that i can statistics of the traffic and then i also want to
-> identify teh traffic. in short i want to incorporate a function in my
-> driver which when acceseed would act as a sniffer/protocol analyzer .
-> any help or advise will be appreciated. Do it in userspace with
-packet filters. Look at tcpdump for example
-code. Rasmus
+Attached to this mail is a patch (against 2.4.12) that export the PCI table
+for the hotplug code (via modules.pcimaps).
 
-=====
+I use it succesfully with my Adaptec APA1480A cardbus and the hotplug code.
 
-Image by FlamingText.com
+Christophe Barbé
 
-__________________________________________________
-Do You Yahoo!?
-Make a great connection at Yahoo! Personals.
-http://personals.yahoo.com
+
+-- 
+Christophe Barbé <christophe.barbe@online.fr>
+GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
+
+--AWniW0JNca5xppdA
+Content-Type: text/x-patch; charset=us-ascii
+Content-Disposition: attachment; filename="aic7xxx-k2412-bis.patch"
+
+--- linux/drivers/scsi/aic7xxx/aic7xxx_linux_pci.c	Mon Sep 24 20:30:34 2001
++++ linux/drivers/scsi/aic7xxx/aic7xxx_linux_pci.c	Fri Oct 12 19:34:05 2001
+@@ -33,6 +33,9 @@
+ 
+ #include "aic7xxx_osm.h"
+ 
++#define __NO_VERSION__
++#include <linux/module.h>
++
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
+ struct pci_device_id
+ {
+@@ -56,6 +59,8 @@
+ 	},
+ 	{ 0 }
+ };
++
++MODULE_DEVICE_TABLE(pci, ahc_linux_pci_id_table);
+ 
+ struct pci_driver aic7xxx_pci_driver = {
+ 	name:		"aic7xxx",
+
+--AWniW0JNca5xppdA--

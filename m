@@ -1,45 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265110AbUFRLV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265114AbUFRLXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265110AbUFRLV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 07:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265111AbUFRLV7
+	id S265114AbUFRLXF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 07:23:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265111AbUFRLXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 07:21:59 -0400
-Received: from lakermmtao07.cox.net ([68.230.240.32]:32656 "EHLO
-	lakermmtao07.cox.net") by vger.kernel.org with ESMTP
-	id S265110AbUFRLVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 07:21:47 -0400
-In-Reply-To: <1087549710.1547.14.camel@newt>
-References: <MDEHLPKNGKAHNMBLJOLKEEFGMKAA.davids@webmaster.com> <5b18a542040616133415bf54d1@mail.gmail.com> <20040616224949.GB7932@hh.idb.hist.no> <1087549710.1547.14.camel@newt>
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <AC6DE22A-C119-11D8-9A43-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-       Erik Harrison <erikharrison@gmail.com>, davids@webmaster.com,
-       Helge Hafting <helgehaf@aitel.hist.no>, eric@cisu.net
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: more files with licenses that aren't GPL-compatible
-Date: Fri, 18 Jun 2004 07:21:41 -0400
-To: Adrian Cox <adrian@humboldt.co.uk>
-X-Mailer: Apple Mail (2.618)
+	Fri, 18 Jun 2004 07:23:05 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6273 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265115AbUFRLWs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 07:22:48 -0400
+Date: Fri, 18 Jun 2004 07:22:40 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Ben Greear <greearb@candelatech.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: poll
+In-Reply-To: <40D25247.3050509@candelatech.com>
+Message-ID: <Pine.LNX.4.53.0406180715200.4952@chaos>
+References: <Pine.LNX.4.53.0406170954190.702@chaos> <40D21C8E.4040500@candelatech.com>
+ <Pine.LNX.4.53.0406171958570.3414@chaos> <40D25247.3050509@candelatech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 18, 2004, at 05:08, Adrian Cox wrote:
-> USB serial drivers could be implemented in userspace given a 2.6  
-> version
-> of Rogier Wolff's userspace serial patch:
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0303.1/att-1075/01- 
-> patch-2.4.20.trueport-12-mrt
+On Thu, 17 Jun 2004, Ben Greear wrote:
 
-I'd rather not. I use my USB serial device for a boot console, support  
-for which is currently
-in 2.6.  With userspace USB serial drivers I would need to wait for  
-userspace to come up,
-useless if I want to watch boot output.
+> Richard B. Johnson wrote:
+> > On Thu, 17 Jun 2004, Ben Greear wrote:
+> >
+> >
+> >>Richard B. Johnson wrote:
+> >>
+> >>>Hello,
+> >>>Is it okay to use the 'extra' bits in the poll return value for
+> >>>something? In other words, is the kernel going to allow a user-space
+> >>>program to define some poll-bits that it waits for, these bits
+> >>>having been used in the driver?
+> >>
+> >>Can't you just do a read and determine from the results of the read
+> >>what you actually got?  If not, add framing to your message so that
+> >>you *CAN* determine one message type from another...
+> >>
+> >>Ben
+> >>
+> >
+> >
+> > The mailbox read(s) is/are 32-bit int(s). There is no way to identify
+> > it as being "new" or something that was written two weeks ago.
+> > That's why we use poll. Poll says 'I got something new for you'.
+>
+> Then use 3 different file descriptors to poll/read.  That seems more
+> efficient anyway as it doesn't wake the folks who don't care.
+>
+> Ben
+
+Huh??  The driver has no clue what open file-descriptor needs
+whatever special handling. When a polled-for event occurs, a
+bit is put into what will be the poll return value in the driver
+and any process sleeping in poll ** that is waiting for that bit **
+gets awakened. That's why I need to use some of the "spare" bits.
+Only the task that's waiting for its specific bit gets awakened
+in user-mode.
+
 
 Cheers,
-Kyle Moffett
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

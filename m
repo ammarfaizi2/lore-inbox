@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312898AbSDOFs0>; Mon, 15 Apr 2002 01:48:26 -0400
+	id <S312931AbSDOGD5>; Mon, 15 Apr 2002 02:03:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312913AbSDOFsZ>; Mon, 15 Apr 2002 01:48:25 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:35599 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S312898AbSDOFsY>;
-	Mon, 15 Apr 2002 01:48:24 -0400
-Date: Mon, 15 Apr 2002 07:47:59 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+	id <S312997AbSDOGD4>; Mon, 15 Apr 2002 02:03:56 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:58631 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S312931AbSDOGDz>; Mon, 15 Apr 2002 02:03:55 -0400
+Message-ID: <3CBA5EBD.8060201@evision-ventures.com>
+Date: Mon, 15 Apr 2002 07:01:49 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Andries.Brouwer@cwi.nl
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Subject: Re: 2.5.8 does not boot
-Message-ID: <20020415054759.GA12608@suse.de>
-In-Reply-To: <UTC200204142229.WAA577107.aeb@cwi.nl> <Pine.LNX.4.33.0204141803010.1206-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <UTC200204142229.WAA577107.aeb@cwi.nl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 14 2002, Linus Torvalds wrote:
+Andries.Brouwer@cwi.nl wrote:
+> Hm, I submitted two patches against 2.5.8pre3,
+> but I see the real 2.5.8 has appeared already.
+> That makes the first patch superfluous.
+> The second one is still needed.
 > 
+> Booting 2.5.8 yields a crash at ide-disk.c:360
+> 	BUG_ON(drive->tcq->active_tag != -1);
 > 
-> On Sun, 14 Apr 2002 Andries.Brouwer@cwi.nl wrote:
-> >
-> > Booting 2.5.8 yields a crash at ide-disk.c:360
-> > 	BUG_ON(drive->tcq->active_tag != -1);
-> 
-> The TCQ stuff is definitely experimental, you should probably configure it
-> out for now.
 
-Definitely, it's an early merge and I thought that Martin left out the
-config options... That said, Andries could you send me your ide boot
-messages?
-
--- 
-Jens Axboe
+I think that the TCQ changes simply don't harmonize with
+setups where there is no host chip driver enabled. But that's
+just a guess I will have to look in to it.
 

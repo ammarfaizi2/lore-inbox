@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272634AbRHaI2G>; Fri, 31 Aug 2001 04:28:06 -0400
+	id <S272635AbRHaIi1>; Fri, 31 Aug 2001 04:38:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272635AbRHaI15>; Fri, 31 Aug 2001 04:27:57 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:19613 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S272634AbRHaI1m>;
-	Fri, 31 Aug 2001 04:27:42 -0400
-Date: Fri, 31 Aug 2001 09:27:53 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Jonathan Lundell <jlundell@pobox.com>, ptb@it.uc3m.es, gordo@pincoya.com
-Cc: linux kernel <linux-kernel@vger.kernel.org>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-Message-ID: <821911999.999250073@[169.254.198.40]>
-In-Reply-To: <p05100301b7b4f098f76c@[10.128.7.49]>
-In-Reply-To: <p05100301b7b4f098f76c@[10.128.7.49]>
-X-Mailer: Mulberry/2.1.0b3 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S272637AbRHaIiS>; Fri, 31 Aug 2001 04:38:18 -0400
+Received: from access-35.98.rev.fr.colt.net ([213.41.98.35]:49672 "HELO
+	phoenix.linuxatbusiness.com") by vger.kernel.org with SMTP
+	id <S272635AbRHaIiD>; Fri, 31 Aug 2001 04:38:03 -0400
+Subject: Re: smp freeze on 2.4.9
+From: Philippe Amelant <philippe.amelant@free.fr>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <E15cRWe-00013T-00@the-village.bc.nu>
+In-Reply-To: <E15cRWe-00013T-00@the-village.bc.nu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
+Date: 31 Aug 2001 10:38:15 +0200
+Message-Id: <999247095.12408.25.camel@avior>
+Mime-Version: 1.0
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->># define __MIN(x,y) ({\
->>    typeof(x) _x = x; \
->>    typeof(y) _y = y; \
->>    _x < _y ? _x : _y ; \
->>  })
->
-> How about typeof(__MIN(u, s)), given unsigned u, int s?
+On jeu, 2001-08-30 at 15:06, Alan Cox wrote:
+> > interresting, i notice that i have some error apic in kernel message
+> > with 2.4.3
+> > i will search that on lkml archive
+> 
+> Lots of apic errors imply problems on the link between the processors and
+> io controller. A few is basically ok (there is a checksum) but a huge number
+> and one day it'll checksum a bad frame ok and you are history
+> 
 
-As this would expand to typeof({typeof(u) _u=u .... ? _u : _s;})
-I am willing to bet it wouldn't even compile with either
-version of min, so it doesn't matter.
---
-Alex Bligh
+So I think it's ok for my 2.4.3, I just have about 5 ~ 10 apic error by
+hour
+
+> There is also a problem with Linus tree where apic errors causing event
+> replays where the erroring component was not the CPUs can cause crashes.
+> That is fixed in -ac.
+
+I have tried 2.4.9-ac4 and i still have a freeze in few minutes, but
+when i configured it with noapic all seem ok, I use the box 3 hours
+without freeze
+
+Thank
+> 
+> Alan
+> 
+
+

@@ -1,328 +1,757 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261451AbTBJDds>; Sun, 9 Feb 2003 22:33:48 -0500
+	id <S261364AbTBJDa1>; Sun, 9 Feb 2003 22:30:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261456AbTBJDds>; Sun, 9 Feb 2003 22:33:48 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:20181 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S261451AbTBJDdd>;
-	Sun, 9 Feb 2003 22:33:33 -0500
-Date: Mon, 10 Feb 2003 14:41:40 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-       "David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
-       schwidefsky@de.ibm.com, ralf@gnu.org, matthew@wil.cx,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH][COMPAT] compat_sys_futex
-Message-Id: <20030210144140.1f7cba27.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S261356AbTBJDa1>; Sun, 9 Feb 2003 22:30:27 -0500
+Received: from dp.samba.org ([66.70.73.150]:40371 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261368AbTBJDaP>;
+	Sun, 9 Feb 2003 22:30:15 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Get rid of exec_usermodehelper
+Date: Mon, 10 Feb 2003 14:36:15 +1100
+Message-Id: <20030210033959.D803C2C052@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Linus, please apply.  Adds a "wait" flag to call_usermodehelper, and
+gets rid of exec_usermodehelper, which attempts to "clean up" the
+local environment, and almost certainly misses some things.
 
-This patch adds compat_sys_futex.  It also changes the first paramter
-of sys_sutex to "u32 *" after discussions with Rusty and yourself.
+Thanks,
+Rusty.
 
-I have put all the architecture changes in this same patch as they
-are both obvious and small.  MIPS64 is absent because 32 bit MIPS does
-not implement sys_futex.
+Name: exec_usermodehelper sucks
+Author: Rusty Russell, Marcel Holtmann
+Status: Tested on 2.5.56
 
-This is relative to my previous patches but applies to recent 2.5.59 BK
-trees - except for arch/x86_64/ia32/sys_ia32.c, but this part of the
-patch is merely removing the current sys32_futex code.
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+D: Urban Widmark points out that modprobe calls system() in many
+D: configurations, which drops privs since request_module() doesn't
+D: doesn't set ruid and rguid.
+D:
+D: This gets rid of exec_usermodehelper and makes everyone use
+D: call_usermodehelper, which has a new "wait" flag.
 
-diff -ruN 2.5.59-200302101308-32bit.1/arch/ia64/ia32/ia32_entry.S 2.5.59-200302101308-32bit.2/arch/ia64/ia32/ia32_entry.S
---- 2.5.59-200302101308-32bit.1/arch/ia64/ia32/ia32_entry.S	2003-02-10 13:35:50.000000000 +1100
-+++ 2.5.59-200302101308-32bit.2/arch/ia64/ia32/ia32_entry.S	2003-02-10 14:17:36.000000000 +1100
-@@ -428,6 +428,26 @@
- 	data8 sys_ni_syscall
- 	data8 sys_ni_syscall
- 	data8 sys_ni_syscall
-+	data8 sys_ni_syscall	/* 230 */
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall	/* 235 */
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 compat_sys_futex	/* 240 */
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall	/* 245 */
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
- 	/*
- 	 *  CAUTION: If any system calls are added beyond this point
- 	 *	then the check in `arch/ia64/kernel/ivt.S' will have
-diff -ruN 2.5.59-200302101308-32bit.1/arch/ia64/kernel/ivt.S 2.5.59-200302101308-32bit.2/arch/ia64/kernel/ivt.S
---- 2.5.59-200302101308-32bit.1/arch/ia64/kernel/ivt.S	2003-02-10 13:35:51.000000000 +1100
-+++ 2.5.59-200302101308-32bit.2/arch/ia64/kernel/ivt.S	2003-02-10 14:18:47.000000000 +1100
-@@ -848,7 +848,7 @@
- 	alloc r15=ar.pfs,0,0,6,0	// must first in an insn group
- 	;;
- 	ld4 r8=[r14],8		// r8 == eax (syscall number)
--	mov r15=230		// number of entries in ia32 system call table
-+	mov r15=250		// number of entries in ia32 system call table
- 	;;
- 	cmp.ltu.unc p6,p7=r8,r15
- 	ld4 out1=[r14],8	// r9 == ecx
-diff -ruN 2.5.59-200302101308-32bit.1/arch/parisc/kernel/syscall.S 2.5.59-200302101308-32bit.2/arch/parisc/kernel/syscall.S
---- 2.5.59-200302101308-32bit.1/arch/parisc/kernel/syscall.S	2003-02-10 13:35:53.000000000 +1100
-+++ 2.5.59-200302101308-32bit.2/arch/parisc/kernel/syscall.S	2003-02-05 17:51:22.000000000 +1100
-@@ -320,7 +320,8 @@
- #ifdef __LP64__
- /* Use ENTRY_SAME for 32-bit syscalls which are the same on wide and
-  * narrow palinux.  Use ENTRY_DIFF for those where a 32-bit specific
-- * implementation is required on wide palinux.
-+ * implementation is required on wide palinux.  Use ENTRY_COMP where
-+ * the compatability layer has a useful 32-bit implementation.
-  */
- #define ENTRY_SAME(_name_) .dword sys_##_name_
- #define ENTRY_DIFF(_name_) .dword sys32_##_name_
-@@ -597,7 +598,7 @@
- 	ENTRY_SAME(ni_syscall)		/* tkill */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8581-linux-2.5.59-bk3/arch/i386/mach-voyager/voyager_thread.c .8581-linux-2.5.59-bk3.updated/arch/i386/mach-voyager/voyager_thread.c
+--- .8581-linux-2.5.59-bk3/arch/i386/mach-voyager/voyager_thread.c	2003-01-02 12:32:34.000000000 +1100
++++ .8581-linux-2.5.59-bk3.updated/arch/i386/mach-voyager/voyager_thread.c	2003-02-10 14:33:03.000000000 +1100
+@@ -57,7 +57,7 @@ voyager_thread_start(void)
+ }
  
- 	ENTRY_SAME(sendfile64)
--	ENTRY_SAME(futex)		/* 210 */
-+	ENTRY_COMP(futex)		/* 210 */
- 	ENTRY_SAME(sched_setaffinity)
- 	ENTRY_SAME(sched_getaffinity)
- 	ENTRY_SAME(set_thread_area)
-diff -ruN 2.5.59-200302101308-32bit.1/arch/ppc64/kernel/misc.S 2.5.59-200302101308-32bit.2/arch/ppc64/kernel/misc.S
---- 2.5.59-200302101308-32bit.1/arch/ppc64/kernel/misc.S	2003-02-10 13:35:53.000000000 +1100
-+++ 2.5.59-200302101308-32bit.2/arch/ppc64/kernel/misc.S	2003-02-10 14:29:05.000000000 +1100
-@@ -724,7 +724,7 @@
- 	.llong .sys_removexattr
- 	.llong .sys_lremovexattr
- 	.llong .sys_fremovexattr	/* 220 */
--	.llong .sys_futex
-+	.llong .compat_sys_futex
- 	.llong .sys32_sched_setaffinity
- 	.llong .sys32_sched_getaffinity
- 	.llong .sys_ni_syscall
-diff -ruN 2.5.59-200302101308-32bit.1/arch/s390x/kernel/entry.S 2.5.59-200302101308-32bit.2/arch/s390x/kernel/entry.S
---- 2.5.59-200302101308-32bit.1/arch/s390x/kernel/entry.S	2003-01-17 14:01:01.000000000 +1100
-+++ 2.5.59-200302101308-32bit.2/arch/s390x/kernel/entry.S	2003-01-30 14:02:09.000000000 +1100
-@@ -629,7 +629,7 @@
- 	.long  SYSCALL(sys_fremovexattr,sys32_fremovexattr_wrapper) /* 235 */
- 	.long  SYSCALL(sys_gettid,sys_gettid)
- 	.long  SYSCALL(sys_tkill,sys_tkill)
--	.long  SYSCALL(sys_futex,sys32_futex_wrapper)
-+	.long  SYSCALL(sys_futex,compat_sys_futex_wrapper)
- 	.long  SYSCALL(sys_sched_setaffinity,sys32_sched_setaffinity_wrapper)
- 	.long  SYSCALL(sys_sched_getaffinity,sys32_sched_getaffinity_wrapper) /* 240 */
- 	.long  SYSCALL(sys_ni_syscall,sys_ni_syscall)
-diff -ruN 2.5.59-200302101308-32bit.1/arch/s390x/kernel/linux32.c 2.5.59-200302101308-32bit.2/arch/s390x/kernel/linux32.c
---- 2.5.59-200302101308-32bit.1/arch/s390x/kernel/linux32.c	2003-02-10 13:35:54.000000000 +1100
-+++ 2.5.59-200302101308-32bit.2/arch/s390x/kernel/linux32.c	2003-02-10 14:19:54.000000000 +1100
-@@ -4049,28 +4049,6 @@
+ static int
+-execute_helper(void *string)
++execute(const char *string)
+ {
+ 	int ret;
+ 
+@@ -74,23 +74,14 @@ execute_helper(void *string)
+ 		NULL,
+ 	};
+ 
+-	if((ret = exec_usermodehelper(argv[0], argv, envp)) < 0) {
+-		printk(KERN_ERR "Voyager failed to execute \"%s\"\n",
+-		       (char *)string);
++	if ((ret = call_usermodehelper(argv[0], argv, envp, 1)) != 0) {
++		printk(KERN_ERR "Voyager failed to run \"%s\": %i\n",
++		       string, ret);
+ 	}
  	return ret;
  }
  
--asmlinkage int 
--sys_futex(void *uaddr, int op, int val, struct timespec *utime);
--
--asmlinkage int
--sys32_futex(void *uaddr, int op, int val, 
--		 struct compat_timespec *timeout32)
+ static void
+-execute(char *string)
 -{
--	struct timespec tmp;
--	mm_segment_t old_fs;
+-	if(kernel_thread(execute_helper, (void *)string, CLONE_VFORK | SIGCHLD) < 0) {
+-		printk(KERN_ERR "Voyager failed to fork before exec of \"%s\"\n",
+-		       string);
+-	}
+-}
+-
+-static void
+ check_from_kernel(void)
+ {
+ 	if(voyager_status.switch_off) {
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8581-linux-2.5.59-bk3/drivers/acpi/thermal.c .8581-linux-2.5.59-bk3.updated/drivers/acpi/thermal.c
+--- .8581-linux-2.5.59-bk3/drivers/acpi/thermal.c	2003-02-10 09:57:35.000000000 +1100
++++ .8581-linux-2.5.59-bk3.updated/drivers/acpi/thermal.c	2003-02-10 14:33:03.000000000 +1100
+@@ -430,7 +430,7 @@ acpi_thermal_call_usermode (
+ 	envp[0] = "HOME=/";
+ 	envp[1] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
+ 	
+-	call_usermodehelper(argv[0], argv, envp);
++	call_usermodehelper(argv[0], argv, envp, 0);
+ 
+ 	return_VALUE(0);
+ }
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8581-linux-2.5.59-bk3/drivers/base/hotplug.c .8581-linux-2.5.59-bk3.updated/drivers/base/hotplug.c
+--- .8581-linux-2.5.59-bk3/drivers/base/hotplug.c	2003-02-07 19:18:28.000000000 +1100
++++ .8581-linux-2.5.59-bk3.updated/drivers/base/hotplug.c	2003-02-10 14:33:03.000000000 +1100
+@@ -114,7 +114,7 @@ static int do_hotplug (struct device *de
+ 
+ 	pr_debug ("%s: %s %s %s %s %s %s\n", __FUNCTION__, argv [0], argv[1],
+ 		  envp[0], envp[1], envp[2], envp[3]);
+-	retval = call_usermodehelper (argv [0], argv, envp);
++	retval = call_usermodehelper (argv [0], argv, envp, 0);
+ 	if (retval)
+ 		pr_debug ("%s - call_usermodehelper returned %d\n",
+ 			  __FUNCTION__, retval);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8581-linux-2.5.59-bk3/drivers/bluetooth/bt3c_cs.c .8581-linux-2.5.59-bk3.updated/drivers/bluetooth/bt3c_cs.c
+--- .8581-linux-2.5.59-bk3/drivers/bluetooth/bt3c_cs.c	2003-02-10 09:57:35.000000000 +1100
++++ .8581-linux-2.5.59-bk3.updated/drivers/bluetooth/bt3c_cs.c	2003-02-10 14:33:03.000000000 +1100
+@@ -24,18 +24,14 @@
+ #include <linux/config.h>
+ #include <linux/module.h>
+ 
+-#define __KERNEL_SYSCALLS__
+-
+ #include <linux/kernel.h>
+ #include <linux/kmod.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/types.h>
+ #include <linux/sched.h>
+-#include <linux/delay.h>
+ #include <linux/timer.h>
+ #include <linux/errno.h>
+-#include <linux/unistd.h>
+ #include <linux/ptrace.h>
+ #include <linux/ioport.h>
+ #include <linux/spinlock.h>
+@@ -405,7 +401,6 @@ void bt3c_interrupt(int irq, void *dev_i
+ 
+ 
+ 
+-
+ /* ======================== HCI interface ======================== */
+ 
+ 
+@@ -489,65 +484,23 @@ static int bt3c_hci_ioctl(struct hci_dev
+ 
+ 
+ #define FW_LOADER  "/sbin/bluefw"
+-static int errno;
+-
+-
+-static int bt3c_fw_loader_exec(void *dev)
+-{
+-	char *argv[] = { FW_LOADER, "pccard", dev, NULL };
+-	char *envp[] = { "HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
+-	int err;
+-
+-	err = exec_usermodehelper(FW_LOADER, argv, envp);
+-	if (err)
+-		printk(KERN_WARNING "bt3c_cs: Failed to exec \"%s pccard %s\".\n", FW_LOADER, (char *)dev);
+-
+-	return err;
+-}
+ 
+ 
+ static int bt3c_firmware_load(bt3c_info_t *info)
+ {
+-	sigset_t tmpsig;
+ 	char dev[16];
+-	pid_t pid;
+-	int result;
++	int err;
+ 
+-	/* Check if root fs is mounted */
+-	if (!current->fs->root) {
+-		printk(KERN_WARNING "bt3c_cs: Root filesystem is not mounted.\n");
+-		return -EPERM;
+-	}
++	char *argv[] = { FW_LOADER, "pccard", dev, NULL };
++	char *envp[] = { "HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
+ 
+ 	sprintf(dev, "%04x", info->link.io.BasePort1);
+ 
+-	pid = kernel_thread(bt3c_fw_loader_exec, (void *)dev, 0);
+-	if (pid < 0) {
+-		printk(KERN_WARNING "bt3c_cs: Forking of kernel thread failed (errno=%d).\n", -pid);
+-		return pid;
+-	}
+-
+-	/* Block signals, everything but SIGKILL/SIGSTOP */
+-	spin_lock_irq(&current->sighand->siglock);
+-	tmpsig = current->blocked;
+-	siginitsetinv(&current->blocked, sigmask(SIGKILL) | sigmask(SIGSTOP));
+-	recalc_sigpending();
+-	spin_unlock_irq(&current->sighand->siglock);
+-
+-	result = waitpid(pid, NULL, __WCLONE);
+-
+-	/* Allow signals again */
+-	spin_lock_irq(&current->sighand->siglock);
+-	current->blocked = tmpsig;
+-	recalc_sigpending();
+-	spin_unlock_irq(&current->sighand->siglock);
+-
+-	if (result != pid) {
+-		printk(KERN_WARNING "bt3c_cs: Waiting for pid %d failed (errno=%d).\n", pid, -result);
+-		return -result;
+-	}
++	err = call_usermodehelper(FW_LOADER, argv, envp, 1);
++	if (err)
++		printk(KERN_WARNING "bt3c_cs: Failed to run \"%s pccard %s\" (errno=%d).\n", FW_LOADER, dev, err);
+ 
+-	return 0;
++	return err;
+ }
+ 
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8581-linux-2.5.59-bk3/drivers/ieee1394/nodemgr.c .8581-linux-2.5.59-bk3.updated/drivers/ieee1394/nodemgr.c
+--- .8581-linux-2.5.59-bk3/drivers/ieee1394/nodemgr.c	2003-02-07 19:18:29.000000000 +1100
++++ .8581-linux-2.5.59-bk3.updated/drivers/ieee1394/nodemgr.c	2003-02-10 14:33:03.000000000 +1100
+@@ -786,7 +786,7 @@ static void nodemgr_call_policy(char *ve
+ #ifdef CONFIG_IEEE1394_VERBOSEDEBUG
+ 	HPSB_DEBUG("NodeMgr: %s %s %016Lx", argv[0], verb, (long long unsigned)ud->ne->guid);
+ #endif
+-	value = call_usermodehelper(argv[0], argv, envp);
++	value = call_usermodehelper(argv[0], argv, envp, 0);
+ 	kfree(buf);
+ 	kfree(envp);
+ 	if (value != 0)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8581-linux-2.5.59-bk3/drivers/input/input.c .8581-linux-2.5.59-bk3.updated/drivers/input/input.c
+--- .8581-linux-2.5.59-bk3/drivers/input/input.c	2003-01-02 12:30:27.000000000 +1100
++++ .8581-linux-2.5.59-bk3.updated/drivers/input/input.c	2003-02-10 14:33:03.000000000 +1100
+@@ -383,7 +383,7 @@ static void input_call_hotplug(char *ver
+ 		argv[0], argv[1], envp[0], envp[1], envp[2], envp[3], envp[4]);
+ #endif
+ 
+-	value = call_usermodehelper(argv [0], argv, envp);
++	value = call_usermodehelper(argv [0], argv, envp, 0);
+ 
+ 	kfree(buf);
+ 	kfree(envp);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8581-linux-2.5.59-bk3/drivers/isdn/hardware/eicon/divasmain.c .8581-linux-2.5.59-bk3.updated/drivers/isdn/hardware/eicon/divasmain.c
+--- .8581-linux-2.5.59-bk3/drivers/isdn/hardware/eicon/divasmain.c	2003-02-07 19:17:42.000000000 +1100
++++ .8581-linux-2.5.59-bk3.updated/drivers/isdn/hardware/eicon/divasmain.c	2003-02-10 14:33:03.000000000 +1100
+@@ -263,7 +263,7 @@ static void diva_adapter_trapped(void *c
+ 		pdpc->card_failed = 0;
+ 		argv[2] = &adapter[0];
+ 
+-		ret = call_usermodehelper(argv[0], argv, envp);
++		ret = call_usermodehelper(argv[0], argv, envp, 0);
+ 
+ 		if (ret) {
+ 			printk(KERN_ERR
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8581-linux-2.5.59-bk3/drivers/net/hamradio/baycom_epp.c .8581-linux-2.5.59-bk3.updated/drivers/net/hamradio/baycom_epp.c
+--- .8581-linux-2.5.59-bk3/drivers/net/hamradio/baycom_epp.c	2003-02-07 19:19:56.000000000 +1100
++++ .8581-linux-2.5.59-bk3.updated/drivers/net/hamradio/baycom_epp.c	2003-02-10 14:33:03.000000000 +1100
+@@ -369,15 +369,14 @@ static char eppconfig_path[256] = "/usr/
+ 
+ static char *envp[] = { "HOME=/", "TERM=linux", "PATH=/usr/bin:/bin", NULL };
+ 
+-static int errno;
+-
+-static int exec_eppfpga(void *b)
++/* eppconfig: called during ifconfig up to configure the modem */
++static int eppconfig(struct baycom_state *bc)
+ {
+-	struct baycom_state *bc = (struct baycom_state *)b;
+ 	char modearg[256];
+ 	char portarg[16];
+-        char *argv[] = { eppconfig_path, "-s", "-p", portarg, "-m", modearg, NULL};
+-        int i;
++        char *argv[] = { eppconfig_path, "-s", "-p", portarg, "-m", modearg,
++			 NULL };
++        int ret;
+ 
+ 	/* set up arguments */
+ 	sprintf(modearg, "%sclk,%smodem,fclk=%d,bps=%d,divider=%d%s,extstat",
+@@ -388,39 +387,7 @@ static int exec_eppfpga(void *b)
+ 	sprintf(portarg, "%ld", bc->pdev->port->base);
+ 	printk(KERN_DEBUG "%s: %s -s -p %s -m %s\n", bc_drvname, eppconfig_path, portarg, modearg);
+ 
+-	i = exec_usermodehelper(eppconfig_path, argv, envp);
+-	if (i < 0) {
+-                printk(KERN_ERR "%s: failed to exec %s -s -p %s -m %s, errno = %d\n",
+-                       bc_drvname, eppconfig_path, portarg, modearg, i);
+-                return i;
+-        }
+-        return 0;
+-}
+-
+-
+-/* eppconfig: called during ifconfig up to configure the modem */
+-
+-static int eppconfig(struct baycom_state *bc)
+-{
+-        int i, pid, r;
+-	mm_segment_t fs;
+-
+-        pid = kernel_thread(exec_eppfpga, bc, CLONE_FS);
+-        if (pid < 0) {
+-                printk(KERN_ERR "%s: fork failed, errno %d\n", bc_drvname, -pid);
+-                return pid;
+-        }
+-	fs = get_fs();
+-        set_fs(KERNEL_DS);      /* Allow i to be in kernel space. */
+-	r = waitpid(pid, &i, __WCLONE);
+-	set_fs(fs);
+-        if (r != pid) {
+-                printk(KERN_ERR "%s: waitpid(%d) failed, returning %d\n",
+-		       bc_drvname, pid, r);
+-		return -1;
+-        }
+-	printk(KERN_DEBUG "%s: eppfpga returned %d\n", bc_drvname, i);
+-	return i;
++	return call_usermodehelper(eppconfig_path, argv, envp, 1);
+ }
+ 
+ /* ---------------------------------------------------------------------- */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8581-linux-2.5.59-bk3/drivers/pnp/pnpbios/core.c .8581-linux-2.5.59-bk3.updated/drivers/pnp/pnpbios/core.c
+--- .8581-linux-2.5.59-bk3/drivers/pnp/pnpbios/core.c	2003-02-07 19:21:22.000000000 +1100
++++ .8581-linux-2.5.59-bk3.updated/drivers/pnp/pnpbios/core.c	2003-02-10 14:33:03.000000000 +1100
+@@ -602,7 +602,7 @@ static int pnp_dock_event(int dock, stru
+ 		info->location_id, info->serial, info->capabilities);
+ 	envp[i] = 0;
+ 	
+-	value = call_usermodehelper (argv [0], argv, envp);
++	value = call_usermodehelper (argv [0], argv, envp, 0);
+ 	kfree (buf);
+ 	kfree (envp);
+ 	return 0;
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8581-linux-2.5.59-bk3/include/linux/kmod.h .8581-linux-2.5.59-bk3.updated/include/linux/kmod.h
+--- .8581-linux-2.5.59-bk3/include/linux/kmod.h	2003-01-02 12:35:15.000000000 +1100
++++ .8581-linux-2.5.59-bk3.updated/include/linux/kmod.h	2003-02-10 14:33:03.000000000 +1100
+@@ -21,6 +21,7 @@
+ 
+ #include <linux/config.h>
+ #include <linux/errno.h>
++#include <linux/compiler.h>
+ 
+ #ifdef CONFIG_KMOD
+ extern int request_module(const char * name);
+@@ -29,8 +30,7 @@ static inline int request_module(const c
+ #endif
+ 
+ #define try_then_request_module(x, mod) ((x) ?: request_module(mod), (x))
+-extern int exec_usermodehelper(char *program_path, char *argv[], char *envp[]);
+-extern int call_usermodehelper(char *path, char *argv[], char *envp[]);
++extern int call_usermodehelper(char *path, char *argv[], char *envp[], int wait);
+ 
+ #ifdef CONFIG_HOTPLUG
+ extern char hotplug_path [];
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8581-linux-2.5.59-bk3/kernel/kmod.c .8581-linux-2.5.59-bk3.updated/kernel/kmod.c
+--- .8581-linux-2.5.59-bk3/kernel/kmod.c	2003-02-10 09:57:51.000000000 +1100
++++ .8581-linux-2.5.59-bk3.updated/kernel/kmod.c	2003-02-10 14:33:03.000000000 +1100
+@@ -14,8 +14,10 @@
+ 
+ 	Unblock all signals when we exec a usermode process.
+ 	Shuu Yamaguchi <shuu@wondernetworkresources.com> December 2000
+-*/
+ 
++	call_usermodehelper wait flag, and remove exec_usermodehelper.
++	Rusty Russell <rusty@rustcorp.com.au>  Jan 2003
++*/
+ #define __KERNEL_SYSCALLS__
+ 
+ #include <linux/config.h>
+@@ -31,121 +33,11 @@
+ #include <linux/workqueue.h>
+ #include <linux/security.h>
+ #include <linux/mount.h>
++#include <linux/kernel.h>
+ #include <asm/uaccess.h>
+ 
+ extern int max_threads, system_running;
+ 
+-static inline void
+-use_init_fs_context(void)
+-{
+-	struct fs_struct *our_fs, *init_fs;
+-	struct dentry *root, *pwd;
+-	struct vfsmount *rootmnt, *pwdmnt;
+-	struct namespace *our_ns, *init_ns;
+-
+-	/*
+-	 * Make modprobe's fs context be a copy of init's.
+-	 *
+-	 * We cannot use the user's fs context, because it
+-	 * may have a different root than init.
+-	 * Since init was created with CLONE_FS, we can grab
+-	 * its fs context from "init_task".
+-	 *
+-	 * The fs context has to be a copy. If it is shared
+-	 * with init, then any chdir() call in modprobe will
+-	 * also affect init and the other threads sharing
+-	 * init_task's fs context.
+-	 *
+-	 * We created the exec_modprobe thread without CLONE_FS,
+-	 * so we can update the fields in our fs context freely.
+-	 */
+-
+-	init_fs = init_task.fs;
+-	init_ns = init_task.namespace;
+-	get_namespace(init_ns);
+-	our_ns = current->namespace;
+-	current->namespace = init_ns;
+-	put_namespace(our_ns);
+-	read_lock(&init_fs->lock);
+-	rootmnt = mntget(init_fs->rootmnt);
+-	root = dget(init_fs->root);
+-	pwdmnt = mntget(init_fs->pwdmnt);
+-	pwd = dget(init_fs->pwd);
+-	read_unlock(&init_fs->lock);
+-
+-	/* FIXME - unsafe ->fs access */
+-	our_fs = current->fs;
+-	our_fs->umask = init_fs->umask;
+-	set_fs_root(our_fs, rootmnt, root);
+-	set_fs_pwd(our_fs, pwdmnt, pwd);
+-	write_lock(&our_fs->lock);
+-	if (our_fs->altroot) {
+-		struct vfsmount *mnt = our_fs->altrootmnt;
+-		struct dentry *dentry = our_fs->altroot;
+-		our_fs->altrootmnt = NULL;
+-		our_fs->altroot = NULL;
+-		write_unlock(&our_fs->lock);
+-		dput(dentry);
+-		mntput(mnt);
+-	} else 
+-		write_unlock(&our_fs->lock);
+-	dput(root);
+-	mntput(rootmnt);
+-	dput(pwd);
+-	mntput(pwdmnt);
+-}
+-
+-int exec_usermodehelper(char *program_path, char *argv[], char *envp[])
+-{
+-	int i;
+-	struct task_struct *curtask = current;
+-
+-	curtask->session = 1;
+-	curtask->pgrp = 1;
+-
+-	use_init_fs_context();
+-
+-	/* Prevent parent user process from sending signals to child.
+-	   Otherwise, if the modprobe program does not exist, it might
+-	   be possible to get a user defined signal handler to execute
+-	   as the super user right after the execve fails if you time
+-	   the signal just right.
+-	*/
+-	spin_lock_irq(&curtask->sighand->siglock);
+-	sigemptyset(&curtask->blocked);
+-	flush_signals(curtask);
+-	flush_signal_handlers(curtask);
+-	recalc_sigpending();
+-	spin_unlock_irq(&curtask->sighand->siglock);
+-
+-	for (i = 0; i < curtask->files->max_fds; i++ ) {
+-		if (curtask->files->fd[i]) close(i);
+-	}
+-
+-	/* Drop the "current user" thing */
+-	{
+-		struct user_struct *user = curtask->user;
+-		curtask->user = INIT_USER;
+-		atomic_inc(&INIT_USER->__count);
+-		atomic_inc(&INIT_USER->processes);
+-		atomic_dec(&user->processes);
+-		free_uid(user);
+-	}
+-
+-	/* Give kmod all effective privileges.. */
+-	curtask->euid = curtask->fsuid = 0;
+-	curtask->egid = curtask->fsgid = 0;
+-	security_task_kmod_set_label();
+-
+-	/* Allow execve args to be in kernel space. */
+-	set_fs(KERNEL_DS);
+-
+-	/* Go, go, go... */
+-	if (execve(program_path, argv, envp) < 0)
+-		return -errno;
+-	return 0;
+-}
+-
+ #ifdef CONFIG_KMOD
+ 
+ /*
+@@ -153,29 +45,6 @@ int exec_usermodehelper(char *program_pa
+ */
+ char modprobe_path[256] = "/sbin/modprobe";
+ 
+-static int exec_modprobe(void * module_name)
+-{
+-	static char * envp[] = { "HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
+-	char *argv[] = { modprobe_path, "--", (char*)module_name, NULL };
 -	int ret;
 -
--	if (timeout32 && get_compat_timespec(&tmp, timeout32))
--		return -EINVAL;
+-	if (!system_running)
+-		return -EBUSY;
 -
--	old_fs = get_fs();
--	set_fs(KERNEL_DS);
--	ret = sys_futex(uaddr, op, val, timeout32 ? &tmp : NULL);
--	set_fs(old_fs);
--
+-	ret = exec_usermodehelper(modprobe_path, argv, envp);
+-	if (ret) {
+-		static unsigned long last;
+-		unsigned long now = jiffies;
+-		if (now - last > HZ) {
+-			last = now;
+-			printk(KERN_DEBUG
+-			       "kmod: failed to exec %s -s -k %s, errno = %d\n",
+-			       modprobe_path, (char*) module_name, errno);
+-		}
+-	}
 -	return ret;
 -}
 -
- asmlinkage ssize_t sys_read(unsigned int fd, char * buf, size_t count);
- 
- asmlinkage compat_ssize_t sys32_read(unsigned int fd, char * buf, size_t count)
-diff -ruN 2.5.59-200302101308-32bit.1/arch/s390x/kernel/wrapper32.S 2.5.59-200302101308-32bit.2/arch/s390x/kernel/wrapper32.S
---- 2.5.59-200302101308-32bit.1/arch/s390x/kernel/wrapper32.S	2003-01-17 14:01:01.000000000 +1100
-+++ 2.5.59-200302101308-32bit.2/arch/s390x/kernel/wrapper32.S	2003-02-10 14:25:22.000000000 +1100
-@@ -1088,13 +1088,13 @@
- 	llgfr	%r4,%r4			# long
- 	jg	sys32_fstat64		# branch to system call
- 
--	.globl  sys32_futex_wrapper 
--sys32_futex_wrapper:
--	llgtr	%r2,%r2			# void *
-+	.globl  compat_sys_futex_wrapper 
-+compat_sys_futex_wrapper:
-+	llgtr	%r2,%r2			# u32 *
- 	lgfr	%r3,%r3			# int
- 	lgfr	%r4,%r4			# int
--	llgtr	%r5,%r5			# struct timespec *
--	jg	sys32_futex		# branch to system call
-+	llgtr	%r5,%r5			# struct compat_timespec *
-+	jg	compat_sys_futex	# branch to system call
- 
- 	.globl	sys32_setxattr_wrapper
- sys32_setxattr_wrapper:
-diff -ruN 2.5.59-200302101308-32bit.1/arch/sparc64/kernel/systbls.S 2.5.59-200302101308-32bit.2/arch/sparc64/kernel/systbls.S
---- 2.5.59-200302101308-32bit.1/arch/sparc64/kernel/systbls.S	2003-02-05 17:31:26.000000000 +1100
-+++ 2.5.59-200302101308-32bit.2/arch/sparc64/kernel/systbls.S	2003-02-10 14:31:13.000000000 +1100
-@@ -47,7 +47,7 @@
- 	.word sys_nis_syscall, sys32_setreuid16, sys32_setregid16, sys_rename, sys_truncate
- /*130*/	.word sys_ftruncate, sys_flock, sys_lstat64, sys_nis_syscall, sys_nis_syscall
- 	.word sys_nis_syscall, sys_mkdir, sys_rmdir, sys32_utimes, sys_stat64
--/*140*/	.word sys32_sendfile64, sys_nis_syscall, sys_futex, sys_gettid, sys32_getrlimit
-+/*140*/	.word sys32_sendfile64, sys_nis_syscall, compat_sys_futex, sys_gettid, sys32_getrlimit
- 	.word sys32_setrlimit, sys_pivot_root, sys32_prctl, sys32_pciconfig_read, sys32_pciconfig_write
- /*150*/	.word sys_nis_syscall, sys_nis_syscall, sys_nis_syscall, sys_poll, sys_getdents64
- 	.word sys32_fcntl64, sys_ni_syscall, compat_sys_statfs, compat_sys_fstatfs, sys_oldumount
-diff -ruN 2.5.59-200302101308-32bit.1/arch/x86_64/ia32/ia32entry.S 2.5.59-200302101308-32bit.2/arch/x86_64/ia32/ia32entry.S
---- 2.5.59-200302101308-32bit.1/arch/x86_64/ia32/ia32entry.S	2003-01-17 14:15:58.000000000 +1100
-+++ 2.5.59-200302101308-32bit.2/arch/x86_64/ia32/ia32entry.S	2003-01-30 14:03:39.000000000 +1100
-@@ -440,7 +440,7 @@
- 	.quad sys_fremovexattr
- 	.quad sys_tkill		/* 238 */ 
- 	.quad sys_sendfile64 
--	.quad sys32_futex		/* 240 */
-+	.quad compay_sys_futex		/* 240 */
-         .quad sys32_sched_setaffinity
-         .quad sys32_sched_getaffinity
- 	.quad sys_set_thread_area
-diff -ruN 2.5.59-200302101308-32bit.1/arch/x86_64/ia32/sys_ia32.c 2.5.59-200302101308-32bit.2/arch/x86_64/ia32/sys_ia32.c
---- 2.5.59-200302101308-32bit.1/arch/x86_64/ia32/sys_ia32.c	2003-01-17 14:15:58.000000000 +1100
-+++ 2.5.59-200302101308-32bit.2/arch/x86_64/ia32/sys_ia32.c	2003-01-30 14:04:43.000000000 +1100
-@@ -2199,26 +2199,6 @@
- 	return err;
- }
- 
--extern int sys_futex(unsigned long uaddr, int op, int val, struct timespec *t); 
--
--asmlinkage long
--sys32_futex(unsigned long uaddr, int op, int val, struct compat_timespec *utime32)
--{
--	struct timespec t;
--	mm_segment_t oldfs = get_fs(); 
--	int err;
--
--	if (utime32 && get_compat_timespec(&t, utime32))
--		return -EFAULT;
--
--	/* the set_fs is safe because futex doesn't use the seg limit 
--	   for valid page checking of uaddr. */ 
--	set_fs(KERNEL_DS); 
--	err = sys_futex(uaddr, op, val, utime32 ? &t : NULL);
--	set_fs(oldfs); 
--	return err; 
--}
--
- extern long sys_io_setup(unsigned nr_reqs, aio_context_t *ctx);
- 
- long sys32_io_setup(unsigned nr_reqs, u32 *ctx32p)
-diff -ruN 2.5.59-200302101308-32bit.1/kernel/compat.c 2.5.59-200302101308-32bit.2/kernel/compat.c
---- 2.5.59-200302101308-32bit.1/kernel/compat.c	2003-01-17 14:01:08.000000000 +1100
-+++ 2.5.59-200302101308-32bit.2/kernel/compat.c	2003-02-07 14:32:54.000000000 +1100
-@@ -208,3 +208,19 @@
- 		ret = put_user(s, oset);
- 	return ret;
- }
-+
-+extern long do_futex(u32 *, int, int, struct timespec *);
-+
-+asmlinkage long compat_sys_futex(u32 *uaddr, int op, int val,
-+		struct compat_timespec *ct)
-+{
-+	struct timespec *ts = NULL;
-+	struct timespec t;
-+
-+	if ((op == FUTEX_WAIT) && ct) {
-+		if (get_compat_timespec(&t, ct))
-+			return -EFAULT;
-+		ts = &t;
-+	}
-+	return do_futex((unsigned long)uaddr, op, val, ts);
-+}
-diff -ruN 2.5.59-200302101308-32bit.1/kernel/futex.c 2.5.59-200302101308-32bit.2/kernel/futex.c
---- 2.5.59-200302101308-32bit.1/kernel/futex.c	2002-11-28 10:34:59.000000000 +1100
-+++ 2.5.59-200302101308-32bit.2/kernel/futex.c	2003-02-07 14:32:46.000000000 +1100
-@@ -318,17 +318,12 @@
- static inline int futex_wait_utime(unsigned long uaddr,
- 		      int offset,
- 		      int val,
--		      struct timespec* utime)
-+		      struct timespec* ts)
+ /**
+  * request_module - try to load a kernel module
+  * @module_name: Name of module
+@@ -189,24 +58,18 @@ static int exec_modprobe(void * module_n
+  * If module auto-loading support is disabled then this function
+  * becomes a no-operation.
+  */
+-int request_module(const char * module_name)
++int request_module(const char *module_name)
  {
- 	unsigned long time = MAX_SCHEDULE_TIMEOUT;
- 
--	if (utime) {
--		struct timespec t;
--		if (copy_from_user(&t, utime, sizeof(t)) != 0)
--			return -EFAULT;
--		time = timespec_to_jiffies(&t) + 1;
+-	pid_t pid;
+-	int waitpid_result;
+-	sigset_t tmpsig;
+-	int i, ret;
++	unsigned int max_modprobes;
++	int ret;
++	char *argv[] = { modprobe_path, "--", (char*)module_name, NULL };
++	static char *envp[] = { "HOME=/",
++				"TERM=linux",
++				"PATH=/sbin:/usr/sbin:/bin:/usr/bin",
++				NULL };
+ 	static atomic_t kmod_concurrent = ATOMIC_INIT(0);
+ #define MAX_KMOD_CONCURRENT 50	/* Completely arbitrary value - KAO */
+ 	static int kmod_loop_msg;
+-	unsigned long saved_policy = current->policy;
+-
+-	current->policy = SCHED_NORMAL;
+-	/* Don't allow request_module() when the system isn't set up */
+-	if ( ! system_running ) {
+-		printk(KERN_ERR "request_module[%s]: not ready\n", module_name);
+-		ret = -EPERM;
+-		goto out;
 -	}
--
-+	if (ts)
-+		time = timespec_to_jiffies(ts) + 1;
- 	return futex_wait(uaddr, offset, val, time);
- }
  
-@@ -437,7 +432,7 @@
- 	return ret;
- }
- 
--asmlinkage int sys_futex(unsigned long uaddr, int op, int val, struct timespec *utime)
-+long do_futex(unsigned long uaddr, int op, int val, struct timespec *ts)
- {
- 	unsigned long pos_in_page;
- 	int ret;
-@@ -445,12 +440,12 @@
- 	pos_in_page = uaddr % PAGE_SIZE;
- 
- 	/* Must be "naturally" aligned */
--	if (pos_in_page % sizeof(int))
-+	if (pos_in_page % sizeof(u32))
- 		return -EINVAL;
- 
- 	switch (op) {
- 	case FUTEX_WAIT:
--		ret = futex_wait_utime(uaddr, pos_in_page, val, utime);
-+		ret = futex_wait_utime(uaddr, pos_in_page, val, ts);
- 		break;
- 	case FUTEX_WAKE:
- 		ret = futex_wake(uaddr, pos_in_page, val);
-@@ -465,6 +460,19 @@
- 	return ret;
- }
- 
-+asmlinkage long sys_futex(u32 *uaddr, int op, int val, struct timespec *utime)
-+{
-+	struct timespec *ts = NULL;
-+	struct timespec t;
+ 	/* If modprobe needs a service that is in a module, we get a recursive
+ 	 * loop.  Limit the number of running kmod threads to max_threads/2 or
+@@ -216,61 +79,44 @@ int request_module(const char * module_n
+ 	 * process tables to get the command line, proc_pid_cmdline is static
+ 	 * and it is not worth changing the proc code just to handle this case. 
+ 	 * KAO.
++	 *
 +
-+	if ((op == FUTEX_WAIT) && utime) {
-+		if (copy_from_user(&t, utime, sizeof(t)) != 0)
-+			return -EFAULT;
-+		ts = &t;
-+	}
-+	return do_futex((unsigned long)uaddr, op, val, ts);
++	 * "trace the ppid" is simple, but will fail if someone's
++	 * parent exits.  I think this is as good as it gets. --RR
+ 	 */
+-	i = max_threads/2;
+-	if (i > MAX_KMOD_CONCURRENT)
+-		i = MAX_KMOD_CONCURRENT;
++	max_modprobes = min(max_threads/2, MAX_KMOD_CONCURRENT);
+ 	atomic_inc(&kmod_concurrent);
+-	if (atomic_read(&kmod_concurrent) > i) {
++	if (atomic_read(&kmod_concurrent) > max_modprobes) {
++		/* We may be blaming an innocent here, but unlikely */
+ 		if (kmod_loop_msg++ < 5)
+ 			printk(KERN_ERR
+-			       "kmod: runaway modprobe loop assumed and stopped\n");
++			       "request_module: runaway loop modprobe %s\n",
++			       module_name);
+ 		atomic_dec(&kmod_concurrent);
+-		ret = -ENOMEM;
+-		goto out;
++		return -ENOMEM;
+ 	}
+ 
+-	pid = kernel_thread(exec_modprobe, (void*) module_name, 0);
+-	if (pid < 0) {
+-		printk(KERN_ERR "request_module[%s]: fork failed, errno %d\n", module_name, -pid);
+-		atomic_dec(&kmod_concurrent);
+-		ret = pid;
+-		goto out;
++	ret = call_usermodehelper(modprobe_path, argv, envp, 1);
++	if (ret != 0) {
++		static unsigned long last;
++		unsigned long now = jiffies;
++		if (now - last > HZ) {
++			last = now;
++			printk(KERN_DEBUG
++			       "request_module: failed %s -- %s. error = %d\n",
++			       modprobe_path, module_name, ret);
++		}
+ 	}
+-
+-	/* Block everything but SIGKILL/SIGSTOP */
+-	spin_lock_irq(&current->sighand->siglock);
+-	tmpsig = current->blocked;
+-	siginitsetinv(&current->blocked, sigmask(SIGKILL) | sigmask(SIGSTOP));
+-	recalc_sigpending();
+-	spin_unlock_irq(&current->sighand->siglock);
+-
+-	waitpid_result = waitpid(pid, NULL, __WCLONE);
+ 	atomic_dec(&kmod_concurrent);
+-
+-	/* Allow signals again.. */
+-	spin_lock_irq(&current->sighand->siglock);
+-	current->blocked = tmpsig;
+-	recalc_sigpending();
+-	spin_unlock_irq(&current->sighand->siglock);
+-
+-	if (waitpid_result != pid) {
+-		printk(KERN_ERR "request_module[%s]: waitpid(%d,...) failed, errno %d\n",
+-		       module_name, pid, -waitpid_result);
+-	}
+-	ret = 0;
+-out:
+-	current->policy = saved_policy;
+ 	return ret;
+ }
+ #endif /* CONFIG_KMOD */
+ 
+-
+ #ifdef CONFIG_HOTPLUG
+ /*
+ 	hotplug path is set via /proc/sys
+ 	invoked by hotplug-aware bus drivers,
+-	with exec_usermodehelper and some thread-spawner
++	with call_usermodehelper
+ 
+ 	argv [0] = hotplug_path;
+ 	argv [1] = "usb", "scsi", "pci", "network", etc;
+@@ -294,7 +140,8 @@ struct subprocess_info {
+ 	char *path;
+ 	char **argv;
+ 	char **envp;
+-	pid_t retval;
++	int wait;
++	int retval;
+ };
+ 
+ /*
+@@ -307,13 +154,30 @@ static int ____call_usermodehelper(void 
+ 
+ 	retval = -EPERM;
+ 	if (current->fs->root)
+-		retval = exec_usermodehelper(sub_info->path, sub_info->argv, sub_info->envp);
++		retval = execve(sub_info->path, sub_info->argv,sub_info->envp);
+ 
+ 	/* Exec failed? */
+-	sub_info->retval = (pid_t)retval;
++	sub_info->retval = retval;
+ 	do_exit(0);
+ }
+ 
++/* Keventd can't block, but this (a child) can. */
++static int wait_for_helper(void *data)
++{
++	struct subprocess_info *sub_info = data;
++	pid_t pid;
++
++	pid = kernel_thread(____call_usermodehelper, sub_info,
++			    CLONE_VFORK | SIGCHLD);
++	if (pid < 0)
++		sub_info->retval = pid;
++	else
++		sys_wait4(pid, (unsigned int *)&sub_info->retval, 0, NULL);
++
++	complete(sub_info->complete);
++	return 0;
 +}
 +
- static struct super_block *
- futexfs_get_sb(struct file_system_type *fs_type,
- 	       int flags, char *dev_name, void *data)
+ /*
+  * This is run by keventd.
+  */
+@@ -322,14 +186,21 @@ static void __call_usermodehelper(void *
+ 	struct subprocess_info *sub_info = data;
+ 	pid_t pid;
+ 
+-	/*
+-	 * CLONE_VFORK: wait until the usermode helper has execve'd successfully
+-	 * We need the data structures to stay around until that is done.
+-	 */
+-	pid = kernel_thread(____call_usermodehelper, sub_info, CLONE_VFORK | SIGCHLD);
+-	if (pid < 0)
++	/* CLONE_VFORK: wait until the usermode helper has execve'd
++	 * successfully We need the data structures to stay around
++	 * until that is done.  */
++	if (sub_info->wait)
++		pid = kernel_thread(wait_for_helper, sub_info,
++				    CLONE_KERNEL | SIGCHLD);
++	else
++		pid = kernel_thread(____call_usermodehelper, sub_info,
++				    CLONE_VFORK | SIGCHLD);
++
++	if (pid < 0) {
+ 		sub_info->retval = pid;
+-	complete(sub_info->complete);
++		complete(sub_info->complete);
++	} else if (!sub_info->wait)
++		complete(sub_info->complete);
+ }
+ 
+ /**
+@@ -337,15 +208,17 @@ static void __call_usermodehelper(void *
+  * @path: pathname for the application
+  * @argv: null-terminated argument list
+  * @envp: null-terminated environment list
++ * @wait: wait for the application to finish and return status.
+  *
+- * Runs a user-space application.  The application is started asynchronously.  It
+- * runs as a child of keventd.  It runs with full root capabilities.  keventd silently
+- * reaps the child when it exits.
++ * Runs a user-space application.  The application is started
++ * asynchronously if wait is not set, and runs as a child of keventd.
++ * (ie. it runs with full root capabilities).
+  *
+- * Must be called from process context.  Returns zero on success, else a negative
+- * error code.
++ * Must be called from process context.  Returns a negative error code
++ * if program was not execed successfully, or (exitcode << 8 + signal)
++ * of the application (0 if wait is not set).
+  */
+-int call_usermodehelper(char *path, char **argv, char **envp)
++int call_usermodehelper(char *path, char **argv, char **envp, int wait)
+ {
+ 	DECLARE_COMPLETION(done);
+ 	struct subprocess_info sub_info = {
+@@ -353,6 +226,7 @@ int call_usermodehelper(char *path, char
+ 		.path		= path,
+ 		.argv		= argv,
+ 		.envp		= envp,
++		.wait		= wait,
+ 		.retval		= 0,
+ 	};
+ 	DECLARE_WORK(work, __call_usermodehelper, &sub_info);
+@@ -390,7 +264,6 @@ void dev_probe_unlock(void)
+ 	up(&dev_probe_sem);
+ }
+ 
+-EXPORT_SYMBOL(exec_usermodehelper);
+ EXPORT_SYMBOL(call_usermodehelper);
+ 
+ #ifdef CONFIG_KMOD
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8581-linux-2.5.59-bk3/net/bluetooth/hci_core.c .8581-linux-2.5.59-bk3.updated/net/bluetooth/hci_core.c
+--- .8581-linux-2.5.59-bk3/net/bluetooth/hci_core.c	2003-01-02 12:33:56.000000000 +1100
++++ .8581-linux-2.5.59-bk3.updated/net/bluetooth/hci_core.c	2003-02-10 14:33:03.000000000 +1100
+@@ -114,7 +114,7 @@ static int hci_run_hotplug(char *dev, ch
+ 	envp[3] = astr;
+ 	envp[4] = NULL;
+ 	
+-	return call_usermodehelper(argv[0], argv, envp);
++	return call_usermodehelper(argv[0], argv, envp, 0);
+ }
+ #else
+ #define hci_run_hotplug(A...)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .8581-linux-2.5.59-bk3/net/core/dev.c .8581-linux-2.5.59-bk3.updated/net/core/dev.c
+--- .8581-linux-2.5.59-bk3/net/core/dev.c	2003-02-07 19:22:29.000000000 +1100
++++ .8581-linux-2.5.59-bk3.updated/net/core/dev.c	2003-02-10 14:33:03.000000000 +1100
+@@ -2942,6 +2942,6 @@ static int net_run_sbin_hotplug(struct n
+ 	envp [i++] = action_str;
+ 	envp [i] = 0;
+ 
+-	return call_usermodehelper(argv [0], argv, envp);
++	return call_usermodehelper(argv [0], argv, envp, 0);
+ }
+ #endif
+
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

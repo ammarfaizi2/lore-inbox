@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130600AbRCPUrb>; Fri, 16 Mar 2001 15:47:31 -0500
+	id <S130487AbRCPUrW>; Fri, 16 Mar 2001 15:47:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131052AbRCPUrW>; Fri, 16 Mar 2001 15:47:22 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:2278 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130600AbRCPUrM>;
-	Fri, 16 Mar 2001 15:47:12 -0500
-Date: Fri, 16 Mar 2001 12:16:54 +0000
+	id <S131052AbRCPUrM>; Fri, 16 Mar 2001 15:47:12 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:3302 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130487AbRCPUq7>;
+	Fri, 16 Mar 2001 15:46:59 -0500
+Date: Fri, 16 Mar 2001 12:53:38 +0000
 From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Anton Blanchard <anton@linuxcare.com.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: [PATCH]: Only one memory zone for sparc64
-Message-ID: <20010316121654.C1771@redhat.com>
-In-Reply-To: <20010315191352.D1598@linuxcare.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, george anzinger <george@mvista.com>,
+        Alexander Viro <viro@math.psu.edu>, linux-mm@kvack.org,
+        bcrl@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: changing mm->mmap_sem  (was: Re: system call for process information?)
+Message-ID: <20010316125338.L30889@redhat.com>
+In-Reply-To: <20010316094918.F30889@redhat.com> <Pine.LNX.4.21.0103160844300.5790-100000@imladris.rielhome.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010315191352.D1598@linuxcare.com>; from anton@linuxcare.com.au on Thu, Mar 15, 2001 at 07:13:52PM +1100
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0103160844300.5790-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Fri, Mar 16, 2001 at 08:50:25AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Thu, Mar 15, 2001 at 07:13:52PM +1100, Anton Blanchard wrote:
+On Fri, Mar 16, 2001 at 08:50:25AM -0300, Rik van Riel wrote:
+> On Fri, 16 Mar 2001, Stephen C. Tweedie wrote:
 > 
-> On sparc64 we dont care about the different memory zones and iterating
-> through them all over the place only serves to waste CPU. I suspect this
-> would be the case with some other architectures but for the moment I
-> have just enabled it for sparc64.
+> > > Write locks would be used in the code where we actually want
+> > > to change the VMA list and page faults would use an extra lock
+> > > to protect against each other (possibly a per-pagetable lock
+> > 
+> > Why do we need another lock?  The critical section where we do the
+> > final update on the pte _already_ takes the page table spinlock to
+> > avoid races against the swapper.
 > 
-> With this patch I get close to a 1% improvement in dbench on the dual
-> ultra60.
+> The problem is that mmap_sem seems to be protecting the list
+> of VMAs, so taking _only_ the page_table_lock could let a VMA
+> change under us while a page fault is underway ...
 
-I'd be surprised if dbench was anything other than disk-bound on most
-systems.  On any of my machines, the standard error of a single dbench
-run is *way* larger than 1%, and I'd expect to have to run the
-benchmark a dozen times to get a confidence interval small enough to
-detect a 1% performance change: are your runs repeatable enough to be
-this sensitive to the effect of the allocator?
+Right, I'm not suggesting removing that: making the mmap_sem
+read/write is fine, but yes, we still need that semaphore.  But as for
+the "page faults would use an extra lock to protect against each
+other" bit --- we already have another lock, the page table lock,
+which can be used in this way, so ANOTHER lock should be unnecessary.
 
-Cheers,
- Stephen
+--Stephen

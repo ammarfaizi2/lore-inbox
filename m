@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130753AbRBAQDF>; Thu, 1 Feb 2001 11:03:05 -0500
+	id <S130796AbRBAQIf>; Thu, 1 Feb 2001 11:08:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130752AbRBAQCz>; Thu, 1 Feb 2001 11:02:55 -0500
-Received: from lightning.hereintown.net ([207.196.96.3]:39066 "EHLO
-	hereintown.net") by vger.kernel.org with ESMTP id <S130751AbRBAQCs>;
-	Thu, 1 Feb 2001 11:02:48 -0500
-Date: Thu, 1 Feb 2001 11:14:55 -0500 (EST)
-From: Chris Meadors <clubneon@hereintown.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Quotas not updating.
-Message-ID: <Pine.LNX.4.31.0102011107580.471-100000@rc.priv.hereintown.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130792AbRBAQIZ>; Thu, 1 Feb 2001 11:08:25 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:19481 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S130793AbRBAQIQ>; Thu, 1 Feb 2001 11:08:16 -0500
+Message-Id: <200102011608.f11G8j007752@jen.americas.sgi.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: hch@caldera.de, linux-kernel@vger.kernel.org,
+        kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains 
+In-Reply-To: Message from Christoph Hellwig <hch@caldera.de> 
+   of "Thu, 01 Feb 2001 16:09:53 +0100." <20010201160953.A17058@caldera.de> 
+Date: Thu, 01 Feb 2001 10:08:45 -0600
+From: Steve Lord <lord@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running 2.4.1 (had been using 2.4.0 since it was released) with quota
-2.00 on an ext2 filesystem mounted as /home.
+Christoph Hellwig wrote:
+> On Thu, Feb 01, 2001 at 08:14:58PM +0530, bsuparna@in.ibm.com wrote:
+> > 
+> > That would require the vfs interfaces themselves (address space
+> > readpage/writepage ops) to take kiobufs as arguments, instead of struct
+> > page *  . That's not the case right now, is it ?
+> 
+> No, and with the current kiobufs it would not make sense, because they
+> are to heavy-weight.  With page,length,offsett iobufs this makes sense
+> and is IMHO the way to go.
+> 
+> 	Christoph
+> 
 
-When a file is created or deleted from the file system the quota usage is
-not updated.  If I run a "quotacheck -a" everything gets updated, but
-quickly after as mail is delivered or what ever the numbers get out of
-sync.
+Enquiring minds would like to know if you are working towards this 
+revamp of the kiobuf structure at the moment, you have been very quiet
+recently. 
 
-If I run quotacheck and a user is updated to be over quota I can no longer
-create files as that user, so quotas are being inforced.
+Steve
 
--Chris
--- 
-Two penguins were walking on an iceberg.  The first penguin said to the
-second, "you look like you are wearing a tuxedo."  The second penguin
-said, "I might be..."                         --David Lynch, Twin Peaks
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

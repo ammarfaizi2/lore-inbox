@@ -1,82 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262180AbTCVXkH>; Sat, 22 Mar 2003 18:40:07 -0500
+	id <S261576AbTCVXfo>; Sat, 22 Mar 2003 18:35:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262181AbTCVXkH>; Sat, 22 Mar 2003 18:40:07 -0500
-Received: from marstons.services.quay.plus.net ([212.159.14.223]:16802 "HELO
-	marstons.services.quay.plus.net") by vger.kernel.org with SMTP
-	id <S262180AbTCVXkF>; Sat, 22 Mar 2003 18:40:05 -0500
-Date: Sat, 22 Mar 2003 23:52:14 +0000
-From: Robert Murray <rob@mur.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: hang during boot with 2.4.19 and an asus a7v
-Message-ID: <20030322235213.GH12156@mur.org.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+	id <S261997AbTCVXfn>; Sat, 22 Mar 2003 18:35:43 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:55396 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S261576AbTCVXfc>; Sat, 22 Mar 2003 18:35:32 -0500
+Date: Sat, 22 Mar 2003 23:48:29 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Andrew Morton <akpm@digeo.com>, <dmccr@us.ibm.com>,
+       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: 2.5.65-mm2 vs 2.5.65-mm3 (full objrmap)
+In-Reply-To: <362150000.1048349169@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.44.0303222309050.1617-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Sat, 22 Mar 2003, Martin J. Bligh wrote:
+> 
+> I see very little impact either way. My initial analysis showed that 90%
+> of the anonymous mappings were singletons, so the chain manipulation costs
+> are probably very low. If there's a workload that has long anonymous chains,
+> and manipulates them a lot, that might benefit. 
 
-I have an Asus a7v motherboard, 1 gHz athlon.  It was working fine until recently.  The only thing I changed was the sdram speed from 100 to 133. It now hangs after the following messages:
+It would, yes - but like you I'm unable to name that workload
+(aside from one of my own tests, not much use to the wide world).
 
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-Disabling VIA memory write queue (PCI ID 0305, rev 02): [55] 28 & 1f -> 08
-PCI: Using IRQ router VIA [1106/0686] at 00:04.0
-PCI: Disabling Via external APIC routing
-isapnp: Scanning for PnP cards...
-isapnp: No Plug & Play device found
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16)
-Starting kswapd
-VFS: Diskquotas version dquot_6.4.0 initialized
-Journalled Block Device driver loaded
-devfs: v1.12a (20020514) Richard Gooch (rgooch@atnf.csiro.au)
-devfs: boot_options: 0x1
-pty: 256 Unix98 ptys configured
-Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_PCI Id
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: IDE controller on PCI bus 00 dev 21
-VP_IDE: chipset revision 16
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci00:04.1
-    ide0: BM-DMA at 0xb800-0xb807, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xb808-0xb80f, BIOS settings: hdc:DMA, hdd:pio
-PDC20265: IDE controller on PCI bus 00 dev 88
-PCI: Found IRQ 10 for device 00:11.0
-PDC20265: chipset revision 2
-PDC20265: not 100% native mode: will probe irqs later
-PDC20265: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
-    ide2: BM-DMA at 0x7400-0x7407, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0x7408-0x740f, BIOS settings: hdg:pio, hdh:DMA
-hda: YAMAHA CRW2100E, ATAPI CD/DVD-ROM drive
-hdc: Pioneer CD-ROM ATAPI Model DR-944 0107, ATAPI CD/DVD-ROM drive
-hde: IBM-DTLA-307045, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-ide2 at 0x8800-0x8807,0x8402 on irq 10
-hde: 90069840 sectors (46116 MB) w/1916KiB Cache, CHS=89355/16/63, UDMA(100)
-ide-cd: passing drive hda to ide-scsi emulation.
-hdc: ATAPI 40X CD-ROM drive, 128kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-Partition check:
- /dev/ide/host2/bus0/target0/lun0: [PTBL] [5606/255/63] p1 p2 p3 p4 < p5 p6 p7 >
+> However, I thought there might be some benefit in the fork/exec cycle 
+> (which presumably sets up a new chain instead of the direct mapping then
+> tears it down again) ... but seemingly not.
 
-I did a cmos reset, because I'm blind and can't use the bios setup.  I'm almost 100% sure this changed the sdram speed back to 100 [1], but it still hangs.
+I do see such benefit, but disappointingly little.  In kernel builds,
+say 1% to 3% consistently (on a given machine with given jN) off the
+system time; but the user time correspondingly up (eh? lock step tick
+issue? cache oddity?), and elapsed time either same or slightly up.
+oprofiles didn't enlighten me.
 
-Cheers
+Your figures don't seem to show even that reduction in system time;
+though I think you were comparing 2.5.65-mm2 against 2.5.65-mm3,
+whereas I was comparing 2.5.65-mm3 with 2.5.65-mm3 minus anobjrmap.
+It's conceivable there's something else in -mm3 affecting results.
 
-Rob
+> Did you keep the pte_direct
+> optimisation? That seems worth keeping, with partial objrmap as well
+> (I think that was removed in Dave's patch, but would presumably be easy
+> to put back).
 
+Dave didn't remove it at all, just went another way so that it became
+irrelevant to obj rmaps (or you could say, every obj rmap direct,
+apart from the sys_remap_file pages).  I did the same with anonymous,
+they're almost all direct (since a given anon page is almost always
+mapped at the same user virtual address in whatever mms it appears),
+the exception needing chains coming from a perverse use of mremap.
 
-[1] The memory speed in memtest86 went back to what it was before I changed to 133.
+The clearest advantage of anobjrmap so far is for your HIGHMEM64G
+HIGHPTE configurations: which had a 64-bit direct pte_addr_t in
+struct page, now just a 32-bit count like in the non-PAE configs.
+(Though that saving could have been achieved in other ways.)
+
+> Or maybe we just need some more tuning ;-)
+
+Be nice if a magic wand would make it go faster, but it seems too
+simple for tuning.  A lot of effort went into speeding up pte_chains,
+looks like the effort paid off.  (It's particularly helpful that the
+chains got collapsed back to direct lazily, by page_referenced, not
+by page_remove_rmap - that means a repetitively forking process
+was not perpetually convulsed in allocating and freeing chains).
+
+Hugh
 

@@ -1,492 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVDBXME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVDBXRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbVDBXME (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 18:12:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVDBXMD
+	id S261363AbVDBXRq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 18:17:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVDBXRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 18:12:03 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:49073 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261341AbVDBXJz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 18:09:55 -0500
-Message-ID: <424F2502.9040308@tiscali.de>
-Date: Sun, 03 Apr 2005 01:04:34 +0200
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Jesper Juhl <juhl-lkml@dif.dk>
-CC: Steve French <smfrench@austin.rr.com>, Steven French <sfrench@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][1/7] cifs: dir.c cleanup - spaces
-References: <Pine.LNX.4.62.0504030052020.2525@dragon.hyggekrogen.localhost>
-In-Reply-To: <Pine.LNX.4.62.0504030052020.2525@dragon.hyggekrogen.localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 2 Apr 2005 18:17:46 -0500
+Received: from 213-0-213-55.dialup.nuria.telefonica-data.net ([213.0.213.55]:15026
+	"EHLO dardhal.24x7linux.com") by vger.kernel.org with ESMTP
+	id S261363AbVDBXRd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Apr 2005 18:17:33 -0500
+Date: Sun, 3 Apr 2005 01:17:37 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: video4linux-list@redhat.com
+Subject: [2.6.11.6] Oops trying to remove module "bttv"
+Message-ID: <20050402231737.GA4773@localhost>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>,
+	video4linux-list@redhat.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl schrieb:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->Cleanup spacing and trailing whitespace in fs/cifs/dir.c
->
->Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
->
->
->--- linux-2.6.12-rc1-mm4/fs/cifs/dir.c.with_patch1	2005-04-02 23:31:27.000000000 +0200
->+++ linux-2.6.12-rc1-mm4/fs/cifs/dir.c	2005-04-02 23:47:39.000000000 +0200
->@@ -37,7 +37,7 @@ void renew_parental_timestamps(struct de
-> 	do {
-> 		direntry->d_time = jiffies;
-> 		direntry = direntry->d_parent;
->-	} while (!IS_ROOT(direntry));	
->+	} while (!IS_ROOT(direntry));
-> }
-> 
-> /* Note: caller must free return buffer */
->@@ -47,27 +47,27 @@ char *build_path_from_dentry(struct dent
-> 	int namelen = 0;
-> 	char *full_path;
-> 
->-	if(direntry == NULL)
->-		return NULL;  /* not much we can do if dentry is freed and
->+	if (direntry == NULL)
->+		return NULL;	/* not much we can do if dentry is freed and
-> 		we need to reopen the file after it was closed implicitly
-> 		when the server crashed */
-> 
-> cifs_bp_rename_retry:
->-	for (temp = direntry; !IS_ROOT(temp);) {
->+	for (temp = direntry; !IS_ROOT(temp); ) {
-> 		namelen += (1 + temp->d_name.len);
-> 		temp = temp->d_parent;
->-		if(temp == NULL) {
->-			cERROR(1,("corrupt dentry"));
->+		if (temp == NULL) {
->+			cERROR(1, ("corrupt dentry"));
-> 			return NULL;
-> 		}
-> 	}
-> 
->-	full_path = kmalloc(namelen+1, GFP_KERNEL);
->-	if(full_path == NULL)
->+	full_path = kmalloc(namelen + 1, GFP_KERNEL);
->+	if (full_path == NULL)
-> 		return full_path;
-> 	full_path[namelen] = 0;	/* trailing null */
-> 
->-	for (temp = direntry; !IS_ROOT(temp);) {
->+	for (temp = direntry; !IS_ROOT(temp); ) {
-> 		namelen -= 1 + temp->d_name.len;
-> 		if (namelen < 0) {
-> 			break;
->@@ -78,16 +78,15 @@ cifs_bp_rename_retry:
-> 			cFYI(0, (" name: %s ", full_path + namelen));
-> 		}
-> 		temp = temp->d_parent;
->-		if(temp == NULL) {
->-			cERROR(1,("corrupt dentry"));
->+		if (temp == NULL) {
->+			cERROR(1, ("corrupt dentry"));
-> 			kfree(full_path);
-> 			return NULL;
-> 		}
-> 	}
-> 	if (namelen != 0) {
->-		cERROR(1,
->-		       ("We did not end path lookup where we expected namelen is %d",
->-			namelen));
->+		cERROR(1, ("We did not end path lookup where we expected "
->+			   "namelen is %d", namelen));
-> 		/* presumably this is only possible if we were racing with a rename 
-> 		of one of the parent directories  (we can not lock the dentries
-> 		above us to prevent this, but retrying should be harmless) */
->@@ -106,30 +105,30 @@ char *build_wildcard_path_from_dentry(st
-> 	int namelen = 0;
-> 	char *full_path;
-> 
->-	if(direntry == NULL)
->-		return NULL;  /* not much we can do if dentry is freed and
->+	if (direntry == NULL)
->+		return NULL;	/* not much we can do if dentry is freed and
-> 		we need to reopen the file after it was closed implicitly
-> 		when the server crashed */
-> 
-> cifs_bwp_rename_retry:
->-	for (temp = direntry; !IS_ROOT(temp);) {
->+	for (temp = direntry; !IS_ROOT(temp); ) {
-> 		namelen += (1 + temp->d_name.len);
-> 		temp = temp->d_parent;
->-		if(temp == NULL) {
->-			cERROR(1,("corrupt dentry"));
->+		if (temp == NULL) {
->+			cERROR(1, ("corrupt dentry"));
-> 			return NULL;
-> 		}
-> 	}
-> 
->-	full_path = kmalloc(namelen+3, GFP_KERNEL);
->-	if(full_path == NULL)
->+	full_path = kmalloc(namelen + 3, GFP_KERNEL);
->+	if (full_path == NULL)
-> 		return full_path;
-> 
-> 	full_path[namelen] = '\\';
->-	full_path[namelen+1] = '*';
->-	full_path[namelen+2] = 0;  /* trailing null */
->+	full_path[namelen + 1] = '*';
->+	full_path[namelen + 2] = 0;	/* trailing null */
-> 
->-	for (temp = direntry; !IS_ROOT(temp);) {
->+	for (temp = direntry; !IS_ROOT(temp); ) {
-> 		namelen -= 1 + temp->d_name.len;
-> 		if (namelen < 0) {
-> 			break;
->@@ -140,16 +139,15 @@ cifs_bwp_rename_retry:
-> 			cFYI(0, (" name: %s ", full_path + namelen));
-> 		}
-> 		temp = temp->d_parent;
->-		if(temp == NULL) {
->-			cERROR(1,("corrupt dentry"));
->+		if (temp == NULL) {
->+			cERROR(1, ("corrupt dentry"));
-> 			kfree(full_path);
-> 			return NULL;
-> 		}
-> 	}
-> 	if (namelen != 0) {
->-		cERROR(1,
->-		       ("We did not end path lookup where we expected namelen is %d",
->-			namelen));
->+		cERROR(1, ("We did not end path lookup where we expected "
->+			   "namelen is %d", namelen));
-> 		/* presumably this is only possible if we were racing with a rename 
-> 		of one of the parent directories  (we can not lock the dentries
-> 		above us to prevent this, but retrying should be harmless) */
->@@ -173,10 +171,10 @@ int cifs_create(struct inode *inode, str
-> 	struct cifs_sb_info *cifs_sb;
-> 	struct cifsTconInfo *pTcon;
-> 	char *full_path = NULL;
->-	FILE_ALL_INFO * buf = NULL;
->+	FILE_ALL_INFO *buf = NULL;
-> 	struct inode *newinode = NULL;
->-	struct cifsFileInfo * pCifsFile = NULL;
->-	struct cifsInodeInfo * pCifsInode;
->+	struct cifsFileInfo *pCifsFile = NULL;
->+	struct cifsInodeInfo *pCifsInode;
-> 	int disposition = FILE_OVERWRITE_IF;
-> 	int write_only = FALSE;
-> 
->@@ -188,12 +186,12 @@ int cifs_create(struct inode *inode, str
-> 	down(&direntry->d_sb->s_vfs_rename_sem);
-> 	full_path = build_path_from_dentry(direntry);
-> 	up(&direntry->d_sb->s_vfs_rename_sem);
->-	if(full_path == NULL) {
->+	if (full_path == NULL) {
-> 		FreeXid(xid);
-> 		return -ENOMEM;
-> 	}
-> 
->-	if(nd) {
->+	if (nd) {
-> 		if ((nd->intent.open.flags & O_ACCMODE) == O_RDONLY)
-> 			desiredAccess = GENERIC_READ;
-> 		else if ((nd->intent.open.flags & O_ACCMODE) == O_WRONLY) {
->@@ -206,14 +204,14 @@ int cifs_create(struct inode *inode, str
-> 			desiredAccess = GENERIC_READ | GENERIC_WRITE;
-> 		}
-> 
->-		if((nd->intent.open.flags & (O_CREAT | O_EXCL)) == (O_CREAT | O_EXCL))
->+		if ((nd->intent.open.flags & (O_CREAT | O_EXCL)) == (O_CREAT | O_EXCL))
-> 			disposition = FILE_CREATE;
->-		else if((nd->intent.open.flags & (O_CREAT | O_TRUNC)) == (O_CREAT | O_TRUNC))
->+		else if ((nd->intent.open.flags & (O_CREAT | O_TRUNC)) == (O_CREAT | O_TRUNC))
-> 			disposition = FILE_OVERWRITE_IF;
->-		else if((nd->intent.open.flags & O_CREAT) == O_CREAT)
->+		else if ((nd->intent.open.flags & O_CREAT) == O_CREAT)
-> 			disposition = FILE_OPEN_IF;
-> 		else {
->-			cFYI(1,("Create flag not set in create function"));
->+			cFYI(1, ("Create flag not set in create function"));
-> 		}
-> 	}
-> 
->@@ -221,82 +219,82 @@ int cifs_create(struct inode *inode, str
-> 	if (oplockEnabled)
-> 		oplock = REQ_OPLOCK;
-> 
->-	buf = kmalloc(sizeof(FILE_ALL_INFO),GFP_KERNEL);
->-	if(buf == NULL) {
->+	buf = kmalloc(sizeof(FILE_ALL_INFO), GFP_KERNEL);
->+	if (buf == NULL) {
-> 		kfree(full_path);
-> 		FreeXid(xid);
-> 		return -ENOMEM;
-> 	}
-> 
->-	rc = CIFSSMBOpen(xid, pTcon, full_path, disposition,
->-			 desiredAccess, CREATE_NOT_DIR,
->-			 &fileHandle, &oplock, buf, cifs_sb->local_nls);
->+	rc = CIFSSMBOpen(xid, pTcon, full_path, disposition, desiredAccess,
->+			 CREATE_NOT_DIR, &fileHandle, &oplock, buf,
->+			 cifs_sb->local_nls);
-> 	if (rc) {
-> 		cFYI(1, ("cifs_create returned 0x%x ", rc));
-> 	} else {
-> 		/* If Open reported that we actually created a file
-> 		then we now have to set the mode if possible */
-> 		if ((cifs_sb->tcon->ses->capabilities & CAP_UNIX) &&
->-			(oplock & CIFS_CREATE_ACTION))
->-			if(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SET_UID) {
->-				CIFSSMBUnixSetPerms(xid, pTcon, full_path, mode,
->-					(__u64)current->euid,
->-					(__u64)current->egid,
->-					0 /* dev */,
->-					cifs_sb->local_nls);
->+		    (oplock & CIFS_CREATE_ACTION)) {
->+			if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SET_UID) {
->+				CIFSSMBUnixSetPerms(xid, pTcon, full_path,
->+						    mode, (__u64)current->euid,
->+						    (__u64)current->egid,
->+						    0 /* dev */,
->+						    cifs_sb->local_nls);
-> 			} else {
->-				CIFSSMBUnixSetPerms(xid, pTcon, full_path, mode,
->-					(__u64)-1,
->-					(__u64)-1,
->-					0 /* dev */,
->-					cifs_sb->local_nls);
->+				CIFSSMBUnixSetPerms(xid, pTcon, full_path,
->+						    mode, (__u64)-1, (__u64)-1,
->+						    0 /* dev */,
->+						    cifs_sb->local_nls);
-> 			}
->-		else {
->+		} else {
-> 			/* BB implement via Windows security descriptors */
-> 			/* eg CIFSSMBWinSetPerms(xid,pTcon,full_path,mode,-1,-1,local_nls);*/
-> 			/* could set r/o dos attribute if mode & 0222 == 0 */
-> 		}
-> 
-> 	/* BB server might mask mode so we have to query for Unix case*/
->-		if (pTcon->ses->capabilities & CAP_UNIX)
->+		if (pTcon->ses->capabilities & CAP_UNIX) {
-> 			rc = cifs_get_inode_info_unix(&newinode, full_path,
->+						      inode->i_sb,xid);
->+		} else {
->+			rc = cifs_get_inode_info(&newinode, full_path, buf,
-> 						 inode->i_sb,xid);
->-		else {
->-			rc = cifs_get_inode_info(&newinode, full_path,
->-						 buf, inode->i_sb,xid);
->-			if(newinode)
->+			if (newinode)
-> 				newinode->i_mode = mode;
-> 		}
-> 
-> 		if (rc != 0) {
->-			cFYI(1,("Create worked but get_inode_info failed with rc = %d",
->-			      rc));
->+			cFYI(1, ("Create worked but get_inode_info failed with"
->+				 " rc = %d", rc));
-> 		} else {
-> 			direntry->d_op = &cifs_dentry_ops;
-> 			d_instantiate(direntry, newinode);
-> 		}
->-		if((nd->flags & LOOKUP_OPEN) == FALSE) {
->+		if ((nd->flags & LOOKUP_OPEN) == FALSE) {
-> 			/* mknod case - do not leave file open */
-> 			CIFSSMBClose(xid, pTcon, fileHandle);
->-		} else if(newinode) {
->+		} else if (newinode) {
-> 			pCifsFile = (struct cifsFileInfo *)
-> 			   kmalloc(sizeof (struct cifsFileInfo), GFP_KERNEL);
->-		
->+
-> 			if (pCifsFile) {
-> 				memset((char *)pCifsFile, 0,
->-				       sizeof (struct cifsFileInfo));
->+				       sizeof(struct cifsFileInfo));
-> 				pCifsFile->netfid = fileHandle;
-> 				pCifsFile->pid = current->tgid;
-> 				pCifsFile->pInode = newinode;
-> 				pCifsFile->invalidHandle = FALSE;
->-				pCifsFile->closePend     = FALSE;
->+				pCifsFile->closePend = FALSE;
-> 				init_MUTEX(&pCifsFile->fh_sem);
-> 				/* put the following in at open now */
-> 				/* pCifsFile->pfile = file; */ 
-> 				write_lock(&GlobalSMBSeslock);
->-				list_add(&pCifsFile->tlist,&pTcon->openFileList);
->+				list_add(&pCifsFile->tlist,
->+					 &pTcon->openFileList);
-> 				pCifsInode = CIFS_I(newinode);
->-				if(pCifsInode) {
->+				if (pCifsInode) {
-> 				/* if readable file instance put first in list*/
-> 					if (write_only == TRUE) {
->                                         	list_add_tail(&pCifsFile->flist,
->@@ -305,18 +303,18 @@ int cifs_create(struct inode *inode, str
-> 						list_add(&pCifsFile->flist,
-> 							&pCifsInode->openFileList);
-> 					}
->-					if((oplock & 0xF) == OPLOCK_EXCLUSIVE) {
->+					if ((oplock & 0xF) == OPLOCK_EXCLUSIVE) {
-> 						pCifsInode->clientCanCacheAll = TRUE;
-> 						pCifsInode->clientCanCacheRead = TRUE;
->-						cFYI(1,("Exclusive Oplock granted on inode %p",
->+						cFYI(1, ("Exclusive Oplock granted on inode %p",
-> 							newinode));
->-					} else if((oplock & 0xF) == OPLOCK_READ)
->+					} else if ((oplock & 0xF) == OPLOCK_READ)
-> 						pCifsInode->clientCanCacheRead = TRUE;
-> 				}
-> 				write_unlock(&GlobalSMBSeslock);
-> 			}
-> 		}
->-	} 
->+	}
-> 
-> 	if (buf)
-> 	    kfree(buf);
->@@ -328,14 +326,14 @@ int cifs_create(struct inode *inode, str
-> }
-> 
-> int cifs_mknod(struct inode *inode, struct dentry *direntry, int mode,
->-	dev_t device_number) 
->+	dev_t device_number)
-> {
-> 	int rc = -EPERM;
-> 	int xid;
-> 	struct cifs_sb_info *cifs_sb;
-> 	struct cifsTconInfo *pTcon;
-> 	char *full_path = NULL;
->-	struct inode * newinode = NULL;
->+	struct inode *newinode = NULL;
-> 
-> 	if (!old_valid_dev(device_number))
-> 		return -EINVAL;
->@@ -348,25 +346,28 @@ int cifs_mknod(struct inode *inode, stru
-> 	down(&direntry->d_sb->s_vfs_rename_sem);
-> 	full_path = build_path_from_dentry(direntry);
-> 	up(&direntry->d_sb->s_vfs_rename_sem);
->-	if(full_path == NULL)
->+	if (full_path == NULL)
-> 		rc = -ENOMEM;
->-	
->+
-> 	if (full_path && (pTcon->ses->capabilities & CAP_UNIX)) {
->-		if(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SET_UID) {
->-			rc = CIFSSMBUnixSetPerms(xid, pTcon, full_path,
->-				mode,(__u64)current->euid,(__u64)current->egid,
->-				device_number, cifs_sb->local_nls);
->+		if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SET_UID) {
->+			rc = CIFSSMBUnixSetPerms(xid, pTcon, full_path, mode,
->+						 (__u64)current->euid,
->+						 (__u64)current->egid,
->+						 device_number,
->+						 cifs_sb->local_nls);
-> 		} else {
->-			rc = CIFSSMBUnixSetPerms(xid, pTcon,
->-				full_path, mode, (__u64)-1, (__u64)-1,
->-				device_number, cifs_sb->local_nls);
->+			rc = CIFSSMBUnixSetPerms(xid, pTcon, full_path, mode,
->+						 (__u64)-1, (__u64)-1,
->+						 device_number,
->+						 cifs_sb->local_nls);
-> 		}
-> 
->-		if(!rc) {
->+		if (!rc) {
-> 			rc = cifs_get_inode_info_unix(&newinode, full_path,
->-						inode->i_sb,xid);
->+						      inode->i_sb,xid);
-> 			direntry->d_op = &cifs_dentry_ops;
->-			if(rc == 0)
->+			if (rc == 0)
-> 				d_instantiate(direntry, newinode);
-> 		}
-> 	}
->@@ -390,9 +391,8 @@ struct dentry *cifs_lookup(struct inode 
-> 
-> 	xid = GetXid();
-> 
->-	cFYI(1,
->-	     (" parent inode = 0x%p name is: %s and dentry = 0x%p",
->-	      parent_dir_inode, direntry->d_name.name, direntry));
->+	cFYI(1, (" parent inode = 0x%p name is: %s and dentry = 0x%p",
->+		 parent_dir_inode, direntry->d_name.name, direntry));
-> 
-> 	/* BB Add check of incoming data - e.g. frame not longer than maximum SMB - let server check the namelen BB */
-> 
->@@ -405,7 +405,7 @@ struct dentry *cifs_lookup(struct inode 
-> 	deadlock in the cases (beginning of sys_rename itself)
-> 	in which we already have the sb rename sem */
-> 	full_path = build_path_from_dentry(direntry);
->-	if(full_path == NULL) {
->+	if (full_path == NULL) {
-> 		FreeXid(xid);
-> 		return ERR_PTR(-ENOMEM);
-> 	}
->@@ -415,8 +415,7 @@ struct dentry *cifs_lookup(struct inode 
-> 	} else {
-> 		cFYI(1, (" NULL inode in lookup"));
-> 	}
->-	cFYI(1,
->-	     (" Full path: %s inode = 0x%p", full_path, direntry->d_inode));
->+	cFYI(1, (" Full path: %s inode = 0x%p", full_path, direntry->d_inode));
-> 
-> 	if (pTcon->ses->capabilities & CAP_UNIX)
-> 		rc = cifs_get_inode_info_unix(&newInode, full_path,
->@@ -436,7 +435,8 @@ struct dentry *cifs_lookup(struct inode 
-> 		rc = 0;
-> 		d_add(direntry, NULL);
-> 	} else {
->-		cERROR(1,("Error 0x%x or on cifs_get_inode_info in lookup",rc));
->+		cERROR(1, ("Error 0x%x or on cifs_get_inode_info in lookup",
->+			   rc));
-> 		/* BB special case check for Access Denied - watch security 
-> 		exposure of returning dir info implicitly via different rc 
-> 		if file exists or not but no access BB */
->@@ -462,7 +462,7 @@ int cifs_dir_open(struct inode *inode, s
-> 	cifs_sb = CIFS_SB(inode->i_sb);
-> 	pTcon = cifs_sb->tcon;
-> 
->-	if(file->f_dentry) {
->+	if (file->f_dentry) {
-> 		down(&file->f_dentry->d_sb->s_vfs_rename_sem);
-> 		full_path = build_wildcard_path_from_dentry(file->f_dentry);
-> 		up(&file->f_dentry->d_sb->s_vfs_rename_sem);
->@@ -491,9 +491,8 @@ static int cifs_d_revalidate(struct dent
-> 			return 0;
-> 		}
-> 	} else {
->-		cFYI(1,
->-		     ("In cifs_d_revalidate with no inode but name = %s and dentry 0x%p",
->-		      direntry->d_name.name, direntry));
->+		cFYI(1, ("In cifs_d_revalidate with no inode but name = %s "
->+			 "and dentry 0x%p", direntry->d_name.name, direntry));
-> 	}
-> 
-> /*    unlock_kernel(); */
->@@ -511,7 +510,7 @@ static int cifs_d_revalidate(struct dent
-> }     */
-> 
-> struct dentry_operations cifs_dentry_ops = {
->-	.d_revalidate = cifs_d_revalidate,
->-/* d_delete:       cifs_d_delete,       *//* not needed except for debugging */
->+	.d_revalidate	= cifs_d_revalidate,
->+/*	d_delete:	cifs_d_delete, */ /* not needed except for debugging */
-> 	/* no need for d_hash, d_compare, d_release, d_iput ... yet. BB confirm this BB */
-> };
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-The Subject is wrong it must be: "[PATCH][2/7] cifs: dir.c cleanup - spaces"
+Hi all:
 
-Matthias-Christian Ott
+I am getting the following stack dump in the logs when I try to unload the
+"bttv" kernel module ("rmmod bttv" ends with SIGSEGV). I have tried with
+other kernel versions keeping "module-init-tools" version the same (Debian
+3.1-rel-2), and realized that:
+- - 2.6.10-rc3-bk15: OK
+- - 2.6.11-rc-bk3: OK
+- - 2.6.11-rc3: FAILS
+- - 2.6.11.6: FAILS
+
+So it seems the bug was introduced somewhere 2.6.11-rc-bk3 and 2.6.11-rc3.
+Looking at the 2.6.11-rc2 to 2.6.11-rc3 Changelog there seems to be
+several changesets related to video4linux, but apparently just one related
+to the bttv.ko kernel module (changeset number 1.1966.2.154). I am,
+however, not qualified to tell if the problem is there:
+
+
+bttv0: unloading
+Unable to handle kernel NULL pointer dereference at virtual address 00000224
+ printing eip:
+e0c3d95d
+*pde = 00000000
+Oops: 0000 [#1]
+Modules linked in: md5 ipv6 snd_via82xx uhci_hcd usbcore i2c_viapro tuner tvaudio bttv video_buf v4l2_common btcx_risc tveeprom videodev snd_ymfpci snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm snd_opl3_lib snd_timer snd_hwdep snd_page_alloc snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore skystar2 dvb_core mt352 stv0299 nxt2002 firmware_class mt312 8139too 8139cp mii via_agp agpgart reiserfs xfs exportfs dm_mod it87 i2c_sensor i2c_isa rtc
+CPU:    0
+EIP:    0060:[<e0c3d95d>]    Not tainted VLI
+EFLAGS: 00010206   (2.6.11.6) 
+EIP is at bttv_i2c_info+0x3d/0x80 [bttv]
+eax: 000001a0   ebx: df8df77c   ecx: df8df6c0   edx: 00000004
+esi: e0c4dba0   edi: 00000000   ebp: deaf7800   esp: de42be38
+ds: 007b   es: 007b   ss: 0068
+Process rmmod (pid: 2448, threadinfo=de42a000 task=df908a40)
+Stack: e0c4da64 c01b3c70 c01b4719 deaf7800 df683920 e0c4d9e4 00000000 e0c3d2f4 
+       e0c4d9e0 deaf7800 00000000 c024e89e deaf7800 deaf743c c0351350 c034e0e8 
+       c034e100 df8df6e4 c034e0e8 00000286 deaf7800 df683920 e0c4db44 e0c4d9e4 
+Call Trace:
+ [<c01b3c70>] kobject_release+0x0/0x10
+ [<c01b4719>] kref_put+0x39/0xa0
+ [<e0c3d2f4>] detach_inform+0x24/0x30 [bttv]
+ [<c024e89e>] i2c_detach_client+0x2e/0x100
+ [<e0c16bad>] tuner_detach+0x1d/0x40 [tuner]
+ [<c024e327>] i2c_del_adapter+0xd7/0x220
+ [<c01b3c9e>] kobject_put+0x1e/0x30
+ [<c01b3c9e>] kobject_put+0x1e/0x30
+ [<c01b3c70>] kobject_release+0x0/0x10
+ [<e0c37084>] bttv_remove+0xa4/0x160 [bttv]
+ [<c01bcd3b>] pci_device_remove+0x3b/0x40
+ [<c022212f>] device_release_driver+0x7f/0x90
+ [<c0222160>] driver_detach+0x20/0x30
+ [<c02225cc>] bus_remove_driver+0x4c/0x90
+ [<c0222b83>] driver_unregister+0x13/0x30
+ [<c01bcf86>] pci_unregister_driver+0x16/0x30
+ [<e0c374df>] bttv_cleanup_module+0xf/0x1f [bttv]
+ [<c0129137>] sys_delete_module+0x167/0x1a0
+ [<c013f5a8>] do_munmap+0x118/0x150
+ [<c013f624>] sys_munmap+0x44/0x70
+ [<c0102543>] syscall_call+0x7/0xb
+Code: 28 8b 98 c0 01 00 00 8b 13 0f 18 02 90 8d b0 c0 01 00 00 39 f3 74 2b 8d b4 26 00 00 00 00 8d 8b 44 ff ff ff 8b 41 70 85 c0 74 09 <83> b8 84 00 00 00 00 75 1a 8b 02 89 d3 89 c2 0f 18 00 90 39 f3 
+
+
+Hope it helps, greetings,
+
+- -- 
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.11.6)
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCTygRao1/w/yPYI0RAhpYAJ9mfzp3BqTYKFu7jk8n8denOqJyqQCdG+b4
+8KvyhUg8GnOdnSQ3jspBqPs=
+=ZaVX
+-----END PGP SIGNATURE-----

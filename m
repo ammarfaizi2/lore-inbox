@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263280AbSJCOSv>; Thu, 3 Oct 2002 10:18:51 -0400
+	id <S263272AbSJCNoX>; Thu, 3 Oct 2002 09:44:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263305AbSJCOSv>; Thu, 3 Oct 2002 10:18:51 -0400
-Received: from 200-171-183-235.dsl.telesp.net.br ([200.171.183.235]:48652 "EHLO
-	techlinux.com.br") by vger.kernel.org with ESMTP id <S263280AbSJCOSv>;
-	Thu, 3 Oct 2002 10:18:51 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Carlos E Gorges <carlos@techlinux.com.br>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.40 - fix apm (module) unresolved symbol 
-Date: Thu, 3 Oct 2002 11:24:23 -0300
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200210031124.23570.carlos@techlinux.com.br>
+	id <S263273AbSJCNoX>; Thu, 3 Oct 2002 09:44:23 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:25840 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263272AbSJCNoW>; Thu, 3 Oct 2002 09:44:22 -0400
+Subject: Re: [PATCH] EVMS core 4/4: evms_biosplit.h
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kevin Corry <corryk@us.ibm.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       evms-devel@lists.sourceforge.net
+In-Reply-To: <02100307382404.05904@boiler>
+References: <02100307382404.05904@boiler>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Oct 2002 14:57:03 +0100
+Message-Id: <1033653423.28255.18.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> +static void
+> +bio_split_setup(char * split_name, char * bio_name)
+> +{
+> +	/* initialize MY bio split record pool */
+> +	my_bio_split_slab = kmem_cache_create(split_name,
+> +						sizeof
+> +						(struct bio_split_cb),
+> +						0, SLAB_HWCACHE_ALIGN,
+> +                                                NULL, NULL);
+> +	if (!my_bio_split_slab) {
+> +		panic("unable to create EVMS Bio Split cache.");
 
---- linux-2.5.40/arch/i386/kernel/i386_ksyms.c	Tue Oct  1 04:06:59 2002
-+++ linux-2.5/arch/i386/kernel/i386_ksyms.c	Thu Oct  3 10:46:03 2002
-@@ -38,6 +38,7 @@
- EXPORT_SYMBOL(machine_real_restart);
- extern void default_idle(void);
- EXPORT_SYMBOL(default_idle);
-+EXPORT_SYMBOL(cpu_gdt_table);
- #endif
- 
- #ifdef CONFIG_SMP
+If IBM are going to be doing telco grade stuff you could start now by
+failing politely in this case 8)
 
-
--- 
-	 _________________________
-	 Carlos E Gorges          
-	 (carlos@techlinux.com.br)
-	 Tech informática LTDA
-	 Brazil                   
-	 _________________________
 
 

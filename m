@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261268AbSJUH74>; Mon, 21 Oct 2002 03:59:56 -0400
+	id <S261264AbSJUIF5>; Mon, 21 Oct 2002 04:05:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261271AbSJUH74>; Mon, 21 Oct 2002 03:59:56 -0400
-Received: from B5064.pppool.de ([213.7.80.100]:29613 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S261268AbSJUH7z>; Mon, 21 Oct 2002 03:59:55 -0400
-Subject: Re: [PATCH] 2.5.43 : drivers/block/xd.c
-From: Daniel Egger <degger@fhm.edu>
-To: Frank Davis <fdavis@si.rr.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <Pine.LNX.4.44.0210182055450.15417-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0210182055450.15417-100000@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-BIWgadaUzpR42fA5bljC"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 21 Oct 2002 01:33:17 +0200
-Message-Id: <1035156808.17725.4.camel@sonja.de.interearth.com>
-Mime-Version: 1.0
+	id <S261271AbSJUIF4>; Mon, 21 Oct 2002 04:05:56 -0400
+Received: from gateway.ukaea.org.uk ([194.128.63.73]:59200 "EHLO
+	fuspcnjc.culham.ukaea.org.uk") by vger.kernel.org with ESMTP
+	id <S261264AbSJUIF4>; Mon, 21 Oct 2002 04:05:56 -0400
+Message-ID: <3DB3B7A4.C40C1995@ukaea.org.uk>
+Date: Mon, 21 Oct 2002 09:15:32 +0100
+From: Neil Conway <nconway.list@ukaea.org.uk>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4: variable HZ
+References: <3DAFF5C9.807BE885@ukaea.org.uk> <1034966657.722.838.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robert Love wrote:
+> OK, sure, but why specify a power-of-two HZ?  There is absolutely no
+> reason to, at least on x86.
 
---=-BIWgadaUzpR42fA5bljC
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Totally agree.  However, I wasn't restricting it to powers of two.  You
+just happened to have mentioned 512 (wrt. RedHat).
 
-Am Sam, 2002-10-19 um 02.58 schrieb Frank Davis:
+> Want 512?  500 will do just as well and has the benefit of (a) being a
+> multiple of the previous HZ and (b) evenly dividing into our concept of
+> time.
 
-> Hello all,
->  The following fixes a 'used but not declared' compile error.  Please rev=
-iew=20
-> for inclusion.
+512 ~= 500.  150 !~= 100.  Would someone want to use 150?  Maybe...
 
-The "standard" way of achieving the same would be to assign the variable
-to itself. In your fragment the compiler will initialise the variable to
-zero which will cost at least one instruction and thus "bloat" the code,
-it'll also be slower due to an additional instruction and may schedule
-worse. Not that it mattered much in this case but if you can save a byte
-or two... :)
-=20
---=20
-Servus,
-       Daniel
+Anyway, it's no big deal if you prefer to leave your patch as-is. 
+However, if you do, then you need to at least add a comment to the code
+and modify the Configure.help to make it clear that only integer
+multiples work properly.  In fact, you could just make the HZ Config
+value be a "speed-up ratio" which would make various bits of the patch
+cleaner.
 
---=-BIWgadaUzpR42fA5bljC
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQA9sz08chlzsq9KoIYRAt7QAKC289qta/4/b5Hw/wqD+OXdyNAoXQCffCnM
-IJyLtXuBsasMm6wUaoWuLcc=
-=0vhS
------END PGP SIGNATURE-----
-
---=-BIWgadaUzpR42fA5bljC--
-
+Neil

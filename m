@@ -1,125 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266561AbUGURmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266519AbUGURuN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266561AbUGURmp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 13:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266558AbUGURmp
+	id S266519AbUGURuN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 13:50:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266534AbUGURuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 13:42:45 -0400
-Received: from [213.185.113.26] ([213.185.113.26]:37900 "HELO ok6496.com")
-	by vger.kernel.org with SMTP id S266561AbUGURmN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 13:42:13 -0400
-From: "DR. LUISA PIMENTEL ESTRADA" <dr_luisa_estrada65@emailaccount.com>
-Reply-To: luisa_pimentel_60_dr@yahoo.com
-To: linux-kernel@vger.kernel.org
-Date: Wed, 21 Jul 2004 10:42:21 -0700
-Subject: INTERNATIONAL CHANGE OF OWNERSHIP AND PRIVATE FUNDS TRNASFER
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="===_SecAtt_000_1fogmmlepfqqqn"
-Message-Id: <S266561AbUGURmN/20040721174213Z+929@vger.kernel.org>
+	Wed, 21 Jul 2004 13:50:13 -0400
+Received: from smtp3.Stanford.EDU ([171.67.16.138]:56762 "EHLO
+	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S266519AbUGURuG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 13:50:06 -0400
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary	Kernel
+	Preemption Patch
+From: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: "The Linux Audio Developers' Mailing List" 
+	<linux-audio-dev@music.columbia.edu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040721125352.7e8e95a1@mango.fruits.de>
+References: <20040712163141.31ef1ad6.akpm@osdl.org>
+	 <1090306769.22521.32.camel@mindpipe> <20040720071136.GA28696@elte.hu>
+	 <200407202011.20558.musical_snake@gmx.de>
+	 <1090353405.28175.21.camel@mindpipe> <40FDAF86.10104@gardena.net>
+	 <1090369957.841.14.camel@mindpipe>
+	 <20040721125352.7e8e95a1@mango.fruits.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1090432198.29593.18.camel@cmn37.stanford.edu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Jul 2004 10:49:58 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---===_SecAtt_000_1fogmmlepfqqqn
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+On Wed, 2004-07-21 at 03:53, Florian Schmidt wrote:
+> On Tue, 20 Jul 2004 20:32:37 -0400
+> Lee Revell <rlrevell@joe-job.com> wrote:
+> > Yes, this is important.  One problem I had recently with the Via EPIA
+> > board was that unless 2D acceleration was disabled by setting 'Option
+> > "NoAccel"' in /etc/X11/XF86Config-4, overloading the X server would
+> > cause interrupts from the soundcard to be completely disabled for tens
+> > of milliseconds.  Users should keep in mind that by using 2D or 3D
+> > hardware acceleration in X, you are allowing the X server to directly
+> > access hardware, which can have very bad results if the driver is
+> > buggy.  I am not sure the kernel can do anything about this.
+> 
+> Hi,
+> 
+> interesting that you mention the Xserver. I use a dual graphics card setup atm 
+> [Nvidia GF3 TI and some matrox pci card]. The nvidia card seems to work flawlessly 
+> even with HW accelleration [i use nvidias evil binary only drivers]. The matrox 
+> card OTH disturbs the soundcard severely. Whenever i have activity on my second 
+> monitor i get sound artefacts in jack's output [no cracklling, it's rather as 
+> if the volume is set to 0 for short moments and then back to normal]. There's 
+> a certain chance that this artefact produces an xrun. I suppose it's because 
+> the card is on the pci bus.
 
-Dear Sir=2FMadam=2C
+The mga dri kernel driver shares a problem with the radeon (which I use
+a lot) and the r128 drivers. They have high latency points that reach
+10-15 msecs in normal operation[*]. I have a very old patch (not mine, I
+don't quite remember where I got it from) that solves this, but it is
+not a "legal" patch in the sense that in schedules with a lock held. It
+seems to work but it will lock the computer at some point. AFAIK there
+is no proper patch for this latency point at this time. Turning off
+acceleration should get rid of the latency spikes with the usual
+tradeoff of slow video performance. 
 
-Please because of the amount of funds involved in this matter =2C and my privacy sakes =2C 
-see the enclosed attachment to my  email letter=2C regarding this matter=2E Thank you=2E
+-- Fernando
 
-Yours Truly =2C
+[*] with the (bad) patch:
+http://ccrma.stanford.edu/~nando/latencytest/20040323/2.6.4-1.279.ll.ccrma.radeon/
+without the patch:
+http://ccrma.stanford.edu/~nando/latencytest/20040323/2.6.4-1.279.ll.ccrma/
 
-Dr=2E Luisa Pimentel Estrada
 
-Email =3A luisa=5Fpimentel=5F60=5Fdr=40yahoo=2Ecom
-
---===_SecAtt_000_1fogmmlepfqqqn
-Content-Type: application/octet-stream; name="PRIVATE FUNDS AND BUSINESS TRANSFER.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="PRIVATE FUNDS AND BUSINESS TRANSFER.txt"
-
-Q0hBTkdFIE9GIE9XTkVSU0hJUCAvIFBSSVZBVEUgRlVORFMgJiBCVVNJTkVTUyBUUkFOU0ZFUg0K
-DQpEZWFyICBmcmVpbmQsDQoNClRoaXMgaXMgYSBwcm9wb3NhbCBpbiBjb250ZXh0ICxidXQgLGFj
-dHVhbGx5IGFuIGFwcGVhbCBzb2xpY2l0aW5nIGZvciB5b3VyIHVucmVzZXJ2ZWQgYXNzaXN0YW5j
-ZSAsaW4gY2Fycnlpbmcgb3V0ICwgIGFuIHVyZ2VudCB0cmFuc2FjdGlvbiByZXF1aXJpbmcgbWF4
-aW11bSBjb25maWRlbmNlLiBUaG91Z2ggdGhpcyBhcHByb2FjaCAgYXBwZWFycyAgLGRlc3BlcmF0
-ZSwgIEkgY2FuIGFzc3VyZSB5b3UgdGhhdCAgIHdoYXRldmVyICAgcXVlc3Rpb25zIHlvdSAgIHdv
-dWxkICAgbmVlZCB0byAgICAgYXNrICAgLCBhbmQgIGFueSBvdGhlciB0aGluZyB5b3UgIHdpbGwg
-bmVlZHRvIGtub3cgICByZWdhcmRpbmcgdGhpcyBwcm9wb3NhbCAgLCB3aWxsICAgYmUgYWRlcXVh
-dGVseSAgIGFuc3dlcmVkICwgdG8gZ2l2ZSB5b3UgYSBjbGVhcmVyICAgdW5kZXJzdGFuZGluZyAs
-ICBlbmFibGluZyB1cyBhcnJpdmUgYXQgYSBzdWNjZXNzZnVsIGNvbmNsdXNpb24uDQpNeSBuYW1l
-IGlzIERyLiBQaW1lbnRlbCBsdWlzYSBFc3RyYWRhLCB3aWZlIG9mIEhpcyBFeGNlbGxlbmN5IEpv
-c2VwaCBFc3RyYWRhLCBmb3JtZXIgUHJlc2lkZW50IG9mIFRoZSBQaGlsaXBwaW5lcy4gTXkgaHVz
-YmFuZCB3YXMgcmVjZW50bHkNCmltcGVhY2hlZCBmcm9tIG9mZmljZSAsIGJ5IGFuIGludGVudGlv
-bmFsbHkgYW5kIGludGVybmFsbHkgIG9yZ2FuaXNlZCBiYWNrZWQgdXByaXNpbmcgb2YgbWFzcyBk
-ZW1vbnN0cmF0b3JzIHdpdGhpbiB0aGUgdGhlIFNlbmF0ZSAuSGUgaXMgcHJlc2VudGx5IGluIGph
-aWwgb24gdHJ1bXBlZCB1cCBjaGFyZ2VzIG9mIGNvcnJ1cHRpb24sIGVtYmV6emxlbWVudCwgYW5k
-IHRoZSBteXN0ZXJpb3VzIGNoYXJnZSBvZiBlY29ub215DQpwbHVuZGVyICx0aGlzIG1pZ2h0IGxl
-YWQgdG8gYSBwb3NzaWJsZSBkZWF0aCBzZW50ZW5jZS4NCg0KVGhlIHByZXNlbnQgZ292ZXJubWVu
-dCBpcyBmb3JjaW5nIG15IGh1c2JhbmQgb3V0IG9mIE1hbmlsYSB0byBhdm9pZCBkZW1vbnN0cmF0
-aW9uIGJ5ICxoaXMgb3duIHN1cHBvcnRlcnMuIEkgcmVhbGl6ZWQgYSByZWFzb25hYmxlIGFtb3Vu
-dCBvZiBtb25leSAsIGZyb20gdmFyaW91c2x1Y3JhdGl2ZSBidXNpbmVzcyB0cmFuc2FjdGlvbnMg
-LHdoaWNoIEkgc3VjY2Vzc2Z1bGx5IGV4ZWN1dGVkIHVuZGVyIG15IGNhcGFjaXR5ICxkdXJpbmcg
-bXkgaHVzYmFuZCdzIHJlZ2ltZSBhcyBQcmVzaWRlbnQgb2YgUGhpbGlwcGluZXMuIEkgaGF2ZSAg
-IHBsYW5zICAgICB0byBpbnZlc3QgdGhpcyBtb25leSBmb3IgbXkgY2hpbGRyZW4ncyBmdXR1cmUg
-b24gUkVBTCBFU1RBVEUgYW5kIElORFVTVFJJQUwgUFJPRFVDVElPTi4gSSBoYWQgLGJlZm9yZSBt
-eSBodXNiYW5kcyBpbXBlYWNoZW1lbnQgY2FyZWZ1bGx5ICwgbW92ZWQgb3V0IHRoZXNlIGZ1bmRz
-IChVUyQzMCBtaWxsaW9uKSwgdG8gYW4gb2Zmc2hvcmUgRGVwb3NpdCBDb21wYW55IGluIHRoZSBF
-dXJvcGVhbiBVbmlvbi4NCg0KRnJvbSBwYXN0IGV4cGVyaWVuY2VzLCBtYW55IHBlb3BsZSBJIGhh
-ZCByZWdhcmRlZCBhcyBjbG9zZSBmcmllbmRzIGhhcyBjYXBpdGFsaXplIG9uIG15IGZhbWlseSdz
-IHRyYXZhaWwgdG8gcnVuIGF3YXkgd2l0aCBteSBtb25leS4gSW4gb3JkZXIgdG8gYXZlcnQgdGhp
-cyBuZWdhdGl2ZSBkZXZlbG9wbWVudCwgSSBpbiBjb25qdW5jdGlvbiB3aXRoIG15IHNvbiBub3cg
-c2VlayB5b3VyIHBlcm1pc3Npb24gdG8gYWxsb3cgbXkgYXR0b3JuZXkgZG8gYSBDSEFOR0UgT0Yg
-T1dORVJTSElQL1JFQVNTSUdOTUVOVCBPRiBDUkVESVQgb2YgdGhlIHN0YXRlZCBmdW5kcyBmcm9t
-IHRoZSBkZXBvc2l0IGNvbXBhbnkgdG8geW91ciBuYW1lLCBzbyB0aGF0IHRoZSBmdW5kcyAoVVMk
-MzBtaWxsaW9uKSB3b3VsZCBiZSByZWxlYXNlZCB0byB5b3UgYXMgdGhlIG5ldyBvd25lciAob24g
-YmVoYWxmIG9mIG1lIGFuZCBteSBmYW1pbHkpLg0KDQpZb3VyIGhvbmVzdCBhbmQgZ2VudWluZSBh
-c3NzaXRhbmNlIGlzIG5lZWRlZCBoZXJlICxiZWNhdXNlIHdoZW4gSSBkZXBvc2l0ZWQgdGhlIGZ1
-bmRzIGluIHRoZSBkZXBvc2l0IGNvbXBhbnksIEkgdG9sZCB0aGVtIHRoYXQgaXQgYmVsb25nZWQg
-dG8gYQ0KZm9yZWlnbiBidXNpbmVzcyBwYXJ0bmVyICwgYXBhcnQgZnJvbSB0aGlzIGhpbmRyYW5j
-ZSAsbXkgcHJlc2VudCBzaXR1YXRpb24gYW5kIHBvc2l0aW9uIHdpbGwgbm90IGFsbG93IG1lIHRv
-IGNsYWltIHRoZSBmdW5kcyAsIHdpdGhvdXQgYSBodWdlIHB1YmxpY2l0eSAuQ29uc2VxdWVudGx5
-LCBJIHdpbGwgcHJlc2VudCB5b3UgYXMgdGhlIG93bmVyIG9mIHRoZSBmdW5kcyBpbiB0aGUgRGVw
-b3NpdCBDb21wYW55IHNvIHlvdSBjYW4gYmUgYWJsZSB0byBjbGFpbSB0aGVtLg0KVGhpcyBpcyBz
-aW1wbGUuIEkgd2lsbCBsaWtlIHlvdSB0byBwcm92aWRlIGltbWVkaWF0ZWx5Ow0KDQoxLiBGdWxs
-IG5hbWVzDQoyLiBDb250YWN0IGFkZHJlc3MNCjMuIFRlbGVwaG9uZSBhbmQgZmF4IG51bWJlcnMN
-Cg0KT25jZSBJIHJlY2VpdmUgdGhpcyBpbmZvcm1hdGlvbiwgSSB3aWxsIHByZXBhcmUgdGhlIG5l
-Y2Vzc2FyeSBkb2N1bWVudHMgdGhhdCB3aWxsIHB1dCB5b3UgaW4gcGxhY2UgYXMgdGhlIG5ldyBv
-d25lciBvZiB0aGUNCmZ1bmRzLiBUaGUgbW9uZXkgd2lsbCB0aGVuIGJlIHJlbGVhc2VkIHRvIHlv
-dXIgY3VzdG9keSBieSB0aGUgRGVwb3NpdCBDb21wYW55LCBmb3IgdXMgdG8gc2hhcmUgaW4gdGhl
-IHJhdGlvIG9mIDcwJSBmb3IgdXMgYW5kIDMwJSBmb3INCnlvdS4gVGhlcmUgaXMgbm8gcmlzayBh
-dCBhbGwgYXMgYWxsIHRoZSBwYXBlcndvcmsgZm9yIHRoaXMgdHJhbnNhY3Rpb24gd2lsbCBiZSBk
-b25lIGJ5IGEgcmVwdXRhYmxlIHNvbGljaXRvciBhbmQgdGhpcyB3aWxsIGd1YXJhbnRlZSB0aGUg
-c3VjY2Vzc2Z1bCBleGVjdXRpb24gb2YgdGhpcyB0cmFuc2FjdGlvbi5JZiB5b3UgYXJlaW50ZXJl
-c3RlZCwgcGxlYXNlIHJlcGx5IGltbWVkaWF0ZWx5IHZpYSBteSBwcml2YXRlIGVtYWlsIGFkZHJl
-c3MuDQoNClVwb24geW91ciByZXNwb25zZSwgSSBzaGFsbCB0aGVuIGludHJvZHVjZSB5b3UgdG8g
-bXkgc29uIHdobyBpcyBnb2luZyB0byBkaXNjdXNzIHdpdGggeW91IHJlZ2FyZGluZyBmdXJ0aGVy
-IGV4cGxhbmF0aW9uIHRoYXQgd2lsbCBoZWxwIHlvdQ0KdW5kZXJzdGFuZCB0aGUgdHJhbnNhY3Rp
-b24gY2xlYXJseS4NCg0KTm8gZG91YnQgdGhpcyBwcm9wb3NhbCB3aWxsIG1ha2UgeW91IGFwcHJl
-aGVuc2l2ZSwgcGxlYXNlICx3ZSBlbXBsb3kgeW91IHRvIG9ic2VydmUgdXRtb3N0IGNvbmZpZGVu
-dGlhbGl0eSBhbmQgYmUgcmVzdCBhc3N1cmVkDQp0aGF0IHRoaXMgdHJhbnNhY3Rpb24gd291bGQg
-YmUgbW9zdCBwcm9maXRhYmxlIGZvciBib3RoIHBhcnRpZXMgYmVjYXVzZSB3ZSBzaGFsbCByZXF1
-aXJlIHlvdXIgYXNzaXN0YW5jZSB0byBpbnZlc3Qgb3VyIHNoYXJlIGluDQp5b3VyIGNvdW50cnkg
-KGJ1eWluZyBvZiBwcm9wZXJ0aWVzIGxpa2UgaG91c2VzLCBob3RlbHMgZXRjKS5EdWUgdG8gb3Vy
-IGRlc2lyZSBhbmQgdXJnZW50IG5lZWQgdG8gaW52ZXN0IG91dHNpZGUgbXkgdHJvdWJsZWQgY291
-bnRyeSAuDQoNClRoaXMgaXMgd2h5IHlvdXIgdXJnZW50IGFjdGlvbiBhbmQgcmVzcG9uc2UgaXMg
-b2YgcHJpb3JpdHkgdG8gZW5hYmxlIHVzIGNvbmNsdWRlIHRoaXMgdHJhbnNhY3Rpb24gaW4gYSB0
-aW1lbHkgYW5kIHByb2Zlc3Npb25hbA0KbWFubmVyLg0KDQpGb3IgdXRtb3N0IGNvbmZpZGVudGlh
-bGl0eSAgc2FrZSBQbGVhc2UgcmVwbHkgbWUgdXNpbmcgcHJpdmF0ZSBlbWFpbCAsIHVuZGVybWVu
-dGlvbmVkIGJlbG93ICAgLCBwbGVhc2UgdGhpcyBpcyB2ZXJ5IGltcG9ydGFudCAsDQoNCiBFTUFJ
-TDogbHVpc2FfcGltZW50ZWw2MF9kckB5YWhvby5jb20NCg0KDQpJIGRvIGV4cGVjdCB0byBoZWFy
-IGZyb20geW91IHNob3J0bHkgLCBidXQgaWYgeW91IGFyZSBPVEhFUldJU0Ugbm90DQppbnRlcmVz
-dGVkICxwbGVhc2UgYWNjZXB0IG15IHVucmVzZXJ2ZWQgYXBvbG9neS4NCg0KDQpZT1VSUyBUUlVM
-WSwNCg0KRHIuKE1ycy4pIEx1aXNhIHBpbWVudGVsICBFc3RyYWRh
-
---===_SecAtt_000_1fogmmlepfqqqn
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---===_SecAtt_000_1fogmmlepfqqqn--

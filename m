@@ -1,119 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263720AbTCUSWF>; Fri, 21 Mar 2003 13:22:05 -0500
+	id <S263709AbTCUSUp>; Fri, 21 Mar 2003 13:20:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263716AbTCUSVB>; Fri, 21 Mar 2003 13:21:01 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:2434 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S263714AbTCUSUO>;
-	Fri, 21 Mar 2003 13:20:14 -0500
-Date: Fri, 21 Mar 2003 19:31:12 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix ncpfs and rpcgss order in fs/Kconfig
-Message-ID: <20030321183111.GA9243@vana.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	id <S263713AbTCUSTv>; Fri, 21 Mar 2003 13:19:51 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:46723
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263709AbTCUSTQ>; Fri, 21 Mar 2003 13:19:16 -0500
+Date: Fri, 21 Mar 2003 19:34:30 GMT
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200303211934.h2LJYU1A025817@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH: fix proc handling in serverworks and sc1200 ide
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-RPCSEC_GSS options are related to (only) nfs/nfsd, so it is
-more logical to ask RPCSEC_GSS questions immediately after 
-nfs/nfsd, not after half of screen more questions.
-
-NCPFS related options should appear immediately below
-ncpfs question, not after Coda and RPCSEC...
-
-					Thanks,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
-
-
-
---- vger/fs/Kconfig	2003-03-21 19:06:44.000000000 +0100
-+++ linux/fs/Kconfig	2003-03-21 19:23:06.000000000 +0100
-@@ -1357,6 +1357,35 @@
- 	tristate
- 	default NFSD
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/ide/pci/sc1200.c linux-2.5.65-ac2/drivers/ide/pci/sc1200.c
+--- linux-2.5.65/drivers/ide/pci/sc1200.c	2003-03-03 19:20:09.000000000 +0000
++++ linux-2.5.65-ac2/drivers/ide/pci/sc1200.c	2003-03-06 23:36:26.000000000 +0000
+@@ -87,6 +87,7 @@
+ {
+ 	char *p = buffer;
+ 	unsigned long bibma = pci_resource_start(bmide_dev, 4);
++	int len;
+ 	u8  c0 = 0, c1 = 0;
  
-+config SUNRPC
-+	tristate
-+	default m if NFS_FS!=y && NFSD!=y && (NFS_FS=m || NFSD=m)
-+	default y if NFS_FS=y || NFSD=y
-+
-+config SUNRPC_GSS
-+	tristate "Provide RPCSEC_GSS authentication (EXPERIMENTAL)"
-+	depends on SUNRPC && EXPERIMENTAL
-+	default SUNRPC if NFS_V4=y
-+	help
-+	  Provides cryptographic authentication for NFS rpc requests.  To
-+	  make this useful, you must also select at least one rpcsec_gss
-+	  mechanism.
-+	  Note: You should always select this option if you wish to use
-+	  NFSv4.
-+
-+config RPCSEC_GSS_KRB5
-+	tristate "Kerberos V mechanism for RPCSEC_GSS (EXPERIMENTAL)"
-+	depends on SUNRPC_GSS && CRYPTO_DES && CRYPTO_MD5
-+	default SUNRPC_GSS if NFS_V4=y
-+	help
-+	  Provides a gss-api mechanism based on Kerberos V5 (this is
-+	  mandatory for RFC3010-compliant NFSv4 implementations).
-+	  Requires a userspace daemon;
-+		see http://www.citi.umich.edu/projects/nfsv4/.
-+
-+	  Note: If you select this option, please ensure that you also
-+	  enable the MD5 and DES crypto ciphers.
-+
- config SMB_FS
- 	tristate "SMB file system support (to mount Windows shares etc.)"
- 	depends on INET
-@@ -1460,6 +1489,8 @@
- 	  will be called ncpfs.  Say N unless you are connected to a Novell
- 	  network.
+ 	/*
+@@ -111,7 +112,10 @@
+ 	p += sprintf(p, "DMA\n");
+ 	p += sprintf(p, "PIO\n");
  
-+source "fs/ncpfs/Kconfig"
-+
- config CODA_FS
- 	tristate "Coda file system support (advanced network fs)"
- 	depends on INET
-@@ -1497,37 +1528,6 @@
- 	  support.  You will also need a file server daemon, which you can get
- 	  from <http://www.inter-mezzo.org/>.
+-	return p-buffer;
++	len = (p - buffer) - offset;
++	*addr = buffer + offset;
++	
++	return len > count ? count : len;
+ }
+ #endif /* DISPLAY_SC1200_TIMINGS && CONFIG_PROC_FS */
  
--config SUNRPC
--	tristate
--	default m if NFS_FS!=y && NFSD!=y && (NFS_FS=m || NFSD=m)
--	default y if NFS_FS=y || NFSD=y
--
--config SUNRPC_GSS
--	tristate "Provide RPCSEC_GSS authentication (EXPERIMENTAL)"
--	depends on SUNRPC && EXPERIMENTAL
--	default SUNRPC if NFS_V4=y
--	help
--	  Provides cryptographic authentication for NFS rpc requests.  To
--	  make this useful, you must also select at least one rpcsec_gss
--	  mechanism.
--	  Note: You should always select this option if you wish to use
--	  NFSv4.
--
--config RPCSEC_GSS_KRB5
--	tristate "Kerberos V mechanism for RPCSEC_GSS (EXPERIMENTAL)"
--	depends on SUNRPC_GSS && CRYPTO_DES && CRYPTO_MD5
--	default SUNRPC_GSS if NFS_V4=y
--	help
--	  Provides a gss-api mechanism based on Kerberos V5 (this is
--	  mandatory for RFC3010-compliant NFSv4 implementations).
--	  Requires a userspace daemon;
--		see http://www.citi.umich.edu/projects/nfsv4/.
--
--	  Note: If you select this option, please ensure that you also
--	  enable the MD5 and DES crypto ciphers.
--
--source "fs/ncpfs/Kconfig"
--
- config AFS_FS
- # for fs/nls/Config.in
- 	tristate "Andrew File System support (AFS) (Experimental)"
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/ide/pci/serverworks.c linux-2.5.65-ac2/drivers/ide/pci/serverworks.c
+--- linux-2.5.65/drivers/ide/pci/serverworks.c	2003-03-03 19:20:09.000000000 +0000
++++ linux-2.5.65-ac2/drivers/ide/pci/serverworks.c	2003-03-06 23:36:07.000000000 +0000
+@@ -57,7 +57,7 @@
+ static int svwks_get_info (char *buffer, char **addr, off_t offset, int count)
+ {
+ 	char *p = buffer;
+-	int i;
++	int i, len;
+ 
+ 	p += sprintf(p, "\n                             "
+ 			"ServerWorks OSB4/CSB5/CSB6\n");
+@@ -195,7 +195,11 @@
+ 	}
+ 	p += sprintf(p, "\n");
+ 
+-	return p-buffer;	 /* => must be less than 4k! */
++	/* p - buffer must be less than 4k! */
++	len = (p - buffer) - offset;
++	*addr = buffer + offset;
++	
++	return len > count ? count : len;
+ }
+ #endif  /* defined(DISPLAY_SVWKS_TIMINGS) && defined(CONFIG_PROC_FS) */
+ 

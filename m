@@ -1,30 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265263AbUGCVFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265264AbUGCVKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265263AbUGCVFk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 17:05:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265261AbUGCVFk
+	id S265264AbUGCVKe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 17:10:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265261AbUGCVKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 17:05:40 -0400
-Received: from imf18aec.mail.bellsouth.net ([205.152.59.66]:58509 "EHLO
-	imf18aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S265264AbUGCVFf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 17:05:35 -0400
-Subject: Status of software suspend(s)
-From: Louis Garcia <louisg00@bellsouth.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1088888736.2666.6.camel@tiger>
+	Sat, 3 Jul 2004 17:10:34 -0400
+Received: from gprs214-161.eurotel.cz ([160.218.214.161]:15490 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265264AbUGCVJg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 17:09:36 -0400
+Date: Sat, 3 Jul 2004 23:08:41 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Dario <ddario@tiscali.it>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: CPU fan
+Message-ID: <20040703210840.GA1459@elf.ucw.cz>
+References: <007a01c45edd$2f2b3280$5c00a8c0@itia.local>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 03 Jul 2004 17:05:36 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <007a01c45edd$2f2b3280$5c00a8c0@itia.local>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've noticed that pavel is still hacking on swsusp. My question is what
-happened to swsusp2? If swsusp2 is going to be merged will pavel's work
-be for not? Any then their's pmdisk... When will this issue be finally
-resolved?
+Hi!
 
---Louis
+> Sorry for the previou wrong subject :-(
 
+echo 0 > /proc/acpi/.../fan/..., if you are lucky and your laptop
+supports it.
+
+							Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

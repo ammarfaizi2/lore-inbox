@@ -1,74 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274537AbRITP2S>; Thu, 20 Sep 2001 11:28:18 -0400
+	id <S274540AbRITPo6>; Thu, 20 Sep 2001 11:44:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274539AbRITP2J>; Thu, 20 Sep 2001 11:28:09 -0400
-Received: from prfdec.natur.cuni.cz ([195.113.56.1]:3844 "EHLO
-	prfdec.natur.cuni.cz") by vger.kernel.org with ESMTP
-	id <S274537AbRITP1v> convert rfc822-to-8bit; Thu, 20 Sep 2001 11:27:51 -0400
-X-Envelope-From: mmokrejs
-Posted-Date: Thu, 20 Sep 2001 17:28:14 +0200 (MET DST)
-Date: Thu, 20 Sep 2001 17:28:14 +0200 (MET DST)
-From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Perf improvements in 2.4.10pre12aa1
-In-Reply-To: <Pine.OSF.4.21.0109201243080.24552-100000@prfdec.natur.cuni.cz>
-Message-ID: <Pine.OSF.4.21.0109201458230.24552-100000@prfdec.natur.cuni.cz>
+	id <S274541AbRITPos>; Thu, 20 Sep 2001 11:44:48 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:54693
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S274540AbRITPob>; Thu, 20 Sep 2001 11:44:31 -0400
+Date: Thu, 20 Sep 2001 11:44:48 -0400
+From: Chris Mason <mason@suse.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+Message-ID: <703500000.1001000688@tiny>
+In-Reply-To: <Pine.GSO.4.21.0109201046270.3498-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0109201046270.3498-100000@weyl.math.psu.edu>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Sep 2001, Martin MOKREJ© wrote:
-
-Hi,
-  stupid to reply to myself, but ...
-
-> linux-2.4.10-pre12
-> dbench 16: Throughput 67.8566 MB/sec (NB=84.8208 MB/sec  678.566 MBit/sec)  16 procs
-
-> linux-2.4.10-pre12aa1
-> dbench 16: Throughput 141.659 MB/sec (NB=177.074 MB/sec  1416.59 MBit/sec)  16 procs
-
-Hmm, now after few ours of running mysql tests I have (while still running):
-linux-2.4.10-pre12aa1
-dbench 16: Throughput 41.1484 MB/sec (NB=51.4356 MB/sec  411.484 MBit/sec)  16 procs
-
-Load so far up to 7 (yesterday even 16, but thatt dependes of course while
-test is currently being run).
 
 
-And, well oh NO!, it's here again:
-__alloc_pages: 0-order allocation failed (gfp=0x20/0) from c012f852
+On Thursday, September 20, 2001 10:50:16 AM -0400 Alexander Viro
+<viro@math.psu.edu> wrote:
 
-How can I find what mean those (gfp=0x20/0) from c012f852 ?
-Current situation:
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  1054412800 845828096 208584704        0  3731456 476766208
-Swap: 2147467264 61083648 2086383616
-MemTotal:      1029700 kB
-MemFree:        203696 kB
-MemShared:           0 kB
-Buffers:          3644 kB
-Cached:         464100 kB
-SwapCached:       1492 kB
-Active:         318896 kB
-Inactive:       150340 kB
-HighTotal:      131072 kB
-HighFree:         2044 kB
-LowTotal:       898628 kB
-LowFree:        201652 kB
-SwapTotal:     2097136 kB
-SwapFree:      2037484 kB
+>> The biggest exception is blkdev_writepage directly submits the io instead
+>> of marking the buffers dirty.  This means the buffers won't be on
+>> the locked/dirty list, and they won't get waited on.  Similar problem
+>> for direct io.
+> 
+> <nod>  And if you add Andrea's (perfectly valid) observation re having no
+> need to sync any fs structures we might have for that device, you get
+> __block_fsync().  After that it's easy to merge blkdev_close() code into
+> blkdev_put().
+> 
+>
 
-  5:29pm  up  4:58,  3 users,  load average: 5.61, 6.04, 6.32
+Ok, __block_fsync is much better than just fsync_dev.
 
--- 
-Martin Mokrejs - PGP5.0i key is at http://www.natur.cuni.cz/~mmokrejs
-MIPS / Institute for Bioinformatics <http://mips.gsf.de>
-GSF - National Research Center for Environment and Health
-Ingolstaedter Landstrasse 1, D-85764 Neuherberg, Germany
+Are there other parts of blkdev_close you want merged into 
+blkdev_put? Without changing the reread blocks on last close 
+semantics, I think this is all we can do.
 
+As far as I can tell, bdev->bd_inode is valid to send 
+to __block_fsync, am I missing something?
 
+--- linux/fs/block_dev.c	Mon Sep 17 11:28:56 2001
++++ linux/fs/block_dev.c	Thu Sep 20 11:21:39 2001
+@@ -704,10 +704,9 @@
+ 	kdev_t rdev = to_kdev_t(bdev->bd_dev); /* this should become bdev */
+ 	down(&bdev->bd_sem);
+ 	lock_kernel();
+-	if (kind == BDEV_FILE)
+-		fsync_dev(rdev);
+-	else if (kind == BDEV_FS)
+-		fsync_no_super(rdev);
++
++	__block_fsync(bdev->bd_inode) ;
++
+ 	/* only filesystems uses buffer cache for the metadata these days */
+ 	if (kind == BDEV_FS)
+ 		invalidate_buffers(rdev);
 

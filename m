@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291463AbSBUMy1>; Thu, 21 Feb 2002 07:54:27 -0500
+	id <S292360AbSBUMzU>; Thu, 21 Feb 2002 07:55:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291625AbSBUMyS>; Thu, 21 Feb 2002 07:54:18 -0500
-Received: from office.mandrakesoft.com ([195.68.114.34]:16378 "EHLO
-	office.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S291463AbSBUMyD>; Thu, 21 Feb 2002 07:54:03 -0500
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Adrian Bunk <bunk@fs.tum.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18-rc2
-In-Reply-To: <Pine.NEB.4.44.0202210924450.3462-100000@mimas.fachschaften.tu-muenchen.de>
-	<3C74BDB4.5CD92998@mandrakesoft.com>
-X-Url: http://www.lfcia.org/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-In-Reply-To: <3C74BDB4.5CD92998@mandrakesoft.com>
-Date: 21 Feb 2002 13:43:29 +0100
-Message-ID: <m2zo232efi.fsf@localhost.mandrakesoft.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S292359AbSBUMyi>; Thu, 21 Feb 2002 07:54:38 -0500
+Received: from codepoet.org ([166.70.14.212]:48822 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S291625AbSBUMyb>;
+	Thu, 21 Feb 2002 07:54:31 -0500
+Date: Thu, 21 Feb 2002 05:54:31 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux kernel config converter
+Message-ID: <20020221125431.GB28759@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0202210011080.32476-100000@serv>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0202210011080.32476-100000@serv>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.4.17-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+On Thu Feb 21, 2002 at 11:48:59AM +0100, Roman Zippel wrote:
+> The current output looks like this:
+> 
+> config: ULTRIX_PARTITION
+>   define_bool
+>     default: y
+>     dep: ((!PARTITION_ADVANCED?) && DECSTATION=y)
+>   bool
+>     prompt:   Ultrix partition table support
+>     dep: PARTITION_ADVANCED?
+>   help:
+>   Say Y here if you would like to be able to read the hard disk
+>   partition table format used by DEC (now Compaq) Ultrix machines.
+>   Otherwise, say N.
 
-jeff> Adrian Bunk wrote:
->> as discussed in the thread of your 2.4.18-rc1 announcement (see [1] and
->> [2]) 2.4.18 adds CONFIG_FB_TRIDENT but the code doesn't compile.  It's
->> IMHO not a good a idea to add a new option that doesn't compile to a
->> stable kernel. Please apply the patch below that disables this option as a
->> workaround to 2.4.18:
+I like this.  It's simple, its clean, and it keeps all the
+information in one spot.  I think we can go a bit farther here
+and add in a list of the .c files that enabling this feature
+should add to the Makefile (per the current 
+    obj-$(CONFIG_FOO)            += foo.o
+stuff in the current Makefile).
 
-jeff> No -- it's already marked with CONFIG_EXPERIMENTAL.
+ -Erik
 
-jeff> Thus if you are compiling this software, you do so at your own risk...
-
-Then remove the:
-#error blah blah
-
-from the source file.
-
-Later, Juan.
-
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

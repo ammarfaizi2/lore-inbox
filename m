@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132910AbRDEOiI>; Thu, 5 Apr 2001 10:38:08 -0400
+	id <S132909AbRDEOiI>; Thu, 5 Apr 2001 10:38:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132908AbRDEOh7>; Thu, 5 Apr 2001 10:37:59 -0400
-Received: from smtp.mountain.net ([198.77.1.35]:29196 "EHLO riker.mountain.net")
-	by vger.kernel.org with ESMTP id <S132909AbRDEOho>;
-	Thu, 5 Apr 2001 10:37:44 -0400
-Message-ID: <3ACC82DA.11D76D45@mountain.net>
-Date: Thu, 05 Apr 2001 10:36:10 -0400
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.3 i486)
-X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: Race in fs/proc/generic.c:make_inode_number()
-In-Reply-To: <3ACBFF4C.97AA345F@mountain.net>
+	id <S132910AbRDEOh6>; Thu, 5 Apr 2001 10:37:58 -0400
+Received: from quasar.osc.edu ([192.148.249.15]:199 "EHLO quasar.osc.edu")
+	by vger.kernel.org with ESMTP id <S132908AbRDEOhn>;
+	Thu, 5 Apr 2001 10:37:43 -0400
+Date: Thu, 5 Apr 2001 10:36:41 -0400
+From: Pete Wyckoff <pw@osc.edu>
+To: John Weidman <johnw@believe.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is jumbo ethernet MTU possible with Hamachi Gigabit ethernet driver?
+Message-ID: <20010405103641.B11386@quasar.osc.edu>
+In-Reply-To: <3ACBC361.CA701A2D@believe.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i-nntp2
+In-Reply-To: <3ACBC361.CA701A2D@believe.com>; from johnw@believe.com on Wed, Apr 04, 2001 at 05:59:13PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
+The hardware also must support jumbo MTUs.  Hamachi limit is 1518 or
+1522 (vlan) bytes, and the driver can't fix that.
+
+		-- Pete
+
+johnw@believe.com said:
+> I'm trying to get some Gigabit ethernet cards that use the Packet
+> Engines Hamachi GNIC-II chip to use a large mtu to attempt to get a
+> throughput of close to the 1Gb rating of the card.  This is on a Compact
+> PCI Alpha system.  I'm trying to use an MTU in the 8000 to 9000 range
+> and so far have not been able to get these MTUs to work.
 > 
-> The proc_alloc_map bitfield is unprotected by any lock, and
-> find_first_zero_bit() is not atomic. Concurrent module loading can race
-> here.
-
-Hello,
-
-Here is a patch for this. It looks like callers are always in user context
-(kmalloc flag GFP_KERNEL), so I used a light spinlock.
-
-Cheers,
-Tom
--- 
-The Daemons lurk and are dumb. -- Emerson
-
---- linux-2.4.3/fs/proc/generic.c.orig	Thu Apr  5 10:03:02 2001
-+++ linux-2.4.3/fs/proc/generic.c	Thu Apr  5 10:22:48 2001
-@@ -192,13 +192,22 @@
- 
- static unsigned char proc_alloc_map[PROC_NDYNAMIC / 8];
- 
-+spinlock_t proc_alloc_map_lock = RW_LOCK_UNLOCKED;
-+
- static int make_inode_number(void)
- {
--	int i = find_first_zero_bit((void *) proc_alloc_map, PROC_NDYNAMIC);
--	if (i<0 || i>=PROC_NDYNAMIC) 
--		return -1;
-+	int i;
-+	spin_lock(&proc_alloc_map_lock);
-+	i = find_first_zero_bit((void *) proc_alloc_map, PROC_NDYNAMIC);
-+	if (i<0 || i>=PROC_NDYNAMIC) {
-+		i = -1;
-+		goto out;
-+	}
- 	set_bit(i, (void *) proc_alloc_map);
--	return PROC_DYNAMIC_FIRST + i;
-+	i += PROC_DYNAMIC_FIRST;
-+out:
-+	spin_unlock(&proc_alloc_map_lock);
-+	return i;
- }
- 
- static int proc_readlink(struct dentry *dentry, char *buffer, int buflen)
+> I have changed the PKT_BUF_SZ and MAX_FRAME_SIZE constants in hamachi.c
+> and ETH_DATA_LEN and ETH_FRAME_LEN in if_ether.h.  I can use ifconfig to
+> change the MTU above 1500 on one side of a connection but as soon as I
+> raise the MTU on both sides to greater than 1500 the link dies.  I can
+> change the MTU with ifconfig back to 1500 and the link will resume
+> operation.  We are currently somewhat married to the 2.2.14 kernel.
+> 
+> I read that some ethernet drivers will support jumbo MTUs.  There
+> appears to be something in the hamachi driver or the kernel that I've
+> missed.  Perhaps this only works with a later version kernel or the
+> hamachi driver needs more changes?  Any help would be appreciated.

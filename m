@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVAaO5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVAaPDF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbVAaO5d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 09:57:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVAaO5d
+	id S261227AbVAaPDF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 10:03:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVAaPDF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 09:57:33 -0500
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:6676 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S261226AbVAaO53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 09:57:29 -0500
-X-SBRSScore: None
-X-IronPort-AV: i="3.88,167,1102287600"; 
-   d="scan'208"; a="3863770:sNHT100830492"
-Message-ID: <41FE4745.4020003@fujitsu-siemens.com>
-Date: Mon, 31 Jan 2005 15:57:09 +0100
-From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-Organization: Fujitsu Siemens Computers
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: de, en-us, en
+	Mon, 31 Jan 2005 10:03:05 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:63469 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261227AbVAaPDC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 10:03:02 -0500
+Message-ID: <41FE4876.8020507@nortelnetworks.com>
+Date: Mon, 31 Jan 2005 09:02:14 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: SIOCGIFMAP silently broken?
+To: Oded Shimon <ods15@ods15.dyndns.org>
+CC: Miles Sabin <miles@milessabin.com>, linux-kernel@vger.kernel.org
+Subject: Re: Pipes and fd question. Large amounts of data.
+References: <200501301115.59532.ods15@ods15.dyndns.org> <200501300941.45554.miles@milessabin.com> <200501301248.45538.ods15@ods15.dyndns.org>
+In-Reply-To: <200501301248.45538.ods15@ods15.dyndns.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Oded Shimon wrote:
+> On Sunday 30 January 2005 11:41, Miles wrote:
 
-we are using a server management software that uses the irq information
-returned by the SIOCGIFMAP ioctl to correlate network interfaces with
-LAN hardware.
+>>I'd say that this was one of the rare cases where a solution using
+>>threads is not only superior to one using event-driven IO, but actually
+>>required.
 
-The code for SIOCGIFMAP if net/core/dev.c simply returns netdev->irq 
-which isn't set by most actual LAN drivers any more, and it seems to
-be common opinion that setting netdev->irq is either optional or even 
-wrong (http://www.ussg.iu.edu/hypermail/linux/kernel/0407.3/1292.html).
+> Yeah, I reached just about the same conclusion. At first I thought only 2 
+> threads were necessary, one for each data flow, but I realized a deadlock 
+> could happen just as well in that too. Making a 4 thread implementation I 
+> trust is gonna be hard... I better get working. :)
 
-Consequently, the SIOCGIFMAP ioctl reports bogus IRQ values for most 
-hardware; it is therefore unreliable.
+Your other option would be to use processes with shared memory (either 
+sysV or memory-mapped files).  This gets you the speed of shared memory 
+maps, but also lets you get the reliability of not sharing your entire 
+memory space.
 
-Would it be possible to fix the ioctl such that it returns the correct 
-irq value, e.g. be using the irq field of the associated struct pci_dev?
+If you use NPTL, your locking should be quick as well.  If not, you can 
+always roll your own futex-based locking.
 
-If not, I'd consider it better to deprecate netdev->irq officially and 
-always return bogus so that people stop using it.
-
-In both cases, the netdev->irq field isn't used anymore; perhaps it 
-should be officially deprecated and/or removed?
-
-Regards
-Martin
-
--- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1        mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
-
+Chris

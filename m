@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262004AbSI3KVx>; Mon, 30 Sep 2002 06:21:53 -0400
+	id <S262007AbSI3KbK>; Mon, 30 Sep 2002 06:31:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262005AbSI3KVx>; Mon, 30 Sep 2002 06:21:53 -0400
-Received: from pa90.banino.sdi.tpnet.pl ([213.76.211.90]:55056 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
-	id <S262004AbSI3KVw>; Mon, 30 Sep 2002 06:21:52 -0400
-Subject: Re: [patch] fix parport_serial / serial link order (for 2.4.20-pre8)
-In-Reply-To: <Pine.LNX.4.44.0209300515420.24805-100000@montezuma.mastecende.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Date: Mon, 30 Sep 2002 12:27:09 +0200 (CEST)
-CC: Marek Michalkiewicz <marekm@amelek.gda.pl>, twaugh@redhat.com,
-       serial24@macrolink.com, Linux Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL95 (25)]
+	id <S262008AbSI3KbJ>; Mon, 30 Sep 2002 06:31:09 -0400
+Received: from gw.chygwyn.com ([62.172.158.50]:30473 "EHLO gw.chygwyn.com")
+	by vger.kernel.org with ESMTP id <S262007AbSI3KbJ>;
+	Mon, 30 Sep 2002 06:31:09 -0400
+From: Steven Whitehouse <steve@gw.chygwyn.com>
+Message-Id: <200209301039.LAA07026@gw.chygwyn.com>
+Subject: Re: Fw: network block device and iscsi
+To: thvo@ksc.th.com (Theewara Vorakosit)
+Date: Mon, 30 Sep 2002 11:39:54 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <005701c2685e$8b6a28c0$1e226c9e@eternity> from "Theewara Vorakosit" at Sep 30, 2002 03:51:19 PM
+Organization: ChyGywn Limited
+X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
+X-RegisteredNumber: 03887683
+Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E17vxld-0004kB-00@alf.amelek.gda.pl>
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Tim would know better there since he removed it, but iirc it had something 
-> to do with the BARs used, hmm your card has the same PCI id and is serial 
-> neutered to an extent, what happens if you treat it as if it really does 
-> have both serial ports there? Does it still work without causing other 
-> problems so you can safely ignore it? FYI, Interrupt driven works great 
-> for me.
+Hi,
 
-Hmm, not sure what you're talking about - I have both serial ports working
-fine, sharing one IRQ.  Not sure what the regions 3-5 are for though...
-If you have a parport IRQ sharing patch to test, you can send it to me.
+The network block device userland code is on sourceforge:
 
-The card is just a bare NM9835 chip + two GD75232 chips (RS232 drivers),
-no configuration EEPROM mounted, so all data is from the NM9835 defaults
-and all such cards should work the same way...
+http://sourceforge.net/projects/nbd/
 
-00:09.0 Communication controller: Unknown device 9710:9835 (rev 01)
-	Subsystem: LSI Logic / Symbios Logic (formerly NCR): Unknown device 0012
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 9
-	Region 0: I/O ports at ac00 [size=8]
-	Region 1: I/O ports at b000 [size=8]
-	Region 2: I/O ports at b400 [size=8]
-	Region 3: I/O ports at b800 [size=8]
-	Region 4: I/O ports at bc00 [size=8]
-	Region 5: I/O ports at c000 [size=16]
+There isn't much documentation, but feel free to send questions in my
+direction. I don't know the answers to your iscsi query though but I'd
+be interested to know what the current state of development is as well,
 
-parport0: PC-style at 0x378 [PCSPP,TRISTATE,EPP]
-parport_pc: Via 686A parallel port: io=0x378
-...
-Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_PCI ISAPNP enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-PCI parallel port detected: 9710:9835, I/O at 0xb400(0x0)
-parport1: PC-style at 0xb400 [PCSPP,TRISTATE,EPP]
-ttyS04 at port 0xac00 (irq = 9) is a 16550A
-ttyS05 at port 0xb000 (irq = 9) is a 16550A
-lp0: using parport0 (polling).
-lp0: console ready
-lp1: using parport1 (polling).
+Steve.
 
-> link order shouldn't affect the decision seeing as it affects all 
-> parport_serial anyway. You might have to wait it out and see what Tim/Ed 
-> have to say but i do have patches for both lying about.
-
-OK, I'll try to be patient ;)
-
-Marek
+> 
+> Dear All,
+>     I use Red Hat 7.2. I have unused partition of hard disk in many computer
+> in my network. I want to combine this space into a big one. I plan to use
+> network block device, is there any documentation? Where can I download
+> nbd-server and nbd-client?
+>     What's about iscsi? Can linux act as a iscsi server?
+> Thanks,
+> Theewara
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

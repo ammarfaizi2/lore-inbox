@@ -1,78 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267381AbTAQFXK>; Fri, 17 Jan 2003 00:23:10 -0500
+	id <S267387AbTAQFeV>; Fri, 17 Jan 2003 00:34:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267386AbTAQFXK>; Fri, 17 Jan 2003 00:23:10 -0500
-Received: from newmail.somanetworks.com ([216.126.67.42]:59324 "EHLO
-	mail.somanetworks.com") by vger.kernel.org with ESMTP
-	id <S267381AbTAQFXJ>; Fri, 17 Jan 2003 00:23:09 -0500
-Date: Fri, 17 Jan 2003 00:32:02 -0500 (EST)
-From: Scott Murray <scottm@somanetworks.com>
-X-X-Sender: scottm@rancor.yyz.somanetworks.com
-To: Rusty Lynch <rusty@linux.co.intel.com>
-cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       pcihpd-discuss <pcihpd-discuss@lists.sourceforge.net>
-Subject: Re: [Pcihpd-discuss] Re: [BUG][2.5]deadlock on cpci hot insert
-In-Reply-To: <1042749763.1535.3.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0301161752320.22716-100000@rancor.yyz.somanetworks.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267389AbTAQFeV>; Fri, 17 Jan 2003 00:34:21 -0500
+Received: from packet.digeo.com ([12.110.80.53]:14820 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267387AbTAQFeU>;
+	Fri, 17 Jan 2003 00:34:20 -0500
+Date: Thu, 16 Jan 2003 21:44:24 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, rml@tech9.net
+Subject: Re: [PATCH][2.5] smp_call_function_mask
+Message-Id: <20030116214424.037f57aa.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0301170014230.24250-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.44.0301170014230.24250-100000@montezuma.mastecende.com>
+X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Jan 2003 05:43:11.0149 (UTC) FILETIME=[520F3DD0:01C2BDEB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Jan 2003, Rusty Lynch wrote:
-
-> On Wed, 2003-01-15 at 23:04, Rusty Lynch wrote:
-> > On Wed, 2003-01-15 at 21:33, Scott Murray wrote:
-> > > PS: Any word on whether my ZT5550 driver patch from last Friday fixes
-> > >     your ZT5084 chassis issues?
-> > 
-> > Oh yea, that's the other thing I was going to do.  I just built and
-> > installed the patched kernel with no problems, but I will be able to say
-> > more after I have physical access to my lab tomorrow.
-> > 
-> >     --rustyl
-> 
-> The cpcihp_zt5550 patch you sent last Friday does not work on my 
-> ZT5084 chassis because it does not detect any active cpci busses,
-> and therefore doesn't register any cpci busses, and eventually
-> gives up when cpci_hp_start fails (since slots == 0).
-
-Doh!
-
-> >From my dmesg, I can see:
-> cpcihp_zt5550: HCF_HCS = 0x0000003b
-> 
-> I added a couple of debug messages before calling cpci_hp_start.
-> dbg("Bus #1 is %s", hcf_hcs & HCS_BUS1_ACTIVE ? "active":"not active");
-> dbg("Bus #2 is %s", hcf_hcs & HCS_BUS2_ACTIVE ? "active":"not active");
+Zwane Mwaikambo <zwane@holomorphy.com> wrote:
 >
-> which end up in dmesg as:
-> cpcihp_zt5550: Bus #1 is not active
-> cpcihp_zt5550: Bus #2 is not active
-[snip]
+> This patch adds a smp_call_function which also accepts a cpu mask which is 
+> needed for targetting specific or groups of cpus.
 
-Hmm, that's definitely not what I expected.  For reference, my test ZT5550 
-here yields HCF_HCS = 0x31a in a standard (non-RSS) cPCI chassis, which
-means both buses are active in my setup, and I'd expected the same from an
-Active-Active or Locked Active-Active setup in a ZT5084 chassis.  I'll dig 
-deeper in the host controller docs tomorrow as well as try and glean 
-something from the rough 2.2 RSS code Intel/Ziatech released in late 2001.  
-In the meantime, could you describe for me what you've got the "High 
-Availability" options in your ZT5550's BIOS set to?  Also, just so I'm 
-clear on what your setup consists of, am I correct in my assumption that 
-you only have a single ZT5550 in your ZT5084 chassis?
+What is it needed for?
 
-Thanks,
+> Index: linux-2.5.58-cpu_hotplug/arch/i386/kernel/smp.c
 
-Scott
+ia32 only?
 
+>  
+> +int smp_call_function_mask (void (*func) (void *info), void *info, int nonatomic,
+> +			int wait, unsigned long mask)
+> +/*
+> + * [SUMMARY] Run a function on specific CPUs, save self.
+> + * <func> The function to run. This must be fast and non-blocking.
+> + * <info> An arbitrary pointer to pass to the function.
+> + * <nonatomic> currently unused.
+> + * <wait> If true, wait (atomically) until function has completed on other CPUs.
+> + * <mask> The bitmask of CPUs to call the function
+> + * [RETURNS] 0 on success, else a negative status code. Does not return until
+> + * remote CPUs are nearly ready to execute <<func>> or are or have executed.
+> + *
+> + * You must not call this function with disabled interrupts or from a
+> + * hardware interrupt handler or from a bottom half handler.
+> + */
 
--- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-e-mail: scottm@somanetworks.com
+Please don't invent new coding styles.  The comment block goes outside the
+function.  Nice comment block though.
+
+> +{
+> +	struct call_data_struct data;
+> +	int num_cpus = hweight32(mask);
+> +
+> +	if (num_cpus == 0)
+> +		return -EINVAL;
+> +
+> +	if ((1UL << smp_processor_id()) & mask)
+> +		return -EINVAL;
+
+Preempt safety?
 
 

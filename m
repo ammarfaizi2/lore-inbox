@@ -1,39 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268530AbUH3QKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268520AbUH3QRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268530AbUH3QKU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 12:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268533AbUH3QKU
+	id S268520AbUH3QRN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 12:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268534AbUH3QRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 12:10:20 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:25092 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268530AbUH3QKO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 12:10:14 -0400
-Date: Mon, 30 Aug 2004 17:10:02 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Michael Halcrow <mahalcro@us.ibm.com>
-Cc: chrisw@osdl.org, linux-kernel@vger.kernel.org, mike@halcrow.us
-Subject: Re: [PATCH] BSD Secure Levels LSM (1/3)
-Message-ID: <20040830171002.A10691@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Michael Halcrow <mahalcro@us.ibm.com>, chrisw@osdl.org,
-	linux-kernel@vger.kernel.org, mike@halcrow.us
-References: <20040830143547.GA9980@halcrow.us>
+	Mon, 30 Aug 2004 12:17:13 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:53339 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S268520AbUH3QRL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 12:17:11 -0400
+Date: Mon, 30 Aug 2004 18:18:54 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Christoph Hellwig <hch@mx20.domainteam.dk>, sam@ravnborg.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] read EXTRAVERSION from file
+Message-ID: <20040830161854.GA24580@mars.ravnborg.org>
+Mail-Followup-To: Christoph Hellwig <hch@mx20.domainteam.dk>,
+	sam@ravnborg.org, linux-kernel@vger.kernel.org
+References: <20040830151405.GA18836@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040830143547.GA9980@halcrow.us>; from mike@halcrow.us on Mon, Aug 30, 2004 at 09:35:47AM -0500
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20040830151405.GA18836@lst.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> + * Potential future enhancements:
-> + *  - Export a kill_seclvl function to the rest of the kernel to allow
-> + *    other modules to disable or change the seclvl (i.e., rootplug
-> + *    could reduce the seclvl).
+On Mon, Aug 30, 2004 at 05:14:05PM +0200, Christoph Hellwig wrote:
+> The're an very interesting patch in the Debian tree still from the time
+> where Herbert Xu mentioned it, it allows creating a file .extraversion
+> in the toplevel kernel directory and the Makefile will set EXTRAVERSION
+> to it's contents.  This has the nice advantage of keeping an
+> extraversion pre-tree instead of having to patch the Makefile and
+> getting rejects everytime you pull a new tree (or BK refuses to touch
+> the Makefile).
+> 
+> The only thing I'm not fully comfortable is the .extraversion name, I
+> think I'd prefer a user-visible name.
+> 
+> Any other comments on this one?
+> 
+> --- kernel-source-2.6.6/Makefile	2004-05-10 19:47:45.000000000 +1000
+> +++ kernel-source-2.6.6-1/Makefile	2004-05-10 22:21:02.000000000 +1000
+> @@ -151,6 +151,9 @@
+>  
+>  export srctree objtree VPATH TOPDIR
+>  
+> +ifeq ($(EXTRAVERSION),)
+> +EXTRAVERSION := $(shell [ ! -f .extraversion ] || cat .extraversion)
+> +endif
+>  KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 
-Please removed all that downgrading stuff.  The whole point of the BSD
-surelevels is that they can't be turned back.
+This would fail for 2.6.8.1 for instance. Or at least the '1' that Linus 
+added would be part of the final EXTRAVERSION.
 
+Ian Wienand <ianw@gelato.unsw.edu.au> posted a patch some time ago that
+introduces LOCALVERSION - it's in my queue but not applied since it
+needs some rework. And documentation also.
+That should be easy to extend to read the file localversion.
+
+I would then prefer something like:
+If exists $(srctree)/localversion read file and append to LOCALVERSION
+If exists $(objtree)/localversion read file and append to LOCALVERSION
+
+
+Example for a debian patched kernel src tree:
+
+srctree:
+localversion <= contains -deb-unstb-7.9
+objtree:
+localversion <= contains -smp-p4
+
+Resulting in a kernelversion equals: 2.6.8-rc1-deb-unstb-7.9-smp-p4
+
+	Sam

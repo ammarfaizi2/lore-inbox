@@ -1,185 +1,881 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRALMiv>; Fri, 12 Jan 2001 07:38:51 -0500
+	id <S129383AbRALMkm>; Fri, 12 Jan 2001 07:40:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129383AbRALMil>; Fri, 12 Jan 2001 07:38:41 -0500
-Received: from pat.uio.no ([129.240.130.16]:58550 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S129183AbRALMie>;
-	Fri, 12 Jan 2001 07:38:34 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129733AbRALMkc>; Fri, 12 Jan 2001 07:40:32 -0500
+Received: from gw33.sw.com.sg ([203.120.9.33]:61899 "EHLO relay1.sw.com.sg")
+	by vger.kernel.org with ESMTP id <S129383AbRALMkX>;
+	Fri, 12 Jan 2001 07:40:23 -0500
+thread-index: AcB8lNp6j5pH7NcfT5K6Fu0jY1kyXw==
+X-Exchange-Loop: 1
 Content-Transfer-Encoding: 7bit
-Message-ID: <14942.64195.856547.131247@charged.uio.no>
-Date: Fri, 12 Jan 2001 13:38:27 +0100 (CET)
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        NFS devel <nfs-devel@linux.kernel.org>
-Subject: Alignment of NFS filehandles in 2.4.0
-X-Mailer: VM 6.72 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Importance: normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Message-ID: <3A5EFB40.6080B6F3@sw.com.sg>
+Content-Class: urn:content-classes:message
+Date: Fri, 12 Jan 2001 20:40:32 +0800
+From: "Vlad Bolkhovitine" <vladb@sw.com.sg>
+X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
+X-Accept-Language: ru,en
+MIME-Version: 1.0
+To: <linux-kernel@vger.kernel.org>
+Subject: mmap()/VM problem in 2.4.0
+Content-Type: multipart/mixed;
+	boundary="------------00FEB21A7B3D38AB1CB96EF7"
+X-OriginalArrivalTime: 12 Jan 2001 12:40:32.0678 (UTC) FILETIME=[DA5B1460:01C07C94]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-Hi Linus,
+--------------00FEB21A7B3D38AB1CB96EF7
+Content-Type: text/plain;
+	charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 
-  The following patch separates the representation of NFS filehandles
-in the nfs mount structure from the internal kernel representation.
+After upgrade from 2.4.0-test7 to 2.4.0 while running tiotest v0.3.1 I found two
+following problems. 
 
-  The motivation for doing this is Russell's complaint about alignment
-issues on PPC architectures when casting from the generic filehandle
-to knfsd filehandles.
+1. Tiotest is compiled for mmap() usage and there is no swap on the system with
+~200Mb free memory. Tiotest tries to create mmap'ed file with size
+~memory_size*2 and soon after start gets killed by OOM killer. If I add swap
+space, the kernel uses only a few Mb from it.
 
-  This patch ensures that both the internal generic NFS filehandle and
-the knfsd filehandles have integer alignment, thus rendering the cast
-portable across architectures. It makes sure that we preserve the
-current alignment within the nfs mount structure, hence we don't break
-the userland mount programs.
+AFAIU, it is because out_of_memory() in oom_kill.c checks for amount swap space
+left, which is always 0 without swap. Apparently, it is not correct for
+"no-swap" systems.
 
-Cheers,
-  Trond
+2. Second problem is related to mmap() performance. 
 
-diff -u --recursive --new-file linux-2.4.1-pre2/fs/nfs/inode.c linux-2.4.1-fix_ppc/fs/nfs/inode.c
---- linux-2.4.1-pre2/fs/nfs/inode.c	Tue Dec 12 02:46:04 2000
-+++ linux-2.4.1-fix_ppc/fs/nfs/inode.c	Fri Jan 12 01:07:38 2001
-@@ -239,7 +239,7 @@
- 	struct nfs_server	*server;
- 	struct rpc_xprt		*xprt = NULL;
- 	struct rpc_clnt		*clnt = NULL;
--	struct nfs_fh		*root = &data->root, fh;
-+	struct nfs_fh		fh;
- 	struct inode		*root_inode = NULL;
- 	unsigned int		authflavor;
- 	struct sockaddr_in	srvaddr;
-@@ -251,7 +251,6 @@
- 	if (!data)
- 		goto out_miss_args;
- 
--	memset(&fh, 0, sizeof(fh));
- 	if (data->version != NFS_MOUNT_VERSION) {
- 		printk("nfs warning: mount version %s than kernel\n",
- 			data->version < NFS_MOUNT_VERSION ? "older" : "newer");
-@@ -259,12 +258,21 @@
- 			data->namlen = 0;
- 		if (data->version < 3)
- 			data->bsize  = 0;
--		if (data->version < 4) {
-+		if (data->version < 4)
- 			data->flags &= ~NFS_MOUNT_VER3;
--			root = &fh;
--			root->size = NFS2_FHSIZE;
--			memcpy(root->data, data->old_root.data, NFS2_FHSIZE);
-+	}
-+
-+	memset(&fh, 0, sizeof(fh));
-+	if (data->version < 4) {
-+		fh.size = NFS2_FHSIZE;
-+		memcpy(fh.data, data->old_root.data, NFS2_FHSIZE);
-+	} else {
-+		fh.size = (data->flags & NFS_MOUNT_VER3) ? data->root.size : NFS2_FHSIZE;
-+		if (fh.size > sizeof(fh.data)) {
-+			printk(KERN_WARNING "NFS: mount program passes invalid filehandle!\n");
-+			goto out_no_remote;
- 		}
-+		memcpy(fh.data, data->root.data, fh.size);
- 	}
- 
- 	/* We now require that the mount process passes the remote address */
-@@ -363,9 +371,10 @@
- 	 * the root fh attributes.
- 	 */
- 	/* Did getting the root inode fail? */
--	if (!(root_inode = nfs_get_root(sb, root))
-+	if (!(root_inode = nfs_get_root(sb, &fh))
- 	    && (data->flags & NFS_MOUNT_VER3)) {
- 		data->flags &= ~NFS_MOUNT_VER3;
-+		fh.size = NFS2_FHSIZE;
- 		rpciod_down();
- 		rpc_shutdown_client(server->client);
- 		goto nfsv3_try_again;
-@@ -380,7 +389,7 @@
- 	sb->s_root->d_op = &nfs_dentry_operations;
- 
- 	/* Get some general file system info */
--        if (server->rpc_ops->statfs(server, root, &fsinfo) >= 0) {
-+        if (server->rpc_ops->statfs(server, &fh, &fsinfo) >= 0) {
- 		if (server->namelen == 0)
- 			server->namelen = fsinfo.namelen;
- 	} else {
-diff -u --recursive --new-file linux-2.4.1-pre2/include/linux/nfs.h linux-2.4.1-fix_ppc/include/linux/nfs.h
---- linux-2.4.1-pre2/include/linux/nfs.h	Sat Apr  1 18:04:27 2000
-+++ linux-2.4.1-fix_ppc/include/linux/nfs.h	Fri Jan 12 01:09:59 2001
-@@ -93,8 +93,8 @@
-  */
- #define NFS_MAXFHSIZE		64
- struct nfs_fh {
--	unsigned short		size;
--	unsigned char		data[NFS_MAXFHSIZE];
-+	unsigned int		size;
-+	unsigned int		data[NFS_MAXFHSIZE / sizeof(int)];
- };
- 
- /*
-diff -u --recursive --new-file linux-2.4.1-pre2/include/linux/nfs3.h linux-2.4.1-fix_ppc/include/linux/nfs3.h
---- linux-2.4.1-pre2/include/linux/nfs3.h	Sat Apr  1 18:04:27 2000
-+++ linux-2.4.1-fix_ppc/include/linux/nfs3.h	Fri Jan 12 01:09:35 2001
-@@ -58,6 +58,11 @@
- 	NF3BAD  = 8
- };
- 
-+struct nfs3_fh {
-+	unsigned short		size;
-+	unsigned char		data[NFS3_FHSIZE];
-+};
-+
- #define NFS3_VERSION		3
- #define NFS3PROC_NULL		0
- #define NFS3PROC_GETATTR	1
-diff -u --recursive --new-file linux-2.4.1-pre2/include/linux/nfs_mount.h linux-2.4.1-fix_ppc/include/linux/nfs_mount.h
---- linux-2.4.1-pre2/include/linux/nfs_mount.h	Fri Jan  5 21:55:12 2001
-+++ linux-2.4.1-fix_ppc/include/linux/nfs_mount.h	Fri Jan 12 01:34:12 2001
-@@ -9,7 +9,8 @@
-  *  structure passed from user-space to kernel-space during an nfs mount
-  */
- #include <linux/in.h>
--#include <linux/nfs.h>
-+#include <linux/nfs2.h>
-+#include <linux/nfs3.h>
- 
- /*
-  * WARNING!  Do not delete or change the order of these fields.  If
-@@ -37,7 +38,7 @@
- 	char		hostname[256];		/* 1 */
- 	int		namlen;			/* 2 */
- 	unsigned int	bsize;			/* 3 */
--	struct nfs_fh	root;			/* 4 */
-+	struct nfs3_fh	root;			/* 4 */
- };
- 
- /* bits in the flags field */
-diff -u --recursive --new-file linux-2.4.1-pre2/include/linux/nfsd/nfsfh.h linux-2.4.1-fix_ppc/include/linux/nfsd/nfsfh.h
---- linux-2.4.1-pre2/include/linux/nfsd/nfsfh.h	Fri Jan  5 22:32:31 2001
-+++ linux-2.4.1-fix_ppc/include/linux/nfsd/nfsfh.h	Fri Jan 12 02:16:14 2001
-@@ -31,7 +31,7 @@
-  * ino/dev of the exported inode.
-  */
- struct nfs_fhbase_old {
--	struct dentry *	fb_dentry;	/* dentry cookie - always 0xfeebbaca */
-+	__u32		fb_dcookie;	/* dentry cookie - always 0xfeebbaca */
- 	__u32		fb_ino;		/* our inode number */
- 	__u32		fb_dirino;	/* dir inode number, 0 for directories */
- 	__u32		fb_dev;		/* our device */
-@@ -101,7 +101,7 @@
- 	} fh_base;
- };
- 
--#define ofh_dcookie		fh_base.fh_old.fb_dentry
-+#define ofh_dcookie		fh_base.fh_old.fb_dcookie
- #define ofh_ino			fh_base.fh_old.fb_ino
- #define ofh_dirino		fh_base.fh_old.fb_dirino
- #define ofh_dev			fh_base.fh_old.fb_dev
+I ran "./tiobench.pl --size 1024 --threads 2", which is translated to 
+"./tiotest -t 2 -f 512 -r 2000 -b 4096 -d . -T", with tiotest compiled for
+mmap() and for conventional read()/write() usage on 2.4.0-test7 and 2.4.0. These
+are results:
 
+Size is MB, BlkSz is Bytes, Read, Write, and Seeks are MB/sec
+
+2.4.0-test7 with mmap() 
+
+File   Block  Num  Seq Read    Rand Read   Seq Write  Rand Write
+Dir    Size   Size   Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
+------- ------ ------- --- ----------- ----------- ----------- -----------
+   .     1024   4096    2  22.44 14.7% 0.456 0.78% 10.66 22.5% 0.733 1.87%
+
+2.4.0 with mmap() 
+
+File   Block  Num  Seq Read    Rand Read   Seq Write  Rand Write
+Dir    Size   Size   Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
+------- ------ ------- --- ----------- ----------- ----------- -----------
+   .     1024   4096    2  12.53 9.02% 0.489 1.16% 10.82 15.3% 0.640 1.14%
+
+2.4.0-test7 without mmap() 
+
+File   Block  Num  Seq Read    Rand Read   Seq Write  Rand Write
+Dir    Size   Size   Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
+------- ------ ------- --- ----------- ----------- ----------- -----------
+   .     1024   4096    2  14.20 17.6% 0.502 1.28% 12.85 15.1% 0.643 1.31%
+
+2.4.0 without mmap() 
+
+File   Block  Num  Seq Read    Rand Read   Seq Write  Rand Write
+Dir    Size   Size   Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
+------- ------ ------- --- ----------- ----------- ----------- -----------
+   .     1024   4096    2  28.41 42.1% 0.541 1.35% 13.16 16.8% 0.645 1.52%
+
+You can see, mmap() read performance dropped significantly as well as read() one
+raised. Plus, "interactivity" of 2.4.0 system was much worse during mmap'ed
+test, than using read() (everything was quite smooth here). 2.4.0-test7 was
+badly interactive in both cases.
+
+I use /dev/hdc on IDE channel 2 for tests and /dev/hda IDE channel 2 for swap.
+hdparam output for both drives:
+
+ multcount    =  0 (off)
+ I/O support  =  0 (default 16-bit)
+ unmaskirq    =  0 (off)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+
+2.4.0 and 2.4.0-test7 were compiled with one .config via "make oldconfig".
+.config 
+and dmesg you can find in the attachment.
+
+Any comments?
+
+Regards,
+Vlad
+--------------00FEB21A7B3D38AB1CB96EF7
+Content-Type: text/plain;
+	charset="koi8-r";
+	name=".config"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline;
+	filename=".config"
+
+#
+# Automatically generated by make menuconfig: don't edit
+#
+CONFIG_X86=3Dy
+CONFIG_ISA=3Dy
+# CONFIG_SBUS is not set
+CONFIG_UID16=3Dy
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=3Dy
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=3Dy
+CONFIG_MODVERSIONS=3Dy
+CONFIG_KMOD=3Dy
+
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+CONFIG_M686=3Dy
+# CONFIG_M686FXSR is not set
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+CONFIG_X86_WP_WORKS_OK=3Dy
+CONFIG_X86_INVLPG=3Dy
+CONFIG_X86_CMPXCHG=3Dy
+CONFIG_X86_BSWAP=3Dy
+CONFIG_X86_POPAD_OK=3Dy
+CONFIG_X86_L1_CACHE_SHIFT=3D5
+CONFIG_X86_TSC=3Dy
+CONFIG_X86_GOOD_APIC=3Dy
+CONFIG_X86_PGE=3Dy
+CONFIG_X86_USE_PPRO_CHECKSUM=3Dy
+# CONFIG_TOSHIBA is not set
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+# CONFIG_X86_CPUID is not set
+CONFIG_NOHIGHMEM=3Dy
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=3Dy
+# CONFIG_SMP is not set
+# CONFIG_X86_UP_IOAPIC is not set
+
+#
+# General setup
+#
+CONFIG_NET=3Dy
+# CONFIG_VISWS is not set
+CONFIG_PCI=3Dy
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=3Dy
+CONFIG_PCI_BIOS=3Dy
+CONFIG_PCI_DIRECT=3Dy
+CONFIG_PCI_NAMES=3Dy
+# CONFIG_EISA is not set
+# CONFIG_MCA is not set
+# CONFIG_HOTPLUG is not set
+# CONFIG_PCMCIA is not set
+CONFIG_SYSVIPC=3Dy
+CONFIG_BSD_PROCESS_ACCT=3Dy
+CONFIG_SYSCTL=3Dy
+CONFIG_KCORE_ELF=3Dy
+# CONFIG_KCORE_AOUT is not set
+CONFIG_BINFMT_AOUT=3Dm
+CONFIG_BINFMT_ELF=3Dy
+CONFIG_BINFMT_MISC=3Dm
+# CONFIG_PM is not set
+# CONFIG_ACPI is not set
+# CONFIG_APM is not set
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+# CONFIG_PARPORT is not set
+
+#
+# Plug and Play configuration
+#
+CONFIG_PNP=3Dy
+CONFIG_ISAPNP=3Dy
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=3Dm
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+CONFIG_BLK_DEV_LOOP=3Dm
+# CONFIG_BLK_DEV_NBD is not set
+CONFIG_BLK_DEV_RAM=3Dm
+CONFIG_BLK_DEV_RAM_SIZE=3D4096
+# CONFIG_BLK_DEV_INITRD is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+CONFIG_MD=3Dy
+CONFIG_BLK_DEV_MD=3Dm
+CONFIG_MD_LINEAR=3Dm
+CONFIG_MD_RAID0=3Dm
+CONFIG_MD_RAID1=3Dm
+CONFIG_MD_RAID5=3Dm
+CONFIG_BLK_DEV_LVM=3Dm
+CONFIG_LVM_PROC_FS=3Dy
+
+#
+# Networking options
+#
+CONFIG_PACKET=3Dy
+# CONFIG_PACKET_MMAP is not set
+CONFIG_NETLINK=3Dy
+CONFIG_RTNETLINK=3Dy
+# CONFIG_NETLINK_DEV is not set
+# CONFIG_NETFILTER is not set
+# CONFIG_FILTER is not set
+CONFIG_UNIX=3Dy
+CONFIG_INET=3Dy
+CONFIG_IP_MULTICAST=3Dy
+# CONFIG_IP_ADVANCED_ROUTER is not set
+# CONFIG_IP_PNP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+# CONFIG_IP_MROUTE is not set
+# CONFIG_ARPD is not set
+# CONFIG_INET_ECN is not set
+# CONFIG_SYN_COOKIES is not set
+# CONFIG_IPV6 is not set
+# CONFIG_KHTTPD is not set
+# CONFIG_ATM is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_LLC is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+# CONFIG_PHONE_IXJ is not set
+
+#
+# ATA/IDE/MFM/RLL support
+#
+CONFIG_IDE=3Dy
+
+#
+# IDE, ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=3Dy
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=3Dy
+# CONFIG_IDEDISK_MULTI_MODE is not set
+# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
+# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
+# CONFIG_BLK_DEV_IDEDISK_IBM is not set
+# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
+# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
+# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
+# CONFIG_BLK_DEV_IDEDISK_WD is not set
+# CONFIG_BLK_DEV_COMMERIAL is not set
+# CONFIG_BLK_DEV_TIVO is not set
+# CONFIG_BLK_DEV_IDECS is not set
+CONFIG_BLK_DEV_IDECD=3Dy
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_BLK_DEV_IDESCSI is not set
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+# CONFIG_BLK_DEV_ISAPNP is not set
+# CONFIG_BLK_DEV_RZ1000 is not set
+CONFIG_BLK_DEV_IDEPCI=3Dy
+CONFIG_IDEPCI_SHARE_IRQ=3Dy
+CONFIG_BLK_DEV_IDEDMA_PCI=3Dy
+# CONFIG_BLK_DEV_OFFBOARD is not set
+CONFIG_IDEDMA_PCI_AUTO=3Dy
+CONFIG_BLK_DEV_IDEDMA=3Dy
+# CONFIG_IDEDMA_PCI_WIP is not set
+# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_AEC62XX_TUNING is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_WDC_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD7409 is not set
+# CONFIG_AMD7409_OVERRIDE is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_HPT34X_AUTODMA is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+CONFIG_BLK_DEV_PIIX=3Dy
+CONFIG_PIIX_TUNING=3Dy
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC202XX is not set
+# CONFIG_PDC202XX_BURST is not set
+# CONFIG_BLK_DEV_OSB4 is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+# CONFIG_IDE_CHIPSETS is not set
+CONFIG_IDEDMA_AUTO=3Dy
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_DMA_NONPCI is not set
+CONFIG_BLK_DEV_IDE_MODES=3Dy
+
+#
+# SCSI support
+#
+CONFIG_SCSI=3Dm
+CONFIG_BLK_DEV_SD=3Dm
+CONFIG_SD_EXTRA_DEVS=3D40
+CONFIG_CHR_DEV_ST=3Dm
+# CONFIG_CHR_DEV_OSST is not set
+CONFIG_BLK_DEV_SR=3Dm
+# CONFIG_BLK_DEV_SR_VENDOR is not set
+CONFIG_SR_EXTRA_DEVS=3D2
+# CONFIG_CHR_DEV_SG is not set
+CONFIG_SCSI_DEBUG_QUEUES=3Dy
+CONFIG_SCSI_MULTI_LUN=3Dy
+CONFIG_SCSI_CONSTANTS=3Dy
+CONFIG_SCSI_LOGGING=3Dy
+
+#
+# SCSI low-level drivers
+#
+# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
+# CONFIG_SCSI_7000FASST is not set
+# CONFIG_SCSI_ACARD is not set
+# CONFIG_SCSI_AHA152X is not set
+# CONFIG_SCSI_AHA1542 is not set
+# CONFIG_SCSI_AHA1740 is not set
+# CONFIG_SCSI_AIC7XXX is not set
+# CONFIG_SCSI_ADVANSYS is not set
+# CONFIG_SCSI_IN2000 is not set
+# CONFIG_SCSI_AM53C974 is not set
+CONFIG_SCSI_MEGARAID=3Dm
+CONFIG_SCSI_BUSLOGIC=3Dm
+# CONFIG_SCSI_OMIT_FLASHPOINT is not set
+# CONFIG_SCSI_CPQFCTS is not set
+# CONFIG_SCSI_DMX3191D is not set
+# CONFIG_SCSI_DTC3280 is not set
+# CONFIG_SCSI_EATA is not set
+# CONFIG_SCSI_EATA_DMA is not set
+# CONFIG_SCSI_EATA_PIO is not set
+# CONFIG_SCSI_FUTURE_DOMAIN is not set
+# CONFIG_SCSI_GDTH is not set
+# CONFIG_SCSI_GENERIC_NCR5380 is not set
+# CONFIG_SCSI_IPS is not set
+# CONFIG_SCSI_INITIO is not set
+# CONFIG_SCSI_INIA100 is not set
+# CONFIG_SCSI_NCR53C406A is not set
+# CONFIG_SCSI_NCR53C7xx is not set
+# CONFIG_SCSI_NCR53C8XX is not set
+CONFIG_SCSI_SYM53C8XX=3Dm
+CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=3D16
+CONFIG_SCSI_NCR53C8XX_MAX_TAGS=3D32
+CONFIG_SCSI_NCR53C8XX_SYNC=3D20
+# CONFIG_SCSI_NCR53C8XX_PROFILE is not set
+CONFIG_SCSI_NCR53C8XX_IOMAPPED=3Dy
+# CONFIG_SCSI_NCR53C8XX_PQS_PDS is not set
+# CONFIG_SCSI_NCR53C8XX_SYMBIOS_COMPAT is not set
+# CONFIG_SCSI_PAS16 is not set
+# CONFIG_SCSI_PCI2000 is not set
+# CONFIG_SCSI_PCI2220I is not set
+# CONFIG_SCSI_PSI240I is not set
+# CONFIG_SCSI_QLOGIC_FAS is not set
+# CONFIG_SCSI_QLOGIC_ISP is not set
+# CONFIG_SCSI_QLOGIC_FC is not set
+# CONFIG_SCSI_QLOGIC_1280 is not set
+# CONFIG_SCSI_SEAGATE is not set
+# CONFIG_SCSI_SIM710 is not set
+# CONFIG_SCSI_SYM53C416 is not set
+# CONFIG_SCSI_DC390T is not set
+# CONFIG_SCSI_T128 is not set
+# CONFIG_SCSI_U14_34F is not set
+# CONFIG_SCSI_ULTRASTOR is not set
+# CONFIG_SCSI_DEBUG is not set
+
+#
+# IEEE 1394 (FireWire) support
+#
+# CONFIG_IEEE1394 is not set
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+# CONFIG_I2O_PCI is not set
+# CONFIG_I2O_BLOCK is not set
+# CONFIG_I2O_LAN is not set
+# CONFIG_I2O_SCSI is not set
+# CONFIG_I2O_PROC is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=3Dy
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+CONFIG_DUMMY=3Dm
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
+# CONFIG_ETHERTAP is not set
+# CONFIG_NET_SB1000 is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=3Dy
+# CONFIG_NET_VENDOR_3COM is not set
+CONFIG_LANCE=3Dy
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+# CONFIG_AT1700 is not set
+# CONFIG_DEPCA is not set
+# CONFIG_HP100 is not set
+# CONFIG_NET_ISA is not set
+CONFIG_NET_PCI=3Dy
+CONFIG_PCNET32=3Dy
+# CONFIG_ADAPTEC_STARFIRE is not set
+# CONFIG_AC3200 is not set
+# CONFIG_APRICOT is not set
+# CONFIG_CS89x0 is not set
+CONFIG_TULIP=3Dy
+# CONFIG_DE4X5 is not set
+# CONFIG_DGRS is not set
+# CONFIG_DM9102 is not set
+# CONFIG_EEPRO100 is not set
+# CONFIG_EEPRO100_PM is not set
+# CONFIG_LNE390 is not set
+# CONFIG_NATSEMI is not set
+# CONFIG_NE2K_PCI is not set
+# CONFIG_NE3210 is not set
+# CONFIG_ES3210 is not set
+# CONFIG_8139TOO is not set
+# CONFIG_RTL8129 is not set
+# CONFIG_SIS900 is not set
+# CONFIG_EPIC100 is not set
+# CONFIG_SUNDANCE is not set
+# CONFIG_TLAN is not set
+# CONFIG_VIA_RHINE is not set
+# CONFIG_WINBOND_840 is not set
+# CONFIG_HAPPYMEAL is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+# CONFIG_NET_FC is not set
+# CONFIG_RCPCI is not set
+# CONFIG_SHAPER is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Old CD-ROM drivers (not SCSI, not IDE)
+#
+# CONFIG_CD_NO_IDESCSI is not set
+
+#
+# Input core support
+#
+# CONFIG_INPUT is not set
+
+#
+# Character devices
+#
+CONFIG_VT=3Dy
+CONFIG_VT_CONSOLE=3Dy
+CONFIG_SERIAL=3Dy
+CONFIG_SERIAL_CONSOLE=3Dy
+# CONFIG_SERIAL_EXTENDED is not set
+# CONFIG_SERIAL_NONSTANDARD is not set
+CONFIG_UNIX98_PTYS=3Dy
+CONFIG_UNIX98_PTY_COUNT=3D256
+
+#
+# I2C support
+#
+# CONFIG_I2C is not set
+
+#
+# Mice
+#
+# CONFIG_BUSMOUSE is not set
+CONFIG_MOUSE=3Dy
+CONFIG_PSMOUSE=3Dy
+# CONFIG_82C710_MOUSE is not set
+# CONFIG_PC110_PAD is not set
+
+#
+# Joysticks
+#
+# CONFIG_JOYSTICK is not set
+# CONFIG_QIC02_TAPE is not set
+
+#
+# Watchdog Cards
+#
+# CONFIG_WATCHDOG is not set
+# CONFIG_INTEL_RNG is not set
+# CONFIG_NVRAM is not set
+CONFIG_RTC=3Dy
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+# CONFIG_AGP is not set
+# CONFIG_DRM is not set
+
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
+
+#
+# File systems
+#
+CONFIG_QUOTA=3Dy
+# CONFIG_AUTOFS_FS is not set
+CONFIG_AUTOFS4_FS=3Dy
+# CONFIG_ADFS_FS is not set
+# CONFIG_ADFS_FS_RW is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_BFS_FS is not set
+CONFIG_FAT_FS=3Dy
+# CONFIG_MSDOS_FS is not set
+# CONFIG_UMSDOS_FS is not set
+CONFIG_VFAT_FS=3Dy
+# CONFIG_EFS_FS is not set
+# CONFIG_JFFS_FS is not set
+# CONFIG_CRAMFS is not set
+# CONFIG_RAMFS is not set
+CONFIG_ISO9660_FS=3Dm
+CONFIG_JOLIET=3Dy
+# CONFIG_MINIX_FS is not set
+CONFIG_NTFS_FS=3Dm
+# CONFIG_NTFS_RW is not set
+# CONFIG_HPFS_FS is not set
+CONFIG_PROC_FS=3Dy
+# CONFIG_DEVFS_FS is not set
+# CONFIG_DEVFS_MOUNT is not set
+# CONFIG_DEVFS_DEBUG is not set
+CONFIG_DEVPTS_FS=3Dy
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_QNX4FS_RW is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_EXT2_FS=3Dy
+# CONFIG_SYSV_FS is not set
+# CONFIG_SYSV_FS_WRITE is not set
+CONFIG_UDF_FS=3Dm
+# CONFIG_UDF_RW is not set
+# CONFIG_UFS_FS is not set
+# CONFIG_UFS_FS_WRITE is not set
+
+#
+# Network File Systems
+#
+# CONFIG_CODA_FS is not set
+CONFIG_NFS_FS=3Dm
+CONFIG_NFS_V3=3Dy
+# CONFIG_ROOT_NFS is not set
+CONFIG_NFSD=3Dm
+CONFIG_NFSD_V3=3Dy
+CONFIG_SUNRPC=3Dm
+CONFIG_LOCKD=3Dm
+CONFIG_LOCKD_V4=3Dy
+CONFIG_SMB_FS=3Dm
+CONFIG_SMB_NLS_DEFAULT=3Dy
+CONFIG_SMB_NLS_REMOTE=3D"=1B"
+# CONFIG_NCP_FS is not set
+# CONFIG_NCPFS_PACKET_SIGNING is not set
+# CONFIG_NCPFS_IOCTL_LOCKING is not set
+# CONFIG_NCPFS_STRONG is not set
+# CONFIG_NCPFS_NFS_NS is not set
+# CONFIG_NCPFS_OS2_NS is not set
+# CONFIG_NCPFS_SMALLDOS is not set
+# CONFIG_NCPFS_NLS is not set
+# CONFIG_NCPFS_EXTRAS is not set
+
+#
+# Partition Types
+#
+CONFIG_PARTITION_ADVANCED=3Dy
+# CONFIG_ACORN_PARTITION is not set
+# CONFIG_OSF_PARTITION is not set
+# CONFIG_AMIGA_PARTITION is not set
+# CONFIG_ATARI_PARTITION is not set
+# CONFIG_MAC_PARTITION is not set
+CONFIG_MSDOS_PARTITION=3Dy
+# CONFIG_BSD_DISKLABEL is not set
+# CONFIG_SOLARIS_X86_PARTITION is not set
+# CONFIG_UNIXWARE_DISKLABEL is not set
+# CONFIG_SGI_PARTITION is not set
+# CONFIG_ULTRIX_PARTITION is not set
+# CONFIG_SUN_PARTITION is not set
+CONFIG_SMB_NLS=3Dy
+CONFIG_NLS=3Dy
+
+#
+# Native Language Support
+#
+CONFIG_NLS_DEFAULT=3D"iso8859-1"
+CONFIG_NLS_CODEPAGE_437=3Dm
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+# CONFIG_NLS_CODEPAGE_850 is not set
+# CONFIG_NLS_CODEPAGE_852 is not set
+CONFIG_NLS_CODEPAGE_855=3Dm
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+CONFIG_NLS_CODEPAGE_866=3Dm
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_ISO8859_1 is not set
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+CONFIG_NLS_ISO8859_5=3Dm
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+# CONFIG_NLS_ISO8859_15 is not set
+CONFIG_NLS_KOI8_R=3Dm
+CONFIG_NLS_UTF8=3Dm
+
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=3Dy
+CONFIG_VIDEO_SELECT=3Dy
+# CONFIG_MDA_CONSOLE is not set
+
+#
+# Frame-buffer support
+#
+# CONFIG_FB is not set
+
+#
+# Sound
+#
+# CONFIG_SOUND is not set
+
+#
+# USB support
+#
+# CONFIG_USB is not set
+
+#
+# Kernel hacking
+#
+CONFIG_MAGIC_SYSRQ=3Dy
+
+
+--------------00FEB21A7B3D38AB1CB96EF7
+Content-Type: text/plain;
+	charset="koi8-r";
+	name="dmesg"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="dmesg"
+
+Linux version 2.4.0 (root@taurus) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 Tue Jan 9 20:28:29 SGT 2001
+BIOS-provided physical RAM map:
+ BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable)
+ BIOS-e820: 0000000000000400 @ 000000000009fc00 (reserved)
+ BIOS-e820: 0000000000010000 @ 00000000000f0000 (reserved)
+ BIOS-e820: 0000000000010000 @ 00000000ffff0000 (reserved)
+ BIOS-e820: 000000000fef0000 @ 0000000000100000 (usable)
+ BIOS-e820: 000000000000d000 @ 000000000fff3000 (ACPI data)
+ BIOS-e820: 0000000000003000 @ 000000000fff0000 (ACPI NVS)
+On node 0 totalpages: 65520
+zone(0): 4096 pages.
+zone(1): 61424 pages.
+zone(2): 0 pages.
+Kernel command line: BOOT_IMAGE=linux-240 ro root=347
+Initializing CPU#0
+Detected 300.006 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 598.01 BogoMIPS
+Memory: 255792k/262080k available (836k kernel code, 5900k reserved, 302k data, 192k init, 0k highmem)
+Dentry-cache hash table entries: 32768 (order: 6, 262144 bytes)
+Buffer-cache hash table entries: 16384 (order: 4, 65536 bytes)
+Page-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Inode-cache hash table entries: 16384 (order: 5, 131072 bytes)
+VFS: Diskquotas version dquot_6.4.0 initialized
+CPU: Before vendor init, caps: 0080f9ff 00000000 00000000, vendor = 0
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 512K
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU: After vendor init, caps: 0080f9ff 00000000 00000000 00000000
+CPU: After generic, caps: 0080f9ff 00000000 00000000 00000000
+CPU: Common caps: 0080f9ff 00000000 00000000 00000000
+CPU: Intel Pentium II (Klamath) stepping 04
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+mtrr: v1.37 (20001109) Richard Gooch (rgooch@atnf.csiro.au)
+mtrr: detected mtrr type: Intel
+PCI: PCI BIOS revision 2.10 entry at 0xfb260, last bus=1
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+PCI: Using IRQ router PIIX [8086/7110] at 00:07.0
+Limiting direct PCI/PCI transfers.
+isapnp: Scanning for Pnp cards...
+isapnp: Calling quirk for 01:00
+isapnp: SB audio device quirk - increasing port range
+isapnp: Card 'Creative ViBRA16X PnP'
+isapnp: 1 Plug & Play card detected total
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+DMI 2.0 present.
+36 structures occupying 835 bytes.
+DMI table at 0x000F0800.
+BIOS Vendor: Award Software International, Inc.
+BIOS Version: 4.51 PG
+BIOS Release: 11/08/99
+Board Vendor: Tekram Technology Co., Ltd..
+Board Name: P6B40-A4X-i440BX.
+Board Version: Rev. 1.0.
+Starting kswapd v1.8
+pty: 256 Unix98 ptys configured
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 39
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
+hda: IBM-DHEA-38451, ATA DISK drive
+hdb: QUANTUM FIREBALLP LM20.5, ATA DISK drive
+hdc: IBM-DTLA-307030, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 16514064 sectors (8455 MB) w/472KiB Cache, CHS=1027/255/63, UDMA(33)
+hdb: 40132503 sectors (20548 MB) w/1900KiB Cache, CHS=2498/255/63, UDMA(33)
+hdc: 59772900 sectors (30604 MB) w/1916KiB Cache, CHS=59298/16/63, UDMA(33)
+Uniform CD-ROM driver Revision: 3.12
+Partition check:
+ hda: hda1 hda2 < hda5 hda6 >
+ hdb: hdb1 < hdb5 hdb6 hdb7 hdb8 > hdb2
+ hdc: unknown partition table
+Serial driver version 5.02 (2000-08-09) with MANY_PORTS SHARE_IRQ SERIAL_PCI ISAPNP enabled
+ttyS00 at 0x03f8 (irq = 4) is a 16550A
+ttyS01 at 0x02f8 (irq = 3) is a 16550A
+Real Time Clock Driver v1.10d
+Linux Tulip driver version 0.9.13 (January 2, 2001)
+PCI: Found IRQ 10 for device 00:0b.0
+eth0: Digital DS21140 Tulip rev 32 at 0xe400, 00:80:C8:33:53:BC, IRQ 10.
+eth0:  EEPROM default media type Autosense.
+eth0:  Index #0 - Media MII (#11) described by a 21140 MII PHY (1) block.
+eth0:  MII transceiver #8 config 3100 status 782b advertising 01e1.
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP, IGMP
+IP: routing cache hash table of 2048 buckets, 16Kbytes
+TCP: Hash tables configured (established 16384 bind 16384)
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+VFS: Mounted root (ext2 filesystem) readonly.
+Freeing unused kernel memory: 192k freed
+Adding Swap: 72252k swap-space (priority -1)
+
+
+--------------00FEB21A7B3D38AB1CB96EF7--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

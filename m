@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpC0C66wD9j6HSLi/aznAzkKmEA==
+thread-index: AcQVpN+g3kAo+ZVuSJCr06rJI053Ig==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sat, 03 Jan 2004 19:05:22 +0000
-Message-ID: <011701c415a4$2d0293e0$d100000a@sbs2003.local>
-Content-Transfer-Encoding: 7bit
-X-AuthUser: davidel@xmailserver.org
+Delivery-date: Mon, 05 Jan 2004 22:46:22 +0000
+Message-ID: <03dd01c415a4$dfa0e560$d100000a@sbs2003.local>
 X-Mailer: Microsoft CDO for Exchange 2000
-Date: Mon, 29 Mar 2004 16:40:34 +0100
-From: "Davide Libenzi" <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: <Administrator@osdl.org>
 Content-Class: urn:content-classes:message
 Importance: normal
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
-        <mingo@redhat.com>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] kthread_create 
-In-Reply-To: <Pine.LNX.4.44.0401021919240.825-100000@bigblue.dev.mdolabs.com>
+Date: Mon, 29 Mar 2004 16:45:34 +0100
+From: "Matthew Dobson" <colpatch@us.ibm.com>
+Reply-To: <colpatch@us.ibm.com>
+Organization: IBM LTC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN;
-	charset="US-ASCII"
+To: <Administrator@osdl.org>
+Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+        <mbligh@aracnet.com>
+Subject: Re: [PATCH] Simplify node/zone field in page->flags
+References: <3FE74B43.7010407@us.ibm.com> <20031222131126.66bef9a2.akpm@osdl.org> <3FF9D5B1.3080609@us.ibm.com> <20040105213736.GA19859@sgi.com>
+Content-Type: text/plain;
+	format=flowed;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:40:44.0703 (UTC) FILETIME=[32F62AF0:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:45:36.0578 (UTC) FILETIME=[E0EEC220:01C415A4]
 
-On Fri, 2 Jan 2004, Davide Libenzi wrote:
-
-> On Sat, 3 Jan 2004, Rusty Russell wrote:
+Jesse Barnes wrote:
+> On Mon, Jan 05, 2004 at 01:22:57PM -0800, Matthew Dobson wrote:
 > 
-> > In message <Pine.LNX.4.44.0401020856150.2278-100000@bigblue.dev.mdolabs.com> you write:
-> > > Rusty, you still have to use global static data when there is no need.
-> > 
-> > And you're still putting obscure crap in the task struct when there's
-> > no need.  Honestly, I'd be ashamed to post such a patch.
+>>Jesse had acked the patch in an earlier itteration.  The only thing 
+>>that's changed is some line offsets whilst porting the patch forward.
+>>
+>>Jesse (or anyone else?), any objections to this patch as a superset of 
+>>yours?
 > 
-> Ashamed !? Take a look at your original patch and then define shame. You 
-> had a communication mechanism that whilst being a private 1<->1 
-> communication among two tasks, relied on a single global message 
-> strucure, lock and mutex. Honestly I do not like myself to add stuff 
-> inside a strcture for one-time use. Not because of adding 12 bytes to the 
-> struct, that are laughable. But because it is used by a small piece of 
-> code w/out a re-use ability for other things.
+> 
+> No objections here.  Of course, you'll have to rediff against the
+> current tree since that stuff has been merged for awhile now.  On a
+> somewhat related note, Martin mentioned that he'd like to get rid of
+> memblks.  I'm all for that too; they just seem to get in the way.
+> 
+> Jesse
 
-Rusty, I took a better look at the patch and I think we can have 
-per-kthread stuff w/out littering the task_struct and by making the thing 
-more robust. We keep a global list_head protected by a global spinlock. We 
-define a structure that contain all the per-kthread stuff we need 
-(including a task_struct* to the kthread itself). When a kthread starts it 
-will add itself to the list, and when it will die it will remove itself 
-from the list. The start/stop functions will lookup the list (or hash, 
-depending on how much stuff you want to drop in) with the target 
-task_struct*, and if the lookup fails, it means the task already quit 
-(another task already did kthread_stop() ??, natural death ????). This is 
-too bad, but at least there won't be deadlock (or crash) beacause of this. 
-This because currently we keep the kthread task_struct* lingering around 
-w/out a method that willl inform us if the task goes away for some reason 
-(so that we can avoid signaling it and waiting for some interaction). The 
-list/hash will be able to tell us this. What do you think?
+Here's an updated version against 2.6.1-rc1.  Small comment fix (there 
+are actually up to (MAX_NUMNODES * MAX_NR_ZONES) possible zones total, 
+not log2(MAX_NUMNODES * MAX_NR_ZONES) as your comment stated.  That is 
+the number of bits necessary to index every possible zone.
 
+After this goes in, we (I) can convert a number of places that are doing 
+several pointer dereferences/arithmetic and other things to determine 
+which node/zone a page belongs to simply calling 
+page_nodenum()/page_zonenum().
 
+Cheers!
 
-
-- Davide
-
-
+-Matt
 

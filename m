@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUGNXjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265124AbUGNXlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265144AbUGNXjq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 19:39:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUGNXjq
+	id S265124AbUGNXlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 19:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUGNXlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 19:39:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43738 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265124AbUGNXjl
+	Wed, 14 Jul 2004 19:41:09 -0400
+Received: from sark4.cc.gatech.edu ([130.207.7.19]:43753 "EHLO
+	sark4.cc.gatech.edu") by vger.kernel.org with ESMTP id S265124AbUGNXjv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 19:39:41 -0400
-Message-ID: <40F5C42E.1060708@pobox.com>
-Date: Wed, 14 Jul 2004 19:39:26 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH][2.6.8-rc1-mm1] drivers/scsi/sg.c gcc341 inlining fix
-References: <200407141751.i6EHprhf009045@harpo.it.uu.se>	<40F57D14.9030005@pobox.com> <20040714143508.3dc25d58.akpm@osdl.org>
-In-Reply-To: <20040714143508.3dc25d58.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jul 2004 19:39:51 -0400
+Date: Wed, 14 Jul 2004 19:39:40 -0400
+From: Himanshu Raj <rhim@cc.gatech.edu>
+To: trivial@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: A trivial patch for removing unnecessary comment in mm/filemap.c
+Message-ID: <20040714233940.GA8289@cc.gatech.edu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="h31gzZEtNLTqOjlF"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Yeah, but doing:
-> 
-> 	static inline foo(void);
-> 
-> 	bar()
-> 	{
-> 		...
-> 		foo();
-> 	}
-> 
-> 	static inline foo(void)
-> 	{
-> 		...
-> 	}
-> 
-> is pretty dumb too.  I don't see any harm if this compiler feature/problem
-> pushes us to fix the above in the obvious way.
 
+--h31gzZEtNLTqOjlF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-???  C does not require ordering of function _implementations_, except 
-for this gcc brokenness.
+Hi,
 
-The above example allows one to do what one normally does with 
-non-inlines:  order code to enhance readability, and the compiler will 
-Do The Right Thing and utilize it in the best way the CPU will function.
+This patch removes some unnecessary comments in mm/filemap.c in function find_get_page. First, there is no 
+longer a hash list being used, second the lock being used is the same for search as well as addition/removal.
 
-Just because you stick a modifier on a function doesn't mean it's time 
-to stop using C as it was meant to be used :)
+Thanks,
+Himanshu
+-- 
+-------------------------------------------------------------------------
+Himanshu Raj
+PhD Student, GaTech (www.cc.gatech.edu/~rhim)
+I prefer to receive attachments in an open, non-proprietary format.
+-------------------------------------------------------------------------
 
-	Jeff
+--h31gzZEtNLTqOjlF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch_useless_comment
 
+--- linux-2.6.8-rc1-old/mm/filemap.c	2004-07-14 19:29:53.757633968 -0400
++++ linux-2.6.8-rc1/mm/filemap.c	2004-07-14 19:30:05.365869248 -0400
+@@ -440,10 +440,6 @@
+ {
+ 	struct page *page;
+ 
+-	/*
+-	 * We scan the hash list read-only. Addition to and removal from
+-	 * the hash-list needs a held write-lock.
+-	 */
+ 	spin_lock_irq(&mapping->tree_lock);
+ 	page = radix_tree_lookup(&mapping->page_tree, offset);
+ 	if (page)
 
+--h31gzZEtNLTqOjlF--

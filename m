@@ -1,77 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbUJZQ2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbUJZQ3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbUJZQ2H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 12:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbUJZQ2G
+	id S261282AbUJZQ3y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 12:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbUJZQ3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 12:28:06 -0400
-Received: from mail.dif.dk ([193.138.115.101]:18838 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261332AbUJZQ1Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 12:27:24 -0400
-Date: Tue, 26 Oct 2004 18:35:35 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Timothy Miller <miller@techsource.com>
-Cc: pbecke <pbecke@javagear.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-In-Reply-To: <417E70D2.2010302@techsource.com>
-Message-ID: <Pine.LNX.4.61.0410261827430.3252@dragon.hygekrogen.localhost>
-References: <6.1.2.0.1.20041026082223.0231edd8@mail.javagear.com>
- <417E70D2.2010302@techsource.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Oct 2004 12:29:54 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:13737 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S261282AbUJZQ3r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 12:29:47 -0400
+Date: Tue, 26 Oct 2004 18:26:30 +0200
+From: Tonnerre <tonnerre@thundrix.ch>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The naming wars continue...
+Message-ID: <20041026162630.GB7739@thundrix.ch>
+References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041023030356.GA5005@animx.eu.org> <20041024133333.GA16901@hh.idb.hist.no> <20041025232654.GC30574@thundrix.ch> <clkrak$rtl$1@terminus.zytor.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="s/l3CgOIzMHHjg/5"
+Content-Disposition: inline
+In-Reply-To: <clkrak$rtl$1@terminus.zytor.com>
+X-GPG-KeyID: 0x8BE1C38D
+X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
+X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Oct 2004, Timothy Miller wrote:
 
-> 
-> pbecke wrote:
-> > In general an open source video card is a great idea, however, I am a bit
-> > concerned about your plans to keep the FPGA code secret.  I realize that
-> > your company wants to make a profit, 
-> 
-> And that is the POINT here.  The question isn't whether or not we can become a
-> charity and give away all of our IP.  The question is whether or not it's
-> possible to sell open-source-friendly products.  Designing and manufacturing
-> hardware is EXPENSIVE.  Especially at the volumes I expect.
-> 
-> > but in keeping with the spirit of open source, it seems that it would be a
-> > good idea to not only open up the driver development, but also to open up
-> > the FPGA code.  The great power of open source is that it allows a developer
-> > to tweak the implementation.
-> 
-> What you're asking for is excessive.  Even Stallman agrees that people should
-> be able to profit from their work.  Opening the source to this chip would be
-> good for you and for every other company that wants to copy it, but it would
-> not be good for Tech Source.  Tech Source is a business with a profit motive.
-> Will will not engage in something that costs us more money than it makes or
-> diverts us from something more profitable.
-> 
-> You're allowing your lofty free software ideals to get in the way of what is
-> reasonable and practical.  I believe in freedom, which is why I started this
-> project.  But make no mistake in thinking that I'm trying to waste the time
-> and money of my employer.
-> 
+--s/l3CgOIzMHHjg/5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I'd say a card with open source drivers and access to detailed
-documentation from a company that's willing to work with the Open Source
-Software community is a very big first step, and a massive improvement on
-the current state of affairs. If we could just get that as a start, then I
-for one would be thrilled.
+Salut,
 
+On Tue, Oct 26, 2004 at 06:37:08AM +0000, H. Peter Anvin wrote:
+> There also were a W, and and X1, X2, ... X11.
 
-> > Perhaps, rather than a single company defining the functionality with input
-> > from the open source community, it makes more sense for the open source
-> > community to define the standard, and then any company could work from the
-> > standard created by the open source community.
-> 
-> As I've said before, if people want to give us a design, we'll manufacture it!
-> 
+I know.  I didn't say there wasn't.  They were all standards  of the X
+protocol, however.
 
-I know very little about graphics card hardware so I have no idea if this 
-is interresting or not, but in case you haven't heard of Manticore I 
-thought I'd provide a link : http://icculus.org/manticore/
+(Note, however, that there is  a tiny difference in the command layout
+between the MIT X protocol specifiaction version 11 and the reality.)
 
+> However, there is a tendency for numbers to get stuck (witness Linux
+> 2.x).  In particular, X11R6 got encoded in many places including
+> pathnames for no good reason.
 
+Well, I'm driving my X11 from  /opt/xorg and I don't have any problems
+yet. Just  that the NVidia  driver doesn't get  it right, but  I threw
+away my NVidia card in favor of a dual-core Voodoo 5 anyway.
+
+			    Tonnerre
+
+--s/l3CgOIzMHHjg/5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.2 (GNU/Linux)
+
+iD8DBQFBfnq0/4bL7ovhw40RAgHAAKCoh5MXxKkwlm2a2x37lPjuyjvrQgCfYsUa
+HW0DmkIByIfQjUt7hek3tEs=
+=RLPl
+-----END PGP SIGNATURE-----
+
+--s/l3CgOIzMHHjg/5--

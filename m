@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314602AbSEFRcN>; Mon, 6 May 2002 13:32:13 -0400
+	id <S314607AbSEFRi7>; Mon, 6 May 2002 13:38:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314607AbSEFRcM>; Mon, 6 May 2002 13:32:12 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:28639 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S314602AbSEFRcL>; Mon, 6 May 2002 13:32:11 -0400
-Message-ID: <3CD6BE14.22072BF2@delusion.de>
-Date: Mon, 06 May 2002 19:32:04 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.8 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Ext3 errors with 2.4.18
-In-Reply-To: <3CD6AE7A.FBEB5726@delusion.de> <20020506172047.GL2392@matchmail.com>
+	id <S314610AbSEFRi6>; Mon, 6 May 2002 13:38:58 -0400
+Received: from codepoet.org ([166.70.14.212]:5809 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S314607AbSEFRi5>;
+	Mon, 6 May 2002 13:38:57 -0400
+Date: Mon, 6 May 2002 11:38:57 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Pozsar Balazs <pozsy@sch.bme.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: _reliable_ way to get the dev for a mount point?
+Message-ID: <20020506173857.GA24013@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Pozsar Balazs <pozsy@sch.bme.hu>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.30.0205051830060.28842-100000@balu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
-> 
-> Can you post the surrounding lines from dmesg?  Many times there is another
-> error that tells much more than the one you just posted...
+On Mon May 06, 2002 at 11:55:38AM +0200, Pozsar Balazs wrote:
+> So, my question is there a way to get back the device for a directory,
+> _reliably_. (I want to know which devices holds the files my process sees
+> under an arbitrary /path/to/somewhere).
 
-There are no surrounding lines related to this error.
+stat(mnt_point, &statbuf); then walk through /dev and stat each
+device, check that it is a block device and that st_rdev matches
+the statbuf.st_rdev.  When you get a match, you know a device
+name for the directory.
 
--Udo.
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

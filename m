@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262490AbTEMRsI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 13:48:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262498AbTEMRsG
+	id S262465AbTEMRrK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 13:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbTEMRrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 13:48:06 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:24983 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S262490AbTEMRrp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 13:47:45 -0400
-Date: Tue, 13 May 2003 19:00:20 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, "Mudama, Eric" <eric_mudama@maxtor.com>,
-       Oleg Drokin <green@namesys.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Oliver Neukum <oliver@neukum.org>,
-       lkhelp@rekl.yi.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69, IDE TCQ can't be enabled
-Message-ID: <20030513180020.GB3309@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
-	"Mudama, Eric" <eric_mudama@maxtor.com>,
-	Oleg Drokin <green@namesys.com>,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Oliver Neukum <oliver@neukum.org>, lkhelp@rekl.yi.org,
-	linux-kernel@vger.kernel.org
-References: <785F348679A4D5119A0C009027DE33C102E0D31D@mcoexc04.mlm.maxtor.com> <20030512193509.GB10089@gtf.org> <20030512194245.GG17033@suse.de> <20030512195331.GD10089@gtf.org> <20030513064059.GL17033@suse.de>
-Mime-Version: 1.0
+	Tue, 13 May 2003 13:47:09 -0400
+Received: from pat.uio.no ([129.240.130.16]:54961 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262465AbTEMRrI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 13:47:08 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030513064059.GL17033@suse.de>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16065.12944.741393.595356@charged.uio.no>
+Date: Tue, 13 May 2003 19:59:44 +0200
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 must-fix list, v2
+In-Reply-To: <20030513173801.GA2763@suse.de>
+References: <20030512155417.67a9fdec.akpm@digeo.com>
+	<20030512155511.21fb1652.akpm@digeo.com>
+	<shswugvjcy9.fsf@charged.uio.no>
+	<20030513135756.GA676@suse.de>
+	<16065.3159.768256.81302@charged.uio.no>
+	<20030513152228.GA4388@suse.de>
+	<16065.4109.129542.777460@charged.uio.no>
+	<20030513154741.GA4511@suse.de>
+	<16065.5911.55131.430734@charged.uio.no>
+	<20030513173801.GA2763@suse.de>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: Please contact postmaster@uio.no for more information
+X-UiO-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 08:40:59AM +0200, Jens Axboe wrote:
- > > Weird.  Mine doesn't seem to assert it, nor does the identify page
- > > indicate it's supported.  Maybe I have a broken drive firmware.
- > 
- > Then the linux code won't work on it, have you tried? I've tried a lot
- > of different IBM models, they all do service interrupts just fine.
+>>>>> " " == Dave Jones <davej@codemonkey.org.uk> writes:
 
-bug in the firmware version on Jeffs drives perhaps ?
+     > On Tue, May 13, 2003 at 06:02:31PM +0200, Trond Myklebust
+     > wrote:
+    >> Then I'm confused as to what you are saying. Are we talking
+    >> about a full NFS server crash or just a temporary 'server not
+    >> responding' situation? Does NFS over TCP fix it, for instance?
 
-		Dave
+     > Just to keep you busy..  I had thought NFS over TCP fixed
+     > it. It rang for a lot longer (around 50 minutes), and then did
+     > the following..  Looks like a different bug to my untrained
+     > eye.
 
+Nah. Looks like the same thing: mmapped writes followed by truncate.
+TCP is likely to change the timings a bit (reliable transport means
+that the race between out-of-order write and truncate is smaller, but
+it is still there.
+
+Cheers,
+  Trond

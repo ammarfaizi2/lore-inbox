@@ -1,33 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267572AbSKQUEh>; Sun, 17 Nov 2002 15:04:37 -0500
+	id <S267576AbSKQUFD>; Sun, 17 Nov 2002 15:05:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267573AbSKQUEh>; Sun, 17 Nov 2002 15:04:37 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:17130 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S267572AbSKQUEg>;
-	Sun, 17 Nov 2002 15:04:36 -0500
-Date: Sun, 17 Nov 2002 20:10:26 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: lan based kgdb
-Message-ID: <20021117201026.GB1851@bjl1.asuk.net>
-References: <1037490849.24843.11.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0211161915360.1337-100000@home.transmeta.com> <20021116193008.C25741@work.bitmover.com> <m11y5k3ruw.fsf@frodo.biederman.org>
+	id <S267575AbSKQUFD>; Sun, 17 Nov 2002 15:05:03 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:20049 "EHLO
+	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267573AbSKQUFB>; Sun, 17 Nov 2002 15:05:01 -0500
+Date: Sun, 17 Nov 2002 15:12:30 -0500
+From: Doug Ledford <dledford@redhat.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linux Scsi Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Why /dev/sdc1 doesn't show up...
+Message-ID: <20021117201230.GD3280@redhat.com>
+Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
+	Linux Scsi Mailing List <linux-scsi@vger.kernel.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Linus Torvalds <torvalds@transmeta.com>
+References: <20021117195258.GC3280@redhat.com> <Pine.GSO.4.21.0211171457290.23400-100000@steklov.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m11y5k3ruw.fsf@frodo.biederman.org>
+In-Reply-To: <Pine.GSO.4.21.0211171457290.23400-100000@steklov.math.psu.edu>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> As long as the network console/debug interface includes basic a basic
-> check to verify that the packets it accepts are from the local network.
-> And it's outgoing packets have a ttl of one.  I don't have a problem.
+On Sun, Nov 17, 2002 at 03:01:06PM -0500, Alexander Viro wrote:
+> 
+> 
+> On Sun, 17 Nov 2002, Doug Ledford wrote:
+> 
+> > in scsi_module.c works, but is too ugly to live (and totally defeats the
+> > purpose of the new module loading code anyway).  Oh, and all the high
+> 
+> There is a purpose?  Seriously, "no use of ones object during init" is
+> WRONG.  Rusty, remember I've told you that block devices need to be
+> able to open() during init?  That's what it is.
+> 
+> We _might_ eventually kludge around that, but IMO the ->live checks on
+> the init side are just plain wrong.
 
-Is there a working network console?  It would be _great_ to have a
-network console to my _remote_ server, far far away on the internet.
+I tend to agree, and I almost wrote that in my email, but then decided I 
+hadn't thought on the issue long enough to declare that and then be proven 
+wrong and look like a fool.
 
--- Jamie
+-- 
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

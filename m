@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281866AbRKSBUN>; Sun, 18 Nov 2001 20:20:13 -0500
+	id <S281869AbRKSB0O>; Sun, 18 Nov 2001 20:26:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281867AbRKSBUD>; Sun, 18 Nov 2001 20:20:03 -0500
-Received: from mx3out.umbc.edu ([130.85.253.53]:53197 "EHLO mx3out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S281866AbRKSBTt>;
-	Sun, 18 Nov 2001 20:19:49 -0500
-Date: Sun, 18 Nov 2001 20:19:26 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: Stuart Young <sgy@amc.com.au>
-cc: <linux-kernel@vger.kernel.org>, Anders Peter Fugmann <afu@fugmann.dhs.org>
-Subject: Re: SiS630 chipsets && linux 2.4.x kernel == snails pace?
-In-Reply-To: <5.1.0.14.0.20011119113205.01eb7dc0@mail.amc.localnet>
-Message-ID: <Pine.SGI.4.31L.02.0111182009540.12243284-100000@irix2.gl.umbc.edu>
+	id <S281870AbRKSB0E>; Sun, 18 Nov 2001 20:26:04 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:8839 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S281869AbRKSBZ6>;
+	Sun, 18 Nov 2001 20:25:58 -0500
+Message-ID: <3BF85F98.9D531A9E@pobox.com>
+Date: Sun, 18 Nov 2001 17:25:44 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Grzegorz Paszka <Grzegor@Paszka.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 1.5 GB memory problem with 2.4.x
+In-Reply-To: <20011119012515.A27753@pik-net.pl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Nov 2001, Stuart Young wrote:
+Grzegorz Paszka wrote:
 
-> Have you tried going through with hdparm enabling/disabling the options in
-> turn? eg: DMA, Unmasq IRQ, Multi-Count, etc.
+> Should I try to redhat kernel-2.4.9-enterprise ?
 
-What makes no sense is that hdparm -t -T indicates that 2.4.12 is faster.
+That would be a useful test, yes.
 
-> I would not be surprised if what was happening was related to DMA causing
-> huge locks of the IDE subsystem, and dragging out the disk times, therefore
-> throwing the system out the window. Out of your previous posts, I saw you
-> mention you fiddled with Unmasq IRQ and 32 bit, but not DMA.
+> (My / is on raid1 so I don't
+> know is it possible)
 
-toggled off DMA, to no effect. Interrupts, between the two systems,
-actually looked like the 2.4.12 machine was lower over time.
-(up 1/6 of the time, had 1/10 of the interrupts)
+Of course, all Red Hat 2.4 kernels support that.
 
-> Also are these systems per chance running the same brand/model of h/drive?
-> While I doubt it, could this be a problem with these drives and these
-> boards only in certain modes?
+cu
 
-The three systems in question are all running Maxtor hard drives, but two
-are 32049H2 20GB, and one is 91024U3, a 10GB.
-
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
+jjs
 

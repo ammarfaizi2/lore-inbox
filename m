@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310579AbSCVAI7>; Thu, 21 Mar 2002 19:08:59 -0500
+	id <S310549AbSCVAL3>; Thu, 21 Mar 2002 19:11:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310538AbSCVAIu>; Thu, 21 Mar 2002 19:08:50 -0500
-Received: from holomorphy.com ([66.224.33.161]:34958 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S310549AbSCVAIb>;
-	Thu, 21 Mar 2002 19:08:31 -0500
-Date: Thu, 21 Mar 2002 16:08:23 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Hari Gadi <HGadi@ecutel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: module (kernel) debugging
-Message-ID: <20020322000823.GD785@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Hari Gadi <HGadi@ecutel.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <AF2378CBE7016247BC0FD5261F1EEB210B6A93@EXCHANGE01.domain.ecutel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S310598AbSCVALT>; Thu, 21 Mar 2002 19:11:19 -0500
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:4503 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S310549AbSCVALE>;
+	Thu, 21 Mar 2002 19:11:04 -0500
+Message-ID: <3C9A758D.103@acm.org>
+Date: Thu, 21 Mar 2002 18:06:37 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Tom Rini <trini@kernel.crashing.org>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zlib double-free bug
+In-Reply-To: <E16oAoJ-0006RH-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 21, 2002 at 05:15:48PM -0500, Hari Gadi wrote:
-> Hi,
-> I am new to kernel level development. What are the best ways to debug
-> runtime kernel (module). Are there any third party tools for debugging
-> the kernel.
+Alan Cox wrote:
+
+>>It's getting there.  The 'issue' is that the best way to fix it (maybe
+>>2.4.20-pre1 even) is to backport the 2.5 zlib which doesn't have this
+>>
+>
+>2.4.19ac has the shared zlib already. The zlib sharing stuff wasnt a 2.5
+>patch backported - its a 2.4 fix that went forward
+>
+Since I did the original shared zlib patch and I did it to 2.5, either 
+we have two patches floating around or you are incorrect.  If we have 
+two patches, we need to resolve the situation.
+
+-Corey
 
 
-http://www.arium.com
-http://oss.sgi.com/projects/kdb
-http://oss.sgi.com/projects/kgdb
-http://lkcd.sourceforge.net
-http://bochs.sourceforge.net
-
-... and other simulators with debugging support.
-
-
-Cheers,
-Bill

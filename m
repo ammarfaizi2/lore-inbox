@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269668AbUJGD3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269678AbUJGEBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269668AbUJGD3n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 23:29:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269669AbUJGD3n
+	id S269678AbUJGEBV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 00:01:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269679AbUJGEBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 23:29:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:21727 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269668AbUJGD3M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 23:29:12 -0400
-Subject: Re: [patch rfc] towards supporting O_NONBLOCK on regular files
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Jeff Moyer <jmoyer@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20041006120158.GA8024@logos.cnet>
-References: <16733.50382.569265.183099@segfault.boston.redhat.com>
-	 <20041005112752.GA21094@logos.cnet>
-	 <16739.61314.102521.128577@segfault.boston.redhat.com>
-	 <20041006120158.GA8024@logos.cnet>
-Content-Type: text/plain
-Date: Thu, 07 Oct 2004 04:31:35 +0100
-Message-Id: <1097119895.4339.12.camel@orbit.scot.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 (2.0.1-2) 
+	Thu, 7 Oct 2004 00:01:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58250 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269678AbUJGEBT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 00:01:19 -0400
+Message-ID: <4164BF82.2040608@pobox.com>
+Date: Thu, 07 Oct 2004 00:01:06 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matt Domsch <Matt_Domsch@dell.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, alan@redhat.com,
+       david.balazic@hermes.si
+Subject: Re: [PATCH 2.6.9-rc3-mm2] EDD: use EXTENDED READ command, add CONFIG_EDD_SKIP_MBR
+References: <20041004214803.GC2989@lists.us.dell.com>
+In-Reply-To: <20041004214803.GC2989@lists.us.dell.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 2004-10-06 at 09:01 -0300, Marcelo Tosatti wrote:
-
-
-> > When attempting to read a file (other than a pipe or FIFO) that supports
-> > non-blocking reads and has no data currently available:
-> >  o If O_NONBLOCK is set, read( ) shall return -1 and set errno to [EAGAIN].
+Matt Domsch wrote:
+> Some controller BIOSes have problems with the legacy int13 fn02 READ
+> SECTORS command.  int13 fn42 EXTENDED READ is used in preference by
+> most boot loaders today, so lets use that.  If EXTENDED READ fails or
+> isn't supported, fall back to READ SECTORS.
 > 
-> This implies read(O_NONBLOCK) should never block.
-
-The spec is usually pretty careful never to come straight out and
-require that in all cases, even for true AIO.
-
-> Maybe your code should pass down __GFP_FAIL in the gfp_mask 
-> to the page_cache_alloc() to avoid blocking reclaiming pages,
-> and possibly pass info down to the block layer 
-> "if this is going to block, fail".
-
-It's not just the page allocation that can block, though.  Readahead
-requires us to map the buffers being read before we submit the async
-read, so we can still block reading indirect blocks.  If we want to
-avoid submitting that extra synchronous IO, then either O_NONBLOCK needs
-to avoid readahead entirely for non-present pages, or the readahead
-itself needs to know that it's a O_NONBLOCK IO and fail cleanly if the
-metadata is not in cache.
-
-Cheers,
- Stephen
+> This hopefully resolves the three reports of BIOSes which would either
+> long-pause (30+ seconds) or hang completely on the legacy READ SECTORS
+> command.
+> 
+> This also adds CONFIG_EDD_SKIP_MBR to eliminate reading the MBR on
+> each BIOS-presented disk, in case there are further problems in this
+> area.
 
 
+Build fails on x86-64:
+
+[...]
+   SYSMAP  System.map
+   SYSMAP  .tmp_System.map
+   AS      arch/x86_64/boot/setup.o
+In file included from arch/x86_64/boot/setup.S:536:
+arch/i386/boot/edd.S:17: macro names must be identifiers
+make[1]: *** [arch/x86_64/boot/setup.o] Error 1
+make: *** [bzImage] Error 2

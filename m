@@ -1,125 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292244AbSBBHcB>; Sat, 2 Feb 2002 02:32:01 -0500
+	id <S292245AbSBBHjv>; Sat, 2 Feb 2002 02:39:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292245AbSBBHbw>; Sat, 2 Feb 2002 02:31:52 -0500
-Received: from tapu.f00f.org ([63.108.153.39]:49597 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S292244AbSBBHbm>;
-	Sat, 2 Feb 2002 02:31:42 -0500
-Date: Fri, 1 Feb 2002 23:30:20 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
-        vandrove@vc.cvut.cz, torvalds@transmeta.com, garzik@havoc.gtf.org,
-        linux-kernel@vger.kernel.org, paulus@samba.org, davidm@hpl.hp.com,
-        ralf@gnu.org
-Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does
-Message-ID: <20020202073020.GA7014@tapu.f00f.org>
-In-Reply-To: <20020131.145904.41634460.davem@redhat.com> <E16WQYs-0003Ux-00@the-village.bc.nu> <20020202021242.GA6770@tapu.f00f.org> <3C5B56A4.B762948F@zip.com.au>
+	id <S292247AbSBBHjm>; Sat, 2 Feb 2002 02:39:42 -0500
+Received: from NEVYN.RES.CMU.EDU ([128.2.145.6]:9648 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id <S292245AbSBBHje>;
+	Sat, 2 Feb 2002 02:39:34 -0500
+Date: Sat, 2 Feb 2002 02:39:40 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Nathan Field <nathan@cs.hmc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Re: BUG: PTRACE_POKETEXT modifies memory in related processes
+Message-ID: <20020202023940.A17031@nevyn.them.org>
+Mail-Followup-To: Nathan Field <nathan@cs.hmc.edu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020131110659.A6197@nevyn.them.org> <Pine.GSO.4.32.0201311500290.10242-100000@turing.cs.hmc.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C5B56A4.B762948F@zip.com.au>
-User-Agent: Mutt/1.3.27i
-X-No-Archive: Yes
+In-Reply-To: <Pine.GSO.4.32.0201311500290.10242-100000@turing.cs.hmc.edu>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 01, 2002 at 07:01:56PM -0800, Andrew Morton wrote:
+On Fri, Feb 01, 2002 at 08:32:21PM -0800, Nathan Field wrote:
+> > > I believe I have found a bug in recent 2.4 linux kernels (at least 2.4.17)
+> > > running on x86 related to using ptrace to modify a processes memory. From
+> [snip incorrect guess at cause of problem]
+> >
+> > I don't think you're correctly understanding the circumstances.  Are
+> > you setting the breakpoint after they fork (seems unlikely, given this
+> > test case - not much time to do so)?  Otherwise, the breakpoint is
+> > simply being carried over by your forking.  Why you see it now and did
+> > not before I don't know.
+> 	Actually I do understand the circumstances. I am setting the
+> breakpoint _AFTER_ the fork, when the parent and the child should exist in
+> different memory spaces.
+> 
+> > Basically, GDB on Linux does not support fork very well.  It doesn't
+> > show up terribly often, because exec() clears breakpoints.
+> 	You are right on that, GDB sucks when debugging forks, which is
+> why I have written my own debugger that can correctly handle forks. This
+> is why I've come across this problem. Basically I detect a fork, do some
+> magic, catch the child process before it continues to run and attach to
+> it. Then I remove all the breakpoints from the child that were in the
+> parent. The problem is that in 2.4.17 when I remove the breakpoints from
+> the child they are also removed from the parent. I do know what I'm
+> talking about here, I'm not trying to remove the breakpoints before the
+> fork system call, it is after the fork system call (I actually remove the
+> breakpoints after the fork library call has returned), and the bug is
+> related to COW because I figured out exactly what's wrong and here's a
+> patch that fixes it:
 
-    We can.  Graham Stoney had all this going against 2.2.  See
+Sorry then.  You didn't give any of this context in the original
+message.  Had you been using GDB - a reasonable assumption - my
+explanation would have been accurate.
 
-    http://www.google.com/search?q=stoney+ffunction-sections&hl=en&start=10&sa=N
-    http://www.cs.helsinki.fi/linux/linux-kernel/Year-2000/2000-29/0415.html
+I've got the design mostly worked out to make GDB handle fork() better. 
+I just need to settle on a few details and find some time to finish it.
 
-This puts every function it's own section.  That seems not only
-cumbersome to me, but also a little complex.  That said,  it may be a
-good way if run every now and then to detect when cruft starts to
-accumulate for any given .config and allow people to tweak things for
-smaller kernels.
+> --- ptrace.c.orig	Fri Feb  1 20:17:18 2002
+> +++ ptrace.c	Fri Feb  1 19:54:58 2002
+> @@ -148,16 +148,16 @@
+>  		int bytes, ret, offset;
+>  		void *maddr;
+> 
+> -		ret = get_user_pages(current, mm, addr, 1,
+> -				write, 1, &page, &vma);
+> -		if (ret <= 0)
+> -			break;
+> -
+>  		bytes = len;
+>  		offset = addr & (PAGE_SIZE-1);
+>  		if (bytes > PAGE_SIZE-offset)
+>  			bytes = PAGE_SIZE-offset;
+> 
+> +		ret = get_user_pages(current, mm, addr, 1,
+> +				write, 1, &page, &vma);
+> +		if (ret <= 0)
+> +			break;
+> +
+>  		flush_cache_page(vma, addr);
+> 
+>  		maddr = kmap(page);
 
-Is there no way to write something like:
+Why is this first half even necessary?  I don't see that it makes any
+difference.  Maybe I'm missing something.
 
---snip-- foo.c --snip--
-void
-blem()
-{
-}
+> @@ -173,6 +173,7 @@
+>  		put_page(page);
+>  		len -= bytes;
+>  		buf += bytes;
+> +		addr += bytes;
+>  	}
+>  	up_read(&mm->mmap_sem);
+>  	mmput(mm);
+> 
+> 
+> Basically the kernel was calling get_user_pages on the same address, even
+> as it moved through different addresses in memory. I have tested this
+> change on my own 2.4.17 kernel and it now works correctly.
 
-void
-bar()
-{
-    blem();
-    return 0;
-}
+That'll do it all right.  Might want to forward this patch (at least
+the latter bit) to Linus and Marcello to make sure they see it.
 
-int foo()
-{
-    return 1;
-}
-
-int main(...)
-{
-    return foo();
-}
---snip-- foo.c --snip--
-
-compile and link it, have the linker know main or some part of crt0 is
-special, build a graph of the final ELF object, see that bar and blem
-are not connected to 'main' and discard them?
-
-I'm pretty sure (but not 100% certain) that oher compilers can do
-this, maybe someone can test on other platforms?
-
-A really smart linker (if given enough compiler help) could build a
-directional graph and still remove this code even if blem called foo.
-
-
-Perhaps I'm making something that's extremely complex sound simple,
-but it doesn't seem to me that this should be that complex...  maybe
-someone more farmiliar with binutils and/or gcc can comment and tell
-me why I'm being a fool :)
-
-    The kernel doesn't link when you compile with -fno-inline because
-    of all the `extern inline' qualifiers.  These need to be converted
-    to `static inline'.  Jim Houston has a script which does this.
-
-Semantically, in gcc land, someone explain the difference between:
-
-     inline
-
-     extern inline
-
-     static inline
-
-please?
-
-
-My tests seem to indicte:
-
-  inline creates an non-inline functions.  Simple tests failed to have
-  this function inlined at all
-
-  static inline and extern inline functions can and will be inlined depending
-  on optimization level
-
-  extern inline doesn't product a non-inlined function (even if it is
-  referenced) and hence barfs if you don't compile with optimisations
-  for my simple test
-
-Now, I wonder
-
-  why 'inline' for me, never inlines?
-
-  is there a way to force inlining of a function?
-
-  are non-inlined functions ever called when optimizations are
-  enabled?
-
-
-
-
-Thanks,
-
-
-  --cw
+-- 
+Daniel Jacobowitz                           Carnegie Mellon University
+MontaVista Software                         Debian GNU/Linux Developer

@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293611AbSCERaZ>; Tue, 5 Mar 2002 12:30:25 -0500
+	id <S293635AbSCERf0>; Tue, 5 Mar 2002 12:35:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293628AbSCERaP>; Tue, 5 Mar 2002 12:30:15 -0500
-Received: from ASYNC3-CS1.NET.CS.CMU.EDU ([128.2.188.131]:13572 "EHLO
-	mentor.odyssey.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S293611AbSCERaI>; Tue, 5 Mar 2002 12:30:08 -0500
-Date: Tue, 5 Mar 2002 12:30:03 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-Message-ID: <20020305173003.GA645@mentor.odyssey.cs.cmu.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020304232806.A31622@redhat.com> <200203051443.JAA02119@ccure.karaya.com>
-Mime-Version: 1.0
+	id <S293637AbSCERfP>; Tue, 5 Mar 2002 12:35:15 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20492 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293635AbSCERfE>;
+	Tue, 5 Mar 2002 12:35:04 -0500
+Message-ID: <3C8501D8.A20D4A09@mandrakesoft.com>
+Date: Tue, 05 Mar 2002 12:35:20 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jerrad Pierce <belg4mit@dirty-bastard.pthbb.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Tulip bug?
+In-Reply-To: <200203060425.g264PaO00901@dirty-bastard.pthbb.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200203051443.JAA02119@ccure.karaya.com>
-User-Agent: Mutt/1.3.27i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 05, 2002 at 09:43:39AM -0500, Jeff Dike wrote:
-> bcrl@redhat.com said:
-> > you only need to do the memsets once at  startup of UML where the ram
-> > is allocated -> a uml booted with 64MB of  ram would write into every
-> > page of the backing store file before even  running the kernel.
-> > Doesn't that accomplish the same thing?
+Jerrad Pierce wrote:
 > 
-> The other reason I don't like this is that, at some point, I'd like to
-> start thinking about userspace cooperating with the kernel on memory
-> management.  UML looks like a perfect place to start since it's essentially
-> identical to the host making it easier for the two to bargain over memory.
+> Well I managed to switch the console to the 8x9 font which gave 42 lines of
+> spew... No mention of tulip this time, at least not in what was visible.
+> Also none of these ever get logged to messages so ksymoops wouldn't help?
+> Most of it is Call Trace and Stack, which I am guessing is useless without
+> knowing the exact state of the machine before hand (I do have Call Trace and
+> Stack available if useful)?
+> 
+> Other than that I got:
+> 
+> reference at virtual address 00000070 printing eip: c0120095
+> *pde=00000000
+> Oops: 0
+> CPI=0
+> EIP: 0010:[<c0120095>] Not tainted
+> ...
+> 
+> AND
+> 
+> <1> Unable to hande kernel NULL pointer dereference at virtual address
+> 00000000 printing eip: c010ee96
+> *pde=00000000
+> Oops=0000
+> CPU=0
+> EIP: 0010:[<c010ee96>] Not tainted
+> ...
 
-I could use the same thing in Coda, we have large private memory
-mappings that are backed by a file which isn't always up-to-date. But we
-can make it so by applying the logged modifications. If there is some
-'memory pressure' signal we could apply the log and remap the memory to
-reduce swap usage.
+You need to run this stuff through "ksymoops"...  See REPORTING-BUGS...
 
-On the other hand, applying the logged modifications generates a lot of
-write activity which could push the system over the edge, so the current
-method of having a large amount of swap available is probably more
-reliable. Otherwise we'll get the whole OOM killer debate again (the
-pre-OOM signaller?).
-
-Jan
-
+-- 
+Jeff Garzik      |
+Building 1024    |
+MandrakeSoft     | Choose life.

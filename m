@@ -1,127 +1,661 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130172AbQK1MHK>; Tue, 28 Nov 2000 07:07:10 -0500
+        id <S130227AbQK1MOu>; Tue, 28 Nov 2000 07:14:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130559AbQK1MGu>; Tue, 28 Nov 2000 07:06:50 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:19072 "EHLO pizda.ninka.net")
-        by vger.kernel.org with ESMTP id <S130172AbQK1MGn>;
-        Tue, 28 Nov 2000 07:06:43 -0500
-Date: Tue, 28 Nov 2000 03:21:01 -0800
-Message-Id: <200011281121.DAA01404@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: bsg@uniyar.ac.ru
-CC: linux-kernel@vger.kernel.org, andy@lysaker.kvaerner.no
-In-Reply-To: <Pine.GSO.3.96.SK.1001124163030.25896C-100000@univ.uniyar.ac.ru>
-        (bsg@uniyar.ac.ru)
-Subject: Re: Kernel Oops on locking sockets via fcntl()
-In-Reply-To: <Pine.GSO.3.96.SK.1001124163030.25896C-100000@univ.uniyar.ac.ru>
+        id <S130764AbQK1MOb>; Tue, 28 Nov 2000 07:14:31 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:6463 "EHLO
+        twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+        id <S130761AbQK1MOY>; Tue, 28 Nov 2000 07:14:24 -0500
+Date: Tue, 28 Nov 2000 13:44:18 +0200
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.18pre19 oops in try_to_free_pages
+Message-ID: <20001128134418.C54301@niksula.cs.hut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a dual Pro200. Running mainly oracle. The kernel is a 2.2.18pre19
++ide-patch. The oops was unfortunately mangled by sysklogd, but I did try
+to reconstruct it. Sysklogd apparently used the wrong System.map (the
+redhat default one I had accidentally left in /boot). I tried to map the
+addresses back and re-lookup them from the correct System.map. Do the
+addresses I got make any sense?
 
-This should fix the bug, there were some cases outside
-of file locking (bonus points to anyone who can craft
-an exploit for the ELF interpreter case :-):
+After the opps, the box had locked up solid (in XFree dmps state), and I
+had no way of reading the oops from console. The machine did not react to
+any key combination and the networking was dead.
 
---- ./fs/binfmt_elf.c.~1~	Mon Oct 30 11:34:25 2000
-+++ ./fs/binfmt_elf.c	Tue Nov 28 03:03:43 2000
-@@ -247,7 +247,7 @@
- 		goto out;
- 	if (!elf_check_arch(interp_elf_ex))
- 		goto out;
--	if (!interpreter->f_op->mmap)
-+	if (!interpreter->f_op || !interpreter->f_op->mmap)
- 		goto out;
- 
- 	/*
-@@ -364,7 +364,7 @@
- 
- 	do_brk(0, text_data);
- 	retval = -ENOEXEC;
--	if (!interpreter->f_op->read)
-+	if (!interpreter->f_op || !interpreter->f_op->read)
- 		goto out;
- 	retval = interpreter->f_op->read(interpreter, addr, text_data, &offset);
- 	if (retval < 0)
-@@ -789,7 +789,7 @@
- 
- 	/* First of all, some simple consistency checks */
- 	if (elf_ex.e_type != ET_EXEC || elf_ex.e_phnum > 2 ||
--	   !elf_check_arch(&elf_ex) || !file->f_op->mmap)
-+	   !elf_check_arch(&elf_ex) || !file->f_op || !file->f_op->mmap)
- 		goto out;
- 
- 	/* Now read in all of the header information */
---- ./fs/dquot.c.~1~	Fri Nov 17 17:24:03 2000
-+++ ./fs/dquot.c	Tue Nov 28 03:05:43 2000
-@@ -1474,7 +1474,7 @@
- 	if (IS_ERR(f))
- 		goto out_lock;
- 	error = -EIO;
--	if (!f->f_op->read && !f->f_op->write)
-+	if (!f->f_op || (!f->f_op->read && !f->f_op->write))
- 		goto out_f;
- 	inode = f->f_dentry->d_inode;
- 	error = -EACCES;
---- ./fs/exec.c.~1~	Thu Nov  9 20:44:59 2000
-+++ ./fs/exec.c	Tue Nov 28 03:15:42 2000
-@@ -604,6 +604,8 @@
- 	/* Huh? We had already checked for MAY_EXEC, WTF do we check this? */
- 	if (!(mode & 0111))	/* with at least _one_ execute bit set */
- 		return -EACCES;
-+	if (bprm->file->f_op == NULL)
-+		return -EACCES;
- 
- 	bprm->e_uid = current->euid;
- 	bprm->e_gid = current->egid;
---- ./fs/locks.c.~1~	Tue Nov  7 21:04:51 2000
-+++ ./fs/locks.c	Tue Nov 28 03:13:34 2000
-@@ -511,7 +511,8 @@
- 	struct file_lock *fl = *thisfl_p;
- 	int (*lock)(struct file *, int, struct file_lock *);
- 
--	if ((lock = fl->fl_file->f_op->lock) != NULL) {
-+	if (fl->fl_file->f_op &&
-+	    (lock = fl->fl_file->f_op->lock) != NULL) {
- 		fl->fl_type = F_UNLCK;
- 		lock(fl->fl_file, F_SETLK, fl);
- 	}
-@@ -1355,7 +1356,7 @@
- 	if (!flock_to_posix_lock(filp, &file_lock, &flock))
- 		goto out_putf;
- 
--	if (filp->f_op->lock) {
-+	if (filp->f_op && filp->f_op->lock) {
- 		error = filp->f_op->lock(filp, F_GETLK, &file_lock);
- 		if (error < 0)
- 			goto out_putf;
-@@ -1479,7 +1480,7 @@
- 		goto out_putf;
- 	}
- 
--	if (filp->f_op->lock != NULL) {
-+	if (filp->f_op && filp->f_op->lock != NULL) {
- 		error = filp->f_op->lock(filp, cmd, file_lock);
- 		if (error < 0)
- 			goto out_putf;
-@@ -1520,7 +1521,7 @@
- 	if (!flock64_to_posix_lock(filp, &file_lock, &flock))
- 		goto out_putf;
- 
--	if (filp->f_op->lock) {
-+	if (filp->f_op && filp->f_op->lock) {
- 		error = filp->f_op->lock(filp, F_GETLK, &file_lock);
- 		if (error < 0)
- 			goto out_putf;
-@@ -1617,7 +1618,7 @@
- 		goto out_putf;
- 	}
- 
--	if (filp->f_op->lock != NULL) {
-+	if (filp->f_op && filp->f_op->lock != NULL) {
- 		error = filp->f_op->lock(filp, cmd, file_lock);
- 		if (error < 0)
- 			goto out_putf;
+The current 2.2.18pre vm seems very unstable to me. This is the second
+machine I'm having serious trouble with it (out of three boxes I'm running
+2.2.18pre on). Please consider something for the 2.2.18 final (I haven't
+heard Alan comment on the Andrea's VM-global patch?). Anyway, I'm going to
+try Andrea's vm-global-7 now. It seems to include the bits Rik posted, or
+am I mistaken?
+
+BTW: What are those seemingly harmless "VFS: busy inodes on changed
+media." messages I'm getting tons of?
+
+
+Nov 28 07:12:37 gistraktori kernel: VFS: busy inodes on changed media.
+Nov 28 07:12:37 gistraktori kernel: Unable to handle kernel paging request at virtual address 00400034
+Nov 28 07:12:37 gistraktori kernel: current->tss.cr3 = 00101000, %%cr3 = 00101000
+Nov 28 07:12:37 gistraktori kernel: *pde = 00000000
+Nov 28 07:12:37 gistraktori kernel: Oops: 0002
+Nov 28 07:12:37 gistraktori kernel: CPU:    0
+Nov 28 07:12:37 gistraktori kernel: EIP:    0010:[sys_writev+89/176]
+Nov 28 07:12:37 gistraktori kernel: EFLAGS: 00010206
+Nov 28 07:12:37 gistraktori kernel: eax: 00400000   ebx: c9420300   ecx: c9420300   edx: cfeb42e0
+Nov 28 07:12:37 gistraktori kernel: esi: c9420300   edi: 00000000   ebp: c0449aa0   esp: cffdff78
+Nov 28 07:12:37 gistraktori kernel: ds: 0018   es: 0018   ss: 0018
+Nov 28 07:12:37 gistraktori kernel: Process kswapd (pid: 5, process nr: 6, stackpage=cffdf000)
+Nov 28 07:12:37 gistraktori kernel: Stack: c9420300 c0129ac9 c9420300 c0449aa0 000007d7 00000001 00000030 fffffffe
+Nov 28 07:12:37 gistraktori kernel:        c011df46 c0449aa0 00000001 cffde000 0000000c 00000006 00000001 00000001
+Nov 28 07:12:37 gistraktori kernel:        c012355f 00000006 00000030 cffde000 c01dd85a cffde2bd 000000a0 cffde000
+Nov 28 07:12:37 gistraktori kernel:
+Call Trace:
+[set_blocksize+409/492]
+[do_mmap+930/1004]
+[kmem_cache_alloc+159/348]
+[ide_hwif_to_major+2167/2437]
+[kmem_cache_free+59/408]
+[get_options+0/116]
+[apm_enable_power_management+111/112]
+Nov 28 07:12:37 gistraktori kernel: Code: 89 50 34 c7 01 00 00 00 00 89 02
+c7 41 34 00 00 00 00 ff 0d
+Nov 28 07:12:39 gistraktori kernel: VFS: busy inodes on changed media.
+Nov 28 07:13:11 gistraktori last message repeated 11 times
+(and hung solid at this point)
+
+
+>From the false System.map
+c0129930 T set_blocksize                   + 409  = C0129AC9
+c011dba4 T do_mmap                         + 930  = C011DF46
+c01234c0 T kmem_cache_alloc                + 159  = C012355F
+c01dcfe3 r ide_hwif_to_major               + 2167 = C01DD85A
+c012361c T kmem_cache_free                 + 59   = C0123657
+c0106000 T get_options                     + 0    = C0106000
+c0106488 t apm_enable_power_management     + 111  = C01064F7
+
+
+>From the correct System.map:
+c0129a90 T try_to_free_buffers
+c011de2c T shrink_mmap
+c0123504 t do_try_to_free_pages
+c01dbb40 r tvecs
+c01235f4 T kswapd
+c0106000 T get_options
+c01064d4 T kernel_thread
+
+lsmod at the time:
+
+lsmod
+Module                  Size  Used by
+eepro100               16736   1  (autoclean)
+st                     25388   0  (unused) 
+
+
+.config:
+#
+# Automatically generated by make menuconfig: don't edit
+#
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+CONFIG_M686=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+# CONFIG_X86_CPUID is not set
+CONFIG_1GB=y
+# CONFIG_2GB is not set
+# CONFIG_MATH_EMULATION is not set
+# CONFIG_MTRR is not set
+CONFIG_SMP=y
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_QUIRKS=y
+# CONFIG_PCI_OPTIMIZE is not set
+CONFIG_PCI_OLD_PROC=y
+# CONFIG_MCA is not set
+# CONFIG_VISWS is not set
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_SYSVIPC=y
+# CONFIG_BSD_PROCESS_ACCT is not set
+CONFIG_SYSCTL=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+# CONFIG_BINFMT_JAVA is not set
+# CONFIG_PARPORT is not set
+# CONFIG_APM is not set
+# CONFIG_TOSHIBA is not set
+
+#
+# Plug and Play support
+#
+# CONFIG_PNP is not set
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_IDE=y
+# CONFIG_BLK_DEV_HD_IDE is not set
+CONFIG_BLK_DEV_IDEDISK=y
+# CONFIG_IDEDISK_MULTI_MODE is not set
+CONFIG_BLK_DEV_IDECD=y
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_BLK_DEV_IDESCSI is not set
+# CONFIG_IDE_TASK_IOCTL_DEBUG is not set
+CONFIG_BLK_DEV_CMD640=y
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_BLK_DEV_IDEPCI=y
+# CONFIG_IDEPCI_SHARE_IRQ is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
+CONFIG_IDEDMA_PCI_EXPERIMENTAL=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+# CONFIG_BLK_DEV_OFFBOARD is not set
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD7409 is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_PIIX_TUNING=y
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC202XX is not set
+# CONFIG_BLK_DEV_OSB4 is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_IDE_CHIPSETS is not set
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_BLK_DEV_LOOP=m
+# CONFIG_BLK_DEV_NBD is not set
+# CONFIG_BLK_DEV_MD is not set
+# CONFIG_BLK_DEV_RAM is not set
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+CONFIG_PARIDE_PARPORT=y
+# CONFIG_PARIDE is not set
+CONFIG_BLK_DEV_IDE_MODES=y
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_HD is not set
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+# CONFIG_NETLINK is not set
+CONFIG_FIREWALL=y
+# CONFIG_FILTER is not set
+CONFIG_UNIX=y
+CONFIG_INET=y
+# CONFIG_IP_MULTICAST is not set
+# CONFIG_IP_ADVANCED_ROUTER is not set
+# CONFIG_IP_PNP is not set
+CONFIG_IP_FIREWALL=y
+# CONFIG_IP_TRANSPARENT_PROXY is not set
+# CONFIG_IP_MASQUERADE is not set
+# CONFIG_IP_ROUTER is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+CONFIG_IP_ALIAS=y
+# CONFIG_SYN_COOKIES is not set
+# CONFIG_INET_RARP is not set
+CONFIG_SKB_LARGE=y
+# CONFIG_IPV6 is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_LLC is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+# CONFIG_CPU_IS_SLOW is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+# CONFIG_PHONE_IXJ is not set
+
+#
+# SCSI support
+#
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=m
+CONFIG_BLK_DEV_SR=m
+# CONFIG_BLK_DEV_SR_VENDOR is not set
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+# CONFIG_SCSI_LOGGING is not set
+
+#
+# SCSI low-level drivers
+#
+# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
+# CONFIG_SCSI_7000FASST is not set
+# CONFIG_SCSI_ACARD is not set
+# CONFIG_SCSI_AHA152X is not set
+# CONFIG_SCSI_AHA1542 is not set
+# CONFIG_SCSI_AHA1740 is not set
+CONFIG_SCSI_AIC7XXX=y
+# CONFIG_AIC7XXX_TCQ_ON_BY_DEFAULT is not set
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=8
+# CONFIG_AIC7XXX_PROC_STATS is not set
+CONFIG_AIC7XXX_RESET_DELAY=5
+# CONFIG_SCSI_IPS is not set
+# CONFIG_SCSI_ADVANSYS is not set
+# CONFIG_SCSI_IN2000 is not set
+# CONFIG_SCSI_AM53C974 is not set
+# CONFIG_SCSI_MEGARAID is not set
+# CONFIG_SCSI_BUSLOGIC is not set
+# CONFIG_SCSI_CPQFCTS is not set
+# CONFIG_SCSI_DTC3280 is not set
+# CONFIG_SCSI_EATA is not set
+# CONFIG_SCSI_EATA_DMA is not set
+# CONFIG_SCSI_EATA_PIO is not set
+# CONFIG_SCSI_FUTURE_DOMAIN is not set
+# CONFIG_SCSI_GDTH is not set
+# CONFIG_SCSI_GENERIC_NCR5380 is not set
+# CONFIG_SCSI_INITIO is not set
+# CONFIG_SCSI_INIA100 is not set
+# CONFIG_SCSI_NCR53C406A is not set
+# CONFIG_SCSI_SYM53C416 is not set
+# CONFIG_SCSI_SIM710 is not set
+# CONFIG_SCSI_NCR53C7xx is not set
+# CONFIG_SCSI_NCR53C8XX is not set
+# CONFIG_SCSI_SYM53C8XX is not set
+# CONFIG_SCSI_PAS16 is not set
+# CONFIG_SCSI_PCI2000 is not set
+# CONFIG_SCSI_PCI2220I is not set
+# CONFIG_SCSI_PSI240I is not set
+# CONFIG_SCSI_QLOGIC_FAS is not set
+# CONFIG_SCSI_QLOGIC_ISP is not set
+# CONFIG_SCSI_QLOGIC_FC is not set
+# CONFIG_SCSI_SEAGATE is not set
+# CONFIG_SCSI_DC390T is not set
+# CONFIG_SCSI_T128 is not set
+# CONFIG_SCSI_U14_34F is not set
+# CONFIG_SCSI_ULTRASTOR is not set
+# CONFIG_SCSI_DEBUG is not set
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+# CONFIG_I2O_PCI is not set
+# CONFIG_I2O_BLOCK is not set
+# CONFIG_I2O_SCSI is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+CONFIG_DUMMY=m
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_NET_SB1000 is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+# CONFIG_NET_VENDOR_3COM is not set
+# CONFIG_LANCE is not set
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+# CONFIG_RTL8139 is not set
+# CONFIG_RTL8139TOO is not set
+# CONFIG_NET_ISA is not set
+CONFIG_NET_EISA=y
+# CONFIG_PCNET32 is not set
+# CONFIG_AC3200 is not set
+# CONFIG_APRICOT is not set
+# CONFIG_CS89x0 is not set
+# CONFIG_DM9102 is not set
+# CONFIG_DE4X5 is not set
+# CONFIG_DEC_ELCP is not set
+# CONFIG_DEC_ELCP_OLD is not set
+# CONFIG_DGRS is not set
+CONFIG_EEXPRESS_PRO100=m
+# CONFIG_LNE390 is not set
+# CONFIG_NE3210 is not set
+# CONFIG_NE2K_PCI is not set
+# CONFIG_TLAN is not set
+# CONFIG_VIA_RHINE is not set
+# CONFIG_SIS900 is not set
+# CONFIG_ES3210 is not set
+# CONFIG_EPIC100 is not set
+# CONFIG_ZNET is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+CONFIG_PPP=m
+CONFIG_SLIP=m
+# CONFIG_SLIP_COMPRESSED is not set
+# CONFIG_SLIP_SMART is not set
+# CONFIG_SLIP_MODE_SLIP6 is not set
+# CONFIG_NET_RADIO is not set
+
+#
+# Token ring devices
+#
+# CONFIG_TR is not set
+# CONFIG_NET_FC is not set
+# CONFIG_RCPCI is not set
+# CONFIG_SHAPER is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_HOSTESS_SV11 is not set
+# CONFIG_COSA is not set
+# CONFIG_SEALEVEL_4021 is not set
+# CONFIG_SYNCLINK_SYNCPPP is not set
+# CONFIG_LANMEDIA is not set
+# CONFIG_COMX is not set
+# CONFIG_HDLC is not set
+# CONFIG_DLCI is not set
+# CONFIG_XPEED is not set
+# CONFIG_SBNI is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Old CD-ROM drivers (not SCSI, not IDE)
+#
+# CONFIG_CD_NO_IDESCSI is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+# CONFIG_SERIAL_CONSOLE is not set
+# CONFIG_SERIAL_EXTENDED is not set
+# CONFIG_SERIAL_NONSTANDARD is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_MOUSE=y
+
+#
+# Mice
+#
+# CONFIG_ATIXL_BUSMOUSE is not set
+# CONFIG_BUSMOUSE is not set
+# CONFIG_MS_BUSMOUSE is not set
+CONFIG_PSMOUSE=y
+CONFIG_82C710_MOUSE=y
+# CONFIG_PC110_PAD is not set
+
+#
+# Joysticks
+#
+# CONFIG_JOYSTICK is not set
+# CONFIG_QIC02_TAPE is not set
+# CONFIG_WATCHDOG is not set
+# CONFIG_NVRAM is not set
+# CONFIG_RTC is not set
+# CONFIG_INTEL_RNG is not set
+# CONFIG_AGP is not set
+# CONFIG_DRM is not set
+
+#
+# Video For Linux
+#
+# CONFIG_VIDEO_DEV is not set
+# CONFIG_DTLK is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+
+#
+# USB support
+#
+# CONFIG_USB is not set
+
+#
+# Filesystems
+#
+# CONFIG_QUOTA is not set
+CONFIG_AUTOFS_FS=y
+# CONFIG_ADFS_FS is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+CONFIG_FAT_FS=m
+# CONFIG_MSDOS_FS is not set
+# CONFIG_UMSDOS_FS is not set
+CONFIG_VFAT_FS=m
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+# CONFIG_MINIX_FS is not set
+CONFIG_NTFS_FS=y
+CONFIG_NTFS_RW=y
+# CONFIG_HPFS_FS is not set
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_EXT2_FS=y
+# CONFIG_SYSV_FS is not set
+# CONFIG_UFS_FS is not set
+# CONFIG_EFS_FS is not set
+
+#
+# Network File Systems
+#
+# CONFIG_CODA_FS is not set
+CONFIG_NFS_FS=m
+# CONFIG_NFS_V3 is not set
+CONFIG_NFSD=m
+# CONFIG_NFSD_V3 is not set
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_SMB_FS=m
+# CONFIG_SMB_NLS_DEFAULT is not set
+# CONFIG_NCP_FS is not set
+
+#
+# Partition Types
+#
+# CONFIG_BSD_DISKLABEL is not set
+# CONFIG_MAC_PARTITION is not set
+# CONFIG_SMD_DISKLABEL is not set
+# CONFIG_SOLARIS_X86_PARTITION is not set
+# CONFIG_UNIXWARE_DISKLABEL is not set
+CONFIG_NLS=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS_DEFAULT="cp437"
+# CONFIG_NLS_CODEPAGE_437 is not set
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+# CONFIG_NLS_CODEPAGE_850 is not set
+# CONFIG_NLS_CODEPAGE_852 is not set
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_ISO8859_1 is not set
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+# CONFIG_NLS_ISO8859_15 is not set
+# CONFIG_NLS_KOI8_R is not set
+
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+# CONFIG_MDA_CONSOLE is not set
+# CONFIG_FB is not set
+
+#
+# Sound
+#
+CONFIG_SOUND=m
+# CONFIG_SOUND_CMPCI is not set
+# CONFIG_SOUND_CS4281 is not set
+# CONFIG_SOUND_FUSION is not set
+# CONFIG_SOUND_EMU10K1 is not set
+# CONFIG_SOUND_ES1370 is not set
+# CONFIG_SOUND_ES1371 is not set
+# CONFIG_SOUND_MAESTRO is not set
+# CONFIG_SOUND_ESSSOLO1 is not set
+# CONFIG_SOUND_ICH is not set
+# CONFIG_SOUND_SONICVIBES is not set
+# CONFIG_SOUND_TRIDENT is not set
+# CONFIG_SOUND_MSNDCLAS is not set
+# CONFIG_SOUND_MSNDPIN is not set
+# CONFIG_SOUND_VIA82CXXX is not set
+CONFIG_SOUND_OSS=m
+# CONFIG_SOUND_PAS is not set
+# CONFIG_SOUND_SB is not set
+# CONFIG_SOUND_GUS is not set
+# CONFIG_SOUND_MPU401 is not set
+# CONFIG_SOUND_PSS is not set
+# CONFIG_SOUND_MSS is not set
+# CONFIG_SOUND_SSCAPE is not set
+# CONFIG_SOUND_TRIX is not set
+# CONFIG_SOUND_MAD16 is not set
+# CONFIG_SOUND_WAVEFRONT is not set
+# CONFIG_SOUND_CS4232 is not set
+CONFIG_SOUND_OPL3SA2=m
+# CONFIG_SOUND_MAUI is not set
+# CONFIG_SOUND_SGALAXY is not set
+# CONFIG_SOUND_AD1816 is not set
+# CONFIG_SOUND_OPL3SA1 is not set
+# CONFIG_SOUND_SOFTOSS is not set
+# CONFIG_SOUND_YM3812 is not set
+# CONFIG_SOUND_VMIDI is not set
+# CONFIG_SOUND_UART6850 is not set
+# CONFIG_SOUND_NM256 is not set
+# CONFIG_SOUND_YMPCI is not set
+# CONFIG_SOUND_YMFPCI is not set
+
+#
+# Additional low level sound drivers
+#
+# CONFIG_LOWLEVEL_SOUND is not set
+
+#
+# Kernel hacking
+#
+CONFIG_MAGIC_SYSRQ=y
+
+
+
+-- v --
+
+v@iki.fi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

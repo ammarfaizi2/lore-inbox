@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbUKXALA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbUKXAPh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbUKXALA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 19:11:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbUKWRef
+	id S261369AbUKXAPh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 19:15:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbUKXAJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 12:34:35 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:896 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261360AbUKWQRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 11:17:37 -0500
-Cc: openib-general@openib.org
-In-Reply-To: <20041123816.Z3lNI0kVfxRLOphJ@topspin.com>
-X-Mailer: Roland's Patchbomber
-Date: Tue, 23 Nov 2004 08:16:27 -0800
-Message-Id: <20041123816.kKEP5asEjoRbLoxS@topspin.com>
+	Tue, 23 Nov 2004 19:09:52 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:5602 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261698AbUKXAHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 19:07:22 -0500
+Subject: Re: bug in mm/slab.c
+From: Lee Revell <rlrevell@joe-job.com>
+To: Brent Casavant <bcasavan@sgi.com>
+Cc: celeron2002@chile.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SGI.4.58.0411231754430.46250@kzerza.americas.sgi.com>
+References: <34591.200.113.104.46.1101247993.squirrel@mail.chile.com>
+	 <1101250929.5207.1.camel@krustophenia.net>
+	 <Pine.SGI.4.58.0411231754430.46250@kzerza.americas.sgi.com>
+Content-Type: text/plain
+Date: Tue, 23 Nov 2004 19:07:17 -0500
+Message-Id: <1101254837.13549.3.camel@krustophenia.net>
 Mime-Version: 1.0
-To: linux-kernel@vger.kernel.org
-From: Roland Dreier <roland@topspin.com>
-X-SA-Exim-Connect-IP: 127.0.0.1
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: [PATCH][RFC/v2][21/21] InfiniBand MAINTAINERS entry
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 23 Nov 2004 16:16:32.0552 (UTC) FILETIME=[CBE82A80:01C4D177]
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add OpenIB maintainers information to MAINTAINERS.
+On Tue, 2004-11-23 at 18:02 -0600, Brent Casavant wrote:
+> On Tue, 23 Nov 2004, Lee Revell wrote:
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+> > Did you see the line about 'module license NVIDIA taints kernel'?
+> > Google for what this means and you will understand why this bug report
+> > is offtopic.
+> 
+> Not necessarily.
 
+OK, this one was real.  But, my point remains valid re: tainted vs
+untainted kernels.
 
---- linux-bk.orig/MAINTAINERS	2004-11-23 08:09:38.208775343 -0800
-+++ linux-bk/MAINTAINERS	2004-11-23 08:10:24.658926423 -0800
-@@ -1075,6 +1075,17 @@
- L:	linux-fbdev-devel@lists.sourceforge.net
- S:	Maintained
- 
-+INFINIBAND SUBSYSTEM
-+P:	Roland Dreier
-+M:	roland@topspin.com
-+P:	Sean Hefty
-+M:	mshefty@ichips.intel.com
-+P:	Hal Rosenstock
-+M:	halr@voltaire.com
-+L:	openib-general@openib.org
-+W:	http://www.openib.org/
-+S:	Supported
-+
- INPUT (KEYBOARD, MOUSE, JOYSTICK) DRIVERS
- P:	Vojtech Pavlik
- M:	vojtech@suse.cz
+Lee
 

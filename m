@@ -1,43 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262632AbUCJOox (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 09:44:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUCJOox
+	id S262624AbUCJOow (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 09:44:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUCJOov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 09:44:53 -0500
-Received: from holomorphy.com ([207.189.100.168]:53004 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262632AbUCJOou (ORCPT
+	Wed, 10 Mar 2004 09:44:51 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:41100 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262624AbUCJOot (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 09:44:50 -0500
-Date: Wed, 10 Mar 2004 06:44:02 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: Brice Figureau <brice@daysofwonder.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: PROBLEM: task->tty->driver problem/oops in proc_pid_sta
-Message-ID: <20040310144402.GH655@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-	Brice Figureau <brice@daysofwonder.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <48F1C131BD@vcnet.vc.cvut.cz>
+	Wed, 10 Mar 2004 09:44:49 -0500
+Date: Wed, 10 Mar 2004 15:44:38 +0100
+From: Heinz Mauelshagen <hjm@redhat.com>
+To: marcelo.tosatti@cyclades.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH][BUGFIX] : LVM1 Snapshots
+Message-ID: <20040310144438.GE3065@redhat.com>
+Reply-To: hjm@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <48F1C131BD@vcnet.vc.cvut.cz>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 10, 2004 at 03:32:00PM +0200, Petr Vandrovec wrote:
-> wli has a patch, unfortunately for some reason it did not hit
-> main kernel yet. I've put it (without Wli's permission) at 
-> http://platan.vc.cvut.cz/ftp/pub/linux/pidstat.patch.
-> For unknown reason patch did not find its way to Linus's kernel yet,
-> although it renders 2.6.x unusable in any multiuser environment.
 
-That's unfortunate; I was hoping it would fix the bug. Thanks for
-testing.
+Marcelo,
+
+this patch fixes an LVM1 snapshot sector calculation causing a larger number
+of pages in the call to expand_kiobuf() than needed, which causes snapshot
+creates to fail on large memory systems and on ia64.
+
+Please apply.
+
+Regards,
+Heinz    -- The LVM Guy --
 
 
--- wli
+--- linux-2.4.26-pre2/drivers/md/lvm-snap.c	2004-03-03 17:36:50.000000000 +0100
++++ linux-2.4.26-pre2/drivers/md/lvm-snap.c.orig	2004-03-03 17:36:02.000000000 +0100
+@@ -554,15 +554,17 @@
+ 
+ int lvm_snapshot_alloc(lv_t * lv_snap)
+ {
+-	int ret;
++	int ret, max_sectors;
+ 
+ 	/* allocate kiovec to do chunk io */
+ 	ret = alloc_kiovec(1, &lv_snap->lv_iobuf);
+ 	if (ret)
+ 		goto out;
+ 
+-	ret = lvm_snapshot_alloc_iobuf_pages(lv_snap->lv_iobuf,
+-					     KIO_MAX_SECTORS);
++	max_sectors = KIO_MAX_SECTORS << (PAGE_SHIFT - 9);
++
++	ret =
++	    lvm_snapshot_alloc_iobuf_pages(lv_snap->lv_iobuf, max_sectors);
+ 	if (ret)
+ 		goto out_free_kiovec;
+ 
+
+*** Software bugs are stupid.
+    Nevertheless it needs not so stupid people to solve them ***
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+Heinz Mauelshagen                                 Red Hat GmbH
+Consulting Development Engineer                   Am Sonnenhang 11
+                                                  56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@RedHat.com                            +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

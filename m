@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265285AbTLRTQW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 14:16:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265289AbTLRTQW
+	id S265265AbTLRTVn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 14:21:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265268AbTLRTVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 14:16:22 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:36997 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S265285AbTLRTQV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 14:16:21 -0500
-Message-ID: <010001c3c59b$6bdc5370$0e25fe0a@southpark.ae.poznan.pl>
-From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
-To: <linux-kernel@vger.kernel.org>
-References: <20031218170628.GA3129@localhost.localdomain> <1071765527.12681.5.camel@clubneon.priv.hereintown.net> <72060000.1071768833@flay> <20031218184510.GD16315@mail.shareable.org>
-Subject: [SILLY] Can't wait for '2.8 or 3.0'
-Date: Thu, 18 Dec 2003 20:16:11 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.3790.0
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-X-Spam-Rating: 0 1.6.2 0/1000/N
+	Thu, 18 Dec 2003 14:21:43 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:47529 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S265265AbTLRTVk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 14:21:40 -0500
+Date: Thu, 18 Dec 2003 11:21:32 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: "Ronny V. Vindenes" <s864@ii.uib.no>
+Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@redhat.com>
+Subject: Re: [PATCH 2.4 Rmap] Add Inactive to /proc/meminfo was: Mem: and Swap: lines in /proc/meminfo
+Message-ID: <20031218192132.GE6438@matchmail.com>
+Mail-Followup-To: "Ronny V. Vindenes" <s864@ii.uib.no>,
+	linux-kernel@vger.kernel.org, Rik van Riel <riel@redhat.com>
+References: <11HNp-oH-19@gated-at.bofh.it> <11I6J-UO-15@gated-at.bofh.it> <13yZr-2nX-23@gated-at.bofh.it> <m3llpannhf.fsf@terminal124.gozu.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3llpannhf.fsf@terminal124.gozu.lan>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Are you two aware of which body parts are sometimes called
-> "beaver" and "cock"?
-Hehe, the funny thing is, that I noticed it just now :-) Maybe let's skip
-the cock.
-Anyway, the names, if any, should be non-offensive, could be from nature
-(eg.
-plants, flowers, animals, stars, geology, geography, physics)
-and could somehow reflect the nature of the kernel branch.
+On Thu, Dec 18, 2003 at 04:40:12PM +0100, Ronny V. Vindenes wrote:
+> Mike Fedyk <mfedyk@matchmail.com> writes:
+> > +		K(nr_inactive_dirty_pages()) + K(nr_inactive_dirty_pages())
+>                               ^^^^^  
+> Shouldn't that be nr_inactive_clean_pages() ? now it's 2*dirty + laundry
+> 
 
-Beaver's cool for 2.6. The name is nice, the animal is sweet. The sexual
-conotation
-is not really that bad, but it should not be emphasized.
-And the quote about the beaver getting out of detox is funny too.
+Yes, good catch.  Thanks
 
-With time we would decide on the next codename. So I am not into
-competition right now.
+> > +			+ K(nr_inactive_laundry_pages()),
 
-I might make a web based system for us to decide. First on the set of
-codenames proposed in some time for, say, 2.7 and then we could vote
-on them.
+How's this?
 
-Regards,
-Maciej
-
+--- proc_misc.c.orig	2003-12-16 17:03:45.000000000 -0800
++++ proc_misc.c	2003-12-16 17:04:28.000000000 -0800
+@@ -189,6 +189,7 @@
+ 		"Active:       %8u kB\n"
+ 		"ActiveAnon:   %8u kB\n"
+ 		"ActiveCache:  %8u kB\n"
++		"Inactive:     %8u kB\n"
+ 		"Inact_dirty:  %8u kB\n"
+ 		"Inact_laundry:%8u kB\n"
+ 		"Inact_clean:  %8u kB\n"
+@@ -208,6 +209,8 @@
+ 		K(nr_active_anon_pages()) + K(nr_active_cache_pages()),
+ 		K(nr_active_anon_pages()),
+ 		K(nr_active_cache_pages()),
++		K(nr_inactive_dirty_pages()) + K(nr_inactive_laundry_pages())
++			+ K(nr_inactive_clean_pages()),
+ 		K(nr_inactive_dirty_pages()),
+ 		K(nr_inactive_laundry_pages()),
+ 		K(nr_inactive_clean_pages()),

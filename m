@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261364AbSLHQ57>; Sun, 8 Dec 2002 11:57:59 -0500
+	id <S261356AbSLHQ46>; Sun, 8 Dec 2002 11:56:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261375AbSLHQ57>; Sun, 8 Dec 2002 11:57:59 -0500
-Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.222]:9907 "EHLO
-	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S261364AbSLHQ55>; Sun, 8 Dec 2002 11:57:57 -0500
-Date: Sun, 8 Dec 2002 11:58:49 -0500 (EST)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: fdavis@linux-dev
-To: linux-kernel@vger.kernel.org
-cc: fdavis@si.rr.com
-Subject: [PATCH] 2.5.50-ac1 : arch/i386/mm/hugetlbpage.c 
-Message-ID: <Pine.LNX.4.44.0212081156130.2895-100000@linux-dev>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261364AbSLHQ46>; Sun, 8 Dec 2002 11:56:58 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:2826 "EHLO www.home.local")
+	by vger.kernel.org with ESMTP id <S261356AbSLHQ45>;
+	Sun, 8 Dec 2002 11:56:57 -0500
+Date: Sun, 8 Dec 2002 18:01:35 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Roberto Nibali <ratz@drugphish.ch>, willy@w.ods.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: hidden interface (ARP) 2.4.20
+Message-ID: <20021208170135.GA354@alpha.home.local>
+References: <A6B0BFA3B496A24488661CC25B9A0EFA333DEF@himl07.hickam.pacaf.ds.af.mil> <1039124530.18881.0.camel@rth.ninka.net> <20021205140349.A5998@ns1.theoesters.com> <3DEFD845.1000600@drugphish.ch> <20021205154822.A6762@ns1.theoesters.com> <3DF2848F.2010900@drugphish.ch> <20021208170336.5f4deaf1.skraw@ithnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021208170336.5f4deaf1.skraw@ithnet.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-   While 'make bzImage', I received the following error...
+On Sun, Dec 08, 2002 at 05:03:36PM +0100, Stephan von Krawczynski wrote:
+> > Not with a HW LB, and with a SW LB (LVS-NAT) you can very well sustain 
+> > 20000 NAT'd load balanced connections with 5 minutes of stickyness 
+> > (persistency) with 1GB RAM and a PIII Tualatin with 512 kb L2 cache. I'm 
+> > not sure if you meant this when mentioning pain.
+> 
+> I guess he probably meant a _bit_ more. I may add some zeros to your 20000 to
+> give you a glimpse of a _standard_ load we are talking about. And you can
+> easily do this with the hardware you mentioned _not_ using NAT (of course ;-).
 
-arch/i386/mm/hugetlbpage.c:610: parse error before `*'
-arch/i386/mm/hugetlbpage.c: In function `hugetlb_sysctl_handler':
-arch/i386/mm/hugetlbpage.c:611: number of arguments doesn't match prototype
-include/linux/hugetlb.h:14: prototype declaration
-arch/i386/mm/hugetlbpage.c:612: warning: implicit declaration of function `proc_dointvec'
-arch/i386/mm/hugetlbpage.c:612: `table' undeclared (first use in this function)
-arch/i386/mm/hugetlbpage.c:612: (Each undeclared identifier is reported only once
-arch/i386/mm/hugetlbpage.c:612: for each function it appears in.)
-arch/i386/mm/hugetlbpage.c:612: `write' undeclared (first use in this function)
-arch/i386/mm/hugetlbpage.c:612: `file' undeclared (first use in this function)
-arch/i386/mm/hugetlbpage.c:612: `buffer' undeclared (first use in this function)
-arch/i386/mm/hugetlbpage.c:612: `length' undeclared (first use in this function)
-make[1]: *** [arch/i386/mm/hugetlbpage.o] Error 1
-make: *** [arch/i386/mm] Error 2
+You're right, we have been discussing this privately and agreed we were both
+talking about higher numbers ; Robert seems to have a good experience of very
+high traffic ;-)
 
-I've attached a possible patch for the issue, since noticed these same 
-error in a previous kernel. There have also been other patches that seem 
-to do the same then...fix the error.
+> I guess it would really be a great help if someone did tests like Cons'
+> "overall performance" ones for network performance explicitly. Like e.g.
+> performance for various packet-sizes of all available protocol types, possibly
+> including NAT connections. We have no comparable figures at hand right now, I
+> guess.
 
---- linux/arch/i386/mm/hugetlbpage.c.old	Wed Nov 27 18:31:44 2002
-+++ linux/arch/i386/mm/hugetlbpage.c	Wed Nov 27 18:31:38 2002
-@@ -607,7 +607,7 @@
- 	return (int) htlbzone_pages;
- }
- 
--int hugetlb_sysctl_handler(ctl_table *table, int write, struct file *file, void *buffer, size_t *length)
-+int hugetlb_sysctl_handler(struct ctl_table *table, int write, struct file *file, void *buffer, size_t *length)
- {
- 	proc_dointvec(table, write, file, buffer, length);
- 	htlbpage_max = set_hugetlb_mem_size(htlbpage_max);
+Why not ?
+I've often been doing this to check the reliability of the network layer of
+kernels that I distribute. I often use Tux for this, because it can easily
+sustain 10k hits/s during months. But Tux is not in mainstream kernel, we have
+to use other tools. Since I'm working on a task scheduler, I may soon have the
+base to rewrite my injecter and a fake server to do these tests on mainstream
+kernels. I think that several tools already exist for this. You can take a look
+at the C10K project to find links. I don't have the URL in mind, google is your
+friend.
+
+Cheers,
+Willy
 

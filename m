@@ -1,75 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262094AbTIRTmO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 15:42:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbTIRTmO
+	id S262105AbTIRTs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 15:48:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTIRTs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 15:42:14 -0400
-Received: from bolyai1.elte.hu ([157.181.72.1]:23481 "EHLO bolyai1.elte.hu")
-	by vger.kernel.org with ESMTP id S262094AbTIRTmL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 15:42:11 -0400
-Subject: Loop device and smbmount: I/O error
-From: Kovacs Gabor <kgabor@BOLYAI1.ELTE.HU>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 18 Sep 2003 21:45:56 +0200
-Message-Id: <1063914356.1639.34.camel@warp>
+	Thu, 18 Sep 2003 15:48:29 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:58005 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262105AbTIRTs2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 15:48:28 -0400
+Date: Thu, 18 Sep 2003 20:48:00 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       richard.brunner@amd.com
+Subject: Re: [PATCH] Athlon/Opteron Prefetch Fix for 2.6.0test5 + numbers
+Message-ID: <20030918194800.GA8572@mail.jlokier.co.uk>
+References: <20030917202100.GC4723@wotan.suse.de> <Pine.LNX.4.44.0309171332200.2523-100000@laptop.osdl.org> <20030917211200.GA5997@wotan.suse.de> <20030918153831.GA7548@mail.jlokier.co.uk> <20030918160456.GC7548@mail.jlokier.co.uk> <20030918170629.GC7917@wotan.suse.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030918170629.GC7917@wotan.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Andi Kleen wrote:
+> > My point is simply that non-zero base GDT segments are possible in
+> > userspace, and whatever code you add later to add the base should
+> > be aware of that.
+> 
+> I don't see how a non standard GDT is possible in user space. The GDT 
+> is only managed by the kernel. 2.6 offers to change it for NPTL, but
+> that only applies to data segments.
 
-I've tried to mount an ext2 filesystem image (ca. 1GB) stored on a WIN
-computer via the loop device under 2.4.22: 
+I don't see anything in set_thread_area() which restricts them to data
+segments.  Btw, NPTL isn't the only userspace code which uses this
+function.
 
-(Initially the file scratch2.img is filled with 0s.)
+Admittedly it would be quite odd to use set_thread_area() to create
+and use a GDT code segment - but given that you can do it, it would be
+_really_ odd if prefetch instructions gave spurious faults in these
+segments yet were fixed up elsewhere.
 
-#smbmount //win02/scratch /pro -o username=sambadisk,workgroup=MYDOMAIN
-#losetup /dev/loop0 /pro/scratch2.img
-#mke2fs /dev/loop0
-#mount /dev/loop0 /scratch -t ext2
+> In vm86 mode the user can load a different base without LDT, but that
+> should not matter here (although it may be better to check for VM86 mode
+> too) 
 
-#cp -r linux-2.4.22 /scratch
-cp: cannot create directory `/scratch/linux-2.4.22/drivers/video/sis':
-Input/output error
-cp: cannot create directory `/scratch/linux-2.4.22/drivers/video/aty':
-Input/output error
+Shouldn't spurious faults in prefetch instructions in vm86 mode be
+fixed up too?
 
-etc.
-
-#dmesg
-
-EXT2-fs error (device loop(7,0)): read_inode_bitmap: Cannot read inode
-bitmap -
-block_group = 4, inode_bitmap = 131073
-EXT2-fs error (device loop(7,0)): read_block_bitmap: Cannot read block
-bitmap -
-block_group = 4, block_bitmap = 131072
-
-
-
-
-With 'mount /dev/loop0 /scratch -t ext2 -o sync':
-
-#mkdir somedir
-mkdir: cannot create directory `somedir': Input/output error
-
-#dmesg
-IO error syncing ext2 inode [loop(7,0):0001e6cf]
-IO error syncing ext2 inode [loop(7,0):0001e6cf]
-
-I've found a similar problem in the kernel archives with the topic 'Loop
-devices under NTFS' (Aug 27-28 2002) There was mentioned a patch for
-2.5.31 to fix this problem. Hasn't been it applied to stable versions
-since then? Is there a patch for current versions?
-
-
-				Thanks
-------------------------
-Gabor Kovacs, PhD student
-Eotvos University, Budapest, Hungary
-
+-- Jamie

@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266740AbUGLHbL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266748AbUGLHhJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266740AbUGLHbL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 03:31:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266746AbUGLHbL
+	id S266748AbUGLHhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 03:37:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266751AbUGLHhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 03:31:11 -0400
-Received: from [193.178.151.93] ([193.178.151.93]:5594 "EHLO as.unibanka.lv")
-	by vger.kernel.org with ESMTP id S266740AbUGLHbG (ORCPT
+	Mon, 12 Jul 2004 03:37:09 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26814 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266748AbUGLHfg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 03:31:06 -0400
-From: Aivils <aivils@unibanka.lv>
-Reply-To: aivils@unibanka.lv
-Organization: Unibanka
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Voluntary Preemption + concurent games
-Date: Mon, 12 Jul 2004 11:23:11 +0300
-User-Agent: KMail/1.6.1
-References: <20040709182638.GA11310@elte.hu> <20040711143853.GA6555@elte.hu> <20040711201753.GA11073@elte.hu>
-In-Reply-To: <20040711201753.GA11073@elte.hu>
-Cc: ck kernel mailing list <ck@vds.kolivas.org>, linux-kernel@vger.kernel.org,
-       linuxconsole-dev@lists.sourceforge.net
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 12 Jul 2004 03:35:36 -0400
+Date: Mon, 12 Jul 2004 00:34:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Instrumenting high latency
+Message-Id: <20040712003418.02997a12.akpm@osdl.org>
+In-Reply-To: <cone.1089613755.742689.28499.502@pc.kolivas.org>
+References: <cone.1089613755.742689.28499.502@pc.kolivas.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407121123.11520.aivils@unibanka.lv>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All!
+Con Kolivas <kernel@kolivas.org> wrote:
+>
+> He hacked 
+>  together this simple patch which times periods according to the preempt 
+>  count.
 
-	I still use in my home minicomputer under Linux, where
-3 users use one CPU/RAM , but own video.
-	By default 2.6.XX task scheduler don' t like concurent applications
-at all. 2.6.XX task scheduler allways raise on top of tasks only one
-task and keep it on top until user stop it.
-	This rule is very unwanted for minicomputers, because multile
-local users will use one CPU and feel lucky.
+OK, small problem.  We have code which does, effectively,
 
-	As point of reference i use 2.4.XX tack scheduler, which is very
-"righteous" and allways give CPU time for all tasks. Under 2.4.XX
-concurent games run smooth.
+	if (need_resched()) {
+		drop_the_lock();
+		schedule();
+		grab_the_lock();
+	}
 
-	2.6.XX non-preemptive and 2.6.XX voluntary-preemptive task
-scheduling looks very similar. My gamer' s eye report me very
-thiny and very subjective difference - preferable is voluntary-preemtive.
-Anyway all concurent CPU intensive tasks should be started with
-nice -n +19 game-bin . Any other nice value remake one of
-running game to slide show or both running games became slide show.
+so if need_resched() stays false then this will hold the lock for a long
+time and bogus reports are generated:
 
-	So we should start any game with nice +19. In is this set goes in
-netscape and konqueror because of java web-chat and games.
+46ms non-preemptible critical section violated 1 ms preempt threshold starting at exit_mmap+0x26/0x188 and ending at exit_mmap+0x154/0x188
 
-	At least voluntary-preemptive allow me move away from 2.4.26
+To fix that you need to generate high scheduling pressure so that
+need_resched() is frequently true.  On all CPUs.  Modify realfeel to pin
+itself to each CPU, or something like that.
 
-Aivils Stoss
+This rather decreases the patch's usefulness.
+
+The way I normally do this stuff is with
+
+	http://www.zip.com.au/~akpm/linux/patches/stuff/rtc-debug.patch
+
+and `amlat', from http://www.zip.com.au/~akpm/linux/amlat.tar.gz
+
+
+It _might_ be sufficient to redefine need_resched() to just return 1 all
+the time.  If that causes the kernel to livelock then we need to fix that
+up anyway.

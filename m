@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267605AbSLSLfT>; Thu, 19 Dec 2002 06:35:19 -0500
+	id <S267611AbSLSLjW>; Thu, 19 Dec 2002 06:39:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267611AbSLSLfT>; Thu, 19 Dec 2002 06:35:19 -0500
-Received: from holomorphy.com ([66.224.33.161]:3777 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267605AbSLSLfS>;
-	Thu, 19 Dec 2002 06:35:18 -0500
-Date: Thu, 19 Dec 2002 03:42:46 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-security-module@wirex.com, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] 2.5.52-lsm1
-Message-ID: <20021219114246.GN1922@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-security-module@wirex.com, linux-kernel@vger.kernel.org
-References: <20021219025123.A23371@figure1.int.wirex.com> <20021219111433.GM1922@holomorphy.com>
-Mime-Version: 1.0
+	id <S267617AbSLSLjW>; Thu, 19 Dec 2002 06:39:22 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:43794
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267611AbSLSLjV>; Thu, 19 Dec 2002 06:39:21 -0500
+Date: Thu, 19 Dec 2002 03:45:03 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus A7V133
+ Promise ctrlr, or...
+In-Reply-To: <20021219111450.GD17201@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.10.10212190314260.8350-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021219111433.GM1922@holomorphy.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, Dec 19, 2002 at 02:51:23AM -0800, Chris Wright wrote:
->> The Linux Security Modules project provides a lightweight, general
->> purpose framework for access control.  The LSM interface enables
->> security policies to be developed as loadable kernel modules.
->> See http://lsm.immunix.org for more information.
->> 2.5.52-lsm1 patch released.  This is a rebase up to 2.5.52 as well as
->> numerous module updates and bugfixes.  The interface has changed, and
->> the hooks are controlled with CONFIG_SECURITY now.  Currently LIDS and
->> DTE will not compile.
->> Full lsm-2.5 patch (LSM + all modules) is available at:
->> 	http://lsm.immunix.org/patches/2.5/2.5.52/patch-2.5.52-lsm1.gz
->> The whole ChangeLog for this release is at:
->> 	http://lsm.immunix.org/patches/2.5/2.5.52/ChangeLog-2.5.52-lsm1
->> The LSM 2.5 BK tree can be pulled from:
->>         bk://lsm.bkbits.net/lsm-2.5
+On Thu, 19 Dec 2002, Tomas Szepe wrote:
 
-On Thu, Dec 19, 2002 at 03:14:33AM -0800, William Lee Irwin III wrote:
-> Forgive my ignorance (if this applies) but I recently submitted a patch
+> > > > > So.  I /think/ that somehow the Promise controller isn't being
+> > > > > initialized properly by the Linux kernel, UNLESS the mobo's BIOS
+> > > > > inits it first?
+> > > >
+> > > > In some situations yes. The BIOS does stuff including fixups we mere
+> > > > mortals arent permitted to know about.
+> > > 
+> > > OTOH mere mortals are allowed to make full dump of PCI config ;)
+> > > 
+> > > "D.A.M. Revok" <marvin@synapse.net>, can you send lspci -vvvxxx
+> > > outputs when you boot with BIOS enabled and BIOS disabled?
+> > 
+> > Promise knows this point.
+> > Thus they moved the setting to a push/pull in the vendor space in the
+> > dma_base+1 and dma_base+3 respectively.
+> > 
+> > lspci -vvvxxx fails when the content is located in bar4 io space.
+> 
+> Clearly Promise is the one storage vendor whose products are best avoided.
 
-My apologies. The patch (as I've heard from hch) has gone out separately.
-Thanks to both gregkh and chris for rapid responses, and many apologies
-from me wrt. my uninformed responses.
+I would not say this is the case.  What is going on is people are wanting
+to migrate to more of an internal hidden operation.
 
-For the majority of -lsm users: This was an API update. No semantic
-differences wrt. bugs or other issues should be visible. Thank you
-for your patience, and I apologize in advance for my ignorance. Rest
-assured in the fact that my changes are not critical to your security
-correctness and that chris and gregkh have been thorough, diligent
-and highly responsive wrt. the incorporation of this API update along
-with your essential security updates.
+Think about it from their side.
+They want to make it easier to program the card.
 
+Linux is an OS that like to know what is going on all the time, and the
+two clash.
 
-Thanks,
-Bill
+> Andre, could you give a recommendation on what add-on IDE controllers are
+> not junk hardware and will work nicely with Linux?  'Cos I can't seem to
+> remember seeing anything in the shelves other than Promise or CMD64X/68X.
+
+Hmmm...
+
+Andre Hedrick
+LAD Storage Consulting Group
+

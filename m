@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263491AbUACNsS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 08:48:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbUACNsS
+	id S263244AbUACOAb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 09:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbUACOAa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 08:48:18 -0500
-Received: from ns.unixsol.org ([193.110.159.2]:19463 "HELO ns.unixsol.org")
-	by vger.kernel.org with SMTP id S263491AbUACNsR (ORCPT
+	Sat, 3 Jan 2004 09:00:30 -0500
+Received: from ns1.skjellin.no ([80.239.42.66]:9910 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S263244AbUACOAZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 08:48:17 -0500
-Message-ID: <3FF6C81A.4060408@unixsol.org>
-Date: Sat, 03 Jan 2004 15:48:10 +0200
-From: Georgi Chorbadzhiyski <gf@unixsol.org>
-Organization: Unix Solutions (http://unixsol.org)
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030617
-X-Accept-Language: en-us, en, bg
-MIME-Version: 1.0
-To: Jens Benecke <jens-usenet@spamfreemail.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-mjb2 useage report (K7-2400/1G/IDE/ASUS-nForce2)
-References: <3554040.5Ujn9dJA3e@spamfreemail.de>
-In-Reply-To: <3554040.5Ujn9dJA3e@spamfreemail.de>
-Content-Type: text/plain; charset=us-ascii
+	Sat, 3 Jan 2004 09:00:25 -0500
+Subject: Re: IDE-RAID Drive Performance
+From: Andre Tomt <lkml@tomt.net>
+To: Nuno Alexandre <na@imaginere.dk>
+Cc: linux-kernel@vger.kernel.org, Nicklas Bondesson <nicke@nicke.nu>
+In-Reply-To: <20031230122119.1566247a@Genbox>
+References: <S265736AbTL3KoB/20031230104401Z+18387@vger.kernel.org>
+	 <20031230122119.1566247a@Genbox>
+Content-Type: text/plain
+Message-Id: <1073138426.8863.33.camel@slurv.pasop.tomt.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 03 Jan 2004 15:00:26 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Benecke wrote:
-> this is a simple user's report on switching to 2.6.0 from 2.4.22.
+On Tue, 2003-12-30 at 12:21, Nuno Alexandre wrote:
+> /dev/hda:
+>  Timing buffer-cache reads:   1320 MB in  2.00 seconds = 659.44 MB/sec
+>  Timing buffered disk reads:  140 MB in  3.02 seconds =  46.40 MB/sec
 > 
-> so far, 2.6.0 hasn't made things worse here. I can use my scanner (epson
-> USB), I can use mouse (USB) XFree86 4.3 and NVIDIA driver (with the patches
-> from minion.de). I can use MPlayer to play movie files and listen to music
-> with the new ALSA drivers (I used ALSA before though).
-> 
-> Good work!
-> 2.4.1 (the first 2.4 I used) was much worse. Not to speak of the later 2.4
-> kernel versions ... ;)
-> 
-> I don't notice any real preformance improvement over 2.4.2x, though.
-> 
-> Most everything works, although there are a few tidbits:
-> 
-> 
-> - LOCAL_APIC and PNPBIOS made my laptop crash before it could even write any
-> boot messages on the screen. (I posted about this earlier).
-> 
-> - Not putting the X server to -10 nice level (as told in the 2.6 HOWTO I dug
-> up somewhere, that also mentioned module-init-tools etc) makes my mouse
-> jitter whenever a process eats 100% CPU. That is not nice. XMMS also skips
-> a second then.
-> The X server also freezes for a seond from time to time for no apparent
-> reason (other than the CPU useage going up). I have Folding@Home clients
-> running on this machine (nice=19) and usually don't notice them at all
-> though.
-> 
-> 
-> - Inserting my external IDE->USB/Firewire harddisk into the internal USB
-> slot (nForce2 mainboard) made Linux go into an endless loop:
+> Using:
+> -d1 -u1 -m16 -c3 -W1 -A1 -k1 -X70 -a 8192
 
-Could this be the same kind of problem ?
+Wow, slow down for a minute. Most IDE chipset drivers does a excellent
+job at autotuning the max *safe settings* for your drive/chipset
+combination. Mucking around with hdparm parameters blindfolded will only
+cause you grief in form of data loss and system instability sooner than
+later.
 
-http://www.mail-archive.com/linux-usb-devel@lists.sourceforge.net/msg15962.html
+Usually when one gets into performance problems with IDE in Linux, the
+chipset specific driver is not enabled, making the system fallback to
+the generic driver - OR the drive and controller combination is
+considered unsafe with faster settings.
 
--- 
-Georgi Chorbadzhiyski
-http://georgi.unixsol.org/
+Without any user intervention at all, my Seagate 7200 120G's does 55MB/s
+in the infamious hdparm test, on a VIA KT266 based board, both in
+2.6.1-rc1 and 2.4.23.
+
 

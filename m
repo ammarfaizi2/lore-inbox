@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318795AbSHLTWT>; Mon, 12 Aug 2002 15:22:19 -0400
+	id <S318797AbSHLTZ5>; Mon, 12 Aug 2002 15:25:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318797AbSHLTWT>; Mon, 12 Aug 2002 15:22:19 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:13 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S318795AbSHLTWS>; Mon, 12 Aug 2002 15:22:18 -0400
-Date: Mon, 12 Aug 2002 15:36:06 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Hans Reiser <reiser@namesys.com>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       Hans Reiser <reiser@bitshadow.namesys.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [BK] [PATCH] reiserfs changeset 7 of 7 to include into 2.4 tree
-In-Reply-To: <3D555823.7040204@namesys.com>
-Message-ID: <Pine.LNX.4.44.0208121533470.3048-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318798AbSHLTZ5>; Mon, 12 Aug 2002 15:25:57 -0400
+Received: from stingr.net ([212.193.32.15]:37896 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S318797AbSHLTZ4>;
+	Mon, 12 Aug 2002 15:25:56 -0400
+Date: Mon, 12 Aug 2002 23:29:45 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.4.20-pre1
+Message-ID: <20020812192945.GA20757@stingr.net>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva> <20020811085717.GA17738@codepoet.org> <1029095179.16236.16.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <1029095179.16236.16.camel@irongate.swansea.linux.org.uk>
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Replying to Alan Cox:
+> Not a good plan. EFI can be used on non ia64 so NULL_GUID belongs
+> somewhere else
 
+maybe but even without NULL_GUID I still need to add asm-ia64 to
+KBUILD_INCLUDE_DIRS while trying to kbuild-25ify -ac (and marcelo now)
 
-On Sat, 10 Aug 2002, Hans Reiser wrote:
+hint-hint: maybe it IS worth moving to generic include ?
 
-> I forgot to mention that a variety of benchmarks of various allocator
-> options are on www.namesys.com/benchmarks.html.  They aren't very
-> understandable, but if questions are asked I'll answer them.
+hmm
 
-I get this from the "Mongo" benchmark homepage.
-
-I suppose the behaviour with your patches is "skip_busy", right?
-
-
-Block allocator options are passed with alloc=opt1:opt2:... mount
-parameter, where opt1, opt2,... are:
-
-      skip_busy:
-            Try to allocate blocks in block-groups (called bitmaps in
-reiserfs) that have more than 10% of blocks free first, if that fail,
-allocate anywhere.
-      concentrating_formatted_nodes=X:
-            turned on 'border algorithm' and put this border in X% of
-available space.
-      old_way:
-            Mimic original block allocator from 2.4.18
-      displacing_new_packing_localities:
-            Displace formatted nodes of directories at creation time.
-Displacing is the hash from the dir_id.
-      displacing_large_files:
-            Takes one parameter - a blocknumber. When this blocknumber
-allocated for the file, it is placed separately on disk (by default new
-location is the keyed_hash from the object_id
-            value. "displace_based_on_dirid" will change that.
-      displace_based_on_dirid:
-            When displacing files, place files that live in same directory
-in the same disk area. (achieved by hashing by dir_id value of ondisk_key,
-instead of object_id)
-
-----
-
+-- 
+Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
+  When you're invisible, the only one really watching you is you (my keychain)

@@ -1,44 +1,110 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315485AbSFEQWK>; Wed, 5 Jun 2002 12:22:10 -0400
+	id <S315503AbSFEQZJ>; Wed, 5 Jun 2002 12:25:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315503AbSFEQWK>; Wed, 5 Jun 2002 12:22:10 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:49332 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S315485AbSFEQWJ>; Wed, 5 Jun 2002 12:22:09 -0400
-Date: Wed, 5 Jun 2002 18:21:47 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Thomas Zimmerman <thomas@zimres.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] atapci 0.51
-In-Reply-To: <20020601025555.GA291@zimres.net>
-Message-ID: <Pine.SOL.4.30.0206051820380.16024-100000@mion.elka.pw.edu.pl>
+	id <S315517AbSFEQZI>; Wed, 5 Jun 2002 12:25:08 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:49926 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315503AbSFEQZH>; Wed, 5 Jun 2002 12:25:07 -0400
+Message-ID: <3CFE2DAA.3000203@evision-ventures.com>
+Date: Wed, 05 Jun 2002 17:26:34 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.20 IDE 85
+In-Reply-To: <Pine.LNX.4.33.0206021853030.1383-100000@penguin.transmeta.com> <3CFE0C16.1020203@evision-ventures.com> <20020605141717.GB16257@suse.de> <3CFE1974.9080509@evision-ventures.com> <20020605154853.GF16600@suse.de> <20020605155241.GD16257@suse.de> <3CFE29FE.90402@evision-ventures.com> <20020605161417.GG16600@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe wrote:
+> On Wed, Jun 05 2002, Martin Dalecki wrote:
+> 
+>>Jens Axboe wrote:
+>>
+>>>On Wed, Jun 05 2002, Jens Axboe wrote:
+>>>
+>>>
+>>>>On Wed, Jun 05 2002, Martin Dalecki wrote:
+>>>>
+>>>>
+>>>>>Jens Axboe wrote:
+>>>>>
+>>>>>
+>>>>>>On Wed, Jun 05 2002, Martin Dalecki wrote:
+>>>>>>
+>>>>>>AFAICS, you just introduced some nasty list races in the interrupt
+>>>>>>handlers. You must hold the queue locks when calling
+>>>>>>blkdev_dequeue_request() and end_that_request_last(), for instance.
+>>>>>>
+>>>>>
+>>>>>No. Please be more accurate. Becouse:
+>>>>>
+>>>>>1. If anything I have made existing races only "obvious".
+>>>>
+>>>>If anything, you've made a race you introduced earlier more obvious.
+>>>>
+>>>>
+>>>>
+>>>>>2. It is called in the context of do_ide_request or ide_raw_taskfile
+>>>>> where we already have the lock.
+>>>>
+>>>>?? Both tcq and ata_special_intr look like interrupt handlers to me.
+>>>
+>>>
+>>>BTW, I wanted to look at the code (and not just read the patch), but
+>>>it's not clear from the patch what it is against. Where do you keep
+>>>older patches so I can get them? Maybe the ide code could do with a bit
+>>>of peer review :-)
+>>>
+>>
+>>Well IDE 83 and 84 are already inside the bk repository at linux.bkbits.com.
+>>No as far as of now I don't have any public FTP or whatever area for
+>>the patches (Well send you everything in one go.)
+> 
+> 
+> Thanks. Just ask hpa for a kernel.org dir, if you don't have anywhere
+> else to keep it.
+> 
+> 
+>>And I of course agree that the code needs a peer review in this area.
+>>Adding the locking isn't difficult.
+> 
+> 
+> Of course not, discovering the missing locking is most of the work. And
+> of course acknowedging that there's a problem :-)
 
-On Fri, 31 May 2002, Thomas Zimmerman wrote:
+Just to make sure that we understand each other. I admitt that
+you are right there have to be locks there. As well as around any host chip
+access. Thanks for the reminder.
+And well please note that the last patches in esp. are trying
+hard to reducde the number of possible code flow branch cases.
 
-> On 31-May 02:35, Bartlomiej Zolnierkiewicz wrote:
-> [snip]
-> > So 0.51 version is here:
-> > http://home.elka.pw.edu.pl/~bzolnier/atapci/atapci-0.51.tar.bz2
-> >
-> > changelog:
-> > - make it kernel version independent
-> > - add '-s' strip flag to CFLAGS
-> > - minor cosmetics by Roberto Nibali
-> >
-> > --
-> > bkz
->
-> Just a nit, but wouldn't the name "lsata" fit in better with "lspci" and
-> "lsisa"?
->
-> Thomas
->
+>>However I wonder a bit whatever we couldn't just blkdev_dequeue_request()
+>>once at request handling start? We drag drive->rq around anyway...
+> 
+> 
+> I did that once a long time ago, but it was very broken because the IDE
+> code would end up in ide_do_request() several times at times before a
+> request was started. I think there are advantages both ways: leaving the
+> request on the queue until it is done allows the i/o scheduler to know
+> what the disk is currently working on. Removing it is potentially a bit
+> cleaner, however most of the reason for that has long been reworked in
+> 2.5 (the plugging and head active stuff).
 
-No, it is only for PCI chipsets.
+Yes I remember - the IDE/SCSI queue head differencies. Making
+them to behave entierly equal would have some charm too...
+However the multi ide_do_request entry problems should
+have got *much* better due to the reduction of the multiple
+submitted/injected artifical request (REQ_ and friends) types.
+The remaining one is now only ide_raw_taskfile
+and the regular onces. Well ide-tape and packet command handling aside...
+but whom I'm telling this ... I'm sure you already know...
+
+
 

@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264062AbUDBT4N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 14:56:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264088AbUDBT4N
+	id S263585AbUDBTyT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 14:54:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264069AbUDBTyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 14:56:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:10159 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264062AbUDBT4I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 14:56:08 -0500
-Date: Fri, 2 Apr 2004 11:56:01 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: markw@osdl.org
-Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: 2.6.5-rc3-mm4
-Message-Id: <20040402115601.24912093.akpm@osdl.org>
-In-Reply-To: <200404021904.i32J4M215682@mail.osdl.org>
-References: <20040401020512.0db54102.akpm@osdl.org>
-	<200404021904.i32J4M215682@mail.osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 2 Apr 2004 14:54:19 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:58885 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263585AbUDBTyR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 14:54:17 -0500
+Date: Fri, 2 Apr 2004 20:54:10 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, hugh@veritas.com, vrajesh@umich.edu,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
+Message-ID: <20040402205410.A7194@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
+	hugh@veritas.com, vrajesh@umich.edu, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20040402001535.GG18585@dualathlon.random> <Pine.LNX.4.44.0404020145490.2423-100000@localhost.localdomain> <20040402011627.GK18585@dualathlon.random> <20040401173649.22f734cd.akpm@osdl.org> <20040402020022.GN18585@dualathlon.random> <20040402104334.A871@infradead.org> <20040402164634.GF21341@dualathlon.random> <20040402195927.A6659@infradead.org> <20040402192941.GP21341@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040402192941.GP21341@dualathlon.random>; from andrea@suse.de on Fri, Apr 02, 2004 at 09:29:41PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-markw@osdl.org wrote:
->
-> I reran DBT-2 to with ext2 and ext3 (in case you were still interested)
->  on my 4-way Xeon system with 60+ drives:
->  	http://developer.osdl.org/markw/fs/dbt2_project_results.html
+On Fri, Apr 02, 2004 at 09:29:41PM +0200, Andrea Arcangeli wrote:
+> page->private indicates:
 > 
->  Aside from the from the drop you're already aware of since 2.6.3, it
->  looks like DBT-2 takes another smaller hit after 2.6.5-rc3-mm2.  Here's
->  a brief summary from the link above:
+> >>> (0xc0772380L-0xc07721ffL)/32
+> 12L
+> 
+> that's the 12th page in the array.
+> 
+> can you check in the asm (you should look at address c0048c7c) if it's
+> the first bug that triggers?
+> 
+> 	if (page[1].index != order)
+> 		bad_page(__FUNCTION__, page);
 
-The profile is interesting:
+No, it's the second one (and yes, I get lots of theses backtraces, unless
+I counted wrongly 19 this time)
 
-3671973 poll_idle                                63309.8793
- 77750 __copy_from_user_ll                      637.2951
- 64788 generic_unplug_device                    487.1278
- 62968 DAC960_LP_InterruptHandler               336.7273
- 53908 finish_task_switch                       361.7987
- 52947 __copy_to_user_ll                        441.2250
- 29419 dm_table_unplug_all                      439.0896
- 25947 __make_request                            17.9938
- 18564 dm_table_any_congested                   199.6129
- 13785 update_queue                             104.4318
- 13498 try_to_wake_up                            20.3590
- 12736 __wake_up                                114.7387
- 12560 kmem_cache_alloc                         163.1169
- 12221 .text.lock.sched                          40.7367
+> the whole compound thing is very screwed in the above scenario.
+> 
+> Do you have CONFIG_DEBUG_PAGEALLOC enabled?
 
-- There's a ton of idle time there.
+no. it's not available on ppc32.
 
-- The CPU scheduler is hurting.  Nick and Ingo are patching up a storm to
-  fix a similar problem which Jeremy Higdon is observing at 200,000
-  IOs/sec.  This will get better.
+> could be compound never worked right on ppc, dunno. You could try to
+> backout the patch gfp-no-compound and to recompile with hugetlbfs
+> enabled (can you enable it on PPC?).
 
-- That 60-disk LVM array is costing us in the new unplug and congestion
-  code.  Jens, didn't you have a tune-up for that in the works?
-
-- I'm surprised that you didn't see big gains from ext3-fsync-speedup,
-  even though it appears that the test uses fdatasync().
+no, there's no hugetlb support on ppc32.
 

@@ -1,48 +1,466 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266156AbTLIIwO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 03:52:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266157AbTLIIwO
+	id S263541AbTLIJER (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 04:04:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266166AbTLIJEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 03:52:14 -0500
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:41924 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S266156AbTLIIwK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 03:52:10 -0500
-To: Holger Schurig <h.schurig@mn-logistik.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: State of devfs in 2.6?
-References: <200312081536.26022.andrew@walrond.org>
-	<20031208154256.GV19856@holomorphy.com>
-	<pan.2003.12.08.23.04.07.111640@dungeon.inka.de>
-	<20031208233428.GA31370@kroah.com>
-	<1070953338.7668.6.camel@simulacron>
-	<20031209071303.GB24876@Master.launchmodem.com>
-	<br41h9$mth$1@sea.gmane.org>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 09 Dec 2003 17:52:01 +0900
-In-Reply-To: <br41h9$mth$1@sea.gmane.org>
-Message-ID: <buooeuifk5q.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	Tue, 9 Dec 2003 04:04:16 -0500
+Received: from ee.oulu.fi ([130.231.61.23]:33245 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S263541AbTLIJDJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 04:03:09 -0500
+Date: Tue, 9 Dec 2003 11:03:07 +0200 (EET)
+From: Tuukka Toivonen <tuukkat@ee.oulu.fi>
+X-X-Sender: tuukkat@stekt37
+To: linux-kernel@vger.kernel.org
+Subject: rmmod from modutils with 2.6.0-test11 -> kernel crash
+Message-ID: <Pine.GSO.4.58.0312091049200.14706@stekt37>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Holger Schurig <h.schurig@mn-logistik.de> writes:
-> Devfs for embedded devices is just great.
-> 
-> * space. devfs doesn't eat space like the MAKEDEV approach.
+[1.] One line summary of the problem:
+When trying to remove some module in use using rmmod from modutils but with
+kernel 2.6.0-test11, the kernel crashes.
 
-Um, devfs does actually use a non-zero amount of code...
+[2.] Full description of the problem/report:
+With rmmod from module-init-tools, it correctly says "module busy" and fails,
+but with older rmmod it doesn't  appear to make this test, when running a
+new kernel. I know older rmmod should not be used with new kernel, but
+someone will anyway do that accidentally (like I did) and I don't think
+that the correct behaviour is to crash the kernel.
+[Exact behaviour depends on module, but typically "rmmod unix" crashes
+immediately]
 
-For a typical embedded device with about 5 entries in /dev I wouldn't
-be surprised if devfs used a lot _more_ space...
+[3.] Keywords (i.e., modules, networking, kernel):
+modules
 
--miles
--- 
-`...the Soviet Union was sliding in to an economic collapse so comprehensive
- that in the end its factories produced not goods but bads: finished products
- less valuable than the raw materials they were made from.'  [The Economist]
+[4.] Kernel version (from /proc/version):
+2.6.0-test11, compiled with gcc 2.95.4.
+
+[7.1.] Software (add the output of the ver_linux script here)
+Debian 3.0, modutils 2.4.15-1, module-init-tools-0.9.13-pre,
+
+[7.2.] Processor information (from /proc/cpuinfo):
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 6
+cpu MHz         : 927.186
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
+cmov pat pse36 mmx fxsr sse
+bogomips        : 1830.91
+
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 6
+cpu MHz         : 927.186
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
+cmov pat pse36 mmx fxsr sse
+bogomips        : 1851.39
+
+[7.7.] Other information that might be relevant to the problem
+Kernel config:
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+
+CONFIG_EXPERIMENTAL=y
+CONFIG_STANDALONE=y
+CONFIG_BROKEN=y
+CONFIG_BROKEN_ON_SMP=y
+
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=17
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_SMP=y
+CONFIG_NR_CPUS=2
+CONFIG_PREEMPT=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_EDD=m
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+
+CONFIG_PM=y
+
+CONFIG_ACPI_BOOT=y
+
+CONFIG_APM=m
+CONFIG_APM_DO_ENABLE=y
+CONFIG_APM_DISPLAY_BLANK=y
+CONFIG_APM_RTC_IS_GMT=y
+
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_PCI_NAMES=y
+
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_MISC=m
+
+CONFIG_MTD=m
+
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_1284=y
+
+CONFIG_BLK_DEV_FD=m
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_CRYPTOLOOP=m
+CONFIG_BLK_DEV_NBD=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=4096
+
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_IDE_TASK_IOCTL=y
+CONFIG_IDE_TASKFILE_IO=y
+
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_IDEDMA_ONLYDISK=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+
+CONFIG_SCSI=m
+CONFIG_SCSI_PROC_FS=y
+
+CONFIG_BLK_DEV_SD=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_CHR_DEV_SG=m
+
+CONFIG_SCSI_REPORT_LUNS=y
+CONFIG_SCSI_CONSTANTS=y
+
+CONFIG_SCSI_AIC7XXX=m
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+CONFIG_AIC7XXX_RESET_DELAY_MS=1500
+CONFIG_AIC7XXX_DEBUG_MASK=0
+CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
+
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=m
+CONFIG_MD_LINEAR=m
+CONFIG_MD_RAID0=m
+CONFIG_MD_RAID1=m
+CONFIG_MD_RAID5=m
+
+CONFIG_NET=y
+
+CONFIG_PACKET=m
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK_DEV=m
+CONFIG_UNIX=m
+CONFIG_INET=y
+
+CONFIG_NETFILTER=y
+
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_IPRANGE=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_COMPAT_IPCHAINS=m
+
+CONFIG_IPV6_SCTP__=y
+
+CONFIG_NETDEVICES=y
+
+CONFIG_DUMMY=m
+
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=m
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=m
+
+CONFIG_NET_PCI=y
+CONFIG_NE2K_PCI=m
+CONFIG_8139TOO=m
+
+CONFIG_PLIP=m
+CONFIG_PPP=m
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+
+CONFIG_INPUT=y
+
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_EVDEV=m
+
+CONFIG_GAMEPORT=m
+CONFIG_SOUND_GAMEPORT=m
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=m
+
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_KEYBOARD_SUNKBD=m
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=m
+CONFIG_MOUSE_SERIAL=m
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=m
+CONFIG_INPUT_UINPUT=m
+
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+
+CONFIG_SERIAL_8250=m
+CONFIG_SERIAL_8250_NR_UARTS=2
+
+CONFIG_SERIAL_CORE=m
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+CONFIG_PPDEV=m
+
+CONFIG_I2C=m
+CONFIG_I2C_CHARDEV=m
+
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_ALGOPCF=m
+
+CONFIG_I2C_I810=m
+CONFIG_I2C_PIIX4=m
+CONFIG_SCx200_ACB=m
+
+CONFIG_I2C_SENSOR=m
+CONFIG_SENSORS_ADM1021=m
+CONFIG_SENSORS_EEPROM=m
+CONFIG_SENSORS_IT87=m
+CONFIG_SENSORS_LM75=m
+CONFIG_SENSORS_LM78=m
+CONFIG_SENSORS_LM85=m
+CONFIG_SENSORS_VIA686A=m
+CONFIG_SENSORS_W83781D=m
+
+CONFIG_BUSMOUSE=m
+
+CONFIG_IPMI_HANDLER=m
+CONFIG_IPMI_PANIC_EVENT=y
+CONFIG_IPMI_DEVICE_INTERFACE=m
+CONFIG_IPMI_KCS=m
+CONFIG_IPMI_WATCHDOG=m
+
+CONFIG_NVRAM=m
+CONFIG_RTC=m
+CONFIG_GEN_RTC=m
+CONFIG_GEN_RTC_X=y
+
+CONFIG_AGP=m
+CONFIG_AGP_INTEL=m
+CONFIG_DRM=y
+CONFIG_DRM_MGA=m
+CONFIG_RAW_DRIVER=m
+CONFIG_MAX_RAW_DEVS=4
+CONFIG_HANGCHECK_TIMER=m
+
+CONFIG_VIDEO_DEV=m
+
+CONFIG_VIDEO_BT848=m
+
+CONFIG_VIDEO_TUNER=m
+CONFIG_VIDEO_BUF=m
+CONFIG_VIDEO_BTCX=m
+
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+
+CONFIG_SOUND=m
+
+CONFIG_SND=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=m
+CONFIG_SND_VERBOSE_PRINTK=y
+
+CONFIG_SND_DUMMY=m
+
+CONFIG_SND_CS46XX=m
+
+CONFIG_SND_USB_AUDIO=m
+
+CONFIG_USB=m
+CONFIG_USB_DEBUG=y
+
+CONFIG_USB_DEVICEFS=y
+
+CONFIG_USB_UHCI_HCD=m
+
+CONFIG_USB_AUDIO=m
+
+CONFIG_USB_PWC=m
+
+CONFIG_EXT2_FS=m
+CONFIG_EXT3_FS=m
+CONFIG_JBD=m
+CONFIG_REISERFS_FS=y
+CONFIG_JFS_FS=m
+CONFIG_XFS_FS=m
+CONFIG_MINIX_FS=m
+CONFIG_ROMFS_FS=m
+CONFIG_AUTOFS4_FS=m
+
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=m
+
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_NTFS_FS=m
+CONFIG_NTFS_RW=y
+
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+
+CONFIG_AFFS_FS=m
+CONFIG_CRAMFS=m
+
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+CONFIG_SUNRPC=m
+CONFIG_SMB_FS=m
+CONFIG_CODA_FS=m
+CONFIG_INTERMEZZO_FS=m
+
+CONFIG_PARTITION_ADVANCED=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_UTF8=m
+
+CONFIG_DEBUG_KERNEL=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+CONFIG_DEBUG_SLAB=y
+CONFIG_DEBUG_IOVIRT=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_SPINLOCK=y
+CONFIG_DEBUG_SPINLOCK_SLEEP=y
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_NULL=m
+CONFIG_CRYPTO_MD4=m
+CONFIG_CRYPTO_MD5=m
+CONFIG_CRYPTO_SHA1=m
+CONFIG_CRYPTO_SHA256=m
+CONFIG_CRYPTO_SHA512=m
+CONFIG_CRYPTO_DES=m
+CONFIG_CRYPTO_BLOWFISH=m
+CONFIG_CRYPTO_TWOFISH=m
+CONFIG_CRYPTO_SERPENT=m
+CONFIG_CRYPTO_AES=m
+CONFIG_CRYPTO_CAST5=m
+CONFIG_CRYPTO_CAST6=m
+CONFIG_CRYPTO_DEFLATE=m
+
+CONFIG_CRC32=m
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_TRAMPOLINE=y
+CONFIG_PC=y

@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263618AbTKQR7z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 12:59:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263619AbTKQR7y
+	id S263607AbTKQSRY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 13:17:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbTKQSRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 12:59:54 -0500
-Received: from sweetums.bluetronic.net ([24.199.150.42]:63690 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S263618AbTKQR7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 12:59:53 -0500
-Date: Mon, 17 Nov 2003 12:57:54 -0500 (EST)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Lars Ehrhardt <1103@ng.h42.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test9-bk22 does not compile on sparc64: undefined reference
- to `vga_writeb'
-In-Reply-To: <3FB8FCA6.7010804@ng.h42.de>
-Message-ID: <Pine.GSO.4.33.0311171251130.26356-100000@sweetums.bluetronic.net>
+	Mon, 17 Nov 2003 13:17:24 -0500
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:58121 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S263607AbTKQSRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 13:17:22 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Greg KH <greg@kroah.com>, rusty@rustcorp.com.au
+Subject: Re: file2alias - incorrect? aliases for USB
+Date: Mon, 17 Nov 2003 21:11:28 +0300
+User-Agent: KMail/1.5.3
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200311092155.19924.arvidjaar@mail.ru> <20031110093703.GA5449@kroah.com>
+In-Reply-To: <20031110093703.GA5449@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311172111.30795.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Nov 2003, Lars Ehrhardt wrote:
->Ricky Beam wrote:
->> (This has come up a thousand times on the sparclinux list.)
+On Monday 10 November 2003 12:37, Greg KH wrote:
+> On Sun, Nov 09, 2003 at 09:55:19PM +0300, Andrey Borzenkov wrote:
+> > file2aliases puts in alias device ID high and low numbers directly from
+> > match specifications. E.g. for this match table entry:
+> >
+> > usb-storage          0x000f      0x04e6   0x0006    0x0100       0x0205
+> > ...
+> >
+> > it generates alias
+> >
+> > alias usb:v04E6p0006dl0100dh0205dc*dsc*dp*ic*isc*ip* usb_storage
+> >
+[...]
 >
->Maybe the help text for VGA_CONSOLE should be adjusted accordingly?
->By reading "Virtually everyone wants that." in the help text I did not
->assume that this option does not make sense on Sparcs.
+> I would suggest just ignoring the bcdDevice value, and loading all
+> modules that match the idVendor and idProduct values, and let the kernel
+> sort it out :)
+>
 
-90% of the help text outside arch directories are targeted at x86 users.
-That said, there's a whole lot of stuff one can turn on that very much
-will not work anywhere but x86.  I've raised this concern several times
-and I'm always dismissed. ("x86 is all that matters.")
+the obvious point that this leaves unneeded modules in kernel aside ...
 
-The proper answer is to remove the option entirely where it doesn't belong.
-As such, the "depends on" needs to be updated to exclude sparc32 and sparc64.
-(And MDA_CONSOLE probablly needs to go too.)
+that won't work that easy. You have to build name to match line from 
+modules.alias. But to match you have to put exact values for `dl' and `dh'. 
+Those values are simply not available when hotplug agent is called.
 
---Ricky
+i.e. for the above line to match you have to supply exact values for vendor, 
+product, device low, device high. Any other values are not important but 
+these must be exact. But neither device low nor device high are known.
 
+apparently the only way is to remove them and hope that usually the same 
+vendor/product combination is handled by single driver.
+
+> So for your example, you would just:
+> 	modprobe usb:v04E6p0006dl*dh*dc*dsc*dp*ic*isc*ip*
+>
+
+that won't match, sorry. wildcards can be in aliases; they can't be in module 
+names.
+
+-andrey
 

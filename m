@@ -1,81 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbULPMTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbULPMlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbULPMTh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 07:19:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbULPMTh
+	id S261931AbULPMlS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 07:41:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbULPMlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 07:19:37 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:58599 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261929AbULPMTe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 07:19:34 -0500
-Date: Thu, 16 Dec 2004 13:17:30 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Gabriel Paubert <paubert@iram.es>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Eric St-Laurent <ericstl34@sympatico.ca>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Stefan Seyfried <seife@suse.de>, Con Kolivas <kernel@kolivas.org>,
-       Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: dynamic-hz
-In-Reply-To: <20041216091032.GA9774@iram.es>
-Message-ID: <Pine.GSO.4.61.0412161314440.15893@waterleaf.sonytel.be>
-References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz>
- <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org>
- <41BD483B.1000704@suse.de> <20041213135820.A24748@flint.arm.linux.org.uk>
- <1102949565.2687.2.camel@localhost.localdomain> <1102983378.9865.11.camel@orbiter>
- <1103133841.3180.1.camel@localhost.localdomain> <20041216091032.GA9774@iram.es>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Dec 2004 07:41:18 -0500
+Received: from mail.renesas.com ([202.234.163.13]:22409 "EHLO
+	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S261931AbULPMlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 07:41:14 -0500
+Date: Thu, 16 Dec 2004 21:41:00 +0900 (JST)
+Message-Id: <20041216.214100.278750319.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
+Subject: [PATCH 2.6.10-rc3-mm1] m32r: Fix not to execute noexec pages (0/3)
+From: Hirokazu Takata <takata@linux-m32r.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Dec 2004, Gabriel Paubert wrote:
-> On Wed, Dec 15, 2004 at 06:04:03PM +0000, Alan Cox wrote:
-> > On Maw, 2004-12-14 at 00:16, Eric St-Laurent wrote:
-> > > On a related subject, a few months ago you posted a patch which added a
-> > > nice add_timeout()/timeout_pending() API and converted many (if not
-> > > most) drivers to use it.
-> > > 
-> > > If I remember correctly it did not generate much comments and the work
-> > > was not pushed into mainline.
-> > > 
-> > > I think it's a nice cleanup, IMHO the time_(before|after)(jiffies, ...)
-> > > construct is horrible.
-> > > 
-> > > Any chance to resurrect this work ?
-> > 
-> > I plan to ressurect it when I have a little time but with some small
-> > additions from the original work. Several people said "it should be mS
-> > not HZ" and someone at OLS proposed that the API also includes an
-> > accuracy guide so that systems using programmed wakeups can aggregate
-> > timers when accuracy doesn't matter.
-> 
-> I suspect people who want to push HZ to 10000 won't be happy with
-> milliseconds since it would not give them a resolution of one jiffy.
-> 
-> So the options are:
-> 1) microseconds, allows up to roughly half an hour (signed) 
->    or an hour (unsigned).
-> 2) nanoseconds, needs 64 bits, nice for 64 bit machines but 
->    at the risk of bloat on 32 bit ones.
-> 3) timespecs, somewhat wasteful on 64 bit machines (two longs).
-> 
-> I believe 1) is the best compromise.
+Hello,
 
-Yep. And if the need for ns arises, add a _different_ function (e.g. *_ns()) to
-wait with ns-resolution. 64 bit is probably not needed, who wants to wait for
-more than a few seconds with ns-resolution?
+Here is a patchset to fix a bug of m32r kernel 2.6.9 that a code on
+a noexec page can be executed incorrectly.
 
-Gr{oetje,eeting}s,
+For good security, stack region should be non-executable. 
+This fix is also needed to achieve non-executable stack.
 
-						Geert
+Please apply this to 2.6.10 kernel if possible.
+
+Thank you.
+
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
+
+[PATCH 2.6.10-rc3-mm1] m32r: Cause SIGSEGV for nonexec page execution (1/3)
+- Cause a segmentation fault for an illegal execution of a code on
+  non-executable memory page.
+
+[PATCH 2.6.10-rc3-mm1] m32r: Don't encode ACE_INSTRUCTION in address (2/3)
+- To be more comprehensive, keep ACE_INSTRUCTION (access exception 
+  on instruction execution) information in thread_info->flags,
+  instead of encoding it into address parameter.
+
+[PATCH 2.6.10-rc3-mm1] m32r: Clean up arch/m32r/mm/fault.c (3/3)
+- Fix a typo: ACE_USEMODE --> ACE_USERMODE.
+- Update copyright statement, and so on.
 
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

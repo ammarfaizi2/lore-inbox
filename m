@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266646AbUHCPmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266682AbUHCPua@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266646AbUHCPmR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 11:42:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266695AbUHCPmR
+	id S266682AbUHCPua (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 11:50:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266670AbUHCPua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 11:42:17 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:2179 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266646AbUHCPl7 (ORCPT
+	Tue, 3 Aug 2004 11:50:30 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:63377 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S266682AbUHCPu2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 11:41:59 -0400
-Subject: [PATCH] rpaphp build break - remove eeh register
-From: John Rose <johnrose@austin.ibm.com>
-To: greg@kroah.com
-Cc: lkml <linux-kernel@vger.kernel.org>, Linas Vepstas <linas@us.ibm.com>
-Content-Type: text/plain
-Message-Id: <1091548044.13500.4.camel@sinatra.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 03 Aug 2004 10:47:25 -0500
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Aug 2004 11:50:28 -0400
+Message-Id: <200408031550.i73FoLlS004534@laptop2.inf.utfsm.cl>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-cd problems 
+In-Reply-To: Message from Bill Davidsen <davidsen@tmr.com> 
+   of "Mon, 02 Aug 2004 12:41:44 -0400." <celqbj$gh9$1@gatekeeper.tmr.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Tue, 03 Aug 2004 11:50:21 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg-
+Bill Davidsen <davidsen@tmr.com> said:
+> Jens Axboe wrote:
+> > On Fri, Jul 30 2004, Zinx Verituse wrote:
+> > 
+> >>I'm going to bump this topic a bit, since it's been a while..
+> >>There are still some issues with ide-cd's SG_IO, listed from
+> >>most important as percieved by me to least:
+> >>
+> >> * Read-only access grants you the ability to write/blank media in the drive
+> >> * (with above) You can open the device only in read-only mode.
 
-The following patch removes eeh function calls that currently break the
-RPA PCI Hotplug module.  The functions in question were rejected from
-mainline, and an alternate solution is being worked.
+> > That's by design. Search linux-scsi or this list for why that is so.
 
-Thanks-
-John
+> So is the only solution to disallow user access to the device? 
+> Operationally that is inconvenient in some cases, but every user 
+> community has a few ill-intentioned people, and student groups may be 
+> somewhat heavy on that. Security is more important than convenience, but 
+> both are desirable.
 
-diff -Nru a/drivers/pci/hotplug/rpaphp_core.c b/drivers/pci/hotplug/rpaphp_core.c
---- a/drivers/pci/hotplug/rpaphp_core.c	Tue Aug  3 10:38:57 2004
-+++ b/drivers/pci/hotplug/rpaphp_core.c	Tue Aug  3 10:38:57 2004
-@@ -54,8 +54,6 @@
- MODULE_DESCRIPTION(DRIVER_DESC);
- MODULE_LICENSE("GPL");
- 
--void eeh_register_disable_func(int (*)(struct pci_dev *));
--
- module_param(debug, bool, 0644);
- 
- static int enable_slot(struct hotplug_slot *slot);
-@@ -407,18 +405,12 @@
- {
- 	info(DRIVER_DESC " version: " DRIVER_VERSION "\n");
- 
--	/* let EEH know they can use hotplug */
--	eeh_register_disable_func(&rpaphp_disable_slot);
--
- 	/* read all the PRA info from the system */
- 	return init_rpa();
- }
- 
- static void __exit rpaphp_exit(void)
- {
--	/* let EEH know we are going away */
--	eeh_register_disable_func(NULL);
--
- 	cleanup_slots();
- }
- 
+Right. It is called "compromise".
 
+> We could go to burning all local reference data on CD-R instead of 
+> CD-RW, have a separate CD-R drive, but as noted all of those are 
+> undesirable drains on time and money. Clearly having some twit rewite 
+> the CD-RW with their own information is even more undesirable, if that 
+> wasn't clear ;-)
+
+OK, what prevents said twit from bringing in their own (doctored) CD-R in
+any case?
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

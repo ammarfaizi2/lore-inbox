@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263342AbSLZTXW>; Thu, 26 Dec 2002 14:23:22 -0500
+	id <S263333AbSLZTUI>; Thu, 26 Dec 2002 14:20:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263366AbSLZTXW>; Thu, 26 Dec 2002 14:23:22 -0500
-Received: from CPE3236333432363339.cpe.net.cable.rogers.com ([24.114.185.204]:6660
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S263342AbSLZTXV>; Thu, 26 Dec 2002 14:23:21 -0500
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PROBLEM][2.5.52/53][USB] USB Device unusable
-Date: Thu, 26 Dec 2002 14:33:15 -0500
-User-Agent: KMail/1.5.9
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <200212241533.21347.spstarr@sh0n.net> <200212241725.15439.spstarr@sh0n.net> <20021226175137.GC8229@kroah.com>
-In-Reply-To: <20021226175137.GC8229@kroah.com>
-MIME-Version: 1.0
+	id <S263342AbSLZTUI>; Thu, 26 Dec 2002 14:20:08 -0500
+Received: from hunnerberg.nijmegen.internl.net ([217.149.192.32]:34555 "EHLO
+	hunnerberg.nijmegen.internl.net") by vger.kernel.org with ESMTP
+	id <S263333AbSLZTUH>; Thu, 26 Dec 2002 14:20:07 -0500
+Date: Thu, 26 Dec 2002 20:28:19 +0100
+From: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Alot of DMA errors in 2.4.18, 2.4.20 and 2.5.52
+Message-ID: <20021226192818.GA1505@iapetus.localdomain>
+References: <1040815160.533.6.camel@devcon-x> <20021225115820.GB7348@louise.pinerecords.com> <20021226123710.GA2442@iapetus.localdomain> <20021226132228.GE7348@louise.pinerecords.com> <20021226164229.GA26413@iapetus.localdomain> <20021226173528.GF7348@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200212261433.16060.spstarr@sh0n.net>
+In-Reply-To: <20021226173528.GF7348@louise.pinerecords.com>
+User-Agent: Mutt/1.4i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, libgphoto2 reports that my camera is supported. It supports JamCam 
-versions 2.0 and 3.0.
+On Thu, Dec 26, 2002 at 06:35:28PM +0100, Tomas Szepe wrote:
+> 
+> Fair enough.  Can you give me your PCI ids, Promise BIOS version
 
-I haven't tried it in any other Linux machine.
+Ultra100TX2 BIOS version is 2.20.0.11
 
-Shawn.
+dmesg says:
+PDC20268: IDE controller on PCI bus 00 dev 90
+PDC20268: chipset revision 2
+PDC20268: not 100% native mode: will probe irqs later
+PDC20268: ROM enabled at 0xe2000000
+PDC20268: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER Mode.
 
-On Thursday 26 December 2002 12:51 pm, Greg KH wrote:
-> On Tue, Dec 24, 2002 at 05:25:15PM -0500, Shawn Starr wrote:
-> > mount reports:
-> > usbfs on /proc/bus/usb type usbfs (rw)
-> >
-> > /etc/fstab:
-> > usbfs          /proc/bus/usb  usbfs   defaults    0       0
-> >
-> > well, KDE has a plugin that utilizes libusb, libgphoto2 to manipulate the
-> > camera.
->
-> And you are sure that this camera works with Linux?
->
-> > I never tried the USB on this machine in 2.5 or 2.4.
->
-> Have you tried this camera on any other Linux machine, with any other
-> kernel?
->
-> thanks,
->
-> greg k-h
-
-
+-- 
+Frank

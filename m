@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313267AbSDJP5D>; Wed, 10 Apr 2002 11:57:03 -0400
+	id <S313265AbSDJP4M>; Wed, 10 Apr 2002 11:56:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313264AbSDJP5C>; Wed, 10 Apr 2002 11:57:02 -0400
-Received: from winds.org ([209.115.81.9]:55812 "EHLO winds.org")
-	by vger.kernel.org with ESMTP id <S313261AbSDJP5A>;
-	Wed, 10 Apr 2002 11:57:00 -0400
-Date: Wed, 10 Apr 2002 11:53:15 -0400 (EDT)
-From: Byron Stanoszek <gandalf@winds.org>
-To: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-cc: "'davidsen@tmr.com'" <davidsen@tmr.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Using video memory as system memory
-In-Reply-To: <61DB42B180EAB34E9D28346C11535A78177E34@nocmail101.ma.tmpw.net>
-Message-ID: <Pine.LNX.4.44.0204101146050.13516-100000@winds.org>
+	id <S313280AbSDJP4L>; Wed, 10 Apr 2002 11:56:11 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:18157 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S313265AbSDJP4K>; Wed, 10 Apr 2002 11:56:10 -0400
+Message-ID: <3CB4606F.87A4460A@us.ibm.com>
+Date: Wed, 10 Apr 2002 08:55:27 -0700
+From: Larry Kessler <kessler@us.ibm.com>
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Event logging vs enhancing printk
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Apr 2002, Holzrichter, Bruce wrote:
+Michael Holzheu wrote...
+> I think it would be important to have both options:
+> feed printk messages into posix event logging (this does
+> the current patch as far as I know) 
 
-> I thought that this was interesting as well, and had a couple of questions,
-> as I am no expert in this stuff.
-> 
-> You don't have the frame buffer enabled for display when trying to use this
-> as system memory, correct?
+The current patch forks the message to evlog inside the printk
+function.  This thread is proposing that the printk function be
+wrapped inside a macro so you could easily capture 
+file/funcname/lineno of the calling function along with the
+original printk message
+(plus the other stuff stored in the evlog record header).
+ 
+> AND feed events
+> which are written with the new posix event APIs into the
+> traditional syslogd logging.
 
-Correct. :) In fact, text mode can only take a maximum of the first 256KB of
-memory of the card (extended text paging). So as long as you only target the
-rest of the memory (and don't use X or svgalib) you should be fine.
-
-> Are there implications of the BIOS shadowing video memory to system memory,
-> or is that not an issue once Linux takes over memory control?
-
-Not that I'm aware of. This is PCI-mapped prefetchable memory.
-
-> That is a neat idea, though.  The PCI/AGP bus may be a limiting factor for
-> this as well, correct?  As far as speed, I believe most video cards have
-> fast memory, vram, or sram, but it's only useful transferring between the
-> Video GPU, and Video cards memory, as the bus to the video card is the
-> bottleneck.
-
-Yeah. In fact in some responses the 'slow speed' consideration was so much that
-they all say I'd be better off writing a block driver and making use of the
-memory more as a swap device rather than as system RAM.
-
-Has anyone out there done this yet? I figure I'd ask before reinventing
-anything.. :)
-
- -Byron
-
--- 
-Byron Stanoszek                         Ph: (330) 644-3059
-Systems Programmer                      Fax: (330) 644-8110
-Commercial Timesharing Inc.             Email: byron@comtime.com
-
+This would be done in user-space, not in the kernel.  This is on
+our enhancements list for event logging.

@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267081AbSLDUse>; Wed, 4 Dec 2002 15:48:34 -0500
+	id <S267089AbSLDVMb>; Wed, 4 Dec 2002 16:12:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267082AbSLDUsd>; Wed, 4 Dec 2002 15:48:33 -0500
-Received: from crack.them.org ([65.125.64.184]:23710 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S267081AbSLDUsc>;
-	Wed, 4 Dec 2002 15:48:32 -0500
-Date: Wed, 4 Dec 2002 15:56:09 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: george anzinger <george@mvista.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-       "David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
-       schwidefsky@de.ibm.com, ralf@gnu.org, willy@debian.org
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-Message-ID: <20021204205609.GA29953@nevyn.them.org>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	george anzinger <george@mvista.com>,
-	Stephen Rothwell <sfr@canb.auug.org.au>,
-	LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-	"David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
-	schwidefsky@de.ibm.com, ralf@gnu.org, willy@debian.org
-References: <3DEE5DE1.762699E3@mvista.com> <Pine.LNX.4.44.0212041203230.1676-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S267090AbSLDVMb>; Wed, 4 Dec 2002 16:12:31 -0500
+Received: from smtp02.fields.gol.com ([203.216.5.132]:54970 "EHLO
+	smtp02.fields.gol.com") by vger.kernel.org with ESMTP
+	id <S267089AbSLDVMa>; Wed, 4 Dec 2002 16:12:30 -0500
+To: James@tc-1-100.kawasaki.gol.ne.jp,
+       Bottomley@tc-1-100.kawasaki.gol.ne.jp (James.Bottomley@SteelEye.com)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] generic device DMA implementation
+In-Reply-To: <200212041747.gB4HlEF03005@localhost.localdomain>
+References: <200212041747.gB4HlEF03005@localhost.localdomain>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+From: Miles Bader <miles@gnu.org>
+Date: 05 Dec 2002 06:19:57 +0900
+Message-ID: <87vg29iirm.fsf@tc-1-100.kawasaki.gol.ne.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212041203230.1676-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.5.1i
+X-Abuse-Complaints: abuse@gol.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 12:07:11PM -0800, Linus Torvalds wrote:
-> 
-> On Wed, 4 Dec 2002, george anzinger wrote:
-> > 
-> > As a suggestion for a solution for this, is it true that
-> > regs, on a system call, will ALWAYS be at the end of the
-> > stack?
-> 
-> No. Some architectures do not save enough state on the stack by default, 
-> and need to do more to use do_signal(). Look at alpha, for example - the 
-> default kernel stack doesn't contain all tbe registers needed, and 
-> the alpha do_signal() calling convention is different.
-> 
-> If you want to handle do_signal(), then you need to do _all_ of this in 
-> architecture-specific files. You simply cannot do what you want to do in a 
-> generic way.
+James Bottomley writes:
+> Currently our only DMA API is highly PCI specific (making any non-pci
+> bus with a DMA controller create fake PCI devices to help it
+> function).
+>
+> Now that we have the generic device model, it should be equally
+> possible to rephrase the entire API for generic devices instead of
+> pci_devs.
 
-I think you should be able to call do_signal or a wrapper in some
-platform-independent way.  Is the necessary information recoverable in
-Alpha et al.?  What do you think of adding a standard wrapper function
-so that system calls can process a signal if necessary?
+Keep in mind that sometimes the actual _implementation_ is also highly
+PCI-specific -- that is, what works for PCI devices may not work for
+other devices and vice-versa.
 
-Not only did George need this for POSIX conformance, I've seen a lot of
-complaints about GDB interrupting sys_nanosleep even on cancelled
-signals.
+So perhaps instead of just replacing `pci_...' with `dma_...', it would
+be better to add new function pointers to `struct bus_type' for all this
+stuff (or something like that).
 
+> The PCI api has pci_alloc_consistent which allocates only consistent memory
+> and fails the allocation if none is available thus leading to driver writers
+> who might need to function with inconsistent memory to detect this and employ
+> a fallback strategy.
+> ...
+> The idea is that the memory type can be coded into dma_addr_t which the
+> subsequent memory sync operations can use to determine whether
+> wback/invalidate should be a nop or not.
+
+How is the driver supposed to tell whether a given dma_addr_t value
+represents consistent memory or not?  It seems like an (arch-specific)
+`dma_addr_is_consistent' function is necessary, but I couldn't see one
+in your patch.
+
+Thanks,
+
+-Miles
 -- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+We are all lying in the gutter, but some of us are looking at the stars.
+-Oscar Wilde

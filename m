@@ -1,122 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264288AbTLVBVb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 20:21:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264285AbTLVBUj
+	id S264277AbTLVBax (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 20:30:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264284AbTLVBax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 20:20:39 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:20667 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S264277AbTLVBUJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 20:20:09 -0500
-MIME-Version: 1.0
-To: torvalds@osdl.org, marcelo.tosatti@cyclades.com.br
-Subject: lk-changelog.pl 0.208
-Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de
-From: Matthias Andree <matthias.andree@gmx.de>
-Content-ID: <Mon_Dec_22_01_20_06_UTC_2003_0@merlin.emma.line.org>
-Content-Type: text/plain; charset=US-ASCII
-Content-Description: An object packed by metasend
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20031222012006.7C14E97558@merlin.emma.line.org>
-Date: Mon, 22 Dec 2003 02:20:06 +0100 (CET)
+	Sun, 21 Dec 2003 20:30:53 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:15512 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S264277AbTLVBaw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 20:30:52 -0500
+Subject: Re: [PATCH] loop.c patches, take two
+From: Christophe Saout <christophe@saout.de>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m31xqx7im0.fsf@averell.firstfloor.org>
+References: <MllE.6qa.7@gated-at.bofh.it> <MpyW.3Ub.9@gated-at.bofh.it>
+	 <MsGq.8cN.1@gated-at.bofh.it> <MvO6.47g.7@gated-at.bofh.it>
+	 <MEf3.8oB.13@gated-at.bofh.it> <MROA.319.5@gated-at.bofh.it>
+	 <NxkP.4kY.17@gated-at.bofh.it> <15hUp-58e-21@gated-at.bofh.it>
+	 <15iGH-6hd-17@gated-at.bofh.it> <15kfk-vj-1@gated-at.bofh.it>
+	 <m31xqx7im0.fsf@averell.firstfloor.org>
+Content-Type: text/plain
+Message-Id: <1072056646.2237.4.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 22 Dec 2003 02:30:46 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a semi-automatic announcement.
+Am Mo, den 22.12.2003 schrieb Andi Kleen um 02:21:
 
-lk-changelog.pl aka. shortlog version 0.208 has been released.
+> > What about dropping block device backed support for the loop driver
+> > altogether? We now have a nice device mapper in the 2.6 kernel. I don't
+> 
+> Device Mapper doesn't support cryptographic transformations.
 
-This script is used by Linus and Marcelo to rearrange and reformat BK
-ChangeSet logs into a more human-readable format, and the official
-repository is Parent repository is http://bktools.bkbits.net/bktools
+I know. Not yet.
 
-As the script has grown large, this mail only contains a diff against
-the last released version.
+As I've written some lines below, there is a patch:
+http://www.saout.de/misc/dm-crypt.diff that I've written some time ago.
 
-You can always download the full script and GPG signatures from
-http://mandree.home.pages.de/linux/kernel/
+I posted it some time ago but never got feedback from any "VIP" (except
+for Joe Thornber who helped developing the target and thinks it looks
+good). Some people tested it though and it worked for them (and better
+than cryptoloop around test4).
 
-My thanks go to Vitezslav Samel who has spent a lot of time on digging
-out the real names for addresses sending in BK ChangeSets.
-
-Note that your mailer must be MIME-capable to save this mail properly,
-because it is in the "quoted-printable" encoding.
-
-= <- if you see just an equality sign, but no "3D", your mailer is fine.
-= <- if you see 3D on this line, then upgrade your mailer or pipe this mail
-= <- into metamail.
-
--- 
-A sh script on behalf of Matthias Andree
--------------------------------------------------------------------------
-Changes since last release:
-
-----------------------------
-revision 0.208
-date: 2003/12/22 01:17:09;  author: emma;  state: Exp;  lines: +9 -4
-Only print ignoremerge warning if ignoremerge is really enabled.
-----------------------------
-revision 0.207
-date: 2003/12/21 03:10:50;  author: emma;  state: Exp;  lines: +9 -3
-Mark --ignoremerge deprecated, point towards bk changes -d'$unless(:MERGE:)' instead.
-----------------------------
-revision 0.206
-date: 2003/12/20 23:32:45;  author: emma;  state: Exp;  lines: +5 -2
-Resolve conflict with Linus' version.
-=============================================================================
-Index: lk-changelog.pl
-===================================================================
-RCS file: /var/CVS/lk-changelog/lk-changelog.pl,v
-retrieving revision 0.206
-retrieving revision 0.208
-diff -u -r0.206 -r0.208
---- lk-changelog.pl	20 Dec 2003 23:32:45 -0000	0.206
-+++ lk-changelog.pl	22 Dec 2003 01:17:09 -0000	0.208
-@@ -8,7 +8,7 @@
- #			Tomas Szepe <szepe@pinerecords.com>
- #			Vitezslav Samel <samel@mail.cz>
- #
--# $Id: lk-changelog.pl,v 0.206 2003/12/20 23:32:45 emma Exp $
-+# $Id: lk-changelog.pl,v 0.208 2003/12/22 01:17:09 emma Exp $
- # ----------------------------------------------------------------------
- # Distribution of this script is permitted under the terms of the
- # GNU General Public License (GNU GPL) v2.
-@@ -2062,6 +2062,13 @@
- # --count implies --compress
- if ($opt{count}) { $opt{compress} = 1; }
- 
-+# --ignoremerge is deprecated
-+if ($opt{ignoremerge}) {
-+    print STDERR "--ignoremerge is deprecated. Replacement:\n"
-+    . 'bk changes -d\'$unless(:MERGE:){<:P:@:HOST:>\n $each(:C:){\t(:C:)\n}\n\''
-+    . "\n";
-+}
-+
- # Set the sort function
- $namesortfunc = \&caseicmp;
- if ($opt{'by-surname'}) { $namesortfunc = \&caseicmpbysurname; }
-@@ -2150,6 +2157,12 @@
- __END__
- # --------------------------------------------------------------------
- # $Log: lk-changelog.pl,v $
-+# Revision 0.208  2003/12/22 01:17:09  emma
-+# Only print ignoremerge warning if ignoremerge is really enabled.
-+#
-+# Revision 0.207  2003/12/21 03:10:50  emma
-+# Mark --ignoremerge deprecated, point towards bk changes -d'$unless(:MERGE:)' instead.
-+#
- # Revision 0.206  2003/12/20 23:32:45  emma
- # Resolve conflict with Linus' version.
- #
-@@ -2874,8 +2887,6 @@
-                      omit "email address" when a name is known
-      --[no]obfuscate
-                      obfuscate "email address" in output
--     --[no]ignoremerge
--                     suppress "Merge bk://..." changelogs.
- 
-      --mode=MODE     specify the output format (use --man to find out more)
-      --width[=WIDTH] specify the line length, if omitted: $COLUMNS or 80.
+--
+Christophe Saout <christophe@saout.de>
+Please avoid sending me Word or PowerPoint attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
 

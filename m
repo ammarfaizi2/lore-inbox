@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265041AbUD3Ddv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265054AbUD3DkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265041AbUD3Ddv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 23:33:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265050AbUD3Ddv
+	id S265054AbUD3DkP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 23:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbUD3DkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 23:33:51 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:32655 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S265041AbUD3Ddt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 23:33:49 -0400
-Subject: Re: Patch for 2.6.x: Add procps URL to Doc/Changes
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: rddunlap@osdl.org, rich@phekda.gotadsl.co.uk
-Content-Type: text/plain
-Organization: 
-Message-Id: <1083287510.3450.1082.camel@cube>
+	Thu, 29 Apr 2004 23:40:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:1683 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265051AbUD3DkJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 23:40:09 -0400
+Date: Thu, 29 Apr 2004 20:39:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Art Haas" <ahaas@airmail.net>
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: Problem with recent changes to fs/dcache.c
+Message-Id: <20040429203901.4cd21fdc.akpm@osdl.org>
+In-Reply-To: <20040430020525.GI27793@artsapartment.org>
+References: <20040430020525.GI27793@artsapartment.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 29 Apr 2004 21:11:50 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap writes:
+"Art Haas" <ahaas@airmail.net> wrote:
+>
+> I run linux on a SparcStation SS20 in addition to a PC, and found that
+>  none of the 2.6.6-rc kernels would boot. After trying the latest -rc3
+>  kernel and seeing it fail also, my debugging quest began. Adding a few
+>  printk() statements pointed the problem to be in fs/dcache.c in the
+>  vfs_caches_init() function. The 1.69->1.70 changes to this file added in
+>  a call to nr_free_pages() and used that result to adjust the global
+>  mempages variable. This change caused the boot failures.
+> 
+>  The printk() statements I'd added showed that vfs_caches_init() was
+>  being called with 'mempages' set to 46073. The nr_free_pages() call
+>  returned 127661, and this value being subtracted from mempages went
+>  negative, but the value is unsigned, so mempages became enormous. Things
+>  ended up getting stuck in the inode_init() call down a bit, having
+>  seeming survived the dcache_init() call only because of values
+>  wrapping around.
+> 
+>  I commented out the 'mempages -= reserve;' line in the file, and the
+>  boot continued along. Unfortunately I encounter a kernel trap when
+>  mounting the hard drives, so there are other problems still needing to
+>  be looked at.
+> 
+>  The possiblity of nr_free_pages() being larger than mempages looks like
+>  a silent bug that was tripped. If not, then another bug in the Sparc
+>  port may be responsible for values being used in these functions. The
+>  memory-management gurus can take a peek and see what they find.
 
-> alternative: ??
-
-No, not if you want your procps to work anyway.
-
-If your TTY is pts/256 or above, you'll need
-procps-3.2.0 or above to see it and select it.
-
-If you think "ps s" shouldn't be missing a few
-columns, procps-3.1.6 or above is needed.
-
-If you want to view threads, procps-3.1.14 or
-above is needed.
-
-If you want to run SE Linux, procps-3.1.15 or
-above is needed.
-
-------------- partial list of improvements --------------
-* ps fully supports thread display (H, -L, m, -m, and -T)
-* ps can display NSA SELinux security contexts
-* top can show CPU usage for IO-wait, IRQ, and softirq
-* can set $PS_FORMAT to choose your own default ps format
-* better width control ("ps -o pid,wchan:42,args")
-* width of ps PID column adjusts to your system
-* vmstat lets you choose units you like: 1000, 1024, 1000000...
-* top can sort by any column (old sort keys available too)
-* top can select a single user to display
-* top can be put in multi-window mode and/or color mode
-* vmstat has the -s option, as found on UNIX and BSD systems
-* vmstat has the -f option, as found on UNIX and BSD systems
-* watch doesn't eat the first blank line by mistake
-* vmstat uses a fast O(1) algorithm on 2.5.xx kernels
-* pmap command is SunOS-compatible
-* vmstat shows IO-wait time
-* pgrep and pkill can find the oldest matching process
-* sysctl handles the Linux 2.5.xx VLAN interfaces
-* ps has a new "-F" format (very nice, like DYNIX/ptx has)
-* ps with proper BSD process selection
-* better handling of very long uptimes
-
-
+Yes, something's bust in the sparc port's calculation of num_physpages. 
+Clearly it should be larger than nr_free_pages().

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280051AbRKITVj>; Fri, 9 Nov 2001 14:21:39 -0500
+	id <S280041AbRKITZ7>; Fri, 9 Nov 2001 14:25:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280056AbRKITVW>; Fri, 9 Nov 2001 14:21:22 -0500
-Received: from [63.164.206.11] ([63.164.206.11]:24580 "EHLO
-	message.ucentric.com") by vger.kernel.org with ESMTP
-	id <S280043AbRKITUy>; Fri, 9 Nov 2001 14:20:54 -0500
-Message-ID: <3BEC39E6.7F0FA75F@ucentric.com>
-Date: Fri, 09 Nov 2001 15:17:42 -0500
-From: paulh@ucentric.com
-X-Mailer: Mozilla 4.61 [en] (X11; U; Linux 2.2.12-20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S280037AbRKITZt>; Fri, 9 Nov 2001 14:25:49 -0500
+Received: from uucp.cistron.nl ([195.64.68.38]:4114 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S280033AbRKITZn>;
+	Fri, 9 Nov 2001 14:25:43 -0500
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: serial console slow
+Date: Fri, 9 Nov 2001 19:25:42 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <9shajm$7eo$5@ncc1701.cistron.net>
+In-Reply-To: <20011109102140.A29288@elf.ucw.cz> <9sha2j$l5l$1@cesium.transmeta.com>
+X-Trace: ncc1701.cistron.net 1005333942 7640 195.64.65.67 (9 Nov 2001 19:25:42 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
 To: linux-kernel@vger.kernel.org
-Subject: The page cache keeps growing
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd like to throw this out to the group for opinions-
+In article <9sha2j$l5l$1@cesium.transmeta.com>,
+H. Peter Anvin <hpa@zytor.com> wrote:
+>I have had much better luck talking to /dev/console in userland.
+>IMNSHO this should *always* work; anything else is broken.
+>/dev/console currently *IS* broken to some degree, multi-console
+>hasn't worked properly for a long time, and you don't get job control
+>running of it because it isn't a tty, but I think it's a lot less
+>broken than things like the above...
 
-I'm working on a box using the 2.4.9 kernel that is saving a couple of
-mpeg2
-video streams, while playing back one of them.  The box also allows one
-to
-web browse, play mp3's and configure one's home network.
+You don't have job control on /dev/console because it will never
+become a controlling tty automatically. But if you make it your
+controlling tty with the right ioctl() you'll have job control.
 
-What I'm seeing is the page cache grow to huge sizes- to as much as
-102MB
-of 128MB of memory.  This is causing pages to be stolen from other
-processes
-in memory, so that when a user attempts to go to one of these, a long
-wait ensues
-while it's paged back in.
+In fact the latest sysvinit does this for process spawned from
+the 'sysinit', 'bootwait' and 'wait' type lines in /etc/inittab
+and that works fine.
 
-Is there any way to limit page cache size?  I've looked over the mm code
-and
-nothing pops out.  Has someone written a patch to do this?  I've checked
-some
-archives but have come up empty handed.
+>(And dammit, I really would like to see console=tty0 console=ttyS0 to
+>actually give me both consoles -- in userland *and* in the kernel...)
 
-Thanks,
-paulh
+That would be extremely c00l ;)
 
---
-Paul Hansen, Software Engineer           paulh@ucentric.com
-Ucentric Systems LLC                     Phone 978.823.8157
-2 Clocktower Place, Suite 550            FAX   978.823.8101
-Maynard, MA 01754                        www.ucentric.com
-
-
+Mike.
+-- 
+"Only two things are infinite, the universe and human stupidity,
+ and I'm not sure about the former" -- Albert Einstein.
 

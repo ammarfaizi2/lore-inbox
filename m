@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263765AbTHZODS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 10:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263846AbTHZOBO
+	id S263724AbTHZOHv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 10:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbTHZOHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 10:01:14 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:8466 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263831AbTHZN63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 09:58:29 -0400
-Date: Tue, 26 Aug 2003 14:58:21 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Samphan Raruenrom <samphan@nectec.or.th>
-Cc: Jens Axboe <axboe@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Jens Axboe <axboe@image.dk>, linux-kernel@vger.kernel.org,
-       Linux TLE Team <rdi1@opentle.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [Rdi1] Re: [PATCH] Add MOUNT_STATUS ioctl to cdrom device
-Message-ID: <20030826145821.A26398@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Samphan Raruenrom <samphan@nectec.or.th>,
-	Jens Axboe <axboe@suse.de>, Jens Axboe <axboe@image.dk>,
-	linux-kernel@vger.kernel.org, Linux TLE Team <rdi1@opentle.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <3F4A53ED.60801@nectec.or.th> <20030825195026.A10305@infradead.org> <3F4B0343.7050605@nectec.or.th> <20030826083249.B20776@infradead.org> <3F4B23E2.8040401@nectec.or.th> <20030826105613.A23356@infradead.org> <20030826095830.GA20693@suse.de> <3F4B44C2.4030406@nectec.or.th>
+	Tue, 26 Aug 2003 10:07:47 -0400
+Received: from [207.188.30.29] ([207.188.30.29]:11745 "EHLO mpenc1.prognet.com")
+	by vger.kernel.org with ESMTP id S263724AbTHZOFp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 10:05:45 -0400
+Date: Tue, 26 Aug 2003 07:05:41 -0700
+From: Tom Marshall <tommy@home.tig-grr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problems with PCMCIA (Texas Instruments PCI1410)
+Message-ID: <20030826140541.GA691@home.tig-grr.com>
+References: <20030813205037.GA11977@home.tig-grr.com> <20030813221254.H20676@flint.arm.linux.org.uk> <20030813212610.GA12315@home.tig-grr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3F4B44C2.4030406@nectec.or.th>; from samphan@nectec.or.th on Tue, Aug 26, 2003 at 06:30:10PM +0700
+In-Reply-To: <20030813212610.GA12315@home.tig-grr.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 26, 2003 at 06:30:10PM +0700, Samphan Raruenrom wrote:
-> >>This doesn't make sense at all.  Just try the unmount and
-> >>tell the user if it failed - you can't say whether it will
-> >>fail before trying.
-> 
-> Yes, you can! Reading the code, if vfsmount.mnt_count > 1 then
-> umount on that device will fail.
 
-if you are doing the unmount currently and nothing changes because
-you hold the nessecary locks, yes.  But as soon as you drop the locks
-this is void.  There's no way to find out whether you can unmount
-a filesystem except trying it.
+--RnlQjJ0d97Da+TV1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Hmm. You seem to advice me to detect the 'eject' button then issue
-> a umount? I don't know how and I guess it is impossible. But maybe
-> I'm wrong.
+On Wed, Aug 13, 2003 at 02:26:10PM -0700, Tom Marshall wrote:
+> > Could you show the kernel messages from boot as well as the above
+> > messages please?
+>=20
+> Here it is.  Below that is a more complete lspci output.
+>=20
+> [...]
 
-See Jens' post.
+Is there any more information on this problem?  Is it a problem with the
+PCI1410 chip or the way it's integrated?  I would really like to get this
+working.  I can run test builds, or perhaps even try to find the problem
+myself if someone can verify that the chip should work with yenta_socket.
 
+--=20
+Happiness isn't something you experience; it's something you remember.
+        -- Oscar Levant
+
+--RnlQjJ0d97Da+TV1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAj9LaTUACgkQFMm9uvwPXW7mtACfaWbx/2rr0eqyKhaBSKBh7a7N
+qWcAn2wfE499KmA9NV99mlWR8uAu8vaT
+=43TM
+-----END PGP SIGNATURE-----
+
+--RnlQjJ0d97Da+TV1--

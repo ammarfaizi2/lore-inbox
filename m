@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266833AbUH0SJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266835AbUH0SNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266833AbUH0SJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 14:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266835AbUH0SJ1
+	id S266835AbUH0SNF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 14:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266838AbUH0SNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 14:09:27 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:22789 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S266833AbUH0SJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 14:09:20 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Kenneth Lavrsen <kenneth@lavrsen.dk>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	Fri, 27 Aug 2004 14:13:05 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:60427 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S266835AbUH0SNA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 14:13:00 -0400
 Subject: Re: kernel 2.6.8 pwc patches and counterpatches
-Date: Fri, 27 Aug 2004 21:08:38 +0300
-User-Agent: KMail/1.5.4
+From: David Woodhouse <dwmw2@infradead.org>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: Kenneth Lavrsen <kenneth@lavrsen.dk>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1093628062.15313.11.camel@gonzales>
 References: <6.1.2.0.2.20040827171755.01c1f328@inet.uni2.dk>
-In-Reply-To: <6.1.2.0.2.20040827171755.01c1f328@inet.uni2.dk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408272108.38811.vda@port.imtp.ilyichevsk.odessa.ua>
+	 <1093628062.15313.11.camel@gonzales>
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 27 Aug 2004 19:09:23 +0100
+Message-Id: <1093630163.5695.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.93 (1.5.93-2) 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 27 August 2004 19:26, Kenneth Lavrsen wrote:
-> And now the latest step of modifying the code so that it is useless like
-> removing the hook for pwcx. I have been using pwc/pwcx for years now and
-> the driver has been working well. Better than so many other USB based
-> devices I have tried and rejected.
-> The binary pwcx module has been accepted for years. And now fanatism has
-> taken over and suddenly the pwcx module is no longer pure. And it does not
-> seem like Greg spent even one second thinking about the 10000s of people
-> that have invested in the quite expensive (but much better than anything
-> else) Logitech and Philips cameras - knowing that it was supported by
-> Linux. He just destroyed the driver without a wink.
-> Did he think: "To hell with all the Linux users with a USB camera - I don't
-> care about other people - I care only about my own principles"?
->
-> Kernel developers sits with the power to reject incoming patches. Such
-> priviledge should be handled with respect. Not only to the individual
-> contributors - but also to the millions of Linux users that depends on
-> their behavour. What I have seen is in my eyes abuse of this power.
-> I would never remove a feature from Motion without a proper debate with my
-> users. Being a maintainer of an OSS project is a priviledge - not a right.
+On Fri, 2004-08-27 at 19:34 +0200, Xavier Bestel wrote:
+> Le ven 27/08/2004 à 18:26, Kenneth Lavrsen a écrit :
+> 
+> > My name is Kenneth Lavrsen. I maintain the open source project Motion.
+> > Probably half of the users of Motion - and there are 1000s of them will 
+> > soon realise that next time they download a Kernel their camera will no 
+> > longer work.
 
-Nobody and nothing prevents you from patching that druver back in.
-You dont like the fact that Linus' tree does not contain it anymore.
-Well. It's *Linus'* tree.
+> Bitching won't get you very far, obviously.
 
-You are completely free to either maintain out-of-tree patch or
-to fork a tree.
+Well, it might. If there are really thousands of people out there who
+will be purchasing non-Philips webcams from now on, it may be worth
+making sure Philips are aware of that.
 
-This is the freedom given to you by GPL.
---
-vda
+-- 
+dwmw2
 

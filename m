@@ -1,35 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280996AbRKGViO>; Wed, 7 Nov 2001 16:38:14 -0500
+	id <S280988AbRKGVhE>; Wed, 7 Nov 2001 16:37:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280991AbRKGVh5>; Wed, 7 Nov 2001 16:37:57 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:48185 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S280996AbRKGVhm>; Wed, 7 Nov 2001 16:37:42 -0500
-Date: Wed, 7 Nov 2001 23:37:31 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
+	id <S280996AbRKGVgz>; Wed, 7 Nov 2001 16:36:55 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:34289
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S280988AbRKGVgu>; Wed, 7 Nov 2001 16:36:50 -0500
+Date: Wed, 7 Nov 2001 13:36:44 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: ext3 vs resizerfs vs xfs
-Message-ID: <20011107233731.N1504@niksula.cs.hut.fi>
-In-Reply-To: <E161UYR-0004S5-00@the-village.bc.nu> <E161Vbf-0000m9-00@lilac.csi.cam.ac.uk> <20011107213837.F26218@niksula.cs.hut.fi> <E161ZYW-0006ky-00@mauve.csi.cam.ac.uk> <20011107141157.L5922@lynx.no>
+Subject: Re: Memory accounting problem in 2.4.13, 2.4.14pre, and possibly 2.4.14
+Message-ID: <20011107133644.D20245@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011106140335.A13678@mikef-linux.matchmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011107141157.L5922@lynx.no>; from adilger@turbolabs.com on Wed, Nov 07, 2001 at 02:11:57PM -0700
+In-Reply-To: <20011106140335.A13678@mikef-linux.matchmail.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 07, 2001 at 02:11:57PM -0700, [Andreas Dilger] said:
+On Tue, Nov 06, 2001 at 02:03:35PM -0800, Mike Fedyk wrote:
+> Hello,
 > 
-> If you have an open but unlinked file, then ext3 will delete this file at
-> mount/fsck time (unlike reiserfs which leaves it around wasting space).
+> I am trying to track down a memory accounting problem I've seen ever since I
+> tried a 2.4.13 based kernel.  Specifically I've noticed an overflow for the
+> "Cached" entry in /proc/meminfo, but also the numbers don't add up to the
+> total memory count.  Shouldn't they add up?  If they should, I haven't seen
+> one that does....
+> 
+> I first noticed it on:
+> 2.4.13freeswan-1.91+ac5+preempt+netdev_random+vm_freeswap
+> 2.4.14-pre6+preempt+netdev_random+ext3_0.9.14-2414p5
+> 
+> I thought it may be preempt so I tried:
+> 2.4.14-pre8+netdev_random-p7+xsched+ext3_0.9.14-2414p8+elevator
+> 
+> But I still get the same problem with "Cached".
+> 
+> Now I'm trying to see if it could be ext3 with:
+> 2.4.14-ext3-2.4-0.9.14-2414p8
+> 
+> And I haven't noticed the problem after 16 hours uptime.  Sometimes it would
+> show earlier, or later.
+> 
+> >From current (2.4.14-ext3-2.4-0.9.14-2414p8) kernel:
+>         total:    used:    free:  shared: buffers:  cached:
+> Mem:  261443584 254337024  7106560        0 58957824 76398592
+> Swap: 199815168  1228800 198586368
+> MemTotal:       255316 kB
+> MemFree:          6940 kB
+> MemShared:           0 kB
+> Buffers:         57576 kB
+> Cached:          73408 kB
+> SwapCached:       1200 kB
+> Active:          65048 kB
+> Inactive:       138040 kB
+> HighTotal:           0 kB
+> HighFree:            0 kB
+> LowTotal:       255316 kB
+> LowFree:          6940 kB
+> SwapTotal:      195132 kB
+> SwapFree:       193932 kB
+> 
+> Subtracted from MemTotal should = 0:
+> MemFree:          6940 kB
+> Active:          65048 kB
+> Inactive:       138040 kB
+> = 45288 kB remaining
+> 
+> Shouldn't these numbers add up to MemTotal?
+> 
+> $ dpkg -l "*gcc*"|grep ii
+> ii  gcc            2.95.4-8       The GNU C compiler.
+> ii  gcc-2.95       2.95.4-0.01100 The GNU C compiler.
+> 
+> On Debian Sid.
+> 
+> I can provide more information upon request...
+> 
 
-Is this really still true for reiserfs? Is there a way to get rid of them?
-reiserfsck? I had this vague impression that this bug had been dealt with
-but...
+To continue the results...
 
+Now  : 1 day(s), 15:47:31 running Linux 2.4.14-ext3-2.4-0.9.14-2414p8
 
--- v --
+has also exibited the problem with cached.
 
-v@iki.fi
+I'm going to try unpatched 2.4.14 now...
+
+Mike

@@ -1,132 +1,177 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbTIFSrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 14:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbTIFSrZ
+	id S261325AbTIFSov (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 14:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbTIFSov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 14:47:25 -0400
-Received: from out.questzones.com ([207.253.48.35]:48132 "EHLO
-	tank2.questzones.com") by vger.kernel.org with ESMTP
-	id S261492AbTIFSrV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 14:47:21 -0400
-Message-ID: <004301c37491$12c97b60$8000a8c0@elbasta>
-From: "Frederic Trudeau" <ftrudeau@zesolution.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel oops with kernel-smp-2.4.20-20.9 (Unable to handle kernel NULL pointer dereference at virtual address 00000000)
-Date: Sat, 6 Sep 2003 12:08:08 -0400
+	Sat, 6 Sep 2003 14:44:51 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:24763 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S261325AbTIFSor convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 14:44:47 -0400
+From: "Max O'Shea" <maxo@myrealbox.com>
+Reply-To: maxo@myrealbox.com
+To: linux-kernel@vger.kernel.org
+Subject: bug/request: multi-processing for CD devices
+Date: Sat, 6 Sep 2003 19:45:26 +0000
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Description: clearsigned data
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200309061945.30402.maxo@myrealbox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings all.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Im getting the error message "Unable to handle kernel NULL pointer
-dereference at virtual address 00000000" when trying to load (ifup eth1)
-eth1 with kernel-smp-2.4.20-20.9. It works fine with non-smp package from
-RH.
+Hello,
 
-Now im not sure if im using the ksymoops tool correctly, as im getting error
-using it ...
-but heres the output anyway :
+I don't know if this would be considered a 'bug', maybe more of a feature 
+request?
 
-[root@localhost oops]# ksymoops -v /boot/vmlinux-2.4.20-20.9smp -k
-/root/oops/ksyms -l /root/oops/modules < oops.txt
-ksymoops 2.4.5 on i686 2.4.20-20.9smp.  Options used
-     -v /boot/vmlinux-2.4.20-20.9smp (specified)
-     -k /root/oops/ksyms (specified)
-     -l /root/oops/modules (specified)
-     -o /lib/modules/2.4.20-20.9smp/ (default)
-     -m /boot/System.map-2.4.20-20.9smp (default)
+Summary: request for multi-processing for CD devices (I think the word is 
+'multi-processing' - ie. so that you can play an audio CD and browse the 
+audio CD using a program such as konqueror at the same time)
 
-Error (expand_objects): cannot stat(/lib/ext3.o) for ext3
-ksymoops: No such file or directory
-Error (expand_objects): cannot stat(/lib/jbd.o) for jbd
-ksymoops: No such file or directory
-Error (expand_objects): cannot stat(/lib/aacraid.o) for aacraid
-ksymoops: No such file or directory
-Error (expand_objects): cannot stat(/lib/aic79xx.o) for aic79xx
-ksymoops: No such file or directory
-Error (expand_objects): cannot stat(/lib/sd_mod.o) for sd_mod
-ksymoops: No such file or directory
-Error (expand_objects): cannot stat(/lib/scsi_mod.o) for scsi_mod
-ksymoops: No such file or directory
-Warning (map_ksym_to_module): cannot match loaded module ext3 to a unique
-module object.  Trace may not be reliable.
-Warning (map_ksym_to_module): cannot match loaded module aacraid to a unique
-module object.  Trace may not be reliable.
-Sep  6 11:24:20 localhost kernel: Unable to handle kernel NULL pointer
-Sep  6 11:24:20 localhost kernel: f8b05260
-Sep  6 11:24:20 localhost kernel: *pde = 00000000
-Sep  6 11:24:20 localhost kernel: Oops: 0000
-Sep  6 11:24:20 localhost kernel: CPU:    1
-Sep  6 11:24:20 localhost kernel: EIP:    0060:[<f8b05260>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Sep  6 11:24:20 localhost kernel: EFLAGS: 00010246
-Sep  6 11:24:20 localhost kernel: eax: 00000100   ebx: 00000000   ecx:
-Warning (Oops_set_regs): garbage 'ecx:' at end of register line ignored
-00033a64   edx: f653b980
-Sep  6 11:24:20 localhost kernel: esi: 00000000   edi: 00000000   ebp:
-Warning (Oops_set_regs): garbage 'ebp:' at end of register line ignored
-00000000   esp: f5ebbe98
-Sep  6 11:24:20 localhost kernel: ds: 0068   es: 0068   ss: 0068
-Sep  6 11:24:20 localhost kernel: Process ip (pid: 3080, stackpage=f5ebb000)
-Sep  6 11:24:20 localhost kernel: Stack: c3699400 00001000 f5e43000 f653b980
-c3699400 00001003 00000000 f8b051dd
-Sep  6 11:24:20 localhost kernel:        f653b980 14000000 f653b800 f653b800
-f653b980 00000000 f8b04a26 f653b980
-Sep  6 11:24:20 localhost kernel:        f653b800 c020fa86 f653b800 c02123c7
-f653b800 f653b800 00001002 c021112a
-Sep  6 11:24:20 localhost kernel: Call Trace:   [<f8b051dd>]
-e1000_free_rx_resources [e1000] 0x1d (0xf5ebbeb4))
-Sep  6 11:24:20 localhost kernel: [<f8b04a26>] e1000_open [e1000] 0x46
-Sep  6 11:24:20 localhost kernel: [<c020fa86>] dev_open [kernel] 0xa6
-Sep  6 11:24:20 localhost kernel: [<c02123c7>] dev_mc_upload [kernel] 0x37
-Sep  6 11:24:20 localhost kernel: [<c021112a>] dev_change_flags [kernel]
-0x12a
-Sep  6 11:24:20 localhost kernel: [<c020f61e>] dev_get [kernel] 0x1e
-Sep  6 11:24:20 localhost kernel: [<c024f130>] devinet_ioctl [kernel] 0x290
-Sep  6 11:24:20 localhost kernel: [<c0207ca0>] sock_ioctl [kernel] 0x40
-Sep  6 11:24:20 localhost kernel: [<c01650b6>] sys_ioctl [kernel] 0xf6
-Sep  6 11:24:20 localhost kernel: [<c01098cf>] system_call [kernel] 0x33
-Sep  6 11:24:20 localhost kernel: Code: 8b 14 1f 85 d2 74 36 8b 42 70 48 74
-0b
+Full description: At the moment, if you are playing an audio CD with one 
+program and you start accessing the audio CD with another program, the music 
+will stop playing.
+
+Keywords: audio, sound, /dev/hdc , /dev/ide0, alsa, oss
+
+Here's a little bit of system information if it helps:
+
+Kernel Version: Linux version 2.4.21-0.13mdkcustom (root@tuxmachine) (gcc 
+version 3.2.2 (Mandrake Linux 9.1 3.2.2-3mdk)) #1 Sat Jul 5 12:27:17 BST 2003
+
+- --------------------------------------
+Processor information: processor
+: 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 6
+model name      : Celeron (Mendocino)
+stepping        : 5
+cpu MHz         : 498.495
+cache size      : 128 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
+cmov pat pse36 mmx fxsr
+bogomips        : 992.87
+
+- --------------------------------------
+Module information:
+
+ppp_deflate             4536   0 (autoclean)
+zlib_inflate           21348   0 (autoclean) [ppp_deflate]
+zlib_deflate           21624   0 (autoclean) [ppp_deflate]
+bsd_comp                5336   0 (autoclean)
+binfmt_misc             7404   1
+ide-cd                 35776   1 (autoclean)
+parport_pc             27208   1 (autoclean)
+lp                      8480   0 (autoclean)
+parport                36960   1 (autoclean) [parport_pc lp]
+i810                   65440  23
+agpgart                43680   7 (autoclean)
+es1371                 30472   0
+soundcore               6628   0 [es1371]
+ac97_codec             13576   0 [es1371]
+gameport                3412   0 [es1371]
+ppp_async               9408   1
+ppp_generic            24636   3 [ppp_deflate bsd_comp ppp_async]
+slhc                    6628   0 [ppp_generic]
+af_packet              15528   0 (autoclean)
+floppy                 57148   0
+eepro100               22836   1 (autoclean)
+mii                     3992   0 (autoclean) [eepro100]
+nls_iso8859-15          4092   1 (autoclean)
+nls_cp850               4316   1 (autoclean)
+vfat                   12780   1 (autoclean)
+fat                    39224   0 (autoclean) [vfat]
+supermount             16480   3 (autoclean)
+sr_mod                 17976   0
+cdrom                  33920   0 [ide-cd sr_mod]
+scsimon                 9824   0 (unused)
+usb-storage            78648   0
+scsi_mod              106548   3 [sr_mod scsimon usb-storage]
+usb-uhci               26220   0 (unused)
+usbcore                77760   1 [usb-storage usb-uhci]
+rtc                     8412   0 (autoclean)
+ext3                   59916   2
+jbd                    38972   2 [ext3]
+
+- --------------------------------------
+Output of /proc/devices :
+
+Character devices:
+  1 mem
+  2 pty/m%d
+  3 pty/s%d
+  4 tts/%d
+  5 cua/%d
+  6 lp
+  7 vcs
+ 10 misc
+ 14 sound
+ 29 fb
+108 ppp
+128 ptm
+136 pts/%d
+162 raw
+180 usb
+226 drm
+
+Block devices:
+  1 ramdisk
+  2 fd
+  3 ide0
+  9 md
+ 11 sr
+ 22 ide1
+
+- --------------------------------------
+
+Output of /proc/mounts :
+
+rootfs / rootfs rw 0 0
+/dev/root / ext3 rw 0 0
+none /dev devfs rw 0 0
+none /proc proc rw 0 0
+none /proc/bus/usb usbdevfs rw 0 0
+none /dev/pts devpts rw 0 0
+/dev/hda7 /home ext3 rw 0 0
+none /mnt/cdrom supermount ro 0 0
+none /mnt/cdrw supermount ro 0 0
+none /mnt/floppy supermount rw,sync 0 0
+/dev/hda1 /mnt/windows vfat rw 0 0
+none /proc/sys/fs/binfmt_misc binfmt_misc rw 0 0
 
 
->>EIP; f8b05260 <[e1000]e1000_clean_rx_ring+30/140>   <=====
+I am not subscribed to the linux-kernel list (well, I was, but after I had to 
+delete 100000 messages and my email account was ready to be closed, I had to 
+unsubscribe) so if you could possibly cc: me if you can be bothered to or if 
+you really need to.
 
-Trace; f8b051dd <[e1000]e1000_free_rx_resources+1d/70>
+Many thanks :-)
 
-Code;  f8b05260 <[e1000]e1000_clean_rx_ring+30/140>
-00000000 <_EIP>:
-Code;  f8b05260 <[e1000]e1000_clean_rx_ring+30/140>   <=====
-   0:   8b 14 1f                  mov    (%edi,%ebx,1),%edx   <=====
-Code;  f8b05263 <[e1000]e1000_clean_rx_ring+33/140>
-   3:   85 d2                     test   %edx,%edx
-Code;  f8b05265 <[e1000]e1000_clean_rx_ring+35/140>
-   5:   74 36                     je     3d <_EIP+0x3d>
-Code;  f8b05267 <[e1000]e1000_clean_rx_ring+37/140>
-   7:   8b 42 70                  mov    0x70(%edx),%eax
-Code;  f8b0526a <[e1000]e1000_clean_rx_ring+3a/140>
-   a:   48                        dec    %eax
-Code;  f8b0526b <[e1000]e1000_clean_rx_ring+3b/140>
-   b:   74 0b                     je     18 <_EIP+0x18>
+- --Max.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-
-4 warnings and 6 errors issued.  Results may not be reliable.
-
-
-===
-
-Please let me know if im missing something, or if you need more info from me
-regarding this issue.
-
-Thanks a lot.
-
+iD8DBQE/WjlZJs1Ztj8KHd8RAmkdAJ9EW18dsWBnRdvGhH/k77nHVosmegCgt64d
+ob5EEFx65Wo27awaRIGJTM8=
+=UPe9
+-----END PGP SIGNATURE-----
 

@@ -1,155 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285287AbRL2TMj>; Sat, 29 Dec 2001 14:12:39 -0500
+	id <S285269AbRL2TUj>; Sat, 29 Dec 2001 14:20:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285269AbRL2TMa>; Sat, 29 Dec 2001 14:12:30 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:4232 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S285287AbRL2TMS>; Sat, 29 Dec 2001 14:12:18 -0500
-Date: Sat, 29 Dec 2001 19:14:44 +0000
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.1-dj8
-Message-ID: <20011229191444.A16473@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S285329AbRL2TUc>; Sat, 29 Dec 2001 14:20:32 -0500
+Received: from svr3.applink.net ([206.50.88.3]:38663 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S285288AbRL2TUY>;
+	Sat, 29 Dec 2001 14:20:24 -0500
+Message-Id: <200112291920.fBTJKESr009175@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: Larry McVoy <lm@bitmover.com>
+Subject: Re: RFC: Linux Bug Tracking & Feature Tracking DB
+Date: Sat, 29 Dec 2001 13:16:25 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200112290657.fBT6vMSr008000@svr3.applink.net> <20011229105525.C19306@work.bitmover.com>
+In-Reply-To: <20011229105525.C19306@work.bitmover.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mixed bag of goodies this time.
+On Saturday 29 December 2001 12:55, Larry McVoy wrote:
+> On Sat, Dec 29, 2001 at 12:53:39AM -0600, Timothy Covell wrote:
+> > 1. The maintainer of this DB would need to receive patches
+> > along with patch.lsm and feature.lsm like files from the code
+> > maintainers.   That means  that Linus, Alan, Marcello, Dave
+> > Jones, et al.,  might have to be involved.
+> >
+> > 2. DB would be a high volume site (at least that's the idea!)
+> >
+> > 3. Would would pay for and maintain it?  (I know, since I'm
+> > the one putting forth the idea, it's mine to run with.  However,
+> > a. I ain't rich.  b. following from a., I have no bandwidth 24kbps
+> > dialup.)
+>
+> OK, we've got a prototype of something like this already, I don't claim
+> it is ready for prime time, but you can go look at it here:
+>
+> 	http://bugs.bkbits.net/bugs.html
+>
+> You can run queries, etc.
+>
+> This is a fairly early version, so be gentle.  The data in it is the
+> current BitKeeper bug list (feel free to fix some :-)
+>
+> There are other ways to access the data, both command line and email
+> are supported.  Long term, I'd like to make the bug db be an NNTP server
+> so you could do everything via a news reader, which would be bitchin'.
+>
+> If this is a first order approximation of what you want, we'll host
+> it here if you like.  We have a T1 line with lots of spare bandwidth
+> at the moment.  The machine that you are poking at is the same machine
+> which hosts various BK repos, such as the Linux/PPC trees, Ted's linux24
+> tree, Ted's e2fsprogs, NTP trees, GregKH's trees, Chris Wright's trees
+> (he has a 25 tree based on Ted's 24 tree), Rik's VM tree, among others.
+> We haven't talked about this very much because we don't have all the
+> nifty sourceforge like indices and statistics, but long term this is
+> headed towards something somewhat like a distributed sourceforge.
+> We never liked the centralized model that sourceforge has, it becomes
+> a single point of failure.
+>
+> One interesting, perhaps, point is that bugdb is a BitKeeper repository,
+> which means you can clone it and take *all* of the data with you,
+> unlike sourceforge.  So if you were to become dependent on this and
+> we ran out of bandwidth or something, you can clone the bug db and set
+> up your own bug server elsewhere.  In general, for both databases and
+> source, that's the approach we want, i.e., we're happy to host it here
+> to get you started but if you have needs that we can't meet, we'll make
+> it easy for you to host elsewhere.
 
-Patch against 2.5.1 vanilla is available from:
-http://www.codemonkey.org.uk/patches/2.5/patch-2.5.1-dj8.diff.bz2
+Thank you.  That's a kind offer.  I'm taking a look at it right now.  So
+your solution might solve the bandwidth issue, but the bigger issue
+is what the big guys think, at least as far as I imagined the system.
 
-Some of the fixes still haven't found their way back to Marcelo yet
-but should show up in a later 2.4.18pre with any luck.
-
-Enjoy,
-  -- Davej.
-
-2.5.1-dj8
-o   Remove leftover EISA cruft in x86 ksyms.		(Me)
-o   Add a missing part of the split visws support.	(Me)
-o   Make reiserfs partitions mountable again.		(Al Viro,
-							 Andrew Morton, Me)
-o   Make x86 math emulation work with dynamic LDT.	(Manfred Spraul)
-o   Fix problems with tdfxfb & high pixelclocks.	(Jurriaan)
-    | Only tested on PCI 4500, feedback to thunder7@xs4all.nl
-o   Replace text.lock with .subsection			(Keith Owens)
-o   Remove Cyrix SLOP workaround.			(Me)
-    | Can be done in userspace/initramfs.
-o   Merge pnpbios support.				(Thomas Hood)
-    | Should work, but may be nice to bend into shape
-    | to fit the new driverfs model at some point.
-
-
-2.5.1-dj7
-o   Merge 2.5.2pre3
-    | Drop some of the reiserfs changes. Looks like -dj has
-    | a more complete set of fixes from 2.4. This is getting
-    | a little hairy, so handle with care.
-o   Make rootfs compile.				(Me)
-o   Dynamically grow LDT.				(Manfred Spraul)
-o   Randomness for ext2 generation numbers.		(Manfred Spraul)
-o   Give Manfreds threaded coredump a retry.		(Manfred Spraul)
-o   Add missing ad1848 formats.				(Alan Cox)
-o   Make ide-floppy compile without PROC_FS.		(Robert Love)
-o   generic_serial, rio_linux, serial_tx3912,		(Rasmus Andersen)
-    sh-sci and sx drivers janitor work.
-o   opl3sa2 Power management support & update.		(Zwane Mwaikambo)
-    | Add Zwane to MAINTAINERS for this too.
-o   Fix buggy MODINC i2o_config macro.			(Andreas Dilger)
-o   Cyclades driver /proc/ioports oops fix.		(Andrew Morton)
-    | Untested afaik, but looks sane.
-    | rmmod cyclades.o ; cat /proc/ioports to see if this works.
-o   SX driver, DCD-HylaFAX problem solved.		(Heinz-Ado Arnolds)
-o   Only look in 1KB of EBDA for MP table.		(Zwane Mwaikambo) 
-    | Follows the MP1.4 Spec closer, let me know of any
-    | SMP problems if any with this change.
-o   Better fix for the sunrpc 'missing include'.	(David Woodhouse)
-o   Remove bogus <asm/segment.h> includes.		(David Woodhouse)
-o   ps2esdi spinlock typo.				(Me)
-
-
-2.5.1-dj6
-o   Merge 2.5.2pre2
-    | Includes updated for 2.5 SCSI debug driver.	(Douglas Gilbert)
-o   Merge 2.4.18pre1
-o   Missing include in sunrpc sched.c			(David S. Miller)
-o   Remove incorrect devinit's from bttv & USB.		(Andrew Morton)
-o   Remove redundant EISA_bus__is_a_macro macro.	(Me)
-o   Split visws support to setup-visws.c		(Me)
-    | Can someone with one of these beasts test this, and maybe
-    | even *gulp* maintain it ?
-o   pc110pad spinlock thinko				(Peter T. Breuer)
-o   Fix reiserfs + highmem possible oops.		(Oleg Drokin)
-o   Fix reiserfs fsx breakage.				(Oleg Drokin)
-o   Make IPV6 accept timestamps in response to SYNs.	(Alexey Kuznetsov)
-o   NCR5380_timer_fn needs to be static.		(Rasmus Andersen)
-o   CONFIG_SERIAL_ACPI is IA64 only.			(Me)
-
-
-2.5.1-dj5
-o   Sync up to 2.5.2pre1
-o   Merge 2.4.17final.
-o   Gravis ultrasound PnP update		(Andrey Panin)
-
-
-2.5.1-dj4
-o   Merge with 2.4.17-rc2
-    | Most was already here, more or less just fixes for
-    | reiserfs & netfilter, and some VM changes.
-
-
-2.5.1-dj3
-o   Drop Manfreds multithread coredump changes		(Me)
-    | They caused ltp waitpid05 regression on 2.5
-    | (Same patch is fine for 2.4)
-o   Intermezzo compile fix.				(Chris Wright)
-o   Fix ymfpci & hisax merge errors.			(Me)
-o   Drop ad1848 sound driver changes in favour of 2.5	(Me)
-o   Make hpfs work again.				(Al Viro)
-o   Alpha Jensen compile fixes.				(Ronald Lembcke)
-o   Make NCR5380 compile non modularly.			(Erik Andersen)
-
-
-2.5.1-dj2
-o   bio fixes for qlogicfas.			(brett@bad-sports.com)
-o   Correct x86 CPU helptext.			(Me)
-o   Fix serial.c __ISAPNP__ usage.		(Andrey Panin)
-o   Use better ide-floppy fixes.		(Jens Axboe)
-o   Make NFS 'fsx' proof.			(Trond Mykelbust)
-    | 2 races & 4 bugs, hopefully this is all.
-o   devfs update				(Richard Gooch)
-o   Backout early CPU init, needs more work.	(Me)
-    | This should fix several strange reports.
-o   drop new POSIX kill semantics for now	(Me)
-
-
-2.5.1-dj1
-o   Resync with 2.5.1
-    | drop reiserfs changes. 2.4's look to be more complete.
-o   Fix potential sysvfs oops.				(Christoph Hellwig)
-o   Loopback driver deadlock fix.			(Andrea Arcangeli)
-o   __devexit cleanups in drivers/net/			(Daniel Chen,
-    synclink, wdt_pci & via82cxxx_audio 		 John Tapsell)
-o   Configure.help updates				(Eric S. Raymond)
-o   Make reiserfs compile again.				(Me)
-o   bio changes for ide floppy					(Me)
-    | handle with care, compiles, but is unfinished.
-o   Make x86 identify_cpu() happen earlier			(Me)
-    | PPro errata workaround & APIC setup got a little
-    | cleaner as a result.
-o   Blink keyboard LEDs on panic				(From 2.4.13-ac)
-o   Change current->state frobbing to set_current_state()	(From 2.4.13-ac)
-o   Add MODULE_LICENSE tags for acpi,md.c,fmvj18x,		(From 2.4.13-ac)
-    atyfb & fbmem.
-
-
--- 
-Dave Jones.                    http://www.codemonkey.org.uk
-SuSE Labs.
+timothy.covell@ashavan.org.

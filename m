@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265355AbTBJVvK>; Mon, 10 Feb 2003 16:51:10 -0500
+	id <S265242AbTBJWAZ>; Mon, 10 Feb 2003 17:00:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265368AbTBJVvK>; Mon, 10 Feb 2003 16:51:10 -0500
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:4105 "EHLO
-	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP
-	id <S265355AbTBJVvI>; Mon, 10 Feb 2003 16:51:08 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [BK PATCH] LSM changes for 2.5.59
-Date: 10 Feb 2003 21:36:45 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <b2961d$l9d$1@abraham.cs.berkeley.edu>
-References: <3E471F21.4010803@wirex.com> <004701c2d146$24c26230$1403a8c0@sc.tlinx.org>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1044913005 21805 128.32.153.211 (10 Feb 2003 21:36:45 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 10 Feb 2003 21:36:45 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S265275AbTBJWAZ>; Mon, 10 Feb 2003 17:00:25 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:53263 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S265242AbTBJWAY>; Mon, 10 Feb 2003 17:00:24 -0500
+Date: Mon, 10 Feb 2003 17:06:59 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andi Kleen <ak@suse.de>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] linux-2.5.59_getcycles_A0
+In-Reply-To: <20030208022908.GA29776@wotan.suse.de>
+Message-ID: <Pine.LNX.3.96.1030210170411.29699B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LA Walsh wrote:
->> >  Some security people were banned from the kernel
->> >devel. summit because their thoughts were deemed 
->> 'dangerous': fear was they
->> >were too persuasive about ideas that were deemed 'ignorant' and would
->> >fool those poor kernel lambs at the summit.
->
->> Internal SGI politics.
->
->	Nope... external -- the conference organizer was the one selecting and
->specifically disallowing certain attendees.  It
->appeared important to weed out anyone who didn't think like him.
+On Sat, 8 Feb 2003, Andi Kleen wrote:
 
-I'm not sure that's relevant.  We discussed these issues at length on
-the LSM mailing list months ago.  You had the opportunity (and took
-it) to make the case for your proposal on the LSM mailing list, but in
-the end, it was deemed not persuasive by most list members.  The LSM
-mailing list came to rough consensus on the right technical decision.
-I know you didn't like the outcome of that decision, but there were good
-technical reasons for the decisions we made.  To say that you didn't
-have a chance to present your ideas is a misrepresentation of the truth.
+> Regarding the watchdog: what it basically wants is a POSIX
+> CLOCK_MONOTONIC clock. This isn't currently implemented by Linux, 
+> but I expect it will be eventually because it's really useful for a lot
+> of applications who just need an increasing time stamp in user space,
+> and who do not want to fight ntpd for this. One example for such 
+> an application is the X server who needs this for its internal 
+> event sequencing.
+> 
+> Implementing it based on the current time infrastructure is very easy -
+> you just do not add xtime and wall jiffies in, but only jiffies.
+> 
+> I don't think doing any special hacks and complicating get_cycles()
+> for it is the right way. Just implement a new monotonic clock primitive
+> (and eventually export it to user space too) 
 
-Part of distributed decision-making is conceding gracefully when the
-consensus doesn't go your way.  We've all had to do this from time
-to time.  In short, we've had this discussion already, and nothing has
-changed since then.
+That seems to be the right way to go, rather than slow get_cycles() have a
+separate functionality which does what you need. Didn't know about
+CLOCK_MONOTONIC by that name, but I agree it's useful in various places.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

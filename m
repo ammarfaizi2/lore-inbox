@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314711AbSDVTtS>; Mon, 22 Apr 2002 15:49:18 -0400
+	id <S314705AbSDVTry>; Mon, 22 Apr 2002 15:47:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314712AbSDVTtR>; Mon, 22 Apr 2002 15:49:17 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:37391 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S314711AbSDVTtO>; Mon, 22 Apr 2002 15:49:14 -0400
-Date: Mon, 22 Apr 2002 21:49:08 +0200 (CEST)
-From: tomas szepe <kala@pinerecords.com>
-To: linux-kernel@vger.kernel.org
-Subject: PromiseULTRA100 TX2 ATA66 trouble
-Message-ID: <Pine.LNX.4.44.0204222127100.2888-100000@louise.pinerecords.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314704AbSDVTrw>; Mon, 22 Apr 2002 15:47:52 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:33798 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S314705AbSDVTrk>; Mon, 22 Apr 2002 15:47:40 -0400
+Message-Id: <5.1.0.14.2.20020422204204.00ad1e60@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 22 Apr 2002 20:47:39 +0100
+To: "Jonathan A. George" <JGeorge@greshamstorage.com>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+Cc: Jeff Garzik <garzik@havoc.gtf.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <3CC4585F.4060005@greshamstorage.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+At 19:37 22/04/02, Jonathan A. George wrote:
+>Jeff,
+>
+>The BK documentation constitutes an implicit advertisement and endorsement 
+>of a product with a license which to many developers violates the spirit 
+>of open source software.  This is not to say that BK is not an effective 
+>product, nor that the document in question is useful for people who choose 
+>the tool, but to me it seems comparable to including a closed source 
+>binary module in the kernel distribution. Moving the document to the BK 
+>website would be nicer, and would certainly assauge bad feelings regarding 
+>such an integral implicit endorsement of a tool.
+>
+>--Jonathan--
+
+I hereby publically endorse the use of bitkeeper. I think it's a great tool 
+and I think anyone who is not using it is missing out. Anyone who asks me 
+what a good SCM to use is will hear "bitkeeper" from me. And I shall not 
+change my mind until a better or at least as good tool becomes available.
+
+Taking out the document only because it describes a non-free tool is 
+ridiculous. I don't object to the removal per se. I could live with that. I 
+object to the REASONS for removal.
+
+And I am prepared to speak for that, in case you hadn't noticed. (-;
+
+How about that?
+
+Best regards,
+
+Anton
 
 
-I've got an ATA66 compliant Western Digital drive attached to
-a Promise Ultra100 TX2 IDE controller card using a good quality
-80-wire cable.
-
-Running on 2.4.19-pre7-ac2, I can't seem to get the kernel to
-set ATA66 mode *unless* I pass the kernel the options 'ide2=ata66
-ide2=autotune'. Although doing this spits out a warning during boot
-time -- PDC20268: ATA-66/100 forced bit set (WARNING)!! -- everything
-seems to work alright, as it should. I reckon the problem is only that
-despite the fact the driver knows that both the disk and the controller
-are capable of munching data in ATA66, it somehow doesn't trust that
-things are going to work out and limits operation to ATA33 -- could
-it be that it doesn't like the cable? I'm quite sure it's oook, and
-the TX2 BIOS has no complains either.
-
-2.4.19-pre7 as well as 2.4.19-pre7-ac2 w/o the aforementioned
-kernel options passed set the device to operate as ATA33, effectively
-restricting the transfer mode to the maximum of UDMA2. If, at this
-stage, I try to set anything higher using hdparm, I get a "speed
-warning" about UDMA 3/4/5 not functional.
-
-Furthermore, applying Andre Hedrick's ide-2.4.19-p7.all.convert.6.patch
-causes the kernel to not even recognize the controller. BUUUURN! <g>
-
-The card is detected as:
-Unknown mass storage controller: Promise Technology, Inc.: Unknown device 4d68 (rev 02)
-
-Anyone has any suggestions for me?
-thanks! -Tomas
-
-pub 1024d/8e316a84 2002-01-29   tomas szepe <kala@pinerecords.com>
-openpgp f/print 2955 2eea c4b8 b09e 7ae1  4d5d 68e3 d606 8e31 6a84
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

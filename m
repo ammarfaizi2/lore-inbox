@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264922AbTFCDsT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 23:48:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbTFCDsT
+	id S264923AbTFCD5e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 23:57:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264924AbTFCD5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 23:48:19 -0400
-Received: from rth.ninka.net ([216.101.162.244]:4235 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S264922AbTFCDsT (ORCPT
+	Mon, 2 Jun 2003 23:57:34 -0400
+Received: from waste.org ([209.173.204.2]:29380 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S264923AbTFCD5d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 23:48:19 -0400
-Subject: Re: 2.5.70-bk7 -- drivers/net/irda/w83977af_ir.ko needs unknown
-	symbol setup_dma
-From: "David S. Miller" <davem@redhat.com>
-To: Miles Lane <miles.lane@attbi.com>
+	Mon, 2 Jun 2003 23:57:33 -0400
+Date: Mon, 2 Jun 2003 23:10:54 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Jody Pearson <J.Pearson@cern.ch>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3EDBCC44.8000009@attbi.com>
-References: <3EDBCC44.8000009@attbi.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054612898.9352.3.camel@rth.ninka.net>
+Subject: Re: Documentation / code sample wanted.
+Message-ID: <20030603041054.GM23715@waste.org>
+References: <Pine.LNX.4.44.0306021939490.31408-100000@lxplus077.cern.ch>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 02 Jun 2003 21:01:40 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0306021939490.31408-100000@lxplus077.cern.ch>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-02 at 15:14, Miles Lane wrote:
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.70-bk7; fi
-> WARNING: /lib/modules/2.5.70-bk7/kernel/drivers/net/irda/w83977af_ir.ko 
-> needs unknown symbol setup_dma
+On Mon, Jun 02, 2003 at 07:40:52PM +0200, Jody Pearson wrote:
 
-What platform is this?  It needs to set CONFIG_ISA correctly.
+> I am looking for some source code or a document which outlines how to open 
+> a TCP connection within kernel space.
+
+Take a look at nbd or Cisco's iSCSI driver.
+ 
+> For more information, I basically want to emulate a userland 
+> gethostbyname() in kernel space.
+
+That gets ugly quickly. There are a lot of options and complexity
+needed to handle even the simplest name resolution robustly. It almost
+certainly makes more sense to do this in userspace and pass the result
+down to the kernel.
 
 -- 
-David S. Miller <davem@redhat.com>
+Matt Mackall : http://www.selenic.com : of or relating to the moon

@@ -1,88 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261647AbSJAOgp>; Tue, 1 Oct 2002 10:36:45 -0400
+	id <S261645AbSJAOf1>; Tue, 1 Oct 2002 10:35:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261648AbSJAOgp>; Tue, 1 Oct 2002 10:36:45 -0400
-Received: from [204.248.145.126] ([204.248.145.126]:6824 "HELO mail.lig.net")
-	by vger.kernel.org with SMTP id <S261647AbSJAOgn>;
-	Tue, 1 Oct 2002 10:36:43 -0400
-Message-ID: <3D99B60C.20303@lig.net>
-Date: Tue, 01 Oct 2002 10:49:48 -0400
-From: "Stephen D. Williams" <sdw@lig.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Rsync SSH session hang, AGAIN  -  Help!  Deadlock debugging needed.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261646AbSJAOf1>; Tue, 1 Oct 2002 10:35:27 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:32927 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261645AbSJAOf0>;
+	Tue, 1 Oct 2002 10:35:26 -0400
+Date: Tue, 1 Oct 2002 16:40:36 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
+Message-ID: <20021001144036.GV3867@suse.de>
+References: <20021001140639.GA25624@fib011235813.fsnet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021001140639.GA25624@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This has been a recurring problem for a couple years which I and others 
-have experienced.  I was free from it for a while, but after upgrading 
-OpenSSL/OpenSSH to avoid the recent exploit it is back and highly 
-repeatable.  This has been persistant enough that I am going to start 
-with the assumption that it may be a kernel bug, or at least probably 
-debuggable definitively only by a proficient kernel developer.  We have 
-got to squash this once and for all; SSH is used everywhere and it needs 
-to be reliable.  Probably there is a race condition in ssh, as mentioned 
-below, but it must be subtle.
+On Tue, Oct 01 2002, Joe Thornber wrote:
+> bk://device-mapper.bkbits.net/2.5-remove-lvm
+> 
+> This large patch completely removes LVM from the 2.5 tree.  Please
+> apply.  Yes it really has spread as far as linux/list.h and
+> linux/kdev_t.h !
 
-rsync/ssh transfers from local system to local system work perfectly. 
- Between the systems, there is nearly always large delays at certain 
-times and usually a complete hang.  After a long period, this often 
-produces a timeout.  These sytems are on 100baseT on the same switch. 
- One system appears to be having mild packet loss (400 out of 400,000 on 
-both send and receive as frame/carrier erros).  BTW, running a cpio 
-through the SSH connections causes a nearly immediate hang, so it is 
-unlikely to be a problem with rsync.
+Good to see you follow up on that. The (by far) more important thing is
+dm for 2.5 -- where is it?
 
-Both systems work find receiving rsync/ssh from my laptop over a 400Kb 
-DSL connection with:
-OpenSSH 3.1p1
-openssl 0.9.6c
-rsync 2.5.4
-gcc 2.96
-kernel 2.4.19
-
-(systems are a combination of Suse and Redhat 7.3, upgraded variously by 
-hand)
-
-My standard rsync/ssh script looks like:
-
-brsyncndz (backup rsync no delete or compression):
-#!/bin/sh
-if [ "$PORT" = "" ]; then PORT=22; fi
-rsync -vv -HpogDtSxlra --partial --progress --stats -e "ssh -p $PORT" $*
-
-On both sides:
-OpenSSL-0.9.6g
-Openssh-3.4p1
-rsync-2.5.5
-
-On 'old' system:
-gcc 2.95.2
-kernel 2.4.3
-
-On 'new' system:
-gcc 2.96
-kernel 2.4.20-pre8
-
-
-References to past discussions:  (Tried the TCP buffers tuning.)
-http://lists.insecure.org/linux-kernel/2001/Mar/0374.html
-http://lists.insecure.org/linux-kernel/2001/Mar/0380.html
-http://lists.insecure.org/linux-kernel/2001/Mar/0400.html
-Haven't tried this code yet:
-http://lists.insecure.org/linux-kernel/2001/Mar/0652.html
-
-Thanks!
-sdw
 -- 
-sdw@lig.net http://sdw.st
-Stephen D. Williams 43392 Wayside Cir,Ashburn,VA 20147-4622
-703-724-0118W 703-995-0407Fax Dec2001
-
-
+Jens Axboe
 

@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266760AbSKLXTG>; Tue, 12 Nov 2002 18:19:06 -0500
+	id <S267027AbSKLXUd>; Tue, 12 Nov 2002 18:20:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266709AbSKLXTG>; Tue, 12 Nov 2002 18:19:06 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:47538 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S266760AbSKLXTE>;
-	Tue, 12 Nov 2002 18:19:04 -0500
-Message-Id: <200211122325.gACNPhr08344@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: James Stevenson <james@stev.org>
-cc: Per Andreas Buer <perbu@linpro.no>, linux-kernel@vger.kernel.org,
-       cliffw@osdl.org
-Subject: Re: iostats broken for devices with major number > DK_MAX_DISK (16) 
-In-Reply-To: Message from James Stevenson <james@stev.org> 
-   of "12 Nov 2002 23:01:03 GMT." <1037142064.1570.0.camel@god.stev.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 12 Nov 2002 15:25:43 -0800
-From: Cliff White <cliffw@osdl.org>
+	id <S267029AbSKLXUc>; Tue, 12 Nov 2002 18:20:32 -0500
+Received: from smtp03.uc3m.es ([163.117.136.123]:53004 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S267027AbSKLXUb>;
+	Tue, 12 Nov 2002 18:20:31 -0500
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200211122327.gACNRFH21238@oboe.it.uc3m.es>
+Subject: 2.5.46 won't boot with root=/dev/hda5, does with /dev/ide.../part5
+To: linux kernel <linux-kernel@vger.kernel.org>
+Date: Wed, 13 Nov 2002 00:27:15 +0100 (MET)
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 2002-11-12 at 20:35, Per Andreas Buer wrote:
-> > Hi,
-> > 
-> > sorry for the intrusion. I noticed iostats didn't display statistics for
-> > devices on Mylex RAID constrollers. Det statistics are completely
-> > missing in /proc/stat. The reason seems to be an assumption that disks
-> > have major numbers which are below 16
-> > (http://lxr.linux.no/source/include/linux/kernel_stat.h#L15) which is
-> > used by http://lxr.linux.no/source/fs/proc/proc_misc.c#L344.
-> > 
-> > Devices on Mylex-controllers have major number 48. Would it break
-> > anything if DK_MAX_MAJOR if set higher (e.g. 64)?
-> > 
-> > AFAIK this goes for both 2.4 and the 2.5 series.
-> 
-> i have been runing with 2.4.x kernel with this number
-> set higher i have still yet to see any problem with it
-> other than using more memory.
-> 
-We've had the same problem, and we've been running with DK_MAX_MAJOR == 64, 
-using megaraid and acceleraid 2000 controllers. 
-Haven't seen any problems 
-cliffw
-OSDL
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+2.5.44 booted fine with root=/dev/hda5 on my laptop (one ide disk, all
+ext2).
+
+2.5.46 stopped at VFS cannot blah blah "hda5", after reading the
+partition table fine.
+
+I got 2.5.47 to boot (gave up on 2.5.46) by using the
+root=/dev/ide/../part5 param instead.
+
+Yes, it took me a week to think of that.
+
+There was no change between configs except what make oldconfig
+threw up to make a decision on (and I always say no).
+
+Choice selections from config ..
+
+  ...
+  # CONFIG_HPFS_FS is not set
+  CONFIG_PROC_FS=y
+  CONFIG_DEVFS_FS=y
+  # CONFIG_DEVFS_MOUNT is not set
+  # CONFIG_DEVFS_DEBUG is not set
+  CONFIG_DEVPTS_FS=y
+  # CONFIG_QNX4FS_FS is not set
+  CONFIG_ROMFS_FS=m
+  CONFIG_EXT2_FS=y
+  CONFIG_EXT2_FS_XATTR=y
+  # CONFIG_EXT2_FS_POSIX_ACL is not set
+  CONFIG_SYSV_FS=m
+  ...
 
 
+Peter

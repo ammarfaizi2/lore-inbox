@@ -1,83 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVCEWnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVCEWss@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbVCEWnV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 17:43:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVCEWl7
+	id S261337AbVCEWss (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 17:48:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVCEWrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 17:41:59 -0500
-Received: from coderock.org ([193.77.147.115]:28069 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261291AbVCEWlc (ORCPT
+	Sat, 5 Mar 2005 17:47:40 -0500
+Received: from coderock.org ([193.77.147.115]:39845 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261306AbVCEWmr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 17:41:32 -0500
-Subject: [patch 3/4] delete unused file include_asm_arm_hardware_linkup_l1110.h
-To: rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org
+	Sat, 5 Mar 2005 17:42:47 -0500
+Subject: [patch 01/15] replace PRINTK with pr_debug in block/umem.c
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, domen@coderock.org, janitor@sternwelten.at
 From: domen@coderock.org
-Date: Sat, 05 Mar 2005 23:41:21 +0100
-Message-Id: <20050305224121.7FF711F202@trashy.coderock.org>
+Date: Sat, 05 Mar 2005 23:42:42 +0100
+Message-Id: <20050305224242.7C1B91EE1E@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Remove nowhere referenced file. (egrep "filename\." didn't find anything)
 
+
+
+
+
+Removed unused dprintk, replaced PRINTK with pr_debug.
+Compile tested.
+
+Signed-off-by: Domen Puncer <domen@coderock.org>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj/include/asm-arm/hardware/linkup-l1110.h |   48 -----------------------------
- 1 files changed, 48 deletions(-)
+ kj-domen/drivers/block/umem.c |   11 ++++-------
+ 1 files changed, 4 insertions(+), 7 deletions(-)
 
-diff -L include/asm-arm/hardware/linkup-l1110.h -puN include/asm-arm/hardware/linkup-l1110.h~remove_file-include_asm_arm_hardware_linkup_l1110.h /dev/null
---- kj/include/asm-arm/hardware/linkup-l1110.h
-+++ /dev/null	2005-03-02 11:34:59.000000000 +0100
-@@ -1,48 +0,0 @@
--/*
--*
--* Definitions for H3600 Handheld Computer
--*
--* Copyright 2001 Compaq Computer Corporation.
--*
--* Use consistent with the GNU GPL is permitted,
--* provided that this copyright notice is
--* preserved in its entirety in all copies and derived works.
--*
--* COMPAQ COMPUTER CORPORATION MAKES NO WARRANTIES, EXPRESSED OR IMPLIED,
--* AS TO THE USEFULNESS OR CORRECTNESS OF THIS CODE OR ITS
--* FITNESS FOR ANY PARTICULAR PURPOSE.
--*
--* Author: Jamey Hicks.
--*
--*/
+diff -puN drivers/block/umem.c~pr_debug-drivers_block_umem drivers/block/umem.c
+--- kj/drivers/block/umem.c~pr_debug-drivers_block_umem	2005-03-05 16:09:08.000000000 +0100
++++ kj-domen/drivers/block/umem.c	2005-03-05 16:09:08.000000000 +0100
+@@ -34,6 +34,7 @@
+  *			 - set initialised bit then.
+  */
+ 
++//#define DEBUG /* uncomment if you want debugging info (pr_debug) */
+ #include <linux/config.h>
+ #include <linux/sched.h>
+ #include <linux/fs.h>
+@@ -58,10 +59,6 @@
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+ 
+-#define PRINTK(x...) do {} while (0)
+-#define dprintk(x...) do {} while (0)
+-/*#define dprintk(x...) printk(x) */
 -
--/* LinkUp Systems PCCard/CompactFlash Interface for SA-1100 */
--
--/* PC Card Status Register */
--#define LINKUP_PRS_S1	(1 << 0) /* voltage control bits S1-S4 */
--#define LINKUP_PRS_S2	(1 << 1)
--#define LINKUP_PRS_S3	(1 << 2)
--#define LINKUP_PRS_S4	(1 << 3)
--#define LINKUP_PRS_BVD1	(1 << 4)
--#define LINKUP_PRS_BVD2	(1 << 5)
--#define LINKUP_PRS_VS1	(1 << 6)
--#define LINKUP_PRS_VS2	(1 << 7)
--#define LINKUP_PRS_RDY	(1 << 8)
--#define LINKUP_PRS_CD1	(1 << 9)
--#define LINKUP_PRS_CD2	(1 << 10)
--
--/* PC Card Command Register */
--#define LINKUP_PRC_S1	(1 << 0)
--#define LINKUP_PRC_S2	(1 << 1)
--#define LINKUP_PRC_S3	(1 << 2)
--#define LINKUP_PRC_S4	(1 << 3)
--#define LINKUP_PRC_RESET (1 << 4)
--#define LINKUP_PRC_APOE	(1 << 5) /* Auto Power Off Enable: clears S1-S4 when either nCD goes high */
--#define LINKUP_PRC_CFE	(1 << 6) /* CompactFlash mode Enable: addresses A[10:0] only, A[25:11] high */
--#define LINKUP_PRC_SOE	(1 << 7) /* signal output driver enable */
--#define LINKUP_PRC_SSP	(1 << 8) /* sock select polarity: 0 for socket 0, 1 for socket 1 */
--#define LINKUP_PRC_MBZ	(1 << 15) /* must be zero */
--
--struct linkup_l1110 {
--	volatile short prc;
--};
+ #define MM_MAXCARDS 4
+ #define MM_RAHEAD 2      /* two sectors */
+ #define MM_BLKSIZE 1024  /* 1k blocks */
+@@ -299,7 +296,7 @@ static void mm_start_io(struct cardinfo 
+ 
+ 	/* make the last descriptor end the chain */
+ 	page = &card->mm_pages[card->Active];
+-	PRINTK("start_io: %d %d->%d\n", card->Active, page->headcnt, page->cnt-1);
++	pr_debug("start_io: %d %d->%d\n", card->Active, page->headcnt, page->cnt-1);
+ 	desc = &page->desc[page->cnt-1];
+ 
+ 	desc->control_bits |= cpu_to_le32(DMASCR_CHAIN_COMP_EN);
+@@ -532,7 +529,7 @@ static void process_page(unsigned long d
+ 		activate(card);
+ 	} else {
+ 		/* haven't finished with this one yet */
+-		PRINTK("do some more\n");
++		pr_debug("do some more\n");
+ 		mm_start_io(card);
+ 	}
+  out_unlock:
+@@ -555,7 +552,7 @@ static void process_page(unsigned long d
+ static int mm_make_request(request_queue_t *q, struct bio *bio)
+ {
+ 	struct cardinfo *card = q->queuedata;
+-	PRINTK("mm_make_request %ld %d\n", bh->b_rsector, bh->b_size);
++	pr_debug("mm_make_request %ld %d\n", bh->b_rsector, bh->b_size);
+ 
+ 	bio->bi_phys_segments = bio->bi_idx; /* count of completed segments*/
+ 	spin_lock_irq(&card->lock);
 _

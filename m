@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbUKSJw3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbUKSKDS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbUKSJw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 04:52:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbUKSJw3
+	id S261336AbUKSKDS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 05:03:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbUKSKDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 04:52:29 -0500
-Received: from main.gmane.org ([80.91.229.2]:12961 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261222AbUKSJwY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 04:52:24 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Joshua Kwan <joshk@triplehelix.org>
-Subject: [2.6.10-rc2] In-kernel swsusp broken
-Date: Fri, 19 Nov 2004 01:52:12 -0800
-Message-ID: <419DC24C.9000902@triplehelix.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-68-126-237-170.dsl.pltn13.pacbell.net
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041116)
-X-Accept-Language: en-us, en
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Fri, 19 Nov 2004 05:03:17 -0500
+Received: from dachs.cyberlink.ch ([62.12.136.4]:20960 "HELO
+	dachs.cyberlink.ch") by vger.kernel.org with SMTP id S261336AbUKSKDO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 05:03:14 -0500
+X-Qmail-Scanner-Mail-From: manfred99@gmx.ch via dachs
+X-Qmail-Scanner: 1.16 (Clear:. Processed in 0.069911 secs)
+From: Manfred Schwarb <manfred99@gmx.ch>
+To: linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>, patrick@tykepenguin.com
+Cc: Manfred Schwarb <manfred99@gmx.ch>
+Message-Id: <20041119100310.32498.18004.31511@tp-meteodat6.cyberlink.ch>
+Subject: [2.4.28] Build Error 1: missing THIS_MODULE in dn_neigh.c
+Date: Fri, 19 Nov 2004 05:03:14 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
+building vanilla 2.4.28, I got this:
 
-Hello,
+dn_neigh.c:584: error: `THIS_MODULE' undeclared here (not in a function)
+dn_neigh.c:584: error: initializer element is not constant
+dn_neigh.c:584: error: (near initialization for `dn_neigh_seq_fops.owner')
+make[2]: *** [dn_neigh.o] Error 1
+make[1]: *** [_modsubdir_decnet] Error 2
+make: *** [_mod_net] Error 2
 
-It seems that as of 2.6.10-rc2 my laptop no longer is able to suspend to
-disk with an echo disk > /sys/power/state. It goes to freeing memory,
-and then blanks the screen. Usually, the screen will turn on again, it
-will write data to the swap partition then power off by itself, but
-instead, the screen stays off, the CPU starts going wild, and a hard
-reset is necessary. It used to work in 2.6.10-rc1.
 
-Is there any help I can provide with this? It looks like I will have to
-binary search between rc1 and rc2, but I won't have time for that until
-next week...
+I think, a patch could look like this:
 
-Thanks
-
-- --
-Joshua Kwan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQIVAwUBQZ3CTKOILr94RG8mAQJLORAApFCdXmypSd01waNJIoL+p+mkqVo3CR7N
-Y/234lWewXAOODjdpAPafjD3LFa9ycQCcxuGXB9dkYI2OHVCHxREGdyRVeFiPb5j
-jN5hJp8JtDfLeionmdQr3yBSks+u4EjWpF4qWW75eK8pzPDoDsOp8xc3qhMvLFly
-mXLcGq2irLiLJ3blXCEmA1iM7RKFSsk60stMuCLJd/lbncIkeocu+HWUKz0P0Va1
-9EEnfhcMNLTqj8idUcnQItEFDZFGagEIdGv4/8ISSTMfLhihObs35i6t1ub/Ay8e
-1SzU2Ne7EzkDrV8Na2bm5AtVhh5thS3ekdn+n76k+hnlIHifa3lLG6a/EycDOYCP
-e0NGGqi0fy1QlVaX/ro+OQOsWIvfqwQusI5kNxBWnvdgx9kIO4HW4vm1elJaKaGp
-xDnJOAmFIKbrNmdTlxU6trbwRZ1nBHhPf58Nfkj97XS2kTBRhjXxeOmj288pVO87
-teEwZAQFzovq0gW9T95pRSiiT+9guvRlGBTwpFPEZ940oVun9R+aqZpaxpRMC6Cn
-bgzoUpPe/OOtWQqYcaL5hbXXvAZ+8M10LXp7+GLYjKKQ1/QcSDdjbfDCEqb2ugGk
-iAQRLqd/Z85UP133xQeq9XYmk/qovsEOPppFuX48RQvb+wSC3yQUJ098nXRUKXjE
-ygG4nhUhrg0=
-=peP5
------END PGP SIGNATURE-----
-
+--- linux-2.4.28/net/decnet/dn_neigh.c.orig	2004-11-18 22:24:38.000000000 +0100
++++ linux-2.4.28/net/decnet/dn_neigh.c	2004-11-18 22:25:24.000000000 +0100
+@@ -26,6 +26,7 @@
+ 
+ #include <linux/config.h>
+ #include <linux/net.h>
++#include <linux/module.h>
+ #include <linux/socket.h>
+ #include <linux/if_arp.h>
+ #include <linux/if_ether.h>

@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262804AbSKRPyH>; Mon, 18 Nov 2002 10:54:07 -0500
+	id <S262813AbSKRQDB>; Mon, 18 Nov 2002 11:03:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262806AbSKRPyH>; Mon, 18 Nov 2002 10:54:07 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14353 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262804AbSKRPyF>; Mon, 18 Nov 2002 10:54:05 -0500
-Date: Mon, 18 Nov 2002 08:00:57 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ulrich Drepper <drepper@redhat.com>
-cc: Ingo Molnar <mingo@elte.hu>, Luca Barbieri <ldb@ldb.ods.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] threading fix, tid-2.5.47-A3
-In-Reply-To: <3DD88CB5.5070904@redhat.com>
-Message-ID: <Pine.LNX.4.44.0211180800240.2454-100000@home.transmeta.com>
+	id <S262821AbSKRQDB>; Mon, 18 Nov 2002 11:03:01 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:37307
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262813AbSKRQDA>; Mon, 18 Nov 2002 11:03:00 -0500
+Date: Mon, 18 Nov 2002 11:12:15 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Taral <taral@taral.net>
+cc: alsa-devel@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
+Subject: Re: Oops when removing snd-timer
+In-Reply-To: <20021118152748.GA8143@hatchling.taral.net>
+Message-ID: <Pine.LNX.4.44.0211181110000.1538-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 18 Nov 2002, Taral wrote:
 
-On Sun, 17 Nov 2002, Ulrich Drepper wrote:
+> On Mon, Nov 18, 2002 at 04:07:17AM -0500, Zwane Mwaikambo wrote:
+> > Looks like you loaded ens137x.c and then that driver got unloaded leaving 
+> > the callback still valid, then the core timer code decided to walk off a 
+> > cliff using that pointer.
 > 
-> which works for me.  But since in schedule_tail() the code reads
-> 
-> +       if (current->user_tid)
-> +               put_user(current->pid, current->user_tid);
-> 
-> this enables writing the TID even if CLONE_CHILD_SETTID isn't set.  The
-> question is: how to access the clone flag information in the child?
+> I don't have ens137x.c compiled, much less loaded. What makes you think
+> this?
 
-The alternate approach is to just say that using CLEARTID without SETTID 
-is a bug. I think that's the right approach.
+It was a guess, i presumed you were using one of the ac97 cards. Anyway 
+it's irrelevant right now. You could of course make your problem report 
+more descriptive wrt to what you loaded/unloaded, which order etc, so that 
+reproducing and walking through the code paths is easier.
 
-		Linus
+	Zwane
+-- 
+function.linuxpower.ca
 

@@ -1,175 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbTFFOug (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 10:50:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbTFFOug
+	id S261825AbTFFOx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 10:53:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTFFOx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 10:50:36 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:18347 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id S261807AbTFFOu2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 10:50:28 -0400
-Subject: Re: [RFC][PATCH 2.5.70] Static tunable semvmx and semaem
-From: Arvind Kandhare <arvind.kan@wipro.com>
-To: wli@holomorphy.com, linux-kernel@vger.kernel.org
-Cc: indou.takao@jp.fujitsu.com, davej@suse.de, manfred@colorfullife.com
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
-Date: 06 Jun 2003 20:32:53 +0530
-Message-Id: <1054911774.1917.21.camel@m2-arvind>
-Mime-Version: 1.0
-X-OriginalArrivalTime: 06 Jun 2003 15:03:33.0605 (UTC) FILETIME=[CC6FE150:01C32C3C]
+	Fri, 6 Jun 2003 10:53:57 -0400
+Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:22524 "EHLO
+	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id S261825AbTFFOx4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 10:53:56 -0400
+Message-Id: <200306061507.h56F7PsG026811@ginger.cmf.nrl.navy.mil>
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations (take 2) 
+In-reply-to: Your message of "Fri, 06 Jun 2003 04:04:10 PDT."
+             <20030606.040410.54190551.davem@redhat.com> 
+X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
+X-mailer: nmh 1.0
+Date: Fri, 06 Jun 2003 11:05:37 -0400
+From: chas williams <chas@cmf.nrl.navy.mil>
+X-Spam-Score: () hits=-0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
+In message <20030606.040410.54190551.davem@redhat.com>,"David S. Miller" writes:
+>Basically it protects all networking administrative actions, add an
+>address for a device, up a device, down a device, add a route, attach
+>a packet scheduler to dev, etc. etc.
 
+so should i hold rtnl across add/remove atm addresses on atm dev's?
+(but iw ouldnt hold rtnl across people just reading the list of
+atm addresses right?)
 
-> I think the __setup()'s should be moved to ipc/sem.c;
+>Hmmm, this is not how RTNL works on netdevs.  The SMP lock is held
+>around all walking, and at the very precise moment where we are
+>doing the actual device unlink from dev_base.  rtnl is acquired at
+>top-level when we will change something.
 
+>This is very different from how you are using the lock+rtnl scheme
+>for your ATM stuff.
 
-It is always better if all the initializations related to
-IPC V semaphores are in ipc/sem.c file. Thanks for the suggestion.
-Below is the updated patch with __setup()calls in ipc/sem.c.
-
-Thanks,
-Arvind
-P.S. I've changed my mail client to evaluation and cross checked whether
-the patches works. Please get back to me in case there are any issues
-while patching.
-
-diff -Naur linux-2.5.70/include/linux/sysctl.h linux-2.5.70.n/include/linux/sysctl.h
---- linux-2.5.70/include/linux/sysctl.h	Tue May 27 06:30:40 2003
-+++ linux-2.5.70.n/include/linux/sysctl.h	Fri Jun  6 19:33:19 2003
-@@ -130,6 +130,8 @@
- 	KERN_PIDMAX=55,		/* int: PID # limit */
-   	KERN_CORE_PATTERN=56,	/* string: pattern for core-file names */
- 	KERN_PANIC_ON_OOPS=57,  /* int: whether we will panic on an oops */
-+	KERN_SEMVMX=58,  	/* int: maximum limit on semval */
-+	KERN_SEMAEM=59,		/* int: maximun limit on semaem */
- };
- 
-
-diff -Naur linux-2.5.70/ipc/sem.c linux-2.5.70.n/ipc/sem.c
---- linux-2.5.70/ipc/sem.c	Tue May 27 06:30:38 2003
-+++ linux-2.5.70.n/ipc/sem.c	Fri Jun  6 19:35:19 2003
-@@ -102,6 +102,9 @@
- #define sc_semopm	(sem_ctls[2])
- #define sc_semmni	(sem_ctls[3])
- 
-+unsigned int semvmx=32767;
-+int semaem=16384;
-+
- static int used_sems;
- 
- void __init sem_init (void)
-@@ -280,7 +283,7 @@
- 			/*
- 	 		 *	Exceeding the undo range is an error.
- 			 */
--			if (undo < (-SEMAEM - 1) || undo > SEMAEM)
-+			if (undo < (-semaem - 1) || undo > semaem)
- 			{
- 				/* Don't undo the undo */
- 				sop->sem_flg &= ~SEM_UNDO;
-@@ -290,7 +293,7 @@
- 		}
- 		if (curr->semval < 0)
- 			goto would_block;
--		if (curr->semval > SEMVMX)
-+		if (curr->semval > semvmx)
- 			goto out_of_range;
- 	}
- 
-@@ -482,7 +485,7 @@
- 		seminfo.semmns = sc_semmns;
- 		seminfo.semmsl = sc_semmsl;
- 		seminfo.semopm = sc_semopm;
--		seminfo.semvmx = SEMVMX;
-+		seminfo.semvmx = semvmx;
- 		seminfo.semmnu = SEMMNU;
- 		seminfo.semmap = SEMMAP;
- 		seminfo.semume = SEMUME;
-@@ -492,7 +495,7 @@
- 			seminfo.semaem = used_sems;
- 		} else {
- 			seminfo.semusz = SEMUSZ;
--			seminfo.semaem = SEMAEM;
-+			seminfo.semaem = semaem;
- 		}
- 		max_id = sem_ids.max_id;
- 		up(&sem_ids.sem);
-@@ -613,7 +616,7 @@
- 		}
- 
- 		for (i = 0; i < nsems; i++) {
--			if (sem_io[i] > SEMVMX) {
-+			if (sem_io[i] > semvmx) {
- 				err = -ERANGE;
- 				goto out_free;
- 			}
-@@ -672,7 +675,7 @@
- 		int val = arg.val;
- 		struct sem_undo *un;
- 		err = -ERANGE;
--		if (val > SEMVMX || val < 0)
-+		if (val > semvmx || val < 0)
- 			goto out_unlock;
- 
- 		for (un = sma->undo; un; un = un->id_next)
-@@ -1295,6 +1298,29 @@
- 	unlock_kernel();
- }
- 
-+static int __init _semvmx(char *str)
-+{
-+	get_option(&str, &semvmx);
-+	if(semvmx>65535 || semvmx <=0)
-+	{
-+		semvmx=32767;
-+	}
-+	return 1;
-+}
-+__setup("semvmx=", _semvmx);
-+
-+static int __init _semaem(char *str)
-+{
-+	get_option(&str, &semaem);
-+	if(semaem>32767 || semaem <=0)
-+	{
-+		semaem=16384;
-+	}
-+	return 1;
-+}
-+__setup("semaem=", _semaem);
-+
-+
- #ifdef CONFIG_PROC_FS
- static int sysvipc_sem_read_proc(char *buffer, char **start, off_t offset, int length, int *eof, void *data)
- {
-diff -Naur linux-2.5.70/kernel/sysctl.c linux-2.5.70.n/kernel/sysctl.c
---- linux-2.5.70/kernel/sysctl.c	Tue May 27 06:30:23 2003
-+++ linux-2.5.70.n/kernel/sysctl.c	Fri Jun  6 19:49:30 2003
-@@ -79,6 +79,8 @@
- extern int msg_ctlmnb;
- extern int msg_ctlmni;
- extern int sem_ctls[];
-+extern unsigned int  semvmx;
-+extern int semaem;
- #endif
- 
- #ifdef __sparc__
-@@ -237,6 +239,10 @@
- 	 0644, NULL, &proc_dointvec},
- 	{KERN_SEM, "sem", &sem_ctls, 4*sizeof (int),
- 	 0644, NULL, &proc_dointvec},
-+	{KERN_SEMVMX, "semvmx", &semvmx, sizeof (int),
-+	0444, NULL, &proc_dointvec},
-+	{KERN_SEMAEM, "semaem", &semaem, sizeof (int),
-+	0444, NULL, &proc_dointvec},
- #endif
- #ifdef CONFIG_MAGIC_SYSRQ
- 	{KERN_SYSRQ, "sysrq", &sysrq_enabled, sizeof (int),
-
-
+ok, i was thinking i could use rtnl to protect readers.  this makes the
+connect(dev = ANY) rather icky.  some of the abuse by me in other places
+might be moot in the future.  i am planning (or have done) to move all
+the vcc's onto a global list (ala many of the other protocol stacks).
+this makes the code for proc (and others) much cleaner since you just grab
+a read lock on the global vcc sklist instead of locking and interating
+each atm device.  further, this will let atm interrupt handlers block
+a race with vcc close/removal.  is this a bad plan?

@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261401AbTCTMI3>; Thu, 20 Mar 2003 07:08:29 -0500
+	id <S261362AbTCTMTq>; Thu, 20 Mar 2003 07:19:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261412AbTCTMI3>; Thu, 20 Mar 2003 07:08:29 -0500
-Received: from mail.idilis.net ([217.156.85.2]:16237 "EHLO mail.idilis.net")
-	by vger.kernel.org with ESMTP id <S261401AbTCTMI2>;
-	Thu, 20 Mar 2003 07:08:28 -0500
-Message-ID: <3E79B200.6030305@easynet.ro>
-Date: Thu, 20 Mar 2003 14:20:16 +0200
-From: Alex Damian <ddalex_krn@easynet.ro>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ro-RO; rv:1.0.1) Gecko/20020830
-X-Accept-Language: ro, en, en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: New PixelView driver
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261412AbTCTMTq>; Thu, 20 Mar 2003 07:19:46 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:23301 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S261362AbTCTMTp>; Thu, 20 Mar 2003 07:19:45 -0500
+Date: Thu, 20 Mar 2003 15:29:56 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Dave Jones <davej@codemonkey.org.uk>, David Brownell <david-b@pacbell.net>,
+       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+       Russell King <rmk@arm.linux.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.5] PCI MWI cacheline size fix
+Message-ID: <20030320152956.A2584@jurassic.park.msu.ru>
+References: <20030320135950.A2333@jurassic.park.msu.ru> <20030320115520.GB6995@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030320115520.GB6995@suse.de>; from davej@codemonkey.org.uk on Thu, Mar 20, 2003 at 11:55:20AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 20, 2003 at 11:55:20AM +0000, Dave Jones wrote:
+>  > +	else if (c->x86 > 6)
+>  > +		pci_cache_line_size = 128 >> 2;	/* P4 */
+>  >  
+> 
+> I'd feel more comfortable with this with a c->x86_vendor == X86_VENDOR_INTEL
+> on the else if clause. The above code will silently break if for eg,
+> VIA, Transmeta or any other clone manufacturer make a model 7 or higher CPU.
 
-I wrote a PixelView (Cirrus Logic GD-5465) tuner&grabber device driver. 
-(V4L interface)
+No, we'd just assume 128 bytes cache line size on such CPU, which is
+safe unless it has cache lines larger than 128. But if we assume 32 bytes
+while this new CPU has 64, MWI might corrupt memory by transferring
+incomplete cache lines.
 
- I'm not sure to which kernel should I patch against (I developed using 
-vanilla 2.4.20).
-
-Should I try diff's against current 2.4.x , or try to make it to the 
-2.5.current and drop
-support for 2.4.x ? or maybe both.
-
-Respect,
-Alex Damian
-
+Ivan.

@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVBODkL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbVBODzv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbVBODkL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 22:40:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVBODkK
+	id S261615AbVBODzv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 22:55:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVBODzv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 22:40:10 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:39599 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261615AbVBODjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 22:39:52 -0500
-Subject: Re: [BK] upgrade will be needed
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Larry McVoy <lm@bitmover.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050215030145.GB6288@bitmover.com>
-References: <20050214174932.GB8846@bitmover.com>
-	 <1108406835.8413.20.camel@localhost.localdomain>
-	 <20050214190137.GB16029@bitmover.com>
-	 <1108415541.8413.48.camel@localhost.localdomain>
-	 <20050214231148.GP13174@bitmover.com>
-	 <1108425420.8413.78.camel@localhost.localdomain>
-	 <20050215000028.GS13174@bitmover.com>
-	 <1108426451.8413.84.camel@localhost.localdomain>
-	 <20050215003535.GB32158@bitmover.com>
-	 <1108429259.8413.99.camel@localhost.localdomain>
-	 <20050215030145.GB6288@bitmover.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Mon, 14 Feb 2005 22:39:44 -0500
-Message-Id: <1108438784.8413.117.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Feb 2005 22:55:51 -0500
+Received: from fire.osdl.org ([65.172.181.4]:29627 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261615AbVBODzo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 22:55:44 -0500
+Message-ID: <42117047.6020209@osdl.org>
+Date: Mon, 14 Feb 2005 19:45:11 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Aur=E9lien_G=C9R=D4ME?= <ag@roxor.cx>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RTC Inappropriate ioctl for device
+References: <20050213214145.GN12421@roxor.cx>
+In-Reply-To: <20050213214145.GN12421@roxor.cx>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-14 at 19:01 -0800, Larry McVoy wrote:
-
-> Would the tarball + patch server suffice for you?  We could make a
-> ChangeSet file which had bk changes -v output in it and that would 
-> give you a fairly useful set of version information.  For those who
-> don't know, bk changes -v is output in time sorted order of changesets
-> with the changeset comments then each file's comments like the output
-> below.  
+Aurélien GÉRÔME wrote:
+> Hi,
 > 
+> Having CONFIG_RTC=y, I tried on x86 the rtctest program found in
+> linux-2.6.10/Documentation/rtc.txt. However, it failed at:
+> 
+> ioctl(fd, RTC_UIE_ON, 0);
+> 
+> with:
+> 
+> ioctl: Inappropriate ioctl for device
+> 
+> Did I miss something? Maybe something else conflicts with CONFIG_RTC?
+> 
+> Cheers.
 
-This is perfect for me. The only time I've ever used BK was when someone
-told me that I needed the lastest snapshot from the bk-tree.  What I do
-with the kernel is to port it, write drivers or customize it for
-customers. So I'm not in the development part of the kernel (although
-I'll report bugs and fixes when I find them). I really believe that the
-majority that download the kernel from BK are doing things like I am and
-not part of the core development team. 
+Do you have an HPET timer enabled?  That could cause a conflict.
 
-Currently, I'm working on a customization of Ingo's RT version, so
-really at the moment I don't even need access to BK. But with my
-previous job, I was downloading the bk version quite a lot. But just to
-get the latest updates. So what you have suggested would have been all
-that I needed.  As I've mentioned, earlier. I work from job to job and
-my needs change with each one. I joined in this discussion because it
-could have affected me quite a bit, since someday I might be hired to
-work on a SCM tool, and I'm very careful about NDAs and the like.
- 
--- Steve
+Does /proc/interrupts report rtc interrupts increasing when you
+run rtctest?
+I.e., does the number of this line increase like this?
 
-PS - I'm packing up now to drive to Boston. See everyone at
-LinuxWorld ;-)
+   8:        131    IO-APIC-edge  rtc
 
+rtctest works for me (2.6.11-rc4).  Maybe send me the strace
+output when you run rtctest and your .config file.
+Oh, and your kernel boot log, maybe there are some rtc driver
+messages in it.
 
-
+-- 
+~Randy

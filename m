@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262128AbSKMRAf>; Wed, 13 Nov 2002 12:00:35 -0500
+	id <S262289AbSKMRDm>; Wed, 13 Nov 2002 12:03:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262130AbSKMRAf>; Wed, 13 Nov 2002 12:00:35 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:45586 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262128AbSKMRAe>;
-	Wed, 13 Nov 2002 12:00:34 -0500
-Date: Wed, 13 Nov 2002 09:02:04 -0800
-From: Greg KH <greg@kroah.com>
-To: Nick Craig-Wood <ncw1@axis.demon.co.uk>
-Cc: Oliver Neukum <oliver@neukum.name>, Sean Neakums <sneakums@zork.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: hotplug (was devfs)
-Message-ID: <20021113170204.GC5446@kroah.com>
-References: <20021112093259.3d770f6e.spyro@f2s.com> <20021112094949.GE17478@higherplane.net> <6uadkf9kdt.fsf@zork.zork.net> <200211121351.08328.oliver@neukum.name> <20021113104809.D2386@axis.demon.co.uk>
+	id <S262296AbSKMRDm>; Wed, 13 Nov 2002 12:03:42 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:14250 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262289AbSKMRDl>; Wed, 13 Nov 2002 12:03:41 -0500
+Subject: Re: [STATUS 2.5]  November 13, 2002
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Guillaume Boissiere <boissiere@adiglobal.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021113161150.GA10118@suse.de>
+References: <3DD22BBE.14582.4A4D5ABA@localhost> 
+	<20021113161150.GA10118@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 13 Nov 2002 17:36:04 +0000
+Message-Id: <1037208964.11979.106.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021113104809.D2386@axis.demon.co.uk>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 13, 2002 at 10:48:09AM +0000, Nick Craig-Wood wrote:
+On Wed, 2002-11-13 at 16:11, Dave Jones wrote:
+> On Wed, Nov 13, 2002 at 10:38:54AM -0500, Guillaume Boissiere wrote:
+>  > Things are stabilizing after the feature freeze.  Of note the 
+>  > merge of a new kernel module loader.
 > 
-> We fixed these problems by removing hotplug and loading the relevant
-> kernel modules in the correct order and voila a perfectly
-> deterministic order for the /dev/ttyUSBs with all devices initialised.
-
-deterministic for you :)
-
-What hotplug will do is allow you to assign a /dev entry to a specific
-device, so that you can go off of the topology, and not just the order
-in which the devices are found.  That is how this problem will be
-solved properly.
-
-> Plugging in our USB bus with 24 devices on it does indeed produce a
-> mini-forkbomb effect ;-) (Especially since these Keyspan devices are
-> initialised twice - once without firmware and once with firmware.)
+> Something of a contradiction.. 8-)
+>  
+>  > o in 2.5.35  Serial ATA support  (Andre Hedrick)  
 > 
-> So - perhaps hotplug ought to be serialised?
+> AFAIK, this still isn't merged.
 
-No, it's not needed for this problem.  There has been talk of
-serializing stuff in userspace, which is the proper way to handle some
-of the remove before add was seen problems.
+Basic SII SATA support is merged. There are more infrastructure related
+matters to resolve next - SATA hot swap means drivers can change
+underneath users and neither the users nor the locking in the IDE code
+expects it. "Suprise its a tape now!" during a CD burn for example
 
-thanks,
+Beyond that there is the matter of SATA addressing, SATA2 and all the
+mmio handling which right now is -really-ugly- because the core code
+doesn't know what its doing.
 
-greg k-h
+You can use SATA in 2.5.47, just don't do anything clever with it 
+

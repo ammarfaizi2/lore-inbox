@@ -1,94 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264035AbUDFVib (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 17:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264046AbUDFVia
+	id S264045AbUDFVqO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 17:46:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264046AbUDFVqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 17:38:30 -0400
-Received: from web40509.mail.yahoo.com ([66.218.78.126]:59141 "HELO
-	web40509.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264035AbUDFVi2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 17:38:28 -0400
-Message-ID: <20040406213827.35076.qmail@web40509.mail.yahoo.com>
-Date: Tue, 6 Apr 2004 14:38:27 -0700 (PDT)
-From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
-Subject: Re: kernel stack challenge 
-To: Valdis.Kletnieks@vt.edu
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200404062001.i36K1429024400@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Apr 2004 17:46:14 -0400
+Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:2828 "EHLO
+	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
+	id S264045AbUDFVqM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 17:46:12 -0400
+Date: Tue, 6 Apr 2004 18:45:32 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@prefeitura.sp.gov.br>
+To: John Cherry <cherry@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New compiler warning: 2.6.4->2.6.5
+Message-Id: <20040406184532.7e522647.lcapitulino@prefeitura.sp.gov.br>
+In-Reply-To: <1081285188.2586.52.camel@cherrybomb.pdx.osdl.net>
+References: <1081220649.13965.15.camel@lightning>
+	<20040406141803.249bf06e.lcapitulino@prefeitura.sp.gov.br>
+	<1081285188.2586.52.camel@cherrybomb.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Em Tue, 06 Apr 2004 13:59:48 -0700
+John Cherry <cherry@osdl.org> escreveu:
 
---- Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 06 Apr 2004 11:16:03 PDT, Sergiy Lozovsky
-> said:
-> 
-> > My code works during system calls (before the real
-> > one). Interrupts are enabled. If it enters the
-> loop
-> > scheduler still can switch tasks (using timer for
-> > example). If it doesn't work in such way I can
-> easily
-> > call schedule(); implicitly after some time limit
-> will
-> > be reached - it's VM, so it's easy to do such
-> things.
-> 
-> Yes, but your security manager is *still* in an
-> infinite loop, and eventually
-> you *will* come to a grinding halt, as each process
-> gets queued up waiting for
-> a decision from the security manager.
+| > | 9 new compiler warnings between 2.6.4 and 2.6.5.
+| > | 
+| > | gcc: 3.2.2
+| > | arch: i386
+| > | 
+| > | drivers/acpi/events/evmisc.c:143: warning: too many arguments for format
+| > | drivers/char/applicom.c:523:2: warning: #warning "Je suis stupide. DW. -
+| > | copy*user in cli"
+| > | drivers/char/watchdog/cpu5wdt.c:305: warning: initialization discards
+| > | qualifiers from pointer target type
+| > | drivers/char/watchdog/cpu5wdt.c:305: warning: return discards qualifiers
+| > | from pointer target type
+| > | drivers/media/dvb/frontends/tda1004x.c:191: warning: `errno' defined but
+| > | not used
+| > | drivers/pcmcia/i82365.c:71: warning: `version' defined but not used
+| > | drivers/pcmcia/tcic.c:64: warning: `version' defined but not used
+| > | sound/isa/wavefront/wavefront_synth.c:1923: warning: `errno' defined but
+| > | not used
+| > | sound/oss/wavfront.c:2498: warning: `errno' defined but not used
+| > 
+| >  I fixed the ''errno''s warnings, the patches are in -mm.
+| 
+| Great.  Once they are merged, the errno warnings will be gone.
+| 
+| > 
+| > PS: I think they are not new.
+| 
+| They were new relative to 2.6.4.  Check out the 2.6.4 build results:
+| 
+|  http://developer.osdl.org/cherry/compile/2.6/linux-2.6.4.results/
 
-No. VXE has completely different architecture.
-Separate logical copy of LISP program is for each
-subsystem we protect. (sure they share the same code
-of LISP interpreter). So, if there will be any
-problems - it's for particular subsystem only. Other
-subsystems (protected and not protected) will not be
-affected.
+ Oh yes, they are not new in -mm, where the time goes fast. :-)
 
-It's like event driven model. There is no constantly
-running servers.
-
-> As an aside, the original posting said it was a
-> restricted subset of Lisp that
-> didn't include recursion.  Aside from the technical
-> difficulties of detecting
-> two or more routines that mutually recurse, it's
-> unclear that Lisp without
-> recursion is at all interesting or useful....
-
-It's misunderstanding. There are no any recursion
-restrictions. Author of particular security model
-(LISP program) should avoid recursions; it's not very
-hard actually. When we write program at language other
-than LISP - we rarely use recursion. Yes, it's against
-LISP style, but not a big problem.
- 
-> This is sounding more and more like the old adage:
-> "When all you have
-> is a hammer, everything starts looking like a
-> thumb".
-
-I know the better one.
-
-"As all Real Programmers know, the only useful data
-structure is the Array. Strings, Lists, Structures,
-Sets-- these are all special cases of arrays and can
-be treated that way just as easily without messing up
-your programming language with all sorts of
-complications."
-
-http://www.pbm.com/~lindahl/real.programmers.html
-
-Serge :-)
-
-__________________________________
-Do you Yahoo!?
-Yahoo! Small Business $15K Web Design Giveaway 
-http://promotions.yahoo.com/design_giveaway/
+-- 
+Luiz Fernando N. Capitulino
+<lcapitulino@prefeitura.sp.gov.br>
+<http://www.telecentros.sp.gov.br>

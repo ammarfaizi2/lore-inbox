@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273184AbTHKSzy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 14:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273111AbTHKSyj
+	id S273019AbTHKTXu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 15:23:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273257AbTHKTWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 14:54:39 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50573 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272988AbTHKSxV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 14:53:21 -0400
-Date: Mon, 11 Aug 2003 11:39:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test3-mm1
-Message-Id: <20030811113943.47e5fd85.akpm@osdl.org>
-In-Reply-To: <94490000.1060612530@[10.10.2.4]>
-References: <20030809203943.3b925a0e.akpm@osdl.org>
-	<94490000.1060612530@[10.10.2.4]>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 11 Aug 2003 15:22:51 -0400
+Received: from galaxy.lunarpages.com ([64.235.234.165]:5565 "EHLO
+	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
+	id S273019AbTHKTWY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 15:22:24 -0400
+Message-ID: <3F37F1A4.2030404@genebrew.com>
+Date: Mon, 11 Aug 2003 15:42:28 -0400
+From: Rahul Karnik <rahul@genebrew.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul Blazejowski <paulb@blazebox.homeip.net>
+CC: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: Linux [2.6.0-test3/mm1] aic7xxx problems.
+References: <1060543928.887.19.camel@blaze.homeip.net>	 <2425882704.1060622541@aslan.btc.adaptec.com> <1060623576.2826.9.camel@blaze.homeip.net>
+In-Reply-To: <1060623576.2826.9.camel@blaze.homeip.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - genebrew.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> Degredation on kernbench is still there:
-> 
-> Kernbench: (make -j N vmlinux, where N = 16 x num_cpus)
->                               Elapsed      System        User         CPU
->               2.6.0-test3       45.97      115.83      571.93     1494.50
->           2.6.0-test3-mm1       46.43      122.78      571.87     1496.00
-> 
-> Quite a bit of extra sys time.
+Paul Blazejowski wrote:
 
-Increased system is a surprise.  Profiles would be interesting, thanks.
+> Is this due to my mainboard (nforce2),cpu,ACPI,devfs,sysfs...or all
+> these together?
+
+NForce2 + ACPI IRQ routing is a work in progress. Try turning off ACPI 
+for the time being and see if it helps.
+
+Thanks,
+Rahul
+-- 
+Rahul Karnik
+rahul@genebrew.com
 

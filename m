@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129749AbRACUF3>; Wed, 3 Jan 2001 15:05:29 -0500
+	id <S129601AbRACUI7>; Wed, 3 Jan 2001 15:08:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129853AbRACUFU>; Wed, 3 Jan 2001 15:05:20 -0500
-Received: from femail1.rdc1.on.home.com ([24.2.9.88]:2981 "EHLO
-	femail1.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S129601AbRACUFC>; Wed, 3 Jan 2001 15:05:02 -0500
-Message-ID: <3A537EA8.45889173@home.net>
-Date: Wed, 03 Jan 2001 14:34:01 -0500
-From: Shawn Starr <shawn.starr@home.net>
-Reply-To: shawn.starr@home.net
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-prerelease i586)
-X-Accept-Language: en
+	id <S129853AbRACUIk>; Wed, 3 Jan 2001 15:08:40 -0500
+Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:44037 "EHLO
+	tellus.mine.nu") by vger.kernel.org with ESMTP id <S129601AbRACUIc>;
+	Wed, 3 Jan 2001 15:08:32 -0500
+Date: Wed, 3 Jan 2001 20:38:03 +0100 (CET)
+From: Tobias Ringstrom <tori@tellus.mine.nu>
+To: Daniel Phillips <phillips@innominate.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Benchmarking 2.2 and 2.4 using hdparm and dbench 1.1
+In-Reply-To: <3A536ADD.BB38E3C7@innominate.de>
+Message-ID: <Pine.LNX.4.21.0101032016180.4684-100000@svea.tellus>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: SHM Not working in 2.4.0-prerelease
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have created the shm directory in /dev
+On Wed, 3 Jan 2001, Daniel Phillips wrote:
 
-drwxrwxrwt   1 root     root            0 Jan  3 09:51 shm/
+> Tobias Ringstrom wrote:
+> > 3) The 2.2 kernels outperform the 2.4 kernels for few clients (see
+> >    especially the "dbench 1" numbers for the PII-128M.  Oops!
+> 
+> I noticed that too.  Furthermore I noticed that the results of the more
+> heavily loaded tests on the whole 2.4.0 series tend to be highly
+> variable (usually worse) if you started by moving the whole disk through
+> cache, e.g., fsck on a damaged filesystem.
 
-in my fstab i have:
+Yes, they do seem to vary a lot.
 
-shmfs /dev/shm shm defaults 0 0
+> It would be great if you could track the ongoing progress - you could go
+> so far as to automatically download the latest patch and rerun the
+> tests.  (We have a script like that here to keep our lxr/cvs tree
+> current.)  And yes, it gets more important to consider some of the other
+> usage patterns so we don't end up with self-fullfilling prophecies.
 
+I was thinking about an automatic test, build, modify lilo, reboot cycle
+for a while, but I don't think it's worth it.  Benchmarking is hard, and
+making it automatic is probably even harder, not mentioning trying to
+interpret the numbers...  Probably "Samba feels slower" works quite well.  
+:-)
 
-when I display with top:
+But then it is even unclear to me what the vm people are trying to
+optimize for.  Probably a system that "feels good", which according to
+myself above, may actually be a good criteria, although a but imprecise.  
+Oh, well...
 
+> For benchmarking it would be really nice to have a way of emptying
+> cache, beyond just syncing.  I took a look at that last week and
+> unfortunately it's not trivial.  The things that have to be touched are
+> optimized for the steady-state running case and tend to take their
+> marching orders from global variables and embedded heuristics that you
+> don't want to mess with.  Maybe I'm just looking at this problem the
+> wrong way because the shortest piece of code I can imagine for doing
+> this would be 1-200 lines long and would replicate a lot of the
+> functionality of page_launder and flush_dirty_pages, in other words it
+> would be a pain to maintain.
 
-Mem:    62496K av,   61248K used,    1248K free,       0K shrd,    1868K
-buff
-Swap:   64252K av,   20016K used,   44236K free                   27900K
-cached
+How about allocating lots of memory and locking it in memory?  I have not
+looked at the source, but it seems (using strace) that hdbench uses shm to
+do just that.  I'll dig into the hdbench code and try to make a program
+that empties the cache.
 
-[spstarr@coredump /etc]$ free
-             total       used       free     shared    buffers
-cached
-Mem:         62496      61264       1232          0       1248
-28848
-
-
-There's no shared memory being used?
-
-mount
-...
-shmfs on /dev/shm type shm (rw)
-
-the shmfs is mounted. Is there any configuration i need to get shm
-memory activiated?
-
-Thanks,
-
-Shawn Starr.
+/Tobias
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

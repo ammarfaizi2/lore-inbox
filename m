@@ -1,30 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318250AbSGWXWU>; Tue, 23 Jul 2002 19:22:20 -0400
+	id <S315720AbSGWXeO>; Tue, 23 Jul 2002 19:34:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318253AbSGWXWU>; Tue, 23 Jul 2002 19:22:20 -0400
-Received: from relay1.pair.com ([209.68.1.20]:26128 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S318250AbSGWXWT>;
-	Tue, 23 Jul 2002 19:22:19 -0400
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <3D3DE6B2.FD4BD529@kegel.com>
-Date: Tue, 23 Jul 2002 16:28:50 -0700
-From: dank@kegel.com
-Reply-To: dank@kegel.com
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3 i686)
-X-Accept-Language: en
+	id <S315758AbSGWXeN>; Tue, 23 Jul 2002 19:34:13 -0400
+Received: from vivi.uptime.at ([62.116.87.11]:50632 "EHLO mail.uptime.at")
+	by vger.kernel.org with ESMTP id <S315720AbSGWXeN>;
+	Tue, 23 Jul 2002 19:34:13 -0400
+From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
+To: "'Martin Brulisauer'" <martin@uceb.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: kbuild 2.5.26 - arch/alpha
+Date: Wed, 24 Jul 2002 01:35:41 +0200
+Organization: =?US-ASCII?Q?UPtime_Systemlosungen?=
+Message-ID: <002f01c232a1$ab425610$1211a8c0@pitzeier.priv.at>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: re: is flock broken in 2.4 or 2.5 kernels or what does this mean?
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+In-Reply-To: <3D3D6B3B.25754.1392D3FD@localhost>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
+X-MailScanner: Nothing found, baby
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To save others a bit of searching:
-the original thread was 'broken flock()' on 28 June 2002.
+Martin Brulisauer wrote:
+[ ... ]
+> Do you think it's worth the time to patch the current
+> version? Will Linus apply the patch so we will hopefully
+> have a 2.6.x kernel that compiles (at least) on alpha's?
 
-Steven's post and regression test:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102562226210792&w=2
-Matthew Wilcox's rip-it-out patch:
-http://marc.theaimsgroup.com/?l=linux-fsdevel&m=102562469813922&w=2
+I hope linus joins this thread some day... :o)
+ 
+[ ... ]
+
+-Oliver
+
+

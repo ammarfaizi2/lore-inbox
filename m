@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265646AbUATSWv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 13:22:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265649AbUATSWv
+	id S265665AbUATSaq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 13:30:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265667AbUATSaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 13:22:51 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61157 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265646AbUATSWn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 13:22:43 -0500
-Date: Tue, 20 Jan 2004 10:23:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: GCS <gcs@lsc.hu>
-Cc: helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-mm5 dies booting, possibly network related
-Message-Id: <20040120102302.47fa26cd.akpm@osdl.org>
-In-Reply-To: <20040120175408.GA12805@lsc.hu>
+	Tue, 20 Jan 2004 13:30:46 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:14217 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265665AbUATSao
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 13:30:44 -0500
+Date: Tue, 20 Jan 2004 10:30:20 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.1-mm5
+Message-ID: <20040120183020.GD23765@srv-lnx2600.matchmail.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
 References: <20040120000535.7fb8e683.akpm@osdl.org>
-	<400D083F.6080907@aitel.hist.no>
-	<20040120175408.GA12805@lsc.hu>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040120000535.7fb8e683.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GCS <gcs@lsc.hu> wrote:
->
-> Offtopic ps:Sorry that I can not help further now, I kicked a door too
->  badly that I think I broke my little finger on my leg. :-( But it would
->  worth to try without CONFIG_REGPARM as Helge noted he has it turned on,
->  and at least I also have it as Y.
+On Tue, Jan 20, 2004 at 12:05:35AM -0800, Andrew Morton wrote:
+> -ext2_new_inode-cleanup.patch
+> -ext2-s_next_generation-fix.patch
+> -ext3-s_next_generation-fix.patch
+> -ext3-journal-mode-fix.patch
 
-CONFIG_REGPARM doesn't work on gcc-2.95 (at least), due to apparent
-miscompilation or misdesign of strstr().  There are probably other such
-issues.
+What do these patches do?
 
-So yes, whatever compiler you are using, turn off CONFIG_REGPARM - it is
-still very experimental.
+> -nfsd-01-stale-filehandles-fixes.patch
+>  Merged
 
-(And of dubious value - it only saved me 0.6% of program text).
+Yes!
 
+I tested this against 2.6.1-bk2 on my knfsd server since friday, and it has
+fixed my problems with stale nfs handles.  Without the patch, it wouldn't
+last a whole day before the errors started cropping up.

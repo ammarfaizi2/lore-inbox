@@ -1,220 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263555AbTCUICh>; Fri, 21 Mar 2003 03:02:37 -0500
+	id <S263498AbTCUIRj>; Fri, 21 Mar 2003 03:17:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263556AbTCUICh>; Fri, 21 Mar 2003 03:02:37 -0500
-Received: from quake.mweb.co.za ([196.2.45.76]:53479 "EHLO quake.mweb.co.za")
-	by vger.kernel.org with ESMTP id <S263555AbTCUICd>;
-	Fri, 21 Mar 2003 03:02:33 -0500
-Date: Fri, 21 Mar 2003 10:08:01 +0200
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Dominik Brodowski <linux@brodo.de>
-Cc: alan@lxorguk.ukuu.org.uk, KML <linux-kernel@vger.kernel.org>,
-       sensors@stimpy.netroedge.com
-Subject: Re: [PATCH 2.5] PCI quirk for SMBus bridge on Asus P4 boards
-Message-Id: <20030321100801.13107ef0.azarah@gentoo.org>
-In-Reply-To: <20030320084148.GA2414@brodo.de>
-References: <20030319211837.GA23651@brodo.de>
-	<1048146514.12350.43.camel@workshop.saharact.lan>
-	<20030320084148.GA2414@brodo.de>
-X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S263547AbTCUIRj>; Fri, 21 Mar 2003 03:17:39 -0500
+Received: from angband.namesys.com ([212.16.7.85]:47242 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S263498AbTCUIRi>; Fri, 21 Mar 2003 03:17:38 -0500
+Date: Fri, 21 Mar 2003 11:28:34 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kswapd oops in 2.4.20 SMP+NFS
+Message-ID: <20030321112834.A17330@namesys.com>
+References: <1048170204.5161.11.camel@calculon>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.U'?2V,Na+LY/R4"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1048170204.5161.11.camel@calculon>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.U'?2V,Na+LY/R4
-Content-Type: multipart/mixed;
- boundary="Multipart_Fri__21_Mar_2003_10:08:01_+0200_083e6310"
+Hello!
 
+On Thu, Mar 20, 2003 at 03:23:24PM +0100, Soeren Sonnenburg wrote:
 
---Multipart_Fri__21_Mar_2003_10:08:01_+0200_083e6310
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+> I got the following oops recently. The machine is still up and running
+> and was working stably for a year now...
+> Linux 2.4.20 #1 SMP Tue Dec 10 11:16:20 CET 2002 i686 unknown
+> 2 x AMD K7-MP 1200MHz PCI(5-64)	TYAN Thunder K7 S2462 Mainboard 1G ECC Memory
+> [...]
+> nfsd-fh: found a name that I didn't expect: sys/oz
+> nfsd-fh: found a name that I didn't expect: sys/oz
+> nfsd-fh: found a name that I didn't expect: bin/x86
+> nfsd-fh: found a name that I didn't expect: bin/x86
+> nfsd-fh: found a name that I didn't expect: etc/bla
+> VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice day...
 
-On Thu, 20 Mar 2003 09:41:48 +0100
-Dominik Brodowski <linux@brodo.de> wrote:
+Hm, what is the underlying host filesystem?
 
-> On Thu, Mar 20, 2003 at 09:48:35AM +0200, Martin Schlemmer wrote:
-> > On Wed, 2003-03-19 at 23:18, Dominik Brodowski wrote:
-> > > Asus hides the SMBus PCI bridge within the ICH2 or ICH4
-> > > southbridge on Asus P4B/P4PE mainboards. The attached patch adds a
-> > > quirk to re-enable the SMBus PCI bridge for P4B533 and P4PE
-> > > mainboards.
-> > > 
-> > 
-> > The ASUS P4T533-C J(850E Chipset) does that as well .... think you
-> > might tweak the patch for this board ?  I can test if you can ....
+Also feed below oops to ksymoops please.
+
+> Unable to handle kernel paging request at virtual address 00268eb7
+>  printing eip:
+> c014f5a3
+> *pde = 00000000
+> Oops: 0000
+> CPU:    1
+> EIP:    0010:[<c014f5a3>]    Not tainted
+> EFLAGS: 00010202
+> eax: 00000000   ebx: e34b05c0   ecx: e34b05d0   edx: d1da1c40
+> esi: d6c03e00   edi: 00268ea7   ebp: 0000318e   esp: f7edff34
+> ds: 0018   es: 0018   ss: 0018
+> Process kswapd (pid: 5, stackpage=f7edf000)
+> Stack: d1da1c58 e34b05c0 e34b05c0 c017a75f e34b05c0 d1da1c58 d1da1c40 c014cf20 
+>        d1da1c40 e34b05c0 00000006 000001d0 00000020 00000006 c014d2ab 000108c9 
+>        c0132046 00000006 000001d0 00000006 00000020 000001d0 c02d94b4 c02d94b4 
+> Call Trace:    [<c017a75f>] [<c014cf20>] [<c014d2ab>] [<c0132046>] [<c013209c>]
+>   [<c01321a1>] [<c0132206>] [<c013232d>] [<c0105708>]
 > 
-> Sure: please send me the output of "pcitweak -l" or "lspci -vv".
-> 
+> Code: 8b 47 10 85 c0 74 06 53 ff d0 83 c4 04 68 f0 a3 2d c0 8d 43 
 
-Here you go
+Thank you.
 
-
-Thanks,
-
--- 
-
-Martin Schlemmer
-
-
---Multipart_Fri__21_Mar_2003_10:08:01_+0200_083e6310
-Content-Type: application/octet-stream;
- name="lspci.txt"
-Content-Disposition: attachment;
- filename="lspci.txt"
-Content-Transfer-Encoding: base64
-
-MDA6MDAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycC4gODI4NTAgODUwIChUZWhhbWEpIENoaXBz
-ZXQgSG9zdCBCcmlkZ2UgKE1DSCkgKHJldiAwNCkKCVN1YnN5c3RlbTogQXN1c3RlayBDb21wdXRl
-ciwgSW5jLjogVW5rbm93biBkZXZpY2UgODAzMAoJQ29udHJvbDogSS9PLSBNZW0rIEJ1c01hc3Rl
-cisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUi0g
-RmFzdEIyQi0KCVN0YXR1czogQ2FwKyA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNF
-TD1mYXN0ID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQrID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6
-IDAKCVJlZ2lvbiAwOiBNZW1vcnkgYXQgZjAwMDAwMDAgKDMyLWJpdCwgcHJlZmV0Y2hhYmxlKSBb
-c2l6ZT0xMjhNXQoJQ2FwYWJpbGl0aWVzOiBbYTBdIEFHUCB2ZXJzaW9uIDIuMAoJCVN0YXR1czog
-UlE9MzEgU0JBKyA2NGJpdC0gRlcrIFJhdGU9eDEseDIseDQKCQlDb21tYW5kOiBSUT0wIFNCQSsg
-QUdQKyA2NGJpdC0gRlcrIFJhdGU9eDQKCjAwOjAxLjAgUENJIGJyaWRnZTogSW50ZWwgQ29ycC4g
-ODI4NTAgODUwIChUZWhhbWEpIENoaXBzZXQgQUdQIEJyaWRnZSAocmV2IDA0KSAocHJvZy1pZiAw
-MCBbTm9ybWFsIGRlY29kZV0pCglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3lj
-bGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJ
-U3RhdHVzOiBDYXAtIDY2TWh6KyBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPWZhc3QgPlRB
-Ym9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogMAoJQnVzOiBw
-cmltYXJ5PTAwLCBzZWNvbmRhcnk9MDEsIHN1Ym9yZGluYXRlPTAxLCBzZWMtbGF0ZW5jeT0zMgoJ
-TWVtb3J5IGJlaGluZCBicmlkZ2U6IGVhMDAwMDAwLWViNGZmZmZmCglQcmVmZXRjaGFibGUgbWVt
-b3J5IGJlaGluZCBicmlkZ2U6IGViNzAwMDAwLWVmZmZmZmZmCglCcmlkZ2VDdGw6IFBhcml0eS0g
-U0VSUi0gTm9JU0EtIFZHQSsgTUFib3J0LSA+UmVzZXQtIEZhc3RCMkItCgowMDoxZS4wIFBDSSBi
-cmlkZ2U6IEludGVsIENvcnAuIDgyODAxQkEvQ0EvREIgUENJIEJyaWRnZSAocmV2IDA0KSAocHJv
-Zy1pZiAwMCBbTm9ybWFsIGRlY29kZV0pCglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBT
-cGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSKyBGYXN0
-QjJCLQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPWZh
-c3QgPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogMAoJ
-QnVzOiBwcmltYXJ5PTAwLCBzZWNvbmRhcnk9MDIsIHN1Ym9yZGluYXRlPTAyLCBzZWMtbGF0ZW5j
-eT0zMgoJSS9PIGJlaGluZCBicmlkZ2U6IDAwMDBiMDAwLTAwMDBkZmZmCglNZW1vcnkgYmVoaW5k
-IGJyaWRnZTogZTg4MDAwMDAtZTlmZmZmZmYKCVByZWZldGNoYWJsZSBtZW1vcnkgYmVoaW5kIGJy
-aWRnZTogZWI1MDAwMDAtZWI2ZmZmZmYKCUJyaWRnZUN0bDogUGFyaXR5LSBTRVJSKyBOb0lTQSsg
-VkdBLSBNQWJvcnQtID5SZXNldC0gRmFzdEIyQi0KCjAwOjFmLjAgSVNBIGJyaWRnZTogSW50ZWwg
-Q29ycC4gODI4MDFCQSBJU0EgQnJpZGdlIChMUEMpIChyZXYgMDQpCglDb250cm9sOiBJL08rIE1l
-bSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUrIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBw
-aW5nLSBTRVJSKyBGYXN0QjJCLQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBh
-ckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBF
-UlItCglMYXRlbmN5OiAwCgowMDoxZi4xIElERSBpbnRlcmZhY2U6IEludGVsIENvcnAuIDgyODAx
-QkEgSURFIFUxMDAgKHJldiAwNCkgKHByb2ctaWYgODAgW01hc3Rlcl0pCglTdWJzeXN0ZW06IEFz
-dXN0ZWsgQ29tcHV0ZXIsIEluYy46IFVua25vd24gZGV2aWNlIDgwMjgKCUNvbnRyb2w6IEkvTysg
-TWVtLSBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3Rl
-cHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisg
-UGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8
-UEVSUi0KCUxhdGVuY3k6IDAKCVJlZ2lvbiA0OiBJL08gcG9ydHMgYXQgYTgwMCBbc2l6ZT0xNl0K
-CjAwOjFmLjIgVVNCIENvbnRyb2xsZXI6IEludGVsIENvcnAuIDgyODAxQkEvQkFNIFVTQiAoSHVi
-ICMxKSAocmV2IDA0KSAocHJvZy1pZiAwMCBbVUhDSV0pCglTdWJzeXN0ZW06IEFzdXN0ZWsgQ29t
-cHV0ZXIsIEluYy46IFVua25vd24gZGV2aWNlIDgwMjgKCUNvbnRyb2w6IEkvTysgTWVtLSBCdXNN
-YXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNF
-UlItIEZhc3RCMkItCglTdGF0dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBE
-RVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxh
-dGVuY3k6IDAKCUludGVycnVwdDogcGluIEQgcm91dGVkIHRvIElSUSAxOQoJUmVnaW9uIDQ6IEkv
-TyBwb3J0cyBhdCBhNDAwIFtzaXplPTMyXQoKMDA6MWYuNCBVU0IgQ29udHJvbGxlcjogSW50ZWwg
-Q29ycC4gODI4MDFCQS9CQU0gVVNCIChIdWIgIzIpIChyZXYgMDQpIChwcm9nLWlmIDAwIFtVSENJ
-XSkKCVN1YnN5c3RlbTogQXN1c3RlayBDb21wdXRlciwgSW5jLjogVW5rbm93biBkZXZpY2UgODAy
-OAoJQ29udHJvbDogSS9PKyBNZW0tIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FT
-bm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUi0gRmFzdEIyQi0KCVN0YXR1czogQ2FwLSA2Nk1o
-ei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0g
-PE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogMAoJSW50ZXJydXB0OiBwaW4gQyByb3V0
-ZWQgdG8gSVJRIDIzCglSZWdpb24gNDogSS9PIHBvcnRzIGF0IGEwMDAgW3NpemU9MzJdCgowMDox
-Zi41IE11bHRpbWVkaWEgYXVkaW8gY29udHJvbGxlcjogSW50ZWwgQ29ycC4gODI4MDFCQS9CQU0g
-QUMnOTcgQXVkaW8gKHJldiAwNCkKCVN1YnN5c3RlbTogQXN1c3RlayBDb21wdXRlciwgSW5jLjog
-VW5rbm93biBkZXZpY2UgODA5NQoJQ29udHJvbDogSS9PKyBNZW0tIEJ1c01hc3RlcisgU3BlY0N5
-Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUi0gRmFzdEIyQi0K
-CVN0YXR1czogQ2FwLSA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0g
-PlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogMAoJSW50
-ZXJydXB0OiBwaW4gQiByb3V0ZWQgdG8gSVJRIDE3CglSZWdpb24gMDogSS9PIHBvcnRzIGF0IDk4
-MDAgW3NpemU9MjU2XQoJUmVnaW9uIDE6IEkvTyBwb3J0cyBhdCA5NDAwIFtzaXplPTY0XQoKMDE6
-MDAuMCBWR0EgY29tcGF0aWJsZSBjb250cm9sbGVyOiBuVmlkaWEgQ29ycG9yYXRpb24gTlYyMCBb
-R2VGb3JjZTMgVGk1MDBdIChyZXYgYTMpIChwcm9nLWlmIDAwIFtWR0FdKQoJU3Vic3lzdGVtOiBB
-c3VzdGVrIENvbXB1dGVyLCBJbmMuIFY4MjAwIFQ1CglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFz
-dGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJS
-LSBGYXN0QjJCLQoJU3RhdHVzOiBDYXArIDY2TWh6KyBVREYtIEZhc3RCMkIrIFBhckVyci0gREVW
-U0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRl
-bmN5OiAyNDggKDEyNTBucyBtaW4sIDI1MG5zIG1heCkKCUludGVycnVwdDogcGluIEEgcm91dGVk
-IHRvIElSUSAxNgoJUmVnaW9uIDA6IE1lbW9yeSBhdCBlYTAwMDAwMCAoMzItYml0LCBub24tcHJl
-ZmV0Y2hhYmxlKSBbc2l6ZT0xNk1dCglSZWdpb24gMTogTWVtb3J5IGF0IGVjMDAwMDAwICgzMi1i
-aXQsIHByZWZldGNoYWJsZSkgW3NpemU9NjRNXQoJUmVnaW9uIDI6IE1lbW9yeSBhdCBlYjgwMDAw
-MCAoMzItYml0LCBwcmVmZXRjaGFibGUpIFtzaXplPTUxMktdCglFeHBhbnNpb24gUk9NIGF0IGVi
-N2YwMDAwIFtkaXNhYmxlZF0gW3NpemU9NjRLXQoJQ2FwYWJpbGl0aWVzOiBbNjBdIFBvd2VyIE1h
-bmFnZW1lbnQgdmVyc2lvbiAyCgkJRmxhZ3M6IFBNRUNsay0gRFNJLSBEMS0gRDItIEF1eEN1cnJl
-bnQ9MG1BIFBNRShEMC0sRDEtLEQyLSxEM2hvdC0sRDNjb2xkLSkKCQlTdGF0dXM6IEQwIFBNRS1F
-bmFibGUtIERTZWw9MCBEU2NhbGU9MCBQTUUtCglDYXBhYmlsaXRpZXM6IFs0NF0gQUdQIHZlcnNp
-b24gMi4wCgkJU3RhdHVzOiBSUT0zMSBTQkErIDY0Yml0LSBGVysgUmF0ZT14MSx4Mix4NAoJCUNv
-bW1hbmQ6IFJRPTMxIFNCQSsgQUdQKyA2NGJpdC0gRlcrIFJhdGU9eDQKCjAyOjBhLjAgVW5rbm93
-biBtYXNzIHN0b3JhZ2UgY29udHJvbGxlcjogUHJvbWlzZSBUZWNobm9sb2d5LCBJbmMuIDIwMjY4
-IChyZXYgMDIpIChwcm9nLWlmIDg1KQoJU3Vic3lzdGVtOiBQcm9taXNlIFRlY2hub2xvZ3ksIElu
-Yy4gVWx0cmExMDBUWDIKCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0g
-TWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0
-dXM6IENhcCsgNjZNaHorIFVERi0gRmFzdEIyQi0gUGFyRXJyLSBERVZTRUw9c2xvdyA+VEFib3J0
-LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAzMiAoMTAwMG5zIG1p
-biwgNDUwMG5zIG1heCksIGNhY2hlIGxpbmUgc2l6ZSAwOAoJSW50ZXJydXB0OiBwaW4gQSByb3V0
-ZWQgdG8gSVJRIDIyCglSZWdpb24gMDogSS9PIHBvcnRzIGF0IGQ4MDAgW3NpemU9OF0KCVJlZ2lv
-biAxOiBJL08gcG9ydHMgYXQgZDQwMCBbc2l6ZT00XQoJUmVnaW9uIDI6IEkvTyBwb3J0cyBhdCBk
-MDAwIFtzaXplPThdCglSZWdpb24gMzogSS9PIHBvcnRzIGF0IGI4MDAgW3NpemU9NF0KCVJlZ2lv
-biA0OiBJL08gcG9ydHMgYXQgYjQwMCBbc2l6ZT0xNl0KCVJlZ2lvbiA1OiBNZW1vcnkgYXQgZTk4
-MDAwMDAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9MTZLXQoJRXhwYW5zaW9uIFJP
-TSBhdCA8dW5hc3NpZ25lZD4gW2Rpc2FibGVkXSBbc2l6ZT0xNktdCglDYXBhYmlsaXRpZXM6IFs2
-MF0gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDEKCQlGbGFnczogUE1FQ2xrLSBEU0krIEQxKyBE
-Mi0gQXV4Q3VycmVudD0wbUEgUE1FKEQwLSxEMS0sRDItLEQzaG90LSxEM2NvbGQtKQoJCVN0YXR1
-czogRDAgUE1FLUVuYWJsZS0gRFNlbD0wIERTY2FsZT0wIFBNRS0KCjAyOjBjLjAgRXRoZXJuZXQg
-Y29udHJvbGxlcjogSW50ZWwgQ29ycC4gODI1NTcvOC85IFtFdGhlcm5ldCBQcm8gMTAwXSAocmV2
-IDA4KQoJU3Vic3lzdGVtOiBJbnRlbCBDb3JwLiBFdGhlckV4cHJlc3MgUFJPLzEwMCsgTWFuYWdl
-bWVudCBBZGFwdGVyCglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1l
-bVdJTlYrIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3RhdHVz
-OiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0
-LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAzMiAoMjAwMG5zIG1p
-biwgMTQwMDBucyBtYXgpLCBjYWNoZSBsaW5lIHNpemUgMDgKCUludGVycnVwdDogcGluIEEgcm91
-dGVkIHRvIElSUSAyMAoJUmVnaW9uIDA6IE1lbW9yeSBhdCBlOTAwMDAwMCAoMzItYml0LCBub24t
-cHJlZmV0Y2hhYmxlKSBbc2l6ZT00S10KCVJlZ2lvbiAxOiBJL08gcG9ydHMgYXQgYjAwMCBbc2l6
-ZT02NF0KCVJlZ2lvbiAyOiBNZW1vcnkgYXQgZTg4MDAwMDAgKDMyLWJpdCwgbm9uLXByZWZldGNo
-YWJsZSkgW3NpemU9MU1dCglFeHBhbnNpb24gUk9NIGF0IDx1bmFzc2lnbmVkPiBbZGlzYWJsZWRd
-IFtzaXplPTFNXQoJQ2FwYWJpbGl0aWVzOiBbZGNdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAy
-CgkJRmxhZ3M6IFBNRUNsay0gRFNJKyBEMSsgRDIrIEF1eEN1cnJlbnQ9MG1BIFBNRShEMCssRDEr
-LEQyKyxEM2hvdCssRDNjb2xkKykKCQlTdGF0dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBEU2Nh
-bGU9MiBQTUUtCgo=
-
---Multipart_Fri__21_Mar_2003_10:08:01_+0200_083e6310
-Content-Type: application/octet-stream;
- name="pcitweak.txt"
-Content-Disposition: attachment;
- filename="pcitweak.txt"
-Content-Transfer-Encoding: base64
-
-UENJOiBQcm9iaW5nIGNvbmZpZyB0eXBlIHVzaW5nIG1ldGhvZCAxClBDSTogQ29uZmlnIHR5cGUg
-aXMgMQpQQ0k6IFBDSSBzY2FuIChhbGwgdmFsdWVzIGFyZSBpbiBoZXgpClBDSTogMDA6MDA6MDog
-Y2hpcCA4MDg2LDI1MzAgY2FyZCAxMDQzLDgwMzAgcmV2IDA0IGNsYXNzIDA2LDAwLDAwIGhkciAw
-MApQQ0k6IDAwOjAxOjA6IGNoaXAgODA4NiwyNTMyIGNhcmQgMDAwMCwwMDAwIHJldiAwNCBjbGFz
-cyAwNiwwNCwwMCBoZHIgMDEKUENJOiAwMDoxZTowOiBjaGlwIDgwODYsMjQ0ZSBjYXJkIDAwMDAs
-MDAwMCByZXYgMDQgY2xhc3MgMDYsMDQsMDAgaGRyIDAxClBDSTogMDA6MWY6MDogY2hpcCA4MDg2
-LDI0NDAgY2FyZCAwMDAwLDAwMDAgcmV2IDA0IGNsYXNzIDA2LDAxLDAwIGhkciA4MApQQ0k6IDAw
-OjFmOjE6IGNoaXAgODA4NiwyNDRiIGNhcmQgMTA0Myw4MDI4IHJldiAwNCBjbGFzcyAwMSwwMSw4
-MCBoZHIgMDAKUENJOiAwMDoxZjoyOiBjaGlwIDgwODYsMjQ0MiBjYXJkIDEwNDMsODAyOCByZXYg
-MDQgY2xhc3MgMGMsMDMsMDAgaGRyIDAwClBDSTogMDA6MWY6NDogY2hpcCA4MDg2LDI0NDQgY2Fy
-ZCAxMDQzLDgwMjggcmV2IDA0IGNsYXNzIDBjLDAzLDAwIGhkciAwMApQQ0k6IDAwOjFmOjU6IGNo
-aXAgODA4NiwyNDQ1IGNhcmQgMTA0Myw4MDk1IHJldiAwNCBjbGFzcyAwNCwwMSwwMCBoZHIgMDAK
-UENJOiAwMTowMDowOiBjaGlwIDEwZGUsMDIwMiBjYXJkIDEwNDMsNDA1YiByZXYgYTMgY2xhc3Mg
-MDMsMDAsMDAgaGRyIDAwClBDSTogMDI6MGE6MDogY2hpcCAxMDVhLDRkNjggY2FyZCAxMDVhLDRk
-NjggcmV2IDAyIGNsYXNzIDAxLDgwLDg1IGhkciAwMApQQ0k6IDAyOjBjOjA6IGNoaXAgODA4Niwx
-MjI5IGNhcmQgODA4NiwwMDBjIHJldiAwOCBjbGFzcyAwMiwwMCwwMCBoZHIgMDAKUENJOiBFbmQg
-b2YgUENJIHNjYW4K
-
---Multipart_Fri__21_Mar_2003_10:08:01_+0200_083e6310--
-
---=.U'?2V,Na+LY/R4
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+eshhqburzKaJYLYRAs1SAJ0aUSZtlmei/2O+3eHd+JT0YFvrtACfVzrk
-1MZKEp7zJdCdNC227fgeTBA=
-=Flq0
------END PGP SIGNATURE-----
-
---=.U'?2V,Na+LY/R4--
+Bye,
+    Oleg

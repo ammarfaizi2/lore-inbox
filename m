@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287596AbSBZO1M>; Tue, 26 Feb 2002 09:27:12 -0500
+	id <S287631AbSBZOiq>; Tue, 26 Feb 2002 09:38:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287631AbSBZO1C>; Tue, 26 Feb 2002 09:27:02 -0500
-Received: from [212.3.242.3] ([212.3.242.3]:11016 "HELO mail.i4gate.net")
-	by vger.kernel.org with SMTP id <S287596AbSBZO0w>;
-	Tue, 26 Feb 2002 09:26:52 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: DevilKin <devilkin-lkml@blindguardian.org>
+	id <S287862AbSBZOih>; Tue, 26 Feb 2002 09:38:37 -0500
+Received: from jalon.able.es ([212.97.163.2]:8893 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S287631AbSBZOi1>;
+	Tue, 26 Feb 2002 09:38:27 -0500
+Date: Tue, 26 Feb 2002 15:38:19 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
 To: Guido Volpi <lugburz@tiscalinet.it>
-Subject: Re: oproblem with nvidia driver
-Date: Tue, 26 Feb 2002 15:27:07 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <200202261447.g1QElLO02468@localhost.localdomain>
-In-Reply-To: <200202261447.g1QElLO02468@localhost.localdomain>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+Subject: Re: oproblem with nvidia driver
+Message-ID: <20020226153819.C5660@werewolf.able.es>
+In-Reply-To: <200202261447.g1QElLO02468@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020226142659Z287596-889+7278@vger.kernel.org>
+In-Reply-To: <200202261447.g1QElLO02468@localhost.localdomain>; from lugburz@tiscalinet.it on mar, feb 26, 2002 at 15:47:21 +0100
+X-Mailer: Balsa 1.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 February 2002 15:47, Guido Volpi wrote:
-> it's all right: nvidia modules depend only by nvidia, but i don't
-> understand why a module that is perfect (or so) with 2.4.17 in 2.4.18-rc4
-> is no more usabily.
 
-The correct thing to to is to complain to NVidia about this. They created a 
-closed source driver - so this is their problem.
+On 20020226 Guido Volpi wrote:
+>it's all right: nvidia modules depend only by nvidia, but i don't understand 
+>why a module that is perfect (or so) with 2.4.17 in 2.4.18-rc4 is no more 
+>usabily.
+>
 
-Optionally, you could check the #nvidia channel on irc.openprojects.net for a 
-quick hack (or hack it yourself).
+I am using it in all releases since time ago. Now I run 2.4.18 with some
+patches and the nvidia module is working right.
 
-DK
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.18-jam1 #1 SMP Tue Feb 26 00:06:55 CET 2002 i686

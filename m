@@ -1,71 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbTILJmm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 05:42:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbTILJmm
+	id S261380AbTILJlv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 05:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbTILJlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 05:42:42 -0400
-Received: from madrid10.amenworld.com ([217.174.194.138]:64015 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S261333AbTILJmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 05:42:17 -0400
-Date: Fri, 12 Sep 2003 11:33:08 +0200
-From: DervishD <raul@pleyades.net>
-To: jw schultz <jw@pegasys.ws>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Hardware supported by the kernel
-Message-ID: <20030912093308.GA50@DervishD>
-References: <3F59DF81.8000407@bluewin.ch> <1063033858.21084.51.camel@dhcp23.swansea.linux.org.uk> <20030908152551.GB12162@DervishD> <200309101747.10972.insecure@mail.od.ua> <20030911101112.GF50@DervishD> <20030912002648.GF15833@pegasys.ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 12 Sep 2003 05:41:51 -0400
+Received: from [212.184.2.221] ([212.184.2.221]:14329 "EHLO
+	akde1101.de.kaercher.com") by vger.kernel.org with ESMTP
+	id S261533AbTILJls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 05:41:48 -0400
+From: Ronny Buchmann <ronny-lkml@vlugnet.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [OOPS] 2.4.22 / HPT372N
+Date: Fri, 12 Sep 2003 11:41:45 +0200
+User-Agent: KMail/1.5.3
+References: <200309091406.56334.ronny-lkml@vlugnet.org> <20030911123418.GA6798@l-t.ee>
+In-Reply-To: <20030911123418.GA6798@l-t.ee>
+MIME-Version: 1.0
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030912002648.GF15833@pegasys.ws>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+Cc: linux-kernel@vger.kernel.org, Marko Kreen <marko@l-t.ee>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200309121141.45776.ronny-lkml@vlugnet.org>
+X-OriginalArrivalTime: 12 Sep 2003 09:41:46.0055 (UTC) FILETIME=[14B90D70:01C37912]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi JW :)
+Am Donnerstag 11 September 2003 14:34 schrieb Marko Kreen:
+> On Tue, Sep 09, 2003 at 02:06:56PM +0200, Ronny Buchmann wrote:
+> > I have the same motherboard but a different problem with the hpt chip,
+> > only the first channel is recognized. (see
+> > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=97824)
+>
+> I saw something like that too - when disk was in second channel,
+> it did not crash because it did not detect anything.
+>
+> > part from dmesg (klogd) output
+> > ---
+> > Sep  7 23:50:17 bserv kernel: HPT366: IDE controller at PCI slot 02:00.0
+> > Sep  7 23:50:17 bserv kernel: HPT366: chipset revision 6
+> > Sep  7 23:50:17 bserv kernel: HPT366: not 100%% native mode: will probe
+> > irqs later
+> > Sep  7 23:50:17 bserv kernel: hpt: HPT372N detected, using 372N timing.
+> > Sep  7 23:50:17 bserv kernel: FREQ: 82 PLL: 35
+>
+> "FREQ: 82" is pretty high as the limit is 85.
+It would be interesting to know what the average or ideal value is.
 
- * jw schultz <jw@pegasys.ws> dixit:
-> > > While learning Welsh is not bad per se, writing public diary
-> > > in Welsh defeats diary purpose. Bad, bad Alan ;) ;) ;)
-> >     Oh, well, it is his diary ;)) I think that he already does enough
-> > for us maintaining the kernel. The diary was a good addenda, but if
-> > he wants to practice his welsh with it, he has the right to do so.
-> > But anyway, bad Alan, bad, bad ;)))))
-> No worse than Raúl writing his in Spanish would be.
+> I replaced "< 0x55" with "<= 0x55" in hpt366.c and the driver
+> did not crash, but it also did not detect cdrom - only thing
+> behind it ATM - so I did not bother messing with it further.
+I will test with cdrom attached later today.
+Currently I have one disk on each channel.
 
-    In fact that's why I write my free software in english. I really
-love my mother language, and I try to write and speak a good spanish
-(how did you know I'm spanish-speaking?), but english is more
-extended, as far as software is concerned of course. Since in Spain
-we have many languages (Catalán, Gallego, Euskera, Valenciano,
-Mallorquín, etc...) I have most respect with languages everywhere.
-The languages lead to a bit of miscommunication, but lead too to
-cultural richness, so I think they're good.
+I had another look at hpt.c(from highpoint) and hpt366.c and found this:
+--- linux-2.4.22-ac1/drivers/ide/pci/hpt366.c.orig	2003-09-11 
+21:29:06.000000000 +0200
++++ linux-2.4.22-ac1/drivers/ide/pci/hpt366.c	2003-09-12 01:05:44.000000000 
++0200
+@@ -713,7 +713,7 @@
+ 	
+ 	/* Reconnect channels to bus */
+ 	outb(0x00, hwif->dma_base+0x73);
+-	outb(0x00, hwif->dma_base+0x79);
++	outb(0x00, hwif->dma_base+0x77);
+ }
+ 
+ /**
+@@ -1368,7 +1368,7 @@
+ 		default:	break;
+ 	}
+ 
+-	d->channels = 1;
++	d->channels = 2;
+ 
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin1);
+ 	pci_for_each_dev(findev) {
 
-> I expect Alan
-> writing his diary in Welsh is good practice so, Good Alan,
-> good, good :)
 
-    You're right ;))) But I think Alan is a bad boy because I no
-longer can read his diary, and I liked it a lot ;)) I'm planning
-learning Gaelic (at some point in the future), and it's not very
-different from welsh ;) Seriously, Alan has all the right to write,
-speak and whatever more in Welsh, and if I don't understand what he's
-saying and I'm interested, rather than forcing him to speak in
-spanish I should learn a bit of welsh. But at the end all is a
-question of understanding, and the most languages one knows, the most
-people will be able to communicate with. And I'm saying all this with
-my poor english ;))
-
-    BTW, I think Alan is really a good fellow, I like him ;))
-
-    Raúl Núñez de Arenas Coronado
+The first one is AFAICS a typo, for the second I'm not sure if there could be 
+any reason?
+Anyhow, it works for me.
 
 -- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+ronny
+
+
+

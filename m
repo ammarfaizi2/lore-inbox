@@ -1,46 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262291AbSJJKzc>; Thu, 10 Oct 2002 06:55:32 -0400
+	id <S263345AbSJJKzv>; Thu, 10 Oct 2002 06:55:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263345AbSJJKzc>; Thu, 10 Oct 2002 06:55:32 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:61188 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S262291AbSJJKzc>; Thu, 10 Oct 2002 06:55:32 -0400
-Message-ID: <3DA55E0C.24033BB5@aitel.hist.no>
-Date: Thu, 10 Oct 2002 13:01:32 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.40mm1 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: Giuliano Pochini <pochini@shiny.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-References: <XFMail.20021010113849.pochini@shiny.it>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263362AbSJJKzv>; Thu, 10 Oct 2002 06:55:51 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:32013 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S263345AbSJJKzu>; Thu, 10 Oct 2002 06:55:50 -0400
+From: dth@ncc1701.cistron.net (Danny ter Haar)
+Subject: Re: 2.5.41-mm1 panics on boot, 2.5.41-vanilla OK
+Date: Thu, 10 Oct 2002 11:01:04 +0000 (UTC)
+Organization: Cistron
+Message-ID: <ao3mlg$6vv$1@ncc1701.cistron.net>
+References: <ao1orf$m2l$1@ncc1701.cistron.net> <3DA47455.6F78E6F1@digeo.com> <20021009224436.A24150@cistron.nl> <20021010124918.A1287@cistron.nl>
+X-Trace: ncc1701.cistron.net 1034247664 7167 62.216.30.38 (10 Oct 2002 11:01:04 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giuliano Pochini wrote:
+Miquel van Smoorenburg  <miquels@cistron.nl> wrote:
+>Right now I have to lay low for a while, hiding from my collegues ;)
 
-> Yes, it makes sense, but it's useless or harmful to discard caches
-> if nobody else needs memory. You just lose data that may be
-> requested in the future for no reason.
+Unless you were in another dimension this morning we (i) encouraged
+you to do some more testing... ;-)
 
-Sure, so the ideal is to not drop unconditionally, but
-make sure that the "finished" O_STREAMING pages are
-the very first ones to go whenever memory pressure happens.
+Danny
 
-The question then becomes "can you do that, with no more
-overhead or code complexity than the existing stuff?"
-
-It wouldn't necessarily make much difference, because
-a linux machine is almost always under memory pressure.
-Free memory is simply filled up with cache till there
-is no more left.  From then on, all requests for memory
-are handled by throwing something else out of cache
-or into swap.  In that case the streaming pages
-are evicted quickly anyway, and the ideal case
-is no different from the implemented case.
-
-Helge Hafting

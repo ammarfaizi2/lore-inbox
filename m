@@ -1,70 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291705AbSBAL0D>; Fri, 1 Feb 2002 06:26:03 -0500
+	id <S291707AbSBALgD>; Fri, 1 Feb 2002 06:36:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291709AbSBALZx>; Fri, 1 Feb 2002 06:25:53 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:32787 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S291705AbSBALZf>;
-	Fri, 1 Feb 2002 06:25:35 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does 
-In-Reply-To: Your message of "Fri, 01 Feb 2002 03:03:45 -0800."
-             <20020201.030345.70220779.davem@redhat.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 01 Feb 2002 22:25:20 +1100
-Message-ID: <10884.1012562720@ocs3.intra.ocs.com.au>
+	id <S291714AbSBALfx>; Fri, 1 Feb 2002 06:35:53 -0500
+Received: (root@vger.kernel.org) by vger.kernel.org id <S291707AbSBALfk>;
+	Fri, 1 Feb 2002 06:35:40 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:64268 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S291674AbSBAKgj>;
+	Fri, 1 Feb 2002 05:36:39 -0500
+Date: Fri, 1 Feb 2002 11:36:33 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: reiser@namesys.com, <linux-kernel@vger.kernel.org>
+Subject: ReiserFS oops with 2.5.3
+Message-ID: <Pine.LNX.4.44.0202011126480.26379-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 01 Feb 2002 03:03:45 -0800 (PST), 
-"David S. Miller" <davem@redhat.com> wrote:
->   From: Keith Owens <kaos@ocs.com.au>
->   Date: Fri, 01 Feb 2002 21:28:52 +1100
->
->   On Fri, 01 Feb 2002 11:07:42 +0100, 
->   Horst von Brand <brand@jupiter.cs.uni-dortmund.de> wrote:
->   >libc.a was invented precisely to handle such stuff automatically when
->   >linking... if it doesn't work, it should be fixed. I.e., making .a --> .o
->   >is a step in the wrong direction IMVHO.
->   
->   There are two contradictory requirements.  crc32.o must only be linked
->   if anything in the kernel needs it, linker puts crc32.o after the code
->   that uses it.  crc32.o must be linked before anything that uses it so
->   the crc32 __init code can initialize first.
->   
->Horst isn't even talking about the initcall issues, he's talking about
->how linking with libc works in that it only brings in the routines you
->actually reference.
+HI,
+I was trying kernel 2.5.3 on pentiumIII, and immediatelly after boot, I
+get this oops:
 
-Go back and read the entire thread Dave.  It started with
+PAP-5580: reiserfs_cut_from_item: item to convert does not exist ([1811
+1812 0x1 IND])invalid operand: 0000
+(addresses may change depending on which process oopsed)
 
-http://www.lib.uaa.alaska.edu/linux-kernel/archive/2002-Week-04/1235.html
+here is ksymoops output:
 
-  "Besides problem with segfaulting crc32 (it is initialized after
-  net/ipv4/ipconfig.c due to lib/lib.a being a library... I had to
-  hardcode lib/crc32.o before --start-group in main Makefile, but it is
-  another story)"
+CPU:    0
+EIP:    0010:[<c015fdd9>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010282
+eax: 00000059   ebx: c01e79c0   ecx: 00000001   edx: cf22c000
+esi: c154b800   edi: 00000000   ebp: cef0fe4c   esp: cef0fc50
+ds: 0018   es: 0018   ss: 0018
+Process rwhod (pid: 98, stackpage=cef0f000)
+Stack: c01e653a c0253380 c01e79c0 cef0fc74 cef0fcac 00000000 c0166e3c c154b800
+       c01e79c0 cef0fe8c cec754a0 00000003 00000011 00000013 00001000 00000000
+       00000001 cef0fcb0 00000fa8 00000001 00000fa8 c154b800 630000a2 00000000
+Call Trace: [<c0166e3c>] [<c0167439>] [<c015903e>] [<c0159dbb>] [<c012f6b4>]
+   [<c012e77c>] [<c012e7c7>] [<c0108597>]
+Code: 0f 0b 68 80 33 25 c0 b8 40 65 1e c0 8d 96 cc 00 00 00 85 f6
 
-http://www.lib.uaa.alaska.edu/linux-kernel/archive/2002-Week-04/1384.html
+>>EIP; c015fdd8 <reiserfs_panic+28/4c>   <=====
+Trace; c0166e3c <reiserfs_cut_from_item+1b4/454>
+Trace; c0167438 <reiserfs_do_truncate+314/444>
+Trace; c015903e <reiserfs_truncate_file+c6/158>
+Trace; c0159dba <reiserfs_file_release+31a/340>
+Trace; c012f6b4 <fput+4c/d0>
+Trace; c012e77c <filp_close+60/68>
+Trace; c012e7c6 <sys_close+42/54>
+Trace; c0108596 <syscall_traced+6/a>
+Code;  c015fdd8 <reiserfs_panic+28/4c>
+00000000 <_EIP>:
+Code;  c015fdd8 <reiserfs_panic+28/4c>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c015fdda <reiserfs_panic+2a/4c>
+   2:   68 80 33 25 c0            push   $0xc0253380
+Code;  c015fdde <reiserfs_panic+2e/4c>
+   7:   b8 40 65 1e c0            mov    $0xc01e6540,%eax
+Code;  c015fde4 <reiserfs_panic+34/4c>
+   c:   8d 96 cc 00 00 00         lea    0xcc(%esi),%edx
+Code;  c015fdea <reiserfs_panic+3a/4c>
+  12:   85 f6                     test   %esi,%esi
 
-  "included patch (for 2.5.3) fixes problems with late initialization
-  of lib/crc32.o - as it was part of .a library file, it was picked by
-  link process AFTER at least one .o file required it - for example
-  when ipv4 autoconfiguration file needed it. So crc32's initalization
-  function was invoked after ipconfig's one - and it crashed inside of
-  ipconfig due to this problem."
+This test system is:
+model name      : Pentium III (Coppermine)
+stepping        : 10
+cpu MHz         : 930.255
+cache size      : 256 KB
+Memory		: 256 MB
+with: Intel i810 MB, (Intel Corporation 82801AA)
+The system has one (E)IDE disk ATA66 with 2MB cache.
 
-Horst was not talking about initcall but his suggestion of using lib.a
-for crc32.o had already been proven not to work, because of the
-(surprise) initcall problem.  I was merely pointing out to Horst why
-lib.a was not working and why other options had to be considered.
+The strange thing is that yesterday this kernel was running fine with
+reiserFS on my Athlon 1300 Mhz (Via chipset), with scsi disks and Adaptec
+2940UW.
 
->Will you get over the initcall thing already, you must be dreaming
->about it at this point. I mean really, just GET OVER IT. :-)
+I hope this helps, and I am willing to test patches.
 
-Nightmare is more like it.
+Luigi Genoni
+
 

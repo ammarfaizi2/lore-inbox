@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbTHTKrT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 06:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbTHTKrT
+	id S261891AbTHTLPW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 07:15:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbTHTLPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 06:47:19 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:29389 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S261873AbTHTKrS (ORCPT
+	Wed, 20 Aug 2003 07:15:22 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:23453
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S261891AbTHTLPS convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 06:47:18 -0400
+	Wed, 20 Aug 2003 07:15:18 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>, Voluspa <lista1@comhem.se>
+Subject: Re: [PATCH] O17int
+Date: Wed, 20 Aug 2003 21:21:42 +1000
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <5.2.1.1.2.20030820095103.019969f8@pop.gmx.net>
+In-Reply-To: <5.2.1.1.2.20030820095103.019969f8@pop.gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16195.20914.632136.929876@gargle.gargle.HOWL>
-Date: Wed, 20 Aug 2003 12:47:14 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Andi Kleen <ak@suse.de>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       venkatesh.pallipadi@intel.com
-Subject: Re: [PATCH][2.6][2/5]Support for HPET based timer
-In-Reply-To: <p731xvg7imu.fsf@oldwotan.suse.de>
-References: <C8C38546F90ABF408A5961FC01FDBF1902C7D1C9@fmsmsx405.fm.intel.com.suse.lists.linux.kernel>
-	<20030820080513.GB17793@ucw.cz.suse.lists.linux.kernel>
-	<p731xvg7imu.fsf@oldwotan.suse.de>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200308202121.56531.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
- > Vojtech Pavlik <vojtech@suse.cz> writes:
- > 
- > > On Tue, Aug 19, 2003 at 05:18:50PM -0700, Pallipadi, Venkatesh wrote:
- > > 
- > > > Fixmap is for HPET memory map address access. As the timer
- > > > initialization happen 
- > > > early in the boot sequence (before vm initialization), we need to have
- > > > fixmap() 
- > > > and fix_to_virt() to access HPET memory map address.
- > > 
- > > Ahh, yes, you're right. You can't use ioremap at that time. Actually I
- > > did the same on x86_64 not only because of vsyscalls.
- > 
- > iirc i386 has an ioremap_early or somesuch.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-bt_ioremap(). I wrote it to support early DMI scan so DMI data
-could be used to blacklist BIOSen that break local APICs.
-This was done pretty much just to handle Dell laptops.
+On Wed, 20 Aug 2003 18:00, Mike Galbraith wrote:
+> At 06:55 AM 8/20/2003 +0200, Voluspa wrote:
+> >Blender 2.28 can not starve xmms one iota. Within blender itself, I can
+> >cause 1 to 5 second freezes while doing a slow "world rotate", but that
+> >is something the application programmers have to fix.
+>
+> I'm not so sure that it's an application bug.  With Nick's patch, I cannot
+> trigger any delay what so ever, whereas with stock, or with Ingo's changes
+> [as well as my own, damn the bad luck] I can.  I'm not saying it's _not_ a
+> bug mind you, but color me suspicious ;-)
+
+/me giggles like a 12 year old girl (teehee)
+
+Try an earlier version of blender and you'll see it goes away. Other ones to 
+try are opening a gpg signed mail (like this mail) in kmail. The slower the 
+sleep avg decay in any tree the longer the spin. Nick's changes I believe 
+cover up the flaw. I'm not discounting Nick's work, but I do believe the apps 
+are broken and it's only the current scheduler design that makes it visible. 
+I would also like to make it impossible for priority inversion to happen but 
+at the moment I've just got to make sure they dont starve anything but their 
+dependent cpu hog. Still looking for some useful task dependency tracking.
+
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/Q1nQZUg7+tp6mRURAgmIAJ0f6jGLZFjjguhYv+MGEz5S1DuMCwCeO+Id
+ii0V4YOXlL9bB7wJ6rn8QEo=
+=PygI
+-----END PGP SIGNATURE-----
+

@@ -1,65 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132668AbRDKRQN>; Wed, 11 Apr 2001 13:16:13 -0400
+	id <S132677AbRDKRSw>; Wed, 11 Apr 2001 13:18:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132677AbRDKRQD>; Wed, 11 Apr 2001 13:16:03 -0400
-Received: from mgw-x3.nokia.com ([131.228.20.26]:12250 "EHLO mgw-x3.nokia.com")
-	by vger.kernel.org with ESMTP id <S132668AbRDKRP6>;
-	Wed, 11 Apr 2001 13:15:58 -0400
-Message-ID: <2D6CADE9B0C6D411A27500508BB3CBD063CF2D@eseis15nok>
-From: Imran.Patel@nokia.com
-To: ak@suse.de, Imran.Patel@nokia.com
-Cc: netfilter-devel@us5.samba.org, netdev@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-Subject: RE: skb allocation problems (More Brain damage!)
-Date: Wed, 11 Apr 2001 20:15:49 +0300
+	id <S132678AbRDKRSm>; Wed, 11 Apr 2001 13:18:42 -0400
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:40976 "HELO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with SMTP
+	id <S132677AbRDKRSX>; Wed, 11 Apr 2001 13:18:23 -0400
+Message-ID: <3AD491C9.6424D932@zk3.dec.com>
+Date: Wed, 11 Apr 2001 13:18:01 -0400
+From: Peter Rival <frival@zk3.dec.com>
+Organization: Tru64 QMG Performance Engineering
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2652.78)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Alpha "process table hang"
+In-Reply-To: <20010411104040.A8773@draal.physics.wisc.edu> <3AD489D1.D5FCCB4B@zk3.dec.com> <20010411120044.A6472@draal.physics.wisc.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, I don't know then. You have to debug it. It's probably 
-> something stupid
-> (if fundamental services like alloc_skb/kfree_skb were 
-> completely buggy
-> someone surely would have noticed earlier)
+Hmpf.  Haven't seen this at all on any of the Alphas that I'm running.  What
+exact system are you seeing this on, and what are you running when it happens?
 
-yep, at first i thought it was because of sume stupidity in my module...but
-now it seems that actually it is not my code which is doing something
-stupid....just now i have found out that even simple ping faces similar
-problems ....here is the output that i get when i ping from the host
-192.168.102.29 (runs 2.4.1) to 192.168.102.22 (runs 2.4.3) (Note:I don't
-insert any kernel modules of my own on these machines):
+ - Pete
 
+Bob McElrath wrote:
 
-PING 192.168.102.22 (192.168.102.22) from 192.168.102.29 : 100(128) bytes of
-data.
-108 bytes from hobbes.sr.ntc.nokia.com (192.168.102.22): icmp_seq=0 ttl=255
-time=36.5 ms
-wrong data byte #36 should be 0x24 but was 0x45
-	19 45 d4 3a e 7a a 0 8 9 a b c d e f 10 11 12 13 14 15 16 17 18 19
-1a 1b 1c 1d 1e 1f 
-	20 21 22 23 45 0 0 80 0 0 40 0 ff 1 2d f8 c0 a8 66 16 c0 a8 66 1d 0
-0 0 0 4 c 0 0 
-	19 45 d4 3a e 7a a 0 8 9 a b c d e f 10 11 12 13 14 15 16 17 18 19
-1a 1b 
-
---- 192.168.102.22 ping statistics ---
-1 packets transmitted, 1 packets received, 0% packet loss
-round-trip min/avg/max = 36.5/36.5/36.5 ms
-
-
-Note that the problem starts with byte #36 which goes on like " 45 0 0 80 0
-......." which is in fact the outer IP header!! So certainly there are
-buffer overruns on the other end (host 192.168.102.22)....
-
-And as a I said earlier, only ping packets with size within certain range
-create this problem......Something is terribly wrong here!! But as I am not
-a Linux mm guru, i can't tell what is wrong here!
-
-
-regards,
-imran
+> Peter Rival [frival@zk3.dec.com] wrote:
+> > You wouldn't happen to have khttpd loaded as a module, would you?  I've seen
+> > this type of problem caused by that before...
+>
+> Nope...
+>
+> >
+> >  - Pete
+> >
+> > Bob McElrath wrote:
+> >
+> > > I've been experiencing a particular kind of hang for many versions
+> > > (since 2.3.99 days, recently seen with 2.4.1, 2.4.2, and 2.4.2-ac4) on
+> > > the alpha architecture.  The symptom is that any program that tries to
+> > > access the process table will hang. (ps, w, top) The hang will go away
+> > > by itself after ~10minutes - 1 hour or so.  When it hangs I run ps and
+> > > see that it gets halfway through the process list and hangs.  The
+> > > process that comes next in the list (after hang goes away) almost always
+> > > has nonsensical memory numbers, like multi-gigabyte SIZE.
+> > >
+> > > Linux draal.physics.wisc.edu 2.3.99-pre5 #8 Sun Apr 23 16:21:48 CDT 2000
+> > > alpha unknown
+> > >
+> > > Gnu C                  2.96
+> > > Gnu make               3.78.1
+> > > binutils               2.10.0.18
+> > > util-linux             2.11a
+> > > modutils               2.4.5
+> > > e2fsprogs              1.18
+> > > PPP                    2.3.11
+> > > Linux C Library        2.2.1
+> > > Dynamic linker (ldd)   2.2.1
+> > > Procps                 2.0.7
+> > > Net-tools              1.54
+> > > Kbd                    0.94
+> > > Sh-utils               2.0
+> > > Modules Loaded         nfsd lockd sunrpc af_packet msdos fat pas2 sound
+> > > soundcore
+> > >
+> > > Has anyone else seen this?  Is there a fix?
+> > >
+> > > -- Bob
+> > >
+> > > Bob McElrath (rsmcelrath@students.wisc.edu)
+> > > Univ. of Wisconsin at Madison, Department of Physics
+> > >
+> > >   ------------------------------------------------------------------------
+> > >    Part 1.2Type: application/pgp-signature
+> -- Bob
+>
+> Bob McElrath (rsmcelrath@students.wisc.edu)
+> Univ. of Wisconsin at Madison, Department of Physics
+>
+>   ------------------------------------------------------------------------
+>    Part 1.2Type: application/pgp-signature
 

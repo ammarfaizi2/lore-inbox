@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263033AbRE1I36>; Mon, 28 May 2001 04:29:58 -0400
+	id <S263001AbRE1IoN>; Mon, 28 May 2001 04:44:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263018AbRE1I3s>; Mon, 28 May 2001 04:29:48 -0400
-Received: from [212.183.11.206] ([212.183.11.206]:16905 "EHLO
-	grips_nts2.grips.com") by vger.kernel.org with ESMTP
-	id <S263012AbRE1I32>; Mon, 28 May 2001 04:29:28 -0400
-Message-ID: <3B120C52.5360B863@grips.com>
-Date: Mon, 28 May 2001 10:29:06 +0200
-From: jury gerold <geroldj@grips.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-xfs2 i686)
-X-Accept-Language: de-AT, en
+	id <S263009AbRE1IoD>; Mon, 28 May 2001 04:44:03 -0400
+Received: from crete.csd.uch.gr ([147.52.16.2]:35256 "EHLO crete.csd.uch.gr")
+	by vger.kernel.org with ESMTP id <S263002AbRE1In5>;
+	Mon, 28 May 2001 04:43:57 -0400
+Organization: 
+Date: Mon, 28 May 2001 11:43:35 +0300 (EET DST)
+From: mythos <papadako@csd.uoc.gr>
+To: Rafael Herrera <raffo@neuronet.pitt.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Matrox G400 Dualhead
+In-Reply-To: <3B11C261.8AE524C@neuronet.pitt.edu>
+Message-ID: <Pine.GSO.4.33.0105281141320.24932-100000@iridanos.csd.uch.gr>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: usb net1080.c vendor/device id
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-in kernel 2.4.3 2.4.4 2.4.5
 
-In drivers/usb/net1080.c somewhere near line 61 i see the following
 
-	{ USB_DEVICE(0x1080, 0x525), 
 
-the vendor and device id are reversed.
-I have changed this to
+On Sun, 27 May 2001, Rafael Herrera wrote:
 
-	{ USB_DEVICE(0x525, 0x1080), 
-and it worked since then.
-I have checked it against the id database on http://www.linux-usb.org/usb.ids
-Dear usb maintainer's, please change it.
+> It would help if you reported which version of kernel and XF86 you are
+> using. I had problems using the framebuffer in the console awhile back.
+>
+> Currently, running 2.4.4+ and XFree86 4.0.3 + Matrox's drivers
+> (http://matrox.com/mga/support/drivers/files/linux_06.cfm) give me no
+> problem.
+>
+> I don't run the frame buffer for X for dual head.
+> --
+>      Rafael
+>
 
-best regards
+I am using 2.4.5-ac1 and XFree-4.0.99.3.But I have no problem with my
+X,except when I go from X to console.The problem I have is in the console
+where I use Dualhead.I don't think it has to do anything with X.
 
-Gerold
+		Mythos
+

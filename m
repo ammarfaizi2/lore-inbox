@@ -1,106 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264922AbUGIOzZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264946AbUGIPAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264922AbUGIOzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 10:55:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUGIOzZ
+	id S264946AbUGIPAz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 11:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264948AbUGIPAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 10:55:25 -0400
-Received: from mail010.syd.optusnet.com.au ([211.29.132.56]:15270 "EHLO
-	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S264922AbUGIOzV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 10:55:21 -0400
-Message-ID: <40EEB1B2.7000800@kolivas.org>
-Date: Sat, 10 Jul 2004 00:54:42 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+	Fri, 9 Jul 2004 11:00:55 -0400
+Received: from mpc-26.sohonet.co.uk ([193.203.82.251]:28608 "EHLO
+	moving-picture.com") by vger.kernel.org with ESMTP id S264946AbUGIPAx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 11:00:53 -0400
+Message-ID: <40EEB322.40002@moving-picture.com>
+Date: Fri, 09 Jul 2004 16:00:50 +0100
+From: James Pearson <james-p@moving-picture.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040524
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Matthias Andree <matthias.andree@gmx.de>,
-       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: post 2.6.7 BK change breaks Java?
-References: <20040705231131.GA5958@merlin.emma.line.org> <Pine.LNX.4.56.0407091544170.22376@jjulnx.backbone.dif.dk>
-In-Reply-To: <Pine.LNX.4.56.0407091544170.22376@jjulnx.backbone.dif.dk>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig224FB593BCBC4F7BA95EEF42"
+To: Thomas Moestl <moestl@ibr.cs.tu-bs.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: umount() and NFS races in 2.4.26
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Disclaimer: This email and any attachments are confidential, may be legally
+X-Disclaimer: privileged and intended solely for the use of addressee. If you
+X-Disclaimer: are not the intended recipient of this message, any disclosure,
+X-Disclaimer: copying, distribution or any action taken in reliance on it is
+X-Disclaimer: strictly prohibited and may be unlawful. If you have received
+X-Disclaimer: this message in error, please notify the sender and delete all
+X-Disclaimer: copies from your system.
+X-Disclaimer: 
+X-Disclaimer: Email may be susceptible to data corruption, interception and
+X-Disclaimer: unauthorised amendment, and we do not accept liability for any
+X-Disclaimer: such corruption, interception or amendment or the consequences
+X-Disclaimer: thereof.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig224FB593BCBC4F7BA95EEF42
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Thomas Moestl:
+ >after deploying an SMP machine at work, we started to experience Oopses
+ >in file-system related code relatively frequently. Investigation
+ >revealed that they were caused by references using junk pointers from
+ >freed super blocks via dangling inodes from unmounted file systems;
+ >Oopses would always be preceded by the warning
+ > VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a 
+nice day...
+ >on an unmount (unmount activity is high on this machine due to heavy 
+ >use of the automounter).
 
-Jesper Juhl wrote:
-> On Tue, 6 Jul 2004, Matthias Andree wrote:
-> 
-> 
->>Hi,
->>
->>I've pulled from the linux-2.6 BK tree some post-2.6.7 version, compiled
->>and installed it, and it breaks Java, standalone or plugged into
->>firefox, the symptom is that the application catches SIGKILL. This
->>didn't happen with stock 2.6.7 and doesn't happen with 2.6.6 either.
->>
-> 
-> I'm seeing the same thing. I'm using Eclipse a lot which is Java based,
-> and I noticed that wen I went from plain 2.6.7 to 2.6.7-mm3 Eclipse
-> started dying shortly after launch (it only manages to get the splash
-> screen up) with a message about the JVM dying. Since I had also upgraded
-> my Sun Java at the same time I initially suspected that and back down to
-> my old version, but the problem persisted. Then I tried the latest Java
-> release from Sun, with same result. Then I started suspecting the kernel
-> and tried 2.6.7-mm6, 2.6.7-bk20 and 2.6.7-mm7 - all with the same result
-> that Java breaks. Finally I went back to a plain 2.6.7 and the problem
-> went away - so it certainly looks kernel related.
-> I was using the same .config with all kernels (copied from my plain 2.6.7
-> kernel to the others and then running 'make oldconfig'), so I'm also
-> pretty sure it's not due to some new kernel option I've enabled that I
-> don't usually use.
-> 
-> My hardware is AMD Athlon (t-bird) 1.4GHz CPU in a ASUS A7M266 mobo with
-> 512MB of DDR266 RAM.
-> 
-> 
-> 
->>Is there any particular change I should try backing out?
->>
-> 
-> I'm looking for the same thing, haven't found it yet unfortunately.
+Are you using the latest autofs4 kernel patches?
 
-Hello
+I had a similar problem - see the thread at:
 
-I've just started having a java application bomb out not long into 
-running as well where previously it would run for hours without 
-problems. However, unlike  yourselves I'm running -ck and the only 
-change between the last working -ck and this kernel are the 3 security 
-patches. I haven't investigated because I cant take the machine offline, 
-but I suspect it's one of those possibly interfering. Looking at the 
-patches in question I have no idea how they could do it. I guess if you 
-can try backing them out it would be helpful. Here are links to the 
-patches in question.
+http://marc.theaimsgroup.com/?l=linux-nfs&m=108515468003933&w=2
 
-http://ck.kolivas.org/patches/2.6/2.6.7/2.6.7-ck5/split-out/1100_ip_tables.patch
-http://ck.kolivas.org/patches/2.6/2.6.7/2.6.7-ck5/split-out/1105_CAN-2004-0497.patch
-http://ck.kolivas.org/patches/2.6/2.6.7/2.6.7-ck5/split-out/1110_proc.patch
+The latest autofs4 patches fixed it for me - available from:
 
-Con
+http://www.kernel.org/pub/linux/daemons/autofs/v4
 
---------------enig224FB593BCBC4F7BA95EEF42
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFA7rG1ZUg7+tp6mRURAuZuAJ9e+auruhez6LaXRoD5+e1Iw1pZWwCff+yv
-8AQsCYrhhLw+qf65GE2W74g=
-=EQ5t
------END PGP SIGNATURE-----
-
---------------enig224FB593BCBC4F7BA95EEF42--
+James Pearson

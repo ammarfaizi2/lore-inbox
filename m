@@ -1,66 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272771AbTG3Fpv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 01:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272773AbTG3Fpv
+	id S272763AbTG3Fm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 01:42:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272764AbTG3Fm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 01:45:51 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:23059 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S272771AbTG3Fpr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 01:45:47 -0400
-Date: Tue, 29 Jul 2003 22:45:43 -0700
-From: jw schultz <jw@pegasys.ws>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Turning off automatic screen clanking
-Message-ID: <20030730054543.GG9836@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0307291750170.5874-100000@phoenix.infradead.org> <Pine.LNX.4.53.0307291338260.6166@chaos> <buollugep3u.fsf@mcspd15.ucom.lsi.nec.co.jp>
-Mime-Version: 1.0
+	Wed, 30 Jul 2003 01:42:58 -0400
+Received: from web20503.mail.yahoo.com ([216.136.226.138]:47944 "HELO
+	web20503.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S272763AbTG3Fm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 01:42:57 -0400
+Message-ID: <20030730054155.34832.qmail@web20503.mail.yahoo.com>
+Date: Tue, 29 Jul 2003 22:41:55 -0700 (PDT)
+From: Studying MTD <studying_mtd@yahoo.com>
+Subject: Re: linux-2.6.0-test1 : modules not working
+To: Joshua Kwan <joshk@triplehelix.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030730045157.GA5655@triplehelix.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <buollugep3u.fsf@mcspd15.ucom.lsi.nec.co.jp>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: The contents of this message may cause drowsiness.  Do not operate heavy machinery.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 30, 2003 at 11:16:05AM +0900, Miles Bader wrote:
-> "Richard B. Johnson" <root@chaos.analogic.com> writes:
-> > No. There are no ANSI, nor DEC nor AT&T nor IRIS, nor IBM, nor any
-> > other terminals that have screen-blanking capabilities.
+module-init-tools-0.9.12 is giving :-
+
+#insmod hello_module.o
+No module found in object
+Error inserting 'hello_module.o': -1 Invalid module
+format
+
+#file hello_module.o
+hello_module.o: ELF 32-bit LSB relocatable, Hitachi
+SH, version 1 MathCoPro/FPU/MAU Required (SYSV), not
+stripped
+
+how to fix this.
+
+Thanks.
+
+--- Joshua Kwan <joshk@triplehelix.org> wrote:
+> On Tue, Jul 29, 2003 at 09:37:17PM -0700, Studying
+> MTD wrote:
+> > modprobe: QM_MODULES: Function not implemented
+> > modprobe: QM_MODULES: Function not implemented
 > 
-> Yes there are.  I guess you never used any of them.
+> Next time, please STFW, RTFM (in this case,
+> post-halloween-2.5.txt on
+> lwn.net), and you would already know that you need
+> module-init-tools,
+> available at rusty's page on kernel.org.
 > 
-> [The brand that immediately comes to mind is Wyse, but I seem to recall
-> the H29 having this capability too...]
+> -Josh
+> 
+> -- 
+> Using words to describe magic is like using a
+> screwdriver to cut roast beef.
+> 		-- Tom Robbins
+> 
 
-I can't speak for the others but according to my Wyse 50
-manual the S.SAVER feature in the field level 4 menu
-has a default value of OFF.
-
-My recollection is that this was common among the VDTs which
-suffered considerably from burn-in.  Many of the later
-models had the feature but it was a hardware setting
-controlled via a configuration menu or a dip-switch.  You
-want the setting to persist across logins and power cycling.
-
-It really should be disabled in-kernel by default.  The
-distribution RC scripts would as a default then enable it
-late in the boot process.  In a server setting where it
-isn't wanted the admin should know enough to prevent its
-being enabled.
-
-I too have been bitten by this on servers where the console
-display is either powered down or disconnected for months at
-a time.  The error messages leading to the hang may be in
-the display buffer but they can't be seen.
+> ATTACHMENT part 2 application/pgp-signature 
 
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
 
-		Remember Cernan and Schmitt
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com

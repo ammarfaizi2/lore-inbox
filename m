@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132125AbRAASkE>; Mon, 1 Jan 2001 13:40:04 -0500
+	id <S132265AbRAASoo>; Mon, 1 Jan 2001 13:44:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132210AbRAASjy>; Mon, 1 Jan 2001 13:39:54 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18191 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132125AbRAASjr>; Mon, 1 Jan 2001 13:39:47 -0500
-Subject: Re: NFS-Root on AIX
-To: pstadt@stud.fh-heilbronn.de (Oliver Paukstadt)
-Date: Mon, 1 Jan 2001 18:11:00 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux-Kernel)
-In-Reply-To: <Pine.LNX.4.05.10101011850430.19324-100000@lara.stud.fh-heilbronn.de> from "Oliver Paukstadt" at Jan 01, 2001 07:00:34 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132230AbRAASoe>; Mon, 1 Jan 2001 13:44:34 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:51217 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S132265AbRAASoY>; Mon, 1 Jan 2001 13:44:24 -0500
+Date: Mon, 1 Jan 2001 10:13:25 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Chipsets, DVD-RAM, and timeouts....
+In-Reply-To: <Pine.LNX.4.10.10012312252220.21836-300000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.10.10101011011350.2892-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14D9QE-00018E-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Last we had to use an AIX-Server as NFS-Server for NFSRoot-Boot.
-> 
-> It did not work, because the all Major-Device-Numbers in /dev/ are all
-> set to 0. The minor numbers are transported correctly. 
 
-NFS doesnt handle this elegantly for NFSv2 - are you using v2 or v3 ?
+
+Andre, what's the idea behind the following change:
+
+--- linux-2.4.0-prerelease-pristine/drivers/ide/ide-features.c  Mon Oct 16 12:21:40 2000
++++ linux-2.4.0-prerelease/drivers/ide/ide-features.c   Sun Dec 31 21:53:17 2000
+@@ -224,7 +224,7 @@
+ #ifndef CONFIG_IDEDMA_IVB
+                if ((drive->id->hw_config & 0x6000) == 0) {
+ #else /* !CONFIG_IDEDMA_IVB */
+-               if (((drive->id->hw_config & 0x2000) == 0) ||
++               if (((drive->id->hw_config & 0x2000) == 0) &&
+                    ((drive->id->hw_config & 0x4000) == 0)) {
+ #endif /* CONFIG_IDEDMA_IVB */
+                        printk("%s: Speed warnings UDMA 3/4/5 is not functional.\n", drive->name);
+
+as it apparently makes CONFIG_IDEDMA_IVB a complete no-op?
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

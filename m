@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266147AbUBCXni (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 18:43:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266194AbUBCXni
+	id S266176AbUBCXiL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 18:38:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUBCXiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 18:43:38 -0500
-Received: from fw.osdl.org ([65.172.181.6]:51945 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266147AbUBCXng (ORCPT
+	Tue, 3 Feb 2004 18:38:11 -0500
+Received: from waste.org ([209.173.204.2]:27347 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S266176AbUBCXiH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 18:43:36 -0500
-Date: Tue, 3 Feb 2004 15:33:37 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH] oss/ad1889: correct printk of dma_addr_t
-Message-Id: <20040203153337.5818aa35.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Tue, 3 Feb 2004 18:38:07 -0500
+Date: Tue, 3 Feb 2004 17:37:37 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: Clay Haapala <chaapala@cisco.com>, James Morris <jmorris@redhat.com>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH 2.6.1 -- take two] Add CRC32C chksums to crypto and lib routines
+Message-ID: <20040203233737.GD31138@waste.org>
+References: <yquj4qu8je1m.fsf@chaapala-lnx2.cisco.com> <Xine.LNX.4.44.0402031213120.939-100000@thoron.boston.redhat.com> <20040203175006.GA19751@chaapala-lnx2.cisco.com> <20040203185111.GA31138@waste.org> <yqujad40j7rn.fsf@chaapala-lnx2.cisco.com> <20040203172508.B26222@lists.us.dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040203172508.B26222@lists.us.dell.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 03, 2004 at 05:25:08PM -0600, Matt Domsch wrote:
+> > >> +MODULE_LICENSE("GPL and additional rights");
+> > > 
+> > > "additional rights?"
+> > > 
+> > Take it up with Matt_Domsch@dell.com -- it's his code that I
+> > cribbed, so that's the license line I used.
+> 
+> The crc32 code came from linux@horizon.com with the following
+> copyright abandonment disclaimer, which is still in lib/crc32.c:
+> 
+> /*
+>  * This code is in the public domain; copyright abandoned.
+>  * Liability for non-performance of this code is limited to the amount
+>  * you paid for it.  Since it is distributed for free, your refund will
+>  * be very very small.  If it breaks, you get to keep both pieces.
+>  */
+> 
+> Thus GPL plus additional rights is appropriate.
 
-description:	fix dma_addr_t type error with CONFIG_HIGHMEM64G=y;
-product_versions: linux-262-rc3
+Ok, makes sense for CRC32 stuff which can be easily lifted from the
+kernel or 50 other places, but not for stuff that's depends on
+cryptoapi.
 
-diffstat:=
- sound/oss/ad1889.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff -Naurp ./sound/oss/ad1889.c~dmatype ./sound/oss/ad1889.c
---- ./sound/oss/ad1889.c~dmatype	2004-01-08 22:59:26.000000000 -0800
-+++ ./sound/oss/ad1889.c	2004-02-03 14:08:55.000000000 -0800
-@@ -354,9 +354,9 @@ int ad1889_read_proc (char *page, char *
- 	for (i = 0; i < AD_MAX_STATES; i++) {
- 		out += sprintf(out, "DMA status for %s:\n", 
- 			(i == AD_WAV_STATE ? "WAV" : "ADC")); 
--		out += sprintf(out, "\t\t0x%p (IOVA: 0x%u)\n", 
-+		out += sprintf(out, "\t\t0x%p (IOVA: 0x%llu)\n", 
- 			dev->state[i].dmabuf.rawbuf,
--			dev->state[i].dmabuf.dma_handle);
-+			(unsigned long long)dev->state[i].dmabuf.dma_handle);
- 
- 		out += sprintf(out, "\tread ptr: offset %u\n", 
- 			(unsigned int)dev->state[i].dmabuf.rd_ptr);
-
-
-
---
-~Randy
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

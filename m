@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264938AbSLPLIp>; Mon, 16 Dec 2002 06:08:45 -0500
+	id <S264788AbSLPLIf>; Mon, 16 Dec 2002 06:08:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265143AbSLPLIp>; Mon, 16 Dec 2002 06:08:45 -0500
-Received: from ore.jhcloos.com ([64.240.156.239]:3332 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id <S264938AbSLPLIn>;
-	Mon, 16 Dec 2002 06:08:43 -0500
-To: linux-kernel@vger.kernel.org
-Cc: Simon Oosthoek <simon@margo.student.utwente.nl>
-Subject: Re: Q: i845MP/P4-M laptop support? (specific problems listed)
-References: <20021216100610.GA16816@margo.student.utwente.nl>
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <20021216100610.GA16816@margo.student.utwente.nl>
-Date: 16 Dec 2002 06:16:30 -0500
-Message-ID: <m3d6o2gqnl.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S264938AbSLPLIf>; Mon, 16 Dec 2002 06:08:35 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:44552 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S264788AbSLPLIe>; Mon, 16 Dec 2002 06:08:34 -0500
+Date: Mon, 16 Dec 2002 12:16:29 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Eric Altendorf <EricAltendorf@orst.edu>
+Cc: Jochen Hein <jochen@jochen.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.50, ACPI] link error
+Message-ID: <20021216111629.GF19038@atrey.karlin.mff.cuni.cz>
+References: <E18Ix71-0003ik-00@gswi1164.jochen.org> <200212062150.06350.EricAltendorf@orst.edu> <20021209072911.GA2934@zaurus> <200212151940.25024.EricAltendorf@orst.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212151940.25024.EricAltendorf@orst.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Simon" == Simon Oosthoek <simon@margo.student.utwente.nl> writes:
+Hi!
+> >
+> > > > > Right ... I'm no kernel hacker so I don't know why, but I can
+> > > > > only get the recent kernels to compile with sleep states if I
+> > > > > turn *ON* software suspend as well.  However, as soon as I
+> > > > > turn on swsusp and get a compiled kernel, it oops'es on boot.
+> > > >
+> > > > Can you mail me decoded oops?
+> > > > 								Pavel
+> > >
+> > > This is the first time I've decoded an oops, and since I had to
+> > > decode it on a different kernel (2.5.25) than the one I'm
+> > > debugging (2.5.50 + Dec 6 ACPI patch), and I couldn't
+> >
+> > Can you try passing
+> > "resume=hda5_or_whatever_your_swap_partition_is"?
+> 
+> Well, I've had "resume=/dev/hda6" in there the whole time (same as it 
+> was on prior kernels that booted).  I tried passing "resume=hda6" 
+> instead just for kicks and got the same result, though...  (This is 
+> still on the 2.5.50 + Dec6ACPI kernel)
 
-Simon> - missing driver for smartmedia slot (I guess this is a feature
-Simon> request, if it's not available) 
+Strange... Can you report if it is still broken with 2.5.51?
 
-Simon> 02:06.0 System peripheral: Toshiba America Info Systems: Unknown device 0804
-
-For the benefit of the archives, that is in the 2.5 kernel's pci.ids as:
-
-        0804  TC6371AF SmartMedia Controller
-
-Docs at:
-
-http://www.toshiba.com/taec/components/Datasheet/TC6371AF--020122E_R1.8.pdf
-http://216.239.53.100/search?q=cache:www.toshiba.com/taec/components/Datasheet/TC6371AF--020122E_R1.8.pdf
-
-Also, a post archvied at:
-
-http://linux.toshiba-dme.co.jp/ML/tlinux-users/1700/1739.html
-
-suggests someone had the TC6371AF's smart media support working on a
-suse 7.2 box back in 2002/January, FWIW.
-
--JimC
-
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130264AbRBASpC>; Thu, 1 Feb 2001 13:45:02 -0500
+	id <S130565AbRBASuV>; Thu, 1 Feb 2001 13:50:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130866AbRBASow>; Thu, 1 Feb 2001 13:44:52 -0500
-Received: from cnxt10215.conexant.com ([198.62.10.215]:1028 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S131490AbRBASof>; Thu, 1 Feb 2001 13:44:35 -0500
-Date: Thu, 1 Feb 2001 19:42:50 +0100 (CET)
-From: <rui.sousa@conexant.com>
-To: Chris Evans <chris@scary.beasts.org>
-cc: Malcolm Beattie <mbeattie@sable.ox.ac.uk>, <linux-kernel@vger.kernel.org>,
-        <davem@redhat.com>
-Subject: Re: Serious reproducible 2.4.x kernel hang
-In-Reply-To: <Pine.LNX.4.30.0102011826060.397-100000@ferret.lmh.ox.ac.uk>
-Message-ID: <Pine.LNX.4.30.0102011941290.739-100000@localhost.localdomain>
+	id <S131420AbRBASuL>; Thu, 1 Feb 2001 13:50:11 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16656 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130565AbRBASuB>; Thu, 1 Feb 2001 13:50:01 -0500
+Subject: AF_UNIX hangs
+To: linux-kernel@vger.kernel.org
+Date: Thu, 1 Feb 2001 18:51:11 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14OOp7-0004rR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Feb 2001, Chris Evans wrote:
+Looking at net/core/datagram.c:wait_for_packet the code will return 0
+when the socket has been shutdown. That causes skb_recv_datagram to loop
+which is in itself obviously incorrect for a shutdown socket (its in EOF
+state)
 
->
-> Nope - I've nailed it to a _really_ simple test case. It looks like a
-> read() on a shutdown() unix dgram socket just kills the kernel. Demo code
-> below. I wonder if this affects UP or is SMP only?
+I suspect it should read something like
 
-It surely killed my PIII UP machine (running 2.4.1)
+	/* Socket shut down? */
+	if (sk->shutdown & RCV_SHUTDOWN)
+	{
+   		current->state = TASK_RUNNING;
+	  	remove_wait_queue(sk->sleep, &wait);
+ 		*err = 0;
+ 		return 1;
+	}
 
-Rui Sousa
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

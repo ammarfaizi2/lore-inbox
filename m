@@ -1,101 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265711AbSKYWGP>; Mon, 25 Nov 2002 17:06:15 -0500
+	id <S265752AbSKYWWl>; Mon, 25 Nov 2002 17:22:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265727AbSKYWGP>; Mon, 25 Nov 2002 17:06:15 -0500
-Received: from h-64-105-35-74.SNVACAID.covad.net ([64.105.35.74]:61825 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S265711AbSKYWGN>; Mon, 25 Nov 2002 17:06:13 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 25 Nov 2002 14:11:59 -0800
-Message-Id: <200211252211.OAA02085@baldur.yggdrasil.com>
-To: rusty@rustcorp.com.au, vandrove@vc.cvut.cz, zippel@linux-m68k.org
-Subject: Modules with list
-Cc: linux-kernel@vger.kernel.org
+	id <S265754AbSKYWWl>; Mon, 25 Nov 2002 17:22:41 -0500
+Received: from 205-158-62-68.outblaze.com ([205.158.62.68]:48901 "HELO
+	spf0.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S265752AbSKYWWj>; Mon, 25 Nov 2002 17:22:39 -0500
+Message-ID: <20021125222949.5336.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: akpm@digeo.com, linux-kernel@vger.kernel.org
+Date: Tue, 26 Nov 2002 06:29:49 +0800
+Subject: oops at boot with 2.5.49-mm1
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws5-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Here is a list of changes that I'm thinking about trying to
-make to modules, in case anyone is interested or wants to show me the
-error of my ways.  Most of these changes do not depend on whether the
-module loader is in the kernel or a user level program.  I've labelled
-the items that are only applicable to user level modules with "user
-level version:".
+Hi Andrew/all
+I'm not able to boot kernel 2.5.49-mm1
 
-	1. Allow multiple MODULE_DEVICE_TABLE's of the same type in the
-	   same .c file instead of the combined_dev_id_table hack that
-	   is now used by modules that really need to load separate
-	   but related drivers.
+[...]
+Uniform CD-ROM driver Revision: 3.12
+mice: PS/2 mouse device common for all mice
+input: PC Speaker
+input: PS/2 Synaptics TouchPad on isa0060/serio1
+serio: i8042 AUX port at 0x60,0x64 irq 12
+input: AT Set 2 keyboard on isa0060/serio0
+serio: i8042 KBD port at 0x60,0x64 irq 1
+Advanced Linux Sound Architecture Driver Version 0.9.0rc5 (Sun Nov 10 19:48:18 2002 UTC).
+request_module[snd-card-0]: not ready
+request_module[snd-card-1]: not ready
+request_module[snd-card-2]: not ready
+request_module[snd-card-3]: not ready
+request_module[snd-card-4]: not ready
+request_module[snd-card-5]: not ready
+request_module[snd-card-6]: not ready
+request_module[snd-card-7]: not ready
+no UART detected at 0xffff
+Motu MidiTimePiece on parallel port irq: 7 ioport: 0x378
+specify port
+PCI: Found IRQ 5 for device 00:0d.0
+< More or less the system oops here >
+< More or less the system oops here >
+< More or less the system oops here >
+< More or less the system oops here >
+ALSA device list:
+  #0: Dummy 1
+  #1: Virtual MIDI Card 1
+  #2: 
+  #3: ESS Maestro3 PCI at 0x1800, irq 5
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP: routing cache hash table of 2048 buckets, 16Kbytes
+TCP: Hash tables configured (established 16384 bind 32768)
 
-	2. Eventually have the same build command for modules and
-	   compiled in objects so that distribution makes can ship an
-	   "all modules" build and link script to allow much more
-	   customization by users who do not want to recompile kernel code.
+The machine oops and I can see the following sentence:
+DEBUG: sleeping function called from illegal context at include/linux/rwsem.h:43
 
-		2a. Compile module_init, subsys_init, etc. by the
-		    same mechanism used by kernel objects.
+Does it help?
 
-		2b. Pass module parameter by __setup() rather than
-		    MODULE_PARM().
+Paolo
 
-		2c. Eliminate "#ifdef MODULE" init.h, module.h, and,
-		    eventually, almost everywhere.
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with POP3/IMAP access for only US$19.95/yr
 
-		2d. In the core kernel, THIS_MODULE would point to
-		    a struct module rather than being NULL (eliminating
-		    many little banches).
-
-	3. To prevent rmmod's during modprobe, have
-	    rmmod do flock(/proc/modules, LOCK_EX) and
-	    modprobe do flock(/proc/modules, LOCK_SH).  Yes, you can
-	    detect this already, but this way you it does not cause
-	    failure and you do not need retry code.
-
-	Other wishes that probably do not effect module-init-tools,
-	at least when the module loader is in the kernel:
-
-	4. failureless raceless module unloading by the module->rwsem_list
-	   system that I described toward the bottom of this message:
-	   http://marc.theaimsgroup.com/?l=linux-kernel&m=103773401411324&w=2
-
-	5. At modprobe time, being able to decide to load a module
-	   as non-removable to avoid loading .exit{,data} for a smaller
-	   kernel footprint.  This might only require insmod changes
-	   for the user level insmod.
-
-	6. kmalloc'ing small modules for less memory consumption and
-	   perhaps so that they can avoid using TLB entries on certain
-	   architectures (412 of 1129 modules on my system have
-	   .text + .data < 4096).
-
-		5a. maybe load .text and .data separately for modules where
-		    .text + .data >= 4096 && .text < 4096 && .data < 4096
-		    (26 of 1129 modules have this property on my system).
-		    Probably not worth it.
-
-	7. User level version: optionally be able to move all symbols
-	   to user land at the expense of losing kksymoops (would save
-	   ~100kB on my system).
-
-	8. User level version (already done in kernel loader version):
-	   eliminate dependence on struct module using a module-start.o
-	   based on what Roman Zippel proposed at
-	   http://marc.theaimsgroup.com/?l=linux-kernel&m=103740379811285&w=2
-	   (but using a module-end.o file and eliminating the linker script).
-
-	9. User level version: load module contents with mmap(/dev/kmem),
-	   reducing initial memory requirements by avoiding a malloc
-	   and copy.
-
-	10. Move tracking of dependencies among loaded modules to
-	    user land (and be able to reconstruct in some cases
-	    from modules.dep).
-
-	Hopefully, posting this list will reduce the chances of
-duplication of effort or help expose a problem or potential
-improvement I hadn't considered.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Powered by Outblaze

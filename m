@@ -1,422 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267895AbUBRTY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 14:24:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267908AbUBRTY4
+	id S267965AbUBRTgr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 14:36:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267966AbUBRTgq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 14:24:56 -0500
-Received: from [192.38.164.146] ([192.38.164.146]:22242 "EHLO
-	izzlazz.izzlazz.dk") by vger.kernel.org with ESMTP id S267895AbUBRTXd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 14:23:33 -0500
-Subject: e1000 (on-board CSA) lockup with 2.6.3 on ifconfig
-From: "Rene H. Larsen" <rhl@izzlazz.dk>
-To: linux-kernel@vger.kernel.org
+	Wed, 18 Feb 2004 14:36:46 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27847 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267965AbUBRTgn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 14:36:43 -0500
+Subject: Re: [PATCH 2.6.3-rc2-mm1] address_space_serialize_writeback patch
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040217174755.2d870b40.akpm@osdl.org>
+References: <20040212015710.3b0dee67.akpm@osdl.org>
+	 <1076707830.1956.46.camel@ibm-c.pdx.osdl.net>
+	 <20040213143836.0a5fdabb.akpm@osdl.org>
+	 <1076715039.1956.104.camel@ibm-c.pdx.osdl.net>
+	 <20040213154815.42e74cb5.akpm@osdl.org>
+	 <1077066147.1956.136.camel@ibm-c.pdx.osdl.net>
+	 <20040217174755.2d870b40.akpm@osdl.org>
 Content-Type: text/plain
-Message-Id: <1077132200.3249.25.camel@renehl.izzlazz.dk>
+Organization: 
+Message-Id: <1077132986.1956.223.camel@ibm-c.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 18 Feb 2004 20:23:21 +0100
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 18 Feb 2004 11:36:26 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew,
 
-On my Asus P4C800-E Deluxe motherboard with an on-board CSA-bus e1000
-ethernet interface, the kernel locks up hard (no oops, no magic SysRq)
-as soon as an ip address is assigned to it with ifconfig.  The last
-message on the console is "NET: Registered protocol family 17", which is
-usually followed by "e1000: eth0 NIC Link is Up 100 Mbps Full Duplex". 
-The same hardware works flawlessly with kernel 2.6.2.
+I did run the multiple copies of the direct_read_under test on:
 
-The motherboard uses the Intel 875P chipset and is equipped with a
-Pentium4 3.0 GHz CPU (HT enabled).  My distribution is Debian unstable.
+KERNEL					RESULT
+======					======
+2.6.3-rc2-mm1				Sees uninitialized data
 
-lspci output, gcc version info, and kernel config can be found below. 
-Let me know if there is anything I can do to help track down the
-problem.
+2.6.3-rc2-mm1 + wait_on_buffer() in
+  __block_write_full_page		no uninitialized data seen
 
-Regards,
-Rene H. Larsen
+2.6.3-rc2-mm1 + __set_page_dirty_nobuffers
+  if cannot lock_buffer in
+  __block_write_full_page		Sees uninitialized data
 
-PS: Please CC me on replies, as I'm not subscribed to the list.
+2.6.3-rc2-mm1 + wb_rwsema patch		no uninitialized data seen
 
 
-lspci -vv output:
+There looks like there are potential race conditions with
+the rwsema in do_writepages() since a page can be moved back
+to the dirty list while waiting on the down_write() and also
+with multiple filemap_fdatawait()s.  I have pointed this out before
+but I do not have a test that can reproduce the problem.
 
-00:03.0 PCI bridge: Intel Corp. 82875P Processor to PCI to CSA Bridge (rev 02) (prog-if 00 [Normal decode])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap- 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64
-        Bus: primary=00, secondary=02, subordinate=02, sec-latency=0
-        I/O behind bridge: 0000c000-0000cfff
-        Memory behind bridge: fe900000-fe9fffff
-        BridgeCtl: Parity- SERR+ NoISA- VGA- MAbort- >Reset- FastB2B-
+The rwsema patch does make the direct_read_under test pass.
+It ran overnight without errors.
 
-02:01.0 Ethernet controller: Intel Corp.: Unknown device 1019
-        Subsystem: Asustek Computer, Inc.: Unknown device 80f7
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0 (63750ns min), Cache Line Size: 0x04 (16 bytes)
-        Interrupt: pin A routed to IRQ 18
-        Region 0: Memory at fe9e0000 (32-bit, non-prefetchable) [size=128K]
-        Region 2: I/O ports at cf80 [size=32]
-        Capabilities: [dc] Power Management version 2
-                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold+)                Status: D0 PME-Enable- DSel=0 DScale=1 PME-
+I want to close all the potential race conditions, but since
+this patch is a step in the process and the test ran correctly
+with it, I submitted the patch.
+
+I'll send out updated patches as I do more testing.
 
 
-Gcc version:
+Daniel
 
-$ gcc -v
-Reading specs from /usr/lib/gcc-lib/i486-linux/3.3.3/specs
-Configured with: ../src/configure -v --enable-languages=c,c++,java,f77,pascal,objc,ada,treelang --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-gxx-include-dir=/usr/include/c++/3.3 --enable-shared --with-system-zlib --enable-nls --without-included-gettext --enable-__cxa_atexit --enable-clocale=gnu --enable-debug --enable-java-gc=boehm --enable-java-awt=xlib --enable-objc-gc i486-linux
-Thread model: posix
-gcc version 3.3.3 (Debian)
-
-
-Kernel config:
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_STANDALONE=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_IKCONFIG=y
-CONFIG_KALLSYMS=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MPENTIUM4=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=7
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_HPET_TIMER=y
-CONFIG_HPET_EMULATE_RTC=y
-CONFIG_SMP=y
-CONFIG_NR_CPUS=2
-CONFIG_PREEMPT=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_X86_MCE_P4THERMAL=y
-CONFIG_MICROCODE=m
-CONFIG_X86_MSR=m
-CONFIG_X86_CPUID=m
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PM=y
-CONFIG_PM_DISK=y
-CONFIG_PM_DISK_PARTITION="/dev/sda1"
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-CONFIG_ACPI_BUTTON=m
-CONFIG_ACPI_FAN=m
-CONFIG_ACPI_PROCESSOR=m
-CONFIG_ACPI_THERMAL=m
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_HOTPLUG=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_PC_SUPERIO=y
-CONFIG_PARPORT_1284=y
-CONFIG_BLK_DEV_FD=m
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_CRYPTOLOOP=m
-CONFIG_BLK_DEV_NBD=m
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDEFLOPPY=m
-CONFIG_IDE_TASKFILE_IO=y
-CONFIG_IDE_GENERIC=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_OFFBOARD=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_PDC202XX_OLD=m
-CONFIG_BLK_DEV_PDC202XX_NEW=m
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_BLK_DEV_SR=m
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_AIC7XXX=m
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
-CONFIG_AIC7XXX_RESET_DELAY_MS=15000
-CONFIG_AIC7XXX_DEBUG_MASK=0
-CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
-CONFIG_SCSI_SATA=y
-CONFIG_SCSI_ATA_PIIX=y
-CONFIG_SCSI_SATA_PROMISE=y
-CONFIG_SCSI_QLA2XXX=y
-CONFIG_IEEE1394=m
-CONFIG_IEEE1394_OHCI1394=m
-CONFIG_IEEE1394_SBP2=m
-CONFIG_IEEE1394_SBP2_PHYS_DMA=y
-CONFIG_IEEE1394_RAWIO=m
-CONFIG_IEEE1394_CMP=m
-CONFIG_NET=y
-CONFIG_PACKET=m
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK_DEV=m
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_NET_IPIP=m
-CONFIG_SYN_COOKIES=y
-CONFIG_IPV6=m
-CONFIG_XFRM=y
-CONFIG_IPV6_SCTP__=m
-CONFIG_LLC=y
-CONFIG_LLC2=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_TUN=m
-CONFIG_ETHERTAP=m
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=m
-CONFIG_NET_PCI=y
-CONFIG_E100=m
-CONFIG_8139TOO=m
-CONFIG_8139_RXBUF_IDX=2
-CONFIG_VIA_RHINE=m
-CONFIG_E1000=m
-CONFIG_BT=m
-CONFIG_BT_L2CAP=m
-CONFIG_BT_SCO=m
-CONFIG_BT_RFCOMM=m
-CONFIG_BT_RFCOMM_TTY=y
-CONFIG_BT_BNEP=m
-CONFIG_BT_BNEP_MC_FILTER=y
-CONFIG_BT_BNEP_PROTO_FILTER=y
-CONFIG_BT_HCIUSB=m
-CONFIG_BT_HCIUSB_SCO=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1600
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1200
-CONFIG_INPUT_EVDEV=m
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=m
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_INPUT_UINPUT=m
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=m
-CONFIG_SERIAL_8250_NR_UARTS=4
-CONFIG_SERIAL_CORE=m
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-CONFIG_PPDEV=m
-CONFIG_LIRC_SUPPORT=y
-CONFIG_LIRC_MAX_DEV=2
-CONFIG_LIRC_I2C=m
-CONFIG_IPMI_HANDLER=m
-CONFIG_IPMI_DEVICE_INTERFACE=m
-CONFIG_IPMI_KCS=m
-CONFIG_IPMI_WATCHDOG=m
-CONFIG_WATCHDOG=y
-CONFIG_SOFT_WATCHDOG=m
-CONFIG_I8XX_TCO=m
-CONFIG_HW_RANDOM=y
-CONFIG_NVRAM=m
-CONFIG_RTC=y
-CONFIG_AGP=m
-CONFIG_AGP_INTEL=m
-CONFIG_RAW_DRIVER=m
-CONFIG_MAX_RAW_DEVS=256
-CONFIG_HANGCHECK_TIMER=m
-CONFIG_I2C=m
-CONFIG_I2C_CHARDEV=m
-CONFIG_I2C_ALGOBIT=m
-CONFIG_I2C_I801=m
-CONFIG_I2C_ISA=m
-CONFIG_I2C_SENSOR=m
-CONFIG_SENSORS_EEPROM=m
-CONFIG_SENSORS_W83781D=m
-CONFIG_VIDEO_DEV=y
-CONFIG_VIDEO_BT848=m
-CONFIG_VIDEO_TUNER=m
-CONFIG_VIDEO_BUF=m
-CONFIG_VIDEO_BTCX=m
-CONFIG_VIDEO_IR=m
-CONFIG_FB=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB_RIVA=m
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_PCI_CONSOLE=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_CLUT224=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_RTCTIMER=y
-CONFIG_SND_DUMMY=m
-CONFIG_SND_MPU401=m
-CONFIG_SND_BT87X=y
-CONFIG_SND_EMU10K1=m
-CONFIG_SND_INTEL8X0=m
-CONFIG_USB=m
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_EHCI_HCD=m
-CONFIG_USB_UHCI_HCD=m
-CONFIG_USB_PRINTER=m
-CONFIG_USB_STORAGE=m
-CONFIG_USB_STORAGE_DEBUG=y
-CONFIG_USB_STORAGE_SDDR09=y
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_HIDDEV=y
-CONFIG_USB_SERIAL=m
-CONFIG_USB_SERIAL_GENERIC=y
-CONFIG_USB_SERIAL_VISOR=m
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT2_FS_POSIX_ACL=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=m
-CONFIG_FS_POSIX_ACL=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=m
-CONFIG_UDF_FS=m
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=y
-CONFIG_NTFS_FS=y
-CONFIG_NTFS_RW=y
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_DEVPTS_FS=y
-CONFIG_DEVPTS_FS_XATTR=y
-CONFIG_TMPFS=y
-CONFIG_HUGETLBFS=y
-CONFIG_HUGETLB_PAGE=y
-CONFIG_RAMFS=y
-CONFIG_CRAMFS=m
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFS_V4=y
-CONFIG_NFS_DIRECTIO=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_V4=y
-CONFIG_NFSD_TCP=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=m
-CONFIG_SUNRPC=y
-CONFIG_SUNRPC_GSS=m
-CONFIG_SMB_FS=m
-CONFIG_SMB_NLS_DEFAULT=y
-CONFIG_SMB_NLS_REMOTE="cp850"
-CONFIG_CIFS=m
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="cp850"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_NLS_ISO8859_15=m
-CONFIG_NLS_UTF8=m
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_MD4=m
-CONFIG_CRYPTO_MD5=m
-CONFIG_CRYPTO_SHA1=m
-CONFIG_CRYPTO_SHA256=m
-CONFIG_CRYPTO_SHA512=m
-CONFIG_CRYPTO_DES=m
-CONFIG_CRYPTO_BLOWFISH=m
-CONFIG_CRYPTO_TWOFISH=m
-CONFIG_CRYPTO_SERPENT=m
-CONFIG_CRYPTO_AES=m
-CONFIG_CRYPTO_CAST5=m
-CONFIG_CRYPTO_CAST6=m
-CONFIG_CRC32=m
-CONFIG_ZLIB_INFLATE=m
-CONFIG_X86_SMP=y
-CONFIG_X86_HT=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_X86_TRAMPOLINE=y
-CONFIG_PC=y
-
+On Tue, 2004-02-17 at 17:47, Andrew Morton wrote:
+> Daniel McNeil <daniel@osdl.org> wrote:
+> >
+> > Here is the patch that does what you suggested.  It adds a rwsema to
+> > the address_space and do_writepages() uses it serialize writebacks.
+> 
+> Did you verify that we actually _need_ the semaphore?  I seem to recall that
+> it was a "try this, otherwise add the semaphore" thing.  Where "this" was "always
+> remark the page dirty".
+> 
+> Probably we do need the semaphore, but I'd just like to check that you checked ;)
 

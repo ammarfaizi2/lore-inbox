@@ -1,119 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266791AbUFYQkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266792AbUFYQkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266791AbUFYQkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 12:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266792AbUFYQkQ
+	id S266792AbUFYQkW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 12:40:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266795AbUFYQkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 12:40:16 -0400
-Received: from f24.mail.ru ([194.67.57.160]:21764 "EHLO f24.mail.ru")
-	by vger.kernel.org with ESMTP id S266791AbUFYQkE (ORCPT
+	Fri, 25 Jun 2004 12:40:22 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:32528 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S266792AbUFYQkQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 12:40:04 -0400
-From: Alexey Dobriyan <adobriyan@mail.ru>
-To: trivial@rustcorp.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove include/arch-*/init.h
+	Fri, 25 Jun 2004 12:40:16 -0400
+Date: Fri, 25 Jun 2004 18:40:10 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Makhlis, Lev" <Lev_Makhlis@bmc.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [SYSVIPC] Change shm_tot from int to size_t
+Message-ID: <20040625164010.GA5420@pclin040.win.tue.nl>
+References: <F12B6443B4A38748AFA644D1F8EF3532151078@bos-ex-01.adprod.bmc.com>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [194.85.81.172]
-Date: Fri, 25 Jun 2004 20:38:25 +0400
-Reply-To: Alexey Dobriyan <adobriyan@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1Bdtib-000NEl-00.adobriyan-mail-ru@f24.mail.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <F12B6443B4A38748AFA644D1F8EF3532151078@bos-ex-01.adprod.bmc.com>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's no reason to keep files that
-a) nobody #include's
-b) produce #error 
+On Fri, Jun 25, 2004 at 10:41:13AM -0500, Makhlis, Lev wrote:
 
---- a/include/asm-alpha/init.h	2004-06-16 09:19:42.000000000 +0400
-+++ /dev/null	2003-01-30 13:24:37.000000000 +0300
-@@ -1 +0,0 @@
--#error "<asm/init.h> should never be used - use <linux/init.h> instead"
---- a/include/asm-h8300/init.h	2004-06-16 09:19:01.000000000 +0400
-+++ /dev/null	2003-01-30 13:24:37.000000000 +0300
-@@ -1,11 +0,0 @@
--#ifndef _H8300_INIT_H
--#define _H8300_INIT_H
--
--#define __init __attribute__ ((__section__ (".text.init")))
--#define __initdata __attribute__ ((__section__ (".data.init")))
--/* For assembly routines */
--#define __INIT		.section	".text.init",#alloc,#execinstr
--#define __FINIT		.previous
--#define __INITDATA	.section	".data.init",#alloc,#write
--
--#endif
---- a/include/asm-i386/init.h	2004-06-16 09:19:42.000000000 +0400
-+++ /dev/null	2003-01-30 13:24:37.000000000 +0300
-@@ -1 +0,0 @@
--#error "<asm/init.h> should never be used - use <linux/init.h> instead"
---- a/include/asm-m68k/init.h	2004-06-16 09:19:43.000000000 +0400
-+++ /dev/null	2003-01-30 13:24:37.000000000 +0300
-@@ -1,11 +0,0 @@
--#ifndef _M68K_INIT_H
--#define _M68K_INIT_H
--
--#define __init __attribute__ ((__section__ (".text.init")))
--#define __initdata __attribute__ ((__section__ (".data.init")))
--/* For assembly routines */
--#define __INIT		.section	".text.init",#alloc,#execinstr
--#define __FINIT		.previous
--#define __INITDATA	.section	".data.init",#alloc,#write
--
--#endif
---- a/include/asm-m68knommu/init.h	2004-06-16 09:19:22.000000000 +0400
-+++ /dev/null	2003-01-30 13:24:37.000000000 +0300
-@@ -1 +0,0 @@
--#include <asm-m68k/init.h>
---- a/include/asm-mips/init.h	2004-06-16 09:18:57.000000000 +0400
-+++ /dev/null	2003-01-30 13:24:37.000000000 +0300
-@@ -1 +0,0 @@
--#error "<asm/init.h> should never be used - use <linux/init.h> instead"
---- a/include/asm-ppc64/init.h	2004-06-16 09:18:59.000000000 +0400
-+++ /dev/null	2003-01-30 13:24:37.000000000 +0300
-@@ -1 +0,0 @@
--#error "<asm/init.h> should never be used - use <linux/init.h> instead"
---- a/include/asm-s390/init.h	2004-06-16 09:20:20.000000000 +0400
-+++ /dev/null	2003-01-30 13:24:37.000000000 +0300
-@@ -1,7 +0,0 @@
--/*
-- *  include/asm-s390/init.h
-- *
-- *  S390 version
-- */
--
--#error "<asm/init.h> should never be used - use <linux/init.h> instead"
---- a/include/asm-sh/init.h	2004-06-16 09:19:42.000000000 +0400
-+++ /dev/null	2003-01-30 13:24:37.000000000 +0300
-@@ -1 +0,0 @@
--#error "<asm/init.h> should never be used - use <linux/init.h> instead"
---- a/include/asm-sparc/init.h	2004-06-16 09:19:52.000000000 +0400
-+++ /dev/null	2003-01-30 13:24:37.000000000 +0300
-@@ -1 +0,0 @@
--#error "<asm/init.h> should never be used - use <linux/init.h> instead"
---- a/include/asm-sparc64/init.h	2004-06-16 09:19:23.000000000 +0400
-+++ /dev/null	2003-01-30 13:24:37.000000000 +0300
-@@ -1 +0,0 @@
--#error "<asm/init.h> should never be used - use <linux/init.h> instead"
---- a/include/asm-um/init.h	2004-06-16 09:19:52.000000000 +0400
-+++ /dev/null	2003-01-30 13:24:37.000000000 +0300
-@@ -1,11 +0,0 @@
--#ifndef _UM_INIT_H
--#define _UM_INIT_H
--
--#ifdef notdef
--#define __init
--#define __initdata
--#define __initfunc(__arginit) __arginit
--#define __cacheline_aligned 
--#endif
--
--#endif
---- a/include/asm-x86_64/init.h	2004-06-16 09:19:13.000000000 +0400
-+++ /dev/null	2003-01-30 13:24:37.000000000 +0300
-@@ -1 +0,0 @@
--#error "<asm/init.h> should never be used - use <linux/init.h> instead"
+> I see that shm_tot (the total number of pages in shm segments) in
+> ipc/shm.c is defined as int, even though its max value (shmall) is size_t.
+> 
+> Admittedly, it only matters for systems with >8TB memory, but shouldn't
+> shm_tot also be size_t?  The attached patch makes it so.
+
+> -static int shm_tot; /* total number of shared memory pages */
+> +static size_t shm_tot; /* total number of shared memory pages */
+
+First, please avoid attachments.
+
+Secondly, this makes shm_tot unsigned. Have you checked all places
+where it occurs in an inequality to see whether the semantics did
+change? (It looks OK.)
+
+Thirdly, shm_tot is transmitted to userspace (via the SHM_INFO ioctl)
+as an unsigned long. If it is necessary to make it larger, then we
+must do something with this ioctl. For example, return -1 there
+in case the actual value does not fit in an unsigned long.
+
 

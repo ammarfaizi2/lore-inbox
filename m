@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262323AbUKWIPf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbUKWIR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbUKWIPf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 03:15:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbUKWIPf
+	id S262327AbUKWIR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 03:17:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbUKWIR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 03:15:35 -0500
-Received: from mailout2.samsung.com ([203.254.224.25]:42433 "EHLO
-	mailout2.samsung.com") by vger.kernel.org with ESMTP
-	id S262323AbUKWIPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 03:15:30 -0500
-Date: Tue, 23 Nov 2004 17:13:38 +0900
-From: "Hyok S. Choi" <hyok.choi@samsung.com>
-Subject: [PATCH]: linux-2.6.9-hsc0 (MMU-less ARM fixups)
-In-reply-to: <41A2B075.8030409@snapgear.com>
-To: Linux-Kernel List <linux-kernel@vger.kernel.org>
-Cc: Greg Ungerer <gerg@snapgear.com>, David MaCullough <davidm@snapgear.com>
-Message-id: <0I7M00MCNHJ6PW@mmp2.samsung.com>
-Organization: Samsung Electronics Co.,Ltd.
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Thread-index: AcTRDfw/1PRwucZVSp+zpDKk/EpBYgAI1l0w
+	Tue, 23 Nov 2004 03:17:26 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:12525 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S262329AbUKWIRO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 03:17:14 -0500
+Date: Tue, 23 Nov 2004 09:13:51 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: john cooper <john.cooper@timesys.com>
+Cc: Ingo Molnar <mingo@elte.hu>, "Bill Huey (hui)" <bhuey@lnxw.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Priority Inheritance Test (Real-Time Preemption)
+In-Reply-To: <41A2902A.5050308@timesys.com>
+Message-Id: <Pine.OSF.4.05.10411230849010.23417-100000@da410.ifa.au.dk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-DAIMI-Spam-Score: -2.82 () ALL_TRUSTED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Mon, 22 Nov 2004, john cooper wrote:
 
-An update for MMU-less ARM support fixups against 2.6.9.
+> Ingo Molnar wrote:
+> > [...]
+> 
+> Yes I see where you are walking the dependency chain
+> in pi_setprio().  But this is under the global spinlock
+> 'pi_lock'.
+> 
+> My earlier comment was of the difficulty to establish fine
+> grained locking, ie: per-mutex to synchronize mutex
+> ownership/waiter lists and per task to synchronize
+> the list maintaining mutexes owned by task.  While this
+> arguably scales better in an SMP environment, there are
+> issues of mutex traversal sequence during PI which lead
+> to deadlock scenarios.  Though I believe there are
+> reasonable constraints placed on application mutex
+> acquisition order which side step this problem.
+>
 
-http://opensrc.sec.samsung.com/download/linux-2.6.9-hsc0.patch.gz
+In the implementation I sent out earlier (I called it -U9.2-priom) I
+solved this by releasing all locks before going to the next task in the
+dependency chain. This leaves me open to rescheduling in the middle and
+some of the tasks could exit before I got to them. To solve this I used
+task_get/put() to make sure the task struct doesn't disappeare before the
+next lock is taken. All this locking/unlocking, task_get/task_put is
+ofcourse an overhead, but besides avoiding one big lock it gives one more
+advantage: It decreases the amount of time a spin lock is held, thus
+descreasing the penalty to the overall latency.
 
-ChangeLog:
-   . armnommu patch merging w/2.6.9     me
-   . new s3c24a0 platform is supported     HeeChul Yun
-   . arm926ej uclinux support     me
-   . trap handler support     HeeChul Yun
-   . dma consistent interface support     me
-   . newer toolchain(i.e. gcc 3.4) support     me
-   . defconfig update for all platforms     me
+ 
+> In the current design pi_lock has scope protecting all
+> mutex waiter lists (rooted either in mutex or owning task),
+> as well as per-mutex owner(s).  The result of this is
+> pi_lock must be speculatively acquired before altering
+> any of the above lists/data regardless whether a PI
+> scenario is encountered.  The behavior looks correct to
+> my reading.  However I'd offer there is more concurrency
+> possible in this design.
+> 
+I think that is a good approach on UP: Disable preemption, do the sorting
+etc., enable preempion. On SMP, however, a global lock is not so nice...
 
-Regards,
-Hyok S. Choi
-SPL DMR&D Samsung Electronics
-linux armnommu project : http://opensrc.sec.samsung.com
+However, I am thinking: Fix the bugs in the current implementation, then
+try to optimize it.
+
+
+> -john
+> 
+Esben
 

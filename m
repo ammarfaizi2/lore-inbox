@@ -1,61 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261748AbSI2TM1>; Sun, 29 Sep 2002 15:12:27 -0400
+	id <S261738AbSI2THo>; Sun, 29 Sep 2002 15:07:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261752AbSI2TM0>; Sun, 29 Sep 2002 15:12:26 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:13283 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S261748AbSI2TMZ>;
-	Sun, 29 Sep 2002 15:12:25 -0400
-Date: Sun, 29 Sep 2002 21:27:19 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       "David S. Miller" <davem@redhat.com>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: [patch] smptimers, old BH removal, tq-cleanup, 2.5.39
-In-Reply-To: <3D9748BA.5010704@pobox.com>
-Message-ID: <Pine.LNX.4.44.0209292117200.25393-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261748AbSI2THo>; Sun, 29 Sep 2002 15:07:44 -0400
+Received: from vti01.vertis.nl ([145.66.4.26]:28423 "EHLO vti01.vertis.nl")
+	by vger.kernel.org with ESMTP id <S261738AbSI2THm>;
+	Sun, 29 Sep 2002 15:07:42 -0400
+Date: Sun, 29 Sep 2002 21:12:12 +0200
+From: Rolf Fokkens <fokkensr@fokkensr.vertis.nl>
+Message-Id: <200209291912.g8TJCCH04519@fokkensr.vertis.nl>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] timer.c negative shift, kernel 2.5.39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-yes, wrt. keventd i was thinking along the same line - but in a different,
-perhaps cleaner and simpler direction.
+It appears that kernel time keeping may become unpredictable when HZ is
+raised to large values due to negative shift operations in timer.c:
 
-i'd like to introduce the following interfaces:
+  time_adj = -ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
 
-	- create_work_queue(wq, handler_fn)
+Suppose on x86:
+        HZ = 2048
+and     SHIFT_SCALE = 22
+and     SHIFT_UPDATE = (SHIFT_KG + MAXTC) = 12
+then
+        SHIFT_HZ = 11
+and     (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE) = -1
 
-	- destroy_work_queue(wq)
+This negative number is a problem for shift operations. The
+following patch takes care of it (I hope).
 
-	- queue_work(wq, work_fn, work_data)
+Currently include/linux/timex.h prohibits HZ values greater than 1536,
+which in turn prevents the case described above... though this is only
+because of the values of SHIFT_SCALE, SHIFT_KG and MAXTC. This patch
+allows values of HZ up to 3072.
 
-	- flush_work_queue(wq)
 
-this is an extension of the keventd concept. A work queue is a simplified
-interface to create a kernel thread that gets work queued from IRQ and
-process contexts. No more, no less.
+Rolf Fokkens
+fokkensr@fokkensr.vertis.nl
 
-there would be a number of 'default' work-queues that would be created
-upon bootup:
+(3d post of this patch)
 
-	- &irq_workqueue
-	- &io_workqueue
 
-each work queue would get its own separate kernel thread. schedule_task()  
-would simply queue to the irq_workqueue. We could make the irq_workqueue's
-kernel thread a highprio RT thread, to make it really softirq-alike. (Or
-for the very specific case of BH_IMMEDIATE type of stricly IRQ-safe work,
-we could add a tasklet that works down this queue.)
-
-There's tons of code within the kernel that can be streamlined this way,
-most of the helper threads do this kind of functionality. (I'll post a
-patch soon to show how it would look like.)
-
-	Ingo
-
+diff -ruN linux-2.5.39.orig/kernel/timer.c linux-2.5.39.signedshift/kernel/timer.c
+--- linux-2.5.39.orig/kernel/timer.c	Sat Sep 28 14:42:56 2002
++++ linux-2.5.39.signedshift/kernel/timer.c	Sun Sep 29 18:33:33 2002
+@@ -339,6 +339,11 @@
+ 	run_task_queue(&tq_immediate);
+ }
+ 
++static inline long signedshift (long val, int nshift)
++{
++    return (nshift > 0 ? val << nshift : val >> -nshift);
++}
++
+ /*
+  * this routine handles the overflow of the microsecond field
+  *
+@@ -418,7 +423,7 @@
+ 	if (ltemp > (MAXPHASE / MINSEC) << SHIFT_UPDATE)
+ 	    ltemp = (MAXPHASE / MINSEC) << SHIFT_UPDATE;
+ 	time_offset += ltemp;
+-	time_adj = -ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
++        time_adj = signedshift (-ltemp, SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
+     } else {
+ 	ltemp = time_offset;
+ 	if (!(time_status & STA_FLL))
+@@ -426,7 +431,7 @@
+ 	if (ltemp > (MAXPHASE / MINSEC) << SHIFT_UPDATE)
+ 	    ltemp = (MAXPHASE / MINSEC) << SHIFT_UPDATE;
+ 	time_offset -= ltemp;
+-	time_adj = ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
++        time_adj = signedshift (ltemp, SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
+     }
+ 
+     /*
+diff -ruN linux-2.5.39.orig/include/linux/timex.h linux-2.5.39.signedshift/include/linux/timex.h
+--- linux-2.5.39.orig/include/linux/timex.h	Mon Sep 16 20:43:47 2002
++++ linux-2.5.39.signedshift/include/linux/timex.h	Sun Sep 29 18:39:23 2002
+@@ -75,6 +75,8 @@
+ # define SHIFT_HZ	9
+ #elif HZ >= 768 && HZ < 1536
+ # define SHIFT_HZ	10
++#elif HZ >= 1536 && HZ < 3072
++# define SHIFT_HZ	11
+ #else
+ # error You lose.
+ #endif

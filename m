@@ -1,73 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265151AbUATF3V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 00:29:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265163AbUATF3V
+	id S265083AbUATFiF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 00:38:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265079AbUATFiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 00:29:21 -0500
-Received: from h80ad2483.async.vt.edu ([128.173.36.131]:14720 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265151AbUATF3L (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 00:29:11 -0500
-Message-Id: <200401200529.i0K5T3oe005335@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Bart Samwel <bart@samwel.tk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ kernel module + Makefile 
-In-Reply-To: Your message of "Mon, 19 Jan 2004 18:40:18 +0100."
-             <400C1682.2090207@samwel.tk> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040116210924.61545.qmail@web12008.mail.yahoo.com> <Pine.LNX.4.53.0401161659470.31455@chaos> <200401171359.20381.bart@samwel.tk> <Pine.LNX.4.53.0401190839310.6496@chaos>
-            <400C1682.2090207@samwel.tk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1442013846P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 20 Jan 2004 00:38:05 -0500
+Received: from magic.adaptec.com ([216.52.22.17]:41172 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S265060AbUATFh7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 00:37:59 -0500
+Date: Mon, 19 Jan 2004 22:43:41 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Xose Vazquez Perez <xose@wanadoo.es>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+Subject: Re: AIC7xxx kernel problem with 2.4.2[234] kernels
+Message-ID: <4022195408.1074577421@aslan.btc.adaptec.com>
+In-Reply-To: <1074573912.2081.81.camel@mulgrave>
+References: <400BDC85.8040907@wanadoo.es>	<1074532919.1895.32.camel@mulgrave>		<3747775408.1074537497@aslan.btc.adaptec.com>	<1074559838.2078.1.camel@mulgrave> 	<3942145408.1074564149@aslan.btc.adaptec.com> <1074573912.2081.81.camel@mulgrave>
+X-Mailer: Mulberry/3.1.0 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Tue, 20 Jan 2004 00:29:02 -0500
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1442013846P
-Content-Type: text/plain; charset=us-ascii
+> On Mon, 2004-01-19 at 21:02, Justin T. Gibbs wrote:
+>> Does the maintainer have the ability to veto changes that harm the
+>> code they maintain?  In otherwords, you claim that I am the maintainer
+>> of the drivers in the kernel.org tree.  This has not prevented changes
+>> from being made to these drivers without adequate review.  Even your last
+>> update to the driver threw away all of the changelog state and left at
+>> least the aic79xx driver in a worse state than it was in before (see
+>> changelog entries for the driver versions after the one that you imported
+>> for details - this was exactly why I didn't submit that particular revision).
+> 
+> I said "works with the kernel community".  It's not about control, it's
+> about co-operation.  The control you seek simply does not exist in the
+> kernel development process.
 
-On Mon, 19 Jan 2004 18:40:18 +0100, Bart Samwel said:
+Then I ask again, what does it mean to be a maintainer?  It sounds like
+I'm on equal footing with anyone who decides to post some patch to the
+lists.  I've lost count of the number of occasions that some random
+patch from some random individual was accepted without any consultation
+with "the maintainer" of these drivers.  The end result was more email
+in my mailbox complaining about "the broken driver that I maintain."
 
-> Now, let me try to add a bit of nuance to your suggested solution. Try 
-> porting 100s of C++ files (yes, it's that large) making heavy use of 
-> inheritance etc. to C. Then try to make a bit of C code usable as extern 
-> "C" in C++. Extern "C" was actually meant to be able to grok most C 
-> code, while C++ wasn't meant to be easily portable to C. So, for any 
-> moderately large module that uses any C++ features at all, it's probably 
-> easier to make small syntactic changes to the kernel than to port the 
-> module to C (which would amount to a full rewrite).
+As for control, the type of control "I seek" does exist.  You have it.
+You can also delegate some of that control if it suits you.
 
-That's one honking big module. Everybody please join me in a sigh of relief
-that the culprits didn't think Scheme was a suitable language.
+A maintainer takes on responsibility to ensure that something is maintained
+and works.  Without some level of control, how can the maintainer fulfill
+that responsibility?
 
-Anybody who thinks that C++ should be anywhere on the kernel side of the kernel/
-user interface should understand why the kernel design doesn't even allow the
-use of *floating point* without much jumping through hoops. They then should
-ponder the political climate that created EXPORT_SYMBOL_GPL, which is
-(basically) a "this is OUR kernel and if you don't want to play by our rules,
-we intend to make things difficult for you".
+>> You didn't even bother to ask me if importing 1.3.11 was appropriate.  This
+>> is why I say I don't feel like a maintainer.  I'm not given adequate control
+>> over the end product yet I'm supposed to take the blame when it doesn't work.
+> 
+> In the previous thread about the driver you said "You can integrate the
+> driver at whatever revision suits you.", so I took you at your word; if
+> that wasn't what you meant, it's a little late to whine about it now. 
+> Small bug fixes, would, as ever, be welcome...
 
-The module authors should then ask themselves what they're bringing to the
-table that's worth the kernel developers changing the way they do things.
-Unless there's a demonstrable reason or advantage to changing, the idea to
-support C++ is probably as dead-on-arrival as the heavily lambasted proposal to
-have a stable API for modules a while back.
+I provided all of the information required for you to make a reasoned
+decision of which change sets to integrate.  I had no idea that you
+would completely disregard the wealth of information in the change sets
+and change set comments when coming up with an integration point.  Your
+actions show that you didn't review or understand the changes well enough
+to submit them into the tree.  You probably didn't even test the resulting
+driver on real hardware before you submitted the changes.
 
+> The recovery code does work.  You may want it to work differently, and
+> that may make it work better, but that's an enhancement not a bug fix.
 
---==_Exmh_1442013846P
-Content-Type: application/pgp-signature
+No.  The recovery code doesn't work.  Many of the people that know this
+don't bother complaining to you about it.  They complain to the HBA driver
+authors and the tech support departments of the companies that make the HBAs.
+The HBA driver authors then do what they have to ensure that the system
+remains viable after recovery.  
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+I mean honestly.  Do you think I would have gone to all of the trouble
+I did in doing my own watchdog recovery if the recovery code worked
+correctly?  Or that I would stand so firm in my position if these issues
+didn't have real customer impact?
 
-iD8DBQFADLyecC3lWbTT17ARAhRJAKD0K70gcBHHf/0BsP1uBGGfAh5NXgCfThE3
-mSwZt4AGCrnjuQF/Iq4oUVo=
-=KPZU
------END PGP SIGNATURE-----
+--
+Justin
 
---==_Exmh_1442013846P--

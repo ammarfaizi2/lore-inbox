@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265649AbUANCdt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 21:33:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265767AbUANCdt
+	id S265944AbUANCtv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 21:49:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265965AbUANCtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 21:33:49 -0500
-Received: from mailout1.samsung.com ([203.254.224.24]:19191 "EHLO
-	mailout1.samsung.com") by vger.kernel.org with ESMTP
-	id S265649AbUANCds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 21:33:48 -0500
-Date: Wed, 14 Jan 2004 11:29:30 +0900
-From: Bharata B Rao <rao.bharata@samsung.com>
-Subject: [2.6.1 PM] runtime device power management
-To: linux-kernel@vger.kernel.org
-Reply-to: rao.bharata@samsung.com
-Message-id: <4004A98A.3020301@samsung.com>
-Organization: Samsung Electronics
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+	Tue, 13 Jan 2004 21:49:51 -0500
+Received: from amdext2.amd.com ([163.181.251.1]:39893 "EHLO amdext2.amd.com")
+	by vger.kernel.org with ESMTP id S265944AbUANCtt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 21:49:49 -0500
+Message-ID: <99F2150714F93F448942F9A9F112634C080EF398@txexmtae.amd.com>
+From: paul.devriendt@amd.com
+To: pavel@ucw.cz
+cc: davej@redhat.com, cpufreq@www.linux.org.uk, linux@brodo.de,
+       linux-kernel@vger.kernel.org, mark.langsdorf@amd.com
+Subject: RE: Cleanups for powernow-k8
+Date: Tue, 13 Jan 2004 20:49:28 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 6C1A71B313206812-01-01
+Content-Type: text/plain;
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> I'd suggest to leave old driver there (possibly let me clean it up
+> ;-)))), and create new powernow-k8-acpi, or powernow-acpi or something
+> like that.
+> 								Pavel
 
-I have been trying to suspend and resume a device in runtime using the 
-/sys/devices/pci.../power/state interface.
+Keeping the old driver around for machines without ACPI support or with
+broken ACPI support sounds reasonable to me. Please feel free to clean
+it up. Feel free to send it to me if you want me to test it on additional
+hardware. Dominik sent me some great patches to use the cpufreq table support 
+and remove some redundant code - let me know if you do not have them and
+want me to forward them. They work great.
 
-First time the device suspend/resume works correctly.
+powernow-k8-acpi sounds like a fine plan to me. Keeping the k8 in the name 
+is goodness.
 
-But since, during resume the power_state is not set for the device(as is 
-done during suspend), it still retains the old suspended state value.
-Because of which, it can't be suspended again. (kernel thinks its 
-already suspended)
+Dave had a good idea of a minimal ACPI parser for trying to retrieve the
+table of p-states from an ACPI BIOS without needing the full AML interpreter.
+I will see if I can get that to work in powernow-k8-acpi ... that way, there
+is the best chance of being able to work around a broken BIOS. I hate broken
+BIOSs and would rather see the BIOS vendor fix the BIOS, but that does not
+always seem to happen.
 
-This can be fixed by just setting the dev->power.power_state to 
-appropriate value in drivers/base/power/runtime.c:runtime_resume() or in 
-any other suitable place.
-
-Regards,
-Bharata.
-
+Paul.
 

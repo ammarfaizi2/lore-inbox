@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265507AbUATNxU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 08:53:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265505AbUATNxU
+	id S265530AbUATODO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 09:03:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265531AbUATODO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 08:53:20 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:50394 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S265511AbUATNwx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 08:52:53 -0500
-Date: Tue, 20 Jan 2004 08:52:44 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] some more fixes for inode.c
-In-Reply-To: <1074606396.29472.6.camel@hades.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.44.0401200852240.15071-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Jan 2004 09:03:14 -0500
+Received: from kiuru.kpnet.fi ([193.184.122.21]:45266 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S265530AbUATODL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 09:03:11 -0500
+Subject: Re: ALSA vs. OSS
+From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+To: Mark Borgerding <mark@borgerding.net>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <400D2AB2.7030400@borgerding.net>
+References: <1074532714.16759.4.camel@midux>
+	 <microsoft-free.87vfn7bzi1.fsf@eicq.dnsalias.org>
+	 <1074536486.5955.412.camel@castle.bigfiber.net>
+	 <200401201046.24172.hus@design-d.de>  <400D2AB2.7030400@borgerding.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-WEMBuo33ILJI5nhIhDoz"
+Message-Id: <1074607389.19502.4.camel@midux>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 20 Jan 2004 16:03:09 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jan 2004, David Woodhouse wrote:
-> On Tue, 2004-01-20 at 08:06 -0500, Rik van Riel wrote:
 
-> > but I'm not 100% sure we need that change, since
-> > maybe only completely unused inodes can end up here. David ?
-> 
-> No, I don't see any reason why that should be the case; you can get
-> iput() called for an inode which happens to have data in the page cache.
-> This part of the patch is needed.
+--=-WEMBuo33ILJI5nhIhDoz
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-OK, thanks for confirming my suspicions.
+On Tue, 2004-01-20 at 15:18, Mark Borgerding wrote:
+> Me too.  I cannot get ALSA working on my SB Live.
+>=20
+> If I may be so bold as to make a suggestion: Maybe the developer in
+> charge of ALSA's e-mu driver could work with us poor unfortunates.
+> There may be some commonality between our systems that causes this
+> (besides the sound blaster live).
+> ....
+Ok, here's mine:
+Sound: Creative Labs SB Live! EMU10k1
+Debian Sid
+Kernel: 2.6.1-mm4 atm
+CPU: Athlon XP 2600+
+Mobo: epox EP-8RDA3+ w/ NForce2 chipset
+--=20
+"Software is like sex, it's better when it's free."
+Markus H=E4stbacka <midian at ihme dot org>
 
-Marcelo, could you please apply the patch ?
+--=-WEMBuo33ILJI5nhIhDoz
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBADTUc3+NhIWS1JHARAugfAJ4/e2DpG6f7E20mo/+6wt46g1qI/wCggw9U
+a5/p5O6iI22clLEYUaMNPtU=
+=cWqo
+-----END PGP SIGNATURE-----
+
+--=-WEMBuo33ILJI5nhIhDoz--
 

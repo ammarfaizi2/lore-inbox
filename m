@@ -1,97 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbUJZI1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbUJZIc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbUJZI1c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 04:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbUJZI1c
+	id S262189AbUJZIc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 04:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbUJZIc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 04:27:32 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10254 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262176AbUJZI1Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 04:27:24 -0400
-Date: Tue, 26 Oct 2004 03:07:48 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Cc: Willy Tarreau <willy@w.ods.org>, espenfjo@gmail.com
-Subject: Re: My thoughts on the "new development model"
-Message-ID: <20041026010748.GD30599@stusta.de>
-References: <7aaed09104102213032c0d7415@mail.gmail.com> <7aaed09104102214521e90c27c@mail.gmail.com> <20041022225703.GJ19761@alpha.home.local> <20041023014004.GG22558@stusta.de> <20041023050439.GA11484@kroah.com>
+	Tue, 26 Oct 2004 04:32:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:64722 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262189AbUJZIcZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 04:32:25 -0400
+Date: Tue, 26 Oct 2004 01:30:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Robert Love <rml@novell.com>
+Cc: ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] make dnotify a configure-time option
+Message-Id: <20041026013026.6b65bd24.akpm@osdl.org>
+In-Reply-To: <1098767891.6034.50.camel@localhost>
+References: <1098765164.6034.38.camel@localhost>
+	<20041025214947.63031519.akpm@osdl.org>
+	<1098767891.6034.50.camel@localhost>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
-Content-Disposition: inline
-In-Reply-To: <20041023050439.GA11484@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Robert Love <rml@novell.com> wrote:
+>
+> make dnotify configurable, via CONFIG_DNOTIFY.
 
-On Fri, Oct 22, 2004 at 10:04:39PM -0700, Greg KH wrote:
-> On Sat, Oct 23, 2004 at 03:40:04AM +0200, Adrian Bunk wrote:
-> > On Sat, Oct 23, 2004 at 12:57:03AM +0200, Willy Tarreau wrote:
-> > > On Fri, Oct 22, 2004 at 11:52:50PM +0200, Espen Fjellv?r Olsen wrote:
-> > >...
-> > > > A 2.7 should be created where all new experimental stuff is merged
-> > > > into it, and where people could begin to think new again.
-> > > 
-> > > This could be true if the release cycle was shorter. But once 2.7 comes
-> > > out, many developpers will only focus on their development and not on
-> > > stabilizing 2.6 as much as today.
-> > 
-> > 2.6.9 -> 2.6.10-rc1:
-> > - 4 days
-> > - > 15 MB patches
-> > 
-> > It's a bit optimistic to call this amount of change "stabilizing".
-> > 
-> > 2.6 is corrently more a development kernel than a stable kernel.
-> > 
-> > The last bug I observed personally was the problem with suspending when 
-> > using CONFIG_REGPARM=y together with Roland's waitid patch which was 
-> > added in 2.6.9-rc2. If I'd used 2.6.9 with the same .config as 2.6.8.1, 
-> > this was simple one more bug...
-> > 
-> > IMHO Andrew+Linus should open a short-living 2.7 tree soon and Andrew 
-> > (or someone else) should maintain a 2.6 tree with less changes (like 
-> > Marcelo did and does with 2.4).
-> 
-> I don't ever want to plug anything I've written, but please see the
-> current issue of Linux Journal with an article explaining how this is
-> all working, why we are doing this, and how the hell we can keep sane
-> this way.  I've also got slides on my website from the talk I've given
-> about this topic at OLS, OSCON, and SUCON about this topic.
->...
+I don't think we want people accidentally disabling dnotify and making
+kernels which don't implement the standard kernel API.  So...
 
-I looked at your slides, but to be honest, I'm still not convinced.
 
-The Andrew+Linus model with -mm works pretty well.
-Why shouldn't it also work in 2.7 removing all the past problems with 
-overly long release cycles between two stable series?
+diff -puN fs/Kconfig~make-dnotify-a-configure-time-option-embedded fs/Kconfig
+--- 25/fs/Kconfig~make-dnotify-a-configure-time-option-embedded	2004-10-26 01:28:44.866957712 -0700
++++ 25-akpm/fs/Kconfig	2004-10-26 01:29:09.498213192 -0700
+@@ -441,7 +441,7 @@ config QUOTACTL
+ 	default y
+ 
+ config DNOTIFY
+-	bool "Dnotify support"
++	bool "Dnotify support" if EMBEDDED
+ 	default y
+ 	help
+ 	  Dnotify is a directory-based per-fd file change notification system
+_
 
-If it could be achieved to release 2.8 half a year after 2.7 was 
-started, this should be short enough for distributions etc. for not 
-having to backport too much while giving the benefits of putting the 
-patch pressure away from 2.6 making it more stable.
-
-> thanks,
-> 
-> greg k-h
-
-cu
-Adrian
-
-- -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFBfaNkmfzqmE8StAARAmAvAJ9kav1shMitTz201gO+hyo4UCt3ygCfRQ70
-weQeqRyMgS/r8befY8qa5Uk=
-=tm91
------END PGP SIGNATURE-----

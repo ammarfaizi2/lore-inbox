@@ -1,51 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267729AbTAMD1D>; Sun, 12 Jan 2003 22:27:03 -0500
+	id <S267700AbTAMD0K>; Sun, 12 Jan 2003 22:26:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267756AbTAMD1D>; Sun, 12 Jan 2003 22:27:03 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:17423 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267729AbTAMD07>; Sun, 12 Jan 2003 22:26:59 -0500
-Date: Sun, 12 Jan 2003 22:33:07 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jean-Daniel Pauget <jd@disjunkt.com>
-cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21pre3-ac2
-In-Reply-To: <Pine.LNX.4.51.0301100021050.5467@mint>
-Message-ID: <Pine.LNX.3.96.1030112222243.17657C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267729AbTAMD0K>; Sun, 12 Jan 2003 22:26:10 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:55189 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S267700AbTAMD0J>;
+	Sun, 12 Jan 2003 22:26:09 -0500
+Date: Sun, 12 Jan 2003 20:30:45 -0700
+From: yodaiken@fsmlabs.com
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Rob Wilkens <robw@optonline.net>, Christoph Hellwig <hch@infradead.org>,
+       Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: any chance of 2.6.0-test*?
+Message-ID: <20030112203045.A18178@hq.fsmlabs.com>
+References: <1042401596.1209.51.camel@RobsPC.RobertWilkens.com> <Pine.LNX.4.44.0301121208020.14031-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0301121208020.14031-100000@home.transmeta.com>; from torvalds@transmeta.com on Sun, Jan 12, 2003 at 12:22:26PM -0800
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Jan 2003, Jean-Daniel Pauget wrote:
 
+See Brian Kernighan's explanation in 1981. Still good.
+
+	http://bit.csc.lsu.edu/tutorial/ten-commandments/bwk-on-pascal.html
+
+
+On Sun, Jan 12, 2003 at 12:22:26PM -0800, Linus Torvalds wrote:
 > 
->     I had some strange bug using 2.4.21pre3-ac2 :
->     at rebooting after a freeze (my machine freezes from time to time
->     whatever the kernel is, I'm still diging that point)
->     fsck.ext2 was not able to finish checking my /home (59Gb), it
->     systematically got a signal 11 (I tried several times).
+> On Sun, 12 Jan 2003, Rob Wilkens wrote:
+> > 
+> > However, I have always been taught, and have always believed that
+> > "goto"s are inherently evil.  They are the creators of spaghetti code
 > 
->     rebooting using my previous kernel (2.4.20 with a minor patch for the
->     i845G AGP mess-up) was enough so that the fsck worked fine at the first
->     attempt with this kernel.
-
-There are several possibilities, but I would suspect you have memory which
-is just marginal, and with some combination of access patterns you trigger
-a sig 11 problem. I have the same board, with 72 bit ECC capable memory,
-and I'm running all of the BIOS speed options (section 4.4 of the manual)
-set at default, rather than tuning for any extra bit of performance.
-
-If you have pushed any of the CPU or memory speeds, obviously that's a
-place to return to default, but I suspect what you have is marginal
-memory. Best is to borrow a stick and run on other memory, 2nd best is to
-slow the speeds a bit and see if that works better.
-
-Clearly this is only an educated guess.
+> No, you've been brainwashed by CS people who thought that Niklaus Wirth
+> actually knew what he was talking about. He didn't. He doesn't have a
+> frigging clue.
+> 
+> > (you start reading through the code to understand it (months or years
+> > after its written), and suddenly you jump to somewhere totally
+> > unrelated, and then jump somewhere else backwards, and it all gets ugly
+> > quickly).  This makes later debugging of code total hell.  
+> 
+> Any if-statement is a goto. As are all structured loops.
+> 
+> Ans sometimes structure is good. When it's good, you should use it.
+> 
+> And sometimes structure is _bad_, and gets into the way, and using a 
+> "goto" is just much clearer.
+> 
+> For example, it is quite common to have conditionals THAT DO NOT NEST.
+> 
+> In which case you have two possibilities
+> 
+>  - use goto, and be happy, since it doesn't enforce nesting
+> 
+> 	This makes the code _more_ readable, since the code just does what 
+> 	the algorithm says it should do.
+> 
+>  - duplicate the code, and rewrite it in a nesting form so that you can 
+>    use the structured jumps.
+> 
+> 	This often makes the code much LESS readable, harder to maintain, 
+> 	and bigger.
+> 
+> The Pascal language is a prime example of the latter problem. Because it 
+> doesn't have a "break" statement, loops in (traditional) Pascal end up 
+> often looking like total shit, because you have to add totally arbitrary 
+> logic to say "I'm done now".
+> 
+> 		Linus
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+www.fsmlabs.com  www.rtlinux.com
+1+ 505 838 9109
 

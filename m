@@ -1,62 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbUDDRIR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 13:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262502AbUDDRIR
+	id S262503AbUDDR3I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 13:29:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbUDDR3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 13:08:17 -0400
-Received: from cache.dfw.ygnition.net ([66.135.176.7]:12244 "EHLO
-	cache.dfw.interquest.net") by vger.kernel.org with ESMTP
-	id S262499AbUDDRIP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 13:08:15 -0400
-Subject: linux 2.4.25 crashes windows
-From: Kyle Davenport <kdd@tvmax.net>
+	Sun, 4 Apr 2004 13:29:08 -0400
+Received: from ulysses.news.tiscali.de ([195.185.185.36]:53258 "EHLO
+	ulysses.news.tiscali.de") by vger.kernel.org with ESMTP
+	id S262503AbUDDR3E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 13:29:04 -0400
 To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-9yfU1VlkeoQXJKRwd0pF"
-Message-Id: <1081098190.14744.90.camel@quickest.kyledavenport.com>
+Path: not-for-mail
+From: Thomas Beneke <thomas.beneke@web.de>
+Newsgroups: linux.kernel
+Subject: Re: 2.6.4 & 2.6.5 breaks e100 support on my laptop
+Date: Sun, 04 Apr 2004 19:28:39 +0200
+Organization: Tiscali Germany
+Message-ID: <c4pgku$15ua$1@ulysses.news.tiscali.de>
+References: <1HhT9-3MH-7@gated-at.bofh.it> <1HiYZ-4FS-41@gated-at.bofh.it>
+NNTP-Posting-Host: p83.129.109.197.tisdip.tiscali.de
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Sun, 04 Apr 2004 12:03:11 -0500
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: ulysses.news.tiscali.de 1081099742 38858 83.129.109.197 (4 Apr 2004 17:29:02 GMT)
+X-Complaints-To: abuse@tiscali.de
+NNTP-Posting-Date: Sun, 4 Apr 2004 17:29:02 +0000 (UTC)
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: en-us, en
+In-Reply-To: <1HiYZ-4FS-41@gated-at.bofh.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bernt Hansen wrote:
+> Nevermind.  I must have had some weird configuration SNAFU.
+> 
+> It's working now :)  
+> 
+> Bernt.
+> 
+> On Sun, Apr 04, 2004 at 11:30:50AM -0400, Bernt Hansen wrote:
+> 
+>>Hi,
+>>
+>>I have a Toshiba Tecra S1 laptop with a built-in ethernet card which
+>>uses the e100 driver.  The ethernet works fine with linux kernel 2.6.3.
+>>As of 2.6.4 (and 2.6.5) I get the following message at startup:
+>>
+>>e100: Intel(R) PRO/100 Network Driver, 3.0.17
+>>e100: Copyright(c) 1999-2004 Intel Corporation
+>>PCI: Enabling device 0000:02:08.0 (0000 -> 0003)
+>>PCI: Setting latency timer of device 0000:02:08.0 to 64
+>>e100: eth%d: e100_eeprom_load: EEPROM corrupted
+>>e100: probe of 0000:02:08.0 failed with error -11
+>>
+>>and the ethernet no longer works.  (The 2nd last message eth%d is
+>>probably missing the ethernet number as a parameter to this printk)
+>>
+>>Please cc: me in replies since I am not subscribed to the list.
+>>
+>>Let me know if there is anything I can do to help fix this problem.
+>>
+>>Thanks,
+>>Bernt.
+>>-- 
+>>Bernt Hansen     Norang Consulting Inc.
+> 
+> 
+I've no probs with same hardware + kernel.
 
---=-9yfU1VlkeoQXJKRwd0pF
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-No joke.  64-bit Windows Advanced Server 2003 blue-screens on file share
-access.  I was using Samba 3.0 on RH8 to routinely access windows
-shares.  When I upgraded from 2.4.22 to 2.4.25, any attempt to access a
-sub-directory of a share mounted from 64-bit Win2003, immediately
-crashes windows.  I rolled back to 2.4.22 and no crash.  I tried 2.4.25
-against a 32-bit 2003 Win2003, and no crash.  I didn't test different
-versions of Samba.  But on 2.4.25, trying to ls a sub-directory of the
-mounted share or cd to that sub-directory, instantly and repeatedly
-blue-screens windows. =20
-
-I have no idea how the kernel change could be causing this.  Seems to me
-like it should depend entirely on Samba.  I did attempt to reproduce the
-problem with tcp-replay.  I sent the identical tcp/ip packets involved
-without crashing windows.  Apparently share authentication is required.
-
-My company has informed Microsoft of the problem, weeks ago, but I am
-getting tired of waiting for a fix.
-
-Congrats to everyone involved!
-
-
---=-9yfU1VlkeoQXJKRwd0pF
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQBAcD/O1h0kdrrDX8QRAluKAJ4grLghOpnOxBr3KhOK7ORX38xSuwCfUhsa
-CchZIl/LD0HxF/611PlqC+o=
-=cFkg
------END PGP SIGNATURE-----
-
---=-9yfU1VlkeoQXJKRwd0pF--
-
+Regards,
+Thomas

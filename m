@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266979AbSKUT1I>; Thu, 21 Nov 2002 14:27:08 -0500
+	id <S266976AbSKUTXv>; Thu, 21 Nov 2002 14:23:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266980AbSKUT1I>; Thu, 21 Nov 2002 14:27:08 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40970 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266979AbSKUT1H>; Thu, 21 Nov 2002 14:27:07 -0500
-Date: Thu, 21 Nov 2002 19:34:07 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>, john stultz <johnstul@us.ibm.com>,
-       "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] subarch cleanup
-Message-ID: <20021121193407.A13944@flint.arm.linux.org.uk>
-Mail-Followup-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-	Sam Ravnborg <sam@ravnborg.org>, john stultz <johnstul@us.ibm.com>,
-	"J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <1037750429.4463.71.camel@w-jstultz2.beaverton.ibm.com> <20021121183304.GA1144@mars.ravnborg.org> <228760000.1037903743@flay>
+	id <S266979AbSKUTXu>; Thu, 21 Nov 2002 14:23:50 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:16612 "EHLO
+	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S266976AbSKUTXu>; Thu, 21 Nov 2002 14:23:50 -0500
+Date: Thu, 21 Nov 2002 14:32:31 -0500
+From: Doug Ledford <dledford@redhat.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: David Zaffiro <davzaffiro@netscape.net>, linux-kernel@vger.kernel.org
+Subject: Re: Compiling x86 with and without frame pointer
+Message-ID: <20021121193231.GE14063@redhat.com>
+Mail-Followup-To: Willy Tarreau <willy@w.ods.org>,
+	David Zaffiro <davzaffiro@netscape.net>,
+	linux-kernel@vger.kernel.org
+References: <19005.1037854033@kao2.melbourne.sgi.com> <20021121050607.GA1554@mark.mielke.cc> <3DDCA7C9.9040501@netscape.net> <20021121192045.GE3636@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <228760000.1037903743@flay>; from mbligh@aracnet.com on Thu, Nov 21, 2002 at 10:35:43AM -0800
+In-Reply-To: <20021121192045.GE3636@alpha.home.local>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 21, 2002 at 10:35:43AM -0800, Martin J. Bligh wrote:
-> > Why do you need to move the .h files?
+On Thu, Nov 21, 2002 at 08:20:45PM +0100, Willy Tarreau wrote:
+> On Thu, Nov 21, 2002 at 10:30:49AM +0100, David Zaffiro wrote:
+> > I use -momit-leaf-frame-pointer for optimization in some own projects, 
+> > instead of the "-fomit-frame-pointer". For me, this results in better 
+> > codesize/speed compared to both "-fomit-frame-pointer" or no option at 
+> > all. Actually gcc-2.95 seems to support this feature as well, but it 
+> > never made it into the 2.95 docs... It makes debugging a lot easier too.
+> > 
+> > So anyone "caring to benchmark", could you please test the 
+> > "-momit-leaf-frame-pointer" option for x86 as well...
 > 
-> Because they're in a silly place now. They should be whereever all
-> the other include files are.
-> 
-> > CFLAGS += -Iarch/i386/$(MACHINE_H) -Iarch/i386/mach-generic
-> > That should achieve the same effect?
-> 
-> Header files go under include ....
+> Well, I tried on a 2.4.18+patches with gcc 2.95.3. bzImage is :
+> 538481 bytes with -fomit-frame-pointer
+> 538510 bytes with no particular flag
+> 542137 bytes with -momit-leaf-frame-pointer.
 
-In this instance I'd disagree.  Think about UML.  UML has:
-
-	include/asm-um/*.h
-	include/asm-um/arch -> include/asm-i386
-
-When building for UML, what happens if you need to get to a machine
-specific file for something, and the i386 include files do:
-
-	#include <asm/mach-generic/foo.h>
-
-Yep, it fails.
-
-Now guess why we in the ARM community haven't even bothered to look at
-UML yet?  There's over 1MB of include files that would need to be moved,
-along with countless #include statements needing to be fixed up.
-
-For something that would be nice to have, and probably run quite well on
-the ARM architecture (due to some nice features ARM has, especially for
-UML's jail mode) there isn't enough interest in it to warrant such a
-painful reorganisation.
-
-I'd therefore strongly recommend NOT going down the path of adding
-subdirectories to include/asm-*.
+These numbers are useless.  Since a change in frame pointer setup changes 
+the code sequences in the text section, it is likely to also change 
+maximum acheived compression.  Therefore, the size of the compressed 
+images can not be compared and result in any useable data, you need to 
+compare the size of the uncompressed images.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

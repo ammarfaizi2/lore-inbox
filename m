@@ -1,43 +1,80 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316488AbSE3UvZ>; Thu, 30 May 2002 16:51:25 -0400
+	id <S316863AbSE3U7b>; Thu, 30 May 2002 16:59:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316861AbSE3UvY>; Thu, 30 May 2002 16:51:24 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:7867 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316488AbSE3UvX>;
-	Thu, 30 May 2002 16:51:23 -0400
-Date: Thu, 30 May 2002 13:35:55 -0700 (PDT)
-Message-Id: <20020530.133555.51807197.davem@redhat.com>
-To: lilbilchow@yahoo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: is pci_alloc_consistent() really consistent on a pentium?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020530204406.55023.qmail@web13808.mail.yahoo.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S316864AbSE3U7a>; Thu, 30 May 2002 16:59:30 -0400
+Received: from stingr.net ([212.193.32.15]:54912 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S316863AbSE3U7a>;
+	Thu, 30 May 2002 16:59:30 -0400
+Date: Fri, 31 May 2002 00:59:29 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCE] 2.4.19-pre9-ac1-s1
+Message-ID: <20020530205929.GD355@stingr.net>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: William Chow <lilbilchow@yahoo.com>
-   Date: Thu, 30 May 2002 13:44:06 -0700 (PDT)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: RIPEMD160
 
-   If IA32 builds use the i386 version of
-   pci_alloc_consistent(), how is the memory provided by
-   this function really write-thru (on a pentium) since
-   it appears to only set up the default mapping
-   (PCD/PWT==0)? In contrast, pgprot_noncached() and
-   pci_mmap_page_range() explicitly set these bits on a
-   pentium (i.e. when boot_cpu_data.x86 > 3). Or am I
-   missing something?
+Here goes 2.4.19-pre9-ac1-s1.
 
-pci_mmap_page_range maps I/O memory, like frame buffers and
-device registers.
+I am have kbuild-2.5 in here too. So make -f Makefile-2.5 :)
 
-pci_alloc_consistent promises only that CPU writes will be coherent
-with PCI device DMA activity.  For Pentium this holds true with all
-normal ram, because once the cpu does the store coherent transactions
-on the system bus (from, for example, the PCI device) will take a hit
-on the L2 cache line of the cpu and thus the cpu will provide the most
-up to date copy of the data.
+Changes from kbuildified 2.4.19-pre9-ac1:
+*	Netfilter hooks for ethernet bridging	(Lennert)
+*	MTU problem fixes for eepro100, tulip,	(?)
+	and 3c59x
+*	Zerocopy path for netfilter		(?)
+*	Alternate conntrack hash function &	(me)
+	hash table sizing policy
+*	task_t.state cleanups			(me)
+*	/dev/epoll				(Davide Libenzi)
+*	Reiserfs quotas				(?)
+*	smbfs large file support		(Urban Widmark)
+*	irqrate					(Ingo)
+*	Some hashes (yes they shouldn't be	(wli)
+	here)
+*	Some reiserfs fixes			(Chris Mason & namesys)
+*	bkl_rollup				(Dave Hansen)
+*	e100 & e1000 2.4 backports		(Intel, J.A.Magallon)
+*	bridging code fixes			(Lennert)
+*	EVMS 1.0.1				(EVMS team)
+	with crap needed for O(1) sched		(me)
+*	fast_walkA3-2.4.19-pre8 merge		(Hanna Linder, Al Viro)
+*	Huge collection of netfilter P-O-M	(Netfilter team)
+	patches applied with small quickfixes
+	from mine
+*	-aa bits, some of them merged to	(Andrea Archangeli)
+	nothing, some remains
+*	kbuild 2.5 makefiles for all above	(me)
+
+Full, unformatted bk changelog available here:
+http://stingr.net/l/ChangeLog-bk-2.4.19-pre9-ac1-s1.bz2
+ftp://stingr.net/pub/l/ChangeLog-bk-2.4.19-pre9-ac1-s1.bz2
+
+It should apply on top of plain 2.4.19-pre9-ac1. You can grab it here:
+http://stingr.net/l/patch-2.4.19-pre9-ac1-s1.bz2
+ftp://stingr.net/pub/l/patch-2.4.19-pre9-ac1-s1.bz2
+
+Remember - you have to get patches to samba to make it actually work 
+with large files.
+
+Enjoy.
+- -- 
+Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
+  When you're invisible, the only one really watching you is you (my keychain)
+-----BEGIN PGP SIGNATURE-----
+
+iEYEAREDAAYFAjz2kpQACgkQyMW8naS07KR3uQCeIdQdRRUNC6T9xfMRXNfpZdQ9
+OcsAoIzfbA67aJUI0+LlBZOj2k515HOV
+=KMvE
+-----END PGP SIGNATURE-----

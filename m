@@ -1,42 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262663AbTDIBZ3 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 21:25:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbTDIBZ3 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 21:25:29 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:10170 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262663AbTDIBZ1 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 21:25:27 -0400
-Date: Tue, 8 Apr 2003 18:37:00 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
-       Rick Lindsley <ricklind@us.ibm.com>
-Subject: Re: 2.5 io statistics?
-Message-ID: <20030409013700.GA4650@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Andrew Morton <akpm@digeo.com>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org, Rick Lindsley <ricklind@us.ibm.com>
-References: <20030408155858.GB27912@work.bitmover.com> <20030408152215.00b7beca.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030408152215.00b7beca.akpm@digeo.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+	id S262659AbTDIBZP (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 21:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbTDIBZP (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 21:25:15 -0400
+Received: from lists.asu.edu ([129.219.13.98]:32142 "EHLO lists.asu.edu")
+	by vger.kernel.org with ESMTP id S262659AbTDIBZO (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 21:25:14 -0400
+Date: Tue, 08 Apr 2003 18:36:52 -0700 (MST)
+From: Shesha@asu.edu
+Subject: Re: readprofile: 0 total     nan (fwd)
+To: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Message-id: <Pine.GSO.4.21.0304081836190.25278-100000@general3.asu.edu>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > load free cach swap pgin  pgou dk0 dk1 dk2 dk3 ipkt opkt  int  ctx  usr sys idl
-> > 0.00  19M 562M  48M 4.0K   12K   0   0   0   0  137   25  267   83    0   0 100
-> 
-> It's currently undergoing a bit of change.
+Hello All
 
-Well, one question is this: I'd like to be able to get at a list of disk stats
-sorted by activity.  If you noticed, the output above reserved space for 4
-drives.  I know it's not general at all, but it would be nice to somehow be
-able to get at the "busy" drives.  I don't have any ideas on how to do this
-generally and that might mean it isn't possible but maybe (I hope) it means
-I'm tired and not thinking clearly.  Anyone have any ideas?
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+I am not very sure that it is readprofile application problem. I downloaded
+readprofile source and I compiled it. It worked fine on x86 machine running
+2.4.7-10 kernel. I cross compiled it for xscale processor running 2.4.18 it
+is not working.
+
+Any Input?
+
+
+On Tue, 8 Apr 2003, Andy Pfiffer wrote:
+
+> On Tue, 2003-04-08 at 15:41, Shesha@asu.edu wrote:
+> > I am running 2.4.18 kernel for ARM. I have one of the boot parameters
+> > "profile=2". The size of the /proc/profile file is shown as 16MB. But when I
+> > execute "readprofile" the output is ...  
+> > 0 total                                         nan
+> > 
+> > If I cat the file it just give me a ".". Can anyone suggest what i am doing
+> > wrong?
+> 
+> [ I swear I was just talking about this problem with someone else... ]
+> 
+> 1. /proc/profile is a binary file.  cat won't show you anything
+> meaningful.
+> 
+> 2. the 0 output by readprofile is a problem with the automatic
+> byte-order detection heuristic built into the code.  Try invoking
+> readprofile with the "-n" option, and see if your problem goes away.
+> 
+> FYI: For those that might also run into this, the essence of the problem
+> is this piece of code in readprofile.c (fragmented for clarity):
+> 
+> "optNative" is 0.
+> "buf" is an unsigned int *.
+> 
+> 
+> if (!optNative) {
+>         int entries = len/sizeof(*buf);
+>         int big = 0,small = 0,i;
+>         unsigned *p;
+> 
+>         for (p = buf+1; p < buf+entries; p++)
+>                 if (*p) {
+>                         if (*p >= 1 << (sizeof(*buf)/2)) big++;
+>                         else small++;
+>                 }       
+>         if (big > small) {
+>                 fprintf(stderr,"Assuming reversed byte order. "
+>                    "Use -n to force native byte order.\n");
+>                 <snipped>
+>                 .
+>                 .
+>                 .
+>         }       
+> }
+> 
+> Based on my read of the code, "big" will be incremented if *p >= 4,
+> otherwise "small" will be incremented.  I can't see how this would ever
+> detect the byte order...
+> 
+> Werner proposed this as a solution, but it could still fail to correctly
+> detect the byteorder (although with much less frequency):
+> 
+> 
+> 
+
+

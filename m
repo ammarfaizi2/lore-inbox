@@ -1,39 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVCaUHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbVCaUK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261772AbVCaUHV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 15:07:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVCaUHV
+	id S261741AbVCaUK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 15:10:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVCaUK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 15:07:21 -0500
-Received: from fire.osdl.org ([65.172.181.4]:15807 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261759AbVCaUHI (ORCPT
+	Thu, 31 Mar 2005 15:10:29 -0500
+Received: from fire.osdl.org ([65.172.181.4]:49344 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261741AbVCaUKH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 15:07:08 -0500
-Date: Thu, 31 Mar 2005 12:08:56 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-cc: "'Ingo Molnar'" <mingo@elte.hu>, "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
-       "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: RE: Industry db benchmark result on recent 2.6 kernels
-In-Reply-To: <Pine.LNX.4.58.0503311204050.4774@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0503311206210.4774@ppc970.osdl.org>
-References: <200503311953.j2VJrog22170@unix-os.sc.intel.com>
- <Pine.LNX.4.58.0503311204050.4774@ppc970.osdl.org>
+	Thu, 31 Mar 2005 15:10:07 -0500
+Message-ID: <424C5912.90607@osdl.org>
+Date: Thu, 31 Mar 2005 12:09:54 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+CC: Yum Rayan <yum.rayan@gmail.com>, linux-kernel@vger.kernel.org,
+       mvw@planets.elm.net
+Subject: Re: [PATCH] Reduce stack usage in acct.c
+References: <df35dfeb05033023394170d6cc@mail.gmail.com> <20050331150548.GC19294@wohnheim.fh-wedel.de>
+In-Reply-To: <20050331150548.GC19294@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 31 Mar 2005, Linus Torvalds wrote:
+Jörn Engel wrote:
+> On Wed, 30 March 2005 23:39:40 -0800, Yum Rayan wrote:
 > 
-> Can you post oprofile data for a run?
+>>Before patch
+>>------------
+>>check_free_space - 128
+>>do_acct_process - 105
+>>
+>>After patch
+>>-----------
+>>check_free_space - 36
+>>do_acct_process - 44
+> 
+> 
+> It is always nice to see enthusiams, but in your case it might be a
+> bit misguided.  None of the functions you worked on appear to be real
+> problems wrt. stack usage.
 
-Btw, I realize that you can't give good oprofiles for the user-mode
-components, but a kernel profile with even just single "time spent in user
-mode" datapoint would be good, since a kernel scheduling problem might
-just make caches work worse, and so the biggest negative might be visible
-in the amount of time we spend in user mode due to more cache misses..
+Yes, this is similar to what I was about to write.
+It would be more useful to tackle the really large stack consumers
+or ones in deep call chains.
 
-			Linus
+> But if you have time to tackle some of these functions, that may make
+> a real difference:
+> 
+> http://wh.fh-wedel.de/~joern/stackcheck.2.6.11
+> 
+> In principle, all recursive paths should consume as little stack as
+> possible.  Or the recursion itself could be avoided, even better.  And
+> some of the call chains with ~3k of stack consumption may be
+> problematic on other platforms, like the x86-64.  Taking care of those
+> could result in smaller stacks for the respective platform.
+
+Here is 2.6.12-rc1-bk3 raw checkstack output on x86-64:
+http://developer.osdl.org/~rddunlap/doc/checkstack1.out
+
+-- 
+~Randy

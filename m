@@ -1,43 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268254AbUHQOJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268240AbUHQOOb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268254AbUHQOJp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 10:09:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268261AbUHQOJn
+	id S268240AbUHQOOb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 10:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268248AbUHQOOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 10:09:43 -0400
-Received: from ida.rowland.org ([192.131.102.52]:1540 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S268254AbUHQOI5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 10:08:57 -0400
-Date: Tue, 17 Aug 2004 10:08:57 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>
-cc: Pete Zaitcev <zaitcev@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <linux-usb-devel@lists.sourceforge.net>, <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH][linux-usb-devel] Early USB handoff
-In-Reply-To: <5F106036E3D97448B673ED7AA8B2B6B3015B698A@scl-exch2k.phoenix.com>
-Message-ID: <Pine.LNX.4.44L0.0408170959180.674-100000@ida.rowland.org>
+	Tue, 17 Aug 2004 10:14:30 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:50943 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S268293AbUHQONk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 10:13:40 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@redhat.com>
+Subject: Re: PATCH: straighten out the IDE layer locking and add hotplug
+Date: Tue, 17 Aug 2004 16:12:37 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <20040815151346.GA13761@devserv.devel.redhat.com> <200408171512.26568.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200408171512.26568.bzolnier@elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408171612.37898.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Aug 2004, Aleksey Gorelov wrote:
 
-> >>   Here is slightly improved early USB legacy handoff patch for 2.4.27
+one more comment
+
+> > @@ -931,15 +1138,25 @@
+> >   */
+> >  }
 > >
-> >The usual caveat is how we all wait for this to go into 2.6.
-> 
-> Attached is a patch for 2.6.8.1
+> > -/*
+> > - * Register an IDE interface, specifying exactly the registers etc
+> > - * Set init=1 iff calling before probes have taken place.
+> > +/**
+> > + *	ide_register_hw		-	register IDE interface
+> > + *	@hw: hardware registers
+> > + *	@hwifp: pointer to returned hwif
+> > + *
+> > + *	Register an IDE interface, specifying exactly the registers etc
+> > + *	Set init=1 iff calling before probes have taken place. The
+> > + *	ide_cfg_sem protects this against races.
+> > + *
+> > + *	Returns -1 on error.
+> >   */
+> > +
+> >  int ide_register_hw (hw_regs_t *hw, ide_hwif_t **hwifp)
+> >  {
+> >  	int index, retry = 1;
+> >  	ide_hwif_t *hwif;
+> >
+> > +	down(&ide_cfg_sem);
+> > +
+> >  	do {
+> >  		for (index = 0; index < MAX_HWIFS; ++index) {
+> >  			hwif = &ide_hwifs[index];
+> > @@ -950,28 +1167,37 @@
+> >  			hwif = &ide_hwifs[index];
+> >  			if (hwif->hold)
+> >  				continue;
+> > -			if ((!hwif->present && !hwif->mate && !initializing) ||
+> > +			if ((!hwif->configured && !hwif->mate && !initializing) ||
+> >  			    (!hwif->hw.io_ports[IDE_DATA_OFFSET] && initializing))
+> >  				goto found;
+> >  		}
+> > +		/* FIXME- this check should die as should the retry loop */
+> >  		for (index = 0; index < MAX_HWIFS; index++)
+> > -			ide_unregister(index);
+> > +		{
+> > +			hwif = &ide_hwifs[index];
+> > +			__ide_unregister_hwif(hwif);
+> > +		}
+> >  	} while (retry--);
+> > +
+> > +	up(&ide_cfg_sem);
+> >  	return -1;
+> >  found:
+> > -	if (hwif->present)
+> > -		ide_unregister(index);
+> > +	/* FIXME: do we really need this case */
+> > +	if (hwif->configured)
+> > +		__ide_unregister_hwif(hwif);
+> >  	else if (!hwif->hold) {
+> >  		init_hwif_data(hwif, index);
+> >  		init_hwif_default(hwif, index);
+> >  	}
+> > -	if (hwif->present)
+> > +	if (hwif->configured)
+> >  		return -1;
+> > +	hwif->configured = 1;
 
-You could reorder and simplify slightly the code for handing off a UHCI
-controller.  It's safer to disable PIRQD, SMI#, and legacy support first
-and then turn off the interrupt enable bits, all before stopping the
-controller.  You could even reset the controller rather than just stopping
-it (although you might also want to avoid the 60ms delay this requires).  
-Take a look at reset_hc() in drivers/usb/host/uhci-hcd.c and see what you
-think.
+this is dubious for many non PCI drivers which use ide_register_hw() to only
+claim/fill ide_hwifs[] entry but actual probing is done later by ide-generic 
+driver - we end up with hwif->present == 0 and hwif->configured == 1
+and if ide_register_hw() will try to unregister such hwif it will possibly 
+crash (because we now check for ->configured not ->present in 
+ide_unregister_hwif) - you've correctly noticed in the FIXMEs that we 
+shouldn't be unregistering hwifs in ide_register_hw() but this has some 
+side-effects (breaks HDIO_SCAN_HWIF for all non default/generic hwifs
+and can change ordering in some rare situations) - we should go that way but 
+we need to be fully aware of results of this change
 
-Alan Stern
-
+> >  	memcpy(&hwif->hw, hw, sizeof(*hw));
+> >  	memcpy(hwif->io_ports, hwif->hw.io_ports, sizeof(hwif->hw.io_ports));
+> >  	hwif->irq = hw->irq;
+> >  	hwif->noprobe = 0;
+> >  	hwif->chipset = hw->chipset;
+> > +	up(&ide_cfg_sem);
+> >
+> >  	if (!initializing) {
+> >  		probe_hwif_init(hwif);

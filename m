@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265494AbUFCESE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265497AbUFCEZl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265494AbUFCESE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 00:18:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265495AbUFCESE
+	id S265497AbUFCEZl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 00:25:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265499AbUFCEZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 00:18:04 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:313 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S265494AbUFCESB (ORCPT
+	Thu, 3 Jun 2004 00:25:40 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:14691 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265497AbUFCEZj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 00:18:01 -0400
-Date: Wed, 2 Jun 2004 21:25:47 -0700
+	Thu, 3 Jun 2004 00:25:39 -0400
+Date: Wed, 2 Jun 2004 21:34:32 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de, greg@kroah.com
 Subject: Re: [PATCH] fix sys cpumap for > 352 NR_CPUS
-Message-Id: <20040602212547.448c7cc7.pj@sgi.com>
+Message-Id: <20040602213432.05f48058.pj@sgi.com>
 In-Reply-To: <1086222156.29391.337.camel@bach>
 References: <20040602161115.1340f698.pj@sgi.com>
 	<1086222156.29391.337.camel@bach>
@@ -27,27 +27,29 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Rusty wrote:
-> Then just use -1UL as the arg to scnprintf, if you don't have a real
-> number.  That way the overflow will at least have a chance of detection
-> in the sysfs code, which I think it should check in
-> file.c:fill_read_buffer().  Greg?
+> Above all, by placing your questions inside a patch, you got results,
+> but please don't do this again.
 
-That doesn't make sense.
+Ah yes ...
 
-My node_read_cpumap() routine is being passed a finite length buffer
-into which it is supposed to put some characters.  Unless by contract
-or passed value it knows the length of that buffer, it cannot safely
-know how far it can write.
+Apparently, Rusty, you are unfamiliar with the style of coding that
+involves "put in an ugly hack now, commenting the known open issues,
+and then clean up the mess some other day".
 
-Apparently, from Andrews comments and from the line:
+This is good ... good that you are unfamiliar with such.
 
-  buffer->page = (char *) get_zeroed_page(GFP_KERNEL);
+Rather than try to convert you to my corrupt ways, which would be
+a great loss to the Linux community, and probably not possible anyway,
+I will:
 
-in file.c:fill_read_buffer(), the length is PAGE_SIZE, by contract.
+ 1) Apologize - yes - I should have tried to ask these questions now
+    and get this code right (which it turns out is happening anyway).
 
-Greg - perhaps a comment in include/linux/sysdev.h, near the declarations
-for the show() and store() routines, specifying the buffer sizing,
-would be appropriate?
+ 2) Send another patch to Andrew, with PAGE_SIZE as he recommends,
+    and with the stale struct node cpumap field nuked, as you
+    recommend.
+
+Thank-you.  It's a pleasure.
 
 -- 
                           I won't rest till it's the best ...

@@ -1,47 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbTLNOCf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 09:02:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbTLNOCf
+	id S261877AbTLNNou (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 08:44:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbTLNNou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 09:02:35 -0500
-Received: from law11-f40.law11.hotmail.com ([64.4.17.40]:17420 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261890AbTLNOCe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 09:02:34 -0500
-X-Originating-IP: [217.232.144.184]
-X-Originating-Email: [a_r_a_k_i_s@hotmail.com]
-From: "Arakis -" <a_r_a_k_i_s@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: alsa i8x0 driver bug in kernel newer than 2.6test1
-Date: Sun, 14 Dec 2003 14:02:32 +0000
+	Sun, 14 Dec 2003 08:44:50 -0500
+Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:53410
+	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
+	id S261877AbTLNNot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 08:44:49 -0500
+Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
+From: Ian Kumlien <pomac@vapor.com>
+To: ross@datscreative.com.au
+Cc: Jamie Lokier <jamie@shareable.org>, forming@charter.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200312142311.10650.ross@datscreative.com.au>
+References: <200312140407.28580.ross@datscreative.com.au>
+	 <20031214042714.GB21241@mail.shareable.org>
+	 <200312142124.45966.ross@datscreative.com.au>
+	 <200312142311.10650.ross@datscreative.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+3U4+7k+vCbcQg9Ak1nt"
+Message-Id: <1071409484.3309.16.camel@big.pomac.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Message-ID: <LAW11-F40dyZqUCx2Uv00036437@hotmail.com>
-X-OriginalArrivalTime: 14 Dec 2003 14:02:33.0238 (UTC) FILETIME=[EB967360:01C3C24A]
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 14 Dec 2003 14:44:44 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-this is my first bug report, I hope I don't leave out any vital information.
+--=-+3U4+7k+vCbcQg9Ak1nt
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The ALSA driver for i8x0 sound cards has a minor bug in all 2.6 test 
-versions except test1. The sounds "lags" sporadically for a few seconds. 
-It's not a total stop of playback, the speed is even increased a little bit. 
-It just sounds weird... at first I thought it has something todo with the 
-scheduler, but since nice -20 has no effect at all, I doubt it. The problem 
-occurs with xmms and mpg123.
+Resend due to no CC...
 
-cat /proc/asound/cards:
-0 [I82801CAICH3   ]: ICH - Intel 82801CA-ICH3
-                     Intel 82801CA-ICH3 at 0x1400, irq 10
+On Sun, 2003-12-14 at 14:11, Ross Dickson wrote:
+> I had a lockup on a boot so I am trying a bit more conservative with
+>=20
+> 1000UL and ndelay(400)=20
+>=20
+> I don't think anyone should try any less than this but hey?
+>=20
+> This gives my system a safety margin of 16 apic counts.
+> The v1 patch on my system typically gave a safety delay of 13 counts.
+>=20
+> The performance hit with the v2 is still less than with the v1.
+> With v2 additional delay would only have been present on 2 out of 10
+> instead of 10 out of 10 with v1.
 
-The machine is a toshiba 5200-701 notebook (european), 1.9 GHz Pentium4, 512 
-MB RAM, average cpu usage is ~5% during playback (according to gkrellm). The 
-driver is compiled into the kernel (=Y).
+13h 18min here now, with 800UL 100ns
 
-_________________________________________________________________
-5 neue Buddies = 50 FreeSMS. http://messenger-mania.msn.de MSN Messenger 
-empfehlen und kräftig abräumen!
+Works like a charm. It seems like we are just avoiding a timer race with
+some values...  ie more delay might not solve the problem.
+
+--=20
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+
+--=-+3U4+7k+vCbcQg9Ak1nt
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/3GlL7F3Euyc51N8RAhjmAJ9jKI/sZGuuV2kO2xHl97+47fEPAgCghUqL
+pc7SzZ51guRO0TYKMLnFF5A=
+=xQtX
+-----END PGP SIGNATURE-----
+
+--=-+3U4+7k+vCbcQg9Ak1nt--
 

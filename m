@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131548AbQIDQyc>; Mon, 4 Sep 2000 12:54:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131352AbQIDQyW>; Mon, 4 Sep 2000 12:54:22 -0400
-Received: from [10.0.0.145] ([10.0.0.145]:49416 "EHLO dukat.scot.redhat.com") by vger.kernel.org with ESMTP id <S131515AbQIDQyN>; Mon, 4 Sep 2000 12:54:13 -0400
-Date: Mon, 4 Sep 2000 17:07:39 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: "Theodore Ts'o" <tytso@valinux.com>
-Cc: Stephen Tweedie <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Two VM problems for the 2.4 TODO list
-Message-ID: <20000904170739.I12913@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S130845AbQIFBw2>; Tue, 5 Sep 2000 21:52:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S130310AbQIFBwM>; Tue, 5 Sep 2000 21:52:12 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:4766 "EHLO math.psu.edu") by vger.kernel.org with ESMTP id <S130650AbQIFBuA>; Tue, 5 Sep 2000 21:50:00 -0400
+Date: Tue, 5 Sep 2000 21:49:44 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Chris Wedgwood <cw@f00f.org>
+cc: "David S. Miller" <davem@redhat.com>, mingo@elte.hu, rgooch@ras.ucalgary.ca, ak@suse.de, jmerkey@timpanogas.com, alan@lxorguk.ukuu.org.uk, jes@linuxcare.com, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Withdrawl of Open Source NDS Project/NTFS/M2FS for Linux
+In-Reply-To: <20000906123155.B278@metastasis.f00f.org>
+Message-ID: <Pine.GSO.4.10.10009052137360.25561-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ted,
 
-To be fixed for 2.4:
 
-1) Non-atomic pte updates
+On Wed, 6 Sep 2000, Chris Wedgwood wrote:
 
-   The page aging code and mprotect both modify existing ptes
-   non-atomically.  That can stomp on the VM hardware on other CPUs
-   setting the dirty bit on mmaped pages when using threads.  2.2 is
-   vulnerable too.
+> Perhaps you would like to describe how you do debug the kernel? I ask
+> this because I use printf more often than anything else when
+> debugging userland code and I often use printk when debugging the
+> kernel.
 
-2) RSS locking
+I can't speak for DaveM, but... the main technics is nicely described in
+ftp://sailor.gutenberg.org/pub/gutenberg/etext95/study10.txt
+Search for "In solving a problem of that sort" and read on...
 
-   swapout holds the page_table_lock while swapping, and adjusts the
-   mm->rss while holding that lock.  Other places in the mm are not 
-   so careful about holding the lock, so rss (which is not an
-   atomic_t) can be corrupted.
-
---Stephen
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

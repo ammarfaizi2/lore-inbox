@@ -1,61 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267906AbUHPTdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267902AbUHPTjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267906AbUHPTdr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 15:33:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267919AbUHPTdr
+	id S267902AbUHPTjO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 15:39:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267911AbUHPTjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 15:33:47 -0400
-Received: from fep31-0.kolumbus.fi ([193.229.0.35]:44191 "EHLO
-	fep31-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S267902AbUHPTdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 15:33:44 -0400
-Date: Mon, 16 Aug 2004 22:33:43 +0300 (EEST)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Marc Ballarin <Ballarin.Marc@gmx.de>
-cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       jwendel10@comcast.net
-Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
-In-Reply-To: <20040816210949.3d024844.Ballarin.Marc@gmx.de>
-Message-ID: <Pine.LNX.4.58.0408162226580.5241@kai.makisara.local>
-References: <411FD919.9030702@comcast.net> <20040816143817.0de30197.Ballarin.Marc@gmx.de>
- <1092661385.20528.25.camel@localhost.localdomain> <20040816195750.6419699f.Ballarin.Marc@gmx.de>
- <20040816210949.3d024844.Ballarin.Marc@gmx.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Aug 2004 15:39:14 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:49806 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S267902AbUHPTjL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 15:39:11 -0400
+Subject: Re: eth*: transmit timed out since .27
+From: Len Brown <len.brown@intel.com>
+To: Oliver Feiler <kiza@gmx.net>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Marcelo Tosatti <marcelo@hera.kernel.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <41210098.4080904@gmx.net>
+References: <566B962EB122634D86E6EE29E83DD808182C3236@hdsmsx403.hd.intel.com>
+	 <1092678734.23057.18.camel@dhcppc4>  <41210098.4080904@gmx.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1092685109.23057.27.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 16 Aug 2004 15:38:29 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Aug 2004, Marc Ballarin wrote:
+On Mon, 2004-08-16 at 14:44, Oliver Feiler wrote:
 
-> Here are the additional commands I permit right now. It allows me to blank
-> a CDRW and record in TAO mode. k3b needs MODE_SELECT_10  even
-> for read-only access.
-> 
-> 
-> 
-> 		safe_for_read(GPCMD_GET_CONFIGURATION),
-> 		safe_for_read(GPCMD_GET_PERFORMANCE),
-> 		safe_for_read(MODE_SELECT_10),
-> 
-> 		safe_for_write(ALLOW_MEDIUM_REMOVAL),
-> 		safe_for_write(REZERO_UNIT),
-> 		safe_for_write(SYNCHRONIZE_CACHE),
-> 		safe_for_write(GPCMD_SET_SPEED),
-> 		safe_for_write(GPCMD_SEND_OPC),
-> 		safe_for_write(GPCMD_BLANK),
-> 		safe_for_write(GPCMD_CLOSE_TRACK),
-> 		safe_for_write(0x5c), //whatever this might be
+>   14:       9296    IO-APIC-edge  ide0
+>   15:       9078    IO-APIC-edge  ide1
+>   17:         24   IO-APIC-level  eth1
+>   18:     125085   IO-APIC-level  eth0
+>   21:          0   IO-APIC-level  usb-uhci, usb-uhci, usb-uhci
+>   22:          0   IO-APIC-level  via82cxxx
+>   23:       2976   IO-APIC-level  eth2
+> NMI:          0
+> LOC:     112313
+> ERR:          0
+> MIS:         42
 
-                Read Buffer Capacity
-> 
-> Shouldn't most GPCMD_* commands be safe for reading or writing, at least
-> for CD devices?
-> Are commands like MODE_SELECT_10 really safe for read?
-> 
-Mode Select is not safe enough even for write (i.e., CAP_RAWIO must be 
-required). Is it really necessary for Mode Select to succeed or do the 
-applications just try to do something and fail gracefully?
+This is unusual.
+MIS is a hardware workaround and should normally be 0.
 
--- 
-Kai
+> 
+> 
+> vs.
+> 
+> 00:11.1 IDE interface: VIA Technologies, Inc. 
+> VT82C586A/B/VT82C686/A/B/VT823x/A/C/VT8235 PIPC Bus Master IDE (rev
+> 06) 
+> (prog-if 8a [Master SecP PriP])
+>          Subsystem: Unknown device 1849:0571
+>          Flags: bus master, medium devsel, latency 32, IRQ 255
+>          I/O ports at fc00 [size=16]
+>          Capabilities: <available only to root>
+> 
+> This probably has to do with this boot message:
+> PCI: No IRQ known for interrupt pin A of device 00:11.1
+
+> I have found absolutely nothing that explains if this is an error or 
+> just some sort of debug message one can ignore.
+
+Yes, ignore it.
+
+This is where that message about 255 came from.
+When ACPI failed to find a PCI-routing-table entry
+for this device, it looked in PCI config space
+and found the 255 you see above.  The only recent
+change is that it dosn't try to use an obviously
+bogus value.  But in either case, with this device
+it is moot as the hardware and the driver are hard-coded.
+
+-Len
+
+

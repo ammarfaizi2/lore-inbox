@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132606AbREEO7Q>; Sat, 5 May 2001 10:59:16 -0400
+	id <S132655AbREEPIg>; Sat, 5 May 2001 11:08:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132614AbREEO7H>; Sat, 5 May 2001 10:59:07 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1910 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S132606AbREEO66>; Sat, 5 May 2001 10:58:58 -0400
-To: "Matt D. Robinson" <yakker@alacritech.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
-Subject: Re: smp_send_stop() and disable_local_APIC()
-In-Reply-To: <3AF19A17.19C2741F@alacritech.com> <m1d79pnm2b.fsf@frodo.biederman.org> <3AF2E717.AF7936BD@alacritech.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 04 May 2001 23:50:42 -0600
-In-Reply-To: "Matt D. Robinson"'s message of "Fri, 04 May 2001 10:29:59 -0700"
-Message-ID: <m1pudomjil.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S132682AbREEPI0>; Sat, 5 May 2001 11:08:26 -0400
+Received: from mailgate.FH-Aachen.DE ([149.201.10.254]:54181 "EHLO
+	mailgate.fh-aachen.de") by vger.kernel.org with ESMTP
+	id <S132655AbREEPIS>; Sat, 5 May 2001 11:08:18 -0400
+Posted-Date: Sat, 5 May 2001 17:08:16 +0200 (MET DST)
+Date: Sat, 5 May 2001 17:07:48 +0200
+From: f5ibh <f5ibh@db0bm.ampr.org>
+Message-Id: <200105051507.RAA29332@db0bm.ampr.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.5-pre1 errors with make menuconfig
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Matt D. Robinson" <yakker@alacritech.com> writes:
+Hi!
 
-> It's an SMP (and only when your system crashes on a CPU other
-> than 0) problem.  I did some more checking of this to verify the
-> specifics of the behavior.  Thanks for the sarcasm, though. :)
+If I do a make distclean then make menuconfig, I get the following error
+message on the "Processor type and features  --->" entry (maybe a bit
+corrupted because I had to do a ctrl_c to avoid the curses display to
+owerwrite it). The other entries seems to be ok :
 
-O.k.  That makes perfect sense then.  See below.
+scripts/Menuconfig: CONFIG_M386: command not found
+scripts/Menuconfig: ./MCradiolists: line 2: syntax error near unexpected token
+`Pentium-III/Celeron(C'
+scripts/Menuconfig: ./MCradiolists: line 2: `   function CONFIG_M386 ()
+{ l_choice 'Processor family' "386
+CONFIG_M386      486                                    CONFIG_M486
+586/K5/5x86/6x86/6x86MX                CONFIG_M586      Pentium-Classic
+CONFIG_M586TSC    Pentium-MMX                            CONFIG_M586MMX
+Pentium-Pro/Celeron/Pentium-II         CONFIG_M686
+Pentium-III/Celeron(Coppermine)CONFIG_MPENTIUMIII       Pentium-4
+CONFIG_MPENTIUM4         K6/K6-II/K6-III                        CONFIG_MK6
+Athlon/Duron/K7CONFIG_MK7       Crusoe
+CONFIG_MCRUSOE   Winchip-C6                             CONFIG_MWINCHIPC6
+Winchip-2             CONFIG_MWINCHIP2          Winchip-2A/Winchip-3
+CONFIG_MWINCHIP3D        CyrixIII/C3
+CONFIG_MCYRIXIII" Pentium-III/Celeron(Coppermine) ;}'
+make: *** [menuconfig] Erreur 1
 
-> All I wanted was clarification as to why it was added in the first
-> place, and whether there was a better way around the scenario.
-> I think Ingo added the code, but I never heard back from him.
-> Thanks for the response.
+If I load a previous configuration from 2.4.4, it is ok
+----------
+Regards
 
-Welcome.  Linux attempts to properly shutdown the apics when we are
-shutting down, and part of that is returning the apics to the mode
-they were before we got control.  To do that you need to disable every
-cpu but the bootstrap processor, and return the bootstrap processor to
-either virtual wire mode or pic_mode.  So of course it will be the
-only cpu getting interrupts because we are in legacy mode.
-
-I would say it probably makes sense to add an additional call.
-smp_send_panic_stop that does exactly what you need instead of what is
-needed on the normal shutdown path. 
-
-Eric
+		Jean-Luc

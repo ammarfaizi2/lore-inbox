@@ -1,69 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272280AbRJBMC1>; Tue, 2 Oct 2001 08:02:27 -0400
+	id <S272540AbRJBMEH>; Tue, 2 Oct 2001 08:04:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272484AbRJBMCS>; Tue, 2 Oct 2001 08:02:18 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:44815 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S272280AbRJBMCF>; Tue, 2 Oct 2001 08:02:05 -0400
-Date: Tue, 2 Oct 2001 15:01:20 +0200
-From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <9121494397.20011002150120@port.imtp.ilyichevsk.odessa.ua>
-To: Robert Love <rml@ufl.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re[2]: Latency measurements
-In-Reply-To: <1001972854.2277.49.camel@phantasy>
-In-Reply-To: <15919370673.20011001160824@port.imtp.ilyichevsk.odessa.ua>
- <1001972854.2277.49.camel@phantasy>
+	id <S272773AbRJBMD6>; Tue, 2 Oct 2001 08:03:58 -0400
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:36616 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S272540AbRJBMDu>; Tue, 2 Oct 2001 08:03:50 -0400
+Date: Tue, 2 Oct 2001 12:50:40 +0100
+From: Alan Ford <alan@whirlnet.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.11-pre2
+Message-ID: <20011002125040.A10878@whirlnet.co.uk>
+In-Reply-To: <Pine.LNX.4.33.0110011438230.990-100000@penguin.transmeta.com> <200110012218.f91MIGU10233@hswn.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200110012218.f91MIGU10233@hswn.dk>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Robert,
-Monday, October 01, 2001, 11:47:31 PM, you wrote:
+On Tue, Oct 02, 2001 at 12:18:16AM +0200, henrik@hswn.dk wrote:
+> Seems this patch to drivers/char/sysrq.c should not be in:
 
->> These are the longest held locks on my system
->> (PII 233 UP, 32MB RAM, SVGA 16bit color fb console, X)
->> Kernel: 2.4.10 + ext3 + preemption
->> I am very willing to test any patches to reduce latency.
->> 
->> 418253       BKL        1   712/tty_io.c        c01b41c5   714/tty_io.c
->> 222609       BKL        1   712/tty_io.c        c01b41c5   697/sched.c   
->> 152903 spin_lock        5   547/sched.c         c0114fd5   714/tty_io.c  
->> 132422       BKL        5   712/tty_io.c        c01b41c5   714/tty_io.c  
->> 104548       BKL        1   712/tty_io.c        c01b41c5  1380/sched.c
+While we're fixing typos in sysrq.c:
 
-RL> Unfortunately there isn't much we can do about any of those locks.
+--- linux.vanilla/drivers/char/sysrq.c	Tue Oct  2 12:46:39 2001
++++ linux/drivers/char/sysrq.c	Tue Oct  2 12:47:15 2001
+@@ -236,7 +236,7 @@
+ static struct sysrq_key_op sysrq_mountro_op = {
+ 	handler:	sysrq_handle_mountro,
+ 	help_msg:	"Unmount",
+-	action_msg:	"Emergency Remount R/0\n",
++	action_msg:	"Emergency Remount R/O\n",
+ };
+ 
+ /* END SYNC SYSRQ HANDLERS BLOCK */
 
-RL> The locks in tty_io.c are have to be held, the fact you are using a
-RL> framebuffer makes it a lot worse, though.  If there is an accelerated fb
-RL> for your video card, I would suggest that.
-
-That is a BKL which we are trying to get rid of.
-What deadlock is prevented by lock_kernel()
-in tty_io.c:712?
-
-write() call there is actually a tty->ldisc.write().
-Is it possible to move lock into tty->ldisc.write()
-and make it a spinlock? I'd like to try, but I admit
-I failed to track what fn ptr is placed in ldisc.write
-in my case (fb console)  :-(
-
->> 222609       BKL 1 712/tty_io.c  697/sched.c
-I don't quite understand how locked region can start in
-712/tty_io.c and end in 697/sched.c?
-
-This is strange too:
->> 152903 spin_lock 5 547/sched.c   714/tty_io.c
-spinlock? Unlocked by unlock_kernel()???
 -- 
-Best regards, VDA
-mailto:VDA@port.imtp.ilyichevsk.odessa.ua
-
-
+Alan Ford * alan@whirlnet.co.uk 

@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264220AbTKKCYz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 21:24:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264221AbTKKCYz
+	id S263281AbTKKCjS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 21:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264200AbTKKCjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 21:24:55 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:39948 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S264220AbTKKCYx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 21:24:53 -0500
-Date: Tue, 11 Nov 2003 00:06:08 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Dag Brattli <dag@brattli.net>, Jean Tourrilhes <jt@hpl.hp.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       irda-users@lists.sourceforge.net
-Subject: [PATCH] irda: fix type of struct irda_ias_set.attribute.irda_attrib_string.len
-Message-ID: <20031111020608.GA1208@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Dag Brattli <dag@brattli.net>, Jean Tourrilhes <jt@hpl.hp.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	irda-users@lists.sourceforge.net
-Mime-Version: 1.0
+	Mon, 10 Nov 2003 21:39:18 -0500
+Received: from mail003.syd.optusnet.com.au ([211.29.132.144]:12953 "EHLO
+	mail003.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263281AbTKKCjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 21:39:17 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16304.19406.995702.451479@wombat.chubb.wattle.id.au>
+Date: Tue, 11 Nov 2003 13:39:10 +1100
+To: "Joseph Shamash" <info@avistor.com>
+Cc: "Peter Chubb" <peter@chubb.wattle.id.au>, <linux-kernel@vger.kernel.org>
+Subject: RE: 2 TB partition support
+In-Reply-To: <HBEHKOEIIJKNLNAMLGAOIECPDKAA.info@avistor.com>
+References: <16304.9647.994684.804486@wombat.chubb.wattle.id.au>
+	<HBEHKOEIIJKNLNAMLGAOIECPDKAA.info@avistor.com>
+X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  CC [M]  net/irda/af_irda.o
-net/irda/af_irda.c: In function `irda_setsockopt':
-net/irda/af_irda.c:1894: warning: comparison is always false due to limited range of data type
+>>>>> "Joseph" == Joseph Shamash <info@avistor.com> writes:
 
-in irda_setsockopt:
+Joseph> Hello Peter, Forgive another quick Q or two.
 
-                        /* Should check charset & co */
-                        /* Check length */
-                        if(ias_opt->attribute.irda_attrib_string.len >
-                           IAS_MAX_STRING) {
-                                kfree(ias_opt);
-                                return -EINVAL;
-                        }
+Joseph> What is the maximum partition size for a patched 2.4.x kernel,
+Joseph> and where are those patches?
 
-Ok, ias_opt->attribute.irda_attrib_string.len is __u8, but
-IAS_MAX_STRING = 256... so attribute.irda_attrib_string.len has to be at least
-__u18, this patch fix this, please see if it is appropriate and if it is so,
-apply.
+See http://www.gelato.unsw.edu.au/IA64wiki/LargeBlockDevices
 
-Best Regards,
+I've only created a 2.4.20 patch; on my TODO list for the next
+fortnight is to create a 2.4.23 patch, as we move towards a 2.4.23
+release.
 
-- Arnaldo
-
-===== include/linux/irda.h 1.7 vs edited =====
---- 1.7/include/linux/irda.h	Wed Jun  4 11:16:33 2003
-+++ edited/include/linux/irda.h	Mon Nov 10 23:56:33 2003
-@@ -151,7 +151,7 @@
- 			__u8 octet_seq[IAS_MAX_OCTET_STRING];
- 		} irda_attrib_octet_seq;
- 		struct {
--			__u8 len;
-+			__u16 len;
- 			__u8 charset;
- 			__u8 string[IAS_MAX_STRING];
- 		} irda_attrib_string;
+Petre C

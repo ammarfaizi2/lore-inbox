@@ -1,66 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262825AbSJOPxx>; Tue, 15 Oct 2002 11:53:53 -0400
+	id <S264665AbSJOPmh>; Tue, 15 Oct 2002 11:42:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263256AbSJOPxw>; Tue, 15 Oct 2002 11:53:52 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:415 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S262825AbSJOPxv>; Tue, 15 Oct 2002 11:53:51 -0400
-Date: Tue, 15 Oct 2002 10:59:41 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: arnd@bergmann-dalldorf.de
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: s390x build warnings from <linux/module.h>
-In-Reply-To: <200210151936.34119.arndb@de.ibm.com>
-Message-ID: <Pine.LNX.4.44.0210151043570.10165-100000@chaos.physics.uiowa.edu>
+	id <S264669AbSJOPmh>; Tue, 15 Oct 2002 11:42:37 -0400
+Received: from x101-186-76-dhcp.reshalls.umn.edu ([128.101.186.76]:128 "EHLO
+	arashi.yi.org") by vger.kernel.org with ESMTP id <S264665AbSJOPmg>;
+	Tue, 15 Oct 2002 11:42:36 -0400
+Date: Tue, 15 Oct 2002 10:53:24 -0500
+To: linux-kernel@vger.kernel.org
+Subject: (Mouse-related?) X hang 2.5.42-mm3
+Message-ID: <3DAC39F4.mail6911JSYC@arashi.yi.org>
+User-Agent: nail 10.0 9/29/02
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: arashi@arashi.yi.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Oct 2002, Arnd Bergmann wrote:
+Hi,
 
-> during 'make modules' on s390x, I see lots of warnings about 'ignoring 
-> changed section attributes for __ksymtab' that I have found to be the 
-> result of changeset 1.373.196.1, where Kai changed the defaults for module 
-> exports to 'no symbols exported'.
-> 
-> The problem is that there is a section '__ksymtab,"a"', while s390x 
-> requires it to be '__ksymtab,"aw"' because modules must be compiled with
-> '-fpic' here, unlike afaics all the other architectures.
+I'm running XFree86 4.2.1 (kernel Radeon drivers, no nvidia here), and
+it will occasionally hang if I switch from X to (say) tty2 and then back.
+This is the last thing that shows up in my log before the system hangs,
+it seems to happen sometime between when I hit Alt-F7 and when the hang
+sets in:
 
-Hmmh, there's a couple of things I don't understand, though they're most 
-likely there for a reason. First of all, why do you need -fpic at all? 
-kernel modules are not shared, they should get properly relocated when 
-insmod'ing them, so I don't see why you're doing that.
+arashi kernel: drivers/usb/host/uhci-hcd.c: uhci_destroy_urb_priv: urb df611744 still on uhci->urb_list or uhci->remove_list
 
-The next thing I do not understand is why -fpic has the effect of marking
-the section writeable, does it make .text writeable as well? And what for?
+The only USB device I've got plugged in is my mouse. No gpm, I'm using
+X's USBMouse driver.
 
-> The patch below is a workaround for the Problem and should be
-> correct on all architectures, but I'd prefer if there was a nicer
-> way to do that.
-> 
-> 	Arnd <><
-> 
-> --- broken/include/linux/module.h      15 Oct 2002 07:55:01 -0000      1.8
-> +++ ugly/include/linux/module.h      15 Oct 2002 15:30:39 -0000
-> @@ -498,5 +498,9 @@
->   * "export all symbols" to modutils)
->   */
-> +#ifndef __PIC__
->  __asm__(".section __ksymtab,\"a\"\n.previous");
-> +#else
-> +__asm__(".section __ksymtab,\"aw\"\n.previous");
-> +#endif
->  #endif
+This happens somewhat randomly, but I've been able to reproduce it by
+switching in and out of X a lot of times, and eventually it hangs.
 
-Well, it's not too bad, and it's hidden away in a header, so it's fine 
-with me. Still, I don't understand yet why all this happens in the first 
-place.
-
---Kai
-
-
+Matt

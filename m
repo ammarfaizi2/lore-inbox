@@ -1,293 +1,1295 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261919AbUJZFiK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbUJZFow@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261919AbUJZFiK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 01:38:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbUJZFe4
+	id S261667AbUJZFow (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 01:44:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUJZFou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 01:34:56 -0400
-Received: from gyre.foreca.com ([193.94.59.26]:29907 "EHLO gyre.weather.fi")
-	by vger.kernel.org with ESMTP id S261919AbUJZFcA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 01:32:00 -0400
-Date: Tue, 26 Oct 2004 08:31:55 +0300 (EEST)
-From: =?ISO-8859-1?Q?Jaakko_Hyv=E4tti?= <jaakko@hyvatti.iki.fi>
-X-X-Sender: jaakko@gyre.weather.fi
-To: linux-kernel@vger.kernel.org
-Subject: x86_64, LOCKUP on CPU0, kjournald
-Message-ID: <Pine.LNX.4.58.0410260818560.3400@gyre.weather.fi>
+	Tue, 26 Oct 2004 01:44:50 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:49163 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261667AbUJZF2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 01:28:38 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: "Rui Nuno Capela" <rncbc@rncbc.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+Date: Tue, 26 Oct 2004 08:28:03 +0300
+User-Agent: KMail/1.5.4
+References: <20041022155048.GA16240@elte.hu> <20041025141628.GA14282@elte.hu> <33313.192.168.1.5.1098733224.squirrel@192.168.1.5>
+In-Reply-To: <33313.192.168.1.5.1098733224.squirrel@192.168.1.5>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Message-Id: <200410260827.39888.vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_jBefBqwjH2l4luc"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Last night we got this trace, saved by serial console.
+--Boundary-00=_jBefBqwjH2l4luc
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-The machine is dual AMD Opteron 240 (1.4GHz), MSI K8D motherboard, 3G
-mem, disks in raid configuration with 3ware SATA adapter, so they show
-up as scsi devices.  Kernel is updated Fedora Core 2 2.6.8-1.521smp,
-but the same probably happened with 2.6.6 at least, cannot tell as I
-did not have serial console back then.  Disks are shared over nfs to
-a few very very busy clients, some running Linux, some running IRIX.
+On Monday 25 October 2004 22:40, Rui Nuno Capela wrote:
+> Ingo Molnar wrote:
+> >> ok, i've added it and uploaded -V0.2 together with another fix: there
+> >> was a scheduler recursion possible via the delayed-put mechanism using
+> >> workqueues - now it's using its own separate lists and per-CPU
+> >> threads.
+> >
+> > -V0.2 seems to behave quite well on my testboxes - i'm unable to
+> > reproduce the selinux boot hang anymore.
+> >
+> 
+> OK. RT-V0.2 boots on my laptop (P4/UP), sometimes ;)
+> 
+> I know that my early impressions are illusive, rather subjective, but I do
+> feel overall behavior is getting worst, when regarding low-latency audio
+> work with jackd -R.
+> 
+> To put things straight with RT-V0.2, I get trouble with much less load
+> than even before.
+> 
+> I noticed that something is, now and then, topping the cpu to 99%, leaving
+> the system to a crawl, eventually returning back to normal. Can't figure
+> out who or what, just because ps or top are stalling to silence, only
+> returning results after when the crawl ends, which are of no useful
+> evidence. When I'm lucky enough to let top (and gkrellm) telling me
+> something, it does look like that most of the time is spent on kernel mode
+> (sys time) and none of the running processes are at stake. Puzzled. It's
+> just like you're about to loose confidence on the procps tools.
 
+<shameless plug>
+Maybe this program will be useful. It is designed to give you
+overall system statistics without the need to scan entire /proc/NNN
+forest. Together with nice -20, it will hopefully not stall.
 
-NMI Watchdog detected LOCKUP on CPU0, registers:
-CPU 0
-Modules linked in: loop w83627hf i2c_sensor i2c_isa i2c_core nfsd exportfs lockd sunrpc md5 ipv6 parport_pc lp parport tg3 ipt_REJECT ipt_state ip_conntrack iptable_filter ip_tables dm_mod ohci_hcd button battery asus_acpi ac ext3 jbd 3w_xxxx sd_mod scsi_mod
-Pid: 210, comm: kjournald Not tainted 2.6.8-1.521smp
-RIP: 0010:[<ffffffff80161b7b>] <ffffffff80161b7b>{cache_alloc_refill+397}
-RSP: 0018:00000100bf4efa58  EFLAGS: 00000013
-RAX: 00000100bff39000 RBX: 0000000000000031 RCX: 00000100400116d8
-RDX: 00000100400116c8 RSI: 0000000000000850 RDI: 0000010040011680
-RBP: 000001003ffbf000 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000010095e05e00 R12: 00000100400116c8
-R13: 0000010040011680 R14: 0000000000000850 R15: 0000010031cdb9d0
-FS:  0000002a958624c0(0000) GS:ffffffff804e2d80(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 0000000000a02b5c CR3: 0000000000101000 CR4: 00000000000006e0
-Process kjournald (pid: 210, threadinfo 00000100bf4ee000, task 0000010037d201f0)
-Stack: 000001007e657558 000001007e657558 00000100bdc356e0 000001007e657558
-       000001003ffb5e00 000001003c2ed180 000001007e657558 ffffffff80161eae
-       0000000000000202 ffffffff80180d98
-Call Trace:<ffffffff80161eae>{kmem_cache_alloc+52} <ffffffff80180d98>{alloc_buffer_head+17}
-       <ffffffffa003b620>{:jbd:journal_write_metadata_buffer+130}
-       <ffffffffa0038064>{:jbd:journal_commit_transaction+2847}
-       <ffffffff801367e2>{autoremove_wake_function+0} <ffffffff801367e2>{autoremove_wake_function+0}
-       <ffffffffa003b0e3>{:jbd:kjournald+333} <ffffffff801367e2>{autoremove_wake_function+0}
-       <ffffffff801367e2>{autoremove_wake_function+0} <ffffffffa003af90>{:jbd:commit_timeout+0}
-       <ffffffff801121e3>{child_rip+8} <ffffffffa003af96>{:jbd:kjournald+0}
-       <ffffffff801121db>{child_rip+0}
+Compiled with dietlibc. If you will have trouble compiling it, binary is
+attached too.
 
-Code: 4c 89 61 08 49 89 0c 24 85 db 0f 8f 2c ff ff ff 8b 45 00 49
-console shuts up ...
-
-
-And here the next boot so you see what is there in the machine:
-
-Bootdata ok (command line is ro root=LABEL=/ console=ttyS0,19200 console=tty0)
-Linux version 2.6.8-1.521smp (bhcompile@thor.perf.redhat.com) (gcc version 3.3.3 20040412 (Red Hat Linux 3.3.3-7)) #1 SMP Mon Aug 16 09:32:47 EDT 2004
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 00000000bfff0000 (usable)
- BIOS-e820: 00000000bfff0000 - 00000000bffff000 (ACPI data)
- BIOS-e820: 00000000bffff000 - 00000000c0000000 (ACPI NVS)
- BIOS-e820: 00000000ff7c0000 - 0000000100000000 (reserved)
-Scanning NUMA topology in Northbridge 24
-Number of nodes 2 (10010)
-Node 0 MemBase 0000000000000000 Limit 000000003fffffff
-Node 1 MemBase 0000000040000000 Limit 00000000bfff0000
-Using node hash shift of 24
-Bootmem setup node 0 0000000000000000-000000003fffffff
-Bootmem setup node 1 0000000040000000-00000000bfff0000
-No mptable found.
-ACPI: RSDP (v000 ACPIAM                                    ) @ 0x00000000000f4530
-ACPI: RSDT (v001 A M I  OEMRSDT  0x07000304 MSFT 0x00000097) @ 0x00000000bfff0000
-ACPI: FADT (v001 A M I  OEMFACP  0x07000304 MSFT 0x00000097) @ 0x00000000bfff0200
-ACPI: MADT (v001 A M I  OEMAPIC  0x07000304 MSFT 0x00000097) @ 0x00000000bfff0380
-ACPI: SPCR (v001 A M I  OEMSPCR  0x07000304 MSFT 0x00000097) @ 0x00000000bfff0400
-ACPI: OEMB (v001 A M I  OEMBIOS  0x07000304 MSFT 0x00000097) @ 0x00000000bffff040
-ACPI: ASF! (v001 AMIASF AMDSTRET 0x00000001 INTL 0x02002026) @ 0x00000000bfff2d90
-ACPI: DSDT (v001  0ABCF 0ABCF008 0x00000008 INTL 0x02002026) @ 0x0000000000000000
-ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-Processor #0 15:5 APIC version 16
-ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] enabled)
-Processor #1 15:5 APIC version 16
-ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
-IOAPIC[0]: Assigned apic_id 2
-IOAPIC[0]: apic_id 2, version 17, address 0xfec00000, GSI 0-23
-ACPI: IOAPIC (id[0x03] address[0xfebfe000] gsi_base[24])
-IOAPIC[1]: Assigned apic_id 3
-IOAPIC[1]: apic_id 3, version 17, address 0xfebfe000, GSI 24-27
-ACPI: IOAPIC (id[0x04] address[0xfebff000] gsi_base[28])
-IOAPIC[2]: Assigned apic_id 4
-IOAPIC[2]: apic_id 4, version 17, address 0xfebff000, GSI 28-31
-ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
-ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
-Using ACPI (MADT) for SMP configuration information
-Checking aperture...
-CPU 0: aperture @ ffd4000000 size 32 MB
-Aperture from northbridge cpu 0 too small (32 MB)
-No AGP bridge found
-Built 2 zonelists
-Kernel command line: ro root=LABEL=/ console=ttyS0,19200 console=tty0
-Initializing CPU#0
-PID hash table entries: 1024 (order 10: 16384 bytes)
-time.c: Using 1.193182 MHz PIT timer.
-time.c: Detected 1395.673 MHz processor.
-Console: colour VGA+ 80x25
-Dentry cache hash table entries: 65536 (order: 7, 524288 bytes)
-Inode-cache hash table entries: 65536 (order: 7, 524288 bytes)
-Memory: 3095016k/3145664k available (2161k kernel code, 0k reserved, 1409k data, 176k init)
-Calibrating delay loop... 2744.32 BogoMIPS
-Security Scaffold v1.0.0 initialized
-SELinux:  Initializing.
-SELinux:  Starting in permissive mode
-There is already a security framework initialized, register_security failed.
-selinux_register_security:  Registering secondary module capability
-Capability LSM initialized as secondary
-Mount-cache hash table entries: 256 (order: 0, 4096 bytes)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-Using local APIC NMI watchdog using perfctr0
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU0: AMD Opteron(tm) Processor 240 stepping 01
-per-CPU timeslice cutoff: 1023.77 usecs.
-task migration cache decay timeout: 2 msecs.
-Booting processor 1/1 rip 6000 rsp 10041d67f58
-Initializing CPU#1
-Calibrating delay loop... 2785.28 BogoMIPS
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-AMD Opteron(tm) Processor 240 stepping 01
-Total of 2 processors activated (5529.60 BogoMIPS).
-ENABLING IO-APIC IRQs
-..TIMER: vector=0x31 pin1=2 pin2=-1
-Using local APIC timer interrupts.
-Detected 12.461 MHz APIC timer.
-checking TSC synchronization across 2 CPUs: passed.
-time.c: Using PIT/TSC based timekeeping.
-Brought up 2 CPUs
-checking if image is initramfs...it isn't (no cpio magic); looks like an initrd
-NET: Registered protocol family 16
-PCI: Using configuration type 1
-mtrr: v2.0 (20020519)
-ACPI: Subsystem revision 20040326
-ACPI: Interpreter enabled
-ACPI: Using IOAPIC for interrupt routing
-ACPI: PCI Root Bridge [PCI0] (00:00)
-PCI: Probing PCI hardware (bus 00)
-ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 9 *10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 *5 6 7 9 10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
-ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 *9 10 11 12 14 15)
-ACPI: Power Resource [GFAN] (on)
-ACPI: Power Resource [LFAN] (on)
-usbcore: registered new driver usbfs
-usbcore: registered new driver hub
-PCI: Using ACPI for IRQ routing
-ACPI: PCI interrupt 0000:00:07.2[D] -> GSI 19 (level, low) -> IRQ 169
-ACPI: PCI interrupt 0000:03:00.0[D] -> GSI 19 (level, low) -> IRQ 169
-ACPI: PCI interrupt 0000:03:00.1[D] -> GSI 19 (level, low) -> IRQ 169
-ACPI: PCI interrupt 0000:03:06.0[A] -> GSI 18 (level, low) -> IRQ 177
-ACPI: PCI interrupt 0000:01:01.0[A] -> GSI 28 (level, low) -> IRQ 185
-ACPI: PCI interrupt 0000:01:02.0[A] -> GSI 29 (level, low) -> IRQ 193
-ACPI: PCI interrupt 0000:01:02.1[B] -> GSI 30 (level, low) -> IRQ 201
-testing the IO APIC.......................
+Latest version is 0.9 but it seems I forgot it in my home box :(
+</shameless plug>
+--
+vda
 
 
 
-Using vector-based indexing
-.................................... done.
-PCI-DMA: Disabling IOMMU.
-vesafb: probe of vesafb0 failed with error -6
-IA32 emulation $Id: sys_ia32.c,v 1.32 2002/03/24 13:02:28 ak Exp $
-audit: initializing netlink socket (disabled)
-audit(1098720917.956:0): initialized
-Total HugeTLB memory allocated, 0
-VFS: Disk quotas dquot_6.5.1
-Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
-SELinux:  Registering netfilter hooks
-Initializing Cryptographic API
-ksign: Installing public key data
-Loading keyring
-- Added public key 9BD64214C19BFDB0
-- User ID: Red Hat, Inc. (Kernel Module GPG key)
-ksign: invalid packet (ctb=00)
-Unable to load default keyring: error=74
-pci_hotplug: PCI Hot Plug PCI Core version: 0.5
-ACPI: Fan [FN00] (on)
-ACPI: Fan [FN01] (on)
-ACPI: Processor [CPU1] (supports C1, 8 throttling states)
-ACPI: Processor [CPU2] (supports C1)
-ACPI: Thermal Zone [THRM] (45 C)
-Real Time Clock Driver v1.12
-Linux agpgart interface v0.100 (c) Dave Jones
-Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing enabled
-ÿttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-RAMDISK driver initialized: 16 RAM disks of 16384K size 1024 blocksize
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-AMD8111: IDE controller at PCI slot 0000:00:07.1
-AMD8111: chipset revision 3
-AMD8111: not 100% native mode: will probe irqs later
-AMD8111: 0000:00:07.1 (rev 03) UDMA133 controller
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
-ide-floppy driver 0.99.newide
-usbcore: registered new driver hiddev
-usbcore: registered new driver usbhid
-drivers/usb/input/hid-core.c: v2.0:USB HID core driver
-mice: PS/2 mouse device common for all mice
-serio: i8042 AUX port at 0x60,0x64 irq 12
-serio: i8042 KBD port at 0x60,0x64 irq 1
-input: AT Translated Set 2 keyboard on isa0060/serio0
-md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
-NET: Registered protocol family 2
-IP: routing cache hash table of 16384 buckets, 256Kbytes
-TCP: Hash tables configured (established 262144 bind 65536)
-Initializing IPsec netlink socket
-NET: Registered protocol family 1
-NET: Registered protocol family 17
-powernow-k8: Power state transitions not supported
-powernow-k8: Power state transitions not supported
-ACPI: (supports S0 S1 S4 S5)
-BIOS EDD facility v0.16 2004-Jun-25, 3 devices found
-md: Autodetecting RAID arrays.
-md: autorun ...
-md: ... autorun DONE.
-RAMDISK: Compressed image found at block 0
-VFS: Mounted root (ext2 filesystem).
-SCSI subsystem initialized
-3ware Storage Controller device driver for Linux v1.26.00.039.
-ACPI: PCI interrupt 0000:01:01.0[A] -> GSI 28 (level, low) -> IRQ 185
-scsi0 : Found a 3ware Storage Controller at 0x8c00, IRQ: 185, P-chip: 1.3
-scsi0 : 3ware Storage Controller
-3w-xxxx: scsi0: AEN: WARNING: Unclean shutdown detected: Unit #0.
-3w-xxxx: scsi0: AEN: WARNING: Unclean shutdown detected: Unit #2.
-3w-xxxx: scsi0: AEN: WARNING: Unclean shutdown detected: Unit #4.
-Using cfq io scheduler
-  Vendor: 3ware     Model: Logical Disk 0    Rev: 1.2
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-SCSI device sda: 145224064 512-byte hdwr sectors (74355 MB)
-SCSI device sda: drive cache: write back
- sda: sda1 sda2 sda3
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-  Vendor: 3ware     Model: Logical Disk 2    Rev: 1.2
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-SCSI device sdb: 145224064 512-byte hdwr sectors (74355 MB)
-SCSI device sdb: drive cache: write back
- sdb: sdb1
-Attached scsi disk sdb at scsi0, channel 0, id 2, lun 0
-  Vendor: 3ware     Model: Logical Disk 4    Rev: 1.2
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-SCSI device sdc: 145224064 512-byte hdwr sectors (74355 MB)
-SCSI device sdc: drive cache: write back
- sdc: sdc1
-Attached scsi disk sdc at scsi0, channel 0, id 4, lun 0
-EXT3-fs: INFO: recovery required on readonly filesystem.
-EXT3-fs: write access will be enabled during recovery.
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: sda3: orphan cleanup on readonly fs
-EXT3-fs: sda3: 8 orphan inodes deleted
-EXT3-fs: recovery complete.
-EXT3-fs: mounted filesystem with ordered data mode.
-Freeing unused kernel memory: 176k freed
-SELinux:  Disabled at runtime.
-SELinux:  Unregistering netfilter hooks
-3w-xxxx: scsi0: AEN: INFO: Initialization started: Unit #0.
-3w-xxxx: scsi0: AEN: INFO: Initialization complete: Unit #0.
-3w-xxxx: scsi0: AEN: INFO: Initialization started: Unit #2.
-3w-xxxx: scsi0: AEN: INFO: Initialization complete: Unit #2.
-3w-xxxx: scsi0: AEN: INFO: Initialization started: Unit #4.
-3w-xxxx: scsi0: AEN: INFO: Initialization complete: Unit #4.
+--Boundary-00=_jBefBqwjH2l4luc
+Content-Type: application/x-executable;
+  name="nmeter"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="nmeter"
 
+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
+4IlV3ItVGIXSx0XUAAAAAA+ENP///4tF4ItV3IlF6IlV7OkV////x0XYAAAAAOvUuCAAAAAp8IlF
+0ItV5Inx0+KLRcyKTdDT6AnCifHTZcyJVeSKTdCLVdzT6ot93Inx0+eLReCKTdDT6AnHifj3deSJ
+fdyJ8YlV3IlF2PdlzNNl4DtV3InHd0Y7Vdx0PItFGIXAx0XUAAAAAA+Eqv7//4tN3ItF4Cn4GdGJ
+TdyJyopN0NPiifGJReDT6AnCi0XciVXo0+jp7v7//ztF4Ha//03YK33MG1Xk67SJ9lWJ5Y1F+IPs
+FFD/dRT/dRD/dQz/dQjoCQAAAItF+ItV/MnDkFWJ5VdWg+wwi1UUi3UIi30Mi0UQhdLHRfAAAAAA
+x0X0AAAAAMdF6AAAAADHRewAAAAAiUXMiVXkiXXgiX3cD4WIAAAAOfh2UInwifr3dcyJVeCJRdjH
+RdQAAAAAi3UYhfZ0G4tV4IlV6MdF7AAAAACLTRiLReiLVeyJAYlRBItV2ItN1IlV8IlN9ItF8ItV
+9IPEMF5fycOQi33Mhf91DbgBAAAAMdL3dcyJRcyLRdyLVeT3dcyJVdyJRdSLReD3dcyJVeCJRdjr
+k412AItF3DlF5HYwi00YhcnHRdgAAAAAx0XUAAAAAHSViXXoiUXsi1Xoi0UYi03siRCJSATpfP//
+/4n2D71F5InGg/YfdVWLVeQ5Vdx3CItNzDlN4HI8i1Xci0XgK0XMG1Xkx0XYAQAAAIlF4IlV3ItV
+GIXSx0XUAAAAAA+ENP///4tF4ItV3IlF6IlV7OkV////x0XYAAAAAOvUuCAAAAAp8IlF0ItV5Inx
+0+KLRcyKTdDT6AnCifHTZcyJVeSKTdCLVdzT6ot93Inx0+eLReCKTdDT6AnHifj3deSJfdyJ8YlV
+3IlF2PdlzNNl4DtV3InHd0Y7Vdx0PItFGIXAx0XUAAAAAA+Eqv7//4tN3ItF4Cn4GdGJTdyJyopN
+0NPiifGJReDT6AnCi0XciVXo0+jp7v7//ztF4Ha//03YK33MG1Xk67SJ9gAAAAAAAAAAAAAAAAAA
+AAAvcHJvYy9zdGF0AC9wcm9jL25ldC9kZXYAL3Byb2MvbWVtaW5mbwAvcHJvYy9kaXNrc3RhdHMA
+MDEyMzQ1Njc4OQAgMTIzNDU2Nzg5ACBrTUdURVAAY3B1IABpbnRyAGludCAAY3R4dABjdHggAGJp
+byAAcGFnZQBzaW8gAHN3YXAAcHJvY2Vzc2VzAGZvcmsAOgBNZW1Ub3RhbDoATWVtRnJlZToAQnVm
+ZmVyczoAQ2FjaGVkOgBtZW0gAHRvdCAAZnJlZSAAU3dhcDoAc3dwIAAvcHJvYy9zeXMvZnMvZmls
+ZS1ucgAAZmQgAGV4dGVybiAAbmNtc2ZpeHB0YmUACgAvcHJvYy92ZXJzaW9uAExpbnV4IHZlcnNp
+b24gMi42LgANAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG5tZXRlciAwLjcgYWxsb3dzIHlv
+dSB0byBtb25pdG9yIHlvdXIgc3lzdGVtIGluIHJlYWwgdGltZQoKT3B0aW9uczoKY1tOXQltb25p
+dG9yIENQVS4gTiAtIGJhciBzaXplLCBkZWZhdWx0IDEwCm5JRkFDRQltb25pdG9yIG5ldHdvcmsg
+aW50ZXJmYWNlIElGQUNFCm1bZi90XQltb25pdG9yIGFsbG9jYXRlZC9mcmVlL3RvdGFsIG1lbW9y
+eQpzCW1vbml0b3IgYWxsb2NhdGVkIHN3YXAKZgltb25pdG9yIG51bWJlciBvZiB1c2VkIGZpbGVk
+ZXNjcmlwdG9ycwppW05OXQltb25pdG9yIHRvdGFsL3NwZWNpZmljIElSUSByYXRlCngJbW9uaXRv
+ciBjb250ZXh0IHN3aXRjaCByYXRlCnAJbW9uaXRvciBwcm9jZXNzIGNyZWF0aW9uIHJhdGUKYltz
+XQltb25pdG9yIGJsb2NrIGlvIChzd2FwIGlvKQp0W05dCXNob3cgdGltZSAod2l0aCBOIGRlY2lt
+YWwgcG9pbnRzKQpkW05dCW1pbGxpc2Vjb25kcyBiZXR3ZWVuIHVwZGF0ZXMuIERlZmF1bHQgMTAw
+MApoW05dCXByaW50IGhlYWRlcnMgYWJvdmUgbnVtYmVycyAoZWFjaCBOIGxpbmVzLCBkZWZhdWx0
+IG9uY2UpCmxMQUJFTAlzcGVjaWZ5IGxhYmVsIGZvciBwcmV2aW91cyBpdGVtCkxMQUJFTAlzYW1l
+ICsgbGFiZWwgd2lsbCBiZSBwcmludGVkIHdpdGhvdXQgc3Vycm91bmRpbmcgYmxhbmtzCnIJcHJp
+bnQgPGNyPiBpbnN0ZWFkIG9mIDxsZj4gYXQgRU9MLiBUcnkgaXQgOykKAC9iaW4vc2gAAAAAAAAA
+oJ8ECP////8AAAAAq58ECP////8AAAAAuZ8ECP////8AAAAAx58ECP////8AAAAA/////wAAAADA
+tQQIAAAAAJqKBAiahgQI6osECG6MBAjkjAQIUocECBiIBAjaiQQItI0ECEiJBAjSjwQIFAAAAAAA
+AAABelIAAXwIARsMBASIAQAASAAAABwAAAAE5///GwAAAAAEAQAAAA4IhQIEAgAAAA0FBAUAAAAu
+BAQDAAAALggEAwAAAC4MBAMAAAAuEAQDAAAALhQEBwAAAC4AACgAAABoAAAA1Ob//w4CAAAABAEA
+AAAOCIUCBAIAAAANBQQFAAAAhgSHAwAAFAAAAAAAAAABelIAAXwIARsMBASIAQAASAAAABwAAACg
+6P//IwAAAAAEAQAAAA4IhQIEAgAAAA0FBAcAAAAuBAQDAAAALggEAwAAAC4MBAMAAAAuEAQDAAAA
+LhQEDQAAAC4AACgAAABoAAAAeOj//w4CAAAABAEAAAAOCIUCBAIAAAANBQQFAAAAhgSHAwAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAR0NDOiAoR05VKSAzLjIAAEdDQzogKEdOVSkgMy4yAABHQ0M6IChH
+TlUpIDMuMgAALnNoc3RydGFiAC50ZXh0AC5yb2RhdGEALmRhdGEALmVoX2ZyYW1lAC5ic3MALmNv
+bW1lbnQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALAAAAAQAAAAYA
+AAB0gAQIdAAAABwfAAAAAAAAAAAAAAQAAAAAAAAAEQAAAAEAAAACAAAAoJ8ECKAfAAD6AwAAAAAA
+AAAAAAAgAAAAAAAAABkAAAABAAAAAwAAAKCzBAigIwAAbAAAAAAAAAAAAAAAIAAAAAAAAAAfAAAA
+AQAAAAMAAAAMtAQIDCQAACABAAAAAAAAAAAAAAQAAAAAAAAAKQAAAAgAAAADAAAAQLUECEAlAACA
+EAAAAAAAAAAAAAAgAAAAAAAAAC4AAAABAAAAAAAAAAAAAABAJQAAMAAAAAAAAAAAAAAAAQAAAAAA
+AAABAAAAAwAAAAAAAAAAAAAAcCUAADcAAAAAAAAAAAAAAAEAAAAAAAAA
 
+--Boundary-00=_jBefBqwjH2l4luc
+Content-Type: text/x-csrc;
+  charset="koi8-r";
+  name="nmeter.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="nmeter.c"
 
--- 
-Jaakko.Hyvatti@iki.fi         http://www.iki.fi/hyvatti/        +358 40 5011222
-echo 'movl $36,%eax;int $128;movl $0,%ebx;movl $1,%eax;int $128'|as -o/bin/sync
+// Based on nanotop.c from floppyfw project
+// Released under GPL
+// Contact me: vda@port.imtp.ilyichevsk.odessa.ua
+
+//TODO: 
+// simplify code
+// /proc/locks
+// /proc/stat:
+// disk_io: (3,0):(22272,17897,410702,4375,54750)
+// btime 1059401962
+
+//#include <ctype.h>
+#include <sys/time.h>	// gettimeofday
+#include <string.h>	// strstr etc
+#include <stdarg.h>	// f(...)
+#include <fcntl.h>	// O_RDONLY
+
+#define VERSION_STR "0.7"
+#define DELIM_CHAR ' '
+
+//==============
+#define NL "\n"
+typedef unsigned long long ullong;
+typedef unsigned long ulong;
+
+typedef ulong sample_t;
+
+//==============
+#define proc_file_size 4096
+
+typedef struct proc_file {
+    char *name;
+    int gen;
+    char *file;
+} proc_file;
+
+proc_file proc_stat = { "/proc/stat", -1 };
+proc_file proc_net_dev = { "/proc/net/dev", -1 };
+proc_file proc_meminfo = { "/proc/meminfo", -1 };
+proc_file proc_diskstats = { "/proc/diskstats", -1 };
+struct timeval tv;
+int gen=-1;
+int is26=0;
+
+//==============
+#if 0
+#include <stdio.h>
+void dprintf(const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    vprintf(fmt, ap);
+    va_end(ap);
+}
+#else
+extern void dprintf(const char *fmt, ...) {}
+#endif
+
+//==============
+char outbuf[4096];
+char *cur_outbuf = outbuf;
+
+extern inline void reset_outbuf() {
+    cur_outbuf = outbuf;
+}
+
+extern inline int outbuf_count() {
+    return cur_outbuf-outbuf;
+}
+
+extern inline void print_outbuf() {
+    if(cur_outbuf>outbuf) {
+	write(1, outbuf, cur_outbuf-outbuf);
+	cur_outbuf = outbuf;
+    }
+}
+
+void put(const char *s) {
+    int sz = strlen(s);
+    if(sz > (outbuf+sizeof(outbuf))-cur_outbuf)
+	sz = (outbuf+sizeof(outbuf))-cur_outbuf;
+    memcpy(cur_outbuf, s, sz);
+    cur_outbuf += sz;
+}
+
+void put_c(char c) {
+    if(cur_outbuf < outbuf+sizeof(outbuf))
+	*cur_outbuf++ = c;
+}
+
+//==============
+char* simple_itoa(char *s, int sz, unsigned long v, int pad) {
+//==============
+    s += sz;
+    *--s = '\0';
+    while (--sz > 0) {
+        *--s = "0123456789"[v%10];
+        pad--;
+        v /= 10;
+        if(!v && pad<=0) break;
+    }
+    return s;
+}
+
+//==============
+int readfile_z(char *buf, int sz, const char* fname) {
+//==============
+    int fd;
+    fd=open(fname,O_RDONLY);
+    if(fd<0) return 1;
+    sz = read(fd,buf,sz-1);
+    close(fd);
+    if(sz<0) {
+	buf[0]='\0';
+	return 1;
+    }
+    buf[sz]='\0';
+    return 0;
+}
+
+//==============
+int rdval(const char* p, const char* key, sample_t *vec, ...) {
+//==============
+    va_list arg_ptr;
+    int indexline;
+    int indexnext;
+
+    p = strstr(p,key);
+    if(!p) return 1;
+	
+    p += strlen(key);
+    va_start(arg_ptr, vec);
+    indexline = 1;
+    indexnext = va_arg(arg_ptr, int);
+    while(1) {
+    	while(*p==' ' || *p=='\t') p++;
+	if(*p=='\n' || *p=='\0') break;
+
+        if(indexline == indexnext) { // read this value
+            *vec++ = strtoul(p, NULL, 10);
+            indexnext = va_arg(arg_ptr, int);
+        }
+    	while(*p > ' ') p++; // skip over value
+        indexline++;
+    }
+    va_end(arg_ptr);
+    return 0;
+}
+
+//==============
+int rdval_diskstats(const char* p, sample_t *vec) {
+//   1    2 3   4     5     6(rd)  7      8     9     10(wr) 11      12 13    14
+//   3    0 hda 51292 14441 841783 926052 25717 79650 843256 3029804 0 148459 3956933
+//   3    1 hda1 0 0 0 0 <- ignore if only 4 fields
+//==============
+    sample_t rd;
+    int indexline = 0;
+    vec[0] = 0;
+    vec[1] = 0;
+    while(1) {
+        indexline++;
+        while(*p==' ' || *p=='\t') p++;
+        if(*p=='\0') break;
+        if(*p=='\n') {
+            indexline = 0;
+	    p++;
+            continue;
+        }
+        if(indexline == 6) {
+            rd = strtoul(p, NULL, 10);
+        } else
+        if(indexline == 10) {
+            vec[0] += rd;  // TODO: *sectorsize (don't know how to find out sectorsize)
+            vec[1] += strtoul(p, NULL, 10);
+    	    while(*p!='\n' && *p!='\0') p++;
+	    continue;
+        }
+        while(*p > ' ') p++; // skip over value
+    }
+    return 0;
+}
+
+//==============
+void scale(sample_t ul) {
+//==============
+    char buf[5];
+    int index = 0;
+    ul *= 10;
+    if(ul>9999*10) { // do not scale if 9999 or less
+	while(ul >= 10000) {
+	    ul /= 1024;
+	    index++;
+	}
+    }
+
+    if(!index) {/* use 1234 format */
+	buf[0] = " 123456789"[ul/10000];
+	if(buf[0]== ' ') buf[1] = " 123456789"[ul/1000%10];
+	            else buf[1] = "0123456789"[ul/1000%10];
+	if(buf[1]== ' ') buf[2] = " 123456789"[ul/100%10];
+                    else buf[2] = "0123456789"[ul/100%10];
+	buf[3] = "0123456789"[ul/10%10];
+    } else if(ul>=100) { /* use 123k format */
+	if( (buf[0]= " 123456789"[ul/1000]) == ' ')
+	    buf[1] = " 123456789"[ul/100%10];
+	else
+	    buf[1] = "0123456789"[ul/100%10];
+	buf[2] = "0123456789"[ul/10%10];
+	buf[3] = " kMGTEP"[index];
+    } else { /* use 1.2M format */
+	buf[0] = "0123456789"[ul/10];
+	buf[1] = '.';
+	buf[2] = "0123456789"[ul%10];
+	buf[3] = " kMGTEP"[index];
+    }
+    buf[4] = 0;
+    put(buf);
+}
+
+//==============
+const char* prepare(proc_file *pf) {
+    if(!pf->file) pf->file = (char*)malloc(proc_file_size);
+    if(pf->gen != gen) {
+	pf->gen = gen;
+	readfile_z(pf->file, proc_file_size, pf->name);
+    }
+    return pf->file;
+}
+
+//==============
+#define S_STAT(a) \
+typedef struct a { \
+    struct s_stat *next; \
+    int (*collect)(struct a *s); \
+    const char *label; \
+    int width;
+
+S_STAT(s_stat)
+} s_stat;
+
+#define MALLOC_STAT(type,var) type *var = (type*)malloc(sizeof(type))
+
+//==============
+S_STAT(cpu_stat)
+    sample_t old[4];
+    int bar_sz;
+    char *bar;
+} cpu_stat;
+
+//==============
+int collect_cpu(cpu_stat *s) {
+//==============
+    sample_t data[4];
+    sample_t frac[4];
+    sample_t all = 0;
+    int norm_all = 0;
+    int bar_sz = s->bar_sz;
+    char *bar = s->bar;
+    int i;
+
+    if(rdval(prepare(&proc_stat), "cpu ", data, 1, 2, 3, 4))
+	return 1;
+    
+    put_c('[');
+
+//dprintf("data1:");
+    for(i=0; i<4; i++) {
+	sample_t old = s->old[i];
+	if(data[i] < old) old = data[i];	//sanitize
+        s->old[i] = data[i];
+        all += (data[i] -= old);
+//dprintf(" %lu",data[i]);
+    }
+//dprintf(" all %lu\n",all);
+
+    if(all) {
+//dprintf("data2:");
+	for(i=0; i<4; i++) {
+	    ullong t = bar_sz*(ullong)data[i];
+	    norm_all += data[i] = t / all;
+	    frac[i] = t % all;
+//dprintf(" %lu/%lu",data[i],frac[i]);
+	}
+//dprintf(" norm_all %lu\n",norm_all);
+    
+	while(norm_all<bar_sz) {
+	    sample_t max=frac[0]; int pos=0;
+	    //for(i=1; i<4; i++) if(frac[i]>=max) max=frac[i], pos=i;
+	    if(frac[1]>=max) max=frac[1], pos=1;
+	    if(frac[2]>=max) max=frac[2], pos=2;
+	    if(frac[3]>=max) max=frac[3], pos=3;
+	    frac[pos]=0;	//avoid bumping same value twice
+	    data[pos]++;
+//dprintf("bumped %i\n",pos);
+	    norm_all++;
+        }
+    
+//dprintf("bar_sz %i\n",bar_sz);
+//dprintf("sys %i\n",data[2]);
+//dprintf("usr %i\n",data[0]);
+//dprintf("nice %i\n",data[1]);
+	memset(bar,'.',bar_sz);
+	memset(bar,'S',data[2]); bar+=data[2]; //sys
+	memset(bar,'U',data[0]); bar+=data[0]; //usr
+	memset(bar,'N',data[1]); bar+=data[1]; //nice
+    } else {
+	memset(bar,'?',bar_sz);
+    }
+    put(s->bar);
+    put_c(']');
+    return 0;
+}
+
+//==============
+s_stat* init_cpu(const char *param) {
+//==============
+    int sz;
+    MALLOC_STAT(cpu_stat,s);
+    s->collect = collect_cpu;
+    s->label = "cpu ";
+    s->width = 4;
+
+    sz = strtol(param, NULL, 0);
+    if(sz<10) sz=10;
+    if(sz>1000) sz=1000;
+
+    s->bar = (char*)malloc(sz+1);
+    s->bar[sz]=0;
+    s->bar_sz = sz;
+    s->width = sz+2;
+    return (s_stat*)s;
+}
+
+//==============
+S_STAT(int_stat)
+    sample_t old;
+    int no;
+    char numlabel[6];
+} int_stat;
+
+//==============
+int collect_int(int_stat *s) {
+//==============
+    sample_t data[1];
+
+    if(rdval(prepare(&proc_stat), "intr", data, s->no))
+	return 1;
+
+    sample_t old = s->old;
+    if(data[0] < old) old = data[0];	//sanitize
+    s->old = data[0];
+    scale(data[0] - old);
+    return 0;
+}
+
+//==============
+s_stat* init_int(const char *param) {
+//==============
+    MALLOC_STAT(int_stat,s);
+    s->collect = collect_int;
+    s->width = 4;
+    if(param[0]=='\0') {
+	s->no = 1;
+	s->label = "int ";
+    } else {
+	int n = strtoul(param, NULL, 0);
+	s->no = n+2;
+	s->label = s->numlabel;
+	s->numlabel[0]='i';
+	s->numlabel[1]='n';
+	s->numlabel[2]='t';
+	s->numlabel[3]=(n<=9 ? '0'+n : n+('A'-10));
+	s->numlabel[4]=' ';
+	s->numlabel[5]='\0';
+    }
+    return (s_stat*)s;
+}
+
+//==============
+S_STAT(ctx_stat)
+    sample_t old;
+} ctx_stat;
+
+//==============
+int collect_ctx(ctx_stat *s) {
+//==============
+    sample_t data[1];
+
+    if(rdval(prepare(&proc_stat), "ctxt", data, 1))
+	return 1;
+
+    sample_t old = s->old;
+    if(data[0] < old) old = data[0];	//sanitize
+    s->old = data[0];
+    scale(data[0] - old);
+    return 0;
+}
+
+//==============
+s_stat* init_ctx(const char *param) {
+//==============
+    MALLOC_STAT(ctx_stat,s);
+    s->collect = collect_ctx;
+    s->label = "ctx ";
+    s->width = 4;
+    return (s_stat*)s;
+}
+
+//==============
+S_STAT(blk_stat)
+    const char* lookfor;
+    sample_t old[2];
+} blk_stat;
+
+//==============
+int collect_blk24(blk_stat *s) {
+//==============
+    sample_t data[2];
+    int i;
+    if(rdval(prepare(&proc_stat), s->lookfor, data, 1, 2))
+    	return 1;
+
+    for(i=0; i<2; i++) {
+	sample_t old = s->old[i];
+	if(data[i] < old) old = data[i];	//sanitize
+	s->old[i] = data[i];
+	data[i] -= old;
+    }
+    scale(data[0]*1024);
+    put_c(' ');
+    scale(data[1]*1024);
+    return 0;
+}
+
+//==============
+int collect_blk26(blk_stat *s) {
+//==============
+    sample_t data[2];
+    int i;
+    if(rdval_diskstats(prepare(&proc_diskstats), data))
+	return 1;
+
+    for(i=0; i<2; i++) {
+	sample_t old = s->old[i];
+	if(data[i] < old) old = data[i];	//sanitize
+	s->old[i] = data[i];
+	data[i] -= old;
+    }
+    scale(data[0]*512);
+    put_c(' ');
+    scale(data[1]*512);
+    return 0;
+}
+
+//==============
+int collect_blk(blk_stat *s) {
+//==============
+    if(is26) return collect_blk26(s);
+    return collect_blk24(s);
+}
+
+//==============
+s_stat* init_blk(const char *param) {
+//==============
+    MALLOC_STAT(blk_stat,s);
+    s->collect = collect_blk;
+    if(param[0]=='s') {
+	s->label = "sio ";
+	s->lookfor = "swap";
+    } else {
+	s->label = "bio ";
+	s->lookfor = "page";
+    }
+    s->width = 9;
+    return (s_stat*)s;
+}
+
+//==============
+S_STAT(fork_stat)
+    sample_t old;
+} fork_stat;
+
+//==============
+int collect_fork(fork_stat *s) {
+//==============
+    sample_t data[1];
+
+    if(rdval(prepare(&proc_stat), "processes", data, 1))
+	return 1;
+
+    sample_t old = s->old;
+    if(data[0] < old) old = data[0];	//sanitize
+    s->old = data[0];
+    scale(data[0] - old);
+    return 0;
+}
+
+//==============
+s_stat* init_fork(const char *param) {
+//==============
+    MALLOC_STAT(fork_stat,s);
+    s->collect = collect_fork;
+    s->label = "fork";  // no trailing space: there usually <1000 forks,
+    s->width = 4;       // we trade usual "fork    3" for rare "fork1234"
+    return (s_stat*)s;
+}
+
+//==============
+S_STAT(if_stat)
+    sample_t old[4];
+    const char *device;
+    char *device_colon;
+} if_stat;
+
+//==============
+int collect_if(if_stat *s) {
+//==============
+    sample_t data[4];
+    int i;
+
+    if(rdval(prepare(&proc_net_dev), s->device_colon, data, 1, 3, 9, 11))
+	return 1;
+
+    //dprintf("data1:");
+    for(i=0; i<4; i++) {
+	sample_t old = s->old[i];
+	if(data[i] < old) old = data[i];	//sanitize
+        s->old[i] = data[i];
+        data[i] -= old;
+	//dprintf(" %lu",data[i]);
+    }
+    //dprintf("\n");
+    
+    put_c(data[1] ? '*' : ' ');
+    scale(data[0]);
+    put_c(data[3] ? '*' : ' ');
+    scale(data[2]);
+    return 0;
+}
+
+//==============
+s_stat* init_if(const char *device) {
+//==============
+    MALLOC_STAT(if_stat,s);
+    s->collect = collect_if;
+    s->label = device;
+    s->width = 10;
+    
+    s->device = device;
+    s->device_colon = (char*)malloc(strlen(device)+2);
+    strcpy(s->device_colon,device);
+    strcat(s->device_colon,":");
+    return (s_stat*)s;
+}
+
+//==============
+S_STAT(mem_stat)
+    char opt;
+} mem_stat;
+
+//==============
+int collect_mem(mem_stat *s) {
+//==============
+//        total:    used:    free:  shared: buffers:  cached:
+//Mem:  29306880 21946368  7360512        0  2101248 11956224
+//Swap: 100655104 10207232 90447872
+//MemTotal:        28620 kB
+//MemFree:          7188 kB
+//MemShared:           0 kB  <-- ?
+//Buffers:          2052 kB
+//Cached:           9080 kB
+//SwapCached:       2596 kB  <-- ?
+
+    // Not available in 2.6:
+    //if(rdval(prepare(&proc_meminfo), "Mem:", data, 1, 2, 5, 6))
+    //    return 1;
+    sample_t m_total;
+    sample_t m_free;
+    sample_t m_bufs;
+    sample_t m_cached;
+    if(rdval(prepare(&proc_meminfo), "MemTotal:", &m_total , 1)) return 1;
+    if(rdval(prepare(&proc_meminfo), "MemFree:",  &m_free  , 1)) return 1;
+    if(rdval(prepare(&proc_meminfo), "Buffers:",  &m_bufs  , 1)) return 1;
+    if(rdval(prepare(&proc_meminfo), "Cached:",   &m_cached, 1)) return 1;
+    switch(s->opt) {
+    case 'f':
+        scale((m_free + m_bufs + m_cached)<<10); break;
+    case 't':
+        scale(m_total<<10); break;
+    default:
+        scale((m_total - m_free - m_bufs - m_cached)<<10); break;
+    }
+    return 0;
+}
+
+//==============
+s_stat* init_mem(const char *param) {
+//==============
+    MALLOC_STAT(mem_stat,s);
+    s->collect = collect_mem;
+    s->width = 4;
+    s->opt=param[0];
+    switch(param[0]) {
+    case 'f':
+	s->label = "free "; break;
+    case 't':
+	s->label = "tot "; break;
+    default:
+	s->label = "mem "; break;
+    }
+    return (s_stat*)s;
+}
+
+//==============
+S_STAT(swp_stat)
+} swp_stat;
+
+//==============
+int collect_swp(swp_stat *s) {
+//==============
+    sample_t data[1];
+    if(rdval(prepare(&proc_meminfo), "Swap:", data, 2))
+	return 1;
+	
+    scale(data[0]);
+    return 0;
+}
+
+//==============
+s_stat* init_swp(const char *param) {
+//==============
+    MALLOC_STAT(swp_stat,s);
+    s->collect = collect_swp;
+    s->label = "swp ";
+    s->width = 4;
+    return (s_stat*)s;
+}
+
+//==============
+S_STAT(fd_stat)
+} fd_stat;
+
+//==============
+int collect_fd(fd_stat *s) {
+//==============
+    char file[4096];
+    sample_t data[2];
+
+    readfile_z(file, sizeof(file), "/proc/sys/fs/file-nr");
+    if(rdval(file, "", data, 1, 2))
+	return 1;
+
+    scale(data[0]-data[1]);
+    return 0;
+}
+
+//==============
+s_stat* init_fd(const char *param) {
+//==============
+    MALLOC_STAT(fd_stat,s);
+    s->collect = collect_fd;
+    s->label = "fd ";
+    s->width = 4;
+    return (s_stat*)s;
+}
+
+//==============
+S_STAT(time_stat)
+    int prec;
+    int scale;
+} time_stat;
+
+//==============
+int collect_time(time_stat *s) {
+//==============
+    char buf[16];	// 12:34:56.123456<eol>
+			// 1234567890123456
+    simple_itoa(buf, 3, tv.tv_sec/(60*60)%24, 2);
+    buf[2] = ':';
+    simple_itoa(buf+3, 3, tv.tv_sec/60%60, 2);
+    buf[5] = ':';
+    simple_itoa(buf+6, 3, tv.tv_sec%60, 2);
+    
+    if(s->prec) {
+	buf[8] = '.';
+	//simple_itoa(buf+9, s->prec+1, (tv.tv_usec + s->scale/2) / s->scale, s->prec);
+	// (fixme: round up seconds too!)
+	// so... rounding omitted! just use more prec if you need it! ;)
+	simple_itoa(buf+9, s->prec+1, tv.tv_usec / s->scale, s->prec);
+    }
+    put(buf);
+    return 0;
+}
+
+//==============
+s_stat* init_time(const char *param) {
+//==============
+    int prec;
+    MALLOC_STAT(time_stat,s);
+    s->collect = collect_time;
+    s->label = "";
+    prec = param[0]-'0';
+    if(prec<0) prec = 0;
+    else if(prec>6) prec = 6;
+    s->width = 8+prec + (prec!=0);
+    s->prec = prec;
+    s->scale = 1;
+    while(prec++ < 6)
+	s->scale *= 10;
+    return (s_stat*)s;
+}
+
+//==============
+S_STAT(extern_stat)
+    int ifd,ofd;
+    char *buf;
+    char *cur;
+} extern_stat;
+
+#define WIDTH
+
+//==============
+int collect_extern(extern_stat *s) {
+//==============
+    int sz;
+    char *p;
+    int buffered = s->cur - s->buf;
+    
+    s->buf[40] = 0;
+    p = strchr(s->buf,'\n');
+    if(!p || p > s->cur) {
+	do {
+	    sz = read(s->ofd,s->cur,40 - buffered);
+	    if(sz<0) exit(1);
+	    buffered += sz;
+	    p = strchr(s->cur,'\n');
+	    s->cur = s->buf+buffered;
+	    if(p > s->cur) p=0;
+	} while(!p && buffered<40);
+	if(!p) p=s->buf+40;
+    }
+    
+    *p++ = 0;
+    put(s->buf);
+    s->cur = s->buf;
+    while(p < s->buf+buffered) {
+	put_c('=');
+	*s->cur++ = *p++;
+    }
+    while(p <= s->buf+40) {
+	put_c('='); p++;
+    }
+    return 0;
+}
+
+//#include <stdio.h>
+
+void myexec(void *param) {
+    char **argv = (char **)param;
+    execv(argv[0], argv);
+}
+
+int start_child(int *i,int *o,void (*f)(void*),void *param) {
+    int pid;
+//printf("execv(%s, argv);\n",((char**)param)[0]);
+    {
+	int in[2];
+	int out[2];
+	pipe(in);
+	pipe(out);
+	pid = fork();
+	switch(pid) {
+	case -1: /* error */
+	    return -1;
+	case 0: /* child */
+	    dup2(in[0],0); close(in[0]); close(in[1]);
+	    dup2(out[1],1); close(out[0]); close(out[1]);
+	    f(param);
+	    exit(1);
+	default: /* parent */
+	    close(in[0]);
+	    if(i) *i=in[1]; else close(in[1]);
+	    if(o) *o=out[0]; else close(out[0]);
+	    close(out[1]); 
+	    return pid;
+	}
+    }
+}
+
+//==============
+s_stat* init_extern(const char *param) {
+//==============
+    int pid;
+    char *argv[] = { (char*)param, 0 };
+    MALLOC_STAT(extern_stat,s);
+    s->collect = collect_extern;
+    s->label = "extern ";
+    s->width = 40;
+    s->buf = (char*)malloc(41);
+    s->cur = s->buf;
+    pid = start_child(&s->ifd, &s->ofd, myexec, argv);
+    if(pid<0) exit(1);
+//printf("pid,i,o=%d %d %d\n",pid,s->ifd,s->ofd);
+    return (s_stat*)s;
+}
+
+//==============
+char *header;
+//==============
+void build_n_put_hdr(s_stat *s) {
+//==============
+    while(s) {
+	int l = 0;
+        if(s->label[0]!=' ') {
+    	    put(s->label);
+	    l = strlen(s->label);
+	}
+	while(l <= s->width) {
+	    put_c(' ');	
+	    l++;
+	}
+        s = s->next;
+    }
+    put_c('\n');
+
+    header = (char*)malloc(outbuf_count()+1);
+    memcpy(header, outbuf, outbuf_count());
+    header[outbuf_count()] = '\0';
+    //print_outbuf();
+}
+
+//==============
+void put_hdr(s_stat *s) {
+//==============
+    if(!header) build_n_put_hdr(s);
+    else {
+	put(header);
+	//print_outbuf();
+    }
+}
+
+//==============
+void run_once(s_stat *s, int without_headers) {
+//==============
+    gen++;
+    int first = 1;
+    while(s) {
+	if(s->label[0]!=' ') {		// "[prev ][LABEL]data
+	    if(!first) put_c(DELIM_CHAR);
+    	    if(!without_headers) put(s->label);
+	} else {			// "prevLABELdata
+	    put(s->label+1);
+	}
+        if(s->collect(s)) {
+	    int w = s->width;
+	    while(w-- > 0)
+		put_c('?');
+	}
+        s = s->next;
+	first = 0;
+    }
+}
+
+//==============
+typedef s_stat* init_func(const char *param);
+
+const char options[] = "ncmsfixptbe";
+init_func* init_functions[] = {
+    init_if,  
+    init_cpu, 
+    init_mem, 
+    init_swp, 
+    init_fd,  
+    init_int, 
+    init_ctx, 
+    init_fork,
+    init_time,
+    init_blk,
+    init_extern,
+};
+
+//==============
+int main(int argc, char* argv[]) {
+//==============
+    struct timezone tz;
+    s_stat *first = 0;
+    s_stat *last = 0;
+    s_stat *s;
+    int delta = 1000000;
+    int deltanz = 1000000;
+    int print_headers = 0;
+    char *final_str = "\n";
+    char *p;
+    int fd;
+    int i;
+    
+    if(argc==1) {
+	put(
+	"nmeter " VERSION_STR " allows you to monitor your system in real time" NL
+	NL
+	"Options:" NL
+	"c[N]	monitor CPU. N - bar size, default 10" NL
+	"nIFACE	monitor network interface IFACE" NL
+	"m[f/t]	monitor allocated/free/total memory" NL
+	"s	monitor allocated swap" NL
+	"f	monitor number of used filedescriptors" NL
+	"i[NN]	monitor total/specific IRQ rate" NL
+	"x	monitor context switch rate" NL
+	"p	monitor process creation rate" NL
+	"b[s]	monitor block io (swap io)" NL
+	"t[N]	show time (with N decimal points)" NL
+	"d[N]	milliseconds between updates. Default 1000" NL
+	"h[N]	print headers above numbers (each N lines, default once)" NL
+	"lLABEL	specify label for previous item" NL
+	"LLABEL	same + label will be printed without surrounding blanks" NL
+	"r	print <cr> instead of <lf> at EOL. Try it ;)" NL
+	);
+	print_outbuf();
+	return 0;
+    }
+
+    fd = open("/proc/version",O_RDONLY);
+    if(fd>=0) {
+	char buf[32];
+	if(0<read(fd,buf,sizeof(buf)))
+	    is26 = (strstr(buf,"Linux version 2.6.")!=NULL);
+	close(fd);
+    }
+    for(i=1; i<argc; i++) {
+	p = strchr(options,argv[i][0]);
+	if(p) {
+	    s = init_functions[p-options](argv[i]+1);
+	    if(s) {
+		s->next = 0;
+		if(!first)
+		    first = s;
+		else
+		    last->next = s;
+		last = s;
+	    }
+	}
+
+// You have to see it... gcc 3.2 coded switch() as 40 element jump table
+// OH NO! >>>:^O
+/*
+#define SW(a) switch(a) {
+#define ENDSW }
+#define CASE(a,b) case (b): {
+#define ENDCASE }
+*/
+#define SW(a) do {
+#define ENDSW } while(0);
+#define CASE(a,b) if((a)==(b)) {
+#define ENDCASE }
+	SW(argv[i][0])
+	CASE(argv[i][0],'r')
+	    final_str = "\r";
+	    break;
+	ENDCASE
+	CASE(argv[i][0],'d')
+	    delta = strtol(argv[i]+1, NULL, 0)*1000;
+	    deltanz = delta>0? delta : 1;
+	    break;
+	ENDCASE
+	CASE(argv[i][0],'h')
+	    if(argv[i][1]=='\0')
+		print_headers = -1;
+	    else
+		print_headers = strtol(argv[i]+1, NULL, 0);
+	    break;
+	ENDCASE
+	CASE(argv[i][0],'l')
+	    if(last)
+		last->label=argv[i]+1;
+	    break;
+	ENDCASE
+	CASE(argv[i][0],'L')
+	    if(last) {
+		argv[i][0]=' ';
+		last->label=argv[i];
+	    }
+	    break;
+	ENDCASE
+	ENDSW
+    }
+	
+    if(print_headers == -1) {
+	build_n_put_hdr(first);
+	print_outbuf();
+    }
+    run_once(first, print_headers);
+    reset_outbuf();
+    if(delta>=0) {
+	//gettimeofday(&tv,0);
+	gettimeofday(&tv,&tz); //
+	usleep(delta>1000000 ? 1000000 : delta-tv.tv_usec%deltanz);
+    }
+    while(1) {
+	gettimeofday(&tv,&tz);
+        tv.tv_sec -= tz.tz_minuteswest*60;
+
+	if(print_headers > 0 && gen%print_headers == 0)
+	    put_hdr(first);
+	run_once(first, print_headers);
+	put(final_str);
+	print_outbuf();
+
+	// Negative delta -> no usleep at all
+	// This will hog the CPU but you can have REALLY GOOD
+	// time resolution ;)
+	// TODO: detect and avoid useless updates
+	// (like: nothing happens except time)
+        if(delta>=0) {
+	    int rem = delta - ((ullong)tv.tv_sec*1000000+tv.tv_usec)%deltanz;
+	    // Sometimes kernel wakes us up just a tiny bit earlier than asked
+	    // Do not go to very short sleep in this case
+	    if(rem < delta/128) {
+		rem += delta;
+	    }
+	    usleep(rem);
+	}
+    }
+
+    return 0;
+}
+
+--Boundary-00=_jBefBqwjH2l4luc--
+

@@ -1,105 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135170AbQL3UxC>; Sat, 30 Dec 2000 15:53:02 -0500
+	id <S135476AbQL3UxM>; Sat, 30 Dec 2000 15:53:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135489AbQL3Uwx>; Sat, 30 Dec 2000 15:52:53 -0500
-Received: from paloma12.e0k.nbg-hannover.de ([62.159.219.12]:3019 "HELO
-	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S135170AbQL3Uwe>; Sat, 30 Dec 2000 15:52:34 -0500
-From: Dieter Nützel <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: "Linux Kernel List" <linux-kernel@vger.kernel.org>
-Subject: Re: test13-pre6 weird with tdfx.o
-Date: Sat, 30 Dec 2000 21:24:12 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Cc: "Frank Jacobberger" <f1j@xmission.com>, "J Sloan" <jjs@pobox.com>,
-        "Rik Faith" <faith@valinux.com>,
-        "Dri-devel" <Dri-devel@lists.sourceforge.net>
+	id <S135537AbQL3UxD>; Sat, 30 Dec 2000 15:53:03 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:34059 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135476AbQL3Uwv>; Sat, 30 Dec 2000 15:52:51 -0500
+Date: Sat, 30 Dec 2000 12:21:50 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Generic deferred file writing
+In-Reply-To: <Pine.GSO.4.21.0012301503290.4082-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.10.10012301214210.1017-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Message-Id: <00123021241200.05112@SunWave1>
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> J Sloan wrote:
->
-> > Frank Jacobberger wrote:
-> >
-> > > This is a first for tdfx.o not loading with XFree 4.01.
-> > >
-> > > All prior kernel build through test13-pre5 would load just fine...
-> > >
-> > > Strange...
-> >
-> > Very strange - others on this list, self included,
-> > have reported something a bit different:
-> >
-> > tdfx.o has not loaded in any kernel since -test12.
 
-It haven't loaded since test13-pre1 for me.
-Only the 'module version' was broken.
-Last test12-pre7 was fine, here.
-It was introduced with the Makefile cleanups.
 
-[snip]
-> Hi,
->
-> This is lets it load.   The same missing symbols happen with mga as well... 
-> This is from a patch posted here two weeks ago:
->
-> --- linux/drivers/char/drm/drmP.old        Thu Dec 28 16:27:34 2000
-> +++ linux/drivers/char/drm/drmP.h        Sat Dec 23 13:57:08 2000
-> @@ -40,6 +40,7 @@
->  #include <asm/current.h>
->  #endif /* __alpha__ */
->  #include <linux/config.h>
-> +#include <linux/modversions.h>
->  #include <linux/module.h>
->  #include <linux/kernel.h>
->  #include <linux/miscdevice.h>
+On Sat, 30 Dec 2000, Alexander Viro wrote:
 > 
-> Not sure if this is more than a temporay fix though.
->
-> Ed Tomlins
-[snip]
+> Except that we've got file-expanding writes outside of ->i_sem. Thanks, but
+> no thanks.
 
-I think this patch is very fine.
-It works here without a hitch.
-Rik?
+No, Al, the file size is still updated inside i_sem.
 
-> > The makefile changes have broken it.
-> >
-> > Are you certain tdfx.o loads for you in prior -test13
-> > versions? If so, that would be a most disturbing
-> > development...
-> >
-> > jjs
->
-> Yes your right... I just haven't noticed... Why doesn't someone fix it?
->
-> Frank
+Yes, it will do actual block allocation outside i_sem, but that is already
+true of any mmap'ed writes, and has been true for a long long time. So if
+we have a bug here (and I don't think we have one), it's not something
+new. But the inode semaphore doesn't protect the balloc() data structures
+anyway, as they are filesystem-global.
 
-I am involved a little bit into the DRI development and I think it is because 
-all the DRI guys (VA Linux) especially Rik Faith are out for vacation...:-)
+If you're nervous about the effects of "truncate()", then that should be
+handled properly by truncate_inode_pages().
 
-Happy New Year!
+In short, I don't see _those_ kinds of issues. I do see error reporting as
+a major issue, though. If we need to do proper low-level block allocation
+in order to get correct ENOSPC handling, then the win from doing deferred
+writes is not very big.
 
--Dieter
+		Linus
 
--- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-Cognitive Systems Group
-Vogt-Kölln-Straße 30
-D-22527 Hamburg, Germany
-
-email: nuetzel@kogs.informatik.uni-hamburg.de
-@home: Dieter.Nuetzel@hamburg.de
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

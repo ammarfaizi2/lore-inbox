@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265985AbTGDKyK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 06:54:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265986AbTGDKyK
+	id S265974AbTGDKvi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 06:51:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265975AbTGDKvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 06:54:10 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:33783 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S265985AbTGDKyI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 06:54:08 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 4 Jul 2003 13:08:32 +0200 (MEST)
-Message-Id: <UTC200307041108.h64B8WE00112.aeb@smtp.cwi.nl>
-To: hch@infradead.org, jari.ruusu@pp.inet.fi
-Subject: Re: [PATCH] cryptoloop
-Cc: Andries.Brouwer@cwi.nl, akpm@digeo.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
+	Fri, 4 Jul 2003 06:51:38 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:42503 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S265974AbTGDKvh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 06:51:37 -0400
+Message-ID: <3F05610C.4050202@aitel.hist.no>
+Date: Fri, 04 Jul 2003 13:12:12 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.74-mm1 fails to boot due to APIC trouble, 2.5.73mm3 works.
+References: <20030703023714.55d13934.akpm@osdl.org> <3F054109.2050100@aitel.hist.no> <20030704093531.GA26348@holomorphy.com> <20030704095004.GB26348@holomorphy.com> <20030704100217.GC26348@holomorphy.com> <20030704100749.GD26348@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hch to jari:
-
-> So get your code merged. Moaning about breaking out of tree code beeing
-> broken by changes when an in-kernel alternative eists doesn't help.
->
-> Either try to help improving what's in the tree or shut up.
+I applied both of your recent patches, and the patched
+2.5.74-mm1 kernel came up fine. :-)
 
 
-Oh, Christoph - can't you just be a tiny bit more civil.
-
-Here is an ungoing process of merging crypto/loop code.
-You are perfectly aware of that - you complained about
-every single stage - the rfc patch at the start was
-too large, the whitespace in the next patch was distributed
-incorrectly, also the third part had terrible bugs - I forget,
-maybe there was a superfluous #include.
-
-Now that you are very aware of this ongoing effort
-of merging the loop stuff that so far lived as separate
-patches outside the kernel tree, how can you say
-"get your code merged"? That is precisely what we are
-doing right now. Slowly. Step by step.
+ENABLING IO-APIC IRQs
+Setting 2 in the phys_id_present_map
+...changing IO-APIC physical APIC ID to 2 ... ok.
+init IO_APIC IRQs
+  IO-APIC (apicid-pin) 2-0, 2-5, 2-9, 2-11, 2-17, 2-19 not connected.
+..TIMER: vector=0x31 pin1=2 pin2=0
+number of MP IRQ sources: 22.
+number of IO-APIC #2 registers: 24.
+testing the IO APIC.......................
 
 
-Andrew on the other hand apparently didnt know, and commented
-on something that can be improved. Excellent. For this patch #3
-that comment was not relevant, but no doubt we must try and
-follow his good advice in some subsequent patch. Preferably
-without breaking existing user space.
+Helge Hafting
 
-
-Try to follow Andrew's example - nice, friendly, constructive.
-It is possible to be a good coder without being abusive.
-
-Andries

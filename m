@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129475AbQK2CtX>; Tue, 28 Nov 2000 21:49:23 -0500
+        id <S129257AbQK2CzY>; Tue, 28 Nov 2000 21:55:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129552AbQK2CtO>; Tue, 28 Nov 2000 21:49:14 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:13841
-        "EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-        id <S129475AbQK2CtD>; Tue, 28 Nov 2000 21:49:03 -0500
-Date: Tue, 28 Nov 2000 21:30:03 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test12-pre2
-Message-ID: <20001128213003.A3720@animx.eu.org>
-In-Reply-To: <Pine.LNX.4.10.10011271838080.15454-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <Pine.LNX.4.10.10011271838080.15454-100000@penguin.transmeta.com>; from Linus Torvalds on Mon, Nov 27, 2000 at 06:45:31PM -0800
+        id <S129340AbQK2CzO>; Tue, 28 Nov 2000 21:55:14 -0500
+Received: from pixar.pixar.com ([138.72.10.20]:8105 "EHLO pixar.pixar.com")
+        by vger.kernel.org with ESMTP id <S129257AbQK2CzE>;
+        Tue, 28 Nov 2000 21:55:04 -0500
+Date: Tue, 28 Nov 2000 18:24:58 -0800 (PST)
+From: Kiril Vidimce <vkire@pixar.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Dan Hollis <goemon@anime.net>,
+        Petter Sundlöf <odd@findus.dhs.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: XFree 4.0.1/NVIDIA 0.9-5/2.4.0-testX/11 woes [solved]
+In-Reply-To: <E140wft-0005Mx-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0011281822040.1353-100000@nevena.pixar.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  - pre2:
->     - Richard Henderson: PCI bridge initialization on alpha
+On Wed, 29 Nov 2000, Alan Cox wrote:
+> > On Tue, 28 Nov 2000, Dan Hollis wrote:
+> > > Dont forget the nvidia driver is completely SMP broken. As in, trash your
+> > > filesystems broken.
+> > 
+> > Not true. It works for us with no problems on a number of SMP boxes 
+> > running 2.2.{14,16}. I don't know about 2.4.x.
+> 
+> Dan is not the only one to report it totally trashing a machine and file systems
+> SMP. So I suspect there is something there , but I don't know what (or care).
+> I've seen other demos of bugs in the nv driver, long standing ones and
+> reading the mangled code you can see bugs even in their mangled code
+> without looking too hard.
 
-Doesn't boot on noritake alpha.
+I've never seen such thing as code without bugs. In my experience,
+the NVIDIA drivers are by far the most complete and solid 3D drivers 
+under Linux.
 
-It gets to POSIX conformance testing by UNIFIX
-and hard locks.  the halt switch doesn't even work.
+KV
+--
+  ___________________________________________________________________
+  Studio Tools                                        vkire@pixar.com
+  Pixar Animation Studios                        http://www.pixar.com/
 
-
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

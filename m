@@ -1,35 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262839AbTKCSvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 13:51:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbTKCSvI
+	id S262838AbTKCTL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 14:11:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbTKCTL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 13:51:08 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:13977 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262839AbTKCSvH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 13:51:07 -0500
-To: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: How provoke call stack trace
-References: <3FA6A0AF.2070300@softhome.net>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 03 Nov 2003 10:51:04 -0800
-In-Reply-To: <3FA6A0AF.2070300@softhome.net>
-Message-ID: <52y8uxthev.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	Mon, 3 Nov 2003 14:11:58 -0500
+Received: from [81.199.84.107] ([81.199.84.107]:27409 "HELO user.me")
+	by vger.kernel.org with SMTP id S262838AbTKCTL4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 14:11:56 -0500
+From: "Simon Oliver" <oli_sim@katamail.com>
+Subject: Hello
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 03 Nov 2003 18:51:05.0990 (UTC) FILETIME=[6FDB0260:01C3A23B]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Reply-To: oli_sim@katamail.com
+Date: Mon, 3 Nov 2003 20:11:52 +0100
+Message-Id: <S262838AbTKCTL4/20031103191156Z+26904@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Ihar> Is there any function which can be used by module to
-    Ihar> just investigate some given call path?
+Hello,
 
-Try dump_stack() (declared in <linux/kernel.h>).
+URGENT NEED.
 
- - Roland
+
+Warm greetings to you and your family.
+I am Simon Oliver, an Aide of Ex President 
+Charles Taylor. 
+
+As you may know he has recently stepped 
+down from power and is presently in asylum in
+Calabar.
+
+The purpose of my letter is to ask if you can 
+render the assistance requested and to bring 
+to bear my present position and the very need
+for true and solicited help with respect to 
+Ex President Taylor. 
+
+Your assistance is needed in the sense that
+some funds derived from Diamond sales during his 
+tenure needs to be transferred/moved from its 
+present location to a place or an account that 
+you may hopefully provide or arrange.
+
+The reason for this is that plans are underway 
+to confiscate not only his known fixed assets 
+but also liquid assets.
+
+I have been mandated to seek and find a relaible 
+person, based overseas, that is disposed in 
+helping to secure some or all of the funds in 
+question.
+
+If you are that person, do respond to this letter. 
+Otherwise no offence meant. 
+
+Sincerely yours,
+
+Simon Oliver.
+Alternative email: oli_sim@fsmail.net
+
+Please provide your telephone for immediate contact.
+

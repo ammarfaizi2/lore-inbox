@@ -1,80 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271932AbSISRYt>; Thu, 19 Sep 2002 13:24:49 -0400
+	id <S272108AbSISRmK>; Thu, 19 Sep 2002 13:42:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271977AbSISRYt>; Thu, 19 Sep 2002 13:24:49 -0400
-Received: from dsl093-058-082.blt1.dsl.speakeasy.net ([66.93.58.82]:61422 "EHLO
-	beohost.scyld.com") by vger.kernel.org with ESMTP
-	id <S271932AbSISRYp>; Thu, 19 Sep 2002 13:24:45 -0400
-Date: Thu, 19 Sep 2002 13:29:31 -0400 (EDT)
-From: Donald Becker <becker@scyld.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: netdev@oss.sgi.com, Jason Lunz <lunz@falooley.org>,
-       Richard Gooch <rgooch@ras.ucalgary.ca>,
-       "Patrick R. McManus" <mcmanus@ducksong.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <edward_peng@dlink.com.tw>
-Subject: Re: PATCH: sundance #2
-In-Reply-To: <3D8A056C.2000605@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.44.0209191316300.29420-100000@beohost.scyld.com>
+	id <S272116AbSISRmK>; Thu, 19 Sep 2002 13:42:10 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:43392 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S272108AbSISRmJ>;
+	Thu, 19 Sep 2002 13:42:09 -0400
+Date: Thu, 19 Sep 2002 10:48:30 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Jens Axboe <axboe@suse.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Anton Altaparmakov <aia21@cantab.net>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ide double init? + Re: BUG: Current 2.5-BK tree dies on boot!
+In-Reply-To: <20020919132724.GS31033@suse.de>
+Message-ID: <Pine.LNX.4.44.0209191041090.968-100000@cherise.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Sep 2002, Jeff Garzik wrote:
 
-> Thanks to Donald for his comments.  This patch addresses the first of 
-> his two emails.
+On Thu, 19 Sep 2002, Jens Axboe wrote:
+
+> On Thu, Sep 19 2002, Alan Cox wrote:
+> > On Thu, 2002-09-19 at 12:14, Jens Axboe wrote:
+> > > 2.5 is reorged big time it seems, pci_register_driver() ->
+> > > drier_attach() -> do_driver_attach() -> found_match() calls ->probe()
+> > > unconditionally...
+> > 
+> > That would appear to be a bug in the 2.5 driver layer then. I'd suggest
+> > fixing it there. Attempting to probe a device that already has a driver
+> > attached to it doesn't seem to make sense.
 > 
-> This patch is _cumulative_ with the last one I sent (sundance 1.04), so 
-> do not discard that one.
-> 
-> Again additional testing is appreciated.  Keep the feedback coming, 
-> there will be more sundance bugfixes (patch #3, #4, etc.)
+> Agree. Pat?
 
-+	- If no phy is found, fail to load that board
-+	- Always start phy id scan at id 1 to avoid problems (Donald Becker)
-+	- Autodetect where mii_preable_required is needed,
-+	default to not needed.  (Donald Becker)
-...
-+
-+/* Set iff a MII transceiver on any interface requires mdio preamble.
-+   This only set with older tranceivers, so the extra
-+   code size of a per-interface flag is not worthwhile. */
-+static int mii_preamble_required = 0;
+Yes, and that's the way it's set up: we check if the device has a driver 
+before we bind to it. However, dev->driver doesn't get set before the 
+device is registered with the core for PCI devices. That's fixed easily 
+enough. 
 
-You can get rid of this as a module option, and make it a per-interface
-setting. 
-The transceiver on the Kendin chip requires this (rather old-fashioned)
-access method, while none of the previous Sundance-based boards with
-external transceivers did.
-
-I added it as a module parameter as a back-up over-ride, but I'm certain
-that the automatic detection works.
-
-This is a module parameter because I recently had a bad experience
-with a specific 3Com 3c905B chip rev.  It claimed to not need
-transceiver preamble, but would not work without it.
-
-> 				Theory of Operation
-
-Whoever changed the transmit path should update the TOO.  
-
--	{"Sundance Technology Alta", {0x020113F0, 0xffffffff,},
--	 PCI_IOTYPE, 128, CanHaveMII},
-+	{"D-Link DFE-550TX FAST Ethernet Adapter"},
-+	{"D-Link DFE-550FX 100Mbps Fiber-optics Adapter"},
-
-Yeah, you should probably throw away the rest of the changes.
-You are probably going to want to keep the drv_flags field.  I know
-that all of the current chips have the same flag (CanHaveMII), but...
+But, I'm a bit confused on where this is happening. The PCI layer will 
+probe for devices before any drivers are registered. The drivers are 
+registered, then they're attached to devices that were already discovered. 
+So, how are they getting init'ed twice? 
 
 
-
--- 
-Donald Becker				becker@scyld.com
-Scyld Computing Corporation		http://www.scyld.com
-410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
-Annapolis MD 21403			410-990-9993
+	-pat
 

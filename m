@@ -1,85 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264103AbTDJQqy (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 12:46:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTDJQqy (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 12:46:54 -0400
-Received: from smtp.wesleyan.edu ([129.133.2.100]:38058 "EHLO
-	mail.wesleyan.edu") by vger.kernel.org with ESMTP id S264103AbTDJQqw (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 12:46:52 -0400
-Date: Thu, 10 Apr 2003 12:58:25 -0400 (EDT)
-From: "Eric R. Buddington" <ebuddington@wesleyan.edu>
+	id S264060AbTDJQvu (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 12:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTDJQvu (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 12:51:50 -0400
+Received: from tao.natur.cuni.cz ([195.113.56.1]:41487 "EHLO tao.natur.cuni.cz")
+	by vger.kernel.org with ESMTP id S264060AbTDJQvs (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 12:51:48 -0400
+X-Obalka-From: mmokrejs@natur.cuni.cz
+X-Obalka-To: <linux-kernel@vger.kernel.org>
+Date: Thu, 10 Apr 2003 19:03:28 +0200 (CEST)
+From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.67: Stack dumps in ide-scsi code
-Message-ID: <Pine.GSO.4.53.0304101254510.3749@facstaff.wesleyan.edu>
+Subject: 2.4.21-pre6 problem with 8139too Fast Ethernet driver 0.9.26
+Message-ID: <Pine.OSF.4.51.0304101852250.408246@tao.natur.cuni.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-ECS-MailScanner: Found to be clean
+Content-Type: TEXT/PLAIN; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux-2.5.67
-Asus A7S-VM motherboard with suspected problems (onboard USB, Ethernet
-  flaky)
-HP 200j CD/DVD writer
-Duron 950 processor
+Hi,
+  I'm observing sporadic problems with my onboard network card:
 
-While trying to burn a DVD-RW on my HP 200j, a got a rapid series of
-stack dumps. I think the initial dump was different, but scrolled
-out of the buffer.
+$ ping 195.113.56.1
+PING 195.113.56.1 (195.113.56.1): 56 octets data
+64 octets from 195.113.56.1: icmp_seq=0 ttl=42 time=1068.2 ms
+wrong data byte #0 should be 0x1c but was 0x1b1b b0 95 3e de 9 9 0
+        8 9 a b c d e f 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f 20 21 22
+23 24 25 26 27
+        28 29 2a 2b 2c 2d 2e 2f
+64 octets from 195.113.56.1: icmp_seq=1 ttl=42 time=72.7 ms
+64 octets from 195.113.56.1: icmp_seq=2 ttl=42 time=68.6 ms
+64 octets from 195.113.56.1: icmp_seq=3 ttl=42 time=68.3 ms
+64 octets from 195.113.56.1: icmp_seq=4 ttl=42 time=784.6 ms
+64 octets from 195.113.56.1: icmp_seq=5 ttl=42 time=688.8 ms
+64 octets from 195.113.56.1: icmp_seq=6 ttl=42 time=67.6 ms
 
-Two dumps below repeated (alternating) several times, until hdc (the
-DVD writer) was offlined.
-
-If the questionable motherboard makes this uninteresting, that's OK.
-I'll have a new MB soon, and re-submit if it still happens.
-
--Eric
-
----------------------------------------
-
-ide-scsi: reset called for 2292
-hdc: ATAPI reset complete
-ide-scsi: abort called for 2292
-Debug: sleeping function called from illegal context at
-include/asm/semaphore.h:
-119
-Call Trace:
- [<c011e7f7>] __might_sleep+0x53/0x68
- [<c0273d87>] scsi_sleep+0xc7/0xf4
- [<c0121fdd>] __call_console_drivers+0x51/0x58
- [<c0273cac>] scsi_sleep_done+0x0/0x14
- [<c0122651>] release_console_sem+0x101/0x270
- [<cfa9a9e9>] idescsi_abort+0x285/0x304 [ide_scsi]
- [<c0272c0d>] scsi_send_eh_cmnd+0x51d/0x60c
- [<cfa9abdb>] idescsi_reset+0x173/0x220 [ide_scsi]
- [<c02731a7>] scsi_eh_tur+0x83/0xe0
- [<c027359b>] scsi_eh_bus_device_reset+0xef/0x124
- [<c0274193>] scsi_eh_ready_devs+0x17/0x58
- [<c027446c>] scsi_unjam_host+0x1c8/0x2a4
- [<c02747be>] scsi_error_handler+0x276/0x2d8
- [<c0274548>] scsi_error_handler+0x0/0x2d8
- [<c0107179>] kernel_thread_helper+0x5/0xc
-
-bad: scheduling while atomic!
-Call Trace:
- [<c011c780>] schedule+0x640/0x648
- [<c0107e4f>] __down+0x11b/0x2ac
- [<c011c7dc>] default_wake_function+0x0/0x14
- [<c010a835>] dump_stack+0xd/0x10
- [<c010842f>] __down_failed+0xb/0x14
- [<c02749bf>] .text.lock.scsi_error+0x37/0x48
- [<c0121fdd>] __call_console_drivers+0x51/0x58
- [<c0273cac>] scsi_sleep_done+0x0/0x14
- [<c0122651>] release_console_sem+0x101/0x270
- [<cfa9a9e9>] idescsi_abort+0x285/0x304 [ide_scsi]
- [<c0272c0d>] scsi_send_eh_cmnd+0x51d/0x60c
- [<cfa9abdb>] idescsi_reset+0x173/0x220 [ide_scsi]
- [<c02731a7>] scsi_eh_tur+0x83/0xe0
- [<c027359b>] scsi_eh_bus_device_reset+0xef/0x124
- [<c0274193>] scsi_eh_ready_devs+0x17/0x58
- [<c027446c>] scsi_unjam_host+0x1c8/0x2a4
- [<c02747be>] scsi_error_handler+0x276/0x2d8
- [<c0274548>] scsi_error_handler+0x0/0x2d8
- [<c0107179>] kernel_thread_helper+0x5/0xc
+--- 195.113.56.1 ping statistics ---
+7 packets transmitted, 7 packets received, 0% packet loss
+round-trip min/avg/max = 67.6/402.6/1068.2 ms
+$
 
 
+I saw these error with 2.4.19, 2.4.20 and most subsequequent testing releases. I
+cannot say about older kernels, as I did not have that machine before. Could
+anyone tell me what kind of information should I gather to make it reproducible
+for you?
+
+It seems at least now it appears when I do "mii-tool --reset" and continues:
+
+
+64 octets from 195.113.56.1: icmp_seq=105 ttl=42 time=67.7 ms
+64 octets from 195.113.56.1: icmp_seq=106 ttl=42 time=66.9 ms
+64 octets from 195.113.56.1: icmp_seq=107 ttl=42 time=67.7 ms
+64 octets from 195.113.56.1: icmp_seq=108 ttl=42 time=1371.9 ms
+wrong data byte #0 should be 0x4f but was 0x4e4e b2 95 3e 52 af e 0
+        8 9 a b c d e f 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f 20 21 22 23 24 25 26 27
+        28 29 2a 2b 2c 2d 2e 2f
+64 octets from 195.113.56.1: icmp_seq=109 ttl=42 time=802.2 ms
+64 octets from 195.113.56.1: icmp_seq=110 ttl=42 time=67.0 ms
+64 octets from 195.113.56.1: icmp_seq=111 ttl=42 time=66.4 ms
+64 octets from 195.113.56.1: icmp_seq=112 ttl=42 time=67.2 ms
+64 octets from 195.113.56.1: icmp_seq=113 ttl=42 time=69.1 ms
+64 octets from 195.113.56.1: icmp_seq=114 ttl=42 time=67.4 ms
+64 octets from 195.113.56.1: icmp_seq=115 ttl=42 time=1184.3 ms
+wrong data byte #0 should be 0x56 but was 0x5555 b2 95 3e 5c af e 0
+        8 9 a b c d e f 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f 20 21 22 23 24 25 26 27
+        28 29 2a 2b 2c 2d 2e 2f
+64 octets from 195.113.56.1: icmp_seq=116 ttl=42 time=192.6 ms
+64 octets from 195.113.56.1: icmp_seq=117 ttl=42 time=66.7 ms
+64 octets from 195.113.56.1: icmp_seq=118 ttl=42 time=67.5 ms
+64 octets from 195.113.56.1: icmp_seq=119 ttl=42 time=1435.6 ms
+wrong data byte #0 should be 0x5a but was 0x5959 b2 95 3e 60 af e 0
+        8 9 a b c d e f 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f 20 21 22 23 24 25 26 27
+        28 29 2a 2b 2c 2d 2e 2f
+64 octets from 195.113.56.1: icmp_seq=120 ttl=42 time=1007.7 ms
+wrong data byte #0 should be 0x5b but was 0x5a5a b2 95 3e 6c af e 0
+        8 9 a b c d e f 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f 20 21 22 23 24 25 26 27
+        28 29 2a 2b 2c 2d 2e 2f
+64 octets from 195.113.56.1: icmp_seq=121 ttl=42 time=68.6 ms
+64 octets from 195.113.56.1: icmp_seq=122 ttl=42 time=67.8 ms
+
+
+$ mii-tool --verbose
+eth0: 10 Mbit, half duplex, link ok
+  product info: vendor 00:00:00, model 0 rev 0
+  basic mode:   10 Mbit, half duplex
+  basic status: link ok
+  capabilities: 100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
+  advertising:  100baseTx-FD 100baseTx-HD 10baseT-FD 10baseT-HD
+$
+
+Any ideas? Please cc me in replies.
+-- 
+Martin Mokrejs <mmokrejs@natur.cuni.cz>, <m.mokrejs@gsf.de>
+PGP5.0i key is at http://www.natur.cuni.cz/~mmokrejs
+MIPS / Institute for Bioinformatics <http://mips.gsf.de>
+GSF - National Research Center for Environment and Health
+Ingolstaedter Landstrasse 1, D-85764 Neuherberg, Germany
+tel.: +49-89-3187 3683 , fax: +49-89-3187 3585

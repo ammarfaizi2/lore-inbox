@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289096AbSBISJP>; Sat, 9 Feb 2002 13:09:15 -0500
+	id <S289098AbSBISMp>; Sat, 9 Feb 2002 13:12:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289098AbSBISJJ>; Sat, 9 Feb 2002 13:09:09 -0500
-Received: from femail42.sdc1.sfba.home.com ([24.254.60.36]:35568 "EHLO
-	femail42.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S289096AbSBISIa>; Sat, 9 Feb 2002 13:08:30 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Alexander Viro <viro@math.psu.edu>, Momchil Velikov <velco@fadata.bg>
-Subject: Re: [bk patch] Make cardbus compile in -pre4
-Date: Sat, 9 Feb 2002 13:09:25 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Andrew Morton <akpm@zip.com.au>, Larry McVoy <lm@bitmover.com>,
-        Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0202090459320.398-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0202090459320.398-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020209180829.LOAN24595.femail42.sdc1.sfba.home.com@there>
+	id <S289055AbSBISMf>; Sat, 9 Feb 2002 13:12:35 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:46090 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S289098AbSBISMU>; Sat, 9 Feb 2002 13:12:20 -0500
+Date: Sat, 9 Feb 2002 19:12:13 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Andreas Dilger <adilger@turbolabs.com>
+Subject: Re: pull vs push (was Re: [bk patch] Make cardbus compile in -pre4)
+Message-ID: <20020209181213.GA32401@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <Pine.LNX.4.33.0202081824070.25114-100000@segfault.osdlab.org> <20020208203931.X15496@lynx.turbolabs.com> <20020209092607.UHF12059.femail26.sdc1.sfba.home.com@there> <20020209030825.A9826@lynx.turbolabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020209030825.A9826@lynx.turbolabs.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 09 February 2002 05:01 am, Alexander Viro wrote:
-> On 9 Feb 2002, Momchil Velikov wrote:
-> > PS. Interesting trend to note is the usually the amount of whining is
-> > inversely proportional to one's contribution to the kernel.
->
-> <pedantic> to (constant + one's contribution to the kernel).  After all,
-> Rob has only finite bandwidth.  </pedantic>
+On Sat, Feb 09, 2002 at 03:08:25AM -0700, Andreas Dilger wrote:
 
-And here I thought I was still in Al's killfile... :)
+> OK, so Linus has been using BK for a couple of weeks now, and some of the
+> lieutenants have started setting up BK repositories at bkbits.net.  Is
+> there _any_ way that one can understand the heirarchy of repositories
+> at bkbits.net?  There's "linus", "linux", "linux25", and a bunch of other
+> obvious branch repositories.  Which one should kernel developers
+> clone/pull from?  It would be nice if there was a heirarchy or something
+> which showed the parent-child relationship.
 
-Rob
+The 'linus' one seems to be the parent, because if I try to pull from
+it bk tells me that the tree is for the private use of Linus only.
+
+And all the other 2.5 repositories seem to be slighly out of date
+(the linux/linux-2.5 one is at -pre3 instead of -pre5 etc).
+
+So, what is supposed to be the definitive, public bk repository, 
+to pull from in order to have the latest changes ? (the one which will
+go on bk.kernel.org eventually) 
+
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

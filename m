@@ -1,75 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267835AbTBYIWR>; Tue, 25 Feb 2003 03:22:17 -0500
+	id <S267841AbTBYISC>; Tue, 25 Feb 2003 03:18:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267843AbTBYIWO>; Tue, 25 Feb 2003 03:22:14 -0500
-Received: from [195.214.178.133] ([195.214.178.133]:32981 "EHLO octopus")
-	by vger.kernel.org with ESMTP id <S267835AbTBYIWK>;
-	Tue, 25 Feb 2003 03:22:10 -0500
-Message-ID: <00ed01c2dca8$ab5e84f0$3002a8c0@yigitcan>
-From: "Yigit Can" <yigit.can@karel.com.tr>
-To: "linux c programming" <linux-c-programming@vger.kernel.org>,
-       "linux config" <linux-config@vger.kernel.org>,
-       "linux kernel" <linux-kernel@vger.kernel.org>
-Subject: getprotobyname failure
-Date: Tue, 25 Feb 2003 10:34:10 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-9"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S267835AbTBYISC>; Tue, 25 Feb 2003 03:18:02 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:33979 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267841AbTBYISB>; Tue, 25 Feb 2003 03:18:01 -0500
+Message-Id: <200302250828.h1P8S5s04503@owlet.beaverton.ibm.com>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Make diskstats per-cpu using kmalloc_percpu 
+In-reply-to: Your message of "Tue, 25 Feb 2003 13:06:54 +0530."
+             <20030225073654.GB28052@in.ibm.com> 
+Date: Tue, 25 Feb 2003 00:28:05 -0800
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    This version makes the disk stats on struct gendisk per-cpu.
+    I am working on making the per partition stats per-cpu too (struct
+    hd_struct).
 
+In general I'm in favor of this.  It seems intuitive to me that counters
+of this type should be per-cpu.  But the question is, do we actually
+see any gains?  At the very least, are we sure we've not introduced any
+degradation?  Has any of your testing so far been measuring performance or
+just checking for correctness?
 
-
-
-Hello,
-
-I have a problem with getprotobyname() function.
-
-I wrote a simple program that only uses getprotobyname function
-
-I can run this program on my development machine=20
-but when I try to run this program on my basic kernel it gives me the =
-"memory fault" error.
-
-I'm using libc-2.2.5 on a powerpc 8xx development kit
-so, i'm using the same library on the host and target machine.
-
-my development machine has celeron  type processor
-and my target board is TQM850L (has ppc_850 processor).
-
-I've replaced my protocols and nsswitch.conf files with host machines (my
-protocols file contians "tcp 6 TCP" line)
-and that's made no difference.
-
-what can I do?
- 
-please help,
- 
-
- my program :
- 
- #include <netdb.h>
-#include <stdio.h>
- 
- int main(void){
- 
-    struct sockaddr_in addr;
-    struct protoent *protocol=3DNULL;
-    protocol=3Dgetprotobyname("tcp");
-    printf("\n RESULT : %02x \n",protocol->p_proto);
- 
-    return 0;
-}
-
-Yigit CAN
-Karel Electronics Corp.
-yigit.can@karel.com.tr
- 
-
+Rick

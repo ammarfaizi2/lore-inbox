@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135293AbRDLTvD>; Thu, 12 Apr 2001 15:51:03 -0400
+	id <S135296AbRDLTxG>; Thu, 12 Apr 2001 15:53:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135294AbRDLTuy>; Thu, 12 Apr 2001 15:50:54 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:13712 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S135293AbRDLTum>; Thu, 12 Apr 2001 15:50:42 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 12 Apr 2001 12:50:41 -0700
-Message-Id: <200104121950.MAA00291@baldur.yggdrasil.com>
-To: drepper@cygnus.com
-Subject: Re: List of all-zero .data variables in linux-2.4.3 available
+	id <S135297AbRDLTwy>; Thu, 12 Apr 2001 15:52:54 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:31916 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S135296AbRDLTwm>;
+	Thu, 12 Apr 2001 15:52:42 -0400
+Message-ID: <3AD6078A.AB086F5C@mandrakesoft.com>
+Date: Thu, 12 Apr 2001 15:52:42 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Adam J. Richter" <adam@yggdrasil.com>
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: List of all-zero .data variables in linux-2.4.3 available
+In-Reply-To: <200104121236.FAA03613@adam.yggdrasil.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 	I am aware of a couple of cases where code relied on static
->> variables being allocated contiguously, but, in both cases, those
->> variables were either all zeros or all non-zeros, so my proposed
->> change would not break such code.
+"Adam J. Richter" wrote:
+>         For anyone who is interested, I have produced a list of all
+> of the .data variables that contain all zeroes and could be moved to
+> .bss within the kernel and all of the modules (all of the modules
+> that we build at Yggdrasil for x86, which is almost all).  These
+> are global or static variables that have been declared
 
->Continuous placement is not the only property defined by
->initialization.  There are many more.  You cannot change this since it
->will quite a few programs and libraries and subtle and hard to
->impossible to identify ways.  Simply educate programmers to not
->initialize.
+Thanks, but Andrey Panin did you one better -- he produced a patch which
+fixes up a good number of these.  You should follow lkml more closely :)
 
-	If it is so simple to "educate" programmers on this,
-could you provide and example or some specifics, especially on why
-this should not even be a compiler option?  Surely that will save
-you some iterations in this discussion.
-
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+-- 
+Jeff Garzik       | Sam: "Mind if I drive?"
+Building 1024     | Max: "Not if you don't mind me clawing at the dash
+MandrakeSoft      |       and shrieking like a cheerleader."

@@ -1,99 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266895AbUHUS0w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267625AbUHUScc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266895AbUHUS0w (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 14:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267609AbUHUSZU
+	id S267625AbUHUScc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 14:32:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267630AbUHUScb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 14:25:20 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:54003 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S267616AbUHUSYi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 14:24:38 -0400
-Date: Sat, 21 Aug 2004 14:28:49 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, John Levon <levon@movementarian.org>,
-       Philippe Elie <phil.el@wanadoo.fr>, Keith Owens <kaos@sgi.com>
-Subject: [PATCH][4/4] Completely out of line spinlocks / oprofile
-Message-ID: <Pine.LNX.4.58.0408211338520.27390@montezuma.fsmlabs.com>
+	Sat, 21 Aug 2004 14:32:31 -0400
+Received: from ppp2-adsl-157.the.forthnet.gr ([193.92.233.157]:28455 "EHLO
+	ppp1-100.the.forthnet.gr") by vger.kernel.org with ESMTP
+	id S267625AbUHUScA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 14:32:00 -0400
+From: V13 <v13@priest.com>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Subject: Re: Possible dcache BUG
+Date: Sat, 21 Aug 2004 21:31:31 +0300
+User-Agent: KMail/1.7
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
+       Marc Ballarin <Ballarin.Marc@gmx.de>
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408201608.51038.gene.heskett@verizon.net> <20040821092556.GA14991@ip68-4-98-123.oc.oc.cox.net>
+In-Reply-To: <20040821092556.GA14991@ip68-4-98-123.oc.oc.cox.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart12569762.SpULFajyao";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408212131.38019.v13@priest.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Making the spinlock text out of line results in inaccurate samples during
-lock contention. Use profile_pc to provide a smarter way of figuring out
-where we are.
+--nextPart12569762.SpULFajyao
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
- arch/i386/oprofile/op_model_athlon.c |    2 +-
- arch/i386/oprofile/op_model_p4.c     |    2 +-
- arch/i386/oprofile/op_model_ppro.c   |    2 +-
- drivers/oprofile/timer_int.c         |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+On Saturday 21 August 2004 12:25, Barry K. Nathan wrote:
+> > Memtest86 may not know howto enable it if its an
+> > nforce2 option.  Whatever cache shown as switchable in the bios,
+> > turning it off makes a very sick bird out of the machine, like a
+> > 33mhz 386sx?
+>
+> Yeah, disabling the L2 cache on a modern CPU makes it really slow. But,
+> it's still a useful troubleshooting option...
 
-Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
+When I had the problem described in my previous mail I came to the concluss=
+ion=20
+that it was related with cache *BUT* it seemed that the cache was just=20
+caching wrong data. Disabling the cache would just reduce the problem.
 
-Index: linux-2.6.8.1-mm3/drivers/oprofile/timer_int.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.8.1-mm3/drivers/oprofile/timer_int.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 timer_int.c
---- linux-2.6.8.1-mm3/drivers/oprofile/timer_int.c	21 Aug 2004 13:14:56 -0000	1.1.1.1
-+++ linux-2.6.8.1-mm3/drivers/oprofile/timer_int.c	21 Aug 2004 17:07:52 -0000
-@@ -19,7 +19,7 @@ static int timer_notify(struct notifier_
- {
- 	struct pt_regs * regs = (struct pt_regs *)data;
- 	int cpu = smp_processor_id();
--	unsigned long eip = instruction_pointer(regs);
-+	unsigned long eip = profile_pc(regs);
+One reason for this is that when the program detected errors in a buffer (i=
+=2Ee.=20
+0x1234 instead of 0x1111) then they would NOT go away if the program was=20
+reading from this buffer all the time. This means that the cache always=20
+returned the same data. The error was 'gone' every time the program was=20
+suspended for a while or when something else used a lot of memory (i.e.=20
+another instance of this program).
 
- 	oprofile_add_sample(eip, !user_mode(regs), 0, cpu);
- 	return 0;
-Index: linux-2.6.8.1-mm3/arch/i386/oprofile/op_model_athlon.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.8.1-mm3/arch/i386/oprofile/op_model_athlon.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 op_model_athlon.c
---- linux-2.6.8.1-mm3/arch/i386/oprofile/op_model_athlon.c	21 Aug 2004 13:14:49 -0000	1.1.1.1
-+++ linux-2.6.8.1-mm3/arch/i386/oprofile/op_model_athlon.c	21 Aug 2004 17:06:27 -0000
-@@ -96,7 +96,7 @@ static int athlon_check_ctrs(unsigned in
- {
- 	unsigned int low, high;
- 	int i;
--	unsigned long eip = instruction_pointer(regs);
-+	unsigned long eip = profile_pc(regs);
- 	int is_kernel = !user_mode(regs);
+So, I'm not suggesting that his cache is faulty but that there can be a CPU=
+=20
+(or even a M/B) problem that corrupts data when they are transfered from=20
+memory to the processor.
 
- 	for (i = 0 ; i < NUM_COUNTERS; ++i) {
-Index: linux-2.6.8.1-mm3/arch/i386/oprofile/op_model_p4.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.8.1-mm3/arch/i386/oprofile/op_model_p4.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 op_model_p4.c
---- linux-2.6.8.1-mm3/arch/i386/oprofile/op_model_p4.c	21 Aug 2004 13:14:49 -0000	1.1.1.1
-+++ linux-2.6.8.1-mm3/arch/i386/oprofile/op_model_p4.c	21 Aug 2004 17:06:43 -0000
-@@ -595,7 +595,7 @@ static int p4_check_ctrs(unsigned int co
- {
- 	unsigned long ctr, low, high, stag, real;
- 	int i;
--	unsigned long eip = instruction_pointer(regs);
-+	unsigned long eip = profile_pc(regs);
- 	int is_kernel = !user_mode(regs);
+> -Barry K. Nathan <barryn@pobox.com>
+<<V13>>
 
- 	stag = get_stagger();
-Index: linux-2.6.8.1-mm3/arch/i386/oprofile/op_model_ppro.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.8.1-mm3/arch/i386/oprofile/op_model_ppro.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 op_model_ppro.c
---- linux-2.6.8.1-mm3/arch/i386/oprofile/op_model_ppro.c	21 Aug 2004 13:14:49 -0000	1.1.1.1
-+++ linux-2.6.8.1-mm3/arch/i386/oprofile/op_model_ppro.c	21 Aug 2004 17:07:03 -0000
-@@ -91,7 +91,7 @@ static int ppro_check_ctrs(unsigned int
- {
- 	unsigned int low, high;
- 	int i;
--	unsigned long eip = instruction_pointer(regs);
-+	unsigned long eip = profile_pc(regs);
- 	int is_kernel = !user_mode(regs);
+--nextPart12569762.SpULFajyao
+Content-Type: application/pgp-signature
 
- 	for (i = 0 ; i < NUM_COUNTERS; ++i) {
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBJ5UJVEjwdyuhmSoRAig6AJ904SwtzHs4j+kPwwbp5+l4REVfZwCgs0N/
+1Q6uq26BVoQ54jmr8MdjfJM=
+=Ka+W
+-----END PGP SIGNATURE-----
+
+--nextPart12569762.SpULFajyao--

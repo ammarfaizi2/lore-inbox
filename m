@@ -1,50 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289136AbSANK1x>; Mon, 14 Jan 2002 05:27:53 -0500
+	id <S288810AbSANKtc>; Mon, 14 Jan 2002 05:49:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289177AbSANK1o>; Mon, 14 Jan 2002 05:27:44 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:54543 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S289136AbSANK1b>; Mon, 14 Jan 2002 05:27:31 -0500
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Marius Gedminas <mgedmin@centras.lt>, linux-kernel@vger.kernel.org
+	id <S289188AbSANKtY>; Mon, 14 Jan 2002 05:49:24 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:49936 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S288810AbSANKtP>; Mon, 14 Jan 2002 05:49:15 -0500
+Message-ID: <3C42B61D.5556049B@zip.com.au>
+Date: Mon, 14 Jan 2002 02:42:37 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+CC: Marius Gedminas <mgedmin@centras.lt>, linux-kernel@vger.kernel.org
 Subject: Re: Hard lock when mounting loopback file
 In-Reply-To: <3C3F3267.7050103@actarg.com> <3C413BF0.24576AEC@zip.com.au>
-	<3C413BF0.24576AEC@zip.com.au> <20020113115230.GB1955@gintaras>
-	<3C41EF9E.8D05D8F7@zip.com.au>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 14 Jan 2002 19:26:11 +0900
-In-Reply-To: <3C41EF9E.8D05D8F7@zip.com.au>
-Message-ID: <87u1tp44ak.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+		<3C413BF0.24576AEC@zip.com.au> <20020113115230.GB1955@gintaras>
+		<3C41EF9E.8D05D8F7@zip.com.au>,
+		<3C41EF9E.8D05D8F7@zip.com.au> <87u1tp44ak.fsf@devron.myhome.or.jp>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@zip.com.au> writes:
-
-> > Additional check on the number of followed links could be useful there.
-> > No chain should be longer than the number of clusters on the fs.
-> > Although on large FAT32 filesystems the number of clusters can be high,
-> > a very long loop is still better than an infinite one.  (In cases where
-> > we know the file size, this limit can be reduced to
-> > file_size/cluster_size + 1 links).
+OGAWA Hirofumi wrote:
 > 
-> hmm..  OK, I'll take a look at that approach.
+> Andrew Morton <akpm@zip.com.au> writes:
+> 
+> > > Additional check on the number of followed links could be useful there.
+> > > No chain should be longer than the number of clusters on the fs.
+> > > Although on large FAT32 filesystems the number of clusters can be high,
+> > > a very long loop is still better than an infinite one.  (In cases where
+> > > we know the file size, this limit can be reduced to
+> > > file_size/cluster_size + 1 links).
+> >
+> > hmm..  OK, I'll take a look at that approach.
+> 
+> The maximum number of directory entries is 65536 in ordinarily.  The
+> following patch prevents the infinite loop of a directory (include the
+> limit to added directory).
+> 
+> I think the following patch is a bit useful.
 
-The maximum number of directory entries is 65536 in ordinarily.  The
-following patch prevents the infinite loop of a directory (include the
-limit to added directory).
+Ah lovely.  I was looking for your email address when this came up,
+but couldn't find it.
 
-I think the following patch is a bit useful.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Here's the 2.4.18-pre3 version of your patch.  I've tested it against
+the corrupted filesystem image and it works fine:
 
-diff -urN linux-2.5.2-pre11/fs/fat/dir.c fat_loop/fs/fat/dir.c
---- linux-2.5.2-pre11/fs/fat/dir.c	Sat Oct 13 05:48:42 2001
-+++ fat_loop/fs/fat/dir.c	Mon Jan 14 17:40:48 2002
-@@ -727,7 +727,13 @@
+Jan 14 02:40:50 mnm kernel: FAT: Filesystem panic (dev 07:00)
+Jan 14 02:40:50 mnm kernel:     Directory 3329: exceeded the maximum size of directory
+Jan 14 02:40:50 mnm kernel:     File system has been set read-only
+Jan 14 02:40:50 mnm kernel: FAT: Filesystem panic (dev 07:00)
+Jan 14 02:40:50 mnm kernel:     Directory 5: exceeded the maximum size of directory
+
+If you're satisfied that everything is OK, I'd suggest that you
+send the diff to Marcelo.
+
+Thanks.
+
+
+
+--- linux-2.4.18-pre3/fs/fat/dir.c	Fri Oct 12 13:48:42 2001
++++ linux-akpm/fs/fat/dir.c	Mon Jan 14 02:31:49 2002
+@@ -727,7 +727,13 @@ int fat_add_entries(struct inode *dir,in
  	offset = curr = 0;
  	*bh = NULL;
  	row = 0;
@@ -59,7 +79,7 @@ diff -urN linux-2.5.2-pre11/fs/fat/dir.c fat_loop/fs/fat/dir.c
  		if (IS_FREE((*de)->name)) {
  			if (++row == slots)
  				return offset;
-@@ -742,7 +748,10 @@
+@@ -742,7 +748,10 @@ int fat_add_entries(struct inode *dir,in
  	if (!new_bh)
  		return -ENOSPC;
  	fat_brelse(sb, new_bh);
@@ -71,10 +91,9 @@ diff -urN linux-2.5.2-pre11/fs/fat/dir.c fat_loop/fs/fat/dir.c
  	return offset;
  }
  
-diff -urN linux-2.5.2-pre11/fs/fat/inode.c fat_loop/fs/fat/inode.c
---- linux-2.5.2-pre11/fs/fat/inode.c	Mon Jan 14 18:35:34 2002
-+++ fat_loop/fs/fat/inode.c	Mon Jan 14 03:45:33 2002
-@@ -373,11 +373,37 @@
+--- linux-2.4.18-pre3/fs/fat/inode.c	Thu Nov 22 23:02:58 2001
++++ linux-akpm/fs/fat/inode.c	Mon Jan 14 02:31:49 2002
+@@ -372,11 +372,37 @@ out:
  	return ret;
  }
  
@@ -113,7 +132,7 @@ diff -urN linux-2.5.2-pre11/fs/fat/inode.c fat_loop/fs/fat/inode.c
  
  	INIT_LIST_HEAD(&MSDOS_I(inode)->i_fat_hash);
  	MSDOS_I(inode)->i_location = 0;
-@@ -391,16 +417,7 @@
+@@ -390,16 +416,7 @@ static void fat_read_root(struct inode *
  	inode->i_fop = &fat_dir_operations;
  	if (sbi->fat_bits == 32) {
  		MSDOS_I(inode)->i_start = sbi->root_cluster;
@@ -131,7 +150,7 @@ diff -urN linux-2.5.2-pre11/fs/fat/inode.c fat_loop/fs/fat/inode.c
  	} else {
  		MSDOS_I(inode)->i_start = 0;
  		inode->i_size = sbi->dir_entries * sizeof(struct msdos_dir_entry);
-@@ -882,7 +899,6 @@
+@@ -885,7 +902,6 @@ static void fat_fill_inode(struct inode 
  {
  	struct super_block *sb = inode->i_sb;
  	struct msdos_sb_info *sbi = MSDOS_SB(sb);
@@ -139,7 +158,7 @@ diff -urN linux-2.5.2-pre11/fs/fat/inode.c fat_loop/fs/fat/inode.c
  
  	INIT_LIST_HEAD(&MSDOS_I(inode)->i_fat_hash);
  	MSDOS_I(inode)->i_location = 0;
-@@ -913,15 +929,7 @@
+@@ -916,15 +932,7 @@ static void fat_fill_inode(struct inode 
  			inode->i_nlink = 1;
  		}
  #endif
@@ -156,17 +175,16 @@ diff -urN linux-2.5.2-pre11/fs/fat/inode.c fat_loop/fs/fat/inode.c
  		MSDOS_I(inode)->mmu_private = inode->i_size;
  	} else { /* not a directory */
  		inode->i_generation |= 1;
-diff -urN linux-2.5.2-pre11/fs/fat/misc.c fat_loop/fs/fat/misc.c
---- linux-2.5.2-pre11/fs/fat/misc.c	Mon Jan 14 18:35:34 2002
-+++ fat_loop/fs/fat/misc.c	Mon Jan 14 06:13:24 2002
-@@ -38,15 +38,25 @@
+--- linux-2.4.18-pre3/fs/fat/misc.c	Fri Oct 12 13:48:42 2001
++++ linux-akpm/fs/fat/misc.c	Mon Jan 14 02:33:45 2002
+@@ -38,15 +38,24 @@ static char ascii_extensions[] =
   * read-only. The file system can be made writable again by remounting it.
   */
  
 -void fat_fs_panic(struct super_block *s,const char *msg)
 +static char panic_msg[512];
 +
-+void fat_fs_panic(struct super_block *s, const char *fmt, ...)
++void fat_fs_panic(struct super_block *s,const char *fmt, ...)
  {
  	int not_ro;
 +	va_list args;
@@ -177,19 +195,18 @@ diff -urN linux-2.5.2-pre11/fs/fat/misc.c fat_loop/fs/fat/misc.c
  
  	not_ro = !(s->s_flags & MS_RDONLY);
 -	if (not_ro) s->s_flags |= MS_RDONLY;
--	printk("Filesystem panic (dev %s).\n  %s\n", s->s_id, msg);
+-	printk("Filesystem panic (dev %s).\n  %s\n", kdevname(s->s_dev), msg);
  	if (not_ro)
 -		printk("  File system has been set read-only\n");
 +		s->s_flags |= MS_RDONLY;
-+
 +	printk("FAT: Filesystem panic (dev %s)\n"
-+	       "    %s\n", s->s_id, panic_msg);
++	       "    %s\n", kdevname(s->s_dev), panic_msg);
 +	if (not_ro)
 +		printk("    File system has been set read-only\n");
  }
  
  
-@@ -472,11 +482,13 @@
+@@ -472,11 +481,13 @@ static int raw_scan_nonroot(struct super
      int *number,int *ino,struct buffer_head **res_bh,struct msdos_dir_entry
      **res_de)
  {
@@ -204,7 +221,7 @@ diff -urN linux-2.5.2-pre11/fs/fat/misc.c fat_loop/fs/fat/misc.c
  	do {
  		for (count = 0; count < MSDOS_SB(sb)->cluster_size; count++) {
  			if ((cluster = raw_scan_sector(sb,(start-2)*
-@@ -484,6 +496,13 @@
+@@ -484,6 +495,13 @@ static int raw_scan_nonroot(struct super
  			    count,name,number,ino,res_bh,res_de)) >= 0)
  				return cluster;
  		}
@@ -218,7 +235,7 @@ diff -urN linux-2.5.2-pre11/fs/fat/misc.c fat_loop/fs/fat/misc.c
  		if (!(start = fat_access(sb,start,-1))) {
  			fat_fs_panic(sb,"FAT error");
  			break;
-@@ -491,8 +510,8 @@
+@@ -491,8 +509,8 @@ static int raw_scan_nonroot(struct super
  #ifdef DEBUG
  	printk("next start: %d\n",start);
  #endif
@@ -229,9 +246,8 @@ diff -urN linux-2.5.2-pre11/fs/fat/misc.c fat_loop/fs/fat/misc.c
  	return -ENOENT;
  }
  
-diff -urN linux-2.5.2-pre11/include/linux/msdos_fs.h fat_loop/include/linux/msdos_fs.h
---- linux-2.5.2-pre11/include/linux/msdos_fs.h	Mon Jan 14 18:35:41 2002
-+++ fat_loop/include/linux/msdos_fs.h	Mon Jan 14 05:33:06 2002
+--- linux-2.4.18-pre3/include/linux/msdos_fs.h	Fri Oct 12 13:48:42 2001
++++ linux-akpm/include/linux/msdos_fs.h	Mon Jan 14 02:31:49 2002
 @@ -19,6 +19,10 @@
  #define MSDOS_DPS_BITS	4 /* log2(MSDOS_DPS) */
  #define MSDOS_DIR_BITS	5 /* log2(sizeof(struct msdos_dir_entry)) */
@@ -243,7 +259,7 @@ diff -urN linux-2.5.2-pre11/include/linux/msdos_fs.h fat_loop/include/linux/msdo
  #define MSDOS_SUPER_MAGIC 0x4d44 /* MD */
  
  #define FAT_CACHE    8 /* FAT cache size */
-@@ -297,7 +301,7 @@
+@@ -297,7 +301,7 @@ extern void fat_write_inode(struct inode
  extern int fat_notify_change(struct dentry * dentry, struct iattr * attr);
  
  /* fat/misc.c */

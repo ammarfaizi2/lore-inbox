@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313898AbSGILPZ>; Tue, 9 Jul 2002 07:15:25 -0400
+	id <S314396AbSGILVa>; Tue, 9 Jul 2002 07:21:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314080AbSGILPY>; Tue, 9 Jul 2002 07:15:24 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:51395 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S313898AbSGILPX>;
-	Tue, 9 Jul 2002 07:15:23 -0400
-Date: Tue, 9 Jul 2002 13:17:58 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Anton Altaparmakov <aia21@cantab.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+	id <S314459AbSGILV3>; Tue, 9 Jul 2002 07:21:29 -0400
+Received: from pD9E238F8.dip.t-dialin.net ([217.226.56.248]:13534 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S314396AbSGILV0>; Tue, 9 Jul 2002 07:21:26 -0400
+Date: Tue, 9 Jul 2002 05:24:04 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       <linux-ide@vger.kernel.org>
 Subject: Re: [PATCH] 2.4 IDE core for 2.5
-Message-ID: <20020709111758.GA9551@suse.de>
-References: <20020709102249.GA20870@suse.de> <Pine.SOL.3.96.1020709114618.20865B-100000@libra.cus.cam.ac.uk> <20020709104935.GB20870@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020709104935.GB20870@suse.de>
+In-Reply-To: <200207091313.07199.roy@karlsbakk.net>
+Message-ID: <Pine.LNX.4.44.0207090522590.10105-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09 2002, Jens Axboe wrote:
-> On Tue, Jul 09 2002, Anton Altaparmakov wrote:
-> > On Tue, 9 Jul 2002, Jens Axboe wrote:
-> > > I've forward ported the 2.4 IDE core (well 2.4.19-pre10-ac2 to be exact)
-> > > to 2.5.25. It consists of 7 separate patches:
-> > 
-> > Fantastic! Seeing that the patches are bitkeeper generated, would it be
-> > possible for you to make a repository available with the patches? (on
-> > bkbits perhaps?) Would make it a lot easier for us bitkeeper users just to
-> > pull from your repository... Especially once you update the patches...
-> 
-> Yes they are from a bk tree here, I'll set one up on bkbits...
+Hi,
 
-pull from http://linux25-24ide.bkbits.net/linux25-24ide
+On Tue, 9 Jul 2002, Roy Sigurd Karlsbakk wrote:
+> Should I add IDE9[4567] as well, or does these ones include previous IDE 
+> pathes?
 
+It's Linus' current tree plus IDE. So just patch your current tree.
+
+							Regards,
+							Thunder
 -- 
-Jens Axboe
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

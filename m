@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbUEJWjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262311AbUEJWks@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262215AbUEJWjB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 18:39:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUEJWjB
+	id S262311AbUEJWks (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 18:40:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUEJWks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 18:39:01 -0400
-Received: from CPE0000c02944d6-CM00003965a061.cpe.net.cable.rogers.com ([69.193.74.215]:36018
-	"EHLO tentacle.dhs.org") by vger.kernel.org with ESMTP
-	id S262215AbUEJWiz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 18:38:55 -0400
-Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0405101521280.1156@bigblue.dev.mdolabs.com>
-References: <1084152941.22837.21.camel@vertex>
-	 <20040510021141.GA10760@taniwha.stupidest.org>
-	 <1084227460.28663.8.camel@vertex>
-	 <Pine.LNX.4.58.0405101521280.1156@bigblue.dev.mdolabs.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1084228900.28903.2.camel@vertex>
+	Mon, 10 May 2004 18:40:48 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:50050 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S262311AbUEJWjg (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 18:39:36 -0400
+Message-Id: <200405102239.i4AMdW2E012211@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Edward Falk <efalk@google.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add path-oriented proc_mkdir_path() function to /proc 
+In-Reply-To: Your message of "Mon, 10 May 2004 15:09:08 PDT."
+             <E1BNIxQ-00013R-Fo@peregrine.corp.google.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <E1BNIxQ-00013R-Fo@peregrine.corp.google.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 10 May 2004 18:41:40 -0400
+Content-Type: multipart/signed; boundary="==_Exmh_1050822742P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 10 May 2004 18:39:32 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-05-10 at 18:31, Davide Libenzi wrote:
-> On Mon, 10 May 2004, John McCutchan wrote:
+--==_Exmh_1050822742P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 10 May 2004 15:09:08 PDT, Edward Falk <efalk@google.com>  said:
+> Hi all; apologies if there's a maintainer I should be sending this to
+> as well; couldn't find one in the maintainers list or in the source code.
 > 
-> > > 3) dnotify cannot easily watch changes for a directory hierarchy
-> > 
-> > People don't seem to really care about this one. Alexander Larsson has
-> > said he doesn't care about it. It might be nice to add in the future.
-> 
-> Please excuse my ignorance, but who is Alexander Larsson? A dnotify 
-> replacement that does not have the ability to watch for a hierarchy is 
-> pretty much useless. Or do you want to drop thousands of single watches to 
-> accomplish that?
+> This patch adds the function proc_mkdir_path() to fs/proc/generic.c.
+> This allows kernel code to create e.g. "/proc/foo/bar/baz" without needing
+> to check the hard way if /proc/foo/ and /proc/foo/bar/ already exist.
 
-Alexander Larsson is the maintainer of nautilus, gnome-vfs and I think
-the dnotify patch for fam. He made a post to l-k a month or two ago
-about why he doesn't care about it. I do plan on adding this feature in
-the near future though.
+Hmm.. Looks like a useful utility function (there's certainly enough deep
+trees in my /proc/sys tree), but I wonder...
 
-John
+1) Do we have cases where code should be implementing "it had *better* exist"
+checks?  This may be important if an intermediate directory "should have" been
+created by sysctl or something, and has special permission needs..
 
+2) Alternatively, does using this open up accidental collisions where we should
+have checked something *doesnt* exist already, and complain if it does?
+
+(Feel free to address either one by adding a "Dont do that then" comment ;)
+
+--==_Exmh_1050822742P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAoASjcC3lWbTT17ARAs+lAKCSFplGHTQCyz1nsJbfo+iZpBqn9QCfWeME
+ocNs+CYeZJvT6YxztLlwN7s=
+=nr/H
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1050822742P--

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267307AbTABXdE>; Thu, 2 Jan 2003 18:33:04 -0500
+	id <S267311AbTABXgq>; Thu, 2 Jan 2003 18:36:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267311AbTABXdE>; Thu, 2 Jan 2003 18:33:04 -0500
-Received: from im1.mail.tds.net ([216.170.230.91]:43147 "EHLO im1.sec.tds.net")
-	by vger.kernel.org with ESMTP id <S267307AbTABXdE>;
-	Thu, 2 Jan 2003 18:33:04 -0500
-Date: Thu, 2 Jan 2003 18:40:04 -0500 (EST)
-From: Jon Portnoy <portnoy@tellink.net>
-X-X-Sender: portnoy@cerberus.localhost
-To: Andrew Walrond <andrew@walrond.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: GPL and Nvidia
-In-Reply-To: <3E14BFBA.4070908@walrond.org>
-Message-ID: <Pine.LNX.4.50.0301021838400.2069-100000@cerberus.localhost>
-References: <Pine.LNX.4.44.0301020032220.8691-100000@fogarty.jakma.org>
- <3E14202D.4050909@walrond.org> <Pine.LNX.4.50.0301021645430.4998-100000@cerberus.localhost>
- <3E14BFBA.4070908@walrond.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267312AbTABXgq>; Thu, 2 Jan 2003 18:36:46 -0500
+Received: from vger.timpanogas.org ([216.250.140.154]:42466 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S267311AbTABXgp>; Thu, 2 Jan 2003 18:36:45 -0500
+Date: Thu, 2 Jan 2003 17:55:17 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: linux-kernel@vger.kernel.org
+Cc: jmerkey@timpanogas.org
+Subject: Questton about Zone Allocation 2.4.X
+Message-ID: <20030102175517.A21471@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Freedom is something that has to be perpetuated and guaranteed, which is 
-what the GPL does. The BSD approach is this: "We're offering you this free 
-(as in freedom) software which you can then use and redistribute as 
-proprietary software as long as we get credit."
-
-This is like drawing up a constitution for a new country that says "We 
-give you these rights and the power to totally eliminate them."
 
 
-On Thu, 2 Jan 2003, Andrew Walrond wrote:
+LKML,
 
-> A "freedom" banner in one hand and a thick license document in the other 
->   beginning "GPL: Thou shall not...", and a fat, smiling lawyer behind you.
-> 
-> Makes me glad to be alive ;)
-> 
-> The BSD license sounds great, but I bet mine's shorter :)
-> 
+I have a system in the lab with 4GB of physical and the system can see all 
+the memory, however, calls to get_free_pages() will only allocate up to 1GB
+of this memory before returning an out of memory condition.  I have reviewed
+Ingo's changes and enhancements with the zone allocator and it certainly 
+looks like this code has the smarts to balance the contiguous free pages
+on the zone allocation lists.  I need to be able to get more than 1GB to 
+pin for a particular application.  Where do I need to adjust the tuning
+to allow 2.4.X kernels to allocate mote than 1GB from the physical pages
+list?
+
+Any help would be appreciated.
+
+Thanks
+
+Jeff Merkey
+Network Associates
+
+

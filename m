@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269299AbUJKWUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269314AbUJKWWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269299AbUJKWUV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 18:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269300AbUJKWUV
+	id S269314AbUJKWWs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 18:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269312AbUJKWUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 18:20:21 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:9959 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269299AbUJKWTg (ORCPT
+	Mon, 11 Oct 2004 18:20:39 -0400
+Received: from cantor.suse.de ([195.135.220.2]:52387 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269292AbUJKWTg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 11 Oct 2004 18:19:36 -0400
-Subject: Re: [Lse-tech] Re: [PATCH] cpusets - big numa cpu and memory
-	placement
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Paul Jackson <pj@sgi.com>
-Cc: frankeh@watson.ibm.com, Rick Lindsley <ricklind@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Simon.Derr@bull.net,
-       pwil3058@bigpond.net.au, dipankar@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
-       efocht@hpce.nec.com, LSE Tech <lse-tech@lists.sourceforge.net>,
-       hch@infradead.org, steiner@sgi.com, Jesse Barnes <jbarnes@sgi.com>,
-       sylvain.jeaugey@bull.net, djh@sgi.com,
-       LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       sivanich@sgi.com
-In-Reply-To: <20041009170512.5edf0b7e.pj@sgi.com>
-References: <20041007015107.53d191d4.pj@sgi.com>
-	 <200410071053.i97ArLnQ011548@owlet.beaverton.ibm.com>
-	 <20041007072842.2bafc320.pj@sgi.com> <4165A31E.4070905@watson.ibm.com>
-	 <20041008061426.6a84748c.pj@sgi.com> <4166B569.60408@watson.ibm.com>
-	 <20041008112319.63b694de.pj@sgi.com> <1097283613.6470.146.camel@arrakis>
-	 <20041009170512.5edf0b7e.pj@sgi.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1097533108.4038.64.camel@arrakis>
+Date: Tue, 12 Oct 2004 00:15:19 +0200
+From: Andi Kleen <ak@suse.de>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-rc4-mm1 OOPs on AMD64
+Message-ID: <20041011221519.GA11702@wotan.suse.de>
+References: <1097527401.12861.383.camel@dyn318077bld.beaverton.ibm.com> <20041011214304.GD31731@wotan.suse.de> <1097532118.12861.395.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 11 Oct 2004 15:18:29 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097532118.12861.395.camel@dyn318077bld.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-09 at 17:05, Paul Jackson wrote:
-> Matthew writes:
-> > > CKRM aspires to be both a general purpose resource management framework
-> > > and the embodiment of fair share scheduling.
-> > 
-> > I think your missing something here.  CKRM, as I understand it, aspires
-> > to be a general purpose resource management framework.  To that point I
-> > will accede.  But the second part, about CKRM being the embodiment of
-> > fair share scheduling, is secondary.
-> 
-> Ok - you may well be right that CKRM does not aspire to be the embodiment
-> of fair share scheduling.  But doesn't it embody a fair share sheduler
-> (and no other such policy) as a matter of current implementation fact?
+> Console: colour VGA+ 80x25
+> Dentry cache hash table entries: 1048576 (order: 11, 8388608 bytes)
+> Inode-cache hash table entries: 524288 (order: 10, 4194304 bytes)
+> Bad page state at free_hot_cold_page (in process 'swapper', page
+> 000001017ac06070)
+> flags:0x00000000 mapping:0000000000000000 mapcount:1 count:0
 
-Yes.  That is true, but it is by no means meant to be the end-all,
-be-all of CKRM.  It is my understanding that the fair share scheduler is
-a proof-of-concept and an example of how to write a 'controller' for
-others, but not the full extent of CKRM's power.
+Some memory corruption or confused memory allocator.
 
--Matt
+No idea. I doubt it is caused by an x86-64 patch though.
 
+When -mm3 didn't have the problem I would start a binary search
+and try to find out which change caused it.
+
+-Andi

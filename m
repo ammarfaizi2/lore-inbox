@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267403AbTBJLvm>; Mon, 10 Feb 2003 06:51:42 -0500
+	id <S267270AbTBJLut>; Mon, 10 Feb 2003 06:50:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267444AbTBJLvl>; Mon, 10 Feb 2003 06:51:41 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:5293
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267403AbTBJLvi>; Mon, 10 Feb 2003 06:51:38 -0500
-Subject: Re: Setjmp/Longjmp in the kernel?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "John W. M. Stevens" <john@betelgeuse.us>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030209221044.GA8761@morningstar.nowhere.lie>
-References: <20030209221044.GA8761@morningstar.nowhere.lie>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1044882041.418.1.camel@irongate.swansea.linux.org.uk>
+	id <S267382AbTBJLut>; Mon, 10 Feb 2003 06:50:49 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:15234 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S267270AbTBJLus>;
+	Mon, 10 Feb 2003 06:50:48 -0500
+Date: Mon, 10 Feb 2003 13:00:06 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@digeo.com>,
+       jakob@unthought.net, david.lang@digitalinsight.com,
+       riel@conectiva.com.br, ckolivas@yahoo.com.au,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3 / aa / rmap with contest]
+Message-ID: <20030210120006.GC31401@dualathlon.random>
+References: <20030210001921.3a0a5247.akpm@digeo.com> <20030210085649.GO31401@dualathlon.random> <20030210010937.57607249.akpm@digeo.com> <3E4779DD.7080402@namesys.com> <20030210101539.GS31401@dualathlon.random> <3E4781A2.8070608@cyberone.com.au> <20030210111017.GV31401@dualathlon.random> <3E478C09.6060508@cyberone.com.au> <20030210113923.GY31401@dualathlon.random> <3E4790F7.2010208@cyberone.com.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 10 Feb 2003 13:00:42 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E4790F7.2010208@cyberone.com.au>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-02-09 at 22:10, John W. M. Stevens wrote:
-> Among these is a simple exception support system.  The core
-> of this system is based on the existence of a setjmp/longjmp
-> facility.  In digging through the source code, I've found a
-> few, architechturally specific implementations of such a
-> facility, but no generalized, multi-platform support.
+On Mon, Feb 10, 2003 at 10:45:59PM +1100, Nick Piggin wrote:
+> perspective it does nullify the need for readahead (though
+> it is obivously still needed for other reasons).
 
-setjmp/longjmp are normally very hard to follow and maintain,
-especially when the kernel has locks, sleeping rules and
-multiple threads flying around.
+I'm guessing that physically it may be needed from a head prospective
+too, I doubt it only has to do with the in-core overhead.  Seeing it all
+before reaching the seek point might allow the disk to do smarter things
+and to keep the head at the right place for longer, dunno.  Anyways,
+whatever is the reason it doesn't make much difference from our point of
+view ;), but I don't expect this hardware behaviour changing in future
+high end storage.
 
-You will see lots of code which does either
+NOTE: just to be sure, I'm not at all against anticpiatory scheduling,
+it's clearly a very good feature to have (still I would like an option
+to disable it especially in heavy async environments like databases,
+where lots of writes are sync too) but it should be probably be enabled
+by default, especially for the metadata reads that have to be
+synchronous by design.
 
+Infact I wonder that it may be interesting to also make it optionally
+controlled from a fs hint (of course we don't pretend all fs to provide
+the hint), so that you stall I/O writes only when you know for sure
+you're going to submit another read in a few usec, just the time to
+parse the last metadata you read. Still a timeout would be needed for
+scheduling against RT etc..., but it could be a much more relaxed
+timeout with this option enabled, so it would need less accurate
+timings, and it would be less dependent on hardware, and it would
+be less prone to generate false positive stalls. The downside is having
+to add the hints.
 
-int foo_func()
-{
-	alloc this
-	alloc that
-	_foo_func()
-	free this
-	free that
-}
-
-or has a single exit path and uses goto out type constructs 
-
-instead
-
+Andrea

@@ -1,72 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264565AbUBAAVH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 19:21:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264855AbUBAAVH
+	id S264463AbUBAA2w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 19:28:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264539AbUBAA2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 19:21:07 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:19124 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S264565AbUBAAVD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 19:21:03 -0500
-Message-Id: <5.1.0.14.2.20040201110919.04788eb0@171.71.163.14>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 01 Feb 2004 11:20:50 +1100
-To: JG <jg@cms.ac>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: TG3: very high CPU usage
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040131091559.8A026202D31@23.cms.ac>
-References: <20040125123154.A8CA4202CAA@23.cms.ac>
- <20040122125516.7B671202CDC@23.cms.ac>
- <5.1.0.14.2.20040121100550.03cff190@171.71.163.14>
- <20040119033527.GA11493@linux.comp>
- <20040119033527.GA11493@linux.comp>
- <5.1.0.14.2.20040121100550.03cff190@171.71.163.14>
- <5.1.0.14.2.20040122143222.02a06d68@171.71.163.14>
- <20040122125516.7B671202CDC@23.cms.ac>
- <5.1.0.14.2.20040125105347.02acce68@171.71.163.14>
- <20040125123154.A8CA4202CAA@23.cms.ac>
+	Sat, 31 Jan 2004 19:28:52 -0500
+Received: from post.tau.ac.il ([132.66.16.11]:58842 "EHLO post.tau.ac.il")
+	by vger.kernel.org with ESMTP id S264463AbUBAA2v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 19:28:51 -0500
+Date: Sun, 1 Feb 2004 02:26:41 +0200
+From: Micha Feigin <michf@post.tau.ac.il>
+To: linux-kernel@vger.kernel.org
+Cc: M?ns Rullg?rd <mru@kth.se>
+Subject: Re: Software Suspend 2.0
+Message-ID: <20040201002641.GB31914@luna.mooo.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	M?ns Rullg?rd <mru@kth.se>
+References: <1075534088.18161.61.camel@laptop-linux> <20040131073848.GE7245@digitasaru.net> <1075537924.17730.88.camel@laptop-linux> <401B6F7A.5030103@gmx.de> <1075540107.17727.90.camel@laptop-linux> <401B7312.3060207@gmx.de> <1075542685.25454.124.camel@laptop-linux> <401B86EB.50604@gmx.de> <yw1xznc4tfle.fsf@kth.se> <20040131231134.GA6084@digitasaru.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040131231134.GA6084@digitasaru.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.23.0.3; VDF: 6.23.0.53; host: localhost)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:15 PM 31/01/2004, JG wrote:
->well, i did a thorough cable test with a DSP-4100 fluke networks cable 
->tester and i had some bad values. i've been using 3 cables (24m) with 
->adapters, all single cables were fine, so the adapters seemed to cause the 
->problem.
->but i'm now using a longer x-over cable (30m) where i also get those speed 
->problems. it is a *bit* better, i get about 1-2MB/s in both directions, 
->but i'm also experiencing a very high error rate over the x-over 
->cable...(~40-50 errors per second)
+On Sat, Jan 31, 2004 at 05:11:37PM -0600, Joseph Pingenot wrote:
+> >From M?ns Rullg?rd on Saturday, 31 January, 2004:
+> >"Prakash K. Cheemplavam" <PrakashKC@gmx.de> writes:
+> >>> My error. My patch script has put kernel/power/swsusp2.c in the version
+> >> No problem. I already tested it. After throwing out usb modules, it
+> >> did suspend, though taking quite long at the kernel and processing
+> >> (something like that) message. But upon restart, it didn't resume,
+> >> ie. it didn't find its image, just normal swap space.
+> >Try disabling write cache on the disk with hdparm -W0 /dev/hde.
+> 
+> When should this be done?
+> 
+> I have 2.6.1 + the 2.6.1-specific patches + core patches.  It suspends
+>   without difficulty, but on boot, it says it couldn't read a part
+>   of the resume data (a "chunk", iirc).  The status bar doesn't make
+>   much progress.
+> 
+> I tried hdparm -W 0 right before the call to hibernate (in a script).
+>   But I still have the problem.
+> 
+> When should hdparm be called?
+> 
 
-if you get ANY errors, then its bad; even 1 error per second basically 
-means "one lost packet per second", which will severly limit your TCP 
-throughput.
+Is X running with dri support? If so as a start try stopping X and see
+if that solves your problem (there is still a problem with most of the
+agp and drm drivers suspend support)
 
-one thing you may want to do to is drop the link to 100mbit/s rather than 
-gig-e; that will use less cable pairs and may avoid the problem.
-100mbit/s without errors will likely be way way faster than 1000mbit/s with 
-50 errors/sec.
-
->do you have this BACS software and is it possible to test the NIC itself 
->with it? maybe one of my NICs is causing this.
-
-it seems there is only a Windows version of their diagnostics.
-personally, i use IBM xSeries servers.  their version of the BACS code is 
-at <http://www-306.ibm.com/pc/support/site.wss/document.do?lndocid=MIGR-43815>.
-i've seen other servers (e.g. Compaq DL360?) that also use the BCM57xx; 
-their BACS tool is rebadged as being a HP tool.
-
-
-cheers,
-
-lincoln.
-
-
->thx,
->JG
->
-
+> Thanks!
+> 
+> -Joseph
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

@@ -1,86 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263358AbTIBAEq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 20:04:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263351AbTIBAEq
+	id S263368AbTIBAGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 20:06:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263371AbTIBAGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 20:04:46 -0400
-Received: from anumail4.anu.edu.au ([150.203.2.44]:13229 "EHLO anu.edu.au")
-	by vger.kernel.org with ESMTP id S263358AbTIBAEo (ORCPT
+	Mon, 1 Sep 2003 20:06:16 -0400
+Received: from terminus.zytor.com ([63.209.29.3]:7309 "EHLO terminus.zytor.com")
+	by vger.kernel.org with ESMTP id S263368AbTIBAGO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 20:04:44 -0400
-Message-ID: <3F53DE8B.7010701@cyberone.com.au>
-Date: Tue, 02 Sep 2003 10:04:27 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+	Mon, 1 Sep 2003 20:06:14 -0400
+Message-ID: <3F53DEE1.5000709@zytor.com>
+Date: Mon, 01 Sep 2003 17:05:53 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: en, sv, es, fr
 MIME-Version: 1.0
-To: Ian Kumlien <pomac@vapor.com>
-CC: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org,
-       Robert Love <rml@tech9.net>
-Subject: Re: [SHED] Questions.
-References: <1062324435.9959.56.camel@big.pomac.com>	 <1062369684.9959.166.camel@big.pomac.com>	 <1062373274.1313.28.camel@boobies.awol.org>	 <200309011707.20135.phillips@arcor.de> <1062457396.9959.243.camel@big.pomac.com>
-In-Reply-To: <1062457396.9959.243.camel@big.pomac.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: Wes Janzen <superchkn@sbcglobal.net>,
+       Maciej Soltysiak <solt@dns.toxicfilms.tv>, linux-kernel@vger.kernel.org,
+       webmaster@kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: -mm patches on www.kernel.org ?
+References: <Pine.LNX.4.51.0308071636100.31463@dns.toxicfilms.tv> <20030901211108.GE31760@matchmail.com> <3F53B937.10103@sbcglobal.net> <20030901225339.GH31760@matchmail.com>
+In-Reply-To: <20030901225339.GH31760@matchmail.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Sender-Domain: cyberone.com.au
-X-Spam-Score: (-2.5)
-X-Spam-Tests: EMAIL_ATTRIBUTION,IN_REP_TO,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_MOZILLA_UA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Kumlien wrote:
+Mike Fedyk wrote:
+> On Mon, Sep 01, 2003 at 04:25:11PM -0500, Wes Janzen wrote:
+> 
+>>I think he's saying, why not put a link to the mm kernels from the 
+>>www.kernel.org homepage, just like the ac kernels...  At least that's 
+>>how I read it.
+> 
+> Ok, then I can agree with that.
 
->[Forgot CC to LKML and Robert Love, sorry ]
->
->On Mon, 2003-09-01 at 17:07, Daniel Phillips wrote:
->
->>On Monday 01 September 2003 01:41, Robert Love wrote:
->>
->>>Priority inversion is bad, but the priority inversion in this case is
->>>intended.  Higher priority tasks cannot starve lower ones.  It is a
->>>classic Unix philosophy that 'all tasks make some forward progress'
->>>
->>So if I have 1000 low priority tasks and one high priority task, all CPU 
->>bound, the high priority task gets 0.1% CPU.  This is not the desirable or 
->>expected behaviour.
->>
+Can't do it.  The -mm kernels aren't a single patch, they're patch sets, 
+and they won't work with the system that we have set up.  If akpm wants 
+to make a unified patch for each patch set in addition to the set itself 
+then it can be done.
 
-In my implementation, the high prio guy gets 1.9% CPU and the others get
-0.09%. However, in all implementations, the high priority one will be 
-allowed
-to preempt the any of others, of course.
-
-At this point you can safely abandon the consideration that a user might be
-running KDE as well ;)
-
->
->>My conclusion is, the strategy of expiring the whole active array before any 
->>expired tasks are allowed to run again is incorrect.  Instead, each active 
->>list should be refreshed from the expired list individually.  This does not 
->>affect the desirable O(1) scheduling property.  To prevent low priority 
->>starvation, the high-to-low scan should be elaborated to skip some runnable, 
->>high priority tasks occasionally in a *controlled* way.
->>
->
->I like this idea.
->You could handle the priority starvation with a "old process" boost.
->(i don't know which would be simpler or if there is something even
->simpler out there)
->
->This would ensure that all processes are run sooner or later. Real
->cpuhogs would run very seldom due to being starved, but run when they
->get the boost. On a loaded system this might be desirable since most
->login tools would be "normal" or "high pri" from the get go.
->(there might be a problem with locks though)
->
->This should also work hand in hand with timeslice changes imho. Aswell
->as process preemption. If we assume that cpu hogs has work that they
->want to get done, let em do it for as long as possible. If something
->"important" happens, it'll be preempted right?
->
-
-This is really just another variation on the idea of dynamic timeslices.
-Mine does it explicitly. This idea and the interactivity idea do it
-implicitly (not that thats bad).
-
+	-hpa
 

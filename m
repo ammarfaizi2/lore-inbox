@@ -1,33 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315491AbSHGUvK>; Wed, 7 Aug 2002 16:51:10 -0400
+	id <S313867AbSHGUwg>; Wed, 7 Aug 2002 16:52:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315690AbSHGUvJ>; Wed, 7 Aug 2002 16:51:09 -0400
-Received: from pD9E231F8.dip.t-dialin.net ([217.226.49.248]:57056 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S315491AbSHGUvI>; Wed, 7 Aug 2002 16:51:08 -0400
-Date: Wed, 7 Aug 2002 14:54:46 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Thunder from the hill <thunder@ngforever.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: modutils for 2.0.40
-In-Reply-To: <Pine.LNX.4.44.0208071447430.10270-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44.0208071454300.10270-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
+	id <S313743AbSHGUwe>; Wed, 7 Aug 2002 16:52:34 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:10250 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S315536AbSHGUvX>; Wed, 7 Aug 2002 16:51:23 -0400
+Date: Wed, 7 Aug 2002 17:54:50 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Daniel Phillips <phillips@arcor.de>
+cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
+       <wli@holomorphy.com>
+Subject: Re: [PATCH] Rmap speedup
+In-Reply-To: <E17cXlz-0004y0-00@starship>
+Message-ID: <Pine.LNX.4.44L.0208071753190.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 7 Aug 2002, Daniel Phillips wrote:
 
-On Wed, 7 Aug 2002, Thunder from the hill wrote:
-> What's the latest modutils version expected to work on 2.0?
+> > It may be a net loss for high sharing levels.  Dunno.
+>
+> High sharing levels are exactly where the swap-in problem is going to
+> rear its ugly head.
 
-s/latest/oldest/...
+If the swap-in problem exists.
 
-			Thunder
+I can see it being triggered artificially because we still
+unmap too many pages in the pageout path, but if we fix
+shrink_cache() to not unmap the whole inactive list when
+we're under continuous memory pressure but only the end of
+the list where we're actually reclaiming pages, maybe then
+many of the minor page faults we're seeing under such
+loads will just disappear.
+
+Not to mention the superfluous IO being scheduled today.
+
+regards,
+
+Rik
 -- 
-.-../../-./..-/-..- .-./..-/.-.././.../.-.-.-
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

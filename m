@@ -1,50 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264643AbTFLAvL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 20:51:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264646AbTFLAvL
+	id S264657AbTFLAzl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 20:55:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264659AbTFLAzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 20:51:11 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:32818 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264643AbTFLAvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 20:51:09 -0400
-Date: Wed, 11 Jun 2003 18:05:48 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Greg KH <greg@kroah.com>
-Cc: boris@macbeth.rhoen.de, linux-kernel@vger.kernel.org
-Subject: Re: oops while booting : 2.5.70-bk1[4,5] - Process swapper
-Message-Id: <20030611180548.733eb4bd.akpm@digeo.com>
-In-Reply-To: <20030612001931.GB27815@kroah.com>
-References: <20030610202947.GA752@macbeth.rhoen.de>
-	<20030610143018.025d318c.akpm@digeo.com>
-	<20030610165111.7911b7cb.akpm@digeo.com>
-	<20030612001931.GB27815@kroah.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 11 Jun 2003 20:55:41 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:12275 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S264657AbTFLAzi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 20:55:38 -0400
+Subject: [patch] as-iosched divide by zero fix
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: bos@serpentine.com, linux-kernel@vger.kernel.org, piggin@cyberone.com.au
+In-Reply-To: <20030611172444.76556d5d.akpm@digeo.com>
+References: <1055369849.1084.4.camel@serpentine.internal.keyresearch.com>
+	 <20030611154122.55570de0.akpm@digeo.com> <1055374476.673.1.camel@localhost>
+	 <1055377120.665.6.camel@localhost> <20030611172444.76556d5d.akpm@digeo.com>
+Content-Type: text/plain
+Message-Id: <1055380257.662.8.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 11 Jun 2003 18:10:58 -0700
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Jun 2003 01:04:53.0875 (UTC) FILETIME=[A204EC30:01C3307E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
->
-> On Tue, Jun 10, 2003 at 04:51:11PM -0700, Andrew Morton wrote:
-> > 
-> > Greg, do you have time/inclination to untangle (and preferably document)
-> > this mess?
-> 
-> Ugh, what a mess.  Hm, no I don't really have the time right now to do
-> this, but possibly will after the rest of the pci changes are done...
+On Wed, 2003-06-11 at 17:24, Andrew Morton wrote:
 
-Thanks.
+> Do you know what the actual oops is?
 
-> As for documenting, why?  It's an arch specific thing that really does
-> not get touched very often, if at all.
+I got it all figured out now.
 
-a) so you can convince yourself that it's right
+It is a divide by zero in update_write_batch() called from
+as_completed_request().
 
-b) so someone else has a chance of modifying it later without it
-   exploding subtly in someone else's face.
+> Odd that starting the X server triggers it.  Be interesting if your patch
+> fixes things for Brian.
+
+I reproduced it without X.
+
+The divide by zero is on line 959 with the divide by 'write_time'. It
+can obviously be zero (see line 950). The divide by 'batch' on line 953
+seems safe.
+
+The correct patch is below.
+
+Most important question: why are only some of us seeing this?
+
+	Robert Love
+
+
+Fix as-iosched divide-by-zero bug.
+
+ drivers/block/as-iosched.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+
+diff -urN linux-2.5.70-mm8/drivers/block/as-iosched.c linux/drivers/block/as-iosched.c
+--- linux-2.5.70-mm8/drivers/block/as-iosched.c	2003-06-11 17:12:02.000000000 -0700
++++ linux/drivers/block/as-iosched.c	2003-06-11 18:04:15.222619392 -0700
+@@ -954,9 +954,9 @@
+ 			ad->write_batch_count /= 2;
+ 		else
+ 			ad->write_batch_count--;
+-		
++
+ 	} else if (write_time + 5 < batch && ad->current_write_count == 0) {
+-		if (batch / write_time > 2)
++		if (write_time && (batch / write_time > 2))
+ 			ad->write_batch_count *= 2;
+ 		else
+ 			ad->write_batch_count++;
+
+
 

@@ -1,63 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263716AbTKRQZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 11:25:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263717AbTKRQZ1
+	id S263692AbTKRQhf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 11:37:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbTKRQhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 11:25:27 -0500
-Received: from pat.uio.no ([129.240.130.16]:17095 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S263716AbTKRQZ0 (ORCPT
+	Tue, 18 Nov 2003 11:37:35 -0500
+Received: from fw.osdl.org ([65.172.181.6]:31960 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263692AbTKRQhd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 11:25:26 -0500
-To: Andi Kleen <ak@suse.de>
-Cc: Jamie Lokier <jamie@shareable.org>, hpa@zytor.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: OT: why no file copy() libc/syscall ??
-References: <1068512710.722.161.camel@cube.suse.lists.linux.kernel>
-	<20031111133859.GA11115@bitwizard.nl.suse.lists.linux.kernel>
-	<20031111085323.M8854@devserv.devel.redhat.com.suse.lists.linux.kernel>
-	<bp0p5m$lke$1@cesium.transmeta.com.suse.lists.linux.kernel>
-	<20031113233915.GO1649@x30.random.suse.lists.linux.kernel>
-	<3FB4238A.40605@zytor.com.suse.lists.linux.kernel>
-	<20031114011009.GP1649@x30.random.suse.lists.linux.kernel>
-	<3FB42CC4.9030009@zytor.com.suse.lists.linux.kernel>
-	<p734qx7rmyf.fsf@oldwotan.suse.de>
-	<20031118154921.GA28942@mail.shareable.org>
-	<20031118170509.71bfb039.ak@suse.de>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 18 Nov 2003 11:25:16 -0500
-In-Reply-To: <20031118170509.71bfb039.ak@suse.de>
-Message-ID: <shsk75xy783.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Tue, 18 Nov 2003 11:37:33 -0500
+Date: Tue, 18 Nov 2003 08:37:25 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+cc: Ingo Molnar <mingo@elte.hu>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH][2.6-mm] Fix 4G/4G X11/vm86 oops
+In-Reply-To: <Pine.LNX.4.53.0311181113150.11537@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.44.0311180830050.18739-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Andi Kleen <ak@suse.de> writes:
 
-    >> > That would be buggy because existing users of sendfile don't
-    >> > know about this and would silently only copy part of the file
-    >> > when a signal happens.
-    >>
-    >> That doesn't make sense.  There aren't any existing users of
-    >> sendfile to copy files.
+On Tue, 18 Nov 2003, Zwane Mwaikambo wrote:
+> 
+> Here are diffs from the do_sys_vm86 only.
 
-     > [ignore the mail, it was an stuck mail queue]
+Ok. Much more readable.
 
-     > But note that arbitary changes in the signal handling would
-     > affect all users of sendfile, not just those that attempt to
-     > copy files or do other things that should be done in user
-     > space.
+And there is something very suspicious there.
 
-That 'change' is already in effect for people who mount their NFS
-partitions with the "intr" or "soft" flags.
+The code with and without the printk() looks _identical_ apart from some 
+trivial label renumbering, and the added
 
-See the return value of generic_file_sendfile(): it already has the
-read()/write-like semantics of returning number of bytes written if
-non-zero, or the value of desc.error if not.
+	pushl   $.LC6
+	call    printk
+	.. asm ..
+	popl %esi
 
-Cheers,
-  Trond
+which all looks fine (esi is dead at that point, so the compiler is just
+using a "popl" as a shorter form of "addl $4,%esp").
+
+Btw, you seem to compile with debugging, which makes the assembly 
+language pretty much unreadable and accounts for most of the 
+differences: the line numbers change. If you compile a kernel where the 
+line numbers don't change (by commenting _out_ the printk rather than 
+removing the whole line), your diff would be more readable.
+
+Anyway, there are _zero_ differences.
+
+Just for fun, try this: move the "printk()" to _below_ the "asm"  
+statement. It will never actually get executed, but if it's an issue of
+some subtle code or data placement things (cache lines etc), maybe that
+also hides the oops, since all the same code and data will be generated, 
+just not run...
+
+		Linus
+

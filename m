@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129810AbRAaGPH>; Wed, 31 Jan 2001 01:15:07 -0500
+	id <S129860AbRAaGaB>; Wed, 31 Jan 2001 01:30:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129860AbRAaGO5>; Wed, 31 Jan 2001 01:14:57 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:63753 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129810AbRAaGOx>; Wed, 31 Jan 2001 01:14:53 -0500
-Date: Wed, 31 Jan 2001 00:14:40 -0600
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Keith Owens <kaos@ocs.com.au>, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Version 2.4.1 cannot be built.
-Message-ID: <20010131001440.B18746@cadcamlab.org>
-In-Reply-To: <Pine.LNX.3.95.1010130175517.3672A-100000@chaos.analogic.com> <Pine.LNX.3.95.1010130180303.4483A-100000@chaos.analogic.com>
-Mime-Version: 1.0
+	id <S130133AbRAaG3w>; Wed, 31 Jan 2001 01:29:52 -0500
+Received: from ladyluck.clue4all.net ([130.215.241.207]:10376 "EHLO
+	ladyluck.clue4all.net") by vger.kernel.org with ESMTP
+	id <S129860AbRAaG3j>; Wed, 31 Jan 2001 01:29:39 -0500
+Message-ID: <3A77B0CE.74C0F8BF@clue4all.net>
+Date: Wed, 31 Jan 2001 01:29:34 -0500
+From: "Brian J. Conway" <dogbert@clue4all.net>
+Organization: Clue 4 All, Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: chaffee@bmrc.cs.berkeley.edu
+CC: linux-kernel@vger.kernel.org
+Subject: VFAT access times in 2.4.1 kernel
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.3.95.1010130180303.4483A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Jan 30, 2001 at 06:07:32PM -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello, I just switched to 2.4.1 from 2.2.18 and have the kernel set up
+in generally the same manner in terms of functionality.  I've found that
+VFAT access is incredibly slow in directories with a large number of
+files.  I have a single directory with approximately 1500 items, all
+3-5MB apiece, and if I do 'ls -alt dir/ |more' on that directory, it
+takes a full 2 seconds do list the contents of the first page.  If I do
+so again immediately afterwards it displays immediately, but the same
+effects occur if I wait any considerable amount of time (> 2 minutes). 
+I've experienced no such problems under 2.2.18, and I'm running a 20GB
+Maxtor drive running at UDMA(33) without any known issues.  Any ideas?
 
-[Richard B. Johnson]
-> Bob Tracy found the problem: the second ':' really needs to be
-> escaped even though newer versions of make allow what was written.
-
-> -$(MODINCL)/%.ver: CFLAGS := -I./include $(CFLAGS)
-> +$(MODINCL)/%.ver: CFLAGS \:= -I./include $(CFLAGS)
-
-No, that's a workaround in that it subverts the purpose of the line.
-(In which case, better to delete the line entirely.)  The correct fix
-is to upgrade to a version of 'make' that understands the syntax used
-there.  Yes, the FSF being the FSF, they keep adding features to their
-software.  And yes, some of us are using some of those features.
-
-It could have been worse.  Documentation/Changes lists version 3.77,
-from July 1998.  We (at least I) actually considered using features
-from 3.78, but that was quickly shot down since 3.78 is too new -
-September 1999.
-
-Peter
+Brian J. Conway
+dogbert@clue4all.net
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

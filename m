@@ -1,110 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267395AbTACFQj>; Fri, 3 Jan 2003 00:16:39 -0500
+	id <S267401AbTACFdm>; Fri, 3 Jan 2003 00:33:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267396AbTACFQj>; Fri, 3 Jan 2003 00:16:39 -0500
-Received: from dp.samba.org ([66.70.73.150]:24742 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267395AbTACFQi>;
-	Fri, 3 Jan 2003 00:16:38 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Richard Henderson <rth@twiddle.net>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au, ak@suse.de
-Date: Fri, 03 Jan 2003 16:24:51 +1100
-Message-Id: <20030103052508.379BE2C003@lists.samba.org>
+	id <S267399AbTACFdm>; Fri, 3 Jan 2003 00:33:42 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:39849 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S267398AbTACFdj>;
+	Fri, 3 Jan 2003 00:33:39 -0500
+Date: Fri, 3 Jan 2003 16:41:06 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
+       "David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
+       schwidefsky@de.ibm.com, ralf@gnu.org, matthew@wil.cx
+Subject: [PATCH][COMPAT] move struct flock32 1/8 generic
+Message-Id: <20030103164106.21e65093.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: Re: sh_link 
-In-reply-to: Your message of "Thu, 02 Jan 2003 20:40:23 -0800."
-             <20030102204023.A24347@twiddle.net> 
+Hi Linus,
 
-In message <20030102204023.A24347@twiddle.net> you write:
-> On Fri, Jan 03, 2003 at 03:26:31PM +1100, Rusty Russell wrote:
-> > F... bugger.  Hmm... sh_entsize?  or sh_addralign?
-> 
-> *shrug* Prolly nothing uses sh_entsize, and you don't have
-> the ordering issues you'd have with addralgin.
+This patch moves struct flock32 to struct compat_flock and consolidates
+the functions used to copy it to/from user mode.
 
-Ack.  Linus, please apply (sh_link is a 32-bit field on 64 bit archs,
-so a bad choice to store offsets, and also INIT_OFFSET_MASK is out of
-range).
+The overall diffstat looks like this:
+ arch/ia64/ia32/sys_ia32.c         |   36 ++----------------------------------
+ arch/mips64/kernel/linux32.c      |   37 ++-----------------------------------
+ arch/parisc/kernel/sys_parisc32.c |   37 ++-----------------------------------
+ arch/ppc64/kernel/sys_ppc32.c     |   28 ++--------------------------
+ arch/s390x/kernel/linux32.c       |   30 +++---------------------------
+ arch/s390x/kernel/linux32.h       |    9 ---------
+ arch/sparc64/kernel/sys_sparc32.c |   28 ++--------------------------
+ arch/x86_64/ia32/sys_ia32.c       |   28 ++--------------------------
+ fs/compat.c                       |   31 +++++++++++++++++++++++++++++++
+ include/asm-ia64/compat.h         |    8 ++++++++
+ include/asm-ia64/ia32.h           |    9 ---------
+ include/asm-mips64/compat.h       |    9 +++++++++
+ include/asm-parisc/compat.h       |    8 ++++++++
+ include/asm-ppc64/compat.h        |    9 +++++++++
+ include/asm-ppc64/ppc32.h         |    9 ---------
+ include/asm-s390x/compat.h        |    9 +++++++++
+ include/asm-sparc64/compat.h      |    9 +++++++++
+ include/asm-sparc64/fcntl.h       |   13 -------------
+ include/asm-x86_64/compat.h       |    8 ++++++++
+ include/asm-x86_64/ia32.h         |   10 ----------
+ include/linux/compat.h            |    3 +++
+ 21 files changed, 109 insertions(+), 259 deletions(-)
 
-Andi, you'll want this most.
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+This is just the generic part.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/kernel/module.c working-2.5-bk-sh_entsize/kernel/module.c
---- linux-2.5-bk/kernel/module.c	2003-01-02 14:48:01.000000000 +1100
-+++ working-2.5-bk-sh_entsize/kernel/module.c	2003-01-03 16:21:14.000000000 +1100
-@@ -880,7 +880,7 @@ static long get_offset(unsigned long *si
+diff -ruN 2.5.54-200301031304-32bit.1/fs/compat.c 2.5.54-200301031304-32bit.2/fs/compat.c
+--- 2.5.54-200301031304-32bit.1/fs/compat.c	2002-12-16 14:49:52.000000000 +1100
++++ 2.5.54-200301031304-32bit.2/fs/compat.c	2003-01-03 16:24:56.000000000 +1100
+@@ -16,6 +16,7 @@
+ #include <linux/errno.h>
+ #include <linux/time.h>
+ #include <linux/fs.h>
++#include <linux/fcntl.h>
  
- /* Lay out the SHF_ALLOC sections in a way not dissimilar to how ld
-    might -- code, read-only data, read-write data, small data.  Tally
--   sizes, and place the offsets into sh_link fields: high bit means it
-+   sizes, and place the offsets into sh_entsize fields: high bit means it
-    belongs in init. */
- static void layout_sections(struct module *mod,
- 			    const Elf_Ehdr *hdr,
-@@ -896,7 +896,7 @@ static void layout_sections(struct modul
- 	unsigned int m, i;
+ #include <asm/uaccess.h>
  
- 	for (i = 0; i < hdr->e_shnum; i++)
--		sechdrs[i].sh_link = ~0UL;
-+		sechdrs[i].sh_entsize = ~0UL;
+@@ -70,3 +71,33 @@
+ 		error = cp_compat_stat(&stat, statbuf);
+ 	return error;
+ }
++
++int get_compat_flock(struct flock *kfl, struct compat_flock *ufl)
++{
++	int err;
++
++	if (!access_ok(VERIFY_READ, ufl, sizeof(*ufl)))
++		return -EFAULT;
++
++	err = __get_user(kfl->l_type, &ufl->l_type);
++	err |= __get_user(kfl->l_whence, &ufl->l_whence);
++	err |= __get_user(kfl->l_start, &ufl->l_start);
++	err |= __get_user(kfl->l_len, &ufl->l_len);
++	err |= __get_user(kfl->l_pid, &ufl->l_pid);
++	return err;
++}
++
++int put_compat_flock(struct flock *kfl, struct compat_flock *ufl)
++{
++	int err;
++
++	if (!access_ok(VERIFY_WRITE, ufl, sizeof(*ufl)))
++		return -EFAULT;
++
++	err = __put_user(kfl->l_type, &ufl->l_type);
++	err |= __put_user(kfl->l_whence, &ufl->l_whence);
++	err |= __put_user(kfl->l_start, &ufl->l_start);
++	err |= __put_user(kfl->l_len, &ufl->l_len);
++	err |= __put_user(kfl->l_pid, &ufl->l_pid);
++	return err;
++}
+diff -ruN 2.5.54-200301031304-32bit.1/include/linux/compat.h 2.5.54-200301031304-32bit.2/include/linux/compat.h
+--- 2.5.54-200301031304-32bit.1/include/linux/compat.h	2003-01-03 14:08:45.000000000 +1100
++++ 2.5.54-200301031304-32bit.2/include/linux/compat.h	2003-01-03 16:25:50.000000000 +1100
+@@ -10,6 +10,7 @@
  
- 	DEBUGP("Core section allocation order:\n");
- 	for (m = 0; m < ARRAY_SIZE(masks); ++m) {
-@@ -905,10 +905,10 @@ static void layout_sections(struct modul
+ #include <linux/stat.h>
+ #include <linux/param.h>	/* for HZ */
++#include <linux/fcntl.h>	/* for struct flock */
+ #include <asm/compat.h>
  
- 			if ((s->sh_flags & masks[m][0]) != masks[m][0]
- 			    || (s->sh_flags & masks[m][1])
--			    || s->sh_link != ~0UL
-+			    || s->sh_entsize != ~0UL
- 			    || strstr(secstrings + s->sh_name, ".init"))
- 				continue;
--			s->sh_link = get_offset(&mod->core_size, s);
-+			s->sh_entsize = get_offset(&mod->core_size, s);
- 			DEBUGP("\t%s\n", name);
- 		}
- 	}
-@@ -920,11 +920,11 @@ static void layout_sections(struct modul
+ #define compat_jiffies_to_clock_t(x)	\
+@@ -33,6 +34,8 @@
+ };
  
- 			if ((s->sh_flags & masks[m][0]) != masks[m][0]
- 			    || (s->sh_flags & masks[m][1])
--			    || s->sh_link != ~0UL
-+			    || s->sh_entsize != ~0UL
- 			    || !strstr(secstrings + s->sh_name, ".init"))
- 				continue;
--			s->sh_link = (get_offset(&mod->init_size, s)
--				      | INIT_OFFSET_MASK);
-+			s->sh_entsize = (get_offset(&mod->init_size, s)
-+					 | INIT_OFFSET_MASK);
- 			DEBUGP("\t%s\n", name);
- 		}
- 	}
-@@ -1066,7 +1066,7 @@ static struct module *load_module(void *
- 	if (err < 0)
- 		goto free_mod;
+ extern int cp_compat_stat(struct kstat *, struct compat_stat *);
++extern int get_compat_flock(struct flock *, struct compat_flock *);
++extern int put_compat_flock(struct flock *, struct compat_flock *);
  
--	/* Determine total sizes, and put offsets in sh_link.  For now
-+	/* Determine total sizes, and put offsets in sh_entsize.  For now
- 	   this is done generically; there doesn't appear to be any
- 	   special cases for the architectures. */
- 	layout_sections(mod, hdr, sechdrs, secstrings);
-@@ -1095,11 +1095,11 @@ static struct module *load_module(void *
- 		if (!(sechdrs[i].sh_flags & SHF_ALLOC))
- 			continue;
- 
--		if (sechdrs[i].sh_link & INIT_OFFSET_MASK)
-+		if (sechdrs[i].sh_entsize & INIT_OFFSET_MASK)
- 			dest = mod->module_init
--				+ (sechdrs[i].sh_link & ~INIT_OFFSET_MASK);
-+				+ (sechdrs[i].sh_entsize & ~INIT_OFFSET_MASK);
- 		else
--			dest = mod->module_core + sechdrs[i].sh_link;
-+			dest = mod->module_core + sechdrs[i].sh_entsize;
- 
- 		if (sechdrs[i].sh_type != SHT_NOBITS)
- 			memcpy(dest, (void *)sechdrs[i].sh_addr,
+ #endif /* CONFIG_COMPAT */
+ #endif /* _LINUX_COMPAT_H */

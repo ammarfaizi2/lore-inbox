@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261544AbSLPLKK>; Mon, 16 Dec 2002 06:10:10 -0500
+	id <S262303AbSLPLtW>; Mon, 16 Dec 2002 06:49:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266369AbSLPLKJ>; Mon, 16 Dec 2002 06:10:09 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:48904 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S261544AbSLPLKE>; Mon, 16 Dec 2002 06:10:04 -0500
-Date: Mon, 16 Dec 2002 12:17:59 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: linux-kernel@vger.kernel.org, hpa@zytor.com, terje.eggestad@scali.com
-Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021216111759.GA24196@atrey.karlin.mff.cuni.cz>
-References: <20021215220132.GB6347@elf.ucw.cz> <200212160733.gBG7XhD67922@saturn.cs.uml.edu>
+	id <S264688AbSLPLtW>; Mon, 16 Dec 2002 06:49:22 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:53458 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262303AbSLPLtV>;
+	Mon, 16 Dec 2002 06:49:21 -0500
+Date: Mon, 16 Dec 2002 12:56:58 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove error message on illegal ioctl
+Message-ID: <20021216115658.GR11892@suse.de>
+References: <20021216091615.GQ11892@suse.de> <Pine.LNX.4.44.0212160138480.1317-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200212160733.gBG7XhD67922@saturn.cs.uml.edu>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.44.0212160138480.1317-100000@home.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >> Have apps enter kernel mode via Intel's purposely undefined
-> >> instruction, plus a few bytes of padding and identification.
-> >> Require that this not cross a page boundry. When it faults,
-> >> write the SYSENTER, INT 0x80, or SYSCALL as needed. Leave
-> >> the page marked clean so it doesn't need to hit swap; if it
-> >> gets paged in again it gets patched again.
-> >
-> > Thats *very* dirty hack. vsyscalls seem cleaner than that.
+On Mon, Dec 16 2002, Linus Torvalds wrote:
 > 
-> Sure it's dirty. It's also fast, with the only overhead being
-> a few NOPs that could get skipped on syscall return anyway.
-> Patching overhead is negligible, since it only happens when a
-> page is brought in fresh from the disk.
+> 
+> On Mon, 16 Dec 2002, Jens Axboe wrote:
+> >
+> > Your non-root user still has to be able to open the cdrom.
+> 
+> Why not just make this all use the "quiet" flag, and make the ioctl's
+> always set it. That's what it's there for.
 
-Yes but "read only" code changing under you... Should better be
-avoided.
+Yes that would be fine. I just don't want uniform packets to be silently
+dropped, that makes debugging a problem with a drive pretty much
+impossible.
 
-> The vsyscall stuff costs you on every syscall. It's nice for
-
-Well, the cost is basically one call. That's not *that* big cost.
-
-							Pavel
 -- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+Jens Axboe
+

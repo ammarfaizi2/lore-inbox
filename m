@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbTI2VZa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 17:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbTI2VZa
+	id S262731AbTI2V3d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 17:29:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263054AbTI2V3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 17:25:30 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:59551 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263036AbTI2VZZ (ORCPT
+	Mon, 29 Sep 2003 17:29:33 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:18369 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262731AbTI2V3b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 17:25:25 -0400
-Date: Mon, 29 Sep 2003 14:26:08 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-cc: sylvain.jeaugey@bull.net, Simon.Derr@bull.net, mark.gross@intel.com
-Subject: 10/1 LSE call topics: Cpusets and real-time app needs.
-Message-ID: <37470000.1064870768@w-hlinder>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 29 Sep 2003 17:29:31 -0400
+Date: Mon, 29 Sep 2003 23:29:25 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Karol Kozimor <sziwan@hell.org.pl>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PM][INPUT] keyboard dead after resuming from S3
+Message-ID: <20030929212925.GA19916@ucw.cz>
+References: <20030929211344.GC12894@hell.org.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030929211344.GC12894@hell.org.pl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 29, 2003 at 11:13:44PM +0200, Karol Kozimor wrote:
 
-		LSE Con Call Agenda for Wednesday Oct 1, 2003
+> As far as I remember, my keyboard (a standard laptop AT keyboard) never
+> worked after resuming from S3. In older kernels, I was able to get away
+> with this by reloading atkbd.ko. However, for newer ones (2.6.0-test5-mm4,
+> specifically), I can't do that, as the following appears:
+> 
+> atkbd: Unknown symbol dump_i8042_history
+> 
+> A similar warning is issued at depmod stage.
 
-Typically the presenter gives a brief overview of their topic
-then the rest of the time is left open for questions.
+You probably have the atkbd module from a different kernel version.
+Rebuild your atkbd module.
 
-I. Sylvain Jeaugey and Simon Derr: CPUSETS, Controlling CPU placement.
+> How are your plans to add suspend / resume support to the serio core (I
+> thought I saw some Synaptics patches a while ago)?
 
-http://marc.theaimsgroup.com/?l=lse-tech&m=106441942222186&w=2
+Yes, I'm working on that.
 
-II. Mark Gross: Real-Time applications needs when system is stressed. 
-
-III. Anything else if time permits.
-
-
-USA Toll Free:      1-800-967-7148
-International Toll: +1-719-457-2710
-Passcode: 298900
-10:00am PDT (1700 GMT)
-
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

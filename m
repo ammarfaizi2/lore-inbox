@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbTLLU0X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 15:26:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbTLLU0X
+	id S261930AbTLLUlt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 15:41:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTLLUlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 15:26:23 -0500
-Received: from dsl093-039-041.pdx1.dsl.speakeasy.net ([66.93.39.41]:45249 "EHLO
-	raven.beattie-home.net") by vger.kernel.org with ESMTP
-	id S261947AbTLLU0T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 15:26:19 -0500
+	Fri, 12 Dec 2003 15:41:49 -0500
+Received: from gprs149-168.eurotel.cz ([160.218.149.168]:61056 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261930AbTLLUls (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 15:41:48 -0500
+Date: Fri, 12 Dec 2003 20:40:04 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Paul Adams <padamsdev@yahoo.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: Linux GPL and binary module exception clause?
-From: Brian Beattie <beattie@beattie-home.net>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Andre Hedrick <andre@linux-ide.org>, Linus Torvalds <torvalds@osdl.org>,
-       Larry McVoy <lm@bitmover.com>, Erik Andersen <andersen@codepoet.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Paul Adams <padamsdev@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1071147505.5712.597.camel@hades.cambridge.redhat.com>
-References: <Pine.LNX.4.10.10312110439550.3805-100000@master.linux-ide.org>
-	 <1071147505.5712.597.camel@hades.cambridge.redhat.com>
-Content-Type: text/plain
-Message-Id: <1071260775.817.5.camel@kokopelli>
+Message-ID: <20031212194004.GB465@elf.ucw.cz>
+References: <Pine.LNX.4.58.0312041743530.6638@home.osdl.org> <Pine.LNX.4.10.10312100419220.3805-100000@master.linux-ide.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 12 Dec 2003 15:26:15 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10312100419220.3805-100000@master.linux-ide.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-12-11 at 07:58, David Woodhouse wrote:
+Hi!
 
-> My point, however, was that a copyright licence _can_ make such
-> requirements. It _can_ require you to bathe daily in creosote too, and
-> if you don't like that you have the option of not using the software
-> which is licensed that way.
+> OSL 1 and 2 are a preferred choice as they are slowly creaping into the
+> kernel.  The beauty and pain of OSL is that SCO would be a NOOP.  The
+> requirement imposed on the contributing author to indemnify (sp really
+> bad) the changes/patches to the codebase core, makes it a better world.
+> In short code sets of questionable origin are the liabities of the author
+> and not the community.
 
-I'd be willing to bet, that since bathing in creosote is extremely
-unhealthy, the courts might well find that that restriction was
-nonsense.  This being the case they might decide that taken as a whole
-the license was a fraud and grant the public the right to unrestricted
-use of the product in question.  Especially if the defendants lawyer was
-particularly good.
+Hmm, remind me to never ever touch anything under OSL. Copyright is
+different in different countries and having $1e9 lawsuit going after
+_me_ just because U.S. laws are crazy does not seem funny to me.
+
+								Pavel
 -- 
-Brian Beattie            | Experienced kernel hacker/embedded systems
-beattie@beattie-home.net | programmer, direct or contract, short or
-www.beattie-home.net     | long term, available immediately.
-
-"Honor isn't about making the right choices.
-It's about dealing with the consequences." -- Midori Koto
-
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316672AbSHOKR3>; Thu, 15 Aug 2002 06:17:29 -0400
+	id <S316673AbSHOK1A>; Thu, 15 Aug 2002 06:27:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316673AbSHOKR3>; Thu, 15 Aug 2002 06:17:29 -0400
-Received: from mail-fe71.tele2.ee ([212.107.32.235]:43470 "HELO everyday.com")
-	by vger.kernel.org with SMTP id <S316672AbSHOKR2> convert rfc822-to-8bit;
-	Thu, 15 Aug 2002 06:17:28 -0400
-Date: Thu, 15 Aug 2002 12:21:19 +0200
-Message-Id: <200208151021.g7FALJf08062@eday-fe5.tele2.ee>
-From: "Thomas Munck Steenholdt" <tmus@get2net.dk>
-To: linux-kernel@vger.kernel.org
-Subject: promise ultra 133 tx2 lets system standby during use...?
+	id <S316675AbSHOK1A>; Thu, 15 Aug 2002 06:27:00 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:23307 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S316673AbSHOK1A>;
+	Thu, 15 Aug 2002 06:27:00 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: James Simmons <jsimmons@infradead.org>
+Date: Thu, 15 Aug 2002 12:30:11 +0200
 MIME-Version: 1.0
-X-EdMessageId: 5408031649485d54571c525d43125c035e54525e1c104b55595966545c4611534078
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [Linux-fbdev-devel] [PATCH] broken cfb* support in the 
+CC: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       <linux-fbdev-devel@lists.sourceforge.net>
+X-mailer: Pegasus Mail v3.50
+Message-ID: <212B36E116D@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been having a lot of problems with my Ultra 133 TX2 controller,
-that if I boot my system a just doesn't touch it for a while, the system
-suspends to complete standby, even though the ext3 data is committed
-every 5 secs. causing disk activity and thus should disallow standby
-behaviour (at least that's the way it works on my onboard controller).
-This has been a problem for ages and I sinerely thought it had been
-fixed in the 2.4.19 kernel, and so it seemed for a while, until it
-happened again(guess i had to figure out to trigger it once again)
-it seems the best way to spot it is to leave the system alone completely,
-after a boot - then just wait for an apm standby event to happen.
+On 14 Aug 02 at 21:30, James Simmons wrote:
+> > Hi Linus, hello others,
+> >   please apply this.
+> >
+> > line_length, type and visual moved from display struct to the fb_info's fix
+> > structure during last fbdev updates. Unfortunately generic code was not updated
+> > together, so now every fbdev driver is broken.
+> 
+> That was done to push people to port there drivers to the new api. I
+> applied the patch to the Bk repository but expect more breakage.
 
-Any thoughts on this problem?
+Which new API? If you are going to remove logo and unaccelerated fbcon-cfb*,
+then remove them completely. If you are not going to remove unaccelerated
+fbcon-cfb*, then there is no reason for breaking them.
 
-Best regards
-Thomas
-
--- Send gratis SMS og brug gratis e-mail på Everyday.com -- 
-
+I'm not going to remove unaccelerated code from the matroxfb. Never.
+                                                     Petr Vandrovec
+                                                     vandrove@vc.cvut.cz

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263842AbUDPVpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 17:45:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263838AbUDPVpZ
+	id S263857AbUDPVp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 17:45:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263838AbUDPVph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 17:45:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:32680 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263855AbUDPVpA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 17:45:00 -0400
-Date: Fri, 16 Apr 2004 14:39:45 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: make menuconfig missing help for character device
-Message-Id: <20040416143945.343a5652.rddunlap@osdl.org>
-In-Reply-To: <20040416130348.GA6879@atrey.karlin.mff.cuni.cz>
-References: <20040416130348.GA6879@atrey.karlin.mff.cuni.cz>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 16 Apr 2004 17:45:37 -0400
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:33028 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S263853AbUDPVoW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 17:44:22 -0400
+From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
+Organization: Linux-Systeme GmbH
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use Kconfig.debug (v3-proposed) (was: Re: [PATCH] use Kconfig.debug (v2))
+Date: Fri, 16 Apr 2004 23:43:43 +0200
+User-Agent: KMail/1.6.1
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, akpm@osdl.org
+References: <20040415220338.3e351293.rddunlap@osdl.org> <20040416110149.3e353333.rddunlap@osdl.org> <20040416142206.02848d89.rddunlap@osdl.org>
+In-Reply-To: <20040416142206.02848d89.rddunlap@osdl.org>
+X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200404162343.43594@WOLK>
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Apr 2004 15:03:48 +0200 Karel Kulhavy wrote:
+On Friday 16 April 2004 23:22, Randy.Dunlap wrote:
 
-| linux kernel 2.6.3
-| make menuconfig -> Character Device
-| missing < Help >.
-| Displays < Help > for make menuconfig instead.
+Hey Randy,
 
-Yes, that's the way that it (currently) works at that menu level.
-If you select "Character Devices", then you can (try to) get help
-for each individual entry there.
+> Here is my v2-to-v3 update patch, incorporating Marc's suggestions
+> with a few small additions as mentioned in my comments above.
 
-Are you able to help by sending patches?
+cool.
 
---
-~Randy
+Completely fine with me now. Thank you. If no one else objects, please merge 
+it up Andrew.
+
+ciao, Marc

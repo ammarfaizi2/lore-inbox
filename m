@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131774AbRCQVop>; Sat, 17 Mar 2001 16:44:45 -0500
+	id <S131171AbRCQWDG>; Sat, 17 Mar 2001 17:03:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131815AbRCQVoe>; Sat, 17 Mar 2001 16:44:34 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:35823 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S131774AbRCQVo2>;
-	Sat, 17 Mar 2001 16:44:28 -0500
-Date: Sat, 17 Mar 2001 13:47:58 -0800
-From: Greg KH <greg@kroah.com>
-To: Seth Andrew Hallem <shallem@Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Potential free/use-after-free bugs
-Message-ID: <20010317134758.B6382@wirex.com>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Seth Andrew Hallem <shallem@Stanford.EDU>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010316221730.B17586@elaine23.stanford.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010316221730.B17586@elaine23.stanford.edu>; from shallem@Stanford.EDU on Fri, Mar 16, 2001 at 10:17:30PM -0800
-X-Operating-System: Linux 2.4.2-immunix (i686)
+	id <S131184AbRCQWC4>; Sat, 17 Mar 2001 17:02:56 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:30475 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S131171AbRCQWCv>; Sat, 17 Mar 2001 17:02:51 -0500
+Date: Sat, 17 Mar 2001 22:02:06 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andy Chou <acc@CS.Stanford.EDU>
+cc: <linux-kernel@vger.kernel.org>, <mc@CS.Stanford.EDU>
+Subject: Re: [CHECKER] 16 potential locking bugs in 2.4.1
+In-Reply-To: <20010316213444.A3592@Xenon.Stanford.EDU>
+Message-ID: <Pine.LNX.4.30.0103172159310.17004-100000@imladris.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 16, 2001 at 10:17:30PM -0800, Seth Andrew Hallem wrote:
-> [BUG] Potential double or more free.
-> /home/shallem/oses/linux/2.4.1/drivers/usb/serial/belkin_sa.c:236:belkin_sa_shutdown:
-> ERROR:FREE:237:236: Use-after-free of 'private'! set by 'kfree':237
-> 
-> 		}
-> 		/* My special items, the standard routines free my urbs */
-> 		if (serial->port->private)
-> Error --->
-> Start --->
-> 			kfree(serial->port->private);
-> 	}
-> 
-> [BUG] Copy paste of above potential bug.
-> /home/shallem/oses/linux/2.4.1/drivers/usb/serial/mct_u232.c:277:mct_u232_shutdown:
-> ERROR:FREE:278:277: Use-after-free of 'private'! set by 'kfree':278
-> 
-> [BUG]
+On Fri, 16 Mar 2001, Andy Chou wrote:
 
-Damn fine catch, the author meant to say serial->port[i].private there.
+> Here are some more results from the MC project.  These are 16 errors found
+> in 2.4.1 related to inconsistent use of locks. 
 
-Thanks, I'll fix these up.
+> +---------------------------------+----------------------------+
+> | file                            | fn                         |
+> +---------------------------------+----------------------------+
+> | drivers/mtd/cfi_cmdset_0001.c   | cfi_intelext_suspend       |
+> | drivers/mtd/cfi_cmdset_0002.c   | cfi_amdext_suspend         |
 
-greg k-h
+Fixed in CVS some time ago. Will be flushed to Linus some time in the near
+future, after I've cleaned up the inter_module_xxx abomination.
 
 -- 
-greg@(kroah|wirex).com
+dwmw2
+
+

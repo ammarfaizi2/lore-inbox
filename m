@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267601AbUIAUHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267603AbUIAUIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267601AbUIAUHM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 16:07:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267604AbUIAUHM
+	id S267603AbUIAUIx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 16:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267605AbUIAUIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 16:07:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:32439 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267601AbUIAUHJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 16:07:09 -0400
-Date: Wed, 1 Sep 2004 13:06:23 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: John Hesterberg <jh@sgi.com>
-Cc: Limin Gu <limin@engr.sgi.com>, linux-kernel@vger.kernel.org,
-       jlan@engr.sgi.com, erikj@sgi.com, chrisw@osdl.org
-Subject: Re: [PATCH] improving JOB kernel/user interface
-Message-ID: <20040901130623.F1924@build.pdx.osdl.net>
-References: <4134FE16.2000308@engr.sgi.com> <20040901193829.GJ5886@sgi.com>
+	Wed, 1 Sep 2004 16:08:53 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:50733 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S267603AbUIAUIv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 16:08:51 -0400
+Date: Wed, 1 Sep 2004 22:11:02 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: blaisorblade_spam@yahoo.it
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/2] Set-cflags-before-including-arch-Makefile
+Message-ID: <20040901201102.GC15432@mars.ravnborg.org>
+Mail-Followup-To: blaisorblade_spam@yahoo.it, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20040830194838.3F2B37D87@zion.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040901193829.GJ5886@sgi.com>; from jh@sgi.com on Wed, Sep 01, 2004 at 02:38:29PM -0500
+In-Reply-To: <20040830194838.3F2B37D87@zion.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* John Hesterberg (jh@sgi.com) wrote:
-> The current job /proc ioctl interface is really a fake-syscall interface.
-> We only did that so that our product didn't have to lock into a syscall
-> number that would eventually be used by something else.
+On Mon, Aug 30, 2004 at 09:48:38PM +0200, blaisorblade_spam@yahoo.it wrote:
 > 
-> The easiest thing for us would probably be to turn it back into a system
-> call, if that would be acceptable for inclusion into the kernel.  We're
-> open to other job interfaces, such as a real /proc character interface,
-> or a new virtual filesystem, or a device driver using ioctls.
+> Please note that this patch, even if UML-related, should be immediately
+> discussed for merging in mainline, if possible. The UML patch to handle
+> this has therefore been separated.
+> 
+> ---Patch purpose:
+> If arch/$(ARCH)/Makefile is included before adding -O2 (and the rest) to
+> CFLAGS, I must duplicate the addition of it to USER_CFLAGS for UML.
+> So let's fix this.
+> 
+> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+> ---
 
-But that system call would still be a single mutliplexor for many calls, right?
-Not ideal.  Have you tried to map to an fs?  It's nice and contained, and may be a
-simple mapping.  Question comes with CKRM, and if they'll have similar needs.  If
-that's the case, first class syscalls (no multiplexor) may be way to go.
+Thanks - applied.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+	Sam

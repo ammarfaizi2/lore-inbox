@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263092AbREaM4a>; Thu, 31 May 2001 08:56:30 -0400
+	id <S261975AbREaN2r>; Thu, 31 May 2001 09:28:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263096AbREaM4U>; Thu, 31 May 2001 08:56:20 -0400
-Received: from g126.dialup.pcsystems.de ([212.63.44.126]:58351 "HELO
-	schottelius.org") by vger.kernel.org with SMTP id <S263092AbREaM4O>;
-	Thu, 31 May 2001 08:56:14 -0400
-Message-ID: <3B163F51.986D0D3@pcsystems.de>
-Date: Thu, 31 May 2001 14:55:46 +0200
-From: Nico Schottelius <nicos@pcsystems.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
+	id <S263096AbREaN2g>; Thu, 31 May 2001 09:28:36 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:42490 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261975AbREaN20>; Thu, 31 May 2001 09:28:26 -0400
+Message-ID: <3B1646BD.C3A1CCFE@vnet.ibm.com>
+Date: Thu, 31 May 2001 13:27:25 +0000
+From: Tom Gall <tom_gall@vnet.ibm.com>
+Reply-To: tom_gall@vnet.ibm.com
+Organization: IBM
+X-Mailer: Mozilla 4.61 [en] (X11; U; Linux 2.2.10 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [ PATCH ]: disable pcspeaker kernel: 2.4.2 - 2.4.5
-In-Reply-To: <Pine.LNX.4.33.0105301724570.2384-100000@localhost.localdomain> <0105302332211G.06233@starship>
+To: esr@thyrsus.com
+CC: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net,
+        bjorn.wesen@axis.com, trini@kernel.crashing.org
+Subject: Re: Only 5 undocumented configuration symbols left
+In-Reply-To: <20010530190744.A2027@thyrsus.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+"Eric S. Raymond" wrote:
+> 
+> The current list of symbols with missing help is very short. Here it is:
+> 
+> PPC port:
 
-> On Wednesday 30 May 2001 17:25, Ingo Molnar wrote:
-> > On Wed, 30 May 2001, Nico Schottelius wrote:
-> > > > the default value is 0, that is good enough.
-> > >
-> > > hmm.. I don't think so... value of 1 would be much better, because
-> > > 0 normally disables the speaker.
-> >
-> > i confused the value. Yes, an initialization to 1 would be the
-> > correct, ie.:
-> >
-> > +++ linux-2.4.5-nc/kernel/sysctl.c      Wed May  9 23:44:30 2001
-> > @@ -48,6 +49,7 @@
-> >  extern int nr_queued_signals, max_queued_signals;
-> >  extern int sysrq_enabled;
-> >
-> > +int pcspeaker_enabled = 1;
->
-> I'd go and change the whole patch so that speaker_disabled = 0 is the
-> default, but that's just me.
+> CONFIG_IRQ_ALL_CPUS
 
-Hmm...I thinking positive is more likely for humans, and double
-negotation, like "not_disable" is less taken than just "enable".
+This option gives the kernel permission to distribute IRQs across multiple CPUs.
+Saying N here will route all IRQs to the first CPU. Generally SMP PowerMacs can
+answer Y. SMP IBM CHRP boxes or Power3 boxes should say N for now.
 
-So I agree with ingo, just setting pcspeaker_enabled = 1 at
-normal would be the very best way.
+Regards,
 
-Just after discussing about that, is it possible
-someone adds the final patch ?
+Tom
 
 
-Nico
-
+-- 
+Tom Gall - PPC64                 "Where's the ka-boom? There was
+Linux Technology Center           supposed to be an earth
+(w) tom_gall@vnet.ibm.com         shattering ka-boom!"
+(w) 507-253-4558                 -- Marvin Martian
+(h) tgall@rochcivictheatre.org
+http://www.ibm.com/linux/ltc/projects/ppc

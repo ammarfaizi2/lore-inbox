@@ -1,421 +1,204 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293536AbSCCKIw>; Sun, 3 Mar 2002 05:08:52 -0500
+	id <S293548AbSCCKIw>; Sun, 3 Mar 2002 05:08:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293548AbSCCKIJ>; Sun, 3 Mar 2002 05:08:09 -0500
+	id <S293549AbSCCKIP>; Sun, 3 Mar 2002 05:08:15 -0500
 Received: from relay01.valueweb.net ([216.219.253.235]:43270 "EHLO
 	relay01.valueweb.net") by vger.kernel.org with ESMTP
-	id <S293549AbSCCJ5B>; Sun, 3 Mar 2002 04:57:01 -0500
+	id <S293551AbSCCJ5B>; Sun, 3 Mar 2002 04:57:01 -0500
 Content-Type: text/plain; charset=US-ASCII
 From: Craig Christophel <merlin@transgeek.com>
 To: linux-kernel@vger.kernel.org
-Subject: Quota patches for 2.5 - 8
-Date: Sun, 3 Mar 2002 04:57:11 -0500
+Subject: Quota patches for 2.5 - 6
+Date: Sun, 3 Mar 2002 04:57:05 -0500
 X-Mailer: KMail [version 1.3.1]
 Cc: jack@suse.cz, Alexander Viro <viro@math.psu.edu>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020303095640Z293045-31667+11@thor.valueweb.net>
+Message-Id: <20020303095625Z293042-31624+5@thor.valueweb.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the eighth of 13 patches.
+Here is the sixth of 13 patches.
 
-	This moves the current style of quota control to a file called quota_v1.c 
-and adds a config option for the old style.
+	As a continuation of patch 5 this changes all of the tracking to bytes. and 
+adds those supporting functions.
 
 
 
-diff -urN -X txt/diff-exclude linux-2.5-linus/fs/Config.help 
-linux-2.5/fs/Config.help
---- linux-2.5-linus/fs/Config.help	Sat Mar  2 16:40:20 2002
-+++ linux-2.5/fs/Config.help	Sun Mar  3 03:16:09 2002
-@@ -6,6 +6,11 @@
-   <http://www.linuxdoc.org/docs.html#howto>. Probably the quota
-   support is only useful for multi user systems. If unsure, say N.
- 
-+CONFIG_QFMT_V1
-+  This quota format was (is) used by kernels earlier than 2.4.16. If
-+  you have quota working and you don't want to convert to new quota
-+  format say Y here.
-+
- CONFIG_MINIX_FS
-   Minix is a simple operating system used in many classes about OS's.
-   The minix file system (method to organize files on a hard disk
-diff -urN -X txt/diff-exclude linux-2.5-linus/fs/Config.in 
-linux-2.5/fs/Config.in
---- linux-2.5-linus/fs/Config.in	Sat Mar  2 16:40:20 2002
-+++ linux-2.5/fs/Config.in	Sun Mar  3 03:15:00 2002
-@@ -5,6 +5,7 @@
- comment 'File systems'
- 
- bool 'Quota support' CONFIG_QUOTA
-+dep_tristate '  Old quota format support' CONFIG_QFMT_V1 $CONFIG_QUOTA
- tristate 'Kernel automounter support' CONFIG_AUTOFS_FS
- tristate 'Kernel automounter version 4 support (also supports v3)' 
-CONFIG_AUTOFS4_FS
- 
-diff -urN -X txt/diff-exclude linux-2.5-linus/fs/Makefile 
-linux-2.5/fs/Makefile
---- linux-2.5-linus/fs/Makefile	Sun Mar  3 03:17:47 2002
-+++ linux-2.5/fs/Makefile	Sun Mar  3 03:15:00 2002
-@@ -18,6 +18,7 @@
- 
- ifeq ($(CONFIG_QUOTA),y)
- obj-y += dquot.o
-+obj-$(CONFIG_QFMT_V1) += quota_v1.o
- endif
- 
- subdir-$(CONFIG_PROC_FS)	+= proc
+
 diff -urN -X txt/diff-exclude linux-2.5-linus/fs/dquot.c linux-2.5/fs/dquot.c
---- linux-2.5-linus/fs/dquot.c	Sun Mar  3 03:17:47 2002
-+++ linux-2.5/fs/dquot.c	Sun Mar  3 03:15:00 2002
-@@ -793,7 +793,10 @@
- 
- static inline char ignore_hardlimit(struct dquot *dquot)
- {
--	return capable(CAP_SYS_RESOURCE);
-+	struct mem_dqinfo *info = &sb_dqopt(dquot->dq_sb)->info[dquot->dq_type];
+--- linux-2.5-linus/fs/dquot.c	Sat Mar  2 19:34:16 2002
++++ linux-2.5/fs/dquot.c	Sat Mar  2 19:33:06 2002
+@@ -972,7 +972,7 @@
+ 			continue;
+ 		dquot_incr_space(dquot[cnt], number);
+ 	}
+-	inode->i_blocks += number >> 9;
++	inode_add_bytes(inode, number);
+ 	/* NOBLOCK End */
+ 	ret = QUOTA_OK;
+ warn_put_all:
+@@ -1040,7 +1040,7 @@
+ 		dquot_decr_space(dquot, number);
+ 		dqputduplicate(dquot);
+ 	}
+-	inode->i_blocks -= number >> 9;
++	inode_sub_bytes(inode, number);
+ 	unlock_kernel();
+ 	/* NOBLOCK End */
+ }
+@@ -1103,7 +1103,7 @@
+ 		}
+ 	}
+ 	/* NOBLOCK START: From now on we shouldn't block */
+-	space = ((qsize_t)inode->i_blocks) << 9;
++	space = inode_get_bytes(inode);
+ 	/* Build the transfer_from list and check the limits */
+ 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
+ 		/* The second test can fail when quotaoff is in progress... */
+diff -urN -X txt/diff-exclude linux-2.5-linus/fs/inode.c linux-2.5/fs/inode.c
+--- linux-2.5-linus/fs/inode.c	Sat Mar  2 16:40:20 2002
++++ linux-2.5/fs/inode.c	Sat Mar  2 19:33:52 2002
+@@ -100,6 +100,7 @@
+ 		atomic_set(&inode->i_writecount, 0);
+ 		inode->i_size = 0;
+ 		inode->i_blocks = 0;
++		inode->i_bytes = 0;
+ 		inode->i_generation = 0;
+ 		memset(&inode->i_dquot, 0, sizeof(inode->i_dquot));
+ 		inode->i_pipe = NULL;
+diff -urN -X txt/diff-exclude linux-2.5-linus/include/linux/fs.h 
+linux-2.5/include/linux/fs.h
+--- linux-2.5-linus/include/linux/fs.h	Sat Mar  2 19:34:16 2002
++++ linux-2.5/include/linux/fs.h	Sat Mar  2 19:32:22 2002
+@@ -426,6 +426,7 @@
+ 	unsigned long		i_blksize;
+ 	unsigned long		i_blocks;
+ 	unsigned long		i_version;
++	unsigned short          i_bytes;
+ 	struct semaphore	i_sem;
+ 	struct inode_operations	*i_op;
+ 	struct file_operations	*i_fop;	/* former ->i_op->default_file_ops */
+@@ -485,6 +486,39 @@
+ 	uid_t uid, euid;	/* uid/euid of process setting the owner */
+ 	int signum;		/* posix.1b rt signal to be delivered on IO */
+ };
 +
-+	return capable(CAP_SYS_RESOURCE) &&
-+	    (info->dqi_format->qf_fmt_id != QFMT_VFS_OLD || !(info->dqi_flags & 
-V1_DQF_RSQUASH));
++static inline void inode_add_bytes(struct inode *inode, loff_t bytes)
++{
++	inode->i_blocks += bytes >> 9;
++	bytes &= 511;
++	inode->i_bytes += bytes;
++	if (inode->i_bytes >= 512) {
++		inode->i_blocks++;
++		inode->i_bytes -= 512;
++	}
++}
++
++static inline void inode_sub_bytes(struct inode *inode, loff_t bytes)
++{
++	inode->i_blocks -= bytes >> 9;
++	bytes &= 511;
++	if (inode->i_bytes < bytes) {
++		inode->i_blocks--;
++		inode->i_bytes += 512;
++	}
++	inode->i_bytes -= bytes;
++}
++
++static inline loff_t inode_get_bytes(struct inode *inode)
++{
++	return (((loff_t)inode->i_blocks) << 9) + inode->i_bytes;
++}
++
++static inline void inode_set_bytes(struct inode *inode, loff_t bytes)
++{
++	inode->i_blocks = bytes >> 9;
++	inode->i_bytes = bytes & 511;
++}
+ 
+ struct file {
+ 	struct list_head	f_list;
+diff -urN -X txt/diff-exclude linux-2.5-linus/include/linux/quotaops.h 
+linux-2.5/include/linux/quotaops.h
+--- linux-2.5-linus/include/linux/quotaops.h	Sat Mar  2 19:34:18 2002
++++ linux-2.5/include/linux/quotaops.h	Sat Mar  2 19:32:22 2002
+@@ -70,7 +70,7 @@
+ 		}
+ 	}
+ 	else
+-		inode->i_blocks += nr >> 9;
++		inode_add_bytes(inode, nr);
+ 	unlock_kernel();
+ 	return 0;
+ }
+@@ -94,7 +94,7 @@
+ 		}
+ 	}
+ 	else
+-		inode->i_blocks += nr >> 9;
++		inode_add_bytes(inode, nr);
+ 	unlock_kernel();
+ 	return 0;
+ }
+@@ -127,7 +127,7 @@
+ 	if (sb_any_quota_enabled(inode->i_sb))
+ 		inode->i_sb->dq_op->free_space(inode, nr);
+ 	else
+-		inode->i_blocks -= nr >> 9;
++		inode_sub_bytes(inode, nr);
+ 	unlock_kernel();
  }
  
- static int check_idq(struct dquot *dquot, ulong inodes, char *warntype)
-diff -urN -X txt/diff-exclude linux-2.5-linus/fs/quota_v1.c 
-linux-2.5/fs/quota_v1.c
---- linux-2.5-linus/fs/quota_v1.c	Wed Dec 31 19:00:00 1969
-+++ linux-2.5/fs/quota_v1.c	Sun Mar  3 03:15:00 2002
-@@ -0,0 +1,239 @@
-+#include <linux/errno.h>
-+#include <linux/fs.h>
-+#include <linux/quota.h>
-+#include <linux/dqblk_v1.h>
-+#include <linux/quotaio_v1.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+
-+#include <asm/uaccess.h>
-+#include <asm/byteorder.h>
-+
-+static void v1_disk2mem_dqblk(struct mem_dqblk *m, struct v1_disk_dqblk *d)
-+{
-+	m->dqb_ihardlimit = d->dqb_ihardlimit;
-+	m->dqb_isoftlimit = d->dqb_isoftlimit;
-+	m->dqb_curinodes = d->dqb_curinodes;
-+	m->dqb_bhardlimit = d->dqb_bhardlimit;
-+	m->dqb_bsoftlimit = d->dqb_bsoftlimit;
-+	m->dqb_curspace = d->dqb_curblocks << QUOTABLOCK_BITS;
-+	m->dqb_itime = d->dqb_itime;
-+	m->dqb_btime = d->dqb_btime;
-+}
-+
-+static void v1_mem2disk_dqblk(struct v1_disk_dqblk *d, struct mem_dqblk *m)
-+{
-+	d->dqb_ihardlimit = m->dqb_ihardlimit;
-+	d->dqb_isoftlimit = m->dqb_isoftlimit;
-+	d->dqb_curinodes = m->dqb_curinodes;
-+	d->dqb_bhardlimit = m->dqb_bhardlimit;
-+	d->dqb_bsoftlimit = m->dqb_bsoftlimit;
-+	d->dqb_curblocks = toqb(m->dqb_curspace);
-+	d->dqb_itime = m->dqb_itime;
-+	d->dqb_btime = m->dqb_btime;
-+}
-+
-+static int v1_read_dqblk(struct dquot *dquot)
-+{
-+	int type = dquot->dq_type;
-+	struct file *filp;
-+	mm_segment_t fs;
-+	loff_t offset;
-+	struct v1_disk_dqblk dqblk;
-+
-+	filp = sb_dqopt(dquot->dq_sb)->files[type];
-+	if (filp == (struct file *)NULL)
-+		return -EINVAL;
-+
-+	/* Now we are sure filp is valid */
-+	offset = v1_dqoff(dquot->dq_id);
-+	fs = get_fs();
-+	set_fs(KERNEL_DS);
-+	filp->f_op->read(filp, (char *)&dqblk, sizeof(struct v1_disk_dqblk), 
-&offset);
-+	set_fs(fs);
-+
-+	v1_disk2mem_dqblk(&dquot->dq_dqb, &dqblk);
-+	if (dquot->dq_dqb.dqb_bhardlimit == 0 && dquot->dq_dqb.dqb_bsoftlimit == 0 
-&&
-+	    dquot->dq_dqb.dqb_ihardlimit == 0 && dquot->dq_dqb.dqb_isoftlimit == 0)
-+		dquot->dq_flags |= DQ_FAKE;
-+	dqstats.reads++;
-+	return 0;
-+}
-+
-+static int v1_commit_dqblk(struct dquot *dquot)
-+{
-+	short type = dquot->dq_type;
-+	struct file *filp;
-+	mm_segment_t fs;
-+	loff_t offset;
-+	ssize_t ret;
-+	struct v1_disk_dqblk dqblk;
-+
-+	filp = sb_dqopt(dquot->dq_sb)->files[type];
-+	offset = v1_dqoff(dquot->dq_id);
-+	fs = get_fs();
-+	set_fs(KERNEL_DS);
-+
-+	/*
-+	 * Note: clear the DQ_MOD flag unconditionally,
-+	 * so we don't loop forever on failure.
-+	 */
-+	v1_mem2disk_dqblk(&dqblk, &dquot->dq_dqb);
-+	dquot->dq_flags &= ~DQ_MOD;
-+	if (dquot->dq_id == 0) {
-+		dqblk.dqb_btime = sb_dqopt(dquot->dq_sb)->info[type].dqi_bgrace;
-+		dqblk.dqb_itime = sb_dqopt(dquot->dq_sb)->info[type].dqi_igrace;
-+	}
-+	ret = 0;
-+	if (filp)
-+		ret = filp->f_op->write(filp, (char *)&dqblk,
-+					sizeof(struct v1_disk_dqblk), &offset);
-+	if (ret != sizeof(struct v1_disk_dqblk)) {
-+		printk(KERN_WARNING "VFS: dquota write failed on dev %s\n",
-+			kdevname(dquot->dq_dev));
-+		if (ret >= 0)
-+			ret = -EIO;
-+		goto out;
-+	}
-+	ret = 0;
-+
-+out:
-+	set_fs(fs);
-+	dqstats.writes++;
-+	return ret;
-+}
-+
-+/* Magics of new quota format */
-+#define V2_INITQMAGICS {\
-+	0xd9c01f11,     /* USRQUOTA */\
-+	0xd9c01927      /* GRPQUOTA */\
-+}
-+
-+/* Header of new quota format */
-+struct v2_disk_dqheader {
-+	__u32 dqh_magic;        /* Magic number identifying file */
-+	__u32 dqh_version;      /* File version */
-+};
-+
-+static int v1_check_quota_file(struct super_block *sb, int type)
-+{
-+	struct file *f = sb_dqopt(sb)->files[type];
-+	struct inode *inode = f->f_dentry->d_inode;
-+	ulong blocks;
-+	size_t off; 
-+	struct v2_disk_dqheader dqhead;
-+	mm_segment_t fs;
-+	ssize_t size;
-+	loff_t offset = 0;
-+	static const uint quota_magics[] = V2_INITQMAGICS;
-+
-+	if (!inode->i_size)
-+		return 0;
-+	blocks = inode->i_size >> BLOCK_SIZE_BITS;
-+	off = inode->i_size & (BLOCK_SIZE - 1);
-+	if ((blocks % sizeof(struct v1_disk_dqblk) * BLOCK_SIZE + off) % 
-sizeof(struct v1_disk_dqblk))
-+		return 0;
-+	/* Doublecheck whether we didn't get file with new format - with old 
-quotactl() this could happen */
-+	fs = get_fs();
-+	set_fs(KERNEL_DS);
-+	size = f->f_op->read(f, (char *)&dqhead, sizeof(struct v2_disk_dqheader), 
-&offset);
-+	set_fs(fs);
-+	if (size != sizeof(struct v2_disk_dqheader))
-+		return 1;	/* Probably not new format */
-+	if (le32_to_cpu(dqhead.dqh_magic) != quota_magics[type])
-+		return 1;	/* Definitely not new format */
-+	printk(KERN_INFO "VFS: %s: Refusing to turn on old quota format on given 
-file. It probably contains newer quota format.\n", kdevname(sb->s_dev));
-+        return 0;		/* Seems like a new format file -> refuse it */
-+}
-+
-+static int v1_read_file_info(struct super_block *sb, int type)
-+{
-+	struct quota_info *dqopt = sb_dqopt(sb);
-+	mm_segment_t fs;
-+	loff_t offset;
-+	struct file *filp = dqopt->files[type];
-+	struct v1_disk_dqblk dqblk;
-+	int ret;
-+
-+	down(&dqopt->dqio_sem);
-+	offset = v1_dqoff(0);
-+	fs = get_fs();
-+	set_fs(KERNEL_DS);
-+	if ((ret = filp->f_op->read(filp, (char *)&dqblk, sizeof(struct 
-v1_disk_dqblk), &offset)) != sizeof(struct v1_disk_dqblk)) {
-+		if (ret >= 0)
-+			ret = -EIO;
-+		goto out;
-+	}
-+	ret = 0;
-+	dqopt->info[type].dqi_igrace = dqblk.dqb_itime ? dqblk.dqb_itime : 
-MAX_IQ_TIME;
-+	dqopt->info[type].dqi_bgrace = dqblk.dqb_btime ? dqblk.dqb_btime : 
-MAX_DQ_TIME;
-+out:
-+	up(&dqopt->dqio_sem);
-+	set_fs(fs);
-+	return ret;
-+}
-+
-+static int v1_write_file_info(struct super_block *sb, int type)
-+{
-+	struct quota_info *dqopt = sb_dqopt(sb);
-+	mm_segment_t fs;
-+	struct file *filp = dqopt->files[type];
-+	struct v1_disk_dqblk dqblk;
-+	loff_t offset;
-+	int ret;
-+
-+	down(&dqopt->dqio_sem);
-+	dqopt->info[type].dqi_flags &= ~DQF_INFO_DIRTY;
-+	offset = v1_dqoff(0);
-+	fs = get_fs();
-+	set_fs(KERNEL_DS);
-+	if ((ret = filp->f_op->read(filp, (char *)&dqblk, sizeof(struct 
-v1_disk_dqblk), &offset)) != sizeof(struct v1_disk_dqblk)) {
-+		if (ret >= 0)
-+			ret = -EIO;
-+		goto out;
-+	}
-+	dqblk.dqb_itime = dqopt->info[type].dqi_igrace;
-+	dqblk.dqb_btime = dqopt->info[type].dqi_bgrace;
-+	offset = v1_dqoff(0);
-+	ret = filp->f_op->write(filp, (char *)&dqblk, sizeof(struct v1_disk_dqblk), 
-&offset);
-+	if (ret == sizeof(struct v1_disk_dqblk))
-+		ret = 0;
-+	else if (ret > 0)
-+		ret = -EIO;
-+out:
-+	up(&dqopt->dqio_sem);
-+	set_fs(fs);
-+	return ret;
-+}
-+
-+static struct quota_format_ops v1_format_ops = {
-+	check_quota_file:	v1_check_quota_file,
-+	read_file_info:		v1_read_file_info,
-+	write_file_info:	v1_write_file_info,
-+	free_file_info:		NULL,
-+	read_dqblk:		v1_read_dqblk,
-+	commit_dqblk:		v1_commit_dqblk,
-+};
-+
-+static struct quota_format_type v1_quota_format = {
-+	qf_fmt_id:	QFMT_VFS_OLD,
-+	qf_ops:		&v1_format_ops,
-+	qf_owner:	THIS_MODULE
-+};
-+
-+static int __init init_v1_quota_format(void)
-+{
-+        return register_quota_format(&v1_quota_format);
-+}
-+
-+static void __exit exit_v1_quota_format(void)
-+{
-+        unregister_quota_format(&v1_quota_format);
-+}
-+
-+EXPORT_NO_SYMBOLS;
-+
-+module_init(init_v1_quota_format);
-+module_exit(exit_v1_quota_format);
-+
-diff -urN -X txt/diff-exclude linux-2.5-linus/include/linux/dqblk_v1.h 
-linux-2.5/include/linux/dqblk_v1.h
---- linux-2.5-linus/include/linux/dqblk_v1.h	Wed Dec 31 19:00:00 1969
-+++ linux-2.5/include/linux/dqblk_v1.h	Sun Mar  3 03:15:00 2002
-@@ -0,0 +1,18 @@
-+/*
-+ *	File with in-memory structures of old quota format
-+ */
-+
-+#ifndef _LINUX_DQBLK_V1_H
-+#define _LINUX_DQBLK_V1_H
-+
-+/* Id of quota format */
-+#define QFMT_VFS_OLD 1
-+
-+/* Root squash turned on */
-+#define V1_DQF_RSQUASH 1
-+
-+/* Special information about quotafile */
-+struct v1_mem_dqinfo {
-+};
-+
-+#endif	/* _LINUX_DQBLK_V1_H */
-diff -urN -X txt/diff-exclude linux-2.5-linus/include/linux/quota.h 
-linux-2.5/include/linux/quota.h
---- linux-2.5-linus/include/linux/quota.h	Sun Mar  3 03:17:15 2002
-+++ linux-2.5/include/linux/quota.h	Sun Mar  3 03:15:00 2002
-@@ -135,6 +135,7 @@
- #ifdef __KERNEL__
+@@ -177,7 +177,7 @@
+ extern __inline__ int DQUOT_PREALLOC_SPACE_NODIRTY(struct inode *inode, 
+qsize_t nr)
+ {
+ 	lock_kernel();
+-	inode->i_blocks += nr >> 9;
++	inode_add_bytes(inode, nr);
+ 	unlock_kernel();
+ 	return 0;
+ }
+@@ -192,7 +192,7 @@
+ extern __inline__ int DQUOT_ALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t 
+nr)
+ {
+ 	lock_kernel();
+-	inode->i_blocks += nr >> 9;
++	inode_add_bytes(inode, nr);
+ 	unlock_kernel();
+ 	return 0;
+ }
+@@ -207,7 +207,7 @@
+ extern __inline__ void DQUOT_FREE_SPACE_NODIRTY(struct inode *inode, qsize_t 
+nr)
+ {
+ 	lock_kernel();
+-	inode->i_blocks -= nr >> 9;
++	inode_sub_bytes(inode, nr);
+ 	unlock_kernel();
+ }
  
- #include <linux/xqm.h>
-+#include <linux/dqblk_v1.h>
+@@ -222,8 +222,8 @@
+ #define DQUOT_PREALLOC_BLOCK_NODIRTY(inode, nr)	
+DQUOT_PREALLOC_SPACE_NODIRTY(inode, ((qsize_t)(nr)) << 
+(inode)->i_sb->s_blocksize_bits)
+ #define DQUOT_PREALLOC_BLOCK(inode, nr)	DQUOT_PREALLOC_SPACE(inode, 
+((qsize_t)(nr)) << (inode)->i_sb->s_blocksize_bits)
+ #define DQUOT_ALLOC_BLOCK_NODIRTY(inode, nr) 
+DQUOT_ALLOC_SPACE_NODIRTY(inode, ((qsize_t)(nr)) << 
+(inode)->i_sb->s_blocksize_bits)
+-#define DQUOT_ALLOC_BLOCK(inode, nr) DQUOT_ALLOC_SPACE(inode, 
+fs_to_dq_blocks(nr, ((qsize_t)(nr)) << (inode)->i_sb->s_blocksize_bits)
++#define DQUOT_ALLOC_BLOCK(inode, nr) DQUOT_ALLOC_SPACE(inode, 
+((qsize_t)(nr)) << (inode)->i_sb->s_blocksize_bits)
+ #define DQUOT_FREE_BLOCK_NODIRTY(inode, nr) DQUOT_FREE_SPACE_NODIRTY(inode, 
+((qsize_t)(nr)) << (inode)->i_sb->s_blocksize_bits)
+-#define DQUOT_FREE_BLOCK(inode, nr) DQUOT_FREE_SPACE(inode, 
+fs_to_dq_blocks(nr, ((qsize_t)(nr)) << (inode)->i_sb->s_blocksize_bits)
++#define DQUOT_FREE_BLOCK(inode, nr) DQUOT_FREE_SPACE(inode, ((qsize_t)(nr)) 
+<< (inode)->i_sb->s_blocksize_bits)
  
- /*
-  * Data for one user/group kept in memory
-@@ -161,6 +162,7 @@
- 	unsigned int dqi_bgrace;
- 	unsigned int dqi_igrace;
- 	union {
-+		struct v1_mem_dqinfo v1_i;
- 	} u;
- };
- 
-diff -urN -X txt/diff-exclude linux-2.5-linus/include/linux/quotaio_v1.h 
-linux-2.5/include/linux/quotaio_v1.h
---- linux-2.5-linus/include/linux/quotaio_v1.h	Wed Dec 31 19:00:00 1969
-+++ linux-2.5/include/linux/quotaio_v1.h	Sun Mar  3 03:15:00 2002
-@@ -0,0 +1,33 @@
-+#ifndef _LINUX_QUOTAIO_V1_H
-+#define _LINUX_QUOTAIO_V1_H
-+
-+#include <linux/types.h>
-+
-+/*
-+ * The following constants define the amount of time given a user
-+ * before the soft limits are treated as hard limits (usually resulting
-+ * in an allocation failure). The timer is started when the user crosses
-+ * their soft limit, it is reset when they go below their soft limit.
-+ */
-+#define MAX_IQ_TIME  604800	/* (7*24*60*60) 1 week */
-+#define MAX_DQ_TIME  604800	/* (7*24*60*60) 1 week */
-+
-+/*
-+ * The following structure defines the format of the disk quota file
-+ * (as it appears on disk) - the file is an array of these structures
-+ * indexed by user or group number.
-+ */
-+struct v1_disk_dqblk {
-+	__u32 dqb_bhardlimit;	/* absolute limit on disk blks alloc */
-+	__u32 dqb_bsoftlimit;	/* preferred limit on disk blks */
-+	__u32 dqb_curblocks;	/* current block count */
-+	__u32 dqb_ihardlimit;	/* absolute limit on allocated inodes */
-+	__u32 dqb_isoftlimit;	/* preferred inode limit */
-+	__u32 dqb_curinodes;	/* current # allocated inodes */
-+	time_t dqb_btime;	/* time limit for excessive disk use */
-+	time_t dqb_itime;	/* time limit for excessive inode use */
-+};
-+
-+#define v1_dqoff(UID)      ((loff_t)((UID) * sizeof (struct v1_disk_dqblk)))
-+
-+#endif	/* _LINUX_QUOTAIO_V1_H */
+ #endif /* _LINUX_QUOTAOPS_ */

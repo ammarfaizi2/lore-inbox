@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266627AbTAFSVU>; Mon, 6 Jan 2003 13:21:20 -0500
+	id <S267041AbTAFSQK>; Mon, 6 Jan 2003 13:16:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266736AbTAFSVU>; Mon, 6 Jan 2003 13:21:20 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:4371 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S266627AbTAFSVT>; Mon, 6 Jan 2003 13:21:19 -0500
-Date: Mon, 6 Jan 2003 13:27:41 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Daniel Blueman <daniel.blueman@gmx.net>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Gigabit/SMP performance problem
-In-Reply-To: <b8ce5e32.0301040439.7bdaa903@posting.google.com>
-Message-ID: <Pine.LNX.3.96.1030106132528.10550A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267082AbTAFSQK>; Mon, 6 Jan 2003 13:16:10 -0500
+Received: from ppp-217-133-219-133.dialup.tiscali.it ([217.133.219.133]:23169
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S267041AbTAFSQJ>; Mon, 6 Jan 2003 13:16:09 -0500
+Date: Mon, 6 Jan 2003 19:17:37 +0100
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Set TIF_IRET in more places
+Message-ID: <20030106181737.GA6867@ldb>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Linux-Kernel ML <linux-kernel@vger.kernel.org>
+References: <20030106144601.GA2447@ldb> <Pine.LNX.4.44.0301060755510.2084-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0301060755510.2084-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 Jan 2003, Daniel Blueman wrote:
 
-> It's interesting you have IRQs balanced over the two logical
-> processors. I can't get this on HT Xeons with stock RedHat 7.3 kernel.
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I think he's using two physical processors, if by "logical processors" you
-are thinking HT... I also recall he has HT off, but the original post
-isn't handy.
+I've looked again at it and it is actually less problematic that I
+first thought but I still see the following two cases:
 
-> 
-> Can you post the exact kernel version string, please?
-> 
-> TIA,
->   Dan
-> 
-> "Avery Fay" <avery_fay@symantec.com> wrote in message news:<OF256CD297.9F92C038-ON85256CA3.006A4034-85256CA3.00705DEA@symantec.com>...
-> > Dual Pentium 4 Xeon at 2.4 Ghz. I believe I am using irq load balancing as 
-> > shown below (seems to be applied to Red Hat's kernel). Here's 
-> > /proc/interrupts:
+1. vfork seems to not set any TIF_ flags so a ptracer setting regs
+while a vforking task is stopped in ptrace_notify called from vfork
+would result in clobbered %ecx and %edx.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+2. A ptracer could use %ecx or %edx to pass information to signal
+handlers and this would not work with the current [rt_]sigsuspend.
 
+These only need setting TIF_IRET on ptrace setregs though.
+
+There is also the very small advantage of being able to hardcode
+SYSENTER_RETURN as the return eip for sysexit if TIF_IRET is set in
+all the 3 places.
+
+--gKMricLos+KVdGMg
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+GchAdjkty3ft5+cRAmlmAJ0dw/LnDXDwg+M8Luq8gjX4adJpFQCfdUfl
+W+iIlCFMHMiTihw+cuGPxCI=
+=DMN9
+-----END PGP SIGNATURE-----
+
+--gKMricLos+KVdGMg--

@@ -1,22 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262802AbUDLKkS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 06:40:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262815AbUDLKkR
+	id S262837AbUDLKn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 06:43:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbUDLKn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 06:40:17 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:33432 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262802AbUDLKkC (ORCPT
+	Mon, 12 Apr 2004 06:43:28 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:17819 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262837AbUDLKnS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 06:40:02 -0400
-Date: Mon, 12 Apr 2004 18:39:50 +0800
+	Mon, 12 Apr 2004 06:43:18 -0400
+Date: Mon, 12 Apr 2004 18:43:08 +0800
 From: "osmaker@hu" <osmaker@mailbox.hu>
 X-Mailer: The Bat! (v2.04.7)
 Reply-To: "osmaker@hu" <osmaker@mailbox.hu>
 X-Priority: 3 (Normal)
-Message-ID: <461730575.20040412183950@mailbox.hu>
+Message-ID: <855788306.20040412184308@mailbox.hu>
 To: linux-kernel@vger.kernel.org
 Subject: kernel panic
+In-Reply-To: <461730575.20040412183950@mailbox.hu>
+References: <461730575.20040412183950@mailbox.hu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -59,4 +61,5 @@ In interrupt handler - not syncing
 -- 
 Best regards,
  osmaker                          mailto:osmaker@mailbox.hu
+
 

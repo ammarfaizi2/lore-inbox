@@ -1,55 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262280AbTJIQLA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 12:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbTJIQLA
+	id S262374AbTJIQN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 12:13:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbTJIQN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 12:11:00 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:40108 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S262280AbTJIQK5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 12:10:57 -0400
-Message-ID: <3F858885.1070202@colorfullife.com>
-Date: Thu, 09 Oct 2003 18:10:45 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] disable_irq()/enable_irq() semantics and ide-probe.c
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Oct 2003 12:13:56 -0400
+Received: from newsmtp.golden.net ([199.166.210.106]:1030 "EHLO
+	newsmtp.golden.net") by vger.kernel.org with ESMTP id S262374AbTJIQNy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 12:13:54 -0400
+Date: Thu, 9 Oct 2003 12:13:50 -0400
+From: Paul Mundt <lethal@linux-sh.org>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] net/sunrpc/clnt.c compile fix
+Message-ID: <20031009161350.GA9170@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	torvalds@osdl.org, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus wrote:
 
->Nobody has ever really complained, but if anybody 
->ever wants to do this, then the way to do it would be to
->
-> - find out the irq
-> - disable it
-> - request the irq
-> - enable the PCI routing for it
-> - set up the device
-> - enable the irq
->
-I'd like to use that for nic shutdown for natsemi:
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-    disable_irq();
-    shutdown_nic();
-    free_irq();
-    enable_irq();
+Not sure if anyone has submitted this already, but as the subject implies,
+net/sunrpc/clnt.c does not compile in either stock test7 or in current BK:
 
-The irq handler touches registers that restart the nic. Right now I use 
-a np->hands_off variable to avoid that.
+  CC      net/sunrpc/clnt.o
+  net/sunrpc/clnt.c: In function `call_verify':
+  net/sunrpc/clnt.c:965: structure has no member named `tk_pid'
+  net/sunrpc/clnt.c:970: structure has no member named `tk_pid'
+  net/sunrpc/clnt.c:976: structure has no member named `tk_pid'
+  make[1]: *** [net/sunrpc/clnt.o] Error 1
+  make: *** [net/sunrpc/clnt.o] Error 2
 
-But I don't know if all systems can support atomic request_irq/free_irq 
-calls. request_irq creates /proc/irq/x/cpu_affinity, and I could imagine 
-that on some archs it might have perform IPIs to reconfigure the irq 
-controller of a remote node.
+This is due to the fact that tk_pid is protected by RPC_DEBUG. Wrapping
+through dprintk() fixes this.
 
---
-    Manfred
+--- linux-sh-2.6.0-test7.orig/net/sunrpc/clnt.c	Thu Oct  9 09:42:45 2003
++++ linux-sh-2.6.0-test7/net/sunrpc/clnt.c	Thu Oct  9 12:04:56 2003
+@@ -961,18 +961,18 @@
+ 	case RPC_SUCCESS:
+ 		return p;
+ 	case RPC_PROG_UNAVAIL:
+-		printk(KERN_WARNING "RPC: %4d call_verify: program %u is unsupported by server %s\n",
++		dprintk("RPC: %4d call_verify: program %u is unsupported by server %s\n",
+ 				task->tk_pid, (unsigned int)task->tk_client->cl_prog,
+ 				task->tk_client->cl_server);
+ 		goto out_eio;
+ 	case RPC_PROG_MISMATCH:
+-		printk(KERN_WARNING "RPC: %4d call_verify: program %u, version %u unsupported by server %s\n",
++		dprintk("RPC: %4d call_verify: program %u, version %u unsupported by server %s\n",
+ 				task->tk_pid, (unsigned int)task->tk_client->cl_prog,
+ 				(unsigned int)task->tk_client->cl_vers,
+ 				task->tk_client->cl_server);
+ 		goto out_eio;
+ 	case RPC_PROC_UNAVAIL:
+-		printk(KERN_WARNING "RPC: %4d call_verify: proc %p unsupported by program %u, version %u on server %s\n",
++		dprintk("RPC: %4d call_verify: proc %p unsupported by program %u, version %u on server %s\n",
+ 				task->tk_pid, task->tk_msg.rpc_proc,
+ 				task->tk_client->cl_prog,
+ 				task->tk_client->cl_vers,
 
+--2oS5YaxWCcQjTEyO
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/hYk+1K+teJFxZ9wRAq+BAJ9crFIUx74G6xNFAUqvxCZrD9CcNACfezMX
+/tubPnS03LPhliwkQ5Goiro=
+=PkYC
+-----END PGP SIGNATURE-----
+
+--2oS5YaxWCcQjTEyO--

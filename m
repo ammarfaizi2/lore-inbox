@@ -1,147 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbVCFVVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVCFVXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbVCFVVz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 16:21:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVCFVVz
+	id S261514AbVCFVXc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 16:23:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVCFVWq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 16:21:55 -0500
-Received: from postfix3-1.free.fr ([213.228.0.44]:36759 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261507AbVCFVVt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 16:21:49 -0500
-Message-ID: <422B746B.1010406@free.fr>
-Date: Sun, 06 Mar 2005 22:21:47 +0100
-From: Renaud Lienhart <renaud.lienhart@free.fr>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050305)
-X-Accept-Language: en-us, en
+	Sun, 6 Mar 2005 16:22:46 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:33738 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261508AbVCFVWb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 16:22:31 -0500
+Date: Sun, 6 Mar 2005 13:22:25 -0800
+Message-Id: <200503062122.j26LMP5F021846@magilla.sf.frob.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.11] slab.[ch]: kmalloc() cleanups
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: Daniel Jacobowitz <dan@debian.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Cagney <cagney@redhat.com>
+Subject: Re: More trouble with i386 EFLAGS and ptrace
+In-Reply-To: Linus Torvalds's message of  Sunday, 6 March 2005 12:03:22 -0800 <Pine.LNX.4.58.0503061155280.2304@ppc970.osdl.org>
+X-Fcc: ~/Mail/linus
+Emacs: where editing text is like playing Paganini on a glass harmonica.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While studying the slab code, I found 2 strange things:
-- kmalloc(size, ...); checks "size" validity only if size is a constant
-known at compile-time.
-- __kmalloc(...) contains code which is redundant with
-kmem_find_general_cachep().
+> I _think_ your test-case would work right if you just moved that code from
+> the special-case in do_debug(), and moved it to the top of
+> setup_sigcontext() instead. I've not tested it, though, and haven't really 
+> given it any "deep thought". Maybe somebody smarter can say "yeah, that's 
+> obviously the right thing to do" or "no, that won't work because.."
 
-The following patch solves these two problems:
-- It creates a (rather ugly) macro in kmalloc_sizes.h in order to check
-kmalloc(size)'s validity at run-time in O(1).
-- It replaces redundant code in __kmalloc() by a call to
-kmem_find_general_cachep(). The debug checks are moved in the latter.
+Indeed, this is what my original changes for this did, before you started
+cleaning things up to be nice to TF users other than PTRACE_SINGLESTEP. 
 
-Please comment, as it is my first patch to the linux kernel.
+I note, btw, that the x86_64 code is still at that prior stage.  So I think
+it doesn't have this new wrinkle, but it also doesn't have the advantages
+of the more recent i386 changes.  Once we're sure about the i386 state, we
+should update the x86_64 code to match.
 
-Signed-off-by: Renaud Lienhart <renaud.lienhart@free.fr>
+I'm not sure what kind of smart this makes me, but I'll say that your plan
+would work and no, it's obviously not the right thing to do. ;-) I haven't
+tested the following, not having tracked down the specific problem case you
+folks are talking about.  But I think this is the right solution.  The
+difference is that when we stop for some signal and report to the debugger,
+the debugger looking at our registers will see TF clear instead of set,
+before it decides whether to continue us with the signal or what to do.
+With the change yo suggested, (I think) if the debugger decides to eat the
+signal and resume, we would get a spurious single-step trap after executing
+the next instruction, instead of resuming normally as requested.
 
-diff -Nrpu linux-2.6.11-orig/include/linux/kmalloc_sizes.h linux-2.6.11-new/include/linux/kmalloc_sizes.h
---- linux-2.6.11-orig/include/linux/kmalloc_sizes.h	2005-03-02 08:38:20.000000000 +0100
-+++ linux-2.6.11-new/include/linux/kmalloc_sizes.h	2005-03-06 21:34:34.000000000 +0100
-@@ -19,15 +19,20 @@
-  	CACHE(32768)
-  	CACHE(65536)
-  	CACHE(131072)
-+#define MAX_KMALLOC 131072
-  #ifndef CONFIG_MMU
-  	CACHE(262144)
-  	CACHE(524288)
-  	CACHE(1048576)
-+#undef MAX_KMALLOC
-+#define MAX_KMALLOC 1048576
-  #ifdef CONFIG_LARGE_ALLOCS
-  	CACHE(2097152)
-  	CACHE(4194304)
-  	CACHE(8388608)
-  	CACHE(16777216)
-  	CACHE(33554432)
-+#undef MAX_KMALLOC
-+#define MAX_KMALLOC 33554432
-  #endif /* CONFIG_LARGE_ALLOCS */
-  #endif /* CONFIG_MMU */
-diff -Nrpu linux-2.6.11-orig/include/linux/slab.h
-linux-2.6.11-new/include/linux/slab.h
---- linux-2.6.11-orig/include/linux/slab.h	2005-03-02 08:38:33.000000000 +0100
-+++ linux-2.6.11-new/include/linux/slab.h	2005-03-06 21:34:14.000000000 +0100
-@@ -102,6 +102,8 @@ found:
-  			malloc_sizes[i].cs_dmacachep :
-  			malloc_sizes[i].cs_cachep, flags);
-  	}
-+	if (unlikely(size > MAX_KMALLOC))
-+		return NULL;
-  	return __kmalloc(size, flags);
-  }
-
-diff -Nrpu linux-2.6.11-orig/mm/slab.c linux-2.6.11-new/mm/slab.c
---- linux-2.6.11-orig/mm/slab.c	2005-03-02 08:38:38.000000000 +0100
-+++ linux-2.6.11-new/mm/slab.c	2005-03-06 21:33:58.000000000 +0100
-@@ -507,7 +507,7 @@ static int slab_break_gfp_order = BREAK_
-  struct cache_sizes malloc_sizes[] = {
-  #define CACHE(x) { .cs_size = (x) },
-  #include <linux/kmalloc_sizes.h>
--	{ 0, }
-+	CACHE(0)
-  #undef CACHE
-  };
-
-@@ -584,19 +584,24 @@ static inline struct array_cache *ac_dat
-  	return cachep->array[smp_processor_id()];
-  }
-
--static kmem_cache_t * kmem_find_general_cachep (size_t size, int gfpflags)
-+static inline kmem_cache_t * kmem_find_general_cachep (size_t size, int gfpflags)
-  {
-  	struct cache_sizes *csizep = malloc_sizes;
-
--	/* This function could be moved to the header file, and
--	 * made inline so consumers can quickly determine what
--	 * cache pointer they require.
--	 */
-  	for ( ; csizep->cs_size; csizep++) {
-  		if (size > csizep->cs_size)
-  			continue;
-  		break;
-  	}
-+#if DEBUG
-+	/* we are a bit too optimistic and size > MAX_KMALLOC */
-+	BUG_ON(csizep->cs_size == 0);
-+	/* This happens if someone tries to call
-+	 * kmem_cache_create(), or __kmalloc(), before
-+	 * the generic caches are initialized.
-+	 */
-+	BUG_ON(csizep->cs_cachep == NULL);
-+#endif
-  	return (gfpflags & GFP_DMA) ? csizep->cs_dmacachep : csizep->cs_cachep;
-  }
-
-@@ -2453,22 +2458,10 @@ EXPORT_SYMBOL(kmem_cache_alloc_node);
-   */
-  void * __kmalloc (size_t size, int flags)
-  {
--	struct cache_sizes *csizep = malloc_sizes;
-+	kmem_cache_t *cachep;
-
--	for (; csizep->cs_size; csizep++) {
--		if (size > csizep->cs_size)
--			continue;
--#if DEBUG
--		/* This happens if someone tries to call
--		 * kmem_cache_create(), or kmalloc(), before
--		 * the generic caches are initialized.
--		 */
--		BUG_ON(csizep->cs_cachep == NULL);
--#endif
--		return __cache_alloc(flags & GFP_DMA ?
--			 csizep->cs_dmacachep : csizep->cs_cachep, flags);
--	}
--	return NULL;
-+	cachep = kmem_find_general_cachep(size, flags);
-+	return __cache_alloc(cachep, flags);
-  }
-
-  EXPORT_SYMBOL(__kmalloc);
+Thanks,
+Roland
 
 
+Signed-off-by: Roland McGrath <roland@redhat.com>
+
+--- linux-2.6/include/asm-i386/signal.h
++++ linux-2.6/include/asm-i386/signal.h
+@@ -223,7 +223,14 @@ static __inline__ int sigfindinword(unsi
+ 
+ struct pt_regs;
+ extern int FASTCALL(do_signal(struct pt_regs *regs, sigset_t *oldset));
+-#define ptrace_signal_deliver(regs, cookie) do { } while (0)
++
++#define ptrace_signal_deliver(regs, cookie)		\
++	do {						\
++		if (current->ptrace & PT_DTRACE) {	\
++			current->ptrace &= ~PT_DTRACE;	\
++			(regs)->eflags &= ~TF_MASK;	\
++		}					\
++	} while (0)
+ 
+ #endif /* __KERNEL__ */
+ 
+--- linux-2.6/arch/i386/kernel/traps.c
++++ linux-2.6/arch/i386/kernel/traps.c
+@@ -707,8 +707,6 @@ fastcall void do_debug(struct pt_regs * 
+ 	/*
+ 	 * Single-stepping through TF: make sure we ignore any events in
+ 	 * kernel space (but re-enable TF when returning to user mode).
+-	 * And if the event was due to a debugger (PT_DTRACE), clear the
+-	 * TF flag so that register information is correct.
+ 	 */
+ 	if (condition & DR_STEP) {
+ 		/*
+@@ -718,11 +716,6 @@ fastcall void do_debug(struct pt_regs * 
+ 		 */
+ 		if ((regs->xcs & 3) == 0)
+ 			goto clear_TF_reenable;
+-
+-		if (likely(tsk->ptrace & PT_DTRACE)) {
+-			tsk->ptrace &= ~PT_DTRACE;
+-			regs->eflags &= ~TF_MASK;
+-		}
+ 	}
+ 
+ 	/* Ok, finally something we can handle */

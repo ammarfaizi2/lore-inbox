@@ -1,78 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263325AbTLAK6o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 05:58:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTLAK6o
+	id S263019AbTLAK53 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 05:57:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbTLAK53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 05:58:44 -0500
-Received: from mail.gmx.net ([213.165.64.20]:39585 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263325AbTLAK6m (ORCPT
+	Mon, 1 Dec 2003 05:57:29 -0500
+Received: from matrix.roma2.infn.it ([141.108.255.2]:11971 "EHLO
+	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
+	id S263019AbTLAK52 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 05:58:42 -0500
-Date: Mon, 1 Dec 2003 11:58:40 +0100 (MET)
-From: "john smith" <john.smith77@gmx.net>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
+	Mon, 1 Dec 2003 05:57:28 -0500
+From: "Emiliano 'AlberT' Gabrielli" <AlberT_NOSPAM_@SuperAlberT.it>
+Reply-To: AlberT@SuperAlberT.it
+Organization: SuperAlberT.it
+To: Bill Davidsen <davidsen@tmr.com>, AlberT@SuperAlberT.it
+Subject: Re: hyperthreading
+Date: Mon, 1 Dec 2003 11:53:15 +0100
+User-Agent: KMail/1.5.4
+Cc: lgb@lgb.hu, linux-kernel@vger.kernel.org
+References: <Pine.LNX.3.96.1031129082435.26461B-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1031129082435.26461B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Subject: Re: Kernel modul licensing issues
-X-Priority: 3 (Normal)
-X-Authenticated: #21322809
-Message-ID: <21385.1070276320@www22.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200312011153.31441.AlberT_NOSPAM_@SuperAlberT.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Valdis 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> You're probably "in the clear" if that's what's really going on, and 
-> can probably go a route similar to NVidia (GPL interface to a binary 
-> module). 
+On 14:29, sabato 29 novembre 2003, Bill Davidsen wrote:
+> new generation P4-HT does.
+>
+> Not quite right, the 3.06GHz has HT enabled.
 
-I just had a quick look at the current version of nvidia's linux driver
+P4-HT is a my neologism, intended to indicate newest P4 ... 3.06GHz is in this 
+category
 
-(http://download.nvidia.com/XFree86/Linux-x86/1.0-4496/NVIDIA-Linux-x86-1.0-4496-pkg2.run). 
-The source code of the kernel front-end is _not_ GPL. 
+- -- 
+<?php echo '       Emiliano `AlberT` Gabrielli       '."\n".
+           '  E-Mail: AlberT_AT_SuperAlberT_it  '."\n".
+           '  Web:    http://SuperAlberT.it  '."\n".
+'  IRC:    #php,#AES azzurra.com '."\n".'ICQ: 158591185'; ?>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-It provides both definition for the OS independent symbols used in the 
-binary object (!= kernel module) nv-kernel.o and the necessary linux 
-kernel module code (and of course it makes use of the API nv.h 
-provided by the binary object). 
-
-So, the nvidia kernel module consists of the binary object directly 
-linked to the objects compiled from the _non-GPL_ sources. 
-
-> The part I'm not having warm fuzzies about is that the only 
-> application that comes to mind that could take a char[] and be totally 
-> kernel-independent and that would make sense in the kernel rather than 
-> out in userspace is a crypto transform - and that's because closed 
-> source crypto is usually not taken seriously. 
-
-I totally agree with you and I can reassure you that the algorithm 
-has nothing to do with crypto. 
-
-> Of course, if you're not doing crypto, then you can apply the usual 
-> cost/benefit analysis of doing it closed source versus the payoff for 
-> an attacker to crack it.... 
-
-Hm, not sure what you mean by "crack it". Maybe you mean that 
-it's possible to apply "binary analysis methods" against the implementation 
-provided in the binary and then reimplement the algorithm as open source? 
-Well, in that case we have to deal with it but that's not my job :) 
-
-
-Regards, 
-
-John
-
--- 
-Neu bei GMX: Preissenkung für MMS-Versand und FreeMMS!
-
-Ideal für alle, die gerne MMS verschicken:
-25 FreeMMS/Monat mit GMX TopMail.
-http://www.gmx.net/de/cgi/produktemail
-
-+++ GMX - die erste Adresse für Mail, Message, More! +++
+iD8DBQE/yx2oF4boRkzPHocRArViAJ9DzwCwzyE4PvS+zAoF44/rwSHFiwCfdUcO
+IVzuaP8XxU0F8Gd/QrZkqnw=
+=TKeD
+-----END PGP SIGNATURE-----
 

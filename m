@@ -1,72 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261273AbTCYADH>; Mon, 24 Mar 2003 19:03:07 -0500
+	id <S261281AbTCYAI4>; Mon, 24 Mar 2003 19:08:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261281AbTCYADH>; Mon, 24 Mar 2003 19:03:07 -0500
-Received: from iucha.net ([209.98.146.184]:52068 "EHLO mail.iucha.net")
-	by vger.kernel.org with ESMTP id <S261273AbTCYADG>;
-	Mon, 24 Mar 2003 19:03:06 -0500
-Date: Mon, 24 Mar 2003 18:14:14 -0600
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.66
-Message-ID: <20030325001414.GX18830@iucha.net>
-References: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com>
+	id <S261287AbTCYAI4>; Mon, 24 Mar 2003 19:08:56 -0500
+Received: from SPARCLINUX.MIT.EDU ([18.248.2.241]:39175 "EHLO
+	sparclinux.mit.edu") by vger.kernel.org with ESMTP
+	id <S261281AbTCYAIz>; Mon, 24 Mar 2003 19:08:55 -0500
+Date: Mon, 24 Mar 2003 19:04:51 -0500
+To: Scott Robert Ladd <coyote@coyotegulch.com>
+Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org
+Subject: Re: Testing: What do you want?
+Message-ID: <20030325000450.GA2834@osinvestor.com>
+References: <3E7F1A2D.4050306@coyotegulch.com> <20030324153933.GH30613@lug-owl.de> <3E7F40D0.6010202@coyotegulch.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="H7BIH7T1fRJ3RGOi"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com>
-X-message-flag: Outlook: Where do you want [your files] to go today?
-X-gpg-key: http://iucha.net/florin_iucha.gpg
-X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
-User-Agent: Mutt/1.5.3i
-From: florin@iucha.net (Florin Iucha)
+In-Reply-To: <3E7F40D0.6010202@coyotegulch.com>
+User-Agent: Mutt/1.4i
+From: rob@osinvestor.com (Rob Radez)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 24, 2003 at 12:30:56PM -0500, Scott Robert Ladd wrote:
+> Jan-Benedict Glaw wrote:
+> >sparc32? If you get it to build or even to boot, please drop me a note
+> >
+> >Last time I looked at it, sparc32 wasn't in any good state (esp. SMP) in
+> >2.5.x. This is because Dave S. Miller stopped spending a lot of hacking
+> >time (he has to work for other things now and only merges patches he
+> >gets sent, where he formerly did tons on active development for
+> >sparc32).
+> 
+> I'll let you know about whether it works or not. What you tell me about 
+> SPARC support, however, does not bode well. I was about to say "I'm 
+> surprised that Sun isn't providing any support" -- then my senses 
+> returned, and I realized I'm not surprised in the least.
 
---H7BIH7T1fRJ3RGOi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I just wanted to let y'all know that I've been trying to keep an
+up-to-date status page for sparc32 at http://osinvestor.com/sparc/ with
+basic information on 2.4 and 2.5 compiling and booting (or not as may
+be.)
 
-drivers/char/genrtc.c:100: warning: static declaration for
-`gen_rtc_interrupt' follows non-static
-drivers/char/genrtc.c: In function `gen_rtc_timer':
-drivers/char/genrtc.c:135: warning: comparison of distinct pointer
-types lacks a cast
-drivers/char/genrtc.c: In function `gen_rtc_open':
-drivers/char/genrtc.c:358: warning: `MOD_INC_USE_COUNT' is deprecated
-(declared
-at include/linux/module.h:431)
-drivers/char/genrtc.c: In function `gen_rtc_release':
-drivers/char/genrtc.c:377: warning: `MOD_DEC_USE_COUNT' is deprecated
-(declared
-at include/linux/module.h:443)
-drivers/char/genrtc.c: In function `gen_rtc_proc_output':
-drivers/char/genrtc.c:453: void value not ignored as it ought to be
-drivers/char/genrtc.c:498: `RTC_BATT_BAD' undeclared (first use in
-this function)
-drivers/char/genrtc.c:498: (Each undeclared identifier is reported
-only once
-drivers/char/genrtc.c:498: for each function it appears in.)
+And yes, 2.5.65 builds and boots UP on sparc32, for me at least.  SMP is
+badly broken.
 
-florin
-
---=20
-
-"NT is to UNIX what a doughnut is to a particle accelerator."
-
---H7BIH7T1fRJ3RGOi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+f59WNLPgdTuQ3+QRAiEIAKCOgLbuA7ocMWBwc/eVoYkQxWJgEwCdEy3q
-pq1NAzU88qKz8SoBRm7pW24=
-=xZ+X
------END PGP SIGNATURE-----
-
---H7BIH7T1fRJ3RGOi--
+Regards,
+Rob Radez

@@ -1,52 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129454AbQKHBIp>; Tue, 7 Nov 2000 20:08:45 -0500
+	id <S130398AbQKHBRa>; Tue, 7 Nov 2000 20:17:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129967AbQKHBIg>; Tue, 7 Nov 2000 20:08:36 -0500
-Received: from asbestos.linuxcare.com.au ([203.17.0.30]:40700 "HELO
-	halfway.linuxcare.com.au") by vger.kernel.org with SMTP
-	id <S129454AbQKHBI2>; Tue, 7 Nov 2000 20:08:28 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: "'LKML'" <linux-kernel@vger.kernel.org>,
-        "'LNML'" <linux-net@vger.kernel.org>
-Subject: Re: Locking Between User Context and Soft IRQs in 2.4.0 
-In-Reply-To: Your message of "Mon, 06 Nov 2000 20:55:49 +1100."
-             <3A068025.38D62785@uow.edu.au> 
-Date: Tue, 07 Nov 2000 13:23:47 +1100
-Message-Id: <20001107022348.62CD3820D@halfway.linuxcare.com.au>
+	id <S130417AbQKHBRV>; Tue, 7 Nov 2000 20:17:21 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:46528 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S130398AbQKHBRR>;
+	Tue, 7 Nov 2000 20:17:17 -0500
+Date: Tue, 7 Nov 2000 17:14:01 -0800
+From: Jean Tourrilhes <jt@spica.hpl.hp.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Linux kernel mailing list <linux-kernel@vger.rutgers.edu>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Dag Brattli <dagb@fast.no>
+Subject: [RANT] Linux-IrDA status
+Message-ID: <20001107171401.A24041@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/1.0.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3A068025.38D62785@uow.edu.au> you write:
-> Paul Gortmaker wrote:
-> > - extern void ether_setup(struct net_device *dev);
-> > + extern void __ether_setup(struct net_device *dev);
-> > + static inline void ether_setup(struct net_device *dev){
-> > +       dev->owner = THIS_MODULE;
-> > +       __ether_setup(dev);
-> > + }
-> > 
-> > Ugh. Probably should just add it to each probe and be done with it...
-> 
-> mm..  Seeing as failure to set dev->owner is a fatal mistake,
-> it would be good to enforce this via the compiler type system.
-> 
-> How about making THIS_MODULE an argument to register_netdevice()
-> and, hence, register_netdev() and init_etherdev()?
+	Hi,
 
-Bear in mind that in 2.5, the THIS_MODULE registration cancer
-infesting the kernel[1] will vanish with two-stage module delete[2].
+	(I'm not on the Linux kernel mailing list)
 
-	http://www.wcug.wwu.edu/lists/netdev/200006/msg00250.html
+	The IrDA stack in Linux is non functional and has some major
+critical bugs :
+                        http://linux24.sourceforge.net/
+	Not only it doesn't work, but it can crash your kernel fast.
 
-Rusty.
+	Most might wonder why the IrDA stack is in such state of
+disrepair. Is there no maintainers and nobody who cares ?
+	The truth is that every 2 month, Dag Brattli, the official
+maintainer of the IrDA stack (see MAINTAINERS), collect all our
+patches and send the latest official Linux-IrDA patch to Linus.
+	And every time the patch never materialise in the Linux
+kernel. Of course, Dag never receive any answer, so doesn't know why
+his patches are going directly to /dev/null.
+	As we fix more bugs, the official IrDA patch get growing and
+growing. The patch that Dag sent last week to Linus was 320k. It has
+slowly accumulated over one year :-(
 
-[1] And getting worse.
-[2] Which was the correct solution for 2.4, only I was all out of
-    `get out of code freeze free' cards.
---
-Hacking time.
+	On the other hand, what never cease to amaze me is that some
+patches to the IrDA code gets into the kernel. Some of those patches
+make things better, some make things worse. Those patches certainly
+don't come from Dag or any of the most active Linux-IrDA hacker, and
+none of us see those patches in advance so that we get a chance to
+comment on them and test them.
+	I guess that some people have trouble reading the MAINTAINERS
+file :-( Or maybe there is another maintainer for the IrDA stack and
+none of us knows about it.
+
+
+	I think for us the only solution is to ignose what's happening
+in the 2.4.X kernel and have Dag maintaining Linux-IrDA separate from
+the kernel. I don't see why Dag should take the effort to send regular
+patch to Linus if they get ignored.
+	In other words, the chances to have IrDA working in kernel 2.4
+are *very* slim at this point.
+	So, if people are interested in IrDA and want to use it, they
+should suscribe to the Linux-IrDA mailing list and can ask me the
+latest patch (Dag is now too discouraged). We will put it in the usual
+place on Sourceforge...
+
+	I hope it clarify a few things...
+
+	Jean
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

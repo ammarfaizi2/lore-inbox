@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270930AbTHKEXV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 00:23:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270939AbTHKEXV
+	id S270939AbTHKE37 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 00:29:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270969AbTHKE37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 00:23:21 -0400
-Received: from web40312.mail.yahoo.com ([66.218.78.91]:3919 "HELO
-	web40312.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S270930AbTHKEXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 00:23:10 -0400
-Message-ID: <20030811042309.7873.qmail@web40312.mail.yahoo.com>
+	Mon, 11 Aug 2003 00:29:59 -0400
+Received: from web40308.mail.yahoo.com ([66.218.78.87]:61258 "HELO
+	web40308.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S270939AbTHKE3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 00:29:49 -0400
+Message-ID: <20030811042948.11736.qmail@web40308.mail.yahoo.com>
 X-RocketYMMF: rkymtguy
-Date: Sun, 10 Aug 2003 21:23:09 -0700 (PDT)
+Date: Sun, 10 Aug 2003 21:29:48 -0700 (PDT)
 From: Zachary Pfeffer <pfefferz@colorado.edu>
 Reply-To: pfefferz@colorado.edu
-Subject: PROBLEM: 'make' fails CC [M]  drivers/block/paride/pd.o ON linux-2.6.0-test3 tree
-To: linux-kernel@vger.kernel.org
+Subject: PROBLEM:  'make' fails CC [M]  drivers/char/riscom8.o ON linux-2.6.0-test3 tree
+To: linux kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 [1.] 
-'make' fails CC [M]  drivers/block/paride/pd.o ON linux-2.6.0-test3 tree
+'make' fails CC [M]  drivers/char/riscom8.o ON linux-2.6.0-test3 tree
 
 [2.]
-When performing a 'make' and including CONFIG_PARIDE_*=m
-
-Block devices -> Parallel port IDE device support =m
-Block devices -> Parallel port IDE disks=m
-Block devices -> Parallel port ATAPI CD-ROMs=m
-Block devices -> Parallel port ATAPI disks=m
-Block devices -> Parallel port ATAPI tapes=m
-Block devices -> Parallel port generic ATAPI devices=m
+When performing a 'make' and including CONFIG_RISCOM8=m
 
 I get 
-  CC [M]  drivers/block/paride/pd.o
-drivers/block/paride/pd.c: In function `pd_init':
-drivers/block/paride/pd.c:896: warning: passing arg 1 of `blk_init_queue' from
-incompatible pointer type
-drivers/block/paride/pd.c:896: warning: passing arg 2 of `blk_init_queue' from
-incompatible pointer type
-drivers/block/paride/pd.c:896: too many arguments to function `blk_init_queue'
-make[2]: *** [drivers/block/paride/pd.o] Error 1
-make[1]: *** [drivers/block/paride] Error 2
+  CC [M]  drivers/char/riscom8.o
+In file included from drivers/char/riscom8.c:51:
+drivers/char/riscom8.h:84: field `tqueue' has incomplete type
+drivers/char/riscom8.h:85: field `tqueue_hangup' has incomplete type
+drivers/char/riscom8.h:99: confused by earlier errors, bailing out
+make[2]: *** [drivers/char/riscom8.o] Error 1
+make[1]: *** [drivers/char] Error 2
 make: *** [drivers] Error 2
 
-
 [3.]
-Parallel port IDE device support linux-2.6.0-test3 fails
+RISCOM char linux-2.6.0-test3 fails
 
 [4.]
 Linux version 2.4.21 (root@test) (gcc version 3.2 20020903 (Red Hat Linux 8.0
@@ -57,8 +47,8 @@ Linux version 2.4.21 (root@test) (gcc version 3.2 20020903 (Red Hat Linux 8.0
 [5.]
 
 [6.]
-CONFIG_PARIDE_*=m
-make modules
+CONFIG_RISCOM8=m
+make
 
 [7.]
 
@@ -472,7 +462,7 @@ none
 none
 
 [X.]
-I just #'d CONFIG_PARIDE_*=m out of .config
+I just #'d CONFIG_RISCOM8=m out of .config
 
 -Zachary A Pfeffer
 pfefferz@colorado.edu

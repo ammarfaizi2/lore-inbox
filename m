@@ -1,30 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318265AbSIFDiZ>; Thu, 5 Sep 2002 23:38:25 -0400
+	id <S318272AbSIFDtw>; Thu, 5 Sep 2002 23:49:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318264AbSIFDiZ>; Thu, 5 Sep 2002 23:38:25 -0400
-Received: from [210.78.134.243] ([210.78.134.243]:64781 "EHLO 210.78.134.243")
-	by vger.kernel.org with ESMTP id <S318259AbSIFDiY>;
-	Thu, 5 Sep 2002 23:38:24 -0400
-Date: Fri, 6 Sep 2002 11:46:3 +0800
-From: zhengchuanbo <zhengcb@netpower.com.cn>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: problem with eepro100 on cisco 2950
-X-mailer: FoxMail 3.11 Release [cn]
+	id <S318274AbSIFDtw>; Thu, 5 Sep 2002 23:49:52 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:64641 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318272AbSIFDtw>;
+	Thu, 5 Sep 2002 23:49:52 -0400
+Date: Thu, 05 Sep 2002 20:47:21 -0700 (PDT)
+Message-Id: <20020905.204721.49430679.davem@redhat.com>
+To: hadi@cyberus.ca
+Cc: tcw@tempest.prismnet.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.GSO.4.30.0209051648020.17973-100000@shell.cyberus.ca>
+References: <200209051830.g85IUMdH096254@tempest.prismnet.com>
+	<Pine.GSO.4.30.0209051648020.17973-100000@shell.cyberus.ca>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="GB2312"
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200209061150844.SM00836@zhengcb>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: jamal <hadi@cyberus.ca>
+   Date: Thu, 5 Sep 2002 16:59:47 -0400 (EDT)
+   
+   I would think shoving the data down the NIC
+   and avoid the fragmentation shouldnt give you that much significant
+   CPU savings.
 
-we have a eepro100 card on our linux system. we build an IDS on the system. the problem is when  we use the system on the monitor port of cisco 2950,it could not sniffer any packets. we made some test on the monitor ports of other kinds of cisco swithes,all worked well.when applied on hubs,it also worked well.
-we tried rtl8139 on cisco 2950, it worked well.
-so what's the problem? the driver? or the 2950 switch?
+It's the DMA bandwidth saved, most of the specweb runs on x86 hardware
+is limited by the DMA throughput of the PCI host controller.  In
+particular some controllers are limited to smaller DMA bursts to
+work around hardware bugs.
 
-please cc. thanks. 
+Ie. the headers that don't need to go across the bus are the critical
+resource saved by TSO.
 
-zhengchuanbo
-zhengcb@netpower.com.cn
-
+I think I've said this a million times, perhaps the next person who
+tries to figure out where the gains come from can just reply with
+a pointer to a URL of this email I'm typing right now :-)

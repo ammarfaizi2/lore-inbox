@@ -1,71 +1,123 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313639AbSDZR4g>; Fri, 26 Apr 2002 13:56:36 -0400
+	id <S313760AbSDZS1T>; Fri, 26 Apr 2002 14:27:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314099AbSDZR4f>; Fri, 26 Apr 2002 13:56:35 -0400
-Received: from p5082852B.dip0.t-ipconnect.de ([80.130.133.43]:61058 "EHLO
-	leonov.stosberg.net") by vger.kernel.org with ESMTP
-	id <S313639AbSDZR4e>; Fri, 26 Apr 2002 13:56:34 -0400
-Date: Fri, 26 Apr 2002 19:56:12 +0200
-From: Dennis Stosberg <dennis@stosberg.net>
+	id <S313765AbSDZS1S>; Fri, 26 Apr 2002 14:27:18 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64776 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S313760AbSDZS1R>; Fri, 26 Apr 2002 14:27:17 -0400
+Date: Fri, 26 Apr 2002 19:27:11 +0100
+From: Russell King <rmk@arm.linux.org.uk>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.19-pre7-ac2: Promise Ultra100TX2 broken
-Message-ID: <20020426175612.GA559@leonov.stosberg.net>
+Subject: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Message-ID: <20020426192711.D18350@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-ICQ: 63537718
-X-PGP-Key: http://stosberg.net/dennis.asc
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hello, 
+I've been looking at some of the ARM discontigmem implementations, and
+have come across a nasty bug.  To illustrate this, I'm going to take
+part of the generic kernel, and use the Alpha implementation to
+illustrate the problem we're facing on ARM.
+
+I'm going to argue here that virt_to_page() can, in the discontigmem
+case, produce rather a nasty bug when used with non-direct mapped
+kernel memory arguments.
+
+In mm/memory.c:remap_pte_range() we have the following code:
+
+                page = virt_to_page(__va(phys_addr));
+                if ((!VALID_PAGE(page)) || PageReserved(page))
+                        set_pte(pte, mk_pte_phys(phys_addr, prot));
+
+Let's look closely at the first line:
+
+                page = virt_to_page(__va(phys_addr));
+
+Essentially, what we're trying to do here is convert a physical address
+to a struct page pointer.
+
+__va() is defined, on Alpha, to be:
+
+	#define __va(x)  ((void *)((unsigned long) (x) + PAGE_OFFSET))
+
+so we produce a unique "va" for any physical address that is passed.  No
+problem so far.  Now, lets look at virt_to_page() for the Alpha:
+
+	#define virt_to_page(kaddr) \
+	     (ADDR_TO_MAPBASE(kaddr) + LOCAL_MAP_NR(kaddr))
+
+Looks inoccuous enough.  However, look closer at ADDR_TO_MAPBASE:
+
+	#define ADDR_TO_MAPBASE(kaddr) \
+                        NODE_MEM_MAP(KVADDR_TO_NID((unsigned long)(kaddr)))
+	#define NODE_MEM_MAP(nid)       (NODE_DATA(nid)->node_mem_map)
+	#define NODE_DATA(n)		(&((PLAT_NODE_DATA(n))->gendata))
+	#define PLAT_NODE_DATA(n)       (plat_node_data[(n)])
+
+Ok, so here we get the map base via:
+
+	plat_node_data[KVADDR_TO_NID((unsigned long)(kaddr))]->
+		gendata.node_mem_map
+
+plat_node_data is declared as:
+
+	plat_pg_data_t *plat_node_data[MAX_NUMNODES];
+
+Lets look closer at KVADDR_TO_NID() and MAX_NUMNODES:
+
+	#define KVADDR_TO_NID(kaddr)    PHYSADDR_TO_NID(__pa(kaddr))
+	#define __pa(x)                 ((unsigned long) (x) - PAGE_OFFSET)
+	#define PHYSADDR_TO_NID(pa)     ALPHA_PA_TO_NID(pa)
+	#define ALPHA_PA_TO_NID(pa)     ((pa) >> 36)    /* 16 nodes max due 43bit kseg */
+
+	#define MAX_NUMNODES            WILDFIRE_MAX_QBB
+	#define WILDFIRE_MAX_QBB        8       /* more than 8 requires other mods */
+
+So, we have a maximum of 8 nodes total, and therefore the plat_node_data
+array is 8 entries large.
+
+Now, what happens if 'kaddr' is below PAGE_OFFSET (because the user has
+opened /dev/mem and mapped some random bit of physical memory space)?
+
+__pa returns a large positive number.  We shift this large positive
+number left by 36 bits, leaving 28 bits of large positive number, which
+is larger than our total 8 nodes.
+
+We use this 28-bit number to index plat_node_data.  Whoops.
+
+And now, for the icing on the cake, take a look at Alpha's pte_page()
+implementation:
+
+        unsigned long kvirt;                                            \
+        struct page * __xx;                                             \
+                                                                        \
+        kvirt = (unsigned long)__va(pte_val(x) >> (32-PAGE_SHIFT));     \
+        __xx = virt_to_page(kvirt);                                     \
+                                                                        \
+        __xx;                                                           \
 
 
-In the late 2.4.19-preX-acY the support for the Promise
-Ultra100TX2 is broken. This problem was already reported on
-lkml and on the German SuSE Linux mailing list. According to
-information from that list the problem only affects the
-Ultra100TX2, but NOT the Ultra100TX.
+Someone *please* tell me where I'm wrong.  I really want to be wrong,
+because I can see the same thing happening (in theory, and one report
+in practice from a developer) on a certain ARM platform.
 
-The latest -ac kernel I know to work with this controller, is
-2.4.19-pre2-ac4. I just tried 2.4.19-pre7-ac2: it
-fails. 2.4.19-pre4-ac3 has also been reported to fail:
+On ARM, however, we have cherry to add here.  __va() may alias certain
+physical memory addresses to the same virtual memory address, which
+makes:
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0203.3/1011.html
+	VALID_PAGE(virt_to_page(__va(phys)))
 
+completely nonsensical.
 
-At boot time 2.4.19-pre7-ac2 prints these error messages. The
-drives ARE conntected using an 80-pin cable:
-
-hde: set_drive_speed_status: status=0xff { Busy }
-Warning: Primary channel requires an 80-pin cable for operation.
-hde reduced to Ultra33 mode.
-[..]
-end_request: I/O error, dev 21:00 (hde), sector 0
-end_request: I/O error, dev 21:00 (hde), sector 2
-end_request: I/O error, dev 21:00 (hde), sector 4
-end_request: I/O error, dev 21:00 (hde), sector 6
-end_request: I/O error, dev 21:00 (hde), sector 0
-end_request: I/O error, dev 21:00 (hde), sector 2
-end_request: I/O error, dev 21:00 (hde), sector 4
-end_request: I/O error, dev 21:00 (hde), sector 6
-
-
-You can find the configuration of the failing kernel at:
-
-http://stosberg.net/tmp/config-2.4.19-pre7-ac2
-
-
-Currently I'm using 2.4.19-pre5aa1 without problems.
-
-Regards, 
-Dennis
+I'll try kicking myself 3 times to see if I wake up from this horrible
+dream now. 8)
 
 -- 
-Dennis Stosberg
-  eMail: dennis@stosberg.net
-         dstosber@techfak.uni-bielefeld.de
-pgp key: http://stosberg.net/dennis.asc
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html

@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264727AbUGIOKJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264650AbUGIOVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264727AbUGIOKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 10:10:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264725AbUGIOKJ
+	id S264650AbUGIOVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 10:21:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUGIOVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 10:10:09 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:64940 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S264727AbUGIOJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 10:09:57 -0400
-Date: Fri, 9 Jul 2004 15:09:47 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Bastian Blank <bastian@waldi.eu.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] s390 - mark IPv6 support for QETH as broken
-Message-ID: <20040709140947.GA32405@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Bastian Blank <bastian@waldi.eu.org>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <20040709140630.GA27350@wavehammer.waldi.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040709140630.GA27350@wavehammer.waldi.eu.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 9 Jul 2004 10:21:09 -0400
+Received: from hera.ecs.csus.edu ([130.86.71.150]:60058 "EHLO
+	hera.ecs.csus.edu") by vger.kernel.org with ESMTP id S264650AbUGIOVH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 10:21:07 -0400
+Message-ID: <48088.68.126.187.236.1089382866.squirrel@gaia.ecs.csus.edu>
+Date: Fri, 9 Jul 2004 07:21:06 -0700 (PDT)
+Subject: 2.6.6 kernel memory space
+From: sirpj@ecs.csus.edu
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 09, 2004 at 04:06:30PM +0200, Bastian Blank wrote:
-> Hi Andrew
-> 
-> The attached patch marks IPv6 support for QETH broken, it is known to
-> need an extra patch to compile which was submitted one year ago but
-> never accepted.
+Hi,
 
-If it doesn't even compile BROKEN isn't enough.  In that case cometely
-uncomment the option in Kconfig.
+I have found a lot of documentation on how linux is addressing the 4 gig
+issue... But what I would like to know is how much space does the kernel
+have to run a kernel process? For example, if I build a module that
+allocates storage for a linked list of structures (that are 64 bytes in
+size) how long can my list be before the kernel runs out of memory? Can
+kernel space programs use Virtual Memory -- or do they just have access to
+1 GB?
+
+thanks a lot,
+
+Jenn
+
 

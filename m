@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318935AbSHSQvb>; Mon, 19 Aug 2002 12:51:31 -0400
+	id <S318948AbSHSQyd>; Mon, 19 Aug 2002 12:54:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318937AbSHSQvb>; Mon, 19 Aug 2002 12:51:31 -0400
-Received: from [209.47.40.2] ([209.47.40.2]:9235 "EHLO mailnet.consensys.com")
-	by vger.kernel.org with ESMTP id <S318935AbSHSQva>;
-	Mon, 19 Aug 2002 12:51:30 -0400
-Message-ID: <030701c247a1$55d19320$4902a8c0@consensys.com>
-From: "Jason Zebchuk" <jason@consensys.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] pci_do_scan_bus - 2.5.31
-Date: Mon, 19 Aug 2002 12:56:17 -0400
+	id <S318945AbSHSQyc>; Mon, 19 Aug 2002 12:54:32 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43535 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318947AbSHSQyc>; Mon, 19 Aug 2002 12:54:32 -0400
+Message-ID: <3D61239A.7030405@zytor.com>
+Date: Mon, 19 Aug 2002 09:58:02 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Russell King <rmk@arm.linux.org.uk>
+CC: linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: Re: klibc and logging
+References: <3D58B14A.5080500@zytor.com> <20020819142734.B17471@flint.arm.linux.org.uk> <3D60F9A6.6020304@zytor.com> <20020819175429.C17471@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Russell King wrote:
+> 
+>>I really think this is a bad idea.  The kmsg device has different 
+>>properties -- for example, you're supposed to tag things with the 
+>>message importance.  It really matches the syslog(3) interface better. 
+>>Also, the special case makes me nervous.
+> 
+> Without something like this, it means that effectively the "echo" command
+> wouldn't be useable, or you'd have to pipe the output of all scripts
+> through some program/to /dev/kmsg.
+> 
+> Or we just forget logging the messages from initramfs scripts.
+> 
 
-    I've found a small problem in the patch I submitted last week to fix
-pci_do_scan_bus.  The pci_dev that was allocated was not properly
-initialised and this could cause any number of problems with booting.
+Either we can add a "syslog" binary, or you can:
 
-    I've fixed that problem, and I also changed the BUG() to a panic() as
-per Andi Kleen's suggestion.
+echo '<3>The dohickey is fscked' > /dev/kmsg
 
-
-Jason Zebchuk
-Consensys RAIDZONE
-
-
---- linux-2.5.31/drivers/pci/probe.c    Tue Aug  6 12:40:20 2002
-+++ linux/drivers/pci/probe.c   Mon Aug 19 09:41:43 2002
-@@ -505,8 +505,8 @@
-        /* Create a device template */
-        dev0 = kmalloc(sizeof(struct pci_dev), GFP_ATOMIC);
-        if (dev0 == NULL)
--               BUG();
--       memset(dev0, 0, sizeof(dev0));
-+               panic("Unable to allocate pci_dev!");
-+       memset(dev0, 0, sizeof(*dev0));
-        dev0->bus = bus;
-        dev0->sysdata = bus->sysdata;
-        dev0->dev.parent = bus->dev;
+	-hpa
 

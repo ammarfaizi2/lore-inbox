@@ -1,19 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266670AbUAXCTV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 21:19:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266702AbUAXCTN
+	id S263796AbUAXCSc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 21:18:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266670AbUAXCSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 21:19:13 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:27590 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S266670AbUAXCTC (ORCPT
+	Fri, 23 Jan 2004 21:18:32 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:11462 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S263796AbUAXCS3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 21:19:02 -0500
-Date: Fri, 23 Jan 2004 18:19:01 -0800
+	Fri, 23 Jan 2004 21:18:29 -0500
+Date: Fri, 23 Jan 2004 18:18:28 -0800
 To: "David S. Miller" <davem@redhat.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] 1/11: de-virtualize dongle api helpers
-Message-ID: <20040124021901.GB22410@bougret.hpl.hp.com>
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       irda-users@lists.sourceforge.net
+Cc: Jeff Garzik <jgarzik@pobox.com>, Martin Diehl <lists@mdiehl.de>
+Subject: New IrDA drivers for 2.6.X
+Message-ID: <20040124021828.GA22410@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,6 +28,23 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hi Dave,
+
+	Martin Diehl has finished converting all the old style dongle
+driver to the new API. This was the last major feature parity issue
+with 2.4.X, with this work, 2.6.X should support all the IrDA serial
+dongles that 2.4.X supports. Martin also did a few other cleanups and
+fixed tekram-sir so that it works with real hardware.
+	All patches depend on the first patch, and the last patch
+depend on the previous patches. I tested this on 2.6.2-rc1 with an
+actisys dongle, neither Martin or I have hardware to test the other
+dongle drivers.
+	Thanks for pushing that to "you know who" ;-)
+
+	Jean
+
+--------------------------------------------------------
+
 ir262_dongles-1_sir-dev.diff :
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		<Needed by all subsequent patches>
@@ -33,109 +52,60 @@ ir262_dongles-1_sir-dev.diff :
 * change dongle api such that raw r/w and modem line helpers are directly
   called, not virtual callbacks.
 
+ir262_dongles-2_actisys-sir.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		<Patch from Martin Diehl>
+* convert to de-virtualized sirdev helpers
+* improve error path during speed change
 
-diff -u -p linux/drivers/net/irda.d6/sir-dev.h  linux/drivers/net/irda/sir-dev.h
---- linux/drivers/net/irda.d6/sir-dev.h	Wed Jan 21 17:43:43 2004
-+++ linux/drivers/net/irda/sir-dev.h	Thu Jan 22 16:42:59 2004
-@@ -121,15 +121,17 @@ extern int sirdev_set_dongle(struct sir_
- extern void sirdev_write_complete(struct sir_dev *dev);
- extern int sirdev_receive(struct sir_dev *dev, const unsigned char *cp, size_t count);
- 
-+/* low level helpers for SIR device/dongle setup */
-+extern int sirdev_raw_write(struct sir_dev *dev, const char *buf, int len);
-+extern int sirdev_raw_read(struct sir_dev *dev, char *buf, int len);
-+extern int sirdev_set_dtr_rts(struct sir_dev *dev, int dtr, int rts);
-+
- /* not exported */
- 
- extern int sirdev_get_dongle(struct sir_dev *self, IRDA_DONGLE type);
- extern int sirdev_put_dongle(struct sir_dev *self);
- 
--extern int sirdev_raw_write(struct sir_dev *dev, const char *buf, int len);
--extern int sirdev_raw_read(struct sir_dev *dev, char *buf, int len);
- extern void sirdev_enable_rx(struct sir_dev *dev);
--
- extern int sirdev_schedule_request(struct sir_dev *dev, int state, unsigned param);
- extern int __init irda_thread_create(void);
- extern void __exit irda_thread_join(void);
-@@ -195,10 +197,6 @@ struct sir_dev {
- 	const struct sir_driver * drv;
- 	void *priv;
- 
--	/* dongle callbacks to the SIR device */
--	int (*read)(struct sir_dev *, char *buf, int len);
--	int (*write)(struct sir_dev *, const char *buf, int len);
--	int (*set_dtr_rts)(struct sir_dev *, int dtr, int rts);
- };
- 
- #endif	/* IRDA_SIR_H */
-diff -u -p linux/drivers/net/irda.d6/sir_core.c  linux/drivers/net/irda/sir_core.c
---- linux/drivers/net/irda.d6/sir_core.c	Wed Dec 17 18:58:38 2003
-+++ linux/drivers/net/irda/sir_core.c	Thu Jan 22 16:42:59 2004
-@@ -37,6 +37,10 @@ EXPORT_SYMBOL(sirdev_set_dongle);
- EXPORT_SYMBOL(sirdev_write_complete);
- EXPORT_SYMBOL(sirdev_receive);
- 
-+EXPORT_SYMBOL(sirdev_raw_write);
-+EXPORT_SYMBOL(sirdev_raw_read);
-+EXPORT_SYMBOL(sirdev_set_dtr_rts);
-+
- static int __init sir_core_init(void)
- {
- 	return irda_thread_create();
-diff -u -p linux/drivers/net/irda.d6/sir_dev.c  linux/drivers/net/irda/sir_dev.c
---- linux/drivers/net/irda.d6/sir_dev.c	Wed Jan 21 17:43:43 2004
-+++ linux/drivers/net/irda/sir_dev.c	Thu Jan 22 16:42:59 2004
-@@ -117,6 +117,14 @@ int sirdev_raw_read(struct sir_dev *dev,
- 	return count;
- }
- 
-+int sirdev_set_dtr_rts(struct sir_dev *dev, int dtr, int rts)
-+{
-+	int ret = -ENXIO;
-+	if (dev->drv->set_dtr_rts != 0)
-+		ret =  dev->drv->set_dtr_rts(dev, dtr, rts);
-+	return ret;
-+}
-+	
- /**********************************************************************/
- 
- /* called from client driver - likely with bh-context - to indicate
-diff -u -p linux/drivers/net/irda.d6/sir_dongle.c  linux/drivers/net/irda/sir_dongle.c
---- linux/drivers/net/irda.d6/sir_dongle.c	Wed Dec 17 18:58:17 2003
-+++ linux/drivers/net/irda/sir_dongle.c	Thu Jan 22 16:42:59 2004
-@@ -102,12 +102,6 @@ int sirdev_get_dongle(struct sir_dev *de
- 		err = -ESTALE;
- 		goto out_unlock;	/* rmmod already pending */
- 	}
--
--	/* Initialize dongle driver callbacks */
--	dev->read        = sirdev_raw_read;
--	dev->write       = sirdev_raw_write;
--	dev->set_dtr_rts = dev->drv->set_dtr_rts;
--
- 	dev->dongle_drv = drv;
- 
- 	if (!drv->open  ||  (err=drv->open(dev))!=0)
-diff -u -p linux/drivers/net/irda.d6/sir_kthread.c  linux/drivers/net/irda/sir_kthread.c
---- linux/drivers/net/irda.d6/sir_kthread.c	Wed Jan 21 17:43:43 2004
-+++ linux/drivers/net/irda/sir_kthread.c	Thu Jan 22 16:42:59 2004
-@@ -311,15 +311,9 @@ static void irda_config_fsm(void *data)
- 			break;
- 
- 		case SIRDEV_STATE_SET_DTR_RTS:
--			if (dev->drv->set_dtr_rts) {
--				int	dtr, rts;
--
--				dtr = (fsm->param&0x02) ? TRUE : FALSE;
--				rts = (fsm->param&0x01) ? TRUE : FALSE;
--				ret = dev->drv->set_dtr_rts(dev,dtr,rts);
--			}
--			else
--				ret = -EINVAL;
-+			ret = sirdev_set_dtr_rts(dev,
-+				(fsm->param&0x02) ? TRUE : FALSE,
-+				(fsm->param&0x01) ? TRUE : FALSE);
- 			next_state = SIRDEV_STATE_DONE;
- 			break;
- 
+ir262_dongles-3_esi-sir.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		<Patch from Martin Diehl>
+* convert to de-virtualized sirdev helpers
+* add probably missing dongle power-up operation
+
+ir262_dongles-4_tekram-sir-2.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		<Patch from Martin Diehl>
+* increase default write-delay to 150msec
+* convert to de-virtualized sirdev helpers
+
+ir262_dongles-5_litelink-sir-2.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		<Patch from Eugene Crosser>
+* converted for new api from old driver
+		<Patch from Martin Diehl>
+* convert to de-virtualized sirdev helpers
+* set dongle to 9600 in case of invalid speed instead leaving it in
+  unknown configuration
+
+ir262_dongles-6_act200l-sir.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		<Patch from Martin Diehl>
+* converted for new api from old driver
+
+ir262_dongles-7_girbil-sir.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		<Patch from Martin Diehl>
+* converted for new api from old driver
+
+ir262_dongles-8_ma600-sir.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		<Patch from Martin Diehl>
+* converted for new api from old driver
+
+ir262_dongles-9_mcp2120-sir.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		<Patch from Martin Diehl>
+* converted for new api from old driver
+
+ir262_dongles-10_belkin-sir.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		<Patch from Martin Diehl>
+* converted for new api from old driver
+
+ir262_dongles-11_makefile-2.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		<apply after all other patches>
+		<Patch from Martin Diehl>
+* include build information for new dongle drivers (5->10)

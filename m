@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264752AbSJ3RLt>; Wed, 30 Oct 2002 12:11:49 -0500
+	id <S264755AbSJ3RM6>; Wed, 30 Oct 2002 12:12:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264755AbSJ3RLs>; Wed, 30 Oct 2002 12:11:48 -0500
-Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:55046
-	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S264750AbSJ3RLp>; Wed, 30 Oct 2002 12:11:45 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D1A33C7F@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'Robert Schwebel'" <robert@schwebel.de>
-Cc: "'Alex Pavloff'" <apavloff@eason.com>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>,
-       "'linux-serial'" <linux-serial@vger.kernel.org>
-Subject: RE: what serial port type are Elan ports?
-Date: Wed, 30 Oct 2002 09:18:09 -0800
+	id <S264750AbSJ3RM5>; Wed, 30 Oct 2002 12:12:57 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:30187 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S264755AbSJ3RMH>;
+	Wed, 30 Oct 2002 12:12:07 -0500
+Date: Wed, 30 Oct 2002 09:14:47 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: <boissiere@adiglobal.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [STATUS 2.5]  October 30, 2002
+In-Reply-To: <20021030161708.GA8321@suse.de>
+Message-ID: <Pine.LNX.4.33L2.0210300912030.18828-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Robert,
-On Wed, October 30, 2002 at 2:33 AM, Robert Schwebel wrote:
-> On Tue, Oct 29, 2002 at 05:13:40PM -0800, Ed Vance wrote:
-> > Thanks, I think the Elan SC520 is all I need. I don't know 
-> > if the other chips in the family have the same bug. 
-> 
-> At least the SC410 has the same bug. Unfortunately I don't have a
-> ready-to-run system at the moment, so I cannot make the tests 
-> right now. 
-> 
-> Robert
-> -- 
+On Wed, 30 Oct 2002, Dave Jones wrote:
 
-Thanks for the good information.
+| > o Started  Reorder x86 initialization  (Dave Jones, Randy Dunlap)
+|
+| I've jiggled a bunch of this (Randy didnt have time to play here)
+| around as much as its probably going to be for 2.6. It's in -dj,
+| has been sent for -ac, and will likely go to Linus post-freeze
+| as its all cleanups, and one-liners.
 
-Do you think there is a need to look at the UART type on any more of the
-Elan based systems if the SC4X0 is also detected as a generic 16550A? 
+Right.  Please remove my name from that item.
 
-Best regards,
-Ed
+-- 
+~Randy
 
----------------------------------------------------------------- 
-Ed Vance              edv (at) macrolink (dot) com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------

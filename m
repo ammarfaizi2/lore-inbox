@@ -1,72 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267928AbRGXQjV>; Tue, 24 Jul 2001 12:39:21 -0400
+	id <S267964AbRGXQsL>; Tue, 24 Jul 2001 12:48:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268214AbRGXQjL>; Tue, 24 Jul 2001 12:39:11 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:46345 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267928AbRGXQjD>; Tue, 24 Jul 2001 12:39:03 -0400
-Date: Tue, 24 Jul 2001 09:37:39 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Nathan Laredo <nlaredo@transmeta.com>, Neil Brown <neilb@cse.unsw.edu.au>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: patch for allowing msdos/vfat nfs exports
-In-Reply-To: <Pine.GSO.4.21.0107232053040.23359-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33.0107240929560.29354-100000@penguin.transmeta.com>
+	id <S267982AbRGXQsC>; Tue, 24 Jul 2001 12:48:02 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:64778 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S267964AbRGXQrm>;
+	Tue, 24 Jul 2001 12:47:42 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Allen Campbell <lkml@campbell.cwx.net>
+Date: Tue, 24 Jul 2001 18:47:21 MET-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: FYI: vmware breakage w/2.4.7
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <98F62A10589@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+On 23 Jul 01 at 16:35, Allen Campbell wrote:
+> 2.4.7 appears to break vmware (latest build: 1142.)  Looks like some
+> #defines moved. The vmmon build produces the following noise:
+> 
+> Doubtless were looking at the result of an inappropriate dependency on
+> the part of vmware.  I'm not expecting any sort of help or fix.  This
+> is just an FYI for those that need to emulate windows.
 
-On Mon, 23 Jul 2001, Alexander Viro wrote:
->
-> On Mon, 23 Jul 2001, Nathan Laredo wrote:
->
-> > +	result = d_alloc_root(inode);
-> > +	if (result == NULL) {
-> > +	         iput(inode);
-> > +	         return ERR_PTR(-ENOMEM);
-> > +	}
-> > +	result->d_flags |= DCACHE_NFSD_DISCONNECTED;
-> > +	return result;
->
-> Erm... AFAICS it got a race - think of doing that for directory when
-> dentry is already gone, but inode still in cache. You will get
-> nfsd_findparent() called and that will give funny results on FAT.
+Patch exists since friday and it was already discussed on linux-kernel.
+You should refresh your vmmon.tar and vmnet.tar with:
 
-Note that the code was definitely cribbed from reiserfs, and when I stole
-it I had this very strong feeling that "This really should be supported in
-the VFS layer instead of hidden in the low-level filesystems".
+ftp://platan.vc.cvut.cz/pub/vmware/vmmon-for-2.4.7-only.tar.gz
+ftp://platan.vc.cvut.cz/pub/vmware/vmnet-204-for-2.4.6.tar.gz
 
-We are, after all, working with very internal knowledge of not only the
-way the dentry lists are attached to the inode, but also about the whole
-DISCONNECTED thing etc.
-
-> The worst thing being, it _will_ get a decently-looking inode. Inode that
-> will point to the same blocks as parent directory, but will be completely
-> independent (different location).
-
-Absolutely. And some of the NFS-export problems won't even be avoidable at
-all: FAT does not have a notion of inode versions etc, and we do not have
-a way to fix that.
-
-However, what we could do is add more sanity-testing, and for example also
-add the parent inode location to the dentry_to_fh code. We have space.
-
-The patch was a fairly quick hack. What it does show is that (a) the
-dentry_to_fh approach is actually a very usable one in itself and wasn't
-just an ugly reiserfs hack, and (b) FAT _can_ be exported.
-
-The reason I asked Nathan to post the damn thing instead of just applying
-it to the tree was to get these kinds of comments, and hopefully move the
-VFS stuff to a VFS location, ie start exporting a vfs_inode_to_dentry()
-function that reiserfs, FAT and quite possibly others can sanely share.
-
-Al, Neil, care to work something out between you? I saw that Neil had
-something already..
-
-			Linus
-
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

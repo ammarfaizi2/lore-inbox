@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268036AbTBRVuC>; Tue, 18 Feb 2003 16:50:02 -0500
+	id <S268038AbTBRVsU>; Tue, 18 Feb 2003 16:48:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268039AbTBRVuC>; Tue, 18 Feb 2003 16:50:02 -0500
-Received: from tapu.f00f.org ([202.49.232.129]:19599 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S268036AbTBRVt5>;
-	Tue, 18 Feb 2003 16:49:57 -0500
-Date: Tue, 18 Feb 2003 13:59:56 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: Linux v2.5.62 --- spontaneous reboots
-Message-ID: <20030218215956.GA15178@f00f.org>
-References: <20030218000304.GA7352@f00f.org> <Pine.LNX.4.44.0302171741250.1754-100000@home.transmeta.com> <20030218214431.GA15007@f00f.org>
+	id <S268039AbTBRVsU>; Tue, 18 Feb 2003 16:48:20 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:31756 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S268038AbTBRVsT>; Tue, 18 Feb 2003 16:48:19 -0500
+Date: Tue, 18 Feb 2003 22:58:19 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>, davej@suse.de, linux@brodo.de
+Subject: Re: Select voltage manually in cpufreq
+Message-ID: <20030218215819.GC21974@atrey.karlin.mff.cuni.cz>
+References: <20030218214220.GA1058@elf.ucw.cz> <20030218214726.GB15007@f00f.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030218214431.GA15007@f00f.org>
+In-Reply-To: <20030218214726.GB15007@f00f.org>
 User-Agent: Mutt/1.3.28i
-X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 18, 2003 at 01:44:31PM -0800, Chris Wedgwood wrote:
+Hi!
 
-> I say thus far, because the problem usually appears after about 15
-> minutes of compiling, but it sometimes takes a little longer.  I'm
-> running 2.5.52 now and after 45 minutes it's still going.
+> > I've added possibility to manualy force specified frequency and
+> > voltage... That's fairly usefull for testing, and I believe this (or
+> > something equivalent) is needed because every 2nd bios seems to be
+> > b0rken.
+> 
+> Why are all the power/cpu patches so complex?  Can't we have a
+> two-mode style operation, "slow-low-power" and "fast-high-power" or
+> something?  Would that not work with 99% or what people need and also
+> be somewhat more uniform across platforms, CPUs, etc?
 
-Of course, Murphy being the optimist he is; about two minutes after I
-make a claim that 2.5.52 does NOT spontaneously reboot --- it *DOES*.
+Well, and does slow-low-power mean 300MHz, 1.4V as bios said, or
+300MHz, 1.2V which is probably also safe?
 
-I'm back to 2.5.51 and I'll beat it hard and see what happens.  I
-guess until I (or someone else who sees this) can get some concrete
-data points you'll have to ignore this.
+What about
+"as-fast-as-possible-but-not-exceed-140MHz-because-batteries-are-
+running-low-and-can-not-give-enough-current"? That's different from
+"fast-high-power", but it is *also* different from
+"slow-low-power". [This actually matters on beasts like zaurus]. What
+about
+"as-low-power-as-possible-but-make-sure-you-can-keep-display-up"? [On
+some machines cpu must be > some HMz for display to still work].
 
-
-  --cw
-
+Power managment is complex...
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

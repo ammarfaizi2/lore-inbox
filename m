@@ -1,41 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbVCDFkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVCDFpO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbVCDFkP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 00:40:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbVCDFkO
+	id S261258AbVCDFpO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 00:45:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVCDFpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 00:40:14 -0500
-Received: from waste.org ([216.27.176.166]:51691 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262064AbVCDFiv (ORCPT
+	Fri, 4 Mar 2005 00:45:13 -0500
+Received: from rproxy.gmail.com ([64.233.170.192]:60521 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261258AbVCDFpL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 00:38:51 -0500
-Date: Thu, 3 Mar 2005 21:38:50 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Alexander Gran <alex@zodiac.dnsalias.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc5-mm1: reiser4 panic
-Message-ID: <20050304053849.GP3163@waste.org>
-References: <200503040216.56889@zodiac.zodiac.dnsalias.org>
+	Fri, 4 Mar 2005 00:45:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=KTVepUVzKHrx9aQ1KynO7k2PUsEuiMD4iwM6E9aPdYXCXO9pxPvFzHeXmdww09+r5aOk3Kk6TBdKMoblOxcQrsvdVUNkMpqh9bWz0Gm3hlKo29lfpO4M7caTjZPWiZKkNfnevAyMA0jw1u/6tUI6Qj1lBrNiLSfVEcRS1vBFVgI=
+Message-ID: <c4b38ec405030321452996b084@mail.gmail.com>
+Date: Fri, 4 Mar 2005 13:45:10 +0800
+From: David L <abcd.bpmf@gmail.com>
+Reply-To: David L <abcd.bpmf@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Does linux kernel support little-endian on powerpc?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503040216.56889@zodiac.zodiac.dnsalias.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 02:16:56AM +0100, Alexander Gran wrote:
-> Hi,
-> 
-> after my external USB hdd disconnected itself reiser4 paniced. I dont think a 
-> journalingfs should panic if its device fails..
+Hi All,
 
-Panicking is sometimes what you want. Panic can trigger a reboot and
-get the box back on its feet quickly.
+I know toolchain support the target powerpcle-elf. it enable the
+little-endian on powerpc. I see that there is -melf32ppc param for ld
+in arch/ppc/Makefile. Can I modify it to -melf32lppc? what will occur?
+Can kernel suport little-endian on powerpc well?
 
-But going read-only on errors is a more sensible default policy,
-especially if you have other unrelated activities going on.
-Ext2 and ext3 have such an option.
-
--- 
-Mathematics is the supreme nostalgia of our time.
+thanks
+Jason

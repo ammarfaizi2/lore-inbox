@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129429AbRB0Bj0>; Mon, 26 Feb 2001 20:39:26 -0500
+	id <S129408AbRB0BoJ>; Mon, 26 Feb 2001 20:44:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129434AbRB0BjR>; Mon, 26 Feb 2001 20:39:17 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:43541 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S129429AbRB0BjG>;
-	Mon, 26 Feb 2001 20:39:06 -0500
-Message-ID: <20010227023905.A17956@win.tue.nl>
-Date: Tue, 27 Feb 2001 02:39:05 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: "Carlos Fernandez Sanz" <cfernandez@myalert.com>,
-        <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
-Subject: Re: Problem creating filesystem
-In-Reply-To: <11dd01c0a04e$98b92e60$f40237d1@MIACFERNANDEZ>
+	id <S129417AbRB0Bn5>; Mon, 26 Feb 2001 20:43:57 -0500
+Received: from 2-113.cwb-adsl.telepar.net.br ([200.193.161.113]:1007 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S129408AbRB0Bnr>; Mon, 26 Feb 2001 20:43:47 -0500
+Date: Mon, 26 Feb 2001 21:04:41 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, becker@scyld.com,
+        linux-kernel@vger.kernel.org
+Subject: PATCH] via-rhine.c: don't reference skb after passing it to netif_rx
+Message-ID: <20010226210441.K8692@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, becker@scyld.com,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <11dd01c0a04e$98b92e60$f40237d1@MIACFERNANDEZ>; from Carlos Fernandez Sanz on Mon, Feb 26, 2001 at 06:48:16PM -0500
+Content-Disposition: inline
+User-Agent: Mutt/1.3.14i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 26, 2001 at 06:48:16PM -0500, Carlos Fernandez Sanz wrote:
+humm, almost finishing... 8)
 
-> I have just purchased a new HD and I'm getting problems creating a
-> filesystem for it.  The HD is a Maxtor 80 Gb
-> 
-> Disk /dev/hde: 16 heads, 63 sectors, 15871 cylinders
-> Units = cylinders of 1008 * 512 bytes
-> 
->    Device Boot    Start       End    Blocks   Id  System
-> /dev/hde1             1     15871   7998952+  83  Linux
-> 
-> Command (m for help): w
-> The partition table has been altered!
-> 
-> Calling ioctl() to re-read partition table.
-> 
-> Syncing disks.
-> ------------------
-> When trying to create the filesystem, I get this:
-> 
-> [root@alhambra /sbin]# ./mke2fs /dev/hde1
-> mke2fs 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
-> /dev/hde1: Invalid argument passed to ext2 library while setting up
-> superblock
-> -------------------
-> 
-> I'm using
-> Linux version 2.2.17-14 (root@porky.devel.redhat.com)
+Em Mon, Feb 26, 2001 at 08:33:59PM -0300, Arnaldo Carvalho de Melo escreveu:
+Hi,
 
-Reboot. Look at the boot messages. You should see your disk mentioned
-and the partitions listed (hde: hde1).
-If they disappear too quickly, say "dmesg | grep hde".
+	I've just read davem's post at netdev about the brokeness of
+referencing skbs after passing it to netif_rx, so please consider applying
+this patch. Ah, this was just added to the Janitor's TODO list at
+http://bazar.conectiva.com.br/~acme/TODO and I'm doing a quick audit in the
+net drivers searching for this, maybe some more patches will follow.
 
-Test the size of hde1 with "blockdev --getsize /dev/hde1"
-or "fdisk -s /dev/hde1" or so. If you get 0 that explains
-the mke2fs error.
+- Arnaldo
 
-Make sure your tools are up to date. Old versions often have
-an overflow somewhere.
+--- linux-2.4.2/drivers/net/via-rhine.c	Mon Dec 11 19:38:29 2000
++++ linux-2.4.2.acme/drivers/net/via-rhine.c	Mon Feb 26 22:36:18 2001
+@@ -1147,9 +1147,9 @@
+ 								 np->rx_buf_sz, PCI_DMA_FROMDEVICE);
+ 			}
+ 			skb->protocol = eth_type_trans(skb, dev);
++			np->stats.rx_bytes += skb->len;
+ 			netif_rx(skb);
+ 			dev->last_rx = jiffies;
+-			np->stats.rx_bytes += skb->len;
+ 			np->stats.rx_packets++;
+ 		}
+ 		entry = (++np->cur_rx) % RX_RING_SIZE;

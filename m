@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315119AbSFOIPN>; Sat, 15 Jun 2002 04:15:13 -0400
+	id <S314885AbSFOIKe>; Sat, 15 Jun 2002 04:10:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315120AbSFOIPM>; Sat, 15 Jun 2002 04:15:12 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:21398 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S315119AbSFOIPM>; Sat, 15 Jun 2002 04:15:12 -0400
-Date: Sat, 15 Jun 2002 09:46:30 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Andrew Morton <akpm@zip.com.au>
-Subject: [PATCH][2.5] 2.5.21 deadlocks on UP (SMP kernel) w/ IOAPIC (take 2)
-In-Reply-To: <Pine.LNX.4.44.0206141712590.30400-100000@netfinity.realnet.co.sz>
-Message-ID: <Pine.LNX.4.44.0206150942490.30400-100000@netfinity.realnet.co.sz>
+	id <S315119AbSFOIKd>; Sat, 15 Jun 2002 04:10:33 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:22797 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S314885AbSFOIKd>; Sat, 15 Jun 2002 04:10:33 -0400
+Date: Sat, 15 Jun 2002 09:10:20 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Kevin Easton <s3159795@student.anu.edu.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 no timestamp update on modified mmapped files
+In-Reply-To: <20020615152443.A22396@beernut.flames.org.au>
+Message-ID: <Pine.LNX.4.21.0206150830190.1185-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With the help of Andrew Morton we tracked down the original breakage to 
-the irq_balance_t declaration which assumes there is a cpu#1
+On Sat, 15 Jun 2002, Kevin Easton wrote:
+> On Wed, 12 Jun 2002, Hugh Dickins wrote:
+> > 
+> > But you didn't spell out the worst news on that option: read faults 
+> > into a read-only shared mapping of a file which the application had 
+> > open for read-write when it mmapped: the page must be mapped to disk 
+> > at read fault time (because the mapping just might be mprotected for 
+> > read-write later on, and the page then dirtied). 
+> 
+> Can't the page be mapped to disk at the page-dirtying-fault time? I 
+> was under the impression that even after the mapping has been mprotected
+> for read-write, the first write to each page will still cause a page
+> fault that results in the page being marked dirty.
 
-typedef struct {
-        unsigned int cpu;
-        unsigned long timestamp;
-} ____cacheline_aligned irq_balance_t;
+It depends on the history of the mapping.  mprotect() does not fault in
+any new pages, it just changes permissions on page table entries already
+present.  So, if you're talking about a fresh mapping, or an area of a
+mapping which has not yet been accessed, you're correct.  And you're
+correct if you're talking about a private mapping (which needs write
+protection to do copy-on-write).  But those aren't cases of concern here.
 
-static irq_balance_t irq_balance[NR_IRQS] __cacheline_aligned
-                        = { [ 0 ... NR_IRQS-1 ] = { 1, 0 } };
+In general, there will already be some page table entries present,
+and mprotect() from shared readonly to readwrite currently adds write
+permission to those entries, and no write fault will then occur on
+first write to those pages.  I was suggesting that we'd need to change
+that (to the behaviour you expect) if we were trying to guarantee disk
+space for unbacked dirty pages (without allocating on read fault).
 
-against 2.5.21, test booted on UP(SMP) w/ IOAPIC and SMP
+(I'm referring above to the implementation in Linux 2.4 or 2.5:
+I've not checked other releases or OSes, which could indeed arrange
+permissions so that there's always a page-dirtying fault.)
 
---- linux-2.5.19/arch/i386/kernel/io_apic.c.orig	Fri Jun 14 17:43:20 2002
-+++ linux-2.5.19/arch/i386/kernel/io_apic.c	Sat Jun 15 10:07:11 2002
-@@ -207,7 +207,7 @@
- } ____cacheline_aligned irq_balance_t;
- 
- static irq_balance_t irq_balance[NR_IRQS] __cacheline_aligned
--			= { [ 0 ... NR_IRQS-1 ] = { 1, 0 } };
-+			= { [ 0 ... NR_IRQS-1 ] = { 0, 0 } };
- 
- extern unsigned long irq_affinity [NR_IRQS];
- 
-Linus, i promise this is the last one ;)
-
-Regards,
-	Zwane Mwaikambo
-
--- 
-http://function.linuxpower.ca
-
+Hugh
 

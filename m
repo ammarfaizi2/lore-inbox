@@ -1,96 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVCNTbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbVCNTdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbVCNTbg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 14:31:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbVCNTbf
+	id S261755AbVCNTdz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 14:33:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbVCNTdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 14:31:35 -0500
-Received: from waste.org ([216.27.176.166]:32675 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261755AbVCNTab (ORCPT
+	Mon, 14 Mar 2005 14:33:55 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:20104 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261755AbVCNTdf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 14:30:31 -0500
-Date: Mon, 14 Mar 2005 11:29:18 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
-       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A3)
-Message-ID: <20050314192918.GC32638@waste.org>
-References: <1110590655.30498.327.camel@cog.beaverton.ibm.com> <20050313004902.GD3163@waste.org> <1110825765.30498.370.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1110825765.30498.370.camel@cog.beaverton.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 14 Mar 2005 14:33:35 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: akpm@osdl.org, pfg@sgi.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] gcc4 fix for sn_serial.c
+Date: Mon, 14 Mar 2005 11:32:39 -0800
+User-Agent: KMail/1.7.2
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_XbeNCnKCwUumPYm"
+Message-Id: <200503141132.39284.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 14, 2005 at 10:42:45AM -0800, john stultz wrote:
-> 
-> > > +static inline cycle_t read_timesource(struct timesource_t* ts)
-> > > +{
-> > > +	switch (ts->type) {
-> > > +	case TIMESOURCE_MMIO_32:
-> > > +		return (cycle_t)readl(ts->mmio_ptr);
-> > > +	case TIMESOURCE_MMIO_64:
-> > > +		return (cycle_t)readq(ts->mmio_ptr);
-> > > +	case TIMESOURCE_CYCLES:
-> > > +		return (cycle_t)get_cycles();
-> > > +	default:/* case: TIMESOURCE_FUNCTION */
-> > > +		return ts->read_fnct();
-> > > +	}
-> > > +}
-> > 
-> > Wouldn't it be better to change read_fnct to take a timesource * and
-> > then change all the other guys to generic_timesource_<foo> helper
-> > functions? This does away with the switch and makes it trivial to add
-> > new generic sources. Change mmio_ptr to void *private.
-> 
-> Not sure if I totally understand this, but originally I just had a read
-> function, but to allow this framework to function w/ ia64 fsyscalls (and
-> likely other arches vsyscalls) we need to pass the raw mmio pointers.
-> Thus the timesource type and switch idea was taken from the time
-> interpolator code.
+--Boundary-00=_XbeNCnKCwUumPYm
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Well for vsyscall, we can leave the mmio_ptr and type. But in-kernel,
-I think we'd rather always call read_fnct with generic helpers than hit this
-switch every time.
+The sal_console and sal_console_uart structures have a circular relationship 
+since they both initialize member fields to pointers of one another.  The 
+current code forward declares sal_console_uart as extern so that sal_console 
+can take its address, but gcc4 complains about this since the real definition 
+of sal_console_uart is marked 'static'.  This patch just removes the static 
+qualifier from sal_console_uart to avoid the inconsistency.  Does it look ok 
+to you, Pat?
 
-> > > +	if (time_suspend_state != TIME_RUNNING) {
-> > > +		printk(KERN_INFO "timeofday_suspend_hook: ACK! called while we're suspended!");
-> > 
-> > Line length. Perhaps BUG_ON instead.
-> 
-> Eh, its not fatal to BUG_ON seems a bit harsh. I'll fix the line length
-> though. 
+Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
 
-Well there's a trade-off here. If it's something that should never
-happen and you only printk, you may never get a failure report
-(especially at KERN_INFO). It's good to be accomodating of external
-errors, but catching internal should-never-happen errors is important.
+Thanks,
+Jesse
 
-> > Excellent question. 
-> 
-> Indeed.  Currently jiffies is used as both a interrupt counter and a
-> time unit, and I'm trying make it just the former. If I emulate it then
-> it stops functioning as a interrupt counter, and if I don't then I'll
-> probably break assumptions about jiffies being a time unit. So I'm not
-> sure which is the easiest path to go until all the users of jiffies are
-> audited for intent. 
+--Boundary-00=_XbeNCnKCwUumPYm
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="sn-serial-gcc4-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="sn-serial-gcc4-fix.patch"
 
-Post this as a separate thread. There are various thoughts floating
-around on this already.
+===== drivers/serial/sn_console.c 1.12 vs edited =====
+--- 1.12/drivers/serial/sn_console.c	2005-03-07 20:41:31 -08:00
++++ edited/drivers/serial/sn_console.c	2005-03-14 10:57:19 -08:00
+@@ -801,7 +801,7 @@
+ 
+ #define SAL_CONSOLE	&sal_console
+ 
+-static struct uart_driver sal_console_uart = {
++struct uart_driver sal_console_uart = {
+ 	.owner = THIS_MODULE,
+ 	.driver_name = "sn_console",
+ 	.dev_name = DEVICE_NAME,
 
--- 
-Mathematics is the supreme nostalgia of our time.
+--Boundary-00=_XbeNCnKCwUumPYm--

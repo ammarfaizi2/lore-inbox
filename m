@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129372AbRBLQxs>; Mon, 12 Feb 2001 11:53:48 -0500
+	id <S129470AbRBLQxi>; Mon, 12 Feb 2001 11:53:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129620AbRBLQxi>; Mon, 12 Feb 2001 11:53:38 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4627 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129299AbRBLQxZ>; Mon, 12 Feb 2001 11:53:25 -0500
-Subject: Re: Programmatically probe video chipset
-To: moloch16@yahoo.com (Paul Powell)
-Date: Mon, 12 Feb 2001 16:54:06 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010212164358.2762.qmail@web119.yahoomail.com> from "Paul Powell" at Feb 12, 2001 08:43:58 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129372AbRBLQx2>; Mon, 12 Feb 2001 11:53:28 -0500
+Received: from [209.81.55.2] ([209.81.55.2]:7942 "EHLO cyclades.com")
+	by vger.kernel.org with ESMTP id <S129470AbRBLQxI>;
+	Mon, 12 Feb 2001 11:53:08 -0500
+Date: Mon, 12 Feb 2001 08:53:06 -0800 (PST)
+From: Ivan Passos <lists@cyclades.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: LILO and serial speeds over 9600
+In-Reply-To: <Pine.LNX.4.10.10102120741290.3761-100000@main.cyclades.com>
+Message-ID: <Pine.LNX.4.10.10102120849580.3761-100000@main.cyclades.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14SMEr-0007UM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there an API or other means to determine what video
-> card, namely the chipset, that the user has installed
-> on his machine?
 
-On a modern X86 machine use the PCI/AGP bus data. On a PS/2 use the MCA bus
-data. On nubus use the nubus probe data. On old style ISA bus PCs done a large
-pointy hat and spend several years reading arcane and forbidden scrolls
+On Mon, 12 Feb 2001, Ivan Passos wrote:
+> 
+> I'd like to have a LILO version that supports higher serial speeds than
+> 9600bps. Questions:
+> - Is there a version that already does that?
+
+To answer one of my own questions: my current LILO version does support
+speeds up to 38400bps. I didn't try it before because the _man page_ said
+it supported up to 9600 (and I believed in it :), but after checking
+LILO's Changelog, I found that support for speeds up to 38400 is available
+for a long time now. I tested it running at 38400 and it works.
+
+Since I still want to add support for speeds up to 115200, the other two
+questions are still up (see below):
+
+> - If not, do I need to change just LILO to do that, or do I need to change
+>   the kernel as well (I don't think I'd need to do that too, as the serial 
+>   console kernel code does support up to 115.2Kbps, but it doesn't hurt to 
+>   ask ... ;) ??
+> - Does another bootloader (e.g. GRUB) support serial speeds higher than
+>   9600bps?? If so, which one(s)??
+
+I'd really appreciate any help.
+
+Later,
+Ivan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

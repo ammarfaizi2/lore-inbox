@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284675AbRLEUVS>; Wed, 5 Dec 2001 15:21:18 -0500
+	id <S284652AbRLEUVT>; Wed, 5 Dec 2001 15:21:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284652AbRLEUTu>; Wed, 5 Dec 2001 15:19:50 -0500
-Received: from leeloo.zip.com.au ([203.12.97.48]:7177 "EHLO
-	mangalore.zipworld.com.au") by vger.kernel.org with ESMTP
-	id <S284645AbRLEUTa>; Wed, 5 Dec 2001 15:19:30 -0500
-Message-ID: <3C0E813D.F5B1F84E@zip.com.au>
-Date: Wed, 05 Dec 2001 12:19:09 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
-X-Accept-Language: en
+	id <S284645AbRLEUTx>; Wed, 5 Dec 2001 15:19:53 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:56335 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S284646AbRLEUTl>;
+	Wed, 5 Dec 2001 15:19:41 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Mike Fedyk <mfedyk@matchmail.com>
+Date: Wed, 5 Dec 2001 21:19:28 MET-1
 MIME-Version: 1.0
-To: Derek Glidden <dglidden@illusionary.com>
-CC: linux-kernel@vger.kernel.org, bugs@linux-ide.org
-Subject: Re: Random "File size limit exceeded" under 2.4
-In-Reply-To: <1007573331.1809.6.camel@two>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Removing an executable while it runs
+CC: Cyrille Beraud <cyrille.beraud@savoirfairelinux.com>,
+        linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <B26DFE70816@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Derek Glidden wrote:
+On  5 Dec 01 at 11:32, Mike Fedyk wrote:
+> > No. Some will refuse to unlink running app (or another opened file).
+> > Some will unlink it immediately, and app then dies when it needs
+> > page-in something. Some works as POSIX mandates.
+> > 
 > 
-> I've been experiencing random and occasional encounters with "File size
-> limit exceeded" errors under 2.4 kernels when trying to make
-> filesystems.
+> POSIX behaviour would be in ext[23], reiserfs, xfs, (and probably ffs,
+> ntfs).  Can someone verify which FSes have what behaviour?
+> 
+> I'd guess that vfat (fat16/28--err, 32), nfs, and hfs would delete
+> immediately.
 
-I don't know if anyone has come forth to fix this yet.
-
-Apparently it's something to do with your shell setting
-rlimits, and block devices are (bogusly) honouring those
-settings.
-
-The word is that if you log in as `root' at the login
-prompt, rather than using `su', the problem goes away.
+ncpfs (and afaik smbfs) will refuse to delete file. For local filesystems
+there is no excuse to not support POSIX semantic on unlink if they do not
+store data together with filename.
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

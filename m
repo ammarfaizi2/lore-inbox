@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269124AbTBXEBL>; Sun, 23 Feb 2003 23:01:11 -0500
+	id <S269115AbTBXELI>; Sun, 23 Feb 2003 23:11:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269125AbTBXEBL>; Sun, 23 Feb 2003 23:01:11 -0500
-Received: from [24.206.178.254] ([24.206.178.254]:44419 "EHLO
-	mail.brianandsara.net") by vger.kernel.org with ESMTP
-	id <S269124AbTBXEBK>; Sun, 23 Feb 2003 23:01:10 -0500
-From: Brian Jackson <brian@mdrx.com>
-To: Xinwen Fu <xinwenfu@cs.tamu.edu>,
+	id <S269116AbTBXELI>; Sun, 23 Feb 2003 23:11:08 -0500
+Received: from smtp.comcast.net ([24.153.64.2]:12635 "EHLO smtp.comcast.net")
+	by vger.kernel.org with ESMTP id <S269115AbTBXELH>;
+	Sun, 23 Feb 2003 23:11:07 -0500
+Date: Sun, 23 Feb 2003 23:15:34 -0500
+From: Russell Leighton <russ@elegant-software.com>
+Subject: Re: Minutes from Feb 21 LSE Call
+To: Larry McVoy <lm@bitmover.com>
+Cc: Gerrit Huizenga <gh@us.ibm.com>, Bill Davidsen <davidsen@tmr.com>,
+       lse-tech@lists.sf.et,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: how to force 10/100 speeds in Linux?
-Date: Sun, 23 Feb 2003 22:09:54 -0600
-User-Agent: KMail/1.5
-References: <Pine.SOL.4.10.10302232124240.17919-100000@dogbert>
-In-Reply-To: <Pine.SOL.4.10.10302232124240.17919-100000@dogbert>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302232209.54857.brian@mdrx.com>
+Message-id: <3E599C66.5030005@elegant-software.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.9)
+ Gecko/20020311
+References: <Pine.LNX.3.96.1030223181400.999D-100000@gatekeeper.tmr.com>
+ <E18n9Kx-0000kA-00@w-gerrit2> <20030224040246.GA4215@work.bitmover.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mii-tool
 
-it's part of net-tools, HTH
+Yup.
 
---Brian
+Great price and super price/performance.
 
+Gotta luv it.
 
-On Sunday 23 February 2003 09:30 pm, Xinwen Fu wrote:
-> Hi,
-> 	My Linux (Redhat 7.2) box has two network cards with built-in
-> drivers in OS's kernel. One card is 10/100 netgear, and the other is
-> 10/100 cnet.
+Larry McVoy wrote:
+
+>On Sun, Feb 23, 2003 at 07:31:26PM -0800, Gerrit Huizenga wrote:
 >
-> 	How can I force the speeds of the two cards at 10Mbps or 100Mbps?
-> Where can I find the parameter list to do such forcing?
+>>But most
+>>people don't connect big machines to IDE drive subsystems.
+>>
 >
-> 	Thanks!
+>3ware controllers.  They look like SCSI to the host, but use cheap IDE
+>drives on the back end.  Really nice cards.  bkbits.net runs on one.
 >
-> Xinwen Fu
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
 

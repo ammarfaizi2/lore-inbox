@@ -1,25 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271719AbTHRMx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 08:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271718AbTHRMxp
+	id S271756AbTHRND2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 09:03:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271741AbTHRNDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 08:53:45 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:3208 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S271719AbTHRMxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 08:53:19 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Mon, 18 Aug 2003 14:53:16 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: "David S. Miller" <davem@redhat.com>
+	Mon, 18 Aug 2003 09:03:11 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:35565 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S271744AbTHRNDE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 09:03:04 -0400
+Date: Mon, 18 Aug 2003 05:55:55 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
 Cc: willy@w.ods.org, alan@lxorguk.ukuu.org.uk, carlosev@newipnet.com,
        lamont@scriptkiddie.org, davidsen@tmr.com, bloemsaa@xs4all.nl,
        marcelo@conectiva.com.br, netdev@oss.sgi.com, linux-net@vger.kernel.org,
        layes@loran.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030818145316.3a81f70c.skraw@ithnet.com>
-In-Reply-To: <20030818053007.7852ca77.davem@redhat.com>
+Message-Id: <20030818055555.248f2a01.davem@redhat.com>
+In-Reply-To: <20030818145316.3a81f70c.skraw@ithnet.com>
 References: <20030728213933.F81299@coredump.scriptkiddie.org>
 	<200308171509570955.003E4FEC@192.168.128.16>
 	<200308171516090038.0043F977@192.168.128.16>
@@ -36,46 +35,31 @@ References: <20030728213933.F81299@coredump.scriptkiddie.org>
 	<20030818044419.0bc24d14.davem@redhat.com>
 	<20030818143401.1352d158.skraw@ithnet.com>
 	<20030818053007.7852ca77.davem@redhat.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	<20030818145316.3a81f70c.skraw@ithnet.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Aug 2003 05:30:07 -0700
-"David S. Miller" <davem@redhat.com> wrote:
+On Mon, 18 Aug 2003 14:53:16 +0200
+Stephan von Krawczynski <skraw@ithnet.com> wrote:
 
-> On Mon, 18 Aug 2003 14:34:01 +0200
-> Stephan von Krawczynski <skraw@ithnet.com> wrote:
-> 
-> > what is the _positive_ outcome of this
-> > implementation compared to others?
-> 
-> If you're not willing to think I can't help you resolve
-> the questions you have.
-> 
-> If you don't understand source address selection, than it's
-> not possible for me to have an intellegent conversation about
-> this topic.
-> 
-> So you need to make this crucial first step.
+> _And_ you did not explain so far why these implementations should
+> not be RFC-conform or else illegal.
 
-Sorry, David. Your argument would only be valid, if there weren't other
-implementations that behave differently. But in fact there are, and there are
-patches for linux that do just the same. _And_ you did not explain so far why
-these implementations should not be RFC-conform or else illegal. So there is no
-validity in your claim one has to understand why the designer did what he did
-to follow the discussion. In fact it is rather up to the designer to explain to
-the users why he did it in another way other designers did, i.e. what is
-_better_ about _this_ way compared to others.
-Because if there is nothing better then the implementation is legal but
-contestable, because all scenarios discussed so far have more complex solutions
-then with other implementations.
-Don't get me wrong, this is no technical argument. It is purely darwinism,
-"legal and easy" is superior to "legal and complex" (as long as there are no
-other benefits).
+Both responding and not responding on all interfaces for ARPs
+is RFC conformant.  This means both Linux and other systems
+are within the rules.
 
-Regards,
-Stephan
+Under Linux, by default, IP addresses are owned by the system
+not by interfaces.  This increases the likelyhood of successful
+communication on a subnet.
+
+For scenerios where this doesn't work, we have ways to make the
+kernel behave the way you want it to.
+
+There is no discussion about changing the default, because that
+might break things for some people.  So this discussion is pretty
+useless.

@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132179AbRCVUd1>; Thu, 22 Mar 2001 15:33:27 -0500
+	id <S132182AbRCVU47>; Thu, 22 Mar 2001 15:56:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132186AbRCVUdR>; Thu, 22 Mar 2001 15:33:17 -0500
-Received: from owns.warpcore.org ([216.81.249.18]:7552 "EHLO owns.warpcore.org")
-	by vger.kernel.org with ESMTP id <S132185AbRCVUdH>;
-	Thu, 22 Mar 2001 15:33:07 -0500
-Date: Thu, 22 Mar 2001 14:28:31 -0600
-From: Stephen Clouse <stephenc@theiqgroup.com>
-To: Guest section DW <dwguest@win.tue.nl>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-Message-ID: <20010322142831.A929@owns.warpcore.org>
-In-Reply-To: <3AB9313C.1020909@missioncriticallinux.com> <Pine.LNX.4.21.0103212047590.19934-100000@imladris.rielhome.conectiva> <20010322124727.A5115@win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain
-Content-Disposition: inline; filename="msg.pgp"
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010322124727.A5115@win.tue.nl>; from dwguest@win.tue.nl on Thu, Mar 22, 2001 at 12:47:27PM +0100
+	id <S132183AbRCVU4s>; Thu, 22 Mar 2001 15:56:48 -0500
+Received: from www.microgate.com ([216.30.46.105]:23307 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP
+	id <S132182AbRCVU4e>; Thu, 22 Mar 2001 15:56:34 -0500
+Message-ID: <00b101c0b312$7385ddb0$0c00a8c0@diemos>
+From: "Paul Fulghum" <paulkf@microgate.com>
+To: "Geir Thomassen" <geirt@powertech.no>, "Theodore Tso" <tytso@mit.edu>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <3ABA42A8.A806D0E7@powertech.no> <20010322140852.A4110@think> <3ABA6167.309E6DB2@powertech.no>
+Subject: Re: Serial port latency
+Date: Thu, 22 Mar 2001 14:55:38 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Thu, Mar 22, 2001 at 12:47:27PM +0100, Guest section DW wrote:
-> Last week I installed SuSE 7.1 somewhere.
-> During the install: "VM: killing process rpm",
-> leaving the installer rather confused.
-> (An empty machine, 256MB, 144MB swap, I think 2.2.18.)
+> The serial port chip is 16550A, which has a built in fifo. Can this be
+> the source of my problems ?
 > 
-> Last month I had a computer algebra process running for a week.
-> Killed. But this computation was the only task this machine had.
-> Its sole reason of existence.
-> Too bad - zero information out of a week's computation.
-> (I think 2.4.0.)
-> 
-> Clearly, Linux cannot be reliable if any process can be killed
-> at any moment. I am not happy at all with my recent experiences.
+> Geir
 
-Really the whole oom_kill process seems bass-ackwards to me.  I can't in my mind
-logically justify annihilating large-VM processes that have been running for 
-days or weeks instead of just returning ENOMEM to a process that just started 
-up.
+I thought about that. If the number of receive bytes in the RX FIFO
+is less that the trigger level then a timeout has to occur before
+getting the next receive data interrupt.
 
-We run Oracle on a development box here, and it's always the first to get the
-axe (non-root process using 70-80 MB VM).  Whenever someone's testing decides to 
-run away with memory, I usually spend the rest of the day getting intimate with
-the backup files, since SIGKILLing random Oracle processes, as you might have
-guessed, has a tendency to rape the entire database.
+The 16550AF data book says that this timeout is 4 characters
+from when the last byte is received. This is a maximum of 160ms
+at 300bps (when using 12bit characters: 1 start + 8 data + parity + 2 stop).
 
-It would be nice to give immunity to certain uids, or better yet, just turn the
-damn thing off entirely.  I've already hacked that in...errr, out.
+So this would be smaller at 9600 and could not account
+for the 500ms delay.
 
-- -- 
-Stephen Clouse <stephenc@theiqgroup.com>
-Senior Programmer, IQ Coordinator Project Lead
-The IQ Group, Inc. <http://www.theiqgroup.com/>
+Paul Fulghum paulkf@microgate.com
+Microgate Corporation www.microgate.com
 
------BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.8
 
-iQA/AwUBOrpgbgOGqGs0PadnEQLp5QCfZMwtDZRNwYQ6RJX0MJ8lRVHTj3YAoNlt
-pFWT2i+2y+Yze/6EYy9V0oaE
-=QIrK
------END PGP SIGNATURE-----

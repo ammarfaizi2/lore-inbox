@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313184AbSDQIYi>; Wed, 17 Apr 2002 04:24:38 -0400
+	id <S313705AbSDQI2b>; Wed, 17 Apr 2002 04:28:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313610AbSDQIYe>; Wed, 17 Apr 2002 04:24:34 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:49873 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S313184AbSDQIYe>;
-	Wed, 17 Apr 2002 04:24:34 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Wed, 17 Apr 2002 10:24:29 +0200 (MEST)
-Message-Id: <UTC200204170824.g3H8OTZ28753.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, rusty@rustcorp.com.au
-Subject: Re: [PATCH] setup_per_cpu_areas in 2.5.8pre3
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S314087AbSDQI2a>; Wed, 17 Apr 2002 04:28:30 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:25056 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S313705AbSDQI2a>; Wed, 17 Apr 2002 04:28:30 -0400
+Date: Wed, 17 Apr 2002 10:28:28 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Olaf Fraczyk <olaf@navi.pl>, linux-kernel@vger.kernel.org
+Subject: please merge 64-bit jiffy patches. Was Re: Why HZ on i386 is 100 ?
+Message-ID: <20020417102828.D11817@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Olaf Fraczyk <olaf@navi.pl>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020416074748.GA16657@venus.local.navi.pl> <20020416233457.A1731@outpost.ds9a.nl> <20020416222156.GB20464@turbolinux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    > Now that I am writing anyway, one of the changes I needed
-    > to compile 2.5.8pre3 is the following.
+On Tue, Apr 16, 2002 at 10:24:26PM +0000, Andreas Dilger wrote:
 
-    Yeah, better patch below
+> Trivially fixed with the existing 64-bit jiffies patches.  As it is,
+> your uptime wraps to zero after 472 days or something like that if you
+> don't have the 64-bit jiffies patch, which is totally in the realm of
+> possibility for Linux servers.
 
-Good.
+I feel your pain 
 
-    > Of course the real fix is to remove the #ifdef's,
-    > maybe using a weak symbol instead, or some other construction
-    > that defines an empty default that can be replaced by an actual
-    > routine.
+4:26am  up 482 days, 10:33,  2 users,  load average: 0.04, 0.02, 0.00
 
-    Not unless you make it as readable as the current code.  Having magic
-    appearing functions sounds cool, but beware that the cure might be
-    worse than the disease.
+On a very remote server.
 
-But maybe I do not think that the current code is very readable.
-Probably because just before fixing this compilation problem I had
-to fix a different one where atomic_dec_and_lock was undefined,
-and one finds a forest of #ifdef's in spinlock.h.
+So can we please merge the 64-bit jiffies patches? I sometimes think that
+that is the main reason why alpha DOES have HZ=1024 - the jiffies there
+don't wrap in an embarrassing way within two months :-)
 
-#ifdef's are evil. You have one, and there are two possible sources.
-Easy and readable. You have two, and there are four. Already a small
-effort to check that indeed all four combinations are OK. That was
-what went wrong in the setup_per_cpu_areas case. You have three and
-it is almost certain that someone forgets to check all possible
-eight cases.
+Regards,
 
-#ifdef's hide source from the compiler, so that when stuff compiles
-for the developer it need not compile for the next person who comes
-along. We have a kernel compilation project because of that.
+bert
 
-So, if we can replace a certain type of #ifdef use by a different
-formal construction, where all source is seen by the compiler,
-that might well be progress.
-
-Andries
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

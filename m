@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318031AbSHaVW6>; Sat, 31 Aug 2002 17:22:58 -0400
+	id <S318026AbSHaVqJ>; Sat, 31 Aug 2002 17:46:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318032AbSHaVW5>; Sat, 31 Aug 2002 17:22:57 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:26877 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318031AbSHaVW5>; Sat, 31 Aug 2002 17:22:57 -0400
-Date: Sat, 31 Aug 2002 23:27:17 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Alex Pelts <alexp@itvd.sel.sony.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: mtdblock with gcc 2.95.4 patch
-In-Reply-To: <3D62C6DD.9000306@itvd.sel.sony.com>
-Message-ID: <Pine.NEB.4.44.0208312323450.147-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S318027AbSHaVqJ>; Sat, 31 Aug 2002 17:46:09 -0400
+Received: from ids.big.univali.br ([200.169.51.11]:32385 "EHLO
+	mail.big.univali.br") by vger.kernel.org with ESMTP
+	id <S318026AbSHaVqJ>; Sat, 31 Aug 2002 17:46:09 -0400
+Date: Sat, 31 Aug 2002 18:50:30 -0300 (EST)
+From: Marcus Grando <marcus@big.univali.br>
+To: linux-kernel@vger.kernel.org
+Subject: e100 auto-negociation 2.1.15-k1
+Message-ID: <Pine.LNX.4.44.0208311844590.1461-100000@ids.big.univali.br>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Aug 2002, Alex Pelts wrote:
 
-> Hi,
+Hi list,
 
-Hi Alex,
+On boot kernel 2.4.20-pre5, Intel driver not show auto negociation
+Before this version auto negociation running ok.
 
-> After installing new debian stable with gcc 2.95.4, kernel 2.4.17
-> stopped linking. The error is "undefined reference to local symbols...".
->...
-> something tricky about __exit macro and 2.95.4 compiler.
-> For people getting error:
-> drivers/mtd/mtdlink.o(.text.lock+0x26c): undefined reference to `local
-> symbols in discarded section .text.exit'
+Intel(R) PRO/100 Network Driver - version 2.1.15-k1
+Copyright (c) 2002 Intel Corporation
 
-this is a known issue with recent binutils - and it's considered to be a
-bug in the kernel.
+e100: eth0: Intel(R) 8255x-based Ethernet Adapter
+  Mem:0xfecff000  IRQ:16  Speed:0 Mbps  Dx:N/A
+  Failed to detect cable link
+  Speed and duplex will be determined at time of connection
+  Hardware receive checksums enabled
+  cpu cycle saver enabled
 
-> here is the patch that seems to fix it.
+lspci -vvv
+00:08.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100]
+(rev 08)
+        Subsystem: Hewlett-Packard Company: Unknown device 10cb
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop-
+ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 66 (2000ns min, 14000ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 16
+        Region 0: Memory at fecff000 (32-bit, non-prefetchable) [size=4K]
+        Region 1: I/O ports at fcc0 [size=64]
+        Region 2: Memory at fed00000 (32-bit, non-prefetchable) [size=1M]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA
+PME(D0+,D1+,D2+,D3hot+,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
 
-I do currently not understand why your patch should fix it. Could you send
-me the .config you used to reproduce the problem in 2.4.19?
 
-> Thanks,
-> Alex
->...
+Regards
 
-TIA
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+--
+Marcus Grando
+<marcus at big dot univali dot br>
+<marcus at sbh dot eng dot br>
 

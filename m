@@ -1,26 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279451AbRJWOjS>; Tue, 23 Oct 2001 10:39:18 -0400
+	id <S275756AbRJWOv6>; Tue, 23 Oct 2001 10:51:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279457AbRJWOjI>; Tue, 23 Oct 2001 10:39:08 -0400
-Received: from [194.46.8.33] ([194.46.8.33]:25862 "EHLO angusbay.vnl.com")
-	by vger.kernel.org with ESMTP id <S279456AbRJWOi5>;
-	Tue, 23 Oct 2001 10:38:57 -0400
-Date: Tue, 23 Oct 2001 15:42:41 +0100
+	id <S277716AbRJWOvt>; Tue, 23 Oct 2001 10:51:49 -0400
+Received: from [194.46.8.33] ([194.46.8.33]:27654 "EHLO angusbay.vnl.com")
+	by vger.kernel.org with ESMTP id <S275756AbRJWOvj>;
+	Tue, 23 Oct 2001 10:51:39 -0400
+Date: Tue, 23 Oct 2001 15:55:24 +0100
 From: Dale Amon <amon@vnl.com>
 To: linux-kernel@vger.kernel.org
 Subject: ALERT!!!! Attempt to outlaw open source Operating systems
-Message-ID: <20011023154241.I17078@vnl.com>
+Message-ID: <20011023155524.J17078@vnl.com>
 Mail-Followup-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <OF24A34168.0F477E02-ON85256B29.0052E00A@raleigh.ibm.com> <20010829015050.F27869@vnl.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010829015050.F27869@vnl.com>
 User-Agent: Mutt/1.3.23i
 X-Operating-System: Linux, the choice of a GNU generation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+First one may have got stuck far back in people's queue
+since I replied to my own thread to get the send address...
+Just in case, so this shows up more currently:
 
 If you are not aware of the Fritz Hollings bill that
 is going into possibly closed hearing in two days, I

@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261294AbTCOBwc>; Fri, 14 Mar 2003 20:52:32 -0500
+	id <S261297AbTCOCGC>; Fri, 14 Mar 2003 21:06:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261297AbTCOBwb>; Fri, 14 Mar 2003 20:52:31 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:50405 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id <S261294AbTCOBwa>;
-	Fri, 14 Mar 2003 20:52:30 -0500
-Date: Fri, 14 Mar 2003 18:03:09 -0800
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Dominik Brodowski <linux@brodo.de>, torvalds@transmeta.com,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       mika.penttila@kolumbus.fi
-Subject: Re: [PATCH] driver model: fix platform_match [Was: Re: [PATCH] pcmcia: get initialization ordering right [Was: [PATCH 2.5] : i82365 & platform_bus_type]]
-Message-ID: <20030315020309.GA1372@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20030305063912.GA2520@brodo.de> <Pine.LNX.4.33.0303051016230.994-100000@localhost.localdomain>
-Mime-Version: 1.0
+	id <S261302AbTCOCGC>; Fri, 14 Mar 2003 21:06:02 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:18918 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261297AbTCOCGB>; Fri, 14 Mar 2003 21:06:01 -0500
+Date: Fri, 14 Mar 2003 18:05:51 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: colpatch@us.ibm.com
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] NUMAQ subarchification
+Message-ID: <247240000.1047693951@flay>
+In-Reply-To: <3E7285E7.8080802@us.ibm.com>
+References: <1047676332.5409.374.camel@mulgrave> <3E7284CA.6010907@us.ibm.com> <3E7285E7.8080802@us.ibm.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0303051016230.994-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 05, 2003 at 10:16:46AM -0600, Patrick Mochel wrote:
+>>> This patch adds a new file, arch/i386/kernel/summit.c, for 
+>>> summit-specific code.  Adds some structures to mach_mpparse.h.  Also 
+>>> adds a hook in setup_arch() to dig out the PCI info, and stores it in 
+>>> the mp_bus_id_to_node[] array, where it can be read by the topology 
+>>> functions.
+>> 
+>> Wouldn't this file be better in arch/i386/mach-summit in keeping with
+>> all the other subarch stuff?
+>> 
+>> While you're creating a separate file for summit, could you move the
+>> summit specific variables (mpparse.c:x86_summit is the only one, I
+>> think) into it so we can clean all the summit references out of the main
+>> line?
+>> 
+>> Thanks,
+>> 
+>> James
 > 
-> > Unfortunately, this won't work: digits are perfectly valid entries of
-> > strings. However, we have the name without the appending instance still
-> > saved in platform_device pdev->name... so what about this?
-> 
-> D'oh. You're completely right. 
-> 
-> Thanks,
-> 
-> 
-> 	-pat
+> While I was at it, I subarchified (I'll cc Websters with the new word ;) numaq as well.  Copied mach-defaults setup.c, topology.c, and Makefile.   Moved arch/i386/kernel/numaq.c into mach-numaq.  Compiles.
 
-	Hi,
 
-	I tried 2.5.64-bk9, and it doesn't work !
+No, *please* don't do this. Subarch for .c files is *broken*.
 
-	You simply forgot to apply the patch I sent you at the
-very beggining of this discussion :
-----------------------------------------------------
-diff -u -p linux/drivers/base/platform.c.original linux/drivers/base/platform.c
---- linux/drivers/base/platform.c.original      Fri Mar 14 17:47:16 2003
-+++ linux/drivers/base/platform.c       Fri Mar 14 17:47:40 2003
-@@ -75,5 +75,6 @@ int __init platform_bus_init(void)
-        return bus_register(&platform_bus_type);
- }
- 
-+EXPORT_SYMBOL(platform_bus_type);
- EXPORT_SYMBOL(platform_device_register);
- EXPORT_SYMBOL(platform_device_unregister);
-----------------------------------------------------
-	
-	On the other hand, with the above patch, now everything is
-working properly and my Pcmcia card work wonderfully.
+Last time I looked (and I don't think anyone has fixed it since) 
+it requires copying files all over the place, making an unmaintainable
+nightmare. Either subarch needs fixing first, or we don't use it.
 
-	Thanks a lot for the great work, and have fun...
+Let's just stick with your original patch - it's fine.
 
-	Jean
+M.
 

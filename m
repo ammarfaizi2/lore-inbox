@@ -1,91 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261703AbUBWBdx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 20:33:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbUBWBdx
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 20:33:53 -0500
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:31826 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S261703AbUBWBdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S261782AbUBWBdr (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 22 Feb 2004 20:33:47 -0500
-Subject: RE: Cisco vpnclient prevents proper shutdown starting with 2.6.2
-From: Patrick Toal <ptoal@cisco.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1077500017.1746.13.camel@ptoal-pc>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 22 Feb 2004 20:33:38 -0500
-Content-Transfer-Encoding: 7bit
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbUBWBdr
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sun, 22 Feb 2004 20:33:47 -0500
+Received: from imap.gmx.net ([213.165.64.20]:1220 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261782AbUBWBdo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 20:33:44 -0500
+X-Authenticated: #4512188
+Message-ID: <40395872.2030007@gmx.de>
+Date: Mon, 23 Feb 2004 02:33:38 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040216)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: ross@datscreative.com.au
+CC: linux-kernel@vger.kernel.org, Jamie Lokier <jamie@shareable.org>,
+       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
+       Craig Bradney <cbradney@zip.com.au>, Daniel Drake <dan@reactivated.net>
+Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround
+ instead of apic ack delay.
+References: <200402120122.06362.ross@datscreative.com.au> <402CB24E.3070105@gmx.de> <200402140041.17584.ross@datscreative.com.au> <200402141124.50880.ross@datscreative.com.au>
+In-Reply-To: <200402141124.50880.ross@datscreative.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sid Boyce wrote:
-> I tried using this client with up to 2.6.1-mm5 and ended up with Dead
-> processes for cvpnd and vpnclient, nothing else was affected, went
-> back to 2.4.x kernel.
-> Regards
-> Sid
+Ross Dickson wrote:
+> On Saturday 14 February 2004 00:41, Ross Dickson wrote:
+> 
+>>On Friday 13 February 2004 21:17, Prakash K. Cheemplavam wrote:
+>>
+>>>Hi,
+>>>
+>>>I am just testing this patch with latest 2.6.3-rc2-mm1. It works in that 
+>>>sense, that my machine doesn't lock up of APIC issue. (If it locks up - 
+>>>hasn't done yet - then because of something else, I am currently 
+>>>discssing it in another thread...)
+>>>
+>>>But it doesn't work in the sense of cooling my machine down. Though 
+>>>athcool reports disconnect is activated it behaves like it is not, ie, 
+>>>turning disconnect off makes no difference in temperatures. Your old 
+>>>tack patch in conjunction with 2.6.2-rc1 (linus) works like a charm, ie 
+>>>no lock-ups and less temp.
+>>>
+>>
+>>Thanks Prakash for testing it and spotting thermal problem.
+>>
+>>Here are some temperatures from my machine read from the bios on reboot.
+>>I gave it minimal activity for the minutes prior to reboot.
+>>
+>>Win98, 47C
+>>XPHome, 42C
+>>Patched Linux 2.4.24 (1000Hz), 40C
+>>Patched Linux 2.6.3-rc1-mm1, 53C  OUCH!
+>>
+>>Sorry, I will have to go through my latest patch and see why the temp differs
+>>so much between 2.4 and 2.6. I currently use patched 2.4.24 with Suse 8.2 for
+>>convenience. When it stopped the lockups on 2.6 I thought the 2.6 was
+>>working the same way. 
+>>
+> 
+> 
+> Found the problem for 2.6
+> 
+> After fixing it the 2.6 temperature is
+> Patched Linux 2.6.3-rc1-mm1, 38C
+> Ambient today is 1C cooler also.
 
-Sid, et al. 
+Well, I hate to say it, but it seems, it doesn't work, or at least not 
+so well, (running hot, but stability seems to be there) with 2.6.3-mm2. 
+Like I had 52°C mostly idle with your patch and APIC just a few moments 
+ago. Now back to PIC within a few minutes I am back to 45°C...7°C is too 
+much of a difference for me.
 
-First, before anyone starts deluging me with questions, you should know
-that even though my details say Cisco, I am an SE in the field, _not_ a
-developer.  Second, please reply to me off-list, as I do not subscribe
-to the LK list.  
+To be honest, I can't remenber how it was with the older kernel and I 
+haven't tested temp of apic_tack patch with 2.6.3-mm2, but for the 
+moment I am back to PIC. (My CPU is running at 11x200MHz, 1,7vcore btw.)
 
-That being said, I think I've tracked this down to a recent change in
-the net/core/dev.c file.  I reversed the patch to
-register_netdevice_notifier below, and the vpnclient now works fine. 
-This is called by the handle_vpnup routine in interceptor.c of the
-vpnclient kernel module.
+Cheers,
 
-I am _not_ a kernel developer, nor do I spend the majority of my time
-programming, so I haven't been able to figure out _why_ these changes
-cause the module to freeze.  I'd be interested if anyone could tell me
-the answer to that question. :-)
-
-Regards,
-Patrick
-
-@@ -946,11 +996,29 @@
-  *     The notifier passed is linked into the kernel structures and must
-  *     not be reused until it has been unregistered. A negative errno code
-  *     is returned on a failure.
-+ *
-+ *     When registered all registration and up events are replayed
-+ *     to the new notifier to allow device to have a race free
-+ *     view of the network device list.
-  */
- 
- int register_netdevice_notifier(struct notifier_block *nb)
- {
--       return notifier_chain_register(&netdev_chain, nb);
-+       struct net_device *dev;
-+       int err;
-+
-+       rtnl_lock();
-+       err = notifier_chain_register(&netdev_chain, nb);
-+       if (!err) {
-+               for (dev = dev_base; dev; dev = dev->next) {
-+                       nb->notifier_call(nb, NETDEV_REGISTER, dev);
-+
-+                       if (dev->flags & IFF_UP)
-+                               nb->notifier_call(nb, NETDEV_UP, dev);
-+               }
-+       }
-+       rtnl_unlock();
-+       return err;
- }
- 
- /**
-
-
--- 
-Patrick J. Toal, Systems Engineer, CCCS
-Cisco Systems Canada Co.
-181 Bay Street, Bay Wellington Tower, Suite 3400
-Toronto, Ontario, Canada M5J 2T3
-Phone: 416-306-7735     Pager: 1-800-682-4726
-
+Prakash

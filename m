@@ -1,80 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132036AbQLVRLk>; Fri, 22 Dec 2000 12:11:40 -0500
+	id <S132084AbQLVRPA>; Fri, 22 Dec 2000 12:15:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132084AbQLVRLa>; Fri, 22 Dec 2000 12:11:30 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:27143 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S132036AbQLVRLQ> convert rfc822-to-8bit; Fri, 22 Dec 2000 12:11:16 -0500
-Date: Fri, 22 Dec 2000 17:35:38 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-        "Theodore Ts'o" <tytso@valinux.com>
-Subject: Re: FAIL: 2.2.18 + AA-VM-global-7 + serial 5.05
-Message-ID: <20001222173538.A12949@krusty.e-technik.uni-dortmund.de>
-Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
-	linux-kernel@vger.kernel.org Theodore Ts'o <tytso@valinux.com>
-In-Reply-To: <20001222154757.A1167@emma1.emma.line.org> <20001222162159.A29397@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001222162159.A29397@athlon.random>; from andrea@suse.de on Fri, Dec 22, 2000 at 16:21:59 +0100
+	id <S132220AbQLVROk>; Fri, 22 Dec 2000 12:14:40 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:8320 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S132084AbQLVROd>; Fri, 22 Dec 2000 12:14:33 -0500
+Date: Fri, 22 Dec 2000 11:43:31 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Chad Schwartz <cwslist@main.cornernet.com>,
+        Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.19pre3
+In-Reply-To: <E149Uyf-0004rg-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.95.1001222113816.1309A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli schrieb am Freitag, den 22. Dezember 2000:
+On Fri, 22 Dec 2000, Alan Cox wrote:
 
-> On Fri, Dec 22, 2000 at 03:47:57PM +0100, Matthias Andree wrote:
-> > I suspect that these patches are mutually incompatible.
+> > > why 'standard' Unix/sell/executable commands keep getting changed
+> > > to GNUisms in distributions.
+> > 
+> > I've been asking that question ever since most popular distributions
+> > started putting a copy of bash in /bin/sh.
 > 
-> did you checked that there are no rejects after patching :)
-
-Yes, I did, there were none.
-
-I had one patch that required a fuzz factor, but it only has a vendor ID
-definition in pci.h. It's the patch by Lukasz Trabinski, Subject "Re:
-[patch] 2.2.18 PCI_DEVICE_ID_OXSEMI_16PCI954", Date 2000-12-16 19:51
-EST, Archive at
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0012.2/0126.html
-
-That patch has been approved by Theodore Y Tso as being correct.
-
-The other patches I applied did not leave any rejects behind.
-
-> > Could somebody please have a look at this? I will test or provide more
-> > information as requested.
+> And which of the versions of 'which' would you rather people had. Do you want
+> csh behaviour, tcsh behaviour, which non builtin BSD behaviour, which as alias
+> trick behaviour, which as ksh behaviour..
 > 
-> Where's serial 5.05 so I can have a look?
+> There is no standard which command.
+> 
 
-It's at http://sourceforge.net/projects/serial/ and since these are down
-ATM, I'm keeping a copy at
-http://www-dt.e-technik.uni-dortmund.de/~ma/kernelpatches/v2.2/v2.2.18/
+Which which would which which if which would which which? Perhaps
+which would which kwhich when it whiches which. However, many
+which which which would prefer that which not which any which
+but be left as an alias.
 
-Procedure:
+Seasons Greetings!
 
-1. fetch 2.2.18-fix-serial-5.05-pre.patch (has also been posted here, it
-   just adds a missing #define to pci.h)
-2. fetch serial-5.05.tar.gz
-3. patch the kernel with that 2.2.18-fix-serial-5.05-pre.patch, it takes
-   a high fuzz factor (try patch -p1 -F10)
-4. unpack serial-5.05
-5. sh install-in-kernel
-6. patch with VM-global-2.2.18pre25-7
-7. make clean dep bzImage modules, install, boot, and see it hang.
 
-Note my kernel also contains the IDE and I²C patches, should that
-matter, if it matters, please tell the corresponding maintainer there's
-an incompatibility.
+Cheers,
+Dick Johnson
 
-For what it's worth, that www-dt server directory also has my config,
-it's named config-ma2.
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
 
--- 
-Matthias Andree
-
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
 
 -

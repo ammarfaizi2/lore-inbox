@@ -1,73 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290660AbSARKl7>; Fri, 18 Jan 2002 05:41:59 -0500
+	id <S290662AbSARKoJ>; Fri, 18 Jan 2002 05:44:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290663AbSARKlu>; Fri, 18 Jan 2002 05:41:50 -0500
-Received: from th09.opsion.fr ([195.219.20.19]:4102 "HELO th09.opsion.fr")
-	by vger.kernel.org with SMTP id <S290660AbSARKlc>;
-	Fri, 18 Jan 2002 05:41:32 -0500
-Message-ID: <011601c1a00d$33a8bd00$6414dbc3@opsion.fr>
-From: "marko milovanovic" <m.milo@ifrance.com>
-To: <manfred@colorfullife.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C47FA17.A0ACA25C@stud.uni-saarland.de>
-Subject: Re: kernel 2.4.7 on a 7.2 redha
-Date: Fri, 18 Jan 2002 11:45:10 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S290665AbSARKn7>; Fri, 18 Jan 2002 05:43:59 -0500
+Received: from smtp04.wxs.nl ([195.121.6.59]:12025 "EHLO smtp04.wxs.nl")
+	by vger.kernel.org with ESMTP id <S290662AbSARKnr>;
+	Fri, 18 Jan 2002 05:43:47 -0500
+Subject: Re: [PATCH] Combined APM patch
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020111154016.D31366@flint.arm.linux.org.uk>
+In-Reply-To: <1010762545.788.2.camel@thanatos> 
+	<20020111154016.D31366@flint.arm.linux.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 18 Jan 2002 05:43:48 -0500
+Message-Id: <1011350629.1275.15.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Studierende der Universitaet des Saarlandes"
-<masp0008@stud.uni-saarland.de>
-To: "marko milovanovic" <m.milo@ifrance.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Friday, January 18, 2002 11:33 AM
-Subject: Re: kernel 2.4.7 on a 7.2 redha
+On Fri, 2002-01-11 at 10:40, Russell King wrote:
+> On Fri, Jan 11, 2002 at 10:22:24AM -0500, Thomas Hood wrote:
+> > if someone later wants to modify the code to make
+> > this variable non-static, the comment tells that person that
+> > the variable will need an initializer.
+> 
+> Whether a variable is static or not doesn't change whether it ends up in
+> the bss segment or not.
 
+It does make a difference if the variable definitions are inside
+a function; the non-static variable is on the stack and is not
+initialized to zero.
 
-> > hi everyone,
-> > we're running a 2.4.7-10smp kernel on a hp lh3000 server with 1gb ram
-scsi
-> > disks and 2 pentium iii cpus
-> >
->
-> Normal memory or ECC memory? It seems that a bit flip corrupted a data
-> structure.
-
-2 * 521MB Sync 133Mhz cl3 ECC
-
-> > we have one a day a kernel panic  with this message :
-> > *********************************************
-> > Unable to handle kernel NULL pointer dereference at virtual address
-0000000d
-> > [snip]
-> > Oops:
-> > eax: e6d9842c   ebx: daabf760   ecx: d763daa0   edx: 00000001
-> > [snip]
-> > Code;  c01f35ad <tcp_v4_get_port+14d/290>   <=====
-> >    0:   8b 42 0c                  mov    0xc(%edx),%eax   <=====
->
-> %edx is 1, probably 0 would have been correct.
-
-so what does it mean? what can i possibly do?
-
-thanks anyway for your quick answer!
-
-> --
-> Manfred
-
- 
-______________________________________________________________________________
-ifrance.com, l'email gratuit le plus complet de l'Internet !
-vos emails depuis un navigateur, en POP3, sur Minitel, sur le WAP...
-http://www.ifrance.com/_reloc/email.emailif
+I understand that every static or top-level global variable
+is initialized to zero; but is it not useful to note when
+the code _relies upon_ this zero-initialization?  
 
 

@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266761AbTA2SHc>; Wed, 29 Jan 2003 13:07:32 -0500
+	id <S266772AbTA2SI7>; Wed, 29 Jan 2003 13:08:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266794AbTA2SHM>; Wed, 29 Jan 2003 13:07:12 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:39620 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266761AbTA2SGw>;
-	Wed, 29 Jan 2003 13:06:52 -0500
-Date: Wed, 29 Jan 2003 18:12:15 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: no more MTRRs available ?
-Message-ID: <20030129181215.GF1856@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030129162354.55f2ace4.skraw@ithnet.com> <Pine.LNX.4.44.0301291025240.18828-100000@coffee.psychology.mcmaster.ca> <20030129164552.182e0cb8.skraw@ithnet.com> <20030129172001.GM780@holomorphy.com> <20030129174842.GE1856@codemonkey.org.uk> <20030129180011.GN780@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030129180011.GN780@holomorphy.com>
-User-Agent: Mutt/1.4i
+	id <S266795AbTA2SI6>; Wed, 29 Jan 2003 13:08:58 -0500
+Received: from mail.somanetworks.com ([216.126.67.42]:57539 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id <S266772AbTA2SIw>; Wed, 29 Jan 2003 13:08:52 -0500
+Date: Wed, 29 Jan 2003 13:18:10 -0500 (EST)
+From: Scott Murray <scottm@somanetworks.com>
+X-X-Sender: scottm@rancor.yyz.somanetworks.com
+To: Stanley Wang <stanley.wang@linux.co.intel.com>
+cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       PCI_Hot_Plug_Discuss <pcihpd-discuss@lists.sourceforge.net>
+Subject: Re: [RFC] Enhance CPCI Hot Swap driver
+In-Reply-To: <Pine.LNX.4.44.0301291538190.10354-100000@manticore.sh.intel.com>
+Message-ID: <Pine.LNX.4.44.0301291119350.17194-100000@rancor.yyz.somanetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 29, 2003 at 10:00:11AM -0800, William Lee Irwin III wrote:
+On Wed, 29 Jan 2003, Stanley Wang wrote:
 
- > >> reg00: base=0xc0000000 (49152MB), size=16384MB: uncachable, count=1
- > >> reg01: base=0x00000000 (   0MB), size=524288MB: write-back, count=1
- > >> reg02: base=0x800000000 (524288MB), size=262144MB: write-back, count=1
- > >> Yes, this is standard ia32 (P-III/Coppermine cpus), and hence the
- > >> numbers here are utter garbage.
- > 
- > On Wed, Jan 29, 2003 at 05:48:42PM +0000, Dave Jones wrote:
- > > Bizarre. The size field isn't being shifted, and your base is somewhere
- > > off in 64bit land.
- > > See Andi's "RED-PEN" comments in various parts of arch/i386/kernel/cpu/mtrr/
- > > They need fixing at some point, and could be the cause of your problems.
- > 
- > OTOH since 0-512GB are in there this explains why the (massive) perf.
- > decrease only happens sometimes. The MTRR corruption issues are only
- > visible with 48GB atm. I haven't been focusing on MTRR's but I may
- > arrange to trace the codepaths etc. in the eventual future to find
- > where the bits are going bad esp. as benchmark time approaches.
+> Hi, Scott,
+> After reading your CPCI Hot Swap support codes, I have a suggestion
+> to enhance it:
+> How about to make it be full hot swap compliant?
+> I mean we could also do some works like "disable_slot" when we receive
+> the #ENUM & EXT signal. Hence the user could yank the hot swap board 
+> without issuing command on the console.
+> How do you think about it?
 
-ohhh, 48GB. I forgot you were doing the silly-amounts-of-mem thing.
-Its extremely likely you'll have to fix up those comments Andi made,
-and possibly some other parts too.  That code should be 64bit clean
-now (due to x86-64 sharing it), but there may still be some gotchas,
-especially on weird-ass systems like what you've been playing with 8)
+Since most hardware devices need some form of userspace cleanup before
+they can be removed, the separation of notification and extraction is
+on purpose in the current cPCI hotplug driver.  Full Hot Swap compliance 
+per the PICMG 2.1 R2.0 specification can be achieved through the use of
+a daemon in userspace that:
 
-		Dave
+1) detects extract requests, either through the directory notifications
+   sent by pci_hp_update_slot_info, or by simple polling of the latch and
+   adapter files.
+2) does the desired userspace cleanup.
+3) completes the extraction by writing 0 to the slot's power file.
+
+For reference, I'm putting the GPL'd userspace daemon I wrote for use in 
+our product here at SOMA on our download site at:
+
+ftp://oss.somanetworks.com/pub/linux/cpci/pcihotplugd/pcihotplugd-20030129.tar.gz
+
+Note that it requires the directory notifications provided by calling 
+pci_hp_change_slot_info, so your sysfs patch will keep it from working
+correctly.
+
+Scott
+
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
+
+

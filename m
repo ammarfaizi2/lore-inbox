@@ -1,71 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbUBKEIV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 23:08:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbUBKEIV
+	id S262888AbUBKEQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 23:16:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbUBKEQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 23:08:21 -0500
-Received: from smtp2.dei.uc.pt ([193.137.203.229]:6803 "EHLO smtp2.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S262794AbUBKEIT (ORCPT
+	Tue, 10 Feb 2004 23:16:58 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:29651 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S262888AbUBKEQy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 23:08:19 -0500
-Date: Wed, 11 Feb 2004 04:08:11 +0000 (WET)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Critical problem in 2.6.2 and up
-In-Reply-To: <20040210200220.32329bfd.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0402110405260.28596@student.dei.uc.pt>
-References: <Pine.LNX.4.58.0402110250580.28596@student.dei.uc.pt>
- <20040210191911.4d6e1308.akpm@osdl.org> <Pine.LNX.4.58.0402110325050.28596@student.dei.uc.pt>
- <Pine.LNX.4.58.0402110350240.28596@student.dei.uc.pt> <20040210200220.32329bfd.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-DEI-MailScanner: Found to be clean
+	Tue, 10 Feb 2004 23:16:54 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: kdb@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Announce: kdb v4.3 is available for kernel 2.4.25-rc1
+Date: Wed, 11 Feb 2004 15:16:18 +1100
+Message-ID: <4730.1076472978@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On Tue, 10 Feb 2004, Andrew Morton wrote:
+Content-Type: text/plain; charset=us-ascii
 
-> "Marcos D. Marado Torres" <marado@student.dei.uc.pt> wrote:
-> >
-> >
-> > With nbd disabled the patch causes no problems.
-> >
->
-> I don't know what LILO's problem is, frankly.  My version is OK with it,
-> and my /proc/partitions is doing the same as yours.
->
-> vmm:/home/akpm>  lilo -V
-> LILO version 21.4-4
+ftp://oss.sgi.com/projects/kdb/download/v4.3/
 
-Well, I'm using version 22.5.8 (the last version)... Maybe you could update
-LILO and see if that's what causes the problem?
+Current versions are :-
+  kdb-v4.3-2.4.25-rc1-common-1.bz2
+  kdb-v4.3-2.4.25-rc1-i386-1.bz2
+  kdb-v4.3-2.4.25-rc1-ia64-cset-1.1069.246.14-to-1.1166-1.bz2
 
-> Still, we probably want to suppress all those NDB majors in
-> /proc/partitions.  I'll discuss it with the blocky guys.
->
+Before applying kdb for ia64, you must apply the 2.4.25-rc1 BK patch,
+the first link on
+ftp://ftp.kernel.org/pub/linux/kernel/ports/ia64/v2.4/testing/cset/index.html.
+
+Changelog extracts since 2.4.23.
+
+common
+
+2004-02-11 Keith Owens  <kaos@sgi.com>
+
+	* Convert longjmp buffers from static to dynamic allocation, for large
+	  cpu counts.
+	* Tweak kdbm_task for SMP/UP.
+	* Update to 2.4.25-rc1.
+	* Simplify coexistence with NPTL patches.
+	* Support kill command on new scheduler.
+	* Do not refetch data when printing a value as characters.
+	* Document the pid command.
+	* kdb v4.3-2.4.25-rc1-common-1.
 
 
-- --
-==================================================
-Marcos Daniel Marado Torres AKA Mind Booster Noori
-/"\               http://student.dei.uc.pt/~marado
-\ /                       marado@student.dei.uc.pt
- X   ASCII Ribbon Campaign
-/ \  against HTML e-mail and Micro$oft attachments
-==================================================
+i386
+
+2004-02-11 Keith Owens  <kaos@sgi.com>
+
+	* Adjust for LDT changes in i386 mainline.
+	* kdb v4.3-2.4.25-rc1-i386-1.
+
+
+ia64
+
+2004-02-11 Keith Owens  <kaos@sgi.com>
+
+	* Convert longjmp buffers from static to dynamic allocation, for large
+	  cpu counts.
+	* Update to 2.4.25-rc1 bk, including rework of mca.c patch after the
+	  major clean up of mca.c.
+	* Redo KDBA_MCA_TRACE to get more diagnostics for MCA/INIT events.
+	* Handle recoverable MCA/INIT events, kdb traces them but does not drop
+	  into kdb.
+	* kdb v4.3-2.4.25-rc1-ia64-cset-1.1069.246.14-to-1.1166-1.
+
+
+Porting kdb v4.3 to 2.6.[23] is now in progress.
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
+Comment: Exmh version 2.1.1 10/15/1999
 
-iD8DBQFAKaqumNlq8m+oD34RAkprAJ9lF/bAIpyyt3Hq1RS7nJeaeMZ5cwCePjih
-otu5E51YY1c7dk53r7JQ/RE=
-=iXC8
+iD8DBQFAKaySi4UHNye0ZOoRAvEtAJ0fP2WvSAaT91nfbUdpFrbKQegMWwCgt1TR
+8mTZeytw7+nch3FEe+wsFJc=
+=KATc
 -----END PGP SIGNATURE-----
 

@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbVDERxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbVDERuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261867AbVDERxu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 13:53:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbVDERuu
+	id S261855AbVDERuS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 13:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVDERtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 13:50:50 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:26334 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261861AbVDERm3 (ORCPT
+	Tue, 5 Apr 2005 13:49:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14035 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261852AbVDER05 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 13:42:29 -0400
-Date: Tue, 5 Apr 2005 10:42:25 -0700 (PDT)
-From: Sridhar Samudrala <sri@us.ibm.com>
-X-X-Sender: sridhar@localhost.localdomain
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>, ioe-lkml@axxeo.de, matthew@wil.cx,
-       lkml <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
-       hadi@cyberus.ca, cfriesen@nortel.com, tgraf@suug.ch
-Subject: Re: [PATCH] network configs: disconnect network options from drivers
-In-Reply-To: <20050404195051.GA12364@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.61.0504051033310.5053@localhost.localdomain>
-References: <20050330234709.1868eee5.randy.dunlap@verizon.net>
- <20050331185226.GA8146@mars.ravnborg.org> <424C5745.7020501@osdl.org>
- <20050331203010.GA8034@mars.ravnborg.org> <4250B4C5.2000200@osdl.org>
- <20050404195051.GA12364@mars.ravnborg.org>
+	Tue, 5 Apr 2005 13:26:57 -0400
+Date: Tue, 5 Apr 2005 13:26:44 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Crash during boot for 2.6.12-rc2.
+In-Reply-To: <Xine.LNX.4.44.0504050605170.10569-100000@thoron.boston.redhat.com>
+Message-ID: <Xine.LNX.4.44.0504051325520.12266-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Apr 2005, Sam Ravnborg wrote:
+On Tue, 5 Apr 2005, James Morris wrote:
 
->
-> Only bit that I am worried about is the statement in SCTP:
-> 	depends on IPV6 || IPV6=n
->
-> That looked like a noop to me. It had the sideeffect that SCTP
-> menu entries where idented an extra level which was not desireable
-> with currect layout.
->
+> > Surprise, surprise, it works OK here.
+> > 
+> > What compiler version?
+> 
+> gcc -v
+> Using built-in specs.
+> Target: i386-redhat-linux
+> Configured with: ../configure --prefix=/usr --mandir=/usr/share/man 
+> --infodir=/usr/share/info --enable-shared --enable-threads=posix 
+> --enable-checking=release --with-system-zlib --enable-__cxa_atexit 
+> --disable-libunwind-exceptions --enable-languages=c,c++,objc,java,f95,ada 
+> --enable-java-awt=gtk --host=i386-redhat-linux
+> Thread model: posix
+> gcc version 4.0.0 20050329 (Red Hat 4.0.0-0.38)
+> 
+> 
+> I'll try a fresh compile later.
 
-No. This is not a noop. This is required to restrict SCTP configured as
-static when IPV6 is configured as module.
+Looks like it was a miscompile, newly compiled (without ccache, too) 
+kernel works fine.
 
-Thanks
-Sridhar
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbTFZAW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 20:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265188AbTFZAW0
+	id S265188AbTFZA0j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 20:26:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265219AbTFZA0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 20:22:26 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:65178 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265161AbTFZAWZ (ORCPT
+	Wed, 25 Jun 2003 20:26:39 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:17811 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265188AbTFZA0i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 20:22:25 -0400
-Date: Wed, 25 Jun 2003 17:36:20 -0700
-From: Greg KH <greg@kroah.com>
-To: Matthew Wilcox <willy@debian.org>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] pci_name()
-Message-ID: <20030626003620.GB13892@kroah.com>
-References: <20030625233525.GB451@parcelfarce.linux.theplanet.co.uk>
+	Wed, 25 Jun 2003 20:26:38 -0400
+Date: Wed, 25 Jun 2003 17:40:48 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2..5.73-osdl2
+Message-Id: <20030625174048.221471a0.shemminger@osdl.org>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030625233525.GB451@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 26, 2003 at 12:35:25AM +0100, Matthew Wilcox wrote:
-> 
-> I'd kind of like to get rid of pci_dev->slot_name.  It's redundant with
-> pci_dev->dev.bus_id, but that's one hell of a search and replace job.
-> So let me propose pci_name(pci_dev) as a replacement.  That has the
-> benefit of being shorter than either of the others and lets us do fun
-> & interesting things later (maybe construct it on the fly for systems
-> that want to save 20 bytes per device?).  We can transition it in over
-> 2.5/2.6/2.7 and kill pci_dev->slot_name for 2.8.
+http://developer.osdl.org/shemminger/patches/patch-2.5.73-osdl2.bz2
 
-That sounds reasonable.  But do we really need to do this for 2.6?
+No new content, just refreshing to keep up to date.
 
-Just trying to keep things sane...
+The purpose of these patches is to get more testing and exposure on
+features that would be relevant to server systems running enterprise
+applications like database servers.
 
-thanks,
+Given the stabilty of 2.5, most of these patches are related to 
+instrumentation and are most useful to the OSDL performance testing
+groups needs.
 
-greg k-h
+Never sent out 2.5.73-osdl1 because it didn't boot on the STP
+test machines (some old megaraid driver stuff that crept in).
+
+Bug fixes:
+o Allow kernel build without hotplug
+
+Existing
+o NUMA text replication			(Dave Hansen)
+o Kexec 				(Eric Biederman, Andy Pfiffer)
+o Linux Trace Toolkit (LTT)             (Karim Yaghmour)
+  includes relayfs
+o Lockmeter
+o Atomic 64 bit i_size access		(Daniel McNeil)
+o Pentium Performance Counters		(Mikael Pettersson)
+o Kernel Config (ikconfig)		(Randy Dunlap)
+o RCU statistics               		(Dipankar Sarma)
+o Scheduler tunables            	(Robert Love)
+

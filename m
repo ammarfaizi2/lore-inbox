@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262745AbTKNWpv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 17:45:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbTKNWpv
+	id S262522AbTKNW4W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 17:56:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbTKNW4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 17:45:51 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43663 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262458AbTKNWpt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 17:45:49 -0500
-Date: Fri, 14 Nov 2003 22:45:48 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org
-Subject: Re: [RFCI] How best to partition MD/raid devices in 2.6
-Message-ID: <20031114224548.GM24159@parcelfarce.linux.theplanet.co.uk>
-References: <16308.18387.142415.469027@notabene.cse.unsw.edu.au> <1068787304.4157.8.camel@localhost> <16308.26754.867801.131463@notabene.cse.unsw.edu.au> <20031114101647.GJ32211@marowsky-bree.de> <20031114182927.GA8810@gtf.org> <20031114154423.A5587@lists.us.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031114154423.A5587@lists.us.dell.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 14 Nov 2003 17:56:22 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:25863 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262522AbTKNW4V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 17:56:21 -0500
+Date: Fri, 14 Nov 2003 23:55:55 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Tupshin Harper <tupshin@tupshin.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel.bkbits.net off the air
+In-Reply-To: <Pine.GSO.4.21.0311141051440.2853-100000@waterleaf.sonytel.be>
+Message-ID: <Pine.LNX.4.44.0311142049560.4492-100000@serv>
+References: <Pine.GSO.4.21.0311141051440.2853-100000@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 14, 2003 at 03:44:23PM -0600, Matt Domsch wrote:
-> Any reason why the current partition-mapping code couldn't be extended
-> to handle partition detection on a generic block device (which is what
-> MD presents I think) instead of a struct gendisk?  Then it wouldn't
+Hi,
 
-Any block_device has a gendisk - md.c ones included.  The problem is where
-to put device numbers of partitions.
+On Fri, 14 Nov 2003, Geert Uytterhoeven wrote:
+
+> So if all individual mails were archived somewhere with correct sequence
+> numbers, they could be used to recreate the whole repository in whatever format
+> you want. I guess it's just a matter of importing them like patches into arch.
+
+The problematic part are "correct sequence numbers" here. These numbers in 
+the commit list mails are pretty much useless. At least the numbers in 
+this line:
+
+#                  ChangeSet    1.1437+1.1350.5.10 -> 1.1438
+
+have to be replaced with a unique identifier. This identifier does exist, 
+e.g. it's visible in the exclude mails.
+As soon as someone finds out how to export changesets in this format and 
+stores them somewhere, other people can make use of this data. 
+Unfortunately it's rather unlikely that anyone who can do the first, knows 
+also how to do the latter (but maybe Larry can tell us the trick).
+Anyway, if someone has this data I'd be interested in a copy.
+
+bye, Roman
+

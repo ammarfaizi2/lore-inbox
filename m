@@ -1,72 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129568AbRCAJkl>; Thu, 1 Mar 2001 04:40:41 -0500
+	id <S129574AbRCAJqL>; Thu, 1 Mar 2001 04:46:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129574AbRCAJkb>; Thu, 1 Mar 2001 04:40:31 -0500
-Received: from 203-79-82-83.adsl-wns.paradise.net.nz ([203.79.82.83]:64200
-	"HELO volcano.plumtree.co.nz") by vger.kernel.org with SMTP
-	id <S129568AbRCAJkX>; Thu, 1 Mar 2001 04:40:23 -0500
-Date: Thu, 1 Mar 2001 22:40:19 +1300
-From: Nicholas Lee <nj.lee@plumtree.co.nz>
-To: Mike Maravillo <mike.maravillo@q-linux.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Strange hdparm behaviour with Via 686b and 2.4.2
-Message-ID: <20010301224018.E985@cone.kiwa.co.nz>
-In-Reply-To: <20010301205930.B9243@cone.kiwa.co.nz> <20010301164959.A11065@mail.q-linux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010301164959.A11065@mail.q-linux.com>; from mike.maravillo@q-linux.com on Thu, Mar 01, 2001 at 04:49:59PM +0800
+	id <S129576AbRCAJqB>; Thu, 1 Mar 2001 04:46:01 -0500
+Received: from [194.67.35.250] ([194.67.35.250]:57827 "HELO skif.spylog.net")
+	by vger.kernel.org with SMTP id <S129574AbRCAJpw>;
+	Thu, 1 Mar 2001 04:45:52 -0500
+Message-ID: <001701c0a230$40e12240$0e04a8c0@iv>
+From: "Ivan Stepnikov" <iv@spylog.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel is unstable
+Date: Thu, 1 Mar 2001 12:16:08 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 01, 2001 at 04:49:59PM +0800, Mike Maravillo wrote:
-> I'm not sure if this one is related.  This is on an AMD K6-2 450
-> with MS-5187 board and VIA VT82C686A chipset...
+            Hello!
 
-Should have add this in the last message.   Almost exactly the same system
-same HDD, KT7 (with 686A) motherboard and a Duron 700, running:
+I tried to test linux memory allocation. For experiment I used i386
+architecture with Pentium III processor, 512M RAM and 8G swap space. For
+memory allocation libhoard was tried. Linux kernel 2.4.2 with patch
+per-process-3.5G-IA32-no-PAE-1, at
+/pub/linux/kernel/people/andrea/patches/v2.4/2.4.0-test11-pre5/ on
+ftp.kernel.org (This patch should force memory allocation for one process up
+to 3.5G approximately).
 
+When I try large blocks (about 256K - 1M) everything was ok. More then 3G
+memory was successfully allocated.
 
-[nic@hoppa:~] uname -a
-Linux hoppa 2.2.18pre21 #1 Fri Dec 22 02:27:39 NZDT 2000 i686 unknown
+On small blocks result was significantly worse. About 2.3 - 2.4G was
+allocated and system hanged. But it was possible to switch between  local
+consoles, and to receive ping replay by network. Actually it's only one sign
+of life (hard disk didn't work and it was impossible to reboot the machine
+by correct methods). At /var/log/messages was
 
-
-
-[nic@hoppa:~/dnetc] w
-  9:11pm  up 63 days, 12:32,  1 user,  load average: 0.99, 0.97, 0.91
-
-[nic@hoppa:~/dnetc] sudo hdparm -Tt /dev/hda
-
-/dev/hda:
- Timing buffer-cache reads:   128 MB in  1.18 seconds =108.47 MB/sec
- Timing buffered disk reads:  64 MB in  2.29 seconds = 27.95 MB/sec
-[nic@hoppa:~/dnetc] w
-[nic@hoppa:~/dnetc] ./dnetc -shutdown
-dnetc: 1 distributed.net client was shutdown. 0 failures.
-[nic@hoppa:~/dnetc] sudo hdparm -Tt /dev/hda
-
-/dev/hda:
- Timing buffer-cache reads:   128 MB in  1.14 seconds =112.28 MB/sec
- Timing buffered disk reads:  64 MB in  2.26 seconds = 28.32 MB/sec
-
-[nic@hoppa:~] sudo hdparm /dev/hda
-
-/dev/hda:
- multcount    = 16 (on)
- I/O support  =  1 (32-bit)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)
- keepsettings =  1 (on)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 2480/255/63, sectors = 39851760, start = 0
+Feb 28 17:08:55 zetta kernel: <ed.
+Feb 28 17:08:55 zetta kernel: __alloc_pages: 0-order allocation failed.
+Feb 28 17:09:05 zetta last message repeated 363 times
 
 
 
-That's the sort of behaviour you'd expect.
+Test program looks like this:
 
-Nicholas
+
+
+block = 1024;
+
+for (i=1; ; ++i ){
+
+                if(p==malloc(block)){
+
+                        perror("failed");
+
+                        fprintf(stderr,"Error! Size total:%uM pass:
+%u\n",size/1024/1024,i);
+
+                        return 0;
+
+                }
+
+                size += block;
+
+                printf("Size total:%uM pass: %u\n",size/1024/1024,i);
+
+}
+
+
+
+I think, this test shouldn't hang system. System may work slowly, very
+slowly but it shouldn't hang. If system cannot allocate any pages it should
+return correct value.
+
+And the main thing: it seems the system doesn't use all available swap
+space.
+
+I'm sure if system works properly results must be other.
+
+--
+Regards,
+Ivan Stepnikov.
+
 

@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317366AbSFRJTJ>; Tue, 18 Jun 2002 05:19:09 -0400
+	id <S317367AbSFRJ3R>; Tue, 18 Jun 2002 05:29:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317367AbSFRJTJ>; Tue, 18 Jun 2002 05:19:09 -0400
-Received: from norma.kjist.ac.kr ([203.237.41.18]:40401 "EHLO
-	norma.kjist.ac.kr") by vger.kernel.org with ESMTP
-	id <S317366AbSFRJTI>; Tue, 18 Jun 2002 05:19:08 -0400
-Message-ID: <3D0EFB35.1030606@nospam.com>
-Date: Tue, 18 Jun 2002 18:19:49 +0900
-From: Hugh <hugh@nospam.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux alpha; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: ko, en-us
-MIME-Version: 1.0
-To: core@enodev.com, linux-kernel@vger.kernel.org
-Subject: Re: Dual Athlon 2000 XP MP nightmare
-Content-Type: text/plain; charset=EUC-KR
-Content-Transfer-Encoding: 7bit
+	id <S317368AbSFRJ3Q>; Tue, 18 Jun 2002 05:29:16 -0400
+Received: from zamok.crans.org ([138.231.136.6]:55977 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id <S317367AbSFRJ3Q>;
+	Tue, 18 Jun 2002 05:29:16 -0400
+Date: Tue, 18 Jun 2002 11:29:17 +0200
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.5.22
+Message-ID: <20020618092916.GA11146@darwin.crans.org>
+References: <Pine.LNX.4.33.0206161936210.1386-100000@penguin.transmeta.com> <3D0E47AC.2080602@oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D0E47AC.2080602@oracle.com>
+User-Agent: Mutt/1.4i
+X-Warning: Email may contain unsmilyfied humor and/or satire.
+From: Vincent Hanquez <tab@crans.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->XP MPs exist now.
->
->--
->Shawn Leas
->core@enodev.com
+On Mon, Jun 17, 2002 at 10:33:48PM +0200, Alessandro Suardi wrote:
+> Linus Torvalds wrote:
+> >Hmm.. This should make cardbus work again, and gets rif of the IDE "oops 
+> >on shutdown" thing. Big x86-64 merge, and lots of acpi updates. IDE 
+> >updates (as usual) and a lot of compiler warning work by various people. 
+> >IrDA update and SCSI cleanups..
+> 
+> Confirmed - Xircom PCI Cardbus works again. Thanks !
 
-It is all so confusing.  I see two MP 1900+ as "POST"
-While linux is booting up, it shows AMD 1900+ XP's, then
-after a lot of booting log, I see
+3Com575 reworks too. Thanks
 
-ENABLING IO-APIC IRQs
-Setting 2 in the phys_id_present_map
-... changing IO-APIC ID 2 ... ok
-TIMER: vector=0x31 pin1=2 pint2=0
-
-
-Then, nothing.  It stops completely.
-What is going on?
-
-
-Secondly, what CPUs do I really have?  MP enabled or not?
-
-Thanks
-
-G. Hugh Song
-
+-- 
+Tab

@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265082AbUGMNTj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265121AbUGMNYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265082AbUGMNTj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 09:19:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265097AbUGMNTj
+	id S265121AbUGMNYL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 09:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265100AbUGMNYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 09:19:39 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:2108 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S265082AbUGMNTg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 09:19:36 -0400
-Date: Tue, 13 Jul 2004 06:19:09 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Naveen Kumar <naveenkrg@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Sending messages from kernel
-Message-Id: <20040713061909.59f83a0e.pj@sgi.com>
-In-Reply-To: <20040712111714.10763.qmail@web41108.mail.yahoo.com>
-References: <20040712111714.10763.qmail@web41108.mail.yahoo.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jul 2004 09:24:11 -0400
+Received: from rogue.ncsl.nist.gov ([129.6.101.41]:28370 "EHLO
+	rogue.ncsl.nist.gov") by vger.kernel.org with ESMTP id S265121AbUGMNYI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 09:24:08 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: SATA disk device naming ?
+References: <Pine.LNX.4.44.0407130415430.15806-100000@hubble.stokkie.net>
+	<20040713064645.GA1660@bounceswoosh.org>
+From: Ian Soboroff <ian.soboroff@nist.gov>
+Date: Tue, 13 Jul 2004 09:24:06 -0400
+In-Reply-To: <20040713064645.GA1660@bounceswoosh.org> (Eric D. Mudama's
+ message of "Tue, 13 Jul 2004 00:46:45 -0600")
+Message-ID: <9cfhdsc82h5.fsf@rogue.ncsl.nist.gov>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Naveen wrote:
-> I was trying to check if you can send a
-> notification/message from kernel to a user space
-> daemon.
+"Eric D. Mudama" <edmudama@bounceswoosh.org> writes:
 
-Or consider /sbin/hotplug and the kernel routine call_usermodehelper().
+> On Tue, Jul 13 at  4:25, Robert M. Stockmann wrote:
+>>Is there in such cases a smart workaround available, maybe as an extra
+>> GRUB/LILO boot option ? And why was the device naming changed in
+>> such a fatal way, effectively going from IDE to SCSI device names.
+>
+> Google on the "root=LABEL=/" syntax supported by both LILO and grub (I
+> think), should point you in the proper direction.  Then it won't
+> matter where/how you mount your drives, they'll still boot and mount
+> into the proper places in the filesystem.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Did the patch for labeling the swap partition ever make it into the
+kernel?
+
+Also, if your filesystems are modular (e.g. XFS) then labels may not
+help at boot time.
+
+Ian
+
+

@@ -1,65 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbULACoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbULACpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbULACoO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 21:44:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbULACoO
+	id S261190AbULACpw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 21:45:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbULACpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 21:44:14 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29668 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261158AbULACoK (ORCPT
+	Tue, 30 Nov 2004 21:45:52 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:47166 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261190AbULACpX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 21:44:10 -0500
-Date: Tue, 30 Nov 2004 18:43:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Block layer question - indicating EOF on block devices
-Message-Id: <20041130184345.47e80323.akpm@osdl.org>
-In-Reply-To: <1101829852.25628.47.camel@localhost.localdomain>
-References: <1101829852.25628.47.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 30 Nov 2004 21:45:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=IbQnuqB0ratmakd5QS5lsNy03EvPph683ycEbUsB0QzMbvqjsqqTdrL5Gs0bCeJ1IEbtCUF5HOZKmQIYxxF6jAYYMFFHnKQ+WVzrQfrhaVlXWJ5TMPLYyLaXZu5Hr/pqQzOW/4/GqXmatsQx5YsKGojnseYw7+sZLnG/zxgAd1s=
+Message-ID: <ee3a8d4a04113018445a4f84f4@mail.gmail.com>
+Date: Tue, 30 Nov 2004 21:44:52 -0500
+From: Scott Young <scottyoung@gmail.com>
+Reply-To: Scott Young <scottyoung@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: file as a directory
+Cc: Amit Gud <amitgud1@gmail.com>, linux-kernel@vger.kernel.org,
+       reisefs-list@namesys.com, Hans Reiser <reiser@namesys.com>
+In-Reply-To: <Pine.LNX.4.53.0411301935240.9193@yvahk01.tjqt.qr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <200411292120.iATLKZxE004233@laptop11.inf.utfsm.cl>
+	 <1101832103.2885.4.camel@zathras.emsl.pnl.gov>
+	 <Pine.LNX.4.53.0411301740430.1622@yvahk01.tjqt.qr>
+	 <04113011354200.08643@tabby>
+	 <Pine.LNX.4.53.0411301844100.16712@yvahk01.tjqt.qr>
+	 <2c59f00304113010262063d219@mail.gmail.com>
+	 <Pine.LNX.4.53.0411301935240.9193@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->
-> How is a block device meant to indicate to the block layer that the read
-> issued is beyond EOF. For the case where the true EOF is known the
-> capacity information is propogated into the inode and that is used. For
-> the case where a read exceeds the known EOF the block layer sets BIO_EOF
-> which appears nowhere else I can find.
+On Tue, 30 Nov 2004 19:39:15 +0100 (MET), Jan Engelhardt
+<jengelh@linux01.gwdg.de> wrote:
+> >My suggestion is to add a framework, an infrastructure, in the VFS
+> >wherein a simple plugin can be written to poke into the file as if it
+> >were a directory. So with that framework in place, I can write a
+> >plugin for archive support (treating the .tar files as directories),
+> >Peter could write a plugin for poking into /etc/passwd (treating it as
+> >a directory), and Jon Doe could write a plugin for sendmail.cf
+
+The biggest problem I see with adding the complicated stuff to VFS is
+the bloat and risk to system stability.  However, some things cannot
+be done in userspace, such as good caching.  How is one userspace
+library supposed to keep a transparent cache of, for example, an index
+for a tar file, not clutter up the on-disk representation of the
+cache, effectively manage space utilization, and  be able to
+efficiently detect changes to files in order to invalidate the cache? 
+This would become orders of magnitude easier if a ubiquitous
+filesystem interface were in use.  However, the only ubiquitous
+filesystem interface is VFS, which shouldn't have to take all the code
+bloat.
+
+Maybe something crazy could work.  Let's take some concepts from the
+Aspect Oriented Programming paradigm.  Whenever a program is loaded
+into memory, calls in the program to the vfs interface are modified to
+instead call new userspace functions that have all of the desired
+functionality, and those userspace functions eventually call the real
+system functions.  The kernel wouldn't have to take the bloat, plus it
+would be able to do things the userspace libraries wouldn't be able to
+do efficiently.  It's the best of both worlds, with a little insanity
+thrown in (It'd be neat to see the loader bootstrap its own code to
+weave in the caching of the pre-woven binaries).
+
+
+> That's something I could live with, but how do you want to tag a file being
+> "tar" so that tar_ops is used instead of the "default file" ops?
 > 
-> I'm trying to sort out the case where the block device has only an
-> approximate length known in advance. At the low level I've got sense
-> data so I know precisely when I hit the real EOF on read. I can pull
-> that out, I can partially complete the request neatly up to the EOF but
-> I can't find any code anywhere dealing with passing back an EOF.
+> You could not do so without an extra function, and once you use that extra
+> function to tag a certain file being "tar" -- you know that extensions are
+> kinda "worthless", and, especially, unrealiable -- you could also have used tar
+> -tvf.
+> 
+> Did I mention tar is not the perfect format? It's because it is lacking an
+> index and letting the kernel wade through a GB-sized tar file just to perform
+> and readdir (yet imagine reading the last file of it) would be a hell of
+> skipping. Keeping a non-persistent index in memory may solve the problem, but
+> hey, I also do not want to spend too much memory just for a single tar file.
 
-If the driver simply returns an I/O error, userspace should see a short
-read and be happy?
+It would also be nice to have an interface which can build, maintain,
+and cache on the disk a persistent index into a tar file on the disk,
+and then be able to delete this index when space is running low. 
+Plus, this index could be generated by streaming the file through
+memory, so you don't need to consume too much memory for a single
+file.
 
-> Nor it turns out is it handleable in user space because a read to the
-> true EOF causes readahead into the fuzzy zone between the actual EOF and
-> the end of media.
 
-Yup.  You can turn the readahead off with posix_fadvise(POSIX_FADV_RANDOM),
-or just read the disk with direct-io.  The latter has the advantage that
-you can freely pluck out single 512-byte sectors without pagecache causing
-any additional reads.
-
-> Currently I see the error, pull the sense data, extract the block number
-> and complete the request to the point it succeeded then fail the rest,
-> but this doesn't end the I/O if someone is using something like cp,
-
-hm.  Either cp is being silly or we're not propagating the error back
-correctly.  `cp' should see the short read and just handle it.
-
-> and
-> it also fills the log with "I/O error on" spew from the block layer
-> innards even if REQ_QUIET is magically set.
-
-We'd need to propagate that quietness back up to the buffer_head layer, at
-least.
+> >struct file_operations ops = {
+> >   .read            = tar_readdir,
+> >   .readdir        = tar_readdir,
+> >   ......
+> >};
+> >
+> >register_file_type("tar", &ops);
+> 
+> Jan Engelhardt
+> --
+> ENOSPC

@@ -1,27 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262831AbREVVNI>; Tue, 22 May 2001 17:13:08 -0400
+	id <S262827AbREVVUH>; Tue, 22 May 2001 17:20:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262827AbREVVMI>; Tue, 22 May 2001 17:12:08 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39428 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262834AbREVVL7>; Tue, 22 May 2001 17:11:59 -0400
-Subject: Re: alpha iommu fixes
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Tue, 22 May 2001 22:09:01 +0100 (BST)
-Cc: rth@twiddle.net (Richard Henderson), andrea@suse.de (Andrea Arcangeli),
-        ink@jurassic.park.msu.ru (Ivan Kokshaysky),
-        linux-kernel@vger.kernel.org, davem@redhat.com (David S. Miller)
-In-Reply-To: <3B0ACEB1.F3806F00@mandrakesoft.com> from "Jeff Garzik" at May 22, 2001 04:40:17 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E152JOn-0002Tz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S262838AbREVVTw>; Tue, 22 May 2001 17:19:52 -0400
+Received: from vp175062.reshsg.uci.edu ([128.195.175.62]:31493 "EHLO
+	moisil.badula.org") by vger.kernel.org with ESMTP
+	id <S262827AbREVVSs>; Tue, 22 May 2001 17:18:48 -0400
+Date: Tue, 22 May 2001 14:18:28 -0700
+Message-Id: <200105222118.f4MLISL01588@moisil.badula.org>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, dax@gurulabs.com (Dax Kelson)
+Subject: Re: Xircom RealPort versus 3COM 3C3FEM656C
+In-Reply-To: <E152HYH-0002LB-00@the-village.bc.nu>
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.2.19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ISA cards can do sg?
+On Tue, 22 May 2001 20:10:41 +0100 (BST), Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-AHA1542 scsi for one. It wasnt that uncommon.
+> Before you give up on the xircom thing, try the -ac kernel and set the box
+> up to use xircom_cb not xircom_tulip_cb
+> 
+> That might help a lot
+
+It doesn't, it still performs poorly with any of the three available
+drivers -- xircom_cb, xircom_tulip_cb, and tulip_cb (from the pcmcia package):
+
+* Rx gets only about 1.8Mbit/s on a 100Base-TX network with any of the three
+* Tx gets 80+Mb/s with xircom_tulip_cb and tulip_cb, and less than 30Mb/s
+  with xircom_cb.
+
+And no, promisc mode played no role in this experiment, because my test
+network is switched and otherwise very quiet.
+
+Windows drivers handle both Rx and Tx at full speed.
+
+I have this feeling that we're handling the card in some (tulip) compat
+mode, which severely cripples performance. It's hard to tell, without
+docs...
+
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

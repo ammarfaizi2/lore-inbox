@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272736AbRISSsd>; Wed, 19 Sep 2001 14:48:33 -0400
+	id <S272875AbRISSyn>; Wed, 19 Sep 2001 14:54:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274139AbRISSsQ>; Wed, 19 Sep 2001 14:48:16 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:11760 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274136AbRISSrz>;
-	Wed, 19 Sep 2001 14:47:55 -0400
-Date: Wed, 19 Sep 2001 20:48:18 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: David Howells <dhowells@redhat.com>
-Cc: Benjamin LaHaise <bcrl@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Manfred Spraul <manfred@colorfullife.com>, Ulrich.Weigand@de.ibm.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Deadlock on the mm->mmap_sem
-Message-ID: <20010919204818.M720@athlon.random>
-In-Reply-To: <bcrl@redhat.com> <6679.1000924060@warthog.cambridge.redhat.com>
+	id <S272836AbRISSyd>; Wed, 19 Sep 2001 14:54:33 -0400
+Received: from mail.ask.ne.jp ([203.179.96.3]:42984 "EHLO mail.ask.ne.jp")
+	by vger.kernel.org with ESMTP id <S272822AbRISSy3>;
+	Wed, 19 Sep 2001 14:54:29 -0400
+Date: Thu, 20 Sep 2001 03:55:47 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
+To: Duncan Sands <duncan.sands@math.u-psud.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: min/max and all that jazz
+Message-Id: <20010920035547.7943346b.bruce@ask.ne.jp>
+In-Reply-To: <20010919115917.A12129@maclaurence.math.u-psud.fr>
+In-Reply-To: <20010919115917.A12129@maclaurence.math.u-psud.fr>
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.6; i686-pc-linux-gnu)
+X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6679.1000924060@warthog.cambridge.redhat.com>; from dhowells@redhat.com on Wed, Sep 19, 2001 at 07:27:40PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 19, 2001 at 07:27:40PM +0100, David Howells wrote:
-> 
-> > I don't know about you, but I'm mildly concerned that copyright attributions 
-> > vanished.
-> 
-> I concur with that.
+On Wed, 19 Sep 2001 11:59:17 +0200
+Duncan Sands <duncan.sands@math.u-psud.fr> wrote:
 
-can you be a little more accurate on which copyright attributions
-vanished by mistake?
+> gcc has a warning option -Wsign-compare (not turned on by -Wall):
 
-Andrea
+[SNIP]
+
+> This might pick up some errors of the kind the new min/max macros
+> are trying to catch...
+>
+> PS: please CC any comments to me, since I'm not subscribed to the list.
+
+Apparently not... During the big flamefest over min()/max(), Linus expressed a
+fairly clear dislike for -Wsign-compare ;)
+

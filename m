@@ -1,80 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279105AbRKXTDd>; Sat, 24 Nov 2001 14:03:33 -0500
+	id <S279303AbRKXTJc>; Sat, 24 Nov 2001 14:09:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279303AbRKXTDM>; Sat, 24 Nov 2001 14:03:12 -0500
-Received: from serv02.lahn.de ([195.211.46.202]:39256 "EHLO serv02.lahn.de")
-	by vger.kernel.org with ESMTP id <S279105AbRKXTCv>;
-	Sat, 24 Nov 2001 14:02:51 -0500
-X-Spam-Filter: check_local@serv02.lahn.de by digitalanswers.org
-Date: Sat, 24 Nov 2001 20:02:05 +0100 (CET)
-From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-Reply-To: pmhahn@titan.lahn.de
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: [PATCH] net/8139too
-In-Reply-To: <20011116112614.A725@walker.iti.informatik.tu-darmstadt.de>
-Message-ID: <Pine.LNX.4.42.0111241951440.30098-100000@titan.lahn.de>
+	id <S279418AbRKXTJV>; Sat, 24 Nov 2001 14:09:21 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:13072 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S279303AbRKXTJM>; Sat, 24 Nov 2001 14:09:12 -0500
+Message-ID: <3BFFF021.D963B467@zip.com.au>
+Date: Sat, 24 Nov 2001 11:08:17 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Steve Bergman <steve@rueb.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Disk hardware caching, performance, and journalling
+In-Reply-To: <3BFFE8A2.1010708@rueb.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Nov 2001, Philipp Matthias Hahn wrote:
+Steve Bergman wrote:
+> 
+> Note that block writes are over 3 times faster with caching on.
 
-> Hello Andrew, Jedd, LKML!
->
-> On 2001.11.16 08:17 Andrew Morton wrote:
-> > > Since linux-2.4.15-pre[14]+kdb+freeswan I get an oops when stopping my
-> > > 8139too network:
-> > >
-> > > # ifdown eth0
-> > > eth0: unable to signal thread
-> >
-> > Could you please tell us what the return value is from kill_proc()?
-> Now running 2.4.15-pre5 with your patch and kill_proc returns -3.
+With a large linear write, linux typically feeds requests into the
+disk like this:
 
-Found it! Here's what happend:
+	write 248 sectors
+	write 248 sectors
+	...
+	write 248 sectors
+	write 8 sectors
+	write 248 sectors
+	...
 
-modprobe 8139too:
-rtl8139_init_board() zeros "struct rtl8139_private"
+Now, 248+8 sectors is 128 kbytes.  A track is, say, 300 kbytes.
 
-ifconfig eth0 up:
-rtl8139_open() is called, which starts rtl8139_thread()
+With writebehind the disk can write that entire track in pretty
+much a single spin.  But if we're waiting on the result of each
+request we'll lose revolutions.  In synchronous mode it's going
+to take three or four spins to write a track.
+ 
+> So what are the implications here for journalling?  Do I have to turn
+> off caching and suffer a huge performance hit?
 
-ifconfig eth0 down:
-rtl8139_close() sets "time_to_die = 1"
-rtl8139_thread() exits
+In theory, yes.  In my opinion, no.  For ext3, at least.  Caching
+isn't bad per-se.  It's reordering which can break the journalling
+constraints.  But given that the journal is, we hope, a strictly
+ascending and (we really hope) contiguous chunk of blocks, it's
+quite unlikely that the disk will decide to write them in an
+unexpected order.  This is especially true if the journal was
+created when the disk was relatively unfragmented.
 
-ifconfig eth0 up 'again':
-rtl8139_open() is called, which starts rtl8139_thread()
-time_to_die is still 1
-rtl8139_thread() exits immediately
+And if the disk _does_ write them in the wrong order, it has
+to be specifically the journal commit block which was written
+prior to some data blocks.  And you need to lose power (not
+just crash) prior to the data blocks hitting disk.  It's a
+very small time window containing an improbable occurrence.
 
-ifconfig eth0 down:
-rtl8139_close() tries to signal a nonexistent thread -> ESRCH
+Now that's all just vigorous handwaving, and may be wrong,
+and yes, we really need a way of propagating barriers down
+to the request queue.  But I've not seen a whisker of a report
+which indicates that write reordering has caused on-recovery
+corruption.
 
-rmmod 8139too
-OOPS
-
-Resetting time_to_die=0 in rtl8139_open() should fix the problem:
-
---- linux-2.4.15/drivers/net/8139too.c.orig	Sat Nov 24 19:48:00 2001
-+++ linux-2.4.15/drivers/net/8139too.c	Sat Nov 24 19:48:49 2001
-@@ -1270,6 +1270,7 @@
- 	tp->full_duplex = tp->duplex_lock;
- 	tp->tx_flag = (TX_FIFO_THRESH << 11) & 0x003f0000;
- 	tp->twistie = 1;
-+	tp->time_to_die = 0;
-
- 	rtl8139_init_ring (dev);
- 	rtl8139_hw_start (dev);
-
-BYtE
-Philipp
--- 
-  / /  (_)__  __ ____  __ Philipp Hahn
- / /__/ / _ \/ // /\ \/ /
-/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
-
+-

@@ -1,202 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271787AbRIHRmd>; Sat, 8 Sep 2001 13:42:33 -0400
+	id <S271791AbRIHR44>; Sat, 8 Sep 2001 13:56:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271788AbRIHRmY>; Sat, 8 Sep 2001 13:42:24 -0400
-Received: from mail.gmx.net ([213.165.64.20]:14583 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S271787AbRIHRmU>;
-	Sat, 8 Sep 2001 13:42:20 -0400
-Message-ID: <3B9A588B.EA0762D2@gmx.at>
-Date: Sat, 08 Sep 2001 19:42:35 +0200
-From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Arjan van de Ven <arjanv@redhat.com>
-Subject: [PATCH] ataraid-hpt370: multiple raid volumes
-Content-Type: multipart/mixed;
- boundary="------------6C4E9A2ACDCC2F66A7397FCB"
+	id <S271792AbRIHR4q>; Sat, 8 Sep 2001 13:56:46 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:11857 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S271791AbRIHR4j>; Sat, 8 Sep 2001 13:56:39 -0400
+Date: Sat, 8 Sep 2001 19:57:30 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: linux-2.4.10-pre5
+Message-ID: <20010908195730.D11329@athlon.random>
+In-Reply-To: <20010908191954.C11329@athlon.random> <Pine.LNX.4.33.0109081028390.936-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109081028390.936-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Sep 08, 2001 at 10:30:30AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------6C4E9A2ACDCC2F66A7397FCB
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Sat, Sep 08, 2001 at 10:30:30AM -0700, Linus Torvalds wrote:
+> That said, if you'll give a description of how you fixed the aliasing
+> issues etc, maybe I'd be less nervous. Putting it in the page cache is
 
-Hi!
+First of all I just __block_fsync + truncate_inode_pages(inode->i_mapping, 0) so
+all pagecache updates are commited to disk after that, so the latest uptodate
+data is on disk and nothing uptodate is in memory. 
 
-Appended is a short patch that allows you to have more than one raid
-volume. The same thing should probably be also done to the promise code.
-I had no time to check. :(
-I just needed this for moveing my data from the wracky IBM DLTA disks to
-the new ones. It is a quick hack, but appears to work.
+If we have the fs mounted under us that seems mounted read only [I don't
+even try to synchronize if the fs was mounted rw] I invalidate_device to
+possibly shrink its higher level caches as well (this call is non
+destructive so it's safe, it's just for sanity), then I lock_super [to
+synchronize against the ->remount that could otherwise remount the
+device rw under me], I recheck the fs is still read only with the super
+lock acquired and if it still is I do the real work (aka
+update_buffers).
 
-greetings,
-Wilfried
---------------6C4E9A2ACDCC2F66A7397FCB
-Content-Type: text/plain; charset=us-ascii;
- name="multiple-raid-hpt370.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="multiple-raid-hpt370.diff"
+Let's see the update_buffers in detail:
 
-diff -Nur linux-2.4.8-ac11/drivers/ide/hptraid.c linux-2.4.8-ac11-raid/drivers/ide/hptraid.c
---- linux-2.4.8-ac11/drivers/ide/hptraid.c	Sun Aug 26 18:32:29 2001
-+++ linux-2.4.8-ac11-raid/drivers/ide/hptraid.c	Sat Sep  8 19:32:14 2001
-@@ -58,6 +58,25 @@
- 	unsigned int cutoff_disks[8];	
- };
- 
-+struct hptraid_dev {
-+	int major;
-+	int minor;
-+	int device;
-+};
-+
-+static struct hptraid_dev devlist[]=
-+{
-+
-+	{IDE0_MAJOR,  0, -1},
-+	{IDE0_MAJOR, 64, -1},
-+	{IDE1_MAJOR,  0, -1},
-+	{IDE1_MAJOR, 64, -1},
-+	{IDE2_MAJOR,  0, -1},
-+	{IDE2_MAJOR, 64, -1},
-+	{IDE3_MAJOR,  0, -1},
-+	{IDE3_MAJOR, 64, -1}
-+};
-+
- static struct raid_device_operations hptraid_ops = {
- 	open:                   hptraid_open,
- 	release:                hptraid_release,
-@@ -274,16 +293,23 @@
- 	return lba;
- }
- 
--static void __init probedisk(int major, int minor,int device)
-+static u_int32_t magiccookie;
-+static char magicpresent;
-+static void __init probedisk(struct hptraid_dev *disk, int device)
- {
- 	int i;
-         struct highpoint_raid_conf *prom;
- 	static unsigned char block[4096];
-+
-+	if (disk->device != -1)	/* disk is occupied? */
-+		return;
-+
-+	printk(KERN_INFO "probeing 0x%.2X%.2X...\n", disk->major, disk->minor);
- 	
--	if (maxsectors(major,minor)==0)
-+	if (maxsectors(disk->major,disk->minor)==0)
- 		return;
- 	
--        if (read_disk_sb(major,minor,(unsigned char*)&block,sizeof(block)))
-+        if (read_disk_sb(disk->major,disk->minor,(unsigned char*)&block,sizeof(block)))
-         	return;
-                                                                                                                  
-         prom = (struct highpoint_raid_conf*)&block[512];
-@@ -295,25 +321,30 @@
-         	return;
-         }
- 
-+		/* disk from another array */
-+	if(magicpresent && prom->magic_0 != magiccookie)
-+		return;
-+
- 	i = prom->disk_number;
- 	if (i<0)
- 		return;
- 	if (i>8) 
- 		return;
- 
--	raid[device].disk[i].bdev = bdget(MKDEV(major,minor));
-+	raid[device].disk[i].bdev = bdget(MKDEV(disk->major,disk->minor));
-         if (raid[device].disk[i].bdev != NULL) {
-         	int j=0;
-         	struct gendisk *gd;
-         	/* This is supposed to prevent others from stealing our underlying disks */
- 		blkdev_get(raid[device].disk[i].bdev, FMODE_READ|FMODE_WRITE, 0, BDEV_RAW);
-+
- 		/* now blank the /proc/partitions table for the wrong partition table,
- 		   so that scripts don't accidentally mount it and crash the kernel */
- 		lock_kernel();
- 		gd=gendisk_head;
- 		while (gd!=NULL) {
--			if (gd->major==major) {
--				for (j=1+(minor<<gd->minor_shift);j<((minor+1)<<gd->minor_shift);j++) {
-+			if (gd->major==disk->major) {
-+				for (j=1+(disk->minor<<gd->minor_shift);j<((disk->minor+1)<<gd->minor_shift);j++) {
- 					gd->part[j].nr_sects=0;
- 				}
- 			}
-@@ -322,11 +353,14 @@
- 		}
- 		unlock_kernel();
-         }
--	raid[device].disk[i].device = MKDEV(major,minor);
--	raid[device].disk[i].sectors = maxsectors(major,minor);
-+	raid[device].disk[i].device = MKDEV(disk->major,disk->minor);
-+	raid[device].disk[i].sectors = maxsectors(disk->major,disk->minor);
- 	raid[device].stride = (1<<prom->raid0_shift);
- 	raid[device].disks = prom->raid_disks;
- 	raid[device].sectors = prom->total_secs;
-+	magicpresent=1;
-+	magiccookie=prom->magic_0;
-+	disk->device=device;
- 			
- }
- 
-@@ -361,14 +395,10 @@
- {
- 	int i,count;
- 
--	probedisk(IDE0_MAJOR,  0, device);
--	probedisk(IDE0_MAJOR, 64, device);
--	probedisk(IDE1_MAJOR,  0, device);
--	probedisk(IDE1_MAJOR, 64, device);
--	probedisk(IDE2_MAJOR,  0, device);
--	probedisk(IDE2_MAJOR, 64, device);
--	probedisk(IDE3_MAJOR,  0, device);
--	probedisk(IDE3_MAJOR, 64, device);
-+	magicpresent=0;
-+	for(i=0; i < 8; i++) {
-+		probedisk(devlist+i, device);
-+	}
-                                                                 	
- 	fill_cutoff(device);
- 	
-@@ -398,15 +428,20 @@
- 
- static __init int hptraid_init(void)
- {
--	int retval,device;
-+	int retval,device,count=0;
- 	
--	device=ataraid_get_device(&hptraid_ops);
--	if (device<0)
--		return -ENODEV;
--	retval = hptraid_init_one(device);
--	if (retval)
--		ataraid_release_device(device);
--	return retval;
-+	do
-+	{
-+		device=ataraid_get_device(&hptraid_ops);
-+		if (device<0)
-+			return (count?0:-ENODEV);
-+		retval = hptraid_init_one(device);
-+		if (retval)
-+			ataraid_release_device(device);
-+		else
-+			count++;
-+	} while(!retval);
-+	return (count?0:retval);
- }
- 
- static void __exit hptraid_exit (void)
+[..]
+#define update_buffers(dev)			\
+do {						\
+	__invalidate_buffers((dev), 0, 1);	\
+	__invalidate_buffers((dev), 0, 2);	\
+} while (0)
+[..]
+   For handling cache coherency with the blkdev pagecache the 'update' case
+   is been introduced. It is needed to re-read from disk any pinned
+   buffer. NOTE: re-reading from disk is destructive so we can do it only
+   when we assume nobody is changing the buffercache under our I/O and when
+   we think the disk contains more recent information than the buffercache.
+   The update == 1 pass marks the buffers we need to update, the update == 2
+   pass does the actual I/O. */
+void __invalidate_buffers(kdev_t dev, int destroy_dirty_buffers, int update)
+[..]
 
---------------6C4E9A2ACDCC2F66A7397FCB--
+What update_buffers does is to identify the pinned buffers in the buffercache
+and to re-read them from disk under the filesystem (we know the filesystem is
+mounted readonly so we can [modulo that the fs gets confused if it sees non
+coherent information while we do the update, but with the user app writing to
+the buffercache directly things were even worse due the potentially larger
+window of time for the race to trigger so it's certainly acceptable as far as
+current code is acceptable too]).
 
+another quite brainer part of the patch [non described here] is the cache
+pagecache sharing from different inodes:
+
+	mknod hda .. A B ..
+	mknod hda.new .. A B ..
+
+then start using hda and hda.new at the same time and have them share the same
+pagecache, and that case is been take care of too.
+
+Andrea

@@ -1,57 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265277AbUAPFtl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 00:49:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbUAPFtl
+	id S265279AbUAPF7p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 00:59:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265280AbUAPF7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 00:49:41 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:65156 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S265254AbUAPFth (ORCPT
+	Fri, 16 Jan 2004 00:59:45 -0500
+Received: from mcgroarty.net ([64.81.147.195]:2945 "EHLO pinkbits.internal")
+	by vger.kernel.org with ESMTP id S265279AbUAPF7n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 00:49:37 -0500
-Date: Thu, 15 Jan 2004 21:50:31 -0800
-From: Grant Grundler <iod00d@hp.com>
+	Fri, 16 Jan 2004 00:59:43 -0500
+Date: Thu, 15 Jan 2004 23:59:41 -0600
 To: Greg KH <greg@kroah.com>
-Cc: Jesse Barnes <jbarnes@sgi.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       jeremy@sgi.com
-Subject: Re: [PATCH] readX_relaxed interface
-Message-ID: <20040116055031.GD13222@cup.hp.com>
-References: <20040115204913.GA8172@sgi.com> <20040116003224.GF23253@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB KVM breaks under 2.6.0
+Message-ID: <20040116055941.GB2174@mcgroarty.net>
+References: <20040114064032.GA3247@mcgroarty.net> <20040116005041.GG23253@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
 Content-Disposition: inline
-In-Reply-To: <20040116003224.GF23253@kroah.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040116005041.GG23253@kroah.com>
+X-Debian-GNU-Linux: Rocks
+From: Brian McGroarty <brian@mcgroarty.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 04:32:25PM -0800, Greg KH wrote:
-[ deleted reminder for readb() to return success/fail codes ]
-> Just wanted to put this idea in people's heads that we need to start
-> planning for something like it.
 
-I just remembered another part of linux 2.4/2.6 that needs revisiting:
-DMA mapping routines don't return an error code.
-ie pci_map_single() must panic since it can't return a failure.
-It was designed that way on purpose to make life easier for driver
-writers (and I agree, it has).
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-(my guess is x86-64 needs this change more urgently than any other arch.)
+On Thu, Jan 15, 2004 at 04:50:41PM -0800, Greg KH wrote:
+> On Wed, Jan 14, 2004 at 12:40:32AM -0600, Brian McGroarty wrote:
+> > I have a Belkin Omniview SE 4, a four port KVM, with keyboard and
+> > mouse provided to a Linux box via USB.
+> >=20
+> > Under 2.4.23, the device works well. The keyboard and mouse are
+> > detected.
+> >=20
+> > Under 2.6.0 (Debian build), the keyboard is not recognized.
+>=20
+> NEVER use the usbkbd driver, unless you _really_ know what you are
+> doing.  Please read the config help entry for that item.
 
-I'm sure there are other robustness issues too.
-Looking for "panic" will probably give alot of them away.
-The current 2.6.1 tree has over 1000 panic() calls.
-I used "find -name \*.c | fgrep panic\( | wc ".
+I had two problems. Once the second problem was resolved, pulling
+usbkbd from the picture made operation more consistent between
+directly-plugged and KVM-switched keyboards.
 
-And for my amusement:
-grundler <506>find drivers/scsi -name \*.c | xargs fgrep panic\( | wc
-    183    1243   14722
-grundler <507>find drivers/net -name \*.c | xargs fgrep panic\( | wc
-     10      53     662
+For the second problem, the uhci driver changed names from 2.4 to
+2.6. If others google(v) for this problem and find this post, you want
+the module "uhci_hcd" and not "usb-uhci" when going from 2.4 to 2.6
 
-My point is a substantial number of things can be done to improve
-robustness besides (or in addition to?) recovering from IO subsystem
-crashes.
+The original USB loader daemon I was using recognized the change, but
+the second I had tried and was still using did not. I've sent notes to
+ask Documentation/input/input.txt to be updated, and I've filed a bug
+against the second daemon.
 
-grant
+
+Thanks for the help!
+
+--Qxx1br4bt0+wmkIi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAB33N2PBacobwYH4RAmL4AJ9qnM+K+RBBFa/HXbNQpJLZGpfOfwCeKLqg
+rvprx8YDYLh/3Ca0IJywqU4=
+=f8Po
+-----END PGP SIGNATURE-----
+
+--Qxx1br4bt0+wmkIi--

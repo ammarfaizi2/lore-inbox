@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274156AbRISUCp>; Wed, 19 Sep 2001 16:02:45 -0400
+	id <S274154AbRISUBP>; Wed, 19 Sep 2001 16:01:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274157AbRISUC2>; Wed, 19 Sep 2001 16:02:28 -0400
-Received: from hera.society.de ([195.227.57.7]:19977 "EHLO hera.society.de")
-	by vger.kernel.org with ESMTP id <S274156AbRISUCE>;
-	Wed, 19 Sep 2001 16:02:04 -0400
-Date: Wed, 19 Sep 2001 22:02:42 +0200
-From: Bernfried Molte <bbm@studioorange.de>
-To: linux-kernel@vger.kernel.org
-Subject: RTL8139too in linux-2.4.10-pre12
-Message-Id: <20010919220242.5d310810.bbm@studioorange.de>
-Organization: Studioorange
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.8; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S274156AbRISUBG>; Wed, 19 Sep 2001 16:01:06 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17156 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274154AbRISUAz>; Wed, 19 Sep 2001 16:00:55 -0400
+Subject: Re: Locked up 2.4.10-pre11 on Tyan 815t motherboard.
+To: greearb@candelatech.com (Ben Greear)
+Date: Wed, 19 Sep 2001 21:05:07 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), bruce@ask.ne.jp (Bruce Harada),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3BA8F7BB.273734EA@candelatech.com> from "Ben Greear" at Sep 19, 2001 12:53:31 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15jnal-0003kR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-i get this message with CONFIG_8139TOO_PIO *not* set:
+> Damn..someone has to make good stable motherboards...anyone got any
+> suggestions for one that will fit into a 1U server, with built-in
+> Video and preferably a NIC?  I had ok luck with an Intel board based
+> on the 815 chipset, so long as I used the e100 driver...maybe I'll
+> have to go back to it...
 
-Sep 19 21:39:43 lichee kernel: Symbols match kernel version 2.4.10.
-Sep 19 21:39:43 lichee kernel: Loaded 4 symbols from 1 module.
-Sep 19 21:39:43 lichee kernel: 8139too Fast Ethernet driver 0.9.18a
-Sep 19 21:39:43 lichee kernel: eth0: RealTek RTL8139 Fast Ethernet at 0xd0826000, 00:e0:7d:7c:f8:d8, IRQ 11
-Sep 19 21:39:43 lichee kernel: eth0:  Identified 8139 chip type 'RTL-8139B'
-Sep 19 21:39:43 lichee kernel: eth0: Setting 100mbps full-duplex based on auto-negotiated partner ability 45e1.
+The 815 + e100 thing is _not_ a hardware issue. Its some subtle driver
+related things, and of course Intel are keen to push e100 rather than
+help people fix the kernel driver so not much help.
 
-Sep 19 21:39:43 lichee kernel: task `ifconfig' exit_signal 17 in reparent_to_init
+I've fixed some of the problems in recent -ac (the power management timeout)
+which is now in Linus tree. Arjan van de Ven also fixed some other bits.
 
-******
+I'd be interested to know if that helps (to keep the test simple and single
+variable you can use the -ac eepro100.c file in Linus 2.4.9)
 
-This message comes with CONFIG_8139TOO_PIO set:
-
-Sep 19 14:44:25 lichee kernel: Assertion failed! ioaddr != NULL,8139too.c,rtl8139_init_one,line=944
-Sep 19 17:27:17 lichee kernel: Assertion failed! ioaddr != NULL,8139too.c,rtl8139_init_one,line=944
-Sep 19 17:33:17 lichee kernel: Assertion failed! ioaddr != NULL,8139too.c,rtl8139_init_one,line=944
-
-This kernel is patched with 'patch-rml-2.4.10-pre12.patch'.
-
-Cheers,
-   Bernfried
+Alan

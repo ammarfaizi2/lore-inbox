@@ -1,91 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261642AbSJUVHQ>; Mon, 21 Oct 2002 17:07:16 -0400
+	id <S261693AbSJUVLu>; Mon, 21 Oct 2002 17:11:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261661AbSJUVHQ>; Mon, 21 Oct 2002 17:07:16 -0400
-Received: from mithra.wirex.com ([65.102.14.2]:64264 "EHLO mail.wirex.com")
-	by vger.kernel.org with ESMTP id <S261642AbSJUVHP>;
-	Mon, 21 Oct 2002 17:07:15 -0400
-Message-ID: <3DB46DD2.8030007@wirex.com>
-Date: Mon, 21 Oct 2002 14:12:50 -0700
-From: Crispin Cowan <crispin@wirex.com>
-Organization: WireX Communications, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+	id <S261665AbSJUVLu>; Mon, 21 Oct 2002 17:11:50 -0400
+Received: from dyn-212-232-23-123.ppp.tiscali.fr ([212.232.23.123]:59919 "EHLO
+	calvin.paulbristow.lan") by vger.kernel.org with ESMTP
+	id <S261693AbSJUVLs>; Mon, 21 Oct 2002 17:11:48 -0400
+Message-ID: <3DB46F23.3010108@paulbristow.net>
+Date: Mon, 21 Oct 2002 23:18:27 +0200
+From: Paul Bristow <paul@paulbristow.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-security-module@wirex.com
-Subject: Re: [PATCH] remove sys_security
-References: <20021017195015.A4747@infradead.org>	<20021017185352.GA32537@kroah.com> <20021017195838.A5325@infradead.org>	<20021017190723.GB32537@kroah.com> <20021017210402.A7741@infradead.org> 	<20021017201030.GA384@kroah.com> <1035208643.27309.109.camel@irongate.swansea.linux.org.uk>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-md5;
- protocol="application/pgp-signature";
- boundary="------------enig82E27E025063FB50546F4CBD"
+To: Gregoire Favre <greg@ulima.unil.ch>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.44 don't allow ZIP ejection :-((
+References: <20021021205829.GA6665@ulima.unil.ch>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig82E27E025063FB50546F4CBD
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Thanks for the bug report.  We know the BIO code needs going over in 
+ide-floppy...  I'll try to take care of it.
 
-Alan Cox wrote:
+Gregoire Favre wrote:
 
->On Thu, 2002-10-17 at 21:10, Greg KH wrote:
+>Hello,
+>
+>in 2.5.n n<44 the eject command didn't work anymore, but I could
+>manually eject my disc...
+>
+>With 2.5.44 the eject command still don't work, but even worse: I should
+>reboot to eject the device:
+>
+>Oct 21 16:55:57 ulima kernel:  /dev/ide/host0/bus1/target1/lun0: unknown partition tableOct 21 16:55:57 ulima kernel: ide-floppy: unsupported command in queue: dev 16:40: REQ_NOMERGE REQ_STARTED REQ_BLOCK_PC sector 65680, nr/cnr 8/8
+>Oct 21 16:55:57 ulima kernel: bio 00000000, biotail 00000000
+>Oct 21 16:55:57 ulima kernel: end_request: I/O error, dev 16:40, sector 65680
+>
+>Thank you,
+>
+>	Grégoire
+>________________________________________________________________
+>http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 >  
 >
->>Ok, I think it's time for someone who actually cares about the security
->>syscall to step up here to try to defend the existing interface.  I'm
->>pretty sure Ericsson, HP, SELinux, and WireX all use this, so they need
->>to be the ones defending it.
->>    
->>
->The existing interface is basically the one Linus asked for, although
->perhaps with a little less thought on the structure side than it would
->have benefitted
->
-The intent behind the syscall interface was that it needed to be generic 
-enough to support the 50+ syscalls that SELinux wants, and also be 
-generic enough to support potential modules that have not been invented 
-yet. That's why it is a MUX, and why the signature definition is enough 
-to deal with stacked modules and then pass a generic argv list to the 
-module itself.
 
-Unfortunately, this design goal (highly generic interface) is 
-incompatible with the 32/64 bit transparancy layer that several 
-supported architectures need. As Christoph says, this is unfixable. 
-IMHO, it is unfixable because of conflicting design goals: you cannot 
-have a truly generic syscall interface and hope for it to port clean 
-from 32 bits to 64 bits.
+-- 
 
-Therefore, the sys_security syscall has been removed. LSM-aware 
-applications that want to talk to security modules can do so through a 
-file system interface. This will work for WireX, and Smalley says it 
-will work for SELinux. I hope it will work for others.
+Paul
 
-Again, my thanks for eveyone's help in cleaning up this issue, and my 
-apologies to anyone I may have offended. We should have thought about 
-the 32/64 bit issue when we defined that interface. Kudos to Greg K-H, 
-who told me that this syscall would be a problem.
+Email:	paul@paulbristow.net
+Web:	http://paulbristow.net
+ICQ:	11965223
 
-Thanks,
-    Crispin
-
---------------enig82E27E025063FB50546F4CBD
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE9tG3b5ZkfjX2CNDARASNdAKCwdQvWx7puvMaDoBenNjVjnTyDJACdEPj0
-anA1Ri+pl+hLuSROSHPbdko=
-=GXuV
------END PGP SIGNATURE-----
-
---------------enig82E27E025063FB50546F4CBD--
 

@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbTFTJVL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 05:21:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbTFTJVK
+	id S262562AbTFTJ1a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 05:27:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbTFTJ1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 05:21:10 -0400
-Received: from dyn-ctb-203-221-72-161.webone.com.au ([203.221.72.161]:18963
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S262543AbTFTJVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 05:21:08 -0400
-Message-ID: <3EF2D500.40707@cyberone.com.au>
-Date: Fri, 20 Jun 2003 19:33:52 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: en
+	Fri, 20 Jun 2003 05:27:30 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:22783 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262562AbTFTJ13 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 05:27:29 -0400
+content-class: urn:content-classes:message
+Subject: Problem unmounting initrd-romfs in 2.4.21
 MIME-Version: 1.0
-To: Xavier Bestel <xavier.bestel@free.fr>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Nuno Silva <nuno.silva@vgertech.com>,
-       Samphan Raruenrom <samphan@thai.com>, Vojtech Pavlik <vojtech@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Crusoe's persistent translation on linux?
-References: <Pine.LNX.4.44.0306191707000.1987-100000@home.transmeta.com> <1056100114.2978.31.camel@nomade>
-In-Reply-To: <1056100114.2978.31.camel@nomade>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Fri, 20 Jun 2003 11:41:25 +0200
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
+Message-ID: <BDB86409B697CB4DBB8A5BF487B9D61A3933@srv01.losekann.local>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Problem unmounting initrd-romfs in 2.4.21
+Thread-Index: AcM3EBMzMeuhGWeFRnS2h3Li+wuHcQ==
+From: "Tobias Reinhard" <T.Reinhard@losekann.de>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all!
 
+I'm booting up with a initrd in a romfs. After loading all needed
+modules and pivoting root I unmount the initrd and flush the used
+buffers.
 
-Xavier Bestel wrote:
+Since I updated to 2.4.21 I can't unmount the initrd - it says it's
+busy, but it's no (or at least lsof does say so).
 
->Le ven 20/06/2003 à 02:16, Linus Torvalds a écrit :
->
->>So no, it wouldn't really benefit from it, not to mention that it's not
->>even an option since Transmeta has never released enough details to do it
->>anyway. Largely for simple security concerns - if you start giving
->>interfaces for mucking around with the "microcode", you could do some
->>really nasty things. 
->>
->
->Did you just write: "the Crusoe has special backdoors built-in which
->would allow a userspace program to takeover the machine, and Transmeta
->choose security through obscurity to avoid this problem" ?
->Nice call for crackers :)
->
->
+I use kernel 2.4.21 with /drivers/Makefile , /drivers/ide and
+/include/linux/ide.h from ac1 to reenable ide-modules.
 
-Hmm, did you just write: "Linus, I take you for an imbecile" ? ;)
+Anyone know the problem?
 
+Tobias
 

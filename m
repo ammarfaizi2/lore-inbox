@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267359AbTA1Q2G>; Tue, 28 Jan 2003 11:28:06 -0500
+	id <S267361AbTA1QbC>; Tue, 28 Jan 2003 11:31:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267361AbTA1Q2G>; Tue, 28 Jan 2003 11:28:06 -0500
-Received: from ns.suse.de ([213.95.15.193]:39186 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267359AbTA1Q2F>;
-	Tue, 28 Jan 2003 11:28:05 -0500
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: jasonp@boo.net, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] page coloring for 2.5.59 kernel, version 1
-References: <3.0.6.32.20030127224726.00806c20@boo.net.suse.lists.linux.kernel> <884740000.1043737132@titus.suse.lists.linux.kernel> <20030128071313.GH780@holomorphy.com.suse.lists.linux.kernel> <1466000000.1043770007@titus.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 28 Jan 2003 17:37:25 +0100
-In-Reply-To: "Martin J. Bligh"'s message of "28 Jan 2003 17:09:52 +0100"
-Message-ID: <p73k7gpz0vu.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S267377AbTA1QbB>; Tue, 28 Jan 2003 11:31:01 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:40152 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S267361AbTA1QbB>; Tue, 28 Jan 2003 11:31:01 -0500
+Date: Tue, 28 Jan 2003 10:40:09 -0600 (CST)
+From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Sam Ravnborg <sam@ravnborg.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] new modversions implementation 
+In-Reply-To: <20030128091625.2B5322C08A@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0301281036180.1777-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> writes:
+On Tue, 28 Jan 2003, Rusty Russell wrote:
 
-> > I think this one really needs to be done with the userspace cache
-> > thrashing microbenchmarks. 
+> In message <Pine.LNX.4.44.0301252025350.6749-100000@chaos.physics.uiowa.edu> yo
+> u write:
+> > On Sat, 25 Jan 2003, Sam Ravnborg wrote:
+> > 
+> > > A genksyms replacement should do all the three steps above?
+> > 
+> > Yes, I think at some point I should take a look at patching genksyms so 
+> > that the post-processing above is not necessary anymore. However, it 
+> > doesn't hurt much, performance-wise.
 > 
-> If a benefit cannot be show on some sort of semi-realistic workload,
-> it's probably not worth it, IMHO.
+> Of course, genksyms belongs in the kernel sources, too, since it's
+> intimately tied to them.
 
-The main advantage of cache coloring normally is that benchmarks 
-should get stable results. Without it a benchmark result can vary based on 
-random memory allocation patterns.
+Yeah, I guess I'll move it there some time. It'd also be possible to make 
+genksyms just a filter which takes the preprocessed input as a filter, 
+generates the module symbol checksums and outputs the preprocessed code 
+with the right versions added.
 
-Just having stable benchmarks may be worth it.
+OTOH, that'd mean that my trick of using the linker to add the checksums
+would become obsolete again, though it's sooo cute ;)
 
-I suspect the benefit will vary a lot based on the CPU. Your caches may
-have good enough associativity. On other CPUs it may make much more difference.
+--Kai
 
--Andi
+

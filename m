@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264719AbUEJOv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUEJOyg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264719AbUEJOv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 10:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264722AbUEJOv5
+	id S264726AbUEJOyg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 10:54:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264722AbUEJOyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 10:51:57 -0400
-Received: from mailout3.samsung.com ([203.254.224.33]:43199 "EHLO
-	mailout3.samsung.com") by vger.kernel.org with ESMTP
-	id S264719AbUEJOvT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 10:51:19 -0400
-Date: Mon, 10 May 2004 23:49:55 +0900
-From: "Hyok S. Choi" <hyok.choi@samsung.com>
-Subject: [announce] 2.6.6-hsc0 patch for MMU-less ARM is available.
-To: linux-arm-kernel@lists.arm.linux.org.uk,
-       Linux-Kernel List <linux-kernel@vger.kernel.org>,
-       uClinux development list <uclinux-dev@uclinux.org>
-Message-id: <002101c4369e$0ef64610$d15cdba8@dmsst.net>
-Organization: Samsung Electronics Co.,Ltd.
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Importance: Normal
-X-Priority: 3 (Normal)
-X-MSMail-priority: Normal
+	Mon, 10 May 2004 10:54:35 -0400
+Received: from waste.org ([209.173.204.2]:53167 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S264726AbUEJOyZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 10:54:25 -0400
+Date: Mon, 10 May 2004 09:54:04 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: arjanv@redhat.com, helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org
+Subject: Re: dentry bloat.
+Message-ID: <20040510145403.GL28459@waste.org>
+References: <20040508135512.15f2bfec.akpm@osdl.org> <20040508211920.GD4007@in.ibm.com> <20040508171027.6e469f70.akpm@osdl.org> <Pine.LNX.4.58.0405081947290.1592@ppc970.osdl.org> <20040508201215.24f0d239.davem@redhat.com> <Pine.LNX.4.58.0405082039510.1592@ppc970.osdl.org> <20040509210312.GL5414@waste.org> <409F3CEE.8060102@aitel.hist.no> <1084177928.4925.13.camel@laptop.fenrus.com> <20040510024658.53cb0b80.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040510024658.53cb0b80.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ARM users,
+On Mon, May 10, 2004 at 02:46:58AM -0700, Andrew Morton wrote:
+> Arjan van de Ven <arjanv@redhat.com> wrote:
+> >
+> > On Mon, 2004-05-10 at 10:27, Helge Hafting wrote:
+> >  > Matt Mackall wrote:
+> >  > 
+> >  > >One also wonders about whether all the RCU stuff is needed on UP. I'm
+> >  > >not sure if I grok all the finepoints here, but it looks like the
+> >  > >answer is no and that we can make struct_rcu head empty and have
+> >  > >call_rcu fall directly through to the callback. This would save
+> >  > >something like 16-32 bytes (32/64bit), not to mention a bunch of
+> >  > >dinking around with lists and whatnot.
+> >  > >
+> >  > >So what am I missing?
+> >  > >  
+> >  > >
+> >  > Preempt can happen anytime, I believe.
+> > 
+> >  ok so for UP-non-preempt we can still get those 16 bytes back from the
+> >  dentry....
+> 
+> I suppose so.  And on small SMP, really.  We chose not to play those games
+> early on so the code got the best testing coverage.
 
-2.6.6-hsc0 patch for MMU-less ARM support is available at:
-http://adam.kaist.ac.kr/~hschoe/download/linux-2.6.6-hsc0.patch.gz
+Ok, I can spin something up. I'll start with a generic no-RCU-on-UP
+and then we can think about the small SMP case a bit later.
 
-arm7tdmi, 740, 940, 946 is supported.
-
-Best Regards,
-Hyok
-
-<EOT>
-
-CHOI, HYOK-SUNG
-Engineer (Linux System Software)
-S/W Platform Lab, Digital Media R&D Center
-Samsung Electronics Co.,Ltd.
-tel: +82-31-200-8594  fax: +82-31-200-3427
-e-mail: hyok.choi@samsung.com
-
-[compile&run]
-main(a){printf(a,34,a="main(a){printf(a,34,a=%c%s%c,34);}",34);}
-
- 
- 
-
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

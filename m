@@ -1,39 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274472AbRITMwc>; Thu, 20 Sep 2001 08:52:32 -0400
+	id <S274401AbRITNCP>; Thu, 20 Sep 2001 09:02:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274473AbRITMwW>; Thu, 20 Sep 2001 08:52:22 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23562 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274472AbRITMwR>; Thu, 20 Sep 2001 08:52:17 -0400
-Subject: Re: broken VM in 2.4.10-pre9
-To: phillips@bonn-fries.net (Daniel Phillips)
-Date: Thu, 20 Sep 2001 13:57:02 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        ebiederm@xmission.com (Eric W. Biederman),
-        rfuller@nsisoftware.com (Rob Fuller), linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-In-Reply-To: <20010920112110Z16256-2757+869@humbolt.nl.linux.org> from "Daniel Phillips" at Sep 20, 2001 01:28:31 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15k3O2-0005Fr-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S274450AbRITNCF>; Thu, 20 Sep 2001 09:02:05 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:64522 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S274401AbRITNBz>; Thu, 20 Sep 2001 09:01:55 -0400
+Date: Thu, 20 Sep 2001 16:00:42 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <8629106532.20010920160042@port.imtp.ilyichevsk.odessa.ua>
+To: linux-kernel@vger.kernel.org
+Subject: copy_page/clear page tester
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="----------8B4C12D22E48846"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On September 20, 2001 12:04 am, Alan Cox wrote:
-> > Reverse mappings make linear aging easier to do but are not critical (we
-> > can walk all physical pages via the page map array). 
-> 
-> But you can't pick up the referenced bit that way, so no up aging, only
-> down.
+------------8B4C12D22E48846
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-#1 If you really wanted to you could update a referenced bit in the page
-struct in the fault handling path.
+Hi,
 
-#2 If a page is referenced multiple times by different processes is the
-behaviour of multiple upward aging actually wrong.
+this proggy can be used for testing different
+copy_page/clear_page routines.
+-- 
+Best regards, VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+------------8B4C12D22E48846
+Content-Type: application/x-gzip; name="test.tar.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="test.tar.gz"
 
-Alan
+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
+------------8B4C12D22E48846--
+
+

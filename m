@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131724AbRCORX1>; Thu, 15 Mar 2001 12:23:27 -0500
+	id <S131742AbRCORc1>; Thu, 15 Mar 2001 12:32:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131726AbRCORXR>; Thu, 15 Mar 2001 12:23:17 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:54020 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S131724AbRCORXD>;
-	Thu, 15 Mar 2001 12:23:03 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200103151722.UAA28854@ms2.inr.ac.ru>
-Subject: Re: poll() behaves differently in Linux 2.4.1 vs. Linux 2.2.14 (POLLHUP)
-To: jeffreymbutler@yahoo.com (Jeffrey Butler)
-Date: Thu, 15 Mar 2001 20:22:01 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org, davem@redhat.COM
-In-Reply-To: <20010315040013.28464.qmail@web11804.mail.yahoo.com> from "Jeffrey Butler" at Mar 14, 1 08:00:13 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S131743AbRCORcR>; Thu, 15 Mar 2001 12:32:17 -0500
+Received: from smtp.Stanford.EDU ([171.64.14.23]:4745 "EHLO smtp.Stanford.EDU")
+	by vger.kernel.org with ESMTP id <S131742AbRCORb7>;
+	Thu, 15 Mar 2001 12:31:59 -0500
+From: "Zack Weinberg" <zackw@stanford.edu>
+Date: Thu, 15 Mar 2001 09:31:16 -0800
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@redhat.com>
+Subject: 2.2.19 pre13 doesn't like retransmitted SYN ACK packets
+Message-ID: <20010315093116.B2523@stanford.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+2.2.19 pre13 sends an RST in response to a retransmitted SYN ACK which
+arrives after we've sent out the final ACK of the handshake.  For
+example:
 
-> Sure, workarounds exist, but they just complicates
-> things.
+tcpdump: listening on eth0
+15:15:15.075670 wolery.Stanford.EDU.1341 > plan9.bell-labs.com.www:
+        S 1057306555:1057306555(0) win 32120
+        <mss 1460,sackOK,timestamp 49252305 0,nop,wscale 0> (DF) [tos 0x10] 
+15:15:15.156320 plan9.bell-labs.com.www > wolery.Stanford.EDU.1341:
+        S 1042976132:1042976132(0) ack 1057306556 win 1460 <mss 1460>
+15:15:15.156364 wolery.Stanford.EDU.1341 > plan9.bell-labs.com.www:
+        . ack 1 win 32120 (DF) [tos 0x10] 
+15:15:15.204186 plan9.bell-labs.com.www > wolery.Stanford.EDU.1341:
+        S 1042976132:1042976132(0) ack 1057306556 win 1460 <mss 1460>
+15:15:15.204232 wolery.Stanford.EDU.1341 > plan9.bell-labs.com.www:
+        R 1057306556:1057306556(0) win 0
 
-Working around --- what?
+I do not know if this behavior is correct or not from the TCP spec.
+It seems unlikely to me, given that duplicate packets are expected 
+and ignored just about everywhere else.  As a practical matter, this
+behavior makes it close to impossible to communicate with a host that
+commonly sends duplicate SYN ACKs.  plan9.bell-labs.com is just such;
+I estimate I get past the initial handshake one connection in twenty.
 
-An example of application hitting the case is enough to make
-me completely agreed.
+This kernel does not have SYN cookies compiled in.  rp_filter is 1,
+all other TCP and IP tunables are at their defaults.
 
-But genarally we are not going to match any os and even yourselves
-yesterday or tomorrow in the cases when behaviour is truly undefined
-and the answer is meaningless. For me any solution from retunring 0
-or returning POLLHUO to killing offending application or generating
-an answer using random number generator look equally good, acceptable
-and 100% compatible in this case. 8)
-
-Alexey
+zw

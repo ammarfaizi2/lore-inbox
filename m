@@ -1,58 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269378AbRHGTe3>; Tue, 7 Aug 2001 15:34:29 -0400
+	id <S269388AbRHGTkt>; Tue, 7 Aug 2001 15:40:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269365AbRHGTeT>; Tue, 7 Aug 2001 15:34:19 -0400
-Received: from rom.cscaper.com ([216.19.195.129]:28653 "HELO mail.cscaper.com")
-	by vger.kernel.org with SMTP id <S269364AbRHGTeK>;
-	Tue, 7 Aug 2001 15:34:10 -0400
-Subject: Linux on FIVA MPC-206E, APM and other issues
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
-From: "Joseph N. Hall" <joseph@5sigma.com>
-Ccc: 
-Content-Type: text/plain; charset=US-ASCII
-Mime-version: 1.0
-Date: Tue, 7 Aug 2001 12:34 -0700
-X-mailer: Mailer from Hell v1.0
-Message-Id: <20010807193417Z269364-28344+2551@vger.kernel.org>
+	id <S269380AbRHGTkj>; Tue, 7 Aug 2001 15:40:39 -0400
+Received: from scfdns01.sc.intel.com ([143.183.152.25]:29434 "EHLO
+	clio.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S269375AbRHGTkW>; Tue, 7 Aug 2001 15:40:22 -0400
+Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDE025@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Dave Jones'" <davej@suse.de>, Nico Schottelius <nicos@pcsystems.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: cpu not detected(x86)
+Date: Tue, 7 Aug 2001 12:40:01 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Not on list, please CC)
+> From: Dave Jones [mailto:davej@suse.de]
+> Speedstep is voodoo. No-one other than Intel have knowledge of
+> how it works. On my P3-700 I've seen speeds range from as low
+> as 2MHz[1] -> 266MHz (using an ACPI kernel), and the 550/700 on APM.
+> I've also seen other laptops do speed scaling between 2MHz->full clock
+> speed whilst on APM.
 
-I am a happy new owner of a Casio FIVA MPC-206E (teensy 2.1 lb subnotebook)
-with RH 7.1 and 2.4.7 installed.  I'm trying to get a variety of things
-working, some of which may or may not be related to needed kernel tweaks.
-I suspect some of these have been address already by Japanese users, but
-alas I cannot read Japanese.
+SpeedStep only drops it to 550 MHz. Any further drops are because of ACPI
+processor power or thermal management throwing off your program, because the
+current Linux gettimeofday code doesn't think the TSC is ever halted. But,
+it is, when the processor is put into C2 or C3. Any benchmark which 1) uses
+the TSC and 2) does a sleep() will be wrong.
 
-* APM broken
+So, you might try a couple things:
 
-  $ cat /proc/apm
-  1.14 1.2 0x03 0x01 0xff 0x80 -1% -1 ?
+1) Config out the ACPI CPU code. Without it, the system will only exec
+"hlt", and the TSC keeps running.
 
-* 24 bit X support broken (an XFree86 issue, I suppose, will check there
-shortly); there is something funny about 24 bit mode on this machine
-anyway even in WIndowsMe mode
+2) Keep the CPU 100% busy throughout the duration of your benchmark.
 
-* sleep/hibernate either hangs the machine (must hit h/w reset switch
-afaik) or does nothing useful (nothing at all, or seemingly tries to 
-sleep and immediately revives)
+Longer-term, we need to change the kernel to not use the TSC for udelay, but
+to use the PM Timer, if ACPI is going to be monkeying with CPU power states.
 
-* (soft) power switch and cover latch not detected
+Regards -- Andy
 
-* no access to "P1 P2 P3" buttons that live to the right side of the LCD
-screen
+PS Your system may also be throttling. It throttles in 12.5% increments, so
+that should be borne out in the MHz number if that's what it is doing.
 
-* Also I've been having no luck getting a DWL-650 (D-Link 802.11 card)
-recognized and working ... was close with the wvlan_cs(? one of those)
-driver but I'm operating on the assumption that the orinoco_cs driver is 
-more current, and can't get it recognized at all
 
-I'm not expecting to get everything going right away but I'd appreciate
-any pointers etc.  I have relatively little experience mucking about in
-the kernel but I'll be happy to try patches etc. and post my results.
-
-  -joseph
-
+> 
+> Run the MHz tester (URL below), and put the box under some load.
+> It should increase the MHz accordingly.  How high it goes seems
+> to depend on how good your BIOS support for it is.
+> 
+> Also try switching between ACPI & APM kernels, to see what
+> difference it makes.
+> 
+> regards,
+> 
+> Dave.
+> 
+> [1] Actually slower than this, the MHz calculation code takes some
+> cycles, so it's an estimate only. http://www.codemonkey.org.uk/MHz.c
+> 
+> -- 
+> | Dave Jones.        http://www.suse.de/~davej
+> | SuSE Labs
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

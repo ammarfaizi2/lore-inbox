@@ -1,67 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbUBWR0V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 12:26:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbUBWR0U
+	id S261965AbUBWR0c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 12:26:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbUBWR0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 12:26:20 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61873 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261929AbUBWR0D (ORCPT
+	Mon, 23 Feb 2004 12:26:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:62385 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261965AbUBWR0E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 12:26:03 -0500
-Date: Mon, 23 Feb 2004 09:31:02 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: Herbert Poetzl <herbert@13thfloor.at>, Mikael Pettersson <mikpe@csd.uu.se>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Intel vs AMD x86-64
-In-Reply-To: <20040223170336.GK5499@fs.tum.de>
-Message-ID: <Pine.LNX.4.58.0402230922210.3005@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0402171739020.2686@home.osdl.org>
- <16435.14044.182718.134404@alkaid.it.uu.se> <Pine.LNX.4.58.0402180744440.2686@home.osdl.org>
- <20040222025957.GA31813@MAIL.13thfloor.at> <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org>
- <20040223170336.GK5499@fs.tum.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 23 Feb 2004 12:26:04 -0500
+Subject: Re: [Announce] New Updates to the Linux Stability Page
+From: Craig Thomas <craiger@osdl.org>
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: linstab@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20040222041810.GA18525@MAIL.13thfloor.at>
+References: <1077303504.19386.62.camel@bullpen.pdx.osdl.net>
+	 <20040222041810.GA18525@MAIL.13thfloor.at>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1077557176.20204.2.camel@bullpen.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 23 Feb 2004 09:26:16 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 23 Feb 2004, Adrian Bunk wrote:
+On Sat, 2004-02-21 at 20:18, Herbert Poetzl wrote:
+> On Fri, Feb 20, 2004 at 10:58:25AM -0800, Craig Thomas wrote:
+> > The Linux Stability page continues to post test result data for the
+> > post 2.6.0 kernels. http://www.osdl.org/projects/26lnxstblztn/results/
 > 
-> In the long term, x86_64 creates more confusion:
-> - SuSE says AMD64 [1]
-> - RedHat says AMD64 [2]
-> - Debian says AMD64 [3]
+> lynx spoke:
 > 
-> Renaming might be some work today, but it might actually remove 
-> confusion in the future.
+>                                                          404 Not Found
+>                                    Not Found
+> 
+>    The requested URL /projects/26lnxstblztn/results/ was not found on
+>    this server.
+> 
+>    Additionally, a 404 Not Found error was encountered while trying to
+>    use an ErrorDocument to handle the request.
+>      _________________________________________________________________
+> 
+> 
+>     Apache/2.0.47 (Red Hat Linux) Server at www.osdl.org Port 80
+> 
+> best,
+> Herbert
 
-Well, the thing is, I _like_ a vendor-neutral name.
+We upgraded our web server to 2.6.3 over the weekend and discovered that
+the problem after reboot.  The link is fixed now and our web server is
+now running Linux 2.6.3 in production.
 
-I think it's important to have multiple sources for a chip, and I think 
-one of the problems with IA-64 was that it was a locked-in chip with 
-patents and no serious competition internally (ignore the Intel mouthing 
-about "open").
 
-The x86 is so great partly because there's been real competition. So I 
-think it's very important to x86-64 to have real competition to make sure 
-nobody gets too dishonest.
+> 
+> > Below lists some recent changes to the page (in case you haven't visited
+> > in a while).
+> > 
+> > 1) 2.6.x kernels tested upon release:
+> >     -mm
+> >     -rc
+> >     -bk
+> > 2) Detaild Test Result Links show links to continual updated results to
+> >    re-aim-7, tiobench, and iozone tests run in STP (1-way, 2-way, 4-way
+> >    and 8-way, as appopriate)
+> > 3. New links to database performance reports in the Database Performance
+> >    Reports section (replaces old database section)
+> > 4. New section added to link to various Lilnux kernel test report
+> > 
+> > If anyone knows of other useful test result information or information
+> > providing a current state of the Linux kernel that can be linked from
+> > this page, let me know and I'll add the link.
+> > 
+> > 
+> > -- 
+> > Craig Thomas
+> > craiger@osdl.org
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Craig Thomas
+craiger@osdl.org
 
-So AMD64 is a bad name, partly for the same reason IA32 is a horrible name 
-(and who have you ever heard use the IA32 name except for people who are 
-paid to do so by Intel?)
-
-What I found so irritating is that _hours_ after the Intel announcement,
-people were _still_ confused about whether the new intel chip was actually
-compatible with AMD's chips. Why the f*ck not just come out and say so,
-and talk about it? It took people actually reading the manuals (which
-didn't mention it either) to convince some people on the architecture
-newsgroups that yes, "ia32e" was really the same as "amd64" except in the
-small details that have always set Intel and AMD apart.
-
-So I don't really want to change the name. "x86-64" is a good name. I just 
-wish there was more honesty involved, and less friggin *POSTURING*.
-
-			Linus

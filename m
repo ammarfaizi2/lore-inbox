@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131138AbRACP5i>; Wed, 3 Jan 2001 10:57:38 -0500
+	id <S130697AbRACQJl>; Wed, 3 Jan 2001 11:09:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131372AbRACP5S>; Wed, 3 Jan 2001 10:57:18 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:39410 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131138AbRACP5H>; Wed, 3 Jan 2001 10:57:07 -0500
-Date: Wed, 3 Jan 2001 13:26:18 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: "Dr. David Gilbert" <gilbertd@treblig.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-In-Reply-To: <Pine.LNX.4.30.0101031253130.6567-100000@springhead.px.uk.com>
-Message-ID: <Pine.LNX.4.21.0101031325270.1403-100000@duckman.distro.conectiva>
+	id <S132039AbRACQJb>; Wed, 3 Jan 2001 11:09:31 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:39950 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S130697AbRACQJW>;
+	Wed, 3 Jan 2001 11:09:22 -0500
+From: Daniel Phillips <phillips@innominate.de>
+To: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] drop-behind fix for generic_file_write
+Date: Wed, 3 Jan 2001 16:21:17 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+In-Reply-To: <Pine.LNX.4.21.0101031256040.1403-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0101031256040.1403-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01010316360903.00713@gimli>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jan 2001, Dr. David Gilbert wrote:
+On Wed, 03 Jan 2001, Rik van Riel wrote:
+> Hi Linus, Alan,
+> 
+> the following (trivial) patch fixes drop-behind behaviour
+> in generic_file_write to only drop fully written pages.
+> 
+> This increases performance in dbench by about 8% (as
+> measured by Daniel Phillips) and should get rid of the
+> logfile bottleneck Ingo Molnar found with the drop-behind
+> call in generic_file_write in TUX tests.
 
->   I got wondering as to whether the various journaling file
-> system activities were designed to survive the occasional
-> unclean shutdown or were designed to allow the user to just pull
-> the plug as a regular means of shutting down.
+Rik, I detected the speedup in -pre5 but it disappeared in -pre7 (which
+turned in a faster performance than pre5 or 6 anyway).  I don't have an
+explanation for that.  The idea makes sense: treat a partial page as
+'in play' until completely full, then deactivate it.
 
->   Thoughts?
-
-1. a journaling filesystem is designed to be "consistent"
-   (or rather, easily recoverable) all of the time
-2. there's no difference between the "2 situations" you
-   describe above
-
-regards,
-
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+-- 
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

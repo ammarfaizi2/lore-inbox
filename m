@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262936AbTHWW5p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 18:57:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263338AbTHWW5p
+	id S263489AbTHWW7O (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 18:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263505AbTHWW7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 18:57:45 -0400
-Received: from ivoti.terra.com.br ([200.176.3.20]:3978 "EHLO
-	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S262936AbTHWW5o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 18:57:44 -0400
-Date: Sat, 23 Aug 2003 19:57:40 -0300
-From: Ricardo Nabinger Sanchez <rnsanchez@terra.com.br>
-To: linux-kernel@vger.kernel.org
-Cc: Frank.Cornelis@elis.ugent.be
-Subject: Re: [PATCH] sched: CPU_THRESHOLD
-Message-Id: <20030823195740.7133874d.rnsanchez@terra.com.br>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 23 Aug 2003 18:59:14 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:13244 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263489AbTHWW7L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 18:59:11 -0400
+Date: Sat, 23 Aug 2003 15:51:27 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: hugh@veritas.com, willy@debian.org, linux-kernel@vger.kernel.org,
+       parisc-linux@lists.parisc-linux.org, drepper@redhat.com
+Subject: Re: [parisc-linux] Re: Problems with kernel mmap (failing
+ tst-mmap-eofsync in glibc on parisc)
+Message-Id: <20030823155127.3cd7b013.davem@redhat.com>
+In-Reply-To: <1061677283.1992.471.camel@mulgrave>
+References: <20030822110144.5f7b83c5.davem@redhat.com>
+	<Pine.LNX.4.44.0308221926060.2200-100000@localhost.localdomain>
+	<20030822113106.0503a665.davem@redhat.com>
+	<1061578568.2053.313.camel@mulgrave>
+	<20030822121955.619a14eb.davem@redhat.com>
+	<1061591255.1784.636.camel@mulgrave>
+	<20030822154100.06314c8e.davem@redhat.com>
+	<1061600974.2090.809.camel@mulgrave>
+	<20030823144330.5ddab065.davem@redhat.com>
+	<1061677283.1992.471.camel@mulgrave>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello Frank,
+On 23 Aug 2003 17:21:21 -0500
+James Bottomley <James.Bottomley@SteelEye.com> wrote:
 
-> -	*imbalance = (max_load - nr_running) / 2;
-> +	*imbalance = (max_load - nr_running) >> 1;
+> On Sat, 2003-08-23 at 16:43, David S. Miller wrote:
+> > On 22 Aug 2003 20:09:30 -0500
+> > James Bottomley <James.Bottomley@SteelEye.com> wrote:
+> > 
+> > >        MAP_PRIVATE
+> > >                   Create a private copy-on-write mapping.  Stores
+> > >                   to the region do not affect the original  file.
+> > >                   It  is  unspecified whether changes made to the
+> > >                   file after the mmap call  are  visible  in  the
+> > >                   mapped region.
+...
+> Could you elaborate some more?  I agree that the MAP_PRIVATE mapping may
+> not see cpu1's write because of cache incoherencies (but that's what I
+> believe is covered by the `unspecified' bit of the MAP_PRIVATE
+> definition above).
 
-I think it is a good coding practice to keep things human-readable. 
-In this code snippet, the division by 2 is quickly understood by most
-readers (specially those who didn't write it).  The right shift may
-obfuscate the real meaning of this operation, which is a single
-division by 2, not a bit-oriented expression.
+Ok.  Let me think about this a bit more.
 
-Assuming that sched.c will be compiled with optimizations enabled, the
-compiler will change the human-readable division by a fast machine
-right shift operation, whenever possible (gcc surely will).
-
-Thus, we keep the kernel code more readable, and sometimes let the
-compiler apply newer (and hopefully faster) optimizations than some
-tricks we have known as fastest available.
-
-Regards, and please let me know what do you think about it.
-
--- 
-Ricardo Nabinger Sanchez
-GNU/Linux #140696 [http://counter.li.org]
-Slackware Linux
-
+The safest solution for parisc, meanwhile, would be to walk the
+non-shared mmap list checking for any instance of the VM_MAYSHARE bit
+being set.

@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312696AbSDKSAd>; Thu, 11 Apr 2002 14:00:33 -0400
+	id <S312706AbSDKSN0>; Thu, 11 Apr 2002 14:13:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312704AbSDKSAc>; Thu, 11 Apr 2002 14:00:32 -0400
-Received: from port-213-20-128-169.reverse.qdsl-home.de ([213.20.128.169]:36877
-	"EHLO drocklinux.dnydns.org") by vger.kernel.org with ESMTP
-	id <S312696AbSDKSAb> convert rfc822-to-8bit; Thu, 11 Apr 2002 14:00:31 -0400
-Date: Thu, 11 Apr 2002 19:59:21 +0200 (CEST)
-Message-Id: <20020411.195921.730560311.rene.rebe@gmx.net>
-To: john@antefacto.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux as a minicomputer ?
-From: Rene Rebe <rene.rebe@gmx.net>
-In-Reply-To: <20020411174941.GC17962@antefacto.com>
-X-Mailer: Mew version 2.2 on XEmacs 21.4.6 (Common Lisp)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S312711AbSDKSNZ>; Thu, 11 Apr 2002 14:13:25 -0400
+Received: from mx1.afara.com ([63.113.218.20]:59260 "EHLO afara-gw.afara.com")
+	by vger.kernel.org with ESMTP id <S312706AbSDKSNY>;
+	Thu, 11 Apr 2002 14:13:24 -0400
+User-Agent: Pan/0.11.2 (Unix)
+From: "Thomas Duffy" <tduffy@afara.com>
+To: "Steffen Persvold" <sp@scali.com>, linux-kernel@vger.kernel.org
+Subject: Re: IRIX NFS server and Linux NFS client
+Date: Thu, 11 Apr 2002 11:13:02 -0700
+In-Reply-To: <Pine.LNX.4.30.0204110928530.28565-100000@elin.scali.no> <Pine.LNX.4.30.0204111218440.30970-100000@elin.scali.no>
+Message-ID: <AFARA-EXXsNQptgFrYI0000121c@afara-ex.afara.com>
+X-OriginalArrivalTime: 11 Apr 2002 18:13:15.0376 (UTC) FILETIME=[8C978F00:01C1E184]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On: Thu, 11 Apr 2002 17:49:42 +0000,
-    "John P. Looney" <john@antefacto.com> wrote:
-> On Thu, Apr 11, 2002 at 07:13:39PM +0200, Vojtech Pavlik mentioned:
-> > > I'd presumed this was
-> > > the whole point of the busid spec in the config file.
-> > No, it's for running one Xserver on multiple displays at once only.
-> > Sad, ain't it?
+On Thu, 11 Apr 2002 03:23:15 -0700, Steffen Persvold wrote:
+
+> On Thu, 11 Apr 2002, Steffen Persvold wrote:
 > 
->  Very sad. Nice to know it's not really the kernel's fault. 
+>> Hi all,
+>>
+>> Is there any reason why my Linux NFS client (kernel 2.4.18
+>> nfs-utils-0.3.1-13.7.2.1 from RedHat 7.2) is not able to mount a
+>> directory exported from an IRIX server in NFSv3 (not sure which version
+>> of IRIX yet, if this is important I will find out). NFSv2 works fine,
+>> but if I try to force NFSv3 I get "Connection refused".
 
-It IS the kernel's fault, because only one VT can be active. The
-kernel VT stuff needs to be redesigned to hadle multiple VT at the
-same time ...
+What version of IRIX are you using?
 
->  Is it possible to say "Any mice plugged in to this port is
-> /dev/input/mouse3" etc. so that if someone plugged out your mouse, plugged
-> in another into a different port, and you plugged yours back in, that they
-> wouldn't renumberate ?
-> 
-> Kate
+There was a fix put into IRIX in the 6.5.12/13 timeframe that made it
+more compatible with Linux.  Make sure you are updated to at least that
+release.
 
-k33p h4ck1n6
-  René
-
---  
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
-
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
-
-Homepage: http://drocklinux.dyndns.org/rene/
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.
-
+-tduffy

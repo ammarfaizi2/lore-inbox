@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277170AbRJDIGq>; Thu, 4 Oct 2001 04:06:46 -0400
+	id <S277171AbRJDIN0>; Thu, 4 Oct 2001 04:13:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277171AbRJDIGh>; Thu, 4 Oct 2001 04:06:37 -0400
-Received: from dsl-45-169.muscanet.com ([208.164.45.169]:56328 "EHLO
-	dink.joshisanerd.com") by vger.kernel.org with ESMTP
-	id <S277170AbRJDIG2>; Thu, 4 Oct 2001 04:06:28 -0400
-Date: Thu, 4 Oct 2001 03:06:57 -0500 (CDT)
-From: Josh Myer <jbm@joshisanerd.com>
+	id <S277172AbRJDINQ>; Thu, 4 Oct 2001 04:13:16 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:59147 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S277171AbRJDINA>; Thu, 4 Oct 2001 04:13:00 -0400
+Date: Thu, 4 Oct 2001 11:12:16 +0200
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <1049487201.20011004111216@port.imtp.ilyichevsk.odessa.ua>
 To: linux-kernel@vger.kernel.org
-Subject: Re: USB Event Daemon?
-In-Reply-To: <Pine.LNX.4.21.0110040158530.31009-100000@dignity.joshisanerd.com>
-Message-ID: <Pine.LNX.4.21.0110040305380.31009-100000@dignity.joshisanerd.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Bloatware (was Re: Security question: "Text file busy"...)
+In-Reply-To: <m14rpg0w4a.fsf@frodo.biederman.org>
+In-Reply-To: <Pine.GSO.4.21.0110040004430.26177-100000@weyl.math.psu.edu>
+ <m14rpg0w4a.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I feel stupid.
+Thursday, October 04, 2001, 8:15:01 AM,
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-Decided to look over Documentation/usb again and scour the web some
-more. Hotplug support is exactly what i was looking for (ie: i've already
-got a shell script that just grabs the files already thrown together).
+EWB> I have days when I'm frustrated by the size of both glibc and the
+EWB> linux kernel.  stripped both the linux kernel and glibc are comparable
+EWB> in size.  Though I think the 400KB of compressed glibc-2.1.2 is
+EWB> actually smaller than the kernel for the most part.  I have to strip
+EWB> off practically everthing to get a useable bzImage under 400KB.
 
-Sorry to clutter the list.
--josh, random moron
+EWB> So any good ideas on how to get the size of linux down?
 
-On Thu, 4 Oct 2001, Josh Myer wrote:
+I think code quality priorities are:
 
-> Hi,
-> 
-> This might belong on linux-usb, but i'm not subscribed there, and I figure
-> this is probably a better place to ask this question.
-> 
-> Is there, or if there were, would it be used, a method to notify a
-> user-space daemon/program of USB device insertions? A quick search through
-> archives didn't show anything.
-> 
-> Basically, i've been spoiled by OSX's "Image Capture" utility, which
-> launches an image offloader whenever i plug my camera into the USB port,
-> automatically mounting it as a USB storage device. I'd like similiar
-> functionality on my linux machine(s).
-> 
-> My first instinct is to look at the new input layer and see if this would
-> fit into that scheme.
-> 
-> Any thoughts, pointers, or flamage would be appreciated; i'm sub'd, but
-> CCs are appreciated to help seperate signal and noise.
-> 
-> Thanks in advance,
-> -- 
-> /jbm, but you can call me Josh. Really, you can.
->  "Design may be clever in spurts,
->   but evolution never sleeps"
->   -- Rob Landley
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+1. Features
+   If a program misses some very useful (or even vital)
+   feature, there's not much sense in using it.
+2. Stability
+   Nobody likes when program (or server) hangs/crashes.
+3. Speed
+   Developers usually have fast machines with big disks,
+   so they really like to see progs work fast.
+4. Size
 
---
-/jbm, but you can call me Josh. Really, you can.
- "Design may be clever in spurts,
-  but evolution never sleeps"
-  -- Rob Landley
+As you see, size isn't a top prio. It's sad, but we can't
+have all these objectives met with same level of success.
+However, Linux isn't that bad compared to Win2K nightmare.
+
+And please let's not start a longish discussion on this. Please.
+A contest to cut the most kbytes without loss of features/speed
+from kernel/glibs/X/... is much more productive.  :-)
+
+If you can't resist, may I suggest private mail, not lkml
+-- 
+Best regards, VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+
 

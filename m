@@ -1,73 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262566AbTCISsh>; Sun, 9 Mar 2003 13:48:37 -0500
+	id <S262574AbTCISzb>; Sun, 9 Mar 2003 13:55:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262569AbTCISsh>; Sun, 9 Mar 2003 13:48:37 -0500
-Received: from tag.witbe.net ([81.88.96.48]:65295 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id <S262566AbTCISsg>;
-	Sun, 9 Mar 2003 13:48:36 -0500
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Paul Rolland'" <rol@as2917.net>, "'lkml'" <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 2.5.64 ???] Immediate reboot at boot
-Date: Sun, 9 Mar 2003 19:59:14 +0100
-Message-ID: <00b701c2e66d$fa8fff80$2101a8c0@witbe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-In-Reply-To: <00aa01c2e65a$4cac98a0$2101a8c0@witbe>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S262575AbTCISzb>; Sun, 9 Mar 2003 13:55:31 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:2820 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262574AbTCISy3>;
+	Sun, 9 Mar 2003 13:54:29 -0500
+Date: Fri, 7 Mar 2003 00:37:21 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: sys32_ioctl -> compat_ioctl -- generic
+Message-ID: <20030306233721.GA8565@elf.ucw.cz>
+References: <20030303232122.GA24018@elf.ucw.cz> <20030305103619.52ccdfe2.sfr@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030305103619.52ccdfe2.sfr@canb.auug.org.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Hi!
 
-Some more tests...
-
-In fact, it is related to the APIC stuff, not only the IO APIC part.
-As it is working perfectly with a 2.5.63 kernel, I also gave a try
-to a SMP config...
-Result is the same...
-Got :
-Uncompressing .......
-Now boot linux kernel ....
-
-and then, booh... wait 5 to 10 seconds, and then the machine reboots...
-
-Something went wrong from 63 to 64...
-
-Paul
-
-> Following a very good remark from Mark Hahn, this problem is directly
-> related to the IO APIC on Uniprocessor option. Disabling it makes the
-> system boot...
+> > +asmlinkage long compat_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
 > 
-> Regards,
-> Paul
-> 
-> > I've installed 2.5.64, and I've compiled it using the same 
-> > set of options as I've in 2.5.63... (copy of .config from one 
-> > tree to the other one, then make menuconfig, check it's OK, 
-> > save, make bzImage)....
-> > 
-> > However, when booting 2.5.64, I've :
-> > boot: test
-> > Loading test...........................................
-> > 
-> > and then the server reboots...
-> > 
-> > Machine is brand new P4, so options are set accordingly...
-> > 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> For consistancy, this should be called compat_sys_ioctl.
 
+Done. (And moved whole stuff to fs/compat.c).
+
+> > +{
+> > +	struct file * filp;
+> 
+> > +	filp = fget(fd);
+> 
+> > +			/* find the name of the device. */
+> > +			if (path) {
+> > +				struct file *f = fget(fd); 
+> 
+> Is it really necessary to do another fget(fd) ?
+
+This is andi's code, but it seems unneeded, fixed.
+
+> Also, if you are adding this much code, you should add a copyright notice
+> to the top of the file ...
+
+I actually need to copy copyrights from ia32_ioctl, where I took
+this. Done.
+							Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315783AbSGSHDC>; Fri, 19 Jul 2002 03:03:02 -0400
+	id <S316051AbSGSHMV>; Fri, 19 Jul 2002 03:12:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315988AbSGSHDC>; Fri, 19 Jul 2002 03:03:02 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:10512 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315783AbSGSHDB>; Fri, 19 Jul 2002 03:03:01 -0400
-Message-ID: <3D37B8FA.4030905@evision.ag>
-Date: Fri, 19 Jul 2002 09:00:10 +0200
-From: dalecki <dalecki@evision.ag>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
-X-Accept-Language: en-us, en, pl, ru
+	id <S316161AbSGSHMV>; Fri, 19 Jul 2002 03:12:21 -0400
+Received: from [65.164.36.169] ([65.164.36.169]:3968 "EHLO wolf.mikes.home")
+	by vger.kernel.org with ESMTP id <S316051AbSGSHMU>;
+	Fri, 19 Jul 2002 03:12:20 -0400
+Date: Fri, 19 Jul 2002 00:18:57 -0700 (PDT)
+From: "Michael G. Janicki" <mikejani@colfax.com>
+To: Doug Ledford <dledford@redhat.com>
+cc: Zwane Mwaikambo <zwane@linuxpower.ca>, Dale Amon <amon@vnl.com>,
+       linux-kernel@vger.kernel.org, Frank Davis <fdavis@si.rr.com>
+Subject: Re: 2.5.26 : drivers/scsi/BusLogic.c
+In-Reply-To: <20020718211936.C28235@redhat.com>
+Message-ID: <Pine.LNX.4.20.0207190011410.439-100000@wolf.mikes.home>
 MIME-Version: 1.0
-To: Rob Landley <landley@trommello.org>
-CC: CaT <cat@zip.com.au>, Larry McVoy <lm@work.bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
-References: <200207190432.g6J4WD2366706@pimout5-int.prodigy.net> <20020718213857.E23208@work.bitmover.com> <20020719044518.GK5608@zip.com.au> <200207190532.g6J5Wia87042@pimout3-int.prodigy.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
-> On Friday 19 July 2002 12:45 am, CaT wrote:
-> 
->>On Thu, Jul 18, 2002 at 09:38:57PM -0700, Larry McVoy wrote:
->>
->>>On Thu, Jul 18, 2002 at 06:33:54PM -0400, Rob Landley wrote:
->>>
->>>>I've been sitting on this question for years, hoping I'd come
->>>>across the answer, and I STILL don't know what the "i" is short for.
->>>>Somebody here has got to know this. :)
->>>
->>>Incore node, I believe.  In the original Unix code there was dinode and
->>>inode if I remember correctly, for disk node and incore node.
->>
->>That's a new one. I always thought it was 'information node' so in the
->>above it'd be disk information node and just information node.
->>
->>Makes sense to me in any case. :)
+On Thu, 18 Jul 2002, Doug Ledford wrote:
 
-No it doesn't not. Becouse that would rather describe a super block.
+> There was a bug in the patch I sent through last.  This patch should be 
+> applied on top of the last one to solve a memory leak on unloading of the 
+> module.
 
+  All I had available was a 2.4.19-rc2, but your patch applies,
+with offsets, against it.  2 non-critical failed hunks were simple
+enough by hand.
 
+  Builds, boots, runs -- has survived 2 bonnie++ runs and normal
+user load for the last few hours with no problems.  I've been
+avoiding use of 2.5 on this box, but if you need to see this against
+2.5.26, let me know and I can convert this box this weekend.
+
+  System is SMP, dual PCI BusLogic BT-958's, 2.4.19-rc2 with
+O(1) scheduler patch and your BusLogic DMA patch.  BusLogic
+is non-module, the boot disk hangs off the first adapter.  Let
+me know if you need specific testing.
+
+	Mike
+
+-- 
+Michael Janicki
+Key: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0x9D6FAE1A
+Fingerprint: A153 DFC7 8B49 7E97 67B2  3DCE DA3F 3CC5 9D6F AE1A
 
 

@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274896AbTHKXYa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 19:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274888AbTHKXYa
+	id S274965AbTHKXkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 19:40:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274966AbTHKXkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 19:24:30 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:1018 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S274896AbTHKXY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 19:24:28 -0400
-Subject: Re: [PATCH] 2.4.22pre10: {,un}likely_p() macros for pointers
-From: Albert Cahalan <albert@users.sf.net>
-To: Andrew Morton OSDL <akpm@osdl.org>
-Cc: Albert Cahalan <albert@users.sourceforge.net>, willy@w.ods.org,
-       chip@pobox.com,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       davem@redhat.com
-In-Reply-To: <20030811115547.38b78b8e.akpm@osdl.org>
-References: <1060488233.780.65.camel@cube>
-	 <20030810072945.GA14038@alpha.home.local>
-	 <20030811012337.GI24349@perlsupport.com>
-	 <20030811020957.GE10446@mail.jlokier.co.uk>
-	 <20030811023912.GJ24349@perlsupport.com>
-	 <20030811053059.GB28640@alpha.home.local>
-	 <20030811054209.GN10446@mail.jlokier.co.uk> <1060607398.948.213.camel@cube>
-	 <20030811115547.38b78b8e.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1060643637.949.228.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 11 Aug 2003 19:13:58 -0400
+	Mon, 11 Aug 2003 19:40:16 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:45579 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S274965AbTHKXkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 19:40:11 -0400
+Message-ID: <3F382CAC.1060502@techsource.com>
+Date: Mon, 11 Aug 2003 19:54:20 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Martin Schlemmer <azarah@gentoo.org>
+CC: Nick Piggin <piggin@cyberone.com.au>, Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]O14int
+References: <200308090149.25688.kernel@kolivas.org>	 <200308111608.18241.kernel@kolivas.org> <3F375EBD.5030106@cyberone.com.au>	 <200308111943.49235.kernel@kolivas.org>  <3F376597.9000708@cyberone.com.au> <1060610663.13256.76.camel@workshop.saharacpt.lan>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-08-11 at 14:55, Andrew Morton wrote:
-> Albert Cahalan <albert@users.sourceforge.net> wrote:
-> >
-> > -#define likely(x)	__builtin_expect((x),1)
-> > -#define unlikely(x)	__builtin_expect((x),0)
-> > +#define likely(x)	__builtin_expect(!!(x),1)
-> > +#define unlikely(x)	__builtin_expect(!!(x),0)
+
+
+Martin Schlemmer wrote:
+
 > 
-> Odd.  I thought we fixed that ages ago.
+> I did not say the 'make -j10s' starved.  I am saying that mouse
+> is laggish, as well as window/desktop switching.
 > 
-> Being a simple soul, I prefer __builtin_expect((x) != 0, 1).
+> Also, I am not saying Con should fix it - I am asking if we really
+> want one scheduler that should try to do the right thing for SMP
+> *and* UP.
 
-That's much harder to read. The !! is a nice
-neat idiom. The other way requires a bit of thought.
-(is that == or !=, a 0 or 1, and what does that
-compute to?)
 
-The !! is visually distinctive. It has only one use.
-When you see it, you instantly know that a value is
-being converted to the pure boolean form.
+Putting aside the load balancer, isn't the SMP case little more than 
+multiple UP schedulers running in parallel?
 
+I think that was supposed to be one of the great things about the O(1) 
+scheduler:  It unlocked the CPUs from each other so there would be far 
+fewer spinlocks.
 
 

@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314072AbSDQGRq>; Wed, 17 Apr 2002 02:17:46 -0400
+	id <S314077AbSDQGzB>; Wed, 17 Apr 2002 02:55:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314073AbSDQGRp>; Wed, 17 Apr 2002 02:17:45 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:51930 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S314072AbSDQGRo>;
-	Wed, 17 Apr 2002 02:17:44 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S314078AbSDQGzA>; Wed, 17 Apr 2002 02:55:00 -0400
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:10509 "EHLO
+	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S314077AbSDQGy6>; Wed, 17 Apr 2002 02:54:58 -0400
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: linux-kernel@vger.kernel.org
+Date: Wed, 17 Apr 2002 08:54:02 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15549.4991.111039.680357@napali.hpl.hp.com>
-Date: Tue, 16 Apr 2002 23:17:35 -0700
-To: Robert Love <rml@tech9.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Mark Mielke <mark@mark.mielke.cc>,
-        davidm@hpl.hp.com, Davide Libenzi <davidel@xmailserver.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Why HZ on i386 is 100 ?
-In-Reply-To: <1019023303.1670.37.camel@phantasy>
-X-Mailer: VM 7.03 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: traditional bug: only one of two serial ports found on HP Vectra XM
+Message-ID: <3CBD382B.20432.3A9A82@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
+X-Content-Conformance: HerringScan-0.9/Sophos-3.56+2.9+2.03.090+01 April 2002+73161@20020417.064902Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On 17 Apr 2002 02:01:42 -0400, Robert Love <rml@tech9.net> said:
+Hello,
 
-  Robert> Exactly - this was my issue.  So what _was_ the rationale
-  Robert> behind Alpha picking 1024 (and others following)?
+historically I believed Linux very much. When it said my HP Vecra XM 
+only has one serial port I was surprised, but believed it. That was 
+some years ago. 2.4.18 still says that there is one serial port:
 
-Picking a timer tick is a bit like picking the color of a
-window. Everybody has an opinion and there is no truly "right" choice.
-I guarantee you whatever you pick, someone will come along and say:
-why not X instead?
+ttyS00 at 0x3f8 (irq=4) as a 16550A
 
-A power-of-2 value obviously makes it easy to divide by HZ.
+However recently I had to work on the backside of the PC and found 
+two(!) serial ports labelled "Serial A" and "Serial B". So shouldn't 
+both ports be detected?
 
-  Robert> More importantly, can we change to 1000?
+Regards,
+Ulrich Windl
+(the one who is NOT subscribed in this honourable list)
 
-On ia64, you can make it anything you want.  User-level will pick up
-the current value from sysconf(_SC_CLK_TCK).
-
-	--david

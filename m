@@ -1,36 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbVCCUaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbVCCUaQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261637AbVCCUaP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 15:30:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVCCU1P
+	id S262059AbVCCUaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 15:30:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVCCU1C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 15:27:15 -0500
-Received: from ns.suse.de ([195.135.220.2]:25310 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262093AbVCCUXY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 15:23:24 -0500
-Date: Thu, 3 Mar 2005 21:23:19 +0100
-From: Olaf Hering <olh@suse.de>
-To: Jeff Mahoney <jeffm@suse.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/3] openfirmware: adds sysfs nodes for openfirmware	devices
-Message-ID: <20050303202319.GA30183@suse.de>
-References: <20050301211824.GC16465@locomotive.unixthugs.org> <1109806334.5611.121.camel@gaston> <42275536.8060507@suse.com>
+	Thu, 3 Mar 2005 15:27:02 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:55722
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S262127AbVCCUXz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 15:23:55 -0500
+Subject: Re: RFD: Kernel release numbering
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
+       Greg KH <greg@kroah.com>, "David S. Miller" <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <422768B4.3040506@pobox.com>
+References: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
+	 <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>
+	 <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>
+	 <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>
+	 <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com>
+	 <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
+	 <20050303170808.GG4608@stusta.de>
+	 <1109877336.4032.47.camel@tglx.tec.linutronix.de>
+	 <422768B4.3040506@pobox.com>
+Content-Type: text/plain
+Date: Thu, 03 Mar 2005 21:23:52 +0100
+Message-Id: <1109881432.4032.69.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <42275536.8060507@suse.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Thu, Mar 03, Jeff Mahoney wrote:
+On Thu, 2005-03-03 at 14:42 -0500, Jeff Garzik wrote:
+> 1) Release maintainers need to avoid merging non-bugfixes.  Lately, the 
+> key penguins _have_ been doing their job here.  This manifested in 
+> 2.6.11-rc4, 2.6.11-rc5.
 
-> Is whitespace (in any form) allowed in the compatible value?
+True, but the confidence of users in -rc is gone already. So testing
+happens when the "stable" release is out, but thats too late.
 
-Yes, whitespace is used at least in the toplevel compatible file, like
-'Power Macintosh' in some Pismo models.
+> 2) This "flag day" when bugfixes-only mode starts needs to be completely 
+> obvious to _scripts_ and really dumb people.  Posting to LKML "with this 
+> -rc, I am only taking serious bugfixes" doesn't cut it.  There must be a 
+> clear, consistent point where testing may begin.
+
+If you clearly seperate out the -rc process of the development tree then
+it is no question how dump scripts and people are. The -rc tree is
+untouchable for anything else than bugfixes.
+
+tglx
+
+

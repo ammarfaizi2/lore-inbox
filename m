@@ -1,97 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262592AbUKLROI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262584AbUKLRRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262592AbUKLROI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 12:14:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262582AbUKLRMT
+	id S262584AbUKLRRX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 12:17:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbUKLROU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 12:12:19 -0500
-Received: from dobermann.cosy.sbg.ac.at ([141.201.2.56]:3975 "EHLO
-	dobermann.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
-	id S262593AbUKLRG5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@VGER.KERNEL.ORG>);
-	Fri, 12 Nov 2004 12:06:57 -0500
-Date: Fri, 12 Nov 2004 17:06:53 +0000
-From: Andreas Maier <andi@cosy.sbg.ac.at>
-Subject: [RFC] IPv6 without IPv4
-To: linux-kernel@VGER.KERNEL.ORG
-X-Mailer: Balsa 2.2.5
-Message-Id: <1100279213l.5304l.1l@leu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	DelSp=Yes	Format=Flowed
+	Fri, 12 Nov 2004 12:14:20 -0500
+Received: from phoenix.infradead.org ([81.187.226.98]:32269 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262584AbUKLRN1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 12:13:27 -0500
+Date: Fri, 12 Nov 2004 17:13:24 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Reiser{3,4}: problem with the copyright statement
+Message-ID: <20041112171323.GA7772@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
+	Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
+References: <20041111012333.1b529478.akpm@osdl.org> <20041111214554.GB2310@stusta.de> <Pine.LNX.4.58.0411111355020.2301@ppc970.osdl.org> <20041112164745.GB7308@infradead.org> <20041112170636.GA7689@infradead.org> <20041112171128.GE2249@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20041112171128.GE2249@stusta.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This small patch makes AF_INET (IPv4) invisible to user space.
+On Fri, Nov 12, 2004 at 06:11:28PM +0100, Adrian Bunk wrote:
+> On Fri, Nov 12, 2004 at 05:06:36PM +0000, Christoph Hellwig wrote:
+> > 
+> > Btw, reiser3 handling was similar.  At least Hans wanted an assigment from
+> > me for even really trivial changes (which I still insist aren't copyrightable)
+> 
+> reiser3 has the same "automatically assign the copyright to Hans" clause 
+> (see the subject of this thread).
 
-I need it to test applications in a strictly IPv6-only environment
-and it may be helpful to others that have similar constraints.
-It seems to work for TCP6 (ssh), UDP6 (DNS) and ICMP6 (ping6).
-
-Don't forget to enable binding to IPv6 only. Otherwise an Oops happens
-in the uninitialized IPv4 routing code (__ip_route_output_key):
-	echo 1 > /proc/sys/net/ipv6/bindv6only
-
-Yes, the hack is ugly. Would it be possible - with reasonable effort -
-to remove dependency of IPv6 on IPv4 so that an IPv6-only configuration
-can be created easily?
-
-Thanks for your comments,
--andi
-
-
-This is a diff against Debian version of kernel-2.6.8:
-
---- net/ipv4/af_inet.c.orig	2004-10-29 15:01:42.000000000 +0200
-+++ net/ipv4/af_inet.c	2004-11-04 11:57:11.000000000 +0100
-@@ -1032,7 +1032,10 @@
- 	 *	Tell SOCKET that we are alive...
- 	 */
-
-+#define HIDE_V4
-+#ifndef HIDE_V4
-   	(void)sock_register(&inet_family_ops);
-+#endif
-
- 	/*
- 	 *	Add all the base protocols.
-@@ -1066,9 +1069,11 @@
-   	 *	Set the IP module up
-   	 */
-
-+#ifndef HIDE_V4
- 	ip_init();
-
- 	tcp_v4_init(&inet_family_ops);
-+#endif
-
- 	/* Setup TCP slab cache for open requests. */
- 	tcp_init();
-@@ -1078,7 +1083,9 @@
- 	 *	Set the ICMP layer up
- 	 */
-
-+#ifndef HIDE_V4
- 	icmp_init(&inet_family_ops);
-+#endif
-
- 	/*
- 	 *	Initialise the multicast router
-@@ -1093,7 +1100,9 @@
- 	if(init_ipv4_mibs())
- 		printk(KERN_CRIT "inet_init: Cannot init ipv4 mibs\n"); ;
- 	
-+#ifndef HIDE_V4
- 	ipv4_proc_init();
-+#endif
-
- 	ipfrag_init();
-
--- 
-| Andreas Maier               Paris-Lodron University of Salzburg   |
-| (andi [at] cosy.sbg.ac.at)  Department of Scientific Computing    |
-| Tel. +43/662/8044-6339      Jakob Haringerstr. 2                  |
-| Fax. +43/662/8044-172       5020 Salzburg / Austria, Europe       |
+I can only say what happened to me a few years ago.
 

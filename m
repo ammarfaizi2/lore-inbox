@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbUJWNxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbUJWNzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbUJWNxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 09:53:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbUJWNxJ
+	id S261193AbUJWNzU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 09:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbUJWNzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 09:53:09 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:10452 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261187AbUJWNxF (ORCPT
+	Sat, 23 Oct 2004 09:55:19 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:5311 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S261192AbUJWNzI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 09:53:05 -0400
-Date: Sat, 23 Oct 2004 15:54:09 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-U10.2
-Message-ID: <20041023135409.GB18747@elte.hu>
-References: <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <32871.192.168.1.5.1098491242.squirrel@192.168.1.5> <20041023102909.GD30270@elte.hu> <32880.192.168.1.5.1098534617.squirrel@192.168.1.5> <20041023125104.GA10883@elte.hu> <32989.192.168.1.5.1098539101.squirrel@192.168.1.5>
+	Sat, 23 Oct 2004 09:55:08 -0400
+Date: Sat, 23 Oct 2004 15:54:52 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Karel Kulhavy <clock@twibright.com>, linux-kernel@vger.kernel.org
+Subject: Re: Writing linux kernel specification
+Message-ID: <20041023135452.GJ7205@marowsky-bree.de>
+References: <20041023133944.GA1204@beton.cybernet.src>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <32989.192.168.1.5.1098539101.squirrel@192.168.1.5>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041023133944.GA1204@beton.cybernet.src>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2004-10-23T13:39:44, Karel Kulhavy <clock@twibright.com> wrote:
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+> I am pondering on writing a Linux kernel specification, or rather
+> compiling it from the various bits that are online.
 
-> OK. All affirmative. NIC is natsemi.
-> 
-> Here it is:
-> 
-> SysRq : IRQ 1/776: BUG in write_msg at drivers/net/netconsole.c:87
+The marketing department at OSDL may just be the place to go looking for
+a job then ;-)
 
-doh! Go to line 77 and spot the bug. (yes, the PREEMPT_REALTIME needs to
-become CONFIG_PREEMPT_REALTIME) With that fixed does it work for you?
 
-	Ingo
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX AG - A Novell company
+

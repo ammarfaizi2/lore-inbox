@@ -1,90 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132993AbRDYXM6>; Wed, 25 Apr 2001 19:12:58 -0400
+	id <S132984AbRDYXI6>; Wed, 25 Apr 2001 19:08:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133004AbRDYXMt>; Wed, 25 Apr 2001 19:12:49 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:35598
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S132993AbRDYXMl>; Wed, 25 Apr 2001 19:12:41 -0400
-Date: Wed, 25 Apr 2001 19:12:12 -0400
-From: Chris Mason <mason@suse.com>
-To: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] reiserfs lfs fix for 2.4.4-pre5 and above
-Message-ID: <494520000.988240332@tiny>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S132993AbRDYXIt>; Wed, 25 Apr 2001 19:08:49 -0400
+Received: from mailproxy.de.uu.net ([192.76.144.34]:19604 "EHLO
+	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
+	id <S132984AbRDYXIi>; Wed, 25 Apr 2001 19:08:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Jansen <tim@tjansen.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: /proc format (was Device Registry (DevReg) Patch 0.2.0)
+Date: Thu, 26 Apr 2001 01:09:04 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <3AE704FA.DCF1BEC6@kegel.com> <01042520555600.00849@cookie> <3AE72344.97C849DA@kegel.com>
+In-Reply-To: <3AE72344.97C849DA@kegel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <01042601090401.01143@cookie>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 25 April 2001 21:19, you wrote:
+> The corresponding one-value-per-file approach can probably be made to
+> be a single call per value.  
 
-Hello everyone,
-
-2.4.4-pre5 started honoring the s_maxbytes field, so reiserfs needs a 
-patch to allow files > 4GB on 3.6.x format filesystems.
-
-If you work with large files on reiserfs and are willing to try
-the prerelease kernels (non-production), please give this a try, 
-it works for me but I'd like a few confirmations before I send to Linus.
-
-This also prevents someone from using truncate to expand an old 
-format file past the 2GB mark.
-
--chris
-
-diff -Nru a/fs/reiserfs/file.c b/fs/reiserfs/file.c
---- a/fs/reiserfs/file.c	Tue Apr 24 13:37:21 2001
-+++ b/fs/reiserfs/file.c	Tue Apr 24 13:37:21 2001
-@@ -106,6 +106,24 @@
-   return ( n_err < 0 ) ? -EIO : 0;
- }
- 
-+static int reiserfs_setattr(struct dentry *dentry, struct iattr *attr) {
-+    struct inode *inode = dentry->d_inode ;
-+    int error ;
-+    if (attr->ia_valid & ATTR_SIZE) {
-+	/* version 2 items will be caught by the s_maxbytes check
-+	** done for us in vmtruncate
-+	*/
-+        if (inode_items_version(inode) == ITEM_VERSION_1 && 
-+	    attr->ia_size > MAX_NON_LFS)
-+            return -EFBIG ;
-+    }
-+
-+    error = inode_change_ok(inode, attr) ;
-+    if (!error)
-+        inode_setattr(inode, attr) ;
-+
-+    return error ;
-+}
- 
- struct file_operations reiserfs_file_operations = {
-     read:	generic_file_read,
-@@ -119,6 +137,7 @@
- 
- struct  inode_operations reiserfs_file_inode_operations = {
-     truncate:	reiserfs_vfs_truncate_file,
-+    setattr:    reiserfs_setattr,
- };
- 
- 
-diff -Nru a/fs/reiserfs/super.c b/fs/reiserfs/super.c
---- a/fs/reiserfs/super.c	Tue Apr 24 13:37:21 2001
-+++ b/fs/reiserfs/super.c	Tue Apr 24 13:37:21 2001
-@@ -492,7 +492,11 @@
-     SB_BUFFER_WITH_SB (s) = bh;
-     SB_DISK_SUPER_BLOCK (s) = rs;
-     s->s_op = &reiserfs_sops;
--    s->s_maxbytes = 0xFFFFFFFF;	/* 4Gig */
-+
-+    /* new format is limited by the 32 bit wide i_blocks field, want to
-+    ** be one full block below that.
-+    */
-+    s->s_maxbytes = (512LL << 32) - s->s_blocksize ;
-     return 0;
- }
- 
+Yes, the real problem is writing a callback-based filesystem (unless you want 
+to hold everything in memory). After thinking about it for the last two hours 
+I already find the one-value-per-file approach not as hard to do as I did 
+before, but it's still a lot of work.
 
 
+> Have you bothered to go back and read the old discussions on this topic?
+
+Yes. But in my case is different than, for example, the files in /proc/sys:
+- the file names in /proc/sys are static. For devreg the filenames must be 
+made dynamically (similar to the /proc process directories or usbdevfs)
+- in /proc/sys there is just one piece for code responsible for every file or 
+directory and no cooperation between different parts. If devreg creates, for 
+example, a directory for a USB mouse it must be prepared to share this 
+directory with the USB subsystem, the input subsystem and the USB hid driver. 
+All four modules are responsible for their own files. 
+- files and their content should be created on demand, so there must be some 
+callback to tell the USB subsystem something like "the user just opened the 
+directory of device X, please tell me which directories or files you want to 
+add". 
+
+It is certainly possible to convert devreg to the one-value-per-file approach 
+and if this is all that it takes to get into some future (2.5) kernel I will 
+do it. I just doubt that this is the easiest way to implement the 
+functionality, because that's what I really want.
+
+
+> Are you trying to avoid writing a DTD?  
+
+Yes, at least a have a complete DTD, because it would be a nightmare to 
+maintain it. Each time somebody adds a new capability to a driver the DTD 
+would have to be updated. And what about drivers that are not part of the 
+official kernel?
+I thought about using a separate XML Schema definition for each namespace 
+though.
+
+bye...

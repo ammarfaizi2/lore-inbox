@@ -1,60 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271967AbTGYIou (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 04:44:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271968AbTGYIou
+	id S271966AbTGYIob (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 04:44:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271967AbTGYIob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 04:44:50 -0400
-Received: from smtp-105-friday.nerim.net ([62.4.16.105]:62226 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S271967AbTGYIoq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 04:44:46 -0400
-Date: Fri, 25 Jul 2003 11:01:23 +0200
-From: Jerome Chantelauze <jerome.chantelauze@finix.eu.org>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.22-pre6-ac1
-Message-ID: <20030725090123.GA18894@i486X33>
-References: <200307181212.h6ICCQ925343@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307181212.h6ICCQ925343@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.28i
+	Fri, 25 Jul 2003 04:44:31 -0400
+Received: from ns.bmstu.ru ([195.19.32.2]:2323 "EHLO soap.bmstu.ru")
+	by vger.kernel.org with ESMTP id S271965AbTGYIo2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 04:44:28 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: "Serge A. Suchkov" <ss@e1.bmstu.ru>
+Reply-To: ss@e1.bmstu.ru
+Organization: BMSTU
+To: "lkml" <linux-kernel@vger.kernel.org>
+Subject: Re: [Oops report]: 2.6.0-test1-ac1 oops in umount mass-storage device
+Date: Fri, 25 Jul 2003 12:53:00 +0400
+X-Mailer: KMail [version 1.2]
+References: <03072313251400.10306@XP1700>
+In-Reply-To: <03072313251400.10306@XP1700>
+Cc: linux-scsi@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <03072512530004.15954@XP1700>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 18, 2003 at 08:12:26AM -0400, Alan Cox wrote:
-> Took rather longer than planned but here we are:
-> 
-> Linux 2.4.22-pre6-ac1
+> Hi,
+>
+> Today I have oops in 2.6.0-test1-ac1, described below.
+> I have USB plugged CF card Reader/Writer with CF card inside.
+> I'm mount this device as SCSI /dev/sda1 device
+>
+> Next actions I'm comment by my dmesg output ...
+>
+> 1) Eject CF card from CF Reader without umount, and insert CF in digital
 
-Hi Alan
+I'm  sorry. Oops was take place not after _eject_ CF, but after _disconnect_ 
+USB CF reader/writer...
 
-Linux 2.4.22-pre6-ac1 doesn't build with the option 
-"Old hard disk (MFM/RLL/IDE) driver" (CONFIG_BLK_DEV_HD_ONLY=y).
+I wrote small script, which demonstrate described problem...
 
-This (trivial) patch fixes the problem. Please consider including it in
-the next -ac kernel.
+------- test-usb-storage.sh -----------
+#!/bin/bash
+SCSI_DEVICE=/dev/sda1
+MOUNT_POINT=/mnt
+IS_USB_STORAGE_DEVICE_UP=`cat /proc/bus/usb/devices | grep Driver=usb-storage`
+IS_MOUNT=`mount | grep $MOUNT_POINT`
 
-=========
---- drivers/ide/Makefile.orig   Fri Jul 25 10:09:02 2003
-+++ drivers/ide/Makefile        Fri Jul 25 10:18:24 2003
-@@ -54,6 +54,7 @@
-   obj-y                += arm/idedriver-arm.o
- else
-   ifeq ($(CONFIG_BLK_DEV_HD_ONLY),y)
-+       subdir-$(CONFIG_BLK_DEV_HD_ONLY) += legacy
-        obj-y   += legacy/idedriver-legacy.o
-   endif
- endif
-=========
+if [ "$IS_MOUNT" != "" ]
+then
+ echo "$MOUNT_POINT mark as already mounted ..."
+ echo  $IS_MOUNT
+ exit
+fi
 
-I proposed this patch one month ago (Linux 2.4.21-pre8) and though you
-approved it on Friday June 13, it has never been included in the 2.4.22
-kernels.
+if [ "$IS_USB_STORAGE_DEVICE_UP" = "" ]
+then
+ echo "USB storage device not found ..."
+ exit
+fi
 
-Regards
+mount $SCSI_DEVICE -t auto $MOUNT_POINT -o user
 
---
-Jerome Chantelauze.
+if [ $? != 0 ]
+then
+ echo "Can't mount $SCSI_DEVICE";
+ exit
+fi
+
+echo Disconnect USB storage device now...
+while [ "$IS_USB_STORAGE_DEVICE_UP" != "" ]
+do
+sleep 1
+IS_USB_STORAGE_DEVICE_UP=`cat /proc/bus/usb/devices | grep Driver=usb-storage`
+done
+
+umount $MOUNT_POINT
+echo $?k !
+------- test-usb-storage.sh -----------
+
+
+-- 
+/SS

@@ -1,18 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132811AbRAJRTw>; Wed, 10 Jan 2001 12:19:52 -0500
+	id <S131958AbRAJR3G>; Wed, 10 Jan 2001 12:29:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135866AbRAJRTl>; Wed, 10 Jan 2001 12:19:41 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:58892 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132811AbRAJRT0>; Wed, 10 Jan 2001 12:19:26 -0500
-Date: Wed, 10 Jan 2001 09:19:12 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marco Colombo <marco@esi.it>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] More compile warning fixes for 2.4.0
-In-Reply-To: <Pine.LNX.4.21.0101101619230.16888-100000@Megathlon.ESI>
-Message-ID: <Pine.LNX.4.10.10101100915290.4283-100000@penguin.transmeta.com>
+	id <S132041AbRAJR24>; Wed, 10 Jan 2001 12:28:56 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:59283 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131958AbRAJR2m>;
+	Wed, 10 Jan 2001 12:28:42 -0500
+Date: Wed, 10 Jan 2001 12:28:38 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
+        linux-kernel@vger.kernel.org
+Subject: Re: `rmdir .` doesn't work in 2.4
+In-Reply-To: <20010110160359.E19503@athlon.random>
+Message-ID: <Pine.GSO.4.21.0101101216370.13614-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,32 +22,32 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 10 Jan 2001, Marco Colombo wrote:
-> > 
-> > 	case xxx:
-> > 		/* fallthrough */ ;
-> > 	}
-> > 
-> > or something (or maybe just a "break" statement), just so that we don't
-> > turn the poor C language into line noise (can anybody say "perl" ;)
+On Wed, 10 Jan 2001, Andrea Arcangeli wrote:
+
+> > Do we have enough protection to ensure this for other filesystems?
 > 
-> Of course, you don't mean that the fallthrough comment and the break
-> statement have the same functionality! (well you put the closing
-> bracket and I agree that for the last case it's the same).
+> Note that this has nothing to do with `rmdir .`. You will run into the
+> mentioned issue just now with '''rmdir "`pwd`"'''. I've not checked
+> the other fses but I would put such support into the VFS rather than in ext2
+> (vfs can do that for you, if you do that the lowlevel fs will never get a
+> readdir for a delete dentry).
 
-Note that the warning case we're discussing was really only about case
-statements at the end of a compound statement.
+That's precisely what I've already done. grep for IS_DEADDIR() and notice
+that it's only checked under ->i_zombie. Both rmdir() and rename() hold
+it on victim, readdir() holds it on directory it wants to read and everything
+that creates or removes objects holds it on parent. Successful rmdir()
+and rename()-over-directory set S_DEAD in the ->i_flags before dropping
+->i_zombie.
 
-In the middle of compound statements we're already fine: it's only the
-corner case of a case "statement" without the statement that gcc
-historically used to accept without warning, and that the gcc people only
-recently noticed that they really shouldn't accept at all.
+The only thing that can happen with the dead directory is ->lookup().
 
-So that's why a comment and a "break" is equivalent. ONLY for the special
-case of the new compile warning, though, obviously (see the subject line,
-but yes, I should have made that more explicit).
+IOW, in 2.4 most of filesystems had dropped the -EBUSY on rmdir() they
+used to have. And ext2 got rid of the special handling of dead directories -
+these checks are done in VFS now. The only fs with special treatment of
+rmdir()/rename() wrt busy victims is NFS, IIRC.
 
-			Linus
+Filesystems still can refuse to remove busy directories (same test as in
+2.2) but there's almost no reasons for that.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

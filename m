@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263523AbUDBBiC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 20:38:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263513AbUDBBiB
+	id S263513AbUDBBkP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 20:40:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263535AbUDBBkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 20:38:01 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:45972
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263523AbUDBBfs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 20:35:48 -0500
-Date: Fri, 2 Apr 2004 03:35:47 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       kenneth.w.chen@intel.com
-Subject: Re: disable-cap-mlock
-Message-ID: <20040402013547.GM18585@dualathlon.random>
-References: <20040401135920.GF18585@dualathlon.random> <20040401170705.Y22989@build.pdx.osdl.net> <20040402011804.GL18585@dualathlon.random> <20040401173014.Z22989@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040401173014.Z22989@build.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Thu, 1 Apr 2004 20:40:15 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:37262 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263513AbUDBBkF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 20:40:05 -0500
+Date: Thu, 1 Apr 2004 17:39:49 -0800 (PST)
+From: Sridhar Samudrala <sri@us.ibm.com>
+X-X-Sender: sridhar@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_DEBUG_PAGEALLOC and virt_addr_valid()
+In-Reply-To: <20040401162943.149ee719.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0404011727350.3007@localhost.localdomain>
+References: <Pine.LNX.4.58.0404011105120.1956@localhost.localdomain>
+ <20040401204407.A24608@infradead.org> <Pine.LNX.4.58.0404011236200.5095@localhost.localdomain>
+ <20040401162943.149ee719.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 01, 2004 at 05:30:14PM -0800, Chris Wright wrote:
-> * Andrea Arcangeli (andrea@suse.de) wrote:
-> > please elaborate how can you account for shmget(SHM_HUGETLB) with the
-> > rlimit. The rlimit is just about the _address_space_ mlocked, there's no
-> > way to account for something _outside_ the address space with the rlimit,
-> > period. If you attempt doing that, _that_ will be THE true hack(tm) ;).
-> 
-> Heh ;-)  OK, here's the patch.  When you setup the vmas for the huge pages
-> account for them, when you tear them down, account for that as well.
-> It's very possible that I've missed the obvious, but it at least pasts
+On Thu, 1 Apr 2004, Andrew Morton wrote:
 
-what you missed is that after you locked_vm -= you don't free anything,
-you only unmap them from the address space which means nothing in terms
-of amount if pinned ram.
+> Sridhar Samudrala <sri@us.ibm.com> wrote:
+> >
+> > On Thu, 1 Apr 2004, Christoph Hellwig wrote:
+> >
+> > > On Thu, Apr 01, 2004 at 11:11:39AM -0800, Sridhar Samudrala wrote:
+> > > > When CONFIG_DEBUG_PAGEALLOC is enabled, i am noticing that virt_addr_valid()
+> > > > (called from sctp_is_valid_kaddr()) is returning true even for freed objects.
+> > > > Is this a bug or expected behavior?
+> > >
+> > > Generally every use of virt_addr_valid() is a bug.  What are you trying to
+> > > do?
+> >
+> > We are trying to validate a kernel address that is passed by the user. Is
+> > there a better way to do that?
+>
+> yup.  Pass the user an integer.
+>
+> > When an SCTP association is established, the pointer to the association
+> > structure is passed to the user as an identifier of the association. This
+> > identifier is used in the later calls by the user.
+>
+> Please don't do that.  See lib/idr.c.  I expect it does exactly what you
+> want.
 
-so patch is broken and insecure as far as I can tell.
+Yes. I think i should be able to use it to generate ids for the associations.
+Thanks for pointing it out.
+-Sridhar

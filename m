@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284854AbRL2NXo>; Sat, 29 Dec 2001 08:23:44 -0500
+	id <S284823AbRL2NcQ>; Sat, 29 Dec 2001 08:32:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287189AbRL2NXe>; Sat, 29 Dec 2001 08:23:34 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:18853 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S284854AbRL2NXW>;
-	Sat, 29 Dec 2001 08:23:22 -0500
-Date: Sat, 29 Dec 2001 14:23:14 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-        Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: Sym53c8xx tape corruption squashed! (was: Re: SCSI Tape corruption
- - update)
-In-Reply-To: <20011229004430.Y1507-100000@gerard>
-Message-ID: <Pine.GSO.4.21.0112291421030.277-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	id <S287191AbRL2NcG>; Sat, 29 Dec 2001 08:32:06 -0500
+Received: from maild.telia.com ([194.22.190.101]:64249 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id <S284823AbRL2Nb4>;
+	Sat, 29 Dec 2001 08:31:56 -0500
+Date: Sat, 29 Dec 2001 14:36:42 +0100
+From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Sound stops while playing DVD with via82cxxx_audio driver
+Message-ID: <20011229133642.GA679@telia.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011228192700.GA7346@telia.com> <E16K6Q9-0002Db-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <E16K6Q9-0002Db-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Dec 2001, [ISO-8859-1] Gérard Roudier wrote:
-> On Fri, 28 Dec 2001, Geert Uytterhoeven wrote:
-> > The sym-2 driver has a define for modifying the PCI latency timer
-> > (SYM_SETUP_PCI_FIX_UP), but it is never used, so I see no corruption.
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+
+> Random guess of the week. Disable ACPI support and turn off APM in the BIOS
+> then repeat the test. If that stops it then it sounds like some kind of
+> power management is turning off the codec.
 > 
-> By default sym-2 use value 3 for the pci_fix_up (cache line size + memory
-> write and invalidate). The latency timer fix-up has been removed, since it
-> is rather up to the generic PCI driver to tune latency timers.
-> 
-> > Is this a hardware bug in my SCSI host adapter (53c875 rev 04) or my host
-> > bridge (VLSI VAS96011/12 Golden Gate II for PPC), or a software bug in the
-> > driver (wrong burst_max)?
-> 
-> Great bug hunting!
-> 
-> It is about certainly not a software bug in the driver. Any latency timer
-> value should not give any trouble if hardware was flawless. Just the PCI
-> performances could be affected.
+> Let us know what it shows 
 
-I played a bit with sym-2 and setpci. Everything goes fine as long as the PCI
-latency timer value is smaller than 0x16 (yes, at first I thought it was
-decimal, but setpci parameters are in hex).
+Sadly that didn't help. ACPI was not enabled, but APM was. I disabled
+Power Management altogether in the kernel, and set all power management
+features in the bios to disabled, but still the same thing happens. I'm
+starting to think that someting has gone wrong with the DVD-drive,
+especially since the same thing happens in that other OS.
 
-Gr{oetje,eeting}s,
+Thanks for the tip though Alan,
+-- 
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+André Dahlqvist <andre.dahlqvist@telia.com>
 

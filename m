@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269032AbTBWXvm>; Sun, 23 Feb 2003 18:51:42 -0500
+	id <S269040AbTBWXyj>; Sun, 23 Feb 2003 18:54:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269033AbTBWXvm>; Sun, 23 Feb 2003 18:51:42 -0500
-Received: from maild.telia.com ([194.22.190.101]:61642 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S269032AbTBWXvl>;
-	Sun, 23 Feb 2003 18:51:41 -0500
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Date: Mon, 24 Feb 2003 01:01:42 +0100 (CET)
-Message-Id: <20030224.010142.81964578.cfmd@swipnet.se>
-To: alan@lxorguk.ukuu.org.uk
-Cc: albert@users.sourceforge.net, developer_linux@yahoo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Question about Linux signal handling
-From: Magnus Danielson <cfmd@swipnet.se>
-In-Reply-To: <1046043810.2092.0.camel@irongate.swansea.linux.org.uk>
-References: <1046039341.32116.34.camel@cube>
-	<1046043810.2092.0.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Mew version 3.1 on Emacs 21.2 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S269041AbTBWXyj>; Sun, 23 Feb 2003 18:54:39 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:21771 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S269040AbTBWXyi> convert rfc822-to-8bit; Sun, 23 Feb 2003 18:54:38 -0500
+Date: Sun, 23 Feb 2003 19:01:01 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Xavier Bestel <xavier.bestel@free.fr>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Minutes from Feb 21 LSE Call
+In-Reply-To: <1046031687.2140.32.camel@bip.localdomain.fake>
+Message-ID: <Pine.LNX.3.96.1030223185816.999G-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Question about Linux signal handling
-Date: 23 Feb 2003 23:43:31 +0000
+On 23 Feb 2003, Xavier Bestel wrote:
 
-> On Sun, 2003-02-23 at 22:29, Albert Cahalan wrote:
-> > Yes. This is the behavior of all SysV UNIX systems
-> > and Linux kernels. Unfortunately, BSD got it wrong.
+> Le dim 23/02/2003 à 20:17, Linus Torvalds a écrit :
 > 
-> Firstly BSD didn't get it wrong, things merely diverged
-> historically after V7 unix.
+> > And the baroque instruction encoding on the x86 is actually a _good_
+> > thing: it's a rather dense encoding, which means that you win on icache. 
+> > It's a bit hard to decode, but who cares? Existing chips do well at
+> > decoding, and thanks to the icache win they tend to perform better - and
+> > they load faster too (which is important - you can make your CPU have
+> > big caches, but _nothing_ saves you from the cold-cache costs). 
+> 
+> Next step: hardware gzip ?
 
-The V7 signals where not reliable and there where not neatly blockable.
-Naturally people invented incompatible solutions to come around it, just as
-you would expect.
+If the firmware issues were better defined in Intel ia32 chips, I could
+see a gzip instruction pointing to blocks in memory. As a proof of
+concept, not a big win.
 
-Cheers,
-Magnus - porting teaches you stuff you didn't want to know about
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

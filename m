@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289730AbSAJWBs>; Thu, 10 Jan 2002 17:01:48 -0500
+	id <S289729AbSAJWE2>; Thu, 10 Jan 2002 17:04:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289719AbSAJWBk>; Thu, 10 Jan 2002 17:01:40 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:8348 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S289721AbSAJWBc>;
-	Thu, 10 Jan 2002 17:01:32 -0500
-Date: Thu, 10 Jan 2002 22:01:24 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: f.jimenez@bigfoot.com, linux-kernel@vger.kernel.org
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: array size limit in module?
-Message-ID: <1471199855.1010700083@[195.224.237.69]>
-In-Reply-To: <20020110181054Z289122-13997+3040@vger.kernel.org>
-In-Reply-To: <20020110181054Z289122-13997+3040@vger.kernel.org>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S289721AbSAJWEL>; Thu, 10 Jan 2002 17:04:11 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:55757 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S289733AbSAJWD6>;
+	Thu, 10 Jan 2002 17:03:58 -0500
+Date: Fri, 11 Jan 2002 01:01:22 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>, Mike Kravetz <kravetz@us.ibm.com>,
+        Anton Blanchard <anton@samba.org>, george anzinger <george@mvista.com>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [patch] O(1) scheduler, -G1, 2.5.2-pre10, 2.4.17 (fwd)
+In-Reply-To: <Pine.LNX.4.33.0201101017380.2723-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0201110034190.10579-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Here is the offending part of code:
->
-> char *sectors_array = NULL;
-> ........
-> secs_size=131072;
-> sectors_array = kmalloc(secs_size*sizeof(char), GFP_KERNEL);
 
-    <===== missing check: if (!sectors_array) ....
+On Thu, 10 Jan 2002, Linus Torvalds wrote:
 
-> for(i=0; i<secs_size; i++) {
-> 	sectors_array[i]=0;
+> Don't try to make the timer code know stuff that the timer code should
+> not and does not know about. Just call the scheduler on each tick, and
+> let the scheduler make its decision.
 
-You appear to be missing something that checks for
-(even transient) out of memory conditions.
+agreed, the -H4 patch implements this cleanup:
 
-kmalloc() has an internal sensible limit to
-allocations of 128Mb (see mm/slab.c, cache_sizes
-array). It BUG()s if >128Mb is asked for.
-You can get more with __get_free_pages()
-and/or vmalloc().
+    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-pre11-H4.patch
 
-In any case, kmalloc has to allocate contiguous
-pages, whilst there may be 4 pages free, there may not be
-4 contiguous pages free. This aside, kmalloc()
-may /still/ fail.
+the timer code calls the scheduler_tick() function once per local timer
+interrupt. This function then decides whether the current task is idle or
+not. (this should also fix the timeslice-expiration bug of any possibly
+pid 0 process.)
 
-However, if you are reading sectors probably
-wise to group them by page and allocate
-each page separately.
+(there is one small ugliness left, the function also has to be prepared
+for a not yet complete scheduler state, rq->idle == NULL and rq->curr ==
+NULL. I'll fix this later, it's a detail.)
 
---
-Alex Bligh
+(-H4 has been sanity-compiled & booted on SMP.)
+
+other changes since -H1:
+
+ - removed dead code from wakeup.
+
+	Ingo
+

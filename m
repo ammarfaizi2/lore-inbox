@@ -1,78 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314278AbSH0T3w>; Tue, 27 Aug 2002 15:29:52 -0400
+	id <S316856AbSH0T0C>; Tue, 27 Aug 2002 15:26:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316971AbSH0T3w>; Tue, 27 Aug 2002 15:29:52 -0400
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:29422 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S314278AbSH0T3u>; Tue, 27 Aug 2002 15:29:50 -0400
-Date: Tue, 27 Aug 2002 12:34:01 -0700
-From: "H. J. Lu" <hjl@lucon.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: ink@jurassic.park.msu.ru, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, dhinds@zen.stanford.edu
-Subject: Re: [Fwd: [PATCH] reduce size of bridge regions for yenta.c]
-Message-ID: <20020827123401.A28519@lucon.org>
-References: <3D6874A0.5B110F6@zip.com.au> <20020825075729.A14924@lucon.org> <3D6907BA.5020603@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="cWoXeonUoKmBZSoM"
+	id <S316860AbSH0T0C>; Tue, 27 Aug 2002 15:26:02 -0400
+Received: from mail.gmx.de ([213.165.64.20]:25278 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S316856AbSH0T0B>;
+	Tue, 27 Aug 2002 15:26:01 -0400
+From: Felix Seeger <felix.seeger@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: USB mouse problem, kernel panic on startup in 2.4.19
+Date: Tue, 27 Aug 2002 21:30:11 +0200
+User-Agent: KMail/1.4.6
+References: <200208272011.51691.felix.seeger@gmx.de> <200208272023.52351.felix.seeger@gmx.de> <20020827183119.GB23700@kroah.com>
+In-Reply-To: <20020827183119.GB23700@kroah.com>
+Cc: Greg KH <greg@kroah.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D6907BA.5020603@colorfullife.com>; from manfred@colorfullife.com on Sun, Aug 25, 2002 at 06:37:14PM +0200
+Message-Id: <200208272130.14728.felix.seeger@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---cWoXeonUoKmBZSoM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+No, sorry. Doesn't help.
+Is that a patch for 2.4.20-pre4 ? I am using 2.4.19.
 
-On Sun, Aug 25, 2002 at 06:37:14PM +0200, Manfred Spraul wrote:
-> 
-> yenta.c doesn't contain error handling, and that should be fixed.
-> 
+Oh, the shift and the numlock leds are blinking.
 
-This is what I have been using.
+thanks
+have fun
+Felix
 
+Am Dienstag, 27. August 2002 20:31 schrieb Greg KH:
+> On Tue, Aug 27, 2002 at 08:23:47PM +0200, Felix Seeger wrote:
+> > Kernel BUG at usb-ohci.h:464!
+>
+> Can you try the patch at:
+> 	http://www.kernel.org/pub/linux/kernel/people/gregkh/usb/2.4/usb-usb-ohci-
+>2.4.20-pre4.patch and let us know if it fixes this problem or not?
+>
+> thanks,
+>
+> greg k-h
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-H.J.
+iD8DBQE9a9NGS0DOrvdnsewRAkIQAJ4zXvVDstvM6UHcYktCP+dSfISNTgCffJ+q
+fyBgD16M6Dkdpmfazv7PTis=
+=e+kq
+-----END PGP SIGNATURE-----
 
---cWoXeonUoKmBZSoM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="linux-2.4.18-yenta-resource.patch"
-
---- linux/drivers/pcmcia/yenta.c.resource	Sat Aug 10 20:30:35 2002
-+++ linux/drivers/pcmcia/yenta.c	Fri Aug 16 09:34:32 2002
-@@ -739,17 +739,27 @@ static void yenta_allocate_res(pci_socke
- 		return;
- 	}
- 
--	align = size = 4*1024*1024;
--	min = PCIBIOS_MIN_MEM; max = ~0U;
- 	if (type & IORESOURCE_IO) {
- 		align = 1024;
- 		size = 256;
- 		min = 0x4000;
- 		max = 0xffff;
- 	}
-+	else {
-+		align = size = 4*1024*1024;
-+		min = PCIBIOS_MIN_MEM;
-+		max = ~0U;
-+	}
- 		
--	if (allocate_resource(root, res, size, min, max, align, NULL, NULL) < 0)
-+
-+	if (allocate_resource(root, res, size, min, max, align, NULL, NULL) < 0) {
-+		printk (KERN_NOTICE "PCI: CardBus bridge (%04x:%04x, %04x:%04x): Failed to allocate %s resource: %d bytes!\n",
-+			socket->dev->vendor, socket->dev->device,
-+			socket->dev->subsystem_vendor,
-+			socket->dev->subsystem_device,
-+			(type & IORESOURCE_IO) ? "I/O" : "memory", size);
- 		return;
-+	}
- 
- 	config_writel(socket, offset, res->start);
- 	config_writel(socket, offset+4, res->end);
-
---cWoXeonUoKmBZSoM--

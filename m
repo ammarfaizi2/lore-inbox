@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbTJSTNx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 15:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTJSTNw
+	id S262063AbTJSTMc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 15:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbTJSTMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 15:13:52 -0400
-Received: from holomorphy.com ([66.224.33.161]:29570 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262069AbTJSTNv (ORCPT
+	Sun, 19 Oct 2003 15:12:32 -0400
+Received: from mail.skjellin.no ([80.239.42.67]:44708 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S262063AbTJSTMb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 15:13:51 -0400
-Date: Sun, 19 Oct 2003 12:13:46 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Diego Calleja Garc?a <aradorlinux@yahoo.es>
+	Sun, 19 Oct 2003 15:12:31 -0400
+Subject: Re: Mounting /dev/md0 as root in 2.6.0-test7
+From: Andre Tomt <andre@tomt.net>
+To: John Mock <kd6pag@qsl.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: reproduceable oops in -test8
-Message-ID: <20031019191346.GB1108@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Diego Calleja Garc?a <aradorlinux@yahoo.es>,
-	linux-kernel@vger.kernel.org
-References: <20031018234848.51a2b723.aradorlinux@yahoo.es> <20031019011949.GD711@holomorphy.com> <20031019165914.4360b3b7.aradorlinux@yahoo.es>
+In-Reply-To: <E1ABIg9-0003s2-00@penngrove.fdns.net>
+References: <E1ABIg9-0003s2-00@penngrove.fdns.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <1066590757.498.3.camel@slurv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031019165914.4360b3b7.aradorlinux@yahoo.es>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 19 Oct 2003 21:12:37 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Sat, 18 Oct 2003 18:19:49 -0700 William Lee Irwin III <wli@holomorphy.com> escribi?:
->> Two stupid bugs in my case. With a bit of noise surrounding things
->> (e.g. EXPORT_SYMBOL() crud, init_task paranoia garbage, ->f_pos in
->> unsigned long removal), un-reversing the arguments to find_pid()
->> and not blowing away the last-seen tid while formatting it and later
->> trying to use it as ->f_pos are the needed fixes.
+On Sun, 2003-10-19 at 20:53, John Mock wrote:
+> The basic problem here is that the kernel has no idea what disks comprise
+> your RAID when you just say "root=/dev/md0", e.g., it has no idea where to
+> start. 
 
-On Sun, Oct 19, 2003 at 04:59:14PM +0200, Diego Calleja Garc?a wrote:
-> This fixes the oops in wli1, thanks; now it reproduces the same behaviour
-> of vanilla -test8
+The kernel knows it if the array is set up with persistent superblocks,
+the partition type of the relevant partitions has id 0xfd (raid
+auto-detect), and the md-raid code is compiled into the kernel image.
 
-You say the behavior of vanilla 2.6.0-test8 was the machine and/or process
-getting hung? And this is still happening even after the fixes?
+-- 
+Mvh,
+André Tomt
+andre@tomt.net
 
-Thing is, it's working perfectly here, though I don't have a decent way
-to use totem. Could you send the results of sysrq t when it "hangs"?
-
-
--- wli

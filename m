@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280495AbRKXX3g>; Sat, 24 Nov 2001 18:29:36 -0500
+	id <S280524AbRKXXdA>; Sat, 24 Nov 2001 18:33:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280510AbRKXX30>; Sat, 24 Nov 2001 18:29:26 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39434 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280495AbRKXX3R>; Sat, 24 Nov 2001 18:29:17 -0500
-Message-ID: <3C002D41.9030708@zytor.com>
-Date: Sat, 24 Nov 2001 15:29:05 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us, en, sv
+	id <S280510AbRKXXcu>; Sat, 24 Nov 2001 18:32:50 -0500
+Received: from mail1.home.nl ([213.51.129.225]:19335 "EHLO mail1.home.nl")
+	by vger.kernel.org with ESMTP id <S280494AbRKXXcf>;
+	Sat, 24 Nov 2001 18:32:35 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: "F.H. Bulthuis" <bulthuis@home.nl>
+Reply-To: bulthuis@home.nl
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: Linux 2.4.16-pre1
+Date: Sun, 25 Nov 2001 00:32:35 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.21.0111241636200.12066-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0111241636200.12066-100000@freak.distro.conectiva>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Stephen Satchell <satch@concentric.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Journaling pointless with today's hard disks?
-In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de> <20011124103642.A32278@vega.ipal.net> <20011124184119.C12133@emma1.emma.line.org> <tgy9kwf02c.fsf@mercury.rus.uni-stuttgart.de> <4.3.2.7.2.20011124150445.00bd4240@10.1.1.42>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011124233234.PTJT16304.mail1.home.nl@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Satchell wrote:
+On Saturday 24 November 2001 19:39, Marcelo Tosatti wrote:
+> Hi,
+>
+> So here it goes 2.4.16-pre1. Obviously the most important fix is the
+> iput() one, which probably fixes the filesystem corruption problem people
+> have been seeing.
+>
+> Please, people who have been experiencing the fs corruption problems test
+> this and tell me its now working so I can release a final 2.4.16 ASAP.
+>
+>
+> - Correctly sync inodes in iput()			(Alexander Viro)
+> - Make pagecache readahead size tunable via /proc	(was in -ac tree)
+> - Fix PPC kernel compilation problems			(Paul Mackerras)
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-> 
-> It is the responsibility of the power monitor to detect a power-fail 
-> event and tell the drive(s) that a power-fail event is occurring.  If 
-> power goes out of specification before the drive completes a commanded 
-> write, what do you expect the poor drive to do?  ANY glitch in the write 
-> current will corrupt the current block no matter what -- the final CRC 
-> isn't recorded.  Most drives do have a panic-stop mode when they detect 
-> voltage going out of range so as to minimize the damage caused by an 
-> out-of-specification power-down event, and more importantly use the 
-> energy in the spinning platter to get the heads moved to a safe place 
-> before the drive completely spins down.  The panic-stop mode is EXACTLY 
-> like a Linux OOPS -- it's a catastrophic event that SHOULD NOT OCCUR.
-> 
+Hi,
+After compiling and installing the new 2.4.16-pre1 uname -a reports here 
+version 2.4.15-greased-turkey, not 2.4.16-pre1. 
+bash-2.05$ uname -a
+Linux nert 2.4.15-greased-turkey #1 Sat Nov 24 23:48:07 CET 2001 i686 unknown
 
+Cheers,
 
-There is no "power monitor" in a PC system (at least not that is visible 
-to the drive) -- if the drive needs it, it has to provide it itself.
-
-It's definitely the responsibility of the drive to recover gracefully 
-from such an event, which means that it writes anything that it has 
-committed to the host to write; anything it hasn't gotten committed to 
-write (but has received) can be written or not written, but must not 
-cause a failure of the drive.
-
-A drive is a PERSISTENT storage device, and as such has responsibilities 
-the other devices don't.
-
-Anything else is brainless rationalization.
-
-	-hpa
-
+Fred Bulthuis
+n00b to this list :)

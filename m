@@ -1,34 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263319AbSJJINz>; Thu, 10 Oct 2002 04:13:55 -0400
+	id <S263320AbSJJIQW>; Thu, 10 Oct 2002 04:16:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263320AbSJJINz>; Thu, 10 Oct 2002 04:13:55 -0400
-Received: from 62-190-217-253.pdu.pipex.net ([62.190.217.253]:43524 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S263319AbSJJINy>; Thu, 10 Oct 2002 04:13:54 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200210100828.g9A8SG9L000259@darkstar.example.net>
-Subject: Off topic, bandwidth wasting, waffle about Bit Keeper
-To: linux-kernel@vger.kernel.org
-Date: Thu, 10 Oct 2002 09:28:16 +0100 (BST)
-Cc: lm@bitmover.com
-In-Reply-To: <1034237391.23997.16.camel@forge> from "Henning Schmiedehausen" at Oct 10, 2002 10:09:50 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S263321AbSJJIQW>; Thu, 10 Oct 2002 04:16:22 -0400
+Received: from holomorphy.com ([66.224.33.161]:34280 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S263320AbSJJIQV>;
+	Thu, 10 Oct 2002 04:16:21 -0400
+Date: Thu, 10 Oct 2002 01:18:50 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.41-mm2
+Message-ID: <20021010081850.GO10722@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+	"linux-mm@kvack.org" <linux-mm@kvack.org>
+References: <3DA512B1.63287C02@digeo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3DA512B1.63287C02@digeo.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The solution, as I see it, is to wait for a couple of years until
-Larry drops his asking price of $12,000,000 to GPL it, and then ask a
-few of the large Linux distros to help raise that money.
+On Wed, Oct 09, 2002 at 10:40:01PM -0700, Andrew Morton wrote:
+> url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.41/2.5.41-mm2/
 
-Think about it - there will be more competition against BK in a couple
-of years time, so GPLing it to get more market share would make
-sense.  That way it could compete against, E.G. Subversion, if
-Subversion becomes a viable competitor.
+hugetlbfs update:
 
-Larry - what are your thoughts on this?
+CAP_IPC_LOCK is required to utilize hugetlb shm segments, memory
+allocation, and other facilities. The following patch does three things:
 
-John.
+(1) check capable(CAP_IPC_LOCK) in ->f_ops->mmap
+	This may be redundant but it errors out with less state to
+	clean up and at least clarifies the fact that checks are
+	being performed at the relevant entry points.
+
+(2) check capable(CAP_IPC_LOCK) in hugetlbfs_zero_setup()
+	This is called at shmget() time and is an actual potential
+	security hole. hugetlb_prefault() does not perform this
+	check itself, so it must be done here.
+
+
+--- akpm-2.5.41/fs/hugetlbfs/inode.c	2002-10-08 18:43:39.000000000 -0700
++++ wli-2.5.41/fs/hugetlbfs/inode.c	2002-10-10 00:30:15.000000000 -0700
+@@ -56,6 +56,9 @@
+ 	struct address_space *mapping = inode->i_mapping;
+ 	int ret;
+ 
++	if (!capable(CAP_IPC_LOCK))
++		return -EPERM;
++
+ 	if (vma->vm_start & ~HPAGE_MASK)
+ 		return -EINVAL;
+ 
+@@ -259,6 +262,9 @@
+ 	struct qstr quick_string;
+ 	char buf[16];
+ 
++	if (!capable(CAP_IPC_LOCK))
++		return ERR_PTR(-EPERM);
++
+ 	n = atomic_read(&hugetlbfs_counter);
+ 	atomic_inc(&hugetlbfs_counter);
+ 

@@ -1,28 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136698AbREGWwv>; Mon, 7 May 2001 18:52:51 -0400
+	id <S136700AbREGWxw>; Mon, 7 May 2001 18:53:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136699AbREGWwk>; Mon, 7 May 2001 18:52:40 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:37290 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S136698AbREGWwh>;
-	Mon, 7 May 2001 18:52:37 -0400
+	id <S136699AbREGWxl>; Mon, 7 May 2001 18:53:41 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:38058 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S136700AbREGWxY>;
+	Mon, 7 May 2001 18:53:24 -0400
 From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15095.10034.830845.463722@pizda.ninka.net>
-Date: Mon, 7 May 2001 15:52:34 -0700 (PDT)
+Message-ID: <15095.10082.285131.289903@pizda.ninka.net>
+Date: Mon, 7 May 2001 15:53:22 -0700 (PDT)
 To: Sean Jones <sjones@ossm.edu>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Compiling on a SPARC
-In-Reply-To: <3AF70F3B.D60EFA36@ossm.edu>
-In-Reply-To: <3AF70F3B.D60EFA36@ossm.edu>
+Subject: Re: SPARC include problem
+In-Reply-To: <3AF71B1F.56FFCA16@ossm.edu>
+In-Reply-To: <3AF71B1F.56FFCA16@ossm.edu>
 X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Try "make vmlinux"
+Sean Jones writes:
+ > In compiling 2.4.4-ac5 for my SPARCStation 20, I had an error in the
+ > compile resulting from the inability to find a hw_irq.h in the
+ > include/asm directory. Do you know where I may be able to find such a
+ > file?
+
+How did you find this problem if the build couldn't find the
+"bzImage" rule? :-)
 
 Later,
 David S. Miller

@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131233AbRDBTmO>; Mon, 2 Apr 2001 15:42:14 -0400
+	id <S131157AbRDBTxo>; Mon, 2 Apr 2001 15:53:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131269AbRDBTmF>; Mon, 2 Apr 2001 15:42:05 -0400
-Received: from waste.org ([209.173.204.2]:33401 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S131233AbRDBTlr>;
-	Mon, 2 Apr 2001 15:41:47 -0400
-Date: Mon, 2 Apr 2001 14:39:55 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: David Lang <dlang@diginsite.com>,
-   Manfred Spraul <manfred@colorfullife.com>,
-   "Albert D. Cahalan" <acahalan@cs.uml.edu>, <lm@bitmover.com>,
-   <linux-kernel@vger.kernel.org>
-Subject: Re: bug database braindump from the kernel summit
-In-Reply-To: <Pine.LNX.3.96.1010401181724.28121i-100000@mandrakesoft.mandrakesoft.com>
-Message-ID: <Pine.LNX.4.30.0104021436110.24812-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131276AbRDBTxe>; Mon, 2 Apr 2001 15:53:34 -0400
+Received: from nat-hdqt.valinux.com ([198.186.202.17]:52218 "EHLO tytlal")
+	by vger.kernel.org with ESMTP id <S131157AbRDBTxc>;
+	Mon, 2 Apr 2001 15:53:32 -0400
+To: kaos@ocs.com.au
+Subject: Re: [RFC] sane access to per-fs metadata (was Re: [PATCH] Documentation/ioctl-number.txt) 
+X-Newsgroups: linux.kernel
+In-Reply-To: <1140.986129422@ocs3.ocs-net>
+From: chip@valinux.com (Chip Salzenberg)
+In-Reply-To: <E14jdkF-0007Ps-00@tytlal>
+Organization: NASA Calendar Research
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <E14kAK3-0008UM-00@tytlal>
+Date: Mon, 02 Apr 2001 12:49:07 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Apr 2001, Jeff Garzik wrote:
-
-> On Sun, 1 Apr 2001, David Lang wrote:
-> > if we want to get the .config as part of the report then we need to make
-> > it part of the kernel in some standard way (the old /proc/config flamewar)
-> > it's difficult enough sometimes for the sysadmin of a box to know what
-> > kernel is running on it, let alone a bug reporting script.
+According to kaos@ocs.com.au:
+>chip@valinux.com (Chip Salzenberg) wrote:
+>>Why not have a kernel thread and use standard RPC techniques like
+>>sockets?  Then you'd not have to invent anything unimportant like
+>>Yet Another IPC Technique.
 >
-> Let's hope it's not a flamewar, but here goes :)
->
-> We -need- .config, but /proc/config seems like pure bloat.
+>kerneld (kmod's late unlamented predecessor) used to use Unix sockets
+>to communicate from the kernel to the daemon.  It forced everybody to
+>link Unix sockets into the kernel but there are some people out there
+>who want to use it as a module.  Also the kernel code for communicating
+>with kerneld was "unpleasant", see ipc/msg.c in a 2.0 kernel.
 
-As a former proponent of /proc/config (I wrote one of the much-debated
-patches), I tend to agree. Debian's make-kpkg does the right thing, namely
-treating .config the same way it treats System-map, putting it in the
-package and eventually installing it in /boot/config-x.y.z. If Redhat's
-kernel-install script did the same it would rapidly become a non-issue.
+I see.
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+On the other hand, file-style (e.g. /proc-style) access works in Plan9
+at least inpart because each client makes his own connection to the
+server.  Thus, the question of how clients know which response is for
+them is trivially solved.  ('Server' would in this case be the JFS
+kernel thread.)
 
+Sockets are apparently not the right way to go about getting
+transaction support for kernel threads.
+
+AFAIK, Alex Viro's idea of bindable namespaces provides effective
+transaction support *ONLY* if there are per-process bindings.  With
+per-process bindings, each client that opens a connection does so
+through a distinct binding; when that client's responses go back
+through the same binding, only that client can see them.
+
+I hope that Alex's namespaces patch, implementing per-process
+bindings, goes into the official kernel Real Soon Now.
+-- 
+Chip Salzenberg              - a.k.a. -             <chip@valinux.com>
+ "We have no fuel on board, plus or minus 8 kilograms."  -- NEAR tech

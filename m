@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288690AbSADRTd>; Fri, 4 Jan 2002 12:19:33 -0500
+	id <S288691AbSADRTx>; Fri, 4 Jan 2002 12:19:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280126AbSADRTX>; Fri, 4 Jan 2002 12:19:23 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:4627 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S279798AbSADRTV>;
-	Fri, 4 Jan 2002 12:19:21 -0500
-Date: Fri, 4 Jan 2002 09:17:59 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan <alan@clueserver.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] USB Storage Config patch for 2.4.17 and 2.5.1
-Message-ID: <20020104171758.GA17028@kroah.com>
-In-Reply-To: <200201041041.g04AfiL05830@clueserver.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200201041041.g04AfiL05830@clueserver.org>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Fri, 07 Dec 2001 14:41:22 -0800
+	id <S280126AbSADRTd>; Fri, 4 Jan 2002 12:19:33 -0500
+Received: from dark.pcgames.pl ([195.205.62.2]:13702 "EHLO dark.pcgames.pl")
+	by vger.kernel.org with ESMTP id <S279798AbSADRTZ>;
+	Fri, 4 Jan 2002 12:19:25 -0500
+Date: Fri, 4 Jan 2002 18:18:49 +0100 (CET)
+From: Krzysztof Oledzki <ole@ans.pl>
+X-X-Sender: <ole@dark.pcgames.pl>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Two hdds on one channel - why so slow?
+In-Reply-To: <Pine.LNX.4.33.0201040844130.14385-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.4.33.0201041803310.294-100000@dark.pcgames.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 04, 2002 at 12:11:58AM -0800, Alan wrote:
-> 
-> Here is the patch. It has been tested for 2.4.17 and 2.5.1.  It would have 
-> been shorter, but i added indenting to make the code look consistant.) 
-> Hopefully linewrap does not hose this.
 
-linewrap hosed it :)
 
-Please try it again, and you only need to send it to me and the mailing
-list, not all of the people in the Cc: that you originally listed.
+On Fri, 4 Jan 2002, Mark Hahn wrote:
 
-thanks,
+> > Yes. IDE as a PtP device works nice. But this means that in most cases
+> > it is possible to connect only half of expected devices. What a pity :(
+> "expected".  if you require 2disks/chain, then sure, ide will be
+> a disappointment.  since an ide chain costs O($15), you're crying
+> about spilled beer...
 
-greg k-h
+Actually it costs much more. For example Promise Ultra100TX2
+costs about 54$ (so is is 27$ per channel). Ultra133TX2 is more expensive
+- around 88$. It is more than half of TEKRAM DC-390U2W (Ultra2+Ultra
+SCSI Adapter) with Symbios 53C895 chipset. Those are SRP prices with VAT
+tax. Maybe prices in USA/Canada are much lower...
+
+
+Best regards,
+
+			Krzysztof Oledzki
+

@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbULXFkv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbULXGJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbULXFkv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 00:40:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbULXFkv
+	id S261376AbULXGJL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 01:09:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbULXGJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 00:40:51 -0500
-Received: from h80ad252a.async.vt.edu ([128.173.37.42]:46553 "EHLO
-	h80ad252a.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261375AbULXFkp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 00:40:45 -0500
-Message-Id: <200412240540.iBO5ebvF015327@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
-To: selvakumar nagendran <kernelselva@yahoo.com>
+	Fri, 24 Dec 2004 01:09:10 -0500
+Received: from web60606.mail.yahoo.com ([216.109.118.244]:61105 "HELO
+	web60606.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261376AbULXGJG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Dec 2004 01:09:06 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=O0xCYAxi/S/DTqsTU5FRBBtxsvKg+ugqluhZ0gMf2YLOkK5Krqha/Se1WyDw6ugtfIvj3vTd6jMYHn4UVPtO5y+TR3kZ3XrVSxHn0qwxnLM1SAeGwVqlYEB3WLGA8cwKIrKwShAQldn3aTXSjxJRJRveWETKzToykYbhBepHGrk=  ;
+Message-ID: <20041224060906.21085.qmail@web60606.mail.yahoo.com>
+Date: Thu, 23 Dec 2004 22:09:06 -0800 (PST)
+From: selvakumar nagendran <kernelselva@yahoo.com>
+Subject: Re : Re: Intercepting system calls in Linux kernel 2.6.x 
+To: Valdis.Kletnieks@vt.edu
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Intercepting system calls in Linux kernel 2.6.x 
-In-Reply-To: Your message of "Thu, 23 Dec 2004 20:45:53 PST."
-             <20041224044553.84241.qmail@web60607.mail.yahoo.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20041224044553.84241.qmail@web60607.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_256094804P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 24 Dec 2004 00:40:35 -0500
+In-Reply-To: <200412240540.iBO5ebvF015327@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_256094804P
-Content-Type: text/plain; charset=us-ascii
+Hello,
+     I want to save the system call parameters in a
+table. I want to do this from the kernel module. For
+that, I want to replace the already existing system
+call handler by my own. Are there any other mechanisms
+for doing this without exporting system call table? If
+it is then plz suggest any one of them?
 
-On Thu, 23 Dec 2004 20:45:53 PST, selvakumar nagendran said:
->  In linux kernel 2.6.x, what should we do to intercept
-> system calls? When I used sys_call_table from a
-> module, it returned the following error 'undefined
-> variable sys_call_table'. What is the way to export
-> system call table in kernel 2.6.x?
+Thanks,
+selva
+--- Valdis.Kletnieks@vt.edu wrote:
 
-That's generally very deprecated.
+> On Thu, 23 Dec 2004 20:45:53 PST, selvakumar
+> nagendran said:
+> >  In linux kernel 2.6.x, what should we do to
+> intercept
+> > system calls? When I used sys_call_table from a
+> > module, it returned the following error 'undefined
+> > variable sys_call_table'. What is the way to
+> export
+> > system call table in kernel 2.6.x?
+> 
+> That's generally very deprecated.
+> 
+> What problem are you trying to solve by intercepting
+> system calls? There
+> may very well be some other way to achieve what
+> you're trying to do...
+> 
 
-What problem are you trying to solve by intercepting system calls? There
-may very well be some other way to achieve what you're trying to do...
+> ATTACHMENT part 2 application/pgp-signature 
 
---==_Exmh_256094804P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFBy6vNcC3lWbTT17ARAtPrAJ9dhpRQBAs5tEQvkp7HuE08xWLxlACffSWf
-Srz7P6hvfEc8rjbvCCvqXGQ=
-=s3jo
------END PGP SIGNATURE-----
 
---==_Exmh_256094804P--
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - now with 250MB free storage. Learn more.
+http://info.mail.yahoo.com/mail_250

@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267415AbSKQAMQ>; Sat, 16 Nov 2002 19:12:16 -0500
+	id <S267414AbSKQAHu>; Sat, 16 Nov 2002 19:07:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267417AbSKQAMP>; Sat, 16 Nov 2002 19:12:15 -0500
-Received: from 12-231-236-219.client.attbi.com ([12.231.236.219]:47072 "EHLO
-	mystic.osdl.org") by vger.kernel.org with ESMTP id <S267415AbSKQAMO>;
-	Sat, 16 Nov 2002 19:12:14 -0500
-From: Nathan <smurf@osdl.org>
-Date: Sat, 16 Nov 2002 16:18:45 -0800
-To: Dan Kegel <dank@kegel.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Jeff Garzik <jgarzik@pobox.com>, john slee <indigoid@higherplane.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why can't Johnny compile?
-Message-ID: <20021117001845.GD12011@mystic.osdl.org>
-References: <3DD5D93F.8070505@kegel.com> <3DD5DC77.2010406@pobox.com> <20021116151102.GI19015@higherplane.net> <3DD6B2C5.3010303@pobox.com> <20021116213732.GO24641@conectiva.com.br> <20021116214250.GQ24641@conectiva.com.br> <1037490677.24843.7.camel@irongate.swansea.linux.org.uk> <3DD6DE32.60503@kegel.com>
+	id <S267415AbSKQAHu>; Sat, 16 Nov 2002 19:07:50 -0500
+Received: from holomorphy.com ([66.224.33.161]:63446 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267414AbSKQAHt>;
+	Sat, 16 Nov 2002 19:07:49 -0500
+Date: Sat, 16 Nov 2002 16:11:11 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dave Hansen <haveblue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [lart] /bin/ps output
+Message-ID: <20021117001111.GG23425@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Dave Hansen <haveblue@us.ibm.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <3DA798B6.9070400@us.ibm.com> <20021116092424.GY22031@holomorphy.com> <1037491895.24777.26.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DD6DE32.60503@kegel.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <1037491895.24777.26.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 16, 2002 at 04:09:22PM -0800, Dan Kegel wrote:
-> * maintainers try to not forward any patches to Linux that
->   cause 'make curyesconfig' or 'make curmodconfig' not build
+On Sun, Nov 17, 2002 at 12:11:35AM +0000, Alan Cox wrote:
+> Bill - so what happens if you trim down the aio, event and ksoftirqd
+> threads to a sane size (you might also want to do something about the
+> fact 2.5 still runs ksoftirq too easily). Intuitively I'd go for a
+> square root of the number of processors + 1 sort of function but what do
+> the benchmarks say ?
 
-The PLM is a *really* good way to get that verified for almost No Work.
 
-> * OSDL does nightly 'curyesconfig' and 'curmodconfig builds from
->   Linus's tree, and mails linux-kernel a link to the build log
->   along with whether it succeeded or failed
+Both reorganizing the per-cpu thread pools as state machines and
+inserting new locking look like work-intensive projects...
 
-Automatic emails to LK will become noise and get ignored very quickly.
+It's not become explosively bad yet (1MB of overhead is eyebrow-raising
+but not particularly damaging) so there's no rush to trim this down,
+but I'm at least thinking about doing this later. One of the major
+obstacles for the state machine approach is that the migration threads
+run at RT priority while the rest do not, and of course the greater
+than per-cpu granularity approach suffers from additional locking.
 
-> That would give maintainers quick feedback about whether they'd
-> broken some obscure part of Linus's tree...
 
-Maintainers of the major trees always get quick feedback.  In the form
-of "it doesn't compile" and compile patches.  Inserting some proactive
-testing into the development process would help more than the feedback.
-
-It would be cool if maintainers would only accept patches that are
-verified to compile.
-
-The big problem compile errors causes with the pre* and rc* series
-kernels is it vastly reduces the number of potential testers.  Not
-because of an inability to apply patches, but because testing has to be
-as easy as possible to get a wide audience.  Finding the "bug" of a
-compile error is so common now, reporting the bug isn't even interesting
-most of the time.  Testers know that chances are someone else has found
-it and someone else is probably 75% done with the patch to fix it.
-
-It would be a Good Thing if finding bugs in the kernel releases was
-cause for at least a little bit of surprise and interest.
-
-If any tree maintainers are interested in having their trees auto-sucked
-into the PLM, please let me know.  I can set it up to email you the
-compile results or not.
-
--Nathan
+Bill

@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbTFDAFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 20:05:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbTFDAFQ
+	id S261969AbTFDAHT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 20:07:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTFDAHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 20:05:16 -0400
-Received: from exchange-1.umflint.edu ([141.216.3.48]:22976 "EHLO
-	Exchange-1.umflint.edu") by vger.kernel.org with ESMTP
-	id S261960AbTFDAFP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 20:05:15 -0400
-X-MIMEOLE: Produced By Microsoft Exchange V6.0.6375.0
-content-class: urn:content-classes:message
+	Tue, 3 Jun 2003 20:07:19 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:52751 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id S261969AbTFDAHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 20:07:18 -0400
+Date: Wed, 4 Jun 2003 02:20:29 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Witold Krecicki <adasi@kernel.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.70-bk-20030603] oldconfig always asking for machine type
+ (x86)
+In-Reply-To: <1054668864.12364.8.camel@samael.culm.net>
+Message-ID: <Pine.LNX.4.44.0306040219250.12110-100000@serv>
+References: <1054668864.12364.8.camel@samael.culm.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Stalls from low free memory on 2.4.18 too  (fixed)
-Date: Tue, 3 Jun 2003 20:15:55 -0400
-Message-ID: <37885B2630DF0C4CA95EFB47B30985FB020EC025@exchange-1.umflint.edu>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Stalls from low free memory on 2.4.18 too  (fixed)
-Thread-Index: AcMqBUcyx2cirhonSWmPKJ+xqpktNwAARu0AAAC4vjAAB8HCYA==
-From: "Lauro, John" <jlauro@umflint.edu>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> One item I have not tried yet is one of the alternate memory
-> allocation patches that are supposed to work better with HIGHMEM.
-> 
+Hi,
 
-None of this is probably new news to the people making the changes...
-but for anyone with freezing or stalling problems it may be worth
-testing... 
+On 3 Jun 2003, Witold Krecicki wrote:
 
-I am testing right now with the 2.4.20 rmap15f patch.  So far it's
-been running great!  The lowest free has reports from a constant
-rolling vmstat 1 was over 8000, and it seems to hover over 11000 most
-of the time.  When dealing with large files, IMO the stock 2.4.x
-kernels are seriously broken on HIGHMEM machines (12GB on the server I
-am testing on), at least when dealing with huge file I/O.
+> Even if I'm doing this once after another, this a lil' bit complicates
+> creating binary packages with kernel, as building it should not wait for
+> any user input/interaction.
 
-The rmap patch seems to swap less. In fact, so far nothing has been
-swapped out.  Not that it should need to, but I am just a little
-surprised that it hasn't swapped any to try to get a little more
-cache, but the machine has only been up a little over an hour... and
-it would be silly to swap memory out when the io system is backed up
-and lots of other memory in the box that is clean...
+I think I found the problem, could you try the patch below?
 
-Maybe that is part of the problem with the standard 2.4.x kernels when
-free gets too low?  It spends too much time trying to find something
-to swap instead of just releasing clean cache?  I wasn't paying
-attention, but I normally would have had about 200mb in swap by this
-point...
+bye, Roman
 
-Anyways, this server isn't collapsing now...  I'm happy now.  :)
-
-Hopefully I will not have to reboot this box again for another year...
-If anyone thinks they will have a patch that might make it into
-2.4.21-rc let me know soon, and I will try to delay putting it fully
-into production.
-
-
-Thank you to all those who sent me messages suggesting different
-patches to try.  I haven't tried all of them, but will probably try
-some more of them on the next HIGHMEM server I setup (probably in a
-month or two).
+--- linux-2.5.70/scripts/kconfig/confdata.c	2003-05-28 22:47:05.000000000 +0200
++++ linux-2.5.70/scripts/kconfig/confdata.c	2003-06-04 02:13:38.000000000 +0200
+@@ -243,7 +243,8 @@ int conf_read(const char *name)
+ 		prop = sym_get_choice_prop(sym);
+ 		sym->flags &= ~SYMBOL_NEW;
+ 		for (e = prop->expr; e; e = e->left.expr)
+-			sym->flags |= e->right.sym->flags & SYMBOL_NEW;
++			if (e->right.sym->visible != no)
++				sym->flags |= e->right.sym->flags & SYMBOL_NEW;
+ 	}
+ 
+ 	sym_change_count = 1;
 

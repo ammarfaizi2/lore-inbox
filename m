@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265566AbUABN0T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 08:26:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265568AbUABN0T
+	id S265568AbUABN1F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 08:27:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265570AbUABN1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 08:26:19 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:39635 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S265566AbUABN0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 08:26:15 -0500
-Subject: Re: [RFC][PATCH] Move bv_offset/bv_len update after bio_endio in
-	__end_that_request_first
-From: Christophe Saout <christophe@saout.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1073048438.4239.10.camel@leto.cs.pocnet.net>
-References: <20040101173214.GA4496@leto.cs.pocnet.net>
-	 <20040102104637.GN5523@suse.de>
-	 <1073048438.4239.10.camel@leto.cs.pocnet.net>
-Content-Type: text/plain
-Message-Id: <1073049978.4239.14.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 02 Jan 2004 14:26:18 +0100
+	Fri, 2 Jan 2004 08:27:05 -0500
+Received: from firewall.conet.cz ([213.175.54.250]:32667 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265568AbUABN07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 08:26:59 -0500
+Message-ID: <3FF571A2.8050505@conet.cz>
+Date: Fri, 02 Jan 2004 14:26:58 +0100
+From: Libor Vanek <libor@conet.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Syscall table AKA hijacking syscalls
+References: <3FF56B1C.1040308@conet.cz> <20040102130847.GE2785@mea-ext.zmailer.org>
+In-Reply-To: <20040102130847.GE2785@mea-ext.zmailer.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Fr, den 02.01.2004 schrieb Christophe Saout um 14:00:
+Matti Aarnio wrote:
 
-> > > That's why I need to know exactly how many and which  bvecs were completed
-> > > in my bi_end_io function.
-> > > 
-> > > Or do you think it is safer to count backwards using bi_vcnt and bi_size?
-> > 
-> > I'm inclined to thinking that, indeed. Those two fields have a more well
-> > established usage, so I think you'll be better off doing that in the
-> > long run.
-> 
-> Ok, if you say so. This and the IDE multwrite thing are the only two
-> places in the kernel preventing bi_idx to be usable this way. I just
-> thought it was nicer.
+>On Fri, Jan 02, 2004 at 01:59:08PM +0100, Libor Vanek wrote:
+>  
+>
+>>Hi,
+>>I'm writing some project which needs to hijack some syscalls in VFS 
+>>layer. AFAIK in 2.6 is this "not-wanted" solution (even that there are 
+>>    
+>>
+>...
+>  
+>
+>>So what is proper (Linus recommanded) way to do such a things? Create 
+>>patches for specific syscalls like "if this_module_installed then 
+>>call_this_function;" or try to force things like syscalltrack to go into 
+>>vanilla kernel some time? Because what I've found out there are more 
+>>projects which suffer from this restriction.
+>>    
+>>
+>
+>
+>There is, of course, whole slew of politically coloured
+>issues with this chainability.
+>  
+>
 
-... but I still need bv_offset and bv_len to be unchanged in the
-bio_endio call. Can we please do this?
+I think that issues with chainability are ALWAYS whenever you try to do 
+this hijacking general.
+
+
+-- 
+
+Libor Vanek
+
+
 
 

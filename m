@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262051AbSIYVOV>; Wed, 25 Sep 2002 17:14:21 -0400
+	id <S262108AbSIYVhT>; Wed, 25 Sep 2002 17:37:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262052AbSIYVOV>; Wed, 25 Sep 2002 17:14:21 -0400
-Received: from adedition.com ([216.209.85.42]:44039 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S262051AbSIYVOU>;
-	Wed, 25 Sep 2002 17:14:20 -0400
-Date: Wed, 25 Sep 2002 17:17:16 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Lightweight Patch Manager <patch@luckynet.dynu.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Tomas Szepe <szepe@pinerecords.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH][2.5] Single linked lists for Linux
-Message-ID: <20020925171716.A15662@mark.mielke.cc>
-References: <20020925205608.1BD86F@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020925205608.1BD86F@hawkeye.luckynet.adm>; from patch@luckynet.dynu.com on Wed, Sep 25, 2002 at 08:56:08PM +0000
+	id <S262139AbSIYVhT>; Wed, 25 Sep 2002 17:37:19 -0400
+Received: from postino2.roma1.infn.it ([141.108.26.25]:53689 "EHLO
+	postino2.roma1.infn.it") by vger.kernel.org with ESMTP
+	id <S262108AbSIYVhS>; Wed, 25 Sep 2002 17:37:18 -0400
+Date: Wed, 25 Sep 2002 23:42:31 +0200 (CEST)
+From: "davide.rossetti" <Davide.Rossetti@roma1.infn.it>
+Reply-To: davide.rossetti@roma1.infn.it
+To: Daniel Phillips <phillips@arcor.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: DAC960 in 2.5.38, with new changes
+In-Reply-To: <E17ttkV-0003id-00@starship>
+Message-ID: <Pine.LNX.4.44.0209252338370.2766-100000@ronin.ape>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-RAVMilter-Version: 8.3.1(snapshot 20020108) (postino2.roma1.infn.it)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 25, 2002 at 08:56:08PM +0000, Lightweight Patch Manager wrote:
-> +#define slist_add_front(_new, _head)		\
-> +do {						\
-> +	(_new)->next = (_head);			\
-> +	(_head) = (_new);			\
-> +} while (0)
+On Tue, 24 Sep 2002, Daniel Phillips wrote:
 
-I suppose it isn't a serious issue, but is it necessary to repeat
-'_new' and '_head' in #define?
+> On Tuesday 24 September 2002 18:54, Dave Olien wrote:
+> > According to the Documentation/DMA-mapping.txt file, the new
+> > DMA mapping interfaces should allow all PCI transfers to use 32-bit DMA
+> > addresses. Controllers on the PCI bus should never need to use DAC
+> > PCI transfers.  Based on this, writel() should work even on ia64.
+> 
+> A totally disgusting idea: MMX/x87 are also capable of transferring 8
+> bytes in one instruction on ia32.
 
-> +/**
-> + * slist_del -	remove an entry from list
-> + * @head:	head to remove it from
-> + * @entry:	entry to be removed
-> + */
-> +#define slist_del(_head, _entry)		\
-> +do {						\
-> +	(_head)->next = (_entry)->next;		\
-> +	(_entry)->next = NULL;			\
-> +}
-
-Did you miss "while (0)"?
-
-> +#define slist_del_single(_list)			\
-> +	(_list)->next = NULL
-
-Perhaps an outer ()?
-
-mark
+to the north bridge. but then it's a bridge matter how to translate that
+access on the PCI side... I guess.
+regards
 
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
+______/ Rossetti Davide   INFN - Roma I - APE group \______________
+ pho +390649914507/412   web: http://apegate.roma1.infn.it/~rossetti
+ fax +390649914423     email: davide.rossetti@roma1.infn.it        
 

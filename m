@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131375AbRCWTjB>; Fri, 23 Mar 2001 14:39:01 -0500
+	id <S131382AbRCWTnn>; Fri, 23 Mar 2001 14:43:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131378AbRCWTiv>; Fri, 23 Mar 2001 14:38:51 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:21513 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S131375AbRCWTic>; Fri, 23 Mar 2001 14:38:32 -0500
-Date: Fri, 23 Mar 2001 19:37:46 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Amit D Chaudhary <amit@muppetlabs.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: RAMFS, CRAMFS and JFFS2(was Re: /linuxrc query)
-In-Reply-To: <3ABB8F57.3000800@muppetlabs.com>
-Message-ID: <Pine.LNX.4.30.0103231853280.2898-100000@imladris.demon.co.uk>
+	id <S131385AbRCWTnc>; Fri, 23 Mar 2001 14:43:32 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:14347 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131382AbRCWTn2>; Fri, 23 Mar 2001 14:43:28 -0500
+Date: Fri, 23 Mar 2001 11:42:39 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: "Adam J. Richter" <adam@yggdrasil.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Patch(?): linux-2.4.3-pre6/mm/vmalloc.c could return with
+ init_mm.page_table_lock held
+In-Reply-To: <Pine.LNX.4.21.0103230634320.5947-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.31.0103231140580.766-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Mar 2001, Amit D Chaudhary wrote:
-
-> Hi David,
-> 
-> I did consider CRAMFS and JFFS2 when it was announced on the mtd list. 
-> Conserving flash over system ram is more relevant. Our reasons are below:
-> 
-> RAMFS v/s CRAMFS
-> 1. RAMFS is just more stable in terms of less complexity, less bugs reported 
-> over the time, etc.
-> 2. RAMFS is a fairly robust filesystem and all features required as far as I can 
-> tell.
-
-I'm not aware of any bugs being found in cramfs recently - unless you 
-wanted to use it on Alpha (or anything else where PAGE_SIZE != the 
-hard-coded 4096 in mkcramfs.c).
-
-I wouldn't avoid it for those reasons - although if you're _really_ short 
-of flash space, the same argument applies as for JFFS2 - a single 
-compression stream (tar.gz) will be smaller than compressing individual 
-pages like JFFS2 and cramfs do.
 
 
-> I might be wrong and hence would welcome any suggestions.
+On Fri, 23 Mar 2001, Marcelo Tosatti wrote:
+>
+> There is no need to hold mm->page_table_lock for vmalloced memory.
 
-Given your stated constraints - you're very short of flash and don't care
-too much about the RAM you use, you've may have made the same choice I
-would have done.
+But there is. You do need _some_ protection to protect the kernel from
+inserting two different pmd/pgd entries for two different areas in the
+same slot. And that's exactly what page_table_lock does for us.
 
-Bearing in mind that you have to take into account the overhead of the 
-initrd which does the untarring - what's the total size of the initrd + 
-tarball on the flash, and what size would the corresponding cramfs be?
+> I guess a better solution is to make the vmalloc codepath use
+> "pte_alloc_vmalloc" (or something like that) which would be a
+> spinlock-free version of pte_alloc (like the old one).
 
-If you could fit your root filesystem into a cramfs on the flash, I'd do
-that instead and use ramfs for the parts which need to be writeable.
+The old one avoided the race by using the big kernel lock. Which is
+totally non-sensical, but works. It's much better to use the spinlock that
+is meant for exactly this thing.
 
-
--- 
-dwmw2
-
-
+		Linus
 

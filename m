@@ -1,64 +1,160 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266233AbTCENfI>; Wed, 5 Mar 2003 08:35:08 -0500
+	id <S266308AbTCENmP>; Wed, 5 Mar 2003 08:42:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266292AbTCENfH>; Wed, 5 Mar 2003 08:35:07 -0500
-Received: from mta04ps.bigpond.com ([144.135.25.136]:9928 "EHLO
-	mta04ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S266233AbTCENfG>; Wed, 5 Mar 2003 08:35:06 -0500
-Message-ID: <3E65FFDA.6050600@snapgear.com>
-Date: Wed, 05 Mar 2003 23:47:06 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH]: linux-2.5.64-uc0 (MMU-less fix ups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S266379AbTCENmP>; Wed, 5 Mar 2003 08:42:15 -0500
+Received: from isdn361.s.netic.de ([212.9.163.105]:2176 "EHLO solfire")
+	by vger.kernel.org with ESMTP id <S266308AbTCENmM>;
+	Wed, 5 Mar 2003 08:42:12 -0500
+Date: Wed, 05 Mar 2003 14:53:08 +0100 (MET)
+Message-Id: <20030305.145308.59464434.mccramer@s.netic.de>
+To: linux-kernel@vger.kernel.org
+From: Meino Christian Cramer <mccramer@s.netic.de>
+X-Mailer: Mew version 3.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+X-SA-Exim-Rcpt-To: linux-kernel@vger.kernel.org
+Subject: [Linux 2.5.64]: Keyboard not responding/accepted 
+Content-Type: Multipart/Mixed;
+ boundary="--Next_Part(Wed_Mar__5_14:53:08_2003_524)--"
 Content-Transfer-Encoding: 7bit
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+----Next_Part(Wed_Mar__5_14:53:08_2003_524)--
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-An update of the uClinux (MMU-less) fixups against 2.5.64.
-A few minor fixups going from 2.5.53 to 2.5.64, and some
-reworking of the ColdFire CPU timer support.
+ Hi,
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.64-uc0.patch.gz
+  ...for an unkown reason, my keyboard seems not to be accepted by the
+  newest Linux kernel (2.5.64) where under 2.4.20 it does.
 
+  Furthermore, a couple of modules (also sound/fat/vfat...) do produce
+  unresolved symbols while compiling.
 
-Also updated:
+  I had to include them into the kernel.
 
-. Motorola 68328 framebuffer driver
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.64-uc0-68328fb.patch.gz
+  Does anyone has a hint for the keyboard problem?
+  What did I wrong ?
 
-. Hitachi H8300 achitecture support
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.64-uc0-h8300.patch.gz
+  Kind regards,
+  Meino
 
-Regards
-Greg
+  System:
+  EPoX 8K5a3+ (VIA KT333)
+  Athlon  2400+
 
+   My config as gzipped attachment.....
 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+   
 
+----Next_Part(Wed_Mar__5_14:53:08_2003_524)--
+Content-Type: Application/Octet-Stream
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="cnf.gz"
 
+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
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+----Next_Part(Wed_Mar__5_14:53:08_2003_524)----

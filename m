@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263837AbUDPVhO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 17:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbUDPVgF
+	id S263829AbUDPVhM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 17:37:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263837AbUDPVfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 17:36:05 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62365 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263829AbUDPVd3 (ORCPT
+	Fri, 16 Apr 2004 17:35:52 -0400
+Received: from mail.gmx.net ([213.165.64.20]:13244 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262509AbUDPVfE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 17:33:29 -0400
-Date: Fri, 16 Apr 2004 14:35:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: manfred@colorfullife.com, drepper@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: message queue limits
-Message-Id: <20040416143538.04b4cd13.akpm@osdl.org>
-In-Reply-To: <20040416140613.GA2253@logos.cnet>
-References: <407A2DAC.3080802@redhat.com>
-	<20040415141846.GE2085@logos.cnet>
-	<407EB08D.4010607@colorfullife.com>
-	<20040416140613.GA2253@logos.cnet>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 16 Apr 2004 17:35:04 -0400
+X-Authenticated: #21910825
+Message-ID: <40805185.8050608@gmx.net>
+Date: Fri, 16 Apr 2004 23:35:01 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Linux RAID Mailing List <linux-raid@vger.kernel.org>
+Subject: [RFC] Enhanced MD / alternatives in userspace
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->
-> This should be working, but for some reason rlim[RLIMIT_MSGQUEUE].rlim_cur of
-> all tasks is 0, remembering it sets init_tasks's value at ipc/mqueue.c's __init function:
-> 
-> 	init_task.rlim[RLIMIT_MSGQUEUE].rlim_cur = 64;
-> 	init_task.rlim[RLIMIT_MSGQUEUE].rlim_max = 64;
+Hi,
 
-init_task is the task_struct for process 0, "swapper".  But by the time we
-run the initcalls, process 1 ("init") is up and running.
+during development of raiddetect I asked myself if this tool could be
+extended to set up not only the classic vendor ATARAID devices, but also
+things like Adaptec ASR (HostRAID) and DDF based RAID formats.
 
-So by the time you execute these assignments, you're changing the limits on
-a process which will never again create any children.
+Raiddetect is a utility which searches all disks for known RAID
+superblocks/metadata and parses the contents for validity. The results of
+this scan can either be outputted to the console or used to tell dm/md to
+set up the RAID devices. The newest version of raiddetect was posted to
+linux-kernel a few minutes ago and I will provide a web home for it soon.
 
-It's a bit hacky, but you could do
+So far, the development of raiddetect is at a stage where I can find (and
+mostly validate) the metadata of all ATARAID devices recognized by 2.4
+kernels. Adding ASR and DDF detection should be relatively easy since I
+tried to make the code moular and extensible.
 
-	BUG_ON(current->pid != 1);
-	current->rlim[RLIMIT_MSGQUEUE].rlim_cur = 64;
+Assuming the on-disk format of RAID5 et al. does not differ between the
+Linux md implementation and e.g. DDF (modulo some offset and different
+superblocks), DDF support is possible today with combinations of plain MD
+and DM. No additional kernel code needed at all. Simply teach raiddetect
+to understand the DDF metadata and pass this information to MD in a format
+md understands. The DDF metadata can be masked away from MD by using DM so
+you don't have to worry about it being trashed.
 
-but longer-term these initialisations should be moved into
-include/asm-foo/reousrce.h:INIT_RLIMITS
+Since this is marked as [RFC], please comment on its (in-)feasibility.
+
+
+Regards,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/
+

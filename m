@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285472AbRLYL12>; Tue, 25 Dec 2001 06:27:28 -0500
+	id <S285461AbRLYLUS>; Tue, 25 Dec 2001 06:20:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285465AbRLYL1S>; Tue, 25 Dec 2001 06:27:18 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:47825 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S285472AbRLYL1D>; Tue, 25 Dec 2001 06:27:03 -0500
-Date: Tue, 25 Dec 2001 12:26:58 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Tony Hoyle <tmh@nothing-on.tv>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: .text.exit compile error in 2.4.17
-In-Reply-To: <3C2797F4.42DD94EE@nothing-on.tv>
-Message-ID: <Pine.NEB.4.43.0112251224290.16722-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S285465AbRLYLUI>; Tue, 25 Dec 2001 06:20:08 -0500
+Received: from white.pocketinet.com ([12.17.167.5]:32670 "EHLO
+	white.pocketinet.com") by vger.kernel.org with ESMTP
+	id <S285461AbRLYLUA>; Tue, 25 Dec 2001 06:20:00 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <nknight@pocketinet.com>
+Reply-To: nknight@pocketinet.com
+To: linux-kernel@vger.kernel.org
+Subject: Who fixed via82cxxx_audio.c ?
+Date: Tue, 25 Dec 2001 03:20:02 -0800
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <WHITExvWvqzAoa2JB1n000005b3@white.pocketinet.com>
+X-OriginalArrivalTime: 25 Dec 2001 11:18:22.0306 (UTC) FILETIME=[DCF74420:01C18D35]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Dec 2001, Tony Hoyle wrote:
+Several months back, I started trying to get the via82cxxx_audio.c 
+sound driver fixed, it was causing lockup problems whenever something 
+opened and/or used the mixer. A similar route was taken as I took with 
+the Athlon optimization problems, trying to get everyone to send as 
+much information as possible on their cards using this driver. This 
+never really led anywhere, and the only information gleaned was that 
+dropping buffers down to extremely low levels helped in some cases, but 
+not all, and didn't always completely fix it.
 
->...
-> You can downgrade to the binutils in debian stable, which although it is
-> ancient, seems to work (the kernel it builds seems to be a bit flaky,
-> though,
-> so I went back to my working 2.4.16 just to be safe).
-
-Thanks, for the suggested wrokarounds but I know about the underlying
-problem - all I wanted to say with my mail was that there's a .text.exit
-compile error that is still present in 2.4.17.
-
-> Tony
-
-Merry Christmas
-Adrian
-
--- 
-
-Get my GPG key: finger bunk@debian.org | gpg --import
-
-Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
-
+After 2.4.10 was released, I stopped updating my kernel for a variety 
+of reasons (less time spent in linux, long story.) However a while back 
+I updated to 2.4.16, and decided to load XMMS just for the hell of it, 
+not 5 minutes ago. To my delight, the problem is completely solved. I 
+checked all the changelogs from 2.4.10 to now, and the only mention I 
+found searching for "97" (ac97 codec is used) and "via82" was in the 
+2.4.*17* changelog, saying Jeff was no longer the maintainer.
+I'd like to know who managed to find and fix the underlying cause, so I 
+can both thank them, and find out what the heck this problem that 
+plagued me for many months was.

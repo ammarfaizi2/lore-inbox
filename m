@@ -1,41 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131662AbRBNVh4>; Wed, 14 Feb 2001 16:37:56 -0500
+	id <S131661AbRBNVjg>; Wed, 14 Feb 2001 16:39:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131668AbRBNVhq>; Wed, 14 Feb 2001 16:37:46 -0500
-Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:3844 "EHLO
-	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with ESMTP
-	id <S131662AbRBNVhe>; Wed, 14 Feb 2001 16:37:34 -0500
-From: "Barry K. Nathan" <barryn@cx518206-b.irvn1.occa.home.com>
-Message-Id: <200102142137.NAA01678@cx518206-b.irvn1.occa.home.com>
-Subject: Re: IDE DMA Problems...system hangs
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Wed, 14 Feb 2001 13:37:26 -0800 (PST)
-Cc: jsidhu@arraycomm.com (Jasmeet Sidhu), linux-kernel@vger.kernel.org
-Reply-To: barryn@pobox.com
-In-Reply-To: <E14T8XO-0005wN-00@the-village.bc.nu> from "Alan Cox" at Feb 14, 2001 08:28:27 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S131665AbRBNVj0>; Wed, 14 Feb 2001 16:39:26 -0500
+Received: from saloma.stu.rpi.edu ([128.113.199.230]:37124 "HELO
+	incandescent.mp3revolution.net") by vger.kernel.org with SMTP
+	id <S131661AbRBNVjO>; Wed, 14 Feb 2001 16:39:14 -0500
+From: dilinger@mp3revolution.net
+Date: Wed, 14 Feb 2001 16:39:06 -0500
+To: Shawn Starr <Shawn.Starr@Home.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: piix.c and tuning question
+Message-ID: <20010214163906.A2085@incandescent.mp3revolution.net>
+In-Reply-To: <20010214023538.A26558@incandescent.mp3revolution.net> <3A8A38E7.569FD70E@Home.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3A8A38E7.569FD70E@Home.net>; from Shawn.Starr@Home.net on Wed, Feb 14, 2001 at 02:51:03AM -0500
+X-Operating-System: Linux incandescent 2.4.2-pre2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote: 
->> Feb 13 05:23:27 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
->> SeekComplete Error }
->> Feb 13 05:23:27 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
->> BadCRC }
+On Wed, Feb 14, 2001 at 02:51:03AM -0500, Shawn Starr wrote:
 > 
->You have inadequate cabling. CRC errors are indications of that. Make sure you
->are using sufficiently short cables for ATA33 and proper 80pin ATA66 cables.
+> hmmm this is my chipset:
+> 
+> Which motherboard do you have?
 
-I've had cases (on VIA chipsets) where, even or ATA33, a 40-pin cable
-caused CRC errors for ATA33 and an 80-pin cable fixed things. (The same
-40-pin cable does ATA33 without problems on an AMD 750 or an Intel BX,
-though.)
+No clue, it's an old p166, and I'm not about to open up the case..
 
-IIRC, Andre Hedrick has said in the past that a marginal PSU or
-motherboard can also cause CRC errors.
+> 
+> 00:00.0 Host bridge: Intel Corporation 430HX - 82439HX TXC [Triton II] (rev 03)
+> 00:07.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
+> 00:07.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]
+> 
+> i've had irq timeouts but they were due to a slow CD-ROM causing the two DMA drives to timeout (don't
+> know why).
+> 
+> ive never seen ide_dmaproc though.
 
--Barry K. Nathan <barryn@pobox.com>
+Me neither, which is why I initially couldn't figure out what was
+wrong..  Since setting -X34, however, I haven't had any more ide problems.
+
+> 
+> This is my following hdparm config
+> 
+> hdparm -d 1 -X34 -u1 -k 1 /dev/hdb
+> hdparm -d 1 -X34 -u1 -k 1 /dev/hda
+
+I don't use -k1, since I rely on the OS to set features if something is
+messed up.
+
+Has -u1 made much of a difference for you?
+
+> 
+> for both drives, one of them us a UDMA66 but this Pentium 200Mhz cant do UDMA even ;/
+> 
+> I have a AP53/AX AcerOpen Motherboard.
+> 
+> Shawn.
+> 
+
+-- 
+"... being a Linux user is sort of like living in a house inhabited
+by a large family of carpenters and architects. Every morning when
+you wake up, the house is a little different. Maybe there is a new
+turret, or some walls have moved. Or perhaps someone has temporarily
+removed the floor under your bed." - Unix for Dummies, 2nd Edition
+        -- found in the .sig of Rob Riggs, rriggs@tesser.com

@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280658AbRKJOGo>; Sat, 10 Nov 2001 09:06:44 -0500
+	id <S280666AbRKJOac>; Sat, 10 Nov 2001 09:30:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280665AbRKJOGf>; Sat, 10 Nov 2001 09:06:35 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:13764 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S280658AbRKJOGW>; Sat, 10 Nov 2001 09:06:22 -0500
-Message-Id: <5.1.0.14.2.20011110140252.0343cb00@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 10 Nov 2001 14:05:01 +0000
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: scsi BLKGETSIZE breakage in -pre2
-Cc: akpm@zip.com.au (Andrew Morton), linux-kernel@vger.kernel.org (lkml),
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <E162Ydz-0006Qf-00@the-village.bc.nu>
-In-Reply-To: <3BECD87F.F53234B2@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S280667AbRKJOaW>; Sat, 10 Nov 2001 09:30:22 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:25517 "EHLO
+	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S280666AbRKJOaM>; Sat, 10 Nov 2001 09:30:12 -0500
+Date: Sat, 10 Nov 2001 15:29:49 +0100 (CET)
+From: Oktay Akbal <oktay.akbal@s-tec.de>
+X-X-Sender: oktay@omega.hbh.net
+To: linux-kernel@vger.kernel.org
+Subject: Numbers: ext2/ext3/reiser Performance (ext3 is slow)
+In-Reply-To: <20011110.055217.85412085.davem@redhat.com>
+Message-ID: <Pine.LNX.4.40.0111101516050.14500-100000@omega.hbh.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: OK (checked by AntiVir Version 6.10.0.27)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 13:57 10/11/01, Alan Cox wrote:
-> > sd_ioctl() was changed to pass BLKGETSIZE off to blk_ioctl(),
-> > but blk_ioctl() doesn't implement it.
-> >
-> > So `cfdisk /dev/sda' is failing.
-> >
-> > Simply copying the -ac version of blkpg.c across fixes
-> > it for me.
->
->I'm feeding Linus stuff bit by bit - I managed to misorder that one.
 
-It has one positive side: mkntfs failed so I finally got round to 
-implementing device size determination via binary lseek search (a la 
-e2fsutils library) and I can test it without having to modify the mkntfs 
-source by booting into -pre2. (-:
+Hello !
 
-Anton
+On my test to optimize mysql-Performance I noticed, that the sql-bench is
+significantly slower when the tables are stored on a partition with
+reiserfs than ext2. I assume this is normal due to the overhead of journal
+in write-intensiv tasks. I reran the test with ext3 and was shocked how
+slow the bench was then. Here are the numbers for my old K6/400 with
+scsi-disks.
 
+Time to complete sql-bench
 
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+ext2	176min
+reiser  203min (+15%)
+ext3    310min (+76%)   (first test with 2.4.14-ext3 319min)
+
+I ran all tests multiple times. Since I used the same Kernels this
+is not an vm-issue. I tested on 2.4.14, 2.4.14+ext3 and 2.5.15-pre2.
+Since the sql-bench is not an pure fs-test the fs should only play a
+minor role. +76% time on this test means to mean that either ext3 is
+horible slow or has a severe bug.
+For those who know sql-bench I say, that test-insert seems to be the worst
+case. It shows
+Total time: 5880 wallclock secs  for ext2 and 13277 for ext3.
+swap was disabled during test.
+
+Anyone has an idea, why this ext3 "fails" at this specific test while on
+normal fs-benchmarks it is much better ?
+
+Oktay
 

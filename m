@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268192AbUHKTqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268193AbUHKTqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268192AbUHKTqn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 15:46:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268196AbUHKTqm
+	id S268193AbUHKTqf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 15:46:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268195AbUHKTqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 15:46:42 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56757 "EHLO
+	Wed, 11 Aug 2004 15:46:35 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56245 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S268192AbUHKTq1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 15:46:27 -0400
-Date: Wed, 11 Aug 2004 16:20:22 +0200
+	id S268193AbUHKTq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 15:46:26 -0400
+Date: Wed, 11 Aug 2004 15:50:19 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Shawn Starr <shawn.starr@rogers.com>
-Cc: "'Vernon Mauery'" <vernux@us.ibm.com>,
-       "'David Weinehall'" <tao@debian.org>,
-       "'Brown, Len'" <len.brown@intel.com>,
-       "'lkml'" <linux-kernel@vger.kernel.org>, linux-acpi@intel.com
-Subject: Re: [ACPI][2.6.8-rc2-bk #] - ACPI shutdown problems on IBMThinkpads (T42)
-Message-ID: <20040811142021.GE1120@openzaurus.ucw.cz>
-References: <1091120589.14718.4.camel@bluerat> <000701c475b8_5737e650_0200080a@panic>
+To: Zwane Mwaikambo <zwane@fsmlabs.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, lhcs-devel@lists.sourceforge.net
+Subject: Re: [PATCH][2.6-mm] i386 Hotplug CPU
+Message-ID: <20040811135019.GC1120@openzaurus.ucw.cz>
+References: <1090870667.22306.40.camel@pants.austin.ibm.com> <20040726170157.7f4b414c.akpm@osdl.org> <Pine.LNX.4.58.0407270137510.25781@montezuma.fsmlabs.com> <Pine.LNX.4.58.0407270440200.23985@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <000701c475b8_5737e650_0200080a@panic>
+In-Reply-To: <Pine.LNX.4.58.0407270440200.23985@montezuma.fsmlabs.com>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Something else I noticed, when ACPI fails to shut the machine down fully,
-> and I hold the power button to shut it off completely, I hear a buzzing
-> sound from the back, if I remove the battery and plug it back in the laptop
-> becomes completely silent. I'm not sure what this is though (?).
-> 
-> That issue I don't think is connected to ACPI. 
+> +#ifdef CONFIG_HOTPLUG_CPU
+> +#include <asm/nmi.h>
+> +/* We don't actually take CPU down, just spin without interrupts. */
+> +static inline void play_dead(void)
+> +{
 
-Thats hw problem...
+Well... if this can be fixed to really take cpu down, it will
+be immediately usefull for suspend-to-ram. If it is made to
+at least survive registers being overwritten, it will be usefull
+for suspend-to-disk...
+
+				Pavel
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

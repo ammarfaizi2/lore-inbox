@@ -1,48 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263646AbTJCJLd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 05:11:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263650AbTJCJLd
+	id S263653AbTJCJTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 05:19:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263655AbTJCJTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 05:11:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31379 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263646AbTJCJLb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 05:11:31 -0400
-Date: Fri, 3 Oct 2003 02:12:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Roland McGrath <roland@redhat.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix vsyscall page in core dumps
-Message-Id: <20031003021251.627dd922.akpm@osdl.org>
-In-Reply-To: <200310030156.h931uZhL015129@magilla.sf.frob.com>
-References: <200310030156.h931uZhL015129@magilla.sf.frob.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Oct 2003 05:19:25 -0400
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:58311 "EHLO
+	wisbech.cl.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S263653AbTJCJTL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 05:19:11 -0400
+To: John Bradford <john@grabjohn.com>
+cc: karim@opersys.com, linux-kernel@vger.kernel.org
+Subject: Re: [Xen-devel] Re: [ANNOUNCE] Xen high-performance x86 virtualization 
+In-Reply-To: Your message of "Fri, 03 Oct 2003 09:19:58 BST."
+             <200310030819.h938JwQi000411@81-2-122-30.bradfords.org.uk> 
+Date: Fri, 03 Oct 2003 10:19:06 +0100
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Message-Id: <E1A5M5a-00057S-00@wisbech.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland McGrath <roland@redhat.com> wrote:
->
-> My change to core dumps that was included with the vsyscall DSO
->  implementation had a bug (braino on my part).  Core dumps don't include the
->  full page of the vsyscall DSO, and so don't accurately represent the whole
->  memory image of the process.  This patch fixes it.  I have tested it on
->  x86, but not tested the same change to 32-bit core dumps on AMD64 (haven't
->  even compiled on AMD64).
+> You might find that that's a dis-advantage as you scale up.  Rather
+> than having CPU sit idle waiting for whoever paid for it to put it to
+> use, companies offering virtual servers would probably prefer to
+> oversubscribe the resources they've got, much like bandwidth is
+> contended on a DSL line.
 > 
->  I've also included the corresponding change for the IA64 code that was
->  copied blindly from the x86 vsyscall implementation, which looks like more
->  change than it is since I preserved the formatting of the copied code
->  instead of arbitrarily diddling it along with the trivial symbol name
->  changes.
+> For example, say you have an 8-way box running virtual servers.
+> Rather than sell each customer 1 cpu, let them burst to all 8 when
+> they need it.  Only when the load would exceed 100% do yo need to give
+> precedence to those who paid more.  You can sell a virtual 8 way
+> machine to 8 customers, as long as they realise that it is contended.
+> Web servers are often idle 90% of the time, but you want the best
+> performance when they're not.
+> 
+> Sharing resources such as network cards is also likely to be vital for
+> this to be scalable to any degree.
 
-How does one test it?
+I should probably make it clear exactly how resources are muxed in the
+current version of Xen. 
 
-> I haven't compiled or tested on ia64.
+ CPU: We use a proportional fair-share scheduler (Borrowed Virtual
+ Time). Guests can be be given different scheduler weights ---
+ if reservations are being handed out then admission control is
+ required to ensure that a given guest's fair share doesn't fall below
+ its guaranteed minimum.
 
-I have.  GATE_BASE is undefined.  Replacing it with GATE_ADDR makes it
-build OK, but that's all I can say.
+ Memory: Each guest is allocated a share of memory when it is started
+ up. This is configurable per guest. Furthermore, a guest can request
+ more memory, or give some memory back, according to current load (we
+ implement a "balloon driver" as described by Waldspurger in a paper
+ he presented at OSDI 2002).  
 
+ Network + disk: Currently each domain gets a fair share (we use a
+ round-robin scheduler). We plan to implement weighted share r.s.n.
+
+We're interested in exploring reservation-based schedulers but, apart
+from memory, resources currently aren't statically segregated.
+
+Xen provides an excellent base for trying out new strategies for
+resource sharing. Deploying new schedulers is not that hard --- it
+just requires more man power than we have right now!
+
+> Both of those points, as well as virtual local networking, are what
+> make Z/Series boxes attractive for a lot of applications.
+
+In fact, one of our main aims is to provide zseries-style
+virtualization on x86 hardware! We've got a fair way towards this, but
+we're not fully there yet :-)
+
+> What is the performance penalty of running an X86-Xeno port of an OS
+> natively on the hardware?  Some distributions may not be prepared to
+> support it in addition to native X86, but if they can make X86-Xeno
+> their main architecture...
+
+Right, another good point. The performance penalty on a range of
+system benchmarks (including SPEC WEB99) shows that there's up to
+around 5% overhead for running x86-xen. This is far far less than any
+other virtualization of x86 that is capable of running full OSes.
+
+So yes: we envisage Xen being a next-gen replacement BIOS, in that it
+could be installed on a machine and would then be responsible for
+booting and supervising all OSes running on that machine. Device
+drivers would be written according to a well-defined interface,
+implemented within Xen, or within isolated "domains" running atop of
+Xen. This kind of fits with the previous observation -- we want
+zseries for x86 :-)
+
+ -- Keir

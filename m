@@ -1,61 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129112AbQKIA3x>; Wed, 8 Nov 2000 19:29:53 -0500
+	id <S129097AbQKIAaY>; Wed, 8 Nov 2000 19:30:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129097AbQKIA3n>; Wed, 8 Nov 2000 19:29:43 -0500
-Received: from ocmax10-248.dialup.optusnet.com.au ([198.142.43.248]:27912 "HELO
-	tae-bo.generica.dyndns.org") by vger.kernel.org with SMTP
-	id <S129112AbQKIA31>; Wed, 8 Nov 2000 19:29:27 -0500
-Date: Thu, 9 Nov 2000 11:35:03 +1100 (EST)
-From: Brett <bpemberton@dingoblue.net.au>
-To: David Ford <david@linux.com>
-cc: David Feuer <David_Feuer@brown.edu>, linux-kernel@vger.kernel.org
-Subject: Re: pcmcia
-In-Reply-To: <3A09E8E6.2118280D@linux.com>
-Message-ID: <Pine.LNX.4.21.0011091131240.9217-100000@tae-bo.generica.dyndns.org>
+	id <S129507AbQKIAaR>; Wed, 8 Nov 2000 19:30:17 -0500
+Received: from boss.staszic.waw.pl ([195.205.163.66]:49161 "EHLO
+	boss.staszic.waw.pl") by vger.kernel.org with ESMTP
+	id <S129097AbQKIAaJ>; Wed, 8 Nov 2000 19:30:09 -0500
+Date: Thu, 9 Nov 2000 01:29:46 +0100 (CET)
+From: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] media/radio [check_region() removal... ]
+In-Reply-To: <3A09EC3A.82324C57@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.21.0011090124350.23238-100000@tricky>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 8 Nov 2000, Jeff Garzik wrote:
 
-Hey,
-
-I don't know if this counts as a _problem_, 
-but I need to enable pci support to get pcmcia/cardbus activated.
-Is this really necessary ?? My current kernels work fine without pci
-support, and sure, enabling it won't hurt, just make the kernel bigger,
-but why is the restriction there ?
-
-Also, what has happened to the i82365 support that I need ? 
-Its nicely commented out in drivers/net/pcmcia/Config.in
-
-I remember everything working fine up until about test3/4, since then I've
-had to revert to the pcmcia-cs package.
-
-Just wondering whats going on ?
-
-	/ Brett
-
-On Wed, 8 Nov 2000, David Ford wrote:
+> Patch looks generally ok.  Some of the whitespace/formatting changes are
+> questionable, I usually leave that up to the maintainer unless it is
+> very gratuitously opposite to CodingStyle.
 >
-> With a few exceptions, it should work.  The problematic systems are few.
+
+These drivers seem to be unmantained :)
+Anyway if this is a problem I can undo these changes ...
+
+> Some of the driver messages ("foo version 1.0") are purposefully printed
+> -after-, not before, the device is probed and registered.  Your patch
+> gets this wrong in at least one place.
+>
+
+Yes... I wasn't sure about this... can undo...
+
+> Finally, a word to you, Alan, and others doing request_region work:  it
+> is more informative to pass the device name (minor, etc.) into
+> request_region.  Ditto for request_irq.  Many (most, except net?)
+> drivers use board/chip name instead of registered interface name.  If
+> you can use the interface name for request_region or request_irq, use
+> it... it allows differentiation between multiple boards of the same
+> type.  That's especially when looking at ISA regions in /proc/ioports,
+> or interrupt counts in /proc/interrupts.
 > 
-> -d
-> 
-> David Feuer wrote:
-> 
-> > What is the current status of PC-card support?  I've seen ominous signs on
-> > this list about the state of support....  I have a laptop with a PCMCIA
-> > network card (a 3com thing). Will it work?
-> 
-> --
-> "The difference between 'involvement' and 'commitment' is like an
-> eggs-and-ham breakfast: the chicken was 'involved' - the pig was
-> 'committed'."
-> 
-> 
-> 
+> 	Jeff
+
+Agree... but in this case it's less important until radio drivers
+supports multiple boards...
+
+thanks
+--
+Bartlomiej Zolnierkiewicz
+<bkz@linux-ide.org>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

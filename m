@@ -1,66 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVDDUyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVDDUyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbVDDUyq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 16:54:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVDDUx0
+	id S261384AbVDDUyp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 16:54:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVDDUxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 16:53:26 -0400
-Received: from mail.velocity.net ([66.211.211.55]:37602 "EHLO
-	mail.velocity.net") by vger.kernel.org with ESMTP id S261390AbVDDUu6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 16:50:58 -0400
-X-AV-Checked: Mon Apr  4 16:50:58 2005 clean
-Subject: Re: [patch] inotify 0.22
-From: Dale Blount <linux-kernel@dale.us>
-To: Robert Love <rml@novell.com>
-Cc: John McCutchan <ttb@tentacle.dhs.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1112644936.6736.7.camel@betsy>
-References: <1112644936.6736.7.camel@betsy>
-Content-Type: text/plain
-Date: Mon, 04 Apr 2005 16:50:55 -0400
-Message-Id: <1112647855.520.20.camel@dale.velocity.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+	Mon, 4 Apr 2005 16:53:10 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32739 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261391AbVDDUr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 16:47:58 -0400
+Message-ID: <4251A7E8.6050200@pobox.com>
+Date: Mon, 04 Apr 2005 16:47:36 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sven Luther <sven.luther@wanadoo.fr>
+CC: Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
+       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
+       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org,
+       Jes Sorensen <jes@trained-monkey.org>, linux-acenic@sunsite.dk
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+ copyright notice.
+References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404183909.GI18349@parcelfarce.linux.theplanet.co.uk> <42519BCB.2030307@pobox.com> <20050404202706.GB3140@pegasos>
+In-Reply-To: <20050404202706.GB3140@pegasos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> inotify is intended to correct the deficiencies of dnotify, particularly
-> its inability to scale and its terrible user interface:
+Sven Luther wrote:
+> On Mon, Apr 04, 2005 at 03:55:55PM -0400, Jeff Garzik wrote:
 > 
->         * dnotify requires the opening of one fd per each directory
->           that you intend to watch. This quickly results in too many
->           open files and pins removable media, preventing unmount.
->         * dnotify is directory-based. You only learn about changes to
->           directories. Sure, a change to a file in a directory affects
->           the directory, but you are then forced to keep a cache of
->           stat structures.
->         * dnotify's interface to user-space is awful.  Signals?
+>>Matthew Wilcox wrote:
+>>
+>>>On Mon, Apr 04, 2005 at 10:51:30AM -0700, Greg KH wrote:
+>>>
+>>>
+>>>>Then let's see some acts.  We (lkml) are not the ones with the percieved
+>>>>problem, or the ones discussing it.
+>>>
+>>>
+>>>Actually, there are some legitimate problems with some of the files in
+>>>the Linux source base.  Last time this came up, the Acenic firmware was
+>>>mentioned:
+>>>
+>>>http://lists.debian.org/debian-legal/2004/12/msg00078.html
+>>>
+>>>Seems to me that situation is still not resolved.
+>>
+>>And it looks like no one cares enough to make the effort to resolve this...
+>>
+>>I would love an open source acenic firmware.
 > 
-> inotify provides a more usable, simple, powerful solution to file change
-> notification:
 > 
->         * inotify's interface is a device node, not SIGIO.  You open a 
->           single fd to the device node, which is select()-able.
->         * inotify has an event that says "the filesystem that the item
->           you were watching is on was unmounted."
->         * inotify can watch directories or files.
+> Yep, but in the meantime, let's clearly mark said firmware as
+> not-covered-by-the-GPL. In the acenic case it seems to be even easier, as the
+> firmware is in a separate acenic_firmware.h file, and it just needs to have
+> the proper licencing statement added, saying that it is not covered by the
+> GPL, and then giving the information under what licence it is being
+> distributed.
+
+Who has meaningfully contacted Alteon (probably "Neterion" now) about 
+this?  What is the progress of that request?
+
+
+> Jeff, since your name was found in the tg3.c case, and you seem to care about
+> this too, what is your take on this proposal ?
 > 
+> Friendly,
 
-Robert and others,
+Bluntly, Debian is being a pain in the ass ;-)
 
-Will inotify watch directories recursively?  A quick browse through the
-source doesn't look like it, but I very well could be wrong.  Last I
-checked, dnotify did not either.  I am looking for a way to synchronize
-files in as-real-as-possible-time when they are modified.  The ideal
-implementation would be a kernel "hook" like d/inotify and a client
-application that watches changes and copies them to a remote server for
-redundancy purposes.   A scheduled rsync works decently, but has a lag
-time of 2-3 (or more) hours on certain files on a large filesystem.
-Will inotify work for this, or does someone else have another
-recommended solution to the problem?
+There will always be non-free firmware to deal with, for key hardware.
 
-Thanks,
+	Jeff
 
-Dale
 

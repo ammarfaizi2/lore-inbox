@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263215AbTBNRlR>; Fri, 14 Feb 2003 12:41:17 -0500
+	id <S261581AbTBNRxb>; Fri, 14 Feb 2003 12:53:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263256AbTBNRlQ>; Fri, 14 Feb 2003 12:41:16 -0500
-Received: from [208.0.185.14] ([208.0.185.14]:58377 "EHLO ncbdc.bbs.com")
-	by vger.kernel.org with ESMTP id <S263215AbTBNRlQ>;
-	Fri, 14 Feb 2003 12:41:16 -0500
-Message-ID: <057889C7F1E5D61193620002A537E8690B5A2D@NCBDC>
-From: Larry Hileman <LHileman@snapappliance.com>
-To: "'Tomas Szepe'" <szepe@pinerecords.com>,
-       Larry Hileman <LHileman@snapappliance.com>
+	id <S261645AbTBNRxb>; Fri, 14 Feb 2003 12:53:31 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:31616 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S261581AbTBNRxb>; Fri, 14 Feb 2003 12:53:31 -0500
+Date: Fri, 14 Feb 2003 19:03:20 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Larry Hileman <LHileman@snapappliance.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: Question about 48 bit IDE on 2.4.18 kernel
-Date: Fri, 14 Feb 2003 09:51:06 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Re: Question about 48 bit IDE on 2.4.18 kernel
+Message-ID: <20030214180320.GG200@louise.pinerecords.com>
+References: <057889C7F1E5D61193620002A537E8690B5A2D@NCBDC>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <057889C7F1E5D61193620002A537E8690B5A2D@NCBDC>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was asked to figure a way to get us over the 137G barrier on
-the 2.4.18 kernel.  Going to 2.4.20/21 can be done in parallel
-and I will explain this.
-
-Moving to 2.4.20/21 is a large effort here.  If I need to implement
-the larger drives in 2.4.18, I'd like to make sure that this
-has not already been done and that I have the latest code.
-
-
------Original Message-----
-From: Tomas Szepe [mailto:szepe@pinerecords.com]
-Sent: Friday, February 14, 2003 9:43 AM
-To: Larry Hileman
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about 48 bit IDE on 2.4.18 kernel
-
-
 > [LHileman@snapappliance.com]
 > 
-> Ok, from this information it would seem that the 2.4.18 kernel
-> will not support > 137G drives?  
+> Moving to 2.4.20/21 is a large effort here.  If I need to implement
+> the larger drives in 2.4.18, I'd like to make sure that this
+> has not already been done and that I have the latest code.
 
-Is there any reason why you couldn't upgrade to 2.4.20?
+Well, the patches to the IDE layer in patch-2.4.19 & patch-2.4.20
+are both relatively numerous and large, but should still be quite
+straightforward to extract, given you're good with various diff
+utils.  The block layer changes that Alan mentions will be minimal
+and probably easy to trace.
 
 -- 
 Tomas Szepe <szepe@pinerecords.com>

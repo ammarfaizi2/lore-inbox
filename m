@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269998AbUJSTEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269916AbUJSTEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269998AbUJSTEm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 15:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269916AbUJSTCJ
+	id S269916AbUJSTEp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 15:04:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269574AbUJSTBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 15:02:09 -0400
-Received: from brown.brainfood.com ([146.82.138.61]:7552 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S269584AbUJSSw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 14:52:57 -0400
-Date: Tue, 19 Oct 2004 13:52:53 -0500 (CDT)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U6
-In-Reply-To: <20041019173510.GA18323@elte.hu>
-Message-ID: <Pine.LNX.4.58.0410191351550.1219@gradall.private.brainfood.com>
-References: <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu>
- <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu>
- <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
- <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu>
- <20041019124605.GA28896@elte.hu> <Pine.LNX.4.58.0410191222050.1216@gradall.private.brainfood.com>
- <20041019173510.GA18323@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 19 Oct 2004 15:01:54 -0400
+Received: from poup.poupinou.org ([195.101.94.96]:49424 "EHLO
+	poup.poupinou.org") by vger.kernel.org with ESMTP id S269916AbUJSSWb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 14:22:31 -0400
+Date: Tue, 19 Oct 2004 20:22:24 +0200
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Alexander Clouter <alex-kernel@digriz.org.uk>,
+       linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
+Subject: Re: [PATCH] cpufreq_ondemand
+Message-ID: <20041019182224.GB22405@poupinou.org>
+References: <20041017222916.GA30841@inskipp.digriz.org.uk> <4172F3C5.8090604@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4172F3C5.8090604@kolivas.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Bruno Ducrot <ducrot@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Oct 2004, Ingo Molnar wrote:
+Hi,
 
->
-> * Adam Heath <doogie@debian.org> wrote:
->
-> > I am still having the same bug(repeatable by running liquidwar) as I
-> > reported with -U5(see my earlier email).
->
-> ok, this seems to be some questionable code in OSS. It really has no
-> business up()-ing the inode semaphore - nobody down()-ed it before! This
-> could be either a bad workaround for a bug/hang someone saw, or an old
-> VFS assumption that doesnt hold anymore. In any case, could you try the
-> patch below, does it fix liquidwar?
+On Mon, Oct 18, 2004 at 08:35:49AM +1000, Con Kolivas wrote:
+> Alexander Clouter wrote:
+> >>3. (major) the scaling up and down of the cpufreq is now smoother.  I 
+> >>found 
+> >	it really nasty that if it tripped < 20% idle time that the freq was 
+> >	set to 100%.  This code smoothly increases the cpufreq as well as 
+> >	doing a better job of decreasing it too
+> 
+> I'd much prefer it shot up to 100% or else every time the cpu usage went 
+> up there'd be an obvious lag till the machine ran at it's capable speed. 
+>  I very much doubt the small amount of time it spent at 100% speed with 
+> the default design would decrease the battery life significantly as well.
+> 
 
-Yup, the below fixes it.  However, this problem *only* started occuring in
--U5.  I've been running liquidwar on all versions(it's my current
-game-to-play-when-I-feel-stupid program).
+I'm almost ok with your words, but the amd64 do have unacceptable
+latency between min and max freq transition, due to the step-by-step
+requirements (200MHz IIRC).
+Alexander's governor may be then OK for those kind of processors.
 
->
-> 	Ingo
->
-> --- linux/sound/core/oss/pcm_oss.c.orig
-> +++ linux/sound/core/oss/pcm_oss.c
-> @@ -2120,9 +2120,7 @@ static ssize_t snd_pcm_oss_write(struct
->  	substream = pcm_oss_file->streams[SNDRV_PCM_STREAM_PLAYBACK];
->  	if (substream == NULL)
->  		return -ENXIO;
-> -	up(&file->f_dentry->d_inode->i_sem);
->  	result = snd_pcm_oss_write1(substream, buf, count);
-> -	down(&file->f_dentry->d_inode->i_sem);
->  #ifdef OSS_DEBUG
->  	printk("pcm_oss: write %li bytes (wrote %li bytes)\n", (long)count, (long)result);
->  #endif
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-- 
+Bruno Ducrot
+
+--  Which is worse:  ignorance or apathy?
+--  Don't know.  Don't care.

@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317637AbSGUE7K>; Sun, 21 Jul 2002 00:59:10 -0400
+	id <S317639AbSGUFaS>; Sun, 21 Jul 2002 01:30:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317639AbSGUE7K>; Sun, 21 Jul 2002 00:59:10 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:35136 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S317637AbSGUE7J>; Sun, 21 Jul 2002 00:59:09 -0400
-Date: Sat, 20 Jul 2002 23:02:13 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: David Caplan <david@polycode.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Asus-a7v/Via-Vt8233 data corruption
-In-Reply-To: <20020721043653.NLID8251.tomts6-srv.bellnexxia.net@david>
-Message-ID: <Pine.LNX.4.44.0207202300180.3309-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
+	id <S317640AbSGUFaS>; Sun, 21 Jul 2002 01:30:18 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:3846 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S317639AbSGUFaR>; Sun, 21 Jul 2002 01:30:17 -0400
+Date: Sat, 20 Jul 2002 22:28:27 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Thunder from the hill <thunder@ngforever.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Give Bartlomiej a break!  (Re: Impressions of IDE 98?)
+In-Reply-To: <20020720221703.GE12637@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.10.10207202222320.23502-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sun, 21 Jul 2002, David Caplan wrote:
-> Assersion Failure in __journal_file_buffer() transaction.c:1937
+Tomas,
 
-That means nothing but incorrect locking, I guess. What else do we assert 
-there? FWIW, line 1937 is empty...
+Give Bartlomiej a break!
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+I have been working with and teaching him how to read the document.
+I refused to give him the answers, he had to learn it while I guided him.
+It took about 3-4 evenings on IRC for Bart to get it, while he still has
+much to learn that only time will grant him.  I got in a shorter period
+than me, but I had to learn much if it on my own and only at the threshold
+of getting did somebody in the storage industry give me a swift kick in
+the pants.
+
+Somebody submit a patch to make Bart the maintainer of 2.5.
+
+
+Sincerely,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Sun, 21 Jul 2002, Tomas Szepe wrote:
+
+> > > I'm wondering, why haven't IDE 99 and IDE 100 been posted on lkml?
+> > >
+> > Ask Martin, I don't know.
+> 
+> Right. I'm puzzled here.
+> 
+> How safe does Martin think people will suppose the patches are if they were
+> not meant to be reviewed in the standard lkml manner? Given the problems
+> with 2.5.25 (and 'problems' would be an euphemism here) I'd expect to see
+> something like a 'safer coding' approach, not 'stealth operations.'
+> 
+> T.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,96 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267171AbUHTQjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267253AbUHTQnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267171AbUHTQjr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 12:39:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268329AbUHTQjr
+	id S267253AbUHTQnW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 12:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267468AbUHTQnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 12:39:47 -0400
-Received: from nwkea-mail-2.sun.com ([192.18.42.14]:39817 "EHLO
-	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
-	id S267171AbUHTQip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 12:38:45 -0400
-Date: Fri, 20 Aug 2004 09:38:43 -0700
-From: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
-Subject: Re: 2.6.8.1 "modprobe tg3" oopses with gcc 3.4.1
-In-reply-to: <200408201148.48206.bero@arklinux.org>
-To: bero@arklinux.org
-Cc: linux-kernel@vger.kernel.org
-Message-id: <1093019923.20094.14.camel@duffman>
-MIME-version: 1.0
-X-Mailer: Evolution 1.5.93 (1.5.93-2)
-Content-type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature"; boundary="=-2Xo/t75KiSo310mzuMth"
-References: <200408201148.48206.bero@arklinux.org>
+	Fri, 20 Aug 2004 12:43:22 -0400
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:11676 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S267253AbUHTQnL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 12:43:11 -0400
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: fsteiner-mail@bio.ifi.lmu.de, diablod3@gmail.com,
+       linux-kernel@vger.kernel.org, kernel@wildsau.enemy.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <200408041233.i74CX93f009939@wildsau.enemy.org>
+	<d577e5690408190004368536e9@mail.gmail.com>
+	<4124A024.nail7X62HZNBB@burner>
+	<1092919260.28141.30.camel@localhost.localdomain>
+	<4124BA65.7010509@bio.ifi.lmu.de>
+	<d577e56904082001023b2faad9@mail.gmail.com>
+	<41260517.nail8LDD105P5@burner>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 20 Aug 2004 18:43:10 +0200
+In-Reply-To: <41260517.nail8LDD105P5@burner>
+Message-ID: <m3brh54v6p.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joerg Schilling <schilling@fokus.fraunhofer.de> writes:
 
---=-2Xo/t75KiSo310mzuMth
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> bla bla bla.... you nicely ignored:
+> 
+> Message-ID: <4124C46B.nail83H31GJ2S@burner> 
 
-On Fri, 2004-08-20 at 11:48 +0000, bero@arklinux.org wrote:
-> I get this when trying to modprobe tg3 on an Acer Aspire 1500 notebook (3=
-2bit=20
-> mode) when the kernel [tried 2.6.8.1 and 2.6.8.1-mm1] is compiled with gc=
-c=20
-> 3.4.1 (3.3.4 works):
+And what is he ignoring?
 
-This looks like a similar oops I reported yesterday.  Although I was
-using gcc 3.3.3 in 64 bit x86_64 and modprobe'ing ehci_hcd:
+In that message you complained about a SuSE modified version, but as
+far as I can tell you did not bring up any other arguments, except to
+point at bug in the SuSE version.  A version that very clearly stated
+that it is a modified version and that you should not be contacted
+about bugs in that version.
 
-CPU 0
-Modules linked in: ehci_hcd button battery asus_acpi ac xfs qla2322 qla2xxx=
- scsi_transport_fc sd_mod scsi_mod
-Pid: 507, comm: modprobe Not tainted 2.6.8.1-mm2
-RIP: 0010:[<ffffffff8048eb81>] <ffffffff8048eb81>{add_pin_to_irq+1}
-RSP: 0018:00000100cf245d00  EFLAGS: 00000212
-RAX: 0000000000000089 RBX: 0000000000000017 RCX: 0000000000000080
-RDX: 0000000000000017 RSI: 0000000000000000 RDI: 0000000000000017
-RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000001
-R13: 0000000000000000 R14: 0000000000000017 R15: 0000000000000000
-FS:  0000002a9557b4c0(0000) GS:ffffffff8047ef80(0000) knlGS:000000000000000=
-0
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 0000000000420f30 CR3: 0000000000101000 CR4: 00000000000006e0
-Process modprobe (pid: 507, threadinfo 00000100cf244000, task 000001007f0ce=
-ee0)
-Stack: ffffffff80120778 0000000000000000 0000000000000000 0000000000000000
-       0100000000018900 0000000000000000 ffffffff80219834 0000000000000017
-       0000000000000001 0000000000000000
-Call Trace:<ffffffff80120778>{io_apic_set_pci_routing+152} <ffffffff8021983=
-4>{acpi_pci_link_allocate+266}
-       <ffffffff8011c7e8>{acpi_register_gsi+104} <ffffffff80219db8>{acpi_pc=
-i_irq_lookup+59}
-       <ffffffff80219f95>{acpi_pci_irq_enable+265} <ffffffff802bcee6>{pcibi=
-os_enable_device+22}
-       <ffffffff801f7746>{pci_enable_device_bars+38} <ffffffff801f7775>{pci=
-_enable_device+21}
-       <ffffffff8029eb26>{usb_hcd_pci_probe+70} <ffffffff801bde59>{sysfs_ma=
-ke_dirent+41}
-       <ffffffff801f8dfd>{pci_device_probe_static+61} <ffffffff801f8e59>{__=
-pci_device_probe+41}
-       <ffffffff801f8eb0>{pci_device_probe+48} <ffffffff80245d97>{bus_match=
-+71}
-       <ffffffff80245eb6>{driver_attach+70} <ffffffff80246385>{bus_add_driv=
-er+133}
-       <ffffffff801f9179>{pci_register_driver+121} <ffffffffa00fd01d>{:ehci=
-_hcd:init+29}
-       <ffffffff80154c1e>{sys_init_module+270} <ffffffff8011194a>{system_ca=
-ll+126}
+So what are you complaining about?  The GPL says:
 
---=-2Xo/t75KiSo310mzuMth
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+    If the software is modified by someone else and passed on, we want
+    its recipients to know that what they have is not the original, so
+    that any problems introduced by others will not reflect on the
+    original authors' reputations.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+So I belive that you are complaining about something where you have
+not reason to complain, since SuSE are definitely telling the users
+that they are using a modified version.
 
-iD8DBQBBJikTdY502zjzwbwRAp/hAJ0cJwsdP7+Wth+3OHSJGCo41k8w1ACfSQ1E
-pNFvoglQLGV10+DxUyVPr9Q=
-=KnOA
------END PGP SIGNATURE-----
+And this really does not belong on linux-kernel so can we please stop
+this silly argument.  Keep technical issues on linux kernel and for
+the rest, please go away.  (And yes, by posting this message I'm just
+as guilty of bringing off topic stuff to l-k.  I'm sorry about that).
 
---=-2Xo/t75KiSo310mzuMth--
+  /Christer
 
+-- 
+"Just how much can I get away with and still go to heaven?"
+
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

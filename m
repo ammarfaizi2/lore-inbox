@@ -1,117 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263021AbTDRLKu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 07:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263022AbTDRLKt
+	id S263022AbTDRLRu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 07:17:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263023AbTDRLRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 07:10:49 -0400
-Received: from ns1.mol.ru ([212.8.224.2]:12502 "EHLO mailhub.mol.ru")
-	by vger.kernel.org with ESMTP id S263021AbTDRLKr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 07:10:47 -0400
-Date: Fri, 18 Apr 2003 15:22:51 +0400 (MSD)
-From: Arcady Stepanov <penguin@mol.ru>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] net/ipv4/route.c, kernel 2.4.20
-Message-ID: <Pine.LNX.4.33.0304181500140.7345-100000@penguin-hole.mol.ru>
+	Fri, 18 Apr 2003 07:17:50 -0400
+Received: from siaag2ad.compuserve.com ([149.174.40.134]:43480 "EHLO
+	siaag2ad.compuserve.com") by vger.kernel.org with ESMTP
+	id S263022AbTDRLRt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 07:17:49 -0400
+Date: Fri, 18 Apr 2003 07:25:46 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: DMA transfers in 2.5.67
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200304180729_MC3-1-34EE-CBE8@compuserve.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, all.
+Andrew Morton wrote:
 
-After upgrading a kernel from 2.4.19 to 2.4.20, I notice a bug
-in ip_rt_acct_read() @ net/ipv4/route.c causing incorrect results
-when reading route accounting information
-from /proc/net/rt_acct pseudofile. Look at this example output from rtacct
-utility:
 
-[penguin@hq2 penguin]$ rtacct
-Realm      BytesTo    PktsTo     BytesFrom  PktsFrom
-unknown    2525573046 17491813   2696204488 15870526
-macom.rus  2287217919 13724644   1092230247 14569843
-macom.def  1670916923 15376790   3028924585 16093284
-mol.arbat  476286103  884267     380803784  827802
-mol.core   758578958  5083436    428582889  5382495
-mol.dip    1953973432 3800121    279550530  3437570
+> > Chuck Ebbert <76306.1226@compuserve.com> wrote:
+> > >
+> > > # mount /ext3_fs
+> > > # time dd if=/ext3_fs/100MiB_file of=/dev/null bs=32k
+> > > 
+> > >   2.4.20aa1 : 3.3 sec (exactly what I expect to see)
+> > >   2.5.66    : 6.6 sec
+> > 
+> > With this test 2.4 will leave a lot more unwritten dirty data in memory.
+> > 
+> > You should include a `sync' in the timings.
+> 
+> Well you should include the sync if you're writing to disk ;)
 
--- [skipped] --
 
-192        2525573046 17491813   2696204488 15870526
-194        2287217919 13724644   1092230247 14569843
-195        1670916923 15376790   3028924585 16093284
-199        476286103  884267     380803784  827802
-200        758578958  5083436    428582889  5382495
-201        1953973432 3800121    279550530  3437570
+  :)
 
--- [skipped] --
+  All is not beer and skittles here with Andrea's kernel, though.
+Sometimes instead of 31MB/sec I get this with 1 sequential stream:
 
-As you can see, all realms with numbers < 192 has a "twins" with
->= 192 with exactly same statistics data. Statistics for _real_ realms with 
-numbers >= 192 becomes inaccessible. These results caused
-by ip_rt_acct_read function, which has been completely owerwritten
-in 2.4.20: New code completely ignores offset argument when copying stats data
-in buffer.
 
-The patch is trivial:
-
---- net/ipv4/route.c.orig	Sun Jan  5 15:29:10 2003
-+++ net/ipv4/route.c	Fri Apr 18 10:11:23 2003
-@@ -2422,7 +2422,7 @@
- /* This code sucks.  But you should have seen it before! --RR */
+ 1  0  0      0   1232   1120  47988   0   0 14928     0 3834  7534   1  44  55
+ 1  0  0      0   1372   1120  47848   0   0 14704     0 3778  7446   0  32  68
+ 1  0  0      0   1464   1064  47816   0   0 14880     0 3822  7501   1  43  56
+ 1  0  0      0   1336   1064  47944   0   0 14844     0 3813  7493   0  29  71
+ 1  0  0      0   1432   1064  47848   0   0 14748    32 3800  7467   0  41  59
+ 1  0  0      0   1532   1064  47748   0   0 13976     0 3596  7045   1  33  66
  
- /* IP route accounting ptr for this logical cpu number. */
--#define IP_RT_ACCT_CPU(i) (ip_rt_acct + cpu_logical_map(i) * 256)
-+#define IP_RT_ACCT_CPU(i) ((u8*)ip_rt_acct + cpu_logical_map(i) * 256)
- 
- static int ip_rt_acct_read(char *buffer, char **start, off_t offset,
- 			   int length, int *eof, void *data)
-@@ -2442,17 +2442,22 @@
- 		*eof = 1;
- 	}
- 
--	/* Copy first cpu. */
- 	*start = buffer;
--	memcpy(buffer, IP_RT_ACCT_CPU(0), length);
- 
--	/* Add the other cpus in, one int at a time */
--	for (i = 1; i < smp_num_cpus; i++) {
--		unsigned int j;
--		for (j = 0; j < length/4; j++)
--			((u32*)buffer)[j] += ((u32*)IP_RT_ACCT_CPU(i))[j];
-+	if (length > 0)
-+	{
-+		/* Copy first cpu. */
-+		memcpy(buffer, IP_RT_ACCT_CPU(0) + offset, length);
-+
-+		/* Add the other cpus in, one int at a time */
-+		for (i = 1; i < smp_num_cpus; i++) {
-+			unsigned int j;
-+			for (j = 0; j < length/4; j++)
-+				((u32*)buffer)[j] += ((u32*)(IP_RT_ACCT_CPU(i) + offset))[j];
-+		}
-+		return length;
- 	}
--	return length;
-+	return 0;
- }
- #endif
- 
-It also cures a bug in pointer aritmetics in IP_RT_ACCT_CPU macro, which
-will cause incorrect statistics output on SMP systems.
 
--- 
-   BW, Arcady Stepanov (AS713-RIPE, AS28-RIPN).
 
-   Micronic on-line Network Operating Center.
-   email:noc@mol.ru; phone: +7 095 2320012
+  Pretty high context switch and interrupt rates for a PPro 200, huh?
 
-==========================================
- All that we can do is just survive
- All that we can do to help ourselves
- Is stay alive...
- 
-    Rush, "Red Sector A"
-==========================================
+  And I can't reliably reproduce it (so far...)
 
+------
+ Chuck

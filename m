@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315218AbSGINV6>; Tue, 9 Jul 2002 09:21:58 -0400
+	id <S315266AbSGIN0l>; Tue, 9 Jul 2002 09:26:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315267AbSGINV5>; Tue, 9 Jul 2002 09:21:57 -0400
-Received: from 62-190-201-5.pdu.pipex.net ([62.190.201.5]:59143 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S315218AbSGINV5>; Tue, 9 Jul 2002 09:21:57 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200207091329.OAA01868@darkstar.example.net>
-Subject: Re: list of compiled in support
-To: MMARTINEZ@intranet.reeusda.gov (Martinez, Michael - CSREES/ISTM)
-Date: Tue, 9 Jul 2002 14:29:38 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <630DA58AD01AD311B13A00C00D00E9BC05D20216@CSREESSERVER> from "Martinez, Michael - CSREES/ISTM" at Jul 09, 2002 09:09:52 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S315277AbSGIN0k>; Tue, 9 Jul 2002 09:26:40 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:14355 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S315266AbSGIN0j>; Tue, 9 Jul 2002 09:26:39 -0400
+Date: Tue, 9 Jul 2002 09:23:03 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Daniel Egger <degger@fhm.edu>
+cc: Anton Altaparmakov <aia21@cantab.net>,
+       Thunder from the hill <thunder@ngforever.de>, venom@sns.it,
+       linux-kernel@vger.kernel.org
+Subject: Re: IBM Desktar disk problem?
+In-Reply-To: <1025883147.17269.24.camel@sonja.de.interearth.com>
+Message-ID: <Pine.LNX.3.96.1020709091938.27294A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can't you just
+On 5 Jul 2002, Daniel Egger wrote:
 
-grep ipx System.map
+> This is unacceptable; if my problem is really fixable by a firmware
+> upgrade IBM should have pushed this very upgrade publically after they
+> started to learn about the problem. Saying "Hey, BTW: if you had this
+> firmware version you would never have experienced your data loss" is
+> a very strong argument to never buy any IBM hardware again.
 
-???  Or am I being thick again?  :-/
+Not so. More people would mess up the firmware upgrade and destroy drives
+which were working (for them) without error than would be helped. Two old
+adages apply here, "first, do no harm," and "if it ain't broken don't fix
+it." I never upgrade firmware unless I have a problem or need a new
+capability, new firmware can have new bugs.
+ 
+> Still, the techsupport insisted on a software problem and didn't mention
+> a firmware upgrade; up to now I didn't even knew such a thing exists.
+> And letting customers lowlevel-format a drive, restore their data,
+> and experience the same problem again a week later is anything but
+> professional.
 
-> No, no. Just simply find out whether my kernel supports ipx. And if it does
-> support it, then to disable it, without recompiling the kernel, perhaps by
-> removing ipx entries from /etc/services.
-> 
-> Michael Martinez
-> System Administrator (Contractor)
-> Information Systems and Technology Management
-> CSREES - United States Department of Agriculture
-> (202) 720-6223
-> 
-> 
-> -----Original Message-----
-> From: Thunder from the hill [mailto:thunder@ngforever.de]
-> Sent: Tuesday, July 09, 2002 8:53 AM
-> To: Martinez, Michael - CSREES/ISTM
-> Cc: 'Alan Cox'; linux-kernel@vger.kernel.org
-> Subject: RE: list of compiled in support
-> 
-> 
-> Hi,
-> 
-> On Tue, 9 Jul 2002, Martinez, Michael - CSREES/ISTM wrote:
-> > Okay. this would require a little C code right? is there a shell command
-> > line tool I could use instead?
-> 
-> What exactly is your intention? IPX networking from a shell script?
-> 
-> 							Regards,
-> 							Thunder
-> -- 
-> (Use http://www.ebb.org/ungeek if you can't decode)
-> ------BEGIN GEEK CODE BLOCK------
-> Version: 3.12
-> GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-> N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-> e++++ h* r--- y- 
-> ------END GEEK CODE BLOCK------
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+With that I *totally* agree, tech support should be on top of this.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

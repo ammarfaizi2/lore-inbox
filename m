@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263634AbUCYWIc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 17:08:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbUCYWIc
+	id S263648AbUCYWKL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 17:10:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263658AbUCYWKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 17:08:32 -0500
-Received: from gprs214-160.eurotel.cz ([160.218.214.160]:12929 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263634AbUCYWI3 (ORCPT
+	Thu, 25 Mar 2004 17:10:10 -0500
+Received: from [219.133.26.106] ([219.133.26.106]:60435 "ehlo sina.com")
+	by vger.kernel.org with ESMTP id S263648AbUCYWJb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 17:08:29 -0500
-Date: Thu, 25 Mar 2004 23:08:16 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Jonathan Sambrook <jonathan.sambrook@dsvr.co.uk>
-Cc: linux-kernel@vger.kernel.org,
-       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>
-Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]
-Message-ID: <20040325220815.GA2179@elf.ucw.cz>
-References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <200403232352.58066.dtor_core@ameritech.net> <20040324102233.GC512@elf.ucw.cz> <200403240748.31837.dtor_core@ameritech.net> <20040324151831.GB25738@atrey.karlin.mff.cuni.cz> <20040324202259.GJ20333@jsambrook>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040324202259.GJ20333@jsambrook>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Thu, 25 Mar 2004 17:09:31 -0500
+From: "Emma" <hytechsales1@sina.com>
+Subject: Headset mp3 player comes out with a very good price!
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;charset="GB2312"
+Reply-To: hytechsales1@sina.com
+Date: Fri, 26 Mar 2004 06:09:44 +0800
+X-Priority: 2
+X-Mailer: FoxMail 4.0 beta 2 [cn]
+Message-Id: <S263648AbUCYWJb/20040325220954Z+679@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Dear friends,
 
->  BTW Pavel I'm not arguing that the code has to stay in without
->  modification
->  (e.g. massively stripped down or whatever). But this is one place where
->  kernel code is a lot closer to Joe Enduser's awareness than is usually
->  the case, so IMUO, the priorities shift.
+Good day!
 
-If joe user can survive seeing kernel messages while booting, he
-should survive swsusp1-style messages, too....
-							Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Just a short message from HY Technology Co, Ltd.
+ 
+We just updated our Mp3 players with internal FM radio function to support 8 languages, 
+English, 
+Chinese, French, Italian, German, Spanish, Czech, Swede. 
+
+>From now on, our BX1002Na, BX1002Nd and BXKing can come with internal FM radio function and 
+support 8 languages also.
+
+The price is only 50 USD for 128M and 68 USD for 256M.
+ 
+By the way, did you get our introduction about our latest Mp3 player------Butterfly, the 
+headset 
+Mp3 player?
+ 
+The Mp3 IC and pc board are already installed in headphone. 
+You can enjoy music completely free now, without any wire around you!
+
+The price is only 54 USD for 128M and 75 USD for 256M.
+
+We have 20 kings of mp3 players to satisfy your demand. And the smallest mp3 player in the 
+world- BXDIOMAND!
+ 
+If you need catalogue and price list, please kindly tell us and we will send them to you.
+ 
+Looking forward to any comment from you. 
+ 
+Have a nice day!
+
+
+Emma
+
+HY Technology (Hong Kong) Company Ltd.
+

@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274763AbRIUF4V>; Fri, 21 Sep 2001 01:56:21 -0400
+	id <S274765AbRIUGBB>; Fri, 21 Sep 2001 02:01:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274766AbRIUF4L>; Fri, 21 Sep 2001 01:56:11 -0400
-Received: from fe170.worldonline.dk ([212.54.64.199]:6917 "HELO
-	fe170.worldonline.dk") by vger.kernel.org with SMTP
-	id <S274763AbRIUF4D>; Fri, 21 Sep 2001 01:56:03 -0400
-Date: Fri, 21 Sep 2001 07:56:15 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, arjanv@redhat.com
-Subject: Re: [patch] block highmem zero bounce v14
-Message-ID: <20010921075615.A586@suse.de>
-In-Reply-To: <20010916234307.A12270@suse.de> <Pine.LNX.4.33.0109161447390.29507-100000@penguin.transmeta.com> <20010920.164301.76328081.davem@redhat.com>
-Mime-Version: 1.0
+	id <S274766AbRIUGAv>; Fri, 21 Sep 2001 02:00:51 -0400
+Received: from smtp7.xs4all.nl ([194.109.127.133]:24556 "EHLO smtp7.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S274765AbRIUGAm>;
+	Fri, 21 Sep 2001 02:00:42 -0400
+Path: Home.Lunix!not-for-mail
+Subject: Re: [PATCH] /dev/epoll update ...
+Date: Fri, 21 Sep 2001 05:59:23 +0000 (UTC)
+Organization: lunix confusion services
+In-Reply-To: <XFMail.20010919151147.davidel@xmailserver.org>
+NNTP-Posting-Host: kali.eth
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010920.164301.76328081.davem@redhat.com>
+X-Trace: quasar.home.lunix 1001051963 508 10.253.0.3 (21 Sep 2001 05:59:23
+    GMT)
+X-Complaints-To: abuse-0@ton.iguana.be
+NNTP-Posting-Date: Fri, 21 Sep 2001 05:59:23 +0000 (UTC)
+X-Newsreader: knews 1.0b.0
+Xref: Home.Lunix mail.linux.kernel:113163
+X-Mailer: Perl5 Mail::Internet v1.33
+Message-Id: <9oekvr$fs$1@post.home.lunix>
+From: linux-kernel@ton.iguana.be (Ton Hospel)
+To: linux-kernel@vger.kernel.org
+Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 20 2001, David S. Miller wrote:
->    From: Linus Torvalds <torvalds@transmeta.com>
->    Date: Sun, 16 Sep 2001 14:48:32 -0700 (PDT)
->    
->    Jens, what's your feeling about the stability of these things, especially
->    wrt weird drivers?
->    
->    Ie do you think this is really a 2.4.x thing, or early 2.5.x?
+In article <XFMail.20010919151147.davidel@xmailserver.org>,
+	Davide Libenzi <davidel@xmailserver.org> writes:
+> On 19-Sep-2001 Christopher K. St. John wrote:
+>> Davide Libenzi wrote:
+> Again :
 > 
-> On my side of this work I feel that the 64-bit PCI dma infrastructure
-> by itself is a safe merge in 2.4.11 or something like that.
+> 1)      select()/poll();
+> 2)      recv()/send();
+> 
+> vs :
+> 
+> 1)      if (recv()/send() == FAIL)
+> 2)              ioctl(EP_POLL);
+> 
 
-I agree, and seriously hope that Linus will merge the pci64 patch in the
-first 2.4.11-pre's. Then we can start looking at the block highmem
-patch.
+mm, I don't really get the second one. What if the scenario is:
+In the place you are in your program, you now decide that a
+read is in order.  You try read, nothing there yet,
+the syscall returns, the data event happens and THEN you go into
+the ioctl ?
 
--- 
-Jens Axboe
+Possibilities seem:
+1) You hang, having missed the only event that will happen
+2) Just having data triggers the ioctl (maybe only the first time),
+   why not leaving out the initial read then and just do it afterwards
+   like select ?
+3) It generates a fake event the first time you notify interest, but then
+   the startup case leads to doing the read uselessly twice.
 
+Or is there a fourth way I'm missing this really works ?

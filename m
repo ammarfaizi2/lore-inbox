@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263420AbUJ2QOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263354AbUJ2PnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263420AbUJ2QOL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 12:14:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263401AbUJ2QM2
+	id S263354AbUJ2PnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 11:43:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263357AbUJ2PkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 12:12:28 -0400
-Received: from dsl254-100-205.nyc1.dsl.speakeasy.net ([216.254.100.205]:41712
-	"EHLO memeplex.com") by vger.kernel.org with ESMTP id S263420AbUJ2Pw2
+	Fri, 29 Oct 2004 11:40:21 -0400
+Received: from dsl254-100-205.nyc1.dsl.speakeasy.net ([216.254.100.205]:28144
+	"EHLO memeplex.com") by vger.kernel.org with ESMTP id S263358AbUJ2PWP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 11:52:28 -0400
+	Fri, 29 Oct 2004 11:22:15 -0400
 From: "Andrew A." <aathan-linux-kernel-1542@cloakmail.com>
 To: <linux-kernel@vger.kernel.org>
-Subject: RE: Consistent lock up 2.6.10-rc1-bk7 (mutex/SCHED_RR bug?)
-Date: Fri, 29 Oct 2004 11:52:14 -0400
-Message-ID: <NFBBICMEBHKIKEFBPLMCMEEIJGAA.aathan-linux-kernel-1542@cloakmail.com>
+Subject: RESEND: Consistent lock up 2.6.8-1.521 (and 2.6.8.1 w/ high-res-timers/skas/sysemu)
+Date: Fri, 29 Oct 2004 11:22:01 -0400
+Message-ID: <NFBBICMEBHKIKEFBPLMCKEEDJGAA.aathan-linux-kernel-1542@cloakmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -21,21 +21,23 @@ Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <OMEGLKPBDPDHAGCIBHHJOELLFCAA.aathan-linux-kernel-1542@cloakmail.com>
+In-Reply-To: <200410051317.48071.jstubbs@work-at.co.jp>
 Importance: Normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This message is being resent because it was never forwarded by majordomo, it is superceded by "RE: Consistent lock up 2.6.10-rc1-bk7
+(mutex/SCHED_RR bug)" sent minutes ago, which *was* forwarded by majordomo.  I have shortened the message considerably by including
+links for, rather than quoting the sysrq-t output (didn't realize the original was 552k!)
 
-For whatever reason, I have been unable to send the original message below through vger.
+-----
+Caveat:  This may be an infinite loop in a SCHED_RR process.  See very bottom of email for sysrq-t sysrq-p output.
 
-I am therefore enclosing some of the important text here:
 
-==========
 
 I have in the past posted emails with the subject "Consistent kernel hang during heavy TCP connection handling load"  I then
-recently saw a linux-kernel thread "PROBLEM: Consistent lock up on &gr;&eq;2.6.8" that seemed to be related to the problem I am
+recently saw a linux-kernel thread "PROBLEM: Consistent lock up on >=2.6.8" that seemed to be related to the problem I am
 experiencing, but I am not sure of it (thus the cc:).
 
 I have, however, now managed to formulate a series of steps which reproduce my particular lock up consistently.  When I trigger the
@@ -51,8 +53,8 @@ Did I do it right?  I was trying to make sure this hang is not simply an infinit
 
 I initially had a lot of trouble trying to capture sysrq output, but then I checked my netlog host and found (lo and behold) that it
 had captured it!  Of course, that was before I went through the trouble of taking pictures of my monitor! I've included the netlog
-sysrq output from two runs below.  They are at the very bottom of this email.  These runs are probably DIFFERENT than the runs from
-which I produced the below screenshots.
+sysrq output from two runs below.  They are at the very bottom of this email, separated by lines of '*'s  These runs are probably
+DIFFERENT than the runs from which I produced the below screenshots.
 
 So, here are those screenshots, I still welcome any comments you might have about easier ways to capture sysrq output than using
 netdump!
@@ -60,12 +62,28 @@ netdump!
 I modified /etc/syslog.conf to say kern.* /var/log/kernel, however, output of sysrq-t and sysrq-p while in the locked up state never
 ends up in the file (though, it does, when not locked up).
 
-The sysreq output and screenshots can be found at triple w dot memeplex dot com slash
 
-sysrq[1-2].txt.gz
-lock[1-3].[g][i][f] mapping to System.map-2.6.8.1.gz
-lock[4-5].[g][i][f] mapping to System.map-2.6.8-1.521.gz
+sysrq-t --> http://www.memeplex.com/lock1.gif, http://www.memeplex.com/lock2.gif
 
-=======
+sysrq-p --> http://www.memeplex.com/lock3.gif
+
+Kernel symbols for above are at  http://www.memeplex.com/System.map-2.6.8-1.521.gz
+
+sysrq-t --> http://www.memeplex.com/lock4.gif
+
+sysrq-p --> http://www.memeplex.com/lock5.gif
+
+Kernel symbols for above are at http://www.memeplex.com/System.map-2.6.8-1.521.gz and
+
+A.
+
+***********************************************************
+
+http://www.memeplex.com/sysrq1.txt.gz
+
+
+***************************************************************************************
+
+http://www.memeplex.com/sysrq2.txt.gz
 
 

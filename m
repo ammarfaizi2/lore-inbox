@@ -1,66 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269057AbUJQFe7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269060AbUJQFqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269057AbUJQFe7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 01:34:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269060AbUJQFe7
+	id S269060AbUJQFqs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 01:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269063AbUJQFqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 01:34:59 -0400
-Received: from relay.pair.com ([209.68.1.20]:34059 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S269057AbUJQFe5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 01:34:57 -0400
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <4171F741.2070209@kegel.com>
-Date: Sat, 16 Oct 2004 21:38:25 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, de-de
+	Sun, 17 Oct 2004 01:46:48 -0400
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:43657 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269060AbUJQFqr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 01:46:47 -0400
+Message-ID: <41720740.2030901@yahoo.com.au>
+Date: Sun, 17 Oct 2004 15:46:40 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Albert Cahalan <albert@users.sf.net>
-CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>, sam@ravnborg.org
-Subject: Re: Building on case-insensitive systems
-References: <1097989574.2674.14246.camel@cube>
-In-Reply-To: <1097989574.2674.14246.camel@cube>
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de,
+       axboe@suse.de
+Subject: Re: Hang on x86-64, 2.6.9-rc3-bk4
+References: <41719537.1080505@pobox.com>	<417196AA.3090207@pobox.com>	<20041016154818.271a394b.akpm@osdl.org>	<4171B23F.6060305@pobox.com>	<20041016171458.4511ad8b.akpm@osdl.org>	<4171C20D.1000105@pobox.com> <20041016182116.33b3b788.akpm@osdl.org> <4171E978.6060207@pobox.com>
+In-Reply-To: <4171E978.6060207@pobox.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan wrote:
->>There are today ~1400 files named *.S in the tree, but none named *.s.
->>So my idea was to do it like:
->>*.S => *.asm => *.o
+Jeff Garzik wrote:
+> Andrew Morton wrote:
 > 
-> The logic is sound, but... yuck!
-
-Yes, but worth it, I think.  Maybe some configure magic could
-pick .asm as the suffix only when building on case-insensitive
-filesystems, if that's the only way to make this palatable
-to those devoted to the .s/.S idiom.
-
->>Btw. this is not about "case-challenged" filesystems in general.
->>This is about making the kernel usefull out-of-the-box for the
->>increasing embedded market. Less work-around patces needed the
->>better. And these people are oftenb ound to Windoze boxes - for
->>different reasons. And the individual developer may not be able
->>to change this.
+>> vmscan-total_scanned-fix.patch
 > 
-> The difficulty in building on a case-insensitive filesystem may
-> be the only hope these developers have for escaping Windows.
-> You turn "we must have Linux build systems to build our product"
-> into the less effective "we want Linux".       
 > 
-> For the sake of these suffering developers, it would be better
-> to make sure that building Linux on Windows is a lost cause.
-> We could name a file "con" or "a:foo" for example.
+> 
+> Yes, this patch also seems to solve the hang.
+> 
+> Do you want me to test further?
+> 
+>     Jeff
+> 
 
-You are betting that you can force developers to switch away
-from Windows and MacOSX workstations.  That's like
-trying to get someone to stop smoking.  Yes, they should stop,
-but nagging them will just annoy them.  In particular,
-they'll simply apply the patch that makes the pain go away.
-We may as well be nice and apply the patch in the mainline.
-- Dan
+Hi Jeff, my patch has gone to Linus... but if you have time can
+you just verify that it works without the added cond_resched()
+please?
 
--- 
-Trying to get a job as a c++ developer?  See http://kegel.com/academy/getting-hired.html
+Thanks.

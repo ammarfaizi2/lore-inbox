@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261590AbSJ2Gik>; Tue, 29 Oct 2002 01:38:40 -0500
+	id <S261617AbSJ2GlA>; Tue, 29 Oct 2002 01:41:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261601AbSJ2Gik>; Tue, 29 Oct 2002 01:38:40 -0500
-Received: from alpha2.its.monash.edu.au ([130.194.1.4]:18183 "EHLO
-	ALPHA2.ITS.MONASH.EDU.AU") by vger.kernel.org with ESMTP
-	id <S261590AbSJ2Gij>; Tue, 29 Oct 2002 01:38:39 -0500
-Date: Tue, 29 Oct 2002 17:37:33 +1100 (EST)
+	id <S261614AbSJ2Gk7>; Tue, 29 Oct 2002 01:40:59 -0500
+Received: from alpha1.cc.monash.edu.au ([130.194.1.1]:56588 "EHLO
+	ALPHA1.CC.MONASH.EDU.AU") by vger.kernel.org with ESMTP
+	id <S261610AbSJ2Gk6>; Tue, 29 Oct 2002 01:40:58 -0500
+Date: Tue, 29 Oct 2002 17:10:12 +1100 (EST)
 From: netdev-bounce@oss.sgi.com
 To: undisclosed-recipients:;
-Message-id: <20021029063733.0B22B1300D2@splat.its.monash.edu.au>
+Message-id: <20021029061012.ACCDA12CEA6@blammo.its.monash.edu.au>
 Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Oct 2002, bert hubert wrote:
+On Wed, 23 Oct 2002, Nivedita Singhvi wrote:
 
-> On Wed, Oct 23, 2002 at 03:42:48PM +0200, Roy Sigurd Karlsbakk wrote:
-> > > The e1000 can very well do hardware checksumming on transmit.
-> > >
-> > > The missing piece of the puzzle is that his application is not
-> > > using sendfile(), without which no transmit checksum offload
-> > > can take place.
-> > 
-> > As far as I've understood, sendfile() won't do much good with large files. Is 
-> > this right?
+> "Richard B. Johnson" wrote:
 > 
-> I still refuse to believe that a 1.8GHz Pentium4 can only checksum
-> 250megabits/second. MD Raid5 does better and they probably don't use a
-> checksum as braindead as that used by TCP.
+> > No. It's done over each word (short int) and the actual summation
+> > takes place during the address calculation of the next word. This
+> > gets you a checksum that is practically free.
 > 
-> If the checksumming is not the problem, the copying is, which would be a
-> weakness of your hardware. The function profiled does both the copying and
-> the checksumming.
+> Yep, sorry, word, not byte. My bad. The cost is in the fact 
+> that this whole process involves loading each word of the data
+> stream into a register. Which is why I also used to consider
+> the checksum cost as negligible. 
 > 
-> But 250megabits/second also seems low.
+> > A 400 MHz ix86 CPU will checksum/copy at 685 megabytes per second.
+> > It will copy at 1,549 megabytes per second. Those are megaBYTES!
 > 
-> Dave? 
-> 
+> But then why the difference in the checksum/copy and copy?
+> Are you saying the checksum is not costing you 864 megabytes
+> a second??
 
-Ordinary DUAL Pentium 400 MHz machine does this...
-
-
-Calculating CPU speed...done
-Testing checksum speed...done
-Testing RAM copy...done
-Testing I/O port speed...done
-
-                     CPU Clock = 400  MHz
-                checksum speed = 685  Mb/s
-                      RAM copy = 1549 Mb/s
-                I/O port speed = 654  kb/s
-
-
-This is 685 megaBYTES per second.
-
-                checksum speed = 685  Mb/s
-
-
+Costing you 864 megabytes per second?
+Lets say the checksum was free. You are then able to INF bytes/per/sec.
+So it's costing you INF bytes/per/sec?  No, it's costing you nothing.
+If we were not dealing with INF, then 'Cost' is approximately 1/N, not
+N. Cost is work_done_without_checksum - work_done_with_checksum. Because
+of the low-pass filter pole, these numbers are practically the same.
+But, you can get a measurable difference between any two large numbers.
+This makes the 'cost' seem high. You need to make it relative to make
+any sense, so a 'goodness' can be expressed as a ratio of the cost and
+the work having been done.
 
 Cheers,
 Dick Johnson

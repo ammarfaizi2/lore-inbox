@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264449AbTDPQrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 12:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264447AbTDPQq5
+	id S264492AbTDPQkT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 12:40:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbTDPQkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 12:46:57 -0400
-Received: from netmail02.services.quay.plus.net ([212.159.14.221]:35485 "HELO
-	netmail02.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S264519AbTDPQpy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 12:45:54 -0400
-From: "Riley Williams" <rhw@MemAlpha.fslife.co.uk>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: firmware separation filesystem (fwfs)
-Date: Wed, 16 Apr 2003 17:57:41 +0100
-Message-ID: <BKEGKPICNAKILKJKMHCAKEDNCHAA.rhw@MemAlpha.fslife.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Wed, 16 Apr 2003 12:40:19 -0400
+Received: from coral.ocn.ne.jp ([211.6.83.180]:13289 "HELO
+	smtp.coral.ocn.ne.jp") by vger.kernel.org with SMTP id S264492AbTDPQkE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 12:40:04 -0400
+Date: Thu, 17 Apr 2003 01:51:55 +0900
+From: Bruce Harada <bharada@coral.ocn.ne.jp>
+To: "Brien" <admin@brien.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: my dual channel DDR 400 RAM won't work on any linux distro
+Message-Id: <20030417015155.4532f074.bharada@coral.ocn.ne.jp>
+In-Reply-To: <003e01c30428$bb6de410$6901a8c0@athialsinp4oc1>
+References: <003e01c30428$bb6de410$6901a8c0@athialsinp4oc1>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
-In-Reply-To: <1050508028.28586.126.camel@dhcp22.swansea.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan.
+On Wed, 16 Apr 2003 10:59:07 -0400
+"Brien" <admin@brien.com> wrote:
 
- >> On the other hand, there are already many drivers in the kernel
- >> that include firmware in headers, keyspan, io_edgeport, dabusb,
- >> ser_a2232, sym53c8xx_2, ...
+> (I posted this on some forums and they recommended that I try here)
+> 
+> Hi,
+> 
+> I have a Gigabyte SINXP1394 motherboard, and 2 Kingston 512 MB DDR 400 (CL
+> 2.5) RAM modules installed. Whenever I try to install any Linux
+> distribution, I always get a black screen after the kernel loads, when I
+> have dual channel enabled; If I take out 1 of the RAM modules (either one),
+> everything works as it should -- it's not a bad module (works perfectly
+> under Windows by the way).
 
- > But so would loading it from hotplug via ioctl. It might be we
- > want a clean hotplug way to ask for 'firmware for xyz'.
-
-I know that PCI uses a 32-bit number (or two 16-bit numbers if one
-prefers to think of it that way) to identify each piece of equipment.
-Is there a similar number for USB, Firewire, etc?
-
-If so, the hotplug firmware driver could use those numbers prefixed
-by a code for the relevant bus to identify the relevant firmware.
-For example...
-
-	P:1234:5678		PCI Bus code 1234:5678
-	U:1234:5678		USB Bus code 1234:5678
-
-...and the hotplug driver would know whether those two were the same
-device on different buses, or two different devices.
-
-Best wishes from Riley.
----
- * Nothing as pretty as a smile, nothing as ugly as a frown.
-
----
-Outgoing mail is certified Virus Free.
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.471 / Virus Database: 269 - Release Date: 10-Apr-2003
-
+A couple of things to try:
+ - Put in both sticks, try booting from a distribution and pass the
+   bootloader "mem=960M" as a parameter at the prompt.
+ - Just to make sure it's not a memory problem, grab memtest86
+   (http://www.memtest86.com/) and try running it for a few hours.
+   Unlikely, but you never know.

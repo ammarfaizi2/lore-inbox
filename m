@@ -1,49 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266582AbUIWQMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266477AbUIWQMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266582AbUIWQMF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 12:12:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUIWQMD
+	id S266477AbUIWQMj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 12:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUIWQMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 12:12:03 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:25218 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S266561AbUIWQLL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 12:11:11 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: 2.6.9-rc2-mm2
-Date: Thu, 23 Sep 2004 09:10:45 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F020ED221@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.9-rc2-mm2
-Thread-Index: AcShNj8Pq4umpBHIQFKZKo+HFnJlbAAUIpow
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>, "Jesse Barnes" <jbarnes@engr.sgi.com>
-Cc: <peterc@gelato.unsw.edu.au>, <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 23 Sep 2004 16:10:47.0135 (UTC) FILETIME=[E2D2F6F0:01C4A187]
+	Thu, 23 Sep 2004 12:12:18 -0400
+Received: from symbion.srrc.usda.gov ([199.133.86.40]:22152 "EHLO
+	node1.cluster.srrc.usda.gov") by vger.kernel.org with ESMTP
+	id S266517AbUIWQJH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 12:09:07 -0400
+Subject: 2.6.9-rc2-mm2: 3ware card info not in /proc/scsi
+From: Glenn Johnson <gjohnson@srrc.ars.usda.gov>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: USDA, ARS, SRRC
+Message-Id: <1095955746.11943.7.camel@node1.cluster.srrc.usda.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 23 Sep 2004 11:09:06 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->It looks like Tony is wearing the BPB.  The below patch from
-                                   ^^^?
-Huh?  I can tell from context that this is all my fault (to which
-I agree; it is), but what does "BPB" stand for?
+I have a 3Ware-7500 series card.  I was trying the 2.6.9-rc2-mm2 kernel
+and discovered that the 3dmd utility was not working.  A little poking
+around revealed that the cause was because the 3Ware directory was not
+in /proc/scsi, even though I have CONFIG_SCSI_PROC_FS=y in my config
+file.  The 3dmd utility works fine with mainline 2.6.9-rc2 and it worked
+with the 2.6.8-mm series of kernels.  Those kernels have a 3w-xxxx
+directory in /proc/scsi.
 
->Process question: how is it possible that the ia64 tree could have been
->this dead for this long?
+Thanks.
 
-Because we have immense confusion about which combinations of
-config options (NUMA, DISCONTIG, VIRTUAL_MEM_MAP, SMP) are
-supported.  Kconfig allows almost any combination of them, but on
-any given week only some combinations work.  The patch that broke
-things for you came in to fix a problem for Peter.
+-- 
+Glenn Johnson
 
-I'll take a look at this.  Can you post the .config that you
-are using.
-
--Tony

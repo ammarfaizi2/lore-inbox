@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276921AbRJCIty>; Wed, 3 Oct 2001 04:49:54 -0400
+	id <S276929AbRJCJGL>; Wed, 3 Oct 2001 05:06:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276926AbRJCItf>; Wed, 3 Oct 2001 04:49:35 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:41479 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S276922AbRJCIt0>;
-	Wed, 3 Oct 2001 04:49:26 -0400
-Date: Wed, 3 Oct 2001 10:47:28 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Marcus Sundberg <marcus@cendio.se>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <ve8zeuy1qs.fsf@inigo.sthlm.cendio.se>
-Message-ID: <Pine.LNX.4.33.0110031045190.1912-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276928AbRJCJGB>; Wed, 3 Oct 2001 05:06:01 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:62646 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S276929AbRJCJFn>; Wed, 3 Oct 2001 05:05:43 -0400
+Subject: Re: 2.4.10 hangs on console switch
+From: Stephane Dudzinski <stephane@antefacto.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.33.0110022019330.12401-100000@mega.cs.auc.dk>
+In-Reply-To: <Pine.GSO.4.33.0110022019330.12401-100000@mega.cs.auc.dk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13 (Preview Release)
+Date: 03 Oct 2001 10:02:27 +0100
+Message-Id: <1002099747.2190.29.camel@steph>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've tested 2.4.10 since a couple of days, had to reboot my machine
+around 10 times since (on a VIA box). It hanged badly a couple of time
+with an error message related to : swap, trying to allocate more. Rolled
+back to 2.4.9, works fine. 
 
-On 2 Oct 2001, Marcus Sundberg wrote:
+The intel box on 2.4.10 behaves fine, scary ...
 
-> Guess my P3-based laptop doesn't count as modern then:
->
->   0:    7602983          XT-PIC  timer
->   1:      10575          XT-PIC  keyboard
->   2:          0          XT-PIC  cascade
->   8:          1          XT-PIC  rtc
->  11:  1626004 XT-PIC Toshiba America Info Systems ToPIC95 PCI to
-> Cardbus Bridge with ZV Support, Toshiba America Info Systems ToPIC95
-> PCI to Cardbus Bridge with ZV Support (#2), usb-uhci, eth0, BreezeCom
-> Card, Intel 440MX, irda0
+On Tue, 2001-10-02 at 19:21, Lars Christensen wrote:
+> > You are using the Nvidia drivers aren't you. They seem to have timing
+> > dependant screen mode switch problems. The timing has changed in 2.4.10
 
-ugh!
-
-> I can't even imagine why they did it like this...
-
-well, you arent going to be using it as a webserver i guess? :) But the
-costs on desktops are minimal. It's the high-irq-rate server environments
-that want separate irq sources.
-
-	Ingo
+-- 
+__________________________________________
+Stephane Dudzinski   Systems Administrator
+a n t e f a c t o     t: +353 1 8586009
+www.antefacto.com     f: +353 1 8586014
 

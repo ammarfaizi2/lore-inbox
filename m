@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264917AbUBCAMn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 19:12:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265200AbUBCAMn
+	id S263587AbUBCADX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 19:03:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbUBCADW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 19:12:43 -0500
-Received: from d235-143-242.home1.cgocable.net ([24.235.143.242]:36858 "EHLO
-	ns1.emaildesktop.com") by vger.kernel.org with ESMTP
-	id S264917AbUBCAMh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 19:12:37 -0500
-Message-ID: <002601c3e9ea$7968db80$0201a8c0@wksdan>
-From: "Dan McGrath" <troubled@emaildesktop.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Tape backups cant be read read using crypto loop
-Date: Mon, 2 Feb 2004 19:12:56 -0500
+	Mon, 2 Feb 2004 19:03:22 -0500
+Received: from mail5.speakeasy.net ([216.254.0.205]:24726 "EHLO
+	mail5.speakeasy.net") by vger.kernel.org with ESMTP id S263587AbUBCADV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 19:03:21 -0500
+Date: Mon, 2 Feb 2004 16:03:19 -0800
+Message-Id: <200402030003.i1303JQE016298@magilla.sf.frob.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] restore protections after forced fault in get_user_pages
+In-Reply-To: Linus Torvalds's message of  Monday, 2 February 2004 15:55:51 -0800 <Pine.LNX.4.58.0402021551320.9720@home.osdl.org>
+X-Fcc: ~/Mail/linus
+X-Antipastobozoticataclysm: Bariumenemanilow
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> That should be sufficient, I think: since "handle_mm_fault()" marks the 
+> page dirty (but not writable) and will have done all the work to do a COW, 
+> we know that once we do the "follow_page()", we'll be getting a private 
+> copy. Which is what we wanted.
 
-I have a few DDS2 tape backups of my ripped CD's in mp3 format. I noticed
-that under 2.4.24 with loop-jari patch, I cant read them when I enable
-crypto loop support. I found disabling it works fine. Just curious if this
-problem is the same in 2.6.x or if anyone has noticed that its broken for
-old tape backups.
-
-Its not a big deal I guess, I can always just remake the tape with crypto
-loop enabled and things seem fine, just thought I would share and see what
-everyone has to say. Thanks guys.
-
-
-troubled
+The only potential hole I can see here is if there is an (exceedingly rare)
+race where the page could be ejected after handle_mm_fault, then brought
+back in but not marked dirty, before follow_page looks it up and returns a
+page to be used for writing without marking it dirty.  Obviously this is a
+ridiculously unlikely case.  But what I don't know is whether it is
+strictly speaking impossible.  That is, that a page once dirty then later
+not present, would ever again be present without also being dirty.
 
 
+Thanks,
+Roland

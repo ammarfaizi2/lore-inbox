@@ -1,42 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263948AbRFMO4Y>; Wed, 13 Jun 2001 10:56:24 -0400
+	id <S263967AbRFMPHO>; Wed, 13 Jun 2001 11:07:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263967AbRFMO4O>; Wed, 13 Jun 2001 10:56:14 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:30374 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263948AbRFMOzx>;
-	Wed, 13 Jun 2001 10:55:53 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S263976AbRFMPGy>; Wed, 13 Jun 2001 11:06:54 -0400
+Received: from gene.pbi.nrc.ca ([204.83.147.150]:16239 "EHLO gene.pbi.nrc.ca")
+	by vger.kernel.org with ESMTP id <S263967AbRFMPGt>;
+	Wed, 13 Jun 2001 11:06:49 -0400
+Date: Wed, 13 Jun 2001 09:06:12 -0600 (CST)
+From: <ognen@gene.pbi.nrc.ca>
+To: Philips <philips@iph.to>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: threading question
+In-Reply-To: <3B27760F.41A0635D@iph.to>
+Message-ID: <Pine.LNX.4.30.0106130905120.23896-100000@gene.pbi.nrc.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15143.32501.395951.374796@pizda.ninka.net>
-Date: Wed, 13 Jun 2001 07:55:49 -0700 (PDT)
-To: Andreas Schwab <schwab@suse.de>
-Cc: Keith Owens <kaos@ocs.com.au>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.6-pre3 unresolved symbol do_softirq
-In-Reply-To: <jek82gjv6v.fsf@sykes.suse.de>
-In-Reply-To: <15143.29246.712747.936864@pizda.ninka.net>
-	<10322.992441398@ocs4.ocs-net>
-	<15143.30453.762432.702411@pizda.ninka.net>
-	<jek82gjv6v.fsf@sykes.suse.de>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Solaris has pset_create() and pset_bind() where you can bind LWPs to
+specific processors, but I doubt this works on anything else....
 
-Andreas Schwab writes:
- > "David S. Miller" <davem@redhat.com> writes:
- > 
- > |> I can't believe there is no reliable way to get rid of that
- > |> pesky "$" gcc is adding to the symbol.  Oh well...
- > 
- > Use %c0.  *Note Output Templates and Operand Substitution: (gcc)Output
- > Template.
+Best regards,
+Ognen
 
-Nice, see Keith?  There are no excuses :-)
+On Wed, 13 Jun 2001, Philips wrote:
 
-Later,
-David S. Miller
-davem@redhat.com
+> 	BTW.
+> 	Question was poping in my mind and finally got negative answer by my mind ;-)
+>
+> 	Is it possible to make somethis like:
+>
+>
+> 	char a[100] = {...}
+> 	char b[100] = {...}
+> 	char c[100];
+> 	char d[100];
+>
+> 	1: { // run this on first CPU
+> 		for (int i=0; i<100; i++) c[i] = a[i] + b[i];
+> 	};
+> 	2: { // run this on any other CPU
+> 		for (int i=0; i<100; i++) d[i] = a[i] * b[i];
+> 	};
+>
+> 	...
+> 	// do something else...
+> 	...
+>
+> 	wait 1,2; // to be sure c[] and d[] are ready.
+>
+>
+> 	what was popping in my mind - some prefix (like 0x66 Intel used for 32
+> instructions) to say this instruction should run on other CPU?
+> 	I know - stupid idea. Too many questions will arise.
+> 	If we will do
+>
+> 	PREFIX jmp far some_routing
+>
+> 	and this routing will run on other CPU not blocking current execution thread.
+> 	(who will clean stack? when?.. question without answers...)
+>
+> 	Is there anything like this in computerworld? I heard about old computers that
+> have a speacial instruction set to implicit run code on given processor.
+> 	Is it possible to emulate this behavior on PCs?
+
+-- 
+Ognen Duzlevski
+Plant Biotechnology Institute
+National Research Council of Canada
+Bioinformatics team
+

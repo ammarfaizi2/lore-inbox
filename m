@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292938AbSCDWTk>; Mon, 4 Mar 2002 17:19:40 -0500
+	id <S292944AbSCDWWK>; Mon, 4 Mar 2002 17:22:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292941AbSCDWTV>; Mon, 4 Mar 2002 17:19:21 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22027 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292938AbSCDWTC>; Mon, 4 Mar 2002 17:19:02 -0500
-Subject: Re: compiler bug generates incorrect code in swap_free() (fix included)
-To: cel@monkey.org (Chuck Lever)
-Date: Mon, 4 Mar 2002 22:34:12 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, cel@netapp.com
-In-Reply-To: <Pine.BSO.4.33.0203041415260.2934-100000@naughty.monkey.org> from "Chuck Lever" at Mar 04, 2002 02:15:45 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S292942AbSCDWWA>; Mon, 4 Mar 2002 17:22:00 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:5899 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S292941AbSCDWVp>; Mon, 4 Mar 2002 17:21:45 -0500
+Date: Mon, 4 Mar 2002 23:21:39 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.teststation.com>
+To: Kerekfy Peter <kerekfyp@fazekas.hu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: linux kernel bug report
+In-Reply-To: <Pine.LNX.4.33.0203041729450.10999-600000@pingvin.fazekas.hu>
+Message-ID: <Pine.LNX.4.33.0203042310500.16082-100000@cola.teststation.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16i124-0000pS-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> executive summary:  older versions of gcc generate bad assembler in
-> swap_free(), causing Oopses when the system is pushed into swapping.
-> fix suggested for 2.4.19-pre.
+On Mon, 4 Mar 2002, Kerekfy Peter wrote:
 
-There are several reasons Changes got updated. 	
+> root@athene:~ # cat /proc/version
+> Linux version 2.4.18 (root@athene) (gcc version 2.95.3 20010315 (SuSE)) #2
+> Sat Mar 2 11:36:17 CET 2002
 
-> i run RedHat 7.0 on my laptop and have encountered system instability on
+If you can repeat this on any 2.4.x except 2.4.18 (and it's -rc versions)
+I am interested.
 
-The 7.0 stock non errata gcc 2.96 is somewhat buggy. The updated one is
-ok. Changes specifies
+Otherwise I believe this is known and that the fix is available as:
+  http://www.hojdpunkten.ac.se/054/samba/00-smbfs-2.4.18-codepage.patch.gz
 
-gcc 2.95.3
+Also in 2.4.18-ac3, and hopefully soon in 2.4.19-pre3.
 
-and also
-
-The Red Hat gcc 2.96 compiler subtree can also be used to build this tree.
-You should ensure you use gcc-2.96-74 or later. gcc-2.96-54 will not build
-the kernel correctly.
-
-Alan
+/Urban
 

@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291508AbSBHJmj>; Fri, 8 Feb 2002 04:42:39 -0500
+	id <S291518AbSBHJtA>; Fri, 8 Feb 2002 04:49:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291509AbSBHJm3>; Fri, 8 Feb 2002 04:42:29 -0500
-Received: from dns.uni-trier.de ([136.199.8.101]:2497 "EHLO
-	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
-	id <S291508AbSBHJmT> convert rfc822-to-8bit; Fri, 8 Feb 2002 04:42:19 -0500
-Date: Fri, 8 Feb 2002 10:42:17 +0100 (CET)
-From: Daniel Nofftz <nofftz@castor.uni-trier.de>
-X-X-Sender: nofftz@hades.uni-trier.de
-To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: status on northbridge disconnection apm saving?
-In-Reply-To: <200202071901.UAA19754@rzmail.uni-trier.de>
-Message-ID: <Pine.LNX.4.40.0202081041070.7911-100000@hades.uni-trier.de>
+	id <S291510AbSBHJsv>; Fri, 8 Feb 2002 04:48:51 -0500
+Received: from mail4.messagelabs.com ([212.125.75.12]:51205 "HELO
+	mail4.messagelabs.com") by vger.kernel.org with SMTP
+	id <S291509AbSBHJsl>; Fri, 8 Feb 2002 04:48:41 -0500
+X-VirusChecked: Checked
+Date: Fri, 8 Feb 2002 09:48:38 +0000 (GMT)
+From: Catalin Marinas <c_marinas@yahoo.com>
+X-X-Sender: marinasc@stargate.simoco.com
+To: Felipe Contreras <al593181@mail.mty.itesm.mx>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Weird bug in linux, glibc, gcc or what?
+In-Reply-To: <20020207135749.GA4545@sion.mty.itesm.mx>
+Message-ID: <Pine.LNX.4.44.0202080942300.4228-100000@stargate.simoco.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Feb 2002, Dieter [iso-8859-15] Nützel wrote:
+On Thu, 7 Feb 2002, Felipe Contreras wrote:
 
-> Hello Daniel,
+> I've found a weird problem in linuxthreads. When I get out of a thread it
+> happends one of three, the new thread get's defuct and the proccess never
+> ends, it segfaults, or it works.
+[snip]
+> #include <pthread.h>
 >
-> have you ask for _ALL_ AMD chipsets (750/760/760MP/760MPX)???
+> void *test(void *arg) {
+> 	puts("Thread2");
+> 	return 0;
+> }
 >
-> You know, I'm waiting to test the AMD 750 stuff...;-)
+> int main() {
+> 	pthread_t tt;
+> 	puts("Before Thread2");
+> 	pthread_create(&tt,NULL,test,NULL);
+> 	puts("After Thread2");
+> 	return 0;
+> }
 
-oh .. .i'm sorry . i only asked for some prozessor and bios programming
-documentation ... sorry: no chipset documentation ...
+Try this patch and see if it works:
 
-daniel
+--- thr_test.c	Fri Feb  8 09:45:35 2002
++++ thr_test1.c	Fri Feb  8 09:45:36 2002
+@@ -10,5 +10,6 @@ int main() {
+ 	puts("Before Thread2");
+ 	pthread_create(&tt,NULL,test,NULL);
+ 	puts("After Thread2");
++	pthread_join(tt, NULL);
+ 	return 0;
+ }
+
+-- 
+Catalin
 
 
-
-# Daniel Nofftz
-# Sysadmin CIP-Pool Informatik
-# University of Trier(Germany), Room V 103
-# Mail: daniel@nofftz.de
-
+________________________________________________________________________
+This email has been scanned for all viruses by the MessageLabs SkyScan
+service. For more information on a proactive anti-virus service working
+around the clock, around the globe, visit http://www.messagelabs.com
+________________________________________________________________________

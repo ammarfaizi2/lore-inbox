@@ -1,53 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277247AbRJDWBP>; Thu, 4 Oct 2001 18:01:15 -0400
+	id <S277249AbRJDWEg>; Thu, 4 Oct 2001 18:04:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277244AbRJDWBF>; Thu, 4 Oct 2001 18:01:05 -0400
-Received: from peace.netnation.com ([204.174.223.2]:43281 "EHLO
-	peace.netnation.com") by vger.kernel.org with ESMTP
-	id <S277248AbRJDWAv>; Thu, 4 Oct 2001 18:00:51 -0400
-Date: Thu, 4 Oct 2001 15:01:19 -0700
-From: Simon Kirby <sim@netnation.com>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-Message-ID: <20011004150119.B2373@netnation.com>
-In-Reply-To: <Pine.LNX.4.33.0110031528370.6272-100000@localhost.localdomain> <302737894.1002234496@[195.224.237.69]>
-Mime-Version: 1.0
+	id <S277244AbRJDWEP>; Thu, 4 Oct 2001 18:04:15 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44048 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277249AbRJDWEE>; Thu, 4 Oct 2001 18:04:04 -0400
+Subject: Re: CPU Temperature?
+To: goemon@anime.net (Dan Hollis)
+Date: Thu, 4 Oct 2001 23:09:10 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), harri@synopsys.COM,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0110041442430.3919-100000@anime.net> from "Dan Hollis" at Oct 04, 2001 02:43:24 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <302737894.1002234496@[195.224.237.69]>; from linux-kernel@alex.org.uk on Thu, Oct 04, 2001 at 10:28:17PM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15pGg3-0004Qh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 04, 2001 at 10:28:17PM +0100, Alex Bligh - linux-kernel wrote:
+> On Thu, 4 Oct 2001, Alan Cox wrote:
+> > > How can I access the CPU temperature, fan speed etc. from Linux?
+> > > Or is this too hardware dependent to implement a common interface?
+> > lm-sensors - it works well. Its shipped in some vendor trees
+> 
+> Whats the schedule to merge with mainline kernel? Right now we have two
+> i2c trees -- the one in the kernel and the one in lm-sensors...
 
-> In at least one environment known to me (router), I'd rather it
-> kept accepting packets, and f/w'ing them, and didn't switch VTs etc.
-> By dropping down performance, you've made the DoS attack even
-> more successful than it would otherwise have been (the kiddie
-> looks at effect on the host at the end).
-
-No.
-
-Ingo is not limiting interrupts to make it drop packets and forget things
-just so that userspace can proceed.  Instead, he is postponing servicing
-of the interrupts so that the card can batch up more packets and the
-interrupt will retrieve more at once rather than continually leaving and
-entering the interrupt to just pick up a few packets.  Without this, the
-interrupt will starve everything else, and nothing will get done.
-
-By postponing servicing of the interrupt (and thus increasing latency
-slightly), throughput will actually increase.
-
-Obviously, if the card Rx buffers overflow because the interrupts weren't
-serviced quickly enough, then packets will be dropped.  This is still
-better than the machine not being able to actually do anything with the
-received packets (and also not able to do anything else such as allow the
-administrator to figure out what is happening).
-
-Simon-
-
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+The -ac tree is in sync. Hch did the leg work for that

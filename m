@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267385AbUHSUjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267391AbUHSUj0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267385AbUHSUjN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 16:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267391AbUHSUjN
+	id S267391AbUHSUj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 16:39:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267386AbUHSUj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 16:39:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62179 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267385AbUHSUi5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 16:38:57 -0400
-Date: Thu, 19 Aug 2004 13:37:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dimitri Sivanich <sivanich@sgi.com>
-Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] Improve cache_reap hotplug cpu support
-Message-Id: <20040819133714.7e2dbfd1.akpm@osdl.org>
-In-Reply-To: <20040819202652.GA11050@sgi.com>
-References: <20040819202652.GA11050@sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 19 Aug 2004 16:39:26 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:12522 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S267393AbUHSUjM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 16:39:12 -0400
+Message-ID: <4125100C.80703@austin.ibm.com>
+Date: Thu, 19 Aug 2004 15:39:40 -0500
+From: Olof Johansson <olof@austin.ibm.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Paul Mackerras <paulus@samba.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: Alignment of bitmaps for ext2_set_bit et al.
+References: <16676.35837.215958.814591@cargo.ozlabs.ibm.com> <20040819042234.75020cbc.akpm@osdl.org>
+In-Reply-To: <20040819042234.75020cbc.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dimitri Sivanich <sivanich@sgi.com> wrote:
+Andrew Morton wrote:
+
+>Paul Mackerras <paulus@samba.org> wrote:
+>  
 >
-> I found that there was room for improvement in the hotplug cpu code
-> in cache_reap.
+>>Olof has made a patch that uses atomics for these on ppc64 rather than
+>>locking and unlocking a lock, but it will only work correctly if the
+>>bitmap is always 8-byte aligned.
+>>    
+>>
+>
+>Sounds sane, as long as you get firmly notified when a poorly-aligned
+>address is fed in.
+>  
+>
+The notification is in the form of an unalignment trap resulting in a 
+panic, is that firm enough? :-)
 
-"improvement" is not an adequate description for your change, and it is
-unobvious from the diff what it is intended to do, and why, and what the
-expected and observed results were.
 
-Please describe your work more carefully.
-
-
-The patch adds even more ifdefs.  Suggest you open-code this:
-
-> +#ifdef CONFIG_HOTPLUG_CPU
-> +static void stop_cpu_timer(int cpu)
-> +{
-> +	struct work_struct *reap_work = &per_cpu(reap_work, cpu);
-> +
-> +	/* Null out this otherwise unused pointer for checking in cache_reap */
-> +	reap_work->data = NULL;
-> +}
-> +#endif
-
-in here:
-
->  static struct array_cache *alloc_arraycache(int cpu, int entries, int batchcount)
->  {
->  	int memsize = sizeof(void*)*entries+sizeof(struct array_cache);
-> @@ -670,6 +680,7 @@ static int __devinit cpuup_callback(stru
->  		break;
->  #ifdef CONFIG_HOTPLUG_CPU
->  	case CPU_DEAD:
-> +		stop_cpu_timer(cpu);
->  		/* fall thru */
->  	case CPU_UP_CANCELED:
->  		down(&cache_chain_sem);
-
-thereby removing one of them.
-
+-Olof

@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261573AbSLHVUk>; Sun, 8 Dec 2002 16:20:40 -0500
+	id <S261594AbSLHVUz>; Sun, 8 Dec 2002 16:20:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261594AbSLHVUk>; Sun, 8 Dec 2002 16:20:40 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:58587 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S261573AbSLHVUk> convert rfc822-to-8bit; Sun, 8 Dec 2002 16:20:40 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Matt Young <wz6b@arrl.net>
-Reply-To: wz6b@arrl.net
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.50. input_event      undefined --- any ideas 
-Date: Sun, 8 Dec 2002 13:27:48 -0800
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200212081327.48723.wz6b@arrl.net>
+	id <S261624AbSLHVUz>; Sun, 8 Dec 2002 16:20:55 -0500
+Received: from holomorphy.com ([66.224.33.161]:61077 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261594AbSLHVUy>;
+	Sun, 8 Dec 2002 16:20:54 -0500
+Date: Sun, 8 Dec 2002 13:28:08 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: anton@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.50-BK + 24 CPUs
+Message-ID: <20021208212808.GY9882@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Manfred Spraul <manfred@colorfullife.com>, anton@samba.org,
+	linux-kernel@vger.kernel.org
+References: <3DF3B7FB.9010902@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DF3B7FB.9010902@colorfullife.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/built-in.o: In function `kd_nosound':
-drivers/built-in.o(.text+0x38bca): undefined reference to `input_event'
-drivers/built-in.o(.text+0x38bdd): undefined reference to `input_event'
+Anton wrote:
+>> ie during the compile we scheduled 56283 times, and 41984 of them were
+>> caused by pipes.
+
+On Sun, Dec 08, 2002 at 10:22:03PM +0100, Manfred Spraul wrote:
+> The linux pipe implementation has only a page sized buffer - with 4 kB 
+> pages, transfering 1 MB through a pipe means at 512 context switches.
+
+Hmm. What happened to that pipe buffer size increase patch? That sounds
+like it might help here, but only if those things are trying to shove
+more than 4KB through the pipe at a time.
 
 
-also. what was the solution for --- 
-
-rch/i386/kernel/built-in.o: In function `do_suspend_lowlevel':
-arch/i386/kernel/built-in.o(.data+0x14d8): undefined reference to 
-`save_processor_state'
-arch/i386/kernel/built-in.o(.data+0x14de): undefined reference to 
-`saved_context_esp'
-arch/i386/kernel/built-in.o(.data+0x14e3): undefined reference to 
-`saved_context_eax'
-arch/i386/kernel/built-in.o(.data+0x14e9): undefined reference to 
-`saved_context
-
+Bill

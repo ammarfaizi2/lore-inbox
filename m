@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279652AbRJ3AAu>; Mon, 29 Oct 2001 19:00:50 -0500
+	id <S279649AbRJ3AAa>; Mon, 29 Oct 2001 19:00:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279653AbRJ3AAk>; Mon, 29 Oct 2001 19:00:40 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:48169 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S279652AbRJ3AAd>; Mon, 29 Oct 2001 19:00:33 -0500
-Date: Tue, 30 Oct 2001 00:02:53 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+	id <S279652AbRJ3AAU>; Mon, 29 Oct 2001 19:00:20 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10503 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S279649AbRJ3AAI>; Mon, 29 Oct 2001 19:00:08 -0500
+Date: Mon, 29 Oct 2001 15:58:32 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: <bcrl@redhat.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: please revert bogus patch to vmscan.c
-In-Reply-To: <20011029182949.H25434@redhat.com>
-Message-ID: <Pine.LNX.4.21.0110292358290.1036-100000@localhost.localdomain>
+In-Reply-To: <20011029.155559.64018347.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0110291556300.16744-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Oct 2001, Benjamin LaHaise wrote:
-> Think of CPUs with tagged tlbs and lots of entries.  Or even a system that 
-> only runs 1 threaded app.  Easily triggerable.  If people want to optimise 
-> it, great.  But go for correctness first, please...
 
-But was the original flush_tlb_page() fully correct?  In i386 it's
-	if (vma->vm_mm == current->active_mm)
-		__flush_tlb_one(addr);
-without reference to whether vma->vm_mm is active on another cpu.
+On Mon, 29 Oct 2001, David S. Miller wrote:
+>
+> Doing range flushes is not the answer.   It is going to be about
+> the same cost as doing per-page flushes.
 
-Hugh
+No, doing a range flush might be fine - we'd just do it _once_ per
+invocation of swap_out(), and that would probably be fine.
+
+The problem with the flush at the low level is that it's done once for
+every page in the whole VM space, which is easily millions of times.
+
+Cutting it down to once every MM would definitely be worth it.
+
+It won't be "exact" either, but it would mean that at least the lifetime
+of an optimistic TLB entry is bounded.
+
+		Linus
 

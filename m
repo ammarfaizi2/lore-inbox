@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267855AbTBRPsO>; Tue, 18 Feb 2003 10:48:14 -0500
+	id <S267871AbTBRP60>; Tue, 18 Feb 2003 10:58:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267847AbTBRPsN>; Tue, 18 Feb 2003 10:48:13 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:52621 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267858AbTBRPsJ>; Tue, 18 Feb 2003 10:48:09 -0500
-Date: Tue, 18 Feb 2003 07:58:03 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 373] New: Make rpm doesn't work
-Message-ID: <5390000.1045583883@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267876AbTBRP6Z>; Tue, 18 Feb 2003 10:58:25 -0500
+Received: from sex.inr.ac.ru ([193.233.7.165]:46726 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S267871AbTBRP6Y>;
+	Tue, 18 Feb 2003 10:58:24 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200302181606.TAA03838@sex.inr.ac.ru>
+Subject: Re: sendmsg and IP_PKTINFO
+To: neilb@cse.unsw.edu.au (Neil Brown)
+Date: Tue, 18 Feb 2003 19:06:34 +0300 (MSK)
+Cc: davem@redhat.com, herbert@gondor.apana.org.au,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <15954.4693.893707.471216@notabene.cse.unsw.edu.au> from "Neil Brown" at Feb 18, 3 10:00:37 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-http://bugme.osdl.org/show_bug.cgi?id=373
+> So yes, the current behaviour seems to match part of the
+> documentation.
 
-           Summary: Make rpm doesn't work
-    Kernel Version: 2.5.61
-            Status: NEW
-          Severity: normal
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: ciarrocchi@linuxmail.org
+Good. :-)
 
+>  "the outgoing packet will be sent over the interface specified in
+>  ipi_ifindex if that interface has a valid route to the packets
+>  destination.  Otherwise normal rouing rules apply".
+> 
+> I further argue that this is not only more rational, but is actually
+> more useful (which is a more telling point).
 
-Distribution:Mandrake 9.0
-Hardware Environment:
-Software Environment:
-Problem Description:Make rpm doesn't work
+Either you rely on routing tables, or you do not, which is used
+when routing tables are still not set up, or setup ambiguously,
+or use of them just do not make sense which happens for multicasts/
+limited/broadcasts/link local addresses. It is the thing which ifi_ifindex
+does.
 
-Steps to reproduce:
-[root@frodo linux-2.5.61]# make rpm
-make: *** No rule to make target `clean', needed by `rpm'.  Stop
+I do no see how it is possible to classify a middle way as "rational".
+Well, and frankly speaking I do not see how it could be useful.
+
+Alexey
 

@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbUAETuV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 14:50:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264944AbUAETuU
+	id S264944AbUAETud (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 14:50:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265173AbUAETud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 14:50:20 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:43849 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S261152AbUAETuM
+	Mon, 5 Jan 2004 14:50:33 -0500
+Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:19944 "HELO
+	cenedra.office") by vger.kernel.org with SMTP id S264944AbUAETu0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 14:50:12 -0500
-Date: Mon, 5 Jan 2004 21:50:05 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jfbeam@bluetronic.net
-Subject: Re: 2.6.0 under vmware ?
-Message-ID: <20040105195004.GH11115091@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Stephen Hemminger <shemminger@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	jfbeam@bluetronic.net
-References: <1073297203.12550.30.camel@bip.parateam.prv> <20040105142032.GE11115091@niksula.cs.hut.fi> <20040105185506.GF11115091@niksula.cs.hut.fi> <20040105113003.1bf558b7.shemminger@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 5 Jan 2004 14:50:26 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: DervishD <raul@pleyades.net>, Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Weird problems with printer using USB
+Date: Mon, 5 Jan 2004 19:50:22 +0000
+User-Agent: KMail/1.5.4
+References: <20040105192430.GA15884@DervishD>
+In-Reply-To: <20040105192430.GA15884@DervishD>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040105113003.1bf558b7.shemminger@osdl.org>
-User-Agent: Mutt/1.4i
+Message-Id: <200401051950.23418.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2004 at 11:30:03AM -0800, you [Stephen Hemminger] wrote:
-> > 
-> > Turns out the second floppy drive was disabled from the bios.
-> > 
-> > Oddly, 2.2 and 2.4 don't care.
-> > 
-> > If I turn the second drive on from the bios, 2.6 finds it, too.
-> 
-> Probably because 2.6 uses ACPI and 2.2/2.4 were not.
+On Monday 05 Jan 2004 7:24 pm, DervishD wrote:
+>
+> kernel: host/usb-uhci.c: interrupt, status 2, frame# 682
+> kernel: printer.c: usblp0: nonzero read/write bulk status received: -110
+> kernel: printer.c: usblp0: error -84 reading printer status
+> kernel: printer.c: usblp0: removed
+>
 
-Sounds reasonable. 
+I had very similar messages (from memory), tried all sorts of different kernel 
+versions, options, usb patches.... I even exchanged the usb cable. After a 
+week I was ready to throw the **** printer out the window, when by chance I 
+tried a shorter usb cable and it's worked perfectly ever since. I know it 
+sounds unlikely (all the cables were within the 10ft allowed for usb1), but 
+it worked for me. Might be worth a try.
 
-However, booting with "acpi=off" doesn't dig up /dev/fd1. Perhaps ACPI
-should be compiled out for good, but this really isn't a large problem for
-me as long as the drive works when enabled in BIOS.
+Andrew Walrond
 
-
--- v --
-
-v@iki.fi

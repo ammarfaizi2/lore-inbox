@@ -1,67 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288952AbSANT5O>; Mon, 14 Jan 2002 14:57:14 -0500
+	id <S288982AbSANTzD>; Mon, 14 Jan 2002 14:55:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288954AbSANT40>; Mon, 14 Jan 2002 14:56:26 -0500
-Received: from [208.29.163.248] ([208.29.163.248]:49315 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S288952AbSANTzH>; Mon, 14 Jan 2002 14:55:07 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: babydr@baby-dragons.com, linux-kernel@vger.kernel.org
-Date: Mon, 14 Jan 2002 11:54:27 -0800 (PST)
-Subject: Re: Hardwired drivers are going away?
-In-Reply-To: <E16QCc6-0002bb-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.40.0201141152570.22904-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288960AbSANTx6>; Mon, 14 Jan 2002 14:53:58 -0500
+Received: from h24-71-103-168.ss.shawcable.net ([24.71.103.168]:55048 "HELO
+	discworld.dyndns.org") by vger.kernel.org with SMTP
+	id <S288952AbSANTwa>; Mon, 14 Jan 2002 14:52:30 -0500
+Date: Mon, 14 Jan 2002 13:52:08 -0600
+From: Charles Cazabon <linux@discworld.dyndns.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Eli Carter <eli.carter@inet.com>,
+        "Michael Lazarou \(ETL\)" <Michael.Lazarou@etl.ericsson.se>
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Message-ID: <20020114135208.A4272@twoflower.internal.do>
+In-Reply-To: <20020114125228.B14747@thyrsus.com> <E16QBwD-0002So-00@the-village.bc.nu> <20020114132618.G14747@thyrsus.com> <20020114125508.A3358@twoflower.internal.do> <20020114135412.D17522@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020114135412.D17522@thyrsus.com>; from esr@thyrsus.com on Mon, Jan 14, 2002 at 01:54:12PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-note: this discussion has moved away from autoconfig to requiring
-everything to be modules.
+Eric S. Raymond <esr@thyrsus.com> wrote:
+> Charles Cazabon <charlesc@discworld.dyndns.org>:
+> > Yes, and yes.  Aunt Tillie is running Linux because someone installed a
+> > distribution for her.
+> 
+> You don't know that.  Maybe she installed it herself.
 
-autoconfig is a useful tool in some cases, but is not going to be used
-everywhere.
+If she installed Linux herself, today, then she's not Aunt Tillie.  She's "my
+Aunt Tillie who's something of a computer hobbyist, and not afraid to install
+a Unix-like OS on her PC alongside (or instead of) Windows".  That's a _whole_
+different ballgame -- and if she can do that, then she's fully capable of
+reading a little bit and answering some yes/no questions to compile a kernel.
 
-I view modules as being in the same catagory.
+> > She is never going to need anything out of her kernel that her
+> > vendor-shipped update kernels do not provide.
+> 
+> *You can't know that.*  
 
-David Lang
+Sure I can -- the same way I know that Ma & Pa Kettle are never going to use
+their computer for more than email, web surfing, and playing Solitaire.
 
+> And your belief that you *can* know it is a key part of the elitist
+> developer psychology and implicit assumptions that keeps Linux mostly
+> inaccessible to the Aunt Tillies of the world.
 
-On Mon, 14 Jan 2002, Alan Cox wrote:
+No, my beliefs are based on twenty years of observing people using computers
+and technoogy.  I have yet to see a single person who is simultaneously (i)
+technical enough to need something from their kernel that their distribution
+vendor doesn't provide, and (ii) not technical enough to be able to compile it
+themselves with today's tools.
 
-> Date: Mon, 14 Jan 2002 19:17:46 +0000 (GMT)
-> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> To: babydr@baby-dragons.com
-> Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-> Subject: Re: Hardwired drivers are going away?
->
-> > > Urban legend.
-> > 	I do not agree .  Got proof ?  Yes that is a valid question .
->
-> Most of the rootkit type stuff I see nowdays includes code for loading
-> patches into module free kernels. Its a real no win. The better ones support
-> regexp scanning so they can patch kernels where the sysadmin thinks he/she
-> is cool and has hidden or crapped in System.map
->
-> > > > case becouse the system can't know where the module will be located IIRC)
-> > > I defy you to measure it on x86
-> > 	OK ,How about sparc-64/alpha/ia64/... ?
->
-> Not generally found in your grandmothers PC
->
-> > > > 3. simplicity in building kernels for other machines. with a monolithic
-> > > > kernel you have one file to move (and a bootloader to run) with modules
-> > > > you have to move quite a few more files.
-> > > tar or nfs mount; make modules_install.
-> > 	Please my laugh'o meter is stuck already .  Sorry .  JimL
->
-> Then fix it, because the above works well. Also remember that autoconfig
-> tools won't be able to guess remote machines very well 8)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+I think your auto-configurator will be something of a white elephant --
+equivalent to a better guide for setting the clock in your VCR.  Those people
+who can't figure out how to set their VCR clock from the current instructions
+are the same people who don't care whether it flashes "12:00" or not.
+
+Charles
+-- 
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
+-----------------------------------------------------------------------

@@ -1,69 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUFNVl4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264514AbUFNVn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264503AbUFNVl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 17:41:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUFNVl4
+	id S264514AbUFNVn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 17:43:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUFNVn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 17:41:56 -0400
-Received: from mail.kroah.org ([65.200.24.183]:56528 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264503AbUFNVlv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 17:41:51 -0400
-Date: Mon, 14 Jun 2004 14:40:17 -0700
-From: Greg KH <greg@kroah.com>
-To: Tobias Weisserth <tobias@weisserth.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Linux 2.6.4] EagleTec (rev 1.13) USB external harddisk support -> patch to unusual_devs.h
-Message-ID: <20040614214017.GB3688@kroah.com>
-References: <1086086759.10599.14.camel@coruscant.weisserth.net> <20040602165723.GI7829@kroah.com> <1086200163.8709.8.camel@coruscant.weisserth.net> <20040602182131.GA13193@kroah.com> <1086207977.8707.38.camel@coruscant.weisserth.net> <20040602203307.GA19749@kroah.com> <1086213609.8710.79.camel@coruscant.weisserth.net> <20040602225906.GA23819@kroah.com> <1086455663.7588.6.camel@coruscant.weisserth.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1086455663.7588.6.camel@coruscant.weisserth.net>
-User-Agent: Mutt/1.5.6i
+	Mon, 14 Jun 2004 17:43:58 -0400
+Received: from relay.iol.pt ([193.126.240.148]:27369 "EHLO mx3.mediacapital.pt")
+	by vger.kernel.org with ESMTP id S264514AbUFNVmU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 17:42:20 -0400
+Date: Mon, 14 Jun 2004 14:41:56 -0700
+From: winners_claims@iol.pt
+Subject: NOTIFICATION OF AWARD
+Message-id: <3c14473c30ba.3c30ba3c1447@iol.pt>
+MIME-version: 1.0
+X-Mailer: iPlanet Messenger Express 5.2 HotFix 1.16 (built May 14 2003)
+Content-type: text/plain; charset=iso-8859-1
+Content-language: pt
+Content-transfer-encoding: 8BIT
+Content-disposition: inline
+X-Accept-Language: pt
+X-Priority: 1 (Highest)
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 05, 2004 at 07:14:23PM +0200, Tobias Weisserth wrote:
-> Hi,
-> 
-> On Thu, 2004-06-03 at 00:59, Greg KH wrote:
-> ...
-> > Nope, sorry.  Don't cut and paste.  Try attaching as a text attachment,
-> > or doing something with your editor to read from your patch file into
-> > the body of the email.
-> 
-> I tried the latter. Doesn't seem to work.
-> 
-> I attached the patches.
-> 
-> Those are a patch for the 2.6.6 kernel and the 2.6.4 kernel.
-> 
-> When I was going through all my kernel branches in /usr/src I noticed
-> that the Gentoo development branch already had a suitable entry for the
-> firmware version of my device:
-> 
-> /* Reported by Henning Schild <henning@wh9.tu-dresden.de> */
-> UNUSUAL_DEV(  0x05e3, 0x0702, 0x0113, 0x0113,
->                 "EagleTec",
->                 "External Hard Disk",
->                 US_SC_DEVICE, US_PR_DEVICE, NULL,
->                 US_FL_FIX_INQUIRY ),
-> 
-> More information on these sources:
-> 
-> http://packages.gentoo.org/ebuilds/?gentoo-dev-sources-2.6.5-r1
-> 
-> I found it in no other branch besides this.
-> 
-> So if you include my patch then you might consider putting his name
-> there too. I discovered his entry after I figured out by myself how to
-> make EagleTec revision 1.13 work, but I don't know whether he did it
-> before me.
+Treasure Chest Sweepstakes Lottery,
+Nachtwachtlaan 20, 
+Amsterdam 1058 EA, 
+Netherlands
 
-Hm, this is already fixed in the current kernel trees, so your patch
-should not be needed.
+BONANZA ! BONANZA !! BONANZA !!!
 
-thanks,
+Hurray! You have been selected as one of the five lucky winners in the second edition  of the TREASURE CHEST SWEEPSTAKES promotional draw. You have therefore been approved for a huge payout of 1.6 Million Euros (One Million, Six Hundred Thousand Euros Only)! 
 
-greg k-h
+How was the selction process done?
+
+Good question, winners were randomly selected from an initial database of 500,000 emails which was eventually downsized to 5,000 from which we eventually selected the final and lucky five. The process was done through the computerized email balloting system selecting emails from The Middle East, Asia, Africa, Canada, Europe, USA and South America.
+
+The process of collecting is to be handled by our Prize Transfer Agents. To ensure a smooth collection of your grand prize, You are to contact our agents by email or fax within a week of receiving this notice. Please find full contact details below:
+
+Steven Nicks,
+Foreign Service Manager,
+De Diamant Finance,
+De Ruyterkade 6, 
+1013 AA Amsterdam
+Netherlands
+Tel/Fax: 31 205 248 515
+Email address: steven_nicks@mail2agent.com
+
+When you contact your claims agent please provide him with the following information below:
+
+
+Ref No: TCL/31251311-61
+Grand Draw No: 12099
+Secret pin code: 7769843
+
+Furthermore you are seriously advised to keep all winning lottery information and numbers from the public in line with our company security protocol to avoid double claiming and unwarranted abuse of this program by unscrupulous individuals. Any breach of confidentiality on the part of the winners will result to disqualification. Please do not reply to this mail, contact your claims agent as instructed above.
+
+
+
+On behalf of all our staff in Treasure Chest Sweepstakes Lotto program, accept my Congratulations!
+
+Mr. Ruud Van Gaal
+The Marketting Manager,
+Treasure Chest  Sweepstakes Lottery.
+
+N.B. Anybody under the age of 18 cannot participate in this programme and any breach of confidentiality on the part of the winners will result to disqualification.
+
+Please do not reply to this mail. Contact your claim agent.
+
+
+
+___________________________________________________________________________________________
+
+IOL  - Portal Oficial do 10º Festival Super Bock Super Rock.
+Ouve a Rádio do Festival no Cotonete!
+http://www.cotonete.iol.pt/quiosque/destaques/sbsr04
+

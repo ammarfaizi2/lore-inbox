@@ -1,75 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbULUVgH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbULUVpC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261859AbULUVgH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 16:36:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbULUVgH
+	id S261863AbULUVpC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 16:45:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbULUVpC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 16:36:07 -0500
-Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:21638 "EHLO
-	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261859AbULUVgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 16:36:01 -0500
-Message-ID: <41C89734.8020302@kolivas.org>
-Date: Wed, 22 Dec 2004 08:35:48 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jesse <jessezx@yahoo.com>
-Cc: Paulo Marques <pmarques@grupopie.com>, linux-kernel@vger.kernel.org
-Subject: Re: Gurus, a silly question for preemptive behavior
-References: <20041221190339.24215.qmail@web52605.mail.yahoo.com>
-In-Reply-To: <20041221190339.24215.qmail@web52605.mail.yahoo.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig3391ABC2449B215600E72F01"
+	Tue, 21 Dec 2004 16:45:02 -0500
+Received: from mail.kroah.org ([69.55.234.183]:16824 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261863AbULUVo6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 16:44:58 -0500
+Date: Tue, 21 Dec 2004 13:44:42 -0800
+From: Greg KH <greg@kroah.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, willy@debian.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: [PATCH] add legacy resources to sysfs
+Message-ID: <20041221214442.GA10362@kroah.com>
+References: <200412211247.44883.jbarnes@engr.sgi.com> <20041221212839.GF31261@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041221212839.GF31261@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig3391ABC2449B215600E72F01
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, Dec 21, 2004 at 09:28:39PM +0000, Matthew Wilcox wrote:
+> > ===== arch/ia64/sn/pci/pci_dma.c 1.2 vs edited =====
+> > +int sn_pci_get_legacy_mem(struct pci_bus *bus, unsigned long *addr)
+> > +{
+> > +	if (!SN_PCIBUS_BUSSOFT(bus))
+> > +		return -ENODEV;
+> > +
+> > +	*addr = SN_PCIBUS_BUSSOFT(bus)->bs_legacy_mem | __IA64_UNCACHED_OFFSET;
+> > +
+> > +	return 0;
+> > +}
+> 
+> int sn_pci_get_legacy_mem(struct pci_bus *bus)
+> {
+> 	if (!SN_PCIBUS_BUSSOFT(bus))
+> 		return ERR_PTR(-ENODEV);
 
-jesse wrote:
-> Paulo:
->  
->    I already said in the messsage that my user space
-> application has a low nice priority, i set it to 10.
-> since my application has low priority compared to
-> other user space applications, it is supposed to be
-> interrupted. but it is not.
+Huh?  A pointer doesn't fit into an int on all arches.  I think the
+original was correct.
 
-If your task is better priority the scheduler will make it preempt the 
-worse priority task. It sounds to me like you are complaining that the 
-worse priority task is still getting cpu? If so, you misunderstand 
-priority - it orders tasks according to priority giving lower latency 
-and preemptive behaviour to the better task, and gives _more_ cpu but 
-not all the cpu. The cpu must still be shared, but with more cpu 
-distributed to the better priority task. If you want your better 
-priority task to get _all_ the cpu you have to use real time scheduling.
+thanks,
 
-Cheers,
-Con
-
-P.S. Please dont top post when replying, it's hard to follow an email 
-thread to see what you're replying to if you do that. These threads can 
-get very long and confusing.
-
---------------enig3391ABC2449B215600E72F01
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFByJc2ZUg7+tp6mRURAs2EAJ4njSxd3KglBqSXDbReYFRcLiaPiACdEMD7
-5igfw4CYCB0qmAKkSbh4wQs=
-=dP/y
------END PGP SIGNATURE-----
-
---------------enig3391ABC2449B215600E72F01--
+greg k-h

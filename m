@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262954AbTI2KsP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 06:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbTI2KsP
+	id S262973AbTI2Kwz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 06:52:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbTI2Kwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 06:48:15 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:19418 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S262954AbTI2KsO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 06:48:14 -0400
+	Mon, 29 Sep 2003 06:52:55 -0400
+Received: from [134.153.36.129] ([134.153.36.129]:56525 "EHLO
+	hardcopy.esd.mun.ca") by vger.kernel.org with ESMTP id S262973AbTI2Kwy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 06:52:54 -0400
+From: Stephen Anthony <stephena@users.sourceforge.net>
+To: linux-kernel@vger.kernel.org
+Subject: Possible regression with 2.6.0-test6
+Date: Mon, 29 Sep 2003 08:22:09 -0230
+User-Agent: KMail/1.5.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16248.3563.675576.448898@gargle.gargle.HOWL>
-Date: Mon, 29 Sep 2003 12:48:11 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test5, gcc 3.3, aic7(censored)_core.c
-In-Reply-To: <2ff401c38611$5ef13d20$44ee4ca5@DIAMONDLX60>
-References: <2ff401c38611$5ef13d20$44ee4ca5@DIAMONDLX60>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+Message-Id: <200309290822.09859.stephena@users.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norman Diamond writes:
- > In 2.6.0-test5, the README still says "Make sure you have gcc 2.95.3
- > available."  It is telling the truth.
- > 
- > SuSE 8.2 includes gcc 3.3 20030226 (prerelease).  Up to the point of
- > aborting, it diagnoses a ton of "warning: comparison between signed and
- > unsigned", but nonetheless compiles many source files and continues.  But in
- > aic7(censored)_core.c, line 76, it diagnoses "warning: `num_chip_names'
- > defined but not used".  Even though this is also just a warning, obviously
- > it threatens disastrous consequences  :-s  (sarcasm).  make[3] quits with
- > Error 1 and make[2] and make[1] quit with Error 2.
+I've noticed that test6 isn't as 'smooth' as test5.  Specifically, if I 
+open an nedit window and use the cursor down key to scroll down through 
+text, there is some jerkiness.  At this point I've noticed that CPU use 
+goes to 1% or more.  A similar problem happens with Opera (web browser), 
+but of course the CPU usage is higher, which is expected.
 
-Look for and delete any -Werror in aic7xxx' Makefile.
-I've seen people being bit by this before.
+When I go back to test5, scrolling in nedit is smoother, and CPU never 
+goes above 0.6%.  Note that the speed that text moves is the same in 
+both, but the test6 version 'jumps' and 'stops' for a little bit.  Hence 
+my describing it as jerky.
+
+I know its not much to go on, but it is a noticable difference, at least 
+to me.  Since this new release has tweaked interactivity patches, I'm 
+wondering if this has anything to do with it.
+
+System is a fully updated Mandrake 9.1, but I don't think that would 
+matter.  CPU is P4-2.4GHz with 768 MB RAM, and NVidia video card.
+
+Steve

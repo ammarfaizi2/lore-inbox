@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264069AbUCZP7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 10:59:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264070AbUCZP7Y
+	id S264068AbUCZP7R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 10:59:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264069AbUCZP7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 10:59:24 -0500
-Received: from [198.247.175.96] ([198.247.175.96]:34752 "EHLO jethro.hick.org")
-	by vger.kernel.org with ESMTP id S264069AbUCZP7V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 10:59:21 -0500
-Date: Fri, 26 Mar 2004 09:56:49 -0600 (CST)
-From: Matt Miller <mmiller@hick.org>
-To: linux-kernel@vger.kernel.org
-cc: viro@parcelfarce.linux.theplanet.co.uk, mmiller@hick.org
-Subject: Re: [PATCH] 2.6: improved fdmap
-In-Reply-To: <200403261524.56694@WOLK>
-Message-ID: <Pine.LNX.4.58.0403260951080.9588@jethro.hick.org>
-References: <Pine.LNX.4.58.0403252228420.20049@jethro.hick.org>
- <200403261524.56694@WOLK>
+	Fri, 26 Mar 2004 10:59:17 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:35016 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S264068AbUCZP7Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 10:59:16 -0500
+Message-ID: <4064530C.5030308@pacbell.net>
+Date: Fri, 26 Mar 2004 07:58:04 -0800
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Robert Schwebel <robert@schwebel.de>
+CC: bert hubert <ahu@ds9a.nl>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] RNDIS Gadget Driver
+References: <20040325221145.GJ10711@pengutronix.de> <20040326115947.GA22185@outpost.ds9a.nl> <20040326121928.GC16461@pengutronix.de>
+In-Reply-To: <20040326121928.GC16461@pengutronix.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Mar 2004, Marc-Christian Petersen wrote:
-> hmm, fdmap == 265 and fadvise64_64 also 265? I think you can leave
-> fadvise64_64 at 264 ;)
+Robert Schwebel wrote:
+> On Fri, Mar 26, 2004 at 12:59:47PM +0100, bert hubert wrote:
+> 
+>>>-	.bDeviceClass =		DEV_CONFIG_CLASS,
+>>>+	.bDeviceClass =		0x02,
+>>
+>>Is this wise?
+> 
+> 
+> Until now DEV_CONFIG_CLASS was 0xFF, which results in Windows getting
+> hickup. If you directly set this to 0x02 (Network Device) Win is happy.
 
-Doh!  I should have read the patch more closely.  Please apply this second
-patch if you are on s390.  It depends on the first patch.  I will wait to
-see if there are any more problems before posting a new complete patch.
-Thanks for pointing it out!
+Actually I suspect setting it to USB_CLASS_COMM would be preferred, in
+RNDIS-specific config descriptors....
 
-Matt
+- Dave
 
--------
-
-Patch for s390 (depends on first patch):
-
---- linux-2.6.4/include/asm-s390/unistd.h	Fri Mar 26 09:43:50 2004
-+++ linux-2.6.4-fdmap-orig/include/asm-s390/unistd.h	Fri Mar 26 09:47:52 2004
-@@ -256,11 +256,11 @@
- #define __NR_clock_gettime	(__NR_timer_create+6)
- #define __NR_clock_getres	(__NR_timer_create+7)
- #define __NR_clock_nanosleep	(__NR_timer_create+8)
--#define __NR_fdmap		265
- /*
-  * Number 263 is reserved for vserver
-  */
--#define __NR_fadvise64_64	265
-+#define __NR_fadvise64_64	264
-+#define __NR_fdmap		265
-
- #define NR_syscalls 266
 

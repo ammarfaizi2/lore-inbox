@@ -1,34 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbULBTJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbULBTKR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbULBTJt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 14:09:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbULBTJs
+	id S261726AbULBTKR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 14:10:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbULBTKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 14:09:48 -0500
-Received: from fw.osdl.org ([65.172.181.6]:3781 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261725AbULBTGk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 14:06:40 -0500
-Date: Thu, 2 Dec 2004 11:10:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: John Mock <kd6pag@qsl.net>
-Cc: linux-kernel@vger.kernel.org, pavel@suse.cz
-Subject: Re: 2.6.10-rc2 on VAIO laptop and PowerMac 8500/G3
-Message-Id: <20041202111040.432d2440.akpm@osdl.org>
-In-Reply-To: <E1CZv5H-0001zG-00@penngrove.fdns.net>
-References: <E1CZv5H-0001zG-00@penngrove.fdns.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 2 Dec 2004 14:10:17 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:22144
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S261731AbULBTIS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 14:08:18 -0500
+Subject: Re: [PATCH] oom killer (Core)
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: andrea@suse.de, marcelo.tosatti@cyclades.com,
+       LKML <linux-kernel@vger.kernel.org>, nickpiggin@yahoo.com.au
+In-Reply-To: <20041202110729.57deaf02.akpm@osdl.org>
+References: <20041201104820.1.patchmail@tglx>
+	 <20041201211638.GB4530@dualathlon.random>
+	 <1101938767.13353.62.camel@tglx.tec.linutronix.de>
+	 <20041202033619.GA32635@dualathlon.random>
+	 <1101985759.13353.102.camel@tglx.tec.linutronix.de>
+	 <1101995280.13353.124.camel@tglx.tec.linutronix.de>
+	 <20041202164725.GB32635@dualathlon.random>
+	 <20041202085518.58e0e8eb.akpm@osdl.org>
+	 <20041202180823.GD32635@dualathlon.random>
+	 <1102013716.13353.226.camel@tglx.tec.linutronix.de>
+	 <20041202110729.57deaf02.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 02 Dec 2004 20:08:13 +0100
+Message-Id: <1102014493.13353.239.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Mock <kd6pag@qsl.net> wrote:
->
-> The problem is with the 'sonypi' module, which i will document separately.
+On Thu, 2004-12-02 at 11:07 -0800, Andrew Morton wrote:
+> Thomas Gleixner <tglx@linutronix.de> wrote:
+> >
+> > FYI, I tried with 2.6 UP and PREEMPT=n. The result is more horrible. The
+> > box just gets stuck in an endless swap in/swap out and does not respond
+> > to anything else than SysRq-T and the reset button.
+> 
+> There's a patch in -mm which causes the oom-killer to be invoked each time
+> you hit sysrq-F, which sounds like a fine idea to me.
 
-There have been recent sonypi patches, althought they're fairly
-minor-looking.  But make sure that you're using the latest kernel. 
-2.6.10-rc2 is ancient history ;)
+Can you please explain, how I can hit sysrq-F when I can't log into the
+remote machine ?
+
+tglx
+
 

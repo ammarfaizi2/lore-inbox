@@ -1,26 +1,159 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315720AbSGSEtI>; Fri, 19 Jul 2002 00:49:08 -0400
+	id <S314396AbSGSExr>; Fri, 19 Jul 2002 00:53:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315783AbSGSEtI>; Fri, 19 Jul 2002 00:49:08 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:54286 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S315720AbSGSEtI>;
-	Fri, 19 Jul 2002 00:49:08 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200207190452.g6J4qAe61080@saturn.cs.uml.edu>
-Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
-To: linux-kernel@vger.kernel.org
-Date: Fri, 19 Jul 2002 00:52:10 -0400 (EDT)
-In-Reply-To: <200207190432.g6J4WD2366706@pimout5-int.prodigy.net> from "Rob Landley" at Jul 18, 2002 06:33:54 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S315445AbSGSExr>; Fri, 19 Jul 2002 00:53:47 -0400
+Received: from p50887DBB.dip.t-dialin.net ([80.136.125.187]:27008 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S314396AbSGSExp>; Fri, 19 Jul 2002 00:53:45 -0400
+Date: Thu, 18 Jul 2002 22:55:58 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: James Antill <james@and.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: more thoughts on a new jail() system call
+In-Reply-To: <m33cugnye9.fsf@code.and.org>
+Message-ID: <Pine.LNX.4.44.0207182248110.3378-200000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811839-1262670546-1027054558=:3378"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've been sitting on this question for years, hoping I'd come across the 
-> answer, and I STILL don't know what the "i" is short for.  Somebody here has 
-> got to know this. :)
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-indirection
+---1463811839-1262670546-1027054558=:3378
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+Hi,
+
+On 19 Jul 2002, James Antill wrote:
+>  The more general spelling is FIONREAD, and I generally find that only
+> crap network applications need to use it. Good ones just try and read
+> a largish amount of data into a buffer.
+
+That doesn't matter as long as you haven't got any idea on how much data 
+will be read. Especially relaying between two completely different hosts, 
+possibly unknown protocols, you don't have a chance to know who will send 
+next. Without TIOCINQ you'll almost be shot if you have received lots of 
+lots of stuff from the client and expect any response from the server. You 
+just won't get it.
+
+Give me another version of the appended piece of code that won't use 
+ioctl, and I'll consider an acknowledgement.
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+
+---1463811839-1262670546-1027054558=:3378
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="portforwarder.c"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0207182255580.3378@hawkeye.luckynet.adm>
+Content-Description: 
+Content-Disposition: attachment; filename="portforwarder.c"
+
+I2luY2x1ZGUgPGVycm5vLmg+DQojaW5jbHVkZSA8c3RkaW8uaD4NCiNpbmNs
+dWRlIDxzdGRsaWIuaD4NCiNpbmNsdWRlIDxzdHJpbmcuaD4NCiNpbmNsdWRl
+IDx1bmlzdGQuaD4NCiNpbmNsdWRlIDxhcnBhL2luZXQuaD4NCiNpbmNsdWRl
+IDxzeXMvaW9jdGwuaD4NCiNpbmNsdWRlIDxuZXRpbmV0L2luLmg+DQojaW5j
+bHVkZSA8c3lzL3NvY2tldC5oPg0KDQojZGVmaW5lIF9wZXJyb3IocykgcGVy
+cm9yKHMpOyBlcnJubyA9IDANCiNkZWZpbmUgX3Byb2JhYmx5X3BlcnJvcihz
+KSBpZiAoZXJybm8pIHsgcGVycm9yKHMpOyBlcnJubyA9IDA7IH0NCg0KdW5z
+aWduZWQgc2hvcnQgcG9ydGZyb20sIHBvcnR0bzsNCmludCBzb2NrLCBjbGll
+bnQsIHNlcnZlciwgcGVlcl9zaXplOw0Kc3RydWN0IHNvY2thZGRyX2luICps
+b2NhbCwgKnBlZXIsICpyZW1vdGU7DQpjaGFyICpidWZmZXI7DQoNCmludCBt
+YWluKGludCBhcmdjLCBjaGFyICoqYXJndikgew0KCWJ1ZmZlciAgICA9IG1h
+bGxvYyg2NTUzNyk7DQoJcmVtb3RlICAgID0gbWFsbG9jKHNpemVvZihzdHJ1
+Y3Qgc29ja2FkZHJfaW4pKTsNCglsb2NhbCAgICAgPSBtYWxsb2Moc2l6ZW9m
+KHN0cnVjdCBzb2NrYWRkcl9pbikpOw0KCXBlZXIgICAgICA9IG1hbGxvYyhz
+aXplb2Yoc3RydWN0IHNvY2thZGRyX2luKSk7DQoJcGVlcl9zaXplID0gc2l6
+ZW9mKHN0cnVjdCBzb2NrYWRkcl9pbik7DQoJcG9ydGZyb20gID0gMjY7DQoJ
+cG9ydHRvICAgID0gMjU7DQoNCglpZiAoYXJnYyA+PSAzKSB7DQoJCXBvcnRm
+cm9tID0gKHNob3J0KShhdG9sKGFyZ3ZbMV0pICYgMHhGRkZGKTsNCgkJcG9y
+dHRvICAgPSAoc2hvcnQpKGF0b2woYXJndlsyXSkgJiAweEZGRkYpOw0KCX0N
+Cg0KCWxvY2FsLT5zaW5fZmFtaWx5ICAgICAgID0gQUZfSU5FVDsNCglsb2Nh
+bC0+c2luX3BvcnQgICAgICAgICA9IGh0b25zKHBvcnRmcm9tKTsNCglsb2Nh
+bC0+c2luX2FkZHIuc19hZGRyICA9IGh0b25sKElOQUREUl9BTlkpOw0KDQoJ
+cmVtb3RlLT5zaW5fZmFtaWx5ICAgICAgPSBBRl9JTkVUOw0KCXJlbW90ZS0+
+c2luX3BvcnQgICAgICAgID0gaHRvbnMocG9ydHRvKTsNCglyZW1vdGUtPnNp
+bl9hZGRyLnNfYWRkciA9IGluZXRfYWRkcigiMTkyLjE2OC4xLjEiKTsNCg0K
+CXByaW50ZigiVGFyZ2V0IGFkZHJlc3M6ICVpLiVpLiVpLiVpOiVpXG4iLA0K
+CSAgICAgICByZW1vdGUtPnNpbl9hZGRyLnNfYWRkciAmIDB4RkYsDQoJICAg
+ICAgIChyZW1vdGUtPnNpbl9hZGRyLnNfYWRkciA+PiA4KSAmIDB4RkYsDQoJ
+ICAgICAgIChyZW1vdGUtPnNpbl9hZGRyLnNfYWRkciA+PiAxNikgJiAweEZG
+LA0KCSAgICAgICAocmVtb3RlLT5zaW5fYWRkci5zX2FkZHIgPj4gMjQpICYg
+MHhGRiwNCgkgICAgICAgbnRvaHMocmVtb3RlLT5zaW5fcG9ydCkpOw0KDQoJ
+c29jayA9IHNvY2tldChQRl9JTkVULCBTT0NLX1NUUkVBTSwgSVBQUk9UT19U
+Q1ApOw0KCWlmIChzb2NrID09IC0xKSB7DQoJCV9wZXJyb3IoInNvY2tldCAo
+Y29udHJvbGxlcikiKTsNCgkJZXhpdCgxKTsNCgl9DQoJaWYgKGJpbmQoc29j
+aywgKHN0cnVjdCBzb2NrYWRkciAqKWxvY2FsLA0KCQkgc2l6ZW9mKHN0cnVj
+dCBzb2NrYWRkcl9pbikpIDwgMCkgew0KCQlfcGVycm9yKCJiaW5kIik7DQoJ
+CWV4aXQoMSk7DQoJfQ0KCWlmIChsaXN0ZW4oc29jaywgMTApIDwgMCkgew0K
+CQlfcGVycm9yKCJsaXN0ZW4iKTsNCgkJZXhpdCgxKTsNCgl9DQoJd2hpbGUg
+KChjbGllbnQgPSBhY2NlcHQoc29jaywgKHN0cnVjdCBzb2NrYWRkciAqKXBl
+ZXIsDQoJCQkJJnBlZXJfc2l6ZSkpID49IDApIHsNCgkJdW5zaWduZWQgbG9u
+ZyBzOw0KCQlpbnQgaW5fcmVjdnEsIG92ZXJoZWFkID0gMCwgbnJfbG9vcHMg
+PSAwOw0KDQoJCWZvciAocyA9IDA7IHMgPCA2NTUzNjsgcysrKQ0KCQkJYnVm
+ZmVyW3NdID0gMDsNCg0KCQlwcmludGYoIkNvbm5lY3Rpb24gZnJvbSAlczol
+aVxuIiwNCgkJICAgICAgIGluZXRfbnRvYShwZWVyLT5zaW5fYWRkciksDQoJ
+CSAgICAgICBudG9ocyhwZWVyLT5zaW5fcG9ydCkpOw0KDQoJCXNlcnZlciA9
+IHNvY2tldChQRl9JTkVULCBTT0NLX1NUUkVBTSwgSVBQUk9UT19UQ1ApOw0K
+CQlpZiAoc2VydmVyID09IC0xKSB7DQoJCQlfcGVycm9yKCJzb2NrZXQgKHNl
+cnZlcikiKTsNCgkJCWV4aXQoMSk7DQoJCX0NCgkJaWYgKGNvbm5lY3Qoc2Vy
+dmVyLCAoc3RydWN0IHNvY2thZGRyICopcmVtb3RlLA0KCQkJICAgIHNpemVv
+ZihzdHJ1Y3Qgc29ja2FkZHJfaW4pKSA8IDApIHsNCgkJCV9wZXJyb3IoImNv
+bm5lY3QgKHNlcnZlcikiKTsNCgkJCWdvdG8gb3V0Ow0KCQl9DQoNCgkJcHJp
+bnRmKCJTZXJ2ZXIgY29ubmVjdGlvbiBpcyB1cC5cbiIpOw0KCQl1c2xlZXAo
+MTAwKTsNCg0KCQlpZiAoaW9jdGwoc2VydmVyLCBUSU9DSU5RLCAmaW5fcmVj
+dnEpICE9IDApIHsNCgkJCV9wZXJyb3IoIlRJT0NJTlEgKHNlcnZlcikiKTsN
+CgkJCWdvdG8gb3V0Ow0KCQl9DQoNCglkYXRhX3dhaXRpbmc6DQoJCWlmIChv
+dmVyaGVhZCAtIG5yX2xvb3BzID49IDEwMCkNCgkJCWdvdG8gb3V0Ow0KDQoJ
+CXdoaWxlIChpbl9yZWN2cSkgew0KCQkJbnJfbG9vcHMrKzsNCgkJCW92ZXJo
+ZWFkID0gbnJfbG9vcHM7DQoJCQlmb3IgKHMgPSAwOyBzIDwgNjU1MzY7IHMr
+KykNCgkJCQlidWZmZXJbc10gPSAwOw0KDQoJCQlpZiAocmVjdihzZXJ2ZXIs
+YnVmZmVyLCA2NTUzNSwgMCkgPCAwKSB7DQoJCQkJX3BlcnJvcigicmVjdiAo
+c2VydmVyKSIpOw0KCQkJCWdvdG8gb3V0Ow0KCQkJfQ0KCQkJcHJpbnRmKCIl
+cyIsIGJ1ZmZlcik7DQoJCQlpZiAoc2VuZChjbGllbnQsIGJ1ZmZlciwgc3Ry
+bGVuKGJ1ZmZlciksIDApIDwgMCkgew0KCQkJCV9wZXJyb3IoInNlbmQgKHNl
+cnZlcikiKTsNCgkJCQlnb3RvIG91dDsNCgkJCX0NCgkJCWlmIChpb2N0bChz
+ZXJ2ZXIsIFRJT0NJTlEsICZpbl9yZWN2cSkgIT0gMCkgew0KCQkJCV9wZXJy
+b3IoIlRJT0NJTlEgKHNlcnZlcikiKTsNCgkJCQlnb3RvIG91dDsNCgkJCX0N
+CgkJfQ0KDQoJCWlmIChpb2N0bChjbGllbnQsIFRJT0NJTlEsICZpbl9yZWN2
+cSkgIT0gMCkgew0KCQkJX3BlcnJvcigiVElPQ0lOUSAoY2xpZW50KSIpOw0K
+CQkJZ290byBvdXQ7DQoJCX0NCg0KCQl3aGlsZSAoaW5fcmVjdnEpIHsNCgkJ
+CW5yX2xvb3BzKys7DQoJCQlvdmVyaGVhZCA9IG5yX2xvb3BzOw0KCQkJZm9y
+IChzID0gMDsgcyA8IDY1NTM2OyBzKyspDQoJCQkJYnVmZmVyW3NdID0gMDsN
+Cg0KCQkJaWYgKHJlY3YoY2xpZW50LCBidWZmZXIsIDY1NTM1LCAwKSA8IDAp
+IHsNCgkJCQlfcGVycm9yKCJyZWN2IChjbGllbnQpIik7DQoJCQkJZ290byBv
+dXQ7DQoJCQl9DQoJCQlwcmludGYoIiVzIiwgYnVmZmVyKTsNCgkJCWlmIChz
+ZW5kKHNlcnZlciwgYnVmZmVyLCBzdHJsZW4oYnVmZmVyKSwgMCkgPCAwKSB7
+DQoJCQkJX3BlcnJvcigic2VuZCAoc2VydmVyKSIpOw0KCQkJCWdvdG8gb3V0
+Ow0KCQkJfQ0KCQkJaWYgKGlvY3RsKGNsaWVudCwgVElPQ0lOUSwgJmluX3Jl
+Y3ZxKSAhPSAwKSB7DQoJCQkJX3BlcnJvcigiVElPQ0lOUSAoY2xpZW50KSIp
+Ow0KCQkJCWdvdG8gb3V0Ow0KCQkJfQ0KCQl9DQoNCgkJaWYgKGlvY3RsKHNl
+cnZlciwgVElPQ0lOUSwgJmluX3JlY3ZxKSAhPSAwKSB7DQoJCQlfcGVycm9y
+KCJUSU9DSU5RIChzZXJ2ZXIpIik7DQoJCQlnb3RvIG91dDsNCgkJfQ0KDQoJ
+CW92ZXJoZWFkKys7DQoNCgkJdXNsZWVwKDEwMCk7DQoJCWdvdG8gZGF0YV93
+YWl0aW5nOw0KCW91dDoNCgkJcHJpbnRmKCJDb25uZWN0aW9uIGNsb3Npbmcu
+XG4iKTsNCgkJc2h1dGRvd24oY2xpZW50LCBTSFVUX1JEV1IpOw0KCQlfcHJv
+YmFibHlfcGVycm9yKCJzaHV0ZG93biAoY2xpZW50KSIpOw0KCQlzaHV0ZG93
+bihzZXJ2ZXIsIFNIVVRfUkRXUik7DQoJCV9wcm9iYWJseV9wZXJyb3IoInNo
+dXRkb3duIChzZXJ2ZXIpIik7DQoJCWNsb3NlKGNsaWVudCk7DQoJCV9wcm9i
+YWJseV9wZXJyb3IoImNsb3NlIChjbGllbnQpIik7DQoJCWNsb3NlKHNlcnZl
+cik7DQoJCV9wcm9iYWJseV9wZXJyb3IoImNsb3NlIChzZXJ2ZXIpIik7DQoJ
+fQ0KDQoJaWYgKGNsb3NlKHNvY2spKSB7DQoJCV9wZXJyb3IoImNsb3NlIChj
+b250cm9sbGVyKSIpOw0KCX0NCg0KCWV4aXQoMCk7DQp9DQoNCi8qDQogKiBM
+b2NhbCB2YXJpYWJsZXM6DQogKiAgY29tcGlsZS1jb21tYW5kOiAiZ2NjIC1X
+IC1XYWxsIC1PcyAtbyBwZiBwb3J0Zm9yd2FyZGVyLmMiDQogKiAgYy1iYXNp
+Yy1vZmZzZXQ6IDgNCiAqIEVuZDoNCiAqLw0K
+---1463811839-1262670546-1027054558=:3378--

@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262066AbTKGWmV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:42:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbTKGW0u
+	id S261943AbTKGXCP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 18:02:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTKGWYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:26:50 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:5533 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264347AbTKGN4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 08:56:07 -0500
-Date: Fri, 7 Nov 2003 14:56:06 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Jan Dittmer <j.dittmer@portrix.net>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: test9: suspend no go
-Message-ID: <20031107135605.GF20585@atrey.karlin.mff.cuni.cz>
-References: <3F9BCF7A.7000403@portrix.net> <20031107100609.GA5088@elf.ucw.cz> <3FAB8CA1.7040105@portrix.net> <20031107132146.GC20585@atrey.karlin.mff.cuni.cz> <3FABA030.9040405@portrix.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 7 Nov 2003 17:24:14 -0500
+Received: from out005pub.verizon.net ([206.46.170.143]:15014 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP id S264419AbTKGPjs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 10:39:48 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Waaayy OT ?
+Date: Fri, 7 Nov 2003 10:39:46 -0500
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3FABA030.9040405@portrix.net>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200311071039.46056.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [151.205.62.77] at Fri, 7 Nov 2003 09:39:46 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Recently, mozilla has been popping up the timidity midi translator 
+panel to play the music from some sites.
 
-> |>Any idea, why the laptop is not powering on again after suspend? I can
-> |>hold down the power switch as long as I want to, but the laptop doesn't
-> |>do a thing.
-> |
-> |
-> | Seems like hardware bug? [So you have to remove battery/AC then
-> | poweron?]
-> | 								Pavel
-> 
-> Exactly. Pretty annoying. In those days where Windows XP powered the
-> laptop, this worked, so I'm pretty sure it is no hardware bug. If I
-> press the power switch, the power & disk light goes on, but nothing happens.
-> Is there anything w/ acpi I can try?
+Everything seems to work, except the speakers are silent.  Running 
+2.6.0-test9-mm2.
 
-Hacking lowlevel sleep functions, maybe. Not sure about l-k status.
+On Topic: Things to check in the 2.6.0-test9-mm2 kernel config?
+
+Changes in 2.6 that might fubar this?
+
+TBF, I haven't used timidity for so long I don't recall if it worked 
+before 2.6.
+
+I'm seeing an occasional line or 3 like this in the logs, no idea if 
+its related:
+
+via_audio: ignoring drain playback error -11
+via_audio: ignoring drain playback error -11
+via_audio: ignoring drain playback error -11
+via82cxxx: timeout while reading AC97 codec (0x9A0000)
 
 -- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

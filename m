@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317165AbSG1TP2>; Sun, 28 Jul 2002 15:15:28 -0400
+	id <S317115AbSG1TQA>; Sun, 28 Jul 2002 15:16:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317169AbSG1TP2>; Sun, 28 Jul 2002 15:15:28 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:48096 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S317165AbSG1TP1>;
-	Sun, 28 Jul 2002 15:15:27 -0400
-Date: Sun, 28 Jul 2002 12:17:38 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Jens Axboe <axboe@suse.de>
-cc: Andrew Morton <akpm@zip.com.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] block/elevator updates + deadline i/o scheduler
-In-Reply-To: <20020728211204.A3203@suse.de>
-Message-ID: <Pine.LNX.4.33L2.0207281216060.20127-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317140AbSG1TP7>; Sun, 28 Jul 2002 15:15:59 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:40066 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S317115AbSG1TPv>; Sun, 28 Jul 2002 15:15:51 -0400
+Date: Sun, 28 Jul 2002 13:18:42 -0600
+Message-Id: <200207281918.g6SJIgr30557@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v216 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Jul 2002, Jens Axboe wrote:
+  Hi, all. Version 216 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
-| Cool. I'd be interested in latency and throughput results at this point,
-| I have none of these. BTW, does anyone know of a good benchmark that
-| also cares about latency?
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.5/devfs-patch-current.gz
 
-Danger, use of 'good' and 'benchmark' together.
-Nevertheless, tiobench (tiobench.sf.net) tries to care about &
-measure latency.
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.5/devfs-patch-current.gz
 
--- 
-~Randy
+NOTE: kernel 2.5.1 and later require devfsd-v1.3.19 or later.
 
+This is against 2.5.29. Highlights of this release:
+
+- Switched arch/ia64/sn/io/hcl.c from <devfs_find_handle> to
+  <devfs_get_handle>
+
+- Removed deprecated <devfs_find_handle>
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

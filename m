@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130103AbRBTMbK>; Tue, 20 Feb 2001 07:31:10 -0500
+	id <S129698AbRBTMa3>; Tue, 20 Feb 2001 07:30:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129549AbRBTMbB>; Tue, 20 Feb 2001 07:31:01 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:10096 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S129129AbRBTMa3>; Tue, 20 Feb 2001 07:30:29 -0500
-Date: Tue, 20 Feb 2001 06:29:34 -0600 (CST)
-From: Philipp Rumpf <prumpf@mandrakesoft.com>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: Linux 2.4.1-ac15 
-In-Reply-To: <32669.982619549@ocs3.ocs-net>
-Message-ID: <Pine.LNX.3.96.1010220062015.9350B-100000@mandrakesoft.mandrakesoft.com>
+	id <S129549AbRBTMaT>; Tue, 20 Feb 2001 07:30:19 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24072 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129129AbRBTMaK>; Tue, 20 Feb 2001 07:30:10 -0500
+Subject: Re: Newbie ask for help: cramfs port to isofs
+To: ankry@pg.gda.pl (Andrzej Krzysztofowicz)
+Date: Tue, 20 Feb 2001 12:30:00 +0000 (GMT)
+Cc: zw@debian.org (zhaoway), linux-kernel@vger.kernel.org
+In-Reply-To: <200102200935.KAA29865@sunrise.pg.gda.pl> from "Andrzej Krzysztofowicz" at Feb 20, 2001 10:35:20 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14VBvg-0006WJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Feb 2001, Keith Owens wrote:
-> On Mon, 19 Feb 2001 16:04:07 +0000 (GMT), 
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Using wait_for_at_least_one_schedule_on_every_cpu() has no penalty
-> except on the process running rmmod.  It does not require yet more
-> spinlocks and is architecture independent.  Since schedule() updates
-> sched_data->last_schedule, all the rmmod process has to do is wait
-> until the last_schedule value changes on all cpus, forcing a reschedule
-> if necessary.
+> >  	struct buffer_head *bh = NULL;
+> > -	int len;
+> > -	int map;
+> > +	int len = 0;
 > 
-> Zero overhead in schedule, zero overhead in exception handling, zero
-> overhead in IA64 unwind code, architecture independent.  Sounds good to
-> me.
+> This will be the most probably rejected.
+> Zero initializers are intentionally removed from the code to decrease
+> the kernel image size.
 
-Not architecture independent unfortunately.  get_cycles() always returns 0
-on some SMP-capable machines.
-
-->last_schedule doesn't change if one CPU is always idle (kernel threads
-do), or always running the same process (kernel threads do, unless it's an
-RT process in an endless loop).  I'm not sure how you'd go about "forcing
-a reschedule if necessary".
-
-Using temporary kernel threads has zero overhead in {schedule, exception
-handling, IA64 unwind code} and actually works on all architectures.  It
-adds overhead to the wait_for_at_least_one_schedule_on_every_cpu() code,
-but I think that's acceptable.
+Why. Its not static.
 

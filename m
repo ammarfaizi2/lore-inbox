@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVAWKgd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVAWKlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261285AbVAWKgd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 05:36:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVAWKfR
+	id S261275AbVAWKlA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 05:41:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbVAWKjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 05:35:17 -0500
-Received: from fw.osdl.org ([65.172.181.6]:46809 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261288AbVAWKd2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 05:33:28 -0500
-Date: Sun, 23 Jan 2005 02:32:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: alexn@dsv.su.se, kas@fi.muni.cz, linux-kernel@vger.kernel.org
-Subject: Re: Memory leak in 2.6.11-rc1?
-Message-Id: <20050123023248.263daca9.akpm@osdl.org>
-In-Reply-To: <20050123095608.GD16648@suse.de>
-References: <20050121161959.GO3922@fi.muni.cz>
-	<1106360639.15804.1.camel@boxen>
-	<20050123091154.GC16648@suse.de>
-	<20050123011918.295db8e8.akpm@osdl.org>
-	<20050123095608.GD16648@suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 23 Jan 2005 05:39:35 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:2989 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261295AbVAWKhP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 05:37:15 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [patch 1/13] Qsort
+Date: Sun, 23 Jan 2005 11:37:08 +0100
+User-Agent: KMail/1.7.1
+Cc: Andi Kleen <ak@muc.de>, Felipe Alfaro Solana <lkml@mac.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org, Buck Huppmann <buchk@pobox.com>,
+       Neil Brown <neilb@cse.unsw.edu.au>,
+       Andreas Gruenbacher <agruen@suse.de>,
+       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+       Andrew Morton <akpm@osdl.org>, Olaf Kirch <okir@suse.de>
+References: <20050122203326.402087000@blunzn.suse.de> <20050123044637.GA54433@muc.de> <Pine.LNX.4.61.0501230600070.2748@dragon.hygekrogen.localhost>
+In-Reply-To: <Pine.LNX.4.61.0501230600070.2748@dragon.hygekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501231137.09715.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
->
-> But I'm still stuck with all of my ram gone after a
->  600MB fillmem, half of it is just in swap.
-
-Well.  Half of it has gone so far ;)
-
+On Sunday, 23 of January 2005 06:05, Jesper Juhl wrote:
+> On Sun, 23 Jan 2005, Andi Kleen wrote:
 > 
->  Attaching meminfo and sysrq-m after fillmem.
+> > > How about a shell sort?  if the data is mostly sorted shell sort beats 
+> > > qsort lots of times, and since the data sets are often small in-kernel, 
+> > > shell sorts O(n^2) behaviour won't harm it too much, shell sort is also 
+> > > faster if the data is already completely sorted. Shell sort is certainly 
+> > > not the simplest algorithm around, but I think (without having done any 
+> > > tests) that it would probably do pretty well for in-kernel use... Then 
+> > > again, I've known to be wrong :)
+> > 
+> > I like shell sort for small data sets too. And I agree it would be 
+> > appropiate for the kernel.
+> > 
+> Even with large data sets that are mostly unsorted shell sorts performance 
+> is close to qsort, and there's an optimization that gives it O(n^(3/2)) 
+> runtime (IIRC),
 
-(I meant a really big fillmem: a couple of 2GB ones.  Not to worry.)
+Yes, there is.
 
-It's not in slab and the pagecache and anonymous memory stuff seems to be
-working OK.  So it has to be something else, which does a bare
-__alloc_pages().  Low-level block stuff, networking, arch code, perhaps.
+> and another nice property is that it's iterative so it  
+> doesn't eat up stack space (as oposed to qsort which is recursive and eats 
+> stack like ****)...
 
-I don't think I've ever really seen code to diagnose this.
+To be precise, one needs ~(log N) of stack space for qsort, and frankly, one
+should use something like the shell (or should I say Shell?) sort for sorting
+small sets of elements in qsort as well.
 
-A simplistic approach would be to add eight or so ulongs into struct page,
-populate them with builtin_return_address(0...7) at allocation time, then
-modify sysrq-m to walk mem_map[] printing it all out for pages which have
-page_count() > 0.  That'd find the culprit.
+> Yeah, I think shell sort would be good for the kernel.
+
+I agree.
+
+Greets,
+RJW
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

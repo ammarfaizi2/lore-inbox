@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbUC1V0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 16:26:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbUC1V0W
+	id S262194AbUC1Vu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 16:50:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbUC1Vu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 16:26:22 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63457 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262254AbUC1V0S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 16:26:18 -0500
-Message-ID: <406742EB.30501@pobox.com>
-Date: Sun, 28 Mar 2004 16:26:03 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Sun, 28 Mar 2004 16:50:26 -0500
+Received: from mail.gmx.de ([213.165.64.20]:2494 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262194AbUC1Vu0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 16:50:26 -0500
+X-Authenticated: #1444759
+Message-ID: <4067489E.2090400@gmx.de>
+Date: Sun, 28 Mar 2004 23:50:22 +0200
+From: Bernd Fuhrmann <silverbanana@gmx.de>
+Reply-To: silverbanana@gmx.de
+Organization: Private
+User-Agent: Mozilla Thunderbird 0.5+ (Windows/20040317)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Stefan Smietanowski <stesmi@stesmi.com>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>, linux-ide@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] speed up SATA
-References: <4066021A.20308@pobox.com> <40661049.1050004@yahoo.com.au> <406611CA.3050804@pobox.com> <406616EE.80301@pobox.com> <40667FAB.2090802@stesmi.com> <406734D3.7070501@pobox.com> <406740B9.9040409@stesmi.com>
-In-Reply-To: <406740B9.9040409@stesmi.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: usage of RealTek 8169 crashes my Linux system
+References: <40673495.3050500@gmx.de> <4067378B.7070102@pobox.com>
+In-Reply-To: <4067378B.7070102@pobox.com>
+X-Enigmail-Version: 0.83.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Smietanowski wrote:
-> Hi Jeff.
-> 
->> SATA ATAPI looks and works just like PATA ATAPI, with one notable 
->> exception:  S/ATAPI will include "asynchronous notification", a 
->> feature that allows you to eliminate the polling of the cdrom driver 
->> that normally occurs.
->>
->> You can use ATAPI on SATA today, using a PATA->SATA bridge.  In fact 
->> that's the only way I can test SATA ATAPI at all, right now.
->>
->> I hope somebody sends me one of these Plextor devices for testing ;-)
-> 
-> 
-> Would that mean that one uses the same (sub)drivers as normal SCSI
-> devices do ?
-> 
-> sd/sg/etc ...
+Jeff Garzik wrote:
+> Does Andrew Morton's -mm patches fix it for you?
 
-Correct.
+I haven't tried them yet, because I haven't seen any changes in the 
+recent mm-patches to that r8169 driver (just checked all the 
+announce.txt files of 2.6.5-rc1&2). Maybe I missed something.
 
-	Jeff
+If you think one of these patches might fix it (please tell me the exact 
+patch number) I will apply and test it as soon as possible.
 
-
-
-
+Thanks in advance
+Bernd Fuhrmann

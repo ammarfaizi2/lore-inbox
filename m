@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbUFNHgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbUFNIK6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262007AbUFNHgg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 03:36:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbUFNHgg
+	id S261654AbUFNIK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 04:10:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUFNIK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 03:36:36 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:9344 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S262007AbUFNHgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 03:36:35 -0400
-Date: Mon, 14 Jun 2004 08:44:26 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200406140744.i5E7iQDb000150@81-2-122-30.bradfords.org.uk>
-To: Helge Hafting <helgehaf@aitel.hist.no>, ndiamond@despammed.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <40CD5384.1050809@aitel.hist.no>
-References: <200406140223.i5E2N1k18221@mailout.despammed.com>
- <40CD5384.1050809@aitel.hist.no>
-Subject: Re: Panics need better handling
+	Mon, 14 Jun 2004 04:10:58 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:17361 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261654AbUFNIK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 04:10:58 -0400
+Date: Mon, 14 Jun 2004 09:10:56 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: [1/12] don't dereference netdev->name before register_netdev()
+Message-ID: <20040614081056.GA7162@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20040614003148.GO1444@holomorphy.com> <20040614003331.GP1444@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040614003331.GP1444@holomorphy.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from Helge Hafting <helgehaf@aitel.hist.no>:
-> ndiamond@despammed.com wrote:
-> 
-> > I am not asking for
-> >help in solving this particular panic,
-> >I am asking for help in general, in
-> >getting information displayed when it
-> >needs to be displayed.
-> >  
-> >
-> I have struggled with this from time to time.  Wanting to
-> report a trace, but it is too long for the screen. 
-> 
-> Using a framebuffer console helps a lot.  I use 1280x1024 resolution,
-> and 8x8 characters.  The resulting 160x128 console isn't
-> that fun to _work_ with, but most panics/oopses fit.  I rarely
-> work at the console anyway.  If you do, consider making two almost
-> identical kernels where console font size is the only difference.  (The
-> extra compile takes very little time.)  Then use the small-font kernel
-> when debugging.
+On Sun, Jun 13, 2004 at 05:33:31PM -0700, William Lee Irwin III wrote:
+>  * Removed dev->name lookups before register_netdev
+> This fixes Debian BTS #234817.
+> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=234817
 
-On the other hand, if like me you use a text-based console almost exclusively,
-then the best course of action is probably to buy a real serial terminal, (or
-several :-) ), and configure one of them as the console.  Then you can
-basically ignore the VGA display completely.
+Herbert has worked with Jeff on this issue already.  And -netdev would
+be the right list for it.
 
-John.

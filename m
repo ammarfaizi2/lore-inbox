@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315440AbSHVSVZ>; Thu, 22 Aug 2002 14:21:25 -0400
+	id <S315416AbSHVSWj>; Thu, 22 Aug 2002 14:22:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315445AbSHVSVY>; Thu, 22 Aug 2002 14:21:24 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:56846 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S315440AbSHVSVY>; Thu, 22 Aug 2002 14:21:24 -0400
-Date: Thu, 22 Aug 2002 19:25:31 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: New large block-device patch for 2.5.31+bk
-Message-ID: <20020822192531.A27750@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Peter Chubb <peter@chubb.wattle.id.au>,
-	linux-kernel@vger.kernel.org, viro@math.psu.edu
-References: <15716.29133.542866.358607@wombat.chubb.wattle.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <15716.29133.542866.358607@wombat.chubb.wattle.id.au>; from peter@chubb.wattle.id.au on Thu, Aug 22, 2002 at 03:08:29PM +1000
+	id <S315445AbSHVSWj>; Thu, 22 Aug 2002 14:22:39 -0400
+Received: from quechua.inka.de ([212.227.14.2]:33552 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S315416AbSHVSWi>;
+	Thu, 22 Aug 2002 14:22:38 -0400
+From: Bernd Eckenfels <ecki-news2002-08@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and full ipv6 - will it happen?
+In-Reply-To: <Pine.LNX.4.44.0208220009110.3234-100000@hawkeye.luckynet.adm>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E17hwfR-0005A5-00@sites.inka.de>
+Date: Thu, 22 Aug 2002 20:26:49 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 22, 2002 at 03:08:29PM +1000, Peter Chubb wrote:
-> 
-> Hi,
-> 	Here's the latest large-block device patch.  Expect more
-> changes as Al Viro continues his partition cleanup (I've just
-> converted int *xxx_sizes to sector_t *xxx_sizes; he's gradually
-> getting rid of xxx_sizes[] altogether --- and a good thing too!).
-> 
-> I think I've addressed all the comments I've received so far, except
-> for the request for something that works on 2.4.X.
-> 
-> The patch enables support for large (>2TB) block devices for all platforms
-> where sizeof(long)==8, and via a config option for power-PC and IA32.
-> It's been tested on IA64 and IA32 only.
+In article <Pine.LNX.4.44.0208220009110.3234-100000@hawkeye.luckynet.adm> you wrote:
+> Well, it's not too easy any more to say "I am the Alan Cox client. Send me
+> naked children." If you were ever hit by that or similar, you'd certainly
+> think differently, once you've seen that these "tools" for IPv4 are
+> mainstream, while the tools for IPv6 are rather rare,
 
-I don't have much comments left :)  What about moving the sector_t typedef
-completly to <asm/types.h>?  Looks like the cleanest solution to me.
+do you mean ipspoofing tools for v4 are mainstream and for v6 are not, thats
+why v6 is more secure? 
 
-I also wonder whether CONFIG_LBD might want to move to arch/*/config.
+v6 isnt more secure than v4, and i suspect ipsec is more widely used in v4
+than in v6, and i doubt it will ever be used on default.
 
-An a little suggestion:  you could feed that patch to Linus in pieces.
-The printk cleanups might be a good start.
-
+Greetings
+Bernd

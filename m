@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267423AbUJNTcU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267376AbUJNTgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267423AbUJNTcU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 15:32:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267381AbUJNTbg
+	id S267376AbUJNTgG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 15:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267368AbUJNTcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 15:31:36 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8337 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267417AbUJNT31
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 15:29:27 -0400
-Date: Thu, 14 Oct 2004 20:29:26 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [RESEND][PATCH 4/6] Add page becoming writable notification
-Message-ID: <20041014192926.GT16153@parcelfarce.linux.theplanet.co.uk>
-References: <24449.1097780701@redhat.com>
+	Thu, 14 Oct 2004 15:32:36 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:55160 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267397AbUJNTb4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 15:31:56 -0400
+Message-ID: <58cb370e04101412312fc42a57@mail.gmail.com>
+Date: Thu, 14 Oct 2004 21:31:54 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Ian Pilcher <i.pilcher@comcast.net>
+Subject: Re: ATA/133 Problems with multiple cards
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org
+In-Reply-To: <ckmfiq$rc7$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <24449.1097780701@redhat.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.44.0410141710390.1681-100000@beast.stev.org>
+	 <ckmfiq$rc7$1@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 14, 2004 at 08:05:01PM +0100, David Howells wrote:
-> +static inline int do_wp_page_mk_pte_writable(struct mm_struct *mm,
-> +					     struct vm_area_struct *vma,
-> +					     unsigned long address,
-> +					     pte_t *page_table,
-> +					     struct page *old_page,
-> +					     pte_t pte)
+On Thu, 14 Oct 2004 13:12:42 -0500, Ian Pilcher <i.pilcher@comcast.net> wrote:
+> James Stevenson wrote:
+> >
+> > i seem to have run into an annoying problem with a machine which has
+> > 3 promise ata/133 card the PDC20269 type.
+> >
+> 
+> ....
+> 
+> >
+> > Does anyone have an explenation of why this can happen ?
 
-I protest.  There are at least 3 vowels and 2 non-acronyms in this
-function name.  Also, 6 arguments is clearly too few.  Can we not also
-pass a struct urb, an ethtool_wolinfo and a Scsi_Cmnd?
+* check power supply
+* compare PCI config space of the "failing" controller to the one which
+  is "working" (assuming that identical devices are connected to each),
+  maybe firmware/driver forgets to setup some settings
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+> Promise cards don't support more than two per machine.  If you can get a
+> third card to work in PIO mode, consider it an added (but unsupported)
+> bonus.
+
+AFAIR people have been running 4-5 cards just fine

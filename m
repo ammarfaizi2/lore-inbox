@@ -1,72 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbTLCVrV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 16:47:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTLCVrV
+	id S261605AbTLCVhi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 16:37:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTLCVhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 16:47:21 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:11904 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262139AbTLCVrO
+	Wed, 3 Dec 2003 16:37:38 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:17931 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261605AbTLCVha
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 16:47:14 -0500
-Date: Wed, 3 Dec 2003 16:44:42 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Kallol Biswas <kbiswas@neoscale.com>
-cc: linux-kernel@vger.kernel.org,
-       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-Subject: Re: partially encrypted filesystem
-In-Reply-To: <1070485676.4855.16.camel@nucleon>
-Message-ID: <Pine.LNX.4.53.0312031627440.3725@chaos>
-References: <1070485676.4855.16.camel@nucleon>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Dec 2003 16:37:30 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: aacraid and large memory problem (2.6.0-test11)
+Date: 3 Dec 2003 21:26:21 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bqlkdt$jqo$1@gatekeeper.tmr.com>
+References: <20031203205730.88B7EF7C86@voldemort.scrye.com>
+X-Trace: gatekeeper.tmr.com 1070486781 20312 192.168.12.62 (3 Dec 2003 21:26:21 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Dec 2003, Kallol Biswas wrote:
+In article <20031203205730.88B7EF7C86@voldemort.scrye.com>,
+Kevin Fenzi  <kevin@tummy.com> wrote:
 
->
-> Hello,
->       We have a requirement that a filesystem has to support
-> encryption based on some policy. The filesystem also should be able
-> to store data in non-encrypted form. A search on web shows a few
-> encrypted filesystems like "Crypto" from Suse Linux, but we need a
-> system  where encryption will be a choice per file. We have a hardware
-> controller to apply encryption algorithm. If a filesystem provides hooks
-> to use a hardware controller to do the encryption work then the cpu can
-> be freed from doing the extra work.
->
-> Any comment on this?
->
-> Kallol
-> NucleoDyne Systems.
-> nucleon@nucleodyne.com
-> 408-718-8164
+| Bill> | > Perhaps this patch in 2.6.0-test9 is the culprit?  | >
+| Bill> http://www.linuxhq.com/kernel/v2.6/0-test9/drivers/scsi/aacraid/comminit.c
+| Bill> | | This patch is what made aacraid work with over 4 gig of
+| Bill> memory for me. | I have an 8 proc system with 16gig of memory
+| Bill> and without this patch I | get data corruption in high memory.
+| Bill> | | I don't boot on the aacraid though.
+| 
+| Bill> It would be interesting to know what memory model is being used
+| Bill> in each case. Both CONFIG_HIGHMEM* and maybe user/kernel split
+| Bill> might play.
+| 
+| I am using the 2.6.0 rpms from:
+| 
+| http://people.redhat.com/arjanv/2.5/
+| 
+| Specifically its:
+| 
+| http://people.redhat.com/arjanv/2.5/RPMS.kernel/kernel-smp-2.6.0-0.test11.1.99.i686.rpm
+| 
+| The  kernel-2.6.0-test11-i686-smp.config
+| says: 
+| 
+| # CONFIG_NOHIGHMEM is not set
+| # CONFIG_HIGHMEM4G is not set
+| CONFIG_HIGHMEM64G=y
+| CONFIG_HIGHMEM=y
+| CONFIG_BLK_DEV_UMEM=m
+| CONFIG_DEBUG_HIGHMEM=y
+| 
+| Bill> Based on one boot with one machine, 4G RAM, it didn't hang.
+| Bill> Unfortunately a production machine, I was playing following some
+| Bill> "unscheduled maintenence."  
+| 
+| Did you have HIGHMEM set?
 
-I think you just need your application to encrypt data where needed.
-Or to read/write to an encrypted file-system which always encrypts.
-You really don't want policy inside the kernel.
+root> grep HIGHMEM .config
+CONFIG_NOHIGHMEM=y
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
 
-Let's say you decided to ignore me and do it anyway. The file-systems
-are a bunch of inodes. Every time you want to read or write one, something
-has to decide if it's encrypted and, if it is, how to encrypt or
-decrypt it. Even the length of the required read or write becomes
-dependent upon the type of encryption being used. Surely you don't
-want to use an algorithm where a N-byte string gets encoded into a
-N-byte string because to do so gives away the length, from which
-one can derive other aspects, resulting in discovering the true content.
-So, you need variable-length inodes --- what a mess. The result
-would be one of the slowest file-systems you could devise.
+| kevin
 
-Encrypted file-systems, where you encrypt everything that goes
-on the media work. Making something that could be either/or,
-while possible, is not likely going to be very satisfying.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+I don't know that this sheds any light, one is a fairly small sample set.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

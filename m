@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129567AbRBCSgz>; Sat, 3 Feb 2001 13:36:55 -0500
+	id <S129188AbRBCSq1>; Sat, 3 Feb 2001 13:46:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130873AbRBCSgp>; Sat, 3 Feb 2001 13:36:45 -0500
-Received: from alcove.wittsend.com ([130.205.0.20]:9990 "EHLO
-	alcove.wittsend.com") by vger.kernel.org with ESMTP
-	id <S129567AbRBCSgj>; Sat, 3 Feb 2001 13:36:39 -0500
-Date: Sat, 3 Feb 2001 13:36:14 -0500
-From: "Michael H. Warfield" <mhw@wittsend.com>
-To: Dale Amon <amon@vnl.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Secure Linux
-Message-ID: <20010203133614.C2432@alcove.wittsend.com>
-Mail-Followup-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010130184717.E1653@vnl.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.2i
-In-Reply-To: <20010130184717.E1653@vnl.com>; from amon@vnl.com on Tue, Jan 30, 2001 at 06:47:18PM +0000
+	id <S129275AbRBCSqR>; Sat, 3 Feb 2001 13:46:17 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:29706 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129188AbRBCSqN>; Sat, 3 Feb 2001 13:46:13 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: vaio doesn't boot with 2.4.1-ac1, stops at PCI: Probing PCI hardware
+Date: 3 Feb 2001 10:45:59 -0800
+Organization: Transmeta Corporation
+Message-ID: <95hjl7$8qi$1@penguin.transmeta.com>
+In-Reply-To: <20010202114102.E484@ookhoi.dds.nl> <E14Oe6c-0006HJ-00@the-village.bc.nu> <20010202122756.B3922@ookhoi.dds.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 30, 2001 at 06:47:18PM +0000, Dale Amon wrote:
-> Has anyone else signed up on the NSA's secure Linux
-> discussion list? The idea of NSA backing the development
-> of  a secure GPL'd linux is one I find intriguing. 
+In article <20010202122756.B3922@ookhoi.dds.nl>, Ookhoi  <ookhoi@dds.nl> wrote:
+>Hi Alan,
+>
+>> > Here it hangs hard. It used to boot with 2.4.0 and 2.4.1-prex  Should I
+>> > try to determine which patch made the fatal change? Should I send my
+>> 
+>> That would be great.
+>> 
+>> Firstly however does 2.4.1 (Linus) boot ?
+>
+>It does boot. :-)  Is there something I can do now? 
 
-	1) It is not "Secure Linux", it is "Security Enhanced Linux".
-It's a proof of concept of adding type enforcement to the Linux kernel
-and looks very promising.
+The -ac patchset has the PCI bug re-introduced: in -ac the PCI probing
+will basically disable the northbridge while probing for it, thus
+killing the machine.. 
 
-> However I have only seen one posting. Is there anyone
-> "real" involved with it?
-
-	Why not join the selinux mailing list and find out?
-
-	selinux@tycho.nsa.gov
-
-	Seems to be a pretty active list.
-
-> -- 
-> ------------------------------------------------------
-> Use Linux: A computer        Dale Amon, CEO/MD
-> is a terrible thing          Village Networking Ltd
-> to waste.                    Belfast, Northern Ireland
-> ------------------------------------------------------
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-
--- 
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
-
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

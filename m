@@ -1,31 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318666AbSG0Ash>; Fri, 26 Jul 2002 20:48:37 -0400
+	id <S317717AbSG0BHp>; Fri, 26 Jul 2002 21:07:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318667AbSG0Ash>; Fri, 26 Jul 2002 20:48:37 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:41980 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318666AbSG0Ash>; Fri, 26 Jul 2002 20:48:37 -0400
-Subject: Re: Handling NMI in a kernel module
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alan Robertson <alanr@unix.sh>
-Cc: "Isabelle, Francois" <Francois.Isabelle@ca.kontron.com>,
-       "Linux-Ha (E-mail)" <linux-ha@muc.de>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3D41C544.9090702@unix.sh>
-References: <5009AD9521A8D41198EE00805F85F18F219A7E@sembo111.teknor.com> 
-	<3D41C544.9090702@unix.sh>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 27 Jul 2002 03:05:57 +0100
-Message-Id: <1027735557.15951.3.camel@irongate.swansea.linux.org.uk>
+	id <S317831AbSG0BHp>; Fri, 26 Jul 2002 21:07:45 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:35279 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317717AbSG0BHp>;
+	Fri, 26 Jul 2002 21:07:45 -0400
+Date: Fri, 26 Jul 2002 17:59:55 -0700 (PDT)
+Message-Id: <20020726.175955.113709567.davem@redhat.com>
+To: bhaveshd@earth.dr.avaya.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.18 IPv4/devinet enhancements for down'ing
+ interfaces
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.21.0207261559380.2616-100000@earth.dr.avaya.com>
+References: <Pine.LNX.4.21.0207261559380.2616-100000@earth.dr.avaya.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been tracking other lists. The current state is very much that we
-need the dual notifier. I now have some draft code that allows us to do
-this even on hardware that doesn't support it, and where the read()
-function gets told when an event is about to occur
 
+IFF_NOARP is a deprecated 2.2.x feature for normal interfaces and is
+no longer used in 2.4.x and later.
+
+The only reason IFF_NOARP still exists in the current code is to
+handle some tunneling issues.

@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266977AbRHJLMi>; Fri, 10 Aug 2001 07:12:38 -0400
+	id <S267140AbRHJLNi>; Fri, 10 Aug 2001 07:13:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267009AbRHJLM2>; Fri, 10 Aug 2001 07:12:28 -0400
-Received: from zero.aec.at ([195.3.98.22]:51209 "HELO zero.aec.at")
-	by vger.kernel.org with SMTP id <S266977AbRHJLMR>;
-	Fri, 10 Aug 2001 07:12:17 -0400
-To: chris_friesen@sympatico.ca (Chris Friesen)
-cc: linux-kernel@vger.kernel.org
-Subject: Re: nitpicky questions regarding mmap() and msync()
-In-Reply-To: <3B732DAE.CD117CBA@sympatico.ca>
-From: Andi Kleen <ak@muc.de>
-Date: 10 Aug 2001 13:12:26 +0200
-In-Reply-To: chris_friesen@sympatico.ca's message of "Fri, 10 Aug 2001 00:42:52 +0000 (UTC)"
-Message-ID: <k28zgsdv8l.fsf@zero.aec.at>
-User-Agent: Gnus/5.0700000000000003 (Pterodactyl Gnus v0.83) Emacs/20.2
-MIME-Version: 1.0
+	id <S267018AbRHJLNT>; Fri, 10 Aug 2001 07:13:19 -0400
+Received: from osc.edu ([192.148.249.4]:43438 "EHLO osc.edu")
+	by vger.kernel.org with ESMTP id <S267009AbRHJLNI>;
+	Fri, 10 Aug 2001 07:13:08 -0400
+Date: Fri, 10 Aug 2001 07:13:17 -0400
+From: Pete Wyckoff <pw@osc.edu>
+To: Ray Lischner <lisch@tempest-sw.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What does MAP_EXECUTABLE do?
+Message-ID: <20010810071317.B9627@bigger.osc.edu>
+In-Reply-To: <01080916444603.27109@sycorax>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01080916444603.27109@sycorax>; from lisch@tempest-sw.com on Thu, Aug 09, 2001 at 04:44:46PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3B732DAE.CD117CBA@sympatico.ca>,
-chris_friesen@sympatico.ca (Chris Friesen) writes:
-> A couple questions about mmap()'d files.
-> 1) If I have an mmap()'d file and I write to it and then I am hit with a SIGKILL
-> before I have a chance to msync(), am I guaranteed that changes I've made to the
-> information in the file will be available if I restart and try to mmap() the
-> same file?  The man page says only that there is no guarantee that changes are
-> written back to disk if msync() is not called, but some informal testing seems
-> to indicate that changes are in fact written out.  Is this a timing issue or
-> does the system guarantee this?
+lisch@tempest-sw.com said:
+> Running man mmap produces the enlightening text, "Linux also knows 
+> about ... MAP_EXECUTABLE ..." but does nto tell me what MAP_EXECUTABLE 
+> actually does, and how it differs from using PROT_EXEC. Reading the 
+> source code has not helped me much.
 
-The system does guarantee it. There is no special case for SIGKILL exit,
-it is just an ordinary exit and it does properly munmap all your mappings.
+PROT_EXEC tells the VM system the area is executable code.
 
-> 2) If I make changes to the contents of an mmap()'d file, am I guaranteed that
-> the order I make the changes is the same order that they will be available to
-> another process that has mmap()'d the same file?  (Or can I be bit by
-> optimization reordering?  If this is the case, can I get around this by reading
-> it as volatile and using the barrie() macro?)
+MAP_EXECUTABLE says this mapping is the actual executable file itself,
+not a shared library, trampoline, or other executable thing.
 
-When two processes access the same mapping in Linux they always work 
-on the same block of memory, so standard memory ordering rules apply.
-On a lot of architectures that means you need to use appropiate read and
-write barriers to avoid reordering on SMP systems.
+Only used for /proc/pid/exe link and /proc/pid/status VmExe field.
 
-[on some architectures like early mips chips there can be nasty issues
-with virtual cache aliases though, but that should not concern you here]
+You can't set it via mmap() from userspace; the kernel uses it
+internally when execing an elf or a.out file.
 
-The memory can be flushed to disk and reread at any time, in this 
-regard it is no different from any other anonymous memory, except that 
-it is not written to swap but to your backing file.
-
-The order in which the changes are flushed to disk is completely undefined.
-
-
--Andi
+		-- Pete

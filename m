@@ -1,24 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317264AbSIAQui>; Sun, 1 Sep 2002 12:50:38 -0400
+	id <S317269AbSIAQ7g>; Sun, 1 Sep 2002 12:59:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317269AbSIAQui>; Sun, 1 Sep 2002 12:50:38 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:4224 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S317264AbSIAQuh>;
-	Sun, 1 Sep 2002 12:50:37 -0400
-Date: Sun, 1 Sep 2002 11:48:14 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.33 atyfb console freeze
-Message-ID: <Pine.LNX.4.44.0209011145170.1166-100000@dad.molina>
+	id <S317282AbSIAQ7g>; Sun, 1 Sep 2002 12:59:36 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:61968 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S317269AbSIAQ7f>; Sun, 1 Sep 2002 12:59:35 -0400
+To: Alex Riesen <fork0@users.sourceforge.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, sct@redhat.com,
+       akpm@zip.com.au, adilger@clusterfs.com
+Subject: Re: 2.4.20-pre1-ac1: Filesystem panic attempting to mount ext3
+References: <20020901071327.GA404@steel>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Mon, 02 Sep 2002 02:02:59 +0900
+In-Reply-To: <20020901071327.GA404@steel>
+Message-ID: <87k7m5hccc.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an ATI 3D Rage Pro video card.  If I compile in atyfb support the 
-system locks up when attempting to bring up the atyfb framebuffer console.  
-Using the VESA framebuffer works.  There are no interesting messages in 
-/var/log/messages or on the screen before the freeze.
+Alex Riesen <fork0@users.sf.net> writes:
 
+> Hello,
+> 
+> the problem appeared on the first partition of an ide
+> IBM-DHEA-36481 with one fat partition on it. I repartioned
+> the device (4 primaries) and "mke2fs -j" three of them.
+
+[...]
+
+> 
+> Umount produced something as well:
+> 
+> Sep  1 08:47:54 steel kernel: FAT: Did not find valid FSINFO signature.
+> Sep  1 08:47:54 steel kernel: Found signature1 0x0 signature2 0x0 sector=1.
+> 
+> Assuming that some garbage was left on the disk event after mke2fs,
+> i did "dd if=/dev/zero of=/dev/hdd1 bs=512", which cured the problem,
+> after being followed by mke2fs.
+
+It's problem of fatfs, and I think it's fixed in 2.5 series. I'll try
+to back porting the part of fatfs of 2.5 series.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

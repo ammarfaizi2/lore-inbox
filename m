@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310413AbSCBSVL>; Sat, 2 Mar 2002 13:21:11 -0500
+	id <S310411AbSCBSTV>; Sat, 2 Mar 2002 13:19:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310415AbSCBSVD>; Sat, 2 Mar 2002 13:21:03 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52242 "EHLO
+	id <S310410AbSCBSTO>; Sat, 2 Mar 2002 13:19:14 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50706 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310413AbSCBSUt>; Sat, 2 Mar 2002 13:20:49 -0500
-Subject: Re: PDC20269 support?
-To: roy@karlsbakk.net (Roy Sigurd Karlsbakk)
-Date: Sat, 2 Mar 2002 18:35:44 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0203021755410.31270-100000@mustard.heime.net> from "Roy Sigurd Karlsbakk" at Mar 02, 2002 05:58:13 PM
+	id <S310411AbSCBSTF>; Sat, 2 Mar 2002 13:19:05 -0500
+Subject: Re: SSSCA: We're in trouble now
+To: neale@lowendale.com.au (Neale Banks)
+Date: Sat, 2 Mar 2002 18:32:45 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), spstarr@sh0n.net (Shawn Starr),
+        xavier.bestel@free.fr (Xavier Bestel),
+        pgallen@randomlogic.com (Paul G. Allen),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.05.10203021402030.4035-100000@marina.lowendale.com.au> from "Neale Banks" at Mar 02, 2002 02:08:34 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16hEMC-0007yn-00@the-village.bc.nu>
+Message-Id: <E16hEJJ-0007yN-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I saw there were some -ac merging in 2.4.19-pre2, so I thought - perhaps
-> the pdc20269 support was merged ...
+> > It has no control over the BIOS and SMM code. Who knows what is going on
+> > behind the scenes in the BIOS, be it for intentional or more dubious
+> > purposes. 
 > 
-> it's not
-> 
-> Does anyone know when this'll happen?
+> All too true.  However, given the quality of BIOS code we have seen over
+> the years, the thought of your average BIOS programmer implementing
+> cryptographic techniques does provide some amusement  ;-)
 
-I would think some material time after the -ac ide code is merged with
-Marcelo
+I trust several government agencies to be able to supply very high quality
+SMM bios code through a person planted in one of the bios writing houses.
+
+Trusted computing people take this kind of stuff very seriously - and for
+good reason.
+
+Alan

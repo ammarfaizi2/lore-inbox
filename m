@@ -1,80 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262436AbUKLE6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262442AbUKLFDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262436AbUKLE6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 23:58:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbUKLE6Z
+	id S262442AbUKLFDm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 00:03:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbUKLFDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 23:58:25 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:8620 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S262436AbUKLE6U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 23:58:20 -0500
-Subject: Re: [2.6 patch] kill acpi_ksyms.c
-From: Len Brown <len.brown@intel.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20041109014021.GB15077@stusta.de>
-References: <20041105215021.GF1295@stusta.de>
-	 <1099707007.13834.1969.camel@d845pe> <20041106114844.GK1295@stusta.de>
-	 <418CEE3A.40503@conectiva.com.br> <20041106212917.GP1295@stusta.de>
-	 <418D403E.30608@conectiva.com.br> <1099933263.13831.9547.camel@d845pe>
-	 <20041109014021.GB15077@stusta.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1100235412.5519.922.camel@d845pe>
+	Fri, 12 Nov 2004 00:03:42 -0500
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:35853 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S262442AbUKLFDg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 00:03:36 -0500
+Date: Thu, 11 Nov 2004 21:03:09 -0800
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-1
+Message-ID: <20041112050309.GA1207@nietzsche.lynx.com>
+References: <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <20041112040845.GA26545@nietzsche.lynx.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 11 Nov 2004 23:56:55 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="oyUTqETQ0mS9luUI"
+Content-Disposition: inline
+In-Reply-To: <20041112040845.GA26545@nietzsche.lynx.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Applied.
 
-thanks,
--Len
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Mon, 2004-11-08 at 20:40, Adrian Bunk wrote:
-...
-> Below is as a preparation a patch that removes acpi_ksyms.c .
-> 
-> It shouldn't make any practical difference.
-> 
-> The function acpi_db_user_commands that wasn't available in the whole
-> kernel sources was EXPORT_SYMBOL'ed. The patch removes this bogus
-> export.
-> 
-> 
-> diffstat output:
->  drivers/acpi/Makefile             |    2
->  drivers/acpi/acpi_ksyms.c         |  165
-> ------------------------------
->  drivers/acpi/bus.c                |   10 +
->  drivers/acpi/ec.c                 |    2
->  drivers/acpi/events/evxface.c     |   10 +
->  drivers/acpi/events/evxfevnt.c    |    8 +
->  drivers/acpi/events/evxfregn.c    |    4
->  drivers/acpi/hardware/hwregs.c    |    4
->  drivers/acpi/hardware/hwsleep.c   |    4
->  drivers/acpi/hardware/hwtimer.c   |    5
->  drivers/acpi/namespace/nsxfeval.c |    4
->  drivers/acpi/namespace/nsxfname.c |    4
->  drivers/acpi/namespace/nsxfobj.c  |    5
->  drivers/acpi/osl.c                |   18 +++
->  drivers/acpi/pci_irq.c            |    2
->  drivers/acpi/pci_root.c           |    2
->  drivers/acpi/resources/rsxface.c  |    7 +
->  drivers/acpi/scan.c               |    6 -
->  drivers/acpi/tables/tbconvrt.c    |    2
->  drivers/acpi/tables/tbxface.c     |    3
->  drivers/acpi/tables/tbxfroot.c    |    2
->  drivers/acpi/utilities/utdebug.c  |    7 +
->  drivers/acpi/utilities/utglobal.c |    4
->  drivers/acpi/utilities/utxface.c  |    2
->  drivers/acpi/utils.c              |    4
->  include/acpi/acdebug.h            |    5
->  26 files changed, 112 insertions(+), 179 deletions(-)
+On Thu, Nov 11, 2004 at 08:08:45PM -0800, Bill Huey wrote:
+> Patch to get rudimentary kgdb support working.
+
+Resent with some contamination removed from it.
+
+bill
 
 
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="kgdb.diff"
+
+diff -rwu linux.voluntary.virgin/arch/i386/Kconfig.kgdb linux.voluntary/arch/i386/Kconfig.kgdb
+--- linux.voluntary.virgin/arch/i386/Kconfig.kgdb	2004-11-11 17:05:32.000000000 -0800
++++ linux.voluntary/arch/i386/Kconfig.kgdb	2004-11-11 19:44:29.000000000 -0800
+@@ -1,6 +1,6 @@
+ config KGDB
+ 	bool "Include kgdb kernel debugger"
+-	depends on DEBUG_KERNEL && !KPROBES && !PREEMPT_RT
++	depends on DEBUG_KERNEL && !KPROBES
+ 	help
+ 	  If you say Y here, the system will be compiled with the debug
+ 	  option (-g) and a debugging stub will be included in the
+diff -rwu linux.voluntary.virgin/arch/i386/kernel/kgdb_stub.c linux.voluntary/arch/i386/kernel/kgdb_stub.c
+--- linux.voluntary.virgin/arch/i386/kernel/kgdb_stub.c	2004-11-11 17:05:32.000000000 -0800
++++ linux.voluntary/arch/i386/kernel/kgdb_stub.c	2004-11-11 17:11:13.000000000 -0800
+@@ -365,8 +365,8 @@
+ 
+ #ifdef CONFIG_SMP
+ static int in_kgdb_called;
+-static spinlock_t waitlocks[MAX_NO_CPUS] =
+-    {[0 ... MAX_NO_CPUS - 1] = SPIN_LOCK_UNLOCKED };
++static raw_spinlock_t waitlocks[MAX_NO_CPUS] =
++    {[0 ... MAX_NO_CPUS - 1] = RAW_SPIN_LOCK_UNLOCKED };
+ /*
+  * The following array has the thread pointer of each of the "other"
+  * cpus.  We make it global so it can be seen by gdb.
+@@ -374,9 +374,9 @@
+ volatile int in_kgdb_entry_log[MAX_NO_CPUS];
+ volatile struct pt_regs *in_kgdb_here_log[MAX_NO_CPUS];
+ /*
+-static spinlock_t continuelocks[MAX_NO_CPUS];
++static raw_spinlock_t continuelocks[MAX_NO_CPUS];
+ */
+-spinlock_t kgdb_spinlock = SPIN_LOCK_UNLOCKED;
++raw_spinlock_t kgdb_spinlock = RAW_SPIN_LOCK_UNLOCKED;
+ /* waiters on our spinlock plus us */
+ static atomic_t spinlock_waiters = ATOMIC_INIT(1);
+ static int spinlock_count = 0;
+@@ -2404,7 +2404,7 @@
+ void
+ kgdb_tstamp(int line, char *source, int data0, int data1)
+ {
+-	static spinlock_t ts_spin = SPIN_LOCK_UNLOCKED;
++	static raw_spinlock_t ts_spin = RAW_SPIN_LOCK_UNLOCKED;
+ 	int flags;
+ 	kgdb_local_irq_save(flags);
+ 	spin_lock(&ts_spin);
+diff -rwu linux.voluntary.virgin/arch/i386/kernel/timers/timer_hpet.c linux.voluntary/arch/i386/kernel/timers/timer_hpet.c
+--- linux.voluntary.virgin/arch/i386/kernel/timers/timer_hpet.c	2004-11-11 17:05:31.000000000 -0800
++++ linux.voluntary/arch/i386/kernel/timers/timer_hpet.c	2004-11-11 17:11:13.000000000 -0800
+@@ -49,7 +49,9 @@
+ 	cyc2ns_scale = (1000 << CYC2NS_SCALE_FACTOR)/cpu_mhz;
+ }
+ 
+-static inline unsigned long long cycles_2_ns(unsigned long long cyc)
++//static inline
++//#error
++unsigned long long cycles_2_ns(unsigned long long cyc)
+ {
+ 	return (cyc * cyc2ns_scale) >> CYC2NS_SCALE_FACTOR;
+ }
+diff -rwu linux.voluntary.virgin/arch/i386/lib/kgdb_serial.c linux.voluntary/arch/i386/lib/kgdb_serial.c
+--- linux.voluntary.virgin/arch/i386/lib/kgdb_serial.c	2004-11-11 17:05:32.000000000 -0800
++++ linux.voluntary/arch/i386/lib/kgdb_serial.c	2004-11-11 17:11:13.000000000 -0800
+@@ -104,9 +104,9 @@
+  * but we will just depend on the uart status to help keep that straight.
+ 
+  */
+-static spinlock_t uart_interrupt_lock = SPIN_LOCK_UNLOCKED;
++static raw_spinlock_t uart_interrupt_lock = RAW_SPIN_LOCK_UNLOCKED;
+ #ifdef CONFIG_SMP
+-extern spinlock_t kgdb_spinlock;
++extern raw_spinlock_t kgdb_spinlock;
+ #endif
+ 
+ static int
+@@ -343,7 +343,7 @@
+  */
+ int kgdb_in_isr = 0;
+ int kgdb_in_lsr = 0;
+-extern spinlock_t kgdb_spinlock;
++extern raw_spinlock_t kgdb_spinlock;
+ 
+ /* Caller takes needed protections */
+ 
+@@ -381,7 +381,7 @@
+ }				/* tty_getDebugChar */
+ 
+ static int count = 3;
+-static spinlock_t one_at_atime = SPIN_LOCK_UNLOCKED;
++static raw_spinlock_t one_at_atime = RAW_SPIN_LOCK_UNLOCKED;
+ 
+ static int __init
+ kgdb_enable_ints(void)
+
+--oyUTqETQ0mS9luUI--

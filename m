@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263942AbUBDSm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 13:42:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbUBDSm3
+	id S263537AbUBDSa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 13:30:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263803AbUBDSa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 13:42:29 -0500
-Received: from yipvma-ext.prodigy.net ([207.115.63.28]:2973 "EHLO
-	yipvma.prodigy.net") by vger.kernel.org with ESMTP id S263942AbUBDSm2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 13:42:28 -0500
-Message-ID: <40213CFD.5090802@matchmail.com>
-Date: Wed, 04 Feb 2004 10:42:05 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Robert Love <rml@ximian.com>
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4's sys_readahead is borked
-References: <1075853962.8022.3.camel@localhost>	 <Pine.LNX.4.58L.0402041224050.1700@logos.cnet> <1075908048.11309.6.camel@localhost>
-In-Reply-To: <1075908048.11309.6.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Feb 2004 13:30:59 -0500
+Received: from main.gmane.org ([80.91.224.249]:21690 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263537AbUBDSaz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 13:30:55 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Stefan 'Steve' Tell" <stv-news@crashmail.de>
+Subject: Kernel 2.6.2 and sensors
+Date: Wed, 04 Feb 2004 19:20:29 +0100
+Organization: The Third Place
+Message-ID: <87ad3yln9u.fsf@zeus.crashmail.de>
+Reply-To: stefan.tell@crashmail.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: pd9e3373e.dip.t-dialin.net
+X-Face: .KSo,m`RE@]&5>cJ8vw<`1x?R(?,Q]b@qeq;P\.fK\}i>U^v9f;/~+rKfXKOJ$jD@Fo<D@iT~$f6'T5>y7MtnIpnk+6]/](%q@*/|+M<4.q@SO3+)u
+X-PGP-Key: 0x6A179CE0
+X-PGP-Fingerprint: A59C 9791 7E26 785F 8302  B2CF EA0E 6D6E 6A17 9CE0
+X-Kernel-Version: Linux pandora 2.6.2 #3 SMP Wed Feb 4 18:33:10 CET 2004
+ i686 AMD Athlon(tm) Processor AuthenticAMD GNU/Linux
+X-Gentoo-Release: Gentoo Base System version 1.4.3.10
+User-Agent: Gnus/5.1004 (Gnus v5.10.4) Emacs/21.3 (gnu/linux)
+Cancel-Lock: sha1:0kyXolq19VQZLfimYEimwbWQxd8=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> On Wed, 2004-02-04 at 12:30 -0200, Marcelo Tosatti wrote:
->>Question: Do you know any user of sys_readahead() ?
-> 
-> 
-> Not really - I've been playing with it.  But OpenOffice just added it to
-> preload some of their libraries.  It should probably be deprecated and
-> remove in 2.7, since posix_fadvise(POSIX_FADV_WILLNEED) does this same
-> thing.
+damn,
 
-In 2.4 also?
+and here is the complete mail :)
+
+> ----
+Hi Folks,
+
+I have some problems with my sensors.
+
+In kernel 2.6.1 i received temperatures like 69,5°C CPU and 41°C
+mainboard. Since 2.6.2 I received 418,5°C CPU and 347,0°C
+mainboard. This error occured in 2.6.2rc3, too.
+
+My hardware an Asus A7V133 mainboard, I used the following modules:
+
+,----
+| i2c-dev
+| i2c-viapro  
+| eeprom  
+| via686a
+| w83781d
+`----
+
+Do you need any other informations?
+
+Any hints? Bug?
+
+-- 
+Farewell to home; my heart is an endless hole
+Dancing alone; no one who protects my soul
+			   - The Jinxs -, "M.I. Young", 1995
+

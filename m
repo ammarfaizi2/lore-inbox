@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315599AbSETBGy>; Sun, 19 May 2002 21:06:54 -0400
+	id <S315619AbSETBKx>; Sun, 19 May 2002 21:10:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315607AbSETBGx>; Sun, 19 May 2002 21:06:53 -0400
-Received: from mail026.mail.bellsouth.net ([205.152.58.66]:17357 "EHLO
-	imf26bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S315599AbSETBGx> convert rfc822-to-8bit; Sun, 19 May 2002 21:06:53 -0400
-Subject: Planning on a new system
-From: Louis Garcia <louisg00@bellsouth.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 19 May 2002 21:07:58 -0400
-Message-Id: <1021856882.1814.12.camel@tiger>
-Mime-Version: 1.0
+	id <S315618AbSETBKv>; Sun, 19 May 2002 21:10:51 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:44557 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S315617AbSETBKt>; Sun, 19 May 2002 21:10:49 -0400
+Date: Mon, 20 May 2002 03:10:44 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.5.16
+In-Reply-To: <Pine.LNX.4.44.0205191736420.10180-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0205200245381.23394-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm planning on getting a Gateway with this configuration. I'm just wondering
-if this hardware is supported by kernel-2.4.18? I'm not sure of the chipset,
-audio, or nic. How bug free is the bios? Any advice would be helpful. By the
-way what's up with majordomo?
-Thanks, --Lou
+Hi,
 
-Gateway 500S:
+On Sun, 19 May 2002, Linus Torvalds wrote:
 
-CPU: 2.2GHz Intel® Pentium® 4 Processor with 512K L2 cache
+> > - freed is never incremented, callers of tlb_remove_page have to do the
+> >   rss update themselves?
+> 
+> No, that's just a missed thing (for a while I thought I could use "nr" for
+> "freed", so I changed the code and forgot to add back the free'd).
 
-RAM: 256MB 266MHz DDR SDRAM
+If I see it correctly, tlb_remove_page() can't be called with a swap page,
+does it make sense to use free_page_and_swap_cache()?
 
-BIOS: AMI®
+> > - will a non smp version later be added again?
+> 
+> Not likely, at least not in the form it was before of having two
+> completely different paths.
+> 
+> But I was thinking of doing a one-source thing that the compiler can
+> statically optimize, with something like
+> 
+> 	#ifdef CONFIG_SMP
+> 	#define fast_case(tlb) ((tlb)->nr == ~0UL)
+> 	#else
+> 	#define fast_case(tlb) (1)
+> 	#endif
+> 
+> which allows us to have one set of sources for both UP and SMP, but the UP
+> case gets optimized by the compiler.
 
-Chipset: Intel® i82845 593 uBGA MCH and ICH2
+I was thinking about this and I agree, but this is needed as well
 
-Front Side Bus 400MHz Data FSB
+#define FREE_PTE_NR 1
 
-AGP Bus AGP Expansion Port-AGP 2.0 1.5V Only signaling
-· 2x, or 4x AGP data transfer supported
-· 2x/4x fast write protocol
+otherwise we waste 2KB. :)
 
-Graphics adapter 32MB NVIDIA ? GeForce2? MX200 AGP Graphics
+> Do you want to do the freed and the above and test it?
 
-Hard disk drive 40GB Ultra ATA100 7200RPM Hard Drive
+Sure.
 
-Controller 2 on-board controllers supporting 4 IDE devices, ICH2 dual channel Ultra ATA/DMA 33/66/100
-
-Floppy disk drive 1.44MB 3.5" floppy drive
-
-CD-ROM drive 24x/10x/40x Recordable/Rewritable CDRW
-
-Audio Integrated-ICH AC97 v2.1
-
-Network Integrated 10/100 LAN, Intel 82562ET LAN connect device
-
-Expansion slots 3 PCI and 1 AGP (Accelerated Graphics Port)
-
-Power Supply 160W-110/220 switchable power
-
+bye, Roman
 

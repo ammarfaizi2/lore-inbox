@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269509AbTCDS61>; Tue, 4 Mar 2003 13:58:27 -0500
+	id <S269519AbTCDTFf>; Tue, 4 Mar 2003 14:05:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269516AbTCDS61>; Tue, 4 Mar 2003 13:58:27 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:50950 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S269509AbTCDS60>;
-	Tue, 4 Mar 2003 13:58:26 -0500
-Date: Tue, 4 Mar 2003 20:08:54 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: J@ravnborg.org
+	id <S269522AbTCDTFe>; Tue, 4 Mar 2003 14:05:34 -0500
+Received: from packet.digeo.com ([12.110.80.53]:54941 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S269519AbTCDTFd>;
+	Tue, 4 Mar 2003 14:05:33 -0500
+Date: Tue, 4 Mar 2003 11:16:26 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: ebrunet@lps.ens.fr
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add checkstack Makefile target
-Message-ID: <20030304190854.GA1917@mars.ravnborg.org>
-Mail-Followup-To: J@ravnborg.org, linux-kernel@vger.kernel.org
-References: <20030303211647.GA25205@wohnheim.fh-wedel.de> <20030304070304.GP4579@actcom.co.il> <20030304072443.GA5503@wohnheim.fh-wedel.de> <20030304102121.GC6583@wohnheim.fh-wedel.de> <20030304105739.GD6583@wohnheim.fh-wedel.de>
+Subject: Re: 2.5.63 bug when mounting dirty loopback ext3 filesystems
+Message-Id: <20030304111626.52a64e3c.akpm@digeo.com>
+In-Reply-To: <20030304144138.GA28345@lps.ens.fr>
+References: <20030304144138.GA28345@lps.ens.fr>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030304105739.GD6583@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Mar 2003 19:15:54.0991 (UTC) FILETIME=[7A9387F0:01C2E282]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 04, 2003 at 11:57:39AM +0100, J??rn Engel wrote:
+>
+> Oops in 2.6.63 when trying to mount dirty ext3 loopback filesystems.
+> 
+> The kernel is 2.6.63 with the latest (2003/02/28)acpi patches, plus a
+> couple of one-liners found on the mailing-lists to help swsusp working
+> (one in kernel/suspend.c, one in mm/pdflush.c, and one in
+> drivers/net/8139tto.c; nothing related to filesystems)
+> 
+> The computer is a Pentium IV on an intel chipset.
+> 
+> I have in /data (an ext3 partition) three files containing ext3
+> partitions which are mounted using loopback. For some reason, at
+> shutdown time, /data is unmounted (or remounted ro) before the loopback
+> partitions, and unmounting the loopback partitions fail, and those
+> partitions need to get recovered on next reboot. That is not the issue,
+> I will fix it when I get some time.
+> 
+> The issue is that I got three identical pair of oops in a raw when trying my
+> new 2.6.63 kernel. From the logs:
+> 
 
-A few comments to the Makefile changes..
+It is not an oops really - it is just a warning.  2.5 has a number of new
+consistency checks so sometimes these are long-standing things, sometimes
+they are not.
 
-> diff -Naur linux-2.5.63/arch/i386/Makefile linux-2.5.63-checkstack/arch/i386/Makefile
-> --- linux-2.5.63/arch/i386/Makefile	Mon Feb 24 20:05:15 2003
-> +++ linux-2.5.63-checkstack/arch/i386/Makefile	Tue Mar  4 11:51:11 2003
-> @@ -124,3 +124,12 @@
->    echo  '		   install to $$(INSTALL_PATH) and run lilo'
->  endef
->  
-> +CLEAN_FILES +=	$(TOPDIR)/scripts/checkstack_i386.pl
-Do not use TOPDIR.
-> +CLEAN_FILES +=	scripts/checkstack_i386.pl
-Is preferred.
-
-> +
-> +$(TOPDIR)/scripts/checkstack_i386.pl: $(TOPDIR)/scripts/checkstack.pl
-> +	(cd $(TOPDIR)/scripts/ && ln -s checkstack.pl checkstack_i386.pl)
-There is no need to use the symlink trick.
-Just pass the architecture as first mandatory parameter.
-Something like
-checkstack: vmlinux FORCE
-	$(OBJDUMP) -d vmlinux | scripts/checkstack.pl $(ARCH)
-
-Note that I skipped grep. Perl is good at regular expressions, and
-the perl scripts already know the architecture so you can do the job there.
-Since the above is now architecture independent, better locate it in
-the top level Makefile.
-
-	Sam
+I couldn't get this to happen.  Can you please come up with an exact sequence
+of steps to reproduce this?  Also I'd need to know what filesytem the backing
+files reside on, and what size those files are, thanks.

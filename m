@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263607AbUDUSvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263615AbUDUSx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263607AbUDUSvu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 14:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbUDUSvu
+	id S263615AbUDUSx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 14:53:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263618AbUDUSx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 14:51:50 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:34205 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S263607AbUDUSvM
+	Wed, 21 Apr 2004 14:53:29 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:28588 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S263615AbUDUSwb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 14:51:12 -0400
-Date: Wed, 21 Apr 2004 20:50:51 +0200
+	Wed, 21 Apr 2004 14:52:31 -0400
+Date: Wed, 21 Apr 2004 20:52:06 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: hch@infradead.org
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390 (7/9): oprofile for s390.
-Message-ID: <20040421185051.GA7781@mschwid3.boeblingen.de.ibm.com>
+Subject: Re: [PATCH] s390 (9/9): no timer interrupts in idle.
+Message-ID: <20040421185206.GB7781@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,351 +23,474 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi Christoph,
-I changed the things you pointed out. Better now?
+new patch with your suggestions. I compiled a kernel for i386. The
+code for rcu_start_batch isn't identical but it didn't looked too
+bad either. I still think a #ifdef in rcpu_start_batch would help.
+Any more comments ?
 
-blues skies,
+blue skies,
   Martin.
 
 ---
-[PATCH] s390: oprofile.
+[PATCH] s390: no timer interrupts in idle.
 
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Add oprofile support for s/390.
+This patch add a system control that allows to switch off the jiffies
+timer interrupts while a cpu sleeps in idle. This is useful for a system
+running with virtual cpus under z/VM.
 
 diffstat:
- arch/s390/Kconfig                 |    1 
- arch/s390/Makefile                |    3 +
- arch/s390/defconfig               |    5 +++
- arch/s390/kernel/Makefile         |    2 -
- arch/s390/kernel/compat_wrapper.S |    8 +++++
- arch/s390/kernel/profile.c        |   58 ++++++++++++++++++++++++++++++++++++++
- arch/s390/kernel/syscalls.S       |    2 -
- arch/s390/kernel/time.c           |   50 ++++++++++++++++++++++++++++++++
- arch/s390/oprofile/Kconfig        |   23 +++++++++++++++
- arch/s390/oprofile/Makefile       |   12 +++++++
- arch/s390/oprofile/init.c         |   26 +++++++++++++++++
- drivers/s390/cio/cio.c            |    9 -----
- include/asm-s390/unistd.h         |    1 
- 13 files changed, 189 insertions(+), 11 deletions(-)
+ arch/s390/Kconfig          |   19 +++++
+ arch/s390/defconfig        |    1 
+ arch/s390/kernel/process.c |   10 +-
+ arch/s390/kernel/time.c    |  158 ++++++++++++++++++++++++++++++++++++++-------
+ arch/s390/kernel/traps.c   |    4 -
+ include/asm-s390/cpumask.h |    3 
+ include/linux/sysctl.h     |    1 
+ include/linux/timer.h      |    2 
+ kernel/rcupdate.c          |    9 ++
+ kernel/sysctl.c            |   12 +++
+ kernel/timer.c             |   69 +++++++++++++++++++
+ 11 files changed, 259 insertions(+), 29 deletions(-)
 
 diff -urN linux-2.6/arch/s390/Kconfig linux-2.6-s390/arch/s390/Kconfig
---- linux-2.6/arch/s390/Kconfig	Sun Apr  4 05:36:56 2004
-+++ linux-2.6-s390/arch/s390/Kconfig	Wed Apr 21 20:25:32 2004
-@@ -349,6 +349,7 @@
+--- linux-2.6/arch/s390/Kconfig	Wed Apr 21 20:25:32 2004
++++ linux-2.6-s390/arch/s390/Kconfig	Wed Apr 21 20:25:33 2004
+@@ -333,6 +333,25 @@
+ 	  This can also be compiled as a module, which will be called
+ 	  appldata_net_sum.o.
  
- source "fs/Kconfig"
- 
-+source "arch/s390/oprofile/Kconfig"
- 
- menu "Kernel hacking"
- 
-diff -urN linux-2.6/arch/s390/Makefile linux-2.6-s390/arch/s390/Makefile
---- linux-2.6/arch/s390/Makefile	Sun Apr  4 05:36:26 2004
-+++ linux-2.6-s390/arch/s390/Makefile	Wed Apr 21 20:25:32 2004
-@@ -50,6 +50,9 @@
- drivers-y	+= drivers/s390/
- drivers-$(CONFIG_MATHEMU) += arch/$(ARCH)/math-emu/
- 
-+#based on arch/i386/Makefile: "must be linked after kernel/"
-+drivers-$(CONFIG_OPROFILE)	+= arch/s390/oprofile/
++config NO_IDLE_HZ
++	bool "No HZ timer ticks in idle"
++	help
++	  Switches the regular HZ timer off when the system is going idle.
++	  This helps z/VM to detect that the Linux system is idle. VM can
++	  then "swap-out" this guest which reduces memory usage. It also
++	  reduces the overhead of idle systems. 
 +
- boot		:= arch/$(ARCH)/boot
++	  The HZ timer can be switched on/off via /proc/sys/kernel/hz_timer.
++	  hz_timer=0 means HZ timer is disabled. hz_timer=1 means HZ 
++	  timer is active.
++
++config NO_IDLE_HZ_INIT
++	bool "HZ timer in idle off by default"
++	depends on NO_IDLE_HZ
++	help
++	  The HZ timer is switched off in idle by default. That means the
++	  HZ timer is already disabled at boot time.
++
+ endmenu
  
- all: image
+ config PCMCIA
 diff -urN linux-2.6/arch/s390/defconfig linux-2.6-s390/arch/s390/defconfig
---- linux-2.6/arch/s390/defconfig	Wed Apr 21 20:25:28 2004
-+++ linux-2.6-s390/arch/s390/defconfig	Wed Apr 21 20:25:32 2004
-@@ -463,6 +463,11 @@
- # CONFIG_NLS is not set
+--- linux-2.6/arch/s390/defconfig	Wed Apr 21 20:25:33 2004
++++ linux-2.6-s390/arch/s390/defconfig	Wed Apr 21 20:25:58 2004
+@@ -83,6 +83,7 @@
+ # CONFIG_SHARED_KERNEL is not set
+ # CONFIG_CMM is not set
+ # CONFIG_VIRT_TIMER is not set
++# CONFIG_NO_IDLE_HZ is not set
+ # CONFIG_PCMCIA is not set
  
  #
-+# Profiling support
-+#
-+# CONFIG_PROFILING is not set
-+
-+#
- # Kernel hacking
- #
- CONFIG_DEBUG_KERNEL=y
-diff -urN linux-2.6/arch/s390/kernel/Makefile linux-2.6-s390/arch/s390/kernel/Makefile
---- linux-2.6/arch/s390/kernel/Makefile	Sun Apr  4 05:38:20 2004
-+++ linux-2.6-s390/arch/s390/kernel/Makefile	Wed Apr 21 20:25:32 2004
-@@ -6,7 +6,7 @@
- 
- obj-y	:=  bitmap.o traps.o time.o process.o \
-             setup.o sys_s390.o ptrace.o signal.o cpcmd.o ebcdic.o \
--            semaphore.o s390_ext.o debug.o
-+            semaphore.o s390_ext.o debug.o profile.o
- 
- extra-$(CONFIG_ARCH_S390_31)	+= head.o 
- extra-$(CONFIG_ARCH_S390X)	+= head64.o 
-diff -urN linux-2.6/arch/s390/kernel/compat_wrapper.S linux-2.6-s390/arch/s390/kernel/compat_wrapper.S
---- linux-2.6/arch/s390/kernel/compat_wrapper.S	Wed Apr 21 20:25:28 2004
-+++ linux-2.6-s390/arch/s390/kernel/compat_wrapper.S	Wed Apr 21 20:25:32 2004
-@@ -1234,6 +1234,14 @@
- 	lgfr	%r5,%r5			# int
- 	jg	sys_epoll_wait		# branch to system call
- 
-+	.globl	sys32_lookup_dcookie_wrapper
-+sys32_lookup_dcookie_wrapper:
-+	sllg	%r2,%r2,32		# get high word of 64bit dcookie
-+	or	%r2,%r3			# get low word of 64bit dcookie
-+	llgtr	%r3,%r4			# char *
-+	llgfr	%r4,%r5			# size_t
-+	jg	sys_lookup_dcookie
-+
- 	.globl	sys32_fadvise64_wrapper
- sys32_fadvise64_wrapper:
- 	lgfr	%r2,%r2			# int
-diff -urN linux-2.6/arch/s390/kernel/profile.c linux-2.6-s390/arch/s390/kernel/profile.c
---- linux-2.6/arch/s390/kernel/profile.c	Thu Jan  1 01:00:00 1970
-+++ linux-2.6-s390/arch/s390/kernel/profile.c	Wed Apr 21 20:25:32 2004
-@@ -0,0 +1,58 @@
-+/*
-+ * arch/s390/kernel/profile.c
-+ *
-+ * Copyrith (C) 2003 IBM Deutschland Entwicklung GmbH, IBM Corporation
-+ * Author(s): Thomas Spatzier (tspat@de.ibm.com)
-+ *
-+ */
-+#include <linux/proc_fs.h>
-+ 
-+static struct proc_dir_entry * root_irq_dir;
-+
-+#define HEX_DIGITS 8	/* Same as other 64-bit arches. XXX */
-+
-+static int prof_cpu_mask_read_proc (char *page, char **start, off_t off,
-+					int count, int *eof, void *data)
-+{
-+	int len = cpumask_scnprintf(page, count, *(cpumask_t *)data);
-+	if (count - len < 2)
-+		return -EINVAL;
-+	len += sprintf(page + len, "\n");
-+	return len;
-+}
-+
-+static int prof_cpu_mask_write_proc (struct file *file, const char *buffer,
-+					unsigned long count, void *data)
-+{
-+	cpumask_t *mask = (cpumask_t *)data;
-+	unsigned long full_count = count, err;
-+	cpumask_t new_value;
-+
-+	err = cpumask_parse(buffer, count, new_value);
-+	if (err)
-+		return err;
-+
-+	*mask = new_value;
-+	return full_count;
-+}
-+
-+cpumask_t prof_cpu_mask = CPU_MASK_ALL;
-+
-+void init_irq_proc(void)
-+{
-+        struct proc_dir_entry *entry;
-+
-+        /* create /proc/irq */
-+        root_irq_dir = proc_mkdir("irq", 0);
-+
-+        /* create /proc/irq/prof_cpu_mask */
-+        entry = create_proc_entry("prof_cpu_mask", 0600, root_irq_dir);
-+
-+        if (!entry)
-+		return;
-+
-+        entry->nlink = 1;
-+        entry->data = (void *)&prof_cpu_mask;
-+        entry->read_proc = prof_cpu_mask_read_proc;
-+        entry->write_proc = prof_cpu_mask_write_proc;
-+}
-diff -urN linux-2.6/arch/s390/kernel/syscalls.S linux-2.6-s390/arch/s390/kernel/syscalls.S
---- linux-2.6/arch/s390/kernel/syscalls.S	Wed Apr 21 20:25:05 2004
-+++ linux-2.6-s390/arch/s390/kernel/syscalls.S	Wed Apr 21 20:25:32 2004
-@@ -118,7 +118,7 @@
- SYSCALL(sys_newlstat,sys_newlstat,compat_sys_newlstat_wrapper)
- SYSCALL(sys_newfstat,sys_newfstat,compat_sys_newfstat_wrapper)
- NI_SYSCALL							/* old uname syscall */
--NI_SYSCALL							/* reserved for sys_lookup_dcache */
-+SYSCALL(sys_lookup_dcookie,sys_lookup_dcookie,sys32_lookup_dcookie_wrapper)	/* 110 */
- SYSCALL(sys_vhangup,sys_vhangup,sys_vhangup)
- NI_SYSCALL							/* old "idle" system call */
- NI_SYSCALL							/* vm86old for i386 */
-diff -urN linux-2.6/arch/s390/kernel/time.c linux-2.6-s390/arch/s390/kernel/time.c
---- linux-2.6/arch/s390/kernel/time.c	Sun Apr  4 05:36:14 2004
-+++ linux-2.6-s390/arch/s390/kernel/time.c	Wed Apr 21 20:25:32 2004
-@@ -24,6 +24,7 @@
- #include <linux/init.h>
- #include <linux/smp.h>
- #include <linux/types.h>
-+#include <linux/profile.h>
- #include <linux/timex.h>
- #include <linux/config.h>
- 
-@@ -177,6 +178,54 @@
- 
- #endif /* CONFIG_ARCH_S390X */
- 
-+
-+#if defined(CONFIG_OPROFILE) || defined(CONFIG_OPROFILE_MODULE)
-+extern char _stext, _etext;
-+
-+/*
-+ * The profiling function is SMP safe. (nothing can mess
-+ * around with "current", and the profiling counters are
-+ * updated with atomic operations). This is especially
-+ * useful with a profiling multiplier != 1
-+ */
-+static inline void s390_do_profile(struct pt_regs * regs)
-+{
-+	unsigned long eip;
-+	extern cpumask_t prof_cpu_mask;
-+
-+	profile_hook(regs);
-+
-+	if (user_mode(regs))
-+		return;
-+
-+	if (!prof_buffer)
-+		return;
-+
-+	eip = instruction_pointer(regs);
-+
-+	/*
-+	 * Only measure the CPUs specified by /proc/irq/prof_cpu_mask.
-+	 * (default is all CPUs.)
-+	 */
-+	if (!cpu_isset(smp_processor_id(), prof_cpu_mask))
-+		return;
-+
-+	eip -= (unsigned long) &_stext;
-+	eip >>= prof_shift;
-+	/*
-+	 * Don't ignore out-of-bounds EIP values silently,
-+	 * put them into the last histogram slot, so if
-+	 * present, they will show up as a sharp peak.
-+	 */
-+	if (eip > prof_len-1)
-+		eip = prof_len-1;
-+	atomic_inc((atomic_t *)&prof_buffer[eip]);
-+}
-+#else
-+#define s390_do_profile(regs)  do { ; } while(0)
-+#endif /* CONFIG_OPROFILE */
-+
-+
- /*
-  * timer_interrupt() needs to keep up the real-time clock,
-  * as well as call the "do_timer()" routine every clocktick
-@@ -231,6 +280,7 @@
- 	while (ticks--)
- 		do_timer(regs);
+diff -urN linux-2.6/arch/s390/kernel/process.c linux-2.6-s390/arch/s390/kernel/process.c
+--- linux-2.6/arch/s390/kernel/process.c	Wed Apr 21 20:25:05 2004
++++ linux-2.6-s390/arch/s390/kernel/process.c	Wed Apr 21 20:25:33 2004
+@@ -40,7 +40,7 @@
+ #include <asm/io.h>
+ #include <asm/processor.h>
+ #include <asm/irq.h>
+-#ifdef CONFIG_VIRT_TIMER
++#if defined(CONFIG_VIRT_TIMER) || defined (CONFIG_NO_IDLE_HZ)
+ #include <asm/timer.h>
  #endif
-+	s390_do_profile(regs);
+ 
+@@ -75,17 +75,21 @@
+ 	psw_t wait_psw;
+ 	unsigned long reg;
+ 
++	local_irq_disable();
+         if (need_resched()) {
++		local_irq_enable();
+                 schedule();
+                 return;
+         }
+ 
+-#ifdef CONFIG_VIRT_TIMER
++#if defined(CONFIG_VIRT_TIMER) || defined (CONFIG_NO_IDLE_HZ)
+ 	/*
+ 	 * hook to stop timers that should not tick while CPU is idle
+ 	 */
+-	if (stop_timers())
++	if (stop_timers()) {
++		local_irq_enable();
+ 		return;
++	}
+ #endif
+ 
+ 	/* 
+diff -urN linux-2.6/arch/s390/kernel/time.c linux-2.6-s390/arch/s390/kernel/time.c
+--- linux-2.6/arch/s390/kernel/time.c	Wed Apr 21 20:25:32 2004
++++ linux-2.6-s390/arch/s390/kernel/time.c	Wed Apr 21 20:25:33 2004
+@@ -331,29 +331,6 @@
+ 	return 0;
  }
  
- #ifdef CONFIG_VIRT_TIMER
-diff -urN linux-2.6/arch/s390/oprofile/Kconfig linux-2.6-s390/arch/s390/oprofile/Kconfig
---- linux-2.6/arch/s390/oprofile/Kconfig	Thu Jan  1 01:00:00 1970
-+++ linux-2.6-s390/arch/s390/oprofile/Kconfig	Wed Apr 21 20:25:32 2004
-@@ -0,0 +1,23 @@
+-void do_monitor_call(struct pt_regs *regs, long interruption_code)
+-{
+-	/* disable monitor call class 0 */
+-	__ctl_clear_bit(8, 15);
+-
+-	start_cpu_timer();
+-}
+-
+-/*
+- * called from cpu_idle to stop any timers
+- * returns 1 if CPU should not be stopped
+- */
+-int stop_timers(void)
+-{
+-	if (stop_cpu_timer())
+-		return 1;
+-
+-	/* enable monitor call class 0 */
+-	__ctl_set_bit(8, 15);
+-
+-	return 0;
+-}
+-
+ void set_vtimer(__u64 expires)
+ {
+ 	asm volatile ("SPT %0" : : "m" (expires));
+@@ -474,6 +451,141 @@
+ }
+ #endif
+ 
++#ifdef CONFIG_NO_IDLE_HZ
 +
-+menu "Profiling support"
-+	depends on EXPERIMENTAL
++cpumask_t idle_cpu_mask = CPU_MASK_NONE;
 +
-+config PROFILING
-+	bool "Profiling support (EXPERIMENTAL)"
-+	help
-+	  Say Y here to enable the extended profiling support mechanisms used
-+	  by profilers such as OProfile.
-+	  
++#ifdef CONFIG_NO_IDLE_HZ_INIT
++int sysctl_hz_timer = 0;
++#else
++int sysctl_hz_timer = 1;
++#endif
 +
-+config OPROFILE
-+	tristate "OProfile system profiling (EXPERIMENTAL)"
-+	depends on PROFILING
-+	help
-+	  OProfile is a profiling system capable of profiling the
-+	  whole system, include the kernel, kernel modules, libraries,
-+	  and applications.
-+
-+	  If unsure, say N.
-+
-+endmenu
-+
-diff -urN linux-2.6/arch/s390/oprofile/Makefile linux-2.6-s390/arch/s390/oprofile/Makefile
---- linux-2.6/arch/s390/oprofile/Makefile	Thu Jan  1 01:00:00 1970
-+++ linux-2.6-s390/arch/s390/oprofile/Makefile	Wed Apr 21 20:25:32 2004
-@@ -0,0 +1,12 @@
-+obj-$(CONFIG_OPROFILE) += oprofile.o
-+
-+DRIVER_OBJS = $(addprefix ../../../drivers/oprofile/, \
-+		oprof.o cpu_buffer.o buffer_sync.o \
-+		event_buffer.o oprofile_files.o \
-+		oprofilefs.o oprofile_stats.o  \
-+		timer_int.o )
-+
-+oprofile-y				:= $(DRIVER_OBJS) init.o
-+#oprofile-$(CONFIG_X86_LOCAL_APIC) 	+= nmi_int.o op_model_athlon.o \
-+					   op_model_ppro.o op_model_p4.o
-+#oprofile-$(CONFIG_X86_IO_APIC)		+= nmi_timer_int.o
-diff -urN linux-2.6/arch/s390/oprofile/init.c linux-2.6-s390/arch/s390/oprofile/init.c
---- linux-2.6/arch/s390/oprofile/init.c	Thu Jan  1 01:00:00 1970
-+++ linux-2.6-s390/arch/s390/oprofile/init.c	Wed Apr 21 20:25:32 2004
-@@ -0,0 +1,26 @@
-+/**
-+ * arch/s390/oprofile/init.c
-+ *
-+ * S390 Version
-+ *   Copyright (C) 2003 IBM Deutschland Entwicklung GmbH, IBM Corporation
-+ *   Author(s): Thomas Spatzier (tspat@de.ibm.com)
-+ * 	
-+ * @remark Copyright 2002 OProfile authors
++/*
++ * Start the HZ tick on the current CPU.
++ * Only cpu_idle may call this function.
 + */
-+
-+#include <linux/oprofile.h>
-+#include <linux/init.h>
-+#include <linux/errno.h>
-+
-+//extern int irq_init(struct oprofile_operations** ops);
-+extern void timer_init(struct oprofile_operations** ops);
-+
-+int __init oprofile_arch_init(struct oprofile_operations** ops)
++void start_hz_timer(struct pt_regs *regs)
 +{
-+	timer_init(ops);
++	__u64 tmp;
++	__u32 ticks;
++
++	if (!cpu_isset(smp_processor_id(), idle_cpu_mask))
++		return;
++
++	/* Calculate how many ticks have passed */
++	asm volatile ("STCK 0(%0)" : : "a" (&tmp) : "memory", "cc");
++	tmp = tmp + CLK_TICKS_PER_JIFFY - S390_lowcore.jiffy_timer;
++	ticks = __calculate_ticks(tmp);
++	S390_lowcore.jiffy_timer += CLK_TICKS_PER_JIFFY * (__u64) ticks;
++
++	/* Set the clock comparator to the next tick. */
++	tmp = S390_lowcore.jiffy_timer + CPU_DEVIATION;
++	asm volatile ("SCKC %0" : : "m" (tmp));
++
++	/* Charge the ticks. */
++	if (ticks > 0) {
++#ifdef CONFIG_SMP
++		/*
++		 * Do not rely on the boot cpu to do the calls to do_timer.
++		 * Spread it over all cpus instead.
++		 */
++		write_seqlock(&xtime_lock);
++		if (S390_lowcore.jiffy_timer > xtime_cc) {
++			__u32 xticks;
++			
++			tmp = S390_lowcore.jiffy_timer - xtime_cc;
++			if (tmp >= 2*CLK_TICKS_PER_JIFFY) {
++				xticks = __calculate_ticks(tmp);
++				xtime_cc += (__u64) xticks*CLK_TICKS_PER_JIFFY;
++			} else {
++				xticks = 1;
++				xtime_cc += CLK_TICKS_PER_JIFFY;
++			}
++			while (xticks--)
++				do_timer(regs);
++		}
++		write_sequnlock(&xtime_lock);
++		while (ticks--)
++			update_process_times(user_mode(regs));
++#else
++		while (ticks--)
++			do_timer(regs);
++#endif
++	}
++	cpu_clear(smp_processor_id(), idle_cpu_mask);
++}
++
++/*
++ * Stop the HZ tick on the current CPU.
++ * Only cpu_idle may call this function.
++ */
++int stop_hz_timer(void)
++{
++	__u64 timer;
++
++	if (sysctl_hz_timer != 0)
++		return 1;
++
++	/*
++	 * Leave the clock comparator set up for the next timer
++	 * tick if either rcu or a softirq is pending.
++	 */
++	if (rcu_pending(smp_processor_id()) || local_softirq_pending())
++		return 1;
++
++	/*
++	 * This cpu is going really idle. Set up the clock comparator
++	 * for the next event.
++	 */
++	cpu_set(smp_processor_id(), idle_cpu_mask);
++	timer = (__u64) (next_timer_interrupt() - jiffies) + jiffies_64;
++	timer = jiffies_timer_cc + timer * CLK_TICKS_PER_JIFFY;
++	asm volatile ("SCKC %0" : : "m" (timer));
++
++	return 0;
++}
++#endif
++
++#if defined(CONFIG_VIRT_TIMER) || defined(CONFIG_NO_IDLE_HZ)
++
++void do_monitor_call(struct pt_regs *regs, long interruption_code)
++{
++	/* disable monitor call class 0 */
++	__ctl_clear_bit(8, 15);
++
++#ifdef CONFIG_VIRT_TIMER
++	start_cpu_timer();
++#endif
++#ifdef CONFIG_NO_IDLE_HZ
++	start_hz_timer(regs);
++#endif
++}
++
++/* 
++ * called from cpu_idle to stop any timers 
++ * returns 1 if CPU should not be stopped
++ */
++int stop_timers(void)
++{
++#ifdef CONFIG_VIRT_TIMER
++	if (stop_cpu_timer())
++		return 1;
++#endif
++
++#ifdef CONFIG_NO_IDLE_HZ
++	if (stop_hz_timer())
++		return 1;
++#endif
++
++	/* enable monitor call class 0 */
++	__ctl_set_bit(8, 15);
++
 +	return 0;
 +}
 +
-+void oprofile_arch_exit(void)
-+{
-+}
-diff -urN linux-2.6/drivers/s390/cio/cio.c linux-2.6-s390/drivers/s390/cio/cio.c
---- linux-2.6/drivers/s390/cio/cio.c	Wed Apr 21 20:25:29 2004
-+++ linux-2.6-s390/drivers/s390/cio/cio.c	Wed Apr 21 20:25:32 2004
-@@ -52,15 +52,6 @@
- 
- __setup ("cio_msg=", cio_setup);
- 
--
--#ifdef CONFIG_PROC_FS
--void
--init_irq_proc(void)
--{
--	/* For now, nothing... */
--}
--#endif
--
++#endif
++
  /*
-  * Function: cio_debug_init
-  * Initializes three debug logs (under /proc/s390dbf) for common I/O:
-diff -urN linux-2.6/include/asm-s390/unistd.h linux-2.6-s390/include/asm-s390/unistd.h
---- linux-2.6/include/asm-s390/unistd.h	Wed Apr 21 20:25:09 2004
-+++ linux-2.6-s390/include/asm-s390/unistd.h	Wed Apr 21 20:25:32 2004
-@@ -105,6 +105,7 @@
- #define __NR_stat               106
- #define __NR_lstat              107
- #define __NR_fstat              108
-+#define __NR_lookup_dcookie     110
- #define __NR_vhangup            111
- #define __NR_idle               112
- #define __NR_wait4              114
+  * Start the clock comparator and the virtual CPU timer
+  * on the current CPU.
+diff -urN linux-2.6/arch/s390/kernel/traps.c linux-2.6-s390/arch/s390/kernel/traps.c
+--- linux-2.6/arch/s390/kernel/traps.c	Sun Apr  4 05:36:55 2004
++++ linux-2.6-s390/arch/s390/kernel/traps.c	Wed Apr 21 20:25:33 2004
+@@ -64,7 +64,7 @@
+ extern void pfault_interrupt(struct pt_regs *regs, __u16 error_code);
+ static ext_int_info_t ext_int_pfault;
+ #endif
+-#ifdef CONFIG_VIRT_TIMER
++#if defined(CONFIG_NO_IDLE_HZ) || defined(CONFIG_VIRT_TIMER)
+ extern pgm_check_handler_t do_monitor_call;
+ #endif
+ 
+@@ -631,7 +631,7 @@
+ #endif /* CONFIG_ARCH_S390X */
+         pgm_check_table[0x15] = &operand_exception;
+         pgm_check_table[0x1C] = &privileged_op;
+-#ifdef CONFIG_VIRT_TIMER
++#if defined(CONFIG_VIRT_TIMER) || defined(CONFIG_NO_IDLE_HZ)
+ 	pgm_check_table[0x40] = &do_monitor_call;
+ #endif
+ 	if (MACHINE_IS_VM) {
+diff -urN linux-2.6/include/asm-s390/cpumask.h linux-2.6-s390/include/asm-s390/cpumask.h
+--- linux-2.6/include/asm-s390/cpumask.h	Sun Apr  4 05:38:13 2004
++++ linux-2.6-s390/include/asm-s390/cpumask.h	Wed Apr 21 20:23:48 2004
+@@ -3,4 +3,7 @@
+ 
+ #include <asm-generic/cpumask.h>
+ 
++#define __ARCH_HAS_IDLE_CPU_MASK
++extern cpumask_t idle_cpu_mask;
++
+ #endif /* _ASM_S390_CPUMASK_H */
+diff -urN linux-2.6/include/linux/sysctl.h linux-2.6-s390/include/linux/sysctl.h
+--- linux-2.6/include/linux/sysctl.h	Wed Apr 21 20:25:09 2004
++++ linux-2.6-s390/include/linux/sysctl.h	Wed Apr 21 20:25:33 2004
+@@ -132,6 +132,7 @@
+ 	KERN_PTY=62,		/* dir: pty driver */
+ 	KERN_NGROUPS_MAX=63,	/* int: NGROUPS_MAX */
+ 	KERN_SPARC_SCONS_PWROFF=64, /* int: serial console power-off halt */
++	KERN_HZ_TIMER=65,	/* int: hz timer on or off */
+ };
+ 
+ 
+diff -urN linux-2.6/include/linux/timer.h linux-2.6-s390/include/linux/timer.h
+--- linux-2.6/include/linux/timer.h	Sun Apr  4 05:37:37 2004
++++ linux-2.6-s390/include/linux/timer.h	Wed Apr 21 20:25:33 2004
+@@ -65,6 +65,8 @@
+ extern int __mod_timer(struct timer_list *timer, unsigned long expires);
+ extern int mod_timer(struct timer_list *timer, unsigned long expires);
+ 
++extern unsigned long next_timer_interrupt(void);
++
+ /***
+  * add_timer - start a timer
+  * @timer: the timer to be added
+diff -urN linux-2.6/kernel/rcupdate.c linux-2.6-s390/kernel/rcupdate.c
+--- linux-2.6/kernel/rcupdate.c	Wed Apr 21 20:25:10 2004
++++ linux-2.6-s390/kernel/rcupdate.c	Wed Apr 21 20:25:33 2004
+@@ -96,6 +96,10 @@
+ 	}
+ }
+ 
++#ifndef __ARCH_HAS_IDLE_CPU_MASK
++#define idle_cpu_mask CPU_MASK_NONE
++#endif
++
+ /*
+  * Register a new batch of callbacks, and start it up if there is currently no
+  * active batch and the batch to be registered has not already occurred.
+@@ -111,7 +115,10 @@
+ 		return;
+ 	}
+ 	/* Can't change, since spin lock held. */
+-	rcu_ctrlblk.rcu_cpu_mask = cpu_online_map;
++	rcu_ctrlblk.rcu_cpu_mask = idle_cpu_mask;
++	cpus_complement(rcu_ctrlblk.rcu_cpu_mask);
++	cpus_and(rcu_ctrlblk.rcu_cpu_mask, cpu_online_map,
++		 rcu_ctrlblk.rcu_cpu_mask);
+ }
+ 
+ /*
+diff -urN linux-2.6/kernel/sysctl.c linux-2.6-s390/kernel/sysctl.c
+--- linux-2.6/kernel/sysctl.c	Wed Apr 21 20:25:10 2004
++++ linux-2.6-s390/kernel/sysctl.c	Wed Apr 21 20:25:33 2004
+@@ -108,6 +108,8 @@
+ extern int sysctl_userprocess_debug;
+ #endif
+ 
++extern int sysctl_hz_timer;
++
+ #if defined(CONFIG_PPC32) && defined(CONFIG_6xx)
+ extern unsigned long powersave_nap;
+ int proc_dol2crvec(ctl_table *table, int write, struct file *filp,
+@@ -573,6 +575,16 @@
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_dointvec,
+ 	},
++#endif 
++#ifdef CONFIG_NO_IDLE_HZ
++	{
++		.ctl_name       = KERN_HZ_TIMER,
++		.procname       = "hz_timer",
++		.data           = &sysctl_hz_timer,
++		.maxlen         = sizeof(int),
++		.mode           = 0644,
++		.proc_handler   = &proc_dointvec,
++	},
+ #endif
+ 	{
+ 		.ctl_name	= KERN_S390_USER_DEBUG_LOGGING,
+diff -urN linux-2.6/kernel/timer.c linux-2.6-s390/kernel/timer.c
+--- linux-2.6/kernel/timer.c	Wed Apr 21 20:25:10 2004
++++ linux-2.6-s390/kernel/timer.c	Wed Apr 21 20:25:33 2004
+@@ -428,6 +428,75 @@
+ 	spin_unlock_irq(&base->lock);
+ }
+ 
++#ifdef CONFIG_NO_IDLE_HZ
++/*
++ * Find out when the next timer event is due to happen. This
++ * is used on S/390 to stop all activity when a cpus is idle.
++ * This functions needs to be called disabled.
++ */
++unsigned long next_timer_interrupt(void)
++{
++	tvec_base_t *base;
++	struct list_head *list;
++	struct timer_list *nte;
++	unsigned long expires;
++	tvec_t *varray[4];
++	int i, j;
++
++	base = &__get_cpu_var(tvec_bases);
++	spin_lock(&base->lock);
++	expires = base->timer_jiffies + (LONG_MAX >> 1);
++	list = 0;
++
++	/* Look for timer events in tv1. */
++	j = base->timer_jiffies & TVR_MASK;
++	do {
++		list_for_each_entry(nte, base->tv1.vec + j, entry) {
++			expires = nte->expires;
++			if (j < (base->timer_jiffies & TVR_MASK))
++				list = base->tv2.vec + (INDEX(0));
++			goto found;
++		}
++		j = (j + 1) & TVR_MASK;
++	} while (j != (base->timer_jiffies & TVR_MASK));
++
++	/* Check tv2-tv5. */
++	varray[0] = &base->tv2;
++	varray[1] = &base->tv3;
++	varray[2] = &base->tv4;
++	varray[3] = &base->tv5;
++	for (i = 0; i < 4; i++) {
++		j = INDEX(i);
++		do {
++			if (list_empty(varray[i]->vec + j)) {
++				j = (j + 1) & TVN_MASK;
++				continue;
++			}
++			list_for_each_entry(nte, varray[i]->vec + j, entry)
++				if (time_before(nte->expires, expires))
++					expires = nte->expires;
++			if (j < (INDEX(i)) && i < 3)
++				list = varray[i + 1]->vec + (INDEX(i + 1));
++			goto found;
++		} while (j != (INDEX(i)));
++	}
++found:
++	if (list) {
++		/*
++		 * The search wrapped. We need to look at the next list
++		 * from next tv element that would cascade into tv element
++		 * where we found the timer element.
++		 */
++		list_for_each_entry(nte, list, entry) {
++			if (time_before(nte->expires, expires))
++				expires = nte->expires;
++		}
++	}
++	spin_unlock(&base->lock);
++	return expires;
++}
++#endif
++
+ /******************************************************************/
+ 
+ /*

@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274300AbRIYAwG>; Mon, 24 Sep 2001 20:52:06 -0400
+	id <S274299AbRIYBBh>; Mon, 24 Sep 2001 21:01:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274303AbRIYAv4>; Mon, 24 Sep 2001 20:51:56 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:40074 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S274300AbRIYAvp>;
-	Mon, 24 Sep 2001 20:51:45 -0400
-Date: Mon, 24 Sep 2001 17:52:04 -0700 (PDT)
-Message-Id: <20010924.175204.63996216.davem@redhat.com>
-To: crutcher@datastacks.com
+	id <S274306AbRIYBB1>; Mon, 24 Sep 2001 21:01:27 -0400
+Received: from pblx.net ([64.167.128.182]:16901 "HELO dobie.pblx.net")
+	by vger.kernel.org with SMTP id <S274299AbRIYBBN>;
+	Mon, 24 Sep 2001 21:01:13 -0400
+X-Mailer: XFMail 1.5.0 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <20010925005745.A2702@elfie.cavy.de>
+Date: Mon, 24 Sep 2001 18:01:32 -0700 (PDT)
+From: shewp <shewp@pblx.net>
+To: Heinz Diehl <hd@cavy.de>
+Subject: Re: broken /proc/partitions
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life
- in prison
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010924204458.C18395@mueller.datastacks.com>
-In-Reply-To: <Pine.LNX.4.33L.0109242035540.1864-100000@duckman.distro.conectiva>
-	<20010924182939.A15611@vger.timpanogas.org>
-	<20010924204458.C18395@mueller.datastacks.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <20010925010122Z274299-760+16462@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It works perfectly for me on 2.4.9.
 
-E-fucking-nough people.  Stop this thread now, it is off topic.
+I have 7 u2w drives (and a dat)
+on an ahc-2940u2w.
 
-There are many places out there where constructive conversations on
-this topic can be had, but vger is not one of them.
+in pre14 I thought I saw some pretty hefty
+changes in this area, but i don't know the
+kernel well enough to say. 
 
-Please don't make Matti and I add more keyword filters to vger's list
-system to prevent this.
+scsi or ide? any other verification?
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+
+On 24-Sep-2001 Heinz Diehl wrote:
+> On Mon Sep 24 2001, shewp wrote:
+> 
+>> did anyone notice that cat /proc/partitions on 2.4.10 loops 
+>> infinitely?
+>> it makes dump loop too, which is how i found out.
+> 
+> Here it works perfectly, no loops, no dump loops.
+> 
+> -- 
+># Heinz Diehl, 68259 Mannheim, Germany
+># Techno-Vinyl for sale, get the list from "http://www.cavy.de/vinyl.txt"
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

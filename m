@@ -1,104 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261963AbSLZDOh>; Wed, 25 Dec 2002 22:14:37 -0500
+	id <S262201AbSLZDQr>; Wed, 25 Dec 2002 22:16:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261973AbSLZDOg>; Wed, 25 Dec 2002 22:14:36 -0500
-Received: from mail.econolodgetulsa.com ([198.78.66.163]:17426 "EHLO
-	mail.econolodgetulsa.com") by vger.kernel.org with ESMTP
-	id <S261963AbSLZDOc>; Wed, 25 Dec 2002 22:14:32 -0500
-Date: Wed, 25 Dec 2002 19:22:46 -0800 (PST)
-From: Josh Brooks <user@mail.econolodgetulsa.com>
+	id <S262207AbSLZDQr>; Wed, 25 Dec 2002 22:16:47 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:46798 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S262201AbSLZDQq>;
+	Wed, 25 Dec 2002 22:16:46 -0500
+Date: Wed, 25 Dec 2002 22:24:55 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
 To: Ro0tSiEgE <lkml@ro0tsiege.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: CPU failures ... or something else ?
-In-Reply-To: <200212252113.50757.lkml@ro0tsiege.org>
-Message-ID: <20021225192051.R6873-100000@mail.econolodgetulsa.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.4 series: IDE driver
+Message-ID: <20021226032455.GA7653@gtf.org>
+References: <200212252010.58556.lkml@ro0tsiege.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212252010.58556.lkml@ro0tsiege.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 25, 2002 at 08:10:58PM -0600, Ro0tSiEgE wrote:
+> Is the ALi chipset problem fixed in 2.5, or does 2.4.21-pre have the same IDE 
+> layer?
 
-Ok, understood - and that is why I thought it was significant that I am
-running 2.4.1 on _identical_ hardware without problems - presumably if
-that is the case then running 2.4.16 on the same hardware should be fine
-as well (in terms of a buggy board) - therefore I suspect bad hardware.
-
-Is this good reasoning ? (see post about dell hardware specifics, etc.)
-
-On Wed, 25 Dec 2002, Ro0tSiEgE wrote:
-
-> I never said that. A bad CPU would be my last guess. My first two are buggy
-> board (use nomce) or bad addresses in your ram. try running Memtest86
-> (http://www.memtest86.com) for a few minutes and see if you get any errors.
->
-> On Wednesday 25 December 2002 21:04, you wrote:
-> > So you are saying, that yes, it _is_ possible that my equipment is not
-> > faulty in any way ?
-> >
-> > thanks!
-> >
-> > On Wed, 25 Dec 2002, Bubba wrote:
-> > > try turning off the Machine Check Exception in the kernel as it is just
-> > > buggy on some machines, not necessarily a bug in the kernel, or without
-> > > recompiling, use the kernel param "nomce"
-> > >
-> > > On Wednesday 25 December 2002 19:53, Josh Brooks wrote:
-> > > > Hello,
-> > > >
-> > > > I have a dual p3 866 running 2.4 kernel that is crashing once every few
-> > > > days leaving this on the console:
-> > > >
-> > > >
-> > > > Message from syslogd@localhost at Tue Dec 24 11:30:31 2002 ...
-> > > > localhost kernel: CPU 1: Machine Check Exception: 0000000000000004
-> > > >
-> > > > Message from syslogd@localhost at Tue Dec 24 11:30:32 2002 ...
-> > > > localhost kernel: Bank 4: b200000000040151
-> > > >
-> > > > Message from syslogd@localhost at Tue Dec 24 11:30:32 2002 ...
-> > > > localhost kernel: Kernel panic: CPU context corrupt
-> > > >
-> > > >
-> > > >
-> > > > Word on the street is that this indicates hardware failure of some kind
-> > > > (cpu, bus, or memory).  My main question is, is that very surely the
-> > > > culprit, or is it also possible that all of the hardware is perfect and
-> > > > that a bug in the kernel code or some outside influence (remote
-> > > > exploit) is causing this crash ?
-> > > >
-> > > > Basically, I am ordering all new hardware to swap out, and I just want
-> > > > to know if there is some remote possibility that my hardware is
-> > > > actually just fine and this is some kind of software error ?
-> > > >
-> > > > ALSO, I have not been physically at the console when this has happened,
-> > > > and have not tried this yet, but whatever that thing is where you press
-> > > > ctrl-alt-printscreen and get to enter those post-crash commands - do
-> > > > you think that would work in this situation, or does the above error
-> > > > hard lock the system so you can't do those emergency measures ?
-> > > >
-> > > > thanks!
-> > > >
-> > > >
-> > > > -
-> > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > > > in the body of a message to majordomo@vger.kernel.org
-> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > > Please read the FAQ at  http://www.tux.org/lkml/
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > > in the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
->
-> -------------------------------------------------------
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+2.4.21-pre has the same IDE layer as 2.5.x now, for the most part.
 

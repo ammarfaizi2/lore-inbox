@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbUKJVfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262134AbUKJVkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbUKJVfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 16:35:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbUKJVde
+	id S262134AbUKJVkt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 16:40:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbUKJVfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 16:33:34 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:55703 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261990AbUKJVcU
+	Wed, 10 Nov 2004 16:35:19 -0500
+Received: from ptr-207-54-98-202.ptr.terago.ca ([207.54.98.202]:7538 "EHLO
+	nagios.knad.ca") by vger.kernel.org with ESMTP id S262136AbUKJVZb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 16:32:20 -0500
-Date: Wed, 10 Nov 2004 22:28:35 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: sebastian.ionita@focomunicatii.ro
-Cc: seby@focomunicatii.ro, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       alan@redhat.com, jgarzik@pobox.com
-Subject: Re: ZyXEL GN650-T
-Message-ID: <20041110212835.GA23758@electric-eye.fr.zoreil.com>
-References: <20041107214427.20301.qmail@focomunicatii.ro> <20041107224803.GA29248@electric-eye.fr.zoreil.com> <20041109000006.GA14911@electric-eye.fr.zoreil.com> <20041109232510.GA5582@electric-eye.fr.zoreil.com> <20041110201010.18341.qmail@focomunicatii.ro>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041110201010.18341.qmail@focomunicatii.ro>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+	Wed, 10 Nov 2004 16:25:31 -0500
+Message-ID: <41928745.3080905@kuehne-nagel.com>
+Date: Wed, 10 Nov 2004 14:25:25 -0700
+From: Robert Toole <robert.toole@kuehne-nagel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Toole <robert.toole@kuehne-nagel.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IT8212 in 2.6.9-ac6 no raid 0 or raid 1
+References: <418FE1B3.8020203@kuehne-nagel.com>	 <1099956451.14146.4.camel@localhost.localdomain>	 <4192308C.3060100@kuehne-nagel.com> <1100110612.20556.6.camel@localhost.localdomain> <419286A2.3060706@kuehne-nagel.com>
+In-Reply-To: <419286A2.3060706@kuehne-nagel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sebastian.ionita@focomunicatii.ro <sebastian.ionita@focomunicatii.ro> :
-[...]
-> The kernel compiles but I have 1 unresolved simbole in the via-velocity 
-> modul
-> depmod: *** Unresolved symbols in 
-> /lib/modules/2.4.28-rc2/kernel/drivers/net/via-velocity.o
-> depmod:         crc_ccitt_R3771b461 
 
-Can you grep for crc_ccitt the output of 'nm lib/lib.a' in your build
-tree and check that CONFIG_CRC_CCITT is enabled in your .config ?
 
-crc_ccitt is EXPORT_SYMBOLed by lib/crc-ccitt.c and should be linked in
-your new kernel.
+> Ok here is what I have:
+> 
+> Gigabyte GA-7M400 Pro 2 (Rev 2.0) integrated IT8212 controller:
+> 
+> - Bios for the controller: 1.14, Firmware ver 02093030
+> 
+Whoops! The Bios is 1.41, not 1.14, sorry about that.
 
---
-Ueimor
+Robert.
+

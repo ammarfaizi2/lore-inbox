@@ -1,67 +1,272 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281144AbRKKWeD>; Sun, 11 Nov 2001 17:34:03 -0500
+	id <S281147AbRKKWiX>; Sun, 11 Nov 2001 17:38:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281138AbRKKWdx>; Sun, 11 Nov 2001 17:33:53 -0500
-Received: from pc3-redb4-0-cust118.bre.cable.ntl.com ([213.106.223.118]:3570
-	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
-	id <S281146AbRKKWde>; Sun, 11 Nov 2001 17:33:34 -0500
-Date: Sun, 11 Nov 2001 22:33:31 +0000
-From: Mark Zealey <mark@zealos.org>
+	id <S281138AbRKKWiO>; Sun, 11 Nov 2001 17:38:14 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:40437 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S281147AbRKKWiE>;
+	Sun, 11 Nov 2001 17:38:04 -0500
+Date: Sun, 11 Nov 2001 23:38:02 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200111112238.XAA25960@harpo.it.uu.se>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Best kernel config for exactly 1GB ram
-Message-ID: <20011111223330.B24030@itsolve.co.uk>
-In-Reply-To: <3BEEE61A.6050002@uhura.rueb.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BEEE61A.6050002@uhura.rueb.com>; from steve@uhura.rueb.com on Sun, Nov 11, 2001 at 02:56:58PM -0600
-X-Operating-System: Linux sunbeam 2.2.19 
-X-Homepage: http://zealos.org/
+Subject: [PATCH] Pentium4 local APIC NMI watchdog for 2.4.15-pre3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 11, 2001 at 02:56:58PM -0600, Steve Bergman wrote:
+This patch adds local APIC NMI watchdog support for the Pentium4,
+in a manner similar to the existing support for P6 and K7.
+The patch also includes two minor cleanups:
+- replaced a number of for() loops to clear MSRs in nmi.c
+  by calls to a new local procedure
+- renamed MSR_IA32_PERFCTR0/PERFCTR1/EVNTSEL0/EVNTSEL1 to
+  MSR_P6_PERFCTR0/PERFCTR1/EVNTSEL0/EVNTSEL1 since these MSRs
+  are P6-specific
 
-> Hi,
-> 
-> 
-> I have just upgraded my athlon 1200 system to 1GB ram.  I am unclear as 
-> to how I should configure the kernel for this box.  The config.help says 
->    to say no to "high memory support" if the kernel will not run on a 
-> machne with more than 1GB.  When I do this I notice that my available 
-> memory as reported by top is ~ 120MB less than if I say I want 4GB 
-> support.  I recall that linux reserves some of the address space for 
-> itself (I thought it was just 64MB).
-> 
-> What are the trade offs involved here?  Am I better off sacrificing a 
-> bit of the physical memory for reasons of efficiency elsewhere?  When I 
-> request support for up to 4GB, what exactly changes with respect to the 
-> visible virtual address space that apps see, etc?
-> 
-> This is a desktop machine, so it's not running Oracle or anything like 
-> that.  I seem to recall Linus mentioning that big databases tend to like 
-> the large (3GB) virtual address space.
+/Mikael
 
-Personally, I'd just leave it at the default no high-mem option.
-
-The kernel will then be able to 'see' about 960MB of the memory, so you loose
-about 64MB of it, but it's not worth the kernel using bounce-buffers etc just so
-you can get 64MB more memory.
-
-IIRC there was a 2GB patch that just redefined PAGE_OFFSET or something similar,
-this means that you could see all the memory, but the max virtual memory a
-process could see would be 2 gig (as opposed to 3 gig with the default).
-
--- 
-
-Mark Zealey
-mark@zealos.org
-mark@itsolve.co.uk
-
-UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a16! C++++>$ P++++>+++++$ L+++>+++++$
-!E---? W+++>$ N- !o? !w--- O? !M? !V? !PS !PE--@ PGP+? r++ !t---?@ !X---?
-!R- b+ !tv b+ DI+ D+? G+++ e>+++++ !h++* r!-- y--
-
-(www.geekcode.com)
+--- linux-2.4.15-pre3-p4watchdog/arch/i386/kernel/nmi.c.~1~	Sun Sep 23 21:06:30 2001
++++ linux-2.4.15-pre3-p4watchdog/arch/i386/kernel/nmi.c	Sun Nov 11 22:58:00 2001
+@@ -8,6 +8,7 @@
+  *  Fixes:
+  *  Mikael Pettersson	: AMD K7 support for local APIC NMI watchdog.
+  *  Mikael Pettersson	: Power Management for local APIC NMI watchdog.
++ *  Mikael Pettersson	: Pentium 4 support for local APIC NMI watchdog.
+  */
+ 
+ #include <linux/config.h>
+@@ -25,6 +26,7 @@
+ #include <asm/mpspec.h>
+ 
+ unsigned int nmi_watchdog = NMI_NONE;
++static unsigned char nmi_is_p4;
+ static unsigned int nmi_hz = HZ;
+ unsigned int nmi_perfctr_msr;	/* the MSR to reset in NMI handler */
+ extern void show_registers(struct pt_regs *regs);
+@@ -43,6 +45,31 @@
+ #define P6_EVENT_CPU_CLOCKS_NOT_HALTED	0x79
+ #define P6_NMI_EVENT		P6_EVENT_CPU_CLOCKS_NOT_HALTED
+ 
++#define MSR_P4_MISC_ENABLE	0x1A0
++#define MSR_P4_MISC_ENABLE_PMAVAIL	(1<<7)
++#define MSR_P4_PERFCTR0		0x300
++#define MSR_P4_CCCR0		0x360
++#define P4_ESCR_EVENT_SELECT(N)	((N)<<25)
++#define P4_ESCR_OS		(1<<3)
++#define P4_ESCR_USR		(1<<2)
++#define P4_CCCR_OVF_PMI		(1<<26)
++#define P4_CCCR_THRESHOLD(N)	((N)<<20)
++#define P4_CCCR_COMPLEMENT	(1<<19)
++#define P4_CCCR_COMPARE		(1<<18)
++#define P4_CCCR_REQUIRED	(3<<16)
++#define P4_CCCR_ESCR_SELECT(N)	((N)<<13)
++#define P4_CCCR_ENABLE		(1<<12)
++/* Set up IQ_COUNTER0 to behave like a clock, by having IQ_CCCR0 filter
++   CRU_ESCR0 (with any non-null event selector) through a complemented
++   max threshold. [IA32-Vol3, Section 14.9.9] */
++#define MSR_P4_IQ_COUNTER0	0x30C
++#define MSR_P4_IQ_CCCR0		0x36C
++#define MSR_P4_CRU_ESCR0	0x3B8
++#define P4_NMI_CRU_ESCR0	(P4_ESCR_EVENT_SELECT(0x3F)|P4_ESCR_OS|P4_ESCR_USR)
++#define P4_NMI_IQ_CCCR0	\
++	(P4_CCCR_OVF_PMI|P4_CCCR_THRESHOLD(15)|P4_CCCR_COMPLEMENT|	\
++	 P4_CCCR_COMPARE|P4_CCCR_REQUIRED|P4_CCCR_ESCR_SELECT(4)|P4_CCCR_ENABLE)
++
+ int __init check_nmi_watchdog (void)
+ {
+ 	irq_cpustat_t tmp[NR_CPUS];
+@@ -84,11 +111,11 @@
+ 	/*
+ 	 * If any other x86 CPU has a local APIC, then
+ 	 * please test the NMI stuff there and send me the
+-	 * missing bits. Right now Intel P6 and AMD K7 only.
++	 * missing bits. Right now Intel P6/P4 and AMD K7 only.
+ 	 */
+ 	if ((nmi == NMI_LOCAL_APIC) &&
+ 			(boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) &&
+-			(boot_cpu_data.x86 == 6))
++			(boot_cpu_data.x86 == 6 || boot_cpu_data.x86 == 15))
+ 		nmi_watchdog = nmi;
+ 	if ((nmi == NMI_LOCAL_APIC) &&
+ 			(boot_cpu_data.x86_vendor == X86_VENDOR_AMD) &&
+@@ -118,7 +145,15 @@
+ 		wrmsr(MSR_K7_EVNTSEL0, 0, 0);
+ 		break;
+ 	case X86_VENDOR_INTEL:
+-		wrmsr(MSR_IA32_EVNTSEL0, 0, 0);
++		switch (boot_cpu_data.x86) {
++		case 6:
++			wrmsr(MSR_P6_EVNTSEL0, 0, 0);
++			break;
++		case 15:
++			wrmsr(MSR_P4_IQ_CCCR0, 0, 0);
++			wrmsr(MSR_P4_CRU_ESCR0, 0, 0);
++			break;
++		}
+ 		break;
+ 	}
+ }
+@@ -157,17 +192,22 @@
+  * Original code written by Keith Owens.
+  */
+ 
++static void __pminit clear_msr_range(unsigned int base, unsigned int n)
++{
++	unsigned int i;
++
++	for(i = 0; i < n; ++i)
++		wrmsr(base+i, 0, 0);
++}
++
+ static void __pminit setup_k7_watchdog(void)
+ {
+-	int i;
+ 	unsigned int evntsel;
+ 
+ 	nmi_perfctr_msr = MSR_K7_PERFCTR0;
+ 
+-	for(i = 0; i < 4; ++i) {
+-		wrmsr(MSR_K7_EVNTSEL0+i, 0, 0);
+-		wrmsr(MSR_K7_PERFCTR0+i, 0, 0);
+-	}
++	clear_msr_range(MSR_K7_EVNTSEL0, 4);
++	clear_msr_range(MSR_K7_PERFCTR0, 4);
+ 
+ 	evntsel = K7_EVNTSEL_INT
+ 		| K7_EVNTSEL_OS
+@@ -184,27 +224,52 @@
+ 
+ static void __pminit setup_p6_watchdog(void)
+ {
+-	int i;
+ 	unsigned int evntsel;
+ 
+-	nmi_perfctr_msr = MSR_IA32_PERFCTR0;
++	nmi_perfctr_msr = MSR_P6_PERFCTR0;
+ 
+-	for(i = 0; i < 2; ++i) {
+-		wrmsr(MSR_IA32_EVNTSEL0+i, 0, 0);
+-		wrmsr(MSR_IA32_PERFCTR0+i, 0, 0);
+-	}
++	clear_msr_range(MSR_P6_EVNTSEL0, 2);
++	clear_msr_range(MSR_P6_PERFCTR0, 2);
+ 
+ 	evntsel = P6_EVNTSEL_INT
+ 		| P6_EVNTSEL_OS
+ 		| P6_EVNTSEL_USR
+ 		| P6_NMI_EVENT;
+ 
+-	wrmsr(MSR_IA32_EVNTSEL0, evntsel, 0);
+-	Dprintk("setting IA32_PERFCTR0 to %08lx\n", -(cpu_khz/nmi_hz*1000));
+-	wrmsr(MSR_IA32_PERFCTR0, -(cpu_khz/nmi_hz*1000), 0);
++	wrmsr(MSR_P6_EVNTSEL0, evntsel, 0);
++	Dprintk("setting P6_PERFCTR0 to %08lx\n", -(cpu_khz/nmi_hz*1000));
++	wrmsr(MSR_P6_PERFCTR0, -(cpu_khz/nmi_hz*1000), 0);
+ 	apic_write(APIC_LVTPC, APIC_DM_NMI);
+ 	evntsel |= P6_EVNTSEL0_ENABLE;
+-	wrmsr(MSR_IA32_EVNTSEL0, evntsel, 0);
++	wrmsr(MSR_P6_EVNTSEL0, evntsel, 0);
++}
++
++static int __pminit setup_p4_watchdog(void)
++{
++	unsigned int misc_enable, dummy;
++
++	rdmsr(MSR_P4_MISC_ENABLE, misc_enable, dummy);
++	if (!(misc_enable & MSR_P4_MISC_ENABLE_PMAVAIL))
++		return 0;
++
++	nmi_perfctr_msr = MSR_P4_IQ_COUNTER0;
++	nmi_is_p4 = 1;
++
++	clear_msr_range(MSR_P4_PERFCTR0, 18);
++	clear_msr_range(MSR_P4_CCCR0, 18);
++	clear_msr_range(0x3A0, (0x3BE - 0x3A0)+1);
++	clear_msr_range(0x3C0, (0x3C5 - 0x3C0)+1);
++	clear_msr_range(0x3C8, (0x3CD - 0x3C8)+1);
++	clear_msr_range(0x3E0, (0x3E1 - 0x3E0)+1);
++	/* XXX: should we also clear 0x3F0-0x3F2 ? */
++
++	wrmsr(MSR_P4_CRU_ESCR0, P4_NMI_CRU_ESCR0, 0);
++	wrmsr(MSR_P4_IQ_CCCR0, P4_NMI_IQ_CCCR0 & ~P4_CCCR_ENABLE, 0);
++	Dprintk("setting P4_IQ_COUNTER0 to 0x%08lx\n", -(cpu_khz/nmi_hz*1000));
++	wrmsr(MSR_P4_IQ_COUNTER0, -(cpu_khz/nmi_hz*1000), -1);
++	apic_write(APIC_LVTPC, APIC_DM_NMI);
++	wrmsr(MSR_P4_IQ_CCCR0, P4_NMI_IQ_CCCR0, 0);
++	return 1;
+ }
+ 
+ void __pminit setup_apic_nmi_watchdog (void)
+@@ -216,9 +281,17 @@
+ 		setup_k7_watchdog();
+ 		break;
+ 	case X86_VENDOR_INTEL:
+-		if (boot_cpu_data.x86 != 6)
++		switch (boot_cpu_data.x86) {
++		case 6:
++			setup_p6_watchdog();
++			break;
++		case 15:
++			if (!setup_p4_watchdog())
++				return;
++			break;
++		default:
+ 			return;
+-		setup_p6_watchdog();
++		}
+ 		break;
+ 	default:
+ 		return;
+@@ -295,6 +368,18 @@
+ 		last_irq_sums[cpu] = sum;
+ 		alert_counter[cpu] = 0;
+ 	}
+-	if (nmi_perfctr_msr)
++	if (nmi_perfctr_msr) {
++		if (nmi_is_p4) {
++			/*
++			 * P4 quirks:
++			 * - An overflown perfctr will assert its interrupt
++			 *   until the OVF flag in its CCCR is cleared.
++			 * - LVTPC is masked on interrupt and must be
++			 *   unmasked by the LVTPC handler.
++			 */
++			wrmsr(MSR_P4_IQ_CCCR0, P4_NMI_IQ_CCCR0, 0);
++			apic_write(APIC_LVTPC, APIC_DM_NMI);
++		}
+ 		wrmsr(nmi_perfctr_msr, -(cpu_khz/nmi_hz*1000), -1);
++	}
+ }
+--- linux-2.4.15-pre3-p4watchdog/include/asm-i386/msr.h.~1~	Sun Sep 23 21:06:37 2001
++++ linux-2.4.15-pre3-p4watchdog/include/asm-i386/msr.h	Sun Nov 11 22:58:00 2001
+@@ -48,18 +48,12 @@
+ #define MSR_IA32_UCODE_WRITE		0x79
+ #define MSR_IA32_UCODE_REV		0x8b
+ 
+-#define MSR_IA32_PERFCTR0		0xc1
+-#define MSR_IA32_PERFCTR1		0xc2
+-
+ #define MSR_IA32_BBL_CR_CTL		0x119
+ 
+ #define MSR_IA32_MCG_CAP		0x179
+ #define MSR_IA32_MCG_STATUS		0x17a
+ #define MSR_IA32_MCG_CTL		0x17b
+ 
+-#define MSR_IA32_EVNTSEL0		0x186
+-#define MSR_IA32_EVNTSEL1		0x187
+-
+ #define MSR_IA32_DEBUGCTLMSR		0x1d9
+ #define MSR_IA32_LASTBRANCHFROMIP	0x1db
+ #define MSR_IA32_LASTBRANCHTOIP		0x1dc
+@@ -71,6 +65,11 @@
+ #define MSR_IA32_MC0_ADDR		0x402
+ #define MSR_IA32_MC0_MISC		0x403
+ 
++#define MSR_P6_PERFCTR0			0xc1
++#define MSR_P6_PERFCTR1			0xc2
++#define MSR_P6_EVNTSEL0			0x186
++#define MSR_P6_EVNTSEL1			0x187
++
+ /* AMD Defined MSRs */
+ #define MSR_K6_EFER			0xC0000080
+ #define MSR_K6_STAR			0xC0000081

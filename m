@@ -1,224 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbULJOq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbULJO7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbULJOq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 09:46:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbULJOqZ
+	id S261213AbULJO7P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 09:59:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbULJO7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 09:46:25 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:40609 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261206AbULJOqQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 09:46:16 -0500
-Subject: Re: [RFC PATCH] debugfs - yet another in-kernel file system
-From: Josh Boyer <jdub@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <20041210005055.GA17822@kroah.com>
-References: <20041210005055.GA17822@kroah.com>
-Content-Type: text/plain
-Message-Id: <1102689974.26320.39.camel@weaponx.rchland.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 10 Dec 2004 08:46:14 -0600
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Dec 2004 09:59:15 -0500
+Received: from out014pub.verizon.net ([206.46.170.46]:22692 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S261213AbULJO7H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 09:59:07 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15
+Date: Fri, 10 Dec 2004 09:59:03 -0500
+User-Agent: KMail/1.7
+Cc: Ingo Molnar <mingo@elte.hu>, Mark_H_Johnson@raytheon.com,
+       Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+References: <OF8ABCEBAC.0259E37D-ON86256F65.00727E98@raytheon.com> <20041209225555.GA31588@elte.hu> <20041210105352.GA4749@elte.hu>
+In-Reply-To: <20041210105352.GA4749@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200412100959.04829.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [151.205.42.94] at Fri, 10 Dec 2004 08:59:06 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-12-09 at 18:50, Greg KH wrote:
-> A while ago a comment from another kernel developer about why they put a
-> huge file in sysfs (one that was bigger than a single page and contained
-> more than just 1 type of information), was something like, "well, it was
-> just so easy, and there was no other place to put debugging stuff like
-> that," got me to thinking.
-> 
-> What if there was a in-kernel filesystem that was explicitly just for
-> putting debugging stuff?  Some place other than proc and sysfs, and that
-> was easier than both of them to use.  Yet it needed to also be able to
-> handle complex stuff like seq file and raw file_ops if needed.
-> 
-> Thus debugfs was born (yes, I know there's a userspace program called
-> debugfs, this is an in-kernel filesystem and has nothing to do with
-> that.)  debugfs is ment for putting stuff that kernel developers need to
-> see exported to userspace, yet don't always want hanging around.
+On Friday 10 December 2004 05:53, Ingo Molnar wrote:
+>* Ingo Molnar <mingo@elte.hu> wrote:
+>> this smells too. [...]
 
-Cool idea.
+Humm, something else does too Ingo.  Amanda failed on this
+machine last night, and so did an amcheck just now, returning this:
 
+[amanda@coyote driver]$ amcheck Daily
+Amanda Tape Server Host Check
+-----------------------------
+Holding disk /dumps: 26444 MB disk space available, using 25944 MB
+amcheck-server: slot 8: date 20041210 label Dailys-8 (active tape)
+amcheck-server: slot 9: date 20041124 label Dailys-9 (exact label
+match)
+NOTE: skipping tape-writable test
+Tape Dailys-9 label ok
+Server check took 0.386 seconds
 
-> diff -Nru a/fs/debugfs/debugfs.h b/fs/debugfs/debugfs.h
-> --- /dev/null	Wed Dec 31 16:00:00 196900
-> +++ b/fs/debugfs/debugfs.h	2004-12-09 16:32:32 -08:00
-> @@ -0,0 +1,10 @@
-> +#define DEBUG
-> +
-> +#ifdef DEBUG
-> +#define dbg(format, arg...) printk(KERN_DEBUG "%s: " format , __FILE__ , ## arg)
-> +#else
-> +#define dbg(format, arg...) do {} while (0)
-> +#endif
+Amanda Backup Client Hosts Check
+--------------------------------
+WARNING: coyote: selfcheck reply timed out.
+Client check: 2 hosts checked in 22.199 seconds, 1 problem found
 
-Fine for now, but if it gets merged should pr_debug be used?
+(brought to you by Amanda 2.4.5b1-20041122)
+------------------
+This was while running 32-12, which otherwise feels good and gave
+me no other indication of a problem.  I've also looked at the log,
+but its silent on this subject.  I'll get the latest and try it.
 
-> +
-> +extern struct file_operations debugfs_file_operations;
-> +
+>found two brown-paperbag bugs that caused bad latencies in the -RT
+>kernel: when i added PREEMPT_DIRECT (which first showed up in
+> -32-10) i also added a missed-reschedule bug to try_to_wake_up()
+> and to mutex/semaphore-unlock (__up()). Oops.
+>
+>i dont think this bug could explain a msec-range latency because the
+>syscall return path should catch the missed reschedule and it would
+> need continuous syscall execution in the milliseconds range by a
+> lowprio task for a latency to be transported to latencytest, but
+> certainly the bug doesnt help latencies. The -32-15 kernel can be
+> downloaded from the usual place:
+>
+> http://redhat.com/~mingo/realtime-preempt/
+>
+>other changes in -32-15: more work on the tracer, cleaner trace
+> output and the tracing of syscall entries and returns, with
+> arguments and return values displayed as well (i.e. a simple strace
+> variant). Here is how a syscall now looks like in
+> /proc/latency_trace:
+>
+> loop-tes-3885  0....  100µs > sys_getppid (002fcffc 00000001
+> 0000007b) loop-tes-3885  0....  101µs+: sys_getppid
+> (sysenter_past_esp) loop-tes-3885  0d...  103µs < (3868)
+>
+>'< (return-val)' is the syscall return value, '> sys_name(params)'
+> is the syscall itself. (note that the return path is also used by
+> interrupts, so it's not purely a syscall-return point) This makes
+> it easier to track userspace execution.
+>
+>	Ingo
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-<snip>
-
-> diff -Nru a/fs/debugfs/file.c b/fs/debugfs/file.c
-> --- /dev/null	Wed Dec 31 16:00:00 196900
-> +++ b/fs/debugfs/file.c	2004-12-09 16:32:32 -08:00
-> @@ -0,0 +1,165 @@
-> +/*
-> + *  debugfs.c  - a tiny little debug file system for people to use instead of /proc or /sys
-
-<NIT>
-Wrong file name :).
-</NIT>
-
-> + *
-> + *  Copyright (C) 2004 Greg Kroah-Hartman <greg@kroah.com>
-> + *  Copyright (C) 2004 IBM Inc.
-> + */
-> +
-
-<snip>
-
-> +
-> +simple_type(u8, "%c", unsigned long, simple_strtoul);
-> +simple_type(u16, "%hi", unsigned long, simple_strtoul);
-> +simple_type(u32, "%i", unsigned long, simple_strtoul);
-> +EXPORT_SYMBOL_GPL(debugfs_create_u8);
-> +EXPORT_SYMBOL_GPL(debugfs_create_u16);
-> +EXPORT_SYMBOL_GPL(debugfs_create_u32);
-> +
-> +static ssize_t read_file_bool(struct file *file, char __user *user_buf, size_t count, loff_t *ppos)
-> +{
-> +	char buf[2];
-> +	u32 *val = file->private_data;
-> +	
-> +	if (val)
-> +		buf[0] = 'Y';
-> +	else
-> +		buf[0] = 'N';
-> +	buf[1] = 0x00;
-> +	return simple_read_from_buffer(user_buf, count, ppos, buf, 2);
-> +}
-> +
-> +static ssize_t write_file_bool(struct file *file, const char __user *user_buf, size_t count, loff_t *ppos)
-> +{
-> +	char buf[32];
-> +	int buf_size;
-> +	u32 *val = file->private_data;
-> +
-> +	buf_size = min(count, (sizeof(buf)-1));
-> +	if (copy_from_user(buf, user_buf, buf_size))
-> +		return -EFAULT;
-> +
-> +	switch (buf[0]) {
-> +	case 'y':
-> +	case 'Y':
-> +	case '1':
-> +		*val = 1;
-> +		break;
-> +	case 'n':
-> +	case 'N':
-> +	case '0':
-> +		*val = 0;
-> +		break;
-> +	}
-
-Writing 'Y', 'y', or '1' is allowed, but only 'Y' is ever returned by
-the read function (similar for the "false" case).  That can be confusing
-to a program if it writes '1', and then checks to see if the value it
-wrote took and it gets back 'Y'.  Maybe only allow what you are going to
-return for bool values in the write case?
-
-
-> diff -Nru a/fs/debugfs/inode.c b/fs/debugfs/inode.c
-> --- /dev/null	Wed Dec 31 16:00:00 196900
-> +++ b/fs/debugfs/inode.c	2004-12-09 16:32:32 -08:00
-> @@ -0,0 +1,229 @@
-> +/*
-> + *  debugfs.c  - a tiny little debug file system for people to use instead of /proc or /sys
-
-Again.  Template perhaps? :)
-
-> + *
-> + *  Copyright (C) 2004 Greg Kroah-Hartman <greg@kroah.com>
-> + *  Copyright (C) 2004 IBM Inc.
-> + */
-> +
-> +#include <linux/config.h>
-> +#include <linux/module.h>
-> +#include <linux/fs.h>
-> +#include <linux/mount.h>
-> +#include <linux/pagemap.h>
-> +#include <linux/init.h>
-> +#include <linux/namei.h>
-> +#include <linux/debugfs.h>
-> +#include "debugfs.h"
-> +
-> +#define DEBUG_MAGIC	0x64626720
-
-#define DEBUGFS_MAGIC
-
-<snip>
-
-> diff -Nru a/include/linux/debugfs.h b/include/linux/debugfs.h
-> --- /dev/null	Wed Dec 31 16:00:00 196900
-> +++ b/include/linux/debugfs.h	2004-12-09 16:32:32 -08:00
-> @@ -0,0 +1,47 @@
-> +/*
-> + *  debugfs.h  - a tiny little debug file system for people to use instead of /proc or /sys
-> + *
-> + *  Copyright (C) 2004 Greg Kroah-Hartman <greg@kroah.com>
-> + *  Copyright (C) 2004 IBM Inc.
-> + */
-> +
-> +#ifndef _DEBUGFS_H_
-> +#define _DEBUGFS_H_
-> +
-> +#if defined(CONFIG_DEBUG_FS) || defined(CONFIG_DEBUG_FS_MODULE)
-> +struct dentry *debugfs_create_file(const char *name, mode_t mode,
-> +				   struct dentry *parent, void *data,
-> +				   struct file_operations *fops);
-> +
-> +static inline struct dentry *debugfs_create_dir(const char *name, struct dentry *parent)
-> +{
-> +	return debugfs_create_file(name, S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO, parent, NULL, NULL);
-> +}
-> +
-> +void debugfs_remove(struct dentry *dentry);
-> +
-> +struct dentry *debugfs_create_u8(const char *name, mode_t mode, struct dentry *parent, u8 *value);
-> +struct dentry *debugfs_create_u16(const char *name, mode_t mode, struct dentry *parent, u16 *value);
-> +struct dentry *debugfs_create_u32(const char *name, mode_t mode, struct dentry *parent, u32 *value);
-> +struct dentry *debugfs_create_bool(const char *name, mode_t mode, struct dentry *parent, u32 *value);
-> +
-> +#else
-> +static inline struct dentry *debugfs_create_file(const char *name, mode_t mode, struct dentry *parent, void *data, struct file_operations *fops)
-> +{ return ERR_PTR(-ENODEV); }
-> +static inline struct dentry *debugfs_create_dir(const char *name, struct dentry *parent)
-> +{ return ERR_PTR(-ENODEV); }
-> +
-> +static inline void debugfs_remove(struct dentry *dentry) { }
-> +
-> +static inline struct dentry *debugfs_create_u8(const char *name, mode_t mode, struct dentry *parent, u8 *value)
-> +{ return ERR_PTR(-ENODEV); }
-> +static inline struct dentry *debugfs_create_u16(const char *name, mode_t mode, struct dentry *parent, u16 *value)
-> +{ return ERR_PTR(-ENODEV); }
-> +static inline struct dentry *debugfs_create_u32(const char *name, mode_t mode, struct dentry *parent, u32 *value)
-> +{ return ERR_PTR(-ENODEV); }
-> +static inline struct dentry *debugfs_create_bool(const char *name, mode_t mode, struct dentry *parent, u32 *value)
-> +{ return EFF_PTR(-ENODEV); }
-
-Could these just return NULL perhaps?  Would be more like procfs then,
-which is what I'd assume most drivers will be converting from.
-
-> +
-> +#endif
-> +
-> +#endif
-
-josh
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.30% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
 

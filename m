@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130482AbRBEPFu>; Mon, 5 Feb 2001 10:05:50 -0500
+	id <S129775AbRBEPHk>; Mon, 5 Feb 2001 10:07:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133014AbRBEPFk>; Mon, 5 Feb 2001 10:05:40 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:54277 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S130482AbRBEPF0>;
-	Mon, 5 Feb 2001 10:05:26 -0500
-Date: Mon, 5 Feb 2001 16:04:52 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch-2.4.2-pre1] rootfs boot parameter
-Message-ID: <20010205160452.A9464@almesberger.net>
-In-Reply-To: <Pine.LNX.4.21.0102051453410.1452-100000@penguin.homenet>
+	id <S130529AbRBEPHa>; Mon, 5 Feb 2001 10:07:30 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:58824 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129775AbRBEPHP>;
+	Mon, 5 Feb 2001 10:07:15 -0500
+Date: Mon, 5 Feb 2001 15:03:54 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Christoph Hellwig <hch@caldera.de>, Steve Lord <lord@sgi.com>,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
+Message-ID: <20010205150354.E1167@redhat.com>
+In-Reply-To: <20010201220744.K11607@redhat.com> <Pine.LNX.4.10.10102031224210.8867-100000@penguin.transmeta.com> <20010205110336.A1167@redhat.com> <3A7E95F3.38B26DC@colorfullife.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0102051453410.1452-100000@penguin.homenet>; from tigran@veritas.com on Mon, Feb 05, 2001 at 02:56:20PM +0000
+User-Agent: Mutt/1.2i
+In-Reply-To: <3A7E95F3.38B26DC@colorfullife.com>; from manfred@colorfullife.com on Mon, Feb 05, 2001 at 01:00:51PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian wrote:
-> This patch adds "rootfs" boot parameter which selects the filesystem type
-> for the root filesystem.
+Hi,
 
-Could you please make this rootfstype= or fstype= or maybe
-root=<device>[,<type>] or such ? Calling it "rootfs" is just asking
-for trouble ...
+On Mon, Feb 05, 2001 at 01:00:51PM +0100, Manfred Spraul wrote:
+> "Stephen C. Tweedie" wrote:
+> > 
+> > You simply cannot do physical disk IO on
+> > non-sector-aligned memory or in chunks which aren't a multiple of
+> > sector size.
+> 
+> Why not?
+> 
+> Obviously the disk access itself must be sector aligned and the total
+> length must be a multiple of the sector length, but there shouldn't be
+> any restrictions on the data buffers.
 
-- Werner
+But there are.  Many controllers just break down and corrupt things
+silently if you don't align the data buffers (Jeff Merkey found this
+by accident when he started generating unaligned IOs within page
+boundaries in his NWFS code).  And a lot of controllers simply cannot
+break a sector dma over a page boundary (at least not without some
+form of IOMMU remapping).
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+Yes, it's the sort of thing that you would hope should work, but in
+practice it's not reliable.
+
+Cheers,
+ Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264245AbTLUXqr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 18:46:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbTLUXqr
+	id S263946AbTLUXpg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 18:45:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbTLUXpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 18:46:47 -0500
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:37898 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S264245AbTLUXqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 18:46:45 -0500
-Message-ID: <3FE631EF.7080909@kolumbus.fi>
-Date: Mon, 22 Dec 2003 01:51:11 +0200
-From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ben Slusky <sluskyb@paranoiacs.org>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       jariruusu@users.sourceforge.net
-Subject: Re: [PATCH] loop.c patches, take two
-References: <3FA15506.B9B76A5D@users.sourceforge.net> <20031030133000.6a04febf.akpm@osdl.org> <20031031005246.GE12147@fukurou.paranoiacs.org> <20031031015500.44a94f88.akpm@osdl.org> <20031101002650.GA7397@fukurou.paranoiacs.org> <20031102204624.GA5740@fukurou.paranoiacs.org> <20031221195534.GA4721@fukurou.paranoiacs.org> <3FE6076B.3090908@kolumbus.fi> <20031221211201.GC4721@fukurou.paranoiacs.org> <3FE62617.10604@kolumbus.fi> <20031221230522.GD4721@fukurou.paranoiacs.org>
-In-Reply-To: <20031221230522.GD4721@fukurou.paranoiacs.org>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 22.12.2003 01:48:47,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 22.12.2003 01:47:56,
-	Serialize complete at 22.12.2003 01:47:56
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 21 Dec 2003 18:45:36 -0500
+Received: from ping.ovh.net ([213.186.33.13]:32666 "EHLO ping.ovh.net")
+	by vger.kernel.org with ESMTP id S263946AbTLUXpf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 18:45:35 -0500
+Date: Mon, 22 Dec 2003 00:43:50 +0100
+From: Octave <oles@ovh.net>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lot of VM problem with 2.4.23
+Message-ID: <20031221234350.GD4897@ovh.net>
+References: <20031221001422.GD25043@ovh.net> <1071999003.2156.89.camel@abyss.local> <Pine.LNX.4.58L.0312211235010.6632@logos.cnet> <20031221184709.GO25043@ovh.net> <20031221185959.GE1494@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20031221185959.GE1494@louise.pinerecords.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Ben Slusky wrote:
-
->On Mon, 22 Dec 2003 01:00:39 +0200, Mika Penttil? wrote:
->  
->
->>AFAICS, this code path is never taken. You don't queue block device writes 
->>for the loop thread.
->>    
->>
->
->Yes I do, in loop_end_io_transfer. If we allocated fewer pages for the copy
->bio than contained in the original bio, then those pages are recycled for
->the next write.
->
->@@ -413,7 +411,7 @@ static int loop_end_io_transfer(struct b
-> 	if (bio->bi_size)
-> 		return 1;
+On Sun, Dec 21, 2003 at 07:59:59PM +0100, Tomas Szepe wrote:
+> On Dec-21 2003, Sun, 19:47 +0100
+> Octave <oles@ovh.net> wrote:
 > 
->-	if (err || bio_rw(bio) == WRITE) {
->+	if (err || (bio_rw(bio) == WRITE && bio->bi_vcnt == rbh->bi_vcnt)) {
-> 		bio_endio(rbh, rbh->bi_size, err);
-> 		if (atomic_dec_and_test(&lo->lo_pending))
-> 			up(&lo->lo_bh_mutex);
->  
->
-I see, subtle...
+> > You can run this easy script. 2.4.19 takes about 30 minutes 
+> > to kill all process. 2.4.23 takes about 60 minutes.
+> 
+> Can you also try 2.4.24-pre1 with the OOM killer enabled?
 
---Mika
+I complied 2.4.24-pre1 with OOM killer. After 2 minutes of
+test, server is down. 
 
+Octave
 

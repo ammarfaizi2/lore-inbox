@@ -1,39 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290776AbSAYSnf>; Fri, 25 Jan 2002 13:43:35 -0500
+	id <S290777AbSAYSon>; Fri, 25 Jan 2002 13:44:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290783AbSAYSnV>; Fri, 25 Jan 2002 13:43:21 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:17932 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S290776AbSAYSnF>; Fri, 25 Jan 2002 13:43:05 -0500
-Date: Fri, 25 Jan 2002 13:42:48 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, Rainer Krienke <krienke@uni-koblenz.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17:Increase number of anonymous filesystems beyond 256?
-Message-ID: <20020125134248.B16106@devserv.devel.redhat.com>
-In-Reply-To: <mailman.1011275640.16596.linux-kernel2news@redhat.com> <200201240858.g0O8wnH03603@bliss.uni-koblenz.de> <20020124121649.A7722@devserv.devel.redhat.com> <200201250728.g0P7SDH26738@bliss.uni-koblenz.de> <20020125124110.A357@devserv.devel.redhat.com> <200201251834.g0PIYxj02545@vindaloo.ras.ucalgary.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200201251834.g0PIYxj02545@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Fri, Jan 25, 2002 at 11:34:59AM -0700
+	id <S290779AbSAYSoZ>; Fri, 25 Jan 2002 13:44:25 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:17536 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S290777AbSAYSoD>; Fri, 25 Jan 2002 13:44:03 -0500
+Date: Fri, 25 Jan 2002 13:43:27 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: chus Medina <chuslists@hotmail.com>
+cc: linux-kernel@vger.kernel.org, chus@glue.umd.edu
+Subject: Re: PCI #LOCK assertion
+In-Reply-To: <F4T0giSftNtzsG06vdG0001152a@hotmail.com>
+Message-ID: <Pine.LNX.3.95.1020125132236.1362A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Fri, 25 Jan 2002 11:34:59 -0700
-> From: Richard Gooch <rgooch@ras.ucalgary.ca>
+On Fri, 25 Jan 2002, chus Medina wrote:
 
-> The allocation function should be safe, since it only gives majors
-> which are not assigned in devices.txt. [...]
+> 
+> Hola,
+> 
+> I need to create module to perform atomic transactions through the PCI bus 
+> between the processor and an IDE hard disk. The PCI bus specifications 2.2 
+> point to the #LOCK signal to perform such a transaction. Is possible to 
+> assert the #LOCK signal of the PCI bus using the Linux Kernel? How? I didnt 
+> see any pointers in include/pci.h or anywhere in the source code.
+> 
+> I will truly appreciate any help/pointers,
+> 
+> Jesus
+> 
 
-Oh, that changes it, I should have looked closer.
-I am not sure the "1200 NFS mounts" case warrants the
-change though, so far we have only one active user (Rainer) :)
-If ISPs and universities clamour for my patch, then sure,
-we may improve it with devfs_alloc_major() in 2.4, too.
-Otherwise, whatever... Thanks for the explanation, Richard,
-I'll keep it in my notes.
+On Intel machines, you precede a memory access with the 'lock'
+instruction. With CPUs i486, and later, only the accessed page
+is locked at that instant. Earlier CPUs locked the whole bus.
 
--- Pete
+The PCI/Bus controller handles the #LOCK signal itself to guarantee
+the atomicity of a transaction. You should never have to do this
+yourself. If you think you have to, just precede each PCI/Bus
+address-space access with the 'lock' instruction. You just make
+your own version of the readl/readw/readb/etc macros that are
+provided. You may find that this deadlocks, though, and all bets
+are off. You may have just locked the PCI/Bus off the bus when
+you needed it most!!
+
+If you are finding something 'strange' in your PCI/Bus accesses,
+it is probably because you didn't use 'nocache' when you obtained
+address-space for your PCI Device, i.e., ioremap_nocache() instead of
+ioremap().
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

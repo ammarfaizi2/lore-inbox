@@ -1,21 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265755AbUBBSUn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 13:20:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265785AbUBBSUn
+	id S265684AbUBBSUA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 13:20:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265755AbUBBSUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 13:20:43 -0500
-Received: from mailr-1.tiscali.it ([212.123.84.81]:59200 "EHLO
-	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S265755AbUBBSUj
+	Mon, 2 Feb 2004 13:20:00 -0500
+Received: from mailr-2.tiscali.it ([212.123.84.82]:5713 "EHLO
+	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S265684AbUBBST7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 13:20:39 -0500
-X-BrightmailFiltered: true
-Date: Mon, 2 Feb 2004 19:20:39 +0100
+	Mon, 2 Feb 2004 13:19:59 -0500
+Date: Mon, 2 Feb 2004 19:19:58 +0100
 From: Kronos <kronos@kronoz.cjb.net>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [Compile Regression in 2.4.25-pre8][PATCH 2/42]
-Message-ID: <20040202182039.GB6785@dreamland.darkstar.lan>
+Subject: [Compile Regression in 2.4.25-pre8][PATCH 1/42]
+Message-ID: <20040202181958.GA6785@dreamland.darkstar.lan>
 Reply-To: kronos@kronoz.cjb.net
 References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
 Mime-Version: 1.0
@@ -26,29 +25,26 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ad1889.c:361: warning: unsigned int format, different type arg (arg 4)
+ac97_plugin_ad1980.c:92: warning: initialization from incompatible pointer type
 
-It happens only with CONFIG_HIGHMEM64G=y as dma_addr_t becomes u64.
-Fixed by casting dma_addr_t to dma64_addr_t in the printk.
+Fixed. Use correct prototype for ad1980_remove.
 
-
-diff -Nru -X dontdiff linux-2.4-vanilla/drivers/sound/ad1889.c linux-2.4/drivers/sound/ad1889.c
---- linux-2.4-vanilla/drivers/sound/ad1889.c	Tue Nov 11 17:51:39 2003
-+++ linux-2.4/drivers/sound/ad1889.c	Sat Jan 31 16:12:10 2004
-@@ -356,9 +356,9 @@
- 	for (i = 0; i < AD_MAX_STATES; i++) {
- 		out += sprintf(out, "DMA status for %s:\n", 
- 			(i == AD_WAV_STATE ? "WAV" : "ADC")); 
--		out += sprintf(out, "\t\t0x%p (IOVA: 0x%u)\n", 
-+		out += sprintf(out, "\t\t0x%p (IOVA: 0x%Lu)\n", 
- 			dev->state[i].dmabuf.rawbuf,
--			dev->state[i].dmabuf.dma_handle);
-+			(dma64_addr_t)dev->state[i].dmabuf.dma_handle);
- 
- 		out += sprintf(out, "\tread ptr: offset %u\n", 
- 			(unsigned int)dev->state[i].dmabuf.rd_ptr);
+diff -Nru -X dontdiff linux-2.4-vanilla/drivers/sound/ac97_plugin_ad1980.c linux-2.4/drivers/sound/ac97_plugin_ad1980.c
+--- linux-2.4-vanilla/drivers/sound/ac97_plugin_ad1980.c	Sat Jan 31 15:54:42 2004
++++ linux-2.4/drivers/sound/ac97_plugin_ad1980.c	Sat Jan 31 15:57:43 2004
+@@ -45,7 +45,7 @@
+  *	use of the codec after the probe function.
+  */
+  
+-static void ad1980_remove(struct ac97_codec *codec)
++static void ad1980_remove(struct ac97_codec *codec, struct ac97_driver *driver)
+ {
+ 	/* Nothing to do in the simple example */
+ }
 
 -- 
 Reply-To: kronos@kronoz.cjb.net
 Home: http://kronoz.cjb.net
-No matter what you choose, you're still a luser.
+Collect some stars to shine for you
+And start today 'cause there's only a few
+A sign of times my friend

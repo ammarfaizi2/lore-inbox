@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129101AbRA2UDb>; Mon, 29 Jan 2001 15:03:31 -0500
+	id <S129274AbRA2UTn>; Mon, 29 Jan 2001 15:19:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129274AbRA2UDV>; Mon, 29 Jan 2001 15:03:21 -0500
-Received: from baldur.fh-brandenburg.de ([195.37.0.5]:50376 "HELO
-	baldur.fh-brandenburg.de") by vger.kernel.org with SMTP
-	id <S129101AbRA2UDC>; Mon, 29 Jan 2001 15:03:02 -0500
-Date: Mon, 29 Jan 2001 20:47:50 +0100 (MET)
-From: Roman Zippel <zippel@fh-brandenburg.de>
-To: Andi Kleen <ak@suse.de>
-cc: Timur Tabi <ttabi@interactivesi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
-In-Reply-To: <20010129182633.A2522@gruyere.muc.suse.de>
-Message-ID: <Pine.GSO.4.10.10101292036070.17869-100000@zeus.fh-brandenburg.de>
+	id <S129235AbRA2UTe>; Mon, 29 Jan 2001 15:19:34 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:22035 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S129101AbRA2UTV>; Mon, 29 Jan 2001 15:19:21 -0500
+From: Stefani Seibold <stefani@seibold.net>
+Date: Mon, 29 Jan 2001 21:17:54 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="US-ASCII"
+Cc: Thunder from the hill <thunder@ngforever.de>, linux-kernel@vger.kernel.org
+To: James Simmons <jsimmons@suse.com>
+In-Reply-To: <Pine.LNX.4.21.0101290938560.6646-100000@euclid.oak.suse.com>
+In-Reply-To: <Pine.LNX.4.21.0101290938560.6646-100000@euclid.oak.suse.com>
+Subject: Re: patch for 2.4.0 disable printk
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01012921175400.01429@deepthought.seibold.net>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Am Montag, 29. Januar 2001 18:40 schrieb James Simmons:
+> > You are right... this patch make no sense on a computer system with human
+> > interactions. But think on tiny hidden computers, like in a dishwasher or
+> > a traffic light. This computer are standalone, if it crash, then it will
+> > be rebooted.
+> > Nobody will attach a terminal to this kind of computer, nobody is
+> > interessted on a logfile. Nobody will see a oops, because nobdy is there.
+>
+> What do you suggest we do with /dev/console and stdin, stdout, stderr?
+> The kernel needs a /dev/console to boot with.
 
-On Mon, 29 Jan 2001, Andi Kleen wrote:
-
-> You can miss wakeups. The standard pattern is:
-> 
-> 	get locks
-> 
-> 	add_wait_queue(&waitqueue, &wait);
-> 	for (;;) { 
-> 		if (condition you're waiting for is true) 
-> 			break; 
-> 		unlock any non sleeping locks you need for condition
-> 		__set_task_state(current, TASK_UNINTERRUPTIBLE); 
-> 		schedule(); 
-> 		__set_task_state(current, TASK_RUNNING); 
-> 		reaquire locks
-> 	}
-> 	remove_wait_queue(&waitqueue, &wait); 
-
-You still miss wakeups. :)
-Always set the task state first, then check the condition. See the
-wait_event*() macros you mentioned for the right order.
-
-bye, Roman
-
+This patch does not modify the /dev/console, nor stdin/stdout/stderr. I think 
+you should try it, bevor you are posting...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315929AbSGLL6w>; Fri, 12 Jul 2002 07:58:52 -0400
+	id <S316088AbSGLMFF>; Fri, 12 Jul 2002 08:05:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316070AbSGLL6v>; Fri, 12 Jul 2002 07:58:51 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:45835 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S315929AbSGLL6u>; Fri, 12 Jul 2002 07:58:50 -0400
-Date: Fri, 12 Jul 2002 05:01:33 -0700
-From: jw schultz <jw@pegasys.ws>
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: bzip2 support against 2.4.18
-Message-ID: <20020712120133.GB32601@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-References: <003d01c22819$ba1818b0$1c6fa8c0@hyper> <E17Suso-0002dn-00@starship> <003f01c2297e$b3e395d0$1c6fa8c0@hyper> <E17SwAM-0002e2-00@starship> <005801c2298c$9f3f6f10$1c6fa8c0@hyper>
+	id <S316089AbSGLMFE>; Fri, 12 Jul 2002 08:05:04 -0400
+Received: from ns.suse.de ([213.95.15.193]:40713 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316088AbSGLMFE>;
+	Fri, 12 Jul 2002 08:05:04 -0400
+Date: Fri, 12 Jul 2002 14:07:51 +0200
+From: Dave Jones <davej@suse.de>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Jesse Barnes <jbarnes@sgi.com>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: spinlock assertion macros
+Message-ID: <20020712140751.A14671@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Daniel Phillips <phillips@arcor.de>, Jesse Barnes <jbarnes@sgi.com>,
+	kernel-janitor-discuss <kernel-janitor-discuss@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org
+References: <200207102128.g6ALS2416185@eng4.beaverton.ibm.com> <E17SWXm-0002BL-00@starship> <20020711180326.GH709072@sgi.com> <E17SjRh-0002VI-00@starship>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <005801c2298c$9f3f6f10$1c6fa8c0@hyper>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E17SjRh-0002VI-00@starship>; from phillips@arcor.de on Thu, Jul 11, 2002 at 09:17:44PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[sniped a back and forth about make bzimage bz2image
-bz2bzimage etc.]
-On Fri, Jul 12, 2002 at 12:12:18PM +0200, Christian Ludwig wrote:
-> Daniel Phillips wrote on Friday, July 12, 2002 10:52 AM:
-> 
-> > Now that you mention it, bzImage should continue to serve perfectly well,
-> > so long as you have some other way of configuring the kernel compression
-> > method than via the make target.  Why not just make the compression method
-> > a config option?  If it had been done this way from the beginning, we'd
-> > never have acquired the b or the z.
-> >
-> > This way you avoid the entire controversy of chosing a new name for the
-> > kernel image, and anyway, it's a nicer interface than via the make
-> > target.
-> 
-> That came into my mind, too. Let's see what I can do about it...
-> It won't probably be ready before August, because I still have some exams.
+On Thu, Jul 11, 2002 at 09:17:44PM +0200, Daniel Phillips wrote:
+ > On Thursday 11 July 2002 20:03, Jesse Barnes wrote:
+ > > How about this?
+ > 
+ > It looks good, the obvious thing we don't get is what the actual lock
+ > count is, and actually, we don't care because we know what it is in
+ > this case.
 
-Ditto.  A config option is where this belongs.  The
-filename stays the same.  This avoids the issue of
-forgetting which compression you are using.  It gets saved
-in the config and make install will cover it.
+Something I've been meaning to hack up for a while is some spinlock
+debugging code that adds a FUNCTION_SLEEPS() to (ta-da) functions that
+may sleep. This macro then checks whether we're currently holding any
+locks, and if so printk's the names of locks held, and where they were taken.
+
+When I came up with the idea[1] I envisioned some linked-lists frobbing,
+but in more recent times, we can now check the preempt_count for a
+quick-n-dirty implementation (without the additional info of which locks
+we hold, lock-taker, etc).
+
+        Dave
+
+[1] Not an original idea, in fact I think Ingo came up with an
+    implementation back in `98 or so.
 
 -- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

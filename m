@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262634AbRFDAfY>; Sun, 3 Jun 2001 20:35:24 -0400
+	id <S263694AbRFCVWr>; Sun, 3 Jun 2001 17:22:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263290AbRFDAY1>; Sun, 3 Jun 2001 20:24:27 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:64438 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S263657AbRFDATA>;
-	Sun, 3 Jun 2001 20:19:00 -0400
-Date: Sun, 3 Jun 2001 20:18:57 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andries.Brouwer@cwi.nl
-cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: mount --bind accounting
-In-Reply-To: <UTC200106032038.WAA184171.aeb@vlet.cwi.nl>
-Message-ID: <Pine.GSO.4.21.0106032018090.29779-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263768AbRFCVEu>; Sun, 3 Jun 2001 17:04:50 -0400
+Received: from mailhost.nmt.edu ([129.138.4.52]:45833 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S263737AbRFCVEl>;
+	Sun, 3 Jun 2001 17:04:41 -0400
+Date: Sun, 3 Jun 2001 15:04:31 -0600
+From: Val Henson <val@nmt.edu>
+To: Tim Hockin <thockin@sun.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Pset patches
+Message-ID: <20010603150431.G21036@boardwalk>
+In-Reply-To: <3B17DA6C.CB54849A@sun.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B17DA6C.CB54849A@sun.com>; from thockin@sun.com on Fri, Jun 01, 2001 at 11:09:48AM -0700
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Are you the same Tim Hockin that wrote the pset patches for Linux
+2.2.12?  I noticed your pset web page is gone and I'd like to mirror
+it if it hasn't been already.
 
-
-On Sun, 3 Jun 2001 Andries.Brouwer@cwi.nl wrote:
-
-> Something entirely different.
-> 
-> Last year I added the comment
-> 	/* No capabilities? What if users do thousands of these? */
-> in super.c for "mount --bind".
-> Now that I do some polishing there I noticed the comment again.
-> 
-> Each bind does an alloc_vfsmnt() and hence takes some kernel memory.
-> Any user can therefore take all kernel memory, until
-> 	kmalloc(sizeof(struct vfsmount), GFP_KERNEL)
-> fails. Bad security.
-> I suppose something needs to be done about that.
-
-Like looking at mount_is_safe(), maybe?
-
+-VAL

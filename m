@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267561AbUJTPSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268045AbUJTPS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267561AbUJTPSg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 11:18:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUJTPO0
+	id S268045AbUJTPS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 11:18:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268323AbUJTPSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 11:14:26 -0400
-Received: from gw02.applegatebroadband.net ([207.55.227.2]:28138 "EHLO
-	data.mvista.com") by vger.kernel.org with ESMTP id S268279AbUJTPJk
+	Wed, 20 Oct 2004 11:18:50 -0400
+Received: from gw02.applegatebroadband.net ([207.55.227.2]:55018 "EHLO
+	data.mvista.com") by vger.kernel.org with ESMTP id S268045AbUJTPRT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 11:09:40 -0400
-Message-ID: <41767FA8.9090104@mvista.com>
-Date: Wed, 20 Oct 2004 08:09:28 -0700
+	Wed, 20 Oct 2004 11:17:19 -0400
+Message-ID: <41768175.9000909@mvista.com>
+Date: Wed, 20 Oct 2004 08:17:09 -0700
 From: George Anzinger <george@mvista.com>
 Reply-To: george@mvista.com
 Organization: MontaVista Software
@@ -36,33 +36,6 @@ Len Brown wrote:
 >>  1. Sync up jiffies with the monotonic clock,...
 >>  2. Decouple jiffies from the actual interrupt counter...
 >>  3. Increase HZ all the way up to 1e9....
-
-Before we do any of the above, I think we need to stop and ponder just what a 
-"jiffie" is.  Currently it is, by default (or historically) the "basic tick" of 
-the system clock.  On top of this a lot of interpolation code has been "grafted" 
-to allow the system to resolve time to finer levels, i.e. to the nanosecond. 
-But none of this interpolation code actually changes the tick, i.e. the 
-interrupt still happens at the same periodic rate.
-
-As the "basic tick", it is used to do a lot of accounting and scheduling house 
-keeping AND as a driver of the system timers.
-
-So, by this definition, it REQUIRES a system interrupt.
-
-I have built a "tick less" system and have evidence from that that such systems 
-are over load prone.  The faster the context switch rate, the more accounting 
-needs to be done.  On the otherhand, the ticked system has flat accounting 
-overhead WRT load.
-
-Regardless of what definitions we settle on, the system needs an interrupt 
-source to drive the system timers, and, as I indicate above, the accounting and 
-scheduling stuff.  It is a MUST that these interrupts occure at the required 
-times or the system timers will be off.  This is why we have a jiffies value 
-that is "rather odd" in the x86 today.
-
-George
-
-
 > 
 > 
 >>Thoughts?
@@ -77,12 +50,18 @@ George
 > power states; which means that on Linux the hardware pays a long idle
 > state exit latency (performance hit) but gets little or no power savings
 > from the time it resides in that idle state.
-> 
-> thanks,
-> -Len
-> 
-> 
 
+
+I (and MontaVista) will be expanding on the VST patches.  There are, currently, 
+two levels of VST.  VST-I when entering the idle state (task) looks ahead in the 
+timer list, finds the next event, and shuts down the "tick" until that time.  An 
+interrupts resets things, be it from the end of the time counter or another source.
+
+VST-II adds a call back list to idle entry and exit.  This allows one to add 
+code to change (or even remove) timers on idle entry and restore them on exit.
+
+We are doing this work to support deeply embedded applications that often times 
+run on small batteries (think cell phone if you like).
 -- 
 George Anzinger   george@mvista.com
 High-res-timers:  http://sourceforge.net/projects/high-res-timers/

@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272653AbTHKOZR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 10:25:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272635AbTHKNl5
+	id S272612AbTHKOGi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 10:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272615AbTHKNmm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 09:41:57 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:40587 "EHLO
+	Mon, 11 Aug 2003 09:42:42 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:37515 "EHLO
 	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S272628AbTHKNlG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 09:41:06 -0400
+	id S272612AbTHKNk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 09:40:58 -0400
 To: torvalds@transmeta.com
 From: davej@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove unneeded ; from macros in i8042
-Message-Id: <E19mCuP-0003dd-00@tetrachloride>
-Date: Mon, 11 Aug 2003 14:40:25 +0100
+Cc: linux-kernel@vger.kernel.org, jgarzik@redhat.com
+Subject: [PATCH] c99 struct initialisers for AMD8111e driver.
+Message-Id: <E19mCuQ-0003ds-00@tetrachloride>
+Date: Mon, 11 Aug 2003 14:40:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/input/serio/i8042.h linux-2.5/drivers/input/serio/i8042.h
---- bk-linus/drivers/input/serio/i8042.h	2003-04-10 06:01:18.000000000 +0100
-+++ linux-2.5/drivers/input/serio/i8042.h	2003-05-15 20:30:22.000000000 +0100
-@@ -103,11 +103,11 @@
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/net/amd8111e.c linux-2.5/drivers/net/amd8111e.c
+--- bk-linus/drivers/net/amd8111e.c	2003-08-04 01:00:26.000000000 +0100
++++ linux-2.5/drivers/net/amd8111e.c	2003-08-06 18:59:37.000000000 +0100
+@@ -1940,12 +1940,12 @@ err_disable_pdev:
+ }
  
- #ifdef DEBUG
- static unsigned long i8042_start;
--#define dbg_init() do { i8042_start = jiffies; } while (0);
-+#define dbg_init() do { i8042_start = jiffies; } while (0)
- #define dbg(format, arg...) printk(KERN_DEBUG __FILE__ ": " format " [%d]\n" ,\
- 	 ## arg, (int) (jiffies - i8042_start))
- #else
--#define dbg_init() do { } while (0);
-+#define dbg_init() do { } while (0)
- #define dbg(format, arg...) do {} while (0)
- #endif
+ static struct pci_driver amd8111e_driver = {
+-	name:		MODULE_NAME,
+-	id_table:	amd8111e_pci_tbl,
+-	probe:		amd8111e_probe_one,
+-	remove:		__devexit_p(amd8111e_remove_one),
+-	suspend:	amd8111e_suspend,
+-	resume:		amd8111e_resume
++	.name		= MODULE_NAME,
++	.id_table	= amd8111e_pci_tbl,
++	.probe		= amd8111e_probe_one,
++	.remove		= __devexit_p(amd8111e_remove_one),
++	.suspend	= amd8111e_suspend,
++	.resume		= amd8111e_resume
+ };
  
+ static int __init amd8111e_init(void)

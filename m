@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129412AbQJZQce>; Thu, 26 Oct 2000 12:32:34 -0400
+	id <S129423AbQJZQfe>; Thu, 26 Oct 2000 12:35:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129423AbQJZQcY>; Thu, 26 Oct 2000 12:32:24 -0400
-Received: from rmx470-mta.mail.com ([165.251.48.48]:37268 "EHLO
-	rmx470-mta.mail.com") by vger.kernel.org with ESMTP
-	id <S129412AbQJZQcO>; Thu, 26 Oct 2000 12:32:14 -0400
-Message-ID: <386874390.972577931702.JavaMail.root@web340-wra.mail.com>
-Date: Thu, 26 Oct 2000 12:32:06 -0400 (EDT)
-From: Frank Davis <fdavis112@juno.com>
+	id <S129676AbQJZQfY>; Thu, 26 Oct 2000 12:35:24 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:3957 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S129423AbQJZQfS>; Thu, 26 Oct 2000 12:35:18 -0400
+Date: Thu, 26 Oct 2000 19:35:08 +0300
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
 To: linux-kernel@vger.kernel.org
-Subject: test10-5: af_irda.o compile error
+Cc: saw@saw.sw.com.sg
+Subject: eepro100: card reports no resources [was VM-global...]
+Message-ID: <20001026193508.A19131@niksula.cs.hut.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: mail.com
-X-Originating-IP: 151.201.246.107
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-     I didn't see this posted yet, so I have attached it below. If it has, sorry in advance. I have gcc 2.8.1 , and the kernel version is : test10-5
+Markus Pfeiffer <profmakx@profmakx.de> wrote:
+> 
+> > Oct 26 11:24:13 ns29 kernel: eth0: card reports no resources.
+> > Oct 26 11:24:15 ns29 kernel: eth0: card reports no resources.
+> > Oct 26 12:22:21 ns29 kernel: eth0: card reports no resources.
+> > Oct 26 16:16:59 ns29 kernel: eth0: card reports no resources.
+> > Oct 26 16:28:37 ns29 kernel: eth0: card reports no resources.
+> > Oct 26 16:38:01 ns29 kernel: eth0: card reports no resources.
+> > 
+> let me guess: intel eepro100 or similar??
+> Well known problem with that one. dont know if its fully fixed ... With
 
-Regards,
-Frank
+Happens here too, with 2xPPro200, 2.2.18pre17, Eepro100 and light load.
+The network stalls for several minutes when it happens.
 
-During make modules
+> 2.4.0-test9-pre3 it doesnt happen on my machine ...
 
-...
-af_irda.o : In function 'cleanup_module' :
-af_irda.o(.text+0x3e90): multiple definition of 'cleanup_module'
-irmod.o(.text+0x514): first defined here
-make[2]: *** [irda.o] Error 1
-make[2]: Leaving directory '/usr/src/linux/net/irda'
-...
+What about a fix for a 2.2.x...?
 
 
+-- v --
+
+v@iki.fi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

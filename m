@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274248AbRJ2NKu>; Mon, 29 Oct 2001 08:10:50 -0500
+	id <S274752AbRJ2NQu>; Mon, 29 Oct 2001 08:16:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273904AbRJ2NKk>; Mon, 29 Oct 2001 08:10:40 -0500
-Received: from mgw-x1.nokia.com ([131.228.20.21]:23755 "EHLO mgw-x1.nokia.com")
-	by vger.kernel.org with ESMTP id <S273881AbRJ2NKa>;
-	Mon, 29 Oct 2001 08:10:30 -0500
-Message-ID: <3BDD5391.6BF30E81@nokia.com>
-Date: Mon, 29 Oct 2001 15:03:13 +0200
-From: Manel Guerrero Zapata <manel.guerrero-zapata@nokia.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.4.0 TCP caches ip route
-In-Reply-To: <Pine.LNX.4.33L.0110291047040.2963-100000@imladris.surriel.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S274653AbRJ2NQk>; Mon, 29 Oct 2001 08:16:40 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:27192 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S273881AbRJ2NQY>; Mon, 29 Oct 2001 08:16:24 -0500
+Date: Mon, 29 Oct 2001 14:17:00 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.14pre3aa4
+Message-ID: <20011029141700.E1318@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+URL:
 
-I'm using 2.4.0 (but I thing that this is probably a 2.4.X problem).
-If a execute a telnet command to certain address (like 10.0.0.1).
-And the routing table says that packets for 10.0.0.1 should be
-routed to the device dummy0,
-The telnet keeps trying to connect. (till here everything is cool).
-And then I change the routing table so now it should
-send those packets to the ppp0 (where 10.0.0.1 is), but the
-connexion does not get stablished anyway (till I get timeout).
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.14pre3aa4.bz2
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.14pre3aa4/
 
-The problem seems to be that the kernel
-caches that the device for the connexion should be dummy0.
-If then, I cancel the telnet and start it again
-now (of course) it stablishes a telnet conexion though the ppp0.
+Only in 2.4.14pre3aa4: 00_tmpfs-symlink-1
 
-This problem does not occur if I use ping instead of telnet
-(probably because ping uses no socket).
+	Fix from Herbert Xu and Christoph Rohland for the i_size
+	of tmpfs symlinks.
 
-Should not be a mechanism that flushes caches when routing
-table changes?
+Only in 2.4.14pre3aa3: 10_vm-7
+Only in 2.4.14pre3aa3: 10_vm-7.1
+Only in 2.4.14pre3aa4: 10_vm-8
 
-If the cached info is attached to the socket structure
-probably this flushing thing is not quite feasible, am I wrong?
+	Minor vm changes, in particular don't shrink the vfs with the
+	pagemap_lru_lock acquired, and use GFP_NOIO in free_more_memory()
+	per Linus's suggestion to avoid too much nesting on the stack.
 
-I know you usually don't expect the device though your tcp
-connection goes to change on the fly, but that actually can
-happend, and maybe (IMHO) should be supported.
-
-Maybe I'm missing something. (probably ;) )
-
-Regards,
-
-	Manel Guerrero
+Andrea

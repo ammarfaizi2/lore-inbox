@@ -1,82 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261353AbSLHUi4>; Sun, 8 Dec 2002 15:38:56 -0500
+	id <S261205AbSLHUtR>; Sun, 8 Dec 2002 15:49:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261486AbSLHUi4>; Sun, 8 Dec 2002 15:38:56 -0500
-Received: from FORT-POINT-STATION.MIT.EDU ([18.7.7.76]:63719 "EHLO
-	fort-point-station.mit.edu") by vger.kernel.org with ESMTP
-	id <S261353AbSLHUiy>; Sun, 8 Dec 2002 15:38:54 -0500
-Subject: Re: [ACPI] Re: [2.5.50, ACPI] link error
-From: Constantinos Antoniou <costas@MIT.EDU>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Ducrot Bruno <ducrot@poupinou.org>, Patrick Mochel <mochel@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <20021208194944.GB19604@atrey.karlin.mff.cuni.cz>
-References: <20021205224019.GH7396@atrey.karlin.mff.cuni.cz>
-	 <Pine.LNX.4.33.0212051632120.974-100000@localhost.localdomain>
-	 <20021206000618.GB15784@atrey.karlin.mff.cuni.cz>
-	 <20021206185702.GE17595@poup.poupinou.org>
-	 <20021208194944.GB19604@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Organization: Massachusetts Institute of Technology
-Message-Id: <1039380380.1614.57.camel@nefeli>
+	id <S261302AbSLHUtR>; Sun, 8 Dec 2002 15:49:17 -0500
+Received: from are.twiddle.net ([64.81.246.98]:60057 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S261205AbSLHUtQ>;
+	Sun, 8 Dec 2002 15:49:16 -0500
+Date: Sun, 8 Dec 2002 12:56:42 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Patrick Mochel <mochel@osdl.org>, Willy Tarreau <willy@w.ods.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+Subject: Re: /proc/pci deprecation?
+Message-ID: <20021208125642.A22545@twiddle.net>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Patrick Mochel <mochel@osdl.org>, Willy Tarreau <willy@w.ods.org>,
+	Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+	jgarzik@pobox.com
+References: <Pine.LNX.4.33.0212072046260.8470-100000@localhost.localdomain> <Pine.LNX.4.44.0212072018480.1103-100000@home.transmeta.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 08 Dec 2002 15:46:20 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0212072018480.1103-100000@home.transmeta.com>; from torvalds@transmeta.com on Sat, Dec 07, 2002 at 08:21:21PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-12-08 at 14:49, Pavel Machek wrote:
-> Hi!
+On Sat, Dec 07, 2002 at 08:21:21PM -0800, Linus Torvalds wrote:
+> >         Flags: bus master, medium devsel, latency 16, IRQ 19
 > 
-> > > > > > Doesn't that imply your fix is broken to begin with?
-> > > > > 
-> > > > > ACPI/S4 support needs swsusp. ACPI/S3 needs big part of
-> > > > > swsusp. Splitting CONFIG_ACPI_SLEEP to S3 and S4 part seems like
-> > > > > overdesign to me, OTOH if you do the work it is okay with me.
-> > > > 
-> > > > You broke the design. S3 support was developed long before swsusp was in 
-> > > > the kernel, and completely indpendent of it. It should have remained that 
-> > > > way. 
-> > > > 
-> > > > S3 support is a subset of what is need for S4 support. 
-> > > 
-> > > That's not true. acpi_wakeup.S is nasty piece of code, needed for S3
-> > > but not for S4. Big part of driver support is only needed for S3.
-> > > 
-> > > > swsusp is an implementation of S4 support. In theory, there could be 
-> > > > multiple implementations that all use the same core (saving/restoring 
-> > > > state). 
-> > > 
-> > > There were patches for S4bios floating around, but it never really
-> > > worked, IIRC.
-> > 
-> > No.  It work.  I do not resubmmited patches because I think that
-> > swsusp is better.
-> 
-> I think that s4bios is nice to have. Its similar to S3 and easier to
-> set up than swsusp... It would be nice to have it.
+> Just out of interest, where _does_ it get the information? Does it try to
+> do its own irq routing (bad!) or does it do it from /proc/bus/pci/devices?
 
-(I do not know much, but) another reason may be that some laptops do not
-support S3, while they support S4? for example, in my Compaq Presario
-1700T:
+It just reports what's in the PCI_INTERRUPT_LINE register.
 
-$ more /proc/acpi/info
-ACPI-CA Version:         20011018
-Sx States Supported:     S0 S1 S4 S5
+At least on Alpha, we wrote into this register during pci
+configuration, so the value matches what's in /proc/interrupts.
+I guess I always assumed we did the same on x86, but I've
+never checked.
 
-(unpatched 2.4.19, if this has anything to do)
 
-Costas
-
-> 								Pavel
--- 
-Constantinos Antoniou
-Ph.D. Candidate
-Massachusetts Institute of Technology
-Intelligent Transportation Systems Program
-77 Massachusetts Ave., NE20-208, Cambridge, MA 02139
-(T) 617-252-1113 * (F) 617-252-1130 * (email) costas@mit.edu
-
+r~

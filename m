@@ -1,51 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbUBTVEu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 16:04:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbUBTVDE
+	id S261349AbUBTVJP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 16:09:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUBTVHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 16:03:04 -0500
-Received: from gprs151-132.eurotel.cz ([160.218.151.132]:2945 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261412AbUBTVCM (ORCPT
+	Fri, 20 Feb 2004 16:07:46 -0500
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:61137 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id S261349AbUBTVHT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 16:02:12 -0500
-Date: Fri, 20 Feb 2004 22:01:58 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: John Levin <levin@gamebox.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-rc3 messages  BUG
-Message-ID: <20040220210158.GA32023@elf.ucw.cz>
-References: <20040221075308.161992c7.levin@gamebox.net>
+	Fri, 20 Feb 2004 16:07:19 -0500
+Date: Fri, 20 Feb 2004 06:01:16 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Message-ID: <20040220140116.GD1269@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20040216190927.GA2969@us.ibm.com> <200402200007.25832.phillips@arcor.de> <20040220120255.GA1269@us.ibm.com> <200402201535.47848.phillips@arcor.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040221075308.161992c7.levin@gamebox.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200402201535.47848.phillips@arcor.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> 	My guess atleast in this case is that  suspend/resume cyle looses track
-> of the fact that a module is use.I have file corruption. All those
-> files which have been created after resume is corrupted. I copied dmesg
-> into a backup file and saved it. When i boot 2.4 and look into it , it
-> is corrputed.
-> 	After booting I connect to the internet through wvdial. So i have to
-> load up usbcore,cdc_acm,uhci. i am connected to the net and searching on
-> google.	Now i do echo 4 > /proc/acpi/sleep . It suspends. Then i resume
-> it from command line.
->  So now wvdial looks as if connected but really isn't. So i close it and
-> try running it again. It doesn't detect /dev/usb/acm/0. So i remove the
-> modules and try inserting it (uhci) which gives me the error.
+On Fri, Feb 20, 2004 at 03:37:26PM -0500, Daniel Phillips wrote:
+> Hi Paul,
 > 
-> Here is something which i could copy after resume.
+> > I cannot think of any reasonable alternative to passing the parameter
+> > down either, as it certainly does not be reasonable to duplicate the
+> > code...
+> 
+> Yes, it's simply the (small) price that has to be paid in order to be able to 
+> boast about our accurate semantics.
 
-Try it with minimal config, and without modules. Be sure to fsck so
-you don't kill your filesystem totally. Try 2.6.3.
-								Pavel
+;-)
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+> > How about something like "private_too" instead of "zap"?
+> 
+> How about just "all", which is what we mean.
+
+Fair enough, certainly keeps a few more lines of code within 80 columns.
+
+> > > -void zap_page_range(struct vm_area_struct *vma,
+> > > -			unsigned long address, unsigned long size)
+> > > +void invalidate_page_range(struct vm_area_struct *vma,
+> >
+> > Would it be useful for this to be inline?  (Wouldn't seem so,
+> > zapping mappings has enough overhead that an extra level of
+> > function call should be deep down in the noise...)
+> 
+> Yes, it doesn't seem worth it just to save a stack frame.
+> 
+> Actually, I erred there in that invalidate_mmap_range should not export the 
+> flag, because it never makes sense to pass in non-zero from a DFS.
+
+Doesn't vmtruncate() want to pass non-zero "all" in to
+invalidate_mmap_range() in order to maintain compatibility with existing
+Linux semantics?
+
+> > Doesn't the new argument need to be passed down through
+> > invalidate_mmap_range_list()?
+> 
+> It does, thanks for the catch.  Please bear with me for a moment while I 
+> reroll this, then hopefully we can move on to the more interesting discussion 
+> of whether it's worth it.  (Yes it is :)
+
+;-)
+
+						Thanx, Paul

@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262575AbTK0S2u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 13:28:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264574AbTK0S2u
+	id S264574AbTK0Smm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 13:42:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264577AbTK0Smm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 13:28:50 -0500
-Received: from smtp2.clear.net.nz ([203.97.37.27]:25332 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S262575AbTK0S2t
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 13:28:49 -0500
-Date: Fri, 28 Nov 2003 07:21:28 +1300
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: 2.6 not cat proof
-In-reply-to: <200311271237.22730.gene.heskett@verizon.net>
-To: gene.heskett@verizon.net
-Cc: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1069957288.1920.7.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
-References: <20031126201052.GA16106@outpost.ds9a.nl>
- <20031127035755.2d960969.pj@sgi.com> <yw1xoeuxbw7u.fsf@kth.se>
- <200311271237.22730.gene.heskett@verizon.net>
+	Thu, 27 Nov 2003 13:42:42 -0500
+Received: from relay-6v.club-internet.fr ([194.158.96.111]:24748 "EHLO
+	relay-6v.club-internet.fr") by vger.kernel.org with ESMTP
+	id S264574AbTK0Sml convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 13:42:41 -0500
+From: pinotj@club-internet.fr
+To: manfred@colorfullife.com, torvalds@osdl.org
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
+Date: Thu, 27 Nov 2003 19:42:39 CET
+Mime-Version: 1.0
+X-Mailer: Medianet/v2.0
+Message-Id: <mnet1.1069958559.15912.pinotj@club-internet.fr>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just one more!... Perhaps you had to rm /bin/cat 9 times because you
-forgot the -f switch?..
+first, some news
 
-Nigel
+2.6.0-test11 makes same oops during second compilation of kernel. The vanilla kernel with PREEMPT always oops the same way. No matter, it's always reproductible.
 
-On Fri, 2003-11-28 at 06:37, Gene Heskett wrote:
-> On Thursday 27 November 2003 11:41, Måns Rullgård wrote:
-> >Paul Jackson <pj@sgi.com> writes:
-> >>> I had to "rm /bin/cat" nine times ...
-> >>
-> >> You're too cruel.
-> >
-> >Yes, it I shouldn't have done that.  A while after, the machine
-> >started feeling sluggish, and I started looking around.  I happened
-> > to ls /dev, and it was filled with mouse0, mouse1, mouse2, ... 
-> > They kept coming back after I removed them, too.
-> 
-> You're just gonna have to go re-install /bin/cat, or write a new, 
-> better mousetrap. :)
-> 
-> You guys wanna start pulling the other leg for a while now?  That ones 
-> about 3" longer than the other now, and I could use the height to 
-> more closely match my weight. :-)
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
+2.6.0-test11 + Manfred's patch doesn't hang but I found a slab error in the logs that occured during a compilation. (I didn't find this for -test10, I was lucky ?)
 
-Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-with alarming frequency, order arises from chaos, and no one is given credit.
+So, there is no more way for my system to run a kernel > -test9 without problem.
+
+>De: Manfred Spraul <manfred@colorfullife.com>
+[...]
+>There are several sources for the "-1": My initial guess was either a bug in slab, or a bad memory cell (only one bit difference). 
+>Thus I sent him a patch that changes multiple bits. Result: It remained a single bit change, i.e it's proven that slab doesn't write BUFCTL_END into the wrong slot.
+
+Thanks for your explanation.
+Should I try with L1 and/or L2 cache disable on my computer (I don't know if it's safe) ?
+I trust my hardware but it's better to get some facts.
+
+Jerome Pinot
+
+(between LFS/BLFS, kernel compilation and tests compilation, I will surely break kind of record about load average :-)
 

@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266365AbUGAXjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266366AbUGAXyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266365AbUGAXjO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 19:39:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266372AbUGAXjO
+	id S266366AbUGAXyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 19:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266373AbUGAXyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 19:39:14 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:65271 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S266365AbUGAXjM
+	Thu, 1 Jul 2004 19:54:16 -0400
+Received: from mail.shareable.org ([81.29.64.88]:20910 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S266366AbUGAXyP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 19:39:12 -0400
-Date: Thu, 1 Jul 2004 16:38:34 -0700
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] task name handling in proc fs
-Message-ID: <20040701233834.GD5090@w-mikek2.beaverton.ibm.com>
-References: <20040701220510.GA6164@w-mikek2.beaverton.ibm.com> <20040701151935.1f61793c.akpm@osdl.org> <20040701224215.GC5090@w-mikek2.beaverton.ibm.com> <20040701160335.229cfe03.akpm@osdl.org>
+	Thu, 1 Jul 2004 19:54:15 -0400
+Date: Fri, 2 Jul 2004 00:53:54 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Scott Wood <scott@timesys.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: A question about PROT_NONE on ARM and ARM26
+Message-ID: <20040701235354.GD8950@mail.shareable.org>
+References: <20040630024434.GA25064@mail.shareable.org> <20040630091621.A8576@flint.arm.linux.org.uk> <20040630145942.GH29285@mail.shareable.org> <20040630192654.B21104@flint.arm.linux.org.uk> <20040630191428.GC31064@mail.shareable.org> <20040630202313.A1496@flint.arm.linux.org.uk> <20040630201546.GD31064@mail.shareable.org> <20040630235921.C1496@flint.arm.linux.org.uk> <20040701152728.GA20634@yoda.timesys>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040701160335.229cfe03.akpm@osdl.org>
+In-Reply-To: <20040701152728.GA20634@yoda.timesys>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 01, 2004 at 04:03:35PM -0700, Andrew Morton wrote:
+Scott Wood wrote:
+> > However, plain ldr and str instructions will access the page, but
+> > get_user/put_user doesn't use them, and copy_from_user/copy_to_user
+> > are carefully crafted to ensure that we hit the necessary permission
+> > checks for each page it touches on the first access.
 > 
-> But this just makes it a bit less racy than it used to be.
+> What if CONFIG_PREEMPT is enabled, and you get preempted after that
+> first access, and another thread unmaps the page before you're
+> finished with it?
 
-Agreed!
+The code in uaccess.S:__arch_copy_{from,to}_user doesn't disable
+pre-emption, and neither does its caller.
 
-> If we need locking around task->comm (and it seems that we do) then
-> let's do it.
+Pages can be unmapped just due to background paging.  I.e. it's a
+normal occurrence, it doesn't require anything contrived.
 
-I'm not sure if there is a need/desire for locking.  But, I don't
-have any proc fs history.  What we saw were really badly formed
-task names: nulls embedded within strings.  My goal was to simply
-provide well formed strings (even if they didn't make sense).
+So I think you're right: that looks like a bug.
 
-I guess the question is 'how important is it to make sure that
-data in these files is consistent/accurate when reported?'.  If it
-is highly important, then we need to consider locking down the
-task for the duration of gathering all data we want to display
-(not just task->comm).  However, my guess is that we would want
-to sacrifice this accuracy/consistency to avoid taking locks if
-possible.  Again, this is just my opinion and I don't have any
-history here ... but would be happy to code up any recommendation.
+The ARM uaccess code was written before CONFIG_PREEMPT was added, and
+this couldn't happen then.  It could panic a kernel now.  I wonder why
+it hasn't been noticed.  Maybe nobody turns on CONFIG_PREEMPT on ARM?
 
-P.S. Note that these code paths already get the task lock once
-as a result of calling get_task_mm().
-
--- 
-Mike
+-- Jamie

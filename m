@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130824AbRC0IPe>; Tue, 27 Mar 2001 03:15:34 -0500
+	id <S130900AbRC0Ico>; Tue, 27 Mar 2001 03:32:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130820AbRC0IPY>; Tue, 27 Mar 2001 03:15:24 -0500
-Received: from adsl-64-163-64-75.dsl.snfc21.pacbell.net ([64.163.64.75]:18961
-	"EHLO konerding.com") by vger.kernel.org with ESMTP
-	id <S130770AbRC0IPM>; Tue, 27 Mar 2001 03:15:12 -0500
-Message-ID: <3AC04BAC.C21E302@konerding.com>
-Date: Tue, 27 Mar 2001 00:13:32 -0800
-From: David Konerding <dek_ml@konerding.com>
-X-Mailer: Mozilla 4.73 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: "mount -o loop" lockup issue
-In-Reply-To: <Pine.LNX.4.21.0103270229310.8261-100000@imladris.rielhome.conectiva>
+	id <S130793AbRC0IcZ>; Tue, 27 Mar 2001 03:32:25 -0500
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:2573 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S130900AbRC0IcT>; Tue, 27 Mar 2001 03:32:19 -0500
+Date: Tue, 27 Mar 2001 09:31:34 +0100
+From: Roger Gammans <roger@computer-surgery.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent OOM from killing init
+Message-ID: <20010327093134.A9031@knuth.computer-surgery.co.uk>
+In-Reply-To: <Pine.LNX.4.30.0103231854470.13864-100000@fs131-224.f-secure.com> <Pine.LNX.4.21.0103240252080.1863-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <Pine.LNX.4.21.0103240252080.1863-100000@imladris.rielhome.conectiva>; from Rik van Riel on Sat, Mar 24, 2001 at 02:54:55AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 24, 2001 at 02:54:55AM -0300, Rik van Riel wrote:
+> On Fri, 23 Mar 2001, Szabolcs Szakacsits wrote:
+> >  - trying to kill a task that is permanently in TASK_UNINTERRUPTIBLE
+> >    will probably deadlock the machine [or the random OOM killer will
+> >    kill the box].
+> 
+> This could indeed be a problem, though I cannot really see any
+> case where a task would be in TASK_UNINTERRUPTIBLE permanently.
 
+I've seen this with 'mt rewind' jamming on ide-tape. I'm
+not sure of the exact pathology , but ISTR that it
+was related issuing that command while the hardware was busy.
 
-Rik van Riel wrote:
+In any case the point is that a badly written driver or faulty
+h/w even in a subsiduary system can cause this.
 
-> On Mon, 26 Mar 2001, David Konerding wrote:
->
-> > It's a bug in Linux 2.4.2, fixed in later versions.
-> > Regression/quality control testing would have caught this, but the
-> > developers usually just break things and wait for people to complain
-> > as their "Regression" testers.
->
-> As said before, we're interested in people willing to do regression
-> tests on the kernel. Unfortunately, not all that many testers have
-> stepped forward and not all that many artificial tests are being run.
+In an ideal world of course these wouldn't happen, but OTOH
+is this an issue in failing a box which is going to fail
+anyway if we don't kill the process. If we could ensure
+a graceful failure so much the better.
 
-No, the point is that the linux developers should regression test their
-code BEFORE
-releasing it to the public as a version like "2.4.2".  When I see a
-version like "2.4.2", I have an expectation that all the stupid little
-problems (like mounting loopback filesystem) have already been found.
-
-It's even worse that these are obvious, simple bugs (like the "NFS doesn't
-work over reiserfs
-because somebody changed the VFS layer and didn't fix any filesystems but
-ext2" that I reported a while ago) which would have been caught by a
-little testing.
-
-Now, don't even get me started on how the developers are fixing every
-legitimate bug found by CHECKER when they refused to put a debugger into
-the kernel "because a good programmer finds their bug by studying the
-code"-- well, obviously, you didn't find a lot of bugs by studying the
-code.
-
-I've been using Linux for something like 6-7 years now, quite faithfully.
-I've been very impressed with
-many of its facilities, and the improvements to the kernel (which I've
-compiled since 0.99) have been astounding.  But the attitude that "many
-eyes make all bugs shallow" and "let the users test the code for us" just
-don't hold up.  For the former, clearly, many eyes didn't find a lot of
-basically obvious bugs, for the latter, it's just impolite.
-
+TTFN
+-- 
+Roger
+     Think of the mess on the carpet. Sensible people do all their
+     demon-summoning in the garage, which you can just hose down afterwards.
+        --     damerell@chiark.greenend.org.uk
+	

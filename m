@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319465AbSIGLMD>; Sat, 7 Sep 2002 07:12:03 -0400
+	id <S319468AbSIGLeS>; Sat, 7 Sep 2002 07:34:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319468AbSIGLMD>; Sat, 7 Sep 2002 07:12:03 -0400
-Received: from dsl-213-023-038-028.arcor-ip.net ([213.23.38.28]:12984 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S319465AbSIGLMD>;
-	Sat, 7 Sep 2002 07:12:03 -0400
+	id <S319470AbSIGLeS>; Sat, 7 Sep 2002 07:34:18 -0400
+Received: from dsl-213-023-038-028.arcor-ip.net ([213.23.38.28]:27576 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319468AbSIGLeS>;
+	Sat, 7 Sep 2002 07:34:18 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: One more bio for for floppy users in 2.5.33..
-Date: Sat, 7 Sep 2002 13:18:35 +0200
+To: Todd Inglett <tinglett@vnet.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: BUG: PCI driver 64-bit bar size
+Date: Sat, 7 Sep 2002 13:41:35 +0200
 X-Mailer: KMail [version 1.3.2]
-Cc: Suparna Bhattacharya <suparna@in.ibm.com>, Jens Axboe <axboe@suse.de>,
-       linux-kernel@vger.kernel.org
-References: <3D779BAA.BAA5A742@zip.com.au> <Pine.LNX.4.33.0209051120100.1307-100000@penguin.transmeta.com> <3D77A58F.B35779A1@zip.com.au>
-In-Reply-To: <3D77A58F.B35779A1@zip.com.au>
+Cc: Martin Mares <mj@ucw.cz>
+References: <1031249810.12740.72.camel@q.rchland.ibm.com>
+In-Reply-To: <1031249810.12740.72.camel@q.rchland.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E17ndbo-0006SY-00@starship>
+Message-Id: <E17ndy4-0006Sj-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 September 2002 20:42, Andrew Morton wrote:
-> The `nr_of_sectors_completed' would be tricky to handle - we don't know how
-> to bring the pagecache pages uptodate in response to a 512-byte completion.
-> We'd have to teach the pagecache read functions to permit userspace to read
-> from non-uptodate pages by looking at the buffer_head state.  And then
-> look at buffer_req to distinguish "this part of the page hasn't been read yet"
-> from "this part of the page had an IO error".  Ick.
+On Thursday 05 September 2002 20:16, Todd Inglett wrote:
+> Now in my case, I have an adapter that insists the upper 32-bits of a
+> 64-bit BAR must be zero (don't ask me why -- doesn't make sense to me
+> either, but they are indeed hard-wired).  So after plugging in ffff's
+> into both BARs I effectively get 0x00000000fffff000 (again after masking
+> flags).  I would expect a length of 0x1000 for this (extent 0xfff), but
+> Linux computes an extent of 0xffffffffffffffff!  Since the spec says the
+> length is computed from the first one bit I'll assume this is wrong. 
+> The code should account for the lower dword as well as the upper.
+> 
+> So my fix is attached.  I chose to use pci_size() in the computation of
+> the upper dword for consistency.  Perhaps there should be a defined mask
+> for the upper dword in pci.h (i.e. PCI_BASE_ADDRESS_MEM_64_MASK?) rather
+> than hard coding 0xffffffff.  The patch is against 2.4.20-pre4.
 
-It's yet another reason to have subpages, and see, keeping state
-at the right granularity really does matter.
-
-I'm just adding items to the list of reasons why we need it, so
-when the time comes to do it, I won't have to waste a lot of energy
-explaining why.
+A bug fix like this should at least be cc'd to Marcelo.
 
 -- 
 Daniel

@@ -1,62 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264047AbTFCT5p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 15:57:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264072AbTFCT5o
+	id S264072AbTFCUBY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 16:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264073AbTFCUBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 15:57:44 -0400
-Received: from warrior.services.quay.plus.net ([212.159.14.227]:61845 "HELO
-	warrior.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S264047AbTFCT5m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 15:57:42 -0400
-Date: Tue, 3 Jun 2003 21:06:29 +0100
-From: Stig Brautaset <stig@brautaset.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: strange dependancy generation bug?
-Message-ID: <20030603200629.GA30842@brautaset.org>
-References: <fa.er84418.1ikmjqq@ifi.uio.no> <fa.hfbafvn.n7qkih@ifi.uio.no> <20030603191154.GA30323@brautaset.org> <20030603195651.GA17845@mars.ravnborg.org>
+	Tue, 3 Jun 2003 16:01:24 -0400
+Received: from ip68-107-142-198.tc.ph.cox.net ([68.107.142.198]:53376 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP id S264072AbTFCUBX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 16:01:23 -0400
+Date: Tue, 3 Jun 2003 13:14:34 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Alex Romosan <romosan@sycorax.lbl.gov>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-rc7
+Message-ID: <20030603201434.GA803@ip68-0-152-218.tc.ph.cox.net>
+References: <Pine.LNX.4.55L.0306031353580.3892@freak.distro.conectiva> <877k83xbbw.fsf@sycorax.lbl.gov> <20030603192711.GA22150@gtf.org> <873cirx79r.fsf@sycorax.lbl.gov>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030603195651.GA17845@mars.ravnborg.org>
+In-Reply-To: <873cirx79r.fsf@sycorax.lbl.gov>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 03 2003, Sam wrote:
-> On Tue, Jun 03, 2003 at 08:11:54PM +0100, Stig Brautaset wrote:
-> > > What happens is that within Makefile.build there is used multi line
-> > > definition, where each new-line causes make to launch a new sub-shell.
-> > > The command for the second sub-shell is echoed, even though make is told
-> > > not to do so. 
-> > 
-> > I beg to differ. Since make launches a new subshell, the commands in the
-> > second subshell is _not_ told to shut up, and thus is echoed. No?
-> 
-> In make a so-called "canned command sequence" is generated.
-> Quote from 'info make':
-> 
-> 	On the other hand, prefix characters on the command line that refers
-> 	to a canned sequence apply to every line in the sequence.  So the rule:
-> 
-> 	     frob.out: frob.in
->         	     @$(frobnicate)
-> 
-> 	does not echo _any_ commands.
-> 
-> 
-> In kbuild this is exactly what happens.
-> So according to make info the command for the second sub-shell should not
-> be echoed.
+On Tue, Jun 03, 2003 at 12:58:40PM -0700, Alex Romosan wrote:
 
-Indeed. It seem I haven't read the docs carefully enough. I was just
-looking at cause and effect -- not how it's _supposed_ to work. ;) 
+> Jeff Garzik <jgarzik@pobox.com> writes:
+> 
+> > On Tue, Jun 03, 2003 at 11:30:59AM -0700, Alex Romosan wrote:
+> >> Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+> >> 
+> >> > Now I really hope its the last one, all this rc's are making me mad.
+> >> 
+> >> i still can't get it to compile for sparc32:
+> >> 
+> >> gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -m32 -pipe -mno-fpu -fcall-used-g5 -fcall-used-g7   -nostdinc -iwithprefix include -DKBUILD_BASENAME=ksyms  -DEXPORT_SYMTAB -c ksyms.c
+> >> /usr/src/linux/include/asm/checksum.h: In function `csum_partial_copy_nocheck':
+> >> /usr/src/linux/include/asm/checksum.h:59: error: asm-specifier for variable `d' conflicts with asm clobber list
+> >> /usr/src/linux/include/asm/checksum.h:59: error: asm-specifier for variable `l' conflicts with asm clobber list
+> >> /usr/src/linux/include/asm/checksum.h: In function `csum_partial_copy_from_user':
+> >
+> > That looks like you either need a different compiler version,
+> > or different binutils version...
+> 
+> gcc (GCC) 3.3 (Debian)
+> GNU ld version 2.14.90.0.4 20030523 Debian GNU/Linux
 
-Here, with two subshells, the latter part is echoed, with one it is not. 
-However, in the light of this (to me) new information I'm at a loss as
-to what causes this to happen.
+That would do it.
 
-Stig
+> the same versions work on i386 though...
+
+Yes, but i386 either didn't have now invalid clober lists, or they were
+fixed in the -pre portion (like it was on PPC32 as well).
+
 -- 
-brautaset.org
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,35 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316889AbSF0RNm>; Thu, 27 Jun 2002 13:13:42 -0400
+	id <S316891AbSF0RW1>; Thu, 27 Jun 2002 13:22:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316891AbSF0RNl>; Thu, 27 Jun 2002 13:13:41 -0400
-Received: from realimage.realnet.co.sz ([196.28.7.3]:13192 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S316889AbSF0RNl>; Thu, 27 Jun 2002 13:13:41 -0400
-Date: Thu, 27 Jun 2002 18:45:39 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Can't find watchdog timer (sc1200)
-In-Reply-To: <200206271803.11350.roy@karlsbakk.net>
-Message-ID: <Pine.LNX.4.44.0206271844520.10717-100000@netfinity.realnet.co.sz>
+	id <S316892AbSF0RW0>; Thu, 27 Jun 2002 13:22:26 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56838 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S316891AbSF0RW0>; Thu, 27 Jun 2002 13:22:26 -0400
+Subject: Re: another way to activate AMD disconnect on VIA KT266 (aka cooling bits)
+To: utx@penguin.cz (Stanislav Brabec)
+Date: Thu, 27 Jun 2002 18:31:08 +0100 (BST)
+Cc: nofftz@castor.uni-trier.de (Daniel Nofftz), linux-kernel@vger.kernel.org
+In-Reply-To: <20020626212659.GA3565@utx.vol.cz> from "Stanislav Brabec" at Jun 26, 2002 11:27:00 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17Nd6q-0005Tq-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Jun 2002, Roy Sigurd Karlsbakk wrote:
+> For unknown reasons, the system is stable only for whole number in
+> processor multiplier. For half-number multiplier system sometimes
+> crashes.
 
-> I can't make linux (2.4.19-rc1) detect the watchdog timer in the sc1200. Any 
-> ideas? 
-
-Its only in -ac, mainly because its untested and experimental. Check 
-2.4.19-pre10-ac2
-
-Cheers,
-	Zwane
--- 
-http://function.linuxpower.ca
-		
-
+See the CPU errata document - that one is known

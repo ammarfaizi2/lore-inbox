@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266296AbUHOBXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266347AbUHODAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266296AbUHOBXT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 21:23:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266333AbUHOBXT
+	id S266347AbUHODAo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 23:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUHODAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 21:23:19 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:30438 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S266296AbUHOBXR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 21:23:17 -0400
-From: Andy Stewart <andystewart@comcast.net>
-Reply-To: andystewart@comcast.net
-Organization: Worcester Linux Users' Group
-To: Greg KH <greg@kroah.com>
-Subject: Re: USB kernel oops 2.6.7
-Date: Sat, 14 Aug 2004 21:16:17 -0400
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200408131947.55873.andystewart@comcast.net> <20040814055057.GE6838@kroah.com>
-In-Reply-To: <20040814055057.GE6838@kroah.com>
+	Sat, 14 Aug 2004 23:00:35 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:39931 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S266141AbUHODAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 23:00:25 -0400
+Date: Sat, 14 Aug 2004 23:04:23 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@fsmlabs.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH][2.6] Move Sungem to gige menu
+Message-ID: <Pine.LNX.4.58.0408141412550.22077@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200408142120.38347.andystewart@comcast.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Move Sun GEM driver option to the gigabit ethernet section.
 
-On Saturday 14 August 2004 1:50 am, Greg KH wrote:
-> On Fri, Aug 13, 2004 at 07:47:45PM -0400, Andy Stewart wrote:
-> > HI everybody,
-> >
-> > When I unplugged my Kodak DC4800 USB camera, I noticed this kernel
-> > problem in /var/log/messages.  I'm running a stock 2.6.7 kernel compiled
-> > for SMP.
->
-> Can you try 2.6.8-rc4 to see if this is fixed there or not?
->
-> And did you unmount the camera after mounting it, before removing the
-> device?
->
-> thanks,
->
-> greg k-h
+Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
 
-HI Greg,
+Index: linux-2.6.8/drivers/net/Kconfig
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.8/drivers/net/Kconfig,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 Kconfig
+--- linux-2.6.8/drivers/net/Kconfig	14 Aug 2004 17:53:39 -0000	1.1.1.1
++++ linux-2.6.8/drivers/net/Kconfig	14 Aug 2004 18:12:05 -0000
+@@ -562,14 +562,6 @@ config SUNQE
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called sunqe.
 
-I tried the 2.6.8 kernel and my USB camera is working much better - perfectly, 
-in fact! 
+-config SUNGEM
+-	tristate "Sun GEM support"
+-	depends on NET_ETHERNET && PCI
+-	select CRC32
+-	help
+-	  Support for the Sun GEM chip, aka Sun GigabitEthernet/P 2.0.  See also
+-	  <http://www.sun.com/products-n-solutions/hardware/docs/pdf/806-3985-10.pdf>.
+-
+ config NET_VENDOR_3COM
+ 	bool "3COM cards"
+ 	depends on NET_ETHERNET && (ISA || EISA || MCA || PCI)
+@@ -2131,6 +2123,13 @@ config TIGON3
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called tg3.  This is recommended.
 
-Thank you very much!
++config SUNGEM
++	tristate "Sun GEM support"
++	depends on NET_ETHERNET && PCI
++	select CRC32
++	help
++	  Support for the Sun GEM chip, aka Sun GigabitEthernet/P 2.0.  See also
++	  <http://www.sun.com/products-n-solutions/hardware/docs/pdf/806-3985-10.pdf>.
+ endmenu
 
-Andy
-
-- -- 
-Andy Stewart, Founder
-Worcester Linux Users' Group
-Worcester, MA  USA
-http://www.wlug.org
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBHrlqHl0iXDssISsRAjifAJ4mP94E8M53cS+cW+Jv75NRgUFpsgCeNJZe
-mSgJFwWf6VotZn9Art3/nP8=
-=kfH1
------END PGP SIGNATURE-----
+ #

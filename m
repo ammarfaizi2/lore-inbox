@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130371AbRAHRJI>; Mon, 8 Jan 2001 12:09:08 -0500
+	id <S131652AbRAHRJR>; Mon, 8 Jan 2001 12:09:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129819AbRAHRIs>; Mon, 8 Jan 2001 12:08:48 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:60269 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129736AbRAHRIk>; Mon, 8 Jan 2001 12:08:40 -0500
-Date: Mon, 8 Jan 2001 18:08:57 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: Alexander Viro <viro@math.psu.edu>
-Subject: `rmdir .` doesn't work in 2.4
-Message-ID: <20010108180857.A26776@athlon.random>
-Mime-Version: 1.0
+	id <S131388AbRAHRJI>; Mon, 8 Jan 2001 12:09:08 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6150 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129736AbRAHRIx>; Mon, 8 Jan 2001 12:08:53 -0500
+Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
+To: stefan@hello-penguin.com
+Date: Mon, 8 Jan 2001 17:10:11 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), viro@math.psu.edu (Alexander Viro),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010108172225.A1391@stefan.sime.com> from "Stefan Traby" at Jan 08, 2001 05:22:25 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14FfoD-0004wW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Al,
+> I reread SuSv2 again and didn't found corner cases.
+> Do you mean FIFO/pipe stuff ? I can't see the problem in this area.
+> 
+> In which case is an emulation of pathconf by fpathconf impossible ?
 
-why `rmdir .` is been deprecated in 2.4.x?  I wrote software that depends on
-`rmdir .` to work (it's local software only for myself so I don't care that it
-may not work on unix) and I'm getting flooded by failing cronjobs since I put
-2.4.0 on such machine.  `rmdir .` makes perfect sense, the cwd dentry remains
-pinned by me until I `cd ..`, when it gets finally deleted from disk.  I'd like
-if we could resurrect such fine feature (adapting userspace is just a few liner
-but that isn't the point). Comments?
+use all your file descriptors up. Now try
 
-Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

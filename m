@@ -1,64 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132813AbRDQScQ>; Tue, 17 Apr 2001 14:32:16 -0400
+	id <S132809AbRDQSmu>; Tue, 17 Apr 2001 14:42:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132811AbRDQSb6>; Tue, 17 Apr 2001 14:31:58 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:35956 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S132815AbRDQSb1>; Tue, 17 Apr 2001 14:31:27 -0400
-Date: Tue, 17 Apr 2001 13:31:22 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200104171831.NAA78267@tomcat.admin.navo.hpc.mil>
-To: lsawyer@gci.com, Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
-        Ian.Stirling@tomcat.admin.navo.hpc.mil, <root@mauve.demon.co.uk>,
-        linux-kernel@vger.kernel.org
-Subject: RE: IP Acounting Idea for 2.5
-X-Mailer: [XMailTool v3.1.2b]
+	id <S132811AbRDQSml>; Tue, 17 Apr 2001 14:42:41 -0400
+Received: from sirius-giga.rz.uni-ulm.de ([134.60.246.36]:39814 "EHLO
+	mail.rz.uni-ulm.de") by vger.kernel.org with ESMTP
+	id <S132809AbRDQSm1>; Tue, 17 Apr 2001 14:42:27 -0400
+Date: Tue, 17 Apr 2001 20:42:25 +0200 (MEST)
+From: Markus Schaber <markus.schaber@student.uni-ulm.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: AHA-154X/1535 not recognized any more
+Message-ID: <Pine.SOL.4.33.0104172009480.16832-100000@lyra.rz.uni-ulm.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Leif Sawyer <lsawyer@gci.com>:
-> > And that introduces errors in measurement. It also depends on 
-> > how frequently an uncontroled process is clearing the counters.
-> > You may never be able to get a valid measurement.
-> 
-> This is true.  Which is why application programmers need to write
-> code as if they are not the only [ab]users of data.
-> 
-> Which brings me back to my point.
-> 
-> Don't force the kernel to uphold your local application requirements
-> of stable counters.
-> 
-> Enforce it in the userspace portion of the code.
-> 
-> <subtopic>
-> Yes, you could extend the proc filesystem (ugh) with a flag that could
-> be read by the ip[chains|tables] user app to determine if clearing flags
-> were allowed.  Then a simple
-> 
-> echo 1 > /proc/sys/net/ipv4/counters_locked
-> 
-> or some such cruft.  But I don't see this extension making into the
-> standard kernel at this time.  It just seems to be wasteful.
-> </subtopic>
-> 
-> If you (at your site) really need this type of functionality, it's
-> pretty darn simple to write a wrapper to ip[tables|chains] which
-> silently (or not so) drops the option to clear the counters before
-> calling the real version.
-> 
-> Besides, what would be gained in making the counters RO, if they were
-> cleared every time the module was loaded/unloaded?
+Hello,
 
-1. Knowlege that the module was reloaded.
-2. Knowlege that the data being measured is correct
-3. Having reliable measures
-4. being able to derive valid statistics
-....
+In my computer, I use an old ISA PNP SCSI host adapter, where I connectend
+an external Iomega ZIP plus - this strange device (PPA and SCSI on the
+same connector) doesn't like to share its SCSI-Bus with other devices -
+thus I need two host adapters for two devices :-(
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+Now I have the problem that kernels 2.4.2 and 2.4.3 don't recognize this
+adapter any more, while all 2.2-kernels I used (I currently remember
+2.2.19, 2.2.18 and debian-2.2.17pre6) work with it without problems.
 
-Any opinions expressed are solely my own.
+The BIOS message states it is an AHA 1540CP/1542CP BIOS V1.2, Win98SE
+recognizes it as an AHA-154X/AHA-1535 Plug and Play SCSI Adapter, and runs
+it with IRQ 10 and DMA 7.
+
+According to dmesg, the 2.2.X kernels recognize it as an AHA 1542, whereas
+the 2.4 series says that isapnp found an aha1535, but no driver is loaded.
+
+pnpdump from isapnptools-1.21 recognizes it as an ADP1542 - even when
+running with an 2.4.3-kernel.
+
+I have put both dmesg-outputs and some other hopefully debugging output on
+the web at http://schabi.de/scsi/ - I didn't want to post those files on
+the mailing list, but if some of don't have http access, I'll happily mail
+you those files personally.
+
+Now I want to know whether this is a bug in the kernel (and where to
+search to eventually fix it) or a misconfiguration in my host.
+
+If you need some other info, or want me to run some tests, feel free to
+mail me. It might even be possible to borrow the card to someone, as I'll
+by a second hand IDE ZIP tomorrow, and then I could spare the card for
+some weeks.
+
+Thanks a lot,
+markus
+
+PS: I subscribed to the kernel list, so you don't have to BCC your answers
+to me.
+

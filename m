@@ -1,73 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263409AbVBDBUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVBDBUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263409AbVBDBUa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 20:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263358AbVBDBUJ
+	id S261233AbVBDBUb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 20:20:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263333AbVBDBTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 20:20:09 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:49539 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S261842AbVBDA7Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 19:59:25 -0500
-Message-ID: <4202C8EA.7060802@home-tj.org>
-Date: Fri, 04 Feb 2005 09:59:22 +0900
-From: Tejun Heo <tj@home-tj.org>
-User-Agent: Debian Thunderbird 1.0 (X11/20050118)
-X-Accept-Language: en-us, en
+	Thu, 3 Feb 2005 20:19:22 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:50770 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263098AbVBDA4i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 19:56:38 -0500
+Message-ID: <4202C839.8000103@yahoo.com.au>
+Date: Fri, 04 Feb 2005 11:56:25 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [PATCH 2.6.11-rc2 29/29] ide: make data_phase explicit in NO_DATA
- cases
-References: <20050202024017.GA621@htj.dyndns.org>	 <20050202031238.GN1187@htj.dyndns.org> <58cb370e050203094326ddfce8@mail.gmail.com>
-In-Reply-To: <58cb370e050203094326ddfce8@mail.gmail.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+To: =?UTF-8?B?77+9?= <terje_fb@yahoo.no>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2.6.10: kswapd spins like crazy
+References: <20050203195033.29314.qmail@web51608.mail.yahoo.com> <4202BE05.9090901@yahoo.com.au>
+In-Reply-To: <4202BE05.9090901@yahoo.com.au>
+Content-Type: multipart/mixed;
+ boundary="------------060502050903040208020601"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On Wed, 2 Feb 2005 12:12:38 +0900, Tejun Heo <tj@home-tj.org> wrote:
-> 
->>>29_ide_explicit_TASKFILE_NO_DATA.patch
->>>
->>>      Make data_phase explicit in NO_DATA cases.
->>
->>Signed-off-by: Tejun Heo <tj@home-tj.org>
->>
->>Index: linux-ide-export/drivers/ide/ide-disk.c
->>===================================================================
->>--- linux-ide-export.orig/drivers/ide/ide-disk.c        2005-02-02 10:28:07.852771465 +0900
->>+++ linux-ide-export/drivers/ide/ide-disk.c     2005-02-02 10:28:08.121727827 +0900
->>@@ -300,6 +300,7 @@ static unsigned long idedisk_read_native
->>        args.tfRegister[IDE_SELECT_OFFSET]      = 0x40;
->>        args.tfRegister[IDE_COMMAND_OFFSET]     = WIN_READ_NATIVE_MAX;
->>        args.command_type                       = IDE_DRIVE_TASK_NO_DATA;
->>+       args.data_phase                         = TASKFILE_NO_DATA;
->>        args.handler                            = &task_no_data_intr;
-> 
-> 
-> Could you add small helper to ide.h for doing this?
-> 
-> static inline void ide_prep_no_data_cmd(ide_task_t *task)
-> {
->         task->command_type = IDE_DRIVE_TASK_NO_DATA;
->         task->data_phase      = TASKFILE_NO_DATA;
->         task->handler            = &task_no_data_intr;
-> }
+This is a multi-part message in MIME format.
+--------------060502050903040208020601
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I am thinking about removing task->handler initialization.  Such that it 
-defaults to task_no_data_intr if data_phase == TASKFILE_NO_DATA and so 
-on for all other data_phases.  Currently, the same information is 
-specified repeatedly.  What do you think?
+Nick Piggin wrote:
 
-> Also please move this patch earlier in the series
-> so I can merge it quickly.
-> 
-> Thanks.
+> Hmm, your DMA zone has no active pages, and pages_scanned (which 
+> triggers all_unreclaimable)
+> is only incremented when scanning the active list. But I wonder, if the 
+> pages can't be
+> freed, why aren't they being put on the active list?
 
-Sure.
+Oh, attached should be a minimal fix if you would like to try it out.
 
--- 
-tejun
+--------------060502050903040208020601
+Content-Type: text/plain;
+ name="vmscan-minfix.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="vmscan-minfix.patch"
+
+CgoKLS0tCgogbGludXgtMi42LW5waWdnaW4vbW0vdm1zY2FuLmMgfCAgICAxICsKIDEgZmls
+ZXMgY2hhbmdlZCwgMSBpbnNlcnRpb24oKykKCmRpZmYgLXB1TiBtbS92bXNjYW4uY352bXNj
+YW4tbWluZml4IG1tL3Ztc2Nhbi5jCi0tLSBsaW51eC0yLjYvbW0vdm1zY2FuLmN+dm1zY2Fu
+LW1pbmZpeAkyMDA1LTAyLTA0IDExOjUyOjM3LjAwMDAwMDAwMCArMTEwMAorKysgbGludXgt
+Mi42LW5waWdnaW4vbW0vdm1zY2FuLmMJMjAwNS0wMi0wNCAxMTo1MzozMi4wMDAwMDAwMDAg
+KzExMDAKQEAgLTU3NSw2ICs1NzUsNyBAQCBzdGF0aWMgdm9pZCBzaHJpbmtfY2FjaGUoc3Ry
+dWN0IHpvbmUgKnpvCiAJCQlucl90YWtlbisrOwogCQl9CiAJCXpvbmUtPm5yX2luYWN0aXZl
+IC09IG5yX3Rha2VuOworCQl6b25lLT5wYWdlc19zY2FubmVkICs9IG5yX3NjYW47CiAJCXNw
+aW5fdW5sb2NrX2lycSgmem9uZS0+bHJ1X2xvY2spOwogCiAJCWlmIChucl90YWtlbiA9PSAw
+KQoKXwo=
+--------------060502050903040208020601--
 

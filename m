@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131331AbRCNI2u>; Wed, 14 Mar 2001 03:28:50 -0500
+	id <S131255AbRCNJcZ>; Wed, 14 Mar 2001 04:32:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131332AbRCNI2l>; Wed, 14 Mar 2001 03:28:41 -0500
-Received: from limes.hometree.net ([194.231.17.49]:1657 "EHLO
-	limes.hometree.net") by vger.kernel.org with ESMTP
-	id <S131331AbRCNI2e>; Wed, 14 Mar 2001 03:28:34 -0500
-To: linux-kernel@vger.kernel.org
-Date: Wed, 14 Mar 2001 08:12:06 +0000 (UTC)
-From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
-Message-ID: <98n94m$5pt$1@forge.intermeta.de>
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-In-Reply-To: <20010314015921.19287.qmail@web11808.mail.yahoo.com>, <15022.53815.129522.746120@pizda.ninka.net>
-Reply-To: hps@tanstaafl.de
-Subject: Re: poll() behaves differently in Linux 2.4.1 vs. Linux 2.2.14 (POLLHUP)
+	id <S131269AbRCNJcO>; Wed, 14 Mar 2001 04:32:14 -0500
+Received: from rcum.uni-mb.si ([164.8.2.10]:36101 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S131255AbRCNJcB>;
+	Wed, 14 Mar 2001 04:32:01 -0500
+Date: Wed, 14 Mar 2001 10:31:02 +0100
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: Linux 2.4.2ac20
+To: Nathan Walp <faceprint@faceprint.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <3AAF3A56.C4EA2A95@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.7 [en] (WinNT; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
+In-Reply-To: <3AAE4DB6.8349ACBA@uni-mb.si> <3AAE7406.283D2411@faceprint.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-davem@redhat.com (David S. Miller) writes:
+Nathan Walp wrote:
+> 
+> David Balazic wrote:
+> >
+> > Nathan Walp (faceprint@faceprint.com) wrote :
+> >
+> > > Also, sometime between ac7 and ac18 (spring break kept me from testing
+> > > stuff inbetween), i assume during the new aic7xxx driver merge, the
+> > > order of detection got changed, and now the ide-scsi virtual host is
+> > > host0, and my 29160N is host1. Is this on purpose? It messed up a
+> > > bunch of my stuff as far as /dev and such are concerned.
+> >
+> > SCSI adapters are enumerated randomly(*) , relying on certain numbering
+> > will get you into trouble, sooner or later.
+> > There is no commonly accepted solution, AFAIK.
+> > The same thing can happent to disk enumeration ( sdb becomes sdc )
+> > or partition enumeration ( hda6 becomes hda5 ).
+> >
+> > * - theoreticaly no, but practicaly yes ( most of the time )
+> >
+> > --
+> > David Balazic
+> > --------------
+> > "Be excellent to each other." - Bill & Ted
+> > - - - - - - - - - - - - - - - - - - - - - -
+> 
+> SCSI adapters are given host numbers in a random order?  Even with no
+> hardware changes?  Does this make less than sense to anyone else?  Every
+> kernel EVER up till now has had the real scsi cards (in some particular
+> order) then ide-scsi.  Have I just been lucky???
+> 
+> Nathan
 
->Jeffrey Butler writes:
-> >   I've noticed that poll() calls on IPv4 sockets do
-> > not behave the same under linux 2.4 vs. linux 2.2.14. 
-> > Linux 2.4 will return POLLHUP for a socket that is not
-> > connected (and has never been connected) while Linux
-> > 2.2 will not.
-> >   The following example program demonstrates the
-> > problem when it's run under linux 2.4:
+What I mean that too many factors are affecting the enumeration,
+so that you can not rely on it :
 
->True, this behavior was changed from 2.2.x.  We now match the behavior
->of other svr4 systems, in particular Solaris.  This new behavior in
->2.4.x will not change.
+-  kernel changes
+-  driver changes ( partly overlaps with the previous poit )
+-  hardware changes
+-  something else ?
 
-Hi,
+There is no policy for this enumeration ( AFAIK ) , so there is
+nothing to rely on , except luck :-)
 
-but Jeffrey wrote:
-
---- cut ---
-JB> Other operating systems (not that they are necessarily
-JB> correct) also output the same as Linux 2.2.14.  I
-JB> tried this on FreeBSD 4.4.1, Solaris 5.7 (on a SPARC),
-JB> and Windows 2000 with Cygwin 1.1.7.
---- cut ---
-
-This is BSD, SysVR4 and an abomination all behaving like 2.2.x and not
-2.4.x (which confuses the heck out of a poll()-using daemon
-here... :-) )
-
-I'd prefer not to have too many user space surprises in moving from
-2.2 to 2.4.
-
-	Regards
-		Henning
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

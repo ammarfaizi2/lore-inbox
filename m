@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283780AbRLROVg>; Tue, 18 Dec 2001 09:21:36 -0500
+	id <S283783AbRLRO14>; Tue, 18 Dec 2001 09:27:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283782AbRLROV1>; Tue, 18 Dec 2001 09:21:27 -0500
-Received: from adsl-67-36-120-14.dsl.klmzmi.ameritech.net ([67.36.120.14]:15233
-	"HELO tabris.net") by vger.kernel.org with SMTP id <S283780AbRLROVR>;
-	Tue, 18 Dec 2001 09:21:17 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Adam Schrotenboer <adam@tabris.net>
-Organization: Dome-S-Isle Data
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler ( was: Just a second ) ...
-Date: Tue, 18 Dec 2001 09:21:08 -0500
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20011217200946.D753@holomorphy.com> <Pine.LNX.4.33.0112172014530.2281-100000@penguin.transmeta.com> <20011217205547.C821@holomorphy.com>
-In-Reply-To: <20011217205547.C821@holomorphy.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011218142110.A0DD2FB8C0@tabris.net>
+	id <S284038AbRLRO1q>; Tue, 18 Dec 2001 09:27:46 -0500
+Received: from mail.internet-factory.de ([195.122.142.5]:15076 "EHLO
+	mail.internet-factory.de") by vger.kernel.org with ESMTP
+	id <S283783AbRLRO1p>; Tue, 18 Dec 2001 09:27:45 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Holger Lubitz <h.lubitz@internet-factory.de>
+Newsgroups: lists.linux.kernel
+Subject: Re: 2.4.16 memory badness (reproducible)
+Date: Tue, 18 Dec 2001 15:27:44 +0100
+Organization: Internet Factory AG
+Message-ID: <3C1F5260.2F468E0C@internet-factory.de>
+In-Reply-To: <200112082142.fB8LgAb02089@orp.orf.cx> <Pine.LNX.4.21.0112111850090.1164-100000@localhost.localdomain> <20011211235908.L4801@athlon.random>
+NNTP-Posting-Host: bastille.internet-factory.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Trace: darkstar.internet-factory.de 1008685664 13362 195.122.142.158 (18 Dec 2001 14:27:44 GMT)
+X-Complaints-To: usenet@internet-factory.de
+NNTP-Posting-Date: 18 Dec 2001 14:27:44 GMT
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-ac7 i686)
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 December 2001 23:55, William Lee Irwin III wrote:
-> On Mon, Dec 17, 2001 at 08:27:18PM -0800, Linus Torvalds wrote:
-> > The most likely cause is simply waking up after each sound interrupt: you
-> > also have a _lot_ of time handling interrupts. Quite frankly, web surfing
-> > and mp3 playing simply shouldn't use any noticeable amounts of CPU.
->
-> I think we have a winner:
-> /proc/interrupts
-> ------------------------------------------------
->            CPU0
->   0:   17321824          XT-PIC  timer
->   1:          4          XT-PIC  keyboard
->   2:          0          XT-PIC  cascade
->   5:   46490271          XT-PIC  soundblaster
->   9:     400232          XT-PIC  usb-ohci, eth0, eth1
->  11:     939150          XT-PIC  aic7xxx, aic7xxx
->  14:         13          XT-PIC  ide0
->
-> Approximately 4 times more often than the timer interrupt.
-> That's not nice...
+Andrea Arcangeli proclaimed:
 
-FWIW, I have an ES1371 based sound card, and mpg123 drives it at 172 
-interrupts/sec (calculated in procinfo). But that _is_ only when playing. And 
-(my slightly hacked) timidity drives my card w/ only 23(@48kHz sample rate; 
-21 @ 44.1kHz) interrupts/sec
+> He always get vmalloc failures, this is way too suspect. If the VM
+> memory balancing was the culprit he should get failures with all the
+> other allocations too. So it has to be a problem with a shortage of the
+> address space available to vmalloc, not a problem with the page
+> allocator.
 
-Is this 172 figure right? (Not through esd either. i almost always turn it 
-off, and sp recompiled mpg123 to use the std OSS driver)
+Leigh pointed me to your post in reply to another thread (modify_ldt
+failing on highmem machine).
 
->
-> On Mon, Dec 17, 2001 at 08:27:18PM -0800, Linus Torvalds wrote:
-> > Which sound driver are you using, just in case this _is_ the reason?
->
-> SoundBlaster 16
-> A change of hardware should help verify this.
->
->
-> Cheers,
-> Bill
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Is there any special vmalloc handling on highmem kernels? I only run
+into the problem if I am using high memory support in the kernel. I
+haven't been able to reproduce the problem with 896M or less, which
+strikes me as slightly odd. Why does _more_ memory trigger "no memory"
+failures?
+
+The problem is indeed not vm specific. the last -ac kernel shows the
+problem, too (and that one still has the old vm, doesn't it?)
+
+Holger

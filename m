@@ -1,67 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265638AbTFSAGz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 20:06:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265639AbTFSAGz
+	id S265653AbTFSAI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 20:08:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265644AbTFSAIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 20:06:55 -0400
-Received: from fed1mtao06.cox.net ([68.6.19.125]:26240 "EHLO
-	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S265638AbTFSAGx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 20:06:53 -0400
-Message-ID: <3EF101E4.3030900@cox.net>
-Date: Wed, 18 Jun 2003 17:20:52 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030603
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Flaw in the driver-model implementation of attributes
-References: <20030619000604.19693.qmail@email.com>
-In-Reply-To: <20030619000604.19693.qmail@email.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Jun 2003 20:08:17 -0400
+Received: from almesberger.net ([63.105.73.239]:24339 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S265648AbTFSAHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 20:07:39 -0400
+Date: Wed, 18 Jun 2003 21:20:18 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Luigi Rosa <kernel@mail.hypertrek.info>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Sco vs. IBM
+Message-ID: <20030618212017.B6248@almesberger.net>
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <063301c32c47$ddc792d0$3f00a8c0@witbe> <5.2.0.9.2.20030607044649.00cd4590@pop.gmx.net> <1055957807.16818.12.camel@loke> <6119329250.20030618195802@mail.hypertrek.info>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6119329250.20030618195802@mail.hypertrek.info>; from kernel@mail.hypertrek.info on Wed, Jun 18, 2003 at 07:58:02PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clayton Weaver wrote:
+Luigi Rosa wrote:
+> <http://www.forbes.com/2003/06/18/cz_dl_0618linux.html>
 
-> (Doubting that there is a sysfs faq anywhere
-> yet, ...)
+"[...] in two other Canopy companies, Troll Tech and Lineo, [...]"
 
-Sounds like we're getting there!
+Makes one wonder what else to expect in the future ...
 
-> 
-> What is a sysfs "class", as in /sys/class/...?
+- Werner
 
-It is an abstraction. It is a group of objects that implement common 
-functionality, and have common attributes and behaviors.
-
-> 
-> What do sysfs classes have in common? How is
-> a /sys/class/ different from a /sys/devices,
-> /sys/bus, etc?
-
-/sys/bus, /sys/block are just special-case classes that get their own 
-top-level directory. They could just easily have been put under 
-/sys/class/block, /sys/class/bus.
-
-> 
-> In re: the current discussion, are the "usb-storage" attributes under discussion
-> something that the vfs would need to know
-> about(/sys/block/)? Something that a pci
-> bus would need to know about? Something that
-> a usb controller would need to know about?
-
-IMHO, no. Any attributes specific to a usb-storage device are not 
-something that any other layer would care about. As an example, a 
-flash-memory USB key I have here support software write protection; 
-while I don't know if the usb-storage driver currently exposes that, it 
-could, and that would be very specific to usb-storage. Any userspace 
-application that wanted to manipulate the state of that protection would 
-look at /sys/class/usb-storage/... for devices it could potentially 
-manage. It doesn't need to how or where those devices are connected, or 
-even what type of media they may be. It only needs to know that they are 
-usb-storage devices, and that they have a "writeprotect" attribute 
-exposed in the appropriate place.
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

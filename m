@@ -1,95 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267614AbUHEJ7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267616AbUHEKFp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267614AbUHEJ7b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 05:59:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267615AbUHEJ7b
+	id S267616AbUHEKFp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 06:05:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267617AbUHEKFp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 05:59:31 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:7590 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267614AbUHEJ72 (ORCPT
+	Thu, 5 Aug 2004 06:05:45 -0400
+Received: from mail.tpgi.com.au ([203.12.160.103]:51681 "EHLO mail.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S267616AbUHEKFo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 05:59:28 -0400
-Date: Thu, 5 Aug 2004 15:32:27 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org, ak@muc.de, akpm@osdl.org,
-       suparna@in.ibm.com
-Subject: [2/3] kprobes-netfilter-268-rc3.patch
-Message-ID: <20040805100227.GB2303@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
+	Thu, 5 Aug 2004 06:05:44 -0400
+Subject: Re: Solving suspend-level confusion
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: David Brownell <david-b@pacbell.net>, Oliver Neukum <oliver@neukum.org>,
+       Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+In-Reply-To: <1091595811.5226.105.camel@gaston>
+References: <20040730164413.GB4672@elf.ucw.cz>
+	 <200408020938.17593.david-b@pacbell.net> <1091493486.7396.92.camel@gaston>
+	 <200408031928.08475.david-b@pacbell.net>
+	 <1091586381.3189.14.camel@laptop.cunninghams>
+	 <1091587985.5226.74.camel@gaston>
+	 <1091587929.3303.38.camel@laptop.cunninghams>
+	 <1091592870.5226.80.camel@gaston>
+	 <1091593555.3191.48.camel@laptop.cunninghams>
+	 <1091595125.5227.96.camel@gaston>
+	 <1091595258.3303.74.camel@laptop.cunninghams>
+	 <1091595811.5226.105.camel@gaston>
+Content-Type: text/plain
+Message-Id: <1091698068.2964.164.camel@laptop.cunninghams>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="jq0ap7NbKX2Kqbes"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 05 Aug 2004 20:05:25 +1000
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
---jq0ap7NbKX2Kqbes
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Wed, 2004-08-04 at 15:03, Benjamin Herrenschmidt wrote:
+> That's where the whole confusion is indeed... and why we need to make
+> that clear. The IDE driver will sleep the disk for 3 and keep it spinning
+> for 4
 
-Hi,
+Discovered the problem; another layer of confusion! I was using
+PM_SUSPEND_DISK, which actually evaluates to 3, not 4 as I thought. Now
+that I'm using the literal 4, it works fine.
 
-Below  is the [2/3] kprobes-netfilter-268-rc3.patch.
-This patche includes changes to export the dump_packet routine.
+Nigel
 
-Please see the description of individual patches for more details.
-
-Thanks
-Prasanna
--- 
-
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
-
---jq0ap7NbKX2Kqbes
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="kprobes-netfilter-268-rc3.patch"
-
-
-This patch exports the dump_packet kernel routine, useful for dumping
-network packets.
----
-
-
-
----
-
-
-diff -puN include/linux/netfilter_ipv4/ipt_LOG.h~kprobes-netfilter-268-rc3 include/linux/netfilter_ipv4/ipt_LOG.h
---- linux-2.6.8-rc3/include/linux/netfilter_ipv4/ipt_LOG.h~kprobes-netfilter-268-rc3	2004-08-06 04:39:40.815978448 -0700
-+++ linux-2.6.8-rc3-root/include/linux/netfilter_ipv4/ipt_LOG.h	2004-08-06 04:39:40.826976776 -0700
-@@ -11,5 +11,7 @@ struct ipt_log_info {
- 	unsigned char logflags;
- 	char prefix[30];
- };
-+void dump_packet(const struct ipt_log_info *info, const struct sk_buff *skb,
-+			unsigned int iphoff);
- 
- #endif /*_IPT_LOG_H*/
-diff -puN net/ipv4/netfilter/ipt_LOG.c~kprobes-netfilter-268-rc3 net/ipv4/netfilter/ipt_LOG.c
---- linux-2.6.8-rc3/net/ipv4/netfilter/ipt_LOG.c~kprobes-netfilter-268-rc3	2004-08-06 04:39:40.819977840 -0700
-+++ linux-2.6.8-rc3-root/net/ipv4/netfilter/ipt_LOG.c	2004-08-06 04:39:40.827976624 -0700
-@@ -41,7 +41,7 @@ MODULE_PARM_DESC(nflog, "register as int
- static spinlock_t log_lock = SPIN_LOCK_UNLOCKED;
- 
- /* One level of recursion won't kill us */
--static void dump_packet(const struct ipt_log_info *info,
-+void dump_packet(const struct ipt_log_info *info,
- 			const struct sk_buff *skb,
- 			unsigned int iphoff)
- {
-@@ -461,5 +461,6 @@ static void __exit fini(void)
- 	ipt_unregister_target(&ipt_log_reg);
- }
- 
-+EXPORT_SYMBOL_GPL(dump_packet);
- module_init(init);
- module_exit(fini);
-
-_
-
---jq0ap7NbKX2Kqbes--

@@ -1,80 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292947AbSBVSPT>; Fri, 22 Feb 2002 13:15:19 -0500
+	id <S292950AbSBVSUt>; Fri, 22 Feb 2002 13:20:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292950AbSBVSPL>; Fri, 22 Feb 2002 13:15:11 -0500
-Received: from 216-42-72-168.ppp.netsville.net ([216.42.72.168]:25744 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S292947AbSBVSPB>; Fri, 22 Feb 2002 13:15:01 -0500
-Date: Fri, 22 Feb 2002 13:14:21 -0500
-From: Chris Mason <mason@suse.com>
-To: James Bottomley <James.Bottomley@steeleye.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3) 
-Message-ID: <1064010000.1014401661@tiny>
-In-Reply-To: <200202221736.g1MHaMc04473@localhost.localdomain>
-In-Reply-To: <200202221736.g1MHaMc04473@localhost.localdomain>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S292951AbSBVSUk>; Fri, 22 Feb 2002 13:20:40 -0500
+Received: from os.inf.tu-dresden.de ([141.76.48.99]:29434 "EHLO
+	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
+	id <S292950AbSBVSU3>; Fri, 22 Feb 2002 13:20:29 -0500
+Date: Fri, 22 Feb 2002 19:20:24 +0100
+From: Adam Lackorzynski <adam@os.inf.tu-dresden.de>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: fernando@quatro.com.br, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18-rcx: Dual P3 + VIA + APIC
+Message-ID: <20020222182024.GG13774@os.inf.tu-dresden.de>
+Mail-Followup-To: Stephan von Krawczynski <skraw@ithnet.com>,
+	fernando@quatro.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <20020220104129.GP13774@os.inf.tu-dresden.de> <051a01c1bb01$70634580$c50016ac@spps.com.br> <20020221211142.0cf0efa4.skraw@ithnet.com> <20020222130246.GD13774@os.inf.tu-dresden.de> <20020222141101.0cc342e1.skraw@ithnet.com> <20020222164558.GE13774@os.inf.tu-dresden.de> <20020222180429.313bd377.skraw@ithnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+In-Reply-To: <20020222180429.313bd377.skraw@ithnet.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri Feb 22, 2002 at 18:04:29 +0100, Stephan von Krawczynski wrote:
+> Your config is not identical to the one I sent. If you want to find
+> out what the problem is, you must first try to produce a setup that is
+> known good. So simply use my config, even if it contains stuff you
+> don't need, and especially if it does not contain stuff you want.
+> Your primary goal is: let the box boot.
+
+Yours (+serial console) doesn't work either, so I stripped out most
+unneeded things. I'm going to rip out all cards except net and graphics
+to see if that helps but that has to wait till Monday...
+
+BTW: I just got this:
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU clock speed is 937.5536 MHz.
+..... host bus clock speed is 133.9358 MHz.
+cpu: 0, clocks: 1339358, slice: 446452
+CPU0<T0:1339344,T1:892880,D:12,S:446452,C:1339358>
+cpu: 1, clocks: 1339358, slice: 446452
+CPU1<T0:1339344,T1:446432,D:8,S:446452,C:1339358>
+checking TSC synchronization across CPUs: 
+BIOS BUG: CPU#0 improperly initialized, has -6 usecs TSC skew! FIXED.
+BIOS BUG: CPU#1 improperly initialized, has 6 usecs TSC skew! FIXED.
+Waiting on wait_init_idle (map = 0x
 
 
-On Friday, February 22, 2002 12:36:22 PM -0500 James Bottomley <James.Bottomley@steeleye.com> wrote:
+Maybe this means something...
 
-> sct@redhat.com said:
->> There is a get-out for ext3 --- we can submit new journal IOs without
->> waiting for the commit IO to complete, but hold back on writeback IOs.
->> That still has the desired advantage of allowing us to stream to the
->> journal, but only requires that the commit block be ordered with
->> respect to older, not newer, IOs.  That gives us most of the benefits
->> of tagged queuing without any problems in your scenario. 
-> 
-> Actually, I intended the tagged queueing discussion to be discouraging.  
 
-;-) 
 
-> The 
-> amount of work that would have to be done to implement it is huge, touching, 
-> as it does, every low level driver's interrupt routine.  For the drivers that 
-> require scripting changes to the chip engine, it's even worse: only someone 
-> with specialised knowledge can actually make the changes.
-> 
-> It's feasible, but I think we'd have to demonstrate some quite significant 
-> performance or other improvements before changes on this scale would fly.
-
-Very true.  At best, we pick one card we know it could work on, and
-one target that we know is smart about tags, and try to demonstrate
-the improvement.
-
-> 
-> Neither of you commented on the original suggestion.  What I was wondering is 
-> if we could benchmark (or preferably improve on) it:
-> 
-> James.Bottomley@SteelEye.com said:
->> The easy way out of the problem, I think, is to impose the barrier as
->> an  effective queue plug in the SCSI mid-layer, so that after the
->> mid-layer  recevies the barrier, it plugs the device queue from below,
->> drains the drive  tag queue, sends the barrier and unplugs the device
->> queue on barrier I/O  completion. 
-
-The main way the barriers could help performance is by allowing the
-drive to write all the transaction and commit blocks at once.  Your
-idea increases the chance the drive heads will still be correctly 
-positioned to write the commit block, but doesn't let the drive 
-stream things better.
-
-The big advantage to using wait_on_buffer() instead is that it doesn't
-order against data writes at all (from bdflush, or some other proc
-other than a commit), allowing the drive to optimize those
-at the same time it is writing the commit.  Using ordered tags has the
-same problem, it might just be that wait_on_buffer is the best way to 
-go.
-
--chris
-
+Adam
+-- 
+Adam                 adam@os.inf.tu-dresden.de
+  Lackorzynski         http://a.home.dhs.org

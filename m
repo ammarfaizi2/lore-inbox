@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135691AbRDXPuY>; Tue, 24 Apr 2001 11:50:24 -0400
+	id <S135684AbRDXPyY>; Tue, 24 Apr 2001 11:54:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135688AbRDXPuO>; Tue, 24 Apr 2001 11:50:14 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:53520 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135684AbRDXPt5>; Tue, 24 Apr 2001 11:49:57 -0400
-Date: Tue, 24 Apr 2001 08:49:39 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: David Howells <dhowells@warthog.cambridge.redhat.com>,
-        David Howells <dhowells@cambridge.redhat.com>,
+	id <S135685AbRDXPyO>; Tue, 24 Apr 2001 11:54:14 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57868 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135684AbRDXPyG>; Tue, 24 Apr 2001 11:54:06 -0400
+Subject: Re: [OFFTOPIC] Re: [PATCH] Single user linux
+To: cat@zip.com.au (CaT)
+Date: Tue, 24 Apr 2001 16:53:10 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), viro@math.psu.edu (Alexander Viro),
+        mhaque@haque.net (Mohammad A. Haque),
+        ttel5535@artax.karlin.mff.cuni.cz,
+        mharris@opensourceadvocate.org (Mike A. Harris),
         linux-kernel@vger.kernel.org
-Subject: Re: rwsem benchmark [was Re: [PATCH] rw_semaphores, optimisations
- try #3]
-In-Reply-To: <20010424124450.C1682@athlon.random>
-Message-ID: <Pine.LNX.4.21.0104240844380.15642-100000@penguin.transmeta.com>
+In-Reply-To: <20010425011132.H1245@zip.com.au> from "CaT" at Apr 25, 2001 01:11:32 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14s57p-0002LM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 1. email -> sendmail
+> 2. sendmail figures out what it has to do with it. turns out it's deliver
+...
 
-On Tue, 24 Apr 2001, Andrea Arcangeli wrote:
-> 
-> > > Again it's not a performance issue, the "+a" (sem) is a correctness issue
-> > > because the slow path will clobber it.
-> > 
-> > There must be a performance issue too, otherwise our read up/down fastpaths
-> > are the same. Which clearly they're not.
-> 
-> I guess I'm faster because I avoid the pipeline stall using "+m" (sem->count)
-> that is written as a constant, that was definitely intentional idea.
+> Now, in order for step 4 to be done safely, procmail should be running
+> as the user it's meant to deliver the mail for. for this to happen
+> sendmail needs to start it as that user in step 3 and to do that it
+> needs extra privs, above and beyond that of a normal user.
 
-Guys.
+	email -> sendmail
+	sendmail 'its local' -> spool
 
-You're arguing over stalls that are (a) compiler-dependent and (b) in code
-that doesn't hapeen _anywhere_ except in the specific benchmark you're
-using.
+user:
+	get_mail | procmail
+	mutt
 
-Get over it.
+The mail server doesnt need to run procmail. If you wanted to run mail batches
+through on a regular basis you can use cron for it, or leave a daemon running
 
- - The benchmark may use constant addresses. None of the kernel does. The
-   benchmark is fairly meaningless in this regard.
-
- - the stalls will almost certainly depend on the code around the thing,
-   and will also depend on the compiler version. If you're down to
-   haggling about issues like that, then there is no real difference
-   between the code.
-
-So calm down guys. And improving the benchmark might not be a bad idea.
-
-		Linus
-
+	

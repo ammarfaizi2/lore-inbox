@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272143AbTG2W5O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 18:57:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272155AbTG2W5O
+	id S272157AbTG2XF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 19:05:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272163AbTG2XF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 18:57:14 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:4596 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S272143AbTG2W5N
+	Tue, 29 Jul 2003 19:05:57 -0400
+Received: from mgr6.xmission.com ([198.60.22.206]:15508 "EHLO
+	mgr6.xmission.com") by vger.kernel.org with ESMTP id S272157AbTG2XFV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 18:57:13 -0400
-Subject: Re: [uClinux-dev] Kernel 2.6 size increase
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Bernardo Innocenti <bernie@develer.com>, Willy Tarreau <willy@w.ods.org>,
-       Christoph Hellwig <hch@lst.de>,
-       uClinux development list <uclinux-dev@uclinux.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030729222921.GK16051@ip68-0-152-218.tc.ph.cox.net>
-References: <200307232046.46990.bernie@develer.com>
-	 <200307240007.15377.bernie@develer.com>
-	 <20030723222747.GF643@alpha.home.local>
-	 <200307242227.16439.bernie@develer.com>
-	 <20030729222921.GK16051@ip68-0-152-218.tc.ph.cox.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1059518889.6838.19.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 29 Jul 2003 19:05:21 -0400
+Date: Tue, 29 Jul 2003 17:04:50 -0600
+From: "S. Anderson" <sa@xmission.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, "S. Anderson" <sa@xmission.com>,
+       pavel@xal.co.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       adaplas@pol.net
+Subject: Re: OOPS 2.6.0-test2, modprobe i810fb
+Message-ID: <20030729170450.A27489@xmission.xmission.com>
+References: <20030728171806.GA1860@xal.co.uk> <20030728201954.A16103@xmission.xmission.com> <20030728202600.18338fa9.akpm@osdl.org> <20030728231812.A20738@xmission.xmission.com> <20030728225914.4f299586.akpm@osdl.org> <20030729012417.A18449@xmission.xmission.com> <20030729005456.495c89c4.akpm@osdl.org> <1059479872.2921.7.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 29 Jul 2003 23:48:10 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1059479872.2921.7.camel@dhcp22.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Tue, Jul 29, 2003 at 01:00:40PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-07-29 at 23:29, Tom Rini wrote:
+On Tue, Jul 29, 2003 at 01:00:40PM +0100, Alan Cox wrote:
+> On Maw, 2003-07-29 at 08:54, Andrew Morton wrote:
+> > wtf?  So the memory at d094ee7c (which contains i810fb's pci table) became
+> > unmapped from kernel virtual address space as a result of you inserting
+> > your carbus card.
+> > 
+> > I am impressed.
 > 
-> Well, from Pat's talk at OLS, it seems like sysfs would be an important
-> part of 'sleep', which is something at least some embedded systems care
-> about.
+> This makes complete sense actually - its marked __initdata. Remove the
+> __initdata and try again or mark it __devinitdata ?
+> 
 
-sysfs is relevant for bigger systems but for small embedded stuff the whole
-PM layer is fairly "so what". At that level your hardware is tightly defined
-and you *know* the power management ordering. Policy becomes critical for 
-performance and gets done at a very fine grained level - things like waking
-up the flash for a read then turning it back off on a timer for example.
+Just to confirm your findings:
+Changing __initdata to __devinitdata fixes the oops for me.
 
+Thanks!
+sa

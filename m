@@ -1,105 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVDDUe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVDDUe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbVDDUe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 16:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVDDUdq
+	id S261380AbVDDUe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 16:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVDDUdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 16:33:46 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:5819 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S261380AbVDDU3u (ORCPT
+	Mon, 4 Apr 2005 16:33:55 -0400
+Received: from smtp7.wanadoo.fr ([193.252.22.24]:52923 "EHLO smtp7.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S261389AbVDDUaY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 16:29:50 -0400
-Date: Mon, 4 Apr 2005 13:29:43 -0700
-From: David Mosberger <davidm@napali.hpl.hp.com>
-Message-Id: <200504042029.j34KThCw012610@napali.hpl.hp.com>
-To: davej@redhat.com
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: fix AGP code to work again with non-PCI AGP bridges
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
-Reply-To: davidm@hpl.hp.com
+	Mon, 4 Apr 2005 16:30:24 -0400
+X-ME-UUID: 20050404203018601.92D5714000A1@mwinf0704.wanadoo.fr
+Date: Mon, 4 Apr 2005 22:27:06 +0200
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
+       Sven Luther <sven.luther@wanadoo.fr>,
+       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
+       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org,
+       Jes Sorensen <jes@trained-monkey.org>, linux-acenic@sunsite.dk
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050404202706.GB3140@pegasos>
+References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404183909.GI18349@parcelfarce.linux.theplanet.co.uk> <42519BCB.2030307@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <42519BCB.2030307@pobox.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave,
+On Mon, Apr 04, 2005 at 03:55:55PM -0400, Jeff Garzik wrote:
+> Matthew Wilcox wrote:
+> >On Mon, Apr 04, 2005 at 10:51:30AM -0700, Greg KH wrote:
+> >
+> >>Then let's see some acts.  We (lkml) are not the ones with the percieved
+> >>problem, or the ones discussing it.
+> >
+> >
+> >Actually, there are some legitimate problems with some of the files in
+> >the Linux source base.  Last time this came up, the Acenic firmware was
+> >mentioned:
+> >
+> >http://lists.debian.org/debian-legal/2004/12/msg00078.html
+> >
+> >Seems to me that situation is still not resolved.
+> 
+> And it looks like no one cares enough to make the effort to resolve this...
+> 
+> I would love an open source acenic firmware.
 
-As mentioned earlier, the current check_bridge_mode() code assumes
-that AGP bridges are PCI devices.  This isn't always true.  Definitely
-not for HP zx1 chipset and the same seems to be the case for SGI's AGP
-bridge.
+Yep, but in the meantime, let's clearly mark said firmware as
+not-covered-by-the-GPL. In the acenic case it seems to be even easier, as the
+firmware is in a separate acenic_firmware.h file, and it just needs to have
+the proper licencing statement added, saying that it is not covered by the
+GPL, and then giving the information under what licence it is being
+distributed.
 
-The patch below fixes the problem by picking up the AGP_MODE_3_0 bit
-from bridge->mode.  I feel like I may be missing something, since I
-can't see any reason why check_bridge_mode() wasn't doing that in the
-first place.  According to the AGP 3.0 specs, the AGP_MODE_3_0 bit is
-determined during the hardware reset and cannot be changed, so it
-seems to me it should be safe to pick it up from bridge->mode.
+Jeff, since your name was found in the tg3.c case, and you seem to care about
+this too, what is your take on this proposal ?
 
-With the patch applied, I can definitely use AGP acceleration both
-with AGP 2.0 and AGP 3.0 (one with an Nvidia card, the other with an
-ATI FireGL card).
+Friendly,
 
-Unless someone spots a problem, please apply this patch so 3d
-acceleration can work on zx1 boxes again.
+Sven Luther
 
-Thanks,
-
-	--david
-
-[AGPGART] Replace check_bridge_mode() with (bridge->mode & AGSTAT_MODE_3_0).
-
-This makes AGP work again on machines with an AGP bridge that isn't a
-PCI device.
-
-Signed-off-by: David Mosberger-Tang <davidm@hpl.hp.com>
-
-===== drivers/char/agp/generic.c 1.87 vs edited =====
---- 1.87/drivers/char/agp/generic.c	2005-03-28 14:21:41 -08:00
-+++ edited/drivers/char/agp/generic.c	2005-04-04 13:16:43 -07:00
-@@ -295,19 +295,6 @@
- EXPORT_SYMBOL_GPL(agp_num_entries);
- 
- 
--static int check_bridge_mode(struct pci_dev *dev)
--{
--	u32 agp3;
--	u8 cap_ptr;
--
--	cap_ptr = pci_find_capability(dev, PCI_CAP_ID_AGP);
--	pci_read_config_dword(dev, cap_ptr+AGPSTAT, &agp3);
--	if (agp3 & AGPSTAT_MODE_3_0)
--		return 1;
--	return 0;
--}
--
--
- /**
-  *	agp_copy_info  -  copy bridge state information
-  *
-@@ -328,7 +315,7 @@
- 	info->version.minor = bridge->version->minor;
- 	info->chipset = SUPPORTED;
- 	info->device = bridge->dev;
--	if (check_bridge_mode(bridge->dev))
-+	if (bridge->mode & AGPSTAT_MODE_3_0)
- 		info->mode = bridge->mode & ~AGP3_RESERVED_MASK;
- 	else
- 		info->mode = bridge->mode & ~AGP2_RESERVED_MASK;
-@@ -661,7 +648,7 @@
- 		bridge_agpstat &= ~AGPSTAT_FW;
- 
- 	/* Check to see if we are operating in 3.0 mode */
--	if (check_bridge_mode(agp_bridge->dev))
-+	if (agp_bridge->mode & AGPSTAT_MODE_3_0)
- 		agp_v3_parse_one(&requested_mode, &bridge_agpstat, &vga_agpstat);
- 	else
- 		agp_v2_parse_one(&requested_mode, &bridge_agpstat, &vga_agpstat);
-@@ -732,7 +719,7 @@
- 
- 	/* Do AGP version specific frobbing. */
- 	if (bridge->major_version >= 3) {
--		if (check_bridge_mode(bridge->dev)) {
-+		if (bridge->mode & AGPSTAT_MODE_3_0) {
- 			/* If we have 3.5, we can do the isoch stuff. */
- 			if (bridge->minor_version >= 5)
- 				agp_3_5_enable(bridge);

@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316608AbSIAKgu>; Sun, 1 Sep 2002 06:36:50 -0400
+	id <S316610AbSIAKtM>; Sun, 1 Sep 2002 06:49:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316609AbSIAKgu>; Sun, 1 Sep 2002 06:36:50 -0400
-Received: from mailgate5.cinetic.de ([217.72.192.165]:35244 "EHLO
-	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
-	id <S316608AbSIAKgt>; Sun, 1 Sep 2002 06:36:49 -0400
-Date: Sun, 1 Sep 2002 12:41:12 +0200
-Message-Id: <200209011041.g81AfBX05372@mailgate5.cinetic.de>
-MIME-Version: 1.0
-Organization: http://freemail.web.de/
-From: <joerg.beyer@email.de>
-To: "lkml" <linux-kernel@vger.kernel.org>
-Subject: Re: setpci is no changing values
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S316615AbSIAKtM>; Sun, 1 Sep 2002 06:49:12 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:36105 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S316610AbSIAKtL>; Sun, 1 Sep 2002 06:49:11 -0400
+Date: Sun, 1 Sep 2002 12:53:35 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: [PATCH] warnkill trivia 1/2
+Message-ID: <20020901105335.GG32122@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
+X-Uptime: 5 days, 8:49
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-joerg.beyer@email.de schrieb am 31.08.02 23:14:39:
-> Hi,
-> 
-> I have some trouble with a laptop's NIC (it's a 8139C realtek chip, I use the rtl8139 module). With
-> a lot help I think the problem is tracked down to a problem with the PCI bus bandwidth.
-...
-With the help of Mark Hahn I figuerd out, that the problem was the Bridge
-setting, not the NIC setting.
-
-The VT8363/8365 Bridge was blocking/slowing down the bus. 
-After allowing this device to do fast back-to-back writes 
-it works _much_ better, i.e. no more errors on the NIC.
-
-If I encounter no negative effects of this setting, then I consider
-this a working setup.
-
-    Thank you very much for you help!
-    Joerg
+2.4.20-pre5: Include a missing prototype.
 
 
-
-
+diff -urN linux-2.4.20-pre5/fs/reiserfs/hashes.c linux-2.4.20-pre5.n/fs/reiserfs/hashes.c
+--- linux-2.4.20-pre5/fs/reiserfs/hashes.c	2002-09-01 12:48:09.000000000 +0200
++++ linux-2.4.20-pre5.n/fs/reiserfs/hashes.c	2002-09-01 12:03:00.000000000 +0200
+@@ -18,6 +18,7 @@
+ // r5_hash
+ //
+ 
++#include <linux/kernel.h>	/* for printk() as called by BUG() */
+ #include <asm/types.h>
+ #include <asm/page.h>
+ 

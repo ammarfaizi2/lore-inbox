@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262294AbVDFTYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVDFTaB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262294AbVDFTYm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 15:24:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVDFTYm
+	id S262297AbVDFTaB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 15:30:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVDFTaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 15:24:42 -0400
-Received: from wproxy.gmail.com ([64.233.184.203]:25586 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262294AbVDFTYk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 15:24:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type;
-        b=XI4cXuIvc/ySY2QOKf7rq5f58Kqmc9t77cI6sg2l14yNGiT0IfAV1aopoo6YO6OJ+IASh+plxN1JW9KMxwInxTvmb4a50RaHT2I0nyckuCDuFgqeQsCQIrayqJ3f31tgxQyIW7HB2AP0pI6WNQMcaf1dXq0PVF0FV8c0UzUpQiA=
-Message-ID: <42543770.3080706@gmail.com>
-Date: Wed, 06 Apr 2005 22:24:32 +0300
-From: Matan Peled <chaosite@gmail.com>
-Reply-To: chaosite@gmail.com
-Organization: Chaosite Destruction, inc.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050326)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel SCM saga..
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <9e4733910504061207538485a6@mail.gmail.com>
-In-Reply-To: <9e4733910504061207538485a6@mail.gmail.com>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigF16125D9BC240ACECC1E1A6D"
+	Wed, 6 Apr 2005 15:30:00 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:26043 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262297AbVDFT36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 15:29:58 -0400
+Date: Wed, 6 Apr 2005 21:30:08 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: Renate Meijer <kleuske@xs4all.nl>, stable@kernel.org,
+       Greg KH <gregkh@suse.de>, jdike@karaya.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [08/08] uml: va_copy fix
+Message-ID: <20050406193008.GC17413@wohnheim.fh-wedel.de>
+References: <20050405164539.GA17299@kroah.com> <200504052053.20078.blaisorblade@yahoo.it> <7aa6252d5a294282396836b1a27783e8@xs4all.nl> <200504062109.51344.blaisorblade@yahoo.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200504062109.51344.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigF16125D9BC240ACECC1E1A6D
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+On Wed, 6 April 2005 21:09:50 +0200, Blaisorblade wrote:
+>
+> I'm reattaching the patch, so that you can look at the changelog (I'm also 
+> resending it as a separate email so that it is reviewed and possibly merged). 
+> Basically this is an error in GCC 2 and not in GCC 3:
+> 
+> int [] list = {
+>  [0] = 1,
+>  [0] = 1
+> }
+> (I've not tested the above itself, but this should be a stripped down version 
+> of one of the bugs fixed in the patch).
+> 
+> That sort of code in the UML syscall table is not the safer one - in fact, 
+> apart this patch for the stable tree, I'm refactoring the UML syscall table 
+> completely (for 2.6.12 / 2.6.13).
+> 
+> Btw: I've not investigated which one of the two behaviours is the buggy one - 
+> if you know, maybe you or I can report it.
 
-Jon Smirl wrote:
-> ODSL could then GPL the code and quiet the
-> critics.
+Your code is at best redundant.  And I'd bet beer that it is not what
+its author intended to write.  So the bug is in GCC 3, imo.
 
-And also cause aaid GPL'ed code to be immediatly ported over to Windows. I don't
-think BitMover could ever agree to that.
+Jörn
 
 -- 
-[Name      ]   ::  [Matan I. Peled    ]
-[Location  ]   ::  [Israel            ]
-[Public Key]   ::  [0xD6F42CA5        ]
-[Keyserver ]   ::  [keyserver.kjsl.com]
-encrypted/signed  plain text  preferred
-
-
---------------enigF16125D9BC240ACECC1E1A6D
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFCVDdzA7Qvptb0LKURAmr9AJ4zZfyB2+Q7Bi+OV+qOW3Lmt3fZvQCeOAtG
-lihk/0cLnFvmDyD/s2sge7Y=
-=yOhI
------END PGP SIGNATURE-----
-
---------------enigF16125D9BC240ACECC1E1A6D--
+The cost of changing business rules is much more expensive for software
+than for a secretaty.
+-- unknown

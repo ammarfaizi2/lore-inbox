@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265255AbUHHLV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265256AbUHHL1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265255AbUHHLV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 07:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbUHHLV1
+	id S265256AbUHHL1n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 07:27:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265263AbUHHL1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 07:21:27 -0400
-Received: from server02.akkaya.de ([213.168.83.203]:10517 "EHLO
-	server02.akkaya.de") by vger.kernel.org with ESMTP id S265255AbUHHLV0 convert rfc822-to-8bit
+	Sun, 8 Aug 2004 07:27:43 -0400
+Received: from oliv.bezeqint.net ([192.115.104.12]:50122 "EHLO
+	oliv.bezeqint.net") by vger.kernel.org with ESMTP id S265256AbUHHL1m
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 07:21:26 -0400
-From: Juergen Pabel <jpabel@akkaya.de>
-To: Eric Lammerts <eric@lammerts.org>
-Subject: Re: [PATCH] Masking kernel commandline parameters (2.6.7)
-Date: Sun, 8 Aug 2004 13:21:06 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200408080413.29905.jpabel@akkaya.de> <Pine.LNX.4.58.0408072238570.22657@vivaldi.madbase.net>
-In-Reply-To: <Pine.LNX.4.58.0408072238570.22657@vivaldi.madbase.net>
-MIME-Version: 1.0
+	Sun, 8 Aug 2004 07:27:42 -0400
+Date: Sun, 8 Aug 2004 14:29:02 +0300
+From: Micha Feigin <michf@post.tau.ac.il>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: no input with kernel 2.6.8-rc3-mm1 and X
+Message-ID: <20040808112901.GA2958@luna.mooo.com>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200408081321.20571.jpabel@akkaya.de>
+User-Agent: Mutt/1.5.6+20040722i
+X-ESAFE-STATUS: Mail clean
+X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+With kernel 2.6.8-rc3-mm1 I lose input completely the moment I start
+X. Keyboard is completely non-functional (include sysrq and num/ctrl
+lock) and the touchpad also doesn't seem to produce anything.
 
-On Sunday 08 August 2004 04:44, Eric Lammerts wrote:
-> That would make that ugly kernel patch pointless, wouldn't it? Then
-> why bother with it?
+The computer is otherwise functional and I can ssh in from another
+machine and chvt to the console where I get the keyboard back. chvt
+back to X kills input again.
 
-Not if the authentication yields the key that will be passed (as a 
-hidden/secret) parameter to the boot kernel...
-
-jp
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBFgyqz6J7R+QJGuwRAqGmAJ4gcz13sdtzlTag4VSXa6hIk45qaQCaA+ya
-KX9zGZE4FHEHlJ99GNVqm0k=
-=WJ5a
------END PGP SIGNATURE-----
+Input is completely function in the console and with kernel 2.6.8-rc2
+also with X, so I don't think its an X configuration problem.

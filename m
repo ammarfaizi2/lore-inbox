@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbTIXRU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 13:20:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbTIXRU4
+	id S261539AbTIXROf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 13:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbTIXROf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 13:20:56 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:28808 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S261546AbTIXRUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 13:20:55 -0400
-Date: Wed, 24 Sep 2003 12:55:59 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Sergey Vlasov <vsu@altlinux.ru>
-Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] [PATCH 2.4] ieee1394 locking bug in nodemgr
-Message-ID: <20030924165559.GH718@phunnypharm.org>
-References: <20030924164832.GB26237@master.mivlgu.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030924164832.GB26237@master.mivlgu.local>
-User-Agent: Mutt/1.5.4i
+	Wed, 24 Sep 2003 13:14:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:60079 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261539AbTIXROe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 13:14:34 -0400
+Date: Wed, 24 Sep 2003 10:13:53 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Joe Perches <joe@perches.com>, "David S. Miller" <davem@redhat.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
+Subject: Re: [PATCH] 2.6.0-bk6 net/core/dev.c
+In-Reply-To: <1064416289.1804.3.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0309241012110.3178-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 24, 2003 at 08:48:32PM +0400, Sergey Vlasov wrote:
-> Hello!
+
+On Wed, 24 Sep 2003, Joe Perches wrote:
+>
+> Symmetric to dev_add_pack.
+
+Looks sane, but wouldn't it be cleaner to put this ugly special case logic
+with casts etc in an inline function and make the code a bit more readable
+at the same time?
+
+David?
+
+		Linus
+
+> diff -urN linux-2.6.0-test5/net/core/dev.c shared_skb/net/core/dev.c
+> --- linux-2.6.0-test5/net/core/dev.c	2003-09-22 08:04:06.000000000 -0700
+> +++ shared_skb/net/core/dev.c	2003-09-22 14:02:08.000000000 -0700
+> @@ -281,7 +281,7 @@
+>  	list_for_each_entry(pt1, head, list) {
+>  		if (pt == pt1) {
+>  #ifdef CONFIG_NET_FASTROUTE
+> -			if (pt->data)
+> +			if (pt->data && (long)pt->data != 1)
+>  				netdev_fastroute_obstacles--;
+>  #endif
+>  			list_del_rcu(&pt->list);
 > 
-> I have found a locking bug in ieee1394 nodemgr_host_thread() (in
-> Linux 2.4.22; checked at linux.bkbits.net - the code in question did
-> not change).
 
-Good catch. Patch applied to all branches.
-
-
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/

@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266212AbUALRYm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 12:24:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265536AbUALRYm
+	id S265535AbUALRZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 12:25:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265536AbUALRZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 12:24:42 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:31404 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S266212AbUALRYj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 12:24:39 -0500
-Date: Mon, 12 Jan 2004 18:24:23 +0100 (MET)
-Message-Id: <200401121724.i0CHONeP023816@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: perfctr-devel@lists.sourceforge.net
-Subject: perfctr-2.6.4 released with PPC32 support
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org,
-       perfapi-devel@NACSE.ORG
+	Mon, 12 Jan 2004 12:25:59 -0500
+Received: from h80ad25ab.async.vt.edu ([128.173.37.171]:51330 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265535AbUALRZ1 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 12:25:27 -0500
+Message-Id: <200401121725.i0CHPJtl023522@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Dan Egli <dan@eglifamily.dnsalias.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.x breaks some Berkeley/Sleepycat DB functionality 
+In-Reply-To: Your message of "Mon, 12 Jan 2004 10:16:12 MST."
+             <4002D65C.1010505@eglifamily.dnsalias.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <4002D65C.1010505@eglifamily.dnsalias.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-440933004P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 12 Jan 2004 12:25:18 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 2.6.4 of perfctr, the Linux performance
-monitoring counters driver, is now available at the usual
-place: http://www.csd.uu.se/~mikpe/linux/perfctr/
+--==_Exmh_-440933004P
+Content-Type: text/plain; charset=us-ascii
 
-Three architectures are now supported: x86, AMD64, and PPC32.
+On Mon, 12 Jan 2004 10:16:12 MST, Dan Egli <dan@eglifamily.dnsalias.net>  said:
 
-Since I only have a PPC750, I'm looking for testers with 74xx
-or 604 processors. Even if you don't intend to use the driver,
-booting a kernel configured with CONFIG_PERFCTR_INIT_TESTS=y,
-loading the driver module (if not built-in), and emailing me the
-PERFCTR INIT kernel log messages would be helpful.
+> I run a PGP Public key server on this machine and under 2.4.x it's
+> "smooth as silk". But if I boot under 2.6.x, it's gaurenteed failure. If
+> I try to build a database using the build command (this is an sks
+> server, so it's sks build or sks fastbuild) I IMMEDIATELY get  Bdb
+> error. But the exact same command with the exact same libraries and
+> input files under 2.4.20 works without a hitch.
+> 
+> Anyone got any ideas? Anything else I can provide to assist in debugging?
 
-Version 2.6.4, 2004-01-12
-- Added support for PowerPC 604/7xx/74xx processors.
-  * Overflow interrupts are not yet supported due to a hardware
-    erratum affecting many 7xx and early 74xx processors.
-  * The user-space components support PowerPC, but CPU detection
-    and event set descriptions are not yet implemented.
-  * Supported in 2.6.1 and 2.4.23 and newer 2.4 kernels.
-- Updated kernel support: 2.6.1, 2.4.25-pre4, 2.4.22-1.2140.nptl
-  (FC1 update), 2.4.21-4.0.2.EL (RHEL update), and 2.4.20-28.x
-  (RH 7.x/8.0/9 update).
+Off the top of my head, O_DIRECT horkage?  I believe that 2.6 has more
+stringent buffer alignment requirements.  A quick 'strace' would probably show
+if that's the problem.
 
-/ Mikael Pettersson
+
+--==_Exmh_-440933004P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAAth+cC3lWbTT17ARAoijAKCKlQMvni2JlTgw/gfXEQK73zK7CACZAZQ+
+cUd1j8gnCWscFnhmOlpEB8M=
+=+VbI
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-440933004P--

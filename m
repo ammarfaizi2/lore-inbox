@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286399AbRLJVxc>; Mon, 10 Dec 2001 16:53:32 -0500
+	id <S284414AbRLJV7V>; Mon, 10 Dec 2001 16:59:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286400AbRLJVxU>; Mon, 10 Dec 2001 16:53:20 -0500
-Received: from maild.telia.com ([194.22.190.101]:50167 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S286398AbRLJVxK>;
-	Mon, 10 Dec 2001 16:53:10 -0500
-Date: Mon, 10 Dec 2001 22:55:15 +0100
-From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.17-pre7: fdomain_16x0_release undeclared
-Message-ID: <20011210215515.GA17002@telia.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0112101546260.1647-100000@marabou.research.att.com> <Pine.LNX.4.21.0112101800380.25397-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.21.0112101800380.25397-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.24i
+	id <S283773AbRLJV7L>; Mon, 10 Dec 2001 16:59:11 -0500
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:55266 "EHLO
+	snipe.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S281568AbRLJV7F>; Mon, 10 Dec 2001 16:59:05 -0500
+Date: Mon, 10 Dec 2001 15:57:56 -0600 (CST)
+From: <bottchen@earthlink.net>
+X-X-Sender: <adam@scully.>
+To: <linux-kernel@vger.kernel.org>
+cc: <torvalds@transmeta.com>
+Subject: Sorry to be annoying, but "PATCH for shmdt"
+Message-ID: <Pine.LNX.4.33.0112101516500.26955-100000@scully.>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 10, 2001 at 06:01:03PM -0200, Marcelo Tosatti wrote:
+	Unfortunately the patch I submitted for shmdt has been overlooked.
+It's not a very exciting patch, but it does bring the code into agreement
+with the manpage.  Here is an version of the patch updated for 2.4.16.
 
-[One line of text and quoted a full page or something]
+--- linux-2.4.16old/ipc/shm.c   Mon Dec  10 11:53:12 2001
++++ linux-2.4.16/ipc/shm.c      Mon Dec  10 15:08:51 2001
+@@ -651,16 +651,19 @@
+ {
+        struct mm_struct *mm = current->mm;
+        struct vm_area_struct *shmd, *shmdnext;
++       int retcode=-EINVAL;
 
-No offence marcelo, but could you please stop it with the full quotes?
--- 
+        down_write(&mm->mmap_sem);
+        for (shmd = mm->mmap; shmd; shmd = shmdnext) {
+                shmdnext = shmd->vm_next;
+                if (shmd->vm_ops == &shm_vm_ops
+-                   && shmd->vm_start - (shmd->vm_pgoff << PAGE_SHIFT) ==
+(ulong) shmaddr)
++                   && shmd->vm_start - (shmd->vm_pgoff << PAGE_SHIFT) ==
+(ulong) shmaddr) {
+                        do_munmap(mm, shmd->vm_start, shmd->vm_end -
+shmd->vm_start);
++                       retcode=0;
++               }
+        }
+        up_write(&mm->mmap_sem);
+-       return 0;
++       return retcode;
+ }
 
-André Dahlqvist <andre.dahlqvist@telia.com>
+ #ifdef CONFIG_PROC_FS
+
+

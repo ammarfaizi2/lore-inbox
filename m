@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262384AbVCVEcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbVCVE2V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262384AbVCVEcs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 23:32:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbVCVE1M
+	id S262378AbVCVE2V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 23:28:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbVCVE1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 23:27:12 -0500
-Received: from stark.xeocode.com ([216.58.44.227]:39566 "EHLO
-	stark.xeocode.com") by vger.kernel.org with ESMTP id S262355AbVCVERH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 23:17:07 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg Stark <gsstark@mit.edu>, s0348365@sms.ed.ac.uk,
-       linux-kernel@vger.kernel.org, pmcfarland@downeast.net
-Subject: Re: OSS Audio borked between 2.6.6 and 2.6.10
-References: <87u0ng90mo.fsf@stark.xeocode.com>
-	<200503130152.52342.pmcfarland@downeast.net>
-	<874qff89ob.fsf@stark.xeocode.com>
-	<200503140103.55354.s0348365@sms.ed.ac.uk>
-	<87sm2y7uon.fsf@stark.xeocode.com>
-	<20050313200753.20411bdb.akpm@osdl.org>
-	<87br9m7s8h.fsf@stark.xeocode.com> <87zmx66b2b.fsf@stark.xeocode.com>
-	<87u0nevc11.fsf@stark.xeocode.com>
-	<20050314015321.5e944d84.akpm@osdl.org>
-	<87is3uutg4.fsf@stark.xeocode.com>
-	<20050321163859.71429a92.akpm@osdl.org>
-In-Reply-To: <20050321163859.71429a92.akpm@osdl.org>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 21 Mar 2005 23:16:53 -0500
-Message-ID: <87is3kco22.fsf@stark.xeocode.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Mar 2005 23:27:32 -0500
+Received: from fire.osdl.org ([65.172.181.4]:40132 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262384AbVCVEVb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 23:21:31 -0500
+Date: Mon, 21 Mar 2005 20:20:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, cmorgan@alum.wpi.edu,
+       paul@linuxaudiosystems.com, Jamie Lokier <jamie@shareable.org>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Subject: Re: kernel bug: futex_wait hang
+Message-Id: <20050321202051.2796660e.akpm@osdl.org>
+In-Reply-To: <1111463950.3058.20.camel@mindpipe>
+References: <1111463950.3058.20.camel@mindpipe>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Andrew Morton <akpm@osdl.org> writes:
-
-> Greg Stark <gsstark@mit.edu> wrote:
-> >
-> > Andrew Morton <akpm@osdl.org> writes:
-> > 
-> > > Herbert tells me that this might be fixed in 2.6.11.  Did you try that?
-> > 
-> > Nope. I'll try that. 
+Lee Revell <rlrevell@joe-job.com> wrote:
+>
+> Paul Davis and Chris Morgan have been chasing down a problem with
+> xmms_jack and it really looks like this bug, thought to have been fixed
+> in 2.6.10, is the culprit.
 > 
-> Did it work?
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0409.0/2044.html
+> 
+> (for more info google "futex_wait 2.6 hang")
+> 
+> It's simple to reproduce.  Run JACK and launch xmms with the JACK output
+> plugin.  Close XMMS.  The xmms process hangs.  Strace looks like this:
+> 
+> rlrevell@krustophenia:~$ strace -p 7935
+> Process 7935 attached - interrupt to quit
+> futex(0xb5341bf8, FUTEX_WAIT, 7939, NULL
+> 
+> Just like in the above bug report, if xmms is run with
+> LD_ASSUME_KERNEL=2.4.19, it works perfectly.
+> 
+> I have reproduced the bug with 2.6.12-rc1.
+> 
 
-Oops, sorry I didn't get back. 
-Yes. It works fine in 2.6.11.3
-Thanks a lot for the help.
+iirc we ended up deciding that the futex problems around that time were due
+to userspace problems (a version of libc).  But then, there's no discussion
+around Seto's patch and it didn't get applied.  So I don't know what
+happened to that work - it's all a bit mysterious.
 
--- 
-greg
-
+Is this a 100% repeatable hang, or is it some occasional race?

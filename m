@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262046AbTJAIri (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 04:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbTJAIrh
+	id S261687AbTJAIiO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 04:38:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbTJAIiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 04:47:37 -0400
-Received: from tag.witbe.net ([81.88.96.48]:12050 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S262046AbTJAIre (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 04:47:34 -0400
-From: "Paul Rolland" <rol@as2917.net>
-To: <andersen@codepoet.org>, "'Andreas Steinmetz'" <ast@domdv.de>
-Cc: "'Jens Axboe'" <axboe@suse.de>,
-       "'Joerg Schilling'" <schilling@fokus.fraunhofer.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel includefile bug not fixed after a year :-(
-Date: Wed, 1 Oct 2003 10:47:17 +0200
-Message-ID: <022801c387f8$9ef56f70$4300a8c0@witbe>
+	Wed, 1 Oct 2003 04:38:14 -0400
+Received: from play.smurf.noris.de ([192.109.102.42]:36743 "EHLO
+	play.smurf.noris.de") by vger.kernel.org with ESMTP id S261687AbTJAIiN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 04:38:13 -0400
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Organization: {M:U}
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [PATCH] No forced rebuilding of ikconfig.h
+Date: Wed, 1 Oct 2003 10:37:58 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <20030929153815.GA16685@play.smurf.noris.de> <20030929092952.7ba7b1c0.rddunlap@osdl.org>
+In-Reply-To: <20030929092952.7ba7b1c0.rddunlap@osdl.org>
+X-Face: xyzzy
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-In-Reply-To: <20030930190039.GA5407@codepoet.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200310011037.58929@smurf.noris.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Wrong.  Userland applications should make private copies of all
-> needed kernel defines and structures, and then change any kernel
-> types to use standard C99 types from stdint.h.
+Hi,
 
-Disk are cheaper and cheaper !!!!
+Randy.Dunlap wrote:
+> | Why does ikconfig.h require forced rebuilding?
+> | I can't think of a reason...
+>
+> Would you describe the problem, if any?
 
-Please add to Makefile default behavior :
+It was rebuilding every time.
 
-includes:
-  cp -R /usr/src/linux/include/ .
+> Since I removed linux/compile.h and linux/version.h from
+> kernel/configs.c (as in -test6), I don't see any rebuilding
+> happening.  When does it happen?
+>
+Ah. Thank you.
 
-all: includes ...
+> Also, what kernel version are you referring to???
 
-Paul
+*Sigh* I am sorry I forgot that. I really should know better.  :-/
+
+Since it works now, the correct answer to that one seems to be "sometime 
+before -test6".
+
+You know the joke where the Jewish father berates his son for using too many 
+words in a telegram... well, seems I need to learn not to do that.  :-(
+
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+Your parentheses always match.
 

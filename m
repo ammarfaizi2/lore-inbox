@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132567AbRDQMiP>; Tue, 17 Apr 2001 08:38:15 -0400
+	id <S132584AbRDQMmF>; Tue, 17 Apr 2001 08:42:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132578AbRDQMhz>; Tue, 17 Apr 2001 08:37:55 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:21362 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S132567AbRDQMhv>; Tue, 17 Apr 2001 08:37:51 -0400
-Date: Tue, 17 Apr 2001 07:37:50 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200104171237.HAA94681@tomcat.admin.navo.hpc.mil>
-To: babydr@baby-dragons.com,
-        Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: Is printing broke on sparc ?
-X-Mailer: [XMailTool v3.1.2b]
+	id <S132587AbRDQMlz>; Tue, 17 Apr 2001 08:41:55 -0400
+Received: from wb1-a.mail.utexas.edu ([128.83.126.134]:4100 "HELO
+	mail.utexas.edu") by vger.kernel.org with SMTP id <S132584AbRDQMlm>;
+	Tue, 17 Apr 2001 08:41:42 -0400
+Message-ID: <3ADC3A00.A9954E08@mail.utexas.edu>
+Date: Tue, 17 Apr 2001 07:41:36 -0500
+From: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
+Organization: (I do not speak for) The University of Texas at Austin (nor they for 
+ me).
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.5-22smp i686)
+X-Accept-Language: en,fr,de
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Dennis Bjorklund <db@zigo.dhs.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PROBLEM: Slowdown for ATA/100 drive on PCI card, after 2.4.3upgrade.
+In-Reply-To: <Pine.LNX.4.30.0104171408050.20942-100000@zigo.dhs.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Mr. James W. Laferriere" <babydr@baby-dragons.com>:
-[snip]
-> 	.. ie:  cat /etc/printcap > /dev/lp0    (or /dev/par0)
-> 	gets me :
-> 
-> /c#eodiecnyotai rhernili s to rpaemn
->                                     s eehpo o-.ROLPR0 roif{\=sl:x
->                                                                  	/p:ao/lr
-> 	which is where it rolls off the paper .
-> 	printer is a DECLaser 2200  .  I have the PostScript option card
-> 	for it , but when it is installed -notthing- gets output so I
-> 	tried the above experiment without it installed .  With the option
-> 	installed the display shows 'PS Waiting' Then shortly 'PS
-> 	Processing' then 'PS Ready' .  This happens whether I cat .ps
-> 	files or not .  I beleive that something is garbling the data
-> 	being sent .
+Dennis Bjorklund wrote:
 
-I have the 5100 printer - It is expecting PCL when the PS option is not
-set. With it set, it only prints postscript.
+> On Tue, 17 Apr 2001, Alan Cox wrote:
+>
+> > try and avoid a hardware problem. VIA have finally released an 'official'
+> > fix which seems to be a lot less damaging to performance on the whole. That
+> > I hope will be in 2.4.4
+>
+> What is this official fix? I've only seen unofficial ones (like the one in
+> your ac7, or was it ac6). What are the implications of the fix
+> (compabilitywise and speedwise)?
+>
+> I looked on via's homepage but could not find anything about this fix.
+> I've very interested since I have a new mobo unopened in a box that I can
+> still return and choose something with another chipset.
 
-What I did was to pass the data through enscript/nenscript to convert
-to postscript. Then I had no problems at all.
+Notice that with 2.4.3 it *only* affects the disk on the PCI controller card; a
+similar ATA/100 disk on the motherboard's controller did not experience the
+slowdown.
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+Also, FYI, I noticed the mention of VIA fixes in the -ac7 change list, but those
+changes did not cause or fix this particular problem.  The problem occurs in all
+the 2.4.3's that I've tried: -ac5, -ac6, -ac7.
 
-Any opinions expressed are solely my own.
+BTW, It's not hurting me right now, because the disk on the PCI card hasn't been
+put to work yet.  I just want to make sure you guys are aware of it.
+
+Bobby Bryant
+Austin, Texas
+
+

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129953AbRAXP1I>; Wed, 24 Jan 2001 10:27:08 -0500
+	id <S131349AbRAXP36>; Wed, 24 Jan 2001 10:29:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129944AbRAXP06>; Wed, 24 Jan 2001 10:26:58 -0500
-Received: from [212.255.16.226] ([212.255.16.226]:53426 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S130153AbRAXP0q> convert rfc822-to-8bit;
-	Wed, 24 Jan 2001 10:26:46 -0500
-Message-ID: <006001c0861a$0c85c960$0100a8c0@homeip.net>
-From: "mirabilos" <eccesys@topmail.de>
-To: "Linux-Kernel ML" <linux-kernel@vger.kernel.org>
-Subject: Hercules Graphics Card
-Date: Wed, 24 Jan 2001 15:22:57 -0000
-Organization: eccesys.net Linux Distribution Development
+	id <S131825AbRAXP3i>; Wed, 24 Jan 2001 10:29:38 -0500
+Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:45801 "EHLO
+	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S131349AbRAXP33>; Wed, 24 Jan 2001 10:29:29 -0500
+Date: Wed, 24 Jan 2001 15:29:25 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: Sasi Peter <sape@iq.rulez.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <200101241512.QAA01140@iq.rulez.org>
+Message-ID: <Pine.SOL.4.21.0101241527370.13692-100000@yellow.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="x-user-defined"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.3018.1300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So I'm not the only... -- surprise for me, too.
+On Wed, 24 Jan 2001, Sasi Peter wrote:
 
-I'm too using this, mostly because I like it, got up with it, and it's better than those pixelled displays today. And who needs colours?
-For me, it says (2.4.0-prerelease) I'd got a HGC with 8 kB of RAM.
-This surely isn't true because under DOS some pgmz work problemless
-which use the whole 64K of &hB0000 to &hBFFFF (when I deactivate the VGA
-card), and even Turbo Debugger 1.0's dual-screen option works in both gfx and
-text mode, with the other card as debugging display in text mode, no matter whether the PGM uses HGC or VGA as primary display.
-I'm sorry I've got no correction, but prolly you could try to read-modify-write-read-write_original, and compare the read value with the written bzw. the original.
-And - do we get a HGC gfx framebuffer hgc1fb? (Btw, the vga16fb must be called vga4fb - it uses 4 bit colour, not 16)
-What about dual-screen X... (this is OT - I know)
+> > AIUI, Jeff Merkey was working on loading "userspace" apps into the 
+> kernel
+> > to tackle this sort of problem generically. I don't know if he's 
+> tried it
+> > with Samba - the forking would probably be a problem...
+> 
+> I think, that is not what we need. Once Ingo wrote, that since HTTP 
+> serving can also be viewed as a kind of fileserving, it should be 
+> possible to create a TUX like module for the same framwork, that serves 
+> using the SMB protocol instead of HTTP...
 
-(Sorry about my English) - mirabilos
+I must admit I'm a bit sceptical - apart from anything else, Jeff's
+approach allows a bug in the server software to blow the whole OS away,
+instead of just quietly coring! (Or, worse still, trample on some FS
+metadata in RAM... eek!) A TUX module would be a nice idea, although I
+haven't even been able to find a proper TUX web page - Google just gave
+page after page of mailing list archives and discussion about it :-(
 
+
+James.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

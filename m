@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266739AbRGFPk3>; Fri, 6 Jul 2001 11:40:29 -0400
+	id <S266738AbRGFPkT>; Fri, 6 Jul 2001 11:40:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266740AbRGFPkT>; Fri, 6 Jul 2001 11:40:19 -0400
-Received: from h131s117a129n47.user.nortelnetworks.com ([47.129.117.131]:16003
-	"HELO pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
-	id <S266739AbRGFPkI>; Fri, 6 Jul 2001 11:40:08 -0400
-Message-ID: <3B45DBDC.BCC66169@nortelnetworks.com>
-Date: Fri, 06 Jul 2001 11:40:12 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+	id <S266740AbRGFPkJ>; Fri, 6 Jul 2001 11:40:09 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:32447 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S266738AbRGFPkB>;
+	Fri, 6 Jul 2001 11:40:01 -0400
+Message-ID: <3B45DBCD.76B27634@mandrakesoft.com>
+Date: Fri, 06 Jul 2001 11:39:57 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: are ioctl calls supposed to take this long?
-In-Reply-To: <Pine.LNX.3.95.1010706112457.1472A-100000@chaos.analogic.com>
+To: Steffen Persvold <sp@scali.no>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Helge Hafting <helgehaf@idb.hist.no>,
+        Vasu Varma P V <pvvvarma@techmas.hcltech.com>,
+        linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: DMA memory limitation?
+In-Reply-To: <E15ITTf-0004Dz-00@the-village.bc.nu> <3B45A08D.408D56@mandrakesoft.com> <3B45D656.440A34A9@scali.no>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> On Fri, 6 Jul 2001, Chris Friesen wrote:
+Steffen Persvold wrote:
+> > pci_alloc_* is designed to support ISA.
+> >
+> > Pass pci_dev==NULL to pci_alloc_* for ISA devices, and it allocs GFP_DMA
+> > for you.
 
-> > Are you sure about this?  In the tulip.c driver the following appears to be the
-> > salient code:
+> Sure, but the IA64 platforms that are out now doesn't have an IOMMU, so bounce buffers are
+> used if you don't specify GFP_DMA in your get_free_page.
+[...]
+> (pci_alloc_consistent() allocates a buffer with GFP_DMA on IA64),
 
-<snip>
-
->                ..... This falls through to
->         SIOCDEVPRIVATE+1
-
-
-Doh!  Okay, I need caffeine, or sugar, or something...
-Sorry about that.
-
-Chris
+The important thing is that pci_alloc_consistent and the other PCI DMA
+functions work as advertised on IA64.  If you pass NULL to
+pci_alloc_consistent, IA64 should give you an ISA DMA-able address.  If
+you don't, you get a 32-bit PCI DMA address.  Use of GFP_DMA is a
+arch-specific detail, so don't let me confuse you there.
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Jeff Garzik      | A recent study has shown that too much soup
+Building 1024    | can cause malaise in laboratory mice.
+MandrakeSoft     |

@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266733AbUIEOcI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266745AbUIEOfn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266733AbUIEOcI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 10:32:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266737AbUIEOcI
+	id S266745AbUIEOfn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 10:35:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266749AbUIEOfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 10:32:08 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:31496 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S266745AbUIEOcC
+	Sun, 5 Sep 2004 10:35:43 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:26642 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S266745AbUIEOfm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 10:32:02 -0400
-Date: Sun, 5 Sep 2004 15:32:01 +0100
-From: John Levon <levon@movementarian.org>
-To: Anton Blanchard <anton@samba.org>
-Cc: akpm@osdl.org, phil.el@wanadoo.fr, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix oprofile vfree warning on error
-Message-ID: <20040905143201.GB79932@compsoc.man.ac.uk>
-References: <20040904174403.GC7716@krispykreme> <20040904174642.GD7716@krispykreme>
-Mime-Version: 1.0
+	Sun, 5 Sep 2004 10:35:42 -0400
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] FAT: rewrite the cache for file allocation table lookup
+ (2/4)
+References: <878ybpvtpz.fsf@devron.myhome.or.jp>
+	<20040905123959.A29612@infradead.org>
+	<87pt50vq01.fsf@devron.myhome.or.jp>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 05 Sep 2004 23:35:13 +0900
+In-Reply-To: <87pt50vq01.fsf@devron.myhome.or.jp> (OGAWA Hirofumi's message
+ of "Sun, 05 Sep 2004 21:50:38 +0900")
+Message-ID: <878ybog4wu.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040904174642.GD7716@krispykreme>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Graham Coxon - Happiness in Magazines
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1C3y3l-0009zB-GC*T4jxSwObddY*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 05, 2004 at 03:46:42AM +1000, Anton Blanchard wrote:
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> writes:
 
-> On error we can call __free_cpu_buffers with only some buffers
-> allocated. I was getting a bunch of vfree warnings when I hit it, we
-> should check before calling vfree.
+> Christoph Hellwig <hch@infradead.org> writes:
+>
+>>> +#if 0
+>>> +#define debug_pr(fmt, args...)	printk(fmt, ##args)
+>>> +#else
+>>> +#define debug_pr(fmt, args...)
+>>> +#endif
+>>
+>> We have a pr_debug() in <linux/kernel.h> that you could use.
+>
+> I hated KERN_DEBUG. But, well, maybe pr_debug() was enough...
+>
+> I'll replace it for now
 
-Why does vfree() differ from free() / kfree() in not accepting NULL ?
-This seems like an interface wart.
+FAT: fat_cache_lookup, fclus 6<7>, fclus 1, dclus 325759, cont 5<7> (off 5, full hit)<7>
 
-cheers
-john
-
-> -	for_each_online_cpu(i)
-> -		vfree(cpu_buffer[i].buffer);
-> +	for_each_online_cpu(i) {
-> +		if (cpu_buffer[i].buffer)
-> +			vfree(cpu_buffer[i].buffer);
-> +	}
+KERN_DEBUG was not readable. Sorry. I'd like to be puting it as is for now.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

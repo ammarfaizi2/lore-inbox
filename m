@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267433AbUIOVbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267515AbUIOVbb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267433AbUIOVbc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 17:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267557AbUIOV1y
+	id S267515AbUIOVbb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 17:31:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267561AbUIOV1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 17:27:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:27305 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267438AbUIOVYz (ORCPT
+	Wed, 15 Sep 2004 17:27:40 -0400
+Received: from holomorphy.com ([207.189.100.168]:13471 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267543AbUIOVZO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 17:24:55 -0400
-Date: Wed, 15 Sep 2004 14:28:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: hari@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, fastboot@osdl.org, suparna@in.ibm.com,
-       mbligh@aracnet.com, ebiederm@xmission.com, litke@us.ibm.com
-Subject: Re: [PATCH][5/6]ELF format dump file access
-Message-Id: <20040915142839.4bc6c167.akpm@osdl.org>
-In-Reply-To: <20040915125631.GF15450@in.ibm.com>
-References: <20040915125041.GA15450@in.ibm.com>
-	<20040915125145.GB15450@in.ibm.com>
-	<20040915125322.GC15450@in.ibm.com>
-	<20040915125422.GD15450@in.ibm.com>
-	<20040915125525.GE15450@in.ibm.com>
-	<20040915125631.GF15450@in.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 15 Sep 2004 17:25:14 -0400
+Date: Wed, 15 Sep 2004 14:25:08 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
+Message-ID: <20040915212508.GY9106@holomorphy.com>
+References: <20040915151815.GA30138@elte.hu> <Pine.LNX.4.58.0409150826150.2333@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0409150826150.2333@ppc970.osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hariprasad Nellitheertha <hari@in.ibm.com> wrote:
+On Wed, 15 Sep 2004, Ingo Molnar wrote:
+>> the attached patch is a new approach to get rid of Linux's Big Kernel
+>> Lock as we know it today.
 >
-> -static int notesize(struct memelfnote *en)
-> +int notesize(struct memelfnote *en)
->  {
->  	int sz;
->  
-> @@ -129,7 +129,7 @@ static int notesize(struct memelfnote *e
->  /*
->   * store a note in the header buffer
->   */
-> -static char *storenote(struct memelfnote *men, char *bufp)
-> +char *storenote(struct memelfnote *men, char *bufp)
+On Wed, Sep 15, 2004 at 08:40:55AM -0700, Linus Torvalds wrote:
+> I really think this is wrong.
+> Maybe not from a conceptual standpoint, but that implementation with the
+> scheduler doing "reaquire_kernel_lock()" and doing a down() there is just
+> wrong, wrong, wrong.
+> If we're going to do a down() and block immediately after being scheduled,
+> I don't think we should have been picked in the first place.
 
-As you're giving these kernel-wide scope, please also rename them
-to elf_notesize() and elf_storenote().
+Well, I'm more concerned that the users all need to be swept anyway.
+This could make sense to do anyway, but the sweeps IMHO are necessary
+because the users almost universally are those that haven't been taught
+to do any locking yet, stale and crusty code that needs porting, or
+things where the locking hasn't quite been debugged or straightened out.
+
+One thing I like is that this eliminates the implicit dropping on sleep
+as a source of bugs (e.g. it was recently pointed out to me that setfl()
+uses the BKL to protect ->f_flags in a codepath spanning a sleeping
+call to ->fasync()), where the semaphore may be retained while sleeping.
+I originally wanted to make sleeping under the BKL illegal and sweep
+users to repair when it is, but maybe that's unrealistic, particularly
+considering that the sum of my BKL sweeps to date are one removal from
+procfs "protecting" its access of nr_threads.
+
+
+-- wli

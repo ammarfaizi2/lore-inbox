@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267615AbUHRXdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267614AbUHRXk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267615AbUHRXdt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 19:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbUHRXdt
+	id S267614AbUHRXk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 19:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267617AbUHRXk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 19:33:49 -0400
-Received: from holomorphy.com ([207.189.100.168]:60858 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267615AbUHRXdd (ORCPT
+	Wed, 18 Aug 2004 19:40:28 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:41406 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S267614AbUHRXkZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 19:33:33 -0400
-Date: Wed, 18 Aug 2004 16:33:24 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: pj@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Does io_remap_page_range() take 5 or 6 args?
-Message-ID: <20040818233324.GT11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"David S. Miller" <davem@redhat.com>, pj@sgi.com,
-	linux-kernel@vger.kernel.org
-References: <20040818133348.7e319e0e.pj@sgi.com> <20040818205338.GF11200@holomorphy.com> <20040818135638.4326ca02.davem@redhat.com> <20040818210503.GG11200@holomorphy.com> <20040818143029.23db8740.davem@redhat.com> <20040818214026.GL11200@holomorphy.com> <20040818220001.GN11200@holomorphy.com> <20040818225915.GQ11200@holomorphy.com> <20040818161658.49aa8de3.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 18 Aug 2004 19:40:25 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Shawn Starr <shawn.starr@rogers.com>
+Subject: Re: 2.6.8.1-mm1 broke USB driver with ACPI pci irq routing... info follows
+Date: Wed, 18 Aug 2004 17:40:15 -0600
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, Cyrille Ch?p?lov <cyrille@chepelov.org>
+References: <200408170257.26712.shawn.starr@rogers.com> <200408170848.42173.bjorn.helgaas@hp.com> <200408172104.30280.shawn.starr@rogers.com>
+In-Reply-To: <200408172104.30280.shawn.starr@rogers.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040818161658.49aa8de3.davem@redhat.com>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408181740.15310.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Aug 2004 15:59:15 -0700
->> Given this, will a pfn suffice?
+Shawn and Cyrille, can you try the attached patch, please?  We were using
+__initdata from a function that is no longer used only at boot-time.
+I'm pretty sure this will fix Shawn's problem.  I don't know whether
+it'll fix yours, Cyrille, but it might.
 
-On Wed, Aug 18, 2004 at 04:16:58PM -0700, David S. Miller wrote:
-> There is an error in the calculations.  16TB "RAM", means "RAM".
-> On many systems, a large chunk of the physical address space is
-> taken up by I/O areas, not real memory.
-> Such areas do not take up mem_map[] array space.
-> Regardless, I think an "unsigned long" page frame number is sufficient
-> for now.  Don't even make the new type.
-
-Oh, virtualspace footprint of IO areas is far worse, as the convention
-is to direct map them into a single address space if they're ever used.
-Of course this convention is much more loosely established than e.g.
-struct page is for RAM. Some analogue of kmap_atomic() for such
-machines to multiplex virtualspace in interrupt context would help, but
-is unrelated to physical address passing issues.
+Andrew, I think this is clearly a bug independent of my other patches
+in -mm, so could you apply this as well?
 
 
--- wli
+Make acpi_irq_penalty non-initdata, since it's used by the
+non_init acpi_pci_link_allocate().  And make acpi_irq_penalty_init()
+__init, since it is used only by the __init pci_acpi_init().
+
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+
+===== drivers/acpi/pci_link.c 1.31 vs edited =====
+--- 1.31/drivers/acpi/pci_link.c	2004-08-04 13:55:16 -06:00
++++ edited/drivers/acpi/pci_link.c	2004-08-18 17:26:48 -06:00
+@@ -448,7 +448,7 @@
+ #define PIRQ_PENALTY_ISA_USED		(16*16*16*16*16)
+ #define PIRQ_PENALTY_ISA_ALWAYS		(16*16*16*16*16*16)
+ 
+-static int __initdata acpi_irq_penalty[ACPI_MAX_IRQS] = {
++static int acpi_irq_penalty[ACPI_MAX_IRQS] = {
+ 	PIRQ_PENALTY_ISA_ALWAYS,	/* IRQ0 timer */
+ 	PIRQ_PENALTY_ISA_ALWAYS,	/* IRQ1 keyboard */
+ 	PIRQ_PENALTY_ISA_ALWAYS,	/* IRQ2 cascade */
+@@ -468,7 +468,7 @@
+ 			/* >IRQ15 */
+ };
+ 
+-int
++int __init
+ acpi_irq_penalty_init(void)
+ {
+ 	struct list_head	*node = NULL;

@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267933AbTAHUnl>; Wed, 8 Jan 2003 15:43:41 -0500
+	id <S267862AbTAHUuJ>; Wed, 8 Jan 2003 15:50:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267934AbTAHUnl>; Wed, 8 Jan 2003 15:43:41 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:55311 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S267933AbTAHUnk>; Wed, 8 Jan 2003 15:43:40 -0500
-Date: Wed, 8 Jan 2003 20:52:20 +0000
-From: John Levon <levon@movementarian.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: [PATCH] /proc/sys/kernel/pointer_size
-Message-ID: <20030108205220.GB35912@compsoc.man.ac.uk>
-References: <20030108195934.GA35912@compsoc.man.ac.uk> <Pine.LNX.4.44.0301081222430.5369-100000@home.transmeta.com>
+	id <S267866AbTAHUuJ>; Wed, 8 Jan 2003 15:50:09 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:14095 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S267862AbTAHUuI>; Wed, 8 Jan 2003 15:50:08 -0500
+Date: Wed, 8 Jan 2003 21:58:48 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Re: [ACPI] RE: kacpidpc needs to die
+Message-ID: <20030108205848.GB32645@atrey.karlin.mff.cuni.cz>
+References: <F760B14C9561B941B89469F59BA3A84725A10E@orsmsx401.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301081222430.5369-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18WNBV-000FRG-00*HDWZv4W/HcI*
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A10E@orsmsx401.jf.intel.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 08, 2003 at 12:28:23PM -0800, Linus Torvalds wrote:
+Hi!
 
-> doesn't change suddenly on the machine, there's no point at all in doing
-> something like this and exporting it through proc, when the information is
-> perfectly available in other ways
+> > safe, anyway],
+> > > kacpidpc needs to die. Andrew, are you going to kill it or 
+> > should I do
+> > > it?
+> > 
+> > I can kill it...let me just verify with you --
+> > acpi_os_queue_for_execution has a two block switch statement, just use
+> > the first block (the case that uses schedule_work) and delete 
+> > the rest,
+> > yes?
+> 
+> Oops, and combine acpi_os_schedule_exec and acpi_os_queue_exec, so that
+> we call dpc->function() from the original thread. Anything else?
 
-What other ways ? Dave M reasonably argued it wasn't part of the
-architecture's ABI, so did not have a place in the headers.
-
-> or could even be a user program config file option.
-
-Eww.
-
-> Quite frankly, just compile oprofile for the architecture and be done with 
-> it. Or add a command line option. Don't add stupid bloat to the kernel 
-> because somebody is silly enough to care about a 32-bit oprofile working 
-> with a 64-bit kernel. 
-
-It's not silly, it's a necessity on architectures like pa-risc, sparc64,
-ppc64, etc. where pointers are 32 bit in userspace. OProfile simply
-cannot work at all on such systems without being able to figure out the
-units of the oprofile kernel buffer.
-
-We could force the oprofile kernel buffer to always be u64s but that
-just eats unnecessary space and time on x86.
-
-So, what solution do you suggest instead ?
-
-regards
-john
+I don't see anything else, this looks okay.
 
 -- 
-"CUT IT OUT FACEHEAD"
-	- jeffk
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

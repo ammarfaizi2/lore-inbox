@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbUCDS5M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 13:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbUCDS4h
+	id S262073AbUCDS5O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 13:57:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUCDS4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 13:56:37 -0500
-Received: from mail6.iserv.net ([204.177.184.156]:60588 "EHLO mail6.iserv.net")
-	by vger.kernel.org with ESMTP id S262083AbUCDSys (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 13:54:48 -0500
-Message-ID: <40477B7C.4050809@didntduck.org>
-Date: Thu, 04 Mar 2004 13:54:52 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] PnP BIOS exception fixes
-References: <Pine.GSO.4.44.0403041657430.10910-100000@math.ut.ee> <404769B5.7080900@quark.didntduck.org> <Pine.LNX.4.58.0403041051430.1047@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0403041051430.1047@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Mar 2004 13:56:55 -0500
+Received: from wblv-248-49.telkomadsl.co.za ([165.165.248.49]:13697 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S262082AbUCDSyl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 13:54:41 -0500
+Subject: Re: [ANNOUNCE] udev 021 release
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-hotplug-devel@lists.sourceforge.net,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040304184602.GI13907@kroah.com>
+References: <20040303000957.GA11755@kroah.com>
+	 <1078422507.3614.20.camel@nosferatu.lan> <20040304184602.GI13907@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-HH+fcxMQnI2tv9c4ldht"
+Message-Id: <1078426567.3614.24.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 04 Mar 2004 20:56:07 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Thu, 4 Mar 2004, Brian Gerst wrote:
-> 
->>This patch fixes two errors in fixup_exception() for PnP BIOS faults:
->>- Check for the correct segments used for the BIOS
->>- Fix asm constraints so that EIP and ESP are properly reloaded
-> 
-> 
-> I'm almost certain that you should NOT use "g" as a constraint, since that 
-> allows the address to be on the stack frame, so when we compile without 
-> frame pointers and the compiler uses a %esp-relative thing for the branch 
-> address, that will totally screw up when we just re-loaded %esp inside the 
-> asm.
-> 
-> Can you use "r" instead, and test that it all works for you, and send an 
-> updated patch? Or just explain why I'm wrong.
-> 
-> 		Linus
-> 
 
-The inputs are global variables, with absolute addresses.
+--=-HH+fcxMQnI2tv9c4ldht
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
---
-				Brian Gerst
+On Thu, 2004-03-04 at 20:46, Greg KH wrote:
+> On Thu, Mar 04, 2004 at 07:48:27PM +0200, Martin Schlemmer wrote:
+> > On Wed, 2004-03-03 at 02:09, Greg KH wrote:
+> > > I've released the 021 version of udev.  It can be found at:
+> > >  	kernel.org/pub/linux/utils/kernel/hotplug/udev-021.tar.gz
+> > >=20
+> >=20
+> > Is the issue that causes missing events with udevsend (and udev in
+> > some cases - like alsa and it seems the -mm tree) with slower machines
+> > known yet?
+>=20
+> No, this is not really known.  I've heard rumors of it, but been unable
+> to duplicate it here.   Some solid error reports would be greatly
+> appreciated...
+>=20
+
+Besides reports from others, my work box also shows this - they just do
+not endorse (and don't want to find out if they will mind) me doing
+work in this field.  I will however try to track or get some type of
+test case.
+
+
+--=20
+Martin Schlemmer
+
+--=-HH+fcxMQnI2tv9c4ldht
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAR3vHqburzKaJYLYRArBWAJ4xH/HXCZTce/PIrYSfGZJbxIG0SQCfYEr1
+J4Husc3vlCVeXdfHr/uYq6U=
+=oEro
+-----END PGP SIGNATURE-----
+
+--=-HH+fcxMQnI2tv9c4ldht--
+

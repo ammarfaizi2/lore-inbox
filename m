@@ -1,62 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288814AbSBDJlU>; Mon, 4 Feb 2002 04:41:20 -0500
+	id <S288827AbSBDJiK>; Mon, 4 Feb 2002 04:38:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288821AbSBDJlL>; Mon, 4 Feb 2002 04:41:11 -0500
-Received: from [62.245.135.174] ([62.245.135.174]:65217 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S288814AbSBDJlI>;
-	Mon, 4 Feb 2002 04:41:08 -0500
-Message-ID: <3C5E572D.FF98495A@TeraPort.de>
-Date: Mon, 04 Feb 2002 10:41:01 +0100
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Reply-To: m.knoblauch@TeraPort.de
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18-pre4-J0-VM-22-preempt-lock i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC: wli@holomorphy.com
-Subject: Re: should I trust 'free' or 'top'?
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 02/04/2002 10:41:01 AM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 02/04/2002 10:41:08 AM,
-	Serialize complete at 02/04/2002 10:41:08 AM
-Content-Transfer-Encoding: 7bit
+	id <S288821AbSBDJiA>; Mon, 4 Feb 2002 04:38:00 -0500
+Received: from [195.157.147.30] ([195.157.147.30]:54285 "HELO
+	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
+	id <S288814AbSBDJhq>; Mon, 4 Feb 2002 04:37:46 -0500
+Date: Mon, 4 Feb 2002 09:28:45 +0000
+From: Sean Hunter <sean@uncarved.com>
+To: Ken Brownfield <brownfld@irridia.com>
+Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+Subject: Re: Continuing /dev/random problems with 2.4
+Message-ID: <20020204092845.A8211@dev.sportingbet.com>
+Mail-Followup-To: Sean Hunter <sean@uncarved.com>,
+	Ken Brownfield <brownfld@irridia.com>, Robert Love <rml@tech9.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com> <1012582401.813.1.camel@phantasy> <20020201110137.B2560@asooo.flowerfire.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020201110137.B2560@asooo.flowerfire.com>; from brownfld@irridia.com on Fri, Feb 01, 2002 at 11:01:37AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Re: should I trust 'free' or 'top'?
-> 
-> 
-> On Fri, Feb 01, 2002 at 11:24:16AM -0800, Adam McKenna wrote:
-> > adam@xpdb:~$ uptime
-> > 11:21am up 42 days, 18:53, 3 users, load average: 54.72, 21.21, 17.60
-> > adam@xpdb:~$ free
-> > total used free shared buffers cached
-> > Mem: 5528464 5522744 5720 0 476 5349784
-> > -/+ buffers/cache: 172484 5355980
-> > Swap: 2939804 1302368 1637436
-> > As you can see, there are supposedly 5.3 gigs of memory free (not counting
-> > memory used for cache). However, the box is swapping like mad (about 10 megs
-> > every 2 seconds according to vmstat) and the load is skyrocketing.
-> 
-> That 5.3GB is without kernel caches. I see 5.7MB...
-> 
+One thing I have found useful is to install an old soundcard, and use the
+"audio entropy daemon".  This essentially samples static noise in the input
+channels of the card, and feeds the result into the kernel entropy pool.
 
- And this is the problem. Caches should make the system behave better
-and not get into its ways ...
+I don't know that anyone maintains this thing any more, so I have begun
+rewriting it, in the hope that a maintained version would be more widely
+useful.
 
- It is time that one of the approches gets accepted for the current
-"stable" mainline. I do not care much which it is for 2.4.x. Both rmap
-and -aa seem to fix most of the problems. Having one of them accepted
-should make it easier to fix-up the remaining pathological cases.
 
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+Sean
+
+On Fri, Feb 01, 2002 at 11:01:37AM -0600, Ken Brownfield wrote:
+> On Fri, Feb 01, 2002 at 11:53:20AM -0500, Robert Love wrote:
+> | On Fri, 2002-02-01 at 04:17, Ken Brownfield wrote:
+> | Most of the useful fixes actually came in a large update from Andreas
+> | Dilger.  Perhaps he would have some insight, too.
+> 
+> Ah, my apoligies then.
+> 
+> | Exhausting entropy to zero under high use is not uncommon (that is a
+> | motivation for my netdev-random patch).  What boggles me is why it does
+> | not regenerate?
+> 
+> Yeah -- slow entropy is "acceptable", but blocking until a reboot is rather unacceptable. ;)
+> 
+> Thx much,
+> -- 
+> Ken.
+> brownfld@irridia.com
+> 
+> | 
+> | 	Robert
+> | 
+> | -
+> | To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> | the body of a message to majordomo@vger.kernel.org
+> | More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> | Please read the FAQ at  http://www.tux.org/lkml/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

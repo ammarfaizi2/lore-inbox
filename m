@@ -1,99 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267964AbTBMFFg>; Thu, 13 Feb 2003 00:05:36 -0500
+	id <S267957AbTBMFC1>; Thu, 13 Feb 2003 00:02:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267965AbTBMFFg>; Thu, 13 Feb 2003 00:05:36 -0500
-Received: from dp.samba.org ([66.70.73.150]:63910 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267964AbTBMFFe>;
-	Thu, 13 Feb 2003 00:05:34 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com,
-       ak@suse.de
-Subject: Re: Kill SHOUTING in kernel/io_apic.c 
-In-reply-to: Your message of "Mon, 10 Feb 2003 17:37:26 BST."
-             <20030210163726.GA1115@elf.ucw.cz> 
-Date: Thu, 13 Feb 2003 13:58:29 +1100
-Message-Id: <20030213051525.0F7682C04B@lists.samba.org>
+	id <S267958AbTBMFC1>; Thu, 13 Feb 2003 00:02:27 -0500
+Received: from packet.digeo.com ([12.110.80.53]:18942 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267957AbTBMFC0>;
+	Thu, 13 Feb 2003 00:02:26 -0500
+Date: Wed, 12 Feb 2003 21:12:21 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Bruno Diniz de Paula <diniz@cs.rutgers.edu>
+Cc: cw@f00f.org, linux-kernel@vger.kernel.org
+Subject: Re: O_DIRECT foolish question
+Message-Id: <20030212211221.3f73ba45.akpm@digeo.com>
+In-Reply-To: <1045096579.21195.121.camel@urca.rutgers.edu>
+References: <20030212140338.6027fd94.akpm@digeo.com>
+	<1045088991.4767.85.camel@urca.rutgers.edu>
+	<20030212224226.GA13129@f00f.org>
+	<1045090977.21195.87.camel@urca.rutgers.edu>
+	<20030212232443.GA13339@f00f.org>
+	<1045092802.4766.96.camel@urca.rutgers.edu>
+	<20030212233846.GA13540@f00f.org>
+	<1045093775.21195.99.camel@urca.rutgers.edu>
+	<20030212235130.GA13629@f00f.org>
+	<1045094589.4767.106.camel@urca.rutgers.edu>
+	<20030213001302.GA13833@f00f.org>
+	<1045096579.21195.121.camel@urca.rutgers.edu>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Feb 2003 05:12:09.0882 (UTC) FILETIME=[75CFAFA0:01C2D31E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030210163726.GA1115@elf.ucw.cz> you write:
-> Hi!
+Bruno Diniz de Paula <diniz@cs.rutgers.edu> wrote:
+>
+> On Wed, 2003-02-12 at 19:13, Chris Wedgwood wrote:
+> > If I had to guess, write should work more or less the same as reads
+> > (ie. I should be able to write aligned-but-smaller-than-page-sized
+> > blocks to the end of files).
+> > 
+> > Testing this however shows this is *not* the case.
 > 
-> That source is shouting WAY TOO MUCH. Please apply,
-
-Either you can make unexpected_IO_APIC static, or your patch missed a
-caller.
-
-In fact, grep reveals the former.  x86_64, too.
-
-> 								Pavel
+> This is not the case, I have also tested here and the file written has
+> n*block_size always. The problem with writing is that we can't sign to
+> the kernel that the actual data has finished and from that point on it
+> should zero-fill the bytes. And what is worse, the information about the
+> actual size is lost, since the write syscall will store what is passed
+> on the 3rd argument in the inode (field st_size of stat). This means
+> that after writing using O_DIRECT we can't read data correctly anymore.
+> The exception is when we write together with the data information about
+> the actual size and process disregarding information from stat, for
+> instance.
 > 
-> --- clean/arch/i386/kernel/io_apic.c	2003-01-17 23:13:33.000000000 +0100
-> +++ linux-swsusp/arch/i386/kernel/io_apic.c	2003-01-19 19:46:51.000000000 +
-0100
-> @@ -824,7 +824,7 @@
->  	enable_8259A_irq(0);
->  }
->  
-> -void __init UNEXPECTED_IO_APIC(void)
-> +void __init unexpected_IO_APIC(void)
->  {
->  	printk(KERN_WARNING " WARNING: unexpected IO-APIC, please mail\n");
->  	printk(KERN_WARNING "          to linux-smp@vger.kernel.org\n");
-> @@ -865,7 +865,7 @@
->  	printk(KERN_DEBUG ".......    : Delivery Type: %X\n", reg_00.delivery_t
-ype);
->  	printk(KERN_DEBUG ".......    : LTS          : %X\n", reg_00.LTS);
->  	if (reg_00.__reserved_0 || reg_00.__reserved_1 || reg_00.__reserved_2)
-> -		UNEXPECTED_IO_APIC();
-> +		unexpected_IO_APIC();
->  
->  	printk(KERN_DEBUG ".... register #01: %08X\n", *(int *)&reg_01);
->  	printk(KERN_DEBUG ".......     : max redirection entries: %04X\n", reg_
-01.entries);
-> @@ -877,7 +877,7 @@
->  		(reg_01.entries != 0x2E) &&
->  		(reg_01.entries != 0x3F)
->  	)
-> -		UNEXPECTED_IO_APIC();
-> +		unexpected_IO_APIC();
->  
->  	printk(KERN_DEBUG ".......     : PRQ implemented: %X\n", reg_01.PRQ);
->  	printk(KERN_DEBUG ".......     : IO APIC version: %04X\n", reg_01.versi
-on);
-> @@ -887,15 +887,15 @@
->  		(reg_01.version != 0x13) && /* Xeon IO-APICs */
->  		(reg_01.version != 0x20)    /* Intel P64H (82806 AA) */
->  	)
-> -		UNEXPECTED_IO_APIC();
-> +		unexpected_IO_APIC();
->  	if (reg_01.__reserved_1 || reg_01.__reserved_2)
-> -		UNEXPECTED_IO_APIC();
-> +		unexpected_IO_APIC();
->  
->  	if (reg_01.version >= 0x10) {
->  		printk(KERN_DEBUG ".... register #02: %08X\n", *(int *)&reg_02)
-;
->  		printk(KERN_DEBUG ".......     : arbitration: %02X\n", reg_02.a
-rbitration);
->  		if (reg_02.__reserved_1 || reg_02.__reserved_2)
-> -			UNEXPECTED_IO_APIC();
-> +			unexpected_IO_APIC();
->  	}
->  
->  	printk(KERN_DEBUG ".... IRQ redirection table:\n");
-> 
-> -- 
-> Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-> What goes next? Inserting advertisment *into* email?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Well, I am sure I am completely wrong because this doesn't make any
+> sense for me. Someone that has already dealt with this and can bring a
+> light to the discussion?
 > 
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+For writes, I don't think it is reasonable for the kernel to be have to
+handle byte-granular appends.  O_DIRECT is different.  For this case the
+application should ftruncate the file back to the desired size prior to
+closing it.
+
+For the short reads at EOF, the 2.4 kernel refuses to read anything, and
+returns zero.  The 2.5 kernel will return -EINVAL, which is better behaviour
+(shouldn't make it just look like the file is shorter than it really is).
+
+The ideal behaviour is that which I mistakenly described previously: we
+should fill with zeroes and return the partial result.  I'll look at
+converting 2.5 to do that.  As long as the changes are small - the direct-io
+code does a ton of stuff, is complex, is not tested a lot and breakage tends
+to be subtle.

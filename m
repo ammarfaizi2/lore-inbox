@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263272AbVCKK36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263259AbVCKKeB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263272AbVCKK36 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 05:29:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263266AbVCKK36
+	id S263259AbVCKKeB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 05:34:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263263AbVCKKeB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 05:29:58 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29313 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263259AbVCKK3m (ORCPT
+	Fri, 11 Mar 2005 05:34:01 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42196 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263260AbVCKKdu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 05:29:42 -0500
-Date: Fri, 11 Mar 2005 11:29:20 +0100
+	Fri, 11 Mar 2005 05:33:50 -0500
+Date: Fri, 11 Mar 2005 11:31:46 +0100
 From: Pavel Machek <pavel@ucw.cz>
 To: Peter Chubb <peterc@gelato.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: User mode drivers: part 1, interrupt handling (patch for 2.6.11)
-Message-ID: <20050311102920.GB30252@elf.ucw.cz>
-References: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: User mode drivers: part 2: PCI device handling (patch 1/2 for 2.6.11)
+Message-ID: <20050311103146.GC30252@elf.ucw.cz>
+References: <16945.4717.402555.893411@berry.gelato.unsw.EDU.AU> <20050311071825.GA28613@kroah.com> <16945.22566.593812.759201@wombat.chubb.wattle.id.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
+In-Reply-To: <16945.22566.593812.759201@wombat.chubb.wattle.id.au>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,30 +27,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> As many of you will be aware, we've been working on infrastructure for
-> user-mode PCI and other drivers.  The first step is to be able to
-> handle interrupts from user space. Subsequent patches add
-> infrastructure for setting up DMA for PCI devices.
+> >> +/* + * The PCI subsystem is implemented as yet-another pseudo
+> >> filesystem, + * albeit one that is never mounted.  + * This is its
+> >> magic number.  + */ +#define USR_PCI_MAGIC (0x12345678)
 > 
-> The user-level interrupt code doesn't depend on the other patches, and
-> is probably the most mature of this patchset.
+> Greg> If you make it a real, mountable filesystem, then you don't need
+> Greg> to have any of your new syscalls, right?  Why not just do that
+> Greg> instead?
+> 
+> 
+> The only call that would go is usr_pci_open() -- you'd still need 
+> usr_pci_map(), usr_pci_unmap() and usr_pci_get_consistent().
 
-Okay, I like it; it means way easier PCI driver development.
-
-But... how do you handle shared PCI interrupts?
-
-> This patch adds a new file to /proc/irq/<nnn>/ called irq.  Suitably 
-> privileged processes can open this file.  Reading the file returns the 
-> number of interrupts (if any) that have occurred since the last read.
-> If the file is opened in blocking mode, reading it blocks until 
-> an interrupt occurs.  poll(2) and select(2) work as one would expect, to 
-> allow interrupts to be one of many events to wait for.
-> (If you didn't like the file, one could have a special system call to
-> return the file descriptor).
-
-This should go into Documentation/ somewhere.
+There are quite a lot of buses. Having to add #buses * 3 seems quite
+wrong to me...
 								Pavel
-
 -- 
 People were complaining that M$ turns users into beta-testers...
 ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,70 +1,134 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129234AbQKRQem>; Sat, 18 Nov 2000 11:34:42 -0500
+	id <S129453AbQKRQy6>; Sat, 18 Nov 2000 11:54:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129453AbQKRQeX>; Sat, 18 Nov 2000 11:34:23 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:52232 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129234AbQKRQeP>; Sat, 18 Nov 2000 11:34:15 -0500
-Date: Sat, 18 Nov 2000 08:03:51 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Ford <david@linux.com>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, David Hinds <dhinds@valinux.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pcmcia event thread. (fwd)
-In-Reply-To: <3A16521A.44B2B628@linux.com>
-Message-ID: <Pine.LNX.4.10.10011180750230.8465-100000@penguin.transmeta.com>
+	id <S129541AbQKRQys>; Sat, 18 Nov 2000 11:54:48 -0500
+Received: from ha1.rdc2.mi.home.com ([24.2.68.68]:4228 "EHLO
+	mail.rdc2.mi.home.com") by vger.kernel.org with ESMTP
+	id <S129453AbQKRQyd>; Sat, 18 Nov 2000 11:54:33 -0500
+Message-ID: <3A16ACD6.71BAF564@didntduck.org>
+Date: Sat, 18 Nov 2000 11:22:46 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11-pre5-mm i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] x86 mm init cleanup
+Content-Type: multipart/mixed;
+ boundary="------------FAEF64C96ED89542039D7595"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------FAEF64C96ED89542039D7595
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
+Patch against test11.  This patch moves the setting of %cr4 out of the
+loops and makes the code a bit more readable.  Tested with standard
+pagetables, PSE, and PAE.
 
-On Sat, 18 Nov 2000, David Ford wrote:
+-- 
 
-> Linus Torvalds wrote:
-> [...]
-> 
-> > If somebody still has a problem with the in-kernel stuff, speak up.
-> 
-> The kernel's irq detection for the card sockets doesn't work for me.  It's the NEC
-> Versa LX story.  The DH code also reports no IRQ found but still figures out a
-> working IRQ (normally 3) and assigns it for the tulip card.  I use the i82365 module
-> w/ the DH code.  The below is the output of the kernel pcmcia code.
+						Brian Gerst
+--------------FAEF64C96ED89542039D7595
+Content-Type: text/plain; charset=us-ascii;
+ name="mminit.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mminit.diff"
 
-> PCI: No IRQ known for interrupt pin B of device 00:03.1. Please try using
-> pci=biosirq.
-> PCI: No IRQ known for interrupt pin A of device 00:03.0. Please try using
-> pci=biosirq.
+diff -urN linux-2.4.0t11p5/arch/i386/mm/init.c linux/arch/i386/mm/init.c
+--- linux-2.4.0t11p5/arch/i386/mm/init.c	Mon Oct 23 17:42:33 2000
++++ linux/arch/i386/mm/init.c	Thu Nov 16 20:55:20 2000
+@@ -315,7 +315,7 @@
+ 
+ static void __init pagetable_init (void)
+ {
+-	unsigned long vaddr, end;
++	unsigned long vaddr, end, __pe;
+ 	pgd_t *pgd, *pgd_base;
+ 	int i, j, k;
+ 	pmd_t *pmd;
+@@ -334,11 +334,23 @@
+ 		__pgd_clear(pgd);
+ 	}
+ #endif
+-	i = __pgd_offset(PAGE_OFFSET);
++
++	__pe = _KERNPG_TABLE;
++	if (cpu_has_pse) {
++		set_in_cr4(X86_CR4_PSE);
++		__pe += _PAGE_PSE;
++		boot_cpu_data.wp_works_ok = 1;
++		if (cpu_has_pge) {
++			set_in_cr4(X86_CR4_PGE);
++			__pe += _PAGE_GLOBAL;
++		}
++	}
++
++	vaddr = PAGE_OFFSET;
++	i = __pgd_offset(vaddr);
+ 	pgd = pgd_base + i;
+ 
+ 	for (; i < PTRS_PER_PGD; pgd++, i++) {
+-		vaddr = i*PGDIR_SIZE;
+ 		if (end && (vaddr >= end))
+ 			break;
+ #if CONFIG_X86_PAE
+@@ -350,35 +362,24 @@
+ 		if (pmd != pmd_offset(pgd, 0))
+ 			BUG();
+ 		for (j = 0; j < PTRS_PER_PMD; pmd++, j++) {
+-			vaddr = i*PGDIR_SIZE + j*PMD_SIZE;
+ 			if (end && (vaddr >= end))
+ 				break;
+ 			if (cpu_has_pse) {
+-				unsigned long __pe;
+-
+-				set_in_cr4(X86_CR4_PSE);
+-				boot_cpu_data.wp_works_ok = 1;
+-				__pe = _KERNPG_TABLE + _PAGE_PSE + __pa(vaddr);
+-				/* Make it "global" too if supported */
+-				if (cpu_has_pge) {
+-					set_in_cr4(X86_CR4_PGE);
+-					__pe += _PAGE_GLOBAL;
++				set_pmd(pmd, __pmd(__pe + __pa(vaddr)));
++				vaddr += PMD_SIZE;
++			} else {
++				pte = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
++				set_pmd(pmd, __pmd(__pe + __pa(pte)));
++
++				if (pte != pte_offset(pmd, 0))
++					BUG();
++
++				for (k = 0; k < PTRS_PER_PTE; pte++, k++) {
++					if (end && (vaddr >= end))
++						break;
++					*pte = mk_pte_phys(__pa(vaddr), PAGE_KERNEL);
++					vaddr += PAGE_SIZE;
+ 				}
+-				set_pmd(pmd, __pmd(__pe));
+-				continue;
+-			}
+-
+-			pte = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
+-			set_pmd(pmd, __pmd(_KERNPG_TABLE + __pa(pte)));
+-
+-			if (pte != pte_offset(pmd, 0))
+-				BUG();
+-
+-			for (k = 0; k < PTRS_PER_PTE; pte++, k++) {
+-				vaddr = i*PGDIR_SIZE + j*PMD_SIZE + k*PAGE_SIZE;
+-				if (end && (vaddr >= end))
+-					break;
+-				*pte = mk_pte_phys(__pa(vaddr), PAGE_KERNEL);
+ 			}
+ 		}
+ 	}
 
-Strange. Your interrupt router is a bog-standard PIIX4, we know how to
-route the thing, AND your device shows up:
-
-> # dump_pirq
-> Interrupt routing table found at address 0xf5a80:
->   Version 1.0, size 0x0080
->   Interrupt router is device 00:07.0
->   PCI exclusive interrupt mask: 0x0000
->   Compatible router: vendor 0x8086 device 0x1234
-> 
-> Device 00:03.0 (slot 0):
->   INTA: link 0x60, irq mask 0x0420
->   INTB: link 0x61, irq mask 0x0420
->
-> Interrupt router: Intel 82371AB PIIX4/PIIX4E PCI-to-ISA bridge
->   PIRQ1 (link 0x60): irq 10
->   PIRQ2 (link 0x61): irq 5
->   PIRQ3 (link 0x62): unrouted
->   PIRQ4 (link 0x63): irq 9
->   Serial IRQ: [enabled] [continuous] [frame=21] [pulse=4]
-
-Can you (you've probably done this before, but anyway) enable DEBUG in
-arch/i386/kernel/pci-i386.h? I wonder if the kernel for some strange
-reason doesn't find your router, even though "dump_pirq" obviously does..
-If there's something wrong with the checksumming for example..
-
-		Linus
+--------------FAEF64C96ED89542039D7595--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

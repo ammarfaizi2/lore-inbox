@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269090AbUINKv7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269256AbUINKx1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269090AbUINKv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 06:51:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269254AbUINKv7
+	id S269256AbUINKx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 06:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269257AbUINKx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 06:51:59 -0400
-Received: from out012pub.verizon.net ([206.46.170.137]:14786 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S269090AbUINKv5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 06:51:57 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc1-mm5, ehci stuff gone
-Date: Tue, 14 Sep 2004 06:51:55 -0400
-User-Agent: KMail/1.7
-Cc: Greg KH <greg@kroah.com>
-References: <200409132307.19242.gene.heskett@verizon.net> <200409140105.32221.gene.heskett@verizon.net> <20040914053140.GA18591@kroah.com>
-In-Reply-To: <20040914053140.GA18591@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 14 Sep 2004 06:53:27 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:46773 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269256AbUINKxV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 06:53:21 -0400
+Message-ID: <9ae345c0040914035331f17465@mail.gmail.com>
+Date: Tue, 14 Sep 2004 13:53:19 +0300
+From: Yuval Turgeman <yuvalt@gmail.com>
+Reply-To: Yuval Turgeman <yuvalt@gmail.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [PATCH] Menuconfig search changes - pt. 3
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0409140111100.877@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409140651.55520.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.51.156] at Tue, 14 Sep 2004 05:51:56 -0500
+References: <20040903190023.GA8898@aduva.com>
+	 <Pine.LNX.4.61.0409040152160.877@scrub.home>
+	 <9ae345c0040904101365a1ca63@mail.gmail.com>
+	 <Pine.LNX.4.61.0409140111100.877@scrub.home>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 September 2004 01:31, Greg KH wrote:
->On Tue, Sep 14, 2004 at 01:05:32AM -0400, Gene Heskett wrote:
->> On Monday 13 September 2004 23:56, Greg KH wrote:
->> >On Mon, Sep 13, 2004 at 11:07:19PM -0400, Gene Heskett wrote:
->> >> Greetings;
->> >>
->> >> I've rebooted to 2.6.9-rc1-mm5, and found that my 2 printers,
->> >> usb-2.0 capable are not found.  Reverting to -mm4 brings them
->> >> back among the living.
-[...]
->> >Anyway, try the following patch from David Brownell, it fixed the
->> > ohci issues that I had in my laptop, and will show up in the
->> > next -mm patch.
+On Tue, 14 Sep 2004 01:16:01 +0200 (CEST), Roman Zippel
+<zippel@linux-m68k.org> wrote:
 
-[...]
+> Could you please resend one complete (logical) patch.
 
-And it worked just fine Greg, thanks.
+I did - http://lkml.org/lkml/2004/9/4/155 (patch against mm3)
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.26% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+> Something I'd really like to see before merging this (besides other small
+> fixes) is separating the search into a function, which returns the result
+> in a NULL terminated, allocated array.
+
+I agree - exporting the search function to a seperate location in
+order to use it in other guis (the patch above only applies to mconf).
+
+Thanks,
+Yuval.
+
+--
+Yuval Turgeman

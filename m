@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315442AbSGVNXr>; Mon, 22 Jul 2002 09:23:47 -0400
+	id <S317429AbSGVOFZ>; Mon, 22 Jul 2002 10:05:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315536AbSGVNXr>; Mon, 22 Jul 2002 09:23:47 -0400
-Received: from verein.lst.de ([212.34.181.86]:64523 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S315442AbSGVNXq>;
-	Mon, 22 Jul 2002 09:23:46 -0400
-Date: Mon, 22 Jul 2002 15:26:46 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Russell King <rmk@arm.linux.org.uk>,
+	id <S317432AbSGVOFZ>; Mon, 22 Jul 2002 10:05:25 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:23453 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S317429AbSGVOFI>;
+	Mon, 22 Jul 2002 10:05:08 -0400
+Date: Mon, 22 Jul 2002 16:07:03 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: martin@dalecki.de
+Cc: Christoph Hellwig <hch@lst.de>, Russell King <rmk@arm.linux.org.uk>,
        Linus Torvalds <torvalds@transmeta.com>, Robert Love <rml@tech9.net>,
-       linux-kernel@vger.kernel.org
+       <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] cli()/sti() cleanup, 2.5.27-A2
-Message-ID: <20020722152645.A18695@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Ingo Molnar <mingo@elte.hu>, Russell King <rmk@arm.linux.org.uk>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-References: <20020722152056.A18619@lst.de> <Pine.LNX.4.44.0207221521170.7711-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0207221521170.7711-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Jul 22, 2002 at 03:23:40PM +0200
+In-Reply-To: <3D3C0FF8.1040301@evision.ag>
+Message-ID: <Pine.LNX.4.44.0207221606000.9963-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 03:23:40PM +0200, Ingo Molnar wrote:
-> i agree mostly, but i do not agree with __irq_save() and irq_save().  
-> What's wrong with "flags_t irq_save_off()" - the name carries the proper
-> meaning, and it also harmonizes with irq_off().
 
-but not with irq_restore :)  maybe irq_restore_on() although the on
-is implicit.
+On Mon, 22 Jul 2002, Marcin Dalecki wrote:
+
+> > i'm hesitant for a number of reasons. Eg. irq_save_off(flags) has to be a
+> > macro, otherwise we move the assignment into the irqs-off section.  
+> > Compare:
+> > 
+> > 	flags = irq_save_off();
+> > 
+> > with:
+> > 	irq_flags_off(flags);
+> > 
+> > sure, it could be written as:
+> > 
+> > 	flags = irq_save();
+> > 	irq_off();
+> > 
+> > but then again the macro form is more compact.
+> 
+> By 2 characters. [...]
+
+and a full line ...
+
+> [...] And hiding the side-effect. We don't have the notion of var
+> argument passing like in pascal or C++ here.
+
+well, it's a well-known side effect on the other hand.
+
+	Ingo
+

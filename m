@@ -1,91 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288047AbSAMTgW>; Sun, 13 Jan 2002 14:36:22 -0500
+	id <S288040AbSAMTkC>; Sun, 13 Jan 2002 14:40:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288040AbSAMTgM>; Sun, 13 Jan 2002 14:36:12 -0500
-Received: from flrtn-4-m1-156.vnnyca.adelphia.net ([24.55.69.156]:33928 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S288047AbSAMTf4>;
-	Sun, 13 Jan 2002 14:35:56 -0500
-Message-ID: <3C41E17A.4010909@pobox.com>
-Date: Sun, 13 Jan 2002 11:35:22 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S288050AbSAMTjm>; Sun, 13 Jan 2002 14:39:42 -0500
+Received: from dsl081-053-223.sfo1.dsl.speakeasy.net ([64.81.53.223]:1152 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S288040AbSAMTjh>;
+	Sun, 13 Jan 2002 14:39:37 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: initramfs buffer spec -- second draft
+Date: Sun, 13 Jan 2002 20:43:20 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <a1oqmm$is3$1@cesium.transmeta.com>
+In-Reply-To: <a1oqmm$is3$1@cesium.transmeta.com>
 MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: jogi@planetzork.ping.de, Andrew Morton <akpm@zip.com.au>,
-        Ed Sweetman <ed.sweetman@wmich.edu>, Andrea Arcangeli <andrea@suse.de>,
-        yodaiken@fsmlabs.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        nigel@nrg.org, Rob Landley <landley@trommello.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu>	<1010781207.819.27.camel@phantasy>	<20020112121315.B1482@inspiron.school.suse.de>	<20020112160714.A10847@planetzork.spacenet>	<20020112095209.A5735@hq.fsmlabs.com>	<20020112180016.T1482@inspiron.school.suse.de>	<005301c19b9b$6acc61e0$0501a8c0@psuedogod> <3C409B2D.DB95D659@zip.com.au> 	<20020113184249.A15955@planetzork.spacenet> <1010946178.11848.14.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16PqXQ-0000BD-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The problem here is that when people report
-that the low latency patch works better for them
-than the preempt patch, they aren't talking about
-bebnchmarking the time to compile a kernel, they
-are talking about interactive feel and smoothness.
+First off, the documentation is great and the approach seems fundamentallly 
+sound.
 
-You're speaking to a peripheral issue.
+On January 12, 2002 09:04 am, H. Peter Anvin wrote:
+[...]
+> 	PAD(n)	means padding with null bytes to an n-byte boundary
+> 	[QUESTION: is the padding relative to the start of the
+> 	previous header, or is it an absolute address?  Is it at all
+> 	legal to have a header start on a non-multiple of 4?]
 
-I've no agenda other than wanting to see linux
-as an attractive option for the multimedia and
-gaming crowds - and in my experience, the low
-latency patches simply give a much smoother
-feel and a more pleasant experience. Kernel
-compilation time is the farthest thing from my
-mind when e.g. playing Q3A!
+I'll vote for the always/absolute rule.
 
-I'd be happy to check out the preempt patch
-again and see if anything's changed, if the
-problem of tux+preempt oopsing has been
-dealt with -
+[...]
+> The structure of the cpio_header is as follows (all 8-byte entries
+> contain 32-bit hexadecimal ASCII numbers):
 
-Regards,
+I thought there's a binary version of the cpio header.  What is the
+point of the ascii encoding?
 
-jjs
+[...]
+> The c_mode field matches the contents of st_mode returned by stat(2)
+> on Linux, and encodes the file type and file permissions.
+> 
+> The c_filesize should be zero for any non-regular file.
+> 
+> If the filename is "TRAILER!!!" this is actually an end-of-file
+> marker; the c_filesize for an end-of-file marker must be zero.
 
-Robert Love wrote:
+It sure looks ugly, but I suppose the c_filesize=zero is the real
+end-of-file marker.  Did I mention it sure looks ugly?
 
->On Sun, 2002-01-13 at 12:42, jogi@planetzork.ping.de wrote:
->
->>        13-pre5aa1      18-pre2aa2      18-pre3         18-pre3s        18-pre3sp       18-pre3minill  
->>j100:   6:59.79  78%    7:07.62  76%        *           6:39.55  81%    6:24.79  83%        *
->>j100:   7:03.39  77%    8:10.04  66%        *           8:07.13  66%    6:21.23  83%        *
->>j100:   6:40.40  81%    7:43.15  70%        *           6:37.46  81%    6:03.68  87%        *
->>j100:   7:45.12  70%    7:11.59  75%        *           7:14.46  74%    6:06.98  87%        *
->>j100:   6:56.71  79%    7:36.12  71%        *           6:26.59  83%    6:11.30  86%        *
->>		                                                                                          
->>j75:    6:22.33  85%    6:42.50  81%    6:48.83  80%    6:01.61  89%    5:42.66  93%    7:07.56  77%
->>j75:    6:41.47  81%    7:19.79  74%    6:49.43  79%    5:59.82  89%    6:00.83  88%    7:17.15  74%
->>j75:    6:10.32  88%    6:44.98  80%    7:01.01  77%    6:02.99  88%    5:48.00  91%    6:47.48  80%
->>j75:    6:28.55  84%    6:44.21  80%    9:33.78  57%    6:19.83  85%    5:49.07  91%    6:34.02  83%
->>j75:    6:17.15  86%    6:46.58  80%    7:24.52  73%    6:23.50  84%    5:58.06  88%    7:01.39  77%
->>
->
->Again, preempt seems to reign supreme.  Where is all the information
->correlating preempt is inferior?  To be fair, however, we should bench a
->mini-ll+s test.
->
->But I stand by my original point that none of this matters all too
->much.  A preemptive kernel will allow for future latency reduction
->_without_ using explicit scheduling points everywhere there is a
->problem.  This means we can tackle the problem and not provide a million
->bandaids.
->
->	Robert Love
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
+--
+Daniel

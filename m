@@ -1,81 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbTLDDij (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 22:38:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbTLDDij
+	id S262601AbTLDDpX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 22:45:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262738AbTLDDpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 22:38:39 -0500
-Received: from c06284a.rny.bostream.se ([217.215.27.171]:45326 "EHLO
-	pc2.dolda2000.com") by vger.kernel.org with ESMTP id S262074AbTLDDig
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 22:38:36 -0500
-From: Fredrik Tolf <fredrik@dolda2000.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16334.44085.362449.278626@pc7.dolda2000.com>
-Date: Thu, 4 Dec 2003 04:38:29 +0100
-To: Greg KH <greg@kroah.com>
-Cc: Fredrik Tolf <fredrik@dolda2000.com>, linux-kernel@vger.kernel.org
-Subject: Re: Why is hotplug a kernel helper?
-In-Reply-To: <20031204022911.GA23761@kroah.com>
-References: <16334.31260.278243.22272@pc7.dolda2000.com>
-	<20031204011357.GA22506@kroah.com>
-	<16334.38227.433336.514399@pc7.dolda2000.com>
-	<20031204022911.GA23761@kroah.com>
-X-Mailer: VM 7.17 under Emacs 21.2.1
+	Wed, 3 Dec 2003 22:45:23 -0500
+Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:1036 "EHLO swin.edu.au")
+	by vger.kernel.org with ESMTP id S262601AbTLDDpT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 22:45:19 -0500
+To: linux-kernel@vger.kernel.org
+From: Tim Connors <tconnors+linuxkernel1070509204@astro.swin.edu.au>
+Subject: Re: Linux 2.4 future
+References: <20031202135423.GB13388@conectiva.com.br> <Pine.LNX.4.58.0312021508470.21855@moje.vabo.cz> <bql9kk$iq1$1@gatekeeper.tmr.com> <20031204012420.GE4420@pegasys.ws> <20031204014743.GF29119@mis-mike-wstn.matchmail.com>
+X-Face: m+g#A-,3D0}Ygy5KUD`Hckr=I9Au;w${NzE;Iz!6bOPqeX^]}KGt=l~r!8X|W~qv'`Ph4dZczj*obWD25|2+/a5.$#s23k"0$ekRhi,{cP,CUk=}qJ/I1acc
+Message-ID: <slrn-0.9.7.4-10320-18132-200312041440-tc@hexane.ssi.swin.edu.au>
+Date: Thu, 4 Dec 2003 14:45:13 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH writes:
- > On Thu, Dec 04, 2003 at 03:00:51AM +0100, Fredrik Tolf wrote:
- > > Greg KH writes:
- > >  > On Thu, Dec 04, 2003 at 01:04:44AM +0100, Fredrik Tolf wrote:
- > >  > > If you don't mind me asking, I would like to know why the kernel calls
- > >  > > a usermode helper for hotplug events? Wouldn't a chrdev be a better
- > >  > > solution (especially considering that programs like magicdev could
- > >  > > listen in to it as well)? 
- > >  > 
- > >  > Please see the archives for why this is, it's been argued many times.
- > > 
- > > I am sincerely sorry for being a bother, but I have spent several
- > > hours searching far and wide for information on it, both in the
- > > archives and generally on the web, without any luck in finding
- > > anything. If it's not too much to ask, would you be as kind as to
- > > provide a pointer?
- > 
- > Here was the latest thread where this was brought up:
- > 	http://marc.theaimsgroup.com/?t=105544548100008
- > 
- > I would suggest reading this post from Linus for a quick summary:
- > 	http://marc.theaimsgroup.com/?l=linux-kernel&m=105552804303171
- > 
+Mike Fedyk <mfedyk@matchmail.com> said on Wed, 3 Dec 2003 17:47:43 -0800:
+> On Wed, Dec 03, 2003 at 05:24:20PM -0800, jw schultz wrote:
+> > 	xfs -- home (because of the jfs bug) Earlier tests
+> > 	of xfs gave me horrible performance and i haven't
+> > 	gotten around to testing since then.  If this is
+> > 	fixed without tuning i might drop jfs.  Then again i
+> > 	may drop xfs in the next upgrade if i change distros
+> > 	and xfs isn't in-kernel.
+> 
+> What about ext3?  I tend to prefer ext3 since I know how it works more than
+> the others, and it puts data integrity ahead of performance, which is the
+> way things should be (TM).
 
-Thank you for those references. I must have mistyped something while
-searching, since all the keywords I searched for were in the
-text... Sorry for wasting your time on that.
+Is it true that JFS still doesn't use a /lost+found?
 
- > > Btw., Is there any preferred method of announcing hotplug events to
- > > user interfaces?
- > 
- > Yes there is a standard.  Have you read the docs at
- > http://linux-hotplug.sf.net/ ?  Also my 2001 OLS paper details the
- > format the messages should be in, but it's a bit out of date as to the
- > new values that the 2.6 kernel sends.
+The justification being that it doesn't want to stuff up the directory
+structure anymore than it already supposedly is.
 
-No, I haven't. I just put that question in the mail as a side-thing. I
-had not expected more than a yes/no reply. In any case, I will read
-it. Thanks again.
+Personally, I think this behaviour is shit, because I would have to
+reinstall from backup everytime I get an unclean shutdown (which
+defeats the purpose of having journalling at all). (from memory, at
+fsck time, it doesn't actually print out that many diagnostics, so I
+don't know what adverse things have happened to my filesystem).
 
- > What do you want to use the hotplug interface for that it currently does
- > not do?
+I have had plenty of problems with it. One I can think of is under
+debian, after your $RANDOM mounts, it doesn't manage to do the
+automatic forced fsck, so none of the filesystems get mounted. It
+tries to stumble along without having mounted /usr. I have to reboot,
+log in single user, and manually fsck. I don't know whther this is a
+fsck.jfs or a debian deficiency.
 
-Admittedly, I'm still using the RH8 hotplug scripts, and I suspect
-improvements have been made since then. I was mainly looking for a way
-to auto-mount USB mass storage devices without having to reconfigure
-anything as root. I have all the info I need now, though.
-
-Thank you very much for your help.
-
-Fredrik Tolf
-
+-- 
+TimC -- http://astronomy.swin.edu.au/staff/tconnors/
+Animals who are not penguins can only wish they were.

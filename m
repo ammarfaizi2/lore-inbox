@@ -1,36 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbUKOXPH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbUKOXRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261632AbUKOXPH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 18:15:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbUKOXPG
+	id S261601AbUKOXRa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 18:17:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbUKOXRa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 18:15:06 -0500
-Received: from BISCAYNE-ONE-STATION.MIT.EDU ([18.7.7.80]:38858 "EHLO
-	biscayne-one-station.mit.edu") by vger.kernel.org with ESMTP
-	id S261601AbUKOXNP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 18:13:15 -0500
-Date: Mon, 15 Nov 2004 18:13:06 -0500 (EST)
-From: Nickolai Zeldovich <kolya@MIT.EDU>
-To: David Weinehall <tao@acc.umu.se>
-cc: linux-kernel@vger.kernel.org, csapuntz@stanford.edu
-Subject: Re: [patch] Fix GDT re-load on ACPI resume
-In-Reply-To: <20041115230249.GR29980@khan.acc.umu.se>
-Message-ID: <Pine.GSO.4.58L.0411151809220.3765@contents-vnder-pressvre.mit.edu>
-References: <Pine.GSO.4.58L.0411151525540.28749@contents-vnder-pressvre.mit.edu>
- <20041115230249.GR29980@khan.acc.umu.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 Nov 2004 18:17:30 -0500
+Received: from fep19.inet.fi ([194.251.242.244]:36793 "EHLO fep19.inet.fi")
+	by vger.kernel.org with ESMTP id S261601AbUKOXRJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 18:17:09 -0500
+Date: Tue, 16 Nov 2004 01:17:05 +0200
+From: Sami Farin <7atbggg02@sneakemail.com>
+To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: vm-pageout-throttling.patch: hanging in throttle_vm_writeout/blk_congestion_wait
+Message-ID: <20041115231705.GE6654@m.safari.iki.fi>
+Mail-Followup-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20041115012620.GA5750@m.safari.iki.fi> <Pine.LNX.4.44.0411152140030.4171-100000@localhost.localdomain> <20041115223709.GD6654@m.safari.iki.fi> <200411151451.21671.ryan@spitfire.gotdns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411151451.21671.ryan@spitfire.gotdns.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Nov 2004, David Weinehall wrote:
+On Mon, Nov 15, 2004 at 02:51:19PM -0800, Ryan Cumming wrote:
+> On Monday 15 November 2004 14:37, Sami Farin wrote:
+> > I know it's a "nicer" idea to use some partition for the swap
+> > instead of a file on reiserfs, but I created too small swap partitions
+> > originally and I can't(/bother?) resize the other partitions.
+> > And sometimes some memhog forces me to add even more swap.
+> 
+> He's not suggesting you use a swap partition; he's suggesting you swapon the 
+> file directly without using the loopback device, ie:
+> 
+> swapon /path/to/file/on/reiserfs
+> 
+> This allows the kernel to perform certain optimizations and removes the 
+> overhead of the loopback device.
 
-> Sadly doesn't work for me.  ACPI resume broke for me with
-> 2.6.10-rc1-bk15 (possibly 14, but that one didn't compile), and this
-> patch does not fix it.
+It also removes encryption, which I wish to have.
 
-For the record, the symptoms of the problem fixed by the GDT patch in
-question are that, upon ACPI resume, your screen shows the letters "Lin"
-in yellow, hangs for a little bit, and then reboots.
-
--- kolya
+-- 

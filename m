@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266235AbTIKHfl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 03:35:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266236AbTIKHfl
+	id S261156AbTIKISj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 04:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbTIKISi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 03:35:41 -0400
-Received: from sun1000.pwr.wroc.pl ([156.17.1.33]:14493 "EHLO
-	sun1000.pwr.wroc.pl") by vger.kernel.org with ESMTP id S266235AbTIKHfh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 03:35:37 -0400
-Date: Thu, 11 Sep 2003 09:35:34 +0200
-From: Pawel Dziekonski <pawel.dziekonski@pwr.wroc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.22-ac1 -- fh_verify: no root_squashed access at ...
-Message-ID: <20030911073534.GA5534@pwr.wroc.pl>
-Reply-To: Pawel Dziekonski <pawel.dziekonski@pwr.wroc.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Useless-Header: Vim powered ;^)
-X-00-Privacy-Policy: OpenPGP or S/MIME encrypted e-mail is welcome.
-X-01-Privacy-Policy-GPG-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?search=dzieko@pwr.wroc.pl&op=get
-X-02-Privacy-Policy-GPG-Key_ID: 5AA7253D
-X-03-Privacy-Policy-GPG-Key_fingerprint: A80B 5022 185B 1BB5 8848  74C4 A7E1 423C 5AA7 253D
-X-04-Privacy-Policy-Personal_SSL_Certificate: http://www.europki.pl/cgi-bin/dn-cert.pl?serial=00000069&certdir=/usr/local/cafe/data/polish_ca/certs_31.12.2002/user&type=email
-X-05-Privacy-Policy-CA_SSL_Certificate: http://www.europki.pl/polish_ca/ca_cert/en_index.html
-User-Agent: Mutt/1.5.5i
+	Thu, 11 Sep 2003 04:18:38 -0400
+Received: from dp.samba.org ([66.70.73.150]:29651 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261156AbTIKISh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 04:18:37 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Greg KH <greg@kroah.com>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] add kobject to struct module 
+In-reply-to: Your message of "Wed, 10 Sep 2003 23:26:49 MST."
+             <20030911062649.GA10454@kroah.com> 
+Date: Thu, 11 Sep 2003 18:18:12 +1000
+Message-Id: <20030911081836.E8AFD2C04D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In message <20030911062649.GA10454@kroah.com> you write:
+> On a site note, can't you just use a "struct completion" to use for your
+> waiting?  Or do you need to do something special here?
 
-instantly after switching from 2.4.21-pre6 to 2.4.22-ac1 I get loads of
-that in logs:
+Hmm, *good* question.  Think...
 
-fh_verify: no root_squashed access at my-dir
+Ah, it's because when someone's waiting for the reference count to hit
+zero, we wake them *every* time we decrement.  With the reference
+count spread across every cpu, it's the only way:
 
-where my-dir is a subdirectory of parent which is exported to
-several machines, and is also remounted locally for some reason ;-)
+ static inline void module_put(struct module *module)
+ {
+ 	if (module) {
+ 		unsigned int cpu = get_cpu();
+ 		local_dec(&module->ref[cpu].count);
+ 		/* Maybe they're waiting for us to drop reference? */
+ 		if (unlikely(!module_is_live(module)))
+ 			wake_up_process(module->waiter);
+ 		put_cpu();
+ 	}
+ }
 
-what has changed?
-thanks in advence, Pawel
--- 
-Pawel Dziekonski <pawel.dziekonski|@|pwr.wroc.pl>, KDM WCSS avatar:0:0:
-Wroclaw Networking & Supercomputing Center, HPC Department
--> See message headers for privacy policy info.
+This doesn't really fit with a completion, unfortunately.
+
+> > 1) Adopt a faster, smaller implementation of alloc_percpu (this patch
+> >    exists, needs some arch-dependent love for ia64).
+> > 2) Use it to generalize the current module reference count scheme to
+> >    a "bigref_t" (I have a couple of these)
+> > 3) Use that in kobjects.
+> 
+> Hm, I don't know if kobjects really need to get that heavy.
+
+I'm not sure either: really depends on kobject usage.  I was thinking
+struct netdevice.  The size for UP is the same, the size for SMP is
+ptr + sizeof(int) + sizeof(atomic_t)*NR_CPUs.
+
+> But yes, that's all 2.7 dreams :)
+
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261920AbTCTTi0>; Thu, 20 Mar 2003 14:38:26 -0500
+	id <S261863AbTCTTeG>; Thu, 20 Mar 2003 14:34:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261924AbTCTTi0>; Thu, 20 Mar 2003 14:38:26 -0500
-Received: from apollo.sot.fi ([195.74.13.237]:46345 "EHLO vscan.sot.com")
-	by vger.kernel.org with ESMTP id <S261920AbTCTTiY>;
-	Thu, 20 Mar 2003 14:38:24 -0500
-Date: Thu, 20 Mar 2003 21:52:15 +0200 (EET)
-From: Yaroslav Popovitch <yp@sot.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ptrace bug fix is not working!!!
-In-Reply-To: <20030320192943.GE8256@gtf.org>
-Message-ID: <Pine.LNX.4.44.0303202148050.30893-100000@ares.sot.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261883AbTCTTeG>; Thu, 20 Mar 2003 14:34:06 -0500
+Received: from smtp-out.comcast.net ([24.153.64.115]:33789 "EHLO
+	smtp.comcast.net") by vger.kernel.org with ESMTP id <S261863AbTCTTeD>;
+	Thu, 20 Mar 2003 14:34:03 -0500
+Date: Thu, 20 Mar 2003 14:44:48 -0500
+From: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
+Subject: Re: 2.5.65 performance
+In-reply-to: <20030319173808.7fb1c204.akpm@digeo.com>
+To: linux-kernel@vger.kernel.org
+Message-id: <20030320194448.GC25197@butterfly.hjsoft.com>
+MIME-version: 1.0
+Content-type: multipart/signed; boundary=7gGkHNMELEOhSGF6;
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+Content-disposition: inline
+User-Agent: Mutt/1.5.3i
+References: <200303192317.22103.cb-lkml@fish.zetnet.co.uk>
+ <20030319173808.7fb1c204.akpm@digeo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Mar 2003, Jeff Garzik wrote:
 
-> On Thu, Mar 20, 2003 at 09:23:28PM +0200, Yaroslav Popovitch wrote:
-> > Hi! I applied Alan Cox's patches for ptrace bug. But system is still 
-> > exploitable.
-> > 
-> > I used my own kernel-2.4.19 with patch for 2.4.19 kernel. It does not 
-> > helped. Then I took vanilla 2.4.20 kernel from www.kernel.org and applied 
-> > patch for 2.4.20 kernel. System is still exploitable.
-> 
-> Can you verify that you are clearing the setuid bit that gets set, when
-> the exploit is run?  IIRC, you must manually do that to verify that your
-> system is indeed no longer exploitable.
-> 
-> 	Jeff
-> 
-Thanks, it helped ;). I did not delete and recompiled exploit from 
-previous attempts, so it had SUID flag set. Thx.
+--7gGkHNMELEOhSGF6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- Sry for panic ...
+On Wed, Mar 19, 2003 at 05:38:08PM -0800, Andrew Morton wrote:
+> Charles Baylis <cb-lkml@fish.zetnet.co.uk> wrote:
+> > I'm getting quite a lot of audio skips with this one. 2.5.64-mm8=20
+was the=20
+> > last one I tested and it was very good.
+> > 2.5.64-mm8 works fine with pretty much any thud load I throw at it,=20
+but thud=20
+> > 3 is enough to cause some skips with 2.5.65-mm2. Thud 5 causes=20
+serious=20
+> > starvation problems to the whole desktop.
+> Please test 2.5.65 base.
 
-Cheers,YP
+doing normal desktop things (gnome, jboss, mozilla, apt-get updates,
+etc) i've noticed audio skips on occassion that i had not seen in
+kernels previous to 2.5.65.
 
-> 
-> 
-> 
+i'm not going to complain though, because mozilla seems to start
+quicker, and my jboss start time has dropped from 1m:10s average to
+40s.  very cool!
+--=20
+____________________}John Flinchbaugh{______________________
+| glynis@hjsoft.com         http://www.hjsoft.com/~glynis/ |
+~~Powered by Linux: Reboots are for hardware upgrades only~~
 
--
-Mr. Yaroslav Popovitch yp@sot.com       - tel. +372 6419975
-SOT Finnish Software Engineering Ltd.   - fax  +372 6419975
-Kreutzwaldi 7-4, 10124  TALLINN         - http://www.sot.com
-ESTONIA                                 - http://sotlinux.net
+--7gGkHNMELEOhSGF6
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+ehowCGPRljI8080RAk7oAJwMuNjurornTS24P0K8DpesC4M6GgCggW88
+Djzxx2hM9n5qgUL5oRQ/kL0=
+=lkPP
+-----END PGP SIGNATURE-----
+
+--7gGkHNMELEOhSGF6--

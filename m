@@ -1,32 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262687AbREOI6B>; Tue, 15 May 2001 04:58:01 -0400
+	id <S262686AbREOI4B>; Tue, 15 May 2001 04:56:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262688AbREOI5v>; Tue, 15 May 2001 04:57:51 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24590 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262687AbREOI5n>; Tue, 15 May 2001 04:57:43 -0400
-Subject: Re: 2.4 To Pending Device Number Registrants
-To: ahu@ds9a.nl (bert hubert)
-Date: Tue, 15 May 2001 09:54:33 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-        torvalds@transmeta.org
-In-Reply-To: <20010515094835.A13650@home.ds9a.nl> from "bert hubert" at May 15, 2001 09:48:36 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S262687AbREOIzv>; Tue, 15 May 2001 04:55:51 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:26637 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S262686AbREOIzk>;
+	Tue, 15 May 2001 04:55:40 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.2.19 + VIA chipset + strange behaviour 
+In-Reply-To: Your message of "Tue, 15 May 2001 18:04:35 +0930."
+             <200105150834.SAA08720@mercury.physics.adelaide.edu.au> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14zabB-0002DM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Tue, 15 May 2001 18:55:32 +1000
+Message-ID: <32518.989916932@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So I would think that this block of new major number allocations holds for
-> 2.5 and not 2.4. Also, if I'm correct, 2.4 won't be needing a lot of new
-> major numbers anyhow.
+On Tue, 15 May 2001 18:04:35 +0930 (CST), 
+Jonathan Woithe <jwoithe@physics.adelaide.edu.au> wrote:
+>ksymoops 2.4.1 on i686 2.2.19.  Options used
+>Warning (compare_maps): ksyms_base symbol module_list_R__ver_module_list not found in System.map.  Ignoring ksyms_base entry
 
-I wouldnt bet on that. Going to a 32bit dev_t internally without user space
-noticing would keep it seems to be quite doable if we have to. Right now doesnt
-worry me, in 2 years time when 2.6 is approaching release the picture might
-have changed a fair bit
+module_list was added to the export list in 2.2.17 so the message above
+implies that you are using kernel build information from 2.2.17 in your
+2.2.19 build.  I suggest you follow http://www.tux.org/lkml/#s8-8 and
+see if your problems recur after a completely clean kernel build.
 

@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266004AbUHFPPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265978AbUHFPSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266004AbUHFPPq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 11:15:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUHFPPp
+	id S265978AbUHFPSv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 11:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265784AbUHFPSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 11:15:45 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:22941 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S265784AbUHFPPc
+	Fri, 6 Aug 2004 11:18:07 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:29196 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S266009AbUHFPQX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 11:15:32 -0400
-Date: Fri, 6 Aug 2004 16:15:23 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Mark Lord <lkml@rtr.ca>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: libata: dma, io error messages
-In-Reply-To: <41139CE0.1040106@rtr.ca>
-Message-ID: <Pine.LNX.4.60.0408061613240.2622@fogarty.jakma.org>
-References: <Pine.LNX.4.60.0408061113210.2622@fogarty.jakma.org>
- <1091795565.16307.14.camel@localhost.localdomain> <41138C67.7040306@rtr.ca>
- <Pine.LNX.4.60.0408061453410.2622@fogarty.jakma.org> <41139CE0.1040106@rtr.ca>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 6 Aug 2004 11:16:23 -0400
+Date: Fri, 6 Aug 2004 17:17:57 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: David Vrabel <dvrabel@arcom.com>, Hollis Blanchard <hollisb@us.ibm.com>,
+       Sam Ravnborg <sam@ravnborg.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: cross-depmod?
+Message-ID: <20040806151757.GA7331@mars.ravnborg.org>
+Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
+	David Vrabel <dvrabel@arcom.com>,
+	Hollis Blanchard <hollisb@us.ibm.com>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <1091742716.28466.27.camel@localhost> <411343F9.1080301@arcom.com> <Pine.GSO.4.58.0408061540200.26252@waterleaf.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.58.0408061540200.26252@waterleaf.sonytel.be>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Aug 2004, Mark Lord wrote:
+On Fri, Aug 06, 2004 at 03:45:16PM +0200, Geert Uytterhoeven wrote:
+> On Fri, 6 Aug 2004, David Vrabel wrote:
+> > Hollis Blanchard wrote:
+> > > My problem is that I cross-build my kernels, and 'make rpm' is very
+> > > unhappy when it can't use depmod. I know that I can do 'make
+> > > DEPMOD=/bin/true rpm', but can't we figure that out automatically?
+> >
+> > I'd suggest not running depmod when building an RPM but instead run it
+> > as part of the RPMs post-installation script.
+> 
+> I guess Hollis (just like me) is mostly interested in the possible error
+> messages of depmod, due to missing exported symbols.
 
-> The smartmontools can answer that question far more reliably
-> than anyone here can.
+This is fixed in modpost so you actually now get a warning when modpost
+is executed.
 
-IIRC, libata doesnt yet implement the raw IDE access (taskfile or 
-somesuch?) needed to allow smartctl to work:
-
-# smartctl -a /dev/sda
-smartctl version 5.21 Copyright (C) 2002-3 Bruce Allen
-Home page is http://smartmontools.sourceforge.net/
-
-Device:   Version:
-Serial number: WD-WMAES2172674
-Device type: disk
-Local Time is: Fri Aug  6 16:14:29 2004 IST
-Device does not support SMART
-
-Device does not support Error Counter logging
-Device does not support Self Test logging
-
-:(
-
-> Cheers
-
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-The control of the production of wealth is the control of human life itself.
- 		-- Hilaire Belloc
+	Sam

@@ -1,53 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVBPA2T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVBPAg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbVBPA2T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 19:28:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVBPA2T
+	id S261961AbVBPAg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 19:36:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbVBPAg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 19:28:19 -0500
-Received: from mail.kroah.org ([69.55.234.183]:22987 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261929AbVBPA2P (ORCPT
+	Tue, 15 Feb 2005 19:36:27 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:13397 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261961AbVBPAgS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 19:28:15 -0500
-Date: Tue, 15 Feb 2005 15:44:15 -0800
-From: Greg KH <greg@kroah.com>
-To: dtor_core@ameritech.net
-Cc: Kay Sievers <kay.sievers@vrfy.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add "bus" symlink to class/block devices
-Message-ID: <20050215234415.GA17680@kroah.com>
-References: <20050215205344.GA1207@vrfy.org> <20050215220406.GA1419@vrfy.org> <d120d50005021514251492dd10@mail.gmail.com>
+	Tue, 15 Feb 2005 19:36:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=DU8k6hM9rjInLYypVpSgpO9MHazDyyLUR7SPCQQXMoZ4x5vkSPW2jhYng1DZRojj0RrrRwUN/hlViQGi1T0kNwj4Mnp/H+GbMF4g9d7S/TXUokksWJY5GbETP7tkJs2PSCCI0QZL9mjt9tihD1EvUjRxF3agbAJ6Z3UijnPBnQo=
+Message-ID: <9e473391050215163621dafa65@mail.gmail.com>
+Date: Tue, 15 Feb 2005 19:36:17 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Jesse Barnes <jbarnes@sgi.com>
+Subject: Re: [PATCH] quiet non-x86 option ROM warnings
+Cc: akpm@osdl.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200502151557.06049.jbarnes@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d50005021514251492dd10@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200502151557.06049.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 15, 2005 at 05:25:54PM -0500, Dmitry Torokhov wrote:
-> On Tue, 15 Feb 2005 23:04:06 +0100, Kay Sievers <kay.sievers@vrfy.org> wrote:
-> > 
-> > -static int class_device_dev_link(struct class_device * class_dev)
-> > -{
-> > -       if (class_dev->dev)
-> > -               return sysfs_create_link(&class_dev->kobj,
-> > -                                        &class_dev->dev->kobj, "device");
-> > -       return 0;
-> > -}
-> > -
-> > -static void class_device_dev_unlink(struct class_device * class_dev)
-> > -{
-> > -       sysfs_remove_link(&class_dev->kobj, "device");
-> > -}
-> > -
+You're removing the check for 55AA at the start of the ROM. I though
+the PCI standard was that all ROMs had to start with the no matter
+what object code they contain. Then if you look for PCIR there is a
+field in the stucture that says what language the ROM is in. Maybe the
+problem is in the BIOS_IN16() function and things are getting byte
+swapped wrong.
+
+                void __iomem *pds;
+                /* Standard PCI ROMs start out with these bytes 55 AA */
+                if (readb(image) != 0x55)
+                        break;
+                if (readb(image + 1) != 0xAA)
+                        break;
+                /* get the PCI data structure and check its signature */
+                pds = image + readw(image + 24);
+                if (readb(pds) != 'P')
+                        break;
+                if (readb(pds + 1) != 'C')
+                        break;
+                if (readb(pds + 2) != 'I')
+                        break;
+                if (readb(pds + 3) != 'R')
+                        break;
+                last_image = readb(pds + 21) & 0x80;
+                /* this length is reliable */
+                image += readw(pds + 16) * 512;
+
+
+
+On Tue, 15 Feb 2005 15:57:05 -0800, Jesse Barnes <jbarnes@sgi.com> wrote:
+> Both the r128 and radeon drivers complain if they don't find an x86 option ROM
+> on the device they're talking to.  This would be fine, except that the
+> message is incorrect--not all option ROMs are required to be x86 based.  This
+> small patch just removes the messages altogether, causing the drivers to
+> *silently* fall back to the non-x86 option ROM behavior (it works fine and
+> there's no cause for alarm).
 > 
-> Hi,
+> Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
 > 
-> I can agree on dropping driver link but I think that the link to
-> underlying real device is still needed.
+> 
+> 
 
-It's still there, read the patch :)
 
-thanks,
-
-greg k-h
+-- 
+Jon Smirl
+jonsmirl@gmail.com

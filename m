@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130589AbQK0N3u>; Mon, 27 Nov 2000 08:29:50 -0500
+        id <S129588AbQK0NmR>; Mon, 27 Nov 2000 08:42:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130897AbQK0N3l>; Mon, 27 Nov 2000 08:29:41 -0500
-Received: from univ.uniyar.ac.ru ([193.233.51.120]:39625 "EHLO
-        univ.uniyar.ac.ru") by vger.kernel.org with ESMTP
-        id <S130589AbQK0N3c>; Mon, 27 Nov 2000 08:29:32 -0500
-Date: Mon, 27 Nov 2000 15:59:05 +0300 (MSK)
-From: "Igor Yu. Zhbanov" <bsg@uniyar.ac.ru>
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org, andy@lysaker.kvaerner.no
-Subject: Re: Kernel Oops on locking sockets via fcntl()
-In-Reply-To: <20001124145540.A13064@gruyere.muc.suse.de>
-Message-ID: <Pine.GSO.3.96.SK.1001127155810.24276A-100000@univ.uniyar.ac.ru>
+        id <S130879AbQK0NmH>; Mon, 27 Nov 2000 08:42:07 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:12548 "EHLO zikova.cvut.cz")
+        by vger.kernel.org with ESMTP id <S129588AbQK0Nl6>;
+        Mon, 27 Nov 2000 08:41:58 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: linux-kernel@vger.kernel.org
+Date: Mon, 27 Nov 2000 14:11:36 MET-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: OOps in exec_usermodehelper
+X-mailer: Pegasus Mail v3.40
+Message-ID: <E0CA73F3362@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Nov 2000, Andi Kleen wrote:
+Hi,
+  I have one small problem with 2.4.0-test11 and exec_usermodehelper.
+When vmware modules shutdown (specifically vmnet-netifup), kernel tries
+to load some module through call_usermodehelper, but unfortunately
+from task which has current->files == NULL.
 
-> On Fri, Nov 24, 2000 at 04:32:26PM +0300, Igor Yu. Zhbanov wrote:
-> > Hello!
-> > 
-> > One fine day accidentally I have opened an Xserver's socket placed in /tmp
-> > with my favourite text editor "le". I have got a message from the kernel similar
-> > to this:
-> 
-> 
-> Which kernel version are you using ? It should be already fixed in all 
-> modern kernels (newer 2.2 and 2.4) 
-> 
-> 
-> -Andi
-> 
+  So it prints message:
+  
+waitpid(19457) failed, -512
 
-My Kernel version is 2.2.17
+  and then it oopses in
+  
+for (i = 0; i < current->files->max_fds; i++) {
+  if (current->files->fd[i]) close(i);
+}
 
+(In log, there is first waitpid, and then oopses from current->files == NULL,
+which I do not quite understand).
+
+Should I look into this more deeply, or is correct fix just add
+
+if (current->files) {
+  for (i = 0; ..... ) ...
+}
+
+into exec_usermodehelper?
+                                        Best regards,
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVBGDKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVBGDPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbVBGDKM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 22:10:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVBGDKM
+	id S261327AbVBGDPM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 22:15:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVBGDPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 22:10:12 -0500
-Received: from almesberger.net ([63.105.73.238]:9736 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S261348AbVBGDJx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 22:09:53 -0500
-Date: Mon, 7 Feb 2005 00:09:22 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: "Jack O'Quin" <joq@io.com>, linux <linux-kernel@vger.kernel.org>,
-       abiss-general@lists.sourceforge.net
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
-Message-ID: <20050207000922.B25338@almesberger.net>
-References: <41EEE1B1.9080909@kolivas.org> <41EF00ED.4070908@kolivas.org> <873bwwga0w.fsf@sulphur.joq.us> <41EF123D.703@kolivas.org> <87ekgges2o.fsf@sulphur.joq.us> <41EF2E7E.8070604@kolivas.org> <87oefkd7ew.fsf@sulphur.joq.us> <41EF48BA.50709@kolivas.org>
+	Sun, 6 Feb 2005 22:15:12 -0500
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:46051 "EHLO
+	fe.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id S261327AbVBGDPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 22:15:08 -0500
+Subject: Regression? in USB support w/r/t libusb
+From: Thomas Frayne <TomF@sjpc.org>
+To: fedora-list <fedora-list@redhat.com>,
+       linux-kernel ml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Sun, 06 Feb 2005 19:15:56 -0800
+Message-Id: <1107746156.1479.2.camel@PCasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41EF48BA.50709@kolivas.org>; from kernel@kolivas.org on Thu, Jan 20, 2005 at 04:59:22PM +1100
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Cc:s trimmed, added abiss-general ]
+Kernel developer's, if you don't think this is a kernel regression,
+please ignore this note.
 
-Con Kolivas wrote:
-> Possibly reiserfs journal related. That has larger non-preemptible code 
-> sections.
+In FC3, with kernel 2.6.9-1.715_FC3smp, I hotplugged a formatted mini
+external hard drive in a new enclosure into a USB 2.0 hub.  I expected
+to find its device node, but could not find it in my maze of USB
+devices.  I might have searched further, but, instead, I unplugged it,
+and plugged it into another PC running FC1, with kernel 2.4.22-1.2174.
+I expected to have to reboot to see it, but hotplug worked, and I found
+the hard drive in the Hardware Browser, mounted its partitions, and used
+NFS to copy data into the FC3 machine.
 
-If I understand your workload right, it should consist mainly of
-computation, networking (?), and disk reads.
+FC1 provided me an easy way to find the device node for a hotplugged USB
+hard drive, but I found no such easy way in FC3.  Is this a regression,
+or is there an easy way that I missed?
 
-I don't know much about ReiserFS, but in some experiments with ext3,
-using ABISS, we found that a reader application competing with best
-effort readers would experience worst-case delays of dozens of
-milliseconds.
+I am sending this note to both the Fedora mailing list and the kernel
+mailing list to find out where the regression is, if any.
 
-They were caused by journaled atime updates. Mounting the file
-system with "noatime" reduced delays to a few hundred microseconds
-(still worst-case).
 
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

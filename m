@@ -1,140 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262459AbUCRJKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 04:10:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbUCRJKZ
+	id S262109AbUCRJQl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 04:16:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbUCRJQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 04:10:25 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:21446 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262459AbUCRJKH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 04:10:07 -0500
-Date: Thu, 18 Mar 2004 10:10:00 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: floppy driver 2.6.3 question
-Message-ID: <20040318091000.GA22234@suse.de>
-References: <20040318071418.GB1072@suse.de> <200403180823.i2I8NZs21184@oboe.it.uc3m.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403180823.i2I8NZs21184@oboe.it.uc3m.es>
+	Thu, 18 Mar 2004 04:16:41 -0500
+Received: from denise.shiny.it ([194.20.232.1]:57580 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id S262109AbUCRJQk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 04:16:40 -0500
+Date: Thu, 18 Mar 2004 10:16:28 +0100 (CET)
+From: Giuliano Pochini <pochini@denise.shiny.it>
+To: =?iso-8859-2?q?Micha=B3_Roszka?= <michal@roszka.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [.config] CONFIG_THERM_WINDTUNNEL
+In-Reply-To: <200403180821.44199.michal@roszka.pl>
+Message-ID: <Pine.LNX.4.58.0403181012300.29633@denise.shiny.it>
+References: <200403180821.44199.michal@roszka.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 18 2004, Peter T. Breuer wrote:
-> "Also sprach Jens Axboe:"
-> > On Wed, Mar 17 2004, Peter T. Breuer wrote:
-> > > 
-> > > In the 2.6.3 floppy driver, when the driver is asked to revalidate by
-> > > kernel check_disk_change (after the latter asks and the floppy signalled
-> > > media_changed), the floppy driver constructs a read bio for the first
-> > > block and submits it via submit_bio, and waits for completion of the
-> > > bio.
-> > > 
-> > > However, the bio's embedded completion only signals back if the
-> > > submitted bio was successful, as far as I can tell:
-> > > 
-> > > 
-> > > static int floppy_rb0_complete(struct bio *bio, unsigned int bytes_done, int err)
-> > > {
-> > > 	if (bio->bi_size)
-> > > 		return 1;
-> > > 
-> > > 	complete((struct completion*)bio->bi_private);
-> > > 	return 0;
-> > > }
-> > > 
-> > > Note that if the bi_size is nonzero, we return without signalling. Now
-> > > bi_size starts out nozero
-> > > 
-> > >     bio.bi_size = size;
-> > > 
-> > > but I _think_ bi_size is zeroed along the way somewhere in end_request
-> > > (who knows?) if all goes well, so that nonzero means we still have more
-> > > to do in this bio. So if things go badly, completion is never signalled
-> > > and the submitted read is waited for forever? (and the result is never
-> > > tested).
-> > 
-> > You are completely missing how it works... ->bi_end_io() is invoked on
-> > every io completion event that the hardware generates,
-> 
-> You are saying the floppy_rb0_complete is possibly called multiple times
-> (presumably by end_that_request_first, or whatever_it_is_called :)?  I
 
-It is called from end_that_request_first -> bio_endio() -> bi_end_io().
-So _if_ the floppy driver uses partial completions (ie several calls to
-end_that_request_first(), not just one at the end), then
-floppy_rb0_complete will be called multiple times.
 
-> was not aware of that, but it makes sense, thank you. Once for each bio
-> in the request. But how can it be called multiple times for each bio?
+On Thu, 18 Mar 2004, [iso-8859-2] Micha³ Roszka wrote:
 
-A bio can contain any amount of data, basically. So if you get hardware
-completions for each 512b sector and the bio contains 128K, you'd get
-256 completions.
+> There is an option in kernel configuration (2.6.3):
+> CONFIG_THERM_WINDTUNNEL=m
+> How does G4 Windtunnel thermal support work? Does it make an ability to change
+> fans speed by the OS or maybe something other/else?
 
-> I'm trying to understand the 2.6 block driver mechanisms  :-(.
-> 
-> It's hard btw to see from the code precisely what the args to the call
-> of bi_end_io in end_that_request_first are.  err seems to be either 0 or
-> -EIO (if the whole request was not uptodate) and bytes_done appears
-> always to be bi_size for the current bio. __make_request seems to be
-> able to generate a WOULDBLOCK error and bytes_done equal to the whole
-> request size. Yep - I'm confusicated as to whether there is some
-> invariant like bytes_done+bio->bi_size = const or not.
+Yes, it works. It controls the speed of the CPU fan according to the
+temperature. Do not forget to load the i2c_keywest module.
 
-I don't quite follow your last bytes_done+bio->bi_size, that doesn't
-make any sense. If __make_request() calls bio_endio() with the full
-size, you get floppy_rb0_complete() invoked immediately with bi_size ==
-0, ie it completely ends the bio.
 
-> > but typically
-> > most only care about the final completion (and not any eventual partial
-> > completions along the way).
-> 
-> OK. Where approximately are the partial completion calls generated?
-
-They are generated by the driver.
-
-> > So driver calls end_request* which does a bio_endio() on the number of
-> > sectors passed in, which in turn decrements bio->bi_size.
-> 
-> You know, I didn't see any such decrement in end_that-request_first.
-
-Follow the trace on step to bio_endio()
-
-> > _If_
-> > bio->bi_size never hits zero, then you have a driver bug. If things 'go
-> > badly', then the driver will signal unsuccessful completion of X
-> > sectors.
-> 
-> Hmm, presumably in the case of unsuccessful completion, we still get
-> bio->b_size == 0 in the call to floppy_rb0_complete?  That's good.
-> Then we will always be signalled.
-
-Of course we do, otherwise you'd never be able to sleep on io
-completion.
-
-> > > 	submit_bio(READ, &bio);
-> > > 	generic_unplug_device(bdev_get_queue(bdev));
-> > > 	process_fd_request();
-> > > 	wait_for_completion(&complete);
-> > > 
-> > > 	__free_page(page);
-> > > 
-> > > My reading therefore is that we cannot do revalidation until we are
-> > > sure that the floppy is there. If we feel sure, but are wrong, the 
-> > > test read of the first block will hang during the revalidation.
-> > 
-> > Wrong.
-> 
-> OK, you are saying that the complete will be signalled after the
-> request has been errored. Thank you very much for the explanation!
-
-Yes
-
--- 
-Jens Axboe
-
+--
+Giuliano.

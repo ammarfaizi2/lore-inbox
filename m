@@ -1,76 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266894AbUHVNba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267179AbUHVNck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266894AbUHVNba (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 09:31:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUHVNba
+	id S267179AbUHVNck (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 09:32:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUHVNck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 09:31:30 -0400
-Received: from mx-00.sil.at ([62.116.68.196]:3090 "EHLO mx-00.sil.at")
-	by vger.kernel.org with ESMTP id S266894AbUHVNb1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 09:31:27 -0400
-Subject: Re: Nonotify 0.3.2 (A simple dnotify replacement)
-From: nf <nf2@scheinwelt.at>
-Reply-To: nf2@scheinwelt.at
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1ByrTz-00003r-8U@localhost>
-References: <2vRn8-1D3-9@gated-at.bofh.it>  <E1ByrTz-00003r-8U@localhost>
-Content-Type: text/plain
-Message-Id: <1093181664.4542.47.camel@lilota.lamp.priv>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-2mdk 
-Date: Sun, 22 Aug 2004 15:34:24 +0200
+	Sun, 22 Aug 2004 09:32:40 -0400
+Received: from poros.telenet-ops.be ([195.130.132.44]:44510 "EHLO
+	poros.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S267179AbUHVNcf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 09:32:35 -0400
+From: Karl Vogel <karl.vogel@seagha.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.8.1: swap storm of death
+Date: Sun, 22 Aug 2004 15:33:14 +0200
+User-Agent: KMail/1.6.2
+References: <200408221527.10303.karl.vogel@seagha.com>
+In-Reply-To: <200408221527.10303.karl.vogel@seagha.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408221533.14666.karl.vogel@seagha.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-22 at 14:29, Pascal Schmidt wrote:
-> On Sun, 22 Aug 2004 05:40:06 +0200, you wrote in linux.kernel:
-> 
-> > 2) The /dev/nonotify device:
-> >
-> > /dev/nonotify has the only purpose to offer a special stat() call via
-> > ioctl to read the contents_mtime field of directories (together with
-> > atime, mtime, ctime). The client has to set the 'filename' field of the
-> > 'nonotify_stat' structure and receives the four timespec fields updated
-> > via ioctl.
-> 
-> A lot of people here (Linus, for instance) frown on ioctl() interfaces.
-> They're hard to do right in 32/64bit compat layers, for example. How
-> about using a syscall interface instead?
+On Sunday 22 August 2004 15:27, Karl Vogel wrote:
 
-Nonotify uses ioctl mainly for 'pragmatical' reasons. A syscall would be
-technically better - that's for sure, actually it was my initial idea to
-use one (or to change the stat-call).
+> The diagnostics can be found here:
 
-But i didn't want to bother people with asking to assign me a
-syscall-number before even knowing if they like my idea. And changing it
-to use a syscall lateron would be no problem at all from the concept of
-nonotify.
+Forgot one:
 
-Also - as a kernel newbie - i didn't find any good documentation how to
-add my own syscall into the kernel. I just wanted to get nonotify
-working as an 'optional patch', without changing tons of files.
-
-But you could help me if you have a look at my ioctl function. I'm using
-a structure which contains a char* pointer and four timespec fields. Do
-you know if this causes problems with 32/64bit compatibility.
-
-Thanks,
-
-Norbert
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+* ps ax - after OOM kill
+  http://users.telenet.be/kvogel/ps.txt

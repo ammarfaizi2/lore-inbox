@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317975AbSGaTLK>; Wed, 31 Jul 2002 15:11:10 -0400
+	id <S318460AbSGaTNM>; Wed, 31 Jul 2002 15:13:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318460AbSGaTLK>; Wed, 31 Jul 2002 15:11:10 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:49162 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S317975AbSGaTLK>;
-	Wed, 31 Jul 2002 15:11:10 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200207311914.g6VJEG5308283@saturn.cs.uml.edu>
-Subject: Re: Linux 2.4.19ac3rc3 on IBM x330/x340 SMP - "ps" time skew
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Wed, 31 Jul 2002 15:14:16 -0400 (EDT)
-Cc: david_luyer@pacific.net.au (David Luyer), linux-kernel@vger.kernel.org
-In-Reply-To: <1028125599.7886.68.camel@irongate.swansea.linux.org.uk> from "Alan Cox" at Jul 31, 2002 03:26:39 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S318464AbSGaTNM>; Wed, 31 Jul 2002 15:13:12 -0400
+Received: from mail.wolnet.de ([213.178.16.8]:22467 "HELO wolnet.de")
+	by vger.kernel.org with SMTP id <S318460AbSGaTNL>;
+	Wed, 31 Jul 2002 15:13:11 -0400
+From: Peter <pk@q-leap.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15688.14227.138201.236063@gargle.gargle.HOWL>
+Date: Wed, 31 Jul 2002 21:16:35 +0200
+To: Greg KH <greg@kroah.com>
+Cc: Peter <pk@q-leap.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org, johannes@erdfelt.com
+Subject: Re: oops with usb-serial converter
+In-Reply-To: <20020731185726.GB21972@kroah.com>
+References: <S.0001006613@wolnet.de>
+	<20020729173724.GA10153@kroah.com>
+	<1027969112.4101.16.camel@irongate.swansea.linux.org.uk>
+	<15688.12243.848371.562052@gargle.gargle.HOWL>
+	<20020731185726.GB21972@kroah.com>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: pk@q-leap.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> On Wed, 2002-07-31 at 13:59, David Luyer wrote:
+Greg KH writes:
+ > On Wed, Jul 31, 2002 at 08:43:31PM +0200, Peter wrote:
+ > > 
+ > > well, I use lvm, now I could try to compile without lvm support and
+ > > boot into single user mode, and see if that works... or could you send
+ > > me the function in question (maybe as a patch to 2.4.19-rc3?) - and if
+ > > it works then, maybe the 2.4.19 final will include the patch?
+ > 
+ > Sorry, it's a big change, that will get backported to 2.4.20, but I
+ > don't have the time to do it right now (and it's too late for 2.4.19
+ > anyway.)  So I don't have a 2.4.19-rc3 patch.
 
->>   printf("%d\n", sysconf(_SC_NPROCESSORS_CONF));
->> }
->> luyer@praxis8:~$ ./cpus
->> 4
->> luyer@praxis8:~$ grep 'processor        ' /proc/cpuinfo
->> processor       : 0
->> processor       : 1
->
-> In which case I suggest you file a glibc bug. sysconf looks at the /proc
-> stuff as I understand it
+ok, didn't recognize that, so I'll try to do without lvm.
 
-First you blame ps. Then you blame libc. How about you
-place the fault right where it belongs?
+    Peter
 
-Counting processors in /proc/cpuinfo is a joke of an ABI.
+-- 
+Peter Kruse <pk@q-leap.com>
+Q-Leap Networks GmbH
++497071-703171
 
-Add a proper ABI now, and userspace can transition to it
-over the next 4 years.

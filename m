@@ -1,23 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282047AbRKZSyN>; Mon, 26 Nov 2001 13:54:13 -0500
+	id <S282055AbRKZSyO>; Mon, 26 Nov 2001 13:54:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282055AbRKZSxE>; Mon, 26 Nov 2001 13:53:04 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56324 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282225AbRKZSwc>; Mon, 26 Nov 2001 13:52:32 -0500
-Subject: Re: [RFC] [PATCH] omnibus header cleanup
-To: ncm-nospam@cantrip.org (Nathan Myers)
-Date: Mon, 26 Nov 2001 19:00:24 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011122214636.A9790@cantrip.org> from "Nathan Myers" at Nov 22, 2001 09:46:36 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S282065AbRKZSxH>; Mon, 26 Nov 2001 13:53:07 -0500
+Received: from dsl-213-023-039-076.arcor-ip.net ([213.23.39.76]:21261 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S282066AbRKZSu0>;
+	Mon, 26 Nov 2001 13:50:26 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: <mingo@elte.hu>, Momchil Velikov <velco@fadata.bg>
+Subject: Re: [PATCH] Scalable page cache
+Date: Mon, 26 Nov 2001 19:52:48 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0111261753480.10763-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0111261753480.10763-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E168QzQ-0006Kd-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E168Qs6-00007Y-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-#2 is #4, your certifiers are the maintainers
+On November 26, 2001 06:22 pm, Ingo Molnar wrote:
+> are you aware of the following patch? (written by David Miller and me.)
+> 
+>   http://people.redhat.com/mingo/smp-pagecache-patches/pagecache-2.4.10-A3
+> 
+> it gets rid of the pagecache lock without introducing a tree.
+
+Great.  How?
+
+--
+Daniel

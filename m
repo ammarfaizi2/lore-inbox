@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262243AbVBVIE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262244AbVBVIHj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262243AbVBVIE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 03:04:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbVBVIE6
+	id S262244AbVBVIHj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 03:07:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVBVIHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 03:04:58 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:37015 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262243AbVBVIE4 (ORCPT
+	Tue, 22 Feb 2005 03:07:38 -0500
+Received: from fire.osdl.org ([65.172.181.4]:25778 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262244AbVBVIHa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 03:04:56 -0500
-Date: Tue, 22 Feb 2005 09:04:31 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@muc.de>
-Cc: Martin =?iso-8859-1?Q?MOKREJ=A9?= 
-	<mmokrejs@ribosome.natur.cuni.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: memory management weirdness
-Message-ID: <20050222080431.GB778@elte.hu>
-References: <4219E62D.7000009@ribosome.natur.cuni.cz> <m14qg5mq5v.fsf@muc.de>
+	Tue, 22 Feb 2005 03:07:30 -0500
+Date: Tue, 22 Feb 2005 00:07:10 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: raybry@sgi.com, mort@wildopensource.com, pj@sgi.com,
+       linux-kernel@vger.kernel.org, hilgeman@sgi.com
+Subject: Re: [PATCH/RFC] A method for clearing out page cache
+Message-Id: <20050222000710.5ad0d8c1.akpm@osdl.org>
+In-Reply-To: <20050222075304.GA778@elte.hu>
+References: <20050214154431.GS26705@localhost>
+	<20050214193704.00d47c9f.pj@sgi.com>
+	<20050221192721.GB26705@localhost>
+	<20050221134220.2f5911c9.akpm@osdl.org>
+	<421A607B.4050606@sgi.com>
+	<20050221144108.40eba4d9.akpm@osdl.org>
+	<20050222075304.GA778@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m14qg5mq5v.fsf@muc.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> app designers very frequently think that the VM gets its act wrong (most
+>  of the time for the wrong reasons), and the last thing we want to enable
+>  them is to hack real problems around.
 
-* Andi Kleen <ak@muc.de> wrote:
+Not really.  Memory reclaim tries to predict the future and expects some
+sort of "average" workload.  For some workloads that prediction is
+hopelessly wrong.  Although we could surely provide manual hinting
+machinery which is less crude than this proposal.
 
-> >   Although I've not re-tested this today again, it used to help a bit to specify
-> > mem=3548M to decrease memory used by linux (tested with AGP card plugged in, when
-> > bios reported 3556MB RAM only).
-> >
-> >   I found that removing the AGP based videoc card and using an old PCI based
-> > video card results in bios detecting 4072MB of RAM. But still, the machine was
-> > slow. I've tried to "cat >| /proc/mtrr" to alter the memory settings, but the
-> > result was only a partial speedup.
-> >
-> >   I'm not sure how to convince linux kernel to run fast again.
-> 
-> It's most likely a MTRR problem. Play more with them.
+>  . enable users to
+>  specify an 'allocation priority' of some sort, which kicks out the
+>  pagecache on the local node - or something like that.
 
-in particular, try to create two small tables in the same format: one
-showing the e820 memory map as reported in your kernel log, and one
-showing the mtrr areas. If there is any e820 area that is not write-back
-cached via the mtrr mappings then that's the problem. You can also use
-"mem=exactmap,..." to fix up the memory map that the BIOS provides to
-Linux. Slowdowns are very often such MTRR problems. (perhaps the kernel
-should report RAM areas that are not covered by MTRR write-back?)
+Yes, that would be preferable - I don't know what the difficulty is with
+that.  sys_set_mempolicy() should provide a sufficiently good hint.
 
-	Ingo

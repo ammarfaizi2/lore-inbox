@@ -1,21 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267106AbSKWXxy>; Sat, 23 Nov 2002 18:53:54 -0500
+	id <S267109AbSKXALC>; Sat, 23 Nov 2002 19:11:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267109AbSKWXxy>; Sat, 23 Nov 2002 18:53:54 -0500
-Received: from elin.scali.no ([62.70.89.10]:53778 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S267106AbSKWXxw>;
-	Sat, 23 Nov 2002 18:53:52 -0500
-Date: Sun, 24 Nov 2002 01:02:23 +0100 (CET)
-From: Steffen Persvold <sp@scali.com>
-X-X-Sender: sp@sp-laptop.isdn.scali.no
-To: linux-kernel@vger.kernel.org, <linux.nics@intel.com>
-Subject: Intel GbE performance on E7500
-Message-ID: <Pine.LNX.4.44.0211240016280.1004-100000@sp-laptop.isdn.scali.no>
+	id <S267110AbSKXALB>; Sat, 23 Nov 2002 19:11:01 -0500
+Received: from imrelay-2.zambeel.com ([209.240.48.8]:2833 "EHLO
+	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
+	id <S267109AbSKXAK7>; Sat, 23 Nov 2002 19:10:59 -0500
+Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB19A6@xch-a.win.zambeel.com>
+From: Manish Lachwani <manish@Zambeel.com>
+To: "'Steffen Persvold'" <sp@scali.com>, linux-kernel@vger.kernel.org
+Subject: RE: Intel GbE performance on E7500
+Date: Sat, 23 Nov 2002 16:17:49 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+I have used the P4DPE version of the E7500 motherboard and I have used both
+82544GC/82546EB. However, I have used netperf to benchmark the numbers and
+used the 4.3.2 version of the driver. Actually, I have also used the 4.3.15
+version of the driver.
+
+I have noticed pretty consistent performance. Can you send the kernel log
+messages (dmesg)? Also, look at the statistics for the NICs in
+/proc/net/PRO_Lan_adapters/eth*.info and see if you find anything
+interesting. 
+
+-----Original Message-----
+From: Steffen Persvold [mailto:sp@scali.com]
+Sent: Saturday, November 23, 2002 4:02 PM
+To: linux-kernel@vger.kernel.org; linux.nics@intel.com
+Subject: Intel GbE performance on E7500
+
 
 Hi all,
 
@@ -125,3 +143,8 @@ DS
 Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
 Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,51 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267059AbSKMA1u>; Tue, 12 Nov 2002 19:27:50 -0500
+	id <S267032AbSKMAeU>; Tue, 12 Nov 2002 19:34:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267058AbSKMA1u>; Tue, 12 Nov 2002 19:27:50 -0500
-Received: from holomorphy.com ([66.224.33.161]:55741 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267061AbSKMA1t>;
-	Tue, 12 Nov 2002 19:27:49 -0500
-Date: Tue, 12 Nov 2002 16:28:55 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Greg KH <greg@kroah.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
-       hohnbaum@us.ibm.com, mochel@osdl.org
-Subject: Re: [0/4] NUMA-Q: remove PCI bus number mangling
-Message-ID: <20021113002855.GD23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Greg KH <greg@kroah.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-	Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
-	hohnbaum@us.ibm.com, mochel@osdl.org
-References: <20021112213504.GV23425@holomorphy.com> <20021112213906.GW23425@holomorphy.com> <177250000.1037141189@flay> <20021112215305.GZ23425@holomorphy.com> <179150000.1037145229@flay> <20021112225937.GA23425@holomorphy.com> <20021112235824.GG22031@holomorphy.com> <20021113000435.GE32274@kroah.com> <20021113001246.GC23425@holomorphy.com> <20021113002032.GF32274@kroah.com>
+	id <S267064AbSKMAeU>; Tue, 12 Nov 2002 19:34:20 -0500
+Received: from mail.gurulabs.com ([208.177.141.7]:61586 "EHLO
+	mail.gurulabs.com") by vger.kernel.org with ESMTP
+	id <S267032AbSKMAeU>; Tue, 12 Nov 2002 19:34:20 -0500
+Subject: courier-imap/maildrop now doing proper fsync'ing
+From: Dax Kelson <dax@gurulabs.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 12 Nov 2002 17:44:01 -0700
+Message-Id: <1037148241.25372.14.camel@aramis>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021113002032.GF32274@kroah.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12, 2002 at 04:20:32PM -0800, Greg KH wrote:
-> Ok, then also please fix up drivers/pci/probe.c::pci_setup_device() to
-> set a unique slot_name up for the pci_dev, if you have multiple
-> domains/segments.
-> thanks,
-> greg k-h
+The newest versions of courier-imap, a maildir POP3/POP3S/IMAP/IMAPS
+server, and maildrop, a MDA, now have a compile time configure option:
 
-Okay, tihs just needs the introduction of something that can produce
-a number out of ->sysdata (or whatever):
+--with-dirsync
 
-        sprintf(dev->slot_name, "%02x:%02x.%d", dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
+Should it now be safe to run ext3 filesystems (that contain the
+maildirs) with data=writeback?
 
+BTW, procmail isn't doing proper fsyncing when writing to a maildir.
 
-This wants to be something like:
-        sprintf(dev->slot_name, "%02x:%02x:%02x.%d", dev->bus->segment, dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
+Dax
 
-
-On the way in 5 minutes or thereabouts. I'm restarting from just before
-the NUMA changes.
-
-Bill

@@ -1,71 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267921AbTBYLL5>; Tue, 25 Feb 2003 06:11:57 -0500
+	id <S267925AbTBYLZs>; Tue, 25 Feb 2003 06:25:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267932AbTBYLL5>; Tue, 25 Feb 2003 06:11:57 -0500
-Received: from dp.samba.org ([66.70.73.150]:48049 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267921AbTBYLL4>;
-	Tue, 25 Feb 2003 06:11:56 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: John Levon <levon@movementarian.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] Add module load profile hook 
-In-reply-to: Your message of "Tue, 25 Feb 2003 02:58:52 -0000."
-             <20030225025852.GB49589@compsoc.man.ac.uk> 
-Date: Tue, 25 Feb 2003 19:07:41 +1100
-Message-Id: <20030225112211.9A8142C247@lists.samba.org>
+	id <S267933AbTBYLZs>; Tue, 25 Feb 2003 06:25:48 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60943 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267925AbTBYLZr>; Tue, 25 Feb 2003 06:25:47 -0500
+Date: Tue, 25 Feb 2003 11:35:57 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Ville Herva <vherva@niksula.cs.hut.fi>,
+       Mikael Starvik <mikael.starvik@axis.com>,
+       "'Randy.Dunlap'" <rddunlap@osdl.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'tinglett@vnet.ibm.com'" <tinglett@vnet.ibm.com>,
+       "'torvalds@transmeta.com'" <torvalds@transmeta.com>
+Subject: Re: zImage now holds vmlinux, System.map and config in sections. (fwd)
+Message-ID: <20030225113557.C9257@flint.arm.linux.org.uk>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Mikael Starvik <mikael.starvik@axis.com>,
+	"'Randy.Dunlap'" <rddunlap@osdl.org>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+	"'tinglett@vnet.ibm.com'" <tinglett@vnet.ibm.com>,
+	"'torvalds@transmeta.com'" <torvalds@transmeta.com>
+References: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE84C@mailse01.axis.se> <20030225092520.A9257@flint.arm.linux.org.uk> <20030225110704.GD159052@niksula.cs.hut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030225110704.GD159052@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Tue, Feb 25, 2003 at 01:07:04PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030225025852.GB49589@compsoc.man.ac.uk> you write:
-> On Tue, Feb 25, 2003 at 12:25:23PM +1100, Rusty Russell wrote:
-> > That would be because that was a HACK, and it's my job to say "no",
-> > even when that means we're not "feature complete" by someone's
-> > definition.
+On Tue, Feb 25, 2003 at 01:07:04PM +0200, Ville Herva wrote:
+> On Tue, Feb 25, 2003 at 09:25:20AM +0000, you [Russell King] wrote:
+> > Agreed - zImage is already around 1MB on many ARM machines, and since
+> > loading zImage over a serial port using xmodem takes long enough
+> > already, this is one silly feature I'll definitely keep out of the
+> > ARM tree.
 > 
-> You've yet to explain why it's a hack as opposed to a reasonable level
-> of discoverability. This includes your comments on IRC where you agreed
-> I had a point.
+> Why not make it a config option (like the other (two? three?) rejected
+> patches that implemented this did)?
 
-You're still mistaking politeness for agreement.  Of course you have a
-point: there *is* benefit in being able to tell where modules are
-without changing any code, otherwise you wouldn't be asking for it.
+I, for one, do not see any point in trying to put more and more crap
+into one file, when its perfectly easy to just use the "cp" command
+to produce the same end result, namely a copy of zImage, System.map
+and configuration, thusly:
 
-But it's not going to happen.
+cp arch/$ARCH/boot/zImage /boot/vmlinuz-$VERSION
+cp .config /boot/config-$VERSION
+cp System.map /boot/System.map-$VERSION
 
-It's the bit where you add it a "store this filename" and "get the
-filename" kernel which makes no sense whatsoever: the kernel has no
-need for the information, why should it hold it?
+No hastles with configuration options.  No hastles with bloated zImage
+files.  No hastles with adding extra stuff to makefiles to do special
+mangling to zImage.
 
-Making modprobe store this somewhere kind of makes sense, but since
-the algorithm that modprobe uses to map names to filenames is trivial,
-I'm not convinced that the complexity is sensible (unless you want to
-handle special cases like module renaming with -o).
+If people are worried about vmlinuz being out of step with config, once
+you add the above to the installation target of the kernel makefile,
+unless you do things manually, you won't get out of step.
 
-Making insmod store this information, since insmod is supposed to be
-the dumb workhorse util (ie. "use modprobe") doesn't make as much
-sense.  But this is exactly the tool that kernel hackers are likely to
-use when they want fine control over their own modules (ie. likely to
-be used with oprofile).
+If you're worried about config-* and System.map-* being out of step with
+the kernel you're running, exactly the same applies to the "everything
+in one file" version as well.
 
-The way that gdb solves this is to have a path directive, where you
-can say "look here for source".  Or you could send me a patch for
-modprobe to put the information somewhere sensible if you prefer that.
-What makes most sense to you?
+If you need to make a backup of it:
 
-> > You seem to have taken the politeness of my previous response as an
-> > indication of uncertainty.
-> 
-> I took your point and agreed to translate into whatever you like.
+mkdir /boot/old
+cp /boot/*-$VERSION /boot/old
 
-And you took a pot-shot at me for being inconsistent: did you expect
-me not to clarify?
+Nice.  Simple.  No crap.
 
-> I'm not a kernel hacker and I don't particularly give a shit ...
-
-Huh?  You sent a patch.  If you don't care, noone will.
-
-Confused,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html

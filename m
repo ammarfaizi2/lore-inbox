@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVAUHi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262191AbVAUHiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262201AbVAUHi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 02:38:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVAUHi0
+	id S262191AbVAUHiL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 02:38:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbVAUHiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 02:38:26 -0500
-Received: from sherkan.tuxfamily.net ([212.85.158.2]:42647 "EHLO
-	mx1.tuxfamily.net") by vger.kernel.org with ESMTP id S262201AbVAUHiW
+	Fri, 21 Jan 2005 02:38:10 -0500
+Received: from sherkan.tuxfamily.net ([212.85.158.2]:39319 "EHLO
+	mx1.tuxfamily.net") by vger.kernel.org with ESMTP id S262191AbVAUHiI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 02:38:22 -0500
-Message-ID: <1218.213.228.36.71.1106293102.squirrel@webmail.tuxfamily.org>
-Date: Fri, 21 Jan 2005 08:38:22 +0100 (CET)
+	Fri, 21 Jan 2005 02:38:08 -0500
+Message-ID: <1217.213.228.36.71.1106293087.squirrel@webmail.tuxfamily.org>
+Date: Fri, 21 Jan 2005 08:38:07 +0100 (CET)
 Subject: Bug report : drivers/net/hamradio/Kconfig
 From: <2df@tuxfamily.org>
 To: <linux-kernel@vger.kernel.org>
@@ -35,7 +35,5 @@ the 3rdline, there is :
 
 Please Follow all your answers to : 2df@tuxfamily.org
 I'm not a member of the mailing list
-+
-Simon
 
 

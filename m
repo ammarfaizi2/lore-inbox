@@ -1,39 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261433AbTJRKPp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 06:15:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTJRKPp
+	id S261506AbTJRKVf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 06:21:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbTJRKVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 06:15:45 -0400
-Received: from main.gmane.org ([80.91.224.249]:13986 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261433AbTJRKPo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 06:15:44 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: HighPoint 374
-Date: Sat, 18 Oct 2003 12:15:41 +0200
-Message-ID: <yw1xsmlqj1gy.fsf@users.sourceforge.net>
-References: <00b801c3955c$7e623100$0514a8c0@HUSH>
+	Sat, 18 Oct 2003 06:21:35 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:41189 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261506AbTJRKVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 06:21:33 -0400
+Date: Sat, 18 Oct 2003 12:21:27 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] add a config option for -Os compilation
+Message-ID: <20031018102127.GE12423@fs.tum.de>
+References: <20031015225055.GS17986@fs.tum.de> <20031015161251.7de440ab.akpm@osdl.org> <20031015232440.GU17986@fs.tum.de> <20031015165205.0cc40606.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:x6O4whCxkr+0mCISICeZAT4dMCc=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031015165205.0cc40606.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Carlos Fernandez Sanz" <cfs-lk@nisupu.com> writes:
+On Wed, Oct 15, 2003 at 04:52:05PM -0700, Andrew Morton wrote:
+>...
+> I really doubt it.  Kernel CPU footprint is dominated by dcache misses.  If
+> -Os reduces icache footprint it may even be a net win; people tend to
+> benchmark things in tight loops, which favours fast code over small code.
 
-> What's the current status of HPT 374 support? Is it working in any kernel
-> version?
+The main effect of -Os compared to -O2 (besides disabling some
+reordering of the code and prefetching) is the disabling of various
+alignments. I doubt that's a win on all CPUs.
 
-Works fine with 2.4.21 and 2.6.0-testX, at least.  I guess 2.4.22
-should work too, but I haven't tried it.
+> > - I've already seen a report for an ICE in gcc 2.95 of a user compiling
+> >   kernel 2.4 with -Os [1]
+> 
+> Well there's only one way to find out if we'll hit that.  How's about you
+> cook me a patch which switches to -Os unconditionally and we'll see how it
+> goes?
 
--- 
-Måns Rullgård
-mru@users.sf.net
+I still dislike it, but the patch is below.
 
+cu
+Adrian
+
+
+--- linux-2.6.0-test5-mm4/arch/arm/Makefile.old	2003-09-25 14:38:18.000000000 +0200
++++ linux-2.6.0-test5-mm4/arch/arm/Makefile	2003-09-25 14:40:47.000000000 +0200
+@@ -14,8 +14,6 @@
+ GZFLAGS		:=-9
+ #CFLAGS		+=-pipe
+ 
+-CFLAGS		:=$(CFLAGS:-O2=-Os)
+-
+ ifeq ($(CONFIG_FRAME_POINTER),y)
+ CFLAGS		+=-fno-omit-frame-pointer -mapcs -mno-sched-prolog
+ endif
+--- linux-2.6.0-test5-mm4/arch/h8300/Makefile.old	2003-09-25 14:38:18.000000000 +0200
++++ linux-2.6.0-test5-mm4/arch/h8300/Makefile	2003-09-25 14:38:24.000000000 +0200
+@@ -34,7 +34,7 @@
+ ldflags-$(CONFIG_CPU_H8S)	:= -mh8300self
+ 
+ CFLAGS += $(cflags-y)
+-CFLAGS += -mint32 -fno-builtin -Os
++CFLAGS += -mint32 -fno-builtin
+ CFLAGS += -g
+ CFLAGS += -D__linux__
+ CFLAGS += -DUTS_SYSNAME=\"uClinux\"
+--- linux-2.6.0-test8/Makefile.old	2003-10-18 12:15:51.000000000 +0200
++++ linux-2.6.0-test8/Makefile	2003-10-18 12:16:26.000000000 +0200
+@@ -275,7 +275,7 @@
+ CPPFLAGS        := -D__KERNEL__ -Iinclude \
+ 		   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include)
+ 
+-CFLAGS 		:= -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
++CFLAGS 		:= -Wall -Wstrict-prototypes -Wno-trigraphs -Os \
+ 	  	   -fno-strict-aliasing -fno-common
+ AFLAGS		:= -D__ASSEMBLY__
+ 

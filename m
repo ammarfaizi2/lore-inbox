@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbUAGXAG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 18:00:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbUAGXAG
+	id S262686AbUAGXMP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 18:12:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbUAGXMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 18:00:06 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:6021 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262033AbUAGXAB
+	Wed, 7 Jan 2004 18:12:14 -0500
+Received: from 217-13-7-10.dd.nextgentel.com ([217.13.7.10]:28166 "EHLO
+	minerva.hungry.com") by vger.kernel.org with ESMTP id S262686AbUAGXMK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 18:00:01 -0500
-Date: Wed, 7 Jan 2004 20:58:49 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: "Yu, Luming" <luming.yu@intel.com>, andreas@xss.co.at, andrew@walrond.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: ACPI: problem on ASUS PR-DLS533
-In-Reply-To: <20040107133508.6798d1b9.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.58L.0401072057180.29393@logos.cnet>
-References: <3ACA40606221794F80A5670F0AF15F8401720C88@PDSMSX403.ccr.corp.intel.com>
- <20040107133508.6798d1b9.skraw@ithnet.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Wed, 7 Jan 2004 18:12:10 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Increase recursive symlink limit from 5 to 8
+From: Petter Reinholdtsen <pere@hungry.com>
+Message-Id: <E1AeMqJ-00022k-00@minerva.hungry.com>
+Date: Thu, 08 Jan 2004 00:12:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+The comment in do_follow_link() do not match the code.  The comment
+explain that the limit for recursive symlinks are 8, but the code
+limit it to 5.  This is the current comment:
 
-On Wed, 7 Jan 2004, Stephan von Krawczynski wrote:
+  /*
+   * This limits recursive symlink follows to 8, while
+   * limiting consecutive symlinks to 40.
+   *
+   * Without that kind of total limit, nasty chains of consecutive
+   * symlinks can cause almost arbitrarily long lookups.
+   */
 
-> On Wed, 7 Jan 2004 18:50:03 +0800
-> "Yu, Luming" <luming.yu@intel.com> wrote:
->
-> > >I have some TRL-DLS here (P-III). They have dual AIC onboard which are
-> > not
-> > >recognised under 2.4.24 but work flawlessly with ACPI in 2.4.23.
-> >
-> > Are you sure?  You seems to want to say this is a regression.
->
-> Yes. That is exactly what happened.
->
-> 2.4.23 works flawlessly
-> 2.4.24 does not recognise both onboard aic
+I discovered it when I ran into a problem with the following symlinks
+producing the error message "Too many levels of symbolic links" when I
+tried to run /usr/lib/sendmail in our current software configuration.
 
-Stephan,
+  /usr/lib/sendmail      -> /local/sbin/sendmail
+  /local/sbin/sendmail   -> /store/store/diskless/.exim/ver-4.22/sbin/sendmail
+  /store/store/diskless/.exim/ver-4.22/sbin/sendmail -> /local/sbin/exim
+  /local/sbin/exim ->
+    /store/store/diskless/.exim/ver-4.22/sbin/exim@386linuxlibc62
 
-Weird -- nothing changed in 2.4.24 which could cause such regression.
+As you can see, this have to visit exactly 5 files to reach the real
+file "/store/store/diskless/.exim/ver-4.22/sbin/exim@386linuxlibc62".
 
-Can you please confirm this?
+I discovered this when testing Debian for the first time using this
+software configuration.  RedHat did not have any problems follwing the
+links, which suggests to me that they already increased the limit.
+
+The fix seem to be to bring the code in sync with the comment of the
+function, and increase the limit from 5 to 8.
+
+--- linux-2.4.24/fs/namei.c.orig     Wed Jan  7 23:46:03 2004
++++ linux-2.4.24/fs/namei.c  Wed Jan  7 23:46:34 2004
+@@ -335,7 +335,7 @@
+ static inline int do_follow_link(struct dentry *dentry, struct nameidata *nd)
+ {
+        int err;
+-       if (current->link_count >= 5)
++       if (current->link_count >= 8)
+                goto loop;
+        if (current->total_link_count >= 40)
+                goto loop;
+
+(I'm not on this mailing list, and do not really know how to proceed
+to increase the chances of this patch being accepted into the official
+source.  Please CC me if you reply. :)

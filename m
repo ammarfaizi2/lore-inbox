@@ -1,49 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262271AbUKVSF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262303AbUKVSJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262271AbUKVSF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 13:05:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbUKVSFp
+	id S262303AbUKVSJp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 13:09:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbUKVSGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 13:05:45 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:22662 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262246AbUKVSCH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 13:02:07 -0500
-Date: Mon, 22 Nov 2004 10:01:54 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org
-Subject: Re: [PATCH 2/2] include/delay.h: replace msleep() and msleep_interruptible() with macros
-Message-ID: <20041122180154.GA8442@us.ibm.com>
-References: <20041117024944.GB4218@us.ibm.com> <20041120005601.GB7466@us.ibm.com> <20041120012332.GF6181@us.ibm.com> <200411201037.22237.oliver@neukum.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411201037.22237.oliver@neukum.org>
-X-Operating-System: Linux 2.6.9-test-acpi (i686)
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 22 Nov 2004 13:06:38 -0500
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:44078 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S262241AbUKVSEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 13:04:15 -0500
+Message-ID: <41A22A2D.1000708@suse.com>
+Date: Mon, 22 Nov 2004 13:04:29 -0500
+From: Jeff Mahoney <jeffm@suse.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Jeff Mahoney <jeffm@suse.com>
+Subject: Re: [PATCH 2/5] selinux: adds a private inode operation
+References: <20041121001318.GC979@locomotive.unixthugs.org> <1101145050.18273.68.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1101145050.18273.68.camel@moss-spartans.epoch.ncsc.mil>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Bogosity: No, tests=bogofilter, spamicity=0.000000, version=0.92.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 20, 2004 at 10:37:21AM +0100, Oliver Neukum wrote:
-> Am Samstag, 20. November 2004 02:23 schrieb Nishanth Aravamudan:
-> > Description: Remove prototypes of msleep() and msleep_interruptible() to
-> > prepare for the macro versions of these functions. Add macros for 4
-> > types of sleeps:
-> 
-> What is the purpose of having macros for delay?
-> They are on a slow path by definition. You want the smallest possible
-> function call here, nothing fancy.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Just so I'm clear on what you are asking... Do you mean why am I using
-macros or why the macros are needed at all?
+Stephen Smalley wrote:
+| On Sat, 2004-11-20 at 19:13, Jeffrey Mahoney wrote:
+|
+|>diff -ruNpX dontdiff linux-2.6.9/security/selinux/hooks.c
+linux-2.6.9.selinux/security/selinux/hooks.c
+|>--- linux-2.6.9/security/selinux/hooks.c	2004-11-19 14:40:58.000000000
+- -0500
+|>+++ linux-2.6.9.selinux/security/selinux/hooks.c	2004-11-20
+17:11:22.000000000 -0500
+|>@@ -740,6 +740,15 @@ static int inode_doinit_with_dentry(stru
+|> 	if (isec->initialized)
+|> 		goto out;
+|>
+|>+	if (opt_dentry && opt_dentry->d_parent &&
+opt_dentry->d_parent->d_inode) {
+|>+		struct inode_security_struct *pisec =
+opt_dentry->d_parent->d_inode->i_security;
+|>+		if (pisec->inherit) {
+|>+			isec->sid = pisec->sid;
+|>+			isec->initialized = 1;
+|>+			goto out;
+|>+		}
+|>+	}
+|>+
+|> 	down(&isec->sem);
+|> 	hold_sem = 1;
+|> 	if (isec->initialized)
+|
+|
+| Actually, isn't this code unnecessary given that patch 3/5 ensures that
+| the selinux_inode_mark_private() hook is called from
+| reiserfs_new_inode() on the new inode if the directory is private?  I
+| think that eliminates the need to perform this test and inheritance in
+| inode_doinit, which is called by the d_instantiate.
+|
 
-To the former, I am more than happy to change them to functions, and, in
-fact, I believe I have to for modules (EXPORT_SYMBOL_GPL?) to be able to
-call the sleep functions.
+Yes, you're right. The isec->initialized check means that code never
+gets executed.
 
-To the latter, having these 4 functions/macros makes it clear for what
-reason you are sleeping. It leads to *correct* functionality of the
-code, which we do not currently have.
+- -Jeff
 
--Nish
+- --
+Jeff Mahoney
+SuSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBoiomLPWxlyuTD7IRAu3TAKCJK4LycKusauFJ/QPUIJSC3hqzaACgmsPD
+Gte20LrcLzyB6Yjc83JJmr0=
+=5sgF
+-----END PGP SIGNATURE-----
+
+-- 
+Jeff Mahoney
+SuSE Labs

@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130208AbQLRIPt>; Mon, 18 Dec 2000 03:15:49 -0500
+	id <S130791AbQLRITI>; Mon, 18 Dec 2000 03:19:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130331AbQLRIPi>; Mon, 18 Dec 2000 03:15:38 -0500
-Received: from cassis.axialys.net ([195.115.102.11]:15876 "EHLO
-	cassis.axialys.net") by vger.kernel.org with ESMTP
-	id <S130208AbQLRIPU>; Mon, 18 Dec 2000 03:15:20 -0500
-Date: Sun, 17 Dec 2000 17:22:37 +0100
-From: Simon Huggins <huggie@earth.li>
-To: linux-kernel@vger.kernel.org
-Cc: twaugh@redhat.com
-Subject: Re: kernel-doc minor fix
-Message-ID: <20001217172237.F1301@paranoidfreak.freeserve.co.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org, twaugh@redhat.com
-In-Reply-To: <Pine.LNX.4.10.10012161636480.10851-100000@virtualro.ic.ro>
+	id <S130245AbQLRISt>; Mon, 18 Dec 2000 03:18:49 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:62476 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129663AbQLRISr>; Mon, 18 Dec 2000 03:18:47 -0500
+Date: Mon, 18 Dec 2000 01:47:03 -0600
+To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] link time error in drivers/mtd (240t13p2)
+Message-ID: <20001218014702.C3199@cadcamlab.org>
+In-Reply-To: <kaos@ocs.com.au> <200012171632.eBHGWGB01116@sleipnir.valparaiso.cl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10012161636480.10851-100000@virtualro.ic.ro>; from jani@virtualro.ic.ro on Sat, Dec 16, 2000 at 04:41:44PM +0200
-Organization: Black Cat Networks, http://www.blackcatnetworks.co.uk/
+In-Reply-To: <200012171632.eBHGWGB01116@sleipnir.valparaiso.cl>; from vonbrand@sleipnir.valparaiso.cl on Sun, Dec 17, 2000 at 01:32:15PM -0300
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 16, 2000 at 04:41:44PM +0200, Jani Monoses wrote:
-> --- /usr/src/linux/scripts/kernel-doc	Tue Dec 12 11:25:59 2000
-> +++ kernel-doc	Sat Dec 16 15:53:17 2000
-> @@ -664,10 +664,11 @@
 
->  ##
->  # takes a function prototype and spits out all the details
-> -# stored in the global arrays/hsahes.
-> +# stored in the global arrays/hashes.
->  sub dump_function {
->      my $prototype = shift @_;
+[Horst von Brand]
+> Would tsort(1) perhaps help?
 
-> +    $prototype =~ s/^const+ //;
->      $prototype =~ s/^static+ //;
->      $prototype =~ s/^extern+ //;
->      $prototype =~ s/^inline+ //;
+I'm betting Linus would never go for using tsort to resolve such issues
+-- unless tsort output is guaranteed to be stable (the docs for GNU
+textutils don't say).  This would be for the same reason that he
+rejected the partial ordering in the LINK_FIRST patch -- because it was
+only partial ordering and he thinks total ordering is necessary.  For
+me, BTW, that's still an article of faith -- I still do not see why
+total ordering *is* necessary, but <shrug> thus saith the penguin.
 
-Since when did C accept constttttttttttttttttttt and staticcccccccc?
-etc.
-
-Should that be " +" not "+ " or is someone just trying to confuse me?
-Or did someone try to mean s/foo//g by adding a +?
-
-
-Yours confusedly,
-
-Simon.
-
--- 
-[ "Therapy is expensive. Popping bubble wrap is cheap. You choose."    ]
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

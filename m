@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263277AbSJTRO7>; Sun, 20 Oct 2002 13:14:59 -0400
+	id <S263290AbSJTRU3>; Sun, 20 Oct 2002 13:20:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263289AbSJTRO7>; Sun, 20 Oct 2002 13:14:59 -0400
-Received: from im1.mail.tds.net ([216.170.230.91]:37251 "EHLO im1.sec.tds.net")
-	by vger.kernel.org with ESMTP id <S263277AbSJTRO4>;
-	Sun, 20 Oct 2002 13:14:56 -0400
-Date: Sun, 20 Oct 2002 13:20:55 -0400 (EDT)
-From: Jon Portnoy <portnoy@tellink.net>
-X-X-Sender: portnoy@cerberus.localhost
-To: Richard Stallman <rms@gnu.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Bitkeeper outrage, old and new
-In-Reply-To: <E183JQS-0005QQ-00@fencepost.gnu.org>
-Message-ID: <Pine.LNX.4.44.0210201309120.22852-100000@cerberus.localhost>
+	id <S263291AbSJTRU3>; Sun, 20 Oct 2002 13:20:29 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:44108 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S263290AbSJTRU2>; Sun, 20 Oct 2002 13:20:28 -0400
+Date: Sun, 20 Oct 2002 18:27:25 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: mingming cao <cmm@us.ibm.com>
+cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>,
+       <dipankar@in.ibm.com>
+Subject: Re: [PATCH]IPC locks breaking down with RCU
+In-Reply-To: <Pine.LNX.4.44.0210201346180.1710-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0210201809490.2106-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 20 Oct 2002, Richard Stallman wrote:
-
-[snip]
+On Sun, 20 Oct 2002, Hugh Dickins wrote:
 > 
-> This is the old "We're not free unless we are `free' to deny freedom
-> to others" argument that some (not all) advocates of the BSD license
-> often make.  It is a word game intended to render the concept of
-> freedom so confused that people can't think about it any more.  Once
-> people see through this, it loses its effect.
-> 
+> This looks very good to me: I'm glad you found the RCU idea works out.
+> ...
+> And I'd be happier to see ipc_unlock without those conditionals i.e.
+> delete the "if(lid >= ids->size) return;" and the "if (out)" - they
+> seem to encourage calling ipc_unlock where ipc_lock did not succeed,
+> but that would be unsafe.  If you found somewhere that's being done,
+> I think we need to fix that place, not work around it in ipc_unlock.
 
-Agreed. To me, freedom absolutely does _not_ mean the freedom to deny 
-freedom. Freedom is something that _must_ be protected by any means 
-necessary.
+Sorry, MingMing, it doesn't look so good to me now.
 
-Some people would like to think that it's possible to write code without 
-it being "politicized." This is, most certainly, not the case. Any project 
-as major as what the GNU project writes, what the kernel developers write, 
-or what proprietary developers such as Microsoft write are political 
-projects. When large companies develop proprietary software, that's making 
-a statement: "we believe it's okay to deny our users freedom."
-When developers write free software, that's also making a statement: "we 
-believe users are just as deserving of rights as authors."
+The "if(lid >= ids->size) return;" still looks unnecessary,
+but I think I see why you have "if (out)" in ipc_unlock: because
+of ipc_rmid, which has already nulled out entries[lid].p, yes?
 
-The issue here is using non-free software to develop free software. This, 
-too, makes a political statement: "we don't mind if freedom is being 
-denied as long as we're able to work efficiently."
+A minor point is, wouldn't that skipping of spin_unlock leave you
+with the wrong preempt count, on a CONFIG_PREEMPT y configuration?
+But that's easily dealt with.
 
-Would it be okay to use Microsoft products to develop free software as 
-long as said products made development efficient? In my opinion, Bitkeeper 
-is no better than Microsoft due to the 'you may not use this if your 
-company develops competing software' issue. This is heavy-handed 
-authoritarianism. 
+A much more serious point: we could certainly bring the ipc_rmid
+and ipc_unlock much closer together; but however close we bring them
+(unlock implicit within rmid), there will still be a race with one
+cpu in ipc_lock spinning on out->lock, while we in ipc_rmid null
+entries[lid].p and unlock and free the structure containing that lock.
 
-I can understand denying those individuals who develop 
-competing software a free seat; I most certainly don't agree with it, but 
-I can understand it. What about people who work for large companies that 
-may, in fact, have a product that could compete with Bitkeeper? 
+I think you're going to have to extend RCU to freeing the entry
+(though this is a much less exceptional case than growing the array,
+so less clear to me that RCU is appropriate here), if you're to
+avoid reverting to the earlier rwlock or embedded spinlock designs.
+
+Perhaps there's a simpler solution - ask around - but I don't see it.
+
+Hugh
 

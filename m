@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129664AbRBMNzG>; Tue, 13 Feb 2001 08:55:06 -0500
+	id <S131581AbRBMN5f>; Tue, 13 Feb 2001 08:57:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131499AbRBMNy4>; Tue, 13 Feb 2001 08:54:56 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:49092 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129798AbRBMNyq>; Tue, 13 Feb 2001 08:54:46 -0500
-From: Christoph Rohland <cr@sap.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: cowboy@vnet.ibm.com (Richard A Nelson), linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.19pre10
-In-Reply-To: <E14SfU5-0001mT-00@the-village.bc.nu>
-Organisation: SAP LinuxLab
-Date: 13 Feb 2001 14:59:35 +0100
-In-Reply-To: <E14SfU5-0001mT-00@the-village.bc.nu>
-Message-ID: <m33ddi7kfs.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
+	id <S131584AbRBMN50>; Tue, 13 Feb 2001 08:57:26 -0500
+Received: from ns.suse.de ([213.95.15.193]:50193 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S131581AbRBMN5P>;
+	Tue, 13 Feb 2001 08:57:15 -0500
+Date: Tue, 13 Feb 2001 14:56:10 +0100
+From: Andi Kleen <ak@suse.de>
+To: Krzysztof Rusocki <kszysiu@braxis.co.uk>
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: [?] __alloc_pages: 1-order allocation failed.
+Message-ID: <20010213145610.A16767@gruyere.muc.suse.de>
+In-Reply-To: <20010213105957.A16713@main.braxis.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010213105957.A16713@main.braxis.co.uk>; from kszysiu@braxis.co.uk on Tue, Feb 13, 2001 at 10:59:57AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
-
-On Tue, 13 Feb 2001, Alan Cox wrote:
->> Yes, I understand that. But I never got any note that my fix is
->> broken and I still do not understand what's the concern.
+On Tue, Feb 13, 2001 at 10:59:57AM +0100, Krzysztof Rusocki wrote:
 > 
-> Unless Im misreading the code the segment you poke at has
-> potentially been freed before it is written too.
+> Hi,
+> 
+> Here's what i've found today in logs:
+> 
+> Feb 13 02:10:41 main kernel: __alloc_pages: 1-order allocation failed. 
+> Feb 13 02:10:42 main last message repeated 143 times
+> Feb 13 02:10:47 main kernel: ed. 
+> Feb 13 02:10:47 main kernel: __alloc_pages: 1-order allocation failed. 
+> Feb 13 02:50:30 main syslogd 1.3-3: restart (remote reception).
+> 
+> 
+> After that there was possibly lock-up or reboot (i don't know, when i 
+> connected to  the machine it was already running).
+> 
+> What can be possible cause of such things ?
 
-Oh yes I was blind, shame on me. Here comes a fixed version.
+When you add the following patch you should see the addresses of functions
+that cause allocation failures. Look the hex value up in the System.map
+then. For this XFS should be compiled in, not be a module.
+Is it always the same address?
 
-Greetings
-		Christoph
 
---- 2.2.19-pre10/ipc/shm.c.orig	Tue Feb 13 14:35:25 2001
-+++ 2.2.19-pre10/ipc/shm.c	Tue Feb 13 14:34:49 2001
-@@ -337,6 +337,8 @@
- 		if (current->euid == shp->u.shm_perm.uid ||
- 		    current->euid == shp->u.shm_perm.cuid || 
- 		    capable(CAP_SYS_ADMIN)) {
-+			/* Do not find it any more */
-+			shp->u.shm_perm.key = IPC_PRIVATE;
- 			shp->u.shm_perm.mode |= SHM_DEST;
- 			if (shp->u.shm_nattch <= 0)
- 				killseg (id);
 
+
+-Andi
+
+Index: mm/page_alloc.c
+===================================================================
+RCS file: /cvs/linux-2.4-xfs/linux/mm/page_alloc.c,v
+retrieving revision 1.32
+diff -u -r1.32 page_alloc.c
+--- mm/page_alloc.c	2000/12/17 19:15:00	1.32
++++ mm/page_alloc.c	2001/02/13 13:54:33
+@@ -529,7 +529,8 @@
+ 	}
+ 
+ 	/* No luck.. */
+-	printk(KERN_ERR "__alloc_pages: %lu-order allocation failed.\n", order);
++	printk(KERN_ERR "__alloc_pages: %lu-order allocation failed from %p\n", 
++		order, __builtin_return_address(0));
+ 	return NULL;
+ }
+ 

@@ -1,70 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261353AbTBCUJI>; Mon, 3 Feb 2003 15:09:08 -0500
+	id <S266991AbTBCT73>; Mon, 3 Feb 2003 14:59:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264936AbTBCUHF>; Mon, 3 Feb 2003 15:07:05 -0500
-Received: from phobos.hpl.hp.com ([192.6.19.124]:36833 "EHLO phobos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S267027AbTBCTyp>;
+	id <S266994AbTBCT6a>; Mon, 3 Feb 2003 14:58:30 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:4100 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267005AbTBCTyp>;
 	Mon, 3 Feb 2003 14:54:45 -0500
-Date: Mon, 3 Feb 2003 11:49:23 -0800
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       jt@hpl.hp.com
-Subject: Re: two x86_64 fixes for 2.4.21-pre3
-Message-ID: <20030203194923.GA27997@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <15921.37163.139583.74988@harpo.it.uu.se> <20030124193721.GA24876@wotan.suse.de> <15926.60767.451098.218188@harpo.it.uu.se> <20030128212753.GA29191@wotan.suse.de> <15927.62893.336010.363817@harpo.it.uu.se> <20030129162824.GA4773@wotan.suse.de> <15934.49235.619101.789799@harpo.it.uu.se>
+Date: Mon, 3 Feb 2003 16:40:08 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: John Levon <levon@movementarian.org>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, ak@suse.de,
+       linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: Switch APIC to driver model (and make S3 sleep with APIC on)
+Message-ID: <20030203154008.GC480@elf.ucw.cz>
+References: <200301280121.CAA13798@harpo.it.uu.se> <20030202124235.GA133@elf.ucw.cz> <20030203103254.GA25619@compsoc.man.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <15934.49235.619101.789799@harpo.it.uu.se>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
-X-MailScanner: Found to be clean
+In-Reply-To: <20030203103254.GA25619@compsoc.man.ac.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 03, 2003 at 08:17:39PM +0100, Mikael Pettersson wrote:
-> Andi Kleen writes:
->  > > 1. One unknown ioctl is logged from RH8.0 init:
->  > > 
->  > > ioctl32(iwconfig:185): Unknown cmd fd(3) cmd(00008b01){00} arg(ffffda90) on socket:[389]
->  > 
->  > Probably harmless, but if you figure it out please send me a patch.
+Hi!
+
+> > This one should be okay. [oprofile not tested because I don't know how
+> > to use it...
 > 
-> The ioctl is SIOCGIWNAME, which is used by iwconfig from the wireless-tools
-> package to check if a given net dev is a wireless thing or not (called from
-> ifup in RedHat as a type test on the net dev).
+> It's not hard you know[1].
+
+should apt-get install oprofile then opcontrol --setup
+--vmlinux=/boot/vmlinux --ctr0-count=20000
+--ctr0-event=CPU_CLK_UNHALTED && opcontrol --start
+
+do the trick? If that works does it mean oprofile is okay?
+
+> > -struct pm_dev * set_nmi_pm_callback(pm_callback callback)
+> > +static int nmi_resume(struct device *dev, u32 level)
+> >  {
+> > -	apic_pm_unregister(nmi_pmdev);
+> > -	return apic_pm_register(PM_SYS_DEV, 0, callback);
+> > -}
+> > +	if (level != RESUME_POWER_ON)
+> > +		return 0;
+> > +	setup_apic_nmi_watchdog();
+> > +	return 0;
 > 
-> Unfortunately, include/linux/wireless.h has a big pile of ioctls and arg/res
-> types that would need to be checked, so I'll defer this to Jean Tourrilhes (cc:d).
-> 
-> /Mikael
+> I don't pretend to understand the PM layer at all, but it looks like
+> that both nmi.c's and oprofile's resume functions will get called. This
+> won't work: if oprofile has control of the perfctr's/nmi stuff, you
+> can't let the NMI watchdog's resume() be called, as it may conflict with
+> what oprofile is trying to resume.
 
-	Why don't you just recompile the Wireless Tools (iwconfig and
-friends) for 64 bits ?
-	The source of Wireless Tools should be 64 bit clean (was
-working on Alpha), and I don't think it's worth adding a whole pile of
-cruft in the kernel when it's used by a few system utilities that you
-can simply recompile. Personally, I expect every distribution to ship
-the base system compiled natively.
-	With regards to this specific problem, just return an
-error. The Wireless Tools should gracefully handle it and report to
-the user. I would appreciate if you would use a "distinctive" error
-message, such as ENOEXEC, so that I can point users in the correct
-direction.
+oprofile() should already have checks to prevent that, and I added one
 
-	Just food for thought... I you think the wireless ioctls are
-bad, there is worse. The linux-wlan-ng driver defines it's own driver
-specific ioctls, and it has 3 times the number of ioctls. Just for one
-driver. And the ioctl format sometimes changes with revision.
-	So, clearly you can't expect to deal with every ioctl under
-the sun, that's just not practical.
+[        if (nmi_watchdog == NMI_LOCAL_APIC)
+]
 
-	Have fun...
-
-	Jean
-
+to nmi.c. I hope that's okay.
+								Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

@@ -1,140 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272309AbRIOM7S>; Sat, 15 Sep 2001 08:59:18 -0400
+	id <S272313AbRIONck>; Sat, 15 Sep 2001 09:32:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272313AbRIOM7I>; Sat, 15 Sep 2001 08:59:08 -0400
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:23030 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S272309AbRIOM7E>; Sat, 15 Sep 2001 08:59:04 -0400
-Message-ID: <3BA350A7.7D39FC23@kegel.com>
-Date: Sat, 15 Sep 2001 05:59:19 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-dan i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Vitaly Luban <vitaly@luban.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: spin_lock_bh() usage check, please (was: [PATCH][RFC] Signal-per-fd for 
- RT signals)
-In-Reply-To: <3BA2AFFF.C7B8C4DF@kegel.com> <3BA2E144.FB0E5D55@luban.org> <3BA2E99A.1134E382@kegel.com>
+	id <S272314AbRIONcV>; Sat, 15 Sep 2001 09:32:21 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:16875 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id <S272313AbRIONcR>; Sat, 15 Sep 2001 09:32:17 -0400
+Date: Sat, 15 Sep 2001 22:32:16 +0900
+Message-Id: <200109151332.WAA26034@asami.proc.flab.fujitsu.co.jp>
+To: linux-kernel@vger.kernel.org
+cc: alan@lxorguk.ukuu.org.uk
+cc: naruse@flab.fujitsu.co.jp
+Subject: [PATCH] Data is queued but not sent: tcp.c bug.
+Reply-to: kumon@flab.fujitsu.co.jp
+From: kumon@flab.fujitsu.co.jp
+Cc: kumon@flab.fujitsu.co.jp
+X-Mailer: Handmade Mailer version 1.0
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm playing with a patch that collapses duplicate sigio signals.
-It refers to task->files during signal generation,
-so it crashes on a uniprocessor system when an interrupt that
-causes a sigio comes in while the process was busy expanding its
-file table, to wit:
+Hi,
 
-> <send_signal+69/160>      <==== crash on wild pointer here
-> <deliver_signal+17/80>
-> <send_sig_info+86/b0>
-> <send_sigio_to_task+c5/e0>
-> <ip_queue_xmit+334/470>
-> <tcp_rcv_established+79e/7e0>
-> <tcp_v4_send_check+6e/b0>
-> <send_sigio+58/b0>
-> <__kill_fasync+59/70>
-> <sock_wake_async+72/80>
-> <sock_def_readable+5d/70>
-> <tcp_rcv_established+399/7e0>
-> <tcp_v4_do_rcv+3b/120>
-> <tcp_v4_rcv+3e4/660>
-> <ip_local_deliver+fa/170>
-> <ip_rcv+304/380>
-> <tulip_interrupt+618/7d0>
-> <net_rx_action+17b/290>
-> <net_tx_action+62/140>
-> <do_softirq+7b/e0>
-> <do_IRQ+dd/f0>
-> <ret_from_intr+0/7>
-> <vfs_rename_other+28/2b0>
-> <expand_fd_array+d6/160>
-> <get_unused_fd+f2/160>
-> <sock_map_fd+c/1c0>
-> <sock_create+f3/120>
-> <sys_socket+2d/50>
-> <sys_socketcall+62/200>
-> <system_call+33/38>
+We found a severe performance bug in the tcp layer of 2.2 series
+kernel including latest 2.2.19.
+ A patch is attached at the tail of this mail.
 
-Documentation/DocBook/kernel-locking seems to say spin_lock_bh()
-is the way to address conflicts like this between a softirq and
-the process.
+Details:
+ When data is written to a connected TCP socket and if the written
+size is between x1 and x1.5 of (MTU - 52), or x2 and x2.5, or x3 and
+x3.5,,, the written data is not sent immediately, then ping-pong
+latency with these size becomes several tens ms to several hundreds
+ms.
+ tcp_do_sendmsg() try to accumulate several iovec areas into one
+packet and the logic has bug. simple write case is treated as iovec
+with len=1.  If the total data size is more than (MTU-some_room), the
+data is divided and the overflowed data is queued.  And finally, it is
+*NOT* sent out and kept in a queue if the unsent size is less than
+some threshold.
 
-The code referring to task->files is sprinkled into kernel/signal.c
-by the patch, in routines where task->sigmask_lock is already
-acquired with spin_lock_irqsave() or spin_lock_irq() before entry.
+For example, MTU of the loopback in 2.2 seriese is 3924.
+Using the following pseudo code:
+	# this pseudo code omits residue data of read/write system calls.
+	# sock1 and sock2 are connected by a TCP stream.
+	Process A:
+	for (;;) {
+	    RECORD START_TIME
+	    write(sock1, buf, dsize);
+	    read(sock1, buf, dsize);
+	    RECORD END_TIME
+	    SHOW TIME_DIFF = END_TIME - START_TIME
+	
+	}
+	Process B:
+	for (;;) {
+	    read(sock2, buf, dsize);
+	    write(sock2, buf, dsize);
+	}
 
-Question: is it safe to acquire task->files->file_lock with spin_lock_bh()
-inside these routines, or am I risking deadlock?  Is it an issue that
-I might be holding the lock while traversing a list thousands of
-entries long?  For example, is adding file_lock locks to rm_sig_from_queue() as
-follows safe, efficient, and proper?
+If dsize <= 3872, TIME_DIFF is less than 170 us.
+If 3872 < dsize < 5808, TIME_DIFF becomes 20 ms up to 1 s.  
 
-/*
- * Remove signal sig from t->pending.
- * Returns 1 if sig was found.
- *
- * All callers must be holding t->sigmask_lock.
- */
-static int rm_sig_from_queue(int sig, struct task_struct *t)
-{
-    struct sigqueue *q, **pp;
-    struct sigpending *s = &t->pending;
-    struct files_struct *files = t->files;
+The loopback device throughput downs to few KB/s, less than 1/1000 of
+the normal.  Of course, this bug also hits normal ether-net devices.
 
-    if (!sigismember(&s->signal, sig))
-        return 0;
+If the dsize is less than the threshold, the data is sent immediately. 
+This complicated our analysis.
 
-    sigdelset(&s->signal, sig);
+2.4 kernel has been changed the tcp.c logic, so this bug exits only in
+2.2.
 
-    pp = &s->head;
+Patch:
+The following patch inhibits the last iovec area to be queued, and it
+fixes the bug, but the structure of tcp.c is complicated and I feel it
+as a collection of hacks, at least for the processing when and how the
+fragmented packet is sent or not.  So, I have no convince this is a
+right fix or not.
 
-    if (files)
-        spin_lock_bh(files->file_lock);    /* ??? */
-    while ((q = *pp) != NULL) {
-        if (q->info.si_signo == sig) {
-            /* Must clear f_revents for FASYNC sigs. dank 9/2001 */
-            struct file *filp;
-            if (files
-            &&  (q->info.si_fd < files->max_fds)
-            &&  ((filp = files->fd[ q->info.si_fd ]) != 0)
-            &&  (filp->f_flags & FASYNC)
-            &&  (filp->f_owner.signum == sig))
-                filp->f_revents = 0;
+--- linux-2.2.19/net/ipv4/tcp.c.orig	Mon Mar 26 04:37:41 2001
++++ linux-2.2.19/net/ipv4/tcp.c	Sat Sep 15 12:45:53 2001
+@@ -907,7 +907,7 @@
+ 			/* Determine how large of a buffer to allocate.  */
+ 			tmp = MAX_HEADER + sk->prot->max_header;
+ 			if (copy < min(mss_now, tp->max_window >> 1) &&
+-			    !(flags & MSG_OOB)) {
++			    !(flags & MSG_OOB) && iovlen > 0) {
+ 				tmp += min(mss_now, tp->max_window);
+ 
+ 				/* What is happening here is that we want to
 
-            if ((*pp = q->next) == NULL)
-                s->tail = pp;
-            kmem_cache_free(sigqueue_cachep,q);
-            atomic_dec(&nr_queued_signals);
-            continue;
-        }
-        pp = &q->next;
-    }
-    if (files)
-         spin_unlock_bh(files->file_lock);   /* ??? */
-    return 1;
-}
 
-Thanks,
-Dan
-
-p.s. The bug was introduced by Luban's one-signal-per-fd patch; I ran into 
-it while running my variant of his patch, http://www.kegel.com/linux/onefd-dank.patch
-My variant makes the following changes:
-* it fixes an oops related to 'task->files' being null during SIGINT
-* it fixes two oopses related to signal queue overflow
-* it keeps poll data, not pointers, in struct file.  This saves space
-  and makes the consequence of screwing up less severe.
-* it overloads an existing struct file field to avoid the space penalty;
-  it doesn't bloat struct file.
-* it assumes that it's better to keep the kernel uncluttered, so it 
-  changes the meaning of siginfo.si_code rather than introduces new ioctl's.
-  (I hear the Austin draft of the Posix single unix spec is deleting all mention
-   of SIGIO, so it looks like we're free to 'improve' that interface freely 
-   once Austin becomes the law of the land :-)
-  I'm perfectly willing to write patches for phhttpd and x15 to use the
-  new interface in the unlikely event that everyone agrees my interface change 
-  is good.
+--
+Software Laboratory, Fujitsu Labs.
+kumon@flab.fujitsu.co.jp

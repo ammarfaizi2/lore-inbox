@@ -1,76 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281215AbRKHBKE>; Wed, 7 Nov 2001 20:10:04 -0500
+	id <S281236AbRKHBNY>; Wed, 7 Nov 2001 20:13:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281221AbRKHBJz>; Wed, 7 Nov 2001 20:09:55 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:18316 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S281215AbRKHBJu>;
-	Wed, 7 Nov 2001 20:09:50 -0500
-Date: Wed, 07 Nov 2001 17:09:40 -0800 (PST)
-Message-Id: <20011107.170940.10246156.davem@redhat.com>
-To: tim@physik3.uni-rostock.de
-Cc: adilger@turbolabs.com, jgarzik@mandrakesoft.com, andrewm@uow.edu.au,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        netdev@oss.sgi.com, ak@muc.de, kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.30.0111080157180.29908-100000@gans.physik3.uni-rostock.de>
-In-Reply-To: <20011107.164426.35502643.davem@redhat.com>
-	<Pine.LNX.4.30.0111080157180.29908-100000@gans.physik3.uni-rostock.de>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S281232AbRKHBNO>; Wed, 7 Nov 2001 20:13:14 -0500
+Received: from smtp3.libero.it ([193.70.192.53]:17819 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id <S281228AbRKHBNF>;
+	Wed, 7 Nov 2001 20:13:05 -0500
+Date: Thu, 8 Nov 2001 02:04:22 +0100
+From: antirez <antirez@invece.org>
+To: Stephen Satchell <satch@concentric.net>
+Cc: antirez <antirez@invece.org>,
+        "Brenneke, Matthew Jeffrey (UMR-Student)" <mbrennek@umr.edu>,
+        "'H. Peter Anvin'" <hpa@zytor.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Yet another design for /proc. Or actually /kernel.
+Message-ID: <20011108020422.D568@blu>
+Reply-To: antirez <antirez@invece.org>
+In-Reply-To: <6CAC36C3427CEB45A4A6DF0FBDABA56D59C91D@umr-mail03.cc.umr.edu> <6CAC36C3427CEB45A4A6DF0FBDABA56D59C91D@umr-mail03.cc.umr.edu> <20011108012051.C568@blu> <4.3.2.7.2.20011107164408.00c043f0@10.1.1.42>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <4.3.2.7.2.20011107164408.00c043f0@10.1.1.42>; from satch@concentric.net on Wed, Nov 07, 2001 at 04:44:50PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Tim Schmielau <tim@physik3.uni-rostock.de>
-   Date: Thu, 8 Nov 2001 01:58:45 +0100 (CET)
+On Wed, Nov 07, 2001 at 04:44:50PM -0800, Stephen Satchell wrote:
+> At 01:20 AM 11/8/01 +0100, antirez wrote:
+> >/proc/mounts will be:
+> >
+> >((rem)(mounted filesystems))
+> >((format)(device)(mountpoint)(type)(option)(dump)(fsck))
+> >((data)(dev/hda1)(/home/mbrennek/stuff and)(vfat)(rw)(0)(0))
+> >((data)(/dev/hda2)(/var/tmp)(ext2)(rw)(0)(0))
+> >((rem)(number of filesystems mounted))
+> >((format)(mount_count))
+> >((data)(2))
+> 
+> Looks a little like LISPTH.  Flex and Bison to the rescue!
+> 
+> (signed) anonymous
 
-   Please consider to change the appended ones.
-   
-   --- linux-2.4.14/net/ipv4/route.c	Wed Oct 31 00:08:12 2001
-   +++ linux-2.4.14-jiffies64/net/ipv4/route.c	Wed Nov  7 22:51:23 2001
-   @@ -395,7 +395,7 @@
-    		write_unlock(&rt_hash_table[i].lock);
-   
-    		/* Fallback loop breaker. */
-   -		if ((jiffies - now) > 0)
-   +		if ((long)(jiffies - now) > 0)
-    			break;
-    	}
-    	rover = i;
+I'm really a newbie. Maybe I missed the whole point but
+stay sure you don't need flex and bison to parse this.
+It's _really_ simple, you need little code of little
+complexity, to get something of flexible that can be
+used for long time.
 
-Nothing is wrong with this case.  Jiffies is guarenteed to be greater
-than or equal to "now".  There is no need to cast it to a signed type.
+If you don't trust me I can write a little C library to parse
+this just for provide a proof.
+This isn't only simple to parse, but even simple to generate,
+that's an important point.
 
-Let me say this again, in another way :-)
-
-	SOME_WRAPPED_AROUND_SMALL_VALUE
-
-	MINUS
-
-	SOME_HUGE_ABOUT_TO_WRAP_AROUND_VALUE
-
-will have the same result, signed or not.  Check this out!
-
-(gdb) p (long)0x2 - (long)0xfffffff8
-$1 = 10
-(gdb) p (unsigned long)0x2 - (unsigned long)0xfffffff8
-$2 = 10
-
-It's math and the computer comfirms it! :-)))
-
-Please show me a failure case for this statement if you disagree
-with me.
-
-   --- linux-2.4.14/net/ipv4/ipconfig.c	Wed Oct 31 00:08:12 2001
-   +++ linux-2.4.14-jiffies64/net/ipv4/ipconfig.c	Wed Nov  7 23:28:47 2001
-
-These cases are indeed buggy.  I'd rather fix these ones with
-time_{after,before}() though.  And again, your "signed" casts
-are totally superfluous.
-
-Franks a lot,
-David S. Miller
-davem@redhat.com
+regards,
+Salvatore

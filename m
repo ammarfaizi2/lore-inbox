@@ -1,52 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263222AbVCKHIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263221AbVCKHO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263222AbVCKHIr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 02:08:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263221AbVCKHIr
+	id S263221AbVCKHO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 02:14:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263223AbVCKHO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 02:08:47 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:16041 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S263222AbVCKHHz
+	Fri, 11 Mar 2005 02:14:28 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:18345 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S263221AbVCKHO0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 02:07:55 -0500
-To: Chris Friesen <cfriesen@nortel.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, Chris Wright <chrisw@osdl.org>,
-       torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] -stable, how it's going to work.
-References: <20050309072833.GA18878@kroah.com>
-	<16944.6867.858907.990990@cse.unsw.edu.au>
-	<1110449872.6291.64.camel@laptopd505.fenrus.org>
-	<16944.63807.579725.848224@cse.unsw.edu.au>
-	<4231258C.3060400@nortel.com>
+	Fri, 11 Mar 2005 02:14:26 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, peterc@gelato.unsw.edu.au
+Subject: Re: Microstate Accounting for 2.6.11
+References: <16945.5058.251259.828855@berry.gelato.unsw.EDU.AU>
+	<20050310200808.306caf98.akpm@osdl.org>
 From: Andi Kleen <ak@muc.de>
-Date: Fri, 11 Mar 2005 08:07:52 +0100
-In-Reply-To: <4231258C.3060400@nortel.com> (Chris Friesen's message of "Thu,
- 10 Mar 2005 22:58:52 -0600")
-Message-ID: <m1ekemzmlz.fsf@muc.de>
+Date: Fri, 11 Mar 2005 08:14:25 +0100
+In-Reply-To: <20050310200808.306caf98.akpm@osdl.org> (Andrew Morton's
+ message of "Thu, 10 Mar 2005 20:08:08 -0800")
+Message-ID: <m1acpazmb2.fsf@muc.de>
 User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen <cfriesen@nortel.com> writes:
+Andrew Morton <akpm@osdl.org> writes:
 
-> Neil Brown wrote:
+> Why does the kernel need this feature?
 >
->> If a data corruption bug has been there for 10 weeks without being
->> noticed, then the real risk is not that great.  We are calling it
->> "-release", not "-hardened".
->
-> I disagree.  If there's a simple, obvious, small fix that passes all
-> the other criteria, it should go into -stable ASAP after passing
-> review. Then the -stable maintainers will push the fix to
-> Andrew/Linux, and it will go into the next 2.6.x.
+> Have you any numbers on the overhead?
 
-No way, it needs to go into mainline first and then maybe later
-into stable. Doing stable first would lead to code drift because
-a lot of people would only care about stable and we would be back
-in the bad old days when older kernels had more fixes than newer
-ones.
+It does RDTSC and lots of complicated stuff twice for each system call. 
+On P4 this will be extremly slow (> 1000cycles combined) 
+It is pretty unlikely that whatever it does justifies this extreme
+overhead in a critical fast path.
 
 -Andi

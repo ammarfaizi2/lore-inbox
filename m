@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVABXOK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVABXVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbVABXOK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 18:14:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVABXOK
+	id S261343AbVABXVG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 18:21:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVABXVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 18:14:10 -0500
-Received: from smtp.terra.es ([213.4.129.129]:52404 "EHLO tsmtp2.mail.isp")
-	by vger.kernel.org with ESMTP id S261342AbVABXOH convert rfc822-to-8bit
+	Sun, 2 Jan 2005 18:21:06 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12217 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261343AbVABXVE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 18:14:07 -0500
-Date: Mon, 3 Jan 2005 00:14:03 +0100
-From: Diego Calleja <diegocg@teleline.es>
+	Sun, 2 Jan 2005 18:21:04 -0500
+Date: Sun, 2 Jan 2005 23:21:02 +0000
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
 To: Adrian Bunk <bunk@stusta.de>
-Cc: wli@debian.org, aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
+Cc: William Lee Irwin III <wli@debian.org>, Andries Brouwer <aebr@win.tue.nl>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
        linux-kernel@vger.kernel.org
 Subject: Re: starting with 2.7
-Message-Id: <20050103001403.7900df7e.diegocg@teleline.es>
-In-Reply-To: <20050102221534.GG4183@stusta.de>
-References: <1697129508.20050102210332@dns.toxicfilms.tv>
-	<20050102203615.GL29332@holomorphy.com>
-	<20050102212427.GG2818@pclin040.win.tue.nl>
-	<20050102214211.GM29332@holomorphy.com>
-	<20050102221534.GG4183@stusta.de>
-X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; i386-pc-linux-gnu)
+Message-ID: <20050102232102.GN26717@gallifrey>
+References: <1697129508.20050102210332@dns.toxicfilms.tv> <20050102203615.GL29332@holomorphy.com> <20050102212427.GG2818@pclin040.win.tue.nl> <20050102214211.GM29332@holomorphy.com> <20050102221534.GG4183@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050102221534.GG4183@stusta.de>
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.6.5 (i686)
+X-Uptime: 23:08:07 up 8 days, 10:43,  1 user,  load average: 0.00, 0.00, 0.00
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Sun, 2 Jan 2005 23:15:34 +0100 Adrian Bunk <bunk@stusta.de> escribió:
+For me, as someone who very rarely actually changes any code in
+the kernel, I have always found the stable series useful for
+two reasons:
 
-> The main advantage with stable kernels in the good old days (tm) when 4 
-> and 6 were even numbers was that you knew if something didn't work, and 
-> upgrading to a new kernel inside this stable kernel series had a 
-> relatively low risk of new breakages. This meant one big migration every 
-> few years and relatively easy upgrades between stable series kernels.
+  1) It encourages me to test the kernel; if I have a kernel
+  that is generally thought to be stable then I will try it on
+  my home machine and report problems - this lets the kernel
+  get tested on a wide range of hardware and situations; if there
+  is no kernel that is liable to be stable changes will get much
+  less testing on a smaller range of hardware.
 
-That's not always true, 2.4.x development has not been exactly what I'd
-call "stable". IIRC 2.4.15 - the 2.6 fork I think - could corrupt your
-filesystems and I don't remember right now if there were more, personally
-I've suffered of "weird" behaviours until the new VM was stabilized, and
-I've heard of lots of reiser and ext3 problems until both filesystems got
-stabilized. I've lost my filesystems 3 times with 2.4, 0 times running 2.5
-since 2.5.3x (of course that could be just good luck or bad luck but...)
+  2) If I have a bug in a vendor kernel everyone just tells
+  me to go and speak to the vendor - so at least having a stable
+  base to go back to can let me report a bug that isn't due
+  to any vendors patches.
 
-Of course that only proves your point: that changes may cause bugs 8) but
-for me 2.6 has been by far the stablest release linux has ever had, with
-some minor issues in each release while at the same time incorporating "big"
-changes which is something I can accept as "desktop user". Perhaps 2.6 will
-become "rock stable" or "to be used only by servers not desktops" when 2.7
-forks?
-
-
+  3) In some cases the commercial vendors don't seem to release
+  source to some of the kernels except to people who have bought
+  the packages, so those vendor kernel fixes aren't 'publically'
+  visible.
+  
+I think (1) is very important - getting large numbers of people
+to test OSS is its greatest asset.
+  
+Dave
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

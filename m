@@ -1,74 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261726AbTIPA4o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 20:56:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbTIPA4o
+	id S261711AbTIPAtR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 20:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbTIPAtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 20:56:44 -0400
-Received: from fidel.freesurf.fr ([212.43.206.16]:56583 "EHLO
-	fidel.freesurf.fr") by vger.kernel.org with ESMTP id S261726AbTIPA4m
+	Mon, 15 Sep 2003 20:49:16 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:24080 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261711AbTIPAtO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 20:56:42 -0400
-Message-ID: <2279.213.181.81.124.1063674971.squirrel@arlette.freesurf.fr>
-Date: Tue, 16 Sep 2003 03:16:11 +0200 (CEST)
-Subject: NICE TO MEET YOU.
-From: <elosub@freesurf.fr>
-To: <elosuba@o2.pl>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-X-Mailer: SquirrelMail (version 1.2.5)
+	Mon, 15 Sep 2003 20:49:14 -0400
+Date: Mon, 15 Sep 2003 20:26:54 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: John Bradford <john@grabjohn.com>, zwane@linuxpower.ca,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+In-Reply-To: <20030915205522.GP126@fs.tum.de>
+Message-ID: <Pine.LNX.3.96.1030915202130.22907B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 15 Sep 2003, Adrian Bunk wrote:
 
+> On Mon, Sep 15, 2003 at 07:32:49AM +0100, John Bradford wrote:
+> >...
+> > It should be possible, and straightforward, to compile a kernel which:
+> > 
+> > 1. Supports, (I.E. has workarounds for), any combination of CPUs.
+> >    E.G. a kernel which supports 386s, and Athlons _only_ would not
+> >    need the F00F bug workaround.  Currently '386' kernels include it,
+> >    because '386' means 'support 386 and above processors'.
+> > 
+> > 2. Has compiler optimisations for one particular CPU.
+> >    E.G. the 386 and Athlon supporting kernel above could have
+> >    alignment optimised for either 386 or Athlon.
+> >...
+> 
+> That's the point where even I consider such a system to be too complex.
 
-FROM: ELOS UBA.
-AMMAN JORDAN
-E-mailaddress:elosuba@o2.pl
+How does it strike you to have these:
+ - compile support for any CPU which doesn't break the target
+   (including slow it in some serious way)
+ - drop support for any CPU except the target
 
-DEAR:Sir,
+It seems to me that this is what the vendors want (as general as possible)
+and the size limited users want (small is beautiful).
 
+Fitting the code to this model could be done gradually and hopefully with
+some macros to prevent too much ugly ifdef code.
 
-My Name is ELOS UBA,an Iraqis National from the Kurds an Accountant
-in Oil refinery in Durra. I am presently in Amman, Jordan Capital since
-U.S.strike Iraqi, few days to the expiration of the 48 hours Ultimatum
-before the strike.
-
-I moved $45.5M dollars call-deposit to Security Company in Iran for
-safe-keeping.In my capacity as the accountant to the oil refinery in durra,
-I was the only person aware of this financial transaction call-deposit with
-the security company in Iran to be released to whom I will introduce to the
-security company as the beneficiary of the call- deposit of $45.5M, whom
-the oil installation company is been owed since I can not be able to go to
-Iran because of the war.
-
-Now that the situation is not condusive for me to go to Iran, I am
-appealing to you if i can present you as the beneficiary of the call-
-deposit to the security company for the release of the deposit to your
-Account or any of your destination as part of the money being owed to you
-by Durra oil Refinery Company Iraq.
-
-As soon as this deposit is released to your Account by the security
-company in Iran or any of your destination,I will come over to meet you for
-disbursement 30%-70%. On your acceptance on this transaction I will send to
-you the deposit slip Certificate for the call deposit to you as the
-beneficiary to be release to you as part of the refunds owed to you by
-Durra Oil Refinery company Iraq.Please replyme me through my alternative
-E-mailaddress:elosuba@o2.pl
-
-Awaiting your quick response,
-Best Regards,
-ELOS UBA,
-
-
-
-----------------------------------------------------------------
-Ce service de mailing vous est offert par http://www.freesurf.fr.
-FreeSurf, votre acces ADSL a partir de 29 euros/mois
-http://www.freesurf.fr/adsl/
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

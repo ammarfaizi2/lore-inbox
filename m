@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267326AbUIXBhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267343AbUIXBhr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267326AbUIXBhs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 21:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266674AbUIWUoG
+	id S267343AbUIXBhr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 21:37:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267326AbUIWUoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 16:44:06 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:42423 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267250AbUIWUc1
+	Thu, 23 Sep 2004 16:44:19 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:51600 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267212AbUIWUcY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 16:32:27 -0400
-Subject: [patch 13/21]  media/msp3400: replace 	schedule_timeout() with msleep_interruptible()
+	Thu, 23 Sep 2004 16:32:24 -0400
+Subject: [patch 12/21]  media/cx88-video: replace 	schedule_timeout() with msleep_interruptible()
 To: akpm@digeo.com
 Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
 From: janitor@sternwelten.at
-Date: Thu, 23 Sep 2004 22:32:24 +0200
-Message-ID: <E1CAaGO-0001NG-M8@sputnik>
+Date: Thu, 23 Sep 2004 22:32:21 +0200
+Message-ID: <E1CAaGL-0001Kd-VK@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -31,46 +31,38 @@ Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 ---
 
- linux-2.6.9-rc2-bk7-max/drivers/media/video/msp3400.c |   13 ++++++-------
- 1 files changed, 6 insertions(+), 7 deletions(-)
+ linux-2.6.9-rc2-bk7-max/drivers/media/video/cx88/cx88-video.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
-diff -puN drivers/media/video/msp3400.c~msleep_interruptible-drivers_media_video_msp3400 drivers/media/video/msp3400.c
---- linux-2.6.9-rc2-bk7/drivers/media/video/msp3400.c~msleep_interruptible-drivers_media_video_msp3400	2004-09-21 21:16:59.000000000 +0200
-+++ linux-2.6.9-rc2-bk7-max/drivers/media/video/msp3400.c	2004-09-21 21:16:59.000000000 +0200
-@@ -191,8 +191,7 @@ msp3400c_read(struct i2c_client *client,
- 		err++;
- 		printk(KERN_WARNING "msp34xx: I/O error #%d (read 0x%02x/0x%02x)\n",
- 		       err, dev, addr);
--		set_current_state(TASK_INTERRUPTIBLE);
--		schedule_timeout(HZ/10);
-+		msleep_interruptible(100);
- 	}
- 	if (3 == err) {
- 		printk(KERN_WARNING "msp34xx: giving up, reseting chip. Sound will go off, sorry folks :-|\n");
-@@ -220,8 +219,7 @@ msp3400c_write(struct i2c_client *client
- 		err++;
- 		printk(KERN_WARNING "msp34xx: I/O error #%d (write 0x%02x/0x%02x)\n",
- 		       err, dev, addr);
--		set_current_state(TASK_INTERRUPTIBLE);
--		schedule_timeout(HZ/10);
-+		msleep_interruptible(100);
- 	}
- 	if (3 == err) {
- 		printk(KERN_WARNING "msp34xx: giving up, reseting chip. Sound will go off, sorry folks :-|\n");
-@@ -740,11 +738,12 @@ static int msp34xx_sleep(struct msp3400c
+diff -puN drivers/media/video/cx88/cx88-video.c~msleep_interruptible-drivers_media_video_cx88_cx88-video drivers/media/video/cx88/cx88-video.c
+--- linux-2.6.9-rc2-bk7/drivers/media/video/cx88/cx88-video.c~msleep_interruptible-drivers_media_video_cx88_cx88-video	2004-09-21 21:16:58.000000000 +0200
++++ linux-2.6.9-rc2-bk7-max/drivers/media/video/cx88/cx88-video.c	2004-09-21 21:16:58.000000000 +0200
+@@ -26,6 +26,7 @@
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/interrupt.h>
++#include <linux/delay.h>
+ #include <asm/div64.h>
  
- 	add_wait_queue(&msp->wq, &wait);
- 	if (!msp->rmmod) {
+ #include "cx88.h"
+@@ -476,8 +477,7 @@ static int set_pll(struct cx8800_dev *de
+ 			return 0;
+ 		}
+ 		dprintk(1,"pll not locked yet, waiting ...\n");
 -		set_current_state(TASK_INTERRUPTIBLE);
--		if (timeout < 0)
-+		if (timeout < 0) {
-+			set_current_state(TASK_INTERRUPTIBLE);
- 			schedule();
-+		}
- 		else
--			schedule_timeout(timeout);
-+			msleep_interruptible(jiffies_to_msecs(timeout));
+-		schedule_timeout(HZ/10);
++		msleep_interruptible(100);
  	}
- 	remove_wait_queue(&msp->wq, &wait);
- 	return msp->rmmod || signal_pending(current);
+ 	dprintk(1,"pll NOT locked [pre=%d,ofreq=%d]\n",prescale,ofreq);
+ 	return -1;
+@@ -2237,8 +2237,7 @@ static int cx8800_reset(struct cx8800_de
+ 	cx_write(MO_INT1_STAT,   0xFFFFFFFF); // Clear RISC int
+ 
+ 	/* wait a bit */
+-	set_current_state(TASK_INTERRUPTIBLE);
+-	schedule_timeout(HZ/10);
++	msleep_interruptible(100);
+ 	
+ 	/* init sram */
+ 	cx88_sram_channel_setup(dev, &cx88_sram_channels[SRAM_CH21], 720*4, 0);
 _

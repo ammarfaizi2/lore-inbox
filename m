@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261937AbTILWvu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 18:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbTILWvu
+	id S261930AbTILW7G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 18:59:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTILW7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 18:51:50 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:51960 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261937AbTILWvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 18:51:47 -0400
-Date: Sat, 13 Sep 2003 00:51:39 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: davej@redhat.com, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] better i386 CPU selection
-Message-ID: <20030912225138.GU27368@fs.tum.de>
-References: <200309122009.h8CK9KZp006128@harpo.it.uu.se>
+	Fri, 12 Sep 2003 18:59:06 -0400
+Received: from postino5b.prima.com.ar ([200.42.0.178]:46354 "HELO
+	postino5.prima.com.ar") by vger.kernel.org with SMTP
+	id S261930AbTILW7E convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 18:59:04 -0400
+Subject: Re: Stack size
+From: Matias Alejo Garcia <kernel@matiu.com.ar>
+To: Kernel <linux-kernel@vger.kernel.org>
+Cc: brenosp@brasilsec.com.br
+In-Reply-To: <20030912104114.B21503@build.pdx.osdl.net>
+References: <004801c390bd$55cca700$f8e4a7c8@bsb.virtua.com.br>
+	 <20030912104114.B21503@build.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1063412374.1470.11.camel@runner>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200309122009.h8CK9KZp006128@harpo.it.uu.se>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 12 Sep 2003 20:19:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 12, 2003 at 10:09:20PM +0200, Mikael Pettersson wrote:
->...
-> > > - Which CPUs exactly need X86_ALIGNMENT_16?
-> >
-> >Unsure. This could use testing on a few systems.
-> 
-> K7s and P5s (and 486s too if I remember correctly) strongly prefer
-> code entry points and loop labels to be 16-byte aligned. This is
-> due to the way code is fetched from L1.
->...
 
-Hm, that's pretty different from the definition in -test5:
+On Sun, 2003-10-12 at 08:35, Breno wrote:
+       ^^^^^^^^^^^^^^^^^^^^   
+On Fri, 2003-09-12 at 13:41, Chris Wright wrote:
+> [Hey, any chance you could join us in September? ;-) "Date:   Sun, 12 Oct
+> 2003 13:35:33 +0100"]
 
-config X86_ALIGNMENT_16
-        bool
-        depends on MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCYRIXIII || 
-          MELAN || MK6 || M586MMX || M586TSC || M586 || M486 || MVIAC3_2
-        default y
+Breno: 
 
-
-
-> /Mikael
-
-cu
-Adrian
+Carpe diem! Live the present!
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+matías <-> http://matiu.com.ar

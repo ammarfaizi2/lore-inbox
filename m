@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267146AbTAPPfA>; Thu, 16 Jan 2003 10:35:00 -0500
+	id <S266041AbTAPPp7>; Thu, 16 Jan 2003 10:45:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267148AbTAPPfA>; Thu, 16 Jan 2003 10:35:00 -0500
-Received: from angband.namesys.com ([212.16.7.85]:41104 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S267146AbTAPPe7>; Thu, 16 Jan 2003 10:34:59 -0500
-Date: Thu, 16 Jan 2003 18:43:52 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Chris Mason <mason@suse.com>
-Cc: linux-kernel@vger.kernel.org, eazgwmir@umail.furryterror.org,
-       viro@math.psu.edu, nikita@namesys.com
-Subject: Re: [2.4] VFS locking problem during concurrent link/unlink
-Message-ID: <20030116184352.A32192@namesys.com>
-References: <20030116140015.A17612@namesys.com> <1042731580.31099.2195.camel@tiny.suse.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <1042731580.31099.2195.camel@tiny.suse.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S266278AbTAPPp7>; Thu, 16 Jan 2003 10:45:59 -0500
+Received: from relay.pair.com ([209.68.1.20]:64264 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S266041AbTAPPp6>;
+	Thu, 16 Jan 2003 10:45:58 -0500
+X-pair-Authenticated: 192.249.49.31
+Message-ID: <3E26D61B.2070509@cybsft.com>
+Date: Thu, 16 Jan 2003 09:56:11 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: linux-kernel@vger.kernel.org, Andrew Walrond <andrew@walrond.org>,
+       jw schultz <jw@pegasys.ws>
+Subject: Re: any brand recomendation for a linux laptop ?
+References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr> <20030116104154.GL25246@pegasys.ws> <3E26BE43.6000406@walrond.org> <20030116144045.GC30736@work.bitmover.com> <20030116153727.GA27441@lug-owl.de> <20030116154004.GD31419@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Larry McVoy wrote:
+> On Thu, Jan 16, 2003 at 04:37:27PM +0100, Jan-Benedict Glaw wrote:
+> 
+>>On Thu, 2003-01-16 06:40:45 -0800, Larry McVoy <lm@bitmover.com>
+>>wrote in message <20030116144045.GC30736@work.bitmover.com>:
+>>
+>>>On Thu, Jan 16, 2003 at 02:14:27PM +0000, Andrew Walrond wrote:
+>>
+>>>I like the T23 myself.  Wireless, ethernet, modem, DVD, fast.
+>>
+>>Serial modem, or some winmodem type? I'd prefer to have a "real" modem,
+>>though...
+> 
+> 
+> Winmodem.  I'm pretty sure I got it to work under Linux at some point but
+> I'll admit that I boot into windows on those rare occasions I need a modem.
+> Getting that stuff to work under Linux is fragile at best.
 
-On Thu, Jan 16, 2003 at 10:39:41AM -0500, Chris Mason wrote:
-> >    Debugging reiserfs problem that can be demonstrated with script created by
-> >    Zygo Blaxell, I started to wonder if the problem presented is indeed reiserfs
-> >    fault and not VFS.
-> >    Though the Zygo claims script only produces problems on reiserfs, I am trying
-> >    it now myself on ext2 (which will take some time).
-> > 
-> >    Debugging shows that reiserfs_link is sometimes called for inodes whose
-> >    i_nlink is zero (and all corresponding data is deleted already).
-> >    So my current guess of what's going on is this:
-> No, this is a reiserfs bug, since we schedule after doing link checks in
-> reiserfs_link and reiserfs_unlink.  I sent a patch to reiserfs dev a
-> while ago, I'll pull it out of the suse kernel and rediff against
-> 2.4.20.
+Don't know if it's the same modem or not but there is a driver for the 
+winmodem in my 600E distributed by IBM at the following link:
 
-Yes we do.
-But on the other hand I've put a check at the beginning of reiserfs_link
-and I am still seeing these links on inodes with i_nlink == 0.
+http://www-124.ibm.com/acpmodem/
 
-Bye,
-    Oleg
+Hope this helps.
+

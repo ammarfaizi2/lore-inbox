@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280130AbRKXVMe>; Sat, 24 Nov 2001 16:12:34 -0500
+	id <S280149AbRKXVMO>; Sat, 24 Nov 2001 16:12:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280153AbRKXVMY>; Sat, 24 Nov 2001 16:12:24 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:41234 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S280130AbRKXVMO>; Sat, 24 Nov 2001 16:12:14 -0500
-Date: Sat, 24 Nov 2001 17:54:51 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: "Marc A. Ohmann" <marc@ds6.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.16-pre1
-In-Reply-To: <20011124150905.A26221@flanders.digsol.net>
-Message-ID: <Pine.LNX.4.21.0111241752470.12149-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280027AbRKXVME>; Sat, 24 Nov 2001 16:12:04 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:1920 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S280130AbRKXVLw>; Sat, 24 Nov 2001 16:11:52 -0500
+Date: Sat, 24 Nov 2001 15:15:18 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: linux-kernel@vger.kernel.org
+Cc: jmerkey@utah-nac.org
+Subject: [PATCH] NetWare File System (NWFS) 2.5.1 patch posted
+Message-ID: <20011124151518.A693@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sat, 24 Nov 2001, Marc A. Ohmann wrote:
+Linus,
 
-> > Hi,
-> > 
-> > So here it goes 2.4.16-pre1. Obviously the most important fix is the
-> > iput() one, which probably fixes the filesystem corruption problem people
-> > have been seeing.
-> > 
-> > Please, people who have been experiencing the fs corruption problems test
-> > this and tell me its now working so I can release a final 2.4.16 ASAP.
-> > 
-> > 
-> > - Correctly sync inodes in iput()			(Alexander Viro)
-> > - Make pagecache readahead size tunable via /proc	(was in -ac tree)
-> > - Fix PPC kernel compilation problems			(Paul Mackerras)
-> 
-> I build Andrea's patch and everything seemed to work fine.  I am building 2.4.16-pre1 on two systems right now.  
+A patch that integrates NWFS into Linux kernel 2.5.1-pre1 has been
+posted at:
 
+ftp.timpanogas.org:/nwfs/nwfs-2.5.1-pre1-1.bz2 and
+ftp.utah-nac.org:/nwfs/nwfs-2.5.1-pre1-1.bz2
 
-> What can I check to test the iput() patch or any other patches?
+This patch is submitted for consideration of inclusion into 
+the Linux kernel.  This patch has been tested against the Linux 
+2.5.1-pre1 kernel.
 
-To test the iput() patch do some filesystem activity (with lots of files),
-reboot the machine, and check if your fs is still sane after that.
+Respectfully Submitted,
 
-The other patches you can't really test I guess: one is for PPC, the other
-one is known to work correctly.
+Jeff Merkey
 

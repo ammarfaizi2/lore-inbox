@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285054AbRLQIgc>; Mon, 17 Dec 2001 03:36:32 -0500
+	id <S285048AbRLQIbC>; Mon, 17 Dec 2001 03:31:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285052AbRLQIgX>; Mon, 17 Dec 2001 03:36:23 -0500
-Received: from mail1-gui.server.ntli.net ([194.168.222.13]:52645 "EHLO
-	mail1-gui.server.ntli.net") by vger.kernel.org with ESMTP
-	id <S285054AbRLQIgN>; Mon, 17 Dec 2001 03:36:13 -0500
-Date: Mon, 17 Dec 2001 08:36:09 GMT
-From: ncw@axis.demon.co.uk
-Message-Id: <200112170836.fBH8a9V14798@irishsea.home.craig-wood.com>
-To: linux-kernel@vger.kernel.org
-Cc: Pierfrancesco Caci <p.caci@tin.it>
+	id <S285054AbRLQIax>; Mon, 17 Dec 2001 03:30:53 -0500
+Received: from 217-126-161-163.uc.nombres.ttd.es ([217.126.161.163]:4992 "EHLO
+	DervishD.viadomus.com") by vger.kernel.org with ESMTP
+	id <S285048AbRLQIan>; Mon, 17 Dec 2001 03:30:43 -0500
+To: cr@sap.com, raul@viadomus.com
 Subject: Re: Is /dev/shm needed?
-In-Reply-To: <877krm68t2.fsf@penny.ik5pvx.ampr.org>
-In-Reply-To: <E16FkV9-00010E-00@DervishD.viadomus.com>  <1008544328.843.0.camel@phantasy> <877krm68t2.fsf@penny.ik5pvx.ampr.org>
+Cc: linux-kernel@vger.kernel.org, rml@tech9.net
+Message-Id: <E16FtLQ-00006A-00@DervishD.viadomus.com>
+Date: Mon, 17 Dec 2001 09:41:56 +0100
+From: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	 Coronado <raul@viadomus.com>
+Reply-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	   Coronado <raul@viadomus.com>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In linux-kernel, Pierfrancesco Caci <p.caci@tin.it> wrote:
-> :-> "Robert" == Robert Love <rml@tech9.net> writes:
-> > See Documentation/filesystems/tmpfs.txt for more information.
->  There's no such file in my tree... what version are you talking about? 
+    Hi Christoph :)
 
-I last saw this file in 2.4-ac - maybe it got lost somewhere....
+>>     Yes, I knew, I meant the maximum size. I don't want half of the
+>> RAM occupied just by a programming mistake ;)))
+>What I like most about /tmp in tmpfs is the ability to resize on the
+>fly
+[...]
+>When one of these gets full I can either stop the affending job or
+>increase the limit
 
-There is quite a bit of help in Documentation/Configure.help though.
+    That's one of my doubts: if the available RAM decreases then the
+buffer (disk) cache will do too. So, if I have /tmp mounted with
+tmpfs, the contents here will be cached no matter the available RAM,
+or am I completely wrong?
 
--- 
-Nick Craig-Wood
-ncw@axis.demon.co.uk
+    Raúl

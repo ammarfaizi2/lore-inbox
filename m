@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261855AbSKXWef>; Sun, 24 Nov 2002 17:34:35 -0500
+	id <S261857AbSKXWmV>; Sun, 24 Nov 2002 17:42:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261857AbSKXWef>; Sun, 24 Nov 2002 17:34:35 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:8711
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261855AbSKXWee>; Sun, 24 Nov 2002 17:34:34 -0500
-Subject: Re: calling schedule() from interupt context
-From: Robert Love <rml@tech9.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-In-Reply-To: <20021124223234.7C5EB2C111@lists.samba.org>
-References: <20021124223234.7C5EB2C111@lists.samba.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1038177703.777.62.camel@phantasy>
+	id <S261859AbSKXWmV>; Sun, 24 Nov 2002 17:42:21 -0500
+Received: from albireo.ucw.cz ([81.27.194.19]:32010 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261857AbSKXWmV>;
+	Sun, 24 Nov 2002 17:42:21 -0500
+Date: Sun, 24 Nov 2002 23:49:34 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: suspend-to-ram: don't crash when kernel gets big
+Message-ID: <20021124224934.GA3252@ucw.cz>
+References: <20021123195525.GA2776@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 24 Nov 2002 17:41:43 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021123195525.GA2776@elf.ucw.cz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-11-24 at 16:42, Rusty Russell wrote:
+Hi!
 
-> > Oh we can't kill module references from interrupts?
-> 
-> Err, no, that would be insane.  get_cpu() & put_cpu() should work
-> perfectly fine inside interrupts, no?
+> +	pushl	$0						# Kill any dangerous flags
+> +	popfl
+> +	cli
+> +	cld
 
-Yes, they do.
+Seems like you're trying to be 200% sure ;-)
 
-Since the preempt_count is bumped on entry to the interrupt handler, it
-is always at least one, and thus put_cpu() will never call schedule.
-
-	Robert Love
-
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+First law of socio-genetics: Celibacy is not hereditary.

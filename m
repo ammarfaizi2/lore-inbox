@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261501AbREOUwi>; Tue, 15 May 2001 16:52:38 -0400
+	id <S261494AbREOUts>; Tue, 15 May 2001 16:49:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261503AbREOUw2>; Tue, 15 May 2001 16:52:28 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:65288 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261501AbREOUwM>; Tue, 15 May 2001 16:52:12 -0400
-Date: Tue, 15 May 2001 13:51:43 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: "H. Peter Anvin" <hpa@transmeta.com>,
-        James Simmons <jsimmons@transvirtual.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S261495AbREOUtj>; Tue, 15 May 2001 16:49:39 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:32264 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261482AbREOUt3>; Tue, 15 May 2001 16:49:29 -0400
+Date: 15 May 2001 20:57:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <80wQzVHXw-B@khms.westfalen.de>
+In-Reply-To: <E14zRdW-0001gY-00@the-village.bc.nu>
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.GSO.4.21.0105151632380.21081-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.21.0105151345410.2569-100000@penguin.transmeta.com>
+X-Mailer: CrossPoint v3.12d.kh6 R/C435
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <m14zRbL-000OdxC@amadeus.home.nl> <E14zRdW-0001gY-00@the-village.bc.nu>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+alan@lxorguk.ukuu.org.uk (Alan Cox)  wrote on 15.05.01 in <E14zRdW-0001gY-00@the-village.bc.nu>:
 
-On Tue, 15 May 2001, Alexander Viro wrote:
+> > > it to a device number at /sbin/lilo time.  An idiotic practice on the
+> > > part of LILO, in my opinion, that ought to have been fixed a long time
+> > > ago.
+> >
+> > That's why you want mount-root-by-partition-label, not by device
 >
-> If you want them all to inherit it - inherit from mountpoint.
+> Which in itself adds the 'and how does the label tell me what modules to
+> load' question..
 
-..which is exactly what the device node ends up being. The implicit
-mount-point.
+The same way the old root device does: not. Why should it? It doesn't tell  
+you what to eat for lunch either.
 
-And which point, btw, it is completely indistinguishable to user space
-whether the thing is implemented as a full filesystem, or whether it's
-just that the device node exports a simple "lookup()" that it passes down
-to the device driver. So this is also the point where it becomes nothing
-but an implementation issue, and as such it's much less contentious.
-
-Done right, they'll be automatic mount-points, which gives us:
- - perfect backwards compatibility (opening just the node will do what it
-   has always done)
- - _zero_ extra system administration.
-
-And I really think the zero system administration thing is the important
-one. For some reason, sysadmin is where all the fights break out (see
-devfs, but historically we had all the same problems with the original
-device naming etc).
-
-Sysadmin and editors. The holy wars of UNIX.
-
-		Linus
-
+MfG Kai

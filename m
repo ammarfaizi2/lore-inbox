@@ -1,50 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265704AbSJTAIF>; Sat, 19 Oct 2002 20:08:05 -0400
+	id <S265708AbSJTALc>; Sat, 19 Oct 2002 20:11:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265707AbSJTAIF>; Sat, 19 Oct 2002 20:08:05 -0400
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:64916 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S265704AbSJTAIE>; Sat, 19 Oct 2002 20:08:04 -0400
-Message-ID: <3DB1F55E.2060501@quark.didntduck.org>
-Date: Sat, 19 Oct 2002 20:14:22 -0400
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: Christian Borntraeger <linux@borntraeger.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
-References: <Pine.LNX.4.10.10210191627090.24031-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265707AbSJTALc>; Sat, 19 Oct 2002 20:11:32 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:38168 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265708AbSJTALb>; Sat, 19 Oct 2002 20:11:31 -0400
+Date: Sun, 20 Oct 2002 02:15:40 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jeff Dike <jdike@karaya.com>
+Cc: Andi Kleen <ak@muc.de>, john stultz <johnstul@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       george anzinger <george@mvista.com>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [PATCH] linux-2.5.43_vsyscall_A0
+Message-ID: <20021020001540.GR23930@dualathlon.random>
+References: <20021019050139.GM23930@dualathlon.random> <200210192343.SAA03642@ccure.karaya.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210192343.SAA03642@ccure.karaya.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
->>Copy-protected discs abuse the CD standards to the point where CDROM
->>drives consider them defective and can't/won't read them, while less
->>intelligent devices can.  Trying to read one of these discs should only
->>cause the kernel to return an error, never an oops.
+On Sat, Oct 19, 2002 at 06:43:28PM -0500, Jeff Dike wrote:
+> andrea@suse.de said:
+> > the sysctl would replace the vsyscall fixmap fixmap entry for the
+> > current cpu enterely at switch_to time, I certainly don't want to add
+> > not necessary branches in the core vsyscall code.  Doing it globally
+> > is zerocost but it would probably need privilegies as said, per-task
+> > could be more dynamic without privilegies and it would be an unlikely
+> > branch added in switch_to, still a very low cost so still acceptable. 
 > 
-> 
-> You admit that older dumber devices just work.
-> So much for new and improved, go find the old and lousy that works.
+> If I'm understanding this (and reading the code) correctly, this would
+> allow UML to specify that, for a given process, it should have a page of
+> its choosing mapped into the vsyscall area.  Correct?
 
-Audio-only CD players are cheap and dumb.  The standard audio CD format 
-is not complex, and certain parts of the disc that are needed for data 
-CDs are ignored by audio players.  This is where the copy-protected 
-discs use false data to confuse CDROM drives.
+What I suggested is an arch specific syscall to shutdown vsyscalls
+enterely for the current task and its childs, the vsyscall will call
+into the real syscall with sysenter, and you will be able to
+revirtualize gettimeofday/time like you do on x86 with ptrace.
 
-> Asking me to make it so you or anyone else can bypass
-> copy-content-protection is out of the question.  If you do not ask the
-> device to do bad things, then it will not do bad things back at you.
+> If so, I can go along with this.  It makes vsyscalls virtualizable, and thus
+> available to UML, which needs them more than the other arches :-)
 
-Nobody asked you to bypass the protection, only to sanely error out when 
-it is found.  Refusing to read the disk is ok, but allowing the system 
-to crash is not.
+what do you mean that uml needs the vsyscalls more than the other archs?
+You can use the vsyscall in-kernel by executing such syscall to turn the
+vsyscall on and then turning them off again before returning to
+the uml userspace. Remapping the vsyscall address is messy, we would
+need to define a fallback place where to put them and we'd need to deal
+with mapping your userspace bytecode in the place of the kernel code
+containing the vsyscalls, it's an overdesign mess and it breaks so many
+things about the mm design. I much prefer you to keep trapping the
+gettimeofday and time with ptrace after shutting down the vsyscalls for
+the current task, it's so much cleaner. The overhead of ptrace cannot be
+your point, if that overhead is a showstopper uml isn't an option in the
+first place.
 
---
-				Brian Gerst
+> The one suggestion I'd make is to make it per-mm rather than per-task and 
+> put it in switch_mm rather than switch_to.
 
+doesn't make sense to me, the time of the day has nothing specific to
+the mm. The fact that turning off the vsyscall involves an invlpg
+doesn't matter either since they're global and they need the explicit
+flush anyways, furthmore the per-task info would be in the task struct
+not in the mm_struct. I don't see any point in binding a time-of-day
+information with the mm. It sounds quite natural to make it a per-task
+information not per-mm (also think strace/ptrace, maybe strace/ptrace
+could like to still handle gettimeofday, but there's no point to force
+all other threads to use the syscall just because we're playing with one
+task in the process group).
+
+Andrea

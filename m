@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbUKHI5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbUKHJAT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbUKHI5S (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 03:57:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbUKHI5S
+	id S261788AbUKHJAT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 04:00:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbUKHJAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 03:57:18 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:55989 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261787AbUKHI5P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 03:57:15 -0500
-Date: Mon, 8 Nov 2004 09:55:48 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Ross Biro <ross.biro@gmail.com>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>,
-       Andre Hedrick <andre@pyxtechnologies.com>
-Subject: Re: [PATCH 2/3] WIN_* -> ATA_CMD_* conversion: update WIN_* users to use ATA_CMD_*
-Message-ID: <20041108085545.GI29120@suse.de>
-References: <20041103091101.GC22469@taniwha.stupidest.org> <418AE8C0.3040205@pobox.com> <58cb370e041105051635c15281@mail.gmail.com> <20041106032314.GC6060@taniwha.stupidest.org> <8783be660411051945252097c3@mail.gmail.com> <20041106035522.GA13091@taniwha.stupidest.org>
+	Mon, 8 Nov 2004 04:00:18 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:17118 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261788AbUKHJAL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 04:00:11 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 8 Nov 2004 09:53:44 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
+Subject: [patch] v4l: ir-common modparam
+Message-ID: <20041108085344.GA19307@bytesex>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041106035522.GA13091@taniwha.stupidest.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 05 2004, Chris Wedgwood wrote:
-> > In particular, most Maxtor and Western Digital Drives will not
-> > recover from errors with this command sequence.  The preferred error
-> > recovery is to do a reset followed by a set features, because that
-> > is what Windows does (as told to me by a drive vendor).
-> 
-> I assume for Windows they do that for all drives?  Even older ones?
-> 
-> I also wonder what happens with TCQ when you get an error?  Do you
-> just retry everything outstanding?
+Convert the ir-common module to new-style insmod options.
 
-Any error typically causes an invalidation of the queue, so yes you just
-start from scratch. Since PATA doesn't support TCQ anymore, it's not a
-worry though :)
+Signed-off-by: Gerd Knorr <kraxel@bytesex.org>
+---
+ drivers/media/common/ir-common.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff -u linux-2.6.10/drivers/media/common/ir-common.c linux/drivers/media/common/ir-common.c
+--- linux-2.6.10/drivers/media/common/ir-common.c	2004-11-07 12:23:30.784211678 +0100
++++ linux/drivers/media/common/ir-common.c	2004-11-07 16:07:15.079364384 +0100
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: ir-common.c,v 1.4 2004/10/13 10:39:00 kraxel Exp $
++ * $Id: ir-common.c,v 1.5 2004/11/07 13:17:15 kraxel Exp $
+  *
+  * some common structs and functions to handle infrared remotes via
+  * input layer ...
+@@ -31,11 +31,11 @@
+ MODULE_LICENSE("GPL");
+ 
+ static int repeat = 1;
+-MODULE_PARM(repeat,"i");
++module_param(repeat, int, 0444);
+ MODULE_PARM_DESC(repeat,"auto-repeat for IR keys (default: on)");
+ 
+ static int debug = 0;    /* debug level (0,1,2) */
+-MODULE_PARM(debug,"i");
++module_param(debug, int, 0644);
+ 
+ #define dprintk(level, fmt, arg...)	if (debug >= level) \
+ 	printk(KERN_DEBUG fmt , ## arg)
 
 -- 
-Jens Axboe
-
+#define printk(args...) fprintf(stderr, ## args)

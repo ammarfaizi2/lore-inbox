@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268074AbUGWVVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268073AbUGWVWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268074AbUGWVVe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 17:21:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268073AbUGWVVe
+	id S268073AbUGWVWj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 17:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268075AbUGWVWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 17:21:34 -0400
-Received: from web50609.mail.yahoo.com ([206.190.38.248]:3493 "HELO
-	web50609.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S268074AbUGWVVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 17:21:32 -0400
-Message-ID: <20040723212131.86635.qmail@web50609.mail.yahoo.com>
-Date: Fri, 23 Jul 2004 14:21:31 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: Ext3 problems in dual booting machine with SE Linux 
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200407232046.i6NKkZ5V003482@turing-police.cc.vt.edu>
+	Fri, 23 Jul 2004 17:22:38 -0400
+Received: from cantor.suse.de ([195.135.220.2]:22671 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268073AbUGWVW2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 17:22:28 -0400
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] hlist_for_each_safe cleanup
+References: <20040723140527.7e3c119a@dell_ss3.pdx.osdl.net>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: You mean now I can SHOOT YOU in the back and further BLUR
+ th' distinction between FANTASY and REALITY?
+Date: Fri, 23 Jul 2004 23:22:23 +0200
+In-Reply-To: <20040723140527.7e3c119a@dell_ss3.pdx.osdl.net> (Stephen
+ Hemminger's message of "Fri, 23 Jul 2004 14:05:27 -0700")
+Message-ID: <jeoem65shc.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Fix your boot to not use /dev/root, but an actual partition number.
+Stephen Hemminger <shemminger@osdl.org> writes:
 
-Thanks for the suggestion, but booting is fine.
+> --- linux-2.6/include/linux/list.h	2004-07-23 09:36:18.000000000 -0700
+> +++ tcp-2.6/include/linux/list.h	2004-07-23 11:43:25.000000000 -0700
+> @@ -620,13 +620,12 @@
+>  
+>  #define hlist_entry(ptr, type, member) container_of(ptr,type,member)
+>  
+> -/* Cannot easily do prefetch unfortunately */
+>  #define hlist_for_each(pos, head) \
+>  	for (pos = (head)->first; pos && ({ prefetch(pos->next); 1; }); \
+>  	     pos = pos->next)
+>  
+>  #define hlist_for_each_safe(pos, n, head) \
+> -	for (pos = (head)->first; n = pos ? pos->next : NULL, pos; \
+> +	for (pos = (head)->first; pos && ({ n = pos->next; 1; }); \
 
->What's happening is that /dev/sda3 is *both* your /mnt/target *and* your
->root filesystem.  So when you start rm -rf'ing, you trash your root filesystem
->and things go pear-shaped.
+What's wrong with using the comma operator instead of non-standard
+statement expressions?
 
-/dev/sda2 is / under 2.4
-/dev/sda3 is /mnt/target under 2.4
-/dev/sda3 is / under 2.6 
-2.6 doesn't mount /dev/sda2.
+Andreas.
 
-title Red Hat Linux (2.4.20-31.9smp)
-        root (hd1,0)
-        kernel /vmlinuz-2.4.20-31.9smp ro root=/dev/sda2 hdd=ide-scsi
-        initrd /initrd-2.4.20-31.9smp.img
-title Test (2.6.7)
-        root (hd1,2)
-        kernel /boot/vmlinuz-2.6.7-1.437.build ro root=0803 hdd=ide-scsi
-        initrd /boot/initrd-2.6.7-1.437.build.img
-
-They both use different fstabs.
-
-The problem is not that I trash my root filesystem under 2.4, my problem is I
-cannot unmount /mnt/target after I have been in SE Linux and ran fixfiles. My
-method of recovery is to remove files from /mnt/target until I get corruption
-detected at boot which finally lets me run mke2fs to get it back.
-
-What I really wished is that I can unmount the filesystem, run mke2fs, remount it
-and start doing whatever. My root filesystem is fine. /mnt/target is fine as long
-as I don't run fixfiles.
-
-BUT...this does point out the corruption that I have come to depend on...which is
-wrong.
-
-Best Regards,
--Steve Grubb
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-Vote for the stars of Yahoo!'s next ad campaign!
-http://advision.webevents.yahoo.com/yahoo/votelifeengine/
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

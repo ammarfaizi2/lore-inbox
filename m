@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268012AbTAIXwC>; Thu, 9 Jan 2003 18:52:02 -0500
+	id <S268061AbTAIXyi>; Thu, 9 Jan 2003 18:54:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268051AbTAIXwC>; Thu, 9 Jan 2003 18:52:02 -0500
-Received: from 12-211-138-234.client.attbi.com ([12.211.138.234]:51570 "EHLO
-	vlad.geekizoid.com") by vger.kernel.org with ESMTP
-	id <S268012AbTAIXwB>; Thu, 9 Jan 2003 18:52:01 -0500
-Reply-To: <vlad@geekizoid.com>
-From: "Vlad@Vlad.geekizoid.com" <vlad@vlad.geekizoid.com>
-To: <rms@gnu.org>
-Cc: "Lkml \(E-mail\)" <linux-kernel@vger.kernel.org>
-Subject: Linux/Hurd vs GNU/Linux (was Re: Nvidia and its choice to read the GPL "differently")
-Date: Thu, 9 Jan 2003 18:01:11 -0600
-Message-ID: <014801c2b83b$62fe4f10$0200a8c0@wsl3>
+	id <S268065AbTAIXyh>; Thu, 9 Jan 2003 18:54:37 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6415 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268061AbTAIXy3>; Thu, 9 Jan 2003 18:54:29 -0500
+Date: Thu, 9 Jan 2003 15:35:32 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Grant Grundler <grundler@cup.hp.com>, Paul Mackerras <paulus@samba.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, <davidm@hpl.hp.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <greg@kroah.com>
+Subject: Re: [patch 2.5] 2-pass PCI probing, generic part
+In-Reply-To: <20030110021904.A15863@localhost.park.msu.ru>
+Message-ID: <Pine.LNX.4.44.0301091531260.1506-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <E18WlsS-0000Xp-00@fencepost.gnu.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Your last sentence there is telling.  Hurd is both GNU and Linux, yet you
-don't seem to be interested in giving credit where credit is due.  If you
-can't do that, you don't have any credibility left.
 
------Original Message-----
-From: Richard Stallman [mailto:rms@gnu.org]
-Sent: Thursday, January 09, 2003 5:14 PM
-To: Vlad@Vlad.geekizoid.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Nvidia and its choice to read the GPL "differently"
+On Fri, 10 Jan 2003, Ivan Kokshaysky wrote:
+> 
+> PCI-PCI, PCI-ISA bridges - probably, but not host bridges. On x86 they
+> often have quite a few BARs, like AGP window, AGP MMIO, power management
+> etc., which we cannot ignore.
 
-I would expect that both GNU code and Linux make up smaller fractions
-of current GNU/Linux distros, because so many other programs have been
-added over the years.  It's a good thing that so many free programs
-have been developed, and that so many people have contributed, but
-this doesn't change the system's history.  It started out as the
-combination of GNU and Linux.
+Oh, but we _can_ ignore it.
+
+All those things are stuff that if the kernel doesn't use them, the kernel 
+doesn't even need to know they are there. 
+
+Sure, if we support AGP, we need to see the aperture size etc, but then 
+we'd have the AGP driver just do the "pci_enable_dev()" thing to work it 
+out.
+
+The only real reason to worry about BAR sizing is really to do resource
+discovery in order to make sure that out bridges have sufficiently big
+windows for the IO regions. Agreed?
+
+And that should be a non-issue especially on a host bridge, since we 
+almost certainly don't want to reprogram the bridge windows there anyway.
+
+So I'd like to make the _default_ be to probe the minimal possible, 
+_especially_ for host bridges. Then, the PCI quirks could be used to 
+expand on that default.
+
+		Linus
 

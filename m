@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbUKSVYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbUKSVeb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261589AbUKSVYm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 16:24:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbUKSVYD
+	id S261571AbUKSVeb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 16:34:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbUKSVeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 16:24:03 -0500
-Received: from nevyn.them.org ([66.93.172.17]:57529 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S261571AbUKSVXw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 16:23:52 -0500
-Date: Fri, 19 Nov 2004 16:23:28 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Eric Pouech <pouech-eric@wanadoo.fr>
-Cc: Linus Torvalds <torvalds@osdl.org>, Roland McGrath <roland@redhat.com>,
-       Mike Hearn <mh@codeweavers.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
-Subject: Re: ptrace single-stepping change breaks Wine
-Message-ID: <20041119212327.GA8121@nevyn.them.org>
-Mail-Followup-To: Eric Pouech <pouech-eric@wanadoo.fr>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Roland McGrath <roland@redhat.com>, Mike Hearn <mh@codeweavers.com>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	wine-devel <wine-devel@winehq.com>
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> <419E42B3.8070901@wanadoo.fr> <Pine.LNX.4.58.0411191119320.2222@ppc970.osdl.org> <419E4A76.8020909@wanadoo.fr> <Pine.LNX.4.58.0411191148480.2222@ppc970.osdl.org> <419E5A88.1050701@wanadoo.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <419E5A88.1050701@wanadoo.fr>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 19 Nov 2004 16:34:31 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:13068 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S261571AbUKSVe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 16:34:28 -0500
+Message-ID: <419E66D1.8000304@techsource.com>
+Date: Fri, 19 Nov 2004 16:34:09 -0500
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Blocking access to a PCI device for "a long time"?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 19, 2004 at 09:41:44PM +0100, Eric Pouech wrote:
-> >Btw, does wine ever _use_ PTRACE_SINGLESTEP for any of the things it does?
-> >
-> >If it does, then that woulc certainly explain why my "fix" made no 
-> >difference: my fix _only_ handles the case where the ptracer never 
-> >actually asks for single-stepping, and single-stepping was started 
-> >entirely by the program being run (ie by setting TF in eflags from within 
-> >the program itself).
-> >
-> >But if wine ends up using PTRACE_SINGESTEP because wine actually wants to 
-> >single-step over some instructions, then the kernel will set the PT_DTRACE 
-> >bit, and start tracing through signal handlers too. The way Wine doesn't 
-> >want..
-> 
-> wine mixes both approches, we have (to control what's generated inside the 
-> various exception) to ptrace from our NT-kernel-like process (the ptracer) 
-> to get the context of the exception. Restart from the ptracer is done with 
-> PTRACE_SINGLESTEP.
+Some of you may have followed the earlier discussions on the open 
+graphics card.  One problem is that we are trying to fit a lot of logic 
+into a small area, so one thing we're considering is having multiple 
+FPGA bitfiles in the PROM.  When changing modes (ie. from VGA to 3D), 
+the driver would instruct the FPGA to reload itself from a different 
+part of the bitfile PROM.
 
-I'm getting the feeling that the question of whether to step into
-signal handlers is orthogonal to single-stepping; maybe it should be a
-separate ptrace operation.
+The issue here is that it's a complete reload of the FPGA which makes it 
+completely lose all configuration state, which includes PCI config. 
+Thus, the process for switching modes would go something like this:
 
-Platforms which don't implement PTRACE_SINGLESTEP would probably
-appreciate this.  A "single step" which stops you after setting up the
-signal trampoline and adjusting the PC, before executing any
-instructions in the handler.
+- Make sure that nothing can get confused by the device "going away" on 
+the PCI/AGP bus, using whatever kernel locks are necessary
+- Save PCI config state of device
+- Instruct the FPGA to reload itself
+- Wait many, many, many, many milliseconds
+- Reload PCI config state
+- Unlock and continue
 
--- 
-Daniel Jacobowitz
+Other drivers accessing the bus for other devices is PROBABLY not a 
+problem, but nothing can touch the GPU while it's reloading.
+
+Are there any problems with this approach that would make it a really 
+bad idea?

@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262244AbSIZINb>; Thu, 26 Sep 2002 04:13:31 -0400
+	id <S262239AbSIZIJx>; Thu, 26 Sep 2002 04:09:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262245AbSIZINb>; Thu, 26 Sep 2002 04:13:31 -0400
-Received: from holomorphy.com ([66.224.33.161]:16548 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262244AbSIZINa>;
-	Thu, 26 Sep 2002 04:13:30 -0400
-Date: Thu, 26 Sep 2002 01:18:11 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Michael Clark <michael@metaparadigm.com>
-Cc: "David S. Miller" <davem@redhat.com>, jgarzik@pobox.com, axboe@suse.de,
-       akpm@digeo.com, linux-kernel@vger.kernel.org, patman@us.ibm.com,
-       andmike@us.ibm.com
+	id <S262240AbSIZIJx>; Thu, 26 Sep 2002 04:09:53 -0400
+Received: from [203.117.131.12] ([203.117.131.12]:50124 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S262239AbSIZIJx>; Thu, 26 Sep 2002 04:09:53 -0400
+Message-ID: <3D92C206.2050905@metaparadigm.com>
+Date: Thu, 26 Sep 2002 16:15:02 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+Cc: jgarzik@pobox.com, wli@holomorphy.com, axboe@suse.de, akpm@digeo.com,
+       linux-kernel@vger.kernel.org, patman@us.ibm.com, andmike@us.ibm.com
 Subject: Re: [PATCH] deadline io scheduler
-Message-ID: <20020926081811.GL3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Michael Clark <michael@metaparadigm.com>,
-	"David S. Miller" <davem@redhat.com>, jgarzik@pobox.com,
-	axboe@suse.de, akpm@digeo.com, linux-kernel@vger.kernel.org,
-	patman@us.ibm.com, andmike@us.ibm.com
-References: <3D92B450.2090805@pobox.com> <20020926.001343.57159108.davem@redhat.com> <3D92B83E.3080405@pobox.com> <20020926.003503.35357667.davem@redhat.com> <3D92C206.2050905@metaparadigm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D92C206.2050905@metaparadigm.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+References: <3D92B450.2090805@pobox.com>	<20020926.001343.57159108.davem@redhat.com>	<3D92B83E.3080405@pobox.com> <20020926.003503.35357667.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 04:15:02PM +0800, Michael Clark wrote:
-> What are people out there using with their QLA 2200/2300s?
-> ~mc
-
-I'm using the qla 61b5 release of the qla2xxx on a qla2310.
-I've not tried Matt Jacob's drivers.
 
 
-Cheers,
-Bil
+On 09/26/02 15:35, David S. Miller wrote:
+>    From: Jeff Garzik <jgarzik@pobox.com>
+>    Date: Thu, 26 Sep 2002 03:33:18 -0400
+>    
+>    Just dug up the URL, in case anybody is interested:
+>    http://www.feral.com/isp.html
+
+Would be nice to have a stable qlogic driver in the main kernel.
+
+Although last time i tried Matt Jabob's driver, it locked up
+after 30 seconds of running bonnie. At least with Qlogic's
+driver I can run bonnie and cerberus continuously for 2 weeks
+with no problems (although this may have been because
+Matt's driver ignored the command queue throttle set in the
+qlogic cards BIOS).
+
+> Note there is a bitkeeper tree to pull from even :-)
+
+The qlogic HBAs are a real problem in choosing which driver
+to use out of:
+
+in kernel qlogicfc
+Qlogic's qla2x00 v4.x, v5.x, v6.x
+Matthew Jacob's isp_mod
+
+What are people out there using with their QLA 2200/2300s?
+
+~mc
+

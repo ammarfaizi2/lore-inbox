@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261294AbREQH2N>; Thu, 17 May 2001 03:28:13 -0400
+	id <S261264AbREQHYl>; Thu, 17 May 2001 03:24:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261375AbREQH2F>; Thu, 17 May 2001 03:28:05 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:27663 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S261294AbREQH1p>;
-	Thu, 17 May 2001 03:27:45 -0400
-Date: Thu, 17 May 2001 03:26:36 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Jes Sorensen <jes@sunsite.dk>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 design philosophy heads-up
-Message-ID: <20010517032636.A1109@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Pavel Machek <pavel@suse.cz>, Jes Sorensen <jes@sunsite.dk>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010505192731.A2374@thyrsus.com> <d33da9tjjw.fsf@lxplus015.cern.ch> <20010513112543.A16121@thyrsus.com> <20010515144325.A38@toy.ucw.cz>
+	id <S261265AbREQHYb>; Thu, 17 May 2001 03:24:31 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:64683 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S261294AbREQHYV>;
+	Thu, 17 May 2001 03:24:21 -0400
+Date: Tue, 15 May 2001 16:17:52 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Getting FS access events
+Message-ID: <20010515161750.B38@toy.ucw.cz>
+In-Reply-To: <Pine.LNX.4.21.0105142054180.23578-100000@penguin.transmeta.com> <Pine.LNX.4.21.0105142130480.23663-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010515144325.A38@toy.ucw.cz>; from pavel@suse.cz on Tue, May 15, 2001 at 02:43:27PM +0000
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.21.0105142130480.23663-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, May 14, 2001 at 09:43:18PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz>:
-> And If I want scsi-on-atapi emulation but not vme147_scsi?
+Hi!
 
-Help me understand this case, please.  What is scsi-on-atapi?
-Is SCSI on when you enable it?  And is it a realistic case for an SBC?
+> I'm really serious about doing "resume from disk". If you want a fast
+> boot, I will bet you a dollar that you cannot do it faster than by loading
+> a contiguous image of several megabytes contiguously into memory. There is
+> NO overhead, you're pretty much guaranteed platter speeds, and there are
+> no issues about trying to order accesses etc. There are also no issues
+> about messing up any run-time data structures.
 
-The CML2 constraint language is very flexible.  I can make it do the
-right thing, if I know what the right thing is.
+resume from disk is actually pretty hard to do in way it is readed linearily.
+
+While playing with swsusp patches (== suspend to disk) I found out that
+it was slow. It needs to do atomic snapshot, and only reasonable way to
+do that is free half of RAM, cli() and copy.
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 
-Where rights secured by the Constitution are involved, there can be no
-rule making or legislation which would abrogate them.
-        -- Miranda vs. Arizona, 384 US 436 p. 491

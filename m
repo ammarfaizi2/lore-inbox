@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278320AbRJSHe0>; Fri, 19 Oct 2001 03:34:26 -0400
+	id <S278329AbRJSHt7>; Fri, 19 Oct 2001 03:49:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278328AbRJSHeH>; Fri, 19 Oct 2001 03:34:07 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37194 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S278320AbRJSHd6>; Fri, 19 Oct 2001 03:33:58 -0400
-To: "Brian C. Thomas" <bcthomas@nature.Berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: severe performance degradation on serverworks with high mem
-In-Reply-To: <20011018125714.A360@nature.Berkeley.edu>
-	<20011018144504.B134@nature.Berkeley.edu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 19 Oct 2001 01:24:09 -0600
-In-Reply-To: <20011018144504.B134@nature.Berkeley.edu>
-Message-ID: <m1sncgnld2.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
+	id <S278330AbRJSHtt>; Fri, 19 Oct 2001 03:49:49 -0400
+Received: from denise.shiny.it ([194.20.232.1]:28621 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S278329AbRJSHte>;
+	Fri, 19 Oct 2001 03:49:34 -0400
+Message-ID: <XFMail.20011019095006.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <20011018194415.S12055@athlon.random>
+Date: Fri, 19 Oct 2001 09:50:06 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Poor floppy performance in kernel 2.4.10
+Cc: Andrea Arcangeli <andrea@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Brian C. Thomas" <bcthomas@nature.Berkeley.edu> writes:
 
-> Hi
-> 
-> I don't know if this helps, but I seem to have stumbled onto a
-> possible "fix" for this...
-> 
-> With 64GB high memory enabled in kernel 2.4.12-ac3, and mtrr turned
-> on, I was able to see all 8GB RAM on my machine by using the old
-> 'append="mem=8000M"' command in my lilo.conf file... AND WITH NO LOSS
-> OF PERFORMANCE!
-> 
-> Does that help anyone with defining where this problem is coming from?
+> Indeed, only 2.2 trusted the check media change information and left the
+> cache valid on top of the floppy across close/open of the blkdev.
 
-cat /proc/mtrr and see what the mtrrs look like.  It feels like there you
-have a spot of RAM the BIOS doesn't cover with mtrrs.
+Which is not a bad thing IMHO, but it can cause problems with
+some broken SCSI implementation where the drive doesn't send
+UNIT_ATTENTION after a media change (like my MO drive when I
+misconfigured the jumpers, damn :-((( ).
 
-Eric
+
+Bye.
+

@@ -1,66 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264272AbUAHKe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 05:34:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264267AbUAHKe0
+	id S264290AbUAHKhy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 05:37:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbUAHKhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 05:34:26 -0500
-Received: from fw.osdl.org ([65.172.181.6]:64390 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264272AbUAHKeW (ORCPT
+	Thu, 8 Jan 2004 05:37:54 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:37826 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S264290AbUAHKhp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 05:34:22 -0500
-Date: Thu, 8 Jan 2004 02:33:56 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jan Kasprzak <kas@informatics.muni.cz>
-Cc: nathans@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: Fw: Performance drop 2.6.0-test7 -> 2.6.1-rc2
-Message-Id: <20040108023356.00db9dec.akpm@osdl.org>
-In-Reply-To: <20040108112547.G20265@fi.muni.cz>
-References: <20040107023042.710ebff3.akpm@osdl.org>
-	<20040107215240.GA768@frodo>
-	<20040108105427.E20265@fi.muni.cz>
-	<20040108021637.15d1b33a.akpm@osdl.org>
-	<20040108112547.G20265@fi.muni.cz>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 8 Jan 2004 05:37:45 -0500
+Date: Thu, 8 Jan 2004 02:39:04 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Joe Korty <joe.korty@ccur.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: seperator error in __mask_snprintf_len
+Message-Id: <20040108023904.60b341da.pj@sgi.com>
+In-Reply-To: <20040108033224.GA13325@rudolph.ccur.com>
+References: <20040107165607.GA11483@rudolph.ccur.com>
+	<20040107170650.0fca07a7.pj@sgi.com>
+	<20040108033224.GA13325@rudolph.ccur.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kasprzak <kas@informatics.muni.cz> wrote:
->
-> Andrew Morton wrote:
-> : Jan Kasprzak <kas@informatics.muni.cz> wrote:
-> : >  - this is reliable: repeated boot back to 2.6.1-rc2 makes the problem
-> : >  	appear again (high load, system slow has hell), booting back
-> : >  	to -test7 makes it disappear.
-> : 
-> : Is the CPU load higher than normal?  Excluding I/O wait?
+Joe noted:
+> Paul, there might be a problem with __mask_snprintf_len.  Won't a
+> value that should be displayed as:
 > 
-> 	No, ~30% system is pretty standard for this server. I have looked
-> just now (2.6.0-test7), and I have 33% system, about 50% nice,
-> and the rest is user, iowait and idle. Under 2.6.1-rc2 it was about 30%
-> system and the rest iowait, with small amount of nice and user.
-> However, the load may be different. It is hard to have any kind of
-> "fixed" load when you serve data over FTP, HTTP, rsync and do some
-> other minor tasks (updatedb, current/up2date server, ...).
+>      d,00abcdef      be displayed as
+>      d,abcdef
 
-OK.
+You are correct that it will be displayed without zero padding.
 
-> 	Do you still want the system profiling info?
+But I don't think that's a problem; rather working as designed.
 
-Nope.
+An example that suggests the motivation for this design choice is given
+in the examples in the mask.c comment:
 
-It would be interesting to run some simple benchmarks (dbench, iozone,
-tiobench, etc) on a relatively idle system.
+ *   A mask with just bit 127 set displays as "80000000,0,0,0".
 
-After that, it'd be a matter of searching through kernel versions, which
-you presumably cannot do.  Or eliminating device mapper from the picture,
-which is also presumably not an option.
+With zero padding, this example gets longer.  For masks of 500 or a 1000
+bits encoding a single high set bit, it's worse, resulting in several
+text lines of ",00000000" words.
 
+If you have reason to claim that it would be better to zero fill
+these words, go ahead and make your case.
 
-Have you run `hdparm' to check that all those disks have DMA enabled?  I
-guess they have.
+There are hundreds of possible ways of formatting the ascii
+representation of bit masks; I picked one that I liked.  If good reasons
+or a concensus develop for some other format, that's fine.
+Better to change now than later.
 
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

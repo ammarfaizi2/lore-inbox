@@ -1,108 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265009AbUF1PUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265027AbUF1PUY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265009AbUF1PUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 11:20:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265025AbUF1PUQ
+	id S265027AbUF1PUY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 11:20:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265025AbUF1PUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 11:20:16 -0400
-Received: from waste.org ([209.173.204.2]:29662 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S265009AbUF1PUE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 11:20:04 -0400
-Date: Mon, 28 Jun 2004 10:19:55 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: netconsole hangs w/ alt-sysrq-t
-Message-ID: <20040628151954.GH25826@waste.org>
-References: <16519.58589.773562.492935@segfault.boston.redhat.com> <20040425191543.GV28459@waste.org> <16527.42815.447695.474344@segfault.boston.redhat.com> <20040428140353.GC28459@waste.org> <16527.47765.286783.249944@segfault.boston.redhat.com> <20040428142753.GE28459@waste.org> <16527.63123.869014.733258@segfault.boston.redhat.com> <16604.18881.850162.785970@segfault.boston.redhat.com> <20040625232711.GE25826@waste.org> <16608.12233.39964.940020@segfault.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16608.12233.39964.940020@segfault.boston.redhat.com>
-User-Agent: Mutt/1.3.28i
+	Mon, 28 Jun 2004 11:20:24 -0400
+Received: from mail009.syd.optusnet.com.au ([211.29.132.64]:7077 "EHLO
+	mail009.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265027AbUF1PUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 11:20:11 -0400
+Message-ID: <40E03713.9010208@kolivas.org>
+Date: Tue, 29 Jun 2004 01:19:47 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Oswald Buddenhagen <ossi@kde.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Staircase scheduler v7.4
+References: <200406251840.46577.mbuesch@freenet.de> <200406261929.35950.mbuesch@freenet.de> <1088363821.1698.1.camel@teapot.felipe-alfaro.com> <200406272128.57367.mbuesch@freenet.de> <1088373352.1691.1.camel@teapot.felipe-alfaro.com> <Pine.LNX.4.58.0406281013590.11399@kolivas.org> <1088412045.1694.3.camel@teapot.felipe-alfaro.com> <40DFDBB2.7010800@yahoo.com.au> <1088423626.1699.0.camel@teapot.felipe-alfaro.com> <40E00AEA.4050709@kolivas.org> <20040628150343.GD2478@ugly.local>
+In-Reply-To: <20040628150343.GD2478@ugly.local>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 28, 2004 at 10:48:41AM -0400, Jeff Moyer wrote:
-> ==> Regarding Re: netconsole hangs w/ alt-sysrq-t; Matt Mackall <mpm@selenic.com> adds:
-> 
-> [snip]
-> 
-> mpm> Huh. I'm not sure if that covers everything.
-> 
-> mpm> We want to:
-> 
-> mpm> a) push stuff through netpoll_rx() iff rx is enabled b) drop packets
-> mpm> when netpoll_rx() says to c) drop packets when we're trapped for
-> mpm> debugging/netdump d) drop packets when we manually call dev->poll e)
-> mpm> keep as little overhead as possible
-> 
-> mpm> The above breaks (a) when we're not trapped (consider breaking in with
-> mpm> debugger) and (b) in any case.
-> 
-> mpm> My current thought is we want to get this down to a single test in the
-> mpm> fastpath by replacing netpoll_rx in skb->dev with a flag that is equal
-> mpm> to netpoll_trapped() | dev->netpoll_rx, which we manipulate when call
-> dev-> poll within netpoll.
-> 
-> mpm> How's that sound?
-> 
-> That sounds fine.  So, in the netif_receive_skb function, we'd now have
-> something like:
-> 
-> 	if (skb->dev->netpoll_rx && netpoll_rx(skb)) {
-> 		kfree_skb(skb);
-> 		return NET_RX_DROP;
-> 	}
-> 
-> I removed the test for skb->dev->poll, since this is the NAPI code path, I
-> think it should always be present, right?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-No, I think we get to this on the non-NAPI route as well. The ->poll
-check keeps us from filtering twice.
+Oswald Buddenhagen wrote:
+| On Mon, Jun 28, 2004 at 10:11:22PM +1000, Con Kolivas wrote:
+|
+|>The design of staircase would make renicing normal interactive things
+|>-ve values bad for the latency of other nice 0 tasks s is not
+|>recommended for X or games etc. Initial scheduling latency is very
+|>dependent on nice value in staircase. If you set a cpu hog to nice -5
+|>it will hurt audio at nice 0 and so on.
+|>
+|
+| i think using nice for both cpu share and latency is broken by design ...
+| a typical use case on my system: for real-time tv recording i need
+| mencoder to get some 80% of the cpu time on average. that means i have
+| to nice -<something "big"> it to prevent compiles, flash plugins running
+| amok, etc. from making mencoder explode (i.e., overrun buffers). but that
+| entirely destroys interactivity; in fact the desktop becomes basically
+| unusable.
 
-> And then at the top of the netpoll_rx routine:
-> 
-> 	if (!(skb->dev->netpoll_rx & NETPOLL_RX_ENABLED))
-> 		goto out;
+You want mencoder to use 80% of your cpu and be scheduled fast enough to
+not drop frames. Sounds to me like both latency and cpu share are
+required, no? And if something uses up 80% of your cpu your
+interactivity drops. Why is that a surprise? If something wants lower
+latency but doesnt want a lot of cpu, it will only use what it wants. I
+don't see a problem here.
 
-Let's explicitly return 1.
- 
-> The routine, as before, returns the value of trapped.  And now,
-> netpoll_poll would do this:
-> 
-> 	if(np->dev->poll && test_bit(__LINK_STATE_RX_SCHED, &np->dev->state)) {
-> 		np->dev->netpoll_rx |= NETPOLL_RX_TRAPPED;
-> 		if (trapped)
-> 			np->dev->poll(np->dev, &budget);
-> 		else {
-> 			trapped = 1;
-> 			np->dev->poll(np->dev, &budget);
-> 			trapped = 0;
-> 		}
-> 		np->dev->netpoll_rx &= ~NETPOLL_RX_TRAPPED;
-> 	}
-> 
-> Is this more in line with what you had in mind? 
+If X is not smooth, then that is a problem. This scheduler is still
+under development.
 
-Yes. Let's make that NETPOLL_RX_DROP to disambiguate the
-trapped/dropped-for-polling. And we can do a simple
-increment/decrement on trapped itself - but do we still need it here
-now that we've shorted out the NAPI path with RX_DROP?
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-There might be some new atomicity or memory barrier issues here, be
-mindful.
-
-> One thing I would consider changing, here, is having
-> netpoll_set_trap take a struct netpoll argument. That way, we could
-> have netpoll_set_trap manipulate the NETPOLL_RX_TRAPPED bit. This
-> would make the trap specific to each interface, but I think that may
-> be desirable.
-
-It doesn't really make sense for trapped to be non-global - it means
-the machine is in polling-only mode, eg debugger or the like. It's
-rather misusing it to kill the NAPI receive side for netpoll_poll.
-
--- 
-Mathematics is the supreme nostalgia of our time.
+iD8DBQFA4DcTZUg7+tp6mRURAirZAJ9703erbnS4UikDhpXGn41JuHxaqgCeIshy
+099yGuzDyg3BLCEI5/S5xLo=
+=xuB1
+-----END PGP SIGNATURE-----

@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268157AbUIKOKR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268158AbUIKOK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268157AbUIKOKR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 10:10:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268155AbUIKOKR
+	id S268158AbUIKOK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 10:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268159AbUIKOK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 10:10:17 -0400
-Received: from zero.aec.at ([193.170.194.10]:36357 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S268157AbUIKOJr (ORCPT
+	Sat, 11 Sep 2004 10:10:29 -0400
+Received: from ozlabs.org ([203.10.76.45]:26347 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268158AbUIKOK0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 10:09:47 -0400
-To: SashaK <sashak@smlink.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97 
- patch)
-References: <2DdiX-6ye-17@gated-at.bofh.it> <2Dfup-7Zv-9@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 11 Sep 2004 16:09:41 +0200
-In-Reply-To: <2Dfup-7Zv-9@gated-at.bofh.it> (sashak@smlink.com's message of
- "Sat, 11 Sep 2004 14:50:09 +0200")
-Message-ID: <m3k6v0lwwq.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Sat, 11 Sep 2004 10:10:26 -0400
+Date: Sun, 12 Sep 2004 00:10:02 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, Simon Derr <Simon.Derr@bull.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch 4/4] cpusets top mask just online, not all possible
+Message-ID: <20040911141001.GD32755@krispykreme>
+References: <20040911082810.10372.86008.84920@sam.engr.sgi.com> <20040911082834.10372.51697.75658@sam.engr.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040911082834.10372.51697.75658@sam.engr.sgi.com>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SashaK <sashak@smlink.com> writes:
 
-> On Sat, 11 Sep 2004 12:26:00 +0200 (MEST)
-> Mikael Pettersson <mikpe@csd.uu.se> wrote:
->
->> I hope you succeed with open-sourcing all of slmodem's driver
->> code. My Targa Athlon64 laptop has the AMR thingy and the
->> 32-bit x86 binary only slmodem driver prevents me from using
->> the modem while running a 64-bit kernel.
->
-> You mean to GPL user-space program slmodemd?
-> I think it is good idea, but unfortunately this code is not just my, and
-> final decision was 'no'.
+Hi Paul,
 
-One way that would work is to make the binary parts of your driver run
-in user space and let the kernel part just provide a kind of simple
-sound card.  The later should be much easier to free.
+> Initialize the top cpuset to only have the online
+> CPUs and Nodes, rather than all possible.  This
+> seems more natural to the observer.
 
-Modern CPUs are usually fast enough that the additional latency
-caused by this doesn't matter.
+How does this change interact with CPU hotplug?
 
-The 64bit kernel can run 32bit programs without problems.
-
--Andi
-
+Anton

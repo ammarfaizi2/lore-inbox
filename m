@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316823AbSFDVaR>; Tue, 4 Jun 2002 17:30:17 -0400
+	id <S316826AbSFDVd2>; Tue, 4 Jun 2002 17:33:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316828AbSFDVaP>; Tue, 4 Jun 2002 17:30:15 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:64758 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S316823AbSFDVaM>; Tue, 4 Jun 2002 17:30:12 -0400
-Subject: [PATCH] remove fsuser()
-From: Robert Love <rml@tech9.net>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 04 Jun 2002 14:30:11 -0700
-Message-Id: <1023226211.3904.148.camel@sinai>
-Mime-Version: 1.0
+	id <S316797AbSFDVd1>; Tue, 4 Jun 2002 17:33:27 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:53383 "EHLO geena.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S316826AbSFDVd0>;
+	Tue, 4 Jun 2002 17:33:26 -0400
+Date: Tue, 4 Jun 2002 14:29:21 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@geena.pdx.osdl.net>
+To: "David S. Miller" <davem@redhat.com>
+cc: <anton@samba.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.19] Oops during PCI scan on Alpha
+In-Reply-To: <20020604.142312.23013040.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0206041427260.654-100000@geena.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
 
-Apparently nothing uses fsuser() - else I would of just stuck this on
-the end the last patch...
+On Tue, 4 Jun 2002, David S. Miller wrote:
 
-This patch removes fsuser().  Now both suser() and fsuser() are gone and
-all permission checks use an appropriate capable() call.
+>    From: Patrick Mochel <mochel@osdl.org>
+>    Date: Tue, 4 Jun 2002 14:14:26 -0700 (PDT)
+> 
+>    On Tue, 4 Jun 2002, David S. Miller wrote:
+>    
+>    > Does sys_bus_init require the generic bus layer to be initialized
+>    > first?
+>    
+>    Yes, and it is in drivers/base/bus.c just before sys_bus_init is called.
+> 
+> Linkers are allowed to reorder object files unless you tell them
+> explicitly not to.
+> 
+> This is why you need to put this stuff into a seperate initcall level.
+> This is precisely why I suggest postcore_initcall as the fix.
 
-Patch is against 2.5.20 + previous suser() removal patch.  Please apply.
+Ok, how about just keeping it a subsys_initcall, like it was in the first 
+place? 
 
-	Robert Love
-
-diff -urN linux-2.5.20-rml/include/linux/sched.h linux/include/linux/sched.h
---- linux-2.5.20-rml/include/linux/sched.h	Tue Jun  4 14:18:57 2002
-+++ linux/include/linux/sched.h	Tue Jun  4 14:20:38 2002
-@@ -585,24 +585,6 @@
- extern void free_irq(unsigned int, void *);
- 
- /*
-- * This has now become a routine instead of a macro, it sets a flag if
-- * it returns true (to do BSD-style accounting where the process is flagged
-- * if it uses root privs). The implication of this is that you should do
-- * normal permissions checks first, and check fsuser() last.
-- *
-- * suser() is gone, fsuser() should go soon too...
-- */
--
--static inline int fsuser(void)
--{
--	if (!issecure(SECURE_NOROOT) && current->fsuid == 0) {
--		current->flags |= PF_SUPERPRIV;
--		return 1;
--	}
--	return 0;
--}
--
--/*
-  * capable() checks for a particular capability.
-  * See include/linux/capability.h for defined capabilities.
-  */
-
-
+	-pat
 

@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264747AbTFEQmL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 12:42:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264750AbTFEQmL
+	id S264753AbTFEQnu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 12:43:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264755AbTFEQnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 12:42:11 -0400
-Received: from sccrmhc11.attbi.com ([204.127.202.55]:11989 "EHLO
-	sccrmhc11.attbi.com") by vger.kernel.org with ESMTP id S264747AbTFEQmJ
+	Thu, 5 Jun 2003 12:43:50 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:36760 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264753AbTFEQns
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 12:42:09 -0400
-Message-ID: <3EDF76D0.3080006@kegel.com>
-Date: Thu, 05 Jun 2003 09:58:56 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: m.bagni@marcobagn.com
-CC: linux-kernel@vger.kernel.org
-Subject: re: gcc 3.3-2 complains with arch/i386/meth-emu/poly.h
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Jun 2003 12:43:48 -0400
+Date: Thu, 5 Jun 2003 09:58:31 -0700
+From: Greg KH <greg@kroah.com>
+To: Albert Cahalan <albert@users.sourceforge.net>, msw@redhat.com,
+       tinglett@us.ibm.com, engebret@us.ibm.com, jdewand@redhat.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, davem@redhat.com,
+       torvalds@transmeta.com, bcollins@debian.org, wli@holomorphy.com,
+       tom_gall@vnet.ibm.com, anton@samba.org
+Subject: Re: /proc/bus/pci
+Message-ID: <20030605165831.GA5235@kroah.com>
+References: <1054783303.22104.5569.camel@cube>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1054783303.22104.5569.camel@cube>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marco,
-thanks for your post - yes, we definitely need to be able to
-compile with gcc-3.3.  Since it looks like you're a newcomer,
-here are a few tips:
+On Wed, Jun 04, 2003 at 11:21:43PM -0400, Albert Cahalan wrote:
+> I notice that /proc/bus/pci doesn't offer a sane
+> interface for multiple PCI domains and choice of BAR.
+> What do people think of this?
+> 
+> bus/pci/00/00.0 -> ../hose0/bus0/dev0/fn0/config-space
+> bus/pci/hose0/bus0/dev0/fn0/config-space
+> bus/pci/hose0/bus0/dev0/fn0/bar0
+> bus/pci/hose0/bus0/dev0/fn0/bar1
+> bus/pci/hose0/bus0/dev0/fn0/bar2
+> bus/pci/hose0/bus0/dev0/fn0/status
+> 
+> Then with some mmap flags, the nasty ioctl() stuff
+> won't be needed anymore. It can die during 2.7.xx
+> development. If MAP_MMIO isn't generally acceptable,
+> then it could be via filename suffixes. (eeew, IMHO)
+> 
+> One remaining problem is permission. Any complaints
+> about implementing chmod() for those? Since this
+> does bypass capabilities, a mount option might be
+> used to enable it.
+> 
+> As alternatives to /proc changes, a distinct filesystem
+> could be developed or sysfs could be abused.
 
-When you post changes like this,
-please mention which version of the kernel source you're starting from.
+Matt Wilson and I have been talking about some changes like this
+recently.  This was because some of the ppc64 ports are doing some other
+weird things to try to handle the bigger IBM machines (they were abusing
+the pci structures pretty badly, not pretty stuff.)
 
-Also, the preferred format for posting
-changes like this is as an inline patch; see
-http://www.tux.org/lkml/#s1-10
-http://www.tux.org/lkml/#s4-1
-http://www.kegel.com/academy/opensource.html#patches
+We agreed that we should call this a "domain", too, and he has a patch
+that he says works for X.
 
-Finally, check a recent version of the kernel before posting a patch.
-It looks like this issue has been fixed in 2.5; see
-http://lxr.linux.no/source/arch/i386/math-emu/poly.h?v=2.5.56
-You might want to check 2.4.21-pre6 to see if it's been
-fixed there yet, and if not, submit a patch to Marcello,
-preferably using the same approach used in the 2.5 fix.
-- Dan
+Hopefully this prod will get him to send out his patch :)
 
--- 
-Dan Kegel
-http://www.kegel.com
-http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
+thanks,
 
+greg k-h

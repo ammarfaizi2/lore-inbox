@@ -1,82 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263301AbTIVVVb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 17:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbTIVVVb
+	id S261157AbTIVV2A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 17:28:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbTIVV17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 17:21:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:49575 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263301AbTIVVV3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 17:21:29 -0400
-Message-Id: <200309222121.h8MLLNU24573@mail.osdl.org>
-Date: Mon, 22 Sep 2003 14:21:20 -0700 (PDT)
-From: markw@osdl.org
-Subject: DBT-2 STP Results History for 2.6.0-test
-To: linux-kernel@vger.kernel.org, linstab@osdl.org
+	Mon, 22 Sep 2003 17:27:59 -0400
+Received: from smtp5.hy.skanova.net ([195.67.199.134]:7370 "EHLO
+	smtp5.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S261157AbTIVV16 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 17:27:58 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: Zilvinas Valinskas <zilvinas@gemtek.lt>, alistair@devzero.co.uk,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: 2.6.0-test5-mm4
+References: <20030922013548.6e5a5dcf.akpm@osdl.org>
+	<200309221317.42273.alistair@devzero.co.uk>
+	<20030922143605.GA9961@gemtek.lt>
+	<20030922115509.4d3a3f41.akpm@osdl.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 22 Sep 2003 23:27:17 +0200
+In-Reply-To: <20030922115509.4d3a3f41.akpm@osdl.org>
+Message-ID: <m2oexc345m.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DBT-2 is an on-line transaction processing (OLTP) workload based on the
-TPC-C.  The following 2.6 history of results are from a 4-way system
-with 4GB of memory using the AS elevator.  From 2.6.0-test5 to
-2.6.0-test5-mm3, it looks like we have improved with about 500 more
-blocks/s I/O with slightly less processor time.
+Andrew Morton <akpm@osdl.org> writes:
 
-The metric, NOTPM, is the number of "New Order" database transactions
-per minute over a 20 minute run (bigger is better).  The "New Order
-transactions" represent about 45% of the transactions of the workload
-and is one of the five transactions in the workload.
+> Zilvinas Valinskas <zilvinas@gemtek.lt> wrote:
+> >
+> > Btw Andrew ,
+> > 
+> > this change  "Synaptics" -> "SynPS/2" - breaks driver synaptic driver
+> > from http://w1.894.telia.com/~u89404340/touchpad/index.html. 
+> > 
+> > 
+> > -static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/
+> > 2", "ImPS/2", "ImExPS/2", "Synaptics"}; 
+> > +static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/2", "ImPS/2", "ImExPS/2", "SynPS/2"};
+> 
+> You mean it breaks the XFree driver?  Is it just a matter of editing
+> XF86Config to tell it the new protocl name?
 
+It breaks the event device auto detection, which works by parsing
+/proc/bus/input/devices. The protocol name is hard coded so you can't
+just change the XF86Config file.
 
-Kernel               Metric Change (%)  URL                                
--------------------- ------ ----------  ----------------------------------------
-linux-2.6.0-test2      1234        N/A  http://khack.osdl.org/stp/279891/  
-linux-2.6.0-test3      1295        4.9  http://khack.osdl.org/stp/279890/  
-linux-2.6.0-test5      1266       -2.2  http://khack.osdl.org/stp/280243/  
-2.6.0-test5-mm3        1338        5.7  http://khack.osdl.org/stp/280185/
+> Either way, it looks like a change which should be reverted?
 
+I think the new protocol name is better, so why not just fix the X
+driver instead. Here is a fixed version:
 
-Some additional profile data between 2.6.0-test5 and 2.6.0-test5-mm3:
-
-METRICS OVER LAST 20 MINUTES:
---------------- -------- ----- ---- -------- -----------------------------------
-Kernel          Elevator NOTPM CPU% Blocks/s URL                                
---------------- -------- ----- ---- -------- -----------------------------------
-2.6.0-test5     as        1266 92.0   9529.6 http://khack.osdl.org/stp/280243/  
-2.6.0-test5-mm3 as        1338 91.3  10000.5 http://khack.osdl.org/stp/280185/  
-
-FUNCTIONS SORTED BY TICKS:
--- ------------------------- ------- ------------------------- -------
- # as 2.6.0-test5            ticks   as 2.6.0-test5-mm3        ticks  
--- ------------------------- ------- ------------------------- -------
- 1 default_idle              5853820 default_idle              5782689
- 2 schedule                    55145 schedule                    57644
- 3 scsi_request_fn             29290 scsi_request_fn             30697
- 4 __make_request              24824 __make_request              26061
- 5 do_softirq                  24069 do_softirq                  26040
- 6 scsi_end_request            13250 scsi_end_request            13169
- 7 dio_bio_end_io              10078 try_to_wake_up              12028
- 8 try_to_wake_up              10054 dio_bio_end_io              10805
- 9 do_anonymous_page            7595 do_anonymous_page            8108
-10 sysenter_past_esp            6484 ipc_lock                     7295
-11 ipc_lock                     6187 sysenter_past_esp            6664
-12 sys_semtimedop               5352 sys_semtimedop               4947
-13 direct_io_worker             4568 direct_io_worker             4358
-14 dio_await_one                3963 __might_sleep                4185
-15 __copy_to_user_ll            3899 __copy_to_user_ll            3813
-16 __mod_timer                  3637 blk_run_queue                3589
-17 __might_sleep                3533 __mod_timer                  3580
-18 blk_run_queue                3424 kmem_cache_alloc             3480
-19 kmem_cache_alloc             3031 dio_await_one                3446
-20 fget_light                   3007 get_request                  3123
-
+http://w1.894.telia.com/~u89404340/touchpad/synaptics-0.11.4.tar.bz2
 
 -- 
-Mark Wong - - markw@osdl.org
-Open Source Development Lab Inc - A non-profit corporation
-12725 SW Millikan Way - Suite 400 - Beaverton, OR 97005
-(503) 626-2455 x 32 (office)
-(503) 626-2436      (fax)
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,55 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266802AbUJFDQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266805AbUJFDVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266802AbUJFDQh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 23:16:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266805AbUJFDQh
+	id S266805AbUJFDVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 23:21:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUJFDVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 23:16:37 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:46044 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S266802AbUJFDQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 23:16:35 -0400
-Date: Wed, 6 Oct 2004 05:17:26 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Robert Love <rml@novell.com>,
-       Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org
-Subject: Re: Preempt? (was Re: Cannot enable DMA on SATA drive (SCSI-libsata, VIA SATA))
-Message-ID: <20041006031726.GK26820@dualathlon.random>
-References: <4136E4660006E2F7@mail-7.tiscali.it> <41634236.1020602@pobox.com> <52is9or78f.fsf_-_@topspin.com> <4163465F.6070309@pobox.com> <41634A34.20500@yahoo.com.au> <41634CF3.5040807@pobox.com> <1097027575.5062.100.camel@localhost> <20041006015515.GA28536@havoc.gtf.org> <41635248.5090903@yahoo.com.au> <20041006020734.GA29383@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041006020734.GA29383@havoc.gtf.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Tue, 5 Oct 2004 23:21:09 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:61701 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S266805AbUJFDVA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 23:21:00 -0400
+Message-ID: <4163645F.3030403@vmware.com>
+Date: Tue, 05 Oct 2004 20:19:59 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Riley@Williams.Name, davej@codemonkey.org.uk,
+       hpa@zytor.com, Andi Kleen <ak@muc.de>
+Subject: Re: [PATCH] i386/gcc bug with do_test_wp_bit
+References: <41634E21.6020808@vmware.com> <Pine.LNX.4.58.0410051903090.8290@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0410051903090.8290@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Oct 2004 03:20:05.0944 (UTC) FILETIME=[604BEB80:01C4AB53]
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.3; VDF: 6.28.0.3; host: mailout1.vmware.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I agree the code obviously looks ok, I will verify against 2.6.9-rc3 
+anyways and send an updated patch that gets a non-tweaked gcc 3.3.3 
+build to boot.  Additional fixes are needed for regparm compliance 
+between prototypes and functions; I've done these for i386, but may have 
+missed some in other architectures.  I'd also like to get rid of the 
+apparently harmless lvalue warnings I get from gcc 3.3.3.
 
-On Tue, Oct 05, 2004 at 10:07:34PM -0400, Jeff Garzik wrote:
-> Hiding that stuff means that users and developers won't see code paths
-> that need fixing.  If users and developers aren't aware of code paths
+I checked the gcc docs but couldn't find any versions where noinline was 
+unsupported, although I should have assumed otherwise.
 
-with any decent profiler places where we're wasting cpus will showup
-immediatatly, one obvious example that I can recall is the pte_chains
-rmap code, that wasn't necessairly high latency but still it was very
-wasteful in terms of cpu, was always at the top of the profiling.
+Zach
 
-So I disagree with your claim that preempt risks to hide inefficient
-code, there are many other (probably easier) ways to detect inefficient
-code than to check the latencies.
+Linus Torvalds wrote:
 
-The one argument I've against preempt is that the claim that preempt
-doesn't spread cond_resched all over the place is false. It can spread
-even more of them as implicit ones. They're not visible to the developer
-but they're visible to the cpu. So disabling preempt and putting
-finegriend cond_resched should allow us to optimize the code better, and
-actually _reduce_ the number of cond_resched (cond_resched as the ones
-visible to the cpu, not the ones visible to the kernel developer).
+>On Tue, 5 Oct 2004, Zachary Amsden wrote:
+>  
+>
+>>I've included a small trivial fix that is harmless for users not using 
+>>gcc 3.3.3.  Testing: my 2.6 kernel now boots when compiled with gcc 
+>>3.3.3 compiler.
+>>    
+>>
+>
+>Thanks. However, it really should use the "noinline" define that we have 
+>for this, and that doesn't upset older versions of gcc that don't 
+>understand the "noinline" attribute. 
+>
+>Also, declaration and definition should match, even if gcc doesn't seem to 
+>catch that.
+>
+>So here's the version I committed. It should be obviously ok, but it's 
+>still a good idea to verify..
+>
+>		Linus
+>
+>---
+># This is a BitKeeper generated diff -Nru style patch.
+>#
+># ChangeSet
+>#   2004/10/05 18:51:53-07:00 torvalds@evo.osdl.org 
+>#   i386: mark do_test_wp_bit() noinline
+>#   
+>#   As reported by Zachary Amsden <zach@vmware.com>,
+>#   some gcc versions will inline the function even when
+>#   it is declared after the call-site. This particular
+>#   function must not be inlined, since the exception
+>#   recovery doesn't like __init sections (which the caller
+>#   is in).
+># 
+># arch/i386/mm/init.c
+>#   2004/10/05 18:51:43-07:00 torvalds@evo.osdl.org +2 -2
+>#   i386: mark do_test_wp_bit() noinline
+>#   
+>#   As reported by Zachary Amsden <zach@vmware.com>,
+>#   some gcc versions will inline the function even when
+>#   it is declared after the call-site. This particular
+>#   function must not be inlined, since the exception
+>#   recovery doesn't like __init sections (which the caller
+>#   is in).
+># 
+>diff -Nru a/arch/i386/mm/init.c b/arch/i386/mm/init.c
+>--- a/arch/i386/mm/init.c	2004-10-05 19:04:53 -07:00
+>+++ b/arch/i386/mm/init.c	2004-10-05 19:04:53 -07:00
+>@@ -45,7 +45,7 @@
+> DEFINE_PER_CPU(struct mmu_gather, mmu_gathers);
+> unsigned long highstart_pfn, highend_pfn;
+> 
+>-static int do_test_wp_bit(void);
+>+static int noinline do_test_wp_bit(void);
+> 
+> /*
+>  * Creates a middle page table and puts a pointer to it in the
+>@@ -673,7 +673,7 @@
+>  * This function cannot be __init, since exceptions don't work in that
+>  * section.  Put this after the callers, so that it cannot be inlined.
+>  */
+>-static int do_test_wp_bit(void)
+>+static int noinline do_test_wp_bit(void)
+> {
+> 	char tmp_reg;
+> 	int flag;
+>  
+>
 
-I wonder if anybody ever counted the number of implicit cond_resched
-placed by preempt and compared them to the number of explicit
-cond_resched needed without preempt.

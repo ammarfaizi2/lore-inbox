@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269692AbUJGFBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269693AbUJGFDD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269692AbUJGFBj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 01:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269693AbUJGFBi
+	id S269693AbUJGFDD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 01:03:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269695AbUJGFDD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 01:01:38 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:63388 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S269692AbUJGFAD (ORCPT
+	Thu, 7 Oct 2004 01:03:03 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:25502 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S269693AbUJGFBt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 01:00:03 -0400
-Date: Wed, 6 Oct 2004 21:57:56 -0700 (PDT)
+	Thu, 7 Oct 2004 01:01:49 -0400
+Date: Wed, 6 Oct 2004 21:59:48 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 X-X-Sender: clameter@schroedinger.engr.sgi.com
 To: George Anzinger <george@mvista.com>
@@ -17,9 +17,9 @@ cc: Ulrich Drepper <drepper@redhat.com>, johnstul@us.ibm.com,
        Ulrich.Windl@rz.uni-regensburg.de, jbarnes@sgi.com, akpm@osdl.org,
        linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com,
        nickpiggin@yahoo.com.au, roland@redhat.com
-Subject: Posix compliant cpu clocks V7 [1/2]: Kernel Patch
+Subject: Re: Posix compliant cpu clocks V7 [2/2]: Glibc patch
 In-Reply-To: <B6E8046E1E28D34EB815A11AC8CA31290322B331@mtv-atc-605e--n.corp.sgi.com>
-Message-ID: <Pine.LNX.4.58.0410062156490.18565@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0410062158030.18565@schroedinger.engr.sgi.com>
 References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
  <Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com>
  <4154F349.1090408@redhat.com> <Pine.LNX.4.58.0409242253080.13099@schroedinger.engr.sgi.com>
@@ -33,306 +33,595 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Index: linux-2.6.9-rc3/kernel/posix-timers.c
+Posix compliant CLOCK_THREAD_CPUTIME_ID and CLOCK_THREAD_CPUTIME_ID
+
+The following patch makes glibc not provide the above clocks. Glibc will
+either return an error or use the kernel interface.
+This also defines all the posix clock routines in such a way that these
+function work as documented by posix. It allows the specification of pids
+when invoking clock_getcpuclockid() and pthread_getcpuclockid to obtain
+the process or task clock of any process in the system.
+
+Patch is cleaned up so that is does not move sections of code around.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: libc/nptl/sysdeps/pthread/pthread_getcpuclockid.c
 ===================================================================
---- linux-2.6.9-rc3.orig/kernel/posix-timers.c	2004-09-29 20:04:47.000000000 -0700
-+++ linux-2.6.9-rc3/kernel/posix-timers.c	2004-10-06 10:39:52.000000000 -0700
-@@ -10,6 +10,10 @@
-  * 2004-06-01  Fix CLOCK_REALTIME clock/timer TIMER_ABSTIME bug.
-  *			     Copyright (C) 2004 Boris Hu
-  *
-+ * 2004-07-27 Provide POSIX compliant clocks
-+ *		CLOCK_PROCESS_CPUTIME_ID and CLOCK_THREAD_CPUTIME_ID.
-+ *		by Christoph Lameter
-+ *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-  * the Free Software Foundation; either version 2 of the License, or (at
-@@ -133,18 +137,10 @@
-  *	    resolution.	 Here we define the standard CLOCK_REALTIME as a
-  *	    1/HZ resolution clock.
-  *
-- * CPUTIME & THREAD_CPUTIME: We are not, at this time, definding these
-- *	    two clocks (and the other process related clocks (Std
-- *	    1003.1d-1999).  The way these should be supported, we think,
-- *	    is to use large negative numbers for the two clocks that are
-- *	    pinned to the executing process and to use -pid for clocks
-- *	    pinned to particular pids.	Calls which supported these clock
-- *	    ids would split early in the function.
-- *
-  * RESOLUTION: Clock resolution is used to round up timer and interval
-  *	    times, NOT to report clock times, which are reported with as
-  *	    much resolution as the system can muster.  In some cases this
-- *	    resolution may depend on the underlaying clock hardware and
-+ *	    resolution may depend on the underlying clock hardware and
-  *	    may not be quantifiable until run time, and only then is the
-  *	    necessary code is written.	The standard says we should say
-  *	    something about this issue in the documentation...
-@@ -162,7 +158,7 @@
-  *
-  *          At this time all functions EXCEPT clock_nanosleep can be
-  *          redirected by the CLOCKS structure.  Clock_nanosleep is in
-- *          there, but the code ignors it.
-+ *          there, but the code ignores it.
-  *
-  * Permissions: It is assumed that the clock_settime() function defined
-  *	    for each clock will take care of permission checks.	 Some
-@@ -192,12 +188,13 @@
- #define p_timer_del(clock,a) \
- 		if_clock_do((clock)->timer_del, do_timer_delete, (a))
+--- libc.orig/nptl/sysdeps/pthread/pthread_getcpuclockid.c	2003-06-24 16:53:20.000000000 -0700
++++ libc/nptl/sysdeps/pthread/pthread_getcpuclockid.c	2004-10-06 21:13:00.382271104 -0700
+@@ -20,7 +20,7 @@
+ #include <pthreadP.h>
+ #include <sys/time.h>
+ #include <tls.h>
+-
++#include <linux/threads.h>
 
--void register_posix_clock(int clock_id, struct k_clock *new_clock);
- static int do_posix_gettime(struct k_clock *clock, struct timespec *tp);
- static u64 do_posix_clock_monotonic_gettime_parts(
- 	struct timespec *tp, struct timespec *mo);
- int do_posix_clock_monotonic_gettime(struct timespec *tp);
--int do_posix_clock_monotonic_settime(struct timespec *tp);
-+static int do_posix_clock_monotonic_settime(struct timespec *tp);
-+static int do_posix_clock_process_gettime(struct timespec *tp);
-+static int do_posix_clock_thread_gettime(struct timespec *tp);
- static struct k_itimer *lock_timer(timer_t timer_id, unsigned long *flags);
+ int
+ pthread_getcpuclockid (threadid, clockid)
+@@ -35,19 +35,8 @@
+     return ESRCH;
 
- static inline void unlock_timer(struct k_itimer *timr, unsigned long flags)
-@@ -216,7 +213,21 @@
- 	struct k_clock clock_monotonic = {.res = CLOCK_REALTIME_RES,
- 		.abs_struct = NULL,
- 		.clock_get = do_posix_clock_monotonic_gettime,
--		.clock_set = do_posix_clock_monotonic_settime
-+		.clock_set = do_posix_clock_nosettime
-+	};
-+	struct k_clock clock_thread = {.res = CLOCK_REALTIME_RES,
-+		.abs_struct = NULL,
-+		.clock_get = do_posix_clock_thread_gettime,
-+		.clock_set = do_posix_clock_nosettime,
-+		.timer_create = do_posix_clock_notimer_create,
-+		.nsleep = do_posix_clock_nonanosleep
-+	};
-+	struct k_clock clock_process = {.res = CLOCK_REALTIME_RES,
-+		.abs_struct = NULL,
-+		.clock_get = do_posix_clock_process_gettime,
-+		.clock_set = do_posix_clock_nosettime,
-+		.timer_create = do_posix_clock_notimer_create,
-+		.nsleep = do_posix_clock_nonanosleep
- 	};
+ #ifdef CLOCK_THREAD_CPUTIME_ID
+-  /* We need to store the thread ID in the CLOCKID variable together
+-     with a number identifying the clock.  We reserve the low 3 bits
+-     for the clock ID and the rest for the thread ID.  This is
+-     problematic if the thread ID is too large.  But 29 bits should be
+-     fine.
+-
+-     If some day more clock IDs are needed the ID part can be
+-     enlarged.  The IDs are entirely internal.  */
+-  if (pd->tid >= 1 << (8 * sizeof (*clockid) - CLOCK_IDFIELD_SIZE))
+-    return ERANGE;
+-
+   /* Store the number.  */
+-  *clockid = CLOCK_THREAD_CPUTIME_ID | (pd->tid << CLOCK_IDFIELD_SIZE);
++  *clockid = - (pd->tid + PID_MAX_LIMIT);
 
- #ifdef CONFIG_TIME_INTERPOLATION
-@@ -226,6 +237,8 @@
+   return 0;
+ #else
+Index: libc/sysdeps/unix/sysv/linux/clock_getres.c
+===================================================================
+--- libc.orig/sysdeps/unix/sysv/linux/clock_getres.c	2004-09-28 15:22:02.351950224 -0700
++++ libc/sysdeps/unix/sysv/linux/clock_getres.c	2004-10-06 21:19:57.842807456 -0700
+@@ -20,24 +20,20 @@
 
- 	register_posix_clock(CLOCK_REALTIME, &clock_realtime);
- 	register_posix_clock(CLOCK_MONOTONIC, &clock_monotonic);
-+	register_posix_clock(CLOCK_PROCESS_CPUTIME_ID, &clock_process);
-+	register_posix_clock(CLOCK_THREAD_CPUTIME_ID, &clock_thread);
+ #include "kernel-features.h"
 
- 	posix_timers_cache = kmem_cache_create("posix_timers_cache",
- 					sizeof (struct k_itimer), 0, 0, NULL, NULL);
-@@ -577,6 +590,10 @@
- 				!posix_clocks[which_clock].res)
- 		return -EINVAL;
-
-+	if (posix_clocks[which_clock].timer_create)
-+		return posix_clocks[which_clock].timer_create(which_clock,
-+				timer_event_spec, created_timer_id);
-+
- 	new_timer = alloc_posix_timer();
- 	if (unlikely(!new_timer))
- 		return -EAGAIN;
-@@ -1222,16 +1239,87 @@
- 	return 0;
- }
-
--int do_posix_clock_monotonic_settime(struct timespec *tp)
-+int do_posix_clock_nosettime(struct timespec *tp)
- {
- 	return -EINVAL;
- }
-
-+int do_posix_clock_notimer_create(int which_clock,
-+		struct sigevent __user *timer_event_spec,
-+		timer_t __user *created_timer_id) {
-+	return -EINVAL;
-+}
-+
-+int do_posix_clock_nonanosleep(int which_lock, int flags,struct timespec * t) {
-+/* Single Unix specficiation says to return ENOTSUP but we do not have that */
-+	return -EINVAL;
-+}
-+
-+static unsigned long process_ticks(task_t *p) {
-+	unsigned long ticks;
-+	task_t *t;
-+
-+	spin_lock(&p->sighand->siglock);
-+	/* The signal structure is shared between all threads */
-+	ticks = p->signal->utime + p->signal->stime;
-+
-+	/* Add up the cpu time for all the still running threads of this process */
-+	t = p;
-+	do {
-+		ticks += t->utime + t->stime;
-+		t = next_thread(t);
-+	} while (t != p);
-+
-+	spin_unlock(&p->sighand->siglock);
-+	return ticks;
-+}
-+
-+static inline unsigned long thread_ticks(task_t *p) {
-+	return p->utime + current->stime;
-+}
-+
-+/*
-+ * Single Unix Specification V3:
-+ *
-+ * Implementations shall also support the special clockid_t value
-+ * CLOCK_THREAD_CPUTIME_ID, which represents the CPU-time clock of the calling
-+ * thread when invoking one of the clock_*() or timer_*() functions. For these
-+ * clock IDs, the values returned by clock_gettime() and specified by
-+ * clock_settime() shall represent the amount of execution time of the thread
-+ * associated with the clock.
-+ */
-+static int do_posix_clock_thread_gettime(struct timespec *tp)
-+{
-+	jiffies_to_timespec(thread_ticks(current), tp);
-+	return 0;
-+}
-+
-+/*
-+ * Single Unix Specification V3:
-+ *
-+ * Implementations shall also support the special clockid_t value
-+ * CLOCK_PROCESS_CPUTIME_ID, which represents the CPU-time clock of the
-+ * calling process when invoking one of the clock_*() or timer_*() functions.
-+ * For these clock IDs, the values returned by clock_gettime() and specified
-+ * by clock_settime() represent the amount of execution time of the process
-+ * associated with the clock.
-+ */
-+
-+static int do_posix_clock_process_gettime(struct timespec *tp)
-+{
-+	jiffies_to_timespec(process_ticks(current), tp);
-+	return 0;
-+}
-+
- asmlinkage long
- sys_clock_settime(clockid_t which_clock, const struct timespec __user *tp)
- {
- 	struct timespec new_tp;
-
-+	/* Cannot set process specific clocks */
-+	if (which_clock<0)
-+		return -EINVAL;
-+
- 	if ((unsigned) which_clock >= MAX_CLOCKS ||
- 					!posix_clocks[which_clock].res)
- 		return -EINVAL;
-@@ -1249,6 +1337,29 @@
- 	struct timespec rtn_tp;
- 	int error = 0;
-
-+	/* Process process specific clocks */
-+	if (which_clock < 0) {
-+		task_t *t;
-+		int pid = -which_clock;
-+
-+		if (pid < PID_MAX_LIMIT) {
-+			if (t = find_task_by_pid(pid)) {
-+				jiffies_to_timespec(process_ticks(t), tp);
-+				return 0;
-+			}
-+			return -EINVAL;
-+		}
-+		if (pid < 2*PID_MAX_LIMIT) {
-+			if (t = find_task_by_pid(pid - PID_MAX_LIMIT)) {
-+				jiffies_to_timespec(thread_ticks(t), tp);
-+				return 0;
-+			}
-+			return -EINVAL;
-+		}
-+		/* More process specific clocks could follow here */
-+		return -EINVAL;
+-
+ #ifdef __ASSUME_POSIX_TIMERS
+-/* This means the REALTIME and MONOTONIC clock are definitely
+-   supported in the kernel.  */
+-# define SYSDEP_GETRES \
+-  case CLOCK_REALTIME:							      \
+-  case CLOCK_MONOTONIC:							      \
+-    retval = INLINE_SYSCALL (clock_getres, 2, clock_id, res);		      \
+-    break
++/* we have to rely on the kernel */
++#define SYSDEP_DEFAULT_GETRES { \
++		INTERNAL_SYSCALL_DECL(err); \
++		retval = INTERNAL_SYSCALL(clock_getres, err, 2, clock_id, res); \
 +	}
 +
- 	if ((unsigned) which_clock >= MAX_CLOCKS ||
- 					!posix_clocks[which_clock].res)
- 		return -EINVAL;
-@@ -1267,6 +1378,9 @@
- {
- 	struct timespec rtn_tp;
+ #elif defined __NR_clock_getres
+ /* Is the syscall known to exist?  */
+ extern int __libc_missing_posix_timers attribute_hidden;
 
-+	/* All process clocks have the resolution of CLOCK_PROCESS_CPUTIME_ID */
-+	if (which_clock < 0 ) which_clock = CLOCK_PROCESS_CPUTIME_ID;
+ /* The REALTIME and MONOTONIC clock might be available.  Try the
+    syscall first.  */
+-# define SYSDEP_GETRES \
+-  case CLOCK_REALTIME:							      \
+-  case CLOCK_MONOTONIC:							      \
++# define SYSDEP_DEFAULT_GETRES \
+     {									      \
+       int e = EINVAL;							      \
+ 									      \
+@@ -65,7 +61,7 @@
+       else								      \
+ 	__set_errno (e);						      \
+     }									      \
+-    break
 +
- 	if ((unsigned) which_clock >= MAX_CLOCKS ||
- 					!posix_clocks[which_clock].res)
- 		return -EINVAL;
-@@ -1413,7 +1527,10 @@
- 	if ((unsigned) t.tv_nsec >= NSEC_PER_SEC || t.tv_sec < 0)
- 		return -EINVAL;
+ #endif
 
--	ret = do_clock_nanosleep(which_clock, flags, &t);
-+	if (posix_clocks[which_clock].nsleep)
-+		ret = posix_clocks[which_clock].nsleep(which_clock, flags, &t);
-+	else
-+		ret = do_clock_nanosleep(which_clock, flags, &t);
- 	/*
- 	 * Do this here as do_clock_nanosleep does not have the real address
- 	 */
-Index: linux-2.6.9-rc3/include/linux/posix-timers.h
+ #ifdef __NR_clock_getres
+Index: libc/sysdeps/unix/clock_gettime.c
 ===================================================================
---- linux-2.6.9-rc3.orig/include/linux/posix-timers.h	2004-09-29 20:04:46.000000000 -0700
-+++ linux-2.6.9-rc3/include/linux/posix-timers.h	2004-10-06 10:33:52.000000000 -0700
-@@ -13,9 +13,10 @@
- 	struct k_clock_abs *abs_struct;
- 	int (*clock_set) (struct timespec * tp);
- 	int (*clock_get) (struct timespec * tp);
--	int (*nsleep) (int flags,
--		       struct timespec * new_setting,
--		       struct itimerspec * old_setting);
-+	int (*timer_create) (int which_clock, struct sigevent __user *timer_event_spec,
-+			timer_t __user * created_timer_id);
-+	int (*nsleep) (int which_clock, int flags,
-+		       struct timespec * t);
- 	int (*timer_set) (struct k_itimer * timr, int flags,
- 			  struct itimerspec * new_setting,
- 			  struct itimerspec * old_setting);
-@@ -23,6 +24,17 @@
- 	void (*timer_get) (struct k_itimer * timr,
- 			   struct itimerspec * cur_setting);
- };
+--- libc.orig/sysdeps/unix/clock_gettime.c	2004-09-28 15:22:02.192974392 -0700
++++ libc/sysdeps/unix/clock_gettime.c	2004-10-06 15:34:17.994743608 -0700
+@@ -23,21 +23,6 @@
+ #include <libc-internal.h>
+ #include <ldsodefs.h>
+
+-
+-#if HP_TIMING_AVAIL
+-/* Clock frequency of the processor.  We make it a 64-bit variable
+-   because some jokers are already playing with processors with more
+-   than 4GHz.  */
+-static hp_timing_t freq;
+-
+-
+-/* This function is defined in the thread library.  */
+-extern int __pthread_clock_gettime (clockid_t clock_id, hp_timing_t freq,
+-				    struct timespec *tp)
+-     __attribute__ ((__weak__));
+-#endif
+-
+-
+ /* Get current value of CLOCK and store it in TP.  */
+ int
+ clock_gettime (clockid_t clock_id, struct timespec *tp)
+@@ -66,58 +51,14 @@
+ #endif
+
+     default:
+-#if HP_TIMING_AVAIL
+-      if ((clock_id & ((1 << CLOCK_IDFIELD_SIZE) - 1))
+-	  != CLOCK_THREAD_CPUTIME_ID)
+-#endif
++#ifdef SYSDEP_DEFAULT_GETTIME
++      SYSDEP_DEFAULT_GETTIME;
++#else
+ 	{
+ 	  __set_errno (EINVAL);
+ 	  break;
+ 	}
+-
+-#if HP_TIMING_AVAIL
+-      /* FALLTHROUGH.  */
+-    case CLOCK_PROCESS_CPUTIME_ID:
+-      {
+-	hp_timing_t tsc;
+-
+-	if (__builtin_expect (freq == 0, 0))
+-	  {
+-	    /* This can only happen if we haven't initialized the `freq'
+-	       variable yet.  Do this now. We don't have to protect this
+-	       code against multiple execution since all of them should
+-	       lead to the same result.  */
+-	    freq = __get_clockfreq ();
+-	    if (__builtin_expect (freq == 0, 0))
+-	      /* Something went wrong.  */
+-	      break;
+-	  }
+-
+-	if (clock_id != CLOCK_PROCESS_CPUTIME_ID
+-	    && __pthread_clock_gettime != NULL)
+-	  {
+-	    retval = __pthread_clock_gettime (clock_id, freq, tp);
+-	    break;
+-	  }
+-
+-	/* Get the current counter.  */
+-	HP_TIMING_NOW (tsc);
+-
+-	/* Compute the offset since the start time of the process.  */
+-	tsc -= GL(dl_cpuclock_offset);
+-
+-	/* Compute the seconds.  */
+-	tp->tv_sec = tsc / freq;
+-
+-	/* And the nanoseconds.  This computation should be stable until
+-	   we get machines with about 16GHz frequency.  */
+-	tp->tv_nsec = ((tsc % freq) * UINT64_C (1000000000)) / freq;
+-
+-	retval = 0;
+-      }
+-    break;
+ #endif
+     }
+-
+   return retval;
+ }
+Index: libc/sysdeps/unix/sysv/linux/ia64/clock_getcpuclockid.c
+===================================================================
+--- libc.orig/sysdeps/unix/sysv/linux/ia64/clock_getcpuclockid.c	2004-09-28 15:22:02.595913136 -0700
++++ /dev/null1970-01-01 00:00:00.000000000 +0000
+@@ -1,65 +0,0 @@
+-/* Copyright (C) 2000, 2001, 2003 Free Software Foundation, Inc.
+-   This file is part of the GNU C Library.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Lesser General Public
+-   License as published by the Free Software Foundation; either
+-   version 2.1 of the License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Lesser General Public License for more details.
+-
+-   You should have received a copy of the GNU Lesser General Public
+-   License along with the GNU C Library; if not, write to the Free
+-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+-   02111-1307 USA.  */
+-
+-#include <errno.h>
+-#include <time.h>
+-#include <unistd.h>
+-#include <sys/stat.h>
+-#include <sys/types.h>
+-#include <fcntl.h>
+-
+-
+-int
+-clock_getcpuclockid (pid_t pid, clockid_t *clock_id)
+-{
+-  /* We don't allow any process ID but our own.  */
+-  if (pid != 0 && pid != getpid ())
+-    return EPERM;
+-
+-  static int itc_usable;
+-  int retval = ENOENT;
+-
+-  if (__builtin_expect (itc_usable == 0, 0))
+-    {
+-      int newval = 1;
+-      int fd = open ("/proc/sal/itc_drift", O_RDONLY);
+-      if (__builtin_expect (fd != -1, 1))
+-	{
+-	  char buf[16];
+-	  /* We expect the file to contain a single digit followed by
+-	     a newline.  If the format changes we better not rely on
+-	     the file content.  */
+-	  if (read (fd, buf, sizeof buf) != 2 || buf[0] != '0'
+-	      || buf[1] != '\n')
+-	    newval = -1;
+-
+-	  close (fd);
+-	}
+-
+-      itc_usable = newval;
+-    }
+-
+-  if (itc_usable > 0)
+-    {
+-      /* Store the number.  */
+-      *clock_id = CLOCK_PROCESS_CPUTIME_ID;
+-      retval = 0;
+-    }
+-
+-  return retval;
+-}
+Index: libc/sysdeps/unix/sysv/linux/clock_settime.c
+===================================================================
+--- libc.orig/sysdeps/unix/sysv/linux/clock_settime.c	2004-10-01 10:27:15.007445832 -0700
++++ libc/sysdeps/unix/sysv/linux/clock_settime.c	2004-10-06 21:22:01.041078472 -0700
+@@ -20,21 +20,18 @@
+
+ #include "kernel-features.h"
+
+-
+ #ifdef __ASSUME_POSIX_TIMERS
+-/* This means the REALTIME clock is definitely supported in the
+-   kernel.  */
+-# define SYSDEP_SETTIME \
+-  case CLOCK_REALTIME:							      \
+-    retval = INLINE_SYSCALL (clock_settime, 2, clock_id, tp);		      \
+-    break
++#define SYSDEP_DEFAULT_SETTIME { \
++		INTERNAL_SYSCALL_DECL(err); \
++		retval = INTERNAL_SYSCALL(clock_settime, err, 2, clock_id, tp); \
++	}
 +
-+void register_posix_clock(int clock_id, struct k_clock *new_clock);
+ #elif defined __NR_clock_settime
+ /* Is the syscall known to exist?  */
+ extern int __libc_missing_posix_timers attribute_hidden;
+
+ /* The REALTIME clock might be available.  Try the syscall first.  */
+-# define SYSDEP_SETTIME \
+-  case CLOCK_REALTIME:							      \
++# define SYSDEP_DEFAULT_SETTIME \
+     {									      \
+       int e = EINVAL;							      \
+ 									      \
+@@ -64,8 +61,7 @@
+ 	  __set_errno (e);						      \
+ 	  retval = -1;							      \
+ 	}								      \
+-    }									      \
+-    break
++    }
+ #endif
+
+ #ifdef __NR_clock_settime
+Index: libc/sysdeps/unix/sysv/linux/clock_getcpuclockid.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ libc/sysdeps/unix/sysv/linux/clock_getcpuclockid.c	2004-10-06 21:33:48.687499864 -0700
+@@ -0,0 +1,44 @@
 +
-+/* Error handlers for timer_create, nanosleep and settime */
-+int do_posix_clock_notimer_create(int which_clock,
-+                struct sigevent __user *time_event_spec,
-+                timer_t __user *created_timer_id);
++/* Copyright (C) 2000, 2001 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
 +
-+int do_posix_clock_nonanosleep(int which_clock, int flags, struct timespec * t);
-+int do_posix_clock_nosettime(struct timespec *tp);
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
 +
- struct now_struct {
- 	unsigned long jiffies;
- };
-@@ -42,3 +54,4 @@
-               }								\
-             }while (0)
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <errno.h>
++#include <time.h>
++#include <unistd.h>
++
++int
++clock_getcpuclockid (pid_t pid, clockid_t *clock_id)
++{
++  if (pid != 0 && pid != getpid ())
++#ifdef __ASSUME_POSIX_TIMERS
++	return -pid;
++#else
++/* We don't allow any process ID but our own.  */
++    return EPERM;
++#endif
++
++#ifdef CLOCK_PROCESS_CPUTIME_ID
++  /* Store the number.  */
++  *clock_id = CLOCK_PROCESS_CPUTIME_ID;
++
++  return 0;
++#else
++  /* We don't have a timer for that.  */
++  return ENOENT;
++#endif
++}
+Index: libc/sysdeps/posix/clock_getres.c
+===================================================================
+--- libc.orig/sysdeps/posix/clock_getres.c	2004-09-28 15:22:02.032998712 -0700
++++ libc/sysdeps/posix/clock_getres.c	2004-10-06 14:48:30.854372424 -0700
+@@ -23,13 +23,6 @@
+ #include <sys/param.h>
+ #include <libc-internal.h>
+
+-
+-#if HP_TIMING_AVAIL && !defined HANDLED_CPUTIME
+-/* Clock frequency of the processor.  */
+-static long int nsec;
+-#endif
+-
+-
+ /* Get resolution of clock.  */
+ int
+ clock_getres (clockid_t clock_id, struct timespec *res)
+@@ -65,44 +58,15 @@
+ #endif	/* handled REALTIME */
+
+     default:
+-#if HP_TIMING_AVAIL
+-      if ((clock_id & ((1 << CLOCK_IDFIELD_SIZE) - 1))
+-	  != CLOCK_THREAD_CPUTIME_ID)
+-#endif
+-	{
++#ifdef SYSDEP_DEFAULT_GETRES
++      SYSDEP_DEFAULT_GETRES;
++#else
++      {
+ 	  __set_errno (EINVAL);
+ 	  break;
+ 	}
+-
+-#if HP_TIMING_AVAIL && !defined HANDLED_CPUTIME
+-      /* FALLTHROUGH.  */
+-    case CLOCK_PROCESS_CPUTIME_ID:
+-      {
+-	if (__builtin_expect (nsec == 0, 0))
+-	  {
+-	    hp_timing_t freq;
+-
+-	    /* This can only happen if we haven't initialized the `freq'
+-	       variable yet.  Do this now. We don't have to protect this
+-	       code against multiple execution since all of them should
+-	       lead to the same result.  */
+-	    freq = __get_clockfreq ();
+-	    if (__builtin_expect (freq == 0, 0))
+-	      /* Something went wrong.  */
+-	      break;
+-
+-	    nsec = MAX (UINT64_C (1000000000) / freq, 1);
+-	  }
+-
+-	/* File in the values.  The seconds are always zero (unless we
+-	   have a 1Hz machine).  */
+-	res->tv_sec = 0;
+-	res->tv_nsec = nsec;
+-
+-	retval = 0;
+-      }
+-      break;
  #endif
 +
-Index: linux-2.6.9-rc3/include/linux/time.h
-===================================================================
---- linux-2.6.9-rc3.orig/include/linux/time.h	2004-09-29 20:05:18.000000000 -0700
-+++ linux-2.6.9-rc3/include/linux/time.h	2004-10-06 10:33:52.000000000 -0700
-@@ -413,7 +413,12 @@
- #define CLOCK_REALTIME_HR	 4
- #define CLOCK_MONOTONIC_HR	  5
+     }
 
--#define MAX_CLOCKS 6
-+/*
-+ * The IDs of various hardware clocks
+   return retval;
+Index: libc/sysdeps/unix/clock_settime.c
+===================================================================
+--- libc.orig/sysdeps/unix/clock_settime.c	2004-10-01 10:26:04.247203024 -0700
++++ libc/sysdeps/unix/clock_settime.c	2004-10-06 15:56:49.504282928 -0700
+@@ -22,20 +22,6 @@
+ #include <libc-internal.h>
+ #include <ldsodefs.h>
+
+-
+-#if HP_TIMING_AVAIL
+-/* Clock frequency of the processor.  We make it a 64-bit variable
+-   because some jokers are already playing with processors with more
+-   than 4GHz.  */
+-static hp_timing_t freq;
+-
+-
+-/* This function is defined in the thread library.  */
+-extern void __pthread_clock_settime (clockid_t clock_id, hp_timing_t offset)
+-     __attribute__ ((__weak__));
+-#endif
+-
+-
+ /* Set CLOCK to value TP.  */
+ int
+ clock_settime (clockid_t clock_id, const struct timespec *tp)
+@@ -70,56 +56,16 @@
+ #endif
+
+     default:
+-#if HP_TIMING_AVAIL
+-      if ((clock_id & ((1 << CLOCK_IDFIELD_SIZE) - 1))
+-	  != CLOCK_THREAD_CPUTIME_ID)
+-#endif
++#ifdef SYSDEP_DEFAULT_SETTIME
++      SYSDEP_DEFAULT_SETTIME;
++#else
+ 	{
+ 	  __set_errno (EINVAL);
+ 	  retval = -1;
+ 	  break;
+ 	}
+
+-#if HP_TIMING_AVAIL
+-      /* FALLTHROUGH.  */
+-    case CLOCK_PROCESS_CPUTIME_ID:
+-      {
+-	hp_timing_t tsc;
+-	hp_timing_t usertime;
+-
+-	/* First thing is to get the current time.  */
+-	HP_TIMING_NOW (tsc);
+-
+-	if (__builtin_expect (freq == 0, 0))
+-	  {
+-	    /* This can only happen if we haven't initialized the `freq'
+-	       variable yet.  Do this now. We don't have to protect this
+-	       code against multiple execution since all of them should
+-	       lead to the same result.  */
+-	    freq = __get_clockfreq ();
+-	    if (__builtin_expect (freq == 0, 0))
+-	      {
+-		/* Something went wrong.  */
+-		retval = -1;
+-		break;
+-	      }
+-	  }
+-
+-	/* Convert the user-provided time into CPU ticks.  */
+-	usertime = tp->tv_sec * freq + (tp->tv_nsec * freq) / 1000000000ull;
+-
+-	/* Determine the offset and use it as the new base value.  */
+-	if (clock_id == CLOCK_PROCESS_CPUTIME_ID
+-	    || __pthread_clock_settime == NULL)
+-	  GL(dl_cpuclock_offset) = tsc - usertime;
+-	else
+-	  __pthread_clock_settime (clock_id, tsc - usertime);
+-
+-	retval = 0;
+-      }
+-      break;
+ #endif
+     }
+-
+   return retval;
+ }
+Index: libc/sysdeps/unix/sysv/linux/kernel-features.h
+===================================================================
+--- libc.orig/sysdeps/unix/sysv/linux/kernel-features.h	2004-09-23 16:40:16.491315016 -0700
++++ libc/sysdeps/unix/sysv/linux/kernel-features.h	2004-10-06 12:03:27.941843960 -0700
+@@ -419,3 +419,11 @@
+ #if __LINUX_KERNEL_VERSION >= 0x020609 && defined __alpha__
+ #define __ASSUME_IEEE_RAISE_EXCEPTION	1
+ #endif
++
++/* Starting with version 2.6.9, CLOCK_PROCESS/THREAD_CPUTIME_ID are supported
++ * with clock_gettime and also negative clockids to access other processes clocks
 + */
 +
++#if __LINUX_KERNEL_VERSION >= 0x020609
++#define __ASSUME_POSIX_IMPROVED	1
++#endif
+Index: libc/linuxthreads/sysdeps/pthread/getcpuclockid.c
+===================================================================
+--- libc.orig/linuxthreads/sysdeps/pthread/getcpuclockid.c	2004-07-12 09:16:56.800919000 -0700
++++ libc/linuxthreads/sysdeps/pthread/getcpuclockid.c	2004-10-06 12:40:44.548828016 -0700
+@@ -21,25 +21,14 @@
+ #include <sys/time.h>
+ #include <time.h>
+ #include <internals.h>
++#include <linux/threads.h>
+
+ int
+ pthread_getcpuclockid (pthread_t thread_id, clockid_t *clock_id)
+ {
+ #ifdef CLOCK_THREAD_CPUTIME_ID
+-  /* We need to store the thread ID in the CLOCKID variable together
+-     with a number identifying the clock.  We reserve the low 3 bits
+-     for the clock ID and the rest for the thread ID.  This is
+-     problematic if the thread ID is too large.  But 29 bits should be
+-     fine.
+-
+-     If some day more clock IDs are needed the ID part can be
+-     enlarged.  The IDs are entirely internal.  */
+-  if (2 * PTHREAD_THREADS_MAX
+-      >= 1 << (8 * sizeof (*clock_id) - CLOCK_IDFIELD_SIZE))
+-    return ERANGE;
+-
+   /* Store the number.  */
+-  *clock_id = CLOCK_THREAD_CPUTIME_ID | (thread_id << CLOCK_IDFIELD_SIZE);
++  *clock_id = - (thread_id + PID_MAX_LIMIT);
+
+   return 0;
+ #else
+Index: libc/sysdeps/unix/sysv/linux/clock_gettime.c
+===================================================================
+--- libc.orig/sysdeps/unix/sysv/linux/clock_gettime.c	2004-09-28 15:22:02.359949008 -0700
++++ libc/sysdeps/unix/sysv/linux/clock_gettime.c	2004-10-06 21:21:03.551818168 -0700
+@@ -20,24 +20,19 @@
+
+ #include "kernel-features.h"
+
+-
+ #ifdef __ASSUME_POSIX_TIMERS
+-/* This means the REALTIME and MONOTONIC clock are definitely
+-   supported in the kernel.  */
+-# define SYSDEP_GETTIME \
+-  case CLOCK_REALTIME:							      \
+-  case CLOCK_MONOTONIC:							      \
+-    retval = INLINE_SYSCALL (clock_gettime, 2, clock_id, tp);		      \
+-    break
++#define SYSDEP_DEFAULT_GETTIME { \
++		INTERNAL_SYSCALL_DECL(err); \
++		retval = INTERNAL_SYSCALL(clock_gettime, err, 2, clock_id, tp); \
++	}
 +
-+#define MAX_CLOCKS 16
- #define CLOCKS_MASK  (CLOCK_REALTIME | CLOCK_MONOTONIC | \
-                      CLOCK_REALTIME_HR | CLOCK_MONOTONIC_HR)
- #define CLOCKS_MONO (CLOCK_MONOTONIC & CLOCK_MONOTONIC_HR)
+ #elif defined __NR_clock_gettime
+ /* Is the syscall known to exist?  */
+ int __libc_missing_posix_timers attribute_hidden;
+
+ /* The REALTIME and MONOTONIC clock might be available.  Try the
+    syscall first.  */
+-# define SYSDEP_GETTIME \
+-  case CLOCK_REALTIME:							      \
+-  case CLOCK_MONOTONIC:							      \
++# define SYSDEP_DEFAULT_GETTIME \
+     {									      \
+       int e = EINVAL;							      \
+ 									      \
+@@ -64,8 +59,7 @@
+ 	HANDLE_REALTIME;						      \
+       else								      \
+ 	__set_errno (e);						      \
+-    }									      \
+-    break
++    }
+ #endif
+
+ #ifdef __NR_clock_gettime
+@@ -74,3 +68,4 @@
+ #endif
+
+ #include <sysdeps/unix/clock_gettime.c>
++

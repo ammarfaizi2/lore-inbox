@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266304AbTGJIqL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 04:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269086AbTGJIqL
+	id S265998AbTGJJK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 05:10:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266007AbTGJJK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 04:46:11 -0400
-Received: from flintstone.ichilton.net ([212.13.198.46]:42759 "EHLO
-	flintstone.ichilton.net") by vger.kernel.org with ESMTP
-	id S266304AbTGJIqJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 04:46:09 -0400
-Date: Thu, 10 Jul 2003 10:00:47 +0100
-From: Ian Chilton <ian@ichilton.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: ACPI Battery Problem wth 2.4.22-pre4
-Message-ID: <20030710090047.GC19385@roadrunner.ichilton.net>
-Reply-To: Ian Chilton <ian@ichilton.co.uk>
+	Thu, 10 Jul 2003 05:10:58 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:56337 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S265998AbTGJJK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 05:10:57 -0400
+Subject: Re: NFS client errors with 2.5.74?
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, trond.myklebust@fys.uio.no
+In-Reply-To: <20030710054121.GB27038@mail.jlokier.co.uk>
+References: <20030710054121.GB27038@mail.jlokier.co.uk>
+Content-Type: text/plain
+Message-Id: <1057829132.584.0.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-PGP-Key: 6415CD8B
-X-PGP-Key-FingerPrint: D0FF 2479 D63D 401E 6C7A  6363 A6FE 0B2D 6415 CD8B
-X-GnuPG-Key-URL: http://ichilton.co.uk/pgp-public-key.txt
-X-Operating-System: Linux 2.4.19-45um
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 10 Jul 2003 11:25:33 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 2003-07-10 at 07:41, Jamie Lokier wrote:
+> I'm seeing quite a lot of NFS client errors with 2.5.74, connected to
+> a server running 2.4.20-18.9 (Red Hat 9's current kernel).
+> 
+> All of the errors that I've observed the form of a write() or close()
+> returning EIO.  rsync seeems to have a particularly tough time -
+> could the unusual size of blocks which rsync writes be relevant?
+> 
+> There are some read errors too, as Mozilla failed to find my profile
+> claiming it couldn't read the file (when I restarted Mozilla, it found
+> it the second time), and Gnome Terminal was unable to read its
+> preferences file, but I didn't catch any specific read() errors.
+> 
+> I tried this command to see if the is a protocol error while running
+> Ethereal:
+> 
+> [jamie@dual jamie]$ cp .mirMail.bjl1/INBOX .mirMail.bjl1/JBOX
+> cp: closing `.mirMail.bjl1/JBOX': Input/output error
 
-I'm running 2.4.22-pre4 on a Dell Inspiron 5100 (with Debian/unstable).
+Any chance you are using "hard" NFS mounts?
 
-It seem to work fine, except when I insert the battery, I get:
-
-    ACPI-0352: *** Error: Looking up [Z000] in namespace, AE_NOT_FOUND
-search_node c1594a80 start_node c1594a80 return_node 00000000
-    ACPI-1121: *** Error: Method execution failed
-[\_SB_.PCI0.LPC0.BAT1._BIF] (Node c1594a80), AE_NOT_FOUND
-    ACPI-0352: *** Error: Looking up [Z000] in namespace, AE_NOT_FOUND
-search_node c1594a80 start_node c1594a80 return_node 00000000
-    ACPI-1121: *** Error: Method execution failed
-[\_SB_.PCI0.LPC0.BAT1._BIF] (Node c1594a80), AE_NOT_FOUND
-
-
-Any ideas how to fix this?
-
-[please cc me on replies!]
-
-
-Thanks!
-
-
---ian

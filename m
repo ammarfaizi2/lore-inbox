@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129485AbRBRUde>; Sun, 18 Feb 2001 15:33:34 -0500
+	id <S129660AbRBRUgY>; Sun, 18 Feb 2001 15:36:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129803AbRBRUd2>; Sun, 18 Feb 2001 15:33:28 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:9481 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129485AbRBRUdT>;
-	Sun, 18 Feb 2001 15:33:19 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102182032.XAA28257@ms2.inr.ac.ru>
-Subject: Re: MTU and 2.4.x kernel
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Sun, 18 Feb 2001 23:32:57 +0300 (MSK)
-Cc: davem@redhat.com (Dave Miller), linux-kernel@vger.kernel.org
-In-Reply-To: <E14TTRF-0000Ul-00@the-village.bc.nu> from "Alan Cox" at Feb 15, 1 06:47:31 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S129867AbRBRUgO>; Sun, 18 Feb 2001 15:36:14 -0500
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:35264 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S129660AbRBRUgD>; Sun, 18 Feb 2001 15:36:03 -0500
+Message-ID: <3A903159.3D190848@sympatico.ca>
+Date: Sun, 18 Feb 2001 15:32:25 -0500
+From: Jeremy Jackson <jeremy.jackson@sympatico.ca>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Scott Long <smlong@teleport.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux OS boilerplate
+In-Reply-To: <3A902F77.8BF6AB52@teleport.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Scott Long wrote:
 
-> Please cite an exact RFC reference.
+> Does there exist an outline (detailed or not) of the boot process from
+> the point of BIOS bootsector load to when the kernel proper begins
+> execution? If not would anyone be willing to help me understand
+> bootsect.S and setup.S enough so that I might write such an outline?
 
-Imagine, I found this reference yet. This is rfc1191, of course. 8)
+I have been over it, and would be willing to help.  You should first read all
 
-   in the MSS option.  The MSS option should be 40 octets less than the
-   size of the largest datagram the host is able to reassemble (MMS_R,
-   as defined in [1]); in many cases, this will be the architectural
-   limit of 65495 (65535 - 40) octets.
-
-Alexey
-
-
-PS: But:
-
-   					A host MAY send an MSS value
-   derived from the MTU of its connected network (the maximum MTU over
-   its connected networks, for a multi-homed host); this should not
-   cause problems for PMTU Discovery, and may dissuade a broken peer
-   from sending enormous datagrams.
-
-          Note: At the moment, we see no reason to send an MSS greater
-          than the maximum MTU of the connected networks, and we
-          recommend that hosts do not use 65495.  It is quite possible
-          that some IP implementations have sign-bit bugs that would be
-          tickled by unnecessary use of such a large MSS.
+of the LILO documentation, and check out some of the LinuxBIOS
+project at www.linuxbios.org.
 

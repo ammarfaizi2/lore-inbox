@@ -1,64 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263023AbTESVN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 17:13:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263025AbTESVN0
+	id S262964AbTESVVf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 17:21:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263025AbTESVV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 17:13:26 -0400
-Received: from bart.one-2-one.net ([217.115.142.76]:32013 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S263023AbTESVNY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 17:13:24 -0400
-Date: Mon, 19 May 2003 23:33:12 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-X-X-Sender: martin@notebook.home.mdiehl.de
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SIS-650+CPQ Presario 3045US+USB ...
-In-Reply-To: <Pine.LNX.4.55.0305181533280.3568@bigblue.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.44.0305190153290.14825-100000@notebook.home.mdiehl.de>
+	Mon, 19 May 2003 17:21:29 -0400
+Received: from c3po.aoltw.net ([64.236.137.25]:35733 "EHLO netscape.com")
+	by vger.kernel.org with ESMTP id S262964AbTESVU4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 17:20:56 -0400
+Message-ID: <3EC94DB6.8000405@netscape.com>
+Date: Mon, 19 May 2003 14:33:42 -0700
+From: jgmyers@netscape.com (John Myers)
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4a) Gecko/20030401
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@digeo.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: aio_poll in 2.6
+References: <fa.mc7vl0v.u7u2ah@ifi.uio.no>	<200305170054.RAA10802@pagarcia.nscp.aoltw.net>	<20030516195025.4bf5dd8d.akpm@digeo.com>	<200305191938.MAA11946@pagarcia.nscp.aoltw.net>	<1053373716.29227.27.camel@dhcp22.swansea.linux.org.uk> <20030519141654.31901ee3.akpm@digeo.com>
+In-Reply-To: <20030519141654.31901ee3.akpm@digeo.com>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms040405030904080208020900"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 May 2003, Davide Libenzi wrote:
+This is a cryptographically signed message in MIME format.
 
-> > Well, "lspci -vxxx -d 1039:0008" should be sufficient. If possible
-> > combined with the pci routing table (from dump_pirq for example).
-> 
-> I know, but even that one is hard to do w/out the machine under your nose ;)
+--------------ms040405030904080208020900
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Sure ;-)
+Andrew Morton wrote:
 
-> > Ok, looks like they have moved the location of the PCI INTA-INTD routing
-> > registers from 0x41-0x44 to 0x60-0x63. Since this works for you it means
-> > the vendor/device-id is still 1039:0008. We really need to check the
-> > revision id here.
-> 
-> Nope, I still see 0x4* commands for all devices != from USB. So more then
-> a "move" is an extension.
+>I can do that, but would need the test app...
+>  
+>
+Unfortunately, the thread pool framework the test app uses is proprietary.
 
-Ok, second guess: they've kept the 0x41-44 for INTA-INTD and just added 
-the several onboard USB root-HC's at 0x6* - which might also explain if 
-you need bit 6 set. Well, it seems we'd really need the docs.
 
-> > So, for your patch I'd suggest to check the PCI_REVISION_ID from the
-> > config space and apply your new layout for this revision only.
-> 
-> Instead of just trolling, isn't there a documentation about this chipset ?
-> The SIS web site is pretty/very weak about docs.
+--------------ms040405030904080208020900
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-Well, trolling or not, when I submitted the current sis pci irq routing 
-stuff it was based on existing documentation for the 85C503 isa-bridge 
-with pci router function (as used in the 5595 chipset).
-
-We were also looking at a number of routing tables from different people 
-to get the stuff right - given the different ideas vendors have about link 
-values. IIRC it was around 2.4.0 release and we also had some confirmation 
-from somebody at SiS before Linus applied it.
-
-I've no idea about docs for the 650 chipset, sorry.
-
-Martin
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIK7TCC
+A4UwggLuoAMCAQICAmY3MA0GCSqGSIb3DQEBBQUAMIGTMQswCQYDVQQGEwJVUzELMAkGA1UE
+CBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5l
+IEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2Vy
+dGlmaWNhdGUgQXV0aG9yaXR5MB4XDTAyMTIwNDE4MjEyNVoXDTAzMDYwMjE4MjEyNVowfTEL
+MAkGA1UEBhMCVVMxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEXMBUGCgmSJomT8ixk
+AQETB2pnbXllcnMxIzAhBgkqhkiG9w0BCQEWFGpnbXllcnNAbmV0c2NhcGUuY29tMRMwEQYD
+VQQDEwpKb2huIE15ZXJzMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCqJgOlF/SyGXPi
+zXeXCKvZunjEm0pWk6lUHC+dN4WCoG8lMoPXeWZQz9MfOsJr+gQWRiU/yyoP6L7/M6ePZoIE
+UKPNsHoJcZ9AlloHqW5U0xtDUoGs9NuXg0aSxriy7mTn9bFzKhzIX6DhZk4ASxNv+H2K2ZI8
+by7nrhdzD12oVQIDAQABo4H8MIH5MA4GA1UdDwEB/wQEAwIFIDAdBgNVHSUEFjAUBggrBgEF
+BQcDAgYIKwYBBQUHAwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0
+aWZpY2F0ZSBNYW5hZ2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRz
+Y2FwZS5jb20wHwYDVR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEE
+NTAzMDEGCCsGAQUFBzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3Nw
+MA0GCSqGSIb3DQEBBQUAA4GBAK/MMlDXEvX6zMYaq2Pdq6NiP9anXSjzn6yQOxOajyNlWz22
+nQikMD/FlQ90O2UWbavlg8Nl9yLNNYqb5+1Ei+PDn/oTOPGPDgItbiu8z4U1waYsrsdDbS7r
+PhmOvHGCb0gmzCD6e0P2Dnsc0FvKIqtg/jqV23g0kbM1BB4yAbtPMIIDhjCCAu+gAwIBAgIC
+ZjgwDQYJKoZIhvcNAQEEBQAwgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UE
+BxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQL
+ExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRo
+b3JpdHkwHhcNMDIxMjA0MTgyMTI1WhcNMDMwNjAyMTgyMTI1WjB9MQswCQYDVQQGEwJVUzEb
+MBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRcwFQYKCZImiZPyLGQBARMHamdteWVyczEj
+MCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRzY2FwZS5jb20xEzARBgNVBAMTCkpvaG4gTXll
+cnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAOP5+pg+nlWO6PQvnRaHIj94fgJd8bXm
+JS+ac/S6mpuMS5PD2hzkHtAcRhxkSpe0c3ieIO3cZgM8sFYUvFuwQv+rm1N6sjHx53tMalhM
+bN9M1HiIbwLYDUmnqPZdqZkuBHt666X/PjCHtVJC9/Vq/CtysIce7pdqOjWa1EchDVqnAgMB
+AAGjgf0wgfowDwYDVR0PAQH/BAUDAweAADAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUH
+AwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0aWZpY2F0ZSBNYW5h
+Z2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRzY2FwZS5jb20wHwYD
+VR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEENTAzMDEGCCsGAQUF
+BzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3NwMA0GCSqGSIb3DQEB
+BAUAA4GBAMYEyHgc/ladelTg424TXjozOcoy0Fcz7+bJoxtc+7kubVX7QXdfemcQtLXT3LZ3
+z6Lydnp70JaEgQQOHGAKAEdcdsss3EhG4ROWO4954nxlNKx4Tq1Q8vADClVriCjq2GGb75vE
+Hba1P/6rtSdM6ilVAt4mL3x+blBqCGYQw520MIID1jCCAz+gAwIBAgIEAgAB5jANBgkqhkiG
+9w0BAQUFADBFMQswCQYDVQQGEwJVUzEYMBYGA1UEChMPR1RFIENvcnBvcmF0aW9uMRwwGgYD
+VQQDExNHVEUgQ3liZXJUcnVzdCBSb290MB4XDTAxMDYwMTEyNDcwMFoXDTA0MDYwMTIzNTkw
+MFowgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmll
+dzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9n
+aWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwgZ8wDQYJKoZI
+hvcNAQEBBQADgY0AMIGJAoGBAOLvXyx2Q4lLGl+z5fiqb4svgU1n/71KD2MuxNyF9p4sSSYg
+/wAX5IiIad79g1fgoxEZEarW3Lzvs9IVLlTGbny/2bnDRtMJBYTlU1xI7YSFmg47PRYHXPCz
+eauaEKW8waTReEwG5WRB/AUlYybr7wzHblShjM5UV7YfktqyEkuNAgMBAAGjggGCMIIBfjBN
+BgNVHR8ERjBEMEKgQKA+hjxodHRwOi8vd3d3MS51cy1ob3N0aW5nLmJhbHRpbW9yZS5jb20v
+Y2dpLWJpbi9DUkwvR1RFUm9vdC5jZ2kwHQYDVR0OBBYEFCnbsi2Dfn+LI7vCzGa5Oegp8wKG
+MGYGA1UdIARfMF0wRgYKKoZIhvhjAQIBBTA4MDYGCCsGAQUFBwIBFipodHRwOi8vd3d3LmJh
+bHRpbW9yZS5jb20vQ1BTL09tbmlSb290Lmh0bWwwEwYDKgMEMAwwCgYIKwYBBQUHAgEwWAYD
+VR0jBFEwT6FJpEcwRTELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD0dURSBDb3Jwb3JhdGlvbjEc
+MBoGA1UEAxMTR1RFIEN5YmVyVHJ1c3QgUm9vdIICAaMwKwYDVR0QBCQwIoAPMjAwMTA2MDEx
+MjQ3MzBagQ8yMDAzMDkwMTIzNTkwMFowDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwQIMAYBAf8C
+AQEwDQYJKoZIhvcNAQEFBQADgYEASmIO2fpGdwQKbA3d/tIiOZkQCq6ILYY9V4TmEiQ3aftZ
+XuIRsPmfpFeGimkfBmPRfe4zNkkQIA8flxcsJ2w9bDkEe+JF6IcbVLZgQW0drgXznfk6NJrj
+e2tMcfjrqCuDsDWQTBloce3wYyJewlvsIHq1sFFz6QfugWd2eVP3ldQxggNUMIIDUAIBATCB
+mjCBkzELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3
+MRswGQYDVQQKExJBbWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dp
+ZXMxJzAlBgNVBAMTHkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICZjgwCQYFKw4D
+AhoFAKCCAg8wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDMw
+NTE5MjEzMzQyWjAjBgkqhkiG9w0BCQQxFgQUIMAgE5gb+kkk8gjW7p0iKsfFGUgwUgYJKoZI
+hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
+BwYFKw4DAgcwDQYIKoZIhvcNAwICASgwgasGCSsGAQQBgjcQBDGBnTCBmjCBkzELMAkGA1UE
+BhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRswGQYDVQQKExJB
+bWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dpZXMxJzAlBgNVBAMT
+HkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICZjcwga0GCyqGSIb3DQEJEAILMYGd
+oIGaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZp
+ZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xv
+Z2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJmNzANBgkq
+hkiG9w0BAQEFAASBgL8mAZiSqYZDxejOjnRTNTv+Idu4dj0Uver8MnNiModHxZphLawjYUfN
+7eOT0bswrb5t+iiB6gmxCQ938Iyh8GizHR2KaGYIX0ekm7mIxrM+1aqtgk9AvXTQ5tP9cdVK
+HDIElae6AOXjpyaBCeHfolf2qVv4gs2MrNjFvCwqSHoqAAAAAAAA
+--------------ms040405030904080208020900--
 

@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268828AbTCCVbM>; Mon, 3 Mar 2003 16:31:12 -0500
+	id <S268820AbTCCV3G>; Mon, 3 Mar 2003 16:29:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268830AbTCCVbL>; Mon, 3 Mar 2003 16:31:11 -0500
-Received: from ausadmmsps307.aus.amer.dell.com ([143.166.224.102]:9996 "HELO
-	AUSADMMSPS307.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S268828AbTCCVbD>; Mon, 3 Mar 2003 16:31:03 -0500
-X-Server-Uuid: 82a6c0aa-b49f-4ad3-8d2c-07dae6b04e32
-Message-ID: <20BF5713E14D5B48AA289F72BD372D680326F892@AUSXMPC122.aus.amer.dell.com>
-From: Gary_Lerhaupt@Dell.com
-To: sam@ravnborg.org
-cc: linux-kernel@vger.kernel.org
-Subject: RE: [ANNOUNCE] DKMS: Dynamic Kernel Module Support
-Date: Mon, 3 Mar 2003 15:41:20 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 127D138C702755-01-01
-Content-Type: text/plain; 
- charset=us-ascii
+	id <S268824AbTCCV3G>; Mon, 3 Mar 2003 16:29:06 -0500
+Received: from packet.digeo.com ([12.110.80.53]:49654 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S268820AbTCCV3F>;
+	Mon, 3 Mar 2003 16:29:05 -0500
+Date: Mon, 3 Mar 2003 13:35:39 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH 2.5.63] Teach page_mapped about the anon flag
+Message-Id: <20030303133539.6594e0b6.akpm@digeo.com>
+In-Reply-To: <107610000.1046726685@baldur.austin.ibm.com>
+References: <20030227025900.1205425a.akpm@digeo.com>
+	<200302280822.09409.kernel@kolivas.org>
+	<20030227134403.776bf2e3.akpm@digeo.com>
+	<118810000.1046383273@baldur.austin.ibm.com>
+	<20030227142450.1c6a6b72.akpm@digeo.com>
+	<103400000.1046725581@baldur.austin.ibm.com>
+	<20030303131210.36645af6.akpm@digeo.com>
+	<107610000.1046726685@baldur.austin.ibm.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Mar 2003 21:39:24.0411 (UTC) FILETIME=[5BC704B0:01C2E1CD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It assume .o for modules, which is not true for 2.5.
+Dave McCracken <dmccr@us.ibm.com> wrote:
+>
 > 
-> When building a module it simply executes $MAKE - which is 
-> plain wrong.
-> As have been discussed in several threads you cannot reliably track
-> changes in CFLAGS etc. without utilising the kbuild infrastructure.
+> --On Monday, March 03, 2003 13:12:10 -0800 Andrew Morton <akpm@digeo.com>
+> wrote:
 > 
+> > It is.  All callers which need to be 100% accurate are under
+> > pte_chain_lock().
+> 
+> Hmm, good point.  Some places may not need perfect accuracy.  Also, if it
+> gives a false positive it means someone else is doing an atomic op on it,
+> so it's likely to be in transition to/from true anyway.
+> 
+> Ok, you've convinced me.  Please ignore the patch.  I'll hang onto it in
+> case we get proved wrong at some point.
 
-I will take up your suggestion and remove the assumptions that modules end
-with .o.  I should note that we don't see 2.6 making it into production
-environments within the next year so my focus has been solely on 2.4 at this
-point.  Though, the kbuild infrastructure will actually mesh nicely with
-DKMS as it will simplify the mess of makefiles that it has to deal with.  As
-for $MAKE, I believe there is some confusion here.  $MAKE comes from
-sourcing in the dkms.conf file which is required for each module in DKMS.
-One of the directives in dkms.conf must be a MAKE which is the specific make
-command needed to build your module.  So $MAKE should represent the right
-thing to do for the module in question.
+We do need a patch I think.  page_mapped() is still assuming that an
+all-bits-zero atomic_t corresponds to a zero-value atomic_t.
 
-> DKMS is also highly connected to the usage of /lib/modules/...
-> and naming of config files. It looks to me as it is very distribution
-> specic.
-
-DKMS is very intertwined with /lib/modules as this is where it installs
-modules.  I was not aware that this was distro specific.  As for the kernel
-config files, you are correct.  By default it does assume Red Hat's distro
-specific scheme, but when building your module, you can pass a --config
-option and specify the alternate path for your .config if it does not follow
-this scheme.  I hope this clears this up.
-
-Gary
+This does appear to be true for all supported architectures, but it's a bit
+grubby.
 

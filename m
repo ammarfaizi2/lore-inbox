@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313898AbSFEU4n>; Wed, 5 Jun 2002 16:56:43 -0400
+	id <S315419AbSFEU5h>; Wed, 5 Jun 2002 16:57:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314422AbSFEU4m>; Wed, 5 Jun 2002 16:56:42 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33551 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313898AbSFEU4l>; Wed, 5 Jun 2002 16:56:41 -0400
-Date: Wed, 5 Jun 2002 13:55:15 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andi Kleen <ak@suse.de>
-cc: Benjamin LaHaise <bcrl@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] 4KB stack + irq stack for x86
-In-Reply-To: <p73vg8xcvco.fsf@oldwotan.suse.de>
-Message-ID: <Pine.LNX.4.33.0206051352130.1471-100000@penguin.transmeta.com>
+	id <S315469AbSFEU5g>; Wed, 5 Jun 2002 16:57:36 -0400
+Received: from p508EB45E.dip.t-dialin.net ([80.142.180.94]:64774 "EHLO
+	wilmskamp.dyndns.org") by vger.kernel.org with ESMTP
+	id <S315419AbSFEU5U> convert rfc822-to-8bit; Wed, 5 Jun 2002 16:57:20 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Wegner <oliver@wilmskamp.dyndns.org>
+To: Eric Kristopher Sandall <sandalle@wsunix.wsu.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Load kernel module automatically
+Date: Wed, 5 Jun 2002 22:57:15 +0200
+X-Mailer: KMail [version 1.4]
+In-Reply-To: <Pine.OSF.4.10.10206051207020.304-100000@unicorn.it.wsu.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200206052257.15492.oliver@wilmskamp.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Mittwoch, 5. Juni 2002 21:08 schrieb Eric Kristopher Sandall:
+> On Wed, 5 Jun 2002, John Tyner wrote:
+> > > Just put the module name in /etc/modules
+> >
+> > This is distribution dependent isn't it?
+>
+> afaik, it is not distro dependent.  I've used /etc/modules in RedHat,
+> Debian, Sorcery, Source Mage, and Mandrake, all to the same effect.
 
-On 5 Jun 2002, Andi Kleen wrote:
-> > 
-> > Ah, you're right.  If anyone uses current_thread_info from IRQ context 
-> > it will set the flags in the wrong structure.  However, it actually 
-> > works because nobody does that currently: all of the _thread_flag users 
-> 
-> preemptive kernels do use current_thread_info() for every spinlock.
-> this required me to change its implementation on x86-64 from stack
-> arithmetic to access the base register. 
+well, i havent found that file /etc/modules in SuSE. am not aware right now 
+how they handle loading modules during boot process... ;)
 
-Note that this part is ok, as long as we make sure that the irq stack gets
-initialized with a preempt_count > 0 (we must not preempt an interrupt
-handler anyway, it wouldn't work), _and_ we make sure that taking the
-interrupt also increments the "process native" preempt_count (so that
-anybody looking at that preempt_count to determine whether it could be
-preempted will also get a "nope, don't preempt me").
+Oliver
 
-So that part doesn't look like a fundamental problem to me. It's just a 
-"need to be careful" thing.
-
-		Linus
+-- 
+America may be unique in being a country which has leapt from barbarism
+to decadence without touching civilization.
+		-- John O'Hara
 

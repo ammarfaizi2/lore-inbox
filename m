@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbULRRte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbULRRuD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbULRRte (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 12:49:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbULRRtd
+	id S261207AbULRRuD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 12:50:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbULRRuC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 12:49:33 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:18852 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261205AbULRRtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 12:49:31 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.10-rc3-mm1: swsusp
-Date: Sat, 18 Dec 2004 18:52:31 +0100
-User-Agent: KMail/1.7.2
-Cc: Pavel Machek <pavel@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Dec 2004 12:50:02 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:37795 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261207AbULRRt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Dec 2004 12:49:58 -0500
+Date: Sat, 18 Dec 2004 18:49:53 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Greg KH <greg@kroah.com>, Pete Zaitcev <zaitcev@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: debugfs in the namespace
+Message-ID: <20041218174953.GA4147@wohnheim.fh-wedel.de>
+References: <20041216110002.3e0ddf52@lembas.zaitcev.lan> <20041216190835.GE5654@kroah.com> <20041216113357.4c2714bb@lembas.zaitcev.lan> <20041216194224.GA6640@kroah.com> <20041217190856.GA29131@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200412181852.31942.rjw@sisk.pl>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041217190856.GA29131@elf.ucw.cz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 17 December 2004 20:08:56 +0100, Pavel Machek wrote:
+> > 
+> > So, /debug sounds good to me.  Any objections?
+> 
+> Yes... /debug is something users may actually use already... Like
+> having scratch filesystem mount on /debug.
 
-I must say I'm really impressed with the progress that swsusp made since I 
-tried it last time (close to 2.6.10-rc1 as I recall).  Now I've been using it 
-for a couple of days on 2.6.10-rc3-mm1 and It's never refused to suspend the 
-machine because of the lack of (contiguous) memory which happened very often 
-before, and it seems to be much faster.  Using it my notebook has reached 
-more that 1 day of uptime recently, wich was practically impossible 
-previously.  It's a great job and vast improvement for which I thank you very 
-much!
+Wouldn't it be possible to parse /proc/mounts and determine the
+correct mount point that way?
 
-Still, unfortunately, today it crashed on suspend and I wasn't able to get any 
-useful information related to the crash, because swsusp apparently does not 
-send some of its messages to the serial console.  In particular, anything 
-from within the critical section is not printed there and that's why I think 
-(I'm not sure though) that the crash occured in the critical section.  Could 
-you tell me please if it's possible to make all of the swsusp messages appear 
-on the serial console and, if so, how to do this (I've already tried "dmesg 
--n 8" and "echo 9 > /proc/sysrq-trigger" but none of them helps)?
+DEBUGFS = grep debugfs /proc/mounts | cut -f2 -d' '
 
-Greets,
-RJW
+Jörn
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Premature optimization is the root of all evil.
+-- Donald Knuth

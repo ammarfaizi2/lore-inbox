@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286395AbRLJVcU>; Mon, 10 Dec 2001 16:32:20 -0500
+	id <S286396AbRLJVdA>; Mon, 10 Dec 2001 16:33:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284704AbRLJVcL>; Mon, 10 Dec 2001 16:32:11 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:11968 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S286395AbRLJVb7>;
-	Mon, 10 Dec 2001 16:31:59 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 10 Dec 2001 21:31:23 GMT
-Message-Id: <UTC200112102131.VAA281019.aeb@cwi.nl>
-To: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk
-Subject: Re: Linux/Pro  -- clusters
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, viro@math.psu.edu
+	id <S286394AbRLJVcx>; Mon, 10 Dec 2001 16:32:53 -0500
+Received: from mpdr0.detroit.mi.ameritech.net ([206.141.239.206]:45770 "EHLO
+	mailhost.det.ameritech.net") by vger.kernel.org with ESMTP
+	id <S284710AbRLJVcX>; Mon, 10 Dec 2001 16:32:23 -0500
+Date: Mon, 10 Dec 2001 16:30:31 -0500 (EST)
+From: volodya@mindspring.com
+Reply-To: volodya@mindspring.com
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: mm question
+In-Reply-To: <Pine.LNX.4.33L.0112101617300.4755-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.20.0112101627330.18429-100000@node2.localnet.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 
-    >     And it means we can get proper refcounting. Which as the maintainer
-    >     of two block drivers that support dynamic volume create/destroy is
-    >     remarkably good news.
-    > 
-    > You say this as if that would be a difference between the two
-    > approaches. I don't think it is.
 
-    Its easier to make sure its correct when we have a single structure not
-    a pile of arrays.
+On Mon, 10 Dec 2001, Rik van Riel wrote:
 
-I don't understand your reference to arrays. Nobody uses arrays.
-That is something of the past.
+> On Mon, 10 Dec 2001 volodya@mindspring.com wrote:
+> > On Mon, 10 Dec 2001, Rik van Riel wrote:
+> 
+> > > Even if you have a handle on a physical page, you don't know
+> > > what processes are using the page, nor if there are additional
+> > > users besides the processes.
+> >
+> > Well, what does kernel do when it runs out of memory ? For example
+> > when I mmap a large file and start reading it back and force ?
+> 
+> For the full horror, see mm/vmscan.c, do_try_to_free_memory()
 
-    Object lifetime becomes explicit, and we don't have to
-    worry about re-use races since a new instance of that major,minor
-    will have a different object attached to the one in use that is
-    about to be refcounted into oblivion by currently active requests
+Wonderful !This is the kind of advice I was looking for :))
 
-As described, my setup certainly has no re-use races, since
-I do not use refcounts as a way to terminate the lifespan of
-a kdev_t. So, are you saying that you prefer my version?
-I have problems reading your replies.
+So if I copy it over to, say, do_try_to_free_region_memory1() and start
+hacking - will this violate some grand scheme of kernel development ?
+I.e. is there anything inherently wrong with two different kswapd going on ?
 
-Andries
+                   thanks !
+
+                          Vladimir Dergachev
+
+> 
+> cheers,
+> 
+> Rik
+> -- 
+> DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+> 
+> http://www.surriel.com/		http://distro.conectiva.com/
+> 
+

@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S289515AbUKBBwP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S508013AbUKBBwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S289515AbUKBBwP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 20:52:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265680AbUKAX1C
+	id S508013AbUKBBwM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 20:52:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S507912AbUKBBu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 18:27:02 -0500
-Received: from proxy.vc-graz.ac.at ([193.171.121.30]:44283 "EHLO
-	proxy.vc-graz.ac.at") by vger.kernel.org with ESMTP id S262256AbUKAWTX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 17:19:23 -0500
-From: Wolfgang Scheicher <worf@sbox.tu-graz.ac.at>
-To: zaitcev@yahoo.com
-Subject: Re: 2.6.9 USB storage problems
-Date: Mon, 1 Nov 2004 23:19:13 +0100
-User-Agent: KMail/1.7
-Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       linux-kernel@vger.kernel.org
-References: <200410121424.59584.worf@sbox.tu-graz.ac.at> <200411012040.33285.worf@sbox.tu-graz.ac.at> <20041101213501.GD18227@one-eyed-alien.net>
-In-Reply-To: <20041101213501.GD18227@one-eyed-alien.net>
+	Mon, 1 Nov 2004 20:50:28 -0500
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:19369 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S278493AbUKBBrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 20:47:17 -0500
+Message-ID: <4186E719.4020100@yahoo.com.au>
+Date: Tue, 02 Nov 2004 12:47:05 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Andrea Arcangeli <andrea@novell.com>
+CC: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PG_zero
+References: <20041030141059.GA16861@dualathlon.random> <418671AA.6020307@yahoo.com.au> <161650000.1099332236@flay> <20041101223419.GG3571@dualathlon.random>
+In-Reply-To: <20041101223419.GG3571@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411012319.13676.worf@sbox.tu-graz.ac.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 1. November 2004 22:35 schrieb Matthew Dharm:
-> On Mon, Nov 01, 2004 at 08:40:32PM +0100, Wolfgang Scheicher wrote:
->> Am Montag, 1. November 2004 20:10 schrieb Matthew Dharm:
->>> You're using the UB driver.  Does it work if you turn that off and use
->>> the usb-storage driver instead?
->>
->> Damn, you are right - this is a new driver...
->> I didn't notice that, i did rely on hotplug to load the correct modules.
->>
->> Removed the ub driver and everything is fine now.
->>
->> That means - just unloadin ub and loading usb-storage didn't work.
->>
->> I had to remove it from the kernel config and rebuild the modules.
->> Actually usb-storage was the only module being rebuilt. Looks like
->> usb-storage's functionality is different if ub is built.
->>
->> So, my system works fine again, thank you.
->> But it leaves the question: why does ub perform so badly?
->
-> Talk to Pete Zaitcev about that.
+Andrea Arcangeli wrote:
+> On Mon, Nov 01, 2004 at 10:03:56AM -0800, Martin J. Bligh wrote:
+> 
+>>[..] it was to stop cold
+>>allocations from eating into hot pages [..]
+> 
+> 
+> exactly, and I believe that hurts. bouncing on the global lock is going to
+> hurt more than preserving an hot page (at least on a 512-way). Plus the
+> cold page may very soon become hot too.
+> 
 
-ok - so this goes to him too :-)
+Well, the lock isn't global of course. You might be better off
+benchmarking on an old Intel 8-way SMP rather than a 512-way Altix :)
 
-Pete, i don't know if you have seen my previous posts...
-I did now have a look at the comments in ub.c
-Looks like the driver is very new and a lot has yet to be done.
-I cannot really tell what of the points on the todo list may be related to my 
-problem. I miss information and "ub" isn't really a good keyword to google 
-for either.
+But nevertheless I won't say the lock will never hurt.
 
-What is the difference to the usb-storage driver?
-What is the state, what are the plans?
+> Plus you should at least allow an hot allocation to eat into the cold
+> pages (which didn't happen IIRC).
+> 
+> I simply believe using the lru ordering is a more efficient way to
+> implement hot/cold behaviour and it will save some minor ram too (with
+> big lists the reservation might even confuse the oom conditions, if the
+> allocation is hot, but the VM frees in the cold "stopped" list). I know
+> the cold list was a lot smaller so this is probably only a theoretical
+> issue.
+> 
 
->> And: could maybe somebody put some hints into the ub help?
->> "This driver supports certain USB attached storage devices such as flash
->> keys." didn't sound so bad to me...
->
-> That should definately happen.  Along with a note that this blocks
-> usb-storage from working with many devices if enabled.
+If you don't have cold allocations eating hot pages, nor cold frees
+pushing out hot pages then it may be worthwhile.
 
-Yep. Absolutely.
+If that helps a lot, then you couldn't you just have hot allocations
+also check the cold list before falling back to the buddy?
 
-Worf
+I admit I didn't look closely at this - mainly the PG_zero stuff.

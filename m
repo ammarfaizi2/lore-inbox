@@ -1,76 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264364AbUBKNAj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 08:00:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbUBKNAh
+	id S264275AbUBKNHA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 08:07:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbUBKNHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 08:00:37 -0500
-Received: from post.tau.ac.il ([132.66.16.11]:52383 "EHLO post.tau.ac.il")
-	by vger.kernel.org with ESMTP id S264364AbUBKNAf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 08:00:35 -0500
-Date: Wed, 11 Feb 2004 15:00:24 +0200
-From: Micha Feigin <michf@post.tau.ac.il>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
-Message-ID: <20040211130024.GJ3854@luna.mooo.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <3FFFD61C.7070706@samwel.tk> <200401131200.16025.lkml@kcore.org> <20040113110110.GA6711@suse.de> <200402110724.18676.lkml@kcore.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200402110724.18676.lkml@kcore.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.23.0.3; VDF: 6.23.0.65; host: localhost)
+	Wed, 11 Feb 2004 08:07:00 -0500
+Received: from mx13.sac.fedex.com ([199.81.197.53]:9220 "EHLO
+	mx13.sac.fedex.com") by vger.kernel.org with ESMTP id S264275AbUBKNG6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 08:06:58 -0500
+Date: Wed, 11 Feb 2004 21:07:22 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>, Jeff Chua <jchua@fedex.com>,
+       Jeff Chua <jeffchua@silk.corp.fedex.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] warning: `__attribute_used__' redefined
+In-Reply-To: <Pine.LNX.4.58.0402100827100.2128@home.osdl.org>
+Message-ID: <Pine.LNX.4.58.0402112105090.341@boston.corp.fedex.com>
+References: <Pine.LNX.4.58.0402101434260.27213@boston.corp.fedex.com>
+ <20040209225336.1f9bc8a8.akpm@osdl.org> <Pine.LNX.4.58.0402102150150.17289@silk.corp.fedex.com>
+ <20040210082514.04afde4a.akpm@osdl.org> <Pine.LNX.4.58.0402100827100.2128@home.osdl.org>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 02/11/2004
+ 09:06:46 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 02/11/2004
+ 09:06:48 PM,
+	Serialize complete at 02/11/2004 09:06:49 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 02/11/2004
+ 09:06:49 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 11, 2004 at 07:24:18AM +0100, Jan De Luyck wrote:
-> On Tuesday 13 January 2004 12:01, Jens Axboe wrote:
-> > On Tue, Jan 13 2004, Jan De Luyck wrote:
-> > > On Monday 12 January 2004 15:02, Jens Axboe wrote:
-> > > > bo is accounted when io is actually put on the pending queue for the
-> > > > disk, so they really do go hand in hand. So you should use block_dump
-> > > > to find out why.
-> > >
-> > > It's nearly always reiserfs that causes the disk to spin up. Also, I'm
-> > > seeting the harddisk led light up every 5-7 seconds :-( weird.
-> >
-> > Does 2.6 laptop mode patch even include the necessary reiser changes to
-> > make this work properly?
-> 
-> To followup on this: I've recently moved my entire installation to ext3 (I had 
-> to RMA the disk, tarred everything up, formatted another disk, put everything 
-> back but on ext3 this time), on which the laptopmode actually makes a 
-> difference. I can hear the disk spindown, and it stays that way for a 
-> reasonably long time (e.g. +- 10 minutes has happened).
-> 
-> So there does seem to be a serious difference between the reiserfs commit 
-> option and the ext3 option.
-> 
+On Tue, 10 Feb 2004, Linus Torvalds wrote:
 
-The reiserfs commit option doesn't work to suppress reiserfs journal
-writing to disk. The value that needs to be changes is the transaction
-max age instead of the commit max age which is being change now.
+> On Tue, 10 Feb 2004, Andrew Morton wrote:
+> > ah, thanks.
+> > Like this?
+> That will just break. The reason for the "compiler.h" include is the
+> "__user" part of fpstate, so now you'll get a parse error later if
+> non-kernel code includes this.
+>
+> So the rule should still be: don't include kernel headers from user
+> programs. But if it's needed for some reason, that #ifdef needs to be
+> somewhere else (inside "compiler.h" or something).
 
-This is under work along with adding xfs support and fixing the ext3
-commit option (there is no reset to default commit value option at the
-moment).
+So, what's wrong with the patch I posted earlier. I've verified that it
+works with just one place to patch, and that makes all warnings went away.
 
-It won't take too long but if anyone is impatient I can send them a
-patch to fix reiserfs.
+Patch attached here again.
 
-> Just letting you folks know.
-> 
-> Jan
-> 
-> -- 
-> Baruch's Observation:
-> 	If all you have is a hammer, everything looks like a nail.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Thanks,
+Jeff
+
+--- linux-2.6.2/include/linux/compiler-gcc2.h	Wed Feb  4 11:45:02 2004
++++ linux-2.6.3-rc2/include/linux/compiler-gcc2.h	Tue Feb 10 14:30:04 2004
+@@ -12,6 +12,10 @@
+ # define __builtin_expect(x, expected_value) (x)
+ #endif
+
++#ifdef __attribute_used__
++#undef __attribute_used__
++#endif
++
+ #define __attribute_used__	__attribute__((__unused__))
+
+ /*

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130600AbRCWLZu>; Fri, 23 Mar 2001 06:25:50 -0500
+	id <S130636AbRCWL3a>; Fri, 23 Mar 2001 06:29:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130552AbRCWLZa>; Fri, 23 Mar 2001 06:25:30 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:17935 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S130600AbRCWLZ2>;
-	Fri, 23 Mar 2001 06:25:28 -0500
-Date: Fri, 23 Mar 2001 12:24:40 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: Amit D Chaudhary <amit@muppetlabs.com>
-Cc: lermen@fgan.de, linux-kernel@vger.kernel.org
-Subject: Re: /linuxrc query
-Message-ID: <20010323122440.S3932@almesberger.net>
-In-Reply-To: <3ABAEED2.6020708@muppetlabs.com> <20010323075107.Q3932@almesberger.net> <3ABAF64A.1040106@muppetlabs.com>
+	id <S130606AbRCWL3L>; Fri, 23 Mar 2001 06:29:11 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:53295 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S130552AbRCWL27>;
+	Fri, 23 Mar 2001 06:28:59 -0500
+Message-ID: <20010323122815.A6428@win.tue.nl>
+Date: Fri, 23 Mar 2001 12:28:15 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: Rik van Riel <riel@conectiva.com.br>,
+        Michael Peddemors <michael@linuxmagic.com>
+Cc: Stephen Clouse <stephenc@theiqgroup.com>,
+        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <20010323015358Z129164-406+3041@vger.kernel.org> <Pine.LNX.4.21.0103230403370.29682-100000@imladris.rielhome.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3ABAF64A.1040106@muppetlabs.com>; from amit@muppetlabs.com on Thu, Mar 22, 2001 at 11:07:54PM -0800
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.LNX.4.21.0103230403370.29682-100000@imladris.rielhome.conectiva>; from Rik van Riel on Fri, Mar 23, 2001 at 04:04:09AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit D Chaudhary wrote:
-> To summarize, pivot_root has been a life saver as the earlier real_root_dev 
-> might not have been useful in this case.
+On Fri, Mar 23, 2001 at 04:04:09AM -0300, Rik van Riel wrote:
+> On 22 Mar 2001, Michael Peddemors wrote:
+> 
+> > Here, Here.. killing qmail on a server who's sole task is running mail
+> > doesn't seem to make much sense either..
+> 
+> I won't defend the current OOM killing code.
+> 
+> Instead, I'm asking everybody who's unhappy with the
+> current code to come up with something better.
 
-The whole old change_root mechanism with real_root_dev is best forgotten
-quickly ;-) It's also completely helpless as soon as you fire off some
-kernel threads that don't call exit_fs.
+To a murderer: "Why did you kill that old lady?"
+Reply: "I won't defend that deed, but who else should I have killed?"
 
-> Not using the ramfs limits for now, will do soon.
+Andries - getting more and more unhappy with OOM
 
-BTW, if you can't free the RAM disk, you may have to apply
-http://icawww1.epfl.ch/~almesber/patches/rdfree
+Mar 23 11:48:49 mette kernel: Out of Memory: Killed process 2019 (emacs).
+Mar 23 11:48:49 mette kernel: Out of Memory: Killed process 1407 (emacs).
+Mar 23 11:48:50 mette kernel: Out of Memory: Killed process 1495 (emacs).
+Mar 23 11:48:50 mette kernel: Out of Memory: Killed process 2800 (rpm).
 
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+[yes, that was rpm growing too large, taking a few emacs sessions]
+[2.4.2]

@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263407AbTDGNLS (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 09:11:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263419AbTDGNLS (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 09:11:18 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:44292 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263407AbTDGNLR (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 09:11:17 -0400
-Message-ID: <3E917BFA.4020303@aitel.hist.no>
-Date: Mon, 07 Apr 2003 15:24:10 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: Thomas Schlichter <schlicht@rumms.uni-mannheim.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: An idea for prefetching swapped memory...
-References: <200304071026.47557.schlicht@uni-mannheim.de> <200304072021.17080.kernel@kolivas.org> <1049712476.3e91575c2e6ae@rumms.uni-mannheim.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id S263431AbTDGNOE (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 09:14:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTDGNOE (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 09:14:04 -0400
+Received: from hercules.egenera.com ([208.254.46.135]:60164 "EHLO
+	coyote.egenera.com") by vger.kernel.org with ESMTP id S263431AbTDGNOD (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 09:14:03 -0400
+Date: Mon, 7 Apr 2003 09:20:12 -0400
+From: "Philip R. Auld" <pauld@egenera.com>
+To: linux-kernel@vger.kernel.org
+Subject: Deadlock in sd_open/revalidate [lk <= 2.4]
+Message-ID: <20030407092012.C13667@vienna.EGENERA.COM>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Razor-id: e831463132f9ed17e049cbdf3601de6b2c28bb12
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Schlichter wrote:
+Hi folks,
+	There seems to be a potential deadlock in the sd_open path. The problem
+is this while loop:
 
-> What I wanted to say is that if there is free memory it should be filled with
-> the pages that were in use before the memory got rare. And these are the pages
-> swapped out last. 
+	...
+	while (rscsi_disks[target].device->busy) {
+                barrier();
+                cpu_relax();
+        }
+	...
 
-Not necessarily.  Memory isn't merely used to hold swappable stuff, it also
-caches files.  Consider a small but io-intensive program.  The stuff
-you want isn't necessarily the last swap (perhaps there
-even isn't anything swapped out) , it might be the last thing
-dropped from cache instead.
+In revalidate_scsidisk we do this:
+	
+	...
+	device->busy = 1;
+	...
+	almost certain schedule();
+	...
+	device-busy = 0;
 
-And we can often predict better than "the last thing swapped/flushed"
-A bunch of free memory appearing could usually be better used for
-extra read-ahead, wether it is read-ahead of files/directories/bitmaps
-being accessed, or executable code faulted in from executables or
-swap devices.
+Both paths hold the kernel lock so if sd_open gets into the while loop when 
+the revalidate is sleeping it's all over.
 
-> The other swapped out pages are swapped out even longer and so
-> will likely not be used in the near future... (That's what the LRU algorithm
-> says...)
+As a simple preventative fix I'd say put a schedule in the while loop. It's
+a little ugly, but less intrusive that adding a wait queue to the device.
+
+Anoyone see anything wrong with doing that? Other solutions?
+
+This seems to be present in 2.0, 2.2. and 2.4 (where we hit it).
+The while-forever-loop-with -kernel-lock seems to be gone in 2.5.
 
 
-"What we're going to need soon" is the best.  It isn't always predictable,
-but sometimes.  "The block following the last we read from some 
-file/fs-structure"
-is often a good one though.
+Cheers,
 
-Helge Hafting
+Phil
 
+-- 
+Philip R. Auld, Ph.D.                  Technical Staff 
+Egenera Corp.                        pauld@egenera.com
+165 Forest St., Marlboro, MA 01752       (508)858-2600

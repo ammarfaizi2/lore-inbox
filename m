@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284335AbRLRRoB>; Tue, 18 Dec 2001 12:44:01 -0500
+	id <S284337AbRLRRmB>; Tue, 18 Dec 2001 12:42:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284366AbRLRRnv>; Tue, 18 Dec 2001 12:43:51 -0500
-Received: from dsl-65-186-161-49.telocity.com ([65.186.161.49]:44036 "EHLO
-	nic.osagesoftware.com") by vger.kernel.org with ESMTP
-	id <S284335AbRLRRnn>; Tue, 18 Dec 2001 12:43:43 -0500
-Message-Id: <4.3.2.7.2.20011218124302.00bcc100@mail.osagesoftware.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Tue, 18 Dec 2001 12:43:39 -0500
-To: lkml <linux-kernel@vger.kernel.org>
-From: David Relson <relson@osagesoftware.com>
-Subject: Re: 2.5.1 - undefined symbols building NFS as a module
-In-Reply-To: <Pine.LNX.4.33.0112181754150.29077-100000@Appserv.suse.de>
-In-Reply-To: <4.3.2.7.2.20011218113324.00e657e0@mail.osagesoftware.com>
+	id <S284335AbRLRRlv>; Tue, 18 Dec 2001 12:41:51 -0500
+Received: from r200-61-77-202.techtel.net.uy ([200.61.77.202]:17553 "EHLO
+	Angband.conatel") by vger.kernel.org with ESMTP id <S284359AbRLRRll>;
+	Tue, 18 Dec 2001 12:41:41 -0500
+Subject: Connection timeouts in Kernel 2.4.16
+From: Alvaro Aguilera <aaguilera@conatel.com.uy>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-4kP3hNi6Rl/p+zRA65Au"
+X-Mailer: Evolution/0.99.0 (Preview Release)
+Date: 18 Dec 2001 14:40:05 -0300
+Message-Id: <1008697205.7353.0.camel@Angband>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave,
 
-That fixed it very nicely.  Thanks.
+--=-4kP3hNi6Rl/p+zRA65Au
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-David
+When I upgraded my squid proxy server from kernel 2.4.12 to 2.4.16 some
+problems with connection timeouts start to rise.
+I don't know why... so I went back to 2.4.12.
+Hope this information would be useful.
 
-At 11:55 AM 12/18/01, you wrote:
->On Tue, 18 Dec 2001, David Relson wrote:
->
-> > and here's the complaint from "make modules_install"
-> > if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.1; fi
-> > depmod: *** Unresolved symbols in /lib/modules/2.5.1/kernel/fs/nfs/nfs.o
-> > depmod:       seq_escape
-> > depmod:       seq_printf
->
->Fixed in -dj3 (url in other mail).
->(If you don't want it all, just take the hunk that
->  adds exports of these functions)
->
->Dave.
->
->--
->| Dave Jones.        http://www.codemonkey.org.uk
->| SuSE Labs
+A^2.
 
+
+
+--=-4kP3hNi6Rl/p+zRA65Au
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.5 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8H391k17yPNgaTw8RAgZ1AKD4hXfbBDLutvG4nHG/zgS1QQ6UXgCfR29/
+IlZtWFf+0vGk+RW0uHm7IbU=
+=a/2Q
+-----END PGP SIGNATURE-----
+
+--=-4kP3hNi6Rl/p+zRA65Au--

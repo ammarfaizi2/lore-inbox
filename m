@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266204AbUHIIY0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266209AbUHII0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266204AbUHIIY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 04:24:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266209AbUHIIY0
+	id S266209AbUHII0W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 04:26:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266254AbUHII0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 04:24:26 -0400
-Received: from be.zoznam.sk ([62.65.179.8]:58075 "EHLO be1.mail.zoznam.sk")
-	by vger.kernel.org with ESMTP id S266204AbUHIIYZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 04:24:25 -0400
-Message-ID: <411734E1.5070508@lmxmail.sk>
-Date: Mon, 09 Aug 2004 10:25:05 +0200
-From: =?ISO-8859-2?Q?Mari=E1n_Tomko?= <macros@lmxmail.sk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; sk-SK; rv:1.7) Gecko/20040630
-X-Accept-Language: sk, en-us, en
+	Mon, 9 Aug 2004 04:26:22 -0400
+Received: from dsl-217-155-115-179.zen.co.uk ([217.155.115.179]:46729 "HELO
+	felix.billp.org") by vger.kernel.org with SMTP id S266209AbUHII0U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 04:26:20 -0400
+From: bil@beeb.net
+Reply-To: bil@beeb.net
+To: Mathieu Segaud <matt@minas-morgul.org>
+Subject: Re: problems with Mandrake 10.0 + kernel 2.6.8-rc2
+Date: Mon, 9 Aug 2004 09:22:52 +0100
+User-Agent: KMail/1.6.1
+References: <200408061409.56670.bil@beeb.net> <200408061607.18040.bil@beeb.net> <871xikuw0j.fsf@barad-dur.crans.org>
+In-Reply-To: <871xikuw0j.fsf@barad-dur.crans.org>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: howto apply supermount patch only....
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408090922.53196.bil@beeb.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Mathieu,
+On Friday 06 Aug 2004 16:27, you wrote:
+> odd....
+> can you try removing the umask=0 option ?
+> does 'mount -t iso9660 -o ro /dev/hdc /mnt/cdrom' fail too ?
+Interesting - that's fixed it. I would not have believed that that
+could cause my problems. Why on earth would Mandrake put it in if
+it does that!?
 
-I have 2.6.7 kernel and I want only apply supermount patch. I downloaded 
-supermount-ng204.diff from ck6 splitout.  I copied it into /usr/src.  
-Here I  cd linux-2.6.7. From linux-2.6.7 I run patch -p1 < 
-../supermount-ng204.diff
-
-And I got this:
-patch unexpectedly ends in middle of line
-patch: **** Only garbage was found in the patch input.
-
-What is the problem here? How to cerrectly applied this patch?
-
-Thanx
-
-Marian Tomko
-
-
-PS - I am new in this... So please if it is trivial correct me.
-
+Thanks for the advice, 
+much appreciated,
+Bill
+-- 
++-----------------------------------------------+
+| Bill Purvis, thrice-retired software engineer |
+| e-mail:  bil@beeb.net                         |
+| web:     bil.members.beeb.net                 |
++-----------------------------------------------+

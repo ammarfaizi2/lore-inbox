@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312419AbSCURcH>; Thu, 21 Mar 2002 12:32:07 -0500
+	id <S312410AbSCUReJ>; Thu, 21 Mar 2002 12:34:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312422AbSCURbc>; Thu, 21 Mar 2002 12:31:32 -0500
-Received: from web13307.mail.yahoo.com ([216.136.175.43]:19465 "HELO
-	web13307.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S312419AbSCURa2>; Thu, 21 Mar 2002 12:30:28 -0500
-Message-ID: <20020321173027.93292.qmail@web13307.mail.yahoo.com>
-Date: Thu, 21 Mar 2002 09:30:27 -0800 (PST)
-From: Joerg Pommnitz <pommnitz@yahoo.com>
-Subject: Networking problem in Linux-2.4.10
+	id <S312422AbSCURcL>; Thu, 21 Mar 2002 12:32:11 -0500
+Received: from venus.ci.uw.edu.pl ([193.0.74.207]:12302 "EHLO
+	venus.ci.uw.edu.pl") by vger.kernel.org with ESMTP
+	id <S312398AbSCURbu>; Thu, 21 Mar 2002 12:31:50 -0500
+Date: Thu, 21 Mar 2002 18:27:17 +0100
+From: Michal Dorocinski <zwierzak@venus.ci.uw.edu.pl>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+Subject: Re: sis 5591 ide in 2.4.19-pre3 consumes souls
+Message-ID: <20020321182717.K806@venus.ci.uw.edu.pl>
+In-Reply-To: <3C9A0C22.3090702@inet6.fr> <20020321171851.A0D29A3C21@fancypants.trellisinc.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi List,
-I have the following setup:
-One host with two interfaces (eth0, eth1):
+> In article <3C9A0C22.3090702@inet6.fr> you wrote:
+> > There's definitely a problem with some UDMA 33 chipsets. I'll ask SiS 
+> > for 5591 chipset info RSN and look into this as soon as I find some time.
+> 
+> i look forward to it :).  in light of this problem (i've recieved mail from
+> one michal dorocinski echoing this behavior and referencing an -ac patch; i've
+> asked him to mail it here), will this driver stay in .19 for the time being?
+> 
+Yes.
+As I found it in -pre3 the result was: timeouts and some debugs (Lionel has the
+log) and no partition table was found (BadCRC messages from hda). It worked
+then after a day or two when -ac1 or -ac2 was found so I think it was solved.
+I will check -pre4 if it work.
 
-eth0      Link encap:Ethernet  HWaddr 00:E0:4C:71:05:92
-          inet addr:10.1.12.87  Bcast:10.1.12.255  Mask:255.255.255.0
-          inet6 addr: fe80::2e0:4cff:fe71:592/10 Scope:Link
-          UP BROADCAST NOTRAILERS RUNNING  MTU:1500  Metric:1
-          RX packets:4512 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:4034 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100
-          RX bytes:345507 (337.4 Kb)  TX bytes:407841 (398.2 Kb)
-          Interrupt:11 Base address:0x5000
+Btw. I have a question... will an SiS 6326 AGP will be supported anyhow by agp
+gart ? It is supported by Xfree driver but no xv nor AGP or dri acceleration
+as I can see is realy used. It also has some wired problems with colorded dots
+(blue and red).
+But this is maybe a subject to AGP/SiS VGA/XFREE drivers maintaners :)
 
-eth1      Link encap:Ethernet  HWaddr 00:E0:4C:71:05:91
-          inet addr:10.1.12.151  Bcast:10.1.12.255  Mask:255.255.255.0
-          inet6 addr: fe80::2e0:4cff:fe71:591/10 Scope:Link
-          UP BROADCAST NOTRAILERS RUNNING  MTU:1500  Metric:1
-          RX packets:2709 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:16 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100
-          RX bytes:239132 (233.5 Kb)  TX bytes:2646 (2.5 Kb)
-          Interrupt:10 Base address:0x7000
+Greetings
 
-when I do 
-ping -I eth0 10.1.12.151
-I don't get a reply but ARP requests like this:
+	Zwierz
 
-19:23:59.219402 arp who-has 10.1.12.151 tell 10.1.12.87
-19:24:00.219402 arp who-has 10.1.12.151 tell 10.1.12.87
-19:24:01.219402 arp who-has 10.1.12.151 tell 10.1.12.87
-19:24:02.219402 arp who-has 10.1.12.151 tell 10.1.12.87
-
-So the host tries to resolve its own MAC address and does
-not answer itself. Manually setting the ARP entry fails
-as well.
-
-Question: Should this work at all? If yes, is there a fix?
-
-Regards
-  Jörg
-
-=====
 -- 
-Regards
-       Joerg
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Movies - coverage of the 74th Academy Awards®
-http://movies.yahoo.com/
+The Shadow, The Darkness, The Fear...
+	Forever Alone Immortal...

@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261259AbTINTaP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 15:30:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbTINTaO
+	id S261287AbTINTi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 15:38:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbTINTi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 15:30:14 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50365 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261259AbTINTaL (ORCPT
+	Sun, 14 Sep 2003 15:38:26 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:44040 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S261262AbTINTiY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 15:30:11 -0400
-Date: Sun, 14 Sep 2003 12:30:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add likely around access_ok for uaccess
-Message-Id: <20030914123024.4a261cd3.akpm@osdl.org>
-In-Reply-To: <3F644E36.5010402@colorfullife.com>
-References: <3F644E36.5010402@colorfullife.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 14 Sep 2003 15:38:24 -0400
+Date: Sun, 14 Sep 2003 21:38:21 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andries Brouwer <aebr@win.tue.nl>, "J.A. Magallon" <jamagallon@able.es>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: libata update posted
+Message-ID: <20030914213821.A11134@pclin040.win.tue.nl>
+References: <3F628DC7.3040308@pobox.com> <20030913205652.GA3478@werewolf.able.es> <20030913212849.GB21426@gtf.org> <20030914111225.A3371@pclin040.win.tue.nl> <3F64A4BD.6030906@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F64A4BD.6030906@pobox.com>; from jgarzik@pobox.com on Sun, Sep 14, 2003 at 01:26:21PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul <manfred@colorfullife.com> wrote:
->
-> I noticed that gcc's autodetection (3.2.2) guesses 
->  the "if(access_ok())" tests in uaccess.h wrong and puts the error memset 
->  into the direct path and the copy out of line.
+On Sun, Sep 14, 2003 at 01:26:21PM -0400, Jeff Garzik wrote:
+
+> > This shows why defkeymap.c is not generated in the kernel build
+> > but distributed.
 > 
->  The attached patch adds likely to the tests
+> There is a difference between distributing generated files, and checking 
+> generated files into a repository...  I do not advocate changing the 
+> tarball, just the BK repo behind it.
 
-Fair enough.  There are quite a few other access_ok() callers.   How
-about just:
+So you would like to remove defkeymap.c from the bitkeeper repository.
+Can you briefly explain why?
+I am not a bk user so have no feeling for what one would like bk to do.
 
---- 25/include/asm-i386/uaccess.h~access_ok-is-likely	2003-09-14 12:29:10.000000000 -0700
-+++ 25-akpm/include/asm-i386/uaccess.h	2003-09-14 12:29:24.000000000 -0700
-@@ -80,7 +80,7 @@ extern struct movsl_mask {
-  * checks that the pointer is in the user space range - after calling
-  * this function, memory access functions may still return -EFAULT.
-  */
--#define access_ok(type,addr,size) (__range_ok(addr,size) == 0)
-+#define access_ok(type,addr,size) (likely(__range_ok(addr,size) == 0))
- 
- /**
-  * verify_area: - Obsolete, use access_ok()
+But it seems to me that if defkeymap.c is only a generated file when
+no kbd headers have changed, while in the opposite case one needs a
+private version of loadkeys until the next version of kbd has been
+distributed, it is easier to regard it as part of the kernel source.
 
-_
+Andries
 

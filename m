@@ -1,37 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265667AbTFNLnD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 07:43:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265668AbTFNLnD
+	id S265668AbTFNLtf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 07:49:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265669AbTFNLtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 07:43:03 -0400
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:1165 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S265667AbTFNLnB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 07:43:01 -0400
-Date: Sat, 14 Jun 2003 13:56:48 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Ravi Kumar Munnangi <munnangi_ivar@yahoo.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: kernel panic:I have no root I want to scream
-In-Reply-To: <20030614111834.477.qmail@web20508.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.33.0306141347310.19166-100000@gans.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 14 Jun 2003 07:49:35 -0400
+Received: from ppp-217-133-190-246.cust-adsl.tiscali.it ([217.133.190.246]:934
+	"EHLO home.lb.ods.org") by vger.kernel.org with ESMTP
+	id S265668AbTFNLtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 07:49:33 -0400
+Subject: [PATCH] Fix use-after-free in tun/tap driver
+From: Luca Barbieri <lb@lb.ods.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>, vtun@office.satix.net
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1055592155.3810.5.camel@home.lb.ods.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.2 (1.3.2-1) (Preview Release)
+Date: 14 Jun 2003 14:02:35 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> make xconfig
->   During the configuration I havn't made any changes to
->    the default configuration.I have just saved the
->    default configuration and exited.
+unregister_netdevice works asynchronously so freeing the device
+structure immediately after calling it is not a good idea.
 
-You should have, unless you have exactly the same configuration as Linus
-Torvalds has.
-Probably drivers for accessing the root filesystem are missing, but you
-also need to configure a whole heap of other things as well.
+The memory should instead be freed in the net_device destructor, and the
+patch does this.
 
-The Kernel Howto at
-  http://www.linux.org/docs/ldp/howto/Kernel-HOWTO/
-makes a good reading.
 
+--- linux-2.5.70/drivers/net/tun.c~	2003-05-27 03:00:39.000000000 +0200
++++ linux-2.5.70/drivers/net/tun.c	2003-06-14 11:27:09.000000000 +0200
+@@ -115,6 +115,11 @@ static struct net_device_stats *tun_net_
+ 	return &tun->stats;
+ }
+ 
++void tun_net_destroy(struct net_device *dev)
++{
++	kfree((char*)dev - offsetof(struct tun_struct, dev));
++}
++
+ /* Initialize net device. */
+ int tun_net_init(struct net_device *dev)
+ {
+@@ -127,6 +132,7 @@ int tun_net_init(struct net_device *dev)
+ 	dev->hard_start_xmit = tun_net_xmit;
+ 	dev->stop = tun_net_close;
+ 	dev->get_stats = tun_net_stats;
++	dev->destructor = tun_net_destroy;
+ 
+ 	switch (tun->flags & TUN_TYPE_MASK) {
+ 	case TUN_TUN_DEV:
+@@ -551,7 +557,6 @@ static int tun_chr_close(struct inode *i
+ 	if (!(tun->flags & TUN_PERSIST)) {
+ 		dev_close(&tun->dev);
+ 		unregister_netdevice(&tun->dev);
+-		kfree(tun);
+ 	}
+ 
+ 	rtnl_unlock();
+
+
+
+-- 
+Luca Barbieri <lb@lb.ods.org>

@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316610AbSGQUGR>; Wed, 17 Jul 2002 16:06:17 -0400
+	id <S316621AbSGQUHk>; Wed, 17 Jul 2002 16:07:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316615AbSGQUGR>; Wed, 17 Jul 2002 16:06:17 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:46260 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S316610AbSGQUGQ>;
-	Wed, 17 Jul 2002 16:06:16 -0400
-Date: Thu, 18 Jul 2002 22:08:13 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Sam Mason <mason@f2s.com>
-Cc: shreenivasa H V <shreenihv@usa.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Gang Scheduling in linux
-In-Reply-To: <20020717201417.GA9546@sam.home.net>
-Message-ID: <Pine.LNX.4.44.0207182206280.6752-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316632AbSGQUHk>; Wed, 17 Jul 2002 16:07:40 -0400
+Received: from mailrelay.ds.lanl.gov ([128.165.47.40]:13981 "EHLO
+	mailrelay.ds.lanl.gov") by vger.kernel.org with ESMTP
+	id <S316621AbSGQUGz>; Wed, 17 Jul 2002 16:06:55 -0400
+Subject: 2.5.25-dj2, kernel BUG at dcache.c:361
+From: Steven Cole <elenstev@mesatop.com>
+To: Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org, Steven Cole <scole@lanl.gov>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 17 Jul 2002 14:06:50 -0600
+Message-Id: <1026936410.11636.107.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+While running 2.5.25-dj2 and dbench with increasing numbers of clients,
+my test machine locked up with the following message:
 
-On Wed, 17 Jul 2002, Sam Mason wrote:
+kernel BUG at dcache.c:361!
 
-> It's mainly used for programs that needs lots of processing power
-> chucked at a specific problem, the problem is first broken down into
-> several small pieces and each part is sent off to a different processor.  
-> When each piece has been processed, they are all recombined and the rest
-> of the calculation is continued.  The problem with this is that if any
-> one of the pieces is delayed, all the processors will be idle waiting
-> for the interrupted piece to be processed, before they can process the
-> next set of pieces.
+I tried to copy down the following register dump but was unable to.
+Nothing interesting saved in /var/log/messages.
 
-well, how does gang scheduling solve this problem? Even gang-scheduled
-tasks might be interrupted anytime on any CPU, by higher-priority tasks,
-thus causing a delay.
+This is fairly repeatable in that it happens with running dbench with
+more than 32 clients.  I saw it once with as few as 6 clients.  After
+getting weary of running fsck on an ext2 /home partition, I added a
+journal to /home and mounted it as ext3.  With /home (where dbench is
+running) mounted as ext3, I got the following message just before the
+BUG:
 
-	Ingo
+EXT3-fs error (device sd(8,8): ext3_free_blocks: freeing blocks not in
+datazone - block = 7939096, count = 13.
+
+The test machine is a dual p3 1mb memory, scsi, 2.5.25-dj2 SMP kernel.
+
+Steven
+
+
 

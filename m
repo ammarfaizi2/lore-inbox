@@ -1,90 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262558AbUBYBVs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 20:21:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbUBYBVs
+	id S262559AbUBYBXq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 20:23:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbUBYBXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 20:21:48 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:34317 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262558AbUBYBVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 20:21:45 -0500
-Date: Wed, 25 Feb 2004 01:21:39 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Otto Solares <solca@guug.org>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] fbdv/fbcon pending problems
-In-Reply-To: <20040224214106.GA17390@guug.org>
-Message-ID: <Pine.LNX.4.44.0402250118210.24952-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Feb 2004 20:23:45 -0500
+Received: from fw.osdl.org ([65.172.181.6]:10167 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262559AbUBYBXM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 20:23:12 -0500
+Date: Tue, 24 Feb 2004 17:25:05 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Marco d'Itri" <md@Linux.IT>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: page allocation failure. order:3, mode:0x20
+Message-Id: <20040224172505.775e609f.akpm@osdl.org>
+In-Reply-To: <20040224210144.GA9129@wonderland.linux.it>
+References: <20040224210144.GA9129@wonderland.linux.it>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Sure, hopefully fbdev drivers became more 'intelligent', with just a
+"Marco d'Itri" <md@Linux.IT> wrote:
+>
+> Linux attila 2.6.3 #1 Fri Feb 20 02:12:34 CET 2004 ppc GNU/Linux
 > 
-> echo "1024x768x16-75" > /sys/class/fbdev/0/geometry
+> (Linus tree.)
 > 
-> they will compute internally the timings or get it from EDID and
-> glad the user with something correct for the hardware.
-> 
-> cat /sys/class/fbdev/0/modes
-> 
-> will give you the modes supported by the card.
+> kernel: tinyproxy: page allocation failure. order:3, mode:0x20
+> kernel: Call trace:
+> kernel:  [c00097e8] dump_stack+0x18/0x28
+> kernel:  [c0037fd8] __alloc_pages+0x31c/0x364
+> kernel:  [c003804c] __get_free_pages+0x2c/0x74
+> kernel:  [c003b14c] cache_grow+0x94/0x328
+> kernel:  [c003b5a0] cache_alloc_refill+0x1c0/0x25c
+> kernel:  [c003b9ac] __kmalloc+0xa8/0xb4
+> kernel:  [c0167dc8] alloc_skb+0x4c/0xe0
+> kernel:  [c0127004] loopback_xmit+0x100/0x110
+> kernel:  [c016d0c0] dev_queue_xmit+0xcc/0x248
+> kernel:  [c0184464] ip_finish_output+0x124/0x26c
+> kernel:  [c018698c] dst_output+0x28/0x5c
+> kernel:  [c01784c8] nf_hook_slow+0xf0/0x14c
+> kernel:  [c0184c50] ip_queue_xmit+0x408/0x520
+> kernel:  [c01960b4] tcp_transmit_skb+0x3e4/0x5e4
+> kernel: tinyproxy: page allocation failure. order:4, mode:0x20
 
-Yes.
- 
-> On the other side i see a lot of effort in the fbdev acceleration,
-> it is nice but that effort should be better spent on fixing the layer,
-> imo, the only user for acceleration is fbcon, any userland app that
-> use fbdev disables that acceleration so it can map the vmem and ioregs,
-> and do it's own voodoo if it wants acceleration.  That acceleration
-> is not "exported" to user space.  I am working in a open source project
-> that uses mesa-solo with fbdev and many limitations from the layer
-> itself have been seen.
+When the slab code creates a new slab it decides up-front on a nice
+underlying allocation size which will pack a good number of the requested
+objects.  So for the size-2048 slab it is currently using a 2-order (16k)
+allocation.
 
-That is true so far for fillrect and copyarea functions. Imageblit will be 
-used for read and writes on /dev/fbX. Also it is used for software 
-cursors. 
+Here, you're getting 3- and even 4-order allocation attempts.  Presumably
+because loopback uses a 16k MTU and slab has sized that up to use 64k
+allocations.
 
-> By 'fixing the layer' i mean some simple things that could make fbdev
-> a real graphics solution for linux in the long term:
-> 
-> - fbdev_core (will handle the fbdev/sysfs registration, shared by all
->               drivers, most important is the modes handling interface).
-
-Pretty much done.
-
-> - fbdev_xxx  (driver for specific hw, it will only export the interesting
->               bits like vmem, ioregs, will handle mmap stuff and ioctl's,
->               video modes, no accel of any kind).
-
-Have it.
-
-> - fbdev_xxx_accel (acceleration hooks if any for xxx driver, optional module)
-
-We need it for the above reasons.
-
-> - fbdev_con  (handle console -- already modular in 2.6, will use accel hooks
->               if not NULL, optional).
-
-We always need the accel hooks. Some how we have to draw the fonts.
-
-> - fbdev_xxx_drm (will handle the DRM for xxx using hooks from fbdev, so we
->               could have just a single entity inside the kernel handling a
->               specific device, and not the current mess within fbdev and
->               drm, optional).
-
-That will be the future.
-
-> We have now with 2.6 a good input and sound layers.  Just by fixing
-> the graphics layer many interesting userland projects could be born.
-
-I agree. The graphics layer is the last frontier.
-
+It's all crazy - these allocations are sure to fail all over the place. 
+Manfred is working on fixing it up.
 

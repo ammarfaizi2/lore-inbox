@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288242AbSAHSzz>; Tue, 8 Jan 2002 13:55:55 -0500
+	id <S288233AbSAHSyp>; Tue, 8 Jan 2002 13:54:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288249AbSAHSzh>; Tue, 8 Jan 2002 13:55:37 -0500
-Received: from zero.tech9.net ([209.61.188.187]:2568 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S288242AbSAHSzW>;
-	Tue, 8 Jan 2002 13:55:22 -0500
-Subject: Re: [PATCH] preempt abstraction
-From: Robert Love <rml@tech9.net>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@transmeta.com, hch@caldera.com, arjanv@redhat.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <10940.1010511619@warthog.cambridge.redhat.com>
-In-Reply-To: <10940.1010511619@warthog.cambridge.redhat.com>
-Content-Type: text/plain
+	id <S288242AbSAHSyf>; Tue, 8 Jan 2002 13:54:35 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:56594 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S288233AbSAHSy0>; Tue, 8 Jan 2002 13:54:26 -0500
+Message-ID: <3C3B3DBC.9070801@evision-ventures.com>
+Date: Tue, 08 Jan 2002 19:43:08 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: "Cameron, Steve" <Steve.Cameron@compaq.com>
+CC: linux-kernel@vger.kernel.org, "White, Charles" <Charles.White@compaq.com>
+Subject: Re: PATCH 2.5.2-pre9 scsi cleanup
+In-Reply-To: <45B36A38D959B44CB032DA427A6E10640167CF1C@cceexc18.americas.cpqcorp.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 08 Jan 2002 13:57:28 -0500
-Message-Id: <1010516250.3229.21.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-01-08 at 12:40, David Howells wrote:
-> 
-> The following patch abstracts access to need_resched:
-> 
-> 	ftp://infradead.org/pub/people/dwh/preempt-252p10.diff.bz2
-> 
-> It replaces most C-source read accesses to it with need_preempt() which
-> returns true if rescheduling is necessary.
+Cameron, Steve wrote:
 
-Nice patch!
+>Martin Dalecki [mailto:dalecki@evision-ventures.com] wrote,
+>regarding removal of scsi_device_types[] from drivers/scsi/scsi.c
+>
+>>Cameron, Steve wrote:
+>>
+>[...]
+>
+>>>Hmmm, I was using that.... (In, for example, 
+>>>the cciss patch here: http://www.geocities.com/smcameron 
+>>>It's not any big deal, though.)
+>>>
+>>Precisely this "not any big deal" is the point: It was the wrong 
+>>approach to a trivial problem ;-).
+>>
+>
+>So what's the right approach?  I can invent my own easily enough, 
+>but each driver doing its own thing doesn't seem right.  I assumed 
+>that it was in scsi.c foi common usage, so each driver that wanted 
+>to say, use these device type strings in diagnostic messages or 
+>some such wouldn't have to reinvent this wheel, and so all the 
+>drivers would consistently use the same names.  Will it be 
+>replaced with something else?
+>
+>Just want to know so I don't waste (even more :-) time 
+>doing something dumb.
+>
 
-A couple of points:
+Please just case in the ->type enum. And if you wan't to provide special 
+messages, well
+then please do it yourself, the removal showed, that nearly no one 
+driver used the generic
+stuff, so it wasn't trully generic at all. (It should be handled by some 
+userlevel stuff anyway...)
 
-Why not use the more commonly named conditional_schedule instead of
-preempt() ?  In addition to being more in-use (low-latency, lock-break,
-and Andrea's aa patch all use it) I think it better conveys its meaning,
-which is a schedule() but only conditionally.
-
-I'm sure it is just being pedantic, but why not just make need_preempt
-and preempt (which I would rename need_schedule and
-conditional_schedule, personally) defines?  Example:
-
-	#define need_schedule() (unlikely(current->need_resched))
-	#define conditional_schedule() do { \
-		if (need_schedule()) \
-			schedule(); \
-	} while(0);
-
-Next, in kernel/sched.c you wrap need_preempt in an unlikey() but note
-it is unlikely by design ... Same in mm/vmscan.c a couple times.
-
-Oh, and the patch is confusingly similar to preempt-kernel in name, but
-I guess that is my problem. :-)
-
-Anyhow, I like.  2.5 _and_ 2.4?
-
-	Robert Love
 

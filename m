@@ -1,76 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbVAYO41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbVAYPCc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbVAYO41 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 09:56:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbVAYO41
+	id S261965AbVAYPCc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 10:02:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbVAYPCc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 09:56:27 -0500
-Received: from colin2.muc.de ([193.149.48.15]:26890 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261967AbVAYO4D (ORCPT
+	Tue, 25 Jan 2005 10:02:32 -0500
+Received: from v6.netlin.pl ([62.121.136.6]:26385 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S261965AbVAYPCY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 09:56:03 -0500
-Date: 25 Jan 2005 15:56:02 +0100
-Date: Tue, 25 Jan 2005 15:56:02 +0100
-From: Andi Kleen <ak@muc.de>
-To: "Mukker, Atul" <Atulm@lsil.com>
-Cc: "'Steve Lord'" <lord@xfs.org>,
-       "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>,
-       "'Mel Gorman'" <mel@csn.ul.ie>,
-       "'William Lee Irwin III'" <wli@holomorphy.com>,
-       "'Linux Memory Management List'" <linux-mm@kvack.org>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
-       "'Grant Grundler'" <grundler@parisc-linux.org>
-Subject: Re: [PATCH] Avoiding fragmentation through different allocator
-Message-ID: <20050125145602.GB75109@muc.de>
-References: <0E3FA95632D6D047BA649F95DAB60E5705A70E61@exa-atlanta>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E5705A70E61@exa-atlanta>
-User-Agent: Mutt/1.4.1i
+	Tue, 25 Jan 2005 10:02:24 -0500
+Message-ID: <41F65F1E.3070504@pointblue.com.pl>
+Date: Tue, 25 Jan 2005 16:00:46 +0100
+From: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: swap is never used on ultrasparc64/32 - 2.6.11-rc2
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 09:02:34AM -0500, Mukker, Atul wrote:
->  
-> > e.g. performance on megaraid controllers (very popular 
-> > because a big PC vendor ships them) was always quite bad on 
-> > Linux. Up to the point that specific IO workloads run half as 
-> > fast on a megaraid compared to other controllers. I heard 
-> > they do work better on Windows.
-> > 
-> <snip>
-> > Ideally the Linux IO patterns would look similar to the 
-> > Windows IO patterns, then we could reuse all the 
-> > optimizations the controller vendors did for Windows :)
-> 
-> LSI would leave no stone unturned to make the performance better for
-> megaraid controllers under Linux. If you have some hard data in relation to
-> comparison of performance for adapters from other vendors, please share with
-> us. We would definitely strive to better it.
+I've 2.6.11-rc2 sparc64 kernel, userland is 32bits.
 
-Sorry for being vague on this. I don't have much hard data on this,
-just telling an annecdote. The issue we saw was over a year ago
-and on a machine running an IO intensive multi process stress test
-(I believe it was an AIM7 variant with some tweaked workfile). When the test
-was moved to a machine with megaraid controller it ran significantly
-lower, compared to the old setup with a non RAID SCSI controller from
-a different vendor. I unfortunately don't know anymore the exact
-type/firmware revision etc. of the megaraid that showed the problem.
+I was compiling few things, fired up firefox, and kaboom. No memory.
 
-If you have already fixed the issues then please accept my apologies.
+Meanwhile, I runned swapoff -a, mkswap -v1 /dev/hda2 , swapon -a, and 
+tried to replace swap partition with swap file, which didn't worked either.
+Here's dmesg:
 
-> The megaraid driver is open source, do you see anything that driver can do
-> to improve performance. We would greatly appreciate any feedback in this
-> regard and definitely incorporate in the driver. The FW under Linux and
-> windows is same, so I do not see how the megaraid stack should perform
-> differently under Linux and windows?
+oom-killer: gfp_mask=0x1d2
+DMA per-cpu:
+cpu 0 hot: low 6, high 18, batch 3
+cpu 0 cold: low 0, high 6, batch 3
+Normal per-cpu: empty
+HighMem per-cpu: empty
 
-My understanding (may be incomplete) of the issue is basically what
-Steve said: something in the stack doesn't like the Linux IO patterns
-with often relatively long SG lists, which are longer than in some
-other popular OS. This is unlikely to be the Linux driver
-(drivers tend to just pass the SG lists through without too much processing),
-more likely it was the firmware or something below.
+Free pages:        3520kB (0kB HighMem)
+Active:28 inactive:13023 dirty:0 writeback:0 unstable:0 free:440 
+slab:908 mapped:18446744073704443093 pagetables:167
+DMA free:3520kB min:1408kB low:1760kB high:2112kB active:224kB 
+inactive:104184kB present:125192kB pages_scanned:0 all_unreclaimable? no
+protections[]: 0 0 0
+Normal free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB 
+present:0kB pages_scanned:0 all_unreclaimable? no
+protections[]: 0 0 0
+HighMem free:0kB min:256kB low:320kB high:384kB active:0kB inactive:0kB 
+present:0kB pages_scanned:0 all_unreclaimable? no
+protections[]: 0 0 0
+DMA: 240*8kB 14*16kB 1*32kB 1*64kB 2*128kB 2*256kB 1*512kB 0*1024kB 
+0*2048kB 0*4096kB 0*8192kB = 3520kB
+Normal: empty
+HighMem: empty
+Swap cache: add 310, delete 310, find 41/50, race 0+0
+Out of Memory: Killed process 15926 (mozilla-bin).
+Out of Memory: Killed process 15923 (mozilla-bin).
+Out of Memory: Killed process 15927 (mozilla-bin).
+Out of Memory: Killed process 15931 (mozilla-bin).
+ioctl32(esd:16474): Unknown cmd fd(10) cmd(40045500){00} arg(efffe35c) 
+on /dev/snd/controlC0
+oom-killer: gfp_mask=0x1d2
+DMA per-cpu:
+cpu 0 hot: low 6, high 18, batch 3
+cpu 0 cold: low 0, high 6, batch 3
+Normal per-cpu: empty
+HighMem per-cpu: empty
 
--Andi
+Free pages:        2312kB (0kB HighMem)
+Active:14 inactive:13186 dirty:0 writeback:0 unstable:0 free:289 
+slab:895 mapped:18446744073704347582 pagetables:161
+DMA free:2312kB min:1408kB low:1760kB high:2112kB active:112kB 
+inactive:105488kB present:125192kB pages_scanned:0 all_unreclaimable? no
+protections[]: 0 0 0
+Normal free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB 
+present:0kB pages_scanned:0 all_unreclaimable? no
+protections[]: 0 0 0
+HighMem free:0kB min:256kB low:320kB high:384kB active:0kB inactive:0kB 
+present:0kB pages_scanned:0 all_unreclaimable? no
+protections[]: 0 0 0
+DMA: 95*8kB 11*16kB 1*32kB 1*64kB 2*128kB 2*256kB 1*512kB 0*1024kB 
+0*2048kB 0*4096kB 0*8192kB = 2312kB
+Normal: empty
+HighMem: empty
+Swap cache: add 310, delete 310, find 41/50, race 0+0
+Out of Memory: Killed process 16456 (firefox-bin).
+Out of Memory: Killed process 16450 (firefox-bin).
+Out of Memory: Killed process 16457 (firefox-bin).
+Out of Memory: Killed process 16461 (firefox-bin).
+Adding 249936k swap on /dev/hda2.  Priority:-2 extents:1
+ioctl32(esd:16742): Unknown cmd fd(10) cmd(40045500){00} arg(efffe35c) 
+on /dev/snd/controlC0
+Adding 127984k swap on /swap.  Priority:-3 extents:5
+
+
+
+top shows that swap memory is present, but it never get used.
+
+-- 
+GJ

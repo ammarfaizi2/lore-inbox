@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272949AbTG3QAj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 12:00:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272951AbTG3QAj
+	id S272159AbTG3P64 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 11:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272958AbTG3P64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 12:00:39 -0400
-Received: from remt27.cluster1.charter.net ([209.225.8.37]:56505 "EHLO
-	remt27.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S272949AbTG3QAd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 12:00:33 -0400
-Message-ID: <3F27EBB5.6040608@mrs.umn.edu>
-Date: Wed, 30 Jul 2003 11:00:53 -0500
-From: Grant Miner <mine0057@mrs.umn.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030727 Thunderbird/0.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Zio! compactflash doesn't work
-References: <3F26F009.4090608@mrs.umn.edu> <20030730063536.GL13611@Synopsys.COM>
-In-Reply-To: <20030730063536.GL13611@Synopsys.COM>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Jul 2003 11:58:56 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:5504 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S272159AbTG3P6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 11:58:54 -0400
+Date: Wed, 30 Jul 2003 17:08:34 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200307301608.h6UG8YQJ000339@81-2-122-30.bradfords.org.uk>
+To: john@grabjohn.com, pavel@ucw.cz
+Subject: Re: PATCH : LEDs - possibly the most pointless kernel subsystem ever
+Cc: linux-kernel@vger.kernel.org, pgw99@doc.ic.ac.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Riesen wrote:
-> Grant Miner, Wed, Jul 30, 2003 00:07:05 +0200:
-> 
->>I have a Microtech CompactFlash ZiO! USB
-> 
-> ...
-> 
->>but it does not show up in /dev; this is in 2.6.0-pre1.  (It never 
->>worked in 2.4 either.)  config is attached.  Any ideas?
-> 
-> 
-> It does not have to show up anywere. You have to modprobe sd-mod and
-> usb_storage first. Than access /dev/sd<something>:
-> 
-> $ mount -t vfat /dev/sda1 /mnt/cf
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> > Does anybody have any suggestions for recommended standard uses for
+> > parallel port connected LEDs?
 
-Yes, I have both of those compiled in, yet no scsi disks appear.
+> At one point I had 12 LEDs on parport. LEDs were fast enough to be
+> drive at interrupt entry/exit.
+> They were: 
+> Yellow not idle task
+> Green interrupt
+> " bh
+> " pagefault
+> Red lowest 4 bits of PID
+> Red, low intensity serial i/o
+> " network i/o
+>
+> It actually looked very good. Glow of interrupt led told you
+> interrupt load, pid LEDs told you about what kind of load it is
+> experiencing (you could tell shell script from make and from
+> computation, and if machine hard-died, you at least knew if it was
+> interrupt or process context). 
 
+Sounds like exactly what we need.  If we standardise on something like
+the above, we could just have a CONFIG_FRONT_PANEL_MONITOR and ask
+people to send in the LED status with bug reports.
+
+> But this kind of blinkenlights needed pretty fast LEDs. (At 486 time
+> I decided that parport on ISA is fast enough..)
+
+I'll buy some LEDs and build a parallel port connected LED panel
+tomorrow...  Do you think the overhead of driving the LEDs would have
+too much of a negative effect on system performance?  If so, or if we
+want more flexibility, maybe we could work out a design for a PCI
+card, which could include more than 12 LEDs - 7-segment numeric
+displays of pid, etc.
+
+John.

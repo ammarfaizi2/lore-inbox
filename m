@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131508AbRCWX14>; Fri, 23 Mar 2001 18:27:56 -0500
+	id <S131512AbRCWXa0>; Fri, 23 Mar 2001 18:30:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131510AbRCWX1r>; Fri, 23 Mar 2001 18:27:47 -0500
-Received: from ash.lnxi.com ([207.88.130.242]:13813 "EHLO DLT.linuxnetworx.com")
-	by vger.kernel.org with ESMTP id <S131508AbRCWX1d>;
-	Fri, 23 Mar 2001 18:27:33 -0500
-To: Jonathan Morton <chromi@cyberspace.org>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "James A. Sutherland" <jas88@cam.ac.uk>,
-        Guest section DW <dwguest@win.tue.nl>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <E14gVQf-00056B-00@the-village.bc.nu> <l0313030eb6e156f24437@[192.168.239.101]>
-From: ebiederman@lnxi.com (Eric W. Biederman)
-Date: 23 Mar 2001 16:26:31 -0700
-In-Reply-To: Jonathan Morton's message of "Fri, 23 Mar 2001 19:45:26 +0000"
-Message-ID: <m3snk4gj88.fsf@DLT.linuxnetworx.com>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S131510AbRCWXaQ>; Fri, 23 Mar 2001 18:30:16 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:31237 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S131512AbRCWXaD>; Fri, 23 Mar 2001 18:30:03 -0500
+Message-ID: <3ABBD974.C41B70CD@evision-ventures.com>
+Date: Sat, 24 Mar 2001 00:17:08 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
+To: Andries.Brouwer@cwi.nl
+CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <UTC200103232315.AAA07966.aeb@vlet.cwi.nl>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Morton <chromi@cyberspace.org> writes:
-
-> >It would make much sense to make the oom killer
-> >leave not just root processes alone but processes belonging to a UID
-> >lower
-> >then a certain value as well (500). This would be:
-> >
-> >1. Easly managable by the admin. Just let oracle/www and analogous users
-> >   have a UID lower then let's say 500.
+Andries.Brouwer@cwi.nl wrote:
 > 
-> That sounds vaguely sensible.  However, make it a "much less likely" rather
-> than an "impossible", otherwise we end up with an unkillable runaway root
-> process killing everything else in userland.
+> [to various people]
 > 
-> I'm still in favour of a failing malloc(), and I'm currently reading a bit
-> of source and docs to figure out where this should be done and why it isn't
-> done now.  So far I've found the overcommit_memory flag, which looks kinda
-> promising.
+> No, ulimit does not work. (But it helps a little.)
+> No, /proc/sys/vm/overcommit_memory does not work.
+> 
+> [to Alan]
+> 
+> > Nobody feels its very important because nobody has implemented it.
+> 
+> Yes, that is the right response.
+> What can one say? One can only do.
 
-Lookup mlock & mlock_all they will handle the single process case.
+Please just expect a patch for tomorrow ;-).
 
-Of course if you OOM you still have problems but that should make
-them much harder to trigger.
-
-Eric
+The only thing I have currently to do is testing.
+I will be using the installation process of the ORACLE iAS 9i for
+linux on my notebook, becouse it used to trigger oom for me VERY
+frequently. So far all things BEHAVE...

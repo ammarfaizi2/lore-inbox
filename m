@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268464AbTANAtJ>; Mon, 13 Jan 2003 19:49:09 -0500
+	id <S268445AbTANAng>; Mon, 13 Jan 2003 19:43:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268465AbTANAtJ>; Mon, 13 Jan 2003 19:49:09 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:8711 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S268464AbTANAtI>;
-	Mon, 13 Jan 2003 19:49:08 -0500
-Date: Mon, 13 Jan 2003 16:57:56 -0800
-From: Greg KH <greg@kroah.com>
-To: Patrick Mansfield <patmans@us.ibm.com>, Andries.Brouwer@cwi.nl,
-       mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: sysfs
-Message-ID: <20030114005756.GC10764@kroah.com>
-References: <UTC200301111443.h0BEhRZ06262.aeb@smtp.cwi.nl> <20030113162741.A18396@beaverton.ibm.com> <20030113165102.A26346@one-eyed-alien.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030113165102.A26346@one-eyed-alien.net>
-User-Agent: Mutt/1.4i
+	id <S268456AbTANAng>; Mon, 13 Jan 2003 19:43:36 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:46556 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268445AbTANAne> convert rfc822-to-8bit; Mon, 13 Jan 2003 19:43:34 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux Solutions
+To: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Question about xAPIC lowest priority delivery
+Date: Mon, 13 Jan 2003 16:50:34 -0800
+User-Agent: KMail/1.4.3
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, John Stultz <johnstul@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200301131650.34228.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 13, 2003 at 04:51:02PM -0800, Matthew Dharm wrote:
-> Really, we don't want to hang the device under USB... it's really an
-> emulated SCSI device.  Or, at least I think so.
+Folks,
 
-Yes, and since you're looking like a scsi device, and acting like a scsi
-device, and you are showing up in the sysfs tree as a scsi device, let's
-at least point your device to the proper place, so that the tree shows
-the proper representation for what is happening.
+We've run into a hitch in the v2.5 Summit interrupt code.  When balance_irq() 
+targets an I/O APIC interrupt to an idle CPU, the interrupt really goes to 
+CPU 0 of the APIC cluster, no matter which one it was supposed to interrupt.  
+These IRQs are in lowest priority mode, but only one bit is set (correctly) 
+in the low nibble.  (The high nibble contains the APIC cluster number, the 
+low nibble is a bitmap of CPUs in the cluster.)
 
-thanks,
+When we change the delivery mode from lowest priority to fixed, IRQs go where 
+they should.  However, this reintroduces some code from v2.4 that we were 
+trying to simplify and remove.
 
-greg k-h
+Anyway, is this a known erratum for xAPICs in parallel mode?  (Namely, a bug 
+in the XTPR arbitration logic in host bridges.)
+
+Can anyone at Intel or otherwise enlighten me?
+
+For that matter, does this happen on non-Summit xAPIC boxes?  Anyone out there 
+with a >= 2 CPU P4 box that uses parallel interrupts care to comment?
+
+-- 
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
+

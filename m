@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271260AbRHTOyJ>; Mon, 20 Aug 2001 10:54:09 -0400
+	id <S271257AbRHTOxJ>; Mon, 20 Aug 2001 10:53:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271265AbRHTOxu>; Mon, 20 Aug 2001 10:53:50 -0400
-Received: from h131s117a129n47.user.nortelnetworks.com ([47.129.117.131]:9887
-	"HELO pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
-	id <S271260AbRHTOxb>; Mon, 20 Aug 2001 10:53:31 -0400
-Message-ID: <3B8124C4.7A4275B9@nortelnetworks.com>
-Date: Mon, 20 Aug 2001 10:55:00 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S271260AbRHTOw7>; Mon, 20 Aug 2001 10:52:59 -0400
+Received: from relay01.cablecom.net ([62.2.33.101]:48653 "EHLO
+	relay01.cablecom.net") by vger.kernel.org with ESMTP
+	id <S271257AbRHTOwq>; Mon, 20 Aug 2001 10:52:46 -0400
+Message-Id: <200108201452.f7KEqxk18219@mail.swissonline.ch>
+Content-Type: text/plain; charset=US-ASCII
+From: Christian Widmer <llx@swissonline.ch>
+Reply-To: llx@swissonline.ch
+To: linux-kernel@vger.kernel.org
+Subject: misc questions about kernel 2.4.x internals
+Date: Mon, 20 Aug 2001 16:52:55 +0200
+X-Mailer: KMail [version 1.3]
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Oliver Xymoron <oxymoron@waste.org>, Theodore Tso <tytso@mit.edu>,
-        David Schwartz <davids@webmaster.com>,
-        Andreas Dilger <adilger@turbolinux.com>
-Subject: Re: /dev/random in 2.4.6
-In-Reply-To: <Pine.LNX.4.30.0108200903580.4612-100000@waste.org> <2251207905.998322034@[10.132.112.53]>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Bligh - linux-kernel wrote:
+hi,
 
-> An alternative approach to all of this, perhaps, would be to use extremely
-> finely grained timers (if they exist), in which case more bits of entropy
-> could perhaps be derived per sample, and perhaps sample them on
-> more operations. I don't know what the finest resolution timer we have
-> is, but I'd have thought people would be happier using ANY existing
-> mechanism (including network IRQs) if the timer resolution was (say)
-> 1 nanosecond.
+1) when using any functions that can block i need to do this in the context 
+of a process. so a can't read, write to sockets in a bottom-half of a 
+interrupt handler. thats why i need to use a kernel thread (i don't what to
+use a user level process). my question now is - how long does it take until 
+my kernel thread starts running? do i have a way to give it very high 
+priority and force my thread to be scheduled so that i can be 'sure' to run 
+just after softirq's, tasklets, ...?
 
-Why don't we also switch to a cryptographically secure algorithm for
-/dev/urandom?  Then we could seed it with a value from /dev/random and we would
-have a known number of cryptographically secure pseudorandom values.  Once we
-reach the end of the png cycle, we could re-seed it with another value from
-/dev/random.
+2) for module writers there is documented and easy to use api how to use 
+tasklets to schedule it's buttom-half for later (very soon) execution. 
+are tasklets like tq_immedate in 2.2.x or tq_schedule? i mean is there a
+current process or do they runn at interrupt time?
+and am i right when i say: to add a new softirq i need to patch kernel 
+sources?
 
-Would this be a valid solution, or am I totally off my rocker?
+3) i had a look at the ll_rw_block and realised that it can block when there 
+are to many buffers locked. when i use generic_make_request can i be 
+shure that i wont block so that i can call it in a tasklet and don't need to
+switch to a kernel thread? i think that also needs that clustering function 
+__make_request may not block. does it or does it not?
 
-Chris
+4) i was looking at the networking code in 2.4 because it is possible that
+i need to write a new thin network protocoll which is optimised for disk-i/o.
+i didn't find any documentation how to implement a new one in 2.4. does
+anybody have some pointers to doc's or can give me some comments?
 
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+thanks for any help or pointers to further information
+chris

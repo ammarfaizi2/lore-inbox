@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263427AbTKJMtS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 07:49:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTKJMtS
+	id S263457AbTKJNE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 08:04:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263461AbTKJNE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 07:49:18 -0500
-Received: from smtp1.netcologne.de ([194.8.194.112]:2738 "EHLO
-	smtp1.netcologne.de") by vger.kernel.org with ESMTP id S263427AbTKJMtR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 07:49:17 -0500
-Message-ID: <3FAF894C.4040806@interia.pl>
-Date: Mon, 10 Nov 2003 13:49:16 +0100
-From: Tomasz Chmielewski <mangoo@interia.pl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.5) Gecko/20031015
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Mon, 10 Nov 2003 08:04:58 -0500
+Received: from hauptpostamt.charite.de ([193.175.66.220]:46227 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id S263457AbTKJNE5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 08:04:57 -0500
+Date: Mon, 10 Nov 2003 14:04:45 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
 To: linux-kernel@vger.kernel.org
-Subject: compressed tmpfs
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: 2.6.0-test9-bk14: keyboard works ok now, but...
+Message-ID: <20031110130445.GF23813@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Chris Heath mad some changes to the keyboard driver and now my
+keyboard finally works ok (Toshiba Satellite Pro 6100), but Ikeep
+getting these:
 
-I was looking for something like tmpfs, but with additional feature - 
-that all the files in that file system would be compressed.
+Nov 10 13:13:28 hummus2 kernel: input: AT Translated Set 2 keyboard on isa0060/serio0
+Nov 10 13:13:28 hummus2 input.agent[3516]: ... no modules for INPUT product 11/1/2/ab02
+Nov 10 13:14:49 hummus2 kernel: input: AT Translated Set 2 keyboard on isa0060/serio0
+Nov 10 13:14:49 hummus2 input.agent[3537]: ... no modules for INPUT product 11/1/2/ab02
+Nov 10 13:19:24 hummus2 kernel: input: AT Translated Set 2 keyboard on isa0060/serio0
+Nov 10 13:19:24 hummus2 input.agent[3841]: ... no modules for INPUT product 11/1/2/ab02
+Nov 10 13:20:01 hummus2 input.agent[3862]: ... no modules for INPUT product 11/1/2/ab02
+Nov 10 13:20:01 hummus2 kernel: input: AT Translated Set 2 keyboard on isa0060/serio0
+Nov 10 13:20:58 hummus2 input.agent[3878]: ... no modules for INPUT product 11/1/2/ab02
+Nov 10 13:20:58 hummus2 kernel: input: AT Translated Set 2 keyboard on isa0060/serio0
+Nov 10 13:24:58 hummus2 kernel: input: AT Translated Set 2 keyboard on isa0060/serio0
+Nov 10 13:24:58 hummus2 input.agent[3897]: ... no modules for INPUT product 11/1/2/ab02
+Nov 10 13:35:26 hummus2 kernel: input: AT Translated Set 2 keyboard on isa0060/serio0
+Nov 10 13:35:26 hummus2 input.agent[3984]: ... no modules for INPUT product 11/1/2/ab02
+Nov 10 13:50:35 hummus2 kernel: input: AT Translated Set 2 keyboard on isa0060/serio0
+Nov 10 13:50:35 hummus2 input.agent[4080]: ... no modules for INPUT product 11/1/2/ab02
+Nov 10 13:58:04 hummus2 kernel: input: AT Translated Set 2 keyboard on isa0060/serio0
+Nov 10 13:58:05 hummus2 input.agent[4153]: ... no modules for INPUT product 11/1/2/ab02
 
-I think it could be nice for one's RAM, especially in embedded 
-devices/diskless stations, at a little expense of efficiency.
-
-Is there such a feature in 2.4 kernel yet, and, if not, where should I 
-look for it?
-
-There is e2compr module on http://sourceforge.net/projects/e2compr/, but 
-I'm not sure if it can be easily applied to 2.4.22 kernel (seems like 
-it's for 2.4.17 kernels only).
-
-
-Regards,
-
-Tomasz Chmielewski
-
+-- 
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-916
+Referat V a - Kommunikationsnetze -             AIM.  ralfpostfix

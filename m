@@ -1,64 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266996AbSKWMcK>; Sat, 23 Nov 2002 07:32:10 -0500
+	id <S267013AbSKWMtY>; Sat, 23 Nov 2002 07:49:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266997AbSKWMcK>; Sat, 23 Nov 2002 07:32:10 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15811 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S266996AbSKWMcJ>; Sat, 23 Nov 2002 07:32:09 -0500
-Date: Sat, 23 Nov 2002 13:39:16 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New kconfig: Please add define_*
-Message-ID: <20021123123916.GB14886@fs.tum.de>
-References: <20021121133320.GD18869@fs.tum.de> <Pine.LNX.4.44.0211211740130.2113-100000@serv>
+	id <S267015AbSKWMtY>; Sat, 23 Nov 2002 07:49:24 -0500
+Received: from murphys.services.quay.plus.net ([212.159.14.225]:14221 "HELO
+	murphys.services.quay.plus.net") by vger.kernel.org with SMTP
+	id <S267013AbSKWMtX>; Sat, 23 Nov 2002 07:49:23 -0500
+Date: Sat, 23 Nov 2002 12:27:07 +0000
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.49: compile problem with allnoconfig
+Message-ID: <20021123122707.GA13358@arwen.brautaset.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211211740130.2113-100000@serv>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.3.28i
+X-Location: London, UK
+X-URL: http://brautaset.org
+X-KeyServer: wwwkeys.nl.pgp.net
+X-PGP/GnuPG-Key: 9336ADC1
+From: Stig Brautaset <stig@brautaset.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 21, 2002 at 05:55:42PM +0100, Roman Zippel wrote:
-
-> Hi,
-
-Hi Roman,
-
-> On Thu, 21 Nov 2002, Adrian Bunk wrote:
-> 
-> > one thing that easily leads to errors is that the difference between
-> > e.g. bool and define_bool is less obvious than before (it's no longer
-> > explicitely stated). If there's no string behind the bool and no
-> > "prompt" line it's now treated as define_bool. I've already found two
-> > places in sound/oss/Kconfig where this was missing accidentially. Could
-> > you add explicite define_* back to the config language and let the
-> > program quit with an error if there's e.g. a define_bool with a string
-> > or prompt line or a bool without a string or prompt line?
-> 
-> It was not missing accidentially, these symbols were defined with 
-> define_bool before.
->...
-
-/me checks 2.5.44
-
-You are right, it was a define_bool before. I thought "this must be a
-bug" and I didn't even read the comments above the options...
-
-A define_bool might make it more obvious for dumb people like me that it
-is really intended the way it is.  ;-)
-
-> bye, Roman
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+  Starting the build. KBUILD_BUILTIN=1 KBUILD_MODULES=
+make -f scripts/Makefile.build obj=init
+  Generating include/linux/compile.h (unchanged)
+make -f scripts/Makefile.build obj=usr
+make -f scripts/Makefile.build obj=arch/i386/kernel
+make -f scripts/Makefile.build obj=arch/i386/kernel/cpu
+make -f scripts/Makefile.build obj=arch/i386/kernel/timers
+make -f scripts/Makefile.build obj=arch/i386/mm
+make -f scripts/Makefile.build obj=arch/i386/mach-generic
+make -f scripts/Makefile.build obj=kernel
+make -f scripts/Makefile.build obj=mm
+make -f scripts/Makefile.build obj=fs
+make -f scripts/Makefile.build obj=fs/devpts
+make -f scripts/Makefile.build obj=fs/partitions
+make -f scripts/Makefile.build obj=fs/ramfs
+make -f scripts/Makefile.build obj=fs/sysfs
+make -f scripts/Makefile.build obj=ipc
+make -f scripts/Makefile.build obj=security
+make -f scripts/Makefile.build obj=crypto
+make -f scripts/Makefile.build obj=drivers
+make -f scripts/Makefile.build obj=drivers/base
+make -f scripts/Makefile.build obj=drivers/base/fs
+make -f scripts/Makefile.build obj=drivers/block
+make -f scripts/Makefile.build obj=drivers/cdrom
+make -f scripts/Makefile.build obj=drivers/char
+make -f scripts/Makefile.build obj=drivers/media
+make -f scripts/Makefile.build obj=drivers/media/dvb
+make -f scripts/Makefile.build obj=drivers/media/dvb/av7110
+make -f scripts/Makefile.build obj=drivers/media/dvb/dvb-core
+make -f scripts/Makefile.build obj=drivers/media/dvb/frontends
+make -f scripts/Makefile.build obj=drivers/media/radio
+make -f scripts/Makefile.build obj=drivers/media/video
+make -f scripts/Makefile.build obj=drivers/misc
+make -f scripts/Makefile.build obj=drivers/net
+make -f scripts/Makefile.build obj=drivers/serial
+make -f scripts/Makefile.build obj=sound
+make -f scripts/Makefile.build obj=net
+make -f scripts/Makefile.build obj=net/core
+make -f scripts/Makefile.build obj=lib
+make -f scripts/Makefile.build obj=arch/i386/lib
+echo '  Generating build number'
+  Generating build number
+. scripts/mkversion > .tmp_version
+mv -f .tmp_version .version
+make -f scripts/Makefile.build obj=init
+  Generating include/linux/compile.h (updated)
+  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=version -DKBUILD_MODNAME=version   -c -o init/version.o init/version.c
+   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o init/do_mounts.o init/initramfs.o
+  	ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  net/built-in.o --end-group  -o vmlinux

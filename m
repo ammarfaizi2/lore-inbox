@@ -1,159 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVBWWaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbVBWWes@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbVBWWaL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 17:30:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVBWW2L
+	id S261649AbVBWWes (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 17:34:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVBWWes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 17:28:11 -0500
-Received: from hyperion.affordablehost.com ([12.164.25.86]:44702 "EHLO
-	hyperion.affordablehost.com") by vger.kernel.org with ESMTP
-	id S261650AbVBWWNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 17:13:40 -0500
-Subject: Re: Help enabling PCI interrupts on Dell/SMP and Sun/SMP systems.
-From: Alan Kilian <kilian@bobodyne.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0502231538230.5623@chaos.analogic.com>
-References: <1109190273.9116.307.camel@desk>
-	 <Pine.LNX.4.61.0502231538230.5623@chaos.analogic.com>
-Content-Type: text/plain
-Date: Wed, 23 Feb 2005 16:17:46 -0600
-Message-Id: <1109197066.9116.319.camel@desk>
+	Wed, 23 Feb 2005 17:34:48 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:29330 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261647AbVBWWeL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 17:34:11 -0500
+Date: Wed, 23 Feb 2005 22:34:04 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jes Sorensen <jes@wildopensource.com>
+Cc: Andrew Morton <akpm@osdl.org>, matthew@wil.cx, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch -mm series] ia64 specific /dev/mem handlers
+Message-ID: <20050223223404.GA21383@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jes Sorensen <jes@wildopensource.com>,
+	Andrew Morton <akpm@osdl.org>, matthew@wil.cx,
+	linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <16923.193.128608.607599@jaguar.mkp.net> <20050222020309.4289504c.akpm@osdl.org> <yq0ekf8lksf.fsf@jaguar.mkp.net> <20050222175225.GK28741@parcelfarce.linux.theplanet.co.uk> <20050222112513.4162860d.akpm@osdl.org> <yq0zmxwgqxr.fsf@jaguar.mkp.net> <20050222153456.502c3907.akpm@osdl.org> <yq0sm3negtb.fsf@jaguar.mkp.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hyperion.affordablehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - bobodyne.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yq0sm3negtb.fsf@jaguar.mkp.net>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 23 Feb 2005, Dick Johnson wrote:
-> 
->  	call	pci_enable_device(dev)
->  	... before you use the IRQ in dev->irq.
-> 
->  	The reported IRQ is bogus until you make that
->  	call. It's a reported BUG, probably won't
->  	ever get fixed because it's considered a
->  	feature.
-> 
->  	Also, make sure that your .config for the Dell looks
->  	something like:
-> 
->  	CONFIG_X86_IO_APIC=y
->  	CONFIG_X86_LOCAL_APIC=y
->  	CONFIG_PCI=y
->  	# CONFIG_PCI_GOBIOS is not set
->  	# CONFIG_PCI_GODIRECT is not set
->  	CONFIG_PCI_GOANY=y
->  	CONFIG_PCI_BIOS=y
->  	CONFIG_PCI_DIRECT=y
+> +		page = pfn_to_page(p >> PAGE_SHIFT);
+> +		/*
+> +		 * On ia64 if a page has been mapped somewhere as
+> +		 * uncached, then it must also be accessed uncached
+> +		 * by the kernel or data corruption may occur
+> +		 */
+> +#ifdef ARCH_HAS_TRANSLATE_MEM_PTR
+> +		ptr = arch_translate_mem_ptr(page, p);
+> +#else
+> +		ptr = __va(p);
+> +#endif
 
+Please remove the ifdef by letting every architecture implement a
+arch_translate_mem_ptr (and give it a saner name while you're at it).
 
-    Dick,
+Also shouldn't the pfn_to_page be done inside arch_translate_mem_ptr?
+The struct page * isn't used anywhere else.
 
-	Thanks for the quick reply.
+> +	if (!range_is_allowed(p, p + count))
 
-	1) I call pci_enable_device(dev) immediatly after I call
-	   dev = pci_find_device(0x1492, PCI_ANY_ID, dev);
+isn't the name a little too generic?
 
-	2) I have verified all the CONFIG settings you suggested.
+> +
+> +	written = 0;
+> +
+> +#if defined(__sparc__) || (defined(__mc68000__) && defined(CONFIG_MMU))
+> +	/* we don't have page 0 mapped on sparc and m68k.. */
+> +	if (p < PAGE_SIZE) {
+> +		unsigned long sz = PAGE_SIZE - p;
+> +		if (sz > count)
+> +			sz = count; 
+> +		/* Hmm. Do something? */
+> +		buf += sz;
+> +		p += sz;
+> +		count -= sz;
+> +		written += sz;
+> +	}
+> +#endif
 
-	Here is `cat /proc/interrupts` on my working dell:
-
-          	 CPU0
-  	  0:   16891629          XT-PIC  timer
-  	  1:         10          XT-PIC  i8042
-  	  2:          0          XT-PIC  cascade
-  	  3:          2          XT-PIC  parport0
-  	  5:        764          XT-PIC  sse
-  	  7:        422          XT-PIC  ohci_hcd
-  	  8:          1          XT-PIC  rtc
-  	  9:          0          XT-PIC  acpi
- 	 11:      35198          XT-PIC  eth0
- 	 12:         66          XT-PIC  i8042
- 	 14:      42769          XT-PIC  ide0
- 	 15:     151569          XT-PIC  ide1
-	NMI:          0
-	ERR:          0
-
-	My driver is called "sse" and is interrupting at IRQ #5
-
-	Here is `cat /proc/interrupts` on my non-working Sun:
-
-           	CPU0       CPU1
-  	  0:    7302649    7417311    IO-APIC-edge  timer
-  	  5:          0          0    IO-APIC-edge  sse
-  	  8:          0          1    IO-APIC-edge  rtc
-  	  9:          0          0   IO-APIC-level  acpi
- 	 15:          1        478    IO-APIC-edge  ide1
-	169:          0         30   IO-APIC-level  aic79xx
-	177:      13991      18084   IO-APIC-level  aic79xx
-	185:          0          3   IO-APIC-level  ehci_hcd
-	193:          0         26   IO-APIC-level  ohci_hcd
-	201:          0         21   IO-APIC-level  ohci_hcd
-	209:     167119         87   IO-APIC-level  eth0
-	NMI:          0          0
-	LOC:   14719159   14719203
-	ERR:          0
-	MIS:          0
-
-	It appears that the card is also interrupting at IRQ#5
-
-	There is an interesting message on the Sun in /var/log/messages:
-
-Feb 23 14:01:26 sunw1200z kernel: sse: no version magic, tainting
-kernel.
-Feb 23 14:01:26 sunw1200z kernel: SSE: Found a DeCypher card.
-Feb 23 14:01:26 sunw1200z kernel: ACPI: PCI interrupt 0000:13:03.0[A] ->
-GSI 36 (level, low) -> IRQ 217
-Feb 23 14:01:26 sunw1200z kernel: interrupting on line 5
-Feb 23 14:01:26 sunw1200z kernel: SSE: bar[0] From 0xd2806000 to
-0xd2806fff F=0x200 MEMORY space
-Feb 23 14:01:26 sunw1200z kernel: SSE: bar[1] From 0xd2800000 to
-0xd2801fff F=0x200 MEMORY space
-Feb 23 14:01:26 sunw1200z kernel: SSE: bar[2] From 0xd2000000 to
-0xd27fffff F=0x200 MEMORY space
-Feb 23 14:01:26 sunw1200z kernel: SSE: bar[0] mybase = 0xf889a000 size =
-0x00001000 D'4096
-Feb 23 14:01:26 sunw1200z kernel: SSE: bar[1] mybase = 0xf889c000 size =
-0x00002000 D'8192
-Feb 23 14:01:26 sunw1200z kernel: SSE: bar[2] mybase = 0xf8b00000 size =
-0x00800000 D'8388608
-Feb 23 14:01:26 sunw1200z kernel: pci_alloc_consistent returned
-0xf0ded000
-Feb 23 14:01:26 sunw1200z kernel: sse_read_bus_buffer 0x30ded000
-Feb 23 14:01:26 sunw1200z kernel: request_irq() returned 0
-Feb 23 14:01:26 sunw1200z kernel: SSE device_id 3, Rev 4
-Feb 23 14:01:26 sunw1200z kernel: SSE Before: intstatus = 0x00000000
-Feb 23 14:01:26 sunw1200z kernel: SSE Before: intstatus = 0x00000000
-Feb 23 14:01:26 sunw1200z kernel: SSE: End of card attachment. Number of
-cards = 1
-Feb 23 14:01:26 sunw1200z kernel: Iterating through the softp
-structures...
-Feb 23 14:01:26 sunw1200z kernel: Card at softp->mem_reg1 0xf889a000
-minor = 0
-
-
-	The interesting bits seem to be these two lines:
-
-	kernel: SSE: Found a DeCypher card.
-	kernel: ACPI: PCI interrupt 0000:13:03.0[A] -> GSI 36 (level, low) ->
-IRQ 217
-
-	The first message is in my driver after pci_find_device()
-	The second is from when I do pci_enable_device(dev);
-
-	Can you decode the mysterious ACPI message?
-
-			-Alan
-
--- 
-- Alan Kilian <kilian(at)bobodyne.com>
-
+While you're at it replace the ifdef mania with a #ifdef
+__HAVE_ARCH_PAGE_ZERO_MAPPED or something similar.
 

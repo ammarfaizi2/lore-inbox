@@ -1,49 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263079AbSJBMbr>; Wed, 2 Oct 2002 08:31:47 -0400
+	id <S263074AbSJBMev>; Wed, 2 Oct 2002 08:34:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263080AbSJBMbr>; Wed, 2 Oct 2002 08:31:47 -0400
-Received: from web9603.mail.yahoo.com ([216.136.129.182]:60057 "HELO
-	web9603.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S263079AbSJBMbq>; Wed, 2 Oct 2002 08:31:46 -0400
-Message-ID: <20021002123715.45465.qmail@web9603.mail.yahoo.com>
-Date: Wed, 2 Oct 2002 05:37:15 -0700 (PDT)
-From: Steve G <linux_4ever@yahoo.com>
-Subject: Re: 2.4.18+IPv6+IPV6_ADDRFORM
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20021002.182006.1021932192.yoshfuji@wide.ad.jp>
+	id <S263075AbSJBMev>; Wed, 2 Oct 2002 08:34:51 -0400
+Received: from mailsrv1.sweco.se ([194.16.71.76]:48009 "EHLO
+	es-sth-002.sweco.se") by vger.kernel.org with ESMTP
+	id <S263074AbSJBMeu>; Wed, 2 Oct 2002 08:34:50 -0400
+Message-ID: <E50A0EFD91DBD211B9E40008C75B6CCA01497EDD@ES-STH-012>
+From: Eriksson Stig <stig.eriksson@sweco.se>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: aic7xxx problems?
+Date: Wed, 2 Oct 2002 14:40:05 +0200 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->IPV6_ADDRFORM is deprecated.
->I believe that it should be removed.
+Hi
 
-Shouldn't we correct it in 2.4 and drop it in 2.5 ? 
+Maybe You can help me out with this one...
+I have hp DLT connected to an adaptec SCSI board.
 
-If the above assumption is correct...
+This is a part of dmesg output:
+   scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.6
+           <Adaptec (Compaq OEM) 3960D Ultra160 SCSI adapter>
+           aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
 
->1) should the level really be IPPROTO_IPV6?
->2) do other platforms use IPPROTO_IP to retrieve this
->option or said another way, is the behavior observed
->in Linux portable?
->3) should the returned value be 0 & 1 or AF_INET &
->AF_INET6?
+   scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.6
+           <Adaptec (Compaq OEM) 3960D Ultra160 SCSI adapter>
+           aic7899: Ultra160 Wide Channel B, SCSI Id=7, 32/253 SCBs
 
->>Also, the Sus v3, states there is a socket option:
->>level IPPROTO_IPV6, option IPV6_V6ONLY.
->
->We, USAGI Project, have implementation for it,
->and we are about to contribute it here.
+     Vendor: BNCHMARK  Model: DLT1              Rev: 5032
+     Type:   Sequential-Access                  ANSI SCSI revision: 02
 
-Great.
+The "BNCHMARK DLT1" is actually a hp DLT.
+When rewinding this tape, using "mt -f /dev/nst0 rewind" with a reasonable
+amount of data on the tape (~2 Gigs), i get the following in
+/var/log/messages:
 
-Thanks,
-Steve Grubb
+Sep  9 14:01:21 lack kernel: scsi1:0:5:0: Attempting to queue an ABORT
+message
+Sep  9 14:01:21 lack kernel: scsi1: Dumping Card State in Command phase, at
+SEQADDR 0x168
+Sep  9 14:01:21 lack kernel: ACCUM = 0x80, SINDEX = 0xa0, DINDEX = 0xe4,
+ARG_2 = 0x0
+Sep  9 14:01:21 lack kernel: HCNT = 0x0 SCBPTR = 0x0
+Sep  9 14:01:21 lack kernel: SCSISEQ = 0x12, SBLKCTL = 0x6
+Sep  9 14:01:21 lack kernel:  DFCNTRL = 0x4, DFSTATUS = 0x89
+Sep  9 14:01:21 lack kernel: LASTPHASE = 0x80, SCSISIGI = 0x84, SXFRCTL0 =
+0x88
+Sep  9 14:01:21 lack kernel: SSTAT0 = 0x7, SSTAT1 = 0x0
+Sep  9 14:01:21 lack kernel: SCSIPHASE = 0x0
+Sep  9 14:01:21 lack kernel: STACK == 0x175, 0x160, 0xe7, 0x34
+Sep  9 14:01:21 lack kernel: SCB count = 4
+Sep  9 14:01:21 lack kernel: Kernel NEXTQSCB = 3
+Sep  9 14:01:21 lack kernel: Card NEXTQSCB = 3
+Sep  9 14:01:21 lack kernel: QINFIFO entries:
+Sep  9 14:01:21 lack kernel: Waiting Queue entries:
+Sep  9 14:01:21 lack kernel: Disconnected Queue entries:
+Sep  9 14:01:21 lack kernel: QOUTFIFO entries:
+Sep  9 14:01:21 lack kernel: Sequencer Free SCB List: 1 2 3 4 5 6 7 8 9 10
+11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
+Sep  9 14:01:22 lack kernel: Sequencer SCB Info: 0(c 0x40, s 0x57, l 0, t
+0x2) 1(c 0x0, s 0x7f, l 223, t 0xff) 2(c 0x0, s 0xff, l 255, t 0xff) 3(c
+0x0, s 0x7f, l 239, t 0xff) 4(c 0x0, s 0x0, l 0, t 0xff) 5(c 0x0, s 0x77, l
+255, t 0xff) 6(c 0x0, s 0xfd, l 253, t 0xff) 7(c 0x0, s 0xff, l 255, t 0xff)
+8(c 0x0, s 0x5f, l 190, t 0xff) 9(c 0x0, s 0xff, l 111, t 0xff) 10(c 0x0, s
+0xb6, l 59, t 0xff) 11(c 0x0, s 0xdf, l 223, t 0xff) 12(c 0x0, s 0xff, l
+254, t 0xff) 13(c 0x0, s 0xff, l 222, t 0xff) 14(c 0x0, s 0xfd, l 109, t
+0xff) 15(c 0x0, s 0xe7, l 239, t 0xff) 16(c 0x0, s 0xd6, l 253, t 0xff) 17(c
+0x0, s 0xfe, l 238, t 0xff) 18(c 0x0, s 0xe7, l 253, t 0xff) 19(c 0x0, s
+0xff, l 127, t 0xff) 20(c 0x0, s 0x75, l 227, t 0xff) 21(c 0x0, s 0x5f, l
+239, t 0xff) 22(c 0x0, s 0xff, l 255, t 0xff) 23(c 0x0, s 0x3f, l 255, t
+0xff) 24(c 0x0, s 0xf6, l 127, t 0xff) 25(c 0x0, s 0xff, l 255, t 0xff) 26(c
+0x0, s 0x3f, l 247, t 0xff) 27(c 0x0, s 0xf3, l 255, t 0xff) 28(c 0x0, s
+0xef, l 255, t 0xff) 29(c 0x0, s 0xff, l 254, t 0xff) 3
+Sep  9 14:01:22 lack kernel: (c 0x0, s 0xf6, l 221, t 0xff) 31(c 0x0, s
+0xff, l 255, t 0xff)
+Sep  9 14:01:22 lack kernel: Pending list: 2(c 0x40, s 0x57, l 0)
+Sep  9 14:01:22 lack kernel: Kernel Free SCB list: 1 0
+Sep  9 14:01:22 lack kernel: Untagged Q(5): 2
+Sep  9 14:01:22 lack kernel: DevQ(0:5:0): 0 waiting
+Sep  9 14:01:22 lack kernel: scsi1:0:5:0: Device is active, asserting ATN
+Sep  9 14:01:22 lack kernel: Recovery code sleeping
+Sep  9 14:01:22 lack kernel: (scsi1:A:5:0): Abort Message Sent
+Sep  9 14:01:22 lack kernel: (scsi1:A:5:0): SCB 2 - Abort Completed.
+Sep  9 14:01:22 lack kernel: Recovery SCB completes
+Sep  9 14:01:22 lack kernel: Recovery code awake
+Sep  9 14:01:22 lack kernel: aic7xxx_abort returns 0x2002
 
+This does not happen with small amount of data on the tape, only when
+rewind takes a *long* time
 
-__________________________________________________
-Do you Yahoo!?
-New DSL Internet Access from SBC & Yahoo!
-http://sbc.yahoo.com
+Best Regards
+--
+Stig Eriksson                    email: se@cactus.se
+Cactus Automation AB             phone: +46 31 86 97 10
+Krokslätts Fabriker 30           fax:   +46 31 86 97 24
+431 37  Mölndal                  http:  www.cactus.se
+ 

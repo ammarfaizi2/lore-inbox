@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129538AbQK1QeR>; Tue, 28 Nov 2000 11:34:17 -0500
+        id <S129749AbQK1Qg1>; Tue, 28 Nov 2000 11:36:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129546AbQK1QeH>; Tue, 28 Nov 2000 11:34:07 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:36616 "EHLO
-        tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-        id <S129538AbQK1Qdy>; Tue, 28 Nov 2000 11:33:54 -0500
-From: Steven Cole <scole@lanl.gov>
-Reply-To: scole@lanl.gov
-Date: Tue, 28 Nov 2000 09:03:38 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <E140UaD-0003ZI-00@the-village.bc.nu>
-In-Reply-To: <E140UaD-0003ZI-00@the-village.bc.nu>
-Subject: Re: 2.4.0-test11-ac2 and ac4 SMP will not run KDE 2.0
-Cc: linux-kernel@vger.kernel.org
+        id <S129756AbQK1QgR>; Tue, 28 Nov 2000 11:36:17 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:2245 "EHLO math.psu.edu")
+        by vger.kernel.org with ESMTP id <S129749AbQK1QgF>;
+        Tue, 28 Nov 2000 11:36:05 -0500
+Date: Tue, 28 Nov 2000 11:06:02 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Tigran Aivazian <tigran@veritas.com>
+cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: bug in count_open_files() or a strange granularity?
+In-Reply-To: <Pine.LNX.4.21.0011281552280.1254-100000@penguin.homenet>
+Message-ID: <Pine.GSO.4.21.0011281100430.9313-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Message-Id: <00112809033800.01270@spc.esa.lanl.gov>
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->
->Nod. It actually puzzles me since from the kernel view I doubt kde and gnome
->even look different at the syscall level. They may look different to X but
->X isnt the thing that changed
 
-Steven Cole wrote:
->
->Tomorrow when I have access to the two-way P-III problem machine,
->I'll repatch 2.4.0-test11-ac4 with reiserfs-3.6.18,
->which is a little less bleeding edge than reiserfs-3.6.19.
 
-2.4.0-test11-ac2 still freezes starting up KDE 2.0 when patched
-with reiserfs-3.6.18.
+On Tue, 28 Nov 2000, Tigran Aivazian wrote:
 
-2.4.0-test12-pre2 both SMP and UP builds also freeze when starting
-up KDE 2.0 on this dual cpu box. Those test12-pre2 kernels are
-patched with reiserfs-3.6.19.
+>        /* switch the open fds from old_user to new_user */
+>         read_lock(&files->file_lock);
+>         nr_open = close_files(files, 0); /* 0 means don't close them */
+>         atomic_sub(nr_open, &old_user->files);
+>         atomic_add(nr_open, &new_user->files);
+>         read_unlock(&files->file_lock);
 
-I guess I'll have to switch over to using Gnome if I want to continue
-using kernels later than 2.4.0-test11-ac1 and ReiserFS on this dual
-P-III Dell 420.
+That makes no sense - how do you count the descriptors in shared ->files?
+And how on the Earth do you count SCM_RIGHTS packets? Because they make
+a great way to fool any use of that stuff for resource-limit type of
+applications (stash the descriptors into SCM_RIGHTS cookie, send them to
+yourself and close them).
 
-Can someone else please see if this is reproducable?  
-
-The ingredients are:
-
-Dual CPU P-III.
-2.4.0-test11-ac2 or later (test12-pre2)
-SMP build for -acX. (X > 1).
-ReiserFS 3.6.18 or 3.6.19.
-KDE 2.0
-
-Thanks very much.
-
-Steven
+Basically, I don't see what are you counting.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

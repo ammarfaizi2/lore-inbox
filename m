@@ -1,68 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264501AbTLLICW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 03:02:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264504AbTLLICW
+	id S264504AbTLLIDu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 03:03:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264505AbTLLIDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 03:02:22 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:16396
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S264501AbTLLICT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 03:02:19 -0500
-Date: Thu, 11 Dec 2003 23:56:27 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Rob Landley <rob@landley.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-In-Reply-To: <200312120139.51188.rob@landley.net>
-Message-ID: <Pine.LNX.4.10.10312112345400.3805-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 12 Dec 2003 03:03:50 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:19377 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264504AbTLLICb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 03:02:31 -0500
+Date: Fri, 12 Dec 2003 00:00:50 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Harald Welte <laforge@netfilter.org>
+Cc: mukansai@emailplus.org, scott.feldman@intel.com,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: TSO and netfilter (Re: Extremely slow network with e1000 &
+ ip_conntrack)
+Message-Id: <20031212000050.0cad7469.davem@redhat.com>
+In-Reply-To: <20031212070131.GN15606@sunbeam.de.gnumonks.org>
+References: <20031204213030.2B75.MUKANSAI@emailplus.org>
+	<20031205122819.25ac14ab.davem@redhat.com>
+	<20031211110315.GJ22826@sunbeam.de.gnumonks.org>
+	<20031211174136.1ed23e2e.davem@redhat.com>
+	<20031212070131.GN15606@sunbeam.de.gnumonks.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 12 Dec 2003 08:01:31 +0100
+Harald Welte <laforge@netfilter.org> wrote:
 
-Rob,
+> So what about the networking core exporting an [inline] function
+> that recalculates tso_segs and tso_size (like the 'Hack zone' code
+> fragment in ip_queue_xmit() right now), called skb_tso_recalc() or
+> whatever name you prefer.
 
-I must admit when I jumped into this thread late, I said I was a little
-chilly here in Northern California.  I am toasty warm now and look like
-"Buckwheat" (just not on the top cause the hair is thin).
+This might work.
 
-The up side of the roasting is you have exposed yourself as a serious pool
-of knowledge.  The down side for you is class is in session, and if
-nothing else I would like to here all the various positions and reviews
-you have observer, contributed, and blah blah ...
+> Or even better (since I assume TSO can only happen with
+> locally-originated datagrams), why don't we move the tso_size/tso_segs
+> calculation to happen after the LOCAL_OUT netfilter hook?  This way we
+> also get the ip_select_ident_more() right, which we couldn't easily
+> update from the proposed skb_tso_recalc() function.
+>
+> yes, in that case we would need to have some fake code like
+> 	if (skb->len > mtu && (sk->sk_route_caps&NETIF_F_TSO))
+> 		skb_shinfo(skb)->tso_segs = 1;
+> in order to make the newly-created check for refragmentation in
+> conntrack still work.  Alternatively, create some inline function that 
+> gives a yes/no return if the skb would later become TSO or not.
 
-TMF is not an easy place to express an opinion.
+I don't know about this.  The local-out hook always had a fully
+functional finalized packet to work with, and I doubt we should change
+that.
 
-My butt is in the chair to listen if class is in session :-)
+Also, dst_output() might invoke IPSEC encapsulators which absolutely
+must have the final packet in hand when they run (f.e. you can't
+choose the IP ID after encryption of the IP header).
 
-Cheers,
+Anyways, that leaves us with the helper function idea, does this
+(untested) look like what you want?
 
-Andre Hedrick
-LAD Storage Consulting Group
-
-PS for all the flamage I have ever dumped on this list, it is good to take
-some back in return.
-
-On Fri, 12 Dec 2003, Rob Landley wrote:
-
-> On Friday 12 December 2003 01:21, Andre Hedrick wrote:
-> > Rob,
-> >
-> > You know, I would have to say you just waxed my arse all over the mailing
-> > list and left it in the mop bucket for cooling off.  The beauty is I can
-> > now laugh about it, and see you are so raw over the issue.  Have a case of
-> > chapstick to help smooth over the burn.
-> 
-> Ah, it's finals week.  It's nice to vent a little steam and take a break from 
-> failing to get my Educational Psychology and Economics of Technology papers 
-> in on time. :)
-> 
-> Sorry if I came down a bit hard.  I type fast, and I've had a backlog of 
-> stress this week.  (I know I had a reason for going back to grad school.  I 
-> wonder what it was?)
-> 
-> Rob
-> 
-
+--- include/linux/skbuff.h.~1~	Thu Dec 11 23:55:43 2003
++++ include/linux/skbuff.h	Thu Dec 11 23:57:45 2003
+@@ -1155,6 +1155,17 @@
+ #endif
+ }
+ 
++static __inline__ void skb_tso_recalc(struct sk_buff *skb, struct dst_entry *dst)
++{
++	unsigned int hlen = ((skb->h.raw-skb->data)+(skb->h.th->doff<<2));
++	u32 mtu = dst_pmtu(dst);;
++
++	skb_shinfo(skb)->tso_size = mtu - hlen;
++	skb_shinfo(skb)->tso_segs =
++		(skb->len - hlen + skb_shinfo(skb)->tso_size - 1) /
++		skb_shinfo(skb)->tso_size - 1;
++}
++
+ #define skb_queue_walk(queue, skb) \
+ 		for (skb = (queue)->next, prefetch(skb->next);	\
+ 		     (skb != (struct sk_buff *)(queue));	\

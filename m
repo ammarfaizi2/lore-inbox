@@ -1,29 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268996AbRHGQWB>; Tue, 7 Aug 2001 12:22:01 -0400
+	id <S269021AbRHGQYb>; Tue, 7 Aug 2001 12:24:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269001AbRHGQVl>; Tue, 7 Aug 2001 12:21:41 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31502 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268996AbRHGQVc>; Tue, 7 Aug 2001 12:21:32 -0400
-Subject: Re: [PATCH] one of $BIGNUM devfs races
-To: rgooch@ras.ucalgary.ca (Richard Gooch)
-Date: Tue, 7 Aug 2001 17:22:25 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), viro@math.psu.edu (Alexander Viro),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Richard Gooch" at Aug 06, 2001 05:59:40 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S269007AbRHGQYV>; Tue, 7 Aug 2001 12:24:21 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:9744 "EHLO neon-gw.transmeta.com")
+	by vger.kernel.org with ESMTP id <S269001AbRHGQYN>;
+	Tue, 7 Aug 2001 12:24:13 -0400
+Date: Tue, 7 Aug 2001 09:22:30 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ben LaHaise <bcrl@redhat.com>
+cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
+Subject: Re: [RFC][DATA] re "ongoing vm suckage"
+In-Reply-To: <Pine.LNX.4.33.0108071143080.30280-100000@touchme.toronto.redhat.com>
+Message-ID: <Pine.LNX.4.31.0108070920440.31117-100000@cesium.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15U9cf-0003B7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > unless asked too - hence joystick. input and much of USB are so far
-> > behind in Linus tree
-> 
-> So does that mean you won't try to merge Al's patch?
 
-Correct. I'd just get in your way if I did
+
+On Tue, 7 Aug 2001, Ben LaHaise wrote:
+>
+> I didn't try pre4.  pre5 is absolutely horrible.
+
+Sorry, I should have warned people: pre5 is a test-release that was
+intended solely for Leonard Zubkoff who has been helping with trying to
+debug a FS livelock condition.
+
+Try pre4.
+
+		Linus
+

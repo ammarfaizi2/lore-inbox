@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291041AbSCEWQP>; Tue, 5 Mar 2002 17:16:15 -0500
+	id <S291247AbSCEWSE>; Tue, 5 Mar 2002 17:18:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291247AbSCEWQF>; Tue, 5 Mar 2002 17:16:05 -0500
-Received: from mms1.broadcom.com ([63.70.210.58]:39441 "HELO mms1.broadcom.com")
-	by vger.kernel.org with SMTP id <S291041AbSCEWPz>;
-	Tue, 5 Mar 2002 17:15:55 -0500
-X-Server-Uuid: 1e1caf3a-b686-11d4-a6a3-00508bfc9ae5
-Message-ID: <3C854399.2BE48DF2@broadcom.com>
-Date: Tue, 05 Mar 2002 14:15:53 -0800
-From: "Kip Walker" <kwalker@broadcom.com>
-Organization: Broadcom Corp. BPBU
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.5-beta4va3.20 i686)
-X-Accept-Language: en
+	id <S291484AbSCEWRy>; Tue, 5 Mar 2002 17:17:54 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22022 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S291247AbSCEWRp>; Tue, 5 Mar 2002 17:17:45 -0500
+Date: Tue, 5 Mar 2002 17:16:06 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Robert Love <rml@tech9.net>
+cc: Andrea Arcangeli <andrea@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: 2.4.19pre1aa1
+In-Reply-To: <1015102702.14000.17.camel@phantasy>
+Message-ID: <Pine.LNX.3.96.1020305165008.28458C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: linux-kernel@vger.kernel.org, linux-mips@oss.sgi.com
-Subject: Re: init_idle reaped before final call
-In-Reply-To: <3C8522EA.2A00E880@broadcom.com> <292270000.1015365429@flay>
-X-WSS-ID: 109B9C0F2713232-01-01
-Content-Type: text/plain; 
- charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" wrote:
+On 2 Mar 2002, Robert Love wrote:
+
+> On Sat, 2002-03-02 at 15:47, Andrea Arcangeli wrote:
 > 
-> > I'm working with a (approximately) 2.4.17 kernel from the mips-linux
-> > tree (oss.sgi.com).
+> > On Sat, Mar 02, 2002 at 09:57:49PM -0200, Denis Vlasenko wrote:
 > >
-> > I'd like to propose removing the "__init" designation from init_idle in
-> > kernel/sched.c, since this is called from rest_init via cpu_idle.
-> > Notice that rest_init isn't in an init section, and explicitly mentions
-> > that it's avoiding a race with free_initmem.  In my kernel (an SMP
-> > kernel running on a system with only 1 available CPU), cpu_idle isn't
-> > getting called until after free_initmem().
-> >
-> > My CPU is MIPS, but it looks like x86 could experience the same problem.
+> > > If rmap is really better than current VM, it will be merged into head 
+> > > development branch (2.5). There is no anti-rmap conspiracy :-)
+> > 
+> > Indeed.
 > 
-> I fixed something in this area for x86, looks like the same code path
-> for MIPS unless I'm misreading.
-> 
-> smp_init spins waiting on wait_init_idle until every cpu has done
-> init_idle. rest_init() isn't called until smp_init returns, so I'm not sure
-> how you could hit this (possibly there's a minute window after init_idle
-> clears the bit, but before it returns?).
+> Of note: I don't think anyone "loses" if one VM is merged or not.  A
+> reverse mapping VM is a significant redesign of our current VM approach
+> and if it proves better, yes, I suspect (and hope) it will be merged
+> into 2.5.
 
-This synchronization doesn't help: cpu0 (even in the multi-cpu case)
-calls init_idle twice -- once from smp_init (through smp_boot_cpus), and
-then again from cpu_idle.  In my failing case (CONFIG_SMP=y, but only 1
-cpu in the system) the second call, the one from cpu_idle, doesn't
-happen until long after the init kernel thread has been running and has
-freed the initmem.
+  As noted, I do use both flavors of VM. But in practical terms the delay
+getting the "performance" changes, rmap, preempt, scheduler, into a stable
+kernel will be 18-24 months by my guess, 12-18 months to 2.6 and six
+months before Linus opens 2.7 and lets things gel. So to the extent that
+people who would be using those kernels get less performance, or less
+responsiveness, I guess they are the only ones who lose.
 
-Maybe a better fix is to avoid this double calling of init_idle for the
-"master" CPU?  From my reading the code, x86 seems to behave the same.
+  Feel free to tell me it won't be that long or that 2.5 will be stable
+enough for production use, but be prepared to have people post release
+dates from 12 to 2.0, 2.0 to 2.2, 2.2 to 2.4, and just laugh about
+stability. There are a lot of neat new things in 2.5, and they will take
+relatively a long time to be stable.  No one wants to limit the
+development of 2.5, or at least the posts I read are in favor of more
+change rather than less.
 
-Kip
+  In any case, I agree there are no "losers" in that sense.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

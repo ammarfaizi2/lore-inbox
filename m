@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315425AbSEQFSn>; Fri, 17 May 2002 01:18:43 -0400
+	id <S312457AbSEQFn5>; Fri, 17 May 2002 01:43:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315426AbSEQFSm>; Fri, 17 May 2002 01:18:42 -0400
-Received: from dsl-213-023-040-248.arcor-ip.net ([213.23.40.248]:57579 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S315425AbSEQFSh>;
-	Fri, 17 May 2002 01:18:37 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Subject: Re: Htree directory index for Ext2, updated
-Date: Fri, 17 May 2002 07:18:23 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200205170422.g4H4M5q295551@saturn.cs.uml.edu>
+	id <S312486AbSEQFn4>; Fri, 17 May 2002 01:43:56 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:56324
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S312457AbSEQFnz>; Fri, 17 May 2002 01:43:55 -0400
+Date: Thu, 16 May 2002 22:43:32 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Justin Piszcz <war@starband.net>, linux-kernel@vger.kernel.org
+Subject: Re: sg in 2.4.18
+In-Reply-To: <20020517044650.GC627@matchmail.com>
+Message-ID: <Pine.LNX.4.10.10205162234270.774-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E178a8G-00005D-00@starship>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 May 2002 06:22, Albert D. Cahalan wrote:
-> > After learning to my horror that gnu patch will, if a patch was made to be 
-> > applied with option -p0, sometimes apply patches to your 'clean' tree (the 
-> > one with the ---'s) instead of the target tree (the one with the +++'s) I 
-> > decided to switch to -p1, and that is how this patch is to be applied.
-> 
-> The worst thing is that gnu patch will make
-> this decision on a per-file basis, so you
-> can't then back out the changes with -R.
-> 
-> Do like this:
-> 
-> diff -Naurd old new
-> 
-> IMPORTANT: the directory names should have
-> the same number of characters in them.
+On Thu, 16 May 2002, Mike Fedyk wrote:
 
-Why is that?
-
-> Do not try something like:
+> On Mon, May 13, 2002 at 11:41:30AM -0400, Justin Piszcz wrote:
+> > Also, putting both burners on the same chain currently does not work.
+> > Because when cdrecord sends the command to FIX the cd after it is done
+> > burning the data, the command gets sent to both IDE drives causing cdrecord
+> > to blow up (the burn fails) on the other burner.
 > 
-> diff -Naurd bad idea
-> diff -Naurd doomed 2fail
+> Hmm, I wonder in Andre can say anyting about this.
+
+The short answer is the driver currently does not support proper overlap
+and release of the bus (channel/hwif).  Until this is committed to code to
+support a multi-threaded request to schedule on service priorities, it is
+not doable.  Burn-Proof will greatly assist in a solution, as a means to
+force the device to spin while doing dual burns.  Thus some means for a
+channel/hwif merging queue is needed.  I have a partial whiteboard
+solution but it is incomplete.
+
+> What kernel version are you running?
 > 
-> Don't use "linux" for a name. Don't use
-> anything Linus might use. Pick your own
-> equal-length directory names, and don't
-> distribute tarballs containing them.
-> This prevents source-destroying disasters.
+> Can you post the output of lspci?
+> 
+> With both drives running at the same time, each on a seperate cable and
+> controller, I was able to write without trouble.
+> 
+> 00:00.0 Host bridge: Intel Corp. 440FX - 82441FX PMC [Natoma] (rev 02)
+> 00:07.0 ISA bridge: Intel Corp. 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
+> 00:07.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]
+> 00:07.2 USB Controller: Intel Corp. 82371SB PIIX3 USB [Natoma/Triton II]
+> (rev 01)
+> 00:08.0 VGA compatible controller: Trident Microsystems TGUI 9660/968x/968x
+> (rev d3)
+> 00:09.0 Unknown mass storage controller: Promise Technology, Inc. 20262 (rev
+> 01)
+> 00:0a.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 02)
+> 00:0b.0 SCSI storage controller: Adaptec AHA-7850 (rev 03)
+> 
 
-I think you're saying that patch is broken by design.  And what's the standard 
-argument for not fixing it?
+Andre Hedrick
+LAD Storage Consulting Group
 
--- 
-Daniel

@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264359AbTKULkv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 06:40:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264360AbTKULkv
+	id S264358AbTKUMMS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 07:12:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264361AbTKUMMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 06:40:51 -0500
-Received: from leon-2.mat.uni.torun.pl ([158.75.2.64]:48796 "EHLO
-	leon-2.mat.uni.torun.pl") by vger.kernel.org with ESMTP
-	id S264359AbTKULku (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 06:40:50 -0500
-Date: Fri, 21 Nov 2003 12:40:38 +0100 (CET)
-From: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
-X-X-Sender: golbi@ultra60
-To: Jamie Lokier <jamie@shareable.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] POSIX message queues - syscalls & SIGEV_THREAD
-In-Reply-To: <20031118124754.GA23333@mail.shareable.org>
-Message-ID: <Pine.GSO.4.58.0311211238180.4918@ultra60>
-References: <Pine.GSO.4.58.0311161546260.25475@Juliusz>
- <20031117064832.GA16597@mail.shareable.org> <Pine.GSO.4.58.0311171236420.29330@Juliusz>
- <20031117153323.GA18523@mail.shareable.org> <Pine.GSO.4.58.0311181254490.27011@Juliusz>
- <20031118124754.GA23333@mail.shareable.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 21 Nov 2003 07:12:18 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:34267 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S264358AbTKUMMR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 07:12:17 -0500
+Date: Fri, 21 Nov 2003 13:05:34 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: jt@hpl.hp.com
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Pontus Fuchs <pof@users.sourceforge.net>
+Subject: Re: Announce: ndiswrapper
+Message-ID: <20031121120534.GA20822@ucw.cz>
+References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com> <20031120033422.GA8674@bougret.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031120033422.GA8674@bougret.hpl.hp.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Nov 2003, Jamie Lokier wrote:
+On Wed, Nov 19, 2003 at 07:34:22PM -0800, Jean Tourrilhes wrote:
 
-[CUT]
-> You are setting the first futex's word in userspace prior to the first
-> futex wakeup, right?  Either 5 will detect that and return
-> immediately, or it will reach 6 and the poll() returns immediately.
-> No hole there.
->
-> ( The async token passing flaw is that the _waker_ loses track of how
-> many succesful wakeups it has sent; this is used by some
-> implementations of fair semaphores, among other things.  That might be
-> relevant to POSIX message queues but I do not see that it's relevant
-> to the two futex problem you described. )
->
+> > >	Even better :
+> > >		1) go to the Wireless LAN Howto
+> > >		2) find a card are supported under Linux that suit your needs
+> > >		3) buy this card
+> > >	I don't see the point of giving our money to vendors that
+> > >don't care about us when there are vendors making a real effort toward
+> > >us.
+> > 
+> > 
+> > Unfortunately that leaves users without support for any recent wireless 
+> > hardware.
+> 
+> 	Excuse me ? Have you looked at the Howto lately ? There is
+> only Broadcom and Intel which are not supported, which leaves plenty
+> of choice (including many 802.11g and 802.11a cards).
 
-Thanks for information. I was wrongly assmuming that poll will block.
-After checking the code - I know I have made a mistake.
+And Realtek (I own one such card) and ADMtek (I bought one by accident
+in Canada) and Atheros and ... basically anything CardBus doesn't work.
 
-Regards
-Krzysiek
+Well, you might say that those have Linux drivers, although they're
+binary only, but that's about as useful as none if one has a 2.6 kernel.
+
+> >  It gets more and more difficult to even find Linux-supported 
+> > wireless at Fry's and other retail locations...
+> 
+> 	If you are careful, you can even buy at Fry's. I bought
+> recently some Microsoft cards ;-)
+> 
+> > 	Jeff
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

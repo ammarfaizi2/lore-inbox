@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263259AbUCNCqI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 21:46:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263257AbUCNCqI
+	id S263255AbUCNDTV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 22:19:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263257AbUCNDTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 21:46:08 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19338 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263255AbUCNCqE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 21:46:04 -0500
-Date: Sat, 13 Mar 2004 18:45:47 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: raybry@sgi.com, lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Hugetlbpages in very large memory machines.......
-Message-Id: <20040313184547.6e127b51.akpm@osdl.org>
-In-Reply-To: <20040313034840.GF4638@wotan.suse.de>
-References: <40528383.10305@sgi.com>
-	<20040313034840.GF4638@wotan.suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 13 Mar 2004 22:19:21 -0500
+Received: from mail01.hansenet.de ([213.191.73.61]:45201 "EHLO
+	webmail.hansenet.de") by vger.kernel.org with ESMTP id S263255AbUCNDTT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 22:19:19 -0500
+Date: Sun, 14 Mar 2004 04:20:51 +0100
+From: Bjoern Michaelsen <bmichaelsen@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: SiS746 AGP - patch succesfully tested
+Message-ID: <20040314032051.GA5380@lord.sinclair>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> > We've looked at allocating and zeroing hugetlbpages at fault time, which 
->  > would at least allow multiple processors to be thrown at the problem.  
->  > Question is, has anyone else been working on
->  > this problem and might they have prototype code they could share with us?
-> 
->  Yes. I ran into exactly this problem with NUMA API too. 
->  mbind() runs after mmap, but it cannot work anymore when
->  the pages are already allocated.
-> 
->  I fixed it on x86-64/i386 by allocating the pages lazily.
->  Doing it for IA64 has been on the todo list too.
-> 
->  i386/x86-64 Code as an example attached.
-> 
->  One drawback is that the out of memory handling is lot less nicer
->  than it was before - when you run out of hugepages you get SIGBUS
->  now instead of a ENOMEM from mmap. Maybe some prereservation would
->  make sense, but that would be somewhat harder. Alternatively
->  fall back to smaller pages if possible (I was told it isn't easily
->  possible on IA64)
 
-Demand-paging the hugepages is a decent feature to have, and ISTR resisting
-it before for this reason.
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Even though it's early in the 2.6 series I'd be a bit worried about
-breaking existing hugetlb users in this way.  Yes, the pages are
-preallocated so it is unlikely that a working setup is suddenly going to
-break.  Unless someone is using the return value from mmap to find out how
-many pages they can get.
+Hi kernelhackers!
+AGP did not work on my system with my SiS 746 chipset.
+I applied this patch:=20
+http://lkml.org/lkml/2004/2/22/102
+by Oliver Schoett manually against 2.6.4-rc1 and then AGP
+worked. More info about my system can be found here:
+http://bugs.gentoo.org/show_bug.cgi?id=3D40891
+I did not find a bug for this on buzilla.kernel.org, should I
+file one?
 
-So ho-hum.  I think it needs to be back-compatible.  Could we add
-MAP_NO_PREFAULT?
+Please CC me in an answer.
+Thanks you all for your great work!
 
+--=20
+Bj=F6rn Michaelsen
+pub  1024D/C9E5A256 2003-01-21 Bj=F6rn Michaelsen <bmichaelsen@gmx.de>
+   Key fingerprint =3D D649 8C78 1CB1 23CF 5CCF  CA1A C1B5 BBEC C9E5 A256
+
+--pf9I7BMVVzbSWLtt
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAU8+TwbW77MnlolYRAncUAKDKuiX3qqUXfnQ0aTq4l3ghYHSXgwCfQfsw
+qX5zhqvn8JlMby60arFoF0k=
+=oiHB
+-----END PGP SIGNATURE-----
+
+--pf9I7BMVVzbSWLtt--

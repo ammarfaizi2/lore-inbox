@@ -1,127 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267525AbTAXDOx>; Thu, 23 Jan 2003 22:14:53 -0500
+	id <S267528AbTAXDL5>; Thu, 23 Jan 2003 22:11:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267527AbTAXDOw>; Thu, 23 Jan 2003 22:14:52 -0500
-Received: from c24.159.193.39.roc.mn.charter.com ([24.159.193.39]:36848 "HELO
-	rochester1.roc.mn.charter.com") by vger.kernel.org with SMTP
-	id <S267525AbTAXDOr>; Thu, 23 Jan 2003 22:14:47 -0500
-Message-ID: <3E30AFE0.5060400@charter.net>
-Date: Thu, 23 Jan 2003 21:15:44 -0600
-From: Brian King <brking@charter.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	id <S267529AbTAXDL5>; Thu, 23 Jan 2003 22:11:57 -0500
+Received: from web80307.mail.yahoo.com ([66.218.79.23]:58523 "HELO
+	web80307.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S267528AbTAXDL5>; Thu, 23 Jan 2003 22:11:57 -0500
+Message-ID: <20030124032103.2302.qmail@web80307.mail.yahoo.com>
+Date: Thu, 23 Jan 2003 19:21:03 -0800 (PST)
+From: Kevin Lawton <kevinlawton2001@yahoo.com>
+Subject: Re: Simple patches for Linux as a guest OS in a plex86 VM (please consider)
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20030123192829.A628@nightmaster.csn.tu-chemnitz.de>
 MIME-Version: 1.0
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: James Stevenson <james@stev.org>, linux-kernel@vger.kernel.org
-Subject: Re: OOPS in idescsi_end_request
-References: <E18bd5l-000Duj-00@f16.mail.ru>
-In-Reply-To: <E18bd5l-000Duj-00@f16.mail.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can the interrupt handler even look at the request structure in this 
-scenario though? I can't say I know much about the ide subsystem but it 
-seems like after ide-scsi returns success on the reset function then it 
-should have already pushed scsi_done for the op and should not be 
-looking at the request structure. Would it be possible to have the 
-ide-scsi reset routine invoke ide_do_reset? Is there a problem with 
-multiple callers of ide_do_reset? I would think the right solution would 
-be to do this and not return success until the reset was successful and 
-the op was sent back to the mid-layer.
+--- Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de> wrote:
 
--Brian
+> Yes, what you do is nice, but generates much code. What about
+> this for pushfl:
 
+Your code snipped is 10% slower.  I'm not sure if it's the extra
+stack activity or the 8bit user of registers (which can
+pose a hazard to the execution stream on some processors).
+I'm gunning for high performance.
 
-Andrey Borzenkov wrote:
-> As long as we cannot easily abort IDE request (correct me if I am wrong) the workaround seems to be to mark current request as aborted in idescsi_abort and ignore it later in idescsi_end_request, i.e. something like (with new flag PC_ABORTED)
-> 
-> struct request *rq = HWGROUP(idescsi_drives[cmd->target])->rq;
-> idescsi_pc_t *pc = (idescsi_pc_t *) rq->buffer;
-> pc->flags |= PC_ABORTED;
-> 
-> and later on assume we can ignore SCSI layer completely in this case in idescsi_end_request, just do general cleanup.
-> 
-> If you can reliably reproduce the problem you could give it a try.
-> 
-> Anybody sees yet another race condition here? :))
-> 
-> -andrey 
-> 
-> 
->>While burning a CD tonight I ended up taking an oops on my system. I had 
->>the lkcd patch applied to my 2.4.19 kernel, so I was able to look at the 
->>  oops after my system rebooted. After digging into it a little and 
->>looking at the ide-scsi code I think I found the problem but am not 
->>sure. How can idescsi_reset simply return SCSI_RESET_SUCCESS to the scsi 
->>mid layer? I think what is happening is that a command times out, 
->>idescsi_abort is called, which returns SCSI_ABORT_SNOOZE. Later on 
->>idescsi_reset gets called, which returns SCSI_RESET_SUCCESS. At this 
->>point the scsi mid-layer owns the scsi_cmnd and returns the failure back 
->>up the chain. Later on, the command gets run through 
->>idescsi_end_request, which then tries to access the scsi_cmnd structure 
->>which is it no longer owns.
->>
->>Any help is appreciated. I have a complete lkcd dump of the failure if 
->>anyone would like more information...
->>
->>-Brian King
->>
->>
->>Here is the last bit in the log buffer:
->>
->>     <4>scsi : aborting command due to timeout : pid 2534304, scsi0, 
->>channel 0, id 1, lun 0 Write (10) 00 00 01 1e 91 00 00 1b 00
->>     <4>hdk: timeout waiting for DMA
->>     <4>ide_dmaproc: chipset supported ide_dma_timeout func only: 14
->>     <4>hdk: status timeout: status=0xd8 { Busy }
->>     <4>hdk: drive not ready for command
->>     <4>hdk: ATAPI reset complete
->>     <4>hdk: irq timeout: status=0x80 { Busy }
->>     <4>hdk: ATAPI reset complete
->>     <4>hdk: irq timeout: status=0x80 { Busy }
->>     <1>Unable to handle kernel NULL pointer dereference at virtual 
->>address 00000184
->>     <4> printing eip:
->>     <4>e0fd22f1
->>     <1>*pde = 00000000
->>     <4>Oops: 0002
->>     <4>CPU:    0
->>     <4>EIP:    0010:[<e0fd22f1>]    Tainted: PF
->>     <4>EFLAGS: 00010046
->>     <4>eax: 00000000   ebx: 00000000   ecx: dfef8000   edx: c75bcbc0
->>     <4>esi: 00000080   edi: c0491938   ebp: d5908000   esp: c0435ea4
->>     <4>ds: 0018   es: 0018   ss: 0018
->>     <4>Process swapper (pid: 0, stackpage=c0435000)
->>     <4>Stack: c0491938 00000000 00000000 c0491938 00000088 000001f4 
->>c03349e2 c75bcbc0
->>     <4>       ce0a3b80 c0491938 00000080 00000080 c75bcbc0 c0222d6c 
->>00000000 c1671580
->>     <4>       00000080 c04918f4 c0491938 c0434000 c1671580 e0fd2550 
->>c0223b30 c0491938
->>     <4>Call Trace:    [<c0222d6c>] [<e0fd2550>] [<c0223b30>] 
->>[<c0223990>] [<c0127af0>]
->>     <4>  [<c01233d4>] [<c01232a6>] [<c01230ed>] [<c010a97f>] 
->>[<c010d173>] [<c0106f80>]
->>     <4>  [<c0106fa3>] [<c0107012>] [<c0105000>]
->>     <4>
->>     <4>Code: c7 80 84 01 00 00 00 00 07 00 75 72 9c 5e fa bb 00 e0 ff ff
->>
->>
->> From lkcd:
->>
->>================================================================
->>STACK TRACE FOR TASK: 0xc0434000 (swapper)
->>
->>  0 [ide-scsi]idescsi_end_request+129 [0xe0fd22f1]
->>TRACE ERROR 0x800000000
-> 
-> 
-> 
+-Kevin
 
-
--- 
-Some days it's just not worth chewing through the restraints...
-
+__________________________________________________
+Do you Yahoo!?
+New DSL Internet Access from SBC & Yahoo!
+http://sbc.yahoo.com

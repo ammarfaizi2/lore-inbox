@@ -1,80 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266119AbUAGAmt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 19:42:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266120AbUAGAmt
+	id S266107AbUAGAiF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 19:38:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266111AbUAGAiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 19:42:49 -0500
-Received: from [193.138.115.2] ([193.138.115.2]:32274 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S266119AbUAGAmr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 19:42:47 -0500
-Date: Wed, 7 Jan 2004 01:39:51 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: James Simmons <jsimmons@infradead.org>
-cc: Paul Misner <paul@misner.org>, linux-kernel@vger.kernel.org
-Subject: Re: Blank Screen in 2.6.0
-In-Reply-To: <Pine.LNX.4.44.0401062313350.21143-100000@phoenix.infradead.org>
-Message-ID: <Pine.LNX.4.56.0401070128130.8521@jju_lnx.backbone.dif.dk>
-References: <Pine.LNX.4.44.0401062313350.21143-100000@phoenix.infradead.org>
+	Tue, 6 Jan 2004 19:38:05 -0500
+Received: from msr67.hinet.net ([168.95.4.167]:53191 "EHLO msr67.hinet.net")
+	by vger.kernel.org with ESMTP id S266107AbUAGAht (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 19:37:49 -0500
+Message-ID: <31159$67AB$618@25448>
+From: "KD" <kdlock@ms56.hinet.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: DISTRIBUTOR WANTED
+Reply-To: <kdlock@ms56.hinet.net>
+Date: Wed, 07 Jan 2004 08:36:11 +0800
+Content-type: multipart/mixed;
+	boundary="----=_NextPart_20627_2ADA_68ED.4650"
+X-Priority: 3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-On Tue, 6 Jan 2004, James Simmons wrote:
+------=_NextPart_20627_2ADA_68ED.4650
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
->
-> > > Fixed in my latest patches.
-> > >
->
-> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
->
+Dear sir,
 
-Ok, I grabbed those and I have both good and bad news.
+We design and manufacture high security locks for over 30 years, and are particularly proficient in Abloy key Type, Tubular key Type, Medeco lock .....etc.. Our main locks include camlock, padlock, switch lock, vending lock, bicycle lock, cabinet lock & push lock..etc. Our locks are applied on Amusement Machine, Game Machine, Vending Machine, Parking Meter, Coin Telephone, Washing Machine, and Cash Box..etc.
 
-The good news is that I no longer get just a black screen at boot.
-The bad news is that it still doesn't work quite right.
+Regarding our lock specification, please refer to our website http://www.kdlock.com. If there is any item interesting you, please advise item number, quantity and key situation (such as key alike or different & key quantity..etc.). We can offer you the most competitive price. It is acceptable for small quantity. Also, we can offer you the soonest deliery time.
 
-No matter what mode I try to boot in I always get the same, and it's as if
-the image is drawn only on every second scanline. One result of this is
-that I can only visually see approximately the top half of what I'm
-supposed to see - like, if I type in something in the shell, then I have
-to press enter several times untill enough lines have passed for the text
-to reach the top of the screen and thus is actually visible.  Another
-result of this is ofcourse that what I /can/ see doesn't look very good.
+We have many experience to cooperate with famous European and American firms by OEM or supplying them assembled or unassembled locks. Because we offer locks by OEM, you don't know our company. We have thirty years experiences in the field
+of locks. We can design and manufacture special locks for your particular applications. If you would like to develop or produce any lock, we are pleased to cooperate with you. Small quantity is acceptable for trial order.
 
-Also, after starting X (using the "nv" driver, not a fb X server) - if I
-switch back to a text console then the screen is completely garbled - I
-can switch back to X just fine though.
-
-My hardware is : ASUS V8200 Deluxe, GeForce3 64MB
-
-lspci -vvv reports :
-
-01:05.0 VGA compatible controller: nVidia Corporation NV20 [GeForce3] (rev a3) (prog-if 00 [VGA])
-        Subsystem: Asustek Computer, Inc. AGP-V8200 DDR
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 (1250ns min, 250ns max)
-        Interrupt: pin A routed to IRQ 11
-        Region 0: Memory at ee000000 (32-bit, non-prefetchable) [size=16M]
-        Region 1: Memory at f0000000 (32-bit, prefetchable) [size=64M]
-        Region 2: Memory at ef800000 (32-bit, prefetchable) [size=512K]
-        Expansion ROM at ef7f0000 [disabled] [size=64K]
-        Capabilities: [60] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-        Capabilities: [44] AGP version 2.0
-                Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA- ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2,x4
-                Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- Rate=<none>
+Above-mentioned matter, please kindly let's have your comment.
 
 
-/Jesper Juhl
+KD LOCKS CO. LTD
+70, KENG CHOU RD, WUKU HSIANG,
+TAIPEI HSIEN, 248 TAIWAN
+e-mail: kdlock@ms56.hinet.net
+http://www.kdlock.com
+TEL: 886-2-29818888
+FAX: 886-2-29826645
+ALEX KO / MANAGING DIRECTOR
+RITA YANG / OVERSEAS DEPT.
 
 
+------=_NextPart_20627_2ADA_68ED.4650--
 
-PS. I initially tried applying your patch to 2.6.1-rc1-mm2 , it had a few
-rejects, but I tried building it anyway - it wouldn't compile. So I went
-back to a clean 2.6.0 to which the patch applied flawlessly.
+

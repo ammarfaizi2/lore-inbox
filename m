@@ -1,32 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272385AbRIFBpg>; Wed, 5 Sep 2001 21:45:36 -0400
+	id <S272373AbRIFBlf>; Wed, 5 Sep 2001 21:41:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272375AbRIFBp0>; Wed, 5 Sep 2001 21:45:26 -0400
-Received: from mx1.port.ru ([194.67.57.11]:11786 "EHLO smtp1.port.ru")
-	by vger.kernel.org with ESMTP id <S272385AbRIFBpX>;
-	Wed, 5 Sep 2001 21:45:23 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200109060519.f865Ja106488@vegae.deep.net>
-Subject: page pre-swapping + moving it on cache-list
-To: riel@surriel.com
-Date: Thu, 6 Sep 2001 05:19:35 +0000 (UTC)
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S272374AbRIFBlZ>; Wed, 5 Sep 2001 21:41:25 -0400
+Received: from rj.SGI.COM ([204.94.215.100]:56536 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S272373AbRIFBlP>;
+	Wed, 5 Sep 2001 21:41:15 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Samium Gromoff <_deepfire@mail.ru>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: more fruits, though not probably fresh 
+In-Reply-To: Your message of "Thu, 06 Sep 2001 03:02:11 GMT."
+             <200109060302.f8632BP02164@vegae.deep.net> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 06 Sep 2001 11:40:45 +1000
+Message-ID: <6739.999740445@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-       Here is an idea i think i stole from Matthew Dillon`s paper.
+On Thu, 6 Sep 2001 03:02:11 +0000 (UTC), 
+Samium Gromoff <_deepfire@mail.ru> wrote:
+>make[4]: Entering directory `/usr/src/linux-stest/drivers/scsi/aic7xxx/aicasm'
+>*** Install db development libraries
+>gcc -I/usr/include -I. -ldb aicasm_gram.c aicasm_scan.c aicasm.c aicasm_symbol.c -o aicasm
+>aicasm_symbol.c:39: aicdb.h: No such file or directory
 
-    Actually it sound more like we take some pages from the near 0 
-  age and swapping them out but not throwing them away, but moving them
-  from active list to cache. So that we can always throw them away
-  at near null cost while shrinking the cache. This is like a
-  replacement for swap-cache if i`m right here...
+Turn off CONFIG_AIC7XXX_BUILD_FIRMWARE, you do not have the required
+libraries.
 
-cheers,
- Sam
-   

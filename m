@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268714AbTCCSsb>; Mon, 3 Mar 2003 13:48:31 -0500
+	id <S268711AbTCCSxb>; Mon, 3 Mar 2003 13:53:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268715AbTCCSsb>; Mon, 3 Mar 2003 13:48:31 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:31388
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268714AbTCCSs3>; Mon, 3 Mar 2003 13:48:29 -0500
-Subject: Re: Displaying/modifying PCI device id tables via sysfs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Matt Domsch <Matt_Domsch@Dell.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mochel@osdl.org
-In-Reply-To: <20030303182553.GG16741@kroah.com>
-References: <20BF5713E14D5B48AA289F72BD372D680392F82C-100000@AUSXMPC122.aus.amer.dell.com>
-	 <20030303182553.GG16741@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1046721774.7314.6.camel@irongate.swansea.linux.org.uk>
+	id <S268712AbTCCSxb>; Mon, 3 Mar 2003 13:53:31 -0500
+Received: from to-wiznet.redhat.com ([216.129.200.2]:51965 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S268711AbTCCSxa>; Mon, 3 Mar 2003 13:53:30 -0500
+Date: Mon, 3 Mar 2003 14:03:56 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Horrible L2 cache effects from kernel compile
+Message-ID: <20030303140356.G15363@redhat.com>
+References: <3E5BB7EE.5090301@colorfullife.com> <b3gq31$2h8$1@penguin.transmeta.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 03 Mar 2003 20:02:54 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <b3gq31$2h8$1@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Feb 25, 2003 at 10:18:09PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-03 at 18:25, Greg KH wrote:
-> > 2) Add new IDs at runtime and have the drivers probe for the new IDs.
-> 
-> Ick, no.  If a driver really wants to have a user provide new ids on the
-> fly, they usually provide a module paramater to do this.  A number of
-> the USB drivers do this already (and to be honest, they have caused
-> nothing but trouble, as users use that option for new devices, that the
-> driver can't control at all due to protocol or register location
-> changes.)
-> 
-> In short, it's not a good idea to allow users to change these values on
-> the fly, the driver author usually knows best here :)
+On Tue, Feb 25, 2003 at 10:18:09PM +0000, Linus Torvalds wrote:
+> Right now the "child" list is just a simple linked list, and changing
+> that to something more complex might make it possible to get rid of the
+> hash entirely. But increasing the size of individual dentries is a bad
+> idea, so it would have to be something fairly smart.
 
-I would strongly disagree with that statement. The majority of users run
-kernels a little behind the times, and in may cases adding the PCI id is
-just fine. It doens't want to be casual and uncontrolled but it does want
-to be possible
+Part of it is that some of the dentry is simply just too bloated.  At 
+160 bytes, there must be something we can prune:
 
+	qstr.len	- if anyone cares about 4GB long dentries, they 
+			  probably have other problems. could be a short
+	d_lock		- 1 bit out of 4 bytes
+	d_vfs_flags	- 2 bits out of 4 bytes
+	d_flags		- 3 bits out of 4 bytes
+	d_move_count	- rcu -- is it ever used on UP?
+	d_time		- only used by network filesystems
+	*d_sb		- rarely used, accessible via inode
+	*d_fsdata	- mostly used by exotic/network filesystems
+	*d_cookie	- only used when o_profile is active
+
+In short, almost a third can be configured out of existence for some 
+setups, and others are candidates for being moved into filesystem specific 
+data.
+
+		-ben
+-- 
+Junk email?  <a href=mailto:"aart@kvack.org">aart@kvack.org</a>

@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266917AbUHITVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266915AbUHITVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266917AbUHITVa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 15:21:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266915AbUHITTQ
+	id S266915AbUHITVb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 15:21:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266920AbUHITTA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 15:19:16 -0400
-Received: from holomorphy.com ([207.189.100.168]:13026 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266903AbUHITM6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 15:12:58 -0400
-Date: Mon, 9 Aug 2004 12:12:49 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Hirokazu Takahashi'" <taka@valinux.co.jp>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, "Seth, Rohit" <rohit.seth@intel.com>
-Subject: Re: Hugetlb demanding paging for -mm tree
-Message-ID: <20040809191249.GT11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-	'Hirokazu Takahashi' <taka@valinux.co.jp>,
-	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-	"Seth, Rohit" <rohit.seth@intel.com>
-References: <20040806210750.GT17188@holomorphy.com> <200408091819.i79IJ3Y12216@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Aug 2004 15:19:00 -0400
+Received: from mout2.freenet.de ([194.97.50.155]:62927 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S266915AbUHITNF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 15:13:05 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: Hollis Blanchard <hollisb@us.ibm.com>
+Subject: Re: [RFC] Host Virtual Serial Interface driver
+Date: Mon, 9 Aug 2004 21:12:22 +0200
+User-Agent: KMail/1.6.2
+References: <1091827384.31867.21.camel@localhost> <20040809184859.GA20397@mars.ravnborg.org> <200408091351.49211.hollisb@us.ibm.com>
+In-Reply-To: <200408091351.49211.hollisb@us.ibm.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200408091819.i79IJ3Y12216@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200408092112.24187.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote on Friday, August 06, 2004 2:08 PM
->> update_mmu_cache() does not appear to check the size of the translation
->> to be established in many architectures. e.g. on arch/ia64/ it does
->> flush_icache_range(addr, addr + PAGE_SIZE) unconditionally, and only
->> sets PG_arch_1 on a single struct page. Similar comments apply to
->> sparc64 and ppc64; I didn't check any others.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Mon, Aug 09, 2004 at 11:19:04AM -0700, Chen, Kenneth W wrote:
-> I suppose this is fixable in update_mmu_cache() where it can check the
-> type of pte and do appropriate sizing and other things.  ia64 would have
-> to check the address instead of looking at the pte.
+Quoting Hollis Blanchard <hollisb@us.ibm.com>:
+> > pr_debug is a noop if DEBUG is not defined. Make dump_hex, dump_packet
+> > be a noop also and you get rid of several #ifdef in the code.
+> 
+> I'd like to do that, but notice that dump_hex() is called from dump_packet() 
+> from hvsi_recv_response() (and I've just made hvsi_recv_control() the same). 
+> Even with debug disabled, I'd like to be able to dump a whole packet if I get 
+> confused...
 
-Yes, it's just a fair amount of document-hunting since there isn't
-always easily cut-and-pasteable stuff (e.g. ITAG_MASK for larger page
-sizes was omitted from the #ifdefs on sparc64).
+#ifdef DEBUG
+# define dump_hex_dbg(a, b)	dump_hex(a, b)
+#else
+# define dump_hex_dbg(a, b)	do { } while (0)
+#endif /* DEBUG */
 
-As for ia64 checking addresses... ew, can't we just use long format
-VHPT? The virtual placement constraints are nasty.
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
 
 
--- wli
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBF8yWFGK1OIvVOP4RAv3xAJ91heLG1BQzB+rLkA7w3D+3RhRdYgCg4pMI
+uTJPQXzVvJppF14S71neVnI=
+=zDzy
+-----END PGP SIGNATURE-----

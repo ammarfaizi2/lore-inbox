@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317188AbSFKRCB>; Tue, 11 Jun 2002 13:02:01 -0400
+	id <S317189AbSFKRHZ>; Tue, 11 Jun 2002 13:07:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317191AbSFKRCA>; Tue, 11 Jun 2002 13:02:00 -0400
-Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:40832 "EHLO
-	DervishD.pleyades.net") by vger.kernel.org with ESMTP
-	id <S317188AbSFKRB7>; Tue, 11 Jun 2002 13:01:59 -0400
-Date: Tue, 11 Jun 2002 19:07:59 +0200
-Organization: Pleyades
-To: pochini@shiny.it, raul@pleyades.net
-Subject: Re: bandwidth 'depredation'
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <3D062E6F.mail1QU2YH0M4@viadomus.com>
-In-Reply-To: <XFMail.20020611151754.pochini@shiny.it>
-User-Agent: nail 9.29 12/10/01
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-From: DervishD <raul@pleyades.net>
-Reply-To: DervishD <raul@pleyades.net>
-X-Mailer: DervishD TWiSTiNG Mailer
+	id <S317191AbSFKRHY>; Tue, 11 Jun 2002 13:07:24 -0400
+Received: from dsl-64-129-133-253.telocity.com ([64.129.133.253]:53009 "EHLO
+	skylab.outpostsentinel.com") by vger.kernel.org with ESMTP
+	id <S317189AbSFKRHX>; Tue, 11 Jun 2002 13:07:23 -0400
+Subject: Re: Break on serial port
+From: cfowler <cfowler@outpostsentinel.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020611173520.D3665@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 11 Jun 2002 13:14:36 -0400
+Message-Id: <1023815676.6689.35.camel@moses.outpostsentinel.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Giuliano :)
+I can not find that ocnfig option anywher in my 2.4.17 tree.  I also
+added CONFIG_MAGIC_SYSRQ=y to the top of .config and then did a  make
+dep and make bzImage.  Upon boot I did not see a /proc/sys/kernel/sysrq
 
->>     IMHO, the IP layer (well, in this case the TCP layer) should
->> distribute the bandwidth (although I don't know how to do this), and
->> the kernel seems to be not doing it.
->No, IP doesn't balance anything. You have to filter the traffic with
->QoS of traffic shapers to give different "priorities" to packets as
->you like. Wget doesn't "grab" the bandwidth, it's the remote server
->that fills it.
+I did notice this feature in architectures other than i386.
 
-    Now I know it, but I don't understand how shaping the outgoing
-traffic will help with my incoming traffic O:)
+Chris
 
-    Thanks for answering :)
+On Tue, 2002-06-11 at 12:35, Russell King wrote:
+> On Tue, Jun 11, 2002 at 11:41:26AM -0400, cfowler wrote:
+> > I remeber a while back being able to send a break on serial console. 
+> > I've been unable to do this under 2.4.17.  Has this feature been turned
+> > off?  Is there a way to turn it back on?
+> 
+> It works fine here.  Please confirm that:
+> 
+> 1. your kernel is built with CONFIG_MAGIC_SYSRQ
+> 2. cat /proc/sys/kernel/sysrq returns '1'
+> 3. the serial console port is being held open by some user program (eg,
+>    getty or init)
+> 
+> If any of the three above are not true, then break<sysrq-key> doesn't work.
+> 
+> -- 
+> Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+>              http://www.arm.linux.org.uk/personal/aboutme.html
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-    Raúl
+

@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269807AbUJHLMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269824AbUJHLQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269807AbUJHLMS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 07:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269824AbUJHLMR
+	id S269824AbUJHLQk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 07:16:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269837AbUJHLQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 07:12:17 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:49578
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S269807AbUJHLL6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 07:11:58 -0400
-Date: Fri, 8 Oct 2004 07:19:27 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Adaptec drivers and 2.6.x kernels
-Message-ID: <20041008111927.GA25887@animx.eu.org>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-References: <20041007222709.GA24314@animx.eu.org> <20041007224927.GZ9106@holomorphy.com> <20041008000637.GA24588@animx.eu.org> <20041008111037.GD9106@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041008111037.GD9106@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040523i
+	Fri, 8 Oct 2004 07:16:39 -0400
+Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:7812
+	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
+	id S269838AbUJHLOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 07:14:35 -0400
+Subject: [patch 1/1] use container_of for rb_entry
+To: akpm@osdl.org
+Cc: hch@infradead.org, linux-kernel@vger.kernel.org,
+       blaisorblade_spam@yahoo.it
+From: blaisorblade_spam@yahoo.it
+Date: Fri, 08 Oct 2004 13:14:12 +0200
+Message-Id: <20041008111413.A6C0C523A@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > What I described was a single system.  See descriptions below, what else will
-> > I need to provide?
-> 
-> These are probably enough for the driver people to go on, and what I've
-> been asked for before. Exactly the kind of information needed.
 
-Perhaps I should keep the text so I won't have to retype it next time I run
-into a problem.  =)
+Use, in the rb_entry definition, the container_of macro instead of reinventing
+the wheel; compared to using offset_of() as I did in the prev. version, it has
+type safety checking.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
+
+ linux-2.6.9-current-paolo/include/linux/rbtree.h |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
+
+diff -puN include/linux/rbtree.h~use-offsetof-rb_entry include/linux/rbtree.h
+--- linux-2.6.9-current/include/linux/rbtree.h~use-offsetof-rb_entry	2004-10-08 11:57:18.523435712 +0200
++++ linux-2.6.9-current-paolo/include/linux/rbtree.h	2004-10-08 13:12:27.602951432 +0200
+@@ -113,8 +113,7 @@ struct rb_root
+ };
+ 
+ #define RB_ROOT	(struct rb_root) { NULL, }
+-#define	rb_entry(ptr, type, member)					\
+-	((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
++#define	rb_entry(ptr, type, member) container_of(ptr, type, member)
+ 
+ extern void rb_insert_color(struct rb_node *, struct rb_root *);
+ extern void rb_erase(struct rb_node *, struct rb_root *);
+_

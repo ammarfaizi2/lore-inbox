@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263641AbTJQXZU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 19:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTJQXZU
+	id S263632AbTJQXnh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 19:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbTJQXnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 19:25:20 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:8852 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S263632AbTJQXZO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 19:25:14 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] prevent "dd if=/dev/mem" crash
-Date: Fri, 17 Oct 2003 17:25:10 -0600
-User-Agent: KMail/1.5.3
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <200310171610.36569.bjorn.helgaas@hp.com> <20031017155028.2e98b307.akpm@osdl.org>
-In-Reply-To: <20031017155028.2e98b307.akpm@osdl.org>
+	Fri, 17 Oct 2003 19:43:37 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:48444 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S263632AbTJQXnf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 19:43:35 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test8
+References: <Pine.LNX.4.44.0310171530001.1988-100000@home.osdl.org>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 17 Oct 2003 16:43:29 -0700
+In-Reply-To: <Pine.LNX.4.44.0310171530001.1988-100000@home.osdl.org>
+Message-ID: <52ptgvo2fy.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310171725.10883.bjorn.helgaas@hp.com>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 17 Oct 2003 23:43:34.0067 (UTC) FILETIME=[7A4D5030:01C39508]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 October 2003 4:50 pm, Andrew Morton wrote:
-> Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
-> >
-> > Old behavior:
-> > 
-> >     # dd if=/dev/mem of=/dev/null
-> >     <unrecoverable machine check>
-> 
-> I recently fixed this for ia32 by changing copy_to_user() to not oops if
-> the source address generated a fault.  Similarly copy_from_user() returns
-> an error if the destination generates a fault.
-> 
-> In other words: drivers/char/mem.c requires that the architecture's
-> copy_*_user() functions correctly handle faults on either the source or
-> dest of the copy.
+Here's a fix for compiling with gcc 2.95 (a variable declaration got
+mixed in with code):
 
-If we really believe copy_*_user() must correctly handle *all* faults,
-isn't the "p >= __pa(high_memory)" test superfluous?
-
-I don't know how ia32 handles a read to non-existent physical memory.
-Are you saying that copy_*_user() can deal with that just like it does
-a garden-variety TLB fault?
-
-On ia64, a read to non-existent physical memory causes the processor
-to time out and take a machine check.  I'm not sure it's even possible
-to recover from that.
-
-Bjorn
-
+--- linux-2.6.0-test8/arch/i386/kernel/microcode.c.orig	Fri Oct 17 16:36:47 2003
++++ linux-2.6.0-test8/arch/i386/kernel/microcode.c	Fri Oct 17 16:37:03 2003
+@@ -324,8 +324,9 @@
+ 					/* check extended table checksum */
+ 					if (ext_table_size) {
+ 						int ext_table_sum = 0;
++						int * ext_tablep;
+ 						i = ext_table_size / DWSIZE;
+-						int * ext_tablep = (((void *) newmc) + MC_HEADER_SIZE + data_size);
++						ext_tablep = (((void *) newmc) + MC_HEADER_SIZE + data_size);
+ 						while (i--) ext_table_sum += ext_tablep[i];
+ 						if (ext_table_sum) {
+ 							printk(KERN_WARNING "microcode: aborting, bad extended signature table checksum\n");

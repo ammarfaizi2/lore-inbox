@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265513AbUAJWON (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 17:14:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbUAJWON
+	id S265254AbUAJWPd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 17:15:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265391AbUAJWPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 17:14:13 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:55273 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265513AbUAJWOK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 17:14:10 -0500
-Date: Sat, 10 Jan 2004 14:14:02 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 NFS-server low to 0 performance
-Message-ID: <20040110221402.GB17845@matchmail.com>
-Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0401102100180.5835-100000@poirot.grange> <1073771855.3958.15.camel@nidelv.trondhjem.org>
+	Sat, 10 Jan 2004 17:15:33 -0500
+Received: from waste.org ([209.173.204.2]:36500 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S265254AbUAJWP0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 17:15:26 -0500
+Date: Sat, 10 Jan 2004 16:14:59 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Nick Piggin <piggin@cyberone.com.au>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1-rc1-tiny2
+Message-ID: <20040110221459.GN18208@waste.org>
+References: <20040106054859.GA18208@waste.org> <3FFA56D6.6040808@cyberone.com.au> <20040106064607.GB18208@waste.org> <3FFA5ED3.6040000@cyberone.com.au> <20040110004625.GB25089@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1073771855.3958.15.camel@nidelv.trondhjem.org>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040110004625.GB25089@fs.tum.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 10, 2004 at 04:57:36PM -0500, Trond Myklebust wrote:
-> P? lau , 10/01/2004 klokka 15:04, skreiv Guennadi Liakhovetski:
-> > Not change - keep (from 2.4). You see, the problem might be - somebody
-> > updates the NFS-server from 2.4 to 2.6 and then suddenly some clients fail
-> > to work with it. Seems a non-obvious fact, that after upgrading the server
-> > clients' configuration might have to be changed. At the very least this
-> > must be documented in Kconfig.
+On Sat, Jan 10, 2004 at 01:46:25AM +0100, Adrian Bunk wrote:
+> On Tue, Jan 06, 2004 at 06:08:03PM +1100, Nick Piggin wrote:
+> > 
+> > Matt Mackall wrote:
+> > 
+> > >On Tue, Jan 06, 2004 at 05:33:58PM +1100, Nick Piggin wrote:
+> > >>Have you considered Adrian Bunk's CPU selection rationalisation work?
+> > >>
+> > >
+> > >Vaguely aware of it.
+> > >
+> > 
+> > Basically, because the types of x86 cpus are only partially ordered,
+> > and a the CPU selection somehow tries to follow the rule "this CPU or
+> > higher", there ends up being a bit of stuff included which doesn't
+> > need to be. Not sure what the savings add up to though...
+> >...
 > 
-> Non-obvious????? You have to change modutils, you have to upgrade
-> nfs-utils, glibc, gcc... and that's only the beginning of the list.
+> Some savings are possible as a side effect of my patch (the main goal 
+> is to make the selection of multiple CPUs more user friendly).
 > 
-> 2.6.x is a new kernel it differs from 2.4.x, which again differs from
-> 2.2.x, ... Get over it! There are workarounds for your problem, so use
-> them.
+> I'll send the patch and 2 proof of concept space saving patches as 
+> replies to this mail.
 
-I have to admit, I haven't been following NFS on TCP very much.  Is the code
-in the stock 2.4 and 2.6 kernels ready for production use?  It seemed from
-what I read it was still experemental (and even marked as such in the
-config). 
+I like this stuff, but I think the first two bits are probably better
+done in mainline proper, perhaps Andrew will consider them now that
+2.6.0 is out. The -tiny approach is to make small tweaks on stuff
+without diverging far from the mainline infrastructure. I'm trying to
+keep most of the patches independent. I've basically already hacked my
+owned version of the third bit (cpu support code selection) in an
+earlier -tiny release, hadn't noticed the mtrr bits yet.
 
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

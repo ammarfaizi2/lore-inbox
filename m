@@ -1,108 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267514AbUIPVrz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267446AbUIPVtG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267514AbUIPVrz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 17:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267446AbUIPVrz
+	id S267446AbUIPVtG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 17:49:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267589AbUIPVtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 17:47:55 -0400
-Received: from fw.osdl.org ([65.172.181.6]:47077 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267514AbUIPVr3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 17:47:29 -0400
-Date: Thu, 16 Sep 2004 14:50:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Seiji Kihara <kihara.seiji@lab.ntt.co.jp>
-Cc: sct@redhat.com, adilger@clusterfs.com, ext3-users@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       ospfs@lab.ntt.co.jp
-Subject: Re: [PATCH] BUG on fsync/fdatasync with Ext3 data=journal
-Message-Id: <20040916145059.44a7e800.akpm@osdl.org>
-In-Reply-To: <ufz5i5q4r.wl%kihara.seiji@lab.ntt.co.jp>
-References: <ufz5i5q4r.wl%kihara.seiji@lab.ntt.co.jp>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Sep 2004 17:49:06 -0400
+Received: from smtp.dkm.cz ([62.24.64.34]:50693 "HELO smtp.dkm.cz")
+	by vger.kernel.org with SMTP id S267446AbUIPVsy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 17:48:54 -0400
+From: "Bc. Michal Semler" <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: CD-ROM can't be ejected
+Date: Thu, 16 Sep 2004 23:48:51 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <200409160025.35961.cijoml@volny.cz> <200409161419.38264.cijoml@volny.cz> <20040916122400.GB3544@suse.de>
+In-Reply-To: <20040916122400.GB3544@suse.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200409162348.51806.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seiji Kihara <kihara.seiji@lab.ntt.co.jp> wrote:
+Dne èt 16. záøí 2004 14:24 Jens Axboe napsal(a):
+> On Thu, Sep 16 2004, Bc. Michal Semler wrote:
+> > Dne ?t 16. zá?í 2004 12:22 Jens Axboe napsal(a):
+> > > On Thu, Sep 16 2004, Bc. Michal Semler wrote:
+> > > > > > > On Thu, Sep 16 2004, Bc. Michal Semler wrote:
+> > > > > > > > notas:/home/cijoml# mount /cdrom/
+> > > > > > > > notas:/home/cijoml# umount /cdrom/
+> > > > > > > > notas:/home/cijoml# strace -o eject /dev/hdc
+> > > > > > > > eject: unable to eject, last error: Nep?ípustný argument
+> > > > > > > >
+> > > > > > > > As you can see, I dont't enter to directory...
+> > > > > > > >
+> > > > > > > > And output is included
+> > > > > > > >
+> > > > > > > > ioctl(3, CDROMEJECT, 0xbffffac8)        = -1 EIO
+> > > > > > > > (Input/output error)
+> > > > > > >
+> > > > > > > That's the important bit, the reason you get EINVAL passed back
+> > > > > > > is because eject tries the floppy eject as well and decides to
+> > > > > > > print the warning from that. It really should just stop of it
+> > > > > > > sees -EIO, only continue if EINVAL/ENOTTY is passed back.
+> > > > > > >
+> > > > > > > Try this little c program and report back what it tells you.
+> > > > > > > Compile with
+> > > > > > >
+> > > > > > > gcc -Wall -o eject eject.c
+> > > > > > >
+> > > > > > > and run without arguments.
+> > > > > > >
+> > > > > > > #include <stdio.h>
+> > > > > > > #include <stdlib.h>
+> > > > > > > #include <fcntl.h>
+> > > > > > > #include <string.h>
+> > > > > > > #include <sys/ioctl.h>
+> > > > > > > #include <linux/cdrom.h>
+> > > > > > >
+> > > > > > > int main(int argc, char *argv[])
+> > > > > > > {
+> > > > > > > 	int fd = open("/dev/hdc", O_RDONLY | O_NONBLOCK);
+> > > > > > > 	struct cdrom_generic_command cgc;
+> > > > > > > 	struct request_sense sense;
+> > > > > > >
+> > > > > > > 	memset(&cgc, 0, sizeof(cgc));
+> > > > > > > 	memset(&sense, 0, sizeof(sense));
+> > > > > > >
+> > > > > > > 	cgc.cmd[0] = 0x1b;
+> > > > > > > 	cgc.cmd[4] = 0x02;
+> > > > > > > 	cgc.sense = &sense;
+> > > > > > > 	cgc.data_direction = CGC_DATA_NONE;
+> > > > > > >
+> > > > > > > 	if (ioctl(fd, CDROM_SEND_PACKET, &cgc) == 0) {
+> > > > > > > 		printf("eject worked\n");
+> > > > > > > 		return 0;
+> > > > > > > 	}
+> > > > > > >
+> > > > > > > 	printf("command failed - sense %x/%x/%x\n", sense.sense_key,
+> > > > > > > sense.asc, sense.ascq); return 1;
+> > > > > > > }
+> > > > > >
+> > > > > > 2.4.27-mh1
+> > > > > > notas:~# /home/cijoml/eject
+> > > > > > ATAPI device hdc:
+> > > > > >   Error: Not ready -- (Sense key=0x02)
+> > > > > >   (reserved error code) -- (asc=0x53, ascq=0x02)
+> > > > > >   The failed "Start/Stop Unit" packet command was:
+> > > > > >   "1b 00 00 00 02 00 00 00 00 00 00 00 "
+> > > > > > command failed - sense 2/53/2
+> > > > >
+> > > > > Your tray is still locked, are you sure it isn't mounted?
+> > > >
+> > > > Yes I am. This is written into console and I am logged only into this
+> > > > console and I copied whole commands from login to eject... :(
+> > >
+> > > For the third time, don't trim the cc list! group reply please.
+> > >
+> > > Something else must be keeping your drive locked. What else do you have
+> > > running in the system? It's enough if one app is just holding the drive
+> > > open, the drive wont get unlocked on umount then.
+> >
+> > only thing which access cdrom is cpudynd and it access harddrive too....
+> >
+> > notas:~# fuser /dev/hdc
+> > /dev/hdc:             8102
+> > notas:~# ps aux|grep 8102
+> > root      8102  0.0  0.1  1536  456 ?        SNs  13:49
+> > 0:00 /usr/sbin/cpudynd -i 1 -p 0.5 0.9 -l 7 -t 120 -h /dev/hda,/dev/hdc
 >
-> We found that fsync and fdatasync syscalls sometimes don't sync
-> data in an ext3 file system under the following conditions.
-> 
-> 1. Kernel version is 2.6.6 or later (including 2.6.8.1 and 2.6.9-rc2).
-> 2. Ext3's journalling mode is "data=journal".
-> 3. Create a file (whose size is 1Mbytes) and execute umount/mount.
-> 4. lseek to a random position within the file, write 8192 bytes
->    data, and fsync or fdatasync.
-> 
-> We presume the data was not written to the corresponding disk
-> before returning from fsync or fdatasync syscall on the evidence
-> as follows:
-> 
-> 1. The response time of fsync() and fdatasync() was extremely
->    short.
-> 
->    We use the "diskio" tool, which is downloadable from OSDL page
->    (http://developer.osdl.jp/projects/doubt/).  The program showed
->    that the response time was under 10 microseconds.  This time
->    cannot be achieved with data transfer on IDE and PCI bus!
-> 
-> 2. The IDE writing routine ide_start_dma() was not called under
->    DMA enabled.
-> 
->    We inserted the print messages in the sys_write(), sys_fsync()
->    and ide_start_dma() by the attached patch.  Sometimes the
->    "ide_start_dma: ..." message was not shown between "write: in
->    ..." and "fsync: out ...".
-> 
-> The problem was occurred since 2.6.5-bk1, which includes the patch
-> "[PATCH] ext3 fsync() and fdatasync() speedup".  We found that the
-> problem was solved by deleting the part of the patch which
-> modifies ext3_sync_file().  Maybe, i_state is not correctly set to
-> I_DIRTY when the related page cache is dirty (is it true?)
+> well there you go, that is what is keeping the drive locked. cdrom
+> cannot know which process locked it or not, all it knows is that the
+> usage count is non-zero on umount, so it doesn't unlock the tray.
 
-I forgot about this one.
+Well I killed cpudyn and everything behaves the same... :(
 
-> Attached file is tarball (tar + bzip2) which contains following
-> files.  The patches are for 2.6.8.1-kernel (applicable to
-> 2.6.9-rc2), and the results were also produced with
-> 2.6.8.1-kernel.
+# fuser /dev/hdc
+#
 
-We really don't need a 100k tarball to communicate a three line patch :(
-
-Yes, the I_DIRTY test is bogus because data pages are not marked dirty at
-write() time when the filesystem is mounted in data=journal mode.
-
-However your patch will disable the above optimisation for data=writeback
-and data-ordered modes as well.  I don't think that's necessary?
-
-How about this?
-
---- 25/fs/ext3/fsync.c~ext3-journal-data-fsync-fix	Thu Sep 16 14:47:21 2004
-+++ 25-akpm/fs/ext3/fsync.c	Thu Sep 16 14:47:33 2004
-@@ -49,10 +49,6 @@ int ext3_sync_file(struct file * file, s
- 
- 	J_ASSERT(ext3_journal_current_handle() == 0);
- 
--	smp_mb();		/* prepare for lockless i_state read */
--	if (!(inode->i_state & I_DIRTY))
--		goto out;
--
- 	/*
- 	 * data=writeback:
- 	 *  The caller's filemap_fdatawrite()/wait will sync the data.
-@@ -76,6 +72,10 @@ int ext3_sync_file(struct file * file, s
- 		goto out;
- 	}
- 
-+	smp_mb();		/* prepare for lockless i_state read */
-+	if (!(inode->i_state & I_DIRTY))
-+		goto out;
-+
- 	/*
- 	 * The VFS has written the file data.  If the inode is unaltered
- 	 * then we need not start a commit.
-_
-
+Michal

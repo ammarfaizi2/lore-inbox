@@ -1,51 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVCaIct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVCaIco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbVCaIct (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 03:32:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVCaIct
+	id S261191AbVCaIco (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 03:32:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVCaIco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 03:32:49 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52888 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261189AbVCaI3q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 03:29:46 -0500
-Message-ID: <424BB4EA.6080506@pobox.com>
-Date: Thu, 31 Mar 2005 03:29:30 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Yum Rayan <yum.rayan@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Reduce stack usage in sys.c
-References: <df35dfeb05033023445c386d2d@mail.gmail.com>
-In-Reply-To: <df35dfeb05033023445c386d2d@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Mar 2005 03:32:44 -0500
+Received: from mail.kroah.org ([69.55.234.183]:58529 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261192AbVCaI21 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 03:28:27 -0500
+Date: Thu, 31 Mar 2005 00:28:14 -0800
+From: Greg KH <gregkh@suse.de>
+To: Patrick Mochel <mochel@digitalimplant.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: syslog loves the new driver core code
+Message-ID: <20050331082814.GA26668@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yum Rayan wrote:
-> Attempt to reduce stack usage in sys.c (linux-2.6.12-rc1-mm3). Stack
-> usage was noted using checkstack.pl. Specifically
-> 
-> Before patch
-> ------------
-> sys_reboot - 256
-> 
-> After patch
-> -----------
-> sys_reboot - none (register usage only)
-> 
-> Along the way, wrap code to 80 column width and cleanup lock usage.
+Andrew pointed out to me that the new driver core code spewes a lot of
+stuff in the syslog for every device it tries to match up with a driver
+(if you look closely, it seems that the if check in __device_attach()
+will never not trigger...)
 
-Your "cleanup lock usage" increases the number of lock_kernel() calls 
-quite a bit, which is not really a cleanup but simply bloat.
+Everything still seems to work properly, but it's good if we don't alarm
+people with messages that are incorrect and unneeded. :)
 
-Seperate out your patches; don't sneak these supposed-cleanups into 
-stack uage patches.
+So, here's a patch that seems to work for me.  It stops trying to loop
+through drivers or devices once it finds a match, and it only tells the
+syslog when we have a real error.
 
-	Jeff
+Look acceptable to you?
 
+thanks,
 
+greg k-h
 
+-----------
+Driver core: Fix up the driver and device iterators to be quieter
+
+Also stops looping over the lists when a match is found.
+
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+--- 1.4/drivers/base/dd.c	2005-03-25 09:52:38 -08:00
++++ edited/drivers/base/dd.c	2005-03-31 00:22:50 -08:00
+@@ -91,20 +91,23 @@ static int __device_attach(struct device
+ 	int error;
+ 
+ 	error = driver_probe_device(drv, dev);
+-
+-	if (error == -ENODEV && error == -ENXIO) {
+-		/* Driver matched, but didn't support device 
+-		 * or device not found.
+-		 * Not an error; keep going.
+-		 */
+-		error = 0;
+-	} else {
+-		/* driver matched but the probe failed */
+-		printk(KERN_WARNING
+-		       "%s: probe of %s failed with error %d\n",
+-		       drv->name, dev->bus_id, error);
++	if (error) {
++		if ((error == -ENODEV) || (error == -ENXIO)) {
++			/* Driver matched, but didn't support device 
++			 * or device not found.
++			 * Not an error; keep going.
++			 */
++			error = 0;
++		} else {
++			/* driver matched but the probe failed */
++			printk(KERN_WARNING
++			       "%s: probe of %s failed with error %d\n",
++			       drv->name, dev->bus_id, error);
++		}
++		return error;
+ 	}
+-	return 0;
++	/* stop looking, this device is attached */
++	return 1;
+ }
+ 
+ 
+@@ -142,7 +145,10 @@ static int __driver_attach(struct device
+ 				       drv->name, dev->bus_id, error);
+ 			} else
+ 				error = 0;
++			return error;
+ 		}
++		/* stop looking, this driver is attached */
++		return 1;
+ 	}
+ 	return 0;
+ }

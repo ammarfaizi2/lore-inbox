@@ -1,84 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266263AbUJEWmh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266271AbUJEWrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266263AbUJEWmh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 18:42:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266250AbUJEWmh
+	id S266271AbUJEWrA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 18:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266274AbUJEWrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 18:42:37 -0400
-Received: from fw.osdl.org ([65.172.181.6]:19606 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266271AbUJEWkK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 18:40:10 -0400
-Date: Tue, 5 Oct 2004 15:43:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel@vger.kernel.org, markus.lidel@shadowconnect.com,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] add missing checks of __copy_to_user return value in
- i2o_config.c
-Message-Id: <20041005154351.4776d3c4.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0410060025370.2913@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.61.0410052317350.2913@dragon.hygekrogen.localhost>
-	<20041005152126.6de415dc.akpm@osdl.org>
-	<Pine.LNX.4.61.0410060025370.2913@dragon.hygekrogen.localhost>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Oct 2004 18:47:00 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:62156 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S266271AbUJEWqy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 18:46:54 -0400
+Message-Id: <200410052246.i95MkV630776@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Ingo Molnar'" <mingo@elte.hu>
+Cc: <linux-kernel@vger.kernel.org>, "'Andrew Morton'" <akpm@osdl.org>,
+       "'Nick Piggin'" <nickpiggin@yahoo.com.au>
+Subject: RE: bug in sched.c:activate_task()
+Date: Tue, 5 Oct 2004 15:46:39 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcSqs+eaeeVK4lKVQXW75lmRZGOjgwATt1ZgAAqLDEA=
+In-Reply-To: 
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl <juhl-lkml@dif.dk> wrote:
+* Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
+> Update p->timestamp to "now" in activate_task() doesn't look right to
+> me at all.  p->timestamp records last time it was running on a cpu.
+> activate_task shouldn't update that variable when it queues a task on
+> the runqueue.
+
+Ingo Molnar wrote on Tuesday, October 05, 2004 1:19 AM
+> it is being used for multiple purposes: measuring on-CPU time, measuring
+> on-runqueue time (for interactivity) and measuring off-runqueue time
+> (for interactivity). It is also used to measure cache-hotness, by the
+> balancing code.
 >
-> -	__copy_to_user(kxfer.buf, buffer.virt, fragsize);
-> +	if (__copy_to_user(kxfer.buf, buffer.virt, fragsize)) {
-> +		i2o_dma_free(&c->pdev->dev, &buffer);
-> +		return -EFAULT;
-> +	}
-> +
->  	i2o_dma_free(&c->pdev->dev, &buffer);
+> now, this particular update of p->timestamp:
+>
+> > @@ -888,7 +888,6 @@ static void activate_task(task_t *p, run
+>
+> > -	p->timestamp = now;
+>
+> is important for the interactivity code that runs in schedule() - it
+> wants to know how much time we spent on the runqueue without having run.
+>
+> but you are right that the task_hot() use of p->timestamp is incorrect
+> for freshly woken up tasks - we want the balancer to be able to re-route
+> tasks to another CPU, as long as the task has not hit the runqueue yet
+> (which it hasnt where we consider it in the balancer).
+>
+> the clean solution is to separate the multiple uses of p->timestamp:
+> with the patch below p->timestamp is purely used for the interactivity
+> code, and p->last_ran is for the rebalancer. The patch is ontop of your
+> task_hot() fix-patch. Does this work for your workload?
 
-Please try to avoid more than a single return statement per function.
 
-Also, please try to avoid duplicating code such as the above - it's a
-maintainance problem is nothing else.
+Chen, Kenneth W wrote on Tuesday, October 05, 2004 10:45 AM
+> I will take this for a spin and report back the result.
 
-Like this:
+Confirmed that Ingo's latest patch does the right thing for the db workload.
 
---- 25/drivers/message/i2o/i2o_config.c~add-missing-checks-of-__copy_to_user-return-value-in	Tue Oct  5 15:41:04 2004
-+++ 25-akpm/drivers/message/i2o/i2o_config.c	Tue Oct  5 15:42:17 2004
-@@ -187,7 +187,8 @@ static int i2o_cfg_getiops(unsigned long
- 	list_for_each_entry(c, &i2o_controllers, list)
- 	    tmp[c->unit] = 1;
- 
--	__copy_to_user(user_iop_table, tmp, MAX_I2O_CONTROLLERS);
-+	if (__copy_to_user(user_iop_table, tmp, MAX_I2O_CONTROLLERS))
-+		return -EFAULT;
- 
- 	return 0;
- };
-@@ -416,6 +417,7 @@ static int i2o_cfg_swul(unsigned long ar
- 	u32 m;
- 	unsigned int status = 0, swlen = 0, fragsize = 8192;
- 	struct i2o_controller *c;
-+	int ret;
- 
- 	if (copy_from_user(&kxfer, pxfer, sizeof(struct i2o_sw_xfer)))
- 		return -EFAULT;
-@@ -474,10 +476,11 @@ static int i2o_cfg_swul(unsigned long ar
- 		return status;
- 	}
- 
--	__copy_to_user(kxfer.buf, buffer.virt, fragsize);
-+	ret = 0;
-+	if (__copy_to_user(kxfer.buf, buffer.virt, fragsize))
-+		ret = -EFAULT;
- 	i2o_dma_free(&c->pdev->dev, &buffer);
--
--	return 0;
-+	return ret;
- };
- 
- static int i2o_cfg_swdel(unsigned long arg)
-_
+- Ken
+
 

@@ -1,80 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262757AbVA1UKP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262736AbVA1UVd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262757AbVA1UKP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 15:10:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbVA1UFh
+	id S262736AbVA1UVd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 15:21:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262748AbVA1UUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 15:05:37 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61138 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262736AbVA1UAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 15:00:23 -0500
-Date: Fri, 28 Jan 2005 20:00:10 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Jesse Barnes <jbarnes@sgi.com>, Jon Smirl <jonsmirl@gmail.com>,
-       Greg KH <greg@kroah.com>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       Jeff Garzik <jgarzik@pobox.com>, Matthew Wilcox <matthew@wil.cx>,
-       linux-pci@atrey.karlin.mff.cuni.cz, lkml <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: Fwd: Patch to control VGA bus routing and active VGA device.
-Message-ID: <20050128200010.GJ28246@parcelfarce.linux.theplanet.co.uk>
-References: <9e47339105011719436a9e5038@mail.gmail.com> <200501270828.43879.jbarnes@sgi.com> <20050128173222.GC30791@colo.lackof.org> <200501281041.42016.jbarnes@sgi.com> <20050128193320.GB32135@colo.lackof.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050128193320.GB32135@colo.lackof.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 28 Jan 2005 15:20:47 -0500
+Received: from smtp7.poczta.onet.pl ([213.180.130.47]:15081 "EHLO
+	smtp7.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S262755AbVA1USI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 15:18:08 -0500
+Message-ID: <41FA9EFC.9040600@poczta.onet.pl>
+Date: Fri, 28 Jan 2005 21:22:20 +0100
+From: Wiktor <victorjan@poczta.onet.pl>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: dtor_core@ameritech.net
+CC: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: AT keyboard dead on 2.6
+References: <41F11F79.3070509@poczta.onet.pl>	 <d120d500050121074831087013@mail.gmail.com>	 <41F15307.4030009@poczta.onet.pl>	 <d120d500050121113867c82596@mail.gmail.com>	 <41F69FFE.2050808@poczta.onet.pl> <20050128143121.GB12137@ucw.cz>	 <d120d50005012806467cc5ee03@mail.gmail.com>	 <41FA90F8.6060302@poczta.onet.pl>	 <d120d5000501281127752561a3@mail.gmail.com>	 <41FA972F.2000604@poczta.onet.pl> <d120d50005012811534eb1ed70@mail.gmail.com>
+In-Reply-To: <d120d50005012811534eb1ed70@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 12:33:20PM -0700, Grant Grundler wrote:
-> > > If it is intended to work with multiple IO Port address spaces,
-> > > then it needs to use the pci_dev->resource[] and mangle that appropriately.
-> > 
-> > There is no resource for some of the I/O port space that cards respond to.
-> 
-> Yes - I've heard several graphics cards are horrible broken WRT address
-> decoding.  Are PCI quirks supposed to handle that sort of thing?
+Hi,
 
-No, PCI quirks are for fixing broken things.  VGA cards are entitled to
-3c0-3df and all their 10-bit aliases.  I've been thinking for a while that we should mark the 10-bit aliases of ISA devices as used ... ie:
+> We do test AUX port and your port appears to be perfectly functional
+> from the kernel point of view - it porperly responds to AUX_LOOP
+> commands, does not claim to support MUX mode and KBC properly sets
+> status register when asked to disable interface...
 
-x100-x3ff
-x500-x7ff
-x900-xbff
-xd00-xfff
+ok, but how AUX block KBD port? if procesor-interface works, it 
+shouldn't disturb communication in any way! how it is possible that 
+tests do not detect broken down port? if kernel enables it in some way 
+(when disabling port from command line, KBD works ok), it should be 
+detected that AUX does not work correctly and lock it somehow? can it be 
+etermined by analyzing data flow? or maybe tests are not enought good, 
+maybe some corelations when using both KBD and AUX exist and are not 
+tested? as my keyboard works now, i'm not keen on solving this, but to 
+make the world better and dominate it, some "runtime hardware failures 
+handling" could be added.
 
-Unfortunately, that may break some legitimate setups, but is hinted at
-being a good idea in the EISA docs I've read.  My laptop uses only the
-10-bit aliases of motherboard space (x000-x0ff, x400-x4ff, x800-x8ff,
-xc00-xcff) for devices, except for the ISA bridge, which gets:
-1180-11bf : 0000:00:1f.0
-  1180-11bf : pnp 00:0b
-
-The K6-2 is similar; only 10-bit aliases of motherboard space except for:
-0a79-0a79 : isapnp write
-
-Possibly a better solution (less likely to break things) would be to allow
-drivers to reserve the 10-bit aliases too.  Something like this:
-
-static inline void request_isa_alias_regions(unsigned long start,
-                unsigned long n, const char *name)
-{
-        int base;
-        for (base = 0x400; base < 0x10000; base += 0x400) {
-                request_region(base + start, n, name);
-        }
-}
-
-and then call that in drivers/video/console/vgacon.c
-
-Russell, would that allay your issues with the kernel io resource database?
-
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+--
+May the Source be with you.
+wixor

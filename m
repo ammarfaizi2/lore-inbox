@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316970AbSFFN3X>; Thu, 6 Jun 2002 09:29:23 -0400
+	id <S316971AbSFFN3f>; Thu, 6 Jun 2002 09:29:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316968AbSFFN3W>; Thu, 6 Jun 2002 09:29:22 -0400
-Received: from pD9E23FC2.dip.t-dialin.net ([217.226.63.194]:28033 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316964AbSFFN3U>; Thu, 6 Jun 2002 09:29:20 -0400
-Date: Thu, 6 Jun 2002 07:29:10 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Michael Zhu <mylinuxk@yahoo.ca>
-cc: markh@compro.net, <kernelnewbies@nl.linux.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Load kernel module automatically
-Message-ID: <Pine.LNX.4.44.0206060727150.3833-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316968AbSFFN3e>; Thu, 6 Jun 2002 09:29:34 -0400
+Received: from jalon.able.es ([212.97.163.2]:23484 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S316971AbSFFN3b>;
+	Thu, 6 Jun 2002 09:29:31 -0400
+Date: Thu, 6 Jun 2002 15:29:25 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCHSET] Linux 2.4.19-pre9-jam1
+Message-ID: <20020606132925.GA6428@werewolf.able.es>
+In-Reply-To: <20020604003803.GA1705@werewolf.able.es> <6408.1023369573@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, 5 Jun 2002, Michael Zhu wrote:
-> Hi, I've read the man page of modules.conf. But I
-> still couldn't figure out how to solve my problem. I
-> mean how to change the modules.conf file. Can I edit
-> this file directly? Can anyone give me an example?
-> 
-> Thanks.
+On 2002.06.06 David Woodhouse wrote:
+>
+>jamagallon@able.es said:
+>> 30-shared-zlib.bz2
+>> 	Use only one copy of zlib for whole kernel.
+>> 	Authonr: David Woodhouse <dwmw2@infradead.org>
+>> 	URL: ftp://ftp.kernel.org/pub/linux/kernel/people/dwmw2/linux-2.4.19-shared-zlib.bz2 
+>
+>Please update this to the latest version (linux-2.4.19-pre10-shared-zlib), 
+>which fixes the zisofs and include path problems.
+>
+>Each of those two one-line patches can be found at
+>http://linux-mtd.bkbits.net:8080/zlib-2.4
+>
 
-/etc/modules.conf is quite useful if you work with /dev files w/0 devfs, 
-protocol families etc.
+Thanks, I will update it.
 
-Example: you have your sound driver compiled as a module. In /dev you have 
-a couple of sound character devs with major number 14. Now you write an 
-alias for it into your /etc/modules.conf:
-
-alias	char-major-14	soundcore
-
-Example: you have your ipv6 over ipv4 compiled as a module. Your protocol 
-family 41 requires ipv6 to be loaded. Therefore say:
-
-alias	net-pf-41	ipv6
-
-Regards,
-Thunder
 -- 
-ship is leaving right on time	|	Thunder from the hill at ngforever
-empty harbour, wave goodbye	|
-evacuation of the isle		|	free inhabitant not directly
-caveman's paintings drowning	|	belonging anywhere
-
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre10-jam1 #3 SMP jue jun 6 00:00:33 CEST 2002 i686

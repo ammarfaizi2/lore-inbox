@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265945AbUAPXha (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 18:37:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbUAPXha
+	id S265942AbUAPXza (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 18:55:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265943AbUAPXza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 18:37:30 -0500
-Received: from ns.suse.de ([195.135.220.2]:37772 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265945AbUAPXh3 (ORCPT
+	Fri, 16 Jan 2004 18:55:30 -0500
+Received: from fw.osdl.org ([65.172.181.6]:51436 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265942AbUAPXz1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 18:37:29 -0500
-Subject: Re: [PATCH 2/2] Default hooks protecting the XATTR_SECURITY_PREFIX
-	namespace
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       lkml <linux-kernel@vger.kernel.org>, linux-security-module@wirex.com,
-       Stephen Smalley <sds@epoch.ncsc.mil>,
-       Michael Kerrisk <michael.kerrisk@gmx.net>
-In-Reply-To: <20040116132004.R19023@osdlab.pdx.osdl.net>
-References: <20040116131423.Q19023@osdlab.pdx.osdl.net>
-	 <20040116132004.R19023@osdlab.pdx.osdl.net>
-Content-Type: text/plain
-Organization: SUSE Labs, SUSE LINUX AG
-Message-Id: <1074296264.2679.11.camel@nb.suse.de>
+	Fri, 16 Jan 2004 18:55:27 -0500
+Date: Fri, 16 Jan 2004 15:56:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ravi Wijayaratne <ravi_wija@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux Page Cache performance
+Message-Id: <20040116155645.732e1fda.akpm@osdl.org>
+In-Reply-To: <20040116191102.98783.qmail@web40602.mail.yahoo.com>
+References: <20040116191102.98783.qmail@web40602.mail.yahoo.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Sat, 17 Jan 2004 00:37:44 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Chris,
+Ravi Wijayaratne <ravi_wija@yahoo.com> wrote:
+>
+> Hi All.
+> 
+> We are running dbench on a machine with Dual Xeon (Hyper threading 
+> turned off), 1GB RAM
+> and 4 Drive software RAID5. The kernel is 2.4.29-xfs 1.2. We are using 
+> LVM. However
+> similar test done using ext2 on a disk partiotion (no md or LVM) shows 
+> 
+> The throughput is find till the number of clients are Around 16. At 
+> that point the throughput
+> plummets about 40%. We are trying to avoid that and see how we could 
+> have a consistent throughput
+> perhaps sacrificing some peak performance.
 
-the patch looks fine to me. Thank you all for reacting so quickly.
+Once the amount of dirty memory in the machine hits 40% of the total, the
+VM starts to initiate writeout.  At 60% dirty the VM starts to deliberately
+throttle the processes which are dirtying memory.
 
-On Fri, 2004-01-16 at 22:20, Chris Wright wrote:
-> Add default hooks for both the dummy and capability code to protect the
-> XATTR_SECURITY_PREFIX namespace.  These EAs were fully accessible to
-> unauthorized users, so a user that rebooted from an SELinux kernel to a
-> default kernel would leave those critical EAs unprotected.
+So you would expect to see extremely sudden transitions in overall
+throughput at that point.  Note that if the test were to run for a longer
+period of time, or if it were to leave the files behind rather than
+suddenly removing them you would not notice this effect.
 
-Regards,
--- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX AG
+
+The probability that dbench's access patterns have any similarity to the
+access patterns of the application which you care about is vanishingly
+small.  The same can most probably be said of all the other off-the-shelf
+benchmarks.  They're not very impressive.
+
+You will need to analyse your application's access patterns and design a
+benchmark which reasonably closely and repeatably models them.  Or, if
+possible, use the live application itself.
 

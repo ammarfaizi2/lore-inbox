@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261545AbTADWDR>; Sat, 4 Jan 2003 17:03:17 -0500
+	id <S261599AbTADWGp>; Sat, 4 Jan 2003 17:06:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261561AbTADWDR>; Sat, 4 Jan 2003 17:03:17 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:13309 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S261545AbTADWDQ>;
-	Sat, 4 Jan 2003 17:03:16 -0500
-Date: Sat, 4 Jan 2003 23:11:04 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>
-Subject: Re: [PATCHSET] Multiarch kconfig cleanup
-In-Reply-To: <1041719964.2555.3.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.GSO.4.21.0301042310210.10296-100000@vervain.sonytel.be>
+	id <S261600AbTADWGp>; Sat, 4 Jan 2003 17:06:45 -0500
+Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:15367 "HELO
+	ritz.dnsalias.org") by vger.kernel.org with SMTP id <S261599AbTADWGn>;
+	Sat, 4 Jan 2003 17:06:43 -0500
+Date: Sat, 4 Jan 2003 23:15:11 +0200
+X-Mailer: i.Scribe v1.84 (Win32 v5.00, Release)
+To: "Linus Torvalds" <torvalds@transmeta.com>,
+       "Linux-Kernel " <linux-kernel@vger.kernel.org>
+From: "Daniel Ritz" <daniel.ritz@gmx.ch>
+Subject: [PATCH 2.5] Stop APM as module from oopsing
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20030104221527.8E5E67C99@ritz.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 Jan 2003, Alan Cox wrote:
-> On Sat, 2003-01-04 at 20:24, Geert Uytterhoeven wrote:
-> > > If I had my druthers, I would s/pcnet_cs/ne2k_cs/ too...  hmmmmmm  :)
-> > 
-> > And I guess you want to rename mac8390 (which just got renamed from daynaport
-> > :-) to ne2k-nubus, too?
-> 
-> 8390 is the better name. ne2000 and ne/2 are specific product names.
+trivial fix to stop APM from oopsing when compiled as module.
+against 2.5.54bk1. please apply.
 
-So zorro8390 would be better than ne2k-zorro?
+beep
+-daniel
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+--- 2554-clean/arch/i386/kernel/apm.c	2003-01-03 17:00:54.000000000 +0100
++++ 2554/arch/i386/kernel/apm.c	2003-01-04 21:31:50.000000000 +0100
+@@ -718,7 +718,7 @@
+  *	same format.
+  */
+ 
+-static int __init apm_driver_version(u_short *val)
++static int apm_driver_version(u_short *val)
+ {
+ 	u32	eax;
+ 
+ 
+ 
 

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312622AbSCTNH1>; Wed, 20 Mar 2002 08:07:27 -0500
+	id <S311748AbSCTH6Z>; Wed, 20 Mar 2002 02:58:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312623AbSCTNHR>; Wed, 20 Mar 2002 08:07:17 -0500
-Received: from renoir.op.net ([207.29.195.4]:55559 "EHLO renoir.op.net")
-	by vger.kernel.org with ESMTP id <S312622AbSCTNHO>;
-	Wed, 20 Mar 2002 08:07:14 -0500
-Message-Id: <200203201306.IAA00621@renoir.op.net>
-To: Zenaan Harkness <zen@getsystems.com>
-cc: alsa-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Alsa-devel] Re: Playback stutters - Correction 
-In-Reply-To: Your message of "Wed, 20 Mar 2002 16:48:38 +1100."
-             <20020320164838.A32243@getsystems.com> 
-Date: Wed, 20 Mar 2002 03:06:56 -0500
-From: Paul Davis <pbd@Op.Net>
+	id <S311749AbSCTH6G>; Wed, 20 Mar 2002 02:58:06 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:1435 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S311748AbSCTH5z>;
+	Wed, 20 Mar 2002 02:57:55 -0500
+Date: Wed, 20 Mar 2002 02:57:53 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Larry McVoy <lm@bitmover.com>
+cc: Pavel Machek <pavel@suse.cz>, Dave Jones <davej@suse.de>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper licence issues
+In-Reply-To: <20020319152502.J14877@work.bitmover.com>
+Message-ID: <Pine.GSO.4.21.0203200256330.19220-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->CORRECTION:
->Just retested with full hdparm (added -u setting) settings on
->2.4.19-pre3-ac+preempt, and no skipping with above activities. This
->seems pretty good.
->
->I could generate skips when switching from X to text console. Could not
->generate skip when cycling virtual desktops within X (at high key repeat
->rate). Again this seems pretty good.
 
-this is a know deficiency in the vt "driver", and is noted in Andrew
-Morton's "Things Not To Do" while requiring low scheduling latency. it
-would be nice if the vt code was fixed sometime, but right now, i
-think it can cause a scheduling delay for up to about 50ms.
 
-btw, i think it is still the case the Andrew's patch provides more
-reliable and lower absolute latency than the preemption patch.
+On Tue, 19 Mar 2002, Larry McVoy wrote:
 
---p
+> Come on Pavel, in order to make this happen, you have to
+> 
+> 	a) run the installer as root
+> 	b) know the next pid which will be allocated
+> 	c) put the symlink in /tmp/installer$pid
+> 
+> and do all before that pid gets used.  Have you actually be able to
+> do that?  I'd like to see how you did so without knowing exactly when
+> root was going to install the package and without filling up /tmp with
+> 64,000 symlinks.
+
+Or just sit and do getdents() until installer* shows up and then create
+data*...
+

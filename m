@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291132AbSBGNO3>; Thu, 7 Feb 2002 08:14:29 -0500
+	id <S291142AbSBGNRJ>; Thu, 7 Feb 2002 08:17:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291134AbSBGNOT>; Thu, 7 Feb 2002 08:14:19 -0500
-Received: from dsl-213-023-038-235.arcor-ip.net ([213.23.38.235]:2443 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S291132AbSBGNOP>;
-	Thu, 7 Feb 2002 08:14:15 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Mike Touloumtzis <miket@bluemug.com>
-Subject: Re: How to check the kernel compile options ?
-Date: Thu, 7 Feb 2002 14:18:20 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: "H. Peter Anvin" <hpa@zytor.com>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+	id <S291143AbSBGNQ7>; Thu, 7 Feb 2002 08:16:59 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:7867 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S291142AbSBGNQq>; Thu, 7 Feb 2002 08:16:46 -0500
+Date: Thu, 7 Feb 2002 13:19:04 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: "David S. Miller" <davem@redhat.com>, akpm@zip.com.au, bcrl@redhat.com,
+        Hugh Dickins <hugh@lrel.veritas.com>, marcelo@conectiva.com.br,
         linux-kernel@vger.kernel.org
-In-Reply-To: <a3mjhc$qba$1@cesium.transmeta.com> <E16YOBB-0002Mx-00@starship.berlin> <20020207041356.GA21694@bluemug.com>
-In-Reply-To: <20020207041356.GA21694@bluemug.com>
+Subject: Re: [PATCH] __free_pages_ok oops
+In-Reply-To: <Pine.LNX.4.33L.0202071043351.17850-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.21.0202071303330.1117-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16YoRQ-0000aS-00@starship.berlin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 7, 2002 05:13 am, Mike Touloumtzis wrote:
-> On Wed, Feb 06, 2002 at 10:15:49AM +0100, Daniel Phillips wrote:
-> > On February 5, 2002 11:13 pm, H. Peter Anvin wrote:
-> > > Alex Bligh - linux-kernel wrote:
-> > > 
-> > > > I would be surprised if there is anyone on this list
-> > > > who has not lost at some point either the .config, the
-> > > > kysms, or something similar associated with at least
-> > > > one build they've made.
-> > > 
-> > > Sure.  And people have lost their root filesystems due to "rm -rf /".
-> > > That doesn't mean we build the entire (real) root filesystem into the
-> > > kernel.
-> > 
-> > Well, it seems to be down to you and Arjan aguing that this usability
-> > improvement isn't needed, vs quite a few *users* who are complaining about
-> > the current state of things, as well they should because it's less good 
-than
-> > it could be.
+On Thu, 7 Feb 2002, Rik van Riel wrote:
 > 
-> Numeric participation on lkml discussions is not an indication of much.
-> If lkml accurately reflected the state of Linux and its userbase, Linux
-> would be the most crash-prone, bug-ridden, chaotic environment ever :-).
+> The mechanism to do what I described above should of course be
+> in __free_pages_ok().
 > 
-> There's probably a lot of people (like me) who use distribution tools like
-> Debian's kernel-package to build and manage kernel packages.  If you're
-> used to using the right packaging tools, it looks kind of silly to stuff
-> text files into the kernel in case they're deleted, instead of doing:
-> 
-> $ dpkg -x kernel-image-2.4.17_1.00.Custom_i386.deb ~/tmp/
-> $ cat ~/tmp/boot/config-2.4.17
-> 
-> The kernel is just a program, and this is a tools problem.  You don't
-> see people arguing that cat's documentation should be moved into /bin/cat
-> in case administrators misplace "cat.1.gz".
+> if (PageLRU(page)) {
+> 	if (in_interrupt()) {
+> 		add_page_to_special_list(page);
+> 		return;
+> 	} else
+> 		lru_cache_del(page);
+> }
 
-Cat is standard, kernels aren't.  When was the last time you installed a
-custom cat?
+If this were a common case where many pages end up, yes, we'd
+need a separate special list; but it's a very rare case, so I
+think it's more appropriate to let shrink_cache do it when it
+eventually reaches them on the inactive_list.
 
--- 
-Daniel
+I was proposing we revert to distinguishing page_cache_release
+from put_page, page_cache_release doing the lru_cache_del; and
+I'd like to add my in_interrupt() BUG() there for now, just as
+a sanity check.  You are proposing that we keep the current,
+post-Ben, structure of doing it in __free_pages_ok if possible.
+
+I think I prefer mine, in_interrupt() as a sanity check which
+could be removed when we feel safer, to yours where it's
+deciding the behaviour of __free_pages_ok.  Any strong feelings?
+
+Hugh
+

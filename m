@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270879AbUJVEgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270770AbUJURnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270879AbUJVEgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 00:36:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270857AbUJUTeP
+	id S270770AbUJURnO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 13:43:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270789AbUJURnG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 15:34:15 -0400
-Received: from mail.scitechsoft.com ([63.195.13.67]:65005 "EHLO
-	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S270845AbUJUTaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 15:30:12 -0400
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Thu, 21 Oct 2004 12:30:01 -0700
-MIME-Version: 1.0
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-ID: <4177ABC9.22263.20E9CAFD@localhost>
-In-reply-to: <1098313825.12374.74.camel@localhost.localdomain>
-References: <4176E08B.2050706@techsource.com>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Spam-Flag: NO
+	Thu, 21 Oct 2004 13:43:06 -0400
+Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:24212 "EHLO
+	yoda.timesys") by vger.kernel.org with ESMTP id S270770AbUJURlt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 13:41:49 -0400
+Date: Thu, 21 Oct 2004 13:41:09 -0400
+To: "Eugeny S. Mints" <emints@ru.mvista.com>
+Cc: john cooper <john.cooper@timesys.com>, Esben Nielsen <simlo@phys.au.dk>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Jens Axboe <axboe@suse.de>, Rui Nuno Capela <rncbc@rncbc.org>,
+       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041021174109.GB26318@yoda.timesys>
+References: <Pine.OSF.4.05.10410211601500.11909-100000@da410.ifa.au.dk> <4177CD3C.9020201@timesys.com> <4177DA11.4090902@ru.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4177DA11.4090902@ru.mvista.com>
+User-Agent: Mutt/1.5.4i
+From: Scott Wood <scott@timesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Thu, Oct 21, 2004 at 07:47:29PM +0400, Eugeny S. Mints wrote:
+> Seems it is too coplex model at least for the first step. The one of 
+> possible trade-offs coming on mind is to trace the number of resources 
+> (mutexes) held by a process and to restore original priority only when 
+> resource count reaches 0. This is one of the sollutions accepted by RTOS 
+> guys.
 
-> I've actually always wondered what a hybrid video device would
-> look like for 3D. Doing the alpha blend and very basic operations
-> only in the hardware that are expensive in software - alpha and
-> perhaps some of the texture scaling, but walking textures in
-> software, doing shaders in software and so on. 
+That complicates analysis, though, since you now have to look at all
+critical sections that the shared-with-high-priority-threads critical
+sections nest in.  IMHO, it's important that the inherited priority
+be given up as soon as the resource is released.
 
-Well that is what most of the early 3D cards started out as. A lot of the 
-early SGI boxes that has '3D' were not full 3D rendering engines but span 
-based rendering engines. Not only was setup done in software, but so was 
-the walking of the triangle sides and the only thing passed to the 
-hardware was commands to render spans (flat, smooth or textured). You 
-could build any kind of complex renderer on top of this and in those days 
-it was SGI GL (pre OpenGL) that was the rendering API. The systems were 
-also reasonably fast for the day too.
-
-I think the original 3DLabs GLINT SX chipset also did span rendering and 
-support textured spans. The biggest problem is that the overhead required 
-by the CPU to process anything close to the volume of triangles per 
-second that high end cards can handle today is overwhelming. Even a 4Ghz 
-P4 probably couldn't keep up trying to match the transform, lighting and 
-span traversal to match even a basic Radeon 9000 card IMHO. And then 
-you've got no CPU cycles left for anything else such as sound and game 
-physics ;-)
-
-Regards,
-
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
-
-~ SciTech SNAP - The future of device driver technology! ~
-
-
+-Scott

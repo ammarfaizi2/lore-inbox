@@ -1,166 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265345AbTLHIT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 03:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265350AbTLHIT6
+	id S264584AbTLHI06 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 03:26:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265347AbTLHI06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 03:19:58 -0500
-Received: from hauptpostamt.charite.de ([193.175.66.220]:47581 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id S265345AbTLHITy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 03:19:54 -0500
-Date: Mon, 8 Dec 2003 09:19:48 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Nokia N-Gage?
-Message-ID: <20031208081948.GJ14185@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20031206153049.GB22460@charite.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="9jxsPFA5p3P2qPhR"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031206153049.GB22460@charite.de>
-User-Agent: Mutt/1.5.4i
+	Mon, 8 Dec 2003 03:26:58 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2176 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S264584AbTLHI05 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 03:26:57 -0500
+Date: Mon, 8 Dec 2003 08:32:12 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200312080832.hB88WCEG000384@81-2-122-30.bradfords.org.uk>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m3brqkioyl.fsf@defiant.pm.waw.pl>
+References: <200312071515.hB7FFkQH000866@81-2-122-30.bradfords.org.uk>
+ <m3brqkioyl.fsf@defiant.pm.waw.pl>
+Subject: Re: Additional clauses to GPL in network drivers
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quote from Krzysztof Halasa <khc@pm.waw.pl>:
+> John Bradford <john@grabjohn.com> writes:
+> 
+> > "This file is not a complete program and may only be used when the
+> > entire operating system is licensed under the GPL".
+> >
+> > as
+> > grep -C 1 "only be used when"
+> >
+> > in drivers/net will confirm.
+> >
+> > *Please*, can we resist the temptation to 'play' with licenses in this
+> > way?  I suspect this extra clause was added just to clarify what the
+> > GPL already says,
+> 
+> I don't think so - GPL doesn't restrict the _use_, only the distribution.
 
---9jxsPFA5p3P2qPhR
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+OK, more accurately what I meant was that I suspect that the original _intent_ of adding that clause was to clarify the GPL, and that the extra clause fails to do that.
 
-* Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>:
-> Yeah, blame me for getting one of the most recent phones, but as
-> anybody got the Nokia N-Gage and Linux 2.4.x or 2.6.x to talk to each
-> other?
-
-I've got some logs of my desperate attempts. This is 2.4.23-rc5
-(=2.4.23)
- 
-Find them attached
-
--- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-916
-Referat V a - Kommunikationsnetze -             AIM.  ralfpostfix
-
---9jxsPFA5p3P2qPhR
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="n-gage.bz2"
-Content-Transfer-Encoding: base64
-
-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
-
---9jxsPFA5p3P2qPhR
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="n-gage2.bz2"
-Content-Transfer-Encoding: base64
-
-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
-9j4+IA/4u5IpwoSEVxTowA==
-
---9jxsPFA5p3P2qPhR--
+John.

@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267241AbTBDMER>; Tue, 4 Feb 2003 07:04:17 -0500
+	id <S267242AbTBDMLk>; Tue, 4 Feb 2003 07:11:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267242AbTBDMER>; Tue, 4 Feb 2003 07:04:17 -0500
-Received: from ns.suse.de ([213.95.15.193]:3848 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267241AbTBDMER>;
-	Tue, 4 Feb 2003 07:04:17 -0500
-Date: Tue, 4 Feb 2003 13:13:48 +0100
+	id <S267244AbTBDMLk>; Tue, 4 Feb 2003 07:11:40 -0500
+Received: from ns.suse.de ([213.95.15.193]:30731 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267242AbTBDMLk>;
+	Tue, 4 Feb 2003 07:11:40 -0500
+Date: Tue, 4 Feb 2003 13:20:48 +0100
 From: Dave Jones <davej@suse.de>
-To: Dominik Brodowski <linux@brodo.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       cpufreq@www.linux.org.uk
-Subject: Re: [PATCH 2.5.59] cpufreq: support for "target frequency governors"
-Message-ID: <20030204131348.C16744@suse.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] gcc 2.95 vs 3.21 performance
+Message-ID: <20030204132048.D16744@suse.de>
 Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Dominik Brodowski <linux@brodo.de>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-References: <20030203221443.GA1420@brodo.de>
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	lse-tech <lse-tech@lists.sourceforge.net>
+References: <336780000.1044313506@flay>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030203221443.GA1420@brodo.de>; from linux@brodo.de on Mon, Feb 03, 2003 at 11:14:43PM +0100
+In-Reply-To: <336780000.1044313506@flay>; from mbligh@aracnet.com on Mon, Feb 03, 2003 at 03:05:06PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 03, 2003 at 11:14:43PM +0100, Dominik Brodowski wrote:
- > This patch adds support for "cpufreq governors". 
- > <snip excellent description of governors>
+On Mon, Feb 03, 2003 at 03:05:06PM -0800, Martin J. Bligh wrote:
+ > People keep extolling the virtues of gcc 3.2 to me, which I'm
+ > reluctant to switch to, since it compiles so much slower. But
+ > it supposedly generates better code, so I thought I'd compile
+ > the kernel with both and compare the results. This is gcc 2.95
+ > and 3.2.1 from debian unstable on a 16-way NUMA-Q. The kernbench
+ > tests still use 2.95 for the compile-time stuff.
+ > 
+ > The results below leaves me distinctly unconvinced by the supposed 
+ > merits of modern gcc's. Not really better or worse, within experimental
+ > error. But much slower to compile things with.
 
-Could you add your descriptions to Documentation/cpufreq/ too?
-The cpufreq interface has come quite a way since the original version
-and is getting quite complex. Keeping documentation around for it
-can only be a good thing, and as you've already written it.. 8-)
+What kernel was kernbench compiling ? The reason I'm asking is that
+2.5s (and more recent 2.4.21pre's) will use -march flags for more
+aggressive optimisation on newer gcc's.
+If you want to compare apples to apples, make sure you choose
+something like i386 in the processor menu, and then it'll always
+use -march=i386 instead of getting fancy with things like -march=pentium4
 
         Dave
 

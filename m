@@ -1,106 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbUK3QzD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbUK3Q5C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262193AbUK3QzD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 11:55:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbUK3QzD
+	id S262187AbUK3Q5C (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 11:57:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUK3QzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 11:55:03 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12193 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262193AbUK3QxV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 11:53:21 -0500
-Date: Mon, 29 Nov 2004 19:31:57 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: George Anzinger <george@mvista.com>
-Cc: Matt Mackall <mpm@selenic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nanosleep interrupted by ignored signals
-Message-ID: <20041129213157.GA6894@dmt.cyclades>
-References: <20041124213521.GJ2460@waste.org> <41A54731.2040607@mvista.com> <20041125030627.GK2460@waste.org> <20041125080953.GB15315@logos.cnet> <41AB7FFC.1010705@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41AB7FFC.1010705@mvista.com>
-User-Agent: Mutt/1.4i
+	Tue, 30 Nov 2004 11:55:13 -0500
+Received: from fw.osdl.org ([65.172.181.6]:60080 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262187AbUK3Qxu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 11:53:50 -0500
+Date: Tue, 30 Nov 2004 08:53:34 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Alexandre Oliva <aoliva@redhat.com>, Paul Mackerras <paulus@samba.org>,
+       Greg KH <greg@kroah.com>, Matthew Wilcox <matthew@wil.cx>,
+       David Howells <dhowells@redhat.com>, hch@infradead.org,
+       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+In-Reply-To: <1101832116.26071.236.camel@hades.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.58.0411300846190.22796@ppc970.osdl.org>
+References: <19865.1101395592@redhat.com>  <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
+  <1101406661.8191.9390.camel@hades.cambridge.redhat.com> 
+ <20041127032403.GB10536@kroah.com>  <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
+  <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org> 
+ <ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br> 
+ <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org> 
+ <1101828924.26071.172.camel@hades.cambridge.redhat.com> 
+ <Pine.LNX.4.58.0411300751570.22796@ppc970.osdl.org>
+ <1101832116.26071.236.camel@hades.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 29, 2004 at 12:01:00PM -0800, George Anzinger wrote:
-> Marcelo Tosatti wrote:
-> >On Wed, Nov 24, 2004 at 07:06:27PM -0800, Matt Mackall wrote:
-> >
-> >>On Wed, Nov 24, 2004 at 06:45:05PM -0800, George Anzinger wrote:
-> >>
-> >>>Matt Mackall wrote:
-> >>>
-> >>>>Take the following trivial program:
-> >>>>
-> >>>>#include <unistd.h>
-> >>>>
-> >>>>int main(void)
-> >>>>{
-> >>>>	sleep(10);
-> >>>>	return 0;
-> >>>>}
-> >>>>
-> >>>>Run it in an xterm. Note that resizing the xterm has no effect on the
-> >>>>process. Now do the same with strace:
-> >>>>
-> >>>>brk(0x80495bc)                          = 0x80495bc
-> >>>>brk(0x804a000)                          = 0x804a000
-> >>>>rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
-> >>>>rt_sigaction(SIGCHLD, NULL, {SIG_DFL}, 8) = 0
-> >>>>rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
-> >>>>nanosleep({10, 0}, 0xbffff548)          = -1 EINTR (Interrupted system
-> >>>>call)
-> >>>>--- SIGWINCH (Window changed) ---
-> >>>>_exit(0)                                = ?
-> >>>>
-> >>>>In short, nanosleep is getting interrupted by signals that are
-> >>>>supposedly ignored when a process is being praced. This appears to be
-> >>>>a long-standing bug.
-> >>>>
-> >>>>It also appears to be a long-known bug. I found some old discussion of 
-> >>>>this
-> >>>>problem here but no sign of any resolution:
-> >>>>
-> >>>>http://www.ussg.iu.edu/hypermail/linux/kernel/0108.1/1448.html
-> >>>>
-> >>>>What's the current thinking on this?
-> >>>
-> >>>This should have been resolved with the 2.6 changes, in particular, the 
-> >>>restart code.  What kernel are you using?
-> >>
-> >>Indeed it is. Forgot I still had 2.4 on the box in question, didn't
-> >>notice the restart bit when comparing the 2.6 code against the thread
-> >>above. Mea culpa.
-> >
-> >
-> >George, 
-> >
-> >Is it worth/necessary to fix this bug in v2.4 ?
-> >
-> >Quoting yourself
-> >
-> >"This is an issue for debugging also (same ptrace...). The fix is to fix
-> >nano_sleep to match the standard which says it should only return on a
-> >signal if the signal is delivered to the program (i.e. not on internal
-> >"do nothing" signals). Signal in the kernel returns 1 if it calls the
-> >task and 0 otherwise, thus nano sleep might be changed as follows: "
-> >
-> Hmm,  wise fellow, that :)  We (MontaVista) have back ported this fix to 
-> our kernels as part of the HRT patch, and, in fact, it is in the latest 
-> (albeit somewhat out of date) HRT patch on sourceforge.  The main issue is 
-> that it requires changes in arch level code and so requires a cooperative 
-> effort (in that most folks only have one or two archs to check it out on).
+
+
+On Tue, 30 Nov 2004, David Woodhouse wrote:
 > 
-> My take on this is that this has been in the kernel since nanosleep() was 
-> put in and so, for a mature kernel, it is not really important to change 
-> it.  Now if you want to back port POSIX clocks and timers (i.e. 
-> clock_nanosleep()) I would argue that you should back port this change as 
-> part of that effort.
+> > Same thing here. The __KERNEL__ approach says "whatever you want, boss".  
+> > It doesn't get in the way. Maybe it doesn't actively _help_ you either,
+> > but you never have to fight any structure it imposes on you.
+> 
+> Having to think before adding something that's user visible is a
+> _benefit_ not a disadvantage.
 
-Not really a good idea IMO - lets live with the bug. If it was easy to fix it,
-then it would be interesting, but since it is not...
+I've said this at least three times: if you can point to a _specific_ 
+thing you want to move, go wild. I think the big waste in this discussion 
+has been that there have _not_ been specific suggestions, just total 
+sound-bites like "wouldn't it be great to move things to 'include/kapi'".
 
-Thanks for your input.
+If you have a specific thing in mind, say instead something like
+
+	"Wouldn't it be great if we moved all the tty layer IOCTL numbers 
+	 into 'tty-ioctl-nr.h', and made the old header file just include 
+	 that header file, so that new libc users can get them from just 
+	 that header? And btw, here's the patch."
+
+then I might listen. Notice how the only really constructive thing to come 
+out of this flame-fest has been a patch by Al that looked perfectly 
+reasonable, but that got totally drowned out by the arguing?
+
+Note that even _if_ you have a specific thing in mind, I want to see that 
+somebody would say "yes, we'd use that organization". I would not be 
+surprised at all if glibc people said that they can't really use any 
+re-organization anyway, since they need to support old kernel setups too.
+
+See? Changes that aren't specific enough, or don't actually help things is
+what I'm against.
+
+		Linus

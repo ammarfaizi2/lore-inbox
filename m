@@ -1,65 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbTJHRqd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 13:46:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTJHRqc
+	id S261640AbTJHSGu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 14:06:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTJHSGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 13:46:32 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:60127 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S261464AbTJHRqb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 13:46:31 -0400
-Date: Wed, 8 Oct 2003 14:41:13 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Rik van Riel <riel@redhat.com>, <Matt_Domsch@Dell.com>,
-       <marcelo.tosatti@cyclades.com>, <linux-kernel@vger.kernel.org>,
-       <benh@kernel.crashing.org>
-Subject: Re: [PATCH] page->flags corruption fix
-In-Reply-To: <Pine.LNX.4.44.0310081752140.3312-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0310081440460.1875-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 8 Oct 2003 14:06:50 -0400
+Received: from nika.frontier.iarc.uaf.edu ([137.229.94.16]:29332 "EHLO
+	nika.frontier.iarc.uaf.edu") by vger.kernel.org with ESMTP
+	id S261640AbTJHSGs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 14:06:48 -0400
+Date: Wed, 8 Oct 2003 10:08:10 -0800
+From: Christopher Swingley <cswingle@iarc.uaf.edu>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test6, psmouse.c, lost synchronization
+Message-ID: <20031008180810.GE3933@iarc.uaf.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-gpg-fingerprint: B96C 58DC 0643 F8FE C9D0  8F55 1542 1A4F 0698 252E
+X-gpg-key: [http://www.frontier.iarc.uaf.edu/~cswingle/gnupgkey.asc]
+X-URL: [http://www.frontier.iarc.uaf.edu/~cswingle/]
+X-Editor: VIM [http://www.vim.org]
+X-message-flag: Consider Linux: fast, reliable, secure & free!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greetings!
 
+I recently got a new laptop (Intel Brookdale Chipset, Pentium 4) and I'm 
+having trouble with the mouse.
 
-On Wed, 8 Oct 2003, Hugh Dickins wrote:
+* Short version:  the kernel sees the Synaptics touchpad, but X doesn't 
+(using the 0.11.7 userspace synaptics X module).  X (without the 
+synaptics module) understands the touchpad and my external PS/2 
+trackball, but I periodically get very erratic behavior from the 
+external mouse and synchronization errors from psmouse.c.
 
-> On Wed, 8 Oct 2003, Rik van Riel wrote:
-> > 
-> > 1) cpu A adds page P to the swap cache, loading page->flags
-> >    and modifying it locally
-> 
-> Right, the add_to_swap_cache in try_to_swap_out.
-> 
-> > 2) a second thread scans a page table entry and sees that
-> >    the page was accessed, so cpu B moves page P to the
-> >    active list
-> 
-> Right, the mark_page_accessed in try_to_swap_out
-> (I don't see any other mark_page_accessed as problematic).
-> Or the del_page_from_active_list in refill_inactive.
-> 
-> > 3) cpu A undoes the PG_inactive -> PG_active bit change,
-> >    corrupting the page->flags of P
-> 
-> (Mainline is easier than -rmap since no separate PG_inactive bit.)
-> 
-> Thanks a lot for explaining, I see it now.  Personally I'd prefer a
-> lighter weight patch, either pagemap_lru_lock within add_to_swap_cache,
-> or better moving the PG_flags clearing from __add_to_page_cache into
-> __free_pages_ok, where I still believe it can be done non-atomically.
-> 
-> But you've proved your point, and I understand you preferring a more
-> straightforward and future-proof way.  I'm not writing an alternative
-> patch, don't let me stand in the way of progress...
-> 
-> A little of the above explanation in the change comment would be nice.
+I don't care about the touchpad, but would like my external PS/2 mouse 
+to work properly in X.
 
-Maybe comments on top of the code? 
+* Long version: It has a touchpad, which the kernel reports on bootup 
+as:
 
-Rik? :)
+    Synaptics Touchpad, model: 1
+     Firmware: 4.6 \ 180 degree mounted touchpad \ Sensor: 18
+     new absolute packet format \ Touchpad has extended capability bits
+     -> four buttons \ -> multifinger detection \ -> palm detection
+    input: SynPS/2 Synaptics TouchPad on isa0060/serio4
+
+I installed the latest synaptics driver (0.11.7) and configured XF864.1 
+according to the INSTALL file.  X reports:
+
+    (II) xfree driver for the synaptics touchpad 0.11.7
+    Query no Synaptics: 6003C8
+    (EE) no synaptics touchpad detected and no repeater device
+    (EE) Unable to query/initialize Synaptics hardware
+
+But I also have a PS/2 mouse config in my XF86Config-4, and it loads 
+this pointer.
+
+In X, the touchpad appears to work just fine, but the PS/2 mouse I have 
+plugged into the PS/2 port occasionally behaves erratically, and causes 
+kernel messages like this:
+
+    kernel: psmouse.c: Mouse at isa0060/serio3/input0 lost 
+        synchronization, throwing 2 bytes away
+
+I don't really care too much about the touchpad because I always use an 
+external PS/2 trackball anyway, but I would like it to work.
+
+Config / more detail available on request.
+
+Thanks!
+
+Chris
+-- 
+Christopher S. Swingley          email: cswingle@iarc.uaf.edu
+IARC -- Frontier Program         Please use encryption.  GPG key at:
+University of Alaska Fairbanks   www.frontier.iarc.uaf.edu/~cswingle/
 

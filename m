@@ -1,54 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263355AbTE0Erj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 00:47:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263365AbTE0Erj
+	id S263365AbTE0Ese (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 00:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263369AbTE0Ese
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 00:47:39 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:65031 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S263355AbTE0Eri
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 00:47:38 -0400
-Date: Tue, 27 May 2003 07:00:30 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Willy Tarreau <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "David S. Miller" <davem@redhat.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       gibbs@scsiguy.com, acme@conectiva.com.br
-Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
-Message-ID: <20030527050030.GA19948@alpha.home.local>
-References: <1053732598.1951.13.camel@mulgrave> <20030524064340.GA1451@alpha.home.local> <1053923112.14018.16.camel@rth.ninka.net> <1053995708.17151.42.camel@dhcp22.swansea.linux.org.uk> <20030527043936.GB19309@alpha.home.local> <Pine.LNX.4.55L.0305270144300.546@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55L.0305270144300.546@freak.distro.conectiva>
-User-Agent: Mutt/1.4i
+	Tue, 27 May 2003 00:48:34 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:18370 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S263365AbTE0EsU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 00:48:20 -0400
+Date: Tue, 27 May 2003 01:59:34 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: manish <manish@storadinc.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+In-Reply-To: <3ED2E8A2.7020609@storadinc.com>
+Message-ID: <Pine.LNX.4.55L.0305270159020.546@freak.distro.conectiva>
+References: <3ED2DE86.2070406@storadinc.com> <Pine.LNX.4.55L.0305270103220.32094@freak.distro.conectiva>
+ <3ED2E8A2.7020609@storadinc.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 27, 2003 at 01:47:13AM -0300, Marcelo Tosatti wrote:
- 
-> Justin used to say "use my latest driver" when people reported problems.
-> Read lkml.
 
-I agree, but honnestly, when a driver author remembers about hundreds of bugs
-fixed between the version the user complains about and the last one, it's
-difficult to point the real problem, and then to say to this people "just
-apply this little fix for this particular bug, and cross your fingers not to
-be caught by the 99 others".
 
-> Justin could well have fixed the problems in the current driver instead
-> answering "use my latest driver", couldnt he?
+On Mon, 26 May 2003, manish wrote:
 
-I think he could have tried to fix the most obvious ones and then say
-"Marcelo, my old driver is plain buggy, here are a few fixes for the
-complainers, but it's about to explode, please plan on a full upgrade soon".
+> Marcelo Tosatti wrote:
+>
+> >
+> >On Mon, 26 May 2003, manish wrote:
+> >
+> >>Hello !
+> >>
+> >>I am running the 2.4.20 kernel on a system with 3.5 GB RAM and dual CPU.
+> >>I am running bonnie accross four drives in parallel:
+> >>
+> >>bonnie -s 1000 -d /<dir-name>
+> >>
+> >>bdflush settings on this system:
+> >>
+> >>[root@dyn-10-123-130-235 vm]# cat bdflush
+> >>2       50      32      100     50      300     1       0       0
+> >>
+> >>All the bonnie process and any other process (like df, ps -ef etc.) are
+> >>hung in __lock_page. Breaking into kdb, I observe the following for one
+> >>such bonnie process:
+> >>
+> >>schedule(..)
+> >>__lock_page(..)
+> >>lock_page(..)
+> >>do_generic_file_read(..)
+> >>generic_file_read(..)
+> >>
+> >>After this, the processes never exit the hang. At times, a couple of
+> >>bonnie processes complete but the hang still occurs with the remaining
+> >>processes and with the other processes.
+> >>
+> >>I tried out the 2.5.33 kernel (one of the 2.5 series) and observed that
+> >>the hang does not occur. If I run, two bonnie processes, they never get
+> >>stuck. Actually, if I run 4 parallel mke2fs, they too get stuck.
+> >>
+> >>Any clues where this could be happening?
+> >>
+> >
+> >Hi,
+> >
+> >Are you sure there is no disk activity ?
+> >
+> >Run vmstat and check that, please.
+> >
+> Hello !
+>
+> Thanks for the response.
+>
+>  The light on the controller does not blink at all. Intitially, it does
+> blink. However, after this hang, it does not at all.
+>
+> vmstat after the hang
+>
+> 1  1  0    780 2056892   5784 1415324   0   0     0     4  102     7
+> 49   1  50
+>  1  1  0    780 2056892   5784 1415324   0   0     0     4  102     9
+> 49   1  50
+>  1  1  0    780 2056892   5784 1415324   0   0     0     5  104    10
+> 29  21  50
+>  0  1  0    780 2056708   5784 1415324   0   0     0     1  104    12
+> 0  13  86
+>  1  1  0    780 2222904   5784 1249396   0   0     0   172  126    25
+> 0   4  96
+>  0  1  0    780 3081052   5784 391324   0   0     0   403  161    43
+> 0  12  88
+>    procs                      memory    swap          io
+> system         cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
+> sy  id
+>  0  1  0    780 3080952   5788 391408   0   0    29     9  120    72
+> 0   0 100
+>  0  1  0    780 3080952   5788 391408   0   0     0     0  111    19
+> 0   0 100
+>  0  1  0    780 3080952   5788 391408   0   0     0     1  103     9
+> 0   0 100
+>  0  1  0    780 3080952   5788 391408   0   0     0     0  101     9
+> 0   0 100
+>  0  1  0    780 3080952   5788 391408   0   0     0     0  101     7
+> 0   0 100
+>  0  1  0    780 3080952   5788 391408   0   0     0     0  101     9
+> 0   0 100
+>  0  1  0    780 3080952   5788 391408   0   0     0     0  102     9
+> 0   0 100
+>  0  1  0    780 3080952   5788 391408   0   0     0     1  101     8
+> 0   0 100
+>  0  1  0    780 3081308   5788 391420   0   0     0   231  150    92
+> 3   0  97
+>  0  1  0    780 3081308   5788 391420   0   0     0     0  102     7
+> 0   0 100
+>  0  1  0    780 3081308   5788 391420   0   0     0     0  102     7
+> 0   0 100
+>  0  1  0    780 3081304   5788 391420   0   0     0     0  101     9
+> 0   0 100
+>  0  1  0    780 3081304   5788 391420   0   0     0     0  102     8
+> 0   0 100
+>  0  1  0    780 3081300   5788 391420   0   0     0     0  101     8
+> 0   0 100
+>  0  1  0    780 3081300   5788 391420   0   0     0     0  101     9
+> 0   0 100
+>  0  1  0    780 3081296   5788 391420   0   0     0     0  101     7
 
-Anyway, what is done is done. It's nonsense always talking about the past,
-we'd all better spend our time fixing bugs.
-
-Regards,
-Willy
-
+Ok, and does it happen with the stock kernel?

@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318738AbSHAMOn>; Thu, 1 Aug 2002 08:14:43 -0400
+	id <S318735AbSHAMIY>; Thu, 1 Aug 2002 08:08:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318719AbSHAMFT>; Thu, 1 Aug 2002 08:05:19 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:15744 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S318724AbSHAMFK>;
-	Thu, 1 Aug 2002 08:05:10 -0400
-Date: Thu, 1 Aug 2002 12:42:04 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Grover <andrew.grover@intel.com>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Make CONFIG_ACPI_BOOT work again
-Message-ID: <20020801104204.GA146@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S318733AbSHAMH2>; Thu, 1 Aug 2002 08:07:28 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3338 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318723AbSHAMG7>;
+	Thu, 1 Aug 2002 08:06:59 -0400
+Message-ID: <3D492531.9030905@mandrakesoft.com>
+Date: Thu, 01 Aug 2002 08:10:25 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nico Schottelius <nico-mutt@schottelius.org>
+CC: linux.nics@intel.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: network driver informations [general NIC, Wireless and e100]
+References: <20020731212426.GA3342@schottelius.org>
+X-Enigmail-Version: 0.65.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Nico Schottelius wrote:
+> Hello!
+> 
+> I recently tried the e100 driver and was happy that it reports
+> if there is a connection and speed and so on.
+> 
+> But should these informations not be reported through /proc-fs ?
+> I think this would make it easier for programs to monitor connection
+> status. We could even have a small red/green light in the KDE panel
+> to display connection status for different cards.
 
-This patch makes CONFIG_ACPI_BOOT functional again. Please apply,
 
-								Pavel
+Thou shalt not add to the junk collection that is procfs :)
 
---- clean/arch/i386/kernel/acpi.c	Mon Jun  3 11:43:27 2002
-+++ linux-swsusp/arch/i386/kernel/acpi.c	Mon Jun 10 23:03:24 2002
-@@ -53,11 +53,9 @@
-                               Boot-time Configuration
-    -------------------------------------------------------------------------- */
- 
--#ifdef CONFIG_ACPI_BOOT
--
- enum acpi_irq_model_id		acpi_irq_model;
- 
--
-+#ifdef CONFIG_ACPI_BOOT
- /*
-  * Use reserved fixmap pages for physical-to-virtual mappings of ACPI tables.
-  * Note that the same range is used for each table, so tables that need to
---- clean/include/linux/acpi.h	Mon Jun  3 11:43:38 2002
-+++ linux-swsusp/include/linux/acpi.h	Mon Jun 10 23:03:25 2002
-@@ -39,7 +39,7 @@
- #include <asm/acpi.h>
- 
- 
--#ifdef CONFIG_ACPI_BOOT
-+#ifdef CONFIG_ACPI
- 
- enum acpi_irq_model_id {
- 	ACPI_IRQ_MODEL_PIC = 0,
+Al Viro has talked about, long term, making this information available 
+through a filesystem.  When that happens, your request will have 
+basically been implemented.
 
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+Until then, ioctls :)
+
+	Jeff
+
+
+
+

@@ -1,70 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276576AbRJPSGB>; Tue, 16 Oct 2001 14:06:01 -0400
+	id <S276594AbRJPSGB>; Tue, 16 Oct 2001 14:06:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276594AbRJPSFv>; Tue, 16 Oct 2001 14:05:51 -0400
-Received: from [209.195.52.30] ([209.195.52.30]:35076 "HELO [209.195.52.30]")
-	by vger.kernel.org with SMTP id <S276591AbRJPSFm>;
-	Tue, 16 Oct 2001 14:05:42 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: safemode <safemode@speakeasy.net>
-Cc: linux-kernel@vger.kernel.org
-Date: Tue, 16 Oct 2001 09:44:24 -0700 (PDT)
-Subject: Re: VM
-In-Reply-To: <E7405EE40489D411B30F00508BF38F8D049677E2@wlvexc01.diginsite.com>
-Message-ID: <Pine.LNX.4.40.0110160932370.6108-100000@dlang.diginsite.com>
+	id <S276591AbRJPSFw>; Tue, 16 Oct 2001 14:05:52 -0400
+Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:53004 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S276576AbRJPSFg>;
+	Tue, 16 Oct 2001 14:05:36 -0400
+Date: Tue, 16 Oct 2001 11:08:01 -0700 (PDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: "Magnus Naeslund(f)" <mag@fbab.net>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: tyan K7 thunder
+In-Reply-To: <007b01c1565b$0c49a450$020a0a0a@totalmef2>
+Message-ID: <Pine.LNX.4.10.10110161105060.1386-100000@innerfire.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the previous non-Rik VM kernel (other then the current linus tree) is the
-2.2 kernels, and they are lacking a LOT of features that are in 2.4
+Theres a problem unrelated to the hardware.  I've been having the same
+problem with a server here.
 
-it's not a case of wanting to run 2.4.latest on production, it's a matter
-of wanting to run 2.4.anything on production. currently this is a serious
-problem to do becouse the VM system has not been stable and predictable
-enough to be trusted. there have been to many cases of people putting 2.4
-on a production system and it slowing to a crawl when the real production
-load hits.
+	Gerhard
 
-when 2.4 works it is FAR better then 2.2 and it has features not available
-on 2.2, but with the Rik VM (versions that were in the linus kernels up
-through 2.4.9) it has not reliably worked. running 2.4 is not supposed to
-be bleading edge, it's supposed to be the stable kernel series (although
-you do have to wait a few days after a kernel is released to avoid paper
-bag bugs :-)
 
-if we want a kernel series that should not be used in production servers
-we need to get 2.4 stable enough to be used there and then we can open the
-2.5 series
+On Tue, 16 Oct 2001, Magnus Naeslund(f) wrote:
 
-David Lang
+> 
+> Well I can't even get it to boot some dists/kernels.
+> 
+> When I tried to install Peanut Linux (http://www.ibiblio.org/peanut/) it
+> just hangs after "Freeing unused kernel memory ( XXX K )".
+> 
+> It's bootdisk has a 2.4.10 kernel, and I wonder if there is any gotchas with
+> this version of kernel together with the AMD Athlon MP, AMD 760MP, AMD 762,
+> AMD 766, or tyan s2462 chips and board that produces this hang.
+> 
+> Magnus
+> 
+> ----- Original Message -----
+> From: "Andreas Gietl" <a.gietl@e-admin.de>
+> To: <linux-kernel@vger.kernel.org>
+> Sent: Tuesday, October 16, 2001 3:39 PM
+> Subject: tyan K7 thunder
+> 
+> 
+> > hi,
+> >
+> > First every thing was just fine with our new tyan k7 thunder server and we
+> > did some load testing and the machine ran fine for 4 weeks. But after we
+> > started to use it in production we had major stability problems with that
+> new
+> > Dual Athlon 1200 machine. we found tons of mails in this mailling list
+> about
+> > this configuration crashing. We tried to stabilize the SMP-kernel
+> (v.2.4.9)
+> > for 4 days w/o luck. We played around with the bios and especially the use
+> > pci table in MP table switch gave us a lot more stability but the machine
+> > still keeped on crashing every few hours with a kernel panic:
+> >
+> > kernel panic aiee, killing interrupt handler
+> > in interrupt handler - not syncing'
+> >
+> > We tried noapic, and all the things that were recommended. We also read
+> that
+> > Alan Cox thinks that some of these MBs simply are kind of damaged.
+> >
+> > Right now we are running this machine with v2.4.12 uniprocessor kernel and
+> it
+> > seems to be stable. What i wanna know is whether there are some
+> improvements
+> > in the support for this mainboard in the kernel from 2.4.9 to 2.4.12 so we
+> > could risk another try with the SMP kernel.
+> >
+> > thank you for you help
+> >
+> > andreas
+> >
+> > P.S.: The tyan support (after 5 days we were frustrated enough to call
+> them
+> > up) said the don't support Linux, and their boards are just certified for
+> > Windows. But of course this is not alternative for us....
+> > --
+> > e-admin internet gmbh
+> > Andreas Gietl
+> > Roter-Brach-Weg 124a
+> > tel +49 941 3810884
+> > fax +49 941 3810891
+> > mobil +49 171 6070008
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-On Tue, 16 Oct 2001, safemode wrote:
-<SNIP>
-> People who use the latest 2.4.x kernel aren't running critical servers,
-> rebooting back to their previous non-Rik vm kernel wont be much of an issue.
-> It wont "break" anything, rather just be better or worse performance wise.
-> If you can afford to reboot to upgrade to the latest 2.4.x, you can afford to
-> reboot to move back to your backup kernel.
-> Makeing a standard way of testing "real world" things is bad.  Real world
-> tests are unlimited and thus can be very hard to recreate but with this way
-> you can actually see the "special" cases that become more apparent when more
-> users use the kernel much earlier.  This would be the same as your statement
-> above about releasing a bad kernel onto the public as a stable kernel.  If
-> you tune to a standard real world test that some people come up with, then
-> you are no longer tuning for the real world since you lose that
-> unpredictability that real users can enter into the equation.
->
-> Like i said before, tests are a lose lose situation,  if you dont do them you
-> release code unto the world that is well, untested.  If you do them, then
-> you're tuning for your test and not the real world and you have people saying
-> that the test is invalid or biased.  Well, so far not using a test is out of
-> the question and Both VM's certainly get their round of testing, the
-> contraversy with that is what tests are important in the real world.  Figure
-> that out and maybe you'll get somewhere with figuring out which VM is better
-> for everyone.  If you manage to convince everyone that those tests are
-> important to the real world, you're probably writing the code and/or a
-> god-like being.
->
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+

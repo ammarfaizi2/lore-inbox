@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265893AbUG1WXe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266353AbUG1W1P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265893AbUG1WXe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 18:23:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUG1WXd
+	id S266353AbUG1W1P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 18:27:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266129AbUG1W1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 18:23:33 -0400
-Received: from gprs214-195.eurotel.cz ([160.218.214.195]:1664 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265893AbUG1WXQ (ORCPT
+	Wed, 28 Jul 2004 18:27:13 -0400
+Received: from gprs214-195.eurotel.cz ([160.218.214.195]:2176 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S266353AbUG1WY7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 18:23:16 -0400
-Date: Thu, 29 Jul 2004 00:23:00 +0200
+	Wed, 28 Jul 2004 18:24:59 -0400
+Date: Thu, 29 Jul 2004 00:24:45 +0200
 From: Pavel Machek <pavel@ucw.cz>
 To: Patrick Mochel <mochel@digitalimplant.org>,
+       Andrew Morton <akpm@zip.com.au>,
        kernel list <linux-kernel@vger.kernel.org>
-Subject: -mm swsusp: fix highmem handling
-Message-ID: <20040728222300.GA16671@elf.ucw.cz>
+Subject: -mm swsusp: do not default to platform/firmware
+Message-ID: <20040728222445.GA18210@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,36 +26,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-Swsusp was not restoring highmem properly. I did not find a nice place
-where to restore it, through, so it went to swsusp_free.
-
-I'm not sure why you are saving state before
-save_processor_state. swsusp_arch_resume will overwrite this,
-anyway. Is it to make something balanced?
+-mm swsusp now defaults to platform/firmware suspend... That's
+certainly unexpected, changes behaviour from previous version, and
+only works on one of three machines I have here. I'd like the default
+to be changed back. Please apply,
 								Pavel
 
---- clean-mm/kernel/power/swsusp.c	2004-07-28 23:39:49.000000000 +0200
-+++ linux-mm/kernel/power/swsusp.c	2004-07-28 23:30:33.000000000 +0200
-@@ -656,6 +652,10 @@
- 			free_suspend_pagedir_zone(zone, p);
+--- clean-mm/drivers/acpi/sleep/main.c	2004-07-28 23:39:47.000000000 +0200
++++ linux-mm/drivers/acpi/sleep/main.c	2004-07-28 22:54:43.000000000 +0200
+@@ -216,9 +216,7 @@
+ 			if (acpi_gbl_FACS->S4bios_f) {
+ 				sleep_states[i] = 1;
+ 				printk(" S4bios");
+-				acpi_pm_ops.pm_disk_mode = PM_DISK_FIRMWARE;
+-			} else if (sleep_states[i])
+-				acpi_pm_ops.pm_disk_mode = PM_DISK_PLATFORM;
++			}
+ 		}
  	}
- 	free_pages(p, pagedir_order);
-+#ifdef CONFIG_HIGHMEM
-+	printk( "Restoring highmem\n" );
-+	restore_highmem();
-+#endif
- }
+ 	printk(")\n");
  
- 
-@@ -890,7 +890,6 @@
- {
- 	int error;
- 	local_irq_disable();
--	save_processor_state();
- 	error = swsusp_arch_resume();
- 	restore_processor_state();
- 	local_irq_enable();
-
 -- 
 People were complaining that M$ turns users into beta-testers...
 ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,70 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262267AbRERHpP>; Fri, 18 May 2001 03:45:15 -0400
+	id <S262268AbRERHuQ>; Fri, 18 May 2001 03:50:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262268AbRERHpG>; Fri, 18 May 2001 03:45:06 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:4615 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S262267AbRERHoq>;
-	Fri, 18 May 2001 03:44:46 -0400
-Date: Fri, 18 May 2001 03:43:07 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Michael Meissner <meissner@spectacle-pond.org>,
-        Keith Owens <kaos@ocs.com.au>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 design philosophy heads-up
-Message-ID: <20010518034307.A10784@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Tom Rini <trini@kernel.crashing.org>,
-	Michael Meissner <meissner@spectacle-pond.org>,
-	Keith Owens <kaos@ocs.com.au>, CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010517032636.A1109@thyrsus.com> <28870.990085661@kao2.melbourne.sgi.com> <20010517053549.A17562@munchkin.spectacle-pond.org> <20010517093411.A12740@opus.bloom.county>
-Mime-Version: 1.0
+	id <S262269AbRERHuG>; Fri, 18 May 2001 03:50:06 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53514 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262268AbRERHuB>; Fri, 18 May 2001 03:50:01 -0400
+Subject: Re: problem: reading from (rivafb) framebuffer is really slow
+To: leitner@convergence.de (Felix von Leitner)
+Date: Fri, 18 May 2001 08:46:38 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010518032923.A17686@convergence.de> from "Felix von Leitner" at May 18, 2001 03:29:23 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010517093411.A12740@opus.bloom.county>; from trini@kernel.crashing.org on Thu, May 17, 2001 at 09:34:11AM -0700
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150ey6-0006nw-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini <trini@kernel.crashing.org>:
-> > > SCSI emulation over IDE, CONFIG_BLK_DEV_IDESCSI.  You have the SCSI mid
-> > > layer code but no SCSI hardware drivers.  It is a realistic case for an
-> > > embedded CD-RW appliance.
-> > 
-> > Or alternatively, you want to enable SCSI code, with no hardware driver,
-> > because you are going to build pcmcia, which builds the scsi drivers only
-> > if CONFIG_SCSI is defined, and the user might put in an Adaptec 1460B or
-> > 1480 scsi card into your pcmcia slot.
-> 
-> Both of these 'problems' assume that you can have IDE or PCMCIA on these
-> particular boxes.  Does anyone know if that's actually true?
+> When benchmarking DirectFB, I found that a typical software alpha
+> blending rectangle fill is completely dominated (I'm talking 90% of the
+> CPU cycles here) by the time it takes to read pixels from the
+> framebuffer.
 
-The answer is: no, you can't.  
+I would expect that. Guess why X11 is designed not to do this.
 
-I found a feature list for the MVME147 on the web at
-<http://www.mcg.mot.com/cfm/templates/article.cfm?PageID=1095>.  It
-confirmed what thought I remembered from the Motorola site; no PCMCIA,
-no IDE/ATAPI.  As a matter of fact neither of these technologies
-existed yet when the board was being designed in the mid-1980s.
+> The pixels are read linearly in chunks of aligned 32-bit words.  It's a
+> Geforce 2 GTS in 1024x768 with 32-bit color depth using rivafb.  This
+> looks quite crass to me.  Any ideas?  Maybe rivafb does not initialize
+> AGP and the card is in PCI mode or something?
 
-(The article I found is kind of interesting.  It's a dissection of the
-MVME147's design and history...narrated in first person.)
+Writes across the PCI bus are posted, and potentially merged. Read posting is
+rather harder to do. This is one reason to keep copies of data or to use
+DMA or textures from AGP space to speed up access to the data you need.
 
-In any case, if this *had* been a problem, the right fix IMO would have
-been to split the SCSI symbol into SCSI and SCSI_DRIVERS and have
-constraints that would make SCSI and the presence of any SCSI card 
-imply SCSI_DRIVERS.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+In general pci write = fast, pci read = slow. High performance subsystems
+you write to their pci memory they DMA back to your main memory. 
 
-The prestige of government has undoubtedly been lowered considerably
-by the Prohibition law. For nothing is more destructive of respect for
-the government and the law of the land than passing laws which cannot
-be enforced. It is an open secret that the dangerous increase of crime
-in this country is closely connected with this.
-	-- Albert Einstein, "My First Impression of the U.S.A.", 1921
+Alan
+

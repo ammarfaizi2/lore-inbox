@@ -1,36 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263745AbUEHLbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263781AbUEHLcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263745AbUEHLbg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 07:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbUEHLbg
+	id S263781AbUEHLcV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 07:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbUEHLcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 07:31:36 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:34915 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263745AbUEHLba (ORCPT
+	Sat, 8 May 2004 07:32:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40091 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263781AbUEHLcR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 07:31:30 -0400
-Date: Sat, 8 May 2004 04:31:23 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: ashok.raj@intel.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH mask 6/15] nonsmp-cpu-present-map
-Message-Id: <20040508043123.07e1dfe8.pj@sgi.com>
-In-Reply-To: <20040508041049.037a8f77.pj@sgi.com>
-References: <936AF5883B4DD84F83C40185A810315001540E16@orsmsx404.jf.intel.com>
-	<20040506190021.A17643@unix-os.sc.intel.com>
-	<20040508041049.037a8f77.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 8 May 2004 07:32:17 -0400
+Date: Sat, 8 May 2004 04:31:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc3-mm2
+Message-Id: <20040508043149.63fd9498.akpm@osdl.org>
+In-Reply-To: <200405081329.43017.rjwysocki@sisk.pl>
+References: <20040505013135.7689e38d.akpm@osdl.org>
+	<200405072213.23167.rjwysocki@sisk.pl>
+	<20040507230915.447a92fa.akpm@osdl.org>
+	<200405081329.43017.rjwysocki@sisk.pl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Beware to respondents - I had Rusty's email wrong on the parent to this message
-(I had an extra 'y' in rustcorp).
+"R. J. Wysocki" <rjwysocki@sisk.pl> wrote:
+>
+> Sute, it's like that:
+> 
+>  kernel /boot/vmlinuz-2.6.6-rc3-mm2 root=/dev/sdb3 vga=792 hdc=ide-scsi 
+>  console=ttyS0,115200 console=tty0
+> 
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Please try `console=ttyS0'.

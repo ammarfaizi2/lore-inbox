@@ -1,36 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276249AbRJ2Qac>; Mon, 29 Oct 2001 11:30:32 -0500
+	id <S276347AbRJ2Qfw>; Mon, 29 Oct 2001 11:35:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276312AbRJ2QaZ>; Mon, 29 Oct 2001 11:30:25 -0500
-Received: from peace.netnation.com ([204.174.223.2]:33805 "EHLO
-	peace.netnation.com") by vger.kernel.org with ESMTP
-	id <S276249AbRJ2QaJ>; Mon, 29 Oct 2001 11:30:09 -0500
-Date: Mon, 29 Oct 2001 08:30:44 -0800
-From: Simon Kirby <sim@netnation.com>
-To: Jan Kara <jack@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops: Quota race in 2.4.12?
-Message-ID: <20011029083044.G17389@netnation.com>
-In-Reply-To: <20011028215818.A7887@netnation.com> <20011029144441.E11994@atrey.karlin.mff.cuni.cz>
+	id <S276341AbRJ2Qfm>; Mon, 29 Oct 2001 11:35:42 -0500
+Received: from dtu.spb.ru ([194.85.167.141]:5128 "EHLO dtu.spb.ru")
+	by vger.kernel.org with ESMTP id <S276305AbRJ2Qfb>;
+	Mon, 29 Oct 2001 11:35:31 -0500
+Date: Mon, 29 Oct 2001 19:35:56 +0300
+From: Maxim Timofeyev <tmahome@tma.spb.ru>
+To: linux-kernel@vger.kernel.org
+Cc: tmahome@tma.spb.ru
+Subject: mount --bind -o ro /tmp /mnt/tmp
+Message-ID: <20011029193556.B1354@home.tma.spb.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <20011029144441.E11994@atrey.karlin.mff.cuni.cz>; from jack@suse.cz on Mon, Oct 29, 2001 at 02:44:41PM +0100
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 29, 2001 at 02:44:41PM +0100, Jan Kara wrote:
+Why I can't mounted a r/w /tmp as r/o /mnt/tmp?
 
->   I'd also blame some SMP locking (I think that on UP everything was tested well) but
-> everything should be protected by lock_kernel() and it seems to me that everything really
-> is protected. Anyway I'll try to find the problem.
-
-I notice you just recently posted a patch to fix possible list
-corruption.  Could this be related?
-
-Simon-
-
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+-- 
+[2:5030/763@fidonet.org]       [tmahome@tma.spb.ru]       [http://tma.spb.ru]

@@ -1,71 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315420AbSGAHNq>; Mon, 1 Jul 2002 03:13:46 -0400
+	id <S315442AbSGAHUu>; Mon, 1 Jul 2002 03:20:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315438AbSGAHNp>; Mon, 1 Jul 2002 03:13:45 -0400
-Received: from imhotep.hursley.ibm.com ([194.196.110.14]:698 "EHLO
-	alien.meansolutions.com") by vger.kernel.org with ESMTP
-	id <S315420AbSGAHNo>; Mon, 1 Jul 2002 03:13:44 -0400
-Date: Mon, 1 Jul 2002 08:15:48 +0100
-From: Anders Karlsson <anders.karlsson@meansolutions.com>
-To: Ben Greear <greearb@candelatech.com>
+	id <S315439AbSGAHUt>; Mon, 1 Jul 2002 03:20:49 -0400
+Received: from macker.loria.fr ([152.81.1.70]:38284 "EHLO macker.loria.fr")
+	by vger.kernel.org with ESMTP id <S315438AbSGAHUr>;
+	Mon, 1 Jul 2002 03:20:47 -0400
+X-Amavix: Anti-spam check done by SpamAssassin
+X-Amavix: Anti-virus check done by McAfee
+X-Amavix: Scanned by Amavix
+Date: Sun, 30 Jun 2002 23:49:19 +0200 (CEST)
+From: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>
+X-X-Sender: samy@localhost.localdomain
+Reply-To: Samuel Thibault <samuel.thibault@fnac.net>
+To: zab@zabbo.net, <linux-sound@vger.kernel.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Spacewalker SS40
-Message-ID: <20020701071548.GA1047@alien.meansolutions.com>
-References: <20020630151510.GA21888@alien.meansolutions.com> <3D1F62B5.30502@candelatech.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
-Content-Disposition: inline
-In-Reply-To: <3D1F62B5.30502@candelatech.com>
-User-Agent: Mutt/1.3.24i
+Subject: [PATCH] 2.4.18 linux/drivers/maestro.c dev_audio flaw
+Message-ID: <Pine.LNX.4.44.0206302335280.592-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi !
 
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It seems that the value of ess->dev_audio is wrongly interpreted. Here's
+its only initialization :
+(maestro.c:3473)
 
-On Sun, Jun 30, 2002 at 12:57:41PM -0700, Ben Greear wrote:
-> Anders Karlsson wrote:
-[snip: PCI problems with Shuttle SS40 + kernel 2.4.18]
->=20
-> I don't know the exact problem, but if you add: pci=3Dbios to
-> the kernel boot comand line args, then it seems to work fine,
-> at least with RH 7.3.
->=20
-> I'm also running a rc1 kernel w/out problems on it.
->=20
-> Ben
+		if ((s->dev_audio = register_sound_dsp(&ess_audio_fops, -1)) < 0)
 
-Ben,
+register_sound_dsp can return -ENOMEM for instance, so checking whether < 0
+is mandatory. However, in (almost) the rest of the file, only == -1 is
+tested, so here's a patch.
 
-That indeed solved the problem. It has been suggested to me that the
-chipset on the FS40 motherboard (used in the SS40) is not yet properly
-recognized and handled by the kernel and so going through the bios
-instead will work.
+Furthermore, printing some error message may sometimes be handy, such as when
+-ENOENT is returned (no hole was found for the driver), just to understand why
+the device was probed, but isn't actually accessible.
 
-Many thanks as your suggestion did solve the problem. Hopefully we
-will soon see a kernel that will be able to use the PCI bus in raw
-mode on the FS40 motherboard. :-)
+Best regards,
 
-Cheers!
+Samuel Thibault
 
---=20
-Anders Karlsson <anders dot karlsson at meansolutions dot com>
+diff -urN linux-2.4.18-cor/drivers/sound/maestro.c linux-2.4.18-cor2/drivers/sound/maestro.c
+--- linux-2.4.18-cor/drivers/sound/maestro.c	Sun Jun 30 22:02:11 2002
++++ linux-2.4.18-cor2/drivers/sound/maestro.c	Sun Jun 30 23:34:26 2002
+@@ -1963,7 +1963,7 @@
+ 	for(i=0;i<NR_DSPS;i++)
+ 	{
+ 		s=&c->channels[i];
+-		if(s->dev_audio == -1)
++		if(s->dev_audio < 0)
+ 			break;
+ 		spin_lock(&s->lock);
+ 		ess_update_ptr(s);
+@@ -2917,7 +2917,7 @@
+ 	for(i=0;i<NR_DSPS;i++) {
+ 		struct ess_state *ess = &s->card->channels[i];
 
---Dxnq1zWXvFF0Q93v
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+-		if(ess->dev_audio == -1)
++		if(ess->dev_audio < 0)
+ 			continue;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+ 		ess->dma_dac.ready = s->dma_dac.mapped = 0;
+@@ -3480,7 +3480,7 @@
+ 	for(;i<NR_DSPS;i++)
+ 	{
+ 		struct ess_state *s=&card->channels[i];
+-		s->dev_audio = -1;
++		s->dev_audio = -ENODEV;
+ 	}
 
-iD8DBQE9IAGkLYywqksgYBoRAvSXAKDSsYkW+PqvW8w7b6tOfHv06DMkJQCgsO7q
-Pb1f4KDiFo/Eg81cY5p3JKc=
-=zAaK
------END PGP SIGNATURE-----
+ 	ess = &card->channels[0];
+@@ -3541,7 +3541,7 @@
+ 		for(i=0;i<NR_DSPS;i++)
+ 		{
+ 			struct ess_state *s = &card->channels[i];
+-			if(s->dev_audio != -1)
++			if(s->dev_audio >= 0)
+ 				unregister_sound_dsp(s->dev_audio);
+ 		}
+ 		release_region(card->iobase, 256);
+@@ -3586,7 +3586,7 @@
+ 	for(i=0;i<NR_DSPS;i++)
+ 	{
+ 		struct ess_state *ess = &card->channels[i];
+-		if(ess->dev_audio != -1)
++		if(ess->dev_audio >= 0)
+ 			unregister_sound_dsp(ess->dev_audio);
+ 	}
+ 	/* Goodbye, Mr. Bond. */
+@@ -3690,7 +3690,7 @@
+ 	for(i=0;i<NR_DSPS;i++) {
+ 		struct ess_state *s = &card->channels[i];
 
---Dxnq1zWXvFF0Q93v--
+-		if(s->dev_audio == -1)
++		if(s->dev_audio < 0)
+ 			continue;
+
+ 		M_printk("maestro: stopping apus for device %d\n",i);
+@@ -3743,7 +3743,7 @@
+ 		struct ess_state *s = &card->channels[i];
+ 		int chan,reg;
+
+-		if(s->dev_audio == -1)
++		if(s->dev_audio < 0)
+ 			continue;
+
+ 		for(chan = 0 ; chan < 6 ; chan++) {
+
+
+

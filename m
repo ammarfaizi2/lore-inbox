@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318765AbSICLcA>; Tue, 3 Sep 2002 07:32:00 -0400
+	id <S318760AbSICLge>; Tue, 3 Sep 2002 07:36:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318760AbSICLcA>; Tue, 3 Sep 2002 07:32:00 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:61907 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318758AbSICLcA>;
-	Tue, 3 Sep 2002 07:32:00 -0400
-Date: Tue, 03 Sep 2002 04:29:09 -0700 (PDT)
-Message-Id: <20020903.042909.29814101.davem@redhat.com>
-To: paulus@samba.org
-Cc: taka@valinux.co.jp, kuznet@ms2.inr.ac.ru, scott.feldman@intel.com,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       haveblue@us.ibm.com, Manand@us.ibm.com, christopher.leech@intel.com
-Subject: Re: TCP Segmentation Offloading (TSO)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15732.40127.600622.881235@argo.ozlabs.ibm.com>
-References: <20020903.164243.21934772.taka@valinux.co.jp>
-	<20020903.005119.50342945.davem@redhat.com>
-	<15732.40127.600622.881235@argo.ozlabs.ibm.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S318756AbSICLge>; Tue, 3 Sep 2002 07:36:34 -0400
+Received: from smtp.comcast.net ([24.153.64.2]:28982 "EHLO smtp.comcast.net")
+	by vger.kernel.org with ESMTP id <S318760AbSICLgd>;
+	Tue, 3 Sep 2002 07:36:33 -0400
+Date: Tue, 03 Sep 2002 07:48:36 -0400
+From: Jerry McBride <mcbrides9@comcast.net>
+Subject: Can't find qt libs...
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       "kde-linux@mail.kde.org" <kde-linux@mail.kde.org>
+Message-id: <0H1V0080X1S3C3@mtaout03.icomcast.net>
+Organization: TEAM LINUX
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.8.0claws (GTK+ 1.2.8; )
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+X-message-flag: Join the Wave and install Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Paul Mackerras <paulus@samba.org>
-   Date: Tue, 3 Sep 2002 21:27:59 +1000 (EST)
-   
-   I notice though that if the length is odd, we (PPC) put the last byte
-   in the left-hand (most significant) byte of a 16-bit halfword, with
-   zero in the other byte, and add it in, whereas i386 puts the last byte
-   in the least-significant position.
 
-What PPC does is correct for big endian.
+Why is it that after I successfully compile qt3 and kde3.0.x... that I can
+never go back and
+recompile the beast without kde's ./configure scripts not being able to
+find qt3?? it acts like a
+onetime shot at compiling and then never again. 
+
+It's a pain in the ass. What's the skinny, if any one knows?
+
+-- 
+
+*************************************************************************
+*****
+                     Registered Linux User Number 185956
+          http://groups.google.com/groups?hl=en&safe=off&group=linux
+    7:28am  up 174 days, 12:37,  5 users,  load average: 0.82, 0.63, 0.67

@@ -1,123 +1,254 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287563AbSASWDL>; Sat, 19 Jan 2002 17:03:11 -0500
+	id <S287615AbSASWDQ>; Sat, 19 Jan 2002 17:03:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287450AbSASWA6>; Sat, 19 Jan 2002 17:00:58 -0500
-Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:55812 "HELO
-	osinvestor.com") by vger.kernel.org with SMTP id <S287563AbSASV7H>;
-	Sat, 19 Jan 2002 16:59:07 -0500
-Date: Sat, 19 Jan 2002 16:59:04 -0500 (EST)
+	id <S287337AbSASWAv>; Sat, 19 Jan 2002 17:00:51 -0500
+Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:55300 "HELO
+	osinvestor.com") by vger.kernel.org with SMTP id <S287532AbSASV7D>;
+	Sat, 19 Jan 2002 16:59:03 -0500
+Date: Sat, 19 Jan 2002 16:59:00 -0500 (EST)
 From: Rob Radez <rob@osinvestor.com>
 X-X-Sender: <rob@pita.lan>
 To: <linux-kernel@vger.kernel.org>
 cc: Andre Hedrick <andre@linux-ide.org>
-Subject: [PATCH] Andre's IDE Patch (5/7)
-Message-ID: <Pine.LNX.4.33.0201191504230.14950-100000@pita.lan>
+Subject: [PATCH] Andre's IDE Patch (4/7)
+Message-ID: <Pine.LNX.4.33.0201191503340.14950-100000@pita.lan>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the fifth of seven patches against 2.4.18-pre4, beginning the breakup
-of Andre Hedrick's IDE patch into smaller chunks.
+This is the fourth of seven patches against 2.4.18-pre4, beginning the breakup
+of Andre Hedrick's IDE patch into smaller chunks.  This patch depends on
+patch 3 being applied for the definition of PCI_DEVICE_ID_AMD_VIPER_7441.
 
-Description of patch 5:
-This patch touches only two files, drivers/ide/qd65xx.c and
-drivers/ide/qd65xx.h.  Patch was compile tested but not booted due to lack of
-hardware.  This patch adds a fixup for the QDI QD65XX driver.
+Description of patch 4:
+This patch touches four files, drivers/ide/piix.c, drivers/ide/slc90e66.c,
+drivers/ide/alim15x3.c, and drivers/ide/amd74xx.c.  There do not seem to be
+major functional changes in here, and unfortunately, I could only compile
+test these.  The PIIX patch simply changes the dma mask, SLC patch changes
+some PIO mode settings and a fix for MIPS, ALIM also only changes the dma
+mask, and the AMD patch adds support for the Viper 7441 chipset.
 
 Regards,
 Rob Radez
 
-diff -ruN linux-2.4.18-pre3/drivers/ide/qd65xx.c linux-2.4.18-pre3-ide-rr/drivers/ide/qd65xx.c
---- linux-2.4.18-pre3/drivers/ide/qd65xx.c	Fri Sep  7 12:28:38 2001
-+++ linux-2.4.18-pre3-ide-rr/drivers/ide/qd65xx.c	Mon Jan 14 18:29:06 2002
-@@ -1,14 +1,15 @@
- /*
-- *  linux/drivers/ide/qd65xx.c		Version 0.06	Aug 3, 2000
-+ *  linux/drivers/ide/qd65xx.c		Version 0.07	Sep 30, 2001
-  *
-- *  Copyright (C) 1996-2000  Linus Torvalds & author (see below)
-+ *  Copyright (C) 1996-2001  Linus Torvalds & author (see below)
-  */
+diff -ruN linux-2.4.18-pre3/drivers/ide/piix.c linux-2.4.18-pre3-ide-rr/drivers/ide/piix.c
+--- linux-2.4.18-pre3/drivers/ide/piix.c	Thu Oct 25 16:53:47 2001
++++ linux-2.4.18-pre3-ide-rr/drivers/ide/piix.c	Mon Jan 14 18:29:06 2002
+@@ -425,7 +425,7 @@
+ 		}
+ 		dma_func = ide_dma_off_quietly;
+ 		if (id->field_valid & 4) {
+-			if (id->dma_ultra & 0x002F) {
++			if (id->dma_ultra & 0x003F) {
+ 				/* Force if Capable UltraDMA */
+ 				dma_func = piix_config_drive_for_dma(drive);
+ 				if ((id->field_valid & 2) &&
+diff -ruN linux-2.4.18-pre3/drivers/ide/slc90e66.c linux-2.4.18-pre3-ide-rr/drivers/ide/slc90e66.c
+--- linux-2.4.18-pre3/drivers/ide/slc90e66.c	Sun Jul 15 19:22:23 2001
++++ linux-2.4.18-pre3-ide-rr/drivers/ide/slc90e66.c	Mon Jan 14 18:29:06 2002
+@@ -86,8 +86,13 @@
+          * at that point bibma+0x2 et bibma+0xa are byte registers
+          * to investigate:
+          */
++#ifdef __mips__	/* only for mips? */
++	c0 = inb_p(bibma + 0x02);
++	c1 = inb_p(bibma + 0x0a);
++#else
+ 	c0 = inb_p((unsigned short)bibma + 0x02);
+ 	c1 = inb_p((unsigned short)bibma + 0x0a);
++#endif
 
- /*
-  *  Version 0.03	Cleaned auto-tune, added probe
-  *  Version 0.04	Added second channel tuning
-  *  Version 0.05	Enhanced tuning ; added qd6500 support
-- *  Version 0.06	added dos driver's list
-+ *  Version 0.06	Added dos driver's list
-+ *  Version 0.07	Second channel bug fix
-  *
-  * QDI QD6500/QD6580 EIDE controller fast support
-  *
-@@ -67,6 +68,7 @@
-  *        qd6500: 1100
-  *        qd6580: either 1010 or 0101
-  *
-+ *
-  * base+0x02: Timer2 (qd6580 only)
-  *
-  *
-@@ -137,12 +139,12 @@
- {
- 	byte active_cycle,recovery_cycle;
-
--	if (system_bus_clock()<=33) {
--		active_cycle =   9  - IDE_IN(active_time   * system_bus_clock() / 1000 + 1, 2, 9);
--		recovery_cycle = 15 - IDE_IN(recovery_time * system_bus_clock() / 1000 + 1, 0, 15);
-+	if (ide_system_bus_speed()<=33) {
-+		active_cycle =   9  - IDE_IN(active_time   * ide_system_bus_speed() / 1000 + 1, 2, 9);
-+		recovery_cycle = 15 - IDE_IN(recovery_time * ide_system_bus_speed() / 1000 + 1, 0, 15);
- 	} else {
--		active_cycle =   8  - IDE_IN(active_time   * system_bus_clock() / 1000 + 1, 1, 8);
--		recovery_cycle = 18 - IDE_IN(recovery_time * system_bus_clock() / 1000 + 1, 3, 18);
-+		active_cycle =   8  - IDE_IN(active_time   * ide_system_bus_speed() / 1000 + 1, 1, 8);
-+		recovery_cycle = 18 - IDE_IN(recovery_time * ide_system_bus_speed() / 1000 + 1, 3, 18);
+ 	p += sprintf(p, "                                SLC90E66 Chipset.\n");
+ 	p += sprintf(p, "--------------- Primary Channel ---------------- Secondary Channel -------------\n");
+@@ -253,7 +258,9 @@
+ 		case XFER_MW_DMA_2:
+ 		case XFER_MW_DMA_1:
+ 		case XFER_SW_DMA_2:	break;
++#if 0	/* allow PIO modes */
+ 		default:		return -1;
++#endif
  	}
 
- 	return((recovery_cycle<<4) | 0x08 | active_cycle);
-@@ -156,8 +158,8 @@
+ 	if (speed >= XFER_UDMA_0) {
+@@ -291,6 +298,13 @@
+ 	byte speed		= 0;
+ 	byte udma_66		= eighty_ninty_three(drive);
 
- static byte qd6580_compute_timing (int active_time, int recovery_time)
++#if 1 /* allow PIO modes */
++	if (!HWIF(drive)->autodma) {
++		speed = XFER_PIO_0 + ide_get_best_pio_mode(drive, 255, 5, NULL);
++		(void) slc90e66_tune_chipset(drive, speed);
++		return ((int) ide_dma_off_quietly);
++	}
++#endif
+ 	if ((id->dma_ultra & 0x0010) && (ultra)) {
+ 		speed = (udma_66) ? XFER_UDMA_4 : XFER_UDMA_2;
+ 	} else if ((id->dma_ultra & 0x0008) && (ultra)) {
+diff -ruN linux-2.4.18-pre3/drivers/ide/alim15x3.c linux-2.4.18-pre3-ide-rr/drivers/ide/alim15x3.c
+--- linux-2.4.18-pre3/drivers/ide/alim15x3.c	Sun Jul 15 19:22:23 2001
++++ linux-2.4.18-pre3-ide-rr/drivers/ide/alim15x3.c	Mon Jan 14 18:29:06 2002
+@@ -453,7 +453,7 @@
+ 		}
+ 		dma_func = ide_dma_off_quietly;
+ 		if ((id->field_valid & 4) && (m5229_revision >= 0xC2)) {
+-			if (id->dma_ultra & 0x002F) {
++			if (id->dma_ultra & 0x003F) {
+ 				/* Force if Capable UltraDMA */
+ 				dma_func = config_chipset_for_dma(drive, can_ultra_dma);
+ 				if ((id->field_valid & 2) &&
+diff -ruN linux-2.4.18-pre3/drivers/ide/amd74xx.c linux-2.4.18-pre3-ide-rr/drivers/ide/amd74xx.c
+--- linux-2.4.18-pre3/drivers/ide/amd74xx.c	Mon Aug 13 17:56:19 2001
++++ linux-2.4.18-pre3-ide-rr/drivers/ide/amd74xx.c	Mon Jan 14 19:11:36 2002
+@@ -75,7 +75,8 @@
  {
--	byte active_cycle   = 17-IDE_IN(active_time   * system_bus_clock() / 1000 + 1, 2, 17);
--	byte recovery_cycle = 15-IDE_IN(recovery_time * system_bus_clock() / 1000 + 1, 2, 15);
-+	byte active_cycle   = 17-IDE_IN(active_time   * ide_system_bus_speed() / 1000 + 1, 2, 17);
-+	byte recovery_cycle = 15-IDE_IN(recovery_time * ide_system_bus_speed() / 1000 + 1, 2, 15);
+ 	unsigned int class_rev;
 
- 	return((recovery_cycle<<4) | active_cycle);
+-	if (dev->device == PCI_DEVICE_ID_AMD_VIPER_7411)
++	if ((dev->device == PCI_DEVICE_ID_AMD_VIPER_7411) ||
++	    (dev->device == PCI_DEVICE_ID_AMD_VIPER_7441))
+ 		return 0;
+
+ 	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
+@@ -122,8 +123,8 @@
+ 	pci_read_config_byte(dev, 0x4c, &pio_timing);
+
+ #ifdef DEBUG
+-	printk("%s: UDMA 0x%02x DMAPIO 0x%02x PIO 0x%02x ",
+-		drive->name, ultra_timing, dma_pio_timing, pio_timing);
++	printk("%s:%d: Speed 0x%02x UDMA 0x%02x DMAPIO 0x%02x PIO 0x%02x\n",
++		drive->name, drive->dn, speed, ultra_timing, dma_pio_timing, pio_timing);
+ #endif
+
+ 	ultra_timing	&= ~0xC7;
+@@ -131,22 +132,19 @@
+ 	pio_timing	&= ~(0x03 << drive->dn);
+
+ #ifdef DEBUG
+-	printk(":: UDMA 0x%02x DMAPIO 0x%02x PIO 0x%02x ",
+-		ultra_timing, dma_pio_timing, pio_timing);
++	printk("%s: UDMA 0x%02x DMAPIO 0x%02x PIO 0x%02x\n",
++		drive->name, ultra_timing, dma_pio_timing, pio_timing);
+ #endif
+
+ 	switch(speed) {
+ #ifdef CONFIG_BLK_DEV_IDEDMA
++		case XFER_UDMA_7:
++		case XFER_UDMA_6:
++			speed = XFER_UDMA_5;
+ 		case XFER_UDMA_5:
+-#undef __CAN_MODE_5
+-#ifdef __CAN_MODE_5
+ 			ultra_timing |= 0x46;
+ 			dma_pio_timing |= 0x20;
+ 			break;
+-#else
+-			printk("%s: setting to mode 4, driver problems in mode 5.\n", drive->name);
+-			speed = XFER_UDMA_4;
+-#endif /* __CAN_MODE_5 */
+ 		case XFER_UDMA_4:
+ 			ultra_timing |= 0x45;
+ 			dma_pio_timing |= 0x20;
+@@ -222,8 +220,8 @@
+ 	pci_write_config_byte(dev, 0x4c, pio_timing);
+
+ #ifdef DEBUG
+-	printk(":: UDMA 0x%02x DMAPIO 0x%02x PIO 0x%02x\n",
+-		ultra_timing, dma_pio_timing, pio_timing);
++	printk("%s: UDMA 0x%02x DMAPIO 0x%02x PIO 0x%02x\n",
++		drive->name, ultra_timing, dma_pio_timing, pio_timing);
+ #endif
+
+ #ifdef CONFIG_BLK_DEV_IDEDMA
+@@ -303,11 +301,15 @@
+ 	struct pci_dev *dev	= hwif->pci_dev;
+ 	struct hd_driveid *id	= drive->id;
+ 	byte udma_66		= eighty_ninty_three(drive);
+-	byte udma_100		= (dev->device==PCI_DEVICE_ID_AMD_VIPER_7411) ? 1 : 0;
++	byte udma_100		= ((dev->device==PCI_DEVICE_ID_AMD_VIPER_7411)||
++				   (dev->device==PCI_DEVICE_ID_AMD_VIPER_7441)) ? 1 : 0;
+ 	byte speed		= 0x00;
+ 	int  rval;
+
+-	if ((id->dma_ultra & 0x0020) && (udma_66)&& (udma_100)) {
++	if (udma_100)
++		udma_66 = eighty_ninty_three(drive);
++
++	if ((id->dma_ultra & 0x0020) && (udma_66) && (udma_100)) {
+ 		speed = XFER_UDMA_5;
+ 	} else if ((id->dma_ultra & 0x0010) && (udma_66)) {
+ 		speed = XFER_UDMA_4;
+@@ -331,7 +333,7 @@
+
+ 	(void) amd74xx_tune_chipset(drive, speed);
+
+-	rval = (int)(	((id->dma_ultra >> 11) & 3) ? ide_dma_on :
++	rval = (int)(	((id->dma_ultra >> 11) & 7) ? ide_dma_on :
+ 			((id->dma_ultra >> 8) & 7) ? ide_dma_on :
+ 			((id->dma_mword >> 8) & 7) ? ide_dma_on :
+ 						     ide_dma_off_quietly);
+@@ -352,7 +354,7 @@
+ 		}
+ 		dma_func = ide_dma_off_quietly;
+ 		if (id->field_valid & 4) {
+-			if (id->dma_ultra & 0x002F) {
++			if (id->dma_ultra & 0x003F) {
+ 				/* Force if Capable UltraDMA */
+ 				dma_func = config_chipset_for_dma(drive);
+ 				if ((id->field_valid & 2) &&
+@@ -442,17 +444,43 @@
+
+ unsigned int __init ata66_amd74xx (ide_hwif_t *hwif)
+ {
++	struct pci_dev *dev	= hwif->pci_dev;
++	byte cable_80_pin[2]	= { 0, 0 };
++	byte ata66		= 0;
++	byte tmpbyte;
++
++	/*
++	 * Ultra66 cable detection (from Host View)
++	 * 7411, 7441, 0x42, bit0: primary, bit2: secondary 80 pin
++	 */
++	pci_read_config_byte(dev, 0x42, &tmpbyte);
++
++	/*
++	 * 0x42, bit0 is 1 => primary channel
++	 * has 80-pin (from host view)
++	 */
++	if (tmpbyte & 0x01) cable_80_pin[0] = 1;
++
++	/*
++	 * 0x42, bit2 is 1 => secondary channel
++	 * has 80-pin (from host view)
++	 */
++	if (tmpbyte & 0x04) cable_80_pin[1] = 1;
++
++	switch(dev->device) {
++		case PCI_DEVICE_ID_AMD_VIPER_7441:
++		case PCI_DEVICE_ID_AMD_VIPER_7411:
++			ata66 = (hwif->channel) ?
++				cable_80_pin[1] :
++				cable_80_pin[0];
++		default:
++			break;
++	}
+ #ifdef CONFIG_AMD74XX_OVERRIDE
+-	byte ata66 = 1;
++	return(1);
+ #else
+-	byte ata66 = 0;
++	return (unsigned int) ata66;
+ #endif /* CONFIG_AMD74XX_OVERRIDE */
+-
+-#if 0
+-	pci_read_config_byte(hwif->pci_dev, 0x48, &ata66);
+-	return ((ata66 & 0x02) ? 0 : 1);
+-#endif
+-	return ata66;
  }
-@@ -427,7 +429,8 @@
- 				ide_hwifs[i].tuneproc = &qd6580_tune_drive;
 
- 				for (j=0;j<2;j++) {
--					ide_hwifs[i].drives[j].drive_data = QD6580_DEF_DATA;
-+					ide_hwifs[i].drives[j].drive_data =
-+					       i?QD6580_DEF_DATA2:QD6580_DEF_DATA;
- 					ide_hwifs[i].drives[j].io_32bit = 1;
- 				}
- 			}
-diff -ruN linux-2.4.18-pre3/drivers/ide/qd65xx.h linux-2.4.18-pre3-ide-rr/drivers/ide/qd65xx.h
---- linux-2.4.18-pre3/drivers/ide/qd65xx.h	Fri Sep  7 12:28:38 2001
-+++ linux-2.4.18-pre3-ide-rr/drivers/ide/qd65xx.h	Mon Jan 14 18:29:06 2002
-@@ -29,7 +29,7 @@
-
- #define QD_CONTR_SEC_DISABLED	0x01
-
--#define QD_ID3			(config & QD_CONFIG_ID3)
-+#define QD_ID3			((config & QD_CONFIG_ID3)!=0)
-
- #define QD_CONFIG(hwif)		((hwif)->config_data & 0x00ff)
- #define QD_CONTROL(hwif)	(((hwif)->config_data & 0xff00) >> 8)
-@@ -39,6 +39,7 @@
-
- #define QD6500_DEF_DATA		((QD_TIM1_PORT<<8) | (QD_ID3 ? 0x0c : 0x08))
- #define QD6580_DEF_DATA		((QD_TIM1_PORT<<8) | (QD_ID3 ? 0x0a : 0x00))
-+#define QD6580_DEF_DATA2	((QD_TIM2_PORT<<8) | (QD_ID3 ? 0x0a : 0x00))
- #define QD_DEF_CONTR		(0x40 | ((control & 0x02) ? 0x9f : 0x1f))
-
- #define QD_TESTVAL		0x19	/* safe value */
+ void __init ide_init_amd74xx (ide_hwif_t *hwif)
 
 
 

@@ -1,77 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264116AbTIIOOa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 10:14:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264171AbTIIOOa
+	id S264140AbTIIOdO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 10:33:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264148AbTIIOdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 10:14:30 -0400
-Received: from mta06-svc.ntlworld.com ([62.253.162.46]:44276 "EHLO
-	mta06-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S264116AbTIIOO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 10:14:28 -0400
-Subject: Audio skipping with alsa
-From: Russ Garrett <rg@tcslon.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1063116861.852.50.camel@russell>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 09 Sep 2003 15:14:21 +0100
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Sep 2003 10:33:14 -0400
+Received: from postal.usc.edu ([128.125.253.6]:58348 "EHLO postal.usc.edu")
+	by vger.kernel.org with ESMTP id S264140AbTIIOdM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 10:33:12 -0400
+Date: Tue, 09 Sep 2003 07:33:02 -0700
+From: Phil Dibowitz <phil@ipom.com>
+Subject: Re: Linux IDE bug in 2.4.21 and 2.4.22 ?
+In-reply-to: <200309091448.36231.bzolnier@elka.pw.edu.pl>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <3F5DE49E.50500@ipom.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827
+ Debian/1.4-3
+References: <20030908225107.GE17108@earthlink.net>
+ <200309091448.36231.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I've just installed an M-Audio Audiophile 2496 sound card (Envy24)
-with the 2.6.0-test5 kernel (with the preemptible kernel option on),
-using the ice1712 alsa driver (although this also happens in 2.4.21
-without preemptible kernel).
+Bartlomiej Zolnierkiewicz wrote:
+> On Tuesday 09 of September 2003 00:51, Phil Dibowitz wrote:
+> 
+>>Hey folks,
+>>
+>>I think I may have found a bug in the Linux IDE subsystem
+>>introduced in 2.4.21 and still present in 2.4.22.
+> 
+> 
+> Nope, user error :-).
 
-Music plays fine until I do *anything* - changing windows, scrolling,
-pressing buttons, whatever - when it stutters badly. Scrolling in an
-anti-aliased terminal is especially fun. However, if I play using XMMS
-with the realtime priority option, everything's fine, although that has
-the distinct disadvantage that I have to run it as root.
+I thought there was a reasonable chance of that! =)
 
-I've tried enabling/disabling ACPI/APM/APIC. The card isn't sharing an
-IRQ with anything.  It's not a hard drive/IDE related issue, although
-that's all using DMA anyway. 
+> Nope, your CMD649 was handled by generic PCI IDE driver.
 
-I do have both an AGP and a PCI graphics card installed and in use,
-although the stuttering happens if I do anything on either. I've found a
-few references to this problem on google, but no solutions. It works
-fine on Windows ;).
+Ah, OK. Makes sense.
 
-Here's what happens if I try to scroll in gnome-terminal whilst aplaying
-something:
+>>As of 2.4.21, this configuration no longer works -- which is not
+>>necessarily a bug. I'm almost there, stay with me. =)
+> 
+> Assumption that current .config will work with future kernel versions is *false*.
 
-rg@russell:~$ aplay < test
-Playing raw data 'stdin' : Unsigned 8 bit, Rate 8000 Hz, Mono
-xrun!!! (at least 869.990 ms long)
-xrun!!! (at least 21.552 ms long)
-xrun!!! (at least 17.686 ms long)
-xrun!!! (at least 16.482 ms long)
-xrun!!! (at least 17.194 ms long)
-xrun!!! (at least 17.126 ms long)
-xrun!!! (at least 14.123 ms long)
-xrun!!! (at least 13.679 ms long)
-xrun!!! (at least 12.928 ms long)
-[...and so on, for another 20 or so lines]
+Agreed. I said that wasn't a bug. =)
 
-lspci says:
+> Just add these two lines to your .config:
+> CONFIG_BLK_DEV_VIA82CXXX=y
+> CONFIG_BLK_DEV_CMD64X=y
 
-00:0c.0 Multimedia audio controller: IC Ensemble Inc ICE1712 [Envy24]
-(rev 02)
-        Subsystem: IC Ensemble Inc: Unknown device d634
-        Flags: bus master, medium devsel, latency 32, IRQ 12
-        I/O ports at d400 [size=32]
-        I/O ports at d800 [size=16]
-        I/O ports at dc00 [size=16]
-        I/O ports at e000 [size=64]
-        Capabilities: [80] Power Management version 1
+Doh!! Didn't see the VIA driver down there at the bottom. Double doh! My 
+appologies, I should have been able to figure that out.
 
+That works quite well, thank you! Still have a question though...
 
+> Your VIA IDE controller was handled by generic IDE chipset driver which
+> did probe devices *after* PCI controllers are probed, so CMD649 took
+> ide0 and ide1 first.
 
+But, what about the case when I built in the generic driver, but made 
+the CMD649 driver a module, and loaded it after boot. That shouldn't 
+have *changed* what ide0 and ide1 are, right? I had ide0 and ide1 
+assigned, did a modprobe, and CMD649 changed what ide0 adn ide1 where, 
+and then forgot about the previous ones.. like all of a sudden it told 
+the generic driver "no, no, you were wrong, there's no VIA chipset here, 
+go back to sleep."
+
+I may well be misunderstanding something precedence in the kernel here, 
+but I figured while I'm bugging you, I might as well get the full picture.
+
+Thanks for your time!
 -- 
-Russ Garrett		http://russ.garrett.co.uk
-russ@garrett.co.uk
+Phil Dibowitz                             phil@ipom.com
+Freeware and Technical Pages              Insanity Palace of Metallica
+http://www.phildev.net/                   http://www.ipom.com/
+
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety."
+  - Benjamin Franklin, 1759
+
 

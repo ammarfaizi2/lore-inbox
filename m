@@ -1,54 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbTENOtm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 10:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbTENOtm
+	id S262361AbTENOri (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 10:47:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbTENOri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 10:49:42 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:25678 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S262373AbTENOti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 10:49:38 -0400
-Date: Wed, 14 May 2003 10:02:10 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: mika.penttila@kolumbus.fi, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Race between vmtruncate and mapped areas?
-Message-ID: <18240000.1052924530@baldur.austin.ibm.com>
-In-Reply-To: <20030513181018.4cbff906.akpm@digeo.com>
-References: <154080000.1052858685@baldur.austin.ibm.com>
- <3EC15C6D.1040403@kolumbus.fi><199610000.1052864784@baldur.austin.ibm.com>
- <20030513181018.4cbff906.akpm@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 14 May 2003 10:47:38 -0400
+Received: from port-212-202-185-200.reverse.qdsl-home.de ([212.202.185.200]:49796
+	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S262361AbTENOrg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 10:47:36 -0400
+Message-ID: <3EC259FD.1010706@trash.net>
+Date: Wed, 14 May 2003 17:00:13 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030430 Debian/1.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: "David S. Miller" <davem@redhat.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH]: set state to XFRM_STATE_DEAD before calling xfrm_state_put
+ in pfkey_msg2xfrm_state
+Content-Type: multipart/mixed;
+ boundary="------------020707040309080103090309"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020707040309080103090309
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---On Tuesday, May 13, 2003 18:10:18 -0700 Andrew Morton <akpm@digeo.com>
-wrote:
+This patch sets x->state to XFRM_STATE_DEAD before calling
+xfrm_state_put in pfkey_msg2xfrm_state to avoid triggering
+the BUG_TRAP in __xfrm_state_destroy. The patch applies to both
+2.5 and the 2.4 backport.
 
-> That's the one.  Process is sleeping on I/O in filemap_nopage(), wakes up
-> after the truncate has done its thing and the page gets instantiated in
-> pagetables.
-> 
-> But it's an anon page now.  So the application (which was racy anyway)
-> gets itself an anonymous page.
+Best regards,
+Patrick
 
-Which the application thinks is still part of the file, and will expect its
-changes to be written back.  Granted, if the page fault occurred just after
-the truncate it'd get SIGBUS, so it's clearly not a robust assumption, but
-it will result in unexpected behavior.  Note that if the application later
-extends the file to include this page it could result in a corrupted file,
-since all the pages around it will be written properly.
 
-Dave
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+
+--------------020707040309080103090309
+Content-Type: text/plain;
+ name="af_key-set-xfrm-dead.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="af_key-set-xfrm-dead.diff"
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1113  -> 1.1114 
+#	    net/key/af_key.c	1.35    -> 1.36   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/05/14	kaber@trash.net	1.1114
+# [IPSEC]: set state to XFRM_STATE_DEAD before calling xfrm_state_put in pfkey_msg2xfrm_state
+# --------------------------------------------
+#
+diff -Nru a/net/key/af_key.c b/net/key/af_key.c
+--- a/net/key/af_key.c	Wed May 14 16:56:52 2003
++++ b/net/key/af_key.c	Wed May 14 16:56:52 2003
+@@ -1090,6 +1090,7 @@
+ 	return x;
+ 
+ out:
++	x->type = XFRM_STATE_DEAD;
+ 	xfrm_state_put(x);
+ 	return ERR_PTR(-ENOBUFS);
+ }
+
+--------------020707040309080103090309--
 

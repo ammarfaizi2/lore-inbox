@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274052AbRISNiP>; Wed, 19 Sep 2001 09:38:15 -0400
+	id <S274061AbRISNrF>; Wed, 19 Sep 2001 09:47:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274053AbRISNiG>; Wed, 19 Sep 2001 09:38:06 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:46089 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S274052AbRISNhy>;
-	Wed, 19 Sep 2001 09:37:54 -0400
-Date: Wed, 19 Sep 2001 10:38:03 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.10-pre11
-In-Reply-To: <Pine.GSO.4.21.0109181354470.27125-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33L.0109191037240.4279-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274065AbRISNqp>; Wed, 19 Sep 2001 09:46:45 -0400
+Received: from due.stud.ntnu.no ([129.241.56.71]:38155 "HELO due.stud.ntnu.no")
+	by vger.kernel.org with SMTP id <S274061AbRISNql>;
+	Wed, 19 Sep 2001 09:46:41 -0400
+Date: Wed, 19 Sep 2001 15:47:01 +0200
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
+Cc: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
+Subject: Re: Re[2]: [PATCH] Athlon bug stomper. Pls apply.
+Message-ID: <20010919154701.A7381@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <1022874923.20010919160805@port.imtp.ilyichevsk.odessa.ua> <Pine.GSO.4.21.0109191619570.22381-100000@skiathos.physics.auth.gr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0109191619570.22381-100000@skiathos.physics.auth.gr>; from kostas@skiathos.physics.auth.gr on Wed, Sep 19, 2001 at 04:41:08PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Sep 2001, Alexander Viro wrote:
-> On Tue, 18 Sep 2001, Linus Torvalds wrote:
->
-> > Funny that you mention it, because I actually have a cunning plan, and
-> > you're an unwitting part of it.
->
-> /me swears
+Liakakis Kostas:
+> Please calm down. I never suggested your fix is wrong. It was a long
+> awaited one indeed. I only suggested that it be applied wherever it needs
+> to be, not blindly whenever a KT133/A setup is seen.
 
-No need to get stressed, if you don't like it you don't
-do it and Linus will have to do things himself ;)
+If this should be an optional fix, it should be default enabled, and then
+all those who don't want to use the fix, should disable it. But I guess, as
+long as it's an option, someone is _bound_ to come naging with their
+problems...
 
-Rik
 -- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Thomas

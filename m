@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbUKSSwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbUKSTAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbUKSSwW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 13:52:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbUKSSwV
+	id S261534AbUKSTAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 14:00:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbUKSTAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 13:52:21 -0500
-Received: from fmr14.intel.com ([192.55.52.68]:11209 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261536AbUKSSwS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 13:52:18 -0500
-Subject: Re: 2.6.10-rc2 doesn't boot (if no floppy device)
-From: Len Brown <len.brown@intel.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Chris Wright <chrisw@osdl.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0411190935210.2222@ppc970.osdl.org>
-References: <F7DC2337C7631D4386A2DF6E8FB22B30020B7225@hdsmsx401.amr.corp.intel.com>
-	 <20041119155705.GA2766@stusta.de>
-	 <Pine.LNX.4.58.0411190935210.2222@ppc970.osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1100890266.987.124.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 19 Nov 2004 13:51:06 -0500
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Nov 2004 14:00:09 -0500
+Received: from smtp8.wanadoo.fr ([193.252.22.23]:33406 "EHLO smtp8.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S261534AbUKSTAE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 14:00:04 -0500
+Message-ID: <419E42B3.8070901@wanadoo.fr>
+Date: Fri, 19 Nov 2004 20:00:03 +0100
+From: Eric Pouech <pouech-eric@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040115
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Roland McGrath <roland@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Mike Hearn <mh@codeweavers.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: ptrace single-stepping change breaks Wine
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
+In-Reply-To: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-11-19 at 12:36, Linus Torvalds wrote:
+Roland McGrath a écrit :
+>>No, TIF_SINGLESTEP gets set even when the _user_ set TF. It is just a flag
+>>saying that we should re-enable TF when we get back to user space.
+>>
+>>So TIF_SINGLESTEP in no way implies that TF was set by a debugger.
 > 
-> On Fri, 19 Nov 2004, Adrian Bunk wrote:
-> >
-> > It's not a problem (I just wasn't sure, whether enabling APIC might
-> > change something relevant.
 > 
-> It did. You no longer show the problem. No irq storm.
+> Ok, whatever.  I'm not really sure its use for the single-step stuff in
+> Davide Libenzi's changes doesn't change the expected behavior for the
+> nondebugger case, but it's too early in the morning to think hard about that.
 > 
-> So can you disable APIC again, and just remove the non-relevant APIC
-> print
-> calls to get it to compile?
-
-I think if you boot the kernel you have with "nolapic" that will be a
-valid test for us to examine PIC mode.
-
-thanks,
--Len
-
-ps. I'm curious why you were running with !IOAPIC kernel suport on a
-system which has an IOAPIC.
-
+> Your change hit only one spot of three in arch/i386/kernel/signal.c where
+> PT_PTRACED is now tested and it should be a "is PTRACE_SINGLESTEP in effect?"
+> test.  Also the same spots in native and 32-bit emul for x86-64.
+> 
+> 
+> Thanks,
+> Roland
+> 
+the first patch put in BK by Linus doesn't fix the problem. Any plan to fix the 
+two other spots Roland mentionned ?
+A+
 

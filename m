@@ -1,69 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbTESNeg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 09:34:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbTESNeg
+	id S262470AbTESNdK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 09:33:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbTESNdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 09:34:36 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:27891 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262121AbTESNee
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 09:34:34 -0400
-Subject: Re: recursive spinlocks. Shoot.
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: ptb@it.uc3m.es
+	Mon, 19 May 2003 09:33:09 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:64735 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262470AbTESNdI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 09:33:08 -0400
+Date: Mon, 19 May 2003 15:45:50 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
 Cc: David Woodhouse <dwmw2@infradead.org>,
        William Lee Irwin III <wli@holomorphy.com>,
        "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200305191337.h4JDbf311387@oboe.it.uc3m.es>
-References: <200305191337.h4JDbf311387@oboe.it.uc3m.es>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-c4iAK19RtMobrxd7hp2C"
-Organization: Red Hat, Inc.
-Message-Id: <1053352040.1430.5.camel@laptop.fenrus.com>
+Subject: Re: recursive spinlocks. Shoot.
+Message-ID: <20030519134550.GA812@suse.de>
+References: <1053297297.28446.18.camel@imladris.demon.co.uk> <200305191337.h4JDbf311387@oboe.it.uc3m.es>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 19 May 2003 15:47:20 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305191337.h4JDbf311387@oboe.it.uc3m.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-c4iAK19RtMobrxd7hp2C
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, 2003-05-19 at 15:37, Peter T. Breuer wrote:
+On Mon, May 19 2003, Peter T. Breuer wrote:
 > "David Woodhouse wrote:"
 > > To be honest, if any programmer is capable of committing this error and
-> > not finding and fixing it for themselves, then they're also capable, an=
-d
-> > arguably _likely_, to introduce subtle lock ordering discrepancies whic=
-h
+> > not finding and fixing it for themselves, then they're also capable, and
+> > arguably _likely_, to introduce subtle lock ordering discrepancies which
 > > will cause deadlock once in a blue moon.
-> >=20
-> > I don't _want_ you to make life easier for this hypothetical programmer=
-.
-> >=20
-> > I want them to either learn to comprehend locking _properly_, or take u=
-p
+> > 
+> > I don't _want_ you to make life easier for this hypothetical programmer.
+> > 
+> > I want them to either learn to comprehend locking _properly_, or take up
 > > gardening instead.
->=20
+> 
 > Let's quote the example from rubini & corbet of the sbull block device
 > driver. The request function ends like so:
+> 
+> 
+>         spin_unlock_irq (&io_request_lock);
+>         spin_lock(&device->lock);
+> 
+>     /* Process all of the buffers in this (possibly clustered) request.  */
+>         do {
+>             status = sbull_transfer(device, req);
+>         } while (end_that_request_first(req, status, DEVICE_NAME));
+>         spin_unlock(&device->lock);
+>         spin_lock_irq (&io_request_lock);
+>         end_that_request_last(req);
+>     }
+>     device->busy = 0;
+> }
+> 
+> 
+> Notice that he runs end_that_request_first outside the io_request_lock
+> and end_that_request_last under the lock. Do you know which is right?
+> (if any :-).
 
-defective locking in a driver is no excuse to pamper over it with
-recusrive shite.
+Both are right, as it so happens.
 
---=-c4iAK19RtMobrxd7hp2C
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+> And he takes a device lock before calling the "transfer" routine.
+> Yes, he's ok because his transfer function is trivial and doesn't
+> take the lock, but anyone following his recipe is heading for
+> trouble.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+In 2.5, the device lock most likely would be the queue lock as well so
+no confusion there. But what are you talking about? I'd assume that the
+device lock must be held in the transfer function, why else would you
+grab it in the first place in the function you quote? Please, if you are
+going to find examples to support the recursive locking idea, find some
+decent ones...
 
-iD8DBQA+yOBoxULwo51rQBIRAuOiAJ4sJi6j+Ytodm1IOaVI+aP7Pz65GwCfZjlN
-eQ/BY56PuB59NqU3iSe988c=
-=GvPm
------END PGP SIGNATURE-----
+I think you are trying to make up problems that do not exist. I'd hate
+to see recursive locks being used just because someone can't be bothered
+to write to code correctly (recursive locks have its uses, the one you
+are advocating definitely isn't one). Recursive locks are _not_ a remedy
+for someone who doesn't understand locking or isn't capable enough to
+design his locking correctly. Period.
 
---=-c4iAK19RtMobrxd7hp2C--
+-- 
+Jens Axboe
+

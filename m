@@ -1,47 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270319AbRH3IeA>; Thu, 30 Aug 2001 04:34:00 -0400
+	id <S270333AbRH3IbK>; Thu, 30 Aug 2001 04:31:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271068AbRH3Idu>; Thu, 30 Aug 2001 04:33:50 -0400
-Received: from linuxqa.com ([212.143.78.26]:6605 "EHLO alegator.linuxqa.com")
-	by vger.kernel.org with ESMTP id <S270319AbRH3Idf>;
-	Thu, 30 Aug 2001 04:33:35 -0400
-Message-ID: <3B8DFA63.86E13099@aduva.com>
-Date: Thu, 30 Aug 2001 11:33:39 +0300
-From: Alexander Gavrilov <alegator@aduva.com>
-Reply-To: alegator@aduva.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
+	id <S270319AbRH3IbB>; Thu, 30 Aug 2001 04:31:01 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25102 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271068AbRH3Iav>; Thu, 30 Aug 2001 04:30:51 -0400
+Subject: Re: PROBLEM: 2.4.9 bootup oops on kmalloc
+To: sparky@ptw.com (Joe)
+Date: Thu, 30 Aug 2001 09:34:33 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010830000525Z268971-760+7250@vger.kernel.org> from "Joe" at Aug 29, 2001 05:05:29 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: kernel compile problems
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15cNHV-0000iU-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to compile kernel 2.2.16-20
+> problem. (Old box never had any problem, new box does). Complains of kmalloc, 
+> dies randomly on init processes with errors that aren't always the same. 
+> Sysem is a 1.33ghz T-Bird on a KK266 w/ 2x512mb DIMM's @133mhz. Highmem is 
+> turned on.
 
-with kgcc :
-
-kgcc-1.1.2-40
-
-
-and i getting those errors :
-
-
-make[1]: Entering directory `/usr/src/linux-2.2.16/arch/i386/boot'
-kgcc -D__KERNEL__ -I/usr/src/linux/include -E -D__BIG_KERNEL__
--traditional -DSVGA_MODE=NORMAL_VGA  bootsect.S -o bbootsect.s
-as86 -0 -a -o bbootsect.o bbootsect.s
-make[1]: as86: Command not found
-make[1]: *** [bbootsect.o] Error 127
-make[1]: Leaving directory `/usr/src/linux-2.2.16/arch/i386/boot'
-make: *** [bzImage] Error 2
-
-
-~
-~
-
-
-
+Try building a K6 optimised kernel. Some K7 boards/boxes dont survive under
+the K7 kernel load

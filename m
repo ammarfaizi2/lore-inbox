@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265834AbTGLNq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 09:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265835AbTGLNq3
+	id S265686AbTGLNkE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 09:40:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265693AbTGLNkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 09:46:29 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:17617 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S265834AbTGLNq1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 09:46:27 -0400
-Date: Sat, 12 Jul 2003 16:00:57 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Thoughts wanted on merging Software Suspend enhancements
-Message-ID: <20030712140057.GC284@elf.ucw.cz>
-References: <1057963547.3207.22.camel@laptop-linux>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1057963547.3207.22.camel@laptop-linux>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Sat, 12 Jul 2003 09:40:04 -0400
+Received: from s161-184-77-200.ab.hsia.telus.net ([161.184.77.200]:42677 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP id S265686AbTGLNj7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 09:39:59 -0400
+Date: Sat, 12 Jul 2003 07:47:16 -0600 (MDT)
+From: James Bourne <jbourne@hardrock.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org
+Subject: linux-2.4.22-pre5 drm/agpsupport unresolved symbols
+Message-ID: <Pine.LNX.4.44.0307120731001.1986-100000@cafe.hardrock.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+The attached patch fixes the following compile error when building
+agpsupport as a module.  This is against 2.4.22pre5.
 
-> Hi Linus.
->
+Marcelo, please apply as it's a very simple patch the adds the symbol to an
+enum in include/linux/agp_backend.h and adds a missed break statement in
+drm-4.0/agpsupport.c.
 
-Well, you probably did want Linus to answer, but I see some new stuff
-here.
+**********
+gcc -D__KERNEL__ -I/usr/src/redhat/BUILD/kernel-2.4.22pre5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include /usr/src/redhat/BUILD/kernel-2.4.22pre5/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=agpsupport  -c -o agpsupport.o agpsupport.c
+agpsupport.c: In function `drm_agp_bind':
+agpsupport.c:215: warning: concatenation of string literals with __FUNCTION__ is deprecated
+agpsupport.c: In function `drm_agp_init':
+agpsupport.c:280: `VIA_APOLLO_P4X400' undeclared (first use in this function)
+agpsupport.c:280: (Each undeclared identifier is reported only once
+agpsupport.c:280: for each function it appears in.)
+make[3]: *** [agpsupport.o] Error 1
+make[3]: Leaving directory `/usr/src/redhat/BUILD/kernel-2.4.22pre5/drivers/char/drm-4.0'
+make[2]: *** [_modsubdir_drm-4.0] Error 2
+make[2]: Leaving directory `/usr/src/redhat/BUILD/kernel-2.4.22pre5/drivers/char'
+make[1]: *** [_modsubdir_char] Error 2
+make[1]: Leaving directory `/usr/src/redhat/BUILD/kernel-2.4.22pre5/drivers'
+make: *** [_mod_drivers] Error 2
+******************
 
-> As you may know, there has been a lot of work done on the 2.4 version of
-> software suspend. This includes:
-> 
-> - async i/o
-> - back out on errors rather than panicing (where possible)
+Thanks and regards
+James Bourne
 
-If those panic()s happen for the users, then this is bugfix.
-
-> - enhancements to refrigerator so it successfully freezes processes even
-> under high load
-
-This is bugfix.
-
-> - save a full image rather than freeing just about all the memory first
-> - highmem support
-> - image compression support
-> - swapfile support in progress
-
-This seems extremely hard to do right. If you can do it right and not
-rewrite half of kernel, that's okay, but I don't think you can do that.
-
-> - nice display
-> - user can abort at any time during suspend (oh, I forgot, I wanted
-> to...) by just pressing Escape
-
-That seems like missfeature. We don't want joe random user that is at
-the console to prevent suspend by just pressing Escape. Maybe magic
-key to do that would be acceptable...
-								Pavel
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  
+
+
+
+

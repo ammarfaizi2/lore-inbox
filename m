@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129669AbQLaV7z>; Sun, 31 Dec 2000 16:59:55 -0500
+	id <S131029AbQLaWDZ>; Sun, 31 Dec 2000 17:03:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131029AbQLaV7p>; Sun, 31 Dec 2000 16:59:45 -0500
-Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:23017 "EHLO
-	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129669AbQLaV7k>; Sun, 31 Dec 2000 16:59:40 -0500
-Message-ID: <3A4FA521.404FAADA@haque.net>
-Date: Sun, 31 Dec 2000 16:29:05 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test13-pre4 i686)
-X-Accept-Language: en
+	id <S131088AbQLaWDQ>; Sun, 31 Dec 2000 17:03:16 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:34059 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131029AbQLaWDH>; Sun, 31 Dec 2000 17:03:07 -0500
+Date: Sun, 31 Dec 2000 13:32:38 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Roman Zippel <zippel@fh-brandenburg.de>
+cc: Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Generic deferred file writing
+In-Reply-To: <Pine.GSO.4.10.10012312158050.23931-100000@zeus.fh-brandenburg.de>
+Message-ID: <Pine.LNX.4.10.10012311329100.1378-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.0-prerelease -- rcpci45 compile error
-Content-Type: multipart/mixed;
- boundary="------------71FCCD8F9DED7901884242E0"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------71FCCD8F9DED7901884242E0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
 
--- 
+On Sun, 31 Dec 2000, Roman Zippel wrote:
+> 
+> On Sun, 31 Dec 2000, Linus Torvalds wrote:
+> 
+> > Let me repeat myself one more time:
+> > 
+> >  I do not believe that "get_block()" is as big of a problem as people make
+> >  it out to be.
+> 
+> The real problem is that get_block() doesn't scale and it's very hard to
+> do. A recursive per inode-semaphore might help, but it's still a pain to
+> get it right.
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
+Not true.
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
---------------71FCCD8F9DED7901884242E0
-Content-Type: text/plain; charset=us-ascii;
- name="rcpci45.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="rcpci45.diff"
+There's nothing unscalable in get_block() per se. The only lock we hold is
+the per-page lock, which we must hold anyway. get_block() itself does not
+need any real locking: you can do it with a simple per-inode spinlock if
+you want to (and release the spinlock and try again if you need to fetch
+non-cached data blocks).
 
---- linux/drivers/net/rcpci45.c.orig	Sun Dec 31 15:58:05 2000
-+++ linux/drivers/net/rcpci45.c	Sun Dec 31 16:27:04 2000
-@@ -157,7 +157,7 @@
- 	{ RC_PCI45_VENDOR_ID, RC_PCI45_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
- 	{0, }
- };
--MODULE_DEVICE_TABLE(pci, rcpci_pci_table);
-+MODULE_DEVICE_TABLE(pci, rcpci45_pci_table);
- 
- static void rcpci45_remove_one(struct pci_dev *pdev)
- {
+Sure, the current ext2 _implementation_ sucks. Nobody has ever contested
+that. 
 
---------------71FCCD8F9DED7901884242E0--
+Stop re-designing something just because you want to.
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263062AbUEBNZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263088AbUEBNyd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbUEBNZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 09:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbUEBNZ0
+	id S263088AbUEBNyd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 09:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbUEBNyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 09:25:26 -0400
-Received: from mail.gmx.net ([213.165.64.20]:4275 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263062AbUEBNZY (ORCPT
+	Sun, 2 May 2004 09:54:33 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:3326 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S263088AbUEBNyc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 09:25:24 -0400
-X-Authenticated: #20450766
-Date: Sun, 2 May 2004 15:24:40 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] Filesystem with multiple mount-points
-Message-ID: <Pine.LNX.4.44.0405021508210.834-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 2 May 2004 09:54:32 -0400
+Date: Sun, 2 May 2004 15:54:24 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, koke@amedias.org,
+       linux-kernel@vger.kernel.org, Andries Brouwer <Andries.Brouwer@cwi.nl>
+Subject: Re: strange delays on console logouts (tty != 1)
+Message-ID: <20040502135424.GA20578@apps.cwi.nl>
+References: <20040430195351.GA1837@amedias.org> <20040501214617.GA6446@taniwha.stupidest.org> <20040501232448.GA4707@vana.vc.cvut.cz> <20040501234444.GA24120@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040501234444.GA24120@taniwha.stupidest.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Sat, May 01, 2004 at 04:44:44PM -0700, Chris Wedgwood wrote:
+> On Sun, May 02, 2004 at 01:24:48AM +0200, Petr Vandrovec wrote:
+> 
+> > (1) agetty (at least from util-linux 2.12 from current debian
+> > unstable) opens /dev/console and calls VT_OPENQRY to find first
+> > unopened VT.
+> 
+> yes, this i discovered too
 
-Disclaimer: I am not a filesystem expert, so, what's below might be
-absolute nonsense.
+Thank you for cc-ing me.
+However, my agetty source does not contain the string VT_OPENQRY.
+I suppose this is a private Debian change. Maybe you should
+contact Debian people to find out who did this and why.
+(And/or try the vanilla agetty to see whether the problems go away.)
 
-There are systems, where it is desirable to make some partitions,
-possibly, including root, read-only, and some other, like, e.g., /var,
-/home, /lib/modules read-writable. Those writable filesystems may be quite
-small, so, putting them on separate partitions creates too much overhead
-for filesystem metadata, journals... Making those directories soft-links
-into one writable partition would work, but is not too nice.
-
-So, how about adding a multiple mount-point option to some filesystem?
-They would share metadata, journals, would be represented by several
-directory-trees, and be mountable with, e.g.
-
-mount -otree1 /dev/hda1 /var
-
-or
-
-mount /dev/hda1:1 /var
-
-which, however, would be incompatible with older versions. /proc/mounts
-would show something like
-
-/dev/hda1:1 /var ...
-
-df might just show tree1 - to maintain backwards compatibility. Later
-mount and df could be tought to support this option natively.
-
-Makes any sense at all?
-
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+Andries
 
 
+[Just found the Debian patch. Strange, broken code.]

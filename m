@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262120AbTEEJZo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 05:25:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbTEEJZo
+	id S262118AbTEEJYC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 05:24:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbTEEJYB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 05:25:44 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:34066 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S262120AbTEEJZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 05:25:43 -0400
-Date: Mon, 5 May 2003 09:38:10 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Terje Eggestad <terje.eggestad@scali.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, D.A.Fedorov@inp.nsk.su
-Subject: Re: The disappearing sys_call_table export.
-Message-ID: <20030505093810.A22327@devserv.devel.redhat.com>
-References: <1052122784.2821.4.camel@pc-16.office.scali.no> <20030505092324.A13336@infradead.org> <1052127216.2821.51.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1052127216.2821.51.camel@pc-16.office.scali.no>; from terje.eggestad@scali.com on Mon, May 05, 2003 at 11:33:36AM +0200
+	Mon, 5 May 2003 05:24:01 -0400
+Received: from lily.comarch.pl ([195.116.193.4]:2576 "EHLO lily.comarch.pl")
+	by vger.kernel.org with ESMTP id S262118AbTEEJX4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 05:23:56 -0400
+Message-ID: <005001c312e9$b6000380$d805840a@nbsobczak>
+From: "Wojciech Sobczak" <Wojciech.Sobczak@comarch.pl>
+To: "Martin J. Bligh" <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>
+References: <01d601c30f17$f3ffadf0$b312840a@nbsobczak> <3270000.1051712524@[10.10.2.4]> <021501c30f27$e02be4a0$b312840a@nbsobczak> <4360000.1051715907@[10.10.2.4]>
+Subject: Re: IBM x440 problems on 2.4.20 to 2.4.20-rc1-ac3
+Date: Mon, 5 May 2003 11:35:45 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 05, 2003 at 11:33:36AM +0200, Terje Eggestad wrote:
-> 1. performance is everything. 
-> 2. We're making a MPI library, and as such we don't have any control
-> with the application. 
-> 3a. The various hardware for cluster interconnect all work with DMA. 
-> 3b. the performance loss from copying from a receive area to the
-> userspace buffer is unacceptable. 
-> 3c. It's therefore necessary for HW to access user pages. 
-> 4. In order to to 3, the user pages must be pinned down. 
+Martin J. Bligh wrote:
+>>> SuSE works well, at least the SLES edition does.
+>>
+>> but shoudn't it be platform independent? this is only kernel or
+>> meaby i need new gcc... or meaby something else?....
+>
+> You need the kernel itself. It's the apic handling that's mostly
+> different.
 
-see how AIO does this, and O_DIRECT, and rawio.
+ok, thanks to all folks for help,
+i'm now using 2.5.68 with linux-isp patch for qlogic support, system is
+working nice, i see all 8 processors but cpuinfo shows only 199 bogomips,
+but system performance is much much higher :), so meaby this is some kind of
+not important bug.
+as for now i will try to swich to 2.4.21-rc1 as Keith Mannthey gave me
+working kernel config for 2.4
 
-They all have the same requirement and manage to cope.
+so now  i've got one of them (servers) for kernel testing :)
+
+from the battle field - i tryied to run on 2.5.68-mm3 tree but system hangs
+on processors recognition.
+
+as for qlogic support with linux-isp - is this driver with failover support?
+
+regards
+WS
+

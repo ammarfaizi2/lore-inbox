@@ -1,61 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135801AbRDTExy>; Fri, 20 Apr 2001 00:53:54 -0400
+	id <S135802AbRDTFLS>; Fri, 20 Apr 2001 01:11:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135805AbRDTExo>; Fri, 20 Apr 2001 00:53:44 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:38922 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S135804AbRDTExf>;
-	Fri, 20 Apr 2001 00:53:35 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200104200452.f3K4q3X07411@saturn.cs.uml.edu>
-Subject: Re: OK, let's try cleaning up another nit. Is anyone paying attention?
-To: willy@ldl.fc.hp.com (Matthew Wilcox)
-Date: Fri, 20 Apr 2001 00:52:03 -0400 (EDT)
-Cc: james.rich@m.cc.utah.edu (james rich),
-        willy@ldl.fc.hp.com (Matthew Wilcox),
-        esr@thyrsus.com (Eric S. Raymond), linux-kernel@vger.kernel.org,
-        parisc-linux@parisc-linux.org
-In-Reply-To: <20010419221916.K4217@zumpano.fc.hp.com> from "Matthew Wilcox" at Apr 19, 2001 10:19:16 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S135803AbRDTFLH>; Fri, 20 Apr 2001 01:11:07 -0400
+Received: from nic-25-c96-008.mn.mediaone.net ([24.25.96.8]:62731 "EHLO
+	lupo.thebarn.com") by vger.kernel.org with ESMTP id <S135802AbRDTFLE>;
+	Fri, 20 Apr 2001 01:11:04 -0400
+Message-ID: <3ADFC3D1.BF4176A5@thebarn.com>
+Date: Fri, 20 Apr 2001 00:06:26 -0500
+From: Russell Cattelan <cattelan@thebarn.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.12 i386)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: james rich <james.rich@m.cc.utah.edu>
+CC: linux-xfs@oss.sgi.com
+Subject: Re: kernel merge issues
+In-Reply-To: <Pine.GSO.4.05.10104192208340.8316-100000@pipt.oz.cc.utah.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox writes:
-> On Thu, Apr 19, 2001 at 10:07:22PM -0600, james rich wrote:
+james rich wrote:
 
->> Doesn't this seem a little like the problems occurring with lvm right now?
->> A separate tree maintained with the maintainers not wanting others
->> submitting patches that conflict with their particular tree?  It seems
->> that any project should be able to submit any patch against The One True
->> Tree: Linus' tree.
+> Hi folks,
+>         I'm sure many here have read the discussion on lkml about lvm and
+> the problems that team is having.  As part of that discussion it was said:
+
+I'm not entirely familiar with the issues surrounding lvm development, I know
+things
+are not in good shape right now.
+
+But I would say the following statement is unrealistic.
+Trying to manage a large software project without source code control is
+an even bigger nightmare than with source code control.
+patch is NOT a source code control tool.
+In fact a good source code control system would allow patch incremental
+generation,
+This is actually one glaring limitation of CVS, the ability group a set of
+changes
+together, aka "mod"
+(Bitkeeper has addressed a lot of these issues; it can generate or accept
+incremental
+patch sets)
+
+The lvm problems seems to be more of wetware issue than a source code
+control tool issue.
+
+Hopefully XFS will be able to keep ahead the problem of dramatically
+diverging
+code bases by staying active with Linus's releases.
+
+> Dan Kegel <dank@kegel.com>:
+> >I know very little about LVM, but from watching earlier projects
+> >in the same situation you're in now, the path you need to follow
+> >seems clear:
+> >   Stop using CVS internally for development.
+> >   It makes checking in changes without submitting them to
+> >   Linus too easy.
 >
-> every single architecture has their own development tree.
-
-This sucks for users of that architecture. Also, though not
-applicable to PA-RISC, it sucks for sub-architecture porters.
-(by sub-architecture I mean: Mac, PReP, PowerCore, BeBox, etc.)
-
-It's hard enough deciding between Linus and Alan. I'm not at all
-happy trying to pick through obscure CVS and BitKeeper trees that
-might not be up-to-data with the latest mainstream bug fixes.
-
-> the pa project
-> has not been running as long as the other ports, and has a large amount of
-> development going on.  i count 28 commits for april (so far), 75 commits
-> for march, 187 for february and 112 for january (to the kernel tree, other
-> parts of the port also have commit messages).  linus would go insane if
-> we sent him every single one of those patches individually.  and we'd
-> go insane trying to keep up with what he'd taken and what he'd dropped.
-> 
-> until you've actually tried doing this, please don't attempt to criticise.
-
-Have _you_ tried? If I recall correctly, Linus spoke out against the
-PowerPC people doing the exact same thing. So unless you get told to
-quit annoying him with patches, sending them is the safe bet.
-
-Well here we go. It's about IrDA though, not PowerPC. Read it!
-http://lwn.net/2000/1109/a/lt-IrDA.php3
+> >To get sync'd back up, *start with the standard kernel*,
+> >and start generating clean, human-understandable patches one
+> >at a time that bring it up to where you want.
+>
+> I am wondering how the XFS team plans on avoiding the same problems once
+> XFS becomes part of the kernel.  Is there potential for problems with SGI
+> "losing control" over the source or direction of XFS once Linus puts it in
+> his tree?
+>
+> How does the above comment relate to the XFS team's plans on patches to
+> XFS and related areas once XFS is in?
+>
+> Just want to get these issues into the air before rancor and ill will
+> spread...
+>
+> P.S. XFS has been extremely solid and has saved me a lot of time waiting
+> for fscks.  I am really impressed by the professionalism of the XFS team.
+> Hopefully I can contribute soon - working on a slackware boot/modules/root
+> disk set for XFS.
+>
+> James Rich
+> james.rich@m.cc.utah.edu
 

@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275811AbRJNR0V>; Sun, 14 Oct 2001 13:26:21 -0400
+	id <S275818AbRJNRbb>; Sun, 14 Oct 2001 13:31:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275822AbRJNR0L>; Sun, 14 Oct 2001 13:26:11 -0400
-Received: from cs181088.pp.htv.fi ([213.243.181.88]:20608 "EHLO
-	cs181088.pp.htv.fi") by vger.kernel.org with ESMTP
-	id <S275811AbRJNRZv>; Sun, 14 Oct 2001 13:25:51 -0400
-Message-ID: <3BC9CAA9.7378075B@welho.com>
-Date: Sun, 14 Oct 2001 20:26:01 +0300
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-ac10 i686)
-X-Accept-Language: en
+	id <S275823AbRJNRbM>; Sun, 14 Oct 2001 13:31:12 -0400
+Received: from a213-84-34-179.xs4all.nl ([213.84.34.179]:6380 "HELO
+	mail.binary-magic.com") by vger.kernel.org with SMTP
+	id <S275818AbRJNRbA>; Sun, 14 Oct 2001 13:31:00 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Take Vos <Take.Vos@binary-magic.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.12, Dell i8100 hangs when unpluggin power
+Date: Sun, 14 Oct 2001 19:29:41 +0200
+X-Mailer: KMail [version 1.3]
 MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-CC: ak@muc.de, davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: TCP acking too fast
-In-Reply-To: <200110141707.VAA06123@ms2.inr.ac.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011014173130.AD7BA58@mail.binary-magic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
-> 
-> Hello!
-> 
-> > Not very hard at all. It could be done easily with a couple of extra
-> > state variables.
-> 
-> Does current heuristics not work? :-)
+Hello everyone,
 
-Well, you should read the preceding messages to understand how we got
-here.
+I've been running 2.4.10 and 2.4.12 on my new Dell inspiron 8100, both of 
+which seems to hang as soon as I unplug the power coord, or close the lid.
 
-Andi had some reservations and I tend to agree. The current heuristic
-assumes specific TCP behaviour, which is left as an implementation issue
-in specifications. Conclusion: it works if you're lucky.
+This problem is even without running X11 at all. Or when removing Power 
+Managment from the kernel and/or disabeling it in the bios.
 
-But it's true I can't show you any data to the contrary, either. This is
-not the issue that started this thread.
+I found a previous message on the kernel mailing list which seems to be
+the same bug, I will include it here (I personaly haven't tried 2.4.5 yet):
 
-> > state variables. The following is a rough pseudo code (ignores
-> > initialization of state variables):
-> 
-> You missed one crucial moment: stream may consist of remnants
-> for long time or even forever. It is normal case. And rcv_mss is used
-> not only and mostly not for ACKing, it is used in really important places
-> (SWS avoidance et al), where specs propose to use your advertised MSS,
-> which does not work at all when you talk over high MTU interfaces.
-
-I don't think I missed that point.
-
-> The approach (invented by Andi?) provided necessary robustness,
-> checking for two segments in row and suppressing MSS drops below 536.
-> Check for PSHless segments allows to detect really low mtu reliably.
-
-When you say "reliably", you should recognize the underlying assumptions
-as well.
-
-> Alexey
-
-Regards,
-
-	MikaL
+Georg Nikodym wrote:
+> I've been running 2.4.5 on my new Dell I8000 without too many
+> problems.  Last night I built -ac13 (on my porch) and booted it
+> without incident.  Later, going inside and re-connecting the AC I
+> notice that the thing's hung.  I play around a bit and discover that
+> the act of plugging or unplugging the power cord will hang the box.
+>
+> This lead me to disable all power manglement in the BIOS.  No joy.
+>
+> This problem does not exist using straight 2.4.5.
+>
+> Has anybody else seen this?  Any debugging suggestions?  Or stated
+> differently, has anybody with this machine arrived at a configuration
+> that avoids weirdness in the power management framework?

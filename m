@@ -1,132 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVANBAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVANAwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261848AbVANBAb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 20:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbVANA5w
+	id S261727AbVANAwg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 19:52:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVANAtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 19:57:52 -0500
-Received: from smtp3.akamai.com ([63.116.109.25]:11959 "EHLO smtp3.akamai.com")
-	by vger.kernel.org with ESMTP id S261730AbVANAy6 (ORCPT
+	Thu, 13 Jan 2005 19:49:18 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:10604 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261727AbVANAsT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 19:54:58 -0500
-Message-ID: <41E7193D.2690EDF1@akamai.com>
-Date: Thu, 13 Jan 2005 16:58:37 -0800
-From: Prasanna Meda <pmeda@akamai.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/self/maps still not right in 2.6.10-mm3
-References: <1105652592.1208.14.camel@localhost>
-Content-Type: text/plain; charset=us-ascii
+	Thu, 13 Jan 2005 19:48:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=c4qQe9LVykxd934Ke/PzeoejQORkkXVpZFcHkhRbUk5goVpVt9pqRNXM4BdkDnI8qaWNWGveY8r4bGWggPEYeDEsQO2xR4tgG0YT52fyco4S+E2+UVgXXCfUnV1uYUGKmI3+KCGqQGXoMVDDwTaT1ePJK+Q5WNVnDIdis7sjzuU=
+Message-ID: <8746466a0501131648640e0575@mail.gmail.com>
+Date: Thu, 13 Jan 2005 17:48:16 -0700
+From: Dave <dave.jiang@gmail.com>
+Reply-To: Dave <dave.jiang@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 1/5] Convert resource to u64 from unsigned long
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       smaurer@teja.com, linux@arm.linux.org.uk, dsaxena@plexity.net,
+       drew.moseley@intel.com, mporter@kernel.crashing.org
+In-Reply-To: <Pine.LNX.4.58.0501131641390.2310@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <8746466a050113152636f49d18@mail.gmail.com>
+	 <20050113162309.2a125eb1.akpm@osdl.org>
+	 <Pine.LNX.4.58.0501131641390.2310@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Fitzhardinge wrote:
+On Thu, 13 Jan 2005 16:43:58 -0800 (PST), Linus Torvalds
+<torvalds@osdl.org> wrote:
+> 
+> 
+> On Thu, 13 Jan 2005, Andrew Morton wrote:
+> >
+> > Also, the patches introduce tons of ifdefs such as:
+> >
+> > +#if BITS_PER_LONG == 64
+> >       return (void __iomem *)pci_resource_start(pdev, PCI_ROM_RESOURCE);
+> > +#else
+> > +     return (void __iomem *)(u32)pci_resource_start(pdev, PCI_ROM_RESOURCE);
+> > +#endif
+> 
+> Ouch. Who does that, anyway? It's wrong to do that. It's not a pointer,
+> not even an __iomem one. You'd need to do an ioremap() on it to turn it
+> into a pointer.
+> 
+>                 Linus
+> 
 
-> Looks like there's another problem.  If you read /proc/self/maps with
-> >4k chunks, the reads are always truncated to < 4k.  However, at those
+It's in the PCI option ROM code and at first it thew me just a bit
+too. Apparently the resource.start is a kmalloc'd buffer and not
+really an actual bus address. Is that a gross abuse of the way struct
+resource is intended to be used?
 
-Since m->buf starts at  4K, read truncation is expected. But the next
-truncation should be at 8K, 16K and so on.  We doube the buffer size.
+-- 
+-= Dave =-
 
-
->
-> points, it misses an entry.  If you read in smaller chunks, the results
-> look good.
-
-Yes, loosing record on truncation is bug.   We now have  no boundary
-bugs in mmaps walking logic in our start, next or stop methods.
-
-This is due to miscommunication between seq_file.c and our version
-update logic.
-
-m_show:show_maps:seq_printf()
-int seq_printf(struct seq_file *m, const char *f, ...)
-{
-        va_list args;
-        int len;
-
-        if (m->count < m->size) {
-                va_start(args, f);
-                len = vsnprintf(m->buf + m->count, m->size - m->count, f, args);
-                va_end(args);
-                if (m->count + len < m->size) {
-                        m->count += len;
-                        return 0;
-                }
-        }
-        m->count = m->size;
-        return -1;
-}
-It reads a partial data of the last record, and m->count becomes m->size.
-
-Now in seq_read():
-       /* we need at least one record in buffer */
-        while (1) {
-                pos = m->index;
-                p = m->op->start(m, &pos);
-                err = PTR_ERR(p);
-                if (!p || IS_ERR(p))
-                        break;
-                err = m->op->show(m, p);
-                if (err)
-                        break;
-                if (m->count < m->size)
-                        goto Fill;
-                m->op->stop(m, p);
-                kfree(m->buf);
-                m->buf = kmalloc(m->size <<= 1, GFP_KERNEL);
-                if (!m->buf)
-                        goto Enomem;
-                m->count = 0;
-        }
-        m->op->stop(m, p);
-        m->count = 0;
-        goto Done;
-  Fill:
-        /* they want more? let's try to get some more */
-        while (m->count < size) {
-                size_t offs = m->count;
-                loff_t next = pos;
-                p = m->op->next(m, p, &next);
-                if (!p || IS_ERR(p)) {
-                        err = PTR_ERR(p);
-                        break;
-                }
-                err = m->op->show(m, p);
-                if (err || m->count == m->size) {
-                        m->count = offs;
-                        break;
-                }
-                pos = next;
-        }
-        m->op->stop(m, p);
-
-It allocates the bigger buffer(8K) on 4k exhaustion.
-It does not  copy the partial record to user or to bigger
-buffer and throws  it away. But that is fine,  since pos
- is not updated.  For us, it is a problem, since version
- has already been updated.
-
-One way of fixing this problem is,  have 100 or 200
-bytes of tail room in m->buf for overflows and handle
-that like we had before moving to seq  files.
-This would be slightly better since, we do not throw
-the data.
-
-Other solution is,  update f_version on successful
-m_show,  not on m_start or m_next. Slight variation
-is reset the version on failed m_show. Since this does
-not involve changes in seq_file,  we go for this and
-I will send you a patch.
-
-
-Thanks,
-Prasanna.
-
-
-
-
+Software Engineer - Advanced Development Engineering Team 
+Storage Component Division - Intel Corp. 
+mailto://dave.jiang @ intel
+http://sourceforge.net/projects/xscaleiop/
+----
+The views expressed in this email are
+mine alone and do not necessarily 
+reflect the views of my employer
+(Intel Corp.).

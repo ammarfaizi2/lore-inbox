@@ -1,48 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274558AbRIYIDT>; Tue, 25 Sep 2001 04:03:19 -0400
+	id <S274561AbRIYILx>; Tue, 25 Sep 2001 04:11:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274557AbRIYIDK>; Tue, 25 Sep 2001 04:03:10 -0400
-Received: from imail.altus.de ([195.124.129.2]:31997 "EHLO imail.altus.de")
-	by vger.kernel.org with ESMTP id <S274556AbRIYICy>;
-	Tue, 25 Sep 2001 04:02:54 -0400
-Message-ID: <3BB03A41.4B64F831@altus.de>
-Date: Tue, 25 Sep 2001 10:03:13 +0200
-From: Juri Haberland <haberland@altus.de>
-Organization: Altus Analytics AG
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-pre8-xfs i686)
+	id <S274562AbRIYILm>; Tue, 25 Sep 2001 04:11:42 -0400
+Received: from lsmls01.we.mediaone.net ([24.130.1.20]:46294 "EHLO
+	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S274561AbRIYILd>; Tue, 25 Sep 2001 04:11:33 -0400
+Message-ID: <3BB03C6A.7D1DD7B3@kegel.com>
+Date: Tue, 25 Sep 2001 01:12:26 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-6 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Jason Straight <jason@blazeconnect.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10 power management lockup
-In-Reply-To: <20010924220433.29ED8763@localhost.blazeconnect.net>
+To: "Christopher K. St. John" <cks@distributopia.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] /dev/epoll update ...
+In-Reply-To: <3BAEB39B.DE7932CF@kegel.com> <3BAF83EF.C8018E45@distributopia.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Straight wrote:
+"Christopher K. St. John" wrote:
+>  Ok, just to confirm. Using the language of BSD's
+> kqueue[1]. you've got:
 > 
-> I've got a Dell Inspiron 8000 laptop, I had problems with 2.4.9 and .8 with
-> AC patches where my system would turn itself off at seemingly random
-> intervals, and closing my display would freeze the machine.
+>   a) report the event only once when it occurs aka
+> "edge triggered" (EV_CLEAR, not EV_ONESHOT)
 > 
-> Well, 2.4.9 clean was fine as was 2.4.8, but now 2.4.10 is doing it again, I
-> upgraded my BIOS to the newest avail just in case with no change. 2.4.10
-> doesn't seem to power off, but it will freeze on display close and will power
-> off if the display is left closed for a while. All power management in my
-> BIOS is off as it has been forever.j
+>  b) continuously report the event as long as the
+> state is valid, aka "level triggered"
+
+Right, and kqueue() can't even represent the 'level triggered' style --
+or at least it isn't clear from the paper that it can!  True "level triggered"
+would require that the kernel track readiness of the affected file descriptors.
+ 
+>  The Banga99 paper certainly appears to describe an
+> "edge triggered" interface:
 > 
-> I mentioned this on the list a while back with 2.4.8-ac-something
+>  "Our new API follows the event-based approach. In
+>   this model the kernel simply reports a stream of
+>   events to the application. ... The kernel does
+>   not track the readiness of any descriptor ... "
+> 
+>  Libenzi-/dev/epoll, being a partical implementation
+> of the Banga99 mechanism, is also edge-triggered.
+> 
+>  OTOH, the Provos/Lever Linux /dev/poll paper describes
+> what appears to be a "level triggered" interface.
 
-And I think I posted a me-too on this and I now have the same problem
-with my I8000...
+Agreed.
+ 
+>  Now for a question: My initial impression was that
+> Solaris-/dev/poll, in contrast to Linux /dev/poll, was
+> edge-triggered. That would explain why it might be
+> more efficient that Linux-/dev/poll.
+> 
+>  But I don't have a copy of Solaris, handy, so I
+> can't confirm. Do you know for sure? (Or is part of
+> my analysis wrong?)
 
-Juri
+Solaris /dev/poll is definitely level-triggered; see Poller_test.cc in
+http://www.kegel.com/dkftpbench/dkftpbench-0.33.tar.gz, which verifies this.
+Poller_devpoll.cc is a thin wrapper around /dev/poll, and it definitely exhibits
+level-triggered behavior with both Solaris and Linux /dev/poll.
 
--- 
-  If each of us have one object, and we exchange them,
-     then each of us still has one object.
-  If each of us have one idea,   and we exchange them,
-     then each of us now has two ideas.
+(I later extended Poller to support edge-triggered notifications from the OS,
+and translate them to level-triggered notification for the user app. 
+Poller_sigio.cc and Poller_sigfd.cc are somewhat fatter wrappers around O_ASYNC,
+and achieve level-triggered behavior only with cooperation from the application,
+which has to call clearReadiness(fd) when the OS returns EWOULDBLOCK!
+Surely the OS could do that internally, eh?)
+
+Java's Selector in JDK 1.4 will have level-triggered behavior, not
+edge-triggered behavior, btw.
+- Dan

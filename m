@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbTHXKtb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 06:49:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263198AbTHXKtb
+	id S263465AbTHXLFN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 07:05:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbTHXLFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 06:49:31 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:25066 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S263107AbTHXKt3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 06:49:29 -0400
-Date: Sun, 24 Aug 2003 12:49:13 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: B.Zolnierkiewicz@elka.pw.edu.pl,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix 2.6.0-test4 IDE warning
-In-Reply-To: <200308231705.h7NH5Ai6024024@harpo.it.uu.se>
-Message-ID: <Pine.GSO.4.21.0308241248130.14076-100000@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 24 Aug 2003 07:05:12 -0400
+Received: from [212.18.235.100] ([212.18.235.100]:18816 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id S263465AbTHXLFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 07:05:07 -0400
+Subject: Re: 2.4.22-rc2-ac3 blew up
+From: Justin Cormack <justin@street-vision.com>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030824025224.GF3740@rdlg.net>
+References: <20030824025224.GF3740@rdlg.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 24 Aug 2003 12:05:10 +0100
+Message-Id: <1061723111.10735.0.camel@lotte>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Aug 2003, Mikael Pettersson wrote:
-> Compiling IDE in 2.6.0-test4 with CONFIG_BLK_DEV_IDEDMA=n results in:
+On Sun, 2003-08-24 at 03:52, Robert L. Harris wrote:
 > 
->   gcc -Wp,-MD,drivers/ide/.ide-lib.o.d -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i486 -Iinclude/asm-i386/mach-default -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i486 -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=ide_lib -DKBUILD_MODNAME=ide_lib -c -o drivers/ide/ide-lib.o drivers/ide/ide-lib.c
-> drivers/ide/ide-lib.c: In function `ide_rate_filter':
-> drivers/ide/ide-lib.c:173: warning: comparison of distinct pointer types lacks a cast
+> This morning I put 2.4.22-rc2-ac3 on a mail server.  About 5 mins ago
+> the box blew up and we got this in a remote syslog:
 > 
-> This is because the type-checking min() macro is applied to a u8
-> variable and an int constant, resulting in a type mismatch. Fix below.
-
-Alan rejected this a while ago. He said he'd more like the speed parameter
-become an int, but that that would require more changes.
-
-> (CONFIG_BLK_DEV_IDEDMA=n is what one gets on an old PCI-less 486.)
+> Aug 23 22:04:08 mailserver1 kernel: Do you have a strange power sav ing mode enabled?
+> Aug 23 22:04:08 mailserver1 kernel: Uhhuh. NMI received for unknown reason 21.
+> Aug 23 22:04:08 mailserver1 kernel: Dazed and confused, but trying to continue
 > 
-> /Mikael
-> 
-> --- linux-2.6.0-test4/drivers/ide/ide-lib.c.~1~	2003-08-09 11:54:06.000000000 +0200
-> +++ linux-2.6.0-test4/drivers/ide/ide-lib.c	2003-08-23 18:43:52.000000000 +0200
-> @@ -170,7 +170,7 @@
->  		BUG();
->  	return min(speed, speed_max[mode]);
->  #else /* !CONFIG_BLK_DEV_IDEDMA */
-> -	return min(speed, XFER_PIO_4);
-> +	return min(speed, (u8)XFER_PIO_4);
->  #endif /* CONFIG_BLK_DEV_IDEDMA */
->  }
-Gr{oetje,eeting}s,
+> ACPI and AMP are NOT enabled.  I can attach the .config tomorrow if
+> someone wants it once the box is back up.  It's a 4way P3-550 with
+> 16Gigs of RAM.  Himem and 64Gig were the compiled options as well as it
+> was compiled for P3.  Due to the way it locked up there wasn't anything
+> else we could get debug wise.  This is a production box so we had to
+> roll it back to the previous kernel and no-real debugging options are
+> available.  We do have a machine which is identicle except it is 4Gigs
+> of ram and instead of a raid0 of 4 disks totalling 200Gigs of space the
+> other machine has a single disk of 400GB.
 
-						Geert
+Have you got ECC errors set to NMI?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Justin
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 

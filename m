@@ -1,79 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263598AbTKKVz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 16:55:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTKKVzz
+	id S263452AbTKKWEY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 17:04:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTKKWEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 16:55:55 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:42628 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263598AbTKKVzy (ORCPT
+	Tue, 11 Nov 2003 17:04:24 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55198 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263452AbTKKWEW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 16:55:54 -0500
-Date: Tue, 11 Nov 2003 22:55:26 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Peter Osterlund <petero2@telia.com>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Peter Berg Larsen <pebl@math.ku.dk>
-Subject: Re: [PATCH] Fix synaptics driver for PowerPro C 3:16
-Message-ID: <20031111215526.GA31707@ucw.cz>
-References: <m2llqmy7cd.fsf@p4.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m2llqmy7cd.fsf@p4.localdomain>
-User-Agent: Mutt/1.5.4i
+	Tue, 11 Nov 2003 17:04:22 -0500
+Date: Tue, 11 Nov 2003 14:04:17 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Pascal Schmidt <der.eremit@email.de>
+cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+In-Reply-To: <Pine.LNX.4.44.0311112227100.1011-100000@neptune.local>
+Message-ID: <Pine.LNX.4.44.0311111348190.1960-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 11, 2003 at 09:32:18PM +0100, Peter Osterlund wrote:
-> Hi!
-> 
-> A user reported that the synaptics touchpad driver didn't work on his
-> PowerPro C 3:16 laptop. Some debugging revealed that the patch below
-> is necessary to make the driver compatible with his touchpad.
-> 
-> For some reason bit 3 in byte 1 and 4 in the synaptics packets are set
-> to 1, which fails because the driver follows the documentation which
-> says that the bit is 0.
-> 
-> Hardware properties: (reported by synclient -h)
->      Model Id     = 009d48b1
->      Capabilities = 00904713
->      Identity     = 00084715
-> 
-> With this patch, the touchpad works as expected. As far as I can see,
-> this patch can not break anything for other touchpads, so it should be
-> safe. Does anyone see a problem with this patch?
 
-I think this could help some Dell laptops as well (also always reporting
-lost sync). Good.
-
-> --- linux/drivers/input/mouse/synaptics.c.old	2003-11-11 20:41:15.000000000 +0100
-> +++ linux/drivers/input/mouse/synaptics.c	2003-11-11 20:41:29.000000000 +0100
-> @@ -581,7 +581,7 @@
->  
->  	switch (psmouse->pktcnt) {
->  	case 1:
-> -		if (newabs ? ((data & 0xC8) != 0x80) : ((data & 0xC0) != 0xC0)) {
-> +		if (newabs ? ((data & 0xC0) != 0x80) : ((data & 0xC0) != 0xC0)) {
->  			printk(KERN_WARNING "Synaptics driver lost sync at 1st byte\n");
->  			goto bad_sync;
->  		}
-> @@ -593,7 +593,7 @@
->  		}
->  		break;
->  	case 4:
-> -		if (newabs ? ((data & 0xC8) != 0xC0) : ((data & 0xC0) != 0x80)) {
-> +		if (newabs ? ((data & 0xC0) != 0xC0) : ((data & 0xC0) != 0x80)) {
->  			printk(KERN_WARNING "Synaptics driver lost sync at 4th byte\n");
->  			goto bad_sync;
->  		}
+On Tue, 11 Nov 2003, Pascal Schmidt wrote:
 > 
-> -- 
-> Peter Osterlund - petero2@telia.com
-> http://w1.894.telia.com/~u89404340
+> dd behaves strangly on the MO drive. I've tried with 2.6.0-test9 and
+> the patch appended to the end of this mail.
+> 
+> # dd if=testfile of=/dev/hde bs=4096 count=1
+> dd: writing `/dev/hde': no space left on device
+> 1+0 records in
+> 0+0 records out
+> 
+> # dd if=/dev/hde of=mofile bs=4096 count=1
+> 0+0 records in
+> 0+0 records out
+> 
+> Mounting the disc read-only works, however, and I can read all the data
+> on it without problems.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Ok, that's just strange. You can't even _read_ from the raw device, but 
+the mount works ok?
+
+And you got no IO errors anywhere? I don't see why the write would fail 
+silently.
+
+I wonder whether the disk capacity is set to zero. See 
+drivers/ide/ide-cd.c, and in particular the 
+
+        /* Now try to get the total cdrom capacity. */
+        stat = cdrom_get_last_written(cdi, (long *) &toc->capacity);
+        if (stat || !toc->capacity)
+                stat = cdrom_read_capacity(drive, &toc->capacity, sense);
+        if (stat)
+                toc->capacity = 0x1fffff;
+
+and see what that says.. I really think you should start sprinkling 
+printk's around the thing to determine what goes on..
+
+
+		Linus
+

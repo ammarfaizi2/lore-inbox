@@ -1,92 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262887AbSJLLYH>; Sat, 12 Oct 2002 07:24:07 -0400
+	id <S262889AbSJLLZh>; Sat, 12 Oct 2002 07:25:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262888AbSJLLYG>; Sat, 12 Oct 2002 07:24:06 -0400
-Received: from chunk.voxel.net ([207.99.115.133]:4532 "EHLO chunk.voxel.net")
-	by vger.kernel.org with ESMTP id <S262887AbSJLLYF>;
-	Sat, 12 Oct 2002 07:24:05 -0400
-Date: Sat, 12 Oct 2002 07:29:55 -0400
-From: Andres Salomon <dilinger@mp3revolution.net>
-To: jw schultz <jw@pegasys.ws>
+	id <S262892AbSJLLZh>; Sat, 12 Oct 2002 07:25:37 -0400
+Received: from smtp01.iprimus.net.au ([210.50.30.70]:42511 "EHLO
+	smtp01.iprimus.net.au") by vger.kernel.org with ESMTP
+	id <S262889AbSJLLZd>; Sat, 12 Oct 2002 07:25:33 -0400
+Message-Id: <5.1.0.14.0.20021012192828.0183aa08@mail.bur.st>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sat, 12 Oct 2002 19:29:49 +0800
+To: Alan Chandler <alan@chandlerfamily.org.uk>
+From: Lathiat <lathiat@irc-desk.net>
+Subject: Re: How does ide-scsi get loaded?
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.42
-Message-ID: <20021012112955.GA10857@chunk.voxel.net>
-References: <Pine.LNX.4.44.0210112134160.7166-100000@penguin.transmeta.com> <20021012095026.GC28537@merlin.emma.line.org> <20021012111140.GA22536@pegasys.ws>
+In-Reply-To: <200210121106.58559.alan@chandlerfamily.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021012111140.GA22536@pegasys.ws>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux chunk 2.4.18-ac3 
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-OriginalArrivalTime: 12 Oct 2002 11:29:18.0848 (UTC) FILETIME=[9A80E000:01C271E2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uh, what?  LVM2 is perfectly backwards compatible w/ LVM1.  Of course,
-snapshots don't work w/ LVM2 yet, so I'm not sure how LVM2 handles LVM1
-snapshot volumes.   In general, volumes created w/ LVM1 tools should
-work fine with device-mapper/LVM2.  I've been using LVM2 for 8+ months;
-when I've needed to do things that aren't yet implemented with LVM2 (for
-example, pvmove'ing), I've simply downgraded to LVM1 temporarily, done
-the task, and then upgraded my tools again.
+well the standard places are
+- /etc/modules
+- initrd
+or
+/etc/modules.conf
+if it is in modules something like alias char-major-blah ide-scsi, then 
+change ide-scsi to 'off'
 
+Else it may be compiled into the kernel, try passing ide-scsi=none or 
+something similar to the kernel (check the docs)
 
-On Sat, Oct 12, 2002 at 04:11:40AM -0700, jw schultz wrote:
-> 
-> On Sat, Oct 12, 2002 at 11:50:26AM +0200, Matthias Andree wrote:
-> > On Fri, 11 Oct 2002, Linus Torvalds wrote:
-> > 
-> > > PS: NOTE - I'm not going to merge either EVMS or LVM2 right now as things
-> > > stand.  I'm not using any kind of volume management personally, so I just
-> > > don't have the background or inclination to walk through the patches and
-> > > make that kind of decision. My non-scientific opinion is that it looks 
-> > > like the EVMS code is going to be merged, but ..
-> >
-> > A user's input, of not nearly as much weight as of the input you
-> > suggested, and totally unencumbered by technical details:
-> > 
-> > EVMS has been much more present to interested parties than LVM2. If --
-> > as a user -- I was to choose either one RIGHT NOW (i. e. with a gun
-> > against a head, a boss telling me 'I want a decision in 30 minutes', you
-> > name it), I'd go for EVMS.
-> > 
-> > But because EVMS just looks much less like a construction site than
-> > dm2/LVM2 does.
-> > 
-> > Just my two Euro cents.
-> 
-> I'll add my $0.02US which (according to exchange rates) is
-> worth more though almost worthless.
-> 
-> Hate to say it but in this comparison LVM2 looses.  Primary
-> reason: Backward compatibility.  People are going to need to
-> be able to switch between kernels.
-> 
-> So far everything indicates that LVM2 is not compatible with
-> LVM.  That LVM2 and LVM(1) can coexist-exist is irrelevant if
-> 2.5 hasn't got a working LVM(1).  And that would leave us
-> with having to do backup+restore around the upgrade.
-> 
-> Any on-disk changes also need to have an in-place translator.
-> Just think about what it would take to do an upgrade, or
-> downgrade, without in-place translation.
-> 
-> Also 2.4 -> 2.6 should not be a feature reduction so
-> snapshot volumes and any other LVM features missing from
-> LVM2 are issues.
-> 
-> -- 
-> ________________________________________________________________
-> 	J.W. Schultz            Pegasystems Technologies
-> 	email address:		jw@pegasys.ws
-> 
-> 		Remember Cernan and Schmitt
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+At 11:06 AM 12/10/2002 +0100, you wrote:
+>-----BEGIN PGP SIGNED MESSAGE-----
+>Hash: SHA1
+>
+>Please cc me on replies as I am not subscribed to the list.
+>
+>I am running a standard debian 2.4.19-k7 kernel on a configuration that 
+>has an
+>ide dvd rom drive and a scsi cd writer.
+>
+>Sometime during boot sequence (I can't find where in any log or dmesg - but
+>looking at the text flying by - soon after the scsi adapter is found and the
+>bus is being scanned for scsi devices) the module ide-scsi gets loaded.
+>
+>The problem is, I don't want it loaded because it prevents mplayer playing my
+>dvds
+>
+>I initially assumed it was something in the debian start up that caused it but
+>
+>a) asking on the debian-user mailing list has not elicited any useful reponse
+>b) grep -r ide-scsi /etc throws up nothing (ie there is not reference to
+>ide-scsi in modules or modules.conf or any initialisation sequence doing a
+>modprobe ide-scsi)
+>c) scanning all through the initrd.img (loaded through the loop device) does
+>not show any reference to ide-scsi either (although grep finds the sequence
+>in bin/mount and then hangs locking my keyboard)
+>d) modules.dep only shows ide-scsi needing other modules (ide-mod, scsi-mod)
+>not the other way round.
+>
+>I am stuck, where can I look next?
+>
+>[and I know I could just do a rmmod at the end of the start up sequence but
+>...]
+>- --
+>Alan Chandler
+>alan@chandlerfamily.org.uk
+>-----BEGIN PGP SIGNATURE-----
+>Version: GnuPG v1.2.0 (GNU/Linux)
+>
+>iD8DBQE9p/RCuFHxcV2FFoIRAiqmAJ4y7pWivbaNV/L4LKqLyBYpu+VsUgCgnSK2
+>5YnCzrh6yVM+iwnBVk1BZQE=
+>=N3vq
+>-----END PGP SIGNATURE-----
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
--- 
-It's not denial.  I'm just selective about the reality I accept.
-	-- Bill Watterson

@@ -1,106 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266303AbUANOYy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 09:24:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266309AbUANOYy
+	id S261681AbUANOck (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 09:32:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265957AbUANOck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 09:24:54 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:36838 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S266303AbUANOYs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 09:24:48 -0500
-Date: Wed, 14 Jan 2004 15:24:45 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <1@pervalidus.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: BUG: The key "/ ?" on my abtn2 keyboard is dead with kernel 2.6.1
-Message-ID: <20040114142445.GA28377@ucw.cz>
-References: <200401111545.59290.murilo_pontes@yahoo.com.br> <20040111235025.GA832@ucw.cz> <Pine.LNX.4.58.0401120004110.601@pervalidus.dyndns.org> <20040112083647.GB2372@ucw.cz> <20040112135655.A980@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040112135655.A980@pclin040.win.tue.nl>
-User-Agent: Mutt/1.5.4i
+	Wed, 14 Jan 2004 09:32:40 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:51966 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261681AbUANOc1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 09:32:27 -0500
+Message-ID: <4005526D.3060604@us.ibm.com>
+Date: Wed, 14 Jan 2004 09:30:05 -0500
+From: Stacy Woods <stacyw@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-2 i686; en-US; 0.7) Gecko/20010316
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Bugs sitting in the RESOLVED state for more than 60 days
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 12, 2004 at 01:56:55PM +0100, Andries Brouwer wrote:
+These bugs have been sitting in RESOLVED state for more than 60 days,
+ie, they have fixes, but aren't back in the mainline tree (when they
+should move to CLOSED state). If the fixes are back in mainline
+already, could the owner close them out? Otherwise, perhaps we
+can get those fixes back in?  If the patch has not fixed the problem
+then the bug needs to be moved back into the NEW or ASSIGNED state.
 
-> See http://www.win.tue.nl/~aeb/linux/kbd/scancodes-5.html#ss5.17
-> 
-> ---------------------------------------------------------------------
-> ABNT (Associao Brasileira de Normas Tecnicas) and ABNT2 are Brazilian
-> keyboard layout standards. The plain Brazilian keyboard has 103 keys. 
-> The Brazilian ABNT keyboard has two unusual keys, with scancodes 73 (/?)
-> and 7e (Keypad-.). The former is located to the left of the RShift
-> (which key therefore is less wide than usually), the latter below the
-> Keypad-Plus (reducing the Keypad-Plus to single height). 
-> Under Linux, the corresponding key codes are 89 and 121, respectively.
-> ---------------------------------------------------------------------
-> 
-> In the 2.4 source, see the array high_keys[]. It will map 73, 7d
-> (seen on Japanese keyboards), 7e to keycodes 89, 124, 121.
-> 
-> The 2.6.1 kernel will first untranslate to 51, 6a, 6d and then map
-> to 181, 182, 124, changing the keycode for all three.
+Kernel Bug Tracker: http://bugme.osdl.org
 
-I've delved into the pc_keyb.c from 2.4, and now I have found the final
-piece of the puzzle. Thanks for the clues.
 
-Up to now, I really didn't know there actually _were_ standard keycodes
-for Japanese, Korean and Brazil keys in 2.4, as those are named like
-"FOCUS_PF10" and similar there. That's why I didn't take them into
-account when making a list of "Linux keycodes" in drivers/input.h.
+273  Other      Modules    bugme-janitors@lists.osdl.org
+initrd refuses to build on raid0 system
 
-Now I've found out that the list is:
-		
-			| Xlate	| 2.4	| 2.4	| 2.6	| 2.6
-Name			| Set2	| Name	| code	| code	| conflict
-------------------------------------------------------------
-Brazil KP,		| 7e	| PF10	| 121	| 124	| F22
-Brazil /?		| 73	| PF2	|  89	| 181	| F14
-Jp Romanji		| 73	| PF2	|  89	| 181	| F14
-Jp Hiragana/Katakana	| 70    | 	| 	| 182   |
-Jp Yen			| 7d	| JAP86	| 124	| 183	| KPCOMMA
-Jp Henkan		| 79	| PF5	|  92	| 184	| F17
-Jp Muhenkan		| 7b	| PF7	|  94	| 185	| F19
-Jp KP,			| 5c	| RGN4	| 127	| 186	| COMPOSE
-Korean Hanguel/English	| f2	| 	| 	| 190	| 
-Korean Hanja		| f1	|	|	| 191	|
-Jp Katakana		| 78	| PF4	|  91	| 192	| F16
-Jp Hiragana		| 77	| PF3	|  90	| 193	| F15
-Jp Zenkaku/Hankaku	| 76	| 	| 	| 194	|
-Euro (GB,Fr) 103rd	| 	|	|  43	|  84	| BACKSLASH
+322  Drivers    Other      jeffpc@optonline.net
+double logical operator drivers/char/sx.c
 
-I am willing to change the 2.6 codes to match the 2.4 ones. This will
-mean that the keys listed in "2.6 conflict" column will need to have
-their keycodes changed. Since most of those are rarely used keys, this
-shouldn't have too big impact on users.
+367  Platform   Alpha      rth@twiddle.net
+modules fail to resolve illegal Unhandled relocation of type 10 for .text
 
-A few problematic cases still remain:
+493  Drivers    USB        mdharm-usb@one-eyed-alien.net
+Support for Sony DSC-P72 not available
 
-1) Keys that don't have a 2.4 keycode. This is Korean keys and some
-Japanese keys. I'd suggest assigning another of the "Fxx" keycodes to
-them, so that they're close to each other.
+719  Process    Schedule   rml@tech9.net
+[perf][kernbench] lower performance with HT enabled on low loads
 
-2) JP PC9800 KP,. This one conflicts with COMPOSE (or windows-key on AT
-keyboards). Since it conflicts in 2.4 as well, there is no way to make
-it work sanely. I'd suggest not making it the same as on 2.4 and use
-some Fxx keycode for it so that it is below 128. This will hurt PC9800
-users, but the PC9800 is rare and more or less experimental ...
+807  Drivers    PCMCIA     bugme-janitors@lists.osdl.org
+gprs pcmcia card not works in linux
 
-3) Euro 103rd. This one didn't exist on 2.4 at all, because Set2
-keyboards can't generate it. Set3 keyboards, USB keyboards and ADB
-keyboards can. So far 2.6 will generate keycode 84 for it, and
-compatible set2 sequence in emulated raw mode. I think this is as far as
-we can get with compatibility without throwing away the distinction
-between the key and backslash. It'll still hurt french and british users
-a bit, since they'll have to change their keymaps on console. In XFree86
-things will work as expected.
+820  Drivers    Sound      bugme-janitors@lists.osdl.org
+ALSA emu10k doesn't load in 2.5.7[12]
 
-COMMENTS?
+858  Timers     Interval   bugme-janitors@lists.osdl.org
+itimer resolution and rounding vs posix
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+992  Drivers    USB        greg@kroah.com
+mount options of usbfs (like devgid and devmode) are ignored
+
+1080  Drivers    Sound      francesco@unipg.it
+alsa driver snd-powermac doesn't work with tumbler on iBook2
+
+1209  Drivers    SCSI       willy@debian.org
+sym53c8xx_2 oopses
+
+1221  Drivers    USB        greg@kroah.com
+USB ACM modem driver doesn't work any more since kernel 2.6.0-test3
+
+1241  Drivers    Input De   vojtech@suse.cz
+wrong condition in drivers/input/serio/Kconfig
+
+1246  Drivers    USB        mdharm-usb@one-eyed-alien.net
+Ooops while copying from usb smartmedia reader
+
+1258  Drivers    IEEE1394   bcollins@debian.org
+sbp2 reports slab corruption of hpsb_packet in 2.6.0-test5-mm3
+
+1261  Drivers    USB        dbrownell@users.sourceforge.net
+ehci_hcd in sysfs
+
+1286  Drivers    USB        greg@kroah.com
+System stall on probing uhci-hcd
+
+1310  Drivers    USB        dbrownell@users.sourceforge.net
+Usb storage mounting was broken somewhere between 2.6.0-test5-bk10 and 
+2.6.0-tes
+
+1349  Power Ma   ACPI       len.brown@intel.com
+processor.c using byte IO even if DSDT prescribes otherwise
+
+1377  Other      Configur   zippel@linux-m68k.org
+make O=... xconfig uses wrong -I paths
+
+1449  Drivers    IEEE1394   bcollins@debian.org
+sleeping function called from invalid context
+

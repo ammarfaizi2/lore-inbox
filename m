@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129076AbQKPUsx>; Thu, 16 Nov 2000 15:48:53 -0500
+	id <S131227AbQKPUux>; Thu, 16 Nov 2000 15:50:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131227AbQKPUse>; Thu, 16 Nov 2000 15:48:34 -0500
-Received: from unimur.um.es ([155.54.1.1]:26042 "EHLO unimur.um.es")
-	by vger.kernel.org with ESMTP id <S129076AbQKPUsY>;
-	Thu, 16 Nov 2000 15:48:24 -0500
-Message-ID: <3A144436.BF9CB986@ditec.um.es>
-Date: Thu, 16 Nov 2000 21:31:50 +0100
-From: Juan <piernas@ditec.um.es>
-X-Mailer: Mozilla 4.75 [es] (X11; U; Linux 2.2.18pre21 i686)
-X-Accept-Language: es-ES, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: eth0: trigger_send() called with the transmitter busy.
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S131468AbQKPUud>; Thu, 16 Nov 2000 15:50:33 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:18790
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S131227AbQKPUuc>; Thu, 16 Nov 2000 15:50:32 -0500
+Date: Thu, 16 Nov 2000 21:12:40 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: sailer@ife.ee.ethz.ch
+Cc: linux-kernel@vger.kernel.org
+Subject: [uPATCH] Compile error in drivers/net/hamradio/baycom_epp.c (240-t11p5)
+Message-ID: <20001116211240.B716@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi.
 
-This error ocurrs when "named" is executed. It exists since
-2.4.0-test10preX or so.
+Recent changes in the kernel has made the patch below necessary:
 
-I'm using RedHat 7.0 and my ethernet card is a "Kingston EtheRx KNE20
-Plug and Play ISA Adapter". I'm unable to access the Internet because
-the ethernet card doesn't work :-(
 
-Bye!
+--- linux-240-t11-pre5-clean/drivers/net/hamradio/baycom_epp.c	Sat Nov  4 23:27:07 2000
++++ linux/drivers/net/hamradio/baycom_epp.c	Thu Nov 16 20:27:22 2000
+@@ -812,10 +812,10 @@
+ /* --------------------------------------------------------------------- */
+ 
+ #ifdef __i386__
+-#define GETTICK(x)                                                \
+-({                                                                \
+-	if (current_cpu_data.x86_capability & X86_FEATURE_TSC)    \
+-		__asm__ __volatile__("rdtsc" : "=a" (x) : : "dx");\
++#define GETTICK(x)                                                      \
++({                                                                      \
++	if (test_bit(X86_FEATURE_TSC, &current_cpu_data.x86_capability))\
++		__asm__ __volatile__("rdtsc" : "=a" (x) : : "dx");      \
+ })
+ #else /* __i386__ */
+ #define GETTICK(x)
+
 -- 
-D. Juan Piernas Cánovas
-Departamento de Ingeniería y Tecnología de Computadores
-Facultad de Informática. Universidad de Murcia
-Campus de Espinardo - 30080 Murcia (SPAIN)
-Tel.: +34968367657    Fax: +34968364151
-email: piernas@ditec.um.es
-PGP public key:
-http://pgp.rediris.es:11371/pks/lookup?search=piernas%40ditec.um.es&op=index
+Regards,
+        Rasmus(rasmus@jaquet.dk)
+
+There are two major products that come out of Berkeley: LSD and UNIX. We 
+don't believe this to be a coincidence. -- Jeremy S. Anderson 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272521AbTGZOoc (ORCPT <rfc822;willy@w.ods.org>);
+	id S272497AbTGZOoc (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 26 Jul 2003 10:44:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272551AbTGZOmy
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272521AbTGZOm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 10:42:54 -0400
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:3418 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S272521AbTGZOhs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 10:37:48 -0400
-Date: Sat, 26 Jul 2003 16:52:00 +0200
-Message-Id: <200307261452.h6QEq08C002490@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] m68k dma-mapping
+	Sat, 26 Jul 2003 10:42:59 -0400
+Received: from h214n1fls32o988.telia.com ([62.20.176.214]:27915 "EHLO
+	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
+	id S272497AbTGZOea (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 10:34:30 -0400
+Message-Id: <200307261449.h6QEnaHt010122@sirius.nix.badanka.com>
+Date: Sat, 26 Jul 2003 16:49:35 +0200
+From: Henrik Persson <nix@syndicalist.net>
+To: Anuradha Ratnaweera <Aratnaweera@virtusa.com>
+Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: SCO offers UnixWare licenses for Linux
+In-Reply-To: <20030726082101.GA21418@aratnaweera.virtusa.com>
+References: <20030726082101.GA21418@aratnaweera.virtusa.com>
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k: Fix SCSI breakage introduced in 2.5.74 by not including
-<asm-generic/dma-mapping.h>, unless PCI is available.
+On Sat, 26 Jul 2003 04:21:01 -0400
+Anuradha Ratnaweera <Aratnaweera@virtusa.com> wrote:
 
---- linux-2.6.x/include/asm-m68k/dma-mapping.h	Tue Dec 24 10:08:58 2002
-+++ linux-m68k-2.6.x/include/asm-m68k/dma-mapping.h	Tue Jul 22 19:07:38 2003
-@@ -1 +1,10 @@
-+#ifndef _M68K_DMA_MAPPING_H
-+#define _M68K_DMA_MAPPING_H
-+
-+#include <linux/config.h>
-+
-+#ifdef CONFIG_PCI
- #include <asm-generic/dma-mapping.h>
-+#endif
-+
-+#endif  /* _M68K_DMA_MAPPING_H */
+> > By your arguments, anything fundamental needs to be free.   Let me
+> > know when you get a free house, car, food, health care, etc.
+> 
+> An off topic sentence ahead ;-)
+> 
+> Just wondering how house, car, food etc can be compared to software
+> (code).  The latter can be copied.
 
-Gr{oetje,eeting}s,
+Now we're really off-topic, but hey. I really think that a house
+(or..well..somewhere to live), food and health care should be free. Health
+care is free in some places in the world (the places where they don't
+think that the bigger your wallet is - the better health care you should
+get..)
 
-						Geert
+So yep. I really think they can be compared. Those things are
+_fundamental_.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+But no one will listen, I'm just another left-wing radical... And this
+list probaby isn't the right place to discuss those issues..
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Henrik Persson  nix@syndicalist.net  http://nix.badanka.com

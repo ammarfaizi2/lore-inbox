@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261369AbRFFJXP>; Wed, 6 Jun 2001 05:23:15 -0400
+	id <S261410AbRFFJ3P>; Wed, 6 Jun 2001 05:29:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261454AbRFFJXF>; Wed, 6 Jun 2001 05:23:05 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:18949 "EHLO
-	bug.ucw.cz") by vger.kernel.org with ESMTP id <S261369AbRFFJWy>;
-	Wed, 6 Jun 2001 05:22:54 -0400
-Message-ID: <20010605233816.A512@bug.ucw.cz>
-Date: Tue, 5 Jun 2001 23:38:16 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>
+	id <S261459AbRFFJ3F>; Wed, 6 Jun 2001 05:29:05 -0400
+Received: from sportingbet.gw.dircon.net ([195.157.147.30]:268 "HELO
+	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
+	id <S261410AbRFFJ2s>; Wed, 6 Jun 2001 05:28:48 -0400
+Date: Wed, 6 Jun 2001 10:25:14 +0100
+From: Sean Hunter <sean@dev.sportingbet.com>
+To: Xavier Bestel <xavier.bestel@free.fr>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fs/devfs/base.c
-In-Reply-To: <9fht4j$cce$1@cesium.transmeta.com> <E157AlZ-0006Vi-00@the-village.bc.nu>
+Subject: Re: Break 2.4 VM in five easy steps
+Message-ID: <20010606102514.E15199@dev.sportingbet.com>
+Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
+	Xavier Bestel <xavier.bestel@free.fr>, linux-kernel@vger.kernel.org
+In-Reply-To: <3B1D5ADE.7FA50CD0@illusionary.com> <Pine.LNX.4.33.0106051634540.8311-100000@heat.gghcwest.com> <3B1D927E.1B2EBE76@uow.edu.au> <20010605231908.A10520@illusionary.com> <991815578.30689.1.camel@nomade> <20010606095431.C15199@dev.sportingbet.com> <991818989.30690.2.camel@nomade>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <E157AlZ-0006Vi-00@the-village.bc.nu>; from Alan Cox on Tue, Jun 05, 2001 at 07:56:37AM +0100
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <991818989.30690.2.camel@nomade>; from xavier.bestel@free.fr on Wed, Jun 06, 2001 at 11:16:27AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > It's trivial to calculate for DAGs -- directed acyclic graphs.  It's
-> > when the "acyclic" constraint is violated that you have problems!
+On Wed, Jun 06, 2001 at 11:16:27AM +0200, Xavier Bestel wrote:
+> On 06 Jun 2001 09:54:31 +0100, Sean Hunter wrote:
+> > > This is what Linus recommended for 2.4 (swap = 2 * RAM), saying that
+> > > anything less won't do any good: 2.4 overallocates swap even if it
+> > > doesn't use it all. So in your case you just have enough swap to map
+> > > your RAM, and nothing to really swap your apps.
+> > > 
+> > 
+> > For large memory boxes, this is ridiculous.  Should I have 8GB of swap?
 > 
-> It may well be that interrupt stacks are a win anyway. If we can get the kernel
-> struct out of the stack pages (which would fix some very unpleasant cache
-> colour problems) and take the non irq stack down to 4K then irq stacks would
-> pay off once you had 25 or so processes on a system
+> Life is tough. If guess if you have 4GB RAM, you'd be better having no
+> swap at all. Or, yes, at least 8GB.
+> Or just wait for this bug to be fixed. But be patient.
 
-For what it is worth, we are using interrupt stack on x86-64. And it
-was not *that* painfull.
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+This is just pure bollocks.  Virtual memory is one of the killer features of
+unix. It would be a strange admission to say that our "advanced" 2.4
+kernel is so advanced that now you can't use virtual memory at all on
+large machines. Needing 8GB of swap to prevent a box from committing
+suicide when it has a working set of less than 512M is crazy.
+
+I am waiting patiently for the bug to be fixed. However, it is a real
+embarrasment that we can't run this "stable" kernel in production yet
+because somethign as fundamental as this is so badly broken.
+
+Sean

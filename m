@@ -1,77 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266878AbUJRQwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266879AbUJRQxW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266878AbUJRQwy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 12:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266879AbUJRQwx
+	id S266879AbUJRQxW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 12:53:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266888AbUJRQxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 12:52:53 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:41152 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266878AbUJRQwv (ORCPT
+	Mon, 18 Oct 2004 12:53:22 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:45013 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266879AbUJRQxP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 12:52:51 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
-MIME-Version: 1.0
+	Mon, 18 Oct 2004 12:53:15 -0400
+Date: Mon, 18 Oct 2004 18:54:16 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
+Message-ID: <20041018165416.GA31259@elte.hu>
+References: <OFF2CA4065.A5BB2E79-ON86256F31.005A287D-86256F31.005A2895@raytheon.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16755.62608.19034.491032@segfault.boston.redhat.com>
-Date: Mon, 18 Oct 2004 12:51:28 -0400
-To: Alexandre Oliva <aoliva@redhat.com>
-Cc: Ingo Molnar <mingo@redhat.com>, "Stephen C. Tweedie" <sct@redhat.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [patch rfc] towards supporting O_NONBLOCK on regular files
-In-Reply-To: <orvfd9yw1m.fsf@livre.redhat.lsd.ic.unicamp.br>
-References: <16733.50382.569265.183099@segfault.boston.redhat.com>
-	<20041005112752.GA21094@logos.cnet>
-	<16739.61314.102521.128577@segfault.boston.redhat.com>
-	<20041006120158.GA8024@logos.cnet>
-	<1097119895.4339.12.camel@orbit.scot.redhat.com>
-	<20041007101213.GC10234@logos.cnet>
-	<1097519553.2128.115.camel@sisko.scot.redhat.com>
-	<16746.55283.192591.718383@segfault.boston.redhat.com>
-	<1097531370.2128.356.camel@sisko.scot.redhat.com>
-	<16749.15133.627859.786023@segfault.boston.redhat.com>
-	<16751.61561.156429.120130@segfault.boston.redhat.com>
-	<orzn2lpyfc.fsf@livre.redhat.lsd.ic.unicamp.br>
-	<Pine.LNX.4.58.0410170715240.16806@devserv.devel.redhat.com>
-	<orvfd9yw1m.fsf@livre.redhat.lsd.ic.unicamp.br>
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+Content-Disposition: inline
+In-Reply-To: <OFF2CA4065.A5BB2E79-ON86256F31.005A287D-86256F31.005A2895@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding Re: [patch rfc] towards supporting O_NONBLOCK on regular files; Alexandre Oliva <aoliva@redhat.com> adds:
 
-aoliva> On Oct 17, 2004, Ingo Molnar <mingo@redhat.com> wrote:
->> I.e. the readahead-kicking is necessary after all, because squid
->> apparently assumes that re-trying a read will eventually succeed.
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-aoliva> I'm not sure it assumes that.  It definitely expects read to
-aoliva> succeed if poll says there is data available from the file, though,
-aoliva> and having poll return that there is data, and then having read
-aoliva> fail because there isn't anything there, so that you go back to
-aoliva> poll, is a recipe for wasting CPU.  I do think read should kick in
-aoliva> readahead, yes, but so should poll, if the process says it wants to
-aoliva> read from the file, and poll should not return (or not say data is
-aoliva> available) unless an immediate, atomic call to read would actually
-aoliva> return some data.  Of course, if the data happens to be elicited
-aoliva> from memory between the poll and read calls, it's legitimate for
-aoliva> read to fail with -EAGAIN, but this shouldn't happen very often.
+> >i have released the -U5 Real-Time Preemption patch:
+> >
+> >
+> http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U5
+> 
+> I am getting build problems - specifically with:
 
-Select, pselect, and poll will always return data ready on a regular file.
-As such, I would argue that squid's behaviour is broken.  Additionally, I
-don't think it's a good idea to modify any polling mechanism to kick off
-I/O, if simply because I'm not sure how much data to request!
+>   CC [M]  drivers/char/ipmi/ipmi_watchdog.o
 
-Since it wasn't supported before, I see no need to extend select/poll to
-change behaviour for regular files.  After all, the POSIX spec explicitly
-says that select and friends will always return data ready for regular
-files.  To make O_NONBLOCK on regular files a workable implementation, Uli
-suggestsed extending epoll.  I will look into this.
+> If I read the patch correctly, this should be recoded as
+>   DECLARE_MUTEX
+> instead, but a quick grep of the source code indicates we have about
+> 20 more places where DECLARE_MUTEX_LOCKED is still used. Should I do
+> a global replace on that or is something else needed?
 
-I am in favor of kicking off I/O for reads that would block.
+it's not normally used, and it's much simpler to rewrite those places
+than to implement initialization. (which would be quite hairy)
 
--Jeff
+> I also had a compile failure in XFS. The messages are:
+>   CC [M]  fs/xfs/quota/xfs_dquot_item.o
+>   CC [M]  fs/xfs/quota/xfs_trans_dquot.o
+
+ok, i've re-uploaded a new version of -U5 that has this and the 
+ipmi_watchdog compilation problems fixed.
+
+please check whether it works, XFS does not seem to make use of count>1
+semaphores but one never knows ...
+
+	Ingo
+

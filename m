@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262819AbTJYUKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 16:10:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262791AbTJYUKZ
+	id S262788AbTJYUMp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 16:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262789AbTJYUMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 16:10:25 -0400
-Received: from gprs198-24.eurotel.cz ([160.218.198.24]:40577 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262790AbTJYUKT (ORCPT
+	Sat, 25 Oct 2003 16:12:45 -0400
+Received: from main.gmane.org ([80.91.224.249]:39321 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262788AbTJYUMo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 16:10:19 -0400
-Date: Sat, 25 Oct 2003 22:10:10 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: [PATCH 2.4.23-pre8]  Remove broken prefetching in free_one_pgd()
-Message-ID: <20031025201010.GC505@elf.ucw.cz>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0F36E6@scsmsx401.sc.intel.com>
+	Sat, 25 Oct 2003 16:12:44 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [PATCHSET] 0/3 A dynamic cpufreq governor
+Date: Sat, 25 Oct 2003 22:07:59 +0200
+Message-ID: <yw1xfzhhhyhs.fsf@kth.se>
+References: <88056F38E9E48644A0F562A38C64FB6007796A@scsmsx403.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0F36E6@scsmsx401.sc.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:qwwZ+ugqT3446HTgTvBnZgT06Bk=
+Cc: cpufreq@www.linux.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com> writes:
 
-> This patch was accepted into 2.5.55, attributed to "davej@uk".
+> This is the "new and improved" version of the patch  
+> that was sent out earlier this week. Thanks for all the 
+> feedback/suggestions.
+> (lkml subject line reference for previous thread -
+> "Dynamic cpufreq governor and updates to ACPI P-state driver")
 
-Dave Jones?n
-
-> This code will prefetch from beyond the end of the page table
-> being cleared ... which is clearly a bad thing if the page table
-> in question is allocated from the last page of memory (or precedes
-> a hole on a discontig mem system).
-
-Prefetching random addresses should be safe... Well for 2.4 we
-probably want to play it safe and kill it, but I guess quite a few
-pieces rely on prefretch(NULL) doing nothing...
-
-
-> diff -ru linux-2.4.23-pre8/mm/memory.c fix/mm/memory.c
-> --- linux-2.4.23-pre8/mm/memory.c	Fri Oct 24 13:37:23 2003
-> +++ fix/mm/memory.c	Fri Oct 24 13:40:47 2003
-> @@ -120,10 +120,8 @@
->  	}
->  	pmd = pmd_offset(dir, 0);
->  	pgd_clear(dir);
-> -	for (j = 0; j < PTRS_PER_PMD ; j++) {
-> -		prefetchw(pmd+j+(PREFETCH_STRIDE/16));
-> +	for (j = 0; j < PTRS_PER_PMD ; j++)
->  		free_one_pmd(pmd+j);
-> -	}
->  	pmd_free(pmd);
->  }
-
+Is there any way this thing can be made to work on a Pentium 4 M,
+using p4-clockmod for frequency changing?
 
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Måns Rullgård
+mru@kth.se
+

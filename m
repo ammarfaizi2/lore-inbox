@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269018AbUIQXeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269042AbUIQXgu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269018AbUIQXeX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 19:34:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269042AbUIQXeX
+	id S269042AbUIQXgu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 19:36:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269045AbUIQXgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 19:34:23 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64416 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269018AbUIQXeV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 19:34:21 -0400
-Message-ID: <414B7470.4000703@pobox.com>
-Date: Fri, 17 Sep 2004 19:34:08 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Fri, 17 Sep 2004 19:36:49 -0400
+Received: from [142.46.200.198] ([142.46.200.198]:17649 "EHLO ns1.s2io.com")
+	by vger.kernel.org with ESMTP id S269042AbUIQXgj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 19:36:39 -0400
+Message-Id: <200409172336.i8HNaL39020193@guinness.s2io.com>
+From: "Leonid Grossman" <leonid.grossman@s2io.com>
+To: "'Tony Lee'" <tony.p.lee@gmail.com>,
+       "'David Lang'" <david.lang@digitalinsight.com>
+Cc: <valdis.kletnieks@vt.edu>, "'Eric Mudama'" <edmudama@gmail.com>,
+       "'David Stevens'" <dlstevens@us.ibm.com>,
+       "'Netdev'" <netdev@oss.sgi.com>,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: The ultimate TOE design
+Date: Fri, 17 Sep 2004 16:36:12 -0700
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Li Shaohua <shaohua.li@intel.com>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: hotplug e1000 failed after 32 times
-References: <1095396793.10407.9.camel@sli10-desk.sh.intel.com>	<20040916221406.1f3764e0.akpm@osdl.org>	<1095411933.10407.29.camel@sli10-desk.sh.intel.com> <20040917161920.16d18333.akpm@osdl.org>
-In-Reply-To: <20040917161920.16d18333.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcSdDQGWiE+zdlnGRYuf5/JqZtkuJQAAJufA
+In-Reply-To: <470b6397040917162033bfa880@mail.gmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+X-Spam-Score: -103.3
+X-Spam-Outlook-Score: ()
+X-Spam-Features: BAYES_10,FORGED_MUA_OUTLOOK,IN_REP_TO,MISSING_OUTLOOK_NAME,QUOTED_EMAIL_TEXT,USER_IN_WHITELIST
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
 
-All this work and code for such an uncommon case??
+> -----Original Message-----
+> From: Tony Lee [mailto:tony.p.lee@gmail.com] 
+> Sent: Friday, September 17, 2004 4:21 PM
+Skipped...
 
-First off, any settings which are _indexed_ are almost guaranteed 
-broken.  For reasons as we see here, and others.  Any 
-"setting_foo[board_number]" should be found and eliminated instead.
+> Question for Leonid of S2io.com:  Your company has an 
+> interesting card.
+> I think it must have some kind of embedded CPU.  Care to tell 
+> us what kind of CPU are they?
 
-Even if you allocate and free board numbers as described, how precisely 
-do you propose to predict which settings belong to which hotplugged 
-board?  Look at the problem, and you realize that the board<->setting 
-association becomes effectively _random_ for any adapter not present at 
-modprobe time.
-
-The best model is to set these settings via netlink/ethtool after 
-registering the interface, but before bringing it up.
-
-	Jeff
+Hi Tony, 
+For 10GbE card, we designed our own ASIC - embedded CPUs don't cut it at
+10GbE...
+Leonid
 
 
+> -- 
+> -Tony
+> Having a lot of fun with Xilinx Virtex Pro II reconfigurable 
+> HW + ppc + Linux
+> 
 

@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268942AbUHUJT5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268948AbUHUJX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268942AbUHUJT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 05:19:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268948AbUHUJT5
+	id S268948AbUHUJX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 05:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268949AbUHUJX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 05:19:57 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:22913 "HELO
+	Sat, 21 Aug 2004 05:23:57 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:898 "HELO
 	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268942AbUHUJSG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 05:18:06 -0400
+	id S268948AbUHUJXm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 05:23:42 -0400
 Subject: Re: [patch] voluntary-preempt-2.6.8.1-P5
 From: Lee Revell <rlrevell@joe-job.com>
 To: Ingo Molnar <mingo@elte.hu>
@@ -25,10 +25,10 @@ References: <1092654819.5057.18.camel@localhost>
 	 <1093058602.854.5.camel@krustophenia.net> <20040821091338.GA25931@elte.hu>
 	 <1093079726.854.80.camel@krustophenia.net> <20040821091804.GA26622@elte.hu>
 Content-Type: text/plain
-Message-Id: <1093079886.854.85.camel@krustophenia.net>
+Message-Id: <1093080202.854.94.camel@krustophenia.net>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 21 Aug 2004 05:18:07 -0400
+Date: Sat, 21 Aug 2004 05:23:22 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -49,8 +49,9 @@ On Sat, 2004-08-21 at 05:18, Ingo Molnar wrote:
 > which trace is this?
 > 
 
-I don't think I was able to save this one.  I will post it if I see it
-again.
+Sorry, I was thinking of this one:
+
+http://krustophenia.net/testresults.php?dataset=2.6.8.1-P6#/var/www/2.6.8.1-P6/trace10.txt
 
 Lee
 

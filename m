@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265563AbUAMUlu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 15:41:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265592AbUAMUlu
+	id S265644AbUAMU7h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 15:59:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265647AbUAMU7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 15:41:50 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:55305 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S265563AbUAMUls (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 15:41:48 -0500
-From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Autofs question (try 2)
-Date: Tue, 13 Jan 2004 21:41:45 +0100
-User-Agent: KMail/1.5.3
+	Tue, 13 Jan 2004 15:59:37 -0500
+Received: from ihemail2.lucent.com ([192.11.222.163]:32222 "EHLO
+	ihemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S265644AbUAMU7e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 15:59:34 -0500
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200401132141.45772.robin.rosenberg.lists@dewire.com>
+Message-ID: <16388.16059.583605.176947@gargle.gargle.HOWL>
+Date: Tue, 13 Jan 2004 13:53:47 -0500
+From: "John Stoffel" <stoffel@lucent.com>
+To: Henrique Oliveira <henrique.oliveira@cyclades.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+       Daniela Squassoni <daniela@cyclades.com>
+Subject: Re: [2/3]
+In-Reply-To: <4004310B.4090802@cyclades.com>
+References: <Pine.LNX.4.44.0401131148070.18661-100000@eloth>
+	<20040113113650.A2975@flint.arm.linux.org.uk>
+	<20040113114948.B2975@flint.arm.linux.org.uk>
+	<20040113171544.B7256@flint.arm.linux.org.uk>
+	<20040113173352.D7256@flint.arm.linux.org.uk>
+	<4004310B.4090802@cyclades.com>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-The first message was cut short, sorry
+Henrique> I am no longer the maintainer of the Cyclades driver
+Henrique> (char/cyclades.c).  Could you please remove my name from
+Henrique> that driver and include Daniela as the official maintainer
+Henrique> <daniela@cyclades.com> ?
 
-I grabbed the auto.smb script for mounting samba/windows shares. One of the flaws is that I'd
-like to get around is that it must be configured as root and most importantly that I don't see who 
-is requesting the mount. I was thinking along the line of mounting shares in /cifs/$USER/servers/share
-or simply mounting the share for the first user using the mount point (essentially single user machines
-anyway).
+Wouldn't it make more sense for you people at Cyclades to setup an
+email alias like 'linux-driver@cyclades.com' so we can update the
+kernel sources once, and then you can update your internal email alias
+as things change?  
 
-the auto.smb script is running as root and I printed some info in root.c at the revalidate
+Seems like the better way to go...
 
-Jan 12 18:49:06 h6n2fls33o811 kernel: autofs4_root_revalidate, uid=505 name=10.1.1.4
-Jan 12 18:49:06 h6n2fls33o811 automount[22233]: attempting to mount entry /cifs/10.1.1.4
-Jan 12 18:49:06 h6n2fls33o811 kernel: autofs4_root_revalidate, uid=0 name=10.1.1.4
-Jan 12 18:49:06 h6n2fls33o811 logger: uid=0(root) gid=0(root) grupper=0(root)
-Jan 12 18:49:07 h6n2fls33o811 kernel: autofs4_root_revalidate, uid=0 name=10.1.1.4
-Jan 12 18:49:08 h6n2fls33o811 last message repeated 10 times
-and lots more from mounting with uid=0
-
-Is there any simple way of passing the first uid to the automounter?
-
--- robin
-
+John

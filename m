@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264697AbUGZAfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264701AbUGZAiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264697AbUGZAfT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 20:35:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264701AbUGZAfT
+	id S264701AbUGZAiY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 20:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUGZAiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 20:35:19 -0400
-Received: from viriato1.servicios.retecal.es ([212.89.0.44]:30451 "EHLO
-	viriato1.servicios.retecal.es") by vger.kernel.org with ESMTP
-	id S264697AbUGZAfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 20:35:10 -0400
-Message-ID: <410451BB.8040306@hispalinux.es>
-Date: Mon, 26 Jul 2004 02:35:07 +0200
-From: =?ISO-8859-1?Q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>
-User-Agent: Mozilla Thunderbird 0.7.2 (X11/20040714)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: Future devfs plans
-References: <200407261445.i6QEjAS04697@freya.yggdrasil.com> <410450CA.9080708@hispalinux.es>
-In-Reply-To: <410450CA.9080708@hispalinux.es>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-To: unlisted-recipients:; (no To-header on input)
+	Sun, 25 Jul 2004 20:38:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:1773 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264701AbUGZAiR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 20:38:17 -0400
+Date: Sun, 25 Jul 2004 17:36:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6.8-rc1-mm1] Autotune swappiness01
+Message-Id: <20040725173652.274dcac6.akpm@osdl.org>
+In-Reply-To: <cone.1090801520.852584.20693.502@pc.kolivas.org>
+References: <cone.1090801520.852584.20693.502@pc.kolivas.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Con Kolivas <kernel@kolivas.org> wrote:
+>
+> Attached is a patch designed to improve the behaviour of the swappiness knob 
+> in 2.6.8-rc1-mm1. 
+> 
+> The current mechanism decides to reclaim mapped pages based on the 
+> combination of mapped_ratio/2 and the manual setting of swappiness currently 
+> tuned to 60. Biasing this mechanism to be proportional to the square root of 
+> mapped_ratio gives good overall performance improvement for desktop 
+> workloads without any noticable detriment to other loads.
 
-Ramón Rey Vicente wrote:
-| Adam J. Richter wrote:
-|
-| |     devfs allows drivers to be loaded when user level programs
-| | need them,
-|
-| With udev you can do that, and without important bugs :). And the more
-| important thing is _udev is in active development_
+OK...
 
-s/udev/hotplug :)
-- --
-Ramón Rey Vicente       <ramon dot rey at hispalinux dot es>
-jabber ID               <rreylinux at jabber dot org>
-GPGid 9F28E377 - 0BC2 8014 2445 51E8 DE87  C888 C385 A9D3 9F28 E377
-===================================================================
-"Copyright doesn't cover ideas; it's your expression of those
-ideas." (Richard M. Stallman)
-===================================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+> It has the effect 
+> of being fairly aggressive at avoiding loss of applications to swap under 
+> conditions of heavy or sustained file stress while allowing applications to 
+> swap out under what would be considered "application" memory stresses on a 
+> desktop.
 
-iD8DBQFBBFG7w4Wp058o43cRAm4UAKDciSR+94Q293fms/cDSCpT7EsgkwCgrrd0
-anawSa53VYLRIIsxe4pTg9s=
-=HB57
------END PGP SIGNATURE-----
+But decreasing /proc/sys/vm/swappiness does that too?
+
+> It has no measurable effect on any known benchmarks.
+
+So how are we to evaluate the desirability of the patch???
+
+> The swappiness knob is kept intact and ironically is set to the same value 
+> of 60, and overall behaves the same as previous patches posted for 
+> autoregulating swappiness. The idea of this patch is to ultimately deprecate 
+> the need for a swappiness knob if this achieves good performance in most 
+> workloads.
+
+Don't think so.  If you have a machine with a lot of memory which is doing
+mainly pagecache-intensive work and you also want it to aggressively swap
+out anonymous pages (ie: your initials are akpm) then you'll be setting
+swappiness to 100.
+
+
+Shouldn't mapped_bias be local to refill_inactive_zone()?
+
+Why is `swappiness' getting squared?  AFAICT this will simply make the
+swappiness control behave nonlinearly, which seems undesirable?
+

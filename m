@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265338AbTLHFqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 00:46:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265341AbTLHFqP
+	id S265341AbTLHGEh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 01:04:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265344AbTLHGEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 00:46:15 -0500
-Received: from [66.62.77.7] ([66.62.77.7]:31659 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S265338AbTLHFqO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 00:46:14 -0500
-Subject: Re: USB/visor oops
-From: Dax Kelson <dax@gurulabs.com>
-To: Pete Zaitcev <zaitcev@redhat.com>, greg@kroah.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200312071935.hB7JZxMc015085@devserv.devel.redhat.com>
-References: <mailman.1070778724.26453.linux-kernel2news@redhat.com>
-	 <200312071935.hB7JZxMc015085@devserv.devel.redhat.com>
-Content-Type: text/plain
-Message-Id: <1070862306.2922.2.camel@mentor.gurulabs.com>
+	Mon, 8 Dec 2003 01:04:36 -0500
+Received: from bgp01360964bgs.sandia01.nm.comcast.net ([68.35.68.128]:33153
+	"EHLO orion.dwf.com") by vger.kernel.org with ESMTP id S265341AbTLHGEf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 01:04:35 -0500
+Message-Id: <200312080604.hB864YY9009359@orion.dwf.com>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0 USB/HID problems.
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sun, 07 Dec 2003 22:45:06 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 07 Dec 2003 23:04:34 -0700
+From: reg@dwf.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-12-07 at 12:35, Pete Zaitcev wrote:
-> > After having had my Tre600 hotsyncing working fine with RHL9 I'm trying
-> > again after upgrading to Fedora. So far all I get are oops and hangs.
-> 
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=107929
-> 
-> Try 2.4.23 as Greg says and LET ME KNOW THE RESULT, please.
+I am posting this here since I dont seem to be able to post to
+either of the USB lists.
 
-It works great with 2.4.23! No oops, hotsync goes.
+In working with the code apcupsd, I have found two problems that appeare
+in the 2.6.0-testX kernels that did not appear in the 2.4.x series of kernels.
 
-Greg question for you. Before I always used /dev/usb/ttyUSB0 to hotsync
-against, now it that doesn't work but ttyUSB1 does. Any ideas?
+    (1) When doing a read to get hiddev_event structures, 2.4 only
+	gave the 'real' events from the device that one expected.
+	Under 2.6.0-testx there are several ZERO event structures/sec
+	where the entire structure is ZERO, both hid and value.
 
-> > This is with the Fedora kernel 2.4.22-1.2115.nptl. This is with the uhci
-> > instead of usb-uhci.
-> 
-> Someone enabled it again? Time to have a talk with davej.
+	For the current code there may be a 'real' event every few
+	seconds, and 5-10 of these zero events/sec.  I have no
+	idea where they are coming from.
 
-My system defaulted to usb-uhci. I tried uhci to see if it made a
-difference. It didn't.
+    (2) In one thread the code does a select, followed by a read if
+	data is available.  If one just 'falls thru' to the read with
+	the few lines of code it takes to do the checking, one gets
+	up to 45000 messages/minute (750/sec) reading:
 
-Dax Kelson
-Guru Labs
+	    kernel: drivers/usb/input/hid-core.c: control queue full
+
+	If one puts a 1/10sec sleep between these two commands, the
+	error messages go away. 
+
+Anyone know anything about either of these errors?
+Or how to report them to the USB people if you cant post to the USB lists?
+ 
+-- 
+                                        Reg.Clemens
+                                        reg@dwf.com
+
 

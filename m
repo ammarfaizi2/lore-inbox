@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266184AbUALNvu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 08:51:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266185AbUALNvu
+	id S266174AbUALOHm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 09:07:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266185AbUALOHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 08:51:50 -0500
-Received: from [211.167.76.68] ([211.167.76.68]:34758 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S266184AbUALNvt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 08:51:49 -0500
-Date: Mon, 12 Jan 2004 21:32:13 +0800
-From: Hugang <hugang@soulinfo.com>
-To: Bart Samwel <bart@samwel.tk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
-Message-Id: <20040112213213.6f507d13@localhost>
-In-Reply-To: <4002A3FC.3000000@samwel.tk>
-References: <3FFFD61C.7070706@samwel.tk>
-	<200401121212.44902.lkml@kcore.org>
-	<4002836A.8050908@samwel.tk>
-	<200401121343.34688.lkml@kcore.org>
-	<4002A3FC.3000000@samwel.tk>
-Organization: Beijing Soul
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jan 2004 09:07:42 -0500
+Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:30593
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S266174AbUALOHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 09:07:40 -0500
+Date: Mon, 12 Jan 2004 09:06:52 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: 2.6.1 and irq balancing
+In-Reply-To: <btt7pt$3m8$1@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.58.0401120905140.7344@montezuma.fsmlabs.com>
+References: <7F740D512C7C1046AB53446D37200173618820@scsmsx402.sc.intel.com>
+ <btt7pt$3m8$1@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jan 2004 14:41:16 +0100
-Bart Samwel <bart@samwel.tk> wrote:
+On Sun, 11 Jan 2004, Bill Davidsen wrote:
 
-> How are the WRITEs grouped, are they grouped together or do they seem to 
-> occur more evenly spaced? When you use "sync", how long until the next 
-> WRITE? What are the values of /proc/sys/vm/dirty_expire_centisecs and 
-> /proc/sys/vm/dirty_writeback_centisecs? Are you sure you are running a 
-> kernel that supports the commit= option with reiserfs? (This option was 
-> added in 2.6.1.)
-> 
-> I've never tested laptop mode with reiserfs BTW, does anybody else here 
-> have experience with laptop mode and reiserfs?
-Yes, I'm use reiserfs in 2.6.1 with laptop_mode patch. It works fine for me, I use cpudyn daemon to let spin download harddisk. In cpudyn.conf
-I changed TIMEOUT from 120 to 10. When i reading email/web, the harddisk can spin down for very long time (>3min). 
+> I'm not sure this is a problem in any way, but some serious load is
+> needed to trigger sharing, if indeed the NIC was the source of the ints
+> on CPU2.
+>
+> 2x Xeon-2.4GHz, HT enabled. "CPU2" from memory, it was the other
+> physical CPU, not another sibling. Worked fine, didn't break, don't
+> regard it as a problem.
 
-So you can try cpudynd.
+Seems to be ok here, 2x Xeon 2.0GHz w/ HT
 
+           CPU0       CPU1       CPU2       CPU3
+  0:  322303400          0          0          0    IO-APIC-edge  timer
+  1:     255712          0          0          0    IO-APIC-edge  i8042
+  2:          0          0          0          0          XT-PIC  cascade
+  3:        828          0          0          0    IO-APIC-edge  serial
+  4:      70682          0          0          0    IO-APIC-edge  serial
+  8:          1          0          0          0    IO-APIC-edge  rtc
+  9:          0          0          0          0   IO-APIC-level  acpi
+ 12:    1244334          0          0          0    IO-APIC-edge  i8042
+ 14:   21708437        129   18313205       1492    IO-APIC-edge  ide0
+ 15:   10859481         78    9907876         64    IO-APIC-edge  ide1
+ 16:        655          0          0          0   IO-APIC-level  uhci_hcd
+ 19:      34458          0          0          0   IO-APIC-level  uhci_hcd, serial
+ 20:    5762897          0    1009019          0   IO-APIC-level  eth0
+ 22:    4985838         60    4908642         42   IO-APIC-level  ide2, ide3
+ 23:    3667147          0          0          0   IO-APIC-level  eth1
+ 48:    8459639          0          0          0   IO-APIC-level  EMU10K1
+NMI:          0          0          0          0
+LOC:  322346360  322346360  322346359  322346358
+ERR:          0
+MIS:          0
 
-# TIMEOUT=120
-TIMEOUT=10
-
-# 
-# Specified disks to spindown (comma separated devices)
-#
-
-# DISKS=/dev/hda,/dev/hdb
-DISKS=/dev/hda
-
-
--- 
-Hu Gang / Steve
-RLU#          : 204016 [1999] (Registered Linux user)
-GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc

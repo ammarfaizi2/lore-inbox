@@ -1,64 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267301AbSLEMIc>; Thu, 5 Dec 2002 07:08:32 -0500
+	id <S267302AbSLEMJd>; Thu, 5 Dec 2002 07:09:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267302AbSLEMIc>; Thu, 5 Dec 2002 07:08:32 -0500
-Received: from h-64-105-35-8.SNVACAID.covad.net ([64.105.35.8]:13263 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S267301AbSLEMIb>; Thu, 5 Dec 2002 07:08:31 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 5 Dec 2002 04:13:29 -0800
-Message-Id: <200212051213.EAA04698@adam.yggdrasil.com>
-To: benh@kernel.crashing.org
-Subject: Re: [RFC] generic device DMA implementation
-Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org, miles@gnu.org
+	id <S267303AbSLEMJd>; Thu, 5 Dec 2002 07:09:33 -0500
+Received: from marcie.netcarrier.net ([216.178.72.21]:49426 "HELO
+	marcie.netcarrier.net") by vger.kernel.org with SMTP
+	id <S267302AbSLEMJb>; Thu, 5 Dec 2002 07:09:31 -0500
+Message-ID: <3DEF43DE.130064D8@compuserve.com>
+Date: Thu, 05 Dec 2002 07:17:34 -0500
+From: Kevin Brosius <cobra@compuserve.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.16-4GB i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Olien <dmo@osdl.org>
+CC: Samium Gromoff <_deepfire@mail.ru>, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Monitor utility (was Re: DAC960 at 2.5.50)
+References: <E18HR1a-0005QL-00@f12.mail.ru> <20021203114201.A32313@acpi.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
->On Wed, 2002-12-04 at 22:46, James Bottomley wrote:
->> If you have a machine that has both consistent and inconsistent blocks, you 
->> need to encode that in dma_addr_t (which is a platform definable type).
->
->I don't agree here. Encoding things in dma_addr_t, then special casing
->in consistent_{map,unmap,sync,....) looks really ugly to me ! You want
->dma_addr_t to contain a bus address for the given bus you are working
->with and pass that to your device, period.
+Dave, all,
+  Did you know about the DAC960 monitor utility?  I just ran across it
+in the SuSE install set.  It's available from
+http://varmon.sourceforge.net/
 
-	I don't think that James meant actually defining flag bits
-inside of dma_addr_t, although I suppose you could do it for some
-unused high bits on some architectures.  I think the implication
-was that you could have something like:
+Looks like it's not being maintained anymore (and probably won't work
+with the 2.5 driver yet?)
+
+-- 
+Kevin
 
 
-static inline int is_consistent(dma_addr_t addr)
-{
-	return (addr >= CONSISTENT_AREA_START && addr < CONSISTENT_AREA_END);
-}
-
-	I also don't recall anyone proposing special casing
-dma_{map,unmap,sync} based on the results of such a check.  I think
-the only function that might use it would be maybe_wmb(addr,len),
-which, on some might machines might be:
-
-static inline void maybe_wmb(dma_addr_t addr, size_t len)
-{
-	if (!is_consistent(addr))
-		wmb();
-}
-
-	In practice, I think dma_malloc() would either always return
-consistent memory or never return consistent memory on a given
-machine, so maybe_wmb would probably never do such range checking.
-Instead it would compile to nothing on machines where dma_alloc always
-returned consistent memory, would compile to wmb() on systems where
-dma_alloc would only succeed if it could return non-consistent memory,
-and would compile to a procedure pointer on parisc that would either
-set to point to a no-op or wmb, depending on which kind of machine the
-kernel was booted on.
-
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Dave Olien wrote:
+> 
+> 
+> 
+> Let me know if you find any problems at all.  I'll try to
+> address them.
+> 
+> I think the biggest "imperfection" is just the coding style of
+> the whole driver.  I might submit some patches over time to clean
+> up coding style.
+> 
+> The next problem is that it doesn't handle media errors yet.
+> If you have a read or write failure because a sector on your disk
+> is bad, it fails the entire read or write. With all the coalescing
+> of requests that the block layer does, this might fail ALL of a
+> really large transfer just because one sector is bad.
+> 
+> I'm working on a patch that retries failures section at a time,
+> so that the failure will be more closely limited to the sector
+> that is bad.
+> 
+> On Thu, Nov 28, 2002 at 06:56:22PM +0300, Samium Gromoff wrote:
+> >  > Samium Gromoff...
+> > > > > <alan@lxorguk.ukuu.org.uk>
+> > > > >         [PATCH] update to OSDL DAC960 driver
+> > > > >
+> > > > >         Its not perfect but it works
+> > > >    is it supposed to blow my data, or is it relatively safe to use?
+> > >
+> > > There have been a few poeple using this patch for about 5 versions of
+> > > 2.5 so far.  I haven't done heavy testing myself, just booting and doing
+> > > some other testing of modules and drivers.  I am running the DAC960 on
+> > > my root/boot filesystem and haven't seen any problems yet.
+> >   thank you. i`ll join the 2.5 DAC user crowd soon then :-)
+> >
+> > ---
+> > regards,
+> >    Samium Gromoff

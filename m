@@ -1,99 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266520AbUKAQsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271290AbUKAQ4d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266520AbUKAQsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 11:48:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S277845AbUKAQsP
+	id S271290AbUKAQ4d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 11:56:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267575AbUKAQ3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 11:48:15 -0500
-Received: from yacht.ocn.ne.jp ([222.146.40.168]:3820 "EHLO
-	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
-	id S270491AbUKAQrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 11:47:06 -0500
-From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
-To: Andrew Morton <akpm@osdl.org>, William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [PATCH] user-defined profiling
-Date: Tue, 2 Nov 2004 01:49:29 +0900
-User-Agent: KMail/1.5.4
-Cc: <linux-kernel@vger.kernel.org>
-References: <200411020133.53562.amgta@yacht.ocn.ne.jp>
-In-Reply-To: <200411020133.53562.amgta@yacht.ocn.ne.jp>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Nov 2004 11:29:47 -0500
+Received: from cantor.suse.de ([195.135.220.2]:37508 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269360AbUKAPwm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 10:52:42 -0500
+Date: Mon, 1 Nov 2004 16:47:23 +0100
+From: Olaf Hering <olh@suse.de>
+To: Antonino Daplas <adaplas@pol.net>, linux-kernel@vger.kernel.org
+Subject: [PATCH] set correct mclk/xclk values for aty in ibook
+Message-ID: <20041101154723.GA14379@suse.de>
+References: <20041101141622.GA14335@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200411020149.29505.amgta@yacht.ocn.ne.jp>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041101141622.GA14335@suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 November 2004 01:33, Akinobu Mita wrote:
 
-> Furthermore I much prefer to insert the user-defined profile point
-> with Kprobe. This is why the profile_hits() was exported.
+The first iBook needs special mclk/xclk values, or the screen will show
+only garbage. A patch like this went into 2.4.23. It stopped working
+after 2.6.10-rc1.
 
-I am using this kernel module to insert user-defined profiling.
+http://linux.bkbits.net:8080/linux-2.4/cset@3f966ca7mqKxZorh7Uw2SBAuVbv3mA
 
-$ insmod usrprof.ko probe=<address>
+It was discussed here:
+http://marc.theaimsgroup.com/?t=106345749200001&r=1&w=4
 
+Signed-off-by: Olaf Hering <olh@suse.de>
 
-#include <linux/kernel.h>
-#include <linux/module.h>
-#include <linux/profile.h>
-#include <linux/kprobes.h>
+diff -purN linux-2.6.10-rc1-bk9.orig/drivers/video/aty/atyfb_base.c linux-2.6.10-rc1-bk9-olh/drivers/video/aty/atyfb_base.c
+--- linux-2.6.10-rc1-bk9.orig/drivers/video/aty/atyfb_base.c	2004-10-30 20:13:02.000000000 +0200
++++ linux-2.6.10-rc1-bk9-olh/drivers/video/aty/atyfb_base.c	2004-11-01 16:29:57.613561216 +0100
+@@ -2190,6 +2190,14 @@ static int __init aty_init(struct fb_inf
+ 
+ 	par->aty_cmap_regs =
+ 	    (struct aty_cmap_regs __iomem *) (par->ati_regbase + 0xc0);
++#ifdef CONFIG_PPC_PMAC
++	/* The Apple iBook1 uses non-standard memory frequencies. We detect it
++	 * and set the frequency manually. */
++	if (machine_is_compatible("PowerBook2,1")) {
++		par->pll_limits.mclk = 70;
++		par->pll_limits.xclk = 53;
++	}
++#endif
+ 
+ 	if (pll)
+ 		par->pll_limits.pll_max = pll;
 
-#if !defined(__i386__) || !defined(CONFIG_FRAME_POINTER)
-#error not supported
-#endif
+-- 
+USB is for mice, FireWire is for men!
 
-/* copied from arch/i386/traps.c */
-
-static inline int valid_stack_ptr(struct thread_info *tinfo, void *p)
-{
-	return  p > (void *)tinfo &&
-		p < (void *)tinfo + THREAD_SIZE - 3;
-}
-
-int pre_handler(struct kprobe *p, struct pt_regs *regs) {
-	unsigned long ebp = regs->ebp;
-	unsigned long addr = ~0UL;
-	struct thread_info *context = (struct thread_info *)
-		(regs->esp & (~(THREAD_SIZE - 1)));
-
-	if (valid_stack_ptr(context, (void *)ebp))
-		addr = *(unsigned long *)(ebp + 4);
-		
-	profile_hit(USR_PROFILING, (void *)addr);
-
-	return 0;
-}
-
-static struct kprobe kp = {
-	.pre_handler	= pre_handler,
-};
-
-static long probe;
-module_param(probe, long, 0);
-
-static int __init init_usrprof(void)
-{
-	if (!probe) {
-		printk(KERN_ERR "%lx: invalid address\n", probe);
-		return 1;
-	}
-	kp.addr = (void *)probe;
-	register_kprobe(&kp);
-	return 0;
-}
-
-static void __exit cleanup_usrprof(void)
-{
-	unregister_kprobe(&kp);
-}
-
-module_init(init_usrprof);
-module_exit(cleanup_usrprof);
-
-MODULE_LICENSE("GPL");
-
-
-
+sUse lINUX ag, nÜRNBERG

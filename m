@@ -1,179 +1,318 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267387AbSLRXOZ>; Wed, 18 Dec 2002 18:14:25 -0500
+	id <S267371AbSLRXLt>; Wed, 18 Dec 2002 18:11:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267392AbSLRXOZ>; Wed, 18 Dec 2002 18:14:25 -0500
-Received: from dexter.citi.umich.edu ([141.211.133.33]:2432 "EHLO
+	id <S267374AbSLRXLs>; Wed, 18 Dec 2002 18:11:48 -0500
+Received: from dexter.citi.umich.edu ([141.211.133.33]:1408 "EHLO
 	dexter.citi.umich.edu") by vger.kernel.org with ESMTP
-	id <S267387AbSLRXOR>; Wed, 18 Dec 2002 18:14:17 -0500
-Date: Wed, 18 Dec 2002 18:22:17 -0500 (EST)
+	id <S267371AbSLRXLo>; Wed, 18 Dec 2002 18:11:44 -0500
+Date: Wed, 18 Dec 2002 18:19:43 -0500 (EST)
 From: Chuck Lever <cel@citi.umich.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] cleanup: simplify req_offset function in NFS client
-Message-ID: <Pine.LNX.4.44.0212181820400.1373-100000@dexter.citi.umich.edu>
+Subject: [PATCH] use kmap_atomic instaed of kmap in NFS client
+Message-ID: <Pine.LNX.4.44.0212181810570.1373-100000@dexter.citi.umich.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Description:
-  everywhere the NFS client uses the req_offset() function today, it adds
-  req->wb_offset to the result.  this patch simply makes "+req->wb_offset"
-  a part of the req_offset() function.
+  andrew morton suggested there are places in the NFS client that could
+  make use of kmap_atomic instead of vanilla kmap in order to improve
+  scalability on 8-way and higher SMP systems.
 
-Apply against:
+Apply Against:
   2.5.52
 
 Test status:
-  Passes all Connectathon '02 tests with v2, v3, UDP and TCP.  Passes
-  NFS torture tests on an x86 UP highmem system.
+  Passes all Connectathon '02 tests with v2 and v3, UDP and TCP; passes
+  NFS torture tests on a UP HIGHMEM x86 system.
 
 
-diff -Naurp 02-set_page_dirty/fs/nfs/nfs3proc.c 03-req_offset/fs/nfs/nfs3proc.c
---- 02-set_page_dirty/fs/nfs/nfs3proc.c	Sun Dec 15 21:07:57 2002
-+++ 03-req_offset/fs/nfs/nfs3proc.c	Wed Dec 18 17:39:16 2002
-@@ -708,7 +708,7 @@ nfs3_proc_read_setup(struct nfs_read_dat
- 	
- 	req = nfs_list_entry(data->pages.next);
- 	data->u.v3.args.fh     = NFS_FH(inode);
--	data->u.v3.args.offset = req_offset(req) + req->wb_offset;
-+	data->u.v3.args.offset = req_offset(req);
- 	data->u.v3.args.pgbase = req->wb_offset;
- 	data->u.v3.args.pages  = data->pagevec;
- 	data->u.v3.args.count  = count;
-@@ -764,7 +764,7 @@ nfs3_proc_write_setup(struct nfs_write_d
- 	
- 	req = nfs_list_entry(data->pages.next);
- 	data->u.v3.args.fh     = NFS_FH(inode);
--	data->u.v3.args.offset = req_offset(req) + req->wb_offset;
-+	data->u.v3.args.offset = req_offset(req);
- 	data->u.v3.args.pgbase = req->wb_offset;
- 	data->u.v3.args.count  = count;
- 	data->u.v3.args.stable = stable;
-diff -Naurp 02-set_page_dirty/fs/nfs/nfs4proc.c 03-req_offset/fs/nfs/nfs4proc.c
---- 02-set_page_dirty/fs/nfs/nfs4proc.c	Wed Dec 18 17:22:06 2002
-+++ 03-req_offset/fs/nfs/nfs4proc.c	Wed Dec 18 17:39:16 2002
-@@ -1384,7 +1384,7 @@ nfs4_proc_read_setup(struct nfs_read_dat
+diff -Naurp 00-stock/fs/nfs/dir.c 01-kmap_atomic/fs/nfs/dir.c
+--- 00-stock/fs/nfs/dir.c	Sun Dec 15 21:07:57 2002
++++ 01-kmap_atomic/fs/nfs/dir.c	Wed Dec 18 17:22:06 2002
+@@ -208,7 +208,7 @@ int find_dirent_page(nfs_readdir_descrip
  
- 	nfs4_setup_compound(cp, data->u.v4.ops, NFS_SERVER(inode), "read [async]");
- 	nfs4_setup_putfh(cp, NFS_FH(inode));
--	nfs4_setup_read(cp, req_offset(req) + req->wb_offset,
-+	nfs4_setup_read(cp, req_offset(req),
- 			count, data->pagevec, req->wb_offset,
- 			&data->u.v4.res_eof,
- 			&data->u.v4.res_count);
-@@ -1437,7 +1437,7 @@ nfs4_proc_write_setup(struct nfs_write_d
+ 	/* NOTE: Someone else may have changed the READDIRPLUS flag */
+ 	desc->page = page;
+-	desc->ptr = kmap(page);
++	desc->ptr = kmap(page);		/* matching kunmap in nfs_do_filldir */
+ 	status = find_dirent(desc, page);
+ 	if (status < 0)
+ 		dir_page_release(desc);
+@@ -345,7 +345,7 @@ int uncached_readdir(nfs_readdir_descrip
+ 						NFS_SERVER(inode)->dtsize,
+ 						desc->plus);
+ 	desc->page = page;
+-	desc->ptr = kmap(page);
++	desc->ptr = kmap(page);		/* matching kunmap in nfs_do_filldir */
+ 	if (desc->error >= 0) {
+ 		if ((status = dir_decode(desc)) == 0)
+ 			desc->entry->prev_cookie = desc->target;
+@@ -717,9 +717,9 @@ int nfs_cached_lookup(struct inode *dir,
  
- 	nfs4_setup_compound(cp, data->u.v4.ops, NFS_SERVER(inode), "write [async]");
- 	nfs4_setup_putfh(cp, NFS_FH(inode));
--	nfs4_setup_write(cp, req_offset(req) + req->wb_offset,
-+	nfs4_setup_write(cp, req_offset(req),
- 			 count, stable, data->pagevec, req->wb_offset,
- 			 &data->u.v4.res_count, &data->verf);
+ 		res = -EIO;
+ 		if (PageUptodate(page)) {
+-			desc.ptr = kmap(page);
++			desc.ptr = kmap_atomic(page, KM_USER0);
+ 			res = find_dirent_name(&desc, page, dentry);
+-			kunmap(page);
++			kunmap_atomic(desc.ptr, KM_USER0);
+ 		}
+ 		page_cache_release(page);
  
-diff -Naurp 02-set_page_dirty/fs/nfs/proc.c 03-req_offset/fs/nfs/proc.c
---- 02-set_page_dirty/fs/nfs/proc.c	Sun Dec 15 21:08:20 2002
-+++ 03-req_offset/fs/nfs/proc.c	Wed Dec 18 17:39:16 2002
-@@ -543,7 +543,7 @@ nfs_proc_read_setup(struct nfs_read_data
+diff -Naurp 00-stock/fs/nfs/nfs2xdr.c 01-kmap_atomic/fs/nfs/nfs2xdr.c
+--- 00-stock/fs/nfs/nfs2xdr.c	Sun Dec 15 21:07:53 2002
++++ 01-kmap_atomic/fs/nfs/nfs2xdr.c	Wed Dec 18 17:22:06 2002
+@@ -378,7 +378,7 @@ nfs_xdr_readdirres(struct rpc_rqst *req,
+ 	int hdrlen, recvd;
+ 	int status, nr;
+ 	unsigned int len, pglen;
+-	u32 *end, *entry;
++	u32 *end, *entry, *kaddr;
+ 
+ 	if ((status = ntohl(*p++)))
+ 		return -nfs_stat_to_errno(status);
+@@ -398,7 +398,7 @@ nfs_xdr_readdirres(struct rpc_rqst *req,
+ 	if (pglen > recvd)
+ 		pglen = recvd;
+ 	page = rcvbuf->pages;
+-	p = kmap(*page);
++	kaddr = p = (u32 *)kmap_atomic(*page, KM_USER0);
+ 	end = (u32 *)((char *)p + pglen);
+ 	entry = p;
+ 	for (nr = 0; *p++; nr++) {
+@@ -419,7 +419,7 @@ nfs_xdr_readdirres(struct rpc_rqst *req,
+ 	if (!nr && (entry[0] != 0 || entry[1] == 0))
+ 		goto short_pkt;
+  out:
+-	kunmap(*page);
++	kunmap_atomic(kaddr, KM_USER0);
+ 	return nr;
+  short_pkt:
+ 	entry[0] = entry[1] = 0;
+@@ -430,8 +430,8 @@ nfs_xdr_readdirres(struct rpc_rqst *req,
+ 	}
+ 	goto out;
+ err_unmap:
+-	kunmap(*page);
+-	return -errno_NFSERR_IO;
++	nr = -errno_NFSERR_IO;
++	goto out;
+ }
+ 
+ u32 *
+@@ -542,7 +542,7 @@ nfs_xdr_readlinkres(struct rpc_rqst *req
+ 		xdr_shift_buf(rcvbuf, iov->iov_len - hdrlen);
+ 	}
+ 
+-	strlen = (u32*)kmap(rcvbuf->pages[0]);
++	strlen = (u32*)kmap_atomic(rcvbuf->pages[0], KM_USER0);
+ 	/* Convert length of symlink */
+ 	len = ntohl(*strlen);
+ 	if (len > rcvbuf->page_len)
+@@ -551,7 +551,7 @@ nfs_xdr_readlinkres(struct rpc_rqst *req
+ 	/* NULL terminate the string we got */
+ 	string = (char *)(strlen + 1);
+ 	string[len] = 0;
+-	kunmap(rcvbuf->pages[0]);
++	kunmap_atomic(strlen, KM_USER0);
+ 	return 0;
+ }
+ 
+diff -Naurp 00-stock/fs/nfs/nfs3xdr.c 01-kmap_atomic/fs/nfs/nfs3xdr.c
+--- 00-stock/fs/nfs/nfs3xdr.c	Sun Dec 15 21:08:24 2002
++++ 01-kmap_atomic/fs/nfs/nfs3xdr.c	Wed Dec 18 17:22:06 2002
+@@ -488,7 +488,7 @@ nfs3_xdr_readdirres(struct rpc_rqst *req
+ 	int hdrlen, recvd;
+ 	int status, nr;
+ 	unsigned int len, pglen;
+-	u32 *entry, *end;
++	u32 *entry, *end, *kaddr;
+ 
+ 	status = ntohl(*p++);
+ 	/* Decode post_op_attrs */
+@@ -518,7 +518,7 @@ nfs3_xdr_readdirres(struct rpc_rqst *req
+ 	if (pglen > recvd)
+ 		pglen = recvd;
+ 	page = rcvbuf->pages;
+-	p = kmap(*page);
++	kaddr = p = (u32 *)kmap_atomic(*page, KM_USER0);
+ 	end = (u32 *)((char *)p + pglen);
+ 	entry = p;
+ 	for (nr = 0; *p++; nr++) {
+@@ -563,7 +563,7 @@ nfs3_xdr_readdirres(struct rpc_rqst *req
+ 	if (!nr && (entry[0] != 0 || entry[1] == 0))
+ 		goto short_pkt;
+  out:
+-	kunmap(*page);
++	kunmap_atomic(kaddr, KM_USER0);
+ 	return nr;
+  short_pkt:
+ 	entry[0] = entry[1] = 0;
+@@ -574,8 +574,8 @@ nfs3_xdr_readdirres(struct rpc_rqst *req
+ 	}
+ 	goto out;
+ err_unmap:
+-	kunmap(*page);
+-	return -errno_NFSERR_IO;
++	nr = -errno_NFSERR_IO;
++	goto out;
+ }
+ 
+ u32 *
+@@ -738,7 +738,7 @@ nfs3_xdr_readlinkres(struct rpc_rqst *re
+ 		xdr_shift_buf(rcvbuf, iov->iov_len - hdrlen);
+ 	}
+ 
+-	strlen = (u32*)kmap(rcvbuf->pages[0]);
++	strlen = (u32*)kmap_atomic(rcvbuf->pages[0], KM_USER0);
+ 	/* Convert length of symlink */
+ 	len = ntohl(*strlen);
+ 	if (len > rcvbuf->page_len)
+@@ -747,7 +747,7 @@ nfs3_xdr_readlinkres(struct rpc_rqst *re
+ 	/* NULL terminate the string we got */
+ 	string = (char *)(strlen + 1);
+ 	string[len] = 0;
+-	kunmap(rcvbuf->pages[0]);
++	kunmap_atomic(strlen, KM_USER0);
+ 	return 0;
+ }
+ 
+diff -Naurp 00-stock/fs/nfs/nfs4proc.c 01-kmap_atomic/fs/nfs/nfs4proc.c
+--- 00-stock/fs/nfs/nfs4proc.c	Sun Dec 15 21:08:14 2002
++++ 01-kmap_atomic/fs/nfs/nfs4proc.c	Wed Dec 18 17:22:06 2002
+@@ -447,7 +447,7 @@ nfs4_setup_readdir(struct nfs4_compound 
+ 	 * when talking to the server, we always send cookie 0
+ 	 * instead of 1 or 2.
+ 	 */
+-	start = p = (u32 *)kmap(*pages);
++	start = p = (u32 *)kmap_atomic(*pages, KM_USER0);
  	
- 	req = nfs_list_entry(data->pages.next);
- 	data->u.v3.args.fh     = NFS_FH(inode);
--	data->u.v3.args.offset = req_offset(req) + req->wb_offset;
-+	data->u.v3.args.offset = req_offset(req);
- 	data->u.v3.args.pgbase = req->wb_offset;
- 	data->u.v3.args.pages  = data->pagevec;
- 	data->u.v3.args.count  = count;
-@@ -589,7 +589,7 @@ nfs_proc_write_setup(struct nfs_write_da
- 	
- 	req = nfs_list_entry(data->pages.next);
- 	data->u.v3.args.fh     = NFS_FH(inode);
--	data->u.v3.args.offset = req_offset(req) + req->wb_offset;
-+	data->u.v3.args.offset = req_offset(req);
- 	data->u.v3.args.pgbase = req->wb_offset;
- 	data->u.v3.args.count  = count;
- 	data->u.v3.args.stable = NFS_FILE_SYNC;
-diff -Naurp 02-set_page_dirty/fs/nfs/read.c 03-req_offset/fs/nfs/read.c
---- 02-set_page_dirty/fs/nfs/read.c	Wed Dec 18 17:22:06 2002
-+++ 03-req_offset/fs/nfs/read.c	Wed Dec 18 17:39:16 2002
-@@ -178,7 +178,7 @@ nfs_read_rpcsetup(struct list_head *head
- 			inode->i_sb->s_id,
- 			(long long)NFS_FILEID(inode),
- 			count,
--			(unsigned long long)req_offset(req) + req->wb_offset);
-+			(unsigned long long)req_offset(req));
+ 	if (cookie == 0) {
+ 		*p++ = xdr_one;                                  /* next */
+@@ -475,7 +475,7 @@ nfs4_setup_readdir(struct nfs4_compound 
+ 
+ 	readdir->rd_pgbase = (char *)p - (char *)start;
+ 	readdir->rd_count -= readdir->rd_pgbase;
+-	kunmap(*pages);
++	kunmap_atomic(start, KM_USER0);
  }
  
  static void
-@@ -274,7 +274,7 @@ nfs_readpage_result(struct rpc_task *tas
+diff -Naurp 00-stock/fs/nfs/nfs4xdr.c 01-kmap_atomic/fs/nfs/nfs4xdr.c
+--- 00-stock/fs/nfs/nfs4xdr.c	Sun Dec 15 21:08:24 2002
++++ 01-kmap_atomic/fs/nfs/nfs4xdr.c	Wed Dec 18 17:31:28 2002
+@@ -1410,7 +1410,7 @@ decode_readdir(struct xdr_stream *xdr, s
+ 	struct page	*page = *rcvbuf->pages;
+ 	struct iovec	*iov = rcvbuf->head;
+ 	unsigned int	nr, pglen = rcvbuf->page_len;
+-	uint32_t	*end, *entry, *p;
++	uint32_t	*end, *entry, *p, *kaddr;
+ 	uint32_t	len, attrlen, word;
+ 	int 		i, hdrlen, recvd, status;
+ 
+@@ -1434,7 +1434,7 @@ decode_readdir(struct xdr_stream *xdr, s
+ 		pglen = recvd;
+ 
+ 	BUG_ON(pglen + readdir->rd_pgbase > PAGE_CACHE_SIZE);
+-	p   = (uint32_t *) kmap(page);
++	kaddr = p = (uint32_t *) kmap_atomic(page, KM_USER0);
+ 	end = (uint32_t *) ((char *)p + pglen + readdir->rd_pgbase);
+ 	entry = p;
+ 	for (nr = 0; *p++; nr++) {
+@@ -1480,7 +1480,7 @@ decode_readdir(struct xdr_stream *xdr, s
+ 	if (!nr && (entry[0] != 0 || entry[1] == 0))
+ 		goto short_pkt;
+ out:	
+-	kunmap(page);
++	kunmap_atomic(kaddr, KM_USER0);
+ 	return 0;
+ short_pkt:
+ 	entry[0] = entry[1] = 0;
+@@ -1491,7 +1491,7 @@ short_pkt:
+ 	}
+ 	goto out;
+ err_unmap:
+-	kunmap(page);
++	kunmap_atomic(kaddr, KM_USER0);
+ 	return -errno_NFSERR_IO;
+ }
+ 
+@@ -1522,18 +1522,18 @@ decode_readlink(struct xdr_stream *xdr, 
+ 	 * and and null-terminate the text (the VFS expects
+ 	 * null-termination).
+ 	 */
+-	strlen = (uint32_t *) kmap(rcvbuf->pages[0]);
++	strlen = (uint32_t *) kmap_atomic(rcvbuf->pages[0], KM_USER0);
+ 	len = ntohl(*strlen);
+ 	if (len > PAGE_CACHE_SIZE - 5) {
+ 		printk(KERN_WARNING "nfs: server returned giant symlink!\n");
+-		kunmap(rcvbuf->pages[0]);
++		kunmap_atomic(strlen, KM_USER0);
+ 		return -EIO;
+ 	}
+ 	*strlen = len;
+ 
+ 	string = (char *)(strlen + 1);
+ 	string[len] = '\0';
+-	kunmap(rcvbuf->pages[0]);
++	kunmap_atomic(strlen, KM_USER0);
+ 	return 0;
+ }
+ 
+diff -Naurp 00-stock/fs/nfs/read.c 01-kmap_atomic/fs/nfs/read.c
+--- 00-stock/fs/nfs/read.c	Sun Dec 15 21:07:42 2002
++++ 01-kmap_atomic/fs/nfs/read.c	Wed Dec 18 17:22:06 2002
+@@ -118,12 +118,8 @@ nfs_readpage_sync(struct file *file, str
+ 			break;
+ 	} while (count);
+ 
+-	if (count) {
+-		char *kaddr = kmap(page);
+-		memset(kaddr + offset, 0, count);
+-		kunmap(page);
+-	}
+-	flush_dcache_page(page);
++	if (count)
++		memclear_highpage_flush(page, offset, count);
+ 	SetPageUptodate(page);
+ 	if (PageError(page))
+ 		ClearPageError(page);
+@@ -272,12 +268,9 @@ nfs_readpage_result(struct rpc_task *tas
+ 
+ 		if (task->tk_status >= 0) {
+ 			if (count < PAGE_CACHE_SIZE) {
+-				char *p = kmap(page);
+-
+-				if (count < req->wb_bytes)
+-					memset(p + req->wb_offset + count, 0,
++				memclear_highpage_flush(page,
++							req->wb_offset + count,
+ 							req->wb_bytes - count);
+-				kunmap(page);
  
  				if (eof ||
  				    ((fattr->valid & NFS_ATTR_FATTR) &&
--				     ((req_offset(req) + req->wb_offset + count) >= fattr->size)))
-+				     ((req_offset(req) + count) >= fattr->size)))
- 					SetPageUptodate(page);
- 				else
- 					if (count < req->wb_bytes)
-@@ -292,7 +292,7 @@ nfs_readpage_result(struct rpc_task *tas
-                         req->wb_inode->i_sb->s_id,
-                         (long long)NFS_FILEID(req->wb_inode),
-                         req->wb_bytes,
--                        (long long)(req_offset(req) + req->wb_offset));
-+                        (long long)req_offset(req));
- 		nfs_clear_request(req);
- 		nfs_release_request(req);
- 		nfs_unlock_request(req);
-diff -Naurp 02-set_page_dirty/fs/nfs/write.c 03-req_offset/fs/nfs/write.c
---- 02-set_page_dirty/fs/nfs/write.c	Sun Dec 15 21:08:13 2002
-+++ 03-req_offset/fs/nfs/write.c	Wed Dec 18 17:39:16 2002
-@@ -768,7 +768,7 @@ nfs_write_rpcsetup(struct list_head *hea
- 		inode->i_sb->s_id,
- 		(long long)NFS_FILEID(inode),
- 		count,
--		(unsigned long long)req_offset(req) + req->wb_offset);
-+		(unsigned long long)req_offset(req));
- }
+@@ -293,7 +286,6 @@ nfs_readpage_result(struct rpc_task *tas
+ 			}
+ 		} else
+ 			SetPageError(page);
+-		flush_dcache_page(page);
+ 		unlock_page(page);
  
- /*
-@@ -902,7 +902,7 @@ nfs_writeback_done(struct rpc_task *task
- 			req->wb_inode->i_sb->s_id,
- 			(long long)NFS_FILEID(req->wb_inode),
- 			req->wb_bytes,
--			(long long)(req_offset(req) + req->wb_offset));
-+			(long long)req_offset(req));
- 
- 		if (task->tk_status < 0) {
- 			ClearPageUptodate(page);
-@@ -958,8 +958,8 @@ nfs_commit_rpcsetup(struct list_head *he
- 	 * Determine the offset range of requests in the COMMIT call.
- 	 * We rely on the fact that data->pages is an ordered list...
- 	 */
--	start = req_offset(first) + first->wb_offset;
--	end = req_offset(last) + (last->wb_offset + last->wb_bytes);
-+	start = req_offset(first);
-+	end = req_offset(last) + last->wb_bytes;
- 	len = end - start;
- 	/* If 'len' is not a 32-bit quantity, pass '0' in the COMMIT call */
- 	if (end >= inode->i_size || len < 0 || len > (~((u32)0) >> 1))
-@@ -1031,7 +1031,7 @@ nfs_commit_done(struct rpc_task *task)
- 			req->wb_inode->i_sb->s_id,
- 			(long long)NFS_FILEID(req->wb_inode),
- 			req->wb_bytes,
--			(long long)(req_offset(req) + req->wb_offset));
-+			(long long)req_offset(req));
- 		if (task->tk_status < 0) {
- 			if (req->wb_file)
- 				req->wb_file->f_error = task->tk_status;
-diff -Naurp 02-set_page_dirty/include/linux/nfs_fs.h 03-req_offset/include/linux/nfs_fs.h
---- 02-set_page_dirty/include/linux/nfs_fs.h	Sun Dec 15 21:07:53 2002
-+++ 03-req_offset/include/linux/nfs_fs.h	Wed Dec 18 17:39:16 2002
-@@ -222,7 +222,7 @@ loff_t page_offset(struct page *page)
- static inline
- loff_t req_offset(struct nfs_page *req)
- {
--	return ((loff_t)req->wb_index) << PAGE_CACHE_SHIFT;
-+	return (((loff_t)req->wb_index) << PAGE_CACHE_SHIFT) + req->wb_offset;
- }
- 
- /*
+ 		dprintk("NFS: read (%s/%Ld %d@%Ld)\n",
+diff -Naurp 00-stock/net/sunrpc/xdr.c 01-kmap_atomic/net/sunrpc/xdr.c
+--- 00-stock/net/sunrpc/xdr.c	Sun Dec 15 21:08:13 2002
++++ 01-kmap_atomic/net/sunrpc/xdr.c	Wed Dec 18 17:22:06 2002
+@@ -306,6 +306,7 @@ xdr_partial_copy_from_skb(struct xdr_buf
+ 				len = pglen;
+ 			ret = copy_actor(desc, kaddr, len);
+ 		}
++		flush_dcache_page(*ppage);
+ 		kunmap_atomic(kaddr, KM_SKB_SUNRPC_DATA);
+ 		if (ret != len || !desc->count)
+ 			return;
 

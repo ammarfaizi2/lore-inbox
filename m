@@ -1,76 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277294AbRLDEQZ>; Mon, 3 Dec 2001 23:16:25 -0500
+	id <S278808AbRLDEVq>; Mon, 3 Dec 2001 23:21:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280434AbRLDEQQ>; Mon, 3 Dec 2001 23:16:16 -0500
-Received: from quark.didntduck.org ([216.43.55.190]:10250 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S280191AbRLDEPy>; Mon, 3 Dec 2001 23:15:54 -0500
-Message-ID: <3C0C4D11.90D3A46B@didntduck.org>
-Date: Mon, 03 Dec 2001 23:12:01 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.5.1-pre5-bg1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Small bluesmoke patch
-Content-Type: multipart/mixed;
- boundary="------------61C45F33DA20FBF4617B53BA"
+	id <S280678AbRLDEVg>; Mon, 3 Dec 2001 23:21:36 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:60828 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S278808AbRLDEVd>;
+	Mon, 3 Dec 2001 23:21:33 -0500
+Date: Mon, 03 Dec 2001 20:21:30 -0800 (PST)
+Message-Id: <20011203.202130.118628301.davem@redhat.com>
+To: manfred@colorfullife.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] improve spinlock debugging
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3C0BDC33.6E18C815@colorfullife.com>
+In-Reply-To: <3C0BDC33.6E18C815@colorfullife.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------61C45F33DA20FBF4617B53BA
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+   From: Manfred Spraul <manfred@colorfullife.com>
+   Date: Mon, 03 Dec 2001 21:10:27 +0100
+   
+   Which other runtime checks are possible?
+   Tests for correct _irq usage are not possible, several drivers use
+   disable_irq().
 
-This patch eliminates the do_machine_check function, by using the
-machine_check_vector directly from the asm entry stub.
+Keep track of how many locks are being held at once, and check if it
+is zero at switch_to() time.  You can also do this to measure things
+like max number of locks held at once and other statistics.
 
--- 
-
-						Brian Gerst
---------------61C45F33DA20FBF4617B53BA
-Content-Type: text/plain; charset=us-ascii;
- name="diff-bluesmoke"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-bluesmoke"
-
-diff -urN linux-2.5.1-pre2/arch/i386/kernel/bluesmoke.c linux/arch/i386/kernel/bluesmoke.c
---- linux-2.5.1-pre2/arch/i386/kernel/bluesmoke.c	Mon Nov 12 12:59:43 2001
-+++ linux/arch/i386/kernel/bluesmoke.c	Tue Nov 27 15:01:50 2001
-@@ -98,16 +98,7 @@
- 	printk(KERN_ERR "CPU#%d: Unexpected int18 (Machine Check).\n", smp_processor_id());
- }
- 
--/*
-- *	Call the installed machine check handler for this CPU setup.
-- */
--
--static void (*machine_check_vector)(struct pt_regs *, long error_code) = unexpected_machine_check;
--
--asmlinkage void do_machine_check(struct pt_regs * regs, long error_code)
--{
--	machine_check_vector(regs, error_code);
--}
-+void (*machine_check_vector)(struct pt_regs *, long error_code) = unexpected_machine_check;
- 
- /*
-  *	Set up machine check reporting for Intel processors
-diff -urN linux-2.5.1-pre2/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
---- linux-2.5.1-pre2/arch/i386/kernel/entry.S	Fri Nov  2 20:18:49 2001
-+++ linux/arch/i386/kernel/entry.S	Tue Nov 27 15:01:17 2001
-@@ -386,7 +386,7 @@
- 
- ENTRY(machine_check)
- 	pushl $0
--	pushl $ SYMBOL_NAME(do_machine_check)
-+	pushl SYMBOL_NAME(machine_check_vector)
- 	jmp error_code
- 
- ENTRY(spurious_interrupt_bug)
-
---------------61C45F33DA20FBF4617B53BA--
+I added the first bit to sparc64 while hunting down a bug.
 

@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135206AbRECUlh>; Thu, 3 May 2001 16:41:37 -0400
+	id <S135209AbRECUpt>; Thu, 3 May 2001 16:45:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135210AbRECUl1>; Thu, 3 May 2001 16:41:27 -0400
-Received: from [63.95.87.168] ([63.95.87.168]:19973 "HELO xi.linuxpower.cx")
-	by vger.kernel.org with SMTP id <S135206AbRECUlO>;
-	Thu, 3 May 2001 16:41:14 -0400
-Date: Thu, 3 May 2001 16:41:12 -0400
-From: Gregory Maxwell <greg@linuxpower.cx>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pavel Machek <pavel@suse.cz>, Helge Hafting <helgehaf@idb.hist.no>,
+	id <S135210AbRECUpj>; Thu, 3 May 2001 16:45:39 -0400
+Received: from mail2.megatrends.com ([155.229.80.11]:38661 "EHLO
+	mail2.megatrends.com") by vger.kernel.org with ESMTP
+	id <S135209AbRECUph>; Thu, 3 May 2001 16:45:37 -0400
+Message-ID: <1355693A51C0D211B55A00105ACCFE6402B9DECE@ATL_MS1>
+From: Venkatesh Ramamurthy <Venkateshr@ami.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Cc: pollard@tomcat.admin.navo.hpc.mil,
+        Venkatesh Ramamurthy <Venkateshr@ami.com>,
         linux-kernel@vger.kernel.org
-Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
-Message-ID: <20010503164112.A26907@xi.linuxpower.cx>
-In-Reply-To: <20010503210904.B9715@bug.ucw.cz> <E14vPZF-00069W-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <E14vPZF-00069W-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, May 03, 2001 at 09:19:15PM +0100
+Subject: RE: [RFC] Direct Sockets Support??
+Date: Thu, 3 May 2001 16:40:31 -0400 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 03, 2001 at 09:19:15PM +0100, Alan Cox wrote:
-> > That means that for fooling closed-source statically-linked binary,
+> For the case where the routing will be external. Thats conveniently
+> something
+> you can deduce in advance. In theory nothing stops you implementing this.
+> Conventionally you would do that with BSD sockets by implementing a new
+> socket family PF_INFINIBAND. You might then choose to make the selection
+> of that either done by the application or under it by C library overrides.
 > 
-> If they are using glibc then you have the right to the object to link
-> with the library and the library source under the LGPL. I dont know of any
-> app using its own C lib
+	Thats exactly my point, we need to define a new protocol family to
+support it. This means that all applications using PF_INET needs to be
+changed and recompiled. My basic argument goes like this if hardware can
+support the notion of connection, the sockets layer should be aware of this
+and send all request to the hw. I can assign an IPv4 address(for sake of
+backward compatiblity) and get away w/o software TCP/IP.i get the
+performance benefit of hardware TCP/IP (notion of connection). 
 
-Some don't use any libc at all, some just don't use it for the time call
-that were talking about substituting.
+	The windoze 2000 DDK has an interesting section about WinSock
+direct(r) that lets the SAN hardware (like IB) to still use traditional
+PF_INET for it.
 
-Lying about the time is a hack, pure and simple. It will still be possible
-with magic pages. The fact that it will require more kernel hacking to
-accomplish it is irrelevant.
+	Also one interesting whitepaper 
+	
+http://servernet.himalaya.compaq.com/snet2/whitepapers/WSD_Perf_White_Paper_
+3-21-01.doc
+
+

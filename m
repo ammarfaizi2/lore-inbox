@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbUEKI7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262794AbUEKJCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbUEKI7o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 04:59:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbUEKI7C
+	id S262794AbUEKJCm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 05:02:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUEKJCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 04:59:02 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51336 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262459AbUEKI6h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 04:58:37 -0400
-Date: Tue, 11 May 2004 01:58:33 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, torvalds@osdl.org, marcelo.tosatti@cyclades.com
-Subject: [PATCH 8/11] add mq_bytes to user_struct
-Message-ID: <20040511015833.G21045@build.pdx.osdl.net>
-References: <20040511014232.Y21045@build.pdx.osdl.net> <20040511014524.Z21045@build.pdx.osdl.net> <20040511014639.A21045@build.pdx.osdl.net> <20040511014833.B21045@build.pdx.osdl.net> <20040511015015.C21045@build.pdx.osdl.net> <20040511015219.D21045@build.pdx.osdl.net> <20040511015357.E21045@build.pdx.osdl.net> <20040511015658.F21045@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 May 2004 05:02:42 -0400
+Received: from mail.cyberdeck.net ([213.30.142.148]:28370 "EHLO
+	mail.cyberdeck.com") by vger.kernel.org with ESMTP id S262794AbUEKJBr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 05:01:47 -0400
+From: Patrice Bouchand <PBouchand@cyberdeck.com>
+Organization: Cyberdeck
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] ib700wdt watchdog driver for 2.6.6
+Date: Tue, 11 May 2004 11:01:37 +0200
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200405101757.58104.PBouchand@cyberdeck.com> <20040511013223.2c1eafe8.akpm@osdl.org>
+In-Reply-To: <20040511013223.2c1eafe8.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040511015658.F21045@build.pdx.osdl.net>; from chrisw@osdl.org on Tue, May 11, 2004 at 01:56:58AM -0700
+Message-Id: <200405111101.37376.PBouchand@cyberdeck.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add mq_bytes field to user_struct, and make sure it's properly
-initialized.
+> The patch certainly looks sensible, but what about ibwdt_close() and
+> ibwdt_notify_sys()?  They're doing
+>
+> 		outb_p(wd_times[wd_margin], WDT_STOP);
+>
+> which also seems peculiar.
 
---- 2.6-rlimit/include/linux/sched.h~mqueue_rlimit	2004-05-10 22:29:32.558320808 -0700
-+++ 2.6-rlimit/include/linux/sched.h	2004-05-10 22:30:44.527379848 -0700
-@@ -315,6 +315,8 @@
- 	atomic_t processes;	/* How many processes does this user have? */
- 	atomic_t files;		/* How many open files does this user have? */
- 	atomic_t sigpending;	/* How many pending signals does this user have? */
-+	/* protected by mq_lock	*/
-+	unsigned long mq_bytes;	/* How many bytes can be allocated to mqueue? */
- 
- 	/* Hash table maintenance information */
- 	struct list_head uidhash_list;
---- 2.6-rlimit/kernel/user.c~mqueue_rlimit	2004-05-10 22:29:03.741701600 -0700
-+++ 2.6-rlimit/kernel/user.c	2004-05-10 22:30:44.531379240 -0700
-@@ -32,6 +32,7 @@
- 	.processes	= ATOMIC_INIT(1),
- 	.files		= ATOMIC_INIT(0),
- 	.sigpending	= ATOMIC_INIT(0),
-+	.mq_bytes	= 0
- };
- 
- /*
-@@ -111,6 +112,8 @@
- 		atomic_set(&new->files, 0);
- 		atomic_set(&new->sigpending, 0);
- 
-+		new->mq_bytes = 0;
-+
- 		/*
- 		 * Before adding this, check whether we raced
- 		 * on adding the same user already..
+
+	The value written in the WDT_STOP register is not important. As soon as something is written , the watchdog timer stops.
+ But you are right, things will be cleaner if we use the following patch.
+
+	Thanks for the comments.
+
+	Best regards
+
+			Patrice Bouchand
+
+-----------------------------------------------------------------------------------------------------------------------------------
+--- ./ib700wdt.c.orig   2004-05-10 08:57:54.000000000 +0200
++++ ib700wdt.c  2004-05-11 10:50:54.000000000 +0200
+@@ -135,7 +135,7 @@
+ ibwdt_ping(void)
+ {
+        /* Write a watchdog value */
+-       outb_p(wd_times[wd_margin], WDT_START);
++       outb_p(wd_margin, WDT_START);
+ }
+
+ static ssize_t
+@@ -234,7 +234,7 @@
+ {
+        spin_lock(&ibwdt_lock);
+        if (expect_close == 42)
+-               outb_p(wd_times[wd_margin], WDT_STOP);
++               outb_p(wd_margin, WDT_STOP);
+        else
+                printk(KERN_CRIT PFX "WDT device closed unexpectedly.  WDT will not stop!\n");
+
+@@ -254,7 +254,7 @@
+ {
+        if (code == SYS_DOWN || code == SYS_HALT) {
+                /* Turn the WDT off */
+-               outb_p(wd_times[wd_margin], WDT_STOP);
++               outb_p(wd_margin, WDT_STOP);
+        }
+        return NOTIFY_DONE;
+ }
+
+

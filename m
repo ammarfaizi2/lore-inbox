@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287854AbSAIQt0>; Wed, 9 Jan 2002 11:49:26 -0500
+	id <S287858AbSAIQtQ>; Wed, 9 Jan 2002 11:49:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287855AbSAIQtR>; Wed, 9 Jan 2002 11:49:17 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6415 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287854AbSAIQtF>; Wed, 9 Jan 2002 11:49:05 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-To: akpm@zip.com.au (Andrew Morton)
-Date: Wed, 9 Jan 2002 17:00:07 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3C3BD053.DED314A9@zip.com.au> from "Andrew Morton" at Jan 08, 2002 09:08:35 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16OM59-0001hQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S287855AbSAIQtG>; Wed, 9 Jan 2002 11:49:06 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:22800 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S287850AbSAIQsu>; Wed, 9 Jan 2002 11:48:50 -0500
+Date: Wed, 9 Jan 2002 10:48:47 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200201091648.KAA19440@tomcat.admin.navo.hpc.mil>
+To: aia21@cam.ac.uk, Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Subject: Re: Difficulties in interoperating with Windows
+In-Reply-To: <5.1.0.14.2.20020109152921.026ad0a0@pop.cus.cam.ac.uk>
+Cc: lkml@andyjeffries.co.uk, linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The high-end audio synth guys claim that two milliseconds is getting
-> to be too much.  They are generating real-time audio and they do
-> have more than one round-trip through the software.  It adds up.
+...
+> Er, you have to have the same algorithms or at least you need to achieve 
+> the same input and output which often requires the exact same algorithm 
+> otherwise you cannot achieve the same input/output...
+>
 
-Most of the stuff I've seen from high end audio people consists of
-overthreaded, chains of code written without any consideration for the
-actual cost of execution. There are exceptions - including
-people dynamically compiling filters to get ideal cache and latency 
-behaviour, but not enough.
+Yup - and then you hit the "trade secrets" problem.
 
-Alan
+> To give a concrete example from ntfs, when collating attribute names (and 
+> file names for the matter) in order to determine where to place them in an 
+> inode, if you do not apply all collation criteria found in the windows 
+> driver, you will inevitably do the collation wrong at least in some corner 
+> cases and you have a broken filesystem on your hands when you are writing.
+
+I believe the collating sequence/filenames is documentd. What isn't documented
+is how the journal file is handled. How recovery is handled.
+
+I think trying to make that compatable hits the trade secrets. Compatability
+is needed if you expect to take a partition from one OS to another and still
+have the possible crash conditions handled. NTFS write was (briefly) available
+until the lawyers came to the door. Along with an external tool to recover
+NTFS file systems.
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

@@ -1,74 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317324AbSFLD3I>; Tue, 11 Jun 2002 23:29:08 -0400
+	id <S317329AbSFLD3p>; Tue, 11 Jun 2002 23:29:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317329AbSFLD3H>; Tue, 11 Jun 2002 23:29:07 -0400
-Received: from 04-195.088.popsite.net ([64.24.84.195]:13952 "EHLO perl")
-	by vger.kernel.org with ESMTP id <S317324AbSFLD3G>;
-	Tue, 11 Jun 2002 23:29:06 -0400
-Date: Wed, 12 Jun 2002 03:29:06 +0000
-To: linux-kernel@vger.kernel.org
-Cc: Cengiz Akinli <cengiz@drtalus.aoe.vt.edu>, xsdg@mangalore.zipworld.com.au
-Subject: Re: computer reboots before "Uncompressing Linux..." with 2.5.19-xfs
-Message-ID: <20020612032906.A27982@216.254.117.126>
-In-Reply-To: <20020612002229.A27386@216.254.117.126> <200206120037.g5C0bFd18677@drtalus.aoe.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-From: xsdg <xsdg@openprojects.net>
+	id <S317331AbSFLD3o>; Tue, 11 Jun 2002 23:29:44 -0400
+Received: from ausxc10.us.dell.com ([143.166.98.229]:15890 "EHLO
+	ausxc10.us.dell.com") by vger.kernel.org with ESMTP
+	id <S317329AbSFLD3o>; Tue, 11 Jun 2002 23:29:44 -0400
+Message-ID: <9A2D9C0E5A442340BABEBE55D81BEBDB012051FE@AUSXMPS313.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: jw@pegasys.ws, linux-kernel@vger.kernel.org
+Subject: RE: [PATCH] CONFIG_NR_CPUS, redux
+Date: Tue, 11 Jun 2002 22:29:38 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 11, 2002 at 08:37:12PM -0400, Cengiz Akinli wrote:
-> In message <20020612002229.A27386@216.254.117.126>, xsdg writes:
-::snip? SNIP!::
-> The reply was:
-> 
-> >I have a feeling that its the empty_8042 routine in arch/i386/boot/setup.S
-> >that's causing you problems.... without a keyboard attached, some
-> >controllers will hang there, sadly. If you feel brave, take a look in
-> >setup.S around lines 598 (where we enable a20) and 783 (the empty_8042
-> >routine itself)  and see if you can get rid of those calls to empty_8042
-> >or otherwise screw around in there so that it doesn't wait forever to
-> >empty the controller's buffers.
-hrm... the box has a keyboard on it...
+> I personally only rarely see 2-way boxes, 
+> 4-way is pretty rare, and anything more must surely count as very
+specialized.
 
-> >1) Compile the kernel, optimized for P-MMX, on another box (PII-350 Deschutes)
-> >   using gcc 2.95.4
-> 
-> Have you tried building for a generic i386 target processor?
-Not yet... will try...
+A very large percentage of Dell PowerEdge servers sold with Red Hat Linux,
+or used with other distros, have 2 or more processors.  We today have
+servers with 1, 2, 4, or 8 CPUs, and with the advent of HyperThreading, that
+looks like even more.  More than two CPUs is not at all uncommon in the
+server space.  Desktop/notebook space, sure.
 
-> >2) Recompile bzImage
-> >3) Recompile bzImage
-> 
-> Well, if it didn't work the first time....   :)
-> 
-> >4) Remove framebuffer support.  Remove vid mode selection support.  Optimize
-> >   for Pentium-Classic.  Recompile with everything else the same
-> >5) Recompile on target box (gcc 2.95.4 also) with options the same as after #4
-> 
-> I'm inclined to think none of this ha anything to do with it, because
-> the kernel in which all of these items reside is never booting up...
-> 
-> My problem persisted despite my building a buck-naked 2.4.18 kernel.
-> It had no ANYTHING in it (not even module support) and was just 250K.
-> The results were the same.
-> 
-> I'm betting on a problem with the boot loader or bios incompatibility.
-> My machine has a PhoenixBios (4.06 I think-- I'll check tomorrow).
-> What does your machine have?
-Award BIOS (don't know the version offhand)  I'm using grub 0.91-2...
+Thanks,
+Matt
 
-> Regards,
-> Cengiz
-
-	--xsdg
 -- 
-|---------------------------------------------------|
-| It's not the fall that kills you, it's the        |
-|   landing.                                        |
-|---------------------------------------------------|
-| http://xsdg.hypermart.net   xsdg@openprojects.net |
-|---------------------------------------------------|
+Matt Domsch
+Sr. Software Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001! (IDC Mar 2002)

@@ -1,81 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268098AbUHYQNT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268043AbUHYQQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268098AbUHYQNT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 12:13:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268117AbUHYQNS
+	id S268043AbUHYQQc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 12:16:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268115AbUHYQQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 12:13:18 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:17093 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S268098AbUHYQNF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 12:13:05 -0400
-Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Kaigai Kohei <kaigai@ak.jp.nec.com>
-Cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
-       "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
-       James Morris <jmorris@redhat.com>
-In-Reply-To: <1093449047.6743.186.camel@moss-spartans.epoch.ncsc.mil>
-References: <Xine.LNX.4.44.0408161119160.4659-100000@dhcp83-76.boston.redhat.com>
-	 <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp>
-	 <1093014789.16585.186.camel@moss-spartans.epoch.ncsc.mil>
-	 <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp>
-	 <1093361844.1800.150.camel@moss-spartans.epoch.ncsc.mil>
-	 <024501c48a89$12d30b30$f97d220a@linux.bs1.fc.nec.co.jp>
-	 <1093449047.6743.186.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1093450284.6743.194.camel@moss-spartans.epoch.ncsc.mil>
+	Wed, 25 Aug 2004 12:16:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:46526 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268043AbUHYQQO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 12:16:14 -0400
+Date: Wed, 25 Aug 2004 09:14:13 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Arne Henrichsen <ahenric@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sys_sem* undefined
+Message-Id: <20040825091413.0c43c78d.rddunlap@osdl.org>
+In-Reply-To: <20040825115020.58522.qmail@web41501.mail.yahoo.com>
+References: <20040825115020.58522.qmail@web41501.mail.yahoo.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 25 Aug 2004 12:11:24 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-08-25 at 11:50, Stephen Smalley wrote:
-> I haven't tracked down the cause yet, but a kernel built with all three
-> patches (list_replace_rcu, atomic_inc_return, and selinux.rcu take3) on
-> x86 doesn't allow an enforcing boot; it begins auditing denials _before_
-> the initial policy load (which should never happen, as
-> security_compute_av allows everything until the policy is loaded), and
-> prevents /sbin/init from loading the policy.
+On Wed, 25 Aug 2004 12:50:20 +0100 (BST) Arne Henrichsen wrote:
 
--int avc_lookup(u32 ssid, u32 tsid, u16 tclass,
--               u32 requested, struct avc_entry_ref *aeref)
-+struct avc_node *avc_lookup(u32 ssid, u32 tsid, u16 tclass, u32 requested)
- {
- 	struct avc_node *node;
--	int probes, rc = 0;
-+	int probes;
- 
- 	avc_cache_stats_incr(AVC_CAV_LOOKUPS);
- 	node = avc_search_node(ssid, tsid, tclass,&probes);
- 
- 	if (node && ((node->ae.avd.decided & requested) == requested)) {
- 		avc_cache_stats_incr(AVC_CAV_HITS);
- 		avc_cache_stats_add(AVC_CAV_PROBES,probes);
--		aeref->ae = &node->ae;
- 		goto out;
- 	}
- 
- 	avc_cache_stats_incr(AVC_CAV_MISSES);
--	rc = -ENOENT;
- out:
--	return rc;
-+	return node;
-+}
+| Hi,
+| 
+| I am running kernel 2.6.8 and have noticed that in
+| linux/sem.h the function declarations for sys_semop,
+| sys_semop etc have been removed (as far as I can see
+| from 2.6.4 onwards). Now when I compile my code I get
+| the sys_sem* undefined warning messages. Which header
+| file do I need to include now to get this support? 
 
-Ah, I think the bug is here.  avc_search_node() can return a node that
-matches the (ssid,tsid,tclass) triple but doesn't include all of the
-necessary decisions (the decided vector), but your avc_lookup() code
-falls through nonetheless and returns it.  This happens normally during
-initialization prior to policy load, where security_compute_av is only
-adding decisions as they are requested.  Notice that the original code
-set rc to ENOENT on that path; in your case, you need to reset node to
-NULL.
+grep(1) finds sys_semop here:
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+./linux/syscalls.h:446:asmlinkage long sys_semop(int semid, struct sembuf __user
+ *sops,
 
+Yes, include/linux/syscalls.h contains syscall prototypes.
+
+
+| Also when I want to load my module with insmod it
+| cannot find these symbols.
+
+syscalls aren't called by name, so that's no surprise.
+
+
+--
+~Randy

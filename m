@@ -1,59 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264365AbTLBUbj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 15:31:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTLBU2h
+	id S264376AbTLBUei (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 15:34:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTLBUbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 15:28:37 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:55051 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S264369AbTLBUTj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 15:19:39 -0500
-Date: Tue, 2 Dec 2003 18:24:35 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 future
-Message-ID: <20031202202435.GS15165@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <200312011226.04750.nbensa@gmx.net> <20031202115436.GA10288@physik.tu-cottbus.de> <20031202120315.GK13388@conectiva.com.br> <20031202210904.48706476.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031202210904.48706476.skraw@ithnet.com>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.5.1i
+	Tue, 2 Dec 2003 15:31:46 -0500
+Received: from [202.37.96.11] ([202.37.96.11]:48774 "EHLO
+	gatekeeper.tait.co.nz") by vger.kernel.org with ESMTP
+	id S264352AbTLBUbF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 15:31:05 -0500
+Date: Wed, 03 Dec 2003 09:31:46 +1300
+From: Dmytro Bablinyuk <dmytro.bablinyuk@tait.co.nz>
+Subject: 2.6 for ppc
+To: linux-kernel@vger.kernel.org
+Message-id: <3FCCF6B2.2000709@tait.co.nz>
+Organization: Tait Electronics Ltd
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Tue, Dec 02, 2003 at 09:09:04PM +0100, Stephan von Krawczynski escreveu:
-> On Tue, 2 Dec 2003 10:03:15 -0200
-> Arnaldo Carvalho de Melo <acme@conectiva.com.br> wrote:
-> 
-> > Em Tue, Dec 02, 2003 at 12:54:36PM +0100, Ionut Georgescu escreveu:
-> > > I can only second that. We've been using XFS here since the days of
-> > > 2.4.0-testxx and the only problems we've had were sitting between the
-> > > chair and the keyboard.
-> > 
-> > So if there is no problems at all using it as a patch why add this to a
-> > kernel that is phasing out?
-> 
-> Because it is _not_.
+Could anybody please tell me at what stage the 2.6(-test11) kernel 
+regarding ppc arch.
+Right now if I am trying to compile it fails in several places in 
+arch/ppc folder with obvious errors (for: 8xx cpu, FADS platform  used 
+uclibc).
 
-So what? You disagree, what is the problem of keeping a patch out of the tree
-if the tree is getting in deep freeze?
- 
-> I really wonder how many of you have read this list up to 2.4.11 release ...
-> 
-> Is there some human-memory-loss-virus flooding the area ?
-> 
-> Please stay serious.
+Thank you
 
-I'm staying, please stay too.
-
-And I was on this list _way_ before 2.4.11, 2.6 has, IMHO, a different story.
-
-- Arnaldo

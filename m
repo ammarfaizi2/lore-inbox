@@ -1,152 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbUJYVzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbUJYV7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbUJYVzq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 17:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbUJYPNE
+	id S261279AbUJYV7m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 17:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbUJYV5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 11:13:04 -0400
-Received: from ip22-176.tor.istop.com ([66.11.176.22]:54184 "EHLO
-	crlf.tor.istop.com") by vger.kernel.org with ESMTP id S261847AbUJYOom convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 10:44:42 -0400
-Cc: raven@themaw.net
-Subject: [PATCH 12/28] VFS: Remove (now bogus) check_mnt
-In-Reply-To: <1098715442105@sun.com>
-X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Mon, 25 Oct 2004 10:44:33 -0400
-Message-Id: <10987154731896@sun.com>
-References: <1098715442105@sun.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Mike Waychison <michael.waychison@sun.com>
+	Mon, 25 Oct 2004 17:57:15 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:39435 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261945AbUJYPM6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 11:12:58 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: Temporary NFS problem when rpciod is SIGKILLed
+Date: Mon, 25 Oct 2004 18:12:28 +0300
+User-Agent: KMail/1.5.4
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+References: <200410251702.58622.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.53.0410251622080.1778@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.53.0410251622080.1778@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410251812.28663.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-check_mnt used to be used to see if a mountpoint was actually grafted or not
-to a namespace.  This was done because we didn't support mountpoints being
-attached to one another if they weren't associated with a namespace. We now
-support this, so all check_mnt calls are bogus.  The only exception is that
-pivot_root still requires all participants to exist within the same
-namespace.
+On Monday 25 October 2004 17:24, Jan Engelhardt wrote:
+> >Hi Trond.
+> >
+> >I observed a problem with NFS root in 2.6 kernel
+> >(actually it was a 2.5 back then).
+> 
+> Does it also happen on 2.4?
 
-Signed-off-by: Mike Waychison <michael.waychison@sun.com>
----
+That's the point. It works in 2.4
+ 
+> >I am using NFS root. At shutdown, when I kill
+> >all processes with killall5 -9, NFS temporarily
+> >misbehaves. I narrowed it down to rpciod feeling
+> >bad when signalled with SIGKILL:
+> 
+> I think this has to do that you kill some userspace application that is
+> necessary for NFS. I am not exactly sure which one it is (if at all), but I
+> have had problems mounting an NFS volume when started with -b option (mounting
+> the root however was done ok by the kernel)
 
- namespace.c |   41 +++++++++++------------------------------
- 1 files changed, 11 insertions(+), 30 deletions(-)
+Well, let's see. 2.4 works. rpciod in 2.6 shows this erratic behaviour
+even if I do "kill -9 <pid_of_rpciod>", thus no other process, kernel
+or userspace, know about this KILL.
 
-Index: linux-2.6.9-quilt/fs/namespace.c
-===================================================================
---- linux-2.6.9-quilt.orig/fs/namespace.c	2004-10-22 17:17:38.881553248 -0400
-+++ linux-2.6.9-quilt/fs/namespace.c	2004-10-22 17:17:39.557450496 -0400
-@@ -124,14 +124,8 @@ struct vfsmount *lookup_mnt(struct vfsmo
- 	spin_unlock(&vfsmount_lock);
- 	return found;
- }
--
- EXPORT_SYMBOL(lookup_mnt);
- 
--static inline int check_mnt(struct vfsmount *mnt)
--{
--	return mnt->mnt_namespace == current->namespace;
--}
--
- static struct vfsmount *next_mnt(struct vfsmount *p, struct vfsmount *root)
- {
- 	struct list_head *next = p->mnt_mounts.next;
-@@ -701,8 +695,6 @@ asmlinkage long sys_umount(char __user *
- 	retval = -EINVAL;
- 	if (nd.dentry != nd.mnt->mnt_root)
- 		goto dput_and_out;
--	if (!check_mnt(nd.mnt))
--		goto dput_and_out;
- 
- 	retval = -EPERM;
- 	if (!capable(CAP_SYS_ADMIN))
-@@ -867,14 +859,11 @@ static int do_loopback(struct nameidata 
- 		return err;
- 
- 	down_write(&current->namespace->sem);
--	err = -EINVAL;
--	if (check_mnt(nd->mnt) && (!recurse || check_mnt(old_nd.mnt))) {
--		err = -ENOMEM;
--		if (recurse)
--			mnt = copy_tree(old_nd.mnt, old_nd.dentry, 0);
--		else
--			mnt = clone_mnt(old_nd.mnt, old_nd.dentry, 0);
--	}
-+	err = -ENOMEM;
-+	if (recurse)
-+		mnt = copy_tree(old_nd.mnt, old_nd.dentry, 0);
-+	else
-+		mnt = clone_mnt(old_nd.mnt, old_nd.dentry, 0);
- 
- 	if (mnt) {
- 		/* stop bind mounts from expiring */
-@@ -912,9 +901,6 @@ static int do_remount(struct nameidata *
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
- 
--	if (!check_mnt(nd->mnt))
--		return -EINVAL;
--
- 	if (nd->dentry != nd->mnt->mnt_root)
- 		return -EINVAL;
- 
-@@ -945,9 +931,6 @@ static int do_move_mount(struct nameidat
- 	down_write(&current->namespace->sem);
- 	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
- 		;
--	err = -EINVAL;
--	if (!check_mnt(nd->mnt) || !check_mnt(old_nd.mnt))
--		goto out;
- 
- 	err = -ENOENT;
- 	down(&nd->dentry->d_inode->i_sem);
-@@ -984,7 +967,6 @@ out2:
- 	spin_unlock(&vfsmount_lock);
- out1:
- 	up(&nd->dentry->d_inode->i_sem);
--out:
- 	up_write(&current->namespace->sem);
- 	if (!err)
- 		path_release(&parent_nd);
-@@ -1028,9 +1010,6 @@ int do_graft_mount(struct vfsmount *newm
- 	/* Something was mounted here while we slept */
- 	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
- 		;
--	err = -EINVAL;
--	if (!check_mnt(nd->mnt))
--		goto unlock;
- 
- 	/* Refuse the same filesystem on the same mount point */
- 	err = -EBUSY;
-@@ -1569,9 +1548,6 @@ asmlinkage long sys_pivot_root(const cha
- 	error = __user_walk(new_root, LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &new_nd);
- 	if (error)
- 		goto out0;
--	error = -EINVAL;
--	if (!check_mnt(new_nd.mnt))
--		goto out1;
- 
- 	error = __user_walk(put_old, LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &old_nd);
- 	if (error)
-@@ -1589,9 +1565,14 @@ asmlinkage long sys_pivot_root(const cha
- 	read_unlock(&current->fs->lock);
- 	down_write(&current->namespace->sem);
- 	down(&old_nd.dentry->d_inode->i_sem);
-+	
-+	/* All mountpoints must exist within the same namespace */
- 	error = -EINVAL;
--	if (!check_mnt(user_nd.mnt))
-+	if (user_nd.mnt->mnt_namespace != current->namespace
-+	 || user_nd.mnt->mnt_namespace != old_nd.mnt->mnt_namespace
-+	 || user_nd.mnt->mnt_namespace != new_nd.mnt->mnt_namespace)
- 		goto out2;
-+
- 	error = -ENOENT;
- 	if (IS_DEADDIR(new_nd.dentry->d_inode))
- 		goto out2;
+These commands and their output were actually shown in my mail.
+Consider rereading it:
+
+> PID TTY STAT TIME COMMAND
+> 1 ? S 0:05 /bin/sh /init.vda
+> 2 ? SWN 0:00 [ksoftirqd/0]
+> 3 ? SW< 0:00 [events/0]
+> 4 ? SW< 0:00 [kblockd/0]
+> 5 ? SW 0:00 [pdflush]
+> 6 ? SW 0:00 [pdflush]
+> 8 ? SW< 0:00 [aio/0]
+> 7 ? SW 0:00 [kswapd0]
+> 49 ? SW 0:00 [rpciod]
+> 50 ? SW 0:00 [lockd]
+> 812 vc/2 S 0:00 -bash HOME=/home/vda PATH=/sbin:/bin:/usr/sbin:/usr
+> 1369 tty2 R 0:00 ps -AH e PWD=/app/shutdown-0.0.5/script GROFF_NO_
+> 1368 ? S 0:00 sleep 32000
+
+Aha! rpciod has PID=49, lets -KILL it...
+
+> # kill -9 49;ps -AH e;read junk;ps -AH e
+> bash: /bin/ps: Input/output error
+
+Yay. ps binary couldn't be read from NFS.
+
+> <--- I press [Enter] here
+
+Second ps runs fine because rpciod recovered by this time:
+
+> PID TTY STAT TIME COMMAND
+> 1 ? S 0:05 /bin/sh /init.vda
+> 2 ? SWN 0:00 [ksoftirqd/0]
+> 3 ? SW< 0:00 [events/0]
+> 4 ? SW< 0:00 [kblockd/0]
+> 5 ? SW 0:00 [pdflush]
+> 6 ? SW 0:00 [pdflush]
+> 8 ? SW< 0:00 [aio/0]
+> 7 ? SW 0:00 [kswapd0]
+> 49 ? SW 0:00 [rpciod]
+> 50 ? SW 0:00 [lockd]
+> 812 vc/2 S 0:00 -bash HOME=/home/vda PATH=/sbin:/bin:/usr/sbin:/usr
+> 1369 tty2 R 0:00 ps -AH e PWD=/app/shutdown-0.0.5/script GROFF_NO_
+> 1368 ? S 0:00 sleep 32000
+--
+vda
 

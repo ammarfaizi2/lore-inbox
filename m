@@ -1,74 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132901AbRDJCjn>; Mon, 9 Apr 2001 22:39:43 -0400
+	id <S132904AbRDJCmD>; Mon, 9 Apr 2001 22:42:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132902AbRDJCjd>; Mon, 9 Apr 2001 22:39:33 -0400
-Received: from femail13.sdc1.sfba.home.com ([24.0.95.140]:48623 "EHLO
-	femail13.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S132901AbRDJCjR>; Mon, 9 Apr 2001 22:39:17 -0400
-Message-ID: <008401c0c167$73f14d80$8d19b018@c779218a>
-From: "Nicholas Knight" <tegeran@home.com>
-To: "David St.Clair" <dstclair@cs.wcu.edu>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <986664971.1224.4.camel@bugeyes.wcu.edu>
-Subject: Re: UDMA(66) drive coming up as UDMA(33)?
-Date: Mon, 9 Apr 2001 19:39:23 -0700
+	id <S132906AbRDJClx>; Mon, 9 Apr 2001 22:41:53 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:49310 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id <S132904AbRDJClp>; Mon, 9 Apr 2001 22:41:45 -0400
+Date: Tue, 10 Apr 2001 11:41:28 +0900
+Message-ID: <y9t9easn.wl@frostrubin.open.nm.fujitsu.co.jp>
+From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <andrewm@uow.edu.au>, Ben LaHaise <bcrl@redhat.com>,
+        David Howells <dhowells@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: rw_semaphores
+In-Reply-To: <Pine.LNX.4.31.0104081841440.7671-100000@penguin.transmeta.com>
+In-Reply-To: <3AD0FD0F.9B0C47FD@uow.edu.au>
+	<Pine.LNX.4.31.0104081841440.7671-100000@penguin.transmeta.com>
+User-Agent: Wanderlust/2.4.0 (Rio) EMY/1.13.9 (Art is long, life is short) SLIM/1.14.3 () APEL/10.2 MULE XEmacs/21.2 (beta46) (Urania) (i586-kondara-linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "David St.Clair" <dstclair@cs.wcu.edu>
-To: <linux-kernel@vger.kernel.org>
-Sent: Saturday, April 07, 2001 10:36 AM
-Subject: UDMA(66) drive coming up as UDMA(33)?
+
+Hello,
+
+At Sun, 8 Apr 2001 20:08:13 -0700 (PDT),
+Linus Torvalds wrote:
+> 
+> Can anybody shoot any holes in this? I haven't actually tested it, but
+> race conditions in locking primitives are slippery things, and I'd much
+> rather have an algorithm we can _think_ about and prove to be working. And
+> I think the above one is provably correct.
+
+  I am not familiar with semaphore or x86, so this may not be correct,
+but if the following sequence is possible, the writer can call wake_up()
+before the reader calls add_wait_queue() and reader may sleep forever.
+Is it possible?
 
 
-> I'm trying to get my hard drive to use UDMA/66.  I'm thinking the cable
-> is not being detected.  When the HPT366 bios is set to UDMA 4; using
-> hdparm -t, I get a transfer rate of 19.51 MB/s. When the HPT366 bios is
-> set to PIO 4 the transfer rate is the same. Is this normal for a UDMA/66
-> drive? What makes me think something is wrong is that the log says
+Reader							Writer
 
-The speed is dependant on the drive, and has absilutely nothing to do with
-the UDMA mode, beyond that the controller and cable need to be able to
-support at least the speed the drive is recieving/outputting data in order
-for the drive to operate at full speed, 19.51MB/sec sounds right for a good
-7200RPM HDD
+    down_read:
+	lock incl (%sem)
+	js __down_read_failed
+						    up_write:
+							lock andl $0x3fffffff,(%sem)
+							jne __up_write_wakeup
 
->
-> "ide2: BM-DMA at 0xbc00-0xbc07, BIOS settings: hde:pio" <-- PIO?
-
-hmm this is a little odd but I don't know the ins and outs of the HPT366
-controller
-
->
-> and
->
-> "hde: 27067824 sectors (13859 MB) w/371KiB Cache, CHS=26853/16/63,
-> UDMA(33)" <--- UDMA(33)? shouldn't it be UDMA(66)?
->
-
-this certainly sounds like it's not detecting the cable properly... have you
-tried replacing it with a new cable that you KNOW supports ATA/66?
-
-
-> HPT366: onboard version of chipset, pin1=1 pin2=2
-
-is the HPT366 controller in an add-in card or built into the motherboard? it
-looks like it's builtin from this line
-
-the bottom line here is that the cable probably isn't being detected
-properly for some reason, I doubt if it's a kernel problem, the cable is
-probably "bad", try picking up a new ATA/66+ cable and putting it in there
-this shouldn't actually cause you problems unless you're often transferring
-more than 33MB/sec though, which isn't likely on a desktop system, ATA/66
-and ATA/100 are *generaly* overkill for most desktop systems, even for many
-powerusers
-
+						    __up_write_wakeup:
+							spin_lock(&sem->lock);
+							wake_up(&sem->waiters);
+							spin_unlock(&sem->lock);
+    __down_read_failed:
+	spin_lock(%sem->lock)
+	add_wait_queue(&sem->waiters, &wait);
+	.
+	.

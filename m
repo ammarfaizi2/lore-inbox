@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262557AbSJBTVJ>; Wed, 2 Oct 2002 15:21:09 -0400
+	id <S262551AbSJBTai>; Wed, 2 Oct 2002 15:30:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262558AbSJBTVJ>; Wed, 2 Oct 2002 15:21:09 -0400
-Received: from packet.digeo.com ([12.110.80.53]:46991 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262557AbSJBTVH>;
-	Wed, 2 Oct 2002 15:21:07 -0400
-Message-ID: <3D9B4797.8399682@digeo.com>
-Date: Wed, 02 Oct 2002 12:23:03 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Matthew Wilcox <willy@debian.org>
-CC: John Levon <levon@movementarian.org>, linux-kernel@vger.kernel.org
-Subject: Re: flock(fd, LOCK_UN) taking 500ms+ ?
-References: <20021002023901.GA91171@compsoc.man.ac.uk> <20021002032327.GA91947@compsoc.man.ac.uk> <20021002141435.A18377@parcelfarce.linux.theplanet.co.uk> <3D9B2734.D983E835@digeo.com> <20021002193052.B28586@parcelfarce.linux.theplanet.co.uk>
+	id <S262569AbSJBTai>; Wed, 2 Oct 2002 15:30:38 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:32263 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S262551AbSJBTah>;
+	Wed, 2 Oct 2002 15:30:37 -0400
+Date: Wed, 2 Oct 2002 21:36:00 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: a problem report
+Message-ID: <20021002213600.A2017@mars.ravnborg.org>
+Mail-Followup-To: Peter Samuelson <peter@cadcamlab.org>,
+	linux-kernel@vger.kernel.org
+References: <20021002184911.GG1536@cadcamlab.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Oct 2002 19:23:06.0631 (UTC) FILETIME=[22A6D170:01C26A49]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021002184911.GG1536@cadcamlab.org>; from peter@cadcamlab.org on Wed, Oct 02, 2002 at 01:49:11PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-> 
-> ...
->  *  FL_FLOCK locks never deadlock, an existing lock is always removed before
->  *  upgrading from shared to exclusive (or vice versa). When this happens
->  *  any processes blocked by the current lock are woken up and allowed to
->  *  run before the new lock is applied.
->  *  Andy Walker (andy@lysaker.kvaerner.no), June 09, 1995
+On Wed, Oct 02, 2002 at 01:49:11PM -0500, Peter Samuelson wrote:
+> [Sam Ravnborg]
+[Snip faulty Config.in patch]
 
-hm.  This is a tricky thing to guarantee.  If this process is
-high-priority or SCHED_RR or whatever, we want to ensure that
-any current holder of the lock gets a CPU slice?
+> That's not right.  You can't use '||' in config language.  (Try it
+> with xconfig some time.)
 
-Seems a strange thing to want to do, and if we really want to
-implement these semantics then there's quite a bit of stuff
-to do - making *all* blocked processes get some CPU will involve
-scheduler work, or funny games with semaphores.
+I was aware of this, the only reason why I posted this was to let people
+proceed with menuconfig, and to give them a response.
 
-Now if we interpret "allowed to run" as meaning "made runnable" then
-no probs.  Just wake them up.
- 
-> > If there really is a solid need to hand the CPU over to some now-runnable
-> > higher-priority process then a cond_resched() will suffice.
-> 
-> I think that's the right thing to do.  If I understand right, we'll
-> check needs_resched at syscall exit, so we don't need to do it for
-> unlocks, right?
+Roman Zippel already posted a correct path, that he also has sent to Linus.
+Although I do not understand where the ALSA people are in this game.
 
-Sure.  Sounds to me like we just want to delete the code ;)
+> This 'if' statement syntax has *got* to go.  I posted an incomplete
+> replacement syntax some time ago, but abandoned it because it appeared
+> Roman was almost ready to merge his new config stuff....
+The 2.5.39 version of Roman's lkc looked really good IMHO, but I think
+more people has to get into the discussion before it will be accepted.
+I for one is not the right person to comment on the config
+language, old or new.
+
+	Sam
+

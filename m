@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291081AbSCOLgn>; Fri, 15 Mar 2002 06:36:43 -0500
+	id <S291272AbSCOLgx>; Fri, 15 Mar 2002 06:36:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291258AbSCOLgd>; Fri, 15 Mar 2002 06:36:33 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46121 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S291081AbSCOLgZ>; Fri, 15 Mar 2002 06:36:25 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: John Heil <kerndev@sc-software.com>, <linux-kernel@vger.kernel.org>,
-        Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-Subject: Re: IO delay, port 0x80, and BIOS POST codes
-In-Reply-To: <Pine.LNX.4.33.0203141318130.9855-100000@penguin.transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 15 Mar 2002 04:30:44 -0700
-In-Reply-To: <Pine.LNX.4.33.0203141318130.9855-100000@penguin.transmeta.com>
-Message-ID: <m1u1rixe3f.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S291258AbSCOLgo>; Fri, 15 Mar 2002 06:36:44 -0500
+Received: from zork.zork.net ([66.92.188.166]:13839 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id <S291251AbSCOLgb>;
+	Fri, 15 Mar 2002 06:36:31 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and
+ 2.2.21-pre3 (client)
+In-Reply-To: <200203110018.BAA11921@webserver.ithnet.com>
+	<15499.64058.442959.241470@charged.uio.no>
+	<20020311091458.A24600@namesys.com>
+	<20020311114654.2901890f.skraw@ithnet.com>
+	<20020311135256.A856@namesys.com> <20020311155937.A1474@namesys.com>
+	<20020315141328.A1879@namesys.com>
+	<20020315123008.14237953.skraw@ithnet.com>
+From: Sean Neakums <sneakums@zork.net>
+X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
+X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
+X-Message-Flag: Message text advisory: DRUGS/ALCOHOL, HEINOUS
+ SELF-AGGRANDIZATION
+X-Mailer: Norman
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Fri, 15 Mar 2002 11:36:30 +0000
+In-Reply-To: <20020315123008.14237953.skraw@ithnet.com> (Stephan von
+ Krawczynski's message of "Fri, 15 Mar 2002 12:30:08 +0100")
+Message-ID: <6uofhq12rl.fsf@zork.zork.net>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.1
+ (i386-debian-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+commence  Stephan von Krawczynski quotation:
 
-> On Thu, 14 Mar 2002, John Heil wrote:
-> > 
-> > No, the better/correct port is 0xED which removes the conflict.
-> 
-> Port ED is fine for a BIOS, which (by definition) knows what the
-> motherboard devices are, and thus knows that ED cannot be used by
-> anything.
-> 
-> But it _is_ an unused port, and that's exactly the kind of thing that
-> might be used sometime in the future. Remember the port 22/23 brouhaha
-> with Cyrix using it for their stuff, and later Intel getting into the fray
-> too?
-> 
-> So the fact that ED works doesn't mean that _stays_ working.
-> 
-> The fact that 80 is the post code register means that it is fairly likely 
-> to _stay_ that way, without any ugly surprises.
-> 
-> Now, if there is something _else_ than just the fact that it is unused
-> that makes ED a good choice in the future too, that might be worth looking
-> into (like NT using it for the same purpose as Linux does port 80),
+> Another point to clarify, my client fstab entry looks like this:
+>
+> 192.168.1.2:/p2/backup  /backup                 nfs     timeo=20,dev,suid,rw,exec,user,rsize=8192,wsize=8192       0 0
+>
+> I cannot say anything about the second fs mounted via YaST.
 
-Does the logic outb_p uses continue to work if you have a PCI post
-card (possibly on the motherboard).  And an ISA device?
+Surely running mount from another window/console after starting YaST would
+reveal this information?
 
-Systems without ISA slots but with ISA or LPC devices onboard must
-use a PCI post card so I have trouble believing that outb_b and friends
-really work as expected....
-
-
-Eric
+-- 
+ /////////////////  |                  | The spark of a pin
+<sneakums@zork.net> |  (require 'gnu)  | dropping, falling feather-like.
+ \\\\\\\\\\\\\\\\\  |                  | There is too much noise.

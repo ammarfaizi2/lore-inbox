@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262147AbUKKAEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262150AbUKKAGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262147AbUKKAEp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 19:04:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbUKKAEp
+	id S262150AbUKKAGX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 19:06:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbUKKAGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 19:04:45 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:57271 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262147AbUKKAEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 19:04:00 -0500
-Subject: Re: [PATCH] Driver Core patches for 2.6.10-rc1
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Paul Mackerras <paulus@samba.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Greg KH <greg@kroah.com>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <16786.35271.622222.193502@cargo.ozlabs.ibm.com>
-References: <1099346276148@kroah.com> <10993462773570@kroah.com>
-	 <20041102223229.A10969@flint.arm.linux.org.uk>
-	 <20041107152805.B4009@flint.arm.linux.org.uk>
-	 <20041110013700.GF9496@kroah.com>
-	 <16785.33677.704803.889900@cargo.ozlabs.ibm.com>
-	 <20041110083629.A17555@flint.arm.linux.org.uk>
-	 <16786.35271.622222.193502@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
-Message-Id: <1100131216.7402.11.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 11 Nov 2004 11:00:22 +1100
+	Wed, 10 Nov 2004 19:06:23 -0500
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:2497 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S262150AbUKKAGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 19:06:03 -0500
+Message-ID: <4192ACD9.7000802@am.sony.com>
+Date: Wed, 10 Nov 2004 16:05:45 -0800
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: ncunningham@linuxmail.org
+CC: tglx@linutronix.de, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: CELF interest in suspend-to-flash
+References: <419256F8.3010305@am.sony.com>	 <1100109991.12290.41.camel@desktop.cunninghams>	 <20041110154136.GA12444@logos.cnet>  <1100115592.3405.36.camel@thomas> <1100116269.3876.12.camel@desktop.cunninghams>
+In-Reply-To: <1100116269.3876.12.camel@desktop.cunninghams>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Thu, 2004-11-11 at 08:36, Paul Mackerras wrote:
-> Russell King writes:
-> However, pci_dev->driver only gets cleared *after* the driver's remove
-> method returns.  Thus it would be quite possible for a PCI device to
-> have its suspend/resume methods called while another CPU is in its
-> remove method.
+Nigel Cunningham wrote:
+> Hi.
 > 
-> I think that what has saved us to some extent is that we only do
-> suspend/resume on UP machines so far.
+> On Thu, 2004-11-11 at 06:39, Thomas Gleixner wrote:
+>> On Wed, 2004-11-10 at 13:41 -0200, Marcelo Tosatti wrote:
+>> > Nigel Cunningham wrote:
+>> > > 
+>> > > Can flash be treated as a swap device at the moment? If so, it might
+>> > > simply be a matter of specifying the same parameter used in swapon for
+>> > > the resume2= boot parameter.
+>> > 
+>> > Sure, you only need to have the flash as a block device (ie driven 
+>> > by the IDE code).
+>> 
+>> That's true, if you are talking about Compact FLash which pretends to be
+>> a harddisk, but I assume that the embedded people are talking about raw
+>> FLASH chips. It's possible do this, but it will need some tweaks to the
+>> MTD code
 
-I'm suspending and resuming all the time using HT. FWIW, I think it's
-more likely that you're not seeing the issue for two reasons.
+I just heard from a developer at Samsung.
+They have successfully used NAND flash as a swap device using MTD.
+(on a SMDK2440 platform and SMC NAND flash)
+They have not tested NOR flash as swap device.  I'll try to follow up
+and see if this translates into something which will work with your
+suggested method.
 
-1) User space has been frozen when the suspend/resume methods are called
-(I'm right in assuming that only swsusp/pmdisk, suspend-to-ram and
-suspend2 would be doing suspends, aren't I?).
-2) People tend to wait until the machine has powered down before
-unplugging things, and plug things in before powering on.
-
-Please excuse me if I'm speaking nonsense :>
-
-Regards,
-
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
-
+=============================
+Tim Bird
+Architecture Group Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+=============================

@@ -1,56 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263992AbTCWXUS>; Sun, 23 Mar 2003 18:20:18 -0500
+	id <S263994AbTCWXXE>; Sun, 23 Mar 2003 18:23:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263994AbTCWXUS>; Sun, 23 Mar 2003 18:20:18 -0500
-Received: from paris.xisl.com ([193.112.238.192]:12700 "EHLO paris.xisl.com")
-	by vger.kernel.org with ESMTP id <S263992AbTCWXUR>;
-	Sun, 23 Mar 2003 18:20:17 -0500
-Message-ID: <3E7E43C3.2080605@xisl.com>
-Date: Sun, 23 Mar 2003 23:31:15 +0000
-From: John M Collins <jmc@xisl.com>
-Organization: Xi Software Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
-X-Accept-Language: en-us, en-gb
+	id <S263995AbTCWXXE>; Sun, 23 Mar 2003 18:23:04 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49852 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263994AbTCWXXC>;
+	Sun, 23 Mar 2003 18:23:02 -0500
+Message-ID: <3E7E4486.8080302@pobox.com>
+Date: Sun, 23 Mar 2003 18:34:30 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Query about SIS963 Bridges
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: James Bourne <jbourne@mtroyal.ab.ca>, linux-kernel@vger.kernel.org,
+       Robert Love <rml@tech9.net>, Martin Mares <mj@ucw.cz>,
+       Alan Cox <alan@redhat.com>, Stephan von Krawczynski <skraw@ithnet.com>,
+       szepe@pinerecords.com, arjanv@redhat.com, Pavel Machek <pavel@ucw.cz>
+Subject: Re: Ptrace hole / Linux 2.2.25
+References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz> <200303231938.h2NJcAq14927@devserv.devel.redhat.com> <20030323194423.GC14750@atrey.karlin.mff.cuni.cz> <1048448838.1486.12.camel@phantasy.awol.org> <20030323195606.GA15904@atrey.karlin.mff.cuni.cz> <1048450211.1486.19.camel@phantasy.awol.org> <402760000.1048451441@[10.10.2.4]> <20030323203628.GA16025@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.51.0303231410250.17155@skuld.mtroyal.ab.ca> <920000.1048456387@[10.10.2.4]> <3E7E335C.2050509@pobox.com> <1240000.1048460079@[10.10.2.4]>
+In-Reply-To: <1240000.1048460079@[10.10.2.4]>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please CC me on jmc@spam.xisl.com without the spam as I'm not subscribed 
-- thanks.
+Martin J. Bligh wrote:
+>>akpm has suggested something like this in the past.  I respectfully
+>>disagree.
+>>
+>>The 2.4 kernel will not benefit from constant churn of backporting core
+>>kernel changes like a new scheduler.  We need to let it settle, simply
+>>get it stable, and concentrate on fixing key problems in 2.6.  Otherwise
+>>you will never have a stable 2.4 tree, and it will look suspiciously more
+>>and more like 2.6 as time goes by.  Constantly breaking working
+>>configurations and changing core behaviors is _not_ the way to go for 2.4.
+>>
+>>I see 2.4 O(1) scheduler and similar features as _pain_ brought on the
+>>vendors by themselves (and their customers).
+> 
+> 
+> O(1) sched may be a bad example ... how about the fact that mainline VM
+> is totally unstable? Witness, for instance, the buffer_head stuff. Fixes
+> for that have been around for ages. 
 
-I've just got a new machine (2.5 GHz pentium lots of RAM and disk space) 
-which has one of these SIS963 Southbridge creatures and I get the 
-message on booting a 2.4.19ish sort of kernel.
+"totally unstable" being defined as:  My computers don't crash, and my 
+100%-mainline test kernels pass various Cerberus/LTP/crashme runs.
 
-Unknown bridge resource 0 - assuming transparent
+Of course, I am not totally focused on multi-million-dollar computers, 
+so maybe my perspective is skewed...  ;-)
 
-Alas it's very clear that it isn't transparent and I can't get to half 
-of the PCI stuff - worst of all the built-in Ethernet and any Ethernet 
-card I plug in. It would seem that it isn't too transparent as the 
-reported IRQ and IOMEM assignments for the devices are all scrambled.
 
-I changed the message in drivers/pci/pci.c to report the base and limit 
-values extracted and they are e000 and d000 respectively which explains 
-why the code chokes on it.
+> The real philosophical question is "what is mainline 2.4 _for_"?
 
-I've followed a long thread about fixing this on transparent bridges - 
-can some kind guru give me some runes to get this machine off the 
-ground? A quick and dirty my-machine-only hack would be fine for me if 
-not fully aesthetically pleasing to all and sundry.
+It's the 2.4 tree that's missing all the vendor junk unacceptable for 
+mainline.
 
-I've looked at the SIS website and it wasn't a lot of help. They 
-referred me to the motherboard mfr (ASUS). I emailed ASUS but still no joy.
 
-I see the built-in Ethernet is an SIS900 no doubt that is more fun in 
-store with that but I've got a small stack of alternative PCI cards on 
-the windowsill which I'll stuff in if I can get past this problem.
+> Yes, the real answer is to get 2.6 out the door, and move people onto it.
+> But that will take a little while ... would be nice to get some way to
+> alleviate the pain in the meantime.
 
--- 
-John Collins Xi Software Ltd www.xisl.com
+Fixes should be applied to 2.4-mainline, certainly.  Anything else just 
+wastes developer brain cycles and slows the move to 2.6.
+
+	Jeff
+
 
 

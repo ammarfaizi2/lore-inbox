@@ -1,77 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263085AbTJaHqk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 02:46:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbTJaHqk
+	id S263060AbTJaHhi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 02:37:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbTJaHhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 02:46:40 -0500
-Received: from www1.cdi.cz ([194.213.194.49]:3784 "EHLO www1.cdi.cz")
-	by vger.kernel.org with ESMTP id S263085AbTJaHqg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 02:46:36 -0500
-Date: Fri, 31 Oct 2003 08:40:06 +0100 (CET)
-From: devik <devik@cdi.cz>
-X-X-Sender: <devik@devix>
-To: "David S. Miller" <davem@redhat.com>
-cc: <daniel.blueman@gmx.net>, <netdev@oss.sgi.com>,
-       <linux-net@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.0-test9] QoS HTB crash...
-In-Reply-To: <20031030130859.605f856d.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0310310839100.11221-100000@devix>
+	Fri, 31 Oct 2003 02:37:37 -0500
+Received: from mail-03.iinet.net.au ([203.59.3.35]:49321 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S263062AbTJaHhf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 02:37:35 -0500
+Message-ID: <3FA2113B.1020102@cyberone.com.au>
+Date: Fri, 31 Oct 2003 18:37:31 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-CDI: passed
+To: Thomas Schlichter <schlicht@uni-mannheim.de>
+CC: Ivan Gyurdiev <ivg2@cornell.edu>, Andrew Morton <akpm@osdl.org>,
+       B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: Processes receive SIGSEGV if TCQ is enabled
+References: <200310301601.55588.schlicht@uni-mannheim.de> <3FA1943A.7010300@cornell.edu> <3FA1A171.3040807@cyberone.com.au> <200310310828.41598.schlicht@uni-mannheim.de>
+In-Reply-To: <200310310828.41598.schlicht@uni-mannheim.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm - I have to look at 2.6's definition of rb_next. It
-might be the case ! I'll check it.
 
-Thanks, devik
 
-On Thu, 30 Oct 2003, David S. Miller wrote:
+Thomas Schlichter wrote:
 
-> On Thu, 30 Oct 2003 20:50:16 +0100 (CET)
-> devik <devik@cdi.cz> wrote:
+>Hi,
 >
-> > thanks for the report. I know that there is an issue regarding
-> > HTB in 2.6.x. Please send me net/sched/sch_htb.o,
-> > net/sched/sch_htb.c (just to be sure) and be sure that you
-> > build the kernel with debugging symbols (see debugging section
-> > of menuconfig/xconfig).
+>On Friday 31 October 2003 00:40, Nick Piggin wrote:
 >
-> I think the problem is the changes that were made
-> in 2.5.x to htb_next_rb_node().  It used to be:
+>>Hi,
+>>If you're testing IDE TCQ, please try the following patch and use the
+>>default io scheduler. It won't fix anything, but it poisons requests
+>>so we can sometimes tell if they are being used in the wrong places.
+>>I have seen warnings that lead me to believe this might be happening.
+>>Its against 2.6.0-test9-mm1. Report any stack traces you see. Thanks.
+>>
 >
-> static void htb_next_rb_node(rb_node_t **n)
-> {
->         rb_node_t *p;
->         if ((*n)->rb_right) {
->                 /* child at right. use it or its leftmost ancestor */
->                 *n = (*n)->rb_right;
->                 while ((*n)->rb_left)
->                         *n = (*n)->rb_left;
->                 return;
->         }
->         while ((p = (*n)->rb_parent) != NULL) {
->                 /* if we've arrived from left child then we have next node */
->                 if (p->rb_left == *n) break;
->                 *n = p;
->         }
->         *n = p;
-> }
+>OK, I tested 2.6.0-test9-mm1 + your patch, but it seems not to print any 
+>messages or stack traces, even if many processes are killed after setting TCQ 
+>depth to 1.
 >
-> But it was changed into:
->
-> static void htb_next_rb_node(struct rb_node **n)
-> {
->         *n = rb_next(*n);
-> }
->
-> This is wrong, the new code has much different side effects
-> than the original code.
->
-> This looks like the problem, devik what do you think?
->
->
+
+OK well thats good, its not my problem then ;) Thanks.
+
 

@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313977AbSDQAVl>; Tue, 16 Apr 2002 20:21:41 -0400
+	id <S313982AbSDQAWy>; Tue, 16 Apr 2002 20:22:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313982AbSDQAVk>; Tue, 16 Apr 2002 20:21:40 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:44806
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S313977AbSDQAVj>; Tue, 16 Apr 2002 20:21:39 -0400
-Date: Tue, 16 Apr 2002 17:21:06 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCHSET] Linux 2.4.19-pre7-jam1
-In-Reply-To: <20020417000351.GC1800@werewolf.able.es>
-Message-ID: <Pine.LNX.4.10.10204161720260.10691-100000@master.linux-ide.org>
+	id <S313983AbSDQAWx>; Tue, 16 Apr 2002 20:22:53 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29709 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S313982AbSDQAWw>; Tue, 16 Apr 2002 20:22:52 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Why HZ on i386 is 100 ?
+Date: 16 Apr 2002 17:22:28 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a9if84$1jp$1@cesium.transmeta.com>
+In-Reply-To: <1018964120.13527.37.camel@pc-16.office.scali.no> <E16xTTd-0008Va-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a micro bug in 3a, look for 4 to arrive.
-
-regards
-
-On Wed, 17 Apr 2002, J.A. Magallon wrote:
-
-> Hi.
+Followup to:  <E16xTTd-0008Va-00@the-village.bc.nu>
+By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+In newsgroup: linux.dev.kernel
+>
+> > I seem to recall from theory that the 100HZ is human dependent. Any
+> > higher and you would begin to notice delays from you input until
+> > whatever program you're talking to responds. 
 > 
-> New version, just collected latest important bugfixes:
-> 
-> - Serial port number assign (05-serial.gz)
-> - pagemap.h include for fs/ (04-fs-pagemap.gz)
-> - unlocking order in buffer.c::end_buffer_io_kiobuf (03-unlock-bh-before.gz)
-> 
-> And a couple new additions:
-> 
-> - ide update -3a (very shrinked wrt original, the big ppc part has gone
->   in mainline)
-> - netconsole-C2-2 (for my beowulf...)
-> 
-> Rest as usual, O1-sched-k3 (is any backport of the updates planned ??)
-> mini-low-lat, splitted-vm-33, bproc-3.1.9.
-> 
-> Enjoy !!
-> 
-> -- 
-> J.A. Magallon                           #  Let the source be with you...        
-> mailto:jamagallon@able.es
-> Mandrake Linux release 8.3 (Cooker) for i586
-> Linux werewolf 2.4.19-pre7-jam1 #1 SMP Wed Apr 17 00:42:27 CEST 2002 i686
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Ultimately its because Linus pulled that number out of a hat about ten years
+> ago. For some workloads 1KHz is much better, for others like giant number
+> crunching people actually drop it down to about 5..
 > 
 
-Andre Hedrick
-LAD Storage Consulting Group
+Hardly so.  100 Hz was standard on most commercial Unices around the
+time the first Linux was done...
 
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

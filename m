@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317816AbSHHRlw>; Thu, 8 Aug 2002 13:41:52 -0400
+	id <S317712AbSHHRer>; Thu, 8 Aug 2002 13:34:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317815AbSHHRlF>; Thu, 8 Aug 2002 13:41:05 -0400
-Received: from ool-182fa350.dyn.optonline.net ([24.47.163.80]:48004 "EHLO
-	nikolas.hn.org") by vger.kernel.org with ESMTP id <S317799AbSHHRjz>;
-	Thu, 8 Aug 2002 13:39:55 -0400
-Date: Thu, 8 Aug 2002 13:42:58 -0400
-From: Nick Orlov <nick.orlov@mail.ru>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Bill Davidsen <davidsen@tmr.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pdc20265 problem.
-Message-ID: <20020808174258.GA5622@nikolas.hn.org>
-Mail-Followup-To: Andre Hedrick <andre@linux-ide.org>,
-	Bill Davidsen <davidsen@tmr.com>,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.96.1020807183410.14463B-100000@gatekeeper.tmr.com> <Pine.LNX.4.10.10208080344290.24560-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10208080344290.24560-100000@master.linux-ide.org>
-User-Agent: Mutt/1.4i
+	id <S317697AbSHHReE>; Thu, 8 Aug 2002 13:34:04 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:53519 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S317698AbSHHRdQ>; Thu, 8 Aug 2002 13:33:16 -0400
+Date: Thu, 8 Aug 2002 14:36:46 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Jesse Barnes <jbarnes@sgi.com>
+Cc: linux-kernel@vger.kernel.org, <jmacd@namesys.com>, <phillips@arcor.de>,
+       <rml@tech9.net>
+Subject: Re: [PATCH] lock assertion macros for 2.5.30
+In-Reply-To: <20020808172335.GA29509@sgi.com>
+Message-ID: <Pine.LNX.4.44L.0208081435400.2589-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 08, 2002 at 03:50:19AM -0700, Andre Hedrick wrote:
-> On Wed, 7 Aug 2002, Bill Davidsen wrote:
-> 
-> > I would just as soon use a boot option as to try and make it a compile
-> > option, and I think that many people just use a compiled kernel and never
-> > change, which argues for a reasonable default (most pdc20265) ARE
-> > currently offboard, and an easy way to change it.
-> 
-> There are ZERO pdc20265's offboard, only pdc20267's were in both options.
-> This is the direct asic packaging.  Thus all pdc20265 have the right to be
-> listed as onboard.
+On Thu, 8 Aug 2002, Jesse Barnes wrote:
+> On Wed, Aug 07, 2002 at 07:19:21PM -0300, Rik van Riel wrote:
+> > Looks good to me. Would be even better if you removed MUST_NOT_HOLD ;)
+>
+> Ok, here's yet another version.
 
-Could you comment next couple lines of code (2.4.19-vanilla):
+Looks fine to me, but I'm not a SCSI guy so you'll have to
+ask them about integrating the patch ;)
 
-==========================================
-#else /* !CONFIG_PDC202XX_FORCE */
-[ ... skipped ... ]
-        {DEVID_PDC20265,"PDC20265" .... OFF_BOARD ..... },
-                                        ^^^^^^^^^
-[ ... skipped ... ]
-#endif
-==========================================
+The other issues you raised are probably best done in
+separate patches.
 
-Another bug? Just typo?
-Why author put PDC20265 in off-board list ?
+regards,
 
-> Cheers,
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
-> 
-
+Rik
 -- 
-With best wishes,
-        Nick Orlov.
+	http://www.linuxsymposium.org/2002/
+"You're one of those condescending OLS attendants"
+"Here's a nickle kid.  Go buy yourself a real t-shirt"
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

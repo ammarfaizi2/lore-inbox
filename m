@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbTJPUm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 16:42:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263170AbTJPUm5
+	id S263212AbTJPUvV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 16:51:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263214AbTJPUvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 16:42:57 -0400
-Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:23799 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id S263166AbTJPUm4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 16:42:56 -0400
-Date: Thu, 16 Oct 2003 14:40:33 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Eli Billauer <eli_billauer@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [RFC] frandom - fast random generator module
-Message-ID: <20031016144033.H7000@schatzie.adilger.int>
-Mail-Followup-To: Matt Mackall <mpm@selenic.com>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Eli Billauer <eli_billauer@users.sourceforge.net>,
-	linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
-References: <3F8E552B.3010507@users.sf.net> <3F8E58A9.20005@cyberone.com.au> <3F8E70E0.7070000@users.sf.net> <3F8E8101.70009@pobox.com> <20031016102020.A7000@schatzie.adilger.int> <3F8EC7D0.5000003@pobox.com> <20031016121825.D7000@schatzie.adilger.int> <20031016193110.GR5725@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031016193110.GR5725@waste.org>; from mpm@selenic.com on Thu, Oct 16, 2003 at 02:31:10PM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Thu, 16 Oct 2003 16:51:21 -0400
+Received: from mcomail04.maxtor.com ([134.6.76.13]:23311 "EHLO
+	mcomail04.maxtor.com") by vger.kernel.org with ESMTP
+	id S263212AbTJPUvT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 16:51:19 -0400
+Message-ID: <785F348679A4D5119A0C009027DE33C105CDB2D0@mcoexc04.mlm.maxtor.com>
+From: "Mudama, Eric" <eric_mudama@Maxtor.com>
+To: "'Greg Stark'" <gsstark@mit.edu>
+Cc: "'Jens Axboe'" <axboe@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] ide write barrier support
+Date: Thu, 16 Oct 2003 14:51:13 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 16, 2003  14:31 -0500, Matt Mackall wrote:
-> On Thu, Oct 16, 2003 at 12:18:25PM -0600, Andreas Dilger wrote:
-> > 	while (nbytes >= sizeof(*data)) {
-> > 		*(long *)buf = *data;
-> > 		buf += sizeof(*data);
-> > 		*data = *data * 1812433253L + 12345L; /* or whatever... */
-> > 	}
-> 
-> I don't think a get_pseudorandom_bytes() is a horrible idea. But it's
-> still worth the trouble to pick a more robust pseudorandom generator.
-> The above won't satisfy common spectral requirements. I'd rather try
-> to make /dev/urandom suffice first though.
 
-Oh, by all means the above isn't sufficient, just an example.  We have
-already had 2 arch-specific assembly PRNGs that are much better than
-the above that can be used if there is no HW RNG.  My point was that it
-would be nice to hide the details of which PRNG and all the CPU selection
-and config detection from callers in the kernel.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+> -----Original Message-----
+> From: Greg Stark
+>
+> Ideally postgres just needs to call some kind of fsync 
+> syscall that guarantees
+> it won't return until all buffers from the file that were 
+> dirty prior to the
+> sync were flushed and the disk was really synced. It's fine 
+> for buffers that
+> were dirtied later to get synced as well, as long as all the 
+> old buffers are
+> all synced.
 
+This checkpointing doesn't exist in ATA, only in SCSI I think.  You can get
+similar behavior in ATA-7 capable drives (which I don't think are on the
+market yet) by issuing FUA commands.  These will not return good status
+until the data is on the media, and they can be intermingled with other
+cached writes without destroying overall performance.
+
+If there was some way to define a file as FUA instead of normal, then you'd
+know every write to it would be on the media if the status was good.
+However, you may have committed your journal or whatever and have possibly
+significantly stale data on the drive's cache in the user data area.
+
+As far as the actual file-system call mechanism to achive this, I have no
+idea... I know very little about linux internals, I just try to answer
+disk-related questions.
+
+--eric

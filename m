@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262845AbUCKI3X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 03:29:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbUCKI3X
+	id S262892AbUCKIaX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 03:30:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbUCKIaX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 03:29:23 -0500
-Received: from [193.108.190.253] ([193.108.190.253]:1438 "EHLO
-	pluto.linuxkonsulent.dk") by vger.kernel.org with ESMTP
-	id S262892AbUCKI3T convert rfc822-to-8bit (ORCPT
+	Thu, 11 Mar 2004 03:30:23 -0500
+Received: from mxout.hispeed.ch ([62.2.95.247]:37543 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S262892AbUCKIaQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 03:29:19 -0500
-Subject: Re: UID/GID mapping system
-From: =?ISO-8859-1?Q?S=F8ren?= Hansen <sh@warma.dk>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1078958747.1940.80.camel@nidelv.trondhjem.org>
-References: <1078775149.23059.25.camel@luke> <04031009285900.02381@tabby>
-	 <1078941525.1343.19.camel@homer>  <04031015412900.03270@tabby>
-	 <1078958747.1940.80.camel@nidelv.trondhjem.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Message-Id: <1078993757.1576.41.camel@quaoar>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 11 Mar 2004 09:29:17 +0100
-Content-Transfer-Encoding: 8BIT
+	Thu, 11 Mar 2004 03:30:16 -0500
+Message-ID: <40502396.3030402@objectxp.com>
+Date: Thu, 11 Mar 2004 09:30:14 +0100
+From: Michel Marti <michel.marti@objectxp.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5.1) Gecko/20031203
+X-Accept-Language: en, de-ch
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.4: Fix NULL pointer dereference in blkmtd.c
+X-Enigmail-Version: 0.82.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ons, 2004-03-10 kl. 23:45 skrev Trond Myklebust:
-> The NFSv4 client and server already do uid/gid mapping. That is
-> *mandatory* in the NFSv4 protocol, which dictates that you are only
-> allowed to send strings of the form user@domain on the wire.
+Hello all,
 
-Clever! 
+The blkmtd driver oopses in add_device(). The following trivial patch fixes
+this.
 
-> If you really need uid/gid mapping for NFSv2/v3 too, why not just build
-> on the existing v4 upcall/downcall mechanisms?
+Cheers,
 
-Because that would require changes to both ends of the wire. I want this
-to:
-1. Work for ALL filesystems (NFS, smbfs, ext2(*) etc.)
-2. Be transparent for the server.
+- Michel
 
-*: For ext2, this could come in handy if you are moving disks between
-systems.
 
--- 
-Salu2, Søren.
+diff -urN linux-2.6.4/drivers/mtd/devices/blkmtd.c linux-2.6.4-mma/drivers/mtd/devices/blkmtd.c
+--- linux-2.6.4/drivers/mtd/devices/blkmtd.c	2004-02-18 04:57:13.000000000 +0100
++++ linux-2.6.4-mma/drivers/mtd/devices/blkmtd.c	2004-03-11 09:02:45.000000000 +0100
+@@ -664,12 +664,12 @@
+  	}
+
+  	memset(dev, 0, sizeof(struct blkmtd_dev));
++	dev->blkdev = bdev;
+  	atomic_set(&(dev->blkdev->bd_inode->i_mapping->truncate_count), 0);
+  	if(!readonly) {
+  		init_MUTEX(&dev->wrbuf_mutex);
+  	}
+
+-	dev->blkdev = bdev;
+  	dev->mtd_info.size = dev->blkdev->bd_inode->i_size & PAGE_MASK;
+
+  	/* Setup the MTD structure */
 

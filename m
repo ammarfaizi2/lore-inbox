@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264997AbTFCNIk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 09:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264998AbTFCNIk
+	id S264996AbTFCNIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 09:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbTFCNIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 09:08:40 -0400
-Received: from moutng.kundenserver.de ([212.227.126.184]:1770 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S264997AbTFCNId (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 09:08:33 -0400
-Date: Tue, 3 Jun 2003 15:22:24 +0200
-From: Arne Brutschy <abrutschy@xylon.de>
-X-Mailer: The Bat! (v1.62r) Personal
-Reply-To: Arne Brutschy <abrutschy@xylon.de>
-Organization: Xylon
-X-Priority: 3 (Normal)
-Message-ID: <1821158975.20030603152224@xylon.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re[2]: [PATCH] ide driver 2.4.21-rc6
-In-Reply-To: <Pine.SOL.4.30.0306022139380.21554-100000@mion.elka.pw.edu.pl>
-References: <Pine.SOL.4.30.0306022139380.21554-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 3 Jun 2003 09:08:16 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:17130
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264996AbTFCNIP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 09:08:15 -0400
+Subject: Re: lost interrupts with 2.4.1-rc6 and i875p chipset
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Greg Norris <haphazard@kc.rr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <20030603111519.GA23228@glitch.localdomain>
+References: <20030603111519.GA23228@glitch.localdomain>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054642710.9234.0.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 03 Jun 2003 13:18:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-BZ> What about turning on "Special FastTrak Feature" instead...
-Didn't work for me, don't know why.
+On Maw, 2003-06-03 at 12:15, Greg Norris wrote:
+> I recently installed Debian on a new i875P chipset machine, and I'm
+> seeing frequent "hdX: lost interrupt" messages at the console under
+> 2.4.21-rc6.  The IDE system appears to stall for 5 seconds or so
+> whenever this occurs (I assume that a reset/resync is occurring), but
+> then seems to recover.  It's pretty easy to reproduce... any
+> significant disk activity will trigger the problem.  In particular,
+> running fsck or copying files off a cdrom will expose the problem
+> within seconds.
 
-Arne
+Does this occur if you build the kernel without ACPI and without APIC
+support ?
 

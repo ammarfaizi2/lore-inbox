@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129169AbRAaXpw>; Wed, 31 Jan 2001 18:45:52 -0500
+	id <S129092AbRBAAAh>; Wed, 31 Jan 2001 19:00:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129221AbRAaXpc>; Wed, 31 Jan 2001 18:45:32 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:3813 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129169AbRAaXpa>;
-	Wed, 31 Jan 2001 18:45:30 -0500
-Date: Wed, 31 Jan 2001 23:43:51 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: bsuparna@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: [Kiobuf-io-devel] RFC:  Kernel mechanism: Compound event wait/notify + callback chains
-Message-ID: <20010131234351.J11607@redhat.com>
-In-Reply-To: <CA2569E4.001AB22F.00@d73mta05.au.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <CA2569E4.001AB22F.00@d73mta05.au.ibm.com>; from bsuparna@in.ibm.com on Tue, Jan 30, 2001 at 10:15:02AM +0530
+	id <S129133AbRBAAA2>; Wed, 31 Jan 2001 19:00:28 -0500
+Received: from [195.71.115.196] ([195.71.115.196]:63985 "HELO
+	demdwug7.mediaways.net") by vger.kernel.org with SMTP
+	id <S129092AbRBAAAT>; Wed, 31 Jan 2001 19:00:19 -0500
+Date: Thu, 1 Feb 2001 01:01:40 +0100 (CET)
+From: Martin Diehl <mdiehlcs@compuserve.de>
+To: davej@suse.de
+cc: Linus Torvalds <torvalds@transmeta.com>, becker@scyld.com,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] minor ne2k-pci irq fix
+In-Reply-To: <Pine.LNX.4.31.0101311207150.20199-100000@athlon.local>
+Message-ID: <Pine.LNX.4.21.0102010039290.2065-100000@notebook.diehl.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 31 Jan 2001 davej@suse.de wrote:
 
-On Tue, Jan 30, 2001 at 10:15:02AM +0530, bsuparna@in.ibm.com wrote:
-> 
-> Comments, suggestions, advise, feedback solicited !
- 
-My first comment is that this looks very heavyweight indeed.  Isn't it
-just over-engineered?
+> I think it would be better to move the pci_enable_device(pdev);
+> above all this, as we should enable the device before reading the
+> pdev->resource[] too iirc.
 
-We _do_ need the ability to stack completion events, but as far as the
-kiobuf work goes, my current thoughts are to do that by stacking
-lightweight "clone" kiobufs.  
+Probably I've missed this because the last time I hit such a thing was
+when my ob800 bios mapped the cardbus memory BAR's into bogus legacy
+0xe0000 area. Hence there was good reason to read and correct this before
+trying to enable the device.
+The normal case however would be like you've suggested, IMHO.
 
-The idea is that completion needs to pass upwards (a)
-bytes-transferred, and (b) errno, to satisfy the caller: everything
-else, including any private data, can be hooked by the caller off the
-kiobuf private data (or in fact the caller's private data can embed
-the clone kiobuf).
+BTW, will it ever happen the kernel starts remapping BAR's when enabling
+devices?
 
-A clone kiobuf is a simple header, nothing more, nothing less: it
-shares the same page vector as its parent kiobuf.  It has private
-length/offset fields, so (for example) a LVM driver can carve the
-parent kiobuf into multiple non-overlapping children, all sharing the
-same page list but each one actually referencing only a small region
-of the whole.
+Regards
+Martin
 
-That ought to clean up a great deal of the problems of passing kiobufs
-through soft raid, LVM or loop drivers.
 
-I am tempted to add fields to allow the children of a kiobuf to be
-tracked and identified, but I'm really not sure it's necessary so I'll
-hold off for now.  We already have the "io-count" field which
-enumerates sub-ios, so we can define each child to count as one such
-sub-io; and adding a parent kiobuf reference to each kiobuf makes a
-lot of sense if we want to make it easy to pass callbacks up the
-stack.  More than that seems unnecessary for now.
-
---Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

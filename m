@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVDEISl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVDEIFL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbVDEISl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 04:18:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVDEIOa
+	id S261617AbVDEIFL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 04:05:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbVDEH73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 04:14:30 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:41145 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261650AbVDEILf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 04:11:35 -0400
-Subject: Re: Netlink Connector / CBUS
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: lkml <linux-kernel@vger.kernel.org>, Netlink List <netdev@oss.sgi.com>,
-       "David S. Miller" <davem@davemloft.net>,
-       James Morris <jmorris@redhat.com>, rml@novell.com,
-       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-In-Reply-To: <1112686480.28858.17.camel@uganda>
-References: <Xine.LNX.4.44.0504050108260.9383-100000@thoron.boston.redhat.com>
-	 <1112686480.28858.17.camel@uganda>
-Date: Tue, 05 Apr 2005 10:11:23 +0200
-Message-Id: <1112688683.8456.10.camel@frecb000711.frec.bull.fr>
+	Tue, 5 Apr 2005 03:59:29 -0400
+Received: from fire.osdl.org ([65.172.181.4]:10685 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261615AbVDEHwB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 03:52:01 -0400
+Date: Tue, 5 Apr 2005 00:51:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm1
+Message-Id: <20050405005151.494c0e3e.akpm@osdl.org>
+In-Reply-To: <20050405074530.GF26208@infradead.org>
+References: <20050405000524.592fc125.akpm@osdl.org>
+	<20050405074530.GF26208@infradead.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 05/04/2005 10:21:14,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 05/04/2005 10:21:15,
-	Serialize complete at 05/04/2005 10:21:15
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-05 at 11:34 +0400, Evgeniy Polyakov wrote:
-> On Tue, 2005-04-05 at 01:10 -0400, Herbert Xu wrote:
+Christoph Hellwig <hch@infradead.org> wrote:
 >
-> >In fact to this day I still don't understand what problems this thing is
-> >meant to solve.
-> 
-> Hmm, what else can I add to my words?
-> May be checking the size of the code needed to broadcast kobject changes
-> in kobject_uevent.c for example...
-> Netlink socket allocation + skb handling against call to cn_netlink_send().
+> (btw, could you please add to all patches who's responsible for them,
+>  bk-audit.patch doesn't tell)
 
-And It's the same for the fork connector. It allows to send a message to
-a user space application when a fork occurs by adding only one line (two
-with the #include) in the kernel/fork.c file. Thus, the netlink
-connector is a very simple and fast mechanism when you need to send a
-small amount of information from kernel space to user space.
+It's supposed to, but if I have to fix rejects and refresh the patch, I
+lose that info.  Right now, bk-audit stomps on bk-ia64, so we lost the info.
+I'll finally get around to fixing that up right now.
 
-Regards,
-Guillaume
+Anyway.  dwmw2.
 

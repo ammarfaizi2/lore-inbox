@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267259AbUHDFj1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267263AbUHDFna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267259AbUHDFj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 01:39:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267264AbUHDFj1
+	id S267263AbUHDFna (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 01:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267264AbUHDFn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 01:39:27 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:9146 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267259AbUHDFj0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 01:39:26 -0400
-Date: Wed, 4 Aug 2004 07:39:10 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Brian King <brking@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] blk_queue_free_tags
-Message-ID: <20040804053909.GB10340@suse.de>
-References: <410FCFAF.3090207@us.ibm.com>
-Mime-Version: 1.0
+	Wed, 4 Aug 2004 01:43:29 -0400
+Received: from dns.toxicfilms.tv ([150.254.37.24]:29111 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S267263AbUHDFn2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 01:43:28 -0400
+X-Qmail-Scanner-Mail-From: solt@dns.toxicfilms.tv via dns
+X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
+X-Qmail-Scanner: 1.22 (Clear:RC:0(150.254.37.14):SA:0(0.0/5.0):. Processed in 3.324097 secs)
+Date: Wed, 4 Aug 2004 07:43:26 +0200
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+X-Mailer: SecureBat! Lite (v2.10.02) UNREG / CD5BF9353B3B7091
+Reply-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+X-Priority: 3 (Normal)
+Message-ID: <34840234.20040804074326@dns.toxicfilms.tv>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][0/3] Scheduler policies for staircase
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <410FCFAF.3090207@us.ibm.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 03 2004, Brian King wrote:
-> 
-> -- 
-> Brian King
-> eServer Storage I/O
-> IBM Linux Technology Center
+Con,
 
-> 
-> Currently blk_queue_free_tags cannot be called with ops outstanding. The
-> scsi_tcq API defined to LLD scsi drivers allows for scsi_deactivate_tcq
-> to be called (which calls blk_queue_free_tags) with ops outstanding. Change
-> blk_queue_free_tags to no longer free the tags, but rather just disable
-> tagged queuing and also modify blk_queue_init_tags to handle re-enabling
-> tagged queuing after it has been disabled.
+I have been using SCHED_BATCH on two machines now with expected
+results. So this you might consider this as another success report :-)
 
-Not sure I completely agree with changing our exported interface just
-because that's what SCSI wants, but I guess there's no harm. As long as
-the tags are freed on queue exit, we can leave them around. I'll just
-make it __blk_queue_free_tags(), else applied directly.
+Do you think that these schedulers could come into the mainline
+soon? Would you submit them to Linus without the staircase scheduler
+or would you rather wait for the whole bunch of changes to get
+rock-stable ?
 
--- 
-Jens Axboe
+Best regards,
+Maciej
+
 

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135926AbRDTOG3>; Fri, 20 Apr 2001 10:06:29 -0400
+	id <S135925AbRDTONL>; Fri, 20 Apr 2001 10:13:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135925AbRDTOGT>; Fri, 20 Apr 2001 10:06:19 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:2835 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S135924AbRDTOGE> convert rfc822-to-8bit; Fri, 20 Apr 2001 10:06:04 -0400
-From: s-jaschke@t-online.de (Stefan Jaschke)
-Reply-To: stefan@jaschke-net.de
-Organization: jaschke-net.de
-To: Francois Romieu <romieu@cogenit.fr>
+	id <S135924AbRDTOM7>; Fri, 20 Apr 2001 10:12:59 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:26885 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S135934AbRDTOMu>; Fri, 20 Apr 2001 10:12:50 -0400
+Date: Fri, 20 Apr 2001 05:14:52 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: stefan@jaschke-net.de
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        epic@skyld.com
 Subject: Re: epic100 error
-Date: Fri, 20 Apr 2001 16:05:04 +0200
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010417184552.A6727@core.devicen.de> <01042010222601.06730@antares> <20010420122507.A32759@se1.cogenit.fr>
-In-Reply-To: <20010420122507.A32759@se1.cogenit.fr>
-MIME-Version: 1.0
-Message-Id: <01042016050400.01202@antares>
-Content-Transfer-Encoding: 8BIT
+Message-ID: <20010420051452.B2628@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	stefan@jaschke-net.de, Jeff Garzik <jgarzik@mandrakesoft.com>,
+	linux-kernel@vger.kernel.org, epic@skyld.com
+In-Reply-To: <20010417184552.A6727@core.devicen.de> <01042013091501.07156@antares> <3AE01E97.E41399F7@mandrakesoft.com> <01042014071100.01203@antares>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <01042014071100.01203@antares>; from s-jaschke@t-online.de on Fri, Apr 20, 2001 at 02:07:11PM +0200
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 20 April 2001 12:25, Francois Romieu wrote:
-> What happen's if you compile 2.4.2 epic100 driver in a 2.4.3 tree (I) ?
-> I would really appreciate if you could give a look at (I).
+Em Fri, Apr 20, 2001 at 02:07:11PM +0200, Stefan Jaschke escreveu:
+> <offtopic>
+> 'A message that you sent could not be delivered to one or more of its
+> recipients. This is a permanent error. The following address(es) failed:
+>   epic@skyld.com:
+>     unrouteable mail domain "skyld.com"'
+> </offtopic>
 
-I copied epic100.c from 2.4.2 into the 2.4.4-pre4 tree and it compiles and works without 
-problems. 
-This gives me a workable solution :-)
+s/skyld/scyld/g
 
-Cheers,
-Stefan
-
+- Arnaldo

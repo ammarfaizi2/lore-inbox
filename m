@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265922AbUAUFSm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 00:18:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265931AbUAUFSm
+	id S265908AbUAUFdM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 00:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUAUFdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 00:18:42 -0500
-Received: from dp.samba.org ([66.70.73.150]:60032 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265922AbUAUFSk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 00:18:40 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: More cleanups for swsusp 
-In-reply-to: Your message of "Tue, 20 Jan 2004 23:52:19 BST."
-             <20040120225219.GA19190@elf.ucw.cz> 
-Date: Wed, 21 Jan 2004 16:14:21 +1100
-Message-Id: <20040121051855.B0C282C0A7@lists.samba.org>
+	Wed, 21 Jan 2004 00:33:12 -0500
+Received: from bay13-f43.bay13.hotmail.com ([64.4.31.43]:40207 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S265908AbUAUFdK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 00:33:10 -0500
+X-Originating-IP: [66.159.221.167]
+X-Originating-Email: [kwpk_55@hotmail.com]
+From: "keirwu pk" <kwpk_55@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: newbie driver question
+Date: Wed, 21 Jan 2004 05:33:10 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY13-F43DRdNOUivlQ00007193@hotmail.com>
+X-OriginalArrivalTime: 21 Jan 2004 05:33:10.0223 (UTC) FILETIME=[0E4EF5F0:01C3DFE0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040120225219.GA19190@elf.ucw.cz> you write:
-> -	if (fill_suspend_header(&cur->sh))
-> -		panic("\nOut of memory while writing header");
-> +	BUG_ON (fill_suspend_header(&cur->sh));
+what is the best way to write scsi driver for a scsi device?.got latest 
+kernel.
+any examples, sources. what are typical library calls?.  sg-Howto would 
+help?.
 
-1) fill_suspend_header never fails, perhaps make it return void.
+_________________________________________________________________
+High-speed users—be more efficient online with the new MSN Premium Internet 
+Software. http://join.msn.com/?pgmarket=en-us&page=byoa/prem&ST=1
 
-2) If fill_suspend_header could fail, you should indicate why it won't
-   fail here, and
-
-3) BUG_ON(complex condition expression) is much less clear than:
-
-	if (complex condition expression)
-		BUG();
-
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

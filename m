@@ -1,73 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262866AbTDNIkT (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 04:40:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbTDNIkT (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 04:40:19 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:15817 "EHLO
-	zion.wanadoo.fr") by vger.kernel.org with ESMTP id S262866AbTDNIkR (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 04:40:17 -0400
-Subject: Re: [Linux-fbdev-devel] Re: [FBDEV BK] Updates and fixes.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+	id S262868AbTDNIpv (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 04:45:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262879AbTDNIpv (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 04:45:51 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:22427 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262868AbTDNIpt (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 04:45:49 -0400
+Date: Mon, 14 Apr 2003 14:44:17 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
 To: Andrew Morton <akpm@digeo.com>
-Cc: James Simmons <jsimmons@infradead.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <20030414005814.6719915f.akpm@digeo.com>
-References: <Pine.LNX.4.44.0304140545010.10446-100000@phoenix.infradead.org>
-	 <20030414005814.6719915f.akpm@digeo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050310411.5574.44.camel@zion.wanadoo.fr>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: [patch] dentry_stat fix
+Message-ID: <20030414144417.A27092@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 14 Apr 2003 10:53:31 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> When I enable framebuffer with your latest patch on this machine the display
-> screws up - it alternates between blackness and a strange flicker of
-> horizontal and vertical grey lines.  No text is visible.
-> 
-> This machine has:
-> 
-> ATI Technologies Inc Rage Mobility M3 AGP 2x (rev 02)
+Hello Andrew,
 
-This is a r128 based chip, which lacks some of the proper support for
-LCD stuff (especially automatic retreival of the EDID from BIOS) that
-we have in radeonfb. If you feed the driver with a suitable mode, it
-should work
+This patch the corrects the dentry_stat.nr_unused calculation.
 
-> A second desktop machine has:
-> 
-> VGA compatible controller: nVidia Corporation NV17 [GeForce4 MX440] (rev a3)
-> 
-> When fbcon is enabled here the screen is full of random uninitialised gunk
-> and no text is readable.
+In select_parent() and shrink_dcache_anon() we were not doing 
+any adjustments to the nr_unused count after manipulating the dentry_unused 
+list. Now the nr_unused count is decremented if the dentry is on dentry_unused
+list and is removed from there. 
 
-I haven't yet checked which codebase is in there for rivafb, I have
-started collecting various patches around & doing my own fixes, I have
-a version here that works on PPC with GeForce2 & 4, though I still
-have problems with accel on the GeForce4. It's a 2.4 code base right
-now, I haven't had time to clean that up and release a patch though.
+Further in the same routines, we have to adjust the nr_unused count 
+again if the dentry is moved to the end of d_lru list for pruning.
 
-If 2.5 still has the old codebase, then GeForce4 isn't properly
-supported yet.
 
-Note that if you have a flat panel, then the problem of properly
-retreiving the EDID to get a suitable default mode is also present
-there, unless James added some support for it.
+Regards,
+Maneesh
 
-> 	ATI Technologies Inc Radeon VE QY
-> 
-> it seems to work OK as well.  The penguins started out on a black background.
-> I didn't test dual-head mode.
 
-Ok, I've seen that James added various fixes to 2.5 radeonfb, I still
-have to port some of my 2.4 ones to 2.5, I except those chips to be
-properly supported with fbdev.
+diff -urN linux-2.5.67-base/fs/dcache.c linux-2.5.67-dentry_stat/fs/dcache.c
+--- linux-2.5.67-base/fs/dcache.c	Mon Apr  7 23:00:42 2003
++++ linux-2.5.67-dentry_stat/fs/dcache.c	Fri Apr 11 15:53:53 2003
+@@ -538,13 +538,18 @@
+ 		struct list_head *tmp = next;
+ 		struct dentry *dentry = list_entry(tmp, struct dentry, d_child);
+ 		next = tmp->next;
+-		list_del_init(&dentry->d_lru);
+ 
+-		/* don't add non zero d_count dentries 
+-		 * back to d_lru list
++		if (!list_empty(&dentry->d_lru)) {
++			dentry_stat.nr_unused--;
++			list_del_init(&dentry->d_lru);
++		}
++		/* 
++		 * move only zero ref count dentries to the end 
++		 * of the unused list for prune_dcache
+ 		 */
+ 		if (!atomic_read(&dentry->d_count)) {
+ 			list_add(&dentry->d_lru, dentry_unused.prev);
++			dentry_stat.nr_unused++;
+ 			found++;
+ 		}
+ 		/*
+@@ -609,13 +614,18 @@
+ 		spin_lock(&dcache_lock);
+ 		hlist_for_each(lp, head) {
+ 			struct dentry *this = hlist_entry(lp, struct dentry, d_hash);
+-			list_del(&this->d_lru);
++			if (!list_empty(&this->d_lru)) {
++				dentry_stat.nr_unused--;
++				list_del(&this->d_lru);
++			}
+ 
+-			/* don't add non zero d_count dentries 
+-			 * back to d_lru list
++			/* 
++			 * move only zero ref count dentries to the end 
++			 * of the unused list for prune_dcache
+ 			 */
+ 			if (!atomic_read(&this->d_count)) {
+ 				list_add_tail(&this->d_lru, &dentry_unused);
++				dentry_stat.nr_unused++;
+ 				found++;
+ 			}
+ 		}
 
-Ben.
+-- 
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/
 
+-- 
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/

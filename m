@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317489AbSGEPkd>; Fri, 5 Jul 2002 11:40:33 -0400
+	id <S317483AbSGEPk3>; Fri, 5 Jul 2002 11:40:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317493AbSGEPkc>; Fri, 5 Jul 2002 11:40:32 -0400
-Received: from molly.vabo.cz ([160.216.153.99]:16647 "EHLO molly.vabo.cz")
-	by vger.kernel.org with ESMTP id <S317489AbSGEPk2>;
-	Fri, 5 Jul 2002 11:40:28 -0400
-Date: Fri, 5 Jul 2002 17:42:55 +0200 (CEST)
-From: Tomas Konir <moje@molly.vabo.cz>
-X-X-Sender: moje@moje.ich.vabo.cz
-To: Daniel Egger <degger@fhm.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IBM Desktar disk problem?
-In-Reply-To: <1025883512.17296.28.camel@sonja.de.interearth.com>
-Message-ID: <Pine.LNX.4.44L0.0207051739030.2778-100000@moje.ich.vabo.cz>
-References: <Pine.LNX.4.43.0207051524480.9092-100000@cibs9.sns.it>
- <Pine.LNX.4.44L0.0207051606050.32493-100000@moje.ich.vabo.cz>
- <20020705142619.GN1007@suse.de>  <Pine.LNX.4.44L0.0207051643580.709-100000@moje.ich.vabo.cz>
- <1025883512.17296.28.camel@sonja.de.interearth.com>
+	id <S317493AbSGEPk2>; Fri, 5 Jul 2002 11:40:28 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:13832 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317483AbSGEPk0>; Fri, 5 Jul 2002 11:40:26 -0400
+Date: Fri, 5 Jul 2002 12:40:41 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Mauricio Pretto <pretto@interage.com.br>
+cc: Lista Kernel <linux-kernel@vger.kernel.org>, <hahn@physics.mcmaster.ca>,
+       <rudmer@legolas.dynup.net>
+Subject: Re: 2.5.24 - Swap Problem?
+In-Reply-To: <3D25A5BA.7030904@interage.com.br>
+Message-ID: <Pine.LNX.4.44L.0207051240170.8346-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 Jul 2002, Daniel Egger wrote:
+On Fri, 5 Jul 2002, Mauricio Pretto wrote:
 
-> Am Fre, 2002-07-05 um 16.48 schrieb Tomas Konir:
-> 
-> > Error Log Structure 1:
-> > DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
-> >  00   08   80   ee   88   a2    e0   cc     1210341
-> >  00   08   08   ee   88   a2    e0   a2     1210341
-> >  00   08   87   04   1d   20    e0   cc     1210341
-> >  00   00   00   04   1d   20    e0   00     1210341
-> >  00   00   80   06   42   67    e1   c8     1210341
-> >  00   84   00   85   42   67    e1   51     0
-> > Error condition:   0    Error State:       3
->  
-> > Error Log Structure 2:
-> > DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
-> >  00   80   00   3e   66   23    e1   c7     1386233
-> >  00   80   08   3e   66   23    e0   a2     1386233
-> >  00   80   30   be   66   23    e1   c7     1386233
-> >  00   80   80   be   66   23    e1   c4     1386233
-> >  00   08   08   26   32   a4    e0   cc     1386237
-> >  00   84   00   2d   32   a4    e0   51     0
-> > Error condition:   0    Error State:       3
-> 
-> Not good. Check for the "Reallocated Sector Ct".
->  
+> I have done this and it steel keep 0 mbs of free Swap used
+> like this
+>               total       used       free     shared    buffers     cached
+> Mem:        182808     178328       4480          0       7544      83744
+> -/+ buffers/cache:      87040      95768
+> Swap:       136512          0     136512
+> Its very strange my box almoust hangup
 
-There are no reallocated sectors.
-Do you know what these error messages means ?
+Could you show us some output of 'vmstat 1' while your
+system is behaving badly ?
 
-	MOJE
- 
+thank you,
 
+Rik
 -- 
-Tomas Konir
-Brno
-ICQ 25849167
+Bravely reimplemented by the knights who say "NIH".
 
+http://www.surriel.com/		http://distro.conectiva.com/
 

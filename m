@@ -1,99 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129706AbQKCBOD>; Thu, 2 Nov 2000 20:14:03 -0500
+	id <S130020AbQKCBXP>; Thu, 2 Nov 2000 20:23:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130020AbQKCBNx>; Thu, 2 Nov 2000 20:13:53 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:13061 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129706AbQKCBNp>; Thu, 2 Nov 2000 20:13:45 -0500
-Date: Thu, 2 Nov 2000 19:53:04 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Paul Marquis <pmarquis@iname.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: select() bug
-In-Reply-To: <3A01F191.10652E1F@iname.com>
-Message-ID: <Pine.LNX.3.95.1001102195118.19271A-100000@chaos.analogic.com>
+	id <S130089AbQKCBXG>; Thu, 2 Nov 2000 20:23:06 -0500
+Received: from web5205.mail.yahoo.com ([216.115.106.86]:61453 "HELO
+	web5205.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S130020AbQKCBWy>; Thu, 2 Nov 2000 20:22:54 -0500
+Message-ID: <20001103012247.8956.qmail@web5205.mail.yahoo.com>
+Date: Thu, 2 Nov 2000 17:22:47 -0800 (PST)
+From: Rob Landley <telomerase@yahoo.com>
+Subject: Re: 255.255.255.255 won't broadcast to multiple NICs
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Nov 2000, Paul Marquis wrote:
+--- Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+> Rob Landley wrote:
+> > Under 2.2.16, broadcast packets addressed to
+> > 255.255.255.255 do not go out to all interfaces in
+> a
+> > machine with multiple network cards.  They're
+> getting
+> > routed out the default gateway's interface
+> instead.
+> 
+> Are the network cards on the same network?
 
-> In the code sample, there is a loop that is run four times.  During
-> each iteration, a call to select() and write() is done, while every
-> other iteration does a read().  Between the 1st and 2nd calls to
-> write(), as well as the 3rd and 4th, select() fails, but all write()'s
-> and read()'s succeed.  There is no code bug.
+Two subnets.  (both martians: 10.blah and
+192.168.blah).  Gateway's off of 10.blah (beyond which
+lives the internet), the 192 thing is the small
+cluster I'm putting together in my office to test the
+software.
 
-Not as I see it. This is clearly a code bug. Look:
-iteration 1
-select says pipe is writable
-write succeeded - 1 bytes written
-iteration 2
-select returned 0 -- pipe not writable
+I take it this makes a difference?  If there's some
+kind of "don't do that" here, I might be happy just
+documenting it.  (In theory, I could iterate through
+the NICs and send out a broadcast packet to each
+interface's broadcast address (although for reasons
+that are a bit complicated to go into right now unless
+you really want to know, that's not easy to do in this
+case).)  But that's just a workaround to cover up the
+fact that the IP stack isn't doing the obvious with
+global broadcasts.
 
-      for (i = 0; i < 4; i++)
-      {
-         printf("iteration %d\n", i + 1);
+So the question is, is the stack's behavior right?  If
+not, what's involved in fixing it, and if so, is it
+documented anywhere?
 
-         status = 0;
+(I checked google rather a lot before coming here, and
+linux/Documentation, and even glanced at the route.c
+source code.  ip_route_output_slow has several
+explicit checks for "FFFFFFFF" which are easily
+searched for, but the upshot is that the packet gets
+mapped to a single interface anyway.  Around line 1641
+of my sources there's an #ifdef CONFIG_IP_MROUTE that
+looked very interesting, but it turns out only to be
+for multicast addresses and I don't know if
+IN_DEV_FORWARD is forking the packet or not...)
 
-         /* do select */
-         FD_ZERO(&write_fds);
-         FD_SET(fd[1], &write_fds);
-         tv.tv_sec = 0;
-         tv.tv_usec = 0;
-         switch (select(fd[1] + 1, NULL, &write_fds, NULL, &tv))
-         {
-            case -1:
-               /* should probably check for EINTR and/or EWOULDBLOCK */
-               printf("select error - %s\n", strerror(errno));
-               break;
-            case 0:
-               /* no I/O */
-               puts("select returned 0 -- pipe not writable");
-               break;
+At which point I came here. :)
 
-            The BREAK breaks out of the switch-statement ---
-                                                           |
-|-----------------------------------------------------------
-|
-|            default:
-|               /* make sure our fd is writable */
-|               if (FD_ISSET(fd[1], &write_fds))
-|               {
-|                  puts("select says pipe is writable");
-|                  status = 1;
-|               }
-|               else
-|                  puts("select says pipe is not writable");
-|               break;
-|         }
-|
-|         /* do write */
-|------->  n = write(fd[1], buf + (i % 2), 1);
+Rob
 
-Then you write it anyway!
-
-write succeeded - 1 bytes written
-select bug
-
-
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.2.17 on an i686 machine (801.18 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+__________________________________________________
+Do You Yahoo!?
+>From homework help to love advice, Yahoo! Experts has your answer.
+http://experts.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

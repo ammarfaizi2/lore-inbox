@@ -1,68 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316571AbSGAWnP>; Mon, 1 Jul 2002 18:43:15 -0400
+	id <S316573AbSGAWsh>; Mon, 1 Jul 2002 18:48:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316573AbSGAWnO>; Mon, 1 Jul 2002 18:43:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60422 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316571AbSGAWnO>;
-	Mon, 1 Jul 2002 18:43:14 -0400
-Message-ID: <3D20DB20.7B526686@zip.com.au>
-Date: Mon, 01 Jul 2002 15:43:44 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Adam J. Richter" <adam@yggdrasil.com>
-CC: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: bio_append patch
-References: <200206221504.IAA00919@baldur.yggdrasil.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316574AbSGAWsg>; Mon, 1 Jul 2002 18:48:36 -0400
+Received: from AMontpellier-205-1-4-20.abo.wanadoo.fr ([217.128.205.20]:47084
+	"EHLO awak") by vger.kernel.org with ESMTP id <S316573AbSGAWsf> convert rfc822-to-8bit;
+	Mon, 1 Jul 2002 18:48:35 -0400
+Subject: Re: HPT370 + ACPI -> freeze (doesn't boot)
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Arnvid Karstad <arnvid@karstad.org>
+Cc: Pozsar Balazs <pozsy@uhulinux.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020701221651.10653.qmail@nextgeneration.speedroad.net>
+References: <Pine.GSO.4.30.0207012214430.15254-200000@balu> 
+	<20020701221651.10653.qmail@nextgeneration.speedroad.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 02 Jul 2002 00:50:53 +0200
+Message-Id: <1025563853.27901.56.camel@bip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" wrote:
+Le mar 02/07/2002 à 00:16, Arnvid Karstad a écrit :
+> Hiya, 
 > 
->         Here is a first draft of my bio_append patch.  It includes
-> a rewrite of most of mpage.c.
+> Pozsar Balazs writes:
+> > I have an abit VP6 mobo with the integrated HPT370 ide-controller.
+> > If I enable ACPI support, and I connect any harddisk to the hpt host, my
+> > system locks up hard during boot while initializing the drive(s) on the
+> > hpt controller (ie. before printing the 'hde:...' line). The hard drive's
+> > led remains lit.
 > 
+> I have a similar system to yours, but I have drives only on the hpt370 
+> controller. My system boots, but crashes after 5 to 15 minuttes regardless 
+> of usage. (I've posted this to this list on a previous occation.) 
 
-I basically gave up on trying to get the mpage code to
-go 100% BIO.  Impressed.
+Mine (ABit VP6, some drives on both controllers) either stops at
+"hde:..." at boot or freezes a bit later when ACPI is on with stable
+kernels (or -ac ones). Without ACPI it runs pretty well, unless I use
+USBnet.
 
-Some random thoughtlets:
-
-Removing the buffer-layer fallback is a cleanliness/architectural
-thing rather than a performance thing.  The number of pages which
-fall back to the buffer functions is utterly tiny.
-
-Really, I don't think it's a desirable thing to do - those
-buffers were added by the buffer layer, they're owned by the
-buffer layer and it should be up to the buffer layer to handle
-the I/O, without making mpage peer into buffer state internals
-any more than necessary.
-
-I don't think your implementation correctly handles the case
-where a page has some dirty buffers and some non-uptodate
-buffers.  Looks like the readpage function will read old data
-on top of the dirty buffers?
+	Xav
 
 
-wrt integrating the readpages and writepages code: now is not the
-time - mpage_writepages() and mpage_readpages() are very simple
-functions which really only support the simplest of filesytems: ext2.
-Changes have been identified on both the read and write side for
-reiserfs, and on the write side for XFS.  Could be that integrating
-the read and write paths will make those changes more painful.  It
-would be best to wait until the mpage code has been fleshed out to
-support other filesystems and then take a look.  read and write are
-rather different things...
-
-
-Pointing all the BIOs at a common completion structure is cunning.
-But we really don't want to have to perform another memory allocation
-on that path.  Frankly, given that this is the most important and
-the most frequent bio-assembly code in the kernel, I'd be inclined
-to just stick an extra field in struct bio for it.
-
--

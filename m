@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281994AbRKZSQC>; Mon, 26 Nov 2001 13:16:02 -0500
+	id <S281995AbRKZSQC>; Mon, 26 Nov 2001 13:16:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281999AbRKZSPE>; Mon, 26 Nov 2001 13:15:04 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60934 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S282002AbRKZSNb>; Mon, 26 Nov 2001 13:13:31 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Release Policy [was: Linux 2.4.16  ]
-Date: 26 Nov 2001 10:12:50 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9tu0n2$sav$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.40.0111261216500.88-100000@rc.priv.hereintown.net> <Pine.LNX.4.21.0111261351160.13786-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S282002AbRKZSPG>; Mon, 26 Nov 2001 13:15:06 -0500
+Received: from [212.18.232.186] ([212.18.232.186]:40717 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S282004AbRKZSO0>; Mon, 26 Nov 2001 13:14:26 -0500
+Date: Mon, 26 Nov 2001 18:14:07 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: war <war@starband.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.16 Bug (PPC)
+Message-ID: <20011126181407.A32691@flint.arm.linux.org.uk>
+In-Reply-To: <3C028378.50CA616C@starband.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C028378.50CA616C@starband.net>; from war@starband.net on Mon, Nov 26, 2001 at 01:01:28PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.21.0111261351160.13786-100000@freak.distro.conectiva>
-By author:    Marcelo Tosatti <marcelo@conectiva.com.br>
-In newsgroup: linux.dev.kernel
-> 
-> No. Just the -pre-final is a -pre-final. :) 
-> 
-> -pre-final basically means that this is the "candidate" release for the
-> final.
-> 
-> I could call it "candidate" or whatever (I don't really care about the
-> name).
-> 
+On Mon, Nov 26, 2001 at 01:01:28PM -0500, war wrote:
+> Bug still resides in 2.4.16 still, even after the PPC fixes that were
+> applied to 2.4.16-pre1.
 
-That's what a release candidate is.  Expect the possibility that you
-might have more than one release candidate.
+Looking at the MAINTAINERS file, it appears that PPC is missing a person
+to look after it.  I suppose you need to produce a patch that fixes the
+problem and submit it to the relevant people/mailing list for inclusion
+in the kernel.
 
-The -rc scheme proposed seems very clean indeed.
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Oh, and yes, if you settle on a naming scheme, *please* let me know
-ahead of time so I can update the scripts to track it, rather than
-finding out by having hundreds of complaints in my mailbox...
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

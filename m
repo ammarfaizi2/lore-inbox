@@ -1,94 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263412AbSJGVZi>; Mon, 7 Oct 2002 17:25:38 -0400
+	id <S263404AbSJGVWJ>; Mon, 7 Oct 2002 17:22:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263414AbSJGVZh>; Mon, 7 Oct 2002 17:25:37 -0400
-Received: from [212.100.65.236] ([212.100.65.236]:260 "HELO 2mails1128.com")
-	by vger.kernel.org with SMTP id <S263412AbSJGVZU> convert rfc822-to-8bit;
-	Mon, 7 Oct 2002 17:25:20 -0400
-From: "Jonathan Khomo (Mr)" <towmshipproject@dr.com>
-Reply-To: jkhomo1@post.com
-To: linux-kernel@vger.kernel.org
-Date: Mon, 7 Oct 2002 21:35:50 +0100
-Subject: partnership
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+	id <S263405AbSJGVWJ>; Mon, 7 Oct 2002 17:22:09 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:60949 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S263404AbSJGVWH>;
+	Mon, 7 Oct 2002 17:22:07 -0400
+From: <Hell.Surfers@cwctv.net>
+To: riel@conectiva.com.br, nico@cam.org, alan@lxorguk.ukuu.org.uk,
+       pavel@suse.cz, drepper@redhat.com, lm@bitmover.com,
+       linux-kernel@vger.kernel.org
+Date: Mon, 7 Oct 2002 22:27:20 +0100
+Subject: RE: New BK License Problem?
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20021007212530Z263412-8740+8941@vger.kernel.org>
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1034026040975"
+Message-ID: <003a005272107a2DTVMAIL3@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From the Desk of: Mr Jonathan Khomo. B.Sc.(SAU) M.Sc.,MNIM 
-Member, SADMNR 
-_______________________________________________________ 
-DEPARTMENT OF MINERALS AND ENERGY, PRETORIA, SOUTH AFRICA. 
 
-Attn.President/CEO. 
-Sir, 
-It is my great pleasure to write you this letter on behalf of my colleagues 
-.Your information was given to me by a member of the South African Export 
-Promotion Council (SAEPC)Who was with the Government delegation on a 
-trip to your country for a bilateral 
-conference talk to encourage foreign investors. 
+--1034026040975
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I have decided to seek a confidential co-operation with you in the execution 
-of the deal hereunder for the benefit of all parties and hope you willkeep 
-it confidential because of the nature of this business. 
+Marketing plays a huge part...
 
-Within the Department of Minerals & Energy where I work as a Director 
-of Audit and Project Implementation and with the co-operation of two 
-other top officials, we have in our possession an overdue payment in 
-US funds. 
+Cheers, Dean.
 
-The said funds represent certain percentage of the total contract value 
-executed on behalf of my department by a foreign contracting firm which 
-we the officials over-invoiced to the amount of US$14.500,000.00(Fourteen 
-Million Five Hundred Thousand US Dollars). 
+On 	Mon, 7 Oct 2002 18:19:56 -0300 (BRT) 	Rik van Riel <riel@conectiva.com.br> wrote:
 
-Though the actual contract cost has been paid to the original contractor,leaving 
-the excess balance unclaimed.Since the present elected Government 
-is determined to pay foreign contractors all debts owed,so as to maintain 
-good relationship with foreign governments and non-government agencies,we 
-included our bills for approvals with the Department of Finance and the 
-Reserve Bank of South Africa (RBSA). 
+--1034026040975
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-We are seeking your assistance to front as beneficiary of the unclaimed 
-funds, since we are not allowed to operate foreign accounts.Details and 
-change of beneficiary information upon application for claim 
-to reflect payment and approvals will be secured on behalf of you/your 
-company. 
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Mon, 7 Oct 2002 22:19:22 +0100
+Received: from localhost ([IPv6:::ffff:127.0.0.1]:32724 "EHLO localhost")
+	by imladris.surriel.com with ESMTP id <S80085AbSJGVT6>;
+	Mon, 7 Oct 2002 18:19:58 -0300
+Date: Mon, 7 Oct 2002 18:19:56 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Hell.Surfers@cwctv.net
+cc: nico@cam.org, <alan@lxorguk.ukuu.org.uk>, <pavel@suse.cz>,
+	<drepper@redhat.com>, <lm@bitmover.com>,
+	<linux-kernel@vger.kernel.org>
+Subject: RE:Re: New BK License Problem?
+In-Reply-To: <0066647102107a2DTVMAIL10@smtp.cwctv.net>
+Message-ID: <Pine.LNX.4.44L.0210071817450.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.44L.0210071817452.22735@imladris.surriel.com>
+Return-Path: riel@conectiva.com.br
 
-I have the authority of my partners involved to propose that should you 
-be willing to assist us in this transaction your share as compensation 
-will be US$3.625m (25%), while my colleagues and I receive US$9.425m(65%)and 
-the balance of US$1.450m (10%)for taxation and miscellaneous expenses 
-incurred. 
+On Mon, 7 Oct 2002 Hell.Surfers@cwctv.net wrote:
 
-The business is completely safe and secure, provided you treat it with 
-utmost confidentiality.It does not matter whether you/your company does 
-contract projects as a transfer of powers will be secured in favour of 
-you/your company. Also, your area of specialization is not a hindrance 
-to the successful execution of this transaction. 
+> Whats the point of switching licences, YOU CAN make money from support,
+> Mandrake makes a mint.
 
-I have reposed my confidence in you and hope that you will not disappoint 
-us. 
+If they can, surely you can, too?  And surely the subversion people
+would be swimming in money now, from all the support contracts they've
+been doing.  Also look at those huge profits being made by all those
+open source companies.
 
-Kindly notify me by email at (jkhomo1@post.com </cgi-bin/compose?curmbox=F000000001&a=ee22b4be97580fd052652a1c093198f6&mailto=1&to=jkhomo1@post.com&msg=MSG1033934613.56&start=43526&len=3229&src=&type=x>) including 
-your 
-current telephone and fax numbers for further details upon your acceptance 
-of this proposal. 
+Hint:  if the support model worked for source control software,
+surely somebody would have gotten rich off it already ?
 
-Thanks for your Anticipated co-operation. 
+regards,
 
-Sincerely yours, 
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 
-Mr. Jonathan Khomo. 
-
-
-
-
-
-
+--1034026040975--
 
 

@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261921AbUKPHAj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbUKPHFm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbUKPHAj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 02:00:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbUKPHAj
+	id S261925AbUKPHFm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 02:05:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbUKPHFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 02:00:39 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:25767 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261921AbUKPHAc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 02:00:32 -0500
-Message-Id: <200411160700.iAG70pbu018464@owlet.beaverton.ibm.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-cc: colpatch@us.ibm.com, Darren Hart <dvhltc@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] scheduler: rebalance_tick interval update 
-In-reply-to: Your message of "Tue, 16 Nov 2004 13:17:55 +1100."
-             <41996353.1060604@cyberone.com.au> 
-Date: Mon, 15 Nov 2004 23:00:51 -0800
-From: Rick Lindsley <ricklind@us.ibm.com>
+	Tue, 16 Nov 2004 02:05:42 -0500
+Received: from linaeum.absolutedigital.net ([63.87.232.45]:40639 "EHLO
+	linaeum.absolutedigital.net") by vger.kernel.org with ESMTP
+	id S261925AbUKPHFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 02:05:38 -0500
+Date: Tue, 16 Nov 2004 02:05:38 -0500 (EST)
+From: Cal Peake <cp@absolutedigital.net>
+To: Alex Davis <alex14641@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: compile errors with 2.6.10rc2
+In-Reply-To: <20041116050229.43528.qmail@web50204.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.61.0411160200190.27118@linaeum.absolutedigital.net>
+References: <20041116050229.43528.qmail@web50204.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Yes, but if you balance n ticks since the last _rebalance_, then things will
-    be able to drift. Let's say 2 CPUs, they balance at 10 jiffies intervals,
-    5 jiffies apart:
+On Mon, 15 Nov 2004, Alex Davis wrote:
 
-[example deleted]
+> I get the following errors during compilation:
+> 
+> net/core/dev.c:1054: error: conflicting types for 'skb_checksum_help'
+> include/linux/netdevice.h:950: error: previous declaration of 'skb_checksum_help' was here
+> net/core/dev.c:1054: error: conflicting types for 'skb_checksum_help'
+> include/linux/netdevice.h:950: error: previous declaration of 'skb_checksum_help' was here
+> net/core/dev.c:1468: error: redefinition of 'netif_rx_ni'
+> include/linux/netdevice.h:698: error: previous definition of 'netif_rx_ni' was here
+> net/core/dev.c:2648: warning: static declaration of 'dev_new_index' follows non-static declaration
+> include/linux/netdevice.h:556: warning: previous declaration of 'dev_new_index' was here
+> make[2]: *** [net/core/dev.o] Error 1
+> make[1]: *** [net/core] Error 2
+> make: *** [net] Error 2
 
-First, why wasn't the rebalance run when it was supposed to be run?
+It looks like your source tree is clobbered. Try rebuilding with a 
+pristine one and see if that helps.
 
-The answer isn't really all that important.  Regardless of the answer,
-if this can happen once, I presume it can happen more than once.  Despite
-our best efforts, rebalancing ran in the "wrong timeslot". Aside from the
-CPU_OFFSET math, it would seem to me that this inexplicable delay, itself,
-introduces enough variance to make any hope of keeping the cpus strictly
-unsynchronized (!!) something of a pipe dream.  We start them out of sync, and
-know that they'll drift.  We can correct them, but they'll drift again.
-Why not just acknowledge that behavior, instead of putting effort into
-(unsuccessfully) countering it?
+-- Cal
 
-Second, it's of marginal usefulness anyway when you consider that
-rebalance_tick() is only called with HZ granularity, except for
-unpredictable times from fork().  You're going to be doubling up no matter
-what you do once you get more than 16 siblings (see SD_SIBLING_INIT:
-busy_factor * max_interval).
-
-Lastly, why do we care?  To turn the question around, were we seeing load
-balancing colliding without this attempt at forced spacing?  And if so,
-what was the effect (and patterns) of those collisions?  Having a variable
-named last_balance which represents when we last *would have liked to
-have* balanced seems far less useful than knowing when we really did.
-
-Rick

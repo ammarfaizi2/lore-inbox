@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129842AbRAWRmk>; Tue, 23 Jan 2001 12:42:40 -0500
+	id <S129692AbRAWRvx>; Tue, 23 Jan 2001 12:51:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130304AbRAWRmb>; Tue, 23 Jan 2001 12:42:31 -0500
-Received: from mail630.gsfc.nasa.gov ([128.183.190.39]:8721 "EHLO
-	mail630.gsfc.nasa.gov") by vger.kernel.org with ESMTP
-	id <S129842AbRAWRmR>; Tue, 23 Jan 2001 12:42:17 -0500
-Date: Tue, 23 Jan 2001 12:42:16 -0500
-From: John Kodis <kodis@mail630.gsfc.nasa.gov>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT?] Coding Style
-Message-ID: <20010123124216.A30552@tux.gsfc.nasa.gov>
-Mail-Followup-To: John Kodis <kodis@mail630.gsfc.nasa.gov>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCCD@zcard00g.ca.nortel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCCD@zcard00g.ca.nortel.com>; from jearle@nortelnetworks.com on Tue, Jan 23, 2001 at 10:41:49AM -0500
+	id <S129752AbRAWRvn>; Tue, 23 Jan 2001 12:51:43 -0500
+Received: from sunny.fishnet.com ([209.150.200.6]:51939 "EHLO
+	sunny.fishnet.com") by vger.kernel.org with ESMTP
+	id <S129692AbRAWRvf>; Tue, 23 Jan 2001 12:51:35 -0500
+Message-ID: <014a01c085c9$6b97b900$4d00000a@test>
+From: "Kim Pelham" <kimpelham@lightningrod.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Looking for a Linux expert--great job opportunity
+Date: Tue, 23 Jan 2001 21:49:30 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 23, 2001 at 10:41:49AM -0500, Jonathan Earle wrote:
+I do not mean to be intrusive, but I am hoping that your group will be able
+to help us in our search for a Linux expert to head up the development of
+interactive TV middleware for the set-top box.
 
-> One thing I wonder though... why do people prefer 'some_function_name()'
-> over 'SomeFunctionName()'?  
+Requires experience with kernel level Linux and device drivers.  This is a
+director-level position--but with lots of hands-on work involved.  (We are
+also looking for a software manager with same type of experience.  There
+will be a team of 3-4 other software developers in this department.)
 
-i_would_assume_that_it_is_because_the_underscore_serves_the_same_word-
-seperation_role_that_a_space_does_in_normal_prose.  RunningWordsAll
-Together(OrShouldISay"ToGetHer"ForMaximumStudlyness)JustDoesNotParseAs
-Readily, and that, rather that ease of typing is what counts.
+This job is located in the Seattle, WA  area.  Relocation package is
+available.  Please contact me if you are interested, or feel free to forward
+this info to anyone whom you think might be interested.
 
--- 
-John Kodis <kodis@acm.org>
-Phone: 301-286-7376
+Thank you very much for your time,
+
+Kim Pelham
+Staffing Director
+206-748-7839--direct
+425-770-2592--cell
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

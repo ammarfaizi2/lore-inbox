@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264453AbTEaPDA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 11:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264475AbTEaPC7
+	id S264376AbTEaPFa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 11:05:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264380AbTEaPFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 11:02:59 -0400
-Received: from ns.suse.de ([213.95.15.193]:46090 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264453AbTEaPC6 (ORCPT
+	Sat, 31 May 2003 11:05:30 -0400
+Received: from [62.67.222.139] ([62.67.222.139]:41914 "EHLO kermit")
+	by vger.kernel.org with ESMTP id S264376AbTEaPF3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 11:02:58 -0400
-Date: Sat, 31 May 2003 17:16:19 +0200
-From: Andi Kleen <ak@suse.de>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Exception trace for i386, mark II
-Message-ID: <20030531151619.GA26552@wotan.suse.de>
-References: <20030531121008$2041@gated-at.bofh.it> <200305311512.h4VFCHhj010685@post.webmailer.de>
+	Sat, 31 May 2003 11:05:29 -0400
+Date: Sat, 31 May 2003 17:16:15 +0200
+From: Konstantin Kletschke <konsti@ludenkalle.de>
+To: Christian Kujau <evil@g-house.de>
+Subject: Re: weird keyboard with 2.5.70
+Message-ID: <20030531151615.GA13051@sexmachine.doom>
+Reply-To: Konstantin Kletschke <konsti@ludenkalle.de>
+References: <3ED7BECC.1000109@g-house.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200305311512.h4VFCHhj010685@post.webmailer.de>
+In-Reply-To: <3ED7BECC.1000109@g-house.de>
+Organization: Kletschke & Uhlig GbR
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 31, 2003 at 04:39:37PM +0200, Arnd Bergmann wrote:
-> Andi Kleen wrote:
-> 
-> > 
-> > This is a new implementation of exception trace for i386.
-> > 
-> > It adds a new exception-trace sysctl (default to off), which when enabled
-> > triggers printk for unhandled fault signals (SIGSEGV etc.). 
-> 
-> Isn't this very similar to the KERN_S390_USER_DEBUG_LOGGING sysctl?
-> Maybe the code can be merged, or at least they can use the same
-> numeric value for the sysctl.
+Same here, well.
 
-No problem from my side, although it seems a bit pointless for just 
-an sysctl.  I don't think anybody expects new sysctls binary values to be stable
-anymore - all the distribution kernels vary them widely.
+I use 2.5.70-mm3 and my PS2 Keyboard once swichted TO BIG CHARS. I
+unplugged/plugged and it went complete mad, sound began too loop. I
+unplugged and replugged, after a while it worked again...
 
--Andi
+Sometime a key is very fast repeated 10 to 20 times after pressed only
+one.
+
+On the other side, everything seems to be smooth and running fine :)
+
+Konsti
+
+-- 
+2.5.70-mm3
+Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
+GPG KeyID EF62FCEF
+Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
+keulator.homelinux.org up 2:40, 23 users

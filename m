@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266324AbUAGSQs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 13:16:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266323AbUAGSQo
+	id S266100AbUAGSik (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 13:38:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266177AbUAGSik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 13:16:44 -0500
-Received: from out007pub.verizon.net ([206.46.170.107]:1508 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S266320AbUAGSQh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 13:16:37 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None that appears to be detectable by casual observers
-To: Kernel development list <linux-kernel@vger.kernel.org>
-Subject: sensors, again
-Date: Wed, 7 Jan 2004 13:16:33 -0500
-User-Agent: KMail/1.5.1
+	Wed, 7 Jan 2004 13:38:40 -0500
+Received: from fw.osdl.org ([65.172.181.6]:41423 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266100AbUAGSii (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 13:38:38 -0500
+Date: Wed, 7 Jan 2004 10:38:31 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <greg@kroah.com>
+cc: Andrey Borzenkov <arvidjaar@mail.ru>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: removable media revalidation - udev vs. devfs or static /dev
+In-Reply-To: <20040103055847.GC5306@kroah.com>
+Message-ID: <Pine.LNX.4.58.0401071036560.12602@home.osdl.org>
+References: <200401012333.04930.arvidjaar@mail.ru> <20040103055847.GC5306@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401071316.33984.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.61.108] at Wed, 7 Jan 2004 12:16:35 -0600
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
 
-Since no else seems to be having a problem but me, and I refuse to 
-throw out my Hauppauge tv card, which some have said would make 
-sensors work, my next Q is:
 
-Is there a utility that can scan the kernel and tell me what has 
-actually been builtin?
+On Fri, 2 Jan 2004, Greg KH wrote:
+> 
+> Doesn't the kernel always create the main block device for this device?
+> If so, udev will catch that.
 
-I ask because there is no trace of the ic2_algobit in /sys, its one of 
-the errors sensors reports, and it is (supposedly, thats why I ask 
-this question) compiled in.  No errors were noted during any of the 
-about 20 or more kernel compiles I've done trying everyones ideas 
-out.
+But udev should probably also create all the sub-nodes if it doesn't 
+already.
 
-Kernel ATM is 2.6.1-rc1-mm2
+And it really has to create _all_ of them, exactly because there's no way
+to know ahead-of-time which of them will be available.
 
-Also, from a thread earlier today, I assume 2.6.1-rc2 is out, but 
-ANAICT no announcement was made here on this list.  Did I miss it, 
-and if so can it be reposted?  Everything that falls out of a kmail 
-search has  RE: in front of it.
+Then, user space can just access "/dev/sda1" or whatever, and the act of 
+accessing it will force the re-scan.
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
-
+			Linus

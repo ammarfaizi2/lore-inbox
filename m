@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264444AbTLZBqw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 20:46:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264445AbTLZBqw
+	id S264446AbTLZBsT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 20:48:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264449AbTLZBsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 20:46:52 -0500
-Received: from lightning.hereintown.net ([141.157.132.3]:61359 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id S264444AbTLZBqu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 20:46:50 -0500
-Subject: GCC 3.4 Heads-up
-From: Chris Meadors <clubneon@hereintown.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1072403207.17036.37.camel@clubneon.clubneon.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 25 Dec 2003 20:46:48 -0500
-Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1AZh3y-0006W6-Ar*SYD.XeEzQ8.*
+	Thu, 25 Dec 2003 20:48:19 -0500
+Received: from dirac.phys.uwm.edu ([129.89.57.19]:24254 "EHLO
+	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S264446AbTLZBsN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 20:48:13 -0500
+Date: Thu, 25 Dec 2003 19:47:57 -0600 (CST)
+From: Bruce Allen <ballen@gravity.phys.uwm.edu>
+To: dan carpenter <error27@email.com>
+cc: Carlo <devel@integra-sc.it>, Oleg Drokin <green@linuxhacker.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Ooops with kernel 2.4.22 and reiserfs
+In-Reply-To: <200312250433.50550.error27@email.com>
+Message-ID: <Pine.GSO.4.21.0312251946460.2554-100000@dirac.phys.uwm.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I know it isn't the recommended compiler, heck it isn't even released
-yet, but I was messing around with a GCC 3.4 snapshot, and figured I'd
-give compiling the 2.6.0 kernel a shot.
+> > > C> hda: set_drive_speed_status: status=0x58 { DriveReady SeekComplete
+> > > C> DataRequest }
+> > > C> ide0: Drive 0 didn't accept speed setting. Oh, well.
+> > > C> hda: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
+> > > C> hda: CHECK for good STATUS
+> > >
+> 
+> I would check for SMARTerrors:  smartctl -a /dev/hda 
+> Also you could try running badblocks on the drive.
 
-Other than the constant barrage of warnings about the use of compound
-expressions as lvalues being deprecated* (mostly because of lines 114,
-116, and 117 of rcupdate.h, which is included everywhere), the build
-goes very well.
+Run some drive self-tests:
+   smartctl -t long /dev/hda
+and let them complete, then look again at
+   smartctl -a /dev/hda
 
-It isn't until the final link that I get an error.  It seems that
-something goes funny with the ACPI's use of strcpy.  I get undefined
-references to strcpy in:  acpi_bus_generate_event (twice),
-acpi_power_add, acpi_thermal_add, and acpi_bus_add.  There may be
-additional different locations, but the error output stops there.
-
-As I said, I'm just messing around, and figured I'd let everyone know
-what's in the pipeline.  But if it is a simple fix, I'll give any
-changes anyone wants to try a shot.
-
-*It also doesn't like cast or conditional expressions as lvalues.
-
--- 
-Chris
+Cheers,
+	Bruce
 

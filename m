@@ -1,61 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266064AbTBCVrv>; Mon, 3 Feb 2003 16:47:51 -0500
+	id <S266069AbTBCVsc>; Mon, 3 Feb 2003 16:48:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266069AbTBCVrv>; Mon, 3 Feb 2003 16:47:51 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:24814 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S266064AbTBCVrt>; Mon, 3 Feb 2003 16:47:49 -0500
-Date: Mon, 3 Feb 2003 13:57:01 -0800
-From: Chris Wright <chris@wirex.com>
-To: b_adlakha@softhome.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] kernel 2.5.59
-Message-ID: <20030203135701.B26686@figure1.int.wirex.com>
-Mail-Followup-To: b_adlakha@softhome.net, linux-kernel@vger.kernel.org
-References: <courier.3E3EDB16.00007614@softhome.net>
+	id <S266228AbTBCVsc>; Mon, 3 Feb 2003 16:48:32 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:971 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S266069AbTBCVs1>;
+	Mon, 3 Feb 2003 16:48:27 -0500
+Subject: [PATCH] linux-2.5.59_smp-summit_A0
+From: john stultz <johnstul@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, James <jamesclv@us.ibm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1044309404.19553.66.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <courier.3E3EDB16.00007614@softhome.net>; from b_adlakha@softhome.net on Mon, Feb 03, 2003 at 02:11:50PM -0700
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 03 Feb 2003 13:56:44 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* b_adlakha@softhome.net (b_adlakha@softhome.net) wrote:
-> I get this each time I boot : 
-> 
-> Feb  3 02:34:38 localhost kernel: EIP is at __find_symbol+0x3e/0x84
+Linus, All,
+	This patch fixes the Summit sub-arch so that it boots normally on
+regular SMP systems as well.
 
-This is a known problem.  Try the patch below which has been floating
-about for a while.
+Please apply.
 
-thanks,
--chris
+thanks
+-john
 
-===== vmlinux.lds.h 1.4 vs 1.5 =====
---- 1.4/include/asm-generic/vmlinux.lds.h	Thu Jan 16 17:02:47 2003
-+++ 1.5/include/asm-generic/vmlinux.lds.h	Fri Jan 17 17:26:31 2003
-@@ -13,18 +13,18 @@
- 	}								\
- 									\
- 	/* Kernel symbol table: Normal symbols */			\
--	__start___ksymtab = .;						\
- 	__ksymtab         : AT(ADDR(__ksymtab) - LOAD_OFFSET) {		\
-+		__start___ksymtab = .;					\
- 		*(__ksymtab)						\
-+		__stop___ksymtab = .;					\
- 	}								\
--	__stop___ksymtab = .;						\
- 									\
- 	/* Kernel symbol table: GPL-only symbols */			\
--	__start___gpl_ksymtab = .;					\
- 	__gpl_ksymtab     : AT(ADDR(__gpl_ksymtab) - LOAD_OFFSET) {	\
-+		__start___gpl_ksymtab = .;				\
- 		*(__gpl_ksymtab)					\
-+		__stop___gpl_ksymtab = .;				\
- 	}								\
--	__stop___gpl_ksymtab = .;					\
- 									\
- 	/* Kernel symbol table: strings */				\
-         __ksymtab_strings : AT(ADDR(__ksymtab_strings) - LOAD_OFFSET) {	\
+diff -Nru a/include/asm-i386/mach-summit/mach_apic.h b/include/asm-i386/mach-summit/mach_apic.h
+--- a/include/asm-i386/mach-summit/mach_apic.h	Mon Feb  3 13:53:50 2003
++++ b/include/asm-i386/mach-summit/mach_apic.h	Mon Feb  3 13:53:50 2003
+@@ -3,7 +3,7 @@
+ 
+ extern int x86_summit;
+ 
+-#define esr_disable (1)
++#define esr_disable (x86_summit ? 1 : 0)
+ #define no_balance_irq (0)
+ 
+ #define XAPIC_DEST_CPUS_MASK    0x0Fu
+@@ -15,14 +15,14 @@
+ #define APIC_DFR_VALUE	(x86_summit ? APIC_DFR_CLUSTER : APIC_DFR_FLAT)
+ #define TARGET_CPUS	(x86_summit ? XAPIC_DEST_CPUS_MASK : cpu_online_map)
+ 
+-#define INT_DELIVERY_MODE dest_Fixed
++#define INT_DELIVERY_MODE (x86_summit ? dest_Fixed : dest_LowestPrio)
+ #define INT_DEST_MODE 1     /* logical delivery broadcast to all procs */
+ 
+ #define APIC_BROADCAST_ID     (x86_summit ? 0xFF : 0x0F)
+-#define check_apicid_used(bitmap, apicid) (0)
++#define check_apicid_used(bitmap, apicid) (x86_summit ? 0 : (bitmap & (1 << apicid)))
+ 
+ /* we don't use the phys_cpu_present_map to indicate apicid presence */
+-#define check_apicid_present(bit) (1) 
++#define check_apicid_present(bit) (x86_summit ? 1 : (phys_cpu_present_map & (1 << bit))) 
+ 
+ extern u8 bios_cpu_apicid[];
+ 
+@@ -106,7 +106,10 @@
+ 
+ static inline int check_phys_apicid_present(int boot_cpu_physical_apicid)
+ {
+-	return (1);
++	if (x86_summit)
++		return (1);
++	else
++		return test_bit(boot_cpu_physical_apicid, &phys_cpu_present_map);
+ }
+ 
+ #endif /* __ASM_MACH_APIC_H */
+
+
+

@@ -1,141 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270386AbUJTTZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270627AbUJUJBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270386AbUJTTZT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 15:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269168AbUJTTOf
+	id S270627AbUJUJBA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 05:01:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270420AbUJUI7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 15:14:35 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:50082
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S269080AbUJTTHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 15:07:52 -0400
-Subject: [PATCH] Loopback: Use Completion instead semaphore
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-Content-Type: text/plain
-Organization: linutronix
-Message-Id: <1098298791.20821.48.camel@thomas>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 20 Oct 2004 20:59:51 +0200
+	Thu, 21 Oct 2004 04:59:24 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1235 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268819AbUJUI5d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 04:57:33 -0400
+Message-ID: <417779ED.6040403@pobox.com>
+Date: Thu, 21 Oct 2004 04:57:17 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: viro@parcelfarce.linux.theplanet.co.uk
+CC: Linus Torvalds <torvalds@osdl.org>, John Cherry <cherry@osdl.org>,
+       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: Linux v2.6.9... (compile stats)
+References: <1098196575.4320.0.camel@cherrybomb.pdx.osdl.net> <20041019161834.GA23821@one-eyed-alien.net> <1098310286.3381.5.camel@cherrybomb.pdx.osdl.net> <20041020224106.GM23987@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0410201710370.2317@ppc970.osdl.org> <41770307.5060304@pobox.com> <20041021015522.GH23987@parcelfarce.linux.theplanet.co.uk> <41771813.8090204@pobox.com> <20041021022442.GI23987@parcelfarce.linux.theplanet.co.uk> <417720D6.1030908@pobox.com> <20041021043557.GK23987@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20041021043557.GK23987@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Wed, Oct 20, 2004 at 10:37:10PM -0400, Jeff Garzik wrote:
+> 
+>>viro@parcelfarce.linux.theplanet.co.uk wrote:
+>>
+>>>IDGI.  Why do you insist on releasing these guys in library code?  Even
+>>
+>>Because there are two distinct and separate models of port mapping/usage:
+>>
+>>1) A bunch of separate IO address spaces (PIO).  The "mapping" is 
+>>currently done in ata_pci_init_native_mode() and ata_pci_init_legacy_mode()
+>>
+>>2) One single linear address space (MMIO).  The mapping is done in the 
+>>low-level driver.
+>>
+>>#1 is in the library because the logic is duplicated _precisely_, across 
+>>multiple host controllers, according to a hardware specification.
+>>
+>>Thus, if the mapping is done in the library core, so should the unmapping.
+> 
+> 
+> Not really.  You are making the case for having a helper that would unmap
+> for case 1 and having it in the library, just as we do for mapping in that
 
-Use completion instead of the abused semaphore. Semaphores are slower
-and trigger owner conflicts during semaphore debugging.
+Sure:  libata is a library, so all functions are helpers.  It's just one 
+more helper function.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
----
 
- 2.6.9-bk-041020-thomas/drivers/block/loop.c |   22
-+++++++++++-----------
- 2.6.9-bk-041020-thomas/include/linux/loop.h |    4 ++--
- 2 files changed, 13 insertions(+), 13 deletions(-)
+> case.  What you have is different, though - it's a single function that does
+> entire ->remove() for all (AFAICS) SATA drivers.
 
-diff -puN drivers/block/loop.c~loop drivers/block/loop.c
---- 2.6.9-bk-041020/drivers/block/loop.c~loop	2004-10-20
-15:56:15.000000000 +0200
-+++ 2.6.9-bk-041020-thomas/drivers/block/loop.c	2004-10-20
-15:56:15.000000000 +0200
-@@ -378,7 +378,7 @@ static void loop_add_bio(struct loop_dev
- 		lo->lo_bio = lo->lo_biotail = bio;
- 	spin_unlock_irqrestore(&lo->lo_lock, flags);
- 
--	up(&lo->lo_bh_mutex);
-+	complete(&lo->lo_bh_done);
- }
- 
- /*
-@@ -427,7 +427,7 @@ static int loop_make_request(request_que
- 	return 0;
- err:
- 	if (atomic_dec_and_test(&lo->lo_pending))
--		up(&lo->lo_bh_mutex);
-+		complete(&lo->lo_bh_done);
- out:
- 	bio_io_error(old_bio, old_bio->bi_size);
- 	return 0;
-@@ -495,12 +495,12 @@ static int loop_thread(void *data)
- 	/*
- 	 * up sem, we are running
- 	 */
--	up(&lo->lo_sem);
-+	complete(&lo->lo_done);
- 
- 	for (;;) {
--		down_interruptible(&lo->lo_bh_mutex);
-+		wait_for_completion_interruptible(&lo->lo_bh_done);
- 		/*
--		 * could be upped because of tear-down, not because of
-+		 * could be completed because of tear-down, not because of
- 		 * pending work
- 		 */
- 		if (!atomic_read(&lo->lo_pending))
-@@ -521,7 +521,7 @@ static int loop_thread(void *data)
- 			break;
- 	}
- 
--	up(&lo->lo_sem);
-+	complete(&lo->lo_done);
- 	return 0;
- }
- 
-@@ -708,7 +708,7 @@ static int loop_set_fd(struct loop_devic
- 	set_blocksize(bdev, lo_blocksize);
- 
- 	kernel_thread(loop_thread, lo, CLONE_KERNEL);
--	down(&lo->lo_sem);
-+	wait_for_completion(&lo->lo_done);
- 	return 0;
- 
-  out_putf:
-@@ -773,10 +773,10 @@ static int loop_clr_fd(struct loop_devic
- 	spin_lock_irq(&lo->lo_lock);
- 	lo->lo_state = Lo_rundown;
- 	if (atomic_dec_and_test(&lo->lo_pending))
--		up(&lo->lo_bh_mutex);
-+		complete(&lo->lo_bh_done);
- 	spin_unlock_irq(&lo->lo_lock);
- 
--	down(&lo->lo_sem);
-+	wait_for_completion(&lo->lo_done);
- 
- 	lo->lo_backing_file = NULL;
- 
-@@ -1153,8 +1153,8 @@ int __init loop_init(void)
- 		if (!lo->lo_queue)
- 			goto out_mem4;
- 		init_MUTEX(&lo->lo_ctl_mutex);
--		init_MUTEX_LOCKED(&lo->lo_sem);
--		init_MUTEX_LOCKED(&lo->lo_bh_mutex);
-+		init_completion(&lo->lo_done);
-+		init_completion(&lo->lo_bh_done);
- 		lo->lo_number = i;
- 		spin_lock_init(&lo->lo_lock);
- 		disk->major = LOOP_MAJOR;
-diff -puN include/linux/loop.h~loop include/linux/loop.h
---- 2.6.9-bk-041020/include/linux/loop.h~loop	2004-10-20
-15:56:15.000000000 +0200
-+++ 2.6.9-bk-041020-thomas/include/linux/loop.h	2004-10-20
-15:56:15.000000000 +0200
-@@ -58,9 +58,9 @@ struct loop_device {
- 	struct bio 		*lo_bio;
- 	struct bio		*lo_biotail;
- 	int			lo_state;
--	struct semaphore	lo_sem;
-+	struct completion	lo_done;
-+	struct completion	lo_bh_done;
- 	struct semaphore	lo_ctl_mutex;
--	struct semaphore	lo_bh_mutex;
- 	atomic_t		lo_pending;
- 
- 	request_queue_t		*lo_queue;
-_
+That's intentional, see below.
+
+
+> And that's where the problem is - decision on releasing resource should belong
+> to the driver; sure, it can and should use library helper, just as it did
+> when it was grabbing these resources.
+
+
+
+
+> Note, BTW, that current ata_pci_remove_one() is begging for trouble - for
+> one thing, it does iounmap() before we get to ata_scsi_release(), i.e.
+> ata_host_remove(), i.e. ->port_stop().   And the first look at the drivers
+> that provide ->port_stop() shows that ahci_port_stop() does readl()/writel()
+> on the ->mmio_base.  Oops...
+
+Ah the perils of an undocumented API :)  You're misunderstanding 
+->port_stop.
+
+That's a bug in ahci:  port_stop should never touch the hardware. 
+port_stop is only for releasing per-driver resources like kmalloc or DMA 
+memory.
+
+Note...  another thing to keep in mind is that all libata drivers use 
+ata_pci_remove_one() because that makes it possible to smooth over the 
+differences between 2.4 and 2.6 scsi drivers.
+
+> And that's where the problem is - decision on releasing resource should belong
+> to the driver; sure, it can and should use library helper, just as it did
+> when it was grabbing these resources.
+[...]
+> free_irq() also looks fishy, BTW.  How about moving all that group past the
+> point where you are done with individual ports and merging it (and any other
+> unmapping we might want to do) into a single callback?  Depending on whether
+> ->host_stop() is really needed early we might use ->host_stop for that...
+
+I don't see any problems, given what I just wrote above.
+
+Just the annoyance of individually mapping and unmapping 4 or 5 PCI 
+BARs, and mixing 4 ranges of ISA legacy ioports for good measure.
+
+
+Now...  addressing the overall theme of your message...  eventually 
+libata wants to move to a strict port_{start,stop}, host_{start,stop} 
+mechanism where the driver does more of the heavy lifting [by providing 
+hooks that call libata helpers, rather than a helper calling hooks as 
+ata_pci_remove_one does now].
+
+But to get there will take _many_ iterations, since two things get in 
+the way there:
+* 2.4 compat
+* the necessity to issue several ATA commands before we can respond to 
+-any- SCSI commands
+
+	Jeff
 
 

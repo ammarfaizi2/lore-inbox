@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313139AbSC1MsN>; Thu, 28 Mar 2002 07:48:13 -0500
+	id <S313150AbSC1NOJ>; Thu, 28 Mar 2002 08:14:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313146AbSC1MsE>; Thu, 28 Mar 2002 07:48:04 -0500
-Received: from E0-IBE.r.miee.ru ([194.226.0.89]:41733 "EHLO ibe.miee.ru")
-	by vger.kernel.org with ESMTP id <S313139AbSC1Mrw>;
-	Thu, 28 Mar 2002 07:47:52 -0500
-From: Samium Gromoff <root@ibe.miee.ru>
-Message-Id: <200203281538.g2SFcUl06361@ibe.miee.ru>
-Subject: Re: Networking with slow CPUs
-To: pwaechtler@loewe-komp.de
-Date: Thu, 28 Mar 2002 18:38:29 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL6]
+	id <S313151AbSC1NN7>; Thu, 28 Mar 2002 08:13:59 -0500
+Received: from plintus.lcm.msu.ru ([193.232.113.219]:10254 "EHLO
+	plintus.lcm.msu.ru") by vger.kernel.org with ESMTP
+	id <S313150AbSC1NNn>; Thu, 28 Mar 2002 08:13:43 -0500
+Message-Id: <200203281313.g2SDDdB16981@gw.dorms.msu.ru>
+Content-Type: text/plain; charset=US-ASCII
+From: "Alexander V. Inyukhin" <shurick@pisem.net>
+Reply-To: shurick@pisem.net
+Organization: MSU
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] IBM USB Memory Key support
+Date: Thu, 28 Mar 2002 16:16:56 +0300
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Is there a possibility to "harden" a small machine (33 MHz embedded
-> > device) against e.g. flood pings from the outside world?
-> >
-> 
-> AFAIK, there is a mechanism to switch off the interrupts generated
-> by the network card, if the load is getting too high. This way the
-> packets get overwritten on the nic buffers and do not even reach
-> the CPU.
-	this is a whole new strategy: ie you switch from interrupt-driven handling
-to periodicall polls of the NIC.
-	last time i`ve heard of it it was the bleeding edge Jamal`s model
-of the lowlevel network engine.
+Patch against 2.4.18 for IBM USB Memory Key support.
 
-regards, Samium Gromoff
+--- linux-2.4.18/drivers/usb/storage/unusual_devs.h	Thu Mar 28 16:14:22 2002
++++ linux/drivers/usb/storage/unusual_devs.h	Thu Mar 28 16:03:46 2002
+@@ -451,6 +451,12 @@
+  		US_SC_SCSI, US_PR_CB, NULL,
+ 		US_FL_MODE_XLATE ),
+ 
++UNUSUAL_DEV(  0x0a16, 0x8888, 0x0100, 0x0100,
++		"IBM",
++		"IBM USB Memory Key",
++		US_SC_SCSI, US_PR_BULK, NULL,
++		US_FL_FIX_INQUIRY ),
++		
+ #ifdef CONFIG_USB_STORAGE_ISD200
+ UNUSUAL_DEV(  0x0bf6, 0xa001, 0x0100, 0x0110,
+                 "ATI",

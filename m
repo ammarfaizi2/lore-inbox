@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271712AbRIQQLv>; Mon, 17 Sep 2001 12:11:51 -0400
+	id <S271841AbRIQQQv>; Mon, 17 Sep 2001 12:16:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269645AbRIQQLl>; Mon, 17 Sep 2001 12:11:41 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36945 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S271777AbRIQQLa>; Mon, 17 Sep 2001 12:11:30 -0400
-To: "Rob Fuller" <rfuller@nsisoftware.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <878A2048A35CD141AD5FC92C6B776E4907BB98@xchgind02.nsisw.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 17 Sep 2001 10:03:06 -0600
-In-Reply-To: <878A2048A35CD141AD5FC92C6B776E4907BB98@xchgind02.nsisw.com>
-Message-ID: <m166ahst39.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S271777AbRIQQQc>; Mon, 17 Sep 2001 12:16:32 -0400
+Received: from mailhost.opengroup.fr ([62.160.165.1]:5514 "EHLO
+	mailhost.ri.silicomp.fr") by vger.kernel.org with ESMTP
+	id <S271809AbRIQQQ0>; Mon, 17 Sep 2001 12:16:26 -0400
+Date: Mon, 17 Sep 2001 18:16:48 +0200 (CEST)
+From: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
+To: <linux-kernel@vger.kernel.org>, <linux-smp@vger.kernel.org>
+Subject: [Q] Implementation of spin_lock on i386: why "rep;nop" ?
+Message-ID: <Pine.LNX.4.31.0109171725140.26090-100000@sisley.ri.silicomp.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rob Fuller" <rfuller@nsisoftware.com> writes:
+Hi all,
 
-> One argument for reverse mappings is distributed shared memory or
-> distributed file systems and their interaction with memory mapped
-> files.  For example, a distributed file system may need to invalidate a specific
-> page of a file that may be mapped multiple times on a node.
+One of my coworkers directed my attention to the implementation of
+spinlocks on IA-32. In spin_lock_string, we can read:
 
-To reduce the time for an invalidate is indeed a good argument for
-reverse maps.  However this is generally the uncommon case, and it is
-fine to leave this kinds of things on the slow path.  From struct page 
-we currently go to struct address_space to lists of struct vm_area
-which works but is just a little slower (but generally cheaper) than
-having a reverse map.
+	"cmpb $0,%0\n\t" \
+	"rep;nop\n\t" \
+	"jle 2b\n\t" \
 
-Since Rik was not seeing the invalidate or the unmap case as the
-bottleneck this reverse mappings are not needed simply something
-with a similiar effect on the VM.  
+The "rep;nop" line looks dubious, since the IA-32 programmer's manual from
+Intel (year 2001) mentions that the behaviour of REP is undefined when it
+is not used with string opcodes. BTW, according to the same manual, REP is
+supposed to modify ecx, but it looks like is is not the case here... which
+is fortunate, since ecx is never saved. :-)
 
-In linux we have avoided reverse maps (unlike the BSD's) which tends
-to make the common case fast at the expense of making it more
-difficult to handle times when the VM system is under extreme load and
-we are swapping etc.
+What is the intent behind this "rep;nop" ? Does it really rely on an
+undocumented behaviour ?
 
-Eric
+
+Regards,
+
+-- 
+Jean-Marc Saffroy - Research Engineer - Silicomp Research Institute
+mailto:saffroy@ri.silicomp.fr
 

@@ -1,72 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262963AbREWDEr>; Tue, 22 May 2001 23:04:47 -0400
+	id <S262964AbREWDH2>; Tue, 22 May 2001 23:07:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262964AbREWDEh>; Tue, 22 May 2001 23:04:37 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:24484 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S262963AbREWDEV>;
-	Tue, 22 May 2001 23:04:21 -0400
-Message-ID: <3B0B28A9.7556908D@mandrakesoft.com>
-Date: Tue, 22 May 2001 23:04:09 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alexander Viro <viro@math.psu.edu>, Andries.Brouwer@cwi.nl,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] struct char_device
-In-Reply-To: <Pine.LNX.4.21.0105221936030.4713-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262966AbREWDHS>; Tue, 22 May 2001 23:07:18 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:4943 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S262964AbREWDHI>; Tue, 22 May 2001 23:07:08 -0400
+Date: Tue, 22 May 2001 23:07:08 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200105230307.f4N378P19951@devserv.devel.redhat.com>
+To: h.verhagen@chello.nl, linux-kernel@vger.kernel.org
+Subject: Re: Oops on booting 2.4.4
+In-Reply-To: <mailman.990573660.4187.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.990573660.4187.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Tue, 22 May 2001, Jeff Garzik wrote:
-> >
-> > Alan recently straightened me out with "EVMS/LVM is partitions done
-> > right"
-> >
-> > so... why not implement partitions as simply doing block remaps to the
-> > lower level device?  That's what EVMS/LVM/md are doing already.
-> 
-> Because we still need the partitioning code for backwards
-> compatibility. There's no way I'm going to use initrd to do partition
-> setup with lvmtools etc.
-> 
-> Also, lvm and friends are _heavyweight_. The partitioning stuff should be
-> _one_ add (and perhaps a range check) at bh submit time. None of this
-> remapping crap. We don't need no steenking overhead for something we need
-> to do anyway.
+> May 23 02:46:24 localhost kernel: Process kudzu (pid: 219,
+> stackpage=c7845000)
+> May 23 02:46:24 localhost kernel: Stack: c12607e0 00000400 00000400
+> c73aa000 c122a060 c122a05c c122a058 c88fbb20
+> May 23 02:46:24 localhost kernel:        000003f1 000003f1 c014ab80
+> c73aa3f1 c7845f9c 00000000 00000400 ffffffea
+> May 23 02:46:24 localhost kernel:        c7f43f60 00000400 bffff4b8
+> c7f2e220 c12607e0 00000000 00000000 c73aa000
+> May 23 02:46:24 localhost kernel: Call Trace: [<c88fbb20>]
+> [proc_file_read+184/464] [sys_read+142/196] [system_call+51/56]
+> May 23 02:46:24 localhost kernel: Call Trace: [<c88fbb20>] [<c014ab80>]
+> [<c012e83e>] [<c0106aeb>]
 
-no no no.  Not -that- heavyweight.
+A module deregistered incorrectly, or has a race between
+post-load activities and unload. One way or another it left
+a dangling proc entry.
 
-Partition support becomes a -peer- of LVM.
+The oops does not provide off-stack information, so it's impossible
+to tell what particular modules is the culprit.
 
-Imagine a tiny blkdev driver that understood MS-DOS (and other) hardware
-partitions, and exported N block devices, representing the underlying
-device (whatever it is).  In fact, that might be even a -unifying-
-factor:  this tiny blkdev module -is- your /dev/disk.  For example,
+> May 23 02:46:24 localhost kernel: hub.c: USB new device connect on
+> bus1/2, assigned device number 2
+> May 23 02:46:24 localhost kernel: usb.c: USB device 2 (vend/prod
+> 0x4a9/0x2204) is not claimed by any active driver.
 
-/dev/sda <-> partition_blkdev <-> /dev/disk{0,1,2,3,4}
-/dev/hda <-> partition_blkdev <-> /dev/disk{5,6,7}
+What is this thing you have on USB? Try to run without it.
 
-A nice side effect:  modular partition support, since its a normal
-blkdev just like anything yes.
-
-YES there is overhead, but if partitions are just another remapping
-blkdev, you get all this stuff for free.
-
-I do grant you that an offset at bh submit time is faster, but IMHO
-partitions -not- as a remapping blkdev are an ugly special case.
-
-Remapping to an unchanging offset in the make_request_fn can be fast,
-too...
-
--- 
-Jeff Garzik      | "Are you the police?"
-Building 1024    | "No, ma'am.  We're musicians."
-MandrakeSoft     |
+-- Pete

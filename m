@@ -1,39 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276786AbRJHJDf>; Mon, 8 Oct 2001 05:03:35 -0400
+	id <S276782AbRJHJES>; Mon, 8 Oct 2001 05:04:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276775AbRJHJDZ>; Mon, 8 Oct 2001 05:03:25 -0400
-Received: from cs6625186-50.austin.rr.com ([66.25.186.50]:128 "EHLO
-	hatchling.taral.net") by vger.kernel.org with ESMTP
-	id <S276824AbRJHJDS> convert rfc822-to-8bit; Mon, 8 Oct 2001 05:03:18 -0400
-Date: Mon, 8 Oct 2001 04:03:48 -0500
-From: Taral <taral@taral.net>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] Missing wake_up in drivers/scsi/sg.c
-Message-ID: <20011008040348.A2857@taral.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.3.22i
+	id <S276775AbRJHJEH>; Mon, 8 Oct 2001 05:04:07 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:55460 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S276770AbRJHJD6>; Mon, 8 Oct 2001 05:03:58 -0400
+Message-ID: <3BC16ACC.3000905@antefacto.com>
+Date: Mon, 08 Oct 2001 09:58:52 +0100
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Padraig Brady <padraig@antefacto.com>
+CC: Andi Kleen <ak@suse.de>, Alex Larsson <alexl@redhat.com>,
+        Ulrich Drepper <drepper@cygnus.com>, linux-kernel@vger.kernel.org
+Subject: Re: Finegrained a/c/mtime was Re: Directory notification problem
+In-Reply-To: <m3r8slywp0.fsf@myware.mynet> <Pine.LNX.4.33.0110031111470.29619-100000@devserv.devel.redhat.com> <20011003232609.A11804@gruyere.muc.suse.de> <3BBDAB24.7000909@antefacto.com> <20011005150144.A11810@gruyere.muc.suse.de> <3BBDB26D.2050705@antefacto.com> <20011005163807.A13524@gruyere.muc.suse.de> <3BBDCAF8.6070705@antefacto.com> <20011005211235.A16163@gruyere.muc.suse.de> <3BC16632.4040008@antefacto.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/scsi/sg.c:319 (sg_open) (2.4.10-ac4) reads:
+Padraig Brady wrote:
 
-    if (flags & O_EXCL) sdp->exclude = 0; /* undo if error */
+> Andi Kleen wrote:
+>
+>> On Fri, Oct 05, 2001 at 04:00:08PM +0100, Padraig Brady wrote:
+>>
+>>> Andi Kleen wrote:
+>>>
+>>>>>> Another advantage of using the real time instead of a counter is 
+>>>>>> that you can easily merge the both values into a single 64bit 
+>>>>>> value and do
+>>>>>> arithmetic on it in user space. With a generation counter you 
+>>>>>> would need to work with number pairs, which is much more complex.
+>>>>>
+>>>>> ??
+>>>>> if (file->mtime != mtime || file->gen_count != gen_count)
+>>>>>    file_changed=1;
+>>>>>
+>>>> And how would you implement "newer than" and "older than" with a 
+>>>> generation
+>>>> count that doesn't reset in a always fixed time interval (=requiring
+>>>> additional timestamps in kernel)? 
+>>>> -Andi
+>>>>
+>>> Well IMHO "newer than", "older than" applications have until now
+>>> done with second resolution, and that's all that's required?
+>>>
+>>
+>> No they haven't. GNU make supports nsec mtime on Solaris and apparently
+>> some other OS too, because the second granuality mtime can be a big 
+>> problem with make -j<bignumber> on a big SMP box. make has to distingush
+>> "is older" from "is newer"; "not equal" alone doesn't cut it.
+>>
+>> [If you think it is modify your make to replace the "is older" check
+>> for dependencies with "is not equal" and see what happens]
+>>
+>
+> OK agreed, in this case the, complete state/relationship between 
+> files, must be
+> maintained independently of the userspace app, i.e. in the filesystem. 
+> But wont
+> you then have the same problem with synchronising nanosecond times 
+> between
+> the various processors (which could be the other side of a network 
+> cable in some
+> configurations)? So perhaps the best solution is to maintain both a 
+> generation
+> count which would do for many apps who just care if the file has 
+> changed relative
+> to some moment it time and not relative to another file(s) on the 
+> filesystem .
+> Then for make type applications you could maintain the full resolution 
+> timestamp,
+> however this will still have the synchronisation/portability/CPU 
+> expense issues
+> discussed previously.
 
-but this variable is linked to a waitlist. Should this not read thus?
 
-    if (flags & O_EXCL) {
-        sdp->exclude = 0;
-        wake_up_interruptible(&sdp->o_excl_wait);
-    }
+Just thinking that it's VERY hard to synchronise timings to nanosecond 
+or even millisecond
+resolution over distributed or even within the same filesystem, how 
+about you synchronise
+the timestamps to the particular filesystem and not the universe. I.E. 
+Instead of incrementing
+a "generation count" in each inode you could increment a global 
+filesystem count everytime
+a file is modified in the filesystem, and then this count is stored in 
+the particular inode being
+modified. This would allow you to have exact order relationships between 
+files in the same
+filesystem, and would work perfectly every time for both "types" of apps 
+mentioned above.
+Outside the filesystem you can then resort to just the (second 
+resolution) timestamp.
 
-It reads this way in sg_release.
+Padraig.
 
--- 
-Taral <taral@taral.net>
-This message is digitally signed. Please PGP encrypt mail to me.
-"Any technology, no matter how primitive, is magic to those who don't
-understand it." -- Florence Ambrose

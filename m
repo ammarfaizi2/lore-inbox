@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270515AbTHGUP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 16:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270519AbTHGUP6
+	id S270816AbTHGU33 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 16:29:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270827AbTHGU33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 16:15:58 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:31237 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S270515AbTHGUP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 16:15:56 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Ken Moffat <ken@kenmoffat.uklinux.net>, marcelo@conectiva.com.br
-Subject: Re: 2.4.22-rc1 breaks dri in X-4.3.0
-Date: Thu, 7 Aug 2003 22:15:33 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.56.0308072050120.9400@ppg_penguin>
-In-Reply-To: <Pine.LNX.4.56.0308072050120.9400@ppg_penguin>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Aug 2003 16:29:29 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:52665 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S270816AbTHGU32 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 16:29:28 -0400
+Date: Thu, 7 Aug 2003 22:29:08 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Pavel Machek <pavel@suse.cz>, James Simmons <jsimmons@infradead.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: [Linux-fbdev-devel] [PATCH] Framebuffer: 2nd try: client notification mecanism & PM
+Message-ID: <20030807202908.GA413@elf.ucw.cz>
+References: <Pine.LNX.4.44.0308070000540.17315-100000@phoenix.infradead.org> <1060249101.1077.67.camel@gaston> <20030807100309.GB166@elf.ucw.cz> <1060267031.722.3.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308072215.33253.m.c.p@wolk-project.de>
+In-Reply-To: <1060267031.722.3.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 07 August 2003 22:01, Ken Moffat wrote:
+Hi!
 
-Hi Ken,
+> > I believe solution to this is simple: always switch to kernel-owned
+> > console during suspend. (swsusp does it, there's patch for S3 to do
+> > the same). That way, Xfree (or qtopia or whoever) should clean up
+> > after themselves and leave the console to the kernel. (See
+> > kernel/power/console.c)
+> 
+> I tried using it on pmac, but it causes hell with XFree. I'm not sure
+> what's up yet, I suspect it may be XFree still doing things after
+> calling the RELDISP ioctl but I'm not completely sure yet.
 
->  I've just built 2.4.22-rc1 for my PIII (via chipset, radeon 7500), and
-> rebuilt radeon.o from the X 4.3 release.  This combination worked with
-> 2.4.22-pre7 (although with occasional X lock-ups).
-
-could you please try the DRI sources from XFree cvs repo and see if it makes 
-any difference? (I'll bet it will)
-
->  In X's log I can see that the radeon module fails to open
-> /dev/dri/card0 (no such device) and therefore the module load fails.
-
-Sounds like radeon.i isn't loaded.
-
->  From dmesg I can see that agpgart detects the chipset and reports the
-> aperture,  but there are zero [drm] messages following.
-> My .config shows
-> CONFIG_DRM=y
-> CONFIG_DRM_NEW=y
-> CONFIG_DRM_RADEON=m
-
-do you have radeon.o loaded? "lsmod|grep radeon"
-
-What does dmesg say if it should autoloads the module when you start X? 
-(assuming you have autoload support enabled)
-
-ciao, Marc
-
-
+Sounds like XFree bug to me ;-).
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

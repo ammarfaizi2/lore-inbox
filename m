@@ -1,51 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVAaMm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVAaMnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261177AbVAaMm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 07:42:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVAaMm3
+	id S261180AbVAaMnq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 07:43:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVAaMnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 07:42:29 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:45063 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261177AbVAaMmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 07:42:25 -0500
-Date: Mon, 31 Jan 2005 13:42:23 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Robert Love <rml@novell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] inotify.c: make code static
-Message-ID: <20050131124223.GF18316@stusta.de>
+	Mon, 31 Jan 2005 07:43:45 -0500
+Received: from cavan.codon.org.uk ([213.162.118.85]:4839 "EHLO
+	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S261176AbVAaMnf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 07:43:35 -0500
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Hannes Reinecke <hare@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>
+In-Reply-To: <41FE24F5.5070906@suse.de>
+References: <41FE24F5.5070906@suse.de>
+Date: Mon, 31 Jan 2005 12:43:18 +0000
+Message-Id: <1107175398.25905.32.camel@tyrosine>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+X-SA-Exim-Connect-IP: 213.162.118.93
+X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
+Subject: Re: [PATCH] Resume from initramfs
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes needlessly global code static.
+One thing - if swsusp_read() fails (eg, due to there not actually being
+a suspend image), the processes will have been frozen but not woken up.
+The failure path in software_resume needs to call thaw_processes before
+exiting.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.11-rc2-mm2-full/drivers/char/inotify.c.old	2005-01-31 13:14:31.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-full/drivers/char/inotify.c	2005-01-31 13:15:59.000000000 +0100
-@@ -201,8 +201,8 @@
- 	return error;
- }
- 
--struct inotify_kernel_event * kernel_event(s32 wd, u32 mask, u32 cookie,
--					   const char *filename)
-+static struct inotify_kernel_event * kernel_event(s32 wd, u32 mask, u32 cookie,
-+						  const char *filename)
- {
- 	struct inotify_kernel_event *kevent;
- 
-@@ -1032,7 +1032,7 @@
- 	.ioctl		= inotify_ioctl,
- };
- 
--struct miscdevice inotify_device = {
-+static struct miscdevice inotify_device = {
- 	.minor  = MISC_DYNAMIC_MINOR,
- 	.name	= "inotify",
- 	.fops	= &inotify_fops,
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org
 

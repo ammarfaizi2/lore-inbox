@@ -1,76 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272048AbRHVRWy>; Wed, 22 Aug 2001 13:22:54 -0400
+	id <S272057AbRHVRXo>; Wed, 22 Aug 2001 13:23:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272049AbRHVRWp>; Wed, 22 Aug 2001 13:22:45 -0400
-Received: from www.wen-online.de ([212.223.88.39]:55570 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S272048AbRHVRWg>;
-	Wed, 22 Aug 2001 13:22:36 -0400
-Date: Wed, 22 Aug 2001 19:22:35 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Memory Problem in 2.4.9 ?
-In-Reply-To: <20010822130106.0c4d4bf1.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.33.0108221752590.542-100000@mikeg.weiden.de>
+	id <S272054AbRHVRXi>; Wed, 22 Aug 2001 13:23:38 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:28167 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S272049AbRHVRXa>;
+	Wed, 22 Aug 2001 13:23:30 -0400
+Message-Id: <200108220053.EAA01602@mops.inr.ac.ru>
+Subject: Re: Problems with kernel-2.2.19-6.2.7 from RH update for 6.2
+To: dyp@perchine.com (Denis Perchine)
+Date: Wed, 22 Aug 2001 04:53:24 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010820155450.777C91FD74@mx.webmailstation.com> from "Denis Perchine" at Aug 21, 1 01:52:04 am
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Aug 2001, Stephan von Krawczynski wrote:
+Hello!
 
-> On Wed, 22 Aug 2001 07:33:38 +0200 (CEST)
-> Mike Galbraith <mikeg@wen-online.de> wrote:
->
-> >> HAHAHA.. I was right, hurried whack with my little hammer _did_ bust
-> > it all to pieces :)
-> >
-> > This is also (very!) hurried and _lightly_ tested, but still cures my
-> > problem..  what do you think?
-> >
-> > 	-Mike
-> >
-> >
-> > --- linux-2.4.9/mm/vmscan.c.org	Sun Aug 19 08:55:24 2001
-> > +++ linux-2.4.9/mm/vmscan.c	Wed Aug 22 05:03:50 2001
-> > @@ -506,11 +506,17 @@
-> >  		}
-> [...]
-> > +			if (++page->age > PAGE_AGE_START) {
->
-> I am not very experienced with the aging algorithm, but can this statement be false at all? I mean if I get that right page->age starts with PAGE_AGE_START, doesn't it?
+> > BTW why do you use funny getsockopt instead of canonical non-blocking
+> > connect?
+> 
+> Hmmm... If I know what canonical non-blocking connect is, I would use it =
+> I=20
+> think...
 
-When page is added to to the pagecache, it begins life with age=0 and
-is placed on the inactive_dirty list with use_once.  With the original
-aging, it started with PAGE_AGE_START and was placed on the active
-list.  The intent of used once (correct me Daniel if I fsck up.. haven't
-been able to track vm changes very thoroughly lately [as you can see:])
-is to place a new page in the line of fire of page reclamation and only
-pull it into the active aging scheme if it is referenced again prior to
-consumption.  This is intended to preserve other cached pages in the event
-of streaming IO.  Your cache won't be demolished as quickly, the pages
-which are only used one time will self destruct instead.  Cool idea.
+connect() is used to complete asynchronously started connect.
 
-Unfortunately, with loads like file rewrite, so many (all?) pages meet
-the qualification, and are activated and aged up immediately that they
-swamp the system.  Background aging can't keep up at all (even if you
-accelerate it wildly btw), so you end up swapping needlessly.
+While connection is not complete connect() returns EALREADY.
+When connection is established, it succeeds. If connection fails,
+it returns an error (the same, which you get with getsockopt()).
+So, right way is to repeat connect() after poll() returned POLLOUT,
+it will either complete connection or return an error to you.
 
-This quick hack is intended to do something like use_once in that a page
-which has been deactivated does not go back to the active queue merely
-because of a single access (etc).  Instead, you get a couple of chances
-to stay on your death march.  Often used pages will drop out of line,
-seldom used pages won't.
+Actually, this classic interface is very ugly. Seems, it is the only place,
+where O_NONBLOCK is used not to do something nonblocking, but to start
+an asynchronous operation. And all these terrible unique error codes:
+EINPROGRESS, EALREADY suck. Thank to bsd people, who preferred ugly
+hacks instead of developing some AIO interface. :-)
+It is so ugly (it is the only place where kernel has to maintain history
+of user syscalls in addition to tcp state), that it is even offending
+that people do not use it; it means that it simply pollutes kernel. :-)
 
-It might be a really rotten way to cure my problem.. I'm not sure yet.
 
-Christ on a crutch.. that sure was a longwinded way to say "yes, the
-statement can be false".  Think I'll go turn on the idiot box, crack
-a brew and play a round of couch potato :)
+> the combination which works. Actually thttpd also uses this (if I am not=20
+> mistaken).
 
-	Later,
+Where? httpd does not connect().
 
-	-Mike
+If they do this after accept(), it is really silly. Pure useless syscall.
+
+
+> The problem here is that I need to tune timeout for: each connection, and=
+>  for=20
+> connect, and read/write separately. If you could give me an advise how to=
+>  do=20
+> this more effective, I would be really glad.
+
+I see. If tuning is goal, it is right way. Amount of syscalls
+is the same as with alarm, but logic is cleaner.
+
+Though, with read/write SO_RCVTIMEO/SO_SNDTIMEO is preferred.
+Unfortunately, linux-2.2 seems to be the only OS not implemented this.
+[ I am not sure about Solaris though. ]
+
+In linux-2.4 they work for connect/accept too: SO_SNDTIMEO for
+connect, SO_RCVTIMEO for accept.
+
+Alexey
 

@@ -1,66 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261985AbTELHrG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 03:47:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbTELHrG
+	id S261994AbTELIJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 04:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbTELIJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 03:47:06 -0400
-Received: from dialup-5.156.221.203.acc50-nort-cbr.comindico.com.au ([203.221.156.5]:33028
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S261985AbTELHrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 03:47:05 -0400
-Message-ID: <3EBF538B.50501@cyberone.com.au>
-Date: Mon, 12 May 2003 17:55:55 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [BENCHMARK] 2.5.69-mm3 with contest
-References: <200305111655.35543.kernel@kolivas.org>
-In-Reply-To: <200305111655.35543.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 12 May 2003 04:09:59 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38154 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261994AbTELIJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 04:09:58 -0400
+Date: Mon, 12 May 2003 09:20:21 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Bernhard Kaindl <bernhard.kaindl@gmx.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem: strace -ff fails on 2.4.21-rc1
+Message-ID: <20030512092020.A10073@flint.arm.linux.org.uk>
+Mail-Followup-To: Chuck Ebbert <76306.1226@compuserve.com>,
+	Bernhard Kaindl <bernhard.kaindl@gmx.de>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <200305112106_MC3-1-3868-D6B1@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200305112106_MC3-1-3868-D6B1@compuserve.com>; from 76306.1226@compuserve.com on Sun, May 11, 2003 at 09:03:12PM -0400
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, May 11, 2003 at 09:03:12PM -0400, Chuck Ebbert wrote:
+> Proc;  minicom
+> >>EIP; c01183a1 <schedule+351/3b0>   <===== ignore this bogus address
+> Trace; c0122f24 <schedule_timeout+14/a0>
+> Trace; c0134a31 <__alloc_pages+41/170>
+> Trace; c021195b <tty_wait_until_sent+9b/e0>
+> Trace; c0220d79 <rs_close+129/1f0>
+> Trace; c020d997 <release_dev+247/500>
+> Trace; c011690d <do_page_fault+11d/43b>
+> Trace; c020e01a <tty_release+2a/60>
+> Trace; c013c52e <fput+4e/100>
+> Trace; c013b1d5 <filp_close+95/a0>
+> Trace; c013b23b <sys_close+5b/70>
+> Trace; c0108b73 <system_call+33/38>
+> 
+> It's hung up somewhere inside schedule().
 
+Wait 30 seconds and see if it exits by itself.  I bet you have hardware
+RTS/CTS handshaking enabled on the serial port, but without anything
+connected.
 
-Con Kolivas wrote:
+When a port is closed, we wait up to 30 seconds (or a user specified time
+period) for any characters in the transmit queue to be sent.  If CTS is
+inactive and we're using RTS/CTS handshaking, we can't send any characters,
+so we'll wait the full timeout.
 
-snip
-
->io_load:
->Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
->2.5.68              3   492     15.9    167.1   19.7    6.23
->2.5.68-mm1          4   128     59.4    47.6    19.4    1.62
->2.5.68-mm2          4   131     58.8    47.0    18.9    1.64
->2.5.68-mm3          4   271     28.4    89.2    17.9    3.39
->2.5.69              4   343     22.7    120.5   19.8    4.29
->2.5.69-mm3          4   319     24.5    105.3   18.1    4.04
->
-snip
-
->
->dbench_load:
->Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
->2.5.68              3   412     18.4    5.3     47.6    5.22
->2.5.68-mm1          4   361     21.1    5.5     54.0    4.57
->2.5.68-mm2          4   345     22.0    4.8     49.3    4.31
->2.5.68-mm3          4   721     10.5    6.8     33.6    9.01
->2.5.69              4   374     20.3    5.0     48.1    4.67
->2.5.69-mm3          4   653     11.6    6.2     34.0    8.27
->
->Very similar to 2.5.68-mm3
->
-Thanks again Con. These two benchmarks especially are fairly suboptimal
-compared with the 68-mm2 days... I hope it is just the larger request queue
-size in place in the rq-dyn patch in mm. If you get some time, could you
-possibly change include/linux/blkdev.h:BLKDEV_MAX_RQ from 1024 to 128 and
-bench these two loads on that setting.
-
-Cheers,
-Nick
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289405AbSAOWCe>; Tue, 15 Jan 2002 17:02:34 -0500
+	id <S289692AbSAOWKE>; Tue, 15 Jan 2002 17:10:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289689AbSAOWCY>; Tue, 15 Jan 2002 17:02:24 -0500
-Received: from 203-79-66-98.adsl-wns.paradise.net.nz ([203.79.66.98]:30082
-	"HELO volcano.kiwa.co.nz") by vger.kernel.org with SMTP
-	id <S289405AbSAOWCO>; Tue, 15 Jan 2002 17:02:14 -0500
-Date: Wed, 16 Jan 2002 11:02:11 +1300
-From: Nicholas Lee <nj.lee@plumtree.co.nz>
-To: Ville Herva <vherva@niksula.hut.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Disk corruption - Abit KT7, 2.2.19+ide patches
-Message-ID: <20020115220211.GE598@inktiger.kiwa.co.nz>
-Mail-Followup-To: Nicholas Lee <nj.lee@plumtree.co.nz>,
-	Ville Herva <vherva@niksula.hut.fi>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020115202302.GA598@inktiger.kiwa.co.nz> <20020115205116.GH51648@niksula.cs.hut.fi> <20020115211032.GC598@inktiger.kiwa.co.nz> <20020115214049.GI51648@niksula.cs.hut.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020115214049.GI51648@niksula.cs.hut.fi>
-User-Agent: Mutt/1.3.24i
+	id <S289697AbSAOWJy>; Tue, 15 Jan 2002 17:09:54 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11021 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289692AbSAOWJv>; Tue, 15 Jan 2002 17:09:51 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: 3.5G user space speed
+Date: 15 Jan 2002 14:09:28 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a229ao$9j9$1@cesium.transmeta.com>
+In-Reply-To: <16247691406.20020115234737@spylog.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 11:40:49PM +0200, Ville Herva wrote:
+Followup to:  <16247691406.20020115234737@spylog.ru>
+By author:    Peter Zaitsev <pz@spylog.ru>
+In newsgroup: linux.dev.kernel
 > 
-> Hmm, do the pci ids map somehow to physical pci slots? It seems one
-
-Im not sure. Someone in the mailing list should know though. 8)
-
-> particular physical pci slot location is troublesome in our case. It caused
-> problems with nic and even with a scsi adapter. Unfortunately I can't
-> remember which slot it was - I'll have to check (I _think_ it was the third
-> counting from bottom).
+>   2.4.xaa Series as well as  SuSE kernels have  3.5G userspace option,
+>   which seems to be quite useful, therefore I see it's not included
+>   is stock kernel for some reasons. Also I've heard this
+>   configuration may have some performance problems.
 > 
-> So I'm interested in the physical location of you nic...
 
-Ok. I can't check the machine in Wellington, but in the machine here.
-Not couting the AGP slot, the NIC is sitting in the third slot in the
-back of the box.
+Be careful... 3.5G breaks the initrd protocol (assuming you have
+enough RAM for it to matter anyway), unless you have a 2.03 boot
+protocol capable (a) kernel and (b) bootloader.  At this point I don't
+know of any bootloader other than SYSLINUX 1.65 or later that is 2.03
+compatible.
 
-
-I'd have to open it (later today when the office is closed) to comfirm
-its sitting in the 'third' PCI slot from the CPU.  
-
-The NIC is the only PCI card in this machines. The video card being a
-basic AGP one. (This is the other difference with the machine in
-Wellington which has an old but expensive PCI video card.)
-
-
-The problem with moving the card, is that the problem exhibits very
-slowly. After the previous problems with the Seagate drive reseting and
-the computer finally crashing majorly I replaced the drive and
-everything seemed fine.
-
-Only now have I notice the problems.
+	-hpa
 
 -- 
-Nicholas Lee - nj.lee at plumtree.co dot nz, somewhere on the fish Maui caught.
-gpg. 8072 4F86 EDCD 4FC1 18EF  5BDD 07B0 9597 6D58 D70C            icq. 1612865 
-
-                         Quixotic Eccentricity
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

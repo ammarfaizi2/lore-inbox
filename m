@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318283AbSHKLFR>; Sun, 11 Aug 2002 07:05:17 -0400
+	id <S318288AbSHKLXb>; Sun, 11 Aug 2002 07:23:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318288AbSHKLFR>; Sun, 11 Aug 2002 07:05:17 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:1000 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S318283AbSHKLFR>;
-	Sun, 11 Aug 2002 07:05:17 -0400
-Date: Sun, 11 Aug 2002 13:09:03 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200208111109.NAA19086@harpo.it.uu.se>
-To: torvalds@transmeta.com
-Subject: [PATCH] fix drm/mga bitops on non-long operands bug
-Cc: linux-kernel@vger.kernel.org
+	id <S318289AbSHKLXb>; Sun, 11 Aug 2002 07:23:31 -0400
+Received: from tomts20-srv.bellnexxia.net ([209.226.175.74]:64419 "EHLO
+	tomts20-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S318288AbSHKLXa>; Sun, 11 Aug 2002 07:23:30 -0400
+From: Ed Tomlinson <tomlins@cam.org>
+Subject: Re: [patch 11/21] disable interrupts while holding pagemap_lru_lock
+To: linux-kernel@vger.kernel.org
+Reply-To: tomlins@cam.org
+Date: Sun, 11 Aug 2002 07:26:52 -0400
+References: <3D5614A6.22F832F1@zip.com.au>
+Organization: me
+User-Agent: KNode/0.7.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <20020811112653.33A787A3C@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The drm update from cvs in 2.5.31 reintroduced the mga driver's
-bitops on non-long operands bug. The patch below fixes it.
+Andrew Morton wrote:
 
-/Mikael
+> This optimisation is not needed on uniprocessor, but the patch disables
+> IRQs while holding pagemap_lru_lock anyway, so it becomes an irq-safe
+> spinlock, and pages can be moved from the LRU in interrupt context.
 
---- linux-2.5.31/drivers/char/drm/mga_drv.h.~1~	Sun Aug 11 11:29:30 2002
-+++ linux-2.5.31/drivers/char/drm/mga_drv.h	Sun Aug 11 11:58:20 2002
-@@ -38,7 +38,7 @@
- 
- 	u32 tail;
- 	int space;
--	int wrapped;
-+	unsigned long wrapped;
- 
- 	volatile u32 *status;
- 
+It does cleanup slablru in UP.  It simplifies the patch getting rid of the 
+#ifdef when adding page(s) to the slab caches.  It also cleans up the code 
+used when we want to remove a slab from a cache.
+
+Thanks
+Ed Tomlinson
+

@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261815AbUDJH4k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 03:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbUDJH4j
+	id S261982AbUDJIUd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 04:20:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUDJIUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 03:56:39 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:43187 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S261815AbUDJH4i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 03:56:38 -0400
-Date: Sat, 10 Apr 2004 08:56:36 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       dri-devel@lists.sourceforge.net
-Subject: Re: [patch] Trying to get DRM up to date in 2.6
-In-Reply-To: <20040409120106.69e78838.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0404100847500.4138@skynet>
-References: <Pine.LNX.4.58.0404090838000.30863@skynet> <20040409120106.69e78838.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 Apr 2004 04:20:33 -0400
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:32268 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261982AbUDJIUb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Apr 2004 04:20:31 -0400
+Date: Sat, 10 Apr 2004 10:20:40 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Alfred Arnold <aarnold@elsa.de>
+Subject: [BUG 2.2/2.4/2.6] broken memsets in net/sk_mca.c (multicast)
+Message-Id: <20040410102040.022ffb3c.khali@linux-fr.org>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> >  I've setup a temporary BK repo at http://freedesktop.org:1234/drm-2.6/
->
-> Yes, that works.  Anything which you put into that bk tree will
-> automagically appear in my test kernels.  When we're happy with it you can
-> ask Linus to merge it into the top-level tree.
->
+[Please CC: me on reply, I'm not subscribed (yet)]
 
-Okay I've pushed all the first set of changes from the DRM CVS tree into
-the BK repo above. I'm going to move to a repo on bkbits rsn, will send an
-updated URL when I do so ..
+Hi all,
 
-I think there is one major changeset outstanding that I'll get around to
-in the next couple of days, the only other changes I can see between the
-trees are compatibility changes for 2.4 which I don't really want to put
-into the 2.6 tree unless totally necessary...
+I just found two very weird memsets in drivers/net/sk_mca.c. I am not
+working on that driver at all, but some grepping of the kernel source
+pointed me to it so I thought I wouldn't keep quiet about it.
 
-I'd say let it be checked out in Andrews tree for a while and then I'll
-ask Andrew to push it all onto Linus...
+Here is the offending code:
 
-Dave.
+static void skmca_set_multicast_list(struct net_device *dev)
+{
+	(...)
+	if (dev->flags & IFF_ALLMULTI) {	/* get all multicasts */
+		memset(block.LAdrF, 8, 0xff);
+	} else {		/* get selected/no multicasts */
+		(...)
+		memset(block.LAdrF, 8, 0x00);
+		(...)
+	}
+	(...)
+}
+
+Is it just me, or are these two memsets just plain broken? Not only the
+size is hardcoded, but the parameters are swapped! I guess that this
+driver never worked in multicast mode. The correct memsets are
+obviously:
+		memset(block.LAdrF, 0xff, sizeof(block.LAdrF));
+and
+		memset(block.LAdrF, 0x00, sizeof(block.LAdrF));
+respectively.
+
+The odd thing is that the bug is there since the driver was introduced
+in the 2.2.10 kernel. So, 2.2, 2.4 and 2.6 kernels are all affected.
+
+I admit I'm a bit surprized that this could survive until today, so just
+tell me if it's me missing the point ;)
+
+Thanks.
 
 -- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
-
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264372AbTLPXXj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 18:23:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbTLPXXj
+	id S264369AbTLPXUs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 18:20:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbTLPXUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 18:23:39 -0500
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:22153 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S264372AbTLPXXh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 18:23:37 -0500
-From: Rusty Russell <rusty@au1.ibm.com>
-To: paulmck@us.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [DOCUMENTATION] Revised Unreliable Kernel Locking Guide 
-In-reply-to: Your message of "Mon, 15 Dec 2003 14:22:14 -0800."
-             <20031215222213.GA1270@us.ibm.com> 
-Date: Tue, 16 Dec 2003 17:32:37 +1100
-Message-Id: <20031216232331.8A111189E1@ozlabs.au.ibm.com>
+	Tue, 16 Dec 2003 18:20:47 -0500
+Received: from darkwing.uoregon.edu ([128.223.142.13]:43191 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id S264369AbTLPXUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 18:20:44 -0500
+Date: Tue, 16 Dec 2003 15:10:13 -0800 (PST)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Hollis Blanchard <hollisb@us.ibm.com>
+cc: Disconnect <lkml@sigkill.net>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] "unauthorized" mini-pci wlan cards in thinkpads
+In-Reply-To: <DE5DBD2A-3001-11D8-BB49-000A95A0560C@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0312161506130.6253-100000@twin.uoregon.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20031215222213.GA1270@us.ibm.com> you write:
-> > 	How do we get rid of read locks?  Getting rid of read locks
-> > 	means that writers may be changing the list underneath the readers.
-> > 	That is actually quite simple:
+On Tue, 16 Dec 2003, Hollis Blanchard wrote:
+
+> On Monday, Dec 15, 2003, at 18:03 US/Central, Disconnect wrote:
 > 
-> Looks good!  Upon rereading...  Does "wmb()" want to be "smp_wmb()"?
+> > On Mon, 2003-12-15 at 18:16, Joel Jaeggli wrote:
+> >> the card and antenna are certified together. The cards that were 
+> >> certified
+> >> with that antenna work in that laptop.
+> >
+> > And yet I was able to call dell and just order an older card to go in 
+> > my
+> > Inspiron.  (A standard 802.11b card; orinoco on a pci->cardbus bridge.)
+> > The only regulatory info they mentioned was including a pack of the
+> > certified-by stickers to replace the ones that were on the laptop from
+> > the original card.
 
-Yes, but I didn't want to turn this into a document on memory
-barriers: you'll note that I almost avoided it entirely.
+the truemobile 1150 is just an off the shelf avaya/agere/orinoco/proxim 
+minipci card... I happen to have one with an acer label in my inspiron 
+4150 but since they all have the same fcc id they were all made by agere.
 
-> Again, upon rereading, "read Read Copy Update code" probably wants to
-> be "real Read Copy Update code".   I moused it this time, given
-> my past record with eyeballing.  ;-)
-
-Fixed.
-
-> > Now, because the 'read lock' in RCU is simply disabling preemption, a
-> > caller which always preemption disabled between calling
->                       disables preemption
-
-Ah, I inserted a 'has' as well (a caller which always has preemption
-disabled...).  The implication that the caller probably has preempt
-disabled as a side effect of being in an interrupt or holding a
-spinlock.
-
-> > I've uploaded a new draft with these and other fixes...
+> What model Dell card exactly? I'm looking to buy a Linux-compatible 
+> minipci wireless card (no Centrino for obvious reasons), and the only 
+> models I've found listed at http://tuxmobil.org/minipci_linux.html are 
+> apparently no longer for sale. I'd rather not pay for a Cisco Aironet 
+> but I'm afraid I might have to.
 > 
-> Good stuff, thank you!!!
+> 
 
-Hey, thanks for the review!
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
 
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+

@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269763AbRHTWsZ>; Mon, 20 Aug 2001 18:48:25 -0400
+	id <S269778AbRHTWw5>; Mon, 20 Aug 2001 18:52:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269752AbRHTWsQ>; Mon, 20 Aug 2001 18:48:16 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:15876 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269763AbRHTWr6>; Mon, 20 Aug 2001 18:47:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: 2.4.8/2.4.9 VM problems
-Date: Tue, 21 Aug 2001 00:54:32 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Mike Galbraith <mikeg@wen-online.de>,
-        Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0108201712360.538-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0108201712360.538-100000@freak.distro.conectiva>
+	id <S269779AbRHTWws>; Mon, 20 Aug 2001 18:52:48 -0400
+Received: from netdoor.com ([208.137.128.6]:45816 "EHLO pike.netdoor.com")
+	by vger.kernel.org with ESMTP id <S269778AbRHTWwj>;
+	Mon, 20 Aug 2001 18:52:39 -0400
+Message-ID: <3B8194C2.BAA49752@ayrix.net>
+Date: Mon, 20 Aug 2001 17:52:50 -0500
+From: Bob Martin <bmartin@ayrix.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010820224802Z16009-32384+228@humbolt.nl.linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Via chipset
+In-Reply-To: <Pine.LNX.4.30.0108161406270.15558-100000@anime.net> <3B7C89CF.7532DA72@ntsp.nec.co.jp>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 20, 2001 10:16 pm, Marcelo Tosatti wrote:
-> On Mon, 20 Aug 2001, Marcelo Tosatti wrote:
-> > On Mon, 20 Aug 2001, Daniel Phillips wrote:
-> > > On Mon, 20 Aug 2001, Marcelo Tosatti wrote:
-> > > > Find riel's message with topic "VM tuning" to linux-mm, then take a look
-> > > > at the 4th aging option.
-> > > > 
-> > > > That one _should_ be able to make us remove all kinds of "hacks" to do
-> > > > drop behind, and also it should keep hot/warm active memory _in cache_
-> > > > for more time. 
-> > > 
-> > > I looked at it yesterday.  The problem is, it loses the information about *how*
-> > > a page is used: pagecache lookup via readahead has different implications than
-> > > actual usage.
+"Adrian V. Bono" wrote:
 > 
-> And ah, I forgot something here. 
-> 
-> Your statement which says "pagecache lookup via readahead has different
-> implications than actual usage" is not really correct.
-> 
-> If you only consider "hot" pages as "pages which have been touched",
-> you're going to (potentially) fuck heavy streaming IO workloads.
+> I think i'd have to disagree. I have a PII-450 with a cheapo Vanta card
+> in it, and i run GL apps ranging from Quake 3 to various GL programs of
+> my own... no hangs. And i leave my system for days on end with a GL
+> screensaver running. Still no hangs. I've used NVidia drivers all the
+> way from 0.9-6 to 1.0-1251 and i never got that kind of instability.
 
-"Hot" pages are pages that have been touched more than once.  The idea of
-use-once (on the read side) is to retain the readahead pages just long enough
-to use them, and not a lot longer.  If you've seen streaming IO pages getting
-evicted before being used, I'd like to know about it because something is
-broken in that case.
+Thanks for that info. before upgrading to RH7.1 I was using the nvidia 
+drivers and had no problems at all. It's now using the nv driver shipped
+with xfree 4.03 so that might be the problem, although with xfree 3.3.6
+there wasn't a problem with either the nvidia or xfree drivers. I'll grab 
+nvidia driver and give it a try.
+-- 
 
---
-Daniel
+Bob Martin

@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129319AbQLXI2E>; Sun, 24 Dec 2000 03:28:04 -0500
+	id <S129370AbQLXIqv>; Sun, 24 Dec 2000 03:46:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129370AbQLXI1y>; Sun, 24 Dec 2000 03:27:54 -0500
-Received: from web1002.mail.yahoo.com ([128.11.23.92]:45584 "HELO
-	web1002.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129319AbQLXI1s>; Sun, 24 Dec 2000 03:27:48 -0500
-Message-ID: <20001224075721.26703.qmail@web1002.mail.yahoo.com>
-Date: Sat, 23 Dec 2000 23:57:21 -0800 (PST)
-From: Ron Calderon <ronnnyc@yahoo.com>
-Subject: sparc 10 w/512 megs hangs during boot
-To: linux-kernel@vger.kernel.org
+	id <S129460AbQLXIql>; Sun, 24 Dec 2000 03:46:41 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:50700 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S129370AbQLXIq0>;
+	Sun, 24 Dec 2000 03:46:26 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200012240815.eBO8FjG523728@saturn.cs.uml.edu>
+Subject: Re: bigphysarea support in 2.2.19 and 2.4.0 kernels
+To: jes@linuxcare.com (Jes Sorensen)
+Date: Sun, 24 Dec 2000 03:15:45 -0500 (EST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <d34rzulwyf.fsf@lxplus015.cern.ch> from "Jes Sorensen" at Dec 23, 2000 09:11:20 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My sparc 10 seems to hang with any 2.4.0-test12+
-kernel
-if I add mem=128M it boots fine, but anything above
-128M wont boot it just hangs. Is there something I've
-missed? here is screen output.
+Jes Sorensen writes:
+> Albert D Cahalan <acahalan@cs.uml.edu> writes:
 
-Resetting ... 
+[about using huge physical allocations for number crunching]
 
-SPARCstation 10  (1 X 390Z50), No Keyboard
-ROM Rev. 2.12, 512 MB memory installed, Serial
-#6299671.
-Ethernet address 8:0:20:11:fe:10, Host ID: 72602017.
+>> 2. Programming a DMA controller with multiple addresses isn't
+>> as fast as programming it with one.
+>
+> LOL
+>
+> Consider that allocating the larger block of memory is going
+> to take a lot longer than it will take for the DMA engine to
+> read the scatter/gather table entries and fetch a new address
+> word now and then.
 
-
-Boot device: /iommu/sbus/espdma/esp/sd@3,0:c   File
-and args:         
-SILO boot: 
-Uncompressing image...
-PROMLIB: obio_ranges 5
-bootmem_init: Scan sp_banks, 
-init_bootmem(spfn[1c9],bpfn[1c9],mlpfn[c000])
-free_bootmem: base[0] size[c000000]
-reserve_bootmem: base[0] size[1c9000]
-reserve_bootmem: base[1c9000] size[1800]
-
-
-
-then it just hangs here....
-any info would be great
-
-ron
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Shopping - Thousands of Stores. Millions of Products.
-http://shopping.yahoo.com/
+Say it takes a whole minute to allocate the memory. It wouldn't
+of course, because you'd allocate memory at boot, but anyway...
+Then the app runs, using that memory, for a multi-hour surgery.
+The allocation happens once; the inter-node DMA transfers occur
+dozens or hundreds of times per second.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

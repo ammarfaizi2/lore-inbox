@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbUBYOqI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 09:46:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbUBYOqI
+	id S261346AbUBYO5m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 09:57:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbUBYO5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 09:46:08 -0500
-Received: from zadnik.org ([194.12.244.90]:19926 "EHLO lugburz.zadnik.org")
-	by vger.kernel.org with ESMTP id S261361AbUBYOpX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 09:45:23 -0500
-Date: Wed, 25 Feb 2004 16:44:58 +0200 (EET)
-From: Grigor Gatchev <grigor@zadnik.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: A Layered Kernel: Proposal
-In-Reply-To: <Pine.LNX.4.44.0402250751140.30721-100000@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.44.0402251639430.17570-100000@lugburz.zadnik.org>
+	Wed, 25 Feb 2004 09:57:42 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:40938 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261346AbUBYO5k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 09:57:40 -0500
+From: Markus Klotzbuecher <mk@creamnet.de>
+Reply-To: mk@creamnet.de
+To: "Gautam Pagedar" <gautam@cins.unipune.ernet.in>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: can i modify ls
+Date: Wed, 25 Feb 2004 16:01:50 +0100
+User-Agent: KMail/1.5.4
+References: <005601c3fd75$1c681510$8c01080a@crayii>
+In-Reply-To: <005601c3fd75$1c681510$8c01080a@crayii>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402251601.50489.mk@creamnet.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:89d1891c7eff3dde0c02a5f1254dd9ac
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 27 February 2004 22:03, Gautam Pagedar wrote:
 
-
-On Wed, 25 Feb 2004, Rik van Riel wrote:
-
-> On Wed, 25 Feb 2004, Grigor Gatchev wrote:
+> working on a project to tweak the working of 'ls' command depending on my
+> requirement. I have observed that 'ls' show ALL THE FILES and DIRECTORIES
+> in a particular location even though a user has no access rights to it. I
+> want to hide all
+> such files for that particular user.
 >
-> > > I'm all for cleaning up the badly written code so it fits
-> > > in better with the rest of the kernel ;)
-> >
-> > Unhappily, cleaning up would not be enough. A separation of the kernel
-> > layers, to the extent that one may be able to use them independently,
-> > and to plug modules between them (having the appropriate access) may be
-> > better.
+> The Algorithm i beleive should work like this when an 'ls' command is
+> called.
 >
-> Some parts of the kernel (eg. the VFS or the device driver
-> layers) can already do that, while others still have layering
-> violations.
+> 1. Check the current directory.
+> 2. Extract the files or directory to be displayed.
+> 3. Check the user permissions for these files.
+> 4. Display only those files wher user had either read, write or execute
+> access for all owner,group and others.
 >
-> I suspect that the least destabilising way of moving to a
-> more modular model would be to gradually clean up the layering
-> violations in the rest of the code, until things are modular.
+> I have found out that 'ls' uses getdents64() system call for gathering the
+> directory information. How do i move ahead from here.
 
-Definitely.
+You could do it in the kernel, by using a stackable filesystem and tweaking 
+the readdir file operation to do what you want. Then you can mount it on top 
+of the root filesystem, and all accesses will pass through it, where you hold 
+back the files a user shouldn't see.
+On www.filesystems.org you can find bare stackable filesystem templates by 
+Erez Zadoc, but maybe you could even use the high level Fist language to 
+generate such a filesystem.
 
-I believe that, a layered model mandated or not, kernel development will
-go generally the same way. A clear goal may improve much the process, but
-will not change the things to be done. Even if that model is mandated,
-most probably first production versions will not be completely compliant
-with it.
+Just an idea...
 
+Cheers
+
+	Markus
 

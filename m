@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262353AbUKKUgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262354AbUKKUjC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262353AbUKKUgg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 15:36:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbUKKUgg
+	id S262354AbUKKUjC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 15:39:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbUKKUjC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 15:36:36 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:47032 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262353AbUKKUge (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 15:36:34 -0500
-Date: Thu, 11 Nov 2004 22:38:08 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Gunther Persoons <gunther_persoons@spymac.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-0
-Message-ID: <20041111213808.GA5453@elte.hu>
-References: <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu>
+	Thu, 11 Nov 2004 15:39:02 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:60131 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262354AbUKKUiy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 15:38:54 -0500
+Subject: Re: IO_APIC NMI Watchdog not handled by suspend/resume.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041110233045.GB1099@elf.ucw.cz>
+References: <1099643612.3793.3.camel@desktop.cunninghams>
+	 <20041110233045.GB1099@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1100205177.4579.7.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041111144414.GA8881@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 12 Nov 2004 07:32:57 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-found the bug that i think caused the freezes and deadlocks reported by 
-Mark and Gunther. Here's the announcement of a debug feature:
+On Thu, 2004-11-11 at 10:30, Pavel Machek wrote:
+> Hi!
+> 
+> > Tracking down SMP problems, I've found that if you boot with
+> > nmi_watchdog=1 (IO_APIC), the watchdog continues to run while suspend is
+> > doing sensitive things like restoring the original kernel. I don't know
+> > enough to provide a patch to disable it so thought I'd ask if someone
+> > could volunteer to fix this?
+> 
+> When we debated this at x86-64 lists, our conclusion was 'critical
+> section should take less than 5 seconds, and watchdog only touches its
+> own variables, so stopping it should not be needed'. [on x86-64,
+> watchdog is enabled even on up].
 
->  - debugging helper: the /proc/sys/kernel/debug_direct_keyboard flag 
->    (default: 0) will hack the keyboard IRQ into being direct. NOTE: the 
->    keyboard in this mode should only be used to access SysRq 
->    functionality that is not possible via the threaded keyboard handler. 
->    The direct keyboard IRQ can crash the system.
+Oh... oops... Must be too early in the morning!
 
-it turns out i accidentally left debug_direct_keyboard default-enabled
-... no wonder it caused lockups!
+It's not merged, so I don't have to send the fix.
 
-	Ingo
+By the way, the slowness caused by sysdev is because of time.c; I'm
+about to try reducing the number of get_cmos_time() calls, which should
+speed it up by at least 2 seconds.
+
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+

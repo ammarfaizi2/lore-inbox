@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271808AbTGXWzd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 18:55:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271810AbTGXWzd
+	id S271813AbTGXXJn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 19:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271815AbTGXXJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 18:55:33 -0400
-Received: from dsl093-172-075.pit1.dsl.speakeasy.net ([66.93.172.75]:32139
-	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S271808AbTGXWzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 18:55:20 -0400
-Date: Thu, 24 Jul 2003 19:10:08 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: Douglas J Hunley <doug@hunley.homeip.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0: Badness in pci_find_subsys!!
-Message-ID: <20030724231008.GB28205@kurtwerks.com>
-References: <200307241326.04656.doug@hunley.homeip.net> <20030724173526.GA7952@kroah.com> <200307241347.08124.doug@hunley.homeip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307241347.08124.doug@hunley.homeip.net>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.21-krw
-X-Woot: Woot!
+	Thu, 24 Jul 2003 19:09:42 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:53184 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S271813AbTGXXIo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 19:08:44 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Michel Eyckmans (MCE)" <mce@pi.be>
+Date: Fri, 25 Jul 2003 01:23:37 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: 2.6.0-test1 + matroxfb = unuusable VC 
+Cc: nick black <dank@suburbanjihad.net>, linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <82E8EE527D4@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoth Douglas J Hunley:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On 25 Jul 03 at 0:17, Michel Eyckmans (MCE) wrote:
+> >  Anyway, can you try applying matroxfb-2.5.72.gz from 
+> > ftp://platan.vc.cvut.cz/pub/linux/matrox-latest to your tree (you can
+> > enable only matroxfb after patching, no other fbdev will work) and retry
+> > tests?
 > 
-> Greg KH shocked and awed us all by speaking:
-> > On Thu, Jul 24, 2003 at 01:26:01PM -0400, Douglas J Hunley wrote:
-> > > Just had my athlon box lock-up solid. needed SysRq to reboot the thing..
-> > > kernel info follows:
-> > > Jul 24 13:08:23 doug kernel: Badness in pci_find_subsys at
-> > > drivers/pci/search.c:132
-> > > Jul 24 13:08:23 doug kernel: Call Trace:
-> > > Jul 24 13:08:23 doug kernel:  [<c02064a1>] pci_find_subsys+0x111/0x120
-> > > Jul 24 13:08:23 doug kernel:  [<c02064df>] pci_find_device+0x2f/0x40
-> > > Jul 24 13:08:23 doug kernel:  [<c0206368>] pci_find_slot+0x28/0x50
-> > > Jul 24 13:08:23 doug kernel:  [<f8a2ada4>] os_pci_init_handle+0x3a/0x67
-> > > [nvidia]
-> >
-> > You are using the nvidia driver.  Go complain to them as we can do
-> > nothing about their code, sorry.
-> 
-> sure. I didn't know for sure that the fault was nvidia's.
+> YES! No more ghost X image, no more white rectangles, no more sudden 
+> jump scrolling, and a backspace key that actually works again. Please 
+> do consider pushing (some of) this to Linus for inclusion into the 
+> 2.6.0.test series!
 
-Do you get the same lock up *sans* the nvidia binary-only module?
+Impossible. It reverts huge parts of the fbdev API almost completely to 
+the 2.4.x state, and I was already outvoted in that vote couple of 
+times since January.
 
-Kurt
--- 
-I am so optimistic about beef prices that I've just leased a pot roast
-with an option to buy.
+BTW, with my patch accented characters works correctly only on VT1.
+I'm not sure how it behaves on Linus tree...
+
+And I'm not saying that there are no bugs in the matroxfb which is in
+Linus's kernel. But as nobody even answered my question I sent out on 
+monday whether it is correct that FBIOGETCMAP ioctl can overwrite arbitrary 
+kernel memory, I kinda lost an interest in the stock fbdev...
+
+                                           Best regards,
+                                                Petr Vandrovec
+

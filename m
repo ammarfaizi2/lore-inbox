@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262597AbSJPSUi>; Wed, 16 Oct 2002 14:20:38 -0400
+	id <S262208AbSJPSRW>; Wed, 16 Oct 2002 14:17:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262601AbSJPSUh>; Wed, 16 Oct 2002 14:20:37 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7184 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262597AbSJPSUh>;
-	Wed, 16 Oct 2002 14:20:37 -0400
-Date: Wed, 16 Oct 2002 19:26:30 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>
-Subject: [PATCH] shmem missing cache flush
-Message-ID: <20021016192630.L15163@parcelfarce.linux.theplanet.co.uk>
+	id <S262386AbSJPSRW>; Wed, 16 Oct 2002 14:17:22 -0400
+Received: from tom.rz.uni-passau.de ([132.231.51.4]:55425 "EHLO
+	tom.rz.uni-passau.de") by vger.kernel.org with ESMTP
+	id <S262208AbSJPSRV>; Wed, 16 Oct 2002 14:17:21 -0400
+Message-Id: <200210161823.g9GINEjm005973@tom.rz.uni-passau.de>
+Date: Wed, 16 Oct 2002 20:17:31 +0100
+From: "Marcus Lell" <lell@fmi.uni-passau.de>
+To: "Alex Deucher <agd5f@yahoo.com> <Alex Deucher" <agd5f@yahoo.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: v4l2 in 2.5.x?
+X-mailer: Foxmail 4.1 [eg]
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain;
+      charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>What's the status on v4l2?  I thought it was supposed to go in during
+>the 2.5 series.  I seem to recall some stuff going in around 2.5.5ish,
+>but as I recall that was just some revamping of v41.  Just curious...
 
-Really, this should be a clear_user_page(), but we can't reasonable get
-a user address all the way down to it, so let's just flush it instead.
-Note that 2.4 needs an equivalent fix.
+same question from me, too. recalling, that there were ready 
+patches, and feature freeze is comming. i think also, that this is
+one of the substantional features to go in 2.5, 'cause it's needed
+for the new bttv 0.8.x driver, the one and only (of bttv), that has 
+further developement. or isn't enough request?
 
-diff -urpNX build-tools/dontdiff linus-2.5/mm/shmem.c parisc-2.5/mm/shmem.c
---- linus-2.5/mm/shmem.c	Tue Oct  8 10:54:20 2002
-+++ parisc-2.5/mm/shmem.c	Tue Oct  8 16:49:24 2002
-@@ -848,6 +848,7 @@ repeat:
- 		info->alloced++;
- 		spin_unlock(&info->lock);
- 		clear_highpage(page);
-+		flush_dcache_page(page);
- 		SetPageUptodate(page);
- 	}
- 
 
--- 
-Revolutions do not require corporate support.
+Marcus
+
+

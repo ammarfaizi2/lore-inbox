@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268000AbRHATYc>; Wed, 1 Aug 2001 15:24:32 -0400
+	id <S267831AbRHATbn>; Wed, 1 Aug 2001 15:31:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267996AbRHATYW>; Wed, 1 Aug 2001 15:24:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40198 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267997AbRHATYI>;
-	Wed, 1 Aug 2001 15:24:08 -0400
-Date: Wed, 1 Aug 2001 20:24:09 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jussi Laako <jlaako@pp.htv.fi>
-Cc: Per Jessen <per.jessen@enidan.com>, linux-kernel@vger.kernel.org,
-        linux-laptop@vger.kernel.org
-Subject: Re: PCMCIA control I82365 stops working with 2.4.4
-Message-ID: <20010801202409.A27667@flint.arm.linux.org.uk>
-In-Reply-To: <3B5D8A0A002D181A@mta2n.bluewin.ch> <20010801114105.A26615@flint.arm.linux.org.uk> <3B68557B.7816FE4B@pp.htv.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B68557B.7816FE4B@pp.htv.fi>; from jlaako@pp.htv.fi on Wed, Aug 01, 2001 at 10:16:11PM +0300
+	id <S267996AbRHATbc>; Wed, 1 Aug 2001 15:31:32 -0400
+Received: from cpe.atm0-0-0-122182.bynxx2.customer.tele.dk ([62.243.2.100]:47225
+	"HELO marvin.athome.dk") by vger.kernel.org with SMTP
+	id <S267831AbRHATbT>; Wed, 1 Aug 2001 15:31:19 -0400
+Message-ID: <3B68590A.4070706@fugmann.dhs.org>
+Date: Wed, 01 Aug 2001 21:31:22 +0200
+From: Anders Peter Fugmann <afu@fugmann.dhs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010716
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Ian Stirling <root@mauve.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: university studies?
+In-Reply-To: <200108011412.PAA06491@mauve.demon.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 01, 2001 at 10:16:11PM +0300, Jussi Laako wrote:
-> Kills (deadlocks) my Toshiba Satellite when loaded as module (complains
-> about missing interrupts). When built into kernel it just complains but
-> doesn't lockup the machine.
+
+
+Ian Stirling wrote:
 > 
-> Older kernels/pcmcia-cs i82365 was working fine. (2.2.x and early 2.4.x)
+> Maths.
+> Can help lots in the generation of algorithms, for example
+> proving that one faster way of doing something is identical 
+> to a slower way.
+> Knowing the maths behind the algorithms can lead to ways to 
+> speed things up by orders of magnitude in some cases.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+Ont just that.
 
-Hmm, I'm not an x86 expert, so I'll have to leave you here.  What I do know
-is that yenta is for PCI-based PCMCIA controllers with CardBus support.
-i82365 is for ISA PCMCIA controllers only.
+Math (especially descrete algebra) is very importent, just to prove that 
+an algoritm is correct. Speed is of no importence if the algoritm is 
+incorrect.
+Also courses in parallel programming will be usefull.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+But best of all, take cources in operating systems
+(And read Tanenbaum's book).
+
+
+Regards
+Anders Fugmann
+
+
+
+
 

@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUHMG7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269010AbUHMHCD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265195AbUHMG7o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 02:59:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269010AbUHMG7o
+	id S269010AbUHMHCD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 03:02:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269011AbUHMHCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 02:59:44 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:10982 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265195AbUHMG7m (ORCPT
+	Fri, 13 Aug 2004 03:02:03 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:60646 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S269010AbUHMHB5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 02:59:42 -0400
-Date: Fri, 13 Aug 2004 08:59:03 +0200
+	Fri, 13 Aug 2004 03:01:57 -0400
+Date: Fri, 13 Aug 2004 09:01:20 +0200
 From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@www.pagan.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SG_IO and security
-Message-ID: <20040813065902.GB2321@suse.de>
-References: <1092313030.21978.34.camel@localhost.localdomain> <Pine.LNX.4.58.0408120929360.1839@ppc970.osdl.org> <Pine.LNX.4.58.0408120943210.1839@ppc970.osdl.org> <1092341803.22458.37.camel@localhost.localdomain> <Pine.LNX.4.58.0408121705050.1839@ppc970.osdl.org>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040813070119.GC2321@suse.de>
+References: <1092099669.5759.283.camel@cube> <cone.1092113232.42936.29067.502@pc.kolivas.org> <411BF083.8060406@tmr.com> <yw1xllgkgcl9.fsf@kth.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408121705050.1839@ppc970.osdl.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <yw1xllgkgcl9.fsf@kth.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 12 2004, Linus Torvalds wrote:
+On Fri, Aug 13 2004, Måns Rullgård wrote:
+> Bill Davidsen <davidsen@tmr.com> writes:
 > 
-> 
-> On Thu, 12 Aug 2004, Alan Cox wrote:
-> > > > 
-> > > > Hmm.. This still allows the old "junk" commands (SCSI_IOCTL_SEND_COMMAND).
-> > 
-> > That uses sg_io() so gets caught as well unless I screwed up following
-> > the code paths.
-> 
-> No, while the cdrom_ioctl thing does use sg_io, the really old and 
-> horrible sg_scsi_ioctl thing does it's own commands by hand.
-> 
-> I don't know why. I get the feeling that it _should_ use sg_io().
+> > Con Kolivas wrote:
+> >
+> >> It was a hard lockup and randomly happened during a cd write,
+> >> creating my first coaster in a long time... in rt mode ironically
+> >> which is how it is recommended to be run. So I removed the foolish
+> >> superuser bit and have had no problem since. Yes it was unaltered
+> >> cdrecord source and it was the so-called alpha branch and... Not
+> >> much else I can say about it really?
+> >
+> > I said I'd never seen this (true), but it could happen if you were
+> > burning an audio CD using the ide-scsi or ATA: interface. In 2.6 the
+> > ATAPI: interface uses DMA. I don't know what the program does if you
+> > just say dev=/dev/hdx,
 
-While that does make sense, it would be more code to fold them together
-than what is currently there. SCSI_IOCTL_SEND_COMMAND is really
-horrible, the person inventing that API should be subject to daily
-public ridicule.
+This is only true for recent 2.6 kernels.
+
+> Whatever it does, it doesn't load the system noticeably.
+
+ATA uses SG_IO. Bill should re-read most of this thread as he is
+repeating what others have said and have been corrected on (not just
+this mail, btw).
 
 -- 
 Jens Axboe

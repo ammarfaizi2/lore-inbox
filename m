@@ -1,23 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277306AbRJJQ1K>; Wed, 10 Oct 2001 12:27:10 -0400
+	id <S277296AbRJJQ0A>; Wed, 10 Oct 2001 12:26:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277305AbRJJQ1C>; Wed, 10 Oct 2001 12:27:02 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:15615 "EHLO
-	e34.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S277304AbRJJQ0t>; Wed, 10 Oct 2001 12:26:49 -0400
+	id <S277306AbRJJQZu>; Wed, 10 Oct 2001 12:25:50 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:8871 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S277296AbRJJQZk>; Wed, 10 Oct 2001 12:25:40 -0400
 Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with
  insertion
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Peter Rival <frival@zk3.dec.com>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Jay.Estabrook@compaq.com,
-        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-        Richard Henderson <rth@twiddle.net>, cardoza@zk3.dec.com,
-        woodward@zk3.dec.com
+To: dipankar@beaverton.ibm.com
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
 X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF206EE8AA.7A83A16B-ON88256AE1.005467E3@boulder.ibm.com>
+Message-ID: <OF75C1C410.48EFE2FF-ON88256AE1.0057C29E@boulder.ibm.com>
 From: "Paul McKenney" <Paul.McKenney@us.ibm.com>
-Date: Wed, 10 Oct 2001 08:24:11 -0700
+Date: Wed, 10 Oct 2001 09:00:21 -0700
 X-MIMETrack: Serialize by Router on D03NM045/03/M/IBM(Release 5.0.8 |June 18, 2001) at
  10/10/2001 10:25:36 AM
 MIME-Version: 1.0
@@ -26,74 +22,67 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > true for older alphas, especially because they are strictly in-order
-> > machines, unlike ev6.
+> > So I'm still at a loss for what this could actually be _used_. IP
+routing?
+> > Certainly not sockets (which have uniqueness requirements).
 >
-> Yes, it sounds strange. However According to Paul this would not be the
-> cpu but a cache coherency issue. rmb() would enforce the cache coherency
-> etc... so maybe the issue is related to old SMP motherboard etc... not
-> even to the cpus ... dunno. But as said it sounded very strange that
-> also new chips and new boards have such a weird reodering trouble.
+> Yes. We used it in IP routing in DYNIX/ptx back then at Sequent as well
+> as for Multipath I/O routes for storage. That is all I can remember,
+> but Paul will remember and know more about it. Paul ?
 
-It sounded strange to me, too.  ;-)  And my first reading of the
-Alpha AXP Archtecture RM didn't help me much.
+Hello!
 
-It was indeed a cache coherency issue.  The architect I talked to felt
-that it was a feature rather than a bug.  I have an email in to him.
-In the meantime, Compaq's patent #6,108,737 leads me to believe that
-others in DEC/Compaq also believe it to be a feature.  The paragraph
-starting at column 2 line 20 of the body of this patent states:
+RCU was used in the following portions of PTX:
 
-     In a weakly-ordered system, an order is imposed between selected
-     sets of memory reference operations, while other operations are
-     considered unordered.  One or more MB instructions are used to
-     indicate the required order.  In the case of an MB instruction
-     defined by the Alpha (R) 21264 processor instruction set, the MB
-     denotes that all memory reference instructions above the MB (i.e.,
-     pre-MB instructions) are ordered before all reference instructions
-     after the MB (i.e., post-MB instructions).  However, no order
-     is required between reference instructions that are not separated
-     by an MB.
+o    Distributed lock manager: recovery, lists of callbacks used to
+     report completions and error conditions to user processes, and
+     lists of server and client lock data structures.
 
-(The patent talks about the WMB instruction later on.)
+o    TCP/IP: routing tables, interface tables, and protocol-control-block
+     lists.  As Linus suspected, RCU was -not- applied to the socket
+     data structures.  ;-)
 
-In other words, if there is no MB, the CPU is not required to maintain
-ordering.  Regardless of data dependencies or anything else.
+o    Storage-area network (SAN): routing tables and error-injection
+     tables (used for stress testing).
 
-There is also an application note at
+o    Clustered journalling file systems: in-core inode lists and
+     distributed-locking data structures.
 
-     http://www.openvms.compaq.com/wizard/wiz_2637.html
+o    Lock-contention measurement: data structure used to map from
+     spinlock addresses to the corresponding measurement data.  (This
+     was needed since PTX locks are one byte long, and you can't put
+     much extra data into one byte.)
 
-which states:
+o    Application regions manager (which is a workload-management
+     subsystem): maintains a list of "regions" into which processes
+     may be confined.
 
-     For instance, your producer must issue a "memory barrier" instruction
-     after writing the data to shared memory and before inserting it on
-     the queue; likewise, your consumer must issue a memory barrier
-     instruction after removing an item from the queue and before reading
-     from its memory.  Otherwise, you risk seeing stale data, since,
-     while the Alpha processor does provide coherent memory, it does
-     not provide implicit ordering of reads and writes.  (That is, the
-     write of the producer's data might reach memory after the write of
-     the queue, such that the consumer might read the new item from the
-     queue but get the previous values from the item's memory.
+o    Process management: per-process system-call tables and MP trace
+     data structures used for debuggers that handle multi-threaded
+     processes.
 
-Note that they require a memory barrier (rmb()) between the time the
-item is removed from the queue and the time that the data in the item
-is referenced, despite the fact that there is a data dependency between
-the dequeueing and the dereferencing.  So, again, data dependency does
--not- substitute for an MB on Alpha.
+o    LAN drivers to resolve races between shutting down a LAN device
+     and packets being received by that device.  (This use is in many
+     ways similar to that of Rusty's, Anton's, and Greg's hotplug
+     patch).
 
-Comments from DEC/Compaq people who know Alpha architecture details?
+PTX used RCU on an as-needed basis.  K42 made more
+pervasive use of a very similar technique.
+
+RCU is definitely -not- a wholesale replacement for all locking.
+For example, as Dipankar noted, it can be integrated with reference-count
+schemes.  It -can- be used to replace reference counts, but only in
+cases where no task blocks while holding a reference.
+
+RCU works best in read-mostly data structures.  The most common use
+is to allow lock-free dereferencing of pointers, for example, removing
+the lock on a -list-, keeping locking/reference counts only on the
+elements themselves.
+
+In addition, when moving from one element in a list to the next, RCU
+allows you to drop the refcnt/lock of the preceding element -before-
+traversing the pointer to the next element.  This can make the
+traversal code a bit simpler.
 
                               Thanx, Paul
-
-> > I suspect some confusion here - probably that architect meant loads
-> > to independent addresses. Of course, in this case mb() is required
-> > to assure ordering.
-> >
-> > Ivan.
->
->
-> Andrea
->
 

@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273940AbRIXPkg>; Mon, 24 Sep 2001 11:40:36 -0400
+	id <S273951AbRIXPo0>; Mon, 24 Sep 2001 11:44:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273950AbRIXPk1>; Mon, 24 Sep 2001 11:40:27 -0400
-Received: from smtp.mediascape.net ([212.105.192.20]:19974 "EHLO
-	smtp.mediascape.net") by vger.kernel.org with ESMTP
-	id <S273940AbRIXPkL>; Mon, 24 Sep 2001 11:40:11 -0400
-Message-ID: <3BAF53A0.8D82A87B@mediascape.de>
-Date: Mon, 24 Sep 2001 17:39:12 +0200
-From: Olaf Zaplinski <o.zaplinski@mediascape.de>
-X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.10-pre15 i686)
-X-Accept-Language: de, en
-MIME-Version: 1.0
+	id <S273962AbRIXPoQ>; Mon, 24 Sep 2001 11:44:16 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:54545 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S273960AbRIXPoF>; Mon, 24 Sep 2001 11:44:05 -0400
+Date: Mon, 24 Sep 2001 11:44:32 -0400
+Message-Id: <200109241544.f8OFiWI05617@deathstar.prodigy.com>
 To: linux-kernel@vger.kernel.org
-Subject: AIC7xxx errors (again) with 2.4.10pre15
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <20010924013328.A29582@gondor.com>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+In article <20010924013328.A29582@gondor.com> jan@gondor.com wrote:
+| On Tue, Sep 18, 2001 at 05:51:48PM +0300, VDA wrote:
+| > Since we don't have any negative feedback on Athlon bug
+| > stomper, I think patch could be applied to
+| > arch/i386/kernel/pci-pc.c in mainline kernel.
+| 
+| BTW, just for the statistics: On the Duron 600 machine, for which
+| I reported the athlon bug, the fix does not work. Register 0x55 has
+| a default value of 0x81, but setting it to 0x01 (as the fix does)
+| doesn't solve the problem, athlon optimised 2.4.9 kernels still fail
+| to run. 
 
-my software RAID1 (hda1+sda1) worked fine with the current aic7xxx driver
-when using 2.4.10pre13, but with 2.4.10pre15 I get the old behaviour I know
-from 2.4.9:
+  I don't consider "doesn't fix the problem" a negative report in this
+case. If the system worked without the patch and failed with, that would
+be very negative.
 
-Sep 24 17:05:24 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
-message
-Sep 24 17:05:24 binky kernel: (scsi0:A:0:0): Queuing a recovery SCB
-Sep 24 17:05:24 binky kernel: scsi0:0:0:0: Device is disconnected,
-re-queuing SCB
-Sep 24 17:05:24 binky kernel: Recovery code sleeping
-Sep 24 17:05:24 binky kernel: (scsi0:A:0:0): Abort Tag Message Sent
-Sep 24 17:05:29 binky kernel: Recovery code awake
-Sep 24 17:05:29 binky kernel: Timer Expired
-Sep 24 17:05:29 binky kernel: aic7xxx_abort returns 8195
-Sep 24 17:05:29 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
-message
-Sep 24 17:05:29 binky kernel: scsi0:0:0:0: Command found on device queue
-Sep 24 17:05:29 binky kernel: aic7xxx_abort returns 8194
-[...]
-Sep 24 17:16:03 binky kernel: scsi0:0:0:0: Attempting to queue an ABORT
-message
-Sep 24 17:16:03 binky kernel: scsi0:0:0:0: Command found on device queue
-Sep 24 17:16:03 binky kernel: aic7xxx_abort returns 8194
+| But, OTOH, the computer in question regulary oopses on 2.4.0-test7 which
+| didn't have the athlon optimises page copy routine at all, so it may be
+| just a case of faulty hardware :-(
 
-Just as with 2.4.9, the "fix" is to use the "old AIC" driver - or not to use
-software RAID.
+  I've been cursing getting an Athlon, because some applications I got
+as rpms didn't work. With the patch they do, and I have to assume that
+the code notes an Athlon and tries to use whatever caused the kernel to
+oops. Fortunately these are development software I'm evaluating for
+someone, and I let them know what was happening before they offered it
+to the public.
 
-Olaf
+-- 
+bill davidsen <davidsen@tmr.com>
+ "If I were a diplomat, in the best case I'd go hungry.  In the worst
+  case, people would die."
+		-- Robert Lipe

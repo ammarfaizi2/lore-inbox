@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285229AbRLXT1k>; Mon, 24 Dec 2001 14:27:40 -0500
+	id <S285261AbRLXTcA>; Mon, 24 Dec 2001 14:32:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285261AbRLXT1b>; Mon, 24 Dec 2001 14:27:31 -0500
-Received: from h24-79-117-128.vc.shawcable.net ([24.79.117.128]:22532 "EHLO
-	mail.howlingfrog.com") by vger.kernel.org with ESMTP
-	id <S285229AbRLXT1M>; Mon, 24 Dec 2001 14:27:12 -0500
-Message-Id: <200112241928.fBOJS8Ea015456@mail.howlingfrog.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Graham TerMarsch <graham@howlingfrog.com>
-Organization: Howling Frog
-To: linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-usb-users] VIA Chipsets + USB + SMP == UGLY TRASH
-Date: Mon, 24 Dec 2001 11:26:43 -0800
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <E16IRTQ-0003oN-00@s.automatix.de> <20011224104724.B8215@kroah.com>
-In-Reply-To: <20011224104724.B8215@kroah.com>
-X-Notice: Duplication and redistribution without consent of author is strictly prohibited.
-X-Copyright: Copyright (C) Graham TerMarsch.  All rights Reserved
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S285263AbRLXTbu>; Mon, 24 Dec 2001 14:31:50 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45062 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S285261AbRLXTbg>; Mon, 24 Dec 2001 14:31:36 -0500
+Date: Mon, 24 Dec 2001 19:31:24 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Doug Ledford <dledford@redhat.com>, Keith Owens <kaos@ocs.com.au>,
+        Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Assigning syscall numbers for testing
+Message-ID: <20011224193124.F2110@flint.arm.linux.org.uk>
+In-Reply-To: <3C2770FE.80403@redhat.com> <E16IaPj-0004u4-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16IaPj-0004u4-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Dec 24, 2001 at 07:05:31PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 24 December 2001 10:47, Greg KH wrote:
-> On Mon, Dec 24, 2001 at 10:32:49AM +0100, Juergen Sauer wrote:
-> > Hi!
-> > Merry X-Mas everywhere !
-> >
-> > So, my USB tryout is over.
-> > This is the expierience report:
-> > You should not try to use VIA Chipsets + SMP + USB, that's
-> > the worst thinkable idea. It's junk (usb-Part).
->
-> Depends on the motherboard.  What one do you have?
+On Mon, Dec 24, 2001 at 07:05:31PM +0000, Alan Cox wrote:
+> > it.  However, I think it needs to be allocated *regardless* of whether Linus 
+> > takes the patch into his kernel.  Even if the patch is simply used outside 
+> > Linus's kernel, it still needs the allocation to truly be safe.
+> 
+> Negative numbers are safe until Linus has 2^31 syscalls, at which point
+> quite frankly we would have a few other problems including the fact that
+> the syscall table won't fit in kernel mapped memory.
 
-I've had similar problems here on an AOpen AK73Pro(A) motherboard.  Its a 
-single-processor board based on KT133A, and since 2.4.3 haven't been able 
-to get USB working on it at all.
+Please leave the allocation of the exact number space to the port
+maintainers discression.
 
-Dug through the old USB-users mailing lists and tried a wide variety of 
-things; "noapic", changing IRQs, PnP On/Off in the BIOS, but had no luck.  
-Best I was able to discern was that the board is using MPS1.4 but has no 
-option in the BIOS to switch it back to MPS1.1.
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Would love to get it working so that I could finally get my Epson1200U 
-scanner working again, but am out of things to try (any suggestions would 
-be MORE than welcome).
-
-> > That's why:
-> > 1. not solved USB Irq errors in APIC mode, causes:
-> > 	Error -110, device does not accept ID
-
-Exactly the same error I'm getting here.  Doesn't matter whether its the 
-USB scanner or printer that I plug in to the USB ports, I always end up 
-getting that error.
-
--- 
-Graham TerMarsch
-Howling Frog Internet Development, Inc.   http://www.howlingfrog.com

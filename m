@@ -1,68 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263346AbRFLXOQ>; Tue, 12 Jun 2001 19:14:16 -0400
+	id <S263761AbRFLXS0>; Tue, 12 Jun 2001 19:18:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263761AbRFLXOG>; Tue, 12 Jun 2001 19:14:06 -0400
-Received: from mailgw.prontomail.com ([216.163.180.10]:19649 "EHLO
-	c0mailgw13.prontomail.com") by vger.kernel.org with ESMTP
-	id <S263346AbRFLXN6> convert rfc822-to-8bit; Tue, 12 Jun 2001 19:13:58 -0400
-Message-ID: <3B259962.88C35F88@mvista.com>
-Date: Mon, 11 Jun 2001 21:24:02 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: =?iso-8859-15?Q?Mich=E8l?= Alexandre Salim <salimma1@yahoo.co.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Clock drift on TransmetaCrusoe
-In-Reply-To: <20010611150111.7747.qmail@web3505.mail.yahoo.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S263814AbRFLXSQ>; Tue, 12 Jun 2001 19:18:16 -0400
+Received: from [203.36.158.121] ([203.36.158.121]:2056 "EHLO
+	piro.kabuki.sfarc.net") by vger.kernel.org with ESMTP
+	id <S263761AbRFLXSH>; Tue, 12 Jun 2001 19:18:07 -0400
+Date: Wed, 13 Jun 2001 09:15:06 +1000
+From: Daniel Stone <daniel@kabuki.sfarc.net>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Daniel Stone <daniel@kabuki.sfarc.net>,
+        Daniel Podlejski <underley@underley.eu.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: XFS and Alan kernel tree
+Message-ID: <20010613091505.A3989@kabuki.openfridge.net>
+Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
+	Daniel Stone <daniel@kabuki.sfarc.net>,
+	Daniel Podlejski <underley@underley.eu.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <13436.992386996@ocs4.ocs-net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <13436.992386996@ocs4.ocs-net>
+User-Agent: Mutt/1.3.18i
+Organisation: Sadly lacking
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michèl Alexandre Salim wrote:
+On Wed, Jun 13, 2001 at 09:03:16AM +1000, Keith Owens wrote:
+> On Wed, 13 Jun 2001 08:25:52 +1000, 
+> Daniel Stone <daniel@kabuki.sfarc.net> wrote:
+> >On Sat, May 05, 2001 at 11:08:16PM +0200, Daniel Podlejski wrote:
+> >> I merge XFS witch Alan tree (2.4.4-ac5). It's seems to be stable.
+> >> Patch against Alan tree is avaliable at:
+> >
+> >Hi Daniel,
+> >I've got a KDB patch against a relatively recent 2.4.5-ac6, but are you
+> >still continuing your porting effort to the -ac series?
 > 
-> Hello,
+> kdb v1.8-2.4.5-ac6 works for -ac6 through -ac13.  None of the changes
+> in that series affect kdb.
 > 
-> Searching through the mailing list I could not find a
-> reference to this problem, hence this post.
-> 
-> Having ran various kernel and distribution
-> combinations (SGI's 2.4.2-xfs bundled with their Red
-> Hat installer, 2.4-xfs-1.0 and 2.4 CVS trees, Linux
-> Mandrake with default kernel 2.4.3, and lastly
-> 2.4.5-ac9), compiled for generic i386 and/or Transmeta
-> Crusoe with APM off or on, one thing sticks out : a
-> clock drift of a few minutes per day.
-> 
-> This problem might not be noticeable for most users
-> since notebooks are not normally left running that
-> long, but it is rather serious. I can choose not to
-> sync the software and hardware clock on shutdown and
-> re-read the hardware clock every hour or so but it is
-> rather kludgy.
-> 
-> Anyone experienced this before or willing to try it
-> out?
-> 
-This is most likely a bad "rock" (crystal) in the box.  There is a
-"built in" drift of about .1445 seconds a day (runs too slow) due to the
-fact that 1.193180Mhz can not be divided to 10 ms. but you are way over
-this.  
+> There have been some significant changes to page I/O handling in
+> 2.4.6-pre[12] which are reflected in the XFS CVS tree.  -ac13 is still
+> using the old page_launder() code which is not as clean.  In addition
+> kdb for Linus's and AC's trees has diverged quite a bit because of the
+> console and NMI cleanup in -ac.  Fitting XFS from CVS into -ac13 will
+> be very nasty, you might want to wait until AC syncs to Linus's kernel
+> or Linus takes some of the -ac changes.
 
-Here is a bit of code to sync your system to the RTC:
+Hmm, I've got Rik's page_launder patch which was posted to lkml a couple of
+days ago, and hand-hacked that into ac. I got the CVS tree and manually
+hacked out 2.4.6-pre2, but with 22 different files with rejects when I tried
+to put -ac in, I just gave up.
 
-http://www.linuxppc.org/software/index/linuxppc_stable/software/adjtimex-1.9-3.ppc.html
+d 
 
-Of course, your best bet would be to use the xntpd code to sync to
-another system.
-
-George
-
-P.S
-Please excuse me if this is a repeat, but I never saw my first post on
-the list.
-
-G.
+-- 
+Daniel Stone		<daniel@kabuki.openfridge.net> <daniel@kabuki.sfarc.net>

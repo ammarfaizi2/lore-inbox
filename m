@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266311AbUGAWEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266316AbUGAWFW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266311AbUGAWEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 18:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266316AbUGAWEJ
+	id S266316AbUGAWFW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 18:05:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUGAWFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 18:04:09 -0400
-Received: from mail.shareable.org ([81.29.64.88]:12462 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S266311AbUGAWEE
+	Thu, 1 Jul 2004 18:05:22 -0400
+Received: from adsl-68-89-112-35.dsl.rcsntx.swbell.net ([68.89.112.35]:19204
+	"HELO siserve.de") by vger.kernel.org with SMTP id S266316AbUGAWEx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 18:04:04 -0400
-Date: Thu, 1 Jul 2004 23:00:58 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: David Mosberger-Tang <davidm@hpl.hp.com>, linux-ia64@linuxia64.org
-Cc: linux-kernel@vger.kernel.org
-Subject: A question about PROT_EXEC-only pages on IA64
-Message-ID: <20040701220058.GA7928@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 1 Jul 2004 18:04:53 -0400
+Message-ID: <d8f501c45fb7$e2ea36fe$48ab837e@siserve.de>
+From: "Joy Jensen" <jjensenzw@tsi.com.mx>
+To: linux-kernel@vger.kernel.org
+Subject: Lose 19% weight. New weightloss available to you.
+Date: Thu, 01 Jul 2004 22:06:13 +0000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi IA64 folks,
+Hello, I have a special offer for you...
+WANT TO LOSE WEIGHT?
+The most powerful weightloss is now available
+without prescription. All natural Adipren720
+100% Money Back Guarantée!
+- Lose up to 19% Total Body Weight.
+- Loss of 20-35% abdominal Fat.
+- Up to 300% more Weight Loss while dieting.
+- Increase metabolic rate by 76.9% without Exercise.
+- Reduction of 40-70% overall Fat under skin.
+- Suppresses appetite for sugar.
+- Burns calorized fat.
+- Boost your Confidence level and Self Esteem.
+Get the facts about all-natural Adipren720 <http://www.diet45.net/>
 
-I'm doing a survey of the different architectural implementations of
-PROT_* flags for mmap() and mprotect().  I'm looking at linux-2.6.5.
 
-According to my reading of the source, from include/asm-ia64/pgtable.h
-and arch/ia64/mm/fault.c, IA64 on Linux implements the following:
 
-Requested PROT flags | ---    R--    -W-    RW-    --X    R-X    -WX    RWX
-=====================+======================================================
-ia64 MAP_SHARED      | ---    r--    !w-    rw-    *-x    r-x    !wx    rwx
-ia64 MAP_PRIVATE     | ---    r--    !w-    rw-    *-x    r-x    !wx    rwx
+---- system information ----
+can different architecture preference systems images mailing mailing 
+own linguistic What needs systems expectations intermediaries programmer
 
-"!" means that a read access raises a signal *sometimes*.  This is
-because the page protection when the page is installed allows reading,
-but if there isn't a page installed, then a read fault will raise a
-signal.
+these translate requests colors Localized B: Identifiers:: contains 
+collating them Language parties Services] called internal these 
+running weekday/weekend reasonable Transition these ja Internationalization]The
+set 
 
-(Several architectures have "!" entries, but their places in the table
-vary.  On x86_64, and i386 with NX, for example, the sequence is "---
-r-- !w- rw- r-x r-x rwx rwx": notice no "!" in the -WX case.  That's
-because of different logic in the fault handler.)
-
-I have a question about about the column with "*".  You have
-implemented PROT_EXEC-only pages using these flags:
-
-#define __P100	__pgprot(__ACCESS_BITS | _PAGE_PL_3 | _PAGE_AR_X_RX)
-
-I.e. _PAGE_AR_X_RX.  My question is: does this mean that reading those
-pages in *kernel* mode will succeed, i.e. so that write() would
-succeed in reading from those pages?
-
-If that's the behaviour, and the intention is to create exec-only
-pages, then it's a bug.  A similar bug has been found on the Sparc for
-PROT_NONE pages, which is more serious.
-
-It's not necessarily important on IA64, because IA64 is the _only_
-Linux platform which does exec-only pages.  (This despite other
-hardware being able to have exec-only permissions.  See another mail
-about that in a few minutes).
-
-I would simply like to know if this is the IA64 behaviour, where a
-PROT_EXEC-only area is readable by get_user(), to document it.  (It's
-possible that I don't understand the technical implications of
-_PAGE_AR_X_RX, and that in fact get_user() in kernel won't be able to
-read exec-only pages.)
-
-Thanks,
--- Jamie

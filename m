@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318295AbSHZWAN>; Mon, 26 Aug 2002 18:00:13 -0400
+	id <S318361AbSHZWIF>; Mon, 26 Aug 2002 18:08:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318302AbSHZWAN>; Mon, 26 Aug 2002 18:00:13 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:33013 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S318295AbSHZWAM>; Mon, 26 Aug 2002 18:00:12 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Mon, 26 Aug 2002 16:02:38 -0600
-To: Yedidyah Bar-David <didi@tau.ac.il>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: updating the partition table of a busy drive
-Message-ID: <20020826220238.GE19435@clusterfs.com>
-Mail-Followup-To: Yedidyah Bar-David <didi@tau.ac.il>,
-	linux-kernel@vger.kernel.org
-References: <20020827005254.A20617@soul.math.tau.ac.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020827005254.A20617@soul.math.tau.ac.il>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S318365AbSHZWIE>; Mon, 26 Aug 2002 18:08:04 -0400
+Received: from tomts25.bellnexxia.net ([209.226.175.188]:57538 "EHLO
+	tomts25-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S318361AbSHZWIE>; Mon, 26 Aug 2002 18:08:04 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: MM patches against 2.5.31
+Date: Mon, 26 Aug 2002 18:09:45 -0400
+User-Agent: KMail/1.4.3
+Cc: Andrew Morton <akpm@zip.com.au>,
+       Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
+       Daniel Phillips <phillips@arcor.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200208261809.45568.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 27, 2002  00:52 +0300, Yedidyah Bar-David wrote:
-> Currently, any change to a partition table of a busy drive is
-> practically delayed to the next reboot. Even things trivial as
-> changing the type of an unmounted partition do not work, if
-> another partition on that drive is mounted (or swapped to, etc.).
+This seems to have been missed: 
+
+Linus Torvalds wrote:
+
+> In article <3D6989F7.9ED1948A@zip.com.au>,
+> Andrew Morton  <akpm@zip.com.au> wrote:
+>>
+>>What I'm inclined to do there is to change __page_cache_release()
+>>to not attempt to free the page at all.  Just let it sit on the
+>>LRU until page reclaim encounters it.  With the anon-free-via-pagevec
+>>patch, very, very, very few pages actually get their final release in
+>>__page_cache_release() - zero on uniprocessor, I expect.
 > 
-> On a side note, about a year and a half ago, there was a thread
-> on lkml with the subject 'Partition IDs in the New World TM', in
-> which a 'parttab' file was mentioned. I grepped and STFWed a lot,
-> and could not find any relevant mention anywhere, besides this
-> thread. Is this parttab implemented? Documented? Perhaps under
-> a different name? Is this case it is quite hard to find
-> (google search for 'linux parttab' has 37 results, but for
-> e.g. 'linux partition table initrd' 11400 results).
+> If you do this, then I would personally suggest a conceptually different
+> approach: make the LRU list count towards the page count.  That will
+> _automatically_ result in what you describe - if a page is on the LRU
+> list, then "freeing" it will always just decrement the count, and the
+> _real_ free comes from walking the LRU list and considering count==1 to
+> be trivially freeable.
+> 
+> That way you don't have to have separate functions for releasing
+> different kinds of pages (we've seen how nasty that was from a
+> maintainance standpoint already with the "put_page vs
+> page_cache_release" thing).
+> 
+> Ehh? 
 
-Please see partx (util-linux) and/or GNU parted for tools which can
-change partitions on mounted disks.  I believe the kernel has supported
-this since 2.4.0, but not many tools do.
+If every structure locks before removing its reference (ie before testing and/or
+removing a lru reference we take zone->lru_lock, for slabs take cachep->spinlock
+etc)  Its a bit of an audit task to make sure the various locks are taken (and
+documented) though.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+By leting the actual free be lazy as Linus suggests things should simplify nicely.
 
+comments,
+Ed Tomlinson

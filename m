@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267786AbTAHJwE>; Wed, 8 Jan 2003 04:52:04 -0500
+	id <S267785AbTAHJyC>; Wed, 8 Jan 2003 04:54:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267794AbTAHJwD>; Wed, 8 Jan 2003 04:52:03 -0500
-Received: from cmailm1.svr.pol.co.uk ([195.92.193.18]:33549 "EHLO
-	cmailm1.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S267786AbTAHJvm>; Wed, 8 Jan 2003 04:51:42 -0500
-Date: Wed, 8 Jan 2003 09:59:53 +0000
+	id <S267794AbTAHJxO>; Wed, 8 Jan 2003 04:53:14 -0500
+Received: from cmailm4.svr.pol.co.uk ([195.92.193.211]:57351 "EHLO
+	cmailm4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S267785AbTAHJwa>; Wed, 8 Jan 2003 04:52:30 -0500
+Date: Wed, 8 Jan 2003 10:00:42 +0000
 To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Cc: Linus Torvalds <torvalds@transmeta.com>,
        Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 9/10] dm: Export dm_table_get_mode()
-Message-ID: <20030108095953.GJ2063@reti>
+Subject: [PATCH 10/10] dm: Remove redundant error checking
+Message-ID: <20030108100042.GK2063@reti>
 References: <20030108095221.GA2063@reti>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,11 +22,58 @@ From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Export dm_table_get_mode()
---- diff/drivers/md/dm-table.c	2003-01-02 11:26:53.000000000 +0000
-+++ source/drivers/md/dm-table.c	2003-01-02 11:27:13.000000000 +0000
-@@ -751,3 +751,4 @@
- EXPORT_SYMBOL(dm_get_device);
- EXPORT_SYMBOL(dm_put_device);
- EXPORT_SYMBOL(dm_table_event);
-+EXPORT_SYMBOL(dm_table_get_mode);
+bio_alloc() shouldn't fail if GFP_NOIO is used, and the bvec count is
+sensible.  So remove redundant error checking.
+--- diff/drivers/md/dm.c	2003-01-02 11:10:22.000000000 +0000
++++ source/drivers/md/dm.c	2003-01-02 11:27:23.000000000 +0000
+@@ -347,18 +347,15 @@
+ 	struct bio_vec *bv = bio->bi_io_vec + idx;
+ 
+ 	clone = bio_alloc(GFP_NOIO, 1);
++	memcpy(clone->bi_io_vec, bv, sizeof(*bv));
+ 
+-	if (clone) {
+-		memcpy(clone->bi_io_vec, bv, sizeof(*bv));
+-
+-		clone->bi_sector = sector;
+-		clone->bi_bdev = bio->bi_bdev;
+-		clone->bi_rw = bio->bi_rw;
+-		clone->bi_vcnt = 1;
+-		clone->bi_size = to_bytes(len);
+-		clone->bi_io_vec->bv_offset = offset;
+-		clone->bi_io_vec->bv_len = clone->bi_size;
+-	}
++	clone->bi_sector = sector;
++	clone->bi_bdev = bio->bi_bdev;
++	clone->bi_rw = bio->bi_rw;
++	clone->bi_vcnt = 1;
++	clone->bi_size = to_bytes(len);
++	clone->bi_io_vec->bv_offset = offset;
++	clone->bi_io_vec->bv_len = clone->bi_size;
+ 
+ 	return clone;
+ }
+@@ -432,11 +429,6 @@
+ 
+ 		clone = split_bvec(bio, ci->sector, ci->idx,
+ 				   bv->bv_offset, max);
+-		if (!clone) {
+-			dec_pending(ci->io, -ENOMEM);
+-			return;
+-		}
+-
+ 		__map_bio(ti, clone, ci->io);
+ 
+ 		ci->sector += max;
+@@ -446,11 +438,6 @@
+ 		len = to_sector(bv->bv_len) - max;
+ 		clone = split_bvec(bio, ci->sector, ci->idx,
+ 				   bv->bv_offset + to_bytes(max), len);
+-		if (!clone) {
+-			dec_pending(ci->io, -ENOMEM);
+-			return;
+-		}
+-
+ 		__map_bio(ti, clone, ci->io);
+ 
+ 		ci->sector += len;

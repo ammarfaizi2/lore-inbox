@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263534AbTJWL3n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 07:29:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263553AbTJWL3n
+	id S263561AbTJWMet (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 08:34:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbTJWMet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 07:29:43 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:30639 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S263534AbTJWL3m
+	Thu, 23 Oct 2003 08:34:49 -0400
+Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:10112 "EHLO
+	finwe.eu.org") by vger.kernel.org with ESMTP id S263561AbTJWMes
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 07:29:42 -0400
-Date: Thu, 23 Oct 2003 09:26:00 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.23-pre8
-In-Reply-To: <Pine.LNX.4.58.0310231504550.1230@boston.corp.fedex.com>
-Message-ID: <Pine.LNX.4.44.0310230925430.1443-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 23 Oct 2003 08:34:48 -0400
+Date: Thu, 23 Oct 2003 14:34:46 +0200
+From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test8, oops, [__remove_from_page_cache+36/112] __remove_from_page_cache+0x24/0x70
+Message-ID: <20031023123446.GA4515@finwe.eu.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20031022084413.GA2773@finwe.eu.org> <20031022085611.GA1848@finwe.eu.org> <20031022111427.GL2617@rdlg.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031022111427.GL2617@rdlg.net>
+Organization: Kreatorzy Kreacji Bialej
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robert L. Harris wrote:
 
+> > > This machine has new RAM, but after about 7 hours of testing, 
+> > > memtest.86 didn't show any errors... 
+> > Well, it's RAM anyway... I've just got few segfaults in vim...
+> This sounds like what mine was doing, the oops looked similar as well
+> (with the null pointer part atleast).  Reboot and I bet it'll run fine
+> for a while and then start up again.  For me it seemed to start faulting
+> when "free" showed over 250 Megs used.
 
-On Thu, 23 Oct 2003, Jeff Chua wrote:
+In next run memtest found some errors (after nine hours though ;) 
 
-> 
-> On Wed, 22 Oct 2003, Marcelo Tosatti wrote:
-> 
-> > Here goes -pre8... It contains a quite big amount of ACPI fixes,
-> 
-> Where is it? 
+So hardware, not Linux. :)
 
-Its there now.
+bye
 
-Sorry for the delay.
-
-
+-- 
+Jacek Kawa 

@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131285AbQIGTov>; Thu, 7 Sep 2000 15:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131224AbQIGTod>; Thu, 7 Sep 2000 15:44:33 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:36108 "EHLO perninha.conectiva.com.br") by vger.kernel.org with ESMTP id <S130659AbQIGToX>; Thu, 7 Sep 2000 15:44:23 -0400
-Date: Thu, 7 Sep 2000 13:42:38 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Henry Worth <haworth@ncal.verio.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Scalability Efforts
-In-Reply-To: <39B797AB.BF2D6649@ncal.verio.com>
-Message-ID: <Pine.LNX.4.21.0009071339590.21645-100000@freak.distro.conectiva>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131296AbQIGTye>; Thu, 7 Sep 2000 15:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131289AbQIGTyY>; Thu, 7 Sep 2000 15:54:24 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:16960 "EHLO penguin.e-mind.com") by vger.kernel.org with ESMTP id <S131269AbQIGTyL>; Thu, 7 Sep 2000 15:54:11 -0400
+Date: Thu, 7 Sep 2000 21:52:15 +0200 (CEST)
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Debugging Documentation
+Message-ID: <Pine.LNX.4.21.0009072129030.10387-100000@inspiron.random>
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Back in May I wrote a quite estensive documentation about all the
+possible/best ways to debug the Linux Kernel for a talk/tranining that I
+did in San Jose in May. I find now the time to clean it up and to upload
+since I think it could result useful to everybody dealing with kernel
+developement.
 
+	ftp://ftp.suse.com/pub/people/andrea/talks/english/2000/kdebug-may-2000-20000907.tar.gz
 
-On Thu, 7 Sep 2000, Henry Worth wrote:
+It addresses
+MCORE/LKCD/KDB/KGDB/NMI-watchdog/TRACER/IKD/PRINTK/BUG/OOPS/KMSGDUMP and
+many other issues (simptom/realbug as well).
 
-> 
-> With all the talk of improving Linux's scalability to
-> large-scale SMP and ccNUMA platforms -- including efforts
-> at several HW companies and now OSDL forming to throw
-> hardware at the effort -- is there any move afoot to 
-> coordinate these efforts? 
+They were the digital slides for the talk, so while writing them I
+expected to ingegrate them with speach, but they should be readable also
+standalone.
 
-Some links which maybe useful: 
+They're written in MGP (MagiPoint, not that I like it too much but
+kpresenter wasn't that powerful at that time). A postscript is included
+into the tarball as well (they should be easily readable with `gv` with
+antialiasing enabled).
 
-http://oss.sgi.com/projects/linux-scalability/
+I'd say it's a _must_ read for any kernel developer (feel free to announce
+it on other places as well if you think it's good idea of course).
 
-http://www.citi.umich.edu/projects/linux-scalability/
+Hope you find them useful, have fun.
+
+Andrea
+
+PS. If you have patches for the document send them to me and I'll
+    integrate them. Kurt just sent me a 1000 lines patch to
+    correct my english errors in the original version :))
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,83 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbUKDCYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbUKDCRZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbUKDCYN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 21:24:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbUKDCO4
+	id S261268AbUKDCRZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 21:17:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbUKDCPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 21:14:56 -0500
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:12900 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262100AbUKDCJK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 21:09:10 -0500
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: Uml: hostfs sendfile support
-Date: Thu, 4 Nov 2004 03:09:03 +0100
-User-Agent: KMail/1.7.1
-Cc: nils toedtmann <user-mode-linux-user@nils.toedtmann.net>,
-       user-mode-linux-user@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>
-References: <20041102150339.GA6904@gandalf.intern.marcant.net> <200411032037.56892.blaisorblade_spam@yahoo.it> <20041104011116.GB5175@gandalf.intern.marcant.net>
-In-Reply-To: <20041104011116.GB5175@gandalf.intern.marcant.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart4893120.WOCtJdFSgr";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411040309.18181.blaisorblade_spam@yahoo.it>
+	Wed, 3 Nov 2004 21:15:10 -0500
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:65252 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S262095AbUKDCIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 21:08:47 -0500
+Date: Thu, 4 Nov 2004 03:08:35 +0100
+From: Andrea Arcangeli <andrea@novell.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: avoid asmlinkage on x86 traps/interrupts
+Message-ID: <20041104020835.GL3571@dualathlon.random>
+References: <Pine.LNX.4.58.0411021250310.2187@ppc970.osdl.org> <20041103090710.GV3571@dualathlon.random> <Pine.LNX.4.58.0411030719061.2187@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0411030719061.2187@ppc970.osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4893120.WOCtJdFSgr
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, Nov 03, 2004 at 07:19:59AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Wed, 3 Nov 2004, Andrea Arcangeli wrote:
+> > 
+> > I guess it'd be nicer to simply move the output into the input with "a",
+> > "d", "b", and the not add any output at all, and put "eax/edx" back into
+> > the clobbers.
+> 
+> Ehh.. You aren't allowed to clobber inputs. Try it with any modern version 
+> of gcc.
 
-On Thursday 04 November 2004 02:11, nils toedtmann wrote:
-> I cc this mail to user-mode-linux-devel and LKML, too. But as i do not
-> subscribe to those lists it will probably get rejected. So you may
-> want to forward it.
-No need. LKML is open, and UML-devel follows that.
+Didn't know about that, thanks.
 
-> > > > I don't remember at the moment.
-
-> > So, if you want to use httpd, either don't use in on hostfs, or use it =
-on
-> > 2.4,
-
-> That's what i did. It was my sole 2.4-uml ...
-
-> > or recompile apache disabling the usage of sendfile(). This is a new
-> > notice I get, however.
-
-> > That said, there is a possibility the patch is just a one-liner. It see=
-ms
-> > there is generic support for this. Try the attached one. Report what
-> > happens, please, so I know what to do with it. If it works, it will be
-> > included in next release.
-
-> Whoopy! It works.
-Wonderful!
-> Many thanks!
-
-Ok, in this case, I'm going to include that in next release. Bye and thanks=
-=20
-for the report!
-=2D-=20
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-
---nextPart4893120.WOCtJdFSgr
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBiY9OqH9OHC+5NscRAiZWAJ0Sn/j2+vi/uR+s/8N9vKw6GkyoXwCgiaUd
-AFxEIV7gHchQN2lruJl7GU8=
-=qz1x
------END PGP SIGNATURE-----
-
---nextPart4893120.WOCtJdFSgr--
+I wonder why they don't forbid it completely then. I mean, what's magic
+about an input parmeter here? Clobbers are about the internals of
+the asm (they've nothing to do about the setup before the asm runs, and
+the input only has to do with the prepartion, so clobbers and input
+seems fully orthogonal concepts to me). The only reason clobber exists
+is to avoid you to declare a worthless local variable, clobbers are
+strictly needed only for "cc" and "memory" (or any other piece of cpu not
+reachable via the output operands). So I believe they should allow
+general purpose register clobbers always or never, I don't see why
+there's this special case.  Maybe for robustness to force people to
+write a more verbose version like you had to do for this reason? No idea.

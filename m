@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317582AbSHMSWL>; Tue, 13 Aug 2002 14:22:11 -0400
+	id <S319061AbSHMSRS>; Tue, 13 Aug 2002 14:17:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319101AbSHMSWL>; Tue, 13 Aug 2002 14:22:11 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:14323 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S317582AbSHMSWK>; Tue, 13 Aug 2002 14:22:10 -0400
-Date: Tue, 13 Aug 2002 14:25:57 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: "David S. Miller" <davem@redhat.com>, davids@webmaster.com,
-       jroland@roland.net, Hell.Surfers@cwctv.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: The spam problem.
-Message-ID: <20020813142557.B12730@redhat.com>
-References: <20020812.005022.69048367.davem@redhat.com> <Pine.LNX.4.44L.0208121048340.23404-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44L.0208121048340.23404-100000@imladris.surriel.com>; from riel@conectiva.com.br on Mon, Aug 12, 2002 at 10:50:35AM -0300
+	id <S319095AbSHMSRS>; Tue, 13 Aug 2002 14:17:18 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23310 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S319061AbSHMSRR>; Tue, 13 Aug 2002 14:17:17 -0400
+Date: Tue, 13 Aug 2002 11:23:15 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] exit_free(), 2.5.31-A0
+In-Reply-To: <Pine.LNX.4.44.0208132004190.5990-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0208131121310.7411-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 12, 2002 at 10:50:35AM -0300, Rik van Riel wrote:
-> It's already happening.  You have no idea how much spam I've
-> received "from" Ingo Molnar, Bill Davidsen, Stephen Tweedie
-> and you ...
-> 
-> You probably also have no idea from which countries the spam
-> with you in the From: address has been sent ;)
-> 
-> Recently an anti-spam mailinglist (with members-only posting)
-> got flooded by a spammer who wanted to take revenge for his
-> N-th cancelled account.  Of course he used From: headers with
-> the addresses of many of the list regulars.
 
-The problem requires action on a wider scale where the IETF needs to 
-propose a new standard that enforces crypto signatures of message 
-content and From: that is tied into DNS.  The current mail standards 
-do not have any means to prevent forgeries, even for those organizations 
-that want to avoid such abuses.
+On Tue, 13 Aug 2002, Ingo Molnar wrote:
+>
+> think about it - we have the *very same* problem in kernel-space, and we
+> had it for years. People wanted to get rid of parent notification in
+> helper processes for ages.
 
-		-ben
--- 
-"You will be reincarnated as a toad; and you will be much happier."
+So add the capability to mark the child for proper exit semantics.
+
+That's what I said: if you wan tto do this, you need to mark it at 
+_create_ time. Exactly so that the proper exit semantics can be done 100% 
+reliably, instead of just "sometimes". THAT is why _any_ interface that 
+depends on exit_xxxx() must die - because it is inherently broken for 
+accidental deaths, and does not leave the parent any way to recover 
+sanely.
+
+		Linus
+

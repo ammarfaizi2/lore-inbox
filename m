@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271907AbRH2F2p>; Wed, 29 Aug 2001 01:28:45 -0400
+	id <S271906AbRH2Fez>; Wed, 29 Aug 2001 01:34:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271909AbRH2F2f>; Wed, 29 Aug 2001 01:28:35 -0400
-Received: from donna.siteprotect.com ([64.41.120.44]:5640 "EHLO
-	donna.siteprotect.com") by vger.kernel.org with ESMTP
-	id <S271907AbRH2F2U>; Wed, 29 Aug 2001 01:28:20 -0400
-Date: Wed, 29 Aug 2001 01:31:13 -0400 (EDT)
-From: John Clemens <john@deater.net>
-X-X-Sender: <john@pianoman.cluster.toy>
-To: <linux-kernel@vger.kernel.org>
-Subject: ALi USB Problems..similar to VIA ones?
-Message-ID: <Pine.LNX.4.33.0108290120440.3566-100000@pianoman.cluster.toy>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271909AbRH2Fep>; Wed, 29 Aug 2001 01:34:45 -0400
+Received: from smtp6.mindspring.com ([207.69.200.110]:60716 "EHLO
+	smtp6.mindspring.com") by vger.kernel.org with ESMTP
+	id <S271906AbRH2Fej>; Wed, 29 Aug 2001 01:34:39 -0400
+Subject: Updated Linux 2.4.9/2.4.10 kernel preemption patches
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Cc: cliff@oisec.net, jjs@toyota.com, andy@spylog.ru, nigel@nrg.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
+Date: 29 Aug 2001 01:35:26 -0400
+Message-Id: <999063343.2134.84.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Updated patches are at:
+http://tech9.net/rml/linux/patch-rml-2.4.9-ac3-preempt-kernel-1
+and,
+http://tech9.net/rml/linux/patch-rml-2.4.10-pre2-preempt-kernel-1
+for kernels 2.4.9-ac3 and 2.4.10-pre2.
 
-Hi,
+These are updates of Nigel Gamble's kernel preemption patches for recent
+kernels.  See http://kpreempt.sourceforge.net/.  These patches create a
+configure option to enable a preemptible kernel using SMP lock points.
+A preemptible kernel will yield control of execution to higher priority
+processes as needed.  Ie, the process timeslice now applies to kernel
+space.
 
-I already reported this to the usb list, but noone there seemed to know
-anything.  And given recent similar things mentioned on this list
-recently, I figured I'd try posting here.
+Changes since my previous patch:
+* update for 2.4.9-ac3 and 2.4.10-pre2
+* fix the compile bug (yay!) -- the linking dependency of dec_and_lock
+requires CONFIG_HAVE_DEC_LOCK which SMP sets in recent kernels.  now
+CONFIG_PREEMPT sets, too
 
-I've got an HP laptop with the ALi Magik1 (1647) chipset in it, and an
-OCHI USB controller (standard ALi 1535 southbridge).  Under Windows, USB
-works ok, but 'cuts out' for about 3-5 seconds every minute or so, as if
-it's resetting itself.  This seems eeriely similar to the VIA UHCI
-problems reported last week on this list, even though i know OHCI and UHCI
-should be nothing alike.
+So, yes, this should fix the kernel compile buggy.  At least it did for
+me, after I was finally able to reproduce the problem.
 
-Under Linux, both my USB joystick and my USB keyboard fail, and it appears
-that interrupts aren't getting through (/proc/interrupts shows 1
-interrupt, no matter how many times i plug and unplug things in and get
-URB timeouts).  This is a notebook, and the usb interrupt is shared with
-acpi. (irq 9).
-
-System information can be found at
-http://www.deater.net/john/PavilionN5430.html, with links to dmesg, lspci,
-and other information at the bottom of the page.  I would appreciate any
-help in tracking this one down.  I've tried kernels 2.4.5-2.4.9, and I'm
-willing to test or write any patches.
-
-john.c
+Enjoy and please comment, test, and benchmark.
 
 -- 
-John Clemens          http://www.deater.net/john
-john@deater.net     ICQ: 7175925, IM: PianoManO8
-      "I Hate Quotes" -- Samuel L. Clemens
-
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

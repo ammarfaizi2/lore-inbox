@@ -1,16 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132358AbQLRSkl>; Mon, 18 Dec 2000 13:40:41 -0500
+	id <S130017AbQLRSnB>; Mon, 18 Dec 2000 13:43:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132357AbQLRSkb>; Mon, 18 Dec 2000 13:40:31 -0500
-Received: from icarus.weber.edu ([137.190.16.17]:10375 "HELO icarus.weber.edu")
-	by vger.kernel.org with SMTP id <S130017AbQLRSkL>;
-	Mon, 18 Dec 2000 13:40:11 -0500
-Date: Mon, 18 Dec 2000 11:00:58 -0700 (MST)
-From: Phillip Neiswanger <phil@icarus.weber.edu>
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Steeling TCP packets...
-Message-ID: <Pine.GSO.3.96.1001218103002.7475D-100000@icarus.weber.edu>
+	id <S132357AbQLRSmv>; Mon, 18 Dec 2000 13:42:51 -0500
+Received: from bacchus.veritas.com ([204.177.156.37]:55989 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S130017AbQLRSmj>; Mon, 18 Dec 2000 13:42:39 -0500
+Date: Mon, 18 Dec 2000 18:13:53 +0000 (GMT)
+From: Mark Hemment <markhe@veritas.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Linus elevator
+Message-ID: <Pine.LNX.4.21.0012181750350.22851-100000@alloc>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -18,35 +19,38 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I am in the process of writing a kernel driver to support some
-client/server software.  This software dealing mainly with packets that it
-sends/receives via tcp and udp.  I can't really go into the architecture
-of that software, but for various performance reasons it has been decided
-we should move some of our server code into the kernel.  The job of this
-code is mainly to route incoming client packets to the appropriate server
-and to route outgoing packets to the appropriate client connection.  To
-improve the performance of the read-side we would like to grab packets
-early from the TCP stack.  I have looked over the TCP code and have found
-spots in tcp_ofo_queue(), tcp_data_queue() and tcp_rcv_established() that
-queue incoming packets onto a sockets buffer with a call to
-__skb_queue_tail(&sk->receive_queue, skb).  I would like to wrap this
-function call with code that checks if it is one of our sockets and queue
-it up on our buffers rather than TCPs.  The sockets themselves will never
-experience read() calls, but they will experience write() calls from our
-code.
+  Looking at the second loop in elevator_linus_merge(), it is possible for
+requests to have their elevator_sequence go negative.  This can cause a
+v long latency before the request is finally serviced.
 
-My question is what are the consequences of taking data at this point?  It
-looks like the tcp code has handled all of the acknowledging by the time
-the queueing occurs, but I'm not totally sure of this.  Since all data
-received from the client are in the form of 512 byte packets each sk_buf
-should contain a complete packet and thus out of order packets are not a
-concern.
+  Say, for example, a request (in the queue) is jumped in the first loop
+in elevator_linus_merge() as "cmd != rw", even though its 
+elevator_sequence is zero.  If it is found that the new request will
+merge, the walking back over requests which were jumped makes no test for
+an already zeroed elevator_sequence.  Hence it zero values can occur.
 
-Any comments?
---
+  With high default values for read/wite_latency, this hardly ever occurs.
 
-                                phil
-                                email:  phil@icarus.weber.edu
+  A simple fix for this is to test for zero before decrementing (patch
+below) in the second loop.
+  Alternatively, should testing in the first loop be modified?
+
+Mark
+
+
+diff -u --recursive --new-file -X dontdiff linux-2.4.0-test12/drivers/block/elevator.c markhe-2.4.0-test12/drivers/block/elevator.c
+--- linux-2.4.0-test12/drivers/block/elevator.c	Tue Dec  5 23:05:26 2000
++++ markhe-2.4.0-test12/drivers/block/elevator.c	Mon Dec 18 17:50:19 2000
+@@ -90,6 +90,9 @@
+ 	if (ret != ELEVATOR_NO_MERGE && *req) {
+ 		while ((entry = entry->next) != &q->queue_head) {
+ 			struct request *tmp = blkdev_entry_to_request(entry);
++
++			if (!tmp->elevator_sequence)
++				continue;
+ 			tmp->elevator_sequence--;
+ 		}
+ 	}
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

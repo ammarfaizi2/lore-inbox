@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265820AbTF3JdY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 05:33:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265821AbTF3JdY
+	id S265801AbTF3Jc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 05:32:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265804AbTF3Jc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 05:33:24 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:61434 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S265820AbTF3JdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 05:33:19 -0400
-Date: Mon, 30 Jun 2003 02:47:49 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: kernel@kolivas.org, linux-kernel@vger.kernel.org,
-       felipe_alfaro@linuxmail.org, zwane@linuxpower.ca, efault@gmx.de
-Subject: Re: patch-O1int-0306281420 for 2.5.73 interactivity
-Message-Id: <20030630024749.77be1d6d.akpm@digeo.com>
-In-Reply-To: <200306301135.37960.m.c.p@wolk-project.de>
-References: <200306281516.12975.kernel@kolivas.org>
-	<200306291457.40524.kernel@kolivas.org>
-	<200306301535.49732.kernel@kolivas.org>
-	<200306301135.37960.m.c.p@wolk-project.de>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Jun 2003 09:47:38.0893 (UTC) FILETIME=[A4765BD0:01C33EEC]
+	Mon, 30 Jun 2003 05:32:28 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:48812 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S265801AbTF3Jc1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 05:32:27 -0400
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Svein Ove Aas <svein.ove@aas.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Dell vs. GPL
+References: <Pine.LNX.4.10.10306292353190.5840-100000@master.linux-ide.org>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 30 Jun 2003 18:45:57 +0900
+In-Reply-To: <Pine.LNX.4.10.10306292353190.5840-100000@master.linux-ide.org>
+Message-ID: <buollvj7vai.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc-Christian Petersen <m.c.p@wolk-project.de> wrote:
->
->  "make -j16 bzImage modules" of a 2.5.73-mm2 tree makes XMMS skip easily
+Andre Hedrick <andre@linux-ide.org> writes:
+> When they tell you they will not open a case on your behalf until a
+> registered copyright is in hand, that point real hard.
 
-Well it would.   Try not to do that.  We shouldn't optimise
-for things which basically nobody would do.
+Ok whatever, but what I don't understand is your comment that:
 
-`make -j2' would be more interesting.  
+> GPL loses, maybe better so it can be replaced with OSL and then it gets
+> serious because we will have teeth to defend the ideas of open source.
 
+The `copyright registration' requirements, whatever they are, would
+seem to apply equally to the GPL and whatever other `OSL' you have, so
+why on earth would some court loss related to copyright registration
+have any effect on what license people choose?
+
+-miles
+-- 
+Occam's razor split hairs so well, I bought the whole argument!

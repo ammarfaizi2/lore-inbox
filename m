@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266391AbUIONnf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266193AbUIONjR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266391AbUIONnf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 09:43:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbUIONmF
+	id S266193AbUIONjR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 09:39:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266316AbUIONhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 09:42:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5803 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266357AbUIONkV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 09:40:21 -0400
-Date: Wed, 15 Sep 2004 09:40:09 -0400
-From: Dave Jones <davej@redhat.com>
-To: Joe Korty <joe.korty@ccur.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] tune vmalloc size
-Message-ID: <20040915134008.GA5810@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Joe Korty <joe.korty@ccur.com>, Ingo Molnar <mingo@elte.hu>,
-	Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <20040915125356.GA11250@elte.hu> <20040915132936.GB30233@tsunami.ccur.com>
+	Wed, 15 Sep 2004 09:37:22 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:52161 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S266193AbUIONct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 09:32:49 -0400
+Subject: Re: PCI coprocessors
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andre Bonin <kernel@bonin.ca>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41483BD3.4030405@bonin.ca>
+References: <41483BD3.4030405@bonin.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1095251402.19893.31.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040915132936.GB30233@tsunami.ccur.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 15 Sep 2004 13:30:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 09:29:36AM -0400, Joe Korty wrote:
- > On Wed, Sep 15, 2004 at 02:53:56PM +0200, Ingo Molnar wrote:
- > > 
- > > there are a few devices that use lots of ioremap space. vmalloc space is
- > > a showstopper problem for them.
- > > 
- > > this patch adds the vmalloc=<size> boot parameter to override
- > > __VMALLOC_RESERVE. The default is 128mb right now - e.g. vmalloc=256m
- > > doubles the size.
- > 
- > Perhaps this should instead be a configurable.
+On Mer, 2004-09-15 at 13:55, Andre Bonin wrote:
+> 1) Is their support for having two different 'machine types' within one 
+> kernel? that is for example, certain executables for intel would get run 
+> on an intel processor, and others would get run on processor with type XXXX.
 
-that would make it useless for distribution kernels for eg.
+The kernel provides everything you need to run userspace apps on the
+co-processor - which is very little indeed. It provides binfmt_misc
+which allows other binary types to be revectored to user applications.
+That is how the example you remember worked.
 
-		Dave
+Your application gets the program to run, you run it, you throw it at
+the coprocessor and you need to take any traps back for syscalls (which
+might need a little driver kernel side if it involves interrupts).
+
+There are then the hard bits (mmap, ptrace, scheduling...) 8)
+
+> 2) Is their kernel support for PCI coprocessors for thread allocation 
+> etc.  I couldn't find any but i can try looking through the code again.
+
+We don't deal at all with the question of scheduling stuff on different
+processor types. 
+
+Alan
+

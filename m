@@ -1,145 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVCZV5p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVCZWAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbVCZV5p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 16:57:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVCZV5p
+	id S261329AbVCZWAy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 17:00:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVCZWAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 16:57:45 -0500
-Received: from exosec.net1.nerim.net ([62.212.114.195]:45871 "EHLO
-	mail-out1.exosec.net") by vger.kernel.org with ESMTP
-	id S261312AbVCZV5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 16:57:39 -0500
-Date: Sat, 26 Mar 2005 22:57:33 +0100
-From: Willy Tarreau <wtarreau@exosec.fr>
-To: linux-kernel@vger.kernel.org
-Subject: linux-2.4.29-hf6 fixes 4 vulnerabilities
-Message-ID: <20050326215733.GA31786@exosec.fr>
+	Sat, 26 Mar 2005 17:00:53 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:59315 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261331AbVCZWAb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 17:00:31 -0500
+Date: Sat, 26 Mar 2005 23:00:30 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: sneakums@zork.net
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: PCMCIA Oops (was Re: 2.6.12-rc1-mm3)
+Message-ID: <20050326220030.GA32415@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	sneakums@zork.net, akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <20050325002154.335c6b0b.akpm@osdl.org> <6uu0myyz66.fsf@zork.zork.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="zhXaljGHf11kAtnf"
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <6uu0myyz66.fsf@zork.zork.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-Here's the sixth hotfix for linux-2.4.29 :
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-   http://linux.exosec.net/kernel/2.4-hf/
+On Sat, Mar 26, 2005 at 07:39:29PM +0000, Sean Neakums wrote:
+> On a PowerBook5.4 I get the below when I insert the PCMCIA card or
+> boot with it inserted; however, if I boot with no card inserted,
+> sleep-resume and insert the card it works fine.  Similar with
+> 2.6.12-rc1-mm1; not sure why I didn't notice until now, since I
+> happily used it for six days or so, PCMCIA and all, although there was
+> *some* PCMCIA-related issue I failed to note and cannot now recall.
 
-Note: this update fixes 2 oopses and 4 security vulnerabilities and is in
-sync with 2.4.30-rc3 :
+If you revert the patch named
+pcmcia-mark-parent-bridge-windows-as-resources-available-for-pcmcia-devices.patch
+the oops should disappear. However, I had no chance yet to fully debug
+what's going on here. So I'd prefer it if you first applied the attached test
+patch and sent me (off-list) the dmesg output. Also, it is very strange that
+it doesn't trigger if you did a sleep-resume cycle before... Ben, any idea?
 
-    CAN-2005-0400: kernel memory leak in ext2 mkdir()
-    CAN-2005-0750: bluetooth range checking bug
-    CAN-2005-0794: potential DOS in load_elf_library.
-    CAN-2005-0815: range checking flaws in isofs
+	Dominik
 
-Users of 2.4.29 and 2.4.29-hf up to and including hf5 are encouraged to
-upgrade either to -hf6 or to plain 2.4.30 when it emerges.
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=test
 
-You'll find appended to this mail the small changelog from hf5.
-
-Regards,
-Willy
-
---
-
-Changelog From 2.4.29-hf5 to 2.4.29-hf6 (semi-automated)
----------------------------------------
-'+' = added ; '-' = removed
-
-Note: this update fixes 2 oopses and 4 security vulnerabilities :
-
-    CAN-2005-0400: kernel memory leak in ext2 mkdir()
-    CAN-2005-0750: bluetooth range checking bug
-    CAN-2005-0794: potential DOS in load_elf_library.
-    CAN-2005-0815: range checking flaws in isofs
-
-
-+ atm_get_addr-signedness-fix-1                                  (Simon Horman)
-
-  [PATCH] Backport v2.6 ATM copy-to-user signedness fix.
-  The signdness fix for atm_get_addr() in  2.6 seems to be needed for 2.4 as
-  well. This relates to the bugs reported in this document :
-  http://www.guninski.com/where_do_you_want_billg_to_go_today_3.html
-
-+ af_bluetooth-checks-unsigned-only-1                         (marcel holtmann)
-
-  CAN-2005-0750: Fix af_bluetooth range checking bug, discovered by Ilja van
-  Sprundel <ilja@suresec.org>
-
-+ ext2-mkdir-leaks-kernel-memory-1                              (mathieu lafon)
-
-  CAN-2005-0400: ext2 mkdir() directory entry random kernel memory leak.
-  I think I have discovered a potential security problem in ext2: when a new
-  directory is created, the ext2 block written to disk is not initialized.
-  An information leak can then be found after the two directory entries ('.'
-  and '..') or in the name buffer of each entry (struct ext2_dir_entry_2).
-  
-+ load_elf_library-potential-dos-2                                 (Herbert Xu)
-
-  CAN-2005-0794: Potential DOS in load_elf_library.
-  Yichen Xie <yxie@cs.stanford.edu> points out that load_elf_library can
-  modify `elf_phdata' before freeing it. Contains latest mismerge fix from
-  Andreas Arens.
-
-+ isofs-range-checking-flaws-1                                   (chris wright)
-
-  [PATCH] isofs: Handle corupted rock-ridge info slightly better.
-  Michal Zalewski <lcamtuf@dione.ids.pl> discovers range checking flaws in
-  iso9660 filesystem. CAN-2005-0815 is assigned to this issue.
+Index: 2.6.12-rc1/drivers/pcmcia/cistpl.c
+===================================================================
+--- 2.6.12-rc1.orig/drivers/pcmcia/cistpl.c	2005-03-25 13:49:21.000000000 +0100
++++ 2.6.12-rc1/drivers/pcmcia/cistpl.c	2005-03-25 13:50:26.000000000 +0100
+@@ -89,6 +89,7 @@
+ set_cis_map(struct pcmcia_socket *s, unsigned int card_offset, unsigned int flags)
+ {
+     pccard_mem_map *mem = &s->cis_mem;
++    int ret;
+     if (!(s->features & SS_CAP_STATIC_MAP) && mem->res == NULL) {
+ 	mem->res = pcmcia_find_mem_region(0, s->map_size, s->map_size, 0, s);
+ 	if (mem->res == NULL) {
+@@ -99,7 +100,9 @@
+     }
+     mem->card_start = card_offset;
+     mem->flags = flags;
+-    s->ops->set_mem_map(s, mem);
++    printk(KERN_DEBUG "set_cis_map: %x %u %lx %lx %p\n", card_offset, flags, mem->res->start, mem->res->end, s->cis_virt);
++    ret = s->ops->set_mem_map(s, mem);
++    printk(KERN_DEBUG "ret is %i\n", ret);
+     if (s->features & SS_CAP_STATIC_MAP) {
+ 	if (s->cis_virt)
+ 	    iounmap(s->cis_virt);
+Index: 2.6.12-rc1/drivers/pcmcia/rsrc_nonstatic.c
+===================================================================
+--- 2.6.12-rc1.orig/drivers/pcmcia/rsrc_nonstatic.c	2005-03-25 13:49:21.000000000 +0100
++++ 2.6.12-rc1/drivers/pcmcia/rsrc_nonstatic.c	2005-03-25 13:54:10.000000000 +0100
+@@ -93,6 +93,8 @@
+ {
+ 	struct resource *res, *parent;
  
-+ degraded-soft-raid1-can-corrupt-data-1                           (Neil Brown)
++	printk(KERN_DEBUG "claim_region: %lx, %lx\n", base, size);
++
+ 	parent = type & IORESOURCE_MEM ? &iomem_resource : &ioport_resource;
+ 	res = make_resource(base, size, type | IORESOURCE_BUSY, name);
+ 
+@@ -106,6 +108,9 @@
+ 			res = NULL;
+ 		}
+ 	}
++
++	printk(KERN_DEBUG "claim_region: result %p\n", res);
++
+ 	return res;
+ }
+ 
+@@ -267,8 +272,12 @@
+ {
+ 	int ret = -1;
+ 
++	printk(KERN_DEBUG "readable: %lx %x\n", res->start, s->map_size);
++
+ 	s->cis_mem.res = res;
+ 	s->cis_virt = ioremap(res->start, s->map_size);
++
++	printk(KERN_DEBUG "readable: remapped to %p\n", s->cis_virt);
+ 	if (s->cis_virt) {
+ 		ret = pccard_validate_cis(s, BIND_FN_ALL, info);
+ 		/* invalidate mapping and CIS cache */
+@@ -290,6 +299,7 @@
+ 	void __iomem *virt;
+ 
+ 	virt = ioremap(res->start, s->map_size);
++	printk("checksum: %lx, %x remapped to %p\n", res->start, s->map_size, virt);
+ 	if (virt) {
+ 		map.map = 0;
+ 		map.flags = MAP_ACTIVE;
+@@ -324,6 +334,8 @@
+ 	res1 = claim_region(s, base, size/2, IORESOURCE_MEM, "cs memory probe");
+ 	res2 = claim_region(s, base + size/2, size/2, IORESOURCE_MEM, "cs memory probe");
+ 
++	printk(KERN_DEBUG "cis_readable: %lx (%lx) - %p, %lx (%lx) - %p\n", base, (size/2), res1, (base + size/2), (size/2), res2);
++
+ 	if (res1 && res2) {
+ 		ret = readable(s, res1, &info1);
+ 		ret += readable(s, res2, &info2);
+@@ -375,6 +387,7 @@
+     /* cis_readable wants to map 2x map_size */
+     if (step < 2 * s->map_size)
+ 	step = 2 * s->map_size;
++    printk(KERN_DEBUG "do_mem_probe %lx %lx %lx\n", base, num, step);
+     for (i = j = base; i < base+num; i = j + step) {
+ 	if (!fail) {
+ 	    for (j = i; j < base+num; j += step) {
 
-  [PATH] md: allow degraded raid1 array to resync after an unclean shutdown.
-  If a raid1 array has more than two devices, and not all are working,
-  then it will not resync after an unclean shutdown (as it will think
-  that it should reconstruct a failed drive, and will find there aren't
-  any spares...). Problem found by Mario Holbe.
-
-+ usb-serial_write-oops-1                                        (Pete Zaitcev)
-
-  [PATCH] USB: fix oops in serial_write
-  When I split the __serial_write off serial_write, the former took the NULL
-  check away with it. However, the new serial_write still has an reference
-  remaining in down(&port->sem). Joachim Nilsson corrected me.
-
-+ link_path_walk-refcount-problem-1                                (Greg Banks)
-
-  [PATCH] link_path_walk refcount problem allows umount of active filesystem
-  Following an absolute symlink opens a window during which the filesystem
-  containing the symlink has an outstanding dentry count and no outstanding
-  vfsmount count.  A umount() of the filesystem can (incorrectly) proceed,
-  resulting in the "Busy inodes after unmount" message and an oops shortly
-  thereafter.
-  
-+ netlink-multicast-bind-race-1                                    (Herbert Xu)
-
-  [NETLINK]: Fix multicast bind/autobind race.
-  Now it is possible for netlink_bind to race against netlink_autobind running
-  on the same socket on another CPU.  The result would be a socket that's on
-  mc_list with groups set to zero. This socket will be left on the list even
-  after it is destroyed. The fix is to remove the zeroing in netlink_autobind.
-
-+ tun-check-for-underflow-1                                   (Patrick McHardy)
-
-  [TUN]: Fix check for underflow. Backport fix from 2.6.x.
-
-+ tcp-bic-reset-cwnd-on-loss-1                              (Stephen Hemminger)
-
-  [TCP]: BIC not binary searching correctly. 2.4 version of same fix as 2.6.11.
-  The problem is that BIC is supposed to reset the cwnd to the last loss value
-  rather than ssthresh when loss is detected.  The correct code (from the BIC
-  TCP code for Web100) is in this patch.
-
-+ useless-f_count-leaves-fs-busy-1                                 (Neil Brown)
-
-  [PATCH] nlm: fix f_count leak
-  I can't see any reason for this file->f_count++.  Removing it fixes a bug
-  which leaves an exported filesystem busy (and so unmountable) if a callback
-  for a lock held on that filesystem ever failed. Found by Terence Rokop.
-
---
-
+--zhXaljGHf11kAtnf--

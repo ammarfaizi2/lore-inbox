@@ -1,80 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262967AbUCYA2p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 19:28:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262942AbUCYAZ0
+	id S262774AbUCYAby (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 19:31:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262854AbUCYA3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 19:25:26 -0500
-Received: from gprs214-165.eurotel.cz ([160.218.214.165]:11396 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262902AbUCYAX1 (ORCPT
+	Wed, 24 Mar 2004 19:29:22 -0500
+Received: from mail.kroah.org ([65.200.24.183]:65426 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262774AbUCYA1A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 19:23:27 -0500
-Date: Thu, 25 Mar 2004 01:23:02 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: -nice tree [was Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]]
-Message-ID: <20040325002302.GG290@elf.ucw.cz>
-References: <20040323214734.GD364@elf.ucw.cz> <200403231743.01642.dtor_core@ameritech.net> <20040323233228.GK364@elf.ucw.cz> <1080081653.22670.15.camel@calvin.wpcb.org.au> <20040323234449.GM364@elf.ucw.cz> <opr5ci61g54evsfm@smtp.pacific.net.th> <20040324101704.GA512@elf.ucw.cz> <opr5d1jave4evsfm@smtp.pacific.net.th> <20040324232338.GE290@elf.ucw.cz> <opr5d4r0il4evsfm@smtp.pacific.net.th>
+	Wed, 24 Mar 2004 19:27:00 -0500
+Date: Wed, 24 Mar 2004 16:26:47 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] udev 023 release
+Message-ID: <20040325002647.GA22795@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <opr5d4r0il4evsfm@smtp.pacific.net.th>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Čt 25-03-04 07:56:14, Michael Frank wrote:
-> On Thu, 25 Mar 2004 00:23:38 +0100, Pavel Machek <pavel@ucw.cz> wrote:
-> >On Čt 25-03-04 06:46:12, Michael Frank wrote:
-> >>On Wed, 24 Mar 2004 11:17:04 +0100, Pavel Machek <pavel@ucw.cz> wrote:
+I've released the 023 version of udev.  It can be found at:
+ 	kernel.org/pub/linux/utils/kernel/hotplug/udev-023.tar.gz
 
-> >Yes, having -nice patch with bootsplashes, translated kernel messages,
-> >and swsusp eye-candy would work for me.
-> 
-> If a -nice _tree_ is useful, your guys just have to launch it. Gosh this 
-> could reduce
-> arguments about what goes into the kernel and save Linus and Andrew lots of 
-> work.
+rpms built against Red Hat FC2-test1 are available at:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-023-1.i386.rpm
+with the source rpm at:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-023-1.src.rpm
 
-Yes.
- 
-> >Feel free to maintain it.
-> 
-> Busy enough with testing, actually far too busy for being on a volunteer 
-> basis ;)
-> 
-> I am sure that better qualified and properly supported/sponsored individuals
-> will queue up as long as it is an _official_ -nice tree with the good 
-> purpose
-> of centralizing useful non-core functions :)
+udev allows users to have a dynamic /dev and provides the ability to
+have persistent device names.  It uses sysfs and /sbin/hotplug and runs
+entirely in userspace.  It requires a 2.6 kernel with CONFIG_HOTPLUG
+enabled to run.  Please see the udev FAQ for any questions about it:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
 
-I'd say that having official -anything tree is an oxymoron (is -ac
-tree official? is -mm tree official?), but yes, I hope someone picks
-this up
+For any udev vs devfs questions anyone might have, please see:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev_vs_devfs
 
-> >You see, 10 lines in printk is probably good enough reason not to
-> >include that patch in kernel, because its "too ugly".
-> 
-> Pretty does not count above, Ugly does not count here, Functionality always 
-> does.
-> Besides that patch might be in the -nice tree.
 
-Prettyness *does* count in -linus tree. -nice tree is likely to have
-different criteria.
+Big changes in this release (along with a lot of good bugfixes):
+	- we can now rename network devices.  Yeah, I said udev would
+	  never do this, but it was just so darn simple, and udev is
+	  more flexible than nameif is today.  That and someone sent in
+	  a patch to do it :)
+	- udev will now call scripts in /etc/dev.d/ when it creates or
+	  removes a device node.  More on that below.
+	- There's a first cut at a gui tool to help create rules.  It's
+	  called udevruler and needs to be made separately:
+	  	make udevruler
+	- D-BUS and SELinux support have been removed from the main udev
+	  program due to the /etc/dev.d/ mechanism.  These have been
+	  moved to separate programs in the udev extras/ directory, and
+	  probably do not work quite right yet.  Could anyone who was
+	  using this functionality in udev please help me out in getting
+	  these programs working again?
 
-> >swsusp really should not have patch any code outside kernel/power.
-> 
-> Which is extremely ideal, but one thing at the time...
+Ok, about the /etc/dev.d/ scheme.  It works much like the current
+/etc/hotplug.d/ system, and is fully documented at:
+	http://www.kernel.org/pub/linux/utils/kernel/hotplug/RFC-dev.d
+It is a scheme that is not limited to udev, if some other device naming
+daemon is created.  I'll be working on submitting it (and the
+/etc/hotplug.d/ system) to the LSB soon.
 
-Okay, lets not please add more of outside changes (for -linus merge).
+With /etc/dev.d/ it is _very_ simple for scripts or programs to get run
+when a new device is added to the system.  Yes, this also can be done
+with the existing /etc/hotplug.d/ system, but it is difficult and takes
+a whole lot more code to do so.  Also, to have the /etc/hotplug.d/
+system work properly, the hotplug core would have to run udev first,
+before any other hotplug programs, which is not something that I feel is
+good to start doing.
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Anyway, comments and criticisms are welcome, after you go read the above
+text file (and patches against the text file for anything that is not
+documented well are always welcome.)
+
+Thanks to everyone else who has send me patches for this release, a full
+list of everyone, and their changes is below.
+
+udev development is done in a BitKeeper repository located at:
+	bk://linuxusb.bkbits.net/udev
+
+Daily snapshots of udev from the BitKeeper tree can be found at:
+	http://www.codemonkey.org.uk/projects/bitkeeper/udev/
+If anyone ever wants a tarball of the current bk tree, just email me.
+
+thanks,
+
+greg k-h
+
+
+Summary of changes from v022 to v023
+============================================
+
+Kay Sievers:
+  o hmm, handle net devices with udev?
+  o correct apply_format() for symlink only rules
+  o don't init namedev on remove
+  o first stupid try for a rule compose gui
+  o replace fgets() with mmap() and introduce udev_lib.[hc]
+  o make udevtest a real program :)
+
+Daniel E. F. Stekloff:
+  o udevinfo patch
+
+Greg Kroah-Hartman:
+  o create the /etc/dev.d/ directories in 'make install'
+  o actually have udev run files ending in .dev in the /etc/dev.d/ directory as documented
+  o added RFC-dev.d document detailing how /etc/dev.d/ works
+  o fixed up udev.spec to handle selinux stuff properly now
+  o remove USE_DBUS and USE_SELINUX flags from the README as they are no longer present
+  o remove selinux stuff from the main Makefile
+  o move udev_selinux into extras/selinux
+  o fix dbus build in the udev.spec file
+  o remove dbus stuff from main Makefile
+  o move udev_dbus to extras/dbus
+  o udev_dbus can now compile properly, but linnking is another story
+  o remove udev_dbus.h from Makefile
+  o first cut at standalone udev_selinux program
+  o remove selinux support from udev core as it's no longer needed
+  o first cut at standalone udev_dbus program
+  o add get_devnode() helper to udev_lib for udev_dbus program
+  o remove dbus code from core udev code as it's no longer needed to be there
+  o add /etc/dev.d/ support for udev add and remove events
+  o fix build error in namedev.c caused by previous patch
+  o 022_bk tag
+  o fix 'make spotless' to really do that in klibc
+  o add a question/answer about automounting usb devices to the FAQ
+  o mark scsi-devfs.sh as executable
+  o Increase the name size as requested by Richard Gooch <rgooch@ras.ucalgary.ca>
+  o fix udevtest to build properly after the big udev_lib change
+  o 022 release TAG: v022
+
+Olaf Hering:
+  o uninitialized variable for mknod and friend
+
+Richard Gooch:
+  o SCSI logical and physical names for udev
+
+Theodore Y. T'so:
+  o Trivial man page typo fixes to udev
+

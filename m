@@ -1,76 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130017AbRCAVF6>; Thu, 1 Mar 2001 16:05:58 -0500
+	id <S130032AbRCAVIM>; Thu, 1 Mar 2001 16:08:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130013AbRCAVFt>; Thu, 1 Mar 2001 16:05:49 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:57358 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130008AbRCAVFd>; Thu, 1 Mar 2001 16:05:33 -0500
-Message-ID: <3A9EB984.C1F7E499@transmeta.com>
-Date: Thu, 01 Mar 2001 13:05:08 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S130043AbRCAVIF>; Thu, 1 Mar 2001 16:08:05 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:35480 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130032AbRCAVHe>;
+	Thu, 1 Mar 2001 16:07:34 -0500
+Date: Thu, 1 Mar 2001 16:07:32 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Roman Zippel <zippel@fh-brandenburg.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, gator@cs.tu-berlin.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: [CFT][PATCH] Re: fat problem in 2.4.2
+In-Reply-To: <Pine.GSO.4.10.10103012147490.19829-100000@zeus.fh-brandenburg.de>
+Message-ID: <Pine.GSO.4.21.0103011600540.11577-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Pavel Machek <pavel@suse.cz>, Bill Crawford <billc@netcomuk.co.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Daniel Phillips <phillips@innominate.de>
-Subject: Re: Hashing and directories
-In-Reply-To: <Pine.GSO.4.21.0103011547200.11577-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> >
-> > Yes -- because their workaround kernel slowness.
+
+
+On Thu, 1 Mar 2001, Roman Zippel wrote:
+
+> Hi,
 > 
-> Pavel, I'm afraid that you are missing the point. Several, actually:
->         * limits of _human_ capability to deal with large unstructured
-> sets of objects
+> On Thu, 1 Mar 2001, Alexander Viro wrote:
+> 
+> > +static int generic_vm_expand(struct address_space *mapping, loff_t size)
+> > +{
+> > +	struct page *page;
+> > +	unsigned long index, offset;
+> > +	int err;
+> > +
+> > +	if (!mapping->a_ops->prepare_write || !mapping->a_ops->commit_write)
+> > +		return -ENOSYS;
+> > +
+> > +	offset = (size & (PAGE_CACHE_SIZE-1)); /* Within page */
+> > +	index = size >> PAGE_CACHE_SHIFT;
+> 
+> For affs I did basically the same with a small difference:
+> 
+> 	offset = ((size-1) & (PAGE_CACHE_SIZE-1)) + 1;
+> 	index = (size-1) >> PAGE_CACHE_SHIFT;
+> 
+> That works fine here and allocates a page in the cache more likely to be
+> used.
 
-Not an issue if you're a machine.
+	The only difference is in the case when size is a multiple of
+PAGE_CACHE_SHIFT, so most of the time it's the same, but yeah, this
+variant is probably nicer.
 
->         * userland issues (what, you thought that limits on the
-> command size will go away?)
+	The problem with putting it into ->truncate() is obvious -
+handling errors. And doing the thing before vmtruncate() (in
+foo_notify_change(), whatever) is also PITA - you need to
+reproduce the rlimit handling. Not nice...
 
-Last I checked, the command line size limit wasn't a userland issue, but
-rather a limit of the kernel exec().  This might have changed.
+	IOW, if it's worth doing at all it probably should be
+on expanding path in vmtruncate() - limit checks are already
+done, but old i_size is still not lost...
+							Cheers,
+								Al
 
->         * portability
-
-> The point being: applications and users _do_ know better what structure
-> is there. Kernel can try to second-guess them and be real good at that, but
-> inability to second-guess is the last of the reasons why aforementioned
-> strategies are used.
-
-However, there are issues where users and applications don't want to
-structure their namespace for the convenience of the kernel, for good or
-bad reasons.  There are structures which are known to produce vastly
-better performance even in the not-very-uncommon cases, although of
-course they provide dramatic improvements in the extreme.  I personally
-happen to like the hash-indexed B-tree because of their extremely high
-fanout and because they don't impose any penalty in the other extreme (if
-your directory is small enough to fit in a single block, you skip the
-B-tree and have the linear non-hash leaf node only) but there are other
-structures which work as well.
-
-I don't see there being any fundamental reason to not do such an
-improvement, except the one Alan Cox mentioned -- crash recovery --
-(which I think can be dealt with; in my example above as long as the leaf
-nodes can get recovered, the tree can be rebuilt.  Consider starting each
-leaf node block with a magic and a pointer to its home inode; combined
-with a leaf node block count in the home inode, that should be quite
-robust.)  It would be particularly nice to implement this more as an
-enhancement to ext3 than ext2, even though the issue is orthogonal, since
-ext3 should add a layer of inherent integrity protection.
-
-	-hpa
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt

@@ -1,57 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261287AbTIXMgT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 08:36:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbTIXMgT
+	id S261309AbTIXMz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 08:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTIXMz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 08:36:19 -0400
-Received: from mail.gmx.de ([213.165.64.20]:34282 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261287AbTIXMgS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 08:36:18 -0400
-X-Authenticated: #536991
-Date: Wed, 24 Sep 2003 14:36:14 +0200
-From: Robert Vollmert <rvollmert-lists@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Local APIC with ACPI freezes ASUS M2400N (update)
-Message-ID: <20030924123614.GB6314@krikkit>
-Mail-Followup-To: Robert Vollmert <rvollmert-lists@gmx.net>,
-	linux-kernel@vger.kernel.org
-References: <20030922155524.GA8167@krikkit>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030922155524.GA8167@krikkit>
-User-Agent: Mutt/1.5.4i
+	Wed, 24 Sep 2003 08:55:58 -0400
+Received: from mail-07.iinet.net.au ([203.59.3.39]:14300 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261309AbTIXMz4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 08:55:56 -0400
+Date: Wed, 24 Sep 2003 21:01:56 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Maneesh Soni <maneesh@in.ibm.com>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: [PATCH] autofs4 deadlock during expire - kernel 2.6
+Message-ID: <Pine.LNX.4.44.0309242059120.4975-100000@raven.themaw.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-> when Local APIC is enabled, my ASUS M2400N notebook (Centrino / ICH4-M
-> chipset) freezes when ACPI initialises or tries to switch the display
-> device. When Local APIC is not enabled, this does not occur. This
-> happens both with 2.4.22 with ACPI patch from 20030916 and with
-> unpatched (apart from a patch to load the DSDT via initrd)
-> 2.6.0-test5.
+This is a corrected patch for the autofs4 daedlock problem I posted about 
+yesterday.
 
-[...]
+As before comments please.
 
-> The freeze occurs when the DSDT writes to SystemIO address 0xb2. It
-> does this both to query information about the active display device
-> and to change the device.
+diff -Nur autofs4-2.6.orig/fs/autofs4/autofs_i.h autofs4-2.6.deadlock/fs/autofs4/autofs_i.h
+--- autofs4-2.6.orig/fs/autofs4/autofs_i.h	2003-09-09 03:50:14.000000000 +0800
++++ autofs4-2.6.deadlock/fs/autofs4/autofs_i.h	2003-09-22 22:48:11.000000000 +0800
+@@ -82,6 +82,7 @@
+ 	char *name;
+ 	/* This is for status reporting upon return */
+ 	int status;
++	struct task_struct *owner;
+ 	int wait_ctr;
+ };
+ 
+diff -Nur autofs4-2.6.orig/fs/autofs4/waitq.c autofs4-2.6.deadlock/fs/autofs4/waitq.c
+--- autofs4-2.6.orig/fs/autofs4/waitq.c	2003-09-09 03:50:31.000000000 +0800
++++ autofs4-2.6.deadlock/fs/autofs4/waitq.c	2003-09-24 00:10:38.000000000 +0800
+@@ -165,6 +165,7 @@
+ 		wq->status = -EINTR; /* Status return if interrupted */
+ 		memcpy(wq->name, name->name, name->len);
+ 		wq->next = sbi->queues;
++		wq->owner = current;
+ 		sbi->queues = wq;
+ 
+ 		DPRINTK(("autofs_wait: new wait id = 0x%08lx, name = %.*s, nfy=%d\n",
+@@ -206,6 +207,11 @@
+ 
+ 		interruptible_sleep_on(&wq->queue);
+ 
++		if (waitqueue_active(&wq->queue) && current != wq->owner) {
++			set_current_state(TASK_INTERRUPTIBLE);
++			schedule_timeout(wq->wait_ctr * (HZ/10));
++		}
++
+ 		spin_lock_irqsave(&current->sighand->siglock, irqflags);
+ 		current->blocked = oldset;
+ 		recalc_sigpending();
 
-a little more information on this issue: The XFree86 driver for the
-chipset (i855GM) has some code for switching and querying active
-displays that talks to the video BIOS via "int 10h".
+-- 
 
-Adapting this to LRMI (http://sourceforge.net/projects/lrmi), it is
-possible to query and set the active display devices. This works
-without freezing the computer even when "Local APIC" is enabled.
+   ,-._|\    Ian Kent
+  /      \   Perth, Western Australia
+  *_.--._/   E-mail: raven@themaw.net
+        v    Web: http://themaw.net/
 
-Is it likely or at least possible that the BIOS talks to the video
-BIOS when the DSDT writes to 0xB2? If so, is that something it
-shouldn't be doing, or should this not cause any problems?
-
-Cheers
-Robert

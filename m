@@ -1,40 +1,258 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272038AbRI0IQD>; Thu, 27 Sep 2001 04:16:03 -0400
+	id <S271995AbRI0IQN>; Thu, 27 Sep 2001 04:16:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272020AbRI0IPy>; Thu, 27 Sep 2001 04:15:54 -0400
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:59619 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S271995AbRI0IPl>; Thu, 27 Sep 2001 04:15:41 -0400
-Date: Thu, 27 Sep 2001 09:16:01 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Armin Schindler <mac@melware.de>
-Cc: Ingo Molnar <mingo@elte.hu>,
-        =?iso-8859-1?Q?=CA=E6=B9=FA=C7=BF?= <guoqiang@intec.iscas.ac.cn>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Question about ioremap and io_remap_page_range
-Message-ID: <20010927091601.A6499@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.33.0109270847070.2745-100000@localhost.localdomain> <Pine.LNX.4.31.0109271001001.25611-100000@phoenix.one.melware.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.31.0109271001001.25611-100000@phoenix.one.melware.de>; from mac@melware.de on Thu, Sep 27, 2001 at 10:03:26AM +0200
+	id <S271989AbRI0IQE>; Thu, 27 Sep 2001 04:16:04 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:10509 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S271995AbRI0IPz>;
+	Thu, 27 Sep 2001 04:15:55 -0400
+Date: Thu, 27 Sep 2001 10:13:42 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Kiril Vidimce <vkire@pixar.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [patch] exec-argsize-2.4.10-A3
+In-Reply-To: <Pine.LNX.4.21.0109261417110.24013-100000@nevena>
+Message-ID: <Pine.LNX.4.33.0109270859100.2745-200000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1708323492-1001578422=:2745"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 27, 2001 at 10:03:26AM +0200, Armin Schindler wrote:
-> virt_to_phys() is obsolete ? What should be used if I need the phys address
-> of a memory page ? (e.g. for mmap() remapping)
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-virt_to_phys is only valid on the kernel direct mapped RAM area - memory
-returned from kmalloc and non-highmem memory returned from get_free_page.
+--8323328-1708323492-1001578422=:2745
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Since vmalloc and ioremap do not return a pointer into the direct mapped
-RAM area, but its own mapping, it is not valid to use virt_to_phys on
-these returned values, even through it might be a virtual address.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+On Wed, 26 Sep 2001, Kiril Vidimce wrote:
 
+> Is there any way to reconfigure the kernel at runtime to change the
+> limit for arguments passed during an exec? [...]
+
+include/linux/binfmts.h's MAX_ARG_PAGES define limits exec() arguments to
+128k on systems with 4k pages, 256k on systems with 8k pages. Since this
+define is used in the linux_binprm structure to define a static array,
+there is no natural way (ioctl()) to change it runtime.
+
+i've written a patch (attached) for 2.4.10 that implements runtime execve
+argument size via /proc/sys/vm/exec-argsize. The patch also cleans up
+do_execve() to be more compact. The latest versions of the patch are also
+available at:
+
+	http://redhat.com/~mingo/execve-patches/
+
+You can change the exec-argsize sysctl to any reasonable value - the
+kernel will allocate at least 4 KB argument size, which is more than
+enough to change the value back to a more reasonable value :) The
+theoretical upper limit on x86 systems is 128 MB, due to kmalloc()
+limitations. (but there might be other, mapping or sizing limitations in
+libc or bash.)
+
+systems with many users might want to set exec-argsize to a lower value
+than the default.
+
+i've tested the patch against vanilla 2.4.10 and it works just fine on
+x86. A good testcase is:
+
+	ls -d `find /usr/src/linux/`
+
+this runs just fine on my system if max-argsize is set to 1 MB.
+
+I've seen no memory leaks in error cases either. Due to the extra
+kmalloc(), execve is slower by 1-2 microseconds, but i think this is well
+worth the flexibility - especially considering that execve() often takes
+several milliseconds to finish.
+
+
+note 1: This version of exec() gets sensitive to VM fragmentation above an
+argument size is bigger than ~4MB - this is the size when the pages-array
+gets larger than 4 KB, and kmalloc() uses higher-order page allocations.
+
+note 2: it's safe to change the exec-argsize parameter in while exec()s
+are in progress - old exec()s will use the older value, newer exec()s use
+the newer value. The exec() code picks the parameter only once and does
+not rely on it to be constant.
+
+note 3: i've renamed struct binprm's ->page field to ->pages, to safely
+break code that is not updated to use ->nr_pages yet. This breaks some
+architectures in a safe way.)
+
+Comments?
+
+	Ingo
+
+--8323328-1708323492-1001578422=:2745
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="exec-argsize-2.4.10-A3"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0109271013420.2745@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename="exec-argsize-2.4.10-A3"
+
+LS0tIGxpbnV4L2ZzL2V4ZWMuYy5vcmlnCVRodSBTZXAgMjcgMDg6NTI6MzIg
+MjAwMQ0KKysrIGxpbnV4L2ZzL2V4ZWMuYwlUaHUgU2VwIDI3IDA5OjMzOjQx
+IDIwMDENCkBAIC00OCw2ICs0OCwxMiBAQA0KIA0KIGludCBjb3JlX3VzZXNf
+cGlkOw0KIA0KKy8qDQorICogTWF4IGV4ZWMoKSBhcmd1bWVudCBzaXplIGlu
+IGJ5dGVzLiBLZXJuZWwgYWxpZ25zDQorICogaXQgdG8gUEFHRV9TSVpFIGJv
+dW5kYXJ5Lg0KKyAqLw0KK2ludCBleGVjX2FyZ3NpemUgPSBQQUdFX1NJWkUg
+KiAzMjsNCisNCiBzdGF0aWMgc3RydWN0IGxpbnV4X2JpbmZtdCAqZm9ybWF0
+czsNCiBzdGF0aWMgcndsb2NrX3QgYmluZm10X2xvY2sgPSBSV19MT0NLX1VO
+TE9DS0VEOw0KIA0KQEAgLTIwNCwxMSArMjEwLDExIEBADQogDQogCQkJb2Zm
+c2V0ID0gcG9zICUgUEFHRV9TSVpFOw0KIAkJCWkgPSBwb3MvUEFHRV9TSVpF
+Ow0KLQkJCXBhZ2UgPSBicHJtLT5wYWdlW2ldOw0KKwkJCXBhZ2UgPSBicHJt
+LT5wYWdlc1tpXTsNCiAJCQluZXcgPSAwOw0KIAkJCWlmICghcGFnZSkgew0K
+IAkJCQlwYWdlID0gYWxsb2NfcGFnZShHRlBfSElHSFVTRVIpOw0KLQkJCQli
+cHJtLT5wYWdlW2ldID0gcGFnZTsNCisJCQkJYnBybS0+cGFnZXNbaV0gPSBw
+YWdlOw0KIAkJCQlpZiAoIXBhZ2UpDQogCQkJCQlyZXR1cm4gLUVOT01FTTsN
+CiAJCQkJbmV3ID0gMTsNCkBAIC0yOTYsNyArMzAyLDcgQEANCiAJc3RydWN0
+IHZtX2FyZWFfc3RydWN0ICptcG50Ow0KIAlpbnQgaTsNCiANCi0Jc3RhY2tf
+YmFzZSA9IFNUQUNLX1RPUCAtIE1BWF9BUkdfUEFHRVMqUEFHRV9TSVpFOw0K
+KwlzdGFja19iYXNlID0gU1RBQ0tfVE9QIC0gYnBybS0+bnJfcGFnZXMqUEFH
+RV9TSVpFOw0KIA0KIAlicHJtLT5wICs9IHN0YWNrX2Jhc2U7DQogCWlmIChi
+cHJtLT5sb2FkZXIpDQpAQCAtMzIyLDEwICszMjgsMTAgQEANCiAJCWN1cnJl
+bnQtPm1tLT50b3RhbF92bSA9IChtcG50LT52bV9lbmQgLSBtcG50LT52bV9z
+dGFydCkgPj4gUEFHRV9TSElGVDsNCiAJfSANCiANCi0JZm9yIChpID0gMCA7
+IGkgPCBNQVhfQVJHX1BBR0VTIDsgaSsrKSB7DQotCQlzdHJ1Y3QgcGFnZSAq
+cGFnZSA9IGJwcm0tPnBhZ2VbaV07DQorCWZvciAoaSA9IDAgOyBpIDwgYnBy
+bS0+bnJfcGFnZXMgOyBpKyspIHsNCisJCXN0cnVjdCBwYWdlICpwYWdlID0g
+YnBybS0+cGFnZXNbaV07DQogCQlpZiAocGFnZSkgew0KLQkJCWJwcm0tPnBh
+Z2VbaV0gPSBOVUxMOw0KKwkJCWJwcm0tPnBhZ2VzW2ldID0gTlVMTDsNCiAJ
+CQlwdXRfZGlydHlfcGFnZShjdXJyZW50LHBhZ2Usc3RhY2tfYmFzZSk7DQog
+CQl9DQogCQlzdGFja19iYXNlICs9IFBBR0VfU0laRTsNCkBAIC03NDcsNyAr
+NzUzLDcgQEANCiAJCQlvZmZzZXQgPSAwOw0KIAkJCWt1bm1hcChwYWdlKTsN
+CiBpbnNpZGU6DQotCQkJcGFnZSA9IGJwcm0tPnBhZ2VbYnBybS0+cC9QQUdF
+X1NJWkVdOw0KKwkJCXBhZ2UgPSBicHJtLT5wYWdlc1ticHJtLT5wL1BBR0Vf
+U0laRV07DQogCQkJa2FkZHIgPSBrbWFwKHBhZ2UpOw0KIAkJfQ0KIAkJa3Vu
+bWFwKHBhZ2UpOw0KQEAgLTc3OCw3ICs3ODQsNyBAQA0KIAkJZnB1dChicHJt
+LT5maWxlKTsNCiAJCWJwcm0tPmZpbGUgPSBOVUxMOw0KIA0KLQkgICAgICAg
+IGxvYWRlciA9IFBBR0VfU0laRSpNQVhfQVJHX1BBR0VTLXNpemVvZih2b2lk
+ICopOw0KKwkgICAgICAgIGxvYWRlciA9IFBBR0VfU0laRSpicHJtLT5ucl9w
+YWdlcy1zaXplb2Yodm9pZCAqKTsNCiANCiAJCWZpbGUgPSBvcGVuX2V4ZWMo
+ZHlubG9hZGVyWzBdKTsNCiAJCXJldHZhbCA9IFBUUl9FUlIoZmlsZSk7DQpA
+QCAtODUzLDM0ICs4NTksMzggQEANCiB7DQogCXN0cnVjdCBsaW51eF9iaW5w
+cm0gYnBybTsNCiAJc3RydWN0IGZpbGUgKmZpbGU7DQorCXN0cnVjdCBwYWdl
+ICoqcGFnZXM7DQogCWludCByZXR2YWw7DQotCWludCBpOw0KKwlpbnQgaSwg
+bnJfcGFnZXM7DQogDQotCWZpbGUgPSBvcGVuX2V4ZWMoZmlsZW5hbWUpOw0K
+KwlicHJtLmZpbGUgPSBmaWxlID0gb3Blbl9leGVjKGZpbGVuYW1lKTsNCiAN
+CiAJcmV0dmFsID0gUFRSX0VSUihmaWxlKTsNCiAJaWYgKElTX0VSUihmaWxl
+KSkNCiAJCXJldHVybiByZXR2YWw7DQogDQotCWJwcm0ucCA9IFBBR0VfU0la
+RSpNQVhfQVJHX1BBR0VTLXNpemVvZih2b2lkICopOw0KLQltZW1zZXQoYnBy
+bS5wYWdlLCAwLCBNQVhfQVJHX1BBR0VTKnNpemVvZihicHJtLnBhZ2VbMF0p
+KTsgDQorCW5yX3BhZ2VzID0gKGV4ZWNfYXJnc2l6ZSArIFBBR0VfU0laRS0x
+KSAvIFBBR0VfU0laRTsNCisJcGFnZXMgPSBrbWFsbG9jKHNpemVvZihwYWdl
+c1swXSkgKiBucl9wYWdlcywgR0ZQX0tFUk5FTCk7DQorCXJldHZhbCA9IC1F
+Tk9NRU07DQorCWlmICghcGFnZXMpDQorCQlnb3RvIG91dDsNCisJYnBybS5w
+ID0gUEFHRV9TSVpFKm5yX3BhZ2VzLXNpemVvZih2b2lkICopOw0KKwltZW1z
+ZXQocGFnZXMsIDAsIG5yX3BhZ2VzKnNpemVvZihwYWdlc1swXSkpOyANCiAN
+CisJYnBybS5ucl9wYWdlcyA9IG5yX3BhZ2VzOw0KKwlicHJtLnBhZ2VzID0g
+cGFnZXM7DQogCWJwcm0uZmlsZSA9IGZpbGU7DQogCWJwcm0uZmlsZW5hbWUg
+PSBmaWxlbmFtZTsNCiAJYnBybS5zaF9iYW5nID0gMDsNCiAJYnBybS5sb2Fk
+ZXIgPSAwOw0KIAlicHJtLmV4ZWMgPSAwOw0KLQlpZiAoKGJwcm0uYXJnYyA9
+IGNvdW50KGFyZ3YsIGJwcm0ucCAvIHNpemVvZih2b2lkICopKSkgPCAwKSB7
+DQotCQlhbGxvd193cml0ZV9hY2Nlc3MoZmlsZSk7DQotCQlmcHV0KGZpbGUp
+Ow0KLQkJcmV0dXJuIGJwcm0uYXJnYzsNCi0JfQ0KKwlyZXR2YWwgPSBicHJt
+LmFyZ2MgPSBjb3VudChhcmd2LCBicHJtLnAgLyBzaXplb2Yodm9pZCAqKSk7
+DQorCWlmIChyZXR2YWwgPCAwKQ0KKwkJZ290byBvdXQ7DQogDQotCWlmICgo
+YnBybS5lbnZjID0gY291bnQoZW52cCwgYnBybS5wIC8gc2l6ZW9mKHZvaWQg
+KikpKSA8IDApIHsNCi0JCWFsbG93X3dyaXRlX2FjY2VzcyhmaWxlKTsNCi0J
+CWZwdXQoZmlsZSk7DQotCQlyZXR1cm4gYnBybS5lbnZjOw0KLQl9DQorCXJl
+dHZhbCA9IGJwcm0uZW52YyA9IGNvdW50KGVudnAsIGJwcm0ucCAvIHNpemVv
+Zih2b2lkICopKTsNCisJaWYgKHJldHZhbCA8IDApDQorCQlnb3RvIG91dDsN
+CiANCiAJcmV0dmFsID0gcHJlcGFyZV9iaW5wcm0oJmJwcm0pOw0KIAlpZiAo
+cmV0dmFsIDwgMCkgDQpAQCAtOTAwLDIwICs5MTAsMjkgQEANCiAJCWdvdG8g
+b3V0OyANCiANCiAJcmV0dmFsID0gc2VhcmNoX2JpbmFyeV9oYW5kbGVyKCZi
+cHJtLHJlZ3MpOw0KLQlpZiAocmV0dmFsID49IDApDQotCQkvKiBleGVjdmUg
+c3VjY2VzcyAqLw0KKwlpZiAocmV0dmFsID49IDApIHsNCisJCS8qDQorCQkg
+KiBleGVjdmUoKSBzdWNjZXNzDQorCQkgKg0KKwkJICogdGhlIGFyZ3VtZW50
+IHBhZ2VzIG5vdyBsaXZlIGluIHRoZSBwcm9jZXNzIHBhZ2V0YWJsZXMsDQor
+CQkgKiBidXQgdGhlIHBhZ2VzLWFycmF5IG11c3QgYmUgZGVhbGxvY2F0ZWQu
+DQorCQkgKi8NCisJCWtmcmVlKHBhZ2VzKTsNCiAJCXJldHVybiByZXR2YWw7
+DQorCX0NCiANCiBvdXQ6DQogCS8qIFNvbWV0aGluZyB3ZW50IHdyb25nLCBy
+ZXR1cm4gdGhlIGlub2RlIGFuZCBmcmVlIHRoZSBhcmd1bWVudCBwYWdlcyov
+DQotCWFsbG93X3dyaXRlX2FjY2VzcyhicHJtLmZpbGUpOw0KLQlpZiAoYnBy
+bS5maWxlKQ0KLQkJZnB1dChicHJtLmZpbGUpOw0KLQ0KLQlmb3IgKGkgPSAw
+IDsgaSA8IE1BWF9BUkdfUEFHRVMgOyBpKyspIHsNCi0JCXN0cnVjdCBwYWdl
+ICogcGFnZSA9IGJwcm0ucGFnZVtpXTsNCi0JCWlmIChwYWdlKQ0KLQkJCV9f
+ZnJlZV9wYWdlKHBhZ2UpOw0KKwlpZiAoZmlsZSkgew0KKwkJYWxsb3dfd3Jp
+dGVfYWNjZXNzKGZpbGUpOw0KKwkJZnB1dChmaWxlKTsNCisJfQ0KKw0KKwlp
+ZiAocGFnZXMpIHsNCisJCWZvciAoaSA9IDAgOyBpIDwgbnJfcGFnZXMgOyBp
+KyspDQorCQkJaWYgKHBhZ2VzW2ldKQ0KKwkJCQlfX2ZyZWVfcGFnZShwYWdl
+c1tpXSk7DQorCQlrZnJlZShwYWdlcyk7DQogCX0NCiANCiAJcmV0dXJuIHJl
+dHZhbDsNCi0tLSBsaW51eC9mcy9iaW5mbXRfZWxmLmMub3JpZwlUaHUgU2Vw
+IDI3IDA5OjEyOjQxIDIwMDENCisrKyBsaW51eC9mcy9iaW5mbXRfZWxmLmMJ
+VGh1IFNlcCAyNyAwOToxNToyNiAyMDAxDQpAQCAtMTA3LDcgKzEwNyw4IEBA
+DQogCQkgIHN0cnVjdCBlbGZoZHIgKiBleGVjLA0KIAkJICB1bnNpZ25lZCBs
+b25nIGxvYWRfYWRkciwNCiAJCSAgdW5zaWduZWQgbG9uZyBsb2FkX2JpYXMs
+DQotCQkgIHVuc2lnbmVkIGxvbmcgaW50ZXJwX2xvYWRfYWRkciwgaW50IGli
+Y3MpDQorCQkgIHVuc2lnbmVkIGxvbmcgaW50ZXJwX2xvYWRfYWRkciwNCisJ
+CSAgaW50IGliY3MsIHVuc2lnbmVkIGludCBtYXhfYXJnc2l6ZSkNCiB7DQog
+CWVsZl9jYWRkcl90ICphcmd2Ow0KIAllbGZfY2FkZHJfdCAqZW52cDsNCkBA
+IC0xOTgsOCArMTk5LDggQEANCiAJY3VycmVudC0+bW0tPmFyZ19zdGFydCA9
+ICh1bnNpZ25lZCBsb25nKSBwOw0KIAl3aGlsZSAoYXJnYy0tPjApIHsNCiAJ
+CV9fcHV0X3VzZXIoKGVsZl9jYWRkcl90KSh1bnNpZ25lZCBsb25nKXAsYXJn
+disrKTsNCi0JCWxlbiA9IHN0cm5sZW5fdXNlcihwLCBQQUdFX1NJWkUqTUFY
+X0FSR19QQUdFUyk7DQotCQlpZiAoIWxlbiB8fCBsZW4gPiBQQUdFX1NJWkUq
+TUFYX0FSR19QQUdFUykNCisJCWxlbiA9IHN0cm5sZW5fdXNlcihwLCBtYXhf
+YXJnc2l6ZSk7DQorCQlpZiAoIWxlbiB8fCBsZW4gPiBtYXhfYXJnc2l6ZSkN
+CiAJCQlyZXR1cm4gTlVMTDsNCiAJCXAgKz0gbGVuOw0KIAl9DQpAQCAtMjA3
+LDggKzIwOCw4IEBADQogCWN1cnJlbnQtPm1tLT5hcmdfZW5kID0gY3VycmVu
+dC0+bW0tPmVudl9zdGFydCA9ICh1bnNpZ25lZCBsb25nKSBwOw0KIAl3aGls
+ZSAoZW52Yy0tPjApIHsNCiAJCV9fcHV0X3VzZXIoKGVsZl9jYWRkcl90KSh1
+bnNpZ25lZCBsb25nKXAsZW52cCsrKTsNCi0JCWxlbiA9IHN0cm5sZW5fdXNl
+cihwLCBQQUdFX1NJWkUqTUFYX0FSR19QQUdFUyk7DQotCQlpZiAoIWxlbiB8
+fCBsZW4gPiBQQUdFX1NJWkUqTUFYX0FSR19QQUdFUykNCisJCWxlbiA9IHN0
+cm5sZW5fdXNlcihwLCBtYXhfYXJnc2l6ZSk7DQorCQlpZiAoIWxlbiB8fCBs
+ZW4gPiBtYXhfYXJnc2l6ZSkNCiAJCQlyZXR1cm4gTlVMTDsNCiAJCXAgKz0g
+bGVuOw0KIAl9DQpAQCAtNzA4LDcgKzcwOSw4IEBADQogCQkJJmVsZl9leCwN
+CiAJCQlsb2FkX2FkZHIsIGxvYWRfYmlhcywNCiAJCQlpbnRlcnBfbG9hZF9h
+ZGRyLA0KLQkJCShpbnRlcnByZXRlcl90eXBlID09IElOVEVSUFJFVEVSX0FP
+VVQgPyAwIDogMSkpOw0KKwkJCShpbnRlcnByZXRlcl90eXBlID09IElOVEVS
+UFJFVEVSX0FPVVQgPyAwIDogMSksDQorCQkJYnBybS0+bnJfcGFnZXMgKiBQ
+QUdFX1NJWkUpOw0KIAkvKiBOLkIuIHBhc3NlZF9maWxlbm8gbWlnaHQgbm90
+IGJlIGluaXRpYWxpemVkPyAqLw0KIAlpZiAoaW50ZXJwcmV0ZXJfdHlwZSA9
+PSBJTlRFUlBSRVRFUl9BT1VUKQ0KIAkJY3VycmVudC0+bW0tPmFyZ19zdGFy
+dCArPSBzdHJsZW4ocGFzc2VkX2ZpbGVubykgKyAxOw0KLS0tIGxpbnV4L2tl
+cm5lbC9zeXNjdGwuYy5vcmlnCVRodSBTZXAgMjcgMDg6NTA6NTggMjAwMQ0K
+KysrIGxpbnV4L2tlcm5lbC9zeXNjdGwuYwlUaHUgU2VwIDI3IDA4OjUyOjIw
+IDIwMDENCkBAIC0yNjgsNiArMjY4LDggQEANCiAJICZwZ3RfY2FjaGVfd2F0
+ZXIsIDIqc2l6ZW9mKGludCksIDA2NDQsIE5VTEwsICZwcm9jX2RvaW50dmVj
+fSwNCiAJe1ZNX1BBR0VfQ0xVU1RFUiwgInBhZ2UtY2x1c3RlciIsIA0KIAkg
+JnBhZ2VfY2x1c3Rlciwgc2l6ZW9mKGludCksIDA2NDQsIE5VTEwsICZwcm9j
+X2RvaW50dmVjfSwNCisJe1ZNX0VYRUNfQVJHU0laRSwgImV4ZWMtYXJnc2l6
+ZSIsIA0KKwkgJmV4ZWNfYXJnc2l6ZSwgc2l6ZW9mKGludCksIDA2NDQsIE5V
+TEwsICZwcm9jX2RvaW50dmVjfSwNCiAJezB9DQogfTsNCiANCi0tLSBsaW51
+eC9pbmNsdWRlL2xpbnV4L2JpbmZtdHMuaC5vcmlnCVRodSBTZXAgMjcgMDg6
+NDk6NTEgMjAwMQ0KKysrIGxpbnV4L2luY2x1ZGUvbGludXgvYmluZm10cy5o
+CVRodSBTZXAgMjcgMDk6MjA6NTUgMjAwMQ0KQEAgLTQsMTIgKzQsNyBAQA0K
+ICNpbmNsdWRlIDxsaW51eC9wdHJhY2UuaD4NCiAjaW5jbHVkZSA8bGludXgv
+Y2FwYWJpbGl0eS5oPg0KIA0KLS8qDQotICogTUFYX0FSR19QQUdFUyBkZWZp
+bmVzIHRoZSBudW1iZXIgb2YgcGFnZXMgYWxsb2NhdGVkIGZvciBhcmd1bWVu
+dHMNCi0gKiBhbmQgZW52ZWxvcGUgZm9yIHRoZSBuZXcgcHJvZ3JhbS4gMzIg
+c2hvdWxkIHN1ZmZpY2UsIHRoaXMgZ2l2ZXMNCi0gKiBhIG1heGltdW0gZW52
+K2FyZyBvZiAxMjhrQiB3LzRLQiBwYWdlcyENCi0gKi8NCi0jZGVmaW5lIE1B
+WF9BUkdfUEFHRVMgMzINCitleHRlcm4gaW50IGV4ZWNfYXJnc2l6ZTsNCiAN
+CiAvKiBzaXplb2YobGludXhfYmlucHJtLT5idWYpICovDQogI2RlZmluZSBC
+SU5QUk1fQlVGX1NJWkUgMTI4DQpAQCAtMjEsNyArMTYsOCBAQA0KICAqLw0K
+IHN0cnVjdCBsaW51eF9iaW5wcm17DQogCWNoYXIgYnVmW0JJTlBSTV9CVUZf
+U0laRV07DQotCXN0cnVjdCBwYWdlICpwYWdlW01BWF9BUkdfUEFHRVNdOw0K
+KwlpbnQgbnJfcGFnZXM7DQorCXN0cnVjdCBwYWdlICoqcGFnZXM7DQogCXVu
+c2lnbmVkIGxvbmcgcDsgLyogY3VycmVudCB0b3Agb2YgbWVtICovDQogCWlu
+dCBzaF9iYW5nOw0KIAlzdHJ1Y3QgZmlsZSAqIGZpbGU7DQotLS0gbGludXgv
+aW5jbHVkZS9saW51eC9zeXNjdGwuaC5vcmlnCVRodSBTZXAgMjcgMDk6MjE6
+NTggMjAwMQ0KKysrIGxpbnV4L2luY2x1ZGUvbGludXgvc3lzY3RsLmgJVGh1
+IFNlcCAyNyAwOToyMjo0NCAyMDAxDQpAQCAtMTM3LDcgKzEzNyw4IEBADQog
+CVZNX1BBR0VDQUNIRT03LAkJLyogc3RydWN0OiBTZXQgY2FjaGUgbWVtb3J5
+IHRocmVzaG9sZHMgKi8NCiAJVk1fUEFHRVJEQUVNT049OCwJLyogc3RydWN0
+OiBDb250cm9sIGtzd2FwZCBiZWhhdmlvdXIgKi8NCiAJVk1fUEdUX0NBQ0hF
+PTksCQkvKiBzdHJ1Y3Q6IFNldCBwYWdlIHRhYmxlIGNhY2hlIHBhcmFtZXRl
+cnMgKi8NCi0JVk1fUEFHRV9DTFVTVEVSPTEwCS8qIGludDogc2V0IG51bWJl
+ciBvZiBwYWdlcyB0byBzd2FwIHRvZ2V0aGVyICovDQorCVZNX1BBR0VfQ0xV
+U1RFUj0xMCwJLyogaW50OiBzZXQgbnVtYmVyIG9mIHBhZ2VzIHRvIHN3YXAg
+dG9nZXRoZXIgKi8NCisJVk1fRVhFQ19BUkdTSVpFPTExCS8qIGludDogbWF4
+aW11bSBleGVjKCkgYXJndW1lbnQgc2l6ZSBpbiBieXRlcyAqLw0KIH07DQog
+DQogDQo=
+--8323328-1708323492-1001578422=:2745--

@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287255AbSAGWFM>; Mon, 7 Jan 2002 17:05:12 -0500
+	id <S287254AbSAGWGC>; Mon, 7 Jan 2002 17:06:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287244AbSAGWEz>; Mon, 7 Jan 2002 17:04:55 -0500
-Received: from cj44686-b.reston1.va.home.com ([24.18.166.90]:61704 "EHLO
-	cj44686-b.reston1.va.home.com") by vger.kernel.org with ESMTP
-	id <S287235AbSAGWEm>; Mon, 7 Jan 2002 17:04:42 -0500
-Date: Mon, 7 Jan 2002 17:28:32 -0500
-From: Tim Hollebeek <tim@hollebeek.com>
-To: jtv <jtv@xs4all.nl>
-Cc: Bernard Dautrevaux <Dautrevaux@microprocess.com>,
-        "'dewar@gnat.com'" <dewar@gnat.com>, paulus@samba.org, gcc@gcc.gnu.org,
-        linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
-        velco@fadata.bg
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020107172832.A1728@cj44686-b.reston1.va.home.com>
-Reply-To: tim@hollebeek.com
-In-Reply-To: <17B78BDF120BD411B70100500422FC6309E402@IIS000> <20020107224907.D8157@xs4all.nl>
+	id <S287256AbSAGWFx>; Mon, 7 Jan 2002 17:05:53 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:36107 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S287254AbSAGWFq>;
+	Mon, 7 Jan 2002 17:05:46 -0500
+Date: Mon, 7 Jan 2002 14:03:49 -0800
+From: Greg KH <greg@kroah.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, mochel@osdl.org
+Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
+Message-ID: <20020107220348.GE9271@kroah.com>
+In-Reply-To: <20020107192903.GB8413@kroah.com> <17b801c197ba$febd13c0$6800000a@brownell.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <20020107224907.D8157@xs4all.nl>
+Content-Disposition: inline
+In-Reply-To: <17b801c197ba$febd13c0$6800000a@brownell.org>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Mon, 10 Dec 2001 19:08:53 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 07, 2002 at 12:36:32PM -0800, David Brownell wrote:
+> 
+> It's too early, the system isn't "hot" yet ... which is why I call this
+> problem the "coldplug" issue.   Even simple device setup
+> operations like modprobing may not be possible, much less
+> more complex ones like alerting/starting daemons.  So the
+> init.d/hotplug script, invoked later, fakes hotplug events to
+> make sure the same setup gets done, without requiring users
+> to unplug/replug devices.
 
-> Nothing's taking the pointer's address, so the compiler _will_ be able 
-> to prove that (in a sensible universe) no other thread, interrupt, 
-> kernel code or Angered Rain God will be able to find our pointer--much 
-> less change it.
+Hopefully, integration of /sbin/hotplug during the boot process (using
+dietHotplug) will reduce the number of things the "coldplug" issue will
+have to handle.
 
-You're not allowed to be that smart wrt volatile.  If the programmer
-says the value might change unpredictably and should not be optimized,
-then It Is So and the compiler must respect that even if it determines
-It Cannot Possibly Happen.
-
--Tim
+greg k-h

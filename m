@@ -1,100 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267561AbUH1TLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267635AbUH1TSb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267561AbUH1TLI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 15:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267615AbUH1TLI
+	id S267635AbUH1TSb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 15:18:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267632AbUH1TSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 15:11:08 -0400
-Received: from gprs214-47.eurotel.cz ([160.218.214.47]:43905 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S267561AbUH1TKy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 15:10:54 -0400
-Date: Sat, 28 Aug 2004 21:10:33 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Patrick Mochel <mochel@digitalimplant.org>, JBeulich@novell.com,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: x86 build issue with software suspend code
-Message-ID: <20040828191033.GA14816@elf.ucw.cz>
-References: <20040826191217.4b9b31f1.akpm@osdl.org>
+	Sat, 28 Aug 2004 15:18:30 -0400
+Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:10763
+	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
+	id S267625AbUH1TST (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 15:18:19 -0400
+Date: Sat, 28 Aug 2004 12:18:15 -0700
+From: Brad Boyer <flar@allandria.com>
+To: Jeremy Allison <jra@samba.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Jamie Lokier <jamie@shareable.org>,
+       Rik van Riel <riel@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, reiser@namesys.com,
+       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040828191815.GA20865@pants.nu>
+References: <Pine.LNX.4.58.0408261217140.2304@ppc970.osdl.org> <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com> <20040826204841.GC5733@mail.shareable.org> <20040826205218.GE1570@legion.cup.hp.com> <20040827101956.B29672@infradead.org> <20040828035629.GE1285@jeremy1>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040826191217.4b9b31f1.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040828035629.GE1285@jeremy1>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Aug 27, 2004 at 08:56:29PM -0700, Jeremy Allison wrote:
+> I am well aware of what netatalk does. However netatalk
+> isn't as widely used as Samba. Things they can get away
+> with would cause our user community to flay us alive.
 > 
-> A piece of code most like "copy-and-paste"d from x86_64 to i386 caused
-> the section named .data.nosave in arch/i386/power/swsusp.S to become
-> named .data.nosave.1 in arch/i386/power/built-in.o (due to an attribute
-> collision with an identically named section from
-> arch/i386/power/cpu.c),
-
-I can't find anything about nosave section in cpu.c... Can you quote it?
-
-> which finally ends up in no-where land (because it doesn't have even the
-> alloc bit set, and the linker script doesn't know about such a section
-> either), resulting in the two variables being accessed at (absolute)
-> addresses 0 and 8 (which shouldn't normally be accessible at all, but
-> perhaps are mapped for whatever reason at the point execution gets
-> there, since otherwise problems with this code path should have been
-> observed much earlier).
+> We need a proper solution, not a nasty hack.
 > 
-> The below (also attached for the inline variant most certainly getting
-> incorrectly line wrapped) patch changes the attributes of the section to
-> match those of other instances of the section, so the renaming doesn't
-> happen anymore. It also adds alignment, decreases the fields from 8 to 4
-> bytes and applies these additional changes also to the appearant
-> original x86_64 code.
+> That's like me telling you to "learn from *BSD". You have
+> different user constituencies, you have to serve yours,
+> I have to serve mine.
 
-I do not know that much about linker, but patch looks okay.
-								Pavel
+While I do think that there are some hacks in netatalk, the
+hacks there are not nearly as bad as the hacks that made it
+into the kernel to support exporting a native Mac filesystem.
+Take a look at the fork code in the hfs filesystem from 2.4
+or before for exporting to netatalk.  It's disgusting, and
+mostly because there is no easy way to export the resource
+fork and extra metadata that is essential to the client. The
+2.6 code doesn't have that anymore, but I don't think it
+actually works with netatalk either. Perhaps someone can
+correct me on that, but I don't see how it could work.
 
-> diff -Napru linux-2.6.8.1/arch/i386/power/swsusp.S
-> 2.6.8.1/arch/i386/power/swsusp.S
-> --- linux-2.6.8.1/arch/i386/power/swsusp.S	2004-08-14
-> 12:55:19.000000000 +0200
-> +++ 2.6.8.1/arch/i386/power/swsusp.S	2004-08-26 15:54:35.420154440
-> +0200
-> @@ -89,9 +89,10 @@ copy_done:
->  	popl %ebx
->  	ret
->  
-> -       .section .data.nosave
-> +       .section .data.nosave, "aw"
-> +       .align 4
->  loop:
-> -       .quad 0
-> +       .long 0
->  loop2:
-> -       .quad 0
-> +       .long 0
->         .previous
-> diff -Napru linux-2.6.8.1/arch/x86_64/kernel/suspend_asm.S
-> 2.6.8.1/arch/x86_64/kernel/suspend_asm.S
-> --- linux-2.6.8.1/arch/x86_64/kernel/suspend_asm.S	2004-08-14
-> 12:56:22.000000000 +0200
-> +++ 2.6.8.1/arch/x86_64/kernel/suspend_asm.S	2004-08-26
-> 15:54:56.446957880 +0200
-> @@ -117,7 +117,8 @@ ENTRY(do_magic)
->  	addq	$8, %rsp
->  	jmp	do_magic_resume_2
->  
-> -	.section .data.nosave
-> +	.section .data.nosave, "aw"
-> +	.align 8
->  loop:
->  	.quad 0
->  loop2:	
-> 
-> 
+I would hope that something comes out of this whole discussion
+that will allow a much better interface between the hfs/hfsplus
+code in the kernel and netatalk.
 
+	Brad Boyer
+	flar@allandria.com
 
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311587AbSDBMJH>; Tue, 2 Apr 2002 07:09:07 -0500
+	id <S311262AbSDBL6R>; Tue, 2 Apr 2002 06:58:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311752AbSDBMI5>; Tue, 2 Apr 2002 07:08:57 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:32015 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S311587AbSDBMIp>; Tue, 2 Apr 2002 07:08:45 -0500
-Date: Tue, 2 Apr 2002 14:08:30 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: Tom Holroyd <tomh@po.crl.go.jp>, Andreas Schwab <schwab@suse.de>,
-        kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Unknown HZ value! (1908) Assume 1024.
-In-Reply-To: <200204010828.g318SUH430119@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.33.0204021402280.494-100000@gans.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311424AbSDBL6G>; Tue, 2 Apr 2002 06:58:06 -0500
+Received: from ns.suse.de ([213.95.15.193]:45584 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S311262AbSDBL56>;
+	Tue, 2 Apr 2002 06:57:58 -0500
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: UP IO-APIC with ACPI table but no MP table?
+In-Reply-To: <15529.39198.444056.901156@kim.it.uu.se.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 02 Apr 2002 13:57:54 +0200
+Message-ID: <p731ydytirg.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Apr 2002, Albert D. Cahalan wrote:
+Mikael Pettersson <mikpe@csd.uu.se> writes:
 
-> Tim Schmielau writes:
-> 
-> > I'd still prefer to export only 32 bit of user, nice, and system. This
-> > way they overflow in a clearly defined way - the 32 bits we export are
-> > exact, only the higher bits are missing.
-> 
-> The higher bits are absolutely required.
-At least on Alpha (with HZ=1024) I definitely agree. At HZ=100 I'm a bit 
-uncertain. What I don't want is exporting higher bits that sometimes wrap
-and sometimes not.
-> 
-> There are ways to push the work of doing a 64-bit counter out into the
-> proc filesystem and a timer that goes off every 31 bits worth of time.
-> I've posted an explanation before; you may search for it if you like.
-> 
+> Is it possible to get the kernel to recognise and utilise the
+> chipset's IO-APIC if the BIOS has no MP table but does list the
+> IO-APIC in the ACPI table(s)?
 
-Like I did for idle time in the >497 days uptime patch? Then I'll include 
-a chunk for user, nice, and system time in the next version and we can see
-if Linus takes it.
+The new Intel ACPI implementation now merged into 2.5 should support 
+this. Of course it may still not work on your particular BIOS.
 
-Tim
+> If it's possible, is it also meaningful to do this on UP?
 
+Using the IO-APIC makes a lot of sense, because it is a much more
+efficient interface to the interrupt controller.
+
+-Andi

@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbUEODmd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264495AbUEOEw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262434AbUEODmd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 23:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264642AbUEODmd
+	id S264495AbUEOEw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 00:52:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbUEOEw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 23:42:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:52618 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262434AbUEODmc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 23:42:32 -0400
-Date: Fri, 14 May 2004 20:41:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Lincoln Dale <ltd@cisco.com>
-Cc: adi@bitmover.com, elenstev@mesatop.com, scole@lanl.gov,
-       support@bitmover.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s &&
- s->tree' failed: The saga continues.)
-Message-Id: <20040514204153.0d747933.akpm@osdl.org>
-In-Reply-To: <5.1.0.14.2.20040515130250.00b84ff8@171.71.163.14>
-References: <200405132232.01484.elenstev@mesatop.com>
-	<20040514144617.GE20197@work.bitmover.com>
-	<200405131723.15752.elenstev@mesatop.com>
-	<200405122234.06902.elenstev@mesatop.com>
-	<15594C37-A509-11D8-A7EA-000A95CC3A8A@lanl.gov>
-	<20040513183316.GE17965@bitmover.com>
-	<200405131723.15752.elenstev@mesatop.com>
-	<6616858C-A5AF-11D8-A7EA-000A95CC3A8A@lanl.gov>
-	<20040514144617.GE20197@work.bitmover.com>
-	<200405122234.06902.elenstev@mesatop.com>
-	<15594C37-A509-11D8-A7EA-000A95CC3A8A@lanl.gov>
-	<20040513183316.GE17965@bitmover.com>
-	<200405131723.15752.elenstev@mesatop.com>
-	<5.1.0.14.2.20040515130250.00b84ff8@171.71.163.14>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 15 May 2004 00:52:59 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:31750 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S264495AbUEOEw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 00:52:57 -0400
+Date: Sat, 15 May 2004 12:52:08 +0800 (WST)
+From: raven@themaw.net
+To: John McCutchan <ttb@tentacle.dhs.org>
+cc: linux-kernel@vger.kernel.org, nautilus-list@gnome.org
+Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement
+In-Reply-To: <1084152941.22837.21.camel@vertex>
+Message-ID: <Pine.LNX.4.58.0405151235370.1575@donald.themaw.net>
+References: <1084152941.22837.21.camel@vertex>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.7, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, QUOTED_EMAIL_TEXT,
+	REFERENCES, REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lincoln Dale <ltd@cisco.com> wrote:
->
-> At 02:53 AM 15/05/2004, Andy Isaacson wrote:
-> >That corruption size really does make me think of network packets, so
-> >I'm tempted to blame it on PPP.  Can you find out the MTU of your PPP
-> >link?  "ifconfig ppp0" or something like that.
+On Sun, 9 May 2004, John McCutchan wrote:
+
+> Hi,
 > 
-> 1352 bytes coule be remarkably close to the TCP MSS . . .
-> perhaps there is some interaction with ppp where there is an overrun / lost 
-> packet and the TCP window is mistakenly advanced?
+> I have been working on inotify a dnotify replacement. 
 
-Steve, if it's a memory stomp then perhaps CONFIG_DEBUG_PAGEALLOC and
-CONFIG_DEBUG_SLAB might pick it up.
+Help me here a little John I'm a little slow on the uptake.
 
-It seems awfully deterministic though.
+> 
+> inotify is a char device that has two ioctls: INOTIFY_WATCH and
+> INOTIFY_IGNORE Which expect an inode number and an inode device number.
+> I know that on some file systems the inode number and inode device
+> number are not guaranteed to be unique. This driver is only meant for
+> file systems that have unique inode numbers. 
+> 
+> The two biggest complaints people have about dnotify are
+> 
+> 1) dnotify delivers events using signals. 
+> 
+> 2) dnotify needs a file to be kept open on the device, causing problems
+> during unmount. 
+
+So we are saying we open the device file to do our stuff instead of 
+keeping a file open?
+
+In kernel functionality could be provided by calling appropriately exported 
+routines?
+
+This implementation caters read/write notifications only at this stage?
+
+Ian
+ 
+

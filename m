@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266290AbUG0HAq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266287AbUG0HFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266290AbUG0HAq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 03:00:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266289AbUG0HAp
+	id S266287AbUG0HFb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 03:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266292AbUG0HFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 03:00:45 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:57276 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S266262AbUG0HAa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 03:00:30 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 27 Jul 2004 08:48:25 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Frederik <frederik@padjen.de>, linux-kernel@vger.kernel.org
-Subject: Re: Fw: Oops when modprobing cx8800
-Message-ID: <20040727064824.GB16853@bytesex>
-References: <20040725183038.108ffd7c.akpm@osdl.org>
+	Tue, 27 Jul 2004 03:05:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:3210 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266287AbUG0HFZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 03:05:25 -0400
+Date: Tue, 27 Jul 2004 00:03:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Janice M Girouard <janiceg@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, wenxiong@us.ibm.com,
+       linux-serial@vger.kernel.org
+Subject: Re: new device driver to enable the IBM Multiport Serial Adapter in
+ Linux
+Message-Id: <20040727000359.6e0af2e0.akpm@osdl.org>
+In-Reply-To: <41055722.2070104@us.ibm.com>
+References: <41055722.2070104@us.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040725183038.108ffd7c.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 25, 2004 at 06:30:38PM -0700, Andrew Morton wrote:
-> 
-> hm, odd.
+Janice M Girouard <janiceg@us.ibm.com> wrote:
+>
+> The patch below enables the IBM Multiport Serial Adapter for the Linux 
+>  OS.
 
-> Jul 21 15:30:21 athene kernel:  [<c020a377>] vsprintf+0x27/0x30
-> Jul 21 15:30:21 athene kernel:  [<c020a39f>] sprintf+0x1f/0x30
-> Jul 21 15:30:21 athene kernel:  [<d0cc1078>] cx8800_initdev+0x78/0x7a0 
+Looks sane.  Did you really intend that it be buildable for all
+architectures?  (There's nothing wrong with this - it's good.  But it's a
+bit unusual for this sort of driver).
 
-The only bug I'm aware of which is still in 2.6.8-rc1+ and might be this
-is that the card= insmod option lacks a range check (patch below), so
-passing some insane high value might kill the driver.  It shouldn't
-happen with a simple "insmod cx88" + card autodetect through.
+"IBM multiport serial adapter" seems to be a rather generic description of
+this device.  Is this the only multiport serial adapter which IBM has ever,
+or will ever make?  If not, then perhaps we could make the description a
+little more specific?
 
-If it is something else -- no idea.
-
-> (This driver should be using kthread for the kernel thread management btw)
-
-Yup, and some other v4l drivers as well ...
-Just didn't know kthread exists before OLS ;)
-
-  Gerd
-
-diff -u -p -r1.27 -r1.28
---- cx88-video.c	22 Jul 2004 13:54:28 -0000	1.27
-+++ cx88-video.c	23 Jul 2004 01:06:12 -0000	1.28
-@@ -2382,7 +2382,9 @@ static int __devinit cx8800_initdev(stru
- 	}
- 
- 	/* board config */
--	dev->board = card[cx8800_devcount];
-+	dev->board = UNSET;
-+	if (card[cx8800_devcount] < cx88_bcount)
-+		dev->board = card[cx8800_devcount];
- 	for (i = 0; UNSET == dev->board  &&  i < cx88_idcount; i++) 
- 		if (pci_dev->subsystem_vendor == cx88_subids[i].subvendor &&
- 		    pci_dev->subsystem_device == cx88_subids[i].subdevice)

@@ -1,72 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVDFFgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbVDFFiN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262104AbVDFFgD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 01:36:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbVDFFgD
+	id S262106AbVDFFiN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 01:38:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262107AbVDFFiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 01:36:03 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:42450 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262104AbVDFFfz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 01:35:55 -0400
-Subject: Re: ext3 allocate-with-reservation latencies
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-To: Ingo Molnar <mingo@elte.hu>, sct@redhat.com
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050405041359.GA17265@elte.hu>
-References: <1112673094.14322.10.camel@mindpipe>
-	 <20050405041359.GA17265@elte.hu>
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Tue, 05 Apr 2005 22:35:51 -0700
-Message-Id: <1112765751.3874.14.camel@localhost.localdomain>
+	Wed, 6 Apr 2005 01:38:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:43973 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262106AbVDFFh5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 01:37:57 -0400
+Date: Wed, 6 Apr 2005 01:37:53 -0400
+From: Dave Jones <davej@redhat.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: chelsio build failure
+Message-ID: <20050406053753.GC15168@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-05 at 06:13 +0200, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
-> 
-> > I can trigger latencies up to ~1.1 ms with a CVS checkout.  It looks
-> > like inside ext3_try_to_allocate_with_rsv, we spend a long time in this
-> > loop:
-> > 
-> > ext3_test_allocatable (bitmap_search_next_usable_block)
-> > find_next_zero_bit (bitmap_search_next_usable_block)
-> > find_next_zero_bit (bitmap_search_next_usable_block)
-> > 
-> > ext3_test_allocatable (bitmap_search_next_usable_block)
-> > find_next_zero_bit (bitmap_search_next_usable_block)
-> > find_next_zero_bit (bitmap_search_next_usable_block)
-> 
-> Breaking the lock is not really possible at that point, and it doesnt 
-> look too easy to make that path preemptable either. (To make it 
-> preemptable rsv_lock would need to become a semaphore (this could be 
-> fine, as it's only used when a new reservation window is created).)
+building this sucker as a module caused grief.
 
-It seems we are holding the rsv_block while searching the bitmap for a
-free bit.  In alloc_new_reservation(), we first find a available to
-create a reservation window, then we check the bitmap to see if it
-contains any free block. If not, we will search for next available
-window, so on and on. During the whole process we are holding the global
-rsv_lock.  We could, and probably should, avoid that.  Just unlock the
-rsv_lock before the bitmap search and re-grab it after it.  We need to
-make sure that the available space that are still available after we re-
-grab the lock. 
+drivers/net/chelsio/cxgb2.c:113: error: `__mod_pci_device_table' aliased
+to external symbol `t1_pci_tbl'.
 
-Another option is to hold that available window before we release the
-rsv_lock, and if there is no free bit inside that window, we will remove
-it from the tree in the next round of searching for next available
-window.
+This seems to do the trick. (untested beyond compile)
 
-I prefer the second option, and plan to code it up soon. Any comments?
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-Thanks,
+		Dave
 
-Mingming
-
+--- 2.6.12rc2mm1/drivers/net/chelsio/cxgb2.c~	2005-04-06 01:30:07.000000000 -0400
++++ 2.6.12rc2mm1/drivers/net/chelsio/cxgb2.c	2005-04-06 01:30:20.000000000 -0400
+@@ -110,7 +110,6 @@ static char driver_version[] = "2.1.0";
+ MODULE_DESCRIPTION(MODULE_DESC);
+ MODULE_AUTHOR("Chelsio Communications");
+ MODULE_LICENSE("GPL");
+-MODULE_DEVICE_TABLE(pci, t1_pci_tbl);
+ 
+ static int dflt_msg_enable = DFLT_MSG_ENABLE;
+ 
+--- 2.6.12rc2mm1/drivers/net/chelsio/subr.c~	2005-04-06 01:30:25.000000000 -0400
++++ 2.6.12rc2mm1/drivers/net/chelsio/subr.c	2005-04-06 01:30:35.000000000 -0400
+@@ -307,6 +307,7 @@ struct pci_device_id t1_pci_tbl[] = {
+ 	CH_DEVICE(10, 1, CH_BRD_N210_1F),
+ 	{ 0, }
+ };
++MODULE_DEVICE_TABLE(pci, t1_pci_tbl);
+ 
+ /*
+  * Return the board_info structure with a given index.  Out-of-range indices

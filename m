@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263162AbTDRRib (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 13:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263173AbTDRRib
+	id S263177AbTDRRkH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 13:40:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263178AbTDRRkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 13:38:31 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53515 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263162AbTDRRib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 13:38:31 -0400
-Date: Fri, 18 Apr 2003 10:50:31 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andries.Brouwer@cwi.nl
-cc: akpm@digeo.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] struct loop_info64
-In-Reply-To: <UTC200304181719.h3IHJ1i03344.aeb@smtp.cwi.nl>
-Message-ID: <Pine.LNX.4.44.0304181047190.2950-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 18 Apr 2003 13:40:07 -0400
+Received: from holomorphy.com ([66.224.33.161]:40074 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263177AbTDRRkG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 13:40:06 -0400
+Date: Fri, 18 Apr 2003 10:51:38 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [cpumask_t 1/3] core changes for 2.5.67-bk6
+Message-ID: <20030418175138.GA12469@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+References: <20030415225036.GE12487@holomorphy.com> <20030418102015.2527ff40.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030418102015.2527ff40.rddunlap@osdl.org>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 15 Apr 2003 15:50:36 -0700 William Lee Irwin III wrote:
+> | Core changes for extended cpu masks. Basically use a machine word
+> | #if NR_CPUS < BITS_PER_LONG, otherwise, use a structure with an array
+> | of unsigned longs for it. Sprinkle it around the scheduler and a few
+> | other odd places that play with the cpu bitmasks. Back-ended by a
+> | bitmap ADT capable of dealing with arbitrary-width bitmaps, with the
+> | obvious micro-optimizations for NR_CPUS < BITS_PER_LONG and UP.
+> | NR_CPUS % BITS_PER_LONG != 0 is invalid while NR_CPUS > BITS_PER_LONG.
 
-On Fri, 18 Apr 2003 Andries.Brouwer@cwi.nl wrote:
-> 
-> I agree less with the statement that they must be u32 instead of int.
-> My main reason is historical: the Unix interface is defined in terms
-> of char/int/long.
+On Fri, Apr 18, 2003 at 10:20:15AM -0700, Randy.Dunlap wrote:
+> Where/why this restriction (above)?
+> I don't see the need for it or implementation of it.
+> I'm only looking at the core patch.
 
-Yes, but it sucks. Look at how _hard_ it has been to add standard sized 
-types even just to user-mode C.
+I leave bits dangling otherwise.
 
-It so happens that "int" has been fairly stable at 32 bits for a long
-time, and largely continues to be so. That's make it less painful than
-most other things. "long" has certainly long since stopped being a good
-type for doing any portable stuff. 
 
-So while "char" and "int" have happened to not be painful, it's still
-wrong to depend on types that aren't explicitly sized, because it _will_
-break eventually.
+On Tue, 15 Apr 2003 15:50:36 -0700 William Lee Irwin III wrote:
+> | +static inline void bitmap_shift_left(volatile unsigned long *,volatile unsigned long *,int,int);
 
-		Linus
+On Fri, Apr 18, 2003 at 10:20:15AM -0700, Randy.Dunlap wrote:
+> Do you need this prototype?  I don't see why.
+> Rest of core looks good to me.
 
+Probably not. I'll nuke it.
+
+
+-- wli

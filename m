@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282242AbRLSSjz>; Wed, 19 Dec 2001 13:39:55 -0500
+	id <S282329AbRLSSlZ>; Wed, 19 Dec 2001 13:41:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282329AbRLSSjp>; Wed, 19 Dec 2001 13:39:45 -0500
-Received: from [139.85.108.65] ([139.85.108.65]:32905 "EHLO rpppc1.hns.com")
-	by vger.kernel.org with ESMTP id <S282242AbRLSSj3>;
-	Wed, 19 Dec 2001 13:39:29 -0500
-To: "M. R. Brown" <mrbrown@0xd6.org>
-Cc: Benoit Poulot-Cazajous <poulot@ifrance.com>, linux-kernel@vger.kernel.org
-Subject: Re: On K7, -march=k6 is good (Was Re: Why no -march=athlon?)
-In-Reply-To: <x88r8ptki37.fsf@rpppc1.hns.com> <20011217174020.GA24772@0xd6.org>
-	<lnitb3drx6.fsf_-_@walhalla.agaha> <20011219175616.GD19236@0xd6.org>
-From: nbecker@fred.net
-Date: 19 Dec 2001 13:39:20 -0500
-In-Reply-To: <20011219175616.GD19236@0xd6.org>
-Message-ID: <x88itb3njfr.fsf@rpppc1.hns.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S282213AbRLSSlP>; Wed, 19 Dec 2001 13:41:15 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:47628 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S282329AbRLSSk7>; Wed, 19 Dec 2001 13:40:59 -0500
+Message-ID: <3C20DF31.1F862501@lexus.com>
+Date: Wed, 19 Dec 2001 10:40:49 -0800
+From: J Sloan <jjs@lexus.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-rc2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+CC: Daniel Phillips <phillips@bonn-fries.net>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IRC (was: Scheduler)
+In-Reply-To: <Pine.LNX.4.33.0112191010170.27345-100000@shell1.aracnet.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "M" == M R Brown <mrbrown@0xd6.org> writes:
+"M. Edward (Ed) Borasky" wrote:
+
+>  mIRC 5.91 and I await with
+> bated breath. (Yes, I do use a Windows IRC client -- wanna make
+> something of it? :-)
+
+(shrug) whatever turns you on, I guess...
+
+I will mention that there is this cool OS
+called Linux, you might have heard of it -
+
+There are a number of very nice irc clients
+available for it
+
+;-)
+
+jjs
 
 
-    M> Curious, what happens when you compile using gcc 3.0.1 against
-    M> -march=athlon?
-
-Is it safe to use gcc-3.0.2 to compile the kernel?
 

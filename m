@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287872AbSBMRQa>; Wed, 13 Feb 2002 12:16:30 -0500
+	id <S287865AbSBMRRd>; Wed, 13 Feb 2002 12:17:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287874AbSBMRQN>; Wed, 13 Feb 2002 12:16:13 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:50187 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S287865AbSBMRP7>;
-	Wed, 13 Feb 2002 12:15:59 -0500
-Date: Wed, 13 Feb 2002 18:15:24 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Oleg Drokin <green@namesys.com>
-cc: Alex Riesen <fork0@users.sourceforge.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [reiserfs-dev] 2.5.4-pre1: zero-filled files reiserfs
-In-Reply-To: <20020213160851.A894@namesys.com>
-Message-ID: <Pine.LNX.4.44.0202131811090.21799-100000@Expansa.sns.it>
+	id <S287866AbSBMRRV>; Wed, 13 Feb 2002 12:17:21 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17677 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S287865AbSBMRRR>; Wed, 13 Feb 2002 12:17:17 -0500
+Date: Wed, 13 Feb 2002 11:02:44 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH 2.5.4 i810_audio, bttv, working at all.
+In-Reply-To: <3C6A9DEA.5D89D739@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0202131059250.13632-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,36 +21,24 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 13 Feb 2002, Oleg Drokin wrote:
+On Wed, 13 Feb 2002, Jeff Garzik wrote:
+>
+> Applying a patch like s/virt_to_bus/virt_to_phys/ makes it more
+> difficult to find the right spots to change later.
 
-> Hello!
->
-> On Wed, Feb 13, 2002 at 12:11:14PM +0100, Luigi Genoni wrote:
->
-> > > > I run slackware 8.0.49, and there was no log replaying.
-> > then I do a normal reboot in 2.4.17, without any fsck,
-> > there is log reply, it is a normal reboot.
-My fault, I was willing to write there is NO log reply, and I wrote it
-without the NO.
-> Some confusion is going on.
-> So do you have log replay or you do not have log replay?
->
-> > Well, some files get corrupted.
-> Ok. That's definitely bad. You said you see corruptions on two boxes, right?
-> Is it as simple as boot into 2.5.4, reiserfsck (and see no errors),
-> mount an fs, do something, type "reboot" and  reboot into 2.5.4 again,
-> and viola - here are zeroed files. Right?
-It happened when I did  reboot from 2.5.4-pre1 to 2.5.4, and my
-/etc/rc.c/rc.local was full of 0s.
-And when I did reboot from 2.5.3 to 2.5.3 on the other box and some c
-source I was editing three ours before were full of 0s.
->
-> > I saw I am not the only one with this kind of corruption, I remember at
-> > less one related mail.
-> There was flaky hardware on the other report. And I think Alex Riesen
-> cannot reproduce zero files anymore.
->
-Those two boxes runned from more than 1 year and no HW problems before..
+Yes and no.
 
-Luigi
+The thing is, for architectures that care, you can just grep for
+"virt_to_phys()". It's basically _never_ the right thing to do on
+something like sparc.
+
+My personal preference would actually be to keep "virt_to_bus()" for x86
+for now, and undo the change to make it complain. Instead, make it
+complain on other architectures where it _is_ wrong, so that you don't
+have to fix up drivers that simply aren't an issue. What's the point of
+breaking some drivers that only exist on x86?
+
+That, together with a warning and educating more driver writers.
+
+		Linus
 

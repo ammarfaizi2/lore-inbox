@@ -1,129 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130651AbRARBPj>; Wed, 17 Jan 2001 20:15:39 -0500
+	id <S130664AbRARBXu>; Wed, 17 Jan 2001 20:23:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130664AbRARBP3>; Wed, 17 Jan 2001 20:15:29 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:22289 "EHLO
+	id <S131026AbRARBXl>; Wed, 17 Jan 2001 20:23:41 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:46097 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130651AbRARBPT>; Wed, 17 Jan 2001 20:15:19 -0500
-Date: Wed, 17 Jan 2001 17:13:31 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Hellwig <hch@ns.caldera.de>
-cc: Rik van Riel <riel@conectiva.com.br>, mingo@elte.hu,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <20010118015333.A20691@caldera.de>
-Message-ID: <Pine.LNX.4.10.10101171659160.10878-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130664AbRARBXV>; Wed, 17 Jan 2001 20:23:21 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Subtle MM bug
+Date: 17 Jan 2001 17:23:05 -0800
+Organization: Transmeta Corporation
+Message-ID: <945ghp$att$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10101101100001.4457-100000@penguin.transmeta.com> <Pine.LNX.4.31.0101180126240.31432-100000@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.31.0101180126240.31432-100000@localhost.localdomain>,
+Rik van Riel  <riel@conectiva.com.br> wrote:
+>On Wed, 10 Jan 2001, Linus Torvalds wrote:
+>
+>> I looked at it a year or two ago myself, and came to the
+>> conclusion that I don't want to blow up our page table size by a
+>> factor of three or more, so I'm not personally interested any
+>> more. Maybe somebody else comes up with a better way to do it,
+>> or with a really compelling reason to.
+>
+>OTOH, it _would_ get rid of all the balancing issues in one
+>blow. And it would fix the aliasing issues and possibly the
+>memory fragmentation problem too.
 
+I totally disagree.
 
-On Thu, 18 Jan 2001, Christoph Hellwig wrote:
-> 
-> /*
->  * a simple page,offset,legth tuple like Linus wants it
->  */
-> struct kiobuf2 {
-> 	struct page *   page;   /* The page itself               */
-> 	u_int16_t       offset; /* Offset to start of valid data */
-> 	u_int16_t       length; /* Number of valid bytes of data */
-> };
+It might help fragmentation, but it has absolutely _no_ impact on
+balancing. See my comments about not seeing the "accessed" bit until way
+too late with a "find by physical" approach.
 
-Please use "u16". Or "__u16" if you want to export it to user space.
+You simply _cannot_ use "find by physical" for balancing, unless you're
+willing to pay the price of doing software accessed bits even on
+hardware that does it for you in the page tables.  Which is a price MUCH
+too high to pay, I suspect. 
 
-> struct kiovec2 {
-> 	int             nbufs;          /* Kiobufs actually referenced */
-> 	int             array_len;      /* Space in the allocated lists */
-> 	struct kiobuf * bufs;
-
-Any reason for array_len?
-
-Why not just 
-
-	int nbufs,
-	struct kiobuf *bufs;
-
-
-Remember: simplicity is a virtue. 
-
-Simplicity is also what makes it usable for people who do NOT want to have
-huge overhead.
-
-> 	unsigned int    locked : 1;     /* If set, pages has been locked */
-
-Remove this. I don't think it's valid to lock the pages. Who wants to use
-this anyway?
-
-> 	/* Always embed enough struct pages for 64k of IO */
-> 	struct kiobuf * buf_array[KIO_STATIC_PAGES];	 
-
-Kill kill kill kill. 
-
-If somebody wants to embed a kiovec into their own data structure, THEY
-can decide to add their own buffers etc. A fundamental data structure
-should _never_ make assumptions like this.
-
-> 	/* Private data */
-> 	void *          private;
-> 	
-> 	/* Dynamic state for IO completion: */
-> 	atomic_t        io_count;       /* IOs still in progress */
-
-What is io_count used for?
-
-> 	int             errno;
-> 
-> 	/* Status of completed IO */
-> 	void (*end_io)	(struct kiovec *); /* Completion callback */
-> 	wait_queue_head_t wait_queue;
-
-I suspect all of the above ("private", "end_io" etc) should be at a higher
-layer. Not everybody will necessarily need them.
-
-Remember: if this is to be well designed, we want to have the data
-structures to pass down to low-level drivers etc, that may not want or
-need a lot of high-level stuff. You should not pass down more than the
-driver really needs.
-
-In the end, the only thing you _know_ a driver will need (assuming that it
-wants these kinds of buffers) is just
-
-	int nbufs;
-	struct biobuf *bufs;
-
-That's kind of the minimal set. That should be one level of abstraction in
-its own right. 
-
-Never over-design. Never think "Hmm, maybe somebody would find this
-useful". Start from what you know people _have_ to have, and try to make
-that set smaller. When you can make it no smaller, you've reached one
-point. That's a good point to start from - use that for some real
-implementation.
-
-Once you've gotten that far, you can see how well you can embed the lower
-layers into higher layers. That does _not_ mean that the lower layers
-should know about the high-level data structures. Try to avoid pushing
-down abstractions too far. Maybe you'll want to push down the error code.
-But maybe not. And you should NOT link the callback with the vector of
-IO's: you may find (in fact, I bet you _will_ find), that the lowest level
-will want a callback to call up to when it is ready, and that layer may
-want _another_ callback to call up to higher levels.
-
-Imagine, for example, the network driver telling the IP layer that "ok,
-packet sent". That's _NOT_ the same callback as the TCP layer telling the
-upper layers that the packet data has been sent and successfully
-acknowledged, and that the data structures can be free'd now. They are at
-two completely different levels of abstraction, and one level needing
-something doesn't need that the other level should necessarily even care.
-
-Don't imagine that everybody wants the same data structure, and that that
-data structure should thus be very generic. Genericity kills good ideas.
+The current vmscanning is the way to go.  Getting PageDirty was a big
+step for it, because it is needed so that we can drop pages without
+having to do IO like we historically did.  I doubt find-by-physical will
+help AT ALL wrt balancing. 
 
 		Linus
-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

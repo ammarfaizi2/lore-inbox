@@ -1,53 +1,162 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbUCXXxO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 18:53:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262292AbUCXXvY
+	id S262292AbUCXX54 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 18:57:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbUCXX54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 18:51:24 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:60079
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262490AbUCXXua (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 18:50:30 -0500
-Date: Thu, 25 Mar 2004 00:51:22 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Arjan van de Ven <arjanv@redhat.com>, tiwai@suse.de,
-       Robert Love <rml@ximian.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RCU for low latency (experimental)
-Message-ID: <20040324235122.GN2065@dualathlon.random>
-References: <20040323123105.GI22639@dualathlon.random> <20040323124002.GH3676@in.ibm.com> <20040323125044.GL22639@dualathlon.random> <20040324172657.GA1303@us.ibm.com> <20040324175142.GW2065@dualathlon.random> <20040324213914.GD4539@in.ibm.com> <20040324225326.GH2065@dualathlon.random> <20040324231145.GB12035@in.ibm.com> <20040324233430.GJ2065@dualathlon.random> <20040324234643.GD12035@in.ibm.com>
+	Wed, 24 Mar 2004 18:57:56 -0500
+Received: from gprs214-165.eurotel.cz ([160.218.214.165]:644 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262292AbUCXX50 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 18:57:26 -0500
+Date: Thu, 25 Mar 2004 00:57:02 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Cc: seife@suse.de
+Subject: swsusp with highmem, testing wanted
+Message-ID: <20040324235702.GA497@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040324234643.GD12035@in.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 25, 2004 at 05:16:43AM +0530, Dipankar Sarma wrote:
-> On Thu, Mar 25, 2004 at 12:34:30AM +0100, Andrea Arcangeli wrote:
-> > On Thu, Mar 25, 2004 at 04:41:45AM +0530, Dipankar Sarma wrote:
-> > > That was not 16 callbacks per tick, it was 16 callbacks in one
-> > > batch of a single softirq. And then I reschedule the RCU tasklet
-> > 
-> > sorry so you're already using tasklets in current code? I misunderstood
-> > the current code then.
-> 
-> +               if (count >= rcumaxbatch) {
-> +                       RCU_plugticks(cpu) = rcuplugticks;
-> +                       if (!RCU_plugticks(cpu))
-> +                               tasklet_hi_schedule(&RCU_tasklet(cpu));
-> +                       break;
-> +               }
-> 
-> That does it. Although, the tasklet handler needs to optimized
+Hi!
 
-yes I've noticed it reading just the above chunk of your patch, I just
-didn't notice there was a tasklet already there ready for use :/.
+If you have machine with >=1GB of RAM, do you think you could test
+this patch? [I'd like to hear about successes, too; perhaps send it
+privately].
 
-thanks.
+							Pavel
+
+--- clean.2.5/kernel/power/swsusp.c	2004-03-11 18:11:26.000000000 +0100
++++ linux-himem-swsusp/kernel/power/swsusp.c	2004-03-25 00:53:56.000000000 +0100
+@@ -61,6 +61,7 @@
+ #include <linux/bootmem.h>
+ #include <linux/syscalls.h>
+ #include <linux/console.h>
++#include <linux/highmem.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/mmu_context.h>
+@@ -362,7 +363,69 @@
+ 	return 0;
+ }
+ 
++struct highmem_page {
++	char *data;
++	struct page *page;
++	struct highmem_page *next;
++};
++
++struct highmem_page *highmem_copy = NULL;
++
+ /* if pagedir_p != NULL it also copies the counted pages */
++static int save_highmem(void)
++{
++	int pfn;
++	struct page *page;
++	int chunk_size;
++
++	for (pfn = 0; pfn < max_pfn; pfn++) {
++		struct highmem_page *save;
++		void *kaddr;
++
++		page = pfn_to_page(pfn);
++
++		if (!PageHighMem(page))
++			continue;
++		if (PageReserved(page)) {
++			printk("highmem reserved page?!\n");
++			BUG();
++		}
++		if ((chunk_size=is_head_of_free_region(page))!=0) {
++			pfn += chunk_size - 1;
++			continue;
++		}
++		save = kmalloc(sizeof(struct highmem_page), GFP_ATOMIC);
++		if (!save)
++			panic("Not enough memory");
++		save->next = highmem_copy;
++		save->page = page;
++		save->data = get_zeroed_page(GFP_ATOMIC);
++		if (!save->data)
++			panic("Not enough memory");
++		kaddr = kmap_atomic(page, KM_USER0);
++		memcpy(save->data, kaddr, PAGE_SIZE);
++		kunmap_atomic(kaddr, KM_USER0);
++		highmem_copy = save;
++	}
++	return 0;
++}
++
++static int restore_highmem(void)
++{
++	while (highmem_copy) {
++		struct highmem_page *save = highmem_copy;
++		void *kaddr;
++		highmem_copy = save->next;
++		
++		kaddr = kmap_atomic(save->page, KM_USER0);
++		memcpy(kaddr, save->data, PAGE_SIZE);
++		kunmap_atomic(kaddr, KM_USER0);
++		free_page(save->data);
++		kfree(save);
++	}
++	return 0;
++}
++
+ static int count_and_copy_data_pages(struct pbe *pagedir_p)
+ {
+ 	int chunk_size;
+@@ -378,7 +441,7 @@
+ 	for (pfn = 0; pfn < max_pfn; pfn++) {
+ 		page = pfn_to_page(pfn);
+ 		if (PageHighMem(page))
+-			panic("Swsusp not supported on highmem boxes. Send 1GB of RAM to <pavel@ucw.cz> and try again ;-).");
++			continue;
+ 
+ 		if (!PageReserved(page)) {
+ 			if (PageNosave(page))
+@@ -413,6 +476,7 @@
+ 	return nr_copy_pages;
+ }
+ 
++
+ static void free_suspend_pagedir(unsigned long this_pagedir)
+ {
+ 	struct page *page;
+@@ -492,10 +556,12 @@
+ 	struct sysinfo i;
+ 	unsigned int nr_needed_pages = 0;
+ 
+-	drain_local_pages();
+-
+ 	pagedir_nosave = NULL;
+-	printk( "/critical section: Counting pages to copy" );
++	printk( "/critical section: Handling highmem" );
++	save_highmem();
++
++	printk(", counting pages to copy" );
++	drain_local_pages();
+ 	nr_copy_pages = count_and_copy_data_pages(NULL);
+ 	nr_needed_pages = nr_copy_pages + PAGES_FOR_IO;
+ 	
+@@ -603,6 +669,11 @@
+ 
+ 	PRINTK( "Freeing prev allocated pagedir\n" );
+ 	free_suspend_pagedir((unsigned long) pagedir_save);
++
++	printk( "Restoring highmem\n" );
++	restore_highmem();
++	printk("done, devices\n");
++
+ 	device_power_up();
+ 	spin_unlock_irq(&suspend_pagedir_lock);
+ 	device_resume();
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266028AbUAUVmW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 16:42:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266029AbUAUVmW
+	id S264245AbUAUVwb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 16:52:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbUAUVwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 16:42:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:43399 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266028AbUAUVmU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 16:42:20 -0500
-Date: Wed, 21 Jan 2004 13:43:39 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Eduard Roccatello <lilo.please.no.spam@roccatello.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.1-mm5] Unable to handle kernel paging request
-Message-Id: <20040121134339.68fea573.akpm@osdl.org>
-In-Reply-To: <200401211018.51865.lilo.please.no.spam@roccatello.it>
-References: <200401211018.51865.lilo.please.no.spam@roccatello.it>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 21 Jan 2004 16:52:31 -0500
+Received: from agminet02.oracle.com ([141.146.126.229]:19690 "EHLO
+	agminet02.oracle.com") by vger.kernel.org with ESMTP
+	id S264245AbUAUVw3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 16:52:29 -0500
+Message-ID: <400EF356.3070007@oracle.com>
+Date: Wed, 21 Jan 2004 22:47:02 +0100
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20040107
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.2-rc1 breaks Cisco VPN client 4.0.3.B
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-White-List-Member: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eduard Roccatello <lilo.please.no.spam@roccatello.it> wrote:
->
-> 2.6.1-mm5 gives me  "Unable to handle kernel paging request" on load and 
-> then it hangs up.
+I know cisco_ipsec is a binary module, but since 4.0.3.B works on
+  any 2.4 and 2.6.{0,1} kernels I thought I'd report this...
 
-If you disable ipv6 in kernel config, does it boot up OK?
+On starting the VPN connection 'cvpnd' goes in D state, running
+  ps axlw shows it's stuck in __down.
+
+Oh, and reboot obviously hangs. I can Alt-SysRq Sync and Umount
+  but I can't reboot - atkbd.c reports too many keys pressed. Eh ?
+Funny, it's three keys just as in the S and U case. It doesn't
+  seem to like the 'B' letter. I can 'O'ff it though.
+
+If any kind soul is interested in digging further in this, I'm
+  as usual available to try stuff out.
+
+
+Thanks & ciao,
+
+--alessandro
+
+  "Two rivers run too deep
+   The seasons change and so do I"
+       (U2, "Indian Summer Sky")
+

@@ -1,57 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266159AbUALRId (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 12:08:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUALRId
+	id S265596AbUALQ7S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 11:59:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266212AbUALQ7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 12:08:33 -0500
-Received: from mailgate5.cinetic.de ([217.72.192.165]:5605 "EHLO
-	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
-	id S266159AbUALRIT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 12:08:19 -0500
-Date: Mon, 12 Jan 2004 18:07:44 +0100
-Message-Id: <200401121707.i0CH7iQ11796@mailgate5.cinetic.de>
-MIME-Version: 1.0
-Organization: http://freemail.web.de/
-From: "Kai Krueger" <kai.a.krueger@web.de>
-To: "BartSamwel" <bart@samwel.tk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jan 2004 11:59:18 -0500
+Received: from nwkea-mail-1.sun.com ([192.18.42.13]:43140 "EHLO
+	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id S265596AbUALQ7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 11:59:07 -0500
+Date: Mon, 12 Jan 2004 11:58:48 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [autofs] [RFC] Towards a Modern Autofs
+In-reply-to: <Pine.LNX.4.58.0401130025540.6362@raven.themaw.net>
+To: raven@themaw.net
+Cc: Jim Carter <jimc@math.ucla.edu>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <4002D248.2070304@sun.com>
+MIME-version: 1.0
+Content-type: multipart/signed;
+ boundary=------------enig8E1C5834750FE2B509569C84;
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+X-Accept-Language: en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107
+ Debian/1.5-3
+X-Enigmail-Version: 0.82.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <Pine.LNX.4.33.0401101325280.2403-100000@wombat.indigo.net.au>
+ <40029C19.409@sun.com> <Pine.LNX.4.58.0401122356100.6362@raven.themaw.net>
+ <Pine.LNX.4.58.0401130025540.6362@raven.themaw.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bart Samwel <bart@samwel.tk> schrieb am 12.01.04 14:47:20:
-> 
-> Jan De Luyck wrote:
-> >>2. Stop klogd, do "echo 1 > /proc/sys/vm/block_dump" and see which
-> >>process keeps your disk spun up using dmesg.
-> > 
-> > Welll.... i see no READs, and the writes i see is spamd, kmail, pdflush, 
-> > reiserfs/0.
-> 
-> How are the WRITEs grouped, are they grouped together or do they seem to 
-> occur more evenly spaced? When you use "sync", how long until the next 
-> WRITE? What are the values of /proc/sys/vm/dirty_expire_centisecs and 
-> /proc/sys/vm/dirty_writeback_centisecs? Are you sure you are running a 
-> kernel that supports the commit= option with reiserfs? (This option was 
-> added in 2.6.1.)
-> 
-> I've never tested laptop mode with reiserfs BTW, does anybody else here 
-> have experience with laptop mode and reiserfs?
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig8E1C5834750FE2B509569C84
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I'm currently trying kernel 2.6.1-mm1 with laptop-mode on a reiserfs partition.
-If I kill all daemons running on the system and do nothing with it, I can achieve the 10 minutes spin down time I had expected from laptop-mode. However as soon as I start up X with KDE I get regular spin ups every 30 seconds. Looking at the output of "echo 1 > /proc/sys/vm/block_dump", I see an entry every 30 seconds of "kdeinit(15145): WRITE block 65680 on hda1" followed by a whole load of "reiserfs/0(12): dirtied page" and "reisers/0(12): WRITE block XXXXX on hda1".
+raven@themaw.net wrote:
 
-Due to the regular 30 second interval writes of kdeinit: kded to block 65680, laptop-mode is not particularly usable on this system.
-Is this a problem with reiserfs or with kde and is there any fix available?
+>On Tue, 13 Jan 2004 raven@themaw.net wrote:
+>
+>  
+>
+>>On Mon, 12 Jan 2004, Mike Waychison wrote:
+>>
+>>    
+>>
+>>>>Transparency of an autofs filesystem (as I'm calling it) is the situation
+>>>>where, given a map
+>>>>
+>>>>/usr	/man1	server:/usr/man1
+>>>>	/man2	server:/usr/man2
+>>>>
+>>>>where the filesystem /usr contains, say a directory lib, that needs to be
+>>>>available while also seeing the automounted directories.
+>>>>
+>>>> 
+>>>>
+>>>>        
+>>>>
+>>>I see.  This requires direct mount triggers to do properly.  Trying to 
+>>>do it with some sort of passthrough to the underlying filesystem is a 
+>>>nightmare waiting to happen..
+>>>
+>>>      
+>>>
+>>So what are we saying here?
+>>
+>>We install triggers at /usr/man1 and /usr/man2.
+>>Then suppose the map had a nobrowse option.
+>>Does the trigger also take care of hiding man1 and man2?
+>>
+>>Is there some definition of these triggers?
+>>
+>>    
+>>
+>
+>And I have another question concerning namespaces.
+>
+>Given that there may be several namespaces, each of which may or may not 
+>have a trigger on this dentry, is there some sort of list of triggers?
+>
+>How do the triggers know who owns them?
+>
+>
+>  
+>
+This is the reason I went with using distinct filesystems to perform the 
+triggers.  If we use follow_link logic, we will have a reference to the 
+respective vfsmount.  Dentry's themselves know nothing about the 
+triggers, as the triggers just look like a mounted filesystem.   The 
+vfsmount information has enough information for autofs to call a 
+userspace agent through hotplug and have userspace handle the mount.  In 
+effect, there is no daemon so nobody 'owns' a trigger in the same sense 
+as with autofs3/4.
 
-> 
-> -- Bart
+As far as userspace is concerned, an autofs filesystem is mounted as is 
+any other filesystem.  All that is required is a proper set of mount 
+options.  For example, mounting auto_home on /home is:
 
-Kai
-______________________________________________________________________________
-Erdbeben im Iran: Zehntausende Kinder brauchen Hilfe. UNICEF hilft den
-Kindern - helfen Sie mit! https://www.unicef.de/spe/spe_03.php
+mount -t autofs -o maptype=indirect,mapname=auto_home auto_home /home
+
+Whenever somebody traverses into a subdir in /home within any namespace 
+this autofs filesystem has been inherited, userspace is invoked (in that 
+namespace) to perform the mount.  Again, there is no 'ownership' other 
+than maybe calling the namespace it resides it the 'owner', as you would 
+for any other mountpoint.
+
+-- 
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+mailto: Michael.Waychison@Sun.COM
+http://www.sun.com
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me, 
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+
+
+--------------enig8E1C5834750FE2B509569C84
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Using GnuPG with Debian - http://enigmail.mozdev.org
+
+iD8DBQFAAtJIdQs4kOxk3/MRAroLAKCK3K6/m+s+4z6i9/lmUi0C8FDDuACffvD7
+Urm2y6k9IR6ct5RZ8FLFKno=
+=BwsR
+-----END PGP SIGNATURE-----
+
+--------------enig8E1C5834750FE2B509569C84--
 

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265130AbTAEUme>; Sun, 5 Jan 2003 15:42:34 -0500
+	id <S265250AbTAEUic>; Sun, 5 Jan 2003 15:38:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265134AbTAEUme>; Sun, 5 Jan 2003 15:42:34 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44419
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265130AbTAEUmd>; Sun, 5 Jan 2003 15:42:33 -0500
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: hps@intermeta.de
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <ava580$g2a$1@forge.intermeta.de>
-References: <20030102013736.GA2708@gnuppy.monkey.org>
-	 <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org>
-	 <20030102055859.GA3991@gnuppy.monkey.org>
-	 <20030102061430.GA23276@mark.mielke.cc>
-	 <E18UIZS-0006Cr-00@fencepost.gnu.org>
-	 <20030103040612.GA10651@work.bitmover.com>
-	 <20030104220651.GA30907@merlin.emma.line.org>
-	 <20030104222330.GA1386@work.bitmover.com>
-	 <20030105101413.GC14362@louise.pinerecords.com>
-	 <ava580$g2a$1@forge.intermeta.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1041802518.15071.0.camel@irongate.swansea.linux.org.uk>
+	id <S265270AbTAEUic>; Sun, 5 Jan 2003 15:38:32 -0500
+Received: from grobbebol.xs4all.nl ([194.109.248.218]:9293 "EHLO
+	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S265250AbTAEUi2>; Sun, 5 Jan 2003 15:38:28 -0500
+Date: Sun, 5 Jan 2003 21:47:02 +0100
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: usb_control/bulk_msg: timeout 2.4.20 stock kernel
+Message-ID: <20030105204702.GA24622@grobbebol.xs4all.nl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 05 Jan 2003 21:35:19 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-01-05 at 20:40, Henning P. Schmiedehausen wrote:
-> Tomas Szepe <szepe@pinerecords.com> writes:
-> 
-> >Even if I overlook that you're effectively comparing the incomparable,
-> >Microsoft making 370 times more than RedHat says _nothing_ about their
-> >actual achievement in terms of software development.  Should you insist
-> 
-> You might simply open your eyes and look around you before you utter
-> such ridicioulous statements.
+hi all,
 
-Your grep is faulty. Linux community members contribute to RFC's under their own names.
 
-Try again
+
+maybe it's just me or something but.. I have since 2.4.20 the following
+problem with a fujifilm finepix 1300 camera.
+
+when I switch on the camera :
+
+[....]
+Jan  5 21:38:25 grobbebol last message repeated 76 times
+Jan  5 21:39:24 grobbebol kernel: usb_control/bulk_msg: timeout
+Jan  5 21:39:24 grobbebol kernel: usb.c: USB device not accepting new
+address=9 (error=-110)
+Jan  5 21:39:28 grobbebol kernel: usb_control/bulk_msg: timeout
+Jan  5 21:39:28 grobbebol kernel: usb.c: USB device not accepting new
+address=10 (error=-110)
+[....]
+
+etc is shown. I am 100% sure 2.4.18 didn't do this. there also is a usb
+cam present that works just fine.
+
+anyone who has a tip or maybe a place where to look ? I googled around
+but no obvious links.
+
+
 

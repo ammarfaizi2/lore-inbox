@@ -1,40 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314149AbSFQOqa>; Mon, 17 Jun 2002 10:46:30 -0400
+	id <S314277AbSFQOzN>; Mon, 17 Jun 2002 10:55:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314243AbSFQOq3>; Mon, 17 Jun 2002 10:46:29 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:8965 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S314149AbSFQOq3> convert rfc822-to-8bit;
-	Mon, 17 Jun 2002 10:46:29 -0400
-Message-ID: <3D0DF605.8030901@evision-ventures.com>
-Date: Mon, 17 Jun 2002 16:45:25 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
-X-Accept-Language: pl, en-us
-MIME-Version: 1.0
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.22 broke modversions
-References: <Pine.LNX.4.44.0206170925160.22308-100000@chaos.physics.uiowa.edu>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S314278AbSFQOzM>; Mon, 17 Jun 2002 10:55:12 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:53777 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S314277AbSFQOzJ>; Mon, 17 Jun 2002 10:55:09 -0400
+Message-Id: <200206171454.g5HEsu802593@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Oliver Neukum <oliver@neukum.name>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       David Brownell <david-b@pacbell.net>, Andries.Brouwer@cwi.nl,
+       garloff@suse.de, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, sancho@dauskardt.de,
+       linux-usb-devel@lists.sourceforge.net,
+       linux1394-devel@lists.sourceforge.net, dougg@torque.net
+Subject: Re: [linux-usb-devel] Re: /proc/scsi/map 
+In-Reply-To: Message from Oliver Neukum <oliver@neukum.name> 
+   of "Mon, 17 Jun 2002 07:19:52 +0200." <200206170719.52136.oliver@neukum.name> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 17 Jun 2002 09:54:56 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Kai Germaschewski napisa³:
-> On Mon, 17 Jun 2002, Mikael Pettersson wrote:
-> 
-> 
->>Something in the 2.5.22 Makefile/Rule.make changes broke
->>modversions on my P4 box. For some reason, a number of
->>exporting objects, including arch/i386/kernel/i386_ksyms,
->>weren't given -D__GENKSYMS__ at genksym-time, with the
->>effect that the resulting .ver files became empty, and the
->>kernel exported the symbols with unexpanded _R__ver_ suffixes.
-> 
-> 
-> You're right, thanks for the report. The fix is appended ;)
+oliver@neukum.name said:
+>  These may be an exception. You usually want to get drivers involved
+> even if only for synchronisation. Failing to do so has already let to
+> problems with usb storage. 
 
-BTW> There is some different thing broken: TEMP files
-used by make menuconfig don't get clean up even after make distclean.
+I don't deny that there may be devices that need some type of vendor specific 
+probe to get the information.
+
+> That is the point. The driver knows best what kind of devices it works
+> on. You can forget about the whole identification method business, if
+> you go for the driver. In case of usb storage and firewire that data
+> is already sitting there ready for taking. I suspect the same for
+> fibrechannel. 
+
+But, in SCSI, you can't.  Just for a simple device showing up as a SCSI disc 
+(that's a real SCSI disc, attached say by parallel connectors), there are 
+several potential ways to get a unique ID.  No one way works for all such 
+disks, that is the nub of the problem.
+
+I think, by driver, we may mean different things.  A scsi disc attaches like 
+this:
+
+   +----+
+   | sd |
+   +----+
+      |
+ +-------+
+ | mid   |
+ | layer |
+ +-------+
+     |
+  +-----+
+  | lld |
+  +-----+
+     |
+ +--------+
+ | real   |
+ | device |
+ +--------+
+
+but the only piece that has disc specific logic is sd.  The lld is specific to 
+the host adapter card (not shown), not the real device, so it is not the right 
+element to probe for an ID.
+
+In USB, things look slightly different:
+
+   +----+
+   | sd |
+   +----+
+      |
+ +-------+
+ | mid   |
+ | layer |
+ +-------+
+     |
++---------+
+| usb     |
+| storage |
++---------+
+     |
+ +--------+
+ | real   |
+ | device |
+ +--------+
+
+Here, the usb-storage driver does know about the real device (and already has 
+a huge exception table), so it has enough knowledge to probe for an identifier.
+
+The thing I think is a bad idea is having to code the logic to look up a 
+unique identifier (plus all the exceptions) in sd.  But for the pure SCSI 
+stack, there's nowhere else to place it.  Even if you get usb-storage to 
+supply an API for providing the id, it will be one of the few llds that can 
+retrieve this, so it will become just another exception sd has to cope with.
+
+James
+
 

@@ -1,73 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264612AbTFYXXe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 19:23:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265000AbTFYXXe
+	id S265000AbTFYXXy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 19:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265037AbTFYXXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 19:23:34 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:48294 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S264612AbTFYXXc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 19:23:32 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Andy Pfiffer <andyp@osdl.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: patch O1int for 2.5.73 - interactivity work
-Date: Thu, 26 Jun 2003 09:39:38 +1000
-User-Agent: KMail/1.5.2
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Mike Galbraith <efault@gmx.de>
-References: <200306260209.45020.kernel@kolivas.org> <1056577981.603.3.camel@teapot.felipe-alfaro.com> <1056582622.1200.5.camel@andyp.pdx.osdl.net>
-In-Reply-To: <1056582622.1200.5.camel@andyp.pdx.osdl.net>
+	Wed, 25 Jun 2003 19:23:53 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:18447 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S265000AbTFYXXw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 19:23:52 -0400
+Message-ID: <3EFA32C6.5030303@techsource.com>
+Date: Wed, 25 Jun 2003 19:39:50 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Timothy Miller <miller@techsource.com>
+CC: Edward Tandi <ed@efix.biz>, joe briggs <jbriggs@briggsmedia.com>,
+       Artur Jasowicz <kernel@mousebusiness.com>,
+       Brian Jackson <brian@brianandsara.net>,
+       Bart SCHELSTRAETE <Bart.SCHELSTRAETE@dhl.com>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: AMD MP, SMP, Tyan 2466
+References: <BB1F47F5.17533%kernel@mousebusiness.com>	 <200306251501.14207.jbriggs@briggsmedia.com>	 <1056567378.31260.9.camel@wires.home.biz> <3EFA2939.2060005@techsource.com> <1056583075.31265.22.camel@wires.home.biz> <3EFA2F97.5000705@techsource.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306260939.38723.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Jun 2003 09:10, Andy Pfiffer wrote:
-> On Wed, 2003-06-25 at 14:53, Felipe Alfaro Solana wrote:
-> > On Wed, 2003-06-25 at 18:09, Con Kolivas wrote:
-> > > Hi all
-> > >
-> > > I've used the corner cases described that cause a lot of the
-> > > interactivity problems to develop this patch.
-> >
-> > This patch is indeed much better than the ones posted before. In fact,
-> > it's really, really hard for me to make XMMS skip audio. It feels much
-> > better in general, but there are still some rough edges when the system
-> > is under load. For example, the mouse cursor on an X session doesn't
-> > move smoothly, and feels a little jumpy. It can be somewhat fixed by
-> > renicing the X server to -20.
->
-> I'm running with this patch on my dual-proc desktop right now.
->
-> I agree: with a make -j20 going, the mouse became non-responsive
-> for about 1 second at a time.  Renicing the X server to -20 greatly
-> improved the response of my desktop with this patch under load.
->
-> I could switch virtual desktops (blackbox), move the mouse to focus on
-> an aterm and type a command (and get a response back), and not wait
-> too long for evolution to repaint or open a piece of email.
->
-> I could tell that something was grinding away on my system, but it was
-> still tolerable.
 
-Thanks for testing this.  The maximum interactive-non interactive difference 
-to tasks niced to 0 will be 10, so renice X to -11 should be the most you 
-need... -10 is what a lot of distributions already do by default. 
 
-Are there any other corner cases you've found with this patch? I have ideas 
-about the "starting xmms under extreme load" issue but I need to know if it's 
-a real life scenario, and whether building an algorithm around one 
-application in one setting is worthwhile.
+Timothy Miller wrote:
 
-Also to those actually looking at the code, would you like me to comment it in 
-detail? I kept it short on purpose, but adding comments would be simple 
-enough.
+> It is my understanding that the registered memory requirement has 
+> nothing to do with SMP but instead with the amount of memory you have. 
+> The more memory chips you have, the greater the signal loading on the 
+> memory bus.  More input drivers means more capacitance which means you 
+> need your output drivers to put out data sooner (relative to the clock 
+> edge, so registered delays by one clock) and stronger (greater drive 
+> strength).
+> 
+> In an SMP system (besides NUMA), multiple processors will talk to the 
+> same memory through a shared memory controller (like in a Northbridge), 
+> so although there are multiple processors, there is still only one 
+> memory bus.  Pulling off one CPU isn't going to change that situation.
+> 
 
-Con
+Here's a URL:
+
+http://www.simmtester.com/PAGE/memory/memfaq.asp?cat=6&subcat=&tableView=detail&faqId=15
 

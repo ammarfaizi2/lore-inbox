@@ -1,94 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268080AbTBRWPu>; Tue, 18 Feb 2003 17:15:50 -0500
+	id <S268070AbTBRWXo>; Tue, 18 Feb 2003 17:23:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268083AbTBRWPt>; Tue, 18 Feb 2003 17:15:49 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:55775 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S268080AbTBRWPk>;
-	Tue, 18 Feb 2003 17:15:40 -0500
-Subject: [PATCH] mkinitrd fix for 2.5 modutils
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Rusty Russell <rusty@rustcorp.com.au>,
-       carbonated beverage <ramune@net-ronin.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Open Source Devlopment Lab
-Message-Id: <1045607137.12949.146.camel@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 18 Feb 2003 14:25:38 -0800
+	id <S268066AbTBRWXo>; Tue, 18 Feb 2003 17:23:44 -0500
+Received: from pop016pub.verizon.net ([206.46.170.173]:5112 "EHLO
+	pop016.verizon.net") by vger.kernel.org with ESMTP
+	id <S268070AbTBRWXl>; Tue, 18 Feb 2003 17:23:41 -0500
+Message-ID: <3E52B4CE.7040009@verizon.net>
+Date: Tue, 18 Feb 2003 17:33:50 -0500
+From: Stephen Wille Padnos <stephen.willepadnos@verizon.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: a really annoying feature of the config menu structure
+References: <Pine.LNX.4.44.0302181604310.23007-100000@dell>
+In-Reply-To: <Pine.LNX.4.44.0302181604310.23007-100000@dell>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at pop016.verizon.net from [64.223.82.122] at Tue, 18 Feb 2003 16:33:38 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch to mkinitrd allows it to correctly construct
-a ram disk with modules for both 2.4 and 2.5 kernels.  The problem is
-that the change in extension from .o to .ko confused it. Without the
-patch it is impossible to boot kernels that have ext3 as a module with
-an ext3 root file system.
+[snip]
 
-Not sure who the owner of mkinitrd is.
-Wonder what other utilities got busted as well?
-Patch is agains RHAT 8.0 other distro's may vary.
+>  as i see it, this can only get worse.  the current
+>erratic and disorganized structure of the config menus
+>is proof of that.
+>
+>  comments?
+>
 
---- mkinitrd.orig	2002-09-04 22:07:04.000000000 -0700
-+++ mkinitrd	2003-02-18 14:15:16.000000000 -0800
-@@ -35,6 +35,7 @@
- builtins=""
- pivot=1
- modulefile=/etc/modules.conf
-+modext="o"
- rc=0
- 
- if [ `uname -m` = "ia64" ]; then
-@@ -128,7 +129,7 @@
- 	modName="sbp2"
-     fi
-     
--    fmPath=`(cd /lib/modules/$kernel; echo find . -name $modName.o | /sbin/nash --quiet)`
-+    fmPath=`(cd /lib/modules/$kernel; echo find . -name $modName.$modext | /sbin/nash --quiet)`
- 
-     if [ ! -f /lib/modules/$kernel/$fmPath ]; then
- 	if [ -n "$skiperrors" ]; then
-@@ -276,6 +277,11 @@
-     exit 1
- fi
- 
-+# Hack for module extension change in 2.5
-+if [[ $kernel = 2.[56].* ]]; then
-+    modext="ko"
-+fi
-+
- # find a temporary directory which doesn't use tmpfs
- TMPDIR=""
- for t in /tmp /var/tmp /root ${PWD}; do
-@@ -461,7 +467,7 @@
- 
- dd if=/dev/zero of=$IMAGE bs=1k count=$IMAGESIZE 2> /dev/null || exit 1
- 
--LODEV=$(echo findlodev $modName.o | /sbin/nash --quiet)
-+LODEV=$(echo findlodev $modName.$modext | /sbin/nash --quiet)
- 
- if [ -z "$LODEV" ]; then
-     rm -rf $MNTPOINT $IMAGE
-@@ -536,7 +542,7 @@
- 
- for MODULE in $MODULES; do
-     text=""
--    module=`echo $MODULE | sed "s|.*/||" | sed "s/.o$//"`
-+    module=`echo $MODULE | sed "s|.*/||" | sed "s/.$modext$//"`
- 
-     options=`sed -n -e "s/^options[ 	][ 	]*$module[ 	][ 	]*//p" $modulefile 2>/dev/null`
- 
-@@ -547,7 +553,7 @@
-         echo "Loading module $module$text"
-     fi
-     echo "echo \"Loading $module module\"" >> $RCFILE
--    echo "insmod /lib/$module.o $options" >> $RCFILE
-+    echo "insmod /lib/$module.$modext $options" >> $RCFILE
- 
-     # Hack - we need a delay after loading usb-storage to give things
-     #        time to settle down before we start looking a block devices
+I think the problem with the "Multimedia" menu is that it's misnamed.  
+It should actually be the "tuners" menu - it's there for audio, digital 
+video, and video tuners.  The same could be said of the networking menu, 
+and presumably others.
 
+You can actually reorganize things simply by changing the structure of 
+the top-level Kconfig file.  With the following patches, I reorganized 
+the multimedia options into the form that you are probably looking for.  
+(hopefully they won't be mangled by my mailer)
+
+With not too much rewriting (many small changes, I think), the menus can 
+be organized much better.
+
+Essentially, each subdirectory has a Kconfig file that does _not_ 
+declare itself a standalone menu.  This allows a parent to decide 
+whether or not to include it in another menu.  The menu should only have 
+options that pertain to things in its' directory.  ie, the Kconfig file 
+in drivers/net should not include "Networking" as an option - that is a 
+higher level decision (ie, it decides whether or not to include the 
+drivers/net config file).
+
+Then, the Kconfig files from various subdirectories can be ordered in 
+whatever way makes sense from a user's point of view
+
+--- drivers/media/Kconfig.orig        2003-02-18 17:15:46.000000000 -0500
++++ drivers/media/Kconfig.new 2003-02-18 17:25:27.000000000 -0500
+@@ -2,8 +2,6 @@
+ # Multimedia device configuration
+ #
+
+-menu "Multimedia devices"
+-
+ config VIDEO_DEV
+        tristate "Video For Linux"
+        ---help---
+@@ -32,5 +30,4 @@
+
+ source "drivers/media/dvb/Kconfig"
+
+-endmenu
+
+--- arch/i386/Kconfig.orig        2003-02-18 17:17:49.000000000 -0500
++++ arch/i386/Kconfig     2003-02-18 17:18:32.000000000 -0500
+@@ -1529,14 +1529,13 @@
+
+ source "drivers/char/Kconfig"
+
+-#source drivers/misc/Config.in
+-source "drivers/media/Kconfig"
+-
+ source "fs/Kconfig"
+
+ source "drivers/video/Kconfig"
+
+-menu "Sound"
++#source drivers/misc/Config.in
++menu "MultiMedia (tuners, sound, video"
++source "drivers/media/Kconfig"
+
+ config SOUND
+        tristate "Sound card support"
 
 

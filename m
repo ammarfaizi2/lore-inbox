@@ -1,81 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263016AbTHZW21 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 18:28:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263022AbTHZW21
+	id S263036AbTHZWeo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 18:34:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbTHZWcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 18:28:27 -0400
-Received: from aneto.able.es ([212.97.163.22]:29342 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S263016AbTHZW2P (ORCPT
+	Tue, 26 Aug 2003 18:32:25 -0400
+Received: from smtp014.mail.yahoo.com ([216.136.173.58]:33542 "HELO
+	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262971AbTHZWaS convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 18:28:15 -0400
-Date: Wed, 27 Aug 2003 00:28:12 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: insecure@mail.od.ua
-Cc: "J.A. Magallon" <jamagallon@able.es>,
-       Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] 2.4: add check_gcc for P3/P4
-Message-ID: <20030826222812.GA6566@werewolf.able.es>
-References: <20030826082437.GA2017@werewolf.able.es> <200308262056.39595.insecure@mail.od.ua>
+	Tue, 26 Aug 2003 18:30:18 -0400
+Date: Wed, 27 Aug 2003 00:29:47 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <aradorlinux@yahoo.es>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: retes_simbad@yahoo.es, jamagallon@able.es, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.22 released
+Message-Id: <20030827002947.078cbdc8.aradorlinux@yahoo.es>
+In-Reply-To: <20030826215544.GI7038@fs.tum.de>
+References: <200308251148.h7PBmU8B027700@hera.kernel.org>
+	<20030825132358.GC14108@merlin.emma.line.org>
+	<1061818535.1175.27.camel@debian>
+	<20030825211307.GA3346@werewolf.able.es>
+	<20030825222215.GX7038@fs.tum.de>
+	<1061857293.15168.3.camel@debian>
+	<20030826234901.1726adec.aradorlinux@yahoo.es>
+	<20030826215544.GI7038@fs.tum.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <200308262056.39595.insecure@mail.od.ua>; from insecure@mail.od.ua on Tue, Aug 26, 2003 at 19:56:39 +0200
-X-Mailer: Balsa 2.0.13
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 08.26, insecure wrote:
-> On Tuesday 26 August 2003 11:24, J.A. Magallon wrote:
-> > Hi.
-> >
-> > Resending for 2.4.23-pre ;)
-> >
-> > --- linux-2.4.21-bp1/arch/i386/Makefile.orig	2003-06-18
-> > 23:40:25.000000000 +0200
-> > +++ linux-2.4.21-bp1/arch/i386/Makefile	2003-06-18
-23:59:25.000000000
-> > +0200
-> > @@ -53,11 +53,11 @@
-> >  endif
-> >
-> >  ifdef CONFIG_MPENTIUMIII
-> > -CFLAGS += -march=i686
-> > +CFLAGS += $(call check_gcc,-march=pentium3,-march=i686)
-> >  endif
-> >  Marcelo Tosatti <marcelo@conectiva.com.br>
-> 
-> This is a rather strange make statement
-> 
-
-Oops, silly cut'n'paste in balsa...
-Here is the good one:
-
---- linux-2.4.21-bp1/arch/i386/Makefile.orig	2003-06-18
-23:40:25.000000000 +0200
-+++ linux-2.4.21-bp1/arch/i386/Makefile	2003-06-18 23:59:25.000000000
-+0200
-@@ -53,11 +53,11 @@
- endif
- 
- ifdef CONFIG_MPENTIUMIII
--CFLAGS += -march=i686
-+CFLAGS += $(call check_gcc,-march=pentium3,-march=i686)
- endif
- 
- ifdef CONFIG_MPENTIUM4
--CFLAGS += -march=i686
-+CFLAGS += $(call check_gcc,-march=pentium4,-march=i686)
- endif
- 
- ifdef CONFIG_MK6
+El Tue, 26 Aug 2003 23:55:44 +0200 Adrian Bunk <bunk@fs.tum.de> escribió:
 
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.22-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-1mdk))
+> I must have missed the date when Debian's market share dropped under 
+> 0.1 % ...
+
+Well, there're alsa packages. A lot of people use them.
+
+> - ALSA is big and there are still some bugs in ALSA; there are more
+>   urgent things to be fixed in 2.4
+
+Like the one in drivers/sound/adlib_card.c/opl3.c; which doesn't release
+its io region when the module is removed (sent a workaround twice,
+got ignored ;(  )
+
+> - it's easy to use ALSA even when it's not inside the kernel
+> - within a few months 2.6.0 will be released with ALSA included -
+>   together with the point above I don't see a reason why ALSA would be
+>   badly needed in 2.4
+
+Those are valid points. Still I'd love to see ALSA in 2.4. I guess this is a
+matter of opinion....the VM bits from Andrea are far more important (I've read
+several bug reports from people who can't get big machines working ie: kswapd decides
+to take all the cpu for 1 minute)
+

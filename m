@@ -1,87 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbUBOBgq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 20:36:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263880AbUBOBgq
+	id S263697AbUBOCca (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 21:32:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbUBOCca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 20:36:46 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:55182 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S263775AbUBOBgn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 20:36:43 -0500
-Date: Sun, 15 Feb 2004 01:36:42 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-cc: Herbert Xu <herbert@gondor.apana.org.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ntfs-dev@lists.sourceforge.net,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: [Linux-NTFS-Dev] [2.4] off-by-one kmalloc in ntfs
-In-Reply-To: <Pine.SOL.4.58.0402150122360.18477@yellow.csi.cam.ac.uk>
-Message-ID: <Pine.SOL.4.58.0402150135330.18477@yellow.csi.cam.ac.uk>
-References: <Pine.LNX.4.21.0402141308460.20885-100000@mlf.linux.rulez.org>
- <Pine.SOL.4.58.0402150122360.18477@yellow.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 14 Feb 2004 21:32:30 -0500
+Received: from atari.saturn5.com ([209.237.231.200]:58024 "HELO
+	atari.saturn5.com") by vger.kernel.org with SMTP id S263697AbUBOCc2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 21:32:28 -0500
+Date: Sat, 14 Feb 2004 18:32:27 -0800
+From: Steve Simitzis <steve@saturn5.com>
+To: "Feldman, Scott" <scott.feldman@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: e1000 problems in 2.6.x
+Message-ID: <20040215023226.GE1040@saturn5.com>
+References: <C6F5CF431189FA4CBAEC9E7DD5441E0102229F6F@orsmsx402.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E0102229F6F@orsmsx402.jf.intel.com>
+User-Agent: Mutt/1.3.28i
+X-gestalt: heart, barbed wire
+X-Cat: calico
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Feb 2004, Anton Altaparmakov wrote:
+i should have mentioned in my email that i tried every combination of
+settings: auto-neg on the box and forced on the switch, both forced
+(to the same settings, of course), forced on the box with auto-neg on
+the switch, and auto-neg on both sides. in all cases, the result was
+the same: RX packet errors and the same watchdog messages. what i thought
+was particularly strange was that the switch refused to auto-negotiate
+full duplex.
 
-> On Sat, 14 Feb 2004, Szakacsits Szabolcs wrote:
-> > On Sat, 14 Feb 2004, Herbert Xu wrote:
-> > > This patch fixes an off-by-one kmalloc bug in ntfs in 2.4.24.
-> > Thanks for your time fixing bugs in the legacy driver.
-> >
-> > May I be interested in your motivations? Recently there is a clear flow of
-> > RedHat refugees to Debian and if you would like better NTFS support then
-> > perhaps Debian should use the backport of the rewritten NTFS driver too,
-> > just like all other distros do who care about NTFS support.
-> >
-> > You can find some of the differences between the legacy (in vanilla 2.4)
-> > and the Linux-NTFS project's NTFS driver (it's in in 2.6 and there is
-> > a backport maintained for 2.4):
-> >
-> > 	http://linux-ntfs.sourceforge.net/status.html
-> >
-> > Besides the several drawbacks vanila 2.4 driver has, I'm aware of only two
-> > features it's capable but not the rewritten one:
-> >
-> >    - NTFS can be exported via NFS. This came without any work but it would
-> >      need some time to support with the new driver. There was one request
-> >      for this feature in the last two years so it's not the highest priority
->
-> The to be released NTFS 2.0.7 for 2.6 kernel adds support for exporting
+(someone on another list suggested to try booting with the noapic
+option, which i tried for good measure, even though i don't see
+how that could have helped. again, no improvement.)
 
-oops, I meant 2.1.7
+i was initially tempted to assume they were hardware problems, until
+i noticed that the problems only appeared when running a 2.6 kernel.
+also, the machines are only a few months old, so i'm assuming that
+all the hardware is modern enough to do the right thing.
 
-> via NFS.  (-:  Unfortunately last week the hd at my computer at work blew
-> up so I didn't get round to doing my final testing so I haven't officially
-> released 2.0.7 yet but hopefully I will release it next week.  Assuming
+if there's anything you'd recommend trying out, please let me know.
+i considered trying to run the 2.4.22 driver in a 2.6 installation,
+but i didn't know if any of the driver code depended on anything else
+elsewhere in the kernel source.
 
-and again 2.1.7
+On 02/14/04, "Feldman, Scott" <scott.feldman@intel.com> wrote: 
 
-> 2.4 now uses the same mechanism for exporting via NFS (I am not sure if
-> the 2.6 changes were backported or not) it will be easy to update the NTFS
-> backport with this feature.
->
-> >    - one can trash his/her NTFS or the box (the legacy diver is not SMP,
-> >      reentrant safe). AFAIK, no plan to add this feature to the new driver
-> >      neither in the short nor in long term.
->
-> Yes, most definitely we have no intention of implementing that feature in
-> the new driver! (-:
->
-> Best regards,
->
-> 	Anton
->
+> > another oddity is that even after forcing my interfaces to 
+> > 100 Mbps full duplex, my switch is reporting half duplex. 
+> > again, this only happens in 2.6.x. when running 2.4.22, full 
+> > duplex is properly negotiated between the e1000 and my switch.
+> 
+> Are you forcing both the e1000 interfaces and the switch ports to the
+> same forced settings?  A duplex mismatch would cause problems, but I'm
+> not sure why this is happening for 2.6 only.  What happens if you don't
+> force settings, and just rely on autoneg?  (Again, on both ends of the
+> wire).
+> 
+> -scott
 
-Best regards,
-
-	Anton
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+
+steve simitzis : /sim' - i - jees/
+          pala : saturn5 productions
+ www.steve.org : 415.282.9979
+  hath the daemon spawn no fire?
+

@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266865AbUAXFi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 00:38:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266867AbUAXFi5
+	id S263539AbUAXFpt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 00:45:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266166AbUAXFpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 00:38:57 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:35510 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S266865AbUAXFi4 (ORCPT
+	Sat, 24 Jan 2004 00:45:49 -0500
+Received: from [211.167.76.68] ([211.167.76.68]:61657 "HELO soulinfo.com")
+	by vger.kernel.org with SMTP id S263539AbUAXFps (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 00:38:56 -0500
-Date: Fri, 23 Jan 2004 21:30:13 -0800 (PST)
-Message-Id: <20040123.213013.41659820.davem@redhat.com>
-To: rusty@rustcorp.com.au
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Simplify net/flow.c 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20040124050843.320902C056@lists.samba.org>
-References: <20040122195104.31cc2496.akpm@osdl.org>
-	<20040124050843.320902C056@lists.samba.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Sat, 24 Jan 2004 00:45:48 -0500
+Date: Sat, 24 Jan 2004 13:40:34 +0800
+From: Hugang <hugang@soulinfo.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Patrick Mochel <mochel@digitalimplant.org>,
+       Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       ncunningham@clear.net.nz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: pmdisk working on ppc (WAS: Help port swsusp to ppc)
+Message-Id: <20040124134034.4e9c51e2@localhost>
+In-Reply-To: <1074912854.834.61.camel@gaston>
+References: <20040119105237.62a43f65@localhost>
+	<1074483354.10595.5.camel@gaston>
+	<1074489645.2111.8.camel@laptop-linux>
+	<1074490463.10595.16.camel@gaston>
+	<1074534964.2505.6.camel@laptop-linux>
+	<1074549790.10595.55.camel@gaston>
+	<20040122211746.3ec1018c@localhost>
+	<1074841973.974.217.camel@gaston>
+	<20040123183030.02fd16d6@localhost>
+	<1074912854.834.61.camel@gaston>
+Organization: Beijing Soul
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rusty Russell <rusty@rustcorp.com.au>
-   Date: Fri, 23 Jan 2004 17:55:28 +1100
+On Sat, 24 Jan 2004 13:54:15 +1100
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-   In message <20040122195104.31cc2496.akpm@osdl.org> you write:
-   > -	down(&cpucontrol);
-   > +	down_cpucontrol();
-   
-   OK.  Although I think I prefer to have down_cpucontrol() defined under
-   #ifdef CONFIG_HOTPLUG_CPU, and revert to using a normal sem here as
-   well to cover the CONFIG_HOTPLUG_CPU=n CONFIG_SMP=y case.  But I will
-   produce an additional patch with the hotplug cpu patches.
+> Ok, I hammered that for a day and got pmdisk (patrick's version)
+> suspending and resuming on a pismo G3 (with XFree etc.. running). Lots
+> of rough edges still (via-pmu sleep need to be improved, ADB need
+> porting to the new driver model to be properly suspended/resumed, a
+> sysdev for RTC is needed too for time, the asm code should be fixed
+> for G5, etc...)
 
-Rusty take a look at Linus's current BK tree, it should be
-to your satisfaction I think :)
+Yes, It works in my laptop too. Cool.
+
+thanks for greate work.
+
+-- 
+Hu Gang / Steve
+Linux Registered User 204016
+GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc

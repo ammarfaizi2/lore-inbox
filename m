@@ -1,107 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318868AbSHRGot>; Sun, 18 Aug 2002 02:44:49 -0400
+	id <S318869AbSHRHLS>; Sun, 18 Aug 2002 03:11:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318869AbSHRGot>; Sun, 18 Aug 2002 02:44:49 -0400
-Received: from waste.org ([209.173.204.2]:30696 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S318868AbSHRGos>;
-	Sun, 18 Aug 2002 02:44:48 -0400
-Date: Sun, 18 Aug 2002 01:48:46 -0500
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Robert Love <rml@tech9.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (0/4) Entropy accounting fixes
-Message-ID: <20020818064846.GQ21643@waste.org>
-References: <Pine.LNX.4.44.0208172058200.1640-100000@home.transmeta.com> <1029652262.898.12.camel@phantasy>
+	id <S318870AbSHRHLR>; Sun, 18 Aug 2002 03:11:17 -0400
+Received: from mail14.speakeasy.net ([216.254.0.214]:31430 "EHLO
+	mail.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S318869AbSHRHLQ>; Sun, 18 Aug 2002 03:11:16 -0400
+Subject: Re: cerberus errors on 2.4.19 (ide dma related)
+From: Ed Sweetman <safemode@speakeasy.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1029653085.674.53.camel@psuedomode>
+References: <1029653085.674.53.camel@psuedomode>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 18 Aug 2002 03:15:16 -0400
+Message-Id: <1029654916.2037.0.camel@psuedomode>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1029652262.898.12.camel@phantasy>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 18, 2002 at 02:31:02AM -0400, Robert Love wrote:
-> On Sun, 2002-08-18 at 00:01, Linus Torvalds wrote:
+On Sun, 2002-08-18 at 02:44, Ed Sweetman wrote:
+> (overview written in hindsight of writing email)  
+> I ran all these tests on ide/host2/bus0/target0/lun0/part1 
+> when dma was enabled or disabled is was done to both drives at the same
+> time.
+> I do not know if cerberus cares where it is run or not to do it's tests,
+> but the program was on the drive it was tested on when run and
+> throughout the email i assume it only runs it's drive tests primarily on
+> the partition you've run it on.   I see now that this is probably wrong
+> and instead of changing where i run the test i should alternate which
+> drive gets dma enabled and disabled and process of elimination will show
+> just the kind of dma bug i'm seeing
+> (/overview)
 > 
-> > So I think that if we just made the code be much less trusting (say, 
-> > consider the TSC information per interrupt to give only a single bit of 
-> > entropy, for example), and coupled that with making network devices always 
-> > be considered sources of entropy, we'd have a reasonable balance. 
 > 
-> I think that sounds good.
+> I've been trying to track down why i seem to get disk corruption on my
+> harddrives after some good amount of usage all the time.  It's been
+> happening for a long time across a number of different kernel versions. 
+> I believe this is because i stick to the same board manufacturer, Abit
+> and use via chipsets. 
 > 
-> I have a patch which I can send - it needs to be rediffed I suspect -
-> that has each network device feed the entropy pool. (Actually, it
-> creates a new flag, SA_NET_RANDOM, that defines to SA_SAMPLE_RANDOM or 0
-> depending on a configure setting.  If you want it unconditional, that is
-> just as easy though).
+> I ran cerberus with dma enabled at UDMA4 and UDMA2, at udma4 cerberus
+> reports MEMORY errors and BBidehost2bus0target0lun0discN1 errors, but
+> mostly MEMORY errors before the kernel panics after a minute or two.  At
+> udma2 the cerberus reports no errors but panics after a minute or two.  
+> I ran cerberus a couple times on each, with UDMA4 it began to error
+> about 30 seconds into the test with MEMORY errors.  
+> 
+> I thought, well this could be ram errors, so i ran memtest for a couple
+> hours.  Nothing reported as being bad.  I then thought, my hardware
+> could be the problem, so I ran e2fsck -c on the partition I was running
+> cerberus on with dma disabled via hdparm -d0 and it completed with no
+> errors found.  I then rebooted, enabled udma2 and the kernel panic'd
+> with the same test after a few minutes.  
+> 
+> The rest of this email is just information regarding the setup 
+> 
+> 
+> First off the way my fs's are setup are as follows: 
+> 
+> swap + files are now all on my primary master ide drive on the
+> motherboard ide controller. Swap on my primary master promise controller
+> seemed too problematic because of corruption, but i'm not sure if the
+> corruption i've seen is related only to the promise controller or if
+> it's not controller specific. I'll have to run the test without swap on
+> the promise drive and then run the test on my primary motherboard hdd
+> and again without swap.  
+> 
+> cerberus version : 1.3.0pre4 
+> dmesg info : http://signal-lost.homeip.net/lkml/dmesg
+> hdparm info : http://signal-lost.homeip.net/lkml/hdparm
+> pci info : http://signal-lost.homeip.net/lkml/lspci
+> 
+> tests completed before escaping in pio mode:
+> http://signal-lost.homeip.net/lkml/tests_passed
+> 
+> Errors during last test that caused kernel panic (udma2)
+> http://signal-lost.homeip.net/lkml/memory
+> 
+> Errors during test of udma4 (first test) 
+> http://signal-lost.homeip.net/lkml/memory2
+> http://signal-lost.homeip.net/lkml/dmesg2
+> various segfaults of badblocks of BBidehost tests. 
+> 
+> 
+> I ran memtest for an extensive amount of time after the first test
+> reported memory errors and go absolutely no errors (wasn't using dma
+> mode at the time either).  And since these errors aren't produced when
+> not using DMA on my drives I find it very unlikely that it's "System
+> Ram" as the cause of them.  I'm going to rerun the test on my
+> motherboard primary  drive after posting this in case something happens
+> and i hose everything.  
 
-I think I have a compromise that'll make everyone happy here. I've
-added a tunable called trust_pct in /proc/sys/kernel/random. Set it to
-100% and untrusted sources will always add a bit of entropy. Defaults
-to zero, which should be fine for everyone who's got a head.
-
-Then we can add SA_SAMPLE_RANDOM for network devices unconditionally.
-
-Untested, applies on top of my previous patches:
-
-diff -ur a/drivers/char/random.c b/drivers/char/random.c
---- a/drivers/char/random.c	2002-08-17 20:54:02.000000000 -0500
-+++ b/drivers/char/random.c	2002-08-18 01:38:58.000000000 -0500
-@@ -724,6 +724,7 @@
-  */
- static int benford[16]={0,0,0,1,2,3,4,5,5,6,7,7,8,9,9,10};
- static int last_ctxt=0;
-+static int trust_break=50, trust_pct=0, trust_min=0, trust_max=100;
- 
- void add_timing_entropy(void *src, unsigned datum)
- {
-@@ -764,6 +765,18 @@
- 		delta>>=es->shift;
- 		bits=benford[int_log2_16bits(delta & 0xffff)];
- 	}
-+
-+	/* Throw in an untrusted bit as entropy trust_pct% of the time */
-+	if(trust_pct && !bits)
-+	{
-+		trust_break+=trust_pct;
-+		if(trust_break>100)
-+		{
-+			bits=1;
-+			trust_break-=100;
-+		}
-+	}
-+
- 	batch_entropy_store(datum^time, bits);
- }
- 
-@@ -1779,6 +1792,10 @@
- 	{RANDOM_UUID, "uuid",
- 	 NULL, 16, 0444, NULL,
- 	 &proc_do_uuid, &uuid_strategy},
-+	{RANDOM_TRUST_PCT, "trust_pct",
-+	 &trust_pct, sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, 0,
-+	 &trust_min, &trust_max},
- 	{0}
- };
- 
-diff -ur a/include/linux/sysctl.h b/include/linux/sysctl.h
---- a/include/linux/sysctl.h	2002-08-17 00:30:00.000000000 -0500
-+++ b/include/linux/sysctl.h	2002-08-18 01:37:54.000000000 -0500
-@@ -182,7 +182,8 @@
- 	RANDOM_READ_THRESH=3,
- 	RANDOM_WRITE_THRESH=4,
- 	RANDOM_BOOT_ID=5,
--	RANDOM_UUID=6
-+	RANDOM_UUID=6,
-+	RANDOM_TRUST_PCT=7
- };
- 
- /* /proc/sys/bus/isa */
+Forgot to add my kernel config. 
+http://signal-lost.homeip.net/lkml/config
 
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

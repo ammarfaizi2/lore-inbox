@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318766AbSIKN1H>; Wed, 11 Sep 2002 09:27:07 -0400
+	id <S318868AbSIKNb0>; Wed, 11 Sep 2002 09:31:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318767AbSIKN1H>; Wed, 11 Sep 2002 09:27:07 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:48306 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318766AbSIKN1G>;
-	Wed, 11 Sep 2002 09:27:06 -0400
-Date: Wed, 11 Sep 2002 06:23:52 -0700 (PDT)
-Message-Id: <20020911.062352.96263092.davem@redhat.com>
-To: steve@neptune.ca
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre6 tg3 compile errors
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0209102218460.3875-100000@triton.neptune.on.ca>
-References: <20020910.142646.97775138.davem@redhat.com>
-	<Pine.LNX.4.44.0209102218460.3875-100000@triton.neptune.on.ca>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S318775AbSIKNb0>; Wed, 11 Sep 2002 09:31:26 -0400
+Received: from [211.154.175.3] ([211.154.175.3]:55570 "EHLO
+	mail.netpower.com.cn") by vger.kernel.org with ESMTP
+	id <S318771AbSIKNbZ>; Wed, 11 Sep 2002 09:31:25 -0400
+Date: Wed, 11 Sep 2002 21:39:1 +0800
+From: zhengchuanbo <zhengcb@netpower.com.cn>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC: "becker@scyld.com" <becker@scyld.com>
+Subject: problem with sundance driver for dfe-550fx (DL10050B)
+X-mailer: FoxMail 3.11 Release [cn]
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset="GB2312"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200209112144446.SM00872@zhengcb>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Steve Mickeler <steve@neptune.ca>
-   Date: Tue, 10 Sep 2002 22:20:34 -0400 (EDT)
-   
-   gcc -D__KERNEL__ -I/usr/src/test/linux-2.4.20-pre6/include -Wall
-   -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
-   -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
-   -nostdinc -iwithprefix include -DKBUILD_BASENAME=tg3  -c -o tg3.o tg3.c
-   
-   tg3.c: In function `__tg3_set_rx_mode':
-   tg3.c:4881: structure has no member named `vlgrp'
-   make[3]: *** [tg3.o] Error 1
-   make[3]: Leaving directory `/usr/src/test/linux-2.4.20-pre6/drivers/net'
-   make[2]: *** [first_rule] Error 2
-   make[2]: Leaving directory `/usr/src/test/linux-2.4.20-pre6/drivers/net'
-   make[1]: *** [_subdir_net] Error 2
-   make[1]: Leaving directory `/usr/src/test/linux-2.4.20-pre6/drivers'
-   make: *** [_dir_drivers] Error 2
 
-Sorry, I'll fix that.  Enable CONFIG_VLAN_8021Q as a workaround for
-now.
+i tried to test the dfe-550fx card with the new driver from Donald Becker. the version is "sundance.c:v1.09a 7/16/2002". 
+the chip of the d-link card is DL10050B. a DL10050A card work with the v1.02d driver. but there are some problems with the DL10050B one.
+the kernel version is 2.4.19pre1.
+i run the following commands:
+	insmod pci-scan.o
+	insmod sundance.o
+and it worked. the log is as follows:
+
+Sep 11 21:20:58 netpower kernel: pci-scan.c:v1.10 7/13/2002  Donald Becker <beck
+er@scyld.com> http://www.scyld.com/linux/drivers.html
+Sep 11 21:21:01 netpower kernel: sundance.c:v1.09a 7/16/2002  Written by Donald
+Becker <becker@scyld.com>
+Sep 11 21:21:01 netpower kernel:   http://www.scyld.com/network/sundance.html
+Sep 11 21:21:01 netpower kernel: eth2: OEM Sundance Technology ST201 at 0xe800,
+00:05:5d:5e:b9:dc, IRQ 24.
+Sep 11 21:21:01 netpower kernel: eth2: MII PHY found at address 1, status 0x7809
+ advertising 01e1.
+Sep 11 21:21:01 netpower kernel: eth3: OEM Sundance Technology ST201 at 0xe400,
+00:05:5d:5e:b9:df, IRQ 22.
+Sep 11 21:21:01 netpower kernel: eth3: MII PHY found at address 1, status 0x7809
+ advertising 01e1.
+
+then when i run the cmd "ifconfig eth2 192.168.0.10"  to bring the card to work,it failed. the problem is as follows,
+	sh-2.03# ifconfig eth2 192.168.0.10
+	SIOCSIFFLAGS: No such device
+and there is no log for this.  so is there some problem on the support of DL10050B? 
+
+please cc. thanks.
+
+zhengchuanbo
+zhengcb@netpower.com.cn
+

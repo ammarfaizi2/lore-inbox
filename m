@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267256AbSLROnP>; Wed, 18 Dec 2002 09:43:15 -0500
+	id <S267265AbSLRPEP>; Wed, 18 Dec 2002 10:04:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267260AbSLROnP>; Wed, 18 Dec 2002 09:43:15 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:55462 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP
-	id <S267256AbSLROnO>; Wed, 18 Dec 2002 09:43:14 -0500
-Message-ID: <001501c2a6a4$e76fb3e0$7900a8c0@edumazet>
-From: "dada1" <dada1@cosmosbay.com>
-To: <linux-kernel@vger.kernel.org>, "Horst von Brand" <vonbrand@inf.utfsm.cl>
-References: <200212181410.gBIEAod6027746@pincoya.inf.utfsm.cl>
-Subject: Re: Intel P6 vs P7 system call performance 
-Date: Wed, 18 Dec 2002 15:51:04 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S267266AbSLRPEP>; Wed, 18 Dec 2002 10:04:15 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28647
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267265AbSLRPEO>; Wed, 18 Dec 2002 10:04:14 -0500
+Subject: Re: Intel P6 vs P7 system call performance
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200212181340.gBIDeOmK018730@pincoya.inf.utfsm.cl>
+References: <200212181340.gBIDeOmK018730@pincoya.inf.utfsm.cl>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 18 Dec 2002 15:52:26 +0000
+Message-Id: <1040226746.24561.8.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Horst von Brand" <vonbrand@inf.utfsm.cl>
-> > How are system calls a new feature?  Or is optimizing an existing
-> > feature not allowed by your definition of "feature freeze"?
->
-> This "optimizing" is very much userspace-visible, and a radical change in
-> an interface this fundamental counts as a new feature in my book.
+On Wed, 2002-12-18 at 13:40, Horst von Brand wrote:
+> [Extremely interesting new syscall mechanism tread elided]
+> 
+> What happened to "feature freeze"?
 
-Since int 0x80 is supported/ will be supported for the next 20 years, I dont
-think this is a radical change.
-No userspace visible at all.
-You are free to use the old way of calling the kernel...
+I'm wondering that. 2.5.49 was usable for devel work, no kernel since
+has been. Its stopped IDE getting touched until January.
+
+Linus. you are doing the slow slide into a second round of development
+work again, just like mid 2.3, just like 1.3.60, ...
 

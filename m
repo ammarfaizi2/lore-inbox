@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbUKTIZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbUKTIhk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbUKTIZw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 03:25:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbUKTIZw
+	id S261191AbUKTIhk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 03:37:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbUKTIhk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 03:25:52 -0500
-Received: from holomorphy.com ([207.189.100.168]:6532 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261188AbUKTIZq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 03:25:46 -0500
-Date: Sat, 20 Nov 2004 00:25:36 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Lameter <clameter@sgi.com>,
-       akpm@osdl.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Hugh Dickins <hugh@veritas.com>, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V11 [0/7]: overview
-Message-ID: <20041120082536.GQ2714@holomorphy.com>
-References: <419EC205.5030604@yahoo.com.au> <20041120042340.GJ2714@holomorphy.com> <419EC829.4040704@yahoo.com.au> <20041120053802.GL2714@holomorphy.com> <419EDB21.3070707@yahoo.com.au> <20041120062341.GM2714@holomorphy.com> <419EE911.20205@yahoo.com.au> <20041120071514.GO2714@holomorphy.com> <419EF257.8010103@yahoo.com.au> <419EF8F2.1050909@yahoo.com.au>
+	Sat, 20 Nov 2004 03:37:40 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:47366 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261191AbUKTIhh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 03:37:37 -0500
+Subject: Re: Linux 2.6.9-ac11
+From: David Woodhouse <dwmw2@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1100903811.8909.0.camel@localhost.localdomain>
+References: <1100903811.8909.0.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sat, 20 Nov 2004 08:33:48 +0000
+Message-Id: <1100939628.8600.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <419EF8F2.1050909@yahoo.com.au>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
->> OK then put a touch_nmi_watchdog in there if you must.
+On Fri, 2004-11-19 at 22:37 +0000, Alan Cox wrote:
+> 2.6.9-ac11
+> o	Allow users to force it8212 out of raid mode	(David Woodhouse)
 
-On Sat, Nov 20, 2004 at 06:57:38PM +1100, Nick Piggin wrote:
-> Duh, there is one in there :\
-> Still, that doesn't really say much about a normal tasklist traversal
-> because this thing will spend ages writing stuff to serial console.
-> Now I know going over the whole tasklist is crap. Anything O(n) for
-> things like this is crap. I happen to just get frustrated to see
-> concessions being made to support more efficient /proc access. I know
-> you are one of the ones who has to deal with the practical realities
-> of that though. Sigh. Well try to bear with me... :|
+Nothing to do with me. My involvement with it stopped at the point I
+gave the card to David Howells (admittedly in the knowledge that he'd do
+something odd with it like sticking it in the FR-V box.)
 
-I sure as Hell don't have any interest in /proc/ in and of itself,
-but this stuff does really bite people, and hard, too.
+-- 
+dwmw2
 
-
--- wli

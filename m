@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264026AbUESMmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264151AbUESMvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264026AbUESMmo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 08:42:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbUESMmo
+	id S264151AbUESMvM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 08:51:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264161AbUESMvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 08:42:44 -0400
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:7600 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264026AbUESMmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 08:42:42 -0400
-Message-ID: <40AB5639.7060806@yahoo.com.au>
-Date: Wed, 19 May 2004 22:42:33 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: elenstev@mesatop.com
-CC: Wayne Scott <wscott@bitmover.com>, mason@suse.com, torvalds@osdl.org,
-       akpm@osdl.org, lm@bitmover.com, wli@holomorphy.com, hugh@veritas.com,
-       adi@bitmover.com, support@bitmover.com, linux-kernel@vger.kernel.org,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: 1352 NUL bytes at the end of a page?
-References: <Pine.LNX.4.58.0405180728510.25502@ppc970.osdl.org>	<200405190453.31844.elenstev@mesatop.com>	<1084968622.27142.5.camel@watt.suse.com> <20040519.072009.92566322.wscott@bitmover.com>
-In-Reply-To: <20040519.072009.92566322.wscott@bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 19 May 2004 08:51:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:58310 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264151AbUESMvJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 08:51:09 -0400
+Date: Wed, 19 May 2004 08:50:36 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Jan Kasprzak <kas@informatics.muni.cz>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: sendfile -EOVERFLOW on AMD64
+Message-ID: <20040519125036.GM30909@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <1XuW9-3G0-23@gated-at.bofh.it> <m3d650wys1.fsf@averell.firstfloor.org> <20040519103855.GF18896@fi.muni.cz> <20040519105805.GK30909@devserv.devel.redhat.com> <20040519124427.GA68902@colin2.muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040519124427.GA68902@colin2.muc.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wayne Scott wrote:
-> From: Chris Mason <mason@suse.com>
+On Wed, May 19, 2004 at 02:44:27PM +0200, Andi Kleen wrote:
+> > (note error is int, not ssize_t), but I don't see anything obvious
+> > for other filesystems.
 > 
->>Good to hear.  We probably still need Andrew's truncate fix, this just
->>isn't the right workload to show it.  Andrew, that reiserfs fix survived
->>testing here, could you please include it?
->>
->>-chris
+> sendfile64 on 32bit hosts seems to be quite fishy too.
 > 
+> It works with ssize_t, which is 32bit only, but there are no checks
+> that the transfered file is not >4GB.  It would just wrap in this case.
+> It would be better to add such checks for 32bit hosts to sendfile64.
 > 
-> BTW. We have had one other person report a similar failure.
-> 
-> http://db.bitkeeper.com/cgi-bin/bugdb.cgi?.page=view&id=2004-05-19-001
-> 
-> But if sounds like this problem is now understood.  It was a pleasure
-> to watch you guys, and someone should buy Steven a beer.  Or perhaps
-> order a pizza for his family because I suspect this took some of their
-> time.
-> 
+> Or am I missing something?
 
-Yep. Thanks for your help Steven.
+The userland prototypes are:
+extern ssize_t sendfile (int __out_fd, int __in_fd, off_t *__offset,
+                         size_t __count) __THROW;
+extern ssize_t sendfile64 (int __out_fd, int __in_fd, __off64_t *__offset,
+                           size_t __count) __THROW;
+Thus you really cannot transfer more than 4G-1 bytes in one call on 32-bit
+arches.
+Actually, already any counts >= 2GB-1 might be problematic, but we are
+there on the same boat as with e.g. read(2).  For read, POSIX says:
+"If the value of nbyte is greater than {SSIZE_MAX}, the result is
+implementation-defined."
+so portable programs really shouldn't try to transfer more than that
+in one go but the kernel certainly should try to handle sizes up to
+SIZE_MAX-4096 or something like that.
 
-I don't think anyone has cleared up the performance regression
-problem yet though, so I'll have to bug you a bit more.
-
-Steven, with all else being equal, you said you found a 2.6.3 SuSE
-kernel to significantly outperform 2.6.6, is that right? If so can
-you try the same test with plain 2.6.3 please? We'll go from there.
-
-This one isn't urgent, because I suspect it could be something
-specific to the SuSE kernel rather than a regression in Linus' tree
-- we've heard no other complaints... so just whenever you get the
-chance.
-
-Nick
+	Jakub

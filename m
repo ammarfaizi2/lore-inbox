@@ -1,78 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318717AbSIFP3W>; Fri, 6 Sep 2002 11:29:22 -0400
+	id <S318735AbSIFPbd>; Fri, 6 Sep 2002 11:31:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318736AbSIFP3W>; Fri, 6 Sep 2002 11:29:22 -0400
-Received: from iris.mc.com ([192.233.16.119]:56033 "EHLO mc.com")
-	by vger.kernel.org with ESMTP id <S318717AbSIFP3B>;
-	Fri, 6 Sep 2002 11:29:01 -0400
-Message-Id: <200209061533.LAA11203@mc.com>
-Content-Type: text/plain; charset=US-ASCII
-From: mbs <mbs@mc.com>
-To: DevilKin <devilkin-lkml@blindguardian.org>, linux-kernel@vger.kernel.org
-Subject: Re: ide drive dying?
-Date: Fri, 6 Sep 2002 11:37:59 -0400
-X-Mailer: KMail [version 1.3.1]
-References: <200209061713.51387.devilkin-lkml@blindguardian.org>
-In-Reply-To: <200209061713.51387.devilkin-lkml@blindguardian.org>
+	id <S318738AbSIFPbc>; Fri, 6 Sep 2002 11:31:32 -0400
+Received: from mx5.sac.fedex.com ([199.81.194.37]:20750 "EHLO
+	mx5.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S318735AbSIFPba>; Fri, 6 Sep 2002 11:31:30 -0400
+Date: Fri, 6 Sep 2002 23:35:16 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Oleg Drokin <green@namesys.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: remount reiserfs hangs under heavy load 2.4.20pre5
+In-Reply-To: <20020906153029.A14514@namesys.com>
+Message-ID: <Pine.LNX.4.44.0209062327150.615-100000@boston.corp.fedex.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/06/2002
+ 11:35:59 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/06/2002
+ 11:36:05 PM,
+	Serialize complete at 09/06/2002 11:36:05 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-same problem I was having with 2.4.20-pre4-ac2-preempt.
 
-alan didn't want to hear it from me due to the -preempt
+On Fri, 6 Sep 2002, Oleg Drokin wrote:
 
-my system was e7500 chipset, dual xeon, WD 40g drive, ext2 or ext3.
+> > Whenever "mount -o remount -n -w /dev/hdax" is issued under disk
+> > activities, the system would freezed, and had to be hard booted.
+>
+> What kind of disk activies?
 
-from this we can glean: preempt not a factor, HD manufacturer not a factor, 
-FS not a factor.  don't know what chipset you are using.
+Activities such as compiling the kernel or rcp large files on /dev/hda3
 
-I was allso geting badCRC errors.
+> What was mount status of filesystems before that command was it readonly
+> mounted ?
 
-On Friday 06 September 2002 11:13, DevilKin wrote:
-> Hello kernel people,
->
-> Kernel running: 2.4.20-pre1ac3 or -pre5ac2 (same under both)
->
-> Today I discovered a stale copy of qt-3.0.3 lying about on my disk. When I
-> tried to delete it, this started showing up in my log files:
->
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=7072862,
-> sector=1803472
-> end_request: I/O error, dev 03:06 (hda), sector 1803472
-> vs-13070: reiserfs_read_inode2: i/o failure occurred trying to find stat
-> data of [612671 612672 0x0 SD]
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=7072862,
-> sector=1803472
-> end_request: I/O error, dev 03:06 (hda), sector 1803472
-> vs-13070: reiserfs_read_inode2: i/o failure occurred trying to find stat
-> data of [612671 612677 0x0 SD]
->
-> and rm just reported me 'Permission denied'.
->
-> I've looked up these errors on the net, and as far as i can tell it means
-> that the drive has some bad sectors at the given addresses and that it will
-> probably die on me sooner or later.
->
-> Can someone either confirm this to me or tell me what to do to fix it?
->
-> The drive involved is an IBM-DTLA-307060, which has served me without
-> problems now for about 2 years.
->
-> Thanks!
->
-> DK
+Yes, read-only on /dev/hda2, trying to change to read-write.
 
--- 
-/**************************************************
-**   Mark Salisbury       ||      mbs@mc.com     **
-** If you would like to sponsor me for the       **
-** Mass Getaway, a 150 mile bicycle ride to for  **
-** MS, contact me to donate by cash or check or  **
-** click the link below to donate by credit card **
-**************************************************/
-https://www.nationalmssociety.org/pledge/pledge.asp?participantid=86736
+> I cannot reproduce this behavior with 2.4.19, can you please describe in more
+> details how can we reproduce?
+
+Using reiserfs on say /dev/hda2 200MB (/usr), mount initially as
+read-only, another reiserfs /dev/hda3 800MB (/usr/src), mounted as
+read-write, start compiling linux on /usr/src/linux, let it run for about
+5 to 10 minutes, switch to another xterm and remount /usr as read-write
+... then it may hang sometimes only. My PC is P3 1.13GHz, 650MB Ram, 30GB
+hard disk. If the system is not heavily loaded enough, start rcp/cp large
+amount of data from one partition to another or to another remote machine,
+and remount /usr as read-only and it may hang.
+
+Thanks,
+Jeff.
+

@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268833AbUHLWVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268849AbUHLWcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268833AbUHLWVY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 18:21:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268855AbUHLWVX
+	id S268849AbUHLWcE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 18:32:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268837AbUHLWcD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 18:21:23 -0400
-Received: from [218.201.129.131] ([218.201.129.131]:49937 "HELO netscape.net")
-	by vger.kernel.org with SMTP id S268833AbUHLWSw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 18:18:52 -0400
-From: dasuki3@netscape.net
-To: linux-kernel@vger.kernel.org
-Subject: Charity Assistant.
-X-Priority: 3
-Message-Id: <S268833AbUHLWSw/20040812222016Z+779@vger.kernel.org>
-Date: Thu, 12 Aug 2004 18:18:52 -0400
+	Thu, 12 Aug 2004 18:32:03 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:11396 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S268870AbUHLWbR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 18:31:17 -0400
+Message-ID: <411BF083.8060406@tmr.com>
+Date: Thu, 12 Aug 2004 18:34:43 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+Newsgroups: mail.linux-kernel
+To: Con Kolivas <kernel@kolivas.org>
+CC: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       alan@lxorguk.ukuu.org.uk, dwmw2@infradead.org,
+       schilling@fokus.fraunhofer.de, axboe@suse.de
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <1092099669.5759.283.camel@cube> <cone.1092113232.42936.29067.502@pc.kolivas.org>
+In-Reply-To: <cone.1092113232.42936.29067.502@pc.kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Friend.
+Con Kolivas wrote:
 
-As you read this, I don't want you to feel sorry for me because I believe
-Everyone will die someday. My name is Dasuki AL-Mehmood, a merchant
-in Dubai U.A.E.
+> It was a hard lockup and randomly happened during a cd write, creating 
+> my first coaster in a long time... in rt mode ironically which is how it 
+> is recommended to be run. So I removed the foolish superuser bit and 
+> have had no problem since. Yes it was unaltered cdrecord source and it 
+> was the so-called alpha branch and... Not much else I can say about it 
+> really?
 
-I have been diagnosed with esophageal cancer. It has defiled all forms of
-Medical treatment, and right now I have only about a few months to live,
-According to medical experts. I have not particularly lived my life so
-Well, as I never really cared for anyone (not even myself) but my business.
-Though I am very rich, I was never generous, I was always hostile to people
-and only focused on my business as that was the only thing I cared for. But
-now I regret all this as I now know that there is more to life than just
-Wanting to have or make all the money in the world.
+I said I'd never seen this (true), but it could happen if you were 
+burning an audio CD using the ide-scsi or ATA: interface. In 2.6 the 
+ATAPI: interface uses DMA. I don't know what the program does if you 
+just say dev=/dev/hdx, I don't normally use it that way (I got into the 
+habit of using ATAPI:). Given a fast burner and the interface using PIO, 
+I guess you could slow the system down some!
 
-I believe when God gives me a second chance to come to this world I would
-Live my life a different way from how I have lived it. Now that God has
-Called me, I have willed and given most of my property and assets to my
-Immediate and extended family members as well as a few close friends.
-
-I want God to be merciful to me and accept my soul so, I have decided to
-give alms to charity organizations, as I want this to be one of the last
-good deeds I do on earth.
-
-Now that my health has deteriorated so badly, I cannot do this myself
-Anymore. I once asked members of my family to close one of my accounts and
-distribute the money which I have there to charity organization in Bulgaria
-and Pakistan; they refused and kept the money to themselves. Hence, I do
-not trust them anymore, as they seem not to be contended with what I have
-left for them.
-
-The last of my money which no one knows of is the huge cash deposit of $6M.
-(Six  Million United States Dollars) that I have with a finance/Security
-Company abroad. I will want you to help me collect this deposit and
-Dispatched it to charity organizations. I have set aside 10 % for you and
-for your time. All correspondence should be directed via this private email
-dasuk-al-mehmo@excite.com
-
-May Allah be with you.
-
-Dasuki Al- Mehmood
-Dasuk-al-mehmo@excite.com
-
-
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289741AbSAOXXr>; Tue, 15 Jan 2002 18:23:47 -0500
+	id <S289748AbSAOX1r>; Tue, 15 Jan 2002 18:27:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289754AbSAOXXa>; Tue, 15 Jan 2002 18:23:30 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:62592
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S289741AbSAOXXY>; Tue, 15 Jan 2002 18:23:24 -0500
-Date: Tue, 15 Jan 2002 16:22:52 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, esr@thyrsus.com,
-        arjan@fenrus.demon.nl, linux-kernel@vger.kernel.org
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-Message-ID: <20020115232252.GC5220@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <E16QESB-0002xq-00@the-village.bc.nu> <195317834.1011133033@[195.224.237.69]>
-Mime-Version: 1.0
+	id <S289759AbSAOX1h>; Tue, 15 Jan 2002 18:27:37 -0500
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:47262 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S289748AbSAOX1Z>; Tue, 15 Jan 2002 18:27:25 -0500
+Message-ID: <3C44BB1B.E1F3318C@didntduck.org>
+Date: Tue, 15 Jan 2002 18:28:27 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christian Thalinger <e9625286@student.tuwien.ac.at>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: floating point exception
+In-Reply-To: <1010925802.674.0.camel@sector17.home.at>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <195317834.1011133033@[195.224.237.69]>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 10:17:13PM -0000, Alex Bligh - linux-kernel wrote:
- 
-> & if this is the sole aim, just (configurably no doubt) stick
-> .config somewhere in initramfs as part of the build process
-> and you have no parsing to do whatsoever.
+Christian Thalinger wrote:
+> 
+> Hi!
+> 
+> Just downloaded again, after a long time, the setiathome client. I
+> wanted to look how smooth my tyan dual works. So i started the client
+> and after a few seconds it gets and `floating point exception'. No
+> problem till now, cause it seems to be seti bug. Ok.
+> 
+> Right after that my window manager segfaults. Ok, switch to console,
+> restart it and go. No! Can't start any programs anymore, no login. All
+> tasks die one after the other, up to the complete lock of the machine.
+> Even alt-sysrq doesn't work.
+> 
+> So, this is kernel 2.4.17 and i'll try other kernels right after this
+> email.
+> 
+> Anyone knows what's going on?
 
-initramfs goes away, I believe.  But most vendors stick their config in
-/boot/config-`uname -r`, and last I looked at kbuild-2.5, it asked if
-you wanted to stick your .config in /lib/modules/`uname -r` (which is
-default loc for System.map too..)  Or maybe it just did it.
+What CPU do you have?  Do you have the FPU emulator compiled in?  Are
+there any oops messages?
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+--
+						Brian Gerst

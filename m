@@ -1,81 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269269AbTGUHWL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 03:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269321AbTGUHWL
+	id S269325AbTGUHjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 03:39:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269333AbTGUHjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 03:22:11 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:18124 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S269269AbTGUHWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 03:22:07 -0400
-Date: Mon, 21 Jul 2003 17:37:54 +1000
-From: CaT <cat@zip.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: sensors@stimpy.netroedge.com, frodol@dds.nl, linux-kernel@vger.kernel.org,
-       phil@netroedge.com
-Subject: Re: 2.6.0-t1: i2c+sensors still whacky
-Message-ID: <20030721073753.GA640@zip.com.au>
-References: <20030715090726.GJ363@zip.com.au> <20030715161127.GA2925@kroah.com> <20030716060443.GA784@zip.com.au> <20030716061009.GA5037@kroah.com> <20030716062922.GA1000@zip.com.au> <20030716073135.GA5338@kroah.com> <20030716224718.GA4612@zip.com.au> <20030716225452.GA3419@kroah.com> <20030717153348.GO4612@zip.com.au> <20030718023350.GA5902@kroah.com>
+	Mon, 21 Jul 2003 03:39:16 -0400
+Received: from mail2.uu.nl ([131.211.16.76]:7656 "EHLO mail2.uu.nl")
+	by vger.kernel.org with ESMTP id S269325AbTGUHjP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 03:39:15 -0400
+Subject: Re: [RFC/PATCH] sysfs'ify video4linux
+From: Ronald Bultje <rbultje@ronald.bitfreak.net>
+To: video4linux-list@redhat.com
+Cc: Greg KH <greg@kroah.com>, Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030721072853.GA21450@bytesex.org>
+References: <20030716084448.GC27600@bytesex.org>
+	 <20030716161924.GA7406@kroah.com> <20030716202018.GC26510@bytesex.org>
+	 <20030716210800.GE2279@kroah.com> <20030717120121.GA15061@bytesex.org>
+	 <20030717145749.GA5067@kroah.com> <20030717163715.GA19258@bytesex.org>
+	 <20030717214907.GA3255@kroah.com> <20030718095920.GA32558@bytesex.org>
+	 <20030718234359.GK1583@kroah.com>  <20030721072853.GA21450@bytesex.org>
+Content-Type: text/plain
+Message-Id: <1058772757.2256.207.camel@shrek.bitfreak.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030718023350.GA5902@kroah.com>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 21 Jul 2003 09:55:09 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 17, 2003 at 07:33:51PM -0700, Greg KH wrote:
-> On Fri, Jul 18, 2003 at 01:33:48AM +1000, CaT wrote:
-> > > sensors package for 2.4 uses?  And 2.4 works just fine, right?
-> > 
-> > I don't use 2.4. Haven't for ages.
-> 
-> I would _really_ encourage you to try this, and run the sensors_detect
+Hi Gerd,
 
-Good thing you did. :)
+On Mon, 2003-07-21 at 09:28, Gerd Knorr wrote:
+> Breaking the build _right now_ with 2.6 becoming stable is IMHO not a
+> good idea, I think I better try to avoid that until 2.7.
 
-> program to have the scripts tell you what hardware you really have, and
-> see if the 2.4 drivers work properly for you.
+The build is broken for quite some v4l drivers already (zr36120,
+zr36067, the mpeg card, afaik), and really, the ones not in the kernel
+will not officially "support" 2.6.x anyway before it's stable. It
+shouldn't be that much work. I'd suggest to try to get it in before
+2.6.0. This whole "we'll now turn number 5->6 and everything will be
+stable" is there to help developers in releasing a new stable version,
+not to prevent them from innovating and improving. I mean, this won't
+actually be a totally new subsystem like the VM that needs to be
+debugged in the next few months just after we've release 2.6.0, right?
+It's just a small move. Fixing the drivers shouldn't be hard, and if
+we/you ("we" as in the v4l driver developers) synchronize that nicely
+with each other, there shouldn't be an actual problem.
 
-It both does and does not depending on what I do.
+(Related, I [finally] got 2.6.0-test1 to work so a new patch for my
+driver is coming up in one of the next few days; please, someone kick it
+forward to Linus then).
 
-> Without that, I don't know how to debug the 2.5 problem.
-
-Well I hope this helps. I can both duplicated and fix the problem under
-2.4. To duplicate all I have to do is compile the kernel without ISA
-support and, consequently, not use the ISA bus to read the sensors data.
-2.4 then displays the exact same symptoms that 2.5 does. If I compile
-ISA in and use it for the data then I get my data and kernel works fine.
-To test if all was well I compiled 2.5 (for the next test) and constantly
-checked the temperature. It went up during the compile nicely and dropped
-when it stopped so I'll assume that the sensors stuff works perfectly
-fine under 2.4 with ISA.
-
-Next I booted into 2.5. I loaded i2c-core, i2c-dev, i2c-sensor, i2c-isa
-and i2c-piix4. All's fine. Loaded adm1021 (which is the correct driver
-btw - it's the one the sensors-detect program detected) and boom, kernel
-is molasses. Powercycle and try again, this time only doing:
-
-modprobe i2c-isa
-modprobe adm1021
-
-Kernel works fine but no sensor data. find returned only empty directories.
-I then did:
-
-modprobe i2c-piix4
-
-and boom! molasses again and dmesg was filled with the errors I previously
-posted.
-
-I hope this helps. It seems that there's a distinct lack of interaction
-between the i2c/sensors code and isa and that is what might be causing
-the problem... but that's just what it looks like to me.
-
-Now, if you need any more debugging done, yell. :)
+Ronald
 
 -- 
-"How can I not love the Americans? They helped me with a flat tire the
-other day," he said.
-	- http://tinyurl.com/h6fo
+Ronald Bultje <rbultje@ronald.bitfreak.net>
+

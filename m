@@ -1,59 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312590AbSFNPSv>; Fri, 14 Jun 2002 11:18:51 -0400
+	id <S317934AbSFNP2u>; Fri, 14 Jun 2002 11:28:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317931AbSFNPSv>; Fri, 14 Jun 2002 11:18:51 -0400
-Received: from [207.65.182.3] ([207.65.182.3]:16286 "EHLO mail.cafes.net")
-	by vger.kernel.org with ESMTP id <S312590AbSFNPSt>;
-	Fri, 14 Jun 2002 11:18:49 -0400
-To: Duncan Sands <duncan.sands@wanadoo.fr>, linux-kernel@vger.kernel.org,
-        devfs@oss.sgi.com
-From: gphat@cafes.net
-Subject: Re: 2.5.19 - 2.5.21 don't boot with devfs
-Date: Fri, 14 Jun 2002 15:14:57 GMT
-X-Originating-IP: 67.105.23.116
-Message-Id: <20020614151457.63A9A6838EDB@mail.cafes.net>
+	id <S317935AbSFNP2t>; Fri, 14 Jun 2002 11:28:49 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:26359 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S317934AbSFNP2s>; Fri, 14 Jun 2002 11:28:48 -0400
+Date: Fri, 14 Jun 2002 11:28:49 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+        Richard Brunner <richard.brunner@amd.com>, mark.langsdorf@amd.com
+Subject: Re: New version of pageattr caching conflict fix for 2.4
+Message-ID: <20020614112849.A22888@redhat.com>
+In-Reply-To: <20020613221533.A2544@wotan.suse.de> <20020613210339.B21542@redhat.com> <20020614032429.A19018@wotan.suse.de> <20020613213724.C21542@redhat.com> <20020614040025.GA2093@inspiron.birch.net> <20020614001726.D21542@redhat.com> <20020614062754.A11232@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had the same problem, as the familiar /dev/hdN devices were not there. 
- 
-You can likely find them deep /dev/ata/... 
- 
-I adjusted my fstab to use /dev/ata/... devices.  I believe I had done that 
-once for /dev/ide, but then it was switched to ata ;) 
- 
-> Starting from 2.5.19 (x86), booting fails at "Checking root file system..." 
-> if devfs is mounted; there is no problem if devfs is not mounted.  With 
-> devfs mounted I get: 
->  
-> .... 
-> Checking root file system... 
-> fsck 1.27 (8-Mar-2002) 
-> .... 
-> fsck.ext3: No such file or directory while trying to open /dev/hda2 
->  
-> Here is my fstab: 
->  
-> # /etc/fstab: static file system information. 
-> # 
-> # <file system> <mount point> <type> <options>   <dump> <pass> 
-> /dev/hda2 /  ext3 defaults,errors=remount-ro 0 1 
-> /dev/hda3 none  swap sw           0 0 
-> /dev/hda1 /windows vfat defaults,user,exec  0 2 
-> proc  /proc  proc defaults   0 0 
-> none     /proc/bus/usb usbdevfs defaults  0 0 
-> none  /devices driverfs defaults  0 0 
->  
-> Any ideas? 
->  
-> Duncan. 
-> - 
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in 
-> the body of a message to majordomo@vger.kernel.org 
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html 
-> Please read the FAQ at  http://www.tux.org/lkml/ 
-> 
+On Fri, Jun 14, 2002 at 06:27:54AM +0200, Andi Kleen wrote:
+> Both AMD x86-64 and Intel IA32 documentation states that INVLPG flushes global
+> TLBs. The first version of change_page_attr did in fact use __flush_tlb_all,
+> but I changed it after checking the docs.
 
+As Andrea pointed out, there is an errata whereby 4MB pages aren't flushed 
+on the Athlon.  If you mask off the low bits of the address for flushing, 
+that should fix the problem, and sounds like a plausible explanation for 
+the failure I saw.
 
+		-ben
 
+ps. s/La Haise/LaHaise would be nice, too.
+-- 
+"You will be reincarnated as a toad; and you will be much happier."

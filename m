@@ -1,60 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbVCOX5O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbVCOX7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262127AbVCOX5O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 18:57:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbVCOXyY
+	id S262162AbVCOX7A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 18:59:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbVCOX67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 18:54:24 -0500
-Received: from pat.uio.no ([129.240.130.16]:6531 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262127AbVCOXxT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 18:53:19 -0500
-Subject: Re: 2.6.11-mm3: BUG: atomic counter underflow at: rpcauth_destroy
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Borislav Petkov <petkov@uni-muenster.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200503152321.52799.petkov@uni-muenster.de>
-References: <200503152321.52799.petkov@uni-muenster.de>
-Content-Type: text/plain
-Date: Tue, 15 Mar 2005 18:52:58 -0500
-Message-Id: <1110930779.22062.13.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.367, required 12,
-	autolearn=disabled, AWL 1.58, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+	Tue, 15 Mar 2005 18:58:59 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:15080 "EHLO
+	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S262162AbVCOX6B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 18:58:01 -0500
+Date: Tue, 15 Mar 2005 17:56:42 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Taking strlen of buffers copied from userspace
+In-reply-to: <3Iphf-66y-15@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <4237763A.6080601@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <3Iphf-66y-15@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ty den 15.03.2005 Klokka 23:21 (+0100) skreiv Borislav Petkov:
-
-> After some rookie debugging I think I've found the evildoer:
+Artem Frolov wrote:
+> Hello,
 > 
-> rpcauth_create used to have a line that inits rpc_auth->au_count to one
-> atomically. This line is now missing so when you release the rpc
-> authentication handle, the au_count underflows. Here's a fix:
+> I am in the process of testing static defect analyzer on a Linux
+> kernel source code (see disclosure below).
 > 
-> Signed-off-by: Borislav Petkov <petkov@uni-muenster.de>
+> I found some potential array bounds violations. The pattern is as
+> follows: bytes are copied from the user space and then buffer is
+> accessed on index strlen(buf)-1. This is a defect if user data start
+> from 0. So the question is: can we make any assumptions what data may
+> be received from the user or it could be arbitrary?
+
+In general I don't think any such assumptions should be made. In the 
+case of the two below I'm assuming that root access is required to write 
+those files, preventing any serious security hole, but it shouldn't 
+really be permitted to corrupt kernel memory like this, as would likely 
+happen if somebody wrote some data that contained a null as the first 
+character.
+
 > 
-> --- net/sunrpc/auth.c.orig 2005-03-15 22:34:58.000000000 +0100
-> +++ net/sunrpc/auth.c 2005-03-15 22:36:23.000000000 +0100
-> @@ -70,6 +70,7 @@ rpcauth_create(rpc_authflavor_t pseudofl
->   auth = ops->create(clnt, pseudoflavor);
->   if (!auth)
->    return NULL;
-> + atomic_set(&auth->au_count, 1);
->   if (clnt->cl_auth)
->    rpcauth_destroy(clnt->cl_auth);
->   clnt->cl_auth = auth;
+> For example, in ./drivers/block/cciss.c, function cciss_proc_write
+> (line numbers are taken form 2.6.11.3):
+>    ....
+>    293          if (count > sizeof(cmd)-1) return -EINVAL;
+>    294          if (copy_from_user(cmd, buffer, count)) return -EFAULT;
+>    295          cmd[count] = '\0';
+>    296          len = strlen(cmd);      // above 3 lines ensure safety
+>    297          if (cmd[len-1] == '\n')
+>    298                  cmd[--len] = '\0';
+>    .....
+> 
+> Another example is arch/i386/kernel/cpu/mtrr/if.c, function mtrr_write:
+>    ....
+>    107          if (copy_from_user(line, buf, len - 1))
+>    108                  return -EFAULT;
+>    109          ptr = line + strlen(line) - 1;
+>    110          if (*ptr == '\n')
+>    111                  *ptr = '\0';
+>     ....
+> 
 
-The correct fix for this has already been committed to Linus' bitkeeper
-repository. See
+This one is also unsafe if somebody writes some data which is not 
+null-terminated (assuming that that's possible), since strlen will run 
+off the end of the buffer. The first example doesn't have that problem.
 
-http://linux.bkbits.net:8080/linux-2.6/cset@42332338Oz6uYqdnuwFBM5JHXlBCCQ?nav=index.html|ChangeSet@-4d
-
-Cheers,
-  Trond
 -- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

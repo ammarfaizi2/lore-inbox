@@ -1,74 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318792AbSHWND5>; Fri, 23 Aug 2002 09:03:57 -0400
+	id <S318794AbSHWNJd>; Fri, 23 Aug 2002 09:09:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318793AbSHWND5>; Fri, 23 Aug 2002 09:03:57 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:3456 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S318792AbSHWND4>; Fri, 23 Aug 2002 09:03:56 -0400
-Date: Fri, 23 Aug 2002 09:07:54 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Kerenyi Gabor <wom@tateyama.hu>
-cc: sanket rathi <sanket@linuxmail.org>, linux-kernel@vger.kernel.org
-Subject: Re: interrupt handler
-In-Reply-To: <200208231254.VAA20879@cttsv008.ctt.ne.jp>
-Message-ID: <Pine.LNX.3.95.1020823085830.198A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318796AbSHWNJd>; Fri, 23 Aug 2002 09:09:33 -0400
+Received: from [213.191.86.30] ([213.191.86.30]:17795 "EHLO nox.lemuria.org")
+	by vger.kernel.org with ESMTP id <S318794AbSHWNJd>;
+	Fri, 23 Aug 2002 09:09:33 -0400
+Date: Fri, 23 Aug 2002 15:13:43 +0200
+From: Tom <tom@lemuria.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: page_alloc bug
+Message-ID: <20020823151343.A15667@lemuria.org>
+References: <20020823090527.A7715@lemuria.org> <20020823125734.GA8854@www.kroptech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020823125734.GA8854@www.kroptech.com>; from akropel1@rochester.rr.com on Fri, Aug 23, 2002 at 08:57:34AM -0400
+X-message-flag: Outlook: A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Aug 2002, Kerenyi Gabor wrote:
+On Fri, Aug 23, 2002 at 08:57:34AM -0400, Adam Kropelin wrote:
+> > EIP: 0010:[<c012b96d>] Tainted: P
+>                                   ^
+> What proprietary modules did you have loaded when this BUG() was hit? nVidia,
+> perhaps? Reproduce the problem from a cold boot without ever having loaded the
+> closed-source module(s). If you can't, go talk to whomever made the module; the
+> community cannot help you solve a problem when we can't see the code.
 
-> 8/23/2002 9:17:07 PM, "Richard B. Johnson" <root@chaos.analogic.com> wrote:
-> 
-> >On Fri, 23 Aug 2002, sanket rathi wrote:
-> >
-> >> hi,
-> >> Can i use spin lock in the interrupt handler for a singlre processor
-> >> machine. because books says u can not use locks but spin lock is some
-> >> thing diffrent 
-> >> 
-> >> thanks in advance
-> >> 
-> >> --Sanket
-> >> ---------
-> >
-> >Interrupts default to OFF within an interrupt handler. Given this,
-> >why would you use a spin-lock within the ISR on a single-processor
-> >machine?
-> 
-> Because he would like to write a code that can be run on a computer
-> with more than one CPU. 
-> 
-> Anyway, do anybody know what kind of advantages/disadvantages I can get
-> if I don't disable interrupts at all in my driver? Even if I have to
-> use a circular
-> buffer or anything else? Is it worth trying to find such a solution or is it
-> a wasted time?
-> 
-> Gabor
-
-If your ISR manipulates any data, which is quite likely, then
-your driver code, that is outside the ISR, must be written
-with the knowledge that an interrupt can happen at any time.
-
-There are probably certain critical regions of code that must
-be protected against modification from the ISR code. You need
-to protect those critical regions with spin-locks.
-
-Spin-locks have very little code. If there is no contention,
-they do not affect performance in any measurable way. If there
-is contention, they simply delay execution of the ISR to a time
-where code is executing in a non-critical section. This delay
-is necessary so, even though it does affect performance, the
-system would not work without it.
+Several people told me so. I will do that and see if the bug reappears.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
-
+-- 
+PGP/GPG key: http://web.lemuria.org/pubkey.html
+pub  1024D/2D7A04F5 2002-05-16 Tom Vogt <tom@lemuria.org>
+     Key fingerprint = C731 64D1 4BCF 4C20 48A4  29B2 BF01 9FA1 2D7A 04F5

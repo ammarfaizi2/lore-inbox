@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVABUhW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVABUln@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbVABUhW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 15:37:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVABUhV
+	id S261330AbVABUln (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 15:41:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVABUhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 15:37:21 -0500
-Received: from news.suse.de ([195.135.220.2]:20920 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261331AbVABUgZ (ORCPT
+	Sun, 2 Jan 2005 15:37:37 -0500
+Received: from holomorphy.com ([207.189.100.168]:41365 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261330AbVABUgV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 15:36:25 -0500
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Pavel Machek <pavel@ucw.cz>, luto@myrealbox.com, aebr@win.tue.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: the umount() saga for regular linux desktop users
-References: <20050102193724.GA18136@elf.ucw.cz>
-	<20050102201147.GB4183@stusta.de>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: Hiccuping & trembling into the WASTE DUMPS of New Jersey like some
- drunken CABBAGE PATCH DOLL, coughing in line at FIORUCCI'S!!
-Date: Sun, 02 Jan 2005 21:36:24 +0100
-In-Reply-To: <20050102201147.GB4183@stusta.de> (Adrian Bunk's message of
- "Sun, 2 Jan 2005 21:11:47 +0100")
-Message-ID: <jemzvry3ef.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 2 Jan 2005 15:36:21 -0500
+Date: Sun, 2 Jan 2005 12:36:15 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+Message-ID: <20050102203615.GL29332@holomorphy.com>
+References: <1697129508.20050102210332@dns.toxicfilms.tv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1697129508.20050102210332@dns.toxicfilms.tv>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> writes:
+On Sun, Jan 02, 2005 at 09:03:32PM +0100, Maciej Soltysiak wrote:
+> I was wondering in the tram today are we close to branching
+> off to 2.7
+> Do the mighty kernel developers have solid plans, ideas, etc
+> to start experimental code
 
-> What's wrong with
->
->   fuser -k /mnt && umount /mnt
+I have a plan to never ever stop experimental code, which is to
+actually move on the 2.6.x.y strategy if no one else does and these
+kinds of complaints remain persistent and become more widespread.
 
-Better: fuser -km /mnt
+There is a standard. Breaking things and hoping someone cleans up
+later doesn't work. So it has to be stable all the time anyway, and
+this is one of the observations upon which the "2.6 forever" theme is
+based. Frozen "minimal fix trees" for the benefit of those terrified of
+new working code (or alternatively, the astoundingly risk-averse) are a
+relatively straightforward theme, which kernel maintainers should be
+fully able to faithfully develop.
 
-Andreas.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+-- wli

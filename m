@@ -1,107 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282042AbRLOHkj>; Sat, 15 Dec 2001 02:40:39 -0500
+	id <S281966AbRLOImx>; Sat, 15 Dec 2001 03:42:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282062AbRLOHkU>; Sat, 15 Dec 2001 02:40:20 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:4109 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S282042AbRLOHkL>; Sat, 15 Dec 2001 02:40:11 -0500
-Date: Sat, 15 Dec 2001 01:40:07 -0600
-From: Ken Brownfield <brownfld@irridia.com>
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Random "File size limit exceeded" under 2.4
-Message-ID: <20011215014007.B6810@asooo.flowerfire.com>
-In-Reply-To: <1007573331.1809.6.camel@two> <3C0E813D.F5B1F84E@zip.com.au> <9um7bf$lsp$1@ncc1701.cistron.net>
+	id <S282046AbRLOImm>; Sat, 15 Dec 2001 03:42:42 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:60175 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S281966AbRLOImY>;
+	Sat, 15 Dec 2001 03:42:24 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Russ Weight <rweight@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+        LSE Tech <lse-tech@lists.sourceforge.net>
+Subject: Re: Static/Global Arrays 
+In-Reply-To: Your message of "Fri, 14 Dec 2001 16:31:10 -0800."
+             <20011214163110.A2423@us.ibm.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <9um7bf$lsp$1@ncc1701.cistron.net>; from miquels@cistron.nl on Wed, Dec 05, 2001 at 10:33:19PM +0000
+Date: Sat, 15 Dec 2001 19:42:10 +1100
+Message-ID: <20332.1008405730@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FWIW, I've been using this over-engineered, under-tested command line
-utility to run e2fsck on our older distributions:
+On Fri, 14 Dec 2001 16:31:10 -0800, 
+Russ Weight <rweight@us.ibm.com> wrote:
+>	I have tabulated lists of static and global arrays in the
+>2.4.16 kernel. I am posting the information here in case it may be
+>of interest to some of you. I would recommend starting with the 
+>linux/kernel and linux/fs tables, as these are the most complete.
+>
+>	http://lse.sourceforge.net/resource/#staticarray
 
-	http://web.irridia.com/info/linux/unflimit.c
+Stating the obvious: For any array with dimension [32] or [64], check
+if the source code uses [NR_CPUS].  IMHO there is no point in trying to
+make those arrays dynamic in size, you penalize the 99% of small
+machines on the off chance that somebody is going to run single system
+image Linux on a box with > 32/64 processors.  People using such large
+machines can recompile the kernel with a new value of NR_CPUS.
 
-It works like "nice" or "time", but sets the proper RLIM_INFINITY
-filesize limit for the inheriting subshell.  For example:
+As a separate problem, there are still places in the kernel which
+assume the number of cpus can be represented in a bitmap of type long.
+That code would be worth tracking down and changing to remove the
+assumption that NR_CPUS <= 8*sizeof(long).  Until that is done, you
+cannot run SSI Linux on machines with > 32/64 processors.
 
-	unflimit e2fsck /dev/sda3
+Note to self: after the bitmap code limit has been removed, make
+NR_CPUS a config option to get ready for huge machines, make
+CONFIG_NR_CPUS a critical config option.
 
-The boot-time fscks work fine, but in multiuser I'm extremely lucky to
-get it to work without this.
-
-The kernel patch below would work, I expect, but I think it's not
-necessarily the Right Thing To Do.  If Andrew is right, is anyone
-looking at why block devices (or fsck?) are honoring the filesize limit?
-
-Thanks,
--- 
-Ken.
-brownfld@irridia.com
-
-On Wed, Dec 05, 2001 at 10:33:19PM +0000, Miquel van Smoorenburg wrote:
-| In article <3C0E813D.F5B1F84E@zip.com.au>,
-| Andrew Morton  <akpm@zip.com.au> wrote:
-| >Derek Glidden wrote:
-| >> 
-| >> I've been experiencing random and occasional encounters with "File size
-| >> limit exceeded" errors under 2.4 kernels when trying to make
-| >> filesystems.
-| >
-| >I don't know if anyone has come forth to fix this yet.
-| >
-| >Apparently it's something to do with your shell setting
-| >rlimits, and block devices are (bogusly) honouring those
-| >settings.
-| 
-| Perhaps the old app is calling sys_old_getrlimit() from
-| linux/kernel/sys.c. It truncates rlimits to 0x7FFFFFFF
-| if it's bigger than that. 0x7FFFFFFF used to be the old
-| RLIM_INFINITY in 2.2 [actually, ((long)(~0UL>>1))]. In
-| 2.4, RLIM_INFINITY is (~0UL).
-| 
-| So if you call sys_setrlimit() with the old RLIM_INFINITY from 2.2
-| OR with the result from sys_old_getrlimit(), then the new limit
-| will be 0x7FFFFFFF instead of unlimited.
-| 
-| Looks like someone forgot to implement sys_old_setrlimit(),
-| which would have been the right thing to do.
-| 
-| Now all we can do is to hack sys_setrlimit and let it translate
-| 0x7FFFFFFF to RLIM_INFINITY.
-| 
-| The following untested and uncompiled patch might do it, or not...
-| 
-| --- linux-2.4.17-pre2/kernel/sys.c.orig	Tue Sep 18 23:10:43 2001
-| +++ linux-2.4.17-pre2/kernel/sys.c	Wed Dec  5 23:30:50 2001
-| @@ -1120,6 +1120,16 @@
-|  		return -EINVAL;
-|  	if(copy_from_user(&new_rlim, rlim, sizeof(*rlim)))
-|  		return -EFAULT;
-| +#if !defined(__ia64__)
-| +	/*
-| +	 * 	In 2.2, RLIMIT_INFINITY was defined as ((long)(~0UL>>1)).
-| +	 * 	Reckognize it and translate it to the new RLIMIT_INFINITY.
-| +	 */
-| +	if ((long)new_rlim.rlim_cur == ((long)(~0UL>>1)))
-| +		new_rlim.rlim_cur = RLIMIT_INFINITY;
-| +	if ((long)new_rlim.rlim_max == ((long)(~0UL>>1)))
-| +		new_rlim.rlim_max = RLIMIT_INFINITY;
-| +#endif
-|  	old_rlim = current->rlim + resource;
-|  	if (((new_rlim.rlim_cur > old_rlim->rlim_max) ||
-|  	     (new_rlim.rlim_max > old_rlim->rlim_max)) &&
-| 
-| Mike.
-| -- 
-| "Only two things are infinite, the universe and human stupidity,
-|  and I'm not sure about the former" -- Albert Einstein.
-| 
-| -
-| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-| the body of a message to majordomo@vger.kernel.org
-| More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315577AbSEQKso>; Fri, 17 May 2002 06:48:44 -0400
+	id <S315580AbSEQKyL>; Fri, 17 May 2002 06:54:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315580AbSEQKsn>; Fri, 17 May 2002 06:48:43 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:64265 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S315577AbSEQKsl>; Fri, 17 May 2002 06:48:41 -0400
-Date: Fri, 17 May 2002 14:47:55 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-        "Patrick Mochel (mochel@osdl.org)" <mochel@osdl.org>,
-        "'davem@redhat.com'" <davem@redhat.com>,
-        "'Greg@kroah.com'" <Greg@kroah.com>, linux-kernel@vger.kernel.org
+	id <S315588AbSEQKyK>; Fri, 17 May 2002 06:54:10 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:14235 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S315580AbSEQKyK>;
+	Fri, 17 May 2002 06:54:10 -0400
+Date: Fri, 17 May 2002 03:40:48 -0700 (PDT)
+Message-Id: <20020517.034048.34092752.davem@redhat.com>
+To: ink@jurassic.park.msu.ru
+Cc: jgarzik@mandrakesoft.com, andrew.grover@intel.com, mochel@osdl.org,
+        Greg@kroah.com, linux-kernel@vger.kernel.org
 Subject: Re: pci segments/domains
-Message-ID: <20020517144755.A16767@jurassic.park.msu.ru>
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7E45@orsmsx111.jf.intel.com> <3CE4098E.2070808@mandrakesoft.com>
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020517144755.A16767@jurassic.park.msu.ru>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 16, 2002 at 03:33:34PM -0400, Jeff Garzik wrote:
-> I wouldn't mind making the PCI domain support a bit more explicit, 
-> though.  I think it's fair to be able to obtain a pointer to "struct 
-> pci_domain", which would most likely be defined in asm/pci.h for each arch.
+   From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+   Date: Fri, 17 May 2002 14:47:55 +0400
 
-We already have it - void *sysdata. Host-to-PCI (domain) controllers might
-be totally different even inside any given architecture, so trying to
-make this more generic would be pointless - you will end up with a pointer
-to arch/device specific data anyway.
-I can think of the only case where domain info might be interesting - if
-some device wants to know whether it can talk to another device directly.
-We have pci_controller_num(pdev) for this.
+   I can think of the only case where domain info might be interesting - if
+   some device wants to know whether it can talk to another device directly.
+   We have pci_controller_num(pdev) for this.
 
-Ivan.
+That is an insufficient way to determine this.  Maybe I can make two
+PCI devices talk to each other transparently between two domains
+using an IOMMU?

@@ -1,70 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbUJaKAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbUJaKDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261524AbUJaKAr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 05:00:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbUJaKAr
+	id S261520AbUJaKDB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 05:03:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbUJaKDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 05:00:47 -0500
-Received: from mail.gmx.de ([213.165.64.20]:18099 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261520AbUJaKAk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 05:00:40 -0500
-X-Authenticated: #4399952
-Date: Sun, 31 Oct 2004 11:00:39 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041031110039.4575e49c@mango.fruits.de>
-In-Reply-To: <1099189225.1754.1.camel@krustophenia.net>
-References: <20041029172243.GA19630@elte.hu>
-	<20041029203619.37b54cba@mango.fruits.de>
-	<20041029204220.GA6727@elte.hu>
-	<20041029233117.6d29c383@mango.fruits.de>
-	<20041029212545.GA13199@elte.hu>
-	<1099086166.1468.4.camel@krustophenia.net>
-	<20041029214602.GA15605@elte.hu>
-	<1099091566.1461.8.camel@krustophenia.net>
-	<20041030115808.GA29692@elte.hu>
-	<1099158570.1972.5.camel@krustophenia.net>
-	<20041030191725.GA29747@elte.hu>
-	<20041030214738.1918ea1d@mango.fruits.de>
-	<1099165925.1972.22.camel@krustophenia.net>
-	<20041030221548.5e82fad5@mango.fruits.de>
-	<1099167996.1434.4.camel@krustophenia.net>
-	<20041030231358.6f1eeeac@mango.fruits.de>
-	<1099189225.1754.1.camel@krustophenia.net>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Sun, 31 Oct 2004 05:03:00 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:19874 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S261520AbUJaKCY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 05:02:24 -0500
+Date: Sun, 31 Oct 2004 11:02:06 +0100
+From: maximilian attems <janitor@sternwelten.at>
+To: akpm@osdl.org
+Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+Subject: [patch 2.6] maintainer vfs email
+Message-ID: <20041031100206.GB1882@stro.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Oct 2004 22:20:24 -0400
-Lee Revell <rlrevell@joe-job.com> wrote:
 
-> Here is a patch that causes the number of consecutive missed interrupts
-> to be printed, as well as setting RT priority itself instead of relying
-> on the rt_wakeup wrapper.
-> 
-> I have found that moving the mouse quickly will reliably cause many
-> interrupts to be missed.
+Diagnostic-Code: X-Postfix; host leibniz.math.psu.edu[146.186.130.2] said: 550
+    5.1.1 <viro@math.psu.edu>... User unknown (in reply to RCPT TO command)
 
-thanks for the patch (it has a little problem, since it uses prio 99 which
-is always equal or greater than the rtc thread prio. i changed it in my
-local version to accept a parameter). will do some more cleanup of the
-program [saner option handling, msec/usec output of the relevant cycle
-counts, history file output, ctrl-c handling etc].
+maybe thats an temporary error,
+if not please update MAINTAINERS entry and other bunch of places.
 
-U\L in an hour or two.
 
-flo
+---
+
+ Documentation/DocBook/procfs-guide.tmpl   |    4 ++--
+ Documentation/filesystems/devfs/ChangeLog |    2 +-
+ MAINTAINERS                               |    2 +-
+ fs/ext2/namei.c                           |    3 ++-
+ fs/sysv/CHANGES                           |    2 +-
+ fs/sysv/ChangeLog                         |   12 ++++++------
+ 6 files changed, 13 insertions(+), 12 deletions(-)
+
+diff -puN MAINTAINERS~maintainer-viro MAINTAINERS
+--- a/MAINTAINERS~maintainer-viro	2004-10-31 10:53:16.000000000 +0100
++++ b/MAINTAINERS	2004-10-31 10:53:54.000000000 +0100
+@@ -832,7 +832,7 @@ S:	Maintained
+ 
+ FILESYSTEMS (VFS and infrastructure)
+ P:	Alexander Viro
+-M:	viro@math.psu.edu
++M:	viro@parcelfarce.linux.theplanet.co.uk
+ S:	Maintained
+ 
+ FIRMWARE LOADER (request_firmware)
+diff -puN fs/sysv/ChangeLog~maintainer-viro fs/sysv/ChangeLog
+--- a/fs/sysv/ChangeLog~maintainer-viro	2004-10-31 10:53:16.000000000 +0100
++++ b/fs/sysv/ChangeLog	2004-10-31 10:54:47.000000000 +0100
+@@ -4,7 +4,7 @@ Thu Feb 14 2002  Andrew Morton  <akpm@zi
+ 	  waitfor_one_page() for IS_SYNC directories, so that we
+ 	  actually do sync the directory. (forward-port from 2.4).
+ 
+-Thu Feb  7 2002  Alexander Viro  <viro@math.psu.edu>
++Thu Feb  7 2002  Alexander Viro  <viro@parcelfarce.linux.theplanet.co.uk>
+ 
+ 	* super.c: switched to ->get_sb()
+ 	* ChangeLog: fixed dates ;-)
+@@ -13,7 +13,7 @@ Thu Feb  7 2002  Alexander Viro  <viro@m
+ 
+ 	* inode.c: Include linux/init.h
+ 
+-Mon Jan 21 2002  Alexander Viro  <viro@math.psu.edu>
++Mon Jan 21 2002  Alexander Viro  <viro@parcelfarce.linux.theplanet.co.uk>
+ 	* ialloc.c (sysv_new_inode): zero SYSV_I(inode)->i_data out.
+ 	* i_vnode renamed to vfs_inode.  Sorry, but let's keep that
+ 	  consistent.
+@@ -43,7 +43,7 @@ Sat Jan 19 2002  Christoph Hellwig  <hch
+ 	* symlink.c (sysv_readlink): Likewise.
+ 	(sysv_follow_link): Likewise.
+ 
+-Fri Jan  4 2002  Alexander Viro  <viro@math.psu.edu>
++Fri Jan  4 2002  Alexander Viro  <viro@parcelfarce.linux.theplanet.co.uk>
+ 
+ 	* ialloc.c (sysv_free_inode): Use sb->s_id instead of bdevname().
+ 	* inode.c (sysv_read_inode): Likewise.
+@@ -59,16 +59,16 @@ Sun Dec 30 2001  Manfred Spraul  <manfre
+ 	* dir.c (dir_commit_chunk): Do not set dir->i_version.
+ 	(sysv_readdir): Likewise.
+ 
+-Thu Dec 27 2001  Alexander Viro  <viro@math.psu.edu>
++Thu Dec 27 2001  Alexander Viro  <viro@parcelfarce.linux.theplanet.co.uk>
+ 
+ 	* itree.c (get_block): Use map_bh() to fill out bh_result.
+ 
+-Tue Dec 25 2001  Alexander Viro  <viro@math.psu.edu>
++Tue Dec 25 2001  Alexander Viro  <viro@parcelfarce.linux.theplanet.co.uk>
+ 
+ 	* super.c (sysv_read_super): Use sb_set_blocksize() to set blocksize.
+ 	  (v7_read_super): Likewise.
+ 
+-Tue Nov 27 2001  Alexander Viro  <viro@math.psu.edu>
++Tue Nov 27 2001  Alexander Viro  <viro@parcelfarce.linux.theplanet.co.uk>
+ 
+ 	* itree.c (get_block): Change type for iblock argument to sector_t.
+ 	* super.c (sysv_read_super): Set s_blocksize early.
+diff -puN fs/sysv/CHANGES~maintainer-viro fs/sysv/CHANGES
+--- a/fs/sysv/CHANGES~maintainer-viro	2004-10-31 10:53:17.000000000 +0100
++++ b/fs/sysv/CHANGES	2004-10-31 10:54:55.000000000 +0100
+@@ -19,7 +19,7 @@ Wed, 4 Feb 1998   Krzysztof G. Baranowsk
+ 	*    namei.c: removed static subdir(); is_subdir() from dcache.c
+ 		      is used instead. Cosmetic changes.
+ 
+-Thu, 3 Dec 1998   Al Viro (viro@math.psu.edu)
++Thu, 3 Dec 1998   Al Viro (viro@parcelfarce.linux.theplanet.co.uk)
+ 	*    namei.c (sysv_rmdir):
+ 		      Bugectomy: old check for victim being busy
+ 		      (inode->i_count) wasn't replaced (with checking
+diff -puN fs/ext2/namei.c~maintainer-viro fs/ext2/namei.c
+--- a/fs/ext2/namei.c~maintainer-viro	2004-10-31 10:53:17.000000000 +0100
++++ b/fs/ext2/namei.c	2004-10-31 10:55:04.000000000 +0100
+@@ -2,7 +2,8 @@
+  * linux/fs/ext2/namei.c
+  *
+  * Rewrite to pagecache. Almost all code had been changed, so blame me
+- * if the things go wrong. Please, send bug reports to viro@math.psu.edu
++ * if the things go wrong. Please, send bug reports to
++ * viro@parcelfarce.linux.theplanet.co.uk
+  *
+  * Stuff here is basically a glue between the VFS and generic UNIXish
+  * filesystem that keeps everything in pagecache. All knowledge of the
+diff -puN Documentation/DocBook/procfs-guide.tmpl~maintainer-viro Documentation/DocBook/procfs-guide.tmpl
+--- a/Documentation/DocBook/procfs-guide.tmpl~maintainer-viro	2004-10-31 10:53:17.000000000 +0100
++++ b/Documentation/DocBook/procfs-guide.tmpl	2004-10-31 10:55:22.000000000 +0100
+@@ -100,8 +100,8 @@
+     <para>
+       I'd like to thank Jeff Garzik
+       <email>jgarzik@pobox.com</email> and Alexander Viro
+-      <email>viro@math.psu.edu</email> for their input, Tim Waugh
+-      <email>twaugh@redhat.com</email> for his <ulink
++      <email>viro@parcelfarce.linux.theplanet.co.uk</email> for their input,
++      Tim Waugh <email>twaugh@redhat.com</email> for his <ulink
+       url="http://people.redhat.com/twaugh/docbook/selfdocbook/">Selfdocbook</ulink>,
+       and Marc Joosen <email>marcj@historia.et.tudelft.nl</email> for
+       proofreading.
+diff -puN Documentation/filesystems/devfs/ChangeLog~maintainer-viro Documentation/filesystems/devfs/ChangeLog
+--- a/Documentation/filesystems/devfs/ChangeLog~maintainer-viro	2004-10-31 10:53:17.000000000 +0100
++++ b/Documentation/filesystems/devfs/ChangeLog	2004-10-31 10:55:28.000000000 +0100
+@@ -1632,7 +1632,7 @@ Changes for patch v177
+ - Fixed bugs in handling symlinks: could leak or cause Oops
+ 
+ - Cleaned up directory handling by separating fops
+-  Thanks to Alexander Viro <viro@math.psu.edu>
++  Thanks to Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+ ===============================================================================
+ Changes for patch v178
+ 
+_

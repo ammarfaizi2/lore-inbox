@@ -1,55 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264613AbTEPTEu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 15:04:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264614AbTEPTEu
+	id S264612AbTEPTAx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 15:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264611AbTEPTAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 15:04:50 -0400
-Received: from holomorphy.com ([66.224.33.161]:21976 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264613AbTEPTEt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 15:04:49 -0400
-Date: Fri, 16 May 2003 12:17:11 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dave Jones <davej@codemonkey.org.uk>,
-       Alexander Hoogerhuis <alexh@ihatent.com>,
-       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [OOPS] 2.5.69-mm6
-Message-ID: <20030516191711.GX8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dave Jones <davej@codemonkey.org.uk>,
-	Alexander Hoogerhuis <alexh@ihatent.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030516015407.2768b570.akpm@digeo.com> <87fznfku8z.fsf@lapper.ihatent.com> <20030516180848.GW8978@holomorphy.com> <20030516185638.GA19669@suse.de>
+	Fri, 16 May 2003 15:00:53 -0400
+Received: from www.hostsharing.net ([212.42.230.151]:16040 "EHLO
+	pima.hostsharing.net") by vger.kernel.org with ESMTP
+	id S264612AbTEPTAu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 15:00:50 -0400
+Date: Fri, 16 May 2003 21:15:11 +0200
+From: Elimar Riesebieter <riesebie@lxtec.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: radeonfb and acpi
+Message-ID: <20030516191511.GB669@gandalf.home.lxtec.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030515195025.GB696@gandalf.home.lxtec.de> <20030516083620.GA1687@deimos.one.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+g7M9IMkV8truYOl"
 Content-Disposition: inline
-In-Reply-To: <20030516185638.GA19669@suse.de>
-Organization: The Domain of Holomorphy
+In-Reply-To: <20030516083620.GA1687@deimos.one.pl>
+Organization: LXTEC
+X-gnupg-key-fingerprint: BE65 85E4 4867 7E9B 1F2A  B2CE DC88 3C6E C54F 7FB0
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 16, 2003 at 01:26:20PM +0200, Alexander Hoogerhuis wrote:
->>> This one goes in -mm5 as well, machine runs fine for a while in X, but
->>> trying to switch to a vty send the machine into the tall weeds...
 
-On Fri, May 16, 2003 at 11:08:48AM -0700, William Lee Irwin III wrote:
->> Could you run with the radeon driver non-modular and kernel debugging
->> on? Then when it oopses could you use addr2line(1) to resolve this to
->> a line number?
->> I'm at something of a loss with respect to dealing with DRM in general.
+--+g7M9IMkV8truYOl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 16, 2003 at 07:56:38PM +0100, Dave Jones wrote:
-> Not that I'm pointing fingers, but it could be that
-> reslabify-pgds-and-pmds.patch again  ? Maybe it's still not quite right?
-> Might be worth backing out and retesting, just to rule it out.
+On Fri, 16 May 2003 the mental interface of=20
+Damian Ko?kowski told:
 
-Yes, if he could try that too it would help. I got a private reply
-saying he'd be out of the picture for over 24 hours. I'm looking for
-someone with a radeon to fill in the gap until then.
+> On Thu, May 15, 2003 at 09:50:25PM +0200, Elimar Riesebieter wrote:
+> > BTW: Which kernel-params do I need to start radeonfb with
+> > video:radeonfb=3D1280x1024-16@75 ? The FB even starts with=20
+> > colour frame buffer device 80x30.
+>=20
+> ./home/deimos. # cat /etc/lilo.conf | grep radeon
+> append=3D"video=3Dradeon:1024x768-32@100 hdb=3Dide-scsi"
+> ./home/deimos. #
+
+This is IMHO fo r ppc's. I am running an i86-32.
+
+I do /usr/sbin/fbset -a -fb /dev/fb0 1280x1024-75. Thats what I
+want. That doesn't depend on whether  I am booting radeon or
+radeonfb in 2.4.20/2.4.21-rc1.
+
+Ciao and thx
+
+Elimar
 
 
--- wli
+--=20
+  Learned men are the cisterns of knowledge,=20
+  not the fountainheads ;-)
+
+--+g7M9IMkV8truYOl
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+xTi/3Ig8bsVPf7ARAv3aAKCjfNGbLXmxX9UjWxVZhZTTBeqZQgCeNvXT
+b5I8hNPwJLPrdy9lBM8ehnI=
+=t2Aj
+-----END PGP SIGNATURE-----
+
+--+g7M9IMkV8truYOl--

@@ -1,256 +1,209 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292896AbSB0Tlc>; Wed, 27 Feb 2002 14:41:32 -0500
+	id <S292907AbSB0TpO>; Wed, 27 Feb 2002 14:45:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292916AbSB0TlI>; Wed, 27 Feb 2002 14:41:08 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:48118 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S292911AbSB0TjJ>; Wed, 27 Feb 2002 14:39:09 -0500
-Message-ID: <3C7D35C7.9080408@us.ibm.com>
-Date: Wed, 27 Feb 2002 11:38:47 -0800
-From: "David C. Hansen" <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020222
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolabs.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] backport of 2.5 BKL removal from ext2_get_block
-In-Reply-To: <200202271758.g1RHwGn17604@localhost.localdomain> <20020227120129.S12832@lynx.adilger.int>
-Content-Type: multipart/mixed;
- boundary="------------050809060504000200030905"
+	id <S292897AbSB0ToJ>; Wed, 27 Feb 2002 14:44:09 -0500
+Received: from flaske.stud.ntnu.no ([129.241.56.72]:34237 "EHLO
+	flaske.stud.ntnu.no") by vger.kernel.org with ESMTP
+	id <S292907AbSB0TmY>; Wed, 27 Feb 2002 14:42:24 -0500
+Date: Wed, 27 Feb 2002 20:42:22 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BETA] First test release of Tigon3 driver
+Message-ID: <20020227204222.B27400@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020227125611.A20415@stud.ntnu.no> <20020227.040653.58455636.davem@redhat.com> <20020227132454.B24996@stud.ntnu.no> <20020227.042845.54186884.davem@redhat.com> <20020227.042845.54186884.davem@redhat.com>; <20020227170321.B22422@stud.ntnu.no> <3C7D0510.2C300D12@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C7D0510.2C300D12@redhat.com>; from arjanv@redhat.com on Wed, Feb 27, 2002 at 04:10:56PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050809060504000200030905
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Arjan van de Ven:
+> google for nttcp
+> runs a nice tcp performance test...
 
-Andreas Dilger wrote:
- > Just a minor nit for future versions of this patch - you appear to
- > be using spaces instead of tabs in some places (it is easy to see
- > when you look at the diff).  Please use tabs like the rest of the
- > code.
-Uh oh.  Looks like my copying and pasting went awry.  I've attached
-a hopefully fixed patch.
+I did some more benchmarking as Jeff Garzik requested:
+[S: sending host, R: receiving host]
 
---
-Dave Hansen
-haveblue@us.ibm.com
+1. S: Broadcom's GPLed driver
+   R: Miller/Garzik's GPLed driver
+2. S: Broadcom's GPLed driver
+   R: Broadcom's GPLed driver
+3. S: Miller/Garzik's GPLed driver
+   R: Broadcom's GPLed driver
 
---------------050809060504000200030905
-Content-Type: text/plain;
- name="bkl-free-ext2_get_block.2.4.18.patch.nospaces"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="bkl-free-ext2_get_block.2.4.18.patch.nospaces"
+(scenario 4, Miller/Garzik on both ends has already been tested, see another
+email in this thread).
 
-diff -ur clean/fs/ext2/balloc.c linux/fs/ext2/balloc.c
---- clean/fs/ext2/balloc.c	Mon Feb 25 11:38:08 2002
-+++ linux/fs/ext2/balloc.c	Wed Feb 27 09:11:39 2002
-@@ -539,6 +539,7 @@
- 	 */
- #ifdef EXT2_PREALLOCATE
- 	/* Writer: ->i_prealloc* */
-+	write_lock(&inode->u.ext2_i.i_meta_lock);
- 	if (prealloc_count && !*prealloc_count) {
- 		int	prealloc_goal;
- 		unsigned long next_block = tmp + 1;
-@@ -577,7 +578,7 @@
- 			       (k - 1));
- 	}
- #endif
--
-+	write_unlock(&inode->u.ext2_i.i_meta_lock);
- 	j = tmp;
- 
- 	mark_buffer_dirty(bh);
-diff -ur clean/fs/ext2/ialloc.c linux/fs/ext2/ialloc.c
---- clean/fs/ext2/ialloc.c	Mon Feb 25 11:38:08 2002
-+++ linux/fs/ext2/ialloc.c	Wed Feb 27 09:11:39 2002
-@@ -392,6 +392,7 @@
- 	inode->u.ext2_i.i_block_group = group;
- 	if (inode->u.ext2_i.i_flags & EXT2_SYNC_FL)
- 		inode->i_flags |= S_SYNC;
-+	rwlock_init(&inode->u.ext2_i.i_meta_lock);
- 	insert_inode_hash(inode);
- 	inode->i_generation = event++;
- 	mark_inode_dirty(inode);
-Only in linux/fs/ext2: ialloc.c.orig
-diff -ur clean/fs/ext2/inode.c linux/fs/ext2/inode.c
---- clean/fs/ext2/inode.c	Mon Feb 25 11:38:08 2002
-+++ linux/fs/ext2/inode.c	Wed Feb 27 09:11:39 2002
-@@ -51,8 +51,6 @@
-  */
- void ext2_delete_inode (struct inode * inode)
- {
--	lock_kernel();
--
- 	if (is_bad_inode(inode) ||
- 	    inode->i_ino == EXT2_ACL_IDX_INO ||
- 	    inode->i_ino == EXT2_ACL_DATA_INO)
-@@ -60,6 +58,8 @@
- 	inode->u.ext2_i.i_dtime	= CURRENT_TIME;
- 	mark_inode_dirty(inode);
- 	ext2_update_inode(inode, IS_SYNC(inode));
-+
-+	lock_kernel();
- 	inode->i_size = 0;
- 	if (inode->i_blocks)
- 		ext2_truncate (inode);
-@@ -68,24 +68,26 @@
- 	unlock_kernel();
- 	return;
- no_delete:
--	unlock_kernel();
- 	clear_inode(inode);	/* We must guarantee clearing of inode... */
- }
- 
- void ext2_discard_prealloc (struct inode * inode)
- {
- #ifdef EXT2_PREALLOCATE
--	lock_kernel();
-+	write_lock(&inode->u.ext2_i.i_meta_lock);
- 	/* Writer: ->i_prealloc* */
- 	if (inode->u.ext2_i.i_prealloc_count) {
- 		unsigned short total = inode->u.ext2_i.i_prealloc_count;
- 		unsigned long block = inode->u.ext2_i.i_prealloc_block;
- 		inode->u.ext2_i.i_prealloc_count = 0;
- 		inode->u.ext2_i.i_prealloc_block = 0;
-+		write_unlock(&inode->u.ext2_i.i_meta_lock);
- 		/* Writer: end */
- 		ext2_free_blocks (inode, block, total);
-+	} else {
-+		write_unlock(&inode->u.ext2_i.i_meta_lock);
- 	}
--	unlock_kernel();
-+		
- #endif
- }
- 
-@@ -99,6 +101,7 @@
- 
- #ifdef EXT2_PREALLOCATE
- 	/* Writer: ->i_prealloc* */
-+	write_lock(&inode->u.ext2_i.i_meta_lock);
- 	if (inode->u.ext2_i.i_prealloc_count &&
- 	    (goal == inode->u.ext2_i.i_prealloc_block ||
- 	     goal + 1 == inode->u.ext2_i.i_prealloc_block))
-@@ -106,9 +109,11 @@
- 		result = inode->u.ext2_i.i_prealloc_block++;
- 		inode->u.ext2_i.i_prealloc_count--;
- 		/* Writer: end */
-+		write_unlock(&inode->u.ext2_i.i_meta_lock);
- 		ext2_debug ("preallocation hit (%lu/%lu).\n",
- 			    ++alloc_hits, ++alloc_attempts);
- 	} else {
-+		write_unlock(&inode->u.ext2_i.i_meta_lock);
- 		ext2_discard_prealloc (inode);
- 		ext2_debug ("preallocation miss (%lu/%lu).\n",
- 			    alloc_hits, ++alloc_attempts);
-@@ -253,9 +258,11 @@
- 		if (!bh)
- 			goto failure;
- 		/* Reader: pointers */
-+		read_lock(&inode->u.ext2_i.i_meta_lock);	
- 		if (!verify_chain(chain, p))
- 			goto changed;
- 		add_chain(++p, bh, (u32*)bh->b_data + *++offsets);
-+		read_unlock(&inode->u.ext2_i.i_meta_lock);
- 		/* Reader: end */
- 		if (!p->key)
- 			goto no_block;
-@@ -263,6 +270,7 @@
- 	return NULL;
- 
- changed:
-+	read_unlock(&inode->u.ext2_i.i_meta_lock);
- 	*err = -EAGAIN;
- 	goto no_block;
- failure:
-@@ -328,6 +336,8 @@
- 				 unsigned long *goal)
- {
- 	/* Writer: ->i_next_alloc* */
-+
-+	write_lock(&inode->u.ext2_i.i_meta_lock);
- 	if (block == inode->u.ext2_i.i_next_alloc_block + 1) {
- 		inode->u.ext2_i.i_next_alloc_block++;
- 		inode->u.ext2_i.i_next_alloc_goal++;
-@@ -343,9 +353,11 @@
- 			*goal = inode->u.ext2_i.i_next_alloc_goal;
- 		if (!*goal)
- 			*goal = ext2_find_near(inode, partial);
-+		write_unlock(&inode->u.ext2_i.i_meta_lock);
- 		return 0;
- 	}
- 	/* Reader: end */
-+	write_unlock(&inode->u.ext2_i.i_meta_lock);
- 	return -EAGAIN;
- }
- 
-@@ -451,6 +463,7 @@
- 
- 	/* Verify that place we are splicing to is still there and vacant */
- 
-+	write_lock(&inode->u.ext2_i.i_meta_lock);
- 	/* Writer: pointers, ->i_next_alloc* */
- 	if (!verify_chain(chain, where-1) || *where->p)
- 		/* Writer: end */
-@@ -461,7 +474,7 @@
- 	*where->p = where->key;
- 	inode->u.ext2_i.i_next_alloc_block = block;
- 	inode->u.ext2_i.i_next_alloc_goal = le32_to_cpu(where[num-1].key);
--
-+	write_unlock(&inode->u.ext2_i.i_meta_lock);
- 	/* Writer: end */
- 
- 	/* We are done with atomic stuff, now do the rest of housekeeping */
-@@ -517,7 +530,6 @@
- 	if (depth == 0)
- 		goto out;
- 
--	lock_kernel();
- reread:
- 	partial = ext2_get_branch(inode, depth, offsets, chain, &err);
- 
-@@ -539,7 +551,6 @@
- 			brelse(partial->bh);
- 			partial--;
- 		}
--		unlock_kernel();
- out:
- 		return err;
- 	}
-@@ -967,6 +978,7 @@
- 	inode->i_generation = le32_to_cpu(raw_inode->i_generation);
- 	inode->u.ext2_i.i_prealloc_count = 0;
- 	inode->u.ext2_i.i_block_group = block_group;
-+	rwlock_init(&inode->u.ext2_i.i_meta_lock);
- 
- 	/*
- 	 * NOTE! The in-memory inode i_data array is in little-endian order
-@@ -1149,9 +1161,7 @@
- 
- void ext2_write_inode (struct inode * inode, int wait)
- {
--	lock_kernel();
- 	ext2_update_inode (inode, wait);
--	unlock_kernel();
- }
- 
- int ext2_sync_inode (struct inode *inode)
-Only in linux/fs/ext2: inode.c.orig
-diff -ur clean/include/linux/ext2_fs_i.h linux/include/linux/ext2_fs_i.h
---- clean/include/linux/ext2_fs_i.h	Mon Sep 17 13:16:30 2001
-+++ linux/include/linux/ext2_fs_i.h	Wed Feb 27 09:11:39 2002
-@@ -36,6 +36,7 @@
- 	__u32	i_prealloc_count;
- 	__u32	i_dir_start_lookup;
- 	int	i_new_inode:1;	/* Is a freshly allocated inode */
-+	rwlock_t	i_meta_lock;
- };
- 
- #endif	/* _LINUX_EXT2_FS_I */
+__Scenario 1__
+UDP:
+kiwi:~/nttcp-1.47# ./nttcp -T -v -r -u 129.241.57.161
+nttcp-l: nttcp, version 1.47
+nttcp-l: Pid=4354
+nttcp-l: send window size = 65535
+nttcp-l: receive window size = 65535
+nttcp-l: buflen=4096, bufcnt=2048, dataport=5038/udp
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: Pid=1930, InetPeer= 129.241.57.160
+nttcp-1: Optionline="nttcp@-t@-l4096@-n2048@-u@-v@-f@%9b%8.2rt%8.2ct%12.4rbr%12.4cbr%8c%10.2rcr%10.1ccr@-N1"
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: from ?: "129.241.57.160" (=dataport: 5038)
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: send window size = 65535
+nttcp-1: receive window size = 65535
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: buflen=4096, bufcnt=2048, dataport=5038/udp
 
---------------050809060504000200030905--
+nttcp-l: got EOF
+nttcp-l: received 5910528 bytes
+     Bytes  Real s   CPU s Real-MBit/s  CPU-MBit/s   Calls  Real-C/s   CPU-C/s
+l  5910528    0.07    0.08    656.3334    591.0528    1444  20043.59   18050.0
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: transmitted 8388608 bytes
+nttcp-l: try to get outstanding messages from 1 remote clients
+1  8388608    0.07    0.07    962.3826    958.6981    2051  29412.61   29300.0
+nttcp-1: exiting
 
+TCP:
+kiwi:~/nttcp-1.47# ./nttcp -T -v -r 129.241.57.161
+nttcp-l: nttcp, version 1.47
+nttcp-l: Pid=4355
+nttcp-l: accept from 129.241.57.161
+nttcp-l: send window size = 16384
+nttcp-l: receive window size = 87380
+nttcp-l: buflen=4096, bufcnt=2048, dataport=5038/tcp
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: Pid=1931, InetPeer= 129.241.57.160
+nttcp-1: Optionline="nttcp@-t@-l4096@-n2048@-v@-f@%9b%8.2rt%8.2ct%12.4rbr%12.4cbr%8c%10.2rcr%10.1ccr@-N1"
+nttcp-1: from ?: "129.241.57.160" (=dataport: 5038)
+nttcp-1: send window size = 16384
+nttcp-1: receive window size = 87380
+nttcp-1: buflen=4096, bufcnt=2048, dataport=5038/tcp
+
+nttcp-l: received 8388608 bytes
+     Bytes  Real s   CPU s Real-MBit/s  CPU-MBit/s   Calls  Real-C/s   CPU-C/s
+l  8388608    0.09    0.09    754.8719    745.6540    2073  23318.07   23033.3
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: transmitted 8388608 bytes
+1  8388608    0.09    0.07    759.8205    958.6981    2048  23187.88   29257.1
+nttcp-1: exiting
+
+
+
+__Scenario 2__
+UDP:
+kiwi:~/nttcp-1.47# ./nttcp -T -v -r -u 129.241.57.161
+nttcp-l: nttcp, version 1.47
+nttcp-l: Pid=4409
+nttcp-l: send window size = 65535
+nttcp-l: receive window size = 65535
+nttcp-l: buflen=4096, bufcnt=2048, dataport=5038/udp
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: Pid=2066, InetPeer= 129.241.57.160
+nttcp-1: Optionline="nttcp@-t@-l4096@-n2048@-u@-v@-f@%9b%8.2rt%8.2ct%12.4rbr%12.4cbr%8c%10.2rcr%10.1ccr@-N1"
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: from ?: "129.241.57.160" (=dataport: 5038)
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: send window size = 65535
+nttcp-1: receive window size = 65535
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: buflen=4096, bufcnt=2048, dataport=5038/udp
+
+nttcp-l: got EOF
+nttcp-l: received 6094848 bytes
+     Bytes  Real s   CPU s Real-MBit/s  CPU-MBit/s   Calls  Real-C/s   CPU-C/s
+l  6094848    0.07    0.07    678.4114    696.5541    1489  20717.39   21271.4
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: transmitted 8388608 bytes
+nttcp-l: try to get outstanding messages from 1 remote clients
+1  8388608    0.07    0.07    936.5683    958.6981    2051  28623.66   29300.0
+nttcp-1: exiting
+
+TCP:
+kiwi:~/nttcp-1.47# ./nttcp -T -v -r 129.241.57.161   
+nttcp-l: nttcp, version 1.47
+nttcp-l: Pid=4410
+nttcp-l: accept from 129.241.57.161
+nttcp-l: send window size = 16384
+nttcp-l: receive window size = 87380
+nttcp-l: buflen=4096, bufcnt=2048, dataport=5038/tcp
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: Pid=2067, InetPeer= 129.241.57.160
+nttcp-1: Optionline="nttcp@-t@-l4096@-n2048@-v@-f@%9b%8.2rt%8.2ct%12.4rbr%12.4cbr%8c%10.2rcr%10.1ccr@-N1"
+nttcp-1: from ?: "129.241.57.160" (=dataport: 5038)
+nttcp-1: send window size = 16384
+nttcp-1: receive window size = 87380
+nttcp-1: buflen=4096, bufcnt=2048, dataport=5038/tcp
+
+nttcp-l: received 8388608 bytes
+     Bytes  Real s   CPU s Real-MBit/s  CPU-MBit/s   Calls  Real-C/s   CPU-C/s
+l  8388608    0.09    0.08    758.2323    838.8608    2061  23286.29   25762.5
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: transmitted 8388608 bytes
+1  8388608    0.09    0.04    763.3294   1677.7216    2048  23294.96   51200.0
+nttcp-1: exiting
+
+
+
+__Scenario 3__
+UDP:
+kiwi:~/nttcp-1.47# ./nttcp -T -v -r -u 129.241.57.161   
+nttcp-l: nttcp, version 1.47
+nttcp-l: Pid=4509
+nttcp-l: send window size = 65535
+nttcp-l: receive window size = 65535
+nttcp-l: buflen=4096, bufcnt=2048, dataport=5038/udp
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: Pid=2106, InetPeer= 129.241.57.160
+nttcp-1: Optionline="nttcp@-t@-l4096@-n2048@-u@-v@-f@%9b%8.2rt%8.2ct%12.4rbr%12.4cbr%8c%10.2rcr%10.1ccr@-N1"
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: from ?: "129.241.57.160" (=dataport: 5038)
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: send window size = 65535
+nttcp-1: receive window size = 65535
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: buflen=4096, bufcnt=2048, dataport=5038/udp
+
+nttcp-l: got EOF
+nttcp-l: received 8192000 bytes
+     Bytes  Real s   CPU s Real-MBit/s  CPU-MBit/s   Calls  Real-C/s   CPU-C/s
+l  8192000    0.07    0.07    914.3367    936.2286    2001  27917.29   28585.7
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: transmitted 8388608 bytes
+nttcp-l: try to get outstanding messages from 1 remote clients
+1  8388608    0.07    0.06    939.5448   1118.4811    2051  28714.63   34183.3
+nttcp-1: exiting
+
+TCP:
+kiwi:~/nttcp-1.47# ./nttcp -T -v -r 129.241.57.161
+nttcp-l: nttcp, version 1.47
+nttcp-l: Pid=4512
+nttcp-l: accept from 129.241.57.161
+nttcp-l: send window size = 16384
+nttcp-l: receive window size = 87380
+nttcp-l: buflen=4096, bufcnt=2048, dataport=5038/tcp
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: Pid=2107, InetPeer= 129.241.57.160
+nttcp-1: Optionline="nttcp@-t@-l4096@-n2048@-v@-f@%9b%8.2rt%8.2ct%12.4rbr%12.4cbr%8c%10.2rcr%10.1ccr@-N1"
+nttcp-1: from ?: "129.241.57.160" (=dataport: 5038)
+nttcp-1: send window size = 16384
+nttcp-1: receive window size = 87380
+nttcp-1: buflen=4096, bufcnt=2048, dataport=5038/tcp
+
+nttcp-l: received 8388608 bytes
+     Bytes  Real s   CPU s Real-MBit/s  CPU-MBit/s   Calls  Real-C/s   CPU-C/s
+l  8388608    0.08    0.06    877.2286   1118.4811    2179  28483.29   36316.7
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: transmitted 8388608 bytes
+1  8388608    0.08    0.04    872.2687   1677.7216    2048  26619.53   51200.0
+nttcp-1: exiting
+
+
+Hope this helps :)
+
+-- 
+Thomas

@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265875AbUFOTcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265884AbUFOTcK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265875AbUFOTcm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 15:32:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265889AbUFOTcl
+	id S265884AbUFOTcK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 15:32:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265875AbUFOTcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 15:32:41 -0400
-Received: from pdbn-d9bb9ee6.pool.mediaWays.net ([217.187.158.230]:19974 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id S265875AbUFOTcW (ORCPT
+	Tue, 15 Jun 2004 15:32:09 -0400
+Received: from fw.osdl.org ([65.172.181.6]:24961 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265889AbUFOTaE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 15:32:22 -0400
-Date: Tue, 15 Jun 2004 21:32:05 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
-To: Alexandre Oliva <aoliva@redhat.com>
-Cc: Cesar Eduardo Barros <cesarb@nitnet.com.br>, linux-kernel@vger.kernel.org,
-       Alexander Viro <viro@math.psu.edu>
-Subject: Re: [PATCH] O_NOATIME support
-Message-ID: <20040615193205.GA25131@citd.de>
-References: <20040612011129.GD1967@flower.home.cesarb.net> <orpt81sv1g.fsf@free.redhat.lsd.ic.unicamp.br> <20040614224006.GD1961@flower.home.cesarb.net> <orfz8wabng.fsf@free.redhat.lsd.ic.unicamp.br>
+	Tue, 15 Jun 2004 15:30:04 -0400
+Date: Tue, 15 Jun 2004 12:30:00 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Robin Holt <holt@sgi.com>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>, Dean Nelson <dcn@sgi.com>,
+       Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au
+Subject: Re: calling kthread_create() from interrupt thread
+Message-ID: <20040615123000.Z22989@build.pdx.osdl.net>
+References: <40CF350B.mailxD2X1NPFBC@aqua.americas.sgi.com> <1087321777.2710.43.camel@laptop.fenrus.com> <20040615180525.GA17145@sgi.com> <Pine.LNX.4.53.0406151412350.2353@chaos> <20040615190114.GA6151@lnx-holt.americas.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <orfz8wabng.fsf@free.redhat.lsd.ic.unicamp.br>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040615190114.GA6151@lnx-holt.americas.sgi.com>; from holt@sgi.com on Tue, Jun 15, 2004 at 02:01:14PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 04:01:23PM -0300, Alexandre Oliva wrote:
-> On Jun 14, 2004, Cesar Eduardo Barros <cesarb@nitnet.com.br> wrote:
-> 
-> > The atime was never intended as an auditing feature (if it were, utimes
-> > and related functions would be root only).
-> 
-> But utimes updates the inode modification time, so you can still tell
-> something happened to the file.
+* Robin Holt (holt@sgi.com) wrote:
+> Currently, the interrupt handler wakes a thread sleeping on a
+> wait_event_interruptible().  This wakeup is taking approx 35uSec.  Dean
+> is looking for a lower latency means of doing the wakeup.
 
-No.
+I can't imagine adding thread creation, etc to the mix is going to improve
+latency.
 
-
-
-
-Bis denn
-
+thanks,
+-chris
 -- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
-
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

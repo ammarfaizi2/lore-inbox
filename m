@@ -1,109 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262789AbTBJQTO>; Mon, 10 Feb 2003 11:19:14 -0500
+	id <S264992AbTBJQWR>; Mon, 10 Feb 2003 11:22:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264940AbTBJQTO>; Mon, 10 Feb 2003 11:19:14 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:27550 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S262789AbTBJQTM>; Mon, 10 Feb 2003 11:19:12 -0500
-Date: Mon, 10 Feb 2003 17:28:55 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: torvalds@transmeta.com
-Cc: Andrea Arcangeli <andrea@suse.de>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.0, 2.2, 2.4, 2.5: fsync buffer race
-In-Reply-To: <20030210130704.GO31401@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0302101723540.32095-100000@artax.karlin.mff.cuni.cz>
+	id <S264986AbTBJQWR>; Mon, 10 Feb 2003 11:22:17 -0500
+Received: from smtp7.uk1.bibliotech.net ([212.57.34.105]:33544 "EHLO
+	smtp7.uk1.bibliotech.net") by vger.kernel.org with ESMTP
+	id <S264984AbTBJQWP>; Mon, 10 Feb 2003 11:22:15 -0500
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "sam aime" <aime2001@postmaster.co.uk>
+Subject: FOREIGN  ACCOUNT
+To: moweto2020@egyptsun.com
+Date: Mon, 10 Feb 2003 16:30:55 +0000
+X-Postmaster: Sent from Postmaster http://www.postmaster.co.uk/, the
+    world's premier free web-based email service, based in London, England.
+X-Postmaster-Trace: Account name: aime2001; Local time: Mon Feb 10
+    16:30:55 2003; Local host: pmweb5.uk1.bibliotech.net; Remote host:
+    192.116.112.244; Referer site: www.postmaster.co.uk
+X-Complaints-To: Administrator@postmaster.co.uk
+Message-Id: <PM.3570.1044894655@pmweb5.uk1.bibliotech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, do you remember what "nasty deadlock" did you mean when writing
-this to 2.[0-2].* and maybe 1.*?
 
-ll_rw_blk.c - ll_rw_block():
-        /* Uhhuh.. Nasty dead-lock possible here.. */
-        if (buffer_locked(bh))
-                return;
-        /* Maybe the above fixes it, and maybe it doesn't boot. Life is
-interesting */
-        lock_buffer(bh);
+Dear Sir/Madam 
 
-Mikulas
+I'm the cousin of late Mr. Ramon Scott from Zimbabwe.my Uncle is one the best farmers in my country during 
+his lifetime In the land-disputes between the government and the white farmers,many life and properties were 
+lost. 
 
-On Mon, 10 Feb 2003, Andrea Arcangeli wrote:
+My Uncle did not support the actions and ideas of president Robert -mugabe ,his loyalist invaded my Uncle's 
+farm destroying valuable items,during this pandemonium my Uncle was killed alongside two other members of 
+my family while I was away on vacation I manage to escape to West Africa where I was granted asylum. 
 
-> On Wed, Feb 05, 2003 at 12:16:53AM +0100, Pavel Machek wrote:
-> > Hi!
-> >
-> > > > there's a race condition in filesystem
-> > > >
-> > > > let's have a two inodes that are placed in the same buffer.
-> > > >
-> > > > call fsync on inode 1
-> > > > it goes down to ext2_update_inode [update == 1]
-> > > > it calls ll_rw_block at the end
-> > > > ll_rw_block starts to write buffer
-> > > > ext2_update_inode waits on buffer
-> > > >
-> > > > while the buffer is writing, another process calls fsync on inode 2
-> > > > it goes again to ext2_update_inode
-> > > > it calls ll_rw_block
-> > > > ll_rw_block sees buffer locked and exits immediatelly
-> > > > ext2_update_inode waits for buffer
-> > > > the first write finished, ext2_update_inode exits and changes made by
-> > > > second proces to inode 2 ARE NOT WRITTEN TO DISK.
-> > > >
-> > >
-> > > hmm, yes.  This is a general weakness in the ll_rw_block() interface.  It is
-> > > not suitable for data-integrity writeouts, as you've pointed out.
-> > >
-> > > A suitable fix would be do create a new
-> > >
-> > > void wait_and_rw_block(...)
-> > > {
-> > > 	wait_on_buffer(bh);
-> > > 	ll_rw_block(...);
-> > > }
-> > >
-> > > and go use that in all the appropriate places.
-> > >
-> > > I shall make that change for 2.5, thanks.
-> >
-> > Should this be fixed at least in 2.4, too? It seems pretty serious for
-> > mail servers (etc)...
->
-> actually the lowlevel currently is supposed to take care of that if it
-> writes directly with ll_rw_block like fsync_buffers_list takes care of
-> it before calling ll_rw_block. But the whole point is that normally the
-> write_inode path only marks the buffer dirty, it never writes directly,
-> and no dirty bitflag can be lost and we flush those dirty buffers right
-> with the proper wait_on_buffer before ll_rw_block. So I don't think it's
-> happening really in 2.4, at least w/o mounting the fs with -osync.
->
-> But I thought about about Mikulas suggestion of adding lock_buffer
-> in place of the test and set bit. This looks very appealing. the main
-> reason we didn't do that while fixing fsync_buffers_list a few months
-> ago in 2.4.20 or so, is been that it is a very risky change, I mean, I'm
-> feeling like it'll break something subtle.
->
-> In theory the only thing those bitflags controls are the coherency of
-> the buffer cache here, the rest is serialized by design at the
-> highlevel. And the buffer_cache should be ok with the lock_buffer(),
-> since we'll see the buffer update and we'll skip the write if we race
-> with other reads (we'll sleep in lock_buffer rather than in
-> wait_on_buffer). For the writes we'll overwrite the data one more time
-> (the feature incidentally ;).  so it sounds safe.  Performance wise it
-> shouldn't matter, for read it can't matter infact.
->
-> So I guess it's ok to make that change, then we could even move the
-> wait_on_buffer from fsync_buffers_list to the xfs buffer_delay path of
-> write_buffer. I'm tempted to make this change for next -aa. I feel it
-> makes more sense and it's a better fix even if if risky. Can anybody see
-> a problem with that?
->
-> Andrea
->
+My Uncle was a man of business fore-sight ,he secured the sum of $15 million [Fifteen million U.S. dollars] with 
+a security company The name of the security company which I would not mention now for security purpose. 
+presently now in West Africa asylum seekers are not permitted by law to operate an account for this 
+reasons, I decided to seek for a trusted and reliable foreign personality who is willing and ready to help me to 
+transfer the money out of the country and help me to invest judiciously and also make provision for 
+me to come over and start a new life. 
 
+I am willing and ready to offer you 30% for your efforts and assistanthe 70% will be for me. I shall be waiting for 
+your reply would like to have your phone and fax numbers for easy communication and arrangement. 
 
+Best regards 
+Sam SCOTT 
+ALTN E-MAIL:moweto2020@egyptsun.com

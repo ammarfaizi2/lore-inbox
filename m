@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261608AbTDEBFD (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 20:05:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbTDEBFC (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 20:05:02 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:29927 "EHLO
-	nessie.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S261608AbTDEBFB (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 20:05:01 -0500
-Date: Sat, 5 Apr 2003 11:16:07 +1000
-From: CaT <cat@zip.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, frodol@dds.nl, phil@netroedge.com
-Subject: Re: 2.5.66: The I2C code ate my grandma...
-Message-ID: <20030405011607.GB464@zip.com.au>
-References: <20030404021152.GE466@zip.com.au> <20030404171424.GA1380@kroah.com> <20030405005950.GA464@zip.com.au> <20030405011414.GA5697@kroah.com>
+	id S261649AbTDEBHK (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 20:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbTDEBHK (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 20:07:10 -0500
+Received: from to-telus.redhat.com ([207.219.125.105]:42748 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id S261649AbTDEBHJ (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 20:07:09 -0500
+Date: Fri, 4 Apr 2003 20:18:39 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] AT_PLATFORM on HT-P4
+Message-ID: <20030404201839.A21819@redhat.com>
+References: <Pine.LNX.4.53L.0304041815110.32674@freak.distro.conectiva> <20030405004327.GA11141@werewolf.able.es> <20030405005020.GA11904@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030405011414.GA5697@kroah.com>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030405005020.GA11904@werewolf.able.es>; from jamagallon@able.es on Sat, Apr 05, 2003 at 02:50:20AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 04, 2003 at 05:14:14PM -0800, Greg KH wrote:
-> To a:
-> 	tree /sys/bus/i2c/devices/
-> to see all of the i2c devices in your system.
-> Then go in to the directories of those devices to see the sensor values
-> for the devices.
+On Sat, Apr 05, 2003 at 02:50:20AM +0200, J.A. Magallon wrote:
+> This makes P4 Xeon to report correct i686 platform. Without this, 
+> all those people that think its ld.so automatically picks i686 libs
+> are wrong...
 
-AHA! I was sure I ran find /sys -name '*i2c*'. hrrumph.
+Uhm, why are you posting a really tiny patch as a bzip2 that nobody can 
+read or quote inline?
 
-> libsensor support will be forthcoming soon for these changes.
-
-Cool. I'll just modify my little script for now. :)
-
-> > One question. Will I need ISA support in the kernel for this?
-> 
-> Depends, did you need it before?  :)
-
-No. But it made me wonder. :)
-
-> I didn't change any of that logic, just where the information the
-> sensors report has moved locations.
-
-Well so far so good. Haven't stressed it yet. Wanted to see that i2c was
-actually functioning first. :)
-
+		-ben
 -- 
-Martin's distress was in contrast to the bitter satisfaction of some
-of his fellow marines as they surveyed the scene. "The Iraqis are sick
-people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
-starting to hate this country. Wait till I get hold of a friggin' Iraqi.
-No, I won't get hold of one. I'll just kill him."
-	- http://www.informationclearinghouse.info/article2479.htm
+Junk email?  <a href="mailto:aart@kvack.org">aart@kvack.org</a>

@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262669AbUJ1BnH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262686AbUJ1Bns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262669AbUJ1BnH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 21:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbUJ1BnH
+	id S262686AbUJ1Bns (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 21:43:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262688AbUJ1Bns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 21:43:07 -0400
-Received: from [129.105.5.125] ([129.105.5.125]:19331 "EHLO
-	delta.ece.northwestern.edu") by vger.kernel.org with ESMTP
-	id S262669AbUJ1BnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 21:43:03 -0400
-Message-ID: <41804F04.4000300@ece.northwestern.edu>
-Date: Wed, 27 Oct 2004 20:44:36 -0500
-From: Lei Yang <lya755@ece.northwestern.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040921
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, kernelnewbies <kernelnewbies@nl.linux.org>
-Cc: Lei Yang <lya755@ece.northwestern.edu>
-Subject: Re: set blksize of block device
-References: <417FE6A8.5090803@ece.northwestern.edu> <417FE937.1040304@ece.northwestern.edu>
-In-Reply-To: <417FE937.1040304@ece.northwestern.edu>
-X-Enigmail-Version: 0.76.8.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Oct 2004 21:43:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:11402 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262686AbUJ1Bnk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 21:43:40 -0400
+Date: Wed, 27 Oct 2004 18:43:39 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] error out on execve with no binfmts
+Message-ID: <20041027184339.M2357@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If nobody could answer this question, what about another one? Is there a 
-system call or a kernel interface that would allow me to write a block 
-of data to block 1 of a certain block device?
+Early calls to userspace can invoke an execve() before any binfmt handlers
+are registered.  Properly return an error in this case rather than 0.
+On at least one arch (x86_64) without this patch, the system will double
+fault on early attempts to call_usermodehelper.  Suggestions on a better
+error?
 
-Thanks for your reply in advance!
+Signed-off-by: Chris Wright <chrisw@osdl.org>
 
-Lei
-
-Lei Yang wrote:
-
-> Please cc me if you have answers to this, I am not on the list. Thanks 
-> a lot!
->
-> Lei Yang wrote:
->
->> Hello,
->>
->> I am learning block device drivers and have a newbie question. Given 
->> a block device, is there anyway that I could set its block size? For 
->> example, I want to write a block device driver that will work on an 
->> existing block device.  In this driver, I want block size smaller. 
->> (The idea looks confusing but I could explain if anybody is 
->> interested :- )  However,  typically the block size is 1KB, now I 
->> want to set it to 512 or 256.  Can I do it?
->>
->> TIA
->> Lei
->>
->
->
->
-
-
+===== fs/exec.c 1.142 vs edited =====
+--- 1.142/fs/exec.c	2004-10-22 21:23:42 -07:00
++++ edited/fs/exec.c	2004-10-27 18:11:54 -07:00
+@@ -984,7 +984,7 @@
+  */
+ int search_binary_handler(struct linux_binprm *bprm,struct pt_regs *regs)
+ {
+-	int try,retval=0;
++	int try,retval;
+ 	struct linux_binfmt *fmt;
+ #ifdef __alpha__
+ 	/* handle /sbin/loader.. */
+@@ -1028,6 +1028,7 @@
+ 	/* kernel module loader fixup */
+ 	/* so we don't try to load run modprobe in kernel space. */
+ 	set_fs(USER_DS);
++	retval = -ENOENT;
+ 	for (try=0; try<2; try++) {
+ 		read_lock(&binfmt_lock);
+ 		for (fmt = formats ; fmt ; fmt = fmt->next) {

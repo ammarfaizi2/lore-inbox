@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbTKLE06 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 23:26:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbTKLE06
+	id S261342AbTKLEVR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 23:21:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbTKLEVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 23:26:58 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:39567 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261345AbTKLE05 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 23:26:57 -0500
-content-class: urn:content-classes:message
+	Tue, 11 Nov 2003 23:21:17 -0500
+Received: from smtp1.adl2.internode.on.net ([203.16.214.181]:62225 "EHLO
+	smtp1.adl2.internode.on.net") by vger.kernel.org with ESMTP
+	id S261342AbTKLEVQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 23:21:16 -0500
+Message-ID: <1326.192.168.0.5.1068610865.squirrel@stingray.homelinux.org>
+In-Reply-To: <Pine.LNX.4.44.0311111901490.1694-100000@home.osdl.org>
+References: <1201.192.168.0.5.1068605203.squirrel@stingray.homelinux.org> 
+     <Pine.LNX.4.44.0311111901490.1694-100000@home.osdl.org>
+Date: Wed, 12 Nov 2003 04:21:05 -0000 (UTC)
+Subject: Re: 2.6.0-test9-bk16 ALi M5229 kernel boot error
+From: "Daniel Craig" <dancraig@internode.on.net>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.0
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: pthread condition variables question
-Date: Tue, 11 Nov 2003 20:26:53 -0800
-Message-ID: <A20D5638D741DD4DBAAB80A95012C0AED791DD@orsmsx409.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: pthread condition variables question
-Thread-Index: AcOnvzaOBRGPYyxdTgqg056bgh7MTQBFbR9Q
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "sankar" <san_madhav@hotmail.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 12 Nov 2003 04:26:53.0667 (UTC) FILETIME=[332E2B30:01C3A8D5]
+Content-Type: text/plain;charset=iso-8859-1
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: sankar
+Linus,
+The patch worked like a charm. 2.6.0-test9-bk16 now boots perfectly on my
+BenQ laptop. Thanks a lot!
 
-> How is pthread condition variables implemented on linux. Specifically I want
-> to know how pthread_cond_signal() wakes the waiting thread. Does it send any
-> specific signal to the waiting thread or is there any other means??
+Cheers,
+Dan Craig.
 
-Using futexes (wait queues); http://people.redhat.com/drepper/futex.pdf.
-
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)

@@ -1,55 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281360AbRLRMUb>; Tue, 18 Dec 2001 07:20:31 -0500
+	id <S281805AbRLRMTl>; Tue, 18 Dec 2001 07:19:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281818AbRLRMUX>; Tue, 18 Dec 2001 07:20:23 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:33552 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S281834AbRLRMUF>; Tue, 18 Dec 2001 07:20:05 -0500
-Date: Tue, 18 Dec 2001 10:19:42 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Eyal Sohya <linuz_kernel_q@hotmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: The direction linux is taking
-In-Reply-To: <F25YXU6KJQcxQv8rcyN00007eb5@hotmail.com>
-Message-ID: <Pine.LNX.4.33L.0112181018280.10000-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281818AbRLRMTc>; Tue, 18 Dec 2001 07:19:32 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:12743 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S281805AbRLRMT1>; Tue, 18 Dec 2001 07:19:27 -0500
+Date: Tue, 18 Dec 2001 14:18:58 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Samuli Suonpaa <suonpaa@iki.fi>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.16: Out of memory - when still more than 100MB free
+Message-ID: <20011218141858.O12063@niksula.cs.hut.fi>
+In-Reply-To: <87elltwmgz.fsf@puck.erasmus.jurri.net> <Pine.LNX.4.21.0112171909320.3767-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0112171909320.3767-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Mon, Dec 17, 2001 at 07:10:54PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Dec 2001, Eyal Sohya wrote:
+On Mon, Dec 17, 2001 at 07:10:54PM -0200, you [Marcelo Tosatti] claimed:
+> 
+> 
+> On 17 Dec 2001, Samuli Suonpaa wrote:
+> 
+> > I've got VMWare killed a couple of times mysteriously. 
+> > 
+> > I've got 256MB memory and no swap on my laptop running 2.4.16 and for
+> > some reason VMWare has got killed with the following syslog
+> > information:
+> > 
+> > Dec 17 23:33:23 puck kernel: Out of Memory: Killed process 28803 (vmware).
+> > Dec 17 23:33:35 puck kernel: Out of Memory: Killed process 28804 (vmware).
+> > Dec 17 23:33:37 puck kernel: /dev/vmmon: Vmx86_ReleaseVM: unlocked pages: 75286, unlocked dirty pages: 51084
+> 
+> Samuli, 
+> 
+> The problem is that buffer/cache/{i,d}cache pages are not getting freed
+> easily, and instead the kernel swapouts anonymous memory.
+> 
+> Could you please try 2.4.17-rc1 and tell me if it makes a difference for
+> you ? 
 
-> 1. Are we satisfied with the source code control system ?
+See my report on what happens on a 2GB box with .16 or .17rc1. Buffers are
+still not released as they should.
 
-There is no source control.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=100849985518543&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=100857274818037&w=2
 
-> 2. Is there enough planning for documentation ? As another
-> poster mentioned, there are new API and we dont know about
-> them.
+Perhaps someone could test on x86 with less memory (I can do that later, but
+right now I don't have any throw-away box with a recent kernel on it). On ia64
+with 2GB+256MB swap this results in OOM when trying to allocate and use
+1.7GB, albeit the real mem usage (-buffers) is less than 200MB. 
 
-Documentation patches usually get dropped on the floor,
-so writing documentation isn't really worth it most of
-the time. Documentation really only works if it's written
-together with the code and sent in the same patch.
+Basically the test is
 
-> 3. There is no central bug tracking database. At least people
-> should know the status of the bugs they have found with some
-> releases.
-> 4. Aggressive nature of this mailing list itself may be a
-> turn off to many who would like to contribute.
+fill cache 
 
-Tough. If you can't deal with this you're better off using
-a kernel package from your favourite Linux distribution.
+ find / -type f -exec cat {} \; > /dev/null
+ updatedb     
 
-cheers,
+then run this with suitable argument:
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+#include <stdio.h>
+#include <stdlib.h>
 
-http://www.surriel.com/		http://distro.conectiva.com/
+#define BKSP "\010\010\010\010\010\010"
 
+int main(int argc, char** argv)
+{
+    unsigned long megs = 512;
+    unsigned long size, i;
+    unsigned char* buf;
+    if (argc > 1) megs = atol(argv[1]);
+    size = megs * 1024 * 1024;
+    
+    fprintf(stderr, "Allocating %lu megs...\n\n      ", megs);
+    buf = malloc(size);
+    if (!buf)
+    {
+         fprintf(stderr, "malloc(%lu", size);
+         perror(")");
+         exit(-1);
+    }
+    
+    for (i = 0; i < size; i++)
+    {
+         buf[i] = 42;
+         
+         if ((i + 1) % (1024 * 1024) == 0) 
+             fprintf(stderr, BKSP "%4uMB", (i + 1) / 1024 / 1024);
+    }
+    
+    fprintf(stderr, "\n Success.\n");
+    
+    return 1;
+}
+
+
+-- v --
+
+v@iki.fi

@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318304AbSHEFed>; Mon, 5 Aug 2002 01:34:33 -0400
+	id <S318225AbSHEFcl>; Mon, 5 Aug 2002 01:32:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318305AbSHEFec>; Mon, 5 Aug 2002 01:34:32 -0400
-Received: from cartero.austria.eu.net ([193.154.160.153]:55462 "EHLO
-	cartero.austria.eu.net") by vger.kernel.org with ESMTP
-	id <S318304AbSHEFeb>; Mon, 5 Aug 2002 01:34:31 -0400
-Date: Mon, 5 Aug 2002 07:38:04 +0200
-From: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>
-X-Mailer: The Bat! (v1.61) Personal
-Reply-To: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>
-Organization: Chaos is just another way of organisation
-X-Priority: 3 (Normal)
-Message-ID: <74122858180.20020805073804@eunet.at>
-To: Thunder from the hill <thunder@ngforever.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-ac2 ... file not found worries me
-In-Reply-To: <Pine.LNX.4.44.0208041327260.10270-100000@hawkeye.luckynet.adm>
-References: <Pine.LNX.4.44.0208041327260.10270-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+	id <S318297AbSHEFcl>; Mon, 5 Aug 2002 01:32:41 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:18849 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S318225AbSHEFcN>;
+	Mon, 5 Aug 2002 01:32:13 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Kingsley Cheung <kingsley@aurema.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible Bug in "sys_init_module"? 
+In-reply-to: Your message of "Mon, 05 Aug 2002 14:57:07 +1000."
+             <Pine.LNX.4.44.0208051241290.11259-100000@kingsley.sw.oz.au> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 05 Aug 2002 15:35:29 +1000
+Message-ID: <3340.1028525729@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Thunder, 
+On Mon, 5 Aug 2002 14:57:07 +1000 (EST), 
+Kingsley Cheung <kingsley@aurema.com> wrote:
+>Please cc me since I'm not on the mailing list.
+>
+>Assume that one script invokes modprobe which calls "sys_init_module" 
+>first.  The big kernel lock is taken and then plenty of sanity checks 
+>done. After dependencies are checked and updated, the "init_module" 
+>function of the module is invoked. Now if this function happens to block, 
+>the kernel lock is dropped. A call to "sys_init_module" by modprobe in 
+>the other script to initialise a second module dependent on the first 
+>could then take the big kernel lock, check the dependencies and find them 
+>okay, and then have its "init_module" function invoked. And if this 
+>second module relies on the first module being properly initialised 
+>before it is loaded, this can break. 
 
-Sunday, August 4, 2002, 9:34:00 PM, Thunder from the hill wrote,
-and I answered on Montag, 05. August 2002, 07:36:30 with this ...
+This is a trade off between two conflicting requirements.  If a module
+fails during initialization then we want the module symbols to debug
+the module.  But those same symbols should not be considered valid when
+doing insmod.  The query_module() interface does not have the
+flexibility to distinguish between the two types of user space query.
 
->> via-pmu.c:40:22: asm/prom.h: No such file or directory
->> via-pmu.c:41:25: asm/machdep.h: No such file or directory
->> via-pmu.c:45:26: asm/sections.h: No such file ordirectory
->> via-pmu.c:48:30: asm/pmac_feature.h: No such file or directory
->> via-pmu.c:51:26: asm/sections.h: No such file or directory
->> via-pmu.c:52:26: asm/cputable.h: No such file or directory
->> via-pmu.c:53:22: asm/time.h: No such file or directory
+In any case the problem is bigger than module symbols.  What happens
+when a module_init breaks after registering some functions?  The
+functions are registered and can be called, but the module is stuffed.
+insmod symbols are just one instance of the wider problem - if a module
+fails during init or exit and does not recover then the kernel is in an
+unreliable state.  It is broken, you get to keep the pieces.
 
-> Are you on i386? via-pmu is IMHO a macintosh interface.
+On my todo list for modutils 2.5 is to invoke init_module() from a
+separate task.  That task will be killed by the kernel oops (there is
+no way for userspace to recover from oops) but the parent insmod will
+detect the failure and say
 
-then there has to be some sort of configure error, as in fact I am on
-a
-
-best regards, Clemens
--- 
-_________/\_____________________              ^_^             ()~()
-Clemens 'Gullevek' Schwaighofer \_______ @_@       ^_~       //@ @\\
-ICQ#: 9646646        I AM FROM AUSTRIA! \______________ °_° //\ ~ /\\
-http://www.animeundmanga.at | http://www.gullevek.org  \_____________
+  init_module() for foo failed.  The kernel is in an unreliable state.
 

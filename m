@@ -1,39 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291353AbSBMMCY>; Wed, 13 Feb 2002 07:02:24 -0500
+	id <S291604AbSBMMGO>; Wed, 13 Feb 2002 07:06:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291372AbSBMMCO>; Wed, 13 Feb 2002 07:02:14 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34567 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291353AbSBMMCK>; Wed, 13 Feb 2002 07:02:10 -0500
-Subject: Re: SMT, again (was: Re: [PATCH]: Fix MTRR handling on HT CPUs)
-To: Martin.Wilck@fujitsu-siemens.com (Martin Wilck)
-Date: Wed, 13 Feb 2002 12:15:52 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        Martin.Wilck@fujitsu-siemens.com (Martin Wilck),
-        linux-kernel@vger.kernel.org (Linux Kernel mailing list),
-        marcelo@conectiva.com.br (Marcelo Tosatti)
-In-Reply-To: <Pine.LNX.4.33.0202131228290.11012-100000@biker.pdb.fsc.net> from "Martin Wilck" at Feb 13, 2002 12:42:03 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S291606AbSBMMGF>; Wed, 13 Feb 2002 07:06:05 -0500
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:54493 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S291604AbSBMMF5>; Wed, 13 Feb 2002 07:05:57 -0500
+Message-ID: <3C6A553A.8030204@antefacto.com>
+Date: Wed, 13 Feb 2002 11:59:54 +0000
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: William Stearns <wstearns@pobox.com>, Larry McVoy <lm@bitmover.com>
+CC: ML-linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [bk patch] Make cardbus compile in -pre4
+In-Reply-To: <Pine.LNX.4.33.0202092358500.1868-100000@sparrow.websense.net> <3C67FFC5.7020701@antefacto.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16ayKH-00057F-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I just found out that Intel specifies that on SMT-enabled
-> ("Jackson") systems the BIOS MP tables list only the physical CPUs.
-> Logical CPUs will only be available through the ACPI tables.
+Padraig Brady wrote:
+> William Stearns wrote:
+> 
+>> Good day, Larry,
+>>
+>> On Sat, 9 Feb 2002, Larry McVoy wrote:
+>>
+>>
+>>> On Sat, Feb 09, 2002 at 01:01:34PM -0800, David Lang wrote:
+>>>
+>>>> do you have a script that can go back after the fact and see what 
+>>>> can be
+>>>> hardlinked?
+>>>>
+>>>> I'm thinking specififcly of the type of thing that will be happening to
+>>>> your server where you have a bunch of people putting in a clone of one
+>>>> tree who will probably not be doing a clone -l to set it up, but who 
+>>>> could
+>>>> have and you want to clean up after the fact (and perhapse again on a
+>>>> periodic basis, becouse after all of these trees apply a changeset from
+>>>> linus they will all have changed (breaking the origional hardlinks) but
+>>>> will still be duplicates of each other.
+>>>>
+>>> We don't, but we can, and we should.  "bk relink tree1 tree2" seems 
+>>> like the right interface.
+>>>
+>>> Right now we aren't too worried about the disk space, the data is 
+>>> sitting on a pair of 40GB drives and we're running the trees in gzip 
+>>> mode, so they
+>>> are 75MB each.  But yes, it's a good idea, we should do it, and probably
+>>> should figure out some way to make it automatic.  I'll add it to the
+>>> (ever growing) list, thanks.
+>>>
+>>
+>>     Larry, I'll save you the time.
+>>     "freedups -a -d /some/dir [/other/dirs]" will look for identical
+>> files (the -d requires dates to be equal as well as the content) and
+>> hardlink them.  It's not terribly efficient, but works marvelously 
+>> well.  Run it from cron once a week or so, perhaps?
+>>     http://www.stearns.org/freedups/
+>>     Cheers,
+>>     - Bill
+> 
+> 
+> 
+> Not terribly efficient? That's a bit of an understatement :-)
+> The findup component of fslint is MUCH quicker, and it's
+> also written in bash. A quick test against two 2.4.17 trees gives:
+> 
+> 1m36s for  ./findup /usr/src/linux[12] | ./fstool/mergeDup
+> 18m17s for ./freedups -a /usr/src/linux[12]
+> 
+> Note mergeDup was a quick hack and took 1m30s of findup's time!
+> I'm going to rewrite it in python ASAP to help with this.
+> 
+> You can download the current version of fslint from
+> http://developers.antefacto.net/~padraig/fslint.tar.gz
 
-Yep. Thats why the miniacpi scanning stuff is in the current kernel
+OK I've updated fslint which can be downloaded @
+http://www.iol.ie/~padraiga/fslint/fslint-1.11.tar.gz
+To merge 2 linux trees you do: ./findup -m /usr/src/linux[12]
+This will take about 37 seconds (note freedups takes 15
+minutes to do the same). Note be careful that your editor
+handles hardlinked files as you expect.
 
-> All my attempts to get ACPI running on our SMT-enabled system have failed
-> so far (I'm working on a bug report on that for linux-acpi).
+Padraig.
 
-You don't need ACPI itself. See arch/i386/kernel/acpitable.c. Intel contributed
-patches to handle this stuff already.
 
-Alan

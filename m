@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262875AbUJ1Gty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262886AbUJ1Gv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262875AbUJ1Gty (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 02:49:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262876AbUJ1Gog
+	id S262886AbUJ1Gv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 02:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbUJ1GuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 02:44:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51347 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262870AbUJ1Gnc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 02:43:32 -0400
-Date: Wed, 27 Oct 2004 23:41:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       jakub@redhat.com
-Subject: Re: [PATCH] Make key management syscalls work on PPC/PPC64
-Message-Id: <20041027234109.19b39e93.akpm@osdl.org>
-In-Reply-To: <24857.1098904121@redhat.com>
-References: <24857.1098904121@redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Oct 2004 02:50:06 -0400
+Received: from mo.optusnet.com.au ([203.10.68.101]:31168 "EHLO
+	mo.optusnet.com.au") by vger.kernel.org with ESMTP id S262818AbUJ1Gr7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 02:47:59 -0400
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
+       Ed Tomlinson <edt@aei.ca>, Massimo Cetra <mcetra@navynet.it>,
+       "'Chuck Ebbert'" <76306.1226@compuserve.com>,
+       "'Bill Davidsen'" <davidsen@tmr.com>,
+       "'William Lee Irwin III'" <wli@holomorphy.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: My thoughts on the "new development model"
+References: <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin>
+	<200410261719.56474.edt@aei.ca>
+	<Pine.LNX.4.61.0410270402340.20284@student.dei.uc.pt>
+	<417F315A.9060906@comcast.net>
+From: michael@optusnet.com.au
+Date: 28 Oct 2004 16:46:58 +1000
+In-Reply-To: <417F315A.9060906@comcast.net>
+Message-ID: <m1sm7znxul.fsf@mo.optusnet.com.au>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
->
-> The attached patch permits my key management stuff to be used on PPC, PPC64
->  and PPC on PPC64.
+John Richard Moser <nigelenki@comcast.net> writes:
+[ .. lots of stuff .. ]
+> Let's make 2.7 what 2.6 is now (a relatively stable kernel that gets
+> relatively stable feature enhancements continuously), rather than what
+> 2.5 was (a hell of a lot of patches and then a hell of a lot of
+> debugging), and make 2.6 more restrictive than 2.4 in that it should be
+> strictly bugfixes (including security bugs) and no backported drivers or
+> features.
 
-Please remember to test your patches with CONFIG_KEYS=n
+There seems to be a lot of strange notions on this concept of 'stable'.
+The only thing that makes a kernel 'stable' is time. Not endless
+bugfixes. Just time. The idea of stable software is software that not
+going to give you any suprises, software that you can trust.
 
---- 25-power4/kernel/sys.c~ppc-ppc64-make-key-management-syscalls-work-fix	2004-10-27 23:26:16.330512080 -0700
-+++ 25-power4-akpm/kernel/sys.c	2004-10-27 23:27:04.516186744 -0700
-@@ -286,6 +286,7 @@ cond_syscall(compat_set_mempolicy)
- cond_syscall(sys_add_key)
- cond_syscall(sys_request_key)
- cond_syscall(sys_keyctl)
-+cond_syscall(compat_keyctl)
- cond_syscall(compat_sys_socketcall)
- 
- /* arch-specific weak syscall entries */
-_
+That's NOT the same as bug free software. For a start, there's no such
+thing. For another, many bugs are perfectly acceptable in a production
+environment as long as they're not impacting. (The linux kernel is a
+very large piece of work. Few installations would use even 20% of the
+total kernel functionality).
 
+If you want a stable kernel version, pick one (almost any one will
+do). Test the hell of out it with your application(s). If it fails,
+fix the bug, or pick a different version. rinse, repeat.
+
+Now you've got a kernel that tests clean with your app. DON'T
+CHANGE IT!! 
+
+Ta-Dah! You've got a stable kernel.
+
+Now why would you change it? The only possible reasons
+are that your testing was terrible and you missed a bug,
+in which case you can go back to step 1, or that you
+want a new feature. In which case you can go back to
+step 1.
+
+That wasn't too hard, was it. Even better, you didn't see
+anything in there about 2.6 v 2.7 or other such fluff.
+
+Michael.

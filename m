@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268041AbUHKM1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268042AbUHKMcg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268041AbUHKM1S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 08:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268042AbUHKM1S
+	id S268042AbUHKMcg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 08:32:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265823AbUHKMcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 08:27:18 -0400
-Received: from mx2.perftech.si ([195.246.0.30]:24585 "EHLO butn.net")
-	by vger.kernel.org with ESMTP id S268041AbUHKM1M (ORCPT
+	Wed, 11 Aug 2004 08:32:36 -0400
+Received: from zero.aec.at ([193.170.194.10]:8197 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S268042AbUHKMcf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 08:27:12 -0400
-Date: Wed, 11 Aug 2004 14:27:07 +0200
-From: "xerces8" <xerces8@butn.net>
-To: linux-kernel@vger.kernel.org, p.lavarre@ieee.org, dburg@nero.com
-Subject: Re: Can not read UDF CD
-Message-ID: <WorldClient-F200408111427.AA27073829@butn.net>
-X-Mailer: WorldClient 6.8.5
-X-Authenticated-Sender: xerces8@butn.net
-X-Spam-Processed: butn.net, Wed, 11 Aug 2004 14:27:08 +0200
-	(not processed: message from valid local sender)
-X-MDRemoteIP: 127.0.0.1
-X-Return-Path: xerces8@butn.net
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+	Wed, 11 Aug 2004 08:32:35 -0400
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org, us15@os.inf.tu-dresden.de
+Subject: Re: Possible dcache BUG
+References: <2oKTA-5CQ-65@gated-at.bofh.it> <2r0U7-3yx-9@gated-at.bofh.it>
+	<2rwhh-BX-15@gated-at.bofh.it> <2rShM-7QP-5@gated-at.bofh.it>
+	<2rSrs-7Vn-1@gated-at.bofh.it> <2rSUw-8lw-3@gated-at.bofh.it>
+	<2rTGR-se-3@gated-at.bofh.it> <2rUjF-Od-11@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Wed, 11 Aug 2004 14:32:23 +0200
+In-Reply-To: <2rUjF-Od-11@gated-at.bofh.it> (David S. Miller's message of
+ "Wed, 11 Aug 2004 08:00:11 +0200")
+Message-ID: <m3y8kl4zzc.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+"David S. Miller" <davem@redhat.com> writes:
 
-I (D.Balazic, from another email account) created another CD and it has
-the same problem.
+> On Tue, 10 Aug 2004 22:13:01 -0700 (PDT)
+> Linus Torvalds <torvalds@osdl.org> wrote:
+>
+>> I also wonder what the 
+>> hell is allocating so many 8kB and 32kB entries.
+>
+> Loopback default MTU is 16K these days, might explain
+> the 32K entries but not the 8KB ones.  Perhaps the
+> later are being used for page tables?  Just a guess
+> on that latter one.
 
-Nero version : 5.5.10.56
-OS : Windows 2003 Enterprise Edition
+Kernel stacks more likely. 200 processes = 200 8K entries.
+Unless he used suic^w4K stack mode. 
 
-Nero settings :
-
- - FS : UDF
- - UDF partition type : Physical
-   FS version : UDF 1.02
-
-I burned a small text file in the first session and then another text file
-in the second session ( did not finalize the CD ).
-
-It can not be mounted in linux. Using the mount option session=0 mounts
-the first session, but I can only list the files (well, one file), not
-access them. This time I used a slightly older kernel, the one from Fedora
-Core 2 ( 2.6.7-something IIRC ).
-
-So it seems the problem is reproducable both in Nero 5.5.x and 6.x
-
-Regards,
-David
+-Andi
 

@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279394AbRKSPVe>; Mon, 19 Nov 2001 10:21:34 -0500
+	id <S279277AbRKSPVo>; Mon, 19 Nov 2001 10:21:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279317AbRKSPVP>; Mon, 19 Nov 2001 10:21:15 -0500
-Received: from wallext.webflex.nl ([212.115.150.250]:65456 "EHLO
-	palm.webflex.nl") by vger.kernel.org with ESMTP id <S279277AbRKSPVH>;
-	Mon, 19 Nov 2001 10:21:07 -0500
-Message-ID: <XFMail.20011119161956.mathijs@webflex.nl>
-X-Mailer: XFMail 1.5.1 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S279317AbRKSPVe>; Mon, 19 Nov 2001 10:21:34 -0500
+Received: from pollux.et6.tu-harburg.de ([134.28.85.242]:20488 "HELO
+	mail.et6.tu-harburg.de") by vger.kernel.org with SMTP
+	id <S279277AbRKSPVV>; Mon, 19 Nov 2001 10:21:21 -0500
+Message-ID: <3BF9236F.5070206@bigfoot.com>
+Date: Mon, 19 Nov 2001 16:21:19 +0100
+From: "S. Zimmermann" <sz@bigfoot.com>
+Reply-To: sz@bigfoot.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
+X-Accept-Language: de, en
 MIME-Version: 1.0
-In-Reply-To: <01111917034005.00817@nemo>
-Date: Mon, 19 Nov 2001 16:19:56 +0100 (CET)
-From: Mathijs Mohlmann <mathijs@webflex.nl>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: x bit for dirs: misfeature?
-Cc: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Subject: i2o and Promise SuperTrak SX6000 ata raid controller
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On 19-Nov-2001 vda wrote:
-> Security through obscurity, that is.
-> 
-> Do you have even a single dir on your boxes with r!=x?
+I tried to use a Promise SuperTrak SX6000 with kernel 2.4.14 or 
+2.4.13-ac8. In both cases the i2o driver doesn't detect the controller 
+at all. According to Promise the controller is supposed to be supported 
+by current kernels. Any idea?
 
-IIRC, postfix depends on it.
+Thanks,
 
--- 
-        me
+Sebastian
+
+BTW: please cc sz@bigfoot.com since I am not subscribed to the list. Thanks!
+
+

@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264889AbUAFVwM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 16:52:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265346AbUAFVwM
+	id S265375AbUAFVok (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 16:44:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265398AbUAFVok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 16:52:12 -0500
-Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:23460 "EHLO
-	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
-	id S264889AbUAFVwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 16:52:09 -0500
-Date: Tue, 6 Jan 2004 13:50:18 -0800
-From: Tim Hockin <thockin@Sun.COM>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Mike Waychison <Michael.Waychison@Sun.COM>,
-       autofs mailing list <autofs@linux.kernel.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [autofs] [RFC] Towards a Modern Autofs
-Message-ID: <20040106215018.GA911@sun.com>
-Reply-To: thockin@Sun.COM
-References: <3FFB12AD.6010000@sun.com> <3FFB223A.8000606@zytor.com>
+	Tue, 6 Jan 2004 16:44:40 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:50823 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265375AbUAFVoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 16:44:38 -0500
+Subject: Re: [Linux-fbdev-devel] [PATCH] VT locking
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>, James Simmons <jsimmons@infradead.org>
+In-Reply-To: <Pine.GSO.4.58.0401061725250.5752@waterleaf.sonytel.be>
+References: <1073349182.9504.175.camel@gaston>
+	 <Pine.GSO.4.58.0401061725250.5752@waterleaf.sonytel.be>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1073425440.773.10.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FFB223A.8000606@zytor.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 07 Jan 2004 08:44:00 +1100
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 06, 2004 at 01:01:46PM -0800, H. Peter Anvin wrote:
-> Finally, throwing out the daemon is a huge step backwards.  Most of the
-> problems with autofs v3 (and to a lesser extent v4) are due to the
-> *lack* of state in userspace (the current daemon is mostly stateless);
-> putting additional state in userspace would be a benefit in my experience.
 
-Can you maybe share some details?  I think this deign moves MORE state to
-userspace (expiry aside).  The "state" in kernel is really mostly sent back
-to userspace.  No more passing pipes into the kernel (state) or tracking the
-pgid of the daemon (state).
+> 
+> Looks like a nice opportunity to introduce an arch-specific printk() stub:
+> 
+>     void *arch_printk(const char *args);
+> 
+>     if (arch_printk)
+> 	arch_printk(printk_buf);
 
-> Pardon me for sounding harsh, but I'm seriously sick of the oft-repeated
-> idiocy that effectively boils down to "the daemon can die and would lose
-> its state, so let's put it all in the kernel."  A dead daemon is a
-> painful recovery, admitted.  It is also a THIS SHOULD NOT HAPPEN
+Right... I admit I didn't even notice the printk_btext stuff leaked with
+this patch, this is debug stuff that wasn't really supposed to get out
+of my tree, oh well... I shouldn't do patches when I'm sick with +40°
+fever...
 
-But it *does* happen.
+Andrew, the only bits of the kernel/printk.c that are supposed to get
+to your tree are related to is_console_locked() at this point. The
+force_printk_to_btext is a debug tool that allow to route all printk's
+to some early-boot output mecanism, though it would eventually be
+acceptable upstream with Geert's idea of arch_printk...
 
-> condition.  By cramming it into the kernel, you're in fact making the
-> system less stable, not more, because the kernel being tainted with
-> faulty code is a total system malfunction; a crashed userspace daemon is
+Cheers,
+Ben.
 
-I don't think this design crams anything into the kernel.  It doesn't put a
-whole lot more into the kernel than is currently in there (expiry and new
-mount stuff, aside).  All the work still happens in userland.
 
-The daemon as it stands does NOT handle namespaces, does NOT handle expiry
-well, and is a pretty sad copy of an old design.
-
-> "merely" a messy cleanup.  In practice, the autofs daemon does not die
-> unless a careless system administrator kills it.  It is a non-problem.
-
-I have some customers I'd love to send to you, if you really think that's
-true.

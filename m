@@ -1,39 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265543AbSKWAJL>; Fri, 22 Nov 2002 19:09:11 -0500
+	id <S265506AbSKWAIF>; Fri, 22 Nov 2002 19:08:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266100AbSKWAJK>; Fri, 22 Nov 2002 19:09:10 -0500
-Received: from imrelay-2.zambeel.com ([209.240.48.8]:3852 "EHLO
+	id <S265543AbSKWAIF>; Fri, 22 Nov 2002 19:08:05 -0500
+Received: from imrelay-2.zambeel.com ([209.240.48.8]:2828 "EHLO
 	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
-	id <S265543AbSKWAJE>; Fri, 22 Nov 2002 19:09:04 -0500
-Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB199D@xch-a.win.zambeel.com>
+	id <S265506AbSKWAID>; Fri, 22 Nov 2002 19:08:03 -0500
+Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB199C@xch-a.win.zambeel.com>
 From: Manish Lachwani <manish@Zambeel.com>
-To: Manish Lachwani <manish@Zambeel.com>,
-       "'Rod.VanMeter@nokia.com'" <Rod.VanMeter@nokia.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'alan@lxorguk.ukuu.org.uk'" <alan@lxorguk.ukuu.org.uk>
+To: "'Rod.VanMeter@nokia.com'" <Rod.VanMeter@nokia.com>,
+       Manish Lachwani <manish@Zambeel.com>, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk
 Subject: RE: Early determinition of bad sectors and correcting them ...
-Date: Fri, 22 Nov 2002 16:16:00 -0800
+Date: Fri, 22 Nov 2002 16:14:58 -0800
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
-Btw, I am reffering to IDE drives and IDE controllers (including controllers
-like 3ware) ...
-
-Thanks
--Manish
-
------Original Message-----
-From: Manish Lachwani 
-Sent: Friday, November 22, 2002 4:15 PM
-To: 'Rod.VanMeter@nokia.com'; Manish Lachwani;
-linux-kernel@vger.kernel.org; alan@lxorguk.ukuu.org.uk
-Subject: RE: Early determinition of bad sectors and correcting them ...
-
 
 Yes, you are right abt taking different factors into account especially
 queuing before making a decision abt the threshold. However, I was actually

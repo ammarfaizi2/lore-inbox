@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285570AbRL3W1P>; Sun, 30 Dec 2001 17:27:15 -0500
+	id <S285703AbRL3XCF>; Sun, 30 Dec 2001 18:02:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285402AbRL3W1G>; Sun, 30 Dec 2001 17:27:06 -0500
-Received: from ha3pmf.boszi.pte.hu ([193.6.61.140]:14344 "EHLO
-	ha3pmf.boszi.pte.hu") by vger.kernel.org with ESMTP
-	id <S285621AbRL3W1A>; Sun, 30 Dec 2001 17:27:00 -0500
-Date: Sun, 30 Dec 2001 23:24:38 +0100 (CET)
-From: Sandor Dibuz <ha3pg@ha3pmf.boszi.pte.hu>
-X-X-Sender: ha3pg@off1.audion.com
-Reply-To: ha3pg@ha3pmf.boszi.pte.hu
-To: Henk de Groot <henk.de.groot@hetnet.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AX25/socket kernel PATCHes
-In-Reply-To: <5.1.0.14.2.20011230223848.00a2d570@pop.hetnet.nl>
-Message-ID: <Pine.LNX.4.43.0112302321310.674-100000@off1.audion.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285709AbRL3XBz>; Sun, 30 Dec 2001 18:01:55 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:34569 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S285703AbRL3XBw>;
+	Sun, 30 Dec 2001 18:01:52 -0500
+Date: Mon, 31 Dec 2001 00:01:50 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Sparc SS10 bootup problem
+Message-ID: <20011231000150.A5705@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux mail 2.4.15-pre2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Dec 2001, Henk de Groot wrote:
+Hi!
 
-> P.S. Maybe the discussion should now be taken of the lists as this is
-drifting off-topic now, at least for the linux-kernel list which is
-already loaded enough as it is...
+I'm trying to boot a freshly co'ed kernel (2.5.2-pre1) on a Sparc
+SS10, but I'm facing some trouble:
 
-But please do keep it on linux-hams. Someone is at least wishing to take
-care of the ax25 kernel bugs for final. Thank you and have a prosperious
-new year!
+boot: 1/boot/vmlinuz-2.5.2-pre1--01 console=ttya root=/dev/hda1 ro
+PROMLIB: obio_ranges 5
+Using /dev/ttya as console.
+Fixup b f01e6fcc doesn't refer to a SETHI at f00156c0[900a20ff]
+Program terminated
+Type  help  for more information
+<#0> ok 
+
+>From matching System.map:
+f01e6fb8 d startup.1562
+f01e6fcc D ___bs_smp_processor_id
+f01e6fcc D ___btfixup_start
+f01e9c30 D ___bs_load_current
+
+and
+
+f0015014 t inflate_fixed
+f001518c t inflate_dynamic
+f0015850 t inflate_block
 
 
-73... Sanyi
+What can I do there, and (more important:-) what's a SETHI at all?
+I haven't got an Architecture Reference Manual handy...
+
+MfG, JBG
 
 -- 
-Dibuz Sandor  | email: ha3pg@ha3pmf.boszi.pte.hu
-Pecs, Hungary | AX.25: HA3PG@HA3PG.HUN.EURO | UIN: 81545608
-
-
+Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
+	 -- New APT-Proxy written in shell script --
+	   http://lug-owl.de/~jbglaw/software/ap2/

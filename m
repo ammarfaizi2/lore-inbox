@@ -1,84 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282099AbRKWJsR>; Fri, 23 Nov 2001 04:48:17 -0500
+	id <S282104AbRKWJtr>; Fri, 23 Nov 2001 04:49:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282095AbRKWJsB>; Fri, 23 Nov 2001 04:48:01 -0500
-Received: from mgw-x2.nokia.com ([131.228.20.22]:5837 "EHLO mgw-x2.nokia.com")
-	by vger.kernel.org with ESMTP id <S282099AbRKWJrn>;
-	Fri, 23 Nov 2001 04:47:43 -0500
-Message-ID: <3BFE19B6.4070907@nokia.com>
-Date: Fri, 23 Nov 2001 11:41:10 +0200
-From: Dmitri Kassatkine <dmitri.kassatkine@nokia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
+	id <S282103AbRKWJtM>; Fri, 23 Nov 2001 04:49:12 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:36110 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S282098AbRKWJsa>;
+	Fri, 23 Nov 2001 04:48:30 -0500
+Date: Fri, 23 Nov 2001 07:48:13 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Jochen Striepe <jochen@tolot.escape.de>
+Cc: rpjday <rpjday@mindspring.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: is 2.4.15 really available at www.kernel.org?
+In-Reply-To: <20011123094313.GB190@tolot.miese-zwerge.org>
+Message-ID: <Pine.LNX.4.33L.0111230747410.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>, linux-netdev@vger.kernel.org,
-        linux-net@vger.kernel.org
-CC: "Vilavaara Asko (NRC/Helsinki)" <asko.vilavaara@nokia.com>,
-        "Juopperi Jari (NRC/Helsinki)" <jari.juopperi@nokia.com>,
-        "Deak Imre (EXT-Syntact/Helsinki)" <ext-imre.deak@nokia.com>,
-        Dmitri Kassatkine <Dmitri.Kassatkine@nokia.com>
-Subject: Affix Bluetooth Protocol Stack for Linux  -> http://www-nrc.nokia.com/affix
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linux folks,
+On Fri, 23 Nov 2001, Jochen Striepe wrote:
 
-Nokia Research Center has decided to release Affix Bluetooth software for
-Linux under GPL. Affix implements a set of core Bluetooth protocols such 
-as L2CAP,
-RFCOMM, SDP as well as a set of Bluetooth profiles.It can be compiled as 
-a collection
-of modules or linked statically into the kernel.
+> I am *much* more irritated by:
+>
+> $ uname -r
+> 2.4.15-greased-turkey
 
-Affix is designed to support relevant Nokia products e.g., Nokia 
-Connectivity Card (DTL-1).
-During the development, however, the following pieces of hardware have 
-also been used with
-Affix:
-- NSM Bluetooth USB dongle (NSC chipset based);
-- CSR Bluetooth USB module;
-- Socket Communications Compact Flash Card.
-- Taiyo Youden USB module.
+Would you really have preferred 2.4.15-sitting-duck  ?
 
-Affix implements currently the following Bluetooth Profiles:
-- Serial Port Profile;
-- Dialup Networking Profile;
-- LAN Access Profile;
-- OBEX Object Push Profile;
-- OBEX File Transfer Profile;
+cheers,
 
-Other Affix features:
-- Modular implementation (includes kernel patch);
-- Well defined API (Including Socket Interface for L2CAP and RFCOMM)
-- Hardware abstraction. (interface to implement transport driver -
-  PCMCIA, USB, UART).
-- SMP safe;
-
-We successfully tested Affix for interoperability with Nokia Bluetooth
-Phone 6210 with Bluetooth battery pack, Digianswer stack for Windows,
-Compaq iPaq,  Bluetooth stack for Palm OS. For more information please
-refer to README from the Affix package.
-
-While we believe that Affix is an useful piece of software, please bear in
-mind that it is not an official Nokia product, but a result of the
-research activity of Nokia Research Center. For further details, please 
-read
-the files README, LICENSE, COPYING and LEGAL in the tar archive.
-
-Affix WEB page:
-http://www-nrc.nokia.com/affix
-
-
-Best Regards,
-Dmitri Kassatkine and other Affix team members
-Nokia Research Center
-
+Rik
 -- 
- Dmitri Kassatkine
- Nokia Research Center / Helsinki
- Mobile: +358 50 4836365
- E-Mail: dmitri.kassatkine@nokia.com
+Shortwave goes a long way:  irc.starchat.net  #swl
 
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266556AbSKGNzm>; Thu, 7 Nov 2002 08:55:42 -0500
+	id <S262617AbSKGOFk>; Thu, 7 Nov 2002 09:05:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266557AbSKGNzl>; Thu, 7 Nov 2002 08:55:41 -0500
-Received: from surf.cadcamlab.org ([156.26.20.182]:17561 "EHLO
-	surf.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S266556AbSKGNzl>; Thu, 7 Nov 2002 08:55:41 -0500
-Date: Thu, 7 Nov 2002 07:59:36 -0600
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: kbuild-devel <kbuild-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [kbuild] Possibility to sanely link against off-directory .so
-Message-ID: <20021107135936.GP4182@cadcamlab.org>
-References: <20021106212952.GB1035@mars.ravnborg.org> <20021106220347.GE5219@pasky.ji.cz> <20021107100021.GL4182@cadcamlab.org> <Pine.LNX.4.44.0211071149200.13258-100000@serv> <20021107114747.GM4182@cadcamlab.org> <Pine.LNX.4.44.0211071258550.13258-100000@serv> <20021107123753.GN4182@cadcamlab.org> <Pine.LNX.4.44.0211071352270.13258-100000@serv> <20021107132245.GO4182@cadcamlab.org> <Pine.LNX.4.44.0211071440140.6949-100000@serv>
+	id <S266547AbSKGOFk>; Thu, 7 Nov 2002 09:05:40 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:51416 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S262617AbSKGOFj>;
+	Thu, 7 Nov 2002 09:05:39 -0500
+Date: Thu, 7 Nov 2002 15:12:19 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IPSEC FIRST LIGHT! (by non-kernel developer :-))
+Message-ID: <20021107141219.GA28791@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+References: <20021107103905.GA22139@outpost.ds9a.nl> <20021107.025250.35525477.davem@redhat.com> <20021107130244.GA25032@outpost.ds9a.nl> <20021107.052114.123991710.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211071440140.6949-100000@serv>
-User-Agent: Mutt/1.4i
-From: Peter Samuelson <peter@cadcamlab.org>
+In-Reply-To: <20021107.052114.123991710.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 07, 2002 at 05:21:14AM -0800, David S. Miller wrote:
+>    From: bert hubert <ahu@ds9a.nl>
+>    Date: Thu, 7 Nov 2002 14:02:44 +0100
+>    
+>    Great work everybody! I'm very impressed.
+> 
+> Thanks for testing :-)
 
-[Roman Zippel]
-> If your build environment doesn't support shared libraries, you can
-> easily generate a static library instead and link against it
-> yourself, like you described, but it's no reason to deny the
-> convenience to working environments.
+No problem! By the way, is tunnel mode there yet?
 
-Yeah, but until I do, I can't even run 'make oldconfig'.
+Does it require more than setkey? Or does it need pseudo devices, GRE or
+anything? Just setting up tunnel mode doesn't appear to work - nothing gets
+crypted or signed.
 
-(This isn't about me - I will probably always build on Linux, with gcc
-- it's about weird environments like cross-compiling from Solaris,
-which I'm told was often done in the earlier stages of SPARC Linux.)
+Regards,
 
-I suggest that *at least* the built-in targets should link libkconfig
-statically - either via libkconfig.a or just the list of .o files.
+bert
 
-Peter
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,58 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272270AbRIPFcW>; Sun, 16 Sep 2001 01:32:22 -0400
+	id <S273170AbRIPHZS>; Sun, 16 Sep 2001 03:25:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273166AbRIPFcC>; Sun, 16 Sep 2001 01:32:02 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6922 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S272270AbRIPFb4>; Sun, 16 Sep 2001 01:31:56 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: broken VM in 2.4.10-pre9
-Date: Sun, 16 Sep 2001 05:31:11 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9o1dev$23l$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33L2.0109160031500.7740-100000@flashdance>
-X-Trace: palladium.transmeta.com 1000618315 17555 127.0.0.1 (16 Sep 2001 05:31:55 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 16 Sep 2001 05:31:55 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S273172AbRIPHZJ>; Sun, 16 Sep 2001 03:25:09 -0400
+Received: from elin.scali.no ([62.70.89.10]:26375 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S273170AbRIPHZB>;
+	Sun, 16 Sep 2001 03:25:01 -0400
+Message-ID: <3BA4530D.A3378F41@scali.no>
+Date: Sun, 16 Sep 2001 09:21:49 +0200
+From: Steffen Persvold <sp@scali.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+CC: linux-kernel@vger.kernel.org, VDA@port.imtp.ilyichevsk.odessa.ua,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: Athlon: Try this (was: Re: Athlon bug stomping #2)
+In-Reply-To: <1292125035.20010914214303@port.imtp.ilyichevsk.odessa.ua> <E15i2Bp-00017m-00@the-village.bc.nu> <20010916035207.C7542@ppc.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33L2.0109160031500.7740-100000@flashdance>,
-Peter Magnusson  <iocc@flashdance.nothanksok.cx> wrote:
->
->2.4.10-pre4: quite ok VM, but put little more on the swap than 2.4.7
->2.4.10-pre8: not good
+Petr Vandrovec wrote:
+> 
+> > +static void __init pci_fixup_athlon_bug(struct pci_dev *d)
+> > +{
+> > +       u8 v;
+> > +       pci_read_config_byte(d, 0x55, &v);
+> > +       if(v & 0x80) {
+> > +               printk(KERN_NOTICE "Stomping on Athlon bug.\n");
+> > +               v &= 0x7f; /* clear bit 55.7 */
+> > +               pci_write_config_byte(d, 0x55, v);
+> > +       }
+> > +}
+> >
+> > Well, these are cosmetic changes anyway...
+> > What is more important now:
+> > 1) Do we have people who still see Athlon bug with the patch?
+> 
+> Just by any chance - does anybody have KT133 (not KT133A)
+> datasheet? I just noticed at home that my KT133 has reg 55 set
+> to 0x89 and it happilly lives... So maybe some BIOS vendors
+> used KT133 instead of KT133A BIOS image?
 
-Ehh..
+Hmm, I have a "KT133 Athlon Norbridge, Preliminary Revision 1.0 May 12, 2000"
+PDF. Register 55 is described like this :
 
-There are _no_ VM changes that I can see between pre4 and pre8.
+Device 0 Offset 55  Debug .............................................. RW
+	7-5	Reserved (do not program)...................... default = 0
+	4	Write Policy for CPU Write to DRAM
+		0	Issue DRAM write when FIFO holds more
+			than two requests of DRAM controller idle . def
+		1	Disable Write Policy
+	3-0	Reserved (do not program)...................... default = 0
 
->2.4.10-pre9: not good ... Linux didnt had used any swap at all, then i
->             unrared two very large files at the same time. And now 104
->             Mbyte swap is used! :-( 2.4.7 didnt do like this.
->             Best is to use the swap as little as possible.
+Which doesn't explain things much more since the bits in question (7, 3, 0) is
+marked as "Reserved".
 
-.. and there are none between pre8 and pre9.
+I also have a question; if "movntq; sfence" type of memory copy can cause data
+corruption in kernel space, it can in theory also do so in user space right ?
+So, if I'm right this bug could also be on machines running a 2.2 kernel with
+userspace programs using 3DNow (or SSE even) instructions.
 
-Basically, it sounds lik eyou have tested different loads on different
-kernels, and some loads are nice and others are not.
-
-Also note that the amount of "swap used" is totally meaningless in
-2.4.x. The 2.4.x kernel will _allocate_ the swap backing store much
-earlier than 2.2.x, but that doesn't actuall ymean that it does any of
-the IO. Indeed, allocating the swap backing store just means that the
-swap pages are then kept track of, so that they can be aged along with
-other stores.
-
-So whether Linux uses swap or not is a 100% meaningless indicator of
-"goodness".  The only thing that matters is how well the job gets done,
-ie was it reasonably responsive, and did the big untars finish quickly.. 
-
-Don't look at how many pages of swap were used. That's a statistic,
-nothing more.
-
-		Linus
+Regards,
+-- 
+  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best   
+ mailto:sp@scali.no  |  http://www.scali.com  | performing MPI implementation:
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.12.2 -         
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >300MBytes/s and <4uS latency

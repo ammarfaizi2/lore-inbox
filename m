@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135882AbRDTMHn>; Fri, 20 Apr 2001 08:07:43 -0400
+	id <S135880AbRDTMIO>; Fri, 20 Apr 2001 08:08:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135880AbRDTMHd>; Fri, 20 Apr 2001 08:07:33 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:25606 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S135882AbRDTMHW> convert rfc822-to-8bit; Fri, 20 Apr 2001 08:07:22 -0400
-From: s-jaschke@t-online.de (Stefan Jaschke)
-Reply-To: stefan@jaschke-net.de
-Organization: jaschke-net.de
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: epic100 error
-Date: Fri, 20 Apr 2001 14:07:11 +0200
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-Cc: linux-kernel@vger.kernel.org, epic@skyld.com
-In-Reply-To: <20010417184552.A6727@core.devicen.de> <01042013091501.07156@antares> <3AE01E97.E41399F7@mandrakesoft.com>
-In-Reply-To: <3AE01E97.E41399F7@mandrakesoft.com>
+	id <S135883AbRDTMID>; Fri, 20 Apr 2001 08:08:03 -0400
+Received: from sirius-giga.rz.uni-ulm.de ([134.60.246.36]:37581 "EHLO
+	mail.rz.uni-ulm.de") by vger.kernel.org with ESMTP
+	id <S135880AbRDTMHy>; Fri, 20 Apr 2001 08:07:54 -0400
+Date: Fri, 20 Apr 2001 14:07:51 +0200 (MEST)
+From: Markus Schaber <markus.schaber@student.uni-ulm.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Markus Schaber <markus.schaber@student.uni-ulm.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: AHA-154X/1535 not recognized any more
+In-Reply-To: <E14puVG-00053d-00@the-village.bc.nu>
+Message-ID: <Pine.SOL.4.33.0104201402080.11952-100000@lyra.rz.uni-ulm.de>
 MIME-Version: 1.0
-Message-Id: <01042014071100.01203@antares>
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 20 April 2001 13:33, Jeff Garzik wrote:
-> Here's a suggestion to try: go through epic100.c and write 0x12
-> unconditionally to MIICfg register.  Right now it is conditional:  if
-> (dev->if_port...) out(0x12,ioaddr+MIICfg);
+On Wed, 18 Apr 2001, Alan Cox wrote:
 
-I changed all three such lines. Same behavior as before.
+> > Well, as this device is already configured by the bios, I just tried
+> > to load it giving the right IO port, and got the following message:
+>
+> The kernel PnP will deconfigure it
 
-<offtopic>
-You also cc-d this to epic@skyld.com. My message to this address 
-bounced. Is this a problem with my provider only?
+Ah, interesting.
 
-'A message that you sent could not be delivered to one or more of its
-recipients. This is a permanent error. The following address(es) failed:
-  epic@skyld.com:
-    unrouteable mail domain "skyld.com"'
-</offtopic>
+> The module parameters are
+>
+> aha1542=io, irq, busff, dmaspeed
 
--- 
-Stefan R. Jaschke <stefan@jaschke-net.de>
-http://www.jaschke-net.de
+I recompiled the kernel with isapnp-support and statically compiled
+driver. I then typed aha1542=0x330 at the lilo prompt, but the card wasn't
+recognized (see dmesg_pnp_bootparam.txt on http://schabi.de/scsi/).
+
+isapnp will initialize the card when the check entry is removed, but
+doesn't activate the driver. I'll next test with modularized driver, and
+the isapnp tools.
+
+markus
+

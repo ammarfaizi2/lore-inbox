@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265083AbRFZOUZ>; Tue, 26 Jun 2001 10:20:25 -0400
+	id <S264960AbRFZOjG>; Tue, 26 Jun 2001 10:39:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264879AbRFZOUN>; Tue, 26 Jun 2001 10:20:13 -0400
-Received: from fluent1.pyramid.net ([206.100.220.212]:17960 "EHLO
+	id <S264959AbRFZOi4>; Tue, 26 Jun 2001 10:38:56 -0400
+Received: from fluent1.pyramid.net ([206.100.220.212]:18984 "EHLO
 	fluent1.pyramid.net") by vger.kernel.org with ESMTP
-	id <S264956AbRFZOUD>; Tue, 26 Jun 2001 10:20:03 -0400
-Message-Id: <4.3.2.7.2.20010626071207.00b9ddb0@mail.fluent-access.com>
+	id <S264958AbRFZOii>; Tue, 26 Jun 2001 10:38:38 -0400
+Message-Id: <4.3.2.7.2.20010626071942.00b9b380@mail.fluent-access.com>
 X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Tue, 26 Jun 2001 07:19:02 -0700
-To: Alessandro Suardi <alessandro.suardi@oracle.com>,
-        Luigi Genoni <kernel@Expansa.sns.it>
+Date: Tue, 26 Jun 2001 07:38:05 -0700
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, kernel@Expansa.sns.it (Luigi Genoni)
 From: Stephen Satchell <satch@fluent-access.com>
 Subject: Re: When the FUD is all around (sniff).
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B3880FF.36885A81@oracle.com>
+In-Reply-To: <E15Es2e-0003T1-00@the-village.bc.nu>
 In-Reply-To: <Pine.LNX.4.33.0106261015120.9537-100000@Expansa.sns.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:33 PM 6/26/01 +0200, Alessandro Suardi wrote:
->To top this off with complete crap, after mentioning Gracenote:
->
->  "There may be a paradoxical situation: the [Microsoft] appeal judge
->   may restore the Microsoft monolith that judge Jackson wanted to
->   break in small pieces. And in the meantime who could end up under
->   accusation for excessive power and monopoly "temptation" would be
->   the arch-enemy Torvalds."
->
->
->I have trouble in finding words to describe such blatant ignorance.
+At 01:34 PM 6/26/01 +0100, Alan Cox wrote:
+>It is common for newspaper staff to be corrupt, same with magazine people.
+>Sometimes because people generally believe in a cause and are not impartial
+>(which I've seen both pro and anti Linux btw) and sometimes because 
+>advertising
+>revenue is a good thing.
 
-The Internet Press Guild (http://www.netpress.org) is open to reporters and 
-editors of any country, not just to US/Canada reporters.  When you write a 
-letter to the editor in response to articles such as the one you quote in 
-La Repubblica, be sure to mention this fact.
+Alan, never attribute to conspiracy that which is adequately explained by 
+stupidity.  You would be surprised how often newspaper and magazine 
+reporters and their editors make gaffs like this with absolutely no intent 
+of malice, or with the sole malice of wanting to write an article that will 
+be "interesting" to a large readership while taking insufficient time to 
+check all the facts.
 
-The Internet Press Guild was formed by Internet-savvy working reporters in 
-response to the Time magazine CyberPorn article.  (They were chased off the 
-newsgroup alt.internet.media-coverage when the SNR dropped like a 
-rock.)  It's mission:  to provide a place where working press can check 
-stories they are about to run regarding the Internet to avoid egg-on-face 
-syndrome.
+When I worked at a magazine as a staffer, I was amazed when the 
+editor-in-chief, in response to complaints about a columnist who "got it 
+wrong" a lot, said that he kept the columnist on because his mistakes 
+attracted readership.  "He gets TONS of letters, and the readers can't wait 
+to see how he screws up next!"  Again, not by intent, but by incompetence.
 
-The IPG contains a few people close to Linux development, so while a story 
-like this is a little beyond the original charter, a quick check would have 
-avoided the gaff.
+For reporters, it's not a matter of "not caring," it's a matter of being 
+required to knock out 15 articles in one day (not uncommon for a reporter 
+on a major metropolitan newspaper) and not having to hand references that 
+are willing to provide answers quickly.
+
+Final comment:  Know what a well-adjusted paranoid is?  "Hey, they ARE out 
+to get you, but it's nothing personal."
+
+Satch
 

@@ -1,135 +1,556 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313190AbSF3UdF>; Sun, 30 Jun 2002 16:33:05 -0400
+	id <S311710AbSF3VBB>; Sun, 30 Jun 2002 17:01:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313202AbSF3UdE>; Sun, 30 Jun 2002 16:33:04 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:31933 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S313190AbSF3UdB>; Sun, 30 Jun 2002 16:33:01 -0400
-Date: Sun, 30 Jun 2002 22:35:00 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-       Martin Dalecki <dalecki@evision-ventures.com>, <alex@ssi.bg>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: HDIO_GETGEO accessibility (was Re: [PATCH] 2.5.24 IDE 95 (fwd))
-In-Reply-To: <20020630194920.GC3778@ppc.vc.cvut.cz>
-Message-ID: <Pine.SOL.4.30.0206302201040.4857-200000@mion.elka.pw.edu.pl>
+	id <S313202AbSF3VBA>; Sun, 30 Jun 2002 17:01:00 -0400
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:44562 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S311710AbSF3VA4>; Sun, 30 Jun 2002 17:00:56 -0400
+Date: Sun, 30 Jun 2002 23:03:21 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] break task_struct out of sched.h
+Message-ID: <Pine.LNX.4.33.0206302250140.11122-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1804928587-1025469300=:4857"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+ - move task_struct from <linux/sched.h> to its own header file
+   <linux/task_struct.h>, and include it in sched.h.
+ - Remove now unused #includes in sched.h, which get included
+   through task_struct.h anyways.
+ - include task_struct.h from <asm/current.h>, as "current->foo"  
+   is by far the most often way of accessing current.
 
----559023410-1804928587-1025469300=:4857
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+With this change files doing "current->foo" don't need to include sched.h
+any more.
+
+Patch applies to 2.5.24, a patch for 2.5.24-dj2 can be downloaded from
+http://www.physik3.uni-rostock.de/tim/kernel/2.5/task_struct.h-05-dj.patch.gz
+
+Tim
 
 
-On Sun, 30 Jun 2002, Petr Vandrovec wrote:
+--- linux-2.5.24/include/linux/sched.h	Fri Jun 21 00:53:44 2002
++++ linux-2.5.24-task_struct/include/linux/sched.h	Sun Jun 30 20:34:47 2002
+@@ -9,12 +9,11 @@
+ #include <linux/capability.h>
+ #include <linux/threads.h>
+ #include <linux/kernel.h>
+-#include <linux/types.h>
+-#include <linux/times.h>
+ #include <linux/timex.h>
+ #include <linux/jiffies.h>
+ #include <linux/rbtree.h>
+ #include <linux/thread_info.h>
++#include <linux/task_struct.h>
+ 
+ #include <asm/system.h>
+ #include <asm/semaphore.h>
+@@ -23,7 +22,6 @@
+ #include <asm/mmu.h>
+ 
+ #include <linux/smp.h>
+-#include <linux/sem.h>
+ #include <linux/signal.h>
+ #include <linux/securebits.h>
+ #include <linux/fs_struct.h>
+@@ -83,10 +81,6 @@
+ 
+ #include <linux/time.h>
+ #include <linux/param.h>
+-#include <linux/resource.h>
+-#include <linux/timer.h>
+-
+-#include <asm/processor.h>
+ 
+ #define TASK_RUNNING		0
+ #define TASK_INTERRUPTIBLE	1
+@@ -244,127 +238,6 @@
+ 
+ extern struct user_struct root_user;
+ #define INIT_USER (&root_user)
+-
+-typedef struct prio_array prio_array_t;
+-
+-struct task_struct {
+-	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
+-	struct thread_info *thread_info;
+-	atomic_t usage;
+-	unsigned long flags;	/* per process flags, defined below */
+-	unsigned long ptrace;
+-
+-	int lock_depth;		/* Lock depth */
+-
+-	int prio, static_prio;
+-	list_t run_list;
+-	prio_array_t *array;
+-
+-	unsigned long sleep_avg;
+-	unsigned long sleep_timestamp;
+-
+-	unsigned long policy;
+-	unsigned long cpus_allowed;
+-	unsigned int time_slice;
+-
+-	struct list_head tasks;
+-
+-	struct mm_struct *mm, *active_mm;
+-	struct list_head local_pages;
+-
+-	unsigned int allocation_order, nr_local_pages;
+-
+-/* task state */
+-	struct linux_binfmt *binfmt;
+-	int exit_code, exit_signal;
+-	int pdeath_signal;  /*  The signal sent when the parent dies  */
+-	/* ??? */
+-	unsigned long personality;
+-	int did_exec:1;
+-	pid_t pid;
+-	pid_t pgrp;
+-	pid_t tty_old_pgrp;
+-	pid_t session;
+-	pid_t tgid;
+-	/* boolean value for session group leader */
+-	int leader;
+-	/* 
+-	 * pointers to (original) parent process, youngest child, younger sibling,
+-	 * older sibling, respectively.  (p->father can be replaced with 
+-	 * p->parent->pid)
+-	 */
+-	struct task_struct *real_parent; /* real parent process (when being debugged) */
+-	struct task_struct *parent;	/* parent process */
+-	struct list_head children;	/* list of my children */
+-	struct list_head sibling;	/* linkage in my parent's children list */
+-	struct list_head thread_group;
+-
+-	/* PID hash table linkage. */
+-	struct task_struct *pidhash_next;
+-	struct task_struct **pidhash_pprev;
+-
+-	wait_queue_head_t wait_chldexit;	/* for wait4() */
+-	struct completion *vfork_done;		/* for vfork() */
+-
+-	unsigned long rt_priority;
+-	unsigned long it_real_value, it_prof_value, it_virt_value;
+-	unsigned long it_real_incr, it_prof_incr, it_virt_incr;
+-	struct timer_list real_timer;
+-	struct tms times;
+-	unsigned long start_time;
+-	long per_cpu_utime[NR_CPUS], per_cpu_stime[NR_CPUS];
+-/* mm fault and swap info: this can arguably be seen as either mm-specific or thread-specific */
+-	unsigned long min_flt, maj_flt, nswap, cmin_flt, cmaj_flt, cnswap;
+-	int swappable:1;
+-/* process credentials */
+-	uid_t uid,euid,suid,fsuid;
+-	gid_t gid,egid,sgid,fsgid;
+-	int ngroups;
+-	gid_t	groups[NGROUPS];
+-	kernel_cap_t   cap_effective, cap_inheritable, cap_permitted;
+-	int keep_capabilities:1;
+-	struct user_struct *user;
+-/* limits */
+-	struct rlimit rlim[RLIM_NLIMITS];
+-	unsigned short used_math;
+-	char comm[16];
+-/* file system info */
+-	int link_count, total_link_count;
+-	struct tty_struct *tty; /* NULL if no tty */
+-	unsigned int locks; /* How many file locks are being held */
+-/* ipc stuff */
+-	struct sysv_sem sysvsem;
+-/* CPU-specific state of this task */
+-	struct thread_struct thread;
+-/* filesystem information */
+-	struct fs_struct *fs;
+-/* open file information */
+-	struct files_struct *files;
+-/* namespace */
+-	struct namespace *namespace;
+-/* signal handlers */
+-	spinlock_t sigmask_lock;	/* Protects signal and blocked */
+-	struct signal_struct *sig;
+-
+-	sigset_t blocked;
+-	struct sigpending pending;
+-
+-	unsigned long sas_ss_sp;
+-	size_t sas_ss_size;
+-	int (*notifier)(void *priv);
+-	void *notifier_data;
+-	sigset_t *notifier_mask;
+-	
+-/* Thread group tracking */
+-   	u32 parent_exec_id;
+-   	u32 self_exec_id;
+-/* Protection of (de-)allocation: mm, files, fs, tty */
+-	spinlock_t alloc_lock;
+-
+-/* journalling filesystem info */
+-	void *journal_info;
+-	struct dentry *proc_dentry;
+-};
+ 
+ extern void __put_task_struct(struct task_struct *tsk);
+ #define get_task_struct(tsk) do { atomic_inc(&(tsk)->usage); } while(0)
 
-> On Sun, Jun 30, 2002 at 06:52:58PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> >
-> > I hope you dont mind Petr.
->
-> No problem.
->
-> But I have one, unrelated... Today I found that VMware does not run
-> on 2.5.24 with rawdisks for non-root users because of ioctl(hdd, HDIO_GETGEO, ...)
-> is guarded by "if (!capable(CAP_SYS_ADMIN)) return -EACCES;". And so it
-> fails although user has read-write access to /dev/hdX.
->
-> Is this change really intentional? It is GET, not SET operation, and user has
+--- linux-2.5.24/include/linux/task_struct.h	Thu Jan  1 01:00:00 1970
++++ linux-2.5.24-task_struct/include/linux/task_struct.h	Sun Jun 30 20:34:47 2002
+@@ -0,0 +1,144 @@
++#ifndef _LINUX_TASK_STRUCT_H
++#define _LINUX_TASK_STRUCT_H
++
++#include <asm/atomic.h> /* sem.h needs this first */
++#include <linux/capability.h>
++#include <linux/types.h>
++#include <linux/times.h>
++#include <linux/spinlock.h>
++#include <linux/sem.h>
++#include <linux/signal.h>
++#include <linux/resource.h>
++#include <linux/timer.h>
++#include <asm/processor.h>
++
++#ifdef __KERNEL__
++
++#include <linux/list.h>
++#include <linux/wait.h>
++
++typedef struct prio_array prio_array_t;
++
++struct task_struct {
++	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
++	struct thread_info *thread_info;
++	atomic_t usage;
++	unsigned long flags;	/* per process flags, defined below */
++	unsigned long ptrace;
++
++	int lock_depth;		/* Lock depth */
++
++	int prio, static_prio;
++	list_t run_list;
++	prio_array_t *array;
++
++	unsigned long sleep_avg;
++	unsigned long sleep_timestamp;
++
++	unsigned long policy;
++	unsigned long cpus_allowed;
++	unsigned int time_slice;
++
++	struct list_head tasks;
++
++	struct mm_struct *mm, *active_mm;
++	struct list_head local_pages;
++
++	unsigned int allocation_order, nr_local_pages;
++
++/* task state */
++	struct linux_binfmt *binfmt;
++	int exit_code, exit_signal;
++	int pdeath_signal;	/*  The signal sent when the parent dies  */
++	/* ??? */
++	unsigned long personality;
++	int did_exec:1;
++	pid_t pid;
++	pid_t pgrp;
++	pid_t tty_old_pgrp;
++	pid_t session;
++	pid_t tgid;
++	/* boolean value for session group leader */
++	int leader;
++	/* 
++	 * pointers to (original) parent process, youngest child, younger sibling,
++	 * older sibling, respectively.  (p->father can be replaced with 
++	 * p->parent->pid)
++	 */
++	struct task_struct *real_parent; /* real parent process	(when being debugged) */
++	struct task_struct *parent;	/* parent process */
++	struct list_head children;	/* list of my children */
++	struct list_head sibling;	/* linkage in my parent's children list */
++	struct list_head thread_group;
++
++	/* PID hash table linkage. */
++	struct task_struct *pidhash_next;
++	struct task_struct **pidhash_pprev;
++
++	wait_queue_head_t wait_chldexit;	/* for wait4() */
++	struct completion *vfork_done;		/* for vfork() */
++
++	unsigned long rt_priority;
++	unsigned long it_real_value, it_prof_value, it_virt_value;
++	unsigned long it_real_incr, it_prof_incr, it_virt_incr;
++	struct timer_list real_timer;
++	struct tms times;
++	unsigned long start_time;
++	long per_cpu_utime[NR_CPUS], per_cpu_stime[NR_CPUS];
++/* mm fault and swap info: this can arguably be seen as either mm-specific or thread-specific */
++	unsigned long min_flt, maj_flt, nswap, cmin_flt, cmaj_flt, cnswap;
++	int swappable:1;
++/* process credentials */
++	uid_t uid,euid,suid,fsuid;
++	gid_t gid,egid,sgid,fsgid;
++	int ngroups;
++	gid_t	groups[NGROUPS];
++	kernel_cap_t   cap_effective, cap_inheritable, cap_permitted;
++	int keep_capabilities:1;
++	struct user_struct *user;
++/* limits */
++	struct rlimit rlim[RLIM_NLIMITS];
++	unsigned short used_math;
++	char comm[16];
++/* file system info */
++	int link_count, total_link_count;
++	struct tty_struct *tty;		/* NULL if no tty */
++	unsigned int locks;		/* How many file locks are being held */
++/* ipc stuff */
++	struct sysv_sem sysvsem;
++/* CPU-specific state of this task */
++	struct thread_struct thread;
++/* filesystem information */
++	struct fs_struct *fs;
++/* open file information */
++	struct files_struct *files;
++/* namespace */
++	struct namespace *namespace;
++/* signal handlers */
++	spinlock_t sigmask_lock;	/* Protects signal and blocked */
++	struct signal_struct *sig;
++
++	sigset_t blocked;
++	struct sigpending pending;
++
++	unsigned long sas_ss_sp;
++	size_t sas_ss_size;
++	int (*notifier)(void *priv);
++	void *notifier_data;
++	sigset_t *notifier_mask;
++	
++/* Thread group tracking */
++   	u32 parent_exec_id;
++   	u32 self_exec_id;
++/* Protection of (de-)allocation: mm, files, fs, tty */
++	spinlock_t alloc_lock;
++
++/* journalling filesystem info */
++	void *journal_info;
++	struct dentry *proc_dentry;
++};
++
++
++#endif /* __KERNEL__ */
++
++#endif /* _LINUX_TASK_STRUCT_H */
 
-It changed in IDE-60, comment in ioctl.c says that:
+--- linux-2.5.24/include/asm-alpha/current.h	Fri Jun 21 00:53:57 2002
++++ linux-2.5.24-task_struct/include/asm-alpha/current.h	Sun Jun 30 22:06:58 2002
+@@ -1,6 +1,7 @@
+ #ifndef _ALPHA_CURRENT_H
+ #define _ALPHA_CURRENT_H
+ 
++#include <linux/task_struct.h>
+ #include <asm/thread_info.h>
+ 
+ #define get_current()	(current_thread_info()->task + 0)
 
-/* Contrary to popular beleve we disallow even the reading of the ioctl
- * values for users which don't have permission too. We do this becouse
- * such information could be used by an attacker to deply a simple-user
- * attack, which triggers bugs present only on a particular
- * configuration.
- */
+--- linux-2.5.24/include/asm-arm/current.h	Fri Jun 21 00:53:54 2002
++++ linux-2.5.24-task_struct/include/asm-arm/current.h	Sun Jun 30 22:07:28 2002
+@@ -1,6 +1,7 @@
+ #ifndef _ASMARM_CURRENT_H
+ #define _ASMARM_CURRENT_H
+ 
++#include <linux/task_struct.h>
+ #include <asm/thread_info.h>
+ 
+ static inline struct task_struct *get_current(void) __attribute__ (( __const__ ));
 
-But I dont think HDIO_GET_* can disclose any meaningful information
-to attacker and attacker doesnt have direct access to hardware,
-and if he has we have more serious problems to worry about.
+--- linux-2.5.24/include/asm-cris/current.h	Fri Jun 21 00:53:52 2002
++++ linux-2.5.24-task_struct/include/asm-cris/current.h	Sun Jun 30 22:07:59 2002
+@@ -1,7 +1,7 @@
+ #ifndef _CRIS_CURRENT_H
+ #define _CRIS_CURRENT_H
+ 
+-struct task_struct;
++#include <linux/task_struct.h>
+ 
+ static inline struct task_struct * get_current(void)
+ {
 
-[ There is more risk that application programmers will screw
-  privilidged access, then attacker will get useful info :-) ]
+--- linux-2.5.24/include/asm-i386/current.h	Fri Jun 21 00:53:49 2002
++++ linux-2.5.24-task_struct/include/asm-i386/current.h	Sun Jun 30 22:08:25 2002
+@@ -1,9 +1,8 @@
+ #ifndef _I386_CURRENT_H
+ #define _I386_CURRENT_H
+ 
++#include <linux/task_struct.h>
+ #include <asm/thread_info.h>
+-
+-struct task_struct;
+ 
+ static inline struct task_struct * get_current(void)
+ {
 
-So ata_ioctl() in ioctl.c needs trivial fix, untested one attached :).
-It removes checks for CAP_SYS_ADMIN from HDIO_GET_* ioctls and adds
-missing one to BLKRRPART ioctl (re-read partition table).
+--- linux-2.5.24/include/asm-ia64/current.h	Fri Jun 21 00:53:48 2002
++++ linux-2.5.24-task_struct/include/asm-ia64/current.h	Sun Jun 30 22:08:45 2002
+@@ -1,6 +1,8 @@
+ #ifndef _ASM_IA64_CURRENT_H
+ #define _ASM_IA64_CURRENT_H
+ 
++#include <linux/task_struct.h>
++
+ /*
+  * Copyright (C) 1998-2000 Hewlett-Packard Co
+  *	David Mosberger-Tang <davidm@hpl.hp.com>
 
-> access to /dev/hdX. If this change is intentional, I'll recommend VMware
-> to gain priviledges around disk geometry accesses, but I do not think that
-> user should need SYS_ADMIN for retrieving disk geometry.
-> 					Thanks,
-> 						Petr Vandrovec
-> 						vandrove@vc.cvut.cz
+--- linux-2.5.24/include/asm-m68k/current.h	Fri Jun 21 00:53:44 2002
++++ linux-2.5.24-task_struct/include/asm-m68k/current.h	Sun Jun 30 22:08:58 2002
+@@ -1,6 +1,8 @@
+ #ifndef _M68K_CURRENT_H
+ #define _M68K_CURRENT_H
+ 
++#include <linux/task_struct.h>
++
+ register struct task_struct *current __asm__("%a2");
+ 
+ #endif /* !(_M68K_CURRENT_H) */
 
-Greets.
---
-Bartlomiej
+--- linux-2.5.24/include/asm-mips/current.h	Fri Jun 21 00:53:44 2002
++++ linux-2.5.24-task_struct/include/asm-mips/current.h	Sun Jun 30 22:09:37 2002
+@@ -11,6 +11,8 @@
+ 
+ #ifdef _LANGUAGE_C
+ 
++#include <linux/task_struct.h>
++
+ /* MIPS rules... */
+ register struct task_struct *current asm("$28");
+ 
 
----559023410-1804928587-1025469300=:4857
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ioctls-fix.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.SOL.4.30.0206302235000.4857@mion.elka.pw.edu.pl>
-Content-Description: 
-Content-Disposition: attachment; filename="ioctls-fix.diff"
+--- linux-2.5.24/include/asm-mips64/current.h	Fri Jun 21 00:53:45 2002
++++ linux-2.5.24-task_struct/include/asm-mips64/current.h	Sun Jun 30 22:09:43 2002
+@@ -10,6 +10,8 @@
+ 
+ #ifdef _LANGUAGE_C
+ 
++#include <linux/task_struct.h>
++
+ /* MIPS rules... */
+ register struct task_struct *current asm("$28");
+ 
 
-LS0tIGxpbnV4LTIuNS4yNC9kcml2ZXJzL2lkZS9pb2N0bC5jCVdlZCBKdW4g
-MjYgMDA6MDI6NTMgMjAwMg0KKysrIGxpbnV4L2RyaXZlcnMvaWRlL2lvY3Rs
-LmMJU3VuIEp1biAzMCAyMjoxNjo1MCAyMDAyDQpAQCAtMTIyLDkgKzEyMiw2
-IEBADQogCQljYXNlIEhESU9fR0VUXzMyQklUOiB7DQogCQkJdW5zaWduZWQg
-bG9uZyB2YWwgPSBkcml2ZS0+Y2hhbm5lbC0+aW9fMzJiaXQ7DQogDQotCQkJ
-aWYgKCFjYXBhYmxlKENBUF9TWVNfQURNSU4pKQ0KLQkJCQlyZXR1cm4gLUVB
-Q0NFUzsNCi0NCiAJCQlpZiAocHV0X3VzZXIodmFsLCAodW5zaWduZWQgbG9u
-ZyAqKSBhcmcpKQ0KIAkJCQlyZXR1cm4gLUVGQVVMVDsNCiAJCQlyZXR1cm4g
-MDsNCkBAIC0xNzIsOSArMTY5LDYgQEANCiAJCWNhc2UgSERJT19HRVRfVU5N
-QVNLSU5UUjogew0KIAkJCXVuc2lnbmVkIGxvbmcgdmFsID0gZHJpdmUtPmNo
-YW5uZWwtPnVubWFzazsNCiANCi0JCQlpZiAoIWNhcGFibGUoQ0FQX1NZU19B
-RE1JTikpDQotCQkJCXJldHVybiAtRUFDQ0VTOw0KLQ0KIAkJCWlmIChwdXRf
-dXNlcih2YWwsICh1bnNpZ25lZCBsb25nICopIGFyZykpDQogCQkJCXJldHVy
-biAtRUZBVUxUOw0KIA0KQEAgLTIwMiw5ICsxOTYsNiBAQA0KIAkJY2FzZSBI
-RElPX0dFVF9ETUE6IHsNCiAJCQl1bnNpZ25lZCBsb25nIHZhbCA9IGRyaXZl
-LT51c2luZ19kbWE7DQogDQotCQkJaWYgKCFjYXBhYmxlKENBUF9TWVNfQURN
-SU4pKQ0KLQkJCQlyZXR1cm4gLUVBQ0NFUzsNCi0NCiAJCQlpZiAocHV0X3Vz
-ZXIodmFsLCAodW5zaWduZWQgbG9uZyAqKSBhcmcpKQ0KIAkJCQlyZXR1cm4g
-LUVGQVVMVDsNCiANCkBAIC0yMzYsOSArMjI3LDYgQEANCiAJCQlzdHJ1Y3Qg
-aGRfZ2VvbWV0cnkgKmxvYyA9IChzdHJ1Y3QgaGRfZ2VvbWV0cnkgKikgYXJn
-Ow0KIAkJCXVuc2lnbmVkIHNob3J0IGJpb3NfY3lsID0gZHJpdmUtPmJpb3Nf
-Y3lsOyAvKiB0cnVuY2F0ZSAqLw0KIA0KLQkJCWlmICghY2FwYWJsZShDQVBf
-U1lTX0FETUlOKSkNCi0JCQkJcmV0dXJuIC1FQUNDRVM7DQotDQogCQkJaWYg
-KCFsb2MgfHwgKGRyaXZlLT50eXBlICE9IEFUQV9ESVNLICYmIGRyaXZlLT50
-eXBlICE9IEFUQV9GTE9QUFkpKQ0KIAkJCQlyZXR1cm4gLUVJTlZBTDsNCiAN
-CkBAIC0yNjEsOSArMjQ5LDYgQEANCiAJCWNhc2UgSERJT19HRVRHRU9fQklH
-X1JBVzogew0KIAkJCXN0cnVjdCBoZF9iaWdfZ2VvbWV0cnkgKmxvYyA9IChz
-dHJ1Y3QgaGRfYmlnX2dlb21ldHJ5ICopIGFyZzsNCiANCi0JCQlpZiAoIWNh
-cGFibGUoQ0FQX1NZU19BRE1JTikpDQotCQkJCXJldHVybiAtRUFDQ0VTOw0K
-LQ0KIAkJCWlmICghbG9jIHx8IChkcml2ZS0+dHlwZSAhPSBBVEFfRElTSyAm
-JiBkcml2ZS0+dHlwZSAhPSBBVEFfRkxPUFBZKSkNCiAJCQkJcmV0dXJuIC1F
-SU5WQUw7DQogDQpAQCAtMjg0LDggKzI2OSw2IEBADQogCQl9DQogDQogCQlj
-YXNlIEhESU9fR0VUX0lERU5USVRZOg0KLQkJCWlmICghY2FwYWJsZShDQVBf
-U1lTX0FETUlOKSkNCi0JCQkJcmV0dXJuIC1FQUNDRVM7DQogDQogCQkJaWYg
-KG1pbm9yKGlub2RlLT5pX3JkZXYpICYgUEFSVE5fTUFTSykNCiAJCQkJcmV0
-dXJuIC1FSU5WQUw7DQpAQCAtMjk5LDggKzI4Miw2IEBADQogCQkJcmV0dXJu
-IDA7DQogDQogCQljYXNlIEhESU9fR0VUX05JQ0U6DQotCQkJaWYgKCFjYXBh
-YmxlKENBUF9TWVNfQURNSU4pKQ0KLQkJCQlyZXR1cm4gLUVBQ0NFUzsNCiAN
-CiAJCQlyZXR1cm4gcHV0X3VzZXIoZHJpdmUtPmRzY19vdmVybGFwIDw8IElE
-RV9OSUNFX0RTQ19PVkVSTEFQIHwNCiAJCQkJCWRyaXZlLT5hdGFwaV9vdmVy
-bGFwIDw8IElERV9OSUNFX0FUQVBJX09WRVJMQVAsDQpAQCAtMzIzLDggKzMw
-NCw2IEBADQogCQkJcmV0dXJuIDA7DQogDQogCQljYXNlIEhESU9fR0VUX0JV
-U1NUQVRFOg0KLQkJCWlmICghY2FwYWJsZShDQVBfU1lTX0FETUlOKSkNCi0J
-CQkJcmV0dXJuIC1FQUNDRVM7DQogDQogCQkJaWYgKHB1dF91c2VyKGRyaXZl
-LT5jaGFubmVsLT5idXNfc3RhdGUsIChsb25nICopYXJnKSkNCiAJCQkJcmV0
-dXJuIC1FRkFVTFQ7DQpAQCAtMzYyLDYgKzM0MSw5IEBADQogCQkJcmV0dXJu
-IGJsb2NrX2lvY3RsKGlub2RlLT5pX2JkZXYsIGNtZCwgYXJnKTsNCiANCiAJ
-CWNhc2UgQkxLUlJQQVJUOiAvKiBSZS1yZWFkIHBhcnRpdGlvbiB0YWJsZXMg
-Ki8NCisJCQlpZiAoIWNhcGFibGUoQ0FQX1NZU19BRE1JTikpDQorCQkJCXJl
-dHVybiAtRUFDQ0VTOw0KKw0KIAkJCXJldHVybiBhdGFfcmV2YWxpZGF0ZShp
-bm9kZS0+aV9yZGV2KTsNCiANCiAJCWNhc2UgQkxLR0VUU0laRToNCg==
----559023410-1804928587-1025469300=:4857--
+--- linux-2.5.24/include/asm-parisc/current.h	Fri Jun 21 00:53:53 2002
++++ linux-2.5.24-task_struct/include/asm-parisc/current.h	Sun Jun 30 22:10:04 2002
+@@ -1,9 +1,8 @@
+ #ifndef _PARISC_CURRENT_H
+ #define _PARISC_CURRENT_H
+ 
++#include <linux/task_struct.h>
+ #include <asm/processor.h>
+-
+-struct task_struct;
+ 
+ static inline struct task_struct * get_current(void)
+ {
+
+--- linux-2.5.24/include/asm-ppc/current.h	Fri Jun 21 00:53:45 2002
++++ linux-2.5.24-task_struct/include/asm-ppc/current.h	Sun Jun 30 22:10:22 2002
+@@ -5,6 +5,8 @@
+ #ifndef _PPC_CURRENT_H
+ #define _PPC_CURRENT_H
+ 
++#include <linux/task_struct.h>
++
+ /*
+  * We keep `current' in r2 for speed.
+  */
+
+--- linux-2.5.24/include/asm-ppc64/current.h	Fri Jun 21 00:53:45 2002
++++ linux-2.5.24-task_struct/include/asm-ppc64/current.h	Sun Jun 30 22:10:29 2002
+@@ -1,6 +1,8 @@
+ #ifndef _PPC64_CURRENT_H
+ #define _PPC64_CURRENT_H
+ 
++#include <linux/task_struct.h>
++
+ /*
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+
+--- linux-2.5.24/include/asm-s390/current.h	Fri Jun 21 00:53:51 2002
++++ linux-2.5.24-task_struct/include/asm-s390/current.h	Sun Jun 30 22:10:38 2002
+@@ -13,9 +13,8 @@
+ 
+ #ifdef __KERNEL__
+ 
++#include <linux/task_struct.h>
+ #include <asm/thread_info.h>
+-
+-struct task_struct;
+ 
+ static inline struct task_struct * get_current(void)
+ {
+
+--- linux-2.5.24/include/asm-s390x/current.h	Fri Jun 21 00:53:57 2002
++++ linux-2.5.24-task_struct/include/asm-s390x/current.h	Sun Jun 30 22:10:45 2002
+@@ -13,9 +13,8 @@
+ 
+ #ifdef __KERNEL__
+ 
++#include <linux/task_struct.h>
+ #include <asm/thread_info.h>
+-
+-struct task_struct;
+ 
+ static inline struct task_struct * get_current(void)
+ {
+
+--- linux-2.5.24/include/asm-sh/current.h	Fri Jun 21 00:53:51 2002
++++ linux-2.5.24-task_struct/include/asm-sh/current.h	Sun Jun 30 22:10:57 2002
+@@ -6,7 +6,7 @@
+  *
+  */
+ 
+-struct task_struct;
++#include <linux/task_struct.h>
+ 
+ static __inline__ struct task_struct * get_current(void)
+ {
+
+--- linux-2.5.24/include/asm-sparc/current.h	Fri Jun 21 00:53:44 2002
++++ linux-2.5.24-task_struct/include/asm-sparc/current.h	Sun Jun 30 22:11:04 2002
+@@ -1,6 +1,8 @@
+ #ifndef _SPARC_CURRENT_H
+ #define _SPARC_CURRENT_H
+ 
++#include <linux/task_struct.h>
++
+ /* Sparc rules... */
+ register struct task_struct *current asm("g6");
+ 
+
+--- linux-2.5.24/include/asm-sparc64/current.h	Fri Jun 21 00:53:42 2002
++++ linux-2.5.24-task_struct/include/asm-sparc64/current.h	Sun Jun 30 22:11:10 2002
+@@ -1,6 +1,7 @@
+ #ifndef _SPARC64_CURRENT_H
+ #define _SPARC64_CURRENT_H
+ 
++#include <linux/task_struct.h>
+ #include <asm/thread_info.h>
+ 
+ register struct task_struct *current asm("g4");
+
+--- linux-2.5.24/include/asm-x86_64/current.h	Fri Jun 21 00:53:43 2002
++++ linux-2.5.24-task_struct/include/asm-x86_64/current.h	Sun Jun 30 22:11:32 2002
+@@ -2,8 +2,8 @@
+ #define _X86_64_CURRENT_H
+ 
+ #if !defined(__ASSEMBLY__) 
+-struct task_struct;
+ 
++#include <linux/task_struct.h>
+ #include <asm/pda.h>
+ 
+ static inline struct task_struct *get_current(void) 
+

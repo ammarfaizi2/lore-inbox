@@ -1,114 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVBISVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbVBISYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbVBISVb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 13:21:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbVBISVb
+	id S261887AbVBISYl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 13:24:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbVBISYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 13:21:31 -0500
-Received: from mail.xor.at ([62.99.218.147]:7114 "EHLO merkur.xor.at")
-	by vger.kernel.org with ESMTP id S261882AbVBISUt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 13:20:49 -0500
-Message-ID: <420A547A.4000008@xor.at>
-Date: Wed, 09 Feb 2005 19:20:42 +0100
-From: Johannes Resch <jr@xor.at>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Wed, 9 Feb 2005 13:24:41 -0500
+Received: from modemcable096.213-200-24.mc.videotron.ca ([24.200.213.96]:55432
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261887AbVBISYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 13:24:34 -0500
+Date: Wed, 9 Feb 2005 13:24:06 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@localhost.localdomain
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: Larry McVoy <lm@bitmover.com>, Roman Zippel <zippel@linux-m68k.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, Stelian Pop <stelian@popies.net>,
+       Francois Romieu <romieu@fr.zoreil.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+In-Reply-To: <9e473391050209093856ce68bd@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0502091313350.7836@localhost.localdomain>
+References: <20050208155845.GB14505@bitmover.com>  <Pine.LNX.4.61.0502081942200.6118@scrub.home>
+  <20050209000733.GA6308@thunk.org>  <Pine.LNX.4.61.0502090208580.6118@scrub.home>
+  <9e47339105020818242fd9f6fa@mail.gmail.com>  <Pine.LNX.4.61.0502090328490.30794@scrub.home>
+  <20050209023928.GB4828@bitmover.com>  <Pine.LNX.4.61.0502090346470.30794@scrub.home>
+  <20050209034030.GC4828@bitmover.com>  <Pine.LNX.4.61.0502091128070.7836@localhost.localdomain>
+ <9e473391050209093856ce68bd@mail.gmail.com>
 MIME-Version: 1.0
-To: linux-ide@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Problem on SATA-disk with Promise SATAII 150 TX4 ("DriveReady SeekComplete
- Error")
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.16; AVE: 6.29.0.11; VDF: 6.29.0.114; host: mail.xor.at)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 9 Feb 2005, Jon Smirl wrote:
 
-[please CC me on replies]
+> On Wed, 9 Feb 2005 12:17:48 -0500 (EST), Nicolas Pitre <nico@cam.org> wrote:
+> > On Tue, 8 Feb 2005, Larry McVoy wrote:
+> > 
+> > Larry, why can't you compete only on the tool instead of claiming
+> > exclusive rights on the test bench as well?
+> 
+> Nicolas, Larry has not said he won't make the changes that Roman
+> wants, instead he has said he won't make the changes for FREE!.  There
+> is a perfectly reasonable solution. Raise the funds to pay for the
+> needed changes.
 
-I've got a box running 2.6.10 (with the patch[0] needed to support the 
-Promise SATAII 150 TX4 controller).
-This box has three software raid1 partitions mirrored on a SATA disk on 
-the Promise controller and a disk on the mainboard IDE controller (VIA 
-vt8235).
+I'm not talking about Roman at all here.  Quoting the relevant message:
 
-Within 4 days running the raid1, I got those three errors pasted below, 
-each marking the SATA-raidmember as faulty. After "raidhotremove" and 
-"raidhotadd" the SATA-raidmember syncs again fine and works at least a 
-day until it is marked as faulty again.
+On Tue, 8 Feb 2005, Stelian Pop wrote:
 
-Any pointers where I could look at to resolve this problem?
-The SATA drive is a new Seagate ST3250823AS.
+> What you could make available in the bkcvs export would be, for each
+> changeset (both for the changesets and for the merged changesets),
+> include three BKRevs:  the changeset's one, the changeset's parent one,
+> and the changeset's merge parent one.
+>
+> That information could be used to reconstruct the entire tree,
+> using either bk-commit-head (preferred) or bkbits, provided you
+> put the BKRev: tag into the bk-commit-head posts too.
+>
+> Technicaly speaking this should be very easy for you to implement.
 
-Feb  6 04:49:04 mars kernel: ata4: status=0x51 { DriveReady SeekComplete 
-Error }
-Feb  6 04:49:04 mars kernel: SCSI error : <3 0 0 0> return code = 0x8000002
-Feb  6 04:49:04 mars kernel: FMK Current sda: sense = 70 88
-Feb  6 04:49:04 mars kernel: ASC=40 ASCQ=c0
-Feb  6 04:49:04 mars kernel: end_request: I/O error, dev sda, sector 
-311900096
-Feb  6 04:49:04 mars kernel: raid1: Disk failure on sda2, disabling device.
-Feb  6 04:49:04 mars kernel: ^IOperation continuing on 1 devices
-Feb  6 04:49:04 mars kernel: raid1: sda2: rescheduling sector 302518136
-Feb  6 04:49:04 mars kernel: RAID1 conf printout:
-Feb  6 04:49:04 mars kernel:  --- wd:1 rd:2
-Feb  6 04:49:04 mars kernel:  disk 0, wo:1, o:0, dev:sda2
-Feb  6 04:49:04 mars kernel:  disk 1, wo:0, o:1, dev:hda2
-Feb  6 04:49:04 mars kernel: RAID1 conf printout:
-Feb  6 04:49:05 mars kernel:  --- wd:1 rd:2
-Feb  6 04:49:05 mars kernel:  disk 1, wo:0, o:1, dev:hda2
-Feb  6 04:49:05 mars kernel: raid1: hda2: redirecting sector 302518136 
-to another mirror
+I'm sure it's not the actual developer cost which is in cause here.
 
-Feb  7 06:25:18 mars kernel: ata4: status=0x51 { DriveReady SeekComplete 
-Error }
-Feb  7 06:25:18 mars kernel: SCSI error : <3 0 0 0> return code = 0x8000002
-Feb  7 06:25:18 mars kernel: FMK Current sda: sense = 70 88
-Feb  7 06:25:18 mars kernel: ASC=40 ASCQ=c0
-Feb  7 06:25:18 mars kernel: end_request: I/O error, dev sda, sector 
-364654755
-Feb  7 06:25:18 mars kernel: raid1: Disk failure on sda5, disabling device.
-Feb  7 06:25:18 mars kernel: ^IOperation continuing on 1 devices
-Feb  7 06:25:18 mars kernel: raid1: sda5: rescheduling sector 3706272
-Feb  7 06:25:18 mars kernel: RAID1 conf printout:
-Feb  7 06:25:18 mars kernel:  --- wd:1 rd:2
-Feb  7 06:25:18 mars kernel:  disk 0, wo:1, o:0, dev:sda5
-Feb  7 06:25:18 mars kernel:  disk 1, wo:0, o:1, dev:hda5
-Feb  7 06:25:18 mars kernel: RAID1 conf printout:
-Feb  7 06:25:18 mars kernel:  --- wd:1 rd:2
-Feb  7 06:25:18 mars kernel:  disk 1, wo:0, o:1, dev:hda5
-Feb  7 06:25:18 mars kernel: raid1: hda5: redirecting sector 3706272 to 
-another mirror
+Larry turned it down with the usual "we're'll fear you if we do that" 
+answer although I still have problems seeing why BK would be suplented 
+with that info available.  The SCM problem is much much more than just a 
+tree to bench test on.
 
-Feb  9 06:25:02 mars kernel: ata4: status=0x51 { DriveReady SeekComplete 
-Error }
-Feb  9 06:25:02 mars kernel: SCSI error : <3 0 0 0> return code = 0x8000002
-Feb  9 06:25:02 mars kernel: FMK Current sda: sense = 70 88
-Feb  9 06:25:02 mars kernel: ASC=40 ASCQ=c0
-Feb  9 06:25:02 mars kernel: end_request: I/O error, dev sda, sector 
-310063304
-Feb  9 06:25:02 mars kernel: raid1: Disk failure on sda2, disabling device.
-Feb  9 06:25:02 mars kernel: ^IOperation continuing on 1 devices
-Feb  9 06:25:02 mars kernel: raid1: sda2: rescheduling sector 300681344
-Feb  9 06:25:02 mars kernel: RAID1 conf printout:
-Feb  9 06:25:02 mars kernel:  --- wd:1 rd:2
-Feb  9 06:25:02 mars kernel:  disk 0, wo:1, o:0, dev:sda2
-Feb  9 06:25:02 mars kernel:  disk 1, wo:0, o:1, dev:hda2
-Feb  9 06:25:02 mars kernel: RAID1 conf printout:
-Feb  9 06:25:02 mars kernel:  --- wd:1 rd:2
-Feb  9 06:25:02 mars kernel:  disk 1, wo:0, o:1, dev:hda2
-Feb  9 06:25:02 mars kernel: raid1: hda2: redirecting sector 300681344 
-to another mirror
+So if Larry could realize that he has nothing to fear even if that info 
+is available to the competition, he might even spend less time debating 
+this stupid topic over and over and dedicate his time to more rentable 
+activities, actually making more money as a result.
 
 
-[0] http://marc.theaimsgroup.com/?l=linux-ide&m=110426005503319&q=raw
-
-
-Best regards,
--jr
-
+Nicolas

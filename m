@@ -1,49 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263010AbUKYHaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263005AbUKYH2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263010AbUKYHaw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Nov 2004 02:30:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbUKYHav
+	id S263005AbUKYH2r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Nov 2004 02:28:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbUKYH2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Nov 2004 02:30:51 -0500
-Received: from rev.193.226.233.139.euroweb.hu ([193.226.233.139]:64981 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S263007AbUKYHaW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Nov 2004 02:30:22 -0500
-To: bulb@ucw.cz
-CC: avi@argo.co.il, alan@lxorguk.ukuu.org.uk, torvalds@osdl.org,
-       hbryan@us.ibm.com, akpm@osdl.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, pavel@ucw.cz
-In-reply-to: <20041125062649.GB29278@vagabond> (message from Jan Hudec on Thu,
-	25 Nov 2004 07:26:49 +0100)
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com> <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org> <1100798975.6018.26.camel@localhost.localdomain> <41A47B67.6070108@argo.co.il> <E1CWwqF-0007Ng-00@dorka.pomaz.szeredi.hu> <20041125062649.GB29278@vagabond>
-Message-Id: <E1CXE4k-0000Ow-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 25 Nov 2004 08:29:58 +0100
+	Thu, 25 Nov 2004 02:28:47 -0500
+Received: from imap.gmx.net ([213.165.64.20]:29875 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263005AbUKYH2p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Nov 2004 02:28:45 -0500
+X-Authenticated: #4512188
+Message-ID: <41A589A6.6020406@gmx.de>
+Date: Thu, 25 Nov 2004 08:28:38 +0100
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041114)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Eric Sandeen <sandeen@sgi.com>
+CC: Nathan Scott <nathans@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-xfs@oss.sgi.com
+Subject: Re: [2.6.10-rc2] XFS filesystem corruption
+References: <200411221530.30325.lkml@kcore.org> <20041122155106.GG2714@holomorphy.com> <41A30D3E.9090506@gmx.de> <20041124082736.E6205230@wobbly.melbourne.sgi.com> <41A44071.9040101@gmx.de> <41A48395.60100@sgi.com>
+In-Reply-To: <41A48395.60100@sgi.com>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigC0352BB9DF78E0E8E6555B72"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigC0352BB9DF78E0E8E6555B72
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> > There are already "strange" filesystems in the kernel which cannot
-> > really get rid of dirty data.  I'm thinking of tmpfs and ramfs.
-> > Neither of them are prone to deadlock, though both of them are "worse
-> > off" than a userspace filesystem, in the sense that they have not even
-> > the remotest chance of getting rid of the dirty data.
-> > 
-> > Of course, implementing this is probably not trivial.  But I don't see
-> > it as a theoretical problem as Linus does. 
-> > 
-> > Is there something which I'm missing here?
+Eric Sandeen schrieb:
+> Prakash K. Cheemplavam wrote:
 > 
-> But they KNOW that they won't be able to get rid of the dirty data. But
-> fuse does not.
+>> Nathan Scott schrieb:
+>>
+>>> Did you see
+>>> any of those device errors since switching to ext3?
+>>
+>>
+>>
+>> No. That's why I am wondering. I read about such errors like I got 
+>> before in lkml and usually they were not fs related but libata siimage 
+>> driver related. It could be just a coincidence that it came up with 
+>> xfs, but till now (I guess 5 days now, though not 24/7 running) ext3 
+>> is behaving nicely.
+> 
+> 
+> It's almost certainly not a filesystem problem, but an IO layer problem. 
+>  Maybe you only see it with xfs due to different disk IO patterns with 
+> xfs vs. ext3...  the two will certainly be allocating & writing to the 
+> disk in different ways.
 
-Why not?  I can set bdi->memory_backed to 1 just like ramfs, implement
-my own writeback thread, and voila, no deadlock.
+Hmm, OK. When I have some hd space again. I might try to reproduce this 
+error. Whom should I bug then if it reappears?
 
-Of course I believe, that it's probably easier to tweak the page cache
-to teach it that fuse pages _can_ be written back, but not reliably
-like a disk filesystem.  And there's the small problem of limiting the
-number of writable pages allocated to FUSE.
+Cheers,
 
-Miklos
+Prakash
+
+--------------enigC0352BB9DF78E0E8E6555B72
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFBpYmqxU2n/+9+t5gRAgODAKC3zjwhU5k4rEv97iPfTUh+EtVYlwCgv6n1
+K82DDtufau9KK4KXDBYkN5s=
+=cBUq
+-----END PGP SIGNATURE-----
+
+--------------enigC0352BB9DF78E0E8E6555B72--

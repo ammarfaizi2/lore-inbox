@@ -1,52 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265939AbUBKQs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 11:48:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265941AbUBKQs6
+	id S265951AbUBKQt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 11:49:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265941AbUBKQt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 11:48:58 -0500
-Received: from dictum-ext.geekmail.cc ([204.239.179.245]:20958 "EHLO
-	mailer01.geekmail.cc") by vger.kernel.org with ESMTP
-	id S265939AbUBKQsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 11:48:55 -0500
-Message-ID: <402A5CEC.2030603@swapped.cc>
-Date: Wed, 11 Feb 2004 08:48:44 -0800
-From: Alex Pankratov <ap@swapped.cc>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Wed, 11 Feb 2004 11:49:57 -0500
+Received: from math.ut.ee ([193.40.5.125]:44453 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S265951AbUBKQtj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 11:49:39 -0500
+Date: Wed, 11 Feb 2004 18:49:36 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Takashi Iwai <tiwai@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3-rc1: snd_intel8x0 still too fast
+In-Reply-To: <s5hwu6ta7oh.wl@alsa2.suse.de>
+Message-ID: <Pine.GSO.4.44.0402111845200.19304-100000@math.ut.ee>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2.6] [2/2] hlist: remove IFs from hlist functions
-References: <4029CB7E.4030003@swapped.cc.suse.lists.linux.kernel>	<4029CF24.1070307@osdl.org.suse.lists.linux.kernel>	<4029D2D5.7070504@swapped.cc.suse.lists.linux.kernel> <p73y8ra5721.fsf@nielsen.suse.de>
-In-Reply-To: <p73y8ra5721.fsf@nielsen.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> hmm, please show /proc/asound/card0/codec97#0/ac97#0-0 and
+> ac97#0-0+regs files again?
 
-Andi Kleen wrote:
+0-0/0: Analog Devices AD1885
 
-> Alex Pankratov <ap@swapped.cc> writes:
-> 
->>
->>No, because its 'pprev' field *is* getting modified.
-> 
-> I didn't notice this before, sorry. But this could end up 
-> being a scalability problem on big SMP systems. Even though
-> the cache line of this is never read it will bounce all the
-> time between all CPUs using hlists and add considerably 
-> latency and cross node traffic. Remember Linux is supposed
-> to run well on 128 CPU machines now.
+Capabilities     : -headphone out-
+DAC resolution   : 16-bit
+ADC resolution   : 16-bit
+3D enhancement   : Analog Devices Phat Stereo
 
-That's a bit above my head. How does this potential latency
-compare to the speed up due to not having CMPs ? My cycle
-counting skills are a bit dusty :)
+Current setup
+Mic gain         : +0dB [+0dB]
+POP path         : pre 3D
+Sim. stereo      : off
+3D enhancement   : off
+Loudness         : off
+Mono output      : MIX
+Mic select       : Mic1
+ADC/DAC loopback : off
+Extended ID      : codec=0 rev=0 DSA=0 VRA
+Extended status  : VRA
+PCM front DAC    : 18901Hz
+PCM ADC          : 48000Hz
 
-> 
-> Maybe you can make it UP only, but I'm still not sure it's 
-> worth it.
-> 
 
-Sorry, I didn't the 'UP' part.
+
+AD18XX configuration
+Unchained        : 0x1000,0x0000,0x0000
+Chained          : 0x0000,0x0000,0x0000
+
+(this is after playing it 22 KHz)
+
+0:00 = 0410
+0:02 = bf3f
+0:04 = 1010
+0:06 = 801f
+0:08 = 0000
+0:0a = 801e
+0:0c = 801f
+0:0e = 801f
+0:10 = 9f1f
+0:12 = 9f1f
+0:14 = 9f1f
+0:16 = 9f1f
+0:18 = 0909
+0:1a = 0000
+0:1c = 0000
+0:1e = 0000
+0:20 = 0000
+0:22 = 0000
+0:24 = 0000
+0:26 = 000f
+0:28 = 0001
+0:2a = 0001
+0:2c = 49d5
+0:2e = 0000
+0:30 = 0000
+0:32 = bb80
+0:34 = 0000
+0:36 = 0000
+0:38 = 0000
+0:3a = 0000
+0:3c = 0000
+0:3e = 0000
+0:40 = 0000
+0:42 = 0000
+0:44 = 0000
+0:46 = 0000
+0:48 = 0000
+0:4a = 0000
+0:4c = 0000
+0:4e = 0000
+0:50 = 0000
+0:52 = 0000
+0:54 = 0000
+0:56 = 0000
+0:58 = 0000
+0:5a = 0000
+0:5c = 0000
+0:5e = 0000
+0:60 = 0000
+0:62 = 0000
+0:64 = 0000
+0:66 = 0000
+0:68 = 0000
+0:6a = 0000
+0:6c = 0000
+0:6e = 0000
+0:70 = 2000
+0:72 = 0300
+0:74 = 1000
+0:76 = 0000
+0:78 = bb80
+0:7a = 49d5
+0:7c = 4144
+0:7e = 5360
+
+
+And after playing a 48 KHz sound, it changes to
+PCM front DAC    : 41147Hz
+PCM ADC          : 48000Hz
+
+and regs changes to
+0:2c = a0bb
+0:7a = 49d5
+
+
+-- 
+Meelis Roos (mroos@linux.ee)
+

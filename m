@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262027AbTCHOHy>; Sat, 8 Mar 2003 09:07:54 -0500
+	id <S262031AbTCHObu>; Sat, 8 Mar 2003 09:31:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262031AbTCHOHy>; Sat, 8 Mar 2003 09:07:54 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:17670 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S262027AbTCHOHx>; Sat, 8 Mar 2003 09:07:53 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303081420.h28EKHan001241@81-2-122-30.bradfords.org.uk>
-Subject: Re: what's an OOPS
-To: ludootje@linux.be (Ludootje)
-Date: Sat, 8 Mar 2003 14:20:17 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1047131229.658.236.camel@libranet> from "Ludootje" at Mar 08, 2003 02:47:10 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S262033AbTCHObu>; Sat, 8 Mar 2003 09:31:50 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:51392 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S262031AbTCHObt>;
+	Sat, 8 Mar 2003 09:31:49 -0500
+Date: Sat, 8 Mar 2003 15:40:45 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Simmons <jsimmons@infradead.org>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] [BK updates]
+In-Reply-To: <Pine.LNX.4.44.0303080024130.20304-100000@phoenix.infradead.org>
+Message-ID: <Pine.GSO.4.21.0303081540090.8221-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've been reading LKML for a few weeks now to understand Linux
-> development better, and there's one thing I just can't understand:
-> what's an OOPS? What does it stand for, what is it?
+On Sat, 8 Mar 2003, James Simmons wrote:
+>  scripts/Makefile                           |    4 
+>  scripts/pnmtologo                          |binary
+>  scripts/pnmtologo.c                        |  523 +
 
-It's a report of a bug in the kernel, for example, if the kernel tried
-to access an invalid memory location.  It doesn't necessarily indicate
-a programming error - faulty hardware can cause an OOPS as well.
+Are you really pushing the pnmtologo binary?
 
-The following explaination may not be 100% accurate, hopefully
-somebody else will post a better one, but here goes:
+Gr{oetje,eeting}s,
 
-As far as I know it doesn't stand for anything, and the name is a
-kind-of joke, (as in, "oops, we've found a bug in the kernel").
+						Geert
 
-On X86, an OOPS contains information such as:
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Text description - something like "Unable to handle NULL pointer
-dereference".  This tells you what sort of error it is.
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-The number of the oops, (I.E. whether it was the first, second, third,
-etc, starting with 0000).
-
-The CPU it occured on, (0 on a single processor machine).  Note, I
-think that on a multi processor machine, there isn't a physical
-relationship between CPU and number, I.E. CPUs are assigned numbers on
-boot, in a semi-random fashion.
-
-The contents of the CPU's registers.
-
-A stack backtrace.
-
-The code the CPU was executing.
-
-A call trace, which is, basically, a list of functions that the
-process was in at the moment of the OOPS.  The actual numeric values
-are almost completely useless[1], because they depend on your
-particular kernel.  Only somebody who has access to the corresponding
-symbol map for that kernel can identify the actual names of the
-functions, and this is why there are often posts by developers on this
-list asking people to decode an OOPS they have posted.
-
-[1] Without it being decoded, you can still check, for example,
-whether the CPU was executing data, but it's mostly speculation.
-
-John.

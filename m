@@ -1,60 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262827AbRE0RUj>; Sun, 27 May 2001 13:20:39 -0400
+	id <S262831AbRE0RXJ>; Sun, 27 May 2001 13:23:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262828AbRE0RU3>; Sun, 27 May 2001 13:20:29 -0400
-Received: from ti34a31-0057.dialup.online.no ([130.67.66.57]:29700 "EHLO
-	anfield.bjerkeset.com") by vger.kernel.org with ESMTP
-	id <S262827AbRE0RUL>; Sun, 27 May 2001 13:20:11 -0400
-Message-ID: <3B113742.518984CD@bjerkeset.com>
-Date: Sun, 27 May 2001 19:20:02 +0200
-From: "Bjerkeset, Svein Olav" <svein.olav@bjerkeset.com>
-Reply-To: svbj@online.no
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: no, en
+	id <S262832AbRE0RW7>; Sun, 27 May 2001 13:22:59 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53516 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262831AbRE0RWt>; Sun, 27 May 2001 13:22:49 -0400
+Subject: Re: Problems with ac12 kernels and up
+To: jcwren@jcwren.com
+Date: Sun, 27 May 2001 18:20:04 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <NDBBKBJHGFJMEMHPOPEGAEEACHAA.jcwren@jcwren.com> from "John Chris Wren" at May 27, 2001 10:44:49 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: BUG?: 2.4.5 breaks reiserfs (kernel BUG)
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1544Cy-00027I-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id DAA03077
 
-Hi,
+> Checking root filesystem. /dev/hde13 is mounted.
+> Cannot continue, aboorting.
+> *** An error occurred during the file system check.
+> *** Dropping you to a shell; the system will reboot
+> *** when you leave the shell.
 
-Today I downloaded kernel 2.4.5 and compiled it. The kernel worked fine
-until
-I tried to halt the computer. When trying to unmount the reiserfs
-filesystems,
-the system freezes with the following output:
+That means the file system was mounted read/write at boot time. That normally
+indicates a lilo misconfiguration however your lilo.conf looks 
+correct.
 
-journal_begin called without kernel lock held
-kernel BUG at journal.c:423!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c01b5fb0>]
-EFLAGS: 00210282
-eax: 0000001d   ebx: c1eb1f28   ecx: c7ab2000   edx: 00000001
-esi: c13c8200   edi: 3b11320b   ebp: 0000000a   esp: c1eb1ec0
-ds: 0018   es: 0018   ss: 0018
-Process umount (pid: 1027, stackpage=c1eb1000)
-Stack: c02ef289 c02ef3e4 000001a7 c01b855b c02f0401 c1eb1f28 c13c8200
-c034e020
-       c13c8234 3b11320b 00000000 c67f55c0 c13c8200 c1eb0000 c13c8244
-c01b876e
-       c1eb1f28 c13c8200 0000000a 00000000 c01a92f8 c1eb1f28 c13c8200
-0000000a
-Call Trace: [<c01b855b>] [<c01b876e>] [<c01a92f8>] [<c0137baa>]
-[<c0137be1>] [<c0136e8c>] [<c013cecc>]
-       [<c013808d>] [<c0122f62>] [<c01380c4>] [<c0106efb>]
+Alan
 
-Code: 0f 0b 83 c4 0c c3 89 f6 31 c0 c3 90 31 c0 c3 90 56 be 40 2f
-
-
-BTW: The kernel is compiled with egcs 2.91.66
-
-Please CC to svbj@online.no as I am not subscribed to this list
-
-Svein Olav Bjerkeset
-ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨ş)ß£ømšSåy«­æ¶…­†ÛiÿÿğÃí»è®å’i

@@ -1,45 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbVCZDrn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261933AbVCZDs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbVCZDrn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 22:47:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbVCZDrn
+	id S261933AbVCZDs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 22:48:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbVCZDs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 22:47:43 -0500
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:18725 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S261930AbVCZDrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 22:47:41 -0500
-Message-Id: <200503260347.AXR12129@mira-sjc5-e.cisco.com>
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "'Chris Wright'" <chrisw@osdl.org>, <linux-kernel@vger.kernel.org>
-Cc: <greg@kroah.com>, <torvalds@osdl.org>, <akpm@osdl.org>
-Subject: RE: Linux 2.6.11.6
-Date: Fri, 25 Mar 2005 19:47:36 -0800
-Organization: Cisco Systems
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Fri, 25 Mar 2005 22:48:56 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:25188 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261933AbVCZDsh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 22:48:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=rOe9I7sWrVv7swRFan7HX5I4gOpTQrpOrZ9Qi2AIh0LTdt5hDxGrJ1SRRerpj2b0xDpinRmqv7hc95fY5fVxYXHiP9SpA4R5lMtUW8DKYigJlD2FhRMA/4X5l+PPGIkfBLrR3rVKrdAllD00yIMxY5XmaEoW8ap6SjhRrwHfgHA=
+Message-ID: <cce9e37e0503251948527d322b@mail.gmail.com>
+Date: Sat, 26 Mar 2005 03:48:35 +0000
+From: Phil Lougher <phil.lougher@gmail.com>
+Reply-To: Phil Lougher <phil.lougher@gmail.com>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Squashfs without ./..
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+       phillip@lougher.demon.co.uk
+In-Reply-To: <3e74c9409b6e383b7b398fe919418d54@mac.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcUxtiviXGHe+gIiQUW8uwy17G1V3QAAC4yg
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
-In-Reply-To: <20050326034142.GW30522@shell0.pdx.osdl.net>
+References: <Pine.LNX.4.61.0503221645560.25571@yvahk01.tjqt.qr>
+	 <20050323174925.GA3272@zero>
+	 <Pine.LNX.4.62.0503241855350.18295@numbat.sonytel.be>
+	 <20050324133628.196a4c41.Tommy.Reynolds@MegaCoder.com>
+	 <d1v67l$4dv$1@terminus.zytor.com>
+	 <3e74c9409b6e383b7b398fe919418d54@mac.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >  int bt_sock_unregister(int proto)
->  {
-> -	if (proto >= BT_MAX_PROTO)
-> +	if (proto < 0 || proto >= BT_MAX_PROTO)
->  		return -EINVAL;
+On Thu, 24 Mar 2005 15:13:08 -0500, Kyle Moffett <mrmacman_g4@mac.com> wrote:
+> I would add ".." and "." to squashfs, just so that it acts like the rest
+> of the filesystems on the planet,
 
-Just curious: would it be better to say
+Cramfs also doesn't store '.' and '..', which is where I got the idea
+from in the first place when originally implementing Squashfs.
 
-if ((unsigned int)proto >= BT_MAX_PTORO)
+Filesystems don't need to store '.' or ''..' in the filesystem, as
+they're never looked up by the VFS - as mentioned elsewhere in this
+thread, the VFS handles '.' and '..' internally.
 
-?
+Not storing the redundant '.' and '..' entries within the filesystem
+achieves a small but nonetheless useful space saving.
 
-Is it faster too?
+> even if it has to emulate them
+> internally.
 
-Hua
+Making readdir return '.' and '..' is trivially easy, as all the
+required information to fake '.' and '..' entries are present.
+
+The lack of '.' and '..' entries hasn't caused any problems despite
+cramfs/squashfs being used for a large number of years.  I'm inclined
+to believe any application that _relies_ on seeing '.' and '..'
+returned by readdir is broken.  This situation is easily fixed within
+the application rather than forcing the filesystem to unnecessarily
+fake '.' and '..' entries which are never used.
+
+> OTOH, I think that the default behavior of find is broken
+> and should probably be fixed, maybe by making the default use the full
+> readdir and optionally allowing a -fast option that optimizes the
+> search using such tricks.
+> 
+
+Cramfs/Squashfs and other filesystems set the link count on files and
+directories to 1, find correctly interprets this to mean it can't do
+any of its 'tricks' and doesn't use any optimisations.
+
+Phillip

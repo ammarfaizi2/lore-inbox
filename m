@@ -1,42 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbTJRNKh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 09:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbTJRNKh
+	id S261601AbTJRNCu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 09:02:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbTJRNCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 09:10:37 -0400
-Received: from smtp.sys.beep.pl ([195.245.198.13]:30728 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S261613AbTJRNKg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 09:10:36 -0400
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: linux-kernel@vger.kernel.org
-Subject: initrd and 2.6.0-test8
-Date: Sat, 18 Oct 2003 15:05:16 +0200
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
+	Sat, 18 Oct 2003 09:02:50 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:13784 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S261601AbTJRNCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 09:02:48 -0400
+Date: Sat, 18 Oct 2003 15:02:34 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Torben Mathiasen <torben.mathiasen@hp.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFT][PATCH] fix ServerWorks PIO auto-tuning
+Message-ID: <20031018130234.GA28095@louise.pinerecords.com>
+References: <200310162344.09021.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310181505.16184.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+In-Reply-To: <200310162344.09021.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Oct-16 2003, Thu, 23:44 +0200
+Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
 
-Seems that something changed between test7 and test8 regarding initrd or romfs 
-support. I'm using highly modularized 2.6.0 kernel which has all filesystems 
-beside romfs compiled as modules (romfs is compiled inside of kernel).
+> I wonder if this patch fixes problems (reported back in 2.4.21 days)
+> with CSB5 IDE and Compaq Proliant machines.  Please test it if you can.
 
-Modules for my rootfs are loaded from initrd (which is image with romfs as 
-filesystem) but starting from test8 kernel is not able to mount initrd 
-filesystem - stops with typical message about not being able to mount rootfs.
+Still, there's one prevailing problem:
 
-cset test7 from 20031012_0407 is known to be ok so something was changed later
+Compaq Proliant ML350 G3
+ServerWorks CSB5 IDE Controller (rev 93) (prog-if 8a [Master SecP PriP])
+WDC WD1200JB-00CRA1 as hdb
+
+No autodma on boot, even w/ 2.4.23-pre7 + the pio autotuning fix:
+
+Linux version 2.4.23-pre7 (kala@ns) (gcc version 2.95.3 20010315 (release)) #1 SMP Sat Oct 18 14:40:16 CEST 2003
+Kernel command line: root=/dev/md0 vga=normal
+...
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+SvrWks CSB5: IDE controller at PCI slot 00:0f.1
+SvrWks CSB5: chipset revision 147
+SvrWks CSB5: not 100% native mode: will probe irqs later
+SvrWks CSB5: simplex device: DMA forced
+    ide0: BM-DMA at 0x2000-0x2007, BIOS settings: hda:pio, hdb:pio
+SvrWks CSB5: simplex device: DMA forced
+    ide1: BM-DMA at 0x2008-0x200f, BIOS settings: hdc:pio, hdd:pio
+hda: HL-DT-ST CD-ROM GCR-8480B, ATAPI CD/DVD-ROM drive
+hdb: WDC WD1200JB-00CRA1, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hdb: attached ide-disk driver.
+hdb: host protected area => 1
+hdb: 234441648 sectors (120034 MB) w/8192KiB Cache, CHS=232581/16/63
+hda: attached ide-cdrom driver.
+hda: ATAPI 48X CD-ROM drive, 128kB Cache
+...
+
+devel:~# hdparm -Iv /dev/hdb|grep -a dma
+ using_dma    =  0 (off)
+        DMA: mdma0 mdma1 *mdma2 udma0 udma1 udma2 udma3 udma4 udma5 
+
+After issuing "/usr/sbin/hdparm -d1 -Xudma5 /dev/hdb" all's running nicely,
+no errors whatsoever.
+
+devel:/etc/rc.d# hdparm -Iv /dev/hdb|grep -a dma
+ using_dma    =  1 (on)
+        DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5 
+
 -- 
-Arkadiusz Mi¶kiewicz    CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux
-
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318085AbSIOQfl>; Sun, 15 Sep 2002 12:35:41 -0400
+	id <S318113AbSIOQof>; Sun, 15 Sep 2002 12:44:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318101AbSIOQfl>; Sun, 15 Sep 2002 12:35:41 -0400
-Received: from dsl-213-023-039-078.arcor-ip.net ([213.23.39.78]:29313 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318085AbSIOQfl>;
-	Sun, 15 Sep 2002 12:35:41 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Daniel Berlin <dberlin@dberlin.org>
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-Date: Sun, 15 Sep 2002 18:41:50 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       David Brownell <david-b@pacbell.net>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0209150118220.25197-100000@dberlin.org>
-In-Reply-To: <Pine.LNX.4.44.0209150118220.25197-100000@dberlin.org>
+	id <S318115AbSIOQof>; Sun, 15 Sep 2002 12:44:35 -0400
+Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:36328 "EHLO
+	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
+	id <S318113AbSIOQoe>; Sun, 15 Sep 2002 12:44:34 -0400
+From: "syam" <syam@cisco.com>
+To: "Thunder from the hill" <thunder@lightweight.ods.org>
+Cc: "Richard Zidlicky" <rz@linux-m68k.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel 2.4.19 Oops error
+Date: Sun, 15 Sep 2002 09:48:04 -0700
+Message-ID: <BOEAKBEECIJEDIMOJJJOIEHFCEAA.syam@cisco.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17qcT1-0000D7-00@starship>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+In-Reply-To: <Pine.LNX.4.44.0209130911150.10048-100000@hawkeye.luckynet.adm>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 15 September 2002 07:33, Daniel Berlin wrote:
-> On Sun, 15 Sep 2002, Daniel Phillips wrote:
-> > It's getting more
-> > popular, and it would be more popular yet if it weren't considered some
-> > dirty little secret, or somehow unmanly.
-> 
-> Reminds me of "Suns boot fast" (do a google search on it, and read the 
-> first thing that comes up).
+I ran memtest on my system and it didn't complain about any holes in it. I
+still keep getting ext2_check_page() error. Any suggestions?
 
-Yes.  Using a really nice development environment is an "aha" experience.
-You can listen to people talk about it as much as you want, but if you
-have never actually used one you will never really understand what
-they're talking about, and why they get worked up about it.
+- Syam
 
-Linux is WAY WAY far from being a really nice development environment.
-It's really nice in many other ways, but not in that way.
+-----Original Message-----
+From: Thunder from the hill [mailto:thunder@lightweight.ods.org]
+Sent: Friday, September 13, 2002 8:13 AM
+To: syam
+Cc: Richard Zidlicky; linux-kernel@vger.kernel.org
+Subject: RE: Kernel 2.4.19 Oops error
 
-For example, there is no excuse for ever needing more than 1/4 second
-to get from the function you're looking at on the screen to its
-definition and source text, ready to read or edit.
 
-There's no excuse for having to copy down an oops from a screen by
-hand, either.  It's nice to know you can fall back to this if you have
-to, but having that be the default way of working is just broken.
+Hi,
 
-There's no excuse for having to pepper low level code with printk's
-to bracket a simple segfault.
+On Fri, 13 Sep 2002, syam wrote:
+> Will running memtest fix the corruption?
 
-OK, I'll stop there.  Actually, the only thing I'm really irritated
-about at the moment is the attitude of people who should know better,
-promoting the fiction that this veggie-zen-tools-made-out-of-wood
-thing is actually helping the kernel progress faster.
+No, but it will detect holes in your memory. Sometimes this bad memory can
+be blacklisted, but badness is known to spread...
 
-I suppose I'm going about this the wrong way, since directly pointing
-out wrong-headed thinking usually just causes a defensive reaction
-and puts people in a position where they're reluctant to back down
-for fear of losing karma.  Well, then.  Listen to Andrew.  He knows
-whereof he speaks, and plus he's nice about it, unlike me.
+If the memory is just too hot, youre well off. Otherwise you might have to
+get some new.
 
--- 
-Daniel
+
+			Thunder
+--
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
+

@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262688AbTC0AMR>; Wed, 26 Mar 2003 19:12:17 -0500
+	id <S262726AbTC0ATE>; Wed, 26 Mar 2003 19:19:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262699AbTC0AMR>; Wed, 26 Mar 2003 19:12:17 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:34312 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262688AbTC0AMQ>; Wed, 26 Mar 2003 19:12:16 -0500
-Date: Thu, 27 Mar 2003 00:23:27 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Wichert Akkerman <wichert@wiggy.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [FIX] Re: 2.5.66 new fbcon oops while loading X
-In-Reply-To: <20030326224245.GN2078@wiggy.net>
-Message-ID: <Pine.LNX.4.44.0303270023040.25001-100000@phoenix.infradead.org>
+	id <S262711AbTC0ATE>; Wed, 26 Mar 2003 19:19:04 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:59282 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262710AbTC0ATD> convert rfc822-to-8bit;
+	Wed, 26 Mar 2003 19:19:03 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Jens Axboe <axboe@suse.de>, Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: [patch for playing] 2.5.65 patch to support > 256 disks
+Date: Wed, 26 Mar 2003 16:29:34 -0800
+User-Agent: KMail/1.4.1
+Cc: Andrew Morton <akpm@digeo.com>, dougg@torque.net,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+References: <200303211056.04060.pbadari@us.ibm.com> <3E8047C7.4070009@cyberone.com.au> <20030325123502.GW2371@suse.de>
+In-Reply-To: <20030325123502.GW2371@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200303261629.34868.pbadari@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 25 March 2003 04:35 am, Jens Axboe wrote:
 
-> Previously James Simmons wrote:
-> > That is no longer true. The fb nodes should be recreated. I fixed the docs 
-> > in devices.txt
-> 
-> Fine with me, however someone might want to look at the device numbering
-> that the various Linux distros are using at this moment. I know Debian
-> is using the old numbering and I just filed a bugreport to get that
-> updated. I do expect a fair amount of people will run into this when
-> they upgrade to 2.5/2.6 kernels.
+> Only testing will tell, so yes you are very welcome to give it a shot.
+> Let me release a known working version first :)
 
-Only if they have more than one video card which is pretty small number.
+Jens,
 
+ I  found whats using 32MB out of 8192-byte slab.
 
+size-8192       before:10 after:4012 diff:4002 size:8192 incr:32784384
+
+It is deadline_init():
+
+        dd->hash = kmalloc(sizeof(struct list_head)*DL_HASH_ENTRIES,GFP_KERNEL);
+
+It is creating 8K hash table for each queue. Since we have 4000 queues,
+it used 32MB. I wonder why the current code needs 1024 hash buckets, 
+when maximum requests are only 256. And also, since you are making
+request allocation dynamic, can you change this too ? Any issues here ?
+
+Thanks,
+Badari

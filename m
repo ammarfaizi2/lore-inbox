@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312242AbSCRITg>; Mon, 18 Mar 2002 03:19:36 -0500
+	id <S312245AbSCRIT0>; Mon, 18 Mar 2002 03:19:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312243AbSCRIT0>; Mon, 18 Mar 2002 03:19:26 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:10505 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S312242AbSCRITO>;
-	Mon, 18 Mar 2002 03:19:14 -0500
-Date: Mon, 18 Mar 2002 09:18:45 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
-        alan@lxorguk.ukuu.org.uk, andrea@suse.de
-Subject: Re: [PATCH] page_to_phys() fix for >4GB pages (i386)
-Message-ID: <20020318081845.GF22756@suse.de>
-In-Reply-To: <200203152257.g2FMv9h10896@eng2.beaverton.ibm.com>
-Mime-Version: 1.0
+	id <S312243AbSCRITR>; Mon, 18 Mar 2002 03:19:17 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:17414 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S312239AbSCRITC>; Mon, 18 Mar 2002 03:19:02 -0500
+Message-ID: <3C95A291.F34986A2@zip.com.au>
+Date: Mon, 18 Mar 2002 00:17:21 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: fadvise syscall?
+In-Reply-To: <3C945635.4050101@mandrakesoft.com> <3C945A5A.9673053F@zip.com.au> <5.1.0.14.2.20020317131910.0522b490@pop.cus.cam.ac.uk> <3C959716.6040308@mandrakesoft.com> <3C959D55.14768770@zip.com.au> <3C95A031.6070107@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 15 2002, Badari Pulavarty wrote:
-> Hi,
+Jeff Garzik wrote:
 > 
-> I found that page_to_phys() is broken for pages > 4GB on x86.
-> It is truncating the physical addresses to 32bit, loosing higher
-> bits. (pci_map_sg() uses this).
+> ...
+> >Given this, I don't see a persuasive need to implement a non-standard
+> >interface.  It takes an off_t, so posix_fadvise64() is also needed.
+> >
+> agreed WRT non-standard.
 > 
-> Here is the patch to fix it. Marcelo, could you consider this
-> patch ? I have not looked at 2.5 yet, it may be needed there also.
-> 
-> Thanks,
-> Badari
-> 
-> 
-> --- linux/include/asm-i386/io.h Fri Mar 15 11:19:28 2002
-> +++ linux.new/include/asm-i386/io.h     Fri Mar 15 11:20:38 2002
-> @@ -76,7 +76,11 @@
->  /*
->   * Change "struct page" to physical address.
->   */
-> +#ifdef CONFIG_HIGHMEM64G
-> +#define page_to_phys(page)     ((u64)(page - mem_map) << PAGE_SHIFT)
-> +#else
->  #define page_to_phys(page)     ((page - mem_map) << PAGE_SHIFT)
-> +#endif
-> 
->  extern void * __ioremap(unsigned long offset, unsigned long size, unsigned long flags);
+> Are we required to have both foo and foo64 variants?  If I had my
+> druthers, I would just do the foo64 version.
 
-Ugh, this would indeed explain an unfixed problem with compaq arrays
-corrupting data with > 4gb of ram. Thanks, good spotting!
+That would be good.  I can't see a reason why
 
--- 
-Jens Axboe
+	#define posix_fadvise posix_fadvise64
 
+would not suffice.  That doesn't mean there isn't one :)
+
+-

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129318AbQKLCav>; Sat, 11 Nov 2000 21:30:51 -0500
+	id <S129281AbQKLCos>; Sat, 11 Nov 2000 21:44:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129407AbQKLCal>; Sat, 11 Nov 2000 21:30:41 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:43023 "EHLO
+	id <S129453AbQKLCo3>; Sat, 11 Nov 2000 21:44:29 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:56847 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129318AbQKLCaV>; Sat, 11 Nov 2000 21:30:21 -0500
-Date: Sat, 11 Nov 2000 18:30:07 -0800 (PST)
+	id <S129281AbQKLCoY>; Sat, 11 Nov 2000 21:44:24 -0500
+Date: Sat, 11 Nov 2000 18:43:26 -0800 (PST)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Ying Chen/Almaden/IBM <ying@almaden.ibm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] wakeup_bdflush related fixes and nfsd optimizations for
- test10
-In-Reply-To: <OF36001054.FDE8E20E-ON88256994.00619404@LocalDomain>
-Message-ID: <Pine.LNX.4.10.10011111827490.3611-100000@penguin.transmeta.com>
+To: jt@hpl.hp.com
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: The IrDA patches !!! (was Re: [RANT] Linux-IrDA status)
+In-Reply-To: <20001110132551.K26405@bougret.hpl.hp.com>
+Message-ID: <Pine.LNX.4.10.10011111842470.3611-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,23 +21,10 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sat, 11 Nov 2000, Ying Chen/Almaden/IBM wrote:
-> 
-> This patch includes two sets of things against test10:
-> First, there are several places where schedule() is called after
-> wakeup_bdflush(1) is called. This is completely unnecessary
+Ok, thanks to the work of Jean, everything seems to be applied now.
 
-Fair enough.
-
-> Second, (I have posted this to the kernel mailing list, but I forgot to cc
-> to Linus.) I made some optimizations on racache in nfsd in test10.
-
-..but this would need a lot more testing/feedback, especially from the nfs
-client maintainers (I see that Neil Brown did some querying already, I
-think more is in order). 
-
-Also, I'd _really_ like those lists to be real <linux/list.h> lists
-instead of duplicating code.
+I'll make a test3 one of these days (probably tomorrow), please verify
+that everything looks happy.
 
 		Linus
 

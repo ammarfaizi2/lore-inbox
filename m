@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261510AbSJTVgL>; Sun, 20 Oct 2002 17:36:11 -0400
+	id <S261687AbSJTVhb>; Sun, 20 Oct 2002 17:37:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261687AbSJTVgL>; Sun, 20 Oct 2002 17:36:11 -0400
-Received: from AGrenoble-101-1-3-17.abo.wanadoo.fr ([193.253.251.17]:16326
-	"EHLO awak") by vger.kernel.org with ESMTP id <S261510AbSJTVgK> convert rfc822-to-8bit;
-	Sun, 20 Oct 2002 17:36:10 -0400
-Subject: Re: Bitkeeper outrage, old and new
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Robert Love <rml@tech9.net>
-Cc: Ben Collins <bcollins@debian.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Richard Stallman <rms@gnu.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1035141319.16887.293.camel@phantasy>
-References: <20021014170248.A19897@infradead.org>
-	<E181WHl-00010N-00@fencepost.gnu.org> <20021015193138.A4010@infradead.org>
-	<200210161856.g9GIu57t013710@santafe.santafe.edu>
-	<20021016201328.A24882@infradead.org> <E1832Lh-0004xH-00@fencepost.gnu.org>
-	<20021019161201.A26017@work.bitmover.com> <3DB1EAAB.30401@pobox.com>
-	<20021020154609.GD696@phunnypharm.org> <3DB2E661.8070802@pobox.com> 
-	<20021020173438.GK696@phunnypharm.org> 
-	<1035141319.16887.293.camel@phantasy>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 20 Oct 2002 23:42:02 +0200
-Message-Id: <1035150122.967.5.camel@bip>
+	id <S261702AbSJTVhb>; Sun, 20 Oct 2002 17:37:31 -0400
+Received: from 213-97-199-90.uc.nombres.ttd.es ([213.97.199.90]:19621 "HELO
+	fargo") by vger.kernel.org with SMTP id <S261687AbSJTVha>;
+	Sun, 20 Oct 2002 17:37:30 -0400
+From: "David =?ISO-8859-1?Q?G=F3mez=22?= <david@pleyades.net>"@vax.home.local
+Date: Sun, 20 Oct 2002 23:42:27 +0200
+To: Eric Altendorf <EricAltendorf@orst.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Question: Favorite Linux kernel book?
+Message-ID: <20021020214227.GA31718@fargo>
+Mail-Followup-To: Eric Altendorf <EricAltendorf@orst.edu>,
+	linux-kernel@vger.kernel.org
+References: <200210171033.06451.EricAltendorf@orst.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200210171033.06451.EricAltendorf@orst.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le dim 20/10/2002 à 21:15, Robert Love a écrit :
-> On Sun, 2002-10-20 at 13:34, Ben Collins wrote:
-> 
-> > I disagree. I don't see anything in the copyright assignment (and I have
-> > signed a few for the FSF) that says I don't retain original copyright
-> > for my work.
-> 
-> That is only because they relicense the work back to you (and its GPLed
-> you have a lot of freedom with it anyhow).
-> 
-> When you sign over your copyright, you relinquish it.  The FSF now has
-> the copyright on your work and you do not.
+Hi Eric,
 
-You're plain wrong. 
+> I was just wondering if anyone had any recommendations for reading 
+> material to introduce the Linux kernel, design & code.
 
-You both have the copyright on your work.
+I recommend you the book 'Understanding the Linux kernel' from O'Reilly,
+though it's mainly based in 2.2 kernel, with some comments on new features
+in 2.4, still contains a lot o good information about how the kernel 'guts' ;)
+work. A book that you shouldn't miss.
 
-	Xav
+-- 
+David Gómez
 
-
+"The question of whether computers can think is just like the question of
+ whether submarines can swim." -- Edsger W. Dijkstra

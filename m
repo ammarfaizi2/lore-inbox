@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282600AbRK0TDf>; Tue, 27 Nov 2001 14:03:35 -0500
+	id <S282598AbRK0TNq>; Tue, 27 Nov 2001 14:13:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282625AbRK0TD0>; Tue, 27 Nov 2001 14:03:26 -0500
-Received: from sj1-3-1-20.iserver.com ([128.121.122.117]:16394 "EHLO
-	sj1-3-1-20.iserver.com") by vger.kernel.org with ESMTP
-	id <S282600AbRK0TDT>; Tue, 27 Nov 2001 14:03:19 -0500
-Date: Tue, 27 Nov 2001 19:03:18 +0000
-From: Nathan Myers <ncm-nospam@cantrip.org>
-To: linux-kernel@vger.kernel.org
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, alan@redhat.com,
-        torvalds@transmeta.com, marcelo@conectiva.com.br
-Subject: Re: [BUG] Bad #define, nonportable C, missing {}
-Message-ID: <20011127190318.A91208@cantrip.org>
-Mail-Followup-To: Nathan Myers <ncm-nospam@cantrip.org>,
-	linux-kernel@vger.kernel.org, vda@port.imtp.ilyichevsk.odessa.ua,
-	alan@redhat.com, torvalds@transmeta.com, marcelo@conectiva.com.br
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+	id <S282644AbRK0TNg>; Tue, 27 Nov 2001 14:13:36 -0500
+Received: from mictlan.fb10.TU-Berlin.DE ([130.149.138.230]:17536 "EHLO
+	mictlan.fb10.tu-berlin.de") by vger.kernel.org with ESMTP
+	id <S282598AbRK0TNQ>; Tue, 27 Nov 2001 14:13:16 -0500
+To: andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: patch-2.5.1-pre2 with CONFIG_BLK_DEV_IDESCSI can not compile ?
+Message-Id: <E168ncK-0003mO-00@mictlan.fb10.tu-berlin.de>
+From: erasmo perez <erasmo@mictlan.fb10.tu-berlin.de>
+Date: Tue, 27 Nov 2001 20:10:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vda wrote in http://marc.theaimsgroup.com/?l=linux-kernel&m=100687040003540&w=2:
-> On Monday 26 November 2001 18:28, Alan Cox wrote:
-> > > > MODINC(x,y) (x = (x % y) + 1)
-> > >
-> > > drivers/message/i2o/i2o_config.c:#define MODINC(x,y) (x = x++ % y)
-> > >
-> > > Alan, can you clarify what this macro is doing?
-> > > What about making it less confusing?
-> >
-> > Nothing to do with me 8). I didnt write that bit of the i2o code. I agree
-> > its both confusing and buggy. Send a fix ?
-> 
-> This is a test to be sure my replacement is equivalent:
-> --------------------
-> #include <stdio.h>
-> #define MODINC(x,y) (x = x++ % y)
-> #define MODULO_INC(x,y) ((x) = ((x)%(y))+1)
-> ...
+hello 
 
-If they really are equivalent, you have certainly found a bug.
+i think there is a bug in the 2.5.0 kernel, patched with patch-2.5.1-pre2
+the bug seems to be related with the CONFIG_BLK_DEV_IDESCSI option
+this problem does not arise with the previous patch-2.5.1-pre1 patch
 
-Examining the code in i2o_config.c, it is expected that the q_in argument 
-ranges from 0 to I2O_EVT_Q_LEN-1, but the result of MODINC can never 
-be 0, and may equal I2O_EVT_Q_LEN, overindexing the array member 
-event_q and clobbering all the remaining members (including q_in).
+the problem is that with CONFIG_BLK_DEV_IDESCSI enabled, the kernel cannot
+compile, while with this option not enabled, the kernel can compile
 
-The correct fix appears to be 
+the compilation stops with the following messages:
 
-  #define MODULO_INC(x,y) ((x) = ((x)+1)%(y))
+---
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     -c -o ide-scsi.o ide-scsi.c
+ide-scsi.c: In function `idescsi_dma_bio':
+ide-scsi.c:710: request for member `bv_page' in something not a structure or union
+ide-scsi.c:711: request for member `bv_len' in something not a structure or union
+ide-scsi.c:712: request for member `bv_offset' in something not a structure or union
+ide-scsi.c:722: request for member `bv_page' in something not a structure or union
+ide-scsi.c:723: request for member `bv_len' in something not a structure or union
+ide-scsi.c:724: request for member `bv_offset' in something not a structure or union
+make[3]: *** [ide-scsi.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/scsi'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers/scsi'
+make[1]: *** [_subdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_dir_drivers] Error 2
+---
 
-Nathan Myers
-ncm at cantrip dot org
+thank you
+
+erasmo

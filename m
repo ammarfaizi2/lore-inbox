@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261989AbREPSXs>; Wed, 16 May 2001 14:23:48 -0400
+	id <S262049AbREPSg6>; Wed, 16 May 2001 14:36:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261988AbREPSXj>; Wed, 16 May 2001 14:23:39 -0400
-Received: from [136.159.55.21] ([136.159.55.21]:23967 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S262007AbREPSXY>; Wed, 16 May 2001 14:23:24 -0400
-Date: Wed, 16 May 2001 12:22:50 -0600
-Message-Id: <200105161822.f4GIMo509185@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.LNX.4.05.10105160921220.23225-100000@callisto.of.borg>
-In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca>
-	<Pine.LNX.4.05.10105160921220.23225-100000@callisto.of.borg>
+	id <S262053AbREPSgs>; Wed, 16 May 2001 14:36:48 -0400
+Received: from hank-fep7-0.inet.fi ([194.251.242.202]:54264 "EHLO
+	fep07.tmt.tele.fi") by vger.kernel.org with ESMTP
+	id <S262049AbREPSgc>; Wed, 16 May 2001 14:36:32 -0400
+X-Mailer: Windows Eudora Light Version 1.5.2
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+From: Heikki Tuuri <Heikki.Tuuri@innobase.inet.fi>
+Subject: Why O_SYNC and fsync are slow in Linux?
+Message-Id: <20010516183630.FZOA13813.fep07.tmt.tele.fi@omnibook>
+Date: Wed, 16 May 2001 21:36:30 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven writes:
-> On Tue, 15 May 2001, Richard Gooch wrote:
-> > Alan Cox writes:
-> > > > 	len = readlink ("/proc/self/3", buffer, buflen);
-> > > > 	if (strcmp (buffer + len - 2, "cd") != 0) {
-> > > > 		fprintf (stderr, "Not a CD-ROM! Bugger off.\n");
-> > > > 		exit (1);
-> > > 
-> > > And on my box cd is the cabbage dicer whoops
-> > 
-> > Actually, no, because it's guaranteed that a trailing "/cd" is a
-> > CD-ROM. That's the standard.
-> 
-> Then  check for `/cd' at the end instead of `cd' :-)
+(Please CC your replies to me because I am not on the list.)
 
-Argh! What I wrote in text is what I meant to say. The code didn't
-match. No wonder people seemed to be missing the point. So the line of
-code I actually meant was:
-	if (strcmp (buffer + len - 3, "/cd") != 0) {
+Hi!
 
-				Regards,
+Does anyone happen to know who is responsible for the file cache and
+disk management in Linux?
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+On different systems I have measured strange differences in
+performance depending on whether I open a file with O_SYNC and
+let the operating system do the flushing of the file to disk
+after each write, or if I open without O_SYNC, and call
+fsync myself.
+
+Some observations:
+
+On Red Hat 6.2 and 7.? Intel big block writes are very slow if
+I open the file with O_SYNC. I call pwrite to write 1 MB chunks to
+the file, and I get only 1 MB/s write speed. If I open without O_SYNC
+and call fsync only after writing the whole 100 MB file,
+I get 5 MB/s. I got the same adequate speed 5 MB/s with 16 MB writes
+after which I called fdatasync.
+
+On a Linux-Compaq Alpha I measured the following: if I open with O_SYNC,
+I can flush the end of my file (it is a log file) to
+disk 170 times / second. If I do not open with O_SYNC,
+but call fsync or fdatasync after each write, I get only 50
+writes/second.
+
+On the Red Hat 7.? I get 500 writes per second if I open with O_SYNC.
+That is too much because the disk does not rotate
+500 rotations/second. Does the disk fool the operating
+system to believe a write has ended while it has not?
+
+On Windows NT I have not noticed such performance problems if
+I use non-buffered i/o to a file.
+
+I have written a database engine InnoDB under MySQL and bumped into
+these problems on Linux.
+
+Regards,
+
+Heikki Tuuri
+Innobase Oy
+http://www.innobase.fi
+

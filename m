@@ -1,39 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261409AbREQMrE>; Thu, 17 May 2001 08:47:04 -0400
+	id <S261413AbREQMsy>; Thu, 17 May 2001 08:48:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261414AbREQMqy>; Thu, 17 May 2001 08:46:54 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:34798 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S261413AbREQMqn>;
-	Thu, 17 May 2001 08:46:43 -0400
-Date: Thu, 17 May 2001 14:46:07 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200105171246.OAA32815.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, viro@math.psu.edu
-Subject: Re: Bug in unlink error return
+	id <S261414AbREQMso>; Thu, 17 May 2001 08:48:44 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56592 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261413AbREQMsi>; Thu, 17 May 2001 08:48:38 -0400
+Subject: Re: alpha/2.4.x: CPU misdetection, possible miscompilation
+To: mike@rainbow.studorg.tuwien.ac.at (Michael Wildpaner)
+Date: Thu, 17 May 2001 13:45:33 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0105161739440.31072-100000@rainbow.studorg.tuwien.ac.at> from "Michael Wildpaner" at May 17, 2001 02:23:03 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150N9p-0005KA-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> IMO that's the case of POSIX being misapplied. Rationale:
-> * historically, ...
+> possible miscompilation of smp_tune_scheduling:
+> 	These versions of gcc
+> 		gcc version 2.95.3 20010111
+> 		gcc version 2.95.4 20010506
 
-Yes, I know all about that.
-Nevertheless the facts are here:
-
-       EPERM  The system does not allow unlinking of directories,
-              or unlinking  of  directories  requires  privileges
-              that  the  current  process doesn't have.  (This is
-              the POSIX prescribed error return.)
-
-       EISDIR pathname refers to a directory.  (This is the  non-
-              POSIX value returned by Linux since 2.1.132.)
-
-At first I wrote "buggy" instead of "non-POSIX", but in fact
-I prefer EISDIR myself. On the other hand, Linux follows POSIX,
-even in the cases where we don't like POSIX very much.
-
-Btw - this change in 2.1.132 actually broke programs, so
-at that time is was really the introduction of a bug.
-
-Andries
+Does gcc 2.96 or the gcc 3.0 snapshot also show this problem ?

@@ -1,189 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269262AbTGJNS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 09:18:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269265AbTGJNS3
+	id S269266AbTGJNT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 09:19:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269267AbTGJNT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 09:18:29 -0400
-Received: from mailrelay1.lanl.gov ([128.165.4.101]:31208 "EHLO
-	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP id S269262AbTGJNSZ
+	Thu, 10 Jul 2003 09:19:58 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:1664 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S269266AbTGJNTz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 09:18:25 -0400
-Subject: Re: undefined reference to `xapic_support`
-From: Steven Cole <elenstev@mesatop.com>
-To: Geller Sandor <wildy@petra.hos.u-szeged.hu>
-Cc: Max Valdez <maxvalde@fis.unam.mx>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0307101216170.30460-100000@petra.hos.u-szeged.hu>
-References: <Pine.LNX.4.44.0307101216170.30460-100000@petra.hos.u-szeged.hu>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1057843925.8754.104.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 10 Jul 2003 07:32:06 -0600
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Jul 2003 09:19:55 -0400
+Date: Thu, 10 Jul 2003 09:34:35 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.74-mm3 OOM killer fubared ?
+In-Reply-To: <bejnl9$m9l$1@news.cistron.nl>
+Message-ID: <Pine.LNX.4.53.0307100918410.203@chaos>
+References: <bejhrj$dgg$1@news.cistron.nl> <20030710112728.GX15452@holomorphy.com>
+ <bejnl9$m9l$1@news.cistron.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-07-10 at 04:17, Geller Sandor wrote:
-> On 9 Jul 2003, Max Valdez wrote:
-> 
-> > No, i dont need that, i tried it to see if it corrected the problem, but
-> > didnt
+On Thu, 10 Jul 2003, Miquel van Smoorenburg wrote:
+
+> In article <20030710112728.GX15452@holomorphy.com>,
+> William Lee Irwin III  <wli@holomorphy.com> wrote:
+> >On Thu, Jul 10, 2003 at 11:14:59AM +0000, Miquel van Smoorenburg wrote:
+> >> Enough memory free, no problems at all .. yet every few minutes
+> >> the OOM killer kills one of my innfeed processes.
+> >> I notice that in -mm3 this was deleted relative to -vanilla:
+> >>
+> >> -
+> >> -       /*
+> >> -        * Enough swap space left?  Not OOM.
+> >> -        */
+> >> -       if (nr_swap_pages > 0)
+> >> -               return;
+> >> .. is that what causes this ? In any case, that should't vene matter -
+> >> there's plenty of memory in this box, all buffers and cached, but that
+> >> should be easily freed ..
 > >
-> > :-)
-> > Max
-> > On Wed, 2003-07-09 at 00:52, Martin J. Bligh wrote:
-> > > >> CONFIG_X86_CLUSTERED_APIC=y
-> > >
-> > > Why? Do you really need this?
-> 
-> IO_APIC is broken in 2.4.22-pre3-ac1. So you cannot compile SMP kernels,
-> or UP kernels with IO_APIC support.
-> 
->   Geller Sandor <wildy@petra.hos.u-szeged.hu>
+> >This means we're calling into it more often than we should be.
+> >Basically, we hit __alloc_pages() with __GFP_WAIT set, find nothing
+> >we're allowed to touch, dive into try_to_free_pages(), fall through
+> >scanning there, sleep in blk_congestion_wait(), wake up again, try
+> >to shrink_slab(), find nothing there either, repeat that 11 more times,
+> >and then fall through to out_of_memory()... and this happens at at
+> >least 10Hz.
+> >
+> >        since = now - lastkill;
+> >        if (since < HZ*5)
+> >                goto out_unlock;
+> >
+> >try s/goto out_unlock/goto reset/ and let me know how it goes.
+>
+> But that will only change the rate at which processes are killed,
+> not the fact that they are killed in the first place, right ?
+>
+> As I said I've got plenty memory free ... perhaps I need to tune
+> /proc/sys/vm because I've got so much streaming I/O ? Possibly,
+> there are too many dirty pages so cleaning them out faster might
+> help (and let pflushd do it instead of my single-threaded app)
+>
 
-It's not broken if you fix it, or at least put a band-aid on it.  For
-the quick and dirty, see my post here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105760102522650&w=2
+The problem, as I see it, is that you can dirty pages 10-15 times
+faster than they can be written to disk. So, you will always
+have the possibility of an OOM situation as long as you are I/O
+bound. FYI, you can read/write RAM at 1,000+ megabytes/second, but
+you can only write to disk at 80 megabytes/second with the fastest
+SCSI around, 40 megabytes/second with ATA, 20 megabytes/second with
+IDE/DMA, 10 megabytes/second with PIOW, etc. There just aren't
+any disks around that will run at RAM speeds so buffered I/O will
+always result in full buffers if the I/O is sustained. To completely
+solve the OOM situation requires throttling the generation of data.
 
-For a possibly more correct fix, Adrian Bunk pointed out that the
-mpparse.c updates in .21-ac4 somehow wandered off, so here is a patch
-which makes the mpparse.c file exactly like the one in 21-ac4. It
-compiles, it boots, it runs.. wheee.
+It is only when the data generation rate is less than or equal to
+the data storage rate that you can generate data forever.
 
-Note that the antepenultimate hunk in this patch may revert something it
-shouldn't.  Otherwise, it looks fine.
-
-[steven@spc5 linux-2.4.22-pre3-ac1]$ grep APIC .config
-CONFIG_X86_GOOD_APIC=y
-# CONFIG_X86_CLUSTERED_APIC is not set
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-
-Oh yeah, you might want to check the archives a little more closely next
-time.  Other folks saw this too.
-
-Steven
-
---- linux-2.4.22-pre3-ac1/arch/i386/kernel/mpparse.c.ac1	Mon Jul  7 14:54:29 2003
-+++ linux-2.4.22-pre3-ac1/arch/i386/kernel/mpparse.c	Mon Jul  7 15:01:43 2003
-@@ -78,6 +78,7 @@
- unsigned char clustered_apic_mode = CLUSTERED_APIC_NONE;
- unsigned int apic_broadcast_id = APIC_BROADCAST_ID_APIC;
- #endif
-+unsigned int xapic_support = 0;
- unsigned char raw_phys_apicid[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
- 
- /*
-@@ -238,6 +239,8 @@
- 		return;
- 	}
- 	ver = m->mpc_apicver;
-+	if (APIC_XAPIC_SUPPORT(ver))
-+		xapic_support = 1;
- 
- 	logical_cpu_present_map |= 1 << (num_processors-1);
-  	phys_cpu_present_map |= apicid_to_phys_cpu_present(m->mpc_apicid);
-@@ -516,7 +519,7 @@
- 	mp_bus_id_to_local = (int *)&bus_data[(max_mp_busses * sizeof(int)) * 2];
- 	mp_bus_id_to_pci_bus = (int *)&bus_data[(max_mp_busses * sizeof(int)) * 3];
- 	mp_irqs = (struct mpc_config_intsrc *)&bus_data[(max_mp_busses * sizeof(int)) * 4];
--	memset(mp_bus_id_to_pci_bus, -1, max_mp_busses);
-+	memset(mp_bus_id_to_pci_bus, -1, max_mp_busses * sizeof(int));
- 
- 	/*
- 	 *	Now process the configuration blocks.
-@@ -587,15 +590,6 @@
- 	}
- 
- 
--	printk("Enabling APIC mode: ");
--	if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
--		printk("Clustered Logical.	");
--	else if(clustered_apic_mode == CLUSTERED_APIC_XAPIC)
--		printk("Physical.	");
--	else
--		printk("Flat.	");
--	printk("Using %d I/O APICs\n",nr_ioapics);
--
- 	if (!num_processors)
- 		printk(KERN_ERR "SMP mptable: no processors registered!\n");
- 	return num_processors;
-@@ -831,6 +825,34 @@
- 		BUG();
- 
- 	printk("Processors: %d\n", num_processors);
-+	printk("xAPIC support %s present\n", (xapic_support?"is":"is not"));
-+
-+#ifdef CONFIG_X86_CLUSTERED_APIC
-+	/*
-+	 * Switch to Physical destination mode in case of generic
-+	 * more than 8 CPU system, which has xAPIC support
-+	 */
-+#define FLAT_APIC_CPU_MAX	8
-+	if ((clustered_apic_mode == CLUSTERED_APIC_NONE) &&
-+	    (xapic_support) &&
-+	    (num_processors > FLAT_APIC_CPU_MAX)) {
-+		clustered_apic_mode = CLUSTERED_APIC_XAPIC;
-+		apic_broadcast_id = APIC_BROADCAST_ID_XAPIC;
-+		int_dest_addr_mode = APIC_DEST_PHYSICAL;
-+		int_delivery_mode = dest_Fixed;
-+		esr_disable = 1;
-+	}
-+#endif
-+
-+	printk("Enabling APIC mode: ");
-+	if (clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
-+		printk("Clustered Logical.	");
-+	else if (clustered_apic_mode == CLUSTERED_APIC_XAPIC)
-+		printk("Physical.	");
-+	else
-+		printk("Flat.	");
-+	printk("Using %d I/O APICs\n",nr_ioapics);
-+
- 	/*
- 	 * Only use the first configuration found.
- 	 */
-@@ -977,14 +999,7 @@
- 
- 	processor.mpc_type = MP_PROCESSOR;
- 	processor.mpc_apicid = id;
--
--	/*
--	 * mp_register_lapic_address() which is called before the
--	 * current function does the fixmap of FIX_APIC_BASE.
--	 * Read in the correct APIC version from there
--	 */
--	processor.mpc_apicver = apic_read(APIC_LVR);
--	
-+	processor.mpc_apicver = 0x10; /* TBD: lapic version */
- 	processor.mpc_cpuflag = (enabled ? CPU_ENABLED : 0);
- 	processor.mpc_cpuflag |= (boot_cpu ? CPU_BOOTPROCESSOR : 0);
- 	processor.mpc_cpufeature = (boot_cpu_data.x86 << 8) | 
-@@ -1205,6 +1220,8 @@
- 	}
- }
- 
-+#ifndef CONFIG_ACPI_HT_ONLY
-+
- /* Ensure the ACPI SCI interrupt level is active low, edge-triggered */
- 
- extern FADT_DESCRIPTOR acpi_fadt;
-@@ -1259,6 +1276,8 @@
- 	io_apic_set_pci_routing(ioapic, ioapic_pin, irq);
- }
- 
-+#endif /*CONFIG_ACPI_HT_ONLY*/
-+
- #ifdef CONFIG_ACPI_PCI
- 
- void __init mp_parse_prt (void)
+A possibility may be to not return control to the writing process
+(including swap), until the write completes if RAM gets low. In
+other words, stop buffering data in RAM in tight memory situations.
+This forces all the tasks to wait and, therefore slows down the
+dirty-page and data generation rate to match the RAM available.
 
 
-
-
-
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264902AbUATACJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 19:02:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264540AbUATABt
+	id S265078AbUATC2w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 21:28:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264540AbUATACf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 19:01:49 -0500
-Received: from mail.kroah.org ([65.200.24.183]:11436 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264902AbUASX7x convert rfc822-to-8bit
+	Mon, 19 Jan 2004 19:02:35 -0500
+Received: from mail.kroah.org ([65.200.24.183]:10156 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264559AbUASX7v convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 18:59:53 -0500
-Subject: Re: [PATCH] i2c driver fixes for 2.6.1
-In-Reply-To: <10745567653686@kroah.com>
+	Mon, 19 Jan 2004 18:59:51 -0500
+Subject: [PATCH] i2c driver fixes for 2.6.1
+In-Reply-To: <20040119235733.GA5549@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 19 Jan 2004 15:59:26 -0800
-Message-Id: <10745567662012@kroah.com>
+Date: Mon, 19 Jan 2004 15:59:17 -0800
+Message-Id: <10745567571488@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
@@ -22,374 +22,49 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1474.98.23, 2004/01/19 12:52:59-08:00, khali@linux-fr.org
+ChangeSet 1.1474.98.1, 2004/01/14 11:08:59-08:00, trini@kernel.crashing.org
 
-[PATCH] I2C: New driver: w83l785ts
-
-Here is a patch that adds a new chip driver to Linux 2.6.1 (+ previous
-patches). The w83l785ts driver handles a single chipset, the Winbond
-W83L785TS-S. I am the author of the original driver as found in
-lm_sensors 2.8.3. Wolfgang Ziegler AKA fago made an initial port to
-Linux 2.6, which I reviewed, and here it is.
+[PATCH] I2C: module_parm fixes for i2c-piix4.c
 
 
- drivers/i2c/chips/Kconfig     |   12 +
- drivers/i2c/chips/Makefile    |    1 
- drivers/i2c/chips/w83l785ts.c |  309 ++++++++++++++++++++++++++++++++++++++++++
- include/linux/i2c-id.h        |    1 
- 4 files changed, 323 insertions(+)
+ drivers/i2c/busses/i2c-piix4.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
 
 
-diff -Nru a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
---- a/drivers/i2c/chips/Kconfig	Mon Jan 19 15:28:47 2004
-+++ b/drivers/i2c/chips/Kconfig	Mon Jan 19 15:28:47 2004
-@@ -137,4 +137,16 @@
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called w83781d.
+diff -Nru a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+--- a/drivers/i2c/busses/i2c-piix4.c	Mon Jan 19 15:33:22 2004
++++ b/drivers/i2c/busses/i2c-piix4.c	Mon Jan 19 15:33:22 2004
+@@ -31,6 +31,7 @@
+ /* #define DEBUG 1 */
  
-+config SENSORS_W83L785TS
-+	tristate "Winbond W83L785TS-S"
-+	depends on I2C && EXPERIMENTAL
-+	select I2C_SENSOR
-+	help
-+	  If you say yes here you get support for the Winbond W83L785TS-S
-+	  sensor chip, which is used on the Asus A7N8X, among other
-+	  motherboards.
-+	  
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called w83l785ts.
-+
- endmenu
-diff -Nru a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
---- a/drivers/i2c/chips/Makefile	Mon Jan 19 15:28:47 2004
-+++ b/drivers/i2c/chips/Makefile	Mon Jan 19 15:28:47 2004
-@@ -15,3 +15,4 @@
- obj-$(CONFIG_SENSORS_LM85)	+= lm85.o
- obj-$(CONFIG_SENSORS_LM90)	+= lm90.o
- obj-$(CONFIG_SENSORS_VIA686A)	+= via686a.o
-+obj-$(CONFIG_SENSORS_W83L785TS)	+= w83l785ts.o
-diff -Nru a/drivers/i2c/chips/w83l785ts.c b/drivers/i2c/chips/w83l785ts.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/i2c/chips/w83l785ts.c	Mon Jan 19 15:28:47 2004
-@@ -0,0 +1,309 @@
-+/*
-+ * w83l785ts.c - Part of lm_sensors, Linux kernel modules for hardware
-+ *               monitoring
-+ * Copyright (C) 2003-2004  Jean Delvare <khali@linux-fr.org>
-+ *
-+ * Inspired from the lm83 driver. The W83L785TS-S is a sensor chip made
-+ * by Winbond. It reports a single external temperature with a 1 deg
-+ * resolution and a 3 deg accuracy. Datasheet can be obtained from
-+ * Winbond's website at:
-+ *   http://www.winbond-usa.com/products/winbond_products/pdfs/PCIC/W83L785TS-S.pdf
-+ *
-+ * Ported to Linux 2.6 by Wolfgang Ziegler <nuppla@gmx.at> and Jean Delvare
-+ * <khali@linux-fr.org>.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c-sensor.h>
-+
-+/*
-+ * Address to scan
-+ * Address is fully defined internally and cannot be changed.
-+ */
-+
-+static unsigned short normal_i2c[] = { 0x2e, I2C_CLIENT_END };
-+static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
-+static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
-+static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
-+
-+/*
-+ * Insmod parameters
-+ */
-+
-+SENSORS_INSMOD_1(w83l785ts);
-+
-+/*
-+ * The W83L785TS-S registers
-+ * Manufacturer ID is 0x5CA3 for Winbond.
-+ */
-+
-+#define W83L785TS_REG_MAN_ID1		0x4D
-+#define W83L785TS_REG_MAN_ID2		0x4C
-+#define W83L785TS_REG_CHIP_ID		0x4E
-+#define W83L785TS_REG_CONFIG		0x40
-+#define W83L785TS_REG_TYPE		0x52
-+#define W83L785TS_REG_TEMP		0x27
-+#define W83L785TS_REG_TEMP_OVER		0x53 /* not sure about this one */
-+
-+/*
-+ * Conversions
-+ * The W83L785TS-S uses signed 8-bit values.
-+ */
-+
-+#define TEMP_FROM_REG(val)	((val & 0x80 ? val-0x100 : val) * 1000)
-+
-+/*
-+ * Functions declaration
-+ */
-+
-+static int w83l785ts_attach_adapter(struct i2c_adapter *adapter);
-+static int w83l785ts_detect(struct i2c_adapter *adapter, int address,
-+	int kind);
-+static int w83l785ts_detach_client(struct i2c_client *client);
-+static void w83l785ts_update_client(struct i2c_client *client);
-+
-+/*
-+ * Driver data (common to all clients)
-+ */
-+ 
-+static struct i2c_driver w83l785ts_driver = {
-+	.owner		= THIS_MODULE,
-+	.name		= "w83l785ts",
-+	.id		= I2C_DRIVERID_W83L785TS,
-+	.flags		= I2C_DF_NOTIFY,
-+	.attach_adapter	= w83l785ts_attach_adapter,
-+	.detach_client	= w83l785ts_detach_client,
-+};
-+
-+/*
-+ * Client data (each client gets its own)
-+ */
-+
-+struct w83l785ts_data {
-+	
-+	struct semaphore update_lock;
-+	char valid; /* zero until following fields are valid */
-+	unsigned long last_updated; /* in jiffies */
-+
-+	/* registers values */
-+	u8 temp, temp_over;
-+};
-+
-+/*
-+ * Internal variables
-+ */
-+
-+static int w83l785ts_id = 0;
-+
-+/*
-+ * Sysfs stuff
-+ */
-+
-+static ssize_t show_temp(struct device *dev, char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct w83l785ts_data *data = i2c_get_clientdata(client);
-+	w83l785ts_update_client(client);
-+	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp));
-+}
-+
-+static ssize_t show_temp_over(struct device *dev, char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct w83l785ts_data *data = i2c_get_clientdata(client);
-+	w83l785ts_update_client(client);
-+	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_over));
-+}
-+
-+static DEVICE_ATTR(temp_input, S_IRUGO, show_temp, NULL)
-+static DEVICE_ATTR(temp_max, S_IRUGO, show_temp_over, NULL)
-+
-+/*
-+ * Real code
-+ */
-+
-+static int w83l785ts_attach_adapter(struct i2c_adapter *adapter)
-+{
-+	if (!(adapter->class & I2C_ADAP_CLASS_SMBUS))
-+		return 0;
-+	return i2c_detect(adapter, &addr_data, w83l785ts_detect);
-+}
-+
-+/*
-+ * The following function does more than just detection. If detection
-+ * succeeds, it also registers the new chip.
-+ */
-+static int w83l785ts_detect(struct i2c_adapter *adapter, int address, int kind)
-+{
-+	struct i2c_client *new_client;
-+	struct w83l785ts_data *data;
-+	int err = 0;
-+	const char *name = "";
-+
-+
-+	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
-+		goto exit;
-+
-+	if (!(new_client = kmalloc(sizeof(struct i2c_client) +  
-+		sizeof(struct w83l785ts_data), GFP_KERNEL))) {
-+		err = -ENOMEM;
-+		goto exit;
-+	}
-+	memset(new_client, 0x00, sizeof(struct i2c_client) +
-+	       sizeof(struct w83l785ts_data));
-+
-+
-+	/* The W83L785TS-specific data is placed right after the common I2C
-+	 * client data. */
-+	data = (struct w83l785ts_data *) (new_client + 1);
-+	i2c_set_clientdata(new_client, data);
-+	new_client->addr = address;
-+	new_client->adapter = adapter;
-+	new_client->driver = &w83l785ts_driver;
-+	new_client->flags = 0;
-+
-+	/*
-+	 * Now we do the remaining detection. A negative kind means that
-+	 * the driver was loaded with no force parameter (default), so we
-+	 * must both detect and identify the chip (actually there is only
-+	 * one possible kind of chip for now, W83L785TS-S). A zero kind means
-+	 * that the driver was loaded with the force parameter, the detection
-+	 * step shall be skipped. A positive kind means that the driver
-+	 * was loaded with the force parameter and a given kind of chip is
-+	 * requested, so both the detection and the identification steps
-+	 * are skipped.
-+	 */
-+	if (kind < 0) { /* detection */
-+		if (((i2c_smbus_read_byte_data(new_client,
-+		      W83L785TS_REG_CONFIG) & 0x80) != 0x00)
-+		 || ((i2c_smbus_read_byte_data(new_client,
-+		      W83L785TS_REG_TYPE) & 0xFC) != 0x00)) {
-+			dev_dbg(&adapter->dev,
-+				"W83L785TS-S detection failed at 0x%02x.\n",
-+				address);
-+			goto exit_free;
-+		}
-+	}
-+
-+	if (kind <= 0) { /* identification */
-+		u16 man_id;
-+		u8 chip_id;
-+
-+		man_id = (i2c_smbus_read_byte_data(new_client,
-+			 W83L785TS_REG_MAN_ID1) << 8) +
-+			 i2c_smbus_read_byte_data(new_client,
-+			 W83L785TS_REG_MAN_ID2);
-+		chip_id = i2c_smbus_read_byte_data(new_client,
-+			  W83L785TS_REG_CHIP_ID);
-+
-+		if (man_id == 0x5CA3) { /* Winbond */
-+			if (chip_id == 0x70) { /* W83L785TS-S */
-+				kind = w83l785ts;			
-+				name = "w83l785ts";
-+			}
-+		}
-+	
-+		if (kind <= 0) { /* identification failed */
-+			dev_info(&adapter->dev,
-+				 "Unsupported chip (man_id=0x%04X, "
-+				 "chip_id=0x%02X).\n", man_id, chip_id);
-+			goto exit_free;
-+		}
-+	}
-+
-+	/* We can fill in the remaining client fields. */
-+	strlcpy(new_client->name, name, I2C_NAME_SIZE);
-+	new_client->id = w83l785ts_id++;
-+	data->valid = 0;
-+	init_MUTEX(&data->update_lock);
-+
-+	/* Tell the I2C layer a new client has arrived. */
-+	if ((err = i2c_attach_client(new_client))) 
-+		goto exit_free;
-+
-+	/*
-+	 * Initialize the W83L785TS chip
-+	 * Nothing yet, assume it is already started.
-+	 */
-+
-+	/* Register sysfs hooks */
-+	device_create_file(&new_client->dev, &dev_attr_temp_input);
-+	device_create_file(&new_client->dev, &dev_attr_temp_max);
-+
-+	return 0;
-+
-+exit_free:
-+	kfree(new_client);
-+exit:
-+	return err;
-+}
-+
-+static int w83l785ts_detach_client(struct i2c_client *client)
-+{
-+	int err;
-+
-+	if ((err = i2c_detach_client(client))) {
-+		dev_err(&client->dev, "Client deregistration failed, "
-+			"client not detached.\n");
-+		return err;
-+	}
-+
-+	kfree(client);
-+	return 0;
-+}
-+
-+static void w83l785ts_update_client(struct i2c_client *client)
-+{
-+	struct w83l785ts_data *data = i2c_get_clientdata(client);
-+
-+	down(&data->update_lock);
-+
-+	if (!data->valid
-+	 || (jiffies - data->last_updated > HZ * 2)
-+	 || (jiffies < data->last_updated)) {
-+		dev_dbg(&client->dev, "Updating w83l785ts data.\n");
-+		data->temp = i2c_smbus_read_byte_data(client,
-+			     W83L785TS_REG_TEMP);
-+		data->temp_over = i2c_smbus_read_byte_data(client,
-+				  W83L785TS_REG_TEMP_OVER);
-+
-+		data->last_updated = jiffies;
-+		data->valid = 1;
-+	}
-+
-+	up(&data->update_lock);
-+}
-+
-+static int __init sensors_w83l785ts_init(void)
-+{
-+	return i2c_add_driver(&w83l785ts_driver);
-+}
-+
-+static void __exit sensors_w83l785ts_exit(void)
-+{
-+	i2c_del_driver(&w83l785ts_driver);
-+}
-+
-+MODULE_AUTHOR("Jean Delvare <khali@linux-fr.org>");
-+MODULE_DESCRIPTION("W83L785TS-S driver");
-+MODULE_LICENSE("GPL");
-+
-+module_init(sensors_w83l785ts_init);
-+module_exit(sensors_w83l785ts_exit);
-diff -Nru a/include/linux/i2c-id.h b/include/linux/i2c-id.h
---- a/include/linux/i2c-id.h	Mon Jan 19 15:28:47 2004
-+++ b/include/linux/i2c-id.h	Mon Jan 19 15:28:47 2004
-@@ -156,6 +156,7 @@
- #define I2C_DRIVERID_LM83 1040
- #define I2C_DRIVERID_LM90 1042
- #define I2C_DRIVERID_ASB100 1043
-+#define I2C_DRIVERID_W83L785TS 1047
+ #include <linux/module.h>
++#include <linux/moduleparam.h>
+ #include <linux/config.h>
+ #include <linux/pci.h>
+ #include <linux/kernel.h>
+@@ -88,13 +89,13 @@
+ /* If force is set to anything different from 0, we forcibly enable the
+    PIIX4. DANGEROUS! */
+ static int force = 0;
+-MODULE_PARM(force, "i");
++module_param (force, int, 0);
+ MODULE_PARM_DESC(force, "Forcibly enable the PIIX4. DANGEROUS!");
  
- /*
-  * ---- Adapter types ----------------------------------------------------
+ /* If force_addr is set to anything different from 0, we forcibly enable
+    the PIIX4 at the given address. VERY DANGEROUS! */
+ static int force_addr = 0;
+-MODULE_PARM(force_addr, "i");
++module_param (force_addr, int, 0);
+ MODULE_PARM_DESC(force_addr,
+ 		 "Forcibly enable the PIIX4 at the given address. "
+ 		 "EXTREMELY DANGEROUS!");
+@@ -102,7 +103,7 @@
+ /* If fix_hstcfg is set to anything different from 0, we reset one of the
+    registers to be a valid value. */
+ static int fix_hstcfg = 0;
+-MODULE_PARM(fix_hstcfg, "i");
++module_param (fix_hstcfg, int, 0);
+ MODULE_PARM_DESC(fix_hstcfg,
+ 		"Fix config register. Needed on some boards (Force CPCI735).");
+ 
 

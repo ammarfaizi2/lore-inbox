@@ -1,38 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316896AbSGSQzC>; Fri, 19 Jul 2002 12:55:02 -0400
+	id <S316895AbSGSQzn>; Fri, 19 Jul 2002 12:55:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316898AbSGSQzC>; Fri, 19 Jul 2002 12:55:02 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:677 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S316896AbSGSQzC>;
-	Fri, 19 Jul 2002 12:55:02 -0400
-Date: Sat, 20 Jul 2002 18:57:00 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Erich Focht <efocht@ess.nec.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ia64 <linux-ia64@linuxia64.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH]: scheduler complex macros fixes
-In-Reply-To: <200207191655.07285.efocht@ess.nec.de>
-Message-ID: <Pine.LNX.4.44.0207201855380.17169-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316906AbSGSQzn>; Fri, 19 Jul 2002 12:55:43 -0400
+Received: from jalon.able.es ([212.97.163.2]:59128 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S316895AbSGSQzm>;
+	Fri, 19 Jul 2002 12:55:42 -0400
+Date: Fri, 19 Jul 2002 18:58:22 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19rc2aa1
+Message-ID: <20020719165822.GA1690@werewolf.able.es>
+References: <20020717225504.GA994@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020717225504.GA994@dualathlon.random>
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 19 Jul 2002, Erich Focht wrote:
+On 2002.07.18 Andrea Arcangeli wrote:
+>I would appreciate any feedback on the last patches for the i_size
+>atomic accesses on 32bit archs. Thanks,
+>
+>URL:
+>
+>	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc2aa1.gz
+>	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc2aa1/
+>
+>diff between 2.4.19rc1aa2 and 2.4.19rc1aa2:
+>
+>Only in 2.4.19rc1aa2: 000_e100-2.0.30-k1.gz
+>Only in 2.4.19rc2aa1: 000_e100-2.1.6.gz
+>Only in 2.4.19rc1aa2: 000_e1000-4.2.17-k1.gz
+>Only in 2.4.19rc2aa1: 000_e1000-4.3.2.gz
+>
+>	Upgrade to latest drivers to see if they fix the reports.
 
-> The attached patch fixes problems with the "complex" macros in the
-> scheduler, as discussed about a week ago with Ingo on this mailing list.
+Any decent changelog for this two ? Docs in intel's website and downloadable
+packages say just nothing.
 
-the fix has been in my tree for some time, the latest version, against
-2.5.26 is at:
+And look interesting. I am running 2.4.19-rc2-jam1 on the cluster and NetPipe
+performance jumped from 400 to 500 Mbits/sec (ie, 100Mb just for free).
 
-  http://people.redhat.com/mingo/O(1)-scheduler/sched-2.5.26-B7
+Ehem, new kernel also included smptimers, so it is really the mix what
+improves throughput. Anyone can say if the scalable timers can influence
+network performance ??
 
-it has a number of other fixes as well, plus the SCHED_BATCH feature.
+TIA
 
-	Ingo
-
+-- 
+J.A. Magallon             \   Software is like sex: It's better when it's free
+mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
+Linux werewolf 2.4.19-rc2-jam1, Mandrake Linux 8.3 (Cooker) for i586
+gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.8mdk)

@@ -1,99 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262987AbUCMB5b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 20:57:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbUCMB5b
+	id S262638AbUCMCHh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 21:07:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbUCMCHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 20:57:31 -0500
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:14288 "EHLO linux.local")
-	by vger.kernel.org with ESMTP id S262987AbUCMB5C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 20:57:02 -0500
-Date: Fri, 12 Mar 2004 10:50:33 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Rik Faith <faith@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Light-weight Auditing Framework
-Message-ID: <20040312185033.GA2507@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <16464.30442.852919.24605@neuro.alephnull.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16464.30442.852919.24605@neuro.alephnull.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 12 Mar 2004 21:07:37 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:45557 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262638AbUCMCHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 21:07:33 -0500
+Message-ID: <40526CE3.7000509@acm.org>
+Date: Fri, 12 Mar 2004 20:07:31 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Race in signal handling with reproducer program
+References: <404F8FDE.3050305@acm.org>
+In-Reply-To: <404F8FDE.3050305@acm.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 11, 2004 at 09:25:46AM -0500, Rik Faith wrote:
-> Below is a patch against 2.6.4 that provides a low-overhead system-call
-> auditing framework for Linux that is usable by LSM components (e.g.,
-> SELinux).  This is an update of the patch discussed in this thread:
->     http://marc.theaimsgroup.com/?t=107815888100001&r=1&w=2
+I have a program to reproduce this problem.  The attached program will 
+segv pretty quickly on 2.4 and 2.6 kernels on SMP machines, and I assume 
+this is possible (although less likely) with preempt on a uniprocessor 
+(I could not reproduce the problem that way, but I didn't try very 
+hard).  It ends up crashing because the program counter is set to 
+0x00000001, not surprisingly the value of SIG_IGN.  Just to test and see 
+if the program was ok, I changed the SIG_IGN to a second signal handler 
+function and everything worked ok, so I think the program is valid.
 
-[ . . . ]
+The program below has three threads that share signal handlers.  Thread 
+1 changes the signal handler for a signal from a handler to SIG_IGN and 
+back.  Thread 0 sends signals to thread 3, which just receives them.  
+What I believe is happening is that thread 1 changes the signal handler 
+in the process of thread 3 receiving the signal, between the time that 
+thread 3 fetches the signal info using get_signal_to_deliver() and 
+actually delivers the signal with handle_signal().
 
-Great application of RCU -- audit rules should not change
-often, but could be referenced quite frequently!
+Although the program is obvously an extreme case, it seems like any time 
+you set the handler value of a signal to SIG_IGN or SIG_DFL, you can 
+have this happen.  Changing signal attributes might also cause problems, 
+although I am not so sure about that.
 
-A couple of comments:
+Has anyone seen this?  Is there a fix available?  It seems to me that to 
+fix this properly, get_signal_to_deliver() would have to return all the 
+information about the signal delivery and that's a pretty major change 
+that would affect all architectures.
 
-o	I don't see any rcu_read_lock() or rcu_read_unlock() calls.
-	These are needed on the read side in order to (1) let the
-	people reading the code know the extent of the read-side
-	critical section and (2) disable preemption in CONFIG_PREEMPT
-	kernels.  Without the former, someone will end up putting
-	a blocking primitive in the wrong place.  Without the latter,
-	the kernel will do the dirty work all by itself.  Either way,
-	you get breakage.
+The program....
 
-	For example, I suspect that audit_filter_task() needs to
-	read as follows:
+#include <signal.h>
+#include <stdio.h>
+#include <sched.h>
 
-static enum audit_state audit_filter_task(struct task_struct *tsk)
+char stack1[4096];
+char stack2[4096];
+
+void
+sighnd(int sig)
 {
-	struct audit_entry *e; 
-	enum audit_state   state;
-
-	rcu_read_lock();
-	list_for_each_entry_rcu(e, &audit_tsklist, list) {
-		if (audit_filter_rules(tsk, &e->rule, NULL, &state)) {
-			rcu_read_unlock();
-			return state;
-		}
-	}
-	rcu_read_unlock();
-	return AUDIT_BUILD_CONTEXT;
 }
 
-	Alternatively, you could put the rcu_read_lock() and
-	rcu_read_unlock() around the single call to audit_filter_task()
-	from audit_alloc().
+int
+child1(void *data)
+{
+  struct sigaction act;
 
-	All of the list_for_each_.*_rcu() macros need to be enclosed
-	by rcu_read_lock() and rcu_read_unlock() calls.
+  sigemptyset(&act.sa_mask);
+  act.sa_flags = 0;
+  for (;;) {
+    act.sa_handler = sighnd;
+    sigaction(45, &act, NULL);
+    act.sa_handler = SIG_IGN;
+    sigaction(45, &act, NULL);
+  }
+}
 
-o	Presumably something surrounding netlink_kernel_create()
-	ensures that only one instance of audit_del_rule() will
-	be executing at a given time.  If not, some locking is
-	needed.
+int
+child2(void *data)
+{
+  for (;;) {
+    sleep(100);
+  }
+}
 
-	Once this locking is present, the list_for_each_entry_rcu()
-	in audit_del_rule() should be changed to list_for_each_entry(),
-	as it cannot race with deletion, since it -is- deletion.
-	The list_del_rcu() is correct, and should remain.
+int
+main(int argc, char *argv[])
+{
+  int pid1, pid2;
 
-	If you are using some sort of implicit locking, then please
-	inject a clue...
+  signal(45, SIG_IGN);
+  pid2 = clone(child2, stack2+4092, CLONE_SIGHAND | CLONE_VM, NULL);
+  pid1 = clone(child1, stack1+4092, CLONE_SIGHAND | CLONE_VM, NULL);
 
-o	The audit_add_rule() function also needs something to prevent
-	races with other audit_add_rule() and audit_del_rule()
-	instances.  Again, this might be happening somehow in
-	the netlink_kernel_create() mechanism, but I don't
-	immediately see it.  Then again, I do not claim to fully
-	understand how the netlink_kernel_create() mechanism
-	functions.
+  for (;;) {
+    kill(pid2, 45);
+  }
+}
 
-Again, looks like a promising application of RCU!
+Corey Minyard wrote:
 
-						Thanx, Paul
+> I'm hoping I am wrong, but I think I have found a race in signal 
+> handling.  I believe this can only happen in an SMP system or a system 
+> with preempt on.  I'll use 2.6 for the example, but I think it applies 
+> to 2.4, too.
+>
+> In arch/i386/signal.c, in the do_signal() function, it calls 
+> get_signal_to_deliver() which returns the signal number to deliver 
+> (along with siginfo).  get_signal_to_deliver() grabs and releases the 
+> lock, so the signal handler lock is not held in do_signal().  Then the 
+> do_signal() calls handle_signal(), which uses the signal number to 
+> extract the sa_handler, etc.
+>
+> Since no lock is held, it seems like another thread with the same 
+> signal handler set can come in and call sigaction(), it can change 
+> sa_handler between the call to get_signal_to_deliver() and fetching 
+> the value of sa_handler.  If the sigaction() call set it to SIG_IGN, 
+> SIG_DFL, or some other fundamental change, that bad things can happen.
+>
+> Am I correct here, or am I missing something?
+>
+> -Corey
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+

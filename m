@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267275AbTBXQnX>; Mon, 24 Feb 2003 11:43:23 -0500
+	id <S267091AbTBXQwr>; Mon, 24 Feb 2003 11:52:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267266AbTBXQnX>; Mon, 24 Feb 2003 11:43:23 -0500
-Received: from to-wiznet.redhat.com ([216.129.200.2]:8953 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S267264AbTBXQnW>; Mon, 24 Feb 2003 11:43:22 -0500
-Date: Mon, 24 Feb 2003 11:53:34 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: usb keyboard stuck?
-Message-ID: <20030224115334.A17410@redhat.com>
-Mime-Version: 1.0
+	id <S267227AbTBXQwr>; Mon, 24 Feb 2003 11:52:47 -0500
+Received: from mons.uio.no ([129.240.130.14]:51176 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S267091AbTBXQwr>;
+	Mon, 24 Feb 2003 11:52:47 -0500
+To: Oleg Drokin <green@namesys.com>
+Cc: Andrew Morton <akpm@digeo.com>, vs@namesys.com, nikita@namesys.com,
+       jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org
+Subject: Re: 2.4 iget5_locked port attempt to 2.4 (supposedly fixed NFS version this time)
+References: <20030220175309.A23616@namesys.com>
+	<20030220154924.7171cbd7.akpm@digeo.com>
+	<20030221220341.A9325@namesys.com>
+	<20030221200440.GA23699@delft.aura.cs.cmu.edu>
+	<20030224132145.A7399@namesys.com>
+	<15962.19783.182617.822504@charged.uio.no>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 24 Feb 2003 18:02:50 +0100
+In-Reply-To: <15962.19783.182617.822504@charged.uio.no>
+Message-ID: <shsbs11y5l1.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello folks,
+>>>>> " " == Trond Myklebust <trond.myklebust@fys.uio.no> writes:
 
-I've just had an odd occurance with a USB keyboard setup where the 
-shift / alt / control keys became stuck.  The only way to get sane 
-control of the system back was to unplug the usb keyboard and plug 
-it back in.  Note that upon plugging it back in, the system logged 
-a few unknown scancode messages, which seems a bit odd.  Any ideas 
-if this is the fault of the keyboard or the driver?  Info on any 
-experiences might be helpful, especially if someone else is using a 
-Logitech iTouch keyboard.  Cheers,
+>>>>> " " == Oleg Drokin <green@namesys.com> writes:
 
-		-bben
---
-Junk email?  <a href=mailto:"aart@kvack.org"> aart@kvack.org </a>
+     > Please remind me. Why can't NFS set inode->i_mode, call
+     > nfs_fill_inode() etc. in the 'init_locked' callback?
 
-application bug: xterm(9022) has SIGCHLD set to SIG_IGN but calls wait().
-(see the NOTES section of 'man 2 wait'). Workaround activated.
-usb.c: USB disconnect on device 02:06.1-2.1.2 address 4
-usb.c: USB disconnect on device 02:06.1-2.1.2.1 address 6
-usb.c: USB disconnect on device 02:06.1-2.1.2.3 address 7
-hub.c: new USB device 02:06.1-2.1.2, assigned address 8
-hub.c: USB hub found
-hub.c: 3 ports detected
-hub.c: new USB device 02:06.1-2.1.2.1, assigned address 9
-input0: USB HID v1.10 Keyboard [LOGITECH USB Keyboard] on usb3:9.0
-input1: USB HID v1.10 Pointer [LOGITECH USB Keyboard] on usb3:9.1
-hub.c: new USB device 02:06.1-2.1.2.3, assigned address 10
-input2: USB HID v1.10 Mouse [Logitech USB-PS/2 Optical Mouse] on usb3:10.0
-keyboard: unknown scancode e0 3a
-keyboard: unknown scancode e0 1e
-keyboard: unknown scancode e0 1e
-keyboard: unknown scancode e0 0e
-keyboard: unknown scancode e0 2e
-keyboard: unknown scancode e0 2e
-keyboard: unknown scancode e0 0e
-keyboard: unknown scancode e0 0e
-keyboard: unknown scancode e0 13
-keyboard: unknown scancode e0 33
-keyboard: unknown scancode e0 33
-keyboard: unknown scancode e0 23
+Duh, forget that question. The latter is called with the global inode
+lock held which you want to release asap.
 
+Cheers,
+  Trond

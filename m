@@ -1,72 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265075AbTIDP7y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 11:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265078AbTIDP7y
+	id S265078AbTIDQA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 12:00:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbTIDQA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 11:59:54 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:20398 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S265075AbTIDP7v
+	Thu, 4 Sep 2003 12:00:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:57475 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265078AbTIDQAZ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 11:59:51 -0400
-Message-ID: <3F576176.3010202@namesys.com>
-Date: Thu, 04 Sep 2003 19:59:50 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: precise characterization of ext3 atomicity
-References: <3F574A49.7040900@namesys.com> <20030904085537.78c251b3.akpm@osdl.org>
-In-Reply-To: <20030904085537.78c251b3.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Sep 2003 12:00:25 -0400
+Date: Thu, 4 Sep 2003 09:01:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Breno" <brenosp@brasilsec.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pte_offset  and pte_offset_map
+Message-Id: <20030904090106.59c98ee3.akpm@osdl.org>
+In-Reply-To: <000f01c38b4f$67dfbfe0$c5e4a7c8@bsb.virtua.com.br>
+References: <000f01c38b4f$67dfbfe0$c5e4a7c8@bsb.virtua.com.br>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+"Breno" <brenosp@brasilsec.com.br> wrote:
+>
+> pte_offset() in 2.4 is the same as pte_offset_map in 2.6 ?
 
->Hans Reiser <reiser@namesys.com> wrote:
->  
->
->>Is it correct to say of ext3 that it guarantees and only guarantees 
->>atomicity of writes that do not cross page boundaries?
->>    
->>
->
->Yes.
->
->  
->
->>    By contrast, ext3 only guarantees the atomicity of a single write 
->>that does not span a page boundary, and it guarantees that its internal 
->>metadata will not be corrupted even if your applications data is 
->>corrupted after the crash.
->>    
->>
->
->Not sure that I understand this.  In data=writeback mode, metadata
->integrity is preserved but data writes may be lost.  In data=journal and
->data=ordered modes the data and the metadata which refers to it are always
->in sync on-disk.
->
->
->
->  
->
-Perhaps the following is correct?
+Yes.
 
-    By contrast, ext3 in data=journal and data=ordered modes only guarantees the atomicity of a single write 
-that does not span a page boundary, and it guarantees that its internal 
-metadata will not be corrupted even if your application's data is 
-corrupted after the crash (due to the application spreading what should be committed atomically across more than one block).
+> What´s PageCompound bit flag ?
 
-
-
-
-
--- 
-Hans
-
+It indicates that the page is part of a "higher order" allocation: It was
+obtained via a 2, 4, 8...  page allocation.
 

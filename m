@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbUL3C6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbUL3DAK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261523AbUL3C6E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 21:58:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbUL3C6E
+	id S261525AbUL3DAK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 22:00:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbUL3DAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 21:58:04 -0500
-Received: from mail.tmr.com ([216.238.38.203]:54214 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S261523AbUL3C57 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 21:57:59 -0500
-Message-ID: <41D3713D.3010707@tmr.com>
-Date: Wed, 29 Dec 2004 22:08:45 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Benchmarks With P4+SMP+SMT?
-References: <Pine.LNX.4.61.0412281914380.11816@p500>
-In-Reply-To: <Pine.LNX.4.61.0412281914380.11816@p500>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 29 Dec 2004 22:00:10 -0500
+Received: from 80-219-198-150.dclient.hispeed.ch ([80.219.198.150]:15232 "EHLO
+	xbox.hb9jnx.ampr.org") by vger.kernel.org with ESMTP
+	id S261525AbUL3C77 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 21:59:59 -0500
+Subject: Re: ptrace single-stepping change breaks Wine
+From: Thomas Sailer <sailer@scs.ch>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jesse Allen <the3dfxdude@gmail.com>, Mike Hearn <mh@codeweavers.com>,
+       Eric Pouech <pouech-eric@wanadoo.fr>,
+       Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       wine-devel <wine-devel@winehq.com>
+In-Reply-To: <Pine.LNX.4.58.0412291807440.2353@ppc970.osdl.org>
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
+	 <20041119212327.GA8121@nevyn.them.org>
+	 <Pine.LNX.4.58.0411191330210.2222@ppc970.osdl.org>
+	 <20041120214915.GA6100@tesore.ph.cox.net> <41A251A6.2030205@wanadoo.fr>
+	 <Pine.LNX.4.58.0411221300460.20993@ppc970.osdl.org>
+	 <1101161953.13273.7.camel@littlegreen>
+	 <1104286459.7640.54.camel@gamecube.scs.ch>
+	 <1104332559.3393.16.camel@littlegreen>
+	 <1104348944.5645.2.camel@kronenbourg.scs.ch>
+	 <5304685704122912132e3f7f76@mail.gmail.com>
+	 <1104371395.5128.2.camel@gamecube.scs.ch>
+	 <Pine.LNX.4.58.0412291807440.2353@ppc970.osdl.org>
+Content-Type: text/plain
+Organization: Supercomputing Systems AG
+Date: Thu, 30 Dec 2004 03:57:37 +0100
+Message-Id: <1104375457.5128.13.camel@gamecube.scs.ch>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Piszcz wrote:
-> Has anyone performed any benchmarks with:
-> 
-> No SMP w/HT?
-> SMP w/HT?
-> SMP + SMT w/HT?
-> 
-> [ ] Symmetric multi-processing support
-> [ ]   SMT (Hyperthreading) scheduler support
-> 
->   x SMT scheduler support improves the CPU scheduler's decision making
->   x when dealing with Intel Pentium 4 chips with HyperThreading at a
->   x cost of slightly increased overhead in some places. If unsure say
->   x N here.
-> 
-> I'm tempted to try SMT and benchmark these sometime but I am asking the 
-> list if anyone has already done this first.
-> 
-> Question: "slightly increased overhead in some places."
-> 
-> What type of workloads would exhibit such overhead?
-> 
-> Would this option (SMT) be recommended for a desktop or server machine?
-> 
-> Are there any white papers or documentation I can read about this option?
+On Wed, 2004-12-29 at 18:10 -0800, Linus Torvalds wrote:
 
-I run SMT on all my HT uni systems. Depending on what you do it can help 
-up to 30% (kernel build) or just enough to measure. This is one of those 
-"it depends" things, I bet there are loads which run better without, and 
-there is a tad of overhead in the SMP kernel locking.
+> Some wine person would need to inform us about what the seh exception 
+> thing means.. "code c0000005"? 
 
-If you run SMP, you have that overhead anyway, so I doubt it hurts.
+There's an interesting thing. Fedora Kernel 2.6.7 works for me, Fedora
+Kernel 2.6.8 breaks wine/xst. Interestingly, Linus 2.6.8 works. Now the
+biggest changes between the Fedora Kernels 2.6.7-1.494.2.2 and
+2.6.8-1.521, besides the rebasing, are some execshield changes and
+flexible mmap. execshield cannot be the culprit as it's not in 2.6.10-
+ac1, but flexible mmap seems to be in 2.6.10-ac1. To me, a candidate for
+further scrutiny is flexmmap, although I do not claim to have a clue
+about linux-mm...
 
-YMMV
+Tom
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+

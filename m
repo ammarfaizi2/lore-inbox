@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268229AbUJMB2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268166AbUJMBjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268229AbUJMB2x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 21:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUJMB2x
+	id S268166AbUJMBjh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 21:39:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUJMBjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 21:28:53 -0400
-Received: from mail.renesas.com ([202.234.163.13]:45487 "EHLO
-	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S268229AbUJMB2f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 21:28:35 -0400
-Date: Wed, 13 Oct 2004 10:28:15 +0900 (JST)
-Message-Id: <20041013.102815.135501550.takata.hirokazu@renesas.com>
-To: jgarzik@pobox.com
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, ""@renesas.com
-From: takata.hirokazu@renesas.com
+	Tue, 12 Oct 2004 21:39:37 -0400
+Received: from blood.actrix.co.nz ([203.96.16.160]:60308 "EHLO
+	blood.actrix.co.nz") by vger.kernel.org with ESMTP id S268166AbUJMBje
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 21:39:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Charles Manning <manningc2@actrix.gen.nz>
+Reply-To: manningc2@actrix.gen.nz
+To: linux-kernel@vger.kernel.org
+Subject: Using ilookup?
+Date: Wed, 13 Oct 2004 14:42:43 +1300
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20041013013930.9BB6649E9@blood.actrix.co.nz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mundt <paul.mundt@nokia.com>, Nicolas Pitre <nico@cam.org>,
- takata@linux-m32r.org
-Subject: Re: [PATCH 2.6.9-rc4-mm1] [m32r] Fix smc91x driver for m32r
-From: Hirokazu Takata <takata.hirokazu@renesas.com>
-In-Reply-To: <416BFD79.1010306@pobox.com>
-References: <20041012.195043.137811384.takata.hirokazu@renesas.com>
-	<416BFD79.1010306@pobox.com>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi
 
-Hello,
+I'm the maintainer for YAFFS, the NAND-specific file system used in many 
+mobile/embedded Linux devices over the last two years.
 
-Sorry, I've changed my mind, according to the thread of 
-"[PATCH] net: fix smc91x build for sh/ppc" (Oct 12, 2004).
-I prefer that set_irq_type() is snipped by CONFIG_ARM, too.
+There is a problem that I'm unsure how to best fix. I thought perhaps using 
+ilookup might be a good idea, but I see a big fat warning that ilookup is 
+perhaps not the function to be using. I therefore seek help.
 
-Please throw away this patch and retrieve the previous 
-m32r-trivial-fix-of-smc91xh.patch again, 
-if the above patch "[PATCH] net: fix smc91x build for sh/ppc" is applied.
+YAFFS allocates its own "objectId"s which are used as inode numbers for most 
+purposes. When objects get deleted (== unlinked), the object numbers get 
+recycles.  Sometimes though the Linux cache has an inode after the object has 
+been deleted. Then if that object id gets recycled before the cached inode is 
+released, a problem occurs since iget() gets the old inode instead of 
+creating a new one. We then end up with an inconsistency.
 
-Thank you.
+Someone has been able to force this by doing the following:
+# cd /test; rm -rf /test
 
-From: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 2.6.9-rc4-mm1] [m32r] Fix smc91x driver for m32r
-Date: Tue, 12 Oct 2004 11:51:21 -0400
-> Hirokazu Takata wrote:
-> > Just fix compile error of drivers/net/smc91x.c for m32r.
-> > 
-> > It seems the previous patch (m32r-trivial-fix-of-smc91xh.patch) is too old. 
-> > So I will send a new patch.
-> > 
-> > Please drop the previous patch
-> > ( $ patch -R1 -p1 <m32r-trivial-fix-of-smc91xh.patch )
-> > and apply the new one.
-> > 
-> > 	* drivers/net/smc91x.h:
-> > 	- Add set_irq_type() macro to ignore it for m32r.
-> > 	- Fix RPC_LSA_DEFAULT and RPC_LSB_DEFAULT for an M3T-M32700UT board.
-> > 
-> > Thanks.
-> > 
-> > Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
-> 
-> Seems OK to me, I'll put it into my netdev queue.
-> 
-> For net driver patches, please always CC
-> * netdev@oss.sgi.com, and
-> * jgarzik@pobox.com
-> 
-> 	Jeff
+I think I need to do one of two things:
 
--- Takata
+1)  Somehow plug myself into the inode iput() chain so that I know when an 
+inode is removed from the cache. I can then make sure that I don't free up 
+the inode number for reuse until the inode is not in the cache. Any hints on 
+how to do that?
+
+2) When creating inode numbers, I could test for if there is a corresponding 
+inode in the cache first and just not recycle that number if there is. To do 
+this is ilookup the correct/safe thing to do?
+
+2') A further issue here is that ilookup is not available in some older 2.4.x 
+versions. Is it Ok to just patch the ilookup code in, say, 2.4.27 back into 
+earlier versions (say 2.4.18 which seems a popular vintage for embedded stuff 
+for some reason or other).
+
+
+Thanx
+
+-- Charles
+
+

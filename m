@@ -1,101 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263448AbUIPVS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263736AbUIPVTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263448AbUIPVS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 17:18:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266357AbUIPVS4
+	id S263736AbUIPVTl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 17:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266357AbUIPVTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 17:18:56 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:33034 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S263448AbUIPVSw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 17:18:52 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>,
-       "'debian-user@lists.debian.org'" <debian-user@lists.debian.org>,
-       linuxppc-embedded@lists.linuxppc.org,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: problem with initialization while accessing NFS mounted root file  system during the Linux 2.6 boot
-Date: Fri, 17 Sep 2004 00:18:29 +0300
-User-Agent: KMail/1.5.4
-References: <313680C9A886D511A06000204840E1CF0A647182@whq-msgusr-02.pit.comms.marconi.com>
-In-Reply-To: <313680C9A886D511A06000204840E1CF0A647182@whq-msgusr-02.pit.comms.marconi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409170018.29445.vda@port.imtp.ilyichevsk.odessa.ua>
+	Thu, 16 Sep 2004 17:19:41 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:58384 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S263736AbUIPVTi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 17:19:38 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: martin.bouzek@radas-atc.cz
+Subject: Re: Minor IPSec bug + solution
+Cc: linux-kernel@vger.kernel.org, davem@davemloft.net, netdev@oss.sgi.com
+Organization: Core
+In-Reply-To: <1095327372.4466.87.camel@mabouzek>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.26-1-686-smp (i686))
+Message-Id: <E1C83f1-0002X7-00@gondolin.me.apana.org.au>
+Date: Fri, 17 Sep 2004 07:19:23 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 September 2004 21:23, Povolotsky, Alexander wrote:
-> > Hi,
-> >
-> > I've managed to program U-boot bootloader and now am trying to boot my
-> > PQ2FADS-VR board " vanilla" with Linux 2.6.8-rc4 ...but I have problem
-> > with the  initialization while accessing NFS mounted root file system ...
-> > .
-> >
-> > I have NFS server running on my Windows XP Laptop (that is all I am
-> > allowed to have, no Linux hosts machine available to me ...). I copied
-> > entire "fadsroot" directory from Arabella's CD-ROM into my "fadsroot"
-> > directory on my D-drive and made this directory nfs-shared-mountable (I
-> > have propagated permissions from "fadsroot" down to all subfolders within
-> > "fadsroot" ...).
+Martin Bouzek <martin.bouzek@radas-atc.cz> wrote:
+> 
+> I was setting up an VPN via IPSec in kernel 2.6.x on IPv4 and found the
+> following bug. It is not possible to set up an IPComp/ESP tunnel with
+> IPComp set as mandatory. The following setup works fine for me:
 
-Windows NFS server... ugh...
+You can never set IPComp as mandatory because ipcomp_output() will not
+compress anything that is incompressible.
 
-> > I noticed several errors during the copy process - complaining that I am
-> > over-writing the files being already copied - is it an issue with "letter
-> > case" ? - are there files on the Arabella's CD-ROM "fadsroot", which have
-> > same names but differ just in the letter case used ?
->
-> What file system support I need to configure while bulding the kernel for
-> such case ?
->
-> > Anyway I am getting the following error during the end of the boot:
-> > ......
-> > device=eth0, addr=192.168.1.103, mask=255.255.255.0, gw=255.255.255.255,
-> > host=192.168.1.103, domain=, nis-domain=(none),
-> > bootserver=255.255.255.255, rootserver=192.168.1.100, rootpath=
-> > Looking up port of RPC 100003/2 on 192.168.1.100
-> > Looking up port of RPC 100005/1 on 192.168.1.100
-> > VFS: Mounted root (nfs filesystem).
-> > Freeing unused kernel memory: 272k init
-> > Warning: unable to open an initial console.
+> function. For tunnels it returns 
+> 
+> tmpl->optional && !xfrm_state_addr_cmp(tmpl, x, family);
 
-/dev/console doesn't exist. No wonder. Windows NFS server
-can't provide device nodes, I suspect. Use devfs, or
-better still, use initrd (see below).
-
-> > Kernel panic: No init found.  Try passing init= option to kernel.
-> >  <0>Rebooting in 180 seconds..
-> >
-> > My U-boot environment is:
-> > => printenv
-> > bootdelay=5
-> > bootcmd=bootm 200000
-> > ipaddr=192.168.1.103
-> > serverip=192.168.1.100
-> > ethaddr=08:00:17:00:00:03
-> > bootargs=root /dev/nfs rw nfsroot=192.168.1.100:/home/apovolot/fadsroot
-> > baudrate=19200
-> > stdin=serial
-> > stdout=serial
-> > stderr=serial
-> >
-> > Any ideas ?
-
-I am using initrd for early userspace & NFS root mount.
-Initrd allows me to do various non-trivial setup tricks
-before I exec init.
-
-Also I can troubleshoot stuff by booting with
-init=/bin/sh (launches busybox shell in initrd)
-instead of init=/linuxrc
-
-My initrd image is at work. Do you want me to send
-it to you tomorrow?
---
-vda
-
+The check is correct as it is.  Internal states must never match any
+required transform.
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

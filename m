@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270760AbRHNTex>; Tue, 14 Aug 2001 15:34:53 -0400
+	id <S270763AbRHNTjx>; Tue, 14 Aug 2001 15:39:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270758AbRHNTeo>; Tue, 14 Aug 2001 15:34:44 -0400
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:3086 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S270760AbRHNTec>; Tue, 14 Aug 2001 15:34:32 -0400
-Message-ID: <3B797D8B.8682A077@t-online.de>
-Date: Tue, 14 Aug 2001 21:35:39 +0200
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.6-ac5 i686)
-X-Accept-Language: en
+	id <S270757AbRHNTje>; Tue, 14 Aug 2001 15:39:34 -0400
+Received: from mta1n.bluewin.ch ([195.186.1.210]:48581 "EHLO mta1n.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S270695AbRHNTj0>;
+	Tue, 14 Aug 2001 15:39:26 -0400
+Message-ID: <3B790EE100026F51@mta1n.bluewin.ch> (added by postmaster@bluewin.ch)
+From: "Per Jessen" <per@computer.org>
+To: "Helge Hafting" <helgehaf@idb.hist.no>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "PinkFreud" <pf-kernel@mirkwood.net>
+Date: Tue, 14 Aug 2001 21:47:53 +0200
+Reply-To: "Per Jessen" <per@computer.org>
+X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1212)
 MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make psaux reconnect adjustable
-In-Reply-To: <200108141829.SAA108540@vlet.cwi.nl>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Subject: Re: Are we going too fast?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
-> 
->     From Gunther.Mayer@t-online.de Tue Aug 14 19:10:40 2001
-> 
->     >     I can confirm what you suggest:
->     >         My mouse (Logitech wheel USB/PS2) sends indeed AA 00.
->     >     So, I extended my patch:
->     >     psmouse_reconnect = 0: Do nothing (just pass all to userspace)
->     >     psmouse_reconnect = 1: Flush Q & ping mouse on AA 00 (default)
->     >     psmouse_reconnect = 2: Flush Q & ping mouse on AA (old behaviour)
->     >
->     >     With reconnect 1 or 2: After reconnecting, mouse behaves strange
->     >         (jumping around the screen)
-> 
->     This is a serious bug in many user-space drivers. PS/2 mouse protocol
->     was designed to easily re-synchronize (think about transmission errors/
->     lost bytes).
-> 
-> The fragment of text you reply to is not about the 3-byte PS/2
-> protocol, but about the 4-byte wheelmouse protocol.
+On Tue, 14 Aug 2001 09:57:29 +0200, Helge Hafting wrote:
 
-No, it applies even to 4-byte protocol (see 1).
+>PinkFreud wrote:
+>[...]
+>
+>> > Matter of opinion. I would say that Linux-2.4 has been way long to come
+>> > and wasn't quite ready for stable status. There are numerous other O/Ses
+>> 
+>> That's what I've been attempting to say, as well.  It seems to have been
+>> released too quickly - minimal testing, too many bugs.
+>
+>The testing isn't minimal - it is merely ongoing.  Users don't
+>pay for the kernel, so they are part of the testing team.
+>
+>If you use anything but a distribution kernel, keep previous
+>kernels around when you upgrade.  If the new one fails, report
+>it here and go back to the previous one.  The only way to get wide
+>testing is when enough people do this.
 
-1) Re-synchronize on transmission errors (e.g. lost bytes)
-The 4-byte protocol shares bytes 1-3 with the 3-byte protocol.
-So it can synchronize just as easy.
+Very true, although I get the feeling that the 2.2. series was far more
+'stable' than the current 2.4 series. Just a feeling, but .... 
+What you're saying seems to apply more to a 2.<odd> kernel series, IMHO ?
 
-2) Re-connecting the mouse
-The 4-byte wheelmouse protocol must be re-enabled by sending proper
-magic bytes by user-level driver (else it stays in 3-byte mode).
+I haven't done this myself, but perhaps we ought to look at the frequency
+of new 2.4 releases compared to new 2.2 releases. Shouldn't their frequency
+be roughly equal ? ie. the speed with which we're seeing new 2.4 releases 
+should be - roughly - that of which we saw new 2.2 kernels emerging ?
 
-_This_ shows, user-mode must be notified of the re-connect! So letting
-the driver choose PS2_TRANSPARENT, it can easily handle this situation.
+comments ?
 
-3) Re-connecting a different animal
-The user-level driver should autodetect common mouse protocols
-(legacy proprietary protocols will vanish and should not hinder progress).
+
+
+regards,
+Per Jessen, Zurich
+http://www.enidan.com - home of the J1 serial console.
+
+Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
+
+

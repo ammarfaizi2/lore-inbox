@@ -1,70 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264791AbUGAMkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264808AbUGAMnf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264791AbUGAMkI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 08:40:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264808AbUGAMkI
+	id S264808AbUGAMnf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 08:43:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264815AbUGAMnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 08:40:08 -0400
-Received: from mail.shareable.org ([81.29.64.88]:60333 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S264791AbUGAMkA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 08:40:00 -0400
-Date: Thu, 1 Jul 2004 13:39:41 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Michael Kerrisk <michael.kerrisk@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: Testing PROT_NONE and other protections, and a surprise
-Message-ID: <20040701123941.GC4187@mail.shareable.org>
-References: <20040630024434.GA25064@mail.shareable.org> <20040630033841.GC21066@holomorphy.com> <20040701032606.GA1564@mail.shareable.org> <00345FCC-CB11-11D8-947A-000393ACC76E@mac.com> <20040701041158.GE1564@mail.shareable.org> <736E7483-CB1B-11D8-947A-000393ACC76E@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <736E7483-CB1B-11D8-947A-000393ACC76E@mac.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 1 Jul 2004 08:43:33 -0400
+Received: from pxy4allmi.all.mi.charter.com ([24.247.15.43]:31209 "EHLO
+	proxy4.gha.chartermi.net") by vger.kernel.org with ESMTP
+	id S264808AbUGAMnb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 08:43:31 -0400
+Message-ID: <40E407C8.3010209@quark.didntduck.org>
+Date: Thu, 01 Jul 2004 08:47:04 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040625
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Sam Ravnborg <sam@ravnborg.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Clean up module install rules
+Content-Type: multipart/mixed;
+ boundary="------------060603040701010107040105"
+X-Charter-Information: 
+X-Charter-Scan: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett wrote:
-> >Can you confirm in a simple way that mapping a file, or some anonymous
-> >memory, without PROT_READ, really isn't writable under MacOS X?  Can
-> >you confirm it with a word write, if that would be relevant?
-> 
-> I hope I didn't make some stupid mistake in my program, but here it
-> is, and here are my results.
+This is a multi-part message in MIME format.
+--------------060603040701010107040105
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thanks for testing, Kyle.
+Consolidate rules for installing internal and external modules.
 
-It looks fine, although this is wrong:
+--
+				Brian Gerst
 
->         mem = mmap(0,4096,PROT_WRITE,MAP_ANON|MAP_SHARED,-1,0);
-> ...
->         if (mem == 0) return 1;
 
-The error code is -1, aka. MAP_FAILED.
+--------------060603040701010107040105
+Content-Type: text/plain;
+ name="modinst-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="modinst-1"
 
-> Starting...
-> Mapped memory!
-> Address is 4000
+diff -urN linux-2.6.7-bk/scripts/Makefile.modinst linux/scripts/Makefile.modinst
+--- linux-2.6.7-bk/scripts/Makefile.modinst	2004-06-23 18:06:06.000000000 -0400
++++ linux/scripts/Makefile.modinst	2004-06-29 13:45:26.232647680 -0400
+@@ -16,20 +16,10 @@
+ __modinst: $(modules)
+ 	@:
+ 
+-# Modules built within the kernel tree
+-
+ quiet_cmd_modules_install = INSTALL $@
+-      cmd_modules_install = mkdir -p $(MODLIB)/kernel/$(@D); \
+-			    cp $@ $(MODLIB)/kernel/$(@D)
+-
+-$(filter-out ../% /%,$(modules)):
+-	$(call cmd,modules_install)
+-
+-# Modules built outside just go into extra
++      cmd_modules_install = mkdir -p $(2); cp $@ $(2)
+ 
+-quiet_cmd_modules_install_extra = INSTALL $(obj-m:.o=.ko)
+-      cmd_modules_install_extra = mkdir -p $(MODLIB)/extra; \
+-			    	  cp $@ $(MODLIB)/extra
++modinst_dir = $(MODLIB)/$(if $(filter ../% /%,$@),extra/,kernel/$(@D))
+ 
+-$(filter     ../% /%,$(modules)):
+-	$(call cmd,modules_install_extra)
++$(modules):
++	$(call cmd,modules_install,$(modinst_dir))
 
-That's a surprisingly low address.
 
-> Bus error
-
-Phew, I'm glad I decided to catch SIGBUS in the test program at the
-last moment...
-
-That's a historical BSD-ism.  They can't change it now, because
-programs do trap and check for SIGBUS on that platform for protection
-violations.
-
-> I'll probably go file a bug with Apple now :-D
-
-It might be a generic *BSD bug (for whatever value of * is used by MacOS X).
-
-That would be interesting to know -- anyone here running *BSD on PPC
-or any other architecture to test?
-
-Of course it's an Apple bug as well :)
-
--- Jamie
+--------------060603040701010107040105--

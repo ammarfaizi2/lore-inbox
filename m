@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319564AbSIHDpr>; Sat, 7 Sep 2002 23:45:47 -0400
+	id <S319566AbSIHEZJ>; Sun, 8 Sep 2002 00:25:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319566AbSIHDpr>; Sat, 7 Sep 2002 23:45:47 -0400
-Received: from CPE00606767ed59.cpe.net.cable.rogers.com ([24.112.38.222]:45576
-	"EHLO cpe00606767ed59.cpe.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S319564AbSIHDpq>; Sat, 7 Sep 2002 23:45:46 -0400
-Date: Sat, 7 Sep 2002 23:51:47 -0400 (EDT)
-From: "D. Hugh Redelmeier" <hugh@mimosa.com>
-Reply-To: "D. Hugh Redelmeier" <hugh@mimosa.com>
-To: Oliver Xymoron <oxymoron@waste.org>
-cc: Tommi Kyntola <kynde@ts.ray.fi>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (0/4) Entropy accounting fixes
-In-Reply-To: <20020820172215.GE19225@waste.org>
-Message-ID: <Pine.LNX.4.44.0209072344550.21724-100000@redshift.mimosa.com>
+	id <S319567AbSIHEZJ>; Sun, 8 Sep 2002 00:25:09 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:40972 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S319566AbSIHEZJ>; Sun, 8 Sep 2002 00:25:09 -0400
+Message-ID: <3D7AD21F.4020401@zytor.com>
+Date: Sat, 07 Sep 2002 21:29:19 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+CC: paubert@iram.es, lk@tantalophile.demon.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: TCP Segmentation Offloading (TSO)
+References: <20020905121717.A15540@kushida.apsleyroad.org>	<Pine.LNX.4.33.0209051334280.13338-100000@gra-lx1.iram.es> <20020908.132018.52159009.taka@valinux.co.jp>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-| From: Oliver Xymoron <oxymoron@waste.org>
-| Date: Tue, 20 Aug 2002 12:22:16 -0500
+Hirokazu Takahashi wrote:
+ >
+> I wish recent x86 processor can reorder instructions in it.
+> 
 
-| On Tue, Aug 20, 2002 at 07:19:26PM +0300, Tommi Kyntola wrote:
+They can.
 
-| >  Does strict gamma assumption 
-| > really lead to so strict figures as you showed in your patch :
-| > static int benford[16]={0,0,0,1,2,3,4,5,5,6,7,7,8,9,9,10};
-| > 
-| > Numbers below 0..7, don't have a single bit of entropy?
-| 
-| They have fractional bits of entropy.
+	-hpa
 
-If entropy is added in such small amounts, should the entropy counter
-be denominated in, say, 1/4 bits?  Would this allow the entropy
-estimate to safely grow significantly faster?  Are the estimates
-accurate enough to justify such precision?
-
-Hugh Redelmeier
-hugh@mimosa.com  voice: +1 416 482-8253
 

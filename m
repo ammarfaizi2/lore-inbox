@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVBUX7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262182AbVBVACI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262180AbVBUX7l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 18:59:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbVBUX7l
+	id S262182AbVBVACI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 19:02:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbVBVACI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 18:59:41 -0500
-Received: from mxsf13.cluster1.charter.net ([209.225.28.213]:57313 "EHLO
-	mxsf13.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S262180AbVBUX7k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 18:59:40 -0500
-X-Ironport-AV: i="3.90,104,1107752400"; 
-   d="scan'208"; a="789621781:sNHT125156648"
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Feb 2005 19:02:08 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:62162 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262182AbVBVAB6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 19:01:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=Z9e2U5eZgg3GyA5H4k7e8wpeGQdS/QAMoq9shauxJWoam1Pbh7vLLalZZmjFazfYnzq8e9CW82LnM3v2fKYQWxOoZrcsKM+JVVBAb9YPFn9fNUUUwDj5Ut6AM/sQIl7ujlvd4xA4Y8oUUNuX2m7ez7tHr3zguOinsqH7gM+wyIg=
+Message-ID: <bbef41570502211601f5a47be@mail.gmail.com>
+Date: Mon, 21 Feb 2005 19:01:54 -0500
+From: Brandy Chin <brandy.chin@gmail.com>
+Reply-To: Brandy Chin <brandy.chin@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Disks Activity Stats
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16922.30184.268574.616226@smtp.charter.net>
-Date: Mon, 21 Feb 2005 18:59:36 -0500
-From: "John Stoffel" <john@stoffel.org>
-To: me <cellsan@interia.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB Storage problem (usb hangs)
-In-Reply-To: <20050220173401.48EF9E5B93@poczta.interia.pl>
-References: <20050220173401.48EF9E5B93@poczta.interia.pl>
-X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello All,
 
-me> The device is: USB2.0 to IDE 3.5" hard disk enclosure.
-me> Producer: Seven.
+I'm having some trouble in getting the number of disk blocks
+read/written per second.  I found the link on /proc/diskstats but I
+don't see that parameter somewhere.  If there's a way to get the
+number, it'd be great.  Otherwise some cursory advice, pointer to more
+links would be fine.
 
-me> Part of /var/log/messages with USB debug enabled in kernel is
-me> attached to this email.
+Thanks very much,
 
-me> Kernel: 2.6.9, 2.6.10 (i cant remember from which one is attached log).
-me> Distribution: Gentoo.
-
-Try upgrading to 2.6.11-rc2-mm2 or newer, I've found that usb-storage
-works a bit better here, though I haven't confirmed this without debug
-enabled in the usb-storage driver yet.
-
-Maybe later tonight if I get a chance to reboot.
-
-John
+http://www.ibiblio.org/peanut/Kernel-2.6.10/iostats.txt

@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293510AbSDUEYR>; Sun, 21 Apr 2002 00:24:17 -0400
+	id <S310206AbSDUE3V>; Sun, 21 Apr 2002 00:29:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310206AbSDUEYQ>; Sun, 21 Apr 2002 00:24:16 -0400
-Received: from server0011.freedom2surf.net ([194.106.56.14]:1305 "EHLO
-	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
-	id <S293510AbSDUEYQ>; Sun, 21 Apr 2002 00:24:16 -0400
-Date: Sun, 21 Apr 2002 05:31:43 +0100
-From: Ian Molton <spyro@armlinux.org>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+	id <S310224AbSDUE3U>; Sun, 21 Apr 2002 00:29:20 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:21961 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S310206AbSDUE3T>;
+	Sun, 21 Apr 2002 00:29:19 -0400
+Date: Sat, 20 Apr 2002 21:20:17 -0700 (PDT)
+Message-Id: <20020420.212017.22963738.davem@redhat.com>
+To: spyro@armlinux.org
+Cc: viro@math.psu.edu, torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-Id: <20020421053143.4ef9f810.spyro@armlinux.org>
-In-Reply-To: <Pine.GSO.4.21.0204202347010.27210-100000@weyl.math.psu.edu>
-Reply-To: spyro@armlinux.org
-Organization: The dragon roost
-X-Mailer: Sylpheed version 0.7.4cvs5 (GTK+ 1.2.10; )
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020421053143.4ef9f810.spyro@armlinux.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro Awoke this dragon, who will now respond:
+   From: Ian Molton <spyro@armlinux.org>
+   Date: Sun, 21 Apr 2002 05:31:43 +0100
 
-> 
->  As one of the guys who doesn't use BK _and_ had submitted a lot of
->  patches since Linus had started using it, I'm probably qualified to tell
->  whether it hurts orSure, except no-one cares about this point.
+   Alexander Viro Awoke this dragon, who will now respond:
+   
+   >  As one of the guys who doesn't use BK _and_ had submitted a lot of
+   >  patches since Linus had started using it, I'm probably qualified to tell
+   >  whether it hurts orSure, except no-one cares about this point.
+   
+   Sure, except no-one cares about this point.
+   
+   the documentation is the 'sticky wicket'...
 
-Sure, except no-one cares about this point.
+Incorrect.  The argument for the documentation was that it along with
+other things wrt. BK create some "barrier to entry" for Linux kernel
+development and almost force someone to use BK.  That someone just
+submitting patches is somehow "left out".
 
-the documentation is the 'sticky wicket'...
+Al is showing that these claims are not well founded at all.

@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269558AbUJWBc1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269340AbUJWBYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269558AbUJWBc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 21:32:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269759AbUJWB3X
+	id S269340AbUJWBYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 21:24:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269347AbUJWBUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 21:29:23 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:53963 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269558AbUJWB2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 21:28:16 -0400
-Subject: Re: [PATCH] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Jody McIntyre <realtime-lsm@modernduck.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
-In-Reply-To: <87zn2erzvx.fsf@sulphur.joq.us>
-References: <1097272140.1442.75.camel@krustophenia.net>
-	 <20041008145252.M2357@build.pdx.osdl.net>
-	 <1097273105.1442.78.camel@krustophenia.net>
-	 <20041008151911.Q2357@build.pdx.osdl.net>
-	 <20041008152430.R2357@build.pdx.osdl.net> <87zn2wbt7c.fsf@sulphur.joq.us>
-	 <20041008221635.V2357@build.pdx.osdl.net> <87is9jc1eb.fsf@sulphur.joq.us>
-	 <20041009121141.X2357@build.pdx.osdl.net> <878yafbpsj.fsf@sulphur.joq.us>
-	 <20041009155339.Y2357@build.pdx.osdl.net> <874qkmtibt.fsf@sulphur.joq.us>
-	 <87zn2erzvx.fsf@sulphur.joq.us>
-Content-Type: text/plain
-Date: Fri, 22 Oct 2004 21:27:58 -0400
-Message-Id: <1098494878.4731.1.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Fri, 22 Oct 2004 21:20:30 -0400
+Received: from ozlabs.org ([203.10.76.45]:1471 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S269538AbUJWAeM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 20:34:12 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16761.42743.34328.919506@cargo.ozlabs.ibm.com>
+Date: Sat, 23 Oct 2004 10:33:59 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pmac_cpufreq msleep cleanup/fixes
+In-Reply-To: <20041022234344.GI18906@us.ibm.com>
+References: <200410221906.i9MJ63Ai022889@hera.kernel.org>
+	<1098484616.6028.80.camel@gaston>
+	<Pine.LNX.4.58.0410221552320.2101@ppc970.osdl.org>
+	<1098487053.6029.89.camel@gaston>
+	<20041022234344.GI18906@us.ibm.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-22 at 20:23 -0500, Jack O'Quin wrote:
-> > Chris Wright <chrisw@osdl.org> writes:
-> > 
-> > > - less generic variable names
-> > >   - s/any/rt_any/
-> > >   - s/gid/rt_gid/
-> > >   - s/mlock/rt_mlock/
+Nishanth Aravamudan writes:
 
-OK for those of you not playing along at home, here is the latest
-version of the realtime LSM with all Chris' fixes, as a patch against
-2.6.9-mm1. 
+> Looks good to me... And makes quite a bit of sense, after I thought
+> about it. Does feel a little hacky, but I don't see a slicker way around
+> the problem...
 
-http://krustophenia.net/realtime-lsm-2.6.9-mm1.patch
+We would need a platform-specific function to tell us how long until
+the next jiffy to do any better, I think, and even then it would only
+make much of a difference if HZ was significantly smaller than 1000.
 
-I think the only change still needed is to remove the sysctl stuff.
+We could do the how-long-until-next-jiffy function quite easily and
+quickly on ppc and ppc64, just by reading the decrementer register and
+scaling it.  I don't know about other architectures.  But if we are
+mostly using HZ=1000 there doesn't seem to be much point.
 
--- 
-Lee Revell <rlrevell@joe-job.com>
-
+Paul.

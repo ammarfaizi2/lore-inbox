@@ -1,72 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVBMQij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVBMQjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbVBMQij (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Feb 2005 11:38:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVBMQij
+	id S261237AbVBMQjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Feb 2005 11:39:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVBMQjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Feb 2005 11:38:39 -0500
-Received: from smtpout1.uol.com.br ([200.221.4.192]:23726 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261185AbVBMQhp
+	Sun, 13 Feb 2005 11:39:15 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:18950 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261237AbVBMQjG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Feb 2005 11:37:45 -0500
-Date: Sun, 13 Feb 2005 14:37:39 -0200
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: linux-kernel@vger.kernel.org
-Subject: Re: irq 10: nobody cared! (was: Re: 2.6.11-rc3-mm1)
-Message-ID: <20050213163738.GC4563@ime.usp.br>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050204103350.241a907a.akpm@osdl.org> <20050205224558.GB3815@ime.usp.br> <20050212222104.GA1965@node1.opengeometry.net> <20050212224715.GA8249@ime.usp.br> <20050212232134.GA2242@node1.opengeometry.net> <20050212235043.GA4291@ime.usp.br> <20050213014151.GA2735@node1.opengeometry.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050213014151.GA2735@node1.opengeometry.net>
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 13 Feb 2005 11:39:06 -0500
+To: Mariusz Mazur <mmazur@kernel.pl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] linux-libc-headers-2.6.10.0: if_tunnel.h relies on
+ byteorder.h having been included
+From: Nix <nix@esperi.org.uk>
+X-Emacs: more boundary conditions than the Middle East.
+Date: Sun, 13 Feb 2005 16:38:58 +0000
+Message-ID: <87k6pch0t9.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 12 2005, William Park wrote:
-> On Sat, Feb 12, 2005 at 09:50:43PM -0200, Rog?rio Brito wrote:
-> > To prevent the matters of loosing track of what is being done, I only
-> > changed one option at a time. I put the dmesg logs of all my attempts
-> > at <http://www.ime.usp.br/~rbrito/ide-problem/>.
-> > 
-> > Please let me know if I can provide any other useful information.
-> 
-> Your 'dmesg' says
->     Warning: Secondary channel requires an 80-pin cable for operation.
-> I assume it is.
+In iproute2, ip/iptunnel.c says:
 
-Indeed, I have two HDs plugged on the Promise controller. One of them (the
-first one) has a 80-pin cable and the bios configures it to use UDMA 4.
+#include <linux/if.h>
+#include <linux/if_arp.h>
+#include <linux/ip.h>
+#include <linux/if_tunnel.h>
 
-Since I only have one 80-ribbon cable, the second HD uses a 40-ribbon cable
-and is configured as the master of the other channel of the Promise
-controller (to avoid having problems with the first one and to increase the
-performance, since IDE does not have the ability to "disconnect" devices).
+Now the original Linux kernel includes byteorder.h as a side-effect of
+including netdevice.h, which it does inside a __KERNEL__ ifdef when
+if_arp.h is included.
 
-Perhaps that is the problem? I will try to turn off the second drive for a
-moment, but I guess that there shouldn't be such problems.
+I think it makes more sense to include it in those headers that actually
+use the __constant_htons() macro, viz:
 
-One thing that is curious is that since both HDs are on different channels
-of the Promise controller (as masters), the BIOS configures the first one
-(with the 80-pin cable) as UDMA 4 and the second one (with the 40-pin
-cable) as UDMA 2.
+diff -durN 2.6.10.0-orig/include/linux/if_pppox.h 2.6.10.0/include/linux/if_pppox.h
+--- 2.6.10.0-orig/include/linux/if_pppox.h	2004-10-31 19:55:51.000000000 +0000
++++ 2.6.10.0/include/linux/if_pppox.h	2005-02-13 16:28:58.000000000 +0000
+@@ -21,6 +21,7 @@
+ #include <asm/types.h>
+ #include <endian.h>
+ #include <byteswap.h>
++#include <asm/byteorder.h>
+ 
+ /* For user-space programs to pick up these definitions
+  * which they wouldn't get otherwise without defining __KERNEL__
+diff -durN 2.6.10.0-orig/include/linux/if_tunnel.h 2.6.10.0/include/linux/if_tunnel.h
+--- 2.6.10.0-orig/include/linux/if_tunnel.h	2004-10-31 19:55:26.000000000 +0000
++++ 2.6.10.0/include/linux/if_tunnel.h	2005-02-13 16:28:35.000000000 +0000
+@@ -4,6 +4,7 @@
+ #include <linux/if.h>
+ #include <linux/ip.h>
+ #include <asm/types.h>
++#include <asm/byteorder.h>
+ 
+ #define SIOCGETTUNNEL   (SIOCDEVPRIVATE + 0)
+ #define SIOCADDTUNNEL   (SIOCDEVPRIVATE + 1)
+diff -durN 2.6.10.0-orig/include/linux/sctp.h 2.6.10.0/include/linux/sctp.h
+--- 2.6.10.0-orig/include/linux/sctp.h	2005-01-08 14:03:26.000000000 +0000
++++ 2.6.10.0/include/linux/sctp.h	2005-02-13 16:29:36.000000000 +0000
+@@ -53,6 +53,7 @@
+ 
+ #include <linux/in.h>		/* We need in_addr.  */
+ #include <linux/in6.h>		/* We need in6_addr.  */
++#include <asm/byteorder.h>
+ 
+ 
+ /* Section 3.1.  SCTP Common Header Format */
 
-Then, when Linux boots, it downgrades both devices to UDMA 2, including the
-one with the 80-ribbon cable. Is that expected behaviour?
 
-> Do you have MSI on by any chance?  (CONFIG_PCI_MSI)  If so, try kernel
-> without it.  My motherboard exhibits runaway IRQ with it.
-
-I don't know what MSI is (I only know of a manufacturer of motherboards
-called MSI), but my motherboard is an Asus A7V with chipset VIA KT133 (not
-the latter revision, VIA KT133A).
-
-
-Thank you very much for your help, Rogério.
+(With this patch, the header stands alone, and iproute2 compiles again.)
 
 -- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Synapsids unite! You have nothing to lose but your eggshells!

@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263326AbSLRQWd>; Wed, 18 Dec 2002 11:22:33 -0500
+	id <S264001AbSLRQ3Y>; Wed, 18 Dec 2002 11:29:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264001AbSLRQWd>; Wed, 18 Dec 2002 11:22:33 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:26011 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S263326AbSLRQWd>;
-	Wed, 18 Dec 2002 11:22:33 -0500
-Date: Wed, 18 Dec 2002 16:29:58 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [drm:drm_init] *ERROR* Cannot initialize the agpgart module.
-Message-ID: <20021218162958.GA27695@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Ed Tomlinson <tomlins@cam.org>,
-	Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-References: <20021218094714.43C712C076@lists.samba.org> <200212180757.53583.tomlins@cam.org>
-Mime-Version: 1.0
+	id <S264665AbSLRQ3Y>; Wed, 18 Dec 2002 11:29:24 -0500
+Received: from packet.digeo.com ([12.110.80.53]:57009 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264001AbSLRQ3Y>;
+	Wed, 18 Dec 2002 11:29:24 -0500
+Message-ID: <3E00A43D.ADB20C26@digeo.com>
+Date: Wed, 18 Dec 2002 08:37:17 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: tomlins@cam.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.52-mm1
+References: <3DFD908D.14D7F6E7@digeo.com> <20021218122602.288D52230@oscar.casa.dyndns.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212180757.53583.tomlins@cam.org>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Dec 2002 16:37:17.0930 (UTC) FILETIME=[BA9244A0:01C2A6B3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 18, 2002 at 07:57:53AM -0500, Ed Tomlinson wrote:
- > > >  > Ed, does it work if you take all the __init out of the agp code?
- > > > My moneys on it working. The oops looked like it was jumping to oblivion
- > > > when it called agp_backend_initialize.
- > Dave when you have this in a bk tree let me know and I will pull and 
- > verify it working here.
+Ed Tomlinson wrote:
+> 
+> Hi
+> 
+> Got this oops this morning reading news:
+> 
+> Dec 18 07:15:29 oscar kernel:  printing eip:
+> Dec 18 07:15:29 oscar kernel: c0140317
+> Dec 18 07:15:29 oscar kernel: Oops: 0002
+> Dec 18 07:15:29 oscar kernel: CPU:    0
+> Dec 18 07:15:29 oscar kernel: EIP:    0060:[remove_inode_buffers+67/116]    Not tainted
+> Dec 18 07:15:29 oscar kernel: EFLAGS: 00010246
+> Dec 18 07:15:29 oscar kernel: EIP is at remove_inode_buffers+0x43/0x74
+> Dec 18 07:15:29 oscar kernel: eax: 0dc4c344   ebx: c3440dc4   ecx: c3440dc6   edx: 0000c344
+> Dec 18 07:15:29 oscar kernel: esi: c3440cd4   edi: 00000001   ebp: dfdb9ebc   esp: dfdb9e8c
+> Dec 18 07:15:29 oscar kernel: ds: 0068   es: 0068   ss: 0068
+> Dec 18 07:15:29 oscar kernel: Process kswapd0 (pid: 7, threadinfo=dfdb8000 task=dfdcb860)
+> Dec 18 07:15:29 oscar kernel: Stack: c3440cd4 c3440cdc dfdb8000 c0152ff7 c3440cd4 00000080 00000923 d
+> Dec 18 07:15:29 oscar kernel:        00000036 00000036 c3440b5c d76876dc 00000000 c01530db 00000080 c
+> Dec 18 07:15:29 oscar kernel:        00000080 000001d0 00000221 c02a5374 fffffe27 0000000c 0d024a92 0
 
-bk://linux-dj.bkbits.net/agpgart
-
-I've given it a compile testing, but not booted it yet.
-Scream if necessary.
-
-	Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+Wow, what a mess.  Something has written this "c3440cd4" value
+into the stack and most of the registers.  Presumably it was
+some interrupt.  Don't know, sorry.

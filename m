@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277255AbRJQVpa>; Wed, 17 Oct 2001 17:45:30 -0400
+	id <S277258AbRJQVp7>; Wed, 17 Oct 2001 17:45:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277256AbRJQVpU>; Wed, 17 Oct 2001 17:45:20 -0400
-Received: from [200.250.64.5] ([200.250.64.5]:7339 "EHLO nat.brsat.com.br")
-	by vger.kernel.org with ESMTP id <S277255AbRJQVpI>;
-	Wed, 17 Oct 2001 17:45:08 -0400
-Message-ID: <3BCE0ACE.9000006@brsat.com.br>
-Date: Wed, 17 Oct 2001 19:48:46 -0300
-From: Roberto Orenstein <roberto@brsat.com.br>
-Reply-To: roberto@brsat.com.br
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.12-ac3 i686; en-US; m18) Gecko/20010131 Netscape6/6.01
-X-Accept-Language: pt-br, en
+	id <S277260AbRJQVpu>; Wed, 17 Oct 2001 17:45:50 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58886 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S277258AbRJQVpm>; Wed, 17 Oct 2001 17:45:42 -0400
+Date: Wed, 17 Oct 2001 14:45:18 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: <chris@scary.beasts.org>
+cc: Andrea Arcangeli <andrea@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Paul Gortmaker <p_gortmaker@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Making diff(1) of linux kernels faster
+In-Reply-To: <Pine.LNX.4.33.0110172220230.2072-100000@sphinx.mythic-beasts.com>
+Message-ID: <Pine.LNX.4.33.0110171444210.1537-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: alan@lxorguk.ukuu.org.uk
-Subject: Re: new Rik` patch kicks ass
-In-Reply-To: <200110172139.f9HLdVt01368@vegae.deep.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samium Gromoff wrote:
 
->       hello folks, i`m here to report significant success in VM area
->    achieved by latest Rik van Riel` patch vs 2.4.12-ac3.
->     The system resposiveness on 24M ram in X improved quite considerable, 
->    even though i started an additional xmms over gimp with opened image +
->    opera + some xterms. This leaves me with 37MB swap and system no more
->    goes mad when i point`n`click random windows...
-> 
->     Btw xmms havent clicked...
-> 
->    Overall: quite great job!
+On Wed, 17 Oct 2001 chris@scary.beasts.org wrote:
+>
+> Do the -ac kernels have the directory in pagecache patch? If not, it could
+> explain why the -ac kernel performed _much_ better for the
+> creat()/stat()/unlink() tests in bonnie++.
 
-Just to complement with another success case :)
-The patch improved my system response with high load pretty much.
-Now i'm even able to stress the system with quintela's memtest suite and 
-keep using the machine, wich was nearly impossible without the patch
+I think that's because bforget() got disabled during the initial
+buffers-in-pacgecache work, and I forgot to re-enable it again. I'll make
+a 13pre4, if you want to test.
 
-Good work
-
-Roberto
-
- 
-
+		Linus
 

@@ -1,91 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269326AbRHRXX4>; Sat, 18 Aug 2001 19:23:56 -0400
+	id <S269391AbRHRXg6>; Sat, 18 Aug 2001 19:36:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269391AbRHRXXq>; Sat, 18 Aug 2001 19:23:46 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:21510 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S269326AbRHRXXd>;
-	Sat, 18 Aug 2001 19:23:33 -0400
-Date: Sun, 19 Aug 2001 01:23:47 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: <linux-kernel@vger.kernel.org>
-Subject: disk I/O slower with kernel 2.4.9 
-Message-ID: <Pine.LNX.4.33.0108190037070.1823-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269395AbRHRXgt>; Sat, 18 Aug 2001 19:36:49 -0400
+Received: from mercury.is.co.za ([196.4.160.222]:54027 "HELO mercury.is.co.za")
+	by vger.kernel.org with SMTP id <S269391AbRHRXg3>;
+	Sat, 18 Aug 2001 19:36:29 -0400
+Date: Sun, 19 Aug 2001 01:35:59 +0200
+From: Dewet Diener <linux-kerneldewet.org@darkwing.flatlit.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org, ext3-users@redhat.com
+Subject: Re: ext3 partition unmountable
+Message-ID: <20010819013559.A26332@darkwing.flatlit.net>
+In-Reply-To: <20010818030321.A11649@darkwing.flatlit.net> <3B7EEC4C.D0127AB4@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B7EEC4C.D0127AB4@zip.com.au>; from akpm@zip.com.au on Sat, Aug 18, 2001 at 03:29:32PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI,
-I was just starting to test eavily linux 2.4.9 if i can use it in a
-production environment.
-The platform target i am considering is the x86 family processor (Mostly
-AMD Athlon), with no more than 512 MByte RAM and scsi disks.
+On Sat, Aug 18, 2001 at 03:29:32PM -0700, Andrew Morton wrote:
+> Could you please run
+> 
+> 	 od -A x -t x1 /dev/hdd1
+> 
+> and send the output?
+Here's mine:
 
-The first thing i noticed is that, while  context switch performances
-has improoved a lot, disk I/O is mutch slower. This is true for both ext2
-and reiserFS, but maybe reiserFS is suffering the effects a little more
-than ext2.
-That can be even felt by a normal user, just doing a cp of a directory
-containing a lot of small files.
+000400 c0 5b 0e 81 de ab 1c 00 fe 6e 01 00 2c fa 13 00
+000410 1d 36 0e 00 00 00 02 00 02 00 02 00 02 00 00 80
+000420 00 80 00 80 00 80 00 20 60 3f 00 00 a3 56 7f 7f
+000430 b6 56 7d 3b 0c 00 15 80 53 ef 00 00 01 00 01 81
+000440 53 99 48 7b 00 4e ed 00 00 00 01 00 01 00 00 00
+000450 00 00 08 00 0b 00 00 00 80 00 00 00 00 00 02 00
+000460 02 00 01 00 01 00 e8 00 e8 00 3c 8f 15 e9 42 00
+000470 a9 5c fe bf ec a6 84 ef 00 00 00 00 00 00 00 00
+000480 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-That also has big impacts with normal compilations.
-just making time make -j 2 bzImage with kernel source 2.4.9
-gives me:
+> For the superblock I get:
+> 
+> 000400 c0 74 07 00 e2 e8 0e 00 d8 be 00 00 e1 8c 0e 00
+> 000410 b5 74 07 00 00 00 00 00 02 00 00 00 02 00 00 00
+> 000420 00 80 00 00 00 80 00 00 a0 3f 00 00 2f e9 7e 3b
+> 000430 2f e9 7e 3b 01 00 16 00 53 ef 01 00 01 00 00 00
+> 000440 1f e9 7e 3b 00 4e ed 00 00 00 00 00 01 00 00 00
+> 000450 00 00 00 00 0b 00 00 00 80 00 00 00 04 00 00 00
+> 000460 06 00 00 00 01 00 00 00 b9 d3 6c 59 2d cc 42 13
+> 000470 91 84 d4 7b 60 d2 d9 50 00 00 00 00 00 00 00 00
+> 000480 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 
+> The incompat features are at superblock offset 0x60.
+> So here it's 0x00000006 - EXT3_FEATURE_INCOMPAT_FILETYPE
+> and EXT3_FEATURE_INCOMPAT_RECOVER.
 
-real    3m36.041s
-user    2m2.950s
-sys     0m9.740s
+So, mine's 0x00010002 - EXT3_FEATURE_INCOMPAT_FILETYPE, as well as
+the undefined bit?
 
-while compiling the same sources running kernel 2.4.7 gives:
+> Somehow you seem to have set bit 16, which isn't defined.  Not sure how
+> to fix this without simply running a binary editor against /dev/hdd1 and
+> clearing the byte at offset 0x462.
 
-real    2m28.350s
-user    1m56.150s
-sys     0m5.262s
+I will certainly give that a try...
 
-Every single operation that has to do with read and write activities
-on disks is simply slower.
-
-That has big repercussion with uses like NFS server, and web server
-with khttpd as primary server and apache as the secondary one.
-
-Even more affected are mysql performances and everything relates to FS
-speed.
-
-The test machine is a AMD Athlon 1300 Mhz, 200 FSB, with 256 Mbyte RAM
-133 Mhz and an adaptec 2940 UW2 with two seagate scsi 3 disks. Mother
-board is an abit KT7A-RAID (KT133 VT82C686 chipsets) but i am not using
-any ATA disk.
-
-kernel is compiled for athlon, gcc 2.95.3, binutils 2.11.90.0.27
-
-This should not be a problem related to a via since the server has always
-been stable with all 2.4.X kernels compiled for athlon, with mtrr and
-3dnow enabled, and all bios settings setted to maximize performances.
-The AIC7XXX adaptec driver i compied statically inside of the kernel is
-the new one, with firware rebuild enabled,
-253 tag queues, and 5000m sec for reset.
-
-To be sure i made some tests also on a k6 II, and on a PIII 450 with the
-same adaptec, the same memory amount (just dimm are 100 Mhz instead of 133
-Mhz), and same kernel configuration just using respectivelly k6 and PIII
-optimizzations. Results are the same.
-
-I know i should make some comparative test beetwen 2.4.7 and 2.4.9 using
-another scsi card (like a symbios or busloginc) or with some EIDE and ATA
-disks, but actually i do not have a server available for those tests with
-different HW. SO i made my tests also on a SUN ULTRA5, with one ultrasparc
-processor running at 400 Mhz, and 512 MByte of RAM. The ultra5 disk is
-simply an ATA66, but it runs as a standard EIDE at 33 Mhz. I could just
-test ext2, because i have never been able to run an mkreiserFS on
-this platform. DISK I/O is slower with 2.4.9 also with ultrasparc
-processor, but I have to admitt that the difference is not so niticeable,
-49 minutes to compile the kernel in front of 43...
-
-I read many posts about 2.4.8 slowdown as NFS server, and i think this
-could be a case of what i noticed.
-
-Hope this helps
-Luigi
-
-
+Dewet

@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267477AbTAXBzR>; Thu, 23 Jan 2003 20:55:17 -0500
+	id <S267479AbTAXCBR>; Thu, 23 Jan 2003 21:01:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267479AbTAXBzQ>; Thu, 23 Jan 2003 20:55:16 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:41438 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S267477AbTAXBzP>; Thu, 23 Jan 2003 20:55:15 -0500
-Message-Id: <200301240204.h0O24Kr04239@unix-os.sc.intel.com>
+	id <S267492AbTAXCBQ>; Thu, 23 Jan 2003 21:01:16 -0500
+Received: from packet.digeo.com ([12.110.80.53]:30652 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267479AbTAXCBQ>;
+	Thu, 23 Jan 2003 21:01:16 -0500
+Date: Thu, 23 Jan 2003 18:10:42 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: rwhron@earthlink.net
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: big ext3 sequential write improvement in 2.5.51-mm1 gone in
+ 2.5.53-mm1?
+Message-Id: <20030123181042.025fcbbf.akpm@digeo.com>
+In-Reply-To: <20030124012618.GA12005@rushmore>
+References: <20030124012618.GA12005@rushmore>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: mgross <mgross@unix-os.sc.intel.com>
-Reply-To: mgross@unix-os.sc.intel.com
-Organization: SSG Intel
-To: Austin Gonyou <austin@coremetrics.com>, linux-kernel@vger.kernel.org
-Subject: Re: Using O(1) scheduler with 600 processes.
-Date: Thu, 23 Jan 2003 18:05:59 -0800
-X-Mailer: KMail [version 1.3.1]
-References: <1043367029.28748.130.camel@UberGeek>
-In-Reply-To: <1043367029.28748.130.camel@UberGeek>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Jan 2003 02:10:21.0317 (UTC) FILETIME=[BF89C350:01C2C34D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You should definitely give it a try.
-
-However; boosts in Oracle throughput by going to the O(1) scheduler may end 
-up being dependent on your I/O setup.
-
-I was helping out with a TPCC benchmark effort last fall for Itanium Oracle 
-through put on Red Hat AS.  For the longest time the guys with the big iron 
-hardware would not move to the newer kernels with the O(1) scheduler.  They 
-had a silly rule of only accepting changes that improved TPCC throughput.  
-(oh, this work was on 4-way Itanium 2's with 32Gig of ram, and a large number 
-of clarion fiber channel disk array towers)
-
-Anyway, for the longest time the old 2.4.18 kernel with the 4/10/04 ia-64 
-patch was 10% better than the a kernel with O(1) scheduler.  I never quite 
-figured out what the problem was.  I think the difference was in the way 
-Oracle likes to be on a Round Robbin scheduler, and the O(1) scheduler tended 
-to get unlucky more often than the old scheduler, for those drive arrays.
-
-However; when we updated the clarion towers to have more drives and to 18K 
-RPM drives from the 15K drives, all of a sudden the O(1) scheduler beat the 
-the old scheduler.
-
-Your milage will vary.
-
-Give it a try.
-
---mgross
-
-
-
-On Thursday 23 January 2003 04:10 pm, Austin Gonyou wrote:
-> I've heard some say that O(1) sched can only really help on systems with
-> lots and lots of processes.
+rwhron@earthlink.net wrote:
 >
-> But my systems run about 600 processes max, but are P4 Xeons with HT,
-> and we kick off several hundred processes sometimes. (sleeping to
-> running then back) based on things happening in the system.
->
-> I am possibly going to forgo putting O(1)sched in production *right now*
-> until I've got my patch solid. But I got to thinking, do I need it at
-> all on a Oracle VLDB?
->
-> I think yes, but I wanted to get some opinions/facts before making that
-> choice to go without O(1) sched.
+> Did you add a secret sauce to 2.5.59-mm2?
+
+I have not been paying any attention to the I/O scheduler changes for a
+couple of months, so I can't say exactly what caused this.  Possibly Nick's
+batch expiry logic which causes the scheduler to alternate between reading
+and writing with fairly coarse granularity.
+
+>  10x sequential write improvement on ext3 for multiple tiobench threads.
+
+OK...  
+
+I _have_ been paying attention to the IO scheduler for the past few days. 
+-mm5 will have the first draft of the anticipatory IO scheduler.  This of
+course is yielding tremendous improvements in bandwidth when there are
+competing reads and writes.
+
+I expect it will take another week or two to get the I/O scheduler changes
+really settled down.  Your assistance in thoroughly benching that would be
+appreciated.
+
+> 2.4.20aa1     8.24  7.21%    28.587   449134.11  0.10395  0.07086    114
+> 2.5.59        9.50  5.50%    36.703     4310.62  0.00000  0.00000    173
+> 2.5.59-mm2   35.28 17.69%    10.173    18950.56  0.01010  0.00000    199
+
+boggle.
+
+

@@ -1,104 +1,170 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130836AbRAYVGS>; Thu, 25 Jan 2001 16:06:18 -0500
+	id <S129847AbRAYVHS>; Thu, 25 Jan 2001 16:07:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135236AbRAYVGI>; Thu, 25 Jan 2001 16:06:08 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:4622 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S130836AbRAYVFx>;
-	Thu, 25 Jan 2001 16:05:53 -0500
-Message-ID: <3A709504.5599E0F7@mandrakesoft.com>
-Date: Thu, 25 Jan 2001 16:05:08 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i686)
-X-Accept-Language: en
+	id <S131850AbRAYVGn>; Thu, 25 Jan 2001 16:06:43 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:58330 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S136140AbRAYVGW>; Thu, 25 Jan 2001 16:06:22 -0500
+From: jekacur@ca.ibm.com
+Importance: Normal
+Subject: Re:sigcontext on Linux-ppc in user space, another hack.
+To: khendricks@ivey.uwo.ca, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.linuxppc.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF3C25E159.46E6987C-ON852569DF.00700BFE@LocalDomain>
+Date: Thu, 25 Jan 2001 15:31:38 -0500
+X-MIMETrack: Serialize by Router on D25ML03/25/M/IBM(Release 5.0.4a |July 24, 2000) at
+ 01/25/2001 04:06:09 PM
 MIME-Version: 1.0
-To: Micah Gorrell <angelcode@myrealbox.com>
-CC: Tom Sightler <ttsig@tuxyturvy.com>, linux-kernel@vger.kernel.org,
-        saw@saw.sw.com.sg, Alan@redhat.com
-Subject: [PATCH] Re: eepro100 problems in 2.4.0
-In-Reply-To: <006601c08711$4bdfb600$9b2f4189@angelw2k>
-Content-Type: multipart/mixed;
- boundary="------------58ED4393A098BEE4E2400C2B"
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------58ED4393A098BEE4E2400C2B
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Micah Gorrell wrote:
-> Because of the problems we where having we are no longer using the machine
-> with 3 nics.  We are now using a machine with just one and it is going live
-> next week.  We do need kernel 2.4 because of the process limits in 2.2.
-> Does the 'Enable Power Management (EXPERIMENTAL)' option fix the no
-> resources problems?
-
-Does the attached patch, against 2.4.1-pre10, help matters any?
-
-pci_enable_device() must to be called before any accesses to the
-pci_dev->irq and pci_dev->resource[] members.  Plug-n-play may fill in
-those values.  I didn't see your original report, but "no resources"
-sounds to me like pci_enable_device() needs to be called earlier in the
-speedo_init_one function.  The attached patch does just that.
-
-	Jeff
+It appears you can just use the siginfo_t * as the struct sigcontext *
+!!!!!!
+ie
+void *signal_handler(int signo, siginfo_t *siginfoptr, struct sigcontext
+*scp)
+{
+     scp = (struct sigcontext_struct *)siginfoptr;
+     /* the rest of your code, here */
+}
 
 
-> -----Original Message-----
-> From: "Tom Sightler" <ttsig@tuxyturvy.com>
-> To: "Micah Gorrell" <angelcode@myrealbox.com>;
-> <linux-kernel@vger.kernel.org>
-> Date: Thursday, January 25, 2001 1:48 PM
-> Subject: Re: eepro100 problems in 2.4.0
-[...]
-> >I had a similar problem with a server that had dual embedded eepro100
-> >adapters however selecting the 'Enable Power Management (EXPERIMENTAL)'
-> >option for the eepro100 seemed to make the problem go away.  I don't really
-> >know why but it might be worth trying if it wasn't already selected.
+John Kacur/Toronto/IBM@IBMCA
+jekacur@ca.ibm.com
+(416) 448-2584 (phone)
+778-2584 (tie line)
 
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
---------------58ED4393A098BEE4E2400C2B
-Content-Type: text/plain; charset=us-ascii;
- name="eepro100.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="eepro100.patch"
+"Kevin B. Hendricks" <khendricks@ivey.uwo.ca> on 01/25/2001 02:02:20 PM
 
-Index: drivers/net/eepro100.c
-===================================================================
-RCS file: /cvsroot/gkernel/linux_2_4/drivers/net/eepro100.c,v
-retrieving revision 1.1.1.9.42.2
-diff -u -r1.1.1.9.42.2 eepro100.c
---- drivers/net/eepro100.c	2001/01/24 15:56:16	1.1.1.9.42.2
-+++ drivers/net/eepro100.c	2001/01/25 21:00:48
-@@ -560,6 +560,9 @@
- 	if (speedo_debug > 0  &&  did_version++ == 0)
- 		printk(version);
- 
-+	if (pci_enable_device(pdev))
-+		return -EIO;
-+
- 	if (!request_region(pci_resource_start(pdev, 1),
- 			pci_resource_len(pdev, 1), "eepro100")) {
- 		printk (KERN_ERR "eepro100: cannot reserve I/O ports\n");
-@@ -597,9 +600,6 @@
- 		pci_read_config_word(pdev, pm + PCI_PM_CTRL, &pwr_command);
- 		acpi_idle_state = pwr_command & PCI_PM_CTRL_STATE_MASK;
- 	}
--
--	if (pci_enable_device(pdev))
--		goto err_out_free_mmio_region;
- 
- 	pci_set_master(pdev);
- 
+Please respond to khendricks@ivey.uwo.ca
 
---------------58ED4393A098BEE4E2400C2B--
+To:   John Kacur/Toronto/IBM@IBMCA
+cc:
+Subject:  Re: [Fwd: sigcontext on Linux-ppc in user space]
+
+
+Hi,
+
+Just in case this helps,  here is what I did to accomplish the same thing
+in the green_threads jdk.  It definitely is not portable.
+
+Kevin
+
+Inside the signal handler:
+
+#elif defined(__linux__) && defined(__powerpc__)
+    /* get the value of r1 (the stack pointer) */
+    long * p;
+    struct sigcontext_struct * scp;
+    __asm__ ( "addi %0,1,0" : "=r" (p) : /* no inputs */ );
+    /* follow it back up the chain */
+    p = *p;
+    /* from here the sigcontext struct is 64 bytes away */
+    p = p + 16;
+    scp = (struct sigcontext_struct *)p;
+
+On Thursday, January 25, 2001, at 01:50 PM, jekacur@ca.ibm.com wrote:
+
+>
+> Ok, actually the segfault was for a more complicated function, but the
+> simplified example still gives the wrong answer. i.e scp should point to
+a
+> struct sigcontext and scp->signal should be 10 in the sample program.
+>
+> John Kacur/Toronto/IBM@IBMCA
+> jekacur@ca.ibm.com
+> (416) 448-2584 (phone)
+> 778-2584 (tie line)
+>
+>
+> "Kevin B. Hendricks" <khendricks@ivey.uwo.ca> on 01/25/2001 01:10:40 PM
+>
+> Please respond to khendricks@ivey.uwo.ca
+>
+> To:   John Kacur/Toronto/IBM@IBMCA
+> cc:   linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+> Subject:  Re: [Fwd: sigcontext on Linux-ppc in user space]
+>
+>
+> Hi,
+>
+> Here is what I get from running it on my system (ppc linux with 2.2.15
+> kernel with some mods and glibc-2.1.3).
+>
+> But no segfault.
+>
+> Kevin
+>
+>
+> [kbhend@localhost ~]$ gcc -O2 -ojunk junk.c
+> [kbhend@localhost ~]$ ./junk
+> SIGUSR1 = 10
+> scp = 7fffe9a4
+> scp->signal = 0
+> [kbhend@localhost ~]$
+>
+>
+>
+>
+> On Thursday, January 25, 2001, at 10:09 AM, jekacur@ca.ibm.com wrote:
+>
+> > #include <stdio.h>
+> > #include <signal.h>
+> >
+> > /* Function Prototypes */
+> > void install_sigusr1_handler(void);
+> > void sigusr_handler(int , siginfo_t *, struct sigcontext * scp);
+> >
+> > int main(void)
+> > {
+> >         install_sigusr1_handler();
+> >         printf("SIGUSR1 = %d\n", SIGUSR1);
+> >         raise(SIGUSR1);
+> >         exit(0);
+> > }
+> >
+> > void install_sigusr1_handler(void)
+> > {
+> >         struct sigaction newAct;
+> >
+> >         if (sigemptyset(&newAct.sa_mask) != 0) {
+> >                 fprintf(stderr, "Warning, sigemptyset failed.\n");
+> >         }
+> >
+> >         newAct.sa_flags = 0;
+> >         newAct.sa_flags |= SA_SIGINFO | SA_RESTART;
+> >
+> >         newAct.sa_sigaction = (void
+> > (*)(int,siginfo_t*,void*))sigusr_handler;
+> >
+> >         if (sigaction(SIGUSR1, &newAct, NULL) != 0) {
+> >                 fprintf(stderr, "Couldn't install SIGUSR1 handler.\n");
+
+> >                 fprintf(stderr, "Exiting.\n");
+> >                 exit(1);
+> >         }
+> > }
+> >
+> > void sigusr_handler(int signo, siginfo_t *siginfp, struct sigcontext *
+> scp)
+> > {
+> >         printf("scp = %08x\n", scp);
+> >         printf("scp->signal = %d\n", scp->signal);
+> > }
+> >
+> >
+>
+>
+>
+>
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

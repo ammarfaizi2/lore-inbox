@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129610AbQKKWMy>; Sat, 11 Nov 2000 17:12:54 -0500
+	id <S129057AbQKKWiH>; Sat, 11 Nov 2000 17:38:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129608AbQKKWMg>; Sat, 11 Nov 2000 17:12:36 -0500
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:49167 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S129636AbQKKWMO>; Sat, 11 Nov 2000 17:12:14 -0500
-Message-ID: <3A0DC433.AB987540@holly-springs.nc.us>
-Date: Sat, 11 Nov 2000 17:12:03 -0500
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
+	id <S129060AbQKKWh5>; Sat, 11 Nov 2000 17:37:57 -0500
+Received: from boss.staszic.waw.pl ([195.205.163.66]:18962 "EHLO
+	boss.staszic.waw.pl") by vger.kernel.org with ESMTP
+	id <S129057AbQKKWhr>; Sat, 11 Nov 2000 17:37:47 -0500
+Date: Sat, 11 Nov 2000 23:36:50 +0100 (CET)
+From: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
+To: Eric Reischer <emr@engr.de.psu.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: 2.4 test10 bug
+In-Reply-To: <4.2.0.58.20001108233713.00a678d0@engr.de.psu.edu>
+Message-ID: <Pine.LNX.4.21.0011112335210.11176-100000@tricky>
 MIME-Version: 1.0
-To: Lars Marowsky-Bree <lmb@suse.de>
-CC: "Theodore Y. Ts'o" <tytso@MIT.EDU>,
-        "Matt D. Robinson" <yakker@alacritech.com>,
-        Christoph Rohland <cr@sap.com>, richardj_moore@uk.ibm.com,
-        Paul Jakma <paulj@itg.ie>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-In-Reply-To: <3A0C402F.8F0BA261@alacritech.com> <200011110012.TAA22015@tsx-prime.MIT.EDU> <20001111224816.A1234@marowsky-bree.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lars Marowsky-Bree wrote:
+On Wed, 8 Nov 2000, Eric Reischer wrote:
 
-> And I am still very fond of the idea of crash dumping to a network server ;-)
+> When cross compiling a PowerPC kernel on an i386 machine, got the following 
+> error:
+> 
+> binfmt_elf.c: In function 'create_elf_tables':
+> binfmt_elf.c:166: 'CLOCKS_PER_SEC' undeclared (first use in this function)
+> binfmt_elf.c:166: (Each undeclared identifier is reported only once
+> binfmt_elf.c:166: for each function it appears in.)
+> make[2]: *** [binfmt_elf.o] Error 1
 
-I second that. Serial can be slow, and has that pesky cable-length
-limit...
+This quick fix should help you:
+
+--- linux-240t10/include/asm-ppc/param.h	Sat Nov 25 18:49:06 1995
++++ linux/include/asm-ppc/param.h	Sat Nov 11 17:18:50 2000
+@@ -17,4 +17,8 @@
+ 
+ #define MAXHOSTNAMELEN	64	/* max length of hostname */
+ 
++#ifdef __KERNEL__
++# define CLOCKS_PER_SEC	HZ	/* frequency at which times() counts */
++#endif
++
+ #endif
+
+--
+Bartlomiej Zolnierkiewicz
+<bkz@linux-ide.org>
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

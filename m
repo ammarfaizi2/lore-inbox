@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262771AbVAKOYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262770AbVAKO36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262771AbVAKOYv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 09:24:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbVAKOYf
+	id S262770AbVAKO36 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 09:29:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbVAKO36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 09:24:35 -0500
-Received: from smtp.dei.uc.pt ([193.137.203.228]:41920 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S262771AbVAKOXD (ORCPT
+	Tue, 11 Jan 2005 09:29:58 -0500
+Received: from ozlabs.org ([203.10.76.45]:48865 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262770AbVAKO3z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 09:23:03 -0500
-Date: Tue, 11 Jan 2005 14:08:19 +0000 (WET)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: acpi_power_off on 2.6.10-mm3 WAS: Re: 2.6.10-mm2
-In-Reply-To: <Pine.LNX.4.61.0501061203250.23199@student.dei.uc.pt>
-Message-ID: <Pine.LNX.4.61.0501111407230.23838@student.dei.uc.pt>
-References: <20050106002240.00ac4611.akpm@osdl.org>
- <Pine.LNX.4.61.0501061203250.23199@student.dei.uc.pt>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-UC-FCT-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-FCT-DEI-MailScanner: Found to be clean
-X-MailScanner-From: marado@student.dei.uc.pt
+	Tue, 11 Jan 2005 09:29:55 -0500
+Date: Wed, 12 Jan 2005 01:27:11 +1100
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] ppc64: reduce paca[] where possible
+Message-ID: <20050111142711.GA1000@krispykreme.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Thu, 6 Jan 2005, Marcos D. Marado Torres wrote:
+Hi,
 
-> On Thu, 6 Jan 2005, Andrew Morton wrote:
->
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10/2.6.10-mm2/
->> 
->> - Various minorish updates and fixes
->
-> The acpi_power_off issue (acpi_power_off is called but the laptop doesn't 
-> shut
-> down) is back (in -mm1 already). I suspect it has never disappear completely:
-> maybe it only happens in some cenarios (like "only when AC is plugged in" or
-> something like that). The report is done, I'll try to get more info soon 
-> (when
-> does this happen and when it doesn't) and will report it by then.
+On UP builds we include lots of spare pacas. Lets get rid of them and
+save some space. Also catch the small SMP case.
 
-This still happens in -mm3.
-I'll try to see which patch is breaking it...
+Anton
 
-Mind Booster Noori
+Signed-off-by: Anton Blanchard <anton@samba.org>
 
-- -- 
-/* *************************************************************** */
-    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
-    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
-    () Join the ASCII ribbon campaign against html email, Microsoft
-    /\ attachments and Software patents.   They endanger the World.
-    Sign a petition against patents:  http://petition.eurolinux.org
-/* *************************************************************** */
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
-
-iD8DBQFB493XmNlq8m+oD34RAjSXAJ0UeQfsEeBCje8GX9MJCJNw4RnUFwCg10yi
-zFdcErqu1E3CVYgvFZa3Thg=
-=stjp
------END PGP SIGNATURE-----
-
+diff -puN arch/ppc64/kernel/pacaData.c~reduce_paca arch/ppc64/kernel/pacaData.c
+--- foobar2/arch/ppc64/kernel/pacaData.c~reduce_paca	2005-01-12 00:34:29.225334524 +1100
++++ foobar2-anton/arch/ppc64/kernel/pacaData.c	2005-01-12 00:34:29.244480855 +1100
+@@ -78,13 +78,16 @@ struct paca_struct paca[] = {
+ #else
+ 	PACAINITDATA( 0, 1, NULL, STAB0_PHYS_ADDR, STAB0_VIRT_ADDR),
+ #endif
++#if NR_CPUS > 1
+ 	PACAINITDATA( 1, 0, NULL, 0, 0),
+ 	PACAINITDATA( 2, 0, NULL, 0, 0),
+ 	PACAINITDATA( 3, 0, NULL, 0, 0),
++#if NR_CPUS > 4
+ 	PACAINITDATA( 4, 0, NULL, 0, 0),
+ 	PACAINITDATA( 5, 0, NULL, 0, 0),
+ 	PACAINITDATA( 6, 0, NULL, 0, 0),
+ 	PACAINITDATA( 7, 0, NULL, 0, 0),
++#if NR_CPUS > 8
+ 	PACAINITDATA( 8, 0, NULL, 0, 0),
+ 	PACAINITDATA( 9, 0, NULL, 0, 0),
+ 	PACAINITDATA(10, 0, NULL, 0, 0),
+@@ -209,4 +212,7 @@ struct paca_struct paca[] = {
+ 	PACAINITDATA(127, 0, NULL, 0, 0),
+ #endif
+ #endif
++#endif
++#endif
++#endif
+ };
+_

@@ -1,69 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262333AbVAULTy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262343AbVAUMD2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262333AbVAULTy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 06:19:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbVAULTy
+	id S262343AbVAUMD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 07:03:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVAUMD2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 06:19:54 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:48900 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262333AbVAULTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 06:19:51 -0500
-Date: Fri, 21 Jan 2005 12:19:49 +0100
-From: Adrian Bunk <bunk@stusta.de>
+	Fri, 21 Jan 2005 07:03:28 -0500
+Received: from mail-06.iinet.net.au ([203.59.3.38]:29312 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S262343AbVAUMDZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 07:03:25 -0500
+Message-ID: <41F0F07B.3040805@iinet.com.au>
+Date: Fri, 21 Jan 2005 23:07:23 +1100
+From: Rodney McDonell <rodney@iinet.com.au>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] unexport pcibios_penalize_isa_irq
-Message-ID: <20050121111949.GK3209@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Subject: kern:2.6.8, no cpufreq in sysfs
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I haven't found any modular usage of pcibios_penalize_isa_irq in the 
-kernel.
+/sys/devices/system/cpu/cpu0/cpufreq does not exist.
 
-Is this patch correct?
+kernel config -->
+http://pods.dzite.com/4thegeeks/
 
+My kernel config file is named cpufreq.txt. The other file is the 
+README.Debian file found in the kernel-source doc directory. As you can 
+see, it only patches, non-free stuff and firmware mainly.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I've looked at changelogs for 2.6.9 and 2.6.10 and whilst they helped me 
+correct a previous error, this problem remains.
 
----
-
- arch/i386/kernel/i386_ksyms.c    |    1 -
- arch/sh/kernel/sh_ksyms.c        |    1 -
- arch/x86_64/kernel/x8664_ksyms.c |    1 -
- 3 files changed, 3 deletions(-)
-
---- linux-2.6.11-rc1-mm2-full/arch/i386/kernel/i386_ksyms.c.old	2005-01-21 11:55:47.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/i386/kernel/i386_ksyms.c	2005-01-21 11:55:54.000000000 +0100
-@@ -112,7 +112,6 @@
- EXPORT_SYMBOL(dma_free_coherent);
- 
- #ifdef CONFIG_PCI
--EXPORT_SYMBOL(pcibios_penalize_isa_irq);
- EXPORT_SYMBOL(pci_mem_start);
- #endif
- 
---- linux-2.6.11-rc1-mm2-full/arch/sh/kernel/sh_ksyms.c.old	2005-01-21 11:56:01.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/sh/kernel/sh_ksyms.c	2005-01-21 11:56:04.000000000 +0100
-@@ -51,7 +51,6 @@
- #ifdef CONFIG_PCI
- EXPORT_SYMBOL(pci_alloc_consistent);
- EXPORT_SYMBOL(pci_free_consistent);
--EXPORT_SYMBOL(pcibios_penalize_isa_irq);
- #endif
- 
- /* mem exports */
---- linux-2.6.11-rc1-mm2-full/arch/x86_64/kernel/x8664_ksyms.c.old	2005-01-21 11:56:11.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/x86_64/kernel/x8664_ksyms.c	2005-01-21 11:56:17.000000000 +0100
-@@ -104,7 +104,6 @@
- #endif
- 
- #ifdef CONFIG_PCI
--EXPORT_SYMBOL(pcibios_penalize_isa_irq);
- EXPORT_SYMBOL(pci_mem_start);
- #endif
- 
+/etc/fstab does not contain an sysfs entry, however, /etc/mtab does :) 
+I'm guessing this is a debian thing, because i've seen forums all over 
+the web where apparently you have to have an entry in fstab. Looks like 
+i dont need one. Maybe an old feature?
 

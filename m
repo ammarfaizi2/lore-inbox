@@ -1,114 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270999AbUJUWWc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270990AbUJUWWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270999AbUJUWWc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 18:22:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271019AbUJUWUQ
+	id S270990AbUJUWWe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 18:22:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270972AbUJUWSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 18:20:16 -0400
-Received: from smtp06.auna.com ([62.81.186.16]:41701 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S270999AbUJUV5U convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 17:57:20 -0400
-Date: Thu, 21 Oct 2004 21:57:13 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-To: Timothy Miller <miller@techsource.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <4176E08B.2050706@techsource.com>
-	<9e4733910410201808c0796c8@mail.gmail.com>
-	<9e473391041020181150638b4@mail.gmail.com> <4177185A.9080708@sover.net>
-	<4177DF15.8010007@techsource.com>
-In-Reply-To: <4177DF15.8010007@techsource.com> (from miller@techsource.com
-	on Thu Oct 21 18:08:53 2004)
-X-Mailer: Balsa 2.2.5
-Message-Id: <1098395833l.27352l.0l@werewolf.able.es>
+	Thu, 21 Oct 2004 18:18:49 -0400
+Received: from mail.timesys.com ([65.117.135.102]:39657 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S270998AbUJUWQ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 18:16:26 -0400
+Message-ID: <417834E4.7000506@timesys.com>
+Date: Thu, 21 Oct 2004 18:15:00 -0400
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; Format=Flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+To: Scott Wood <scott@timesys.com>
+CC: "Eugeny S. Mints" <emints@ru.mvista.com>, Esben Nielsen <simlo@phys.au.dk>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Jens Axboe <axboe@suse.de>, Rui Nuno Capela <rncbc@rncbc.org>,
+       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       john cooper <john.cooper@timesys.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+References: <Pine.OSF.4.05.10410211601500.11909-100000@da410.ifa.au.dk> <4177CD3C.9020201@timesys.com> <4177DA11.4090902@ru.mvista.com> <4177E89A.1090100@timesys.com> <20041021173302.GA26318@yoda.timesys> <4177FB4F.9030202@timesys.com> <20041021184742.GB26530@yoda.timesys> <41781984.5090602@timesys.com> <20041021211244.GA28290@yoda.timesys>
+In-Reply-To: <20041021211244.GA28290@yoda.timesys>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Oct 2004 22:11:16.0734 (UTC) FILETIME=[E2A2D9E0:01C4B7BA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Scott Wood wrote:
 
-On 2004.10.21, Timothy Miller wrote:
-> 
-...
-> > antialiasing (related to alpha blending)
-> 
-> Antialiasing implies oversampling or supersampling, unless you're 
-> thinking about something else.  Sometimes, "antialiasing" is nothing 
-> more than a fuzzy texture.  For instance, the way the X11 font server 
-> handles antialiased text... it just spits out a grayscale bitmap which 
-> can be used as texture.
-> 
-> > bitblt
-> > fast primitive drawing
-> 
-> No problem.
-> 
-> > accelerated offscreen operations
-> 
-> It's funny that people mention that.  Every DDX module I have ever 
-> produced has had sophistocated off-screen memory management so that 
-> pixmaps could be accelerated.  I never even considered NOT supporting 
-> accelerated off-screen surfaces.
-> 
-> There was one chip I had to support a number of years ago which didn't 
-> have separate registers for the base pointers to source and destination 
-> surfaces.  That meant that you couldn't use "bitblt" to copy an image 
-> from off-screen to on-screen.  What I ended up having to do was 
-> implement bitblt as a texture-mapping operation.  (It wound up being 
-> slightly faster than the regular bitblt, even if the source and dest 
-> were the same surface.)
-> 
-> Anyhow, in my world, accelerated off-screen surfaces are a given.
-> 
+>On Thu, Oct 21, 2004 at 04:18:12PM -0400, john cooper wrote:
+>
+>>Yet considering the cost to maintain these lists in priority
+>>order with multiple spinlock acquisition sequences due to how
+>>the aggregate data structure must be traversed/ordered,
+>>I haven't yet convinced myself either way.
+>>
+>
+>Another issue is that if you keep them in order, you have to fix the
+>list whenever an owner of a listed mutex changes its priority.
+>
+Yes, but my concern was having to backoff in out-of-sequence
+spinlock acquisition paths. Looking at it again if the canonical
+lock acquisition sequence is a task's mutex-owned list then a
+mutex's task-owned list, the nondeterministic backoff (if any)
+gets pushed to the case of a waiter blocking on the lock.
 
-Following with this, and looking at the new features that user interfaces
-show, I think everything should be off-screen. Look.
+>>It isn't obvious to me how this would address the case of a
+>>task holding a reader lock on mx-A then blocking on mx-B.
+>>Another task attempting to acquire a reader lock on mx-A would
+>>block rather than immediately acquiring the lock.
+>>
+>
+>Yes.  However, the contention case should not be optimized at the
+>expense of the common case, which can be faster for non-rwlock
+>implementations when PI is involved.  On SMP, you'd be introducing a
+>bottleneck by taking away rwlocks, but on UP it's only an issue when
+>you get preempted or block in a critical section.
+>
+My concern is removing what should be available reader
+concurrency for the mutex in question. I can't assess
+how un/common that may be over all application scenarios.
 
-Taking OSX as the best example, all the rendering is done offscreen, and
-then the result is blittted and alpha merged to the screen. They use
-OpenGL to draw each window offscreen, take the image and paste it as texture
-onto a rectangular polygon, and then alpha-blend it with the others on the
-screen. This is overkill, but allows to do things like put a movie onto
-an spinning rectangle...
+-john
 
-Without entering to 3D, I would design a card that always renders offscreen.
-Each window has its own offscreen buffer, and redraws blit/blend the
-pixmap onto the screen. With a good and fast scaler, you can get some
-fancy things for free:
-- antialiasing: just make the back buffer 2x2 or 4x4 the screen space of
-  the window, and resample/filter it. Font rendering just needs to be
-  monochrome, but at higher resolution. The rescaler will give you the
-  antialiasing. Good work for a DSP.
-- real multilayer transparency and shadows
-- real time zooming, for things like expocity (metacity version of Exposé):
-  no redrawing of contents, just rescaling.
-- with some projective math in 2D, you can easily do things like rotations
-  over the axis of the screen...simulated.
 
-In short, you need:
-- A ton of memory for offscreen buffer. Note: this depends on how much windows
-  you want to handle, not on screen res...:)
-- Fast (very high res) but simple (no algorthimic antialiasing for lines nor
-  fonts) 2D renderer
-- An _ultra fast_ scaler/blitter/blender. Scaling can be just 2D, and even
-  power-of-2 based with good filtering.
-
-Really simple things, the problem is that they need to be lightning fast.
-No 3D needed, the stacking order can be stored in soft and just determines
-the order for blending. OSX runs on my iBook, so if a G3 with an ATI 7200
-can do, a modern FPGA sure can beat it.
-
-I hope all this cr*k sm*king ends up in something useful for you...
-
-Ah, and you can add later the 3D part as a daughterboard....;)
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.1 (Community) for i586
-Linux 2.6.9-rc4-mm1 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #4
-
+-- 
+john.cooper@timesys.com
 

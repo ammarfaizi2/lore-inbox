@@ -1,65 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265976AbRGHUkM>; Sun, 8 Jul 2001 16:40:12 -0400
+	id <S264032AbRGHV64>; Sun, 8 Jul 2001 17:58:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266970AbRGHUkC>; Sun, 8 Jul 2001 16:40:02 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:7178 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265976AbRGHUjy>; Sun, 8 Jul 2001 16:39:54 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Machine check exception? (2.4.6+SMP+VIA)
-Date: 8 Jul 2001 13:39:29 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9iage1$1c6$1@cesium.transmeta.com>
-In-Reply-To: <20010709050418.A28809@weta.f00f.org> <Pine.LNX.4.30.0107081907440.28660-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S265975AbRGHV6q>; Sun, 8 Jul 2001 17:58:46 -0400
+Received: from hq2.fsmlabs.com ([209.155.42.199]:32518 "HELO hq2.fsmlabs.com")
+	by vger.kernel.org with SMTP id <S264032AbRGHV61>;
+	Sun, 8 Jul 2001 17:58:27 -0400
+Date: Sun, 8 Jul 2001 15:55:18 -0600
+From: Victor Yodaiken <yodaiken@fsmlabs.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why Plan 9 C compilers don't have asm("")
+Message-ID: <20010708155518.A23324@hq2>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9i50uf$tla$1@penguin.transmeta.com>
+User-Agent: Mutt/1.3.18i
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.30.0107081907440.28660-100000@Appserv.suse.de>
-By author:    Dave Jones <davej@suse.de>
-In newsgroup: linux.dev.kernel
->
-> On Mon, 9 Jul 2001, Chris Wedgwood wrote:
-> 
-> >     Actually you merged that with Linus a few revisions back iirc.
-> > I don't see it for K7/AMD:
-> 
-> > cw:tty5@tapu(kernel)$ grep machine_check\(struct\ pt bluesmoke.c
-> > static void intel_machine_check(struct pt_regs * regs, long error_code)
-> 
-> There is no K7 specific implementation. It's the same as the Intel MSRs.
-> 
-> From the comment in the file:
-> 
->         case X86_VENDOR_AMD:
->             /*
->              *  AMD K7 machine check is Intel like
->              */
->             if(c->x86 == 6)
->                 intel_mcheck_init(c);
->             break;
-> 
-> 
+On Fri, Jul 06, 2001 at 06:44:31PM +0000, Linus Torvalds wrote:
+> On ia64, you probably end up with function calls costing even more than
+> alpha, because not only does the function call end up being a
+> synchronization point for the compiler, it also means that the compiler
+> cannot expose any parallelism, so you get an added hit from there.  At
 
-Note that I released a patch to make bluesmoke a lot more generic
-quite a while ago.  Linus was in the "I don't want to even hear about
-anything but critical bugfixes" mode at that point, so it didn't get
-integrated.
+That seems amazingly dumb. You'd think a new processor design would
+optimize parallel computation over calls, but what do I know?
 
-If anyone is interested, it is at:
+> Most of these "unconditional branches" are indirect, because rather few
+> 64-bit architectures have a full 64-bit branch.  That means that in
 
-http://www.kernel.org/pub/linux/kernel/people/hpa/bluesmoke-2.4.0-test11-pre5-3.diff.gz
+This is something I don't get: I never understood why 32bit risc designers
+were so damn obstinate about "every instruction fits in 32 bits"
+and refused to have "call 32 bit immediate given in next word" not
+to mention a "load 32bit immediate given in next word".
+Note, the superior x86 instruction set has a 5 byte call immediate.
 
-Let me know if you want me to bring it forward.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+> There are lots of good arguments for function calls: they improve icache
+> when done right, but if you have some non-C-semantics assembler sequence
+> like "cli" or a spinlock that you use a function call for, that would
+> _decrease_ icache effectiveness simply because the call itself is bigger
+> than the instruction (and it breaks up the instruction sequence so you
+> get padding issues). 
+
+I think anywhere that you have inner loop or often used operations
+that are short assembler sequences, inline asm is a win - it's easy to
+show for example, that the Linux asm x86  macro semaphore down
+is three times as fast as 
+a called version. I wish, however
+that GCC did not use a horrible overly complex lisplike syntax and
+that there was a way to inline functions written in .S files.
+
+And the feature is way too easy to abuse -  same argument here as in
+the threads argument.
+It's a far better thing to not need a semaphore at all than to rely
+on handcoded semaphore down to make your poorly synchronized design
+sort-of perform. 
+
+

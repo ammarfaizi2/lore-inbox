@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268567AbTGLWR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 18:17:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268577AbTGLWR0
+	id S268674AbTGLW2R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 18:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268676AbTGLW2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 18:17:26 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:26756 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S268567AbTGLWRY (ORCPT
+	Sat, 12 Jul 2003 18:28:17 -0400
+Received: from wsip-68-15-8-100.sd.sd.cox.net ([68.15.8.100]:8066 "EHLO gnuppy")
+	by vger.kernel.org with ESMTP id S268674AbTGLW2Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 18:17:24 -0400
-Message-Id: <200307121840.h6CIeKIj004212@eeyore.valparaiso.cl>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Style question: Should one check for NULL pointers? 
-In-Reply-To: Your message of "Fri, 11 Jul 2003 11:16:02 -0400."
-             <Pine.LNX.4.44L0.0307111108500.21359-100000@netrider.rowland.org> 
-X-Mailer: MH-E 7.1; nmh 1.0.4; XEmacs 21.4
-Date: Sat, 12 Jul 2003 14:40:20 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Sat, 12 Jul 2003 18:28:16 -0400
+Date: Sat, 12 Jul 2003 15:42:46 -0700
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Jamie Lokier <jamie@shareable.org>,
+       Miguel Freitas <miguel@cetuc.puc-rio.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+Subject: Re: [patch] SCHED_SOFTRR linux scheduler policy ...
+Message-ID: <20030712224246.GA5354@gnuppy.monkey.org>
+References: <1058017391.1197.24.camel@mf> <Pine.LNX.4.55.0307120735540.4351@bigblue.dev.mcafeelabs.com> <20030712154942.GB9547@mail.jlokier.co.uk> <Pine.LNX.4.55.0307120845470.4351@bigblue.dev.mcafeelabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55.0307120845470.4351@bigblue.dev.mcafeelabs.com>
+User-Agent: Mutt/1.5.4i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern <stern@rowland.harvard.edu> said:
-
-[...]
-
-> But if you look very far through the kernel sources you will see many 
-> occurrences of code similar to this:
+On Sat, Jul 12, 2003 at 08:59:18AM -0700, Davide Libenzi wrote:
+> On Sat, 12 Jul 2003, Jamie Lokier wrote:
 > 
-> 	static void release(struct xxx *ptr)
-> 	{
-> 		if (!ptr)
-> 			return;
-> 	...
+> > Davide Libenzi wrote:
+> > > With the current patch you do not need any special support if you are
+> > > already asking for SCHED_RR policy. If you are not root you will be
+> > > automatically downgraded to SCHED_SOFTRR ;)
+> >
+> > Cool.  What happens if you run two SCHED_SOFTRR tasks and they both
+> > use 50% of the CPU - will that starve all the other tasks?  Or is the
+> > CPU usage of all SOFTRR tasks bounded collectively?
 > 
-> I can't see any reason for keeping something like that.
+> Nope :) They will run their timeslice entirely and then they will try to
+> get some more. Looking at their last recharge timestamp, Dad scheduler
+> will put them in bed and will give other tasks a chance to run. But don't
+> worry, I am very sure there're other exploit available. I just didn't have
+> enough time to think about it. It is amazing how limited are things that
+> you can do in one hour :)
 
-Just like free(3)
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Hey,
+
+Have any of you folks seen this ?
+
+	http://www.linuxdevices.com/articles/AT6078481804.html
+	http://research.microsoft.com/~mbj/papers/tr-99-59_abstract.html
+
+Neat stuff. This with a fully preemptive kernel is one of Linux kernel
+dreams for multimedia.
+
+bill
+

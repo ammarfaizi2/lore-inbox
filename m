@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbUGNU13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263475AbUGNU3n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbUGNU13 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 16:27:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbUGNU12
+	id S263475AbUGNU3n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 16:29:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264061AbUGNU3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 16:27:28 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:18332 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S263100AbUGNU1E (ORCPT
+	Wed, 14 Jul 2004 16:29:42 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:56810 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263475AbUGNU3U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 16:27:04 -0400
-Date: Wed, 14 Jul 2004 22:27:00 +0200
-From: David Weinehall <tao@debian.org>
-To: John Goerzen <jgoerzen@complete.org>
-Cc: linux-kernel@vger.kernel.org, linux-thinkpad@linux-thinkpad.org
-Subject: Re: ACPI Hibernate and Suspend Strange behavior 2.6.7/-mm1
-Message-ID: <20040714202700.GF22472@khan.acc.umu.se>
-Mail-Followup-To: John Goerzen <jgoerzen@complete.org>,
-	linux-kernel@vger.kernel.org, linux-thinkpad@linux-thinkpad.org
-References: <A6974D8E5F98D511BB910002A50A6647615FEF48@hdsmsx403.hd.intel.com> <1089054013.15671.48.camel@dhcppc4> <pan.2004.07.06.14.14.47.995955@physik.hu-berlin.de> <slrncfb55n.dkv.jgoerzen@christoph.complete.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <slrncfb55n.dkv.jgoerzen@christoph.complete.org>
-User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+	Wed, 14 Jul 2004 16:29:20 -0400
+Date: Wed, 14 Jul 2004 13:28:39 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: john stultz <johnstul@us.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>, ia64 <linux-ia64@vger.kernel.org>
+Subject: Re: gettimeofday nanoseconds patch (makes it possible for the
+ posix-timer functions to return higher accuracy)
+In-Reply-To: <1089835776.1388.216.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.58.0407141323530.15874@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com>
+ <1089835776.1388.216.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 14, 2004 at 08:16:55PM +0000, John Goerzen wrote:
-> On 2004-07-06, Volker Braun <volker.braun@physik.hu-berlin.de> wrote:
-> > ACPI S3 draws too much power on the T40/T41, this has been confirmed by
-> > various people (so its not just mine). Suspended it lasts about 10h,
-> > about twice as long as powered up. Supposed to be 1-2 weeks. 
-> 
-> I'm glad I'm not the only one that is suspecting that.  I just tried
-> switching my T40p from APM to ACPI.  I got suspending to RAM working in
-> ACPI, but noticed that when I got it back out of my laptop bag later, it
-> was physically warm to the touch.  It also had consumed more battery
-> power than it would have when suspended with APM.  And, if I would shine
-> a bright light on the screen, I could make out text on it.  In other
-> words, the backlight was off but it was still displaying stuff.
+On Wed, 14 Jul 2004, john stultz wrote:
 
-Does poweroff work for you?  At least my T40 has problems shutting off
-properly when using 2.6 + ACPI.  A bit annoying; I have to keep the
-powerkey pressed for a few seconds for it to turn off.
+> Honestly, I'm not a fan of the patch. It realistically only helps ia64
+> and and adds more confusing code to the generic time code. If there
+> isn't an real/immediate need for this, I'd wait to 2.7 for a better
+> cleanup.
 
+The immediate need is that clock_gettime only returns microseconds scaled
+to nanoseconds.
 
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+> None the less, I do understand the desire for the change (and am working
+> to address it in 2.7), so could you at least use a better name then
+> gettimeofday()? Maybe get_ns_time() or something? Its just too similar
+> to do_gettimeofday and the syscall gettimeofday().
+
+Right. I had it named getnstimeofday before but the feeling was that the
+patch should not introduce a new name. Any approach that would allow
+progress on the issue would be fine with me.
+
+> Really, I feel the cleaner method is to fix do_gettimeofday() so it
+> returns a timespec and then convert it to a timeval in
+> sys_gettimeofday(). However this would add overhead to the syscall, so I
+> doubt folks would go for it.
+
+do_gettimeofday is used all over the linux kernel for a variety of
+purposes and lots of code depends on the presence of a timeval struct.
+
+> I think the ia64 time interpolation code is a step in the right
+> direction (def better then the i386 bits), but it still isn't the
+> cleanest and clearest way. My plan is to select a reliable timesource
+> for the system, then use a periodic interrupt to accumulate time from
+> the timesource (in order to avoid overflows). This avoids lost tick
+> issues and cleanly separates the timer subsystem from the time of day
+> subsystem.
+
+That is what the changes to the time_interpolator do.
+

@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129419AbRBVEEI>; Wed, 21 Feb 2001 23:04:08 -0500
+	id <S130127AbRBVEDi>; Wed, 21 Feb 2001 23:03:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129283AbRBVEDu>; Wed, 21 Feb 2001 23:03:50 -0500
-Received: from SMTP1.ANDREW.CMU.EDU ([128.2.10.81]:53951 "EHLO
-	smtp1.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id <S129419AbRBVEDc>; Wed, 21 Feb 2001 23:03:32 -0500
-Date: Wed, 21 Feb 2001 23:03:13 -0500
-From: "Eloy A. Paris" <eparis@andrew.cmu.edu>
-To: Billy.Harvey@thrillseeker.net, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.2
-Message-ID: <20010221230313.A750@antenas>
-Mime-Version: 1.0
+	id <S130098AbRBVEDT>; Wed, 21 Feb 2001 23:03:19 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:8968 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129419AbRBVEDP>; Wed, 21 Feb 2001 23:03:15 -0500
+Message-ID: <3A948F7B.E40C81D5@transmeta.com>
+Date: Wed, 21 Feb 2001 20:03:07 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@innominate.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+In-Reply-To: <200102220203.f1M237Z20870@webber.adilger.net> <3A947C54.E4750E74@transmeta.com> <3A948ACB.7B55BEAE@innominate.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Billy Harvey wrote:
+Daniel Phillips wrote:
+> 
+> There will be a lot fewer metadata index
+> blocks in your directory file, for one thing.
+> 
 
-> I get the following error in a make bzImage:
->
-> nm vmlinux | grep -v '\(compiled\)\|\(\.o$\)\|\( [aUw]\)\|\(\.\.ng$\)\|\(LASH[RL]DI\)' | sort > System.map
-> make[1]: Entering directory `/usr/src/linux/arch/i386/boot'
-> ld -m elf_i386 -Ttext 0x0 -s -oformat binary bbootsect.o -o bbootsect
-> ld: cannot open binary: No such file or directory
-> make[1]: *** [bbootsect] Error 1
-> make[1]: Leaving directory `/usr/src/linux/arch/i386/boot'
-> make: *** [bzImage] Error 2
+Oh yes, another thing: a B-tree directory structure does not need
+metadata index blocks.
 
-Are you running Debian and follow unstable? I think ldso got updated
-today or yesterday and probably the problems started after that.
+	-hpa
 
-I solved the problem by changing all calls to ld in
-/usr/src/linux/arch/i386/boot/Makefile from "ld ... -oformat ..." to
-"ld ... --oformat ..."
-
-Cheers,
-
-Eloy.-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

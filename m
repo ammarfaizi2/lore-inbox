@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265408AbUEUHoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265332AbUEUHqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265408AbUEUHoN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 03:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265348AbUEUHoN
+	id S265332AbUEUHqm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 03:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265419AbUEUHqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 03:44:13 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5567 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265433AbUEUHoD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 03:44:03 -0400
-Date: Fri, 21 May 2004 03:43:58 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org,
-       mingo@redhat.com
-Subject: Re: [PATCH] Add FUTEX_CMP_REQUEUE futex op
-Message-ID: <20040521074358.GG30909@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20040520093817.GX30909@devserv.devel.redhat.com> <20040520155217.7afad53b.akpm@osdl.org> <40AD9C5E.1020603@redhat.com> <20040520233639.126125ef.akpm@osdl.org>
+	Fri, 21 May 2004 03:46:42 -0400
+Received: from outmx010.isp.belgacom.be ([195.238.3.233]:705 "EHLO
+	outmx010.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S265332AbUEUHqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 03:46:40 -0400
+Subject: Re: [2.6.6-mm4-ff1] I/O context isolation
+From: FabF <Fabian.Frederick@skynet.be>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: axboe@suse.de, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <40ADB20C.8090204@yahoo.com.au>
+References: <1085124268.8064.15.camel@bluerhyme.real3>
+	 <40ADB20C.8090204@yahoo.com.au>
+Content-Type: text/plain
+Message-Id: <1085125564.8071.23.camel@bluerhyme.real3>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040520233639.126125ef.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 21 May 2004 09:46:04 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 20, 2004 at 11:36:39PM -0700, Andrew Morton wrote:
-> > > It'll work OK on x86 because of the stack layout but is the same true of
-> > > all other supported architectures?
+On Fri, 2004-05-21 at 09:38, Nick Piggin wrote:
+> FabF wrote:
+> > Jens,
 > > 
-> > We add parameters at the end.  This does not influence how previous
-> > values are passed.  And especially for syscalls it makes no difference.
+> > 	Here's ff1 patchset to have generic I/O context.
+> > ff1 : Export io context operations from blkdev/ll_rw_blk (ok)
+> > ff2 : Make io_context generic plateform by importing IO stuff from
+> > as_io.
 > > 
 > 
-> what we're effectively doing is:
-> 
-> void foo(int a, int b, int c)
-> {
-> }
-> 
-> and from another compilation unit:
-> 
-> 	foo(a, b);
-> 
-> and we're expecting the a's and b's to line up across all architectures and
-> compiler options.  I thought that on some architectures that only works out
-> if the function has a vararg declaration.
+> Can I just ask why you want as_io_context in generic code?
+> It is currently nicely hidden away in as-iosched.c where
+> nobody else needs to ever see it.
+I do want I/O context to be generic not the whole as_io.
+That export should bring:
+	-All elevators to use io_context
+	-source tree to be more self-explanatory
+	-have a stronger elevator interface
 
-The kernel syscall ABI is on many arches different from the compiler ABI.
-Adding an argument this way certainly works on the architectures I'm
-familiar with (i386, x86_64, ia64, ppc, ppc64, s390, s390x, sparc, sparc64,
-alpha).  I believe arm will work too, don't keep track of the rest of
-arches.
+> 
+> > 	AFAICS, cfq_queue for instance could disappear when using io_context
+> > but I think elv_data should remain elevator side....
+> > I don't want to go in the wild here so if you've got suggestions, don't
+> > hesitate ;)
+> > 
+> 
+> cfq_queue is per-queue-per-process. io_context is just
+> per-process, so it isn't a trivial replacement.
+But I guess we can merge that stuff to have "a one way, one place" code
+rather than repeat code in all elv.
 
-Well, for s390/s390x there is a problem that it doesn't allow (yet) 6
-argument syscalls at all, so one possibility for s390* is adding a wrapper around
-sys_futex which will take the 5th and 6th arguments for FUTEX_CMP_REQUEUE
-from a structure pointed to by 5th argument and pass that to sys_futex.
+Regards,
+FabF
 
-If some weirdo arch has problems with this, it can certainly deal with it in
-its architecture wrapper.
-
-	Jakub

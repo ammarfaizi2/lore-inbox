@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbTD1Pkl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 11:40:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbTD1Pkl
+	id S261178AbTD1PrK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 11:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbTD1PrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 11:40:41 -0400
-Received: from hnmail02.hetnet.nl ([194.151.104.132]:20239 "EHLO hetnet.nl")
-	by vger.kernel.org with ESMTP id S261164AbTD1Pkk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 11:40:40 -0400
-Content-Class: urn:content-classes:message
-From: <bas.mevissen@hetnet.nl>
-To: <linux-kernel@vger.kernel.org>
-Subject: Broadcom BCM4306/BCM2050  support
-Date: Mon, 28 Apr 2003 17:53:25 +0200
-Message-ID: <5bc0e01c30d9e$4d91cae0$db6897c2@hetnet.local>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Microsoft CDO for Windows 2000
-Thread-Index: AcMNnk2RE+hJrnmEEdeNYQBQi2Na5Q==
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	Mon, 28 Apr 2003 11:47:10 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:57537 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S261178AbTD1PrI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 11:47:08 -0400
+Subject: Re: [PATCH] Extended Attributes for Security Modules against 2.5.68
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>,
+       Linus Torvalds <torvalds@transmeta.com>, "Ted Ts'o" <tytso@mit.edu>,
+       Andreas Gruenbacher <a.gruenbacher@computer.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       lsm <linux-security-module@wirex.com>
+In-Reply-To: <20030423194254.A5295@infradead.org>
+References: <1051120322.14761.95.camel@moss-huskers.epoch.ncsc.mil>
+	 <20030423191749.A4244@infradead.org>
+	 <1051122958.14761.110.camel@moss-huskers.epoch.ncsc.mil>
+	 <20030423194254.A5295@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1051545556.2021.50.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 28 Apr 2003 16:59:16 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hi all,
+On Wed, 2003-04-23 at 19:42, Christoph Hellwig wrote:
+> On Wed, Apr 23, 2003 at 02:35:59PM -0400, Stephen Smalley wrote:
+> > The idea of using separate attribute names for each security module was
+> > already discussed at length when I posted the original RFC, and I've
+> > already made the case that this is not desirable.  Please see the
+> > earlier discussion.
+> 
+> No.  It's not acceptable that the same ondisk structure has a different
+> meaning depending on loaded modules.  If the xattrs have a different
+> meaning they _must_ have a different name.
 
-I couldn't find any Linux support for these WLAN chips with google or on this lists archives. So I would like to ask it here:
+I'm not convinced --- I don't see much value in trying to preserve MAC
+semantics over load/unload of different security modules, so for sanity
+the important thing is just to be able to detect whether a security
+xattr "belongs" to the current module or not.  That can be done with a
+simple prefix in the xattr value itself.  Trying to make multiple MAC
+labels coexist in different xattrs seems to have little use.
 
-Is there somebody working on a Linux driver for the Broadcom BCM4306/BCM2050 chips? They are used for instance in the built-in Dell TrueMobile 1300 Wireless LAN PCI card that is sold for Dell notebooks. I've ordered a Dell Inspiron 8500 with such thing in it. (had to choose Dell and the i8500 was the best choice at the moment).
+--Stephen
 
-I read on <http://www.ee.surrey.ac.uk/Personal/G.Wilford/Inspiron8500>that the Ethernet chip (BCM4401) is support by a Broadcom driver and a brand new one from Daved S. Miller. So I'm wondering if Broadcom is willing to release specs for the WLAN chips too.
-
-How are the experiences in contacting Broadcom and Dell with requests for help?
-
-Regards,
-
-Bas.
-
-(note: please CC to me as I'm not on the list at the moment)
-
-
-You might also reply to linux-kernel@basmevissen.nl.

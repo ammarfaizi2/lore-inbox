@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262449AbULOSxS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbULOTA5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262449AbULOSxS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 13:53:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbULOSwm
+	id S262443AbULOTA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 14:00:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbULOTA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 13:52:42 -0500
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:64128
-	"HELO linuxace.com") by vger.kernel.org with SMTP id S262450AbULOSu0
+	Wed, 15 Dec 2004 14:00:57 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:46058 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262443AbULOTAv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 13:50:26 -0500
-Date: Wed, 15 Dec 2004 10:50:24 -0800
-From: Phil Oester <kernel@linuxace.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: David Jacoby <dj@outpost24.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux kernel IGMP vulnerabilities, PATCH IS BROKEN!
-Message-ID: <20041215185024.GA16990@linuxace.com>
-References: <41BFF931.6030205@outpost24.com> <20041215.180839.93043538.yoshfuji@linux-ipv6.org> <41C024B0.4010009@outpost24.com> <200412151254.37612@WOLK> <41C0268B.2030708@outpost24.com> <20041215120418.GA9049@tufnell.lon1.poggs.net> <41C029F7.7010405@outpost24.com> <20041215103407.T469@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041215103407.T469@build.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 15 Dec 2004 14:00:51 -0500
+Message-ID: <41C089DD.1040208@us.ltcfwd.linux.ibm.com>
+Date: Wed, 15 Dec 2004 19:00:45 +0000
+From: wendy xiong <wendyx@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 kernel] src/linux/drivers/serial: new serial driver
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 15, 2004 at 10:34:07AM -0800, Chris Wright wrote:
-> * David Jacoby (dj@outpost24.com) wrote:
-> > The patch fucked something up, sorry for my language. Is there anyone 
-> > else on
-> > this list who has the patch installed?
-> 
-> Patch is fine.  I've used it and ssh quite a bit.  It only touches small
-> bit of multicast specific code which isn't used at all during ssh session.
+Hi All,
 
-Yes, user is moving from unpatched 2.4.24 -> patched 2.6.9, and likely has
-a pty config issue...
+We are submiting a new serial driver for the 2.6 kernel. This device 
+driver is for the Digi Neo serial port adapter.
 
-Phil
+We made some changes based on great comments from linux community. We 
+used the Russell's serial_core interface, handled all initilization of 
+module correctly and used fs/seq_file.c interface for /proc entry.
+
+I put the driver on our website:
+http://www-124.ibm.com/linux/patches/?patch_id=1672
+
+Thank you very much!
+wendy
 

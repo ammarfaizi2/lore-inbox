@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317943AbSFNQEv>; Fri, 14 Jun 2002 12:04:51 -0400
+	id <S317944AbSFNQGb>; Fri, 14 Jun 2002 12:06:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317944AbSFNQEu>; Fri, 14 Jun 2002 12:04:50 -0400
-Received: from ns.suse.de ([213.95.15.193]:39695 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317943AbSFNQEu>;
-	Fri, 14 Jun 2002 12:04:50 -0400
-Date: Fri, 14 Jun 2002 18:04:51 +0200
-From: Dave Jones <davej@suse.de>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Jens Axboe <axboe@suse.de>, Martin Dalecki <dalecki@evision-ventures.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.21 IDE 91
-Message-ID: <20020614180451.R16772@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Benjamin LaHaise <bcrl@redhat.com>, Jens Axboe <axboe@suse.de>,
-	Martin Dalecki <dalecki@evision-ventures.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com> <3D09F769.8090704@evision-ventures.com> <20020614151703.GB1120@suse.de> <20020614115634.B22888@redhat.com>
+	id <S317947AbSFNQGa>; Fri, 14 Jun 2002 12:06:30 -0400
+Received: from host213-121-105-182.in-addr.btopenworld.com ([213.121.105.182]:22416
+	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
+	id <S317944AbSFNQG2>; Fri, 14 Jun 2002 12:06:28 -0400
+Subject: Re: [PROBLEM] sundance on d-link dfe-580tx
+From: Matthew Hall <matt@ecsc.co.uk>
+To: Donald Becker <becker@scyld.com>
+Cc: Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0206131201480.1828-100000@presario>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: ECSC Ltd.
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 14 Jun 2002 17:06:19 +0100
+Message-Id: <1024070779.972.53.camel@smelly.dark.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 14, 2002 at 11:56:34AM -0400, Benjamin LaHaise wrote:
+Sorry to bother you again Donald, but I'm still having problems,
+The following error comes up when I make modules with the 1.06 version:
 
- > Add my voice to these concerns.  At the very least the code should have 
- > been moved into a second tree to allow people to work with the old stable 
- > driver as needed.
+sundance.c: In function `sundance_probe1':
+sundance.c:464: `pci_tbl' undeclared (first use in this function)
+sundance.c:464: (Each undeclared identifier is reported only once
+sundance.c:464: for each function it appears in.)
+sundance.c: In function `cleanup_module':
+sundance.c:1372: `pci_tbl' undeclared (first use in this function)
+make[2]: *** [sundance.o] Error 1
+make[2]: Leaving directory `/usr/src/linux/drivers/net'
+make[1]: *** [_modsubdir_net] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_mod_drivers] Error 2
 
-*nod*, with periodic known-good _tested_ bits getting merged to
-mainline, to avoid the need for an IDE merge flag day as has been
-the norm in the past.
+I've checked the code of sundance.c, pci-scan.h and kern_compat.c and
+pci_tbl isn't defined or declared anywhere in these files, am I missing
+something else, or going crazy?
+Thanks in advance,
 
-        Dave
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Matthew Hall
+
+On Thu, 2002-06-13 at 17:12, Donald Becker wrote:
+> You are still running the old driver, not the driver at
+>    http://www.scyld.com/network/ethercard.html
+>       ftp://www.scyld.com/pub/network/sundance.c
+> 
+> > Just in case you can provide any more insight into this I compiled the
+> > alta-diag tool, for debugging purposes, the results of -aa, -ee and -mm
+> > are attached, aswell as the full detection message from dmesg after
+> > modprob'ing the module.
+> 
+> I never released a "1.01b" driver in January 2002.  The 1.01a driver was
+> released about two years ago.  The current version is
+> sundance.c:v1.06 1/28/2002
+> 
+> The diagnostic program is reading the correct station address, however
+> the driver you are using is reading a bogus address.  I believe that
+> that my driver release should correctly work with this card.
+> 
+
+

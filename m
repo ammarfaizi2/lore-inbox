@@ -1,158 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266322AbUGOU4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266341AbUGOVA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266322AbUGOU4L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 16:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266327AbUGOU4L
+	id S266341AbUGOVA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 17:00:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266339AbUGOVA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 16:56:11 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:28383 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266322AbUGOUzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 16:55:49 -0400
-Date: Thu, 15 Jul 2004 22:55:29 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jes Sorensen <jes@wildopensource.com>
-Cc: jgarzik@pobox.com, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] net/rrunner.c: fix inline compile error
-Message-ID: <20040715205529.GJ25633@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Thu, 15 Jul 2004 17:00:56 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2768 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266347AbUGOVAx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 17:00:53 -0400
+Message-ID: <40F6F076.2080001@pobox.com>
+Date: Thu, 15 Jul 2004 17:00:38 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: netdev@oss.sgi.com, irda-users@lists.sourceforge.net, jt@hpl.hp.com,
+       the_nihilant@autistici.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Drop ISA dependencies from IRDA drivers
+References: <m34qo96x8m.fsf@averell.firstfloor.org> <40F6B547.7050800@pobox.com> <20040715205001.GA2527@muc.de>
+In-Reply-To: <20040715205001.GA2527@muc.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to compile drivers/net/rrunner.c in 2.6.8-rc1-mm1 using gcc 3.4 
-results in the following compile error:
+Andi Kleen wrote:
+> On Thu, Jul 15, 2004 at 12:48:07PM -0400, Jeff Garzik wrote:
+>>And with legacy ISA devices still around, I don't see a whole lot of 
+>>value in differentiating between "I have ISA slots" and "I have ISA 
+>>devices".
+> 
+> 
+> There is great value. Basically most ISA drivers are not 64bit 
+> clean (if they even still work on i386 which is also often doubtful
+> in 2.6) and it is a great way for 64bit archs to get rid of a lot 
+> of not working code.
 
-<--  snip  -->
+I file that under "hiding bugs", since it will not be immediately 
+obvious to a bug hunter or maintainer what the real problem is.
 
-...
-  CC      drivers/net/rrunner.o
-drivers/net/rrunner.c: In function `rr_timer':
-drivers/net/rrunner.h:846: sorry, unimplemented: inlining failed in call 
-to 'rr_raz_tx': function body not available
-drivers/net/rrunner.c:1155: sorry, unimplemented: called from here
-drivers/net/rrunner.h:847: sorry, unimplemented: inlining failed in call 
-to 'rr_raz_rx': function body not available
-drivers/net/rrunner.c:1156: sorry, unimplemented: called from here
-make[2]: *** [drivers/net/rrunner.o] Error 1
+If a driver is broken on 64-bit, please add "&& !64BIT" to the Kconfig.
 
-<--  snip  -->
+As you yourself just explained, your wish is to use CONFIG_ISA, but your 
+intent is only coincedentally related to ISA.
 
-
-The patch below moves some inlined functions above the place where they
-are called the first time.
-
-An alternative approach would be to remove the inlines.
+	Jeff
 
 
-diffstat output:
- drivers/net/rrunner.c |   86 +++++++++++++++++++++---------------------
- 1 files changed, 43 insertions(+), 43 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.7-mm6-full-gcc3.4/drivers/net/rrunner.c.old	2004-07-09 01:05:03.000000000 +0200
-+++ linux-2.6.7-mm6-full-gcc3.4/drivers/net/rrunner.c	2004-07-09 01:05:46.000000000 +0200
-@@ -1138,6 +1138,49 @@
- 	return IRQ_HANDLED;
- }
- 
-+static inline void rr_raz_tx(struct rr_private *rrpriv, 
-+			     struct net_device *dev)
-+{
-+	int i;
-+
-+	for (i = 0; i < TX_RING_ENTRIES; i++) {
-+		struct sk_buff *skb = rrpriv->tx_skbuff[i];
-+
-+		if (skb) {
-+			struct tx_desc *desc = &(rrpriv->tx_ring[i]);
-+
-+	        	pci_unmap_single(rrpriv->pci_dev, desc->addr.addrlo, 
-+				skb->len, PCI_DMA_TODEVICE);
-+			desc->size = 0;
-+			set_rraddr(&desc->addr, 0);
-+			dev_kfree_skb(skb);
-+			rrpriv->tx_skbuff[i] = NULL;
-+		}
-+	}
-+}
-+
-+
-+static inline void rr_raz_rx(struct rr_private *rrpriv, 
-+			     struct net_device *dev)
-+{
-+	int i;
-+
-+	for (i = 0; i < RX_RING_ENTRIES; i++) {
-+		struct sk_buff *skb = rrpriv->rx_skbuff[i];
-+
-+		if (skb) {
-+			struct rx_desc *desc = &(rrpriv->rx_ring[i]);
-+
-+	        	pci_unmap_single(rrpriv->pci_dev, desc->addr.addrlo, 
-+				dev->mtu + HIPPI_HLEN, PCI_DMA_FROMDEVICE);
-+			desc->size = 0;
-+			set_rraddr(&desc->addr, 0);
-+			dev_kfree_skb(skb);
-+			rrpriv->rx_skbuff[i] = NULL;
-+		}
-+	}
-+}
-+
- static void rr_timer(unsigned long data)
- {
- 	struct net_device *dev = (struct net_device *)data;
-@@ -1253,49 +1296,6 @@
- }
- 
- 
--static inline void rr_raz_tx(struct rr_private *rrpriv, 
--			     struct net_device *dev)
--{
--	int i;
--
--	for (i = 0; i < TX_RING_ENTRIES; i++) {
--		struct sk_buff *skb = rrpriv->tx_skbuff[i];
--
--		if (skb) {
--			struct tx_desc *desc = &(rrpriv->tx_ring[i]);
--
--	        	pci_unmap_single(rrpriv->pci_dev, desc->addr.addrlo, 
--				skb->len, PCI_DMA_TODEVICE);
--			desc->size = 0;
--			set_rraddr(&desc->addr, 0);
--			dev_kfree_skb(skb);
--			rrpriv->tx_skbuff[i] = NULL;
--		}
--	}
--}
--
--
--static inline void rr_raz_rx(struct rr_private *rrpriv, 
--			     struct net_device *dev)
--{
--	int i;
--
--	for (i = 0; i < RX_RING_ENTRIES; i++) {
--		struct sk_buff *skb = rrpriv->rx_skbuff[i];
--
--		if (skb) {
--			struct rx_desc *desc = &(rrpriv->rx_ring[i]);
--
--	        	pci_unmap_single(rrpriv->pci_dev, desc->addr.addrlo, 
--				dev->mtu + HIPPI_HLEN, PCI_DMA_FROMDEVICE);
--			desc->size = 0;
--			set_rraddr(&desc->addr, 0);
--			dev_kfree_skb(skb);
--			rrpriv->rx_skbuff[i] = NULL;
--		}
--	}
--}
--
- static void rr_dump(struct net_device *dev)
- {
- 	struct rr_private *rrpriv;

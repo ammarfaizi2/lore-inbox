@@ -1,71 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263538AbTIIP4y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 11:56:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264172AbTIIP4y
+	id S264187AbTIIQCj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 12:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbTIIQCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 11:56:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63689 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263538AbTIIP4w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 11:56:52 -0400
-Date: Tue, 9 Sep 2003 08:54:10 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: =?iso-8859-1?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Power Management Update
-In-Reply-To: <20030909105323.GA14859@lps.ens.fr>
-Message-ID: <Pine.LNX.4.33.0309090842500.919-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 9 Sep 2003 12:02:39 -0400
+Received: from mailwasher.lanl.gov ([192.16.0.25]:39612 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S264187AbTIIQCh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 12:02:37 -0400
+Subject: Re: Make Menuconfig and Make Xconfig errors in Mandrake 9.2 rc1
+From: Steven Cole <elenstev@mesatop.com>
+To: Anton Kholodenin <cicprogr@mail.dux.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1063115985.1664.14.camel@spc9.esa.lanl.gov>
+References: <000701c376ba$11e87ef0$370101c8@antontest>
+	 <1063115985.1664.14.camel@spc9.esa.lanl.gov>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1063123083.1663.34.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 09 Sep 2003 09:58:03 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 9 Sep 2003, Éric Brunet wrote:
-
-> On Mon, Sep 08, 2003 at 12:54:12PM -0700, Patrick Mochel wrote:
-> > > * swsusp doesn't like accelerated graphics. If the following modules are
-> > >   loaded:
-> > >     i830                   68120  20
-> > >     intel_agp              14744  1
-> > >     agpgart                25640  3 intel_agp
-> > >   resuming fails. (Different kind of failures, from spontaneous reboot to
+On Tue, 2003-09-09 at 07:59, Steven Cole wrote:
+> On Tue, 2003-09-09 at 04:06, Anton Kholodenin wrote:
+> > I find 2 errors in Mandrake 9.2 rc 1
 > > 
-> > This is not suprising, and likely something that many people will run 
-> > into. There is a lot of driver work that needs to be done, especially WRT 
-> > video devices, as many of them are not tied into the new driver model at 
-> > all. 
+> As others noted, a Mandrake-specific list is a better choice in this
+> instance, but the problem you noted below happens occasionally in 2.4
+> bleeding edge stuff, so I'm posting something for you to look for.
+> > 
+> > 2. If i do cd /usr/src/linux; make xconfig program not started and write to
+> > console:
 > 
-> If you want more testers and interesting bug reports, that should be some
-> kinfd of priority, no ? Everybody is running with accelerated graphics
-> modules, nowadays.
+>3rdparty/lufs/Config.in: 2: can't handle
+dep_bool/dep_mbool/dep_tristate
 
-It is a priority, but they pose a stiff challenge that not many know how 
-to resolve, including yours truly. We'll get there.. 
+Replying to myself, apologies to all for the previous noise.
+I hadn't looked at the error closely enough.  My previous post was not
+apropos to Anton's specific problem.
 
-> agpgart		i830		hid+uhci+ehci	eth1	  | suspend+resume
-> +intel_agp						  |
-> ----------------------------------------------------------+--
-> unloaded	unloaded	loaded		loaded+up | works but
-> 							  | mouse+eth1 fail
-> 
-> loaded		unloaded	unloaded	unloaded  | works and
-> 							  | mouse+eth1 can be
-> 							  | recovered
-> 
-> loaded		unloaded	partially	loaded	  | does not work.
-> 				loaded		but down
-> 
-> What this probably means is that one of my succes was a piece of luck,
-> non reliably reproducible. Unfortunately, my wife came back from her
-> trip, and I now have much less time for testing...
+Try doing this from /usr/src/linux:
+grep dep_ 3rdparty/lufs/Config.in
 
-Heh, thanks for testing this so far. This is definitely helpful in 
-pointing out some trouble areas. 
+You'll see various lines with something like:
+dep_tristate ' Some prompt' CONFIG_SOMETHING $CONFIG_SOMETHINGELSE
+
+The $CONFIG_SOMETHINGELSE may be missing on some line.  You can kludge
+it by changing the dep_tristate to a plain tristate.
+
+The Mandrake 9.2 rc2 is out now, so you might want to look at that
+instead.
+
+Steven
 
 
-	Pat
 

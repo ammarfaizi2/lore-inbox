@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266660AbSKLRkJ>; Tue, 12 Nov 2002 12:40:09 -0500
+	id <S266749AbSKLRzx>; Tue, 12 Nov 2002 12:55:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266665AbSKLRkJ>; Tue, 12 Nov 2002 12:40:09 -0500
-Received: from kfw.debis.hu ([195.228.20.2]:7665 "EHLO dns.debis.hu")
-	by vger.kernel.org with ESMTP id <S266660AbSKLRkG> convert rfc822-to-8bit;
-	Tue, 12 Nov 2002 12:40:06 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: IDE TCQ
-Date: Tue, 12 Nov 2002 18:46:34 +0100
-Message-ID: <71EE24368CCFB940A79BD7002F14D760409348@exchange.uns.t-systems.tss>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: IDE TCQ
-Thread-Index: AcKKc2rbWVpTfTslS12DuHnf3U/5eA==
-From: =?iso-8859-2?Q?Sasi_P=E9ter?= <Peter.Sasi@t-systems.co.hu>
-To: <axboe@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
+	id <S266755AbSKLRzx>; Tue, 12 Nov 2002 12:55:53 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:39881 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S266749AbSKLRzu>;
+	Tue, 12 Nov 2002 12:55:50 -0500
+Date: Tue, 12 Nov 2002 10:02:34 -0800
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, Benjamin Reed <breed@almaden.ibm.com>,
+       Javier Achirica <achirica@ttd.net>
+Subject: Re: [BUG] Oopsen with pcmcia aironet wireless (2.5.47)
+Message-ID: <20021112180234.GB10986@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <5860000.1037069226@localhost.localdomain> <3DD07FF4.2E1BC593@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DD07FF4.2E1BC593@digeo.com>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Jens,
+On Mon, Nov 11, 2002 at 08:13:40PM -0800, Andrew Morton wrote:
+> Andrew McGregor wrote:
+> > 
+> > I see lots of oopsen when I insert an Aironet PC4800 802.11 card.
+> 
+> They are debug warnings, not oopses.
+> 
+> > ...
+> > Nov 12 15:40:39 localhost kernel: end_request: I/O error, dev hdb, sector 0
+> > Nov 12 15:40:39 localhost last message repeated 3 times
+> > Nov 12 15:40:39 localhost kernel: end_request: I/O error, dev hdc, sector 0
+> > Nov 12 15:40:39 localhost last message repeated 2 times
+> 
+> hm.  IDE sick?
+> 
+> > Nov 12 15:40:39 localhost kernel: Debug: sleeping function called from
+> > illegal context at include/asm/semaphore.h:145
+> > Nov 12 15:40:39 localhost kernel: Call Trace:
+> > Nov 12 15:40:39 localhost kernel:  [<e1a59215>] PC4500_readrid+0x55/0x160
+> 
+> airo_get_stats is called under the read_lock(&dev_base_lock); which was
+> taken in dev_get_info.  So it may not call sleeping functions (ie:
+> down_interruptible()).
+> 
+> It would appear that no netdevice->get_stats() method is allowed to sleep,
+> which seems pretty dumb, IMVHO.
 
-I would like to ask a few simple question: what does it take to make use of this nifty feature?
+	Forwarded to airo maintainer.
 
-My example:
-I have a box with an ABIT BH6 mainboard (Intel chipset, 2xUATA33 channels), A Leadtek WinFast CMD648 with 2xUATA66 channels, and a Promise Ultra100 TX2 2xUATA100.
-I have 3x IBM GXP120 120GB UATA100 IDE HDDs (have read you write these to be capable of TCQ).
+	Javier :
+	Most drivers collect stats based on Tx/Rx packets (they just
+increment counters). Look at other driver for details. If you really
+want to get stats out of the firmware, you may use the techinique I
+used in orinoco for wireless stats, which is to use previous stats and
+only call async the stat function.
+	Have fun...
 
-First set of questions:
-On which of the three different IDE controllers are the disks supposed to be doing TCQ?
-
-Is it limited to UATA100 and up?
-Is it limited to specific chipsets?
-Maybe a combination of these two?
-
-Is there any list of the disks that support TCQ?
-Or does that come compulsory with eg. UATA100?
-
-Second set of questions:
-Does it do any good to one-channel-one-disk setups?
-Is it supposed to do good to access time, operations/sec, throughput, random reqs rearrangement or what?
-Do you have any figures how much TCQ helps performace (e.g. in file serving case)?
-
-Now I see I piled up quite a few questions. Maybe it is more polite to ask you if you can recommend any reading on the topic on the web first?
-
-Maybe I should rather be asking Andre Hedrick about the internals of TCQ?
-
-I have CCd LKML, since others might also like some clarification around IDE TCQ. If you reply, please keep me CCd as well, since I am not subscribed to LKML currently.
-
-Thank you very much!
-
-Peter
+	Jean

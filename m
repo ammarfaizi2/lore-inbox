@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265635AbSJSR3T>; Sat, 19 Oct 2002 13:29:19 -0400
+	id <S265641AbSJSRj4>; Sat, 19 Oct 2002 13:39:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265636AbSJSR3T>; Sat, 19 Oct 2002 13:29:19 -0400
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:12517 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S265635AbSJSR3R>; Sat, 19 Oct 2002 13:29:17 -0400
-Message-ID: <3DB19AE6.6020703@kegel.com>
-Date: Sat, 19 Oct 2002 10:48:22 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: Mark Mielke <mark@mark.mielke.cc>
-CC: John Myers <jgmyers@netscape.com>,
-       Davide Libenzi <davidel@xmailserver.org>,
-       Benjamin LaHaise <bcrl@redhat.com>,
-       Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
-       David Miller <davem@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Stephen Tweedie <sct@redhat.com>
-Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
-References: <Pine.LNX.4.44.0210181241300.1537-100000@blue1.dev.mcafeelabs.com> <3DB0AD79.30401@netscape.com> <20021019065916.GB17553@mark.mielke.cc>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265643AbSJSRjz>; Sat, 19 Oct 2002 13:39:55 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:26887 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S265641AbSJSRjy>; Sat, 19 Oct 2002 13:39:54 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: 2.5.43 smp bootup crash, more info - probably scsi/raid
+Date: 19 Oct 2002 17:45:45 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <aos5o9$rt8$1@gatekeeper.tmr.com>
+References: <3DAE605F.3B744FFC@broadpark.no> <3DAE8E90.D3E7CACF@aitel.hist.no>
+X-Trace: gatekeeper.tmr.com 1035049545 28584 192.168.12.62 (19 Oct 2002 17:45:45 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Mielke wrote:
-> On Fri, Oct 18, 2002 at 05:55:21PM -0700, John Myers wrote:
-> 
->>So whether or not a proposed set of epoll semantics is consistent with 
->>your Platonic ideal of "use the fd until EAGAIN" is simply not an issue. 
->>What matters is what works best in practice.
-> 
-> 
->>From this side of the fence: One vote for "use the fd until EAGAIN" being
-> flawed. If I wanted a method of monopolizing the event loop with real time
-> priorities, I would implement real time priorities within the event loop.
+In article <3DAE8E90.D3E7CACF@aitel.hist.no>,
+Helge Hafting  <helgehaf@aitel.hist.no> wrote:
+| Helge Hafting wrote:
+| 
+| > It produced a backtrace so long that most of it
+| > scrolled off the screen, before stating that
+| > it didn't sync in an interrupt handler.
+| >
+| Some of the functions in the trace was scsi stuff.
+| I have a tekram scsi controller, driven by
+| "SYM53C8XX Version 2 SCSI support"
+| 
+| The crash happens immediately after initializing
+| the controller and discovering the two
+| disks.  This is where autodetection
+| of RAID usually happens.
+| So it seems to me that it is either some
+| scsi problem, or a RAID problem.
+| 
+| The problem affects both 2.5.43 and 2.5.43-mm2.
 
-The choice I see is between:
-1. re-arming the one-shot notification when the user gets EAGAIN
-2. re-arming the one-shot notification when the user reads all the data
-    that was waiting (such that the very next read would return EGAIN).
+Is it an OOPS or just a BUG? I got a BUG until I applied the patch, now
+my SCSI devices don't actually work, but I don't get an OOPS.
 
-#1 is what Davide wants; I think John and Mark are arguing for #2.
-
-I suspect that Davide would be happy with #2, but advises
-programmers to read until EGAIN anyway just to make things clear.
-
-If the programmer is smart enough to figure out how to do that without
-hitting EAGAIN, that's fine.  Essentially, if he tries to get away
-without getting an EAGAIN, and his program stalls because he didn't
-read all the data that's available and thereby doesn't reset the
-one-shot readiness event, it's his own damn fault, and he should
-go back to using level-triggered techniques like classical poll()
-or blocking i/o.
-
-- Dan
-
-
+See my other post on the patch, or write my off-list if you can't find it.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

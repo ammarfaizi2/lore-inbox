@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbULRRo5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbULRRte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbULRRo5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 12:44:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbULRRo5
+	id S261205AbULRRte (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 12:49:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbULRRtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 12:44:57 -0500
-Received: from wproxy.gmail.com ([64.233.184.197]:40459 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261204AbULRRo4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 12:44:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=m4txqUNb6s97ID1S6ZPPg6yZK9VDo7kBLP5AR5yyd2DEQi9yLSzCPPZP/bVWlwjVSjtIVbSI0hY+JcHswRNT6fzUg5TrigSCjVMt3U87dwLvjcQnE0d1p6A6IKJlX1TgKggUwyLamYmBI4UKWAg9YLAp2JknqtJYQNE2MJIG1SE=
-Message-ID: <d4b385204121809442596e936@mail.gmail.com>
-Date: Sat, 18 Dec 2004 17:44:54 +0000
-From: Mikkel Krautz <krautz@gmail.com>
-Reply-To: Mikkel Krautz <krautz@gmail.com>
-To: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [PATCH] hid-core: Configurable USB HID Mouse Interrupt Polling Interval
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz, greg@kroah.com
-In-Reply-To: <1103384445.8765.1.camel@pegasus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 18 Dec 2004 12:49:33 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:18852 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261205AbULRRtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Dec 2004 12:49:31 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.10-rc3-mm1: swsusp
+Date: Sat, 18 Dec 2004 18:52:31 +0100
+User-Agent: KMail/1.7.2
+Cc: Pavel Machek <pavel@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-References: <1103335970.15567.15.camel@localhost>
-	 <20041218012725.GB25628@kroah.com> <41C46B4D.5040506@gmail.com>
-	 <1103384445.8765.1.camel@pegasus>
+Content-Disposition: inline
+Message-Id: <200412181852.31942.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Dec 2004 16:40:44 +0100, Marcel Holtmann <marcel@holtmann.org> wrote:
-> Hi Mikkel,
-> 
-> > @@ -1910,6 +1916,7 @@
-> >
-> >  module_init(hid_init);
-> >  module_exit(hid_exit);
-> > +module_param(hid_mouse_polling_interval, int, 644);
-> 
-> I think the use of module_param_named() makes more sense here.
-> 
-> Regards
-> 
-> Marcel
-> 
-> 
+Hi,
 
-Thanks, I'll change it. Do you think I should add a MODULE_PARM_DESC too?
+I must say I'm really impressed with the progress that swsusp made since I 
+tried it last time (close to 2.6.10-rc1 as I recall).  Now I've been using it 
+for a couple of days on 2.6.10-rc3-mm1 and It's never refused to suspend the 
+machine because of the lack of (contiguous) memory which happened very often 
+before, and it seems to be much faster.  Using it my notebook has reached 
+more that 1 day of uptime recently, wich was practically impossible 
+previously.  It's a great job and vast improvement for which I thank you very 
+much!
 
-Mikkel
+Still, unfortunately, today it crashed on suspend and I wasn't able to get any 
+useful information related to the crash, because swsusp apparently does not 
+send some of its messages to the serial console.  In particular, anything 
+from within the critical section is not printed there and that's why I think 
+(I'm not sure though) that the crash occured in the critical section.  Could 
+you tell me please if it's possible to make all of the swsusp messages appear 
+on the serial console and, if so, how to do this (I've already tried "dmesg 
+-n 8" and "echo 9 > /proc/sysrq-trigger" but none of them helps)?
+
+Greets,
+RJW
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

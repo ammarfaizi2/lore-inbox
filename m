@@ -1,34 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287036AbRL2Aoz>; Fri, 28 Dec 2001 19:44:55 -0500
+	id <S287044AbRL2Aup>; Fri, 28 Dec 2001 19:50:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287037AbRL2Aof>; Fri, 28 Dec 2001 19:44:35 -0500
-Received: from dsl-213-023-043-233.arcor-ip.net ([213.23.43.233]:18446 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S287036AbRL2Aoc>;
-	Fri, 28 Dec 2001 19:44:32 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Hetz Ben Hamo <hetz@kde.org>, linux-kernel@vger.kernel.org
-Subject: Re: Serious VM problems (cont..)
-Date: Sat, 29 Dec 2001 01:47:23 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <E16JzWl-0006iD-00@witch.dyndns.org>
-In-Reply-To: <E16JzWl-0006iD-00@witch.dyndns.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16K7em-0000Ba-00@starship.berlin>
+	id <S287043AbRL2Aug>; Fri, 28 Dec 2001 19:50:36 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:22031 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S287044AbRL2AuP>;
+	Fri, 28 Dec 2001 19:50:15 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: State of the new config & build system 
+In-Reply-To: Your message of "Fri, 28 Dec 2001 12:01:04 -0800."
+             <20011228120104.B4077@work.bitmover.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 29 Dec 2001 11:50:02 +1100
+Message-ID: <7390.1009587002@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 28, 2001 05:06 pm, Hetz Ben Hamo wrote:
-> Sorry,
-> 
-> I forgot to mention my Linux: Redhat 7.2 + the official kernel 2.4.17 (I 
-> also tested 2.4.9-13 - same errors) + all the latest updates (including FAM 
-> 2.6.6), XFree 4.1.0-3, KDE 2.2.1...
+cc: list trimmed.
 
-PleaseBetter try 2.4.17.
+On Fri, 28 Dec 2001 12:01:04 -0800, 
+Larry McVoy <lm@bitmover.com> wrote:
+>On Fri, Dec 28, 2001 at 08:42:44PM +1100, Keith Owens wrote:
+>> "All" I need to do is have one server process that reads the big list
+>> once and the other client processes talk to the server.  Much less data
+>> involved means faster conversion from absolute to standardized names.
+>
+>Actually, if you use the mdbm code, you can have a server process which
+>reads the data, stashes it in the db, touchs ./i_am_done, and exits.
+>"client" processes do a 
+>
+>	while (!exists("i_am_done")) usleep(100000);
+>	m = mdbm_open("db", O_RDONLY, 0, 0);
+>	val = mdbm_fetch_str(m, "key");
+>	etc.
+>
+>No sockets, no back and forth, runs at mmap speed.
+>
+>If you tell me what the data looks like that needs to be in the DB, i.e.,
+>how to get it, I'll code you up the "server" side.
 
---
-Daniel
- 
+I also want updates from the dependency back end code, to remove the
+phase 5 processing.  The "extract dependency" code runs after each
+compile step so there can be multiple updates running in parallel.  My
+gut feeling is that it will be faster to have one database server and
+all the back ends talk to that server.  Otherwise each compile will
+have overhead for lock, open, mmap, update, close, write back, unlock.
+A single threading server removes the need for lock/unlock and can sync
+the data to disk after n compiles instead of being forced to do it
+after every compile.
+
+If your experience says that doing updates from each compile step
+without a server process would not be too slow, let me know.
+

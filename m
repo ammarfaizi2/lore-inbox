@@ -1,56 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbUFADO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264873AbUFADnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbUFADO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 23:14:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264870AbUFADO5
+	id S264873AbUFADnl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 23:43:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264871AbUFADnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 23:14:57 -0400
-Received: from handhelds.org ([192.58.209.91]:23005 "EHLO handhelds.org")
-	by vger.kernel.org with ESMTP id S261576AbUFADOz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 23:14:55 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: George France <france@handhelds.org>
-To: Cpqarray-discuss@lists.sourceforge.net
-Subject: [Patch] - 2.6.6 - cpqarray.c - trivial
-Date: Mon, 31 May 2004 23:10:08 -0400
-User-Agent: KMail/1.4.3
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+	Mon, 31 May 2004 23:43:41 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:40844 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264874AbUFADng (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 23:43:36 -0400
+Message-Id: <200406010343.i513hAak005922@zeus.kernel.org>
+From: hodri meydan <harbiciyiz@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Reply-To: harbiciyiz@hotmail.com
+Subject: =?utf-7?q?YA_S=DDZ=DDN_HORTUMCULARA_NE_DEMEL=DD=3F_SAYIN_BAKAN!?=
+Date: Tue, 01 Jun 2004 06:44:17 +0300
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200405312310.08754.france@handhelds.org>
+Content-Type: multipart/mixed; boundary="eee1c273-c58d-4690-a278-bae38c397e15"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I just upgrade my Compaq Prolient Server to 2.6.x.  This system is mostly
-a http server and does not have a keyboard or mouse attached.  This
-system hangs on reboot, when generating SSL keys due to /dev/random
-having zero entropy.
+This is a multi-part message in MIME format
+--eee1c273-c58d-4690-a278-bae38c397e15
+Content-Type: text/plain; charset=utf-7
+Content-Transfer-Encoding: quoted-printable
 
-It is my understanding that /dev/random uses the keyboard, mouse and
-block devices to generate entropy.  Since this system does not have a
-keyboard or mouse, I am having to rely upon the cpqarray (block) driver
-for entropy.  It appears that in the 2.4.x kernel somebody added the
-SA_SAMPLE_RANDOM flag to request_irq() in cpqarray.c to fix this
-problem.  Below is a patch against 2.6.6, which corrects this issue.
-
-Best Regards,
-
-
---George
-
---- linux-2.6.6/drivers/block/cpqarray.c-orig   2004-05-31 22:54:35.000000000 -0400
-+++ linux-2.6.6/drivers/block/cpqarray.c        2004-05-31 22:56:07.000000000 -0400
-@@ -418,7 +418,7 @@
-        }
-        hba[i]->access.set_intr_mask(hba[i], 0);
-        if (request_irq(hba[i]->intr, do_ida_intr,
--               SA_INTERRUPT|SA_SHIRQ, hba[i]->devname, hba[i]))
-+               SA_INTERRUPT|SA_SHIRQ|SA_SAMPLE_RANDOM, hba[i]->devname, hba[i]))
-        {
-                printk(KERN_ERR "cpqarray: Unable to get irq %d for %s\n",
-                                hba[i]->intr, hba[i]->devname);
+Merhaba.
+Bant dan yay=FDnlanan TEKE TEK' de program=FDnda Say=FDn ekonomiden sorumlu =
+bakan, Tasarruf Sigorta Fonuna devredilen bat=FDk banka sahiplerine ve bu =
+bankalar=FDn alacakl=FD oldu=F0u ki=FEilere hi=E7bir ayr=FDm yap=FDlmadan =
+devletin mal=FDn=FD hortumlayanlardan hesap sorulacakt=FDr, kimseye farkl=FD =
+ve imtiyazl=FD muamele yoktur demektedir.
+Peki, say=FDn bakan a=E7=FDklas=FDn o zaman;
+AKP genel merkezine 6 adet Clio sembol ve Fort Transit T280 arac=FD kiralad=FD=
+klar=FD VER=DD B=DDL=DD=DE=DDM
+1-Tasarruf Mevduat=FD Sigorta Fonuna devredilen bat=FDk bankalardan olan S=FC=
+merbank'a ORNAS bilgisayar olarak, bor=E7lu olan ve hakk=FDnda g=FDyabi =
+tutuklama karar=FD olan Azmi ORKUN' nun hala haz=FDrda annesi, karde=FEi ve =
+eni=FEtelerinin =FCzerine kay=FDtl=FD olup, kira s=F6zle=FEmesinin yap=FD=
+lmas=FDndan sadece 10 g=FCn =F6nce Veri bili=FEim =FEirketinin =FEirket i=FE=
+tigal alan=FDna eklenmi=FE ve o g=FCne kadar hi=E7bir =FEekilde kiralama i=FE=
+i yapmam=FD=FE bu ki=FEilere parti kanal=FDyla ara=E7 kiralamas=FD 3 y=FDll=FD=
+k yap=FDlmam=FD=FE m=FDd=FDr.
+2- Hala haz=FDrda =C7etin Eme=E7 Bulvar=FD 2.cad. No.12/8 adresinde, s=F6z=FC=
+m ona aranan Azmi Orkun,   Devlete olan bor=E7lar=FDn=FD ka=E7=FDrmak i=E7in =
+9 ay =F6nceye kadar yeni =FEafak gazetesinin de Ankara Temsilcili=F0inin =
+bulundu=F0u binay=FD Albayraklara yada yak=FDnlar=FDna devretmemi=FE midir?
+3.AKP nin bu veri bili=FEim le yapt=FD=F0=FD ara=E7 kiralama i=FEi s=F6zle=FE=
+mesinde, imzas=FD bulunan, partiye s=F6z=FCm ona teklif veren ABDULLAH G=DC=
+ND=DCZ, (me=FEhur M=FCsl=FCm G=FCnd=FCz=FCn =F6z ye=F0eni,) hangi vas=FDfla =
+veri bili=FEim ad=FDna, AKP'yle bu s=F6zle=FEmeyi imzalam=FD=FEt=FDr.
+Bu s=F6zle=FEmeler hangi bankalara verilip =F6z sermayesi olmayan, 2 arac=FDn =
+finans bank(yada Pamukbank) 2 arac=FDn =FEeker bank,2 arac=FDnda i=FE =
+bankas=FDndan kimlerin kefaletiyle ve yedi eminli=F0iyle al=FDn=FDp Ankara =
+Neziro=F0lu otomobile kimlerin kredi =E7ekerek =F6dedi=F0i, bu kadar aczi yet =
+i=E7inde olan bu =FEirkete bu i=FElerin neden ve kimler kollanarak yap=FDld=FD=
+=F0=FDn=FD sormak gerekir 
+4-AKP i=E7inde Say=FDn Erdo=F0an'a ba=F0l=FD medya Tan=FDt=FDmda =E7al=FD=FE=
+an =DDbrahim Bayram kanal=FDyla, parti i=E7ine sokulan Abdullah G=FCnd=FCz'=FC=
+ Egemen Ba=F0=FD=FE ba=FEta olmak =FCzere, her kap=FDy=FD a=E7mak i=E7in, =
+yukarda bahsedilen ve i=FEi Bilgisayar sat=FD=FE=FD olan VER=DD B=DDL=DD=DE=DD=
+M, sonradan VER=DD RENT A CAR, VER=DD MOB=DDLYA DEKORASYON, gibi, Serkan =
+Akg=FCn, =D6zg=FCr Bakar, Abdullah G=FCnd=FCz, L=FCtfi G=FCnd=FCz gibi 1 =
+seneye kadar =F6nce a=E7l=FDktan nefesleri kokan bu =FEah=FDslar, devlete =
+borcundan dolay=FD yaz=FDhane de delikten bakmadan kap=FD a=E7amayan bu ki=FE=
+iler acaba bug=FCn AKP taraf=FDndan ni=E7in korunup, =E7e=FEitli i=FElerle =
+ba=F0lant=FD kurdurularak sizce devlet bir =FEekilde hortumlat=FDlm=FDyor mu? =
+Bu ki=FEilerin ba=FEta uyu=FEturucuyla ve ge=E7mi=FElerindeki karanl=FDk i=FE=
+lere bak=FDlmadan devlet b=FCy=FCklerinin bu kadar yak=FDnlar=FDnda cirit =
+atmas=FD acaba sizden olduklar=FD i=E7in midir?
+5-23 EV 698 plakal=FD Ba=FEbakanl=FDk =D6zel Arac=FDd=FDr Kart=FD bulunan =
+ara=E7 kime ni=E7in, ne ama=E7la =E7=FDkart=FDlarak verilmi=FEtir.
+Say=FDn Bakan, sizin hortumcunuz, sizin adamlar=FDn=FDz=FDn i=FEbitiricili=F0=
+i konu oldu mu?
+Bakal=FDm ne diyecek siniz. =C7=FCnk=FC bu =FEah=FDslar=FD ve yapt=FDklar=FD =
+i=FEleri gene Tan=FDt=FDm ve Medyadan sorumlu Say=FDn Murat Mercan beye tam 1 =
+seneye yak=FDn bir zaman =F6nce t=FCm yapt=FDklar=FDn=FD ve ne =FEekilde bir =
+=E7eteyle parti i=E7ine s=FDzd=FDklar=FDn=FD bildirdim, ama sizin olan=FD =
+size bildirmi=FEim me=F0er.
+NOT: Bu bilgilerin yani partiyle yap=FDlm=FD=FE alt=FDnda Abdullah G=FCnd=FCz =
+imzal=FD 3 y=FDll=FDk ara=E7 kira s=F6zle=FEmesi, 23 EV 698 plakal=FD araca =
+=E7=FDkart=FDlm=FD=FE Ba=FEbakanl=FDk =D6zel Arac=FDd=FDr kart=FD ve bunlar=FD=
+n t=FCm pis i=FElerine ait bilgi elimde mevcut olup Mail adresime d=F6n=FC=
+ld=FC=F0=FCnde ilgililere fakslanabilir.   
+--eee1c273-c58d-4690-a278-bae38c397e15--
 

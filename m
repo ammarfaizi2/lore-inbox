@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263285AbRFMNuA>; Wed, 13 Jun 2001 09:50:00 -0400
+	id <S262686AbRFMNtK>; Wed, 13 Jun 2001 09:49:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263257AbRFMNtv>; Wed, 13 Jun 2001 09:49:51 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:26127 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S262707AbRFMNta>;
-	Wed, 13 Jun 2001 09:49:30 -0400
-Date: Wed, 13 Jun 2001 10:49:13 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: "Alok K. Dhir" <alok@dhir.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: [PATCH] 2.4.6-pre2 page_launder() improvements
-In-Reply-To: <000e01c0f3c3$4a71fb10$1e01a8c0@dhir.net>
-Message-ID: <Pine.LNX.4.21.0106131048000.14934-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S263149AbRFMNtB>; Wed, 13 Jun 2001 09:49:01 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:45779 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S262686AbRFMNst>;
+	Wed, 13 Jun 2001 09:48:49 -0400
+Message-ID: <3B276F31.8BBF06AF@mandrakesoft.com>
+Date: Wed, 13 Jun 2001 09:48:33 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+Cc: Keith Owens <kaos@ocs.com.au>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.6-pre3 unresolved symbol do_softirq
+In-Reply-To: <8272.992434020@ocs4.ocs-net> <15143.22734.747077.588558@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Jun 2001, Alok K. Dhir wrote:
+"David S. Miller" wrote:
+> 
+> Keith Owens writes:
+>  > do_softirq is called from asm code which does not get preprocessed.
+>  > It needs to be exported with no version.
+> 
+> It can get preprocessed if you know how.  Simply use the "i" asm
+> constraint for an extra argument, and use the symbol there.  For
+> example:
+> 
+>         __asm__("%0" : : "i" (my_versioned_symbol));
+> 
+> It works and we've been doing it on sparc for ages.
 
-> Are these page_launder improvements included in 2.4.6-pre3?
+how to do this in foo.S code?
 
-Please, don't send whole patches to the list just to ask a
-question like this.  But, since you sent the patch anyway,
-why not read patch-2.4.6-pre3 to see if it's there?
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

@@ -1,48 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264956AbSLMPva>; Fri, 13 Dec 2002 10:51:30 -0500
+	id <S264990AbSLMQAc>; Fri, 13 Dec 2002 11:00:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264978AbSLMPva>; Fri, 13 Dec 2002 10:51:30 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:7040 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S264956AbSLMPv3>; Fri, 13 Dec 2002 10:51:29 -0500
-Date: Fri, 13 Dec 2002 17:58:59 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Terje Eggestad <terje.eggestad@scali.com>
-Cc: "J.A. Magallon" <jamagallon@able.es>, Mark Mielke <mark@mark.mielke.cc>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021213155859.GC1095@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Terje Eggestad <terje.eggestad@scali.com>,
-	"J.A. Magallon" <jamagallon@able.es>,
-	Mark Mielke <mark@mark.mielke.cc>, "H. Peter Anvin" <hpa@zytor.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Dave Jones <davej@codemonkey.org.uk>
-References: <1039610907.25187.190.camel@pc-16.office.scali.no> <3DF78911.5090107@zytor.com> <1039686176.25186.195.camel@pc-16.office.scali.no> <20021212203646.GA14228@mark.mielke.cc> <20021212205655.GA1658@werewolf.able.es> <1039771270.29298.41.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1039771270.29298.41.camel@pc-16.office.scali.no>
-User-Agent: Mutt/1.4i
+	id <S265051AbSLMQAc>; Fri, 13 Dec 2002 11:00:32 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:26116 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S264990AbSLMQAa>; Fri, 13 Dec 2002 11:00:30 -0500
+Message-Id: <200212130947.gBD9l0O02393@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: linux-kernel@vger.kernel.org
+Subject: order of ip tables/chains?
+Date: Fri, 13 Dec 2002 12:36:31 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: vda@port.imtp.ilyichevsk.odessa.ua
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 13, 2002 at 10:21:11AM +0100, you [Terje Eggestad] wrote:
->   
-> Well, it does make sense if Intel optimized away rdtsc for more commonly
-> used things, but even that don't seem to be the case. I'm measuring the
-> overhead of doing a syscall on Linux (int 80) to be ~280 cycles on PIII,
-> and Athlon, while it's 1600 cycles on P4.
+Dunno if this mail and your replies will reach the list/me,
+we have some DNS problems here...
 
-Just out of interest, how much would sysenter (or syscall on amd) cost,
-then? (Supposing it can be feasibly implemented.)
+I'm setting up a firewall. I want to understand precise order
+in which a packet traverse a multitude of ip tables/chains
+which exist in recent 2.4 (say 2.4.20). This is what I currently
+placed at the top of my script:
 
-I think I heard WinXP (W2k too?) is using sysenter?
+### filter This is the default table (if no -t option is passed).  It  contains
+###        the  built-in chains INPUT (for packets coming into the box itself),
+###        FORWARD (for packets being routed through the box), and OUTPUT  (for
+###        locally-generated packets).
+###
+### nat    This  table is consulted when a packet that creates a new connection
+###        is encountered.  It consists of  three  built-ins:  PREROUTING  (for
+###        altering  packets  as  soon  as  they come in), OUTPUT (for altering
+###        locally-generated packets  before  routing),  and  POSTROUTING  (for
+###        altering packets as they are about to go out).
+###
+### mangle This  table is used for specialized packet alteration.  Until kernel
+###        2.4.17 it had two built-in chains: PREROUTING (for altering incoming
+###        packets  before  routing) and OUTPUT (for altering locally-generated
+###        packets before routing).  Since kernel 2.4.18, three other  built-in
+###        chains  are  also  supported: INPUT (for packets coming into the box
+###        itself), FORWARD (for altering  packets  being  routed  through  the
+###        box),  and POSTROUTING (for altering packets as they are about to go
+###        out).
 
+ (above: taken directly from man iptables)
+ (below: this is how I understand it. Combined from Rusty's excellent docs
+  on NAT and filtering. Thanks Rusty! Anyone spot something wrong below?)
 
--- v --
+###
+###
+###        ..iface....................................iface...
+###          |                                        ^
+###          v                                        |
+### -NAT,mangle-               -filter,mangle-   -NAT,mangle--
+### |PREROUTING|->[Routing ]-->|FORWARD      |-->|POSTROUTING|
+### ------------  [Decision]   ---------------   -------------
+###                 |     ^
+###                 v     |
+###      -filter,mangle-  -filter,NAT,mangle-
+###      |INPUT        |  |OUTPUT           |
+###      ---------------  -------------------
+###                 |     ^
+###                 v     |
+###         ... Local Process...
+###         ....Local Process...
 
-v@iki.fi
+ (below: basically this is what I ask)
+
+### TODO: check order of each a,b
+###       check whether is OUTPUT drawn where it should be
+###       (or maybe different table's OUTPUTs must be in different places?)
+--
+vda

@@ -1,63 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264730AbSL0UuQ>; Fri, 27 Dec 2002 15:50:16 -0500
+	id <S264788AbSL0VcK>; Fri, 27 Dec 2002 16:32:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264766AbSL0UuQ>; Fri, 27 Dec 2002 15:50:16 -0500
-Received: from alb-24-29-45-178.nycap.rr.com ([24.29.45.178]:48133 "EHLO
-	ender.tmmz.net") by vger.kernel.org with ESMTP id <S264730AbSL0UuP>;
-	Fri, 27 Dec 2002 15:50:15 -0500
-Date: Fri, 27 Dec 2002 16:00:52 -0500 (EST)
-From: Matthew Zahorik <matt@albany.net>
-X-X-Sender: matt@ender.tmmz.net
-To: linux-kernel@vger.kernel.org
-Subject: Hang on partition check, 2.4 kernels
-Message-ID: <Pine.BSF.4.43.0212271544210.3244-100000@ender.tmmz.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264790AbSL0VcK>; Fri, 27 Dec 2002 16:32:10 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:8 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S264788AbSL0VcJ>; Fri, 27 Dec 2002 16:32:09 -0500
+Message-Id: <200212272140.gBRLeMW03698@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: David Brownell <david-b@pacbell.net>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFT][PATCH] generic device DMA implementation 
+In-Reply-To: Message from David Brownell <david-b@pacbell.net> 
+   of "Fri, 27 Dec 2002 12:21:54 PST." <3E0CB662.2010009@pacbell.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 27 Dec 2002 15:40:21 -0600
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a sparc SS10 that I recently installed with Debian 3.0r0.
+david-b@pacbell.net said:
+> - Implementation-wise, I'm rather surprised that the generic
+>    version doesn't just add new bus driver methods rather than
+>    still insisting everything be PCI underneath. 
 
-There are two drives in the machine, sda (ID #1) and sdb (ID #3)
+You mean dma-mapping.h in asm-generic?  The reason for that is to provide an 
+implementation that functions now for non x86 (and non-parisc) archs without 
+having to write specific code for them all.  Since all the other arch's now 
+function in terms of the pci_ API, that was the only way of sliding the dma_ 
+API in without breaking them all.
 
-sda is dead, sdb is functioning fine.
+Bus driver methods have been advocated before, but it's not clear to me that 
+they should be exposed in the *generic* API.
 
-Rather than awaiting a replacement for sda, I went ahead and installed
-Debian on sdb.  Worked fine.  Happy day.
+>    It's not clear to me how I'd make, for example, a USB device
+>    or interface work with dma_map_sg() ... those "generic" calls
+>    are going to fail (except on x86, where all memory is DMA-able)
+>    since USB != PCI.
 
-Debian 3.0r0 on sparc32 installs a 2.2.20 kernel.  Obtained and compiled
-2.4.20.  Rebooted.
+Actually, they should work on parisc out of the box as well because of the way 
+its DMA implementation is built in terms of the generic dma_ API.
 
-The 2.4.20 kernel hangs forever waiting to read the partitions on sda.
+As far as implementing this generically, just adding a case for the 
+usb_bus_type in asm-generic/dma-mapping.h will probably get you where you need 
+to be. (the asm-generic is, after all, only intended as a stopgap.  Fully 
+coherent platforms with no IOMMUs will probably take the x86 route to 
+implementing the dma_ API, platforms with IOMMUs will probably (eventually) do 
+similar things to parisc).
 
-2.2.20 didn't do this.  It printed a message about failing to read the
-table, then continued.
 
-Wandered through the 2.2.20 and 2.4.20 code and compared.
+>    (The second indirection:  the usb controller hardware does the
+>    mapping, not the device or hcd.  That's usually PCI.) 
 
-In 2.2.20, the partition check for Sun is in
-drivers/block/genhd.c:sun_partition()
+Could you clarify this a little.  I tend to think of "mapping" as something 
+done by the IO MMU managing the bus.  I think you mean that the usb controller 
+will mark a region of memory to be accessed by the device.  If such a region 
+were also "mapped" by an IOMMU, it would be done outside the control of the 
+USB controller, correct? (the IOMMU would translate between the address the 
+processor sees and the address the USB controller thinks it's responding to)
 
-This code calls bread() directly, immediately handling the error and
-skipping a bad drive.
+Is the problem actually that the USB controller needs to be able to allocate 
+coherent memory in a range much more narrowly defined than the current 
+dma_mask allows?
 
-In 2.4.20, the partition check for Sun is in
-fs/partitions/sun.c:sun_partition()
+> - There's no analogue to pci_pool, and there's nothing like
+>    "kmalloc" (likely built from N dma-coherent pools). 
 
-This calls read_dev_sector in fs/partitions/check.c, which
-calls read_cache_page then calls wait_on_page is there is an error.
-This seems to wait forever.
+I didn't want to build another memory pool re-implementation.  The mempool API 
+seems to me to be flexible enough for this, is there some reason it won't work?
 
-Can someone explain how/why read_cache_page is called, how it's wrong, and
-why bread() isn't sufficient in this function?  I don't know how to fix
-the code once VM got involved.
+I did consider wrappering mempool to make it easier, but I couldn't really 
+find a simplifying wrapper that wouldn't lose flexibility.
 
-I could simply pull the damaged drive and the machine would boot (I'd have
-to adjust root to point to sda instead of sdb...)  But I'd like to fix
-the behavior now - the machine should boot despite the failure.
+James
 
-Thanks!
-
-- Matt
 

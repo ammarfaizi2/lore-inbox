@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263089AbVCQO7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263090AbVCQPCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263089AbVCQO7h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 09:59:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbVCQO7Z
+	id S263090AbVCQPCI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 10:02:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263092AbVCQO7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 09:59:25 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:46294 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S263084AbVCQO4d
+	Thu, 17 Mar 2005 09:59:50 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:59084 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S263087AbVCQO6d
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 09:56:33 -0500
-Date: Thu, 17 Mar 2005 15:56:45 +0100
+	Thu, 17 Mar 2005 09:58:33 -0500
+Date: Thu, 17 Mar 2005 15:58:43 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch 4/8] s390: device unregistering.
-Message-ID: <20050317145645.GD4807@mschwid3.boeblingen.de.ibm.com>
+Subject: [patch 8/8] s390: oprofile support.
+Message-ID: <20050317145843.GH4807@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,51 +21,37 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 4/8] s390: device unregistering.
+[patch 8/8] s390: oprofile support.
 
-From: Cornelia Huck <cohuck@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Common i/o layer changes:
- - Don't unregister devices from ccw_device_{on,off}line_notoper directly,
-   but put the unregister on the ccw_device_work workqueue (as it is done
-   for all other unregisters).
+Remove experimental tag from the s390 oprofile support.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 diffstat:
- drivers/s390/cio/device_fsm.c |   16 ++++++++++------
- 1 files changed, 10 insertions(+), 6 deletions(-)
+ arch/s390/oprofile/Kconfig |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
 
-diff -urN linux-2.6/drivers/s390/cio/device_fsm.c linux-2.6-patched/drivers/s390/cio/device_fsm.c
---- linux-2.6/drivers/s390/cio/device_fsm.c	2005-03-17 15:35:50.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/cio/device_fsm.c	2005-03-17 15:36:00.000000000 +0100
-@@ -649,9 +649,11 @@
+diff -urN linux-2.6/arch/s390/oprofile/Kconfig linux-2.6-patched/arch/s390/oprofile/Kconfig
+--- linux-2.6/arch/s390/oprofile/Kconfig	2005-03-02 08:38:33.000000000 +0100
++++ linux-2.6-patched/arch/s390/oprofile/Kconfig	2005-03-17 15:38:06.000000000 +0100
+@@ -1,16 +1,15 @@
  
- 	cdev->private->state = DEV_STATE_NOT_OPER;
- 	sch = to_subchannel(cdev->dev.parent);
--	device_unregister(&sch->dev);
--	sch->schib.pmcw.intparm = 0;
--	cio_modify(sch);
-+	if (get_device(&cdev->dev)) {
-+		PREPARE_WORK(&cdev->private->kick_work,
-+			     ccw_device_call_sch_unregister, (void *)cdev);
-+		queue_work(ccw_device_work, &cdev->private->kick_work);
-+	}
- 	wake_up(&cdev->private->wait_q);
- }
+ menu "Profiling support"
+-	depends on EXPERIMENTAL
  
-@@ -678,9 +680,11 @@
- 		// FIXME: not-oper indication to device driver ?
- 		ccw_device_call_handler(cdev);
- 	}
--	device_unregister(&sch->dev);
--	sch->schib.pmcw.intparm = 0;
--	cio_modify(sch);
-+	if (get_device(&cdev->dev)) {
-+		PREPARE_WORK(&cdev->private->kick_work,
-+			     ccw_device_call_sch_unregister, (void *)cdev);
-+		queue_work(ccw_device_work, &cdev->private->kick_work);
-+	}
- 	wake_up(&cdev->private->wait_q);
- }
+ config PROFILING
+-	bool "Profiling support (EXPERIMENTAL)"
++	bool "Profiling support"
+ 	help
+ 	  Say Y here to enable profiling support mechanisms used by
+ 	  profilers such as readprofile or OProfile.
  
+ 
+ config OPROFILE
+-	tristate "OProfile system profiling (EXPERIMENTAL)"
++	tristate "OProfile system profiling"
+ 	depends on PROFILING
+ 	help
+ 	  OProfile is a profiling system capable of profiling the

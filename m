@@ -1,71 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270327AbTHQQNI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 12:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270332AbTHQQNI
+	id S270332AbTHQQ2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 12:28:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270354AbTHQQ2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 12:13:08 -0400
-Received: from mail1.ati.com ([209.50.91.165]:25508 "EHLO mail1.ati.com")
-	by vger.kernel.org with ESMTP id S270327AbTHQQNF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 12:13:05 -0400
-Message-ID: <328A30E823B7D511A0BF00065B042A3B0172D80D@fgl00exh01.fgl.atitech.com>
-From: Alexander Stohr <AlexanderS@ati.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Filip Sneppe <filip.sneppe@yucom.be>
-Cc: faith@valinux.com, DRI Devel <dri-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Sun, 17 Aug 2003 18:12:49 +0200
-Subject: RE: [Dri-devel] Re: 2.4.22-rc2 unresolved symbols in drm/sis.o wh
-	en CONFIG_AGP=m
+	Sun, 17 Aug 2003 12:28:16 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:487
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S270332AbTHQQ2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 12:28:14 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Voluspa <voluspa@comhem.se>
+Subject: Re: [RFC] Re: Blender profiling-1 O16.2int
+Date: Mon, 18 Aug 2003 02:34:41 +1000
+User-Agent: KMail/1.5.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+References: <20030817003128.04855aed.voluspa@comhem.se> <20030817073859.51021571.voluspa@comhem.se> <200308172336.42593.kernel@kolivas.org>
+In-Reply-To: <200308172336.42593.kernel@kolivas.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-X-Mailer: Internet Mail Service (5.5.2653.19)
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308180234.41545.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-why wont the module compilation still pass
-when SIS fb configuration flags from the
-Linux kernel configuration are missing?
+Addendum:
 
-sorry if that requirement is already
-mentioned in the readme. i am just wondering.
+KernProfile during starvation:
+   435 get_offset_tsc                            18.9130
+   273 do_softirq                                 1.8079
+   263 sys_gettimeofday                           1.3350
+   121 do_gettimeofday                            0.9167
+    72 fget                                       1.1077
+    68 schedule                                   0.0465
+    20 do_sys_settimeofday                        0.0943
+    20 do_settimeofday                            0.0627
+    14 fput                                       0.7000
+    14 add_wait_queue                             0.1474
+    11 __wake_up                                  0.1250
+    11 remove_wait_queue                          0.0815
+    11 do_anonymous_page                          0.0199
+     9 pipe_poll                                  0.0726
+     9 link_path_walk                             0.0040
+     8 free_hot_cold_page                         0.0311
 
--Alex.
+vmstat during starvation
+procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+ 1  0      0  99716  56348 193256    0    0     0     0 1687  5962 92  8  0  0
+ 1  0      0  99716  56376 193256    0    0     0   144 1691  5976 81 19  0  0
+ 1  0      0  99748  56376 193256    0    0     0     0 1656  6057 87 13  0  0
+ 2  0      0  99748  56376 193256    0    0     0     0 1636  5477 85 15  0  0
+11  0      0  99748  56376 193256    0    0     0     0 1430   445 51 49  0  0
+12  0      0  99748  56376 193256    0    0     0     0 1459   362 52 48  0  0
+12  0      0  99764  56392 193256    0    0     0    92 1474   400 51 49  0  0
+12  0      0  99764  56392 193256    0    0     0     0 1463   356 53 47  0  0
+12  0      0  99764  56392 193256    0    0     0     0 1466   379 50 50  0  0
 
-> -----Original Message-----
-> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-> Sent: Sunday, August 17, 2003 17:48
-> To: Filip Sneppe
-> Cc: faith@valinux.com; DRI Devel; Linux Kernel Mailing List
-> Subject: [Dri-devel] Re: 2.4.22-rc2 unresolved symbols in 
-> drm/sis.o when
-> CONFIG_AGP=m
-> 
-> 
-> On Sul, 2003-08-17 at 16:39, Filip Sneppe wrote:
-> > Hi,
-> > 
-> > I get this on Debian Sarge at the end of a "make modules_install":
-> > 
-> > depmod: *** Unresolved symbols in
-> > /lib/modules/2.4.22-rc2/kernel/drivers/char/drm/sis.o
-> > depmod:         sis_malloc_Ra3329ed5
-> > depmod:         sis_free_Rced25333
-> 
-> SIS DRM requires SIS frame buffer, known problem
-> 
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email sponsored by: Free pre-built ASP.NET sites including
-> Data Reports, E-commerce, Portals, and Forums are available now.
-> Download today and enter to win an XBOX or Visual Studio .NET.
-> http://aspnet.click-url.com/go/psa00100003ave/direct;at.aspnet
-_072303_01/01
-_______________________________________________
-Dri-devel mailing list
-Dri-devel@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/dri-devel
+Note drop in ctx, rise in load (although in top only blender is actually 
+getting cpu at 99%) and massive rise in sys time.
 
+Con
 

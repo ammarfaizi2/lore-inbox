@@ -1,70 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVAXS6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVAXTAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbVAXS6y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 13:58:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbVAXS6y
+	id S261568AbVAXTAX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 14:00:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVAXTAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 13:58:54 -0500
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:12455 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261567AbVAXS6o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 13:58:44 -0500
-Date: Mon, 24 Jan 2005 19:58:23 +0100
-From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6.11-rc2-mm1
-Message-ID: <20050124185823.GE1847@ens-lyon.fr>
+	Mon, 24 Jan 2005 14:00:22 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:57803 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261568AbVAXS74 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 13:59:56 -0500
+Date: Mon, 24 Jan 2005 22:19:29 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
+Message-ID: <20050124221929.590418e2@zanzibar.2ka.mipt.ru>
+In-Reply-To: <20050124182926.GM3515@stusta.de>
 References: <20050124021516.5d1ee686.akpm@osdl.org>
+	<20050124175449.GK3515@stusta.de>
+	<20050124214336.2c555b53@zanzibar.2ka.mipt.ru>
+	<20050124182926.GM3515@stusta.de>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050124021516.5d1ee686.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
-X-Spam-Report: 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 02:15:16AM -0800, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc1/2.6.11-rc1-mm1/
-> 
-> 
-> - Lots of updates and fixes all over the place.
-> 
-> - On my test box there is no flashing cursor on the vga console.  Known bug,
->   please don't report it.
-> 
->   Binary searching shows that the bug was introduced by
->   cleanup-vc-array-access.patch but that patch is, unfortunately, huge.
-> 
-> 
-> 
-> Changes since 2.6.11-rc1-mm2:
->
-> [snip]
-> 
-> +matroxfb_basec-make-some-code-static.patch
-> 
->  Little fixes.
-> 
-It breaks compilation with gcc-4.0
+On Mon, 24 Jan 2005 19:29:26 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
-The patch below correct it.
+> On Mon, Jan 24, 2005 at 09:43:36PM +0300, Evgeniy Polyakov wrote:
+> > On Mon, 24 Jan 2005 18:54:49 +0100
+> > Adrian Bunk <bunk@stusta.de> wrote:
+> > 
+> > > It seems noone who reviewed the SuperIO patches noticed that there are 
+> > > now two modules "scx200" in the kernel...
+> > 
+> > They are almost mutually exlusive(SuperIO contains more advanced), 
+> > so I do not see any problem here.
+> 
+> The Kconfig files allow building both modular at the same time.
+> 
+> > Only one of them can be loaded in a time.
+> 
+> You are assuming the module support was in able to correctly handle two 
+> modules with the same name...
+> 
+> > So what does exactly bother you?
+> 
+> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.11-rc2-mm1; fi
+> WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/i2c/busses/scx200_i2c.ko needs unknown symbol scx200_gpio_base
+> WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/i2c/busses/scx200_i2c.ko needs unknown symbol scx200_gpio_configure
+> WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/i2c/busses/scx200_i2c.ko needs unknown symbol scx200_gpio_shadow
+> WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/char/scx200_gpio.ko needs unknown symbol scx200_gpio_base
+> WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/char/scx200_gpio.ko needs unknown symbol scx200_gpio_configure
+> WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/char/scx200_gpio.ko needs unknown symbol scx200_gpio_shadow
 
-regards,
+Sorry, I can not buy it.
+Above symbols are defined in old scx200 driver, and I it is depmod
+who tries to get them from superio.
 
-Benoit
+I definitely sure that it must be solved on the other layers.
 
-Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+But nevertheless, obviously it is much easier to change superio's scx200 name
+and I will do it.
+ 
+> 
+> cu
+> Adrian
+> 
+> -- 
+> 
+>        "Is there not promise of rain?" Ling Tan asked suddenly out
+>         of the darkness. There had been need of rain for many days.
+>        "Only a promise," Lao Er said.
+>                                        Pearl S. Buck - Dragon Seed
 
---- linux-clean/drivers/video/matrox/matroxfb_base.h	2005-01-24 12:44:43.000000000 +0100
-+++ linux-test/drivers/video/matrox/matroxfb_base.h	2005-01-24 19:49:29.000000000 +0100
-@@ -764,7 +764,6 @@ void matroxfb_unregister_driver(struct m
- #define matroxfb_DAC_unlock_irqrestore(flags) spin_unlock_irqrestore(&ACCESS_FBINFO(lock.DAC),flags)
- extern void matroxfb_DAC_out(CPMINFO int reg, int val);
- extern int matroxfb_DAC_in(CPMINFO int reg);
--extern struct list_head matroxfb_list;
- extern void matroxfb_var2my(struct fb_var_screeninfo* fvsi, struct my_timming* mt);
- extern int matroxfb_wait_for_sync(WPMINFO u_int32_t crtc);
- extern int matroxfb_enable_irq(WPMINFO int reenable);
+
+	Evgeniy Polyakov
+
+Only failure makes us experts. -- Theo de Raadt

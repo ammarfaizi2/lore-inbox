@@ -1,56 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264577AbRFTTTj>; Wed, 20 Jun 2001 15:19:39 -0400
+	id <S264578AbRFTT1l>; Wed, 20 Jun 2001 15:27:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264576AbRFTTT3>; Wed, 20 Jun 2001 15:19:29 -0400
-Received: from maestro.symsys.com ([208.223.9.37]:20485 "EHLO
-	maestro.symsys.com") by vger.kernel.org with ESMTP
-	id <S264575AbRFTTTQ>; Wed, 20 Jun 2001 15:19:16 -0400
-Date: Wed, 20 Jun 2001 14:19:00 -0500 (CDT)
-From: Greg Ingram <ingram@symsys.com>
-To: linux-kernel@vger.kernel.org
-Subject: Unknown PCI Net Device
-In-Reply-To: <Pine.LNX.4.10.10106202036470.10363-100000@luxik.cdi.cz>
-Message-ID: <Pine.LNX.4.21.0106201401060.1874-100000@maestro.symsys.com>
+	id <S264579AbRFTT1b>; Wed, 20 Jun 2001 15:27:31 -0400
+Received: from srv01s4.cas.org ([134.243.50.9]:33279 "EHLO srv01.cas.org")
+	by vger.kernel.org with ESMTP id <S264578AbRFTT1S>;
+	Wed, 20 Jun 2001 15:27:18 -0400
+From: Mike Harrold <mharrold@cas.org>
+Message-Id: <200106201927.PAA01484@mah21awu.cas.org>
+Subject: Re: [OT] Threads, inelegance, and Java
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Wed, 20 Jun 2001 15:27:09 -0400 (EDT)
+Cc: landley@webofficenow.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3B30DF30.9ED9889B@evision-ventures.com> from "Martin Dalecki" at Jun 20, 2001 07:36:48 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Martin Dalecki wrote:> 
+> Rob Landley wrote:
+> 
+> > Or if you like the idea of a JIT, think about transmeta writing a code
+> > morphing layer that takes java bytecodes.  Ditch the VM and have the
+> > processor do it in-cache.
+> 
+> Blah blah blah. The performance of the Transmeta CPU SUCKS ROCKS. No
+> matter
+> what they try to make you beleve. A venerable classical desing like
+> the Geode outperforms them in any terms. There is simple significant
+> information
+> lost between compiled code and source code. Therefore no JIT compiler
+> in this world will ever match the optimization opportunities of a
+> classic
+> C compiler! IBM researched opportunities for code morphing long ago
+> before
+> Transmeta come to live - they ditched it for good reasons. Well the
+> actual
+> paper states that the theorethical performance was "just" 20% worser
+> then
+> a comparable normal design. Well "just 20%" is a half universe diameter
+> for
+> CPU designers.
 
-I picked up a network card that claims to use the "most reliable Realtek
-LAN chip".  The big chip is labelled "LAN-8139" so naturally I tried the
-8139too driver.  It doesn't find the device.  I'm wondering if maybe it's
-just something in the device ID tables.  Here's some info:
+So what? Crusoe isn't designed for use in supercomputers. It's designed
+for use in laptops where the user is running an email reader, a web
+browser, a word processor, and where the user couldn't give a cr*p about
+performance as long as it isn't noticeable (20% *isn't* for those types
+of apps), but where the user does give a cr*p about how long his or her
+battery lasts (ie, the entire business day, and not running out of power
+at lunch time).
 
-# lspci -vv 
+Yes, it *can* be used in a supercomputer (or more preferably, a cluster
+of Linux machines), or even as a server where performance isn't the
+number one concern and things like power usage (read: anywhere in
+California right now ;-) ), and rack size are important. You can always
+get faster, more efficient hardware, but you'll pay for it.
 
-[snip]
+Remember, the whole concept of code-morphing is that the majority of
+apps that people run repeat the same slice of code over and over (eg,
+a word processor). Once crusoe has translated it once, it doesn't need
+to do it again. It's the same concept as a JIT java compiler.
 
-00:0b.0 Ethernet controller: MYSON Technology Inc: Unknown device 0803
-	Subsystem: MYSON Technology Inc: Unknown device 0803
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 min, 64 max, 64 set, cache line size 08
-	Interrupt: pin A routed to IRQ 19
-	Region 0: I/O ports at e400 [size=256]
-	Region 1: Memory at e9000000 (32-bit, non-prefetchable) [size=1K]
-	Expansion ROM at e8000000 [disabled] [size=64K]
-	Capabilities: [88] Power Management version 2
-		Flags: PMEClk- AuxPwr- DSI- D1+ D2- PME-
-		Status: D0 PME-Enable+ DSel=0 DScale=0 PME-
-
-[snip]
-
-The driver disk includes fealnx.[co].  The driver is for 2.0 and has a
-reference to Donald Becker's website at NASA.  I don't know if the driver
-is based on Becker's work.  There's no GPL.  In fact, there's no license
-of any sort in the source.
-
-Any suggestions?
-
-- Greg
-
-
+/Mike - who doesn't work for Transmeta, in case anyone was wondering... :-)

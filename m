@@ -1,39 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135775AbREICNp>; Tue, 8 May 2001 22:13:45 -0400
+	id <S135772AbREICMP>; Tue, 8 May 2001 22:12:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135789AbREICNf>; Tue, 8 May 2001 22:13:35 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:24246 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S135775AbREICNS>;
-	Tue, 8 May 2001 22:13:18 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S135775AbREICMG>; Tue, 8 May 2001 22:12:06 -0400
+Received: from smtp.mountain.net ([198.77.1.35]:27662 "EHLO riker.mountain.net")
+	by vger.kernel.org with ESMTP id <S135772AbREICL6>;
+	Tue, 8 May 2001 22:11:58 -0400
+Message-ID: <3AF8A73A.C02F119E@mountain.net>
+Date: Tue, 08 May 2001 22:11:06 -0400
+From: Tom Leete <tleete@mountain.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.3 i486)
+X-Accept-Language: English/United, States, en-US, English/United, Kingdom, en-GB, English, en, French, fr, Spanish, es, Italian, it, German, de, , ru
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: REVISED: Experimentation with Athlon and fast_page_copy
+In-Reply-To: <E14vmpN-000822-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15096.42935.213398.64003@pizda.ninka.net>
-Date: Tue, 8 May 2001 19:13:11 -0700 (PDT)
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: page_launder() bug
-In-Reply-To: <Pine.LNX.4.21.0105082036440.11628-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.31.0105081635530.3618-100000@penguin.transmeta.com>
-	<Pine.LNX.4.21.0105082036440.11628-100000@freak.distro.conectiva>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> 
+> > the memory copy in the fast_page_copy routine.  The machine then
+> > proceeded
+> > not to stop at my panic, but I got my "normal" oopses.  I then had an
+> 
+> Ok
+> 
+> > idea and removed all the prefetch instructions from the beginning of the
+> > routine and tried the resultin kernel.  I now have no crashes.
+> > What could this mean?
+> 
+> I think it has to mean a hardware problem.
 
-Marcelo Tosatti writes:
- > Ok, this patch implements thet thing and also changes ext2+swap+shm
- > writepage operations (so I could test the thing).
- > 
- > The performance is better with the patch on my restricted swapping tests.
+I don't think so, reasons below
+ 
+> What still stands out is that exactly _zero_ people have reported the same
+> problem with non VIA chipset Athlons.
 
-Nice.  Now the only bit left is moving the referenced bit
-checking and/or state into writepage as well.  This is still
-part of the plan right?
+Not any more :-(
 
-Later,
-David S. Miller
-davem@redhat.com
+Hi Alan,
+
+IIRC this thread is about boot going catatonic right after unloading
+__initmem.
+I'm seeing that in 2.4.5-pre1 with Athlon stepping 2, AMD 751, MS-6195 mobo,
+128M.
+The machine is fine with kernels up through 2.4.4-pre3, and still works with
+them.
+
+On that gear, there is no crash. The keyboard and display are alive and
+SysRq works.
+I have copied the stack trace for pid=1 and the processor dump. I'm short of
+time
+but I have a kind typist electrifying the trace, and I'll try to generate
+something
+ksymoops can digest.
+
+Here is what a quick eyeballing of System.map shows.
+
+The code is at the end of init/main.c:init(). The processor dump shows
+init() halted
+in default_idle() from the sequence L6 -> init -> cpu_idle.
+
+Trace of pid 1 shows it stuck in D state. The last addresses listed are from
+filemap_nopage -> do_execve -> do_no_page -> handle_mm_fault -> __pmd_alloc
+-> rwsem_down_write_failed -> stext_lock -> system_call. That looks fishy.
+
+Earlier, it looks like handle_mm_fault is being triggered from
+fast_clear_page.
+
+I'll post the full dump soon as I have it.
+
+Btw, above happens with both gcc-2.95.3 and gcc-3.0-[20010423] compiled
+kernels.
+
+Cheers,
+Tom
+
+-- 
+The Daemons lurk and are dumb. -- Emerson

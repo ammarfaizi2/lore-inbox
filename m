@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267632AbTA1RfW>; Tue, 28 Jan 2003 12:35:22 -0500
+	id <S267645AbTA1RhN>; Tue, 28 Jan 2003 12:37:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267487AbTA1Rdr>; Tue, 28 Jan 2003 12:33:47 -0500
-Received: from f85.sea2.hotmail.com ([207.68.165.85]:3599 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S267484AbTA1Rdo>;
-	Tue, 28 Jan 2003 12:33:44 -0500
-X-Originating-IP: [218.154.19.20]
-From: "tester7 A." <benew666@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Hangs with SW RAID5 and 2l.4.21-pre3aa1 patch
-Date: Wed, 29 Jan 2003 02:42:59 +0900
+	id <S267649AbTA1RhM>; Tue, 28 Jan 2003 12:37:12 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:34689 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267645AbTA1RhL>; Tue, 28 Jan 2003 12:37:11 -0500
+Message-Id: <200301281746.h0SHkOgM007373@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Steven Dake <sdake@mvista.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: New model for managing dev_t's for partitionable block devices 
+In-Reply-To: Your message of "Tue, 28 Jan 2003 10:20:31 MST."
+             <3E36BBDF.4090104@mvista.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <3F61ABC3.1080502@tin.it>
+            <3E36BBDF.4090104@mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F85MjT3XOYR00HgHKkR00003b05@hotmail.com>
-X-OriginalArrivalTime: 28 Jan 2003 17:42:59.0686 (UTC) FILETIME=[B2FA4060:01C2C6F4]
+Content-Type: multipart/signed; boundary="==_Exmh_1571606832P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 28 Jan 2003 12:46:24 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1571606832P
+Content-Type: text/plain; charset=us-ascii
 
-Motherboard: Intel SDS2
-CPU: P-III 1.4
-RAM: 1024MB
-IDE Controller: 3Ware 7500-8
+On Tue, 28 Jan 2003 10:20:31 MST, Steven Dake <sdake@mvista.com>  said:
 
-I am trying to test S/W Raid5 with 2.4.21-pre3aa1 patch
-After making the raidtab and doing 'mkraid' and mount xfs FS on /dev/md1,
-it was keeep showing something about 'buffer size changed from 4096 --> 512' 
-and back and forth and hangs.
-After reset, it would not boot due to Raid failure.
+> Each physical disk would be assigned a minor number in a group of 
+> majors.  So assume a major was chosen of 150, 151, 152, 153, there would 
+> be a total of 1024 physical disks that could be mapped.  Then the device 
+> mapper code could be used to provide partition devices in another 
+> major/group of majors.
 
-After booting with 2.4.20 kernel and remove the raidtab and boot to the 
-2.4.21-pre3aa1 again and repeat the same, 'mkraid' halts and ps -aux shows 
-raid5d and raid5syncd is in RW and DW, respectively.
-
-Is it known bug in 2.4.21-pre33aa1 kernel?
-
-Thanks in advance.
+This sounds suspiciously like the already-existing device mapper stuff
+used by LVM2.  Maybe all that's needed is to add a hook to add a device
+mapper entry for each partition?
+-- 
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
 
 
-_________________________________________________________________
-MSN 8 with e-mail virus protection service: 2 months FREE* 
-http://join.msn.com/?page=features/virus
+--==_Exmh_1571606832P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+NsHwcC3lWbTT17ARApmBAKCRkTCNCatnC0dh2LLT9xFjc17oYgCgiMn9
+E7GhpNUR8o9wklRRAKUwm74=
+=GHMk
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1571606832P--

@@ -1,478 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267042AbSLXGc3>; Tue, 24 Dec 2002 01:32:29 -0500
+	id <S267043AbSLXGls>; Tue, 24 Dec 2002 01:41:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267043AbSLXGc3>; Tue, 24 Dec 2002 01:32:29 -0500
-Received: from samael.donpac.ru ([195.161.172.239]:9734 "EHLO samael.donpac.ru")
-	by vger.kernel.org with ESMTP id <S267042AbSLXGcV>;
-	Tue, 24 Dec 2002 01:32:21 -0500
-From: "Andrey Panin" <pazke@orbita1.ru>
-Date: Tue, 24 Dec 2002 09:35:55 +0300
+	id <S267044AbSLXGls>; Tue, 24 Dec 2002 01:41:48 -0500
+Received: from out004pub.verizon.net ([206.46.170.142]:15607 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP
+	id <S267043AbSLXGlq>; Tue, 24 Dec 2002 01:41:46 -0500
+From: "Guillaume Boissiere" <boissiere@adiglobal.com>
 To: linux-kernel@vger.kernel.org
-Subject: [RFC] irq handling code consolidation (x86_64)
-Message-ID: <20021224063555.GF1222@pazke>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20021224063036.GD1222@pazke>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="WChQLJJJfbwij+9x"
-Content-Disposition: inline
-In-Reply-To: <20021224063036.GD1222@pazke>
-User-Agent: Mutt/1.3.28i
-X-Uname: Linux 2.4.20aa1 i686 unknown
+Date: Tue, 24 Dec 2002 01:49:08 -0500
+MIME-Version: 1.0
+Subject: [STATUS 2.5]  December 24, 2002
+Message-ID: <3E07BD14.21114.28F888F1@localhost>
+X-mailer: Pegasus Mail for Windows (v4.02)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at out004.verizon.net from [66.171.96.253] at Tue, 24 Dec 2002 00:49:49 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This week, support for sysenter and more bugs being filed in Bugzilla.
+The status page URL:  http://www.kernelnewbies.org/status
 
---WChQLJJJfbwij+9x
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Happy holidays to all!  
+
+-- Guillaume
 
 
-x86_64 specific patch attached. Not tested, not compiled.
 
--- 
-Andrey Panin		| Embedded systems software developer
-pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
+CURRENT BUGS IN BUGZILLA:
+11  nor  mbligh@aracnet.com  OPEN   Intermezzo Compile Failure  
+18  nor  vojtech@suse.cz  OPEN   Synaptics touchpad driver  
+44  blo  khoa@us.ibm.com  OPEN   radeonfb does not compile at all - seems incomplete? or w...  
+46  nor  vojtech@suse.cz  OPEN   ide-scsi causing (Two mice: unwanted double-clicks & erra...  
+48  nor  mbligh@aracnet.com  OPEN   APM suspend and PCMCIA not cooperating  
+49  nor  mbligh@aracnet.com  OPEN   register_console() called in illegal context  
+54  nor  mbligh@aracnet.com  OPEN   100% reproduceable "null TTY for (####) in tty_fasync"  
+58  nor  mbligh@aracnet.com  OPEN   OHCI-1394: sleeping function called from illegal context ...  
+69  nor  mbligh@aracnet.com  OPEN   Framebuffer bug  
+72  nor  khoa@us.ibm.com  OPEN   Framebuffer scrolls at the wrong times/places  
+79  nor  khoa@us.ibm.com  OPEN   Framebuffer scrolling problem  
+94  nor  mbligh@aracnet.com  OPEN   file remain locked after sapdb process exist.  
+104  nor  khoa@us.ibm.com  OPEN   MIPS fails to build: asm/thread_info.h doesn't exist  
+110  nor  khoa@us.ibm.com  OPEN   Current bk Linux-2.5, VFS Kernel Panic from Devfs + NO UN...  
+115  nor  mbligh@aracnet.com  OPEN   Kernel modules won't load  
+117  nor  mbligh@aracnet.com  OPEN   build failure: arch/ppc/kernel/process.c  
+118  blo  mbligh@aracnet.com  OPEN   Load IDE-SCSI module causes OOPS in 2.5.49  
+122  nor  mbligh@aracnet.com  OPEN   emu10k1 OSS troubles  
+126  nor  vojtech@suse.cz  OPEN   bzImage build failure on input devices support as module  
+134  nor  mbligh@aracnet.com  OPEN   2.5.50 breaks pcmcia cards  
+135  nor  mbligh@aracnet.com  OPEN   SB16/Alsa doesn't work  
+138  nor  khoa@us.ibm.com  OPEN   Build error: drivers/video/sis/sis_main.h:299: parse erro...  
+142  low  mbligh@aracnet.com  OPEN   problem with ver_linux script and procps version  
+143  nor  alan@lxorguk.ukuu.org.uk  OPEN   unable to read cd audio from atapi cdrom/cdrw/dvd device,...  
+145  nor  mbligh@aracnet.com  OPEN   ALSA: SB-AWE ISA detection fails  
+149  nor  vojtech@suse.cz  OPEN   Laptop with touchpad and "pointer". Pointer never works  
+153  nor  mbligh@aracnet.com  OPEN   compile failure on drivers/char/riscom8.c  
+154  nor  mbligh@aracnet.com  OPEN   compile failure on drivers/char/esp.c  
+155  nor  mbligh@aracnet.com  OPEN   compile failure on drivers/char/specialix.c  
+157  hig  mbligh@aracnet.com  OPEN   Makefile bug? sound/synth/emux/built-in.o  
+158  nor  mbligh@aracnet.com  OPEN   depmod should be in README  
+159  nor  mbligh@aracnet.com  OPEN   compile failure on drivers/isdn/i4l/isdn_net_lib.c  
+160  nor  jgarzik@pobox.com  OPEN   With 2 different nic on one system, dhcp configuration fails  
+161  nor  mbligh@aracnet.com  OPEN   VESAfb in 2.5 somehow influences X resolution.  
+162  nor  khoa@us.ibm.com  OPEN   compile failure on drivers/media/video/bttv-cards.c  
+164  nor  vojtech@suse.cz  OPEN   Linking Failure: drivers/built-in.o  
+167  nor  khoa@us.ibm.com  OPEN   compile failure on drivers/media/video/zr36120.c  
+168  nor  khoa@us.ibm.com  OPEN   compile failure on drivers/media/video/saa7185.c  
+169  nor  khoa@us.ibm.com  OPEN   compile failure on drivers/media/video/bt819.c  
+171  nor  vojtech@suse.cz  OPEN   2.5.51 at kb driver leaves kb ib state that prevents (sof...  
+172  nor  mbligh@aracnet.com  OPEN   tdfxfb.c can't be compiled  
+174  nor  khoa@us.ibm.com  OPEN   link failure in function dvb_generic_ioctl: undefined ref...  
+179  nor  mbligh@aracnet.com  OPEN   boot from 21 sec/track floppy  
+183  nor  andmike@us.ibm.com  OPEN   megaraid driver panics with IBM EXP300 enclosure  
+184  nor  zippel@linux-m68k.org  OPEN   Unresolved symbols in crypto modules.  
+185  low  mbligh@aracnet.com  OPEN   mwave init yields: bad: scheduling while atomic!  
+188  nor  mbligh@aracnet.com  OPEN   proc_pid_readdir() holds the tasklist_lock for excessive ...  
+189  nor  mbligh@aracnet.com  OPEN   sscanf in lib/vsprintf.c ignores field width for numeric ...  
+190  low  rmk@arm.linux.org.uk  OPEN   Compile time warning in uart_get_divisor  
+191  nor  mbligh@aracnet.com  OPEN   Panic on shutdown  
+192  nor  axboe@suse.de  OPEN   loop.c IV calculation is broken since 2.4.x  
+193  nor  mbligh@aracnet.com  OPEN   sysrq umount bad ordering (real before loop)  
+194  blo  jgarzik@pobox.com  OPEN   compilation fails (driver-Network)  
+5  nor  mbligh@aracnet.com  ASSI   64GB highmem BUG()  
+7  nor  willy@debian.org  ASSI   file lock accounting broken  
+8  low  alan@lxorguk.ukuu.org.uk  ASSI   i2o_scsi does not handle reset properly  
+9  nor  dbrownell@users.sourceforge...  ASSI   Ehci do not leave system in a sensible state for bios on ...  
+10  hig  andrew.grover@intel.com  ASSI   USB HCs may have improper interrupt configuration with AC...  
+14  nor  davej@codemonkey.org.uk  ASSI   No dri : unsupported Via chipset (device id: 3189)  
+15  nor  alan@lxorguk.ukuu.org.uk  ASSI   No dma on first hard drive  
+16  nor  willy@debian.org  ASSI   reproduceable oops in lock_get_status  
+28  low  jgarzik@pobox.com  ASSI   Compile time warnings from starfire driver (with PAE enab...  
+29  low  akpm@digeo.com  ASSI   Debug: sleeping function called from illegal context at m...  
+36  nor  andmike@us.ibm.com  ASSI   Long tape rewind causes abort on aic7xxx  
+37  nor  alan@lxorguk.ukuu.org.uk  ASSI   IDE problems on old pre-PCI HW  
+39  nor  alan@lxorguk.ukuu.org.uk  ASSI   undefined reference to `boot_gdt_table'  
+43  nor  jgarzik@pobox.com  ASSI   e100 drivers crashes on non cache-coherent platforms  
+51  nor  paul@laufernet.com  ASSI   isapnp does not register devices in /proc/isapnp  
+52  nor  andmike@us.ibm.com  ASSI   aic7xxx driver fails to boot on netfinity 7000  
+53  nor  alan@lxorguk.ukuu.org.uk  ASSI   IDE cd-rom I/O error  
+63  nor  wli@holomorphy.com  ASSI   compile error with CONFIG_HUGETLB_PAGE yes  
+66  blo  zaitcev@yahoo.com  ASSI   SMP Kernel Compile for Sparc32 fails  
+71  hig  andrew.grover@intel.com  ASSI   RTL8100BL (8139) do not work on acpi UP without local apic  
+83  low  zippel@linux-m68k.org  ASSI   Wish: ability to quickly cycle through (NEW) config options  
+100  nor  johnstul@us.ibm.com  ASSI   LTP - gettimeofday02 fails (time is going backwards)  
+105  nor  johnstul@us.ibm.com  ASSI   gettimeofday cripples system running with notsc  
+106  nor  mochel@osdl.org  ASSI   sysfs hierarchy can begin to disintegrate  
+111  hig  wli@holomorphy.com  ASSI   hugetlbfs does not align pages  
+113  hig  alan@lxorguk.ukuu.org.uk  ASSI   CMD649 or ALI15X3 problem under 2.5.49 and since many pre...  
+119  nor  andrew.grover@intel.com  ASSI   2.5.49 - Dell Latitude weirdness at shutdown  
+123  blo  alan@lxorguk.ukuu.org.uk  ASSI   SiL 680 IDE controller has "issues"  
+130  hig  green@namesys.com  ASSI   problems mounting root partition with 2.5.48+ kernels  
+131  nor  alan@lxorguk.ukuu.org.uk  ASSI   "hda: lost interrupt"; "hda: dma_intr: bad DMA status" on...  
+132  nor  acme@conectiva.com.br  ASSI   windows ip check ARP packet replied by kernel when proxy_...  
+136  nor  akpm@digeo.com  ASSI   FSID returned from statvfs always 0  
+140  nor  andmike@us.ibm.com  ASSI   isp1020 driver reports error  
+146  low  akpm@digeo.com  ASSI   Assertion failure in do_get_write_access() at fs/jbd/tra...  
+150  nor  ambx1@neo.rr.com  ASSI   [PNP][2.5] IDE Detection problems (wrong IRQ and wrong ID...  
+151  nor  jejb@hansenpartnership.com  ASSI   compile failure on drivers/block/ps2esdi.c  
+156  nor  alan@lxorguk.ukuu.org.uk  ASSI   compile failure on drivers/ide/pci/nvidia.c  
+165  nor  jgarzik@pobox.com  ASSI   Kernel crashes after stop network and remove e100.  
+166  nor  jgarzik@pobox.com  ASSI   e100 spits out strange message during startup.  
+170  low  akpm@digeo.com  ASSI   poisoned oops in dump_orphan_list  
+180  hig  davej@codemonkey.org.uk  ASSI   Broken agpgart on i815 (maybe other ICH too)  
+94 bugs found. 
 
---WChQLJJJfbwij+9x
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-irq-x86_64
-
-diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/arch/x86_64/Kconfig linux-2.5.52/arch/x86_64/Kconfig
---- linux-2.5.52.vanilla/arch/x86_64/Kconfig	Thu Dec 19 20:02:33 2002
-+++ linux-2.5.52/arch/x86_64/Kconfig	Tue Dec 24 20:40:18 2002
-@@ -25,6 +25,10 @@
- 	  486, 586, Pentiums, and various instruction-set-compatible chips by
- 	  AMD, Cyrix, and others.
- 
-+config GENERIC_IRQ
-+	bool
-+	default y
-+
- config MMU
- 	bool
- 	default y
-diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/arch/x86_64/kernel/irq.c linux-2.5.52/arch/x86_64/kernel/irq.c
---- linux-2.5.52.vanilla/arch/x86_64/kernel/irq.c	Thu Nov 28 01:35:59 2002
-+++ linux-2.5.52/arch/x86_64/kernel/irq.c	Tue Dec 24 20:33:47 2002
-@@ -62,65 +62,9 @@
-  * interrupt controllers, without having to do assembly magic.
-  */
- 
--/*
-- * Controller mappings for all interrupt sources:
-- */
--irq_desc_t irq_desc[NR_IRQS] __cacheline_aligned =
--	{ [0 ... NR_IRQS-1] = { 0, &no_irq_type, NULL, 0, SPIN_LOCK_UNLOCKED}};
--
- static void register_irq_proc (unsigned int irq);
- 
--/*
-- * Special irq handlers.
-- */
--
--void no_action(int cpl, void *dev_id, struct pt_regs *regs) { }
--
--/*
-- * Generic no controller code
-- */
- 
--static void enable_none(unsigned int irq) { }
--static unsigned int startup_none(unsigned int irq) { return 0; }
--static void disable_none(unsigned int irq) { }
--static void ack_none(unsigned int irq)
--{
--/*
-- * 'what should we do if we get a hw irq event on an illegal vector'.
-- * each architecture has to answer this themselves, it doesnt deserve
-- * a generic callback i think.
-- */
--#if CONFIG_X86
--	printk("unexpected IRQ trap at vector %02x\n", irq);
--#ifdef CONFIG_X86_LOCAL_APIC
--	/*
--	 * Currently unexpected vectors happen only on SMP and APIC.
--	 * We _must_ ack these because every local APIC has only N
--	 * irq slots per priority level, and a 'hanging, unacked' IRQ
--	 * holds up an irq slot - in excessive cases (when multiple
--	 * unexpected vectors occur) that might lock up the APIC
--	 * completely.
--	 */
--	ack_APIC_irq();
--#endif
--#endif
--}
--
--/* startup is the same as "enable", shutdown is same as "disable" */
--#define shutdown_none	disable_none
--#define end_none	enable_none
--
--struct hw_interrupt_type no_irq_type = {
--	"none",
--	startup_none,
--	shutdown_none,
--	enable_none,
--	disable_none,
--	ack_none,
--	end_none
--};
--
--atomic_t irq_err_count;
- #ifdef CONFIG_X86_IO_APIC
- #ifdef APIC_MISMATCH_DEBUG
- atomic_t irq_mis_count;
-@@ -179,129 +123,6 @@
- 	return 0;
- }
- 
--#ifdef CONFIG_SMP
--inline void synchronize_irq(unsigned int irq)
--{
--	while (irq_desc[irq].status & IRQ_INPROGRESS)
--		cpu_relax();
--}
--#endif
--
--/*
-- * This should really return information about whether
-- * we should do bottom half handling etc. Right now we
-- * end up _always_ checking the bottom half, which is a
-- * waste of time and is not what some drivers would
-- * prefer.
-- */
--int handle_IRQ_event(unsigned int irq, struct pt_regs * regs, struct irqaction * action)
--{
--	int status = 1; /* Force the "do bottom halves" bit */
--
--	if (!(action->flags & SA_INTERRUPT))
--		local_irq_enable();
--
--	do {
--		status |= action->flags;
--		action->handler(irq, action->dev_id, regs);
--		action = action->next;
--	} while (action);
--	if (status & SA_SAMPLE_RANDOM)
--		add_interrupt_randomness(irq);
--	local_irq_disable();
--
--	return status;
--}
--
--/*
-- * Generic enable/disable code: this just calls
-- * down into the PIC-specific version for the actual
-- * hardware disable after having gotten the irq
-- * controller lock. 
-- */
-- 
--/**
-- *	disable_irq_nosync - disable an irq without waiting
-- *	@irq: Interrupt to disable
-- *
-- *	Disable the selected interrupt line.  Disables and Enables are
-- *	nested.
-- *	Unlike disable_irq(), this function does not ensure existing
-- *	instances of the IRQ handler have completed before returning.
-- *
-- *	This function must not be called from IRQ context.
-- */
-- 
--inline void disable_irq_nosync(unsigned int irq)
--{
--	irq_desc_t *desc = irq_desc + irq;
--	unsigned long flags;
--
--	spin_lock_irqsave(&desc->lock, flags);
--	if (!desc->depth++) {
--		desc->status |= IRQ_DISABLED;
--		desc->handler->disable(irq);
--	}
--	spin_unlock_irqrestore(&desc->lock, flags);
--}
--
--/**
-- *	disable_irq - disable an irq and wait for completion
-- *	@irq: Interrupt to disable
-- *
-- *	Disable the selected interrupt line.  Enables and Disables are
-- *	nested.
-- *	This function waits for any pending IRQ handlers for this interrupt
-- *	to complete before returning. If you use this function while
-- *	holding a resource the IRQ handler may need you will deadlock.
-- *
-- *	This function may be called - with care - from IRQ context.
-- */
-- 
--void disable_irq(unsigned int irq)
--{
--	disable_irq_nosync(irq);
--	synchronize_irq(irq);
--}
--
--/**
-- *	enable_irq - enable handling of an irq
-- *	@irq: Interrupt to enable
-- *
-- *	Undoes the effect of one call to disable_irq().  If this
-- *	matches the last disable, processing of interrupts on this
-- *	IRQ line is re-enabled.
-- *
-- *	This function may be called from IRQ context.
-- */
-- 
--void enable_irq(unsigned int irq)
--{
--	irq_desc_t *desc = irq_desc + irq;
--	unsigned long flags;
--
--	spin_lock_irqsave(&desc->lock, flags);
--	switch (desc->depth) {
--	case 1: {
--		unsigned int status = desc->status & ~IRQ_DISABLED;
--		desc->status = status;
--		if ((status & (IRQ_PENDING | IRQ_REPLAY)) == IRQ_PENDING) {
--			desc->status = status | IRQ_REPLAY;
--			hw_resend_irq(desc->handler,irq);
--		}
--		desc->handler->enable(irq);
--		/* fall-through */
--	}
--	default:
--		desc->depth--;
--		break;
--	case 0:
--		printk("enable_irq(%u) unbalanced from %p\n", irq,
--		       __builtin_return_address(0));
--	}
--	spin_unlock_irqrestore(&desc->lock, flags);
--}
--
- /*
-  * do_IRQ handles all normal device IRQ's (the special
-  * SMP cross-CPU interrupts have their own specific
-@@ -523,197 +344,6 @@
- 		spin_unlock_irqrestore(&desc->lock,flags);
- 		return;
- 	}
--}
--
--/*
-- * IRQ autodetection code..
-- *
-- * This depends on the fact that any interrupt that
-- * comes in on to an unassigned handler will get stuck
-- * with "IRQ_WAITING" cleared and the interrupt
-- * disabled.
-- */
--
--static DECLARE_MUTEX(probe_sem);
--
--/**
-- *	probe_irq_on	- begin an interrupt autodetect
-- *
-- *	Commence probing for an interrupt. The interrupts are scanned
-- *	and a mask of potential interrupt lines is returned.
-- *
-- */
-- 
--unsigned long probe_irq_on(void)
--{
--	unsigned int i;
--	irq_desc_t *desc;
--	unsigned long val;
--	unsigned long delay;
--
--	down(&probe_sem);
--	/* 
--	 * something may have generated an irq long ago and we want to
--	 * flush such a longstanding irq before considering it as spurious. 
--	 */
--	for (i = NR_IRQS-1; i > 0; i--)  {
--		desc = irq_desc + i;
--
--		spin_lock_irq(&desc->lock);
--		if (!irq_desc[i].action) 
--			irq_desc[i].handler->startup(i);
--		spin_unlock_irq(&desc->lock);
--	}
--
--	/* Wait for longstanding interrupts to trigger. */
--	for (delay = jiffies + HZ/50; time_after(delay, jiffies); )
--		/* about 20ms delay */ barrier();
--
--	/*
--	 * enable any unassigned irqs
--	 * (we must startup again here because if a longstanding irq
--	 * happened in the previous stage, it may have masked itself)
--	 */
--	for (i = NR_IRQS-1; i > 0; i--) {
--		desc = irq_desc + i;
--
--		spin_lock_irq(&desc->lock);
--		if (!desc->action) {
--			desc->status |= IRQ_AUTODETECT | IRQ_WAITING;
--			if (desc->handler->startup(i))
--				desc->status |= IRQ_PENDING;
--		}
--		spin_unlock_irq(&desc->lock);
--	}
--
--	/*
--	 * Wait for spurious interrupts to trigger
--	 */
--	for (delay = jiffies + HZ/10; time_after(delay, jiffies); )
--		/* about 100ms delay */ barrier();
--
--	/*
--	 * Now filter out any obviously spurious interrupts
--	 */
--	val = 0;
--	for (i = 0; i < NR_IRQS; i++) {
--		irq_desc_t *desc = irq_desc + i;
--		unsigned int status;
--
--		spin_lock_irq(&desc->lock);
--		status = desc->status;
--
--		if (status & IRQ_AUTODETECT) {
--			/* It triggered already - consider it spurious. */
--			if (!(status & IRQ_WAITING)) {
--				desc->status = status & ~IRQ_AUTODETECT;
--				desc->handler->shutdown(i);
--			} else
--				if (i < 32)
--					val |= 1 << i;
--		}
--		spin_unlock_irq(&desc->lock);
--	}
--
--	return val;
--}
--
--/*
-- * Return a mask of triggered interrupts (this
-- * can handle only legacy ISA interrupts).
-- */
-- 
--/**
-- *	probe_irq_mask - scan a bitmap of interrupt lines
-- *	@val:	mask of interrupts to consider
-- *
-- *	Scan the ISA bus interrupt lines and return a bitmap of
-- *	active interrupts. The interrupt probe logic state is then
-- *	returned to its previous value.
-- *
-- *	Note: we need to scan all the irq's even though we will
-- *	only return ISA irq numbers - just so that we reset them
-- *	all to a known state.
-- */
--unsigned int probe_irq_mask(unsigned long val)
--{
--	int i;
--	unsigned int mask;
--
--	mask = 0;
--	for (i = 0; i < NR_IRQS; i++) {
--		irq_desc_t *desc = irq_desc + i;
--		unsigned int status;
--
--		spin_lock_irq(&desc->lock);
--		status = desc->status;
--
--		if (status & IRQ_AUTODETECT) {
--			if (i < 16 && !(status & IRQ_WAITING))
--				mask |= 1 << i;
--
--			desc->status = status & ~IRQ_AUTODETECT;
--			desc->handler->shutdown(i);
--		}
--		spin_unlock_irq(&desc->lock);
--	}
--	up(&probe_sem);
--
--	return mask & val;
--}
--
--/*
-- * Return the one interrupt that triggered (this can
-- * handle any interrupt source).
-- */
--
--/**
-- *	probe_irq_off	- end an interrupt autodetect
-- *	@val: mask of potential interrupts (unused)
-- *
-- *	Scans the unused interrupt lines and returns the line which
-- *	appears to have triggered the interrupt. If no interrupt was
-- *	found then zero is returned. If more than one interrupt is
-- *	found then minus the first candidate is returned to indicate
-- *	their is doubt.
-- *
-- *	The interrupt probe logic state is returned to its previous
-- *	value.
-- *
-- *	BUGS: When used in a module (which arguably shouldnt happen)
-- *	nothing prevents two IRQ probe callers from overlapping. The
-- *	results of this are non-optimal.
-- */
-- 
--int probe_irq_off(unsigned long val)
--{
--	int i, irq_found, nr_irqs;
--
--	nr_irqs = 0;
--	irq_found = 0;
--	for (i = 0; i < NR_IRQS; i++) {
--		irq_desc_t *desc = irq_desc + i;
--		unsigned int status;
--
--		spin_lock_irq(&desc->lock);
--		status = desc->status;
--
--		if (status & IRQ_AUTODETECT) {
--			if (!(status & IRQ_WAITING)) {
--				if (!nr_irqs)
--					irq_found = i;
--				nr_irqs++;
--			}
--			desc->status = status & ~IRQ_AUTODETECT;
--			desc->handler->shutdown(i);
--		}
--		spin_unlock_irq(&desc->lock);
--	}
--	up(&probe_sem);
--
--	if (nr_irqs > 1)
--		irq_found = -irq_found;
--	return irq_found;
- }
- 
- /* this was setup_x86_irq but it seems pretty generic */
-diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/include/asm-x86_64/hw_irq.h linux-2.5.52/include/asm-x86_64/hw_irq.h
---- linux-2.5.52.vanilla/include/asm-x86_64/hw_irq.h	Thu Nov 28 01:36:22 2002
-+++ linux-2.5.52/include/asm-x86_64/hw_irq.h	Tue Dec 24 21:56:04 2002
-@@ -182,4 +182,21 @@
- 
- #endif
- 
-+/*
-+ * Currently unexpected vectors happen only on SMP and APIC.
-+ * We _must_ ack these because every local APIC has only N
-+ * irq slots per priority level, and a 'hanging, unacked' IRQ
-+ * holds up an irq slot - in excessive cases (when multiple
-+ * unexpected vectors occur) that might lock up the APIC
-+ * completely.
-+ */
-+#ifdef CONFIG_X86_LOCAL_APIC
-+#define ack_bad_irq(irq) ack_APIC_irq()
-+#else
-+#define ack_bad_irq(irq) do { } while (0)
-+#endif
-+
-+/* Return a pointer to the irq descriptor for IRQ.  */
-+#define irq_desc(irq) (irq_desc + (irq))
-+
- #endif /* _ASM_HW_IRQ_H */
-
---WChQLJJJfbwij+9x--

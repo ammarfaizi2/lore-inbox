@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132411AbQLVXRC>; Fri, 22 Dec 2000 18:17:02 -0500
+	id <S132444AbQLVXcH>; Fri, 22 Dec 2000 18:32:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132444AbQLVXQx>; Fri, 22 Dec 2000 18:16:53 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:35085 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S132411AbQLVXQr>; Fri, 22 Dec 2000 18:16:47 -0500
-From: Norbert Preining <preining@logic.at>
-Date: Fri, 22 Dec 2000 23:46:10 +0100
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ALi agpgart patch for 2.4.0-test12
-Message-ID: <20001222234610.A12203@alpha.logic.tuwien.ac.at>
+	id <S132486AbQLVXb5>; Fri, 22 Dec 2000 18:31:57 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:57350 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S132444AbQLVXbs>; Fri, 22 Dec 2000 18:31:48 -0500
+Date: Fri, 22 Dec 2000 16:56:37 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: bigphysarea support in 2.2.19 and 2.4.0 kernels
+Message-ID: <20001222165637.B2437@vger.timpanogas.org>
+In-Reply-To: <20001221154446.A10579@vger.timpanogas.org> <20001221155339.A10676@vger.timpanogas.org> <20001222093928.A30636@polyware.nl> <20001222111105.B14232@vger.timpanogas.org> <20001222113530.A14479@vger.timpanogas.org> <20001222202137.A27844@gruyere.muc.suse.de> <20001222132541.A1555@vger.timpanogas.org> <20001222205103.A9441@polyware.nl> <20001222145450.B2025@vger.timpanogas.org> <20001222223943.E25239@arthur.ubicom.tudelft.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001222223943.E25239@arthur.ubicom.tudelft.nl>; from J.A.K.Mouw@ITS.TUDelft.NL on Fri, Dec 22, 2000 at 10:39:43PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Dec 22, 2000 at 10:39:43PM +0100, Erik Mouw wrote:
+> On Fri, Dec 22, 2000 at 02:54:50PM -0700, Jeff V. Merkey wrote:
+> > Having a 1 Gigabyte per second fat pipe that runs over a prallel bus 
+> > fabric with a standard PCI card that costs @ $ 500 and can run LVS 
+> > and TUX at high speeds would be for the common good, particularly since
+> > NT and W2K both have implementations of Dolphin SCI that allow them 
+> > to exploit this hardware.  
+> 
+> I'm just wondering how you are going to do 1 Gbyte per second when you
+> still have to get the data through a PCI bus to that card. In theory,
+> standard PCI can do 133 Mbyte/s, but only when you're very lucky to be
+> able to burst large chunks of data. OK, 64 bit PCI at 66 MHz should
+> quadruple the throughput, but that's still not enough for 1 Gbyte/s.
 
-I tried the patch with an Asus P5A-B + AMD K6-II 333, the
-ALi 1541 and it works very well. With the patches from the
-irc channel #nvidia for ali-agp it was working but only in
-1x agp mode, SBA and FW disabled. With this patch now I can
-run 2x agp mode and don't crash my system when playing 3D
-like terminus or descent3.
+THe fabric supports this data rate.  PCI cards are limited to @ 130MB, 
+but multiple nodes all running at the same time could generate this much
+traffic.
 
-Best wishes
+Jeff
 
-Norbert
-
--- 
-ciao
-norb
-
-+-------------------------------------------------------------------+
-| Norbert Preining              http://www.logic.at/people/preining |
-| University of Technology Vienna, Austria        preining@logic.at |
-| DSA: 0x09C5B094 (RSA: 0xCF1FA165) mail subject: get [DSA|RSA]-key |
-+-------------------------------------------------------------------+
+> 
+> 
+> Erik
+> 
+> -- 
+> J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+> of Electrical Engineering, Faculty of Information Technology and Systems,
+> Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+> Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+> WWW: http://www-ict.its.tudelft.nl/~erik/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

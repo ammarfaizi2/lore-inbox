@@ -1,72 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261651AbTCaOPS>; Mon, 31 Mar 2003 09:15:18 -0500
+	id <S261654AbTCaO3c>; Mon, 31 Mar 2003 09:29:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261653AbTCaOPS>; Mon, 31 Mar 2003 09:15:18 -0500
-Received: from verein.lst.de ([212.34.181.86]:57862 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S261651AbTCaOPP>;
-	Mon, 31 Mar 2003 09:15:15 -0500
-Date: Mon, 31 Mar 2003 16:26:34 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove kdevname() before someone starts using it again
-Message-ID: <20030331162634.A14319@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S261653AbTCaO3c>; Mon, 31 Mar 2003 09:29:32 -0500
+Received: from s161-184-77-200.ab.hsia.telus.net ([161.184.77.200]:54915 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP
+	id <S261654AbTCaO3b>; Mon, 31 Mar 2003 09:29:31 -0500
+Date: Mon, 31 Mar 2003 07:40:42 -0700 (MST)
+From: James Bourne <jbourne@hardrock.org>
+To: "chandrasekhar.nagaraj" <chandrasekhar.nagaraj@patni.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem created by Zoning on Linux
+In-Reply-To: <000001c2f780$da0265e0$e9bba5cc@patni.com>
+Message-ID: <Pine.LNX.4.44.0303310737290.26215-100000@cafe.hardrock.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 31 Mar 2003, chandrasekhar.nagaraj wrote:
 
---- 1.14/fs/libfs.c	Wed Jan  1 02:18:35 2003
-+++ edited/fs/libfs.c	Wed Mar 26 21:32:02 2003
-@@ -332,14 +332,3 @@
- 	set_page_dirty(page);
- 	return 0;
- }
--
--/*
-- * Print device name (in decimal, hexadecimal or symbolic)
-- * Note: returns pointer to static data!
-- */
--const char * kdevname(kdev_t dev)
--{
--	static char buffer[32];
--	sprintf(buffer, "%02x:%02x", major(dev), minor(dev));
--	return buffer;
--}
---- 1.222/include/linux/fs.h	Sun Mar 23 07:14:19 2003
-+++ edited/include/linux/fs.h	Wed Mar 26 21:32:08 2003
-@@ -1074,7 +1074,6 @@
- extern void close_bdev_excl(struct block_device *, int);
- 
- extern const char * cdevname(kdev_t);
--extern const char * kdevname(kdev_t);
- extern void init_special_inode(struct inode *, umode_t, dev_t);
- 
- /* Invalid inode operations -- fs/bad_inode.c */
---- 1.7/include/linux/kdev_t.h	Fri Nov  1 13:28:19 2002
-+++ edited/include/linux/kdev_t.h	Wed Mar 26 21:32:14 2003
-@@ -101,8 +101,6 @@
- #define NODEV		(mk_kdev(0,0))
- #define B_FREE		(mk_kdev(0xff,0xff))
- 
--extern const char * kdevname(kdev_t);	/* note: returns pointer to static data! */
--
- static inline int kdev_same(kdev_t dev1, kdev_t dev2)
- {
- 	return dev1.value == dev2.value;
---- 1.186/kernel/ksyms.c	Sat Mar 22 05:05:21 2003
-+++ edited/kernel/ksyms.c	Wed Mar 26 21:32:22 2003
-@@ -511,7 +511,6 @@
- EXPORT_SYMBOL(vsprintf);
- EXPORT_SYMBOL(vsnprintf);
- EXPORT_SYMBOL(vsscanf);
--EXPORT_SYMBOL(kdevname);
- EXPORT_SYMBOL(__bdevname);
- EXPORT_SYMBOL(cdevname);
- EXPORT_SYMBOL(simple_strtoull);
+> Hi,
+> We are trying to create zoning (IO fencing) on our storage device.
+> The zoning is to be done on the LUN basis, so that a particular HBA will
+> accesses the only those LUNs which are assigned to it.
+> 
+> We have two HBA cards residing on different Hosts.
+
+Hi,
+We've used Linux to access our cx600 and there were no problems.  One thing
+to keep in mind is that you are only allowed to have a single initiator per
+zone, otherwise you will run into problems.  When you create your zones make
+sure that each zone only has a single HBA in it...  
+
+Also, on your switch, look at the error counters.  If there are any 
+number of CRC errors it may mean a bad cable.
+
+What is the FC card and driver you are currently using?
+
+Regards
+James Bourne
+
+> 
+> We have created 8 LUNs (from 0 to 7).
+> Now we want to give access to only 4 LUNs from each HBA card.
+> 
+> So we have given access to LUN 0 to 3 from HBA card 1.
+> Also LUN 4 to 7 is to be accessed from HBA card 2.
+> 
+> When we did the above, we observed that the Host, which has access to LUN 0
+> to 3, is working fine. i.e. its /proc/scsi/scsi is showing entries
+> corresponding to LUN 0 to 3. Also 4 scsi devices are created & can be viewed
+> in /proc/partitions.
+> 
+> But the second Host, which should have access to LUN 4 to 7, has some
+> problem.
+> The /proc/partitions does not show any scsi device file. Also
+> /proc/scsi/scsi does not entries corresponding to LUN 4 to 7; but it have
+> only one entry corresponding to LUN 0 (which should not be allowed).
+> 
+> So, is there any restriction on Linux that the LUN number should start with
+> 0 only??
+> If so, then what is the solution/workaround?
+> 
+> Thanks and Regards
+> Chandrasekhar
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  
+

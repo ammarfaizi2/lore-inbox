@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276688AbRJBVJC>; Tue, 2 Oct 2001 17:09:02 -0400
+	id <S276687AbRJBVKw>; Tue, 2 Oct 2001 17:10:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276687AbRJBVIm>; Tue, 2 Oct 2001 17:08:42 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:45053 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S276693AbRJBVIf>; Tue, 2 Oct 2001 17:08:35 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Tue, 2 Oct 2001 15:08:20 -0600
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        linux-lvm@sistina.com
-Subject: Re: partition table read incorrectly
-Message-ID: <20011002150820.N8954@turbolinux.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org, linux-lvm@sistina.com
-In-Reply-To: <20011002202934.G14582@wiggy.net> <E15oUUf-0005Xw-00@the-village.bc.nu> <20011002220053.H14582@wiggy.net>
+	id <S276693AbRJBVKm>; Tue, 2 Oct 2001 17:10:42 -0400
+Received: from f283.law10.hotmail.com ([64.4.14.158]:49937 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S276687AbRJBVKb>;
+	Tue, 2 Oct 2001 17:10:31 -0400
+X-Originating-IP: [209.213.222.214]
+From: "captain smp" <captainsmp@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: sock_sendmsg() from a kernel thread question
+Date: Tue, 02 Oct 2001 21:10:54 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011002220053.H14582@wiggy.net>
-User-Agent: Mutt/1.3.22i
+Content-Type: text/plain; format=flowed
+Message-ID: <F283XKGoyufRev86cl300004950@hotmail.com>
+X-OriginalArrivalTime: 02 Oct 2001 21:10:54.0632 (UTC) FILETIME=[B91AB280:01C14B86]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 02, 2001  22:00 +0200, Wichert Akkerman wrote:
-> Previously Alan Cox wrote:
-> > Does it complain about wrong block sizes ?
-> 
-> No
->  
-> > The partition code will look for tables. That bit is fine
-> 
-> If that bit is fine then how can it differ in opinion from fdisk?
+I am trying to call sock_sendmsg() from a kernel thread
+and it seems to work fine on a UP system but on SMP system
+it hangs up and the thread can't even accept a SIGKILL.
+It it stuck after the following calls happen:
 
-What does the first 512 bytes of the disk show (od -Ax -tx1 /dev/)?
-Maybe there is still "0xaa55" on the disk at 0x1fe and the kernel
-thinks it is a DOS partition?
+sock_sendmsg()
+sock->ops->sendmsg()
+tcp_do_sendmsg()
 
-> > The exact error would be good too
-> 
->  I/O error: dev 08:11, sector 0
+then tcp_do_sendmsg() calls:
 
-Hmm, this is sda11, so you would need both a primary and extended
-partition table to get that.  What does /proc/partitions show?
+skb = sock_wmalloc(sk, tmp, 0, GFP_KERNEL);
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+but that call never returns.  It doesn't get to
+the code where the comment says: "If we didn't get
+any memory, we need to sleep."
+
+I've mucked with sock->sk->allocation flavors but to no avail.
+
+BTW, this is 2.2.16-22 (stock red hat 6.2 kernel)
+
+Is this fixed in later kernels, or is there some semaphore/spinlock
+needed to call sock_sendmsg()/recvmsg() from kernel threads?
+
+Is there a race with skbuff allocation/deallocation from the
+NET_BH network bottom half handler or NIC interrupt handler
+that I can prevent from happening somehow?
+
+-Captain
+
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
 

@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290671AbSAYNkG>; Fri, 25 Jan 2002 08:40:06 -0500
+	id <S290675AbSAYNo4>; Fri, 25 Jan 2002 08:44:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290678AbSAYNj4>; Fri, 25 Jan 2002 08:39:56 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:17421 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S290671AbSAYNjt>; Fri, 25 Jan 2002 08:39:49 -0500
-Date: Fri, 25 Jan 2002 13:42:57 +0000
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] head.S
-Message-ID: <20020125134257.GA37629@compsoc.man.ac.uk>
+	id <S290678AbSAYNoh>; Fri, 25 Jan 2002 08:44:37 -0500
+Received: from zero.tech9.net ([209.61.188.187]:37381 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S290677AbSAYNob>;
+	Fri, 25 Jan 2002 08:44:31 -0500
+Subject: Re: kernel BUG at slab.c:1200!
+From: Robert Love <rml@tech9.net>
+To: Bernd Schubert <bernd.schubert@tc.pci.uni-heidelberg.de>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200201241906.g0OJ68915057@fubini.pci.uni-heidelberg.de>
+In-Reply-To: <200201241906.g0OJ68915057@fubini.pci.uni-heidelberg.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 25 Jan 2002 08:49:32 -0500
+Message-Id: <1011966573.3501.1.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Bendik Singers - Afrotid
-X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-01-24 at 14:06, Bernd Schubert wrote:
 
-007 has a license to kill, not a right.
+> we have a machine here that runs quite instable, with 2.2.16 it was crashing quite often and now after a big system 
+> update it also crashes with 2.4.17.
+> But at least /var/log/messages shows the following errors:
 
-enjoy,
-john
+Hi.  The BUG is caused by extra checks on free present by the slab
+debugging you have enabled.  I suspect you wouldn't notice a thing if
+you turned debugging off ;)
 
+That said, you need to run the oops through ksymoops so we can get a
+back trace and see who the offending caller is.
 
---- arch/i386/kernel/head.S.old	Fri Jan 25 13:36:09 2002
-+++ arch/i386/kernel/head.S	Fri Jan 25 13:36:49 2002
-@@ -82,8 +82,8 @@
-  * Initialize page tables
-  */
- 	movl $pg0-__PAGE_OFFSET,%edi /* initialize page tables */
--	movl $007,%eax		/* "007" doesn't mean with right to kill, but
--				   PRESENT+RW+USER */
-+	movl $007,%eax		/* "007" doesn't mean with license to kill, 
-+				 * but PRESENT+RW+USER */
- 2:	stosl
- 	add $0x1000,%eax
- 	cmp $empty_zero_page-__PAGE_OFFSET,%edi
+	Robert Love
+

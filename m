@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265162AbUFRODo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265163AbUFROEE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265162AbUFRODo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 10:03:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265163AbUFRODo
+	id S265163AbUFROEE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 10:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265168AbUFROEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 10:03:44 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:46725 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S265162AbUFRODm (ORCPT
+	Fri, 18 Jun 2004 10:04:04 -0400
+Received: from vsmtp12.tin.it ([212.216.176.206]:23188 "EHLO vsmtp12.tin.it")
+	by vger.kernel.org with ESMTP id S265163AbUFROEA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 10:03:42 -0400
-Date: Fri, 18 Jun 2004 16:03:33 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Olaf Hering <olh@suse.de>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       4Front Technologies <dev@opensound.com>,
-       viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040618140332.GA19404@vana.vc.cvut.cz>
-References: <40D232AD.4020708@opensound.com> <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk> <40D23EBD.50600@opensound.com> <Pine.LNX.4.58.0406180313350.10292@scrub.local> <20040618095700.GA22955@vana.vc.cvut.cz> <20040618134732.GA21216@suse.de>
+	Fri, 18 Jun 2004 10:04:00 -0400
+Subject: [BUG] 2.6.x ALSA sound is pretty broken
+From: Hetfield <hetfield666@virgilio.it>
+Reply-To: hetfield666@virgilio.it
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Hetfield
+Message-Id: <1087567432.9282.17.camel@blight.blight>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040618134732.GA21216@suse.de>
-User-Agent: Mutt/1.5.6+20040523i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 18 Jun 2004 16:03:53 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 18, 2004 at 03:47:32PM +0200, Olaf Hering wrote:
->  On Fri, Jun 18, Petr Vandrovec wrote:
-> 
-> > On Fri, Jun 18, 2004 at 03:20:48AM +0200, Roman Zippel wrote:
-> > > On Thu, 17 Jun 2004, 4Front Technologies wrote:
-> > > 
-> > > > It's time everybody started to pay some attention to in-kernel interfaces because
-> > > > Linux has graduated out of your personal sandbox to where other people want to use
-> > > > Linux and they aren't kernel developers.
-> > > 
-> > > Look into your own diapers, learn the meaning of "documented interfaces" 
-> > > and come back if you can show that SuSE broke exactly this.
-> > 
-> > If renaming /proc/bus/usb/devices to
-> > /proc/bus/usb/devices_please-use-sysfs-instead is not breaking of
-> > "documented interface" then I have no idea what "documented interface"
-> > is...
-> 
-> I would not call this file an interface, but utter bullshit. Just
-> because it breaks all these bullshit devices...
+i've got hard problems with sound in all 2.6.x, even 2.6.7 kernels.
 
-Yep. I'm not interested in the file contents, but in behavior of poll
-on that file (which fires when device is plugged or unplugged).
+with 2.4.2x or windows i've got no problems, so i'm sure it's kernel and
+not hardware related.
 
-Only thing which is at least simillar is dnotify on
-/sys/bus/usb/devices, but as dnotify needs (preferrably RT) signal, it
-is not trivial to use it from libraries due to problems with allocating
-unused RT signal (and then you need some pipe to deliver notifications
-from signal handler to "safe" process context).
+the problem is that sound jumps, flickers and isn't good when harddisk
+reads lots of data (i mean not 1-2mb but 60-100mb and more)
 
-Or do I miss some nice and simple interface which can be used for
-notifications about newly plugged (USB) devices?
-						Thanks,
-							Petr Vandrovec
+i checked irq and there is not conflict, i setted a higher and lower
+value of latency and nothing changed.
+
+i've the same problems since 2.6.0 kernels. Vanilla and Gentoo too.
+I've tried lots of solutions, like disabling preemptile kernel, adding
+alsa and oss, only oss, only alsa, as module or built-in.
+nothing changes.
+
+my audio card is a Creative SB PCI128, found by linux as
+
+
+0000:00:0b.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI] (rev
+01)
+        Subsystem: Unknown device 4942:4c4c
+        Flags: bus master, slow devsel, latency 32, IRQ 10
+        I/O ports at b000
+
+while on Windows i use es1371/3 drivers.
+however with 2.4.x i always used es1370 alsa module without problems.
+When harddisk is sleeping sound is normally good.
+
+Thanks for support
 

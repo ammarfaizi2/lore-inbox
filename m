@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268532AbUHYH4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268544AbUHYGhM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268532AbUHYH4q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 03:56:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268533AbUHYH4q
+	id S268544AbUHYGhM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 02:37:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268575AbUHYGhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 03:56:46 -0400
-Received: from [211.226.183.122] ([211.226.183.122]:62224 "HELO keithley.com")
-	by vger.kernel.org with SMTP id S268532AbUHYH4o (ORCPT
+	Wed, 25 Aug 2004 02:37:12 -0400
+Received: from mail.kroah.org ([69.55.234.183]:25824 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268544AbUHYGhI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 03:56:44 -0400
-Date: Wed, 25 Aug 2004 07:51:41 +0000
-From: jgamble@linuxfreak.com
-Subject: updates
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <9JJD23BK81GJGH37@vger.kernel.org>
-In-Reply-To: <9JJD23BK81GJGH37@vger.kernel.org>
-Message-ID: <2630AJD06LFJGDB1@linuxfreak.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 25 Aug 2004 02:37:08 -0400
+Date: Tue, 24 Aug 2004 23:36:43 -0700
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alex Williamson <alex.williamson@hp.com>, akpm@osdl.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       sensors@Stimpy.netroedge.com
+Subject: Re: [BK PATCH] I2C update for 2.6.8-rc1
+Message-ID: <20040825063643.GA8249@kroah.com>
+References: <20040715000527.GA18923@kroah.com> <1093384722.8445.10.camel@tdi> <20040824220450.GE11165@kroah.com> <Pine.LNX.4.58.0408241721330.17766@ppc970.osdl.org> <1093397881.9555.6.camel@tdi> <Pine.LNX.4.58.0408241847460.17766@ppc970.osdl.org> <20040825061445.GA16938@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040825061445.GA16938@kroah.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-New Q E M software
+On Tue, Aug 24, 2004 at 11:14:45PM -0700, Greg KH wrote:
+> On Tue, Aug 24, 2004 at 07:02:47PM -0700, Linus Torvalds wrote:
+> > Now, admittedly, that would be a VERY broken BIOS, and likely such a 
+> > situation wouldn't have worked _anyway_, but you're the PCI maintainer, so 
+> > you get to sit in the hot seat and say aye or nay.
+> 
+> It looks correct to me, please apply it.  If it breaks people's boxes
+> that used to work, I'm sure I'll hear about it :)
 
-QuickBooks Premier 2004 - 110
-SuSe Linux 9.1 Professional Edition - 50
-Nero V 6.0 Ultra Edition CD/DVD Burning Suite - 30
-SuSe Linux 9.1 Professional Edition - 50
-AutoCAD Electrical 2005 - 110
-ACT! 6 for 2004 - 90
-Adobe Streamline 4.0 - 60
-Adobe Atmosphere 1.0 - 60
-Corel KnockOut 2 - 50
-Adobe Audition V 1.0 PC - 80
+It didn't break my finicky little laptop, so it's fine with me.
 
-Linux, Apple software and a lot more 
-http://www.bolguarou.biz/
+thanks,
 
+greg k-h

@@ -1,38 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313987AbSDKEs7>; Thu, 11 Apr 2002 00:48:59 -0400
+	id <S313985AbSDKFRO>; Thu, 11 Apr 2002 01:17:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313988AbSDKEs6>; Thu, 11 Apr 2002 00:48:58 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:14033 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S313987AbSDKEs6>;
-	Thu, 11 Apr 2002 00:48:58 -0400
-Date: Wed, 10 Apr 2002 21:41:12 -0700 (PDT)
-Message-Id: <20020410.214112.10765569.davem@redhat.com>
-To: kaber@trash.net
-Cc: kuznet2@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-Subject: Re: bug in sch_generic.c:pfifo_fast_enqueue
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0204012131330.13230-200000@el-zoido.localnet>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S313988AbSDKFRN>; Thu, 11 Apr 2002 01:17:13 -0400
+Received: from [210.77.38.126] ([210.77.38.126]:27401 "EHLO
+	ns.turbolinux.com.cn") by vger.kernel.org with ESMTP
+	id <S313985AbSDKFRM>; Thu, 11 Apr 2002 01:17:12 -0400
+Message-ID: <3CB51B07.2080505@turbolinux.com.cn>
+Date: Thu, 11 Apr 2002 13:11:35 +0800
+From: Wang Jun <junw@turbolinux.com.cn>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011011
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Intel ICH4 for 2.4.18
+Content-Type: multipart/mixed;
+ boundary="------------040506070202090201020705"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Patrick McHardy <kaber@trash.net>
-   Date: Mon, 1 Apr 2002 21:43:03 +0200 (CEST)
+This is a multi-part message in MIME format.
+--------------040506070202090201020705
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-   I found a small bug in pfifo_fast_enqueue, instead of
-   
-   if (list->qlen <= skb->dev->tx_queue_len)
-   
-   it should be
-   
-   if (list->qlen <= qdisc->dev->tx_queue_len)
-   
-   i guess.
+I made a patch for add Intel ICH4 support for linux 2.4.18
 
-skb->dev == qdisc->dev should be invariant when this
-code runs.  So the code is correct, albeit possibly
-confusing.
+-- 
+Turbolinux Inc.,China
+R & D Team Programmer
+Wang Jun
+Tel: +8610 65054020 Ext. 205
+Mail: junw@turbolinux.com.cn
+
+
+--------------040506070202090201020705
+Content-Type: text/plain;
+ name="linux-2.4.18-ICH4.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.4.18-ICH4.patch"
+
+diff -urN linux/drivers/sound/i810_audio.c linux.new/drivers/sound/i810_audio.c
+--- linux/drivers/sound/i810_audio.c	Wed Apr 10 16:04:55 2002
++++ linux.new/drivers/sound/i810_audio.c	Wed Apr 10 16:06:22 2002
+@@ -101,6 +101,9 @@
+ #ifndef PCI_DEVICE_ID_INTEL_ICH3
+ #define PCI_DEVICE_ID_INTEL_ICH3	0x2485
+ #endif
++#ifndef PCI_DEVICE_ID_INTEL_ICH4
++#define PCI_DEVICE_ID_INTEL_ICH4	0x24c5
++#endif
+ #ifndef PCI_DEVICE_ID_INTEL_440MX
+ #define PCI_DEVICE_ID_INTEL_440MX	0x7195
+ #endif
+@@ -233,6 +236,7 @@
+ 	INTEL440MX,
+ 	INTELICH2,
+ 	INTELICH3,
++	INTELICH4,
+ 	SI7012,
+ 	NVIDIA_NFORCE,
+ 	AMD768
+@@ -244,6 +248,7 @@
+ 	"Intel 440MX",
+ 	"Intel ICH2",
+ 	"Intel ICH3",
++	"Intel ICH4",
+ 	"SiS 7012",
+ 	"NVIDIA nForce Audio",
+ 	"AMD 768"
+@@ -260,6 +265,8 @@
+ 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, INTELICH2},
+ 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH3,
+ 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, INTELICH3},
++	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH4,
++	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, INTELICH4},
+ 	{PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_7012,
+ 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, SI7012},
+ 	{PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_MCP1_AUDIO,
+
+--------------040506070202090201020705--
+

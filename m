@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266948AbTBHBir>; Fri, 7 Feb 2003 20:38:47 -0500
+	id <S266953AbTBHBm4>; Fri, 7 Feb 2003 20:42:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266953AbTBHBir>; Fri, 7 Feb 2003 20:38:47 -0500
-Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:2176 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S266948AbTBHBiq>; Fri, 7 Feb 2003 20:38:46 -0500
-Date: Fri, 7 Feb 2003 19:48:36 -0600 (CST)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: possible partition corruption
-In-Reply-To: <20030207154045.5080b1b0.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0302071943500.844-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266955AbTBHBm4>; Fri, 7 Feb 2003 20:42:56 -0500
+Received: from ns.suse.de ([213.95.15.193]:34571 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S266953AbTBHBmz>;
+	Fri, 7 Feb 2003 20:42:55 -0500
+Date: Sat, 8 Feb 2003 02:52:35 +0100
+From: Andi Kleen <ak@suse.de>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>,
+       Joel Becker <Joel.Becker@oracle.com>
+Subject: Re: [RFC][PATCH] linux-2.5.59_getcycles_A0
+Message-ID: <20030208015235.GA25432@wotan.suse.de>
+References: <1044649542.18673.20.camel@w-jstultz2.beaverton.ibm.com.suse.lists.linux.kernel> <p73ptq3bxh6.fsf@oldwotan.suse.de> <1044659375.18676.80.camel@w-jstultz2.beaverton.ibm.com> <20030208001844.GA20849@wotan.suse.de> <1044665441.18670.106.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1044665441.18670.106.camel@w-jstultz2.beaverton.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Feb 2003, Andrew Morton wrote:
+> However this doesn't work on systems w/o a synced TSC, so by simply
 
-> I couldn't immediately see the reason for this.  You have your whole input
-> layer configured as a module, perhaps that has upset things.
-> 
-> I suggest that you work on the config settings and find out what it is that
-> is causing the tty layer to not come up.
+Why not? This shouldn't be performance critical and you can make 
+it monotonous with an additional variable + lock if backwards jumps
+should be a problem.
 
-OK, Hold the phone Susan, and stamp IDIOT on my forehead.  The erason for 
-not getting any output on the console was that I had configured the kernel 
-without support for virtual terminals or console on virtual terminals.  
-Once I configured that correctly, things worked. Duh!
+Also the variations between non synced TSCs should be far below 
+any watchdog's radar screen.
 
-The thing I don't understand is why would not having that configured in 
-give me the lost journal and an inability to boot and mount the root 
-partition when I booted back into a "normal" kernel.
-
+-Andi

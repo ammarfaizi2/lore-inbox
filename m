@@ -1,42 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263290AbUA3SRj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 13:17:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbUA3SRj
+	id S263475AbUA3SUv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 13:20:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbUA3SUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 13:17:39 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:35854 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S263290AbUA3SRV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 13:17:21 -0500
-Message-ID: <401AA08F.6020507@techsource.com>
-Date: Fri, 30 Jan 2004 13:21:03 -0500
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-CC: Helge Hafting <helgehaf@aitel.hist.no>, John Bradford <john@grabjohn.com>,
-       chakkerz@optusnet.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
-References: <4017F2C0.4020001@techsource.com> <200401291211.05461.chakkerz@optusnet.com.au> <40193136.4070607@techsource.com> <200401291629.i0TGTN7S001406@81-2-122-30.bradfords.org.uk> <40193A67.7080308@techsource.com> <200401291718.i0THIgbb001691@81-2-122-30.bradfords.org.uk> <4019472D.70604@techsource.com> <200401291855.i0TItHoU001867@81-2-122-30.bradfords.org.uk> <40195AE0.2010006@techsource.com> <401A33CA.4050104@aitel.hist.no> <401A8E0E.6090004@techsource.com> <Pine.LNX.4.55.0401301812380.10311@jurand.ds.pg.gda.pl> <401A9716.3040607@techsource.com> <Pine.LNX.4.55.0401301858070.10311@jurand.ds.pg.gda.pl>
-In-Reply-To: <Pine.LNX.4.55.0401301858070.10311@jurand.ds.pg.gda.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jan 2004 13:20:50 -0500
+Received: from fed1mtao04.cox.net ([68.6.19.241]:29906 "EHLO
+	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S263228AbUA3SSQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 13:18:16 -0500
+Date: Fri, 30 Jan 2004 11:18:11 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: BitKeeper repo for KGDB
+Message-ID: <20040130181811.GU6577@stop.crashing.org>
+References: <20040127184029.GI32525@stop.crashing.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040127184029.GI32525@stop.crashing.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 27, 2004 at 11:40:29AM -0700, Tom Rini wrote:
 
+> Hello everybody.  Since I've been talking with George off-list about
+> trying to merge the various versions of KGDB around, and I just read the
+> thread between Andy and Jim about conflicting on KGDB work, I've put up
+> a BitKeeper repository[1] to try and coordinate things.
 
-Maciej W. Rozycki wrote:
-> 
->  Of course, but DOS is not BIOS and the assumption is we want to use the
-> adapter as a boot console and with Linux.  The former is handled with
-> appropriate firmware and the latter with a driver.
->
+Since then, here's the highlights of what I've done so far:
+ChangeSet@1.1510, 2004-01-30 11:14:44-07:00, trini@kernel.crashing.org
+  Lots of changes to the serial stub driver.
+  In sum, it's got many of the features (but not all) of George
+  Anzginer's version (+ fix or two), and fully flushed out and tested
+  support for SERIAL_IOMEM.
 
-Perhaps someone can tell us what the Linux kernel does before the 
-console driver gets loaded.
+ChangeSet@1.1509, 2004-01-30 11:10:03-07:00, trini@kernel.crashing.org
+  Change *kgdb_serial into kgdb_serial_driver.  We will now have
+  only one serial driver.
 
-If the console driver is a module, then all kernel init messages that 
-appear before the module is loaded have nowhere to go.
+ChangeSet@1.1508, 2004-01-30 10:44:55-07:00, trini@kernel.crashing.org
+  Convert the kgdb ethernet driver over to netpoll.
+  Patch from Pavel Machek <pavel@suse.cz>, who warns this probably
+  doesn't work.
 
+ChangeSet@1.1505, 2004-01-29 14:30:47-07:00, trini@kernel.crashing.org
+  Move all KGDB questions into kernel/Kconfig.kgdb.
+
+ChangeSet@1.1504, 2004-01-27 16:59:06-07:00, trini@kernel.crashing.org
+  - PPC32: Add KGDB support for PRePs (part of MULTIPLATFORM).
+  - PPC32: Add a choice of baud rate for the gen550 backend.
+
+ChangeSet@1.1503, 2004-01-27 14:44:54-07:00, trini@kernel.crashing.org
+  Remove the function pointers from kgdb_ops.
+  Most have become kgdb_foo, instead of foo.  The exceptions
+  are the gdb/kgdb register fiddling functions.
+  kgdb_gdb_regs_to_regs makes my head hurt.
+
+ChangeSet@1.1502, 2004-01-27 11:46:13-07:00, trini@kernel.crashing.org
+  Merge by hand to current 2.6 bk.
+  --- UNTESTED, x86_64 might be broken ---
+
+ChangeSet@1.1474.149.3, 2004-01-27 11:32:54-07:00, trini@kernel.crashing.org
+  - Send a 'T' packet initially, not an 'S' followed by 'p'
+  - On PPC32, try to pass in the correct signal back.
+
+I'm mostly happy with the serial changes (and I'll set aside the user
+console bits from George's version for now), but comments and criticisms
+would be welcome.  And as a reminder the BitKeeper version is
+bk://ppc.bkbits.net/linux-2.6-kgdb and there's snapshots (thanks Dave!)
+at http://www.codemonkey.org.uk/projects/bitkeeper/kgdb
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

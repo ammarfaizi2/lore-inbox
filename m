@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267852AbTGUORr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 10:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269324AbTGUORr
+	id S269324AbTGUORu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 10:17:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270109AbTGUORu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 10:17:47 -0400
-Received: from mail.kroah.org ([65.200.24.183]:12690 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267852AbTGUORr (ORCPT
+	Mon, 21 Jul 2003 10:17:50 -0400
+Received: from mail.kroah.org ([65.200.24.183]:14738 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269324AbTGUORs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 10:17:47 -0400
-Date: Mon, 21 Jul 2003 10:28:39 -0400
+	Mon, 21 Jul 2003 10:17:48 -0400
+Date: Mon, 21 Jul 2003 10:31:40 -0400
 From: Greg KH <greg@kroah.com>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+To: Ronald Jerome <imun1ty@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Compile AX8817x driver
-Message-ID: <20030721142839.GA9401@kroah.com>
-References: <yw1xsmp0f4zh.fsf@zaphod.guide>
+Subject: Re: INIT:   USB FATAL in for Kernel 2.5.xx and 2.6.xx in Redhat v9.0  PLease Read.
+Message-ID: <20030721143140.GB9401@kroah.com>
+References: <20030720211048.19155.qmail@web13308.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xsmp0f4zh.fsf@zaphod.guide>
+In-Reply-To: <20030720211048.19155.qmail@web13308.mail.yahoo.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 21, 2003 at 02:18:10PM +0200, Måns Rullgård wrote:
+On Sun, Jul 20, 2003 at 02:10:48PM -0700, Ronald Jerome wrote:
 > 
-> This trivial Makefile patch causes the AX8817x driver to actually be
-> built.  The diff is against 2.6.0-test1.
+> One thing I knwo for sure is that in 2.5.xx and 2.6.xx
+> kernels there is no usb-uhci.o driver.  I believe they
+> changes the name and I wonder if this is why I am
+> having problems booting the 2.5.xx and 2.6.xx serieis
+> kernels?
 
-Thanks, I'll go apply this.  Oh, it's only needed if you do not select
-any other usb network driver, sorry for missing this before.
+That is probably your problem :)
+
+Try loading the uhci-hcd module and see if your usb devices now work.
+
+thanks,
 
 greg k-h

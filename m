@@ -1,113 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbUDWUJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbUDWUNp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbUDWUJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 16:09:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbUDWUJ4
+	id S261248AbUDWUNp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 16:13:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbUDWUNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 16:09:56 -0400
-Received: from mail.kroah.org ([65.200.24.183]:3015 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261244AbUDWUJp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 16:09:45 -0400
-Date: Fri, 23 Apr 2004 13:07:51 -0700
-From: Greg KH <greg@kroah.com>
-To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Cc: lhcs-devel@lists.sourceforge.net, lhms-devel@lists.sourceforge.net,
-       linux-hotplug-devel@lists.sourceforge.net,
-       pcihpd-discuss@lists.sourceforge.net, lhns-devel@lists.sourceforge.net,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       acpi-largesys-devel@lists.sourceforge.net
-Subject: Re: [Pcihpd-discuss] [RFC] New sysfs tree for hotplug
-Message-ID: <20040423200751.GA7990@kroah.com>
-References: <20040415170939.0ff62618.tokunaga.keiich@jp.fujitsu.com> <20040416223436.GB21701@kroah.com> <20040423211816.152dc326.tokunaga.keiich@jp.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040423211816.152dc326.tokunaga.keiich@jp.fujitsu.com>
-User-Agent: Mutt/1.5.6i
+	Fri, 23 Apr 2004 16:13:45 -0400
+Received: from 66.159.164.68.adsl.snet.net ([66.159.164.68]:35507 "EHLO
+	mail.bscnet.com") by vger.kernel.org with ESMTP id S261248AbUDWUNj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 16:13:39 -0400
+Message-ID: <028501c4296f$74da0390$0900a8c0@bobhitt>
+From: "Bobby Hitt" <Bob.Hitt@bscnet.com>
+To: "James Simmons" <jsimmons@infradead.org>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0404231755300.3997-100000@phoenix.infradead.org>
+Subject: Re: Graphics Mode Woes
+Date: Fri, 23 Apr 2004 16:13:32 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 23, 2004 at 09:18:16PM +0900, Keiichiro Tokunaga wrote:
-> Greg KH wrote:
-> > > 2. Problem
-> > 
-> > There is no problem :)
-> > 
-> > >  Recent large machines have many PCI devices and some boards that
-> > > contain devices (e.g. CPU, memory, and/or I/O devices).  A certain PCI
-> > > device (PCI1) might be connected with other one (PCI2), which means that
-> > > there is a dependency between PCI1 and PCI2.
-> > 
-> > You have this today?  On what platform?  This is the first I have heard
-> > of this.  If needed, we can merely change the pci hotplug core to allow
-> > a hierarchy of pci slots.  Will that solve your problem?
-> 
-> 
-> I meant that a P2P bridge (that has hotpluggable slots) and a PCI device would
-> have such a dependency.
+Hello,
 
-But you don't need to show that for any reason, right?   Today, pci
-slots behind a pluggable P2P bridge work just fine.  I can remove the
-entire drawer full of pci slots and they all go away properly, and if I
-add a new drawer of pci slots, they all show up.
+I've since gotten this working, thanks to the help of Dmitry Torokhov:
+-----
+This is what I have for my GeForce2 Go. Actually I think what hurts you is
+FB_VGA16, not RIVA.. Still, if you using vesa like I do there is no point
+compiling rivafb (and If you using nVIDIA's binary driver rivafb usually
+conflicts with it).
+-----
+ I had the wrong drivers loaded.. My question now is where would I have been
+able to disable the "native driver"? I don't recall seeing this in the
+.config file.
 
-Why do you want to show that hierarchy?  Who cares about it?
+TIA,
 
-> As you suggeted, if the PCI hotplug core is changed that way, the
-> dependency would be represented in sysfs quite well:)
+Bobby
 
-I don't think the PCI Hotplug core needs to change today to support
-these kinds of devices based on the hardware I have seen.  I have spoken
-to some people from other companies, and they also agree with me.  But
-if you have some different kind of hardware that really needs this, I'm
-open to ideas.
+----- Original Message ----- 
+From: "James Simmons" <jsimmons@infradead.org>
+To: "Bobby Hitt" <Bob.Hitt@bscnet.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Sent: Friday, April 23, 2004 12:56 PM
+Subject: Re: Graphics Mode Woes
 
-> However, a board that contains CPU, memory and/or I/O devices still
-> doesn't have a directory in sysfs to represent dependencies...
 
-Why would it need to?
+>
+> That is because the native driver takes priority over the vesafb driver.
+> Disable the native driver if you don't want ot use it.
+>
+>
+> On Thu, 22 Apr 2004, Bobby Hitt wrote:
+>
+> > Hello,
+> >
+> > I'm attempting to get linux 2.6.5 to go into 1024x768x64k mode with my
+> > NVidia GEForce card. Under 2.4.25, it works fine with "vga=791" in my
+> > lilo.conf file. Here's what's in the log:
+> >
+> > Apr 22 17:19:09 gateway kernel: vesafb: framebuffer at 0xf0000000,
+mapped to
+> > 0xe080d000, size 3072k
+> > Apr 22 17:19:09 gateway kernel: vesafb: mode is 1024x768x16,
+> > linelength=2048, pages=0
+> > Apr 22 17:19:09 gateway kernel: vesafb: protected mode interface info at
+> > c000:c590
+> > Apr 22 17:19:09 gateway kernel: vesafb: scrolling: redraw
+> > Apr 22 17:19:09 gateway kernel: vesafb: directcolor: size=0:5:6:5,
+> > shift=0:11:5:0
+> > Apr 22 17:19:09 gateway kernel: Console: switching to colour frame
+buffer
+> > device 128x48
+> > Apr 22 17:19:09 gateway kernel: fb0: VESA VGA frame buffer device
+> >
+> > Under 2.6.5:
+> >
+> > Apr 22 17:57:58 gateway kernel: rivafb: nVidia device/chipset 10DE0110
+> > Apr 22 17:57:58 gateway kernel: rivafb: Detected CRTC controller 0 being
+> > used
+> > Apr 22 17:57:58 gateway kernel: rivafb: RIVA MTRR set to ON
+> > Apr 22 17:57:58 gateway kernel: rivafb: PCI nVidia NV10 framebuffer ver
+> > 0.9.5b (nVidiaGeForce2-M, 32MB @ 0xF0000000)
+> > Apr 22 17:57:58 gateway kernel: vga16fb: initializing
+> > Apr 22 17:57:58 gateway kernel: vga16fb: mapped to 0xc00a0000
+> > Apr 22 17:57:58 gateway kernel: fb1: VGA16 VGA frame buffer device
+> >
+> > Totally different output and no references to vesafb. With "vga=791" on
+> > bootup the screen goes blank then switches to the normal graphics mode.
+Even
+> > when I use "vga=ask" and I put in a valid number, the screen switches to
+> > text mode momentarily then goes back to the normal graphics mode.
+> >
+> > Here's the related portion of my .config file:
+> >
+> >  #
+> > # Graphics support
+> > #
+> > CONFIG_FB=y
+> > # CONFIG_FB_PM2 is not set
+> > # CONFIG_FB_CYBER2000 is not set
+> > # CONFIG_FB_IMSTT is not set
+> > CONFIG_FB_VGA16=y
+> > CONFIG_FB_VESA=y
+> > CONFIG_VIDEO_SELECT=y
+> > # CONFIG_FB_HGA is not set
+> > CONFIG_FB_RIVA=y
+> > # CONFIG_FB_I810 is not set
+> > # CONFIG_FB_MATROX is not set
+> > # CONFIG_FB_RADEON_OLD is not set
+> > # CONFIG_FB_RADEON is not set
+> > # CONFIG_FB_ATY128 is not set
+> > # CONFIG_FB_ATY is not set
+> > # CONFIG_FB_SIS is not set
+> > # CONFIG_FB_NEOMAGIC is not set
+> > # CONFIG_FB_KYRO is not set
+> > # CONFIG_FB_3DFX is not set
+> > # CONFIG_FB_VOODOO1 is not set
+> > # CONFIG_FB_TRIDENT is not set
+> > # CONFIG_FB_VIRTUAL is not set
+> >
+> > #
+> > # Console display driver support
+> > #
+> > CONFIG_VGA_CONSOLE=y
+> > # CONFIG_MDA_CONSOLE is not set
+> > CONFIG_DUMMY_CONSOLE=y
+> > CONFIG_FRAMEBUFFER_CONSOLE=y
+> > CONFIG_PCI_CONSOLE=y
+> > CONFIG_FONTS=y
+> > CONFIG_FONT_8x8=y
+> > CONFIG_FONT_8x16=y
+> > # CONFIG_FONT_6x11 is not set
+> > CONFIG_FONT_PEARL_8x8=y
+> > CONFIG_FONT_ACORN_8x8=y
+> > # CONFIG_FONT_MINI_4x6 is not set
+> > # CONFIG_FONT_SUN8x16 is not set
+> > # CONFIG_FONT_SUN12x22 is not set
+> >
+> > #
+> > # Logo configuration
+> > #
+> > CONFIG_LOGO=y
+> > CONFIG_LOGO_LINUX_MONO=y
+> > CONFIG_LOGO_LINUX_VGA16=y
+> > CONFIG_LOGO_LINUX_CLUT224=y
+> >
+> > Any help or suggestions are appreciated,
+> >
+> > Bobby
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
 
-Right now you can determine the CPU that a pci bus is attached to
-through sysfs.  As for the CPU and memory depiction, talk to the NUMA
-developers.  They have been trying for years now to come up with a way
-to do this in a portable and proper manner, and so far have failed :(
-
-> 
-> That's right.  /sys/devices/hotplug/ACPI/ tree becomes hard-wired one.  I was
-> thinking to define the board by using ACPI (as a "generic container device" in
-> ACPI namespace).  Therefore, if there is the new tree I proposed in the kernel,
-> it would be easy to represent the hierarchy, and a directory for the board
-> appears in the new tree.  So I thought that we could put an control file to
-> invoke the board hotplug and an information file under the directory.
-> (Actually, I've made a rough patch for the new tree and it seems to work fine:)
-
-Patches are better seen than spoken about in the abstract :)  Please
-post them if you have them...
-
-> I also thought that interface for hotplug could be unified so that it would become
-> easier for user to use.
-
-But the user doesn't care about ACPI.  Actually they want nothing to do
-with ACPI namespaces :)  They just want to be able to add and remove
-their different devices, be them memory, cpus, or pci slots, right?
-
-I'd point you to the recent ACPI sysfs patches on linux-kernel for more
-information on what people are trying to do in that area.
-
-> However, it's a hard-wired way and the current sysfs trees work fine for all of
-> devices as you mentioned.  Now I have just one thing necessary to sysfs.
-> That's a directory and files for the board.  Should I abstract the "board" and
-> introduce a new directory for board under /sys/devices/system/, like NUMA
-> node directory? (e.g. /sys/devices/system/board/)  The control file, the
-> information file, and etc could be created under the directory, like
-> /sys/devices/hotplug/board/board0/eject.  If it's possible, there might be less
-> impact to the kernel.  I'd appreciate it if you would comment on this :)
-
-But writing to that "eject" file would not be able to go and turn off
-the different CPU's, memory sticks, and pci slots, right?  That still
-needs to be done from userspace.
-
-thanks,
-
-greg k-h

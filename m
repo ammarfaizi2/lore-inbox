@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267981AbUBRTt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 14:49:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267985AbUBRTt4
+	id S267824AbUBRSoF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 13:44:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267829AbUBRSoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 14:49:56 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:33679 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S267981AbUBRTtz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 14:49:55 -0500
-Message-ID: <003601c3f658$5b46afe0$0e25fe96@pysiak>
-From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
-To: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org> <yw1xad3gd7l5.fsf@ford.guide><200402181417.06553.ianh@iahastie.local.net> <yw1x1xoscvl8.fsf@ford.guide> <002f01c3f632$29783f90$0e25fe96@pysiak> <Pine.LNX.4.58.0402181342030.670@pervalidus.dyndns.org> <1077130933.31049.11.camel@telecentrolivre> <Pine.LNX.4.58.0402181612140.670@pervalidus.dyndns.org> <1077132367.30936.16.camel@telecentrolivre>
-Subject: Re: [REALLY STUPID] Re: Linux 2.6.3
-Date: Wed, 18 Feb 2004 20:49:44 +0100
+	Wed, 18 Feb 2004 13:44:05 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:11203 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S267824AbUBRSoD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 13:44:03 -0500
+Message-ID: <4033B262.6060402@nortelnetworks.com>
+Date: Wed, 18 Feb 2004 13:43:46 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+To: Ulrich Keil <ulrich@der-keiler.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New do_mremap vulnerabitily.
+References: <20040218170827.GA93278@mail.der-keiler.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Spam-Rating: 0 1.6.2 0/1000/N
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Actually, there is license problems with that.
-I bet some authors would agree to grant freely the licence to have the image
-of their long forgotten creations distributed in the logo of a non-profit
-project which is Linux.
+Ulrich Keil wrote:
+> There was also a Proof-of-concept exploit released:
+> 
+> http://www.derkeiler.com/Mailing-Lists/Securiteam/2004-02/0052.html
 
-btw. I am preparing a web page on the proposals, stay tuned.
+Its a bit confusing.  They talk about multiple instances of do_munmap() 
+with unchecked return codes.  I can only find one, in move_vma().
 
-Regards,
-Maciej
+Chris
+
+
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

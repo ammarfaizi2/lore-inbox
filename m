@@ -1,156 +1,324 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317385AbSGOIV4>; Mon, 15 Jul 2002 04:21:56 -0400
+	id <S317387AbSGOI2W>; Mon, 15 Jul 2002 04:28:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317386AbSGOIVz>; Mon, 15 Jul 2002 04:21:55 -0400
-Received: from cs180154.pp.htv.fi ([213.243.180.154]:32640 "EHLO
-	devil.pp.htv.fi") by vger.kernel.org with ESMTP id <S317385AbSGOIVu>;
-	Mon, 15 Jul 2002 04:21:50 -0400
-Message-ID: <3D3286CA.7070004@welho.com>
-Date: Mon, 15 Jul 2002 11:24:42 +0300
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
-Reply-To: Mika.Liljeberg@welho.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Fwd: kernel BUG at page_alloc.c:207!]
-Content-Type: multipart/mixed;
- boundary="------------010409020603010709020800"
+	id <S317389AbSGOI2V>; Mon, 15 Jul 2002 04:28:21 -0400
+Received: from mortar.viawest.net ([216.87.64.7]:18101 "EHLO
+	mortar.viawest.net") by vger.kernel.org with ESMTP
+	id <S317387AbSGOI2R>; Mon, 15 Jul 2002 04:28:17 -0400
+Date: Mon, 15 Jul 2002 01:30:57 -0700
+From: A Guy Called Tyketto <tyketto@wizard.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbd not functioning in 2.5.25-dj2
+Message-ID: <20020715083057.GA1042@wizard.com>
+References: <20020713073717.GA9203@wizard.com> <1026547292.1224.132.camel@psuedomode> <1026549957.1224.136.camel@psuedomode> <20020713110619.A28835@ucw.cz> <20020713214801.GA276@wizard.com> <20020714100509.B25887@ucw.cz> <20020714101854.GA1068@wizard.com> <20020714140153.A26469@ucw.cz> <20020714213033.GA1030@wizard.com> <20020715050000.A32268@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020715050000.A32268@ucw.cz>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux/2.5.25 (i686)
+X-uptime: 1:25am  up 3 min,  2 users,  load average: 0.18, 0.16, 0.06
+X-RSA-KeyID: 0xE9DF4D85
+X-DSA-KeyID: 0xE319F0BF
+X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010409020603010709020800
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, Jul 15, 2002 at 05:00:00AM +0200, Vojtech Pavlik wrote:
+> > > A keyboard must support the 0xf5 command ('reset').
+> > > 
+> > > So, the error response might be coming either from the mouse, or the
+> > > controller, and somehow gets passed to the keyboard (they unfortunately
+> > > share the same registers), or the response somes from the mouse driver
+> > > first trying to probe for a mouse on the port.
+> > > 
+> > > So, please #define I8042_DEBUG_IO in drivers/input/serio/i8042.h as
+> > > well, and try again. Then we'll know more.
+> > > 
+> > 
+> >         Just gave that a go.. no change in the dmesg output. Nothing written 
+> > out to stdout or anything via syslogd/klogd. See above for that output.
+> 
+> Are you sure you didn't leave the #undef in that file?
 
-[ And the same thing in ISO-8859-1 encoding... :-| ]
+        Sorry about that.. I defined before the #undef. made the change and 
+recompiled. dmesg is below:
 
-I caught two instances of the above BUG() in rmque() after [decoded
-oopses attached]. The kernel is 2.4.17, untainted but with a few patches
-(low-latency, o1, elevator, lkcd). I've got a full kernel crash dump
-from the second instance in case it is needed.
+block: 256 slots per queue, batch=32
+ATA/ATAPI device driver v7.0.0
+ATA: PCI bus speed 33.3MHz
+ATA: VIA Technologies, Inc. Bus Master IDE, PCI slot 00:07.1
+ATA: chipset rev.: 6
+ATA: non-legacy mode: IRQ probe delayed
+VP_IDE: VIA vt82c686b (rev 40) ATA UDMA100 controller on PCI 00:07.1
+    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:pio
+hda: Maxtor 91531U3, DISK drive
+hdb: WDC WD200AB-00BVA0, DISK drive
+hdc: CD-W54E, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+ hda: 30015216 sectors w/512KiB Cache, CHS=29777/16/63, UDMA(66)
+ /dev/ide/host0/bus0/target0/lun0: [PTBL] [1868/255/63] p1 p2 p3 p4 < p5 p6 p7 p8 >
+ hdb: 39102336 sectors w/2048KiB Cache, CHS=38792/16/63, UDMA(100)
+ /dev/ide/host0/bus0/target1/lun0: [PTBL] [2434/255/63] p1 p2 p3 p4 < p5 p6 p7 p8 p9 p10 p11 >
+mice: PS/2 mouse device common for all mice
+i8042.c: 20 -> i8042 (command) [0]
+i8042.c: 47 <- i8042 (return) [0]
+i8042.c: 60 -> i8042 (command) [0]
+i8042.c: 56 -> i8042 (parameter) [0]
+i8042.c: 60 -> i8042 (command) [0]
+i8042.c: 47 -> i8042 (parameter) [0]
+i8042.c: f6 -> i8042 (kbd-data) [0]
+i8042.c: fa <- i8042 (interrupt-kbd) [3]
+i8042.c: f2 -> i8042 (kbd-data) [3]
+i8042.c: fa <- i8042 (interrupt-kbd) [6]
+i8042.c: ab <- i8042 (interrupt-kbd) [7]
+i8042.c: 60 -> i8042 (command) [7]
+i8042.c: 56 -> i8042 (parameter) [7]
+i8042.c: 60 -> i8042 (command) [7]
+i8042.c: 47 -> i8042 (parameter) [7]
+atkbd.c: Sent: f5
+i8042.c: f5 -> i8042 (kbd-data) [7]
+i8042.c: 60 -> i8042 (command) [17]
+i8042.c: 56 -> i8042 (parameter) [17]
+i8042.c: fe <- i8042 (interrupt-kbd) [18]
+atkbd.c: Received fe
+serio: i8042 KBD port at 0x60,0x64 irq 1
+i8042.c: d3 -> i8042 (command) [20]
+i8042.c: 5a -> i8042 (parameter) [20]
+i8042.c: a5 <- i8042 (return) [20]
+i8042.c: a9 -> i8042 (command) [20]
+i8042.c: 00 <- i8042 (return) [20]
+i8042.c: a7 -> i8042 (command) [20]
+i8042.c: 20 -> i8042 (command) [20]
+i8042.c: 76 <- i8042 (return) [20]
+i8042.c: a9 -> i8042 (command) [20]
+i8042.c: 00 <- i8042 (return) [20]
+i8042.c: a8 -> i8042 (command) [20]
+i8042.c: 20 -> i8042 (command) [20]
+i8042.c: 56 <- i8042 (return) [20]
+i8042.c: 60 -> i8042 (command) [20]
+i8042.c: 74 -> i8042 (parameter) [20]
+i8042.c: 60 -> i8042 (command) [20]
+i8042.c: 56 -> i8042 (parameter) [20]
+i8042.c: d4 -> i8042 (command) [20]
+i8042.c: f6 -> i8042 (parameter) [20]
+i8042.c: 60 -> i8042 (command) [20]
+i8042.c: 56 -> i8042 (parameter) [20]
+i8042.c: fa <- i8042 (interrupt-aux) [21]
+i8042.c: d4 -> i8042 (command) [21]
+i8042.c: f2 -> i8042 (parameter) [21]
+i8042.c: 60 -> i8042 (command) [21]
+i8042.c: 56 -> i8042 (parameter) [21]
+i8042.c: fa <- i8042 (interrupt-aux) [22]
+i8042.c: 00 <- i8042 (interrupt-aux) [23]
+i8042.c: d4 -> i8042 (command) [23]
+i8042.c: e8 -> i8042 (parameter) [23]
+i8042.c: 60 -> i8042 (command) [23]
+i8042.c: 56 -> i8042 (parameter) [23]
+i8042.c: fa <- i8042 (interrupt-aux) [24]
+i8042.c: d4 -> i8042 (command) [24]
+i8042.c: 03 -> i8042 (parameter) [24]
+i8042.c: 60 -> i8042 (command) [24]
+i8042.c: 56 -> i8042 (parameter) [24]
+i8042.c: fa <- i8042 (interrupt-aux) [25]
+i8042.c: d4 -> i8042 (command) [26]
+i8042.c: e6 -> i8042 (parameter) [26]
+i8042.c: 60 -> i8042 (command) [26]
+i8042.c: 56 -> i8042 (parameter) [26]
+i8042.c: fa <- i8042 (interrupt-aux) [27]
+i8042.c: d4 -> i8042 (command) [27]
+i8042.c: e6 -> i8042 (parameter) [27]
+i8042.c: 60 -> i8042 (command) [27]
+i8042.c: 56 -> i8042 (parameter) [27]
+i8042.c: fa <- i8042 (interrupt-aux) [28]
+i8042.c: d4 -> i8042 (command) [28]
+i8042.c: e6 -> i8042 (parameter) [28]
+i8042.c: 60 -> i8042 (command) [28]
+i8042.c: 56 -> i8042 (parameter) [28]
+i8042.c: fa <- i8042 (interrupt-aux) [29]
+i8042.c: d4 -> i8042 (command) [29]
+i8042.c: e9 -> i8042 (parameter) [29]
+i8042.c: 60 -> i8042 (command) [29]
+i8042.c: 56 -> i8042 (parameter) [29]
+i8042.c: fa <- i8042 (interrupt-aux) [30]
+i8042.c: 00 <- i8042 (interrupt-aux) [31]
+i8042.c: 03 <- i8042 (interrupt-aux) [32]
+i8042.c: 64 <- i8042 (interrupt-aux) [33]
+i8042.c: d4 -> i8042 (command) [33]
+i8042.c: e8 -> i8042 (parameter) [33]
+i8042.c: 60 -> i8042 (command) [33]
+i8042.c: 56 -> i8042 (parameter) [33]
+i8042.c: fa <- i8042 (interrupt-aux) [34]
+i8042.c: d4 -> i8042 (command) [34]
+i8042.c: 00 -> i8042 (parameter) [34]
+i8042.c: 60 -> i8042 (command) [34]
+i8042.c: 56 -> i8042 (parameter) [34]
+i8042.c: fa <- i8042 (interrupt-aux) [35]
+i8042.c: d4 -> i8042 (command) [35]
+i8042.c: e6 -> i8042 (parameter) [35]
+i8042.c: 60 -> i8042 (command) [35]
+i8042.c: 56 -> i8042 (parameter) [35]
+i8042.c: fa <- i8042 (interrupt-aux) [36]
+i8042.c: d4 -> i8042 (command) [36]
+i8042.c: e6 -> i8042 (parameter) [36]
+i8042.c: 60 -> i8042 (command) [36]
+i8042.c: 56 -> i8042 (parameter) [36]
+i8042.c: fa <- i8042 (interrupt-aux) [37]
+i8042.c: d4 -> i8042 (command) [37]
+i8042.c: e6 -> i8042 (parameter) [37]
+i8042.c: 60 -> i8042 (command) [37]
+i8042.c: 56 -> i8042 (parameter) [37]
+i8042.c: fa <- i8042 (interrupt-aux) [38]
+i8042.c: d4 -> i8042 (command) [38]
+i8042.c: e9 -> i8042 (parameter) [38]
+i8042.c: 60 -> i8042 (command) [38]
+i8042.c: 56 -> i8042 (parameter) [38]
+i8042.c: fa <- i8042 (interrupt-aux) [39]
+i8042.c: 00 <- i8042 (interrupt-aux) [40]
+i8042.c: 00 <- i8042 (interrupt-aux) [41]
+i8042.c: 64 <- i8042 (interrupt-aux) [42]
+i8042.c: d4 -> i8042 (command) [42]
+i8042.c: f3 -> i8042 (parameter) [42]
+i8042.c: 60 -> i8042 (command) [42]
+i8042.c: 56 -> i8042 (parameter) [42]
+i8042.c: fa <- i8042 (interrupt-aux) [43]
+i8042.c: d4 -> i8042 (command) [43]
+i8042.c: c8 -> i8042 (parameter) [43]
+i8042.c: 60 -> i8042 (command) [43]
+i8042.c: 56 -> i8042 (parameter) [43]
+i8042.c: fa <- i8042 (interrupt-aux) [44]
+i8042.c: d4 -> i8042 (command) [44]
+i8042.c: f3 -> i8042 (parameter) [44]
+i8042.c: 60 -> i8042 (command) [44]
+i8042.c: 56 -> i8042 (parameter) [44]
+i8042.c: fa <- i8042 (interrupt-aux) [45]
+i8042.c: d4 -> i8042 (command) [45]
+i8042.c: 64 -> i8042 (parameter) [45]
+i8042.c: 60 -> i8042 (command) [45]
+i8042.c: 56 -> i8042 (parameter) [45]
+i8042.c: fa <- i8042 (interrupt-aux) [46]
+i8042.c: d4 -> i8042 (command) [46]
+i8042.c: f3 -> i8042 (parameter) [46]
+i8042.c: 60 -> i8042 (command) [46]
+i8042.c: 56 -> i8042 (parameter) [46]
+i8042.c: fa <- i8042 (interrupt-aux) [47]
+i8042.c: d4 -> i8042 (command) [47]
+i8042.c: 50 -> i8042 (parameter) [47]
+i8042.c: 60 -> i8042 (command) [47]
+i8042.c: 56 -> i8042 (parameter) [47]
+i8042.c: fa <- i8042 (interrupt-aux) [48]
+i8042.c: d4 -> i8042 (command) [48]
+i8042.c: f2 -> i8042 (parameter) [48]
+i8042.c: 60 -> i8042 (command) [48]
+i8042.c: 56 -> i8042 (parameter) [48]
+i8042.c: fa <- i8042 (interrupt-aux) [49]
+i8042.c: 03 <- i8042 (interrupt-aux) [50]
+i8042.c: d4 -> i8042 (command) [50]
+i8042.c: f3 -> i8042 (parameter) [50]
+i8042.c: 60 -> i8042 (command) [50]
+i8042.c: 56 -> i8042 (parameter) [50]
+i8042.c: fa <- i8042 (interrupt-aux) [51]
+i8042.c: d4 -> i8042 (command) [51]
+i8042.c: c8 -> i8042 (parameter) [51]
+i8042.c: 60 -> i8042 (command) [51]
+i8042.c: 56 -> i8042 (parameter) [51]
+i8042.c: fa <- i8042 (interrupt-aux) [52]
+i8042.c: d4 -> i8042 (command) [52]
+i8042.c: f3 -> i8042 (parameter) [52]
+i8042.c: 60 -> i8042 (command) [52]
+i8042.c: 56 -> i8042 (parameter) [52]
+i8042.c: fa <- i8042 (interrupt-aux) [53]
+i8042.c: d4 -> i8042 (command) [53]
+i8042.c: c8 -> i8042 (parameter) [53]
+i8042.c: 60 -> i8042 (command) [53]
+i8042.c: 56 -> i8042 (parameter) [53]
+i8042.c: fa <- i8042 (interrupt-aux) [54]
+i8042.c: d4 -> i8042 (command) [54]
+i8042.c: f3 -> i8042 (parameter) [54]
+i8042.c: 60 -> i8042 (command) [54]
+i8042.c: 56 -> i8042 (parameter) [54]
+i8042.c: fa <- i8042 (interrupt-aux) [55]
+i8042.c: d4 -> i8042 (command) [55]
+i8042.c: 50 -> i8042 (parameter) [55]
+i8042.c: 60 -> i8042 (command) [55]
+i8042.c: 56 -> i8042 (parameter) [55]
+i8042.c: fa <- i8042 (interrupt-aux) [56]
+i8042.c: d4 -> i8042 (command) [56]
+i8042.c: f2 -> i8042 (parameter) [56]
+i8042.c: 60 -> i8042 (command) [56]
+i8042.c: 56 -> i8042 (parameter) [56]
+i8042.c: fa <- i8042 (interrupt-aux) [57]
+i8042.c: 03 <- i8042 (interrupt-aux) [58]
+input: ImPS/2 Microsoft IntelliMouse on isa0060/serio1
+i8042.c: d4 -> i8042 (command) [60]
+i8042.c: f3 -> i8042 (parameter) [60]
+i8042.c: 60 -> i8042 (command) [60]
+i8042.c: 56 -> i8042 (parameter) [60]
+i8042.c: fa <- i8042 (interrupt-aux) [61]
+i8042.c: d4 -> i8042 (command) [61]
+i8042.c: 64 -> i8042 (parameter) [61]
+i8042.c: 60 -> i8042 (command) [61]
+i8042.c: 56 -> i8042 (parameter) [61]
+i8042.c: fa <- i8042 (interrupt-aux) [62]
+i8042.c: d4 -> i8042 (command) [62]
+i8042.c: f3 -> i8042 (parameter) [62]
+i8042.c: 60 -> i8042 (command) [62]
+i8042.c: 56 -> i8042 (parameter) [62]
+i8042.c: fa <- i8042 (interrupt-aux) [63]
+i8042.c: d4 -> i8042 (command) [63]
+i8042.c: c8 -> i8042 (parameter) [63]
+i8042.c: 60 -> i8042 (command) [63]
+i8042.c: 56 -> i8042 (parameter) [63]
+i8042.c: fa <- i8042 (interrupt-aux) [64]
+i8042.c: d4 -> i8042 (command) [64]
+i8042.c: e8 -> i8042 (parameter) [64]
+i8042.c: 60 -> i8042 (command) [64]
+i8042.c: 56 -> i8042 (parameter) [64]
+i8042.c: fa <- i8042 (interrupt-aux) [65]
+i8042.c: d4 -> i8042 (command) [65]
+i8042.c: 03 -> i8042 (parameter) [65]
+i8042.c: 60 -> i8042 (command) [65]
+i8042.c: 56 -> i8042 (parameter) [65]
+i8042.c: fa <- i8042 (interrupt-aux) [66]
+i8042.c: d4 -> i8042 (command) [67]
+i8042.c: e6 -> i8042 (parameter) [67]
+i8042.c: 60 -> i8042 (command) [67]
+i8042.c: 56 -> i8042 (parameter) [67]
+i8042.c: fa <- i8042 (interrupt-aux) [68]
+i8042.c: d4 -> i8042 (command) [68]
+i8042.c: ea -> i8042 (parameter) [68]
+i8042.c: 60 -> i8042 (command) [68]
+i8042.c: 56 -> i8042 (parameter) [68]
+i8042.c: fa <- i8042 (interrupt-aux) [69]
+i8042.c: d4 -> i8042 (command) [69]
+i8042.c: f4 -> i8042 (parameter) [69]
+i8042.c: 60 -> i8042 (command) [69]
+i8042.c: 56 -> i8042 (parameter) [69]
+i8042.c: fa <- i8042 (interrupt-aux) [70]
+serio: i8042 AUX port at 0x60,0x64 irq 12
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP
+IP: routing cache hash table of 4096 buckets, 32Kbytes
+TCP: Hash tables configured (established 32768 bind 32768)
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.17, 10 Jan 2002 on ide0(3,1), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+Mounted devfs on /dev
+Freeing unused kernel memory: 244k freed
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
 
-I'm currently running 2.4.18 and just the lkcd patch in order to see if
-the problem recurs.
 
-	MikaL
+        There ya go.
 
-
---------------010409020603010709020800
-Content-Type: text/plain;
- name="crash.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="crash.txt"
-
-ksymoops 2.4.5 on i686 2.4.17o1-ll-elv-lkcd.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.17o1-ll-elv-lkcd/ (default)
-     -m /boot/System.map-2.4.17o1-ll-elv-lkcd (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-No modules in ksyms, skipping objects
-Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod file?
-Jul 14 20:50:46 devil kernel: kernel BUG at page_alloc.c:207!
-Jul 14 20:50:46 devil kernel: invalid operand: 0000
-Jul 14 20:50:46 devil kernel: CPU:    0
-Jul 14 20:50:47 devil kernel: EIP:    0010:[rmqueue+642/788]    Not tainted
-Jul 14 20:50:47 devil kernel: EFLAGS: 00013286
-Jul 14 20:50:47 devil kernel: eax: 00000020   ebx: 00000000   ecx: 0111b4b3   edx: 00005c45
-Jul 14 20:50:47 devil kernel: esi: c0333328   edi: c13d0204   ebp: 00000000   esp: d66b3e3c
-Jul 14 20:50:47 devil kernel: ds: 0018   es: 0018   ss: 0018
-Jul 14 20:50:47 devil kernel: Process XFree86 (pid: 441, stackpage=d66b3000)
-Jul 14 20:50:47 devil kernel: Stack: c02cba2b 000000cf c0333488 000001ff d7d96210 00000000 0000d5ad 00003282 
-Jul 14 20:50:47 devil kernel:        c0333334 00000000 c033330c c013908f 000001d2 4357b000 d7d96210 d7d96210 
-Jul 14 20:50:47 devil kernel:        c033330c c0333484 000001d2 ffffffef c0138e0e 00104000 c012c233 4357b000 
-Jul 14 20:50:47 devil kernel: Call Trace: [__alloc_pages+51/356] [_alloc_pages+22/24] [do_anonymous_page+131/444] [do_no_page+54/584] [handle_mm_fault+157/408] 
-Jul 14 20:50:48 devil kernel: Code: 0f 0b 83 c4 08 90 8d 74 26 00 8b 47 18 a8 80 74 19 68 d1 00 
-Using defaults from ksymoops -t elf32-i386 -a i386
-
-
->>ecx; 0111b4b3 Before first symbol
->>edx; 00005c45 Before first symbol
->>esi; c0333328 <contig_page_data+c8/340>
->>edi; c13d0204 <END_OF_CODE+fa7f00/????>
->>esp; d66b3e3c <END_OF_CODE+1628bb38/????>
-
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   0f 0b                     ud2a   
-Code;  00000002 Before first symbol
-   2:   83 c4 08                  add    $0x8,%esp
-Code;  00000005 Before first symbol
-   5:   90                        nop    
-Code;  00000006 Before first symbol
-   6:   8d 74 26 00               lea    0x0(%esi,1),%esi
-Code;  0000000a Before first symbol
-   a:   8b 47 18                  mov    0x18(%edi),%eax
-Code;  0000000d Before first symbol
-   d:   a8 80                     test   $0x80,%al
-Code;  0000000f Before first symbol
-   f:   74 19                     je     2a <_EIP+0x2a> 0000002a Before first symbol
-Code;  00000011 Before first symbol
-  11:   68 d1 00 00 00            push   $0xd1
-
-Jul 14 20:53:09 devil kernel: kernel BUG at page_alloc.c:207!
-Jul 14 20:53:09 devil kernel: invalid operand: 0000
-Jul 14 20:53:09 devil kernel: CPU:    0
-Jul 14 20:53:09 devil kernel: EIP:    0010:[rmqueue+642/788]    Not tainted
-Jul 14 20:53:09 devil kernel: EFLAGS: 00013286
-Jul 14 20:53:09 devil kernel: eax: 00000020   ebx: 00000000   ecx: 0111b4b3   edx: 000066c8
-Jul 14 20:53:09 devil kernel: esi: c0333328   edi: c13d01c0   ebp: 00000000   esp: c2d67e3c
-Jul 14 20:53:09 devil kernel: ds: 0018   es: 0018   ss: 0018
-Jul 14 20:53:09 devil kernel: Process XFree86 (pid: 11493, stackpage=c2d67000)
-Jul 14 20:53:09 devil kernel: Stack: c02cba2b 000000cf c0333488 000001ff d7d96a30 00000000 0000d5ac 00003282 
-Jul 14 20:53:09 devil kernel:        c0333328 00000000 c033330c c013908f 000001d2 41c14000 d7d96a30 d7d96a30 
-Jul 14 20:53:09 devil kernel:        c033330c c0333484 000001d2 000152ce c0138e0e 00104000 c012c233 41c14000 
-Jul 14 20:53:09 devil kernel: Call Trace: [__alloc_pages+51/356] [_alloc_pages+22/24] [do_anonymous_page+131/444] [do_no_page+54/584] [handle_mm_fault+157/408] 
-Jul 14 20:53:10 devil kernel: Code: 0f 0b 83 c4 08 90 8d 74 26 00 8b 47 18 a8 80 74 19 68 d1 00 
-
-
->>ecx; 0111b4b3 Before first symbol
->>edx; 000066c8 Before first symbol
->>esi; c0333328 <contig_page_data+c8/340>
->>edi; c13d01c0 <END_OF_CODE+fa7ebc/????>
->>esp; c2d67e3c <END_OF_CODE+293fb38/????>
-
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   0f 0b                     ud2a   
-Code;  00000002 Before first symbol
-   2:   83 c4 08                  add    $0x8,%esp
-Code;  00000005 Before first symbol
-   5:   90                        nop    
-Code;  00000006 Before first symbol
-   6:   8d 74 26 00               lea    0x0(%esi,1),%esi
-Code;  0000000a Before first symbol
-   a:   8b 47 18                  mov    0x18(%edi),%eax
-Code;  0000000d Before first symbol
-   d:   a8 80                     test   $0x80,%al
-Code;  0000000f Before first symbol
-   f:   74 19                     je     2a <_EIP+0x2a> 0000002a Before first symbol
-Code;  00000011 Before first symbol
-  11:   68 d1 00 00 00            push   $0xd1
-
-Jul 14 20:54:49 devil kernel: Kernel command line: BOOT_IMAGE=New ro root=307 video=matrox:sgram,vesa:261,maxclk:210,fh:100000,fv:85,fastfont:65536 parport=auto ide0=autotune ide1=autotune hdb=scsi apm=power-off,smp-power-off,debug acpi=on devfs=nomount nmi_watchdog=1
-Jul 14 20:54:49 devil kernel: activating NMI Watchdog ... done.
-Jul 14 20:54:49 devil kernel: testing NMI watchdog ... OK.
-Jul 14 20:54:49 devil kernel: cpu: 0, clocks: 997387, slice: 332462
-Jul 14 20:54:49 devil kernel: cpu: 1, clocks: 997387, slice: 332462
-
-2 warnings issued.  Results may not be reliable.
-
---------------010409020603010709020800--
+                                                        BL.
+-- 
+Brad Littlejohn                         | Email:        tyketto@wizard.com
+Unix Systems Administrator,             |           tyketto@ozemail.com.au
+Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
+  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
 

@@ -1,33 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132732AbRD1E5O>; Sat, 28 Apr 2001 00:57:14 -0400
+	id <S132738AbRD1E6q>; Sat, 28 Apr 2001 00:58:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132738AbRD1E5F>; Sat, 28 Apr 2001 00:57:05 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:39946 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S132732AbRD1E4w>;
-	Sat, 28 Apr 2001 00:56:52 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200104280455.f3S4tQ8336512@saturn.cs.uml.edu>
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Sat, 28 Apr 2001 00:55:26 -0400 (EDT)
-Cc: vojtech@suse.cz (Vojtech Pavlik), viro@math.psu.edu (Alexander Viro),
-        andrea@suse.de (Andrea Arcangeli), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0104270951270.2067-100000@penguin.transmeta.com> from "Linus Torvalds" at Apr 27, 2001 09:52:19 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S132744AbRD1E6g>; Sat, 28 Apr 2001 00:58:36 -0400
+Received: from www.wen-online.de ([212.223.88.39]:3847 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S132738AbRD1E6U>;
+	Sat, 28 Apr 2001 00:58:20 -0400
+Date: Sat, 28 Apr 2001 06:57:56 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Nigel Gamble <nigel@nrg.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: #define HZ 1024 -- negative effects?
+In-Reply-To: <Pine.LNX.4.05.10104271609400.3283-100000@cosmic.nrg.org>
+Message-ID: <Pine.LNX.4.33.0104280646140.430-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
+On Fri, 27 Apr 2001, Nigel Gamble wrote:
 
-> The buffer cache is "virtual" in the sense that /dev/hda is a
-> completely separate name-space from /dev/hda1, even if there
-> is some physical overlap.
+> On Fri, 27 Apr 2001, Mike Galbraith wrote:
+> > On Fri, 27 Apr 2001, Nigel Gamble wrote:
+> > > > What about SCHED_YIELD and allocating during vm stress times?
+> >
+> > snip
+> >
+> > > A well-written GUI should not be using SCHED_YIELD.  If it is
+> >
+> > I was refering to the gui (or other tasks) allocating memory during
+> > vm stress periods, and running into the yield in __alloc_pages()..
+> > not a voluntary yield.
+>
+> Oh, I see.  Well, if this were causing the problem, then running the GUI
+> at a real-time priority would be a better solution than increasing the
+> clock frequency, since SCHED_YIELD has no effect on real-time tasks
+> unless there are other runnable real-time tasks at the same priority.
+> The call to schedule() would just reschedule the real-time GUI task
+> itself immediately.
+>
+> However, in times of vm stress it is more likely that GUI performance
+> problems would be caused by parts of the GUI having been paged out,
+> rather than by anything which could be helped by scheduling differences.
 
-So the aliasing problems and elevator algorithm confusion remain?
-Is this ever likely to change, and what is with the 1 kB assumptions?
-(Hmmm, cruft left over from the 1 kB Minix filesystem blocks?)
+Agreed.  I wasn't thinking about swapping, only kswapd not quite keeping
+up with laundering, and then user tasks having to pick up some of the
+load.  Anyway, I've been told that for most values of HZ the slice is
+50ms, so my reasoning wrt HZ/SCHED_YIELD was wrong.  (begs the question
+why do some archs use higher HZ values?)
+
+	-Mike
+

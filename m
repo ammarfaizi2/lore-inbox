@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292983AbSCFBk2>; Tue, 5 Mar 2002 20:40:28 -0500
+	id <S293002AbSCFBn2>; Tue, 5 Mar 2002 20:43:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292989AbSCFBkS>; Tue, 5 Mar 2002 20:40:18 -0500
-Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:43528
-	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S292983AbSCFBkI>; Tue, 5 Mar 2002 20:40:08 -0500
-Date: Wed, 6 Mar 2002 02:40:01 +0100
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-To: =?iso-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel panic
-Message-ID: <20020306024001.A9217@bouton.inet6-interne.fr>
-Mail-Followup-To: =?iso-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020305233141.3f438954.hanno@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020305233141.3f438954.hanno@gmx.de>; from hanno@gmx.de on Tue, Mar 05, 2002 at 11:31:41PM +0100
+	id <S293004AbSCFBnS>; Tue, 5 Mar 2002 20:43:18 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:25362 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S293002AbSCFBnI>; Tue, 5 Mar 2002 20:43:08 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores) 
+In-Reply-To: Your message of "Tue, 05 Mar 2002 14:39:53 -0800."
+             <Pine.LNX.4.44.0203051433400.1475-100000@blue1.dev.mcafeelabs.com> 
+Date: Wed, 06 Mar 2002 12:46:25 +1100
+Message-Id: <E16iQVe-0005ss-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 05, 2002 at 11:31:41PM +0100, Hanno Böck wrote:
-> I have a PC with an Athlon CPU, which has problems with newer kernel-versions. (see lspci-output below)
+In message <Pine.LNX.4.44.0203051433400.1475-100000@blue1.dev.mcafeelabs.com> y
+ou write:
+> On Tue, 5 Mar 2002, Rusty Russell wrote:
 > 
-> If I want to boot current Knoppix or Mandrake 8.2beta3 install cds (both based on kernel 2.4.17), it says:
+> > +	pos_in_page = ((unsigned long)uaddr) % PAGE_SIZE;
+> > +
+> > +	/* Must be "naturally" aligned, and not on page boundary. */
+> > +	if ((pos_in_page % __alignof__(atomic_t)) != 0
+> > +	    || pos_in_page + sizeof(atomic_t) > PAGE_SIZE)
+> > +		return -EINVAL;
 > 
-> Kernel panic: VFS: Unable to mount root fs on 03:05
+> How can this :
 > 
-> It worked fine with the older mandrake 8.1 with kernel 2.4.8.
+> 	(pos_in_page % __alignof__(atomic_t)) != 0
 > 
-> Any ideas? How can I help to fix this?
+> to be false, and together this :
 > 
+> 	pos_in_page + sizeof(atomic_t) > PAGE_SIZE
+> 
+> to be true ?
 
-Try passing ide=nodma during install and following reboot(s) then fetch a patch
-at:
-http://inet6.dyn.dhs.org/sponsoring/sis5513/index.html
-, apply, recompile, install.
+You're assuming that __alignof__(atomic_t) = N * sizeof(atomic_t),
+where N is an integer.
 
-SiS730 support should be OK with latest patches.
+If alignof == 1, and sizeof == 4, you lose.  I prefer to be
+future-proof.
 
-LB.
+This means I should clarify the comment...
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264562AbTLMLll (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 06:41:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264563AbTLMLll
+	id S264584AbTLML5j (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 06:57:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264947AbTLML5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 06:41:41 -0500
-Received: from purplechoc.demon.co.uk ([80.176.224.106]:8064 "EHLO
-	skeleton-jack.localnet") by vger.kernel.org with ESMTP
-	id S264562AbTLMLlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 06:41:40 -0500
-Date: Sat, 13 Dec 2003 11:41:34 +0000
-To: linux-mips@linux-mips.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Possible shared mapping bug in 2.4.23 (at least MIPS/Sparc)
-Message-ID: <20031213114134.GA9896@skeleton-jack>
-Mime-Version: 1.0
+	Sat, 13 Dec 2003 06:57:36 -0500
+Received: from web9505.mail.yahoo.com ([216.136.129.135]:28938 "HELO
+	web9505.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264584AbTLML5e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 06:57:34 -0500
+Message-ID: <20031213115733.79739.qmail@web9505.mail.yahoo.com>
+Date: Sat, 13 Dec 2003 03:57:33 -0800 (PST)
+From: neel vanan <neelvanan@yahoo.com>
+Subject: acpi related error.....
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20031206054720.GN8039@holomorphy.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Peter Horton <pdh@colonel-panic.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current MIPS 2.4 kernel (from CVS) currently allows fixed shared
-mappings to violate D-cache aliasing constraints.
+Hi list,
+Currently i am working on RedHat9.0 kernel 2.4.20-8, i
+am compiling kernel 2.6.0-test11 with NUMA and SMP
+enabled. I had selected summit though i am having
+non-summit box. When i am trying to make bzImage in
+the last i get this message:
+drivers/built-in.o(.init.text+0x30cf): In function
+`acpi_parse_slit':
+: undefined reference to `acpi_numa_slit_init'
+drivers/built-in.o(.init.text+0x30f0): In function
+`acpi_parse_processor_affinity':
+: undefined reference to
+`acpi_numa_processor_affinity_init'
+drivers/built-in.o(.init.text+0x3110): In function
+`acpi_parse_memory_affinity':
+: undefined reference to
+`acpi_numa_memory_affinity_init'
+drivers/built-in.o(.init.text+0x3199): In function
+`acpi_numa_init':
+: undefined reference to `acpi_numa_arch_fixup'
+make: *** [.tmp_vmlinux1] Error 1
+How can i compile this without commenting these lines.
 
-The check for illegal fixed mappings is done in
-arch_get_unmapped_area(), but these mappings are granted in
-get_unmapped_area() and arch_get_unmapped_area() is never called.
+Thanks.
 
-A quick look at sparc and sparc64 seem to show the same problem.
 
-P.
+__________________________________
+Do you Yahoo!?
+New Yahoo! Photos - easier uploading and sharing.
+http://photos.yahoo.com/

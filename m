@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317402AbSFIIKF>; Sun, 9 Jun 2002 04:10:05 -0400
+	id <S317572AbSFIIfe>; Sun, 9 Jun 2002 04:35:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317403AbSFIIKE>; Sun, 9 Jun 2002 04:10:04 -0400
-Received: from mta06ps.bigpond.com ([144.135.25.138]:49119 "EHLO
-	mta06ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S317402AbSFIIKD>; Sun, 9 Jun 2002 04:10:03 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Chris Faherty <rallymonkey@bellsouth.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Logitech Mouseman Dual Optical defaults to 400cpi
-Date: Sun, 9 Jun 2002 18:07:11 +1000
-User-Agent: KMail/1.4.5
-In-Reply-To: <20020608165243Z317422-22020+923@vger.kernel.org> <20020609002448Z317485-22020+1014@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S317577AbSFIIfd>; Sun, 9 Jun 2002 04:35:33 -0400
+Received: from pop017pub.verizon.net ([206.46.170.210]:45814 "EHLO
+	pop017.verizon.net") by vger.kernel.org with ESMTP
+	id <S317572AbSFIIfd>; Sun, 9 Jun 2002 04:35:33 -0400
+Date: Sun, 9 Jun 2002 04:40:26 -0400
+From: Skip Ford <skip.ford@verizon.net>
+To: Miles Lane <miles@megapathdsl.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.21 -- suspend.h:58: parse error before "__nosavedata"
+In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com> <1023606626.5775.1.camel@turbulence.megapathdsl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200206091807.11524.bhards@bigpond.net.au>
+User-Agent: Mutt/1.2.5.1i
+Message-Id: <20020609083529.GZZE10701.pop017.verizon.net@pool-141-150-239-239.delv.east.verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Jun 2002 10:25, Chris Faherty wrote:
-> On Saturday 08 June 2002 12:53 pm, Chris Faherty wrote:
-> > I can't find any information on how to switch it into 800cpi mode.
->
-> Well, I managed to figure it out today.  Sending the special code to the
-Was that using Snoopy?
+Miles Lane wrote:
+> gcc -Wp,-MD,.suspend.o.d -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -nostdinc -iwithprefix include    -DKBUILD_BASENAME=suspend -DEXPORT_SYMTAB  -c -o suspend.o suspend.c
+> In file included from suspend.c:40:
+> /usr/src/linux/include/linux/suspend.h:58: parse error before "__nosavedata"
+> /usr/src/linux/include/linux/suspend.h:58: warning: type defaults to `int' in declaration of `__nosavedata'
+> /usr/src/linux/include/linux/suspend.h:58: warning: data definition has no type or storage class
+> /usr/src/linux/include/linux/suspend.h:59: parse error before "__nosavedata"
+> /usr/src/linux/include/linux/suspend.h:59: warning: type defaults to `int' in declaration of `__nosavedata'
+> /usr/src/linux/include/linux/suspend.h:59: warning: data definition has no type or storage class
 
-> MouseMan Dual Optical turns it into 800cpi mode.. much better!  Anyhow, I
-> just put a test for this particular mouse in the hid_probe() and wrote the
-> codes to the mouse.  Not sure if that's the best place.
->
-> This is for 2.2.20:
-Any objections to me taking this to 2.4 and 2.5?
+Looks like suspend.h needs init.h
 
-> --- hid.c-orig  Sun Mar 25 11:37:37 2001
-> +++ hid.c       Sat Jun  8 17:55:02 2002
-> @@ -1523,6 +1523,19 @@
->
->         printk(" on usb%d:%d.%d\n", dev->bus->busnum, dev->devnum, ifnum);
->
-> +#define USB_VENDOR_ID_LOGITECH          0x046d
-> +#define USB_DEVICE_ID_LOGITECH_DOPTICAL 0xc012
-> +    if ((hid->dev->descriptor.idVendor == USB_VENDOR_ID_LOGITECH) &&
-> +        (hid->dev->descriptor.idProduct ==
-> USB_DEVICE_ID_LOGITECH_DOPTICAL)) {
-> +        printk("Setting Logitech MouseMan Dual Optical for 800cpi\n");
-> +        usb_control_msg(hid->dev, usb_sndctrlpipe(hid->dev, 0),
-> +            0x0a, USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_ENDPOINT,
-> +            0x0000, 0x0000, NULL, 0, HZ);
-> +        usb_control_msg(hid->dev, usb_sndctrlpipe(hid->dev, 0),
-> +            0x02, USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_ENDPOINT,
-> +            0x000e, 0x0004, NULL, 0, HZ);
-> +    }
-> +
->         return hid;
->  }
-This could have been handled by a blacklist table quirk. Any reason why you 
-chose to do it this way?
-
-Brad
+--- linux/include/linux/suspend.h~	Sun Jun  9 04:31:05 2002
++++ linux/include/linux/suspend.h	Sun Jun  9 04:31:22 2002
+@@ -7,6 +7,7 @@
+ #include <linux/swap.h>
+ #include <linux/notifier.h>
+ #include <linux/config.h>
++#include <linux/init.h>
+ 
+ extern unsigned char software_suspend_enabled;
 
 -- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+Skip

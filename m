@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266878AbUI0Rw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266891AbUI0Rw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266878AbUI0Rw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 13:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266876AbUI0RwW
+	id S266891AbUI0Rw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 13:52:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266880AbUI0Rvq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 13:52:22 -0400
-Received: from loncoche.terra.com.br ([200.154.55.229]:6578 "EHLO
+	Mon, 27 Sep 2004 13:51:46 -0400
+Received: from loncoche.terra.com.br ([200.154.55.229]:18861 "EHLO
 	loncoche.terra.com.br") by vger.kernel.org with ESMTP
-	id S266878AbUI0Ru5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 13:50:57 -0400
-Date: Mon, 27 Sep 2004 13:54:59 -0300
+	id S266864AbUI0Ruh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 13:50:37 -0400
+Date: Mon, 27 Sep 2004 13:54:38 -0300
 From: "Luiz Fernando N. Capitulino" <lcapitulino@conectiva.com.br>
 To: greg@kroah.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/5]: usb-serial: usb_serial_register() cleanup.
-Message-Id: <20040927135459.22430979.lcapitulino@conectiva.com.br>
+Subject: [PATCH 2/5]: usb-serial: create_serial() return value trivial fix.
+Message-Id: <20040927135438.10db8e54.lcapitulino@conectiva.com.br>
 Organization: Conectiva S/A.
 X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-conectiva-linux-gnu)
 Mime-Version: 1.0
@@ -24,44 +24,28 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
- usb_serial_register() cleanup
-
-1) CodingStyle in the call of usb_serial_bus_register()
-2) The goto and the duplicate `return retval' are not necessary
+ create_serial() only returns NULL if there is no memory enough
+to a new `usb_serial' structure, thus, the right error code to
+return is -ENOMEM.
 
 (against 2.6.9-rc2-mm4)
 
+
 Signed-off-by: Luiz Capitulino <lcapitulino@conectiva.com.br>
 
- drivers/usb/serial/usb-serial.c |   18 +++++++-----------
- 1 files changed, 7 insertions(+), 11 deletions(-)
+ drivers/usb/serial/usb-serial.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
 
 diff -X /home/lcapitulino/kernels/2.6/dontdiff -Nparu a/drivers/usb/serial/usb-serial.c a~/drivers/usb/serial/usb-serial.c
---- a/drivers/usb/serial/usb-serial.c	2004-09-26 13:42:29.000000000 -0300
-+++ a~/drivers/usb/serial/usb-serial.c	2004-09-26 13:43:27.000000000 -0300
-@@ -1338,17 +1338,13 @@ int usb_serial_register(struct usb_seria
- 	/* Add this device to our list of devices */
- 	list_add(&new_device->driver_list, &usb_serial_driver_list);
+--- a/drivers/usb/serial/usb-serial.c	2004-09-26 13:13:21.000000000 -0300
++++ a~/drivers/usb/serial/usb-serial.c	2004-09-26 13:14:09.000000000 -0300
+@@ -896,7 +896,7 @@ int usb_serial_probe(struct usb_interfac
+ 	serial = create_serial (dev, interface, type);
+ 	if (!serial) {
+ 		dev_err(&interface->dev, "%s - out of memory\n", __FUNCTION__);
+-		return -ENODEV;
++		return -ENOMEM;
+ 	}
  
--	retval =  usb_serial_bus_register (new_device);
--
--	if (retval)
--		goto error;
--
--	info("USB Serial support registered for %s", new_device->name);
--
--	return retval;
--error:
--	err("problem %d when registering driver %s", retval, new_device->name);
--	list_del(&new_device->driver_list);
-+	retval = usb_serial_bus_register(new_device);
-+	if (retval) {
-+		err("problem %d when registering driver %s", retval, new_device->name);
-+		list_del(&new_device->driver_list);
-+	}
-+	else
-+		info("USB Serial support registered for %s", new_device->name);
- 
- 	return retval;
- }
+ 	/* if this device type has a probe function, call it */

@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267776AbUH1VkZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268095AbUH1Vl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267776AbUH1VkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 17:40:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268052AbUH1VkZ
+	id S268095AbUH1Vl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 17:41:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268088AbUH1Vlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 17:40:25 -0400
-Received: from gprs214-50.eurotel.cz ([160.218.214.50]:28032 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S267974AbUH1VkG (ORCPT
+	Sat, 28 Aug 2004 17:41:55 -0400
+Received: from dci.doncaster.on.ca ([66.11.168.194]:44672 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S268052AbUH1Vkq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 17:40:06 -0400
-Date: Sat, 28 Aug 2004 23:35:35 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: benh@kernel.crashing.org, kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: radeonfb: do not blank during swsusp snapshot
-Message-ID: <20040828213535.GA1418@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 28 Aug 2004 17:40:46 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: Andi Kleen <ak@muc.de>
+Subject: Re: page fault scalability patch final : i386 tested, x86_64 support added
+Date: Sat, 28 Aug 2004 17:41:36 -0400
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
+       clameter@sgi.com, ak@suse.de, wli@holomorphy.com, davem@redhat.com,
+       raybry@sgi.com, benh@kernel.crashing.org, manfred@colorfullife.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       vrajesh@umich.edu, hugh@veritas.com
+References: <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com> <20040827173641.5cfb79f6.akpm@osdl.org> <20040828010253.GA50329@muc.de>
+In-Reply-To: <20040828010253.GA50329@muc.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408281741.36211.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Andi,
 
-With display blanked, it is hard to debug anything. And display
-blanking is not really needed there... Does it look okay?
+On Friday 27 August 2004 21:02, Andi Kleen wrote:
+> Yep.  Good plan. atomic_long_t ?
 
-								Pavel
+Would it not be more C-ish as long_atomic_t?
 
---- clean-mm.middle/drivers/video/aty/radeon_pm.c	2004-08-15 19:15:01.000000000 +0200
-+++ linux-mm/drivers/video/aty/radeon_pm.c	2004-08-28 23:26:46.000000000 +0200
-@@ -880,12 +880,14 @@
- 		radeon_engine_idle();
- 	}
- 
--	/* Blank display and LCD */
--	radeonfb_blank(VESA_POWERDOWN, info);
--
--	/* Sleep */
--	rinfo->asleep = 1;
--	rinfo->lock_blank = 1;
-+	if (system_state != SYSTEM_SNAPSHOT) {
-+		/* Blank display and LCD */
-+		radeonfb_blank(VESA_POWERDOWN, info);
-+
-+		/* Sleep */
-+		rinfo->asleep = 1;
-+		rinfo->lock_blank = 1;
-+	}
- 
- 	/* Suspend the chip to D2 state when supported
- 	 */
+Regards,
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Daniel

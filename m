@@ -1,36 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280759AbRKKAj5>; Sat, 10 Nov 2001 19:39:57 -0500
+	id <S280760AbRKKAkj>; Sat, 10 Nov 2001 19:40:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280760AbRKKAjs>; Sat, 10 Nov 2001 19:39:48 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:43555 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S280759AbRKKAji>; Sat, 10 Nov 2001 19:39:38 -0500
-Date: Sat, 10 Nov 2001 19:39:36 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFT] final cur of tr based current for -ac8
-Message-ID: <20011110193936.H17437@redhat.com>
-In-Reply-To: <20011110173331.F17437@redhat.com> <23114.1005432888@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <23114.1005432888@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Sun, Nov 11, 2001 at 09:54:48AM +1100
+	id <S280761AbRKKAk2>; Sat, 10 Nov 2001 19:40:28 -0500
+Received: from maile.telia.com ([194.22.190.16]:56296 "EHLO maile.telia.com")
+	by vger.kernel.org with ESMTP id <S280760AbRKKAkQ>;
+	Sat, 10 Nov 2001 19:40:16 -0500
+Message-Id: <200111110040.fAB0eDZ13820@maile.telia.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: Thomas Foerster <puckwork@madz.net>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel Module / Patch with implements "sshfs"
+Date: Sun, 11 Nov 2001 01:38:25 +0100
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20011109152819Z279925-17408+12662@vger.kernel.org>
+In-Reply-To: <20011109152819Z279925-17408+12662@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 11, 2001 at 09:54:48AM +1100, Keith Owens wrote:
-> I am still unhappy with that NMI code.  The NMI handler can use generic
-> code including printk, the generic code will use the standard
-> get_current.  Why does nmi.c not do set_current(hard_get_current());
+A simpler way is to use the kio_fish
+ http://apps.kde.com/na/2/info/id/1331
+(I had problem with compiling this under SuSE 7.1 but with
+SuSE 7.3 there were no problems)
 
-It can in the current version, but that's generally wrong.  The current 
-dependancy is that hard_get_current() only really needs to be used during 
-early boot before the TR register is set.  Once that's done, the code can 
-use smp_processor_id() anywhere.
+You browsing will look like:
+ fish://192.168.9.99/home/
+compare with
+ ftp://ftp.kernel.org/
 
-		-ben
+And since it is KDE all KDE programs will be able to use it :-)
+(To be sure I tried to create a file with advanced editor and save it
+ remote - it worked! :-)
+
+KDE port done by: Jörg Walter
+Originally for mc by: Pavel Machek
+ 
+/RogerL
+
+On Friday 09 November 2001 16:26, Thomas Foerster wrote:
+> Hi folks,
+>
+> i came across the idea to mount a remote filesystem via SSH[1|2].
+>
+> I've seen a free program for Windows that implements parts of what i'm
+> thinking of.
+>
+> Does someone know about a kernel module/patch to implement a "sshfs" ?
+> (to be used with mount)
+>
+> What i want to do is to mount my webserver (external ip) from an internal
+> system (internal ip).
+>
+> Thanks,
+>   Thomas
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
 -- 
-Fish.
+Roger Larsson
+Skellefteå
+Sweden

@@ -1,100 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275359AbRIZR0C>; Wed, 26 Sep 2001 13:26:02 -0400
+	id <S275357AbRIZR1c>; Wed, 26 Sep 2001 13:27:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275361AbRIZRZx>; Wed, 26 Sep 2001 13:25:53 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19979 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S275359AbRIZRZj>; Wed, 26 Sep 2001 13:25:39 -0400
-Date: Wed, 26 Sep 2001 10:25:18 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "David S. Miller" <davem@redhat.com>, <bcrl@redhat.com>,
-        <marcelo@conectiva.com.br>, <andrea@suse.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Locking comment on shrink_caches()
-In-Reply-To: <E15mHjL-0000t8-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0109261003480.8327-200000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="168447515-654106168-1001525118=:8327"
+	id <S275356AbRIZR1W>; Wed, 26 Sep 2001 13:27:22 -0400
+Received: from post.aecom.yu.edu ([129.98.1.4]:22982 "EHLO post.aecom.yu.edu")
+	by vger.kernel.org with ESMTP id <S275357AbRIZR1M>;
+	Wed, 26 Sep 2001 13:27:12 -0400
+Mime-Version: 1.0
+Message-Id: <a0510031eb7d7bfead585@[129.98.91.150]>
+In-Reply-To: <Pine.LNX.4.33.0109260811240.2579-100000@vk-clued0.fnal.gov>
+In-Reply-To: <Pine.LNX.4.33.0109260811240.2579-100000@vk-clued0.fnal.gov>
+Date: Wed, 26 Sep 2001 13:27:30 -0400
+To: vkuznet <vkuznet@fnal.gov>
+From: Maurice Volaski <mvolaski@aecom.yu.edu>
+Subject: Re: problem with 2.4.8 and "Checking root filesystem"
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
-
---168447515-654106168-1001525118=:8327
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
-
-On Wed, 26 Sep 2001, Alan Cox wrote:
-> >
-> > Your Athlons may handle exclusive cache line acquisition more
-> > efficiently (due to memory subsystem performance) but it still
-> > does cost something.
+>Hi,
+>I'm trying to install kernel 2.4.8 with Alan's patches (AC) plus XFS.
+>I took vanilla kernel, applied all patches and build successfully
+>kernel. When I reboot system, kernel was loaded and on my RedHat 7.1
+>booting sequence stopped at
+>Checking root filesystem...
+>and wait forever. It doesn't try to invoke fsck for root file system,
+>just wait for something. Reading Documentation/Changes for new kernel
+>I check out that have all appropriate packages (all needed vesions
+>of e2fsprogs, etc.) Any idea what happens and how to fix?
 >
-> On an exclusive line on Athlon a lock cycle is near enough free, its
-> just an ordering constraint. Since the line is in E state no other bus
-> master can hold a copy in cache so the atomicity is there. Ditto for newer
-> Intel processors
+>System Dual PIII, SCSI disks (Adaptec AIC7xxx), root on ext2, the rest on xfs.
+>
+>I'll appreciate if you personally CC'ed the answers/comments to my Email
+>since I'm still not in kernel mailing list.
+>
 
-You misunderstood the problem, I think: when the line moves from one CPU
-to the other (the exclusive state moves along with it), that is
-_expensive_.
+I am seeing the same problem on a single processor system but I am 
+running 2.4.10 with ext3 and the kdb patch. Root happens to be ext2.
 
-Even when you have a backside bus (or cache pushout content snooping)  to
-allow the cacheline to move directly from one CPU to the other without
-having to go through memory, that's a really expensive thing to do.
+-- 
 
-So re-aquring the lock on the same CPU is pretty much free (18 cycles for
-Intel, if I remember correctly, and that's _entirely_ due to the pipeline
-flush to ensure in-order execution around it).
-
-[ Oh, just for interest I checked my P4, which has a much longer pipeline:
-  the cost of an exclusive locked access is a whopping 104 cycles. But we
-  already knew that the first-generation P4 does badly on many things.
-
-  Just reading the cycle counter is apparently around 80 cycles on a P4,
-  it's 32 cycles on a PIII. Looks like that also stalls the pipeline or
-  something. But cpuid is _really_ horrible. Test out the attached
-  program.
-
-	PIII:
-		nothing: 32 cycles
-		locked add: 50 cycles
-		cpuid: 170 cycles
-
-	P4:
-		nothing: 80 cycles
-		locked add: 184 cycles
-		cpuid: 652 cycles
-
-   Remember: these are for the already-exclusive-cache cases. ]
-
-What are the athlon numbers?
-
-		Linus
-
---168447515-654106168-1001525118=:8327
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="t.c"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0109261025180.8327@penguin.transmeta.com>
-Content-Description: 
-Content-Disposition: attachment; filename="t.c"
-
-I2RlZmluZSByZHRzYyhsb3cpIFwNCiAgIF9fYXNtX18gX192b2xhdGlsZV9f
-KCJyZHRzYyIgOiAiPWEiIChsb3cpIDogOiAiZWR4IikNCg0KI2RlZmluZSBU
-SU1FKHgseSkgXA0KCW1pbiA9IDEwMDAwMDsJCQkJCQlcDQoJZm9yIChpID0g
-MDsgaSA8IDEwMDA7IGkrKykgewkJCQlcDQoJCXVuc2lnbmVkIGxvbmcgc3Rh
-cnQsZW5kOwkJCVwNCgkJcmR0c2Moc3RhcnQpOwkJCQkJXA0KCQl4OwkJCQkJ
-CVwNCgkJcmR0c2MoZW5kKTsJCQkJCVwNCgkJZW5kIC09IHN0YXJ0OwkJCQkJ
-XA0KCQlpZiAoZW5kIDwgbWluKQkJCQkJXA0KCQkJbWluID0gZW5kOwkJCQlc
-DQoJfQkJCQkJCQlcDQoJcHJpbnRmKHkgIjogJWQgY3ljbGVzXG4iLCBtaW4p
-Ow0KDQojZGVmaW5lIExPQ0sJYXNtIHZvbGF0aWxlKCJsb2NrIDsgYWRkbCAk
-MCwwKCVlc3ApIikNCiNkZWZpbmUgQ1BVSUQJYXNtIHZvbGF0aWxlKCJjcHVp
-ZCI6IDogOiJheCIsICJkeCIsICJjeCIsICJieCIpDQoNCmludCBtYWluKCkN
-CnsNCgl1bnNpZ25lZCBsb25nIG1pbjsNCglpbnQgaTsNCg0KCVRJTUUoLyog
-Ki8sICJub3RoaW5nIik7DQoJVElNRShMT0NLLCAibG9ja2VkIGFkZCIpOw0K
-CVRJTUUoQ1BVSUQsICJjcHVpZCIpOw0KfQ0K
---168447515-654106168-1001525118=:8327--
+Maurice Volaski, mvolaski@aecom.yu.edu
+Computing Support, Rose F. Kennedy Center
+Albert Einstein College of Medicine of Yeshiva University

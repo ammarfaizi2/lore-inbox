@@ -1,120 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130480AbRCILLP>; Fri, 9 Mar 2001 06:11:15 -0500
+	id <S130485AbRCILM4>; Fri, 9 Mar 2001 06:12:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130481AbRCILLG>; Fri, 9 Mar 2001 06:11:06 -0500
-Received: from PO8.ANDREW.CMU.EDU ([128.2.10.108]:33691 "EHLO
-	po8.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id <S130480AbRCILKu>; Fri, 9 Mar 2001 06:10:50 -0500
-Message-ID: <kue=bLNz000142mEtL@andrew.cmu.edu>
-Date: Fri,  9 Mar 2001 06:09:11 -0500 (EST)
-From: James R Bruce <bruce+@andrew.cmu.edu>
+	id <S130487AbRCILMh>; Fri, 9 Mar 2001 06:12:37 -0500
+Received: from irmgard.exp-math.uni-essen.de ([132.252.150.18]:6157 "EHLO
+	irmgard.exp-math.uni-essen.de") by vger.kernel.org with ESMTP
+	id <S130485AbRCILMY>; Fri, 9 Mar 2001 06:12:24 -0500
+Date: Fri, 9 Mar 2001 12:11:56 +0100 (MEZ)
+From: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: quicksort for linked list
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3AA89624.46DBADD7@idb.hist.no>
-In-Reply-To: <3AA88891.294C17A0@sasken.com>
-	<3AA89624.46DBADD7@idb.hist.no>
+Subject: Re: Microsoft begining to open source Windows 2000?
+In-Reply-To: <Pine.LNX.4.33.0103090717200.1595-100000@mikeg.weiden.de>
+Message-Id: <Pine.A32.3.95.1010309114743.41828A-100000@werner.exp-math.uni-essen.de>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Oh my, why I am responding to this garbage thread?
 
-Quicksort works just fine on a linked list, as long as you broaden
-your view beyond the common array-based implementations.  See
-"http://www.cs.cmu.edu/~jbruce/sort.cc" for an example, although I
-would recommend using a radix sort for linked lists in most situations
-(sorry for the C++, but it was handy...).
+On Fri, 9 Mar 2001, Mike Galbraith wrote:
 
-9-Mar-2001 Re: quicksort for linked list by Helge Hafting@idb.hist.n 
-> Manoj Sontakke wrote:
-> > 
-> > Hi
-> >         Sorry, these questions do not belog here but i could not find any
-> > better place.
-> > 
-> > 1. Is quicksort on doubly linked list is implemented anywhere? I need it
-> > for sk_buff queues.
->  
-> I cannot see how the quicksort algorithm could work on a doubly
-> linked list, as it relies on being able to look
-> up elements directly as in an array.
->  
-> You can probably find algorithms for sorting a linked list, but
-> it won't be quicksort.
+> On Thu, 8 Mar 2001, J. Dow wrote:
+> 
+> > From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+> >
+> > > > Please check out this article. Looks like microsoft know open source is the
+> > > > thing of the future. I would consider that it is a begining step for full
+> > > > blown GPL!!!!
+[...]
+> True (afaikt).  A major difference is that those few who actually make
+> changes have to defend their changes in an open forum.  They can't do a
+> half-assed job (intentionally or otherwise) and have it not be noticed.
+> 
+> We have a lot more people contributing to quality control and providing
+> input for designers than actual designers.
 
-It's quicksort as long as you do pivot/split, the array gymnastics
-that most implementations do to avoid updating array elements isn't
-really critical to its operation.
+Plus: There is no product deadline. If something is not ready, it is not
+ready and not pushed into the market, even though anyone knows it is not
+ready. 
 
-> 1. find out how many elements there are.  (Count them if necessary)
-> 2. Allocate a pointer array of this size.
-> 3. fill the pointer array with pointers to list members.
-> 4. quicksort the pointer array
-> 5. Traverse the pointer array and set the links for each
->    list member to point to next/previous element pointed
->    to by the array.  Now you have a sorted linked list!
+If some module needs to be overdone to deal with a new situation not
+considered when the module was first designed: It's thrown away and redone
+from scratch.
 
-I think a radix sort like the following would work better with about
-the same (or less) storage, provided you're comparing ints (this is
-for a kernel modification after all, right?).  You just need to
-determine the number of passes to cover all the bits in the numbers
-you want to sort.
+Every coder wants a perfect solution for his problem, not just some hack
+to shut his boss up and comply with the timeline.
 
- - Jim Bruce
+Also new features are added when they seem sensible and fit into the
+concept. Not just because a marketing guy says that a certain customer
+needs yet another button for a specific task (since he is to stupid to see
+how to do it with the stuff he already has). Unfortunately linux developed
+a tendency to this problem too.
 
+Finally a huge effort of M$ goes into inventing new, proprietary
+protocols rather than trying to comply (or sensibly enhance) well thought
+over accepted standards.
 
-#define RADIX_BITS 6
-#define RADIX      (1 << RADIX_BITS)
-#define RADIX_MASK (RADIX - 1)
+IMHO, you'll never see an OpenSource Windows. What would happen is like
+with Netscape: Everyone says: Yuk, so that's a commercial program. They
+will see there is no other way to fix it than to throw it away. M$ could
+no longer ask for ridiculous payments for their crap (anyone just compiles
+an own version) and since there protocols are no longer proprietary they
+could no longer force people to use their products and kill markets. And
+no one would send them patches for yet another new incompatible feature.
+They'll just go bankrupt. 
 
-struct item *radix_sort(struct item *list,int passes)
-// Sort list, largest first
-{
-  struct item *tbl[RADIX],*p,*pn;
-  int slot,shift;
-  int i,j;
+Of course, if they go bankrupt, you might get the source. Maybe they'll
+really be split into an OS and application company like the court
+suggested. The OS part will just die (there is nothing deserving that name
+at all) and the application part might port office suites and admin tools
+to linux/unix and MacOs and what else. They really have a chance (but Kde
+and other stuff will become a powerful competitor). They might die too
+though, since these commercial applications will just be as buggy as
+others and crash all the time (cf. Netscape), they'll also be expensive
+and there will be free, working alternatives (but with fewer rings and
+bells and maybe not as easy to use for Joe Blow User).
 
-  // Handle trivial cases
-  if(!list || !list->next) return(list);
+Just my two pence, sorry for the bandwidth.
+Michael.
 
-  // Initialize table
-  for(j=0; j<RADIX; j++) tbl[j] = NULL;
+--
 
-  for(i=0; i<passes; i++){
-    // split list into buckets
-    shift = RADIX_BITS * i;
-    p = list;
-
-    while(p){
-      pn = p->next;
-      slot = ((p->key) >> shift) & RADIX_MASK;
-      p->next = tbl[slot];
-      tbl[slot] = p;
-      p = pn;
-    }
-
-    // integrate back into partially ordered list
-    list = NULL;
-    for(j=0; j<RADIX; j++){
-      p = tbl[j];
-      tbl[j] = NULL;  // clear out table for next pass
-      while(p){
-        pn = p->next;
-        p->next = list;
-        list = p;
-        p = pn;
-      }
-    }
-  }
-
-  // fix prev pointers in list
-  list->prev = NULL;
-  p = list;
-  while(pn = p->next){
-    pn->prev = p;
-    p = pn;
-  }
-
-  return(list);
-}
+Michael Weller: eowmob@exp-math.uni-essen.de, eowmob@ms.exp-math.uni-essen.de,
+or even mat42b@spi.power.uni-essen.de. If you encounter an eowmob account on
+any machine in the net, it's very likely it's me.
 

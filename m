@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267023AbSK2L5W>; Fri, 29 Nov 2002 06:57:22 -0500
+	id <S267027AbSK2MMa>; Fri, 29 Nov 2002 07:12:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267025AbSK2L5W>; Fri, 29 Nov 2002 06:57:22 -0500
-Received: from cibs9.sns.it ([192.167.206.29]:4882 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S267023AbSK2L5V>;
-	Fri, 29 Nov 2002 06:57:21 -0500
-Date: Fri, 29 Nov 2002 13:04:42 +0100 (CET)
-From: venom@sns.it
-To: linux-kernel@vger.kernel.org
-Subject: mou401.h fix for kernel 2.5.50
-Message-ID: <Pine.LNX.4.43.0211291303210.1338-100000@cibs9.sns.it>
+	id <S267028AbSK2MMa>; Fri, 29 Nov 2002 07:12:30 -0500
+Received: from mailg.telia.com ([194.22.194.26]:50890 "EHLO mailg.telia.com")
+	by vger.kernel.org with ESMTP id <S267027AbSK2MM3>;
+	Fri, 29 Nov 2002 07:12:29 -0500
+X-Original-Recipient: <linux-kernel@vger.kernel.org>
+From: "Christer Nilsson" <nisse@kretskompaniet.se>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Exaggerated swap usage
+Date: Fri, 29 Nov 2002 13:20:24 +0100
+Message-ID: <IBEJLIFNGHPKEKCKODPDAEKAGJAA.nisse@kretskompaniet.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20021129115405.GD15682@jerry.marcet.dyndns.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I just wanted to say that I experience the same thing using 2.4.20-rc1-ac3.
+When I was using 2.4.19-pre9-ac3 I didn't notice the same behavior.
 
-In order to compile sound/oss/mpu401.c as it has been changed in kernel
-2.5.50 this is needed:
+Christer
 
---- linux-2.5.50/sound/oss/mpu401.h.orig        2002-11-29
-13:02:01.000000000 +0100
-+++ linux-2.5.50/sound/oss/mpu401.h     2002-11-29 13:01:28.000000000
-+0100
-@@ -7,7 +7,7 @@
-
- /*     From mpu401.c */
- int probe_mpu401(struct address_info *hw_config);
--void attach_mpu401(struct address_info * hw_config, struct module *owner);
-+int attach_mpu401(struct address_info *hw_config, struct module *owner);
- void unload_mpu401(struct address_info *hw_info);
-
- int intchk_mpu401(void *dev_id);
-
+> In recent 2.4.20 pre and rc kernels ( I tend to use the ac branch ), I
+> had notice my system, when using X mainly, got terribly slow after some
+> use. It surprised me that when I tried 2.5.47 this did not happen at
+> all, since I thought my problem was a lack of memory - the system has
+> 384MB -.
 
 

@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317176AbSFFVFk>; Thu, 6 Jun 2002 17:05:40 -0400
+	id <S317091AbSFFVTG>; Thu, 6 Jun 2002 17:19:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317183AbSFFVFj>; Thu, 6 Jun 2002 17:05:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65030 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317176AbSFFVFd>;
-	Thu, 6 Jun 2002 17:05:33 -0400
-Message-ID: <3CFFCE4B.F422EE7@zip.com.au>
-Date: Thu, 06 Jun 2002 14:04:11 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
+	id <S317185AbSFFVTF>; Thu, 6 Jun 2002 17:19:05 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:45010 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S317091AbSFFVTE>;
+	Thu, 6 Jun 2002 17:19:04 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@clusterfs.com>
-CC: Robert Love <rml@tech9.net>, "David S. Miller" <davem@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] CONFIG_NR_CPUS
-In-Reply-To: <20020606.031520.08940800.davem@redhat.com> <1023377213.13787.2.camel@sinai> <3CFFBCA9.843C40F0@zip.com.au> <20020606205508.GN27817@turbolinux.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15615.53702.794957.958227@napali.hpl.hp.com>
+Date: Thu, 6 Jun 2002 14:19:02 -0700
+To: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
+Cc: davidm@hpl.hp.com, Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] 4KB stack + irq stack for x86
+In-Reply-To: <OF81A861D7.0F84A7BA-ONC1256BD0.0072344C@de.ibm.com>
+X-Mailer: VM 7.03 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> 
-> On Jun 06, 2002  12:48 -0700, Andrew Morton wrote:
-> > But the arch maintainers should test one case please - x86
-> > was locking up at boot on quad CPU with NR_CPUS=2.  Others may do
-> > the same.
-> 
-> Just a guess, but this could be because the two CPUs chosen for the
-> boot sequence are not physically numbered 0 and 1, so they are
-> overwriting the bounds of the per-CPU arrays.
+>>>>> On Thu, 6 Jun 2002 22:55:12 +0200, "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com> said:
 
-Well the code was assuming that the number of physical
-CPUs was always <= NR_CPUS unless max_cpus had been
-specified.  I fixed that in the patch.
+  Uli> So in the case of 8K page size, you need an order-2 allocation
+  Uli> for the stack, right?  How do you handle failures due to
+  Uli> fragmentation?
 
--
+We don't do anything special.  I'm not sure what the fragmentation
+statistics look like on machines with 1+GB memory; it's something I
+have been wondering about and hoping to look into at some point (if
+someone has done that already, I'd love to see the results).  In
+practice, every ia64 linux distro as of today ships with 16KB page
+size, so you only get order-1 allocations for stacks.
+
+	--david

@@ -1,36 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUKNEAl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbUKNEYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUKNEAl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 23:00:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbUKNEAl
+	id S261193AbUKNEYc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 23:24:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbUKNEYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 23:00:41 -0500
-Received: from user-0c99gdv.cable.mindspring.com ([24.148.193.191]:20097 "EHLO
-	tuxq.com") by vger.kernel.org with ESMTP id S261239AbUKNEAi (ORCPT
+	Sat, 13 Nov 2004 23:24:32 -0500
+Received: from fw.osdl.org ([65.172.181.6]:53941 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261193AbUKNEY2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 23:00:38 -0500
-Message-ID: <4196D865.3040203@tuxq.com>
-Date: Sat, 13 Nov 2004 23:00:37 -0500
-From: "Steven E. Woolard" <tuxq@tuxq.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040919
+	Sat, 13 Nov 2004 23:24:28 -0500
+Message-ID: <4196DD9B.10001@osdl.org>
+Date: Sat, 13 Nov 2004 20:22:51 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem: 2.4.26/27 & 2.6.9 Audio CD Burning
-References: <41960FC8.3040004@tuxq.com> <41961AC9.2070902@comcast.net>
-In-Reply-To: <41961AC9.2070902@comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Karel Kulhavy <clock@twibright.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: pcf8591 range list syntax
+References: <20041112142525.GA19825@beton.cybernet.src>
+In-Reply-To: <20041112142525.GA19825@beton.cybernet.src>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Sweetman wrote:
-> 2.6.9-ck2 works just fine burning audio cds.  I've had similar trouble 
-> with the vanilla kernel burning audio cds.  I think some people even 
-> mentioned ripping audio cds now doesn't use dma in vanilla.  I dont 
-> really remember, just that whenever the vanilla kernel has had trouble 
-> with audio and dma in 2.6, ck kernels have worked.
+Karel Kulhavy wrote:
+> Hello
+> 
+> modinfo pcf8591 in 2.6.8.1 says:
+> "parm:           probe_range:List of adapter,start-addr,end-addr triples to
+> scan additionally "
+> 
+> when I call modprobe pcf8591 probe_range=..., what is the syntax of the list?
+> Are the addresses in decimal (0,255) or hexa (0,ff) or variable base
+> (0,0xff)?
+> 
+> When I want to specify 2 triples say 0,0,8 and 1,4,6 , is it
+> probe_range=0,0,8,1,4,6 or probe_range={0,0,8},{1,4,6} or something like
+> this or something completely different?
 
-Well, I tried the ck3 patch ... no improvement. System load still goes 
-crazy.
+Wow.  Good questions.  Those I2C module param. macros are fugly.
 
+probe_range=list_of_up_to_48_entries
+It's just a comma-separated list.
+Don't put braces or parens or anything around the "triples".
+E.g.,
+probe_range=0,0,8,1,4,6
+(that's 6 entries in the 'probe_range' list, not 2)
+
+Parameter conversion is done by calling simple_strtoul (in this case),
+since the parameter type is ushort.  The specified number base
+is 0, which means base 10, unless some other base is specified,
+with 0x or 0X meaning hex, or a leading 0 without an [xX]
+following it means octal.
+
+-- 
+~Randy
+
+PS:  This is just from scanning the source code.  I don't
+know the I2C code.

@@ -1,76 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268168AbTCFTSV>; Thu, 6 Mar 2003 14:18:21 -0500
+	id <S268239AbTCFTUW>; Thu, 6 Mar 2003 14:20:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268272AbTCFTSV>; Thu, 6 Mar 2003 14:18:21 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:8627 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S268168AbTCFTSU>;
-	Thu, 6 Mar 2003 14:18:20 -0500
-Message-ID: <3E67A073.7080004@us.ibm.com>
-Date: Thu, 06 Mar 2003 14:24:35 -0500
-From: Stacy Woods <stacyw@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-2 i686; en-US; 0.7) Gecko/20010316
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Bugs sitting in the RESOLVED state for more than 2 weeks
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S268266AbTCFTUW>; Thu, 6 Mar 2003 14:20:22 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42769 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268239AbTCFTUV>; Thu, 6 Mar 2003 14:20:21 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: HT and idle = poll
+Date: Thu, 6 Mar 2003 19:30:42 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <b487l2$1tn$1@penguin.transmeta.com>
+References: <200303052318.04647.habanero@us.ibm.com>
+X-Trace: palladium.transmeta.com 1046979049 4380 127.0.0.1 (6 Mar 2003 19:30:49 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 6 Mar 2003 19:30:49 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These bugs have been sitting in RESOLVED state for more than 2 weeks, ie
-they have fixes, but aren't back in the mainline tree (when they
-should move to CLOSED state). If the fixes are back in mainline
-already, could the owner close them out? Otherwise, perhaps we
-can get those fixes back in?
+In article <200303052318.04647.habanero@us.ibm.com>,
+Andrew Theurer  <habanero@us.ibm.com> wrote:
+>The test:  kernbench (average of  kernel compiles5) with -j2 on a 2 physical/4 
+>logical P4 system.  This is on 2.5.64-HTschedB3:
+>
+>idle != poll: Elapsed: 136.692s User: 249.846s System: 30.596s CPU: 204.8%
+>idle  = poll: Elapsed: 161.868s User: 295.738s System: 32.966s CPU: 202.6%
+>
+>A 15.5% increase in compile times.
+>
+>So, don't use idle=poll with HT when you know your workload has idle time!  I 
+>have not tried oprofile, but it stands to reason that this would be a 
+>problem.  There's no point in using idle=poll with oprofile and HT anyway, as 
+>the cpu utilization is totally wrong with HT to begin with (more on that 
+>later).
+>
+>Presumably a logical cpu polling while idle uses too many cpu resources 
+>unnecessarily and significantly affects the performance of its sibling. 
 
-The Bugzilla interface has been changed so that bugs can now go from the NEW
-or ASSIGNED state directly to the CLOSED state.
+Btw, I think this is exactly what the new HT prescott instructions are
+for: instead of having busy loops polling for a change in memory (be it
+a spinlock or a "need_resched" flag), new HT CPU's will support a
+"mwait" instruction. 
 
-Kernel Bug Tracker:   http://bugme.osdl.org
+But yes, at least for now, I really don't think you should really _ever_
+use "idle=poll" on HT-enabled hardware. The idle CPU's will just suck
+cycles from the real work.
 
-  9  Drivers    USB        dbrownell@users.sourceforge.net
-EHCI not properly shut down on reboot, kills usb keyboard in bios/bootloader
-
-  13  Platform   UML        jdike@karaya.com
-user-mode-linux (ARCH=um) compile broken in 2.5.47
-
-  22  File Sys   Other      alan@lxorguk.ukuu.org.uk
-/lib/modules/2.5.47-ac3-rous1/kernel/fs/ntfs/ntfs.o: unresolved symbol 
-page_stat
-
-  24  File Sys   NFS        khoa@us.ibm.com
-statfs returns incorrect  number fo blocks
-
-  47  Alternat   ac         khoa@us.ibm.com
-nfs broken in UP? unresolved symbol page_states__per_cpu
-
-  85  Drivers    Network    jgarzik@pobox.com
-ham radio stuff still using cli etc
-
-206  Drivers    Console/   jsimmons@infradead.org
-broken colors on framebuffer console
-
-230  Other      Configur   zippel@linux-m68k.org
-diffsrv URL changed
-
-242  Drivers    SCSI       hannal@us.ibm.com
-buffer out of bounds in aha1542.c from Andy Chou <acc@cs.stanford.edu>
-
-245  Drivers    SCSI       hannal@us.ibm.com
-Possible out of bound error in sym53c416.c from Andy Chou 
-<acc@cs.stanford.edu>
-
-364  Other      Other      mbligh@aracnet.com
-oops in render_sigset_t with 2.5.61 running SDET
-
-366  Drivers    IEEE1394   bcollins@debian.org
-ieee1394 fails to compile  linux/drivers/ieee1394/dma.c
-
-367  Platform   Alpha      rth@twiddle.net
-modules fail to resolve illegal Unhandled relocation of type 10 for .text
-
-372  Platform   UML        jdike@karaya.com
-uml doesn't not compile
-
+		Linus

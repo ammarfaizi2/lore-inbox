@@ -1,56 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbTH2Qjs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 12:39:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbTH2Qjs
+	id S261465AbTH2Qa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 12:30:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbTH2Qa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 12:39:48 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:4319 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S261537AbTH2Qjq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 12:39:46 -0400
-Date: Fri, 29 Aug 2003 13:35:25 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Ville Herva <vherva@niksula.hut.fi>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.22pre8 hangs too (Re: 2.4.21-jam1 solid hangs)
-Message-ID: <Pine.LNX.4.55L.0308291325480.29088@freak.distro.conectiva>
+	Fri, 29 Aug 2003 12:30:27 -0400
+Received: from tmi.comex.ru ([217.10.33.92]:29077 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S261465AbTH2Q2g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 12:28:36 -0400
+X-Comment-To: Ed Sweetman
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: [RFC] extents support for EXT3
+From: Alex Tomas <bzzz@tmi.comex.ru>
+Organization: HOME
+Date: Fri, 29 Aug 2003 20:34:01 +0400
+In-Reply-To: <3F4F7D56.9040107@wmich.edu> (Ed Sweetman's message of "Fri, 29
+ Aug 2003 12:20:38 -0400")
+Message-ID: <m3isogpgna.fsf@bzzz.home.net>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
+References: <m33cfm19ar.fsf@bzzz.home.net> <3F4E4605.6040706@wmich.edu>
+	<m3vfshrola.fsf@bzzz.home.net> <3F4F7129.1050506@wmich.edu>
+	<m3vfsgpj8b.fsf@bzzz.home.net> <3F4F76A5.6020000@wmich.edu>
+	<m3r834phqi.fsf@bzzz.home.net> <3F4F7D56.9040107@wmich.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> Ed Sweetman (ES) writes:
 
-> Ville,
->
-> Which kernel doesnt hang on your box? 2.4 something ?
+ ES> I was testing this with only a single partition mounted with extents
+ ES> enabled when benchmarking.  Ext3 gave no messages of being mounted
+ ES> afterbootup with or without extents so to make sure i had extents
+ ES> enabled i booted with all my partitions with the extents option.  I
+ ES> suspect then my problems began.  I'm completely unaware of the extent
+ ES> of the damage enabling extents has done since most of the important
+ ES> things were opened, not created during my extents use.  In any case it
+ ES> may be that the reason why init is not able to be found is because i
+ ES> used apt and upgraded my system ...and I dont remember if i had
+ ES> extents enabled at the time or not.  If my init is in extents format
+ ES> though, then why is a patched kernel able to read it with extents not
+ ES> being enabled via the omunt option where as kernels without the patch
+ ES> cannot.  Is extents able to be read from a fs even when it's not
+ ES> mounted with the option but not written?   I'm kinda confused, this
+ ES> aspect of extents wasn't in the original email.
 
-> 2.4.20pre7 ran for over 9 months before it suddenly begun locking up (I
-> _suppose_ it could just mean the bug/problem is hard to trigger.)
-> Nothing had been changed: the box had been up for that nine month
-> period, and the same oracle dump cron job had been running each night.
+well, on my testbox I use _patched with extents_ ext3 as / and /boot partitions.
+I haven't seen any problems on them. with patch, ext3 look at special EXTENTS
+flag in inode (this flag is set up only for newly created files on fs being
+mounted with extents enabled) and calls apropriate routines. thus, it will
+call extents routines for those file even if fs is being mounted with extents
+disabled. I really do believe that your root filesystem haven't been mounted
+with extents enabled, so init must be stored in good old format.
 
-Strange.
+ ES> i'm going to try and boot a kernel without the extents patch (so far
+ ES> hasn't been possible) and run dbench again and see if i get different
+ ES> numbers.  I'm almost suspecting extents being enabled no matter what i
+ ES> mount the fs's as.
 
-> Earlier 2.4's had too many problems with aic7xxx (crashes and so on), so
-> I can't comment on them.
+that would be fine!
 
-> After 2.4.20pre7, I tried 2.4.21-jam1 (based on -aa patchset) and
-> 2.4.22-pre8. I also tried compiling 2.4.21-jam1 with gcc-3.2.1 instead
-> of 2.96. All of those locked up eventually, sometimes within a day from
-> reboot, some times it takes weeks. At one point, 2.4.21-jam1 seemed to
-> reliably lock up when compiling kernel, but it no longer happens no
-> matter how hard I try. Usually the lock up happens during nightly oracle
-> backup dump.
 
-So NMI and sysrq doesnt help. I suggest you a few things:
 
-Try to make the bug easy to reproduce. Force the Oracle dumps again and
-again to crash the box. Can you try it or its a production machine?
 
-BTW, can you describe this "Oracle dumps" in more detail? What do they do?
-Save lots of data to disk and thats all or ?
-
-Hope we can trace this down.

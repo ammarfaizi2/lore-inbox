@@ -1,68 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262400AbTJTExY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 00:53:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbTJTExY
+	id S262306AbTJTEp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 00:45:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbTJTEp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 00:53:24 -0400
-Received: from h80ad2623.async.vt.edu ([128.173.38.35]:64911 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262400AbTJTExS (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 00:53:18 -0400
-Message-Id: <200310200452.h9K4qjN5014945@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Rob Landley <rob@landley.net>, Michael Buesch <mbuesch@freenet.de>,
-       Nick Piggin <piggin@cyberone.com.au>, Daniel Egger <degger@fhm.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Where's the bzip2 compressed linux-kernel patch? 
-In-Reply-To: Your message of "Mon, 20 Oct 2003 06:28:37 +0200."
-             <20031020042837.GA4994@alpha.home.local> 
-From: Valdis.Kletnieks@vt.edu
-References: <200310180018.21818.rob@landley.net> <200310191245.55961.mbuesch@freenet.de> <20031019210453.GE16761@alpha.home.local> <200310191900.47300.rob@landley.net>
-            <20031020042837.GA4994@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-119847996P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 20 Oct 2003 00:52:45 -0400
+	Mon, 20 Oct 2003 00:45:57 -0400
+Received: from SteeleMR-loadb-NAT-49.caltech.edu ([131.215.49.69]:47718 "EHLO
+	water-ox.its.caltech.edu") by vger.kernel.org with ESMTP
+	id S262306AbTJTEpz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 00:45:55 -0400
+Date: Sun, 19 Oct 2003 21:45:51 -0700 (PDT)
+From: "Noah J. Misch" <noah@caltech.edu>
+X-X-Sender: noah@clyde
+To: jonathan@buzzard.org.uk
+Cc: tlinux-users@tce.toshiba-dme.co.jp, linux-kernel@vger.kernel.org,
+       rddunlap@osdl.org
+Subject: [PATCH] Fix toshiba.c and neofb.c for CONFIG_PROC_FS=n
+Message-ID: <Pine.GSO.4.58.0310171450020.13905@blinky>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-119847996P
-Content-Type: text/plain; charset=us-ascii
+Hello Jonathan,
 
-On Mon, 20 Oct 2003 06:28:37 +0200, Willy Tarreau said:
+As the ChangeSet log details, this patch allows the Toshiba SMM driver to
+compile with CONFIG_PROC_FS=n.  Randy Dunlap and myself identified the problem
+and selected this solution.  Please consider.
 
-> I don't know how the tests above were done. But what I know for sure is that
-> there are excessive open source zealots who would only download the OSS
-> version of UPX which uses the UCL library while the closed source version
-> uses the NRV one which is a jewel.
+This applies to the linux-2.5 BK tree and passes an allyesconfig compile on i386
+as of 0400 UTC 10/20/2003.
 
-Well.. unfortunately, a closed-source UPX has as much chance of making it into
-the mainstream kernel as the NVidia graphics drivers.  Both will have to remain
-things that are self-inflicted by end users.
+Thanks,
+Noah
 
-> > And no, gzip -9 does not add anything to decompression time, only
-> > compression time.
-> 
-> Where did you get this interesting idea ? every decompressor needs
-> decompression time. 
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1344  -> 1.1345
+#	include/linux/toshiba.h	1.3     -> 1.4
+#	drivers/char/toshiba.c	1.11    -> 1.12
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/10/10	noah@caltech.edu	1.1345
+# Remove the prototypes for tosh_get_info from include/linux/toshiba.h and
+# make the function's definition in drivers/char/toshiba.c static.  This
+# function is specific to toshiba.c, so no other file needs the prototype.
+#
+# This allows drivers/char/toshiba.c to compile with CONFIG_PROC_FS=n and
+# allows one to link more than one driver that includes toshiba.h into the
+# kernel at the same time without a multiple declaration; for example, both
+# drivers/char/toshiba.c and drivers/video/neofb.c.
+# --------------------------------------------
+#
+diff -Nru a/drivers/char/toshiba.c b/drivers/char/toshiba.c
+--- a/drivers/char/toshiba.c	Fri Oct 10 18:50:17 2003
++++ b/drivers/char/toshiba.c	Fri Oct 10 18:50:17 2003
+@@ -292,7 +292,7 @@
+  * Print the information for /proc/toshiba
+  */
+ #ifdef CONFIG_PROC_FS
+-int tosh_get_info(char *buffer, char **start, off_t fpos, int length)
++static int tosh_get_info(char *buffer, char **start, off_t fpos, int length)
+ {
+ 	char *temp;
+ 	int key;
+diff -Nru a/include/linux/toshiba.h b/include/linux/toshiba.h
+--- a/include/linux/toshiba.h	Fri Oct 10 18:50:17 2003
++++ b/include/linux/toshiba.h	Fri Oct 10 18:50:17 2003
+@@ -33,13 +33,4 @@
+ 	unsigned int edi __attribute__ ((packed));
+ } SMMRegisters;
 
-I think he meant that decompressing a 'gzip -1' and a 'gzip -9' go at basically
-the same Mbytes/second - the big CPU hit is at compression time.
+-#ifdef CONFIG_PROC_FS
+-static int tosh_get_info(char *, char **, off_t, int);
+-#else /* !CONFIG_PROC_FS */
+-inline int tosh_get_info(char *buffer, char **start, off_t fpos, int lenght)
+-{
+-	return 0;
+-}
+-#endif /* CONFIG_PROC_FS */
+-
+ #endif
 
-
---==_Exmh_-119847996P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/k2occC3lWbTT17ARAhK2AJ0Ry07ycaUMOPNOwDym3rDGUYCRcQCgx3ja
-dCYflUA099+K2y8oOx2u1c4=
-=NoAj
------END PGP SIGNATURE-----
-
---==_Exmh_-119847996P--

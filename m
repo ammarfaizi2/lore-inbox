@@ -1,44 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130211AbRBVSxg>; Thu, 22 Feb 2001 13:53:36 -0500
+	id <S130753AbRBVS4G>; Thu, 22 Feb 2001 13:56:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130820AbRBVSx0>; Thu, 22 Feb 2001 13:53:26 -0500
-Received: from mail.cps.matrix.com.br ([200.196.9.5]:14598 "EHLO
-	mail.cps.matrix.com.br") by vger.kernel.org with ESMTP
-	id <S130211AbRBVSxP>; Thu, 22 Feb 2001 13:53:15 -0500
-Date: Thu, 22 Feb 2001 15:52:51 -0300
-To: Jes Sorensen <jes@linuxcare.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with 2.2.19pre9 (Connection closed.)
-Message-ID: <20010222155251.A8207@godzillah>
-In-Reply-To: <94ae7g9o8t.fsf@religion.informatik.uni-bremen.de> <E14VZCs-00023R-00@the-village.bc.nu> <14996.14604.348038.42765@pizda.ninka.net> <948zmy97zc.fsf@religion.informatik.uni-bremen.de> <d3y9uyj1is.fsf@lxplus015.cern.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <d3y9uyj1is.fsf@lxplus015.cern.ch>; from jes@linuxcare.com on Qui, Fev 22, 2001 at 02:22:19 +0100
-X-GPG-Fingerprint-1: 1024D/128D36EE 50AC 661A 7963 0BBA 8155  43D5 6EF7 F36B 128D 36EE
-X-GPG-Fingerprint-2: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
-From: hmh@rcm.org.br (Henrique de Moraes Holschuh)
+	id <S130707AbRBVSz4>; Thu, 22 Feb 2001 13:55:56 -0500
+Received: from mcdc-us-smtp5.cdc.gov ([198.246.97.21]:47631 "EHLO
+	mcdc-us-smtp5.cdc.gov") by vger.kernel.org with ESMTP
+	id <S130109AbRBVSzj>; Thu, 22 Feb 2001 13:55:39 -0500
+Message-ID: <B7F9A3E3FDDDD11185510000F8BDBBF2049E810D@mcdc-atl-5.cdc.gov>
+X-Sybari-Space: 00000000 00000000 00000000
+From: Heitzso <xxh1@cdc.gov>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: trouble with 2.4.2 just released
+Date: Thu, 22 Feb 2001 13:55:28 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Feb 2001, Jes Sorensen wrote:
-> Alan forwarded a patch to me from DaveM which fixed it for me.
+I have two boxes that I immediately
+tried upgrading the OS on.  In both
+cases I use a script to automate the
+build with a saved off .config file.
+simplified ..
+ untar linux tar ball
+ cp config.blat linux/.config
+ cd linux
+ make oldconfig
+ make menuconfig
+ cp .config ../config.blat
+ make bzImage
+ make modules
+ make modules_install
+ ... copy files around ...
+ lilo
 
-Jes, could you forward it here as well?
+On one box the build completed but 
+with half a dozen C warnings and
+a block of assembler warnings (RH7).  
+These will always leave a sys admin 
+nervous about running a kernel.
 
-> The problems I were seeing were much more than every 2 hrs, more like
-> every 10-15 mins. Anyway it seems it got fixed.
+On the other box I have yet to get a
+successful build (using a .config that
+runs 2.4.2-pre4 fine).  ld complains
+about a missing binary file.
 
-I've seen IRC sessions getting dropped every 10-15 minutes as well, and
-about 70% outgoing http connections (to a FreeBSD proxy) dropping in less
-than 1 second. It was so bad here I had to downgrade to 2.2.18 (which fixed
-all the issues, so I'm pretty sure it was kernel trouble and not network
-trouble).
+ld: cannot open binary: no such file or directory
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+email be directly at xxh1@cdc.gov if
+someone has a specific question re how
+the kernel broke or if they want a copy
+of my .config file
+
+Note I'm running debian unstable/woody
+on the system that's failing to build 
+2.4.2, but this same system handled 
+2.4.2-pre4 albeit with the warnings fine.
+
+Also, feel free to throw the standard
+idiot questions at me, I may have made
+an idiot mistake.  My /usr partition
+that has /usr/src/linux tree has 4G
+avail, so I'm not running out of drive
+space.  I'm running the script as root.
+I tried both bz2 and gz versions of tarball.
+... what am I missing ... ?
+
+Heitzso
+xxh1@cdc.gov

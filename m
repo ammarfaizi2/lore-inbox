@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318313AbSHPLZt>; Fri, 16 Aug 2002 07:25:49 -0400
+	id <S318314AbSHPL3L>; Fri, 16 Aug 2002 07:29:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318312AbSHPLZt>; Fri, 16 Aug 2002 07:25:49 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:11140 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318313AbSHPLZs>; Fri, 16 Aug 2002 07:25:48 -0400
-Date: Fri, 16 Aug 2002 16:58:31 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Benjamin LaHaise <bcrl@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Pavel Machek <pavel@elf.ucw.cz>, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org
-Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for 2.5.29)]
-Message-ID: <20020816165831.A2104@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <1028223041.14865.80.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com> <20020801140112.G21032@redhat.com> <20020815235459.GG14394@dualathlon.random> <20020815214225.H29874@redhat.com> <20020816150945.A1832@in.ibm.com> <20020816100334.GP14394@dualathlon.random> <20020816165306.A2055@in.ibm.com>
-Mime-Version: 1.0
+	id <S318318AbSHPL3L>; Fri, 16 Aug 2002 07:29:11 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:33552
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S318314AbSHPL3K>; Fri, 16 Aug 2002 07:29:10 -0400
+Date: Fri, 16 Aug 2002 04:10:28 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre2-ac3
+In-Reply-To: <Pine.NEB.4.44.0208161309240.6334-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.10.10208160408570.12468-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020816165306.A2055@in.ibm.com>; from suparna@in.ibm.com on Fri, Aug 16, 2002 at 04:53:06PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 16, 2002 at 04:53:06PM +0530, Suparna Bhattacharya wrote:
-> On Fri, Aug 16, 2002 at 12:03:34PM +0200, Andrea Arcangeli wrote:
-> > On Fri, Aug 16, 2002 at 03:09:46PM +0530, Suparna Bhattacharya wrote:
-> > > Also, wasn't the fact that the API was designed to support both POSIX 
-> > > and completion port style semantics, another reason for a different 
-> > > (lightweight) in-kernel api? The c10k users of aio are likely to find 
-> > > the latter model (i.e.  completion ports) more efficient.
-> > 
-> > if it's handy for you, can you post a link to the API defined by
-> > POSIX and completion ports so I can read them too and not only SuS?
+
+Alan change all "IN_BYTE" in hd.c to "inb"
+
+
+On Fri, 16 Aug 2002, Adrian Bunk wrote:
+
+> Hi Alan,
 > 
-> Don't have anything handy atm that's any better than what you could 
-> get through doing a google on "IO Completion ports". (See section at
-> the end of this note for some info)
+> the following compile error is still present when trying compiling a
+> kernel with CONFIG_BLK_DEV_HD enabled:
+> 
+> <--  snip  -->
+> 
+> ...
+>         /home/bunk/linux/kernel-2.4/linux-2.4.19-full/arch/i386/lib/lib.a
+> /home/bunk/linux/kernel-2.4/linux-2.4.19-full/lib/lib.a
+> /home/bunk/linux/kernel-2.4/linux-2.4.19-full/arch/i386/lib/lib.a \
+>         --end-group \
+>         -o vmlinux
+> drivers/ide/idedriver.o: In function `dump_status':
+> drivers/ide/idedriver.o(.text+0x68): undefined reference to `IN_BYTE'
+> drivers/ide/idedriver.o: In function `reset_controller':
+> drivers/ide/idedriver.o(.text+0x55e): undefined reference to `IN_BYTE'
+> make: *** [vmlinux] Error 1
+> 
+> <--  snip  -->
+> 
+> cu
+> Adrian
+> 
+> -- 
+> 
+> You only think this is a free country. Like the US the UK spends a lot of
+> time explaining its a free country because its a police state.
+> 								Alan Cox
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Oh sorry, I should have mentioned Dan Kegel's site which actually
-has all the pointers you need. See http://www.kegel.com/c10k.html
-(It has pointers to links to both NT and OS/400 completion ports)
+Andre Hedrick
+LAD Storage Consulting Group
 
-Regards
-Suparna

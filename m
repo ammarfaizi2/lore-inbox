@@ -1,84 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272484AbTGZNcg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 09:32:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272485AbTGZNcg
+	id S272485AbTGZNqi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 09:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272487AbTGZNqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 09:32:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26578 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272484AbTGZNcf (ORCPT
+	Sat, 26 Jul 2003 09:46:38 -0400
+Received: from batman.jypoly.fi ([195.148.27.23]:44486 "EHLO batman.jypoly.fi")
+	by vger.kernel.org with ESMTP id S272485AbTGZNqg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 09:32:35 -0400
-Date: Sat, 26 Jul 2003 06:45:01 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: szepe@pinerecords.com, linux-kernel@vger.kernel.org
-Subject: Re: some kernel config menu suggested tweaks
-Message-Id: <20030726064501.3d04974d.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.53.0307260821570.30928@localhost.localdomain>
-References: <Pine.LNX.4.53.0307241256430.20528@localhost.localdomain>
-	<20030726121432.GB6560@louise.pinerecords.com>
-	<Pine.LNX.4.53.0307260821570.30928@localhost.localdomain>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 26 Jul 2003 09:46:36 -0400
+From: "kimmo.myllyvirta" <78161@batman.jypoly.fi>
+To: h.truhetz@ecowatt.at
+CC: linux-kernel@vger.kernel.org
+Subject: Re: AMD760MP - Troubles with MSI K7D
+Date: Sat, 26 Jul 2003 17:01:47 +0900
+Message-Id: <20030726170147.M58068@batman.jypoly.fi>
+X-Mailer: Open WebMail 1.64 20020415
+X-OriginatingIP: 130.234.196.246 (78161)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 Jul 2003 08:30:59 -0400 (EDT) "Robert P. J. Day" <rpjday@mindspring.com> wrote:
+> I have two Athlon MP's 2600+ mounted on a MSI K7D-Master-L with the famous 
+> AMD-768 (Opus) chipset (latest BIOS 1.82).
+> Actually I'm using debian's 'woody' distribution with the kernel 2.4.22-pre8, 
+> glibc 2.2.5 and gcc 2.95.4.
+> I have problems with the IDE support:
+> On the hardisk (Maxtor 6Y120L0 - 120GB) there is a 1.4 GB file, I want to 
+> copy. But when I try this, the system stops with the error message:
+> 
+> attempt to access beyond end of device
+> 03:09: rw=0, want=976094472, limit=109948828
+> 
+> and I have to push the reset button.
+> 
+> When I switch DMA off by using 'hdparm -d0' everthing works fine, but the 
+> hole copy-process takes about 8 minutes!
+> 
+> Are there any solutions or workarounds to fix these problems?
 
-| On Sat, 26 Jul 2003, Tomas Szepe wrote:
-| 
-| > > [rpjday@mindspring.com]
-| > > 
-| > > 1) i mentioned this before, i think, but after one deselects
-| > >    Power management, should ACPI Support and CPU Frequency
-| > >    scaling still be available?
-| > > 
-| > >    the "make xconfig" menu display suggests a submenu 
-| > >    structure there, which clearly isn't the case.
-| > 
-| > Why don't you go ahead and send a patch?
+Plug in a PS/2 mouse, and it works.
 
-Ditto.  the right response.
+See product errata for the AMD-768 (#10):
+"Multiprocessor system may hang while in FULL APIC mode and IOAPIC interrupt
+is masked"
 
-| i'd be happy to, but based on my previous experience sending
-| in a few patches, it's just not worth the aggravation any more.
-| 
-| just one of my patches that got adopted took, literally, several
-| weeks of being dropped on the floor with no reason why.  and i
-| had to resubmit it, slightly updated, for every BK rev of the
-| kernel since the previous patch wouldn't apply cleanly --
-| it might be a line or two off, which would require remaking
-| the patch and resubmitting it *again*.  at which point, it
-| would be dropped on the floor *again*.
-| 
-| don't get me wrong -- i understand that there has to be some
-| form of QA in accepting kernel patches, and after a while, 
-| regular submitters can build up a reputation.
+I'm currently running similar setup (same MB, Redhat 9 + 2.4.22-pre7) without 
+any problems. If the PS/2 mouse is removed i get exactly the same problems as 
+you described. 
 
-and the QA is on patches, not (so much) on dialog.
+And it's not only the IDE that is affected. E.g. doing 'ifdown eth0' causes 
+the system to hang (at least for me it did), so turning off the DMA is not 
+a solution.
 
-| but, at this point, it's not terribly useful to encourage people
-| to submit patches if those patches are just tossed.
-| 
-| it's like the classic catch-22:
-| 
-|   "we can't hire you.  you don't have enough experience doing
-|     this job."
-|   "ok, so how do i get experience?"
-|   "well, you have to do this job for a while."
-| 
-| uh, right.  so, while there's not much point in my submitting
-| patches, i can still toss suggestions from the sidelines, unless
-| you have some ideas.  i'm certainly open to advice.
+> Do I have to upgrade the glibc or any other system components?
 
-But suggestions from the sidelines are just too close to whinging
-(Brit. spelling :) and moaning.  Not very helpful.
+no. (it will not solve this problem)
 
---
-~Randy
+> Does this problem affect any inter-CPU processes like OpenMP?
+
+no, when you have the PS/2 mouse.
+
+> Do I have to change the motherboard? Which mobo's are said to be reliable?
+
+Same problem appears with all motherboards using AMD 768 (rev B1 or B2). 
+(Correct me if i'm wrong. Maybe some manufacturer had made workaround for 
+this problem...)
+
+Cheers,
+KM
+

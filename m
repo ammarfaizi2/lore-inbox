@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263078AbVBCU14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262876AbVBCUaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263078AbVBCU14 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 15:27:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbVBCUZE
+	id S262876AbVBCUaK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 15:30:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbVBCUaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 15:25:04 -0500
-Received: from mail21.syd.optusnet.com.au ([211.29.133.158]:10178 "EHLO
-	mail21.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S263813AbVBCUWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 15:22:51 -0500
-Message-ID: <4202876F.3010302@kolivas.org>
-Date: Fri, 04 Feb 2005 07:19:59 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Ingo Molnar <mingo@elte.hu>,
-       "Jack O'Quin" <joq@io.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
-References: <200502031420.j13EKwFx005545@localhost.localdomain>
-In-Reply-To: <200502031420.j13EKwFx005545@localhost.localdomain>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig57F44CD8DAD584BFBD42626B"
+	Thu, 3 Feb 2005 15:30:09 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:21329 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262876AbVBCU3s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 15:29:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=k2yzCuOs3QIHm0AW27FT0+hZjDqPuv45gDZTzlE/PpXyxbBX7hzNwh4moQxtcMTIjoMkvQIGetMHvvqwSOTdsYU/tqZ1dNMX3mFnOq6By4W9M3pDtuJwxwjMkcksMcC2crKfdUSpgW2D5blbkYEmKntmQYDAV0NqSHWKJRccL+8=
+Message-ID: <58cb370e05020312296060f4bf@mail.gmail.com>
+Date: Thu, 3 Feb 2005 21:29:43 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: via82cxxx resume failure.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1105953931.26551.314.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1105953931.26551.314.camel@hades.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig57F44CD8DAD584BFBD42626B
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Sorry for the delay.
 
-Paul Davis wrote:
-> 	* real inter-process handoff. i am thinking of something like
-> 	    sched_yield(), but it would take a TID as the target
-> 	    of the yield. this would avoid all the crap we have to 
-> 	    go through to drive the graph of clients with FIFO's and
-> 	    write(2) and poll(2). Futexes might be a usable
-> 	    approximation in 2.6 (we are supporting 2.4, so we can't
-> 	    use them all the time)
+On Mon, 17 Jan 2005 09:25:30 +0000, David Woodhouse <dwmw2@infradead.org> wrote:
+> On resume from sleep, via_set_speed() doesn't reinstate the correct DMA
+> mode, because it thinks the drive is already configured correctly. This
+> one-line hack is sufficient to make it refrain from dying a horrible
+> death immediately after resume, but presumably has other problems...
 
-yield_to(tid) should not be too hard to implement. Ingo? What do you think?
+I applied this to libata-dev so it gets some testing in -mm.
 
-Con
-
---------------enig57F44CD8DAD584BFBD42626B
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCAodvZUg7+tp6mRURAiE+AJwM9sygfYG2myleIAt4x99ldnormgCfe3qW
-uabXqJ539bxiDUn/rFi40UE=
-=Cfgr
------END PGP SIGNATURE-----
-
---------------enig57F44CD8DAD584BFBD42626B--
+> ===== drivers/ide/pci/via82cxxx.c 1.24 vs edited =====
+> --- 1.24/drivers/ide/pci/via82cxxx.c    Mon Aug  9 18:00:46 2004
+> +++ edited/drivers/ide/pci/via82cxxx.c  Tue Oct 26 22:48:59 2004
+> @@ -328,7 +328,7 @@
+>         struct ide_timing t, p;
+>         unsigned int T, UT;
+> 
+> -       if (speed != XFER_PIO_SLOW && speed != drive->current_speed)
+> +       //      if (speed != XFER_PIO_SLOW && speed != drive->current_speed)
+>                 if (ide_config_drive_speed(drive, speed))
+>                         printk(KERN_WARNING "ide%d: Drive %d didn't "
+>                                 "accept speed setting. Oh, well.\n",
+>

@@ -1,83 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315779AbSH0MmT>; Tue, 27 Aug 2002 08:42:19 -0400
+	id <S315923AbSH0Mnb>; Tue, 27 Aug 2002 08:43:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315919AbSH0MmT>; Tue, 27 Aug 2002 08:42:19 -0400
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:59582 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S315779AbSH0MmS>; Tue, 27 Aug 2002 08:42:18 -0400
-Date: Tue, 27 Aug 2002 13:46:35 +0100 (BST)
-From: Anton Altaparmakov <aia21@cantab.net>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: kernel@bonin.ca, linux-kernel@vger.kernel.org
-Subject: Re: Loop devices under NTFS
-In-Reply-To: <200208271240.FAA04753@adam.yggdrasil.com>
-Message-ID: <Pine.SOL.3.96.1020827134148.4013A-100000@libra.cus.cam.ac.uk>
+	id <S315925AbSH0Mna>; Tue, 27 Aug 2002 08:43:30 -0400
+Received: from lila.inti.gov.ar ([200.10.161.32]:27317 "EHLO lila.inti.gov.ar")
+	by vger.kernel.org with ESMTP id <S315923AbSH0Mn3> convert rfc822-to-8bit;
+	Tue, 27 Aug 2002 08:43:29 -0400
+Message-ID: <3D6B74EE.4000801@inti.gov.ar>
+Date: Tue, 27 Aug 2002 09:47:42 -0300
+From: Salvador Eduardo Tropea <salvador@inti.gov.ar>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: es-ar, es, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo.Saitz@stud.uni-hannover.de,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       AlanCox <alan@lxorguk.ukuu.org.uk>, willy@w.ods.org, ast@domdv.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 BUG in page_alloc.c:91
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Aug 2002, Adam J. Richter wrote:
-> At 05:48 27/08/02, Andre Bonin wrote:
-> >"mount -o loop -r -t iso9660 /mnt/win_d/Source/Iso/Red\ Hat\ 
-> >7.3/valhalla-i386-disc1.iso /mnt/rh7.3/cd1"
-> >
-> >It gives me an error
-> >"ioctl: LOOP_SET_FD: Invalid argument"
-> 
-> 	I believe that NTFS does not provide
-> address_space_operations->{prepare,commit}_write for plain files, so
-> the version of loop.c in stock 2.5.31 will not work.
+I can´t find a final conclusion about this topic.
+What I found is that it happends some hours after the kernel killed a 
+process that was eating the memory.
+Example:
 
-He is mounting read-only which does not require prepare,commit_write and
-it works fine. I have done it myself. Both in 2.4 and 2.5.
+Aug 26 13:07:22 ice kernel: Out of Memory: Killed process 18432 
+(mozilla-bin).
+Aug 26 13:07:22 ice kernel: Out of Memory: Killed process 18443 
+(mozilla-bin).
+Aug 26 13:07:22 ice kernel: Out of Memory: Killed process 18444 
+(mozilla-bin).
+Aug 26 13:07:22 ice kernel: Out of Memory: Killed process 18445 
+(mozilla-bin).
+Aug 26 13:07:22 ice kernel: Out of Memory: Killed process 18447 
+(mozilla-bin).
+Aug 26 13:07:22 ice kernel: Out of Memory: Killed process 30410 
+(mozilla-bin).
+....
+Aug 27 06:26:00 ice kernel: kernel BUG at page_alloc.c:91!
+Aug 27 06:26:00 ice kernel: invalid operand: 0000
+Aug 27 06:26:00 ice kernel: CPU:    0
+Aug 27 06:26:00 ice kernel: EIP:    0010:[__free_pages_ok+45/624]    
+Tainted: P
+Aug 27 06:26:00 ice kernel: EFLAGS: 00010286
+Aug 27 06:26:00 ice kernel: eax: c103a528   ebx: c1105760   ecx: 
+c1105760   edx: c0228e9c
+Aug 27 06:26:00 ice kernel: esi: 00000000   edi: 00000016   ebp: 
+0000005e   esp: c7f93f18
+Aug 27 06:26:00 ice kernel: ds: 0018   es: 0018   ss: 0018
+Aug 27 06:26:00 ice kernel: Process kswapd (pid: 4, stackpage=c7f93000)
+Aug 27 06:26:00 ice kernel: Stack: c22d28c0 c1105760 00000016 0000005e 
+c013755c c1105760 00000
+1d0 00000016
+Aug 27 06:26:00 ice kernel:        0000005e c0135a09 c22d28c0 c1105760 
+c012d482 c012e3fb c012d
+4bb 00000020
+Aug 27 06:26:00 ice kernel:        000001d0 00000020 00000006 00000006 
+c7f92000 000003a4 00000
+1d0 c0229034
+Aug 27 06:26:00 ice kernel: Call Trace:    [try_to_free_buffers+140/224] 
+[try_to_release_page+
+73/80] [shrink_cache+482/768] [__free_pages+27/32] [shrink_cache+539/768]
+Aug 27 06:26:00 ice kernel:   [shrink_caches+86/128] 
+[try_to_free_pages+60/96] [kswapd_balance
+_pgdat+67/144] [kswapd_balance+22/48] [kswapd+157/192] [kernel_thread+40/64]
 
-Further the NTFS updates I posted a few days ago actually implement
-prepare,commit write so they make loop work completely.
+At 6:25 the cron started the regular locate data base update and other 
+tasks I guess it made the kernel reduce the size of the cache and fail.
+I saw reports it happends with "non-tainted" kernels and with or without 
+nVidia driver, so perhaps that´s a real bug in the mechanism used by the 
+kernel to kill a process that is eating all the memory introduced in 2.4.19.
+I can fill a full bug report but perhaps any of you know about the 
+conclusion of this thread and I´m just too stupid to find it.
+Note that it doesn´t happend if the kernel doesn´t kill mozilla-bin for 
+days, when kernel kills this process is just a matter of hours before it 
+and from this point the cache size won´t be reduced.
 
-> 	I posted an update for loop.c that I posted on August 15th:
-> ( http://marc.theaimsgroup.com/?l=linux-kernel&m=102941520919910&w=2 ).
-> That update included a hack (originally conceived by Andrew Morton and
-> originally implemented Jari Ruusu) to use file_operations->{read,write}
-> for mounting files on file systems that do not provide
-> {prepare,commit}_write, although this involves an extra data copy if
-> a transformation (such as encryption) is selected.
-> 
-> 	I submitted the loop.c update to Linus at least a week ago, but
-> I have not seen it appear in
-> ftp://ftp.kernel.org/pub/linux/kernel/people/dwmw2/bk-2.5.
-> 
-> Side note:
-> 
-> 	There are only a few file systems that provide writable files
-> without aops->{prepare,commit}_write.  I think they are just tmpfs,
-> ntfs and intermezzo.  If all file systems that provided writable files
+SET
 
-NTFS doesn't provide write access at all. My posted updates implement
-write in the new driver and they do it using prepare,commit write.
-
-> could be expected to provide {prepare,commit}_write, I could eliminate
-> the file_ops->{read,write} code from loop.c.  I wish I understood if
-> there really is a need for a file system to be able to provide a
-> writable random access file (as opposed to /dev/tty) that does not
-> have aops->{prepare,commit}_write.  I would be interesting in knowing
-> if there is anything preventing implementation of
-> {prepare,commit}_wriet in ntfs.
-
-No, and it is in fact implemented already. As soon as Linus pulls from my
-bk repository (http://linux-ntfs.bkbits.net/ntfs-2.5) the stock kernel
-will have prepare,commit write in ntfs.
-
-For the old ntfs driver still present in 2.4.x, there are no address space
-operations at all, the page cache is in fact not used at all, so that
-prevents the loop driver from working at all...
-
-Best regards,
-
-	Anton
 -- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Salvador Eduardo Tropea (SET). (Electronics Engineer)
+Visit my home page: http://welcome.to/SetSoft or
+http://www.geocities.com/SiliconValley/Vista/6552/
+Alternative e-mail: set@computer.org set@ieee.org 
+Address: Curapaligue 2124, Caseros, 3 de Febrero
+Buenos Aires, (1678), ARGENTINA Phone: +(5411) 4759 0013
+
+
 

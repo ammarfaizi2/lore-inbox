@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281459AbRKFFFb>; Tue, 6 Nov 2001 00:05:31 -0500
+	id <S281460AbRKFFHL>; Tue, 6 Nov 2001 00:07:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281460AbRKFFFL>; Tue, 6 Nov 2001 00:05:11 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55818 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281459AbRKFFFB>; Tue, 6 Nov 2001 00:05:01 -0500
-Date: Mon, 5 Nov 2001 21:01:48 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
+	id <S281463AbRKFFGx>; Tue, 6 Nov 2001 00:06:53 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:23996 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S281462AbRKFFGr>; Tue, 6 Nov 2001 00:06:47 -0500
+Date: Mon, 5 Nov 2001 22:06:22 -0700
+Message-Id: <200111060506.fA656Mq18958@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
 To: Alexander Viro <viro@math.psu.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext2-devel] disk throughput
-In-Reply-To: <Pine.GSO.4.21.0111052306150.27713-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33.0111052037240.1061-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: more devfs fun
+In-Reply-To: <Pine.GSO.4.21.0110271458300.21545-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0110271422520.21545-100000@weyl.math.psu.edu>
+	<Pine.GSO.4.21.0110271458300.21545-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Viro writes:
+> 	BTW, what the hell is that?
+> /*
+>  * hwgraph_bdevsw_get - returns the fops of the given devfs entry.
+> */
+> struct file_operations * 
+> hwgraph_bdevsw_get(devfs_handle_t de)
+> {
+>         return(devfs_get_ops(de));
+> }
+> 
+> 	It's arch/ia64/sn/io/hcl.c.  The funny thing being, the thing
+> you will get from devfs_get_ops() will _not_ be struct
+> file_operations *.  And that's aside of the fact that any use of
+> that function is very likely to be racy as hell.  Sigh...
 
-On Mon, 5 Nov 2001, Alexander Viro wrote:
->
-> Oh, come on. (a) is obvious, but obviously not enough ;-)
+Sigh indeed. I didn't write that code. Looks like someone is (ab)using
+the devfs API. Contact the maintainer of that code for insight.
 
-I agree, but I think it's a fairly good starting point to build up some
-heuristics.
+				Regards,
 
-Also note that traditonal UNIX implementations will have a hard time doing
-anything more fine-grained than "is the parent the root directory or not".
-Information about grandparents etc has been lost long before we get to
-"ialloc()", so I bet you'll find experimental data only on that one-level
-thing.
-
-But it is probably not a binary decision in real life.
-
-In real life, you're ok switching cylinder groups for /home vs /usr, but
-you're also ok switching groups for /home/torvalds vs /home/viro. And it's
-still reasonably likely that it makes sense to switch groups in
-/home/torvalds between 'src' and 'public_html'.
-
-But the deeper down in the directory hierarchy you get, the less likely it
-is that it makes sense.
-
-And yes, it's just a heuristic. But it's one that where thanks to the
-dcache we could reasonably easily do more than just a black-and-white
-"root vs non-root" thing.
-
-> Yes, but block reservation also makes sense (otherwise we can end up
-> putting a directory into parent's CG only to have all children
-> going there _and_ getting far from their data).  Which might be the
-> problem with original code, BTW.
-
-Yes, agreed. Disk space allocations should definitely be part of the
-heuristics, and that's obviously both inode and blocks.
-
-I do believe that there are probably more "high-level" heuristics that can
-be useful, though. Looking at man common big trees, the ownership issue is
-one obvious clue. Sadly the trees obviously end up being _created_ without
-owner information, and the chown/chgrp happens later, but it might still
-be useable for some clues.
-
-		Linus
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

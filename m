@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264275AbUE2NXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264850AbUE2NWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264275AbUE2NXh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 09:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264857AbUE2NXh
+	id S264850AbUE2NWT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 09:22:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264857AbUE2NWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 09:23:37 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:24336 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S264275AbUE2NXY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 09:23:24 -0400
-Date: Sat, 29 May 2004 15:23:20 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Chris Osicki <osk@osk.ch>
-Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: keyboard problem with 2.6.6
-Message-ID: <20040529132320.GC5175@pclin040.win.tue.nl>
-References: <20040525201616.GE6512@gucio> <20040528194136.GA5175@pclin040.win.tue.nl> <20040528214620.GA2352@gucio>
+	Sat, 29 May 2004 09:22:18 -0400
+Received: from ipcop.bitmover.com ([192.132.92.15]:18402 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S264850AbUE2NUp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 09:20:45 -0400
+Date: Sat, 29 May 2004 06:20:38 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Hugo Mills <hugo-lkml@carfax.org.uk>, Vojtech Pavlik <vojtech@suse.cz>,
+       bitkeeper-announce@work.bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: bk-3.2.0 released
+Message-ID: <20040529132038.GB20605@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Hugo Mills <hugo-lkml@carfax.org.uk>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	bitkeeper-announce@work.bitmover.com, linux-kernel@vger.kernel.org
+References: <20040518233238.GC28206@work.bitmover.com> <20040529095419.GB1269@ucw.cz> <20040529130436.GA20605@work.bitmover.com> <20040529131510.GB13999@selene>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040528214620.GA2352@gucio>
+In-Reply-To: <20040529131510.GB13999@selene>
 User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 28, 2004 at 11:46:20PM +0200, Chris Osicki wrote:
+On Sat, May 29, 2004 at 02:15:10PM +0100, Hugo Mills wrote:
+> On Sat, May 29, 2004 at 06:04:36AM -0700, Larry McVoy wrote:
+> > On Sat, May 29, 2004 at 11:54:20AM +0200, Vojtech Pavlik wrote:
+> > > On Tue, May 18, 2004 at 04:32:38PM -0700, Larry McVoy wrote:
+> > > > BK/Pro 3.2.0 has been released and is in the BK download area,
+> > > > 
+> > > >     http://bitmover.com/download
+> > > 
+> > > Any chance of a native x86-64 version? 
+> > 
+> > We don't have any x86-64 machines but we could get one.  I asked about this
+> > a while back and people told me that there was no point, the x86 one worked
+> > perfectly.  Can you tell me what having a native one would gain?  If there
+> > is any gain we'll do it.
+> 
+>    It'll allow BK to be run on machines which have a pure 64-bit
+> userspace (for example, Debian's current amd64 port), without having
+> to resort to a 32-bit chroot to run the 32-bit BK binary.
 
->>> I tried to solve my problem using setkeycodes and tried:
->>> 
->>> setkeycodes 71 101
->>> 
->>> getkeycodes reported after that:
->>> 
->>> # getkeycodes | grep 0x70
->>>  0x70:   93 101   0  89   0   0  85  91
-
-Yes, fine.
-
->>> But showkeys -s shows 0x5b when the key in question is pressed
->>> (and no release event!!??)
-
-0x5b is 91 which is x86_keycodes[101].
-
-Yes, so all is clear:
-The 2.6 kernel no longer has a raw mode - it has a simulated raw mode
-that is not very raw. When you updated the table used for the
-scancode->keycode translation, the table used to reconstruct what
-might have been the original scancode was not changed accordingly.
-Thus, showkeys -s gave a garbage answer.
-
-Thanks for the report. It shows that resurrecting raw mode is even
-more desirable than I thought at first.
-
-Andries
+OK, that's more than enough of a reason.  We'll get a native one in the next
+week or so.
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

@@ -1,39 +1,93 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314706AbSD1Xzy>; Sun, 28 Apr 2002 19:55:54 -0400
+	id <S314707AbSD2A2Q>; Sun, 28 Apr 2002 20:28:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314707AbSD1Xzx>; Sun, 28 Apr 2002 19:55:53 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:40718 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314706AbSD1Xzw>; Sun, 28 Apr 2002 19:55:52 -0400
-Subject: Re: Why HZ on i386 is 100 ?
-To: george@mvista.com (george anzinger)
-Date: Mon, 29 Apr 2002 01:14:26 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), ak@suse.de (Andi Kleen),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3CCC6EAD.22A439F7@mvista.com> from "george anzinger" at Apr 28, 2002 02:50:37 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S314708AbSD2A2P>; Sun, 28 Apr 2002 20:28:15 -0400
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:34314 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S314707AbSD2A2O>; Sun, 28 Apr 2002 20:28:14 -0400
+Date: Mon, 29 Apr 2002 02:28:11 +0200
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: Stephan Maciej <stephan@maciej.muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Sony Vaio Laptop problems
+Message-ID: <20020429002811.GB3108@arthur.ubicom.tudelft.nl>
+In-Reply-To: <200204261728.39745.stephan@maciej.muc.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E171yoE-0004ym-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The problem is the extra code in the schedule() path, not in the timer
-> tick path.  It is traversed FAR more often.
+On Fri, Apr 26, 2002 at 05:28:39PM +0200, Stephan Maciej wrote:
+> I do have two problems with running Linux on my Sony Vaio PCG-FX501 Laptop.
 
-Thats still in most cases a single compare. The tick timer will mostly be
-going off before our time slice completes. Also importantly the more we
-context switch the less timers go off - so it scales correctly.
+I have a FX505, which basically is a FX501 with Athlon 1.2GHz and some
+other goodies.
 
-> The current tick at 1/HZ is really quite relaxed.  Given the PIT (ugh!)
-> the longest we can put off a tick is about 50 ms.  This means that any
-> time greater than this will require more than one interrupt, i.e. the
-> best case improvement by going tick less (again given the PIT) is about
-> 5 times.  Other platforms/ hardware, of course, change this.
+> 1.) When I do a reboot, the bootup logo (a nice animation from Sony :-) 
+> displays, and the HD light turns on and stays on forever. Approximately 30 
+> seconds later, the logo goes away, and I do see the Phoenix BIOS' startup 
+> screen, saying
+> 
+> ERROR
+> 0211: Keyboard Error
+> 
+> I do have the option to use <F2> to enter Setup, but due to some strange 0211 
+> keyboard error it just won't work. The only proper way for restarting my 
+> machine is to power it off and turn it on again.
+> 
+> What can I do?
 
-If you are arguing that the PIT makes it impractical on basic x86 then
-we are in violent agreement. I don't propose this kind of stuff for the
-PIT but for real computers where a timer reload is a couple of clocks
+1) Update the BIOS, my laptop shipped with an old version and a BIOS
+   update fixed some keyboard related problems. (you need to boot into
+   windows for this)
+2) Apply the latest ACPI patch.
+
+> 2.) The laptop seems to put itself to sleep when I don't do anything for a 
+> longer period of time. The display becomes black (the backlight is still on, 
+> though) and I can't do anything except powering off and on again to make the 
+> machine work again. No messages about anything interesting are in my syslog 
+> files after this has happened. The problem persists both with ACPI and APM.
+> 
+> The only thing that fixes this problem is loading or installing the sonypi 
+> driver into the kernel. It doesn't function as expected, but it solves at 
+> least *this* problem. (As documented in the driver, sonypi should be able to 
+> set/get the backlight intensity of the display, but that doesn't work. There 
+> are even more features that it has but that are non-operational on my 
+> system.)
+
+My FX505 doesn't need the sonypi driver. With APM I can suspend the
+computer but the CPU fan won't turn off; with ACPI the CPU fan turns
+off, but I can't suspend the computer. Anyway, the latest ACPI patch
+makes it a lot more quiet.
+
+> This is all okay, especially as I can now leave my laptop alone for even more 
+> than 10 minutes or so without having the need to turn it off and on again 
+> afterwards. OTOH, with sonypi my via82cxxx_audio driver won't work. 
+> 
+> When compiled into kernel, I see the follwing message:
+
+Use the ALSA-0.9 series driver instead of the kernel driver.
+
+> So, just for completeness, here's my system configuration:
+> 
+> Mobile AMD Duron Processor, 1GHz
+> 256MB RAM
+> IDE hard disk and CD/DVD ROM
+
+You forgot to tell which kernel version you are currently using.
+Anyway, linux-2.4.19-pre5 + acpi-20020329-2.4.18 works for me.
+
+
+Erik
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
+of Information Technology and Systems, Delft University of Technology,
+PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
+Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,98 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267674AbTAaCQN>; Thu, 30 Jan 2003 21:16:13 -0500
+	id <S267692AbTAaC70>; Thu, 30 Jan 2003 21:59:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267682AbTAaCQN>; Thu, 30 Jan 2003 21:16:13 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:42759 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id <S267674AbTAaCQM>;
-	Thu, 30 Jan 2003 21:16:12 -0500
-Date: Fri, 31 Jan 2003 03:21:51 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Samuel Flory <sflory@rackable.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Wesley Wright <wewright@verizonmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] USB HardDisk Booting 2.4.20
-Message-ID: <20030131022151.GA25068@alpha.home.local>
-References: <1043947657.7725.32.camel@steven> <1043952432.31674.22.camel@irongate.swansea.linux.org.uk> <3E39A895.9000602@rackable.com>
+	id <S267694AbTAaC70>; Thu, 30 Jan 2003 21:59:26 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:5510 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S267692AbTAaC70>;
+	Thu, 30 Jan 2003 21:59:26 -0500
+Date: Thu, 30 Jan 2003 22:10:30 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andre Hedrick <andre@linux-ide.org>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Update PnP IDE (2/6)
+Message-ID: <20030130221030.GG2246@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Andre Hedrick <andre@linux-ide.org>, greg@kroah.com,
+	linux-kernel@vger.kernel.org
+References: <20030125201516.GA12794@neo.rr.com> <Pine.LNX.4.10.10301251824510.1744-100000@master.linux-ide.org> <20030129222632.GD2246@neo.rr.com> <1043926921.28133.19.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E39A895.9000602@rackable.com>
+In-Reply-To: <1043926921.28133.19.camel@irongate.swansea.linux.org.uk>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 30, 2003 at 02:35:01PM -0800, Samuel Flory wrote:
->  The problem I've seen is there is a several second delay before the 
-> usb device is availble.  My solution was to stick a sleep in my initrd 
-> before attempting to mount /.  A more rational patch might be to retry 
-> mounting / after a few seconds delay before giving up.  I think I saw 
-> patch doing this on the usb list.
+On Thu, Jan 30, 2003 at 11:42:01AM +0000, Alan Cox wrote:
+> On Wed, 2003-01-29 at 22:26, Adam Belay wrote:
+> > a mess when PnP hotplugging is finally used.  Also if a pnp protocol was presented
+> > in a removable module format, the protocol may want drivers to detach from its
+> > devices upon module unload.  Are there any other hotpluggable ide devices and if
+> > so how are they handled?
+> 
+> The IDE layer does not currently handle hotplugging. It needs a lot of work
+> before that can happen
 
-Hello !
+Would you suggest I remove the ide_unregister and place a error message if that area
+is ever called in the pnp ide driver or is it better to leave it in there?  I'd like
+to get this patch out soon so users can take advantage of these changes.  Becuase
+pnp does not currently support hotplugging, I doubt there will be any problems.
 
-I'm personnaly using this simple patch with success with an usb disk on
-key. It adds an option "setuptime" which waits the requested amount of ms
-before booting. I use it with "setuptime=2500" and my USB works fine.
-
-I think it could be of a more general use, and perhaps it could be
-accepted into mainstream if it doesn't break anything ?
-
-Cheers,
-Willy
-
-
---- linux-21pre/init/main.c	Sat Dec 21 16:53:09 2002
-+++ linux-21pre-usb/init/main.c	Sat Dec 21 17:35:50 2002
-@@ -126,6 +126,7 @@
- 
- static char * argv_init[MAX_INIT_ARGS+2] = { "init", NULL, };
- char * envp_init[MAX_INIT_ENVS+2] = { "HOME=/", "TERM=linux", NULL, };
-+static int setuptime;	/* time(ms) to let devices set up before root mount */
- 
- static int __init profile_setup(char *str)
- {
-@@ -136,6 +137,15 @@
- 
- __setup("profile=", profile_setup);
- 
-+static int __init setuptime_setup(char *str)
-+{
-+    int par;
-+    if (get_option(&str,&par)) setuptime = par;
-+	return 1;
-+}
-+
-+__setup("setuptime=", setuptime_setup);
-+
- static int __init checksetup(char *line)
- {
- 	struct kernel_param *p;
-@@ -546,11 +556,25 @@
- 
- extern void prepare_namespace(void);
- 
-+static int finish_setup()
-+{
-+	int tleft;
-+	if (setuptime) {
-+		printk("Waiting %d ms for devices to set up.\n", setuptime);
-+		tleft = setuptime * HZ / 1000;
-+		while (tleft) {
-+			set_current_state(TASK_INTERRUPTIBLE);
-+			tleft = schedule_timeout(tleft);
-+		}
-+	}
-+}
-+
- static int init(void * unused)
- {
- 	lock_kernel();
- 	do_basic_setup();
- 
-+	finish_setup();
- 	prepare_namespace();
- 
- 	/*
-
+Thanks,
+Adam

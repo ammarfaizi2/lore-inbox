@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131277AbRBPUxV>; Fri, 16 Feb 2001 15:53:21 -0500
+	id <S130698AbRBPVpg>; Fri, 16 Feb 2001 16:45:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131278AbRBPUxL>; Fri, 16 Feb 2001 15:53:11 -0500
-Received: from [63.95.13.242] ([63.95.13.242]:17170 "EHLO
-	zso-powerapp-01.zeusinc.com") by vger.kernel.org with ESMTP
-	id <S131277AbRBPUxA>; Fri, 16 Feb 2001 15:53:00 -0500
-Message-ID: <001f01c09859$f928dd10$25040a0a@zeusinc.com>
-From: "Tom Sightler" <ttsig@tuxyturvy.com>
-To: "Andrew Morton" <andrewm@uow.edu.au>
-Cc: "Gord R. Lamb" <glamb@lcis.dyndns.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.32.0102141548440.27843-100000@localhost.localdomain>,	<Pine.LNX.4.32.0102141548440.27843-100000@localhost.localdomain> <982190431.3a8b095f4b3c4@eargle.com> <3A8D3E62.98F5AD6A@uow.edu.au>
-Subject: Re: Samba performance / zero-copy network I/O
-Date: Fri, 16 Feb 2001 15:49:35 -0500
+	id <S130766AbRBPVp1>; Fri, 16 Feb 2001 16:45:27 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:34110 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S130698AbRBPVpU>; Fri, 16 Feb 2001 16:45:20 -0500
+Date: Fri, 16 Feb 2001 22:56:40 +0100 (CET)
+From: Francis Galiegue <fg@mandrakesoft.com>
+To: linux-kernel@vger.kernel.org
+Subject: [patchlet] One liner "fix" to mm/vmalloc.c
+Message-ID: <Pine.LNX.4.21.0102162255330.884-100000@toy.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > My testing showed that the lowlatency patches abosolutely destroy a
-system
-> > thoughput under heavy disk IO.
->
-> I'm surprised - I've been keeping an eye on that.
->
-> Here's the result of a bunch of back-to-back `dbench 12' runs
-> on UP, alternating with and without LL:
+Right above the "if (!pmd)" ret is also set to -ENOMEM...
 
-It's interesting that your results seem to show an improvement in
-performance, while mine show a consistent drop.  My tests were not very
-scientific, and I was running much higher dbench processes, 'dbench 64' or
-'dbench 128', and at those levels performance with lowlatency enabled fell
-though the floor on my setup.
+--- mm/vmalloc.c.old    Fri Feb 16 22:47:59 2001
++++ mm/vmalloc.c        Fri Feb 16 22:48:16 2001
+@@ -151,7 +151,6 @@
+                if (!pmd)
+                        break;
 
-My system is a PIII 700Mhz, Adaptec 7892 Ultra-160, software RAID1,
-reiserfs, 256MB RAM.
+-               ret = -ENOMEM;
+                if (alloc_area_pmd(pmd, address, end - address, gfp_mask,
+prot))
+                        break;
 
-Under lower loads, like the 'dbench 12' lowlatency only showed only a few
-percent loss, but once you approached the levels around 50 things really
-went downhill.
 
-I might try to do a more complete test, maybe there's something else in my
-config that would make this be a problem, but it was definately quite
-noticable.
 
-Later,
-Tom
-
+-- 
+Francis Galiegue, fg@mandrakesoft.com - Normand et fier de l'être
+"Programming is a race between programmers, who try and make more and more
+idiot-proof software, and universe, which produces more and more remarkable
+idiots. Until now, universe leads the race"  -- R. Cook
 

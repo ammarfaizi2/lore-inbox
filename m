@@ -1,62 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVAMBFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVAMBF7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbVAMBFz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 20:05:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVAMBDb
+	id S261450AbVAMBF7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 20:05:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVAMBCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 20:03:31 -0500
-Received: from mproxy.gmail.com ([216.239.56.243]:65127 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261344AbVAMA7o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 19:59:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=i3LWWCFxhMapAx3ea6LvE6TVRlJG/HtjrmfIp2BP+Zl8VBtqcd93+OY2LuKNS73BymATPLbUIeP1VTA4sT9Mz+ayJHwdg6PbupzOygceKY4hSwJu4y6fZQ2sEg+0QlVN/Cc7C+OuI4v3C5YCeGcsjSxh6XqPlqZNa7I9b3EWWJY=
-Message-ID: <21d7e997050112165935b89a27@mail.gmail.com>
-Date: Thu, 13 Jan 2005 11:59:42 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] kill symbol_get & friends
-Cc: Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, adaplas@pol.net,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dwmw2@redhat.com
-In-Reply-To: <1105575573.12794.27.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 12 Jan 2005 20:02:50 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:33763 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261428AbVAMA7N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 19:59:13 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Fix a bug in timer_suspend() on x86_64
+Date: Thu, 13 Jan 2005 01:59:16 +0100
+User-Agent: KMail/1.7.1
+Cc: Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ncunningham@linuxmail.org, Pavel Machek <pavel@suse.cz>
+References: <20050106002240.00ac4611.akpm@osdl.org> <200501130002.37311.rjw@sisk.pl> <1105572485.2941.1.camel@desktop.cunninghams>
+In-Reply-To: <1105572485.2941.1.camel@desktop.cunninghams>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-References: <20050112203136.GA3150@lst.de>
-	 <1105575573.12794.27.camel@localhost.localdomain>
+Content-Disposition: inline
+Message-Id: <200501130159.16818.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Sorry, Christoph, I must be particularly obtuse today.
-> 
-> If you don't hold a reference, then yes, the module can go away.  This
-> hasn't been a huge problem for users in the past.
-> 
-> The lack of users is because, firstly, dynamic dependencies are less
-> common than static ones, and secondly because the remaining inter-module
-> users (AGP and mtd) have not been converted.  Patches have been sent
-> several times, but maintainers are distracted, it seems.  I *will* run
-> out of patience and push those patches which take away intermodule.c one
-> day (hint, hint!).
+Hi,
 
-well the DRM doesn't use the AGP anymore so it should be safe to nuke
-(does i810 framebuffer use it??), Christoph didn't like converting the
-DRM to use module_get so I just went straight to the agp backend..
-it's not perfect but it'll work in nearly all situations..
+This patch is intended to fix a bug in timer_suspend() on x86_64 that causes 
+hard lockups on suspend with swsusp and provide some optimizations.  It is 
+based on the Nigel Cunningham's patches to to reduce delay in 
+arch/kernel/time.c.  The patch is against 2.6.10-mm3 and 2.6.11-rc1.  Please 
+consider for applying.
 
-> 
-> For optional module dependencies, weak symbols can be used, but there
-> seems to be a desire for genuine dynamic dependencies.  If you can get
-> rid of those, I'll apply your patch in a second!
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 
-what weak symbol support? can I actually use gcc weak symbols and have
-it all work?
-what happens if the module goes away? 
+--- linux-2.6.10-mm3-orig/arch/x86_64/kernel/time.c	2005-01-13 
+01:46:10.000000000 +0100
++++ linux-2.6.10-mm3/arch/x86_64/kernel/time.c	2005-01-13 01:32:05.000000000 
++0100
+@@ -955,16 +955,19 @@
+ 
+ __setup("report_lost_ticks", time_setup);
+ 
+-static long clock_cmos_diff, sleep_start;
++static long clock_cmos_diff;
++static unsigned long sleep_start;
+ 
+ static int timer_suspend(struct sys_device *dev, u32 state)
+ {
+ 	/*
+ 	 * Estimate time zone so that set_time can update the clock
+ 	 */
+-	clock_cmos_diff = -get_cmos_time();
++	long cmos_time =  get_cmos_time();
++
++	clock_cmos_diff = -cmos_time;
+ 	clock_cmos_diff += get_seconds();
+-	sleep_start = jiffies;
++	sleep_start = cmos_time;
+ 	return 0;
+ }
+ 
+@@ -973,7 +976,7 @@
+ 	unsigned long flags;
+ 	unsigned long sec;
+ 	unsigned long ctime = get_cmos_time();
+-	unsigned long sleep_length = ctime - sleep_start;
++	unsigned long sleep_length = (ctime - sleep_start) * HZ;
+ 
+ 	if (vxtime.hpet_address)
+ 		hpet_reenable();
+@@ -983,7 +986,8 @@
+ 	xtime.tv_sec = sec;
+ 	xtime.tv_nsec = 0;
+ 	write_sequnlock_irqrestore(&xtime_lock,flags);
+-	jiffies += sleep_length * HZ;
++	jiffies += sleep_length;
++	wall_jiffies += sleep_length;
+ 	return 0;
+ }
+ 
 
-Dave.
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

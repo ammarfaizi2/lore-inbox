@@ -1,81 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261553AbREOVSI>; Tue, 15 May 2001 17:18:08 -0400
+	id <S261534AbREOVUs>; Tue, 15 May 2001 17:20:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261552AbREOVR6>; Tue, 15 May 2001 17:17:58 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:55052 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S261551AbREOVRm>; Tue, 15 May 2001 17:17:42 -0400
-Message-ID: <3B019CB7.78A2C5EB@evision-ventures.com>
-Date: Tue, 15 May 2001 23:16:39 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, de
+	id <S261535AbREOVUi>; Tue, 15 May 2001 17:20:38 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:13066 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261534AbREOVU0>; Tue, 15 May 2001 17:20:26 -0400
+Message-ID: <3B019D8A.86C18D1C@transmeta.com>
+Date: Tue, 15 May 2001 14:20:10 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alexander Viro <viro@math.psu.edu>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: Getting out of hand?
-In-Reply-To: <Pine.LNX.4.21.0105142114310.23663-100000@penguin.transmeta.com>
+To: Tim Fletcher <tim@parrswood.manchester.sch.uk>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Device Numbers, LILO
+In-Reply-To: <Pine.LNX.4.33.0105152156200.4099-100000@redwood.parrswood.manchester.sch.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Tim Fletcher wrote:
 > 
-> On Mon, 14 May 2001, Alan Cox wrote:
-> >
-> > Except that Linus wont hand out major numbers, which means I can't even boot
-> > simply off such a device. I bet the vendors in question dont think the sun
-> > shines out of linus backside any more.
+> > It's in, but for some strange reason you have to ask for it explicitly
+> > with the "lba32" option.
 > 
-> Actually, it does. It's just that some people have gotten so blinded by my
-> a** that they can no longer see it any more ;)
+> Because the 32bit bios calls lilo uses in lba32 mode can cause problems
+> with broken or old bios's hence is defaults to a safe option, and if you
+> can't boot without it (over 1023 cylinders) then you turn it on at your
+> own risk.
 > 
-> The problem I have is that there are lots of _good_ solutions, but they
-> all imply a bit more work than the bad ones.
+> I know this from the experiance of breaking lilo on my workstation :)
 > 
-> What does that result in? Everybody continues to use the simple old setup,
-> which required no thought at all, but that is a pain to maintain.
-> 
-> For example, the only thing you need in order to boot is to have a nice
-> clean "disk" major number. That's it. Nothing fancy, nothing more.
-> 
-> Look at what we have now:
-> 
->  - ramdisk: major 1. Fair enough - ramdisk is special, in that it doesn't
->    have any "real hardware". No problem.
->  - SCSI disks:
->         major 8, 65-71,
->  - Compaq smart2:
->         major 72-79
->  - Compaq CISS:
->         major 104-111
->  - DASD;
->         major 94
->  - IDE:
->         major 3, 22, 33-34, 56-57, 88-91
-> 
-> and then the small random ones.
-> 
-> NONE of these major numbers have _any_ redeeming qualities except for the
-> ramdisk. They should all be _one_ major number, namely "disk". There are
-> absolutely NO advantages to having separate devices for soem strange
-> compaq controllers and IDE disks. There is _no_ point in having some SCSI
-> disks show up at major 8, while others (who just happen to be attached to
-> a scsi bus that is not driven by the generic SCSI layer) show up at major
-> 104 or whatever.
 
-And then the IDE stuff is stiuoid to use the same major numbers for
-in fact entierly different devices like CD-ROM and IDE disk drivers on
-the same major... This makes it VERY uncomfortable to guarantee that
-for example the sector size and driver read ahead are properties
-tighted to the major number alone... In fact Linux is bundling 
-read ahead with the major number only, in esp. inside the RAID drivers
-which is entierly wrong! (see blksize_size array and read_ahead array).
+The problem is that LILO tries one or the other, instead of dynamically
+using whichever one it needs.  Heck, you may not be able to make that
+decision until boot time anyway!  You can then either always try LBA
+calls and see if they are available, or default to CHS calls unless
+cylinder > 1023.
 
-And yes the RAID drivers are in particular *VERY* stiupid in
-terms of major/minor number usage.
+LILO tries to do *way* too much at install time.  The fact that you have
+to specify "linear" explicitly is a joke -- there is no excuse for
+!linear.
+
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

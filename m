@@ -1,48 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262954AbUC2V0I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 16:26:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263091AbUC2V0I
+	id S263140AbUC2V3p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 16:29:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263141AbUC2V3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 16:26:08 -0500
-Received: from dsl081-235-061.lax1.dsl.speakeasy.net ([64.81.235.61]:17829
-	"EHLO ground0.sonous.com") by vger.kernel.org with ESMTP
-	id S262954AbUC2V0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 16:26:03 -0500
-In-Reply-To: <1080595343.3570.15.camel@laptop.fenrus.com>
-References: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com> <1080594005.3570.12.camel@laptop.fenrus.com> <50DC82B4-81C5-11D8-A0A8-000A959DCC8C@sonous.com> <1080595343.3570.15.camel@laptop.fenrus.com>
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <ACFAE876-81C7-11D8-A0A8-000A959DCC8C@sonous.com>
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Lev Lvovsky <lists1@sonous.com>
-Subject: Re: older kernels + new glibc?
-Date: Mon, 29 Mar 2004 13:26:00 -0800
-To: arjanv@redhat.com
-X-Mailer: Apple Mail (2.613)
+	Mon, 29 Mar 2004 16:29:45 -0500
+Received: from fw.osdl.org ([65.172.181.6]:56738 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263140AbUC2V3j (ORCPT
+	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Mon, 29 Mar 2004 16:29:39 -0500
+Message-Id: <200403292129.i2TLTN204307@mail.osdl.org>
+Date: Mon, 29 Mar 2004 13:29:20 -0800 (PST)
+From: markw@osdl.org
+Subject: Re: Reiser4 needs more testers
+To: reiser@namesys.com
+cc: Nikita@namesys.com, Reiserfs-Dev@namesys.com, Reiserfs-List@namesys.com,
+       Linux-Kernel@Vger.Kernel.ORG, cliff@lindows.com, tom.welch@lindows.com,
+       garloff@suse.de, drobbins@gentoo.org, reiserrf@hotmail.com
+In-Reply-To: <40687354.1060604@namesys.com>
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 29, 2004, at 1:22 PM, Arjan van de Ven wrote:
+It's an OLTP database workload, but it is the one with all those fsyncs
+that Nikita pointed out.
 
-> On Mon, 2004-03-29 at 23:09, Lev Lvovsky wrote:
->> We have the source of the drivers, but they are specific to the 2.2.x
->> kernels.  I am not a kernel hacker, and this would be way beyond my
->> area of expertise.
+Mark
+
+On 29 Mar, Hans Reiser wrote:
+> This was the parallel fsync benchmark?
+> 
+> Hans
+> 
+> markw@osdl.org wrote:
+> 
+>>I've run through another test on STP with the latest snapshot against
+>>reiser4 and reiserfs for comparison.  Reiser4 still seems to be lagging
+>>behind reiserfs in our DBT-2 workload (the bigger number is better in
+>>the metric):
 >>
->> And sadly, this doesn't answer the initial question.
->
-> then to answer your question; at compile time you tell glibc what
-> minimum kernel version it can assume, and based on that glibc will
-> enable/disable certain features. So it depends on what your distro
-> supplied there if it'll work or not. if you tell glibc that at minimum
-> you do 2.4.1 for example, then no a 2.2 kernel won't work. I think most
-> distros do this (or an even later version) since a few years now.
-
-perfect - where does this variable get set?  sorry for what now seems 
-like OT glibc stuff.
-
-thanks,
--lev
+>>          metric  url to test results
+>>          ------  ---------------------------------
+>>reiser4   1208    http://khack.osdl.org/stp/290774/
+>>reiserfs  1819    http://khack.osdl.org/stp/290775/
+>>
+>>Mark
+>>
+>>On 26 Mar, Hans Reiser wrote:
+>>  
+>>
+>>>We have one NFS related bug remaining, and one mmap all of memory 
+>>>related bug (and performance issue) that you can hit using iozone.  We 
+>>>will fix both of these in next week's snapshot, they were both multi-day 
+>>>bug fixes.  When they are fixed, unless users/distros find bugs next 
+>>>week we will submit it for inclusion in the -mm and then the official 
+>>>kernel.
+>>>
+>>>We hope it is now fairly stable for average users if you avoid those two 
+>>>issues (we need to get rid of those dire warnings about its 
+>>>stability...., we will remember that next snapshot....;-) )
+>>>
+>>>We need a lot more real user testers, because we have run out of scripts 
+>>>that can crash it, and there are distros that would like to ship it 
+>>>soon.  Please also complain to vitaly@namesys.com and ramon@namesys.com 
+>>>about poor documentation, etc., ....
+>>>
+>>>The new reiser4 snapshot (against 2.6.5-rc2) is available at
+>>>
+>>>http://www.namesys.com/snapshots/2004.03.26/
+>>>    
+>>>
+>>
+>>
+>>
+>>  
+>>
+> 
+> 
 

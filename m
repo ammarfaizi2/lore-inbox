@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262415AbSKCVRT>; Sun, 3 Nov 2002 16:17:19 -0500
+	id <S262488AbSKCVVu>; Sun, 3 Nov 2002 16:21:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262479AbSKCVRT>; Sun, 3 Nov 2002 16:17:19 -0500
-Received: from imo-m07.mx.aol.com ([64.12.136.162]:56522 "EHLO
-	imo-m07.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S262415AbSKCVRL>; Sun, 3 Nov 2002 16:17:11 -0500
-Message-ID: <3DC593A8.2030204@netscape.net>
-Date: Sun, 03 Nov 2002 16:22:48 -0500
-From: Nicholas Wourms <nwourms@netscape.net>
-User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Flavio Stanchina <flavio.stanchina@tin.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Petition against kernel configuration options madness...
-References: <200211031809.45079.josh@stack.nl> <aq41b9$dt9$1@main.gmane.org> <3DB5E7CA00439C7E@smtp2.cp.tin.it> (added by postmaster@virgilio.it)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Mailer: Unknown (No Version)
+	id <S262491AbSKCVVu>; Sun, 3 Nov 2002 16:21:50 -0500
+Received: from ua133d34hel.dial.kolumbus.fi ([62.248.232.133]:50987 "EHLO
+	uworld.dyndns.org") by vger.kernel.org with ESMTP
+	id <S262488AbSKCVVt>; Sun, 3 Nov 2002 16:21:49 -0500
+Subject: Re: Some functions are not inlined by gcc 3.2, resulting code is
+	ugly
+From: Jussi Laako <jussi.laako@kolumbus.fi>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200211031925.gA3JPHp29128@Port.imtp.ilyichevsk.odessa.ua>
+References: <200211031125.gA3BP4p27812@Port.imtp.ilyichevsk.odessa.ua>
+	<1036340272.26281.5.camel@vaarlahti.uworld> 
+	<200211031925.gA3JPHp29128@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-67TaTHsFZ60+ikLrNS58"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Nov 2002 23:28:05 +0200
+Message-Id: <1036358886.26281.19.camel@vaarlahti.uworld>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Flavio Stanchina wrote:
-> On Sunday 03 November 2002 21:38, Nicholas Wourms wrote:
-> 
-> 
->>Stop whining, 2.5 kernels are development kernels -> not *expected* to
->>work %100!
-> 
-> 
-> Correct me if I'm wrong, but we're here to work out the problems. That's 
-> one of the major meanings of "development", in my experience.
-> 
-> I was bitten too: I loaded my 2.4.19 configuration and looked through most 
-> options, but I overlooked this keyboard/mouse thing. I think it's not 
-> turned on by default if you load an existing configuration, which is 
-> probably not what we want.
-> 
 
-This is true, but if you are going to make a report, make a 
-report, don't advocate changing something which works for 
-most as it stands.  From the subject, one got the idea that 
-people wanted to do some willy-nilly rearranging of the 
-configure options.  The real issue here is that you really 
-should *not* be copying 2.4 .config's over to a 2.5 tree. 
-That way you'll be forced to go through all the options and 
-get the proper "default" options for your platform enabled 
-automatically.
+--=-67TaTHsFZ60+ikLrNS58
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Cheers,
-Nicholas
+On Mon, 2002-11-04 at 02:17, Denis Vlasenko wrote:
+
+> Alignment does not eliminate jump. It only moves jump target to 16 byte
+> boundary.=20
+
+Exactly. And P4 cache is _very_ bad at anything not 16-byte aligned. The
+speed penalty is big. This seems to be problem only with Intel CPU's, no
+such large effects on AMD ones.
+
+> This _probably_ makes execution slightly faster but on average
+> it costs you 7,5 bytes. This price is too high when you take into account
+> L1 instruction cache wastage and current bus/core clock ratios.
+
+7.5 bytes is not much compared to possibility of trashed cache or
+pipeline flush.
+Do you have execution time numbers of jump to 16-byte aligned address vs
+unaligned address?
+
+
+	- Jussi Laako
+
+--=-67TaTHsFZ60+ikLrNS58
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9xZTlS3txJU4L5RQRAvvhAKC2fZBUjHjjt66FBckzET0Gd6DjRACfbkem
+uFIfBVhaGXV/hLHgrREcpnc=
+=2ZBM
+-----END PGP SIGNATURE-----
+
+--=-67TaTHsFZ60+ikLrNS58--
 

@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279449AbRJ2UVB>; Mon, 29 Oct 2001 15:21:01 -0500
+	id <S279457AbRJ2U0x>; Mon, 29 Oct 2001 15:26:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279446AbRJ2UUv>; Mon, 29 Oct 2001 15:20:51 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62473 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S279449AbRJ2UUk>;
-	Mon, 29 Oct 2001 15:20:40 -0500
-Date: Mon, 29 Oct 2001 20:21:16 +0000
-From: Joel Becker <jlbec@evilplan.org>
-To: Alex Deucher <agd5f@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: opl3sa2 sound driver and mixers
-Message-ID: <20011029202116.I2878@parcelfarce.linux.theplanet.co.uk>
-Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
-	Alex Deucher <agd5f@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011029193932.64498.qmail@web11301.mail.yahoo.com>
-Mime-Version: 1.0
+	id <S279456AbRJ2U0n>; Mon, 29 Oct 2001 15:26:43 -0500
+Received: from mta06-svc.ntlworld.com ([62.253.162.46]:34779 "EHLO
+	mta06-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S279234AbRJ2U0f>; Mon, 29 Oct 2001 15:26:35 -0500
+Message-ID: <3BDDBB42.C5C8C363@rextwo.freeserve.co.uk>
+Date: Mon, 29 Oct 2001 20:25:38 +0000
+From: Steve Parker <steve@rextwo.freeserve.co.uk>
+Reply-To: steve@rextwo.freeserve.co.uk
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.13 freezes on boot
+In-Reply-To: <F266tyCEyjWk9UlwaM30001198e@hotmail.com> <20011028095527.B8059@kroah.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011029193932.64498.qmail@web11301.mail.yahoo.com>; from agd5f@yahoo.com on Mon, Oct 29, 2001 at 11:39:32AM -0800
-X-Burt-Line: Trees are cool.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 29, 2001 at 11:39:32AM -0800, Alex Deucher wrote:
-> I have a toshiba portege 3020ct and a libretto 50ct
-> with a opl3sa2 sound chips.  The modules load ok and
-> sound works, but an extra mixer seems to always load. 
+Greg KH wrote:
+> 
+> On Sun, Oct 28, 2001 at 01:11:24PM +0000, Solid Silver Panther wrote:
+> > greetings all,
+> >
+> >  I apologise for the somewhat vague descriptions here, but Im no
+> > experienced Kernel Hacker. I'm in my 3rd month of Linux (RedHat 7.1) and was
+> >
+> > <snip>
+> 
+> What happens if you boot without any USB devices plugged in?
 
-	Yeah, I see this too, "MS Sound System (CS4231)".  Toshiba Tecra
-8000.  2.4.10-ac10.  I will say that this is still an improvement over
-the "opl3sa2 doesn't work in 2.4" bit.
+I found I have a similar problem with the cpia driver. With cpia support
+built into the kernel, the last thing I got was
 
-Joel
+usb.c: Registered new driver cpia
+
+and the system stopped. Note that no USB initialisation messages
+appeared prior
+to the final line. This occurred with and without the camera (my only
+USB
+device) connected.
+
+Building the cpia support as modules and modprobing them in after the
+system
+has booted seems to work without any problem.
+
+Steve
 
 -- 
-
-Life's Little Instruction Book #94
-
-	"Make it a habit to do nice things for people who 
-	 will never find out."
-
-			http://www.jlbec.org/
-			jlbec@evilplan.org
+Linux kernel 2.4.13
+  8:15pm  up 1 day, 14:11,  3 users,  load average: 1.08, 1.17, 1.15

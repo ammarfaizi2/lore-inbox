@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317571AbSGOSP6>; Mon, 15 Jul 2002 14:15:58 -0400
+	id <S317577AbSGOSRz>; Mon, 15 Jul 2002 14:17:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317572AbSGOSP5>; Mon, 15 Jul 2002 14:15:57 -0400
-Received: from holomorphy.com ([66.224.33.161]:7338 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S317571AbSGOSPz>;
-	Mon, 15 Jul 2002 14:15:55 -0400
-Date: Mon, 15 Jul 2002 11:17:39 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Serial: updated serial drivers
-Message-ID: <20020715181739.GJ21551@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-References: <20020707010009.C5242@flint.arm.linux.org.uk> <20020715100310.GF23693@holomorphy.com> <20020715110135.GI21551@holomorphy.com> <20020715122455.A14493@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	id <S317572AbSGOSRy>; Mon, 15 Jul 2002 14:17:54 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:37645 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S317576AbSGOSRw>;
+	Mon, 15 Jul 2002 14:17:52 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200207151820.g6FIKVi215656@saturn.cs.uml.edu>
+Subject: Re: HZ, preferably as small as possible
+To: davidm@hpl.hp.com
+Date: Mon, 15 Jul 2002 14:20:31 -0400 (EDT)
+Cc: rmk@arm.linux.org.uk (Russell King),
+       acahalan@cs.uml.edu (Albert D. Cahalan),
+       torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <15666.61141.799053.70367@napali.hpl.hp.com> from "David Mosberger" at Jul 15, 2002 08:48:37 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020715122455.A14493@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 15, 2002 at 04:01:35AM -0700, William Lee Irwin III wrote:
->> the profiling results were for a kernel without the new serial stuff.
->> The new serial stuff appears to need some arch compatibility auditing/
->> fixes for NUMA-Q.
+David Mosberger writes:
 
-On Mon, Jul 15, 2002 at 12:24:55PM +0100, Russell King wrote:
-> I am not aware of any architecture specific code in the new serial
-> code, with the exception of a couple of writes to port 0x80 for i386
-> architectures (which the original serial.c driver did as well.)
-> Can you give an idea where it fails/kernel messages please?
+> libproc should be using AT_CLKTCK (as provided via sysconf(_SC_CLK_TCK))
+> at any rate.
 
-It's not obvious to me, either, I actually read the stuff and didn't
-see where the problem could be.
+If that would work reliably, sure. The glibc hackers have had
+some trouble with doing a correct implementation. I've heard
+that recently the kernel has been supplying glibc with HZ via
+the ELF note mechanism, but I've no way to tell a broken glibc
+from a working one. Thus libproc does things the painful way.
 
-It appeared to fail before console_init(). The system is largely
-dedicated to other projects so there will be a bit of turnaround time
-between test runs. I'll probably be able to pinpoint the point of
-failure later tonight.
+Perhaps you could explain how to access ELF notes from
+regular app code. That covers 2.4 kernels AFAIK, and so
+the hacks could go away as soon as Debian retires the
+2.2 kernel.
 
-
-Cheers,
-Bill

@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315942AbSE3AUA>; Wed, 29 May 2002 20:20:00 -0400
+	id <S315808AbSE3AYR>; Wed, 29 May 2002 20:24:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315943AbSE3AT7>; Wed, 29 May 2002 20:19:59 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:51914 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S315942AbSE3AT5>;
-	Wed, 29 May 2002 20:19:57 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 30 May 2002 02:19:55 +0200 (MEST)
-Message-Id: <UTC200205300019.g4U0JtH24034.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, dalecki@evision-ventures.com
-Subject: Re: [PATCH] 2.5.18 IDE 73
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S315922AbSE3AYQ>; Wed, 29 May 2002 20:24:16 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:57593 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S315808AbSE3AYQ>; Wed, 29 May 2002 20:24:16 -0400
+Subject: Re: [RFC] [PATCH] Disable TSCs on CONFIG_MULTIQUAD
+From: john stultz <johnstul@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1022712736.9255.289.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 29 May 2002 17:20:54 -0700
+Message-Id: <1022718054.1963.51.camel@cog>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Ahhh... wait a moment you are the one who is responsible for
-    util-linux - wouldn't you care to take a bunch of patches?!
+> Add CONFIG_X86_TSC_NOT_SYNCHRONOUS or similar and then check
+> 
+> #if defined(CONFIG_X86_TSC) && !defined(CONFIG_X86_NOT_SYNCHRONOUS))
 
-Of course - improvements are always welcome.
-(But I try to be slightly more careful than you are.
-Util-linux runs on all libc's and all kernels, from libc4 to glibc2
-and from 0.99 to 2.5. So, changes must be compatible.)
+<laugh> I guess I asked for it. :) I actually implemented something
+similar to the above earlier, and was convinced out of it. The trade off
+with this method is that while it simplifies the config.in changes, it
+complicates the 12 or so #ifdef CONFIG_X86_TSC lines. 
 
-    No need to inevent here. No need to do the book keeping in kernel.
+Keeping the "multi-quad TSCs are broken" fact in just one place
+(config.in), rather then spread about the tree in precompiler
+statements, seems like the best choice to me. I was actually hoping
+there was a good config.in trick for turning CONFIG_X86_TSC off after it
+had already been turned on, rather then adding a meta-option, but I'm
+guessing there isn't.
 
-Some need. Things like mount-by-label want to know what partitions
-exist in order to look at the labels on each.
-Yes, we really need a list of disk-like devices.
-The gendisk chain.
+Anyway, if you really would rather see what you suggested, I'll happily
+change it (I do like the idea of breaking the CONFIG_X86_TSC_UNSYNCED
+notion out of CONFIG_MULTIQUAD).
 
-Andries
+Thanks for the feedback!
+-john
 

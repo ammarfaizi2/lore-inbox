@@ -1,87 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265501AbTIJTIN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 15:08:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265498AbTIJTIG
+	id S265563AbTIJTOd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 15:14:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265565AbTIJTOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 15:08:06 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:9438 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265565AbTIJTGr (ORCPT
+	Wed, 10 Sep 2003 15:14:33 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:38919 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S265563AbTIJTOY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 15:06:47 -0400
-Message-ID: <3F5F7604.9040305@austin.ibm.com>
-Date: Wed, 10 Sep 2003 14:05:40 -0500
-From: Steven Pratt <slpratt@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-CC: Cliff White <cliffw@osdl.org>, Con Kolivas <kernel@kolivas.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
-References: <200309092353.h89NrTN31627@mail.osdl.org> <3F5E8897.7040302@cyberone.com.au>
-In-Reply-To: <3F5E8897.7040302@cyberone.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Sep 2003 15:14:24 -0400
+Date: Wed, 10 Sep 2003 21:14:11 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Roman Zippel <zippel@linux-m68k.org>, linuxppc-dev@lists.linuxppc.org,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: [BK PATCHES] kbuild/kconfig
+Message-ID: <20030910191411.GA5517@mars.ravnborg.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	Roman Zippel <zippel@linux-m68k.org>, linuxppc-dev@lists.linuxppc.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+Hi Linus.
 
->
-> Cliff White wrote:
->
->>> Nick Piggin wrote:
->>>
->>> Con Kolivas wrote:
->>>
->>>
->>> Hi Con,
->>> Any chance you could give this
->>> http://www.kerneltrap.org/~npiggin/v14/sched-rollup-nopolicy-v14.gz
->>> a try? It should apply against test5.
->>>
->>>
->>>
->> I have some STP tests scheduled against this also (PLM 2117) Please 
->> let me know if you want other combinations tested - am just catching 
->> up on
->> this thread.
->> cliffw
->>
->
-> Thanks Cliff that would be cool. If you could test  this: 
-> http://www.kerneltrap.org/~npiggin/v14/sched-rollup-v14.gz
-> as well would be good. The previous one is more important though. 
+Here are a few kbuild/kconfig related patches:
+
+1) kbuild: Save relevant parts of modules.txt
+2) kconfig: Allow architectures to select board specific configs
+3) kbuild: Build minimum in scripts/ when changing configuration
+4) kbuild: Remove cscope.out during make mrproper 
+5) kbuild/ppc*: Remove obsolete _config support
+6) bk ignore scripts/bin2c
+
+The only patch worth mention is the one allowing architectures
+to select board specific configurations. Adding a few trivial
+changes to conf.c enabled generic support for that.
+ppc* already followed the required setup.
+I did not update arm for this new scheme. Russell?
+
+Please pull
+	bk pull bk://linux-sam.bkbits.net/kbuild
+
+Patches will follow.
+
+	Sam
 
 
- I gave this a try on the same setup that I am using for the regression 
-tests and the scheduler tests for Andrew.  What I got was the following 
-oops:
+ChangeSet@1.1273, 2003-09-10 20:34:29+02:00, sam@mars.ravnborg.org
+  kbuild/ppc*: Remove obsolete _config support
 
-CPU:    5
-EIP:    0060:[<c011c577>]    Not tainted
-EFLAGS: 00010003
-EIP is at load_balance+0x257/0x3f0
-eax: f6583998   ebx: c6099518   ecx: 00000000   edx: c60b9100
-esi: c6099518   edi: c60994f8   ebp: f64bff44   esp: f64bff14
-ds: 007b   es: 007b   ss: 0068
-Process java (pid: 3482, threadinfo=f64be000 task=f6b13300)
-Stack: c6099104 c6098bc0 c6099518 c6099100 00000000 00000005 00000080 
-000000ff
-       00000002 f6b13300 c60b9100 c60b8bc0 f64bff8c c011cef9 c60b8bc0 
-00000001
-       000000ff f64be000 c60b8bc0 c011ca9d f6b13300 00000000 00000002 
-c60a8bc0
-Call Trace:
- [<c011cef9>] schedule+0x4d9/0x550
- [<c011ca9d>] schedule+0x7d/0x550
- [<c010a08d>] sys_rt_sigsuspend+0xed/0x130
- [<c010b01f>] syscall_call+0x7/0xb
-
-Code: 89 19 89 4b 04 8b 47 18 0f ab 42 04 ff 02 89 57 28 8b 55 08
+ arch/ppc/Makefile   |    4 ----
+ arch/ppc64/Makefile |    4 ----
+ 2 files changed, 8 deletions(-)
 
 
-Steve
+ChangeSet@1.1272, 2003-09-10 20:26:00+02:00, sam@mars.ravnborg.org
+  kbuild: Remove cscope.out during make mrproper
+  
+  From: "Nathan T. Lynch" <ntl@pobox.com>
+  
+  The attached patch fixes the toplevel Makefile to remove cscope.out
+  during make mrproper.  The default name for the database that cscope
+  creates is cscope.out, and this is what the cscope rule in the
+  makefile uses.  Currently, mrproper will leave cscope.out behind,
+  which can make for interesting diffs...
+
+ Makefile |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+ChangeSet@1.1271, 2003-09-10 20:23:57+02:00, sam@mars.ravnborg.org
+  kbuild: Build minimum in scripts/ when changing configuration
+  
+  From: Ricky Beam <jfbeam@bluetronic.net>, me
+  
+  With the increasing amount of programs located in scripts/, several
+  of which is dependent on the kernel configuration, it makes sense to
+  avoid building these too often.
+  With this patch only fixdep is build, the minimal requirement for running
+  any *config target
+
+ Makefile |   11 +++++++----
+ 1 files changed, 7 insertions(+), 4 deletions(-)
+
+
+ChangeSet@1.1270, 2003-09-10 20:14:02+02:00, sam@mars.ravnborg.org
+  kconfig: Allow architectures to select board specific configs
+  
+  This patch introduces the framework required for architectures to supply
+  several independent configurations. Three architectures does this today:
+  ppc, ppc64 and arm.
+  The infrastructure provided here requires the files to be located in
+  the following directory:
+  arch/$(ARCH)/configs
+  The file shall be named <board>_defconfig
+  
+  To select the configuration for ppc/gemini simply issue the following command:
+  make gemini_defconfig
+  This will generate a valid configuration.
+  
+  ppc and ppc64 already comply to the above requirements, arm needs some
+  trivial updates.
+
+ scripts/kconfig/Makefile |    3 +++
+ scripts/kconfig/conf.c   |   30 ++++++++++++++++++++++--------
+ 2 files changed, 25 insertions(+), 8 deletions(-)
+
+
+ChangeSet@1.1268, 2003-09-10 20:04:00+02:00, sam@mars.ravnborg.org
+  kbuild: Save relevant parts of modules.txt
+  
+  The out-dated modules.txt were deleted from the kernel, save the kbuild
+  related bits in Documentation/kbuild.
+  It needs more updates, but for now this is better than nothing
+
+ Documentation/kbuild/00-INDEX    |    2 ++
+ Documentation/kbuild/modules.txt |   28 ++++++++++++++++++++++++++++
+ 2 files changed, 30 insertions(+)
 
 

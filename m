@@ -1,94 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268440AbUIBTqY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268438AbUIBTqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268440AbUIBTqY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 15:46:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268446AbUIBTqX
+	id S268438AbUIBTqM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 15:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268474AbUIBTqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 15:46:23 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46574 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S268440AbUIBTqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 15:46:07 -0400
-Date: Thu, 2 Sep 2004 21:46:00 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ncunningham@linuxmail.org, ak@muc.de, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch]  kill __always_inline
-Message-ID: <20040902194600.GE15358@fs.tum.de>
-References: <20040831221348.GW3466@fs.tum.de> <20040831153649.7f8a1197.akpm@osdl.org> <20040831225244.GY3466@fs.tum.de> <1093993946.8943.33.camel@laptop.cunninghams> <20040831163914.4c7c543c.akpm@osdl.org>
+	Thu, 2 Sep 2004 15:46:12 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:3473 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268438AbUIBTp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 15:45:57 -0400
+Subject: RE: [PATCH] Early USB handoff
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, David Brownell <david-b@pacbell.net>,
+       linux-usb-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <5F106036E3D97448B673ED7AA8B2B6B30162E74A@scl-exch2k.phoenix.com>
+References: <5F106036E3D97448B673ED7AA8B2B6B30162E74A@scl-exch2k.phoenix.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094150607.5645.26.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040831163914.4c7c543c.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 02 Sep 2004 19:43:29 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 31, 2004 at 04:39:14PM -0700, Andrew Morton wrote:
-> Nigel Cunningham <ncunningham@linuxmail.org> wrote:
-> >
-> > Hi.
-> > 
-> > On Wed, 2004-09-01 at 08:52, Adrian Bunk wrote:
-> > > On Tue, Aug 31, 2004 at 03:36:49PM -0700, Andrew Morton wrote:
-> > > > Adrian Bunk <bunk@fs.tum.de> wrote:
-> > > > >
-> > > > > An issue that we already discussed at 2.6.8-rc2-mm2 times:
-> > > > > 
-> > > > > 2.6.9-rc1 includes __always_inline which was formerly in  -mm.
-> > > > > __always_inline doesn't make any sense:
-> > > > > 
-> > > > > __always_inline is _exactly_ the same as __inline__, __inline and inline .
-> > > > > 
-> > > > > 
-> > > > > The patch below removes __always_inline again:
-> > > > 
-> > > > But what happens if we later change `inline' so that it doesn't do
-> > > > the `always inline' thing?
-> > > > 
-> > > > An explicit usage of __always_inline is semantically different than
-> > > > boring old `inline'.
-> > 
-> > Excuse me if I'm being ignorant, but I thought always_inline was
-> > introduced because with some recent versions of gcc, inline wasn't doing
-> > the job (suspend2, which requires a working inline, was broken by it for
-> > example).
-> 
-> IIRC, the compiler was generating out-of-line versions of functions in
-> every compilation unit whcih included the header file.  When we the
-> developers just wanted `inline' to mean `inline, dammit'.
+On Iau, 2004-09-02 at 20:03, Aleksey Gorelov wrote:
+>   Basically, in a case of legacy free BIOS, HC is not in 
+> SMM mode, and USB IRQ is routed to PCI IRQ line and generates
+> interrupts. When this IRQ is enabled in PIC (by driver that 
+> starts before HC driver), system is flooded with interrupts.
 
-`inline, dammit' is
-  __attribute__((always_inline))
+The BIOS should not be leaving the device generating interrupts surely ?
+If that IRQ line ends up shared we are in trouble at boot time. 
 
-The original `inline' never guarantees that the function will be 
-inlined.
+>   One solution is to reset HC, but it takes some time (at 
+> least 50ms). I agree that it might duplicate SOME code in HC 
+> driver, but HC init executes too late. Well, if handoff has 
+> been done early, it might not be necessary to do the same in 
+> HC driver.
 
-Therefore, `inline' is already #define'd in the Linux kernel to always 
-be __attribute__((always_inline)).
+We don't always want to hand off. Some setups only work in USB legacy
+mode because of other bugs. Thats why the SMM fixup I did for E750x is
+triggered in specific cases. We can do such things with DMI table
+blacklists easily enough.
 
-> If that broke swsusp in some manner then the relevant swsusp functions
-> should be marked always_inline, because they have some special needs.
-> 
-> > That is to say, doesn't the definition of always_inline vary
-> > with the compiler version?
-> 
-> If the compiler supports attribute((always_inline)) then the kernel build
-> system will use that.  If the compiler doesn't support
-> attribute((always_inline)) then we just emit `inline' from cpp and hope
-> that it works out.
+My E750x fix already duplicates some of the hand off code so we are
+going to need it anyway and if there are more reasons for needing it
+then so be it. I happened to only need to fix UHCI thats all.
 
-That's exactly how `inline' is already #define'd in the Linux kernel.
-
-And __always_inline is currently simply #define'd to `inline' ...
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Alan
 

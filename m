@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267391AbUI0VYY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267301AbUI0VY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267391AbUI0VYY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 17:24:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUI0Um2
+	id S267301AbUI0VY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 17:24:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267323AbUI0Umb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 16:42:28 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56839 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S267323AbUI0Ufm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 16:35:42 -0400
-Date: Mon, 27 Sep 2004 21:35:32 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Mon, 27 Sep 2004 16:42:31 -0400
+Received: from modemcable166.48-200-24.mc.videotron.ca ([24.200.48.166]:39315
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP id S267356AbUI0UhV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 16:37:21 -0400
+Date: Mon, 27 Sep 2004 16:37:13 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Christoph Hellwig <hch@infradead.org>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
        Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [RFC] ARM binutils feature churn causing kernel problems
-Message-ID: <20040927213532.C26680@flint.arm.linux.org.uk>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Rusty Russell <rusty@rustcorp.com.au>
-References: <20040927210305.A26680@flint.arm.linux.org.uk> <20040927211750.A27684@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040927211750.A27684@infradead.org>; from hch@infradead.org on Mon, Sep 27, 2004 at 09:17:50PM +0100
+In-Reply-To: <20040927211750.A27684@infradead.org>
+Message-ID: <Pine.LNX.4.61.0409271633330.8383@xanadu.home>
+References: <20040927210305.A26680@flint.arm.linux.org.uk>
+ <20040927211750.A27684@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 27, 2004 at 09:17:50PM +0100, Christoph Hellwig wrote:
-> >From loooking at the gcc and binutils lists it seems codesourcery is pushing
+On Mon, 27 Sep 2004, Christoph Hellwig wrote:
+
+> 
+> From loooking at the gcc and binutils lists it seems codesourcery is pushing
 > through all the ARM EABI bullshit.  Maybe we can persuade hjl to keep it
 > out of his bintuils release?  So far we've been served far better with them
 > on Linux anyway..
 
-Maybe... though I'd like to get some sort of concensus on the specific
-issue I mentioned so I can provide an adequate response back to the
-folk involved in this specific issue - both the users _and_ the
-developers of the toolchain.
+Or maybe we should strongly suggest codesourcery to add a command line 
+option to be able to disable those new "features" especially since 
+they're not always welcome like for the Linux kernel build.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+
+Nicolas

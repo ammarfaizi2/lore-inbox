@@ -1,53 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312588AbSCVRae>; Fri, 22 Mar 2002 12:30:34 -0500
+	id <S312768AbSCVRt5>; Fri, 22 Mar 2002 12:49:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312764AbSCVRaY>; Fri, 22 Mar 2002 12:30:24 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:26499 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S312588AbSCVRaI>; Fri, 22 Mar 2002 12:30:08 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 22 Mar 2002 09:35:06 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Bill Davidsen <davidsen@tmr.com>
-cc: David Schwartz <davids@webmaster.com>, <joeja@mindspring.com>,
-        "linux-kernel@vger.redhat.com" <linux-kernel@vger.kernel.org>
-Subject: Re: max number of threads on a system
-In-Reply-To: <Pine.LNX.3.96.1020322103236.22096C-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0203220934110.1434-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312770AbSCVRts>; Fri, 22 Mar 2002 12:49:48 -0500
+Received: from mailout3-eri1.midsouth.rr.com ([24.165.200.8]:45560 "EHLO
+	mailout3-eri1.midsouth.rr.com") by vger.kernel.org with ESMTP
+	id <S312768AbSCVRtl>; Fri, 22 Mar 2002 12:49:41 -0500
+Subject: Re: Linux-2.4.19pre3-ac5
+From: Stephen Williams <mrsteve@midsouth.rr.com>
+To: andre@linux-ide.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 22 Mar 2002 11:49:15 -0600
+Message-Id: <1016819361.1165.3.camel@swilliam.home.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Mar 2002, Bill Davidsen wrote:
+Worked like a champ, thank's Andre!
 
-> On Thu, 21 Mar 2002, Davide Libenzi wrote:
->
-> > On Thu, 21 Mar 2002, David Schwartz wrote:
-> >
-> > >
-> > >
-> > > On Thu, 21 Mar 2002 20:05:39 -0500, joeja@mindspring.com wrote:
-> > > >What limits the number of threads one can have on a Linux system?
-> > >
-> > > 	Common sense, one would hope.
-> > >
-> > > >I have a simple program that creates an array of threads and it locks up at
-> > > >the creation of somewhere between 250 and 275 threads.
-> >
-> > $ ulimit -u
->
-> /proc/sys/kernel/threads-max is the system limit. And "locks up" is odd
-> unless the application is really poorly written to handle errors. Should
-> time out and whine ;-)
+Steve
 
-Around 250 was the old limit for max user processes ( non root ), if i
-remember well.
+From: Andre Hedrick [mailto:andre@linux-ide.org]
+Sent: Thursday, March 21, 2002 11:24 PM
+To: Stephen Williams
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.19pre3-ac5
 
 
+On 21 Mar 2002, Stephen Williams wrote:
 
-- Davide
+> I can compile ac-5 fine but when trying to boot I get the following
+> error:
+> 
+> kernel BUG at ide-cd.c:790!
+> invalid operand: 0000
+> 
+> I am running 2.4.19pre3 without a problem.  I didn't have a way (as
+far
+> as I know) to get the full panic output but I can copy by hand and
+post
+> here if needed.
+> 
+> Have a good one,
+> Steve
+
+It is a BUG() check to see if there are cases where the interrupt
+handler
+is being set (re armed) while it is currently set for another event.
+
+if (HWGROUP(drive)->handler != NULL)
+     BUG();
+ide_set_handler(drive, handler, timeout, expirey);
+
+If we are reloading the handler but it was set but something else ,
+never
+called during a completion, and/or is dangling.  It is a typo my bad :-(
+
+Edit and change it from "==" to "!="
+
+Apology for the typo folks.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
 
 

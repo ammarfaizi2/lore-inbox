@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261258AbSJLPPZ>; Sat, 12 Oct 2002 11:15:25 -0400
+	id <S261246AbSJLPLI>; Sat, 12 Oct 2002 11:11:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261263AbSJLPPZ>; Sat, 12 Oct 2002 11:15:25 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:60939 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S261258AbSJLPPZ>; Sat, 12 Oct 2002 11:15:25 -0400
-Date: Sat, 12 Oct 2002 16:21:07 +0100
-From: John Levon <levon@movementarian.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] tasks.h
-Message-ID: <20021012152107.GA55167@compsoc.man.ac.uk>
-References: <Pine.LNX.4.33.0210120842070.25918-100000@gans.physik3.uni-rostock.de> <200210121703.11220.arnd@bergmann-dalldorf.de>
-Mime-Version: 1.0
+	id <S261258AbSJLPLI>; Sat, 12 Oct 2002 11:11:08 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:22694 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261246AbSJLPLH>; Sat, 12 Oct 2002 11:11:07 -0400
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com, user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH] 2.5.42: UML build error
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Date: Sat, 12 Oct 2002 17:16:35 +0200
+Message-ID: <877kgn7kmk.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210121703.11220.arnd@bergmann-dalldorf.de>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *180O4h-000Ejx-00*qeIXrAqYcOQ* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 12, 2002 at 05:03:11PM +0200, Arnd Bergmann wrote:
+When building 2.5.42 UML it fails with:
 
-> AFAICS, get_task_mm() is never used in a fast path, only in
-> ptrace and procfs code where a few cpu cycles don't hurt anyone.
+make -C arch/um/sys-i386/util mk_sc
+  gcc -Wp,-MD,./.mk_sc.o.d -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer  -c -o mk_sc
+.o mk_sc.c
+/bin/sh: scripts/fixdep: No such file or directory
+make[1]: *** [mk_sc.o] Error 1
+make[1]: Target `mk_sc' not remade because of errors.
+make: *** [arch/um/sys-i386/util/mk_sc] Error 2
 
-You're right. Just need to find a sensible file to put it in. I don't
-think there's any module users so you shouldn't need to export it
-either.
+This patch readds the path to scripts/fixdep in Rules.make. It doesn't
+break _my_ regular build, but I can't tell for others.
 
-regards
-john
-
--- 
-"That's just kitten-eating wrong."
-	- Richard Henderson
+diff -urN a/Rules.make b/Rules.make
+--- a/Rules.make	Sat Oct 12 14:24:11 2002
++++ b/Rules.make	Sat Oct 12 16:45:47 2002
+@@ -561,7 +561,7 @@
+ 	@set -e; \
+ 	$(if $($(quiet)cmd_$(1)),echo '  $($(quiet)cmd_$(1))';) \
+ 	$(cmd_$(1)); \
+-	scripts/fixdep $(depfile) $@ '$(cmd_$(1))' > $(@D)/.$(@F).tmp; \
++	$(TOPDIR)/scripts/fixdep $(depfile) $@ '$(cmd_$(1))' > $(@D)/.$(@F).tmp; \
+ 	rm -f $(depfile); \
+ 	mv -f $(@D)/.$(@F).tmp $(@D)/.$(@F).cmd)
+ 

@@ -1,90 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267682AbUIAU1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267666AbUIAU1j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267682AbUIAU1k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 16:27:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267747AbUIAUUk
+	id S267666AbUIAU1j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 16:27:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267682AbUIAUZD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 16:20:40 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:53165 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267556AbUIAUPK
+	Wed, 1 Sep 2004 16:25:03 -0400
+Received: from mail.shareable.org ([81.29.64.88]:64201 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S267709AbUIAURE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 16:15:10 -0400
-Subject: [patch 01/12]  list_for_each: 	arch-alpha-kernel-pci.c
-To: linux-kernel@vger.kernel.org
-Cc: greg@kroah.com, janitor@sternwelten.at
-From: janitor@sternwelten.at
-Date: Wed, 01 Sep 2004 22:15:06 +0200
-Message-ID: <E1C2bVa-0006ME-VC@sputnik>
+	Wed, 1 Sep 2004 16:17:04 -0400
+Date: Wed, 1 Sep 2004 21:16:08 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Tonnerre <tonnerre@thundrix.ch>
+Cc: "Alexander G. M. Smith" <agmsmith@rogers.com>, spam@tnonline.net,
+       akpm@osdl.org, wichert@wiggy.net, jra@samba.org, torvalds@osdl.org,
+       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com,
+       reiserfs-list@namesys.com, vonbrand@inf.utfsm.cl
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040901201608.GD31934@mail.shareable.org>
+References: <20040829191044.GA10090@thundrix.ch> <3247172997-BeMail@cr593174-a> <20040831081528.GA14371@thundrix.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040831081528.GA14371@thundrix.ch>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tonnerre wrote:
+> Quel horreur!
+> Do it in userland, really.
 
+I'm amazed that after all this discussion where all the realistic
+implementations are done in userland with kernel support for calling
+out to it, there are people who think the kernel is supposed to decode
+MP3 files or whatever.
 
-Hi.
+Nobody is advocating that!
 
-Change for loops with list_for_each().
+> If I  get the time,  I'll write you  a small daemon based  on libmagic
+> which  stores  the  file  attributes  in xattrs,  or  if  they're  not
+> supported, in some MacOS/Xish per-directory files. Even a file manager
+> ("finder") can do that, there's not even the need for a daemon.
 
-Signed-off-by: Domen Puncer <domen@coderock.org>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+How are you going to do the part where the xattr changes when the file
+is modified?
 
+(For example, if I edit an HTML file which is encoded in iso-8859-1,
+change it to utf-8 and indicate that in a META element, and save it
+under the same name, the full content-type should change from
+"text/html; charset=iso-8859-1" to "text/html; charset=utf-8".)
 
+I don't see how you can do that without kernel support.
 
+Don't say dnotify or inotify, because neither would work.
 
----
-
- linux-2.6.9-rc1-bk7-max/arch/alpha/kernel/pci.c |   16 +++++-----------
- 1 files changed, 5 insertions(+), 11 deletions(-)
-
-diff -puN arch/alpha/kernel/pci.c~list-for-each-arch_alpha_kernel_pci arch/alpha/kernel/pci.c
---- linux-2.6.9-rc1-bk7/arch/alpha/kernel/pci.c~list-for-each-arch_alpha_kernel_pci	2004-09-01 19:36:10.000000000 +0200
-+++ linux-2.6.9-rc1-bk7-max/arch/alpha/kernel/pci.c	2004-09-01 19:36:10.000000000 +0200
-@@ -280,7 +280,6 @@ pcibios_fixup_bus(struct pci_bus *bus)
- 	/* Propagate hose info into the subordinate devices.  */
- 
- 	struct pci_controller *hose = bus->sysdata;
--	struct list_head *ln;
- 	struct pci_dev *dev = bus->self;
- 
- 	if (!dev) {
-@@ -304,9 +303,7 @@ pcibios_fixup_bus(struct pci_bus *bus)
-  		pcibios_fixup_device_resources(dev, bus);
- 	} 
- 
--	for (ln = bus->devices.next; ln != &bus->devices; ln = ln->next) {
--		struct pci_dev *dev = pci_dev_b(ln);
--
-+	list_for_each_entry(dev, &bus->devices, bus_list) {
- 		pdev_save_srm_config(dev);
- 		if ((dev->class >> 8) != PCI_CLASS_BRIDGE_PCI)
- 			pcibios_fixup_device_resources(dev, bus);
-@@ -403,11 +400,10 @@ pcibios_set_master(struct pci_dev *dev)
- static void __init
- pcibios_claim_one_bus(struct pci_bus *b)
- {
--	struct list_head *ld;
-+	struct pci_dev *dev;
- 	struct pci_bus *child_bus;
- 
--	for (ld = b->devices.next; ld != &b->devices; ld = ld->next) {
--		struct pci_dev *dev = pci_dev_b(ld);
-+	list_for_each_entry(dev, &b->devices, bus_list) {
- 		int i;
- 
- 		for (i = 0; i < PCI_NUM_RESOURCES; i++) {
-@@ -426,12 +422,10 @@ pcibios_claim_one_bus(struct pci_bus *b)
- static void __init
- pcibios_claim_console_setup(void)
- {
--	struct list_head *lb;
-+	struct pci_bus *b;
- 
--	for(lb = pci_root_buses.next; lb != &pci_root_buses; lb = lb->next) {
--		struct pci_bus *b = pci_bus_b(lb);
-+	list_for_each_entry(b, &pci_root_buses, node)
- 		pcibios_claim_one_bus(b);
--	}
- }
- 
- void __init
-
-_
+-- Jamie

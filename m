@@ -1,64 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131813AbRAAPay>; Mon, 1 Jan 2001 10:30:54 -0500
+	id <S131861AbRAAPkH>; Mon, 1 Jan 2001 10:40:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131873AbRAAPao>; Mon, 1 Jan 2001 10:30:44 -0500
-Received: from mack.rt66.com ([198.59.162.1]:23026 "EHLO Rt66.com")
-	by vger.kernel.org with ESMTP id <S131813AbRAAPaj>;
-	Mon, 1 Jan 2001 10:30:39 -0500
-Message-Id: <l03130301b6764b9a9c4f@[192.168.239.105]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Mon, 1 Jan 2001 07:59:12 -0700
+	id <S131862AbRAAPj5>; Mon, 1 Jan 2001 10:39:57 -0500
+Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:28433 "EHLO
+	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S131861AbRAAPjs>;
+	Mon, 1 Jan 2001 10:39:48 -0500
+Date: Mon, 1 Jan 2001 16:09:18 +0100
+From: f5ibh <f5ibh@db0bm.ampr.org>
+Message-Id: <200101011509.QAA15904@db0bm.ampr.org>
 To: linux-kernel@vger.kernel.org
-From: Jonathan Morton <chromatix@cyberspace.org>
-Subject: Re: path MTU bug still there?
+Subject: 2.4.0-prerelease, AX25 problems
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Dec 2000, Alan Cox wrote:
 
-> > How is this solved? Personally, I am behind a CIPE tunnel with an MTU of
-> > 1442 or something like that. I experienced problems to some places and
->
-> You have to get the other end to fix it.
->
-> > Could it be some kind of incompability at the tunnel level that make you
-> > unable to receive large packets over the tunnel? Have you tcpdump:ed to
-> > see if the tunnel packets actually make it the way they should?
->
-> Its normally seriously incompetent firewall admins on remote sites. Most
->large
-> ecommerce sites have these kind of basic errors. Makes you glad to trust your
-> credit card details to them doesnt it 8)
+Hi and Happy New Year,
 
-In the past few days I encountered an MTU problem on the Internet - some
-incompetent admin seemed to have set a low MTU on their router *and* prevented
-"can't fragment" messages from being sent from it.  The result was my SSH
-tunnel
-kept stalling when the route happened to use that particular router.  I fixed
-the problem by lowering the MTU on my dial-up PPP connection.
+I've just compiled and tested 2.4.0-prerelease. My AX25 (hamradio) system does
+not work with this new release. There is a timing problem. When a fram is sent
+on the air, the frame is VERY long (switched off by the watchdog of my drsi
+card) and contains no data. On this point of vue, the previous test version was
+right.
 
-I have also had problems with stalling connections under other circumstances,
-but I don't think the kernel or MTU are responsible - yet!
+My system :
+-----------
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
+K6-2 500 / 128Mb
+Kernel modules         2.3.24
+Gnu C                  2.95.2
+Binutils               2.9.5.0.41
+Linux C Library        2.1.3
+Dynamic linker         ldd: version 1.9.11
+Procps                 2.0.6
+Mount                  2.10o
+Net-tools              2.05
+Console-tools          0.2.3
+Sh-utils               2.0
+Modules Loaded         ppp slhc af_packet scc ax25 parport_probe parport_pc lp
+parport mousedev usb-ohci hid input autofs lockd sunrpc usbcore serial unix
 
-The key to knowledge is not to rely on people to teach you it.
+Ax25 related config :
+---------------------
+#
+# Amateur Radio support
+#
+CONFIG_HAMRADIO=y
+#
+# Packet Radio protocols
+#
+CONFIG_AX25=m
+CONFIG_AX25_DAMA_SLAVE=y
+# CONFIG_NETROM is not set
+# CONFIG_ROSE is not set
+#
+# AX.25 network device drivers
+#
+# CONFIG_MKISS is not set
+# CONFIG_6PACK is not set
+# CONFIG_BPQETHER is not set
+# CONFIG_DMASCC is not set
+CONFIG_SCC=m
+# CONFIG_SCC_DELAY is not set
+# CONFIG_SCC_TRXECHO is not set
+CONFIG_BAYCOM_SER_FDX=m
+# CONFIG_BAYCOM_SER_HDX is not set
+# CONFIG_BAYCOM_PAR is not set
+# CONFIG_BAYCOM_EPP is not set
+# CONFIG_SOUNDMODEM is not set
+# CONFIG_YAM is not set
 
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
 
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a19 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
------END GEEK CODE BLOCK-----
+-----
 
-
+Regards
+		
+			Jean-Luc
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

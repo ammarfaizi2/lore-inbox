@@ -1,80 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318037AbSHDAe2>; Sat, 3 Aug 2002 20:34:28 -0400
+	id <S318040AbSHDAi0>; Sat, 3 Aug 2002 20:38:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318038AbSHDAe2>; Sat, 3 Aug 2002 20:34:28 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54546 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318037AbSHDAe1>;
-	Sat, 3 Aug 2002 20:34:27 -0400
-Message-ID: <3D4C799C.72D92899@zip.com.au>
-Date: Sat, 03 Aug 2002 17:47:24 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Rmap speedup
-References: <E17aiJv-0007cr-00@starship> <E17b3sE-0001T4-00@starship> <3D4C4DD9.779C057B@zip.com.au> <E17b7iB-0003Lu-00@starship>
-Content-Type: text/plain; charset=us-ascii
+	id <S318033AbSHDAi0>; Sat, 3 Aug 2002 20:38:26 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:15795 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318040AbSHDAiZ>;
+	Sat, 3 Aug 2002 20:38:25 -0400
+Date: Sat, 03 Aug 2002 17:28:36 -0700 (PDT)
+Message-Id: <20020803.172836.60864598.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, gh@us.ibm.com,
+       frankeh@watson.ibm.com, Martin.Bligh@us.ibm.com, wli@holomorpy.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: large page patch (fwd) (fwd) 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0208031027330.3981-100000@home.transmeta.com>
+References: <20020802.222024.21061449.davem@redhat.com>
+	<Pine.LNX.4.44.0208031027330.3981-100000@home.transmeta.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> 
-> On Saturday 03 August 2002 23:40, Andrew Morton wrote:
-> > - total amount of CPU time lost spinning on locks is 1%, mainly
-> >   in page_add_rmap and zap_pte_range.
-> >
-> > That's not much spintime.   The total system time with this test went
-> > from 71 seconds (2.5.26) to 88 seconds (2.5.30). (4.5 seconds per CPU)
-> > So all the time is presumably spent waiting on cachelines to come from
-> > other CPUs, or from local L2.
-> 
-> Have we tried this one:
-> 
->  static inline unsigned rmap_lockno(pgoff_t index)
->  {
-> -       return (index >> 4) & (ARRAY_SIZE(rmap_locks) - 1);
-> +       return (index >> 4) & (ARRAY_SIZE(rmap_locks) - 16);
->  }
-> 
-> (which puts all the rmap spinlocks in separate cache lines)
+   From: Linus Torvalds <torvalds@transmeta.com>
+   Date: Sat, 3 Aug 2002 10:35:00 -0700 (PDT)
 
-Seems a strange way of doing it?  We'll only ever use four locks
-this way.
+   David, you did page coloring once.
+   
+   I bet your patches worked reasonably well to color into 4 or 8 colors.
+   
+   How well do you think something like your old patches would work if
+   
+    - you _require_ 1024 colors in order to get the TLB speedup on some
+      hypothetical machine (the same hypothetical machine that might
+      hypothetically run on 95% of all hardware ;)
+   
+    - the machine is under heavy load, and heavy load is exactly when you
+      want this optimization to trigger.
+   
+   Can you explain this difficulty to people?
+   
+Actually, we need some clarification here.  I tried coloring several
+times, the problem with my diffs is that I tried to do the coloring
+all the time no matter what.
 
-2.4.19-pre7:
-	./daniel.sh  36.00s user 66.09s system 363% cpu 28.059 total
-	./daniel.sh  35.49s user 67.70s system 361% cpu 28.516 total
-	./daniel.sh  34.38s user 68.46s system 363% cpu 28.327 total
+I wanted strict coloring on the 2-color level for broken L1 caches
+that have aliasing problems.  If I could make this work, all of the
+dumb cache flushing I have to do on Sparcs could be deleted.  Because
+of this, I couldn't legitimately change the cache flushing rules
+unless I had absolutely strict coloring done on all pages where it
+mattered (basically anything that could end up in the user's address
+space).
 
-2.5.26
-	./daniel.sh  40.90s user 75.79s system 364% cpu 31.984 total
-	./daniel.sh  37.65s user 69.23s system 366% cpu 29.177 total
-	./daniel.sh  37.77s user 69.45s system 364% cpu 29.408 total
+So I kept track of color existence precisely in the page lists.  The
+implementation was fast, but things got really bad fragmentation wise.
 
-2.5.30
-	./daniel.sh  38.01s user 91.31s system 366% cpu 35.281 total
-	./daniel.sh  37.19s user 87.69s system 368% cpu 33.884 total
-	./daniel.sh  37.18s user 87.62s system 358% cpu 34.812 total
+No matter how I tweaked things, just running a kernel build 40 or 50
+times would fragment the free page lists to shreds such that 2-order
+and up pages simply did not exist.
 
-2.5.30+akpmpatchpile
-	./daniel.sh  36.71s user 85.73s system 363% cpu 33.722 total
-	./daniel.sh  35.60s user 83.86s system 358% cpu 33.303 total
-	./daniel.sh  36.56s user 86.26s system 368% cpu 33.346 total
+Another person did an implementation of coloring which basically
+worked by allocating a big-order chunk and slicing that up.  It's not
+strictly done and that is why his version works better.  In fact I
+like that patch a lot and it worked quite well for L2 coloring on
+sparc64.  Any time there is page pressure, he tosses away all of the
+color carving big-order pages.
 
-2.5.30+akpmpatchpile+rmap-speedup:
-	./daniel.sh  36.22s user 84.09s system 361% cpu 33.237 total
-	./daniel.sh  40.46s user 93.11s system 376% cpu 35.461 total
-	./daniel.sh  39.29s user 91.79s system 359% cpu 36.441 total
+   I think we can at some point do the small cases completely transparently,
+   with no need for a new system call, and not even any new hint flags. We'll
+   just silently do 4/8-page superpages and be done with it. Programs don't
+   need to know about it to take advantage of better TLB usage.
+   
+Ok.  I think even 64-page ones are viable to attempt but we'll see.
+Most TLB's that do superpages seem to have a range from the base
+page size to the largest supported superpage with 2-powers of two
+being incrememnted between each supported size.
 
-2.5.30+akpmpatchpile+rmap-speedup+the above:
-	./daniel.sh  38.75s user 102.66s system 374% cpu 37.764 total
-	./daniel.sh  38.72s user 105.08s system 362% cpu 39.672 total
-	./daniel.sh  40.43s user 108.00s system 373% cpu 39.722 total
+For example on Sparc64 this is:
 
-Which tends to indicate that I broke your patch somehow.  It's at
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.30/daniel-rmap-speedup.patch
-and needs deep staring at.
+8K	PAGE_SIZE
+64K	PAGE_SIZE * 8
+512K	PAGE_SIZE * 64
+4M	PAGE_SIZE * 512
+
+One of the transparent large page implementations just defined a
+small array that the core code used to try and see "hey how big
+a superpage can we try" and if the largest for the area failed
+(because page orders that large weren't available) it would simply
+fall back to the next smallest superpage size.

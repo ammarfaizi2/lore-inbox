@@ -1,28 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314206AbSDRAEv>; Wed, 17 Apr 2002 20:04:51 -0400
+	id <S314207AbSDRAKT>; Wed, 17 Apr 2002 20:10:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314207AbSDRAEu>; Wed, 17 Apr 2002 20:04:50 -0400
-Received: from web14305.mail.yahoo.com ([216.136.173.81]:22796 "HELO
-	web14305.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S314206AbSDRAEt>; Wed, 17 Apr 2002 20:04:49 -0400
-Message-ID: <20020418000449.64275.qmail@web14305.mail.yahoo.com>
-Date: Wed, 17 Apr 2002 17:04:49 -0700 (PDT)
-From: Lee Chin <leechinus@yahoo.com>
-Subject: binding a process to a processor
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S314208AbSDRAKS>; Wed, 17 Apr 2002 20:10:18 -0400
+Received: from zero.tech9.net ([209.61.188.187]:12548 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S314207AbSDRAKS>;
+	Wed, 17 Apr 2002 20:10:18 -0400
+Subject: Re: binding a process to a processor
+From: Robert Love <rml@tech9.net>
+To: Lee Chin <leechinus@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020418000449.64275.qmail@web14305.mail.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 17 Apr 2002 20:10:22 -0400
+Message-Id: <1019088622.5409.18.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-How do I bind a user process to a processor?
+On Wed, 2002-04-17 at 20:04, Lee Chin wrote:
+> How do I bind a user process to a processor?
 
-Thanks
-Lee
+In 2.5, there is the system call sched_setaffinity.  It is rather new so
+your libraries do not support it - see example code and headers at:
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Tax Center - online filing with TurboTax
-http://taxes.yahoo.com/
+	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/cpu-affinity
+
+For 2.4, there is not yet such an interface.  At the above URL, you can
+find a proc-based and a syscall-based interface for setting and
+retrieving affinity.
+
+	Robert Love
+

@@ -1,56 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267393AbUHENGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267664AbUHENGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267393AbUHENGa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 09:06:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267674AbUHENEu
+	id S267664AbUHENGd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 09:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267294AbUHENF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 09:04:50 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:35516 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267664AbUHENDo (ORCPT
+	Thu, 5 Aug 2004 09:05:28 -0400
+Received: from colin2.muc.de ([193.149.48.15]:55559 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S267205AbUHEMy2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 09:03:44 -0400
-Date: Thu, 5 Aug 2004 12:59:23 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: linux-kernel@vger.kernel.org, robustmutexes@lists.osdl.org,
-       Andrew Morton <akpm@osdl.org>, Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
-Message-ID: <20040805105923.GA20568@elte.hu>
-References: <F989B1573A3A644BAB3920FBECA4D25A6EC06D@orsmsx407> <20040805103409.GA20171@elte.hu>
+	Thu, 5 Aug 2004 08:54:28 -0400
+Date: 5 Aug 2004 14:54:23 +0200
+Date: Thu, 5 Aug 2004 14:54:23 +0200
+From: Andi Kleen <ak@muc.de>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: prasanna@in.ibm.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       akpm@osdl.org
+Subject: Re: [1/3] kprobes-func-args-268-rc3.patch
+Message-ID: <20040805125423.GA63682@muc.de>
+References: <2pMJz-13N-9@gated-at.bofh.it> <m3acx9yh6t.fsf@averell.firstfloor.org> <20040805122431.GA4411@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040805103409.GA20171@elte.hu>
+In-Reply-To: <20040805122431.GA4411@in.ibm.com>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 05, 2004 at 05:54:31PM +0530, Suparna Bhattacharya wrote:
+> > I think you misunderstood Linus' suggestion.  The problem with
+> > modifying arguments on the stack frame is always there because the C
+> > ABI allows it. One suggested solution was to use a second function
+> 
+> I did realise that it is the ABI which allows this, but I thought
+> that the only situation in which we know gcc to actually clobber
+> arguments from the callee in practice is for tailcall optimization. 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+It just breaks the most common workaround. 
 
-> but, couldnt there be more sharing between futex.c and fusyn.c? In
-> particular on the API side, why arent all these ops done as an
-> extension to sys_futex()? That would keep the glibc part much simpler
-> (and more compatible) as well. [...]
+> I'm not sure if that can be guaranteed and yes saving bytes from
+> stack would avoid the problem totally (hence the comment) and make
+> it less tied to expected innards of the compiler. The only issue 
+> with that is deciding the maximum number of arguments so it is 
+> generic enough. 
 
-i believe the key to integration of this feature is to try to make it
-used by normal (non-RT) apps as much as possible. I.e. try to make
-current futexes a subset of fusyn.c and to merge the two APIs if
-possible (essentially renaming your fusyn.c to futex.c and implementing
-the futex API). Is this possible without noticeable performance overhead
-(and without too many special-cases)?
+64bytes, aka 16 arguments seem far enough.
 
-such an approach would ensure that key portions of the code would be
-triggered by everyday apps. Developers wouldnt break the feature every
-other day, etc. Deadlock detection and priority boosting might not be
-tested this way, but the basic locking/waking/VM-keying mechanism sure
-could be.
+> > call that passes the arguments again to get a private copy. But the
+> > compiler's tail call optimization could sabotate that when you a
+> > are not careful.
+> > 
+> > That's all quite hackish and compiler dependent. I would suggest an 
+> > assembly wrapper that copies the arguments when !CONFIG_REGPARM.
+> > Just assume the function doesn't have more than a fixed number
+> > of arguments, that should be good enough.
+> > 
+> > This way you avoid any subtle compiler dependencies.
+> > With CONFIG_REGPARM it's enough to just save/restore pt_regs,
+> > which kprobes will do anyways.
+> > >  
+> 
+> Even with CONFIG_REGPARM, if you have a large 
+> number of arguments for example, is spill over into stack 
+> a possibility ?
 
-	Ingo
+Yes. For more than three (Linux uses -mregparm=3) 
+Also varargs arguments will be always on the stack I think.
+
+-Andi

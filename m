@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263624AbUEXHLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262873AbUEXHMi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263624AbUEXHLa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 03:11:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUEXHLa
+	id S262873AbUEXHMi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 03:12:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbUEXHLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 03:11:30 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:11144 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263624AbUEXHL0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 03:11:26 -0400
-Date: Mon, 24 May 2004 11:12:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Con Kolivas <kernel@kolivas.org>, Billy Biggs <vektor@dumbterm.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: tvtime and the Linux 2.6 scheduler
-Message-ID: <20040524091243.GB26183@elte.hu>
-References: <20040523154859.GC22399@dumbterm.net> <200405240254.20171.kernel@kolivas.org> <20040524084334.GB24967@elte.hu> <40B19D15.1090105@yahoo.com.au>
-Mime-Version: 1.0
+	Mon, 24 May 2004 03:11:38 -0400
+Received: from web90009.mail.scd.yahoo.com ([66.218.94.67]:27994 "HELO
+	web90009.mail.scd.yahoo.com") by vger.kernel.org with SMTP
+	id S263646AbUEXHL1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 03:11:27 -0400
+Message-ID: <20040524071126.92368.qmail@web90009.mail.scd.yahoo.com>
+Date: Mon, 24 May 2004 00:11:26 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
+Subject: Re: 4g/4g for 2.6.6
+To: arjanv@redhat.com
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1085382314.2780.6.camel@laptop.fenrus.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40B19D15.1090105@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Is this source, or precompiled targeting just RH
+setups?
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Thank you for your help.
+Phy
 
-> Just one other thing - realtime scheduling was basically broken up
-> until around 2.6.5. Before starting any tests, please ensure first
-> that you are using at least the 2.6.5 kernel. Thanks.
+--- Arjan van de Ven <arjanv@redhat.com> wrote:
+> On Sun, 2004-05-23 at 23:55, Phy Prabab wrote:
+> > So do I understand this correctly, in 2.6.7(+) it
+> will
+> > no longer be necessary to have the 4g patches?  I
+> will
+> > be able to get 4g/process with the going forward
+> > kernels?
+> 
+> The kernel RPMs I do
+> (http://people.redhat.com/arjanv/2.6/) pretty much
+> will have it always for 2.6. Not just for large
+> memory configs, but
+> because several userspace applications (databases,
+> java etc) really like
+> that extra Gb of virtual space too. 
+> As for the cost; 4:4 split seems to be hardly
+> expensive at all, only in
+> some microbenchmarks.
+> 
 
-you mean the spurious 'queue to end of prio-queue' bug noticed by Joe
-Korty? tvtime should not be affected by this one. This bug only hits if
-there are multiple SCHED_FIFO tasks on the same priority level - tvtime
-is a single-process application.
+> ATTACHMENT part 2 application/pgp-signature
+name=signature.asc
 
-	Ingo
+
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Domains – Claim yours for only $14.70/year
+http://smallbusiness.promotions.yahoo.com/offer 

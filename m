@@ -1,54 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268088AbUJHGun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267737AbUJHG5B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268088AbUJHGun (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 02:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268089AbUJHGun
+	id S267737AbUJHG5B (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 02:57:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268042AbUJHG5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 02:50:43 -0400
-Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:8654 "EHLO
-	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S268088AbUJHGuO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 02:50:14 -0400
-Message-ID: <4166386F.7050504@kolivas.org>
-Date: Fri, 08 Oct 2004 16:49:19 +1000
-From: Con Kolivas <lkml@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Fri, 8 Oct 2004 02:57:01 -0400
+Received: from sicdec1.epfl.ch ([128.178.50.33]:35973 "EHLO sicdec1.epfl.ch")
+	by vger.kernel.org with ESMTP id S267737AbUJHG45 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 02:56:57 -0400
+Message-ID: <1097218606.41663a2ea1ac8@imapwww.epfl.ch>
+X-Imap-User: michel.mengis@epfl.ch
+Date: Fri,  8 Oct 2004 08:56:46 +0200
+From: michel.mengis@epfl.ch
+To: Con Kolivas <lkml@kolivas.org>
+Cc: linux <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.6.8 and DELL's DOTHAN Processor B0
+References: <1097216489.416631e91faf9@imapwww.epfl.ch> <416634FE.60108@kolivas.org>
+In-Reply-To: <416634FE.60108@kolivas.org>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       mark_h_johnson@raytheon.com,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
-References: <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu>	 <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu>	 <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu>	 <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu>	 <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu>	 <20041007105230.GA17411@elte.hu>	 <56697.195.245.190.93.1097157219.squirrel@195.245.190.93>	 <32798.192.168.1.5.1097191570.squirrel@192.168.1.5> <1097213813.1442.2.camel@krustophenia.net>
-In-Reply-To: <1097213813.1442.2.camel@krustophenia.net>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.6
+X-Originating-IP: 128.178.9.34
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Thu, 2004-10-07 at 19:26, Rui Nuno Capela wrote:
-> 
->>Ingo Molnar wrote:
->>
->>>>i've released the -T3 VP patch:
->>>>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3
->>>>
->>>
->>OK. Just to let you know, both of my personal machines are now running on
->>bleeding-edge 2.6.9-rc3-mm3-T3, and very happily may I assure :)
-> 
-> 
-> This actually feels a _lot_ snappier than mm2, which seemed prone to
-> weird stalls.  I don't have any numbers to back this up yet.
+I already tried to put all scaling_govenors... nothing changed... coz
+scaling_max_freq is set to 600000 and not to 1700000. ;(
 
-mm2 had a completely different cpu scheduler so no meaningful comparison 
-can be made. Try comparing to mm3 vanilla.
+Michel.
 
-Cheers,
-Con
+Selon Con Kolivas <lkml@kolivas.org>:
+
+> michel.mengis@epfl.ch wrote:
+> >
+> > Hi all,
+> >
+> > I have a lot of trouble to bring the kernel 2.6.8-1 to detect my dothan
+> > processor.
+> > It's a Pentium M Dothan B0 version, 1.7Ghz/600Mhz.
+> > The BIOS is DELL's D800 Bios version 09.
+> >
+> > I added 3 patches:
+> > cpufreq-speedstep-dothan-3.patch :add correct frequency table in
+> speedstep.c
+> > dothan-speedstep-fix.patch : add correct Level2 cache
+> > bk-cpufreq.patch : from http://linux-dj.bkbits.net/cpufreq
+> >
+> > I added a lot of output in speedstep-centrino.c, acpi/processor.c to track
+> the
+> > problem.
+> >
+> > I notice that my computer is running always in the lowest speed evenif I'm
+> > stressing it... All ouputs I added show me that Speedstep isn't the cause,
+> > neither CPUFreq but while CPUFreq calls all notifiers, acpi/processor.c's
+> > CPUFREQ_INCOMPATIBLE change the max speed to the lowest evenif during
+> > cpufreq_acpi_cpu_init the max speed is well detected.
+> > Seems to be like it's coz at boot time the kernel doesn't detect correctly
+> the
+> > max speed.
+> > dmesg shows me that a 600Mhz processor has been detected only and not
+> 1.7Ghz.
+> > (on my D600 pentium M not dothan, it detects correctly 1.6Ghz)
+> >
+> > is there a fix for that ?
+> > is it a known bug ?
+> >
+> > thx for all help I can get,
+>
+> Sounds like you've chosen powersave as the default power governor in
+> your config. Change it to performance or modify it manually in
+> /sys/devices.... cpufreq/scaling_governor
+> (cant remember the exact position; you'll find it)
+>
+> cat the output of that file and see if it says powersave performance or
+> ondemand. You can manually change it from one to the other, or set
+> either powersave or performance in your config during kernel config.
+>
+> Cheers,
+> Con
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+

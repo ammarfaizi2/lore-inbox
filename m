@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267485AbTACKv2>; Fri, 3 Jan 2003 05:51:28 -0500
+	id <S267488AbTACK4d>; Fri, 3 Jan 2003 05:56:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267487AbTACKv2>; Fri, 3 Jan 2003 05:51:28 -0500
-Received: from [218.104.80.12] ([218.104.80.12]:31617 "HELO netspeed-tech.com")
-	by vger.kernel.org with SMTP id <S267485AbTACKv1>;
-	Fri, 3 Jan 2003 05:51:27 -0500
-Message-ID: <3E156C49.5090702@netspeed-tech.com>
-Date: Fri, 03 Jan 2003 18:56:09 +0800
-From: ZHAO Wei <zw@netspeed-tech.com>
-Reply-To: zhaoway@public1.ptt.js.cn
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.3b) Gecko/20030102
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Jones <davej@codemonkey.org.uk>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: odd phenomenon.
-References: <20030103103816.GA2567@codemonkey.org.uk>
-In-Reply-To: <20030103103816.GA2567@codemonkey.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267490AbTACK4d>; Fri, 3 Jan 2003 05:56:33 -0500
+Received: from pheniscidae.tvnetwork.hu ([80.95.85.58]:34312 "EHLO
+	pheniscidae.TvNetWork.Hu") by vger.kernel.org with ESMTP
+	id <S267488AbTACK4c>; Fri, 3 Jan 2003 05:56:32 -0500
+Date: Fri, 3 Jan 2003 12:04:18 +0100
+From: SZALAY Attila <sasa@pheniscidae.tvnetwork.hu>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.54
+Message-ID: <20030103110418.GD7661@sasa.home>
+References: <20030102103422.GB24116@sasa.home> <Pine.LNX.4.33L2.0301020745260.22868-100000@dragon.pdx.osdl.net> <20030103093250.GC7661@sasa.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030103093250.GC7661@sasa.home>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> Something strange I've noticed on all recent 2.4 and 2.5 kernels.
-> 
-> If I start galeon whilst I've got a bk pull in operation, the
-> galeon process starts, opens its window, and then dies instantly.
-> Starting it a second time works.
-> 
-> Its not OOM, as theres plenty of free RAM, and half gig of free (unused) swap.
-> 
-> It's almost 100% reproducable here.  Only seen it do it on this box
-> though which is a P4 with HT, so it could be SMP related..
+Now I unset I2O completely to try compile new kernel.
 
-I used to have a small system with 96M RAM and no swap, only OpenSSH 
-and bash and some kernel threads were running, when I got a big BK 
-pull, it would catch sig 11 and die. Maybe this is unrelated. 
-Indeed, at first I had only 64M RAM installed, only after some sig 
-11, had I got more RAM installed. But this probably has nothing to 
-do with your situation.
+But I have another problem.
 
+make -f scripts/Makefile.build obj=drivers/scsi/pcmcia
+  gcc -Wp,-MD,drivers/scsi/pcmcia/.aha152x_stub.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=aha152x_stub -DKBUILD_MODNAME=aha152x_cs   -c -o drivers/scsi/pcmcia/aha152x_stub.o drivers/scsi/pcmcia/aha152x_stub.c
+make[4]: *** No rule to make target `drivers/scsi/pcmcia/aha152x.s', needed by `drivers/scsi/pcmcia/aha152x.o'.  Stop.
+
+-- 
+PGP ID 0x8D143771, /C5 95 43 F8 6F 19 E8 29  53 5E 96 61 05 63 42 D0
+GPG ID   ABA0E8B2, 45CF B559 8281 8091 8469  CACD DB71 AEFC ABA0 E8B2
+
+An exaggeration is a thruth that has lost its temper -- Kahlil Gibran

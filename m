@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310540AbSC2RTP>; Fri, 29 Mar 2002 12:19:15 -0500
+	id <S313484AbSC2R1k>; Fri, 29 Mar 2002 12:27:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310549AbSC2RTH>; Fri, 29 Mar 2002 12:19:07 -0500
-Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:41089 "EHLO
-	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S310540AbSC2RSy>;
-	Fri, 29 Mar 2002 12:18:54 -0500
-Date: Fri, 29 Mar 2002 17:16:23 GMT
-Message-Id: <200203291716.g2THGNq08251@fenrus.demon.nl>
-From: arjan@fenrus.demon.nl
-To: davidm@hpl.hp.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] generic show_stack facility
-In-Reply-To: <15524.40817.306204.292158@napali.hpl.hp.com>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.9-31 (i586))
+	id <S313485AbSC2R13>; Fri, 29 Mar 2002 12:27:29 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:43575 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S313484AbSC2R10>; Fri, 29 Mar 2002 12:27:26 -0500
+Date: Fri, 29 Mar 2002 12:27:18 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200203291727.g2THRIM01125@devserv.devel.redhat.com>
+To: Amol Kumar Lad <amolk@ishoni.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel notification to user space task
+In-Reply-To: <mailman.1017422340.6661.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <15524.40817.306204.292158@napali.hpl.hp.com> you wrote:
->>>>>> On Fri, 29 Mar 2002 16:06:18 +0000, Christoph Hellwig <hch@infradead.org> said:
+> I want my driver running in kernel to send a notification to this task when
+> it detects some event.
 > 
->  Christoph> On Fri, Mar 29, 2002 at 07:46:07AM -0800, David Mosberger
->  Christoph> wrote:
->  >> Christoph, why do you think the prototype for ia64 is different?
-> 
->  Christoph> I have stopped to wonder why ia64 does things
->  Christoph> differently.
-> 
-> You might want to reconsider that stance.  It could open your mind. ;-)
-> 
-> BTW: this is not at all an ia64-specific issue.  It applies to any
-> arch that doesn't maintain a frame pointer on the stack.  Basic
-> compiler technology.
+> for example..if my driver detects that interface 'eth0' is coming up, it
+> should send a indication to user task saying 'network interface eth0 is up'
 
-oh you mean like x86 ?
+I think it's kind of FAQ. Have a thread waiting in your driver
+with add_wait_queue and schedule(). When awoken, the even thread
+can signal the main worker thread or do the job itself.
+
+But first, make sure you are not served better with an
+event driven main thread (e.g. open a file descriptor
+into your driver, then use select() on it together with
+all other of your descriptors).
+
+-- Pete

@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273656AbRI0QIg>; Thu, 27 Sep 2001 12:08:36 -0400
+	id <S273658AbRI0QRg>; Thu, 27 Sep 2001 12:17:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273658AbRI0QI1>; Thu, 27 Sep 2001 12:08:27 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:5892 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S273656AbRI0QIX>; Thu, 27 Sep 2001 12:08:23 -0400
-Date: Thu, 27 Sep 2001 18:08:49 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Reply-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Linux 0.01 disk lockup
-In-Reply-To: <Pine.LNX.4.33.0109270826060.17030-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.3.96.1010927175126.12043B-100000@artax.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273661AbRI0QR0>; Thu, 27 Sep 2001 12:17:26 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:46342 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S273658AbRI0QRT>; Thu, 27 Sep 2001 12:17:19 -0400
+Date: Thu, 27 Sep 2001 12:17:46 -0400
+Message-Id: <200109271617.f8RGHkH08397@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+X-Also-Posted-To: linux.dev.kernel
+Subject: Re: [PATCH] core file naming option
+In-Reply-To: <3BB104A9.3AD512A5@inet.com>
+Distribution: local
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
+Reply-To: davidsen@tmr.com (bill davidsen)
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Linux 0.01 has a bug in disk request sorting - when interrupt happens
-> > while sorting is active, the interrupt routine won't clear do_hd - thus
-> > the disk will stay locked up forever.
-> 
-> Ehh..
-> 
-> Mikulas, do you want to be the official maintainer for the 0.01.xxx
-> series?
-> 
-> Note that much of the maintenance work is probably just to reproduce and
-> make all the user-level etc infrastructure available..
+In article <3BB104A9.3AD512A5@inet.com>,
+Eli Carter <eli.carter@inet.com> wrote:
 
-It would be cool to have linux-0.01 distribution. I started to use linux
-in 2.0 times, so I'm probably not the right person to maintain it. I don't
-even know where to get programs for it and I doubt it would work on my 4G
-disk.
+| The attached patch adds an option to the build to have core files named
+| core.processname, but defaulting to the current behaviour of course. 
+| For most people the single 'core' file is sufficient, but when the sky
+| is falling, it's nice to have more places for it to land.  :)
+| So, is this something that might go into the kernel, or are their
+| philisophical reasons against it?  (The patch is against 2.2.19.  I
+| haven't looked at 2.4.x yet.  Let me know if you want a 2.4 or if I
+| should send it to Linus, or...)
+| 
+| Questions, comments, etc. welcome,
 
-Mikulas
+  Since you asked for it... ;-)
 
+  While you're adding this feature, and it seems others are adding
+similar things, it is *highly* desirable to allow the build to put all
+the dumps in one place of desired (my  first thought is /var/core) so
+that if you get a lot you won't run the system out of disk.
 
+  The directory name could be set in /proc/sys/coredir (or somesuch)
+with an initial value of "." of course.
 
+  Other than that I like the idea, although process "name" could get a
+lot of clashes on threads, and pid gets reused. There may be a better
+idea, but most of mine are cumbersome. This would really simplify
+certain kinds of dump analysis.
 
+-- 
+bill davidsen <davidsen@tmr.com>
+ "If I were a diplomat, in the best case I'd go hungry.  In the worst
+  case, people would die."
+		-- Robert Lipe

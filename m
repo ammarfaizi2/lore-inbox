@@ -1,20 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266835AbUJDNTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266169AbUJDNVP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266835AbUJDNTU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 09:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266619AbUJDNTT
+	id S266169AbUJDNVP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 09:21:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266117AbUJDNTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 09:19:19 -0400
-Received: from gprs214-62.eurotel.cz ([160.218.214.62]:17280 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S266835AbUJDNTI (ORCPT
+	Mon, 4 Oct 2004 09:19:32 -0400
+Received: from gprs214-62.eurotel.cz ([160.218.214.62]:17792 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S267345AbUJDNTM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 09:19:08 -0400
-Date: Mon, 4 Oct 2004 14:10:18 +0200
+	Mon, 4 Oct 2004 09:19:12 -0400
+Date: Mon, 4 Oct 2004 14:01:09 +0200
 From: Pavel Machek <pavel@ucw.cz>
 To: kernel list <linux-kernel@vger.kernel.org>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>,
        Andrew Morton <akpm@zip.com.au>
-Subject: swsusp: fix process start times after resume
-Message-ID: <20041004121018.GA25734@elf.ucw.cz>
+Subject: Too many __s in donauboe.h
+Message-ID: <20041004120109.GA25380@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,48 +27,44 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-Currently, process start times change after swsusp (because they are
-derived from jiffies and current time, oops). This should fix
-it. Please apply,
+donauboe.h is kernel code, therefore it does not need __s. Please
+apply,
 
 								Pavel
 
-Index: linux/arch/i386/kernel/time.c
+Index: linux/drivers/net/irda/donauboe.h
 ===================================================================
---- linux.orig/arch/i386/kernel/time.c	2004-10-01 12:24:26.000000000 +0200
-+++ linux/arch/i386/kernel/time.c	2004-10-01 00:53:07.000000000 +0200
-@@ -319,7 +319,7 @@
- 	return retval;
- }
+--- linux.orig/drivers/net/irda/donauboe.h	2004-10-01 12:24:25.000000000 +0200
++++ linux/drivers/net/irda/donauboe.h	2004-08-19 12:21:14.000000000 +0200
+@@ -268,12 +268,11 @@
  
--static long clock_cmos_diff;
-+static long clock_cmos_diff, sleep_start;
- 
- static int time_suspend(struct sys_device *dev, u32 state)
+ struct OboeSlot
  {
-@@ -328,6 +328,7 @@
- 	 */
- 	clock_cmos_diff = -get_cmos_time();
- 	clock_cmos_diff += get_seconds();
-+	sleep_start = get_cmos_time();
- 	return 0;
- }
+-  __u16 len;                    /*Tweleve bits of packet length */
+-  __u8 unused;
+-  __u8 control;                 /*Slot control/status see below */
+-  __u32 address;                /*Slot buffer address */
+-}
+-__attribute__ ((packed));
++  u16 len;                    /*Tweleve bits of packet length */
++  u8 unused;
++  u8 control;                 /*Slot control/status see below */
++  u32 address;                /*Slot buffer address */
++} __attribute__ ((packed));
  
-@@ -335,10 +336,13 @@
- {
- 	unsigned long flags;
- 	unsigned long sec = get_cmos_time() + clock_cmos_diff;
-+	unsigned long sleep_length = get_cmos_time() - sleep_start;
-+
- 	write_seqlock_irqsave(&xtime_lock, flags);
- 	xtime.tv_sec = sec;
- 	xtime.tv_nsec = 0;
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
-+	jiffies += sleep_length * HZ;
- 	return 0;
- }
+ #define OBOE_NTASKS OBOE_TXRING_OFFSET_IN_SLOTS
  
+@@ -316,7 +315,7 @@
+   chipio_t io;                  /* IrDA controller information */
+   struct qos_info qos;          /* QoS capabilities for this device */
  
+-  __u32 flags;                  /* Interface flags */
++  u32 flags;                  /* Interface flags */
+ 
+   struct pci_dev *pdev;         /*PCI device */
+   int base;                     /*IO base */
+
+
 -- 
 People were complaining that M$ turns users into beta-testers...
 ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,30 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270467AbRHSOFu>; Sun, 19 Aug 2001 10:05:50 -0400
+	id <S270464AbRHSOJJ>; Sun, 19 Aug 2001 10:09:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270464AbRHSOFk>; Sun, 19 Aug 2001 10:05:40 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16398 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270466AbRHSOFd>; Sun, 19 Aug 2001 10:05:33 -0400
-Subject: Re: Swap size for a machine with 2GB of memory
-To: esr@thyrsus.com
-Date: Sun, 19 Aug 2001 15:08:28 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel List), gars@lanm-pc.com
-In-Reply-To: <20010819024233.A26916@thyrsus.com> from "Eric S. Raymond" at Aug 19, 2001 02:42:33 AM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S270472AbRHSOI7>; Sun, 19 Aug 2001 10:08:59 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:54542 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S270464AbRHSOIm>; Sun, 19 Aug 2001 10:08:42 -0400
+Date: Sun, 19 Aug 2001 07:08:29 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: "Adam J. Richter" <adam@yggdrasil.com>, mj@ucw.cz,
+        linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [Linux-fbdev-devel] Patch, please TEST: linux-2.4.9 console font
+ modularization
+In-Reply-To: <Pine.LNX.4.05.10108191147400.16179-100000@callisto.of.borg>
+Message-ID: <Pine.LNX.4.10.10108190706490.1190-100000@transvirtual.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15YTFc-0004DV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The screaming hotrod machine Gary Sandine and I built around the Tyan S2464
-> has 2GB of physical memory.  Should I believe the above formula?  If not,
 
-The formula is sort of true for 2.4 due to VM issues, its no longer true
-for 2.4-ac because Rik fixed the weakness in question, and it wont matter
-if you are not running >2Gb of toys anyway
+> What's wrong with the ancient console ioctl()s to change the font at runtine?
+> (damned, I can't remember the name of the command)
 
-Good that its no longer hung again - this is with noapic now ?
+Their is a bunch of them but the one mosted used is KD_FONT_OP_*. Look at
+linux/kd.h for more details. The nice bonus about this is that it is
+driver independent.  
+

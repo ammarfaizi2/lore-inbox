@@ -1,67 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbUA0RyN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 12:54:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUA0RyN
+	id S263125AbUA0SC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 13:02:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbUA0SC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 12:54:13 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:54246 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S261464AbUA0RyG (ORCPT
+	Tue, 27 Jan 2004 13:02:56 -0500
+Received: from ns.suse.de ([195.135.220.2]:64897 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263125AbUA0SCy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 12:54:06 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Jan 2004 13:02:54 -0500
+Date: Tue, 27 Jan 2004 19:02:51 +0100
+From: Andi Kleen <ak@suse.de>
+To: jim.houston@comcast.net
+Cc: akpm@osdl.org, george@mvista.com, amitkale@emsyssoft.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kgdb-x86_64-support.patch for 2.6.2-rc1-mm3
+Message-Id: <20040127190251.4edb873d.ak@suse.de>
+In-Reply-To: <1075225399.1020.239.camel@new.localdomain>
+References: <20040127030529.8F860C60FC@h00e098094f32.ne.client2.attbi.com>
+	<20040127155619.7efec284.ak@suse.de>
+	<1075225399.1020.239.camel@new.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16406.42426.519358.353551@napali.hpl.hp.com>
-Date: Tue, 27 Jan 2004 09:54:02 -0800
-To: Paul Mackerras <paulus@samba.org>
-Cc: davidm@hpl.hp.com, Andrew Morton <akpm@osdl.org>,
-       Jes Sorensen <jes@trained-monkey.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [patch] 2.6.1-mm5 compile do not use shared extable code for
- ia64
-In-Reply-To: <16406.10170.911012.262682@cargo.ozlabs.ibm.com>
-References: <E1Aiuv7-0001cS-00@jaguar.mkp.net>
-	<20040120090004.48995f2a.akpm@osdl.org>
-	<16401.57298.175645.749468@napali.hpl.hp.com>
-	<16402.19894.686335.695215@cargo.ozlabs.ibm.com>
-	<16405.41953.344071.456754@napali.hpl.hp.com>
-	<16406.10170.911012.262682@cargo.ozlabs.ibm.com>
-X-Mailer: VM 7.17 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 27 Jan 2004 19:56:26 +1100, Paul Mackerras <paulus@samba.org> said:
+On 27 Jan 2004 12:43:20 -0500
+Jim Houston <jim.houston@comcast.net> wrote:
 
-  Paul> David Mosberger writes:
-  >> How about the attached one?  It will touch memory more when
-  >> moving an element down, but we're talking about exception tables
-  >> here, and I don't think module loading time would be affected in
-  >> any noticable fashion.
+.
+> 
+> It looks like we were working in lock step.  I had been meaning to
+> update the patch so when I saw that Andrew had dropped it from 
+> 2.6.2-rc1-mm3 it seemed like a good time.
+> 
+> I'll leave it to you and Andrew to decide how we should resolve our
+> conflicting patches.
 
-  Paul> Hmmm...  Stylistically I much prefer to pick up the new
-  Paul> element, move the others up and just drop the new element in
-  Paul> where it should go, rather than doing swap, swap, swap down
-  Paul> the list.
+If yours works on ethernet please use yours. Mine didn't.
 
-The original code may be slightly faster, but who cares?  From a
-readability point of view, I think my version is easier to understand.
 
-  Paul> Also, I don't think there is enough code there to be worth the
-  Paul> bother of trying to abstract the generic routine so you can
-  Paul> plug in different compare and move-element routines.  The
-  Paul> whole sort routine is only 16 lines of code, after all.  Why
-  Paul> not just have an ia64-specific version of sort_extable?
-  Paul> That's what I thought you would do.
+> arch/x86_64/Kconfig
+> arch/x86_64/Kconfig.kgdb
+> 	We used a different approach to selecting DEBUG_INFO.
+> 	I was not really happy with the way select DEBUG_INFO worked.
 
-That's certainly an option.  It was Andrew who called for a generic
-version.  I tend to agree with him because even though it's just a
-little sort routine, it's one of those things where stupid errors tend
-to creep in.  And like I mentioned earlier, Alpha needs the exact same
-code (and frankly, I'm surprised there are 64-bit platforms that do
-NOT use the location-relative format that Richard invented).
+You reverted it back? 
 
-	--david
+What I did was to change all not really kgdb specific CONFIG_KGDB uses in
+the main kernel with CONFIG_DEBUG_INFO (mostly CFI support). I don't feel
+strongly about it, but this way there is no reference to an unknown
+config symbol in mainline. Also DEBUG_INFO including CFI makes sense I think.
+
+Putting the kgdb options into a separate sourced file is a good idea. 
+This should decrease future conflicts.
+
+> include/asm-x86_64/kgdb_local.h
+> 	This file seems to be missing from your patch.  Maybe I'm 
+> 	missing something.  In my patch it is a copy of the i386
+> 	version.
+
+Probably my fault.
+
+-Andi 

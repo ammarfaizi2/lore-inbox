@@ -1,37 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318063AbSGWNnN>; Tue, 23 Jul 2002 09:43:13 -0400
+	id <S318064AbSGWNjw>; Tue, 23 Jul 2002 09:39:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318065AbSGWNnM>; Tue, 23 Jul 2002 09:43:12 -0400
-Received: from mailrelay1.lanl.gov ([128.165.4.101]:65167 "EHLO
-	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
-	id <S318063AbSGWNnM>; Tue, 23 Jul 2002 09:43:12 -0400
-Subject: Re: Summit patch for 2.4.19-rc3-ac2
-From: Steven Cole <elenstev@mesatop.com>
-To: jamesclv@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <200207222121.04788.jamesclv@us.ibm.com>
-References: <200207222121.04788.jamesclv@us.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 23 Jul 2002 07:42:48 -0600
-Message-Id: <1027431768.7518.69.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
+	id <S318065AbSGWNjw>; Tue, 23 Jul 2002 09:39:52 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:20175 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S318064AbSGWNju>; Tue, 23 Jul 2002 09:39:50 -0400
+Date: Tue, 23 Jul 2002 15:42:48 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: <martin@dalecki.de>
+cc: Morten Helgesen <morten.helgesen@nextframe.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: please DON'T run 2.5.27 with IDE!
+In-Reply-To: <3D3D5355.40404@evision.ag>
+Message-ID: <Pine.SOL.4.30.0207231530450.29134-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-22 at 22:21, James Cleverdon wrote:
-> Here's a patch for those who have been plagued by APIC errors starting around 
-> -rc1-ac6.  I've submitted it to Alan, but since it has been affecting a 
-> number of folks, I'm also posting it here for your consideration and review.
-> 
-> This fixes the APIC receive accept errors on the two machines we have that 
-> were subject to it.  Let me know if it doesn't work for you.
 
-Thanks.  That worked for my Intel STL2 with 2 x P-III (Coppermine).
+On Tue, 23 Jul 2002, Marcin Dalecki wrote:
 
-Steven
+> Bartlomiej Zolnierkiewicz wrote:
+> > On Tue, 23 Jul 2002, Morten Helgesen wrote:
+> >
+> >
+> >>On Mon, Jul 22, 2002 at 09:37:13PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> >>
+> >>>IDE 99 which is included in 2.5.27 introduced really nasty bug.
+> >>>Possible lockups and data corruption. Please do not.
+> >>
+> >>Could you please elaborate a bit ?
+> >
+> >
+> > Bug is a result of Martin being careless and not sending patches for
+> > public review. It is easy to fix, but I won't, please excuse me.
+> > Also I wont go in technical details, lets see how quick it will be fixed.
+>
+> The problem is of a somehow general nature.
+> Many of the block devices *need* a mechanism to run commands
+> asynchronously. The most preffered way to do this is
 
+Problem is of getting completion status of this commands
+asynchronously, they are all run synchronously through request queue.
 
+> of course to go by the already present request queue.
+> However the generic queue handling layer
+> doesn't give us any mechanism to actually stuff
+> request from the driver and it doesn't behave well in boundary
+> conditions where the queues are nearly full.
+>
+> So every single subsystem is (or at least should be) repeating something
+> along the lines of the following...
+>
+> tatic void __scsi_insert_special(request_queue_t *q, struct request *rq,
+> 				  void *data, int at_head)
+> {
+> 	unsigned long flags;
+>
+> 	ASSERT_LOCK(q->queue_lock, 0);
+>
+> 	/*
+> 	 * tell I/O scheduler that this isn't a regular read/write (ie
+> 	 * must not attempt merges on this) and that it acts as a soft
+> 	 * barrier
+> 	 */
+> 	rq->flags &= REQ_QUEUED;
+> 	rq->flags |= REQ_SPECIAL | REQ_BARRIER;
+>
+> 	rq->special = data;
+>
+> 	spin_lock_irqsave(q->queue_lock, flags);
+> 	/* If command is tagged, release the tag */
+> 	if(blk_rq_tagged(rq))
+> 		blk_queue_end_tag(q, rq);
+> 	_elv_add_request(q, rq, !at_head, 0);
+> 	q->request_fn(q);
+> 	spin_unlock_irqrestore(q->queue_lock, flags);
+> }
+>
+>
+> int scsi_insert_special_req(Scsi_Request * SRpnt, int at_head)
+> {
+> 	request_queue_t *q = &SRpnt->sr_device->request_queue;
+>
+> 	__scsi_insert_special(q, SRpnt->sr_request, SRpnt, at_head);
+> 	return 0;
+> }
+>
+> Well actually the proper patch will be modelled after what
+> is done in SCSI. Or maybe even unifying both.
+> At least it is immediately "obvious" that __scsi_insert_request()
+> has a signature which doesn't have anything to do with the SCSI
+> subsystem.
+> Becouse it is clear from the above as well
+> that for example at least setting the rq->flags should
+> be common among every kind of subsystem and it shouldn't
+> be done inside the subsystems implementation of this
+> method, since the flags are of a generic nature and there
+> are changes in this area from time to time.
+>
+>
+> For now the following *should* do for IDE:
+
+Martin why aren't you telling people all facts?
+It was the default behaviour before your change in IDE 99.
+This patch in practice reverts IDE 99 change.
+
+You have INTRODUCED a bug and now you try to
+pretend that it wasn't your fault and it was somehow broken before.
+Before 2.5.27 code had the same functionality as scsi version.
+And yes it will be useful to move it to block layer.
+
+Regards
+--
+Bartlomiej
+
+> ===== drivers/ide/ide-taskfile.c 1.61 vs edited =====
+> --- 1.61/drivers/ide/ide-taskfile.c	Fri Jul 19 10:18:50 2002
+> +++ edited/drivers/ide/ide-taskfile.c	Tue Jul 23 12:12:55 2002
+> @@ -194,22 +194,16 @@
+>   	request_queue_t *q = &drive->queue;
+>   	struct list_head *queue_head = &q->queue_head;
+>   	DECLARE_COMPLETION(wait);
+> +	struct request req;
+>
+>   #ifdef CONFIG_BLK_DEV_PDC4030
+>   	if (ch->chipset == ide_pdc4030 && buf)
+>   		return -ENOSYS;  /* special drive cmds not supported */
+>   #endif
+>
+> -	rq = __blk_get_request(&drive->queue, READ);
+> -	if (!rq)
+> -		rq = __blk_get_request(&drive->queue, WRITE);
+> -
+> -	/*
+> -	 * FIXME: Make sure there is a free slot on the list!
+> -	 */
+> -
+> -	BUG_ON(!rq);
+> -
+> +	memset(&req, 0, sizeof(req));
+> +	rq = &req;
+> +
+>   	rq->flags = REQ_SPECIAL;
+>   	rq->buffer = buf;
+>   	rq->special = ar;
+>
 

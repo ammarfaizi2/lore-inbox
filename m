@@ -1,140 +1,160 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263806AbTCUSvp>; Fri, 21 Mar 2003 13:51:45 -0500
+	id <S263790AbTCUStB>; Fri, 21 Mar 2003 13:49:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263804AbTCUSuf>; Fri, 21 Mar 2003 13:50:35 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:51628 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S263801AbTCUSts>;
-	Fri, 21 Mar 2003 13:49:48 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [patch for playing] 2.5.65 patch to support > 256 disks
-Date: Fri, 21 Mar 2003 10:56:04 -0800
-User-Agent: KMail/1.4.1
-Cc: Andrew Morton <akpm@digeo.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_GL44BUSW346PXEXQ8DJ7"
-Message-Id: <200303211056.04060.pbadari@us.ibm.com>
+	id <S263793AbTCUSsE>; Fri, 21 Mar 2003 13:48:04 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:23428
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263790AbTCUSrb>; Fri, 21 Mar 2003 13:47:31 -0500
+Date: Fri, 21 Mar 2003 20:02:46 GMT
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200303212002.h2LK2k4F026211@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH: no arch specific headers for upd4990a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---------------Boundary-00=_GL44BUSW346PXEXQ8DJ7
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-Andries Brouwer recently submitted 32 bit dev_t patches,
-which are in 2.5.65-mm2. This patch applies on those patches to support=20
-more than 256 disks.  This is for playing only.
-
-I tested this with 4000 disks using scsi_debug. I attached my actual
-disks (50) after 4000 scsi_debug disks. I am able to access my disks
-fine and do IO on them.
-
-Problems (so far):
-
-1) sd.c -  sd_index_bits[] arrys became big - need to be fixed.
-
-2) 4000 disks eats up lots of low memory (~460 MB). Here is the
-/proc/meminfo output before & after insmod.
-
-Before:
-MemTotal:      3883276 kB
-MemFree:       3808028 kB
-Buffers:          3240 kB
-Cached:          41860 kB
-SwapCached:          0 kB
-Active:          45360 kB
-Inactive:         7288 kB
-HighTotal:     3014616 kB
-HighFree:      2961856 kB
-LowTotal:       868660 kB
-LowFree:        846172 kB
-SwapTotal:     2040244 kB
-SwapFree:      2040244 kB
-Dirty:             192 kB
-Writeback:           0 kB
-Mapped:          14916 kB
-Slab:             7164 kB
-Committed_AS:    12952 kB
-PageTables:        312 kB
-ReverseMaps:      1895
-=3D=3D=3D=3D
-After:
-MemTotal:      3883276 kB
-MemFree:       3224140 kB
-Buffers:          3880 kB
-Cached:         140376 kB
-SwapCached:          0 kB
-Active:          47512 kB
-Inactive:       105508 kB
-HighTotal:     3014616 kB
-HighFree:      2838144 kB
-LowTotal:       868660 kB
-LowFree:        385996 kB
-SwapTotal:     2040244 kB
-SwapFree:      2040244 kB
-Dirty:              92 kB
-Writeback:           0 kB
-Mapped:          16172 kB
-Slab:           464364 kB
-Committed_AS:    14996 kB
-PageTables:        412 kB
-ReverseMaps:      2209
-
---------------Boundary-00=_GL44BUSW346PXEXQ8DJ7
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="sd.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="sd.patch"
-
---- linux/drivers/scsi/sd.c	Thu Mar 20 15:06:00 2003
-+++ linux.new/drivers/scsi/sd.c	Fri Mar 21 11:50:54 2003
-@@ -56,7 +56,9 @@
-  * Remaining dev_t-handling stuff
-  */
- #define SD_MAJORS	16
--#define SD_DISKS	(SD_MAJORS << 4)
-+#define SD_DISKS_PER_MAJOR_SHIFT	(KDEV_MINOR_BITS - 4)
-+#define SD_DISKS_PER_MAJOR	(1 << SD_DISKS_PER_MAJOR_SHIFT)
-+#define SD_DISKS	(SD_MAJORS << SD_DISKS_PER_MAJOR_SHIFT)
- 
- /*
-  * Time out in seconds for disks and Magneto-opticals (which are slower).
-@@ -1328,17 +1330,23 @@ static int sd_attach(struct scsi_device 
- 	sdkp->index = index;
- 
- 	gd->de = sdp->de;
--	gd->major = sd_major(index >> 4);
--	gd->first_minor = (index & 15) << 4;
-+	gd->major = sd_major(index >> SD_DISKS_PER_MAJOR_SHIFT);
-+	gd->first_minor = (index & (SD_DISKS_PER_MAJOR - 1)) << 4;
- 	gd->minors = 16;
- 	gd->fops = &sd_fops;
- 
--	if (index >= 26) {
-+	if (index < 26) {
-+		sprintf(gd->disk_name, "sd%c", 'a' + index % 26);
-+	} else if (index < (26*27)) {
- 		sprintf(gd->disk_name, "sd%c%c",
- 			'a' + index/26-1,'a' + index % 26);
- 	} else {
--		sprintf(gd->disk_name, "sd%c", 'a' + index % 26);
--	}
-+		const unsigned int m1 = (index/ 26 - 1) / 26 - 1;
-+		const unsigned int m2 = (index / 26 - 1) % 26;
-+		const unsigned int m3 = index % 26;
-+		sprintf(gd->disk_name, "sd%c%c%c", 
-+			'a' + m1, 'a' + m2, 'a' + m3);
-+	}	
- 
- 	sd_init_onedisk(sdkp, gd);
- 
-
---------------Boundary-00=_GL44BUSW346PXEXQ8DJ7--
-
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/include/linux/upd4990a.h linux-2.5.65-ac2/include/linux/upd4990a.h
+--- linux-2.5.65/include/linux/upd4990a.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.5.65-ac2/include/linux/upd4990a.h	2003-02-14 23:35:38.000000000 +0000
+@@ -0,0 +1,140 @@
++/*
++ *  Constant and architecture independent procedures
++ *  for NEC uPD4990A serial I/O real-time clock.
++ *
++ *  Copyright 2001  TAKAI Kousuke <tak@kmc.kyoto-u.ac.jp>
++ *		    Kyoto University Microcomputer Club (KMC).
++ *
++ *  References:
++ *	uPD4990A serial I/O real-time clock users' manual (Japanese)
++ *	No. S12828JJ4V0UM00 (4th revision), NEC Corporation, 1999.
++ */
++
++#ifndef _LINUX_uPD4990A_H
++#define _LINUX_uPD4990A_H
++
++#include <asm/byteorder.h>
++
++#include <asm/upd4990a.h>
++
++/* Serial commands (4 bits) */
++#define UPD4990A_REGISTER_HOLD			(0x0)
++#define UPD4990A_REGISTER_SHIFT			(0x1)
++#define UPD4990A_TIME_SET_AND_COUNTER_HOLD	(0x2)
++#define UPD4990A_TIME_READ			(0x3)
++#define UPD4990A_TP_64HZ			(0x4)
++#define UPD4990A_TP_256HZ			(0x5)
++#define UPD4990A_TP_2048HZ			(0x6)
++#define UPD4990A_TP_4096HZ			(0x7)
++#define UPD4990A_TP_1S				(0x8)
++#define UPD4990A_TP_10S				(0x9)
++#define UPD4990A_TP_30S				(0xA)
++#define UPD4990A_TP_60S				(0xB)
++#define UPD4990A_INTERRUPT_RESET		(0xC)
++#define UPD4990A_INTERRUPT_TIMER_START		(0xD)
++#define UPD4990A_INTERRUPT_TIMER_STOP		(0xE)
++#define UPD4990A_TEST_MODE_SET			(0xF)
++
++/* Parallel commands (3 bits)
++   0-6 are same with serial commands.  */
++#define UPD4990A_PAR_SERIAL_MODE		7
++
++#ifndef UPD4990A_DELAY
++# include <linux/delay.h>
++# define UPD4990A_DELAY(usec)	udelay((usec))
++#endif
++#ifndef UPD4990A_OUTPUT_DATA
++# define UPD4990A_OUTPUT_DATA(bit)			\
++	do {						\
++		UPD4990A_OUTPUT_DATA_CLK((bit), 0);	\
++		UPD4990A_DELAY(1); /* t-DSU */		\
++		UPD4990A_OUTPUT_DATA_CLK((bit), 1);	\
++		UPD4990A_DELAY(1); /* t-DHLD */	\
++	} while (0)
++#endif
++
++static __inline__ void upd4990a_serial_command(int command)
++{
++	UPD4990A_OUTPUT_DATA(command >> 0);
++	UPD4990A_OUTPUT_DATA(command >> 1);
++	UPD4990A_OUTPUT_DATA(command >> 2);
++	UPD4990A_OUTPUT_DATA(command >> 3);
++	UPD4990A_DELAY(1);	/* t-HLD */
++	UPD4990A_OUTPUT_STROBE(1);
++	UPD4990A_DELAY(1);	/* t-STB & t-d1 */
++	UPD4990A_OUTPUT_STROBE(0);
++	/* 19 microseconds extra delay is needed
++	   iff previous mode is TIME READ command  */
++}
++
++struct upd4990a_raw_data {
++	u8	sec;		/* BCD */
++	u8	min;		/* BCD */
++	u8	hour;		/* BCD */
++	u8	mday;		/* BCD */
++#if   defined __LITTLE_ENDIAN_BITFIELD
++	unsigned wday :4;	/* 0-6 */
++	unsigned mon :4;	/* 1-based */
++#elif defined __BIG_ENDIAN_BITFIELD
++	unsigned mon :4;	/* 1-based */
++	unsigned wday :4;	/* 0-6 */
++#else
++# error Unknown bitfield endian!
++#endif
++	u8	year;		/* BCD */
++};
++
++static __inline__ void upd4990a_get_time(struct upd4990a_raw_data *buf,
++					  int leave_register_hold)
++{
++	int byte;
++
++	upd4990a_serial_command(UPD4990A_TIME_READ);
++	upd4990a_serial_command(UPD4990A_REGISTER_SHIFT);
++	UPD4990A_DELAY(19);	/* t-d2 - t-d1 */
++
++	for (byte = 0; byte < 6; byte++) {
++		u8 tmp;
++		int bit;
++
++		for (tmp = 0, bit = 0; bit < 8; bit++) {
++			tmp = (tmp | (UPD4990A_READ_DATA() << 8)) >> 1;
++			UPD4990A_OUTPUT_CLK(1);
++			UPD4990A_DELAY(1);
++			UPD4990A_OUTPUT_CLK(0);
++			UPD4990A_DELAY(1);
++		}
++		((u8 *) buf)[byte] = tmp;
++	}
++
++	/* The uPD4990A users' manual says that we should issue `Register
++	   Hold' command after each data retrieval, or next `Time Read'
++	   command may not work correctly.  */
++	if (!leave_register_hold)
++		upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
++}
++
++static __inline__ void upd4990a_set_time(const struct upd4990a_raw_data *data,
++					  int time_set_only)
++{
++	int byte;
++
++	if (!time_set_only)
++		upd4990a_serial_command(UPD4990A_REGISTER_SHIFT);
++
++	for (byte = 0; byte < 6; byte++) {
++		int bit;
++		u8 tmp = ((const u8 *) data)[byte];
++
++		for (bit = 0; bit < 8; bit++, tmp >>= 1)
++			UPD4990A_OUTPUT_DATA(tmp);
++	}
++
++	upd4990a_serial_command(UPD4990A_TIME_SET_AND_COUNTER_HOLD);
++
++	/* Release counter hold and start the clock.  */
++	if (!time_set_only)
++		upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
++}
++
++#endif /* _LINUX_uPD4990A_H */

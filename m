@@ -1,118 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVAXQec@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVAXQgs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261514AbVAXQec (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 11:34:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbVAXQec
+	id S261517AbVAXQgs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 11:36:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVAXQgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 11:34:32 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:46286 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261514AbVAXQeW
+	Mon, 24 Jan 2005 11:36:48 -0500
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:61160 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261517AbVAXQgk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 11:34:22 -0500
-Date: Mon, 24 Jan 2005 08:34:17 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: kj <kernel-janitors@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: [UPDATE PATCH] input/iforce-packets: use wait_event_interruptible_timeout()
-Message-ID: <20050124163417.GB2685@us.ibm.com>
-References: <20050122235426.GB22170@nd47.coderock.org> <20050123091849.GB3196@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 24 Jan 2005 11:36:40 -0500
+From: David Brownell <david-b@pacbell.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Adding an async I2C interface
+Date: Mon, 24 Jan 2005 08:36:38 -0800
+User-Agent: KMail/1.7.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050123091849.GB3196@stusta.de>
-X-Operating-System: Linux 2.6.10 (i686)
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200501240836.38669.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 23, 2005 at 10:18:49AM +0100, Adrian Bunk wrote:
-> On Sun, Jan 23, 2005 at 12:54:26AM +0100, Domen Puncer wrote:
-> >...
-> > new in this release:
-> > --------------------
-> >...
-> > wait_event_int_t-drivers_input_joystick_iforce_iforce.h.patch
-> >   From: Nishanth Aravamudan <nacc@us.ibm.com>
-> >   Subject: [KJ] [PATCH 13/39] input/iforce-packets: use 	wait_event_interruptible_timeout()
-> >...
+Quoth Corey Minyard:
+> I would really like add asynchronous interface to the I2C bus drivers. 
+
+Applause!  This is IMO overdue, but maybe sensor systems don't need it
+as much as other I2C applications do.  For example, see the isp1301_omap
+driver, which could have been hugely simpler if there were an async I2C
+framework to build on.  That's probably one of the more complex examples
+floating around ... but it's hardly the only place where needing to talk
+synchronously to I2C chips creates trouble.
+
+
+> I propose: 
 > 
-> This patch causes two compile errors:
-> 
-> #ifdef CONFIG_JOYSTICK_IFORCE_USB:
-> - semicolon instead of opening bracket in line 265
-> 
-> #ifdef CONFIG_JOYSTICK_IFORCE_232:
-> - typo 'wait_event_interrutible_timeout'
+>    * Adding an async send interface to the busses that does a callback
+>      when the operation is complete.
 
-Thanks for catching this, Adrian. Should be fixed below:
+It'd have to have a queue, so that several different chips could have
+operations pending concurrently.  I suspect you wouldn't need to cancel
+operations once they're queued ... useful simplification, compared to
+for example USB.  (Which in retrospect needs a "kill queue" operation,
+per endpoint, rather than the "cancel request" operation we've got.
+But when 2.2 started with USB, we didn't quite know that ... ;)
 
-Description:  Use wait_event_interruptible_timeout() instead of custom
-wait-queue code. The main controversy of this patch is that I do not add
-to the wait-queue before checking usb_submit_urb(). I am not sure if this
-will cause problems. Otherwise the code is effectively identical. Remove
-the now unnecessary declaration of the waitqueue and timeout. Add the
-appropriate #include to iforce.h as well.
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+>    * Adding a poll interface to the busses.  The I2C core code could
+>      call this if a synchronous call is made from task context (much
+>      like all the current drivers do right now).  For asyncronous
+>      operation, the I2C core code would call it from a timer
+>      interrupt.  If the driver supported interrupts, polling from the
+>      timer interrupt would not be necessary.
+>    * Add async operations for the user to call, including access to the
+>      polling code.
+>    * If the driver didn't support an async send, it would work as it
+>      does today and the async calls would return ENOSYS.
 
---- 2.6.11-rc1-kj-v/drivers/input/joystick/iforce/iforce-packets.c	2005-01-15 16:55:43.000000000 -0800
-+++ 2.6.11-rc1-kj/drivers/input/joystick/iforce/iforce-packets.c	2005-01-23 15:45:03.000000000 -0800
-@@ -249,9 +249,6 @@ void iforce_process_packet(struct iforce
+To the extent I've thought about it, that sounds like a good approach.
+
+- Dave
  
- int iforce_get_id_packet(struct iforce *iforce, char *packet)
- {
--	DECLARE_WAITQUEUE(wait, current);
--	int timeout = HZ; /* 1 second */
--
- 	switch (iforce->bus) {
- 
- 	case IFORCE_USB:
-@@ -260,24 +257,12 @@ int iforce_get_id_packet(struct iforce *
- 		iforce->cr.bRequest = packet[0];
- 		iforce->ctrl->dev = iforce->usbdev;
- 
--		set_current_state(TASK_INTERRUPTIBLE);
--		add_wait_queue(&iforce->wait, &wait);
--
- 		if (usb_submit_urb(iforce->ctrl, GFP_ATOMIC)) {
--			set_current_state(TASK_RUNNING);
--			remove_wait_queue(&iforce->wait, &wait);
- 			return -1;
- 		}
--
--		while (timeout && iforce->ctrl->status == -EINPROGRESS) {
--			set_current_state(TASK_INTERRUPTIBLE);
--			timeout = schedule_timeout(timeout);
--		}
--
--		set_current_state(TASK_RUNNING);
--		remove_wait_queue(&iforce->wait, &wait);
--
--		if (!timeout) {
-+		
-+		if (!wait_event_interruptible_timeout(iforce->wait,
-+					(iforce->ctrl->status != -EINPROGRESS), HZ)) {
- 			usb_unlink_urb(iforce->ctrl);
- 			return -1;
- 		}
-@@ -292,18 +277,8 @@ int iforce_get_id_packet(struct iforce *
- 		iforce->expect_packet = FF_CMD_QUERY;
- 		iforce_send_packet(iforce, FF_CMD_QUERY, packet);
- 
--		set_current_state(TASK_INTERRUPTIBLE);
--		add_wait_queue(&iforce->wait, &wait);
--
--		while (timeout && iforce->expect_packet) {
--			set_current_state(TASK_INTERRUPTIBLE);
--			timeout = schedule_timeout(timeout);
--		}
--
--		set_current_state(TASK_RUNNING);
--		remove_wait_queue(&iforce->wait, &wait);
--
--		if (!timeout) {
-+		if (!wait_event_interruptible_timeout(iforce->wait,
-+					(!iforce->expect_packet), HZ)) { 
- 			iforce->expect_packet = 0;
- 			return -1;
- 		}

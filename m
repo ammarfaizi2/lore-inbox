@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316789AbSFCOTM>; Mon, 3 Jun 2002 10:19:12 -0400
+	id <S316798AbSFCO0p>; Mon, 3 Jun 2002 10:26:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316798AbSFCOTL>; Mon, 3 Jun 2002 10:19:11 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:5895 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S316789AbSFCOTK>;
-	Mon, 3 Jun 2002 10:19:10 -0400
-Message-ID: <3CFB6D24.2090309@evision-ventures.com>
-Date: Mon, 03 Jun 2002 15:20:36 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: If you want kbuild 2.5, tell Linus
-In-Reply-To: <3434.1023112731@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+	id <S316802AbSFCO0o>; Mon, 3 Jun 2002 10:26:44 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:38385 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316798AbSFCO0o>; Mon, 3 Jun 2002 10:26:44 -0400
+Subject: Re: [PATCH] I2O support on alpha.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pierrick Hascoet <pierrick.hascoet@hydromel.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0206031049010.11680-200000@host.alias.fr>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 03 Jun 2002 16:29:06 +0100
+Message-Id: <1023118146.3439.71.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Content-Type: text/plain; charset=us-ascii
-> 
-> I regret having to do this but Linus has left me with no other options.
+On Mon, 2002-06-03 at 10:23, Pierrick Hascoet wrote:
+>  		msg[0] = (FIVE_WORD_MSG_SIZE|SGL_OFFSET_0);
+>  		msg[1] = I2O_CMD_BLOCK_CFLUSH<<24|HOST_TID<<12|dev->tid;
+>  		msg[2] = i2ob_context|0x40000000;
+> -		msg[3] = (u32)query_done;
+> +		msg[3] = (unsigned long)query_done;
 
+query_done is a 64bit value, msg[3] is 32bit. On your box it happens
+that the query_done value fits into 32 bits. Really the pointer needs
+replacing with something saner. I have some ideas. One would be to add
 
-Somehow I can't resist, but this sounds like the
-devfs and RaiserFS story again:
+		val = i2o_query_alloc(address);
+		i2o_query_done(val);
+		i2o_query_free(val);
 
-- devfs claimed "It will solve all major/minor number problems".
-   Well we still struggle to get over with them. But now we have to
-   account for the intricacies of devfs in addition too.
+functionality that tracked the pointers in a seperate array
 
-- RaiserFS "Trees rule the world".
-   Well ext3 (no I don't care about inn server!) is faster
-   XFS is better manegeable. The "mutable filesystem semantics" modules
-   and what a not are nowehre in sight.
-
-Both projects which got included due to "public preasure".
+Similar problems in the fp->private_data casting too. That wants pushing
+into an array of some sort. I'll apply the header changes and other
+fixes and think about the harder ones
 

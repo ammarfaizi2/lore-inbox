@@ -1,80 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267350AbRGKQqT>; Wed, 11 Jul 2001 12:46:19 -0400
+	id <S267351AbRGKQxT>; Wed, 11 Jul 2001 12:53:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267351AbRGKQqJ>; Wed, 11 Jul 2001 12:46:09 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:24148 "EHLO
+	id <S267354AbRGKQxK>; Wed, 11 Jul 2001 12:53:10 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:24406 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S267350AbRGKQqF>; Wed, 11 Jul 2001 12:46:05 -0400
-Date: Wed, 11 Jul 2001 18:41:14 +0200
+	id <S267351AbRGKQxA>; Wed, 11 Jul 2001 12:53:00 -0400
+Date: Wed, 11 Jul 2001 18:53:08 +0200
 From: Andrea Arcangeli <andrea@suse.de>
-To: David Howells <dhowells@redhat.com>
-Cc: ralf@gnu.ai.mit.edu, linux-mips@fnet.fr, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: optimised rw-semaphores for MIPS/MIPS64
-Message-ID: <20010711184114.I3496@athlon.random>
-In-Reply-To: <2508.994860047@warthog.cambridge.redhat.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Andrew Morton <andrewm@uow.edu.au>, Klaus Dittrich <kladit@t-online.de>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7p6 hang
+Message-ID: <20010711185308.J3496@athlon.random>
+In-Reply-To: <200107110849.f6B8nlm00414@df1tlpc.local.here> <shslmlv62us.fsf@charged.uio.no> <3B4C56F1.3085D698@uow.edu.au> <15180.24844.687421.239488@charged.uio.no> <20010711175809.F3496@athlon.random> <15180.32563.739560.194630@charged.uio.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2508.994860047@warthog.cambridge.redhat.com>; from dhowells@redhat.com on Wed, Jul 11, 2001 at 03:00:47PM +0100
+In-Reply-To: <15180.32563.739560.194630@charged.uio.no>; from trond.myklebust@fys.uio.no on Wed, Jul 11, 2001 at 06:30:43PM +0200
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 11, 2001 at 03:00:47PM +0100, David Howells wrote:
-> Hello Ralf,
+On Wed, Jul 11, 2001 at 06:30:43PM +0200, Trond Myklebust wrote:
+> >>>>> " " == Andrea Arcangeli <andrea@suse.de> writes:
 > 
-> I've produced an inline-assembly optimised Read/Write Semaphore patch for MIPS
-> against linux-2.4.7-pre6 (rwsem.diff). David Woodhouse has tested it.
+>      > ksoftirqd is quite scheduler intensive, and while its startup
+>      > is correct (no need of any change there), it tends to trigger
+>      > scheduler bugs (one of those bugs was just fixed in pre5). The
+>      > reason I never seen the deadlock I also fixed this other
+>      > scheduler bug in my tree:
+> 
+>      > --- 2.4.4aa3/kernel/sched.c.~1~ Sun Apr 29 17:37:05 2001
+>      > +++ 2.4.4aa3/kernel/sched.c Tue May 1 16:39:42 2001
+>      > @@ -674,8 +674,10 @@
+>      >  #endif
+>      >  	spin_unlock_irq(&runqueue_lock);
+>  
+>      > - if (prev == next)
+>      > + if (prev == next) {
+>      > + current->policy &= ~SCHED_YIELD;
+>      >  		goto same_process;
+>      > + }
+>  
+>      >  #ifdef CONFIG_SMP
+>      >   	/*
+> 
+> I no longer see the hang with this patch, but I'm not sure I
+> understand why it works.
 
-I don't understand why you keep writing code on top of your
-mathematically slower rwsem framework.
+I do. It's very subtle and it goes down to the fork and scheduler
+details.
 
-the C version is much much slower, measured several times.
+> Does the above mean that the hang is occuring because spawn_ksoftirqd
+> is yielding back to itself? If so, the semaphore trick seems more
 
-The asm version has a inferior slow path design that force you having to
-do slower and quite tricky stuff in the up_write fast path. This is your
-up_write fast path:
+No, that's a generic bug.
 
-		"  movl      %2,%%edx\n\t"
-LOCK_PREFIX	"  xaddl     %%edx,(%%eax)\n\t" /* tries to transition 0xffff0001 -> 0x00000000 */
-		"  jnz       2f\n\t" /* jump if the lock is being waited upon */
+> robust, as it causes a proper sleep until it's safe to wake up.
 
-Plus you also clobber %dx in the up_write fast path which I don't need
-to.
+rwsem is definitenly not more robust than the current code, if something
+it hides if sched_yield is broken in the scheduler. no need to change
+it wasting some static ram for a rwsem for no good reason.
 
-This is my up_write fast path:
+The bug is that sched_yield must always be cleared at the time of a
+fork() or the child may never get schedule. Only tasks running in-cpu are
+allowed to have SCHED_YIELD set.
 
-	__asm__ __volatile__(LOCK "subl %2, %0\n\t"
-			     "js 2f\n"
+Another way to cure the deadlock could be to clear SCHED_YIELD in the child so
+then you could even do something as silly as:
 
-Also the design of my xadd slow path looks more readable to me but ok,
-I'm biased about that, let's only care about the number of cycles you
-have to spend on the fast paths as measure of the goodness of the
-algorithm.
+	current->policy |= SCHED_YIELD;
+	fork()
+	schedule()
 
-I'd suggest arch maintainers to port their rwsem asm optimized fast
-paths on top of this patch and to submit me patches:
-
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.7pre5aa1/00_rwsem-14
-
-I also recommend Linus to include the above patch into mainline (it will
-reject on the alpha since in pre6 there is the asm optimized version on
-top of the slower framework, you can simply temporary disable the asm
-optimized version in alpha/config.in and it will compile just fine).
-
-I have an old one from Ivan for alpha which I can just integrate after
-auditing and comparison with the one in pre6, the port of the others
-should be fairly easy too.
-
-If arch maintainers will do it and it will be included in mainline this
-would save me some work and would make the kernel faster.  If it won't
-be included again for whatever reason (I got no reply last times) I will
-just spend a day on it and I'll port all ports on top of the new code
-myself and I'll maintain the faster rwsem in my tree for all archs in
-the kernel (possibly with the exception of the ones that are not
-converted to the xchgadd asm version yet) as I did so far for x86.
+but the above doesn't make sense so we can optimize away the clear of
+SCHED_YIELD of the child in fork. And even if you allow the above you
+still need my attached fix for performance reason because if schedule()
+returns that's all for the last sched_yield try, the next time we run
+schedule without specifying sched_yield we don't want it to be threated
+like a sched_yield again (that was the original reason of the patch
+infact, I noticed now that the bug had very serious implication with
+fork, such implication won't trigger only with ksoftirqd but also with
+normal userspace forks, it's only that with ksoftirqd banging of the
+scheduler it becomes reproducible).
 
 Andrea

@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263796AbTLECjy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 21:39:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbTLECjy
+	id S263812AbTLECm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 21:42:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbTLECm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 21:39:54 -0500
-Received: from mail019.syd.optusnet.com.au ([211.29.132.73]:22165 "EHLO
-	mail019.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S263796AbTLECjx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 21:39:53 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	Thu, 4 Dec 2003 21:42:59 -0500
+Received: from bay7-dav37.bay7.hotmail.com ([64.4.10.94]:60944 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263812AbTLECm5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 21:42:57 -0500
+X-Originating-IP: [24.61.138.213]
+X-Originating-Email: [jason_kingsland@hotmail.com]
+From: "Jason Kingsland" <Jason_Kingsland@hotmail.com>
+To: "David Schwartz" <davids@webmaster.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <MDEHLPKNGKAHNMBLJOLKKEGMIHAA.davids@webmaster.com>
+Subject: Re: Linux GPL and binary module exception clause?
+Date: Thu, 4 Dec 2003 21:43:01 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16335.61394.767472.292269@wombat.chubb.wattle.id.au>
-Date: Fri, 5 Dec 2003 13:39:14 +1100
-To: Philippe Troin <phil@fifi.org>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>, rob@landley.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Is there a "make hole" (truncate in middle) syscall?
-In-Reply-To: <873cc0nkgf.fsf@ceramic.fifi.org>
-References: <200312041432.23907.rob@landley.net>
-	<16335.47878.628726.26978@wombat.chubb.wattle.id.au>
-	<873cc0nkgf.fsf@ceramic.fifi.org>
-X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-ID: <BAY7-DAV37GkZcFUjvZ0000328a@hotmail.com>
+X-OriginalArrivalTime: 05 Dec 2003 02:42:56.0160 (UTC) FILETIME=[7CD66200:01C3BAD9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Philippe" == Philippe Troin <phil@fifi.org> writes:
 
-Philippe> Peter Chubb <peter@chubb.wattle.id.au> writes:
->> >>>>> "Rob" == Rob Landley <rob@landley.net> writes:
->> 
-Rob> You can make a file with a hole by seeking past it and never
-Rob> writing to that bit, but is there any way to punch a hole in a
-Rob> file after the fact?  (I mean other with lseek and write.  Having
-Rob> a sparse file as the result....)
->> SVr4 has fcntl(fd, F_FREESP, flock) that frees the space covered by
->> the struct flock in the file.  Linux doesn't have this, at least in
->> the baseline kernels.
+> My personal view is that Linux should mandate GPL for all modules in 2.6
+and beyond.
 
-Philippe> However most SVr4 (at least Solaris and HP-UX) only
-Philippe> implement FREESP when the freed space is at the file's
-Philippe> tail. In other words, FREESP can only be used to implement
-Philippe> ftruncate().
+"David Schwartz" wrote:
+> I'm baffled how you think this is a choice that can be made. The license
+is
+> the GPL itself and even the Linux kernel developers have no power to
+change it.
 
-The original SVr4 worked in the middle of files too.
+Modules are essentially dynamically linked extensions to the GPL kernel. In
+some cases they can be shown to be independent, prior works where GPL can
+reasonably be argued not to apply - which as Linus stated earlier on this
+thread was the original intention of allowing binary-only modules.
+
+But in most of the more recent cases the driver/module code is written
+specifically for Linux, so it seems more appropriate that they would be
+considered as derived works of the kernel. But those various comments from
+Linus are being taken out of context to somehow justify permission for the
+non-release of source code for binary loadable modules.
+
+Linux is not pure GPL, it also has the Linus "user program" preamble in
+copying.txt - that preamble plus other LKML posts from Linus are commonly
+used as justifications for non-disclosure of source code to some classes of
+modules.
+
+But with all due respect, Linus is not the only author of Linux and his
+words to tend to convey an artificial sense of authority or justification
+for such attitudes. Here is a typical example:
+http://www.linuxdevices.com/articles/AT9161119242.html
+
+All I am suggesting is that the preamble could be extended to clearly state
+the position for kernel binary-only modules, and that the upcoming 2.6
+release might be an opportunity for a quorum of the Linux authors to agree
+to revised wording.
 

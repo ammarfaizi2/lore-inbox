@@ -1,36 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289930AbSAWRt3>; Wed, 23 Jan 2002 12:49:29 -0500
+	id <S289939AbSAWSBU>; Wed, 23 Jan 2002 13:01:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289937AbSAWRtT>; Wed, 23 Jan 2002 12:49:19 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:49039 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S289930AbSAWRtM>; Wed, 23 Jan 2002 12:49:12 -0500
-Date: Wed, 23 Jan 2002 10:49:01 -0700
-Message-Id: <200201231749.g0NHn1h31634@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Antti Salmela <asalmela@iki.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] 2.4.17, SMP, AMD, devfs, highmem.
-In-Reply-To: <20020123152406.A4992@wasala.fi>
-In-Reply-To: <20020123152406.A4992@wasala.fi>
+	id <S289941AbSAWSBA>; Wed, 23 Jan 2002 13:01:00 -0500
+Received: from [63.140.126.166] ([63.140.126.166]:37903 "EHLO helium.inexs.com")
+	by vger.kernel.org with ESMTP id <S289939AbSAWSA4>;
+	Wed, 23 Jan 2002 13:00:56 -0500
+Date: Wed, 23 Jan 2002 12:00:55 -0600
+From: Chuck Campbell <campbell@neosoft.com>
+To: linux-kernel@vger.kernel.org
+Cc: campbell@neosoft.com
+Subject: find a file containing a specific sector
+Message-ID: <20020123120055.A14311@helium.inexs.com>
+Reply-To: campbell@neosoft.com
+Mail-Followup-To: Chuck Campbell <campbell@neosoft.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antti Salmela writes:
-> Kernel compiled with gcc version 2.95.4 (Debian prerelease).
-> 
-> If any additional information is required, please ask.
+For the last 7 months, I've been getting the following error in 
+/var/log/messages every night during the cron.daily execution.  I've finally
+tracked it down to happening during my tripwire run, and I suspect
+(based on linear time into the run, and sizes of files) the problem file
+lies somwhere in /usr/lib.
 
-If you had searched the list archives, you would have seen that this
-bug has already been fixed. Even if you're too lazy to do that, you
-should at least apply the latest pre-patch (2.4.18-pre6 as I write
-this) and see if the problem goes away. That's standard procedure:
-always try to reproduce an Oops using the latest kernel. 2.4.17 is
-over a month old: a lot has happened since then.
+The error message has been identical for months, so I assume I have a bad 
+spot that is not spreading.  I'd like to find the affected file, rename it
+and ignore the problem for a while longer.
 
-				Regards,
+If I know the sector and lbasector, can I determine the inode and/or
+the actual file affected?
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+The error message is:
+
+Jan 23 04:24:34 helium kernel: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error } 
+Jan 23 04:24:34 helium kernel: hdc: dma_intr: error=0x40 { UncorrectableError }, LBAsect=4200315, sector=4200248 
+Jan 23 04:24:34 helium kernel: end_request: I/O error, dev 16:01 (hdc), sector 4200248 
+
+as I said before, the sector number has never changed in months.
+
+
+thanks,
+-chuck
+
+
+
+-- 
+ACCEL Services, Inc.| Specialists in Gravity, Magnetics |  1(713)993-0671 ph.
+1980 Post Oak Blvd. |   and Integrated Interpretation   |  1(713)960-1157 fax
+    Suite 2050      |                                   |
+ Houston, TX, 77056 |          Chuck Campbell           | campbell@neosoft.com
+                    |  President & Senior Geoscientist  |
+
+     "Integration means more than having all the maps at the same scale!"

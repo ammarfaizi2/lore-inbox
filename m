@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131678AbQLGXpP>; Thu, 7 Dec 2000 18:45:15 -0500
+	id <S129458AbQLGXwz>; Thu, 7 Dec 2000 18:52:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130029AbQLGXpG>; Thu, 7 Dec 2000 18:45:06 -0500
-Received: from 62-6-231-122.btconnect.com ([62.6.231.122]:35588 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S129645AbQLGXo5>;
-	Thu, 7 Dec 2000 18:44:57 -0500
-Date: Thu, 7 Dec 2000 23:16:19 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andreas Klein <asklein@cip.physik.uni-wuerzburg.de>,
-        linux-kernel@vger.kernel.org, drew@colorado.edu
-Subject: Re: bug in scsi.c
-In-Reply-To: <E144ACA-00038L-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0012072314021.933-100000@penguin.homenet>
+	id <S129846AbQLGXwg>; Thu, 7 Dec 2000 18:52:36 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:14088 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S129458AbQLGXwc>; Thu, 7 Dec 2000 18:52:32 -0500
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+Date: Thu, 7 Dec 2000 16:21:58 -0700
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Cc: florian@galois.de
+Subject: Re: oops in 2.4.0test12-pre5+reiserfs+crypto
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <00120716215803.01067@spc.esa.lanl.gov>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2000, Alan Cox wrote:
-> > > > A proper way to release the references to resources is to call daemonize()
-> > > > function from within the kernel thread function, which calls
-> > > > exit_fs()/exit_files() internally.
-> > > 
-> > > Nearly correct, the daemonize function does NOT call exit_files.
-> > 
-> > I do not post messages to linux-kernel without checking the facts
-> > first. Read the daemonize() function and see for yourself that you are
-> > wrong.
-> 
-> Andreas is looking at a slightly older kernel, and was right for that. Every
-> caller to daemonize either then did the file stuff or needed to and forgot
-> so I fixed daemonize
 
-Yes, yes, Alan, I do know that. I just took it for granted that the
-correctness of the statement when applied to the latest kernel should not
-upset someone who is looking at the older version so me calling someone
-"wrong" is not a strong offensive term, just a mild thing saying "guess
-what -- things changed". Just trying to exercise the human mind to get
-used to quick changes in the Linux world -- that is all :)
+Florian Schmitt <florian@galois.de> wrote:
+>I had the following oops while doing a "find -name" and playing mp3s on 
 
-Regards,
-Tigran
+If you're running 2.4.0-test12-pre5 or later with reiserfs, you should be 
+aware that this can be unsafe due to a problem with reiserfs_writepage.
+Fortunately, Chris Mason just posted a patch to fix this on the reiserfs-list,
+against reiserfs-3.6.22.  The recent reiserfs-list archives can be found at:
 
+http://marc.theaimsgroup.com/?l=reiserfs&r=1&w=2&b=200012
+
+This may have nothing to do with your oops, but if you're going to run
+2.4.0-test12-pre5,6,7 then go get the writepage.diff patch, and apply it
+after applying linux-2.4.0-test10-reiserfs-3.6.22-patch.
+
+Of course, this is bleeding edge, so the usual caveats apply.
+
+Good luck,
+Steven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281967AbRKUUOz>; Wed, 21 Nov 2001 15:14:55 -0500
+	id <S281961AbRKUUOE>; Wed, 21 Nov 2001 15:14:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281965AbRKUUOr>; Wed, 21 Nov 2001 15:14:47 -0500
-Received: from taifun.devconsult.de ([212.15.193.29]:17925 "EHLO
-	taifun.devconsult.de") by vger.kernel.org with ESMTP
-	id <S281967AbRKUUOf>; Wed, 21 Nov 2001 15:14:35 -0500
-Date: Wed, 21 Nov 2001 21:14:33 +0100
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Heinz-Ado Arnolds <Ado.Arnolds@dhm-systems.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fs/exec.c and binfmt-xxx in 2.4.14
-Message-ID: <20011121211433.B1424@devcon.net>
-Mail-Followup-To: Heinz-Ado Arnolds <Ado.Arnolds@dhm-systems.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3BFBDD32.434AB47B@web-systems.net>
-Mime-Version: 1.0
+	id <S281965AbRKUUNp>; Wed, 21 Nov 2001 15:13:45 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:17145 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S281961AbRKUUNf>; Wed, 21 Nov 2001 15:13:35 -0500
+Message-ID: <3BFC0AD5.5A4802D@mvista.com>
+Date: Wed, 21 Nov 2001 12:13:09 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Memory allocation question
+In-Reply-To: <Pine.LNX.4.33L.0111211651280.1491-100000@duckman.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BFBDD32.434AB47B@web-systems.net>; from Ado.Arnolds@dhm-systems.de on Wed, Nov 21, 2001 at 05:58:26PM +0100
-Organization: dev/consulting GmbH
-X-NCC-RegID: de.devcon
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 21, 2001 at 05:58:26PM +0100, Heinz-Ado Arnolds wrote:
+Rik van Riel wrote:
 > 
-> When i now try to start an older binary in a.out format, which has a
-> magic number of 0x010b0064, it is translated with the 'new' code to a
-> request for "binfmt-0064" instead of "binfmt-267" as expected and
-> properly handled by modprobe.
+> On Wed, 21 Nov 2001, george anzinger wrote:
+> > Alan Cox wrote:
+> > >
+> > > > size chuncks.  Currently I am using kmalloc() to allocate a page at a
+> > > > time.  I don't want to have to worry about mapping/unmapping etc.  I
+> > >
+> > > Use get_free_page() to get page sized chunks
+> >
+> > What about __get_free_page() ?  I don't need or want the clear page
+> > (performance issues).
+> 
+> get_free_page() doesn't clear the page afaics.
+> 
+In mm.h (2.4.13 kernel)....
 
-Then add
+#define __get_free_page(gfp_mask) \
+		__get_free_pages((gfp_mask),0)
 
-alias binfmt-0064 binfmt_aout
+#define __get_dma_pages(gfp_mask, order) \
+		__get_free_pages((gfp_mask) | GFP_DMA,(order))
 
-to /etc/modules.conf. Simple, isn't it?
+/*
+ * The old interface name will be removed in 2.5:
+ */
+#define get_free_page get_zeroed_page
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Andreas
+Where as __get_free_page() does not zero.  I know this is an old kernel,
+but...
+
+
+What am I missing?
 -- 
-       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
-     ---------------------------------------------------------
-         +49 521 1365800 - af@devcon.net - www.devcon.net
+George           george@mvista.com
+High-res-timers: http://sourceforge.net/projects/high-res-timers/
+Real time sched: http://sourceforge.net/projects/rtsched/

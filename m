@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263584AbTCUK4v>; Fri, 21 Mar 2003 05:56:51 -0500
+	id <S263588AbTCULFn>; Fri, 21 Mar 2003 06:05:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263586AbTCUK4v>; Fri, 21 Mar 2003 05:56:51 -0500
-Received: from dsl-213-023-012-199.arcor-ip.net ([213.23.12.199]:1920 "EHLO
-	spot.lan") by vger.kernel.org with ESMTP id <S263584AbTCUK4u> convert rfc822-to-8bit;
-	Fri, 21 Mar 2003 05:56:50 -0500
-From: Oliver Feiler <kiza@gmx.net>
-To: krause@sdbk.de (Sebastian D.B. Krause)
-Subject: Re: Release of 2.4.21
-Date: Fri, 21 Mar 2003 12:06:28 +0100
-User-Agent: KMail/1.5
-References: <20030320200019$6ddc@gated-at.bofh.it> <20030320210305.GH8256@gtf.org> <871y11y9lg.fsf@sdbk.de>
-In-Reply-To: <871y11y9lg.fsf@sdbk.de>
-Cc: linux-kernel@vger.kernel.org
-X-PGP-Key-Fingerprint: E9DD 32F1 FA8A 0945 6A74  07DE 3A98 9F65 561D 4FD2
-X-PGP-Key: http://kiza.kcore.de/pgpkey.shtml
-X-Species: Snow Leopard
-X-Operating-System: Linux i686
+	id <S263590AbTCULFn>; Fri, 21 Mar 2003 06:05:43 -0500
+Received: from pat.uio.no ([129.240.130.16]:11145 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S263588AbTCULFm>;
+	Fri, 21 Mar 2003 06:05:42 -0500
+To: Vladimir Serov <vserov@infratel.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] nfs client stuck in D state in linux 2.4.17 - 2.4.21-pre5
+References: <20030318155731.1f60a55a.skraw@ithnet.com>
+	<3E79EAA8.4000907@infratel.com>
+	<15993.60520.439204.267818@charged.uio.no>
+	<3E7ADBFD.4060202@infratel.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 21 Mar 2003 12:16:35 +0100
+In-Reply-To: <3E7ADBFD.4060202@infratel.com>
+Message-ID: <shsof45nf58.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200303211206.38156.kiza@gmx.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+>>>>> " " == Vladimir Serov <vserov@infratel.com> writes:
 
-On Thursday 20 March 2003 23:08, Sebastian D.B. Krause wrote:
->
-> That may be true, but inspite of that there is another important and
-> dangerous bug in 2.4.20 (the ext3 thing) that IMHO is enough reason
-> to release a new kernel.
+     > Trond Myklebust wrote:
+    >>>>>>> " " == Vladimir Serov <vserov@infratel.com> writes:
+    >>>>>>>
 
-Btw, what ext3 patches are these exactly?
+    >>
+    >> > interrupt handler for NIC, it's gone !!!  IMHO this is due to
+    >> > the race in the nfs client.
+    >>
+    >> Why would an NFS race show up only on PPC? Do you have a
+    >> tcpdump?
+    >>
 
-- From subdir 00-merged/ at 
-http://people.redhat.com/sct/patches/ext3-2.4/dev-20030314/
+     > Hi , Trond As I wrote , another persone has similar problems on
+     > PC's, as to me it was a big suprise to see such a problem in
 
-More/other patches? There seem to be some (all?) of those mentioned in the 
-.21-pre changelog but can someone please cleary state what ext3 patches 
-should be applied?
+No that wasn't the same problem. IIRC that other person had faulty
+hardware. To my knowledge, there are no outstanding problems with
+hangs under 2.4.x.
 
+     > nfs, cause i'm using it for over 10 yers in a different
+     > setups's OS's , etc. Yes I have tcpdump , and as i wrote,
+     > nothing wrong is going on with packet receiption, where is now
+     > corrupted packets , no error messages, NOTHING !!!! Just RPC
 
-- -- 
-Oliver Feiler  <kiza@(kcore.de|lionking.org|gmx(pro).net)>
-http://kiza.kcore.de/    <--    homepage
-PGP-key      -->    /pgpkey.shtml
-http://kiza.kcore.de/journal/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Can I see that tcpdump in order to judge that for myself?
 
-iD8DBQE+evI+OpifZVYdT9IRAuksAJ45QBi9gPXrKRHrPGgDlRmanlSmNgCguKFL
-v5PrWhB/49KKgeE/kvwxF1A=
-=A3QG
------END PGP SIGNATURE-----
-
+Cheers,
+  Trond

@@ -1,74 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbVAUQeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262416AbVAUQdH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbVAUQeS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 11:34:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVAUQeR
+	id S262416AbVAUQdH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 11:33:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVAUQdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 11:34:17 -0500
-Received: from styx.suse.cz ([82.119.242.94]:60617 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S262418AbVAUQdb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 11:33:31 -0500
-Date: Fri, 21 Jan 2005 17:35:40 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: dtor_core@ameritech.net
-Cc: Prarit Bhargava <prarit@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC]: Clean up resource allocation in i8042 driver
-Message-ID: <20050121163540.GC4795@ucw.cz>
-References: <41F11C66.5000707@sgi.com> <d120d500050121074313788f99@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d500050121074313788f99@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+	Fri, 21 Jan 2005 11:33:07 -0500
+Received: from mta.songnetworks.no ([62.73.241.54]:43444 "EHLO
+	pebbles.fastcom.no") by vger.kernel.org with ESMTP id S262416AbVAUQcu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 11:32:50 -0500
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Transfer-Encoding: 7bit
+Message-Id: <18D4A39C-6BCA-11D9-9476-000D932A43BC@karlsbakk.net>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Subject: system load avg loops?!?
+Date: Fri, 21 Jan 2005 17:32:52 +0100
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 21, 2005 at 10:43:36AM -0500, Dmitry Torokhov wrote:
-> Hi,
-> 
-> On Fri, 21 Jan 2005 10:14:46 -0500, Prarit Bhargava <prarit@sgi.com> wrote:
-> > Hi,
-> > 
-> > The following patch cleans up resource allocations in the i8042 driver
-> > when initialization fails.
-> > 
-> ...
-> > 
-> >                if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
-> > -                       printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
-> > +                       if (i8042_read_status() != 0xFF)
-> > +                               printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
-> > +                       else
-> > +                               printk(KERN_ERR "i8042.c: no i8042 controller found.\n");
-> 
-> Is this documented somewhere?
+hei
 
-No. But vacant ports usually return 0xff. The problem here is that 0xff
-is a valid value for the status register, too. Fortunately this patch
-checks for 0xff only after the timeout failed.
+the log at http://karlsbakk.net/uptime.log.gz is a log create with
 
-Anyway, I suppose we could fail silently here on ia64 machines where
-ACPI is present.
+while true
+do
+	uptime >> log
+done
 
-> >        if (i8042_platform_init())
-> > +       {
-> > +               del_timer_sync(&i8042_timer);
-> >                return -EBUSY;
-> > +       }
-> > 
-> 
-> Couple of comments:
->  - i8042_timer has not been started yet so there is no need to delete
-> it in either of the chinks.
+this shows the system load is somehow looping?!?
 
-Indeed.
+the system behaves well and is in production, but I don't really 
+understand what the kernel is up to. same numbers are reported by top. 
+sar and top etc reports no or little cpu and I/O load (<3%). The system 
+is used as a general tools server doing some webserver, nagios and mrtg 
+stuff. System is running 2.6.9-mm1.
 
-> - opening brace placement does not follow Linux coding style.
-> 
-> I think I have some changes to i8042 in my tree, I will add
-> i8042_platform_exit calls to the init routine. Thanks for noticing it!
+please cc: to me as I'm not on the list
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+roy
+

@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262488AbTFBPms (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 11:42:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262486AbTFBPms
+	id S262498AbTFBPkh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 11:40:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbTFBPkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 11:42:48 -0400
-Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:6411 "EHLO
-	dexter.hensema.net") by vger.kernel.org with ESMTP id S262525AbTFBPk5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 11:40:57 -0400
-From: Erik Hensema <erik@hensema.net>
-Subject: Re: Question about style when converting from K&R to ANSI C.
-Date: Mon, 2 Jun 2003 15:54:21 +0000 (UTC)
-Message-ID: <slrnbdmspd.23u.erik@bender.home.hensema.net>
-References: <1054446976.19557.23.camel@spc> <20030601132626.GA3012@work.bitmover.com> <1054519757.161606@palladium.transmeta.com>
-Reply-To: erik@hensema.net
-User-Agent: slrn/0.9.7.4 (Linux)
-To: linux-kernel@vger.kernel.org
+	Mon, 2 Jun 2003 11:40:37 -0400
+Received: from holomorphy.com ([66.224.33.161]:58527 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262498AbTFBPkf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 11:40:35 -0400
+Date: Mon, 2 Jun 2003 08:53:45 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Tom Sightler <ttsig@tuxyturvy.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Mike Galbraith <efault@gmx.de>,
+       Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Strange load issues with 2.5.69/70 in both -mm and -bk trees.
+Message-ID: <20030602155345.GR8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Tom Sightler <ttsig@tuxyturvy.com>, Ingo Molnar <mingo@elte.hu>,
+	Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@digeo.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0306020937250.2970-100000@localhost.localdomain> <1054564236.4190.15.camel@iso-8590-lx.zeusinc.com> <1054567498.3545.18.camel@iso-8590-lx.zeusinc.com> <1054568875.3545.34.camel@iso-8590-lx.zeusinc.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1054568875.3545.34.camel@iso-8590-lx.zeusinc.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds (torvalds@transmeta.com) wrote:
-> In article <20030601132626.GA3012@work.bitmover.com>,
-> Larry McVoy  <lm@bitmover.com> wrote:
->>On Sat, May 31, 2003 at 11:56:16PM -0600, Steven Cole wrote:
->>> Proposed conversion:
->>> 
->>> int foo(void)
->>> {
->>>    	/* body here */
->>> }	
->>
->>Sometimes it is nice to be able to see function names with a 
->>
->>	grep '^[a-zA-Z].*(' *.c
->>
->>which is why I've always preferred
->>
->>int
->>foo(void)
->>{
->>	/* body here */
->>}	
-> 
-> That makes no sense.
+On Mon, Jun 02, 2003 at 11:47:56AM -0400, Tom Sightler wrote:
+> In trying to figure out why this might be worse under 2.5 I took some
+> simple vmstat numbers under 2.4 and 2.5, this biggest difference is the
+> number of context switches.  Under 2.4, with the page loaded, but
+> otherwise idle, the system averages around 700/sec, and when I mouse
+> around the page I get 2000-3000/sec.
+> However, under 2.5, as I reported previously, I get 2000/sec all the
+> time, and 3000-4000 as I mouse around the page.
+> Would this be expected behavior?  Does 2.5 do something that would cause
+> more context switches that 2.4?  I have no idea if this would have any
+> impact at all, but it was the only difference I could observe in my
+> fairly simple testing of the two kernels.
 
-But it does. Type /^foo <enter> and you're at the function definition. At
-least when using vi, which is the editor everybody's using, right? ;-)
+A quick patch to register profile hit counts for codepaths calling
+schedule() and/or yield() appears to be in order for such occasions.
 
-Also, when in working in a (too) long function body, type ?^{ and you're
-at the start of the function body.
 
-> Do you write your normal variable definitions like
-> 
-> 	int
-> 	a,b,c;
-> 
-> too? No you don't, because that would be totally idiotic.
-
-Indeed, searching for ^a will fail. There's no reason whatsoever why you'd
-declare your variables that way.
-
--- 
-Erik Hensema <erik@hensema.net>
+-- wli

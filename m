@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265794AbUGHFXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265780AbUGHF1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265794AbUGHFXY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 01:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265780AbUGHFXX
+	id S265780AbUGHF1q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 01:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265784AbUGHF1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 01:23:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:32658 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265794AbUGHFWy (ORCPT
+	Thu, 8 Jul 2004 01:27:46 -0400
+Received: from mail.kroah.org ([69.55.234.183]:38116 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265780AbUGHF1o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 01:22:54 -0400
-Date: Wed, 7 Jul 2004 22:22:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Miles Bader <miles@gnu.org>
-cc: "David S. Miller" <davem@redhat.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>, chrisw@osdl.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil,
-       jmorris@redhat.com, mika@osdl.org
-Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
-In-Reply-To: <buo7jtfi2p9.fsf@mctpc71.ucom.lsi.nec.co.jp>
-Message-ID: <Pine.LNX.4.58.0407072220060.1764@ppc970.osdl.org>
-References: <20040707122525.X1924@build.pdx.osdl.net>
- <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au> <20040707202746.1da0568b.davem@redhat.com>
- <buo7jtfi2p9.fsf@mctpc71.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 8 Jul 2004 01:27:44 -0400
+Date: Wed, 7 Jul 2004 22:26:04 -0700
+From: Greg KH <greg@kroah.com>
+To: linas@austin.ibm.com
+Cc: linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org,
+       pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [Pcihpd-discuss] [PATCH] 2.6 PCI Hotplug: receive PPC64 EEH events
+Message-ID: <20040708052603.GA548@kroah.com>
+References: <20040707155907.G21634@forte.austin.ibm.com> <20040707211656.GA4105@kroah.com> <20040707164739.I21634@forte.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040707164739.I21634@forte.austin.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 07, 2004 at 04:47:39PM -0500, linas@austin.ibm.com wrote:
 
+> ===== drivers/pci/hotplug/rpaphp.h 1.9 vs edited =====
+> --- 1.9/drivers/pci/hotplug/rpaphp.h	Fri Jul  2 11:14:11 2004
+> +++ edited/drivers/pci/hotplug/rpaphp.h	Wed Jul  7 15:44:35 2004
+> @@ -124,7 +124,8 @@
+>  extern int register_pci_slot(struct slot *slot);
+>  extern int rpaphp_unconfig_pci_adapter(struct slot *slot);
+>  extern int rpaphp_get_pci_adapter_status(struct slot *slot, int is_init, u8 * value);
+> -extern struct hotplug_slot *rpaphp_find_hotplug_slot(struct pci_dev *dev);
+> +extern void init_eeh_handler (void);
+> +extern void exit_eeh_handler (void);
 
-On Thu, 8 Jul 2004, Miles Bader wrote:
+This belongs in the eeh header file, not the rpaphp.h file.
 
-> "David S. Miller" <davem@redhat.com> writes:
-> >> What's wrong with using 0 as the NULL pointer? In contexts where
-> >> a plain 0 is unsafe, NULL is usually unsafe as well.
-> >
-> > It's a general sparse cleanup people are doing across the entire tree.
-> > It's the "proper" way to do pointer comparisons post-K&R.
-> 
-> But 0 in such a context isn't an integer, it's a pointer...
+> @@ -227,7 +229,7 @@
+>  	}
+>  	sprintf(child_bus->name, "PCI Bus #%02x", child_bus->number);
+>  	/* do pci_scan_child_bus */
+> -	pci_scan_child_bus(child_bus);
+> +	// pci_scan_child_bus(child_bus);
 
-No it's not.
+And the reason you are commenting out this function is...
 
-I'm sorry that you are such a K&R-C bigot that you don't like type 
-checking. But the kernel DOES like type checking, and the kernel is not 
-K&R C. The kernel uses strict ANSI, and in fact, is _more_ strict than 
-ANSI C is in many many ways.
+thanks,
 
-One of the "strict typechecking" rules is that you don't mix integers and 
-pointers by mistake. The fact that C allows dual usage of the integer "0"
-is an anachronism that should have been fixed long ago.
-
-Final word: K&R C without prototypes etc is still "legal C". That doesn't
-make it legal kernel code.
-
-		Linus
+greg k-h

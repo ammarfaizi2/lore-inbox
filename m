@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbULWMAG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbULWMCj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbULWMAG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 07:00:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbULWMAG
+	id S261214AbULWMCj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 07:02:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbULWMCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 07:00:06 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1666 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261203AbULWMAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 07:00:01 -0500
-To: Itsuro Oda <oda@valinux.co.jp>
-Cc: linux-kernel@vger.kernel.org, fastboot@osdl.org
-Subject: Re: [Fastboot] Yet another crash dump tool
-References: <20041014074718.26E6.ODA@valinux.co.jp>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 23 Dec 2004 04:59:03 -0700
-In-Reply-To: <20041014074718.26E6.ODA@valinux.co.jp>
-Message-ID: <m1sm5xusxk.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 23 Dec 2004 07:02:39 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:12427 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261214AbULWMCb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 07:02:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=uh5ywT1qzC/lXaiA5ej3yXn2AS62V3vEIbiCIQt/eBqSgeSIemHIx/KAq7NOyczLQ/UVZ42gcPhu8FksSNBCqnJ3ApqbI0pi3+SJq4Wz4QKHgVV0idIhE7K+ZGnvn4xOh9chyqZ2m4CHfa2yv15PmOYsOvsOM3wrhCEU/IhRjZY=
+Message-ID: <11f564b9041223040240200b03@mail.gmail.com>
+Date: Thu, 23 Dec 2004 17:32:31 +0530
+From: Paramveer Singh <kernel.mail@gmail.com>
+Reply-To: Paramveer Singh <kernel.mail@gmail.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.4.21 opteron 32 Gig RAM has 10k block writes/sec on running posgresql 7.4.6 disk i/o intensive app
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041223070757.GZ771@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <11f564b9041222225638905557@mail.gmail.com>
+	 <20041223070757.GZ771@holomorphy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Itsuro Oda <oda@valinux.co.jp> writes:
+thanks Wli!
+the update seems to have worked and the same situation has not arisen again.
 
-> Hello,
+regards,
+ps
+
+
+On Wed, 22 Dec 2004 23:07:57 -0800, William Lee Irwin III
+<wli@holomorphy.com> wrote:
+> On Thu, Dec 23, 2004 at 12:26:48PM +0530, Paramveer Singh wrote:
+> > we are using a RedHat AS3 U3 box (2.4.21-4.ELsmp) to run a very
+> > intensive database app which does a _huge_ number of inserts durnig
+> > the data generation phase. However, we are noticing a unexpected
+> > performance drops with user cpu utilization numbers falling to near 0.
+> > most of the cpu is used up in iowait.
+> > CPU states:  cpu    user    nice  system    irq  softirq  iowait    idle
+> >           total    2.0%    0.0%    7.6%   0.0%     0.0%  362.4%   27.2%
+> > /proc/slabinfo showed huge numbers in buffer_head. The line was:
+> > buffer_head       4908452 4962249    200 260854 261171    1 : 16000 4000
 > 
-> We released a crash dump tool called "mini kernel dump".
+> Please try to reproduce on a more recent RHEL3, e.g. RHEL3-U4 released
+> today.
 > 
-> Please see the following URL to get the motivation and the
-> overview of the mini kernel dump.
-> http://mkdump.sourceforge.net/
 > 
-> http://sourceforge.net/projects/mkdump/
-
-While the exact details differ this seems to be strategically
-the same thing as kexec crash based dumps, which are also being
-developed right now.  Would you be willing to work on the kexec system
-call so we can get a infrastructure that reliably does what is needed
-for everyone? 
-
-Reading your documentation it seems to indicate that you have
-successfully avoid using any memory that the crashing kernel used.
-Is that correct?
-
-And just for a little active feedback.  While you safely tuck
-your kernel away in your reserved area of memory it does not appear
-you tuck away the data structures necessary to get there.  Which
-makes me just a little nervous.
-
-Eric
+> -- wli
+>

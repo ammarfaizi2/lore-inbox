@@ -1,41 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263462AbUASVJL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 16:09:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263468AbUASVJL
+	id S263564AbUASVQE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 16:16:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263561AbUASVQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 16:09:11 -0500
-Received: from bristol.phunnypharm.org ([65.207.35.130]:31128 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S263462AbUASVJI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 16:09:08 -0500
-Date: Mon, 19 Jan 2004 15:04:52 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Bob Gill <gillb4@telusplanet.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Scsi devices not found
-Message-ID: <20040119200452.GM473@phunnypharm.org>
-References: <1074545082.18958.9.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Mon, 19 Jan 2004 16:16:04 -0500
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:55425 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S263539AbUASVP6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 16:15:58 -0500
+To: James Morris <jmorris@redhat.com>
+Cc: linux-kernel@vger.kernel.org, <linux-scsi@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH] Add CRC32C chksums to crypto routines
+References: <Xine.LNX.4.44.0401191512140.1564-100000@thoron.boston.redhat.com>
+From: Clay Haapala <chaapala@cisco.com>
+Organization: Cisco Systems, Inc. SRBU
+Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAHlBMVEXl5ufMrp3a4OLr6ujO
+ lXzChGmsblZzRzjF1+ErFRAz+KIaAAACVElEQVR4nG3TQW/aMBQAYC9IO88dguyWUomqt0DQ
+ do7koO22SXFQb6uE7XIMKrFya+mhPk8D43+79+wMyrp3gnx59nvxMxmNEnIWycgH+U9E55CO
+ rkZJ8hYipbXTdfcvQK/Xy6JF2zqI+qpbjZAszSDG2oXYp0FI5mOqbAeuDtLBdeuO8fNVxkzr
+ E9jklKEgQWsppYYf9v4IE3i/4RiVRPneQTpoXSM8QA7un3QZQ2cl54wXIH7VDwEmrdOiZBgF
+ V5BiLwLM4B3BS0ZpB24d4IvzW+QIc7/JIcAQIadF2eeUzn3FAa6xWFYUotjIRmLB7vEvCC4t
+ VAugpTrC2FleLBm2wVnlAc7Dl2u5L1UozgWCjTxMW+vb4GVVFhWWFSCdKmgDMhaNFoxL3bSH
+ rc/Irn1/RcWlh+UqNgHeNwishJ1L6LCpjdmGz76RmFGyuSwLgLUxJhyUlLA7fHMpeSGVPsFA
+ wqtK4voI8RE+I3DsDpfamSNMpIBTKrF1yIpPMA0AzQPU5gSwCTyC/aEAtX4NM6gLM3CCziBT
+ jRR+StQ/AA8a7AMuwxn0YAmcRKnVGwDRiOcw3uMWlajgAJsAPbw4OIpwrH3/vdq9B7hpl7GD
+ w61A4PxwSqyH9J25gePnYdqhYjjZ5s6QCb3bwvOLJWPBFvCvWVDSthYmcff44IcacOUOt1Yv
+ yGCF1+twuQtQCPjzZIaK/Lrx9+6b7TKEdXTwgz8R+uJv5K1jOcWMnO7NJ3v/QlprnzP1deUe
+ 8j4CpVE82MRj4j5SHGDnfvul8uGwjqNnpf4Ak4pzJDIy3lkAAAAASUVORK5CYII=
+Date: Mon, 19 Jan 2004 15:15:53 -0600
+In-Reply-To: <Xine.LNX.4.44.0401191512140.1564-100000@thoron.boston.redhat.com> (James
+ Morris's message of "Mon, 19 Jan 2004 15:13:15 -0500 (EST)")
+Message-ID: <yquj8yk31vxy.fsf@chaapala-lnx2.cisco.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.5 (celeriac, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1074545082.18958.9.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 19, 2004 at 01:44:43PM -0700, Bob Gill wrote:
-> Hi.  I was able to attach two firewire devices to 2.6.1-bk2, but with
-> 2.6.1-bk4 and 2.6.1-bk5 they cannot be found (and they really are still
-> attached).  gscanbus cannot find them (nor can /proc/partitions or
-> /proc/scsi/scsi).  gscanbus reports:
+On Mon, 19 Jan 2004, James Morris stated:
+> On Wed, 14 Jan 2004, Clay Haapala wrote:
+> 
+>> This patch against 2.6.1 adds CRC32C checksumming capabilities to
+>> the crypto routines.  The structure of it is based wholly on the
+>> existing digest (md5) routines, the main difference being that
+>> chksums are often used in an "accumulator" fashion, effectively
+>> requiring one to set the seed, and the digest algorithms don't do
+>> that.
+> 
+> Looks good to me.
+> 
+In other email, Matt Mackall suggested a slightly different
+integration with the kernel that would allow more general usage of the
+CRC32C.  His suggestion was to put the implementation under /lib, next
+to the crc32 routines, and make the crypto routine a wrapper that calls
+it.  Selecting the CRYPTO_CRC32C module would SELECT the lib CRC32C
+module, in other words.
 
-I have this fixed in my tree. Just waiting on Linus or Andrew to pull
-the two fixes in. If you can't wait, get the trunk from our SVN repo on
-www.linux1394.org.
+The benefit of this would be to allow easy usage by other routines
+(with no premption side-affects, a concern Matt has) while still being
+there for routines that process scatterlist.  And the table/code is
+still in one place.
 
+Patch to follow in a day or two, after I can test it.  Implementation
+was simple.
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+Clay Haapala (chaapala@cisco.com) Cisco Systems SRBU +1 763-398-1056
+   6450 Wedgwood Rd, Suite 130 Maple Grove MN 55311 PGP: C89240AD
+	 Funny, I didn't think Haliburton was into aerospace.

@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288060AbSAHOTi>; Tue, 8 Jan 2002 09:19:38 -0500
+	id <S288061AbSAHOUr>; Tue, 8 Jan 2002 09:20:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288061AbSAHOT2>; Tue, 8 Jan 2002 09:19:28 -0500
-Received: from mail.fenster-world.de ([62.159.82.131]:60349 "EHLO
-	imhotep.aubi.de") by vger.kernel.org with ESMTP id <S288060AbSAHOTV>;
-	Tue, 8 Jan 2002 09:19:21 -0500
-Message-ID: <7B1EED0C5D58D411B73200508BDE77B2C53D51@EXCHANGEB>
-From: =?iso-8859-1?Q?Markus_D=F6hr?= <doehrm@aubi.de>
-To: "'J.A. Magallon'" <jamagallon@able.es>,
-        =?iso-8859-1?Q?=27Dieter_N=FC?= =?iso-8859-1?Q?tzel=27?= 
-	<Dieter.Nuetzel@hamburg.de>
-Cc: "'Marcelo Tosatti'" <marcelo@conectiva.com.br>,
-        "'Andrea Arcangeli'" <andrea@suse.de>,
-        "'Rik van Riel'" <riel@conectiva.com.br>,
-        "'Linux Kernel List'" <linux-kernel@vger.kernel.org>,
-        "'Andrew Morton'" <akpm@zip.com.au>, "'Robert Love'" <rml@tech9.net>
-Subject: RE: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Tue, 8 Jan 2002 15:22:41 +0100 
+	id <S288064AbSAHOU3>; Tue, 8 Jan 2002 09:20:29 -0500
+Received: from mail.gmx.net ([213.165.64.20]:39753 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S288061AbSAHOUN>;
+	Tue, 8 Jan 2002 09:20:13 -0500
+Message-ID: <3C3B0007.5B1020B2@gmx.net>
+Date: Tue, 08 Jan 2002 15:19:51 +0100
+From: Mike <maneman@gmx.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: LKML <linux-kernel@vger.kernel.org>
+CC: lcchang@sis.com.tw
+Subject: SiS900 driver after v.1.07.11 (==Linux 2.4.5) won't allow connect.
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to throw in my EUR 0.02:
+Hello,
 
-We're using 2.4.17-rc2aa2 on a quite huge database server. This is the most
-stable and performant kernel IMHO since we tested the new 2.4.>10 series. 
+I've got this weird problem, I know the problem is mine 'cuz the latest
+in 2.4.17 doesn't work either, and I don't think Linus would keep a bad
+copy of widely-used code in his kernel, right?  ;-)
+Anyway, the hardware in question is an ECS K7S5A motherboard with a
+SiS735 chipset and on-board LAN. The only Realtek chip I see on the
+mainboard is one marked "RTL8201L".
 
-The machine has 4 GB main memory, the DB process mallocs about 3 GB memory
-spawning about 150 threads. "Older" kernels had the problem that short after
-logging in the machine starts heavily swapping leaving the system unusable
-for minutes.
+WHAT HAPPENS WHEN IT WORKS (flawlessly):
+With a modular kernel 2.4.5 I simply 'modprobe sis900' and presto...I
+follow that with 'dhcpcd' and I'm on the 'net. Here's what syslog says:
+SiS900.c: v.1.07.11 4/10/2001
+PCI: Assigned IRQ3 for device 00:03.0
+eth0: Unknown PHY transceiver found at address 1 <<<-------!!!!
+eth0: Using transceiver found at address1 as default
+eth0: SiS900 PCI Fast Ethernet at 0xdc00, IRQ3, <MAC-address here>
+logger: (dhcpcd) IP changed to <IP-address here>
 
-2.4.17-rc2aa2 does not have this problem (since now) - even under DB loads >
-15 the system is still responsive.
+WHAT HAPPENS WHEN IT FAILS:
+With a modular kernel 2.4.6 or 2.4.13 or 2.4.17 I 'modprobe sis900' and
+get:
+SiS900.c: v.1.08.01 9/25/2001 <<<--------Some kernels differ accordingly
+in version and date. All >=1.08 fail.
+PCI: Assigned IRQ3 for device 00:03.0
+eth0: Realtek RTL8201 PHY transceiver found at address 1
+eth0: Using transceiver found at address1 as default
+eth0: SiS900 PCI Fast Ethernet at 0xdc00, IRQ3, <MAC-address here>
 
-Good Work!
+I follow this with 'dhcpcd' and syslog says:
+Media Link ON 10mbps half-duplex
+....And my prompt hangs there until dhcpcd time-outs after 3 or 5
+minutes...
+
+What am I missing here? Should I add some stuff to the 'modprobe sis900'
+string now??
+And yeah, I've read all the relevant (?!) docs in the kernel sources.
+Also, linux-2.4.17/Documentation/networking/sis900.txt only goes up to
+v.1.07, shouldn't it reflect the current revision (1.08.01)??
+
+I hope it's possible to just copy the old 2.4.5 source into the 2.4.17
+dir (as you can tell: I've never done this) and compile.
+TIA for any help and greets!
+-Mike
 
 
--- 
-Markus Doehr            AUBI Baubschlaege GmbH
-IT Admin/SAP R/3 Basis  Zum Grafenwald
-fon: +49 6503 917 152   54411 Hermeskeil
-fax: +49 6503 917 190   http://www.aubi.de 
+
+

@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261907AbTCBWtO>; Sun, 2 Mar 2003 17:49:14 -0500
+	id <S261908AbTCBWzE>; Sun, 2 Mar 2003 17:55:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261908AbTCBWtO>; Sun, 2 Mar 2003 17:49:14 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:5380 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S261907AbTCBWtN>; Sun, 2 Mar 2003 17:49:13 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303022259.h22MxNTP000172@81-2-122-30.bradfords.org.uk>
-Subject: Re: [PATCH] kernel source spellchecker
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Sun, 2 Mar 2003 22:59:22 +0000 (GMT)
-Cc: elenstev@mesatop.com, dwmw2@infradead.org, dank@kegel.com, ms@citd.de,
-       joe@perches.com, linux-kernel@vger.kernel.org, mike@aiinc.ca
-In-Reply-To: <1046645090.3698.40.camel@irongate.swansea.linux.org.uk> from "Alan Cox" at Mar 02, 2003 10:44:50 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S261934AbTCBWzE>; Sun, 2 Mar 2003 17:55:04 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:58035 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S261908AbTCBWzD>; Sun, 2 Mar 2003 17:55:03 -0500
+Date: Sun, 2 Mar 2003 23:05:04 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: John Levon <levon@movementarian.org>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Anton Blanchard <anton@samba.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, cliffw@osdl.org, akpm@zip.com.au,
+       slpratt@austin.ibm.com, haveblue@us.ibm.com
+Subject: Re: [PATCH] documentation for basic guide to profiling
+Message-ID: <20030302230503.GA15004@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	John Levon <levon@movementarian.org>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Anton Blanchard <anton@samba.org>, Jeff Garzik <jgarzik@pobox.com>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+	cliffw@osdl.org, akpm@zip.com.au, slpratt@austin.ibm.com,
+	haveblue@us.ibm.com
+References: <8550000.1046419962@[10.10.2.4]> <20030228002935.256ffa98.akpm@digeo.com> <20030228112238.GJ4911@codemonkey.org.uk> <20030228152838.GB32449@gtf.org> <20010101052723.GB22212@krispykreme> <447430000.1046473881@flay> <20030301175114.GA30911@codemonkey.org.uk> <20030301204857.GA24330@compsoc.man.ac.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030301204857.GA24330@compsoc.man.ac.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I think we also want to add:
-> > > 
-> > > Decompressing=Uncompressing
-> 
-> Both are commonly used.
+On Sat, Mar 01, 2003 at 08:48:57PM +0000, John Levon wrote:
 
-To me, 'decompressed' suggests that something was definitely once
-compressed, whereas 'uncompressed' suggests that it may never have been.
+ > >  > +stop		opcontrol --stop
+ > > --stop unsupported. use "--shutdown"
+ > 
+ > Stop running 2.4 ! :)
+ > 
+ > --stop works on 2.5 only ...
 
-> People are going to far.
+That seems quite confusing. Why not make --stop an
+alias for --shutdown if running on 2.4 ?
 
-I totally agree.  The possibility for introducing more errors is growing.
+        Dave
 
-> Fixing typos that are confusing or blatantly daft is one thing
-
-Things like teh instead of the are easily corrected, and it's useful
-for grepping through the kernel source.
-
-> but if you want to pick over documentation line by line with a copy
-> of Fowlers
-
-What _would_ be useful, would be a script to validate all of the email
-addresses in comments in the kernel source.  I found a typo in an
-E-Mail address once, and I'm sure there are probably more.
-
-John.

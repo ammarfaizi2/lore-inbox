@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263960AbRFNTD3>; Thu, 14 Jun 2001 15:03:29 -0400
+	id <S263971AbRFNTEt>; Thu, 14 Jun 2001 15:04:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263927AbRFNTDT>; Thu, 14 Jun 2001 15:03:19 -0400
-Received: from 20dyn128.com21.casema.net ([213.17.90.128]:1540 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S263924AbRFNTDM>;
-	Thu, 14 Jun 2001 15:03:12 -0400
-Date: Thu, 14 Jun 2001 21:01:38 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Kip Macy <kmacy@netapp.com>, ognen@gene.pbi.nrc.ca,
-        linux-kernel@vger.kernel.org
-Subject: Re: threading question
-Message-ID: <20010614210138.A15912@home.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Kip Macy <kmacy@netapp.com>,
-	ognen@gene.pbi.nrc.ca, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.10.10106121200330.20809-100000@orbit-fe.eng.netapp.com> <E15Abr6-00057R-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S263927AbRFNTEk>; Thu, 14 Jun 2001 15:04:40 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:51465 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S263961AbRFNTEX>;
+	Thu, 14 Jun 2001 15:04:23 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106141904.f5EJ4AD413350@saturn.cs.uml.edu>
+Subject: Re: Going beyond 256 PCI buses
+To: davem@redhat.com (David S. Miller)
+Date: Thu, 14 Jun 2001 15:04:10 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        tom_gall@vnet.ibm.com (Tom Gall), linux-kernel@vger.kernel.org
+In-Reply-To: <15145.1739.395626.842663@pizda.ninka.net> from "David S. Miller" at Jun 14, 2001 11:47:39 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15Abr6-00057R-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jun 14, 2001 at 07:28:32PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 14, 2001 at 07:28:32PM +0100, Alan Cox wrote:
+David S. Miller writes:
+> Albert D. Cahalan writes:
 
-> There are really only two reasons for threaded programming. 
-> 
-> - Poor programmer skills/language expression of event handling
+>>    You've added an ioctl. This isn't just any ioctl. It's a
+>>    wicked nasty ioctl. It's an OH MY GOD YOU CAN'T BE SERIOUS
+>>    ioctl by any standard.
+>
+> It's an ioctl which allows things to work properly in the
+> framework we currently have.
 
-The converse is that pthreads are:
+It's a hack that keeps us stuck with the existing mistakes.
+We need a transition path to get us away from the old mess.
 
- - Very easy to use from C at a reasonable runtime overhead
+>>    Fix:
+>>
+>>    /proc/bus/PCI/0/0/3/0/config   config space
+>
+> Which breaks xfree86 instantly.  This fix is unacceptable.
 
-It is very convenient for a userspace coder to be able to just start a
-function in a different thread. Now it might be so that a kernel is not
-there to provide ease of use for userspace coders but it is a factor.
+Nope. Keep /proc/bus/pci until Linux 3.14 if you like.
+The above is /proc/bus/PCI. That's "PCI", not "pci".
+We still have /proc/pci after all.
 
-I see lots of people only using:
-	pthread_create()/pthread_join()
-	mutex_lock/unlock
-	sem_post/sem_wait
-	no signals
-	
-My gut feeling is that you could implement this subset in a way that is both
-fast and right - although it would not be 'pthreads compliant'. Can anybody
-confirm this feeling?
+> In fact, the current ioctl/mmap machanism was discussed with and
+> agreed to by the PPC, Alpha, and Sparc64 folks.
 
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com      Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+Did you somehow miss when Linus scolded you a few weeks ago?
+How about asking somebody who helps maintain /proc, like Al Viro?

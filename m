@@ -1,147 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbTJ3Pwt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 10:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbTJ3Pwt
+	id S262609AbTJ3QE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 11:04:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbTJ3QE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 10:52:49 -0500
-Received: from mail03.powweb.com ([63.251.216.36]:33553 "EHLO
-	mail03.powweb.com") by vger.kernel.org with ESMTP id S262352AbTJ3Pwq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 10:52:46 -0500
+	Thu, 30 Oct 2003 11:04:57 -0500
+Received: from web10504.mail.yahoo.com ([216.136.130.154]:61584 "HELO
+	web10504.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262609AbTJ3QEx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 11:04:53 -0500
+Message-ID: <20031030160452.49444.qmail@web10504.mail.yahoo.com>
+Date: Thu, 30 Oct 2003 08:04:52 -0800 (PST)
+From: Kothi Raja <kothi_raja@yahoo.com>
+Subject: PCI: Failed to allocate resource 6(df000000-deffffff)
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-From: "Richard Drummond" <evilrich@rcdrummond.net>
-To: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       James Simmons <jsimmons@infradead.org>
-Date: Thu, 30 Oct 2003 15:52:45 -0000
-Subject: [PATCH] Multi-head fix for tdfxfb driver (again)
-X-Mailer: PowWeb Hosting Webmail version 3.0
-Content-Type: multipart/mixed; boundary="----------=_1067529165-62329-0"
-Message-Id: <20031030155250.A550415D1F@mail03.powweb.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format...
+I'm getting these errors with kernel 2.4.22 while it's
+trying to set up a PCI Sun QFE card. 
+My hardware consists of:
+MB: Rioworks SDVIA-100 (VIA Apollo Pro 694 + 686B)
+Processor: Single P3 933
+Memory: 256MB SDRAM.
+Matrox Millenium PCI 4MB RAM.
+Sun QFE PCI 4 Port Fast Ethernet.
 
-------------=_1067529165-62329-0
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+I'm running a self-built kernel 2.4.22 compiled using
+GCC 3.3.2.
 
-Bloody web mail. I'll try that again . . .
+The first ethernet port gets initialized correctly but
+the subsequent ones report this error. When I try to 
+ifconfig eth1 add 192.168.1.111 netmask 255.255.255.0
+I get:
+SIOCSIFNETMASK: Cannot assign requested address
 
-Hi All
+Here's the relevent portion of the system log.
 
-This patch (against 2.6.0-test9) corrects a bug in the tdfxfb driver with
-regard to multi-head set-ups. The driver was stomping all over its default
-fb_fix_screeninfo struct (the global, tdfx_fix) when initializing a card -
-which could potentially causes problems when the time comes to set up the
-next card. This fix makes it copy tdfx_fix first and modify only that copy.
+Oct 31 09:40:09 alexa2 kernel: sunhme.c:v2.01
+26/Mar/2002 David S. Miller (davem@redhat.com)
+Oct 31 09:40:09 alexa2 kernel: divert: allocating
+divert_blk for eth0
+Oct 31 09:40:09 alexa2 kernel: eth0-3: Quattro HME
+(PCI/CheerIO) 10/100baseT Ethernet DEC 21153 PCI
+Bridge
+Oct 31 09:40:09 alexa2 kernel: eth0: Quattro HME slot
+0 (PCI/CheerIO) 10/100baseT Ethernet 08:00:20:ce:74:75
 
-Cheers,
-Rich
+Oct 31 09:40:09 alexa2 kernel: PCI: Failed to allocate
+resource 6(df000000-deffffff) for 02:01.1
+Oct 31 09:40:09 alexa2 kernel: divert: allocating
+divert_blk for eth1
+Oct 31 09:40:09 alexa2 kernel: eth1: Quattro HME slot
+1 (PCI/CheerIO) 10/100baseT Ethernet 22:6e:ad:00:00:00
 
-------------=_1067529165-62329-0
-Content-Type: text/plain; name="tdfxfb2.6.0test920031030.diff"
-Content-Disposition: inline; filename="tdfxfb2.6.0test920031030.diff"
-Content-Transfer-Encoding: 7bit
+Oct 31 09:40:09 alexa2 kernel: PCI: Failed to allocate
+resource 6(df000000-deffffff) for 02:02.1
+Oct 31 09:40:09 alexa2 kernel: divert: allocating
+divert_blk for eth2
+Oct 31 09:40:09 alexa2 kernel: eth2: Quattro HME slot
+2 (PCI/CheerIO) 10/100baseT Ethernet a7:5f:10:00:00:00
 
---- linux-2.6.0-test9/drivers/video/tdfxfb.c.orig	2003-10-30 08:32:22.000000000 -0500
-+++ linux-2.6.0-test9/drivers/video/tdfxfb.c	2003-10-30 09:43:39.000000000 -0500
-@@ -1152,6 +1152,8 @@
- {
- 	struct tdfx_par *default_par;
- 	struct fb_info *info;
-+	struct fb_fix_screeninfo *fix;
-+
- 	int size, err;
- 
- 	if ((err = pci_enable_device(pdev))) {
-@@ -1168,28 +1170,30 @@
- 	memset(info, 0, size);
-     
- 	default_par = (struct tdfx_par *) (info + 1);
-+	info->fix = tdfx_fix;
-+	fix = &info->fix;
-  
- 	/* Configure the default fb_fix_screeninfo first */
- 	switch (pdev->device) {
- 		case PCI_DEVICE_ID_3DFX_BANSHEE:	
--			strcat(tdfx_fix.id, " Banshee");
-+			strcat(fix->id, " Banshee");
- 			default_par->max_pixclock = BANSHEE_MAX_PIXCLOCK;
- 			break;
- 		case PCI_DEVICE_ID_3DFX_VOODOO3:
--			strcat(tdfx_fix.id, " Voodoo3");
-+			strcat(fix->id, " Voodoo3");
- 			default_par->max_pixclock = VOODOO3_MAX_PIXCLOCK;
- 			break;
- 		case PCI_DEVICE_ID_3DFX_VOODOO5:
--			strcat(tdfx_fix.id, " Voodoo5");
-+			strcat(fix->id, " Voodoo5");
- 			default_par->max_pixclock = VOODOO5_MAX_PIXCLOCK;
- 			break;
- 	}
- 
--	tdfx_fix.mmio_start = pci_resource_start(pdev, 0);
--	tdfx_fix.mmio_len = pci_resource_len(pdev, 0);
--	default_par->regbase_virt = ioremap_nocache(tdfx_fix.mmio_start, tdfx_fix.mmio_len);
-+	fix->mmio_start = pci_resource_start(pdev, 0);
-+	fix->mmio_len = pci_resource_len(pdev, 0);
-+	default_par->regbase_virt = ioremap_nocache(fix->mmio_start, fix->mmio_len);
- 	if (!default_par->regbase_virt) {
--		printk("fb: Can't remap %s register area.\n", tdfx_fix.id);
-+		printk("fb: Can't remap %s register area.\n", fix->id);
- 		goto out_err;
- 	}
-     
-@@ -1199,9 +1203,9 @@
- 		goto out_err;
- 	} 
- 
--	tdfx_fix.smem_start = pci_resource_start(pdev, 1);
--	if (!(tdfx_fix.smem_len = do_lfb_size(default_par, pdev->device))) {
--		printk("fb: Can't count %s memory.\n", tdfx_fix.id);
-+	fix->smem_start = pci_resource_start(pdev, 1);
-+	if (!(fix->smem_len = do_lfb_size(default_par, pdev->device))) {
-+		printk("fb: Can't count %s memory.\n", fix->id);
- 		release_mem_region(pci_resource_start(pdev, 0),
- 				   pci_resource_len(pdev, 0));
- 		goto out_err;	
-@@ -1215,10 +1219,10 @@
- 		goto out_err;
- 	}
- 
--	info->screen_base = ioremap_nocache(tdfx_fix.smem_start, 
--					    tdfx_fix.smem_len);
-+	info->screen_base = ioremap_nocache(fix->smem_start, 
-+					    fix->smem_len);
- 	if (!info->screen_base) {
--		printk("fb: Can't remap %s framebuffer.\n", tdfx_fix.id);
-+		printk("fb: Can't remap %s framebuffer.\n", fix->id);
- 		release_mem_region(pci_resource_start(pdev, 1),
- 				   pci_resource_len(pdev, 1));
- 		release_mem_region(pci_resource_start(pdev, 0),
-@@ -1238,13 +1242,13 @@
- 		goto out_err;
- 	}
- 
--	printk("fb: %s memory = %dK\n", tdfx_fix.id, tdfx_fix.smem_len >> 10);
-+	printk("fb: %s memory = %dK\n", fix->id, fix->smem_len >> 10);
- 
--	tdfx_fix.ypanstep	= nopan ? 0 : 1;
--	tdfx_fix.ywrapstep	= nowrap ? 0 : 1;
-+	fix->ypanstep	= nopan ? 0 : 1;
-+	fix->ywrapstep	= nowrap ? 0 : 1;
-    
- 	info->fbops		= &tdfxfb_ops;
--	info->fix		= tdfx_fix; 	
-+/*	info->fix		= tdfx_fix; */
- 	info->par		= default_par;
- 	info->pseudo_palette	= (void *)(default_par + 1); 
- 	info->flags		= FBINFO_FLAG_DEFAULT;
+Oct 31 09:40:09 alexa2 kernel: PCI: Failed to allocate
+resource 6(df000000-deffffff) for 02:03.1
+Oct 31 09:40:09 alexa2 kernel: divert: allocating
+divert_blk for eth3
+Oct 31 09:40:09 alexa2 kernel: eth3: Quattro HME slot
+3 (PCI/CheerIO) 10/100baseT Ethernet ea:1d:02:00:00:00
 
-------------=_1067529165-62329-0--
+Does anyone have an idea what the issue might be?
+I will post the complete system log and any other info
+if required.
 
+Thanks in advance,
+Krishna.
+
+
+__________________________________
+Do you Yahoo!?
+Exclusive Video Premiere - Britney Spears
+http://launch.yahoo.com/promos/britneyspears/

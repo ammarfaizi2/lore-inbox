@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265215AbRGAQrd>; Sun, 1 Jul 2001 12:47:33 -0400
+	id <S265212AbRGAQrm>; Sun, 1 Jul 2001 12:47:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265214AbRGAQrW>; Sun, 1 Jul 2001 12:47:22 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:5090 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S265208AbRGAQrM>;
-	Sun, 1 Jul 2001 12:47:12 -0400
-Date: Mon, 2 Jul 2001 04:42:52 +1200
-To: Daniel Harvey <daniel@amristar.com.au>
-Cc: linux-laptop@mobilix.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux SLOW on Compaq Armada 110 PIII Speedstep
-Message-ID: <20010702044252.B14170@weta.f00f.org>
-In-Reply-To: <NEBBJDBLILDEDGICHAGAEENECFAA.daniel@amristar.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <NEBBJDBLILDEDGICHAGAEENECFAA.daniel@amristar.com.au>
-User-Agent: Mutt/1.3.18i
-From: cw@f00f.org (Chris Wedgwood)
+	id <S265214AbRGAQrd>; Sun, 1 Jul 2001 12:47:33 -0400
+Received: from rillanon.amristar.com.au ([202.181.77.23]:45581 "HELO
+	amristar.com.au") by vger.kernel.org with SMTP id <S265212AbRGAQrU>;
+	Sun, 1 Jul 2001 12:47:20 -0400
+From: "Daniel Harvey" <daniel@amristar.com.au>
+To: "Chris Wedgwood" <cw@f00f.org>
+Cc: <linux-laptop@mobilix.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: Linux SLOW on Compaq Armada 110 PIII Speedstep
+Date: Mon, 2 Jul 2001 00:50:27 +0800
+Message-ID: <NEBBJDBLILDEDGICHAGACENHCFAA.daniel@amristar.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
+In-Reply-To: <20010702044252.B14170@weta.f00f.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 01, 2001 at 11:36:51PM +0800, Daniel Harvey wrote:
+Chris/Adam/Mark,
 
-> The Compaq Armada doesn't appear to have a BIOS setting for the
-> power settings.
+Have just sucked down the SRPM of the kernel that sees to run OK. As per you
+suggestions, checking out the config and patches ...
 
-> I still don't get the fact that one kernel will run fast, while the
-> rest do the real SLOW thing.
+Thanks,
+Daniel.
 
-Not answering your question, but you might want to try:
+> -----Original Message-----
+>
+>
+> Download the source-RPM for the 'fast' kernel, and also the virgin
+> version of the same kernel, and then diff them to see what changes
+> have been made.
+>
+> If you are lucky, the RPM itself my have the virgin data and diffs, I
+> don't know much about RPMS, but I'm pretty sure this is possible.
+>
+>
+> You are looking for changes outside of linux/drivers/, probably in
+> linux/archo/i386 or linux/kernel. Hopefully there aren't too many of
+> these.
+>
+> Also, you want the .config file that was used, try using that against
+> a virgin kernel first, and see if that changes anything, if not, then
+> do diff the above (diff -Nur virgin-kernel/ redhat-kernel/) and see
+> what falls out.
+>
+>
 
-Download the source-RPM for the 'fast' kernel, and also the virgin
-version of the same kernel, and then diff them to see what changes
-have been made.
-
-If you are lucky, the RPM itself my have the virgin data and diffs, I
-don't know much about RPMS, but I'm pretty sure this is possible.
-
-
-You are looking for changes outside of linux/drivers/, probably in
-linux/archo/i386 or linux/kernel. Hopefully there aren't too many of
-these.
-
-Also, you want the .config file that was used, try using that against
-a virgin kernel first, and see if that changes anything, if not, then
-do diff the above (diff -Nur virgin-kernel/ redhat-kernel/) and see
-what falls out.
-
-
-
-   --cw

@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261868AbTLDOhf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 09:37:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbTLDOhf
+	id S262111AbTLDOtp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 09:49:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbTLDOtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 09:37:35 -0500
-Received: from viriato1.servicios.retecal.es ([212.89.0.44]:65020 "EHLO
-	viriato1.servicios.retecal.es") by vger.kernel.org with ESMTP
-	id S261868AbTLDOhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 09:37:34 -0500
-Date: Thu, 4 Dec 2003 15:37:32 +0100
-From: Guillermo Menguez Alvarez <gmenguez@usuarios.retecal.es>
-To: Con Kolivas <kernel@kolivas.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23-ck1
-Message-Id: <20031204153732.555c5a49.gmenguez@usuarios.retecal.es>
-In-Reply-To: <200312050108.15839.kernel@kolivas.org>
-References: <200312040228.44980.kernel@kolivas.org>
-	<Pine.LNX.4.53.0312041421300.9854@gockel.physik3.uni-rostock.de>
-	<200312041436.57450.tvrtko@croadria.com>
-	<200312050108.15839.kernel@kolivas.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Dec 2003 09:49:45 -0500
+Received: from houston.jhuapl.edu ([128.244.26.10]:33692 "EHLO
+	houston.jhuapl.edu") by vger.kernel.org with ESMTP id S262111AbTLDOto
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 09:49:44 -0500
+Date: Thu, 04 Dec 2003 09:49:31 -0500
+From: Bernard Collins <bernard.collins@jhuapl.edu>
+Subject: Re: Visor USB hang
+In-reply-to: <20031204002414.GI21541@kroah.com>
+To: Greg KH <greg@kroah.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Message-id: <1070549371.26393.6.camel@collibf1.jhuapl.edu>
+Organization: The Johns Hopkins University Applied Physics Laboratory
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.5
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <E37E01957949D611A4C30008C7E691E20915BBFC@aples3.dom1.jhuapl.edu>
+ <20031204002414.GI21541@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Probably just a whitespace problem. Try this one. Please tell me if it
-> works; I just made this based on what Tim sent (thanks muchly by the
-> way Tim!)
+On Wed, 2003-12-03 at 19:24, Greg KH wrote:
+> 	rmmod usb-uhci && modprobe uhci
 
-Patched correctly, seems to work fine:
+OK, this works. The Visor now hotsyncs and I get no hangs or freezes.
+Thanks. I am still willing to help track down the problem if you have
+any other diagnostic suggestions.
 
-cpu  1247 0 891 14492
-cpu0 1247 0 891 14491
-
-Thank you both :)
-
--- 
-Usuario Linux #212057 - Maquinas Linux #98894, #130864 y #168988
-Proyecto LONIX: http://lonix.sourceforge.net
-Lagrimas en la Lluvia: http://www.lagrimasenlalluvia.com
+So is there a downside to uhci compared to usb-uhci? Would moving to
+kernel 2.6 likely fix the problem? Finally, what is the "right way" to
+get my redhat system to permanently use uhci?
 

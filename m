@@ -1,54 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264352AbTEPDxm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 23:53:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264355AbTEPDxm
+	id S264000AbTEPEI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 00:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264041AbTEPEI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 23:53:42 -0400
-Received: from mail.donpac.ru ([217.107.128.190]:2752 "EHLO donpac.ru")
-	by vger.kernel.org with ESMTP id S264352AbTEPDxl (ORCPT
+	Fri, 16 May 2003 00:08:29 -0400
+Received: from pan.togami.com ([66.139.75.105]:55435 "EHLO pan.mplug.org")
+	by vger.kernel.org with ESMTP id S264000AbTEPEI1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 23:53:41 -0400
-Date: Fri, 16 May 2003 08:06:30 +0400
-To: Jes Sorensen <jes@wildopensource.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: qla1280 mem-mapped I/O fix
-Message-ID: <20030516040630.GA20160@pazke>
-Mail-Followup-To: Jes Sorensen <jes@wildopensource.com>,
-	linux-kernel@vger.kernel.org
-References: <200305100951.h4A9pSAD012127@napali.hpl.hp.com> <1052561708.1367.0.camel@laptop.fenrus.com> <m3addoqkaa.fsf@trained-monkey.org>
+	Fri, 16 May 2003 00:08:27 -0400
+Subject: 2.5.59-bk10 compile failure
+From: Warren Togami <warren@togami.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1053058876.15567.72.camel@laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3addoqkaa.fsf@trained-monkey.org>
-X-Uname: Linux 2.5.68 i686 unknown
-User-Agent: Mutt/1.5.4i
-From: Andrey Panin <pazke@donpac.ru>
-X-Spam-Score: -38.8 (--------------------------------------)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19GWUK-0002pU-4Y*1168TltBmyY*
+X-Mailer: Ximian Evolution 1.3.3 (1.3.3-2) (Preview Release)
+Date: 15 May 2003 18:21:16 -1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 135, 05 15, 2003 at 11:52:45AM -0400, Jes Sorensen wrote:
-> >>>>> "Arjan" == Arjan van de Ven <arjanv@redhat.com> writes:
-> 
-> >> @@ -2634,7 +2634,7 @@ /* * Get memory mapped I/O address.  */ -
-> >> pci_read_config_word (ha->pdev, PCI_BASE_ADDRESS_1, &mmapbase); +
-> >> pci_read_config_dword (ha->pdev, PCI_BASE_ADDRESS_1, &mmapbase);
-> >> mmapbase &= PCI_BASE_ADDRESS_MEM_MASK;
-> >> 
-> >> 
-> Arjan> shouldn't this be pci_resource_start() ?
-> 
-> Yep,
-> 
-> The existing code is a nightmare, I am working on cleaning this up so
-> we can get rid of all the I/O ports crap.
+Compilation fails here for 2.5.59-bk9 and bk10.  Last I tried was bk3
+which compiled successfully.  Please let me know if you need any more
+information, or my .config file.
 
-Do you want to convert this driver to use memmaped io only ?
+(Please CC me if you reply, I am not subscribed to the list.  Thanks.)
 
-That's bad news for me and visws subarch.
+Warren Togami
+warren@togami.com
 
--- 
-Andrey Panin		| Embedded systems software developer
-pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
+make -f scripts/Makefile.build obj=arch/i386/lib
+  GEN     .version
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=athlon
+-Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc
+-iwithprefix include    -DKBUILD_BASENAME=version
+-DKBUILD_MODNAME=version -c -o init/.tmp_version.o init/version.c
+   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o
+init/mounts.o init/initramfs.o
+        ld -m elf_i386  -T arch/i386/vmlinux.lds.s
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o   init/built-in.o
+--start-group  usr/built-in.o  arch/i386/kernel/built-in.o 
+arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o 
+kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o 
+security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a 
+drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o 
+net/built-in.o --end-group -o .tmp_vmlinux1
+arch/i386/kernel/built-in.o(.data+0x169a): In function
+`do_suspend_lowlevel':
+: undefined reference to `saved_context_esp'
+arch/i386/kernel/built-in.o(.data+0x169f): In function
+`do_suspend_lowlevel':
+: undefined reference to `saved_context_eax'
+arch/i386/kernel/built-in.o(.data+0x16a5): In function
+`do_suspend_lowlevel':
+: undefined reference to `saved_context_ebx'
+arch/i386/kernel/built-in.o(.data+0x16ab): In function
+`do_suspend_lowlevel':
+: undefined reference to `saved_context_ecx'
+arch/i386/kernel/built-in.o(.data+0x16b1): In function
+`do_suspend_lowlevel':
+: undefined reference to `saved_context_edx'
+arch/i386/kernel/built-in.o(.data+0x16b7): In function
+`do_suspend_lowlevel':
+: undefined reference to `saved_context_ebp'
+arch/i386/kernel/built-in.o(.data+0x16bd): In function
+`do_suspend_lowlevel':
+: undefined reference to `saved_context_esi'
+arch/i386/kernel/built-in.o(.data+0x16c3): In function
+`do_suspend_lowlevel':
+: undefined reference to `saved_context_edi'
+arch/i386/kernel/built-in.o(.data+0x16ca): In function
+`do_suspend_lowlevel':
+: undefined reference to `saved_context_eflags'
+arch/i386/kernel/built-in.o(.data+0x170a): In function `ret_point':
+: undefined reference to `saved_context_esp'
+arch/i386/kernel/built-in.o(.data+0x1710): In function `ret_point':
+: undefined reference to `saved_context_ebp'
+arch/i386/kernel/built-in.o(.data+0x1715): In function `ret_point':
+: undefined reference to `saved_context_eax'
+arch/i386/kernel/built-in.o(.data+0x171b): In function `ret_point':
+: undefined reference to `saved_context_ebx'
+arch/i386/kernel/built-in.o(.data+0x1721): In function `ret_point':
+: undefined reference to `saved_context_ecx'
+arch/i386/kernel/built-in.o(.data+0x1727): In function `ret_point':
+: undefined reference to `saved_context_edx'
+arch/i386/kernel/built-in.o(.data+0x172d): In function `ret_point':
+: undefined reference to `saved_context_esi'
+arch/i386/kernel/built-in.o(.data+0x1733): In function `ret_point':
+: undefined reference to `saved_context_edi'
+arch/i386/kernel/built-in.o(.data+0x173e): In function `ret_point':
+: undefined reference to `saved_context_eflags'
+arch/i386/kernel/built-in.o(.data+0x1752): In function
+`do_suspend_lowlevel_s4bios':
+: undefined reference to `saved_context_esp'
+arch/i386/kernel/built-in.o(.data+0x1757): In function
+`do_suspend_lowlevel_s4bios':
+: undefined reference to `saved_context_eax'
+arch/i386/kernel/built-in.o(.data+0x175d): In function
+`do_suspend_lowlevel_s4bios':
+: undefined reference to `saved_context_ebx'
+arch/i386/kernel/built-in.o(.data+0x1763): In function
+`do_suspend_lowlevel_s4bios':
+: undefined reference to `saved_context_ecx'
+arch/i386/kernel/built-in.o(.data+0x1769): In function
+`do_suspend_lowlevel_s4bios':
+: undefined reference to `saved_context_edx'
+arch/i386/kernel/built-in.o(.data+0x176f): In function
+`do_suspend_lowlevel_s4bios':
+: undefined reference to `saved_context_ebp'
+arch/i386/kernel/built-in.o(.data+0x1775): In function
+`do_suspend_lowlevel_s4bios':
+: undefined reference to `saved_context_esi'
+arch/i386/kernel/built-in.o(.data+0x177b): In function
+`do_suspend_lowlevel_s4bios':
+: undefined reference to `saved_context_edi'
+arch/i386/kernel/built-in.o(.data+0x1782): In function
+`do_suspend_lowlevel_s4bios':
+: undefined reference to `saved_context_eflags'
+make: *** [.tmp_vmlinux1] Error 1
+
+

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271769AbRHREGZ>; Sat, 18 Aug 2001 00:06:25 -0400
+	id <S271768AbRHREGZ>; Sat, 18 Aug 2001 00:06:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271770AbRHREGP>; Sat, 18 Aug 2001 00:06:15 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:29468 "EHLO
+	id <S271769AbRHREGP>; Sat, 18 Aug 2001 00:06:15 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:28444 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S271769AbRHREGJ>; Sat, 18 Aug 2001 00:06:09 -0400
-Date: Sat, 18 Aug 2001 06:06:31 +0200
+	id <S271768AbRHREGI>; Sat, 18 Aug 2001 00:06:08 -0400
+Date: Sat, 18 Aug 2001 06:06:15 +0200
 From: Andrea Arcangeli <andrea@suse.de>
 To: linux-kernel@vger.kernel.org
-Subject: 2.2.20pre9aa2
-Message-ID: <20010818060631.B1719@athlon.random>
+Subject: 2.4.9aa2 and please test mmap-rb-4
+Message-ID: <20010818060615.A1719@athlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,18 +19,47 @@ X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diff between 2.2.20pre9aa1 and 2.2.20pre9aa2:
+Diff between 2.4.9aa1 and 2.4.9aa2:
 
-Only in 2.2.20pre9aa1: 00_poll-nfds-1
-Only in 2.2.20pre9aa2: 00_poll-nfds-2
+Only in 2.4.9aa2: 00_megaraid-paranoid-1
 
-	Fixed off by one error in the rlimit check.
+	Possibly it's a bug in the anti-bounce buffer patch but make sure the
+	megaraid gets not confused by the fact I'm really allowing it to get
+	the 512k large requests with the sd-max_sectors patch (in mainline the
+	line I #ifdeffed out are meaningless so it never got tested).
 
-Only in 2.2.20pre9aa1: 40_lfs-2.2.19pre16aa1-26.bz2
-Only in 2.2.20pre9aa2: 40_lfs-2.2.20pre9aa2-27.bz2
+Only in 2.4.9aa1: 00_o_direct-13
+Only in 2.4.9aa2: 00_o_direct-14
 
-	Drop obsolete (and duplicated) fcntl64 definition in the sparc
-	unistd.h. (this was a lonstanding bug, it never triggered yet because
-	glibc gets compiled with the 2.4 headers)
+	Janet Morgan promptly noticed I needed to s/>=/</ (it was an editing
+	error while preparing the -13 patch).
+
+Only in 2.4.9aa1: 00_poll-nfds-1
+Only in 2.4.9aa2: 00_poll-nfds-2
+
+	Fixed off by one check.
+
+Only in 2.4.9aa1: 40_blkdev-pagecache-13
+Only in 2.4.9aa2: 40_blkdev-pagecache-14
+
+	Rediffed against o_direct-14.
+
+Only in 2.4.9aa1: 70_mmap-rb-3
+Only in 2.4.9aa2: 70_mmap-rb-4
+
+	Fixed severe bug that caused mm corruption and crashes. (splitted a
+	__vma_link_file off __vma_link_rb, build_mmap_rb must not mess with
+	anything but the rb itself) Improved other bits to cover all the
+	merging cases and some minor optimization.
+
+	Since I couldn't find other issues in my workloads I'd now ask
+	everybody who complained about the lack of vma merging in 2.4 to test
+	this patch on their systems and to report the performance difference
+	while running their vma intensive applications. Thanks!
+
+	You don't need to use the -aa tree to test this patch, I ported it
+	on top of 2.4.9 vanilla too, you can find it here:
+
+		ftp://ftp.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.9/mmap-rb-4
 
 Andrea

@@ -1,70 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264372AbTLYWG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 17:06:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbTLYWG6
+	id S264382AbTLYWSe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 17:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264383AbTLYWSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 17:06:58 -0500
-Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:39136 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S264372AbTLYWG4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 17:06:56 -0500
-Subject: Re: Make ppp_async callable from hard interrupt
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031225205917.GA7238@sacarino.pirispons.net>
-References: <16356.60597.133074.809551@cargo.ozlabs.ibm.com>
-	 <20031225100850.GA6629@penguin.localdomain>
-	 <20031225022228.69f78d18.akpm@osdl.org>
-	 <20031225205917.GA7238@sacarino.pirispons.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-vSNN4Kqt8508y2AhjuZr"
-Message-Id: <1072390157.7638.103.camel@nosferatu.lan>
+	Thu, 25 Dec 2003 17:18:34 -0500
+Received: from havoc.gtf.org ([63.247.75.124]:51940 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S264382AbTLYWSd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 17:18:33 -0500
+Date: Thu, 25 Dec 2003 17:18:33 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0 bk snapshots
+Message-ID: <20031225221833.GA20854@gtf.org>
+References: <1072390245.7638.106.camel@nosferatu.lan>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 26 Dec 2003 00:09:17 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1072390245.7638.106.camel@nosferatu.lan>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 26, 2003 at 12:10:45AM +0200, Martin Schlemmer wrote:
+> Getting the bk snapshots on kernel.org up again for 2.6.0 when ever
+> somebody gets the time, will be great.
 
---=-vSNN4Kqt8508y2AhjuZr
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+There are no snapshots to be gotten.
 
-On Thu, 2003-12-25 at 22:59, Kiko Piris wrote:
-> On 25/12/2003 at 02:22, Andrew Morton wrote:
->=20
-> > (Marcel Sebek) wrote:
->=20
-> > >  If this is true, skb will be used uninitialized.
-> >=20
-> > True.    Here's an updated patch.
->=20
+Snapshots will start when changes start.
 
-> I _suspect_ (with absolutely no evidence) this was the same problem as
-> the ppp oopses pointed by other people with 2.6.0-mm1.
->=20
-
-Yep.  Andrew, the oops's I got that was similar to those of users of
--mm1 is now gone.
+	Jeff
 
 
-Cheers,
-
---=20
-Martin Schlemmer
-
---=-vSNN4Kqt8508y2AhjuZr
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/62ANqburzKaJYLYRAtpWAJ96qpUGXVQEIFOyHP+IHNCFy98eJgCfViM4
-m/11nKHTieMT5pRmDO9ZjIw=
-=BUXJ
------END PGP SIGNATURE-----
-
---=-vSNN4Kqt8508y2AhjuZr--
 

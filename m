@@ -1,139 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264961AbUFAJhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264964AbUFAJos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264961AbUFAJhu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 05:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264965AbUFAJht
+	id S264964AbUFAJos (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 05:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264965AbUFAJos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 05:37:49 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:54701 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S264961AbUFAJhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 05:37:33 -0400
-From: "Buddy Lumpkin" <b.lumpkin@comcast.net>
-To: "'John Bradford'" <john@grabjohn.com>,
-       "'Michael Brennan'" <mbrennan@ezrs.com>, <linux-kernel@vger.kernel.org>
-Cc: <riel@redhat.com>
-Subject: RE: why swap at all?
-Date: Tue, 1 Jun 2004 02:38:42 -0700
+	Tue, 1 Jun 2004 05:44:48 -0400
+Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:57756 "EHLO
+	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
+	id S264964AbUFAJoq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 05:44:46 -0400
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
+References: <xb7n03n7i9k.fsf@savona.informatik.uni-freiburg.de> <xb73c5f8z9f.fsf@savona.informatik.uni-freiburg.de> <20040528195709.GB5175@pclin040.win.tue.nl> <20040525201616.GE6512@gucio> <xb7hdu3fwsj.fsf@savona.informatik.uni-freiburg.de>
+Subject: BUG FIX: atkbd.c keyboard driver bug [Was: keyboard problem with 2.6.6]
+References: <200406010904.i5194pSo010367@fire-2.osdl.org>
+From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+Date: 01 Jun 2004 11:44:44 +0200
+In-Reply-To: <200406010904.i5194pSo010367@fire-2.osdl.org>
+Message-ID: <xb7iseb7gtv.fsf@savona.informatik.uni-freiburg.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <200405312029.i4VKTCZ0000596@81-2-122-30.bradfords.org.uk>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Thread-Index: AcRHTSJ+d00MPXkHSzG+qsumbGqwLAAZBCIQ
-Message-Id: <S264961AbUFAJhd/20040601093733Z+1483@vger.kernel.org>
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 8BIT
+Organization: Universitaet Freiburg, Institut fuer Informatik
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "bugme-daemon" == bugme-daemon  <bugme-daemon@osdl.org> writes:
 
-> I'm not really sure what the above was intended to demonstrate, but 
-> I assume that it was that having swap allowed the first grep to fill 
-> physical RAM with
-> cache at the expense of swapping other processes, which were 
-> using physical RAM to disk.
+    bugme-daemon> http://bugme.osdl.org/show_bug.cgi?id=2808
+    bugme-daemon> vojtech@suse.cz changed:
 
-> However, if 57 Mb of swap allows this, 57 Mb of extra physical RAM should
-> also allow the grep to be cached, without having to swap out anything.
+    bugme-daemon>    What    |Removed             |Added
+    bugme-daemon> ----------------------------------------------------
+    bugme-daemon>      Status|NEW                 |REJECTED
+    bugme-daemon>  Resolution|                    |INVALID
 
-> Hence my comment about it not being a magical property of swap space.
+    Vojtech> I'm sorry you can't use the fn+printscreen function on
+    Vojtech> your LifeBook, but such is life. 
 
-> John.
+Disappointed.
 
-Exactly! Swap will allow for room to evict anonymous pages (heap, stack,
-shared memory, etc.) from memory to make room for other pages in memory.
-Those pages could be file backed pages and therefore qualify as "pagecache".
 
-When you read or write to/from a file at a given offset, the file operations
-actually occur against memory.
+    Vojtech> Is using Alt+printscreen such a big difference?
 
-Accessing an offset into the mapping of a file triggers a pagefault if a
-page for that offset doesn't currently exist in memory. The point is, file
-system I/O is actually achieved by accessing memory which triggers a major
-pagefault (disk access) if the page doesn't already exist in memory. If the
-page does already exist (minor fault) because the lookup of that
-device,inode,offset succeeded, the already memory resident page is used
-rather than incurring an I/O to disk.
+That means I need to press FOUR keys to use sysrq, because PrintScreen
+is  only  available via  [Fn].   That becomes  [Fn]+Alt+PrintScreen+X,
+where "X" is the sysrq function.  :(
 
-This means if you grep thru the kernel tree, grep reads every line of every
-file in the kernel tree trying to do pattern matching, every file in the
-kernel tree is sitting in memory in it's entirety. Any subsequent reads of
-those files are quite snappy since they are already memory resident (only
-minor faults are incurred).
 
-The above scenario where 57mb of swap allows for the entire kernel src tree
-to be memory resident may provide tremendous value on a workstation or a
-system with a small amount of disk I/O takes place, but it assumes that the
-anonymous pages aren't going to be faulted right back in as soon as the
-program that uses these pages becomes runnable again. It's not uncommon to
-have a system where certain pages continually are paged in and out to/from
-the swap device, simply because the system is very low on RAM, and
-filesystem I/O is filling up physical memory at a rate that exceeds the
-frequency that a process that is allocating anonymous memory becomes
-runnable.
+    Vojtech> On USB keyboards (and many others, too), there is no
+    Vojtech> specific SysRq keycode, and thus the kernel magic-sysrq
+    Vojtech> handler uses the alt-printscreen combination, to make it
+    Vojtech> work on ALL keyboards. This is intentional.
 
-The problem is that any system doing enough constant filesystem I/O, with
-enough data is eventually going to fill physical memory. This is not true
-for anonymous memory. When I choose the amount of memory for a system, it is
-first and foremost based on the resident set size of the application
-processes. If I care about caching filesystem I/O, then all I have to do is
-populate the system with enough "extra" physical RAM that files can be
-cached in physical memory.
+Isn't  the keyboard  driver  supposed to  iron  out such  differences?
+Isn't  it your  philosophy that  the drivers  should know  the devices
+well, and present  a consistent interface to the  upper layers?  Then,
+the correct way to do it is:
 
-If I know in advance that filesystem I/O will eventually fill physical
-memory with filesystem pages (pagecache), then why would I allow file system
-I/O to force out anonymous pages on the system? Also, why wake up an
-expensive algorithm (kswapd) that walks all pages in physical memory in
-order to determine which pages are "Least Recently Used" on a system where
-all resident set sizes of all processes add up to 100MB, and another 900MB
-of physical RAM is full of filesystem backed pages?
+        USB keyboard driver: generate a "sysrq" event in reaction to
+                             Alt-PrintScreen 
+        AT/PS2 keyboard driver: generate a "sysrq" when receiving a
+                                0x54 keycode
 
-On a server, where lots of I/O is taking place and you are willing to size
-applications to fit completely within physical memory and add a little extra
-for pagecache, I very much prefer the way that Solaris was modified to work
-in Solaris 8 using a cyclical page cache.
+The  kernel  keyboard  handler  shouldn't  see  or  bother  about  the
+difference.   It is  insane that  the handler  has to  care  about the
+status of the Alt keys.
 
-The idea is "something" like this:
 
-Filesystem backed pages are considered free memory. If you need to allocate
-more anonymous memory, you just grab from (evict) the tail of a linked list
-(called the cachelist) that represents the pagecache. If you update a page
-or create a new page in the cachelist, then you simply move that page to the
-head of the cachelist. This means there is always a small overhead in
-maintaining the list, but nothing compared to the two-handed clock algorithm
-that scans for pages to evict. The two-handed clock algorthim (the scanner)
-is kept, but only when freemem falls to lotsfree. In Solaris 8, freemem is
-the size of the cachelist + the size of free memory (pages that are not
-pagecache and are free).
+    Vojtech> Further, keycode 99 is KEY_SYSRQ, as defined in input.h,
 
-This way, filesystem I/O CANNOT cause the scanner to wake up and start
-traversing main memory, eating up valuable CPU time. Also, anonymous pages
-will not be evicted on systems due to lots of filesystem I/O. 
+Then, why use it for PrintScreen?   With the 'evbug' facility, I see a
+keyboard  event with code  KEY_SYSRQ when  I press  PrintScreen.  Just
+PrintScreen, not  Alt-PrintScreen.  So,  this is a  feature and  not a
+bug?
 
-I won't try to imply that the Solaris 8 or later VM system outperforms the
-Linux VM because I haven't compared the two, but I can attest that the
-Solaris 8 VM beats the pants off the Solaris 7 VM system on systems where
-large amounts of filesystem I/O take place.
 
-You don't get the supposed "benefit" of evicting anonymous memory to swap in
-order to cache filesystem pages, but quite frankly on a server, I would not
-want this bug ... err, ... I mean ...  feature :) I would much rather size
-my system such that applications fit in physical memory and if I so desire,
-add a little extra for pagecache.
+    Vojtech> and is used for the PrtScr/SysRq key. 
 
---Buddy
+So, why not have seperate keycodes for the two?
 
 
 
- 
+-- 
+Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
 
- 
-
-
-
-
-
-
-
+E-mail: danlee@informatik.uni-freiburg.de
+Home page: http://www.informatik.uni-freiburg.de/~danlee
 

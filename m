@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267515AbUIGDR0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267551AbUIGENL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267515AbUIGDR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 23:17:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267519AbUIGDR0
+	id S267551AbUIGENL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 00:13:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267545AbUIGENL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 23:17:26 -0400
-Received: from relay.pair.com ([209.68.1.20]:39186 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S267515AbUIGDRY (ORCPT
+	Tue, 7 Sep 2004 00:13:11 -0400
+Received: from ozlabs.org ([203.10.76.45]:18563 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S267551AbUIGEMz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 23:17:24 -0400
-X-pair-Authenticated: 66.188.111.210
-Message-ID: <413D2842.8030401@cybsft.com>
-Date: Mon, 06 Sep 2004 22:17:22 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Ingo Molnar <mingo@elte.hu>, Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       felipe_alfaro@linuxmail.org
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R5
-References: <20040903120957.00665413@mango.fruits.de>	 <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu>	 <1094408203.4445.5.camel@krustophenia.net> <20040905191227.GA29797@elte.hu>	 <1094418192.4445.58.camel@krustophenia.net>	 <20040906063040.GA11541@elte.hu> <1094456653.29921.45.camel@krustophenia.net>
-In-Reply-To: <1094456653.29921.45.camel@krustophenia.net>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Sep 2004 00:12:55 -0400
+Date: Tue, 7 Sep 2004 14:08:16 +1000
+From: Anton Blanchard <anton@samba.org>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [ppc64] Fix POWER5/JS20 SMP init
+Message-ID: <20040907040815.GX7716@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Mon, 2004-09-06 at 02:30, Ingo Molnar wrote:
-> 
->>* Lee Revell <rlrevell@joe-job.com> wrote:
->>
->>
->>>http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-R0#/var/www/2.6.9-rc1-R0/foo.hist
->>>
->>>I find the two smaller spikes to either side of the central spike
->>>really odd.  These showed up in my jackd tests too, I had attributed
->>>them to some measurement artifact, but they seem real.  Maybe a
->>>rounding bug, or some kind of weird cache effect?
->>
->>interesting - the histograms are pretty symmetric around the center.
->>E.g. the exponential foo.hist2 diagram is way too symmetric around 50
->>usecs! What precisely is being measured?
->>
-> 
-> 
-> Here's the program.  It does mlockall(), acquires realtime scheduling,
-> then sets up a 2048 Hz stream of interupts from the RTC and measures the
-> delay.  It's quite possible there's a bug, the amlat program did not
-> seem to work, something must have changed with the RTC from 2.4 to 2.6.
-> 
 
-Actually the amlat program works fine for applying real-time scheduling 
-pressure. I believe it just doesn't do any real latency measuring 
-without the hooks provided by Andrew's rtc-debug patch.
+Hi,
 
-kr
+My recent change to dynamically allocate emergency stacks broke JS20
+blades and POWER5. Since we use the emergency stacks in real mode during
+secondary CPU bringup they must be below the RMO.
+
+Signed-off-by: Anton Blanchard <anton@samba.org>
+
+Anton
+
+--
+
+diff -puN arch/ppc64/kernel/setup.c~debug_js20_smp arch/ppc64/kernel/setup.c
+--- foobar2/arch/ppc64/kernel/setup.c~debug_js20_smp	2004-09-06 22:05:07.170412339 +1000
++++ foobar2-anton/arch/ppc64/kernel/setup.c	2004-09-07 13:48:49.364245252 +1000
+@@ -695,16 +695,23 @@ static void __init irqstack_early_init(v
+  */
+ static void __init emergency_stack_init(void)
+ {
++	unsigned long limit;
+ 	unsigned int i;
+ 
+ 	/*
+ 	 * Emergency stacks must be under 256MB, we cannot afford to take
+ 	 * SLB misses on them. The ABI also requires them to be 128-byte
+ 	 * aligned.
++	 *
++	 * Since we use these as temporary stacks during secondary CPU
++	 * bringup, we need to get at them in real mode. This means they
++	 * must also be within the RMO region.
+ 	 */
++	limit = min(0x10000000UL, lmb.rmo_size);
++
+ 	for_each_cpu(i)
+ 		paca[i].emergency_sp = __va(lmb_alloc_base(PAGE_SIZE, 128,
+-						0x10000000)) + PAGE_SIZE;
++						limit)) + PAGE_SIZE;
+ }
+ 
+ /*
+_

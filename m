@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135827AbRDYH3j>; Wed, 25 Apr 2001 03:29:39 -0400
+	id <S135829AbRDYHqb>; Wed, 25 Apr 2001 03:46:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135828AbRDYH3a>; Wed, 25 Apr 2001 03:29:30 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:1927 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S135827AbRDYH3W>; Wed, 25 Apr 2001 03:29:22 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Andreas Dilger <adilger@turbolinux.com>
-Cc: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>, Alexander Viro <viro@math.psu.edu>,
-        Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
-Subject: Re: hundreds of mount --bind mountpoints?
-In-Reply-To: <200104241847.f3OIlc7T016933@webber.adilger.int>
-Organisation: SAP LinuxLab
-Date: 25 Apr 2001 09:25:19 +0200
-In-Reply-To: <200104241847.f3OIlc7T016933@webber.adilger.int>
-Message-ID: <m3bspla1b4.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+	id <S135831AbRDYHqV>; Wed, 25 Apr 2001 03:46:21 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23057 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135829AbRDYHqI>; Wed, 25 Apr 2001 03:46:08 -0400
+Subject: Re: [PATCH] Single user linux
+To: daniel@kabuki.openfridge.net (Daniel Stone)
+Date: Wed, 25 Apr 2001 08:45:25 +0100 (BST)
+Cc: aaronl@vitelus.com (Aaron Lehmann), imel96@trustix.co.id,
+        daniel@kabuki.openfridge.net (Daniel Stone),
+        viro@math.psu.edu (Alexander Viro), linux-kernel@vger.kernel.org
+In-Reply-To: <20010425103246.C11099@piro.kabuki.openfridge.net> from "Daniel Stone" at Apr 25, 2001 10:32:46 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14sJzL-0003x6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andreas,
+> True, but then imagine trying to hack C (no, that's a CURLY BRACE, and a
+> tab! not space! you just broke my makefiles! aargh!), and compiling
+> Netfilter (it takes HOW MANY hours to compile init/main.c?!?) on a PDA.
 
-On Tue, 24 Apr 2001, Andreas Dilger wrote:
-> On the other hand, sockets and shmem are both relatively large...
+Usual misguided assumptions
 
-shmem is only large because the union is large. I introduced the
-direct swap array of size SHMEM_NR_DIRECT simply to take advantage of
-the union. We can decrease SHMEM_NR_DIRECT very easily. I am thinking
-about 1 or 5 which would mean that we allocate an indirect block for
-files bigger than 4k or 20k respectively.
-
-The shmem_inode_info would then be 8 or 12 words.
-
-Greetings
-		Christoph
-
+1.	Many PDA's have a keyboard
+2.	The ipaq has an optional fold up keyboard
+3.	Modern PDA's have 200Mhz processors and XScale will see some of them
+	hitting 600MHz+
 

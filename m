@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279958AbRKDHPr>; Sun, 4 Nov 2001 02:15:47 -0500
+	id <S279973AbRKDIDy>; Sun, 4 Nov 2001 03:03:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279963AbRKDHPh>; Sun, 4 Nov 2001 02:15:37 -0500
-Received: from 10cust182.starstream.net ([63.205.212.182]:65430 "HELO
-	10cust182.starstream.net") by vger.kernel.org with SMTP
-	id <S279958AbRKDHPY>; Sun, 4 Nov 2001 02:15:24 -0500
-Date: Sat, 3 Nov 2001 23:15:03 -0800
-From: Ted Deppner <ted@psyber.com>
-To: Dan Kegel <dank@kegel.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Regression testing of 2.4.x before release?
-Message-ID: <20011103231503.A16083@dondra.ofc.psyber.com>
-Reply-To: Ted Deppner <ted@psyber.com>
-In-Reply-To: <3BE4E835.CF85035B@kegel.com>
-Mime-Version: 1.0
+	id <S279971AbRKDIDo>; Sun, 4 Nov 2001 03:03:44 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:7040 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S279974AbRKDID3>;
+	Sun, 4 Nov 2001 03:03:29 -0500
+Message-ID: <3BE4F64C.A5252A31@pobox.com>
+Date: Sun, 04 Nov 2001 00:03:25 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hartmann <andihartmann@freenet.de>
+CC: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: Unresolved symbols in 2.4.14-pre7
+In-Reply-To: <200111040646.fA46khp00596@athlon.maya.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BE4E835.CF85035B@kegel.com>
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 03, 2001 at 11:03:17PM -0800, Dan Kegel wrote:
-> Would it be a Good Thing if Linus decided to make sure
-> his kernels pass all of Alan's stress tests before
-> releasing them?  (I'm talking e.g. 2.4.14-final, not 2.4.14-preX.)
+Hartmann wrote:
 
-Yes it would.  It would be a better idea if everyone (including you and
-me) stress test those pre and final kernels too.
+> with my standard configuration, I get some unresolved symbols with
+> 2.4.14-pre7:
 
--- 
-Ted Deppner
-http://www.psyber.com/~ted/
+It appears to be fixed in -pre8....
+
+but here's a patch that fixes it in -pre7:
+
+diff -urN linux/kernel/ksyms.c linux-patched/kernel/ksyms.c
+--- linux/kernel/ksyms.c Fri Nov  2 11:02:45 2001
++++ linux-patched/kernel/ksyms.c Fri Nov  2 10:09:48 2001
+@@ -83,6 +83,7 @@
+ EXPORT_SYMBOL(do_mmap_pgoff);
+ EXPORT_SYMBOL(do_munmap);
+ EXPORT_SYMBOL(do_brk);
++EXPORT_SYMBOL(unlock_page);
+ EXPORT_SYMBOL(exit_mm);
+ EXPORT_SYMBOL(exit_files);
+ EXPORT_SYMBOL(exit_fs);
+
+

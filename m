@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289909AbSAKJWq>; Fri, 11 Jan 2002 04:22:46 -0500
+	id <S289907AbSAKJYA>; Fri, 11 Jan 2002 04:24:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289907AbSAKJWa>; Fri, 11 Jan 2002 04:22:30 -0500
-Received: from [199.217.175.51] ([199.217.175.51]:39045 "EHLO
-	core.federated.com") by vger.kernel.org with ESMTP
-	id <S289905AbSAKJW0>; Fri, 11 Jan 2002 04:22:26 -0500
-From: Jim Studt <jim@federated.com>
-Message-Id: <200201110922.g0B9MDJl021581@core.federated.com>
-Subject: Problem with ServerWorks CNB20LE and lost interrupts
-To: linux-kernel@vger.kernel.org
-Date: Fri, 11 Jan 2002 03:22:13 -0600 (CST)
-X-Mailer: ELM [version 2.4ME+ PL94 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	id <S289908AbSAKJXb>; Fri, 11 Jan 2002 04:23:31 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:45834 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S289907AbSAKJXV>; Fri, 11 Jan 2002 04:23:21 -0500
+Date: Fri, 11 Jan 2002 12:23:15 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Chris Mason <mason@suse.com>
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
+        adilger@turbolabs.com
+Subject: Re: [reiserfs-dev] [PATCH] UUID & volume labels support for reiserfs
+Message-ID: <20020111122315.B17925@namesys.com>
+In-Reply-To: <20020109155504.A4551@namesys.com> <52160000.1010591279@tiny> <20020109185826.A1680@namesys.com> <100150000.1010592449@tiny> <20020109192526.A1732@namesys.com> <145590000.1010594312@tiny> <20020109194430.A2058@namesys.com> <179160000.1010596468@tiny>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <179160000.1010596468@tiny>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unfortunately my most recent load of servers cam with ServerWorks
-CNB20LE chipsets.  They work ok with linux, except when I use the PCI
-slots, their interrupts get lost.
+Hello!
 
-I am hoping someone is familiar with such a problem and might suggest
-either a solution or at least a plan of attack.
+On Wed, Jan 09, 2002 at 12:14:28PM -0500, Chris Mason wrote:
 
-I encountered it first with the ieee1394 ohci driver, but that is 
-experimental, so I installed a 3c59x card instead and confirm the
-problem there as well.
+> > In fact, current reiserfsprogs understands these fields (look into the
+> > the struct super_block definition in reiserfsprogs). It just cannot
+> > change content of the fields.
+> /* Structure of super block on disk */
+> struct reiserfs_super_block
+> {
+> /*  0 */    struct reiserfs_super_block_v1 s_v1;
+> /* 76 */    char sb_mnt_version[16];
+> /* 92 */    char sb_mkfs_version[16];
+> /*108 */    char sb_fsck_version[16];
+> /*124 */    char sb_unused[204-16-16-16-SB_SIZE_V1] ;
+> /* zero filled by mkreiserfs */ };
 
-The 3c59x will receive exactly one packet after being ifconfig-ed up.
-This packet's data will be corrupt.  It gets turned to zeros after 4-8 bytes
-or so of data.  No more packets will be received until I "ifconfig down"
-and back up.
+> Show me the part where it knows what a uuid is.  It should at least be able
+> to show the uuid set by the kernel.
+It does not know about uuid per se, but it know in that area some text data is stored.
+(BTW, we are started to fix reiserfsprogs, so that struct superblock will be the same in kernel and in reiserfsprogs.
+It is already almost close in cvs ;) )
+I see MArcello have not applied this patch to 2.4.18-pre3, so we have some more time to prepare reiserfsprogs ;)
 
-The machines are dual processor boxes with a single processor installed.
-I have tried many kernels with no appreciable difference, 2.4.17 is typical.
-
-All of the devices on the primary bus work correctly, it is just the
-ones on the secondary base that are goofed.  For instance, on this
-machine it is just the last one that is ill.
-
-00:00.0 Host bridge: ServerWorks CNB20LE Host Bridge (rev 06)
-00:00.1 Host bridge: ServerWorks CNB20LE Host Bridge (rev 06)
-00:07.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
-00:09.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
-00:0b.0 SCSI storage controller: Adaptec 7892P (rev 02)
-00:0c.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev 50)
-00:0f.1 IDE interface: ServerWorks OSB4 IDE Controller
-01:0d.0 Ethernet controller: 3Com Corporation 3c905 100BaseTX [Boomerang]
-
-
--- 
-                                     Jim Studt, President
-                                     The Federated Software Group, Inc.
+Bye,
+    Oleg

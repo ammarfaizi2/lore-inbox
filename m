@@ -1,79 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262805AbSKDWPq>; Mon, 4 Nov 2002 17:15:46 -0500
+	id <S262814AbSKDWXk>; Mon, 4 Nov 2002 17:23:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262807AbSKDWPq>; Mon, 4 Nov 2002 17:15:46 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:3267 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S262805AbSKDWPp>;
-	Mon, 4 Nov 2002 17:15:45 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: linux-kernel@vger.kernel.org
-Date: Mon, 4 Nov 2002 23:21:58 +0200
+	id <S262813AbSKDWXk>; Mon, 4 Nov 2002 17:23:40 -0500
+Received: from zeke.inet.com ([199.171.211.198]:52615 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S262814AbSKDWXi>;
+	Mon, 4 Nov 2002 17:23:38 -0500
+Message-ID: <3DC6F4F3.5010801@inet.com>
+Date: Mon, 04 Nov 2002 16:30:11 -0600
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Floppy disk change detection in 2.4.19 and 2.5.45...
-X-mailer: Pegasus Mail v3.50
-Message-ID: <6962D7F5148@vcnet.vc.cvut.cz>
+To: landley@trommello.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_TINY
+References: <20021030233605.A32411@jaquet.dk> <20021104195005.GB27298@opus.bloom.county> <20021104133420.E20427@duath.fsmlabs.com> <200211041616.48602.landley@trommello.org>
+Content-type: multipart/mixed; boundary="=_IS_MIME_Boundary"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  when floppy driver changes in 2.3.99 happened, I was told that
-if /dev/fd0 is opened with O_EXCL | O_SYNC, read()/write() after
-disk change will fail with error, and so app is notified about change.
 
-But today it was pointed to me that this does not work anymore: both
-2.4.19 and 2.5.45 do not report disk change when used this way (2.4.5
-does). When I use O_EXCL | O_NDELAY, I can detect that disk change 
-happened since last close, but subsequent disk changes are not reported 
-to the app, so it is unusable too...
+--=_IS_MIME_Boundary
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I stared at floppy.c code (in 2.5.45) for an hour, but I cannot find what's
-proper way to do that: after disk change I need that read or write fails
-(preferred) or that I can call some ioctl() before read/write and this
-ioctl will tell me that disk change happened (I did not found such call,
-sorry).
-                                     Thanks,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                                                                        
+Rob Landley wrote:
+> On Monday 04 November 2002 20:34, Cort Dougan wrote:
+> 
+>>I'm with you on that.  People who clammer ignorantly about image size
+>>without looking at what they actually need should have opened their eyes in
+>>the last few years.  Flash and RAM sizes under 32M are nearly unheard of
+>>now-a-days.
+> 
+> 
+> How much power does flash eat?  I was under the impression half the reason for 
+> tiny amounts of memory was to increase battery life in things that really 
+> should last weeks or months instead of hours (wristwatches, cell phones on 
+> standby, etc), but I guess that's mostly a question of dram and sram, not 
+> flash.  (I take it you can read the heck out of it without wearing it out, 
+> it's just writes that are a problem...  Then again you don't want rapidly 
+> rewritten bookkeeping stuff in flash, do you?  (Jiffies, scheduler stuff, 
+> etc, should not be in flash...))
 
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <linux/fd.h>
-#include <sys/ioctl.h>
+There a couple of kinds of flash memory that have different properties 
+in the writes...
+The one I'm more familiar with allows you to change any '1' bit to a '0' 
+bit on a bit-by-bit basis, but it is, ehm, a tad slow.  But if you want 
+to change a '0' bit to a '1' bit, you have to erase a 16 or 32 kB block 
+to all '1' bits, and that is, well, very slow.
+(Storing 'jiffies' in flash, given that updating the jiffies would take 
+multiple jiffies would be, well, 'fun'. ;) I could, however, see some 
+sense in running the read-only parts of the kernel directly from flash...)
+It's been a while since I looked at read times, but I expect it to be 
+essentially memory speeds.
 
-int main(void) {
-    int fd;
-    char b[512];
-    int r;
+ > Not my area, I'm afraid...
+ >
+ > Rob
 
-    fd = open("/dev/fd0", O_EXCL | O_SYNC | O_RDWR);
-    if (fd == -1) {
-        perror("Open");
-        return 100;
-    }
-    printf("FD opened, %u\n", fd);
-    r = ioctl(fd, FDCLRPRM, 0);
-    if (r) {
-        perror("Error clearing disk change notification");
-    }
-    r = read(fd, b, sizeof(b));
-    if (r == -1) {
-        perror("Read");
-        return 99;
-    }
-    printf("%u bytes was read\n", r);
-    getpass("Now replace disk and hit ENTER");
-    r = read(fd, b, sizeof(b));
-    if (r == -1) {
-        perror("Read after disk change failed, ok");
-        return 0;
-    }
-    printf("%u bytes was read, your kernel and/or drive is buggy, or you did not swap diskette\n", r);
-    close(fd);
-    return 98;
-}
+Just an FYI, in case you're curious.
+
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
+
+--=_IS_MIME_Boundary
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+---------------------------------------------------------
+
+Confidentiality Notice:    This e-mail transmission may contain
+confidential and/or privileged information that is intended only for 
+the individual or entity named in the e-mail address.  If you are not the
+intended recipient, you are hereby notified that any disclosure,
+copying, distribution or reliance upon the contents of this e-mail
+message is strictly prohibited. If you have received this e-mail
+transmission in error, please reply to the sender, so that proper
+delivery can be arranged, and please delete the message from your
+computer.  Thank you.
+Inet Technologies, Inc.
+
+---------------------------------------------------------
+
+--=_IS_MIME_Boundary--

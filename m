@@ -1,33 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316535AbSGYVdf>; Thu, 25 Jul 2002 17:33:35 -0400
+	id <S316519AbSGYVk5>; Thu, 25 Jul 2002 17:40:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316538AbSGYVdf>; Thu, 25 Jul 2002 17:33:35 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:21234 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316535AbSGYVdf>; Thu, 25 Jul 2002 17:33:35 -0400
-Subject: Re: modversion clarification.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pat Suwalski <pats@xandros.com>
+	id <S316538AbSGYVk5>; Thu, 25 Jul 2002 17:40:57 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:29446 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S316519AbSGYVk4>;
+	Thu, 25 Jul 2002 17:40:56 -0400
+Date: Thu, 25 Jul 2002 23:51:29 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D4024A3.6030401@xandros.com>
-References: <3D4024A3.6030401@xandros.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 25 Jul 2002 23:50:32 +0100
-Message-Id: <1027637432.11669.11.camel@irongate.swansea.linux.org.uk>
+Subject: [PATCH] Remove docgen + gen-all-syms targets
+Message-ID: <20020725235129.A10868@mars.ravnborg.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-07-25 at 17:17, Pat Suwalski wrote:
-> According to several places in the 2.4.x documentation, it is the exact 
-> opposite, and allows for large freedom to exchange modules between kernels.
-> 
-> Could someone please clarify for me?
+This is a left-over form the docbook makefile cleanup.
+The removal of docgen and gen-all-syms results in an error
+when make is executed on a fresh kernel.
+Remove dependencies on the above files.
 
-It attempts to ensure you only load a module on a matching kernel. That
-means stuff will sometimes load happily between versions which without
-modversions it would not. It also mstly ensures you dont mistakenly load
-a module from one 2.4.18 kernel into another binary incompatible one.
+Applies to Linus's BK-Latest.
+
+	Sam
+
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.470   -> 1.471  
+#	    scripts/Makefile	1.10    -> 1.11   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/07/25	sam@mars.ravnborg.org	1.471
+# [PATCH] Removed unused targets to CHMOD_FILES in scripts
+# This allow a fresh kernel to start the build process without
+# bailing about docgen.
+# --------------------------------------------
+#
+diff -Nru a/scripts/Makefile b/scripts/Makefile
+--- a/scripts/Makefile	Thu Jul 25 23:47:40 2002
++++ b/scripts/Makefile	Thu Jul 25 23:47:40 2002
+@@ -5,7 +5,7 @@
+ # The following temporary rule will make sure that people's
+ # trees get updated to the right permissions, since patch(1)
+ # can't do it
+-CHMOD_FILES := docgen gen-all-syms kernel-doc mkcompile_h makelst
++CHMOD_FILES := kernel-doc mkcompile_h makelst
+ 
+ all: fixdep split-include docproc $(CHMOD_FILES)
+ 

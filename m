@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130032AbRAQGIO>; Wed, 17 Jan 2001 01:08:14 -0500
+	id <S135318AbRASV6I>; Fri, 19 Jan 2001 16:58:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131231AbRAQGHy>; Wed, 17 Jan 2001 01:07:54 -0500
-Received: from [129.94.172.186] ([129.94.172.186]:34041 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S130032AbRAQGHs>; Wed, 17 Jan 2001 01:07:48 -0500
-Date: Sat, 13 Jan 2001 14:23:41 -0500 (EST)
-From: Burton Windle <burton@fint.org>
-To: Rik van Riel <riel@conectiva.com.br>
-Subject: VM: Undead swap messages at shutdown
-Message-ID: <Pine.LNX.4.21.0101131417320.2087-100000@fint.staticky.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Loop: duckman
+	id <S136689AbRASV5s>; Fri, 19 Jan 2001 16:57:48 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:6916 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S136813AbRASV5j>;
+	Fri, 19 Jan 2001 16:57:39 -0500
+Date: Sat, 1 Jan 2000 02:10:33 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Ben Mansell <linux-kernel@slimyhorror.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: Is sendfile all that sexy?
+Message-ID: <20000101021033.B26@(none)>
+In-Reply-To: <Pine.LNX.4.30.0101171454340.29536-100000@baphomet.bogo.bogus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.30.0101171454340.29536-100000@baphomet.bogo.bogus>; from linux-kernel@slimyhorror.com on Wed, Jan 17, 2001 at 03:02:02PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linux VM God :)
+Hi!
+> > And no, I don't actually hink that sendfile() is all that hot. It was
+> > _very_ easy to implement, and can be considered a 5-minute hack to give
+> > a feature that fit very well in the MM architecture, and that the Apache
+> > folks had already been using on other architectures.
+> 
+> The current sendfile() has the limitation that it can't read data from
+> a socket. Would it be another 5-minute hack to remove this limitation, so
+> you could sendfile between sockets? Now _that_ would be sexy :)
 
-I think I started seeing this about 2.4.0-ac6...when I shutdown my
-machine, I see tons of 'VM: Undead swap entry #######', where ####### is
-some memory address.  I can also reproduce this 100% by (for
-example) going into X, loading a lot of crap so that my 112mb ram is full
-and it starts to swap, then get out of X, and do a 'swapoff -a'. 
-
-Is this just debugging info, or would you like to see the output of it? My
-machine is currently a Debian Unstable, with 112mb RAM and about 190mb
-swap, running 2.4.0-ac8.
-
-I have the following kernels installed, so if you need me to see exactly
-which kernel started this, it'll be easy:
-
-toy:/etc# grep label /etc/lilo.conf
-  label = 240ac8
-  label = 240ac7
-#  label = 240ac6
-#  label = 240ac2
-#  label = 240prac6
-#  label = 240prac4
-#  label = 240t13p7
-#  label = 240t12
-#  label = 240t12p6
-#  label = 240t12p5
-#  label = 240t12p3
-#  label = 240t12p2
-#  label = 240t11
-#  label = 240t11p7
-  label = k2218p15
-  label = win98
+I had patch to do that. (Unoptimized, of course)
 
 -- 
-Burton Windle				burton@fint.org
-Linux: the "grim reaper of innocent orphaned children."
-          from /usr/src/linux/init/main.c:1384
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

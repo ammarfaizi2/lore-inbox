@@ -1,80 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318770AbSG0PKX>; Sat, 27 Jul 2002 11:10:23 -0400
+	id <S318772AbSG0PSu>; Sat, 27 Jul 2002 11:18:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318771AbSG0PKX>; Sat, 27 Jul 2002 11:10:23 -0400
-Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:48774 "EHLO gagarin")
-	by vger.kernel.org with ESMTP id <S318770AbSG0PKW>;
-	Sat, 27 Jul 2002 11:10:22 -0400
-Date: Sat, 27 Jul 2002 17:13:14 +0200
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [PATCH] Add argument to synchronize_irq in cs46xx
-Message-ID: <20020727151314.GA28194@h55p111.delphi.afb.lu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: Anders Gustafsson <andersg@0x63.nu>
+	id <S318773AbSG0PSu>; Sat, 27 Jul 2002 11:18:50 -0400
+Received: from wn1.sci.kun.nl ([131.174.8.1]:34710 "EHLO wn1.sci.kun.nl")
+	by vger.kernel.org with ESMTP id <S318772AbSG0PSs>;
+	Sat, 27 Jul 2002 11:18:48 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Danny Tholen <danny@mailmij.org>
+Reply-To: danny@mailmij.org
+To: kernellist <linux-kernel@vger.kernel.org>
+Subject: no visible screen with console driver.
+Date: Sat, 27 Jul 2002 17:20:34 +0200
+User-Agent: KMail/1.4.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200207271720.41657.danny@mailmij.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet@1.478, 2002-07-27 17:06:46+02:00, andersg@heineken.0x63.nu
-  Added irq-argument to synchronize_irq to make sound/oss/cs46xx.c compile again.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
- cs46xx.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+I think there is a small problem in the linux console driver, although it could also just be my hardware.
+Anyway, I have a problem on 2 machines with an A7V-266E motherboard, an IIyama HM704 monitor
+and 2 different nvidia cards.
+The problem is rather simple: when the console driver starts, the screen turns black. X starts normally
+and is visible. And than when I go back to a virtual console it suddenly appears correctly. Apperently X
+resets the console better than the kernel:)
+The vesa driver also doesn't give a visible screen. But either the rivafb or vga16fb switch the screen back
+to visible after a few seconds. 
+Horizontal and vertical refresh rates as indicated by the monitor info are similar; when I have a visible
+screen or not. The problem also is in the 2.2 kernels that I tested.
+
+Anyone any idea where to look for the problem, or what is the difference between switching from X and the normal
+initisialization of the console?
+
+Danny
 
 
-diff -Nru a/sound/oss/cs46xx.c b/sound/oss/cs46xx.c
---- a/sound/oss/cs46xx.c	Sat Jul 27 17:12:00 2002
-+++ b/sound/oss/cs46xx.c	Sat Jul 27 17:12:00 2002
-@@ -2521,7 +2521,7 @@
- 			{
- 				dmabuf = &state->dmabuf;
- 				stop_dac(state);
--				synchronize_irq();
-+				synchronize_irq(card->irq);
- 				dmabuf->ready = 0;
- 				resync_dma_ptrs(state);
- 				dmabuf->swptr = dmabuf->hwptr = 0;
-@@ -2536,7 +2536,7 @@
- 			{
- 				dmabuf = &state->dmabuf;
- 				stop_adc(state);
--				synchronize_irq();
-+				synchronize_irq(card->irq);
- 				resync_dma_ptrs(state);
- 				dmabuf->ready = 0;
- 				dmabuf->swptr = dmabuf->hwptr = 0;
-
-===================================================================
 
 
-This BitKeeper patch contains the following changesets:
-1.478
-## Wrapped with gzip_uu ##
+- -- 
+"I teleported home one night
+With Ron and Sid and Meg.
+Ron stole Meggie's heart away
+And I got Sidney's leg."
 
+- -- A poem about matter transference beams. 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-begin 664 bkpatch1093
-M'XL(`$"X0CT``\54:VO;,!3]'/T*0;]L%-M7#TNQ1TJZ=JQCA8:,?AZ*K,4F
-ML=3)3IH.__@ICZ4C:PA[P&1A"=W#U3GW'G2&[QOC\YZRA?'-%)WA&]>T>:\T
-ME34S8V-8"1;;10B,G0N!I'2U27;P9&:\-?-D,DLF<_<8T3A%`3E2K2[Q,B#R
-M'HG9_J1]>C!Y;_SN_?WMY1BAP0!?E<I.S2?3XL$`M<XOU;QHAJHMY\[&K5>V
-MJ4VK8NWJ;@_M*``-7THD@U1T1`"7G28%(8H34P#E?<'1CN+P4,EA(DDE842F
-M60<@6!]=8Q)SV<=`$Y`)E9C('$3.Q3G0'``?RXO/"8X`O<7_5L85TOBR*$R!
-M*_\U4GZZJ(UMPR6X>;*Z],Y6W\SG$%L?U6IF<.,6MDA<TR2ZX6*UBC4.%S]4
-M<X/55%4V1A]Q'R0:/5<?1;\Y$`(%Z.*$UL)7:Q,D6T8_V/PDG`.!C@-;_P5E
-MI&]$!@5,4B&/UKG[5=]S(]/00MFEA'&Z\=<+M3AIM+]AC92NS5`[:W1;+3?Y
-MXHD_2CDE&:2I#'WGF>!\XSV2'5J/R9/6HSBB_\]Z:T=M:WZ'(_^XF<$CHQ?*
-M_P=.NZ8IY9B@#[NU%\8!@5=:^2*Z"+O7;]9XEFWQF_44?O\\Z=+H6;.H!RRT
-.5;#L"_H.*=>,2AX%````
-`
-end
-
-
--- 
-
-//anders/g
+iD8DBQE9QrpHaeiN+EU2vEIRAqSrAKCU5vnbVwwvi1d8gDjCHywQHUVKTQCcCtuu
+h5QyGnekikDHOuw/TopYnRA=
+=GqpX
+-----END PGP SIGNATURE-----
 

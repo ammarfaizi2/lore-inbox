@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265086AbUHJOQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265134AbUHJNwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265086AbUHJOQt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 10:16:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265022AbUHJOQt
+	id S265134AbUHJNwG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 09:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266219AbUHJNkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 10:16:49 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:9447 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S265099AbUHJOQi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 10:16:38 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O4
-From: Lee Revell <rlrevell@joe-job.com>
+	Tue, 10 Aug 2004 09:40:16 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:63495 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265134AbUHJNjr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 09:39:47 -0400
+Date: Tue, 10 Aug 2004 14:39:40 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Ingo Molnar <mingo@elte.hu>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-In-Reply-To: <20040810075331.GB25238@elte.hu>
-References: <1090832436.6936.105.camel@mindpipe>
-	 <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu>
-	 <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu>
-	 <20040809104649.GA13299@elte.hu> <20040809130558.GA17725@elte.hu>
-	 <20040809190201.64dab6ea@mango.fruits.de> <1092103522.761.2.camel@mindpipe>
-	 <1092117141.761.15.camel@mindpipe>  <20040810075331.GB25238@elte.hu>
-Content-Type: text/plain
-Message-Id: <1092147415.5818.2.camel@mindpipe>
+Cc: William Lee Irwin III <wli@holomorphy.com>, V13 <v13@priest.com>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.8-rc3-mm2
+Message-ID: <20040810143940.D20890@flint.arm.linux.org.uk>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	William Lee Irwin III <wli@holomorphy.com>, V13 <v13@priest.com>,
+	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
+References: <200408091217.50786.jbarnes@engr.sgi.com> <20040810100234.GN11200@holomorphy.com> <20040810115307.GR11200@holomorphy.com> <200408101552.22501.v13@priest.com> <20040810125140.GU11200@holomorphy.com> <20040810125529.GA22650@elte.hu> <20040810125651.GV11200@holomorphy.com> <20040810130122.GA26326@elte.hu> <20040810141220.B20890@flint.arm.linux.org.uk> <20040810131628.GA28167@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 10 Aug 2004 10:16:55 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040810131628.GA28167@elte.hu>; from mingo@elte.hu on Tue, Aug 10, 2004 at 03:16:28PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-10 at 03:53, Ingo Molnar wrote:
-> can you trigger similar latencies via the attached mlock testcode?
-> (written by Florian. Run it as root.)
+On Tue, Aug 10, 2004 at 03:16:28PM +0200, Ingo Molnar wrote:
 > 
+> * Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> 
+> > Except serial console IO does not generate _any_ IRQ traffic - it
+> > purposely disables IRQs on the device before starting any IO to
+> > prevent any user-level IO interfering with the console output.
+> 
+> indeed - but it does generate _some_ IRQ traffic still:
+> 
+>   3:        251    IO-APIC-edge  serial
+> 
+> this is from a box that uses the serial line only for the kernel
+> console.
 
-Yup, using only 100000 bytes, I get a bunch of these:
+If the IRQ is claimed, userspace has opened the port.  Is a getty
+running on the port?  If so, it would've written some messages to
+the port, which would have caused these interrupts.
 
-(mlockall-test/6561): 10353us non-preemptible critical section violated 1100 us preempt threshold starting at get_user_pages+0xa6/0x3b0 and ending at get_user_pages+0x2c5/0x3b0
- [<c0106717>] dump_stack+0x17/0x20
- [<c0113eec>] dec_preempt_count+0x3c/0x50
- [<c013d435>] get_user_pages+0x2c5/0x3b0
- [<c013ea28>] make_pages_present+0x68/0x90
- [<c013ee8d>] mlock_fixup+0x8d/0xb0
- [<c013f170>] do_mlockall+0x70/0x90
- [<c013f229>] sys_mlockall+0x99/0xa0
- [<c01060b7>] syscall_call+0x7/0xb
-ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
- [<c0106717>] dump_stack+0x17/0x20
- [<de93d64b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
- [<de9791d1>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
- [<c011a7d3>] generic_handle_IRQ_event+0x33/0x60
- [<c01079c2>] do_IRQ+0xb2/0x180
- [<c01062d8>] common_interrupt+0x18/0x20
- [<c0113d31>] check_preempt_timing+0x11/0xf0
- [<c0113e62>] touch_preempt_timing+0x32/0x40
- [<c013d216>] get_user_pages+0xa6/0x3b0
- [<c013ea28>] make_pages_present+0x68/0x90
- [<c013ee8d>] mlock_fixup+0x8d/0xb0
-(mlockall-test/6561): 9168us non-preemptible critical section violated 1100 us preempt threshold starting at get_user_pages+0x2cf/0x3b0 and ending at get_user_pages+0xa6/0x3b0
- [<c0106717>] dump_stack+0x17/0x20
- [<c0113e62>] touch_preempt_timing+0x32/0x40
- [<c013d216>] get_user_pages+0xa6/0x3b0
- [<c013ea28>] make_pages_present+0x68/0x90
- [<c013ee8d>] mlock_fixup+0x8d/0xb0
- [<c013f170>] do_mlockall+0x70/0x90
- [<c013f229>] sys_mlockall+0x99/0xa0
- [<c01060b7>] syscall_call+0x7/0xb
-
-Lee
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293035AbSCaIcR>; Sun, 31 Mar 2002 03:32:17 -0500
+	id <S312412AbSCaIms>; Sun, 31 Mar 2002 03:42:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312412AbSCaIcG>; Sun, 31 Mar 2002 03:32:06 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58641 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293035AbSCaIb4>;
-	Sun, 31 Mar 2002 03:31:56 -0500
-Message-ID: <3CA6C91D.67186FAB@zip.com.au>
-Date: Sun, 31 Mar 2002 00:30:21 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: "David S. Miller" <davem@redhat.com>, tim@birdsnest.maths.tcd.ie,
+	id <S312457AbSCaIm3>; Sun, 31 Mar 2002 03:42:29 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:6396 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S312412AbSCaImV>;
+	Sun, 31 Mar 2002 03:42:21 -0500
+Date: Sun, 31 Mar 2002 03:42:20 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andrew Morton <akpm@zip.com.au>
+cc: "David S. Miller" <davem@redhat.com>, tim@birdsnest.maths.tcd.ie,
         linux-kernel@vger.kernel.org
 Subject: Re: linux-2.5.7
-In-Reply-To: <20020330.182243.88963096.davem@redhat.com> <Pine.GSO.4.21.0203310253360.4431-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3CA6C91D.67186FAB@zip.com.au>
+Message-ID: <Pine.GSO.4.21.0203310333460.4431-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
-> ...
-> +/*
-> + * "Conditional" syscalls
-> + *
-> + * What we want is __attribute__((weak,alias("sys_ni_syscall"))),
-> + * but it doesn't work on sparc64, so we just do it by hand
-> + */
-> +#define cond_syscall(x) asm(".weak\t" #x "\n\t.set\t" #x ",sys_ni_syscall");
-> +
-> +cond_syscall(sys_nfsservctl)
-> +cond_syscall(sys_quotactl)
-> +cond_syscall(sys_acct)
-> +
 
-Could you remind us what problem this is solving?  The
-#ifdef approach seemed reasonable and there's no indication
-here why weak linkage is needed.
 
-Weak linkage could perhaps be useful elsewhere.  Maybe this
-should be implemented as
+On Sun, 31 Mar 2002, Andrew Morton wrote:
 
-	weak_symbol(sym, default_sym)
+> Could you remind us what problem this is solving?  The
+> #ifdef approach seemed reasonable and there's no indication
+> here why weak linkage is needed.
 
-in some generic header somewhere...
+The thing we want here _is_ weak linkage - "return -ENOSYS unless
+you have the real thing".  You can emulate that with ifdefs,
+but that's what it is - emulation.  IOW, what we want actually
+belongs to linker, not compiler.
 
--
+When file looks like
+
+#ifdef FOO
+<lots of stuff>
+<function calling that stuff>
+#else
+<make that function an equivalent of sys_ni_syscall()>
+#endif
+
+we are really talking about "make it an alias of sys_ni_syscall() and let
+<all this stuff> override that".
+

@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262296AbSLURg5>; Sat, 21 Dec 2002 12:36:57 -0500
+	id <S262214AbSLURfc>; Sat, 21 Dec 2002 12:35:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262354AbSLURg4>; Sat, 21 Dec 2002 12:36:56 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:35265 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S262296AbSLURgw>; Sat, 21 Dec 2002 12:36:52 -0500
-Date: Sat, 21 Dec 2002 18:41:09 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-Subject: [PATCH 2.5] cpufreq: update system-wide loops_per_jiffy only on UP
-Message-ID: <20021221174109.GA1149@brodo.de>
+	id <S262266AbSLURfc>; Sat, 21 Dec 2002 12:35:32 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:26697 "EHLO
+	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S262214AbSLURfb>; Sat, 21 Dec 2002 12:35:31 -0500
+Date: Sat, 21 Dec 2002 12:45:54 -0500
+From: Doug Ledford <dledford@redhat.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Janet Morgan <janetmor@us.ibm.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] aic7xxx bouncing over 4G
+Message-ID: <20021221174554.GA9703@redhat.com>
+Mail-Followup-To: "Justin T. Gibbs" <gibbs@scsiguy.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Janet Morgan <janetmor@us.ibm.com>, linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <200212210012.gBL0Cng21338@eng2.beaverton.ibm.com> <176730000.1040430221@aslan.btc.adaptec.com> <20021221002940.GM25000@holomorphy.com> <190380000.1040432350@aslan.btc.adaptec.com> <20021221013500.GN25000@holomorphy.com> <223910000.1040435985@aslan.btc.adaptec.com> <20021221085510.A25881@infradead.org> <4093022704.1040484612@aslan.scsiguy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <4093022704.1040484612@aslan.scsiguy.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-loops_per_jiffy should only be updated on UP systems - on SMP the CPUs might
-have different such values when frequency scaling is active. On SMP it's
-safest to use the default value calculated during the boot process.
+On Sat, Dec 21, 2002 at 08:30:12AM -0700, Justin T. Gibbs wrote:
+> revision.  I just do it as a single CSET with the comments dispersed
+> into the individual files that the comments apply to.
 
-	Dominik
+Which is perfectly acceptable IMHO.  There is no reason that a cset need 
+document all the details when the file logs already do.  A cset need only 
+indicate what basic work is being done and maybe a list of files in the 
+cset.  Doing a bk changes -v gets the file comments as well for those 
+people that want them.
 
-diff -ruN linux-original/kernel/cpufreq.c linux/kernel/cpufreq.c
---- linux-original/kernel/cpufreq.c	2002-12-21 14:53:52.000000000 +0100
-+++ linux/kernel/cpufreq.c	2002-12-21 18:20:53.000000000 +0100
-@@ -936,17 +936,23 @@
-  * adjust_jiffies - adjust the system "loops_per_jiffy"
-  *
-  * This function alters the system "loops_per_jiffy" for the clock
-- * speed change. Note that loops_per_jiffy is only updated if all
-- * CPUs are affected - else there is a need for per-CPU loops_per_jiffy
-- * values which are provided by various architectures. 
-+ * speed change. Note that loops_per_jiffy cannot be updated on SMP
-+ * systems as each CPU might be scaled differently. So, use the arch 
-+ * per-CPU loops_per_jiffy value wherever possible.
-  */
-+#ifndef CONFIG_SMP
- static inline void adjust_jiffies(unsigned long val, struct cpufreq_freqs *ci)
- {
- 	if ((val == CPUFREQ_PRECHANGE  && ci->old < ci->new) ||
- 	    (val == CPUFREQ_POSTCHANGE && ci->old > ci->new))
--		if (ci->cpu == CPUFREQ_ALL_CPUS)
--			loops_per_jiffy = cpufreq_scale(loops_per_jiffy, ci->old, ci->new);
-+		loops_per_jiffy = cpufreq_scale(loops_per_jiffy, ci->old, ci->new);
- }
-+#else
-+static inline void adjust_jiffies(unsigned long val, struct cpufreq_freqs *ci)
-+{
-+	return;
-+}
-+#endif
- 
- 
- /**
+I actually like the individual file comments part of the cset setup.  It's 
+what my preferred use is when I'm making my own patches.  Make the cset 
+have a summary of the major changes, then let each file have it's own 
+detail change information.
 
+-- 
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

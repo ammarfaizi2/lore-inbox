@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317951AbSFNQlE>; Fri, 14 Jun 2002 12:41:04 -0400
+	id <S317953AbSFNQnO>; Fri, 14 Jun 2002 12:43:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317952AbSFNQlD>; Fri, 14 Jun 2002 12:41:03 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:43281 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317951AbSFNQlD>;
-	Fri, 14 Jun 2002 12:41:03 -0400
-Date: Fri, 14 Jun 2002 09:40:46 -0700
-From: Greg KH <greg@kroah.com>
-To: Jonas Diemer <diemer@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: insmod stall
-Message-ID: <20020614164046.GA27291@kroah.com>
-In-Reply-To: <20020614131505.00004803.diemer@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Fri, 17 May 2002 15:36:54 -0700
+	id <S317954AbSFNQnN>; Fri, 14 Jun 2002 12:43:13 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12553 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317952AbSFNQnM>; Fri, 14 Jun 2002 12:43:12 -0400
+Date: Fri, 14 Jun 2002 09:43:11 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jens Axboe <axboe@suse.de>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 IDE 91
+In-Reply-To: <20020614151703.GB1120@suse.de>
+Message-ID: <Pine.LNX.4.44.0206140940240.2576-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 14, 2002 at 01:15:05PM +0200, Jonas Diemer wrote:
-> Hi!
-> 
-> I have a recent debian woody. I want to use the fritz card usb. I
-> downloaded and compiled it (its distributed partly binary, part source).
-> Usign the debian kernel-image-2.4.18-686, the driver worked. Now I have
-> compiled my own kernel (2.4.18 too). Now, the driver doesn't work
-> anymore (although I recompiled it against my new kernel sources): when I
-> insmod it, I see the messages that appeared with the woody kernel, lsmod
-> shows the module, but insmod doesn't exit (i.e. it's listed when i run
-> "ps ax" as running (Status R)). when I kill that process, the cpu load
-> rises. top shows a process named fcusb_init (if I remember correctly)
-> taking 99% of the cpu time.
-> 
-> What's going wrong here? Have I forgotten something? how come the driver
-> worked with the woody kernel and wouldn't work with a self compiled one?
 
-As that driver is a binary driver, you will have to ask the authors of
-it, we can't really help you out here.
 
-Good luck,
+On Fri, 14 Jun 2002, Jens Axboe wrote:
+>
+> - current 2.5 bk deadlocks reading partition info off disk. Again a
+>   locking problem I suppose, to be honest I just got very tired when
+>   seeing it happen and didn't want to spend tim looking into it.
 
-greg k-h
+Hmm. There's a bug in "balance_irq()" if you are trying to run a SMP
+kernel on an UP machine right now, and it _might_ be that the lockup has
+nothing to do with the IDE layer, but simple with the first PCI interrupt
+(as opposed to local timer interrupt) coming in.
+
+One-liner from Zwane Mwaikambo (cut-and-paste, so space is wrong, please
+apply by hand).
+
+--- linux-2.5.19/arch/i386/kernel/io_apic.c.orig        Fri Jun 14 17:43:20 2002
++++ linux-2.5.19/arch/i386/kernel/io_apic.c     Fri Jun 14 17:42:23 2002
+@@ -251,7 +251,7 @@
+        irq_balance_t *entry = irq_balance + irq;
+        unsigned long now = jiffies;
+
+-       if (unlikely(entry->timestamp != now)) {
++       if ((entry->timestamp != now) && (smp_num_cpus > 1)) {
+                unsigned long allowed_mask;
+                int random_number;
+
+I don't know. Might be the IDE code too, of course.
+
+		Linus
+

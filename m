@@ -1,107 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbTEYAl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 May 2003 20:41:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbTEYAl5
+	id S261249AbTEYBMo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 May 2003 21:12:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbTEYBMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 May 2003 20:41:57 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:52883 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S261245AbTEYAlz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 May 2003 20:41:55 -0400
-Date: Sat, 24 May 2003 20:07:01 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Resend [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE
-Message-ID: <20030525000701.GG504@phunnypharm.org>
-References: <20030513071412.GS433@phunnypharm.org> <Pine.LNX.4.44.0305130808040.9816-100000@cherise> <20030516002059.GE433@phunnypharm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 24 May 2003 21:12:44 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:5002 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S261249AbTEYBMn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 May 2003 21:12:43 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Christian Klose <christian.klose@freenet.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>
+Subject: Re: I/O problems in 2.4.19/2.4.20/2.4.21-rc3
+Date: Sun, 25 May 2003 11:27:20 +1000
+User-Agent: KMail/1.5.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200305231405.54599.christian.klose@freenet.de> <20030524142809.GZ8978@holomorphy.com> <200305250242.58269.christian.klose@freenet.de>
+In-Reply-To: <200305250242.58269.christian.klose@freenet.de>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <20030516002059.GE433@phunnypharm.org>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200305251127.40516.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Given that the problem with KOBJ_NAME_LEN == 20 affecting one snd driver
-has so far only been explained as a compiler bug, can I suggest this
-patch be applied? Even aside from the KOBJ_NAME_LEN == 20, the snprintf
-changes will keep things from breaking in other ways that are current
-now.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+On Sun, 25 May 2003 10:43, Christian Klose wrote:
+> On Saturday 24 May 2003 16:28, William Lee Irwin III wrote:
+>
+> Hi wli,
+>
+> > > --- old/kernel/sched.c	2003-05-24 14:45:57.000000000 +0200
+> > > +++ 2.5-mcp/kernel/sched.c	2003-05-24 16:18:42.000000000 +0200
+> > > @@ -65,7 +65,7 @@
+> > >   * they expire.
+> > >   */
+> > >  #define MIN_TIMESLICE		( 10 * HZ / 1000)
+> > > -#define MAX_TIMESLICE		(200 * HZ / 1000)
+> > > +#define MAX_TIMESLICE		( 10 * HZ / 1000)
+> > >  #define CHILD_PENALTY		50
+> > >  #define PARENT_PENALTY		100
+> > >  #define EXIT_WEIGHT		3
+> >
+> > This looks highly suspicious as it essentially removes dynamic timeslice
+> > sizing. If this fixes something, then dynamic timeslice heuristics are
+> > going wrong somewhere that should be properly described and handled, not
+> > this kind of shenanigan.
+>
+> I somewhat agree with you but this "properly described" are all the bug
+> reports on lkml containing "bad interactivity in 2.5, cpu starving in 2.5"
+> and such...
+>
+> This isn't a shenanigan, at least not for the interactivity for a desktop.
+> This is a workaround for users who are complaining about bad interactivity
+> in 2.5!
+>
+> ciao, Marc
 
-Index: include/linux/kobject.h
-===================================================================
---- include/linux/kobject.h	(revision 10014)
-+++ include/linux/kobject.h	(working copy)
-@@ -12,7 +12,7 @@
- #include <linux/rwsem.h>
- #include <asm/atomic.h>
- 
--#define KOBJ_NAME_LEN	16
-+#define KOBJ_NAME_LEN	20
- 
- struct kobject {
- 	char			name[KOBJ_NAME_LEN];
-Index: drivers/base/class.c
-===================================================================
---- drivers/base/class.c	(revision 10014)
-+++ drivers/base/class.c	(working copy)
-@@ -87,8 +87,9 @@
- 
- 	INIT_LIST_HEAD(&cls->children);
- 	INIT_LIST_HEAD(&cls->interfaces);
--	
--	strncpy(cls->subsys.kset.kobj.name,cls->name,KOBJ_NAME_LEN);
-+
-+	snprintf(cls->subsys.kset.kobj.name, KOBJ_NAME_LEN, "%s",
-+		 cls->name);
- 	subsys_set_kset(cls,class_subsys);
- 	subsystem_register(&cls->subsys);
- 
-@@ -258,7 +259,7 @@
- 		 class_dev->class_id);
- 
- 	/* first, register with generic layer. */
--	strncpy(class_dev->kobj.name, class_dev->class_id, KOBJ_NAME_LEN);
-+	snprintf(class_dev->kobj.name, KOBJ_NAME_LEN, "%s", class_dev->class_id);
- 	kobj_set_kset_s(class_dev, class_obj_subsys);
- 	if (parent)
- 		class_dev->kobj.parent = &parent->subsys.kset.kobj;
-Index: drivers/base/core.c
-===================================================================
---- drivers/base/core.c	(revision 10014)
-+++ drivers/base/core.c	(working copy)
-@@ -211,7 +211,7 @@
- 		 dev->bus_id, dev->name);
- 
- 	/* first, register with generic layer. */
--	strncpy(dev->kobj.name,dev->bus_id,KOBJ_NAME_LEN);
-+	snprintf(dev->kobj.name, KOBJ_NAME_LEN, "%s", dev->bus_id);
- 	if (parent)
- 		dev->kobj.parent = &parent->kobj;
- 
-Index: drivers/base/bus.c
-===================================================================
---- drivers/base/bus.c	(revision 10014)
-+++ drivers/base/bus.c	(working copy)
-@@ -431,7 +431,7 @@
- 	if (bus) {
- 		pr_debug("bus %s: add driver %s\n",bus->name,drv->name);
- 
--		strncpy(drv->kobj.name,drv->name,KOBJ_NAME_LEN);
-+		snprintf(drv->kobj.name, KOBJ_NAME_LEN, "%s", drv->name);
- 		drv->kobj.kset = &bus->drivers;
- 
- 		if ((error = kobject_register(&drv->kobj))) {
-@@ -540,7 +540,8 @@
-  */
- int bus_register(struct bus_type * bus)
- {
--	strncpy(bus->subsys.kset.kobj.name,bus->name,KOBJ_NAME_LEN);
-+	snprintf(bus->subsys.kset.kobj.name, KOBJ_NAME_LEN, "%s",
-+		 bus->name);
- 	subsys_set_kset(bus,bus_subsys);
- 	subsystem_register(&bus->subsys);
- 
+Even though you're not Marc I do agree with you. The problem is well described 
+as either poor interactivity (the window wiggle test) or starvation in the 
+presence of certain scheduler hogs (for whatever reason) since the 
+interactivity patch from mingo. Dropping the max timeslice is a bandaid but 
+destroys priority based timeslice scheduling. Dropping the min timeslice will 
+bring this back, but at some point the timeslice will be so low that low 
+priority cpu intensive tasks will spend most of their time cache trashing.
+
+A reasonable compromise for the desktop would be
+min 5 
+max 25
+but some granularity will be lost in the different sizes of timeslices at 
+different priorities.
+
+is there any point having longer timeslices than this?
+
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+0Bv6F6dfvkL3i1gRAhpfAKCG3fjkK02lYbAs1p3978rSL/PYAQCcCeK7
+gHqR6bgrITE3CSjKCqntw+g=
+=rq1o
+-----END PGP SIGNATURE-----
+

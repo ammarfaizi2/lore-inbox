@@ -1,80 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131860AbQKKSB3>; Sat, 11 Nov 2000 13:01:29 -0500
+	id <S131861AbQKKSGB>; Sat, 11 Nov 2000 13:06:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131861AbQKKSBT>; Sat, 11 Nov 2000 13:01:19 -0500
-Received: from pmcl.ph.utexas.edu ([128.83.155.100]:25607 "EHLO
-	pmcl.ph.utexas.edu") by vger.kernel.org with ESMTP
-	id <S131860AbQKKSBN>; Sat, 11 Nov 2000 13:01:13 -0500
-Date: Sat, 11 Nov 2000 11:15:12 -0600 (EST)
-From: <michael@pmcl.ph.utexas.edu>
-To: "Allen, David B" <David.B.Allen@chase.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: intel etherpro100 on 2.2.18p21 vs 2.2.18p17
-In-Reply-To: <93BA6BFC5E48D4118A8200508B6BBC4924AB7A@sf1-mail01.hamquist.com>
-Message-ID: <Pine.LNX.4.10.10011111111390.18876-100000@pmcl.ph.utexas.edu>
+	id <S131834AbQKKSFv>; Sat, 11 Nov 2000 13:05:51 -0500
+Received: from proxy2.ba.best.com ([206.184.139.14]:61194 "EHLO
+	proxy2.ba.best.com") by vger.kernel.org with ESMTP
+	id <S131782AbQKKSFf>; Sat, 11 Nov 2000 13:05:35 -0500
+Message-ID: <3A0D89F7.1CDC3B68@best.com>
+Date: Sat, 11 Nov 2000 10:03:35 -0800
+From: Robert Lynch <rmlynch@best.com>
+Reply-To: rmlynch@best.com
+Organization: Carpe per diem
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Cc: Peter Samuelson <peter@cadcamlab.org>, Andi Kleen <ak@suse.de>
+Subject: Re: bzImage ~ 900K with i386 test11-pre2
+In-Reply-To: <3A0C86B3.62DA04A2@best.com> <20001110234750.B28057@wire.cadcamlab.org> <20001111153036.A28928@gruyere.muc.suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have the SUPER 370DL3 SuperMicro boards w/ the integrated Intel NIC,
-unfortunately a warm boot does not help.  The problem also seems to happen
-when I turn on the alias ip feature in the kernel under network options.
+Peter Samuelson wrote:
+> [Robert Lynch] wrote:
+> > I've been regularly building kernels in the testXX series, and
+> > they have been coming out ~ 600K; test10-final and test11-pre1:
+> > 
+> > -rw-r--r--    1 root     root       610503 Oct 31 18:39 vmlinuz-t10
+> > -rw-r--r--    1 root     root       610568 Nov  7 20:26 vmlinuz-t11p01
+> > 
+> > test11-pre2 comes out ~ 900K:
+> > 
+> > -rw-r--r--    1 root     root       926345 Nov 10 10:16 vmlinuz-t11p02
+> 
+> Track it down yourself:
+> 
+> 1) The sizes of your two 'vmlinux' files: do they differ wildly as well?
 
+Wildly; compare test11-pre1 and testll-pre2 sizes:
 
-On Fri, 10 Nov 2000, Allen, David B wrote:
+-rwxr-xr-x    1 root     root      1789457 Nov  7 20:26
+vmlinux-t11p01 
+-rwxr-xr-x    1 root     root      2625016 Nov 10 10:15
+vmlinux-t11p02    
 
-> FWIW, I have a dual-proc SuperMicro motherboard P3DM3 with integrated
-> Adaptec SCSI and Intel 8255x built-in NIC.
+> 2a) If no, check the make logs between the vmlinux link line and bzImage
+>     creation.  Compare the two and note any significant differences.
 > 
-> Sometimes on a cold boot I get the "kernel: eth0: card reports no RX
-> buffers" that repeats, but if I follow it with a warm boot the message
-> doesn't appear (even on subsequent warm boots).  So this is definitely
-> reproducible, but it doesn't happen every time.
+> 2b) If yes, write a perl script to compute symbol sizes from each
+>     System.map file.  (Symbol size == address of next symbol minus
+>     address of this symbol.)  Sort numerically, then compare old vs new
+>     for symbols that have grown a lot, or large new symbols.
 > 
-> I can't offer much more than that, but at least you know you're not the only
-> one experiencing this.
+> Peter
+
+Whence Andi Kleen chipped in:
+
+> No need to write one: ftp.firstfloor.org:/pub/ak/perl/bloat-o-meter 
 > 
->  -----Original Message-----
-> From: 	michael@pmcl.ph.utexas.edu [mailto:michael@pmcl.ph.utexas.edu] 
-> Sent:	Friday, November 10, 2000 9:00 AM
-> To:	linux-kernel@vger.kernel.org
-> Subject:	intel etherpro100 on 2.2.18p21 vs 2.2.18p17
-> 
-> We have several Supermicro 370DL3 boards (scsi, built into epro100, dual
-> pentium iii) - which are giving the following ethernet card error on
-> 2.2.18p21, but not on 2.2.18p17.  This error has happened on 3 out of 4
-> boards with this configuration.
-> 
-> Oct 18 12:17:34 db1 kernel: eth0: card reports no RX buffers. 
-> The above message repeats itself and the ethernet card does not work.
-> 
-> On bootup:
-> <SNIP>
-> Oct 18 12:17:34 db1 kernel: eepro100.c:v1.09j-t 9/29/99 Donald Becker
-> http://cesdis.gsfc.nasa.gov/linux/drivers/eepro10$
-> Oct 18 12:17:34 db1 kernel: eepro100.c: $Revision: 1.20.2.10 $ 2000/05/31
-> Modified by Andrey V. Savochkin <saw@saw.sw.c$
-> Oct 18 12:17:34 db1 kernel: eth0: Intel PCI EtherExpress Pro100 82557,
-> 00:30:48:21:2F:9E, I/O at 0xd400, IRQ 31.
-> Oct 18 12:17:34 db1 kernel:   Board assembly 000000-000, Physical
-> connectors present: RJ45
-> Oct 18 12:17:34 db1 kernel:   Primary interface chip i82555 PHY #1.
-> Oct 18 12:17:34 db1 kernel:   General self-test: passed.
-> Oct 18 12:17:34 db1 kernel:   Serial sub-system self-test: passed.
-> Oct 18 12:17:34 db1 kernel:   Internal registers self-test: passed.
-> Oct 18 12:17:34 db1 kernel:   ROM checksum self-test: passed (0x04f4518b).
-> Oct 18 12:17:34 db1 kernel:   Receiver lock-up workaround activated.
-> <SNIP>
-> Oct 18 12:17:34 db1 kernel: eth0: card reports no RX buffers. 
-> 
-> 
-> I believe this has been an ongoing issue for these intel nics?
-> 
-> --Michael
-> 
-> 
+> -Andi
+
+Running:
+
+perl bloat-o-meter /boot/vmlinux-t11p01 /boot/vmlinux-t11p02 >
+/tmp/bloat.out
+
+looking at the output, the large positive changes seem to be
+(doing it by eye, might have skipped and/or missed something):
+
+Symbol	Old	size	New	size	Delta	Change	(%)
+
+slabinfo_write_proc                  8      340     332  +4150.0
+show_buffers                        24      368     344  +1433.3
+sys_nfsservctl                      80     1060     980  +1225.0
+dump_extended_fpu                    8       84      76  +950.00
+get_fpregs                          36      372     336  +933.33
+schedule_tail                       16      144     128  +800.00 
+set_fpregs                          36      272     236  +655.56
+tty_release                         16      108      92  +575.00
+ext2_write_inode                    20      108      88  +440.00
+...
+
+I have surpressed my momentary urge to post the whole thing, so
+as not to arouse the legendary ire of this list. :)
+
+Bob L.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264489AbTLGTM4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 14:12:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTLGTM4
+	id S264495AbTLGTVg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 14:21:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264497AbTLGTVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 14:12:56 -0500
-Received: from holomorphy.com ([199.26.172.102]:30937 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264489AbTLGTMz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 14:12:55 -0500
-Date: Sun, 7 Dec 2003 11:12:48 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: pgcl-2.6.0-test5-bk3-17
-Message-ID: <20031207191248.GB8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20031128041558.GW19856@holomorphy.com> <20031128072148.GY8039@holomorphy.com> <20031130164301.GK8039@holomorphy.com> <20031201073632.GQ8039@holomorphy.com> <20031207072803.GU8039@holomorphy.com> <Pine.LNX.4.58.0312071342590.1758@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312071342590.1758@montezuma.fsmlabs.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Sun, 7 Dec 2003 14:21:36 -0500
+Received: from orngca-mls01.socal.rr.com ([66.75.160.16]:26081 "EHLO
+	orngca-mls01.socal.rr.com") by vger.kernel.org with ESMTP
+	id S264495AbTLGTVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 14:21:35 -0500
+Message-ID: <3FD37DBD.5080404@greenhydrant.com>
+Date: Sun, 07 Dec 2003 11:21:33 -0800
+From: David Rees <drees@greenhydrant.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 hard lock, 100% reproducible.
+References: <20031207023650.GA772@symonds.net> <87he0ds3sv.fsf@ceramic.fifi.org> <02a901c3bc7b$69294ee0$7a01a8c0@gandalf> <20031207133201.A4744@netdirect.ca> <Pine.LNX.4.51.0312071147070.3356@cafe.hardrock.org>
+In-Reply-To: <Pine.LNX.4.51.0312071147070.3356@cafe.hardrock.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Dec 2003, William Lee Irwin III wrote:
->> Woops, those page sizes were a bit off. Come to think of it, so is
->> aio_setup_ring()...
+James Bourne wrote:
+> This is included with the patch set I just posted, 2.4.22-uv3 available at 
+> http://www.hardrock.org/current-updates/linux-2.4.22-uv3-updates.patch.
 
-On Sun, Dec 07, 2003 at 01:45:36PM -0500, Zwane Mwaikambo wrote:
-> And here is a sync point, it gets DRI memory allocation/mapping code
-> working. There are a few things which need to be ironed out wrt the radeon
-> driver, but this is some good progress.
-> Tested with the radeon DRI driver.
+The correct link appears to be
+http://www.hardrock.org/kernel/current-updates/linux-2.4.22-uv3-updates.patch
 
-Terrific! I'll plop that and the various minimal fixes I've got atop -9
-and ship it as -10 shortly.
-
-
--- wli
+-Dave

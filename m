@@ -1,103 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262068AbULHHdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262066AbULHHds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262068AbULHHdv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 02:33:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbULHHbw
+	id S262066AbULHHds (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 02:33:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbULHHbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 02:31:52 -0500
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:35722 "EHLO mta1.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S262058AbULHH3k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 02:29:40 -0500
-To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-cc: linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk, akpm@osdl.org,
-       Ian.Pratt@cl.cam.ac.uk
-Subject: [2/6] Xen VMM #4: return code for arch_free_page
-In-reply-to: Your message of "Wed, 08 Dec 2004 07:28:16 GMT."
-             <E1CbwFE-0006PZ-00@mta1.cl.cam.ac.uk> 
-Date: Wed, 08 Dec 2004 07:29:31 +0000
-From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Message-Id: <E1CbwGR-0006Qn-00@mta1.cl.cam.ac.uk>
+	Wed, 8 Dec 2004 02:31:23 -0500
+Received: from smtp111.mail.sc5.yahoo.com ([66.163.170.9]:57723 "HELO
+	smtp111.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262055AbULHH3O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 02:29:14 -0500
+Subject: Re: Time sliced CFQ io scheduler
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20041208072052.GC19522@suse.de>
+References: <20041202195232.GA26695@suse.de>
+	 <20041208003736.GD16322@dualathlon.random>
+	 <1102467253.8095.10.camel@npiggin-nld.site>
+	 <20041208013732.GF16322@dualathlon.random>
+	 <20041207180033.6699425b.akpm@osdl.org>
+	 <20041208022020.GH16322@dualathlon.random>
+	 <20041207182557.23eed970.akpm@osdl.org>
+	 <1102473213.8095.34.camel@npiggin-nld.site> <20041208065858.GH3035@suse.de>
+	 <1102490086.8095.63.camel@npiggin-nld.site>
+	 <20041208072052.GC19522@suse.de>
+Content-Type: text/plain
+Date: Wed, 08 Dec 2004 18:29:05 +1100
+Message-Id: <1102490945.8095.77.camel@npiggin-nld.site>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-12-08 at 08:20 +0100, Jens Axboe wrote:
+> On Wed, Dec 08 2004, Nick Piggin wrote:
+> > On Wed, 2004-12-08 at 07:58 +0100, Jens Axboe wrote:
+> > > On Wed, Dec 08 2004, Nick Piggin wrote:
+> > > > On Tue, 2004-12-07 at 18:25 -0800, Andrew Morton wrote:
+> > 
+> > > > I think we could detect when a disk asks for more than, say, 4
+> > > > concurrent requests, and in that case turn off read anticipation
+> > > > and all the anti-starvation for TCQ by default (with the option
+> > > > to force it back on).
+> > > 
+> > > CFQ only allows a certain depth a the hardware level, you can control
+> > > that. I don't think you should drop the AS behaviour in that case, you
+> > > should look at when the last request comes in and what type it is.
+> > > 
+> > > With time sliced cfq I'm seeing some silly SCSI disk behaviour as well,
+> > > it gets harder to get good read bandwidth as the disk is trying pretty
+> > > hard to starve me. Maybe killing write back caching would help, I'll
+> > > have to try.
+> > > 
+> > 
+> > I "fixed" this in AS. It gets (or got, last time we checked, many months
+> > ago) pretty good read latency even with a big write and a very large
+> > tag depth.
+> > 
+> > What were the main things I had to do... hmm, I think the main one was
+> > to not start on a new batch until all requests from a previous batch
+> > are reported to have completed. So eg. you get all reads completing
+> > before you start issuing any more writes. The write->read side of things
+> > isn't so clear cut with your "smart" write caches on the IO systems, but
+> > no doubt that helps a bit.
+> 
+> I can see the read/write batching being helpful there, at least to
+> prevent writes starving reads if you let the queue drain completely
+> before starting a new batch.
+> 
+> CFQ does something similar, just not batched together. But it does let
+> the depth build up a little and drain out. In fact I think I'm missing
+> a little fix there thinking about it, that could be why the read
+> latencies hurt on write intensive loads (the dispatch queue is drained,
+> the hardware queue is not fully).
+> 
 
-This patch adds a return value to the existing arch_free_page function
-that indicates whether the normal free routine still has work to
-do. The only architecture that currently uses arch_free_page is arch
-'um'. arch xen needs this for 'foreign pages' - pages that don't
-belong to the page allocator but are instead managed by custom
-allocators. Such pages are marked using PG_arch_1.
+OK, you should look into that, because I found it was quite effective.
+Maybe you have a little bug or oversight somewhere if you read latencies
+are really bad. Note that AS read latencies at 256 tags aren't so good
+as at 2 tags... but I think they're an order of magnitude better than
+with deadline on the hardware we were testing.
 
-Signed-off-by: ian.pratt@cl.cam.ac.uk
+> > Of course, after you do all that your database performance has well and
+> > truly gone down the shitter. It is also hampered by the more fundamental
+> > issue that read anticipating can block up the pipe for IO that is cached
+> > on the controller/disks and would get satisfied immediately.
+> 
+> I think we need to end up with something that sets the machine profile
+> for the interesting disks. Some things you can check for at runtime
+> (like the writes being extremely fast is a good indicator of write
+> caching), but it is just not possible to cover it all. Plus, you end up
+> with 30-40% of the code being convoluted stuff added to detect it.
+> 
 
----
+Ideally maybe we would have a userspace program that is run to detect
+various disk parameters and ask the user / config file what sort of
+workloads we want to do, and spits out a recommended IO scheduler and
+/sys configuration to accompany it.
 
+That at least could be made quite sophisticated than a kernel solution,
+and could gather quite a lot of "static" disk properties.
 
-diff -Nurp pristine-linux-2.6.10-rc3/include/linux/gfp.h tmp-linux-2.6.10-rc3-xen.patch/include/linux/gfp.h
---- pristine-linux-2.6.10-rc3/include/linux/gfp.h	2004-12-03 21:53:07.000000000 +0000
-+++ tmp-linux-2.6.10-rc3-xen.patch/include/linux/gfp.h	2004-12-08 00:52:40.000000000 +0000
-@@ -74,8 +74,12 @@ struct vm_area_struct;
-  * optimized to &contig_page_data at compile-time.
-  */
- 
-+/*
-+ * If arch_free_page returns non-zero then the generic free_page code can
-+ * immediately bail: the arch-specific function has done all the work.
-+ */
- #ifndef HAVE_ARCH_FREE_PAGE
--static inline void arch_free_page(struct page *page, int order) { }
-+#define arch_free_page(page, order) 0
- #endif
- 
- extern struct page *
-diff -Nurp pristine-linux-2.6.10-rc3/mm/page_alloc.c tmp-linux-2.6.10-rc3-xen.patch/mm/page_alloc.c
---- pristine-linux-2.6.10-rc3/mm/page_alloc.c	2004-12-03 21:52:41.000000000 +0000
-+++ tmp-linux-2.6.10-rc3-xen.patch/mm/page_alloc.c	2004-12-08 00:56:48.000000000 +0000
-@@ -278,7 +278,8 @@ void __free_pages_ok(struct page *page, 
- 	LIST_HEAD(list);
- 	int i;
- 
--	arch_free_page(page, order);
-+	if (arch_free_page(page, order))
-+		return;
- 
- 	mod_page_state(pgfree, 1 << order);
- 	for (i = 0 ; i < (1 << order) ; ++i)
-@@ -508,7 +509,8 @@ static void fastcall free_hot_cold_page(
- 	struct per_cpu_pages *pcp;
- 	unsigned long flags;
- 
--	arch_free_page(page, 0);
-+	if (arch_free_page(page, 0))
-+		return;
- 
- 	kernel_map_pages(page, 1, 0);
- 	inc_page_state(pgfree);
-diff -Nurp pristine-linux-2.6.10-rc2/arch/um/kernel/physmem.c tmp-linux-2.6.10-rc2-xen.patch/arch/um/kernel/physmem.c
---- pristine-linux-2.6.10-rc2/arch/um/kernel/physmem.c	2004-11-19 20:04:30.000000000 +0000
-+++ tmp-linux-2.6.10-rc2-xen.patch/arch/um/kernel/physmem.c	2004-11-19 20:05:33.000000000 +0000
-@@ -225,7 +225,7 @@ EXPORT_SYMBOL(physmem_forget_descriptor)
- EXPORT_SYMBOL(physmem_remove_mapping);
- EXPORT_SYMBOL(physmem_subst_mapping);
- 
--void arch_free_page(struct page *page, int order)
-+void __arch_free_page(struct page *page, int order)
- {
- 	void *virt;
- 	int i;
-diff -Nurp pristine-linux-2.6.10-rc2/include/asm-um/page.h tmp-linux-2.6.10-rc2-xen.patch/include/asm-um/page.h
---- pristine-linux-2.6.10-rc2/include/asm-um/page.h	2004-11-19 20:04:52.000000000 +0000
-+++ tmp-linux-2.6.10-rc2-xen.patch/include/asm-um/page.h	2004-11-19 20:05:33.000000000 +0000
-@@ -46,7 +46,8 @@ extern void *to_virt(unsigned long phys)
- extern struct page *arch_validate(struct page *page, int mask, int order);
- #define HAVE_ARCH_VALIDATE
- 
--extern void arch_free_page(struct page *page, int order);
-+extern void __arch_free_page(struct page *page, int order);
-+#define arch_free_page(page, order) (__arch_free_page((page), (order)), 0)
- #define HAVE_ARCH_FREE_PAGE
- 
- #endif
+Of course there will be also some things that need to be done in
+kernel...
+
 

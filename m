@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262270AbVAZK7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbVAZLCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262270AbVAZK7e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 05:59:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbVAZK7d
+	id S262274AbVAZLCf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 06:02:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbVAZLCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 05:59:33 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:52709 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S262270AbVAZK7O (ORCPT
+	Wed, 26 Jan 2005 06:02:35 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:32651 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262274AbVAZLCY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 05:59:14 -0500
-Message-ID: <41F786EF.9FE19AEC@tv-sign.ru>
-Date: Wed, 26 Jan 2005 15:02:55 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ram <linuxram@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Steven Pratt <slpratt@austin.ibm.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/4] page_cache_readahead: remove duplicated code
-References: <41F63493.309B0ADB@tv-sign.ru> <1106698119.3298.57.camel@localhost>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Jan 2005 06:02:24 -0500
+Date: Wed, 26 Jan 2005 12:02:02 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, Con Kolivas <kernel@kolivas.org>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU feature, -D7
+Message-ID: <20050126110202.GA17983@elte.hu>
+References: <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu> <87k6q2umla.fsf@sulphur.joq.us> <20050125083724.GA4812@elte.hu> <87oefdfaxp.fsf@sulphur.joq.us> <20050125214900.GA9421@elte.hu> <87sm4osrix.fsf@sulphur.joq.us> <20050126072712.GA1821@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050126072712.GA1821@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ram wrote:
->
-> No. There is a reason why we had some duplication. With your patch,
-> we will end up reading-on-demand instead of reading ahead.
->
-> When we notice a sequential reads have resumed, we first read in the
-> data that is requested.
-> However if the read request is for more pages than what are being held
-> in the current window, we make the ahead window as the current window
-> and read in more pages in the ahead window. Doing that gives the
-> opportunity of always having pages in the ahead window when the next
-> sequential read request comes in.
 
-Yes, sorry. I have not noticed that this 'goto out' is conditional in
-the 'no ahead window' case.
+i've uploaded a simple utility to set the RT_CPU rlimit, called
+execrtlim:
 
-Thank you for explanation.
+  http://redhat.com/~mingo/rt-limit-patches/
 
-However, I still think it makes sense to factor out the common code in
-these two cases, just for readability.
+execrtlim can be used to test the rlimit, e.g.:
 
-I'll redo these patches.
+  ./execrtlim 10 10 /bin/bash
 
-Oleg.
+will spawn a new shell with RLIMIT_RT_CPU curr/max set to 10%/10%.
+
+on older kernels the utility prints:
+
+  $ ./execrtlim 10 10 /bin/bash
+  execrtlim: kernel does not support RLIMIT_RT_CPU.
+
+	Ingo

@@ -1,192 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266009AbUFDUrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265996AbUFDUuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266009AbUFDUrq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 16:47:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266005AbUFDUqk
+	id S265996AbUFDUuv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 16:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266011AbUFDUuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 16:46:40 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:677 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S265996AbUFDUpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 16:45:46 -0400
-Message-ID: <40C0DF74.7090306@acm.org>
-Date: Fri, 04 Jun 2004 15:45:40 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
-X-Accept-Language: en-us, en
+	Fri, 4 Jun 2004 16:50:51 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:12038 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S265996AbUFDUsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 16:48:37 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: keyboard problem with 2.6.6
+Date: Fri, 4 Jun 2004 23:48:07 +0300
+User-Agent: KMail/1.5.4
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+References: <200406041817.i54IHFgZ004530@eeyore.valparaiso.cl> <200406042233.41441.vda@port.imtp.ilyichevsk.odessa.ua> <200406041950.i54JocXW026316@turing-police.cc.vt.edu>
+In-Reply-To: <200406041950.i54JocXW026316@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-To: Jan De Luyck <lkml@kcore.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.6] badness when removing ipmi_si module
-References: <200405201318.17054.lkml@kcore.org>
-In-Reply-To: <200405201318.17054.lkml@kcore.org>
-Content-Type: multipart/mixed;
- boundary="------------010809050603090704070906"
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200406042348.07011.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010809050603090704070906
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-I believe the attached patch will fix this problem.  Sorry this took so 
-long, but things have been very busy.
-
-This patch tracks all proc entries for an IPMI interface and unregisters 
-them all upon removal.
-
--Corey
-
-Jan De Luyck wrote:
-
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
+On Friday 04 June 2004 22:50, Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 04 Jun 2004 22:33:41 +0300, Denis Vlasenko said:
+> > Using shell scripts instead of 'standard' init etc is
+> > way more configurable. As an example, my current setup
+> > at home:
+> >
+> > My kernel params are:
 >
->Hello List,
->
->This popped up when calling rmmod ipmi_si:
->
->Badness in remove_proc_entry at fs/proc/generic.c:685
->Call Trace:
-> [<c017e24a>] remove_proc_entry+0xfa/0x130
-> [<c8971649>] ipmi_unregister_smi+0x79/0x150 [ipmi_msghandler]
-> [<c8934a74>] cleanup_one_si+0xa4/0x100 [ipmi_si]
-> [<c0132a66>] stop_machine_run+0x16/0x1a
-> [<c8934aed>] cleanup_ipmi_si+0x1d/0x31 [ipmi_si]
-> [<c012fbb2>] sys_delete_module+0x132/0x170
-> [<c014410a>] unmap_vma_list+0x1a/0x30
-> [<c01445a7>] do_munmap+0x137/0x180
-> [<c0103edb>] syscall_call+0x7/0xb
->
->On a related note, does anyone know any implementations of ipmi-management 
->tools that work on an ipmi 1.0 machine? The ipmi-tools only work on 1.5...
->
->Thanks.
->
->Jan
->
->  
->
+> Yes. Those are *YOUR* config setup parameters, that happen to work with
+> *your* specific configuration when everything is operational. Some
+> problems:
 
+In *any* setup, kernelspace or userspace, it's typically possible
+to find some silly way to break boot sequence. Unplugging
+keyboard and removing (unneded for server) videocard are my
+favorites ;)
 
---------------010809050603090704070906
-Content-Type: text/plain;
- name="linux-ipmi-remproc.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-ipmi-remproc.diff"
+> 1) Not all the world uses initrd....
 
---- linux-v31/drivers/char/ipmi/ipmi_msghandler.c	2004-03-04 12:56:01.000000000 -0600
-+++ linux/drivers/char/ipmi/ipmi_msghandler.c	2004-06-04 15:37:59.000000000 -0500
-@@ -123,6 +123,12 @@
- 	unsigned char protocol;
- };
- 
-+struct ipmi_proc_entry
-+{
-+	char                   *name;
-+	struct ipmi_proc_entry *next;
-+};
-+
- #define IPMI_IPMB_NUM_SEQ	64
- #define IPMI_MAX_CHANNELS       8
- struct ipmi_smi
-@@ -149,6 +155,11 @@
- 	struct ipmi_smi_handlers *handlers;
- 	void                     *send_info;
- 
-+	/* A list of proc entries for this interface.  This does not
-+	   need a lock, only one thread creates it and only one thread
-+	   destroys it. */
-+	struct ipmi_proc_entry *proc_entries;
-+
- 	/* A table of sequence numbers for this interface.  We use the
-            sequence numbers for IPMB messages that go out of the
-            interface to match them up with their responses.  A routine
-@@ -1515,18 +1526,36 @@
- 			    read_proc_t *read_proc, write_proc_t *write_proc,
- 			    void *data, struct module *owner)
- {
--	struct proc_dir_entry *file;
--	int                   rv = 0;
-+	struct proc_dir_entry  *file;
-+	int                    rv = 0;
-+	struct ipmi_proc_entry *entry;
-+
-+	/* Create a list element. */
-+	entry = kmalloc(sizeof(*entry), GFP_KERNEL);
-+	if (!entry)
-+		return -ENOMEM;
-+	entry->name = kmalloc(strlen(name)+1, GFP_KERNEL);
-+	if (!entry->name) {
-+		kfree(entry);
-+		return -ENOMEM;
-+	}
-+	strcpy(entry->name, name);
- 
- 	file = create_proc_entry(name, 0, smi->proc_dir);
--	if (!file)
-+	if (!file) {
-+		kfree(entry->name);
-+		kfree(entry);
- 		rv = -ENOMEM;
--	else {
-+	} else {
- 		file->nlink = 1;
- 		file->data = data;
- 		file->read_proc = read_proc;
- 		file->write_proc = write_proc;
- 		file->owner = owner;
-+
-+		/* Stick it on the list. */
-+		entry->next = smi->proc_entries;
-+		smi->proc_entries = entry;
- 	}
- 
- 	return rv;
-@@ -1562,6 +1591,21 @@
- 	return rv;
- }
- 
-+static void remove_proc_entries(ipmi_smi_t smi)
-+{
-+	struct ipmi_proc_entry *entry;
-+
-+	while (smi->proc_entries) {
-+		entry = smi->proc_entries;
-+		smi->proc_entries = entry->next;
-+
-+		remove_proc_entry(entry->name, smi->proc_dir);
-+		kfree(entry->name);
-+		kfree(entry);
-+	}
-+	remove_proc_entry(smi->proc_dir_name, proc_ipmi_root);
-+}
-+
- static int
- send_channel_info_cmd(ipmi_smi_t intf, int chan)
- {
-@@ -1749,8 +1793,7 @@
- 
- 	if (rv) {
- 		if (new_intf->proc_dir)
--			remove_proc_entry(new_intf->proc_dir_name,
--					  proc_ipmi_root);
-+			remove_proc_entries(new_intf);
- 		kfree(new_intf);
- 	}
- 
-@@ -1806,8 +1849,7 @@
- 	{
- 		for (i=0; i<MAX_IPMI_INTERFACES; i++) {
- 			if (ipmi_interfaces[i] == intf) {
--				remove_proc_entry(intf->proc_dir_name,
--						  proc_ipmi_root);
-+				remove_proc_entries(intf);
- 				spin_lock_irqsave(&interfaces_lock, flags);
- 				ipmi_interfaces[i] = NULL;
- 				clean_up_interface_data(intf);
+I stayed away from it too, but I always knew I'll need it sooner
+or later.
 
---------------010809050603090704070906--
+> 2) I hope your /script/mount_root will Do The Right Thing if the mount
+> fails because it needs an fsck, for example.  Answering those 'y' and 'n'
+> prompts can be a problem if your keyboard isn't working yet..
+
+My init scripts are (trying to) recover from any failure.
+They ignore non-fatal error conditions.
+I'll fix your fsck example like this: make script check
+FSCK_ACTION env var for N (never do fsck), ASK (ask user
+if serious trouble), and AUTO (fix automagically without
+user). Set FSCK_ACTION as needed per box via kernel command line.
+
+Fixing/tailoring init written in C is harder (more time-consuming).
+
+Fixing/tailoring kernel bootstrap sequence is harder still.
+As an example, NFS boot. How can you force your ethernet into,
+say, 100 Mbit FDX _before_ kernel do DHCP thing via ip= kernel
+parameter?
+
+That's one of reasons why moving to userspace might be a good idea.
+
+> 3) Bonus points if you can explain how to, *without* a working keyboard, 
+> modify that /linuxrc on your initrd to deal with the situation where your
+> keyboard setup is wrong (think "booting with borrowed keyboard because your
+> usual one just suffered a carbonated caffeine overdose")...
+
+I just did that yesterday when I needed to make USB keyboard to
+work on my box, first time ever for me. I let it boot, ssh'ed in,
+and built new kernel. I could modify my initrd too, but that wasn't
+needed.
+
+> There's a *BASIC* bootstrapping problem here - if you move "initialize and
+> handle the keyboard" into userspace, you then *require* that a
+> significantly larger chunk of userspace be operational in order to be able
+> to even type at the machine.  If you're trying to recover a *broken*
+> userspace, it gets a lot harder.
+
+Bootstrapping problem exist no matter how you are bootstrapping.
+
+When something is broken, difficulty of repairs cannot be estimated
+that simple. I don't think "you are using intird -> fixing will be hard"
+always holds true.
+
+BTW, in my case, booting my box was not just hard, it was impossible.
+It had broken PS2 ports. I needed to "only" enter BIOS setup and tell
+it to ignore keyboard errors on boot, but I couldn't enter it
+without keyboard! But I digress...
+--
+vda
 

@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264395AbTK0APT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 19:15:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264400AbTK0APS
+	id S263189AbTK0AZg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 19:25:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbTK0AZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 19:15:18 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:48588 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S264395AbTK0APP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 19:15:15 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Linus Torvalds <torvalds@osdl.org>
-Date: Thu, 27 Nov 2003 11:15:10 +1100
-Message-ID: <16325.16910.697589.124844@notabene.cse.unsw.edu.au>
-MIME-Version: 1.0
+	Wed, 26 Nov 2003 19:25:36 -0500
+Received: from [63.205.85.133] ([63.205.85.133]:13295 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S263189AbTK0AZf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 19:25:35 -0500
+Date: Wed, 26 Nov 2003 16:30:17 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Fast timestamps
+Message-ID: <20031127003017.GB70073@gaz.sfgoth.com>
+References: <p73fzgbzca6.fsf@verdi.suse.de> <20031126113040.3b774360.davem@redhat.com> <3FC505F4.2010006@google.com> <20031126120316.3ee1d251.davem@redhat.com> <20031126232909.7e8a028f.ak@suse.de> <20031126143620.5229fb1f.davem@redhat.com> <20031126235641.36fd71c1.ak@suse.de> <20031126151352.160b4734.davem@redhat.com> <3FC53A40.8010904@candelatech.com> <20031126160129.32855a15.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-cc: linux-kernel@vger.kernel.org
-Subject: md/raid devices don't show up in /proc/partitions in 2.6 :-(
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <20031126160129.32855a15.davem@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David S. Miller wrote:
+> Ben Greear <greearb@candelatech.com> wrote:
+> > I'll try to write up a patch that uses the TSC and lazy conversion
+> > to timeval as soon as I get the rx-all and rx-fcs code happily
+> > into the kernel....
+> > 
+> > Assuming TSC is very fast and the conversion is accurate enough, I think
+> > this can give good results....
+> 
+> I'm amazed that you will be able to write a fast_timestamp
+> implementation without even seeing the API I had specified
+> to the various arch maintainers :-)
 
-I just noticed that md devices do not show up in /proc/partitions in
-2.6.
+Also, anyone interested in doing this should probably re-read the thread
+on netdev from a couple months back about this, since we hashed out some
+implementation details wrt SMP efficiency:
+  http://oss.sgi.com/projects/netdev/archive/2003-10/msg00032.html
 
-I realise that they don't actually have partitions and are just 'whole
-devices', but other whole devices do appear in /proc/partitions (Along
-with their partitions if any).
+Although reading this thread I'm feeling that Andi is probably right -
+are there really any apps that coudn't cope with a small inaccuracy of the
+first ioctl-fetched timestamp?  I really doubt it.  Basically there's
+two common cases:
+  1. System under reasonably network load: in this case the tcpdump (or
+     whatever) probably will get the packet soon after it arrived, so
+     the timestamp we compute for the first packet won't be very far off.
+  2. System under heavy network load: the card's hardware rx queues are
+     probably pretty full so our timestamps won't be very accurate
+     no matter what we do
 
-This seems to be a regression from 2.4 where md devices do appear in
-/proc/partitions.
+Given that the timestamp is already inexact it seems like a fine idea to
+trade a tiny amount of accuracy for a potentially significant performance
+improvement.
 
-The cause appears to be a patch from 'torvalds' some 15 months ago
-(in version 1.36 for drivers/block/genhd.c) which has the comment:
-
-      Avoid confusion "mount" and "fsck" - don't show things like
-      floppies and CD's in /proc/partitions.
-
-It excluded devices that cannot be partitioned, and devices with zero
-size from /proc/partitions.
-
-The 'zero size' possibly makes sense (2.4 excludes those), but I would
-like to register a vote against excluding devices without partitions,
-as this excluded 'md' devices and I would really like them to be
-included.
-
-
-Is there really a good reason for this?  How badly does mount get
-confused? and is that not the fault of mount?
-
-NeilBrown
+-Mitch

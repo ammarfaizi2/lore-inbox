@@ -1,87 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbTI3Ov5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 10:51:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbTI3Ov5
+	id S261542AbTI3Opr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 10:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbTI3Opq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 10:51:57 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:34515 "EHLO
-	executor.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S261549AbTI3Ovz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 10:51:55 -0400
-Subject: Re: RFC: [2.6 patch] disallow modular IPv6
-From: David Woodhouse <dwmw2@infradead.org>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: "David S. Miller" <davem@redhat.com>, bunk@fs.tum.de,
-       acme@conectiva.com.br, netdev@oss.sgi.com, pekkas@netcore.fi,
-       lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20030930142154.GA28501@thunk.org>
-References: <20030928225941.GW15338@fs.tum.de>
-	 <20030928231842.GE1039@conectiva.com.br> <20030928232403.GX15338@fs.tum.de>
-	 <20030929220916.19c9c90d.davem@redhat.com>
-	 <1064903562.6154.160.camel@imladris.demon.co.uk>
-	 <20030930000302.3e1bf8bb.davem@redhat.com>
-	 <1064907572.21551.31.camel@hades.cambridge.redhat.com>
-	 <20030930010855.095c2c35.davem@redhat.com>
-	 <1064910398.21551.41.camel@hades.cambridge.redhat.com>
-	 <20030930142154.GA28501@thunk.org>
-Content-Type: text/plain
-Message-Id: <1064933510.21551.141.camel@hades.cambridge.redhat.com>
+	Tue, 30 Sep 2003 10:45:46 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:2694 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S261542AbTI3Opo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 10:45:44 -0400
+Date: Tue, 30 Sep 2003 15:45:26 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Dave Jones <davej@redhat.com>, akpm@osdl.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, richard.brunner@amd.com
+Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata patch
+Message-ID: <20030930144526.GC28876@mail.shareable.org>
+References: <20030930073814.GA26649@mail.jlokier.co.uk> <20030930132211.GA23333@redhat.com> <20030930133936.GA28876@mail.shareable.org> <20030930135324.GC5507@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
-Date: Tue, 30 Sep 2003 15:51:50 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030930135324.GC5507@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-09-30 at 10:21 -0400, Theodore Ts'o wrote:
-> On Tue, Sep 30, 2003 at 09:26:38AM +0100, David Woodhouse wrote:
-> > > The suggestions I see do nothing to enhance the kernel tree as it currently
-> > > stands.  If you wish to prevent the kernel image from changing due to
-> > > out-of-tree modules being built, fine, but don't impose this restriction
-> > > upon in-kernel modules.
-> > 
-> > It's a matter of taste. As I said, it's your right to disagree.
-> > 
-> > Some time during 2.7 I'm sure one of the many people who agree with
-> > Adrian and myself will send patches to Linus and he'll get to arbitrate.
+Dave Jones wrote:
+> On Tue, Sep 30, 2003 at 02:39:36PM +0100, Jamie Lokier wrote:
+>  > Dave Jones wrote:
+>  > > This looks to be completely gratuitous. Why disable it when we have the
+>  > > ability to work around it ?
+>  > 
+>  > Because some people expressed a wish to have kernels that don't
+>  > contain the workaround code, be they P4-optimised or 486-optimised
+>  > kernels.
 > 
+> And those people are wrong. If they want to save bloat, instead of
+> 'fixing' things by removing <1 page of .text, how about working on
+> some of the real problems like shrinking some of the growth of various
+> data structures that actually *matter*.
+
+How about both?
+
+> The "I don't want Athlon code in my kernel because I run a P4 and
+> it makes it slow/bigger" argument is totally bogus. It's akin to
+> the gentoo-esque "I compiled my distro with -march=p4 and now
+> my /bin/ls is faster than yours" argument.
+
+I'm talking about people with embedded 486s or old 486s donated.  P4s
+are abundant in RAM, but 2MB is still not unheard of in the small
+boxes, and in 2MB, 512 bytes of code (which is about the size of the
+prefetch workaround) is more significant.  Not by itself, but by
+virtue of being yet another unnecessary, and very clearly removable
+chunk.  Diligence and all that.
+
+>  > After all we have kernels that don't contain the F00F
+>  > workaround too.  I'm not pushing this patch as is, it's for
+>  > considering the pros and cons.
 > 
-> FWIW, I agree with Dave.  
+> F00F workaround was enabled on every kernel that is possible
+> to boot on affected hardware last time I looked.
+> This is what you seem to be missing, it's not optional.
+> If its possible to boot that kernel on affected hardware, 
+> it needs errata workarounds.
 
-It would be difficult to have an opinion on the matter without agreeing
-with one of us :)
+We have a few confusing issues here.
 
->  the user may
-> have a really hard time figuring out that CONFIG_infrastructure is the
-> way to make a particular device driver appear.
+1. First, your point about affected hardware.
 
-To take your chosen example of CONFIG_NET_RADIO.... if your user cannot
-determine that in order to enable support for her WaveLAN card she must
-first enable the option marked
-"Wireless LAN drivers (non-hamradio) & Wireless Extensions"
-then I respectfully suggest that you quietly take her out back and shoot
-her.
+   I see your point, and the new "alternative" macro is allowing things
+   to develop along those lines even better: using fancier features (like
+   prefetch) but not requiring them.  Most of the x86 kernel is like that now.
+   All the stuff in arch/i386/kernel/cpu/* is mandatory.  Yet:
 
-> For that reason, I tend to prefer the approach of simply enabling a
-> device driver, and then letting that force a change in the base kernel
-> to include any necessary base infrastructure in the kernel if
-> necessary. 
+   - I don't see anything that prevents a PPro-compiled kernel from booting
+     on a P5MMX with the F00F erratum.
 
-Unlike the approach taken by your example.
+   - Nor do I see anything that prevents a PII-compiled kernel from booting
+     on a PPro with the store ordering erratum (X86_PPRO_FENCE).
 
-Note that in that particular case we'd probably have the 'guard' option
-"Wireless LAN drivers" _anyway_, even if nothing at _all_ depends upon
-it other than configuration options.
+   Those are both nasty bugs, and the latter can corrupt data on an SMP PPro.
 
-Just like we have CONFIG_NET_ETHERNET, CONFIG_NET_VENDOR_3COM,
-CONFIG_NET_ISA, CONFIG_NET_PCI and other similar options to keep the
-config sane.
+   Currently, it seems quite hypocritical to treat the AMD workaround
+   as, in effect, mandatory, while there are others which aren't.
+   Perhaps it's this apparent hypocrisy which needs healing.
 
-Such 'infrastructure' options, whether they actually make a difference
-to the resulting kernel or not, are perfectly normal, acceptable and
-understandable.
+2. I'm not sure if you're criticising the other chap who wants
+   rid of the AMD errata workaround, or my X86_PREFETCH_FIXUP code.
 
--- 
-dwmw2
+   In case you hadn't fully grokked it, my code doesn't disable the
+   workaround!  It simply substitutes it for a smaller, slightly
+   slower one, on kernels which are not optimised for AMD.  Those
+   kernels continue to work just fine on AMD processors.
 
+   Given that, I'm not sure what the thrust of your argument is.
+
+>  > CONFIG_X86_PREFETCH_WORKAROUND makes more makes more sense with the
+>  > recently available "split every x86 CPU into individually selectable
+>  > options" patch, and, on reflection, that's probably where it belongs.
+> 
+> Said patch isn't included in mainline, so this argument is bogus.
+> Relative merits of that patch were already discussed in another thread.
+
+That wasn't an argument and the patch from me isn't in the mainline
+either, but anyway I agree that topic has its own thread.  Let's
+please leave it out of this one and focus on the merits, or otherwise,
+of my patch and Andi's.
+
+-- Jamie

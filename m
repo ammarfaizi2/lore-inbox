@@ -1,80 +1,1581 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129485AbQLPKCR>; Sat, 16 Dec 2000 05:02:17 -0500
+	id <S129716AbQLPKDQ>; Sat, 16 Dec 2000 05:03:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129716AbQLPKCH>; Sat, 16 Dec 2000 05:02:07 -0500
-Received: from 165-LASP-X3.red.retevision.es ([62.174.193.165]:50816 "HELO
-	jaya.dyndns.org") by vger.kernel.org with SMTP id <S129485AbQLPKBz>;
-	Sat, 16 Dec 2000 05:01:55 -0500
-Date: Sat, 16 Dec 2000 09:27:48 +0000
-From: linuxx <linuxx@eresmas.net>
-To: bfennma@users.sourceforge.net
-Cc: torvalds@transmeta.com
-Subject: udf and kernel
-Message-ID: <20001216092748.A428@eresmas.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S131224AbQLPKDG>; Sat, 16 Dec 2000 05:03:06 -0500
+Received: from c252.h203149202.is.net.tw ([203.149.202.252]:35989 "EHLO
+	mail.tahsda.org.tw") by vger.kernel.org with ESMTP
+	id <S129716AbQLPKCu>; Sat, 16 Dec 2000 05:02:50 -0500
+Message-ID: <3A3B3654.6882D5A5@teatime.com.tw>
+Date: Sat, 16 Dec 2000 17:31:00 +0800
+From: Tommy Wu <tommy@teatime.com.tw>
+Reply-To: tommy@teatime.com.tw
+Organization: TeaTime Development
+X-Mailer: Mozilla 4.76 [zh] (Windows NT 5.0; U)
+X-Accept-Language: en,zh,zh-TW,zh-CN
+MIME-Version: 1.0
+To: Andrew Morton <andrewm@uow.edu.au>
+CC: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: bug: kernel timer added twice ad 000000000110052c.
+In-Reply-To: <3A3A0D9A.426A2FB0@teatime.com.tw> <20001215163747.F829@nightmaster.csn.tu-chemnitz.de> <3A3A3472.33349B51@teatime.com.tw> <3A3AAE0B.77DD7492@uow.edu.au>
+Content-Type: multipart/mixed;
+ boundary="------------4DEF69DD13626ADDF19250D7"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+這是一封 MIME 格式的多部份信件。
+--------------4DEF69DD13626ADDF19250D7
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 8bit
 
---pWyiEgJYm5f9v55/
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Andrew Morton 寫道:
+> 
+> Seems somehow SPARC-specific.  I suggest that you add a BUG() st the end of kernel/timer.c:add_timer().  Then run the outut through ksymoops. Them
+> report it on the kernel list.
+> 
+>   bug:
+>           spin_unlock_irqrestore(&timerlist_lock, flags);
+>           printk("bug: kernel timer added twice at %p.\n",
+>                           __builtin_return_address(0));
+> +         BUG();
+>   }
+> 
+>   static inline int detach_timer (struct timer_list *timer)
 
-I like to Know why linus torvals have a kernel 2.4.0-test12 that think have=
-nt any bug and have a udf 0.9.1 version in it
-that have an error in the read of DVD. Especially when this error is resolv=
-ed in udf 0.9.2.1 .But patch for udf=20
-is only for kernel 2.2 and 2.3 ....a long time ago .. Im not a kernel hacke=
-r but  need the 2.4 for diferents reason
-and i cant see DVD in linux for this bug.Can you tell me if you are going t=
-o migrate the current patch 0.9.2.1 to kernel 2.4
-or notificated linus torvalds with this bug to linus upgrade .... It not ni=
-ce have a stable and nice kernel with a bug .
-specially when this bug is resolved
---=20
+  here is my ksymoops log.
 
-Lee y algo aprenderas:
+-- 
 
-#----------------------------------------------------------------------
-640 K seran suficientes para todos! (Guillermo Puertas)
-#----------------------------------------------------------------------
+    Tommy Wu
+    mailto:tommy@teatime.com.tw
+    http://www.teatime.com.tw/~tommy
+    ICQ: 22766091
+    Mobile Phone: +886 936 909490
+    TeaTime BBS +886 2 31515964 24Hrs V.Everything
+--------------4DEF69DD13626ADDF19250D7
+Content-Type: text/plain; charset=big5;
+ name="20001216172207.ksyms"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="20001216172207.ksyms"
+
+000000000112a0c0 __insmod_ipt_state_S.text_L256	[ipt_state]
+000000000112a000 __insmod_ipt_state_O/lib/modules/2.4.0-test12/kernel/net/ipv4/netfilter/ipt_state.o_M3A3B3368_V132096	[ipt_state]
+000000000112a1c0 __insmod_ipt_state_S.data_L80	[ipt_state]
+00000000011260c0 __insmod_ipt_REJECT_S.text_L1944	[ipt_REJECT]
+0000000001126858 __insmod_ipt_REJECT_S.rodata_L103	[ipt_REJECT]
+0000000001126000 __insmod_ipt_REJECT_O/lib/modules/2.4.0-test12/kernel/net/ipv4/netfilter/ipt_REJECT.o_M3A3B3368_V132096	[ipt_REJECT]
+00000000011268c0 __insmod_ipt_REJECT_S.data_L80	[ipt_REJECT]
+0000000001122000 __insmod_ipt_REDIRECT_O/lib/modules/2.4.0-test12/kernel/net/ipv4/netfilter/ipt_REDIRECT.o_M3A3B3368_V132096	[ipt_REDIRECT]
+0000000001122220 __insmod_ipt_REDIRECT_S.data_L80	[ipt_REDIRECT]
+00000000011220c0 __insmod_ipt_REDIRECT_S.text_L344	[ipt_REDIRECT]
+0000000001122218 __insmod_ipt_REDIRECT_S.rodata_L4	[ipt_REDIRECT]
+000000000111e000 __insmod_ipt_MASQUERADE_O/lib/modules/2.4.0-test12/kernel/net/ipv4/netfilter/ipt_MASQUERADE.o_M3A3B3368_V132096	[ipt_MASQUERADE]
+000000000111e3a8 __insmod_ipt_MASQUERADE_S.data_L112	[ipt_MASQUERADE]
+000000000111e370 __insmod_ipt_MASQUERADE_S.rodata_L52	[ipt_MASQUERADE]
+000000000111e0c0 __insmod_ipt_MASQUERADE_S.text_L688	[ipt_MASQUERADE]
+000000000111e280 masq_device_event	[ipt_MASQUERADE]
+000000000111a000 __insmod_ip_nat_ftp_O/lib/modules/2.4.0-test12/kernel/net/ipv4/netfilter/ip_nat_ftp.o_M3A3B3368_V132096	[ip_nat_ftp]
+000000000111a0c0 __insmod_ip_nat_ftp_S.text_L2564	[ip_nat_ftp]
+000000000111aac8 __insmod_ip_nat_ftp_S.rodata_L204	[ip_nat_ftp]
+000000000111ab98 __insmod_ip_nat_ftp_S.data_L88	[ip_nat_ftp]
+00000000011160c0 __insmod_iptable_filter_S.text_L492	[iptable_filter]
+00000000011162b0 __insmod_iptable_filter_S.rodata_L65	[iptable_filter]
+00000000011162f8 __insmod_iptable_filter_S.data_L924	[iptable_filter]
+0000000001116000 __insmod_iptable_filter_O/lib/modules/2.4.0-test12/kernel/net/ipv4/netfilter/iptable_filter.o_M3A3B3368_V132096	[iptable_filter]
+00000000011114a0 ip_nat_setup_info	[iptable_nat]
+0000000001111ca0 ip_nat_helper_register	[iptable_nat]
+0000000001111e20 ip_nat_helper_unregister	[iptable_nat]
+0000000001110a80 ip_nat_expect_register	[iptable_nat]
+0000000001110ae0 ip_nat_expect_unregister	[iptable_nat]
+0000000001110c40 ip_nat_cheat_check	[iptable_nat]
+0000000001110000 __insmod_iptable_nat_O/lib/modules/2.4.0-test12/kernel/net/ipv4/netfilter/iptable_nat.o_M3A3B3368_V132096	[iptable_nat]
+00000000011100c0 __insmod_iptable_nat_S.text_L10188	[iptable_nat]
+0000000001112890 __insmod_iptable_nat_S.rodata_L581	[iptable_nat]
+0000000001112d28 __insmod_iptable_nat_S.data_L1472	[iptable_nat]
+00000000011132e8 __insmod_iptable_nat_S.bss_L2064	[iptable_nat]
+000000000110bfa0 ipt_register_table_R9f2a6c43	[ip_tables]
+000000000110c1c0 ipt_unregister_table_R08a7885a	[ip_tables]
+000000000110bdc0 ipt_register_match_R958b2852	[ip_tables]
+000000000110bf00 ipt_unregister_match_Rc129b29f	[ip_tables]
+000000000110a100 ipt_do_table_Rde0e8155	[ip_tables]
+000000000110bbe0 ipt_register_target_Rf677532a	[ip_tables]
+000000000110bd20 ipt_unregister_target_Rd9f5b8ab	[ip_tables]
+000000000110a000 __insmod_ip_tables_O/lib/modules/2.4.0-test12/kernel/net/ipv4/netfilter/ip_tables.o_M3A3B3368_V132096	[ip_tables]
+000000000110a0c0 __insmod_ip_tables_S.text_L12008	[ip_tables]
+000000000110cfa8 __insmod_ip_tables_S.rodata_L176	[ip_tables]
+000000000110d2c0 __insmod_ip_tables_S.data_L664	[ip_tables]
+0000000001106828 ip_ftp_lock_R0a75f158	[ip_conntrack_ftp]
+0000000001106830 ip_conntrack_ftp_Rc5880ac0	[ip_conntrack_ftp]
+0000000001106000 __insmod_ip_conntrack_ftp_O/lib/modules/2.4.0-test12/kernel/net/ipv4/netfilter/ip_conntrack_ftp.o_M3A3B3368_V132096	[ip_conntrack_ftp]
+00000000011060c0 __insmod_ip_conntrack_ftp_S.text_L1336	[ip_conntrack_ftp]
+00000000011065f8 __insmod_ip_conntrack_ftp_S.rodata_L158	[ip_conntrack_ftp]
+0000000001106828 __insmod_ip_conntrack_ftp_S.data_L120	[ip_conntrack_ftp]
+0000000001102d40 ip_conntrack_protocol_register_R24cb1d36	[ip_conntrack]
+00000000011011c0 invert_tuplepr_R5e68d8a9	[ip_conntrack]
+0000000001101460 ip_conntrack_alter_reply_R7c18f4ee	[ip_conntrack]
+00000000011035c0 ip_conntrack_destroyed_Rb04d8528	[ip_conntrack]
+0000000001101e80 ip_conntrack_get_R4f548593	[ip_conntrack]
+0000000001103bf8 ip_conntrack_module_R17ee4911	[ip_conntrack]
+0000000001101620 ip_conntrack_helper_register_Rb300f62f	[ip_conntrack]
+00000000011016a0 ip_conntrack_helper_unregister_Reca398b0	[ip_conntrack]
+00000000011019e0 ip_ct_selective_cleanup_R60b3ebfa	[ip_conntrack]
+00000000011017a0 ip_ct_refresh_R5511b910	[ip_conntrack]
+0000000001101220 ip_conntrack_expect_related_R4b6194c8	[ip_conntrack]
+0000000001100560 ip_conntrack_tuple_taken_R313beb58	[ip_conntrack]
+0000000001101820 ip_ct_gather_frags_R87e544ac	[ip_conntrack]
+0000000001100000 __insmod_ip_conntrack_O/lib/modules/2.4.0-test12/kernel/net/ipv4/netfilter/ip_conntrack.o_M3A3B3368_V132096	[ip_conntrack]
+00000000011000c0 __insmod_ip_conntrack_S.text_L11636	[ip_conntrack]
+0000000001102e38 __insmod_ip_conntrack_S.rodata_L877	[ip_conntrack]
+00000000011035b8 __insmod_ip_conntrack_S.data_L1768	[ip_conntrack]
+0000000001103ca0 __insmod_ip_conntrack_S.bss_L24	[ip_conntrack]
+00000000010fc5d8 __insmod_netlink_dev_S.data_L128	[netlink_dev]
+00000000010fc0c0 __insmod_netlink_dev_S.text_L1116	[netlink_dev]
+00000000010fc760 __insmod_netlink_dev_S.bss_L272	[netlink_dev]
+00000000010fc520 __insmod_netlink_dev_S.rodata_L179	[netlink_dev]
+00000000010fc400 init_netlink	[netlink_dev]
+00000000010fc000 __insmod_netlink_dev_O/lib/modules/2.4.0-test12/kernel/net/netlink/netlink_dev.o_M3A3B3369_V132096	[netlink_dev]
+00000000010f7e08 ConnectCount	[khttpd]
+00000000010f4760 StartSysctl	[khttpd]
+00000000010f4ee0 StopWaitingForHeaders	[khttpd]
+00000000010f3780 SendHTTPHeader	[khttpd]
+00000000010f2980 khttpd_cleanup	[khttpd]
+00000000010f62c4 sysctl_khttpd_start	[khttpd]
+00000000010f7e04 CurrentTime_i	[khttpd]
+00000000010f4620 StartListening	[khttpd]
+00000000010f62d0 sysctl_khttpd_permreq	[khttpd]
+00000000010f38a0 ParseHeader	[khttpd]
+00000000010f35a0 Send50x	[khttpd]
+00000000010f5100 InitWaitHeaders	[khttpd]
+00000000010f62c0 sysctl_khttpd_stop	[khttpd]
+00000000010f4dc0 InitUserspace	[khttpd]
+00000000010f27c0 khttpd_init	[khttpd]
+00000000010f31c0 StopDataSending	[khttpd]
+00000000010f3f80 UpdateCurrentDate	[khttpd]
+00000000010f62dc sysctl_khttpd_serverport	[khttpd]
+00000000010f4580 GetSecureString	[khttpd]
+00000000010f2b80 DataSending	[khttpd]
+00000000010f3120 InitDataSending	[khttpd]
+00000000010f62d8 sysctl_khttpd_logging	[khttpd]
+00000000010f3240 Logging	[khttpd]
+00000000010f3560 Send304	[khttpd]
+00000000010f20c0 __insmod_khttpd_S.text_L12512	[khttpd]
+00000000010f61f0 MainSocket	[khttpd]
+00000000010f7e10 CurrentTime	[khttpd]
+00000000010f34a0 SendBuffer_async	[khttpd]
+00000000010f62e4 sysctl_khttpd_threads	[khttpd]
+00000000010f7e00 DaemonCount	[khttpd]
+00000000010f62cc sysctl_khttpd_clientport	[khttpd]
+00000000010f2000 __insmod_khttpd_O/lib/modules/2.4.0-test12/kernel/net/khttpd/khttpd.o_M3A3B3368_V132096	[khttpd]
+00000000010f51b8 __insmod_khttpd_S.rodata_L1822	[khttpd]
+00000000010f32a0 StopLogging	[khttpd]
+00000000010f4320 OpenFileForSecurity	[khttpd]
+00000000010f6ce8 __insmod_khttpd_S.bss_L5424	[khttpd]
+00000000010f4a40 StopUserspace	[khttpd]
+00000000010f62c8 sysctl_khttpd_unload	[khttpd]
+00000000010f62e0 sysctl_khttpd_sloppymime	[khttpd]
+00000000010f62d4 sysctl_khttpd_permforbid	[khttpd]
+00000000010f3c60 time_Unix2RFC	[khttpd]
+00000000010f36a0 ResolveMimeType	[khttpd]
+00000000010f3fc0 mimeTime_to_UnixTime	[khttpd]
+00000000010f7f18 threadinfo	[khttpd]
+00000000010f3420 SendBuffer	[khttpd]
+00000000010f35e0 AddMimeType	[khttpd]
+00000000010f3520 Send403	[khttpd]
+00000000010f4de0 WaitForHeaders	[khttpd]
+00000000010f33a0 CleanUpRequest	[khttpd]
+00000000010f4980 Userspace	[khttpd]
+00000000010f61f8 sysctl_khttpd_docroot	[khttpd]
+00000000010f7e50 sysctl_khttpd_dynamicstring	[khttpd]
+00000000010f4720 StopListening	[khttpd]
+00000000010f29a0 AcceptConnections	[khttpd]
+00000000010f62e8 sysctl_khttpd_maxconnect	[khttpd]
+00000000010f58e8 __insmod_khttpd_S.data_L4048	[khttpd]
+00000000010f47a0 EndSysctl	[khttpd]
+00000000010f4520 AddDynamicString	[khttpd]
+00000000010ee0c0 __insmod_ipip_S.text_L5604	[ipip]
+00000000010ee720 ipip_rcv	[ipip]
+00000000010ee640 ipip_err	[ipip]
+00000000010ee000 __insmod_ipip_O/lib/modules/2.4.0-test12/kernel/net/ipv4/ipip.o_M3A3B3367_V132096	[ipip]
+00000000010ef708 __insmod_ipip_S.data_L888	[ipip]
+00000000010efb68 __insmod_ipip_S.bss_L392	[ipip]
+00000000010ee360 ipip_tunnel_locate	[ipip]
+00000000010ef6a8 __insmod_ipip_S.rodata_L94	[ipip]
+00000000010e86c0 ipgre_err	[ip_gre]
+00000000010e8840 ipgre_rcv	[ip_gre]
+00000000010e9e68 __insmod_ip_gre_S.rodata_L95	[ip_gre]
+00000000010ea308 __insmod_ip_gre_S.bss_L512	[ip_gre]
+00000000010e8000 __insmod_ip_gre_O/lib/modules/2.4.0-test12/kernel/net/ipv4/ip_gre.o_M3A3B3367_V132096	[ip_gre]
+00000000010e80c0 __insmod_ip_gre_S.text_L7588	[ip_gre]
+00000000010e9ec8 __insmod_ip_gre_S.data_L856	[ip_gre]
+00000000010e4220 vfat_create_Rf9f3ef1a	[vfat]
+00000000010e4540 vfat_unlink_R9c1c78ab	[vfat]
+00000000010e45e0 vfat_mkdir_R7c757fc0	[vfat]
+00000000010e4460 vfat_rmdir_Rc8fcf381	[vfat]
+00000000010e4760 vfat_rename_R6fe11f1f	[vfat]
+00000000010e4a40 vfat_read_super_R97c566ba	[vfat]
+00000000010e40e0 vfat_lookup_R6622ba36	[vfat]
+00000000010e2000 __insmod_vfat_O/lib/modules/2.4.0-test12/kernel/fs/vfat/vfat.o_M3A3B3367_V132096	[vfat]
+00000000010e20c0 __insmod_vfat_S.text_L10808	[vfat]
+00000000010e4af8 __insmod_vfat_S.rodata_L518	[vfat]
+00000000010e4f08 __insmod_vfat_S.data_L600	[vfat]
+00000000010ce000 __insmod_ufs_O/lib/modules/2.4.0-test12/kernel/fs/ufs/ufs.o_M3A3B3367_V132096	[ufs]
+00000000010ce0c0 __insmod_ufs_S.text_L65404	[ufs]
+00000000010de040 __insmod_ufs_S.rodata_L3404	[ufs]
+00000000010ded90 __insmod_ufs_S.data_L1328	[ufs]
+00000000010df380 __insmod_ufs_S.bss_L1024	[ufs]
+00000000010c2000 __insmod_smbfs_O/lib/modules/2.4.0-test12/kernel/fs/smbfs/smbfs.o_M3A3B3367_V132096	[smbfs]
+00000000010c20c0 __insmod_smbfs_S.text_L34500	[smbfs]
+00000000010ca798 __insmod_smbfs_S.rodata_L4226	[smbfs]
+00000000010cb830 __insmod_smbfs_S.data_L1264	[smbfs]
+00000000010bc000 __insmod_openpromfs_O/lib/modules/2.4.0-test12/kernel/fs/openpromfs/openpromfs.o_M3A3B3366_V132096	[openpromfs]
+00000000010bc0c0 __insmod_openpromfs_S.text_L10176	[openpromfs]
+00000000010be8e0 __insmod_openpromfs_S.rodata_L388	[openpromfs]
+00000000010beab8 __insmod_openpromfs_S.data_L792	[openpromfs]
+00000000010beec8 __insmod_openpromfs_S.bss_L512	[openpromfs]
+00000000010b81b8 __insmod_nls_iso8859-1_S.rodata_L10	[nls_iso8859-1]
+00000000010b81c8 __insmod_nls_iso8859-1_S.data_L3384	[nls_iso8859-1]
+00000000010b80c0 __insmod_nls_iso8859-1_S.text_L248	[nls_iso8859-1]
+00000000010b8000 __insmod_nls_iso8859-1_O/lib/modules/2.4.0-test12/kernel/fs/nls/nls_iso8859-1.o_M3A3B3366_V132096	[nls_iso8859-1]
+000000000109c260 __insmod_nls_cp950_S.data_L99896	[nls_cp950]
+000000000109c0c0 __insmod_nls_cp950_S.text_L408	[nls_cp950]
+000000000109c258 __insmod_nls_cp950_S.rodata_L6	[nls_cp950]
+000000000109c000 __insmod_nls_cp950_O/lib/modules/2.4.0-test12/kernel/fs/nls/nls_cp950.o_M3A3B3366_V132096	[nls_cp950]
+00000000010981c0 __insmod_nls_cp437_S.data_L4920	[nls_cp437]
+00000000010981b8 __insmod_nls_cp437_S.rodata_L6	[nls_cp437]
+00000000010980c0 __insmod_nls_cp437_S.text_L248	[nls_cp437]
+0000000001098000 __insmod_nls_cp437_O/lib/modules/2.4.0-test12/kernel/fs/nls/nls_cp437.o_M3A3B3366_V132096	[nls_cp437]
+0000000001084000 __insmod_nfsd_O/lib/modules/2.4.0-test12/kernel/fs/nfsd/nfsd.o_M3A3B3366_V132096	[nfsd]
+00000000010840c0 __insmod_nfsd_S.text_L59424	[nfsd]
+00000000010928e0 __insmod_nfsd_S.rodata_L8729	[nfsd]
+0000000001094b00 __insmod_nfsd_S.data_L3008	[nfsd]
+0000000001095788 __insmod_nfsd_S.bss_L1840	[nfsd]
+0000000001070000 __insmod_nfs_O/lib/modules/2.4.0-test12/kernel/fs/nfs/nfs.o_M3A3B3366_V132096	[nfs]
+00000000010700c0 __insmod_nfs_S.text_L60744	[nfs]
+000000000107ee08 __insmod_nfs_S.rodata_L8562	[nfs]
+0000000001080f80 __insmod_nfs_S.data_L3016	[nfs]
+0000000001081c08 __insmod_nfs_S.bss_L56	[nfs]
+0000000001062340 lockd_up_Rf6933c48	[lockd]
+00000000010624e0 lockd_down_Ra7b91a7b	[lockd]
+00000000010605a0 nlmclnt_proc_R7a4a7908	[lockd]
+00000000010651c0 nlmsvc_invalidate_client_Rb1c3f825	[lockd]
+000000000106cdb8 nlmsvc_ops_Ra12ceeac	[lockd]
+000000000106cdc0 nlmsvc_grace_period_Rf6177768	[lockd]
+000000000106cdc8 nlmsvc_timeout_R44b40505	[lockd]
+0000000001060000 __insmod_lockd_O/lib/modules/2.4.0-test12/kernel/fs/lockd/lockd.o_M3A3B3366_V132096	[lockd]
+00000000010600c0 __insmod_lockd_S.text_L35036	[lockd]
+00000000010689a0 __insmod_lockd_S.rodata_L10425	[lockd]
+000000000106b4b0 __insmod_lockd_S.data_L4672	[lockd]
+000000000106c6f0 __insmod_lockd_S.bss_L1768	[lockd]
+00000000010515c0 rpc_allocate_R0cd1c989	[sunrpc]
+00000000010516c0 rpc_free_Rf9d1164c	[sunrpc]
+00000000010513a0 rpc_execute_Rbaa98ea7	[sunrpc]
+00000000010526c0 rpc_init_task_R36597474	[sunrpc]
+0000000001050920 rpc_sleep_on_R31dac3f3	[sunrpc]
+0000000001050de0 rpc_wake_up_next_Rbef1fa55	[sunrpc]
+0000000001050d80 rpc_wake_up_task_R61002f80	[sunrpc]
+0000000001051ba0 rpc_new_child_Rc9ca453b	[sunrpc]
+0000000001051c00 rpc_run_child_Rcdc3d82b	[sunrpc]
+00000000010523e0 rpciod_down_Rbabf0f35	[sunrpc]
+0000000001052260 rpciod_up_R375492a4	[sunrpc]
+0000000001051740 rpc_new_task_R49f8b60f	[sunrpc]
+0000000001050ec0 rpc_wake_up_status_R965a1a5e	[sunrpc]
+000000000104c1c0 rpc_create_client_Rf6dea265	[sunrpc]
+000000000104c420 rpc_destroy_client_R9171e102	[sunrpc]
+000000000104c360 rpc_shutdown_client_Raae17955	[sunrpc]
+0000000001051e20 rpc_killall_tasks_R3622c135	[sunrpc]
+000000000104c600 rpc_call_sync_R7ab21a75	[sunrpc]
+000000000104c6c0 rpc_call_async_R95607929	[sunrpc]
+000000000104c780 rpc_call_setup_R31a447d0	[sunrpc]
+000000000104c540 rpc_clnt_sigmask_R45bbdbf4	[sunrpc]
+000000000104c5c0 rpc_clnt_sigunmask_Ra7aff0ad	[sunrpc]
+0000000001050fe0 rpc_delay_R0ea17f27	[sunrpc]
+000000000104c820 rpc_restart_call_R1332bee8	[sunrpc]
+0000000001050180 xprt_create_proto_R3dd69168	[sunrpc]
+00000000010502e0 xprt_destroy_Rb768c3cc	[sunrpc]
+000000000104fca0 xprt_set_timeout_R64e486c2	[sunrpc]
+00000000010528e0 rpcauth_register_Raf8cc765	[sunrpc]
+0000000001052940 rpcauth_unregister_R5a49ff00	[sunrpc]
+0000000001052a20 rpcauth_init_credcache_Re772a2aa	[sunrpc]
+0000000001052a60 rpcauth_free_credcache_R122961f4	[sunrpc]
+0000000001052c00 rpcauth_insert_credcache_R3e127abc	[sunrpc]
+0000000001052d80 rpcauth_lookupcred_Rb2c0b87a	[sunrpc]
+0000000001052dc0 rpcauth_bindcred_R011cdb79	[sunrpc]
+0000000001052e40 rpcauth_matchcred_R96cc97ef	[sunrpc]
+0000000001052f20 rpcauth_releasecred_Raf602ed3	[sunrpc]
+00000000010539e0 svc_create_Rf2709045	[sunrpc]
+0000000001053ba0 svc_create_thread_R7d18fec6	[sunrpc]
+0000000001053c80 svc_exit_thread_R44676470	[sunrpc]
+0000000001053a80 svc_destroy_R832b7205	[sunrpc]
+0000000001055c20 svc_drop_R4f4d2b11	[sunrpc]
+0000000001053e00 svc_process_R47b42f36	[sunrpc]
+0000000001055760 svc_recv_R387488f8	[sunrpc]
+0000000001054540 svc_wake_up_R5e5e95c1	[sunrpc]
+00000000010562a0 svc_makesock_Rd063e080	[sunrpc]
+00000000010572a0 rpc_proc_register_Ra49af4b7	[sunrpc]
+0000000001057320 rpc_proc_unregister_R5bd26000	[sunrpc]
+0000000001056fc0 rpc_proc_read_R8e20de34	[sunrpc]
+0000000001057340 svc_proc_register_R37f9bce5	[sunrpc]
+00000000010573c0 svc_proc_unregister_R12e280e3	[sunrpc]
+0000000001057120 svc_proc_read_R866b52d3	[sunrpc]
+0000000001056da0 xdr_encode_array_R716530af	[sunrpc]
+0000000001056de0 xdr_encode_string_Rabc0fe0c	[sunrpc]
+0000000001056e20 xdr_decode_string_R6755aa62	[sunrpc]
+0000000001056d40 xdr_decode_netobj_R1be57115	[sunrpc]
+0000000001056c80 xdr_encode_netobj_R29c6f164	[sunrpc]
+000000000105d610 xdr_zero_R56773c08	[sunrpc]
+000000000105d620 xdr_one_R43e0cbe8	[sunrpc]
+000000000105d63c xdr_two_R2de06b03	[sunrpc]
+0000000001056ea0 xdr_shift_iovec_R949d12a5	[sunrpc]
+0000000001056f40 xdr_zero_iovec_Rbdd59bef	[sunrpc]
+000000000105d634 rpc_success_Rc05e6f43	[sunrpc]
+000000000105d630 rpc_garbage_args_Ra0111550	[sunrpc]
+000000000105d638 rpc_system_err_Rc39cf57e	[sunrpc]
+000000000105d614 rpc_debug_R31a89d59	[sunrpc]
+000000000105d608 nfs_debug_Raf5bf6ef	[sunrpc]
+000000000105d5fc nfsd_debug_Rbf9d1b96	[sunrpc]
+000000000105d60c nlm_debug_R53445f68	[sunrpc]
+000000000104c000 __insmod_sunrpc_O/lib/modules/2.4.0-test12/kernel/net/sunrpc/sunrpc.o_M3A3B3369_V132096	[sunrpc]
+000000000104c0c0 __insmod_sunrpc_S.text_L46868	[sunrpc]
+00000000010577e8 __insmod_sunrpc_S.rodata_L11063	[sunrpc]
+000000000105b040 __insmod_sunrpc_S.data_L1304	[sunrpc]
+000000000105b558 __insmod_sunrpc_S.bss_L8428	[sunrpc]
+0000000001044000 __insmod_isofs_O/lib/modules/2.4.0-test12/kernel/fs/isofs/isofs.o_M3A3B3365_V132096	[isofs]
+00000000010440c0 __insmod_isofs_S.text_L16244	[isofs]
+0000000001048038 __insmod_isofs_S.rodata_L2030	[isofs]
+0000000001048828 __insmod_isofs_S.data_L672	[isofs]
+000000000103a7a0 fat_new_dir_R6bf8ab3b	[fat]
+000000000103a980 fat_get_block_R88e02303	[fat]
+000000000103ae20 fat_clear_inode_R02438bcf	[fat]
+000000000103d900 fat_date_unix2dos_R83fb36a1	[fat]
+000000000103ae00 fat_delete_inode_R3fe661df	[fat]
+000000000103db00 fat__get_entry_R85b7a98a	[fat]
+0000000001038160 fat_mark_buffer_dirty_R2c9a92ab	[fat]
+000000000103ccc0 fat_notify_change_Rd7e64f9b	[fat]
+000000000103e060 fat_parent_ino_R63dfd4c9	[fat]
+000000000103ae60 fat_put_super_Rc0ffba35	[fat]
+000000000103ac20 fat_attach_R8b9cd929	[fat]
+000000000103ac80 fat_detach_Rb6485beb	[fat]
+000000000103ad60 fat_build_inode_R2c3e33cb	[fat]
+000000000103b8a0 fat_read_super_R61c98785	[fat]
+00000000010390e0 fat_search_long_Rea67c840	[fat]
+000000000103a120 fat_readdir_Rd502d4d2	[fat]
+000000000103e280 fat_scan_R4d935957	[fat]
+000000000103c3e0 fat_statfs_R3d293730	[fat]
+000000000103ca80 fat_write_inode_R558004df	[fat]
+000000000103e380 register_cvf_format_R405a4529	[fat]
+000000000103e460 unregister_cvf_format_R41a5d33b	[fat]
+0000000001038c40 fat_get_cluster_R0c4f2342	[fat]
+000000000103a2e0 fat_dir_ioctl_R7021f7f1	[fat]
+000000000103a5e0 fat_add_entries_R6cd2dcb4	[fat]
+000000000103a3c0 fat_dir_empty_Rc34496ac	[fat]
+000000000103ab20 fat_truncate_R19536be8	[fat]
+0000000001038120 fat_brelse_Re58bee44	[fat]
+0000000001038000 __insmod_fat_O/lib/modules/2.4.0-test12/kernel/fs/fat/fat.o_M3A3B3365_V132096	[fat]
+00000000010380c0 __insmod_fat_S.text_L26184	[fat]
+000000000103e778 __insmod_fat_S.rodata_L2331	[fat]
+000000000103f6c0 __insmod_fat_S.data_L1392	[fat]
+000000000103fc30 __insmod_fat_S.bss_L4336	[fat]
+00000000010331a0 is_autofs4_dentry	[autofs4]
+0000000001032540 autofs4_read_super	[autofs4]
+0000000001033e20 autofs4_expire_multi	[autofs4]
+0000000001034068 __insmod_autofs4_S.data_L868	[autofs4]
+0000000001033720 autofs4_wait	[autofs4]
+00000000010320c0 __insmod_autofs4_S.text_L7648	[autofs4]
+00000000010340e8 autofs4_root_operations	[autofs4]
+00000000010321e0 autofs4_free_ino	[autofs4]
+0000000001032140 autofs4_init_ino	[autofs4]
+0000000001032740 autofs4_get_inode	[autofs4]
+0000000001032000 __insmod_autofs4_O/lib/modules/2.4.0-test12/kernel/fs/autofs4/autofs4.o_M3A3B3365_V132096	[autofs4]
+0000000001033500 autofs4_catatonic_mode	[autofs4]
+0000000001034268 autofs4_dir_inode_operations	[autofs4]
+0000000001034168 autofs4_dir_operations	[autofs4]
+00000000010341e8 autofs4_root_inode_operations	[autofs4]
+0000000001033d80 autofs4_expire_run	[autofs4]
+0000000001033960 autofs4_wait_release	[autofs4]
+0000000001033ec8 __insmod_autofs4_S.rodata_L380	[autofs4]
+0000000001034348 autofs4_symlink_inode_operations	[autofs4]
+000000000102e000 __insmod_binfmt_misc_O/lib/modules/2.4.0-test12/kernel/fs/binfmt_misc.o_M3A3B3365_V132096	[binfmt_misc]
+000000000102e0c0 __insmod_binfmt_misc_S.text_L3348	[binfmt_misc]
+000000000102edd8 __insmod_binfmt_misc_S.rodata_L193	[binfmt_misc]
+000000000102eea0 __insmod_binfmt_misc_S.data_L60	[binfmt_misc]
+000000000102efc8 __insmod_binfmt_misc_S.bss_L16	[binfmt_misc]
+000000000102b2a0 __insmod_lp_S.rodata_L408	[lp]
+000000000102a0c0 __insmod_lp_S.text_L4576	[lp]
+000000000102b5e0 __insmod_lp_S.bss_L424	[lp]
+000000000102b5f0 lp_table	[lp]
+000000000102b438 __insmod_lp_S.data_L224	[lp]
+000000000102a000 __insmod_lp_O/lib/modules/2.4.0-test12/kernel/drivers/char/lp.o_M3A3B3362_V132096	[lp]
+000000000102ae00 lp_init	[lp]
+0000000001020000 __insmod_parport_pc_O/lib/modules/2.4.0-test12/kernel/drivers/parport/parport_pc.o_M3A3B3363_V132096	[parport_pc]
+00000000010200c0 __insmod_parport_pc_S.text_L18584	[parport_pc]
+0000000001024958 __insmod_parport_pc_S.rodata_L3899	[parport_pc]
+0000000001025898 __insmod_parport_pc_S.data_L4064	[parport_pc]
+0000000001026970 __insmod_parport_pc_S.bss_L64	[parport_pc]
+0000000001016c80 parport_claim_Rd5803f87	[parport]
+0000000001016e60 parport_claim_or_block_Rb87d26dd	[parport]
+0000000001016ec0 parport_release_R46d2a0e2	[parport]
+00000000010165e0 parport_register_port_R9dfe1ee9	[parport]
+00000000010167a0 parport_announce_port_Rbe0dcfd2	[parport]
+0000000001016860 parport_unregister_port_R0b7cdb6e	[parport]
+0000000001016300 parport_register_driver_R6e185516	[parport]
+0000000001016400 parport_unregister_driver_R69283a27	[parport]
+0000000001016900 parport_register_device_R1644c780	[parport]
+0000000001016b40 parport_unregister_device_R5eb88a2b	[parport]
+00000000010165a0 parport_enumerate_R3130b75c	[parport]
+0000000001016540 parport_get_port_R969bf795	[parport]
+0000000001016560 parport_put_port_R49cd45ce	[parport]
+0000000001016c00 parport_find_number_Rcbf7f773	[parport]
+0000000001016c40 parport_find_base_R55fa013f	[parport]
+0000000001017860 parport_negotiate_R971547af	[parport]
+0000000001017d20 parport_write_Rfe43b0fc	[parport]
+0000000001017e40 parport_read_Re15c0cad	[parport]
+0000000001017360 parport_ieee1284_wakeup_Rdbdbbbcc	[parport]
+0000000001017580 parport_wait_peripheral_Rb6195591	[parport]
+00000000010174c0 parport_poll_peripheral_R9aac849a	[parport]
+00000000010173e0 parport_wait_event_Rb387bc3e	[parport]
+0000000001017f60 parport_set_timeout_Rc9983a58	[parport]
+0000000001017ce0 parport_ieee1284_interrupt_R3deb08f4	[parport]
+0000000001018760 parport_ieee1284_ecp_write_data_Ra7c52a80	[parport]
+0000000001018aa0 parport_ieee1284_ecp_read_data_Re3a14f4a	[parport]
+0000000001018dc0 parport_ieee1284_ecp_write_addr_R07177e59	[parport]
+0000000001018000 parport_ieee1284_write_compat_R4fe5921b	[parport]
+0000000001018320 parport_ieee1284_read_nibble_Rafacf02e	[parport]
+0000000001018540 parport_ieee1284_read_byte_R20145779	[parport]
+0000000001019100 parport_ieee1284_epp_write_data_R3a98db08	[parport]
+0000000001019200 parport_ieee1284_epp_read_data_R3abb67bc	[parport]
+0000000001019300 parport_ieee1284_epp_write_addr_R9a4a8fd1	[parport]
+0000000001019400 parport_ieee1284_epp_read_addr_Rc727be87	[parport]
+0000000001019ca0 parport_proc_register_Rb7624020	[parport]
+0000000001019dc0 parport_proc_unregister_Rf96330c9	[parport]
+0000000001019e00 parport_device_proc_register_Rf2024a62	[parport]
+0000000001019ee0 parport_device_proc_unregister_R49ca3cfa	[parport]
+0000000001019f20 parport_default_proc_register_R109c8f9a	[parport]
+0000000001019f60 parport_default_proc_unregister_Rd775b7f4	[parport]
+00000000010172e0 parport_parse_irqs_Rfe3a2867	[parport]
+0000000001017320 parport_parse_dmas_Rc976df0b	[parport]
+000000000101a2a0 parport_open_Rf2fbddb0	[parport]
+000000000101a3a0 parport_close_R37b423a3	[parport]
+000000000101b580 parport_device_id_Rf4d73759	[parport]
+000000000101a3c0 parport_device_num_R2ce00ef0	[parport]
+000000000101a420 parport_device_coords_R4be801ae	[parport]
+000000000101aa80 parport_daisy_deselect_all_Rbcf2ad18	[parport]
+000000000101aaa0 parport_daisy_select_Rffd482ee	[parport]
+000000000101a060 parport_daisy_init_R234485b5	[parport]
+000000000101afa0 parport_find_device_R3f481df7	[parport]
+000000000101b060 parport_find_class_R25212bbb	[parport]
+0000000001016000 __insmod_parport_O/lib/modules/2.4.0-test12/kernel/drivers/parport/parport.o_M3A3B3363_V132096	[parport]
+00000000010160c0 __insmod_parport_S.text_L22076	[parport]
+000000000101b700 __insmod_parport_S.rodata_L5418	[parport]
+000000000101d810 __insmod_parport_S.data_L1280	[parport]
+000000000101dd10 __insmod_parport_S.bss_L80	[parport]
+000000000100e440 nbd_read_stat	[nbd]
+000000000100e0c0 __insmod_nbd_S.text_L4916	[nbd]
+000000000100e760 nbd_clear_que	[nbd]
+000000000100e360 nbd_send_req	[nbd]
+000000000100f400 __insmod_nbd_S.rodata_L1305	[nbd]
+000000000100fa48 __insmod_nbd_S.bss_L13840	[nbd]
+000000000100e000 __insmod_nbd_O/lib/modules/2.4.0-test12/kernel/drivers/block/nbd.o_M3A3B3361_V132096	[nbd]
+000000000100f928 __insmod_nbd_S.data_L40	[nbd]
+000000000100e580 nbd_do_it	[nbd]
+0000000001000000 __insmod_solaris_O/lib/modules/2.4.0-test12/kernel/arch/sparc64/solaris/solaris.o_M3A3B336A_V132096	[solaris]
+00000000010000c0 __insmod_solaris_S.text_L35296	[solaris]
+0000000001009538 __insmod_solaris_S.rodata_L710	[solaris]
+000000000100a400 __insmod_solaris_S.data_L3440	[solaris]
+000000000100b258 __insmod_solaris_S.bss_L24	[solaris]
+00000000004213e0 __down_Rbbd66e62
+0000000000421480 __down_interruptible_R4f12bdaf
+0000000000421540 __down_trylock_Rcc313916
+00000000004213a0 __up_R14eb7a5e
+00000000004215a0 __down_read_failed
+0000000000421600 __down_write_failed
+00000000004218c0 __rwsem_wake
+0000000000574bc0 __atomic_add_Rc3e66403
+0000000000574be0 __atomic_sub_R03fd4980
+0000000000574cc0 __test_and_set_bit_Rf71b0fac
+0000000000574d00 __test_and_clear_bit_R57376c6b
+0000000000574d40 __test_and_change_bit_R03702440
+0000000000574d80 __test_and_set_le_bit_R8f29be24
+0000000000574dc0 __test_and_clear_le_bit_R030101ad
+000000000063a580 ivector_table_Rd3388d51
+000000000041a820 enable_irq_Rfcec0987
+000000000041a8a0 disable_irq_R3ce4ca6f
+0000000000410180 __flushw_user_R712730a7
+000000000043af00 flush_icache_range_R05186ca4
+000000000043a400 __flush_dcache_page_R21369069
+000000000059ad80 mstk48t02_regs_Rbb348cea
+000000000041b3e0 request_fast_irq_R9ef8279c
+00000000005ae880 sbus_root_R6c6773c9
+0000000000694be8 dma_chain_R44a00d0e
+0000000000422780 sbus_set_sbus64_Re2369125
+0000000000421f60 sbus_alloc_consistent_R32f66bd7
+00000000004220c0 sbus_free_consistent_R8c954a3e
+0000000000422160 sbus_map_single_Rf9a5d26d
+0000000000422260 sbus_unmap_single_R2ccaf4dd
+00000000004222e0 sbus_map_sg_R6884e0da
+0000000000422560 sbus_unmap_sg_Raa160d67
+0000000000422660 sbus_dma_sync_single_R750569c3
+00000000004226c0 sbus_dma_sync_sg_R2a7651e1
+000000000059b090 ebus_chain_R8cecc9fb
+000000000059adc8 pci_memspace_mask_Ra495fc39
+0000000000400000 empty_zero_page_R29789394
+00000000005660a0 outsb_R12ea337e
+00000000005660e0 outsw_R533903d8
+0000000000566180 outsl_R24bd930a
+00000000005663a0 insb_R10902bf7
+0000000000566480 insw_R69010b06
+0000000000566580 insl_R73e0877a
+0000000000423800 pci_alloc_consistent_R0a40f0af
+00000000004239c0 pci_free_consistent_R94fc1250
+0000000000423b60 pci_map_single_Rbc10f229
+0000000000423ca0 pci_unmap_single_R226d0381
+0000000000423e20 pci_map_sg_R31af104f
+0000000000424100 pci_unmap_sg_R2be932fd
+00000000004242e0 pci_dma_sync_single_R6befcbd1
+0000000000424440 pci_dma_sync_sg_R0f770c71
+0000000000424600 pci_dma_supported_R7ef445f5
+0000000000435cc0 register_ioctl32_conversion_Raced3170
+0000000000435da0 unregister_ioctl32_conversion_Rec2cd46c
+000000000043c1e0 io_remap_page_range_R36f0ff31
+000000000041e500 _sigpause_common_R28282f54
+0000000000418fc0 dump_thread_Re2c24899
+0000000000418fe0 dump_fpu_R9f866e26
+000000000043be40 get_pmd_slow_R63e2fec6
+000000000043bea0 get_pte_slow_R29a5c37d
+000000000067b098 pgt_quicklists_R0cd28818
+0000000000446d60 put_fs_struct_R49e9a2df
+000000000041a120 die_if_kernel_Recd99124
+0000000000418f60 kernel_thread_R439090b9
+000000000063a558 idprom_R807c20ca
+000000000069ccc0 prom_root_node_R5ce875cf
+00000000005616c0 prom_getchild_R5ee0a984
+0000000000561700 prom_getsibling_R3b3fe8cb
+0000000000560e00 prom_searchsiblings_Rdc0ba024
+00000000005618c0 prom_firstprop_R807b7089
+0000000000561900 prom_nextprop_R2bf482aa
+0000000000561740 prom_getproplen_Rff8b6749
+0000000000561780 prom_getproperty_R156810c5
+0000000000561560 prom_node_has_property_R3cbe2a32
+00000000005615e0 prom_setprop_R4bad614b
+00000000006392c0 saved_command_line_R04f5f35f
+0000000000560f00 prom_getname_Rb0d1f9ef
+0000000000561520 prom_finddevice_R98d4365e
+0000000000560660 prom_feval_R42f76b30
+0000000000560c60 prom_getbool_R77b288bc
+0000000000560cc0 prom_getstring_Rbf7c51d9
+0000000000561820 prom_getint_R51946adb
+0000000000560ba0 prom_getintdefault_R858c90dc
+00000000005619c0 __prom_getchild_R8ca0e65d
+0000000000561a40 __prom_getsibling_R8da618dc
+0000000000566dc0 __strlen_Rc9dc74c5
+0000000000566dc0 strlen_Rdcb5671d
+000000000055f620 strnlen_Rcc07af75
+00000000005671b0 __strlen_user_Rb7adea56
+000000000055f3e0 strcpy_Re914e41e
+000000000055f420 strncpy_R7ec9bfbc
+000000000055f460 strcat_R061651be
+000000000055f4c0 strncat_R234509f3
+000000000055f520 strcmp_Re2d5255a
+000000000055f560 strchr_R349cba85
+000000000055f5c0 strrchr_R9f984513
+000000000055f700 strpbrk_R9a1dfd65
+000000000055f780 strtok_Ree9c1bd4
+000000000055f8a0 strstr_R1e6d26a8
+00000000004100c0 linux_sparc_syscall_R1fc8cd4d
+000000000040ef44 rtrap_R3042f3a3
+0000000000418880 show_regs_R176ab54b
+000000000041d660 solaris_syscall_R1eb7debc
+000000000041c720 syscall_trace_R8994abdd
+000000000040e800 sunos_sys_table_Re5476ea6
+000000000040e000 sys_call_table32_R3f5533cb
+000000000040a100 tl0_solaris_R0d7c9bc5
+000000000040fee0 sys_sigsuspend_Rde2a99c5
+000000000044c440 sys_getppid_R85b5de12
+00000000004317e0 svr4_getcontext_R8772bb18
+00000000004319e0 svr4_setcontext_Rac388ab2
+000000000063a440 prom_cpu_nodes_Ree71cfbc
+00000000004711a0 sys_ioctl_R022fe586
+0000000000435ea0 sys32_ioctl_Rcb709fe9
+0000000000430340 sparc32_open_Rd4c66be3
+00000000005172a0 move_addr_to_kernel_R5dfa4696
+0000000000517300 move_addr_to_user_R38c99093
+0000000000568200 __memcpy_R670869f7
+000000000056a2c0 __memset_Rd0be1a2e
+0000000000566c60 _clear_page_R62a9293f
+00000000005668c0 _copy_page_Rff1fea6b
+0000000000566ca0 clear_user_page_R5fbc3df8
+00000000005669b8 copy_user_page_R56ac93eb
+000000000056a04c __bzero_R8bf87169
+0000000000566ee0 __memscan_zero_Rbf993764
+0000000000567010 __memscan_generic_R702f162c
+00000000005672a0 __memcmp_Rcf025be3
+0000000000566e94 __strncmp_R77c12662
+0000000000569fe0 __memmove_Raf20b0ba
+0000000000567420 csum_partial_copy_sparc64_R610feb46
+000000000056822c __copy_to_user_Ra59561fc
+0000000000568220 __copy_from_user_Re5b29958
+000000000056704c __strncpy_from_user_Rd4820e30
+000000000056a040 __bzero_noasi_Ra3ecafc7
+000000000067b090 phys_base_R4c9d28b0
+000000000067b0c0 sparc64_valid_addr_bitmap_R4d481436
+00000000005b77b0 __ret_efault
+00000000005672a0 memcmp
+0000000000568200 memcpy
+000000000056a2c0 memset
+0000000000569fe0 memmove
+0000000000574a40 VISenter_R1a35bcbc
+000000000043cd60 dequeue_signal_Rb0aa9c7f
+000000000043cb00 flush_signals_Re15efcfe
+000000000043d740 force_sig_R01324987
+000000000043d400 force_sig_info_Rda88c998
+000000000043d760 kill_pg_R38f29719
+000000000043d4a0 kill_pg_info_Rb96edc56
+000000000043d7e0 kill_proc_R932da67e
+000000000043e2a0 kill_proc_info_Rc8b6011f
+000000000043d7a0 kill_sl_Rfba12fd0
+000000000043d520 kill_sl_info_Rf60acd1c
+000000000043d9a0 notify_parent_R8e020ad5
+000000000043e300 recalc_sigpending_R9a51c252
+000000000043d700 send_sig_R04703298
+000000000043d320 send_sig_info_R0b85a6f0
+000000000043cbc0 block_all_signals_R4edd72f7
+000000000043cbe0 unblock_all_signals_R0a2487e0
+000000000043e340 notifier_chain_register_R60cec3b9
+000000000043e3a0 notifier_chain_unregister_Rf099679c
+000000000043e400 notifier_call_chain_R28846962
+000000000043e460 register_reboot_notifier_R1cc6719a
+000000000043e480 unregister_reboot_notifier_R3980aac1
+000000000043f9a0 in_group_p_R31ebadcd
+000000000043f9e0 in_egroup_p_R42a4bdf2
+00000000004403a0 exec_usermodehelper_Rc47bf6ad
+0000000000440a00 call_usermodehelper_R84a291c8
+0000000000440780 request_module_R27e4dc04
+0000000000440ce0 schedule_task_R2d6c3d04
+0000000000440f60 flush_scheduled_tasks_R7c3242b4
+0000000000000001 Using_Versions
+0000000000444d20 inter_module_register_R8b5cd5d2
+0000000000444e00 inter_module_unregister_R7a9e845e
+0000000000444ec0 inter_module_get_Rf6a0ce24
+0000000000444f20 inter_module_get_request_Rb69f826b
+0000000000444f60 inter_module_put_R6b99f7d8
+00000000004458a0 try_inc_mod_count_R28270a2f
+000000000044ec40 do_mmap_pgoff_R3c0933db
+000000000044fa20 do_munmap_R10ac5d75
+000000000044fda0 do_brk_R9eecde16
+0000000000446fe0 exit_mm_R21f4e42a
+0000000000446d40 exit_files_R755f3501
+0000000000446e20 exit_fs_R8a80a235
+000000000043cb20 exit_sighand_Rad18c0fe
+000000000045af60 __alloc_pages_Rdb3491be
+000000000045d7e0 alloc_pages_node_Re3df6fc0
+000000000045b2c0 __get_free_pages_R19d9ac40
+000000000045b320 get_zeroed_page_R3fad6a57
+000000000045b380 __free_pages_R85a2e544
+000000000045b3c0 free_pages_Rb5136506
+000000000059f0b0 contig_page_data_R08356fd7
+000000000067efd8 num_physpages_R0948cde9
+00000000004579c0 kmem_find_general_cachep_Ra1cc97cf
+0000000000456c00 kmem_cache_create_Rab52c731
+0000000000457160 kmem_cache_destroy_Rdf83c692
+0000000000457100 kmem_cache_shrink_R12f7cf04
+00000000004575e0 kmem_cache_alloc_R75810956
+0000000000457760 kmem_cache_free_R891f2686
+0000000000457680 kmalloc_R6f6c1cf7
+0000000000457880 kfree_R037a0cba
+00000000004562c0 vfree_R2fd1d81c
+0000000000456360 __vmalloc_R58ef3ff8
+000000000067f2b0 mem_map_R43e87fe3
+000000000044d920 remap_page_range_R8c8d5d0a
+000000000067f280 max_mapnr_R01139ffc
+000000000067ef98 high_memory_R8a7d1c31
+000000000044e180 vmtruncate_Rd359b670
+000000000044f420 find_vma_Rf416db7e
+000000000041cc80 get_unmapped_area_R9c286fe9
+000000000059a2a0 init_mm_R44806160
+0000000000458380 deactivate_page_Rd169defb
+00000000005a21c0 def_blk_fops_R510439f4
+00000000004777e0 update_atime_R54713105
+0000000000464880 get_fs_type_R2cd86ffa
+0000000000465400 get_super_R8155c0b2
+0000000000465540 get_empty_super_Rcdd1c589
+000000000046b780 getname_R7c60d66e
+000000000067f328 names_cachep_Rd25469b4
+0000000000460080 fput_R93bbfee9
+00000000004601a0 fget_R816e7cc5
+0000000000477320 igrab_Rb3f4aecb
+0000000000477280 iunique_Rd3774caf
+00000000004773e0 iget4_R64335d6f
+00000000004775c0 iput_R5a449474
+0000000000477780 force_delete_R38637e12
+000000000046bc80 follow_up_Rdf8bb46a
+000000000046bd20 follow_down_R3808a6fa
+000000000046c8a0 path_init_R215b5ae8
+000000000046bde0 path_walk_R6c5a5eb4
+000000000046ba80 path_release_Rf82456ab
+000000000046cb20 __user_walk_R5b329364
+000000000046caa0 lookup_one_R5bb937db
+000000000046c9e0 lookup_hash_R1f2407bb
+000000000045ef20 sys_close_Rdcb0349b
+00000000005a2768 dcache_lock_R819132b5
+0000000000475a00 d_alloc_root_R74f30ee0
+0000000000475d20 d_delete_R762c680b
+0000000000475120 dget_locked_R44557222
+0000000000475ba0 d_validate_R1d12a5dc
+0000000000475dc0 d_rehash_Rdad59271
+0000000000475080 d_invalidate_R14bc24e0
+0000000000475e40 d_move_Rb2754b1c
+00000000004759c0 d_instantiate_R4c07ffae
+0000000000475840 d_alloc_R0d560313
+0000000000475a60 d_lookup_R17d6aee0
+0000000000475f80 __d_path_R730c3bcf
+0000000000461a00 mark_buffer_dirty_R1100745a
+00000000004619c0 __mark_buffer_dirty_Rf41a79b7
+00000000004764c0 __mark_inode_dirty_R7ebb9a7b
+000000000045fec0 get_empty_filp_Re61fabe0
+0000000000460000 init_private_file_R51a0dc8e
+000000000045e9e0 filp_open_R6ebd6529
+000000000045eea0 filp_close_R0afc6640
+00000000004601e0 put_filp_Re8282335
+00000000005a1f00 files_lock_R4ce1a539
+00000000004680c0 check_disk_change_R11d4076d
+0000000000460ec0 __invalidate_buffers_R98f51538
+0000000000476d40 invalidate_inodes_R2040089c
+0000000000450700 invalidate_inode_pages_Re7cb0491
+0000000000450800 truncate_inode_pages_Rce48dcd3
+0000000000460760 fsync_dev_R8ea128e2
+000000000046b9c0 permission_R07399f20
+000000000046b860 vfs_permission_R28880ca1
+0000000000477be0 inode_setattr_R4bf89706
+00000000004779e0 inode_change_ok_R16ab6518
+0000000000476940 write_inode_now_R8143c9d5
+0000000000477dc0 notify_change_R5e05c83a
+0000000000460dc0 get_hardblocksize_Rc31a6893
+0000000000461000 set_blocksize_Ra842722a
+0000000000461780 getblk_R176532ca
+0000000000467da0 bdget_Rdb8068f9
+0000000000467e60 bdput_Redebbf71
+0000000000461ba0 bread_R13f20ffb
+0000000000461ac0 __brelse_R1a22e2d0
+0000000000461b00 __bforget_R0eb0c19d
+000000000049dae0 ll_rw_block_R61c874d0
+0000000000460340 __wait_on_buffer_R04bc8eb6
+00000000004510c0 ___wait_on_page_R99c1562c
+0000000000462f80 block_write_full_page_R44c7ce59
+00000000004626e0 block_read_full_page_Ref211c5b
+0000000000462c40 block_prepare_write_R6a38e4aa
+0000000000463ee0 block_sync_page_R20b6203a
+0000000000462960 cont_prepare_write_R785f4fc9
+0000000000462ca0 generic_commit_write_Rfde410fb
+0000000000462d20 block_truncate_page_Rf0589c4a
+0000000000463120 generic_block_bmap_R6b4c2d44
+0000000000452100 generic_file_read_R67a910a9
+0000000000451a40 do_generic_file_read_R41e05d53
+00000000004541c0 generic_file_write_Raa060b24
+0000000000452e60 generic_file_mmap_R3078cb76
+00000000005a1d48 generic_ro_fops_R03bbd16d
+0000000000450ba0 generic_buffer_fdatasync_Rf8ea704c
+000000000067efb0 page_hash_bits_R04925b4e
+000000000067efc0 page_hash_table_R7a7de411
+00000000005a2740 file_lock_list_R6e85119d
+0000000000472ae0 locks_init_lock_Rffbd3ec8
+0000000000472b80 locks_copy_lock_R484098f0
+00000000004738e0 posix_lock_file_Rce1347b8
+0000000000473400 posix_test_lock_Rea685f6c
+00000000004748e0 posix_block_lock_Rd9b150f5
+0000000000474900 posix_unblock_lock_Rf19997c1
+0000000000473560 locks_mandatory_area_R15527a91
+0000000000474ee0 dput_R5a93b1f1
+0000000000475640 have_submounts_R55b6e73e
+0000000000475180 d_find_alias_R20d24227
+0000000000475220 d_prune_aliases_R8389414b
+00000000004752e0 prune_dcache_R6cf28f77
+0000000000475460 shrink_dcache_sb_R0068e2fc
+00000000004757a0 shrink_dcache_parent_Rbd47ec27
+0000000000476300 find_inode_number_R3ef1d4c0
+0000000000476220 is_subdir_R175cef89
+000000000045ebc0 get_unused_fd_R99bfbe39
+000000000046cba0 vfs_create_R02ceeaed
+000000000046d7c0 vfs_mkdir_R374209a8
+000000000046d4a0 vfs_mknod_R56673d85
+000000000046e2e0 vfs_symlink_Rc541a0e0
+000000000046e540 vfs_link_Rb5206f6b
+000000000046da80 vfs_rmdir_Rfdc41b74
+000000000046df00 vfs_unlink_R7c77792d
+000000000046f3c0 vfs_rename_R3871873f
+000000000045db80 vfs_statfs_R3a5985ab
+000000000045f080 generic_read_dir_R0cae21a0
+0000000000471a80 __pollwait_R977a78c7
+0000000000471a20 poll_freewait_R3fd02e58
+000000000067f338 ROOT_DEV_Rb32496e8
+0000000000451440 __find_lock_page_Rb6833d48
+00000000004540e0 grab_cache_page_R524b4dfd
+0000000000453ee0 read_cache_page_R10f00265
+000000000046f760 vfs_readlink_Rc6ef8722
+000000000046f7c0 vfs_follow_link_Re3fc8fb3
+000000000046fa00 page_readlink_R4c60e9a7
+000000000046fa60 page_follow_link_R03679411
+00000000005a2600 page_symlink_inode_operations_R68fc9896
+0000000000463740 block_symlink_R3fee8bc9
+00000000004713c0 vfs_readdir_R0e3a6d8f
+0000000000473d20 __get_lease_R0a44e839
+0000000000473fa0 lease_get_mtime_R9a878f22
+0000000000474da0 lock_may_read_R65798b41
+0000000000474e40 lock_may_write_R868466b8
+00000000004714c0 dcache_readdir_Rfb39b3ca
+000000000045f0a0 default_llseek_Rf5501a78
+000000000045ea40 dentry_open_R52aadd4d
+00000000004525e0 filemap_nopage_Rb4558b32
+0000000000452b00 filemap_swapout_R612853d1
+0000000000452b20 filemap_sync_R6b2f413a
+0000000000451340 lock_page_R2bf8189a
+000000000045fb80 register_chrdev_Raf88aa63
+000000000045fc40 unregister_chrdev_Rc192d491
+0000000000467fa0 register_blkdev_R51b35617
+0000000000468060 unregister_blkdev_Reac1c4af
+00000000004ac8c0 tty_register_driver_R0d88a373
+00000000004ac9c0 tty_unregister_driver_Rae04227e
+0000000000692150 tty_std_termios_R5bafda46
+00000000004677e0 block_read_Rc4c7bf63
+00000000004672e0 block_write_R53fd171d
+0000000000690260 blksize_size_R2f30b4b6
+000000000067fb68 hardsect_size_Rc5f560d8
+0000000000690a58 blk_size_Ra2e0a082
+0000000000680b58 blk_dev_Rb053aa55
+000000000049ce60 is_read_only_R740274ca
+000000000049cee0 set_device_ro_Rdc036ebb
+00000000004777a0 bmap_R50538916
+0000000000460720 sync_dev_Rfc0b0f49
+0000000000483c60 devfs_register_partitions_R98465504
+0000000000468380 blkdev_open_Rd027d351
+0000000000468240 blkdev_get_Rc6db9db8
+0000000000468460 blkdev_put_Rc5ccb5bc
+00000000004681a0 ioctl_by_bdev_R02d71ff1
+000000000067f340 gendisk_head_R107531f3
+0000000000483cc0 grok_partitions_R10cab6d7
+0000000000483c80 register_disk_R50e55c7e
+00000000005a4f00 tq_disk_R5373dbb6
+00000000004612e0 init_buffer_R71ab6a21
+0000000000461aa0 refile_buffer_Rfd1c999a
+000000000067f360 max_sectors_R6bf58e33
+0000000000680360 max_readahead_R3e5480a4
+0000000000460280 file_moveto_R25e0833c
+00000000004aa040 tty_hangup_R9fa81ffe
+00000000004bce80 tty_wait_until_sent_Rddc65e73
+00000000004a9be0 tty_check_change_R06cb1594
+00000000004aa080 tty_hung_up_p_Ra8483161
+00000000004ac6c0 tty_flip_buffer_push_R75ec861e
+00000000004ac5e0 tty_get_baud_rate_Rbb90a51a
+00000000004ac3c0 do_SAK_Rc625ef0d
+0000000000444820 console_print_Rb714a981
+000000000059d5d8 console_loglevel_R80ce1b8e
+0000000000464540 register_filesystem_R261d77c7
+00000000004645a0 unregister_filesystem_Rc13e9c55
+0000000000465ea0 kern_mount_R99a8a879
+0000000000465f40 kern_umount_R0aa9ce25
+0000000000465f80 may_umount_Rc71f2a44
+0000000000468dc0 register_binfmt_Rad4ba52c
+0000000000468e40 unregister_binfmt_Rb9918b4f
+0000000000469f80 search_binary_handler_Reeef400e
+0000000000469bc0 prepare_binprm_Rb461353d
+0000000000469e40 compute_creds_R0b14f19c
+0000000000469f00 remove_arg_zero_Rf4973fb9
+000000000046a380 set_binfmt_R9a266cbf
+0000000000443e00 register_exec_domain_R35797964
+0000000000443e60 unregister_exec_domain_R73295fc1
+0000000000443ec0 __set_personality_R7d678b69
+0000000000449480 register_sysctl_table_R26f72433
+0000000000449520 unregister_sysctl_table_R50b2ed4e
+000000000044a7a0 sysctl_string_Rae078ac4
+000000000044a8e0 sysctl_intvec_R20e7f035
+000000000044a9a0 sysctl_jiffies_R05e42c74
+0000000000449880 proc_dostring_Ra21f6b29
+0000000000449ee0 proc_dointvec_Rf66c6aea
+000000000044a760 proc_dointvec_jiffies_R9e1473a5
+0000000000449fa0 proc_dointvec_minmax_R8f7a75c4
+000000000044a720 proc_doulongvec_ms_jiffies_minmax_R800fd9d1
+000000000044a6e0 proc_doulongvec_minmax_R74605cf5
+000000000044b4e0 add_timer_Ra19eacf8
+000000000044b760 del_timer_Rfc62f16d
+000000000041aaa0 request_irq_R2eb6f08c
+000000000041ae60 free_irq_Rf20dabd8
+000000000067b980 irq_stat_R84878ae0
+00000000004429c0 add_wait_queue_Rce421497
+0000000000442a00 add_wait_queue_exclusive_Re4552e8b
+0000000000442a40 remove_wait_queue_R596fbd04
+000000000041b5c0 probe_irq_on_Rb121390a
+000000000041b5e0 probe_irq_off_Rab600421
+000000000044b620 mod_timer_R1f13d309
+000000000059ebc8 tq_timer_Rfa3e9acc
+000000000059ebd8 tq_immediate_R0da0dcd1
+00000000004784c0 kiobuf_init_R5f7e35f3
+0000000000478500 alloc_kiovec_R6448c484
+0000000000478580 free_kiovec_Re43d2f1a
+0000000000478600 expand_kiobuf_Rd5ffe4ed
+000000000044cfc0 map_user_kiobuf_R0fcd48ea
+000000000044d2a0 unmap_kiobuf_Rab31d2a0
+000000000044d360 lock_kiovec_R36c5f15c
+000000000044d4a0 unlock_kiovec_R9ca94df9
+00000000004632e0 brw_kiovec_Rd60e0dae
+00000000004428c0 request_dma_R43435480
+0000000000442940 free_dma_R72b243d4
+000000000059d3e8 dma_spin_lock_Re3fddd9c
+0000000000448d20 request_resource_R41685cfb
+0000000000448d60 release_resource_R814e8407
+0000000000448ec0 allocate_resource_Ra715812b
+0000000000448d80 check_resource_Rd8d78aaa
+0000000000448f20 __request_region_R1a1a4f09
+0000000000448fc0 __check_region_Rf1d0cdab
+0000000000449000 __release_region_Rd49501d4
+000000000059d708 ioport_resource_R865ebccd
+000000000059d740 iomem_resource_R9efed5af
+0000000000447520 up_and_exit_R55af4587
+0000000000441860 __wake_up_R385fa9b3
+00000000004427e0 wake_up_process_Re44429ed
+0000000000441d80 sleep_on_R75c59e87
+0000000000441de0 sleep_on_timeout_R5319502d
+0000000000441ca0 interruptible_sleep_on_R0cccea81
+0000000000441d00 interruptible_sleep_on_timeout_Red00a3cc
+0000000000441260 schedule_R01000e51
+0000000000441180 schedule_timeout_Rd62c833f
+000000000067dab8 jiffies_R0da02d67
+000000000067ba80 xtime_R282a7fb9
+00000000004101c0 do_gettimeofday_R836a55de
+000000000041c9c0 do_settimeofday_R18846b8e
+000000000059a440 loops_per_sec_Re367fd84
+000000000067dad0 kstat_Re8062443
+000000000067dab0 nr_running_Rca3c6d78
+0000000000444080 panic_R01075bf0
+0000000000444600 printk_Rdd132261
+00000000005605e0 sprintf_R3c2c5af5
+00000000005600e0 vsprintf_R13d9cea7
+000000000045fd00 kdevname_Rc258c906
+00000000004685e0 bdevname_Rd04782e6
+000000000045fd40 cdevname_R9754741d
+000000000055fb00 simple_strtoul_R20000329
+000000000059a450 system_utsname_Rb12cdfe7
+000000000059d1d8 uts_sem_Rb5024ad3
+000000000040e400 sys_call_table_Rdfdb18bd
+0000000000418300 machine_restart_Re6e3ef70
+0000000000418260 machine_halt_R9aa32630
+00000000004219c0 machine_power_off_R091c824a
+00000000005b7578 _ctype_R8d3894f2
+00000000004aff80 secure_tcp_sequence_number_R1e68841f
+00000000004ae800 get_random_bytes_R79aa04a2
+000000000059d398 securebits_Rabe77484
+000000000059ebb0 cap_bset_R59ab4080
+0000000000442780 daemonize_Rd66a354a
+0000000000469440 setup_arg_pages_Rd9ced6df
+0000000000469220 copy_strings_kernel_Ra6cd1117
+000000000046a180 do_execve_Rd941a63a
+00000000004698e0 flush_old_exec_R7f7fd251
+0000000000469700 kernel_read_R2091f5bf
+0000000000469600 open_exec_R89e3219e
+000000000043c1a0 si_meminfo_R7e9ed292
+000000000067b9c0 sys_tz_Rbafebf71
+0000000000465280 __wait_on_super_Rb1059e16
+00000000004607e0 file_fsync_Rcc2e5b4e
+0000000000476b20 clear_inode_R61f3182f
+000000000059ef64 nr_async_pages_Ra80a5df2
+000000000069ccb8 ___strtok_R29805c13
+000000000045fde0 init_special_inode_Rb68014d9
+0000000000691258 read_ahead_R0abb7b07
+0000000000460d00 get_hash_table_R8263902e
+0000000000477040 get_empty_inode_Rb52d3785
+0000000000477520 insert_inode_hash_Rbe41f760
+00000000004775a0 remove_inode_hash_Raad1cd23
+0000000000477f00 make_bad_inode_R1c6b021a
+0000000000477f40 is_bad_inode_R38c60972
+000000000067baa0 event_R7b16c344
+0000000000463660 brw_page_Rbc138238
+000000000059d1c8 fs_overflowuid_R25820c64
+000000000059d1cc fs_overflowgid_Rdf929370
+0000000000470ec0 fasync_helper_Re8b789ca
+0000000000471040 kill_fasync_R6dc0c30d
+00000000004835e0 disk_name_R15e4e1eb
+000000000046ba00 get_write_access_R5bf29c68
+0000000000444900 register_console_R20a39472
+0000000000444c40 unregister_console_R3224a5c4
+0000000000447ea0 get_fast_time_R67bd1287
+000000000055f300 strnicmp_R756e6992
+000000000055f660 strspn_R3fa913da
+000000000055f820 strsep_R85df9b6c
+000000000067ba00 tasklet_hi_vec_Rbb06575f
+000000000067b840 tasklet_vec_R41d3b367
+000000000067b318 bh_task_vec_R284177b8
+0000000000448ac0 init_bh_Rf6cf27cc
+0000000000448ae0 remove_bh_Rbc524a32
+0000000000448980 tasklet_init_Ra5808bbf
+00000000004489a0 tasklet_kill_R79ad224b
+0000000000414000 init_task_union_Redad9167
+0000000000616040 tasklist_lock_R6b4b8ef8
+000000000067baa8 pidhash_R0fd48917
+00000000005a1d40 nfsd_linkage_Rb56858ea
+000000000067f348 proc_sys_root_R06c5ae95
+00000000004805e0 proc_symlink_R809d2ad8
+00000000004806c0 proc_mknod_Rfd3a2952
+0000000000480780 proc_mkdir_R43eac5ee
+0000000000480840 create_proc_entry_Re13354c8
+00000000004809c0 remove_proc_entry_Rb827a049
+00000000005a2b58 proc_root_Ra2298432
+000000000067f2d8 proc_root_fs_Ra1280b00
+000000000067f320 proc_net_R7fc62219
+000000000067f350 proc_bus_R6677a816
+000000000067f2d0 proc_root_driver_Rfe9238aa
+000000000048e320 register_nls_Rb75d5c98
+000000000048e3a0 unregister_nls_Re636348f
+000000000048e500 unload_nls_R36a16ffc
+000000000048e460 load_nls_Rafd2e7ee
+000000000048e600 load_nls_default_R535f6428
+000000000048e080 utf8_mbtowc_R4ddc4b9f
+000000000048e140 utf8_mbstowcs_R7d850612
+000000000048e1e0 utf8_wctomb_Rf82f1109
+000000000048e2a0 utf8_wcstombs_R863cb91a
+00000000005a4f10 io_request_lock_Rf0eb38cb
+000000000049dd60 end_that_request_first_Rc07411ef
+000000000049de60 end_that_request_last_Rfad56109
+000000000049cc80 blk_init_queue_R4734cb27
+000000000049c820 blk_get_queue_R1574e682
+000000000049c8e0 blk_cleanup_queue_R7918fbdc
+000000000049c940 blk_queue_headactive_R9c16d0b6
+000000000049c960 blk_queue_pluggable_Rdb0e2479
+000000000049c980 blk_queue_make_request_R2ae6671d
+000000000049d880 generic_make_request_Rd9d5d9bb
+000000000049df00 blkdev_release_request_R1e0792e2
+000000000049e480 blk_ioctl_Re7800428
+000000000049fbc0 loop_register_transfer_R584cce57
+000000000049fc00 loop_unregister_transfer_Rbfee3ad5
+00000000004ac880 tty_register_devfs_R445504b4
+00000000004ac8a0 tty_unregister_devfs_Rf60ba815
+00000000004ad720 misc_register_R7e23a6b2
+00000000004ad8a0 misc_deregister_Rfb1454fe
+00000000004ae240 add_keyboard_randomness_R74789c19
+00000000004ae280 add_mouse_randomness_R70507c97
+00000000004ae2a0 add_interrupt_randomness_R16dfbf36
+00000000004ae2e0 add_blkdev_randomness_Rd9cb21d1
+00000000004adf20 batch_entropy_store_R68d33fbe
+00000000005a6738 color_table_Rf6bb4729
+00000000005a6748 default_red_R3147857d
+00000000005a6788 default_grn_R06fe3b14
+00000000005a67c8 default_blu_R10ee20bb
+0000000000694730 video_font_height_R65e24198
+0000000000691ff4 video_scan_lines_Rafaf59dc
+00000000004b1b80 vc_resize_R12e7edfe
+0000000000691ff0 fg_console_R4e6e8ea7
+00000000006922f0 console_blank_hook_Rd25d4f74
+0000000000691668 vt_cons_R9dc5e4ad
+00000000004b61e0 take_over_console_Reaf97a66
+00000000004b63c0 give_up_console_R08c70d97
+00000000004b72a0 set_selection_R590ad7bc
+00000000004b7a00 paste_selection_R1a4104e1
+00000000004b7c60 handle_scancode_Rd3d6a2f1
+0000000000692188 kbd_ledfunc_Rfa67cc5f
+00000000005a6a40 keyboard_tasklet_R28aa0faa
+0000000000692178 sysrq_power_off_R0c257849
+00000000004b9ca0 busmouse_add_movementbuttons_R6c8e1759
+00000000004b9dc0 busmouse_add_movement_Ra9346a98
+00000000004b9e00 busmouse_add_buttons_R437ac0b8
+00000000004ba300 register_busmouse_Rbd2fea3e
+00000000004ba460 unregister_busmouse_Re492653c
+00000000004c2a00 autoirq_setup_R5a5a2280
+00000000004c2a20 autoirq_report_R84530c53
+00000000004c92e0 __VERSIONED_SYMBOL(scsi_register_module)
+00000000004c9360 __VERSIONED_SYMBOL(scsi_unregister_module)
+00000000004d1e40 __VERSIONED_SYMBOL(scsi_free)
+00000000004d1d20 __VERSIONED_SYMBOL(scsi_malloc)
+00000000004c9b40 __VERSIONED_SYMBOL(scsi_register)
+00000000004c9a00 __VERSIONED_SYMBOL(scsi_unregister)
+00000000004cb200 __VERSIONED_SYMBOL(scsicam_bios_param)
+00000000004cb360 __VERSIONED_SYMBOL(scsi_partsize)
+00000000004c6a00 __VERSIONED_SYMBOL(scsi_allocate_device)
+00000000004c7460 __VERSIONED_SYMBOL(scsi_do_cmd)
+00000000005840f8 __VERSIONED_SYMBOL(scsi_command_size)
+00000000004ca3e0 __VERSIONED_SYMBOL(scsi_ioctl)
+00000000004ca920 __VERSIONED_SYMBOL(print_command)
+00000000004cad20 __VERSIONED_SYMBOL(print_sense)
+00000000004cad40 __VERSIONED_SYMBOL(print_req_sense)
+00000000004cad60 __VERSIONED_SYMBOL(print_msg)
+00000000004ca9a0 __VERSIONED_SYMBOL(print_status)
+00000000005acd4c __VERSIONED_SYMBOL(scsi_dma_free_sectors)
+00000000004ca820 __VERSIONED_SYMBOL(kernel_scsi_ioctl)
+00000000005acd50 __VERSIONED_SYMBOL(scsi_need_isa_buffer)
+00000000004c6c40 __VERSIONED_SYMBOL(scsi_release_command)
+00000000004cafe0 __VERSIONED_SYMBOL(print_Scsi_Cmnd)
+00000000004cc020 __VERSIONED_SYMBOL(scsi_block_when_processing_errors)
+00000000004cec40 __VERSIONED_SYMBOL(scsi_mark_host_reset)
+00000000004ca1a0 __VERSIONED_SYMBOL(scsi_ioctl_send_command)
+0000000000694758 __VERSIONED_SYMBOL(scsi_logging_level)
+00000000004c6940 __VERSIONED_SYMBOL(scsi_allocate_request)
+00000000004c69c0 __VERSIONED_SYMBOL(scsi_release_request)
+00000000004c70e0 __VERSIONED_SYMBOL(scsi_wait_req)
+00000000004c71a0 __VERSIONED_SYMBOL(scsi_do_req)
+00000000004d0160 __VERSIONED_SYMBOL(scsi_report_bus_reset)
+00000000004d0120 __VERSIONED_SYMBOL(scsi_block_requests)
+00000000004d0140 __VERSIONED_SYMBOL(scsi_unblock_requests)
+00000000004c9640 __VERSIONED_SYMBOL(scsi_get_host_dev)
+00000000004c96e0 __VERSIONED_SYMBOL(scsi_free_host_dev)
+00000000004cc6a0 __VERSIONED_SYMBOL(scsi_sleep)
+00000000004cba80 __VERSIONED_SYMBOL(proc_print_scsidevice)
+0000000000694768 __VERSIONED_SYMBOL(proc_scsi)
+00000000004cf920 __VERSIONED_SYMBOL(scsi_io_completion)
+00000000004cf840 __VERSIONED_SYMBOL(scsi_end_request)
+00000000004d01c0 __VERSIONED_SYMBOL(scsi_register_blocked_host)
+00000000004d01e0 __VERSIONED_SYMBOL(scsi_deregister_blocked_host)
+00000000005aa920 __VERSIONED_SYMBOL(scsi_hostlist)
+00000000005aa910 __VERSIONED_SYMBOL(scsi_hosts)
+00000000005aa928 __VERSIONED_SYMBOL(scsi_devicelist)
+0000000000584100 __VERSIONED_SYMBOL(scsi_device_types)
+00000000004f1ee0 cdrom_get_disc_info_R9472f41b
+00000000004f1e20 cdrom_get_track_info_Raa6306e5
+00000000004f2140 cdrom_get_next_writable_R36914bae
+00000000004f1fa0 cdrom_get_last_written_R78263467
+00000000004ef2c0 cdrom_count_tracks_R2a2278bf
+00000000004ee100 register_cdrom_R86ecac8d
+00000000004ee480 unregister_cdrom_R4cdfaf8c
+00000000005ae090 cdrom_fops_Rb1c5e9ab
+00000000004eef00 cdrom_number_of_slots_R23a9530f
+00000000004ef060 cdrom_select_disc_R9a59d35d
+00000000004f0260 cdrom_mode_select_R88bd9553
+00000000004f0200 cdrom_mode_sense_Rd50d74e8
+00000000004ef520 init_cdrom_command_R014c2ee9
+00000000004ee560 cdrom_find_device_Rb6b3270b
+00000000004f3580 pci_read_config_byte_R59f4893e
+00000000004f35c0 pci_read_config_word_Rb4c9a637
+00000000004f3620 pci_read_config_dword_Rf3b4e49e
+00000000004f3680 pci_write_config_byte_R546edb5b
+00000000004f36c0 pci_write_config_word_Ra7f43c5c
+00000000004f3720 pci_write_config_dword_R8b8c6dae
+00000000005ae438 pci_devices_R7a84b102
+00000000005ae428 pci_root_buses_R082c3213
+00000000004f31c0 pci_enable_device_Re59f0d56
+00000000004f2e20 pci_find_capability_R6354dafc
+00000000004f2dc0 pci_find_class_Rfe116650
+00000000004f2d80 pci_find_device_Rbfbfc466
+00000000004f2c60 pci_find_slot_R0517f8e1
+00000000004f2cc0 pci_find_subsys_Rf8d616ec
+00000000004f3780 pci_set_master_R7631af12
+00000000004f2fe0 pci_set_power_state_Rdbb8ece3
+00000000004f4e00 pci_assign_resource_R60acf6f3
+00000000004f3400 pci_register_driver_R50d79f2a
+00000000004f3480 pci_unregister_driver_Rb2585d04
+00000000004f3500 pci_dev_driver_Rddc03ab5
+00000000004f3280 pci_match_device_R353b6a48
+00000000004f2f20 pci_find_parent_resource_R7ef62fee
+00000000004f49e0 pcibios_present_R520a75b9
+00000000004f4b00 pcibios_read_config_byte_Rd80115e1
+00000000004f4b40 pcibios_read_config_word_Raa9effd7
+00000000004f4b80 pcibios_read_config_dword_R38ae6689
+00000000004f4bc0 pcibios_write_config_byte_R719856ee
+00000000004f4c20 pcibios_write_config_word_R4f1c2e33
+00000000004f4c80 pcibios_write_config_dword_R81b4f465
+00000000004f4a00 pcibios_find_class_Ref333f7b
+00000000004f4a80 pcibios_find_device_R97d49c4d
+0000000000694b70 isa_dma_bridge_buggy_Rf82abc1d
+0000000000694b6c pci_pci_problems_Rdc14eda7
+00000000005ae9ec su_num_ports_R8531804f
+0000000000507560 register_framebuffer_Ra1f73fee
+0000000000507700 unregister_framebuffer_R36fa215a
+0000000000694c40 registered_fb_R17289fe1
+0000000000694bf8 num_registered_fb_R6c61ce70
+0000000000507380 GET_FB_IDX_R5280c630
+00000000005077a0 fb_alloc_cmap_R07a890c8
+00000000005078c0 fb_copy_cmap_R3d68266c
+0000000000507ac0 fb_get_cmap_R564b345d
+0000000000507be0 fb_set_cmap_Rcc926496
+0000000000507d00 fb_default_cmap_Ra56557ea
+0000000000507d60 fb_invert_cmaps_Rf195c682
+0000000000507f20 __fb_try_mode_R35ae5a6d
+0000000000694d40 fb_display_Rf081ffc6
+0000000000509c60 fbcon_redraw_bmove_R6218f4bc
+0000000000509be0 fbcon_redraw_clear_Ra26a9576
+00000000005b1408 fbcon_dummy_R2985ee26
+0000000000593220 fb_con_R190e00e0
+00000000005b1498 fbcon_cfb8_R0bff7346
+000000000050c320 fbcon_cfb8_setup_Rc2da79aa
+000000000050c340 fbcon_cfb8_bmove_R5105427e
+000000000050c9a0 fbcon_cfb8_clear_R90dc3944
+000000000050cac0 fbcon_cfb8_putc_Ree2fbd4c
+000000000050cc00 fbcon_cfb8_putcs_R292a6254
+000000000050cd80 fbcon_cfb8_revc_Rbe05c6d6
+000000000050ce20 fbcon_cfb8_clear_margins_R35a6905b
+00000000005b14f8 fbcon_cfb16_R65915acb
+000000000050cf80 fbcon_cfb16_setup_R737045a9
+000000000050cfc0 fbcon_cfb16_bmove_R53cd42c9
+000000000050d620 fbcon_cfb16_clear_R066223fb
+000000000050d860 fbcon_cfb16_putc_Rece7bdfb
+000000000050d9e0 fbcon_cfb16_putcs_Rd255da34
+000000000050dba0 fbcon_cfb16_revc_R3efe1c2a
+000000000050dc60 fbcon_cfb16_clear_margins_R345f0d58
+00000000005b1548 fbcon_cfb24_R55e18610
+000000000050dee0 fbcon_cfb24_setup_R45c9d992
+000000000050df20 fbcon_cfb24_bmove_Re4a2e90d
+000000000050e5c0 fbcon_cfb24_clear_Rd62ceff1
+000000000050e800 fbcon_cfb24_putc_R5b88163f
+000000000050ea20 fbcon_cfb24_putcs_R2f999659
+000000000050ec80 fbcon_cfb24_revc_R49479429
+000000000050ed60 fbcon_cfb24_clear_margins_R41e14846
+00000000005b1598 fbcon_cfb32_R02794ba1
+000000000050efc0 fbcon_cfb32_setup_R7e6368ae
+000000000050f000 fbcon_cfb32_bmove_Rd425b446
+000000000050f660 fbcon_cfb32_clear_Rd3dd4178
+000000000050f8c0 fbcon_cfb32_putc_R6b0f4b74
+000000000050faa0 fbcon_cfb32_putcs_Ra20c8c22
+000000000050fcc0 fbcon_cfb32_revc_Ra32eeaac
+000000000050fdc0 fbcon_cfb32_clear_margins_Re5b7cccd
+000000000051b720 skb_over_panic_R91dcf674
+000000000051b760 skb_under_panic_Re9d779ba
+0000000000518f40 sock_register_R73193ed6
+0000000000518fa0 sock_unregister_R2394a062
+000000000051ae40 __lock_sock_R6089426a
+000000000051aec0 __release_sock_Ra7f8c6a9
+000000000051c220 memcpy_fromiovec_R36139a51
+000000000051c1a0 memcpy_tokerneliovec_Re4271fb0
+0000000000518040 sock_create_R8e498db1
+00000000005176e0 sock_alloc_R269c77a1
+00000000005177c0 sock_release_Rad7adb37
+0000000000519ec0 sock_setsockopt_R6b7bdbe8
+000000000051a4c0 sock_getsockopt_R30ca6409
+0000000000517820 sock_sendmsg_Rba93f7c8
+00000000005178c0 sock_recvmsg_Rf75306ca
+000000000051a8e0 sk_alloc_R5c6199f8
+000000000051a940 sk_free_R752c68b9
+0000000000517f80 sock_wake_async_R9ce24d16
+000000000051acc0 sock_alloc_send_skb_R8b4aac53
+000000000051b600 sock_init_data_R72766266
+000000000051b1a0 sock_no_release_R77445cd9
+000000000051b1c0 sock_no_bind_Rd9bbc040
+000000000051b1e0 sock_no_connect_R52498414
+000000000051b200 sock_no_socketpair_R447b493e
+000000000051b220 sock_no_accept_R72f6b723
+000000000051b240 sock_no_getname_Rabfb6ae1
+000000000051b260 sock_no_poll_R84104fe4
+000000000051b280 sock_no_ioctl_Re1e3255a
+000000000051b2a0 sock_no_listen_R44a7ccf1
+000000000051b2c0 sock_no_shutdown_R6fc61676
+000000000051b300 sock_no_getsockopt_R2e718234
+000000000051b2e0 sock_no_setsockopt_Raf184c1c
+000000000051b3c0 sock_no_sendmsg_Rbc7fd9df
+000000000051b3e0 sock_no_recvmsg_R8e0b4a06
+000000000051b400 sock_no_mmap_R454d7c17
+000000000051aa40 sock_rfree_Rdc4a2380
+000000000051a9e0 sock_wfree_R32a62778
+000000000051aa60 sock_wmalloc_R187d867f
+000000000051aae0 sock_rmalloc_R1f4e8911
+000000000051c680 skb_recv_datagram_R1e768450
+000000000051c7c0 skb_free_datagram_R9157d6dc
+000000000051c800 skb_copy_datagram_R2bace8d5
+000000000051c840 skb_copy_datagram_iovec_R6f68df8f
+000000000051bde0 skb_copy_expand_R81608c5f
+000000000051c860 datagram_poll_Rbb6e31c2
+000000000051cd80 put_cmsg_R43ec913a
+000000000051ab60 sock_kmalloc_R24e3fe88
+000000000051abe0 sock_kfree_s_Rc55e54ab
+000000000051d420 sk_run_filter_R8a7bbe1b
+0000000000522e80 neigh_table_init_R092f063b
+0000000000522f80 neigh_table_clear_Rb6b6202b
+0000000000522840 neigh_resolve_output_Rfef75d7c
+0000000000522a00 neigh_connected_output_Rd03cf9ff
+0000000000522280 neigh_update_R8141b4c2
+00000000005214c0 neigh_create_R311fcdc6
+0000000000521420 neigh_lookup_R38f11683
+0000000000522040 __neigh_event_send_Rb9d7d448
+0000000000522600 neigh_event_ns_R7d460af3
+0000000000521140 neigh_ifdown_Re6d3fd0b
+00000000005237a0 neigh_app_ns_R4b12cbba
+00000000005238e0 neigh_sysctl_register_Rdf6bfc75
+0000000000521660 pneigh_lookup_R58dc4928
+0000000000522c20 pneigh_enqueue_Rd3dc59a0
+0000000000521960 neigh_destroy_Rfe986d3e
+0000000000522d20 neigh_parms_alloc_Raab858df
+0000000000522dc0 neigh_parms_release_Rb6fed0ce
+0000000000520ee0 neigh_rand_reach_time_R4188d439
+00000000005227a0 neigh_compat_output_R6ccdf01f
+0000000000520ac0 dst_alloc_Rf8e553f4
+0000000000520b80 __dst_free_R4a813bbe
+0000000000520c60 dst_destroy_R0a70fdbe
+0000000000524a20 net_ratelimit_Rf6ebc03b
+00000000005249a0 net_random_R1c66f64c
+0000000000524a00 net_srandom_Rff963ed8
+000000000051caa0 __scm_destroy_R1745c67a
+000000000051cb00 __scm_send_R1c1815a9
+000000000051d020 scm_fp_dup_Rcc47fc36
+00000000005a1ed0 files_stat_R03cada27
+000000000051bfe0 memcpy_toiovec_R2876a6d3
+000000000056a540 csum_partial_R94095c16
+000000000051b060 sklist_destroy_socket_Rc3720f51
+000000000051afe0 sklist_insert_socket_Re87b78b4
+000000000051ce40 scm_detach_fds_R59df60c7
+00000000005b51c8 inetdev_lock_R39311aa7
+000000000052a260 inet_add_protocol_Ra76988d5
+000000000052a320 inet_del_protocol_R23dd64d6
+0000000000528b80 ip_route_output_key_Rfa3e34ce
+00000000005280e0 ip_route_input_R9e97a629
+000000000054b6c0 icmp_send_Re2ebb3cf
+000000000054b4c0 icmp_reply_R159289af
+000000000052c760 ip_options_compile_R33c6ee85
+000000000052cda0 ip_options_undo_R9721f12f
+000000000054a180 arp_send_R3a067655
+00000000005b4a30 arp_broken_ops_R50d4a9b2
+00000000005267a0 __ip_select_ident_Rf68e77a8
+000000000052f1e0 ip_send_check_R434ccab0
+000000000052eb40 ip_fragment_R629180d0
+00000000005b5b80 inet_family_ops_R929980e2
+0000000000525960 in_aton_R83e0a162
+00000000005503e0 ip_mc_inc_group_R2c7179d8
+0000000000550560 ip_mc_dec_group_Rdd2d9d5a
+000000000052f280 ip_finish_output_R4c1c427e
+00000000005b5b00 inet_dgram_ops_R33823047
+000000000052fa60 ip_cmsg_recv_R2600c2c4
+0000000000551460 inet_addr_type_Re8cf3ae7
+000000000054d6e0 inet_select_addr_Rbea63404
+00000000005513a0 ip_dev_find_Rdf3081f7
+000000000054cba0 inetdev_by_index_Rb8a8631b
+000000000054c220 in_dev_finish_destroy_R1c19b5f2
+000000000052bb60 ip_defrag_R6d8e1ce1
+00000000005517a0 ip_rt_ioctl_R94208e84
+000000000054d020 devinet_ioctl_R869c80ea
+000000000054d7e0 register_inetaddr_notifier_R3e45e9ff
+000000000054d800 unregister_inetaddr_notifier_R760b437a
+000000000069a500 ip_statistics_Rb1579ebe
+00000000005b5a80 inet_stream_ops_R7a60ff4c
+000000000054ece0 inet_release_R70553dfc
+000000000054f160 inet_stream_connect_Radcff5d4
+000000000054efa0 inet_dgram_connect_R95de8d49
+000000000054f400 inet_accept_R8bbf12d9
+000000000054e980 inet_listen_R9cb9a363
+000000000054f6c0 inet_shutdown_Rf1bc5a39
+000000000054e7c0 inet_setsockopt_R884acac3
+000000000054e800 inet_getsockopt_R2c0a5aa3
+000000000054f660 inet_sendmsg_Rc224fda1
+000000000054f5e0 inet_recvmsg_Rc901628a
+000000000054e520 inet_sock_destruct_R22998367
+000000000054e720 inet_sock_release_R6e2c8aa0
+0000000000616100 tcp_hashinfo_R749a475a
+0000000000541720 tcp_listen_wlock_R291c7b36
+000000000069c080 udp_hash_R174fed15
+00000000005b4880 udp_hash_lock_R160bc22b
+0000000000533a20 tcp_destroy_sock_R74ebe257
+000000000052db20 ip_queue_xmit_R4529772e
+000000000051c2a0 memcpy_fromiovecend_R9bc565c5
+000000000051c340 csum_partial_copy_fromiovecend_R883c8eca
+000000000051c060 copy_and_csum_toiovec_R25b807eb
+0000000000545420 tcp_v4_lookup_listener_Raa31f5d4
+0000000000548b60 udp_ioctl_R974f60b9
+0000000000548e60 udp_connect_R7c4f3fa6
+0000000000549040 udp_disconnect_Rf16eb1ec
+0000000000548700 udp_sendmsg_Ra82f72d1
+0000000000533c80 tcp_close_Rbbee8ced
+00000000005344a0 tcp_disconnect_R0b09027c
+00000000005349e0 tcp_accept_R15f6459a
+000000000053fbc0 tcp_write_wakeup_R851f7fd8
+0000000000531680 tcp_write_space_R2eedb269
+00000000005314c0 tcp_poll_R75cafeb8
+00000000005316a0 tcp_ioctl_R7d304538
+00000000005339c0 tcp_shutdown_Rd725f028
+0000000000534ba0 tcp_setsockopt_R8983dc30
+00000000005353c0 tcp_getsockopt_Ra83fbd9c
+0000000000533080 tcp_recvmsg_R1976ce0f
+000000000053ece0 tcp_send_synack_Rf9b4c625
+00000000005468e0 tcp_check_req_R2c9bac41
+0000000000546cc0 tcp_child_process_Rb0982865
+0000000000538ae0 tcp_parse_options_R5901795b
+000000000053af60 tcp_rcv_established_Ra6b0eb1f
+000000000053ff60 tcp_init_xmit_timers_R5c19519b
+000000000053ffc0 tcp_clear_xmit_timers_Ree99d2ee
+000000000069bec0 tcp_statistics_R3481b9ba
+000000000053be20 tcp_rcv_state_process_Red811e6b
+0000000000545860 tcp_timewait_state_process_Raf676fc1
+000000000069cca8 tcp_timewait_cachep_R6f1c787a
+00000000005457a0 tcp_timewait_kill_Rc005d327
+0000000000532040 tcp_sendmsg_R2b3449db
+00000000005446e0 tcp_v4_rebuild_header_R0e158fe1
+0000000000542ae0 tcp_v4_send_check_Rfc7a9b62
+00000000005430c0 tcp_v4_conn_request_R09ca22f3
+0000000000546500 tcp_create_openreq_child_Raf41aa7e
+0000000000541320 tcp_bucket_create_R07c9ac57
+00000000005454c0 __tcp_put_port_Re39865e2
+0000000000541680 tcp_put_port_Rd1e9c7c2
+0000000000545540 tcp_inherit_port_R5e1b1966
+0000000000543640 tcp_v4_syn_recv_sock_R97111b8c
+0000000000543c40 tcp_v4_do_rcv_R610b5e25
+0000000000541e40 tcp_v4_connect_R81388711
+0000000000541ce0 tcp_v4_hash_connecting_R463ed8f0
+0000000000541900 tcp_unhash_R9a15cba4
+00000000005b4888 udp_prot_R3d8aa426
+00000000005b4630 tcp_prot_R2034b97c
+000000000069a008 tcp_openreq_cachep_Rcaf26a80
+00000000005b45d0 ipv4_specific_R8d80c981
+000000000053de60 tcp_simple_retransmit_Rdc44860a
+000000000053cac0 tcp_transmit_skb_R6675cc8c
+000000000053f320 tcp_connect_R8b9c1b06
+000000000053ee80 tcp_make_synack_R3fffe194
+0000000000546160 tcp_tw_deschedule_Rca98a75d
+0000000000540ea0 tcp_delete_keepalive_timer_R49424d88
+0000000000540ee0 tcp_reset_keepalive_timer_R1a5f18aa
+00000000005b4598 sysctl_local_port_range_Ree08006f
+00000000005b45a0 tcp_port_rover_R9f9e4b5a
+000000000069a284 udp_port_rover_R43a83a72
+000000000053d640 tcp_sync_mss_Rf43c4a93
+000000000069aa80 net_statistics_R78e18939
+0000000000531400 __tcp_mem_reclaim_R4fd6a071
+000000000069a280 tcp_sockets_allocated_R4f5651c3
+00000000005b4550 sysctl_tcp_reordering_R99cdc86b
+00000000005b4524 sysctl_tcp_rmem_R8d551bef
+00000000005b4518 sysctl_tcp_wmem_Rfc02b7ad
+00000000005b4554 sysctl_tcp_ecn_R17df17bc
+000000000053a980 tcp_cwnd_application_limited_R5378df11
+000000000054b2a0 xrlim_allow_R30defcd3
+000000000053d6e0 tcp_write_xmit_R483413a4
+0000000000544860 tcp_v4_remember_stamp_Rbf5fd17f
+00000000005b4718 sysctl_tcp_tw_recycle_R25e31c1f
+00000000005b45a4 sysctl_max_syn_backlog_Rab6bde28
+00000000004afe20 secure_tcpv6_sequence_number_R7c2ca2de
+00000000004aff20 secure_ipv6_id_Ra41eeafe
+000000000055ba80 netlink_set_err_R6816cc0d
+000000000055b7c0 netlink_broadcast_R7383d4ee
+000000000055b460 netlink_unicast_R58575fe5
+000000000055bf20 netlink_kernel_create_R05ac11b7
+000000000055c200 netlink_dump_start_R11bc2c68
+000000000055c320 netlink_ack_Rb5fafd6b
+000000000055c400 netlink_attach_R2a44fa88
+000000000055c460 netlink_detach_R1d742495
+000000000055c4a0 netlink_post_Rd30908a2
+0000000000523b60 rtattr_parse_Re49414e9
+000000000069a180 rtnetlink_links_R0d48c91e
+0000000000523c20 __rta_fill_Re403f128
+0000000000524160 rtnetlink_dump_ifinfo_R4dc78b54
+0000000000523d20 rtnetlink_put_metrics_Rc1505ef4
+000000000069c498 rtnl_R7abdbcbf
+0000000000523020 neigh_delete_R88d80f2a
+00000000005231a0 neigh_add_Rae234e3d
+0000000000523700 neigh_dump_info_R12db849a
+000000000051f620 dev_set_allmulti_Rb340637d
+000000000051f580 dev_set_promiscuity_R5f7863e5
+000000000051af20 sklist_remove_socket_R88f11cf9
+00000000005b3788 rtnl_sem_R6b6c59f2
+0000000000523aa0 rtnl_lock_Rc7a4fbed
+0000000000523ae0 rtnl_unlock_R6e720ff2
+000000000069a128 ipv4_config_R26b99782
+000000000051e4c0 dev_open_R8750d577
+0000000000525900 in_ntoa_R20ce491b
+000000000052a7a0 ip_rcv_Re4649224
+000000000054a3a0 arp_rcv_R3cab2cdb
+00000000005b4a70 arp_tbl_R5b9ed243
+0000000000549f20 arp_find_R7aa12c27
+000000000051e680 register_netdevice_notifier_R63ecad53
+000000000051e6a0 unregister_netdevice_notifier_Rfe769456
+00000000004c6480 init_etherdev_R42d2fe8c
+00000000005aa6f0 loopback_dev_Rb6aad48e
+000000000051fee0 register_netdevice_R9e8ea1e0
+0000000000520160 unregister_netdevice_Ra5a9c48e
+00000000004c6680 register_netdev_R003f738b
+00000000004c6720 unregister_netdev_R5ee91c3f
+000000000051e3c0 netdev_state_change_R6f0b6657
+00000000004c6540 ether_setup_R637f71f9
+000000000051fea0 dev_new_index_R8fddc84c
+000000000051e1c0 dev_get_by_index_Re6401495
+000000000051e180 __dev_get_by_index_R9f7142e9
+000000000051e120 dev_get_by_name_R5bac2b96
+000000000051e0c0 __dev_get_by_name_Rdbb22572
+00000000005200a0 netdev_finish_unregister_R265ede18
+000000000051f460 netdev_set_master_Rabb61549
+0000000000524c20 eth_type_trans_R1f34eb97
+000000000051b7a0 alloc_skb_Rf104ee06
+000000000051ba00 __kfree_skb_R12d9a0a7
+000000000051bb00 skb_clone_Rdc840d75
+000000000051bd00 skb_copy_R4d342cda
+000000000051ea20 netif_rx_Rdd22cfaa
+000000000051de00 dev_add_pack_Rfb1a6285
+000000000051de80 dev_remove_pack_R6107443a
+000000000051e160 dev_get_R79259fbc
+000000000051e340 dev_alloc_Rb7fef405
+000000000051e2e0 dev_alloc_name_R80e5dd6f
+00000000005250a0 __netdev_watchdog_up_R5200b549
+000000000051e400 dev_load_Ra90fd3b7
+000000000051fc40 dev_ioctl_R387c78a5
+000000000051e7c0 dev_queue_xmit_R32e21614
+00000000005aa8f0 dev_base_Ra6a3eab0
+00000000005aa8f8 dev_base_lock_Ra9e8925d
+000000000051e5c0 dev_close_Rd4d934c9
+0000000000520620 dev_mc_add_R1092ea82
+0000000000520520 dev_mc_delete_R9f845713
+00000000005204e0 dev_mc_upload_R13a1d48f
+00000000004bdaa0 n_tty_ioctl_Rde9612dc
+00000000004a9900 tty_register_ldisc_Rdd68bf39
+0000000000470fc0 __kill_fasync_Rac2ec21d
+00000000005b2ef0 if_port_text_R9cf0c64f
+00000000005b2a70 sysctl_wmem_max_Rfac8865f
+00000000005b2a74 sysctl_rmem_max_Rb05fc310
+00000000005b44dc sysctl_ip_default_ttl_Rf6388c56
+0000000000525640 qdisc_destroy_Rd258f3ff
+0000000000525600 qdisc_reset_Rc8b915d0
+0000000000524e60 qdisc_restart_Rbb21a703
+0000000000525540 qdisc_create_dflt_R91c86624
+00000000005b3af8 noop_qdisc_R593c23f9
+00000000005b3a80 qdisc_tree_lock_Re0089c56
+0000000000519080 nf_register_hook_R632220a4
+0000000000519120 nf_unregister_hook_Rdfdc56fe
+0000000000519160 nf_register_sockopt_Rbeb2f440
+00000000005192e0 nf_unregister_sockopt_Rc933ae14
+00000000005199e0 nf_reinject_R65c2b09a
+0000000000519700 nf_register_queue_handler_Rb1fa43cf
+0000000000519760 nf_unregister_queue_handler_R4df6e6de
+0000000000519900 nf_hook_slow_Rb2905602
+000000000069ae90 nf_hooks_R078b1fd2
+00000000005195c0 nf_setsockopt_R31aa8114
+0000000000519600 nf_getsockopt_R4c0dc95a
+000000000051f040 register_gifconf_R830218df
+000000000051ed00 net_call_rx_atomic_Rf23efb98
+000000000069a680 softnet_data_Rce2f1934
+000000000055f280 memparse_Reb069810
+000000000055f1a0 get_option_Rb0e10781
+000000000055f220 get_options_R0fbff9b9
+
+--------------4DEF69DD13626ADDF19250D7
+Content-Type: text/plain; charset=big5;
+ name="20001216172207.modules"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="20001216172207.modules"
+
+ipt_state                800   0 (unused)
+ipt_REJECT              2624   0 (unused)
+ipt_REDIRECT             992   0 (unused)
+ipt_MASQUERADE          1456   0 (unused)
+ip_nat_ftp              3392   0 (unused)
+iptable_filter          2016   0 (unused)
+iptable_nat            15152   1 [ipt_REDIRECT ipt_MASQUERADE ip_nat_ftp]
+ip_tables              13664   8 [ipt_state ipt_REJECT ipt_REDIRECT ipt_MASQUERADE iptable_filter iptable_nat]
+ip_conntrack_ftp        2240   0 (unused)
+ip_conntrack           15552   3 [ipt_state ipt_REDIRECT ipt_MASQUERADE ip_nat_ftp iptable_nat ip_conntrack_ftp]
+netlink_dev             2256   0 (unused)
+khttpd                 26048   1
+ipip                    7536   0 (unused)
+ip_gre                  9600   0 (unused)
+vfat                   12672   0 (unused)
+ufs                    71632   0 (unused)
+smbfs                  40480   0 (unused)
+openpromfs             12576   0 (unused)
+nls_iso8859-1           4128   0 (unused)
+nls_cp950             100768   0 (unused)
+nls_cp437               5632   0 (unused)
+nfsd                   73536   0 (unused)
+nfs                    72896   0 (unused)
+lockd                  52720   0 [nfsd nfs]
+sunrpc                 71248   0 [nfsd nfs lockd]
+isofs                  19392   0 (unused)
+fat                    36128   0 [vfat]
+autofs4                 9984   0 (unused)
+binfmt_misc             4144   0
+lp                      6160   0 (unused)
+parport_pc             27168   1
+parport                32096   1 [lp parport_pc]
+nbd                    20720   0 (unused)
+solaris                45760   0 (unused)
+
+--------------4DEF69DD13626ADDF19250D7--
 
 
- Luis Toro Teijeiro                                                        =
-         THANKS FOR YOUR TIME.
-A=D1O 3021 de la era del pinguino :-) tux rules.
-ICQ : 42466380
-pasate por http://www.gulic.org  y veras Canarias y los linuxeros
-http://jaya.dyndns.org  ------pagina personal
-Firma gnupg disponible en http://jaya.dyndns.org/linuxx/gnupg/
-GnupgFingerprint: 8F06 3E9A F610 89BF 0B09  3DEB 0C7E 9AE1 6CE0 B251=20
-                              Windows Where do you want to go today?
-                              MacOS   Where do you want to be tomorrow?
-                              Linux           Are you coming, or what?
-   =20
-
-   =20
-
---pWyiEgJYm5f9v55/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6OzWTDH6a4WzgslERAgZgAKCm/58KjomY6d84NBlDU4qKYDiGcwCgkZXA
-bA92C/wUiTjj2CgeApBS2Gs=
-=Gdaz
------END PGP SIGNATURE-----
-
---pWyiEgJYm5f9v55/--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,63 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261274AbTHZP5J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 11:57:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbTHZP5J
+	id S262826AbTHZPx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 11:53:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262829AbTHZPx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 11:57:09 -0400
-Received: from c-780372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.120]:58212
-	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
-	id S261274AbTHZP5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 11:57:05 -0400
-Subject: Re: [ACPI] 2.4.22, My bios is to old?
-From: Ian Kumlien <pomac@vapor.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1061906591.678.0.camel@teapot.felipe-alfaro.com>
-References: <1061901388.7167.19.camel@big.pomac.com>
-	 <1061906591.678.0.camel@teapot.felipe-alfaro.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wby7FEjhaVLtDmgASbow"
-Message-Id: <1061913359.7167.29.camel@big.pomac.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 26 Aug 2003 17:55:59 +0200
+	Tue, 26 Aug 2003 11:53:26 -0400
+Received: from fep01.swip.net ([130.244.199.129]:16854 "EHLO
+	fep01-svc.swip.net") by vger.kernel.org with ESMTP id S262826AbTHZPxZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 11:53:25 -0400
+From: "Michal Semler (volny.cz)" <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: linux-kernel@vger.kernel.org
+Subject: problem with ACPI 2.4.22 vs 2.6.0-test4
+Date: Tue, 26 Aug 2003 17:53:27 +0200
+User-Agent: KMail/1.5.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308261753.27181.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-wby7FEjhaVLtDmgASbow
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+In both of kernels is ACPI 20030813, but acpi in 2.6.0-test4 successfully 
+poweroff my computer instead of acpi in 2.4.22 which doesn't and I see only 
+"Power off" message and I have to press poweroff button for 5 seconds to kill 
+my computer...
 
-On Tue, 2003-08-26 at 16:03, Felipe Alfaro Solana wrote:
-> On Tue, 2003-08-26 at 14:36, Ian Kumlien wrote:
->=20
-> > I just updated $other machine to 2.4.22, and now i have several ACPI
-> > tools screaming at me because /proc/acpi dosn't exist.
-> > (it was running 2.4.21-pre1, it has aslo been running with several acpi
-> > patches)
->=20
-> Boot the kernel using "acpi=3Dforce"...
+Where is problem?
 
-Yes, but are all y2k bioses blacklisted now?
-I mean, why was this list added, i thought that most bios manuf. ppl.
-mainly used Windows "compatible" acpi anyways.. (ie still flawed) so
-whats so magic with y2k?
-=20
---=20
-Ian Kumlien <pomac@vapor.com>
-
---=-wby7FEjhaVLtDmgASbow
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/S4MP7F3Euyc51N8RAudgAJwPqf/O8e2oFCeOrOu6Dk+SqbiMdQCfekoa
-4ciHcGN++T49dIGNkfLCkOg=
-=8qDJ
------END PGP SIGNATURE-----
-
---=-wby7FEjhaVLtDmgASbow--
+Michal
 

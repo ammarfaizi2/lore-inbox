@@ -1,108 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317849AbSFSL0z>; Wed, 19 Jun 2002 07:26:55 -0400
+	id <S317850AbSFSL3I>; Wed, 19 Jun 2002 07:29:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317850AbSFSL0y>; Wed, 19 Jun 2002 07:26:54 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:21120 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S317849AbSFSL0w> convert rfc822-to-8bit;
-	Wed, 19 Jun 2002 07:26:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: [BUG] 2.4 VM sucks. Again
-Date: Wed, 19 Jun 2002 13:26:47 +0200
-User-Agent: KMail/1.4.1
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-kernel@vger.kernel.org
-References: <200205241004.g4OA4Ul28364@mail.pronto.tv> <200206181326.27860.roy@karlsbakk.net> <3D0F8D40.2FC13433@zip.com.au>
-In-Reply-To: <3D0F8D40.2FC13433@zip.com.au>
+	id <S317852AbSFSL3H>; Wed, 19 Jun 2002 07:29:07 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:61192 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S317850AbSFSL3G>; Wed, 19 Jun 2002 07:29:06 -0400
+Date: Wed, 19 Jun 2002 07:24:41 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Question about sched_yield()
+In-Reply-To: <Pine.LNX.4.44.0206180650001.2834-100000@e2>
+Message-ID: <Pine.LNX.3.96.1020619071221.1119C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200206191326.47329.roy@karlsbakk.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Roy, all we know is that "nuke-buffers stops your machine from locking up".
-> But we don't know why your machine locks up in the first place.  This just
-> isn't sufficient grounds to apply it!  We need to know exactly why your
-> kernel is failing.  We don't know what the bug is.
+On Tue, 18 Jun 2002, Ingo Molnar wrote:
 
-The bug, as previously described, occurs when multiple (20+) clients downloads 
-large files (3-6Gigs each) at a speed of ~5Mbps. The error does _not_ occur 
-when a fewer number of clients are downloading at speeds close to disk speed. 
-All testing is being done on gigE crossover.
+> 
+> On Mon, 17 Jun 2002, David Schwartz wrote:
+> 
+> > >I am seeing some strange linux scheduler behaviours,
+> > >and I thought this'd be the best place to ask.
+> > >
+> > >I have two processes, one that loops forever and
+> > >does nothing but calling sched_yield(), and the other
+> > >is basically benchmarking how fast it can compute
+> > >some long math calculation.
+> 
+> > [...] It is not a replacement for blocking or a scheduling priority
+> > adjustment. It simply lets other ready-to-run tasks be scheduled before
+> > returning to the current task.
+> 
+> and this is what the scheduler didnt do properly, it actually didnt
+> schedule valid ready-to-run processes for long milliseconds, it switched
+> between two sched_yield processes, starving the CPU-intensive process. I
+> posted a patch for 2.5 that fixes this, and the 2.4.19-pre10-ac2 backport
+> i did includes this fix as well:
+> 
+>     http://redhat.com/~mingo/O(1)-scheduler/sched-2.4.19-pre10-ac2-A4
+> 
+> a good sched_yield() implementation should give *all* other tasks a chance
+> to run, instead of switching between multiple sched_yield()-ing tasks. I
+> don think this is specified anywhere, but it's a quality of implementation
+> issue.
 
-> You have two gigabytes of RAM, yes?  It's very weird that stripping buffers
-> prevents a lockup on a machine with such a small highmem/lowmem ratio.
+Clearly your fix is subtle enough that a quick reading, at least by me,
+can't follow all the nuances, but it looks on first reading as if your
+patch fixes this too well, and will now starve the threaded process by
+only giving one turn at the CPU per full pass through the queue, rather
+than sharing the timeslice between threads of a process.
 
-No. I have 1GB - highmem (which is disabled) giving me ~900MB
+I posted some thoughts on this to Robert, if you would comment I would
+appreciate. My thought is that if you have N processes and one is
+threaded, the aggregate of all threads should be 1/N of the CPU(s), not
+vastly more or less. I think with your change it will be less if they are
+sharing a resource. Feel free to tell me I misread what it does, or my
+desired behaviour is not correct.
 
-> I'll have yet another shot at reproducing it.  So, again, could you please
-> tell me *exactly*, in great deatail, what I need to do to reproduce this
-> problem?
-
-> - memory size
-
-1GB - highmem
-
-> - number of CPUs
-
-1 Athlon 1133Mz, 256kB cache
-
-> - IO system
-
-standard 33MHz/32bit single peer PCI motherboard (SiS based)
-on-board SiS IDE/ATA 100 controller.
-promise 20269 controller
-realtek 100mbps nic
-e1000 gigE nic
-4 IBM 40gig 120GXP drives - one on each IDE channel
-data partition on RAID-0 across all drives
-
-> - kernel version, any applied patches, compiler version
-kernel 2.4.19-pre8+tux+akpm buffer patch
-	I have tried _many_ different kernels, and as I needed the 20269 support, I
-	chose 2.4.19-pre, Tux is there as I did some testing with that. The problem
-	is _not_ tux specific, as I've tried with other server software (custom or
-	standard) as well.
-gcc2.95.3
-
-> - exact sequence of commands
-
-start http server software
-start 20+ downloads. each downloaded file is 3-6 gigs
-after some time most processes are killed OOM
-
-> - anything else you can think of
-
-I have not tried to give it coffee yet, although that might help. I'm usually 
-pretty pissed if I haven't got my morning coffee
-
-> Have you been able to reproduce the failure on any other machine?
-
-yes. I have set up one other machine with exact same setup and one with 
-slightly different setup and reproduced it.
-
-> No, not at all.  All the pagecache is still there - the patch just
-> throws away the buffer_heads which are attached to those pagecache
-> pages.
-
-oh. that's good.
-
-> The 2.5 kernel does it tons better.  Have you tried it?
-
-I haven't. I've tried to compile it a few times, but it has failed. And. I 
-don't want to run 2.5 on a production server.
-
-But - If you ask me to test it, I will
-
-thanks for all help
-
-roy
+I do run 15 machines with long running a threaded server application and
+periodic CPU hog things like log roll and compress, stats generation,
+certain database cleanup, etc, and I have more than intelectual curiousity
+on this behaviour.
 
 -- 
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

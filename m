@@ -1,27 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265998AbTATPeB>; Mon, 20 Jan 2003 10:34:01 -0500
+	id <S266199AbTATPwJ>; Mon, 20 Jan 2003 10:52:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266043AbTATPeA>; Mon, 20 Jan 2003 10:34:00 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:55436 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265998AbTATPeA> convert rfc822-to-8bit; Mon, 20 Jan 2003 10:34:00 -0500
-Date: Mon, 20 Jan 2003 10:45:03 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Andrey V. Ignatov" <andrey@emax.ru>
-cc: linux-kernel@vger.kernel.org
+	id <S266186AbTATPwJ>; Mon, 20 Jan 2003 10:52:09 -0500
+Received: from [212.18.235.100] ([212.18.235.100]:22535 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id <S266175AbTATPwI> convert rfc822-to-8bit; Mon, 20 Jan 2003 10:52:08 -0500
 Subject: Re: PROBLEM: Incorrect CPUs (Xeon 1.8 with HT) frequency ?
+From: Justin Cormack <justin@street-vision.com>
+To: "Andrey V. Ignatov" <andrey@emax.ru>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
 In-Reply-To: <62115845787.20030120183231@emax.ru>
-Message-ID: <Pine.LNX.3.95.1030120104039.15924A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <62115845787.20030120183231@emax.ru>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 20 Jan 2003 16:01:06 +0000
+Message-Id: <1043078471.1428.13.camel@lotte>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Jan 2003, Andrey V. Ignatov wrote:
-
+On Mon, 2003-01-20 at 15:32, Andrey V. Ignatov wrote:
 > I think that kernel detect my CPUs not correctly. I have box with dual
 > Xeon CPU 1.80GHz and HT feature. Kernel successfully found all 4
 > virtual CPUs but frequency of each CPUs is incorrect as I mean.
@@ -45,21 +45,11 @@ On Mon, 20 Jan 2003, Andrey V. Ignatov wrote:
 > wp              : yes
 > flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
 > bogomips        : 1592.52
-> 
-> P.S.
-> Please CC's to me because I am not list subscriber.
 
-The CPU frequency is measured! So, either the programmable interrupt
-timer isn't getting the right clock frequency or the CPU isn't getting
-the right clock frequency.
+Some BIOSs on the Xeon boards dont seem to set the multiplier right. Set
+it by hand in the BIOS (as a multiple of real FSB ie 100 for 400MHz bus,
+133 for 533 bus).
 
-Since the reported bogomips is about twice the CPU frequency, the
-measured numbers look correct. So, maybe the jumpers on the mother-
-board (or the BIOS) are not set correctly??
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Justin
 
 

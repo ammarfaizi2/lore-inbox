@@ -1,169 +1,372 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267530AbTBUPk4>; Fri, 21 Feb 2003 10:40:56 -0500
+	id <S267540AbTBUPw7>; Fri, 21 Feb 2003 10:52:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267529AbTBUPk4>; Fri, 21 Feb 2003 10:40:56 -0500
-Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:25563 "EHLO
-	deep-space-9.dsnet") by vger.kernel.org with ESMTP
-	id <S267530AbTBUPku>; Fri, 21 Feb 2003 10:40:50 -0500
-Date: Fri, 21 Feb 2003 16:50:51 +0100
-From: Stelian Pop <stelian@popies.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH 2.4.21-pre4-bk] meye suspend/resume capabilities
-Message-ID: <20030221165051.L12004@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S267542AbTBUPw7>; Fri, 21 Feb 2003 10:52:59 -0500
+Received: from tolkor.SGI.COM ([198.149.18.6]:5310 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S267540AbTBUPww>;
+	Fri, 21 Feb 2003 10:52:52 -0500
+Date: Fri, 21 Feb 2003 18:18:43 -0500
+From: Christoph Hellwig <hch@sgi.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] try_module_get(THIS_MODULE) is bogus
+Message-ID: <20030221181843.A23315@sgi.com>
+Mail-Followup-To: Christoph Hellwig <hch@sgi.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In most cases the fix is to add an struct module * member to the operations
+vector instead and manipulate the refcounts in the callers context.
 
-The attached patch adds suspend/resume capabilities
-to the meye driver.
-
-Marcelo, Alan, please apply.
-
-Thanks.
-
-Stelian.
+For the ALSA cases it was completly superflous (when will people get it that
+using an exported symbol will make it's module unloadable?..)
 
 
-===== Documentation/video4linux/meye.txt 1.5 vs edited =====
---- 1.5/Documentation/video4linux/meye.txt	Fri Nov  8 16:31:04 2002
-+++ edited/Documentation/video4linux/meye.txt	Tue Feb 18 11:32:22 2003
-@@ -1,6 +1,6 @@
- Vaio Picturebook Motion Eye Camera Driver Readme
- ------------------------------------------------
--	Copyright (C) 2001-2002 Stelian Pop <stelian@popies.net>
-+	Copyright (C) 2001-2003 Stelian Pop <stelian@popies.net>
- 	Copyright (C) 2001-2002 Alcôve <www.alcove.com>
- 	Copyright (C) 2000 Andrew Tridgell <tridge@samba.org>
+--- 1.2/drivers/char/ipmi/ipmi_kcs_intf.c	Tue Feb 18 19:31:36 2003
++++ edited/drivers/char/ipmi/ipmi_kcs_intf.c	Fri Feb 21 16:22:25 2003
+@@ -613,18 +613,6 @@
+ 	atomic_set(&kcs_info->req_events, 1);
+ }
  
-===== include/linux/meye.h 1.2 vs edited =====
---- 1.2/include/linux/meye.h	Fri Nov  8 16:27:56 2002
-+++ edited/include/linux/meye.h	Tue Feb 18 11:31:33 2003
-@@ -1,7 +1,7 @@
- /* 
-  * Motion Eye video4linux driver for Sony Vaio PictureBook
-  *
-- * Copyright (C) 2001-2002 Stelian Pop <stelian@popies.net>
-+ * Copyright (C) 2001-2003 Stelian Pop <stelian@popies.net>
-  *
-  * Copyright (C) 2001-2002 Alcôve <www.alcove.com>
-  *
-===== drivers/media/video/meye.h 1.6 vs edited =====
---- 1.6/drivers/media/video/meye.h	Mon Dec  2 10:55:04 2002
-+++ edited/drivers/media/video/meye.h	Fri Feb 21 10:24:07 2003
-@@ -1,7 +1,7 @@
- /* 
-  * Motion Eye video4linux driver for Sony Vaio PictureBook
-  *
-- * Copyright (C) 2001-2002 Stelian Pop <stelian@popies.net>
-+ * Copyright (C) 2001-2003 Stelian Pop <stelian@popies.net>
-  *
-  * Copyright (C) 2001-2002 Alcôve <www.alcove.com>
-  *
-@@ -31,7 +31,13 @@
- #define _MEYE_PRIV_H_
+-static int new_user(void *send_info)
+-{
+-	if (!try_module_get(THIS_MODULE))
+-		return -EBUSY;
+-	return 0;
+-}
+-
+-static void user_left(void *send_info)
+-{
+-	module_put(THIS_MODULE);
+-}
+-
+ /* Call every 10 ms. */
+ #define KCS_TIMEOUT_TIME_USEC	10000
+ #define KCS_USEC_PER_JIFFY	(1000000/HZ)
+@@ -718,11 +706,10 @@
  
- #define MEYE_DRIVER_MAJORVERSION	1
--#define MEYE_DRIVER_MINORVERSION	5
-+#define MEYE_DRIVER_MINORVERSION	6
-+
-+#include <linux/config.h>
-+#include <linux/types.h>
-+#include <linux/pci.h>
-+#include <linux/sonypi.h>
-+#include <linux/meye.h>
- 
- /****************************************************************************/
- /* Motion JPEG chip registers                                               */
-@@ -309,6 +315,10 @@
- 	struct video_device video_dev;	/* video device parameters */
- 	struct video_picture picture;	/* video picture parameters */
- 	struct meye_params params;	/* additional parameters */
-+#ifdef CONFIG_PM
-+	u32 pm_state[16];		/* PCI configuration space */
-+	u8 pm_mchip_mode;		/* old mchip mode */
-+#endif
+ static struct ipmi_smi_handlers handlers =
+ {
+-	sender:		       sender,
+-	request_events:        request_events,
+-	new_user:	       new_user,
+-	user_left:	       user_left,
+-	set_run_to_completion: set_run_to_completion
++	.owner			= THIS_MODULE,
++	.sender			= sender,
++	.request_events		= request_events,
++	.set_run_to_completion	= set_run_to_completion,
  };
  
- #endif
-===== drivers/media/video/meye.c 1.12 vs edited =====
---- 1.12/drivers/media/video/meye.c	Fri Nov 15 18:43:00 2002
-+++ edited/drivers/media/video/meye.c	Tue Feb 18 11:31:10 2003
-@@ -1,7 +1,7 @@
- /* 
-  * Motion Eye video4linux driver for Sony Vaio PictureBook
-  *
-- * Copyright (C) 2001-2002 Stelian Pop <stelian@popies.net>
-+ * Copyright (C) 2001-2003 Stelian Pop <stelian@popies.net>
-  *
-  * Copyright (C) 2001-2002 Alcôve <www.alcove.com>
-  *
-@@ -1225,6 +1225,42 @@
- 	.fops		= &meye_fops,
- };
+ static unsigned char ipmi_kcs_dev_rev;
+===== drivers/char/ipmi/ipmi_msghandler.c 1.1 vs edited =====
+--- 1.1/drivers/char/ipmi/ipmi_msghandler.c	Mon Jan 13 13:07:12 2003
++++ edited/drivers/char/ipmi/ipmi_msghandler.c	Fri Feb 21 16:21:36 2003
+@@ -485,13 +485,14 @@
+ 	new_user->intf = ipmi_interfaces[if_num];
+ 	new_user->gets_events = 0;
  
-+#ifdef CONFIG_PM
-+static int meye_suspend(struct pci_dev *pdev, u32 state)
-+{
-+	pci_save_state(pdev, meye.pm_state);
-+	meye.pm_mchip_mode = meye.mchip_mode;
-+	mchip_hic_stop();
-+	mchip_set(MCHIP_MM_INTA, 0x0);
-+	return 0;
-+}
-+
-+static int meye_resume(struct pci_dev *pdev)
-+{
-+	pci_restore_state(pdev, meye.pm_state);
-+	pci_write_config_word(meye.mchip_dev, MCHIP_PCI_SOFTRESET_SET, 1);
-+
-+	mchip_delay(MCHIP_HIC_CMD, 0);
-+	mchip_delay(MCHIP_HIC_STATUS, MCHIP_HIC_STATUS_IDLE);
-+	wait_ms(1);
-+	mchip_set(MCHIP_VRJ_SOFT_RESET, 1);
-+	wait_ms(1);
-+	mchip_set(MCHIP_MM_PCI_MODE, 5);
-+	wait_ms(1);
-+	mchip_set(MCHIP_MM_INTA, MCHIP_MM_INTA_HIC_1_MASK);
-+
-+	switch (meye.pm_mchip_mode) {
-+	case MCHIP_HIC_MODE_CONT_OUT:
-+		mchip_continuous_start();
-+		break;
-+	case MCHIP_HIC_MODE_CONT_COMP:
-+		mchip_cont_compression_start();
-+		break;
+-	rv = new_user->intf->handlers->new_user(new_user->intf->send_info);
+-	if (rv)
++	if (!try_module_get(new_user->intf->handlers->owner)) {
++		rv = -ENODEV;
+ 		goto out_unlock;
 +	}
-+	return 0;
-+}
-+#endif
-+
- static int __devinit meye_probe(struct pci_dev *pcidev, 
- 		                const struct pci_device_id *ent) {
- 	int ret;
-@@ -1391,6 +1427,10 @@
- 	.id_table	= meye_pci_tbl,
- 	.probe		= meye_probe,
- 	.remove		= __devexit_p(meye_remove),
-+#ifdef CONFIG_PM
-+	.suspend	= meye_suspend,
-+	.resume		= meye_resume,
-+#endif
+ 
+-	write_lock_irqsave(&(new_user->intf->users_lock), flags);
+-	list_add_tail(&(new_user->link), &(new_user->intf->users));
+-	write_unlock_irqrestore(&(new_user->intf->users_lock), flags);
++	write_lock_irqsave(&new_user->intf->users_lock, flags);
++	list_add_tail(&new_user->link, &new_user->intf->users);
++	write_unlock_irqrestore(&new_user->intf->users_lock, flags);
+ 
+  out_unlock:	
+ 	if (rv) {
+@@ -563,12 +564,12 @@
+ 	unsigned long flags;
+ 
+ 	down_read(&interfaces_sem);
+-	write_lock_irqsave(&(intf->users_lock), flags);
++	write_lock_irqsave(&intf->users_lock, flags);
+ 	rv = ipmi_destroy_user_nolock(user);
+ 	if (!rv)
+-		intf->handlers->user_left(intf->send_info);
++		module_put(intf->handlers->owner);
+ 		
+-	write_unlock_irqrestore(&(intf->users_lock), flags);
++	write_unlock_irqrestore(&intf->users_lock, flags);
+ 	up_read(&interfaces_sem);
+ 	return rv;
+ }
+--- 1.13/drivers/ieee1394/hosts.c	Sat Feb  1 17:43:09 2003
++++ edited/drivers/ieee1394/hosts.c	Fri Feb 21 16:25:57 2003
+@@ -11,6 +11,7 @@
+  */
+ 
+ #include <linux/config.h>
++#include <linux/module.h>
+ #include <linux/types.h>
+ #include <linux/list.h>
+ #include <linux/init.h>
+@@ -69,8 +70,10 @@
+         spin_lock_irqsave(&hosts_lock, flags);
+         list_for_each(lh, &hosts) {
+                 if (host == list_entry(lh, struct hpsb_host, host_list)) {
+-			if (host->driver->devctl(host, MODIFY_USAGE, 1)) {
+-				host->driver->devctl(host, MODIFY_USAGE, 1);
++			if (try_module_get(host->driver->owner)) {
++				/* XXX: we're doing this twice and don't seem
++				   to undo it..  --hch */
++				(void)try_module_get(host->driver->owner);
+ 				host->refcount++;
+ 				retval = 1;
+ 			}
+@@ -95,7 +98,7 @@
+ {
+         unsigned long flags;
+ 
+-        host->driver->devctl(host, MODIFY_USAGE, 0);
++	module_put(host->driver->owner);
+ 
+         spin_lock_irqsave(&hosts_lock, flags);
+         host->refcount--;
+===== drivers/ieee1394/hosts.h 1.11 vs edited =====
+--- 1.11/drivers/ieee1394/hosts.h	Fri Jan 31 01:48:22 2003
++++ edited/drivers/ieee1394/hosts.h	Fri Feb 21 16:09:25 2003
+@@ -92,12 +92,6 @@
+          * Return void. */
+         CANCEL_REQUESTS,
+ 
+-        /* Decrease host usage count if arg == 0, increase otherwise.  Return
+-         * 1 for success, 0 for failure.  Increase usage may fail if the driver
+-         * is in the process of shutting itself down.  Decrease usage can not
+-         * fail. */
+-        MODIFY_USAGE,
+-
+         /* Start or stop receiving isochronous channel in arg.  Return void.
+          * This acts as an optimization hint, hosts are not required not to
+          * listen on unrequested channels. */
+@@ -147,6 +141,7 @@
  };
  
- static int __init meye_init_module(void) {
--- 
-Stelian Pop <stelian@popies.net>
+ struct hpsb_host_driver {
++	struct module *owner;
+ 	const char *name;
+ 
+         /* This function must store a pointer to the configuration ROM into the
+===== drivers/ieee1394/ohci1394.c 1.19 vs edited =====
+--- 1.19/drivers/ieee1394/ohci1394.c	Sun Feb  2 08:01:36 2003
++++ edited/drivers/ieee1394/ohci1394.c	Fri Feb 21 16:10:11 2003
+@@ -966,16 +966,6 @@
+ 		dma_trm_reset(&ohci->at_resp_context);
+ 		break;
+ 
+-	case MODIFY_USAGE:
+-		if (arg) {
+-			if (try_module_get(THIS_MODULE))
+-				retval = 1;
+-		} else {
+-			module_put(THIS_MODULE);
+-			retval = 1;
+-		}
+-                break;
+-
+ 	case ISO_LISTEN_CHANNEL:
+         {
+ 		u64 mask;
+@@ -3202,6 +3192,7 @@
+ }
+ 
+ static struct hpsb_host_driver ohci1394_driver = {
++	.owner =		THIS_MODULE,
+ 	.name =			OHCI1394_DRIVER_NAME,
+ 	.get_rom =		ohci_get_rom,
+ 	.transmit_packet =	ohci_transmit,
+===== drivers/ieee1394/pcilynx.c 1.24 vs edited =====
+--- 1.24/drivers/ieee1394/pcilynx.c	Tue Feb 11 00:00:08 2003
++++ edited/drivers/ieee1394/pcilynx.c	Fri Feb 21 16:10:16 2003
+@@ -801,17 +801,6 @@
+ 
+                 break;
+ 
+-        case MODIFY_USAGE:
+-		if (arg) {
+-			if (try_module_get(THIS_MODULE))
+-				retval = 1;
+-		} else {
+-			module_put(THIS_MODULE);
+-			retval = 1;
+-		}
+-
+-                break;
+-
+         case ISO_LISTEN_CHANNEL:
+                 spin_lock_irqsave(&lynx->iso_rcv.lock, flags);
+                 
+@@ -1904,6 +1893,7 @@
+ };
+ 
+ static struct hpsb_host_driver lynx_driver = {
++	.owner =	   THIS_MODULE,
+ 	.name =		   PCILYNX_DRIVER_NAME,
+         .get_rom =         get_lynx_rom,
+         .transmit_packet = lynx_transmit,
+===== include/linux/ipmi_smi.h 1.1 vs edited =====
+--- 1.1/include/linux/ipmi_smi.h	Tue Nov 26 23:06:25 2002
++++ edited/include/linux/ipmi_smi.h	Fri Feb 21 15:58:27 2003
+@@ -78,6 +78,8 @@
+ 
+ struct ipmi_smi_handlers
+ {
++	struct module *owner;
++
+ 	/* Called to enqueue an SMI message to be sent.  This
+ 	   operation is not allowed to fail.  If an error occurs, it
+ 	   should report back the error in a received message.  It may
+@@ -92,15 +94,6 @@
+ 	/* Called by the upper layer to request that we try to get
+ 	   events from the BMC we are attached to. */
+ 	void (*request_events)(void *send_info);
+-
+-	/* Called when someone is using the interface, so the module can
+-	   adjust it's use count.  Return zero if successful, or an
+-	   errno if not. */
+-	int (*new_user)(void *send_info);
+-
+-	/* Called when someone is no longer using the interface, so the
+-	   module can adjust it's use count. */
+-	void (*user_left)(void *send_info);
+ 
+ 	/* Called when the interface should go into "run to
+ 	   completion" mode.  If this call sets the value to true, the
+===== include/linux/sunrpc/auth.h 1.7 vs edited =====
+--- 1.7/include/linux/sunrpc/auth.h	Sun Jan 12 22:40:31 2003
++++ edited/include/linux/sunrpc/auth.h	Fri Feb 21 16:11:09 2003
+@@ -84,6 +84,7 @@
+  * Client authentication ops
+  */
+ struct rpc_authops {
++	struct module		*owner;
+ 	rpc_authflavor_t	au_flavor;	/* flavor (RPC_AUTH_*) */
+ #ifdef RPC_DEBUG
+ 	char *			au_name;
+===== net/sunrpc/auth.c 1.10 vs edited =====
+--- 1.10/net/sunrpc/auth.c	Sun Jan 12 22:40:31 2003
++++ edited/net/sunrpc/auth.c	Fri Feb 21 16:27:32 2003
+@@ -8,6 +8,7 @@
+ 
+ #include <linux/types.h>
+ #include <linux/sched.h>
++#include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/errno.h>
+ #include <linux/socket.h>
+@@ -65,6 +66,8 @@
+ 
+ 	if (flavor >= RPC_AUTH_MAXFLAVOR || !(ops = auth_flavors[flavor]))
+ 		return NULL;
++	if (!try_module_get(ops->owner))
++		return NULL;
+ 	clnt->cl_auth = ops->create(clnt, pseudoflavor);
+ 	return clnt->cl_auth;
+ }
+@@ -73,6 +76,7 @@
+ rpcauth_destroy(struct rpc_auth *auth)
+ {
+ 	auth->au_ops->destroy(auth);
++	module_put(auth->au_ops->owner);
+ }
+ 
+ static spinlock_t rpc_credcache_lock = SPIN_LOCK_UNLOCKED;
+===== net/sunrpc/auth_null.c 1.9 vs edited =====
+--- 1.9/net/sunrpc/auth_null.c	Sun Jan 12 22:40:13 2003
++++ edited/net/sunrpc/auth_null.c	Fri Feb 21 16:26:30 2003
+@@ -8,6 +8,7 @@
+ 
+ #include <linux/types.h>
+ #include <linux/socket.h>
++#include <linux/module.h>
+ #include <linux/in.h>
+ #include <linux/utsname.h>
+ #include <linux/sunrpc/clnt.h>
+@@ -125,6 +126,7 @@
+ }
+ 
+ struct rpc_authops	authnull_ops = {
++	.owner		= THIS_MODULE,
+ 	.au_flavor	= RPC_AUTH_NULL,
+ #ifdef RPC_DEBUG
+ 	.au_name	= "NULL",
+===== net/sunrpc/auth_unix.c 1.9 vs edited =====
+--- 1.9/net/sunrpc/auth_unix.c	Sun Jan 12 22:40:13 2003
++++ edited/net/sunrpc/auth_unix.c	Fri Feb 21 16:27:49 2003
+@@ -8,6 +8,7 @@
+ 
+ #include <linux/types.h>
+ #include <linux/sched.h>
++#include <linux/module.h>
+ #include <linux/socket.h>
+ #include <linux/in.h>
+ #include <linux/sunrpc/clnt.h>
+@@ -219,6 +220,7 @@
+ }
+ 
+ struct rpc_authops	authunix_ops = {
++	.owner		= THIS_MODULE,
+ 	.au_flavor	= RPC_AUTH_UNIX,
+ #ifdef RPC_DEBUG
+ 	.au_name	= "UNIX",
+===== net/sunrpc/auth_gss/auth_gss.c 1.2 vs edited =====
+--- 1.2/net/sunrpc/auth_gss/auth_gss.c	Sun Jan 12 22:40:31 2003
++++ edited/net/sunrpc/auth_gss/auth_gss.c	Fri Feb 21 16:12:45 2003
+@@ -438,8 +438,6 @@
+ 	struct rpc_auth * auth;
+ 
+ 	dprintk("RPC: creating GSS authenticator for client %p\n",clnt);
+-	if (!try_module_get(THIS_MODULE))
+-		return NULL;
+ 	if (!(gss_auth = kmalloc(sizeof(*gss_auth), GFP_KERNEL)))
+ 		goto out_dec;
+ 	gss_auth->mech = gss_pseudoflavor_to_mech(flavor);
+@@ -470,7 +468,6 @@
+ err_free:
+ 	kfree(gss_auth);
+ out_dec:
+-	module_put(THIS_MODULE);
+ 	return NULL;
+ }
+ 
+@@ -691,6 +688,7 @@
+ }
+ 
+ static struct rpc_authops authgss_ops = {
++	.owner		= THIS_MODULE,
+ 	.au_flavor	= RPC_AUTH_GSS,
+ #ifdef RPC_DEBUG
+ 	.au_name	= "RPCSEC_GSS",
+===== sound/pci/rme9652/hammerfall_mem.c 1.11 vs edited =====
+--- 1.11/sound/pci/rme9652/hammerfall_mem.c	Mon Jan 27 18:30:54 2003
++++ edited/sound/pci/rme9652/hammerfall_mem.c	Fri Feb 21 16:00:23 2003
+@@ -150,8 +150,6 @@
+ 	for (i = 0; i < NBUFS; i++) {
+ 		rbuf = &hammerfall_buffers[i];
+ 		if (rbuf->flags == HAMMERFALL_BUF_ALLOCATED) {
+-			if (! try_module_get(THIS_MODULE))
+-				return NULL;
+ 			rbuf->flags |= HAMMERFALL_BUF_USED;
+ 			rbuf->pci = pcidev;
+ 			*dmaaddr = rbuf->addr;
+@@ -171,7 +169,6 @@
+ 		rbuf = &hammerfall_buffers[i];
+ 		if (rbuf->buf == addr && rbuf->pci == pcidev) {
+ 			rbuf->flags &= ~HAMMERFALL_BUF_USED;
+-			module_put(THIS_MODULE);
+ 			return;
+ 		}
+ 	}

@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263114AbTJPRtg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 13:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbTJPRtg
+	id S263077AbTJPRqP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 13:46:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbTJPRqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 13:49:36 -0400
-Received: from mailhost.NMT.EDU ([129.138.4.52]:23712 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id S263114AbTJPRtc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 13:49:32 -0400
-Date: Thu, 16 Oct 2003 11:49:27 -0600
-From: Val Henson <val@nmt.edu>
-To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: Transparent compression in the FS
-Message-ID: <20031016174927.GB25836@speare5-1-14>
-References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com> <20031016162926.GF1663@velociraptor.random> <20031016172930.GA5653@work.bitmover.com>
-Mime-Version: 1.0
+	Thu, 16 Oct 2003 13:46:15 -0400
+Received: from adsl-66-127-195-58.dsl.snfc21.pacbell.net ([66.127.195.58]:47806
+	"EHLO panda.mostang.com") by vger.kernel.org with ESMTP
+	id S263077AbTJPRqL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 13:46:11 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] frandom - fast random generator module
+References: <HbGf.8rL.1@gated-at.bofh.it> <HbQ5.ep.27@gated-at.bofh.it> <Hdyv.2Vd.13@gated-at.bofh.it> <HeE6.4Cc.1@gated-at.bofh.it> <HjaT.3nN.7@gated-at.bofh.it> <Hjkw.3Al.11@gated-at.bofh.it>
+From: David Mosberger-Tang <David.Mosberger@acm.org>
+Date: 16 Oct 2003 10:46:10 -0700
+In-Reply-To: <Hjkw.3Al.11@gated-at.bofh.it>
+Message-ID: <ugzng1axel.fsf@panda.mostang.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031016172930.GA5653@work.bitmover.com>
-User-Agent: Mutt/1.4.1i
-X-Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 16, 2003 at 10:29:30AM -0700, Larry McVoy wrote:
-> On Wed, Oct 15, 2003 at 11:13:27AM -0400, Jeff Garzik wrote:
-> > Josh and others should take a look at Plan9's venti file storage method 
-> > -- archival storage is a series of unordered blocks, all of which are 
-> > indexed by the sha1 hash of their contents.  This magically coalesces 
-> > all duplicate blocks by its very nature, including the loooooong runs of 
-> > zeroes that you'll find in many filesystems.  I bet savings on "all 
-> > bytes in this block are zero" are worth a bunch right there.
-> 
-> The only problem with this is that you can get false positives.  Val Hensen
-> recently wrote a paper about this.  It's really unlikely that you get false
-> positives but it can happen and it has happened in the field.  
+>>>>> On Thu, 16 Oct 2003 18:40:12 +0200, Jeff Garzik <jgarzik@pobox.com> said:
 
-To be fair, I talked to someone who claims that Venti now checks for
-hash collisions on writes, but that's not what the original paper
-describes and I haven't confirmed it.
+  Jeff> We don't need "low cost RNG" and "high cost RNG" in the same
+  Jeff> kernel. That just begs a "reduce RNG cost" solution...  I
+  Jeff> think security experts can easily come up with arguments as to
+  Jeff> why creating your own "low-cost crappy PRNG" isn't needed --
+  Jeff> you either need crypto-secure, or you don't.  If you don't,
+  Jeff> then you could just as easily create an ascending 64-bit
+  Jeff> number for your opaque filehandle, or use a hash value, or
+  Jeff> some other solution that doesn't require an additional PRNG in
+  Jeff> the kernel.
 
-The compare-by-hash paper is only 6 pages long, at least take the time
-to read it before you start using compare-by-hash:
+I don't think that's true.  For example, the perfmon module in ia64
+needs a fast pseudo-random number generator in order to randomize
+sampling intervals.  It doesn't have to be a great RNG (certainly not
+crypto-secure), but it does have to have reasonable properties to
+avoid statistical bias.  We have tried without in-kernel RNG and the
+results were unusable (e.g., resetting the sampling intervals in
+user-space was far too costly and not randomizing the sampling
+intervals caused horrible bias).  The RNG we settled on for now is the
+Carta's (see arch/ia64/lib/carta_random.S), which is quite fast and
+compact (all of 19 machine instructions).
 
-http://www.usenix.org/events/hotos03/tech/henson.html
-
-Abstract:
-
- "Recent research has produced a new and perhaps dangerous technique
-  for uniquely identifying blocks that I will call
-  compare-by-hash. Using this technique, we decide whether two blocks
-  are identical to each other by comparing their hash values, using a
-  collision-resistant hash such as SHA-1. If the hash values match,
-  we assume the blocks are identical without further ado. Users of
-  compare-by-hash argue that this assumption is warranted because the
-  chance of a hash collision between any two randomly generated blocks
-  is estimated to be many orders of magnitude smaller than the chance
-  of many kinds of hardware errors. Further analysis shows that this
-  approach is not as risk-free as it seems at first glance."
-
--VAL (not subscribed to l-k ATM)
+	--david
+--
+David Mosberger; 35706 Runckel Lane; Fremont, CA 94536; David.Mosberger@acm.org

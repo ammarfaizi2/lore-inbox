@@ -1,66 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbVAMDwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVAMDyB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbVAMDwM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 22:52:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVAMDwM
+	id S261424AbVAMDyB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 22:54:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVAMDyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 22:52:12 -0500
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:37973 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261421AbVAMDwD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 22:52:03 -0500
-Message-ID: <41E5EF2B.3050105@yahoo.com.au>
-Date: Thu, 13 Jan 2005 14:46:51 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Andrew Morton <akpm@osdl.org>, clameter@sgi.com, torvalds@osdl.org,
-       ak@muc.de, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: Re: page table lock patch V15 [0/7]: overview
-References: <Pine.LNX.4.44.0501130258210.4577-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0501130258210.4577-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Jan 2005 22:54:00 -0500
+Received: from grendel.firewall.com ([66.28.58.176]:49055 "EHLO
+	grendel.firewall.com") by vger.kernel.org with ESMTP
+	id S261424AbVAMDxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 22:53:37 -0500
+Date: Thu, 13 Jan 2005 04:53:31 +0100
+From: Marek Habersack <grendel@caudium.net>
+To: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050113035331.GC9176@beowulf.thanes.org>
+Reply-To: grendel@caudium.net
+References: <20050112094807.K24171@build.pdx.osdl.net> <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org> <20050113032506.GB1212@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="82I3+IH0IqGh5yIs"
+Content-Disposition: inline
+In-Reply-To: <20050113032506.GB1212@redhat.com>
+Organization: I just...
+X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
+X-message-flag: Outlook - A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> On Thu, 13 Jan 2005, Nick Piggin wrote:
-> 
->>Andrew Morton wrote:
->>
->>Note that this was with my ptl removal patches. I can't see why Christoph's
->>would have _any_ extra overhead as they are, but it looks to me like they're
->>lacking in atomic ops. So I'd expect something similar for Christoph's when
->>they're properly atomic.
->>
->>
->>>Look, -7% on a 2-way versus +700% on a many-way might well be a tradeoff we
->>>agree to take.  But we need to fully understand all the costs and benefits.
->>
->>I think copy_page_range is the one to keep an eye on.
-> 
-> 
-> Christoph's currently lack set_pte_atomics in the fault handlers, yes.
-> But I don't see why they should need set_pte_atomics in copy_page_range
-> (which is why I persuaded him to drop forcing set_pte to atomic).
-> 
-> dup_mmap has down_write of the src mmap_sem, keeping out any faults on
-> that.  copy_pte_range has spin_lock of the dst page_table_lock and the
-> src page_table_lock, keeping swapout away from those.  Why would atomic
-> set_ptes be needed there?  Probably in yours, but not in Christoph's.
-> 
 
-I was more thinking of atomic pte reads there. I had for some reason
-thought that dup_mmap only had a down_read of the mmap_sem. But even if
-it did only down_read, a further look showed this wouldn't have been a
-problem for Christoph anyway. That dim light-bulb probably changes things
-for my patches too; I may be able to do copy_page_range with fewer atomics.
+--82I3+IH0IqGh5yIs
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'm still not too sure that all places read the pte atomically where needed.
-But presently this is not a really big concern because it only would
-really slow down i386 PAE if anything.
+On Wed, Jan 12, 2005 at 10:25:06PM -0500, Dave Jones scribbled:
+[snip]
+>  > Whatever. I happen to believe in openness, and vendor-sec does not. It=
+'s
+>  > that simple.
+>=20
+> That openness comes at a price. I don't need to bore you with
+> analogies, as you know as well as I do how wide and far Linux
+> is deployed these days, but doing this openly is just irresponsible.
+>
+> Someone malicious on getting the announcement of a new kernel.org release
+> gets told exactly where the hole is and how to exploit it.
+> All they'll need to do is find a target running a vendor kernel before
+> updates get deployed.  Whilst this is true to a certain degree
+> today, as not everyone deploys security updates in a timely manner
+> (some not at all), things can only get worse.
+That might be, but note one thing: not everybody runs vendor kernels (for v=
+arious
+reasons). Now see what happens when the super-secret vulnerability (with
+vendor fixes) is described in an advisory. A person managing a park of mach=
+ines=20
+(let's say 100) with custom, non-vendor, kernels suddenly finds out that th=
+ey=20
+have a buggy kernel and 100 machines to upgrade while the exploit and the
+description of the vuln are out in the wild. They have to port their
+custom stuff to the new kernel, compile it, test it (at least a bit), deploy
+on 100 machines and pray it doesn't break. During all that time (and the
+whole process won't take a day or even two) the evil guys are far ahead of
+the poor bastard managing the 100 machines (since all they need is one
+exploit which will work on any of our admin's machines). One other factor=
+=20
+that makes it hard for such a person to apply the patches is simply that th=
+ere=20
+is no single place to find the security patches in. He goes to securityfocu=
+s.com,=20
+for instance, and what does he find? A nice description of the vulnerabilit=
+y, a
+discussion, a list of affected kernel versions and credits which usually
+list vendor advisories and kernel versions and very rarely a link to an
+archived mail message or a webpage with the patch. Hoping he'll find the
+fixes in the vendor kernels, he goes to download source packages from SuSe,
+RedHat or Trustix, Debian, Ubuntu, whatever and discovers that it is as easy
+to find the patch there as it is to fish it out of the vanilla kernel patch
+for the new version. Frustrating, isn't it? Not to mention that he might
+need to backport the fix, if he runs an earlier version of the kernel.
+And now assume that everything is as extremely open as Linus says - the
+admin has the same access to the exact information the vendors on vendor-sec
+have, together with the same fix they have (in form of a simple patch
+available without fishing for it all over the place). He starts the race
+with the bad guys exactly at the same time they start running looking for
+the vulnerable machines on the 'Net. Priceless, IMHO.=20
+I guess that, contrary to what you've just said above, hiding the
+information is irresponsible.
+Having said that, I don't think everything should be as extremely open as
+Linus would want it to see, but rather the way he proposed (and which many
+folks agreed to) with the 5-day (or so) embargo for the advisory release and
+with the patch(es)/discussion openly available to anyone interested (based
+on the premise that most people learn about vulnerabilities not from
+security lists but from security bulletins, tech news sites, user forums et=
+c.)
 
+best regards,
+
+marek
+
+--82I3+IH0IqGh5yIs
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFB5fC7q3909GIf5uoRAtPiAJ9vBnEOU2cUVS5aK4f/N7wXJPyVFgCfRt2Q
+332boBFnxeuwYEPChm5h16g=
+=u/zN
+-----END PGP SIGNATURE-----
+
+--82I3+IH0IqGh5yIs--

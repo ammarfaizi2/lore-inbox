@@ -1,63 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267058AbUBRXBk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 18:01:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267066AbUBRXBk
+	id S267086AbUBRXxe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 18:53:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267107AbUBRXxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 18:01:40 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:11790 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267058AbUBRXBM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 18:01:12 -0500
-Date: Wed, 18 Feb 2004 23:00:55 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>, tovalds@osdl.org
-Cc: Christoph Hellwig <hch@infradead.org>, paulmck@us.ibm.com,
-       arjanv@redhat.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Non-GPL export of invalidate_mmap_range
-Message-ID: <20040218230055.A14889@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, tovalds@osdl.org, paulmck@us.ibm.com,
-	arjanv@redhat.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20040216190927.GA2969@us.ibm.com> <20040217073522.A25921@infradead.org> <20040217124001.GA1267@us.ibm.com> <20040217161929.7e6b2a61.akpm@osdl.org> <1077108694.4479.4.camel@laptop.fenrus.com> <20040218140021.GB1269@us.ibm.com> <20040218211035.A13866@infradead.org> <20040218150607.GE1269@us.ibm.com> <20040218222138.A14585@infradead.org> <20040218145132.460214b5.akpm@osdl.org>
+	Wed, 18 Feb 2004 18:53:34 -0500
+Received: from 10fwd.cistron-office.nl ([62.216.29.197]:23245 "EHLO
+	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
+	id S267086AbUBRXx2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 18:53:28 -0500
+Date: Thu, 19 Feb 2004 00:52:43 +0100
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: Jens Axboe <axboe@suse.de>
+Cc: Miquel van Smoorenburg <miquels@cistron.nl>, linux-lvm@sistina.com,
+       linux-kernel@vger.kernel.org, Joe Thornber <thornber@redhat.com>
+Subject: Re: IO scheduler, queue depth, nr_requests
+Message-ID: <20040218235243.GA30621@drinkel.cistron.nl>
+References: <20040216131609.GA21974@cistron.nl> <20040216133047.GA9330@suse.de> <20040217145716.GE30438@traveler.cistron.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040218145132.460214b5.akpm@osdl.org>; from akpm@osdl.org on Wed, Feb 18, 2004 at 02:51:32PM -0800
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040217145716.GE30438@traveler.cistron.net> (from miquels@cistron.nl on Tue, Feb 17, 2004 at 15:57:16 +0100)
+X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18, 2004 at 02:51:32PM -0800, Andrew Morton wrote:
-> a) Does the export make technical sense?  Do filesystems have
->    legitimate need for access to this symbol?
+On Tue, 17 Feb 2004 15:57:16, Miquel van Smoorenburg wrote:
+> For some reason, when using LVM, write requests get queued out
+> of order to the 3ware controller, which results in quite a bit
+> of seeking and thus performance loss.
+[..]
+> Okay I repeated some earlier tests, and I added some debug code in
+> several places.
 > 
-> (really, a) is sufficient grounds, but for real-world reasons:)
+> I added logging to tw_scsi_queue() in the 3ware driver to log the
+> start sector and length of each request. It logs something like:
+> 3wdbg: id 119, lba = 0x2330bc33, num_sectors = 256
 > 
-> b) Does the IBM filsystem meet the kernel's licensing requirements?
+> With a perl script, I can check if the requests are sent to the
+> host in order. That outputs something like this:
 > 
+> Consecutive: start 1180906348, length 7936 sec (3968 KB), requests: 31
+> Consecutive: start 1180906340, length 8 sec (4 KB), requests: 1
+> Consecutive: start 1180914292, length 7936 sec (3968 KB), requests: 31
+> Consecutive: start 1180914284, length 8 sec (4 KB), requests: 1
+> Consecutive: start 1180922236, length 7936 sec (3968 KB), requests: 31
+> Consecutive: start 1180922228, length 8 sec (4 KB), requests: 1
+> Consecutive: start 1180930180, length 7936 sec (3968 KB), requests: 31
 > 
-> It appears that the answers are a): yes and b) probably.
+> See, 31 requests in order, then one request "backwards", then 31 in order, etc.
 
-Well, the answer to b) is most likely not.  I see it very hard to argue to
-have something like gpfs not beeing a derived work.  The glue code they
-had online certainly looked very much like a derived work, and if the new
-version got better they wouldn't have any reason to remove it from the
-website, right?
+I found out what causes this. It's get_request_wait().
 
-> Please, feel free to add additional criteria.  We could also ask "do we
-> want to withhold this symbols to encourage IBM to GPL the filesystem" or
-> "do we simply refuse to export any symbol which is not used by any GPL
-> software" (if so, why?).
+When the request queue is full, and a new request needs to be created,
+__make_request() blocks in get_request_wait().
 
-Yes.  Andrew, please read the GPL, it's very clear about derived works.
-Then please tell me why you think gpfs is not a derived work.
+Another process wakes up first (pdflush / process submitting I/O itself /
+xfsdatad / etc) and sends the next bio's to __make_request().
+In the mean time some free requests have become available, and the bios
+are merged into a new request. Those requests are submitted to the device.
 
-> But at the end of the day, if we decide to not export this symbol, we owe
-> Paul a good, solid reason, yes?
+Then, get_request_wait() returns but the bio is not mergeable anymore -
+and that results in a backwards seek, severely limiting the I/O rate.
 
-Yes.  We've traditionally not exported symbols unless we had an intree user,
-and especially not if it's for a module that's not GPL licensed.
+Wouldn't it be better to allow the request allocation and queue the
+request, and /then/ put the process to sleep ? The queue will grow larger
+than nr_requests, but it does that anyway.
 
-We had this discussion with Linus a few time, maybe he can comment again to
-make it clear.
+Mike.

@@ -1,64 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263546AbTJ0UB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 15:01:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263556AbTJ0UBZ
+	id S263478AbTJ0Txg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 14:53:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263485AbTJ0Txg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 15:01:25 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:41090 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263546AbTJ0UBY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 15:01:24 -0500
-Date: Mon, 27 Oct 2003 20:03:02 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200310272003.h9RK32B2001618@81-2-122-30.bradfords.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>, Hans Reiser <reiser@namesys.com>
-Cc: "Mudama, Eric" <eric_mudama@Maxtor.com>,
-       "'Norman Diamond'" <ndiamond@wta.att.ne.jp>,
-       "'Wes Janzen '" <superchkn@sbcglobal.net>,
-       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
-       "'John Bradford '" <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-       nikita@namesys.com, "'Pavel Machek '" <pavel@ucw.cz>,
-       "'Justin Cormack '" <justin@street-vision.com>,
-       "'Vitaly Fertman '" <vitaly@namesys.com>,
-       "'Krzysztof Halasa '" <khc@pm.waw.pl>
-In-Reply-To: <3F9D7666.6010504@pobox.com>
-References: <785F348679A4D5119A0C009027DE33C105CDB3B0@mcoexc04.mlm.maxtor.com>
- <3F9D6891.5040300@namesys.com>
- <3F9D7666.6010504@pobox.com>
-Subject: Re: Blockbusting news, results get worse
+	Mon, 27 Oct 2003 14:53:36 -0500
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:31670 "EHLO
+	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
+	id S263478AbTJ0Txd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 14:53:33 -0500
+Message-ID: <3F9D77D5.4010306@blue-labs.org>
+Date: Mon, 27 Oct 2003 14:53:57 -0500
+From: David Ford <david+powerix@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: test9 suspend problems
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from Jeff Garzik <jgarzik@pobox.com>:
-> Hans Reiser wrote:
-> > Mudama, Eric wrote:
-> > 
-> >>
-> >> or put it under heavy write workload and remove
-> >> power.
-> >>
-> > Can you tell us more about what really happens to disk drives when the 
-> > power is cut while a block is being written?  We engage in a lot of 
-> > uninformed speculation, and it would be nice if someone who really knows 
-> > told us....
-> > 
-> > Do drives have enough capacitance under normal conditions to finish 
-> > writing the block?  Does ECC on the drive detect that the block was bad 
-> > and so we don't need to detect it in the FS?
-> 
-> 
-> Does it really matter to speculate about this?
-> 
-> If you don't FLUSH CACHE, you have no guarantees your data is on the 
-> platter.
+# echo -n mem > /sys/power/state
 
-I think that the idea that is floating around is to deliberately ruin
-the formatting on part of the drive in order to simulate a bad block.
+PM: Preparing system for suspend
+Stopping tasks: ======================================================|
+hdb: start_power_step(step: 0)
+hdb: completing PM request, suspend
+hda: start_power_step(step: 0)
+hda: start_power_step(step: 1)
+hda: complete_power_step(step: 1, stat: 50, err: 0)
+hda: completing PM request, suspend
+PM: Entering state.
+Back to C!
+PM: Finishing up.
+PCI: Setting latency timer of device 0000:00:1d.0 to 64
+PCI: Setting latency timer of device 0000:00:1d.2 to 64
+PCI: Setting latency timer of device 0000:00:1f.5 to 64
+drivers/usb/host/uhci-hcd.c: bf80: host system error, PCI problems?
+drivers/usb/host/uhci-hcd.c: bf80: host controller halted. very bad
+orinoco_lock() called with hw_unavailable (dev=dcf667f8)
+drivers/usb/host/uhci-hcd.c: bf80: host controller halted. very bad
+drivers/usb/host/uhci-hcd.c: bf20: host system error, PCI problems?
+drivers/usb/host/uhci-hcd.c: bf20: host controller halted. very bad
+orinoco_lock() called with hw_unavailable (dev=dcf667f8)
+hda: Wakeup request inited, waiting for !BSY...
+hda: start_power_step(step: 1000)
+blk: queue df5b4bf8, I/O limit 4095Mb (mask 0xffffffff)
+hda: completing PM request, resume
+hdb: Wakeup request inited, waiting for !BSY...
+hdb: start_power_step(step: 1000)
+hdb: completing PM request, resume
+drivers/acpi/osl.c:734: spin_lock(drivers/acpi/osl.c:dffe0cb0) already 
+locked by                     drivers/acpi/osl.c/734
+drivers/acpi/osl.c:753: spin_unlock(drivers/acpi/osl.c:dffe0cb0) not locked
+Restarting tasks... done
+drivers/usb/host/uhci-hcd.c: bf80: host controller halted. very bad
+drivers/usb/host/uhci-hcd.c: bf20: host controller halted. very bad
+eth1: New link status: Connected (0001)
+PM: Preparing system for suspend
+Stopping tasks: ======================================================
+ stopping tasks failed (1 tasks remaining)
+Restarting tasks...<6> Strange, artsd not stopped
+ done
+PM: Preparing system for suspend
+Stopping tasks: ======================================================
+ stopping tasks failed (1 tasks remaining)
+Restarting tasks...<6> Strange, artsd not stopped
+ done
 
-Operation of disk drives immediately after a power failiure has been
-discussed before, by the way:
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100665153518652&w=2
+On resume, I need to a) close the lid and open it, b) run setfont to 
+clear the garbage off the screen and make the text readable, and c) run 
+kbdrate to reset the keyboard rate.
 
-John.
+Problems: USB doesn't work after resuming. After plugging in a USB 
+mouse, all I get is:
+
+drivers/usb/host/uhci-hcd.c: bf80: host system error, PCI problems?
+drivers/usb/host/uhci-hcd.c: bf80: host controller halted. very bad
+
+Also, artsd and suspend just don't cooperate well.
+
+artsd         D C255DAFC     0  2227   2080          2233       (NOTLB)
+d8465ea8 00200082 df8d5960 c255dafc 0000000c df314df8 00000001 d849e960
+       d8465ebc d035c960 c255dafc 0000000c df8d5960 0000014f c2566a95 
+0000000c
+       d849e960 df3aae24 00200286 d8464000 df3aae2c c0108155 df314df8 
+0000000e
+Call Trace:
+ [<c0108155>] __down+0x133/0x32c
+ [<c03ca818>] snd_pcm_action_single+0x5f/0x61
+ [<c01259bd>] default_wake_function+0x0/0x2e
+ [<c03d0605>] snd_pcm_playback_ioctl+0x0/0x33
+ [<c0108830>] __down_failed+0x8/0xc
+ [<c03d1548>] .text.lock.pcm_native+0x2d/0xc9
+ [<c03cfc05>] snd_pcm_playback_ioctl1+0x52/0x610
+ [<c01128f9>] timer_interrupt+0x2c6/0x3b6
+ [<c03d0605>] snd_pcm_playback_ioctl+0x0/0x33
+ [<c0195013>] sys_ioctl+0x214/0x405
+ [<c0130b0d>] sys_gettimeofday+0x67/0xd0
+ [<c010a07b>] syscall_call+0x7/0xb
+
+
+

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262803AbTJDXPS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 19:15:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbTJDXPS
+	id S262799AbTJDXIj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 19:08:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262801AbTJDXIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 19:15:18 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:45998 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262803AbTJDXPQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 19:15:16 -0400
-Date: Sat, 4 Oct 2003 16:10:37 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Vishwas Raman <vishwas@eternal-systems.com>
-Cc: linux-kernel@vger.kernel.org
+	Sat, 4 Oct 2003 19:08:39 -0400
+Received: from [207.175.35.50] ([207.175.35.50]:45592 "EHLO
+	alpha.eternal-systems.com") by vger.kernel.org with ESMTP
+	id S262799AbTJDXIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 19:08:38 -0400
+Message-ID: <3F7F5294.1090606@eternal-systems.com>
+Date: Sat, 04 Oct 2003 16:07:00 -0700
+From: Vishwas Raman <vishwas@eternal-systems.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: Accessing tcp socket information from within a module
-Message-Id: <20031004161037.05b9e5ee.davem@redhat.com>
-In-Reply-To: <3F7F5294.1090606@eternal-systems.com>
-References: <3F7E0DFF.2030404@eternal-systems.com>
-	<20031003225124.17a440c2.davem@redhat.com>
-	<3F7F5294.1090606@eternal-systems.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <3F7E0DFF.2030404@eternal-systems.com> <20031003225124.17a440c2.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 04 Oct 2003 16:07:00 -0700
-Vishwas Raman <vishwas@eternal-systems.com> wrote:
+David S. Miller wrote:
+> On Fri, 03 Oct 2003 17:02:07 -0700
+> Vishwas Raman <vishwas@eternal-systems.com> wrote:
+> 
+> 
+>>Is there some way of accessing the information of all open tcp sockets 
+>>in the system, other than having to turn one of IPV6 or KHTTPD on?
+> 
+> 
+> You don't even need to write your kernel module, there is already
+> a special netlink socket provided to userspace exactly for this
+> purpose, to get info on all TCP sockets efficiently.
+> 
+> See net/ipv4/tcp_diag.c
+> 
 
-> And I need to get info on all TCP 
-> sockets and create/modify certain data structures of my own in the 
-> module based on that information.
+But what if I am interested in doing the same in kernel space and not 
+user space? The module I am writing is going to sit between the tcp and 
+ip layers of the networking stack. And I need to get info on all TCP 
+sockets and create/modify certain data structures of my own in the 
+module based on that information.
 
-Well, then, you're going to have to study and learn the entire
-TCP stack in order to learn how to do this and furthermore to be
-able to do this safely.
 
-I'm a bit skeptical of what you actually want to use this for,
-so I'm going to choose not to help you with this until you give
-some more details of what you're exactly up to.

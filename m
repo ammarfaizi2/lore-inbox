@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266296AbSLOJqN>; Sun, 15 Dec 2002 04:46:13 -0500
+	id <S266307AbSLOJsk>; Sun, 15 Dec 2002 04:48:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266298AbSLOJqM>; Sun, 15 Dec 2002 04:46:12 -0500
-Received: from mail.hometree.net ([212.34.181.120]:43470 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S266296AbSLOJqM>; Sun, 15 Dec 2002 04:46:12 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Networking/Becker et al [was Re: pci-skeleton duplex check]
-Date: Sun, 15 Dec 2002 09:54:05 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <athjft$4b7$1@forge.intermeta.de>
-References: <20021213092229.D9973@work.bitmover.com> <1039898841.855.1684.camel@phantasy>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1039946045 31896 212.34.181.4 (15 Dec 2002 09:54:05 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sun, 15 Dec 2002 09:54:05 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S266316AbSLOJsk>; Sun, 15 Dec 2002 04:48:40 -0500
+Received: from hauptpostamt.charite.de ([193.175.66.220]:6827 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id <S266307AbSLOJsj>; Sun, 15 Dec 2002 04:48:39 -0500
+Date: Sun, 15 Dec 2002 10:56:30 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre1
+Message-ID: <20021215095630.GD16227@charite.de>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.50L.0212101834240.23096-100000@freak.distro.conectiva> <20021211090829.GD8741@charite.de> <1039622867.17709.31.camel@irongate.swansea.linux.org.uk> <20021211153414.GQ8741@charite.de> <20021211155650.GU8741@charite.de> <1039627740.17709.82.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1039627740.17709.82.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love <rml@tech9.net> writes:
+* Alan Cox <alan@lxorguk.ukuu.org.uk>:
 
->On Sat, 2002-12-14 at 08:28, Henning P. Schmiedehausen wrote:
+> The hardware isnt at the normal ide base addresse, yet the chip is
+> reporting that it isnt in native mode. As far as I can see this
+> configuration isnt allowed.
+> 
+> We see that the chip isnt in native mode so we defer to the legacy
+> scanner. Since the ports are not valid the legacy scanner doesn't find
+> them.
 
->> e) put an alan-cox-like entity between him and the linux kernel developers
->>    which translates. Worked terrific for Andre Hedrick. :-)
-
->Isn't that what Jeff is?
-
-Yes. And he does a great job. But the second he started to put
-something in that he maintains in his subsystem, another obnoxious
-developer with too much spare time popped up and started whining about
-"don't put this crap in, Marcello". Of course, without offering any
-alternative.
-
-
-	Regards
-		Henning
+Will the fix be for thatbe in 2.4.20-ac3 / 2.4.21-pre2?
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
+Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
+How can you have an email virus? Mail software doesn't execute code,
+it just displays messages. 
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

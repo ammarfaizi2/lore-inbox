@@ -1,48 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262458AbTIOHKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 03:10:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262467AbTIOHKJ
+	id S262450AbTIOHJK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 03:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbTIOHJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 03:10:09 -0400
-Received: from vaxjo.synopsys.com ([198.182.60.75]:39632 "EHLO
-	vaxjo.synopsys.com") by vger.kernel.org with ESMTP id S262458AbTIOHKA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 03:10:00 -0400
-Date: Mon, 15 Sep 2003 09:09:45 +0200
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: bert hubert <ahu@ds9a.nl>, Mo McKinlay <lkml@ekto.ekol.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: logging when SIGSEGV is processed?
-Message-ID: <20030915070945.GD1091@Synopsys.COM>
-Reply-To: alexander.riesen@synopsys.COM
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Mo McKinlay <lkml@ekto.ekol.co.uk>, linux-kernel@vger.kernel.org
-References: <20030914111408.GA14514@strawberry.blancmange.org> <20030914171741.GA18627@outpost.ds9a.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030914171741.GA18627@outpost.ds9a.nl>
-Organization: Synopsys, Inc.
-User-Agent: Mutt/1.5.4i
+	Mon, 15 Sep 2003 03:09:10 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:40643 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262450AbTIOHJG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 03:09:06 -0400
+Date: Mon, 15 Sep 2003 09:09:02 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Gerardo Exequiel Pozzi <djgeray2k@yahoo.com.ar>
+cc: acpi-devel@lists.sourceforge.net,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Vaio doesn't poweroff with 2.4.22
+In-Reply-To: <20030915040318.1f8bfd18.djgeray2k@yahoo.com.ar>
+Message-ID: <Pine.GSO.4.21.0309150908430.3191-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert, Sun, Sep 14, 2003 19:17:41 +0200:
-> On Sun, Sep 14, 2003 at 12:14:08PM +0100, Mo McKinlay wrote:
+On Mon, 15 Sep 2003, Gerardo Exequiel Pozzi wrote:
+> On Mon, 15 Sep 2003 08:43:56 +0200 (MEST), Geert Uytterhoeven wrote:
+> >With 2.4.22, my Sony Vaio PCG-Z600TEK (s/600/505/ in US/JP) shows a regression
+> >w.r.t. power management:
+> >  - It doesn't poweroff anymore (screen contents are still there after the
+> >    powering down message)
+> >  - It doesn't reboot anymore (screen goes black, though)
+> >  - It accidentally suspended to RAM once while I was actively working on it (I
+> >    never managed to get suspend working, except for this `accident'). I didn't
+> >    see any messages about this in the kernel log.
+> >
+> >Relevant config options for 2.4.22:
+> >| tux$ grep acpi .config
+> >| # ACPI Support
+> >| CONFIG_ACPI=y
+> >| # CONFIG_ACPI_HT_ONLY is not set
+> >| CONFIG_ACPI_BOOT=y
+> >| CONFIG_ACPI_BUS=y
+> >| CONFIG_ACPI_INTERPRETER=y
+> >| CONFIG_ACPI_EC=y
+> >| CONFIG_ACPI_POWER=y
+> >| CONFIG_ACPI_PCI=y
+> >| CONFIG_ACPI_SLEEP=y
+> >| CONFIG_ACPI_SYSTEM=y
+> >| CONFIG_ACPI_AC=y
+> >| CONFIG_ACPI_BATTERY=y
+> >| CONFIG_ACPI_BUTTON=y
+> >| CONFIG_ACPI_FAN=y
+> >| CONFIG_ACPI_PROCESSOR=y
+> >| CONFIG_ACPI_THERMAL=y
+> >| # CONFIG_ACPI_ASUS is not set
+> >| # CONFIG_ACPI_TOSHIBA is not set
+> >| CONFIG_ACPI_DEBUG=y
+> >| # CONFIG_ACPI_RELAXED_AML is not set
+> >| tux$ 
+> >
+> >If you need more information or want me to ttry something, please ask!
 > 
-> > Admittedly, it might need some shoehorning into some existing setups (i.e.,
-> > where the daemon you wish to watch isn't started directly, but by something
-> > else), but it wouldn't be too tricky, I'd've thought.
+>  you have activate this opcion?
+> CONFIG_PM=y
 > 
-> init receives that stuff if a process has no other parent, I think, so that
-> might be a great place.
-> 
+> without this my machine don't poweroff after halt.
 
-will not work if the signal received by the child of a daemon, which does
-nothing about its status.
+Yes I have.
 
-Probably ptrace the daemon (following all its children) would server better.
-The feature (logging the coredumps) is definitely no needed for
-everything, just some suspectables.
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

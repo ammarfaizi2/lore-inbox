@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135317AbRAGADN>; Sat, 6 Jan 2001 19:03:13 -0500
+	id <S135306AbRAGAFd>; Sat, 6 Jan 2001 19:05:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135306AbRAGADE>; Sat, 6 Jan 2001 19:03:04 -0500
-Received: from firebox-ext.surrey.redhat.com ([194.201.25.236]:3070 "EHLO
-	meme.surrey.redhat.com") by vger.kernel.org with ESMTP
-	id <S135271AbRAGACu>; Sat, 6 Jan 2001 19:02:50 -0500
-Date: Sun, 7 Jan 2001 00:02:48 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: SCSI scanner problem with all kernels since 2.3.42
-Message-ID: <20010107000248.A11494@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S135383AbRAGAFX>; Sat, 6 Jan 2001 19:05:23 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:60049 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S135306AbRAGAFO>;
+	Sat, 6 Jan 2001 19:05:14 -0500
+Date: Sat, 6 Jan 2001 15:47:51 -0800
+Message-Id: <200101062347.PAA13598@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: rusty@linuxcare.com.au
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <E14EjHY-0005jK-00@halfway> (message from Rusty Russell on Sat,
+	06 Jan 2001 13:40:35 +1100)
+Subject: Re: PROBLEM: 2.4.0 Kernel Fails to compile when CONFIG_IP_NF_FTP is selected
+In-Reply-To: <E14EjHY-0005jK-00@halfway>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Rusty Russell <rusty@linuxcare.com.au>
+   Date: Sat, 06 Jan 2001 13:40:35 +1100
 
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+   CONFIG_IP_NF_FTP controls BOTH the ftp connection tracking and NAT
+   code.  The correct fix is below (untested, but you get the idea).
 
-I'm having problems with using xsane to acquire a preview from an HP
-ScanJet 5P connected to an AHA-2940.  2.3.42 is the last kernel that
-works right for me.
+I've applied this, it seems fine.  (I've also adapted it to the
+pending IRC stuff, so you don't need to send me a fix for that
+under seperate cover).
 
-The symptom is that the scanner starts to make scanning sounds, then
-stops, and xsane says 'Error during read: Error during device I/O'.
-
-Any ideas?
-
-Tim.
-*/
-
---uAKRQypu60I7Lcqm
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6V7ImONXnILZ4yVIRAl+gAJ9GWUmO5uTQU9FSEF132Q8wFyjCJQCgnX3x
-RP4IpgNRO6Iy0mSdywZIgZU=
-=tfhg
------END PGP SIGNATURE-----
-
---uAKRQypu60I7Lcqm--
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265700AbTAJRLg>; Fri, 10 Jan 2003 12:11:36 -0500
+	id <S265670AbTAJRJO>; Fri, 10 Jan 2003 12:09:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265705AbTAJRLg>; Fri, 10 Jan 2003 12:11:36 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:10891 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S265700AbTAJRLf>;
-	Fri, 10 Jan 2003 12:11:35 -0500
-Message-ID: <3E1F00BB.2090904@colorfullife.com>
-Date: Fri, 10 Jan 2003 18:19:55 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	id <S265675AbTAJRJO>; Fri, 10 Jan 2003 12:09:14 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47376 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265670AbTAJRJM>; Fri, 10 Jan 2003 12:09:12 -0500
+Date: Fri, 10 Jan 2003 09:11:23 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Gabriel Paubert <paubert@iram.es>
+cc: Ingo Molnar <mingo@elte.hu>, Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Ulrich Drepper <drepper@redhat.com>, <davej@codemonkey.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <Pine.LNX.4.33.0301101202020.1743-100000@gra-lx1.iram.es>
+Message-ID: <Pine.LNX.4.44.0301100909100.12833-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org, Maciej Soltysiak <solt@dns.toxicfilms.tv>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [PATCH]Re: spin_locks without smp.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan wrote:
 
->On Fri, 2003-01-10 at 13:04, William Lee Irwin III wrote:
->> Okay, what I'm getting here is that the UP case already has preempt
->> disabled b/c the locks are taken in IRQ context?
->
->The tx/timeout path isnt always in IRQ context.
->
-It is.
-tx and timeout are both called at BH context with the dev_xmit spinlock 
-held. See Documentation/networking/netdevices.txt
+On Fri, 10 Jan 2003, Gabriel Paubert wrote:
+> 
+> We cannot rely either on userspace not setting NT bit in eflags. While
+> it won't cause an oops since the only instruction which ever depends on
+> it, iret, has a handler (which needs to be patched, see below),
+> I'm absolutely not convinced that all code paths are "NT safe" ;-)
 
-What about
+It shouldn't matter.
 
-    disable_irq();
-    spin_lock(&np->lock);
+NT is only tested by "iret", and if somebody sets NT in user space they 
+get exactly what they deserve. 
 
-That's what 8390.c uses, no need for an #ifdef.
+> For example, set NT and then execute sysenter with garbage in %eax, the
+> kernel will try to return (-ENOSYS) with iret and kill the task. As long
+> as it only allows a task to kill itself, it's not a big deal. But NT is
+> not cleared across task switches unless I miss something, and that looks
+> very dangerous.
 
---
-    Manfred
+It _is_ cleared by task-switching these days. Or rather, it's saved and 
+restored, so the original NT setter will get it restored when resumed. 
+
+> I'm no Ingo, unfortunately, but you'll need at least the following patch
+> (the second hunk is only a typo fix) to the iret exception recovery code,
+> which used push and pops to get the smallest possible code size.
+
+Good job. 
+
+		Linus
 

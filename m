@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267881AbTB1OCU>; Fri, 28 Feb 2003 09:02:20 -0500
+	id <S267884AbTB1ODZ>; Fri, 28 Feb 2003 09:03:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267884AbTB1OCU>; Fri, 28 Feb 2003 09:02:20 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:53252 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S267881AbTB1OCT>; Fri, 28 Feb 2003 09:02:19 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302281413.h1SED1Hm000634@81-2-122-30.bradfords.org.uk>
-Subject: Re: syslog full of kernel BUGS, frequent intermittent instability
-To: redelm@ev1.net (Robert Redelmeier)
-Date: Fri, 28 Feb 2003 14:13:01 +0000 (GMT)
-Cc: vga@port.imtp.ilyichevsk.odessa.ua, coyote1@cytanet.com.cy,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030228134700.GA15589@adsl-66-140-130-38.dsl.hstntx.swbell.net> from "Robert Redelmeier" at Feb 28, 2003 07:47:00 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267885AbTB1ODZ>; Fri, 28 Feb 2003 09:03:25 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:45070 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267884AbTB1ODS>; Fri, 28 Feb 2003 09:03:18 -0500
+Date: Fri, 28 Feb 2003 09:10:01 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [KEXEC][2.5.63] Partially tested patches available
+In-Reply-To: <m11y1ulz79.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.3.96.1030228085058.25875B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You have bad hardware.  You must expect trouble.  Linux runs hardware
-> pretty hard.  Correctness then Performance appears to be Linus'
-> philosophy. If you are lucky, you can down-clock your bus.  If you
-> are _very_ lucky, a kernel without any K6 optimizations [compiled for
-> a 386] in the `bzero` and `bcopy` routines might reduce your error
-> frequency.  But if X detects and uses K6 routines, you're hosed.
+On 27 Feb 2003, Eric W. Biederman wrote:
 
-Also, try re-seating your RAM chips, and make sure that the CPU fan
-and heatsink are free of dust and properly attached to the CPU.
 
-John.
+> We need to get up some steam and see what it will take for Linus
+> to notice and actually get this patch included.
+
+I hate to say it, but "notice" and "include" are two different things. He
+noticed the "write oops to disk" feature, he just didn't like it. Linus is
+a great developer, but he has limited sys admin experience, if any. 
+Hopefully he will think it's cool, but don't assume that if you can get
+his attention he will respond as you wish. 
+
+Best of luck on this.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

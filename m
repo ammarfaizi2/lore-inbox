@@ -1,63 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbVCIGVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262171AbVCIG0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262096AbVCIGVE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 01:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbVCIGVD
+	id S262171AbVCIG0T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 01:26:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbVCIG0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 01:21:03 -0500
-Received: from pop-9.dnv.wideopenwest.com ([64.233.207.43]:12165 "EHLO
-	pop-9.dnv.wideopenwest.com") by vger.kernel.org with ESMTP
-	id S262096AbVCIGUj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 01:20:39 -0500
-Date: Wed, 9 Mar 2005 01:20:36 -0500
-From: Paul <set@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Pktcdvd and DVD RW drive.
-Message-ID: <20050309062036.GB7918@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>, linux-kernel@vger.kernel.org
-References: <200503082256.34965.assirati@nonada.if.usp.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503082256.34965.assirati@nonada.if.usp.br>
+	Wed, 9 Mar 2005 01:26:18 -0500
+Received: from smtp108.mail.sc5.yahoo.com ([66.163.170.6]:63320 "HELO
+	smtp108.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262171AbVCIGZ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 01:25:59 -0500
+Message-ID: <422E96D9.6090202@yahoo.com>
+Date: Tue, 08 Mar 2005 22:25:29 -0800
+From: Alex Aizman <itn780@yahoo.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8b) Gecko/20050217
+MIME-Version: 1.0
+To: Matt Mackall <mpm@selenic.com>
+CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE 0/6] Open-iSCSI High-Performance Initiator for Linux
+References: <422BFCB2.6080309@yahoo.com> <20050309050434.GT3163@waste.org> <422E8EEB.7090209@yahoo.com> <20050309060544.GW3120@waste.org>
+In-Reply-To: <20050309060544.GW3120@waste.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jo?o Luis Meloni Assirati <assirati@nonada.if.usp.br>, on Tue Mar 08, 2005 [10:56:34 PM] said:
-> Hello,
-> 
-> I have an
-> 
->  hdc: HL-DT-ST DVDRAM GSA-4120B, ATAPI CD/DVD-ROM drive
-> 
-> from LG. My kernel is a vanilla 2.6.11 with packet writing enabled. I noticed, 
-> however, that I can mount and write a CD-RW udf formatted with 
-> 
-> # cdrwtool -d /dev/hdc -q
-> 
-> without the need of the pktcdvd driver (with the module unloaded, indeed), 
-> simply with
-> 
-> # mount -t udf /dev/hdc /mnt
-> 
-> I thought that this was a property only of DVD+RW and DVDRAM media. Am I 
-> missing something here? What is then the use of pktcdvd driver?
-> 
-> Thanks in advice,
-> Joao Luis M. Assirati.
+Matt Mackall wrote:
 
-	Hi;
+>On Tue, Mar 08, 2005 at 09:51:39PM -0800, Alex Aizman wrote:
+>  
+>
+>>Matt Mackall wrote:
+>>
+>>    
+>>
+>>>How big is the userspace client?
+>>>
+>>>      
+>>>
+>>Hmm.. x86 executable? source?
+>>
+>>Anyway, there's about 12,000 lines of user space code, and growing. In 
+>>the kernel we have approx. 3,300 lines.
+>>
+>>    
+>>
+>>>>- 450MB/sec Read on a single connection (2-way 2.4Ghz Opteron, 64KB block 
+>>>>size);
+>>>>        
+>>>>
+>>>With what network hardware and drives, please?
+>>>
+>>>      
+>>>
+>>Neterion's 10GbE adapters. RAM disk on the target side.
+>>    
+>>
+>
+>Ahh.
+>
+>Snipped my question about userspace deadlocks - that was the important
+>one. It is in fact why the sfnet one is written as it is - it
+>originally had a userspace component and turned out to be easy to
+>deadlock under load because of it.
+>
+>  
+>
+There's (or at least was up until today) an ongoing discussion on our 
+mailing list at http://groups-beta.google.com/group/open-iscsi. The 
+short and long of it: the problem can be solved, and it will. Couple 
+simple things we already do: mlockall() to keep the daemon un-swapped, 
+and also looking into potential dependency created by syslog (there's 
+one for 2.4 kernel, not sure if this is an issue for 2.6).
 
-	Well, I have only tested this with dvd+rw (and mount with the
-noatime option, to avoid wearing out your media), and it is just *way*
-to slow, vs. pktcdvd. I gave up on a copy that would have taken a minute
-or two under pktcdvd after over an hour with just the block device
-mount.
-	Of course, pktcdvd gives me and others pretty consistant data
-corruption. (see bug 4290 on bugzilla.kernel.org)
+The sfnet is a learning experience; it is by no means a proof that it 
+cannot be done.
 
-Paul
-set@pobox.com
-
-ps. others have reported that mt. rainier support works well, and obviates
-pktcdvd.
+Alex

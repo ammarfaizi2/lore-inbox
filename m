@@ -1,211 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264500AbTEPRxe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 13:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264180AbTEPRxe
+	id S264180AbTEPSAh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 14:00:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbTEPSAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 13:53:34 -0400
-Received: from [216.239.30.242] ([216.239.30.242]:36366 "EHLO
-	wind.enjellic.com") by vger.kernel.org with ESMTP id S263339AbTEPRx1
+	Fri, 16 May 2003 14:00:37 -0400
+Received: from [193.10.185.236] ([193.10.185.236]:43018 "HELO
+	smtp.dormnet.his.se") by vger.kernel.org with SMTP id S264180AbTEPSAf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 13:53:27 -0400
-Message-Id: <200305161805.h4GI5buN032216@wind.enjellic.com>
-From: greg@wind.enjellic.com (Dr. Greg Wettstein)
-Date: Fri, 16 May 2003 13:05:36 -0500
-In-Reply-To: Linus Torvalds <torvalds@transmeta.com>
-       "Re: [OpenAFS-devel] Re: [PATCH] PAG support, try #2" (May 15, 10:23am)
-Reply-To: greg@enjellic.com
-X-Mailer: Mail User's Shell (7.2.5 10/14/92)
-To: Linus Torvalds <torvalds@transmeta.com>,
-       David Howells <dhowells@warthog.cambridge.redhat.com>
-Subject: Re: [OpenAFS-devel] Re: [PATCH] PAG support, try #2
-Cc: Dean Anderson <dean@av8.com>, Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Garance A Drosihn <drosih@rpi.edu>, Jan Harkes <jaharkes@cs.cmu.edu>,
-       David Howells <dhowells@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <linux-fsdevel@vger.kernel.org>
+	Fri, 16 May 2003 14:00:35 -0400
+Date: Fri, 16 May 2003 20:10:42 +0200
+From: Andreas Henriksson <andreas@fjortis.info>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Andreas Henriksson <andreas@fjortis.info>,
+       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.69-mm6
+Message-ID: <20030516181042.GA556@foo>
+References: <20030516015407.2768b570.akpm@digeo.com> <20030516172834.GA9774@foo> <20030516175539.GA16626@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+Content-Disposition: inline
+In-Reply-To: <20030516175539.GA16626@suse.de>
+X-gpg-key: http://fjortis.info/andreas_henriksson.gpg
+X-gpg-fingerprint: C51F 9B43 4390 95BB A22E  16F2 00EF 6094 449E 0434
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 15, 10:23am, Linus Torvalds wrote:
-} Subject: Re: [OpenAFS-devel] Re: [PATCH] PAG support, try #2
 
-Good morning to everyone discussing this fascinating topic.  I've been
-reading it for a day or two before joining in.  There have been some
-excellent points made and I won't even try to paraphrase all of them.
-I am including a snippet from what I consider the 'Linus definitive
-statement' on this issue since this is the definitive focal point
-which discussion must come down to.
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I think the issue comes down to whether or not Linux will incorporate
-functionality for the sake of correctness vs. expediency.  Based on
-all the history I think that everyone generally assumes that doing
-things correctly is the preferable route.
+On Fri, May 16, 2003 at 06:55:39PM +0100, Dave Jones wrote:
+> On Fri, May 16, 2003 at 07:28:34PM +0200, Andreas Henriksson wrote:
+>=20
+>  > I had to remove "static" from the agp_init-function in
+>  > drivers/char/agp/backend.c to get the kernel to link (when building
+>  > Intel 810 Framebuffer into the kernel).
+>=20
+> wrong fix. nuke the agp_init() call from i810fb
+> note, it still won't actually work. i810fb still fails to init
+> the agpgart for some reason.
+> =20
 
-In this case doing things the 'correct' way also provide the potential
-opportunity for Linux to do something reasonably creative.  I've been
-banging on issues with respect to identity management and Linux since
-about 1998 and it is now interesting to see these issues becoming
-pragmatically relevant.
+Ok.. thanks for the quick reply .. I just booted the kernel and noticed
+that the console got stuck (but the it booted fine except from that).
 
-Technical thoughts follow below.
+Though I find this weird:
+The last thing I saw on the console was the detection of hdb and it's
+partitions.... I tried unplugging hdb and it booted just fine...=20
+coinsidence?
 
-> Independent joins are a _requirement_.
-> 
-> My take on this is that I'm personally totally uninterested in AFS and 
-> Kerberos. 
-> 
-> What I _am_ interested in is things like per-user VPN keys, and things
-> like keeping my local harddisk encrypted.
-> 
-> So myt background is that unless the credentials are useful for something 
-> like that, then they aren't useful AT ALL.
-> 
-> With a local encryption, what I'm perfectly willing to do is to go through
-> a "strong authentication" once, but once I've done that, I don't want to
-> do it again every time I log in to that machine. I use ssh all the time,
-> and I have a few machines I trust, so when I come in from such a trusted
-> machine, and the strong authentication session is already in progress, I
-> don't want to see a password or anything like that. It should "just
-> work".
+And by the way.... the framebuffer flickers (is that the right word?)
+for me.... It looks like an old TV... (Has done with all the (2.5)
+kernels I've tried).. Is this a known problem and if so is there a
+solution?
+I'm using a TFT monitor and this is my append-line..
+append=3D"video=3Di810fb:xres:1280,yres:1024,bpp:16,hsync1:30,hsync2:82, \
+		vsync1:50,vsync2:75,accel"
+(... if it matters.)
 
-I apologize if this solution seems somewhat off the wall but I have
-been working on these issues through the Hurderos Project since about
-1998.  Based on experience from lots of miles I think that solving
-these issues require thinking that is somewhat out of the box.
+>  > I also got unresolved symbols for two modules.
+>  > arch/i386/kernel/suspend.ko: enable_sep_cpu, default_ldt, init_tss
+>  > arch/i386/kernel/apm.ko: save_processor_state, restore_processor_state
+>=20
+> Mikael's patch for these has been posted several times already in the
+> last few days.
+>=20
+Ok.. thanks again...
 
-Based on Linus' requirements it would seem that we should be thinking
-about implementing something which I would refer to as an 'identity
-services' cache in the kernel.  I believe that this approach would
-have the advantage of satisfying Linus' vision for a solution of
-grander scale while satiating the pragmatic concerns of those in the
-AFS camp.
+> 		Dave
 
-	An aside to David Howells:  I actually started a round of
-	conversations with Tiemann about some of this work and these
-	issues about 18 months ago.  He indicated interest but since
-	then there has been nothing but a blackhole from RedHat.  I
-	would be happy in working with you or anyone else that is
-	interested in creative solutions in this space.
+Regards,
+Andreas Henriksson
 
-An identity services cache would essentially implement a data
-structure representing the 'intrinsic' identity of each user on the
-system.  Tied to this 'identity' would be data structures which would
-implement multiple authentication/authorization (auth/authz) services
-for the intrinsic user identity.  Put in another way these 'services'
-would handle the problem of managing multiple representational
-identities which is essentially what the multi-credential problem
-boils down to.
+--0F1p//8PRICkK4MW
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-In the above model a PAG essentially becomes one of many services
-which are linked to the intrinsic identity of the user.  The AFS group
-would simply implement a 'PAG service' which can be orthogonal to any
-other representational identity, ie authentication scheme, in use by a
-user.  This strategy allows AFS to continue to work within the context
-of a PAG while not imposing limitations on the type or nature of any
-other credentialling system.  This system is also conceptually and
-notionally consistent with PAM, which would seem to be important from
-the thoughts offered by Linus.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-What is needed from the kernel perspective are system calls which
-manage the user's intrinsic identity and the 'services' attached to
-them.  The following spring to mind quickly:
+iD8DBQE+xSmiAO9glESeBDQRAkjlAKCaQ6SN14LoMd356w0ZTczGGo/2LQCeNq6F
+a2WlX5tgLc9TEo5YGVgLRY0=
+=O4s3
+-----END PGP SIGNATURE-----
 
-	1.) Create an entry in the identity cache.
-
-	2.) Query for and return an entry in the identity cache.
-
-	3.) Delete an entry from the identity cache.
-
-	4.) Create a credentials service for an identity.
-
-	5.) Delete a credentials service for an identity.
-
-	6.) Specify the default set of credential services that are in
-	    effect for a process.
-
-	7.) etc., etc., etc
-
-I would envision that an entry in the identity services cache would
-persist as long as there was a process that referenced the identity.
-
-I suppose that there is the potential arguement that once an identity
-was instantiated it should exist until it is explicitly destroyed.
-There is probably plenty to cogitate on that issue alone.  One could
-also envision instances of credential services cleaning up and
-releasing themselves from their identity when something like an
-expiration time was exceeded.
-
-I would suggest that cooperativity between the credential services
-would also go a long ways toward solving the joining problems and some
-of the other issues that we have discussed.  Lets take classic PAG as
-an example:
-
-	Linus logs in using SSH to a server which has been configured
-	to use a Kerberos PAM module.  After authentication an
-	additional module checks to see whether or not his identity
-	exists in the identity services cache, if not an entry is
-	created.  A call is then made to attach a KERBEROS credential
-	service to his identity with the credentials which were
-	obtained through the authentication process.
-
-	Later in the session he decides to view the working plans for
-	the 64 bit extensions to the ix86 instruction set that
-	Transmeta is working on under NDA with Intel... :-) Since the
-	documents are on an AFS volume the client creates and attaches
-	a PAG credential service to his identity.  During
-	initialization the PAG service checks the identity cache to
-	see if a KERBEROS credential service is availabe.  If so it
-	either copies or links to the credentials and uses them.
-
-	Later in the session he decides to check the work that the
-	OpenAFS team is doing on the PAG service module.  He issues
-	the appropriate command to obtain his credentials in the
-	OpenAFS cell.  The pagsh command or whatever he uses checks to
-	see whether or not a PAG service exists.  If it does it issues
-	the appropriate calls to overlay his current AFS credential
-	set.  Thoughout all this his credentials maintained by the
-	KERBEROS identity service remain intact since AFS itself is
-	only dealing with the PAG identity service.
-
-Now this is admittedly a very contrived example but I hope it
-represents the thinking behind the model.
-
-I would be interested in any thoughts or ideas that others have on
-this issue.  It is somewhat off the wall but as I mentioned before I
-think that this is a case where Linus is looking for something with
-large amounts of flexibility in design which doesn't lock the concept
-of credential management to one particular application.
-
-Huge amounts of detail to fill in however.
-
-At the very minimum there will have to be defined interfaces for
-various tasks that the identity services module will be expected to
-offer to the kernel.  One example that comes to mind is what happens
-to in various credential service types when the user wishes to change
-identities.  Perhaps an even bigger question is whether or not the
-seteuid() call attaches the process to the target users identity
-services cache or maintains the 'real' one.
-
-> 			Linus
-
-I would be interested in thoughts/comments.
-
-Best wishes for a pleasant weekend everyone.
-
-Greg
-
-}-- End of excerpt from Linus Torvalds
-
-As always,
-Dr. G.W. Wettstein, Ph.D.   Enjellic Systems Development, LLC.
-4206 N. 19th Ave.           Specializing in information infra-structure
-Fargo, ND  58102            development.
-PH: 701-281-4950            WWW: http://www.enjellic.com
-FAX: 701-281-3949           EMAIL: greg@enjellic.com
-------------------------------------------------------------------------------
-"My thoughts on trusting Open-Source?  A quote I once saw said it
-best: 'Remember, Amateurs built the ark.  Professionals built the
-Titanic.'  Perhaps most significantly the ark was one guy, there were
-no doubt committees involved with the Titanic project."
-                                -- Dr. G.W. Wettstein
-                                   Resurrection
+--0F1p//8PRICkK4MW--

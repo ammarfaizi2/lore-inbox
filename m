@@ -1,77 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271700AbTGXPvF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 11:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271701AbTGXPvF
+	id S271703AbTGXPzL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 11:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271706AbTGXPzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 11:51:05 -0400
-Received: from D70c6.pppool.de ([80.184.112.198]:52869 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id S271700AbTGXPuq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 11:50:46 -0400
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-From: Daniel Egger <degger@fhm.edu>
-To: Hans Reiser <reiser@namesys.com>
-Cc: linux-kernel@vger.kernel.org,
-       reiserfs mailing list <reiserfs-list@namesys.com>
-In-Reply-To: <3F1EF7DB.2010805@namesys.com>
-References: <3F1EF7DB.2010805@namesys.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-11LU1xTdjT5qufgNnzxo"
-Message-Id: <1059062380.29238.260.camel@sonja>
+	Thu, 24 Jul 2003 11:55:11 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:19421 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP id S271703AbTGXPzD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 11:55:03 -0400
+Subject: Re: Posting format
+From: Steven Cole <elenstev@mesatop.com>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org,
+       Tomas Szepe <szepe@pinerecords.com>
+In-Reply-To: <20030724154732.GJ32585@rdlg.net>
+References: <20030723201801.GB32585@rdlg.net>
+	 <20030723212224.A527@infradead.org> <20030723220037.GC32585@rdlg.net>
+	 <20030723225333.GC16244@louise.pinerecords.com>
+	 <bfn5v6$m20$1@gatekeeper.tmr.com>
+	 <1059059667.1672.202.camel@spc9.esa.lanl.gov>
+	 <20030724154732.GJ32585@rdlg.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1059062739.1668.214.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 24 Jul 2003 17:59:40 +0200
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 24 Jul 2003 10:05:39 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-07-24 at 09:47, Robert L. Harris wrote:
+> 
+> Thus spake Steven Cole (elenstev@mesatop.com):
 
---=-11LU1xTdjT5qufgNnzxo
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+[snippage]
+> > 
+> > More exposition regarding top vs bottom posting: Replying at the bottom
+> > results in an easily parseable tree. Consider the following conversation
+> > where everyone replies at the bottom.
+> 
+> 
+> On the other hand if everyone posted at the top it would be considerably
+> easier reading for those who have been following the conversation
+> without having to scroll down and figure out where comments and the
+> conversation is at.  You could read just the top post and go from there.
+> For those new to the conversation they can just start at the bottom and
+> scroll up.  When the next post comes in they just read the top post
+> again instead of scrolling down to the bottom or middle somewhere to
+> figure out what/when/where.
+> 
+> Using VI and Mutt, the cursor starts at the top not the bottom or
+> anywhere in the middle so there's and ease of use for CLI mail readers
+> as well instead of the GUI oriented.
+> 
+> 
+> :wq!
+> ---------------------------------------------------------------------------
+> Robert L. Harris                     | GPG Key ID: E344DA3B
 
-Am Mit, 2003-07-23 um 23.02 schrieb Hans Reiser:
+Using a consistent agglutination policy results in more easily
+understandable conversations.  You've done a good job advocating top
+posting, but until recently the linux-kernel norm was bottom posting.
 
-> In brief, V4 is way faster than V3, and the wandering logs are indeed=20
-> twice as fast as fixed location logs when performing writes in large=20
-> batches.
+The mix of the two is what is being objected to.  Standards exist for
+good reasons, and Tomas pointed out RFC 1855 and the lkml FAQ.
 
-How do the wandering logs compare to the "wandering" logs of the log
-structured filesystem JFFS2? Does this mean I can achieve an implicit
-wear leveling for flash memory?=20
+Please reply at the bottom.  Thanks.
 
-> We are able to perform all filesystem operations fully atomically,
-> while getting dramatic performance improvements.  (Other attempts at
-> introducing transactions into filesystems are said to have failed for
-> performance reasons.)
-
-How failsafe is it to switch off the power several times? When the
-filesystem really works atomically I should have either the old or the
-new version but no mixture. Does it still need to fsck or is the
-transaction replay done at mount time? In case one still needs fsck,
-what's the probability of needing user interaction? How long does it
-need to get a filesystem back into a consistent state after a powerloss
-(approx. per MB/GB)?
-
-Background: I'm doing systems on compactflash cards and need a reliable
-filesystem for it. At the moment I'm using a compressed JFFS2 over the
-mtd emulation driver for block devices which works quite well but has a
-few catches...
-
---=20
-Servus,
-       Daniel
-
---=-11LU1xTdjT5qufgNnzxo
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/IAJschlzsq9KoIYRAvC8AJ9lp8blC1AHYohR0l96uQS7WILJ/wCdFeMi
-WA1IXOnx+5fdJJ+NruOuJuA=
-=OhEi
------END PGP SIGNATURE-----
-
---=-11LU1xTdjT5qufgNnzxo--
+Steven
 

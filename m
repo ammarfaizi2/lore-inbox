@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275963AbRJUMDH>; Sun, 21 Oct 2001 08:03:07 -0400
+	id <S275980AbRJUMH5>; Sun, 21 Oct 2001 08:07:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275968AbRJUMC5>; Sun, 21 Oct 2001 08:02:57 -0400
-Received: from stingr.net ([212.193.33.37]:5903 "HELO stingray.sgu.ru")
-	by vger.kernel.org with SMTP id <S275963AbRJUMCo>;
-	Sun, 21 Oct 2001 08:02:44 -0400
-Date: Sun, 21 Oct 2001 16:03:12 +0400
-From: Paul P Komkoff Jr <i@stingr.net>
-To: linux-kernel@vger.kernel.org
-Subject: AIC7XXX-EISA hang at boot
-Message-ID: <20011021160312.D39722@stingr.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S275973AbRJUMHr>; Sun, 21 Oct 2001 08:07:47 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:48657 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S275968AbRJUMHh>; Sun, 21 Oct 2001 08:07:37 -0400
+Date: Sun, 21 Oct 2001 15:08:02 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Joerg Schilling <schilling@fokus.gmd.de>
+Cc: cdwrite@other.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10ac10, cdrecord 1.9-6, Mitsumi CR-4804TE: lock up burning too large image
+Message-ID: <20011021150801.H1504@niksula.cs.hut.fi>
+In-Reply-To: <200110211156.f9LBu6308916@burner.fokus.gmd.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-RealName: Stingray Greatest Jr
-Organization: Stingray Software
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200110211156.f9LBu6308916@burner.fokus.gmd.de>; from schilling@fokus.gmd.de on Sun, Oct 21, 2001 at 01:56:06PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: RIPEMD160
+On Sun, Oct 21, 2001 at 01:56:06PM +0200, you [Joerg Schilling] claimed:
+> 
+> >Hmm. It used to work with 2.2-kernel. With too large image, it just gave an
+> >error.
+> 
+> I may only judge from information you provide, not from information you hide.
 
-I've got stuck in the problem
+I did say that in the original report:
 
-I trying to work with another piece of very old hardware. Acer altos 7000 or
-something - p-75, with eisa bus and onboard eisa aic7xxx
+"It used to give a nice error when disk size was exceeded with 2.2.18pre19
+and a tad older cdrecord..."
 
-it works with 2.4.7ac5
-but for performance reasons I want to upgrade to something newer, for
-example 2.4.12ac3
-or 2.4.10ac4
+but I could have been clearer.
+ 
+> 1.10 is outdated too, please read
+> 
+> http://www.fokus.gmd.de/research/cc/glone/employees/joerg.schilling/private/problems.html
 
-doesn't matter
-It hangs just after printk "SCSI subsystem ..." etc
-with working kernel after that line we have scsi hardware driver init
+Ok. I'll compile the newest from source.
 
-so - do anybody know what's wrong with aic7xxx and who broke it after
-2.4.7ac5 so it can't work on hardware described here ?
+But do you think the too-large-image lock up might be cured with a newer
+cdrecord, or should is the kernel the prime suspect?
 
-thanks
+I will try anyway and report back to you.
+ 
+> >with 2.2 ("failed to mmap /dev/null" or something) so I went back to 1.9. I
+> 
+> I cannot prevent you from broken Linux installations!
+> 
+> The linux kernel people still have propblems with interfaces and make
+> thanges that break binary compatibility when going to more recent Linux
+> versions. Why do you believe that a cdrecord that has been compiled on 2.4
+> will run on 2.2?
 
-- -- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
-  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4
------BEGIN PGP SIGNATURE-----
+Well, most software software seems to work with both 2.2 and 2.4. I didn't
+think carefully enough to realize that some interfaces must have changed.
+ 
+> Linux needed close to 10 years to finally support mmap() (ther OS like
+> SunOS did this since 1987). Cdrecord's outoconf chooses the best
+> interfaces of the OS. SVS shared mem is outdated and badly implemented on
+> Linux (too many restrictions). mmap is the modern method to get shared
+> memory but Linux didn't support is before November 2000.
 
-iEYEAREDAAYFAjvSuXkACgkQyMW8naS07KTanACfQ8KZlJlC7QfvMVoLuv41Pm5M
-zucAn10LrGnXACgqkswYaFdXZkqXeMV5
-=VRji
------END PGP SIGNATURE-----
+I see. Thanks for the clarification.
+
+
+-- v --
+
+v@iki.fi

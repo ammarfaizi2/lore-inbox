@@ -1,76 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136444AbREDQAk>; Fri, 4 May 2001 12:00:40 -0400
+	id <S136447AbREDQEb>; Fri, 4 May 2001 12:04:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136437AbREDQAU>; Fri, 4 May 2001 12:00:20 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42352 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S136442AbREDQAQ>; Fri, 4 May 2001 12:00:16 -0400
-To: "Matt D. Robinson" <yakker@alacritech.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: smp_send_stop() and disable_local_APIC()
-In-Reply-To: <3AF19A17.19C2741F@alacritech.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 04 May 2001 09:58:04 -0600
-In-Reply-To: "Matt D. Robinson"'s message of "Thu, 03 May 2001 10:49:11 -0700"
-Message-ID: <m1d79pnm2b.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S136438AbREDQEL>; Fri, 4 May 2001 12:04:11 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:50840 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S136437AbREDQEF>;
+	Fri, 4 May 2001 12:04:05 -0400
+Date: Fri, 4 May 2001 12:04:02 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Todd Inglett <tinglett@vnet.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: SMP races in proc with thread_struct
+In-Reply-To: <3AF2A1CC.C22A48E7@vnet.ibm.com>
+Message-ID: <Pine.GSO.4.21.0105041138140.19970-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Matt D. Robinson" <yakker@alacritech.com> writes:
 
-> It looks like around 2.3.30 or so, someone added the call
-> disable_local_APIC() to smp_send_stop().  I'm not sure what the
-> intention was, but I'm getting some strange behavior as a result
-> based on some code I'm writing.
-> 
-> Basically, I'm doing the following ...
-> 
->     panic()
->     {
->         /* do whatever you want, notifier list, etc. */
->         smp_send_stop();
->         write_system_memory();
->         /* then do whatever */
->     }
-> 
-> write_system_memory() does a write of all system memory pages to some
-> block device.  It uses kiobufs as the way to get the pages to disk,
-> doing brw_kiovec() on those pages (using either the IDE or SCSI
-> driver to write the data).
 
-IDE being less likely to hang than SCSI as it tends to use legacy isa
-interrupt lines.
- 
-> The wierd behavior I see is that sometimes, smp_send_stop()
-> being called causes the system to hang up (not every time). 
+On Fri, 4 May 2001, Todd Inglett wrote:
 
-Doing event driver i/o after disabling the interrupt controller
-hmm, I wonder why...
+> Ok, I've got this isolated.  Here's the sequence of events:
+> 
+> 1.  Some process T (probably "top") opens /proc/N/stat.
+> 2.  While holding tasklist_lock the proc code does a get_task_struct()
+> to add a ref count to the page.
+> 3.  Process N exits.
+> 4.  The parent of process N exits.
+> 5.  Process T reads from the open file.  This calls proc_pid_stat()
+> which dereferences N's task_struct.  This is ok as Alexander points out
+> because a reference is held.
+> 6.  Using N's task_struct process T attempt to dereference the *parent*
+> task struct.  It assumes this is ok because:
 
-> If we don't call smp_send_stop() on those systems, everything works fine.
-> This looks to be directly caused by the disabling of the APIC, which
-> we may need to dump pages to local disk.  This only applies to some
-> people's systems -- not everyone displays the same behavior.
-> 
-> I'm sure it's good to disable the APIC, but there's no clean way to
-> wait on disabling the APIC until after I'm done writing pages out.
-> 
-> My questions are:
-> 
-> 1) Why was disable_local_APIC() added to stop_this_cpu()
->    and smp_send_stop()?  Completeness?
-> 
-> 2) Is there a better way around this to disable all the
->    other CPUs without disabling the APIC?
-> 
+	Where?
 
-I don't know what a good way is, since there is a kernel panic it
-should only be something truly fatal.  Given that reusing anything
-that hasn't been designed to run in that situation is playing with
-fire.
+> 	A) it is holding tasklist_lock so N cannot be reparented in a race.
+> 	B) every process *always* has a valid parent.
+> 
+> But this is where hell breaks loose.  Every process has a valid parent
+> -- unless it is dead and nobody cares.  Process N has already exited and
+> released from the tasklist while its parent was still alive.  There was
+> no reason to reparent it.  It just got released.  So N's task_struct has
+> a dangling ptr to its parent.  Nobody is holding the parent task_struct,
+> either.  When the parent died memory for its task_struct was released. 
+> This is ungood.
 
-Eric
+	If N is dead all accesses should return -ENOENT. No matter what
+happens with its parent.
+
+> My opinion here is that this is proc's problem.  When we free a
+> task_struct it could be "cleaned up" of dangling ptrs, but this is a
+> hack to cover a bug in proc.
+> 
+> This is not isolated to the parent task_struct, either.  The task_struct
+> mm is also dereferenced.  It is pretty easy to validate a parent
+> task_struct ptr (just hold tasklist_lock and run the list to check if it
+> is still valid -- might not be the *right* task, but it will still be
+> valid).  However, how do you validate the mm is ok?
+
+exit_mm() cleans task->mm. _Before_ the process dies. And it should do
+that, for a lot of reasons. General principle: if you are doing
+garbage-collection upon removal of the last reference - _remove_
+that reference. Before you call destructor. Anything else is simply
+asking for races.
+
+Besides, all the exit_foo() can be done by a very alive kernel threads.
+Suppose that exit_mm() didn't clean ->mm.  Well, here comes losetup(8).
+It binds loop device to a file and starts a thread for handling requests.
+Said thread is created by kernel_thread(9). Which is a wrapper for clone(2).
+So far, so good, but that thread gets a VM of parent. I.e. losteup.
+That is _not_ good. For one thing, it means full-blown MMU switch whenever
+we switch to loop_thread. And that will cost you. Since loop_thread has
+no business using the userland part of MMU state it calls exit_mm(9) (it
+calls daemonize(9). which, in turn, calls exit_mm(9)).
+
+That picture is typical for kernel threads. knfsd, drivers' helper threads,
+you name it. And unlike the relatively tame case of loop_thread (there
+we have serialization between loop_thread and parent that will not
+let parent to exit before loop_thread will do up(&lo->lo_sem) which is
+after the daemonize() call) in general we can very well have parent
+dead and gone by the time when child calls exit_mm().
+
+See the problem? Child is very much alive, it's the sole owner of pointer
+to mm_struct and it calls exit_mm(). Leaving the pointer around is _not_
+a good idea.
+
+

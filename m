@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266539AbUH1MYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263778AbUH1Mez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266539AbUH1MYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 08:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUH1MYI
+	id S263778AbUH1Mez (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 08:34:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUH1Mez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 08:24:08 -0400
-Received: from nl-ams-slo-l4-01-pip-3.chellonetwork.com ([213.46.243.17]:53532
-	"EHLO amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S266539AbUH1MYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 08:24:03 -0400
-Date: Sat, 28 Aug 2004 14:23:57 +0200 (CEST)
-From: Wouter Van Hemel <wouter-kernel@fort-knox.rave.org>
-To: Clem Taylor <clemtaylor@comcast.net>
-cc: QuantumG <qg@biodome.org>, "Nemosoft Unv." <webcam@smcc.demon.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: reverse engineering pwcx
-In-Reply-To: <41302A8D.1010903@comcast.net>
-Message-ID: <Pine.LNX.4.61.0408281359140.569@senta.theria.org>
-References: <412FD751.9070604@biodome.org> <41302A8D.1010903@comcast.net>
-PGP: 0B B4 BC 28 53 62 FE 94  6A 57 EE B8 A6 E2 1B E4  (0xAA5412F0)
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 28 Aug 2004 08:34:55 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:60323 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263778AbUH1Mex (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 08:34:53 -0400
+Date: Sat, 28 Aug 2004 14:36:23 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Scott Wood <scott@timesys.com>
+Cc: manas.saksena@timesys.com, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] PPC/PPC64 port of voluntary preempt patch
+Message-ID: <20040828123622.GC17908@elte.hu>
+References: <20040823221816.GA31671@yoda.timesys> <20040824195122.GA9949@yoda.timesys>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040824195122.GA9949@yoda.timesys>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Aug 2004, Clem Taylor wrote:
 
-> [...]
+* Scott Wood <scott@timesys.com> wrote:
 
-> Has anyone even asked Philips if they would be willing to open up the 
-> algorithm? Maybe they would have said NO a few years ago, but at this point 
-> does it matter?
->
+> Another thing that I forgot to mention is that I have some doubts as
+> to the current generic_synchronize_irq() implementation.  Given that
+> IRQs are now preemptible, a higher priority RT thread calling
+> synchronize_irq can't just spin waiting for the IRQ to complete, as it
+> never will (and it wouldn't be a great idea for non-RT tasks either). 
+> I see that a do_hardirq() call was added, presumably to hurry
+> completion of the interrupt, but is that really safe?  It looks like
+> that could end up re-entering handlers, and you'd still have a
+> partially executed handler after synchronize_irq() finishes (causing
+> not only an extra end() call, but possibly code being executed after
+> it's been unloaded, and other synchronization violations).
+> 
+> If I'm missing something, please let me know, but I don't see a good
+> way to implement it without blocking for the IRQ thread's completion
+> (such as with the per-IRQ waitqueues in M5).
 
-I tried yesterday by phone and email, so far I have been unable to obtain 
-a definite phone number for someone who actually is responsible for the 
-drivers; and I have not yet received any answers to my email to their 
-customer service. I will try again on Monday, through their Belgian 
-division (so as to not piss off the same people too much), as I don't think 
-there's much going on in the weekend. Their tech support did ask me about 
-the Linux distribution, kernel version and XFree version, so they have at 
-least heard about Linux. :)
+agreed, this is a hole in generic_synchronize_irq(). I've added
+handler-completion waitqueues to my current tree, it will show up in
+-Q1.
 
-It would help a great deal if Nemosoft could give me a contact address. 
-Nemosoft, if you read this, could you help me out? Or perhaps try to reach 
-your contact at Philips yourself with the question if any closed source is 
-still a necessity - a lot of people would be grateful for a definite 
-answer, I'm sure (not in the least yourself, I guess).
-
-Perhaps there is somebody on this list who works at Philips and can give 
-me a reply in private?
-
+	Ingo

@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288604AbSAHX77>; Tue, 8 Jan 2002 18:59:59 -0500
+	id <S288612AbSAIAFT>; Tue, 8 Jan 2002 19:05:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288605AbSAHX7t>; Tue, 8 Jan 2002 18:59:49 -0500
-Received: from sweetums.bluetronic.net ([66.57.88.6]:60602 "EHLO
+	id <S288610AbSAIAFJ>; Tue, 8 Jan 2002 19:05:09 -0500
+Received: from sweetums.bluetronic.net ([66.57.88.6]:443 "EHLO
 	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id <S288604AbSAHX7q>; Tue, 8 Jan 2002 18:59:46 -0500
-Date: Tue, 8 Jan 2002 18:59:39 -0500 (EST)
+	id <S288613AbSAIAE6>; Tue, 8 Jan 2002 19:04:58 -0500
+Date: Tue, 8 Jan 2002 19:04:55 -0500 (EST)
 From: Ricky Beam <jfbeam@bluetronic.net>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Mark Hahn <hahn@physics.mcmaster.ca>,
-        Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+To: "Henning P. Schmiedehausen" <hps@intermeta.de>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Two hdds on one channel - why so slow?
-In-Reply-To: <Pine.LNX.4.10.10201041726500.19449-100000@master.linux-ide.org>
-Message-ID: <Pine.GSO.4.33.0201081855280.28783-100000@sweetums.bluetronic.net>
+In-Reply-To: <a16ppd$shs$1@forge.intermeta.de>
+Message-ID: <Pine.GSO.4.33.0201081901310.28783-100000@sweetums.bluetronic.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jan 2002, Andre Hedrick wrote:
->Please consider picking up a modern drive and see it has a "THREE" (3)
->Year warranty period which is about the length of service for a continuous
->run device on the MTBF.
+On Sat, 5 Jan 2002, Henning P. Schmiedehausen wrote:
+>The one argument that noone brought around here is (and it is the
+>killer argument for me in IDE vs. SCSI): "external disk trays". Try
+>that with IDE (current IDE please. No SerialATA. ;-) ) without lots of
+>"out of spec" cables dangling out of your "enterprise computing
+>solution".
 
-3years is ~27k hours.  The MTBF on modern drives is more like 57years.
-(500k hours.)  100k hours is 11+ years.  No ide drive ever manufactured
-will last that long. (Maybe if it's sitting on a shelf for 90% of its life.)
+You don't have to be out-of-spec, but doing things within the spec becomes
+VERY expensive.  Those cheap-ass 30$ IDE drive trays are 110% shit.  Only
+when you get into the >100$ models do they work reliablly without setting
+the office on fire.  Even the 4500RPM drives get too hot in the cheapy's.
+
+And IDE drive with an SCA connector would be great.
 
 --Ricky
 

@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130205AbQLHCLI>; Thu, 7 Dec 2000 21:11:08 -0500
+	id <S129598AbQLHCSb>; Thu, 7 Dec 2000 21:18:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129866AbQLHCK6>; Thu, 7 Dec 2000 21:10:58 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:47620 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130205AbQLHCKv>;
-	Thu, 7 Dec 2000 21:10:51 -0500
-Date: Fri, 8 Dec 2000 02:40:18 +0100
-From: Andi Kleen <ak@suse.de>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Cc: Andi Kleen <ak@suse.de>, Rainer Mager <rmager@vgkk.com>,
-        linux-kernel@vger.kernel.org
+	id <S129627AbQLHCSW>; Thu, 7 Dec 2000 21:18:22 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:17668 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129598AbQLHCSL>; Thu, 7 Dec 2000 21:18:11 -0500
+Message-ID: <3A303CAD.5600DE5A@timpanogas.org>
+Date: Thu, 07 Dec 2000 18:43:09 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Rainer Mager <rmager@vgkk.com>, linux-kernel@vger.kernel.org
 Subject: Re: Signal 11
-Message-ID: <20001208024018.A6673@gruyere.muc.suse.de>
-In-Reply-To: <E144BOL-0003Eg-00@the-village.bc.nu> <NEBBJBCAFMMNIHGDLFKGMEFHCIAA.rmager@vgkk.com> <20001208022044.A6417@gruyere.muc.suse.de> <3A303852.790E3CE4@timpanogas.org>
-Mime-Version: 1.0
+In-Reply-To: <E144BOL-0003Eg-00@the-village.bc.nu> <NEBBJBCAFMMNIHGDLFKGMEFHCIAA.rmager@vgkk.com> <20001208022044.A6417@gruyere.muc.suse.de> <3A303852.790E3CE4@timpanogas.org> <20001208024018.A6673@gruyere.muc.suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A303852.790E3CE4@timpanogas.org>; from jmerkey@timpanogas.org on Thu, Dec 07, 2000 at 06:24:34PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 07, 2000 at 06:24:34PM -0700, Jeff V. Merkey wrote:
+
+
+Andi Kleen wrote:
 > 
-> Andi,
+> On Thu, Dec 07, 2000 at 06:24:34PM -0700, Jeff V. Merkey wrote:
+> >
+> > Andi,
+> >
+> > It's related to some change in 2.4 vs. 2.2.  There are other programs
+> > affected other than X, SSH also get's spurious signal 11's now and again
+> > with 2.4 and glibc <= 2.1 and it does not occur on 2.2.
 > 
-> It's related to some change in 2.4 vs. 2.2.  There are other programs
-> affected other than X, SSH also get's spurious signal 11's now and again
-> with 2.4 and glibc <= 2.1 and it does not occur on 2.2.
+> So have you enabled core dumps and actually looked at the core dumps
+> of the programs using gdb to see where they crashed ?
 
-So have you enabled core dumps and actually looked at the core dumps 
-of the programs using gdb to see where they crashed ? 
+Yes.  I can only get the SSH crash when I am running remotely from the
+house over the internet, and it only shows then when running a build in
+jobserver mode (parallel build).  The X problem seems related as well,
+since it's related to (usually) NetScape spawing off a forked process. 
+I will attempt to recreate tonight, and post the core dump file.  
+
+Jeff 
 
 
 
--Andi
 
+
+> 
+> -Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

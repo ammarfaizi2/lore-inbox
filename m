@@ -1,44 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262923AbUDQLgP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 07:36:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbUDQLgP
+	id S263937AbUDQLjr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 07:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbUDQLjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 07:36:15 -0400
-Received: from zero.aec.at ([193.170.194.10]:23054 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S262923AbUDQLgO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 07:36:14 -0400
-To: Andreas Hartmann <andihartmann@01019freenet.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SATA support merge in 2.4.27
-References: <1LQfz-2na-5@gated-at.bofh.it> <1LQfz-2na-7@gated-at.bofh.it>
-	<1LQfz-2na-3@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 17 Apr 2004 13:36:11 +0200
-In-Reply-To: <1LQfz-2na-3@gated-at.bofh.it> (Andreas Hartmann's message of
- "Sat, 17 Apr 2004 07:10:05 +0200")
-Message-ID: <m3u0zi96qc.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 17 Apr 2004 07:39:47 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:38921 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S263937AbUDQLjo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 07:39:44 -0400
+Date: Sat, 17 Apr 2004 21:39:18 +1000
+To: Rolf Kutz <kutz@netcologne.de>, 244207@bugs.debian.org
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bug#244207: kernel-source-2.6.5: mwave gives warning on suspend
+Message-ID: <20040417113918.GA4846@gondor.apana.org.au>
+References: <20040417104311.9C13A1D802@jamaika.kutz.dyndns.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="k+w/mQv8wyuph6w0"
+Content-Disposition: inline
+In-Reply-To: <20040417104311.9C13A1D802@jamaika.kutz.dyndns.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Hartmann <andihartmann@01019freenet.de> writes:
 
-> Marcelo Tosatti wrote:
->> On Fri, Apr 16, 2004 at 10:51:02AM -0300, Marcelo Tosatti wrote:
->> And again, unfortunately not everyone is running v2.6 on their production
->> environment, yet.
->
-> That's right! I certainly won't run it before 2.6.20 or even higher on
-> desktops. For example, 2.6 vanilla is much to slow (about 9%), even on
-> desktops - tested with compiling. It must be fixed.
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This most likely comes from the 1ms timer tick vs 10ms previously.  I
-doubt this will change in mainline, but you can change it yourself
-with an easy tweak. Just change the HZ parameter back to 100
+tags 244207 pending
+quit
 
--Andi
+On Sat, Apr 17, 2004 at 12:43:11PM +0200, Rolf Kutz wrote:
+> Package: kernel-source-2.6.5
+> Version: 2.6.5-1
+> Severity: normal
+> 
+> The mwave module gives the following warning on suspend:
+> 
+> Apr 16 09:55:13 localhost kernel: Device 'mwave' does not have a release() funct
+> ion, it is broken and must be fixed.
+> Apr 16 09:55:13 localhost kernel: Badness in device_release at drivers/base/core
+> .c:85
 
+Thanks for the report.
+
+This patch should shut the warning up.
+
+Cheers,
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
+
+Index: drivers/char/mwave/mwavedd.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/char/mwave/mwavedd.c,v
+retrieving revision 1.1.1.7
+diff -u -r1.1.1.7 mwavedd.c
+--- a/drivers/char/mwave/mwavedd.c	28 Sep 2003 04:44:12 -0000	1.1.1.7
++++ b/drivers/char/mwave/mwavedd.c	17 Apr 2004 11:37:52 -0000
+@@ -470,7 +470,13 @@
+  * sysfs support <paulsch@us.ibm.com>
+  */
+ 
+-struct device mwave_device;
++static void mwave_device_release(struct device *dev)
++{
++}
++
++static struct device mwave_device = {
++	.release = mwave_device_release,
++};
+ 
+ /* Prevent code redundancy, create a macro for mwave_show_* functions. */
+ #define mwave_show_function(attr_name, format_string, field)		\
+
+--k+w/mQv8wyuph6w0--

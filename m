@@ -1,145 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263394AbRFAGOW>; Fri, 1 Jun 2001 02:14:22 -0400
+	id <S262988AbRFAHGc>; Fri, 1 Jun 2001 03:06:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263395AbRFAGOL>; Fri, 1 Jun 2001 02:14:11 -0400
-Received: from crusoe.degler.net ([160.79.55.71]:40711 "EHLO degler.net")
-	by vger.kernel.org with ESMTP id <S263394AbRFAGOG>;
-	Fri, 1 Jun 2001 02:14:06 -0400
-Date: Fri, 1 Jun 2001 02:13:58 -0400
-From: Stephen Degler <sdegler@degler.net>
-To: John William <jw2357@hotmail.com>
+	id <S263396AbRFAHGW>; Fri, 1 Jun 2001 03:06:22 -0400
+Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:25352
+	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
+	id <S262988AbRFAHGF>; Fri, 1 Jun 2001 03:06:05 -0400
+From: Tim Hockin <thockin@hockin.org>
+Message-Id: <200106010657.f516vmx11933@www.hockin.org>
+Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (for real this  time)
+To: zaitcev@redhat.com (Pete Zaitcev)
+Date: Thu, 31 May 2001 23:57:48 -0700 (PDT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Abysmal RECV network performance
-Message-ID: <20010601021358.A24567@crusoe.degler.net>
-In-Reply-To: <F4YIkTQ81VSaoSJ0vYW0001c0ff@hotmail.com>
-Mime-Version: 1.0
+In-Reply-To: <200106010409.f5149rl25342@devserv.devel.redhat.com> from "Pete Zaitcev" at Jun 01, 2001 12:09:53 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <F4YIkTQ81VSaoSJ0vYW0001c0ff@hotmail.com>; from jw2357@hotmail.com on Mon, May 28, 2001 at 03:47:22AM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Looks interesting. Seemingly literate use of spinlocks.
 
-I'm guessing that the tulip driver is not setting the chip up correctly.
-I've seen this happen with other tulip variants (21143) when tries to
-autonegotiate.  if you do an ifconfig eth1 you will see numerous carrier
-and crc errors.
+thanks - I gave it lots of thought.
 
-Set the tulip_debug flag to 2 or 3 in /etc/modules.conf and see what
-gets said.
+> Off-hand I see old style initialization. Is it right for new driver?
 
-A newer version of the driver may help you.  You might try the one on
-sourceforge.
+the old-style init is because it is an old driver.  I want to do a full-on
+rework, but haven't had the time.
 
-Also, I've only ever seen full 100BaseT speeds with decent adapters,
-like 21143 based tulips, Intel eepros, and vortex/boomerang 3com cards.
-A lot of the cheaper controllers just won't get there.
+> i2c framework is not used, I wonder why. Someone thought that
+> it was too heavy perhaps? If so, I disagree.
 
-skd
+i2c is only in our stuff because the i2c core is not in the standard kernel
+yet.  As soon as it is, I will make cobalt_i2c* go away.
 
-On Mon, May 28, 2001 at 03:47:22AM +0000, John William wrote:
-> Can someone please help me troubleshoot this problem - I am getting abysmal 
-> (see numbers below) network performance on my system, but the poor 
-> performance seems limited to receiving data. Transmission is OK.
+> if any alignment with lm-sensors is possible, for the sake of
+
+yes - I have communicated with the lm-sensors crew.  It is very high on my
+wishlist.
+
+> lcd_read bounces reads with -EINVAL when another read is in
+> progress. Gross.
+
+as I said - I didn't write the LCD driver, I just had to port it up :)  I
+want to re-do the whole paradigm of it (it has been ported forward since 
+2.0.3x)
+
+> 1.:
+> 	p = head;
+> 	while (p) {
+> 		p = p->next;
+> 	}
 > 
-> The computer in question is a dual Pentium 90 machine. The machine has 
-> RedHat 7.0 (kernel 2.2.16-22 from RedHat). I have compiled 2.2.19 (stock) 
-> and 2.4.3 (stock) for the machine and used those for testing. I had a 
-> NetGear FA310TX card that I used with the "tulip" driver and a 3Com 3CSOHO 
-> card (Hurricane chipset) that I used with the "3c59x" driver. I used the 
-> netperf package to test performance (latest version, but I don't have the 
-> version number off-hand). The numbers netperf is giving me seem to correlate 
-> well to FTP statistics I see to the box.
-> 
-> I have a second machine (P2-350) with a NetGear FA311 (running 2.4.3 and the 
-> "natsemi" driver) that I used to talk with the Pentium 90 machine. The two 
-> machines are connected through a NetGear FS105 10/100 switch. I also tried 
-> using a 10BT hub (see below).
-> 
-> When connected, the switch indicated 100 Mbps, full duplex connections to 
-> both cards. This matches the speed indicator lights on both cards. I have 
-> run the miidiag program in the past to verify that the cards are actually 
-> set to full duplex, but I didn't run it again this time (this isn't the 
-> first time I have tried to chase this problem down).
-> 
-> For the purposes of this message, call the P2-350 machine "A" and the dual 
-> P-90 machine "B". I ran the following tests:
-> 
-> Machine "A" to localhost	754.74	Mbps
-> 
-> Kernel 2.2.19SMP
-> Machine "B" to localhost	80.63	Mbps
-> Machine "B" to "A" (tulip)	55.38	Mbps
-> Machine "A" to "B" (tulip)	10.60	Mbps
-> Machine "A" to "B" (3c95x)	12.10	Mbps
-> 
-> Kernel 2.4.3 SMP
-> Machine "B" to localhost	83.87	Mbps
-> Machine "B" to "A" (tulip)	68.07	Mbps
-> Machine "A" to "B" (tulip)	1.62	Mbps
-> Machine "A" to "B" (3c95x)	2.37	Mbps
-> 
-> Kernel 2.2.16-22 (RedHat kernel)
-> Machine "B" to localhost	92.29	Mbps
-> Machine "B" to "A" (tulip)	57.34	Mbps
-> Machine "A" to "B" (tulip)	9.98	Mbps
-> Machine "A" to "B" (3c95x)	9.05	Mbps
-> 
-> Now, with both "A" and "B" plugged into a 10BT hub:
-> 
-> Kernel 2.2.19SMP
-> Machine "B" to "A" (tulip)	6.96	Mbps
-> Machine "A" to "B" (tulip)	6.89	Mbps
-> 
-> At the end of the runs, I do not see any messages in syslog that would 
-> indicate a problem. Using the switch, there were no collisions but looking 
-> at /sbin/ifconfig there were a lot of "Frame:" errors on receive. "A lot" 
-> means ~30% of the total packets received. This happened with both cards and 
-> all kernels.
-> 
-> The conclusions I draw from this data are:
-> 
-> 1) Both machines connecting to localhost (data not going out over the wire) 
-> give reasonable numbers and are considerably above what I actually see going 
-> over the network (as would be expected).
-> 2) The P-90 machine seems to have good transmit speed over both cards and 
-> all kernels. Transmit performance is close to the localhost numbers, so I 
-> can believe them. In the past, I have compared the performance of the FA310 
-> to the 3ComSOHO card and there did not seem to be any measurable performance 
-> difference between the two.
-> 3) Both the FA310 and the 3ComSOHO card have similar receive speeds, leading 
-> me to believe that the problem lies with either the machine or the kernel 
-> and not the individual cards or drivers.
-> 4) Booting the machine as a uni-processor machine (with a non-SMP 2.2.16 
-> kernel) did not change anything, so it does not appear to be a problem with 
-> SMP.
-> 5) Kernel 2.4.3 receive performance is significantly lower than either 2.2.x 
-> kernel, so that tends to point to some fundamental problem in the kernel.
-> 6) As I understand it, the 3Com card has some hardware acceleration for 
-> checksumming, and this is a slow machine, so why is the performance almost 
-> identical to the FA310?
-> 
-> So, my questions are:
-> 
-> What kind of performance should I be seeing with a P-90 on a 100Mbps 
-> connection? I was expecting something in the range of 40-70 Mbps - certainly 
-> not 1-2 Mbps.
-> 
-> What can I do to track this problem down? Has anyone else had problems like 
-> this?
-> 
-> Thanks in advance for any help you can offer.
-> 
-> - John
-> 
-> _________________________________________________________________
-> Get your FREE download of MSN Explorer at http://explorer.msn.com
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> It is what for(;;) does.
+
+I don't get it - are you saying you do or don't like the while (p)
+approach?  I think it is clearer because it is more true ot the heuristic -
+"start at the beginning and walk down the list".
+
+> 2. Spaces and tabs are mixed in funny ways, makes to cute effects
+> when quoting diffs.
+
+I've tried to eliminate that when I see it - I'll give the diff a close
+examination.
+
+thanks for the feedback - it will be nice to not have to constantly port
+all our changes to each kernel release.  There are still some patches (of
+course) but I didn't submit them because they are VERY specific to cobalt -
+for example in the ide probing calling cobalt_ruler_register().  Ifdefs
+protect, but the overall appearance would be rejected, I suspect - no?
+
+Tim

@@ -1,56 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275058AbTHLFzl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 01:55:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275059AbTHLFzl
+	id S275060AbTHLGMd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 02:12:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275062AbTHLGMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 01:55:41 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:54020 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S275058AbTHLFzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 01:55:38 -0400
-Date: Tue, 12 Aug 2003 01:43:48 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>, Andi Kleen <ak@suse.de>
-Subject: [PATCH][2.6-mm] cpumask_t - flush_tlb_others warning
-Message-ID: <Pine.LNX.4.53.0308120039540.26153@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 12 Aug 2003 02:12:33 -0400
+Received: from pop.gmx.net ([213.165.64.20]:33180 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S275060AbTHLGMb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 02:12:31 -0400
+Message-Id: <5.2.1.1.2.20030812075224.01988de8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Tue, 12 Aug 2003 08:16:38 +0200
+To: Nick Piggin <piggin@cyberone.com.au>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] O13int for interactivity
+Cc: rob@landley.net, Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+In-Reply-To: <3F385633.3090807@cyberone.com.au>
+References: <200308110248.09399.rob@landley.net>
+ <200308050207.18096.kernel@kolivas.org>
+ <200308052022.01377.kernel@kolivas.org>
+ <3F2F87DA.7040103@cyberone.com.au>
+ <200308110248.09399.rob@landley.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arch/x86_64/kernel/smp.c: In function `flush_tlb_others':
-arch/x86_64/kernel/smp.c:262: warning: passing arg 1 of `bitmap_or' 
-discards qualifiers from pointer target type
-arch/x86_64/kernel/smp.c:262: warning: passing arg 3 of `bitmap_or' 
-discards qualifiers from pointer target type
-arch/x86_64/kernel/smp.c:270: warning: passing arg 1 of `bitmap_empty' 
-discards qualifiers from pointer target type
+At 12:51 PM 8/12/2003 +1000, Nick Piggin wrote:
 
-Index: linux-2.6.0-test3-x86_64/arch/x86_64/kernel/smp.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test3/arch/x86_64/kernel/smp.c,v
-retrieving revision 1.2
-diff -u -p -B -r1.2 smp.c
---- linux-2.6.0-test3-x86_64/arch/x86_64/kernel/smp.c	12 Aug 2003 04:37:27 -0000	1.2
-+++ linux-2.6.0-test3-x86_64/arch/x86_64/kernel/smp.c	12 Aug 2003 04:55:01 -0000
-@@ -134,7 +134,7 @@ static inline void send_IPI_mask(cpumask
-  *	Optimizations Manfred Spraul <manfred@colorfullife.com>
-  */
- 
--static volatile cpumask_t flush_cpumask;
-+static cpumask_t flush_cpumask;
- static struct mm_struct * flush_mm;
- static unsigned long flush_va;
- static spinlock_t tlbstate_lock = SPIN_LOCK_UNLOCKED;
-@@ -268,7 +268,7 @@ static void flush_tlb_others(cpumask_t c
- 	send_IPI_mask(cpumask, INVALIDATE_TLB_VECTOR);
- 
- 	while (!cpus_empty(flush_cpumask))
--		/* nothing. lockup detection does not belong here */;
-+		mb();	/* nothing. lockup detection does not belong here */;
- 
- 	flush_mm = NULL;
- 	flush_va = 0;
+
+>Rob Landley wrote:
+>
+>>On Tuesday 05 August 2003 06:32, Nick Piggin wrote:
+>>
+>>
+>>>But by employing the kernel's services in the shape of a blocking
+>>>syscall, all sleeps are intentional.
+>>
+>>Wrong.  Some sleeps indicate "I have run out of stuff to do right now, 
+>>I'm going to wait for a timer or another process or something to wake me 
+>>up with new work".
+>>
+>>
+>>
+>>Some sleeps indicate "ideally this would run on an enormous ramdisk 
+>>attached to gigabit ethernet, but hard drives and internet connections 
+>>are just too slow so my true CPU-hogness is hidden by the fact I'm 
+>>running on a PC instead of a mainframe."
+>
+>I don't quite understand what you are getting at, but if you don't want to
+>sleep you should be able to use a non blocking syscall. But in some cases
+>I think there are times when you may not be able to use a non blocking call.
+>And if a process is a CPU hog, its a CPU hog. If its not its not. Doesn't
+>matter how it would behave on another system.
+
+Ah, but there is something there.  Take the X and xmms's gl thread thingy I 
+posted a while back.  (X runs long enough to expire in the presence of a 
+couple of low priority cpu hogs.  gl thread, which is a mondo cpu hog, and 
+normally runs and runs and runs at cpu hog priority, suddenly acquires 
+extreme interactive priority, and X, which is normally sleepy suddenly 
+becomes permanently runnable at cpu hog priority)  The gl thread starts 
+sleeping because X isn't getting enough cpu to be able to get it's work 
+done and go to sleep.  The gl thread isn't voluntarily sleeping, and X 
+isn't voluntarily running.  The behavior change is forced upon both.
+
+         -Mike 
+

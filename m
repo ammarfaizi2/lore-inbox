@@ -1,58 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273383AbRINNJC>; Fri, 14 Sep 2001 09:09:02 -0400
+	id <S273385AbRINNNb>; Fri, 14 Sep 2001 09:13:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273382AbRINNIv>; Fri, 14 Sep 2001 09:08:51 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:30887 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S273380AbRINNIm>; Fri, 14 Sep 2001 09:08:42 -0400
-Date: Fri, 14 Sep 2001 08:09:04 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200109141309.IAA86711@tomcat.admin.navo.hpc.mil>
-To: otto.wyss@bluewin.ch, linux-kernel@vger.kernel.org
-Subject: Re: How errorproof is ext2 fs?
-X-Mailer: [XMailTool v3.1.2b]
+	id <S273380AbRINNNW>; Fri, 14 Sep 2001 09:13:22 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:55302 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S273385AbRINNNB>; Fri, 14 Sep 2001 09:13:01 -0400
+Message-ID: <3BA2021F.488F65F8@t-online.de>
+Date: Fri, 14 Sep 2001 15:11:59 +0200
+From: SPATZ1@t-online.de (Frank Schneider)
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Holger Kiehl <Holger.Kiehl@dwd.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: AIC7xxx errors in 2.2.19 but not in 2.2.18
+In-Reply-To: <Pine.LNX.4.30.0109141121010.27057-100000@talentix.dwd.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Otto Wyss <otto.wyss@bluewin.ch>:
-> While reading the thread about "HFS Plus on Linux?" at
-> "debian-powerpc@list.debian.org" I had the following experience:
+Holger Kiehl schrieb:
 > 
-> Within an hour I had to hard reset both of my computers, first my Linux-i386 due
-> to a complete lockup of the system while using el3diag, second my MacOS-powermac
-> due to an not responding USB-keyboard/-mouse (what a nice coincident). Now while
-> the Mac restarted without any fuse I had to fix the ext2-fs manually for about
-> 15 min. Luckily it seems I haven't lost anything on both system. 
+> Hello
 > 
-> This leaves me a bad taste of Linux in my mouth. Does ext2 fs really behave so
-> worse in case of a crash? Okay Linux does not crash that often as MacOS does, so
-> it does not need a good  error proof fs. Still can't ext2 be made a little more
-> error proof?
+> I am getting SCSI errors with an onboard Adaptec AIC-7890/1 Ultra2, but
+> only under very heavy disk load and only under kernel 2.2.19. These errors
+> do not appear under 2.2.18.
 > 
-> Okay, there are other fs for Linux which cope better with such a situation, but
-> are they really more errorproof or are they just better in fixing up the mess
-> afterwards? Could there be more attention in not creating errors instead of
-> fixing them afterwards?
+> The system I have is a dual PIII-450 with 6 disks attached to the controller.
+> All disks are put together in SW-Raid5 array with one configured as hot
+> spare.
+> 
 
-I've used linux for about 8 years now. The only time I've had a catastrophic
-failure was with a disk drive went south.
+(..log snipped..)
+ 
+> >From Alan's changelog I see that there where changes in the AIC7xxx code.
+> Any idea what is wrong here?
 
-About the only times I've seen ext2fs require manual repair is a crash/power
-failure during fsck on boot. It doesn't happen very often. Even then, it
-may not be a serious falure, just the type of error that requires a choice
-in fix - missing inode/partially written inode in the root file system will
-usually require the choice of deleting, or putting in lost+found.
+Hello...
 
-No file system is immune to that level of failure. Some are better at
-hiding the damage (xfs will lose free data blocks like mad - 3 in a row lost
-6GB out of 12, though no used data was (visibly) lost.
+I (and someone else) had also mysterious problems with AIC7xxx and
+RAID1/5, but we use Kernel 2.4.x.
 
-15 minutes isn't that bad - wait until you have to spend 30 minutes to
-3 hours on an NTFS or FAT32 rebuild, only to find you have to reinstall.
+In Kernel 2.4.x you can choose between two versions of the
+aix7xxx-driver, one "old" one (Version 5.2.x) and a "new" one (Version
+6.x.x). Do a "cat /proc/scsi/aic7xxx/0" to find your version.
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+We both found out that our problems dissapear when we use the "old"
+driver (my tests are still in progress because my error (always the same
+scsi-disk falling out of an raid5-array with an "internal error", but
+the disk seems to be good) only appeared randomly about once a week, so
+i still have to wait if it is really gone.
 
-Any opinions expressed are solely my own.
+So perhaps you can try to use the older driver or determine the version
+of your aic7xxx-driver. Perhaps you can use the aic7xxx-driver from
+kernel 2.2.18 in Kernel 2.2.19 ?
+
+You should also boot your system with the parameter "aic7xxx=verbose",
+that will provide more infos in the syslog.
+
+Solong..
+Frank.
+
+--
+Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
+Microsoft isn't the answer.
+Microsoft is the question, and the answer is NO.
+... -.-

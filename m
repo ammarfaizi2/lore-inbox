@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262143AbVCIJaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262191AbVCIJfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262143AbVCIJaO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 04:30:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbVCIJaO
+	id S262191AbVCIJfW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 04:35:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbVCIJfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 04:30:14 -0500
-Received: from port-212-202-144-146.static.qsc.de ([212.202.144.146]:16875
-	"EHLO mail.hennerich.de") by vger.kernel.org with ESMTP
-	id S262143AbVCIJaJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 04:30:09 -0500
-Date: Wed, 9 Mar 2005 10:27:40 +0100
-From: Tobias Hennerich <Tobias@Hennerich.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Strange memory leak in 2.6.x
-Message-ID: <20050309102740.D3382@bart.hennerich.de>
-References: <20050308133735.A13586@bart.hennerich.de> <20050308173811.0cd767c3.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20050308173811.0cd767c3.akpm@osdl.org>; from akpm@osdl.org on Tue, Mar 08, 2005 at 05:38:11PM -0800
+	Wed, 9 Mar 2005 04:35:22 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:61937 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262191AbVCIJfS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 04:35:18 -0500
+Date: Wed, 9 Mar 2005 10:34:59 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+cc: Michal Januszewski <spock@gentoo.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       "Antonino A. Daplas" <adaplas@hotpop.com>
+Subject: Re: [Linux-fbdev-devel] [announce 0/7] fbsplash - The Framebuffer
+ Splash
+In-Reply-To: <9e473391050308220218cc26a3@mail.gmail.com>
+Message-ID: <Pine.LNX.4.62.0503091033400.22598@numbat.sonytel.be>
+References: <20050308015731.GA26249@spock.one.pl> <200503091301.15832.adaplas@hotpop.com>
+ <9e473391050308220218cc26a3@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 9 Mar 2005, Jon Smirl wrote:
+> Another idea would be to build a console is user space. Think of it as
+> a full screen xterm. A user space console has access to full hardware
+> acceleration using the DRM interface.
 
-On Tue, Mar 08, 2005 at 05:38:11PM -0800, Andrew Morton wrote:
-> >  we kindly ask for some suggestions about how to trace a memory leak
-> >  which we suspect in the linux kernel version 2.6:
-> 
-> Please grab 2.6.11, apply the below patch, set CONFIG_PAGE_OWNER and follow
-> the below instructions.
+Yep. And that's what Alan Cox wanted to do. Console in userspace, eye candy
+(using Porter-Duff blending) as much as you want, full UTF-8 support, ...
 
-thank you for you mails. We installed the patch from Alex on a test-system
-last night and will switch it to the production machine this evening. The
-problem will start after 48-72 hours, so we hope to send feedback
-on friday.
+Gr{oetje,eeting}s,
 
-Best regards	Tobias
+						Geert
 
--- 
-T+T Hennerich GmbH --- Zettachring 12a --- 70567 Stuttgart
-Fon:+49(711)720714-0  Fax:+49(711)720714-44  Vanity:+49(700)HENNERICH
-UNIX - Linux - Java - C  Entwicklung/Beratung/Betreuung/Schulung
-http://www.hennerich.de/
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

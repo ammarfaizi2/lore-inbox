@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUJRUdw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266460AbUJRUkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265805AbUJRUdw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 16:33:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267285AbUJRUch
+	id S266460AbUJRUkV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 16:40:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267361AbUJRUhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 16:32:37 -0400
-Received: from mail3.iserv.net ([204.177.184.153]:59779 "EHLO mail3.iserv.net")
-	by vger.kernel.org with ESMTP id S265805AbUJRUaW (ORCPT
+	Mon, 18 Oct 2004 16:37:25 -0400
+Received: from [69.4.201.55] ([69.4.201.55]:19600 "EHLO bitworks.com")
+	by vger.kernel.org with ESMTP id S266460AbUJRUfD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 16:30:22 -0400
-Message-ID: <417427D4.6080704@didntduck.org>
-Date: Mon, 18 Oct 2004 16:30:12 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+	Mon, 18 Oct 2004 16:35:03 -0400
+Message-ID: <417428F2.2050402@bitworks.com>
+Date: Mon, 18 Oct 2004 15:34:58 -0500
+From: Richard Smith <rsmith@bitworks.com>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.7.3) Gecko/20040910
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Matt Domsch <Matt_Domsch@dell.com>
-CC: jmorris@redhat.com, davem@davemloft.net, linux-kernel@vger.kernel.org,
-       Oleg Makarenko <mole@quadra.ru>
-Subject: Re: using crypto_digest() on non-kmalloc'd memory failures
-References: <20041018192952.GB8607@lists.us.dell.com>
-In-Reply-To: <20041018192952.GB8607@lists.us.dell.com>
+To: linux-fbdev-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video
+ card BOOT?
+References: <200410160946.32644.adaplas@hotpop.com> <4173B865.26539.117B09BD@localhost>
+In-Reply-To: <4173B865.26539.117B09BD@localhost>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Domsch wrote:
-> James, David,
-> 
-> Oleg noted that when we call crypto_digest() on memory allocated as a
-> static array in a module, rather than kmalloc(GFP_KERNEL), it returns
-> incorrect data, and with other functions, a kernel panic.
-> 
-> Thoughts as to why this may be?  Oleg's test patch appended.
-> 
+Kendall Bennett wrote:
 
-On some arches modules reside in vmalloc space.
+> 
+> I would assume however a serial port console would be fine for embedded 
+> machines until the framebuffer driver could come up anyway.
+> 
+This would be an incorrect assumption.  Speaking as a developer of one 
+said embedded system I must have video at boot and be able to dump 
+critical kernel messages to the screen.
 
---
-				Brian Gerst
+In the field, hooking up a serial cable to see why the unit doesn't boot 
+requires the dispatch of a tech who would have open up the unit to get 
+to the serial port.  This costs the end client lots of $$.  They don't 
+like that.
+
+By having video on boot the support person can tell the end user to look 
+at the screen and read back any messages and then make the determination 
+  if a tech dispatch is needed.
+
+And its common practice to only have as many serial ports as the system 
+needs during runtime.  During development you can dual purpose them but 
+in the final system their may not be a serial port free (or even 
+installed) to get that console info from.
+
+-- 
+Richard A. Smith
+
+

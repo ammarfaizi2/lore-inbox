@@ -1,45 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268029AbUJCRVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268036AbUJCR4B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268029AbUJCRVo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 13:21:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268026AbUJCRVo
+	id S268036AbUJCR4B (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 13:56:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268037AbUJCR4B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 13:21:44 -0400
-Received: from [213.205.33.44] ([213.205.33.44]:10213 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S268029AbUJCRVm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 13:21:42 -0400
-Subject: [patch 1/1] Uml: add generic ptrace requests
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Sun, 03 Oct 2004 15:43:13 +0200
-Message-Id: <20041003134313.E0FF4CC06@zion.localdomain>
+	Sun, 3 Oct 2004 13:56:01 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:14860 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268036AbUJCRz6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 13:55:58 -0400
+Message-ID: <9e473391041003105511b77003@mail.gmail.com>
+Date: Sun, 3 Oct 2004 13:55:53 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Vladimir Dergachev <volodya@mindspring.com>
+Subject: Re: Merging DRM and fbdev
+Cc: Dave Airlie <airlied@linux.ie>, dri-devel@lists.sourceforge.net,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0410031254280.17448@node2.an-vo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <9e47339104100220553c57624a@mail.gmail.com>
+	 <Pine.LNX.4.58.0410030824280.2325@skynet>
+	 <9e4733910410030833e8a6683@mail.gmail.com>
+	 <Pine.LNX.4.61.0410031145560.17248@node2.an-vo.com>
+	 <9e4733910410030924214dd3e3@mail.gmail.com>
+	 <Pine.LNX.4.61.0410031254280.17448@node2.an-vo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+How is the tuner controlled? Is it a V4L insterface?
 
-When we don't know how to handle ptrace(2) calls, call the arch-independent
-ptrace_request like i386 (and I guess other archs) do, instead of returning
--EIO.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
+On Sun, 3 Oct 2004 12:59:38 -0400 (EDT), Vladimir Dergachev
+<volodya@mindspring.com> wrote:
+> Jon, this is a common misconception - GATOS km module *does* provide a v4l
+> interface.
+> 
+> What is different is that the device configuration (like setting the tuner
+> or encoding) is done by Xserver.
+> 
+> All km does is check whether the card can supply a v4l stream and, if so,
+> it provides it. This is little different from a webcam driver, especially
+> if a webcam has its own on/off switch.
+> 
+> The misconception arises from the fact that many v4l programs were only
+> made to work with bt848 cards - they would *not* work with webcams any
+> more than they would work with km.
+> 
+>                                best
+> 
+>                                  Vladimir Dergachev
+> 
+> >
+> > --
+> > Jon Smirl
+> > jonsmirl@gmail.com
+> >
+> >
+> > -------------------------------------------------------
+> > This SF.net email is sponsored by: IT Product Guide on ITManagersJournal
+> > Use IT products in your business? Tell us what you think of them. Give us
+> > Your Opinions, Get Free ThinkGeek Gift Certificates! Click to find out more
+> > http://productguide.itmanagersjournal.com/guidepromo.tmpl
+> > --
+> > _______________________________________________
+> > Dri-devel mailing list
+> > Dri-devel@lists.sourceforge.net
+> > https://lists.sourceforge.net/lists/listinfo/dri-devel
+> >
+> 
 
- linux-2.6.9-current-paolo/arch/um/kernel/ptrace.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
 
-diff -puN arch/um/kernel/ptrace.c~uml-add-generic-ptrace-requests arch/um/kernel/ptrace.c
---- linux-2.6.9-current/arch/um/kernel/ptrace.c~uml-add-generic-ptrace-requests	2004-10-03 15:41:12.023298992 +0200
-+++ linux-2.6.9-current-paolo/arch/um/kernel/ptrace.c	2004-10-03 15:41:12.026298536 +0200
-@@ -287,7 +287,7 @@ int sys_ptrace(long request, long pid, l
- 	}
- #endif
- 	default:
--		ret = -EIO;
-+		ret = ptrace_request(child, request, addr, data);
- 		break;
- 	}
-  out_tsk:
-_
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

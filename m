@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264643AbSJ3J3T>; Wed, 30 Oct 2002 04:29:19 -0500
+	id <S264636AbSJ3JcH>; Wed, 30 Oct 2002 04:32:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264644AbSJ3J3T>; Wed, 30 Oct 2002 04:29:19 -0500
-Received: from packet.digeo.com ([12.110.80.53]:63418 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264643AbSJ3J3S>;
-	Wed, 30 Oct 2002 04:29:18 -0500
-Message-ID: <3DBFA7E3.345690B2@digeo.com>
-Date: Wed, 30 Oct 2002 01:35:31 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S264642AbSJ3JcG>; Wed, 30 Oct 2002 04:32:06 -0500
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:14283 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S264636AbSJ3JcD>; Wed, 30 Oct 2002 04:32:03 -0500
 To: Jeff Garzik <jgarzik@pobox.com>
-CC: Hans Reiser <reiser@namesys.com>, torvalds@transmeta.com,
-       Nikita Danilov <Nikita@namesys.com>, landley@trommello.org,
+Cc: andersen@codepoet.org, Dave Cinege <dcinege@psychosis.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.5 merge candidate list, final version.  (End of "crunch 
- time"series.)
-References: <200210280534.16821.landley@trommello.org> <15805.27643.403378.829985@laputa.namesys.com> <3DBF9600.4060208@namesys.com> <3DBF9BA5.6000100@pobox.com>
+Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge candidate list.
+References: <200210272017.56147.landley@trommello.org>
+	<200210300229.44865.dcinege@psychosis.com>
+	<3DBF8CD5.1030306@pobox.com>
+	<200210300322.17933.dcinege@psychosis.com>
+	<20021030085149.GA7919@codepoet.org>
+	<buofzuogv31.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	<3DBFA0F8.9000408@pobox.com>
+	<buobs5cgu7o.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	<3DBFA5C7.1080603@pobox.com>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 30 Oct 2002 18:38:24 +0900
+In-Reply-To: <3DBFA5C7.1080603@pobox.com>
+Message-ID: <buo7kg0gtbj.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Oct 2002 09:35:32.0194 (UTC) FILETIME=[B0EFA420:01C27FF7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> Hans Reiser wrote:
-> 
-> > We are going to submit a patch appropriate for inclusion as an
-> > experimental FS on Halloween.   I hope you will forgive our pushing
-> > the limit timewise, it is not by choice, but the algorithms we used to
-> > more than double reiserfs V3 performance were, quite frankly, hard to
-> > code.
-> 
-> Does your merge change the core code at all?  Does it add new syscalls?
-> 
+Jeff Garzik <jgarzik@pobox.com> writes:
+> I'm not saying that initramfs will do 
+> this out of the box :) but going from initramfs to "initromfs" should 
+> not be a huge leap...
 
-Their changes are tiny, and sensible.  See
-http://www.namesys.com/snapshots/2002.10.29/
+Do you mean by putting the `internal' format that initramfs normally
+uses in RAM, in ROM, and skip the initial decompression step?
 
-But I'd like to ask about the status of reiser3 support.
+Or do you mean have it somehow avoid copying the data areas of the cpio
+stream (i.e. store pointers from the tree-in-ram to the actual data
+blocks in ROM).
 
-Chris had patches *ages* ago to convert it to use direct-to-BIO for
-reads, and writes should be done as well.  reiserfs3 is still using
-buffer-head-based IO for bulk reads and writes.  That's a 25-30% hit
-in CPU cost, and all the old ZONE_NORMAL-full-of-buffer_heads
-problems.
+I guess the latter sounds cleaner... it would also have the advantage
+that you could have a tree with the bulk of data in ROM, but which
+allowed new files to be written (which would be stored in RAM).
 
-Any plans to get that work finished off?
+Hmmm...sounds very intersting...
+
+-Miles
+-- 
+I'd rather be consing.

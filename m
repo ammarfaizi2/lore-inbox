@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286413AbSAEXfC>; Sat, 5 Jan 2002 18:35:02 -0500
+	id <S286447AbSAEXkM>; Sat, 5 Jan 2002 18:40:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286411AbSAEXew>; Sat, 5 Jan 2002 18:34:52 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:7437 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S286413AbSAEXel>;
-	Sat, 5 Jan 2002 18:34:41 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "kumar M" <kumarm4@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems in exporting symbols 
-In-Reply-To: Your message of "Sat, 05 Jan 2002 14:43:20 -0000."
-             <F154xe0ymQ1WE9ql2Rk00002adb@hotmail.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 06 Jan 2002 10:34:28 +1100
-Message-ID: <16859.1010273668@ocs3.intra.ocs.com.au>
+	id <S286422AbSAEXkC>; Sat, 5 Jan 2002 18:40:02 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:42626 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S286447AbSAEXjl>; Sat, 5 Jan 2002 18:39:41 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sat, 5 Jan 2002 15:39:38 -0800
+Message-Id: <200201052339.PAA00441@baldur.yggdrasil.com>
+To: zaitcev@redhat.com
+Subject: Re: Patch: linux-2.5.2-pre8/drivers/sound compilation fixes: MINOR-->minor
+Cc: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 05 Jan 2002 14:43:20 +0000, 
-"kumar M" <kumarm4@hotmail.com> wrote:
->I am getting a kernel mismatch error when I insmod a binary module
->compiled on a 2.4.2 kernel (kernel name say linux-2-4-2-v1) on a different 
->system with the same 2.4.2 kernel  but with  a different kernel name 
->(linux-2-4-2-v2). I dont want to recompile the module everytime I give a new 
->name to a kernel or for every different system.
->How do I fix this problem ?
+>From: Pete Zaitcev <zaitcev@redhat.com>
 
-Try insmod -f, but don't complain if it destroys your system.  Modules
-tend to be very kernel specific, forcing a module load into a different
-kernel is a good way to kill your machine.
+>> 	Doing a global replace of "MINOR(" with "minor(" in all
+>> .c files in linux/drivers/sound allows all of the sound drivers
+>> to compile (at least as modules on x86).  [...]
 
+>You did not change ymfpci, why? Linus fixed it already?
+
+	linux-2.5.2-pre8/drivers/sound/ymfpci.c compiles without
+errors or warnings, unmodified.
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266955AbSLPRiJ>; Mon, 16 Dec 2002 12:38:09 -0500
+	id <S266924AbSLPRgm>; Mon, 16 Dec 2002 12:36:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266957AbSLPRiJ>; Mon, 16 Dec 2002 12:38:09 -0500
-Received: from findaloan-online.cc ([216.209.85.42]:10757 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S266955AbSLPRiG>;
-	Mon, 16 Dec 2002 12:38:06 -0500
-Date: Mon, 16 Dec 2002 12:54:32 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org,
-       hpa@zytor.com, terje.eggestad@scali.com
-Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021216175432.GA5094@mark.mielke.cc>
-References: <20021215220132.GB6347@elf.ucw.cz> <200212160733.gBG7XhD67922@saturn.cs.uml.edu> <20021216111759.GA24196@atrey.karlin.mff.cuni.cz>
+	id <S266918AbSLPRgm>; Mon, 16 Dec 2002 12:36:42 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:64007 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S266898AbSLPRgi>; Mon, 16 Dec 2002 12:36:38 -0500
+Date: Mon, 16 Dec 2002 12:44:26 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Larry McVoy <lm@work.bitmover.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       Larry McVoy <lm@bitmover.com>
+Subject: Re: Notification hooks
+Message-ID: <20021216174426.GB504@hopper.phunnypharm.org>
+References: <20021216171218.GV504@hopper.phunnypharm.org> <1040059138.1438.1.camel@laptop.fenrus.com> <20021216092129.D432@work.bitmover.com> <20021216172722.GX504@hopper.phunnypharm.org> <20021216172838.B976@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021216111759.GA24196@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20021216172838.B976@devserv.devel.redhat.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 16, 2002 at 12:17:59PM +0100, Pavel Machek wrote:
-> > Sure it's dirty. It's also fast, with the only overhead being
-> > a few NOPs that could get skipped on syscall return anyway.
-> > Patching overhead is negligible, since it only happens when a
-> > page is brought in fresh from the disk.
-> Yes but "read only" code changing under you... Should better be
-> avoided.
+On Mon, Dec 16, 2002 at 05:28:38PM +0000, Arjan van de Ven wrote:
+> On Mon, Dec 16, 2002 at 12:27:22PM -0500, Ben Collins wrote:
+> > > bk help triggers.
+> > 
+> > Well, if it affects more than just the files I am interested in, I only
+> > want the diff for those files, but the changeset log and files-affected
+> > for the whole changeset.
+> > 
+> > If I want the full diff I can go to bkbits or the archive of the commit
+> > list.
+> 
+> well grepdiff and filterdiff can do that I bet... 
+> filterdiff takes a wildcard and only lets patches through that touch files
+> that match this wildcard...
 
-Programs that self verify their own CRC may get a little confused (are
-there any of these left?), but other than that, 'goto is better avoided'
-as well, but sometimes 'goto' is the best answer.
+For all the people that suggested subscribing to the commit list, guess
+what, I am.
 
-> > The vsyscall stuff costs you on every syscall. It's nice for
-> Well, the cost is basically one call. That's not *that* big cost.
-
-Time for benchmarks... :-)
-
-mark
+Problem is that my changeset isn't even listed there. Not a very
+dependable way to get that info.
 
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

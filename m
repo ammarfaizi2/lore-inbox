@@ -1,99 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280364AbRKFUFX>; Tue, 6 Nov 2001 15:05:23 -0500
+	id <S280447AbRKFUId>; Tue, 6 Nov 2001 15:08:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280417AbRKFUFN>; Tue, 6 Nov 2001 15:05:13 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:8720 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S280364AbRKFUFB>; Tue, 6 Nov 2001 15:05:01 -0500
-Date: Tue, 6 Nov 2001 21:04:51 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: <Philip.Blundell@pobox.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
-        Andreas Dilger <adilger@turbolabs.com>
-Subject: [PATCH] lp.c, eexpress.c jiffies cleanup
-Message-ID: <Pine.LNX.4.30.0111062039440.23693-100000@gans.physik3.uni-rostock.de>
+	id <S280417AbRKFUIX>; Tue, 6 Nov 2001 15:08:23 -0500
+Received: from web12301.mail.yahoo.com ([216.136.173.99]:56735 "HELO
+	web12301.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S280447AbRKFUIQ>; Tue, 6 Nov 2001 15:08:16 -0500
+Message-ID: <20011106200815.50754.qmail@web12301.mail.yahoo.com>
+Date: Tue, 6 Nov 2001 12:08:15 -0800 (PST)
+From: Stephen Cameron <smcameron@yahoo.com>
+Subject: Re: Mylex/Compaq RAID controller placement in config
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Philip, Linus, Alan,
+Venkatesh Ramamurthy wrote:
 
-one more jiffies cleanup patch to use comparison macros as pointed out by
-Andreas Dilger on lkml.
-I try to bundle files with the same maintainer to reduce email overhead.
-If my procedure of mailing the maintainer as well as Cc:ing Linus and Alan
-is incorrect, please drop me a short note.
+> > I know it might seem silly, but as to make things clearer for most
+> > users/admins, wouldn't it be better to just call them SCSI controllers, as
+> > they all indeed connect SCSI drives to the host?
+> 
+> Eventhough they connect SCSI Drives, the fact is that they are totally
+> different beast from the OS/driver perspective.
 
-In eexpress.c I also turned absolute jiffies number into multiples of HZ,
-yet the resulting timeout values still do not always seem reasonable to
-me.
+Actually, at least in Alan Cox's tree, the cciss driver is BOTH a SCSI driver
+and a block driver simultaneously, or can be configured that way anyhow.  That
+change was intruduced for the sole purpose of accessing SCSI tape drives via
+array controllers.  (nevermind why you'd want to do that, suffice it to say,
+some folks want this ability.)  I would consider it mostly a block driver, even
+when SCSI tape drive support is compiled in.
 
-Tim
+In any case, the "drives" (logical volumes) which are presented by the
+hardware/firmware and eventually by the driver to the OS do not in general
+correspond 1-to-1 with physical SCSI drives.  Even the SCSI busses presented by
+the cciss driver with SCSI tape support do not necessarily correspond with
+physical SCSI busses, so considering these controllers "SCSI controllers" is
+not really accurate, though typically they _contain_ what you can think of as
+one or more SCSI controllers as part of the back-end, which the firmware uses
+to control SCSI devices,.  Though, in some cases it could be a fibre-channel
+back-end instead of SCSI.  In any case, the nature of the back-end is
+irrelevant to the driver for purposes of doing i/o to logical volumes.
 
---- ../linux-2.4.14-pre6/drivers/char/lp.c	Wed Oct 31 23:06:19 2001
-+++ drivers/char/lp.c	Tue Nov  6 20:37:30 2001
-@@ -302,7 +302,7 @@
- 	size_t copy_size = count;
+Incidentally, last time I checked, Linus' tree contained the documentation
+portion of the patch which allowed a cciss controller to access SCSI tape
+drives (Documentation/cciss.txt) but none of the actual code that implemented
+that functionality... :-/  oh well.
 
- #ifdef LP_STATS
--	if (jiffies-lp_table[minor].lastcall > LP_TIME(minor))
-+	if (time_after(jiffies, lp_table[minor].lastcall + LP_TIME(minor)))
- 		lp_table[minor].runchars = 0;
+-- steve (aka steve.cameron@compaq.com)
 
- 	lp_table[minor].lastcall = jiffies;
---- ../linux-2.4.14-pre6/drivers/net/eexpress.c	Sun Sep 30 21:26:06 2001
-+++ drivers/net/eexpress.c	Tue Nov  6 20:52:59 2001
-@@ -504,7 +504,7 @@
-
- 	if (lp->started)
- 	{
--		if ((jiffies - dev->trans_start)>50)
-+		if (time_after(jiffies, dev->trans_start + HZ/2))
- 		{
- 			if (lp->tx_link==lp->last_tx_restart)
- 			{
-@@ -560,7 +560,7 @@
- 	}
- 	else
- 	{
--		if ((jiffies-lp->init_time)>10)
-+		if (time_after(jiffies, lp->init_time + HZ/10))
- 		{
- 			unsigned short status = scb_status(dev);
- 			printk(KERN_WARNING "%s: i82586 startup timed out, status %04x, resetting...\n",
-@@ -725,8 +725,8 @@
-
- static void eexp_cmd_clear(struct net_device *dev)
- {
--	unsigned long int oldtime = jiffies;
--	while (scb_rdcmd(dev) && ((jiffies-oldtime)<10));
-+	unsigned long timeout = jiffies + HZ/10;
-+	while (scb_rdcmd(dev) && (time_before(jiffies, timeout)));
- 	if (scb_rdcmd(dev)) {
- 		printk("%s: command didn't clear\n", dev->name);
- 	}
-@@ -1598,16 +1598,16 @@
-                 }
-         }
-         if (kick) {
--                unsigned long oj;
-+                unsigned long timeout;
-                 scb_command(dev, SCB_CUsuspend);
-                 outb(0, ioaddr+SIGNAL_CA);
-                 outb(0, ioaddr+SIGNAL_CA);
- #if 0
-                 printk("%s: waiting for CU to go suspended\n", dev->name);
- #endif
--                oj = jiffies;
-+                timeout = jiffies + 20*HZ;
-                 while ((SCB_CUstat(scb_status(dev)) == 2) &&
--                       ((jiffies-oj) < 2000));
-+                       time_before(jiffies, timeout));
- 		if (SCB_CUstat(scb_status(dev)) == 2)
- 			printk("%s: warning, CU didn't stop\n", dev->name);
-                 lp->started &= ~(STARTED_CU);
-
-
+__________________________________________________
+Do You Yahoo!?
+Find a job, post your resume.
+http://careers.yahoo.com

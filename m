@@ -1,91 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319218AbSHNGCh>; Wed, 14 Aug 2002 02:02:37 -0400
+	id <S319220AbSHNGJX>; Wed, 14 Aug 2002 02:09:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319221AbSHNGCh>; Wed, 14 Aug 2002 02:02:37 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:61094 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S319218AbSHNGC3>;
-	Wed, 14 Aug 2002 02:02:29 -0400
-Date: Wed, 14 Aug 2002 16:05:05 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@transmeta.com>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH][2.5.31-BK] apm post TLS cleanup
-Message-Id: <20020814160505.0dfa1202.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S319221AbSHNGJX>; Wed, 14 Aug 2002 02:09:23 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:43710 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S319220AbSHNGJW>;
+	Wed, 14 Aug 2002 02:09:22 -0400
+Message-ID: <3D59F536.3FA8454@alphalink.com.au>
+Date: Wed, 14 Aug 2002 16:14:14 +1000
+From: Greg Banks <gnb@alphalink.com.au>
+Organization: Corpus Canem Pty Ltd.
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+CC: Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org,
+       kbuild-devel@lists.sourceforge.net
+Subject: Re: [patch] kernel config 3/N - move sound into drivers/media
+References: <Pine.LNX.4.44.0208132342560.32010-100000@chaos.physics.uiowa.edu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Kai Germaschewski wrote:
+> 
+> On Tue, 13 Aug 2002, Peter Samuelson wrote:
+> 
+> I think that's exactly where this effort should start. For example, the
+> SCSI patch didn't do this, though AFAICS it would be nicely possible to
+> unconditionally source drivers/scsi/Config.in and then have the if in
+> there.
 
-This just makes the apm driver a bit nicer given Alan's liking
-for APM on SMP ...
+I like that idea.
 
-This applies after Ingo's patch.
+> this should also be a nice opportunity to introduce drivers/Config.in and
+> remove even more duplication from arch/$ARCH/config.in. It comes of the
+> cost of testing for the architecture, since e.g. s390 does not want to
+> include most of drivers/*, but that means we'd actually collect this
+> knowledge at a centralized place.
+
+<gentle-irony>Oh no the dreaded unified arch tree!</gentle-irony>
+
+Seriously, I think this is perhaps a bit brave in the short term.
+
+> o The trivial patches moving statements like the above into the
+>   subsys/Config.in means that all of that file should be indented, which
+>   makes the patches look really large, even though they change very
+>   little.
+
+I wouldn't be too worried about indentation, it's quite loosely followed
+already.  In fact better to do one patch that does the move and a second
+larger but provably-trivial patch that fixes up the indentation.
+
+> I have no strong opinion either way, but I'd certainly like
+> a drivers/Config.in.
+
+I think it's a great idea whose time has not yet come.
+
+Greg.
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
-diff -ruN 2.5.31-1.503/arch/i386/kernel/apm.c 2.5.31-1.503-apm.1/arch/i386/kernel/apm.c
---- 2.5.31-1.503/arch/i386/kernel/apm.c	2002-08-14 15:37:51.000000000 +1000
-+++ 2.5.31-1.503-apm.1/arch/i386/kernel/apm.c	2002-08-14 15:45:42.000000000 +1000
-@@ -571,9 +571,10 @@
- {
- 	APM_DECL_SEGS
- 	unsigned long		flags;
--	int			cpu = smp_processor_id();
-+	int			cpu;
- 	struct desc_struct	save_desc_40;
- 
-+	cpu = get_cpu();
- 	save_desc_40 = cpu_gdt_table[cpu][0x40 / 8];
- 	cpu_gdt_table[cpu][0x40 / 8] = bad_bios_desc;
- 
-@@ -599,6 +600,7 @@
- 	APM_DO_RESTORE_SEGS;
- 	local_irq_restore(flags);
- 	cpu_gdt_table[cpu][0x40 / 8] = save_desc_40;
-+	put_cpu();
- 	return *eax & 0xff;
- }
- 
-@@ -618,12 +620,13 @@
- 
- static u8 apm_bios_call_simple(u32 func, u32 ebx_in, u32 ecx_in, u32 *eax)
- {
--	u8		error;
-+	u8			error;
- 	APM_DECL_SEGS
--	unsigned long	flags;
--	int			cpu = smp_processor_id();
-+	unsigned long		flags;
-+	int			cpu;
- 	struct desc_struct	save_desc_40;
- 
-+	cpu = get_cpu();
- 	save_desc_40 = cpu_gdt_table[cpu][0x40 / 8];
- 	cpu_gdt_table[cpu][0x40 / 8] = bad_bios_desc;
- 
-@@ -653,6 +656,7 @@
- 	APM_DO_RESTORE_SEGS;
- 	local_irq_restore(flags);
- 	cpu_gdt_table[smp_processor_id()][0x40 / 8] = save_desc_40;
-+	put_cpu();
- 	return error;
- }
- 
-@@ -1937,9 +1941,6 @@
- 	 * that extends up to the end of page zero (that we have reserved).
- 	 * This is for buggy BIOS's that refer to (real mode) segment 0x40
- 	 * even though they are called in protected mode.
--	 *
--	 * NOTE: on SMP we call into the APM BIOS only on CPU#0, so it's
--	 * enough to modify CPU#0's GDT.
- 	 */
- 	set_base(bad_bios_desc, __va((unsigned long)0x40 << 4));
- 	_set_limit((char *)&bad_bios_desc, 4095 - (0x40 << 4));
+the price of civilisation today is a courageous willingness to prevail,
+with force, if necessary, against whatever vicious and uncomprehending
+enemies try to strike it down.     - Roger Sandall, The Age, 28Sep2001.

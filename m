@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129423AbRBBAZh>; Thu, 1 Feb 2001 19:25:37 -0500
+	id <S131690AbRBBA0r>; Thu, 1 Feb 2001 19:26:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129566AbRBBAZ1>; Thu, 1 Feb 2001 19:25:27 -0500
-Received: from theirongiant.zip.net.au ([61.8.0.198]:12805 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S129423AbRBBAZP>; Thu, 1 Feb 2001 19:25:15 -0500
-Date: Fri, 2 Feb 2001 11:25:03 +1100
-From: CaT <cat@zip.com.au>
-To: Jagan_Pochimireddy@3com.com
+	id <S131817AbRBBA0h>; Thu, 1 Feb 2001 19:26:37 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26642 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131690AbRBBA0U>; Thu, 1 Feb 2001 19:26:20 -0500
+Subject: Re: hard crashes 2.4.0/1 with NE2K stuff
+To: roel@grobbebol.xs4all.nl (Roeland Th. Jansen)
+Date: Fri, 2 Feb 2001 00:13:45 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel ver 2.4.1 VFS problem
-Message-ID: <20010202112503.B365@zip.com.au>
-In-Reply-To: <882569E7.0001FE39.00@hqoutbound.ops.3com.com>
-Mime-Version: 1.0
+In-Reply-To: <20010201231652.A2684@grobbebol.xs4all.nl> from "Roeland Th. Jansen" at Feb 01, 2001 11:16:52 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <882569E7.0001FE39.00@hqoutbound.ops.3com.com>; from Jagan_Pochimireddy@3com.com on Thu, Feb 01, 2001 at 04:22:03PM -0800
-Organisation: Furball Inc.
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14OTrH-0005Px-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 01, 2001 at 04:22:03PM -0800, Jagan_Pochimireddy@3com.com wrote:
-> But the driver for my Hard disk is not there in the list, mine is FUJISTU disk
-> .I think Generic scsi driver will work
+> the used board BP6 (abit), apics enabled. non-overclocked. card is a
+> 
+> 00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+> RTL-8029(AS)
 
-Not the hard disk, the SCSI card...
-
--- 
-CaT (cat@zip.com.au)		*** Jenna has joined the channel.
-				<cat> speaking of mental giants..
-				<Jenna> me, a giant, bullshit
-				<Jenna> And i'm not mental
-					- An IRC session, 20/12/2000
-
+Try 2.4.1ac - that should fix it
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315628AbSENLqw>; Tue, 14 May 2002 07:46:52 -0400
+	id <S315624AbSENLwL>; Tue, 14 May 2002 07:52:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315629AbSENLqv>; Tue, 14 May 2002 07:46:51 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:64522 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S315628AbSENLqu>; Tue, 14 May 2002 07:46:50 -0400
-Message-Id: <200205141143.g4EBhEY09631@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Robert Love <rml@tech9.net>
-Subject: Re: error : preempt_count 1
-Date: Tue, 14 May 2002 14:45:40 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1779HB-01zk0WC@fwd06.sul.t-online.com> <1021306688.18799.2564.camel@summit>
+	id <S315619AbSENLwK>; Tue, 14 May 2002 07:52:10 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17171 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315624AbSENLv4>; Tue, 14 May 2002 07:51:56 -0400
+Subject: Re: [PATCH] 2.5.15 IDE 61
+To: rmk@arm.linux.org.uk (Russell King)
+Date: Tue, 14 May 2002 13:10:58 +0100 (BST)
+Cc: dalecki@evision-ventures.com (Martin Dalecki),
+        nconway.list@ukaea.org.uk (Neil Conway), linux-kernel@vger.kernel.org
+In-Reply-To: <20020514123830.A18118@flint.arm.linux.org.uk> from "Russell King" at May 14, 2002 12:38:30 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E177b8s-0007lm-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 May 2002 14:18, Robert Love wrote:
-> > erro: halt[8635] exited with preempt_count 1
-> >
-> > What does it mean?
->
-> Absolutely nothing bad.  It is a debugging check to catch bad code that
-> does funny things with locks.  Ideally, every program should call unlock
-> for each instance it called lock - balancing everything out and giving a
-> preempt_count of zero.
+> Something here smells fishy here - you shouldn't hold a spinlock for a long
+> time (a long time === spinlocking, setting up the drive, possibly scheduling,
 
-> Some code in the kernel, knowing it is shutting down, does not bother to
-> drop any held locks and subsequently you see that message.
+You can't hold it while scheduling or you may deadlock
 
-> Since it is triggering false positives, I will remove it eventually.
+> transferring data, getting status, then unlocking).  Also, remember,
+> spinlocks are no-ops on uniprocessor systems.
 
-I'd say don't remove it, just omit the 'error:' part - this will
-reduce panic mails on the subject.
+Its possible it can be done with a semaphore but the whole business is
+pretty tricky. IDE command processing occurs a fair bit at interrupt level
+and you definitely don't want to block interrupts for long periods.
 
-> For now it is incredibly useful for catching real problems.  And the
-> above, while harmless, could be fixed for "cleanliness" concerns.
---
-vda
+If the queue abstraction is right then the block layer should do all the
+synchronization work that is required. It may cost a few cycles on the odd
+case you can do overlapped command setup but that versus a nasty locking
+mess its got to be better to lose those few cycles.
+
+I don't even Martin here, the ide locking is currently utterly vile

@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315430AbSHVR56>; Thu, 22 Aug 2002 13:57:58 -0400
+	id <S315275AbSHVSLC>; Thu, 22 Aug 2002 14:11:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315440AbSHVR55>; Thu, 22 Aug 2002 13:57:57 -0400
-Received: from ALyon-209-1-13-54.abo.wanadoo.fr ([217.128.17.54]:10684 "EHLO
-	alph.dyndns.org") by vger.kernel.org with ESMTP id <S315430AbSHVR54>;
-	Thu, 22 Aug 2002 13:57:56 -0400
-Subject: Re: [PATCH]: fix 32bits integer overflow in loops_per_jiffy
-	calculation
-From: Yoann Vandoorselaere <yoann@prelude-ids.org>
-To: Dominik Brodowski <devel@brodo.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Gabriel Paubert <paubert@iram.es>, cpufreq@lists.arm.linux.org.uk,
-       cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20020822194655.C2016@brodo.de>
-References: <20020822185107.A1160@brodo.de>
-	<20020822193516.15445@192.168.4.1>  <20020822194655.C2016@brodo.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 22 Aug 2002 20:02:13 +0200
-Message-Id: <1030039334.15430.256.camel@alph>
+	id <S315374AbSHVSLC>; Thu, 22 Aug 2002 14:11:02 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:37135 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S315275AbSHVSLB>; Thu, 22 Aug 2002 14:11:01 -0400
+Date: Thu, 22 Aug 2002 20:14:26 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Gonzalo Servat <gonzalo@unixpac.com.au>,
+       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: ServerWorks OSB4 in impossible state
+Message-ID: <20020822181426.GA11539@louise.pinerecords.com>
+References: <Pine.LNX.4.10.10208220143440.11626-100000@master.linux-ide.org> <1030017756.9866.74.camel@biker.pdb.fsc.net> <20020822164527.GA11488@louise.pinerecords.com> <1030039170.3151.29.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1030039170.3151.29.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
+X-Uptime: 79 days, 8:36
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-22 at 19:46, Dominik Brodowski wrote:
-> On Thu, Aug 22, 2002 at 09:35:16PM +0200, Benjamin Herrenschmidt wrote:
-> > >IMHO per-arch functions are really not needed. The only architectures which
-> > >have CPUFreq drivers by now are ARM and i386. This will change, hopefully;
-> > >IMHO it should be enough to include some basic limit checking in 
-> > >cpufreq_scale().
-> > 
-> > In this specific case, we were talking about PPC since the problem
-> > occured when I implemented cpufreq support to switch the speed
-> > of the latest powerbooks between 667 and 800Mhz
+> > AFAIK 2.4.18 as well as 2.4.19-preEARLY seemed to work flawlessly w/ OSB4
+> > even in DMA modes. How's the code there then? Is it dangerous to use?
 > 
-> And the patch from Yoann solves this? 
+> Most of them work all the time (most OSB4, all CSB5. all CSB6)
+> All of them work all the time with most drives
+> Some of them do horrible things in UDMA with some drives (timing
+> patterns I guess)
+> 
+> All of the OSB4 do MWDMA fine.
 
-Yep, the integer overflow resulted in an incorrectly computed
-loops_per_jiffy :
+Oh it's not such a big problem then. If it tells you/Andre anything,
+the controller I've run into trouble with seems to be (output from
+2.4.19-pre2):
 
-Aug 21 19:50:41 titane kernel: adjust_jiffies: prechange cur=667000, new=800000
-Aug 21 19:50:41 titane kernel: old loop_per_jiffy = 665.19 (cpufreq_ref_loops=3325952, cpufreq_ref_freq=667000).
-Aug 21 19:50:41 titane kernel: new loop_per_jiffy = 669.02 (cpufreq_ref_loops=3325952, cpufreq_ref_freq=667000).
+00:0f.1 IDE interface: Relience Computer: Unknown device 0211 (prog-if 8a [Master SecP PriP])
+        Flags: bus master, medium devsel, latency 64
+        I/O ports at 1880 [size=16]
+00: 66 11 11 02 45 01 00 02 00 8a 01 01 00 40 80 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 81 18 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-With the patch applied, it work fine :
+ServerWorks OSB4: IDE controller on PCI bus 00 dev 79
+ServerWorks OSB4: chipset revision 0
 
-Aug 22 11:33:40 titane kernel: adjust_jiffies: prechange cur=667000, new=800000
-Aug 22 11:33:40 titane kernel: old loop_per_jiffy = 665.19 (cpufreq_ref_loops=3325952, cpufreq_ref_freq=667000).
-Aug 22 11:33:40 titane kernel: new loop_per_jiffy = 797.82 (cpufreq_ref_loops=3325952, cpufreq_ref_freq=667000).
+(This is what they put into the HP NetServer E800, which is otherwise a nice
+machine -- With these we can get up to 8 NICs to work w/o IRQ sharing. Ideal
+for building routers, except if we were to put SCSI drives everywhere, we'd
+have nothing to eat soon enough.)
 
--- 
-Yoann Vandoorselaere, http://www.prelude-ids.org
+So far we've been ok as 2.4.19-pre2 indeed appears to work just fine in UDMA2.
 
-"Programming is a race between programmers, who try and make more and 
- more idiot-proof software, and universe, which produces more and more 
- remarkable idiots. Until now, universe leads the race"  -- R. Cook
-
+T.

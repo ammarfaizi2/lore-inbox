@@ -1,40 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263224AbVCKHTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbVCKHXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263224AbVCKHTb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 02:19:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263225AbVCKHTb
+	id S262585AbVCKHXi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 02:23:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263226AbVCKHXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 02:19:31 -0500
-Received: from mail.kroah.org ([69.55.234.183]:32730 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263224AbVCKHSk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 02:18:40 -0500
-Date: Thu, 10 Mar 2005 23:18:25 -0800
-From: Greg KH <greg@kroah.com>
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: User mode drivers: part 2: PCI device handling (patch 1/2 for 2.6.11)
-Message-ID: <20050311071825.GA28613@kroah.com>
-References: <16945.4717.402555.893411@berry.gelato.unsw.EDU.AU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 11 Mar 2005 02:23:37 -0500
+Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:59038 "HELO
+	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262585AbVCKHXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 02:23:35 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: netdev@oss.sgi.com
+Subject: Last night Linus bk - netfilter busted?
+Date: Fri, 11 Mar 2005 02:23:34 -0500
+User-Agent: KMail/1.7.2
+Cc: LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <16945.4717.402555.893411@berry.gelato.unsw.EDU.AU>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200503110223.34461.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 11, 2005 at 02:37:17PM +1100, Peter Chubb wrote:
-> +/*
-> + * The PCI subsystem is implemented as yet-another pseudo filesystem,
-> + * albeit one that is never mounted.
-> + * This is its magic number.
-> + */
-> +#define USR_PCI_MAGIC (0x12345678)
+Hi,
 
-If you make it a real, mountable filesystem, then you don't need to have
-any of your new syscalls, right?  Why not just do that instead?
+My box gets stuck while booting (actually starting ntpd) whith tonight
+pull from Linus. It looks like it is spinning in ipt_do_table when I do
+SysRq-P. No call trace though.
 
-thanks,
+Anyone else seeing it? Any ideas?
 
-greg k-h
+-- 
+Dmitry

@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265390AbTF1Tu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 15:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265392AbTF1Tu6
+	id S265361AbTF1Tsu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 15:48:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265374AbTF1Tsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 15:50:58 -0400
-Received: from smtprelay02.ispgateway.de ([62.67.200.161]:65517 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S265390AbTF1Tu4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 15:50:56 -0400
-Message-ID: <3EFDF4DA.80201@hipac.org>
-Date: Sat, 28 Jun 2003 22:04:42 +0200
-From: Michael Bellion and Thomas Heinz <nf@hipac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: de, en
+	Sat, 28 Jun 2003 15:48:50 -0400
+Received: from moutng.kundenserver.de ([212.227.126.185]:48324 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S265361AbTF1Tst (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 15:48:49 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Asus CD-S520/A kernel I/O error
+X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
+ Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
+References: <20030628195408.GA10099@deneb>
+From: Markus Plail <linux-kernel@gitteundmarkus.de>
+Date: Sat, 28 Jun 2003 22:03:42 +0200
+In-Reply-To: <20030628195408.GA10099@deneb> (Marco Ferra's message of "Sat,
+ 28 Jun 2003 20:54:08 +0100")
+Message-ID: <87brwix941.fsf@gitteundmarkus.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-To: Pekka Savola <pekkas@netcore.fi>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [ANNOUNCE] nf-hipac v0.8 released
-References: <Pine.LNX.4.44.0306270900260.3068-100000@netcore.fi>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pekka
+On Sat, 28 Jun 2003, Marco Ferra wrote:
 
-You wrote:
-> Looks interesting.  Is there experience about this in bridging firewall 
-> scenarios? (With or without external patchset's like 
-> http://ebtables.sourceforge.net/)
+> It is _always_ at the end.  -raw96r doesn't seem to exist
 
-Sorry for this answer being so late but we wanted to check whether
-nf-hipac works with the ebtables patch first in order to give you
-a definite answer. We tried on a sparc64 which was a bad decision
-because the ebtables patch does not work on sparc64 systems.
-We are going to test the stuff tomorrow on an i386 and tell you
-the results afterwards.
+Then you must have an old, or as Joerg would put it, ancient version.
 
-In principle, nf-hipac should work properly whith the bridge patch.
-We expect it to work just like iptables apart from the fact that
-you cannot match on bridge ports. The iptables' in/out interface
-match in 2.4 works the way that it matches if either in/out dev
-_or_ in/out physdev. The nf-hipac in/out interface match matches
-solely on in/out dev.
+> but reading the README.verify file the -pad argument option was
+> mentioned.  Learning from the manpage it seems that this option can be
+> used to correct this situation.
 
-> Further, you mention the performance reasons for this approach.  I would 
-> be very interested to see some figures.
+I don't think so. -pad is normally only for audio cds, IIRC. You could
+also try -dao, which will work as long as your burners firmware isn't
+b0rked, as it was with my acer 2010.
 
-We have done some performance tests with an older release of nf-hipac.
-The results are available on http://www.hipac.org/
+> I will get a blank cd tomorrow to try it.  Thanks a lot.  Tell me just
+> more one thing using the data contained in the cd's recorded this way
+> is bad?  Or can it be used normally? (I always used them and seemed
+> OK).
 
-Apart from that Roberto Nibali did some preliminary testing on nf-hipac.
-You can find his posting to linux-kernel here: 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103358029605079&w=2
+The data is all good. And as lond as you don't use readcd or dd or
+something similiar you won't realize the bug.
 
-Since there are currently no performance tests available for the
-new release we want to encourage people interested in firewall
-performance evaluation to include nf-hipac in their tests.
-
-
-Regards,
-
-+-----------------------+----------------------+
-|   Michael Bellion     |     Thomas Heinz     |
-| <mbellion@hipac.org>  |  <creatix@hipac.org> |
-+-----------------------+----------------------+
+regards
+Markus
 

@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267078AbUBEXAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 18:00:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267063AbUBEXAX
+	id S266982AbUBEXIV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 18:08:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266994AbUBEXHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 18:00:23 -0500
-Received: from dodge.jordet.nu ([217.13.8.142]:31384 "EHLO dodge.jordet.nu")
-	by vger.kernel.org with ESMTP id S267078AbUBEW7r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 17:59:47 -0500
-Subject: Re: oops in old isdn4linux and 2.6.2-rc3 (was in -rc2 too)
-From: Stian Jordet <liste@jordet.nu>
-To: Karsten Keil <kkeil@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040203074846.GA5873@pingi3.kke.suse.de>
-References: <401E4A80.4050907@web.de>
-	 <20040202195139.GB2534@pingi3.kke.suse.de>
-	 <1075759213.29899.220.camel@pegasus>
-	 <20040203074846.GA5873@pingi3.kke.suse.de>
-Content-Type: text/plain
-Message-Id: <1076021981.662.5.camel@chevrolet.hybel>
+	Thu, 5 Feb 2004 18:07:21 -0500
+Received: from www.piratehaven.org ([204.253.162.40]:38111 "EHLO
+	skull.piratehaven.org") by vger.kernel.org with ESMTP
+	id S267092AbUBEXEf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 18:04:35 -0500
+Date: Thu, 5 Feb 2004 15:04:34 -0800
+From: Dale Harris <rodmur@maybe.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.24, ACPI, hyperthreading and strange messages
+Message-ID: <20040205230434.GC27523@maybe.org>
+Mail-Followup-To: Dale Harris <rodmur@maybe.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 05 Feb 2004 23:59:41 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tir, 03.02.2004 kl. 08.48 skrev Karsten Keil:
-> On Mon, Feb 02, 2004 at 11:00:13PM +0100, Marcel Holtmann wrote:
-> > Hi Karsten,
-> > 
-> > > try the actual I4L for 2.6 patch in 
-> > > ftp://ftp.isdn4linux.de/pub/isdn4linux/kernel/v2.6
-> > 
-> > what is your current plan for including these patches into mainstream
-> > once 2.6.2 is out?
-> > 
-> 
-> Was sent to Linus a week ago, but no answer so far.
 
-Now that 2.6.2 is out, and it still hasn't been applied, is it
-inappropriate to beg you to resend it to Linus and/or Andrew? It is
-really crucial for me, without this patch Hisax with TelesPCI support
-won't even compile. And probably lots of others as well.
+Howdie,
 
-Thanks for your great work!
+I'm seeing some usual messages from dmesg with a kernel that I have
+running on a cluster.  I have hyperthreading capable Xeons, Supermicro
+mobos, and the nodes have LinuxBIOS (but the mayor does not).  I had to
+bump the CONFIG_NR_CPUS to 8 to be able to even see both CPUs on the
+nodes.  The messages I see that concern me are:
 
-Best regards,
-Stian
+[on the nodes, where hyperthreading is not activated]:
 
+  WARNING: No sibling found for CPU 0.
+  WARNING: No sibling found for CPU 1.
+
+[next occurs on the nodes and the mayor]
+
+  ACPI: System description tables not found
+      ACPI-0084: *** Error: acpi_load_tables: Could not get RSDP, AE_NOT_FOUND
+      ACPI-0134: *** Error: acpi_load_tables: Could not load tables: AE_NOT_FOUND
+  ACPI: Unable to load the System Description Tables
+  PCI: Probing PCI hardware
+  PCI: ACPI tables contain no PCI IRQ routing entries
+
+
+
+So the problem occured independant of what BIOS I have, at least so it
+seems.  Links full kernel config and dmesgs are below:
+
+[a node, with linux bios, no HT]
+   http://research.amnh.org/users/rodmur/dmesg.new
+[the mayor, no linux bios, HT activated]
+   http://research.amnh.org/users/rodmur/dmesg.dmtr
+[kernel config used on all machines]
+   http://research.amnh.org/users/rodmur/config.bproc
+
+
+Is there a problem with the kernel or my configuration of it?
+
+
+--
+Dale Harris   
+rodmur@maybe.org
+/.-)

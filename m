@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130903AbRCFDdv>; Mon, 5 Mar 2001 22:33:51 -0500
+	id <S130906AbRCFDmm>; Mon, 5 Mar 2001 22:42:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130906AbRCFDdl>; Mon, 5 Mar 2001 22:33:41 -0500
-Received: from nic-31-c31-100.mn.mediaone.net ([24.31.31.100]:2176 "EHLO
-	nic-31-c31-100.mn.mediaone.net") by vger.kernel.org with ESMTP
-	id <S130903AbRCFDdi>; Mon, 5 Mar 2001 22:33:38 -0500
-Date: Mon, 5 Mar 2001 21:33:23 -0600 (CST)
-From: "Scott M. Hoffman" <scott1021@mediaone.net>
-X-X-Sender: <scott@nic-31-c31-100.mn.mediaone.net>
-Reply-To: <scott1021@mediaone.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.2-ac12
+	id <S130908AbRCFDmd>; Mon, 5 Mar 2001 22:42:33 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:37133 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130906AbRCFDmV>; Mon, 5 Mar 2001 22:42:21 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Linux 2.4.3
+Date: 5 Mar 2001 19:42:10 -0800
+Organization: Transmeta Corporation
+Message-ID: <981mai$e19$1@penguin.transmeta.com>
 In-Reply-To: <Pine.LNX.4.21.0103052124250.1132-100000@groveland.analogic.com>
-Message-ID: <Pine.LNX.4.32.0103052121180.1029-100000@nic-31-c31-100.mn.mediaone.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Mar 2001, Richard B. Johnson wrote:
+In article <Pine.LNX.4.21.0103052124250.1132-100000@groveland.analogic.com>,
+Richard B. Johnson <johnson@groveland.analogic.com> wrote:
 >
-> Attempts to run linux-2.4.3-pre2 on chaos.analogic.com results
-> in **MASSIVE** file-system destruction. I have (had) all SCSI
-> disks, using the BusLogic controller.
->
-> There is something **MAJOR** going on BAD, BAD, BAD, even disks
-> that were not mounted got trashed.
-<snip>
->
-> I   -- S T R O N G L Y -- suggest that nobody use this kernel with
-> a BusLogic SCSI controller until this problem is fixed.
->
-> This is being sent from another machine, not on the list (actually
-> from home where I am trying to see what happened -- I brought all
-> 4 of my disks home). It looks like some kind of a loop. I have
-> a pattern written throughout one of the disks.
->
-> Cheers,
->
-> Dick Johnson
+>I   -- S T R O N G L Y -- suggest that nobody use this kernel with
+>a BusLogic SCSI controller until this problem is fixed.
 
- It may not be related, but out of five boot attempts, only one got past
-the IDE driver stage(ie, below from 2.4.2 :
-  VP_IDE: IDE controller on PCI bus 00 dev 39
-  VP_IDE: chipset revision 16
-  VP_IDE: not 100% native mode: will probe irqs later
-  ide: Assuming 33MHz system bus speed for PIO modes; override with
-  idebus=xx
-  VP_IDE: VIA vt82c596b (rev 23) IDE UDMA66 controller on pci00:07.1
-      ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:DMA
-      ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:DMA)
-  I've had 2.4.2 running great for the past 10 days. Need any more info?
+Ho humm..
 
-Scott Hoffman
-scott1021@mediaone.net
+Anybody who has any ideas or input, please holler.  There are no actual
+BusLogic controller changes in the current 2.4.3-pre kernels at all, so
+there's something else going on.
 
+There's a new aic7xxx driver there - did you enable support for that? I
+wonder if there could be some inter-action: the aic7xxx driver tries to
+probe every PCI SCSI controller because they are basically hard to ID
+any other way (no single vendor/id combination, or even a simple
+pattern).  But it has some rather careful internal logic to filter out
+all non-aic7xxx controllers, so this really doesn't look likely.
 
+If you didn't compile aic7xxx in, the only other SCSI change (apart from
+a lot of spelling fixes in comments etc) is some trivial error handling,
+like changing scsi_test_unit_ready to not have a result buffer (because
+it doesn't have a result except for the regular sense buffer).  Which
+again certainly shouldn't be able to matter at all. 
 
+Ideas?
 
-
+		Linus

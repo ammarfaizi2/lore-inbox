@@ -1,91 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279629AbRKGKPH>; Wed, 7 Nov 2001 05:15:07 -0500
+	id <S279937AbRKGKZB>; Wed, 7 Nov 2001 05:25:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279688AbRKGKO5>; Wed, 7 Nov 2001 05:14:57 -0500
-Received: from [194.51.220.145] ([194.51.220.145]:51427 "EHLO emeraude")
-	by vger.kernel.org with ESMTP id <S279629AbRKGKOr>;
-	Wed, 7 Nov 2001 05:14:47 -0500
-Date: Wed, 7 Nov 2001 11:13:39 +0100
-From: Stephane Jourdois <stephane@tuxfinder.org>
-To: "Marcel J.E. Mol" <marcel@mesa.nl>
-Cc: Massimo Dal Zotto <dz@cs.unitn.it>, LKLM <linux-kernel@vger.kernel.org>,
-        Juri Haberland <juri@koschikode.com>
-Subject: Re: [PATCH] SMM BIOS on Dell i8100
-Message-ID: <20011107111339.A4155@emeraude.kwisatz.net>
-Reply-To: stephane@tuxfinder.org
-In-Reply-To: <20011105231759.02B541195E@a.mx.spoiled.org> <200111061645.RAA02115@fandango.cs.unitn.it> <20011107104405.A3168@emeraude.kwisatz.net> <20011107110141.C29983@joshua.mesa.nl>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
-Content-Disposition: inline
-In-Reply-To: <20011107110141.C29983@joshua.mesa.nl>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.4.14
-X-Send-From: emeraude
+	id <S280357AbRKGKYv>; Wed, 7 Nov 2001 05:24:51 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55313 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S279937AbRKGKYl>; Wed, 7 Nov 2001 05:24:41 -0500
+Subject: Re: Cannot unlock spinlock... Was: Problem in yenta.c, 2nd edition
+To: linux@hazard.jcu.cz (Jan Marek)
+Date: Wed, 7 Nov 2001 10:30:39 +0000 (GMT)
+Cc: dwmw2@infradead.org (David Woodhouse),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <20011107111056.E11351@hazard.jcu.cz> from "Jan Marek" at Nov 07, 2001 11:10:56 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E161Pyh-0003hb-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 00:09.0 Communication controller: Lucent Microelectronics WinModem 56k (rev 01)
+> 	Subsystem: Compaq Computer Corporation 56k V.90 Modem
+> 	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+> 	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+> 	Interrupt: pin A routed to IRQ 11
+> 	Region 0: Memory at 40000000 (32-bit, non-prefetchable) [size=256]
+> 	Region 1: I/O ports at 2400 [size=8]
+> 	Region 2: I/O ports at 2000 [size=256]
+> 	Capabilities: [f8] Power Management version 2
+> 		Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2+,D3hot+,D3cold+)
+> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Nov 07, 2001 at 11:01:41AM +0100, Marcel J.E. Mol wrote:
-> Maybe this is better:
->=20
-> diff -u i8kutils-1.2.orig/i8kbuttons.c i8kutils-1.2/i8kbuttons.c
-> --- i8kutils-1.2.orig/i8kbuttons.c      Tue Nov  6 20:07:27 2001
-> +++ i8kutils-1.2/i8kbuttons.c   Tue Nov  6 20:11:19 2001
-> @@ -53,15 +53,17 @@
->=20
->      DPRINTF("exec_cmd: %s\n", cmd);
->=20
->      if ((rc=3Dfork()) < 0) {
->         perror("fork failed");
->         return;
->      }
-> =20
->      if (rc =3D=3D 0) {
->         execl("/bin/sh", "sh", "-c", cmd, NULL);
->         exit(0);
->      }
-> +    else
-> +       wait(&rc);
->  }
-> =20
-> It get rid of the zombies and allows only one setmixer/auimix command
-> to be active at a time...
-
-Yup I did that on i8kutils-1.1, then reverted to system(), because I
-removed the anti-repeat system, and used a slow mixer application. Then
-the repeat was bad (sometimes slow, sometimes quick).
-In fact, I don't really mind, as now I use aumix (and it is fast
-enought).
-
-Massimo, choose one please :-)
-
-	Stephane
-
-
---=20
- ///  Stephane Jourdois        	/"\  ASCII RIBBON CAMPAIGN \\\
-(((    Ing=E9nieur d=E9veloppement 	\ /    AGAINST HTML MAIL    )))
- \\\   6, av. de la Belle Image	 X                         ///
-  \\\  94440 Marolles en Brie  	/ \    +33 6 8643 3085    ///
-
---ReaqsoxgOBHFXBhH
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjvpCVMACgkQk2dpMN4A2NPVMgCggZCjnQJ3C/OgJrj382d1FO2L
-AAIAnRYtafWJFhz2Of+3OOtmbdB1xBZd
-=tokU
------END PGP SIGNATURE-----
-
---ReaqsoxgOBHFXBhH--
+Can you disable the winmodem in the BIOS at all. I've seen similar reports
+of audio hangs where the IRQ was shared by a lucent winmodem - no idea
+why since it ought to be passive and minding its own business.

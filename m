@@ -1,75 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVAYXmZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbVAYXvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262180AbVAYXmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 18:42:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbVAYXlO
+	id S262232AbVAYXvL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 18:51:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbVAYXuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 18:41:14 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:7350 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S262180AbVAYXiJ (ORCPT
+	Tue, 25 Jan 2005 18:50:08 -0500
+Received: from gate.crashing.org ([63.228.1.57]:41673 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262242AbVAYXsQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 18:38:09 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E5705B837C3@exa-atlanta>
-From: "Mukker, Atul" <Atulm@lsil.com>
-To: "'Patrick Mansfield'" <patmans@us.ibm.com>,
-       "Mukker, Atul" <Atulm@lsil.com>
-Cc: "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
-       "'SCSI Mailing List'" <linux-scsi@vger.kernel.org>
-Subject: RE: How to add/drop SCSI drives from within the driver?
-Date: Tue, 25 Jan 2005 18:37:49 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
+	Tue, 25 Jan 2005 18:48:16 -0500
+Subject: Re: BUG: 2.6.11-rc2 and -rc1 hang during boot on PowerMacs
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <16886.2489.823835.17801@alkaid.it.uu.se>
+References: <200501221723.j0MHN6eD000684@harpo.it.uu.se>
+	 <1106441036.5387.41.camel@gaston> <1106529935.5587.9.camel@gaston>
+	 <16885.13185.849070.479328@alkaid.it.uu.se>
+	 <1106623515.6244.11.camel@gaston> <16886.2489.823835.17801@alkaid.it.uu.se>
 Content-Type: text/plain
+Date: Wed, 26 Jan 2005 10:47:26 +1100
+Message-Id: <1106696846.6250.20.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the suggestion. After more exploration, looks like different
-distribution have different implementations for /sbin/hotplug. This may
-aggravate the issue for applications. For now, we will stick with a wait and
-watch after bus scan :-(
+On Tue, 2005-01-25 at 09:56 +0100, Mikael Pettersson wrote:
 
-Will probe the linux-hotplug-devel@lists.sourceforge.net list for more
-pointers
+> On the eMac:
+> /proc/sys/kernel/powersave-nap exists and contains "0".
+> /proc/device-tree/cpus/PowerPC,G4/flush-on-lock exists as an empty file.
 
-Thanks
+Ok, that is weird... so for some reason, Apple decided not to allow the
+eMac to do NAP mode, and thus to power manage the CPU when idle...
 
-===========================
-Atul Mukker
-Architect, Drivers and BIOS
-LSI Logic Corporation
+Ben.
 
 
-> -----Original Message-----
-> From: Patrick Mansfield [mailto:patmans@us.ibm.com] 
-> Sent: Tuesday, January 25, 2005 11:52 AM
-> To: Mukker, Atul
-> Cc: 'James Bottomley'; Linux Kernel; SCSI Mailing List
-> Subject: Re: How to add/drop SCSI drives from within the driver?
-> 
-> Atul -
-> 
-> On Tue, Jan 25, 2005 at 11:27:36AM -0500, Mukker, Atul wrote:
-> > After writing the "- - -" to the scan attribute, the management 
-> > applications assume the udev has created the relevant 
-> entries in the 
-> > /dev directly and try to use the devices _immediately_ and 
-> fail to see 
-> > the devices
-> > 
-> > Is there a hotplug event which would tell the management 
-> applications 
-> > that the device nodes have actually been created now and 
-> ready to be used?
-> 
-> Read the udev man page section, the part right before 
-> "FILES". Try putting a script under /etc/dev.d/default/*.dev. 
-> Then you can get more specific with an /etc/dev.d/scsi/*.dev 
-> script or something else.
-> 
-> I just tried something simple but did not get it working.
-> 
-> Try linux-hotplug-devel@lists.sourceforge.net list for help.
-> 
-> -- Patrick Mansfield
-> 

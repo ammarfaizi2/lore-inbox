@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261426AbTAaPgm>; Fri, 31 Jan 2003 10:36:42 -0500
+	id <S261427AbTAaPlQ>; Fri, 31 Jan 2003 10:41:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbTAaPgm>; Fri, 31 Jan 2003 10:36:42 -0500
-Received: from dark.pcgames.pl ([195.205.62.2]:10911 "EHLO dark.pcgames.pl")
-	by vger.kernel.org with ESMTP id <S261426AbTAaPgl> convert rfc822-to-8bit;
-	Fri, 31 Jan 2003 10:36:41 -0500
-Date: Fri, 31 Jan 2003 16:45:56 +0100 (CET)
-From: =?ISO-8859-2?Q?Krzysztof_Ol=EAdzki?= <ole@ans.pl>
-X-X-Sender: <ole@dark.pcgames.pl>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Default mount options ignored on ext3
-In-Reply-To: <200301311637.23190.m.c.p@wolk-project.de>
-Message-ID: <Pine.LNX.4.33.0301311640560.24196-100000@dark.pcgames.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	id <S261456AbTAaPlQ>; Fri, 31 Jan 2003 10:41:16 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:475 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261427AbTAaPlP>;
+	Fri, 31 Jan 2003 10:41:15 -0500
+Date: Fri, 31 Jan 2003 15:46:49 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.59 morse code panics
+Message-ID: <20030131154649.GA16627@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org
+References: <20030131104326.GF12286@louise.pinerecords.com.suse.lists.linux.kernel> <200301311112.h0VBCv00000575@darkstar.example.net.suse.lists.linux.kernel> <20030131132221.GA12834@codemonkey.org.uk.suse.lists.linux.kernel> <1044025785.1654.13.camel@irongate.swansea.linux.org.uk.suse.lists.linux.kernel> <p73hebpqqn4.fsf@oldwotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73hebpqqn4.fsf@oldwotan.suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 31, 2003 at 04:34:55PM +0100, Andi Kleen wrote:
 
+ > If you want to make debugging easy for laptops write a USB or firewire
+ > console.
 
-On Fri, 31 Jan 2003, Marc-Christian Petersen wrote:
+irda too maybe ?
+ 
+ > Firewire is actually quite interesting because it can even
+ > do DMA, so you could peek into the memory.
 
-> On Friday 31 January 2003 15:18, Krzysztof Olêdzki wrote:
->
-> Hi Krzysztof,
->
-> > It seems that "Default mount options" from ext3 fs is ignored by
-> > the linux kernel. I have just set "Default mount options" to
-> > "journal_data" on my root fs but kernel still mounts it with
-> > journal_data_ordered:
-> I am pretty sure you didn't try "append=rootflags=data=journal" did you? :)
+kgdb-over-firewire ? 8-)
 
-Yes. This is true. But if I have to set rootflags= I can't find any reason
-for allowing to change "Default mount options". Kernel ignores it, mount
-ignores it... Hm....
+ > Morse is not helpful.
+ > 
+ > I admit I was the on who got this ball running by suggesting it "as an 
+ > exercise for the reader" in the original panic blink code, but
+ > guys this was intended as a JOKE, not serious. Please get over it
+ > and don't merge that silly code.
+ 
+A voice of sanity.. I think you made a monster with that comment 8-)
 
-Best Regards,
+		Dave
 
-			Krzysztof Oledzki
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

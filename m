@@ -1,89 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264119AbUFBUjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264097AbUFBUpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264119AbUFBUjM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 16:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264103AbUFBUjM
+	id S264097AbUFBUpi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 16:45:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbUFBUpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 16:39:12 -0400
-Received: from mail.kroah.org ([65.200.24.183]:58570 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264119AbUFBUiy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 16:38:54 -0400
-Date: Wed, 2 Jun 2004 13:33:07 -0700
-From: Greg KH <greg@kroah.com>
-To: Tobias Weisserth <tobias@weisserth.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Linux 2.6.4] EagleTec (rev 1.13) USB external harddisk support -> patch to unusual_devs.h
-Message-ID: <20040602203307.GA19749@kroah.com>
-References: <1086086759.10599.14.camel@coruscant.weisserth.net> <20040602165723.GI7829@kroah.com> <1086200163.8709.8.camel@coruscant.weisserth.net> <20040602182131.GA13193@kroah.com> <1086207977.8707.38.camel@coruscant.weisserth.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1086207977.8707.38.camel@coruscant.weisserth.net>
-User-Agent: Mutt/1.5.6i
+	Wed, 2 Jun 2004 16:45:38 -0400
+Received: from h001061b078fa.ne.client2.attbi.com ([24.91.86.110]:41354 "EHLO
+	linuxfarms.com") by vger.kernel.org with ESMTP id S264097AbUFBUpg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 16:45:36 -0400
+Date: Wed, 2 Jun 2004 16:46:56 -0400 (EDT)
+From: Arthur Perry <kernel@linuxfarms.com>
+X-X-Sender: kernel@tiamat.perryconsulting.net
+To: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
+cc: linux-kernel@vger.kernel.org, Al Piszcz <apiszcz@solarrain.com>
+Subject: Re: How come dd if=/dev/zero of=/nfs/dev/null does not send packets
+ over the network?
+In-Reply-To: <5D3C2276FD64424297729EB733ED1F7606243695@email1.mitretek.org>
+Message-ID: <Pine.LNX.4.58.0406021641300.14423@tiamat.perryconsulting.net>
+References: <5D3C2276FD64424297729EB733ED1F7606243695@email1.mitretek.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 02, 2004 at 10:26:18PM +0200, Tobias Weisserth wrote:
-> Hi Greg,
-> 
-> On Wed, 2004-06-02 at 20:21, Greg KH wrote:
-> ...
-> > I did that in the response I wrote above.  Look in the Documentation
-> > directory of the kernel source for the SubmittingPatches file...
-> 
-> Stupid me. I didn't know until then that there is so much documentation
-> already included with the kernel sources...
-> 
-> > Good luck,
-> 
-> Well, I hope I did this right.
-> 
-> This is the patch:
-> 
-> ######################################
-> 
-> --- drivers/usb/storage/unusual_devs.h.orig	2004-06-02
-> 21:53:18.292064768 +0200
-> +++ drivers/usb/storage/unusual_devs.h	2004-06-02 22:00:39.486992944
-> +0200
-> @@ -409,6 +409,17 @@ UNUSUAL_DEV(  0x05e3, 0x0702, 0x0000, 0x
->  		US_SC_DEVICE, US_PR_DEVICE, NULL,
->  		US_FL_FIX_INQUIRY ),
->  
-> +/* Reported by Tobias Weisserth <tobias@weisserth.org>
-> + * Some EagleTec devices don't work with the other entry for EagleTec. 
-> + * EagleTec devices with revision 1.13 like the "Pocket Boy" need a
-> slight adjustment.
-> + * That is the only reason this entry is needed.
-> +*/
-> +UNUSUAL_DEV(  0x05e3, 0x0702, 0x0113, 0x0113,
-> +                "EagleTec",
-> +                "External Hard Disk",
-> +                US_SC_DEVICE, US_PR_DEVICE, NULL,
-> +                US_FL_FIX_INQUIRY ),
-> +
->  /* Reported by Hanno Boeck <hanno@gmx.de>
->   * Taken from the Lycoris Kernel */
->  UNUSUAL_DEV(  0x0636, 0x0003, 0x0000, 0x9999,
-> 
-> ######################################
-> 
-> I hope there is no problem with the line wrapping and I did this
-> right... first timer :-/
+If your goal is to simply push the network (and here I am assuming you are
+just using nfs for that reason simply because it seemed easy to set up and
+do), and using nfs to create an actual file on disk on the other side
+isn't going to be fast enough, try using netcat instead.. no nfs.
 
-The patch got line-wrapped :(
+You can have netcat listen on a socket at the receiving end and redirect
+to /dev/null. It is initiated on the recieving end, thus /dev/null will be
+referenced by that machine.
+You then can connect to it on the sending end with netcat and source from
+your /dev/zero.
 
-Care to try it again?
+I used to do this, and use 'time' to determine how long it took to move xx
+bytes.
+It's a quick and dirty really.. But works well for rough approximations.
 
-> The patch applies to version 2.6.4 from www.kernel.org. It also works
-> with Con Kolivas' sources version 2.6.4. I guess if all the symbols that
-> are being used in the unit entry haven't disappeared from later kernel
-> versions then it can be applied to later (or earlier) versions as well.
+Arthur Perry
+Lead Linux Developer / Linux Systems Architect
+Validation, CSU Celestica
+Sair/Linux Gnu Certified Professional
+Providing professional Linux solutions for 7+ years
 
-You might want to see if the patch is still needed on 2.6.6 as that is
-the latest kernel.  I need a diff against that kernel version.
 
-thanks,
 
-greg k-h
+On Wed, 2 Jun 2004, Piszcz, Justin Michael wrote:
+
+> root@jpiszcz:~# mkdir /p500/dev
+> root@jpiszcz:~# mount 192.168.0.253:/dev /p500/dev
+> root@jpiszcz:~# echo blah > /p500/dev/null
+> root@jpiszcz:~# ls -l /p500/dev/null
+> crw-rw-rw-  1 root sys 1, 3 Jul 17  1994 /p500/dev/null
+> root@jpiszcz:~# dd if=/dev/zero of=/p500/dev/null
+>
+> 6179737+0 records in
+> 6179736+0 records out
+>
+> Instead it treats it as a local block device?
+>
+> Kernel 2.6.5.
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

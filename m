@@ -1,68 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263752AbUC3Pbs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 10:31:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263728AbUC3P3O
+	id S263727AbUC3PcL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 10:32:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263721AbUC3PcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 10:29:14 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:62686 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S263721AbUC3P2U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 10:28:20 -0500
-Date: Tue, 30 Mar 2004 17:28:12 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: =?ISO-8859-15?Q?Andr=E9_Hedrick?= <andre@linux-ide.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-cc: Lionel Bergeret <lbergeret@swing.be>, JunHyeok Heo <jhheo@idis.co.kr>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: Re: [PATCH] Bogus LBA48 drives
-In-Reply-To: <Pine.GSO.4.58.0403301654300.9765@waterleaf.sonytel.be>
-Message-ID: <Pine.GSO.4.58.0403301726540.9767@waterleaf.sonytel.be>
-References: <Pine.GSO.4.58.0403301654300.9765@waterleaf.sonytel.be>
+	Tue, 30 Mar 2004 10:32:10 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55475 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263727AbUC3PbV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 10:31:21 -0500
+Message-ID: <406992BC.60503@pobox.com>
+Date: Tue, 30 Mar 2004 10:31:08 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marc Bevand <bevand_m@epita.fr>
+CC: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] speed up SATA
+References: <4066021A.20308@pobox.com> <40695FF6.3020401@epita.fr>
+In-Reply-To: <40695FF6.3020401@epita.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Mar 2004, Geert Uytterhoeven wrote:
-> Apparently some IDE drives (e.g. a pile of 80 GB ST380020ACE drives I have
-> access to) advertise to support LBA48, but don't, causing kernels that support
-> LBA48 (i.e. anything newer than 2.4.18, including 2.4.25 and 2.6.4) to fail on
-> them.  Older kernels (including 2.2.20 on the Debian woody CDs) work fine.
->
-> One problem with those drives is that the lba_capacity_2 field in their drive
-> identification is set to 0, making the IDE driver think the disk is 0 bytes
-> large. At first I tried modifying the driver to use lba_capacity if
-> lba_capacity_2 is set to 0, but this caused disk errors. So it looks like those
-> drives don't support the increased transfer size of LBA48 neither.
->
-> I added a workaround for these drives to both 2.4.25 and 2.6.4. I'll send
-> patches in follow-up emails.
+Marc Bevand wrote:
+> Jeff Garzik wrote:
+> 
+>>
+>> [...]
+>> With this simple patch, the max request size goes from 128K to 32MB... 
+>> so you can imagine this will definitely help performance.  Throughput 
+>> goes up.  Interrupts go down.  Fun for the whole family.
+>> [...]
+> 
+> 
+> I have experienced a noticeable improvement concerning the CPU usage
+> and disk throughput with this patch.
+> 
+> Benchmark specs:
+> 
+>  o read from only 1 disk (sda), or from 2 disks (sda+sdb), with
+>    1 or 2 instances of "dd if=/dev/sd? of=/dev/null bs=100M".
+>  o hardware: two Seagate 160GB SATA, on a Silicon Image 3114, on a
+>    32-bit/33MHz PCI bus, 1GB RAM.
+>  o software: kernel 2.6.5-rc2-bk6-libata2.
 
-Patch for 2.6.4 (and 2.6.5-rc3):
-  - Check for lba_capacity_2 being non-zero in idedisk_supports_lba48()
+[...]
 
---- linux-2.6.4/drivers/ide/ide-disk.c.orig	2004-03-12 12:02:53.000000000 +0100
-+++ linux-2.6.4/drivers/ide/ide-disk.c	2004-03-26 13:54:39.000000000 +0100
-@@ -1058,7 +1058,8 @@
-  */
- static inline int idedisk_supports_lba48(const struct hd_driveid *id)
- {
--	return (id->command_set_2 & 0x0400) && (id->cfs_enable_2 & 0x0400);
-+	return (id->command_set_2 & 0x0400) && (id->cfs_enable_2 & 0x0400)
-+	       && id->lba_capacity_2;
- }
+Very cool, thanks for benching!
 
- static inline void idedisk_check_hpa(ide_drive_t *drive)
 
-Gr{oetje,eeting}s,
+> As other people were complaining that the 32MB max request size might be 
+> too
+> high, I did give a try to 1MB (by replacing "65534" by "2046" in the 
+> patch).
+> There is no visible differences between 32MB and 1MB.
 
-						Geert
+This is not surprising, since:
+* the scatter-gather table imposes a limit of 8MB
+* the VM further imposes limits on readahead and writeback
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+So 32MB is the hardware max, but not really achieveable due to other 
+factors.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+
+> PS: Jeff: "pci_dma_mapping_error()", in libata-core.c from your latest
+> 2.6-libata patch, is an unresolved symbol. I have had to comment it out
+> to be able to compile the kernel.
+
+Yeah, this is only found in the bleeding-edge-latest 2.6.x kernels.  You 
+did the right thing...
+
+Regards,
+
+	Jeff
+
+
+

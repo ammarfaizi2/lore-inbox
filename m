@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262676AbTIQUfL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 16:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbTIQUfL
+	id S262647AbTIQUve (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 16:51:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262713AbTIQUve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 16:35:11 -0400
-Received: from mail015.syd.optusnet.com.au ([211.29.132.161]:31659 "EHLO
-	mail015.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262752AbTIQUfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 16:35:07 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	Wed, 17 Sep 2003 16:51:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2479 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262647AbTIQUvd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 16:51:33 -0400
+Date: Wed, 17 Sep 2003 13:50:59 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <richard.brunner@amd.com>
+Subject: Re: [PATCH] Athlon/Opteron Prefetch Fix for 2.6.0test5 + numbers
+In-Reply-To: <20030917202100.GC4723@wotan.suse.de>
+Message-ID: <Pine.LNX.4.44.0309171332200.2523-100000@laptop.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16232.50511.199563.3211@wombat.chubb.wattle.id.au>
-Date: Thu, 18 Sep 2003 06:34:23 +1000
-To: Jens Axboe <axboe@suse.de>
-Cc: Norbert Preining <preining@logic.at>, linux-kernel@vger.kernel.org
-Subject: Re: laptop mode for 2.4.23-pre4 and up
-In-Reply-To: <20030917075432.GG906@suse.de>
-References: <20030913103014.GA7535@gamma.logic.tuwien.ac.at>
-	<20030914152755.GA27105@suse.de>
-	<20030915093221.GE2268@gamma.logic.tuwien.ac.at>
-	<20030917075432.GG906@suse.de>
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jens" == Jens Axboe <axboe@suse.de> writes:
 
-Jens> On Mon, Sep 15 2003, Norbert Preining wrote:
->> On Son, 14 Sep 2003, Jens Axboe wrote: > > Will there be a new
->> incantation of the laptop-mode patch for 2.4.23-pre4
->> > 
->> > Sure, I'll done a new patch in the next few days. 
+On Wed, 17 Sep 2003, Andi Kleen wrote:
+> 
+> Also when the fault address is equal EIP we don't check.
 
-Are you thinking of pushing something like this into 2.6 as well?
-I ask, because 2.6 seems to drive the laptop significantly harder than
-2.4 anyway --- battery life is lower, the disk light is on more, and the
-machine runs hotter.
+And this is a good example of something that can break.
 
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-You are lost in a maze of BitKeeper repositories,   all slightly different.
+The fault address is a linear address after segment translation. The EIP 
+is _before_ segment translation.
+
+You don't translate the EIP with the CS base.
+
+Which means that the two can match even if they have nothing to do with 
+each other. It will happen in vm86 mode and in things like wine. So that 
+check is broken.
+
+Also, for the same reason, you won't fix up prefetches in wine.
+
+Also, you do things like comparing pointers for less/greater than, and at
+least some versions of gcc has done that wrong - using signed comparisons.  
+Which leaves you potentially open to denial-of-service attacks if somebody
+generates a long list of prefixes around the 0x80000000 mark and the size
+check doesn't catch them.
+
+In short, this is harder than you seem to think. And right now you _do_ do 
+the wrong things for Wine, and I think that not only should that be fixed, 
+it should be made athlon-specific so that any other potential bugs won't 
+impact people that it shouldn't impact.
+
+See?
+
+		Linus
+

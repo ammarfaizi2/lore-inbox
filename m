@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270872AbTGQVV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 17:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271029AbTGQVV5
+	id S271058AbTGQV3U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 17:29:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271289AbTGQV3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 17:21:57 -0400
-Received: from [213.13.155.14] ([213.13.155.14]:35346 "EHLO zmail.pt")
-	by vger.kernel.org with ESMTP id S270872AbTGQVV4 (ORCPT
+	Thu, 17 Jul 2003 17:29:20 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:36838 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S271058AbTGQV3T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 17:21:56 -0400
+	Thu, 17 Jul 2003 17:29:19 -0400
+Date: Thu, 17 Jul 2003 14:34:24 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: schlicht@uni-mannheim.de, ricardo.b@zmail.pt, linux-kernel@vger.kernel.org
 Subject: Re: SET_MODULE_OWNER
-From: Ricardo Bugalho <ricardo.b@zmail.pt>
-To: davem@redhat.com
-Cc: Jeff Garzik <jgarzik@pobox.com>, schlicht@uni-mannheim.de,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030717125942.7fab1141.davem@redhat.com>
+Message-Id: <20030717143424.544879f8.davem@redhat.com>
+In-Reply-To: <3F170BB7.5030806@pobox.com>
 References: <1058446580.18647.11.camel@ezquiel.nara.homeip.net>
-	 <3F16C190.3080205@pobox.com> <200307171756.19826.schlicht@uni-mannheim.de>
-	 <3F16C83A.2010303@pobox.com>  <20030717125942.7fab1141.davem@redhat.com>
-Content-Type: text/plain
-Message-Id: <1058477803.754.11.camel@ezquiel.nara.homeip.net>
+	<3F16C190.3080205@pobox.com>
+	<200307171756.19826.schlicht@uni-mannheim.de>
+	<3F16C83A.2010303@pobox.com>
+	<20030717125942.7fab1141.davem@redhat.com>
+	<3F170589.50005@pobox.com>
+	<20030717131902.76c68c56.davem@redhat.com>
+	<3F170BB7.5030806@pobox.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 17 Jul 2003 22:36:43 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Authenticated-Sender: ricardo.b@zmail.pt
-X-Spam-Processed: zmail.pt, Thu, 17 Jul 2003 22:43:19 +0100
-	(not processed: spam filter disabled)
-X-Return-Path: ricardo.b@zmail.pt
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: ricardo.b@zmail.pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-07-17 at 20:59, David S. Miller wrote:
-> On Thu, 17 Jul 2003 12:00:58 -0400
-> Jeff Garzik <jgarzik@pobox.com> wrote:
+On Thu, 17 Jul 2003 16:48:55 -0400
+Jeff Garzik <jgarzik@pobox.com> wrote:
+
+> rmmod is now completely pointless, and developers now have one less 
+> useful tool in their toolbox.
 > 
-> > David?  Does Rusty have a plan here or something?
-> 
-> It just works how it works and that's it.
-> 
-> Net devices are reference counted, anything more is superfluous.
-> They may be yanked out of the kernel whenever you want.
+> I code all the time doing "modprobe ; test ; rmmod", and that's now 
+> impossible.
 
-Just noticed it: I can't unload the module even after bringing the
-interface down.
-In either case, modprobe hangs and I start getting this message in
-syslog:
+I fail to see the problem with having rmmod do exactly
+what you ask it to do.
 
-Jul 17 21:50:44 ezquiel kernel: unregister_netdevice: waiting for eth0
-to become free. Usage count = -4
-
-Can't shutdown the system either. Init hangs waiting for modprobe to
-die.
-
--- 
-	Ricardo
-
+If there is some refcounting bug, you will see it, because rmmod will
+spin sleeping and waiting for all the net_dev refcounts to go away.
+This will spit out kernel messages and only occur when there is a bug
+in the kernel somewhere.

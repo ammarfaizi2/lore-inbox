@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVAMS3D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVAMS3B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbVAMS3D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 13:29:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVAMSWo
+	id S261359AbVAMS3B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 13:29:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVAMSZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 13:22:44 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:31127 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261430AbVAMSSy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 13:18:54 -0500
-Date: Thu, 13 Jan 2005 10:18:50 -0800
-From: Greg KH <greg@kroah.com>
-To: John Rose <johnrose@austin.ibm.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] release_pcibus_dev() crash
-Message-ID: <20050113181850.GA24952@kroah.com>
-References: <1105576756.8062.17.camel@sinatra.austin.ibm.com> <200501121655.42947.jbarnes@engr.sgi.com> <1105636311.30960.8.camel@sinatra.austin.ibm.com> <200501130933.59041.jbarnes@engr.sgi.com> <1105638551.30960.16.camel@sinatra.austin.ibm.com>
+	Thu, 13 Jan 2005 13:25:32 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55267 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261348AbVAMSYW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 13:24:22 -0500
+Date: Thu, 13 Jan 2005 10:24:20 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       clameter@sgi.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fixes for prep_zero_page
+Message-ID: <20050113102420.A469@build.pdx.osdl.net>
+References: <20050108010629.M469@build.pdx.osdl.net> <20050109014519.412688f6.akpm@osdl.org> <Pine.LNX.4.61.0501090812220.13639@montezuma.fsmlabs.com> <20050109125212.330c34c1.akpm@osdl.org> <Pine.LNX.4.61.0501091409490.13639@montezuma.fsmlabs.com> <20050109144840.W2357@build.pdx.osdl.net> <Pine.LNX.4.61.0501092117040.20477@montezuma.fsmlabs.com> <Pine.LNX.4.61.0501122203350.4941@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1105638551.30960.16.camel@sinatra.austin.ibm.com>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.61.0501122203350.4941@montezuma.fsmlabs.com>; from zwane@arm.linux.org.uk on Wed, Jan 12, 2005 at 10:05:38PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 11:49:11AM -0600, John Rose wrote:
-> > Maybe, did you read Documentation/filesystems/sysfs-pci.c?  You need to do 
-> > more than just enable HAVE_PCI_LEGACY, you also need to implement some 
-> > functions.
+* Zwane Mwaikambo (zwane@arm.linux.org.uk) wrote:
+> It looks like it's still not happy with CONFIG_DEBUG_PAGEALLOC under load.
 > 
-> This sounds like more than I bargained for.  I'll leave the patch as-is,
-> since I don't currently have the means to test a fix for the legacy IO
-> stuff.  Also because it doesn't crash on my architecture :)
-> 
-> If you get some time, my suggestion is to scrap
-> pci_remove_legacy_files(), and free the pci_bus->legacy_io field in
-> pci_remove_bus().  The binary sysfs files will be cleaned up
-> automatically as the class device is deleted, as described in the
-> parent.
+> Unable to handle kernel paging request at virtual address ec5d97f4
 
-No, don't rely on this please.  Explicitly clean up the files, it's
-nicer that way, and when sysfs changes to not clean them up for you, it
-will be less changes then.
+Is that in vmalloc space?
+
+>  printing eip:
+> c014a882
+> *pde = 0083e067
+> Oops: 0000 [#1]
+> PREEMPT SMP DEBUG_PAGEALLOC
+> Modules linked in:
+> CPU:    0
+> EIP:    0060:[<c014a882>]    Not tainted VLI
+> EFLAGS: 00010002   (2.6.10-mm2)
+> EIP is at check_slabuse+0x52/0xf0
+
+Hmm, isn't that from Manfred's patch to periodically scan?  Doesn't look
+to me like it's related to the page prep fixup.  What kind of load, etc?
 
 thanks,
-
-greg k-h
+-chris

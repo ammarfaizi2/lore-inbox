@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267158AbTAKIBv>; Sat, 11 Jan 2003 03:01:51 -0500
+	id <S267156AbTAKH7c>; Sat, 11 Jan 2003 02:59:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267160AbTAKIBv>; Sat, 11 Jan 2003 03:01:51 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:20242 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267158AbTAKIBu>; Sat, 11 Jan 2003 03:01:50 -0500
-Date: Sat, 11 Jan 2003 08:10:25 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Joe Korty <joe.korty@ccur.com>, sct@redhat.com, adilger@clusterfs.com,
-       rusty@rustcorp.com.au, riel@conectiva.com.br,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre2 stalls out when running unixbench
-Message-ID: <20030111081025.A19877@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@digeo.com>, Joe Korty <joe.korty@ccur.com>,
-	sct@redhat.com, adilger@clusterfs.com, rusty@rustcorp.com.au,
-	riel@conectiva.com.br, linux-kernel@vger.kernel.org
-References: <3E15F2F5.356A933D@digeo.com> <200301040111.BAA00401@rudolph.ccur.com> <3E16C171.BFEA45AE@digeo.com>
+	id <S267158AbTAKH7c>; Sat, 11 Jan 2003 02:59:32 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:9491 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S267156AbTAKH7b>;
+	Sat, 11 Jan 2003 02:59:31 -0500
+Date: Sat, 11 Jan 2003 09:08:14 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: John Cherry <cherry@osdl.org>,
+       Guillaume Boissiere <boissiere@nl.linux.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [STABILITY] Compile / STP metrics for 2.5.56
+Message-ID: <20030111080814.GA1240@mars.ravnborg.org>
+Mail-Followup-To: John Cherry <cherry@osdl.org>,
+	Guillaume Boissiere <boissiere@nl.linux.org>,
+	linux-kernel@vger.kernel.org
+References: <1042246990.32624.30.camel@cherrytest.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3E16C171.BFEA45AE@digeo.com>; from akpm@digeo.com on Sat, Jan 04, 2003 at 03:11:45AM -0800
+In-Reply-To: <1042246990.32624.30.camel@cherrytest.pdx.osdl.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 04, 2003 at 03:11:45AM -0800, Andrew Morton wrote:
-> Sure, we don't need atomic semantics for the BH_Attached bit because
-> it is always read and modified under a global spinlock.  But *other*
-> users of buffer_head.b_state do not run under that lock so the nonatomic
-> RMW will stomp on their changes.   2.4.20 does not have this bug.
+On Fri, Jan 10, 2003 at 05:03:11PM -0800, John Cherry wrote:
+> Compile statistics have been for kernel releases from 2.5.46 to 2.5.56
+> at: www.osdl.org/archive/cherry/stability
+> 
+> Not much change in the warnings and errors between 2.5.55 and 2.5.56. 
+> However, from 2.5.54 onward, there was a significant increase in both
+> warnings and errors (see web site).
+Introduction of deprecated warnings counts for most of the added warnings...
 
-Thanks, I still had to learn something about *_bit() semantics.
+I like this kind summary, which is good to take the temperatue on 
+the full kernel build.
+Small nit-pick on the pages. Could you plave the most relevant
+figures first. That is add new kernels on the top of the table.
+It does not matter now, but after 30 more kernels is matters.
 
-And sorry for introducing that bug..
+[Btw. nice to see that someone actually uses KBUILD_VERBOSE=0]
 
+Guillaume - maybe a link from your status page?
+
+	Sam

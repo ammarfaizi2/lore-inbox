@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130122AbRBSQRE>; Mon, 19 Feb 2001 11:17:04 -0500
+	id <S129557AbRBSQVy>; Mon, 19 Feb 2001 11:21:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130269AbRBSQQy>; Mon, 19 Feb 2001 11:16:54 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31761 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130122AbRBSQQk>; Mon, 19 Feb 2001 11:16:40 -0500
-Subject: Re: Proliant hangs with 2.4 but works with 2.2.
-To: lafanga1@hotmail.com (lafanga lafanga)
-Date: Mon, 19 Feb 2001 16:17:06 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <F223BDXmDQOa8NlgXjs0000598e@hotmail.com> from "lafanga lafanga" at Feb 19, 2001 02:39:42 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129799AbRBSQVp>; Mon, 19 Feb 2001 11:21:45 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:19488 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129557AbRBSQVd>; Mon, 19 Feb 2001 11:21:33 -0500
+Date: Mon, 19 Feb 2001 10:21:04 -0600 (CST)
+From: Philipp Rumpf <prumpf@mandrakesoft.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org, prumpf@parcelfarce.linux.theplanet.co.uk,
+        rusty@linuxcare.com
+Subject: Re: Linux 2.4.1-ac15
+In-Reply-To: <E14UsmJ-0003kx-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.96.1010219101008.32729A-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Uszs-0003nY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'll be happy to test out 2.2.19pre. I'm having a little difficulty locating 
-> it though on kernel.org. Can you or somebody send me a URL for this.
+On Mon, 19 Feb 2001, Alan Cox wrote:
+> > Rusty had a patch that locked the module list properly IIRC.
+> 
+> So does -ac now. I just take a spinlock for the modify cases that race
+> against faults (including vmalloc faults from irq context)
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/alan/...
-
-each 2.2.19pre patch is versus the 2.2.18 base
-
-ie
-
-	tar xvfz linux-2.2.18.tar.gz
-	cd linux
-	patch -p1 <../patch-2.2.19prefoo
+so you hold a spinlock during copy_from_user ?  Or did you change
+sys_init_module/sys_create_modules semantics ?
 

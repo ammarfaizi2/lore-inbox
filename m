@@ -1,125 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263052AbTIEOig (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 10:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263058AbTIEOig
+	id S263063AbTIEOjX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 10:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbTIEOjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 10:38:36 -0400
-Received: from web60109.mail.yahoo.com ([216.109.118.88]:12371 "HELO
-	web60109.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263052AbTIEOid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 10:38:33 -0400
-Message-ID: <20030905143818.54049.qmail@web60109.mail.yahoo.com>
-Date: Fri, 5 Sep 2003 07:38:18 -0700 (PDT)
-From: j d <jpd_hp_linux_kernel@yahoo.com>
-Reply-To: dead_email@nospam-mail.org
-Subject: 2.6-test4: mpspec.h:6:25: mach_mpspec.h: Missing file
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Fri, 5 Sep 2003 10:39:23 -0400
+Received: from johanna5.ux.his.no ([152.94.1.25]:20199 "EHLO
+	johanna5.ux.his.no") by vger.kernel.org with ESMTP id S263063AbTIEOjS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 10:39:18 -0400
+Date: Fri, 5 Sep 2003 16:38:59 +0200
+From: Erlend Aasland <erlend-a@ux.his.no>
+To: "David S. Miller" <davem@redhat.com>,
+       James Morris <jmorris@intercode.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [CRYPTO] add alg. type to /proc/crypto output
+Message-ID: <20030905143859.GA18143@johanna5.ux.his.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-> Date: Fri, 05 Sep 2003 09:25:42 -0500
-
-> From: jpd_hp_linux_kernel@yahoo.com
-> Subject: 2.6-test4: mpspec.h:6:25: mach_mpspec.h:
-> Missing file
-> 
-> Hi.
-> I'm trying to build a (add-on) module
-> on a machine booted from a 2.6-test4 kernel,
-> And keep running into this error. I've
-> included a sample program , and gcc command
-> line.
-> 
-> I built the kernel:
-> 
-> make defconfig;
-> 
-> It is a 2W SMP (Compaq ML850)
-> couple minor modes like enet & SCSI device
-> make
-> My general question is, should I include the
-> 
->
--I/work/src/<build>/include/asm-i386/mach-generic/mach_mpspec.h
-> 
-> in my gcc command line or is my build area incorrect
-> is
-> some way that the correct mpspec.h file can't be
-> found
-> ?
-> 
-> Thx. JD.
-> 
-> __________________________________
-> Do you Yahoo!?
-> Yahoo! SiteBuilder - Free, easy-to-use web site
-> design software
-> http://sitebuilder.yahoo.com
-> > In file included from
-> /work/src/linux-2.6.0-test4/include/asm/smp.h:18,
->                  from
-> /work/src/linux-2.6.0-test4/include/linux/smp.h:17,
->                  from
->
-/work/src/linux-2.6.0-test4/include/linux/topology.h:33,
->                  from
->
-/work/src/linux-2.6.0-test4/include/linux/mmzone.h:294,
->                  from
-> /work/src/linux-2.6.0-test4/include/linux/gfp.h:4,
->                  from
-> /work/src/linux-2.6.0-test4/include/linux/slab.h:15,
->                  from test.c:8:
->
-/work/src/linux-2.6.0-test4/include/asm/mpspec.h:6:25:
-> mach_mpspec.h: No such file or directory
-> /work/src/linux-2.6.0-test4/include/asm/mpspec.h:8:
-> `MAX_MP_BUSSES' undeclared here (not in a function)
-> 
-> 
-> 
->  gcc -g -D__KERNEL__ -DMODULE
-> -I/work/src/linux-2.6.0-test4/include \
-> 	-I/work/src/linux-2.6.0-test4/drivers/scsi -c
-> test.c
-> 
-> //  -- snip sample 
-> 
-> #include <linux/version.h>	// 2.6 ++
-> #include <linux/config.h>	// 2.6 ++
-> #include <linux/kernel.h>
-> #include <linux/types.h>
-> #include <linux/spinlock.h>
-> #include <asm/io.h>
-> #include <asm/system.h>
-> #include <linux/slab.h>
-> #include <linux/interrupt.h>  
-> 
-> #define MEMORY_TABLE_SIZE	512
-> 
-> void *
-> my_kmalloc(unsigned int size, char *id)
-> {
-> 	char *ptr ;
-> 	if ((ptr =
-> 	     kmalloc(size,
-> 		     (in_interrupt()? GFP_ATOMIC : GFP_KERNEL)))
-> == NULL) {
-> 		kprintf("Cannot allocate %u bytes for %s\n", size,
-> id);
-> 	}
-> }
-> 
-> 
-> 
-> 
+Here is a patch that add alg. type output to /proc/crypto. Booted and
+tested.
 
 
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com
+Erlend Aasland
+
+diff -urN linux-2.6.0-test4-bk7/crypto/proc.c linux-2.6.0-test4-bk7-dirty/crypto/proc.c
+--- linux-2.6.0-test4-bk7/crypto/proc.c	2003-08-23 01:53:43.000000000 +0200
++++ linux-2.6.0-test4-bk7-dirty/crypto/proc.c	2003-09-05 18:17:35.000000000 +0200
+@@ -57,6 +57,7 @@
+ 	
+ 	switch (alg->cra_flags & CRYPTO_ALG_TYPE_MASK) {
+ 	case CRYPTO_ALG_TYPE_CIPHER:
++		seq_printf(m, "type         : cipher\n");
+ 		seq_printf(m, "blocksize    : %u\n", alg->cra_blocksize);
+ 		seq_printf(m, "min keysize  : %u\n",
+ 					alg->cra_cipher.cia_min_keysize);
+@@ -65,10 +66,17 @@
+ 		break;
+ 		
+ 	case CRYPTO_ALG_TYPE_DIGEST:
++		seq_printf(m, "type         : digest\n");
+ 		seq_printf(m, "blocksize    : %u\n", alg->cra_blocksize);
+ 		seq_printf(m, "digestsize   : %u\n",
+ 		           alg->cra_digest.dia_digestsize);
+ 		break;
++	case CRYPTO_ALG_TYPE_COMPRESS:
++		seq_printf(m, "type         : compression\n");
++		break;
++	default:
++		seq_printf(m, "type         : unknown\n");
++		break;
+ 	}
+ 
+ 	seq_putc(m, '\n');

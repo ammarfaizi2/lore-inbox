@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129666AbQLWOk1>; Sat, 23 Dec 2000 09:40:27 -0500
+	id <S130076AbQLWOnt>; Sat, 23 Dec 2000 09:43:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130076AbQLWOkR>; Sat, 23 Dec 2000 09:40:17 -0500
-Received: from colorfullife.com ([216.156.138.34]:21261 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129666AbQLWOkM>;
-	Sat, 23 Dec 2000 09:40:12 -0500
-Message-ID: <3A44B324.1E1E9AF1@colorfullife.com>
-Date: Sat, 23 Dec 2000 15:13:56 +0100
-From: Manfred <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
-Subject: Q: netdevice interface change
+	id <S130142AbQLWOnk>; Sat, 23 Dec 2000 09:43:40 -0500
+Received: from coruscant.franken.de ([193.174.159.226]:51973 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S130076AbQLWOnW>; Sat, 23 Dec 2000 09:43:22 -0500
+Date: Sat, 23 Dec 2000 15:10:43 +0100
+From: Harald Welte <laforge@gnumonks.org>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Rohloff <lundril@gmx.net>
+Subject: Re: A way to crash an 2.4-test11 kernel
+Message-ID: <20001223151043.X5858@coruscant.gnumonks.org>
+In-Reply-To: <20001219032531.A1922@flashline.chipnet>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001219032531.A1922@flashline.chipnet>; from lundril@gmx.net on Tue, Dec 19, 2000 at 03:25:31AM +0000
+X-Operating-System: 2.4.0-test11p4
+X-Date: Today is Prickle-Prickle, the 62nd day of The Aftermath in the YOLD 3166
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On Tue, Dec 19, 2000 at 03:25:31AM +0000, Ingo Rohloff wrote:
+> Hi,
+> 
+> I found a way to crash an SMP 2.4-test11 kernel:
+> 
+> 1. Create a BIG file (lets say about 300-400 MByte)
+> 2. use losetup and the loop device to create an
+>    ext2 filesystem within the file
+> 3. mount the file
+> 4. copy huge amounts of data into the file.
+>    (for example copy your /usr directory into it.)
+> 
+> -> Kernel deadlocks after some time.
+> 
+> Could someone try to reproduce this behaviour ?
 
-I have 2 questions about your netdevice2.txt:
-   http://www.uow.edu.au/~andrewm/linux/netdevice2.txt 
+Well... I've once encountered this kind of problem while porting
+the kerneli patch (loopback encryption, ...) and thought it is 
+a problem of the kerneli patch. I've never thought about the 
+possibility that this problem even occurs without encryption.
 
-* is withdraw_netdevice() really required, can't unregister_netdev
-check "hidden", and notify the protocols/hotplug based on that value?
+The other issue is: I wasn't able to reproduce this problem either :(
 
-* I don't like the backward compatibility section:
+> so long
+>   Ingo
 
-<<<<<<<<
-Other things:
-
-     #define HAVE_PUBLISH_NETDEV
-
-          This is for 2.2-compatible drivers.  They can do this:
-
-          #ifdef HAVE_PUBLISH_NETDEV
-          #define init_etherdev prepare_etherdev
-          #define publish_netdev(dev) do {} while (0)
-          #define withdraw_netdev unregister_netdev
-          #endif
->>>>>>>>
-
-As far as I know Linus prefers backward compatibility the other way
-around:
-
-<<<<<<
-A 2.4 driver that must remain compatible with 2.2 should use
-the new interface and add these lines to their source file:
-
-       #ifndef HAVE_PUBLISH_NETDEV
-       #define prepare_etherdev init_etherdev
-       #define publish_netdev(dev) do {} while (0)
-       #define withdraw_netdev unregister_netdev
-       #endif
->>>>>>
-
---
-  Manfred
+-- 
+Live long and prosper
+- Harald Welte / laforge@gnumonks.org                http://www.gnumonks.org
+============================================================================
+GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
+V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

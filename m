@@ -1,249 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbTDEBfr (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 20:35:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbTDEBfr (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 20:35:47 -0500
-Received: from almesberger.net ([63.105.73.239]:50186 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S261684AbTDEBfb (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 20:35:31 -0500
-Date: Fri, 4 Apr 2003 22:46:52 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC/FYI] reliable markers (hooks/probes/taps/...)
-Message-ID: <20030404224652.A19288@almesberger.net>
-References: <20030403070758.A18709@almesberger.net>
+	id S261715AbTDEBlT (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 20:41:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbTDEBlT (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 20:41:19 -0500
+Received: from to-telus.redhat.com ([207.219.125.105]:44526 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id S261715AbTDEBlS (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 20:41:18 -0500
+Date: Fri, 4 Apr 2003 20:52:48 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@digeo.com>, mingo@elte.hu, hugh@veritas.com,
+       dmccr@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: objrmap and vmtruncate
+Message-ID: <20030404205248.C21819@redhat.com>
+References: <Pine.LNX.4.44.0304041453160.1708-100000@localhost.localdomain> <20030404105417.3a8c22cc.akpm@digeo.com> <20030404214547.GB16293@dualathlon.random> <20030404150744.7e213331.akpm@digeo.com> <20030405000352.GF16293@dualathlon.random> <20030404163154.77f19d9e.akpm@digeo.com> <20030405013143.GJ16293@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030403070758.A18709@almesberger.net>; from wa@almesberger.net on Thu, Apr 03, 2003 at 07:07:58AM -0300
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030405013143.GJ16293@dualathlon.random>; from andrea@suse.de on Sat, Apr 05, 2003 at 03:31:43AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
-> Here's a pretty light-weight approach I call "reliable markers":
+On Sat, Apr 05, 2003 at 03:31:43AM +0200, Andrea Arcangeli wrote:
+> Also consider this significant factor: the larger the shmfs the smaller
+> the nonlinear 1G window will be and the higher the trashing. With 32G of
+> bigpages the remap_file_pages will trash like crazy generating an order
+> of mangnitude more of "window misses". I mean 32bit are just pushed at
+> the limit today regardless the lack of remap_file_pages. Example, if
+> you don't use largepages going past 16G of shm is going to be derimental.
+> The cost of the mmap doesn't sounds like the showstopper.
 
-Turns out that the memory clobber didn't make them particularly
-reliable. Here's a better version. Usage:
+You're guessing here.  At least for oracle, that behaviour is dependant on 
+the locality of accesses.  Given that each user has their own process you 
+can bet there is a fair amount of locality to their transactions.
 
-MARKER(label_name,var...);
+> you could try to avoid the need of the sysctl by teaching the vm to
+> unmap such vma, but I don't think it worth and I'm sure those apps
+> prefers to have the stuff pinned anyways w/o the risk of sigbus and w/o
+> the need of mlock and it looks cleaner to me to avoid any mess with the
+> vm and long term nobody will care about this sysctl since 64bit will run
+> so much fatster w/o any remap_file_pages and tlb flush running at all
 
-Where var... is an optional comma-separated list of arguments or
-variables that may be accessed (read or modified) while at this
-breakpoint.
+It is still useful for things outside of the pure databases on 32 bits 
+realm.  Consider a fast bochs running 32 bit apps on a 64 bit machine -- 
+should it have to deal with the overhead of zillions of vmas for emulating 
+page tables?
 
-(This is just for demonstration. For serious use, one would generate
-a markers.h that can handle more than just four arguments.)
+If anything, I think we should be moving in the direction of doing more 
+along the lines of remap_file_pages: things like executables might as well 
+keep their state in page tables since we never discard them and instead 
+toss the vma out the window.
 
-- Werner
-
----------------------------------- cut here -----------------------------------
-
---- /dev/null	Thu Aug 30 17:30:55 2001
-+++ linux-2.5.66/include/linux/markers.h	Fri Apr  4 20:36:39 2003
-@@ -0,0 +1,134 @@
-+/*
-+ * include/linux/markers.h - Reliable code markers (labels)
-+ *
-+ * Written 2003 by Werner Almesberger, Caltech Netlab FAST project
-+ */
-+
-+#ifndef _LINUX_MARKERS_H
-+#define _LINUX_MARKERS_H
-+
-+#include <linux/config.h>
-+
-+#ifdef CONFIG_MARKERS
-+
-+/*
-+ * __marker_clobber_* macros are machine-generated. If you need to change them,
-+ * use the build process from umlsim, which generates the kernel header file as
-+ * umlsim/lib/markers_kernel.h
-+ *
-+ * umlsim can be found at http://umlsim.sourceforge.net/
-+ */
-+
-+/*
-+ * The following construct iterates over a variable-length list of variable
-+ * names, and converts them to the clobber syntax.
-+ */
-+
-+#define __marker_clobber_do_0_end(...)
-+#define __marker_clobber_do_1_end(...)
-+#define __marker_clobber_do_2_end(...)
-+#define __marker_clobber_do_3_end(...)
-+#define __marker_clobber_do_4_end(...)
-+#define __marker_clobber_do_0_(car,...) \
-+  , "+m"(car) __marker_clobber_map_1((__VA_ARGS__), ,##__VA_ARGS__ end)
-+#define __marker_clobber_do_1_(car,...) \
-+  , "+m"(car) __marker_clobber_map_2((__VA_ARGS__), ,##__VA_ARGS__ end)
-+#define __marker_clobber_do_2_(car,...) \
-+  , "+m"(car) __marker_clobber_map_3((__VA_ARGS__), ,##__VA_ARGS__ end)
-+#define __marker_clobber_do_3_(car,...) \
-+  , "+m"(car) __marker_clobber_map_4((__VA_ARGS__), ,##__VA_ARGS__ end)
-+#define __marker_clobber_do_4_(car,...) \
-+  , "+m"(car) __marker_clobber_map_5((__VA_ARGS__), ,##__VA_ARGS__ end)
-+#define __marker_clobber_map_0(list,op,...) __marker_clobber_do_0_##op list
-+#define __marker_clobber_map_1(list,op,...) __marker_clobber_do_1_##op list
-+#define __marker_clobber_map_2(list,op,...) __marker_clobber_do_2_##op list
-+#define __marker_clobber_map_3(list,op,...) __marker_clobber_do_3_##op list
-+#define __marker_clobber_map_4(list,op,...) __marker_clobber_do_4_##op list
-+
-+/* redefine, without the comma */
-+#undef __marker_clobber_do_0_
-+#define __marker_clobber_do_0_(car,...) \
-+  "+m"(car) __marker_clobber_map_1((__VA_ARGS__), ,##__VA_ARGS__ end)
-+
-+#define __marker_clobbers(...) \
-+  __marker_clobber_map_0((__VA_ARGS__), ,##__VA_ARGS__ end)
-+
-+
-+/*
-+ * And another one: this one simply counts the number of arguments.
-+ * We need this to skip past the clobbers in the asm statement.
-+ *
-+ * We can't use named arguments (supported starting with gcc 3.1), because
-+ * trying to do so crashes gcc ...
-+ */
-+
-+#define __marker_count_do_0_end(...) "0"
-+#define __marker_count_do_1_end(...) "1"
-+#define __marker_count_do_2_end(...) "2"
-+#define __marker_count_do_3_end(...) "3"
-+#define __marker_count_do_4_end(...) "4"
-+#define __marker_count_do_0_(car,...) \
-+  __marker_count_1((__VA_ARGS__), ,##__VA_ARGS__ end)
-+#define __marker_count_do_1_(car,...) \
-+  __marker_count_2((__VA_ARGS__), ,##__VA_ARGS__ end)
-+#define __marker_count_do_2_(car,...) \
-+  __marker_count_3((__VA_ARGS__), ,##__VA_ARGS__ end)
-+#define __marker_count_do_3_(car,...) \
-+  __marker_count_4((__VA_ARGS__), ,##__VA_ARGS__ end)
-+#define __marker_count_do_4_(car,...) \
-+  __marker_count_5((__VA_ARGS__), ,##__VA_ARGS__ end)
-+#define __marker_count_0(list,op,...) __marker_count_do_0_##op list
-+#define __marker_count_1(list,op,...) __marker_count_do_1_##op list
-+#define __marker_count_2(list,op,...) __marker_count_do_2_##op list
-+#define __marker_count_3(list,op,...) __marker_count_do_3_##op list
-+#define __marker_count_4(list,op,...) __marker_count_do_4_##op list
-+#define __marker_count(...) __marker_count_0((__VA_ARGS__), ,##__VA_ARGS__ end)
-+
-+
-+/*
-+ * __MARKER(name,args...) generates an entry in the ".dbg_markers" section with
-+ * the following content:
-+ *
-+ * Offset Length (bytes)
-+ *    0     4	marker address
-+ *    4     4	pointer to function name (__func__) in .rodata
-+ *    8    >1	file name (\0-terminated)
-+ *   var.  0-3	padding bytes (all zero, to speed up searches)
-+ *   var.  >1	label name (\0-terminated)
-+ *   var.  0-3	padding bytes (all zero, to speed up searches)
-+ *
-+ * The (optional) list of arguments contains the names of variables that will
-+ * be accessed from the debugger while the program is stopped at this
-+ * breakpoint.
-+ */
-+
-+
-+#define __MARKER(name,...) \
-+  __asm__ __volatile__( \
-+    "1:\n" \
-+    "\t.pushsection .dbg_markers,\"\",@progbits\n" \
-+    "\t.long 1b\n" \
-+    "\t.long %" __marker_count(__VA_ARGS__) "\n" \
-+    "\t.asciz \"" __FILE__ "\"\n" \
-+    "\t.align 4,0\n" \
-+    "\t.asciz \"" #name "\"\n" \
-+    "\t.align 4,0\n" \
-+    "\t.popsection\n" \
-+    : __marker_clobbers(__VA_ARGS__) : [fn] "m" (*__func__) : "memory")
-+
-+/*
-+ * MARKER protects __MARKER against multiple uses of the same marker name
-+ * within the same function.
-+ */
-+
-+#define MARKER(name,...) \
-+  do { __marker_##name: __attribute__((unused)) \
-+       __MARKER(name,__VA_ARGS__); } while (0)
-+
-+#else /* CONFIG_MARKERS */
-+
-+#define MARKER(...)
-+
-+#endif /* !CONFIG_MARKERS */
-+
-+#endif /* _LINUX_MARKERS_H */
---- linux-2.5.66/net/core/dev.c.orig	Thu Apr  3 03:17:21 2003
-+++ linux-2.5.66/net/core/dev.c	Fri Apr  4 21:30:27 2003
-@@ -107,6 +107,7 @@
- #include <linux/kmod.h>
- #include <linux/module.h>
- #include <linux/kallsyms.h>
-+#include <linux/markers.h>
- #ifdef CONFIG_NET_RADIO
- #include <linux/wireless.h>		/* Note : will define WIRELESS_EXT */
- #include <net/iw_handler.h>
-@@ -1471,6 +1472,7 @@
- 	int ret = NET_RX_DROP;
- 	unsigned short type = skb->protocol;
- 
-+	MARKER(entry,skb);
- 	if (!skb->stamp.tv_sec)
- 		do_gettimeofday(&skb->stamp);
- 
---- linux-2.5.66/arch/um/Kconfig.orig	Thu Apr  3 03:50:05 2003
-+++ linux-2.5.66/arch/um/Kconfig	Thu Apr  3 04:20:43 2003
-@@ -363,5 +363,29 @@
-         If you're involved in UML kernel development and want to use gcov,
-         say Y.  If you're unsure, say N.
- 
-+config UMLSIM
-+	bool "Enable umlsim support"
-+	default n
-+	help
-+	umlsim uses a UML kernel for event-driven simulations. This
-+	option adds code to support virtual time (boot command-line
-+	option 'vtime'), and to inform the umlsim control program
-+	when the kernel is idle.
-+
-+	A kernel containing umlsim support can also be used without
-+	virtual time and umlsim.
-+
-+	See <http://umlsim.sourceforge.net/> for more details.
-+
-+config MARKERS
-+	bool "Enable reliable markers"
-+	default UMLSIM
-+	help
-+	Reliable markers are used to mark potential breakpoint locations.
-+	Debuggers (or debugger-like programs, such as umlsim) need
-+	specific code if they want to use reliable markers.
-+
-+	If you're not using umlsim, you probably want to say N. If you're
-+	using this kernel with umlsim, say Y.
- endmenu
- 
---- linux-2.5.66/arch/um/drivers/daemon_kern.c.orig	Thu Apr  3 04:26:47 2003
-+++ linux-2.5.66/arch/um/drivers/daemon_kern.c	Fri Apr  4 21:30:58 2003
-@@ -9,6 +9,7 @@
- #include "linux/init.h"
- #include "linux/netdevice.h"
- #include "linux/etherdevice.h"
-+#include "linux/markers.h"
- #include "net_kern.h"
- #include "net_user.h"
- #include "daemon.h"
-@@ -54,6 +55,7 @@
- static int daemon_write(int fd, struct sk_buff **skb,
- 			struct uml_net_private *lp)
- {
-+	MARKER(entry,skb);
- 	return(daemon_user_write(fd, (*skb)->data, (*skb)->len, 
- 				 (struct daemon_data *) &lp->user));
- }
-
+		-ben
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Junk email?  <a href="mailto:aart@kvack.org">aart@kvack.org</a>

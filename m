@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262203AbVAJK54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262202AbVAJLDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262203AbVAJK54 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 05:57:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbVAJK54
+	id S262202AbVAJLDH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 06:03:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262205AbVAJLDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 05:57:56 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:2961
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S262203AbVAJK5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 05:57:43 -0500
+	Mon, 10 Jan 2005 06:03:06 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:45955 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262202AbVAJLDB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 06:03:01 -0500
+Date: Mon, 10 Jan 2005 12:02:52 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
 Subject: Re: [PATCH 2.6.10-mm2] Use the new preemption code [2/3] Resend
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andrew Morton <akpm@osdl.org>
-Cc: rmk+lkml@arm.linux.org.uk, mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <20050109233253.42318137.akpm@osdl.org>
-References: <20050110013508.1.patchmail@tglx>
-	 <1105318406.17853.2.camel@tglx.tec.linutronix.de>
-	 <20050110010613.A5825@flint.arm.linux.org.uk>
-	 <1105319915.17853.8.camel@tglx.tec.linutronix.de>
-	 <20050109233253.42318137.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Linutronix
-Message-Id: <1105354664.3058.8.camel@lap02.tec.linutronix.de>
+Message-ID: <20050110110252.GA1605@elte.hu>
+References: <20050110013508.1.patchmail@tglx> <1105318406.17853.2.camel@tglx.tec.linutronix.de> <20050110010613.A5825@flint.arm.linux.org.uk> <1105319915.17853.8.camel@tglx.tec.linutronix.de> <20050110094624.A24919@flint.arm.linux.org.uk> <1105351977.3058.2.camel@lap02.tec.linutronix.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 10 Jan 2005 11:57:44 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1105351977.3058.2.camel@lap02.tec.linutronix.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-10 at 08:32, Andrew Morton wrote:
-> Thomas Gleixner <tglx@linutronix.de> wrote:
-> >
-> > This patch adjusts the ARM entry code to use the fixed up
-> >  preempt_schedule() handling in 2.6.10-mm2
-> > 
-> > ...
-> >  Index: 2.6.10-mm1/arch/arm/kernel/entry.S
+
+* Thomas Gleixner <tglx@linutronix.de> wrote:
+
+> > Are you sure ARM suffers from this race condition?  It sets preempt count
+> > before enabling IRQs and doesn't use preempt_schedule().
 > 
-> There's no such file.  I assumed you meant entry-armv.S and ended up with
-> the below.
+> There is no race for arm, but using the preempt_schedule() interface
+> is the approach which Ingo suggested for common usage, but his x86
+> implementation was racy, so I fixed this first before modifying arm to
+> use the interface. Ingo pointed out that he will change it to
+> preempt_schedule_irq, but I'm not religious about the name.
 
-Oops. I messed that up twice. Sure it was entry-armv.S
-Sorry. I'm just a perfect example for Murphy's law.
+i wouldnt raise this issue if it was the name only, but there's more to
+preempt_schedule_irq() than its name: it gets called with irqs off and
+the scheduler returns with irqs off and with a guarantee that there is
+no (irq-generated) pending preemption request for this task right now. 
+I.e. the checks for need_resched can be skipped, and interrupts dont
+have to be disabled to do a safe return-to-usermode (as done on some
+architectures).
 
-tglx
+as far as i can see do_preempt_schedule() doesnt have these properties:
+what it guarantees is that it avoids the preemption recursion via the
+lowlevel code doing the PREEMPT_ACTIVE setting.
 
-> --- 25/arch/arm/kernel/entry-armv.S~use-the-new-preemption-code-arm	2005-01-09 23:30:34.794573320 -0800
-> +++ 25-akpm/arch/arm/kernel/entry-armv.S	2005-01-09 23:30:34.797572864 -0800
-> @@ -136,10 +136,8 @@ svc_preempt:	teq	r9, #0				@ was preempt
->  		ldr	r1, [r6, #8]			@ local_bh_count
->  		adds	r0, r0, r1
->  		movne	pc, lr
-> -		mov	r7, #PREEMPT_ACTIVE
-> -		str	r7, [r8, #TI_PREEMPT]		@ set PREEMPT_ACTIVE
->  1:		enable_irq r2				@ enable IRQs
-> -		bl	schedule
-> +               bl      entry_preempt_schedule
->  		disable_irq r0				@ disable IRQs
->  		ldr	r0, [r8, #TI_FLAGS]		@ get new tasks TI_FLAGS
->  		tst	r0, #_TIF_NEED_RESCHED
-> _
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+lets agree upon a single, common approach. I went for splitting up
+preempt_schedule() into two variants: the 'synchronous' one (called
+preempt_schedule()) is only called from syscall level and has no
+repeat-preemption and hence stack-recursion worries. The 'asynchronous'
+one (called preempt_schedule_irq()) is called from asynchronous contexts
+(hardirq events) and is fully ready to deal with all the reentrancy
+situations that may occur. It's careful about not re-enabling
+interrupts, etc.
 
+	Ingo

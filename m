@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUFJGU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266209AbUFJGUk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264503AbUFJGU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 02:20:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266183AbUFJGU5
+	id S266209AbUFJGUk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 02:20:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUFJGUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 02:20:57 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:18104 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264503AbUFJGUu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 02:20:50 -0400
-Date: Thu, 10 Jun 2004 08:11:44 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Ed Tomlinson <edt@aei.ca>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: ide errors in 7-rc1-mm1 and later
-Message-ID: <20040610061141.GD13836@suse.de>
-References: <1085689455.7831.8.camel@localhost> <20040605092447.GB13641@suse.de> <20040606161827.GC28576@bounceswoosh.org> <200406100238.11857.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406100238.11857.bzolnier@elka.pw.edu.pl>
+	Thu, 10 Jun 2004 02:20:39 -0400
+Received: from gateway.set-software.de ([193.218.212.121]:11398 "EHLO
+	gateway.local.net") by vger.kernel.org with ESMTP id S264503AbUFJGUa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 02:20:30 -0400
+From: Michael Knigge <Michael.Knigge@set-software.de>
+Date: Thu, 10 Jun 2004 06:19:34 GMT
+Message-ID: <20040610.6193488@knigge.local.net>
+Subject: New 3ware driver for 2.4.x ?
+To: <linux-kernel@vger.kernel.org>
+Reply-To: Michael Knigge <Michael.Knigge@set-software.de>
+X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.1; Win32)
+X-Priority: 3 (Normal)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 10 2004, Bartlomiej Zolnierkiewicz wrote:
-> 
-> /me just thinks loudly
-> 
-> 'linear range' FLUSH CACHE seems so easy to implement that I always wondered
-> why FLUSH CACHE command doesn't make any use of LBA address and number
-> of sectors.
+All,
 
-Indeed, that would be very helpful as well.
+any chance that the new 3ware Driver (for the new 9xxx series of their 
+controllers) will be added in one of the next Linux 2.4.x Kernels?
 
--- 
-Jens Axboe
+Andrew Morten has it applied to his 2.6.7-rc1-mm1 already - I could 
+provide the 2.4.x version of the driver. It is contained on my Driver 
+CD and it is under the GPL. Oh... and yes, it works ;-)
+
+Bye
+  Michael
+
+
+
+
+
+
 

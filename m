@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263958AbRFSHjI>; Tue, 19 Jun 2001 03:39:08 -0400
+	id <S263966AbRFSHoI>; Tue, 19 Jun 2001 03:44:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263965AbRFSHi7>; Tue, 19 Jun 2001 03:38:59 -0400
-Received: from www.wen-online.de ([212.223.88.39]:61457 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S263960AbRFSHiu>;
-	Tue, 19 Jun 2001 03:38:50 -0400
-Date: Tue, 19 Jun 2001 09:37:46 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: root <root@norma.kjist.ac.kr>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 VM & swap question
-In-Reply-To: <Pine.LNX.4.33.0106190312210.1376-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0106190935580.306-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263967AbRFSHn6>; Tue, 19 Jun 2001 03:43:58 -0400
+Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:53876
+	"EHLO bitmover.com") by vger.kernel.org with ESMTP
+	id <S263966AbRFSHnm>; Tue, 19 Jun 2001 03:43:42 -0400
+Date: Tue, 19 Jun 2001 00:43:40 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux/PPC maintainer changing
+Message-ID: <20010619004340.E7549@work.bitmover.com>
+Mail-Followup-To: Paul Mackerras <paulus@samba.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010617151351.B16494@hq.fsmlabs.com> <15149.64869.116478.513419@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <15149.64869.116478.513419@cargo.ozlabs.ibm.com>; from paulus@samba.org on Mon, Jun 18, 2001 at 11:08:53PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Jun 2001, Rik van Riel wrote:
+Add my voice to those saying "Thanks, Cort".  I'm not sure if everyone is
+aware of the amount of work he's done, it's a lot.  We were aware of it
+because he took a chance on early versions of BK and we worked through
+many a late night problem with him; BK is certainly much better because
+of Cort & the PPC team.
 
-> On Tue, 19 Jun 2001, Mike Galbraith wrote:
-> > On Mon, 18 Jun 2001, root wrote:
-> >
-> > > Regarding to the discussion on the swap size,
-> > >
-> > > Recently, Rick van Riel posted a message that there is a bug
-> > > related to "reclaiming" the swap, and said that it is on his
-> > > TODO list.
-> >
-> > That's fixed.
->
-> It's not. We don't reclaim swap space when we run low on
-> free swap space (by freeing up the space in swap of stuff
-> which is in RAM).
+I think the job that Cort did is a tough job for anyone to do, it
+involves a lot of different people and personalities and it is a pretty
+much thankless job.
 
-Ah.. different problem.
-
-	-Mike
-
+Anyway, the beer is on me next time we meet, Cort.  Thanks.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

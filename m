@@ -1,97 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129460AbQLNAFe>; Wed, 13 Dec 2000 19:05:34 -0500
+	id <S129652AbQLNAGO>; Wed, 13 Dec 2000 19:06:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129652AbQLNAFY>; Wed, 13 Dec 2000 19:05:24 -0500
-Received: from webmail.metabyte.com ([216.218.208.53]:65302 "EHLO
-	webmail.metabyte.com") by vger.kernel.org with ESMTP
-	id <S129460AbQLNAFL>; Wed, 13 Dec 2000 19:05:11 -0500
-Message-ID: <3A38077E.EA04B3C7@metabyte.com>
-Date: Wed, 13 Dec 2000 15:34:22 -0800
-From: Pete Zaitcev <zaitcev@metabyte.com>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
+	id <S129539AbQLNAGE>; Wed, 13 Dec 2000 19:06:04 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:38158 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S129652AbQLNAFq>; Wed, 13 Dec 2000 19:05:46 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Date: Thu, 14 Dec 2000 10:15:10 +1100 (EST)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: test1[12] + sparc + bind 9.1.0b1 == bad things
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Dec 2000 23:34:43.0456 (UTC) FILETIME=[45400000:01C0655D]
+Message-ID: <14904.766.686541.548702@notabene.cse.unsw.edu.au>
+Cc: Jasper Spaans <jasper@spaans.ds9a.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] raid5 crash with 2.4.0-test12 [Was: Linux-2.4.0-test12]
+In-Reply-To: message from Linus Torvalds on Tuesday December 12
+In-Reply-To: <14902.49167.834682.925490@notabene.cse.unsw.edu.au>
+	<Pine.LNX.4.10.10012121900380.22326-100000@penguin.transmeta.com>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is this the first OOPS it prints out? I don't think so. I am 
-> very sure it printed out messages from die_if_kernel first and 
-> we need that initial OOPS to diagnose this bug and fix it. 
+On Tuesday December 12, torvalds@transmeta.com wrote:
 > 
-> All the rest of the OOPS messages are useless and won't tell 
-> us what the real problem is. 
+> 
+> On Wed, 13 Dec 2000, Neil Brown wrote:
+> > 
+> > Yes... you are right.  Alright, I can't escape it any other way so I
+> > guess I must admit that  it is a raid5 bug.
+> > 
+> > But how can raid5 be calling b_end_io on a buffer_head that was never
+> > passed to generic_make_request?
+> > Answer, it snoops on the buffer cache to try to do complete stripe
+> > writes.
+> 
+> Ahh, yes. It seems to just do a "get_hash_table()", and put that bh into
+> the queues. Bad.
+> 
+> > The following patch disabled that code.
+> 
+> If this fix makes the oops go away, then the proper fix for the problem is
+> not the #if 0, but do add something like
+> 
+> 	bh->b_end_io = buffer_end_io_sync;
+> 
+> to just before the "add_stripe_bh(sh, bh, i, WRITE);"
+> 
+> We've already locked the thing, so that should be ok.
 
-> Later, 
-> David S. Miller 
+Yes, that should work, except that end_buffer_io_sync is static in
+ll_rw_blk.c :-)
 
-Bad news about recursive Oops is that too often the system
-cannot continue and oopsen never reach /var/log/messages.
+However I don't think there is a lot of point in maintaining this
+piece of code.  It was a useful optimisation in 2.2, but it is
+substantially less effective in 2.4.
 
-This problem was so common on sparc(32) that I run all my
-kernels with the attached patch. I think an application
-of a similar change should be mandatory if you are insterested
-in any sort of debugging.
+In 2.2 filesystems kept allcache data - file content, meta data, etc,
+in the physically addressed buffer cache.  As it was physically
+addressed, raid5 could go looking for other data in the same stripe as
+the stripe that it was writing, and thereby improve performance.
 
-The alternative is to use a serial console, captured at all times.
+But in 2.4, filesystems (well, ext2 at least) keep only the metadata
+in the buffer cache, and if you are using something like LVM or RAID0
+on top of the RAID5 array, there wont be anything in the buffer cache
+for the raid5 device.
 
---Pete
+I think I can get similar performance improvements by "plugging" the
+raid5 device appropriately, but I haven't quite figured out all the
+issues in making that work completely.
 
-diff -u -r1.63 traps.c
---- arch/sparc/kernel/traps.c   2000/06/04 06:23:52     1.63
-+++ arch/sparc/kernel/traps.c   2000/06/26 18:19:10
-@@ -114,18 +116,23 @@
- 		 * bound in case our stack is trashed and we loop.
- 		 */
- 		while(rw                                        &&
--		      count++ < 30                              &&
-+		      count++ < 10                              && /* P3 30 */
- 		       (((unsigned long) rw) >= PAGE_OFFSET)    &&
- 		      !(((unsigned long) rw) & 0x7)) {
- 			printk("Caller[%08lx]\n", rw->ins[7]);
- 			rw = (struct reg_window *)rw->ins[6];
- 		}
- 	}
-+#if 0
- 	printk("Instruction DUMP:");
- 	instruction_dump ((unsigned long *) regs->pc);
- 	if(regs->psr & PSR_PS)
-		do_exit(SIGKILL);
- 	do_exit(SIGSEGV);
-+#else
-+	printk("Looping...");
-+	for (;;) { }
-+#endif
- }
- 
- void do_hw_interrupt(unsigned long type, unsigned long psr, unsigned long pc)
-Index: arch/sparc/mm/fault.c
-===================================================================
-RCS file: /vger-cvs/linux/arch/sparc/mm/fault.c,v
-retrieving revision 1.116
-diff -u -r1.116 fault.c
---- arch/sparc/mm/fault.c       2000/05/03 06:37:03     1.116
-+++ arch/sparc/mm/fault.c       2000/06/26 18:19:11
-@@ -146,11 +146,15 @@
- 		printk(KERN_ALERT "Unable to handle kernel paging request "
- 			"at virtual address %08lx\n", address);
- 	}
-+	if (tsk->active_mm == NULL) {
-+		printk(KERN_ALERT "tsk->active_mm = NULL\n");
-+	} else {
- 	printk(KERN_ALERT "tsk->{mm,active_mm}->context = %08lx\n",
- 		(tsk->mm ? tsk->mm->context : tsk->active_mm->context));
- 	printk(KERN_ALERT "tsk->{mm,active_mm}->pgd = %08lx\n",
- 		(tsk->mm ? (unsigned long) tsk->mm->pgd :
- 			(unsigned long) tsk->active_mm->pgd));
-+	}
- 	die_if_kernel("Oops", regs);
- }
+> 
+> I wonder about that "md_test_and_set_bit(BH_Lock ...);" thing there,
+> though. If the buffer we find was dirty but already locked, we won't be
+> using that buffer at all (because the md_test_and_set_bit() will fail),
+> which probably means that the RAID5 checksum won't be right. Hmm..
+> 
+> Why is there an dirty aliased buffer head anyway? That sounds like a
+> recipe for disaster - maybe we should have synched all the stripe devices
+> before we set up the raid? Is that a raid5 rebuild issue? What's going on
+> here?
+
+I we find a dirty, locked buffer, then it means that some other thread
+has got through ll_rw_block with that buffer, but is blocked, or is
+about to be blocked, in raid5_make_request (calling get_lock_stripe
+probably).  When the current write phase completes, that dirty block
+will come through and cause another write phase on this stripe.
+Each time the parity will be correct.
+This is completely separate from parity re-syncing.  The resync code
+doesn't use buffers in the buffer cache at all.  It just uses the
+buffers in the raid5 stripe cache.
+
+NeilBrown
+
+> 
+> 		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

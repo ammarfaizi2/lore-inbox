@@ -1,36 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbVBIAw3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVBIBRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbVBIAw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 19:52:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbVBIAw2
+	id S261728AbVBIBRR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 20:17:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbVBIBRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 19:52:28 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:27090
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261724AbVBIAw1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 19:52:27 -0500
-Date: Tue, 8 Feb 2005 16:48:57 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] kill xfrm_export.c
-Message-Id: <20050208164857.1c51656e.davem@davemloft.net>
-In-Reply-To: <20050119091715.GQ1841@stusta.de>
-References: <20050119091715.GQ1841@stusta.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 8 Feb 2005 20:17:17 -0500
+Received: from host.atlantavirtual.com ([209.239.35.47]:57318 "EHLO
+	host.atlantavirtual.com") by vger.kernel.org with ESMTP
+	id S261728AbVBIBRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 20:17:12 -0500
+Subject: Re: [PATCH 2.4] Wireless Extension v17 (resend)
+From: kernel <kernel@crazytrain.com>
+Reply-To: kernel@crazytrain.com
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Jean Tourrilhes <jt@hpl.hp.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050208184145.GD10799@logos.cnet>
+References: <20050208181637.GB29717@bougret.hpl.hp.com>
+	 <20050208180116.GA10695@logos.cnet>
+	 <20050208215112.GB3290@bougret.hpl.hp.com>
+	 <20050208184145.GD10799@logos.cnet>
+Content-Type: text/plain
+Message-Id: <1107911344.3863.9.camel@crazytrain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 08 Feb 2005 20:09:04 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Jan 2005 10:17:15 +0100
-Adrian Bunk <bunk@stusta.de> wrote:
-
-> This patch removes xfrm_export.c and moves the EXPORT_SYMBOL{,_GPL}'s to 
-> the files where the actual functions are.
+On Tue, 2005-02-08 at 13:41, Marcelo Tosatti wrote:
+> > 	There need to be some unique features in 2.6.X to force people
+> > to upgrade, I guess...
 > 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> Faster, cleaner, way more elegant, handles intense loads more gracefully, 
+> handles highmem decently, LSM/SELinux, etc, etc...
+> 
 
-Applied, thanks Adrian.
+Please *think* before saying this.  It's not always the case.  Firewire
+support in 2.6 kernel has been less than stellar, for one example.  And
+yes, for many, solid 1394 support is a requirement for business.
+
+(And we've all seen the testing that has shown both sides (2.4, 2.6)
+have been faster)
+
+> IMO everyone should upgrade whenever appropriate. 
+> 
+
+Not sure....on 13 January 2005 Alan Cox posted "Given that base 2.6
+kernels are shipped by Linus with known unfixed
+security holes anyone trying to use them really should be doing some
+careful thinking. In truth no 2.6 released kernel is suitable for
+anything but beta testing until you add a few patches anyway."
+
+How do you answer this, when telling folks "everyone should upgrade
+whenever appropriate."?
+
+
+Just some random thoughts....from a 2.4 supporter :)
+
+-fd
+

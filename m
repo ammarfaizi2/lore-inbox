@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276877AbRJVPtv>; Mon, 22 Oct 2001 11:49:51 -0400
+	id <S276906AbRJVPsB>; Mon, 22 Oct 2001 11:48:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276907AbRJVPtb>; Mon, 22 Oct 2001 11:49:31 -0400
-Received: from dorf.wh.uni-dortmund.de ([129.217.255.136]:7440 "HELO
-	mail.dorf.wh.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S276877AbRJVPt2>; Mon, 22 Oct 2001 11:49:28 -0400
-Date: Mon, 22 Oct 2001 17:49:59 +0200
-From: Patrick Mau <mau@oscar.prima.de>
-To: Dan Kegel <dank@kegel.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: connect() to localhost non-blocking.
-Message-ID: <20011022174959.A31147@oscar.dorf.de>
-Reply-To: Patrick Mau <mau@oscar.prima.de>
-In-Reply-To: <3BD357B2.12AE9A5E@kegel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BD357B2.12AE9A5E@kegel.com>
-User-Agent: Mutt/1.3.23i
+	id <S276532AbRJVPrl>; Mon, 22 Oct 2001 11:47:41 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:19462 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S276906AbRJVPr3>; Mon, 22 Oct 2001 11:47:29 -0400
+Date: Mon, 22 Oct 2001 11:47:52 -0400
+Message-Id: <200110221547.f9MFlqK15823@deathstar.prodigy.com>
+To: kaos@ocs.com.au
+Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12 
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <23837.1003738907@kao2.melbourne.sgi.com>
+Organization: TMR Associates, Schenectady NY
+Cc: linux-kernel@vger.kernel.org
+From: davidsen@tmr.com (bill davidsen)
+Reply-To: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 21, 2001 at 04:18:10PM -0700, Dan Kegel wrote:
-> > Patrick Mau <mau@oscar.prima.de> writes:
-> > 
+In article <23837.1003738907@kao2.melbourne.sgi.com> you write:
 
-[Snip]
+| When the post-install and pre-remove entries for module binfmt_misc are
+| hard coded into modprobe, there is no syntax in modules.conf to prevent
+| modprobe from always issuing those commands.  The next time somebody
+| decides that binfmt_misc needs different commands, everybody using the
+| old modutils on the new kernel will break.  I don't want the hassle,
+| put it in modules.conf where it can easily be changed.
 
-> You have to be prepared to handle both immediate and delayed
-> connection, especially if you want to be portable.  (Solaris behaves 
-> a bit differently than Linux in this regard.)  See
-> http://www.kegel.com/dkftpbench/dkftpbench-0.37/ftp_client_pipe.cc
-> for an example of how to handle nonblocking connects more or less portably.
-> (You have to wade through quite a bit of code, tabstops 4, to find
-> all the connect-handling stuff -- sorry.)
-> - Dan
+  Thank you. Configuration things should be in configuration files!
 
-Hallo Dan,
+  I hope people will continue to resist changes which make things easy
+for casual users while making them very difficult for more technically
+inclined people. Having to get source and recompile to disable a feature
+is hardly reasonable.
 
-thnaks for the pointer and your remarks, but I really
-wondered if linux _never_ immediatly accept()'s connections.
-
-I never saw a connect() call returning 0 (connected) on a
-non-blocking socket. Always EINPROGRESS. I guess I have to
-look at the kernel to see scheduling effects ...
-
-thanks,
-Patrick
+-- 
+bill davidsen <davidsen@tmr.com>
+  His first management concern is not solving the problem, but covering
+his ass. If he lived in the middle ages he'd wear his codpiece backward.

@@ -1,86 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267421AbUIPGmm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267519AbUIPGo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267421AbUIPGmm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 02:42:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267703AbUIPGml
+	id S267519AbUIPGo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 02:44:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267538AbUIPGo4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 02:42:41 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:62863 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S267421AbUIPGmi (ORCPT
+	Thu, 16 Sep 2004 02:44:56 -0400
+Received: from cantor.suse.de ([195.135.220.2]:27275 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267519AbUIPGoc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 02:42:38 -0400
-Date: Thu, 16 Sep 2004 08:43:21 +0200
-From: Stelian Pop <stelian@popies.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-Message-ID: <20040916064320.GA9886@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040913135253.GA3118@crusoe.alcove-fr> <20040915153013.32e797c8.akpm@osdl.org>
+	Thu, 16 Sep 2004 02:44:32 -0400
+Date: Thu, 16 Sep 2004 08:44:28 +0200
+From: Andi Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Zwane Mwaikambo <zwane@fsmlabs.com>, linux-kernel@vger.kernel.org,
+       wli@holomorphy.com
+Subject: Re: [PATCH] remove LOCK_SECTION from x86_64 spin_lock asm
+Message-ID: <20040916064428.GD12915@wotan.suse.de>
+References: <Pine.LNX.4.53.0409151458470.10849@musoma.fsmlabs.com> <20040915144523.0fec2070.akpm@osdl.org> <20040916061359.GA12915@wotan.suse.de> <20040916062759.GA10527@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040915153013.32e797c8.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040916062759.GA10527@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 03:30:13PM -0700, Andrew Morton wrote:
-
-> > +struct kfifo {
-> > +	unsigned int head;
-> > +	unsigned int tail;
-> > +	unsigned int size;
-> > +	unsigned int len;
-> > +	spinlock_t lock;
-> > +	unsigned char *buffer;
-> > +};
+On Thu, Sep 16, 2004 at 08:27:59AM +0200, Ingo Molnar wrote:
 > 
-> A circular buffer implementation needs only head and tail indices.  `size'
-> above appears to be redundant.
+> * Andi Kleen <ak@suse.de> wrote:
 > 
-> Implementation-wise, the head and tail indices should *not* be constrained
-> to be less than the size of the buffer.  They should be allowed to wrap all
-> the way back to zero.  This allows you to distinguish between the
-> completely-empty and completely-full states while using 100% of the storage.
-
-Do you mean 'size' (the size of alloc'ed buffer) is redundant or 'len' 
-(the amount of data in the FIFO) is redundant ? I see how 'len' could
-be removed (and didn't do it in the first place because I choosed
-code simplification over a 4 bytes gain in storage), but I hardly
-see how 'size' could be removed...
-
-> > +	unsigned long flags;
-> > +
-> > +	spin_lock_irqsave(&fifo->lock, flags);
-> > +	
-> > +	fifo->head = fifo->tail = 0;
-> > +	fifo->len = 0;
-> > +
-> > +	spin_unlock_irqrestore(&fifo->lock, flags);
-> > +}
+> > Known problem. Interrupts don't save regs->rbp, but the new profile_pc
+> > that was introduced recently uses it.
+> > 
+> > One quick fix is to just use SAVE_ALL in the interrupt entry code, but
+> > I don't like this because it will affect interrupt latency.
+> > 
+> > The real fix is to fix profile_pc to not reference it.
 > 
-> The caller should provide the locking.  The spinlock should be removed.
+> it would be nice if we could profile the callers of the spinlock
+> functions instead of the opaque spinlock functions.
 > 
-> Or maybe provide a separate higher-level API which does the locking for
-> you.
+> the ebp trick is nice, but forcing a formal stack frame for every
+> function has global performance implications. Couldnt we define some
 
-Like in __kfifo_get which doesn't lock and kfifo_get which does ?
+I don't think that is needed anyways.  It would seem to 
+be overkill to me to make a relatively fast path slower
+just for the profiler interrupt.
 
-I don't want to remove it completly since the whole point of this 
-spinlock is to protect the fifo contents...
+I think the idea was that the spinlock functions should be small 
+enough that they don't have any stack local variables. In this case 
+for the standard non FP build you can just use *regs->rsp. The only problem
+was with CONFIG_FRAME_POINTER, because then the compiler puts
+an additional word onto the stack. I think the right way 
+is to just correct for this word and still use rsp.
 
-> This is too big to inline.
-[...]
-> whitespace damage
-[...]
+Here's an untested patch to implement this. Does this fix the problem for 
+you?
 
-Oops. I will post an updated patch later today.
+-Andi
 
-Thanks for the feedback.
 
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
+Index: linux/arch/x86_64/kernel/time.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/time.c	2004-09-13 22:19:22.%N +0200
++++ linux/arch/x86_64/kernel/time.c	2004-09-16 08:43:06.%N +0200
+@@ -184,9 +184,11 @@
+ unsigned long profile_pc(struct pt_regs *regs)
+ {
+ 	unsigned long pc = instruction_pointer(regs);
+-
++	/* [0] is the frame pointer, [1] is the return address.
++	   This assumes that the spinlock function is small enough
++	   to not have any stack variables. */	
+ 	if (in_lock_functions(pc))
+-		return *(unsigned long *)regs->rbp;
++		return ((unsigned long *)regs->rsp)[1];
+ 	return pc;
+ }
+ EXPORT_SYMBOL(profile_pc);
+

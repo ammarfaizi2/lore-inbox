@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbUBZWBP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 17:01:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbUBZV7o
+	id S261178AbUBZV7j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 16:59:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbUBZV7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 16:59:44 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29845 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261168AbUBZV7W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 16:59:22 -0500
-Date: Thu, 26 Feb 2004 14:04:52 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alexandre Oliva <aoliva@redhat.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, arjanv@redhat.com, davej@redhat.com,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: raid 5 with >= 5 members broken on x86
-In-Reply-To: <Pine.LNX.4.58.0402261329450.7830@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0402261403240.7830@ppc970.osdl.org>
-References: <orznb5leqs.fsf@free.redhat.lsd.ic.unicamp.br>
- <Pine.LNX.4.58.0402261329450.7830@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 26 Feb 2004 16:59:39 -0500
+Received: from [212.170.123.246] ([212.170.123.246]:19336 "EHLO
+	dardhal.mired.net") by vger.kernel.org with ESMTP id S261179AbUBZV7C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 16:59:02 -0500
+Date: Thu, 26 Feb 2004 22:59:00 +0100
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] WOLK v1.0 for Kernel v2.6.3
+Message-ID: <20040226215900.GC9925@localhost>
+Mail-Followup-To: Mike Fedyk <mfedyk@matchmail.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <200402260248.52516@WOLK> <403E5853.2080702@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <403E5853.2080702@matchmail.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday, 26 February 2004, at 12:34:27 -0800,
+Mike Fedyk wrote:
 
-
-On Thu, 26 Feb 2004, Linus Torvalds wrote:
+> >o   added:    Application Layer 7 Packet Classifier v0.4.1b	(Ethan 
+> >Sommer)
 > 
-> Btw, the "xor_pII_mmx_5()" thing just uses "+r" for the line count, so why 
-> doesn't that work for this case?
+> Where can I find more info on this?
+> 
+Check http://l7-filter.sourceforge.net/
 
-In other words, shouldn't this work for all compilers also? I don't see 
-why this shouldn't compile if the pII version compiles? 
+Regards.
 
-Yes, it's pushing the register pressure a bit, but it would seem to be
-the simplest fix..
-
-		Linus
-
-===== include/asm-i386/xor.h 1.14 vs edited =====
---- 1.14/include/asm-i386/xor.h	Tue Mar 11 18:15:03 2003
-+++ edited/include/asm-i386/xor.h	Thu Feb 26 14:03:17 2004
-@@ -489,7 +489,7 @@
- 	"       jnz 1b               ;\n"
- 	"	popl %5\n"
- 	"	popl %4\n"
--	: "+g" (lines),
-+	: "+r" (lines),
- 	  "+r" (p1), "+r" (p2), "+r" (p3)
- 	: "r" (p4), "r" (p5)
- 	: "memory");
+-- 
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.3)

@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269628AbUHZUmJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269624AbUHZUis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269628AbUHZUmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:42:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269622AbUHZUjw
+	id S269624AbUHZUis (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:38:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269600AbUHZU3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:39:52 -0400
-Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:28071 "EHLO
-	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S267770AbUHZUg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:36:27 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Christophe Saout <christophe@saout.de>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Rik van Riel <riel@redhat.com>, Diego Calleja <diegocg@teleline.es>,
-       jamie@shareable.org, christer@weinigel.se, spam@tnonline.net,
-       akpm@osdl.org, wichert@wiggy.net, jra@samba.org, reiser@namesys.com,
-       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-In-Reply-To: <20040826203228.GZ21964@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.44.0408261356330.27909-100000@chimarrao.boston.redhat.com>
-	 <200408262128.41326.vda@port.imtp.ilyichevsk.odessa.ua>
-	 <Pine.LNX.4.58.0408261132150.2304@ppc970.osdl.org>
-	 <20040826191323.GY21964@parcelfarce.linux.theplanet.co.uk>
-	 <20040826203228.GZ21964@parcelfarce.linux.theplanet.co.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-93ZxXzE7cHUjN/kDvYMF"
-Date: Thu, 26 Aug 2004 22:36:10 +0200
-Message-Id: <1093552570.13881.41.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.92.1 
+	Thu, 26 Aug 2004 16:29:31 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:11409 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S269509AbUHZUYl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 16:24:41 -0400
+From: jmerkey@comcast.net
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Roland Dreier <roland@topspin.com>
+Cc: linux-kernel@vger.kernel.org, jmerkey@drdos.com
+Subject: Re: 1GB/2GB/3GB User Space Splitting Patch 2.6.8.1 (PSEUDO SPAM)
+Date: Thu, 26 Aug 2004 20:24:38 +0000
+Message-Id: <082620042024.23755.412E47050006895C00005CCB2200751150970A059D0A0306@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Jul 16 2004)
+X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-93ZxXzE7cHUjN/kDvYMF
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Why should Linux, which supports multiple executable formats, tie itself to ELF exclusively?
+I doubt I am going to need to run ORACLE or some other piggish app on my embedded
+linux system, but I would like to have more kernel address space for drivers and other
+appliance type features.  What do you plan to do when the driver base becomes as 
+large as the one in WIndows 2000/XP and you don't have enough memory to load all 
+the drivers.  Right now, iptables barfs even with 3GB of address space when you load up about a  dozen virtual network interfaces ?  Microsoft had this same problem (only at a much
+sooner juncture in their platform evolution) and went to VM support in the kernel itself to increase virtual address space for kernel apps, file systems, and drivers when thye hit the 
+wall.    It's coming time to start thinking about it.  
 
-Am Donnerstag, den 26.08.2004, 21:32 +0100 schrieb :
-
-> Argh...  OK, now I remember why I went for -EBUSY for unlink() (we obviou=
-sly
-> are not bound by SuS on that one).  Consider the following scenario:
-> 	* local file foo got something else bound on it for a while
-> 	* we are tight on space - time to clean up
-> 	* oh, look - contents of foo is junk
-> 	* rm foo
-> 	* ... oh, fuck, there goes the underlying file.
-
-Right. Good thinking. You can't delete a directory while there regular
-files in it either.
-
-Another question: /mnt/test is a mountpoint. Why can I rename `mnt' but
-can't rename `test'?
+Jeff
 
 
---=-93ZxXzE7cHUjN/kDvYMF
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBLkm6ZCYBcts5dM0RApvcAKCMxROH+ugJZw6LlUMzRKlSInpwkQCfQg1I
-KW/2Ax+hEGewrv+vJCSoCKs=
-=F9+H
------END PGP SIGNATURE-----
-
---=-93ZxXzE7cHUjN/kDvYMF--
-
+> At some point in the past, I wrote:
+> William> ELF ABI violation. "...the reserved area shall not
+> William> consume more than 1GB of the address space."
+> 
+> On Wed, Aug 25, 2004 at 09:46:43PM -0700, Roland Dreier wrote:
+> > Agreed, but I do like running with PAGE_OFFSET == 0xB0000000 on my
+> > main box, which has 1 GB of RAM.  I can avoid highmem and still use
+> > the last 128 MB of RAM.  It takes me about 3 seconds to edit
+> > <asm/page.h> when I build a new kernel so I'm not arguing for merging
+> > this, though.
+> 
+> Though asinine, the ABI spec is set in stone.
+> 
+> 
+> -- wli

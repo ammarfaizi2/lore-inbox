@@ -1,66 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263963AbTICQPq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 12:15:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263966AbTICQPp
+	id S263907AbTICP5u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 11:57:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263705AbTICPzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 12:15:45 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:61582 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S263963AbTICQOh (ORCPT
+	Wed, 3 Sep 2003 11:55:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:35548 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263683AbTICPwD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 12:14:37 -0400
-Date: Wed, 3 Sep 2003 18:14:35 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: bill davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Quota Hash Abstraction 2.6.0-test2
-Message-ID: <20030903161435.GC24897@DUK2.13thfloor.at>
-Mail-Followup-To: bill davidsen <davidsen@tmr.com>,
-	linux-kernel@vger.kernel.org
-References: <20030731184341.GA21078@www.13thfloor.at> <bj4vfq$6to$1@gatekeeper.tmr.com>
+	Wed, 3 Sep 2003 11:52:03 -0400
+Message-Id: <200309031551.h83Fpu413835@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Nick Piggin <piggin@cyberone.com.au>
+cc: linux-kernel@vger.kernel.org, cliffw@osdl.org
+Subject: UP Regression (was) Re: Scaling noise 
+In-Reply-To: Message from Nick Piggin <piggin@cyberone.com.au> 
+   of "Wed, 03 Sep 2003 16:55:55 +1000." <3F55907B.1030700@cyberone.com.au> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bj4vfq$6to$1@gatekeeper.tmr.com>
-User-Agent: Mutt/1.4i
+Date: Wed, 03 Sep 2003 08:51:56 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 02:56:58PM +0000, bill davidsen wrote:
-> In article <20030731184341.GA21078@www.13thfloor.at>,
-> Herbert =?iso-8859-1?Q?P=F6tzl?=  <herbert@13thfloor.at> wrote:
+
+[snip]
+.
 > 
-> Is any of this, particularly the work mentioned in the last paragraph
-> getting into the mail kernel?
+> I don't think anyone advocates sacrificing UP performance for 32 ways, but
+> as he says it can happen .1% at a time.
+> 
+> But it looks like 2.6 will scale well to 16 way and higher. I wonder if
+> there are many regressions from 2.4 or 2.2 on small systems.
+> 
+> 
+On the Scalable Test Platform, running osdl-aim-7,  for the
+UP case, 2.4 is a bit better than 2.6, this is consistent across
+many runs. For SMP, 2.6 is better, but the delta is rather
+small, until we get to 8 CPUS. We have a lot of un-parsed data from other
+tests - might be some trends there also.
+See http://developer.osdl.org/cliffw/reaim/index.html 
+2.4 kernels are at the bottom of the page.
 
-the quota fix was included in the next (test) release
-so default quota will work again ...
+Run #   PLM #  Kernel                   workload        Max JPM  max    host
+1-way                                                            lusers
+ 278671 2083    patch-2.4.23-pre2       new_dbase       1066.75  18      
+stp1-003
+278835  2087    2.6.0-test4-mm5         new_dbase       995.74   17      
+stp1-003
+2-way
+278690  2083    patch-2.4.23-pre2       new_dbase       1300.01  22      
+stp2-000
+278854  2087    2.6.0-test4-mm5         new_dbase       1340.96  22      
+stp2-000
+4-way
+278437  2075    patch-2.4.23-pre1       new_dbase       5268.41  80      
+stp4-000
+278805  2084    2.6.0-test4-mm4         new_dbase       5355.73  88      
+stp4-000
+8-way
+278651  2083    patch-2.4.23-pre2       new_dbase       6790.01  112     
+stp8-002
+ 278722 2084    2.6.0-test4-mm4         new_dbase       8189.51  136     
+stp8-001
 
-the Quota Hash Abstraction is neither a (big) performance
-gain nor a feature bonus for the end user ... it is more
-an enhancement to the code itself, allowing to have more
-than one quota hash for arbitrary purposes ...
+cliffw
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-I doubt, that this code will ever make it into mainline
-without another 'good' reason to use it, but maybe the
---bind mount quota stuff would be such a reason, if the 
-interest for such things will eventually grow ...
 
-HTH,
-Herbert
-
-> | Last time I posted the Quota Hash Abstraction for 2.4
-> | somebody suggested doing it for 2.6, because it "might
-> | be interesting", so I thought, give it a try, and here
-> | it is ...
-> | 
-> | please, if somebody has any quota tests, which he/she
-> | is willing to do on this code, or just want to do some
-> | testing with this code, do it and send me the results ...
-> | 
-> | this patch requires the quota fix done by Jan Kara, 
-> | otherwise quota would not work at all ... 
-> -- 
-> bill davidsen <davidsen@tmr.com>
->   CTO, TMR Associates, Inc
-> Doing interesting things with little computers since 1979.

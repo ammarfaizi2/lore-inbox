@@ -1,1459 +1,1157 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264093AbUDGFfi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 01:35:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbUDGFfi
+	id S264098AbUDGFhm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 01:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbUDGFhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 01:35:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63367 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264093AbUDGFdb (ORCPT
+	Wed, 7 Apr 2004 01:37:42 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:7953 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S264098AbUDGFdg convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 01:33:31 -0400
-Date: Tue, 6 Apr 2004 22:33:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.5-mm2
-Message-Id: <20040406223321.704682ed.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Wed, 7 Apr 2004 01:33:36 -0400
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Matt Mackall <mpm@selenic.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       celinux-dev@tree.celinuxforum.org
+Subject: Re: 2.6.5-rc1-tiny1 for small systems
+Date: Wed, 7 Apr 2004 08:33:25 +0300
+X-Mailer: KMail [version 1.4]
+References: <20040316222548.GD11010@waste.org>
+In-Reply-To: <20040316222548.GD11010@waste.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200404070833.26197.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mm2/
-
-
-- Merged up Ian Kent's autofs4 patches
-
-- Various fixes and speedups.
-
-
-
- bk-alsa.patch
- bk-arm.patch
- bk-driver-core.patch
- bk-i2c.patch
- bk-ieee1394.patch
- bk-input.patch
- bk-libata.patch
- bk-netdev.patch
- bk-pci.patch
- bk-scsi.patch
- bk-usb.patch
- bk-agpgart.patch
- bk-cpufreq.patch
-
- External trees
-
--rtl8169_tx_interrupt-fix.patch
-
- Merged
-
-+dm-unplugging-fix.patch
-+swap_writepage-BIO_RW_SYNC.patch
-+md-unplug-update.patch
-
- Updates to the per-address_space unplugging code.
- 
--O_LARGEFILE-fix.patch
-
- Dropped - I lost interest.
-
--autofs-dnotify-signal-fix.patch
-
- Dropped - the autofs patch series duplicates this.
-
-+saved_command_line-cleanup.patch
-
- Introduce some sanity to the declaration of saved_command_line[]
-
--aic7xxx-unload-fix-fix.patch
-
- Folded into aic7xxx-unload-fix.patch
-
-+nfs-O_DIRECT-fixes.patch
-
- Bypass the VFS O_DIRECT support for NFS O_DIRECT
-
-+aic7xxx-swsusp-support.patch
-+swsusp-update.patch
-+swsusp-highmem-fixes.patch
-
- swsusp stuff
-
-+msi-ia64.patch
-
- Message Signalled Interrupts for ia64.  (Needs a little more work yet)
-
-+jbd-do_get_write_access-lock-contention-reduction.patch
-+jbd-b_transaction-zeroing-cleanup.patch
-
- Fix ext3 SMP lock contention
-
-+mandocs_params-007.patch
-+parportbook-build-fix.patch
-
- SGML fixes
-
-+get_user_pages-shortcut.patch
-
- Avoid OOMs due to core writeout on 64-bit machines
-
-+isicom-jiffies-fix.patch
-+isicom-unused-vars.patch
-+parport-dependency-fix.patch
-+dvd-dependency-fix.patch
-+isicom-error-path-fix.patch
-+QD65xx-io-ports-fix.patch
-
- Driver fixlets
-
-+m68knommu-dma-mapping.patch
-+m68knommu-kernel_thread-fix.patch
-
- nommu update
-
-+0-autofs4-2.6.0-signal-20040405.patch
-+1-autofs4-2.6.4-cleanup-20040405.patch
-+2-autofs4-2.6.4-fill_super-20040405.patch
-+3-autofs4-2.6.0-bkl-20040405.patch
-+4-autofs4-2.6.0-expire-20040405.patch
-+5-autofs4-2.6.0-readdir-20040405.patch
-+6-autofs4-2.6.0-may_umount-20040405.patch
-+7-autofs4-2.6.0-extra-20040405.patch
-
- autofs4 merge
-
-+saa7134-asus-tv-fm-inputs.patch
-+cciss-proc-fix.patch
-+cciss-logical-device-queues.patch
-+pdaudiocf-build-fix.patch
-
- driver updates, fixes
-
-+dont-offer-gen_rtc-on-ia64.patch
-
- ia64 Kconfig fix
-
-+remove_concat_FUNCTION_arch.patch
-+remove_concat_FUNCTION_drivers.patch
-+remove_concat_FUNCTION_include.patch
-+remove_concat_FUNCTION_sound.patch
-
- Don't paste __FUNCTION__
-
-+cmpci.c-5.64.patch
-
- OSS driver update
-
-+raid56-masking-fix.patch
-
- Fix RAID on 2TB devices
-
-+ibmasm-dependency-fix.patch
-
- Config fix
-
-+sk98lin-buggy-vpd-workaround.patch
-
- Net driver EEPROM bug workaround
-
-+bitop-comment-fix.patch
-
- Fix a comment.
-
-+ext2-alternate-sb-mount-fix.patch
-+ext3-alternate-sb-mount-fix.patch
-
- Fix `sb=...' on ext2 and ext3.
-
-
-
-
-
-All 420 patches:
-
-
-x86_64-update.patch
-  x86-64 update
-
-kconfig-url-fixes.patch
-  Fix URLs in Kconfig files
-
-Lindent-devfs.patch
-  feed devfs through Lindent
-
-system_running-fix.patch
-  generalise system_running
-
-vt-cleanup.patch
-  vt.c cleanup
-
-con_open-speedup.patch
-  con_open() speedup/cleanup
-
-remove-down_tty_sem.patch
-  remove down_tty_sem()
-
-tty-race-fix-43.patch
-  Fix VT open/close race
-
-i4l-kernelcapi-rework.patch
-  i4l: kernelcapi receive workqueue and locking rework
-
-wchan-use-ELF-sections.patch
-  Fix get_wchan() FIXME wrt. order of functions
-
-ppc64-si_addr-fix.patch
-  ppc64: si_addr fix
-
-ppc64-hugepage-fix.patch
-  ppc64: Fix bug in hugepage support
-
-ppc64-hugepage-fix-32.patch
-  ppc64: hugepage bugfix
-
-ppc64-alloc_consistent-retval-fixes.patch
-  ppc64: fix failure return codes from {pci,vio}_alloc_consistent()
-
-ppc4xx-memleak-fix.patch
-  ppc44x: fix memory leak
-
-quota-locking-fixes.patch
-  Quota locking fixes
-
-inode-cleanup.patch
-  fs/inode.c list_head cleanup
-
-initramfs-search-for-init-orig.patch
-  search for /init for initramfs boots
-
-knfsd-01-oops-fix.patch
-  knfsd: Return -EOPNOTSUPP when unknown mechanism name encountered
-
-knfsd-02-auth-error-return-fix.patch
-  knfsd: Minor fix to error return when updating server authentication information
-
-knfsd-03-auth_error-formatting-fix.patch
-  knfsd: fix a problem with incorrectly formatted auth_error returns.
-
-knfsd-04-remove-name_lookup_h.patch
-  knfsd: Remove name_lookup.h that noone is using anymore.
-
-knfsd-05-mounted_on_fileid-support.patch
-  knfsd: Add server-side support for the nfsv4 mounted_on_fileid attribute.
-
-knfsd-06-UTF8-improvements.patch
-  knfsd: Improve UTF8 checking.
-
-knfsd-07-auth_gss-export.patch
-  knfsd: Export a symbol needed by auth_gss
-
-knfsd-08-gss-integrity.patch
-  knfsd: Add data integrity to serve rside gss
-
-md-merging-fix.patch
-  md: merge_bvec_fn needs to know about partitions.
-
-mq-01-codemove.patch
-  posix message queues: code move
-
-mq-02-syscalls.patch
-  posix message queues: syscall stubs
-
-mq-03-core.patch
-  posix message queues: implementation
-
-mq-03-core-update.patch
-  posix message queues: update to core patch
-
-mq-04-linuxext-poll.patch
-  posix message queues: linux-specific poll extension
-
-mq-05-linuxext-mount.patch
-  posix message queues: made user mountable
-
-mq-update-01.patch
-  posix message queue update
-
-mq-security-fix.patch
-  security bugfix for mqueue
-
-ipmi-updates-3.patch
-  IPMI driver updates
-
-move-job-control-stuff-tosignal_struct.patch
-  move job control fields from task_struct to signal_struct
-
-lower-zone-protection-numa-fix.patch
-  Fix page allocator lower zone protection for NUMA
-
-ext3-fsync-speedup.patch
-  ext3 fsync() and fdatasync() speedup
-
-ext2-fsync-speedup-2.patch
-  speed up ext2 fsync() and fdatasync()
-
-jbd-commit-ordered-fix.patch
-  jbd: fix ordered-data writeout logic
-
-jbd-move-locked-buffers.patch
-  JBD: ordered-data commit cleanup
-
-jbd-iobuf-error-handling-fix.patch
-  jbd: fix I/O error handling
-
-readv-writev-check-fix.patch
-  readv/writev range checking fix
-
-kerneldoc-handle-attributes.patch
-  Fix scripts/kernel-doc to handle __attribute__
-
-slab-alignment-rework.patch
-  slab: updates for per-arch alignments
-
-set-mod-waiter-before-calling-stop_machine.patch
-  Set mod->waiter Before Calling stop_machine
-
-procfs-comment-fixes.patch
-  fs/proc/proc_tty.c comment fixes
-
-sb_mixer-bounds-checking.patch
-  sb_mixer bounds checking
-
-pmdisk-store-handling-fix.patch
-  pmdisk: fix strcmp in sysfs store
-
-file-operations-fcntl.patch
-  add file_operations.fcntl
-
-sys_time-subtick-correction-fix.patch
-  Fix sys_time() to get subtick correction from the new xtime
-
-bitmap_parse-fix.patch
-  Broken bitmap_parse for ncpus > 32
-
-ver_linux-fix.patch
-  ver_linux fix
-
-codingstyle-fix-for-emacs.patch
-  Update CodingStyle hints for Emacs users.
-
-document-unused-i386-pte-bits.patch
-  document unused pte bits on i386
-
-docbook-sgml-quotes-fix.patch
-  Consistently use quotes for SGML attributes
-
-sgml-close-tags.patch
-  SGML: close tag with ">"
-
-sch_ingress-help-fix.patch
-  fix sch_ingress help
-
-i386-irq-cleanup.patch
-  i386 irq.c ifdef cleanup
-
-firmware-loader-docs-fix.patch
-  Fix firmware loader docs
-
-trivial-patches-in-maintainers.patch
-  Trivial Patch Monkey should be in MAINTAINERS
-
-genksyms-parser-fix.patch
-  Fix genksyms parsing
-
-CONFIG_X86_GENERIC-help-fix.patch
-  CONFIG_X86_GENERIC description fixup
-
-credits-update.patch
-  updating email info in CREDITS
-
-device-h-duplicate-include.patch
-  Kill duplicate #include <linux_ioport.h>
-
-unmapped-CPU-node-number-fix.patch
-  Use valid node number when unmapping x86 CPUs
-
-submitting-trivial-patches.patch
-  Add CC Trivial Patch Monkey to SubmittingPatches
-
-ne2k-pic-build-fix.patch
-  ne2k-pci.c compile fix on ppc[64]
-
-doc-changes-update.patch
-  Update Documentation/Changes
-
-drm-put_user-fixes.patch
-  i830 DRM missing put_user
-
-export-complete_all.patch
-  export complete_all()
-
-urandom-scalability-fix.patch
-  /dev/urandom scalability improvement
-
-cpu5wdt-warning-fix.patch
-  cpu5wdt.c warning fix
-
-fget-speedup.patch
-  speed up fget() and fget_light()
-
-move-__this_module-to-modpost.patch
-  Move __this_module to modpost
-
-modversions-fix.patch
-  Fix Modversions Now __this_module Is Created Only in .ko
-
-support-zerobased-floppies.patch
-  Support for floppies whose sectors are numbered from zero instead of one
-
-remove-bitmap-length-limits.patch
-  Remove bitmap_shift_*() bitmap length limits
-
-huge-sparse-tmpfs-files.patch
-  Fix huge sparse tmpfs files
-
-strip-param-quotes.patch
-  Strip quotes from kernel parameters
-
-summit-irq-count-override.patch
-  summit: per-subarch NR_IRQ_VECTORS
-
-summit-increase-MAX_MP_BUSSES.patch
-  summmit: increase MAX_MP_BUSSES
-
-stv0299-unused-var-fix.patch
-  stv0299.c unused variable
-
-selinux-fix-struct-type.patch
-  selinux: fix struct type
-
-pte_alloc_one-null-pointer-check.patch
-  missing NULL pointer check in pte_alloc_one.
-
-kill-MAKEDEV-scripts.patch
-  kill spurious MAKDEV scripts
-
-wavfront-warning-fix.patch
-  oss/wavfront.c warning fix.
-
-hysnd-MOD_USE_COUNT-fix.patch
-  remove bogus MOD_{INC,DEC}_USE_COUNT from hysdn
-
-CONFIG_EMBEDDED-help-fix.patch
-  improve CONFIG_EMBEDDED help text
-
-remove-nswap-cnswap.patch
-  eliminate nswap and cnswap
-
-no-quota-inode-shrinkage.patch
-  shrink inode when quota is disabled
-
-geode-suspend-on-halt.patch
-  enable suspend-on-halt for NS Geode
-
-O_DIRECT-race-fixes-rollup.patch
-  O_DIRECT data exposure fixes
-
-O_DIRECT-ll_rw_block-vs-block_write_full_page-fix.patch
-  Fix race between ll_rw_block() and block_write_full_page()
-
-blockdev-direct-io-speedup.patch
-  blockdev direct-io speedups
-
-dio-aio-fixes.patch
-  direct-io AIO fixes
-
-aio-fallback-bio_count-race-fix-2.patch
-  AIO+DIO bio_count race fix
-
-rw_swap_page_sync-fix.patch
-  rw_swap_page_sync(): place the pages in swapcache
-
-radix-tree-tagging.patch
-  radix-tree tags for selective lookup
-
-irq-safe-pagecache-lock.patch
-  make the pagecache lock irq-safe.
-
-tag-dirty-pages.patch
-  tag dirty pages as such in the radix tree
-
-tag-writeback-pages.patch
-  tag writeback pages as such in their radix tree
-
-stop-using-dirty-pages.patch
-  stop using the address_space dirty_pages list
-
-kupdate-function-fix.patch
-  fix the kupdate function
-
-stop-using-io-pages.patch
-  remove address_space.io_pages
-
-stop-using-locked-pages.patch
-  Stop using address_space.locked_pages
-
-stop-using-clean-pages.patch
-  stop using address_space.clean_pages
-
-unslabify-pgds-and-pmds.patch
-  revert the slabification of i386 pgd's and pmd's
-
-slab-stop-using-page-list.patch
-  slab: stop using page.list
-
-page_alloc-stop-using-page-list.patch
-  stop using page.list in the page allocator
-
-hugetlb-stop-using-page-list.patch
-  stop using page->list in the hugetlbpage implementations
-
-pageattr-stop-using-page-list.patch
-  stop using page.list in pageattr.c
-
-readahead-stop-using-page-list.patch
-  stop using page.list in readahead
-
-compound-pages-stop-using-lru.patch
-  stop using page->lru in compound pages
-
-arm-stop-using-page-list.patch
-  arm: stop using page->list
-
-m68k-stop-using-page-list.patch
-  switch the m68k pointer-table code over to page->lru
-
-remove-page-list.patch
-  remove page.list
-
-clear_page_dirty_for_io.patch
-  fdatasync integrity fix
-
-block_write_full_page-redirty.patch
-  don't allow background writes to hide dirty buffers
-
-writeback-search-start.patch
-  writeback efficiency and QoS improvements
-
-mpage_writepages-latency-fix.patch
-  Add mpage_writepages() scheduling point
-
-mpage-cleanup.patch
-  mpage_writepages() cleanup
-
-use-compound-pages-for-hugetlb-only.patch
-  use compound pages for hugetlb pages only
-
-fork-vma-order-fix.patch
-  fork vma ordering during fork
-
-mremap-copy_one_pte-fix.patch
-  mremap: copy_one_pte cleanup
-
-mremap-move_vma-fix.patch
-  mremap: move_vma fixes and cleanup
-
-mremap-vma_relink_file-fix.patch
-  mremap: vma_relink_file race fix
-
-mremap-check-map_count.patch
-  mremap: check map_count
-
-mremap-rmap-comment-fix.patch
-  Fix rmap comment
-
-kswapd-remove-pages-scanned.patch
-  kswapd: remove pages_scanned local
-
-laptop-mode-3.patch
-  laptop mode
-
-laptop-mode-doc-update.patch
-  Laptop mode doc updates for XFS, among other things.
-
-laptop-mode-control-script-fix.patch
-  Bugfix in the laptop mode control script.
-
-laptop-mode-noflushd-warning.patch
-  Subject: [patch 1/1] Add a warning about using laptop-mode with noflushd to laptop-mode doc.
-
-laptop-mode-sync-completion.patch
-  Add laptop-mode sync completion function to delete writeback timer.
-
-ext3-commit-default.patch
-  Add commit=0 to ext3, meaning "set commit to default".
-
-tunable-pagefault-readaround.patch
-  Honour the readahead tunable in filemap_nopage()
-
-filemap_nopage-busywait-fix.patch
-  Fix logic in filemap_nopage()
-
-acpi-printk-fix.patch
-  acpi printk fix
-
-ia32-4k-stacks.patch
-  ia32: 4Kb stacks (and irqstacks) patch
-
-proc-load-average-fix.patch
-  procfs LoadAVG/load_avg scaling fix
-
-ppc64-NUMA-fix-for-16MB-LMBs.patch
-  ppc64: NUMA fix for 16MB LMBs
-
-sparc64-build-fix.patch
-  build fails on sparc64 in hugetlbpage.c
-
-epoll-comment-fixes.patch
-  epoll comment fix
-
-stop_machine-barrier-fixes.patch
-  add stop_machine barriers
-
-sunrpc-svcsock-drop.patch
-  sunrpc: connection dropping tweaks
-
-acl-version-mismatch.patch
-  ACL version mismatch error code fix
-
-v4l-cropcap-ioctl-fix.patch
-  v4l: cropcap ioctl fix
-
-v4l-v4l1-compat-fix.patch
-  v4l: v4l1-compat fix
-
-v4l-tuner-fix.patch
-  v4l: tuner fix
-
-v4l-msp3400-update.patch
-  v4l: msp3400 update
-
-v4l-pv951-remote-support.patch
-  v4l: add support for pv951 remote to ir-kbd-i2c
-
-v4l-saa7134-update.patch
-  v4l: saa7134 driver update
-
-v4l-saa7134-update-fix.patch
-  v4l-saa7134-update fix
-
-v4l-bttv-update.patch
-  v4l: bttv driver update
-
-v4l-doc-update.patch
-  v4l: documentation update
-
-v4l-cx88-update.patch
-  cx88 update.
-
-drivers-base-platform-tpyo-fix.patch
-  drivers/base/platform.c typo fix
-
-nfs-readdirplus-overflow-fix.patch
-  Subject: [PATCH] Fix overflow bug in READDIRPLUS...
-
-nfs-32bit-statfs-fix.patch
-  Fix 32bit statfs on NFS
-
-wavefront_synth-unused-var.patch
-  wavefront_synth.c var not used.
-
-tda1004x-unused-var.patch
-  tda1004x.c var not used.
-
-pmdisk-needs-asmlinkage.patch
-  pmdisk needs asmlinkage
-
-cycx_drv-warning-fix.patch
-  cycx_drv.c warning fix.
-
-ibmlana-needs-MCA_LEGACY.patch
-  ibmlana needs CONFIG_MCA_LEGACY
-
-rcu_list-documentation.patch
-  Improve list.h documentation for _rcu() primitives
-
-list-inline-cleanup.patch
-  list.h cleanup
-
-noexec-stack.patch
-  Non-Exec stack support
-
-ext3-transaction-batching-fix.patch
-  Fix ext3 transaction batching
-
-reiserfs-nesting-02.patch
-  reiserfs: support for nested transactions
-
-reiserfs-journal-writer.patch
-  reiserfs: cleanups
-
-reiserfs-logging.patch
-  reiserfs: logging rework
-
-reiserfs-jh-2.patch
-  reiserfs: data=ordered support
-
-reiserfs-end-trans-bkl.patch
-  reiserfs: locking fix
-
-reiserfs-prealloc.patch
-  reiserfs: preallocation support
-
-reiserfs-tail-jh.patch
-  reiserfs: tail repacking fix
-
-reiserfs-writepage-ordered-race.patch
-  reiserfs: fix race with writepage
-
-reiserfs-file_write_hole_sd.diff.patch
-  reiserfs: sparse file handling fix
-
-reiserfs-laptop-mode.patch
-  reiserfs: laptop-mode support
-
-reiserfs-truncate-leak.patch
-  reiserfs: truncate leak fix
-
-reiserfs-ordered-lat.patch
-  reiserfs: scheduling latency improvements
-
-reiserfs-dirty-warning.patch
-  reiserfs: fix dirty-buffer warnings
-
-reiserfs_kfree-warning-fix.patch
-  reiserfs_kfree warning fix
-
-reiserfs-writepage-race-fix.patch
-  reiserfs writepage race with data=ordered
-
-selinux-ipv6-support.patch
-  selinux: add IPv6 support
-
-selinux-remove-duplicate-assignment.patch
-  From: James Morris <jmorris@redhat.com>
-  Subject: [SELINUX] 2/2 Remove duplicate assignment
-
-lightweight-auditing-framework.patch
-  Light-weight Auditing Framework
-  Light-weight Auditing Framework update
-  lightweight-auditing-framework warning fixes
-  Light-weight Auditing Framework receive filter fixes
-  lightweight-auditing-framework-receive-filter-fixes compile fix
-
-lightweight-auditing-framework-ipv6-support.patch
-  selinux: make IPv6 code work with audit framework
-
-selinux-compute_sid-fixes.patch
-  selinux: Audit compute_sid errors
-
-selinux-remove-ratelimit.patch
-  selinux: remove ratelimit from avc
-
-mixart-build-fix.patch
-  CONFIG_SND_MIXART doesn't compile
-
-unmap_vmas-latency-improvement.patch
-  unmap_vmas latency improvement
-
-i386-head_S-cleanups.patch
-  more i386 head.S cleanups
-
-intermezzo-leak-fixes.patch
-  intermezzo leak fixes
-
-es1688-define-fix.patch
-  es1688 Definition redundancy
-
-split-netlink_unicast.patch
-  split netlink_unicast
-
-load_elf_binary-overflow-detection-fix.patch
-  binfmt_elf.c fix for 32-bit apps with large bss
-
-stack-reductions-ide-cd.patch
-  stack reduction: ide-cd
-
-stack-reductions-ide.patch
-  stack reductions: ide
-
-stack-reductions-isdn.patch
-  stack reduction: ISDN
-
-use-EFLAGS_defines.patch
-  use EFLAGS #defines instead of inline constants
-
-h8300-ptrace-fix.patch
-  From: Yoshinori Sato <ysato@users.sourceforge.jp>
-  Subject: [PATCH] H8/300 support update (1/3) - ptrace fix
-
-h8300-entry_s-cleanup.patch
-  From: Yoshinori Sato <ysato@users.sourceforge.jp>
-  Subject: [PATCH] H8/300 support update (2/3) - entry.S cleanup
-
-h8300-others.patch
-  From: Yoshinori Sato <ysato@users.sourceforge.jp>
-  Subject: [PATCH] H8/300 support update (3/3) - others
-
-sh-sci-build-fix.patch
-  sh-sci compile error fix patch
-
-mc.patch
-  Add -mcN to EXTRAVERSION
-
-bk-alsa.patch
-
-bk-arm.patch
-
-bk-driver-core.patch
-
-bk-i2c.patch
-
-bk-ieee1394.patch
-
-bk-input.patch
-
-bk-libata.patch
-
-bk-netdev.patch
-
-bk-pci.patch
-
-bk-scsi.patch
-
-bk-usb.patch
-
-bk-agpgart.patch
-
-bk-cpufreq.patch
-
-mm.patch
-  add -mmN to EXTRAVERSION
-
-kgdb-ga.patch
-  kgdb stub for ia32 (George Anzinger's one)
-  kgdbL warning fix
-  kgdb buffer overflow fix
-  kgdbL warning fix
-  kgdb: CONFIG_DEBUG_INFO fix
-  x86_64 fixes
-  correct kgdb.txt Documentation link (against  2.6.1-rc1-mm2)
-
-kgdb-ga-recent-gcc-fix.patch
-  kgdb: fix for recent gcc
-
-kgdboe-netpoll.patch
-  kgdb-over-ethernet via netpoll
-
-kgdboe-configuration-logic-fix.patch
-  kgdboe: fix configuration of MAC address
-
-kgdboe-configuration-logic-fix-fix.patch
-
-kgdboe-non-ia32-build-fix.patch
-
-kgdb-warning-fixes.patch
-  kgdb warning fixes
-
-kgdb-x86_64-support.patch
-  kgdb-x86_64-support.patch for 2.6.2-rc1-mm3
-
-wchan-use-ELF-sections-kgdb-fix.patch
-  wchan-use-ELF-sections-kgdb-fix
-
-kgdb-THREAD_SIZE-fixes.patch
-  THREAD_SIZE fixes for kgdb
-
-must-fix.patch
-  must fix lists update
-  must fix list update
-  mustfix update
-
-must-fix-update-5.patch
-  must-fix update
-
-ppc64-reloc_hide.patch
-
-ext3-journalled-quotas.patch
-  Journalled quota patch
-
-ext3-journalled-quotas-export.patch
-  ext3-journalled-quotas export
-
-invalidate_inodes-speedup.patch
-  invalidate_inodes speedup
-  more invalidate_inodes speedup fixes
-
-cfq-4.patch
-  CFQ io scheduler
-  CFQ fixes
-
-config_spinline.patch
-  uninline spinlocks for profiling accuracy.
-
-pdflush-diag.patch
-
-get_user_pages-handle-VM_IO.patch
-  fix get_user_pages() against mappings of /dev/mem
-
-pci_set_power_state-might-sleep.patch
-
-CONFIG_STANDALONE-default-to-n.patch
-  Make CONFIG_STANDALONE default to N
-
-extra-buffer-diags.patch
-
-CONFIG_SYSFS.patch
-  From: Pat Mochel <mochel@osdl.org>
-  Subject: [PATCH] Add CONFIG_SYSFS
-
-CONFIG_SYSFS-boot-from-disk-fix.patch
-
-selinux-inode-race-trap.patch
-  Try to diagnose Bug 2153
-
-slab-leak-detector.patch
-  slab leak detector
-  mm/slab.c warning in cache_alloc_debugcheck_after
-
-scale-nr_requests.patch
-  scale nr_requests with TCQ depth
-
-local_bh_enable-warning-fix.patch
-
-nfs-01-prepare_nfspage.patch
-  Subject: [PATCH] Prepare NFS asynchronous read/write structures for 	rsize/wsize < PAGE_SIZE
-
-nfs-02-small_rsize.patch
-  Subject: [PATCH] Add asynchronous read support for rsize<PAGE_SIZE
-
-nfs-02-small_rsize-warning-fixes.patch
-  Fix nfs-02-small_rsize ppc64 warnings
-
-nfs-03-small_wsize.patch
-  nfs: Add asynchronous write support for wsize<PAGE_SIZE
-
-nfs-03-small_wsize-warning-fixes.patch
-  Fix ppc64 warnings in nfs-03-small_wsize patch
-
-nfs-04-congestion.patch
-  Subject: [PATCH] Throttle writes when memory pressure forces a flush
-
-nfs-05-unrace.patch
-  Subject: [PATCH] Remove a couple of races in RPC layer...
-
-nfs-06-rpc_throttle.patch
-  Subject: [PATCH] add fair queueing to the RPC scheduler.
-
-nfs-07-rpc_fixes.patch
-  Subject: [PATCH] Close some potential scheduler races in rpciod.
-
-nfs-08-short_rw.patch
-  Subject: [PATCH] Add support for short reads/writes (< rsize/wsize)
-
-nfsv4-updates.patch
-  nfsv4 updates
-
-sched-run_list-cleanup.patch
-  small scheduler cleanup
-
-sched-find_busiest_node-resolution-fix.patch
-  sched: improved resolution in find_busiest_node
-
-sched-domains.patch
-  sched: scheduler domain support
-  sched: fix for NR_CPUS > BITS_PER_LONG
-  sched: clarify find_busiest_group
-  sched: find_busiest_group arithmetic fix
-
-sched-find-busiest-fix.patch
-  sched-find-busiest-fix
-
-sched-sibling-map-to-cpumask.patch
-  sched: cpu_sibling_map to cpu_mask
-  p4-clockmod sibling_map fix
-  p4-clockmod: handle more than two siblings
-
-sched-domains-i386-ht.patch
-  sched: implement domains for i386 HT
-  sched: Fix CONFIG_SMT oops on UP
-  sched: fix SMT + NUMA bug
-  Change arch_init_sched_domains to use cpu_online_map
-  Fix build with NR_CPUS > BITS_PER_LONG
-
-sched-no-drop-balance.patch
-  sched: handle inter-CPU jiffies skew
-
-sched-directed-migration.patch
-  sched_balance_exec(): don't fiddle with the cpus_allowed mask
-
-sched-domain-debugging.patch
-  sched_domain debugging
-
-sched-domain-balancing-improvements.patch
-  scheduler domain balancing improvements
-
-sched-group-power.patch
-  sched-group-power
-  sched-group-power warning fixes
-
-sched-domains-use-cpu_possible_map.patch
-  sched_domains: use cpu_possible_map
-
-sched-smt-nice-handling.patch
-  sched: SMT niceness handling
-
-sched-local-load.patch
-  sched: add local load metrics
-
-process-migration-speedup.patch
-  Reduce TLB flushing during process migration
-
-sched-trivial.patch
-  sched: trivial fixes, cleanups
-
-sched-misc-fixes.patch
-  sched: misc fixes
-
-sched-wakebalance-fixes.patch
-  sched: wakeup balancing fixes
-
-sched-imbalance-fix.patch
-  sched: fix imbalance calculations
-
-sched-altix-tune1.patch
-  sched: altix tuning
-
-sched-fix-activelb.patch
-  sched: oops fix
-
-ppc64-sched-domain-support.patch
-  ppc64: sched-domain support
-
-sched-domain-setup-lock.patch
-  sched: fix setup races
-
-sched-domain-setup-lock-ppc64-fix.patch
-
-sched-minor-cleanups.patch
-  sched: minor cleanups
-
-sched-inline-removals.patch
-  sched: uninlinings
-
-sched-move-cold-task.patch
-  sched: move cold task in mysteriouis ways
-
-sched-migrate-shortcut.patch
-  sched: add migration shortcut
-
-sched-more-sync-wakeups.patch
-  sched: extend sync wakeups
-
-sched-boot-fix.patch
-  sched: lock cpu_attach_domain for hotplug
-
-sched-cleanups.patch
-  sched: cleanups
-
-sched-damp-passive-balance.patch
-  sched: passive balancing damping
-
-sched-cpu-load-cleanup.patch
-  sched: cpu load management cleanup
-
-fa311-mac-address-fix.patch
-  wrong mac address with netgear FA311 ethernet card
-
-pid_max-fix.patch
-  Bug when setting pid_max > 32k
-
-use-soft-float.patch
-  Use -msoft-float
-
-DRM-cvs-update.patch
-  DRM cvs update
-
-drm-include-fix.patch
-
-non-readable-binaries.patch
-  Handle non-readable binfmt_misc executables
-
-binfmt_misc-credentials.patch
-  binfmt_misc: improve calaulation of interpreter's credentials
-
-aic7xxx-deadlock-fix.patch
-  aic7xxx deadlock fix
-
-poll-select-longer-timeouts.patch
-  poll()/select(): support longer timeouts
-
-poll-select-range-check-fix.patch
-  poll()/select() range checking fix
-
-poll-select-handle-large-timeouts.patch
-  poll()/select(): handle long timeouts
-
-add-a-slab-for-ethernet.patch
-  Add a kmalloc slab for ethernet packets
-
-queue-congestion-callout.patch
-  Add queue congestion callout
-
-queue-congestion-dm-implementation.patch
-  Implement queue congestion callout for device mapper
-  devicemapper: use rwlock for map alterations
-  Another DM maplock implementation
-
-dm-remove-__dm_request.patch
-  dmL remove __dm_request
-  per-backing dev unplugging
-
-per-backing_dev-unplugging.patch
-  per-backing dev unplugging
-  dm plug buglet
-  per-backing-dev unplugging: fix BIO_RW_SYNC handling
-  per-backing dev unplugging oops fix #42
-  fix md for per-address_space unplugging
-  more backing_dev unplug functions
-  plugged bit
-
-dm-unplugging-fix.patch
-  dm: unplugging patches fix
-
-swap_writepage-BIO_RW_SYNC.patch
-  Use BIO_RW_SYNC in swap write page
-
-per-backing_dev-unplugging-unplug_delay.patch
-  per address_space unplug: tunesup, kill debug code.
-
-md-unplug-update.patch
-  unplugging: md update
-
-correct-unplugs-on-nr_queued.patch
-  Correct unplugs on nr_queued
-  correct-unplugs-on-nr_queued fix
-
-siimage-update.patch
-  ide: update for siimage driver
-
-ipmi-socket-interface.patch
-  IPMI: socket interface
-
-nmi_watchdog-local-apic-fix.patch
-  Fix nmi_watchdog=2 and P4 HT
-
-nmi-1-hz-2.patch
-  reduce NMI watchdog call frequency with local APIC.
-
-pcmcia-netdev-ordering-fixes.patch
-  PCMCIA netdevice ordering issues
-
-3ware-update.patch
-  3ware driver update
-
-devinet-ctl_table-fix.patch
-  devinet_ctl_table[] null termination
-
-idr-extra-features.patch
-  idr.c: extra features enhancements
-
-shm-do_munmap-check.patch
-
-stack-overflow-test-fix.patch
-  Fix stack overflow test for non-8k stacks
-
-jbd-remove-livelock-avoidance.patch
-  JBD: remove livelock avoidance code in journal_dirty_data()
-
-jgarzik-warnings.patch
-
-logitech-keyboard-fix.patch
-  2.6.5-rc2 keyboard breakage
-
-signal-race-fix.patch
-  signal handling race fix
-
-signal-race-fix-ia64.patch
-  signal-race-fix: ia64
-
-signal-race-fix-s390.patch
-  signal-race fixes for s390
-
-signal-race-fix-x86_64.patch
-  signal-race-fixes: x86-64 support
-
-signal-race-fixes-ppc.patch
-  signal-race fixes for ppc32 and ppc64
-
-posix-timers-thread.patch
-  fix posix-timers to have proper per-process scope
-
-warn-on-mdelay-in-irq-handlers.patch
-  Warn on mdelay() in irq handlers
-
-stack-reductions-nfsread.patch
-  stack reductions: nfs read
-
-stack-reductions-nfsroot.patch
-  stack reductions: nfs root
-
-early-param-core.patch
-  Add __early_param for all arches
-  Properly fixup console= early_param crap
-
-early-param-i386.patch
-  __early_param for i386
-  Fixes for __early_param converts
-
-early-param-ppc.patch
-  __early_param for ppc
-  further early_param fixes
-
-early-param-arm.patch
-  __early_param for arm
-
-early-param-alpha.patch
-  __early_param for alpha
-
-early-param-arm26.patch
-  __early_param for arm26
-
-early-param-cris.patch
-  __early_param for cris
-
-early-param-h8300.patch
-  __early_param for h8300
-
-early-param-ia64.patch
-  __early_param for ia64
-
-early-param-m68k.patch
-  __early_param for m68k
-
-early-param-m68knommu.patch
-  __early_param for m68knommu
-
-early-param-mips.patch
-  __early_param for mips
-
-early-param-parisc.patch
-  __early_param for parisc
-
-early-param-ppc64.patch
-  __early_param for ppc64
-
-early-param-s390.patch
-  __early_param for s390
-
-early-param-sh.patch
-  __early_param for SH
-
-early-param-sparc.patch
-  __early_param for sparc
-
-early-param-sparc64.patch
-  __early_param for sparc64
-
-early-param-um.patch
-  __early_param for UM
-
-early-param-v850.patch
-  __early_param for v850
-
-early-param-x86_64.patch
-  __early_param for x86_64
-  Fix x86-64 early command line parsing
-
-early-param-rusty.patch
-  early param rewrite
-
-saved_command_line-cleanup.patch
-  saved_command_line cleanup
-
-probe_roms-01-move-stuff.patch
-  i386 probe_roms(): preparation
-
-probe_roms-02-fixes.patch
-  i386 probe_roms(): fixes
-
-8250-resource-management-fix.patch
-  Subject: pcmcia/serial release of memory I/O twice
-
-speed-up-sata.patch
-  speed up SATA
-
-yenta-TI-irq-routing-fix.patch
-  yenta: interrupt routing for TI briges
-
-advansys-fix.patch
-  advansys check_region() fix
-
-pnp-updates.patch
-  PnP Updates for 2.6.5-rc3-mm4 (testing)
-
-aic7xxx-unload-fix.patch
-  aic7xxx: fix oops whe hardware is not present
-  aic7xxx-unload-fix-fix
-
-journal_add_journal_head-debug.patch
-  journal_add_journal_head-debug
-
-nfs-O_DIRECT-fixes.patch
-  NFS: O_DIRECT fixes
-
-aic7xxx-swsusp-support.patch
-  support swsusp for aic7xxx
-
-swsusp-update.patch
-  swsusp update: supports discontingmem/highmem
-
-swsusp-highmem-fixes.patch
-  swsusp update: supports discontingmem/highmem fixes
-
-msi-ia64.patch
-  ia64 MSI support
-
-reiserfs-commit-default.patch
-  Add "commit=0" to reiserfs
-
-xfs-laptop-mode.patch
-  Laptop mode support for XFS
-
-xfs-laptop-mode-syncd-synchronization.patch
-  Synchronize XFS sync daemon with laptop mode syncs.
-
-vmscan-less-sleepiness.patch
-  vmscan: Fix up the determination of when to throttle
-
-list_del-debug.patch
-  list_del debug check
-
-oops-dump-preceding-code.patch
-  i386 oops output: dump preceding code
-
-lockmeter.patch
-  lockmeter
-  ia64 CONFIG_LOCKMETER fix
-
-4k-stacks-always-on.patch
-  Permanently enable 4k stacks on ia32
-
-reslabify-pgds-and-pmds-2.patch
-
-jbd-do_get_write_access-lock-contention-reduction.patch
-  jbd: do_get_write_access lock contention reduction
-
-jbd-b_transaction-zeroing-cleanup.patch
-  jbd: b_transaction zeroing cleanup
-
-mandocs_params-007.patch
-  Correct kernel-doc comment with incorrect parameters documented
-
-get_user_pages-shortcut.patch
-  get_user_pages shortcut for anonymous pages
-
-isicom-jiffies-fix.patch
-  isicom.c: jiffies must be unsigned long
-
-isicom-unused-vars.patch
-  isicom.c: unused vars
-
-parport-dependency-fix.patch
-  parport dependency fix
-
-dvd-dependency-fix.patch
-  DVB dependency fix
-
-isicom-error-path-fix.patch
-  isicom error path fix
-
-QD65xx-io-ports-fix.patch
-  QD65xx I/O ports fix
-
-parportbook-build-fix.patch
-  Fix parportbook build again
-
-m68knommu-dma-mapping.patch
-  m68knommu: create dma-mapping.h
-
-m68knommu-kernel_thread-fix.patch
-  m68knommu: fix kernel_thread()
-
-0-autofs4-2.6.0-signal-20040405.patch
-  autofs: dnotify + autofs may create signal/restart syscall loop
-
-1-autofs4-2.6.4-cleanup-20040405.patch
-  autofs: printk cleanups
-
-2-autofs4-2.6.4-fill_super-20040405.patch
-
-3-autofs4-2.6.0-bkl-20040405.patch
-  autofs: locking rework
-
-4-autofs4-2.6.0-expire-20040405.patch
-  autofs: expiry refcount fixes
-
-5-autofs4-2.6.0-readdir-20040405.patch
-  autofs: readdir fixes
-
-6-autofs4-2.6.0-may_umount-20040405.patch
-  autofs: add ioctl to query unmountability
-
-7-autofs4-2.6.0-extra-20040405.patch
-  autofs: readdir futureproofing
-
-saa7134-asus-tv-fm-inputs.patch
-  saa7134 - Add two inputs for Asus TV FM
-
-cciss-proc-fix.patch
-  cciss: /proc fix
-
-cciss-logical-device-queues.patch
-  cciss: per logical device queues
-
-pdaudiocf-build-fix.patch
-  pdaudiocf.c needs init.h
-
-dont-offer-gen_rtc-on-ia64.patch
-  don't offer GEN_RTC on ia64
-
-remove_concat_FUNCTION_arch.patch
-  remove concatenation with __FUNCTION__ arch/*
-
-remove_concat_FUNCTION_drivers.patch
-  remove concatenation with __FUNCTION__ drivers/*
-
-remove_concat_FUNCTION_include.patch
-  remove concatenation with __FUNCTION__ include/*
-
-remove_concat_FUNCTION_sound.patch
-  remove concatenation with __FUNCTION__ sound/*
-
-cmpci.c-5.64.patch
-  cmpci driver update
-
-raid56-masking-fix.patch
-  Fix Raid5/6 above 2 Terabytes
-
-ibmasm-dependency-fix.patch
-  make ibmasm driver uart support depend on SERIAL_8250
-
-sk98lin-buggy-vpd-workaround.patch
-  net/sk98lin: correct buggy VPD in ASUS MB
-
-bitop-comment-fix.patch
-  fix test_and_change_bit comment
-
-ext2-alternate-sb-mount-fix.patch
-  ext2fs sb= mount option fix
-
-ext3-alternate-sb-mount-fix.patch
-  ext3fs sb= mount option fix
-
-
+On Wednesday 17 March 2004 00:25, Matt Mackall wrote:
+> This is the latest release of the -tiny kernel tree. The aim of this
+> tree is to collect patches that reduce kernel disk and memory
+> footprint as well as tools for working on small systems. Target users
+> are things like embedded systems, small or legacy desktop folks, and
+> handhelds.
+>
+> This release is primarily a resync with 2.6.5-rc1 and contains various
+> compile fixes and other cleanups.
+>
+> The patch can be found at:
+>
+>  http://selenic.com/tiny/2.6.5-rc1-tiny1.patch.bz2
+>  http://selenic.com/tiny/2.6.5-rc1-tiny1-broken-out.tar.bz2
+>
+> Webpage for your bookmarking pleasure:
+>
+>  http://selenic.com/tiny-about/
+
+With attached .config, I get this:
+  CC      lib/div64.o
+  CC      lib/dump_stack.o
+  CC      lib/errno.o
+  CC      lib/extable.o
+  CC      lib/idr.o
+  CC      lib/inflate.o
+lib/inflate.c:138: syntax error before "void"
+make[1]: *** [lib/inflate.o] Error 1
+make: *** [lib] Error 2
+
+lib/inflate.c:
+static u32 crc_32_tab[256];
+
+static INIT void makecrc(void)
+       ^^^^
+{
+        unsigned i, j;
+        u32 c = 1;
+
+
+Originally I wanted to have CONFIG_MEASURE_INLINES=y,
+but it died even earlier, looks like my gcc does not like
+the fact that there is way too many warnings for
+eisa-bus.c.
+
+My gcc:
+# gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-pc-linux-gnu/3.2/specs
+Configured with: ../gcc-3.2/configure --prefix=/usr/app/gcc-3.2 --exec-prefix=/usr/app/gcc-3.2 --bindir=/usr/app/gcc-3.2/bin --libdir=/usr/lib --infodir=/usr/app/gcc-3.2/info --mandir=/usr/app/gcc-3.2/man --with-slibdir=/usr/lib --with-local-prefix=/usr/local --with-gxx-include-dir=/usr/app/gcc-3.2/include/g++-v3 --enable-threads=posix i386-pc-linux-gnu
+Thread model: posix
+gcc version 3.2
+
+Now, actual warnings for eisa-bus.c, followed by .config
+(sans CONFIG_MEASURE_INLINES=y), are below sig
+--
+vda
+
+......
+  CC      drivers/eisa/eisa-bus.o
+cc1: warnings being treated as errors
+In file included from include/linux/byteorder/little_endian.h:11,
+                 from include/asm/byteorder.h:57,
+                 from include/linux/kernel.h:15,
+                 from drivers/eisa/eisa-bus.c:9:
+include/linux/byteorder/swab.h: In function `__fswab32':
+include/linux/byteorder/swab.h:148: warning: `___arch__swab32' is deprecated (declared at include/asm/byteorder.h:15)
+include/linux/byteorder/swab.h: In function `__swab32p':
+include/linux/byteorder/swab.h:152: warning: `___arch__swab32' is deprecated (declared at include/asm/byteorder.h:15)
+include/linux/byteorder/swab.h: In function `__swab32s':
+include/linux/byteorder/swab.h:156: warning: `___arch__swab32' is deprecated (declared at include/asm/byteorder.h:15)
+include/linux/byteorder/swab.h: In function `__fswab64':
+include/linux/byteorder/swab.h:167: warning: `___arch__swab64' is deprecated (declared at include/asm/byteorder.h:29)
+include/linux/byteorder/swab.h: In function `__swab64p':
+include/linux/byteorder/swab.h:172: warning: `___arch__swab64' is deprecated (declared at include/asm/byteorder.h:29)
+include/linux/byteorder/swab.h: In function `__swab64s':
+include/linux/byteorder/swab.h:176: warning: `___arch__swab64' is deprecated (declared at include/asm/byteorder.h:29)
+In file included from include/linux/bitops.h:4,
+                 from include/asm/cpufeature.h:10,
+                 from include/asm/processor.h:16,
+                 from include/linux/prefetch.h:13,
+                 from include/linux/list.h:7,
+                 from include/linux/kobject.h:19,
+                 from include/linux/device.h:16,
+                 from drivers/eisa/eisa-bus.c:10:
+include/asm/bitops.h: In function `find_next_zero_bit':
+include/asm/bitops.h:354: warning: `find_first_zero_bit' is deprecated (declared at include/asm/bitops.h:274)
+include/asm/bitops.h: In function `find_next_bit':
+include/asm/bitops.h:387: warning: `find_first_bit' is deprecated (declared at include/asm/bitops.h:306)
+include/asm/bitops.h: In function `sched_find_first_bit':
+include/asm/bitops.h:436: warning: `__ffs' is deprecated (declared at include/asm/bitops.h:412)
+include/asm/bitops.h:438: warning: `__ffs' is deprecated (declared at include/asm/bitops.h:412)
+include/asm/bitops.h:440: warning: `__ffs' is deprecated (declared at include/asm/bitops.h:412)
+include/asm/bitops.h:442: warning: `__ffs' is deprecated (declared at include/asm/bitops.h:412)
+include/asm/bitops.h:443: warning: `__ffs' is deprecated (declared at include/asm/bitops.h:412)
+In file included from include/asm/cpufeature.h:10,
+                 from include/asm/processor.h:16,
+                 from include/linux/prefetch.h:13,
+                 from include/linux/list.h:7,
+                 from include/linux/kobject.h:19,
+                 from include/linux/device.h:16,
+                 from drivers/eisa/eisa-bus.c:10:
+include/linux/bitops.h: In function `get_bitmask_order':
+include/linux/bitops.h:78: warning: `generic_fls' is deprecated (declared at include/linux/bitops.h:46)
+include/linux/bitops.h: In function `generic_hweight64':
+include/linux/bitops.h:114: warning: `generic_hweight32' is deprecated (declared at include/linux/bitops.h:88)
+include/linux/bitops.h:115: warning: `generic_hweight32' is deprecated (declared at include/linux/bitops.h:88)
+include/linux/bitops.h: In function `hweight_long':
+include/linux/bitops.h:129: warning: `generic_hweight32' is deprecated (declared at include/linux/bitops.h:88)
+include/linux/bitops.h:129: warning: `generic_hweight64' is deprecated (declared at include/linux/bitops.h:112)
+In file included from include/asm/processor.h:18,
+                 from include/linux/prefetch.h:13,
+                 from include/linux/list.h:7,
+                 from include/linux/kobject.h:19,
+                 from include/linux/device.h:16,
+                 from drivers/eisa/eisa-bus.c:10:
+include/asm/system.h: In function `__set_64bit_constant':
+include/asm/system.h:185: warning: `__set_64bit' is deprecated (declared at include/asm/system.h:168)
+include/asm/system.h: In function `__set_64bit_var':
+include/asm/system.h:193: warning: `__set_64bit' is deprecated (declared at include/asm/system.h:168)
+In file included from include/linux/kobject.h:19,
+                 from include/linux/device.h:16,
+                 from drivers/eisa/eisa-bus.c:10:
+include/linux/list.h: In function `list_add':
+include/linux/list.h:67: warning: `__list_add' is deprecated (declared at include/linux/list.h:50)
+include/linux/list.h: In function `list_add_tail':
+include/linux/list.h:80: warning: `__list_add' is deprecated (declared at include/linux/list.h:50)
+include/linux/list.h: In function `list_add_rcu':
+include/linux/list.h:110: warning: `__list_add_rcu' is deprecated (declared at include/linux/list.h:92)
+include/linux/list.h: In function `list_add_tail_rcu':
+include/linux/list.h:123: warning: `__list_add_rcu' is deprecated (declared at include/linux/list.h:92)
+include/linux/list.h: In function `list_del':
+include/linux/list.h:147: warning: `__list_del' is deprecated (declared at include/linux/list.h:134)
+include/linux/list.h: In function `list_del_rcu':
+include/linux/list.h:165: warning: `__list_del' is deprecated (declared at include/linux/list.h:134)
+include/linux/list.h: In function `list_del_init':
+include/linux/list.h:175: warning: `__list_del' is deprecated (declared at include/linux/list.h:134)
+include/linux/list.h: In function `list_move':
+include/linux/list.h:186: warning: `__list_del' is deprecated (declared at include/linux/list.h:134)
+include/linux/list.h:187: warning: `list_add' is deprecated (declared at include/linux/list.h:66)
+include/linux/list.h: In function `list_move_tail':
+include/linux/list.h:198: warning: `__list_del' is deprecated (declared at include/linux/list.h:134)
+include/linux/list.h:199: warning: `list_add_tail' is deprecated (declared at include/linux/list.h:79)
+include/linux/list.h: In function `list_splice':
+include/linux/list.h:250: warning: `list_empty' is deprecated (declared at include/linux/list.h:207)
+include/linux/list.h:251: warning: `__list_splice' is deprecated (declared at include/linux/list.h:231)
+include/linux/list.h: In function `list_splice_init':
+include/linux/list.h:264: warning: `list_empty' is deprecated (declared at include/linux/list.h:207)
+include/linux/list.h:265: warning: `__list_splice' is deprecated (declared at include/linux/list.h:231)
+include/linux/list.h: In function `hlist_del':
+include/linux/list.h:473: warning: `__hlist_del' is deprecated (declared at include/linux/list.h:463)
+include/linux/list.h: In function `hlist_del_rcu':
+include/linux/list.h:491: warning: `__hlist_del' is deprecated (declared at include/linux/list.h:463)
+include/linux/list.h: In function `hlist_del_init':
+include/linux/list.h:498: warning: `__hlist_del' is deprecated (declared at include/linux/list.h:463)
+In file included from include/linux/spinlock.h:12,
+                 from include/asm/rwsem.h:42,
+                 from include/linux/rwsem.h:27,
+                 from include/linux/kobject.h:21,
+                 from include/linux/device.h:16,
+                 from drivers/eisa/eisa-bus.c:10:
+include/linux/thread_info.h: In function `set_thread_flag':
+include/linux/thread_info.h:32: warning: `set_bit' is deprecated (declared at include/asm/bitops.h:38)
+include/linux/thread_info.h:32: warning: `current_thread_info' is deprecated (declared at include/asm/thread_info.h:95)
+include/linux/thread_info.h: In function `clear_thread_flag':
+include/linux/thread_info.h:37: warning: `clear_bit' is deprecated (declared at include/asm/bitops.h:73)
+include/linux/thread_info.h:37: warning: `current_thread_info' is deprecated (declared at include/asm/thread_info.h:95)
+include/linux/thread_info.h: In function `test_and_set_thread_flag':
+include/linux/thread_info.h:42: warning: `test_and_set_bit' is deprecated (declared at include/asm/bitops.h:133)
+include/linux/thread_info.h:42: warning: `current_thread_info' is deprecated (declared at include/asm/thread_info.h:95)
+include/linux/thread_info.h: In function `test_and_clear_thread_flag':
+include/linux/thread_info.h:47: warning: `test_and_clear_bit' is deprecated (declared at include/asm/bitops.h:172)
+include/linux/thread_info.h:47: warning: `current_thread_info' is deprecated (declared at include/asm/thread_info.h:95)
+include/linux/thread_info.h: In function `test_thread_flag':
+include/linux/thread_info.h:52: warning: `constant_test_bit' is deprecated (declared at include/asm/bitops.h:243)
+include/linux/thread_info.h:52: warning: `current_thread_info' is deprecated (declared at include/asm/thread_info.h:95)
+include/linux/thread_info.h:52: warning: `variable_test_bit' is deprecated (declared at include/asm/bitops.h:248)
+include/linux/thread_info.h:52: warning: `current_thread_info' is deprecated (declared at include/asm/thread_info.h:95)
+include/linux/thread_info.h: In function `set_ti_thread_flag':
+include/linux/thread_info.h:57: warning: `set_bit' is deprecated (declared at include/asm/bitops.h:38)
+include/linux/thread_info.h: In function `clear_ti_thread_flag':
+include/linux/thread_info.h:62: warning: `clear_bit' is deprecated (declared at include/asm/bitops.h:73)
+include/linux/thread_info.h: In function `test_and_set_ti_thread_flag':
+include/linux/thread_info.h:67: warning: `test_and_set_bit' is deprecated (declared at include/asm/bitops.h:133)
+include/linux/thread_info.h: In function `test_and_clear_ti_thread_flag':
+include/linux/thread_info.h:72: warning: `test_and_clear_bit' is deprecated (declared at include/asm/bitops.h:172)
+include/linux/thread_info.h: In function `test_ti_thread_flag':
+include/linux/thread_info.h:77: warning: `constant_test_bit' is deprecated (declared at include/asm/bitops.h:243)
+include/linux/thread_info.h:77: warning: `variable_test_bit' is deprecated (declared at include/asm/bitops.h:248)
+include/linux/thread_info.h: In function `set_need_resched':
+include/linux/thread_info.h:82: warning: `set_thread_flag' is deprecated (declared at include/linux/thread_info.h:31)
+include/linux/thread_info.h: In function `clear_need_resched':
+include/linux/thread_info.h:87: warning: `clear_thread_flag' is deprecated (declared at include/linux/thread_info.h:36)
+In file included from include/linux/rwsem.h:27,
+                 from include/linux/kobject.h:21,
+                 from include/linux/device.h:16,
+                 from drivers/eisa/eisa-bus.c:10:
+include/asm/rwsem.h: In function `__down_write_trylock':
+include/asm/rwsem.h:177: warning: `__cmpxchg' is deprecated (declared at include/asm/system.h:248)
+In file included from include/linux/kobject.h:21,
+                 from include/linux/device.h:16,
+                 from drivers/eisa/eisa-bus.c:10:
+include/linux/rwsem.h: In function `down_read':
+include/linux/rwsem.h:45: warning: `__down_read' is deprecated (declared at include/asm/rwsem.h:99)
+include/linux/rwsem.h: In function `down_read_trylock':
+include/linux/rwsem.h:56: warning: `__down_read_trylock' is deprecated (declared at include/asm/rwsem.h:124)
+include/linux/rwsem.h: In function `down_write':
+include/linux/rwsem.h:68: warning: `__down_write' is deprecated (declared at include/asm/rwsem.h:147)
+include/linux/rwsem.h: In function `down_write_trylock':
+include/linux/rwsem.h:79: warning: `__down_write_trylock' is deprecated (declared at include/asm/rwsem.h:174)
+include/linux/rwsem.h: In function `up_read':
+include/linux/rwsem.h:90: warning: `__up_read' is deprecated (declared at include/asm/rwsem.h:187)
+include/linux/rwsem.h: In function `up_write':
+include/linux/rwsem.h:100: warning: `__up_write' is deprecated (declared at include/asm/rwsem.h:213)
+include/linux/rwsem.h: In function `downgrade_write':
+include/linux/rwsem.h:110: warning: `__downgrade_write' is deprecated (declared at include/asm/rwsem.h:239)
+In file included from include/linux/device.h:16,
+                 from drivers/eisa/eisa-bus.c:10:
+include/linux/kobject.h: In function `kset_get':
+include/linux/kobject.h:114: warning: `to_kset' is deprecated (declared at include/linux/kobject.h:108)
+include/linux/kobject.h: In function `subsys_get':
+include/linux/kobject.h:215: warning: `kset_get' is deprecated (declared at include/linux/kobject.h:113)
+include/linux/kobject.h: In function `subsys_put':
+include/linux/kobject.h:220: warning: `kset_put' is deprecated (declared at include/linux/kobject.h:118)
+In file included from include/linux/timex.h:186,
+                 from include/linux/sched.h:11,
+                 from include/linux/module.h:10,
+                 from include/linux/device.h:21,
+                 from drivers/eisa/eisa-bus.c:10:
+include/linux/time.h: In function `jiffies_to_timespec':
+include/linux/time.h:215: warning: `div_ll_X_l_rem' is deprecated (declared at include/asm/div64.h:40)
+include/linux/time.h: In function `jiffies_to_timeval':
+include/linux/time.h:253: warning: `div_ll_X_l_rem' is deprecated (declared at include/asm/div64.h:40)
+In file included from include/linux/string.h:23,
+                 from include/linux/bitmap.h:11,
+                 from include/linux/cpumask.h:5,
+                 from include/linux/sched.h:15,
+                 from include/linux/module.h:10,
+                 from include/linux/device.h:21,
+                 from drivers/eisa/eisa-bus.c:10:
+include/asm/string.h: In function `memmove':
+include/asm/string.h:301: warning: `__constant_memcpy' is deprecated (declared at include/asm/string.h:214)
+include/asm/string.h:301: warning: `__memcpy' is deprecated (declared at include/asm/string.h:192)
+In file included from include/linux/cpumask.h:5,
+                 from include/linux/sched.h:15,
+                 from include/linux/module.h:10,
+                 from include/linux/device.h:21,
+                 from drivers/eisa/eisa-bus.c:10:
+include/linux/bitmap.h: In function `bitmap_clear':
+include/linux/bitmap.h:21: warning: `__constant_c_and_count_memset' is deprecated (declared at include/asm/string.h:404)
+include/linux/bitmap.h:21: warning: `__constant_c_memset' is deprecated (declared at include/asm/string.h:356)
+include/linux/bitmap.h:21: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+include/linux/bitmap.h:21: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+include/linux/bitmap.h: In function `bitmap_fill':
+include/linux/bitmap.h:26: warning: `__constant_c_and_count_memset' is deprecated (declared at include/asm/string.h:404)
+include/linux/bitmap.h:26: warning: `__constant_c_memset' is deprecated (declared at include/asm/string.h:356)
+include/linux/bitmap.h:26: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+include/linux/bitmap.h:26: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+include/linux/bitmap.h: In function `bitmap_copy':
+include/linux/bitmap.h:32: warning: `__constant_memcpy' is deprecated (declared at include/asm/string.h:214)
+include/linux/bitmap.h:32: warning: `__memcpy' is deprecated (declared at include/asm/string.h:192)
+In file included from include/asm/semaphore.h:41,
+                 from include/linux/sched.h:18,
+                 from include/linux/module.h:10,
+                 from include/linux/device.h:21,
+                 from drivers/eisa/eisa-bus.c:10:
+include/linux/wait.h: In function `waitqueue_active':
+include/linux/wait.h:80: warning: `list_empty' is deprecated (declared at include/linux/list.h:207)
+include/linux/wait.h: In function `__add_wait_queue':
+include/linux/wait.h:89: warning: `list_add' is deprecated (declared at include/linux/list.h:66)
+include/linux/wait.h: In function `__add_wait_queue_tail':
+include/linux/wait.h:98: warning: `list_add_tail' is deprecated (declared at include/linux/list.h:79)
+include/linux/wait.h: In function `__remove_wait_queue':
+include/linux/wait.h:104: warning: `list_del' is deprecated (declared at include/linux/list.h:146)
+include/linux/wait.h: In function `add_wait_queue_exclusive_locked':
+include/linux/wait.h:211: warning: `__add_wait_queue_tail' is deprecated (declared at include/linux/wait.h:97)
+include/linux/wait.h: In function `remove_wait_queue_locked':
+include/linux/wait.h:220: warning: `__remove_wait_queue' is deprecated (declared at include/linux/wait.h:103)
+In file included from include/linux/sched.h:18,
+                 from include/linux/module.h:10,
+                 from include/linux/device.h:21,
+                 from drivers/eisa/eisa-bus.c:10:
+include/asm/semaphore.h: In function `sema_init':
+include/asm/semaphore.h:83: warning: `init_waitqueue_head' is deprecated (declared at include/linux/wait.h:58)
+include/asm/semaphore.h: In function `init_MUTEX':
+include/asm/semaphore.h:91: warning: `sema_init' is deprecated (declared at include/asm/semaphore.h:74)
+include/asm/semaphore.h: In function `init_MUTEX_LOCKED':
+include/asm/semaphore.h:96: warning: `sema_init' is deprecated (declared at include/asm/semaphore.h:74)
+In file included from include/asm/siginfo.h:4,
+                 from include/linux/signal.h:7,
+                 from include/linux/sched.h:25,
+                 from include/linux/module.h:10,
+                 from include/linux/device.h:21,
+                 from drivers/eisa/eisa-bus.c:10:
+include/asm-generic/siginfo.h: In function `copy_siginfo':
+include/asm-generic/siginfo.h:284: warning: `__constant_memcpy' is deprecated (declared at include/asm/string.h:214)
+include/asm-generic/siginfo.h:284: warning: `__memcpy' is deprecated (declared at include/asm/string.h:192)
+include/asm-generic/siginfo.h:287: warning: `__constant_memcpy' is deprecated (declared at include/asm/string.h:214)
+include/asm-generic/siginfo.h:287: warning: `__memcpy' is deprecated (declared at include/asm/string.h:192)
+In file included from include/linux/sched.h:25,
+                 from include/linux/module.h:10,
+                 from include/linux/device.h:21,
+                 from drivers/eisa/eisa-bus.c:10:
+include/linux/signal.h: In function `sigemptyset':
+include/linux/signal.h:141: warning: `__constant_c_and_count_memset' is deprecated (declared at include/asm/string.h:404)
+include/linux/signal.h:141: warning: `__constant_c_memset' is deprecated (declared at include/asm/string.h:356)
+include/linux/signal.h:141: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+include/linux/signal.h:141: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+include/linux/signal.h: In function `sigfillset':
+include/linux/signal.h:153: warning: `__constant_c_and_count_memset' is deprecated (declared at include/asm/string.h:404)
+include/linux/signal.h:153: warning: `__constant_c_memset' is deprecated (declared at include/asm/string.h:356)
+include/linux/signal.h:153: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+include/linux/signal.h:153: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+include/linux/signal.h: In function `siginitset':
+include/linux/signal.h:183: warning: `__constant_c_and_count_memset' is deprecated (declared at include/asm/string.h:404)
+include/linux/signal.h:183: warning: `__constant_c_memset' is deprecated (declared at include/asm/string.h:356)
+include/linux/signal.h:183: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+include/linux/signal.h:183: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+include/linux/signal.h: In function `siginitsetinv':
+include/linux/signal.h:195: warning: `__constant_c_and_count_memset' is deprecated (declared at include/asm/string.h:404)
+include/linux/signal.h:195: warning: `__constant_c_memset' is deprecated (declared at include/asm/string.h:356)
+include/linux/signal.h:195: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+include/linux/signal.h:195: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+include/linux/signal.h: In function `init_sigpending':
+include/linux/signal.h:206: warning: `sigemptyset' is deprecated (declared at include/linux/signal.h:138)
+In file included from include/linux/sched.h:29,
+                 from include/linux/module.h:10,
+                 from include/linux/device.h:21,
+                 from drivers/eisa/eisa-bus.c:10:
+include/linux/completion.h: In function `init_completion':
+include/linux/completion.h:27: warning: `init_waitqueue_head' is deprecated (declared at include/linux/wait.h:58)
+In file included from include/linux/sched.h:31,
+                 from include/linux/module.h:10,
+                 from include/linux/device.h:21,
+                 from drivers/eisa/eisa-bus.c:10:
+include/linux/percpu.h: In function `__alloc_percpu':
+include/linux/percpu.h:45: warning: `kmalloc' is deprecated (declared at include/linux/slab.h:97)
+include/linux/percpu.h:47: warning: `__constant_c_and_count_memset' is deprecated (declared at include/asm/string.h:404)
+include/linux/percpu.h:47: warning: `__constant_c_memset' is deprecated (declared at include/asm/string.h:356)
+include/linux/percpu.h:47: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+include/linux/percpu.h:47: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+In file included from include/linux/sched.h:596,
+                 from include/linux/module.h:10,
+                 from include/linux/device.h:21,
+                 from drivers/eisa/eisa-bus.c:10:
+include/asm/current.h: In function `get_current':
+include/asm/current.h:11: warning: `current_thread_info' is deprecated (declared at include/asm/thread_info.h:95)
+In file included from include/linux/module.h:10,
+                 from include/linux/device.h:21,
+                 from drivers/eisa/eisa-bus.c:10:
+include/linux/sched.h: In function `on_sig_stack':
+include/linux/sched.h:669: warning: `get_current' is deprecated (declared at include/asm/current.h:10)
+include/linux/sched.h:669: warning: `get_current' is deprecated (declared at include/asm/current.h:10)
+include/linux/sched.h: In function `sas_ss_flags':
+include/linux/sched.h:674: warning: `get_current' is deprecated (declared at include/asm/current.h:10)
+include/linux/sched.h:675: warning: `on_sig_stack' is deprecated (declared at include/linux/sched.h:668)
+include/linux/sched.h: In function `capable':
+include/linux/sched.h:685: warning: `get_current' is deprecated (declared at include/asm/current.h:10)
+include/linux/sched.h:686: warning: `get_current' is deprecated (declared at include/asm/current.h:10)
+include/linux/sched.h: In function `mmdrop':
+include/linux/sched.h:702: warning: `atomic_dec_and_test' is deprecated (declared at include/asm/atomic.h:130)
+include/linux/sched.h: In function `get_task_mm':
+include/linux/sched.h:815: warning: `task_lock' is deprecated (declared at include/linux/sched.h:796)
+include/linux/sched.h:819: warning: `task_unlock' is deprecated (declared at include/linux/sched.h:801)
+include/linux/sched.h: In function `set_tsk_thread_flag':
+include/linux/sched.h:830: warning: `set_ti_thread_flag' is deprecated (declared at include/linux/thread_info.h:56)
+include/linux/sched.h: In function `clear_tsk_thread_flag':
+include/linux/sched.h:835: warning: `clear_ti_thread_flag' is deprecated (declared at include/linux/thread_info.h:61)
+include/linux/sched.h: In function `test_and_set_tsk_thread_flag':
+include/linux/sched.h:840: warning: `test_and_set_ti_thread_flag' is deprecated (declared at include/linux/thread_info.h:66)
+include/linux/sched.h: In function `test_and_clear_tsk_thread_flag':
+include/linux/sched.h:845: warning: `test_and_clear_ti_thread_flag' is deprecated (declared at include/linux/thread_info.h:71)
+include/linux/sched.h: In function `test_tsk_thread_flag':
+include/linux/sched.h:850: warning: `test_ti_thread_flag' is deprecated (declared at include/linux/thread_info.h:76)
+include/linux/sched.h: In function `set_tsk_need_resched':
+include/linux/sched.h:855: warning: `set_tsk_thread_flag' is deprecated (declared at include/linux/sched.h:829)
+include/linux/sched.h: In function `clear_tsk_need_resched':
+include/linux/sched.h:860: warning: `clear_tsk_thread_flag' is deprecated (declared at include/linux/sched.h:834)
+include/linux/sched.h: In function `signal_pending':
+include/linux/sched.h:865: warning: `test_tsk_thread_flag' is deprecated (declared at include/linux/sched.h:849)
+include/linux/sched.h: In function `need_resched':
+include/linux/sched.h:870: warning: `test_thread_flag' is deprecated (declared at include/linux/thread_info.h:51)
+include/linux/sched.h: In function `cond_resched':
+include/linux/sched.h:877: warning: `need_resched' is deprecated (declared at include/linux/sched.h:869)
+include/linux/sched.h: In function `cond_resched_lock':
+include/linux/sched.h:891: warning: `need_resched' is deprecated (declared at include/linux/sched.h:869)
+In file included from include/linux/device.h:21,
+                 from drivers/eisa/eisa-bus.c:10:
+include/linux/module.h: In function `__module_get':
+include/linux/module.h:325: warning: `local_inc' is deprecated (declared at include/asm/local.h:17)
+include/linux/module.h: In function `try_module_get':
+include/linux/module.h:336: warning: `module_is_live' is deprecated (declared at include/linux/module.h:290)
+include/linux/module.h:337: warning: `local_inc' is deprecated (declared at include/asm/local.h:17)
+include/linux/module.h: In function `module_put':
+include/linux/module.h:349: warning: `local_dec' is deprecated (declared at include/asm/local.h:25)
+include/linux/module.h:351: warning: `module_is_live' is deprecated (declared at include/linux/module.h:290)
+In file included from drivers/eisa/eisa-bus.c:17:
+include/asm/io.h: In function `outb_local_p':
+include/asm/io.h:363: warning: `outb_local' is deprecated (declared at include/asm/io.h:363)
+include/asm/io.h:363: warning: `slow_down_io' is deprecated (declared at include/asm/io.h:286)
+include/asm/io.h: In function `inb_local_p':
+include/asm/io.h:363: warning: `inb_local' is deprecated (declared at include/asm/io.h:363)
+include/asm/io.h:363: warning: `slow_down_io' is deprecated (declared at include/asm/io.h:286)
+include/asm/io.h: In function `outb':
+include/asm/io.h:363: warning: `outb_local' is deprecated (declared at include/asm/io.h:363)
+include/asm/io.h: In function `inb':
+include/asm/io.h:363: warning: `inb_local' is deprecated (declared at include/asm/io.h:363)
+include/asm/io.h: In function `outb_p':
+include/asm/io.h:363: warning: `outb' is deprecated (declared at include/asm/io.h:363)
+include/asm/io.h:363: warning: `slow_down_io' is deprecated (declared at include/asm/io.h:286)
+include/asm/io.h: In function `inb_p':
+include/asm/io.h:363: warning: `inb' is deprecated (declared at include/asm/io.h:363)
+include/asm/io.h:363: warning: `slow_down_io' is deprecated (declared at include/asm/io.h:286)
+include/asm/io.h: In function `outw_local_p':
+include/asm/io.h:364: warning: `outw_local' is deprecated (declared at include/asm/io.h:364)
+include/asm/io.h:364: warning: `slow_down_io' is deprecated (declared at include/asm/io.h:286)
+include/asm/io.h: In function `inw_local_p':
+include/asm/io.h:364: warning: `inw_local' is deprecated (declared at include/asm/io.h:364)
+include/asm/io.h:364: warning: `slow_down_io' is deprecated (declared at include/asm/io.h:286)
+include/asm/io.h: In function `outw':
+include/asm/io.h:364: warning: `outw_local' is deprecated (declared at include/asm/io.h:364)
+include/asm/io.h: In function `inw':
+include/asm/io.h:364: warning: `inw_local' is deprecated (declared at include/asm/io.h:364)
+include/asm/io.h: In function `outw_p':
+include/asm/io.h:364: warning: `outw' is deprecated (declared at include/asm/io.h:364)
+include/asm/io.h:364: warning: `slow_down_io' is deprecated (declared at include/asm/io.h:286)
+include/asm/io.h: In function `inw_p':
+include/asm/io.h:364: warning: `inw' is deprecated (declared at include/asm/io.h:364)
+include/asm/io.h:364: warning: `slow_down_io' is deprecated (declared at include/asm/io.h:286)
+include/asm/io.h: In function `outl_local_p':
+include/asm/io.h:365: warning: `outl_local' is deprecated (declared at include/asm/io.h:365)
+include/asm/io.h:365: warning: `slow_down_io' is deprecated (declared at include/asm/io.h:286)
+include/asm/io.h: In function `inl_local_p':
+include/asm/io.h:365: warning: `inl_local' is deprecated (declared at include/asm/io.h:365)
+include/asm/io.h:365: warning: `slow_down_io' is deprecated (declared at include/asm/io.h:286)
+include/asm/io.h: In function `outl':
+include/asm/io.h:365: warning: `outl_local' is deprecated (declared at include/asm/io.h:365)
+include/asm/io.h: In function `inl':
+include/asm/io.h:365: warning: `inl_local' is deprecated (declared at include/asm/io.h:365)
+include/asm/io.h: In function `outl_p':
+include/asm/io.h:365: warning: `outl' is deprecated (declared at include/asm/io.h:365)
+include/asm/io.h:365: warning: `slow_down_io' is deprecated (declared at include/asm/io.h:286)
+include/asm/io.h: In function `inl_p':
+include/asm/io.h:365: warning: `inl' is deprecated (declared at include/asm/io.h:365)
+include/asm/io.h:365: warning: `slow_down_io' is deprecated (declared at include/asm/io.h:286)
+drivers/eisa/eisa-bus.c: In function `eisa_name_device':
+drivers/eisa/eisa-bus.c:63: warning: `strcmp' is deprecated (declared at include/asm/string.h:100)
+drivers/eisa/eisa-bus.c: In function `decode_eisa_sig':
+drivers/eisa/eisa-bus.c:92: warning: `outb' is deprecated (declared at include/asm/io.h:363)
+drivers/eisa/eisa-bus.c:94: warning: `inb' is deprecated (declared at include/asm/io.h:363)
+drivers/eisa/eisa-bus.c: In function `eisa_bus_match':
+drivers/eisa/eisa-bus.c:118: warning: `strlen' is deprecated (declared at include/asm/string.h:179)
+drivers/eisa/eisa-bus.c:119: warning: `strcmp' is deprecated (declared at include/asm/string.h:100)
+drivers/eisa/eisa-bus.c: In function `eisa_init_device':
+drivers/eisa/eisa-bus.c:181: warning: `__constant_memcpy' is deprecated (declared at include/asm/string.h:214)
+drivers/eisa/eisa-bus.c:181: warning: `__memcpy' is deprecated (declared at include/asm/string.h:192)
+drivers/eisa/eisa-bus.c:183: warning: `inb' is deprecated (declared at include/asm/io.h:363)
+drivers/eisa/eisa-bus.c: In function `eisa_probe':
+drivers/eisa/eisa-bus.c:284: warning: `kmalloc' is deprecated (declared at include/linux/slab.h:97)
+drivers/eisa/eisa-bus.c:289: warning: `__constant_c_and_count_memset' is deprecated (declared at include/asm/string.h:404)
+drivers/eisa/eisa-bus.c:289: warning: `__constant_c_memset' is deprecated (declared at include/asm/string.h:356)
+drivers/eisa/eisa-bus.c:289: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+drivers/eisa/eisa-bus.c:289: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+drivers/eisa/eisa-bus.c:320: warning: `kmalloc' is deprecated (declared at include/linux/slab.h:97)
+drivers/eisa/eisa-bus.c:326: warning: `__constant_c_and_count_memset' is deprecated (declared at include/asm/string.h:404)
+drivers/eisa/eisa-bus.c:326: warning: `__constant_c_memset' is deprecated (declared at include/asm/string.h:356)
+drivers/eisa/eisa-bus.c:326: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+drivers/eisa/eisa-bus.c:326: warning: `__memset_generic' is deprecated (declared at include/asm/string.h:336)
+make[2]: *** [drivers/eisa/eisa-bus.o] Error 1
+make[1]: *** [drivers/eisa] Error 2
+make: *** [drivers] Error 2
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=15
+CONFIG_HOTPLUG=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_EMBEDDED=y
+CONFIG_KALLSYMS=y
+CONFIG_DOUBLEFAULT=y
+CONFIG_IRQ_DEBUG=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_FULL_BUG=y
+CONFIG_PANIC=y
+CONFIG_FULL_PANIC=y
+CONFIG_ELF_CORE=y
+CONFIG_KCORE=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_PTRACE=y
+CONFIG_VM86=y
+CONFIG_DNOTIFY=y
+CONFIG_AIO=y
+CONFIG_SYSENTER=y
+CONFIG_XATTR=y
+CONFIG_FILE_LOCKING=y
+CONFIG_DIRECTIO=y
+CONFIG_POSIX_TIMERS=y
+CONFIG_ETHTOOL=y
+CONFIG_TCP_DIAG=y
+CONFIG_INETPEER=y
+CONFIG_NET_SK_FILTER=y
+CONFIG_NET_DEV_MULTICAST=y
+CONFIG_RTNETLINK=y
+CONFIG_IGMP=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_CC_ALIGN_FUNCTIONS=1
+CONFIG_CC_ALIGN_LABELS=1
+CONFIG_CC_ALIGN_LOOPS=1
+CONFIG_CC_ALIGN_JUMPS=1
+CONFIG_SYSFS=y
+CONFIG_FULL_STACK=y
+CONFIG_CRC32_TABLES=y
+CONFIG_INLINE_THREADINFO=y
+CONFIG_INLINE_SEMAPHORE=y
+CONFIG_SHMEM=y
+CONFIG_SLAB=y
+CONFIG_MEMPOOL=y
+CONFIG_FULLVT=y
+CONFIG_CONSOLE_TRANSLATIONS=y
+CONFIG_BINFMT_SCRIPT=y
+CONFIG_BLOCK=y
+CONFIG_MAX_SWAPFILES_SHIFT=5
+CONFIG_NR_LDISCS=16
+CONFIG_MAX_USER_RT_PRIO=100
+CONFIG_HERTZ=1000
+CONFIG_IDE_HWIFS=0
+CONFIG_BOOTFLAG=y
+CONFIG_SERIAL_PCI=y
+CONFIG_PCI_QUIRKS=y
+CONFIG_X86_TSC_TIMER=y
+CONFIG_PROCESSOR_SELECT=y
+CONFIG_CPU_SUP_INTEL=y
+CONFIG_CPU_SUP_CYRIX=y
+CONFIG_CPU_SUP_NSC=y
+CONFIG_CPU_SUP_AMD=y
+CONFIG_CPU_SUP_CENTAUR=y
+CONFIG_CPU_SUP_TRANSMETA=y
+CONFIG_CPU_SUP_RISE=y
+CONFIG_CPU_SUP_NEXGEN=y
+CONFIG_CPU_SUP_UMC=y
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_X86_PC=y
+CONFIG_M486=y
+CONFIG_X86_GENERIC=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_X86_F00F_BUG=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_ACPI_BOOT=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_EISA=y
+CONFIG_EISA_VLB_PRIMING=y
+CONFIG_EISA_PCI_EISA=y
+CONFIG_EISA_VIRTUAL_ROOT=y
+CONFIG_EISA_NAMES=y
+CONFIG_PCMCIA=y
+CONFIG_YENTA=y
+CONFIG_CARDBUS=y
+CONFIG_I82092=y
+CONFIG_I82365=y
+CONFIG_TCIC=y
+CONFIG_PCMCIA_PROBE=y
+CONFIG_HOTPLUG_PCI=y
+CONFIG_HOTPLUG_PCI_COMPAQ=y
+CONFIG_HOTPLUG_PCI_CPCI=y
+CONFIG_HOTPLUG_PCI_CPCI_ZT5550=y
+CONFIG_HOTPLUG_PCI_CPCI_GENERIC=y
+CONFIG_BINFMT_ELF=y
+CONFIG_FW_LOADER=m
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_PNPBIOS=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_XD=m
+CONFIG_PARIDE=m
+CONFIG_PARIDE_PARPORT=m
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_CRYPTOLOOP=m
+CONFIG_BLK_DEV_NBD=m
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_LBD=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDETAPE=m
+CONFIG_BLK_DEV_IDEFLOPPY=m
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_IDE_TASK_IOCTL=y
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_CMD640=y
+CONFIG_BLK_DEV_IDEPNP=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_ALI15X3=y
+CONFIG_BLK_DEV_AMD74XX=y
+CONFIG_BLK_DEV_CMD64X=y
+CONFIG_BLK_DEV_CS5520=y
+CONFIG_BLK_DEV_CS5530=y
+CONFIG_BLK_DEV_HPT34X=y
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_SIS5513=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=m
+CONFIG_CHR_DEV_OSST=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_REPORT_LUNS=y
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=8
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+CONFIG_AIC7XXX_PROBE_EISA_VL=y
+CONFIG_AIC7XXX_DEBUG_MASK=0
+CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
+CONFIG_SCSI_AIC79XX=y
+CONFIG_AIC79XX_CMDS_PER_DEVICE=8
+CONFIG_AIC79XX_RESET_DELAY_MS=15000
+CONFIG_AIC79XX_DEBUG_MASK=0
+CONFIG_SCSI_QLA2XXX=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=m
+CONFIG_MD_LINEAR=m
+CONFIG_MD_RAID0=m
+CONFIG_MD_RAID1=m
+CONFIG_MD_RAID5=m
+CONFIG_MD_RAID6=m
+CONFIG_MD_MULTIPATH=m
+CONFIG_BLK_DEV_DM=m
+CONFIG_DM_CRYPT=m
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_NETLINK_DEV=m
+CONFIG_UNIX=y
+CONFIG_NET_KEY=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_ROUTE_NAT=y
+CONFIG_IP_ROUTE_MULTIPATH=y
+CONFIG_IP_ROUTE_TOS=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_IP_PNP=y
+CONFIG_IP_PNP_DHCP=y
+CONFIG_IP_PNP_BOOTP=y
+CONFIG_IP_PNP_RARP=y
+CONFIG_NET_IPIP=m
+CONFIG_NET_IPGRE=m
+CONFIG_NET_IPGRE_BROADCAST=y
+CONFIG_SYN_COOKIES=y
+CONFIG_BRIDGE=y
+CONFIG_NETFILTER=y
+CONFIG_BRIDGE_NETFILTER=y
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_TFTP=m
+CONFIG_IP_NF_AMANDA=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_IPRANGE=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_RECENT=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_MATCH_PHYSDEV=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_TARGET_NETMAP=m
+CONFIG_IP_NF_TARGET_SAME=m
+CONFIG_IP_NF_NAT_LOCAL=y
+CONFIG_IP_NF_NAT_SNMP_BASIC=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_NAT_TFTP=m
+CONFIG_IP_NF_NAT_AMANDA=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_CLASSIFY=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IP_NF_ARPFILTER=m
+CONFIG_IP_NF_ARP_MANGLE=m
+CONFIG_BRIDGE_NF_EBTABLES=m
+CONFIG_BRIDGE_EBT_BROUTE=m
+CONFIG_BRIDGE_EBT_T_FILTER=m
+CONFIG_BRIDGE_EBT_T_NAT=m
+CONFIG_BRIDGE_EBT_802_3=m
+CONFIG_BRIDGE_EBT_AMONG=m
+CONFIG_BRIDGE_EBT_ARP=m
+CONFIG_BRIDGE_EBT_IP=m
+CONFIG_BRIDGE_EBT_LIMIT=m
+CONFIG_BRIDGE_EBT_MARK=m
+CONFIG_BRIDGE_EBT_PKTTYPE=m
+CONFIG_BRIDGE_EBT_STP=m
+CONFIG_BRIDGE_EBT_VLAN=m
+CONFIG_BRIDGE_EBT_ARPREPLY=m
+CONFIG_BRIDGE_EBT_DNAT=m
+CONFIG_BRIDGE_EBT_MARK_T=m
+CONFIG_BRIDGE_EBT_REDIRECT=m
+CONFIG_BRIDGE_EBT_SNAT=m
+CONFIG_BRIDGE_EBT_LOG=m
+CONFIG_XFRM=y
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CBQ=m
+CONFIG_NET_SCH_HTB=m
+CONFIG_NET_SCH_HFSC=m
+CONFIG_NET_SCH_CSZ=m
+CONFIG_NET_SCH_PRIO=m
+CONFIG_NET_SCH_RED=m
+CONFIG_NET_SCH_SFQ=m
+CONFIG_NET_SCH_TEQL=m
+CONFIG_NET_SCH_TBF=m
+CONFIG_NET_SCH_GRED=m
+CONFIG_NET_SCH_DSMARK=m
+CONFIG_NET_SCH_INGRESS=m
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_TCINDEX=m
+CONFIG_NET_CLS_ROUTE4=m
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=m
+CONFIG_NET_CLS_U32=m
+CONFIG_NET_CLS_RSVP=m
+CONFIG_NET_CLS_RSVP6=m
+CONFIG_NET_CLS_POLICE=y
+CONFIG_NET_PKTGEN=m
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_BONDING=m
+CONFIG_EQUALIZER=m
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_HAPPYMEAL=y
+CONFIG_SUNGEM=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_EL1=y
+CONFIG_EL2=y
+CONFIG_ELPLUS=y
+CONFIG_EL16=y
+CONFIG_EL3=y
+CONFIG_3C515=y
+CONFIG_VORTEX=y
+CONFIG_TYPHOON=y
+CONFIG_LANCE=y
+CONFIG_NET_VENDOR_SMC=y
+CONFIG_WD80x3=y
+CONFIG_ULTRA=y
+CONFIG_ULTRA32=y
+CONFIG_SMC9194=y
+CONFIG_NET_VENDOR_RACAL=y
+CONFIG_NI5010=y
+CONFIG_NI52=y
+CONFIG_NI65=y
+CONFIG_AT1700=y
+CONFIG_DEPCA=y
+CONFIG_HP100=y
+CONFIG_NET_ISA=y
+CONFIG_E2100=y
+CONFIG_EWRK3=y
+CONFIG_EEXPRESS=y
+CONFIG_EEXPRESS_PRO=y
+CONFIG_HPLAN_PLUS=y
+CONFIG_HPLAN=y
+CONFIG_LP486E=y
+CONFIG_ETH16I=y
+CONFIG_NE2000=y
+CONFIG_NET_PCI=y
+CONFIG_PCNET32=y
+CONFIG_AMD8111_ETH=y
+CONFIG_ADAPTEC_STARFIRE=y
+CONFIG_AC3200=y
+CONFIG_APRICOT=y
+CONFIG_B44=y
+CONFIG_FORCEDETH=y
+CONFIG_CS89x0=y
+CONFIG_DGRS=y
+CONFIG_EEPRO100=y
+CONFIG_LNE390=y
+CONFIG_FEALNX=y
+CONFIG_NATSEMI=y
+CONFIG_NE2K_PCI=y
+CONFIG_NE3210=y
+CONFIG_ES3210=y
+CONFIG_8139CP=y
+CONFIG_8139TOO=y
+CONFIG_8139_RXBUF_IDX=2
+CONFIG_SIS900=y
+CONFIG_EPIC100=y
+CONFIG_SUNDANCE=y
+CONFIG_TLAN=y
+CONFIG_VIA_RHINE=y
+CONFIG_ACENIC=y
+CONFIG_DL2K=y
+CONFIG_E1000=y
+CONFIG_NS83820=y
+CONFIG_HAMACHI=y
+CONFIG_YELLOWFIN=y
+CONFIG_R8169=y
+CONFIG_SIS190=y
+CONFIG_SK98LIN=y
+CONFIG_TIGON3=y
+CONFIG_IXGB=y
+CONFIG_PLIP=m
+CONFIG_PPP=m
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_PPPOE=m
+CONFIG_SLIP=m
+CONFIG_SLIP_COMPRESSED=y
+CONFIG_SLIP_SMART=y
+CONFIG_SLIP_MODE_SLIP6=y
+CONFIG_NET_RADIO=y
+CONFIG_ATMEL=m
+CONFIG_PCI_ATMEL=m
+CONFIG_PCMCIA_ATMEL=m
+CONFIG_PRISM54=m
+CONFIG_HOSTAP=m
+CONFIG_HOSTAP_FIRMWARE=y
+CONFIG_HOSTAP_PLX=m
+CONFIG_HOSTAP_PCI=m
+CONFIG_HOSTAP_CS=m
+CONFIG_NET_WIRELESS=y
+CONFIG_SHAPER=m
+CONFIG_NETCONSOLE=y
+CONFIG_NETPOLL=y
+CONFIG_NET_POLL_CONTROLLER=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_EVDEV=m
+CONFIG_GAMEPORT=y
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_GAMEPORT_NS558=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_SERIO_PCIPS2=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_MOUSE_SERIAL=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_8250_EXTENDED=y
+CONFIG_SERIAL_8250_MANY_PORTS=y
+CONFIG_SERIAL_8250_SHARE_IRQ=y
+CONFIG_SERIAL_8250_DETECT_IRQ=y
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_PRINTER=m
+CONFIG_LP_CONSOLE=y
+CONFIG_PPDEV=m
+CONFIG_HW_RANDOM=y
+CONFIG_NVRAM=y
+CONFIG_RTC=y
+CONFIG_AGP=m
+CONFIG_AGP_INTEL=m
+CONFIG_AGP_INTEL_MCH=m
+CONFIG_AGP_NVIDIA=m
+CONFIG_AGP_VIA=m
+CONFIG_AGP_EFFICEON=m
+CONFIG_DRM=y
+CONFIG_DRM_I810=m
+CONFIG_DRM_I830=m
+CONFIG_DRM_MGA=m
+CONFIG_RAW_DRIVER=m
+CONFIG_MAX_RAW_DEVS=256
+CONFIG_HANGCHECK_TIMER=y
+CONFIG_FB=y
+CONFIG_FB_MODES=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_HGA=m
+CONFIG_FB_RIVA=m
+CONFIG_FB_I810=m
+CONFIG_FB_MATROX=m
+CONFIG_FB_MATROX_MILLENIUM=y
+CONFIG_FB_MATROX_MYSTIQUE=y
+CONFIG_FB_MATROX_G450=y
+CONFIG_FB_MATROX_G100=y
+CONFIG_FB_MATROX_MULTIHEAD=y
+CONFIG_FB_SIS=m
+CONFIG_FB_SIS_300=y
+CONFIG_FB_SIS_315=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_MDA_CONSOLE=m
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_SOUND=m
+CONFIG_SND=m
+CONFIG_SND_TIMER=m
+CONFIG_SND_PCM=m
+CONFIG_SND_RAWMIDI=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=m
+CONFIG_SND_MPU401_UART=m
+CONFIG_SND_AC97_CODEC=m
+CONFIG_SND_INTEL8X0=m
+CONFIG_SND_INTEL8X0M=m
+CONFIG_SND_VIA82XX=m
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+CONFIG_EXT2_FS_SECURITY=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_EXT3_FS_SECURITY=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=y
+CONFIG_REISERFS_PROC_INFO=y
+CONFIG_FS_POSIX_ACL=y
+CONFIG_MINIX_FS=y
+CONFIG_ROMFS_FS=y
+CONFIG_AUTOFS_FS=m
+CONFIG_AUTOFS4_FS=m
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=y
+CONFIG_UDF_FS=m
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_NTFS_FS=m
+CONFIG_NTFS_RW=y
+CONFIG_PROC_FS=y
+CONFIG_DEVFS_FS=y
+CONFIG_TMPFS=y
+CONFIG_HUGETLBFS=y
+CONFIG_HUGETLB_PAGE=y
+CONFIG_RAMFS=y
+CONFIG_CRAMFS=y
+CONFIG_UFS_FS=m
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFS_V4=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_V4=y
+CONFIG_NFSD_TCP=y
+CONFIG_ROOT_NFS=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+CONFIG_SUNRPC=y
+CONFIG_SUNRPC_GSS=y
+CONFIG_RPCSEC_GSS_KRB5=y
+CONFIG_SMB_FS=m
+CONFIG_CIFS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_737=m
+CONFIG_NLS_CODEPAGE_775=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_CODEPAGE_852=m
+CONFIG_NLS_CODEPAGE_855=m
+CONFIG_NLS_CODEPAGE_857=m
+CONFIG_NLS_CODEPAGE_860=m
+CONFIG_NLS_CODEPAGE_861=m
+CONFIG_NLS_CODEPAGE_862=m
+CONFIG_NLS_CODEPAGE_863=m
+CONFIG_NLS_CODEPAGE_864=m
+CONFIG_NLS_CODEPAGE_865=m
+CONFIG_NLS_CODEPAGE_866=m
+CONFIG_NLS_CODEPAGE_869=m
+CONFIG_NLS_CODEPAGE_936=m
+CONFIG_NLS_CODEPAGE_950=m
+CONFIG_NLS_CODEPAGE_932=m
+CONFIG_NLS_CODEPAGE_949=m
+CONFIG_NLS_CODEPAGE_874=m
+CONFIG_NLS_ISO8859_8=m
+CONFIG_NLS_CODEPAGE_1250=m
+CONFIG_NLS_CODEPAGE_1251=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_2=m
+CONFIG_NLS_ISO8859_3=m
+CONFIG_NLS_ISO8859_4=m
+CONFIG_NLS_ISO8859_5=m
+CONFIG_NLS_ISO8859_6=m
+CONFIG_NLS_ISO8859_7=m
+CONFIG_NLS_ISO8859_9=m
+CONFIG_NLS_ISO8859_13=m
+CONFIG_NLS_ISO8859_14=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_KOI8_R=m
+CONFIG_NLS_KOI8_U=m
+CONFIG_NLS_UTF8=m
+CONFIG_PROFILING=y
+CONFIG_OPROFILE=m
+CONFIG_DEBUG_KERNEL=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+CONFIG_DEBUG_STACK_USAGE=y
+CONFIG_DEBUG_SLAB=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_SPINLOCK_SLEEP=y
+CONFIG_FRAME_POINTER=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_NULL=y
+CONFIG_CRYPTO_MD4=y
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+CONFIG_CRYPTO_SHA256=y
+CONFIG_CRYPTO_SHA512=y
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_BLOWFISH=y
+CONFIG_CRYPTO_TWOFISH=y
+CONFIG_CRYPTO_SERPENT=y
+CONFIG_CRYPTO_AES=y
+CONFIG_CRYPTO_CAST5=y
+CONFIG_CRYPTO_CAST6=y
+CONFIG_CRYPTO_ARC4=y
+CONFIG_CRYPTO_DEFLATE=y
+CONFIG_CRC32=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+CONFIG_X86_BIOS_REBOOT=y
 

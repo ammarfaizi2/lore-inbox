@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271144AbTHHKzs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 06:55:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271189AbTHHKzs
+	id S271196AbTHHKuy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 06:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271203AbTHHKuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 06:55:48 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:10631 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S271144AbTHHKzr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 06:55:47 -0400
-Subject: Re: ide-tape broken (was Re: [PATCH] use ide-identify.h, fix
-	endian bug)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOL.4.30.0308080205490.24371-100000@mion.elka.pw.edu.pl>
-References: <Pine.SOL.4.30.0308080205490.24371-100000@mion.elka.pw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1060339916.4933.1.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 08 Aug 2003 11:51:56 +0100
+	Fri, 8 Aug 2003 06:50:54 -0400
+Received: from dns.toxicfilms.tv ([150.254.37.24]:4491 "EHLO dns.toxicfilms.tv")
+	by vger.kernel.org with ESMTP id S271196AbTHHKux (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 06:50:53 -0400
+Date: Fri, 8 Aug 2003 12:50:51 +0200 (CEST)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: Clemens Schwaighofer <cs@tequila.co.jp>
+Cc: Dick Streefland <dick.streefland@altium.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Euro-English
+In-Reply-To: <3F32F664.7010002@tequila.co.jp>
+Message-ID: <Pine.LNX.4.51.0308081243400.8012@dns.toxicfilms.tv>
+References: <20030806231403.GF1380@pegasys.ws> <20030805233308.GD928@matchmail.com>
+ <200308052014.31133.gene.heskett@verizon.net> <Pine.LNX.4.51.0308061115400.16005@dns.toxicfilms.tv>
+ <20030806231403.GF1380@pegasys.ws> <Pine.LNX.4.51.0308071159280.32494@dns.toxicfilms.tv>
+ <409a.3f322c49.c82b0@altium.nl> <3F32F664.7010002@tequila.co.jp>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-08-08 at 01:10, Bartlomiej Zolnierkiewicz wrote:
-> "new clean ATAPI tape drive" == the one yet to be written?
-> 
-> > coding style, kludges for Onstream, and an over-engineered
-> > buffering scheme. And it's known to have problems with DMA.)
-> 
-> So you are familiar with the code, cool. ;-)
-> 
-> I will try to simplify ide-tape.c as much as possible.
+> OTH you might be right for european countries, I always think eg
+> Scandinavian countries are far superior in english because they see,
+> watch everything in english on TV, etc ... and I see it on myself, if I
+> wouldn't have started watching movies in english and reading books in
+> english I think I would be the same "no inglisch heare" ignorant like a
+> lot of my friends in Austria
+And that is the conclusion I think. Kids should be encouraged to listen,
+watch, read in english. Discouraged to watch dubbed movies. My 6 years old
+neice is totally transparent to languages. If she hears something in
+english, that's fine, she even repeats the words and frases. If she hears
+in japanesse (i showed her anime) that's fine also. Hmm. I am no
+child-schrink-wannabe but, if we just encourage kids to be open to every
+language, they will just click to the ones they fancy.
 
-A starting point might actually be cp ide-tape.c ide-tape-ontrack.c and
-then zap the conditional mess in both. Thats roughly how scsi handles
-it all with st and osst
+Regards,
+OT generator/exploder v0.0.1pre1, Maciej :)
 

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317482AbSHLIR1>; Mon, 12 Aug 2002 04:17:27 -0400
+	id <S317506AbSHLIVQ>; Mon, 12 Aug 2002 04:21:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317493AbSHLIR0>; Mon, 12 Aug 2002 04:17:26 -0400
-Received: from dp.samba.org ([66.70.73.150]:6889 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S317482AbSHLIR0>;
-	Mon, 12 Aug 2002 04:17:26 -0400
-Date: Mon, 12 Aug 2002 17:45:30 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
-Message-Id: <20020812174530.398156a1.rusty@rustcorp.com.au>
-In-Reply-To: <Pine.LNX.4.44.0208091813470.1165-100000@home.transmeta.com>
-References: <3D5464E3.74ED07CC@zip.com.au>
-	<Pine.LNX.4.44.0208091813470.1165-100000@home.transmeta.com>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+	id <S317508AbSHLIVQ>; Mon, 12 Aug 2002 04:21:16 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:12236 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S317506AbSHLIVP>;
+	Mon, 12 Aug 2002 04:21:15 -0400
+Date: Mon, 12 Aug 2002 18:23:25 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>,
+       <julliard@winehq.com>, <ldb@ldb.ods.org>
+Subject: Re: [patch] tls-2.5.31-C3
+Message-Id: <20020812182325.52324305.sfr@canb.auug.org.au>
+In-Reply-To: <Pine.LNX.4.44.0208121205170.2561-100000@localhost.localdomain>
+References: <20020812173404.39d3abab.sfr@canb.auug.org.au>
+	<Pine.LNX.4.44.0208121205170.2561-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Aug 2002 18:33:09 -0700 (PDT)
-Linus Torvalds <torvalds@transmeta.com> wrote:
+On Mon, 12 Aug 2002 12:07:19 +0200 (CEST) Ingo Molnar <mingo@elte.hu> wrote:
+>
+> you can save/restore 0x40 in kernel-space if you need to no problem.
 
-> 	repeat:
-> 		kmap_atomic(..); // this increments preempt count
-> 		nr = copy_from_user(..);
+I guess I could around every BIOS call ...
 
-Please please please use a different name for "I know I'm not preemptible but
-I can handle it" or a flag or something.
+Also, Alan (Cox) will say that's OK until he does APM on SMP on broken
+BIOS's :-)
 
-That leaves us with the possibility of a BUG() in the "normal" copy_to/from_user
-for all those "I'm holding a spinlock while copying to userspace wheeee!" bugs.
-Very common mistake for new kernel authors.
+We could also just say that we no longer support those broken BIOS's ...
 
-With the preempt count we have an easy way of detecting this at runtime: I'd
-like to keep that.
+> so you are using the kernel's GDT in real mode as well?
 
-Rusty.
+No. The problem is that there are some BIOS's that contain code that (even
+though they are called in protected mode) load 0x40 into ds and expect to
+be able to reference stuff ...  Causes really interesting OOPSs :-(
+
 -- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

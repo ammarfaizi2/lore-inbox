@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317881AbSGPP3m>; Tue, 16 Jul 2002 11:29:42 -0400
+	id <S317893AbSGPPbY>; Tue, 16 Jul 2002 11:31:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317882AbSGPP3l>; Tue, 16 Jul 2002 11:29:41 -0400
-Received: from ns.snowman.net ([63.80.4.34]:3595 "EHLO ns.snowman.net")
-	by vger.kernel.org with ESMTP id <S317881AbSGPP3k>;
-	Tue, 16 Jul 2002 11:29:40 -0400
-Date: Tue, 16 Jul 2002 11:32:30 -0400
-From: Stephen Frost <sfrost@snowman.net>
-To: "Shipman, Jeffrey E" <jeshipm@sandia.gov>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Using large amounts of memory in the kernel
-Message-ID: <20020716153230.GE653@ns>
-Mail-Followup-To: "Shipman, Jeffrey E" <jeshipm@sandia.gov>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-References: <03781128C7B74B4DBC27C55859C9D73809840661@es06snlnt>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1Ohz8t0v+ZTQEWKa"
-Content-Disposition: inline
-In-Reply-To: <03781128C7B74B4DBC27C55859C9D73809840661@es06snlnt>
-User-Agent: Mutt/1.4i
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snowman.net
-X-Operating-System: Linux/2.4.18 (i686)
-X-Uptime: 11:32:13 up 14 days, 13:57, 10 users,  load average: 1.04, 1.05, 1.01
+	id <S317894AbSGPPbY>; Tue, 16 Jul 2002 11:31:24 -0400
+Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:5011 "EHLO
+	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
+	id <S317893AbSGPPbW>; Tue, 16 Jul 2002 11:31:22 -0400
+Message-ID: <180577A42806D61189D30008C7E632E8793998@boca213a.boca.ssc.siemens.com>
+From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+To: linux-kernel@vger.kernel.org
+Subject: Networking question
+Date: Tue, 16 Jul 2002 11:34:18 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have an application which uses a device driver which I wrote to receive
+UDP/IP messages. This driver does not use interrupts but polls to see if
+messages are available. Once a message is detected I call netif_rx to pass
+it up the stack. The application running from user space knows that a
+message was received and does a recvfrom on my socket. On a 2.2 Kernel, this
+works every time. i.e. I see a message and pass it up the stack and the
+recvfrom does indeed get the message from the socket. In a 2.4 environment I
+see that netif_rx is using softirq to handle the message as opposed to a BH.
+There seems to be a latency introduced because of this. The ksoftirqd runs
+at a low priority and my application runs at a high priority (nice value of
+-10), Now it seems that the message is not waiting for me when I do a
+recvfrom. I do not want to yield my program for too long since the
+application is real-time intensive (i.e it must process 30 000msgs/second
+which it has been able to do on a 2.2 Kernel). Is there any way to increasy
+the priority of the softirq daemon or ensure that it is always awoken when a
+netif_rx is called? Please CC me directly on any responses.
 
---1Ohz8t0v+ZTQEWKa
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Jack Bloch
+Siemens Carrier Networks
+e-mail    : jack.bloch@icn.siemens.com
+phone     : (561) 923-6550
 
-* Shipman, Jeffrey E (jeshipm@sandia.gov) wrote:
-> I've got a hash table of packet manipulation information
-> I need to use inside of a module in my kernel. The problem
-> is that this hash table is around 2MB. I'm trying to figure
-> out ways to shrink this table, but I'm coming up short on
-> ideas. What would be a good way to be able to allocate enough
-> memory to store all of this information?
-
-At a guess I'd say vmalloc...
-
-	Stephen
-
---1Ohz8t0v+ZTQEWKa
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9NDyOrzgMPqB3kigRAq+2AKCWc/35ESoR3z8+YPZRfNEsI0fwHgCcDni6
-HGeKNNbKpJKYvhUAw1iQ5KI=
-=bYi5
------END PGP SIGNATURE-----
-
---1Ohz8t0v+ZTQEWKa--

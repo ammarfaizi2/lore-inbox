@@ -1,97 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbTDDVKd (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 16:10:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTDDVKd (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 16:10:33 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:50587 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261294AbTDDVKb (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 16:10:31 -0500
-Date: Fri, 04 Apr 2003 13:11:58 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 541] New: 3c59x.c: 3c556B Laptop Hurricane not correctly detected/run 
-Message-ID: <9700000.1049490718@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S261346AbTDDVOa (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 16:14:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbTDDVOa (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 16:14:30 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:60129 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261346AbTDDVO2 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 16:14:28 -0500
+Date: Fri, 4 Apr 2003 13:25:47 +0000
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: mikpe@csd.uu.se
+Cc: mbligh@aracnet.com, robins.t@kutumb.org.in, linux-kernel@vger.kernel.org
+Subject: Re: [Bug 538] New: Rebooting of pentium-I during initial booting
+ phase.
+Message-Id: <20030404132547.7bda0d49.rddunlap@osdl.org>
+In-Reply-To: <200304042052.h34KqZSE021540@harpo.it.uu.se>
+References: <200304042052.h34KqZSE021540@harpo.it.uu.se>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=541
+On Fri, 4 Apr 2003 22:52:35 +0200 (MEST) mikpe@csd.uu.se wrote:
 
-           Summary: 3c59x.c: 3c556B Laptop Hurricane not correctly
-                    detected/run
-    Kernel Version: 2.5.66
-            Status: NEW
-          Severity: normal
-             Owner: jgarzik@pobox.com
-         Submitter: brassmold@yahoo.com
+| On Thu, 3 Apr 2003 09:55:34 -0800, mbligh@aracnet.com wrote:
+| >http://bugme.osdl.org/show_bug.cgi?id=538
+| >
+| >           Summary: Rebooting of pentium-I during initial booting phase.
+| >    Kernel Version: 2.5.65 (probably most versions of 2.5.x)
+| >            Status: NEW
+| >          Severity: normal
+| >             Owner: mbligh@aracnet.com
+| >         Submitter: robins.t@kutumb.org.in
+| >
+| >
+| >Distribution: linus kernel 2.5.65 (probably 2.5.x)
+| >
+| >Hardware Environment: 
+| >Pentium - I (120 MHz) with FO-OF Bug
+| >Motherboard Via - With DMA Problem ("nodma" option required in 2.4.x kernels)
+| >16mb RAM (EDO)
+| >
+| >Software Environment:
+| >Linus kernel 2.5.65
+| >
+| >Problem Description:
+| >The new kernel 2.5.65 reboots while booting process (in the very initial phase) making even noting the progress very difficult.
+| >The system is running fine with 2.4.21-pre5, with the option "nodma".
+| 
+| Most probably a configuration error, viz. choosing a CPU type
+| higher than generic 586. My Socket7 ASUS T2P4 with a Pentium
+| Classic (pre-MMX) 133MHz boots 2.5.66 just fine.
 
+Yes, I agree with that suggestion, but I don't see a problem.
+Did you look at his .config file?  It's here:
+  http://bugme.osdl.org/attachment.cgi?id=261&action=view
 
-Distribution: Redhat 9 with module-init-tools 2.4.21-18
-Hardware Environment: IBM Thinkpad T21 type 2647-5BU
-Software Environment: kernel 2.5.66 (stock)
-Problem Description: The laptop's integrated ethernet chipset, a 
-3Com PCI 3c556B Laptop Hurricane (according to a 2.4.20 Redhat 9 kernel) does
-not correctly detect under kernel 2.5.66 and as a result does not work
-correctly. A DHCP fails with event errors.
+I'm comparing it to the .config on my Pentium-with-f00f-bug, which does
+boot 2.5.65 successfully, and I don't see CPU option differences.
+I see lots that don't matter and I see PIIX vs. VIA option differences.
 
-Steps to reproduce:
-Attempt to modprobe the card. In a successful 2.4.20 modprobe (debug=2), you see:
-PCI: Found IRQ 11 for device 00:03.0
-PCI: Sharing IRQ 11 with 00:03.1
-PCI: Sharing IRQ 11 with 08:02.0
-PCI: Sharing IRQ 11 with 08:02.1
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-See Documentation/networking/vortex.txt
-00:03.0: 3Com PCI 3c556B Laptop Hurricane at 0x1800. Vers LK1.1.18-ac
-00:01:03:86:19:b8, IRQ 11
-product code 0000 rev aa.8 date 03-01-00
-00:03.0: CardBus functions mapped e8101000->e097c000
-Internal config register is 80600040, transceivers 0x40.
-8K byte-wide RAM 5:3 Rx:Tx split, MII interface.
-MII transceiver found at address 0, status 786d.
-/etc/hotplug/net.agent: invoke ifup eth0
-Enabling bus-master transmits and whole-frame receives.
-00:03.0: scatter/gather enabled. h/w checksums enabled
-divert: allocating divert_blk for eth0
-kernel: eth0: using default media MII
-kernel: eth0: Initial media type MII.
-kernel: eth0: MII #0 status 786d, link partner capability 41e1, info1 0010,
-setting full-duplex.
-kernel: eth0: vortex_up() InternalConfig 80600040.
-eth0: vortex_up() irq 11 media status 8800.
+Oh, and I have CONFIG_VIDEO_DEV enabled, while Robins does not.
+Would that matter?
 
-In a failure, on 2.5.66 (debug=7), you see:
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-See Documentation/networking/vortex.txt
-00:03.0: 3Com PCI 3c556B Laptop Hurricane at 0x1800. Vers LK1.1.19
-ff:ff:ff:ff:ff:ff, IRQ 11
-product code ffff rev ffff.15 date 15-31-127
-00:03.0: CardBus functions mapped e8101000->e0859000
-Full duplex capable
-Internal config register is ffffffff, transceivers 0xffff.
-1024K word-wide RAM 3:5 Rx:Tx split, autoselect/<invalid transceiver> interface.
-***WARNING*** No MII transceivers found!
-Enabling bus-master transmits and early receives.
-00:03.0: scatter/gather enabled. h/w checksums enabled
-divert: allocating divert_blk for eth0
-
-lspci -vx:
-00:03.0 Ethernet controller: 3Com Corporation 3c556B Hurricane CardBus (rev 20)
-        Subsystem: 3Com Corporation: Unknown device 6356
-        Flags: bus master, medium devsel, latency 80, IRQ 11
-        I/O ports at 1800 [size=256]
-        Memory at e8101400 (32-bit, non-prefetchable) [size=128]
-        Memory at e8101000 (32-bit, non-prefetchable) [size=128]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [50] Power Management version 2
-00: b7 10 56 60 17 00 10 02 20 00 00 02 08 50 80 00
-10: 01 18 00 00 00 14 10 e8 00 10 10 e8 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 b7 10 56 63
-30: 00 00 00 00 50 00 00 00 00 00 00 00 0b 01 0a 0a
-
-If other testing/info is needed, that can be done...
-
-
+--
+~Randy

@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270720AbRHKE34>; Sat, 11 Aug 2001 00:29:56 -0400
+	id <S270719AbRHKElT>; Sat, 11 Aug 2001 00:41:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270719AbRHKE3r>; Sat, 11 Aug 2001 00:29:47 -0400
-Received: from zero.tech9.net ([209.61.188.187]:38408 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S270718AbRHKE3c>;
-	Sat, 11 Aug 2001 00:29:32 -0400
-Subject: Re: [PATCH] 2.4.7-ac11: Updated emu10k1 driver
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <997501334.7306.8.camel@phantasy>
-In-Reply-To: <997485043.692.23.camel@phantasy>
-	<997496304.898.82.camel@phantasy>  <3B74A69D.214B4232@damncats.org> 
-	<997501334.7306.8.camel@phantasy>
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 11 Aug 2001 00:30:39 -0400
-Message-Id: <997504241.7306.23.camel@phantasy>
-Mime-Version: 1.0
+	id <S270718AbRHKElK>; Sat, 11 Aug 2001 00:41:10 -0400
+Received: from mail5.speakeasy.net ([216.254.0.205]:45316 "EHLO
+	mail5.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S270717AbRHKElC>; Sat, 11 Aug 2001 00:41:02 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: safemode <safemode@speakeasy.net>
+To: Rik van Riel <riel@conectiva.com.br>, "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: VM nuisance
+Date: Sat, 11 Aug 2001 00:41:12 -0400
+X-Mailer: KMail [version 1.3]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0108110117160.3530-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0108110117160.3530-100000@imladris.rielhome.conectiva>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010811044103Z270717-760+22@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 Aug 2001 23:42:02 -0400, Robert Love wrote:
-> i have updated the patches to release 3:
-> http://tech9.net/rml/linux/patch-rml-2.4.7-ac11-emu10k1-3
-> and
-> http://tech9.net/rml/linux/patch-rml-2.4.7-emu10k1-3
+On Saturday 11 August 2001 00:17, Rik van Riel wrote:
+> On 10 Aug 2001, H. Peter Anvin wrote:
+> > > I haven't got the faintest idea how to come up with an OOM
+> > > killer which does the right thing for everybody.
+> >
+> > Basically because there is no such thing?
+>
+> Actually the killer itself isn't the problem.
+>
+> It's deciding when to let it kick in.
 
-apologies to those early grabbers, the files are up now.
+I was under the presumption from what David and others have said that the OOM 
+sometimes works the way it was meant to and kills the offending program, or 
+it put the box into this super sluggish state for a very long time regardless 
+if it was early or late.   If it only happens when it's late then what was 
+David talking about?   
 
 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
 
-
+> Rik
+> --
+> IA64: a worthy successor to i860.
+>
+> http://www.surriel.com/		http://distro.conectiva.com/
+>
+> Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+>

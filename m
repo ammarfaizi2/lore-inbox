@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbUEAUNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbUEAUsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbUEAUNv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 16:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbUEAUNv
+	id S262129AbUEAUsK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 16:48:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUEAUsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 16:13:51 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:48863 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262065AbUEAUNt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 16:13:49 -0400
-Date: Sat, 1 May 2004 22:13:42 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>, linux-dvb-maintainer@linuxtv.org
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.6-rc3: modular DVB tda1004x broken
-Message-ID: <20040501201342.GL2541@fs.tum.de>
-References: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org> <408F9BD8.8000203@eyal.emu.id.au>
-Mime-Version: 1.0
+	Sat, 1 May 2004 16:48:10 -0400
+Received: from citrine.spiritone.com ([216.99.193.133]:40608 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S262129AbUEAUsG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 16:48:06 -0400
+Date: Sat, 01 May 2004 13:47:49 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Marc Boucher <marc@linuxant.com>
+cc: Tim Connors <tconnors+linuxkernel1083378452@astro.swin.edu.au>,
+       "'lkml - Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+Message-ID: <17110000.1083444468@[10.10.2.4]>
+In-Reply-To: <772768DC-9BA3-11D8-B83D-000A95BCAC26@linuxant.com>
+References: <009701c42edf$25e47390$ca41cb3f@amer.cisco.com> <Pine.LNX.4.58.0404301212070.18014@ppc970.osdl.org> <90DD8A88-9AE2-11D8-B83D-000A95BCAC26@linuxant.com> <6900000.1083388078@[10.10.2.4]> <772768DC-9BA3-11D8-B83D-000A95BCAC26@linuxant.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <408F9BD8.8000203@eyal.emu.id.au>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 28, 2004 at 09:56:08PM +1000, Eyal Lebedinsky wrote:
->...
-> depmod says:
+>>> All bugs can be debugged or fixed, it's a matter of how hard it is
+>>> to do (generally easier with open-source) and *who* is responsible
+>>> for doing it (i.e. supporting the modules).
+>> 
+>> Yes, exactly. The tainted mechanism is there to tell us that it's not
+>> *our* problem to support it. And you deliberately screwed that up,
+>> which is why everybody is pissed at you.
 > 
-> WARNING: 
-> /lib/modules/2.6.6-rc3/kernel/drivers/media/dvb/frontends/tda1004x.ko needs 
-> unknown symbol errno
->...
+> It was already screwed up, and causing unnecessary support burdens
+> both on the community ("help! what does tainted mean") and vendors.
+> This thread and previous ones have shown ample evidence of that.
+> Let's deal with the root problem and fix the messages, as Rik van Riel
+> has suggested.
+> 
+> Most third-party module suppliers have been confronted with the same issue
+> and forced to work around it (in other imperfect and sometimes clumsy ways).
 
-Thanks for this report.
+Odd that none of them just submitted a patch to fix the "real problem" then.
+Sorry, I don't believe that was your only intent.
 
-It seems the DVB updates broke this.
+> One of them redirects the messages to a separate file and appends
+> the following notice:
+>
+>  > ********************************************************************
+>  > * You can safely ignore the above message about tainting the kernel.
+>  > * It is completely political and means just that the maintainers of
+>  > * of modutils package dislike software that is not distributed under
+>  > * an open source license.
+>  > ********************************************************************
 
-Please _undo_ the patch below.
+Which is bullshit - It's not political, it's a matter of support. Problems
+that appeared to be VM issues, or other things, turned out to be binary
+driver issues, which we can't fix, and is a total waste of our time. 
+Whether you agree with what we chose to support or not is completely
+immaterial - it's not your call.
 
-cu
-Adrian
+M.
 
---- a/drivers/media/dvb/frontends/tda1004x.c	Tue Apr 27 18:37:15 2004
-+++ b/drivers/media/dvb/frontends/tda1004x.c	Tue Apr 27 18:37:15 2004
-@@ -188,7 +190,6 @@
- static struct fwinfo tda10046h_fwinfo[] = { {.file_size = 286720,.fw_offset = 0x3c4f9,.fw_size = 24479} };
- static int tda10046h_fwinfo_count = sizeof(tda10046h_fwinfo) / sizeof(struct fwinfo);
- 
--static int errno;
- 
- 
- static int tda1004x_write_byte(struct dvb_i2c_bus *i2c, struct tda1004x_state *tda_state, int reg, int data)

@@ -1,33 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266868AbTAUVfD>; Tue, 21 Jan 2003 16:35:03 -0500
+	id <S267228AbTAUVrG>; Tue, 21 Jan 2003 16:47:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266948AbTAUVfD>; Tue, 21 Jan 2003 16:35:03 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:21743 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S266868AbTAUVfC>; Tue, 21 Jan 2003 16:35:02 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Olaf Titz <olaf@bigred.inka.de>
+	id <S267241AbTAUVrG>; Tue, 21 Jan 2003 16:47:06 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:17041 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S267228AbTAUVrE>; Tue, 21 Jan 2003 16:47:04 -0500
+Date: Tue, 21 Jan 2003 13:56:02 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Steven Dake <sdake@mvista.com>
 Cc: linux-kernel@vger.kernel.org
-Date: Tue, 21 Jan 2003 13:30:44 -0800 (PST)
-Subject: Re: ANN: LKMB (Linux Kernel Module Builder) version 0.1.16
-In-Reply-To: <E18b5kc-0003BB-00@bigred.inka.de>
-Message-ID: <Pine.LNX.4.44.0301211329420.7857-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: 32bit dev_t
+Message-ID: <20030121215602.GI20972@ca-server1.us.oracle.com>
+References: <20030121195041.GE20972@ca-server1.us.oracle.com> <3E2DBBAD.80206@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E2DBBAD.80206@mvista.com>
+User-Agent: Mutt/1.4i
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jan 2003, Olaf Titz wrote:
+On Tue, Jan 21, 2003 at 02:29:17PM -0700, Steven Dake wrote:
+> Linux doesn't really need a 32 bit kdev_t structure to support 1000 
+> disks.  There is plenty of device space available to support over 1500 
+> disks by modifying the linux scsi layer.
 
-> Frankly, I think the main reason is that Linus doesn't care at all
-> about the kernel build process. We've had a _much_ better solution
-> already in the 2.5 cycle which was rejected for completely bogus
-> formal reasons coupled with an explicit "why do we need this at all",
-> even though it was pointed out over and over again what is broken
-> currently (or was back then, granted it has improved but not as much
-> as is desirable and possible).
+	First, that's an approach that removes space from other devices.
+In addition, I suspect we'll see 2000 disk systems before we see 2.8.
 
-in this case the real reason is probably that Linus seldom uses modules.
+Joel
 
-David Lang
+
+-- 
+
+"I am working for the time when unqualified blacks, browns, and
+ women join the unqualified men in running our overnment."
+	- Sissy Farenthold
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

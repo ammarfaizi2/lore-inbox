@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129340AbQLAJwx>; Fri, 1 Dec 2000 04:52:53 -0500
+	id <S129414AbQLAKAg>; Fri, 1 Dec 2000 05:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129434AbQLAJwn>; Fri, 1 Dec 2000 04:52:43 -0500
-Received: from max.phys.uu.nl ([131.211.32.73]:54285 "EHLO max.phys.uu.nl")
-	by vger.kernel.org with ESMTP id <S129340AbQLAJwZ>;
-	Fri, 1 Dec 2000 04:52:25 -0500
-Date: Fri, 1 Dec 2000 10:21:56 +0100 (MET)
-From: Dries van Oosten <D.vanOosten@phys.uu.nl>
-To: Dax Kelson <dax@gurulabs.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 routing problem
-In-Reply-To: <Pine.SOL.4.30.0012010214460.5548-100000@ultra1.inconnect.com>
-Message-ID: <Pine.OSF.4.30.0012011020410.15665-100000@ruunat.phys.uu.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129434AbQLAKA0>; Fri, 1 Dec 2000 05:00:26 -0500
+Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:54006 "EHLO
+	passion.cygnus") by vger.kernel.org with ESMTP id <S129414AbQLAKAL>;
+	Fri, 1 Dec 2000 05:00:11 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20001130203703Z129437-440+118@vger.kernel.org> 
+In-Reply-To: <20001130203703Z129437-440+118@vger.kernel.org>  <200011301803.eAUI3Pu16137@webber.adilger.net> 
+To: Timur Tabi <ttabi@interactivesi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Pls add this driver to the kernel tree !! 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 01 Dec 2000 09:26:29 +0000
+Message-ID: <24827.975662789@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Dec 2000, Dax Kelson wrote:
 
-> Dries van Oosten said once upon a time (Fri, 1 Dec 2000):
->
-> > Can someone point me to how routing is done in the 2.4 kernel?
-> > My net-tools don't work anymore (specifically route fails to produce the
-> > routing table). I look around a bit in the kernel sources and notice
-> > things have changed. What kind of options are there now to influence the
-> > routing table?
->
-> My net-tools v1.56 that comes with Red Hat 7 works fine.
->
-> If you want to take full advantage of all the networking features, you
-> need to use iproute2.
->
-> ftp://ftp.inr.ac.ru/ip-routing/iproute2-2.2.4-now-ss??????.tar.gz
+ttabi@interactivesi.com said:
+>  Not necessarily - it all depends on what your driver does.  In many
+> cases, supporting 2.2 and 2.4 is easy, and all you need are a few
+> #if's.  It's certainly much better to have a dozen or so #if's
+> sprinkled throughout the code than to have two separate source trees,
+> and have to make the same change to multiple files.
 
-I downloaded and compiled them and they don't work as well.
-What am I missing here?
+It's even better to do it without the ugly preprocessor magic - see 
+include/linux/compatmac.h
 
-Groeten,
-Dries
+There are a few things missing from there - include/linux/mtd/compatmac.h 
+has more. One day we'll get round to removing the latter and merging it 
+into the main one, hopefully. 
+
+--
+dwmw2
 
 
 -

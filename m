@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263344AbTCVQYj>; Sat, 22 Mar 2003 11:24:39 -0500
+	id <S263653AbTCVQZy>; Sat, 22 Mar 2003 11:25:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263380AbTCVQYj>; Sat, 22 Mar 2003 11:24:39 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:25098 "EHLO
+	id <S263650AbTCVQZx>; Sat, 22 Mar 2003 11:25:53 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:26378 "EHLO
 	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id <S263344AbTCVQYg>; Sat, 22 Mar 2003 11:24:36 -0500
-Date: Sun, 23 Mar 2003 01:35:35 +0900 (JST)
-Message-Id: <20030323.013535.60875023.yoshfuji@linux-ipv6.org>
+	id <S263380AbTCVQYl>; Sat, 22 Mar 2003 11:24:41 -0500
+Date: Sun, 23 Mar 2003 01:35:28 +0900 (JST)
+Message-Id: <20030323.013528.19572208.yoshfuji@linux-ipv6.org>
 To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 CC: davem@redhat.com, kuznet@ms2.inr.ac.ru, usagi@linux-ipv6.org
-Subject: [PATCH] IPv6: use ipv6_addr_any() for testing unspecified address
+Subject: [PATCH] IPv6: use "const" qualifier
 From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
 	<yoshfuji@linux-ipv6.org>
 Organization: USAGI Project
@@ -28,50 +28,120 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello.
 
-Use ipv6_addr_any() for testing unspecified address.
-Patch is for linux-2.5.65 + ChangeSet 1.1188.
+Specify some arguments of IPv6 address manipulation / testing functions
+"const" qualifier.
+
+Patch is against linux-2.5.64 + ChangeSet 1.1188.
 This should be suitable for linux-2.4.x.
 
 Thanks in advance.
 
+Index: include/net/addrconf.h
+===================================================================
+RCS file: /cvsroot/usagi/usagi-backport/linux25/include/net/addrconf.h,v
+retrieving revision 1.1.1.4
+retrieving revision 1.1.1.4.4.1
+diff -u -r1.1.1.4 -r1.1.1.4.4.1
+--- include/net/addrconf.h	22 Mar 2003 01:52:43 -0000	1.1.1.4
++++ include/net/addrconf.h	22 Mar 2003 15:05:07 -0000	1.1.1.4.4.1
+@@ -175,7 +175,7 @@
+  *	Hash function taken from net_alias.c
+  */
+ 
+-static __inline__ u8 ipv6_addr_hash(struct in6_addr *addr)
++static __inline__ u8 ipv6_addr_hash(const struct in6_addr *addr)
+ {	
+ 	__u32 word;
+ 
+@@ -195,7 +195,7 @@
+  *	compute link-local solicited-node multicast address
+  */
+ 
+-static inline void addrconf_addr_solict_mult(struct in6_addr *addr,
++static inline void addrconf_addr_solict_mult(const struct in6_addr *addr,
+ 					     struct in6_addr *solicited)
+ {
+ 	ipv6_addr_set(solicited,
+@@ -219,7 +219,7 @@
+ 		      __constant_htonl(0x2));
+ }
+ 
+-static inline int ipv6_addr_is_multicast(struct in6_addr *addr)
++static inline int ipv6_addr_is_multicast(const struct in6_addr *addr)
+ {
+ 	return (addr->s6_addr32[0] & __constant_htonl(0xFF000000)) == __constant_htonl(0xFF000000);
+ }
+Index: include/net/ipv6.h
+===================================================================
+RCS file: /cvsroot/usagi/usagi-backport/linux25/include/net/ipv6.h,v
+retrieving revision 1.1.1.4
+retrieving revision 1.1.1.4.30.1
+diff -u -r1.1.1.4 -r1.1.1.4.30.1
+--- include/net/ipv6.h	9 Jan 2003 11:14:19 -0000	1.1.1.4
++++ include/net/ipv6.h	22 Mar 2003 14:56:24 -0000	1.1.1.4.30.1
+@@ -226,21 +226,21 @@
+ 					   unsigned int, unsigned int);
+ 
+ 
+-extern int		ipv6_addr_type(struct in6_addr *addr);
++extern int		ipv6_addr_type(const struct in6_addr *addr);
+ 
+-static inline int ipv6_addr_scope(struct in6_addr *addr)
++static inline int ipv6_addr_scope(const struct in6_addr *addr)
+ {
+ 	return ipv6_addr_type(addr) & IPV6_ADDR_SCOPE_MASK;
+ }
+ 
+-static inline int ipv6_addr_cmp(struct in6_addr *a1, struct in6_addr *a2)
++static inline int ipv6_addr_cmp(const struct in6_addr *a1, const struct in6_addr *a2)
+ {
+-	return memcmp((void *) a1, (void *) a2, sizeof(struct in6_addr));
++	return memcmp((const void *) a1, (const void *) a2, sizeof(struct in6_addr));
+ }
+ 
+-static inline void ipv6_addr_copy(struct in6_addr *a1, struct in6_addr *a2)
++static inline void ipv6_addr_copy(struct in6_addr *a1, const struct in6_addr *a2)
+ {
+-	memcpy((void *) a1, (void *) a2, sizeof(struct in6_addr));
++	memcpy((void *) a1, (const void *) a2, sizeof(struct in6_addr));
+ }
+ 
+ #ifndef __HAVE_ARCH_ADDR_SET
+@@ -255,7 +255,7 @@
+ }
+ #endif
+ 
+-static inline int ipv6_addr_any(struct in6_addr *a)
++static inline int ipv6_addr_any(const struct in6_addr *a)
+ {
+ 	return ((a->s6_addr32[0] | a->s6_addr32[1] | 
+ 		 a->s6_addr32[2] | a->s6_addr32[3] ) == 0); 
 Index: net/ipv6/addrconf.c
 ===================================================================
 RCS file: /cvsroot/usagi/usagi-backport/linux25/net/ipv6/addrconf.c,v
-retrieving revision 1.1.1.8.4.3
-retrieving revision 1.1.1.8.4.4
-diff -u -r1.1.1.8.4.3 -r1.1.1.8.4.4
---- net/ipv6/addrconf.c	22 Mar 2003 15:16:50 -0000	1.1.1.8.4.3
-+++ net/ipv6/addrconf.c	22 Mar 2003 15:27:05 -0000	1.1.1.8.4.4
-@@ -426,8 +426,7 @@
- 	}
- 	for (ifa=idev->addr_list; ifa; ifa=ifa->if_next) {
- 		ipv6_addr_prefix(&addr, &ifa->addr, ifa->prefix_len);
--		if (addr.s6_addr32[0] == 0 && addr.s6_addr32[1] == 0 &&
--		    addr.s6_addr32[2] == 0 && addr.s6_addr32[3] == 0)
-+		if (ipv6_addr_any(&addr))
- 			continue;
- 		if (idev->cnf.forwarding)
- 			ipv6_dev_ac_inc(idev->dev, &addr);
-@@ -2030,8 +2029,7 @@
- 		struct in6_addr addr;
+retrieving revision 1.1.1.8
+retrieving revision 1.1.1.8.4.2
+diff -u -r1.1.1.8 -r1.1.1.8.4.2
+--- net/ipv6/addrconf.c	22 Mar 2003 01:52:23 -0000	1.1.1.8
++++ net/ipv6/addrconf.c	22 Mar 2003 15:01:28 -0000	1.1.1.8.4.2
+@@ -172,7 +172,7 @@
+ const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
+ const struct in6_addr in6addr_loopback = IN6ADDR_LOOPBACK_INIT;
  
- 		ipv6_addr_prefix(&addr, &ifp->addr, ifp->prefix_len);
--		if (addr.s6_addr32[0] || addr.s6_addr32[1] ||
--		    addr.s6_addr32[2] || addr.s6_addr32[3])
-+		if (!ipv6_addr_any(&addr))
- 			ipv6_dev_ac_inc(ifp->idev->dev, &addr);
- 	}
- }
-@@ -2368,8 +2366,7 @@
- 			struct in6_addr addr;
+-int ipv6_addr_type(struct in6_addr *addr)
++int ipv6_addr_type(const struct in6_addr *addr)
+ {
+ 	int type;
+ 	u32 st;
+@@ -486,7 +486,7 @@
+ /* On success it returns ifp with increased reference count */
  
- 			ipv6_addr_prefix(&addr, &ifp->addr, ifp->prefix_len);
--			if (addr.s6_addr32[0] || addr.s6_addr32[1] ||
--			    addr.s6_addr32[2] || addr.s6_addr32[3])
-+			if (!ipv6_addr_any(&addr))
- 				ipv6_dev_ac_dec(ifp->idev->dev, &addr);
- 		}
- 		if (!ipv6_chk_addr(&ifp->addr, NULL))
+ static struct inet6_ifaddr *
+-ipv6_add_addr(struct inet6_dev *idev, struct in6_addr *addr, int pfxlen,
++ipv6_add_addr(struct inet6_dev *idev, const struct in6_addr *addr, int pfxlen,
+ 	      int scope, unsigned flags)
+ {
+ 	struct inet6_ifaddr *ifa;
 
 -- 
 Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>

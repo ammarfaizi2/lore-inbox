@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130624AbRBJGIQ>; Sat, 10 Feb 2001 01:08:16 -0500
+	id <S129256AbRBJHNU>; Sat, 10 Feb 2001 02:13:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130958AbRBJGIH>; Sat, 10 Feb 2001 01:08:07 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:37894
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130624AbRBJGH7>; Sat, 10 Feb 2001 01:07:59 -0500
-Date: Fri, 9 Feb 2001 22:06:39 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-        gandalf@winds.org
-Subject: Re: [preview] VIA IDE 4.0 and AMD IDE 2.0 with automatic PC
-In-Reply-To: <1500B3C52526@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.10.10102092206130.7400-100000@master.linux-ide.org>
+	id <S129261AbRBJHNJ>; Sat, 10 Feb 2001 02:13:09 -0500
+Received: from omecihuatl.rz.Uni-Osnabrueck.DE ([131.173.17.35]:24850 "EHLO
+	omecihuatl.rz.uni-osnabrueck.de") by vger.kernel.org with ESMTP
+	id <S129256AbRBJHMx> convert rfc822-to-8bit; Sat, 10 Feb 2001 02:12:53 -0500
+Date: Sat, 10 Feb 2001 08:09:45 +0100 (MET)
+From: ARND BERGMANN <std7652@et.FH-Osnabrueck.DE>
+To: Francois Romieu <romieu@cogenit.fr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: epic100 in current -ac kernels
+In-Reply-To: <20010209124728.A28045@se1.cogenit.fr>
+Message-ID: <Pine.GSO.4.21.0102100755080.16343-100000@gamma10>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Feb 2001, Petr Vandrovec wrote:
+On Fri, 9 Feb 2001, Francois Romieu wrote:
 
-> On  9 Feb 01 at 16:58, Vojtech Pavlik wrote:
-> 
-> > Unfortunately the PCI speed measuring code needs help from the chipset
-> > itself, so it isn't possible to implement in generic code. Maybe a
-> > callback could be added to the chipset-specific drivers, though ...
+> ARND BERGMANN <std7652@et.FH-Osnabrueck.DE> écrit :
+> > On Thu, 8 Feb 2001, Francois Romieu wrote:
 > > 
-> > I do have some plans with ide-pci.c, so ...
+> > > > 
+> > > > Working epic100 drivers:
+> > > >  - 2.4.0
+> > > >  - 2.4.0-ac9
+> > > 
+> > > Could you give a look at ac12 (fine here) ?
+> > > 
+> > No, does not work, same problem.
 > 
-> Is not PCI speed determined by host-bridge setting (and not by IDE 
-> interface)? In that case we should determine bus speed on PCI bus scan 
-> using chipset specific drivers. Other non IDE devices, such as matroxfb, 
-> may be interested in PCI speed too.
+> The modifications between ac9 and ac12 come from the new DMA 
+> mapping.
+What about 2.4.0-ac5? That had the same problem as -ac12. Did it also have
+the new DMA mapping?
 
-that file will most likely go away in 2.5
+> They added a bug for the (already buggy ?) big-endian
+> machines. I would be surprised that something has *always* been 
+> missing in the driver and your hardware triggers it*. IMHO the culprit 
+> is to be found elsewhere.
+Yes, I'm pretty sure the problem is not only the epic100 driver, now that
+I have done some more investigation. With the broken drivers (I tried
+2.4.0-ac12 and 2.4.1-ac5), something generates an enourmous amount of
+interrupts as soon as I run 'ifconfig eth0 up'. Within 10 seconds, I got
+roughly 950000 interrupts on IRQ11, instead of 30!
+After disabling the usb-uhci (I was using the JE driver) in the BIOS
+setup, the system reproducibly locked up hard a few seconds after
+'ifconfig eth0 up' instead of just getting slow.
+Unfortunately, I have no way to also disable the sound card, but at least
+it does not make a change if the sound driver is loaded or not.
 
+> I'd like to know what it's worth to share an irq with a pio audio card.
+On Monday I can ask the system administrator for the keys so I can open
+the machine and put the card into another slot. Right now, USB, sound and
+network are hardwired to the same IRQ, that's how the system arrived here.
 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+Arnd <><
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

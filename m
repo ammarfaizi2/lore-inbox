@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268697AbUHLTxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268705AbUHLUCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268697AbUHLTxF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 15:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268696AbUHLTxE
+	id S268705AbUHLUCf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 16:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268707AbUHLUCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 15:53:04 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:42460 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S268697AbUHLTwk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 15:52:40 -0400
-Date: Thu, 12 Aug 2004 14:51:59 -0500
-From: Jake Moilanen <moilanen@austin.ibm.com>
-To: Joshua Kwan <joshk@triplehelix.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OT: Distribution for Power4 Machines
-Message-Id: <20040812145159.3614473f@localhost>
-In-Reply-To: <pan.2004.08.11.17.20.38.570218@triplehelix.org>
-References: <20040811055622.52917.qmail@web13911.mail.yahoo.com>
-	<15070000.1092237689@[10.10.2.4]>
-	<1092238482.6033.4.camel@nighthawk>
-	<pan.2004.08.11.17.20.38.570218@triplehelix.org>
-Organization: LTC
-X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 12 Aug 2004 16:02:35 -0400
+Received: from ns1.lanforge.com ([66.165.47.210]:8940 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S268705AbUHLUCc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 16:02:32 -0400
+Message-ID: <411BCCC7.2090804@candelatech.com>
+Date: Thu, 12 Aug 2004 13:02:15 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: "David S. Miller" <davem@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] enhanced version of net_random()
+References: <20040812104835.3b179f5a@dell_ss3.pdx.osdl.net>
+In-Reply-To: <20040812104835.3b179f5a@dell_ss3.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Thanks to Sven Luther our new installer fully supports power4 (as far as
-> I know, I don't personally own one.)
+Stephen Hemminger wrote:
+> While doing the network emulator, I discovered that the default net_random()
+> is too stupid, and get_random_bytes() is more than needed. Rather than put
+> another function in just for sch_netem, how about making net_random() smarter?
+> The tin-hat crowd already replace net_random() with get_random_bytes anyway.
 > 
-> http://gluck.debian.org/cdimage/testing/daily/powerpc/current/
-> 
-> should contain a CD image that can boot your machine.
+> Here is a proposed alternative to use a longer period PRNG for net_random().
+> The choice of TT800 was because it was freely available, had a long period,
+> was fast and relatively small footprint. The existing net_random() was not
+> really thread safe, but was immune to thread corruption. 
 
-Unless they fixed this very recently, the kernels they build for power4
-are the 32-bit ones.  Which work fine if you are booting power4 natively
-(ie without it running in partition).  As soon as a power4 box is
-running in a partition the kernel breaks because the 32-bit one does not
-have the hypervisor calls.
+Is it really worth the extra spin lock & math?  Maybe we could have a
+net_more_random() method instead that encompasses this improved random logic?
 
-I know Tom Gall has been working on Gentoo for ppc64.  
+Ben
 
-	http://dev.gentoo.org/~tgall/
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 
-Thanks,
-Jake

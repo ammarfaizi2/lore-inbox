@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271933AbRH2Isa>; Wed, 29 Aug 2001 04:48:30 -0400
+	id <S271932AbRH2IkT>; Wed, 29 Aug 2001 04:40:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271934AbRH2IsV>; Wed, 29 Aug 2001 04:48:21 -0400
-Received: from pat.uio.no ([129.240.130.16]:11650 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S271933AbRH2IsG>;
-	Wed, 29 Aug 2001 04:48:06 -0400
+	id <S271933AbRH2IkJ>; Wed, 29 Aug 2001 04:40:09 -0400
+Received: from galba.tp1.ruhr-uni-bochum.de ([134.147.240.75]:28164 "EHLO
+	galba.tp1.ruhr-uni-bochum.de") by vger.kernel.org with ESMTP
+	id <S271932AbRH2IkB>; Wed, 29 Aug 2001 04:40:01 -0400
+Date: Wed, 29 Aug 2001 10:40:17 +0200 (CEST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+To: Pascal Schmidt <pleasure.and.pain@web.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Can't compile HiSaX into 2.2.20pre9 kernel
+In-Reply-To: <Pine.LNX.4.33.0108290222470.890-100000@neptune.sol.net>
+Message-ID: <Pine.LNX.4.33.0108291038500.18233-100000@chaos.tp1.ruhr-uni-bochum.de>
 MIME-Version: 1.0
-Message-ID: <15244.44115.209683.288790@charged.uio.no>
-Date: Wed, 29 Aug 2001 10:48:19 +0200
-To: volodya@mindspring.com
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
-Subject: Re: NFS in 2.4.9
-In-Reply-To: <Pine.LNX.4.20.0108282041120.23923-100000@node2.localnet.net>
-In-Reply-To: <shsbsl0ij35.fsf@charged.uio.no>
-	<Pine.LNX.4.20.0108282041120.23923-100000@node2.localnet.net>
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == volodya  <volodya@mindspring.com> writes:
+On Wed, 29 Aug 2001, Pascal Schmidt wrote:
+
+> On Wed, 29 Aug 2001, Pascal Schmidt wrote:
+> 
+> > The strange thing is, the drivers/isdn/isdn.a included above defines
+> > the symbol:
+> > /usr/src/linux-2.2.20pre9 # nm -a drivers/isdn/isdn.a | grep HiSax_setup
+> > 0000043c t HiSax_setup
+> 
+> Whooops, silly me. The problem is of course that the small "t" indicates
+> that HiSax_setup is a local symbol here, where it should be global and
+> shown as "T". It works with 2.2.19 because there HiSax_setup is a global
+> symbol.
+> 
+> Fix should be easy, though I don't know how to fix it. ;)
+
+In drivers/isdn/hisax/config.c, remove the "static" in the line
+
+static void HiSax_setup(...)
+
+I'll send a patch to Alan, thanks for reporting.
+
+--Kai
 
 
-    >> > NFS: NFSv3 not supported.  nfs warning: mount version older
-    >> > than kernel
-    >>
-    >> You forgot to enable NFSv3 support in your 2.4.9 kernel.
-
-     > I did.. I'll make clean and recompile the kernel again, just in
-     > case. But still: why complain about mount ? Why allow to mount
-     > a partition ?  I do not think this is the cause (also see
-     > below).
-
-The mount format changed when we added NFSv3. The new format is
-backward compatible, but we still print out a message in order to
-ensure people get the combination NFS + mount correct.
-
-     > the interface. Setting wsize and rsize to 5000 helped - thank
-     > you very much ! I guess that between 2.4.7 and 2.4.9 the
-     > default rsize and wsize went up.
-
-No. The default should still be the same. I changed the latter last in
-the 2.4.0 pre series. You can check what the actual value is using
-'/proc/mounts'.
-
-     > Now I am wondering what is wrong with large udp packets ? (my
-     > mtu is 1500 and they do get chopped up in smaller packets, but
-     > so do size 5524). Any ideas ?
-
-You're probably seeing fragments disappearing. UDP has no mechanism
-detect this, so when it happens, the RPC layer first has to time out
-and then resend the entire request. In TCP connections, only the
-missing fragment needs to be resent.
-Now as to the reason why fragments are disappearing, I suggest you
-look at your network layout and try to measure (with the aid of a
-packet sniffer such as tcpdump) on which segment the loss is occuring.
-
-Cheers,
-  Trond

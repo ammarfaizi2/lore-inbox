@@ -1,33 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262039AbSI3McQ>; Mon, 30 Sep 2002 08:32:16 -0400
+	id <S262040AbSI3MeK>; Mon, 30 Sep 2002 08:34:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262040AbSI3McQ>; Mon, 30 Sep 2002 08:32:16 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:9722 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262039AbSI3McP>; Mon, 30 Sep 2002 08:32:15 -0400
-Subject: Re: IDE patch for 2.4.19?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rodney Gordon II <meff@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020930034147.GA3431@spherenet.dyndns.org>
-References: <20020930034147.GA3431@spherenet.dyndns.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 30 Sep 2002 13:44:18 +0100
-Message-Id: <1033389858.16468.24.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262041AbSI3MeK>; Mon, 30 Sep 2002 08:34:10 -0400
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:63506 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id <S262040AbSI3MeJ>;
+	Mon, 30 Sep 2002 08:34:09 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: NatSemi SCx200 patches for Linux-2.5
+References: <87d6qvyb4c.fsf@zoo.weinigel.se>
+	<1033388216.16266.1.camel@irongate.swansea.linux.org.uk>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 30 Sep 2002 14:39:33 +0200
+In-Reply-To: <1033388216.16266.1.camel@irongate.swansea.linux.org.uk>
+Message-ID: <87u1k7wt16.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-09-30 at 04:41, Rodney Gordon II wrote:
-> Can anyone point me to a patch for 2.4.19 that is just the IDE changes
-> in the ac series that effects the ICH3M chipset and UDMA 3/4/5 settings?
-> Someone replied to my last post and said that this was merged in around
-> ac3 .. I'd really appreciate it :)
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-There isnt one, there won't be one. Its too hard to seperate out most of
-the work being done. The only change I have pushed to Marcelo is the
-i845G chipset setup
+> On Mon, 2002-09-30 at 12:23, Christer Weinigel wrote:
+> > How can I guarantee that the driver scx200.c is initialized before any
+> > other drivers that use the scx200_gpio functions (e.g. scx200_i2c.c)?
+> > I have put scx200.c in in arch/i386/kernel in the hope that this
+> > directory will always be initialized before anything else, but is this
+> > really true?
+> 
+> There are two ways. For built in code you can use the link order to
+> force ordering. In 2.4 thats your only real choice. For modules you need
+> to ensure there is a dependancy so modprobe loads the supporting module
+> first
 
+I'll just assume that it works then.  With the current link order in
+2.5 it works when compiled into the kernel and for the module case
+there is an explicit dependency.
+
+Now I just have to merge back a few things to the 2.4 code; I found a
+few uglies and want to see if the link order trick works with 2.4.
+
+  /Christer
+
+-- 
+"Just how much can I get away with and still go to heaven?"
+
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

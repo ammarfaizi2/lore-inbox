@@ -1,46 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263059AbUDLUca (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 16:32:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUDLUca
+	id S263081AbUDLUef (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 16:34:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263036AbUDLUef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 16:32:30 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:40628 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S263059AbUDLUc3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 16:32:29 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Mon, 12 Apr 2004 16:34:35 -0400
+Received: from mail.convergence.de ([212.84.236.4]:51381 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S263081AbUDLUea
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 16:34:30 -0400
+Message-ID: <407AFD5B.8010502@convergence.de>
+Date: Mon, 12 Apr 2004 22:34:35 +0200
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Problems adding sysfs support to dvb subsystem
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16506.64729.917048.491827@napali.hpl.hp.com>
-Date: Mon, 12 Apr 2004 13:32:25 -0700
-To: dl8bcu@dl8bcu.de
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, rth@twiddle.net,
-       spyro@f2s.com, rmk@arm.linux.org.uk, paulus@au.ibm.com,
-       benh@kernel.crashing.org, jes@trained-monkey.org, ralf@gnu.org,
-       matthew@wil.cx, davem@redhat.com, wesolows@foobazco.org,
-       jdike@karaya.com, ak@suse.de
-Subject: Re: [PATCH][RFC] sort out CLOCK_TICK_RATE usage [1/3]
-In-Reply-To: <20040412200835.A5625@Marvin.DL8BCU.ampr.org>
-References: <20040412075519.A5198@Marvin.DL8BCU.ampr.org>
-	<20040412075704.B5198@Marvin.DL8BCU.ampr.org>
-	<16506.50767.128817.828166@napali.hpl.hp.com>
-	<20040412200835.A5625@Marvin.DL8BCU.ampr.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 12 Apr 2004 20:08:36 +0000, Thorsten Kranzkowski <dl8bcu@dl8bcu.de> said:
+Hello all,
 
-  Thorsten> So I thought an architectural define was
-  Thorsten> appropriate. Maybe timex.h is not the best place to put it
-  Thorsten> in.
+I'm currently trying to add proper sysfs support to the dvb subsystem, 
+but I'm stuck because I don't know if I'm on the right way. 8-(
 
-Yes, a #define is probably needed, but I do think timex.h is the wrong
-place.  Perhaps <asm/8253pit.h> along with a suitable CONFIG_8253PIT
-Kconfig option?
+ From the docs and existing drivers I read so far I concluded that 
+adding a new class via class_register(&dvb_class) is the way to go.
 
-	--david
+With this I get:
+/sys/class/dvb/
+
+Now there can be several dvb adapters present in the system, each of 
+this adapter can have several "subsystems" (video decoder, audio 
+decoder, frontend ("tuner"), ...)
+
+New adapters register themselves via dvb_register_adapter() and if this 
+was succesfull, they register their subsystems via dvb_register_device().
+
+What I'd like to have is something like this, so I can add attributes to 
+the frontend for example:
+/sys/class/dvb/adapter0/frontend0/
+
+I wasn't able to find a driver that provides this simple "hierarchical" 
+order, so I did some experiments with little luck.
+
+Creating this hierarchical order manually (like for "devfs") didn't 
+work, I get
+ > find: /sys/class/dvb/adapter0/frontend0: No such file or directory
+errors upon access:
+
+ > sprintf((void*)&dvbdev->class_device.class_id, "adapter%d/%s%d", 
+adap->num, dnames[type], id);
+ > class_device_register(&dvbdev->class_device);
+
+I then tried to find a way to first use class_device_register() with 
+adapter0  (which works of course), and then with class_device_register() 
+again with frontend0, but obviously I cannot connect these two 
+instances, because adapter doesn't have a "struct device" where I can 
+point the class_device.dev entry from frontend0 to... 8-(
+
+I'd really appreciate if somebody could give me some design hints or 
+point me to some documentation that would help me out.
+
+Thanks!
+Michael.
+

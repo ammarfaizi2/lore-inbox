@@ -1,25 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265676AbSIRGso>; Wed, 18 Sep 2002 02:48:44 -0400
+	id <S265675AbSIRGrR>; Wed, 18 Sep 2002 02:47:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265680AbSIRGso>; Wed, 18 Sep 2002 02:48:44 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:62855 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265676AbSIRGsn>;
-	Wed, 18 Sep 2002 02:48:43 -0400
-Date: Tue, 17 Sep 2002 23:44:40 -0700 (PDT)
-Message-Id: <20020917.234440.114538956.davem@redhat.com>
-To: greearb@candelatech.com
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Networking: send-to-self
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D88217A.6070702@candelatech.com>
-References: <3D88217A.6070702@candelatech.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S265676AbSIRGrR>; Wed, 18 Sep 2002 02:47:17 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:37126 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265675AbSIRGrQ>;
+	Wed, 18 Sep 2002 02:47:16 -0400
+Date: Tue, 17 Sep 2002 23:52:25 -0700
+From: Greg KH <greg@kroah.com>
+To: Duncan Sands <duncan.sands@wanadoo.fr>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.5.26 hotplug failure
+Message-ID: <20020918065225.GB6840@kroah.com>
+References: <200207180950.42312.duncan.sands@wanadoo.fr> <20020718183617.GI15529@kroah.com> <200209152353.41285.duncan.sands@wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200209152353.41285.duncan.sands@wanadoo.fr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Sep 15, 2002 at 11:53:41PM +0200, Duncan Sands wrote:
+> 
+> A simple fix is to change the test to [ $COUNT -lt 2 ];
 
-We saw it the first two times.
+Good catch, yes the drivers file disappeared, and until now, almost no
+one noticed it :)
+
+I'll go apply this patch.
+
+Thanks again for finding this.
+
+greg k-h

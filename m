@@ -1,60 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269473AbTGJRNc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 13:13:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269532AbTGJRKT
+	id S269542AbTGJRR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 13:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269433AbTGJRQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 13:10:19 -0400
-Received: from genius.impure.org.uk ([195.82.120.210]:5035 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S265525AbTGJRDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 13:03:36 -0400
-Date: Thu, 10 Jul 2003 18:20:52 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: NBD oops in 2.5-bk.
-Message-ID: <20030710172052.GA32479@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	Thu, 10 Jul 2003 13:16:01 -0400
+Received: from rrzd2.rz.uni-regensburg.de ([132.199.1.12]:60877 "EHLO
+	rrzd2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S269535AbTGJRPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 13:15:12 -0400
+Subject: nfs client oops with 2.4.20 / processes stuck in D state
+From: Christian Guggenberger 
+	<christian.guggenberger@physik.uni-regensburg.de>
+Reply-To: christian.guggenberger@physik.uni-regensburg.de
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-yDKVU6QatikZGUYAi9GC"
+Message-Id: <1057858191.446.10.camel@bonnie79>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 10 Jul 2003 19:29:51 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Current bitkeeper tree seems to have problems with NBD.
-As soon as I modprobe nbd (or boot with it compiled in)
-I get this..
 
-nbd: registered device at major 43
-Unable to handle kernel paging request at virtual address 5a5a5a7e
- printing eip:
-c027864b
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c027864b>]    Not tainted
-EFLAGS: 00010206
-EIP is at kobject_get+0xb/0x50
-eax: 5a5a5a6a   ebx: 5a5a5a6a   ecx: c0492e7f   edx: 00000000
-esi: ffffffea   edi: c60b91a0   ebp: c4f01f14   esp: c4f01f10
-ds: 007b   es: 007b   ss: 0068
-Process modprobe (pid: 1141, threadinfo=c4f00000 task=c6524000)
-Stack: c60b91a0 c4f01f24 c0278319 5a5a5a6a c60b91a0 c4f01f38 c0278537 c60b91a0 
-       c77f8004 c60b9004 c4f01f60 c03063e6 c60b91a0 c60b91a0 00000014 c0492e7d 
-       c046f3c6 c77f8004 d087bf60 00000001 c4f01fa8 d08151d9 c77f8004 d087bf40 
-Call Trace:
- [<c0278319>] kobject_init+0x29/0x50
- [<c0278537>] kobject_register+0x17/0x50
- [<c03063e6>] blk_register_queue+0x56/0x90
- [<d08151d9>] nbd_init+0x1d9/0x250 [nbd]
- [<c0144f5c>] sys_init_module+0x1cc/0x370
- [<c010a027>] syscall_call+0x7/0xb
+--=-yDKVU6QatikZGUYAi9GC
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Code: 8b 43 14 85 c0 74 0c ff 43 14 89 d8 8b 5d fc 89 ec 5d c3 68 
+ Hi,
+ 
+ recently we had an oops on an nfs client (Dell PE 2450). This machine is
+ running Debian GNU/Linux 3.0 with kernel-2.4.20 (+xfs from mid march and
+ ptrace patch) compiled with Debian's gcc-2.95.4. Now these processes are
+ stuck in D state (lock_p).
+ I've attached the decoded oops.
+ If more info is needed, please advice.
+ 
+ Christian
  
 
+--=-yDKVU6QatikZGUYAi9GC
+Content-Disposition: attachment; filename=bt.txt
+Content-Type: text/plain; name=bt.txt; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+ksymoops 2.4.5 on i686 2.4.20-xfs-p2.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.20-xfs-p2/ (default)
+     -m /boot/System.map-2.4.20-xfs-p2 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+1151MB HIGHMEM available.
+cpu: 0, clocks: 1324331, slice: 441443
+cpu: 1, clocks: 1324331, slice: 441443
+e100: selftest OK.
+e100: eth1: Intel(R) 8255x Based Network Connection
+SGI XFS CVS-2003-03-18_06:00_UTC with ACLs, no debug enabled
+e1000: eth0 NIC Link is Up 1000 Mbps Full Duplex
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+c0183441
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c0183441>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 00000000   ebx: d98130c0   ecx: d98130c8   edx: d98130c8
+esi: f66ef8fc   edi: f66ef8fc   ebp: d98130c0   esp: f362de44
+ds: 0018   es: 0018   ss: 0018
+Process gunzip (pid: 32283, stackpage=f362d000)
+Stack: 00000000 c0183abc d98130c0 d98130c0 f66b3f00 f66ef8fc d0436220 f362c000 
+       f362de64 f362de64 c01832e8 f66ef8fc c1a4f8d0 00000000 d0436220 c1a4f8d0 
+       d0436220 c0184ca7 c6d93ba0 d0436220 c1a4f8d0 00000000 00001000 c1a4f8d0 
+Call Trace: [<c0183abc>]  [<c01832e8>]  [<c0184ca7>]  [<c0185592>]  [<c012b13e>]  [<c012b795>]  [<c012b9ec>]  [<c012bfdf>]  [<c012be7c>]  [<c017fd2d>]  [<c0139f47>]  [<c0108a03>] 
+Code: 8b 00 85 c0 7d 08 0f 0b a9 00 70 39 24 c0 53 e8 0b ff ff ff 
+
+
+>>EIP; c0183441 <nfs_release_request+89/b4>   <=====
+
+>>ebx; d98130c0 <_end+194e06a4/384cd634>
+>>ecx; d98130c8 <_end+194e06ac/384cd634>
+>>edx; d98130c8 <_end+194e06ac/384cd634>
+>>esi; f66ef8fc <_end+363bcee0/384cd634>
+>>edi; f66ef8fc <_end+363bcee0/384cd634>
+>>ebp; d98130c0 <_end+194e06a4/384cd634>
+>>esp; f362de44 <_end+332fb428/384cd634>
+
+Trace; c0183abc <nfs_try_to_free_pages+10c/120>
+Trace; c01832e8 <nfs_create_request+a8/120>
+Trace; c0184ca7 <nfs_readpage_async+3f/ec>
+Trace; c0185592 <nfs_readpage+72/98>
+Trace; c012b13e <page_cache_read+a6/cc>
+Trace; c012b795 <generic_file_readahead+105/13c>
+Trace; c012b9ec <do_generic_file_read+1f0/464>
+Trace; c012bfdf <generic_file_read+83/110>
+Trace; c012be7c <file_read_actor+0/e0>
+Trace; c017fd2d <nfs_file_read+9d/ac>
+Trace; c0139f47 <sys_read+8f/100>
+Trace; c0108a03 <system_call+33/38>
+
+Code;  c0183441 <nfs_release_request+89/b4>
+00000000 <_EIP>:
+Code;  c0183441 <nfs_release_request+89/b4>   <=====
+   0:   8b 00                     mov    (%eax),%eax   <=====
+Code;  c0183443 <nfs_release_request+8b/b4>
+   2:   85 c0                     test   %eax,%eax
+Code;  c0183445 <nfs_release_request+8d/b4>
+   4:   7d 08                     jge    e <_EIP+0xe> c018344f <nfs_release_request+97/b4>
+Code;  c0183447 <nfs_release_request+8f/b4>
+   6:   0f 0b                     ud2a   
+Code;  c0183449 <nfs_release_request+91/b4>
+   8:   a9 00 70 39 24            test   $0x24397000,%eax
+Code;  c018344e <nfs_release_request+96/b4>
+   d:   c0 53 e8 0b               rclb   $0xb,0xffffffe8(%ebx)
+Code;  c0183452 <nfs_release_request+9a/b4>
+  11:   ff                        (bad)  
+Code;  c0183453 <nfs_release_request+9b/b4>
+  12:   ff                        (bad)  
+Code;  c0183454 <nfs_release_request+9c/b4>
+  13:   ff 00                     incl   (%eax)
+
+
+1 warning issued.  Results may not be reliable.
+
+--=-yDKVU6QatikZGUYAi9GC--
+

@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129844AbQLKTYX>; Mon, 11 Dec 2000 14:24:23 -0500
+	id <S129956AbQLKTZn>; Mon, 11 Dec 2000 14:25:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130070AbQLKTYN>; Mon, 11 Dec 2000 14:24:13 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:37042 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129866AbQLKTYD>;
-	Mon, 11 Dec 2000 14:24:03 -0500
-Date: Mon, 11 Dec 2000 13:53:35 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Dietmar Kling <dietmar.kling@sam-net.de>
-cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <3A3513F2.DF0F5289@sam-net.de>
-Message-ID: <Pine.GSO.4.21.0012111306150.7433-100000@weyl.math.psu.edu>
+	id <S129983AbQLKTZd>; Mon, 11 Dec 2000 14:25:33 -0500
+Received: from va-ext.webmethods.com ([208.234.160.252]:16224 "EHLO
+	localhost.neuron.com") by vger.kernel.org with ESMTP
+	id <S129956AbQLKTZN>; Mon, 11 Dec 2000 14:25:13 -0500
+Date: Mon, 11 Dec 2000 13:56:22 -0500 (EST)
+From: stewart@neuron.com
+To: Rik van Riel <riel@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kapm-idled : is this a bug?
+In-Reply-To: <Pine.LNX.4.21.0012111315350.4808-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.10.10012111343570.2897-100000@localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+very helpful.
 
-On Mon, 11 Dec 2000, Dietmar Kling wrote:
+Technical merits and voter intent aside, this behavior is misleading and
+inconsistent with previous kernels. Tools like top or a CPU dock applet show
+a constantly loaded CPU. Hacking them to deduct the load from 'kapm-idled'
+seems like the wrong answer.
 
-> I do not understand this 
-> "i saw it - yuck! - and now i want to kill it "
+stewart
 
-s/want to kill it/do not want to touch it/
 
-> point of view.
-> As I tried to point out. Things evolve. And
-> the evolution has the right do things wrong.
-> Next evolution step will do it probably better.
+On Mon, 11 Dec 2000, Rik van Riel wrote:
 
-You do realize what "evolution" means? I'm not talking about the bugs
-in implementation. I'm talking about botched design. _That_ never gets
-fixed. Show me one example when that would happen and I might consider
-taking such possibility seriously.
+> On Mon, 11 Dec 2000 stewart@neuron.com wrote:
+> 
+> 	[snip whine]
+> 
+> >  I've consistently re-produced this on my Dell Latitude CS laptop. I'm
+> >  wondering if this will reduce battery life since the CPU is constantly
+> >  being loaded instead of properly idled.
+> 
+> What do you suppose the 'idled' in 'kapm-idled' stands for?
+> 
+> Rik
 
-> Al same as kernel development.  With your attitude
-> i'd have dropped linux 0.99 immediatly.
-> Remember the code in certain parts?
 
-And? It wasn't nearly that huge and what matters _much_ more it was not
-that tasteless.
-
-> So what is your point?
-> I accept only  shiny little masterpieces of software?
-
-No. The larger it is - the harder it is to redesign. And both GNOME and
-KDE are _way_ past the size*severity_of_misdesign threshold. IOW, I simply
-don't believe that either project has sufficient manpower to fix their stuff.
-And that's orders of magnitude insufficient. As far as I can see they are
-also way past "it's easier to do from scratch than to fix" threshold. The
-same reason why I don't believe that NT will ever become decent OS, even
-if the full source would become available, yodda, yodda.
-
-Feel free to prove me wrong, but I would be very surprised to see it. And
-yes, the fact that UNIX was conceptually simple and relatively small helped
-it _big_ way. Small beasts adapt and propagate. Huge ones tend to become
-dead-ends. So much for evolution...
 
 
 -

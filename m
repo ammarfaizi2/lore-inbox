@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263233AbTDLKyo (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 06:54:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbTDLKyn (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 06:54:43 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:48512 "EHLO
+	id S263230AbTDLKu7 (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 06:50:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263233AbTDLKu6 (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 06:50:58 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:47744 "EHLO
 	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263233AbTDLKyn (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 06:54:43 -0400
+	id S263230AbTDLKu6 (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 06:50:58 -0400
 From: John Bradford <john@grabjohn.com>
-Message-Id: <200304121108.h3CB8TVD000392@81-2-122-30.bradfords.org.uk>
-Subject: Re: kernel support for non-English user messages
-To: kaih@khms.westfalen.de (Kai Henningsen)
-Date: Sat, 12 Apr 2003 12:08:29 +0100 (BST)
+Message-Id: <200304121105.h3CB5Cta000381@81-2-122-30.bradfords.org.uk>
+Subject: Re: Booting Problems in the 2.5 series!
+To: mfc@krycek.org (Mads Christensen)
+Date: Sat, 12 Apr 2003 12:05:12 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <8jkHLjRXw-B@khms.westfalen.de> from "Kai Henningsen" at Apr 12, 2003 10:22:00 AM
+In-Reply-To: <1050144042.11736.4.camel@krycek> from "Mads Christensen" at Apr 12, 2003 12:40:42 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -20,28 +20,18 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I've used VMS, and error code number encoding is a total heap of crap.
-> >
-> >
-> >  Maybe for developers, but users like it.  I can still remember back in
-> > the Old Days, taking those error codes and looking them up in something
-> > called a "manual" where there was a coherent explanation of
-> > what had gone wrong and even suggestions on what to do about it.
-> 
-> I think that's the real point here: without a manual to look things up in,  
-> none of this actually buys us anything.
+> I was just wondering, do you have to do something magical to get the 2.5
+> series booting, or is it just my debian thats fubar? :)
 
-Agreed.
+If you want to use modules, you'll need the new module utilities.
 
-> The grepme file someone proposed
+> I've tried 2.5.66 and 2.5.67 and they both halt on the initial line of
+> booting - 'Booting Linux, Uncompressing something...' or something like
+> that.
 
-It was me.  I'm happy to maintain it, if there is sufficient interest.
-
-> seems to be a reasonable first step,  
-> starting to number or otherways add a code to everything doesn't - it may  
-> or may not be a reasonable thing after there is experience with the grepme  
-> file, but we don't have that experience right now so we don't know.
-
-Agreed.
+If it's failing that early, then something is wrong with the kernel,
+or your hardware.  Try earlier kernels until you find one that works,
+then post the details, along with things like the output of lspci -v
+-v -v.
 
 John.

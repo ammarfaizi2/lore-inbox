@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129498AbRBGTgx>; Wed, 7 Feb 2001 14:36:53 -0500
+	id <S129583AbRBGTgx>; Wed, 7 Feb 2001 14:36:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129583AbRBGTgn>; Wed, 7 Feb 2001 14:36:43 -0500
-Received: from cambot.suite224.net ([209.176.64.2]:20754 "EHLO suite224.net")
-	by vger.kernel.org with ESMTP id <S129526AbRBGTgb>;
-	Wed, 7 Feb 2001 14:36:31 -0500
-Message-ID: <004101c0913d$bf74a860$0100a8c0@pcs586>
-From: "Matthew D. Pitts" <mpitts@suite224.net>
-To: "David S. Miller" <davem@redhat.com>, <davej@suse.de>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.31.0102071902490.17466-100000@athlon.local> <14977.40873.818021.723732@pizda.ninka.net>
-Subject: Re: FYI: Mailing list subscribed to l-k ?
-Date: Wed, 7 Feb 2001 14:39:53 -0500
+	id <S129526AbRBGTgn>; Wed, 7 Feb 2001 14:36:43 -0500
+Received: from 102-209.196.48.dellhost.com ([209.196.48.102]:50449 "HELO
+	mx-a.netli.com") by vger.kernel.org with SMTP id <S129498AbRBGTgY>;
+	Wed, 7 Feb 2001 14:36:24 -0500
+Message-ID: <3A81A204.3020002@netli.com>
+Date: Wed, 07 Feb 2001 11:29:08 -0800
+From: Ramana Juvvadi <juvvadi@netli.com>
+Reply-To: juvvadi@netli.com
+Organization: Netli Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-21mdk i686; en-US; Preview) Gecko/20001101 Beonex/0.6-pre
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Bug in tcp_time_to_recover 
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So that's why I'm getting duplicate posting on some meesages. Thanks Dave.
+Consider the following code in tcp_input.c
+-----------------------------------------------------------------
+static int
+tcp_time_to_recover(struct sock *sk, struct tcp_opt *tp)
+{
+   /* Trick#1: The loss is proven. */
+   if (tp->lost_out)
+       return 1;
 
-Matthew.
------ Original Message -----
-From: David S. Miller <davem@redhat.com>
-To: <davej@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Sent: Wednesday, February 07, 2001 2:19 PM
-Subject: Re: FYI: Mailing list subscribed to l-k ?
+   /* Not-A-Trick#2 : Classic rule... */
+   if (tcp_fackets_out(tp) > tp->reordering)
+                      ^^^^^^^^^
+       return 1;
+
+   /* Trick#3: It is still not OK... But will it be useful to delay
+    * recovery more?
+    */
+   if (tp->packets_out <= tp->reordering &&
+       tp->sacked_out >= max(tp->packets_out/2, sysctl_tcp_reordering) &&
+       !tcp_may_send_now(sk, tp)) {
+       /* We have nothing to send. This connection is limited
+        * either by receiver window or by application.
+        */
+       return 1;
+   }
+
+   return 0;
+}
+----------------------------------------------------
+
+Shouldn't it be a >= instead of > ?
+
+Ramana    
 
 
->
-> davej@suse.de writes:
->  >
->  >  Every mail I'm sending to l-k gets me a reply from
->  > linux-kernel-admin@lists.real-time.com saying it's
->  > awaiting moderator approval.
->  >
->  > ISTR this happened last week also with another domain ?
->
-> Yes, and those bozos (linux-kernel@tachyon.miralink.com)
-> keep resubscribing too.  I've removed them both.  Blacklisting
-> the miralink.com domain doesn't seem to be stopping the
-> subscriptions so I need to delve further where those are
-> coming from.
->
-> Later,
-> David S. Miller
-> davem@redhat.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280494AbRKXXdU>; Sat, 24 Nov 2001 18:33:20 -0500
+	id <S280510AbRKXXiu>; Sat, 24 Nov 2001 18:38:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280510AbRKXXdK>; Sat, 24 Nov 2001 18:33:10 -0500
-Received: from mnh-1-12.mv.com ([207.22.10.44]:14596 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S280494AbRKXXcz>;
-	Sat, 24 Nov 2001 18:32:55 -0500
-Message-Id: <200111250050.TAA06745@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Pavel Machek <pavel@suse.cz>
-Cc: Adam Feuer <adamf@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Swsusp mailing list <swsusp@lister.fornax.hu>,
-        ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        Gabor Kuti <seasons@falcon.sch.bme.hu>
-Subject: Re: [swsusp] Re: swsusp for 2.4.14 
-In-Reply-To: Your message of "Fri, 23 Nov 2001 13:46:40 GMT."
-             <20011123134639.A55@toy.ucw.cz> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 24 Nov 2001 19:50:42 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S280531AbRKXXik>; Sat, 24 Nov 2001 18:38:40 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:54286 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S280510AbRKXXi2>;
+	Sat, 24 Nov 2001 18:38:28 -0500
+Date: Sat, 24 Nov 2001 21:37:57 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: "F.H. Bulthuis" <bulthuis@home.nl>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.16-pre1
+In-Reply-To: <20011124233234.PTJT16304.mail1.home.nl@there>
+Message-ID: <Pine.LNX.4.33L.0111242137340.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pavel@suse.cz said:
->  Yep, its doable, but way harder than other ports where you only have
-> to restore CPU registers. And yes it would be cool. 
+On Sun, 25 Nov 2001, F.H. Bulthuis wrote:
 
-Yeah, Linux has a lot more "processor state" than the typical physical CPU.
+> After compiling and installing the new 2.4.16-pre1 uname -a reports
+> here version 2.4.15-greased-turkey, not 2.4.16-pre1.
 
-And I agree it would be very cool.
+Then you should reboot and start the new kernel ;)
 
-				Jeff
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

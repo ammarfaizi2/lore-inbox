@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261642AbSLQP4R>; Tue, 17 Dec 2002 10:56:17 -0500
+	id <S264629AbSLQQC4>; Tue, 17 Dec 2002 11:02:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263991AbSLQP4R>; Tue, 17 Dec 2002 10:56:17 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:4245 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261642AbSLQP4Q>; Tue, 17 Dec 2002 10:56:16 -0500
-Message-ID: <3DFF4A3E.30204@BitWagon.com>
-Date: Tue, 17 Dec 2002 08:01:02 -0800
-From: John Reiser <jreiser@BitWagon.com>
-Organization: -
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
+	id <S264673AbSLQQC4>; Tue, 17 Dec 2002 11:02:56 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:52790 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S264629AbSLQQC4>; Tue, 17 Dec 2002 11:02:56 -0500
+Date: Tue, 17 Dec 2002 16:12:00 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       Ulrich Drepper <drepper@redhat.com>, <linux-kernel@vger.kernel.org>,
+       <hpa@transmeta.com>
 Subject: Re: Intel P6 vs P7 system call performance
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.44.0212162140500.1644-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0212171556110.1460-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Dec 2002, Linus Torvalds wrote [regarding vsyscall implementation]:
- > The good news is that the kernel part really looks pretty clean.
+On Mon, 16 Dec 2002, Linus Torvalds wrote:
+> 
+> Ok, I did the vsyscall page too, and tried to make it do the right thing
+> (but I didn't bother to test it on a non-SEP machine).
+> 
+> I'm pushing the changes out right now, but basically it boils down to the
+> fact that with these changes, user space can instead of doing an
+> 
+> 	int $0x80
+> 
+> instruction for a system call just do a
+> 
+> 	call 0xfffff000
 
-Where is the CPU serializing instruction which must be executed before return
-to user mode, so that kernel accesses to hardware devices are guaranteed to
-complete before any subsequent user access begins?  (Otherwise a read/write
-by the user to a memory-mapped device page can appear out-of-order with respect
-to the kernel accesses in a preceding syscall.)  The only generally useful
-serializing instructions are IRET and CPUID; only IRET is implemented univerally.
+I thought that last page was intentionally left invalid?
 
--- 
-John Reiser, jreiser@BitWagon.com
+So that, for example, *(char *)MAP_FAILED will give SIGSEGV;
+whereas now I can read a 0 there (and perhaps you should be
+using get_zeroed_page rather than __get_free_page?).
+
+I cannot name anything which relies on that page being invalid,
+but think it would be safer to keep that it way; though I guess
+more compatibility pain to use the next page down (or could
+seg lim be used? I forget the granularity restrictions).
+
+Hugh
 

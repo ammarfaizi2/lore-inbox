@@ -1,92 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129097AbQKMWYe>; Mon, 13 Nov 2000 17:24:34 -0500
+	id <S129599AbQKMW0z>; Mon, 13 Nov 2000 17:26:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129388AbQKMWYZ>; Mon, 13 Nov 2000 17:24:25 -0500
-Received: from sgi.SGI.COM ([192.48.153.1]:32581 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S129097AbQKMWYI>;
-	Mon, 13 Nov 2000 17:24:08 -0500
-From: "LA Walsh" <law@sgi.com>
-To: "lkml" <linux-kernel@vger.kernel.org>
-Subject: writing out disk cache
-Date: Mon, 13 Nov 2000 13:52:39 -0800
-Message-ID: <NBBBJGOOMDFADJDGDCPHKEJDCJAA.law@sgi.com>
+	id <S129604AbQKMW0p>; Mon, 13 Nov 2000 17:26:45 -0500
+Received: from inet-smtp3.oracle.com ([205.227.43.23]:37068 "EHLO
+	inet-smtp3.oracle.com") by vger.kernel.org with ESMTP
+	id <S129599AbQKMW0d>; Mon, 13 Nov 2000 17:26:33 -0500
+Message-ID: <3A106380.CE41BBAE@oracle.com>
+Date: Mon, 13 Nov 2000 13:56:16 -0800
+From: Josue Emmanuel Amaro <Josue.Amaro@oracle.com>
+Organization: Linux Strategic Business Unit, Oracle Corporation
+X-Mailer: Mozilla 4.75 [en] (WinNT; U)
+X-Accept-Language: en,pdf
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+To: linux-kernel@vger.kernel.org
+Subject: Advanced Linux Kernel/Enterprise Linux Kernel
+In-Reply-To: <80256991.007632DE.00@d06mta06.portsmouth.uk.ibm.com>
+Content-Type: multipart/mixed;
+ boundary="------------996C7B2ED4685298B8C3F5CE"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another question that's been bugging me -- this is behavior that seems
-identical in 2216/2217 and not related to my ealier performance degredation
-post.
+This is a multi-part message in MIME format.
+--------------996C7B2ED4685298B8C3F5CE
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I run VMware.  It runs w/144Mg and writes out a 153M suspend file when I
-suspend it to disk.  My system has a total of 512M, so the entire
-suspend file gets written to the disk buffers pronto (often under 1 second).
+This subject came up in the Generalized Kernel Hooks Interface thread, since it
+is an area of interest to me I wanted to continue that conversation.
 
-But a 'sync' done afterwards can take anywhere from 20-40 seconds.
-vmstat shows a maximum b/o rate of 700, with 200-500 being typical.
+While I do not think it would be productive to enter a discussion whether there
+is a need to fork the kernel to add features that would be beneficial to
+mission/business critical applications, I am curious as to what are the features
+that people consider important to have.  By mission critical I mean systems that
+if not functional bring a business to a halt, while by business critical I mean
+systems that affect a division of a business.
 
-So, I know that the maximum write rate through the disk cache is
-close to 10,000 blocks/second.  So why when the disk cache of a
-large file is 'sync'ed out, do I get such low b/o rates?
+Another problem is how people define Enterprise Systems.  Many base it on the
+definitions that go back to S390 systems, others in the context of the 24/7
+nature of the internet.  That would also be a healthy discussion to have.
 
-Two sample 'vmstat 5' outputs during a sync were:
- 1  0  0   6292  13500 254572 165712   0   0     1     0  119   282   1   1
-98
- 2  0  0   6292  13444 254572 165716   0   0     0   702  279   534   0   2
-98
- 1  1  0   6292  13444 254572 165716   0   0     0   501  352   669   0   1
-99
- 0  1  0   6292  13444 254572 165716   0   0     0   520  372   697   0   2
-97
- 1  0  0   6292  13444 254572 165716   0   0     0   510  367   694   0   2
-98
- 0  1  0   6292  13444 254572 165716   0   0     0   694  379   715   0   2
-98
- 1  0  1   6292  13444 254572 165716   0   0     0   618  391   964   0   2
-98
- 0  1  1   6292  13444 254572 165716   0   0     0   441  302   765   0   1
-98
- 0  0  0   6292  13496 254572 165716   0   0     0    63  180   355   1   1
-99
- 0  0  0   6292  13496 254572 165716   0   0     0     0  103   195   0   1
-99
-----and
- 0  0  0   6228  18836 246036 167824   0   0     0     0  232   563   6  13
-82
- 0  1  0   6228  18784 246036 167824   0   0     0   506  175   489   2   1
-97
- 1  0  0   6228  18780 246036 167824   0   0     0   292  305   647   0   1
-99
- 0  1  0   6228  18780 246036 167824   0   0     0   253  285   602   0   1
-99
- 0  1  0   6228  18780 246036 167824   0   0     0   226  289   612   0   1
-99
- 1  0  0   6228  18832 246036 167824   0   0     0   157  199   406   0   1
-99
- 0  0  0   6228  18832 246036 167824   0   0     0     0  101   240   1   1
-99
----
-	Another oddity -- If you add up the rates in the 2nd example, and multiply
-the average rate by 5, you get around 5200 blocks written out (for a 152M
-file).
-Note that a du on it shows it to use 155352, so it isn't that it is sparse.
+At Oracle we are primarily interested on I/O subsystem features and memory
+management.  (For anyone that knows anything about Oracle this should not come
+as a surprise, although I am pretty sure that any database vendor/developer
+would be interested on those features as well.)
 
-	Is vmstat an unreliable measure?  The above tests were on a 2216 system.
-
--l
+Regards,
 
 --
-L A Walsh                        | Trust Technology, Core Linux, SGI
-law@sgi.com                      | Voice/Vmail: (650) 933-5338
+=======================================================================
+  Josue Emmanuel Amaro                         Josue.Amaro@oracle.com
+  Linux Products Manager
+  Intel and Linux Technologies Group
+=======================================================================
+
+
+--------------996C7B2ED4685298B8C3F5CE
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="Josue.Amaro.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for Josue Emmanuel Amaro
+Content-Disposition: attachment;
+ filename="Josue.Amaro.vcf"
+
+begin:vcard 
+n:Amaro;Josue Emmanuel
+tel;cell:650-245-5131
+tel;fax:650-413-0167
+tel;work:650-506-1239
+x-mozilla-html:FALSE
+url:http://www.oracle.com
+org:Intel and Linux Technologies
+version:2.1
+email;internet:Josue.Amaro@oracle.com
+title:Sr.Product Manager - Linux
+adr;quoted-printable:;;500 Oracle Parkway=0D=0AMS1ip4;Redwood Shores;CA;94065;United States
+fn:Josue Emmanuel Amaro
+end:vcard
+
+--------------996C7B2ED4685298B8C3F5CE--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,75 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130339AbRBTXhw>; Tue, 20 Feb 2001 18:37:52 -0500
+	id <S131124AbRBTXim>; Tue, 20 Feb 2001 18:38:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130899AbRBTXhm>; Tue, 20 Feb 2001 18:37:42 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:64520 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129767AbRBTXhe>;
-	Tue, 20 Feb 2001 18:37:34 -0500
-From: Daniel Phillips <phillips@innominate.de>
-To: Jeremy Jackson <jeremy.jackson@sympatico.ca>,
-        Mike Dresser <mdresser@windsormachine.com>
-Subject: Re: [rfc] Near-constant time directory index for Ext2
-Date: Wed, 21 Feb 2001 00:08:35 +0100
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01022020011905.18944@gimli> <3A92DF84.E39E415C@windsormachine.com> <3A92F17E.BFEDEADD@sympatico.ca>
-In-Reply-To: <3A92F17E.BFEDEADD@sympatico.ca>
-MIME-Version: 1.0
-Message-Id: <01022100361408.18944@gimli>
-Content-Transfer-Encoding: 7BIT
+	id <S131123AbRBTXic>; Tue, 20 Feb 2001 18:38:32 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:50948 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S131122AbRBTXiM>;
+	Tue, 20 Feb 2001 18:38:12 -0500
+Date: Wed, 21 Feb 2001 00:37:57 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: plugging in 2.4. Does it work?
+Message-ID: <20010221003757.A1447@suse.de>
+In-Reply-To: <20010220235400.A811@suse.de> <200102202327.f1KNRkc01834@oboe.it.uc3m.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200102202327.f1KNRkc01834@oboe.it.uc3m.es>; from ptb@it.uc3m.es on Wed, Feb 21, 2001 at 12:27:46AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Feb 2001, Jeremy Jackson wrote:
-> Mike Dresser wrote:
-> 
-> > the way i'm reading this, the problem is there's 65535 files in the directory
-> > /where/postfix/lives.  rm * or what have you, is going to take forever and
-> > ever, and bog the machine down while its doing it.  My understanding is you
-> > could do the rm *, and instead of it reading the tree over and over for every
-> > file that has to be deleted, it just jumps one or two blocks to the file that's
-> > being deleted, instead of thousands of files to be scanned for each file
-> > deleted.
-> 
-> I thought about it again, and the proformance problem with "rm *" is that
-> the shell reads and sorts the directory, passes each file as a separate
-> argument to rm, which then causes the kernel to lookup each file
-> from a random directory block (random because of previous sort),
-> modify that directory block, then read another... after a few seconds
-> the modified blocks start to be written back to disk while new ones
-> are looked up... disk seek contention.  and this becomes hard on the
-> dir. block cache (wherever this is) since from source each dir entry
-> is just over 256 bytes (?) 65535 files would require 16MB to
-> cache dir entries.  Plus it has to read in all the inodes, modify,
-> then write, taking up xxMB more.  You're probably swapping
-> out,  with swap partition on same disk, the disk may explode.
-> 
-> If it were truly doing a linear scan, it might be faster.  Two
-> successive mods to same dir block would be merged
-> onto same write.
-> 
-> Perhaps rm -rf . would be faster?  Let rm do glob expansion,
-> without the sort.  Care to recreate those 65535 files and try it?
-> 
-> or use ls with the nosort flag pipe through xargs then to rm...
-> again loose sorting but don't delete directory or subdirs.
+On Wed, Feb 21 2001, Peter T. Breuer wrote:
+> Actually I ignore the return value at present. I just wanted to know what
+> happened. I haven't the faintest idea whether running end_that_request_last
+> MEANS anything.
 
-Indeed, rm -rf is faster.  It does a readdir to get all the directory
-entries in internal order, then calls unlink to remove them, one at a
-time.  This removes each entry from the front of the file, shortening
-the time that has to be spent scanning forward in the file to find the
-target entry.  Manfred Spraul observed that this could be speeded up
-with by caching the file position, and sent me a patch to do that.  It
-did speed things up - about 20%.
+end_that_request_last most important job is up'ing any waiters on
+the request (not usual), and put the now completed request back
+on the queue free (or pending) list.
 
-But actually, rm is not problem, it's open and create.  To do a
-create you have to make sure the file doesn't already exist, and
-without an index you have to scan on average half the directory file. 
-Open requires a similar scan.  Here we are talking about using an index
-to speed that up quadraticly when operating on N files.  That is the
-real gravy.
+> > end_that_request_last, you are totally screwing the request
+> > lists. Maybe this is what's going wrong?
+> 
+> At the time that end_request is run, it's on my own queue, not on the
+> kernels queue. But I am eager for insight ... are you saying that
+> after end_that_request_last has run, all bets are off, because the
+> thing is completely vamooshed in every possible sense? I guess so.
+> But fear not ... I've already taken it off my queue too. I really
+> wanted the dequeue return value just in case maybe it would mean that
+> I'd have to put it back on my queue and have another attempt at 
+> acking it.
+
+You cannot put it on different queues when you have run
+end_that_request_last on it. For all you know, it may be a part
+of a new I/O request as soon as you drop the io_request_lock.
+That's why you have to dequeue prior to doing the final end_request, so
+none of the lists the request may be on are destroyed.
+
+> > > 1) setting read-ahead to 0 disables request agregation by some means of
+> > > which I am not aware, and everything goes hunky dory.
+> > 
+> > Most likely what you are seeing happen is that we will do a
+> > wait_on_buffer before we have a chance to merge this request on
+> > the queue. Do writes, and you'll see lots of merging.
+> 
+> OK ... that sounds like something to avoid for a while! Wait_on_buffer,
+> eh? If it makes things safe, I'm all for trying it myself!
+
+When someones reads the data, that is. The only real reason (as you
+discovered) that we get clustered reads is when a lot of read aheads
+are queued. Or if the queue is already doing something else before
+the request is started. This is not something you should do in your
+driver, but it's worth while knowing about it so you can optimize
+your driver for max performance.
+
+> > There's no trick, and no required values. And there's really no special
+> > trick to handling clustered requests. Either you are doing scatter
+> > gather and setup your sg tables by going through the complete buffer
+> > list on the request, or you are just transferring to rq->buffer the
+> > amount specified by current_nr_sectors. That's it. Really.
+> 
+> Hurrr ... are you saying that the buffers in the bh's in the request are
+> not contiguous?  My reading of the make_request code in 2.2 was that
+> they were!  Has that changed?  There is now a reference to an elevator
+> algorithm in the code, and I can't make out the effect by looking ... 
+> I have been copying the buffer in the request as though it were a single
+> contigous whole.  If that is not the case, then yes, bang would happen.
+
+Nothing has changed in this regard at all between 2.2 and 2.4. The
+buffers are guaranteed to be sequentially sector-wise, but definitely
+not contigious in memory!
 
 -- 
-Daniel
+Jens Axboe
+

@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRAETZc>; Fri, 5 Jan 2001 14:25:32 -0500
+	id <S129183AbRAETcX>; Fri, 5 Jan 2001 14:32:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129538AbRAETZW>; Fri, 5 Jan 2001 14:25:22 -0500
-Received: from ikar.t17.ds.pwr.wroc.pl ([156.17.210.253]:44038 "HELO
-	ikar.t17.ds.pwr.wroc.pl") by vger.kernel.org with SMTP
-	id <S129183AbRAETZE>; Fri, 5 Jan 2001 14:25:04 -0500
-Date: Fri, 5 Jan 2001 19:22:39 +0100
-From: Arkadiusz Miskiewicz <misiek@pld.ORG.PL>
+	id <S129538AbRAETcO>; Fri, 5 Jan 2001 14:32:14 -0500
+Received: from barnowl.demon.co.uk ([158.152.23.247]:43780 "EHLO
+	barnowl.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S129183AbRAETcI>; Fri, 5 Jan 2001 14:32:08 -0500
+Mail-Copies-To: never
 To: linux-kernel@vger.kernel.org
-Subject: Re: reset_xmit_timer errors with 2.4.0
-Message-ID: <20010105192239.A9051@ikar.t17.ds.pwr.wroc.pl>
-In-Reply-To: <20010105065251.A8690@pr.es.to>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010105065251.A8690@pr.es.to>; from modus-linux-kernel@pr.es.to on Fri, Jan 05, 2001 at 06:52:52AM -0800
-X-URL: http://www.t17.ds.pwr.wroc.pl/~misiek/ipv6/
-X-Operating-System: Linux dark 4.0.20 #119 Tue Jan 16 12:21:53 MET 2001 i986 pld
-X-Team: Polish Linux Distribution Team Member
+Subject: Re: kernel network problem ?
+In-Reply-To: <000d01c07724$8fa531f0$8900030a@nicolasp>
+	<m3elyiroo9.fsf@shookay.e-steel.com>
+From: Graham Murray <graham@barnowl.demon.co.uk>
+Date: 05 Jan 2001 19:31:24 +0000
+In-Reply-To: <m3elyiroo9.fsf@shookay.e-steel.com>
+Message-ID: <m2itntu777.fsf@barnowl.demon.co.uk>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On/Dnia Fri, Jan 05, 2001 at 06:52:52AM -0800, Patrick Michael Kane wrote/napisa³(a)
-> With 2.4.0 installed, I've started to see the following errors:
-> 
-> reset_xmit_timer sk=cfd889a0 1 when=0x3b4a, caller=c01e0748
-> reset_xmit_timer sk=cfd889a0 1 when=0x3a80, caller=c01e0748
->
-the same problem here + a lot of:
-inet6_ifa_finish_destroy
-inet6_ifa_finish_destroy
-inet6_ifa_finish_destroy
-messages from kernel.
+Mathieu Chouquet-Stringer <mchouque@e-steel.com> writes:
 
-> It's a UP system with no kernel patches, running an eepro100 card.
-RTL-8029(AS) here but I guess that bug is somwhere else not at eth layer/level.
+> Note that, on the Internet, there are many broken firewalls which
+> refuse connections from ECN-enabled machines, and it may be a while
+> before these firewalls are fixed. Until then, to access a site behind
+> such a firewall (some of which are major sites, at the time of this
+> writing) you will have to disable this option, either by saying N now
+> or by using the sysctl.
 
-> Patrick Michael Kane
+As well as this, it might be worthwhile to complain to these
+sites. Otherwise if everyone just turns off ECN then those sites which
+block it will probably not fix their problem and ECN will not gain
+"public" acceptance. It would be great pity if this were to happen as
+ECN has the potential (if widely supported) to greatly reduce network
+congestion and bandwidth "waste".
 
--- 
-Arkadiusz Mi¶kiewicz, AM2-6BONE    [ PLD GNU/Linux IPv6 ]
-http://www.t17.ds.pwr.wroc.pl/~misiek/ipv6/   [ enabled ]
+Would it perhaps be possible to have ECN enabled but use something
+such as IPTables to unset it when connecting to those sites which
+reject ECN connections? So that you could define a rule something like
+
+iptables -A OUTPUT -p tcp --syn -d 1.2.3.4 -j unsetecn
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

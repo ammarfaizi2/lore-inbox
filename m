@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261767AbUBYXmp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 18:42:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbUBYXjm
+	id S261804AbUBYXj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 18:39:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbUBYXjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 18:39:42 -0500
-Received: from fw.osdl.org ([65.172.181.6]:43666 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261624AbUBYXg6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 18:36:58 -0500
-Message-Id: <200402252336.i1PNape32490@mail.osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: cliff white <cliffw@osdl.org>, linux-kernel@vger.kernel.org,
-       cliffw@osdl.org
-Subject: Re: reaim - 2.6.3-mm1 IO performance down. 
-In-Reply-To: Your message of "Tue, 24 Feb 2004 17:03:37 PST."
-             <20040224170337.798f5766.akpm@osdl.org> 
-Date: Wed, 25 Feb 2004 15:36:51 -0800
-From: Cliff White <cliffw@osdl.org>
+	Wed, 25 Feb 2004 18:39:24 -0500
+Received: from dfw-gate3.raytheon.com ([199.46.199.232]:60455 "EHLO
+	dfw-gate3.raytheon.com") by vger.kernel.org with ESMTP
+	id S261669AbUBYXhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 18:37:18 -0500
+Message-ID: <403D31A8.4080204@raytheon.com>
+Date: Wed, 25 Feb 2004 15:37:12 -0800
+From: Ross Tyler <retyler@raytheon.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: how does one disable processor cache on memory allocated with get_free_pages?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> cliff white <cliffw@osdl.org> wrote:
-> >
-> > For the same test on the same machine, results from 2.6.2-rc1-mm2 and 2.6.2
-> -rc3-mm1
-> > were within 1.0% of the linux-2.6.2 runs. So this is new. 
-> > 
-> > More data and tests if requested - are there some patch sets we should try 
-> reverting?
-> 
-> Thanks.  You could try reverting adaptive-lazy-readahead.patch.  If it is
-> not that I'd be suspecting CPU scheduler changes.  Do you have uniprocessor
-> test results?
+I am writing a kernel module that is allocating memory using get_free_pages.
+It is important that access to/from these pages not use the processor 
+(Pentium 4) cache.
+How can I do this?
 
-adaptive-lazy-readahead reverted, not really much change here:
-Kernel          Users      JPM        Run Time
-2.6.3		60         10327.87   34.16 seconds
-2.6.3-mm1	60         8279.75    42.61 seconds
-2.6.3-mm1-noalr 60	   7731.76    45.63 seconds
+I have looked at drivers/char/mem.c which uses a pgprot_noncached 
+function to modify the vm_page_prot attribute of a vma during a mmap call.
+If I understand this correctly, this would make sure that all access to 
+the pages that are done through the mapping will not be cached.
 
-2.6.3		80         10275.23   45.78 seconds
-2.6.3-mm1	80         7841.31    59.99 seconds
-2.6.3-mm1-noalr 80         8565.19    54.92 seconds
+This will not work for me, however, because I need to access this memory 
+from the device driver independent of any user code that might mmap it.
+I thought of the device driver open'ing and mmap'ing itself but it 
+doesn't have a special file in the file system (I am not using DEVFS) 
+and this seems kludgy.
 
-Full details, reaim tarball:
-http://developer.osdl.org/cliffw
+I am hoping that there is a way to simply modify the page table entries 
+for the allocated pages.
+Is there?
+If so, what is the mechanism for modifying the entries and synchronizing 
+the configuration with the processor cache?
 
-cliffw
+Please CC any response directly to me (retyler@raytheon.com).
 
+Thanks!
 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 

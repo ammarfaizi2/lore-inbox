@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVAMSxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVAMRGL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbVAMSxl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 13:53:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVAMSvk
+	id S261235AbVAMRGL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 12:06:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVAMQmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 13:51:40 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:21928 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261437AbVAMSq1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 13:46:27 -0500
-Message-ID: <41E6C1FF.4000203@us.ltcfwd.linux.ibm.com>
-Date: Thu, 13 Jan 2005 12:46:23 -0600
-From: Mike Wolf <mjw@us.ibm.com>
-Reply-To: mjw@us.ibm.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>
-CC: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] PPC64: 32bit wrapper for ioctls.
-Content-Type: multipart/mixed;
- boundary="------------040508090506070106010308"
+	Thu, 13 Jan 2005 11:42:07 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:34788 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261233AbVAMQlb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 11:41:31 -0500
+Subject: Re: Proper procedure for reporting possible security
+	vulnerabilities?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: Steve Bergman <steve@rueb.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <87k6qiomhz.fsf@deneb.enyo.de>
+References: <41E2B181.3060009@rueb.com> <87d5wdhsxo.fsf@deneb.enyo.de>
+	 <41E2F6B3.9060008@rueb.com>
+	 <1105457773.15793.28.camel@localhost.localdomain>
+	 <87k6qiomhz.fsf@deneb.enyo.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105629884.4664.43.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 13 Jan 2005 15:36:49 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040508090506070106010308
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mer, 2005-01-12 at 12:33, Florian Weimer wrote:
+> vendor-sec's reputation apparently has been damaged in some circles as
+> the result of the fake e-matters advisory.  Heise Online also
+> suggested that the exploit was leaked from vendor-sec ("a natural
+> conclusion").
 
-Hi Paul,
-  The patch adds some 32bit wrappers for 2 ioctls that Java needs.
-Assuming this doesn't generate a round of discussion, please
-forward upstream to akpm/torvalds.
+For someone who has no actual information and is speculating wildly
+perhaps. There are very good reasons that those who know something about
+it are fairly sure it isnt the case.
 
-Signed-off-by: Mike Wolf  mjw@us.ibm.com
-
---------------040508090506070106010308
-Content-Type: text/x-patch;
- name="ioctl32.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ioctl32.patch"
-
---- linus-0112.orig/arch/ppc64/kernel/ioctl32.c	2005-01-13 10:35:10.165539000 -0600
-+++ linus-0112/arch/ppc64/kernel/ioctl32.c	2005-01-13 10:51:43.450433277 -0600
-@@ -43,6 +43,8 @@
- COMPATIBLE_IOCTL(TIOCSTART)
- COMPATIBLE_IOCTL(TIOCSTOP)
- COMPATIBLE_IOCTL(TIOCSLTC)
-+COMPATIBLE_IOCTL(TIOCMIWAIT)
-+COMPATIBLE_IOCTL(TIOCGICOUNT)
- /* Little p (/dev/rtc, /dev/envctrl, etc.) */
- COMPATIBLE_IOCTL(_IOR('p', 20, int[7])) /* RTCGET */
- COMPATIBLE_IOCTL(_IOW('p', 21, int[7])) /* RTCSET */
-
---------------040508090506070106010308--

@@ -1,31 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277606AbRJHX3B>; Mon, 8 Oct 2001 19:29:01 -0400
+	id <S277608AbRJHXaW>; Mon, 8 Oct 2001 19:30:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277607AbRJHX2v>; Mon, 8 Oct 2001 19:28:51 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12804 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277606AbRJHX2j>; Mon, 8 Oct 2001 19:28:39 -0400
-Subject: Re: [PATCH] change name of rep_nop
-To: davej@suse.de (Dave Jones)
-Date: Tue, 9 Oct 2001 00:33:43 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davem@redhat.com (David S. Miller),
-        dwmw2@infradead.org, frival@zk3.dec.com, paulus@samba.org,
-        Martin.Bligh@us.ibm.com, torvalds@transmeta.com (Linus Torvalds),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-        jay.estabrook@compaq.com, rth@twiddle.net
-In-Reply-To: <Pine.LNX.4.30.0110090120540.5479-100000@Appserv.suse.de> from "Dave Jones" at Oct 09, 2001 01:24:18 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S277607AbRJHXaN>; Mon, 8 Oct 2001 19:30:13 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:12167 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S277608AbRJHX3x>;
+	Mon, 8 Oct 2001 19:29:53 -0400
+Date: Mon, 08 Oct 2001 16:29:35 -0700 (PDT)
+Message-Id: <20011008.162935.21930065.davem@redhat.com>
+To: pmanolov@Lnxw.COM
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: discontig physical memory
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3BC23441.1EF944A2@lnxw.com>
+In-Reply-To: <3BC22EA6.696604E7@lnxw.com>
+	<20011008.160528.85686937.davem@redhat.com>
+	<3BC23441.1EF944A2@lnxw.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15qju3-0002I6-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How do you propose to do this without turning setup.c and friends
-> into a #ifdef nightmare ? setup_intel.c, setup_amd.c etc ??
+   From: Petko Manolov <pmanolov@Lnxw.COM>
+   Date: Mon, 08 Oct 2001 16:18:25 -0700
 
-By leaving well alone. That is all init and non runtime overhead. Things
-like lock addl $0, (%esp) all through the code are not.
+   I already did that. I fixed MAX_DMA_ADDRESS and the
+   kernel now reports:
+   
+   zone(0): 1024 pages
+   zone(1): 7168 pages	/* this should be 4096 */
+   ...
+   
+   Which is not true as we have a gap between 4 - 16MB
+   phys memory. I also played with add_memory_region(),
+   but the kernel still think we have 32MB ram instead
+   of 20MB as is the case.
+   
+You need to setup bootmem correctly, earlier on, such that
+you do not tell the kernel that there are any pages in this
+4 - 16MB region.
+
+Do something like this instead of whatever your bootmem
+calls are doing now:
+
+	bootmap_size = init_bootmem(0, (32 * 1024 * 1024));
+	free_bootmem((4 * 1024 * 1024),
+		     ((16 - 4) * 1024 * 1024));
+
+Franks a lot,
+David S. Miller
+davem@redhat.com
+

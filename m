@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267879AbRHASHM>; Wed, 1 Aug 2001 14:07:12 -0400
+	id <S267878AbRHASPD>; Wed, 1 Aug 2001 14:15:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267878AbRHASHD>; Wed, 1 Aug 2001 14:07:03 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:47864 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S267857AbRHASGu>; Wed, 1 Aug 2001 14:06:50 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200108011806.f71I6Ht1006946@webber.adilger.int>
-Subject: Re: Disk quotas not staying in sync?
-In-Reply-To: <Pine.LNX.4.31.0108011322470.4569-100000@rc.priv.hereintown.net>
- "from Chris Meadors at Aug 1, 2001 01:43:23 pm"
-To: Chris Meadors <clubneon@hereintown.net>
-Date: Wed, 1 Aug 2001 12:06:17 -0600 (MDT)
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S267857AbRHASOx>; Wed, 1 Aug 2001 14:14:53 -0400
+Received: from presto.harvard.edu ([131.142.9.143]:45462 "HELO
+	presto.harvard.edu") by vger.kernel.org with SMTP
+	id <S267873AbRHASOg>; Wed, 1 Aug 2001 14:14:36 -0400
+Message-ID: <3B684714.32F6A02F@cfa.harvard.edu>
+Date: Wed, 01 Aug 2001 14:14:44 -0400
+From: Scott Ransom <ransom@cfa.harvard.edu>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, Scott Ransom <ransom@cfa.harvard.edu>
+Subject: 3ware Escalade problems
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris writes:
-> The problem is sometimes after all the messages have been deleted they
-> still can't get any new mail.  Looking at their quota usage the machine
-> still thinks that they have their quota full, but `du` says otherwise.
-> 
-> I've tried to reproduce this with a test account.  Just creating a bunch
-> of files to run up to the quota and then deleting them.  But no matter
-> what I tried the system followed the test account's disk usage exactly.
+Hello,
 
-Maybe the problem is caused by root/admin deleting another users files?
+After months of running a fileserver with an 8 port 3ware escalade card
+(kernels 2.4.[3457] using reiserfs and software RAID5) I started getting
+problems this weekend.
 
-> This doesn't just happen when someone runs up to their quota.  I have also
-> seen their quota usage not correctly reflect what is on disk, but as the
-> usage goes up and down, both the actual disk usage and the what quota says
-> change by the same amount.
+Over the last three days, when I try to access the drives, after a
+couple minutes I get a drive failure (I even heard a "yelp" from the
+drive during one of them...).  But the "failure" has happened to 3 of
+the 8 drives over 3 days -- so unless there is a hardware problem that
+is killing my drives I find it hard to believe that 3 drives really and
+truly failed....
 
-Do you run quotacheck at boot time?  It is possible with ext2 that the
-on-disk quotas are not in sync with the actual files if there is a crash.
-If you use ext3 then the quota updates and other filesystem updates are
-kept atomic.
+Here is a sample from my syslog of a failure:
 
-> Any ideas?  This machine is pretty much standard.  ext2 file systems on
-> all partitions.  /home is the only one with user disk quotas.  Running
-> 2.4.7 kernel (but I've seen it in all 2.4 kernels, I was running
-> 2.4.0-prerelease on the machine when I first put it up, so I don't know
-> how 2.2 works).
+3w-xxxx: tw_interrupt(): Bad response, status = 0xc7, flags = 0x51, unit
+= 0x1.
+3w-xxxx: tw_scsi_eh_reset(): Reset succeeded for card 1.
+3w-xxxx: tw_interrupt(): Bad response, status = 0xc7, flags = 0x51, unit
+= 0x1.
+scsi: device set offline - not ready or command retry failed after host
+reset: host 1 channel 0 id 1 lun 0
+SCSI disk error : host 1 channel 0 id 1 lun 0 return code = 80000
+I/O error: dev 08:11, sector 158441712
 
-You should also try the -ac kernels.  I'm pretty sure that they have
-some fixes to the quota code.  However, I _think_ the changes are not
-compatible with the non-ac kernel quota on-disk data, so you will have
-to re-build the quota files (a small price to pay if it actually works).
+I've noticed several "issues" with the 3ware cards in the archives.  Has
+anyone seen something like this?
 
-Cheers, Andreas
+Scott
+
+PS:  I'm currently running 2.4.7 with the lm-sensors/i2c patches.
+
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-
+Scott M. Ransom                   Address:  Harvard-Smithsonian CfA
+Phone:  (617) 496-7908                      60 Garden St.  MS 10 
+email:  ransom@cfa.harvard.edu              Cambridge, MA  02138
+GPG Fingerprint: 06A9 9553 78BE 16DB 407B  FFCA 9BFA B6FF FFD3 2989

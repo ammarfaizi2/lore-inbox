@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264166AbTCXMA1>; Mon, 24 Mar 2003 07:00:27 -0500
+	id <S264167AbTCXL65>; Mon, 24 Mar 2003 06:58:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264168AbTCXMA1>; Mon, 24 Mar 2003 07:00:27 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:12930 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S264166AbTCXMAX>; Mon, 24 Mar 2003 07:00:23 -0500
-Date: Mon, 24 Mar 2003 13:10:55 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Finn Arne Gangstad <Finn.Gangstad@fast.no>
-cc: Andrew Morton <akpm@digeo.com>, Vitezslav Samel <samel@mail.cz>,
-       Matthew Wilcox <willy@debian.org>, Eric Piel <Eric.Piel@Bull.Net>,
-       <davidm@hpl.hp.com>, <linux-ia64@linuxia64.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix nanosleep() granularity bumps
-In-Reply-To: <20030324120604.GA3004@fast.no>
-Message-ID: <Pine.LNX.4.33.0303241309180.5492-100000@gans.physik3.uni-rostock.de>
+	id <S264168AbTCXL65>; Mon, 24 Mar 2003 06:58:57 -0500
+Received: from dp.samba.org ([66.70.73.150]:44210 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S264166AbTCXL6u>;
+	Mon, 24 Mar 2003 06:58:50 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15998.62418.678276.238530@nanango.paulus.ozlabs.org>
+Date: Mon, 24 Mar 2003 23:02:26 +1100 (EST)
+To: James Simmons <jsimmons@infradead.org>
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH] update control video driver
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, Mar 18, 2003 at 10:05:56AM +0100, Tim Schmielau wrote:
-[...]
-> Suggest the attached patch as a fix instead - easier to understand I
-> think and works for every possible start value. This is what I made for
-> Andrea Arcangeli many years ago...
->
-> diff -ur linux-2.5.65/kernel/timer.c linux-2.5.65-new/kernel/timer.c
-> --- linux-2.5.65/kernel/timer.c	2003-03-17 22:44:41.000000000 +0100
-> +++ linux-2.5.65-new/kernel/timer.c	2003-03-24 12:57:31.000000000 +0100
-> @@ -1182,11 +1182,14 @@
->  		INIT_LIST_HEAD(base->tv1.vec + j);
->
->  	base->timer_jiffies = INITIAL_JIFFIES;
-> -	base->tv1.index = INITIAL_JIFFIES & TVR_MASK;
-> -	base->tv2.index = (INITIAL_JIFFIES >> TVR_BITS) & TVN_MASK;
-> -	base->tv3.index = (INITIAL_JIFFIES >> (TVR_BITS+TVN_BITS)) & TVN_MASK;
-> -	base->tv4.index = (INITIAL_JIFFIES >> (TVR_BITS+2*TVN_BITS)) & TVN_MASK;
-> -	base->tv5.index = (INITIAL_JIFFIES >> (TVR_BITS+3*TVN_BITS)) & TVN_MASK;
-> +	base->tv1.index = (1 + (INITIAL_JIFFIES - 1)) & TVR_MASK;
-> +	base->tv2.index = (1 + ((INITIAL_JIFFIES - 1) >> TVR_BITS)) & TVN_MASK;
-> +	base->tv3.index = (1 + ((INITIAL_JIFFIES - 1)
-> +				>> (TVR_BITS + TVN_BITS))) & TVN_MASK;
-> +	base->tv4.index = (1 + ((INITIAL_JIFFIES - 1)
-> +				>> (TVR_BITS + 2 * TVN_BITS))) & TVN_MASK;
-> +	base->tv5.index = (1 + ((INITIAL_JIFFIES - 1)
-> +				>> (TVR_BITS + 3 * TVN_BITS))) & TVN_MASK;
->  }
->
->  static int __devinit timer_cpu_notify(struct notifier_block *self,
+The patch below fixes the controlfb driver to access the
+pseudo_palette as 32-bit quantities and takes out the font option
+handling.
 
-Too late - the whole tv[1-5].index duplication is gone already after a
-cleanup done by George Anzinger.
+Paul.
 
-Tim
-
+diff -urN linux-2.5/drivers/video/controlfb.c linuxppc-2.5/drivers/video/controlfb.c
+--- linux-2.5/drivers/video/controlfb.c	2003-03-23 16:29:31.000000000 +1100
++++ linuxppc-2.5/drivers/video/controlfb.c	2003-03-23 21:42:33.000000000 +1100
+@@ -376,13 +376,12 @@
+ 		int i;
+ 		switch (p->par.cmode) {
+ 		case CMODE_16:
+-			((u16 *) (info->pseudo_palette))[regno] =
++			p->pseudo_palette[regno] =
+ 			    (regno << 10) | (regno << 5) | regno;
+ 			break;
+ 		case CMODE_32:
+ 			i = (regno << 8) | regno;
+-			((u32 *) (info->pseudo_palette))[regno] =
+-			    (i << 16) | i;
++			p->pseudo_palette[regno] = (i << 16) | i;
+ 			break;
+ 		}
+ 	}
+@@ -475,7 +474,6 @@
+ 		var.yres_virtual = vyres;
+ 
+ 	/* Apply default var */
+-	p->info.var = var;
+ 	var.activate = FB_ACTIVATE_NOW;
+ 	rc = fb_set_var(&var, &p->info);
+ 	if (rc && (vmode != VMODE_640_480_60 || cmode != CMODE_8))
+@@ -1068,17 +1066,7 @@
+ 		return;
+ 
+ 	while ((this_opt = strsep(&options, ",")) != NULL) {
+-		if (!strncmp(this_opt, "font:", 5)) {
+-			char *p;
+-			int i;
+-
+-			p = this_opt +5;
+-			for (i = 0; i < sizeof(fontname) - 1; i++)
+-				if (!*p || *p == ' ' || *p == ',')
+-					break;
+-			memcpy(fontname, this_opt + 5, i);
+-			fontname[i] = 0;
+-		} else if (!strncmp(this_opt, "vmode:", 6)) {
++		if (!strncmp(this_opt, "vmode:", 6)) {
+ 			int vmode = simple_strtoul(this_opt+6, NULL, 0);
+ 			if (vmode > 0 && vmode <= VMODE_MAX &&
+ 			    control_mac_modes[vmode - 1].m[1] >= 0)

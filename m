@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264485AbUA0QTc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 11:19:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264553AbUA0QT3
+	id S265378AbUA0QZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 11:25:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265525AbUA0QZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 11:19:29 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:35810 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S264485AbUA0QTY (ORCPT
+	Tue, 27 Jan 2004 11:25:58 -0500
+Received: from f13.mail.ru ([194.67.57.43]:522 "EHLO f13.mail.ru")
+	by vger.kernel.org with ESMTP id S265378AbUA0QZ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 11:19:24 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16406.36741.510353.456578@napali.hpl.hp.com>
-Date: Tue, 27 Jan 2004 08:19:17 -0800
-To: Paul Mackerras <paulus@samba.org>
-Cc: davidm@hpl.hp.com, Andrew Morton <akpm@osdl.org>,
-       Jes Sorensen <jes@trained-monkey.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [patch] 2.6.1-mm5 compile do not use shared extable code for
- ia64
-In-Reply-To: <16406.10170.911012.262682@cargo.ozlabs.ibm.com>
-References: <E1Aiuv7-0001cS-00@jaguar.mkp.net>
-	<20040120090004.48995f2a.akpm@osdl.org>
-	<16401.57298.175645.749468@napali.hpl.hp.com>
-	<16402.19894.686335.695215@cargo.ozlabs.ibm.com>
-	<16405.41953.344071.456754@napali.hpl.hp.com>
-	<16406.10170.911012.262682@cargo.ozlabs.ibm.com>
-X-Mailer: VM 7.17 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+	Tue, 27 Jan 2004 11:25:57 -0500
+From: =?koi8-r?Q?=22?=Bansh=?koi8-r?Q?=22=20?= <bansh21@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: GPL license and linux kernel modifications
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [194.85.83.184]
+Date: Tue, 27 Jan 2004 19:25:55 +0300
+Reply-To: =?koi8-r?Q?=22?=Bansh=?koi8-r?Q?=22=20?= <bansh21@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1AlW2F-000N9k-00.bansh21-mail-ru@f13.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 27 Jan 2004 19:56:26 +1100, Paul Mackerras <paulus@samba.org> said:
+Hello!
 
-  Paul> David Mosberger writes:
-  >> How about the attached one?  It will touch memory more when
-  >> moving an element down, but we're talking about exception tables
-  >> here, and I don't think module loading time would be affected in
-  >> any noticable fashion.
+I've got a question, which I can't resolve myself about linux kernel binary code. The problem is GPL license which tells us that:
 
-  Paul> Hmmm...  Stylistically I much prefer to pick up the new
-  Paul> element, move the others up and just drop the new element in
-  Paul> where it should go, rather than doing swap, swap, swap down
-  Paul> the list.
+----------- cut COPYING -----------
+The source code for a work means the preferred form of the work for
+making modifications to it.  For an executable work, complete source
+code means all the source code for all modules it contains, plus any
+associated interface definition files, plus the scripts used to
+control compilation and installation of the executable.  However, as a
+special exception, the source code distributed need not include
+anything that is normally distributed (in either source or binary
+form) with the major components (compiler, kernel, and so on) of the
+operating system on which the executable runs, unless that component
+itself accompanies the executable.
+----------- cut COPYING -----------
 
-Sure, the latter can be done, too.
+It gives the possibility to not distribute compiler and other preprocessing tools.
+It looks like one can make a preprocessor or even one's own compiler (with one's syntax) which will be used for kernel building. But it's not required to distribute this compiler. So I can distribute linux kernel source code modified this way but no one will be able to build it. Is it ok?
 
-  Paul> Also, I don't think there is enough code there to be worth the
-  Paul> bother of trying to abstract the generic routine so you can
-  Paul> plug in different compare and move-element routines.  The
-  Paul> whole sort routine is only 16 lines of code, after all.  Why
-  Paul> not just have an ia64-specific version of sort_extable?
-  Paul> That's what I thought you would do.
+Such compiler/preprocessor can be really very tricky and can hide the modifications very much, thus allowing to hide proprietary know-how.
 
-Because the Alpha needs exactly the same code.
-
-	--david
+Bansh

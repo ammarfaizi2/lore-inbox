@@ -1,76 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265633AbSLWBbV>; Sun, 22 Dec 2002 20:31:21 -0500
+	id <S265517AbSLWB2q>; Sun, 22 Dec 2002 20:28:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265636AbSLWBbV>; Sun, 22 Dec 2002 20:31:21 -0500
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:3456 "EHLO
-	laptop.localdomain") by vger.kernel.org with ESMTP
-	id <S265633AbSLWBbT> convert rfc822-to-8bit; Sun, 22 Dec 2002 20:31:19 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-To: David Lang <david.lang@digitalinsight.com>, Robert Love <rml@tech9.net>
-Subject: Re: [BENCHMARK] scheduler tunables with contest - starvation_limit
-Date: Mon, 23 Dec 2002 12:40:58 +1100
-User-Agent: KMail/1.4.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0212221703070.10806-100000@dlang.diginsite.com>
-In-Reply-To: <Pine.LNX.4.44.0212221703070.10806-100000@dlang.diginsite.com>
+	id <S265543AbSLWB2q>; Sun, 22 Dec 2002 20:28:46 -0500
+Received: from petasus.ch.intel.com ([143.182.124.5]:26338 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S265517AbSLWB2p> convert rfc822-to-8bit; Sun, 22 Dec 2002 20:28:45 -0500
+content-class: urn:content-classes:message
+Subject: RE: [PATCH][2.4]  generic support for systems with more than 8 CPUs (2/2)
+Date: Sun, 22 Dec 2002 17:36:46 -0800
+Message-ID: <C8C38546F90ABF408A5961FC01FDBF1912E1B7@fmsmsx405.fm.intel.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+X-MS-Has-Attach: 
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200212231241.01049.conman@kolivas.net>
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH][2.4]  generic support for systems with more than 8 CPUs (2/2)
+Thread-Index: AcKptC2gVKvIWhWnEdeo8gBQi2jWzAAbt54Q
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "William Lee Irwin III" <wli@holomorphy.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Van Maren, Kevin" <kevin.vanmaren@unisys.com>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "James Cleverdon" <jamesclv@us.ibm.com>,
+       "John Stultz" <johnstul@us.ibm.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>
+X-OriginalArrivalTime: 23 Dec 2002 01:36:47.0363 (UTC) FILETIME=[C1E8C530:01C2AA23]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
 
->one other thing that would be interesting to test on the osdl machines
->would be the effect of different filesystems.
->
->the origional set of tests were all done on reiserfs, it would be
->interesting to see if there is a difference between it and the others.
+> From: William Lee Irwin III [mailto:wli@holomorphy.com]
+> 
+> On Sat, Dec 21, 2002 at 10:59:10PM -0800, Pallipadi, Venkatesh wrote:
+> > 2/2 : switching to physical mode APIC setup in case of more 
+> than 8 CPU system
+> [...]
+> > -	printk("Enabling APIC mode: ");
+> > -	if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
+> > -		printk("Clustered Logical.	");
+> > -	else if(clustered_apic_mode == CLUSTERED_APIC_XAPIC)
+> > -		printk("Physical.	");
+> > -	else
+> > -		printk("Flat.	");
+> > -	printk("Using %d I/O APICs\n",nr_ioapics);
+> 
+> IIRC NUMA-Q can be dynamically detected at boot by means of an MP OEM
+> table's presence, in particular if there's a matching string in the 8B
+> OEM record in the OEM table, with a value of "IBM NUMA" IIRC. This is
+> probably a line or two's worth of change to mpparse.c and declaring a
+> variable for clustered_apic_mode. If it were difficult to detect, I
+> wouldn't have suggested implementing it (though do so at your 
+> leisure). =)
 
-The current osdl hardware uses ext3 in the default journalling mode. Trying 
-different filesystems is something I have had planned for a while. When I get 
-the hardware sorted out as I need it to do this I will post some results 
-where comparisons can be made.
+Yes. There is already some code in base that does this. For NUMAQ specifically
+this check happens and clustered mode is selected for APIC. My patch has this 
+additinal check (after the initial IBM OEM check), for non-NUMAQ systems with 
+more than 8 CPUs and xAPIC support. These systems can not work with the 
+default flat addressing mode. So, this patch sets up such systems in physical 
+mode.
 
-See the current specs here:
-http://www.osdl.org/projects/ctdevel/results/
-
-Con
->
->David Lang
->
->On 22 Dec 2002, Robert Love wrote:
->> Date: 22 Dec 2002 20:06:51 -0500
->> From: Robert Love <rml@tech9.net>
->> To: Con Kolivas <conman@kolivas.net>
->> Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
->> Subject: Re: [BENCHMARK] scheduler tunables with contest -
->>     starvation_limit
->>
->> On Thu, 2002-12-19 at 18:48, Con Kolivas wrote:
->> > osdl, contest, tunable - starvation limit on 2.5.52-mm1
->>
->> Con, curiously, what is this OSDL hardware like?
->>
->> One thing I always liked about your Contest runs were you did them on
->> your home machine, which was presumably fairly run-of-the-mill so we
->> could keep an eye on the low-end desktop machines.
->>
->> 	Robert Love
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE+BmmrF6dfvkL3i1gRApCRAJ96mtrpTCap5JoCQAX6UB3O39y3bgCcDoXM
-XMa0Pz9Ldrdir9LQ4Qj83pI=
-=CmgE
------END PGP SIGNATURE-----
+Thanks,
+-Venkatesh

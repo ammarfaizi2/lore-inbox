@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135588AbREBPed>; Wed, 2 May 2001 11:34:33 -0400
+	id <S135594AbREBPnF>; Wed, 2 May 2001 11:43:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135589AbREBPeW>; Wed, 2 May 2001 11:34:22 -0400
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:41478 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S135588AbREBPeC>; Wed, 2 May 2001 11:34:02 -0400
-Message-ID: <3AF028D3.8EE24BE1@beam.demon.co.uk>
-Date: Wed, 02 May 2001 16:33:40 +0100
-From: Terry Barnaby <terry@beam.demon.co.uk>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
-X-Accept-Language: en
+	id <S135595AbREBPmz>; Wed, 2 May 2001 11:42:55 -0400
+Received: from smarty.smart.net ([207.176.80.102]:14599 "EHLO smarty.smart.net")
+	by vger.kernel.org with ESMTP id <S135594AbREBPmm>;
+	Wed, 2 May 2001 11:42:42 -0400
+From: Rick Hohensee <humbubba@smarty.smart.net>
+Message-Id: <200105021544.LAA20727@smarty.smart.net>
+Subject: Re: inserting a Forth-like language into the Linux kernel
+To: viro@math.psu.edu (Alexander Viro)
+Date: Wed, 2 May 2001 11:44:21 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0105012321130.9771-100000@weyl.math.psu.edu> from "Alexander Viro" at May 01, 2001 11:26:04 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Problem with map_user_kiobuf() not mapping to physical memory
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are developing a Linux driver which allows a device to read/write
-directly
-into a processes virtual memory space.
-I have a question on using map_user_kiobuf() as we are having problems.
-I was under the impression that if I used map_user_kiobuf() this would
-map
-the users virtual address space into locked physical memory pages so
-that
-I/O could be performed.
-However, I note that if the user just mallocs memory and does not access
-it
-(No physical memory pages created) and then passes this virtual address
-space
-to the driver which performs a map_user_kiobuf() on it, the resulting
-kiobuf
-structure has all of the pagelist[] physical address entries set to the
-same value
-and the maplist[] entries set to 0. The devices access to this memory
-now
-causes system problems.
-Is map_user_kiobuf() working correctly ?
-Should I call some function to map the virtual address space into
-physical memory
-or at least pages before I call map_user_kiobuf() ?
+> 
 
-Cheers
+I thought my mail client was doing "reply to all recipients". If it _was_
+then this is redundant and I apologize.
 
-Terry
+> 
+> 
+> On Tue, 1 May 2001, Rick Hohensee wrote:
+>  
+> > (kspamd) is the Linux-side wrapper for H3sm....
+> 
+> C|N>K
+> 
+> OK, you owe me a new keyboard. And thanks for new .sig.
 
---
-  Dr Terry Barnaby                     BEAM Ltd
-  Phone: +44 1454 324512               Northavon Business Center, Dean Rd
-  Fax:   +44 1454 313172               Yate, Bristol, BS37 5NH, UK
-  Email: terry@beam.demon.co.uk        Web: www.beam.demon.co.uk
-  BEAM for: Visually Impaired X-Terminals, Parallel Processing, Software Dev
-                         "Tandems are twice the fun !"
+Oh, uh, sorry about that, Chief.
 
+> BTW, Rick, out of curiosity - how many Greencard Lawyers does it take
+> to upgrade the thing to full-blown H1 S&M?
+> 
 
+I dono. How many you got?
 
+Rick Hohensee
+www.clienux.com

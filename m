@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313666AbSDUS16>; Sun, 21 Apr 2002 14:27:58 -0400
+	id <S313762AbSDUSZB>; Sun, 21 Apr 2002 14:25:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313722AbSDUS0W>; Sun, 21 Apr 2002 14:26:22 -0400
-Received: from bitmover.com ([192.132.92.2]:48539 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S313727AbSDUS0I>;
-	Sun, 21 Apr 2002 14:26:08 -0400
-Date: Sun, 21 Apr 2002 11:26:06 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Jeff Garzik <garzik@havoc.gtf.org>
-Cc: Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org,
-        Wayne Scott <wscott@bitmover.com>
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-ID: <20020421112606.T10525@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Jeff Garzik <garzik@havoc.gtf.org>,
-	Alexander Viro <viro@math.psu.edu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org,
-	Wayne Scott <wscott@work.bitmover.com>
-In-Reply-To: <20020421102339.E10525@work.bitmover.com> <20020421133225.F4479@havoc.gtf.org> <20020421103923.I10525@work.bitmover.com> <20020421134500.A7828@havoc.gtf.org> <20020421104725.K10525@work.bitmover.com> <20020421134955.C7828@havoc.gtf.org> <20020421105706.M10525@work.bitmover.com> <20020421140753.C8142@havoc.gtf.org> <20020421111450.P10525@work.bitmover.com> <20020421142447.G8142@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S313760AbSDUSYw>; Sun, 21 Apr 2002 14:24:52 -0400
+Received: from dsl-213-023-040-105.arcor-ip.net ([213.23.40.105]:49556 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S313773AbSDUSYS>;
+	Sun, 21 Apr 2002 14:24:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jeff Garzik <garzik@havoc.gtf.org>, CaT <cat@zip.com.au>
+Subject: Re: Suggestion re: [PATCH] Remove Bitkeeper documentation from Linux tree
+Date: Sat, 20 Apr 2002 20:23:49 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Larry McVoy <lm@bitmover.com>, Anton Altaparmakov <aia21@cantab.net>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com> <20020421175404.GL4640@zip.com.au> <20020421141200.D8142@havoc.gtf.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16yzWX-0000lZ-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 21, 2002 at 02:24:47PM -0400, Jeff Garzik wrote:
-> On Sun, Apr 21, 2002 at 11:14:50AM -0700, Larry McVoy wrote:
-> > On Sun, Apr 21, 2002 at 02:07:53PM -0400, Jeff Garzik wrote:
-> > > Triggers are completely useless for "show me what the next-to-last
-> > > 'bk pull' downloaded, in GNU patch style."  
+On Sunday 21 April 2002 20:12, Jeff Garzik wrote:
+> On Mon, Apr 22, 2002 at 03:54:04AM +1000, CaT wrote:
+> > That's what I meant. Email gets sent out to LKML when the patch gets sent
+> > to BK for approval by Linus. Another email can then be sent out (unless
+> > it's felt that it's too verbose to do so) when Linus accepts it into the
+> > tree. (unless I'm missing something about BK ;)
 > 
-> > All you need to do is save the starting and ending cset revs as keys,
-> > and then send those into bk export -tpatch.  So a trigger which saved
-> > top of trunk on a stack is all you need, the rest is a tiny amount of
-> > perl/shell.  Write it, send it to me, if people like it, we'll roll it
-> > into the mainline release.
+> This doesn't work -- there is no BK _push_ to Linus.  There is no "sent
+> to BK for approval."
 > 
-> In order to implement multiple 'bk undo' stack as you described, you
-> need to store or deduce that info anyway.  If I wrote it, wouldn't I be
-> duplicating work (or doing work for you)?
+> Traditional RFC822 email is sent to Linus, telling him that there are BK
+> changesets to be picked up.  A human-defined length of time ensues,
+> after which Linus either ignores or comments on the email, and either
+> does a 'bk pull' or not.
 
-Perhaps.  You'd also be getting your needs met on your schedule, not mine.
+At the moment I'm thinking about returning to the patchbot project (by the
+way, code *is* available now) and reworking it to handle both BK and GNU
+patches.  The advantage of the patchbot is, it can do things like sniff
+patches for NOTIFYMEONCHANGE directives, auto-CC a linux-patches list,
+etc.  It could act as an accumulator of GNU patches into a BK repository,
+waiting for Linus to pull, and in the interim, all interested observers
+could also peek into the repository.
+
+Hmm, I'm sensing a practical project here.
+
+> Very similar to the way GNU patches are handled, strangely enough ;-)
+
+Yes, well that was never completely satisfying to say the least.  IMHO, BK
+is helping improve the situation, but comes with its own issues, not all of
+them technical.
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Daniel

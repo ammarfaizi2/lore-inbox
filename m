@@ -1,47 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbTENMTq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 08:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTENMTq
+	id S262017AbTENMXX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 08:23:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbTENMXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 08:19:46 -0400
-Received: from tomts24-srv.bellnexxia.net ([209.226.175.187]:45715 "EHLO
-	tomts24-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261969AbTENMTp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 08:19:45 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.69-mm5
-Date: Wed, 14 May 2003 08:33:10 -0400
-User-Agent: KMail/1.5.9
-References: <20030514012947.46b011ff.akpm@digeo.com>
-In-Reply-To: <20030514012947.46b011ff.akpm@digeo.com>
-MIME-Version: 1.0
+	Wed, 14 May 2003 08:23:23 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:26641 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262008AbTENMXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 08:23:14 -0400
+Date: Wed, 14 May 2003 13:35:57 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David Howells <dhowells@warthog.cambridge.redhat.com>
+Cc: David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] PAG support, try #2
+Message-ID: <20030514133557.A18431@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Howells <dhowells@warthog.cambridge.redhat.com>,
+	David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+References: <20030514115653.A15202@infradead.org> <30949.1052913364@warthog.warthog>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200305140833.10942.tomlins@cam.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <30949.1052913364@warthog.warthog>; from dhowells@warthog.cambridge.redhat.com on Wed, May 14, 2003 at 12:56:04PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 14, 2003 04:29 am, Andrew Morton wrote:
-> Various fixes.  It should even compile on uniprocessor.
+On Wed, May 14, 2003 at 12:56:04PM +0100, David Howells wrote:
+> > So do you have an estimate for the number of users here yet?
+> > Adding two more slab caches that are unused for 99% of the users
+> > might not be the best choice if there's no strong need.
+> 
+> There won't be many PAGs. Basically one per login session would be fairly
+> typical, and possibly one per SUID program run at some later date.
 
-OK.  It does compile.  There are a few module  problems though:
+I think using plain kmalloc is better then.
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.69-mm5; fi
-WARNING: /lib/modules/2.5.69-mm5/kernel/sound/isa/snd-es18xx.ko needs unknown symbol isapnp_protocol
-WARNING: /lib/modules/2.5.69-mm5/kernel/arch/i386/kernel/suspend.ko needs unknown symbol enable_sep_cpu
-WARNING: /lib/modules/2.5.69-mm5/kernel/arch/i386/kernel/suspend.ko needs unknown symbol default_ldt
-WARNING: /lib/modules/2.5.69-mm5/kernel/arch/i386/kernel/suspend.ko needs unknown symbol init_tss
-WARNING: /lib/modules/2.5.69-mm5/kernel/arch/i386/kernel/apm.ko needs unknown symbol save_processor_state
-WARNING: /lib/modules/2.5.69-mm5/kernel/arch/i386/kernel/apm.ko needs unknown symbol restore_processor_state
+> > Inline but not static seems strange..
+> 
+> It's not without precedent within the kernel. The compiler is free to inline
+> it, but must also emit an out-of-line copy. Thinking about it, it's probably
+> not worth it... these calls aren't going to be called very often and so don't
+> need to be optimised for every last ounce of speed.
 
-The snd-es18xx.ko problem has existed in 69-bk for a while (I do not understand why this one happens - 
-can some look at it and educate me?  Please).  The rest are new with mm5.  I have not built a recient bk to 
-if they are local to mm.
+Right, that's why I didn't complained very loud :)
 
-Ed Tomlinson
+> > We already discussed the coding style issue,
+> 
+> Well, the coding style is wrong here IMNSHO. Readability is preferable.
+
+No.  Please follow the style guidelines.  If you say readability is
+preferable you habve to say whos.  I always get stuck at code that
+uses such strange constructs for example.
+
+> > What protects vfspag->tokens?
+> 
+> Why does it need to be protected at that point? The PAG no longer has any
+> references, and the tokens don't point back to it, and are in any case pinned
+> by virtue of being on the list.
+
+Okay.
+
+> > Shouldn't vfs_pag_get hanlde a NULL argument instead?
+> 
+> Maybe. But then that's introducing a conditional branch that you can't avoid,
+> even if you know it's going to succeed:-/
+
+Then add an __vfs_pag_get that expects a non-NULL argument for those
+cases where you know for sure it's not NULL.
+

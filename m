@@ -1,68 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbVAERup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbVAERyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbVAERup (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 12:50:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262472AbVAERuo
+	id S262472AbVAERyk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 12:54:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262517AbVAERyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 12:50:44 -0500
-Received: from grendel.firewall.com ([66.28.58.176]:53133 "EHLO
-	grendel.firewall.com") by vger.kernel.org with ESMTP
-	id S262517AbVAERuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 12:50:05 -0500
-Date: Wed, 5 Jan 2005 18:49:58 +0100
-From: Marek Habersack <grendel@caudium.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Very high load on P4 machines with 2.4.28
-Message-ID: <20050105174958.GA5295@beowulf.thanes.org>
-Reply-To: grendel@caudium.net
-References: <20050104195636.GA23034@beowulf.thanes.org> <20050105094236.GG10036@logos.cnet>
+	Wed, 5 Jan 2005 12:54:40 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:33239 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262472AbVAERyb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 12:54:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=EKictTPSRX+DqjVdEs5pMhMVEvz2Q/56fvN66Lq7EtItNYT+QXL0xCQl7ryHamO7y0r5cKKeXKG4el5JFdrj7zih1Gdrba4O9jxljFJzHJXUEvtd70fQ3BG9IgB3kz1ssiVFJV02ZMwzlqlnBuuVap5xHPtEfHWsbJY4YQB+MG8=
+Message-ID: <29495f1d0501050931379525d1@mail.gmail.com>
+Date: Wed, 5 Jan 2005 09:31:55 -0800
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Willem Riede <osst@riede.org>
+Subject: Re: [PATCH 2/3] osst upgrade to 0.99.3
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <1104627573l.3427l.3l@serve.riede.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
-Content-Disposition: inline
-In-Reply-To: <20050105094236.GG10036@logos.cnet>
-Organization: I just...
-X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
-X-message-flag: Outlook - A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1104627573l.3427l.3l@serve.riede.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 02 Jan 2005 00:59:33 +0000, Willem Riede <osst@riede.org> wrote:
+> Here is patch 2 (see previous mail for context), providing osst error
+> handling improvements.
 
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+<snip>
 
-On Wed, Jan 05, 2005 at 07:42:36AM -0200, Marcelo Tosatti scribbled:
-[snip]
-> > Has anyone had similar problems with 2.4.28 in an environment resemblin=
-g the
-> > above? Could it be a problem with highmem i/o?
->=20
-> Nothing that I'm aware of should cause such increase in loadavg.
->=20
-> Marek, can you please try 2.4.28-pre1 ?
-I should be able to schedule that on Friday. Currently, we're running 2.4.28
-on one of the machines (the non-virtual) but with mem=3D800M to exclude
-highmem. So far - no problems... We'll see how it goes on
+> +               while (retval && time_before (jiffies, startwait + 5*60*HZ)) {
+> +
+> +                       if (STp->buffer->syscall_result && (SRpnt->sr_sense_buffer[2] & 0x0f) != 2) {
+> +
+> +                               /* some failure - not just not-ready */
+> +                               retval = osst_write_error_recovery(STp, aSRpnt, 0);
+> +                               break;
+> +                       }
+> +                       set_current_state(TASK_INTERRUPTIBLE);
+> +                       schedule_timeout (HZ / OSST_POLL_PER_SEC);
 
-best regards,
+Are you sure you want to use TASK_INTERRUPTIBLE here? If you are sure,
+then you probably should add code which checks if schedule_timeout()
+returns early because of signals (signals_pending(current) will be
+true). Additionally, you may as well use msleep_interruptible(1000 /
+OSST_POLL_PER_SEC), since you are requesting a 10th of a second sleep
+(with OSST_POLL_PER_SEC #define'd to 10) (which is long & measurable
+in milliseconds), you are not checking the return value (so you don't
+seem to care how much time was left in the sleep) and
+msleep_interruptible() will return on the same conditions as the
+current code does. Seems like it should do what you want (still need
+some means of checking for signals, though, I think).
 
-marek
+If, in fact, you did not intend to use TASK_INTERRUPTIBLE, but
+TASK_UNINTERRUPTIBLE, then you may want to consider using msleep(1000
+/ OSST_POLL_PER_SEC) [ignoring signals in addition to waitqueue
+events].
 
---EVF5PPMfhYS0aIcm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+If, though, you want to keep the code as is, then please ignore the
+noise and I apologize :)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFB3CjGq3909GIf5uoRAlw7AJ954nY8PULz76+lzqDQE8Axc5BsagCfQ8Og
-dOIi3oJrk2aztoIRo0tXm6g=
-=/Yrg
------END PGP SIGNATURE-----
-
---EVF5PPMfhYS0aIcm--
+Thanks,
+Nish

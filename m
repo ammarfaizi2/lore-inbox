@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268141AbUHQICu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268142AbUHQIDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268141AbUHQICu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 04:02:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268143AbUHQICu
+	id S268142AbUHQIDw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 04:03:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268143AbUHQIDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 04:02:50 -0400
-Received: from smtp105.rog.mail.re2.yahoo.com ([206.190.36.83]:18107 "HELO
-	smtp105.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S268141AbUHQICh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 04:02:37 -0400
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.8.1-mm1][input] - IBM TouchPad support added? Which patch is this? - Unsure still
-Date: Tue, 17 Aug 2004 04:02:33 -0400
-User-Agent: KMail/1.6.2
-References: <200408170349.44626.shawn.starr@rogers.com>
-In-Reply-To: <200408170349.44626.shawn.starr@rogers.com>
-MIME-Version: 1.0
+	Tue, 17 Aug 2004 04:03:52 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:3730 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268142AbUHQIDs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 04:03:48 -0400
+Date: Tue, 17 Aug 2004 10:05:12 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Thomas Charbonnel <thomas@undata.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: [patch] voluntary-preempt-2.6.8.1-P3
+Message-ID: <20040817080512.GA1649@elte.hu>
+References: <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu> <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408170402.33368.shawn.starr@rogers.com>
+In-Reply-To: <1092716644.876.1.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, I stand corrected. I don't know where this patch is added from which 
-enables the touchpad to act as a 'button press'.
 
-Shawn.
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-On August 17, 2004 03:49, Shawn Starr wrote:
->  mice: PS/2 mouse device common for all mice
-> input: IBM PC110 TouchPad at 0x15e0 irq 10 <-----------------------------
-> This is new input: AT Translated Set 2 keyboard on isa0060/serio0
-> Synaptics Touchpad, model: 1
-> Firmware: 5.9
-> Sensor: 44
-> new absolute packet format
-> Touchpad has extended capability bits
->   -> multifinger detection
->   -> palm detection
->   -> pass-through port
->  input: SynPS/2 Synaptics TouchPad on isa0060/serio1
->  serio: Synaptics pass-through port atisa0060/serio1/input0
->
-> Which patch is this? its nice but I don't see any ability (yet) to control
-> its sensitivity (especially in KDE!). Upon using 2.6.8-rc4-bk2 there was no
-> such device (you could not touch the pad as a button).
->
-> Shawn.
+> P2 will not boot for me.  It hangs right after detecting my
+> (surprise!) USB mouse.
+
+i've uploaded -P3 with the IO-APIC changes reverted to -P1:
+
+ http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P3
+
+it has no other changes.
+
+	Ingo

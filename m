@@ -1,72 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbUCUXOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 18:14:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbUCUXOJ
+	id S261449AbUCUXNP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 18:13:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbUCUXNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 18:14:09 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:21426 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S261455AbUCUXN7 (ORCPT
+	Sun, 21 Mar 2004 18:13:14 -0500
+Received: from fw.osdl.org ([65.172.181.6]:28867 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261449AbUCUXNJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 18:13:59 -0500
-To: Dmitry Torokhov <dtor@mail.ru>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Synaptics touchpad + external mouse with Linux 2.6?
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sun, 21 Mar 2004 23:52:31 +0100
-Message-ID: <m33c81lsnk.fsf@defiant.pm.waw.pl>
+	Sun, 21 Mar 2004 18:13:09 -0500
+Date: Sun, 21 Mar 2004 15:11:58 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Jeff Garzik <jgarzik@pobox.com>, David Woodhouse <dwmw2@infradead.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: can device drivers return non-ram via vm_ops->nopage?
+In-Reply-To: <20040321225117.F26708@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0403211504550.1106@ppc970.osdl.org>
+References: <20040320121345.2a80e6a0.akpm@osdl.org> <20040320205053.GJ2045@holomorphy.com>
+ <20040320222639.K6726@flint.arm.linux.org.uk> <20040320224500.GP2045@holomorphy.com>
+ <1079901914.17681.317.camel@imladris.demon.co.uk> <20040321204931.A11519@infradead.org>
+ <1079902670.17681.324.camel@imladris.demon.co.uk>
+ <Pine.LNX.4.58.0403211349340.1106@ppc970.osdl.org> <20040321222327.D26708@flint.arm.linux.org.uk>
+ <405E1859.5030906@pobox.com> <20040321225117.F26708@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I have a notebook PC (an old Fujitsu-Siemens Liteline, celeron 600 etc)
-with a Synaptics touchpad:
 
-Synaptics Touchpad, model: 1
- Firmware: 4.6
- Sensor: 19
- new absolute packet format
- Touchpad has extended capability bits
- -> multifinger detection
- -> palm detection
-input: SynPS/2 Synaptics TouchPad on isa0060/serio1
+On Sun, 21 Mar 2004, Russell King wrote:
+> 
+> Remember that we're fond of telling driver writers to use scatter gather
+> lists rather than grabbing one large contiguous memory chunk...  So
+> they did exactly as we told them.  Using pci_alloc_consistent and/or
+> dma_alloc_coherent and built their own scatter lists.
 
-This notebook has external mouse+keyboard connector. Is it possible to
-have both the touchpad and the external mouse simultaneously active in
-their native modes? The hardware (keyboard controller) doesn't seem to
-support the active multiplexing mode (by Synaptics and others):
+I do think that we should introduce a "map_dma_coherent()" thing, which 
+basically takes a list of pages that have been allocated by 
+dma_alloc_coherent(), and remaps them into user space. How hard can that 
+be?
 
-drivers/input/serio/i8042.c: d3 -> i8042 (command) [3]
-drivers/input/serio/i8042.c: f0 -> i8042 (parameter) [3]
-drivers/input/serio/i8042.c: 0f <- i8042 (return) [3]
-drivers/input/serio/i8042.c: d3 -> i8042 (command) [3]
-drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [3]
-drivers/input/serio/i8042.c: a9 <- i8042 (return) [3]
-drivers/input/serio/i8042.c: d3 -> i8042 (command) [3]
-drivers/input/serio/i8042.c: a4 -> i8042 (parameter) [3]
-drivers/input/serio/i8042.c: 5b <- i8042 (return) [3]
+In fact, on a lot of architectures (well, at least x86, and likely
+anything else that doesn't use any IOTLB and just allocates a chunk of
+physical memory), I think the "map_dma_coherent()" thing should basically
+just become a "remap_page_range()". Ie something like
 
-It looks the keyboard controller just forwards all data from both
-devices. I can set them (i.e. Linux and XFree86 driver) to IM PS/2 mode
-and they will both work (Linux treats them as one device), but I can't
-use touchpad's special features.
+	#define map_dma_coherent(vma, vaddr, len) \
+		remap_page_range(vma, vma->vm_start, __pa(vaddr), len, vma->vm_page_prot)
 
-I was thinking about setting them to IM PS/2 mode first (both would go
-IM PS/2) then switching to Synaptics mode (the mouse should ignore it).
-On the receiving side, I could check if the packet is valid for IM or
-Synaptics mode and pass it to the respective driver. Not sure if the
-keyboard controller is fully transparent, though - it could be changing
-data as outlined in the Synaptics PS2-MUX paper ("legacy hidden
-multiplexing").
+for the simple case.
 
-If I set Linux to Synaptics mode (i.e. modprobe psmouse without any
-parameters), I can't use the external mouse as it produces 3-byte
-packets by default (the kernel = synaptics.c prints "Synaptics driver
-lost sync at byte 1").
+Ehh?
 
-What do you think?
--- 
-Krzysztof Halasa, B*FH
+		Linus

@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261884AbSJEAcr>; Fri, 4 Oct 2002 20:32:47 -0400
+	id <S261914AbSJEAjR>; Fri, 4 Oct 2002 20:39:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261888AbSJEAcr>; Fri, 4 Oct 2002 20:32:47 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58118 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261884AbSJEAcq>; Fri, 4 Oct 2002 20:32:46 -0400
-Date: Fri, 4 Oct 2002 17:40:04 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: oops in bk pull (oct 03)
-In-Reply-To: <Pine.GSO.4.21.0210042030020.21250-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.44.0210041737500.2993-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261917AbSJEAjR>; Fri, 4 Oct 2002 20:39:17 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:14322 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261914AbSJEAjQ>; Fri, 4 Oct 2002 20:39:16 -0400
+Subject: Re: [RFC][PATCH] HZ as a config option
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D9E1BEA.7060804@us.ibm.com>
+References: <3D9E1BEA.7060804@us.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 Oct 2002 01:53:16 +0100
+Message-Id: <1033779196.1335.8.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 4 Oct 2002, Alexander Viro wrote:
+On Fri, 2002-10-04 at 23:53, Dave Hansen wrote:
+> On large systems (like NUMA-Q, Intel Profusion, etc...), latency and 
+> user responsiveness become much less important.  The extra scheduling 
+> overhead caused by higher HZ is bad.
 > 
-> It is repeatable, it does happen with current BK (well, as of couple
-> of hours ago) and reverting pci/probe.c change apparently cures it.
+> This is x86-only right now.  Is there any wider desire to tune this at 
+> config time?  Do any architecutures have strict rules as to what this 
+> can be set to?
 
-Really? That probe.c diff is _really_ small, and looks truly obvious. In 
-particular, I don't see how it could possibly cause that kind of 
-behaviour. What am I missing?
-
-		Linus
+You can't set this arbitarily, the NTP PLL's will only lock for certain
+value ranges.
 

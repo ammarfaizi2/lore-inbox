@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVASMm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbVASMoR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbVASMm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 07:42:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbVASMm1
+	id S261714AbVASMoR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 07:44:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVASMoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 07:42:27 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:15755 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261710AbVASMmZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 07:42:25 -0500
-Date: Wed, 19 Jan 2005 13:42:24 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Fabio Coatti <cova@ferrara.linux.it>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11-rc1-mm1 (and others): heavy disk I/O -> poor performance
-Message-ID: <20050119124223.GA14981@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Fabio Coatti <cova@ferrara.linux.it>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <200501182239.35992.cova@ferrara.linux.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501182239.35992.cova@ferrara.linux.it>
-User-Agent: Mutt/1.3.28i
+	Wed, 19 Jan 2005 07:44:15 -0500
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:5047 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261712AbVASMn4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 07:43:56 -0500
+Message-ID: <41EE5601.7060700@yahoo.com.au>
+Date: Wed, 19 Jan 2005 23:43:45 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: davidm@hpl.hp.com
+CC: Linus Torvalds <torvalds@osdl.org>, "Luck, Tony" <tony.luck@intel.com>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: pipe performance regression on ia64
+References: <200501181741.j0IHfGf30058@unix-os.sc.intel.com>	<Pine.LNX.4.58.0501180951050.8178@ppc970.osdl.org>	<41ED9D06.1070301@yahoo.com.au> <16877.60406.192245.106565@napali.hpl.hp.com>
+In-Reply-To: <16877.60406.192245.106565@napali.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 18, 2005 at 10:39:35PM +0100, Fabio Coatti wrote:
-> vmstat under load is the following, and config.gz attached. Of course I can 
-> provide any other needed detail; many thanks for any hint.
+David Mosberger wrote:
+>>>>>>On Wed, 19 Jan 2005 10:34:30 +1100, Nick Piggin <nickpiggin@yahoo.com.au> said:
+> 
+> 
+>   Nick> David I remember you reporting a pipe bandwidth regression,
+>   Nick> and I had a patch for it, but that hurt other workloads, so I
+>   Nick> don't think we ever really got anywhere. I've recently begun
+>   Nick> having another look at the multiprocessor balancer, so
+>   Nick> hopefully I can get a bit further with it this time.
+> 
+> While it may be worthwhile to improve the scheduler, it's clear that
+> there isn't going to be a trivial "fix" for this issue, especially
+> since it's not even clear that anything is really broken.  Independent
+> of the scheduler work, it would be very useful to have a pipe
+> benchmark which at least made the dependencies on the scheduler
+> obvious.  So I think improving the scheduler and improving the LMbench
+> pipe benchmark are entirely complementary.
+> 
 
-Looks mightily like DMA is not on, even though you compiled the PIIX driver
-in, which lists 
-> 0000:00:1f.1 IDE interface: Intel Corp. 82801EB/ER (ICH5/ICH5R) IDE Controller 
+Oh that's quite true. A bad score on SMP on the pipe benchmark does
+not mean anything is broken.
 
-Can you show the output of hdparm /dev/hda ? Can you show dmesg?
+And IMO, probably many (most?) lmbench tests should be run with all
+processes bound to the same CPU on SMP systems to get the best
+repeatability and an indication of the basic serial speed of the
+operation (which AFAIK is what they aim to measure).
 
+Having the scheduler take care of process placement is interesting
+too, of course. But it adds a new variable to the tests, which IMO
+doesn't always suit lmbench too well.
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316322AbSGLNSZ>; Fri, 12 Jul 2002 09:18:25 -0400
+	id <S316364AbSGLNYS>; Fri, 12 Jul 2002 09:24:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316364AbSGLNSY>; Fri, 12 Jul 2002 09:18:24 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28164 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316322AbSGLNSY>; Fri, 12 Jul 2002 09:18:24 -0400
-Subject: Re: IDE/ATAPI in 2.5
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Fri, 12 Jul 2002 14:15:35 +0100 (BST)
-Cc: andre@linux-ide.org (Andre Hedrick), andersen@codepoet.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <3D2E6506.7080006@zytor.com> from "H. Peter Anvin" at Jul 11, 2002 10:11:34 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S316390AbSGLNYR>; Fri, 12 Jul 2002 09:24:17 -0400
+Received: from pD9E235D3.dip.t-dialin.net ([217.226.53.211]:46723 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316364AbSGLNYR>; Fri, 12 Jul 2002 09:24:17 -0400
+Date: Fri, 12 Jul 2002 07:26:52 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Dawson Engler <engler@csl.Stanford.EDU>, <linux-kernel@vger.kernel.org>,
+       <mc@cs.Stanford.EDU>
+Subject: Re: [CHECKER] 56 potential lock/unlock bugs in 2.5.8 
+In-Reply-To: <32493.1026479849@redhat.com>
+Message-ID: <Pine.LNX.4.44.0207120726310.3421-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam; Germany
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17T0Gl-0002wk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm talking specifically about ATAPI devices here.  As we have already 
-> covered, not all ATA devices are ATAPI, but unless I'm completely off 
-> the wall, ATAPI is SCSI over IDE, and should be able to be driven as 
-> such.  The lack of access to that interface using the established 
-> interface mechanisms just bites.
+Hi,
 
-If you load ide-scsi they are run as ATAPI, whats the problem ? Just don't
-do that for very old ide cdroms or for some ide floppies
+On Fri, 12 Jul 2002, David Woodhouse wrote:
+> That one can't ever actually happen -- it's effectively a default case in a
+> switch statement which can't ever be reached because we'd never get that far
+> unless one of the real cases is going to be taken. I think I'll replace the
+> return statement with panic("The world is broken");
+
+But don't forget to unlock_kernel() before ;-)
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

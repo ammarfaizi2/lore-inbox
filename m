@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263058AbVCEHyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262774AbVCEIUM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263058AbVCEHyV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 02:54:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbVCEHyV
+	id S262774AbVCEIUM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 03:20:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbVCEIUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 02:54:21 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:30647 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S263105AbVCEHxY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 02:53:24 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Rene Rebe <rene@exactcode.de>
-Subject: Re: The never ending hpusbscsi storry
-Date: Sat, 5 Mar 2005 08:53:37 +0100
-User-Agent: KMail/1.7.1
-Cc: Matthias Kindtner <matthias.kindtner@t-online.de>,
-       sane-devel <sane-devel@lists.alioth.debian.org>,
-       linux-kernel@vger.kernel.org
-References: <200503050010.04190.matthias.kindtner@t-online.de> <4228EF0B.7030604@exactcode.de>
-In-Reply-To: <4228EF0B.7030604@exactcode.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200503050853.37226.oliver@neukum.org>
+	Sat, 5 Mar 2005 03:20:12 -0500
+Received: from h80ad26a8.async.vt.edu ([128.173.38.168]:23560 "EHLO
+	h80ad26a8.async.vt.edu") by vger.kernel.org with ESMTP
+	id S262774AbVCEIUG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 03:20:06 -0500
+Message-Id: <200503050819.j258Ju2R016461@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Ian Pilcher <i.pilcher@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFQ] Rules for accepting patches into the linux-releases tree 
+In-Reply-To: Your message of "Fri, 04 Mar 2005 23:08:55 CST."
+             <d0bejc$r11$1@sea.gmane.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050304222146.GA1686@kroah.com>
+            <d0bejc$r11$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1110010792_5543P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 05 Mar 2005 03:19:52 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 5. März 2005 00:28 schrieb Rene Rebe:
-> Don't ever use hpusbscsi. I though I already told all vedors it is that 
-> broken that they should never ever ship it. It is the first thing that 
-> will be removed in Linux 2.7.
+--==_Exmh_1110010792_5543P
+Content-Type: text/plain; charset=us-ascii
+
+On Fri, 04 Mar 2005 23:08:55 CST, Ian Pilcher said:
+> Greg KH wrote:
+> > Anything else anyone can think of?  Any objections to any of these?
+> > I based them off of Linus's original list.
 > 
-> If it would be me it would be removed from _all kernels right now_ ...
+> Must already be in Linus tree (i.e. 2.6.X+1)?
 
-It shall be. A patch to do that is in the queue. The other users have
-gone away.
+Not workable.  There's a high probability that we hit a bug where Linus
+commits a more extensive "correct" solution, but 2.6.X.1 includes a much
+simpler band-aid that's technically bogus, but stops a panic-on-boot bug
+from manifesting.
 
-	Regards
-		Oliver
+--==_Exmh_1110010792_5543P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCKWuocC3lWbTT17ARAv5fAJ0V7e2XBWEogoJSa/nh4rJHfdG2zgCeKqA/
+7UZr4p9R/FEtqcG+KtyMYJ4=
+=4tsO
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1110010792_5543P--

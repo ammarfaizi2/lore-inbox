@@ -1,87 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbVCALWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVCAL2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbVCALWM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 06:22:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbVCALWL
+	id S261877AbVCAL2p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 06:28:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbVCAL2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 06:22:11 -0500
-Received: from smtp3.libero.it ([193.70.192.127]:63628 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id S261876AbVCALVv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 06:21:51 -0500
-Date: Tue,  1 Mar 2005 12:15:08 +0100
-Message-Id: <ICO798$7147FD507322434BDC6EFA7B4F2FD6FC@libero.it>
-Subject: Re: sched_yield behavior
+	Tue, 1 Mar 2005 06:28:45 -0500
+Received: from ns2.protei.ru ([195.239.28.26]:17865 "EHLO mail.protei.ru")
+	by vger.kernel.org with ESMTP id S261877AbVCAL2i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 06:28:38 -0500
+Message-ID: <422451DA.3040802@protei.ru>
+Date: Tue, 01 Mar 2005 14:28:26 +0300
+From: Nickolay <nickolay@protei.ru>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-From: "gtusa\@inwind\.it" <gtusa@inwind.it>
-To: "rlrevell" <rlrevell@joe-job.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-X-XaM3-API-Version: 4.1 (B27pl2)
-X-type: 0
-X-SenderIP: 213.156.59.16
+To: linux-kernel@vger.kernel.org
+Cc: coywolf@gmail.com
+Subject: Kernel Oopses, can anyone fix it?
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Bogosity: No, tests=bogofilter, spamicity=0.610842, version=0.92.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First of all, thanks to all for the helpful replies.
-I have simplified my example, because I was only interested in understanding if there was particular behavior performed by the new scheduler after a sched_yield() call. 
-Anyway, I try to explain better my requirements. I have to implement a task which splits its job into two different blocks: the first concerns operations which must be performed within a limited time interval, so a very fast response is required; the second one concerns operations which can be a little delayed without problems. For some other reasons, the two blocks cannot be implemented in two different tasks. Therefore, because of the presence of the real-time block, an high real-time priority must be assigned to the whole task. On the other hand, if it uses the resources for a long time interval, it should sched_yield on behalf of other tasks (of course only after the real-time block operations have been completed).  
+Hello Guys!
 
-Giovanni
-    
----------- Initial Header -----------
-
->From      : linux-kernel-owner@vger.kernel.org
-To          : "Giovanni Tusa" gtusa@inwind.it
-Cc          : linux-kernel@vger.kernel.org
-Date      : Sun, 27 Feb 2005 12:02:13 -0500
-Subject : Re: sched_yield behavior
-
-> On Sun, 2005-02-27 at 11:58 +0100, Giovanni Tusa wrote:
-> > Hi all,
-> > I have a question about the sched_yield behavior of Linux O(1) scheduler,
-> > for RT tasks.
-> > By reading some documentation, I found that " ....real-time tasks are a
-> > special case, because
-> > when they want to explicitly yield the processor to other waiting processes,
-> > they are merely
-> > moved to the end of their priority list (and not inserted into the expired
-> > array, like conventional
-> > processes)."
-> > I have to implement an RT task with the highest priority in the system (it
-> > is also the only task within the
-> > priority list for such priority level). Moreover, it has to be a SCHED_FIFO
-> > task,  so that it can preempt
-> > SCHED_RR ones, because of its strong real-time requirements. However,
-> > sometimes it should relinquish the
-> > CPU, to give to other tasks a chance to run.
-> > Now, what happen if it gives up the CPU by means of the sched_yield() system
-> > call?
-> > If  I am not wrong, the scheduler will choose it again (it will be still the
-> > higher priority task, and the only of its priority list).
-> > I have to add an explicit sleep to effectively relinquish the CPU for some
-> > time, or the scheduler can deal with such a
-> > situation in another way?
-> 
-> What exactly are you trying to do?  I don't understand how the task
-> could have "strong real-time requirements" if it's CPU bound.  What is
-> the exact nature of the real time constraint?
-> 
-> Lee
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I has some shit happens after 2-3 days system working.
+After 2-3 days in kernel.debug i has many oopses.
+Stock 2.4.27 kernel.
+At time oopses started, system can't fork no one process.
+Below first two:
 
 
+OOPS No 1
+-----------
+Jan  2 16:43:00 localhost kernel: Unable to handle kernel paging request 
+at virtual address b0bdd054
+Jan  2 16:43:00 localhost kernel:  printing eip:
+Jan  2 16:43:00 localhost kernel: c0128e3c
+Jan  2 16:43:00 localhost kernel: *pde = 00000000
+Jan  2 16:43:00 localhost kernel: Oops: 0000
+Jan  2 16:43:00 localhost kernel: CPU:    0
+Jan  2 16:43:00 localhost kernel: EIP:    0010:[<c0128e3c>]    Not tainted
+Jan  2 16:43:00 localhost kernel: EFLAGS: 00010883
+Jan  2 16:43:00 localhost kernel: eax: 34ffffff   ebx: 9ffffae0   ecx: 
+dcbdd040   edx: dc99b640
+Jan  2 16:43:00 localhost kernel: esi: c15dfc00   edi: 00000246   ebp: 
+000001f0   esp: db78bf64
+Jan  2 16:43:00 localhost kernel: ds: 0018   es: 0018   ss: 0018
+Jan  2 16:43:00 localhost kernel: Process crond (pid: 445, 
+stackpage=db78b000)
+Jan  2 16:43:00 localhost kernel: Stack: d1724000 ded07280 d17245a0 
+00000011 c0113917 c15dfc00 000001f0 db78a000
+Jan  2 16:43:00 localhost kernel:        0804ea20 00000001 db78bfbc 
+00000000 fffffff4 00000296 db78a000 00000000
+Jan  2 16:43:00 localhost kernel:        c01177f4 c0107398 00000011 
+bffffccc db78bfc4 00000000 bffffcd8 c01086d3
+Jan  2 16:43:00 localhost kernel: Call Trace:    [<c0113917>] 
+[<c01177f4>] [<c0107398>] [<c01086d3>]
+Jan  2 16:43:00 localhost kernel:
+Jan  2 16:43:00 localhost kernel: Code: 8b 44 81 18 89 41 14 03 59 0c 83 
+f8 ff 75 25 8b 41 04 8b 11
 
-____________________________________________________________
-6X velocizzare la tua navigazione a 56k? 6X Web Accelerator di Libero!
-Scaricalo su INTERNET GRATIS 6X http://www.libero.it
+KSYMOOPS Output for OOPS No 1
+----------------------------------
+ >>EIP; c0128e3c <kmem_cache_alloc+84/dc>   <=====
+
+ >>ecx; dcbdd040 <_end+1c8bba6c/1f4e0a8c>
+ >>edx; dc99b640 <_end+1c67a06c/1f4e0a8c>
+ >>esi; c15dfc00 <_end+12be62c/1f4e0a8c>
+ >>esp; db78bf64 <_end+1b46a990/1f4e0a8c>
+
+Trace; c0113917 <do_fork+3ff/740>
+Trace; c01177f4 <sys_time+14/54>
+Trace; c0107398 <sys_fork+14/1c>
+Trace; c01086d3 <system_call+33/40>
+
+Code;  c0128e3c <kmem_cache_alloc+84/dc>
+00000000 <_EIP>:
+Code;  c0128e3c <kmem_cache_alloc+84/dc>   <=====
+   0:   8b 44 81 18               mov    0x18(%ecx,%eax,4),%eax   <=====
+Code;  c0128e40 <kmem_cache_alloc+88/dc>
+   4:   89 41 14                  mov    %eax,0x14(%ecx)
+Code;  c0128e43 <kmem_cache_alloc+8b/dc>
+   7:   03 59 0c                  add    0xc(%ecx),%ebx
+Code;  c0128e46 <kmem_cache_alloc+8e/dc>
+   a:   83 f8 ff                  cmp    $0xffffffff,%eax
+Code;  c0128e49 <kmem_cache_alloc+91/dc>
+   d:   75 25                     jne    34 <_EIP+0x34>
+Code;  c0128e4b <kmem_cache_alloc+93/dc>
+   f:   8b 41 04                  mov    0x4(%ecx),%eax
+Code;  c0128e4e <kmem_cache_alloc+96/dc>
+  12:   8b 11                     mov    (%ecx),%edx
+
+
+
+OOPS No 2
+-----------
+Jan  2 16:43:01 localhost kernel:  <1>Unable to handle kernel paging 
+request at virtual address b0bdd054
+Jan  2 16:43:01 localhost kernel:  printing eip:
+Jan  2 16:43:01 localhost kernel: c0128e3c
+Jan  2 16:43:01 localhost kernel: *pde = 00000000
+Jan  2 16:43:01 localhost kernel: Oops: 0000
+Jan  2 16:43:01 localhost kernel: CPU:    0
+Jan  2 16:43:01 localhost kernel: EIP:    0010:[<c0128e3c>]    Not tainted
+Jan  2 16:43:01 localhost kernel: EFLAGS: 00010883
+Jan  2 16:43:01 localhost kernel: eax: 34ffffff   ebx: 9ffffae0   ecx: 
+dcbdd040   edx: db69a3a0
+Jan  2 16:43:01 localhost kernel: esi: c15dfc00   edi: 00000246   ebp: 
+000001f0   esp: db78bf64
+Jan  2 16:43:01 localhost kernel: ds: 0018   es: 0018   ss: 0018
+Jan  2 16:43:01 localhost kernel: Process log_script.sh (pid: 9286, 
+stackpage=db78b000)
+Jan  2 16:43:01 localhost kernel: Stack: dc56e000 ded07280 dc56e5a0 
+00000011 c0113917 c15dfc00 000001f0 db78a000
+Jan  2 16:43:01 localhost kernel:        bffff7d0 00000000 db78bfbc 
+00000000 fffffff4 bffff708 dc9845c0 c01304e3
+Jan  2 16:43:01 localhost kernel:        db78a000 c0107398 00000011 
+bffff74c db78bfc4 00000000 bffff868 c01086d3
+Jan  2 16:43:01 localhost kernel: Call Trace:    [<c0113917>] 
+[<c01304e3>] [<c0107398>] [<c01086d3>]
+Jan  2 16:43:01 localhost kernel:
+Jan  2 16:43:01 localhost kernel: Code: 8b 44 81 18 89 41 14 03 59 0c 83 
+f8 ff 75 25 8b 41 04 8b 11
+
+
+KSYMOOPS Output for OOPS No 2
+----------------------------------
+ >>EIP; c0128e3c <kmem_cache_alloc+84/dc>   <=====
+
+ >>ecx; dcbdd040 <_end+1c8bba6c/1f4e0a8c>
+ >>edx; db69a3a0 <_end+1b378dcc/1f4e0a8c>
+ >>esi; c15dfc00 <_end+12be62c/1f4e0a8c>
+ >>esp; db78bf64 <_end+1b46a990/1f4e0a8c>
+
+Trace; c0113917 <do_fork+3ff/740>
+Trace; c01304e3 <sys_llseek+cf/dc>
+Trace; c0107398 <sys_fork+14/1c>
+Trace; c01086d3 <system_call+33/40>
+
+Code;  c0128e3c <kmem_cache_alloc+84/dc>
+00000000 <_EIP>:
+Code;  c0128e3c <kmem_cache_alloc+84/dc>   <=====
+   0:   8b 44 81 18               mov    0x18(%ecx,%eax,4),%eax   <=====
+Code;  c0128e40 <kmem_cache_alloc+88/dc>
+   4:   89 41 14                  mov    %eax,0x14(%ecx)
+Code;  c0128e43 <kmem_cache_alloc+8b/dc>
+   7:   03 59 0c                  add    0xc(%ecx),%ebx
+Code;  c0128e46 <kmem_cache_alloc+8e/dc>
+   a:   83 f8 ff                  cmp    $0xffffffff,%eax
+Code;  c0128e49 <kmem_cache_alloc+91/dc>
+   d:   75 25                     jne    34 <_EIP+0x34>
+Code;  c0128e4b <kmem_cache_alloc+93/dc>
+   f:   8b 41 04                  mov    0x4(%ecx),%eax
+Code;  c0128e4e <kmem_cache_alloc+96/dc>
+  12:   8b 11                     mov    (%ecx),%edx
 
 

@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292303AbSBBPff>; Sat, 2 Feb 2002 10:35:35 -0500
+	id <S292304AbSBBPkF>; Sat, 2 Feb 2002 10:40:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292304AbSBBPfZ>; Sat, 2 Feb 2002 10:35:25 -0500
-Received: from mailb.telia.com ([194.22.194.6]:12813 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id <S292303AbSBBPfO>;
-	Sat, 2 Feb 2002 10:35:14 -0500
-Message-Id: <200202021535.g12FZ1417639@mailb.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@norran.net>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, Jens Axboe <axboe@suse.de>
-Subject: Re: Errors in the VM - detailed (or is it Tux? or rmap? or those together...)
-Date: Sat, 2 Feb 2002 16:31:59 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
-        Tux mailing list <tux-list@redhat.com>
-In-Reply-To: <Pine.LNX.4.30.0202021619050.10720-200000@mustard.heime.net>
-In-Reply-To: <Pine.LNX.4.30.0202021619050.10720-200000@mustard.heime.net>
+	id <S292306AbSBBPj4>; Sat, 2 Feb 2002 10:39:56 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:12041 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S292304AbSBBPjw>;
+	Sat, 2 Feb 2002 10:39:52 -0500
+Date: Sat, 2 Feb 2002 13:39:34 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Jeff Garzik <garzik@havoc.gtf.org>
+Cc: <arjan@fenrus.demon.nl>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+In-Reply-To: <20020201144751.A32553@havoc.gtf.org>
+Message-ID: <Pine.LNX.4.33L.0202021339090.17850-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturdayen den 2 February 2002 16.22, Roy Sigurd Karlsbakk wrote:
-> > > Problem #2 is _the_ worst problem, as it makes the server more-or-less
-> > > unusable
-> >
-> > Please send sysrq-t traces for such stuck processes. It's _impossible_
-> > to guess whats going on from here, the crystal ball just isn't good
-> > enough :-)
+On Fri, 1 Feb 2002, Jeff Garzik wrote:
+
+> > the biggest reason for this is that we *suck* at readahead for mmap....
 >
-> Decoded sysrq+t is attached.
->
-> I've found only the first 60 wget processes started from the remote
-> machine is being serviced. After they are done, Tux hangs, using 100%
-> system time, still open on port ## (80), but doesn't do anything.
->
-> I don't understand anything...
+> Is there not also fault overhead and similar issues related to mmap(2)
+> in general, that are not present with read(2)/write(2)?
 
-I have reread the first mail in this series - I would say that Bug#2 is much
-worse than Bug#1. This since Bug#1 is "only" a performance problem,
-but Bug#2 is about correctness...
+If a fault is more expensive than a system call, we're doing
+something wrong in the page fault path ;)
 
-Are you 100% sure that tux works with rmap?
-
-I would suggest testing the simplest possible case.
-* Standard kernel
-* concurrent dd:s
-
-What can your problem be:
-* something to do with the VM - but the problem is in several different VMs...
-* something to do with read ahead? you got some patch suggestions -
-  please use them on a standard kernel, not rmap (for now...)
-
-/RogerL
-
+Rik
 -- 
-Roger Larsson
-Skellefteå
-Sweden
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

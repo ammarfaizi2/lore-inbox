@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272056AbRIIQPL>; Sun, 9 Sep 2001 12:15:11 -0400
+	id <S272057AbRIIQ27>; Sun, 9 Sep 2001 12:28:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272044AbRIIQPB>; Sun, 9 Sep 2001 12:15:01 -0400
-Received: from smtp01.uc3m.es ([163.117.136.121]:22533 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S272049AbRIIQOw>;
-	Sun, 9 Sep 2001 12:14:52 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200109091615.f89GF5j24432@oboe.it.uc3m.es>
-Subject: Re: Query about Tun/Tap Modules
-To: "linux kernel" <linux-kernel@vger.kernel.org>
-Date: Sun, 9 Sep 2001 18:15:05 +0200 (MET DST)
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S272059AbRIIQ2t>; Sun, 9 Sep 2001 12:28:49 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35336 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272057AbRIIQ2l>; Sun, 9 Sep 2001 12:28:41 -0400
+Date: Sun, 9 Sep 2001 09:24:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: linux-2.4.10-pre5
+In-Reply-To: <20010909164738.T11329@athlon.random>
+Message-ID: <Pine.LNX.4.33.0109090922330.14365-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Erik Andersen wrote:"
-> On Sun Sep 09, 2001 at 08:58:56PM +0530, Shiva Raman Pandey wrote:
-> > 
-> > Q2. What can be other ways, not very complicated  to solve my purpose
-> > instead of using Tun/Tap.
-> 
-> The network block device can be used via loopback...
 
-Not totally relaibly, however. It must deadlock when writing to a
-server on the same machine, because when we run out of memory
-we must free buffers by flushing pending writes on devices, which will
-send packets for the nbd out to loaclhost and to the local server, where
-they will take a buffer just prior to being written to disk ... and
-of course they won't succeed because we are out of memory.
+On Sun, 9 Sep 2001, Andrea Arcangeli wrote:
+>
+> > filesystems. The only case it doesn't like is the "rw-open of a device
+> > that is rw-mounted".
+>
+> it also doesn't work for ro-open of a device that is rw-mounted, hdparm
+> -t as said a million of times now.
 
-I would like the algorithms that free buffers to avoid the device
-that caused the memory pressure. Since they can't do that, the
-next best thing is to avoid it some of the time, which they
-can do by avoiding everything randomly. Please add randomness under
-stress, people.
+It _does_ work for that case, and you just aren't reading my emails.
 
-Peter
+You only need to invalidate the device if the open was a read-write open.
+
+It would be _stupid_ to force a writeback and device invalidate for
+read-only opens, now wouldn't it?
+
+The fact that you cannot know the difference between a read-only and a
+read-write open is _entirely_ due to the fact that you leave the flush
+until the last close. If you do it at every close (like I have said for
+the last twohundred mails or so), you can trivially see if the open was a
+read-only or not.
+
+		Linus
+

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267659AbSLTA04>; Thu, 19 Dec 2002 19:26:56 -0500
+	id <S267664AbSLTAaG>; Thu, 19 Dec 2002 19:30:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267664AbSLTA04>; Thu, 19 Dec 2002 19:26:56 -0500
-Received: from mail.fastwire.com ([216.7.221.2]:65289 "EHLO fastwire.com")
-	by vger.kernel.org with ESMTP id <S267659AbSLTA0z>;
-	Thu, 19 Dec 2002 19:26:55 -0500
-Subject: Modules loading when hardcoded
-From: Jason Lixfeld <jlixfeld@andromedas.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1040344418.1425.44.camel@housekat.fastvibe.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 19 Dec 2002 19:33:39 -0500
-Content-Transfer-Encoding: 7bit
-X-MDRemoteIP: 172.17.7.137
-X-Return-Path: jlixfeld@andromedas.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: jlixfeld@andromedas.com
+	id <S267666AbSLTAaF>; Thu, 19 Dec 2002 19:30:05 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:27401
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S267664AbSLTAaF>; Thu, 19 Dec 2002 19:30:05 -0500
+Date: Thu, 19 Dec 2002 19:40:31 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Marek Michalkiewicz <marekm@amelek.gda.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: parport_serial link order bug, NetMos support
+In-Reply-To: <E18P8vO-0005Rs-00@alf.amelek.gda.pl>
+Message-ID: <Pine.LNX.4.50.0212191929300.22130-100000@montezuma.mastecende.com>
+References: <E18P8vO-0005Rs-00@alf.amelek.gda.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had 2.4.20 compiled with ext3 as a module.  ran did the standard
-compile including make modules ; make modules_install but when I
-rebooted, the bootup failed telling me that the modules were compiled
-for 2.4.18 and being run on 2.4.20.  Stranger still, the path was
-/lib/jbd.o and the modules aren't even there, they are in the standard
-module path of /usr/lib/modules/2.4.20
+On Thu, 19 Dec 2002, Marek Michalkiewicz wrote:
 
-I nuked the 2.4.20 modules and re-ran make modules ; make
-modules_install for 2.4.20 in hopes that it would help but it didn't.
+> > I have local patches which do the same and have been using them for about
+> > a year too (also at 115k). Regarding the parallel port aspect of the card,
+> > i have tested using shared IRQs by running an epat cdrom via said port and
+> > generating a high amount of serial i/o
+>
+> Could you send me your local patches?  (I use parport in polling mode.)
 
-I re-compiled the kernel and hard coded ext3 and that allowed me to boot
-properly but I still got the errors about version problems on ext3.o and
-jbd.o.  Why are they still trying to get referenced and why are they
-still trying to get referenced with the old version?!
+Currently i use the following patch since i only tested the epat to ensure
+that shared parport/serial irq would work.
 
+For serial in 2.4.20
+http://function.linuxpower.ca/patches/patch-parport_serial-2.4
 
+For shared IRQs (probably would need hand patching)
+http://function.linuxpower.ca/patches/patch-parport-irq1
+
+> Would be nice to know exactly what these issues are.  My only issue with
+> these cards so far is that I have to patch the kernel to use them...
+
+Perhaps google, he did mention that he had netmos support in and then
+backed it out again.
+
+	Zwane
+-- 
+function.linuxpower.ca

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263472AbTI2OqP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 10:46:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbTI2OqP
+	id S263484AbTI2OvD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 10:51:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263485AbTI2OvC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 10:46:15 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:52422 "EHLO
-	executor.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S263472AbTI2OqM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 10:46:12 -0400
-Subject: Re: RFC: [2.6 patch] disallow modular IPv6
-From: David Woodhouse <dwmw2@infradead.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Adrian Bunk <bunk@fs.tum.de>, netdev@oss.sgi.com, davem@redhat.com,
-       pekkas@netcore.fi, lksctp-developers@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200309291438.h8TEcVtH021550@turing-police.cc.vt.edu>
-References: <20030928225941.GW15338@fs.tum.de>
-	 <20030928231842.GE1039@conectiva.com.br> <20030928232403.GX15338@fs.tum.de>
-	 <20030928233909.GG1039@conectiva.com.br> <20030929001439.GY15338@fs.tum.de>
-	 <20030929003229.GM1039@conectiva.com.br>
-	 <1064826174.29569.13.camel@hades.cambridge.redhat.com>
-	 <20030929141548.GS1039@conectiva.com.br>
-	 <200309291438.h8TEcVtH021550@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Message-Id: <1064846768.21551.15.camel@hades.cambridge.redhat.com>
+	Mon, 29 Sep 2003 10:51:02 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:1029 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S263484AbTI2OvA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 10:51:00 -0400
+Date: Mon, 29 Sep 2003 16:50:57 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Sam Ravnborg <sam@ravnborg.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Russell King <rmk@arm.linux.org.uk>,
+       Jamie Lokier <jamie@shareable.org>
+Subject: Re: [PATCH] check headers for complete includes, etc.
+Message-ID: <20030929145057.GA1002@mars.ravnborg.org>
+Mail-Followup-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Russell King <rmk@arm.linux.org.uk>,
+	Jamie Lokier <jamie@shareable.org>
+References: <Pine.LNX.4.44.0309281213240.4929-100000@callisto> <Pine.LNX.4.44.0309281035370.6307-100000@home.osdl.org> <20030928184642.GA1681@mars.ravnborg.org> <20030928191622.GA16921@wohnheim.fh-wedel.de> <20030928193150.GA3074@mars.ravnborg.org> <20030928194431.GB16921@wohnheim.fh-wedel.de> <20030929133624.GA14611@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
-Date: Mon, 29 Sep 2003 15:46:08 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030929133624.GA14611@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-09-29 at 10:38 -0400, Valdis.Kletnieks@vt.edu wrote:
-> No, this is the behavior we want, and we can write Kconfig help entries that
-> explain it.
-> 
-> Anybody want to do a sanity check against CONFIG_IP6_NF_IPTABLES - that
-> looks like another gotcha if it isn't implemented properly (it may be, I just haven't
-> actually looked it over)?
+On Mon, Sep 29, 2003 at 03:36:24PM +0200, Jörn Engel wrote:
+> First version of the script.  Seems to work, but it catches a lot,
+> maybe too much.
 
-In 2.7 we really should just stop the CONFIG_xxx_MODULE definitions
-being available during builds of the static kernel.
+What about adding a negative list, so headerfiles that we decide
+shall not be able to compile stand-alone are filtered away.
+But new headers are added.
 
--- 
-dwmw2
-
+	Sam

@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVBFSDV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVBFSEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261261AbVBFSDV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 13:03:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVBFSDV
+	id S261260AbVBFSEf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 13:04:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbVBFSEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 13:03:21 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:51842
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S261261AbVBFSDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 13:03:14 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Frank Sorenson <frank@tuxrocks.com>
-Subject: Re: [uml-devel] [patch] Make User Mode Linux compile in 2.6.11-rc3
-Date: Sun, 6 Feb 2005 12:00:33 -0500
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
-       Andrew Morton <akpm@osdl.org>, Jeff Dike <jdike@addtoit.com>
-References: <200502051051.46242.rob@landley.net> <420509D1.2080401@tuxrocks.com>
-In-Reply-To: <420509D1.2080401@tuxrocks.com>
+	Sun, 6 Feb 2005 13:04:34 -0500
+Received: from fw.osdl.org ([65.172.181.6]:19882 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261260AbVBFSEV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 13:04:21 -0500
+Date: Sun, 6 Feb 2005 10:04:04 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, drepper@redhat.com
+Subject: Re: [PROPOSAL/PATCH] Remove PT_GNU_STACK support before 2.6.11
+In-Reply-To: <1107711569.22680.146.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.58.0502061002090.2165@ppc970.osdl.org>
+References: <20050206120244.GA28061@elte.hu> <20050206124523.GA762@elte.hu>
+  <20050206125002.GF30109@wotan.suse.de>  <1107694800.22680.90.camel@laptopd505.fenrus.org>
+  <20050206130152.GH30109@wotan.suse.de>  <20050206130650.GA32015@infradead.org>
+  <20050206131130.GJ30109@wotan.suse.de> <20050206133239.GA4483@elte.hu> 
+ <20050206134640.GB30476@wotan.suse.de> <20050206140802.GA6323@elte.hu> 
+ <20050206142936.GC30476@wotan.suse.de>  <Pine.LNX.4.58.0502060907220.2165@ppc970.osdl.org>
+  <1107710023.22680.138.camel@laptopd505.fenrus.org> 
+ <Pine.LNX.4.58.0502060920050.2165@ppc970.osdl.org>
+ <1107711569.22680.146.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200502061200.33755.rob@landley.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 05 February 2005 01:00 pm, Frank Sorenson wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Rob Landley wrote:
-> | As of yesterday afternoon, the UML build still breaks in
-> | sys_call_table.c,
-...
-> This patch for sys_call_table.c was merged into the main tree in this
-> changeset:
-> http://linux.bkbits.net:8080/linux-2.5/cset@1.2080?nav=index.html|ChangeSet
->@-2d
->
-> The patch fixes both the sys_call_table and the pud_alloc breakage, and
-> as of 2.6.11-rc3-bk2, the main tree compiles again for UML.
 
-Verified.  2.6.11-rc3-bk2 does indeed build, and the result is chugging 
-through my big compile script.  It seems to be working fine, although ye olde 
-display glitch is still there:
 
-binutils-2.14/ld/testsuite/ld-sparc/tlssunbin64.rd
-binutils-2.14/ld/testsuite/lde/ld-/ld-sld-spd-spa-sparsparcparc/arc/trc/tlc/tls/tlsstlssulssunssunbsunbiunbinnbin6bin64in64.n64.s64.s4.s.ss
-binubinutinutinutilutilstils-ils-2ls-2.s-2.1-2.142.14/.14/l14/ld4/ld//ld/tld/ted/tes/testtestsestsustsuitsuitsuiteuite/ite/lte/lde/ld-/ld-sld-spd-spa-sparsparcparc/tlssunbin64.sd
-binutils-2.14/ld/testsuite/ld-sparc/tlssunbin64.td
+On Sun, 6 Feb 2005, Arjan van de Ven wrote:
+> > 
+> > And if you want to split things up, there's at least three flags there:  
+> > "stack" vs "file mapping" vs "anonymous mapping". For example, it might
+> 
+> lets add "brk" as 4th I guess.
 
-But that's a purely cosmetic bug.
+I thought about that, but no normal user program uses brk() natively. They 
+all just use "malloc()" and friends, and pretty much every implementation 
+of those in turn just mixes brk/anon-mmap freely.
 
-Thanks,
+> Ok so what to do for 2.6.11... the setarch workaround is there; that
+> works. My patch patches the worst issues and is quite minimal. What you
+> propose will be more invasive and more suitable for 2.6.11-bk1... 
+> I can do such a patch no problem (although the next two days I won't
+> have time).
 
-Rob
+Hmm.. I can take your initial patch now. Can somebody explain why this 
+hassn't come up before, though?
+
+		Linus

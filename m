@@ -1,88 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272336AbTGYVIa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 17:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272334AbTGYUkz
+	id S272322AbTGYVMA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 17:12:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272334AbTGYVId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 16:40:55 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:43666 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id S272318AbTGYUi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 16:38:29 -0400
-Date: Fri, 25 Jul 2003 22:51:00 +0200
-From: Harald Welte <laforge@netfilter.org>
-To: David Miller <davem@redhat.com>
-Cc: Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] netfilter conntrack missing include fix
-Message-ID: <20030725205100.GL3244@sunbeam.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
-	David Miller <davem@redhat.com>,
-	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>,
-	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+	Fri, 25 Jul 2003 17:08:33 -0400
+Received: from CPE0080c6f1c7c1-CM014160001801.cpe.net.cable.rogers.com ([24.101.63.200]:32480
+	"EHLO muon.jukie.net") by vger.kernel.org with ESMTP
+	id S272355AbTGYVHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 17:07:00 -0400
+Date: Fri, 25 Jul 2003 17:24:05 -0400
+From: Bart Trojanowski <bart@jukie.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.6-test1, PCMCIA cards require two insertions
+Message-ID: <20030725212405.GE4743@jukie.net>
+References: <20030725210242.GH15537@iarc.uaf.edu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lXGjgdROvQphKPvG"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Operating-system: Linux sunbeam 2.6.0-test1-nftest
-X-Date: Today is Prickle-Prickle, the 53rd day of Confusion in the YOLD 3169
+In-Reply-To: <20030725210242.GH15537@iarc.uaf.edu>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Christopher Swingley <cswingle@iarc.uaf.edu> [030725 17:12]:
+> I'm running 2.6.0-test1 on an SiS based laptop with all the PCMCIA 
+> network and serial drivers built into the kernel.  When the system boots 
+> with a PCMCIA cardbus card in place, the card doesn't show up.  I unplug 
+> the card and plug it back in, and then the kernel "sees" it and it 
+> works.  If I unplug it again, I have to go through a plug - unplug - 
+> plug cycle before it recognizes it.  As if it only recognizes the card 
+> on even numbered insertion events.
 
---lXGjgdROvQphKPvG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I see the same on my Thinkpad (CardBus bridge: Texas Instruments PCI1450)
+With any card I've tried.  In addition on APM h/w suspend (ACPI didn't
+work for me) I see the same thing... I have to pull out the card and put
+it back in for it to be recognized.
 
-Hi Dave!
+Bart.
 
-This is the 5th of a set of bugfixes (all tested against 2.4.22-pre7).
-You might need to apply them incrementally (didn't test it in a
-different order).  You will receive 2.6 merges of those patches soon.
-
-Author: Martin Bene <martin.bene@icomedias.com>
-
-Add an #include statement to ip_conntrack_core.h
-This fixes a compile issue with ipt_connlimit (and probably others)
-
-
-Please apply,
-
-
---- linux.old/include/linux/netfilter_ipv4/ip_conntrack_core.h	2003-07-14 0=
-9:49:46.000000000 +0200
-+++ linux/include/linux/netfilter_ipv4/ip_conntrack_core.h	2003-07-14 09:50=
-:04.000000000 +0200
-@@ -1,5 +1,6 @@
- #ifndef _IP_CONNTRACK_CORE_H
- #define _IP_CONNTRACK_CORE_H
-+#include <linux/netfilter.h>
- #include <linux/netfilter_ipv4/lockhelp.h>
-=20
- /* This header is used to share core functionality between the
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
-
---lXGjgdROvQphKPvG
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/IZg0XaXGVTD0i/8RAtvIAJ0ROEDC/9oJfD99lOqAxYdLpSjhJwCgrhU1
-BtPM87mzWxFasolPzLl+hxI=
-=+Wnj
------END PGP SIGNATURE-----
-
---lXGjgdROvQphKPvG--
+-- 
+				WebSig: http://www.jukie.net/~bart/sig/

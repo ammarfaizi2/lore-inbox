@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261910AbTHYOkY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 10:40:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbTHYOkX
+	id S261783AbTHYOgP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 10:36:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbTHYOgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 10:40:23 -0400
-Received: from gharelay-av-smtp1.gmessaging.net ([194.51.201.2]:21641 "EHLO
-	eads-av-smtp1.gmessaging.net") by vger.kernel.org with ESMTP
-	id S261910AbTHYOkU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 10:40:20 -0400
-Date: Mon, 25 Aug 2003 16:38:31 +0200
-From: Yann Droneaud <yann.droneaud@mbda.fr>
-Subject: Re: linux-2.4.22 released
-In-reply-to: <20030825132358.GC14108@merlin.emma.line.org>
-To: matthias andree <matthias.andree@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3F4A1F67.2060603@mbda.fr>
-Organization: MBDA
-MIME-version: 1.0
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr-fr, fr
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4)
- Gecko/20030612
-References: <200308251148.h7PBmU8B027700@hera.kernel.org>
- <20030825132358.GC14108@merlin.emma.line.org>
-X-OriginalArrivalTime: 25 Aug 2003 14:40:16.0538 (UTC)
- FILETIME=[CCC45FA0:01C36B16]
+	Mon, 25 Aug 2003 10:36:15 -0400
+Received: from main.gmane.org ([80.91.224.249]:8338 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261783AbTHYOgO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 10:36:14 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [PATCH] Nick's scheduler policy v7
+Date: Mon, 25 Aug 2003 16:36:12 +0200
+Message-ID: <yw1xd6etrehv.fsf@users.sourceforge.net>
+References: <3F48B12F.4070001@cyberone.com.au> <29760000.1061744102@[10.10.2.4]>
+ <3F497BB6.90100@cyberone.com.au> <3F49E7D1.4000309@cyberone.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:mDa3tMi55f7J9QvpBy9X/yq7Pdw=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-matthias andree wrote:
+Nick Piggin <piggin@cyberone.com.au> writes:
 
-> On Mon, 25 Aug 2003, Marcelo Tosatti wrote:
-> 
-> 
->>- 2.4.22-rc4 was released as 2.4.22 with no changes.
-> 
-> 
-> What are the plans for 2.4.23? XFS merge perhaps <hint>?
+> This one has a few changes. Children now get a priority boost
+> on fork, and parents retain more priority after forking a child,
+> however exiting CPU hogs will now penalise parents a bit.
+>
+> Timeslice scaling was tweaked a bit. Oh and remember raising X's
+> priority should _help_ interactivity with this patch, and IMO is
+> not an unreasonable thing to be doing.
+>
+> Please test. I'm not getting enough feedback!
 
-crypto loop ...
+OK, if you test my software.
 
-(integrating cryptoapi without cryptoloop is no-op for me ;)
+Seriously, though, it seems OK at first glance.  I can't reproduce the
+XEmacs problems I had with Con's recent versions.  I'll have to run it
+for a while and see what it seems like.
 
 -- 
-Yann Droneaud <yann.droneaud@mbda.fr>
-<ydroneaud@meuh.eu.org>
-1024D/BEA43321 5D91 B5B0 5137 B8FE 6882 FE19 CAA0 6F05 BEA4 3321
-
+Måns Rullgård
+mru@users.sf.net
 

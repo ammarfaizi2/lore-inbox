@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262960AbVCXAAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVCXARR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbVCXAAa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 19:00:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262959AbVCXAAa
+	id S262103AbVCXARR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 19:17:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbVCXARR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 19:00:30 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:41351 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262954AbVCWX7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 18:59:48 -0500
-Date: Wed, 23 Mar 2005 17:59:36 -0600
-From: Michael Raymond <mraymond@sgi.com>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] User Level Interrupts
-Message-ID: <20050323175935.A272763@xanatos.americas.sgi.com>
-References: <20050323103832.A108873@goliath.americas.sgi.com> <20050323145738.A29828@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050323145738.A29828@unix-os.sc.intel.com>; from ashok.raj@intel.com on Wed, Mar 23, 2005 at 02:57:39PM -0800
+	Wed, 23 Mar 2005 19:17:17 -0500
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:44188 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262103AbVCXARM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 19:17:12 -0500
+Message-ID: <42420704.9080701@yahoo.com.au>
+Date: Thu, 24 Mar 2005 11:17:08 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Arun Srinivas <getarunsri@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: help needed pls. scheduler(kernel 2.6) + hyperthreaded related
+ questions?
+References: <BAY10-F42DB434C4A842D9EB1D3AAD94F0@phx.gbl>
+In-Reply-To: <BAY10-F42DB434C4A842D9EB1D3AAD94F0@phx.gbl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Once the ULI code has taken over a CPU, it should not be rescheduable
-until the ULI completes.  The goal is a very fast jump in and out of user
-space.  Primitives are provided for the waking of another thread / process
-if the applications needs to do a lot of work.
-    If I've left open the possibility of a reschedule, then it was a design
-error.  As I think about it though everything should still work fine, but
-it's purely by accident. :)
-    If you have test code for hotplug I'd be happy to test it for you.
-       	   	     	      	      	     Thanks,
-					     	    Michael
+Arun Srinivas wrote:
+> few more trivial Q's (bear with me  I'm a newbie to kernel world):
+> 
+> 1) As I said I have a process that spawns 2 threads(thread A and B).I am 
+> trying to measure the exact time @ which they are being scheduled.For 
+> this I am using the rdtsc() (when threads A and B come)  in 
+> enqueue_task()..where they are being inserted into the priority array.
+> Is this a correct way of measuring?
+> 
 
-On Wed, Mar 23, 2005 at 02:57:39PM -0800, Ashok Raj wrote:
-> Hi Michael
-> 
-> have you thought about how this infrastructure would play well with 
-> existing CPU hotplug code for ia64?
-> 
-> Once you return to user mode via the iret, is it possible that user mode
-> thread could get switched due to a pending cpu quiese attempt to remove
-> a cpu? (Current cpu removal code would bring the entire system to knees
-> by scheduling a high priority thread and looping with intr disabled, until the
-> target cpu is removed)
-> 
-> the cpu removal code would also attempt to migrate user process to another cpu,
-> retarget interrupts to another existing cpu etc. I havent tested the hotplug
-> code on sgi boxes so far. (only tested on some hp boxes by Alex Williamson
-> and on tiger4 boxes so far)
-> 
-> Cheers,
-> ashok
+Not exactly. They can be enqueued "onto" the runqueue without being
+scheduled if there is another process running at the time.
 
--- 
-Michael A. Raymond              Office: (651) 683-3434
-Core OS Group                   Real-Time System Software
+You should look in schedule(). And use sched_clock instead of rdtsc.
+I think you'll find schedule() already calls sched_clock, so you should
+be able to do this with minimal overhead.
+
+Note also, that schedule() may be called multiple times without
+switching your task off the CPU - so keep that in mind if you are looking
+for the time at which it is first scheduled on.
+
+> 2) also in task_struct.....is "tgid" the id of my process and each of 
+> threads hav a unique pid??
+> 
+
+Something like that.
+
+> 3) I saw frm the kernel docs tht realtime tasks hav priority 0 to 99. So 
+> using setscheduler means do I have to enforce a priority in one of these 
+> ranges to make my threads as soft/hard realtime task.
+> 
+
+Well, if you have nothing else running with a realtime scheduling policy,
+then your process that is will always be scheduled first.
+
+The priority only distinguishes between two realtime processes.
+
+Oh, and Linux is not hard realtime. Meaning you don't have a deterministic
+scheduling latency. But these days it is pretty good - probably not something
+you'd have to worry about.
+
+Nick
+

@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266839AbUIEQQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266850AbUIEQTw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266839AbUIEQQr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 12:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUIEQQr
+	id S266850AbUIEQTw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 12:19:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266867AbUIEQTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 12:16:47 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:2461 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266839AbUIEQQq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 12:16:46 -0400
-Subject: Re: New proposed DRM interface design
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Keith Whitwell <keith@tungstengraphics.com>, Dave Jones <davej@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Dave Airlie <airlied@linux.ie>,
-       Jon Smirl <jonsmirl@yahoo.com>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mharris@redhat.com
-In-Reply-To: <9e47339104090509056e54866e@mail.gmail.com>
-References: <20040904102914.B13149@infradead.org>
-	 <4139C8A3.6010603@tungstengraphics.com>
-	 <9e47339104090408362a356799@mail.gmail.com>
-	 <4139FEB4.3080303@tungstengraphics.com>
-	 <9e473391040904110354ba2593@mail.gmail.com>
-	 <1094386050.1081.33.camel@localhost.localdomain>
-	 <9e47339104090508052850b649@mail.gmail.com>
-	 <1094393713.1264.7.camel@localhost.localdomain>
-	 <9e473391040905083326707923@mail.gmail.com>
-	 <1094395462.1271.12.camel@localhost.localdomain>
-	 <9e47339104090509056e54866e@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094397179.1269.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 05 Sep 2004 16:13:07 +0100
+	Sun, 5 Sep 2004 12:19:52 -0400
+Received: from mta5.srv.hcvlny.cv.net ([167.206.5.78]:18990 "EHLO
+	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S266850AbUIEQTu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 12:19:50 -0400
+Date: Sun, 05 Sep 2004 12:19:34 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Re: [PATCH 2.6] watch64: generic variable monitoring system
+In-reply-to: <1094303999.1633.116.camel@jzny.localdomain>
+To: hadi@cyberus.ca
+Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Message-id: <200409051219.47590.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.6.2
+References: <200409031307.01240.jeffpc@optonline.net>
+ <200409031744.32970.jeffpc@optonline.net>
+ <1094303999.1633.116.camel@jzny.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-09-05 at 17:05, Jon Smirl wrote:
-> They have to be merged. Cards with two heads need the mode set on each
-> head. fbdev only sets the mode on one head. If I teach fbdev how to
-> set the mode of the other head fbdev needs to learn about memory
-> management.  The DRM memory management code is complex and is a big
-> chunk of the driver.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I see the entire time at OLS trying to sort this out was a complete
-waste.
+On Saturday 04 September 2004 09:19, jamal wrote:
+> I have a feeling this was discussed somewhere(other than netdev) and i
+> missed it. Why isnt this watch64 being done in user space?
 
+There was a discussion about 64-bit network statistics about a year ago on 
+lkml.
+
+watch64 is a generic so that anyone in the kernel can use it.
+
+Jeff.
+
+- -- 
+Mankind invented the atomic bomb, but no mouse would ever construct a 
+mousetrap.
+  - Albert Einstein
+
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBOzybwFP0+seVj/4RArmhAKC3ddX4ZGoAMQKxGplXqqbER9BBMQCfencW
+wDt06dC8MifG9NU3xWx0ULo=
+=z9kC
+-----END PGP SIGNATURE-----

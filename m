@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133048AbRDRHao>; Wed, 18 Apr 2001 03:30:44 -0400
+	id <S133053AbRDRIRK>; Wed, 18 Apr 2001 04:17:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133051AbRDRHae>; Wed, 18 Apr 2001 03:30:34 -0400
-Received: from ns.caldera.de ([212.34.180.1]:44562 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S133048AbRDRHaZ>;
-	Wed, 18 Apr 2001 03:30:25 -0400
-Date: Wed, 18 Apr 2001 09:28:47 +0200
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: "Eric S. Raymond" <esr@snark.thyrsus.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@transmeta.com,
-        axel@uni-paderborn.de, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Supplying missing entries for Configure.help, part 2
-Message-ID: <20010418092847.A15790@caldera.de>
-Mail-Followup-To: "Eric S. Raymond" <esr@snark.thyrsus.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@transmeta.com,
-	axel@uni-paderborn.de, linux-kernel@vger.kernel.org,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <200104180054.f3I0sne02402@snark.thyrsus.com>
-Mime-Version: 1.0
+	id <S133054AbRDRIRA>; Wed, 18 Apr 2001 04:17:00 -0400
+Received: from h170n1fls20o70.telia.com ([213.64.50.170]:53154 "EHLO
+	garbo.localnet") by vger.kernel.org with ESMTP id <S133053AbRDRIQm>;
+	Wed, 18 Apr 2001 04:16:42 -0400
+Message-ID: <3ADD4D46.3E8CF0B2@canit.se>
+Date: Wed, 18 Apr 2001 10:16:06 +0200
+From: Kenneth Johansson <ken@canit.se>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Manfred Bartz <md-linux-kernel@logi.cc>, linux-kernel@vger.kernel.org
+Subject: Re: IP Acounting Idea for 2.5
+In-Reply-To: <E14pef6-0003Vj-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <200104180054.f3I0sne02402@snark.thyrsus.com>; from esr@snark.thyrsus.com on Tue, Apr 17, 2001 at 08:54:49PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 17, 2001 at 08:54:49PM -0400, Eric S. Raymond wrote:
-> +Kernel support for JAVA binaries
-> +CONFIG_BINFMT_JAVA
-> +  If you answer Y here, the kernel's program loader will know how to
-> +  directly execute Java J-code.  This option is semi-obsolescent; you 
-> +  should probably use CONFIG_BINFMT_MISC and read Documentation/java.txt
-> +  for information about how to include Java support.
-> +
+Alan Cox wrote:
 
-binmft_java is gone - the relvant CONFIG_ option should be removed instead
-of getting a help entry...
+> > > Fix your userspace applications to behave correctly.  If _you_
+> > > require your userspace applications to not clear counters, then fix
+> > > the application.
+> >
+> > You are confused.  What would you say if a close() by another,
+>
+> No he isnt confused, you are trying to dictate policy.
 
-	Christoph
+Well it's not actually possible to do a fix in userspace for a odometer type of counter that can be reset. I don't know what you mean about policy but this reset "feature" is a shure way to get bad values. I have not seen one good reason to have a reset other than it easier to read and that is something that can be fixed in userspace.
 
--- 
-Of course it doesn't work. We've performed a software upgrade.

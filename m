@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263101AbTKCUGp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 15:06:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbTKCUGp
+	id S262864AbTKCUM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 15:12:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262937AbTKCUM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 15:06:45 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:8396 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S263101AbTKCUGl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 15:06:41 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: [Alsa-devel] [2.6.0-test9 ALSA] ALSA-OSS-emulation unable to register
-Date: Mon, 3 Nov 2003 21:06:06 +0100
-User-Agent: KMail/1.5.4
-References: <200311021458.59759.mbuesch@freenet.de> <s5hu15ltgb5.wl@alsa2.suse.de>
-In-Reply-To: <s5hu15ltgb5.wl@alsa2.suse.de>
-Cc: alsa-devel@alsa-project.org,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	Mon, 3 Nov 2003 15:12:26 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:43494 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S262864AbTKCUMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 15:12:25 -0500
+Date: Mon, 3 Nov 2003 21:12:23 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: how to restart userland?
+Message-ID: <20031103201223.GC16820@louise.pinerecords.com>
+References: <20031103193940.GA16820@louise.pinerecords.com> <200311032003.hA3K3tgv017273@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311032106.28125.mbuesch@freenet.de>
+In-Reply-To: <200311032003.hA3K3tgv017273@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Nov-03 2003, Mon, 15:03 -0500
+Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
 
-On Monday 03 November 2003 20:14, you wrote:
-> > CONFIG_SOUND_BT878=y
->
->   ^^^^^^^^^^^^^^^^^^^^
-> this conflicts with ALSA.  try to pass the index parameter via boot
-> option of snd-ens1371.
+> On Mon, 03 Nov 2003 20:39:40 +0100, Tomas Szepe <szepe@pinerecords.com>  said:
+> > Would anyone know of a proven way to completely restart the userland
+> > of a Linux system?
+> 
+> This would be distinct from 'shutdown -r' how?
 
-Thanks for your suggestion, but it doesn't work.
-Still displays
-ALSA sound/core/oss/pcm_oss.c:2353: unable to register OSS PCM device 0:0
-Is there some other way to make bttv-audio and
-ALSA-ens1371 working both? Would be cool if I
-could use both at the same time. :)
+No reboot.
 
-> it's already fixed on the ALSA cvs version.
+> Is there a reason you want to "completely" restart userland and *not*
+> reboot (for instance, wanting to keep existing mounts, etc)?
 
-ok.
+Extensive userland upgrades (glibc is a nice example I guess), etc.
 
-> ciao,
->
-> --
-> Takashi Iwai <tiwai@suse.de>		ALSA Developer - www.alsa-project.org
+> A case could be made that for a "complete" restart, you need to trash
+> those mounts too (if you're restarting to get a 'clean' setup, you want
+> to actually be clean), and so forth.
 
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+Right.
 
-iD8DBQE/prVDoxoigfggmSgRAm/zAJ9nwkcRvzM2/w2EgYpbSZL0sZxoegCfYDBu
-Oq5ZWs+LPXRF0iw3MfyKySI=
-=Fg8x
------END PGP SIGNATURE-----
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131663AbQJ2NEG>; Sun, 29 Oct 2000 08:04:06 -0500
+	id <S131676AbQJ2NWb>; Sun, 29 Oct 2000 08:22:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131684AbQJ2ND5>; Sun, 29 Oct 2000 08:03:57 -0500
-Received: from pacific.usatoday.com ([167.8.29.64]:33141 "HELO
-	mail9.usatoday.com") by vger.kernel.org with SMTP
-	id <S131663AbQJ2NDk>; Sun, 29 Oct 2000 08:03:40 -0500
-Date: Sun, 29 Oct 2000 08:03:35 -0500
-From: Raul Miller <moth@magenta.com>
-To: linux-kernel@vger.kernel.org
-Subject: guarantee_memory() syscall?
-Message-ID: <972824256.eb26eb5e@magenta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S131684AbQJ2NWW>; Sun, 29 Oct 2000 08:22:22 -0500
+Received: from d14144.dtk.chello.nl ([213.46.14.144]:24707 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S131676AbQJ2NWJ>;
+	Sun, 29 Oct 2000 08:22:09 -0500
+Message-Id: <m13psPR-000OXnC@amadeus.home.nl>
+Date: Sun, 29 Oct 2000 14:22:01 +0100 (CET)
+From: arjan@fenrus.demon.nl (Arjan van de Ven)
+To: rasmus@jaquet.dk (Rasmus Andersen)
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Compile error in drivers/ide/osb4.c in 240-t10p6
+X-Newsgroups: fenrus.linux.kernel
+In-Reply-To: <20001029144822.B622@jaquet.dk>
+User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre15 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can anyone tell me about the viability of a guarantee_memory() syscall?
+In article <20001029144822.B622@jaquet.dk> you wrote:
 
-[I'm thinking: it would either kill the process, or allocate all virtual
-memory needed for its shared libraries, buffers, allocated memory, etc.
-Furthermore, it would render this process immune to the OOM killer,
-unless it allocated further memory.]
+> The variable, osb4_revision, is inside a #ifdef CONFIG_PROC_FS block but
+> I was not able to discern if the line where it is referred should be
+> #ifdef'ed also. The following patch moves the variable declaration out-
+> side the #ifdef block, as a blind guess...
 
-Thanks,
+This patch, and a lot of others of a similar nature, are in my test10pre6
+compile patch at 
 
--- 
-Raul
+http://www.fenrus.demon.nl/t10p6.diff
+
+Greetings,
+    Arjan van de Ven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

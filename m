@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291713AbSBALhn>; Fri, 1 Feb 2002 06:37:43 -0500
+	id <S291756AbSBANmv>; Fri, 1 Feb 2002 08:42:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291714AbSBALhd>; Fri, 1 Feb 2002 06:37:33 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:17159 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S291713AbSBALhW>; Fri, 1 Feb 2002 06:37:22 -0500
-Message-ID: <3C56A03C.9070107@evision-ventures.com>
-Date: Tue, 29 Jan 2002 14:14:36 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: mingo@elte.hu
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Jens Axboe <axboe@suse.de>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <Pine.LNX.4.33.0201291527310.5560-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S291754AbSBANmm>; Fri, 1 Feb 2002 08:42:42 -0500
+Received: from server7.suhplains1.com ([12.110.244.153]:26891 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S291755AbSBANm2>; Fri, 1 Feb 2002 08:42:28 -0500
+Subject: 2.5.3-dj7
+From: "Daniel E. Shipton" <dshipton@vrac.iastate.edu>
+To: davej@suse.de
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C59749C.B4855316@lbl.gov>
+In-Reply-To: <3C59749C.B4855316@lbl.gov>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 31 Jan 2002 19:43:22 -0600
+Message-Id: <1012527802.8490.5.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+One of these days the kernel + modules will compile without error for
+me.....
+but today is not the day....
 
->On Tue, 29 Jan 2002, Martin Dalecki wrote:
->
->>Bla bla bla... Just tell how frequenty do I have to tell the world,
->>that the read_ahead array is a write only variable inside the kernel
->>and therefore not used at all?????!!!!!!!!!!
->>
->tell Jens. He goes about fixing it all, not just the most visible pieces
->that showed how much the Linux block IO code sucked. And guess what? His
->patches are being accepted, and the Linux 2.5 block IO code is evolving
->rapidly. Sometimes keeping broken code around as an incentive to fix it
->*for real* is better than trying to massage the broken code somewhat.
->
-There is nothing easier to fix then this. You just have to grep for it, 
-or just remove the declaration and wait
-to be hit by this during the compilation. And most interrestingly this 
-is *easier* then sending a patch!
-A patch for this particular problem tend't to
-1. Touch many things (however in a trivial way!)
-2. Have spurious conflicts in terms of synchronization with the overall 
-developement tree of the maintainer
-in question.
-
-Now dear linus tell me a better way to deal with *this* kind of problem 
-then using CVS for example
-where not a single man has the overall controll.
-
-Yes my opinnin is indeed that in reality our problem is that Linus just 
-doesn't want to give up
-some kind of controll - no more no less.
-
->
->
->a patch penguin doesnt solve this particular problem, by definition he
->just wont fix the block IO code.
->
->any other 'examples'
->
-
-
+gcc -D__KERNEL__ -I/home/kernel/linux-2.5/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=i686 -DMODULE -DMODVERSIONS -include
+/home/kernel/linux-2.5/include/linux/modversions.h 
+-DKBUILD_BASENAME=ataraid  -DEXPORT_SYMTAB -c ataraid.c
+ataraid.c: In function `ataraid_make_request':
+ataraid.c:105: structure has no member named `b_rdev'
+ataraid.c:103: warning: `minor' might be used uninitialized in this
+function
+ataraid.c: In function `ataraid_split_request':
+ataraid.c:182: structure has no member named `b_rsector'
+ataraid.c:193: warning: passing arg 1 of
+`generic_make_request_Rsmp_094ec5c7' makes pointer from integer without
+a cast
+ataraid.c:193: too many arguments to function
+`generic_make_request_Rsmp_094ec5c7'
+ataraid.c:194: warning: passing arg 1 of
+`generic_make_request_Rsmp_094ec5c7' makes pointer from integer without
+a cast
+ataraid.c:194: too many arguments to function
+`generic_make_request_Rsmp_094ec5c7'
+ataraid.c: In function `ataraid_init':
+ataraid.c:249: `hardsect_size' undeclared (first use in this function)
+ataraid.c:249: (Each undeclared identifier is reported only once
+ataraid.c:249: for each function it appears in.)
+ataraid.c:280: warning: passing arg 2 of
+`blk_queue_make_request_Rsmp_b22de294' from incompatible pointer type
+ataraid.c: In function `ataraid_exit':
+ataraid.c:289: `hardsect_size' undeclared (first use in this function)
+make[2]: *** [ataraid.o] Error 1
+make[2]: Leaving directory `/home/kernel/linux-2.5/drivers/ide'
+make[1]: *** [_modsubdir_ide] Error 2
+make[1]: Leaving directory `/home/kernel/linux-2.5/drivers'
+make: *** [_mod_drivers] Error 2

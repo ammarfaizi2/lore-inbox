@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269207AbRHQAaV>; Thu, 16 Aug 2001 20:30:21 -0400
+	id <S269249AbRHQAcL>; Thu, 16 Aug 2001 20:32:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269212AbRHQAaL>; Thu, 16 Aug 2001 20:30:11 -0400
-Received: from ronispc.Chem.McGill.CA ([132.206.205.91]:15267 "EHLO
-	ronispc.chem.mcgill.ca") by vger.kernel.org with ESMTP
-	id <S269207AbRHQA3z>; Thu, 16 Aug 2001 20:29:55 -0400
-Date: Thu, 16 Aug 2001 20:29:47 -0400
-Message-Id: <200108170029.f7H0TlC7029810@ronispc.chem.mcgill.ca>
-From: root <ronis@ronispc.chem.mcgill.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Module Build Failure in fs/ntf/unistr.c
-Reply-to: ronis@onsager.chem.mcgill.ca
+	id <S269226AbRHQAcC>; Thu, 16 Aug 2001 20:32:02 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:44812 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S269212AbRHQAbx>; Thu, 16 Aug 2001 20:31:53 -0400
+Date: Fri, 17 Aug 2001 02:31:48 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+To: Dennis Bjorklund <db@zigo.dhs.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.19: d-link dfe530-tx, Transmit timed out
+In-Reply-To: <Pine.LNX.4.33.0108161810440.18106-100000@cosmo.zigo.dhs.org>
+Message-ID: <Pine.LNX.4.30.0108170219330.20670-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 16 Aug 2001, Dennis Bjorklund wrote:
+
+> kernel: via-rhine.c:v1.08b-LK1.0.0 12/14/2000  Written by Donald Becker
+> kernel:   http://www.scyld.com/network/via-rhine.html
+> kernel: eth1: VIA VT6102 Rhine-II at 0xe400, 00:50:ba:6e:76:63, IRQ 9.
+> kernel: eth1: MII PHY found at address 8, status 0x782d advertising 01e1 Link 40a1.
+> [...]
+> kernel: eth1: Transmit timed out, status 0000, PHY status 782d, resetting..
+> (a lot of these)
+> 
+> I know this thread was up a year ago but there doesn't seem to have been a
+> solution.  I also remember that there where patches that was supposed to
+> reset the card when this happens, but obviously they never got into the
+> kernel.
+
+I don't remember actual patches from a year ago. Current 2.4.x has code
+that resets the via-rhine.
+
+Since you run on 2.2 the drivers from www.scyld.com are an option (not
+sure what the 2.4 status is on those). They are similar to the in-kernel
+version but not identical. If you do test, any difference in behaviour is
+intresting.
 
 
-I just patched 2.4.8 to 2.4.9 on an i686-linux-gnu(libc-2.2.3) box and
-tried to compile using the same configuration options and compiler
-(gcc-2.95.3) as I used to build 2.4.8.  The build fails in one of the
-modules.  Here's the log:
+> I should probably throw out this stupid card and get something else. Any
+> suggestion of a card working well in linux? The computer is a P90 so a
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
--fno-common -pipe -mpreferred-stack-boundary=3 -march=i686 -DMODULE
--DNTFS_VERSION=\"1.1.16\" -c -o unistr.o unistr.c
+The 3c905C (3c59x) has been working just fine for me. But then so has the
+via-rhine cards I have.
 
-unistr.c: In function `ntfs_collate_names':
-unistr.c:99: warning: implicit declaration of function `min'
-unistr.c:99: parse error before `unsigned'
-unistr.c:99: parse error before `)'
-unistr.c:97: warning: `c1' might be used uninitialized in this function
-unistr.c: At top level:
-unistr.c:118: parse error before `if'
-unistr.c:123: warning: type defaults to `int' in declaration of `c1'
-unistr.c:123: `name1' undeclared here (not in a function)
-unistr.c:123: warning: data definition has no type or storage class
-unistr.c:124: parse error before `if'
-make[2]: *** [unistr.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/fs/ntfs'
-make[1]: *** [_modsubdir_ntfs] Error 2
-make[1]: Leaving directory `/usr/src/linux/fs'
-make: *** [_mod_fs] Error 2
+/Urban
 
-David

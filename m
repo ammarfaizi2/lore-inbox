@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261453AbSIWVbA>; Mon, 23 Sep 2002 17:31:00 -0400
+	id <S261423AbSIWVYZ>; Mon, 23 Sep 2002 17:24:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261451AbSIWV3d>; Mon, 23 Sep 2002 17:29:33 -0400
-Received: from dsl-213-023-022-250.arcor-ip.net ([213.23.22.250]:60342 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S261449AbSIWV3J>;
-	Mon, 23 Sep 2002 17:29:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: davidm@hpl.hp.com, David Mosberger <davidm@napali.hpl.hp.com>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: DAC960 in 2.5.38, with new changes
-Date: Mon, 23 Sep 2002 23:31:13 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, dmo@osdl.org, axboe@suse.de,
-       _deepfire@mail.ru, linux-kernel@vger.kernel.org
-References: <15759.26918.381273.951266@napali.hpl.hp.com> <20020923.135708.10698522.davem@redhat.com> <15759.34428.608321.969391@napali.hpl.hp.com>
-In-Reply-To: <15759.34428.608321.969391@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17tanS-0003cl-00@starship>
+	id <S261426AbSIWVYZ>; Mon, 23 Sep 2002 17:24:25 -0400
+Received: from jstevenson.plus.com ([212.159.71.212]:30258 "EHLO
+	alpha.stev.org") by vger.kernel.org with ESMTP id <S261423AbSIWVYI>;
+	Mon, 23 Sep 2002 17:24:08 -0400
+Subject: Re: kernel BUG at vmalloc.c:236!  version 2.4.19
+From: James Stevenson <james@stev.org>
+To: Martin Knott <martin@knotthome.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E17tHIy-0005Rd-00.2002-09-23-01-42-28@cmailg2.svr.pol.co.uk>
+References: <E17tHIy-0005Rd-00.2002-09-23-01-42-28@cmailg2.svr.pol.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 23 Sep 2002 22:25:37 +0100
+Message-Id: <1032816337.1699.0.camel@god.stev.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 September 2002 23:24, David Mosberger wrote:
-> >>>>> On Mon, 23 Sep 2002 13:57:08 -0700 (PDT), "David S. Miller" <davem@redhat.com> said:
+> The following appears in dmesg:
 > 
->   >> On many platforms, two consequetive __raw_writel()'s might even
->   >> combine to an atomic 64-bit store to PCI space. :-)
+> kernel BUG at vmalloc.c:236!
+> invalid operand: 0000
+> CPU:    0
+> EIP:    1010:[<c012a997>]    Not tainted
+> EFLAGS: 00210246
+> eax: 00000000   ebx: 00000000   ecx: 00000000   edx: d20ddbfc
+> esi: 00000200   edi: d20ddc1c   ebp: c6a0fe5c   esp: c6a0fe2c
+> ds: 1018   es: 1018   ss: 1018
+> Process madvout (pid: 2750, stackpage=c6a0f000)
+> Stack: 00000000 00000200 d20ddc1c c02c8d5f 00000000 00000000 00000010 fffffffe
+>        00000000 00000041 000031b5 d1df7f7c c6a0fe7c e21f8085 00000000 000001f2
+>        00000163 d20ddb80 00000200 d20ddc1c c6a0fea0 e21f82f8 00000000 bffdb808
+> Call Trace:    [<e21f8085>] [<e21f82f8>] [<c0117318>] [<e21f949b>] 
+> [<c013a8d1>]
+>   [<c013b21c>] [<c013a829>] [<c013bacb>] [<c01316af>] [<c01315bf>] 
+> [<c013e679>]
+>   [<c01099fb>]
 > 
-> Yes, but that's no guarantee.
-> 
->   >> I don't think the proposed 32-bit behavior is off the mark, and
->   >> anyways x86 can actually make the 64-bit store I believe if it
->   >> wants at least on more recent processors.
-> 
-> Surely we wouldn't want to define a new API that can't be supported on
-> all 32-bit platforms, no?  Perhaps writeq_nonatomic()?
+> Code: 0f 0b ec 00 20 1b 24 c0 e9 65 01 00 00 6a 02 53 e8 94 fe ff
+>  mask: 8000000000000000 usage: 8000000000000000
 
-Why attempt to write 8 bytes on ia32 when only 4 are needed?
+would you be able to run that though ksymopps please.
 
--- 
-Daniel
+thanks
+	James
+
+
+

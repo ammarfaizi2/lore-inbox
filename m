@@ -1,200 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135809AbRD2QS2>; Sun, 29 Apr 2001 12:18:28 -0400
+	id <S135820AbRD2QUH>; Sun, 29 Apr 2001 12:20:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135820AbRD2QSS>; Sun, 29 Apr 2001 12:18:18 -0400
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:15113 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S135809AbRD2QSH>;
-	Sun, 29 Apr 2001 12:18:07 -0400
-Date: Sun, 29 Apr 2001 18:18:09 +0200
-From: Frank de Lange <frank@unternet.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Severe trashing in 2.4.4
-Message-ID: <20010429181809.A10479@unternet.org>
-In-Reply-To: <200104290311.f3T3BeO09131@bellini.kjist.ac.kr> <20010429140155.D24432@unternet.org> <3AEC09EE.342FE1C8@kjist.ac.kr> <20010429152414.B11395@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010429152414.B11395@athlon.random>; from andrea@suse.de on Sun, Apr 29, 2001 at 03:24:14PM +0200
+	id <S135823AbRD2QT7>; Sun, 29 Apr 2001 12:19:59 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:5057 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S135820AbRD2QTi>;
+	Sun, 29 Apr 2001 12:19:38 -0400
+Message-Id: <200104291619.f3TGJSJo030474@acacia.rothwell.emu.id.au>
+To: trovalds@tranmeta.com
+cc: linux-kernel@vger.kernel.org, linux-laptop@vger.kernel.org
+Subject: [PATCH] Allow ALLOW_INTS and broken BIOS to be selected at run time
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <30472.988561167.1@rothwell.emu.id.au>
+Date: Mon, 30 Apr 2001 02:19:27 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK,
+Hi Linus,
 
-I seem to have found the culprit, although I'm stillin the dark st to the
-'why' and 'how'.
+This patch (partially based on Alan's 2.4.3-ac14) allows both
+CONFIG_ALLOW_INTS and the work around for BIOSs with a broken
+APM_GET_POWER_STATUS call to be selected either on the kernel
+boot command line or at module insert time.
 
-First, some info:
+Cheers,
+Stephen
+--
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-2.4.4 with Maciej's IO-APIC patch
-Abit BP-6, dual Celeron466@466
-256MB RAM
-
-So, 'yes, SMP...'
-
-Running 'nget v0.7' (a command line nntp 'grabber') on 2.4.4 leads to massive
-amounts of memory disappearing in thin air. I'm currently running a single
-instance of this app, and I'm seeing the memory drain away. The system has 256
-MB of physycal memory, and access to 500 MB of swap. Swap is not really being
-used now, but it soon will be. Have a look at the current /proc/meminfo:
-
-[frank@behemoth mozilla]$ cat /proc/meminfo 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  262049792 259854336  2195456        0  1773568 31211520
-Swap: 511926272     4096 511922176
-MemTotal:       255908 kB
-MemFree:          2144 kB
-MemShared:           0 kB
-Buffers:          1732 kB
-Cached:          30480 kB
-Active:          26944 kB
-Inact_dirty:      2384 kB
-Inact_clean:      2884 kB
-Inact_target:      984 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       255908 kB
-LowFree:          2144 kB
-SwapTotal:      499928 kB
-SwapFree:       499924 kB
-
-Also look at the top 10 memory users:
-
-[frank@behemoth mp3]$ ps -xao rss,vsz,pid,command|sort -rn|head 
-6388 55320  1310 /usr/bin/X11/XFree86 -depth 16 -gamma 1.6 -auth /var/lib/gdm/:0
-3604  8972  1438 gnome-terminal -t frank@behemoth.localnet
-3116  8356  1405 panel --sm-config-prefix /panel.d/default-ZTNCVS/ --sm-client-i
-3084  5484  1401 sawfish --sm-client-id 11c0a80105000098495218600000010240115 --
-2940  8388  1696 gnome-terminal --tclass=Remote -x ssh -v ostrogoth.localnet
-2748  7536  1432 mini_commander_applet --activate-goad-server mini-commander_app
-2692  7656  1413 tasklist_applet --activate-goad-server tasklist_applet --goad-f
-2536  7588  1411 deskguide_applet --activate-goad-server deskguide_applet --goad
-2320  7388  1383 /usr/bin/gnome-session
-2232  7660  1421 multiload_applet --activate-goad-server multiload_applet --goad
-
-(the rest is mostly small stuff, < 1 MB, total of 89 processes)
-
- [ swap is being hit at this moment... ]
-
-Where did my memory go? 
-
-A few minutes later, with the same process load (minimal), a look at
-/proc/meminfo:
-
-[frank@behemoth mozilla]$ cat /proc/meminfo 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  262049792 260108288  1941504        0  1380352 11689984
-Swap: 511926272 34279424 477646848
-MemTotal:       255908 kB
-MemFree:          1896 kB
-MemShared:           0 kB
-Buffers:          1348 kB
-Cached:          11416 kB
-Active:           9164 kB
-Inact_dirty:      1240 kB
-Inact_clean:      2360 kB
-Inact_target:      996 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       255908 kB
-LowFree:          1896 kB
-SwapTotal:      499928 kB
-SwapFree:       466452 kB
-
-Already 34MB in swap...
-
-Start xmms, and this is the result:
-
-[frank@behemoth mozilla]$ cat /proc/meminfo 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  262049792 260411392  1638400        0  1380352 10063872
-Swap: 511926272 38449152 473477120
-MemTotal:       255908 kB
-MemFree:          1600 kB
-MemShared:           0 kB
-Buffers:          1348 kB
-Cached:           9828 kB
-Active:           6400 kB
-Inact_dirty:      1236 kB
-Inact_clean:      3540 kB
-Inact_target:     2128 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       255908 kB
-LowFree:          1600 kB
-SwapTotal:      499928 kB
-SwapFree:       462380 kB
-
-(top 10 memory users)
-
-[frank@behemoth mp3]$ ps -xao rss,vsz,pid,command|sort -rn|head
-2340 56604  1310 /usr/bin/X11/XFree86 -depth 16 -gamma 1.6 -auth /var/lib/gdm/:0
-1592  5484  1401 sawfish --sm-client-id 11c0a80105000098495218600000010240115 --
-1452 33784  1780 xmms
-1436 33784  1785 xmms
-1436 33784  1782 xmms
-1436 33784  1781 xmms
-1296  9000  1438 gnome-terminal -t frank@behemoth.localnet
-1184  2936  1790 ps -xao rss,vsz,pid,command
-1060  7656  1413 tasklist_applet --activate-goad-server tasklist_applet --goad-f
-1008  8388  1696 gnome-terminal --tclass=Remote -x ssh -v ostrogoth.localnet
-
-The memory is used somewhere, but nowhere I can find or pinpoint. Not in
-buffers, not cached, not by processes I can see in ps or top or /proc. And it
-does not come back either. Shooting down the nget process and xmms frees up
-some swap, buth the disappeared memory stays that way as can be seen from this
-(final) /proc/meminfo / ps combo:
-
-[frank@behemoth mozilla]$ cat /proc/meminfo 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  262049792 260411392  1638400        0  1388544  8568832
-Swap: 511926272 36360192 475566080
-MemTotal:       255908 kB
-MemFree:          1600 kB
-MemShared:           0 kB
-Buffers:          1356 kB
-Cached:           8368 kB
-Active:           6284 kB
-Inact_dirty:      1236 kB
-Inact_clean:      2204 kB
-Inact_target:      632 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       255908 kB
-LowFree:          1600 kB
-SwapTotal:      499928 kB
-SwapFree:       464420 kB
-
-[frank@behemoth mp3]$ ps -xao rss,vsz,pid,command|sort -rn|head
-2244 55304  1310 /usr/bin/X11/XFree86 -depth 16 -gamma 1.6 -auth /var/lib/gdm/:0
-1644  5484  1401 sawfish --sm-client-id 11c0a80105000098495218600000010240115 --
-1252  9008  1438 gnome-terminal -t frank@behemoth.localnet
-1172  2924  1796 ps -xao rss,vsz,pid,command
- 956  7656  1413 tasklist_applet --activate-goad-server tasklist_applet --goad-f
- 944  8388  1696 gnome-terminal --tclass=Remote -x ssh -v ostrogoth.localnet
- 776  7588  1411 deskguide_applet --activate-goad-server deskguide_applet --goad
- 556  3012  1797 sort -rn
- 504  7436  1419 asclock_applet --activate-goad-server asclock_applet --goad-fd 
- 464  8356  1405 panel --sm-config-prefix /panel.d/default-ZTNCVS/ --sm-client-i
-
- [ system just started thrashing again, had to sysrq-reboot ]
-
-So, there's something wrong here... Wish I knew what...
-
-2.4.3 runs fine on the same box with the same apps. 
-
-Any clues?
-
-Cheers//Frank
--- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+diff -ruN 2.4.4/arch/i386/kernel/apm.c 2.4.4-APM/arch/i386/kernel/apm.c
+--- 2.4.4/arch/i386/kernel/apm.c	Sun Apr 29 06:16:28 2001
++++ 2.4.4-APM/arch/i386/kernel/apm.c	Sun Apr 29 14:05:16 2001
+@@ -347,6 +347,12 @@
+ #endif
+ static int			exit_kapmd;
+ static int			kapmd_running;
++#ifdef CONFIG_APM_ALLOW_INTS
++static int			allow_ints = 1;
++#else
++static int			allow_ints;
++#endif
++static int			broken_psr;
+ 
+ static DECLARE_WAIT_QUEUE_HEAD(apm_waitqueue);
+ static DECLARE_WAIT_QUEUE_HEAD(apm_suspend_waitqueue);
+@@ -413,11 +419,12 @@
+  * Also, we KNOW that for the non error case of apm_bios_call, there
+  * is no useful data returned in the low order 8 bits of eax.
+  */
+-#ifndef CONFIG_APM_ALLOW_INTS
+-#	define APM_DO_CLI	__cli()
+-#else
+-#	define APM_DO_CLI	__sti()
+-#endif
++#define APM_DO_CLI	\
++	if (apm_info.allow_ints) \
++		__sti(); \
++	else \
++		__cli();
++
+ #ifdef APM_ZERO_SEGS
+ #	define APM_DECL_SEGS \
+ 		unsigned int saved_fs; unsigned int saved_gs;
+@@ -1552,6 +1559,9 @@
+ 			apm_disabled = 1;
+ 		if (strncmp(str, "on", 2) == 0)
+ 			apm_disabled = 0;
++		if ((strncmp(str, "allow-ints", 10) == 0) ||
++		    (strncmp(str, "allow_ints", 10) == 0))
++ 			apm_info.allow_ints = 1;
+ 		if ((strncmp(str, "broken-psr", 10) == 0) ||
+ 		    (strncmp(str, "broken_psr", 10) == 0))
+ 			apm_info.get_power_status_broken = 1;
+@@ -1620,6 +1630,11 @@
+ 		return -ENODEV;
+ 	}
+ 
++	if (allow_ints)
++		apm_info.allow_ints = 1;
++	if (broken_psr)
++		apm_info.get_power_status_broken = 1;
++
+ 	/*
+ 	 * Fix for the Compaq Contura 3/25c which reports BIOS version 0.1
+ 	 * but is reportedly a 1.0 BIOS.
+@@ -1747,5 +1762,9 @@
+ MODULE_PARM_DESC(power_off, "Enable power off");
+ MODULE_PARM(bounce_interval, "i");
+ MODULE_PARM_DESC(bounce_interval, "Set the number of ticks to ignore suspend bounces");
++MODULE_PARM(allow_ints, "i");
++MODULE_PARM_DESC(allow_ints, "Allow interrupts during BIOS calls");
++MODULE_PARM(broken_psr, "i");
++MODULE_PARM_DESC(broken_psr, "BIOS has a broken GetPowerStatus call");
+ 
+ EXPORT_NO_SYMBOLS;
+diff -ruN 2.4.4/include/linux/apm_bios.h 2.4.4-APM/include/linux/apm_bios.h
+--- 2.4.4/include/linux/apm_bios.h	Sun Apr 29 06:17:10 2001
++++ 2.4.4-APM/include/linux/apm_bios.h	Sun Apr 29 11:32:39 2001
+@@ -52,6 +52,7 @@
+ 	struct apm_bios_info	bios;
+ 	unsigned short		connection_version;
+ 	int			get_power_status_broken;
++	int			allow_ints;
+ };
+ 
+ /*

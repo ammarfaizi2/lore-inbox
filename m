@@ -1,73 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267929AbTAHPZq>; Wed, 8 Jan 2003 10:25:46 -0500
+	id <S267821AbTAHPay>; Wed, 8 Jan 2003 10:30:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267930AbTAHPZq>; Wed, 8 Jan 2003 10:25:46 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:13768 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S267929AbTAHPZp>;
-	Wed, 8 Jan 2003 10:25:45 -0500
-Date: Wed, 8 Jan 2003 08:26:15 -0700
-From: yodaiken@fsmlabs.com
-To: Richard Stallman <rms@gnu.org>
-Cc: billh@gnuppy.monkey.org, mark@mark.mielke.cc, lm@bitmover.com,
-       linux-kernel@vger.kernel.org, paul@clubi.ie, riel@conectiva.com.br
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-ID: <20030108082615.A2271@hq.fsmlabs.com>
-References: <20030103040612.GA10651@work.bitmover.com> <20030104220651.GA30907@merlin.emma.line.org> <20030104222330.GA1386@work.bitmover.com> <E18VFaz-0008S0-00@fencepost.gnu.org> <20030105221345.GA31840@mark.mielke.cc> <E18Vao9-0002JZ-00@fencepost.gnu.org> <20030106173949.GA1712@gnuppy.monkey.org> <E18Vtxz-0002cB-00@fencepost.gnu.org> <20030107141758.GA10770@gnuppy.monkey.org> <E18WB8O-0004jy-00@fencepost.gnu.org>
+	id <S267823AbTAHPay>; Wed, 8 Jan 2003 10:30:54 -0500
+Received: from pusa.informat.uv.es ([147.156.10.98]:29420 "EHLO
+	pusa.informat.uv.es") by vger.kernel.org with ESMTP
+	id <S267821AbTAHPaw>; Wed, 8 Jan 2003 10:30:52 -0500
+Date: Wed, 8 Jan 2003 16:39:11 +0100
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx broken in 2.5.53/54 ?
+Message-ID: <20030108153911.GA30385@pusa.informat.uv.es>
+References: <20030103101618.GB8582@in.ibm.com> <596830816.1041606846@aslan.scsiguy.com> <20030106073204.GA1875@in.ibm.com> <274040000.1041869813@aslan.scsiguy.com> <20030108024107.GA1127@louise.pinerecords.com> <703940000.1041999784@aslan.btc.adaptec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E18WB8O-0004jy-00@fencepost.gnu.org>; from rms@gnu.org on Wed, Jan 08, 2003 at 03:00:20AM -0500
-Organization: FSM Labs
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <703940000.1041999784@aslan.btc.adaptec.com>
+User-Agent: Mutt/1.3.28i
+From: uaca@alumni.uv.es
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 08, 2003 at 03:00:20AM -0500, Richard Stallman wrote:
-> The definition of GNU is simple: GNU is an operating system.  In 1983
-> I announced the plan to develop a Unix-like operating system that
-> would be entirely free software, and I gave the system the name GNU.
+On Tue, Jan 07, 2003 at 09:23:04PM -0700, Justin T. Gibbs wrote:
+> >> [gibbs@scsiguy.com]
+> >> 
+> >> These reads are actually more expensive than just using PIO.  Neither of
+> >> these older drivers included a test to try and catch fishy behavior.
+> > 
+> > Justin, are you quite sure that these tests actually work?
+> > I too have just run into
+> 
+> See my recent post to the SCSI list.  The tests don't work on
+> certain older controllers that lack a feature I was using.  The
+> latest csets submitted to Linus correct this problem (as verified
+> on a dusty dual P-90 PCI/EISA box just added to our regression cluster).
 
-Just for the record, "operating system", and "kernel" are used as 
-synonyms in the research literature. If you open a textbook on 
-"operating systems" or look at the contents of the proceedings
-of  Operating Systems conferences, you will not find many discussions
-of text editors, compilers, or other programming tools.  Generally, the operating
-system is considered to stop at the system call interface.
-
-One of the revolutionary features of UNIX was that it was relatively
-agnostic about "tools". 
-Oddly enough, the two most active campaigners for expanding the 
-definition of operating system are the FSF and Microsoft.
-
-I think that Richard's usage of "operating system" is based on 
-Digital Equipment Corp. terminology from the prehistorical times
-of releases on tape.
+It also seems to work for me:
 
 
-> We're looking for a good term to use for "programs released under GNU
-> licenses", because we want to educate the community that this is not
-> the same thing as free software (there are other free software
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.26
+        <Adaptec aic7896/97 Ultra2 SCSI adapter>
+        aic7896/97: Ultra2 Wide Channel A, SCSI Id=7, 32/253 SCBs
 
-(1) GNU Programming System. 
-or
-(2) GPL Programming Layer 
+(scsi0:A:0): 80.000MB/s transfers (40.000MHz, offset 63, 16bit)
+  Vendor: QUANTUM   Model: ATLAS_V_36_WLS    Rev: 0230
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+scsi0:A:0:0: Tagged Queuing enabled.  Depth 64
+scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.26
+        <Adaptec aic7896/97 Ultra2 SCSI adapter>
+        aic7896/97: Ultra2 Wide Channel B, SCSI Id=7, 32/253 SCBs
 
-You should be able to get US military funding because these are  recursive
-TLAs. The GPL expansion to "GPL Programming Layer" so that  GPL becomes
-a context sensitive recursive TLA should be enough to get an entire Homeland
-Security program dedicated to the project. 
-
-Please feel free to use this idea without restriction.  In fact, this is released
-under "I don't want to have anything to do with it" license.
-
-victor
+SCSI device sda: drive cache: write back
+SCSI device sda: 71722776 512-byte hdwr sectors (36722 MB)
+ sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 sda8 >
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
 
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
-www.fsmlabs.com  www.rtlinux.com
-1+ 505 838 9109
+Theses are the controllers:
 
+00:0c.0 SCSI storage controller: Adaptec 7896
+        Subsystem: Adaptec: Unknown device 0053
+        Flags: bus master, medium devsel, latency 64, IRQ 19
+        BIST result: 00
+        I/O ports at 2000 [disabled] [size=256]
+        Memory at f4300000 (64-bit, non-prefetchable) [size=4K]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: <available only to root>
+
+00:0c.1 SCSI storage controller: Adaptec 7896
+        Subsystem: Adaptec: Unknown device 0053
+        Flags: bus master, medium devsel, latency 64, IRQ 19
+        BIST result: 00
+        I/O ports at 2400 [disabled] [size=256]
+        Memory at f4301000 (64-bit, non-prefetchable) [size=4K]
+        Capabilities: <available only to root>
+
+
+
+Thanks
+
+
+	Ulisses
+
+                Debian GNU/Linux: a dream come true
+-----------------------------------------------------------------------------
+"Computers are useless. They can only give answers."            Pablo Picasso
+
+--->	Visita http://www.valux.org/ para saber acerca de la	<---
+--->	Asociación Valenciana de Usuarios de Linux		<---
+ 

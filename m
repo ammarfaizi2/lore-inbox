@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132556AbREABCo>; Mon, 30 Apr 2001 21:02:44 -0400
+	id <S135484AbREABEy>; Mon, 30 Apr 2001 21:04:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135484AbREABCf>; Mon, 30 Apr 2001 21:02:35 -0400
-Received: from deliverator.sgi.com ([204.94.214.10]:14900 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S132556AbREABCQ>; Mon, 30 Apr 2001 21:02:16 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Michael H. Warfield" <mhw@wittsend.com>
-cc: Francois Gouget <fgouget@free.fr>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Elmer Joandi <elmer@linking.ee>, Ookhoi <ookhoi@dds.nl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Aironet doesn't work 
-In-Reply-To: Your message of "Mon, 30 Apr 2001 18:10:56 -0400."
-             <20010430181056.A10487@alcove.wittsend.com> 
-Mime-Version: 1.0
+	id <S135850AbREABEo>; Mon, 30 Apr 2001 21:04:44 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:6918 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S135484AbREABE3>; Mon, 30 Apr 2001 21:04:29 -0400
+Date: Mon, 30 Apr 2001 21:03:47 -0400
+From: Chris Mason <mason@suse.com>
+To: Daniel Elstner <daniel.elstner@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: reiserfs+lndir problem [was: 2.4.4 SMP: spurious EOVERFLOW
+ "Value too large for defined data type"]
+Message-ID: <1026200000.988679027@tiny>
+In-Reply-To: <20010430225557.3f28d1b0.daniel@master.daniel.homenet>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 01 May 2001 11:00:44 +1000
-Message-ID: <18097.988678844@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Apr 2001 18:10:56 -0400, 
-"Michael H. Warfield" <mhw@wittsend.com> wrote:
->On Mon, Apr 30, 2001 at 01:22:59PM -0700, Francois Gouget wrote:
->> Apr 30 13:19:34 oleron cardmgr[148]: initializing socket 0
->> Apr 30 13:19:34 oleron cardmgr[148]: socket 0: Aironet PC4800
->> Apr 30 13:19:34 oleron cardmgr[148]: executing: 'modprobe aironet4500_core'
->> Apr 30 13:19:34 oleron cardmgr[148]: + Warning: /lib/modules/2.4.4/kernel/drivers/net/aironet4500_core.o 
->> symbol for parameter rx_queue_len not found
 
-Bug in drivers/net/aironet4500_core.c.  It has
-  MODULE_PARM(rx_queue_len,"i");
-but rx_queue_len is never defined.  Only a warning.
 
->> Apr 30 13:19:34 oleron cardmgr[148]: executing: 'modprobe aironet4500_proc'
->> Apr 30 13:19:34 oleron cardmgr[148]: executing: 'modprobe aironet4500_cs'
->> Apr 30 13:19:35 oleron cardmgr[148]: get dev info on socket 0
->> failed: Resource temporarily unavailable
+On Monday, April 30, 2001 10:55:57 PM +0200 Daniel Elstner
+<daniel.elstner@gmx.net> wrote:
 
-Separate problem, the aironet4500_cs driver could not get its
-resources.
+> Hi all,
+> 
+> unfortunately I have to correct me again.
+> The problem seems unrelated to the kernel version or SMP/UP
+> (though only 2.4.[34] tried yet).
+> 
+> Apparently it's a reiserfs/symlink problem.
+> I tried doing the lndir on an ext2 partition, sources still
+> on reiserfs. And it worked just fine!
 
->	Seen this before.  What version are your modutils at?  Latest are
->2.4.5 on kernel.org and there have been several times where I've had
->them slip out of rev and ended up with missing symbols.
+Neat, thanks for the extra details.  Does that mean you can consistently
+repeat on reiserfs now?  What happens when you do the lndir on reiserfs and
+diff the directories?
 
-The version of modutils does not affect missing symbols, it just
-reports kernel bugs.
+Any useful messages in /var/log/messages?
 

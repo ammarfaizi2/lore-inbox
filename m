@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136011AbRASBJ2>; Thu, 18 Jan 2001 20:09:28 -0500
+	id <S136552AbRASBLl>; Thu, 18 Jan 2001 20:11:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132539AbRASBJS>; Thu, 18 Jan 2001 20:09:18 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:22288 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S136332AbRASBJJ>;
-	Thu, 18 Jan 2001 20:09:09 -0500
-Date: Fri, 19 Jan 2001 02:08:52 +0100
-From: Andi Kleen <ak@suse.de>
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: multi-queue scheduler update
-Message-ID: <20010119020852.A6973@gruyere.muc.suse.de>
-In-Reply-To: <20010119012616.D32087@athlon.random> <Pine.LNX.4.10.10101181956300.8128-100000@coffee.psychology.mcmaster.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10101181956300.8128-100000@coffee.psychology.mcmaster.ca>; from hahn@coffee.psychology.mcmaster.ca on Thu, Jan 18, 2001 at 08:00:16PM -0500
+	id <S136556AbRASBLb>; Thu, 18 Jan 2001 20:11:31 -0500
+Received: from pcow029o.blueyonder.co.uk ([195.188.53.123]:44046 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S136552AbRASBLR>;
+	Thu, 18 Jan 2001 20:11:17 -0500
+Message-ID: <3A679432.8060609@signalstorm.com>
+Date: Fri, 19 Jan 2001 01:11:14 +0000
+From: Steven Ellmore <steve@signalstorm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: typo in buffer_busy macro in fs/buffer.c ??
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 18, 2001 at 08:00:16PM -0500, Mark Hahn wrote:
-> > >                            microseconds/yield
-> > > # threads      2.2.16-22           2.4        2.4-multi-queue
-> > > ------------   ---------         --------     ---------------
-> > > 16               18.740            4.603         1.455
-> > 
-> > I remeber the O(1) scheduler from Davide Libenzi was beating the mainline O(N)
-> 
-> isn't the normal case (as in "The Right Case to optimize") 
-> where there are close to zero runnable tasks?  what realistic/sane
-> scenarios have very large numbers of spinning threads?  all server
-> situations I can think of do not.  not volanomark -loopback, surely!
 
-I think the main point of Mike's patch is decreasing locking and cache line
-bouncing overhead of multi cpu scheduling, not optimizing lots of runnable tasks.
+This looks like a typo:
+(line 2341 of fs/buffer.c in unpatched 2.4.0
+line 2345 of fs/buffer.c in 2.4.1-pre8)
+
+#define buffer_busy(bh) (atomic_read(&(bh)->b_count) | ((bh)->b_state &
+BUFFER_BUSY_BITS))
+
+surely, it should be:
+#define buffer_busy(bh) (atomic_read(&(bh)->b_count) || ((bh)->b_state &
+BUFFER_BUSY_BITS))
+
+i.e. logical OR instead of bitwise.
+
+Shouldn't it?
 
 
--Andi
+-Steve Ellmore
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

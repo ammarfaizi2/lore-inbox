@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261887AbRESQmh>; Sat, 19 May 2001 12:42:37 -0400
+	id <S261882AbRESQpr>; Sat, 19 May 2001 12:45:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261881AbRESQm1>; Sat, 19 May 2001 12:42:27 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:50917 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S261875AbRESQmP>;
-	Sat, 19 May 2001 12:42:15 -0400
-Date: Sat, 19 May 2001 18:41:39 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200105191641.SAA53411.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, viro@math.psu.edu
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH] device arguments from lookup)
-Cc: bcrl@redhat.com, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S261894AbRESQph>; Sat, 19 May 2001 12:45:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8973 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261882AbRESQpX>;
+	Sat, 19 May 2001 12:45:23 -0400
+Date: Sat, 19 May 2001 17:44:30 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Ben LaHaise <bcrl@redhat.com>, Alexander Viro <viro@math.psu.edu>,
+        Andrew Morton <andrewm@uow.edu.au>, Andries.Brouwer@cwi.nl,
+        torvalds@transmeta.com, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+Message-ID: <20010519174430.B23718@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <Pine.LNX.4.33.0105191153400.5829-100000@devserv.devel.redhat.com> <E1519Xe-00005c-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E1519Xe-00005c-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, May 19, 2001 at 05:25:22PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Opening device files often has interesting side effects.
+On Sat, May 19, 2001 at 05:25:22PM +0100, Alan Cox wrote:
+> Only to an English speaker. I suspect Quebec City canadians would prefer a
+> different command set.
 
-> Too bad. They can be triggered by similar races between attacker
-> changing the type of object (file<->symlink) and backup.
+Should we support `pas387' as well as `no387' as a kernel boot parameter
+then?  Face it, a sysadmin has to know the limited subset of english
+which is used to configure a kernel.
 
-Yes. This is a well-known security problem.
-Doing
-	stat("file", &s);
-	if (action desired) {
-		action("file");
-	}
-is no good because there is a race.
-But doing
-	fd = open("file", flags);
-	fstat(fd, &s);
-	if (action desired) {
-		f_action(fd);
-	}
-is no good either because the open() has unknown side effects.
-It helps to add flags like O_NONBLOCK and perhaps O_NOCTTY,
-but that is not quite good enough.
-
-One would like to have a version of the open() call that was
-guaranteed free of side effects, and gave a fd only -
-perhaps for stat(), perhaps for ioctl().
-This guarantee could perhaps be obtained by omitting the
-	f->f_op->open(inode,f);
-call in dentry_open() when the open call is
-	open("file", O_FDONLY);
-Of course it may be that we afterwards decide that fd must
-be used, and then it needs upgrading:
-	fd = f_open(fd, O_RDWR);
-
-Andries
-
-[Such a construction allows various cleanups.
-But no doubt it has problems that I have not yet thought of.]
+-- 
+Revolutions do not require corporate support.

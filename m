@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317341AbSFCJwE>; Mon, 3 Jun 2002 05:52:04 -0400
+	id <S317342AbSFCJw7>; Mon, 3 Jun 2002 05:52:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317342AbSFCJwD>; Mon, 3 Jun 2002 05:52:03 -0400
-Received: from codepoet.org ([166.70.14.212]:41959 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S317341AbSFCJwC>;
-	Mon, 3 Jun 2002 05:52:02 -0400
-Date: Mon, 3 Jun 2002 03:52:03 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        Philippe Gerum <rpm@idealx.com>
-Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
-Message-ID: <20020603095202.GA16392@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Karim Yaghmour <karim@opersys.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Philippe Gerum <rpm@idealx.com>
-In-Reply-To: <3CFB2A38.60242CBA@opersys.com> <20020603084606.GA15986@codepoet.org> <3CFB3378.5EB7420@opersys.com>
+	id <S317343AbSFCJw6>; Mon, 3 Jun 2002 05:52:58 -0400
+Received: from 213-145-181-73.dd.nextgentel.com ([213.145.181.73]:50761 "EHLO
+	sevilla.gnome.no") by vger.kernel.org with ESMTP id <S317342AbSFCJw4>;
+	Mon, 3 Jun 2002 05:52:56 -0400
+Subject: Re: INTEL 845G Chipset IDE Quandry
+From: Kjartan Maraas <kmaraas@online.no>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Anthony Spinillo <tspinillo@linuxmail.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <1023066825.3439.58.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 03 Jun 2002 13:49:26 +0200
+Message-Id: <1023104966.26418.11.camel@sevilla.gnome.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.18-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Jun 03, 2002 at 05:14:32AM -0400, Karim Yaghmour wrote:
-> >  What is the
-> > software patent outlook for this approach look like?
+man, 2002-06-03 kl. 03:13 skrev Alan Cox:
+> On Sun, 2002-06-02 at 22:30, Vojtech Pavlik wrote:
+> > On Sun, Jun 02, 2002 at 09:36:35PM +0200, Martin Dalecki wrote:
+
+[SNIP]
+
+> > Note it works with 2.5 already. We have the device there.
 > 
-> Alessandro's answer is to the point. Basically, grab the papers,
-> the code and the patent and have a look for yourself, you will see
-> that we're clear. Apart from having the kernels side-by-side,
-> Adeos is based on classic early '90s nanokernel work. No secrets
-> there.
+> If you look at why it fails it fails not because it isnt in the table
+> but because the PCI device has not been allocated resources properly by
+> the BIOS
+> 
 
-So will we soon be seeing a port of RTAI to a linux kernel module
-which is implemented as a separate Adeos domain, allowing RTAI
-apps to bypass US patent 5995745?  A quick glance over that
-patent leaves me uncertain whether this indeed bypasses the
-fundamental "invention" of a "process for running a general
-purpose computer operating system using a real time operating
-system".   It still looks to me like a real time operating system
-(Adeos) running real time and non-real time tasks with a general
-purpose operating system as one of the non-real time tasks...
-Could you summarize (for non-lawyers such as myself) how this
-bypasses the claims in the patent?  
+Back when I talked to Andre about this problem it sounded to me like he
+said it was a genuine bug that was fixed in the ide-convert patches.
+Maybe I'm confusing two issues here...
 
-Hopeful is,
+Cheers
+Kjartan
 
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--

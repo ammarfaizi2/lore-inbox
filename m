@@ -1,121 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267651AbUJGRqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267516AbUJGRqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267651AbUJGRqO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 13:46:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267469AbUJGRl7
+	id S267516AbUJGRqN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 13:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267552AbUJGRot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 13:41:59 -0400
-Received: from ms-smtp-02-qfe0.socal.rr.com ([66.75.162.134]:41414 "EHLO
-	ms-smtp-02-eri0.socal.rr.com") by vger.kernel.org with ESMTP
-	id S267591AbUJGRhL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 13:37:11 -0400
-Subject: Re: 2.6.9-rc3-mm3: `risc_code_addr01' multiple definition
-From: Andrew Vasquez <andrew.vasquez@qlogic.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20041007165849.GA4493@stusta.de>
-References: <20041007015139.6f5b833b.akpm@osdl.org>
-	 <20041007165849.GA4493@stusta.de>
-Content-Type: multipart/mixed; boundary="=-igVIb8qgt5xTzhDr6XRC"
-Organization: QLogic Corporation
-Date: Thu, 07 Oct 2004 10:29:05 -0700
-Message-Id: <1097170149.12535.27.camel@praka>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+	Thu, 7 Oct 2004 13:44:49 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:38351 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S267565AbUJGRGa convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 13:06:30 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] 2.6 SGI Altix I/O code reorganization
+Date: Thu, 7 Oct 2004 10:06:14 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F022669A9@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] 2.6 SGI Altix I/O code reorganization
+Thread-Index: AcSsjgZ7CokWv96ARs+BMDpP7Ie4wgAAECUg
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Jesse Barnes" <jbarnes@engr.sgi.com>, "Patrick Gefre" <pfg@sgi.com>
+Cc: "Grant Grundler" <iod00d@hp.com>, "Colin Ngam" <cngam@sgi.com>,
+       "Matthew Wilcox" <matthew@wil.cx>, <linux-kernel@vger.kernel.org>,
+       <linux-ia64@vger.kernel.org>
+X-OriginalArrivalTime: 07 Oct 2004 17:06:14.0955 (UTC) FILETIME=[F4247FB0:01C4AC8F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Yeah, sorry, I shouldn't have said cleanup, fixup is better.  
+>Anyway, they 
+>need to be separate since they'll be going into the tree via 
+>Andrew not Tony.
 
---=-igVIb8qgt5xTzhDr6XRC
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+A couple of days back I said that I'm ok pushing these drivers.
+Although they don't have "arch/ia64" or "include/asm-ia64"
+prefixes, they are only used by ia64.  I'm even ok with the
+qla1280.c change as the final version is only touching code
+inside #ifdef CONFIG_IA64_{GENERIC|SN2) ... but I would like
+to see a sign-off from the de-facto maintainer Christoph for
+this file.
 
-On Thu, 2004-10-07 at 18:58 +0200, Adrian Bunk wrote:
-> On Thu, Oct 07, 2004 at 01:51:39AM -0700, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.9-rc3-mm2:
-> >...
-> >  bk-scsi.patch
-> >...
-> 
-> This causes the following compile error:
-> 
-> 
-> <--  snip  -->
-> 
-> ...
->   LD      drivers/scsi/built-in.o
-> drivers/scsi/qla1280.o(.data+0xe65c): multiple definition of `risc_code_addr01'
-> drivers/scsi/qlogicfc.o(.data+0x0): first defined here
-> make[2]: *** [drivers/scsi/built-in.o] Error 1
-> 
+This is not a land-grab to expand my responsibilities, it just
+seems to be the right thing to do to coordinate getting all
+these interdependent pieces into the tree at the same time.
 
-Hmm, seems the additional 1040 support in qla1280.c is causing name
-clashes with the firmware image in qlogicfc_asm.c.  Try out the attached
-patch (not tested) which provides the 1040 firmware image unique
-variable names.
+However ... there's a thread on LKML wailing about huge changes
+going into "-rc" releases.  Since there still seems to be
+a lively discussion about the the right way to do the pci_root
+bits of this patch, I'm very inclined to save this till *after*
+Linus release 2.6.9-final.  If there's a _mostly_ clean patch
+presented to me before 2.6.10-rc1 shows up, I'll push that and
+allow for some follow-on tidy-up patches to clean up.
 
-Looks like there would be some name clashes in qlogicfc and qlogicisp.
-
---
-av
-
-> <--  snip  -->
-> 
-> 
-> cu
-> Adrian
-> 
-
---=-igVIb8qgt5xTzhDr6XRC
-Content-Disposition: attachment; filename=fixup_fw_variables.diff
-Content-Type: text/plain; name=fixup_fw_variables.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
---- linux-2.6.9-rc3-mm3/drivers/scsi/ql1040_fw.h~	2004-10-07 10:15:19.275258120 -0700
-+++ linux-2.6.9-rc3-mm3/drivers/scsi/ql1040_fw.h	2004-10-07 10:17:51.292148040 -0700
-@@ -28,15 +28,15 @@
-  *	Firmware Version 7.65.00 (14:17 Jul 20, 1999)
-  */
- 
--unsigned short risc_code_version = 7*1024+65;
-+unsigned short fw1040_version = 7*1024+65;
- 
--unsigned char firmware_version[] = {7,65,0};
-+unsigned char fw1040_version_str[] = {7,65,0};
- 
- #define FW_VERSION_STRING "7.65.0"
- 
--unsigned short risc_code_addr01 = 0x1000 ;
-+unsigned short fw1040_addr01 = 0x1000 ;
- 
--unsigned short risc_code01[] = { 
-+unsigned short fw1040_code01[] = { 
- 	0x0078, 0x103a, 0x0000, 0x4057, 0x0000, 0x2043, 0x4f50, 0x5952,
- 	0x4947, 0x4854, 0x2031, 0x3939, 0x3520, 0x514c, 0x4f47, 0x4943,
- 	0x2043, 0x4f52, 0x504f, 0x5241, 0x5449, 0x4f4e, 0x2049, 0x5350,
-@@ -2097,5 +2097,5 @@ unsigned short risc_code01[] = { 
- 	0x0014, 0x878e, 0x0016, 0xa21c, 0x1035, 0xa8af, 0xa210, 0x3807,
- 	0x300c, 0x817e, 0x872b, 0x8772, 0xa8a8, 0x0000, 0xdf21
- };
--unsigned short   risc_code_length01 = 0x4057;
-+unsigned short   fw1040_length01 = 0x4057;
- 
---- linux-2.6.9-rc3-mm3/drivers/scsi/qla1280.c~	2004-10-07 10:21:47.552231048 -0700
-+++ linux-2.6.9-rc3-mm3/drivers/scsi/qla1280.c	2004-10-07 10:22:56.828699424 -0700
-@@ -659,8 +659,8 @@ static struct qla_boards ql1280_board_tb
- 	/* Name ,  Number of ports, FW details */
- 	{"QLA12160", 2, &fw12160i_code01[0], &fw12160i_length01,
- 	 &fw12160i_addr01, &fw12160i_version_str[0]},
--	{"QLA1040", 1, &risc_code01[0], &risc_code_length01,
--	 &risc_code_addr01, &firmware_version[0]},
-+	{"QLA1040", 1, &fw1040_code01[0], &fw1040_length01,
-+	 &fw1040_addr01, &fw1040_version_str[0]},
- 	{"QLA1080", 1, &fw1280ei_code01[0], &fw1280ei_length01,
- 	 &fw1280ei_addr01, &fw1280ei_version_str[0]},
- 	{"QLA1240", 2, &fw1280ei_code01[0], &fw1280ei_length01,
-
---=-igVIb8qgt5xTzhDr6XRC--
-
+-Tony

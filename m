@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261425AbRF2VbD>; Fri, 29 Jun 2001 17:31:03 -0400
+	id <S261561AbRF2Vdo>; Fri, 29 Jun 2001 17:33:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261558AbRF2Vay>; Fri, 29 Jun 2001 17:30:54 -0400
-Received: from cpe-66-1-45-23.az.sprintbbd.net ([66.1.45.23]:10257 "EHLO
-	deming-os.org") by vger.kernel.org with ESMTP id <S261425AbRF2Vaf>;
-	Fri, 29 Jun 2001 17:30:35 -0400
-Message-ID: <3B3CF50E.65D24882@deming-os.org>
-Date: Fri, 29 Jun 2001 14:37:18 -0700
-From: Tom spaziani <digiphaze@deming-os.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S261562AbRF2Vdd>; Fri, 29 Jun 2001 17:33:33 -0400
+Received: from datafoundation.com ([209.150.125.194]:22801 "EHLO
+	datafoundation.com") by vger.kernel.org with ESMTP
+	id <S261561AbRF2Vd2>; Fri, 29 Jun 2001 17:33:28 -0400
+Date: Fri, 29 Jun 2001 17:33:26 -0400 (EDT)
+From: Dmitry Meshchaninov <dima@flash.datafoundation.com>
+To: <linux-kernel@vger.kernel.org>
+cc: <torvalds@transmeta.com>, <alan@lxorguk.ukuu.org.uk>, <cwl@iol.unh.edu>,
+        Denis Gerasimov <denis@datafoundation.com>
+Subject: qlogicfc driver
+Message-ID: <Pine.LNX.4.30.0106291714470.11344-100000@flash.datafoundation.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Module tracing.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've recently been laboring over a kernel module that allows other
-kernel modules to send messages
-and tracing statements.  If anyone has any input on whether this would
-be a usefull thing or not
-please let me know. Here is a quick breakdown on how it works.
+  Hi!
+  Judging from recent messages on linux-kernel and from the code which is
+currently in 2.4.x the qlogicfc driver needs to be updated a bit. I have
+done some amount of work on this driver and have sent patches to
+Chris in the past, however I did not receive any comments on my changes.
+It looks like Chris is too busy with other things right now, and I will
+gladly maintain the driver if there is a consensus that the driver needs
+a new maintainer. Meanwhile I am cleaning up driver for 2.4.4
+(not tested with 2.4.5 yet, but probably will work). I'll publish those
+changes if there will be any interest.  It is a  drop-in replacement for
+the five files in drivers/scsi/ (qlogicfc.c, qlogicfc.h, qlogicfc_inc.h,
+qlogicfc_asm_ip.c and qlogicfc_asm.c).  This contains updated (both with
+and without ip support) firmware and many bugfixes. I decided not to
+provide a patch because it is bigger then just those five files combind.
+I have splitted up driver body into .h-file with types&defines  and
+driver itself (as it should be). But this is negotiable.
 
-Beware, this is only a BRIEF explaination.. I'll follow up with more
-details if anyone is intereasted.
-
-trace.o  <- Tracing module
-mymodule .o  <-  Client module
-
-1: Load tracing module
-2: Load a module that uses the tracing modules for reporting.
-    a. the client module requests a certain number of reporting levels.
-    b. the trace module creates a devFS entry for each of the requested
-reporting levels.
-                    ( /dev/trace/mymodule/mymodule0
-                                                          mymodule1 ...
-)
-3. Now the client module can send messages with a specific severity
-rating and have it set
-    to the appropriate character file.
-4. User space programs listening on each of the character files can do
-whatever, log the messages
-    or perform tasks depending on the message.
-5. When a client module is unloaded the devFS entries are removed and
-the user programs are also
-    told to close the file.
-
-I am using the devFS filesystem because of the abilities to easily
-dynamically create new entries and
-remove them..  Currently devFS does not recycle Major and Minor numbers,
-but a co-worker of mine
-has created a patch to fix that.
+Sincerely,
+Dmitry Meshchaninov
+software engineer
+DataFoundation Inc
 

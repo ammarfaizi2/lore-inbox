@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265678AbUF2Kap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265684AbUF2KlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265678AbUF2Kap (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 06:30:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265690AbUF2Kap
+	id S265684AbUF2KlP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 06:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265690AbUF2KlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 06:30:45 -0400
-Received: from mail.dif.dk ([193.138.115.101]:63893 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S265678AbUF2Kam (ORCPT
+	Tue, 29 Jun 2004 06:41:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:10129 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265684AbUF2KlN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 06:30:42 -0400
-Date: Tue, 29 Jun 2004 12:29:30 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Peter Lundkvist <p.lundkvist@telia.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm2: random problems with mmap
-In-Reply-To: <20040628235031.037627c5.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.56.0406291227320.7755@jjulnx.backbone.dif.dk>
-References: <20040624014655.5d2a4bfb.akpm@osdl.org> <20040629055906.GA21986@debian>
- <20040628235031.037627c5.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 29 Jun 2004 06:41:13 -0400
+Date: Tue, 29 Jun 2004 03:40:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: question about dirty buffers in page cache pages
+Message-Id: <20040629034010.165b0481.akpm@osdl.org>
+In-Reply-To: <1088504928.16560.25.camel@imp.csi.cam.ac.uk>
+References: <1088504928.16560.25.camel@imp.csi.cam.ac.uk>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jun 2004, Andrew Morton wrote:
-
-> Peter Lundkvist <p.lundkvist@telia.com> wrote:
-> >
-> > I have problems running cyrus lmtpd; it fails randomly after
-> >  fetching 30-50 mails. I have only seen this problem in
-> >  2.6.7-mm2 (-mm1 was ok, have not tested -mm3 yet).
+Anton Altaparmakov <aia21@cam.ac.uk> wrote:
 >
-> The "flexible-mmap" patch was rather broken.  It was dropped for -mm3 and a
-> fixed version will be in -mm4.
+> Hi Andrew and anyone else knowledgeable on LKML,
+> 
+> Given:
+> - a file system (NTFS)
+> - an inode on the file system
+> - a mapping belonging to the inode
+> - only address space operations in the mapping defined are readpage,
+> sync_page, and writepage (my_writepage)
+> - a page cache page in the mapping which is marked dirty
+> - some buffers (perhaps all, but perhaps only some) in the page are
+> marked dirty
+> 
+> Is it possible that write i/o is initiated on these buffers in any other
+> way than through the above my_writepage?
 
-Ahh, that could perhaps explain why I was getting strange errors from
-ldconfig about being unable to mmap certain libraries when I was using
--mm2 (-mm3 works). I'll be sure to watch out for that behaviour with -mm4
+No.  The VFS doesn't even know that the page has attached buffers.  It's
+up the the a_ops to tell the VFS library functions that the thing at
+page->private is a buffer_head ring.
 
+do_writepages->generic_writepages->mpage_writepages->writepage.
+pageout->writepage
 
---
-Jesper Juhl <juhl-lkml@dif.dk>
+> I guess the question can be also rephrased like so:  Is it possible for
+> dirty buffers in an address space mapping to be written out by the
+> kernel while bypassing the writepage address space operation?
+
+In 2.4, yes.  Not in 2.6.
+
+> Or in a different way:  Are dirty buffers in an address space entirely
+> under the control of the address space operations defined by the owner
+> of the address space?
+
+yup.  There are a few VFS functions which fall through and play with the
+buffer_heads if the filesystem failed to install an a_op, such as
+set_page_dirty().  These exist because we never got around to editing all
+the filesystems' a_ops.  But as long as the fs installs non-zero function
+pointers in there, the fs is fully in control of whatever is at
+page->private.

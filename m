@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262303AbSJ0IKS>; Sun, 27 Oct 2002 03:10:18 -0500
+	id <S262304AbSJ0IRX>; Sun, 27 Oct 2002 03:17:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262304AbSJ0IKS>; Sun, 27 Oct 2002 03:10:18 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:22455 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S262303AbSJ0IKR>;
-	Sun, 27 Oct 2002 03:10:17 -0500
-Message-ID: <3DBBAEF7.7060507@colorfullife.com>
-Date: Sun, 27 Oct 2002 10:16:39 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: KORN Andras <korn-linuxkernel@chardonnay.math.bme.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4 very slow memory access on abit kd7raid (kt400); ten times
- slower than on kg7raid
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262310AbSJ0IRW>; Sun, 27 Oct 2002 03:17:22 -0500
+Received: from smtp.mailix.net ([216.148.213.132]:41799 "EHLO smtp.mailix.net")
+	by vger.kernel.org with ESMTP id <S262304AbSJ0IRV>;
+	Sun, 27 Oct 2002 03:17:21 -0500
+Date: Sun, 27 Oct 2002 10:23:37 +0100
+From: Alex Riesen <fork0@users.sf.net>
+To: Vladimir Trebicky <guru@cimice.yo.cz>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Swap doesn't work
+Message-ID: <20021027092337.GA4507@steel>
+Reply-To: Alex Riesen <fork0@users.sf.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <001001c27d02$6297fe50$4500a8c0@cybernet.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It could be a bug in the memory detection. I had a similar problem with 
-one PC-chips board.
+> I've made my linux-from-scratch with latest stable (2.4.19) kernel, made
+> swap, turned it on but it doesn't work. It seems it does but when there's
+> not enough memory, the system crashes. Either it kills the application
+> desiring more memory (gcc or something) or crashes the kernel with memory
+> dump. Neither the 2.4.20-pre5-ac3 helped.
 
-Could you check if
-- an explicit "mem=63m" line helps?
-- disabling all power management in the bios help?
+Does your swap partition show up in /proc/swaps? It has to contain
+something like this:
 
---
-    Manfred
+Filename			Type		Size	Used	Priority
+/dev/hda6                       partition	506008	0	-1
 
+Btw, do you see something swap-related in dmesg? Like:
+
+  Unable to find swap-space signature
+  Unable to handle swap header version ...
+  Swap area shorter than signature indicates
+  Empty swap-file
+
+And do you actually see something like this:
+  Adding Swap: 506008k swap-space (priority -1)
+
+How did you initialized the swap partition? Recent kernels support both
+v1 and v2 swaps, which is can be set for mkswap using -v0 (-v1).
+Actually i mean did you initialized it at all? 8)
+
+-alex

@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267083AbTBUDPp>; Thu, 20 Feb 2003 22:15:45 -0500
+	id <S267090AbTBUDUI>; Thu, 20 Feb 2003 22:20:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267085AbTBUDPp>; Thu, 20 Feb 2003 22:15:45 -0500
-Received: from 5-077.ctame701-1.telepar.net.br ([200.193.163.77]:45786 "EHLO
-	5-077.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S267083AbTBUDPp>; Thu, 20 Feb 2003 22:15:45 -0500
-Date: Fri, 21 Feb 2003 00:25:29 -0300 (BRT)
-From: Rik van Riel <riel@imladris.surriel.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, "" <linux-kernel@vger.kernel.org>,
-       "" <lse-tech@lists.sourceforge.net>
-Subject: Re: Performance of partial object-based rmap
-In-Reply-To: <20030220190819.531e119d.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.50L.0302210020560.2329-100000@imladris.surriel.com>
-References: <7490000.1045715152@[10.10.2.4]> <278890000.1045791857@flay>
- <20030220190819.531e119d.akpm@digeo.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267094AbTBUDUI>; Thu, 20 Feb 2003 22:20:08 -0500
+Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:50564 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id <S267090AbTBUDUH>; Thu, 20 Feb 2003 22:20:07 -0500
+Date: Thu, 20 Feb 2003 19:30:13 -0800
+To: linux-kernel@vger.kernel.org
+Cc: "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+Subject: ext3/VFS double freeing warning
+Message-ID: <20030221033013.GA10354@gnuppy.monkey.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Feb 2003, Andrew Morton wrote:
 
-> I think the guiding principle here is that we should not optimise for the
-> uncommon case (as rmap is doing), and we should not allow the uncommon case
-> to be utterly terrible (as Dave's patch can do).
 
-This "guiding principle" appears to be the primary reason why
-we've taken over a year to stabilise linux 2.0 and linux 2.2
-and linux 2.4 ... or at least, too much of a focus on the first
-half of this guiding principle. ;)
+Hey, I got this:
 
-We absolutely have to take care in avoiding the worst case
-scenarios, since statistics pretty much guarantee that somebody
-will run into nothing but that scenario ...
+-------------------------------------------
 
-cheers,
+VFS: brelse: Trying to free free buffer
+buffer layer error at fs/buffer.c:1170
+Call Trace:
+ [<c01503e5>] __brelse+0x35/0x40
+ [<c018ce9d>] ext3_htree_fill_tree+0x15d/0x290
+ [<c01861c2>] ext3_dx_readdir+0x92/0x1d0
+ [<c015ff20>] filldir64+0x0/0x120
+ [<c0185dbd>] ext3_readdir+0x4bd/0x4f0
+ [<c015ff20>] filldir64+0x0/0x120
+ [<c0140366>] handle_mm_fault+0x76/0xb0
+ [<c01193ec>] do_page_fault+0x23c/0x45e
+ [<c015fbdc>] vfs_readdir+0x7c/0x80
+ [<c015ff20>] filldir64+0x0/0x120
+ [<c01600da>] sys_getdents64+0x9a/0xe0
+ [<c015ff20>] filldir64+0x0/0x120
+ [<c01413ad>] sys_brk+0xfd/0x130
+ [<c01095cf>] syscall_call+0x7/0xb
 
-Rik
--- 
-Engineers don't grow up, they grow sideways.
-http://www.surriel.com/		http://kernelnewbies.org/
+-------------------------------------------
+
+bill
+

@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269353AbUICH6B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269360AbUICH6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269353AbUICH6B (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 03:58:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269360AbUICH6B
+	id S269360AbUICH6o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 03:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269361AbUICH6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 03:58:01 -0400
-Received: from asplinux.ru ([195.133.213.194]:44046 "EHLO relay.asplinux.ru")
-	by vger.kernel.org with ESMTP id S269353AbUICH5r (ORCPT
+	Fri, 3 Sep 2004 03:58:43 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:14054 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S269360AbUICH6S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 03:57:47 -0400
-Message-ID: <413826A6.4000503@sw.ru>
-Date: Fri, 03 Sep 2004 12:09:10 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Fri, 3 Sep 2004 03:58:18 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Robert Schwebel <robert@schwebel.de>
+Subject: Re: [PATCH 2.6.8.1 0/2] leds: new class for led devices
+Date: Fri, 3 Sep 2004 10:00:04 +0200
+User-Agent: KMail/1.6.2
+Cc: John Lenz <lenz@cs.wisc.edu>, linux-kernel@vger.kernel.org
+References: <1094157190l.4235l.2l@hydra> <20040903131715.GG1369@pengutronix.de> <20040903133152.GH1369@pengutronix.de>
+In-Reply-To: <20040903133152.GH1369@pengutronix.de>
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>, torvalds@osdl.org,
-       dtor_core@ameritech.net, linux-kernel@vger.kernel.org
-Subject: Re: INIT hangs with tonight BK pull (2.6.9-rc1+)
-References: <200409030204.11806.dtor_core@ameritech.net> <20040903073230.GM3106@holomorphy.com>
-In-Reply-To: <20040903073230.GM3106@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409031000.04374.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>After doing BK pull last night INIT gets stuck in do_tty_hangup after
->>executing rc.sysinit. Was booting fine with pull from 2 days ago...
->>Anyone else seeing this?
->>I suspect pidhash patch because it touched tty_io.c, but I have not tried
->>reverting it as it is getting too late here... So I apologize in advance
->>if I am pointing finger at the innocent ;)
+Am Freitag, 3. September 2004 15:31 schrieb Robert Schwebel:
+> On Fri, Sep 03, 2004 at 03:17:15PM +0200, Robert Schwebel wrote:
+> > I'll pull the gpio patch out of my working tree and post it here for
+> > discussion. 
 > 
+> Attached. Parts of it have been taken from your LEDs patch anyway, so it
+> should be not too difficult to reunify them. 
 > 
-> Well, I was excited about blowing away 100B from each task but am now
-> a bit concerned about the semantic impact of the refcounting part of it.
-> It's unclear what pins an ID while a tty has a reference to it without
-> the reference counting; Kirill, could you answer this?
-stop.
-tty doesn't hold reference to ID neither in my patch nor in the original 
-kernel.
-tty only knows session ID and wants to traverse all tasks with such ID. 
-if task dies it calls detach_pid() and it won't be found in such a loop.
-No reference counting is required.
+> Robert
++	list_for_each_safe(lact, ltmp, &gpio_list) {
++		gpio_dev = list_entry(lact, struct gpio_device, list);
++		if (pin_nr == gpio_dev->props.pin_nr) {
++			printk(KERN_ERR "gpio pin %i is already used by %s\n",
++			       pin_nr, gpio_dev->props.owner);
++			return -EBUSY;
++		}
++	}
 
-The problem was in loop. Or more exactly my 
-do_each_task_pid()/while_each_task_pid() macros were incompatible with 
-continue statement inside. It was really foolish error. Like the most are...
+[..]
++	spin_lock_init(&gpio_dev->lock);
++	gpio_dev->props.pin_nr = pin_nr;
 
-Kirill
+This looks like a race condition. You need to check and reserve under
+a lock.
 
+	Regards
+		Oliver

@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264058AbUGFQBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264061AbUGFQD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264058AbUGFQBX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 12:01:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264061AbUGFQBW
+	id S264061AbUGFQD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 12:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUGFQD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 12:01:22 -0400
-Received: from ganesha.gnumonks.org ([213.95.27.120]:35538 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S264058AbUGFQBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 12:01:20 -0400
-Date: Tue, 6 Jul 2004 18:01:09 +0200
-From: Harald Welte <laforge@netfilter.org>
-To: davem@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       netfilter-devel@lists.netfilter.org
-Subject: Re: [PATCH 2.6] ip6t_LOG and packets with hop-by-hop options
-Message-ID: <20040706160109.GO32707@sunbeam2>
-Mail-Followup-To: Harald Welte <laforge@netfilter.org>, davem@redhat.com,
-	linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-	netfilter-devel@lists.netfilter.org
-References: <20040706150918.GA5009@penguin.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yZxAaITavNk3ADw/"
-Content-Disposition: inline
-In-Reply-To: <20040706150918.GA5009@penguin.localdomain>
-User-Agent: Mutt/1.5.6+20040523i
-X-Spam-Score: -4.9 (----)
+	Tue, 6 Jul 2004 12:03:57 -0400
+Received: from rzfoobar.is-asp.com ([217.11.194.155]:62084 "EHLO mail.isg.de")
+	by vger.kernel.org with ESMTP id S264061AbUGFQDz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 12:03:55 -0400
+Message-ID: <40EACC0C.6060606@isg.de>
+Date: Tue, 06 Jul 2004 17:58:04 +0200
+From: Lutz Vieweg <lkv@isg.de>
+Organization: Innovative Software AG
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040322 wamcom.org
+X-Accept-Language: de, German, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: How to find out which pages were copied-on-write?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---yZxAaITavNk3ADw/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+in an application that MAP_PRIVATEly mmap()s a file it would
+be quite helpful for me to find out which pages have been
+copied-on-write.
 
-On Tue, Jul 06, 2004 at 05:09:18PM +0200, Marcel Sebek wrote:
-> Packet with IPPROTO_HOPOPTS extended header isn't logged properly by
-> ip6t_LOG.c. It only prints PROTO=3D0 and nothing more, because
-> IPPROTO_HOPOPTS=3D0 and in this file 0 is used to indicate last header.
-> This patch fix it by using IPPROTO_NONE to indicate last header.
+I found that mincore() does a similar thing by reporting which
+pages are currently residing in physical memory, but what
+I want to know is which pages differ from the original file
+image on disk.
 
-looks fine to me.  Dave, can you please include this to your tree?
-Thanks.
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
+Can you recommend a way to do that? (does not need to be
+portable beyond Linux)
 
---yZxAaITavNk3ADw/
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Alternatively, it would be sufficient if I could turn
+a private mapping into a shared one (and possibly do an
+msync() afterwards if I need to make sure the changes
+have been written out). Would such a feature need a
+lot of effort to implement?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFA6szFXaXGVTD0i/8RAqyBAKCwVgXhaL90YOmbJdWeOmwtGtRC5wCcDh6z
-cdyKWtNc2S4+4qaOg28Tiig=
-=aqI8
------END PGP SIGNATURE-----
+Yet another feature that I could use if it were available:
+A "copy-on-read"-mapping. There, a page would become a private
+copy of a process once _another_ process wrote data to the
+corresponding file location. But I suspect that feature
+could be very hard to implement...
 
---yZxAaITavNk3ADw/--
+Regards,
+
+Lutz Vieweg
+
+

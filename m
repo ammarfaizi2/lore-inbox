@@ -1,65 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313686AbSDHQGL>; Mon, 8 Apr 2002 12:06:11 -0400
+	id <S313691AbSDHQPO>; Mon, 8 Apr 2002 12:15:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313688AbSDHQGK>; Mon, 8 Apr 2002 12:06:10 -0400
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:55988 "EHLO
-	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S313686AbSDHQGJ>; Mon, 8 Apr 2002 12:06:09 -0400
-Message-ID: <00a801c1df17$55295ae0$95dc0e50@machine1>
-From: "Philippe Elie" <phil.el@wanadoo.fr>
-To: "Bill Davidsen" <davidsen@tmr.com>,
-        "John Levon" <movement@marcelothewonderpenguin.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1020408104259.21476B-100000@gatekeeper.tmr.com>
-Subject: Re: Two fixes for 2.4.19-pre5-ac3
-Date: Mon, 8 Apr 2002 18:06:18 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S313692AbSDHQPN>; Mon, 8 Apr 2002 12:15:13 -0400
+Received: from velli.mail.jippii.net ([195.197.172.114]:47551 "HELO
+	velli.mail.jippii.net") by vger.kernel.org with SMTP
+	id <S313691AbSDHQPM>; Mon, 8 Apr 2002 12:15:12 -0400
+Date: Mon, 8 Apr 2002 19:17:21 +0300
+From: Anssi Saari <as@sci.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROMBLEM: CD burning at 16x uses excessive CPU, although DMA is enabled
+Message-ID: <20020408161721.GA18233@sci.fi>
+In-Reply-To: <Pine.LNX.3.96.1020408104857.21476C-100000@gatekeeper.tmr.com> <1018278394.570.143.camel@psuedomode>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Bill Davidsen" <davidsen@tmr.com>
-Sent: Monday, April 08, 2002 4:48 PM
+On Mon, Apr 08, 2002 at 11:06:28AM -0400, Ed Sweetman wrote:
+> I'm not completely sure about burning audio, but linux doesn't read
+> audio cds using DMA.
 
-
-> On Sun, 7 Apr 2002, John Levon wrote:
->
-> > But what about the recent discussion on the removal of sys_call_table ?
-> >
-> > (I believe it was along the lines of "it's ugly, prevent it ...", "ah,
-> > but it has real uses, so why can't it stay as deprecated/unadvised ?"
-> > "*no response*").
-> >
-> > I'm a bit disappointed this has just gone in without any real discussion
-> > on the usefulness of this for certain circumstances :(
->
->   Sure, removing that would break a lot of cracker software. Oh wait,
-> maybe that's a good thing...
-
-It's really easy for cracker to patch sys_call even if it the table is not
-exported. Not exporting the sys call table is just to encourage good
-programming technics not a protection against machiavel things.
-
->   For legitimate use, if any, a compile-time optional system call could be
-> added requiring a capability to use, and programs which are currently
-> doing that (AFS?) can be converted to use another f/s interface. I have
-> seen a few mentions of software which DO use that capability, I'm not sure
-> I've seen one which can be done no other way.
-
-As stated oprofile needs it, there is no other efficient way to track exec,
-mmap and other sys call needed for profiler. I hope a consensus can
-be reach : explain than unloading module wich patch the sys call table
-are unsafe on SMP, discourage the use of sys call table patch, but do
-not forbid that.
-
---
-Philippe Elie
-
+I didn't think this is relevant, except if I were trying to copy a CD on
+the fly, but that's not the case. But I have now tried it, no change. In
+fact, what I tried was this linux-2.4.19-pre5-jam2 patch collection
+which includes that and low latency and O(1) scheduler patches, among
+other things.  Didn't seem to help, however.
 

@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264465AbTEJSWj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 14:22:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264471AbTEJSWj
+	id S262458AbTEJSap (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 14:30:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbTEJSap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 14:22:39 -0400
-Received: from bastion0.paxonet.com ([209.172.126.232]:31502 "EHLO
-	mail.paxonet.com") by vger.kernel.org with ESMTP id S264465AbTEJSWi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 14:22:38 -0400
-Date: Sat, 10 May 2003 11:35:19 -0700 (PDT)
-From: Simon Matthews <simon@paxonet.com>
-X-X-Sender: simon@localhost.localdomain
-To: linux-kernel@vger.kernel.org
-Subject: Problems with DRM/R128
-Message-ID: <Pine.LNX.4.44.0305101124230.8905-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 May 2003 14:30:45 -0400
+Received: from almesberger.net ([63.105.73.239]:54027 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S262458AbTEJSao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 14:30:44 -0400
+Date: Sat, 10 May 2003 15:43:11 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Ahmed Masud <masud@googgun.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jesse Pollard <jesse@cats-chateau.net>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       "viro@parcelfarce.linux.theplanet.co.uk" 
+	<viro@parcelfarce.linux.theplanet.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Terje Eggestad <terje.eggestad@scali.com>
+Subject: Re: The disappearing sys_call_table export.
+Message-ID: <20030510154311.F13069@almesberger.net>
+References: <1052585430.1367.6.camel@laptop.fenrus.com> <Pine.LNX.4.33.0305101321040.24661-100000@marauder.googgun.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0305101321040.24661-100000@marauder.googgun.com>; from masud@googgun.com on Sat, May 10, 2003 at 01:51:07PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an ATI Rage 128. I am using the 2.4.20 vanilla kernel. I have 
-compiled in the DRM 4.1 and the R128 driver (not as modules, but part of 
-the kernel). 
+Ahmed Masud wrote:
+> 		yield(random(threshold)); /* yeild is a sleep */
+[...]
+> That becomes a bit more difficult to time, because the attacker doesn't
+> know when the system call will actually perform its own copy_from_user vs.
 
-However, graphics such as tuxracer are very slow. The XFree86 log file 
-shows an entry:
-(II) R128(0): [drm] Added 128 16384 byte vertex/indirect buffers
-(II) R128(0): [drm] Mapped 128 vertex/indirect buffers
-(II) R128(0): [drm] failure adding irq handler, there is a device already 
-using that irq
-[drm] falling back to irq-free operation
-(II) R128(0): Direct rendering enabled
- 
-On starting OpenOffice, I see: 
- ooffice
-Gnome session manager detected - session management disabled
-running openoffice.org setup...
-Setup complete.  Running openoffice.org...
-libGL error: failed to open DRM: Operation not permitted
-libGL error: reverting to (slow) indirect rendering
- 
-Now I am pretty sure this is a kernel-related issue, since in the past on
-the same hardware with a Redhat 7.3 distro (I am now using gentoo), I
-observed that tuxracer was very slow when using the vanilla kernel, but if
-I installed the RedHat kernel, it worked fine.
+So the probability of getting through in one try is about (tR+tH)/tH,
+where tR is the average random delay, and tH is the time between the
+check and the actual access.
 
-Can anyone please suggest how I can fix this? 
- 
-Many thanks!
-Simon
+If you keep on trying until you get through, you'll succeed on average
+after tR^2/tH+tR.
 
+If you make tR = 1 s (that's pretty long, e.g. if you do this to
+unlink(2), a rm -rf of the kernel source tree would take about four
+hours) and assume that tH is only one microsecond, the race condition
+can still be exploited within typically less than one fortnight.
+
+Since the system would be idle most of the time, such a brute-force
+attack could easily go unnoticed, even if somebody cares to monitor
+the system often enough.
+
+Sounds like voodoo security to me.
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

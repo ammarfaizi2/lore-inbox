@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265359AbUGMQ0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUGMQ3w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265359AbUGMQ0G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 12:26:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265377AbUGMQ0G
+	id S265395AbUGMQ3w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 12:29:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265429AbUGMQ3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 12:26:06 -0400
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:27626 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S265359AbUGMQ0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 12:26:03 -0400
-Date: Tue, 13 Jul 2004 18:25:39 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Davis <paul@linuxaudiosystems.com>, rlrevell@joe-job.com,
-       linux-audio-dev@music.columbia.edu, mingo@elte.hu, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040713162539.GD974@dualathlon.random>
-References: <20040712163141.31ef1ad6.akpm@osdl.org> <200407130001.i6D01pkJ003489@localhost.localdomain> <20040712170844.6bd01712.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040712170844.6bd01712.akpm@osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Tue, 13 Jul 2004 12:29:52 -0400
+Received: from snota.svorka.net ([194.19.72.11]:28611 "HELO snota.svorka.net")
+	by vger.kernel.org with SMTP id S265395AbUGMQ3u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 12:29:50 -0400
+X-Qmail-Scanner-Mail-From: eldiablo@svorka.net via snota
+X-Qmail-Scanner: 1.20st (Clear:RC:1(194.19.72.135):. Processed in 0.031463 secs) process 26854 
+Message-ID: <40F40DE9.5010909@svorka.net>
+Date: Tue, 13 Jul 2004 18:29:29 +0200
+From: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <eldiablo@svorka.net>
+Reply-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040705)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       eldiablo@svorka.net
+Subject: [2.6] Module writing?
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 12, 2004 at 05:08:44PM -0700, Andrew Morton wrote:
-> of code then it's pretty obvious what's happening.  If the trace is due to
-> a long irq-off time then it will point up into the offending
-> local_irq_enable().
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-schedule should be called with irq enabled, and I noticed here it's not
-(jnz work_resched is executed with irq off so there is a window for
-schedule to be called with irq off):
+I have started to write some kernel modules for fun now, but they are a
+bit empty :)
+it's just some printk's and some other simple things.
 
-Index: linux-2.5/arch/i386/kernel/entry.S
-===================================================================
-RCS file: /home/andrea/crypto/cvs/linux-2.5/arch/i386/kernel/entry.S,v
-retrieving revision 1.86
-diff -u -p -r1.86 entry.S
---- linux-2.5/arch/i386/kernel/entry.S	23 May 2004 05:03:15 -0000	1.86
-+++ linux-2.5/arch/i386/kernel/entry.S	13 Jul 2004 04:21:55 -0000
-@@ -302,6 +310,7 @@ work_pending:
- 	testb $_TIF_NEED_RESCHED, %cl
- 	jz work_notifysig
- work_resched:
-+	sti
- 	call schedule
- 	cli				# make sure we don't miss an interrupt
- 					# setting need_resched or sigpending
+I wonder if there are any good howtoes out on the Net somewhere, I've
+read a bit on: http://tldp.org/LDP/lkmpg, but I'm afraid it's a bit
+outdated(?)
+
+I'm only doing this for fun(at this time, maybe it becomes serious
+when i become a bit older;) ) so i don't want to spend any
+money on a book, or on an course.
+
+
+Best regards
+Espen Fjellvær Olsen
+eldiablo@svorka.net
+Norway
+
+
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFA9A3pibTL5aHQf7URAlzQAJ0S20c8X2gP73buor3AeL3BYjGTzgCeJlZ9
+CArqpMb8VfoutrMCwVUarIc=
+=GIP1
+-----END PGP SIGNATURE-----

@@ -1,78 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261675AbUBVESQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 23:18:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbUBVESQ
+	id S261674AbUBVE25 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 23:28:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbUBVE25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 23:18:16 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:61313 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S261675AbUBVESL (ORCPT
+	Sat, 21 Feb 2004 23:28:57 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:56843 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S261674AbUBVE2z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 23:18:11 -0500
-Date: Sun, 22 Feb 2004 05:18:10 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Craig Thomas <craiger@osdl.org>
-Cc: linstab@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Announce] New Updates to the Linux Stability Page
-Message-ID: <20040222041810.GA18525@MAIL.13thfloor.at>
-Mail-Followup-To: Craig Thomas <craiger@osdl.org>, linstab@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <1077303504.19386.62.camel@bullpen.pdx.osdl.net>
+	Sat, 21 Feb 2004 23:28:55 -0500
+Date: Sun, 22 Feb 2004 05:28:53 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Steve Kieu <haiquy@yahoo.com>
+Cc: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.3-mjb1  vmware modules compile error..
+Message-ID: <20040222042853.GD7483@vana.vc.cvut.cz>
+References: <20040222011344.GB7483@vana.vc.cvut.cz> <20040222034938.1016.qmail@web10407.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1077303504.19386.62.camel@bullpen.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040222034938.1016.qmail@web10407.mail.yahoo.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 20, 2004 at 10:58:25AM -0800, Craig Thomas wrote:
-> The Linux Stability page continues to post test result data for the
-> post 2.6.0 kernels. http://www.osdl.org/projects/26lnxstblztn/results/
-
-lynx spoke:
-
-                                                         404 Not Found
-                                   Not Found
-
-   The requested URL /projects/26lnxstblztn/results/ was not found on
-   this server.
-
-   Additionally, a 404 Not Found error was encountered while trying to
-   use an ErrorDocument to handle the request.
-     _________________________________________________________________
-
-
-    Apache/2.0.47 (Red Hat Linux) Server at www.osdl.org Port 80
-
-best,
-Herbert
-
-> Below lists some recent changes to the page (in case you haven't visited
-> in a while).
+On Sun, Feb 22, 2004 at 02:49:38PM +1100, Steve Kieu wrote:
 > 
-> 1) 2.6.x kernels tested upon release:
->     -mm
->     -rc
->     -bk
-> 2) Detaild Test Result Links show links to continual updated results to
->    re-aim-7, tiobench, and iozone tests run in STP (1-way, 2-way, 4-way
->    and 8-way, as appopriate)
-> 3. New links to database performance reports in the Database Performance
->    Reports section (replaces old database section)
-> 4. New section added to link to various Lilnux kernel test report
-> 
-> If anyone knows of other useful test result information or information
-> providing a current state of the Linux kernel that can be linked from
-> this page, let me know and I'll add the link.
+> Hi,
 > 
 > 
-> -- 
-> Craig Thomas
-> craiger@osdl.org
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> bash-2.05b# make      
+> Unable to find VMware installation database. Using
+> 'vmware'.
+> Building for VMware Workstation 3.2.0.
+> Using 2.6.x kernel build system.
+> make -C /lib/modules/2.6.1-mm4/build/include/..
+> SUBDIRS=$PWD SRCROOT=$PWD/. modu
+> les
+> make[1]: Entering directory `/vol/hdb5/linux'
+> *** Warning: Overriding SUBDIRS on the command line
+> can cause
+> ***          inconsistencies
+> make[2]: `arch/i386/kernel/asm-offsets.s' is up to
+> date.
+>   CHK     include/asm-i386/asm_offsets.h
+>   CC [M]  /root/vmmon-6/linux/driver.o
+> driver.c:7:27: driver-config.h: No such file or
+> directory
+
+> I just extract the vmmon.tar from the vmware-any---
+> package and run make in the source dir. It works with
+> all vanila kernels and mm tree, but not with mjb1.
+
+WTF? It prepends $(TOPDIR)/ to all include paths. I have
+no idea what is this supposed to do, but I can guarantee
+that I'm not going to support that kernel.
+				Petr Vandrovec
+
+
+diff -purN -X /home/mbligh/.diff.exclude 000-virgin/scripts/Makefile.build 790-irq_vector/scripts/Makefile.build
+--- 000-virgin/scripts/Makefile.build   2003-10-14 15:50:40.000000000 -0700
++++ 790-irq_vector/scripts/Makefile.build       2004-02-18 16:23:03.000000000 -0800
+@@ -128,7 +128,16 @@ cmd_cc_i_c       = $(CPP) $(c_flags)   -
+ quiet_cmd_cc_o_c = CC $(quiet_modtag)  $@
+
+ ifndef CONFIG_MODVERSIONS
+-cmd_cc_o_c = $(CC) $(c_flags) -c -o $@ $<
++new1_c_flags = $(c_flags:-I%=-I$(TOPDIR)/%)
++new2_c_flags = $(new1_c_flags:-Wp%=)
++PWD = $(TOPDIR)
++
++quiet_cmd_cc_o_c = CC $(quiet_modtag)  $@
++cmd_cc_o_c = $(CC) $(c_flags) -E -o $@ $< \
++               && cd $(dir $<) \
++               && $(CC) $(new2_c_flags) -c -o $(notdir $@) $(notdir $<) \
++               && cd $(TOPDIR)
++#cmd_cc_o_c = $(CC) $(c_flags) -c -o $@ $<
+
+ else
+ # When module versioning is enabled the following steps are executed:
+

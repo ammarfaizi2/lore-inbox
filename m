@@ -1,78 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbVBONSN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVBONTs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261715AbVBONSN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 08:18:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVBONSN
+	id S261716AbVBONTs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 08:19:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVBONTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 08:18:13 -0500
-Received: from hermine.aitel.hist.no ([158.38.50.15]:19219 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261715AbVBONRs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 08:17:48 -0500
-Message-ID: <4211F706.4030104@aitel.hist.no>
-Date: Tue, 15 Feb 2005 14:20:06 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bernd Petrovitsch <bernd@firmix.at>
-CC: Kyle Moffett <mrmacman_g4@mac.com>, Lee Revell <rlrevell@joe-job.com>,
-       Patrick McFarland <pmcfarland@downeast.net>,
-       linux-kernel@vger.kernel.org, Tim Bird <tim.bird@am.sony.com>,
-       Prakash Punnoor <prakashp@arcor.de>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux-hotplug-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
-       Roland Dreier <roland@topspin.com>
-Subject: Re: [OT] speeding boot process (was Re: [ANNOUNCE] hotplug-ng 001
- release)
-References: <20050211004033.GA26624@suse.de> <420C054B.1070502@downeast.net>	 <20050211011609.GA27176@suse.de>	 <1108354011.25912.43.camel@krustophenia.net>	 <4d8e3fd305021400323fa01fff@mail.gmail.com> <42106685.40307@arcor.de>	 <1108422240.28902.11.camel@krustophenia.net> <524qge20e2.fsf@topspin.com>	 <1108424720.32293.8.camel@krustophenia.net> <42113F6B.1080602@am.sony.com>	 <1108430245.32293.16.camel@krustophenia.net>	 <4B923A81-7EF3-11D9-86CC-000393ACC76E@mac.com>	 <4211B8FC.8000600@aitel.hist.no> <1108459982.438.9.camel@tara.firmix.at>
-In-Reply-To: <1108459982.438.9.camel@tara.firmix.at>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Feb 2005 08:19:47 -0500
+Received: from main.gmane.org ([80.91.229.2]:43956 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261718AbVBONT2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 08:19:28 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Tristan Wibberley <maihem@maihem.org>
+Subject: Re: [BK] upgrade will be needed
+Date: Tue, 15 Feb 2005 13:24:31 +0000
+Message-ID: <pan.2005.02.15.13.24.31.180126@maihem.org>
+References: <20050214020802.GA3047@bitmover.com> <58cb370e05021404081e53f458@mail.gmail.com> <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com> <87wttbq8fd.fsf@freitag.home.jstuber.net> <pan.2005.02.15.02.46.04.22659@maihem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host81-158-66-156.range81-158.btcentralplus.com
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner-SpamScore: sss
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Petrovitsch wrote:
+On Tue, 15 Feb 2005 02:46:04 +0000, Tristan Wibberley wrote:
 
->On Tue, 2005-02-15 at 09:55 +0100, Helge Hafting wrote:
->[...]
->  
->
->>The init-script dependencies are specifies already - at least on debian.
->>    
->>
->
->These are not dependencies but "only" the sequence of startup (and it is
->not only Debian but also Fedora/RedHat, SuSE, Mandrake and probably all
->except Gentoo).
->  
->
-Yes, it is a sequence.  It it derived from real dependencies though,
-where nondependent stuff have the same number.
+> On Mon, 14 Feb 2005 19:54:14 +0100, Juergen Stuber wrote:
+> 
+>> g BK, I can immediately start working on another SCM
+>> but I can't go back to BK immediately
+> 
+> IMHO, it should be the other way around, and more like two years.
 
->Yuo get a much stricter ordering and sorting (and thus much simpler to
->implement in a shell script).
->  
->
-Correct.
+Hmm, I wasn't really clear here. I think that after using BK, you
+shouldn't be able to work on another SCM until 2 years have past. But you
+can shorten that time by paying bitmover 1/12 of a BK license for each
+month you want to shorten it. That covers the problem of people needing to
+switch, they just have to pay. Then the following applies:
 
->This would be a win (especially if the numbers are tweked to tune this)
->with a relatively small effort.
->However for real dependencies and parallelism you want the info similar
->to creat a Makefile from it (i.e. the explicit dependency from service X
->to service Y). As a consequence you can get rid of the numbers (since
->they are not needed any more).
->  
->
-Now that is a really good idea.  Init could simply run "make -j init2" to
-enter runlevel 2.  A suitable makefile would list all dependencies, and
-of course the targets needed for "init2", "init3" and so on.
+> Two years would be more
+> appropriate since you need to make sure that coders who've worked on the
+> other SCM before are well and truly out of touch with the code when they
+> go back. With that scheme, if you have a serious business case for
+> writing a new SCM *today* you just have to factor an extra cost into
+> your plans (double BK license), and if you want to work on an open
+> source one, you just have to wait while BitMover gets another two years
+> on their head-start. Now only people with determined plans can switch
+> from using BK to working on an SCM, and BitMover can get new users
+> benefiting from their kindness and lifting their market penetration as
+> easily as possible.
 
-It might not be that much work either.  Parallel make exists already, 
-and the
-first attempt at a makefile could simply implement the current sequence that
-is known to work. Then the tweaking comes. :-)
+-- 
+Tristan Wibberley
 
-Helge Hafting
-
- 

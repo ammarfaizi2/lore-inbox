@@ -1,76 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289749AbSAJWjj>; Thu, 10 Jan 2002 17:39:39 -0500
+	id <S289752AbSAJWlu>; Thu, 10 Jan 2002 17:41:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289752AbSAJWjc>; Thu, 10 Jan 2002 17:39:32 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:785 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S289749AbSAJWjT>; Thu, 10 Jan 2002 17:39:19 -0500
-Date: Thu, 10 Jan 2002 23:36:27 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Marcelo W. Tosatti" <marcelo@conectiva.com.br>,
-        kernel list <linux-kernel@vger.kernel.org>, davej@suse.de,
-        torvalds@transmeta.com
-Subject: Small cleanup in ide
-Message-ID: <20020110223627.GA3444@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S289756AbSAJWln>; Thu, 10 Jan 2002 17:41:43 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:38606 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S289752AbSAJWl2>;
+	Thu, 10 Jan 2002 17:41:28 -0500
+Date: Fri, 11 Jan 2002 01:38:51 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [patch] O(1) scheduler, -H5
+Message-ID: <Pine.LNX.4.33.0201110130290.11478-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-This cleans ide a tiny bit. Please apply.
-									Pavel
+the -H5 patch adds a debugging check:
 
---- clean/include/linux/ide.h	Wed Dec 19 22:38:14 2001
-+++ linux-dm/include/linux/ide.h	Thu Jan 10 23:14:30 2002
-@@ -382,12 +383,12 @@
- 	unsigned int	cyl;		/* "real" number of cyls */
- 	unsigned long	capacity;	/* total number of sectors */
- 	unsigned int	drive_data;	/* for use by tuneproc/selectproc as needed */
--	void		  *hwif;	/* actually (ide_hwif_t *) */
-+	struct ide_hwif_s *hwif;	/* actually (ide_hwif_t *) */
- 	wait_queue_head_t wqueue;	/* used to wait for drive in open() */
- 	struct hd_driveid *id;		/* drive model identification info */
- 	struct hd_struct  *part;	/* drive partition table */
- 	char		name[4];	/* drive name, such as "hda" */
--	void 		*driver;	/* (ide_driver_t *) */
-+	struct ide_driver_s *driver;	/* (ide_driver_t *) */
- 	void		*driver_data;	/* extra driver data */
- 	devfs_handle_t	de;		/* directory for device */
- 	struct proc_dir_entry *proc;	/* /proc/ide/ directory entry */
---- clean/drivers/ide/ide-proc.c	Wed Dec 19 22:38:12 2001
-+++ linux-dm/drivers/ide/ide-proc.c	Thu Jan 10 23:35:13 2002
-@@ -582,13 +582,13 @@
- 	(char *page, char **start, off_t off, int count, int *eof, void *data)
- {
- 	ide_drive_t	*drive = (ide_drive_t *) data;
--	ide_driver_t    *driver = (ide_driver_t *) drive->driver;
-+	ide_driver_t    *driver = drive->driver;
- 	int		len;
- 
- 	if (!driver)
- 		len = sprintf(page, "(none)\n");
-         else
--		len = sprintf(page,"%li\n", ((ide_driver_t *)drive->driver)->capacity(drive));
-+		len = sprintf(page,"%li\n", drive->driver->capacity(drive));
- 	PROC_IDE_READ_RETURN(page,start,off,count,eof,len);
- }
- 
-@@ -620,7 +620,7 @@
- 	(char *page, char **start, off_t off, int count, int *eof, void *data)
- {
- 	ide_drive_t	*drive = (ide_drive_t *) data;
--	ide_driver_t	*driver = (ide_driver_t *) drive->driver;
-+	ide_driver_t	*driver = drive->driver;
- 	int		len;
- 
- 	if (!driver)
+    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-pre11-H5.patch
 
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+it adds code to catch places that call schedule() from global-cli()
+sections. Right now release_kernel_lock() doesnt automatically release the
+IRQ lock if there is no kernel lock held. A fair amount of code does this
+still, and i think we should fix them in 2.5.
+
+(Such code, while of questionable quality, is safe if it also holds the
+big kernel lock, but it's definitely SMP-unsafe it doesnt hold the bkl -
+the BUG() assert only catches the later case.)
+
+(Andi Kleen noticed this on the first day the patch was released, and
+Andrew Morton reminded me today that i forgot to fix it ... :-| )
+
+my systems do not trigger the BUG(), so there cannot be all that much
+broken code left.
+
+	Ingo
+

@@ -1,70 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266498AbUIIRwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUIIR4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266498AbUIIRwc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 13:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266534AbUIIRuJ
+	id S266613AbUIIR4k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 13:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266511AbUIIRl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 13:50:09 -0400
-Received: from fw.osdl.org ([65.172.181.6]:9644 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266427AbUIIRnD (ORCPT
+	Thu, 9 Sep 2004 13:41:58 -0400
+Received: from imr2.ericy.com ([198.24.6.3]:27290 "EHLO imr2.ericy.com")
+	by vger.kernel.org with ESMTP id S266534AbUIIRkN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 13:43:03 -0400
-Date: Thu, 9 Sep 2004 10:42:56 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Chris Wright <chrisw@osdl.org>,
-       Makan Pourzandi <Makan.Pourzandi@ericsson.com>,
-       linux-kernel@vger.kernel.org,
-       Axelle Apvrille <axelle.apvrille@trusted-logic.fr>,
+	Thu, 9 Sep 2004 13:40:13 -0400
+Message-ID: <41409378.5060908@ericsson.com>
+Date: Thu, 09 Sep 2004 13:31:36 -0400
+From: Makan Pourzandi <Makan.Pourzandi@ericsson.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Wright <chrisw@osdl.org>
+CC: linux-kernel@vger.kernel.org,
+       Axelle Apvrille <axelle.apvrille@trusted-logic.fr>, serue@us.ibm.com,
        david.gordon@ericsson.com, gaspoucho@yahoo.com
-Subject: Re: [ANNOUNCE] Release Digsig 1.3.1: kernel module for run-time authentication of binaries
-Message-ID: <20040909104256.T1924@build.pdx.osdl.net>
-References: <41407CF6.2020808@ericsson.com> <20040909092457.L1973@build.pdx.osdl.net> <20040909172301.GA28466@escher.cs.wm.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040909172301.GA28466@escher.cs.wm.edu>; from serue@us.ibm.com on Thu, Sep 09, 2004 at 01:23:01PM -0400
+Subject: Re: [ANNOUNCE] Release Digsig 1.3.1: kernel module for run-time authentication
+ of binaries
+References: <41407CF6.2020808@ericsson.com> <20040909092457.L1973@build.pdx.osdl.net>
+In-Reply-To: <20040909092457.L1973@build.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Serge E. Hallyn (serue@us.ibm.com) wrote:
-> > >      - support to avoid vulnerability for rewrite of shared
-> > >      libraries
-> > 
-> > Could you elaborate on this one?
+Hi Chris,
+
+Chris Wright wrote:
+> * Makan Pourzandi (Makan.Pourzandi@ericsson.com) wrote:
+>>
+>>DSI development team would like to announce the release 1.3.1 of digsig.
+...
+>>
+>>Changes from Digsig release 0.2 announced in this mailing list:
+>>================================================================
+>>
+>>     - the verification of signatures for the shared binaries has been
+>>     added.
+>>     - added support for caching of signatures
+>>     - added documentation for digsig
+>>     - added support for revoked signatures
+>>     - support to avoid vulnerability for rewrite of shared
+>>     libraries
 > 
-> When a file is being executed, deny_write_access(file) is called to
-> prevent writing until execution completes.  Because deny_write_access
-> is not exported from fs/namei.c, we emulate this behavior for shared
-> libraries.
-
-Hmm, ok, so you're relying on the loader to do PROT_EXEC mmaps for
-shared libraries?  Probably not required at least on x86.  Also, does
-this work when executing loader directly (/lib/ld.so /bin/ps), and with
-dlopen?
-
-> > > Future works
-> > > =============
-> > > 
-> > >      - improving the caching and revocation: it is currently tested
-> > >        and will be sent out soon after stability testing
-> > 
-> > Should be helpful enough to cache result until thing's opened for
-> > writing, or is that what you're doing now?
 > 
-> Exactly.  When the file is opened for writing (which as much as possible
-> requires the file to not be executed), we uncache the signature
-> validation.
+> Could you elaborate on this one?
+
+We realized that when a shared library is opened by a binary it can 
+still be modified. To solve the problem, we block the write access to 
+the shared binary while it is loaded.
+
 > 
-> (The new patch hashes revocations (they were on a linked list), and
-> steals the seqlock-based structure Rik van Riel had suggested for
-> the selinux avc cache for use in the signature revocation cache.  There
-> is no change in functionality, only (hopefully) performance improvements.)
+> 
+>>     - use sysfs to connect to the module instead of the char device
+>>     - code clean up, and some bug fixes
+>>
+>>Future works
+>>=============
+>>
+>>     - improving the caching and revocation: it is currently tested
+>>       and will be sent out soon after stability testing
+> 
+> 
+> Should be helpful enough to cache result until thing's opened for
+> writing, or is that what you're doing now?
+> 
 
-Ok, I see.  Makes sense.
+This is what we're doing now, but we need to implement a hash table to 
+accelerate the lookup for the signatures.
 
-thanks,
--chris
+Regards,
+Makan
+
+> thanks,
+> -chris
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+
+Makan Pourzandi, Open Systems Lab
+Ericsson Research, Montreal, Canada
+*This email does not represent or express the opinions of Ericsson Inc.*
+

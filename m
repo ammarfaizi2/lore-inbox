@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbULAWt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbULAWvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261478AbULAWt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 17:49:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbULAWt3
+	id S261483AbULAWvR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 17:51:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbULAWvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 17:49:29 -0500
-Received: from users.ccur.com ([208.248.32.211]:57598 "EHLO gamx.iccur.com")
-	by vger.kernel.org with ESMTP id S261478AbULAWtZ (ORCPT
+	Wed, 1 Dec 2004 17:51:15 -0500
+Received: from havoc.gtf.org ([69.28.190.101]:49284 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261480AbULAWvD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 17:49:25 -0500
-Date: Wed, 1 Dec 2004 17:49:06 -0500
-From: Joe Korty <joe.korty@ccur.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: waitid breaks telnet
-Message-ID: <20041201224906.GA11963@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <20041130202730.6ceab259.akpm@osdl.org> <200412011920.iB1JKlug004542@magilla.sf.frob.com> <20041201114141.7f3347a1.akpm@osdl.org> <20041201223014.GA3271@tsunami.ccur.com>
+	Wed, 1 Dec 2004 17:51:03 -0500
+Date: Wed, 1 Dec 2004 17:45:35 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: K G <gege86hu@yahoo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: "irq 16: nobody cared!" -errors after motherboard-switch (ABIT IS7-E2 motherboard)
+Message-ID: <20041201224535.GA13815@havoc.gtf.org>
+References: <20041201174010.95519.qmail@web60505.mail.yahoo.com> <1101936835.30819.69.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041201223014.GA3271@tsunami.ccur.com>
+In-Reply-To: <1101936835.30819.69.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 01, 2004 at 05:30:14PM -0500, Joe Korty wrote:
-> On Wed, Dec 01, 2004 at 11:41:41AM -0800, Andrew Morton wrote:
-> > Roland McGrath <roland@redhat.com> wrote:
-> > >
-> > > I've had no luck reproducing that, so there isn't much I can do.
-> > 
-> > Did you try bare 2.6.10-rc2?
-> > 
-> > >  The last
-> > > time someone thought the waitid change broke something random, it was the
-> > > perturbation of the compiled code vs the issue that the kernel's assembly
-> > > code doesn't follow the same calling conventions the compiler expects.
-> > 
-> > Could be that, but I was able to reproduce it on 2.6.10-rc2 with
-> > gcc-2.95.4, with which -mregparm is disabled.
-> > 
-> > Still.  It would be interesting if Joe could retest with CONFIG_REGPARM=n?
+On Wed, Dec 01, 2004 at 09:33:57PM +0000, Alan Cox wrote:
+> On Mer, 2004-12-01 at 17:40, K G wrote:
+> > I've recently switched from an "ASUS P4T533-C"
+> > motherboard to an "ABIT IS7-E2", and got the errors
+> > mentioned above after boot. Only the motherboard and
+> > the ram was changed (rambus -> INFINEON 400Mhz DDR).
 > 
-> CONFIG_REGPARM is not set in all of my kernels (just verified).
+> Those generally indicate bad interrupt routing but could given the other
+> information you provide just indicate a dud board.
 
-More info: I exclusively use CONFIG_SMP and CONFIG_PREEMPT.
-If it is a race either or both of these is likely to
-be involved.
+Agreed, though it's also on occasion drivers that need to ack/silence
+interrupts during initialization.
 
-Joe
+	Jeff
+
+
+

@@ -1,79 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291484AbSBABhk>; Thu, 31 Jan 2002 20:37:40 -0500
+	id <S291485AbSBABkA>; Thu, 31 Jan 2002 20:40:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291485AbSBABha>; Thu, 31 Jan 2002 20:37:30 -0500
-Received: from zok.sgi.com ([204.94.215.101]:64976 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S291484AbSBABhY>;
-	Thu, 31 Jan 2002 20:37:24 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Troy Benjegerdes <hozer@drgw.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin 
-In-Reply-To: Your message of "Thu, 31 Jan 2002 17:04:28 -0800."
-             <20020131170428.V1519@work.bitmover.com> 
+	id <S291486AbSBABju>; Thu, 31 Jan 2002 20:39:50 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:51344 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S291485AbSBABjc>; Thu, 31 Jan 2002 20:39:32 -0500
+Date: Fri, 1 Feb 2002 01:39:30 +0000
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.5.3-dj1
+Message-ID: <20020201013930.A24971@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 01 Feb 2002 12:37:15 +1100
-Message-ID: <23817.1012527435@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Jan 2002 17:04:28 -0800, 
-Larry McVoy <lm@bitmover.com> wrote:
->On Fri, Feb 01, 2002 at 11:29:58AM +1100, Keith Owens wrote:
->> That sounds almost like what I was looking for, with two differences.
->> 
->> (1) Implement the collapsed set so bk records that it is equivalent to
->>     the individual patchsets.  Only record that information in my tree.
->>     I need the detailed history of what changes went into the collapsed
->>     set, nobody else does.
->> 
->> (2) Somebody else creates a change against the collapsed set and I pull
->>     that change.  bk notices that the change is again a collapsed set
->>     for which I have local detail.  The external change becomes a
->>     branch off the last detailed patch in the collapsed set.
->
->This is certainly possible to do.  However, unless you are willing to fund
->this development, we aren't going to do it.  We will pick up the costs of
->making changes that you want if and only if we have commercial customers
->who want (or are likely to want) the same thing.  Nothing personal, it's
->a business and we make tradeoffs like that all the time.
+And we start all over again.. Sync against 2.5.3, and merge some
+more pending items. Hopefully this fixes the reiserfs issues
+that popped up in -dj7 (but mysteriously not in mainline).
+please report reiserfs success/failure stories.
 
-Understood.
+Patch against 2.5.3 vanilla is available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
 
->Collapsing is relatively easy, it's tracking the same content in two
->different sets of deltas which is hard to get exactly correct.  Certainly
->possible but I can visualize what it would take and it would be messy and
->disruptive to the source base for an obscure feature that is unlikely to
->be used.
->
->Why don't you actually use BK for a while and see if you really think
->you need this feature.  The fact that our customers aren't clamoring for
->it should tell you something.  They do work as hard and on as much code
->(in many cases on the same code) as you do.
+ -- Davej.
 
-This is the way that I use PRCS now and it fits the diff/patch model
-for distributing kernel code that most people are used to, while
-reducing the concerns about information overload.
+2.5.3-dj1
+o   Merge 2.5.3final
+    | Drop NCR5380 changes for now. For reasons why, read
+    | http://kt.zork.net/kernel-traffic/kt20020121_151.html#4
+o   MAINTAINERS updates.				(Me)
+o   Move IA64 perfmon init out of init/main.c		(Me)
+o   Several #include linux/malloc.h -> linux/slab.h	(Me)
+o   Remove bogus duplicate dmi_scan()			(Me)
+o   Remove duplicate code in bootsect.S			(Rob Landley)
+o   ScanLogic USB-ATAPI adapter support.		(Leif Sawyer)
+o   Shrink dqcache by priority.				(Josh MacDonald)
+o   Fix up BKL removal breakage in HFS & UFS.		(Robert Love, Me)
+o   Config.help updates for GUID partition support.	(Matt Domsch)
+o   Updated USB driverfs support.			(Greg KH)
+o   Fix modular USB build.				(Jim McDonald)
+o   Handle error case in sys_swapon()			(Andrey Panin)
+o   i810_audio build fix.				(Martin Bahlinger)
+o   text.lock->subsection improvements.			(Keith Owens)
+o   Support an extra mystery rocketport card.		(Andi Kleen)
+o   zlib_inflate build fix.				(Andi Kleen)
+o   Remove inclusion of sched.h for most of fs/		(Me)
+    | pushes CURRENT_TIME into wait.h
+    | There's still work to do here.
+o   Debug trap for vfree.				(Arjan van de Ven)
+o   Make xconfig find help texts again.			(Olaf Dietsche)
+o   Fix nbd breakage.					(Petr Vandrovec)
+o   IBM partition compile fix.				(Sergey S. Kostyliov)
+o   More reiserfs fixes.				(Oleg Drokin)
 
-With PRCS I have branches galore with lots of little changes.  The
-outside world sees complete patch sets, not the individual changes.
-When they send a patch back I work out which internal change it is
-against and start a new branch against it.  The downside with PRCS is
-that the creation of the patch set and storing on an ftp site is a
-manual process, as is identifying which internal change a patch
-response is against and starting a new branch against the last internal
-change.
 
-If bk could automate the creation and tracking of meta patchsets I
-would convert tomorrow, the ability to automatically distribute changes
-is what I miss in PRCS.  But if using bk means that I cannot
-automatically separate and track the internal and external patches then
-there is no benefit to me in converting.  If I have to clone a
-repository to roll up internal patches into an external set and I
-cannot automatically pull changes against the external set back into my
-working repository then bk gives me no advantages.
+2.5.2-dj7
+o   Merge 2.5.3pre6
+o   Remove fs.h inclusion from sched.h again.		(Christoph Hellwig)
+o   Remove some segment.h inclusions that reappeared.	(Me)
+o   Unmangle dl2k crc fix from -dj6			(Jim McDonald)
+o   Fix tsdev compile.					(Me)
+o   aty128fb & radeonfb compile fixes.			(James Simmons)
+o   Updated Config.help entries for input layer.	(Vojtech Pavlik)
+o   Input layer tweak for old IBM keyboards.		(Vojtech Pavlik)
+o   Fix USB HID feature report output.			(Vojtech Pavlik)
+o   Workaround some broken PS/2 mice.			(Vojtech Pavlik)
+o   Don't filter outgoing fields to HID defined ranges.	(Vojtech Pavlik)
+o   Disable address in scatterlist for sg.		(Douglas Gilbert)
+o   Limit NR_IRQS in no IO-APIC case.			(Brian Gerst)
+o   Sonypi driver update (C1MRX Vaio).			(Stelian Pop)
+o   Remove bogus release_region in eexpress.		(Gianluca Anzolin)
+o   Neofb compile fixes.				(James Simmons)
+o   Reiserfs update.					(all@namesys)
+o   Further reiserfs fixes.				(Oleg Drokin)
+o   Fix keyboard not working with nothing in AUX port.	(Vojtech Pavlik)
+o   Small devfs changes.				(Richard Gooch)
+o   Rage128 Pro TF identification to aty128fb.		(James Simmons)
 
+
+
+
+-- 
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

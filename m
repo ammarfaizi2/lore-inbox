@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265102AbUETN4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265054AbUETOB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265102AbUETN4V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 09:56:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265128AbUETN4V
+	id S265054AbUETOB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 10:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265108AbUETOB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 09:56:21 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:7551 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S265102AbUETN4T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 09:56:19 -0400
-Date: Thu, 20 May 2004 16:08:09 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Jinu M." <jinum@esntechnologies.co.in>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org,
-       "Surendra I." <surendrai@esntechnologies.co.in>
-Subject: Re: protecting source code in 2.6
-Message-ID: <20040520140809.GA2228@mars.ravnborg.org>
-Mail-Followup-To: "Jinu M." <jinum@esntechnologies.co.in>,
-	linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org,
-	"Surendra I." <surendrai@esntechnologies.co.in>
-References: <1118873EE1755348B4812EA29C55A97222FD0E@esnmail.esntechnologies.co.in>
+	Thu, 20 May 2004 10:01:59 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:64213 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S265054AbUETOB6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 10:01:58 -0400
+Date: Thu, 20 May 2004 16:03:30 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Ricky Beam <jfbeam@bluetronic.net>
+Cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: overlaping printk
+Message-ID: <20040520140330.GA1499@elte.hu>
+References: <Pine.GSO.4.58.0405191848430.10266@stekt37> <Pine.GSO.4.33.0405191153500.14297-100000@sweetums.bluetronic.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1118873EE1755348B4812EA29C55A97222FD0E@esnmail.esntechnologies.co.in>
+In-Reply-To: <Pine.GSO.4.33.0405191153500.14297-100000@sweetums.bluetronic.net>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What we intend to do is, distribute the os interface module (osint.c)
-> with
-> source code and the device interface module as object code or library.
-> The
-> user will compile the os interface module on the target box and link it
-> with the device interface module to generate the .ko (loadable module).
-> 
-> We are not very sure of how to achieve this. 
-> Please help us address this issue.
 
-Not a popolar topic on this mailing list..
+* Ricky Beam <jfbeam@bluetronic.net> wrote:
 
->From a technical point of view what you need to do is simple.
+> It looks like somewhere in the path of release_console_sem() more than
+> one CPU is running the log. [...]
 
-You just need to distribute it as an external module, and provide the
-dev.o file as part of this.
-The dev.o file must be named 'dev.o_shipped'
+the problem is this code in printk:
 
-Then you need a makefile like this:
-obj-m := jinu.o
-jinu-y := dev.o osinit.o
+        if (oops_in_progress) {
+                /* If a crash is occurring, make sure we can't deadlock */
+                spin_lock_init(&logbuf_lock);
+                /* And make sure that we print immediately */
+                init_MUTEX(&console_sem);
+        }
 
-You can add a few more trick to enable use of plain make - see
-article about external modules on the kernel page on lwn.net a few weeks ago.
+so two crashes on two separate CPUs can go on in parallel. The problem
+is not constrained to the serial line - i've seen it on VGA too (albeit
+there it's much more rare).
 
-What you need to compile the external module is simply:
-make -C $KERNELSRC M=$PWD
-
-Where KERNELSRC is a kernel with 'make module_prepare' executed.
-
-	Sam
+	Ingo

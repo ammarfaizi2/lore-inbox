@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268228AbUIBLJm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268281AbUIBLJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268228AbUIBLJm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 07:09:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268284AbUIBLJd
+	id S268281AbUIBLJK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 07:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268269AbUIBLJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 07:09:33 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:50669 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S268228AbUIBLIu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 07:08:50 -0400
-Date: Thu, 2 Sep 2004 13:10:03 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
-       Mark_H_Johnson@raytheon.com
-Subject: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q9
-Message-ID: <20040902111003.GA4256@elte.hu>
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Sep 2004 07:09:08 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:32920 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S268213AbUIBLHa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 07:07:30 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Spam <spam@tnonline.net>
+Subject: Re: The argument for fs assistance in handling archives
+Date: Thu, 2 Sep 2004 13:09:04 +0200
+User-Agent: KMail/1.6.2
+Cc: Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
+       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       <viro@parcelfarce.linux.theplanet.co.uk>,
+       Christoph Hellwig <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+References: <20040826150202.GE5733@mail.shareable.org> <4136E0B6.4000705@namesys.com> <1117111836.20040902115249@tnonline.net>
+In-Reply-To: <1117111836.20040902115249@tnonline.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040902065549.GA18860@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200409021309.04780.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Donnerstag, 2. September 2004 11:52 schrieb Spam:
+>   Btw, version control for ordinary files would be a great feature. I
+>   think something like it is available through Windows 2000/3 server.
+>   Isn't it called "Shadow Copies". It works over network shares. :)
+> 
+>   It allows you to restore previous versions of the file even if you
+>   delete or overwrite it.
 
-i've released the -Q9 patch:
+There's no need to do that in kernel, unless you want to be able
+to force it unto users.
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q9
-
-ontop of:
-
-  http://redhat.com/~mingo/voluntary-preempt/diff-bk-040828-2.6.8.1.bz2
-
-Changes:
-
- - fixed the cond_resched_softirq() bug noticed by Mika Penttila.
-
- - updated the preemption-friendly network-RX code but 8193too.c still
-   produces delayed packets so netdev_backlog_granularity now defaults
-   to 2, which seems to be working fine on my testbox.
-
- - the latency_trace output now includes the kernel and patch version,
-   for easier sorting of reports.
-
-	Ingo
+	Regards
+		Oliver

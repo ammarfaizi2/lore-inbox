@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136098AbRDVNFr>; Sun, 22 Apr 2001 09:05:47 -0400
+	id <S136103AbRDVNJi>; Sun, 22 Apr 2001 09:09:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136102AbRDVNFi>; Sun, 22 Apr 2001 09:05:38 -0400
-Received: from CPE-61-9-151-92.vic.bigpond.net.au ([61.9.151.92]:7676 "EHLO
-	eyal.emu.id.au") by vger.kernel.org with ESMTP id <S136098AbRDVNFU>;
-	Sun, 22 Apr 2001 09:05:20 -0400
-Message-ID: <3AE2D6F9.3AFE9F73@eyal.emu.id.au>
-Date: Sun, 22 Apr 2001 23:04:57 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
+	id <S136102AbRDVNJ2>; Sun, 22 Apr 2001 09:09:28 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:54543 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136101AbRDVNJJ>; Sun, 22 Apr 2001 09:09:09 -0400
 Subject: Re: Linux 2.4.3-ac12
-In-Reply-To: <E14rIqf-0005hx-00@the-village.bc.nu>
+To: philb@gnu.org (Philip Blundell)
+Date: Sun, 22 Apr 2001 14:10:41 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), junio@siamese.dhis.twinsun.com,
+        manuel@mclure.org (Manuel McLure), linux-kernel@vger.kernel.org
+In-Reply-To: <E14rJTP-0005jL-00@kings-cross.london.uk.eu.org> from "Philip Blundell" at Apr 22, 2001 02:00:19 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Message-Id: <E14rJdU-0005p0-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4/include -Wall
-> > -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
-> > -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE
-> > -DMODVERSIONS -include
-> > /data2/usr/local/src/linux-2.4/include/linux/modversions.h   -c -o
-> > inode.o inode.c
-> > inode.c: In function `affs_notify_change':
-> > inode.c:236: void value not ignored as it ought to be
-> > make[2]: *** [inode.o] Error 1
-> > make[2]: Leaving directory `/data2/usr/local/src/linux-2.4/fs/affs'
-> 
-> In the -ac tree inode_setattr is int. So if this is a -ac tree something is
-> misapplied. It may well be wrong in Linus tree right now
+> Are you being deliberately obtuse?  2.97+ snapshots do all support 
+> builtin_expect, which is what we were discussing.
 
-Yep, I think this is a -pre4 problem, not -ac12.
+I think we are having different conversations here.
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
+The only valid inputs to the question are
+
+	Recommended
+	-----------
+	egcs-1.1.2		(miscompiles strstr  <2.4.4pre)
+	gcc 2.95.*		(miscompiles strstr  <2.4.4pre)
+
+	Recommended (for -ac at least)
+	------------------------------
+	rh-gcc 2.96-69+		(DAC960 fails due to gcc ABI change)
+	rh-gcc 2.96-78+
+
+	For the Brave
+	-------------
+	gcc 3.0 snapshots
+
+There are no gcc 2.97 snapshots that compile the kernel correctly because
+they have the broken bitfield packing ABI change. 
+
+So if your belief is that we should insist on gcc 3.0 for __builtin_expect
+then we should simply remove use of it completely. For 2.5.x it will be worth
+making heavy use of once gcc 3.0 is out.
+
+My belief however is that several million people have gcc 2.96-69+, about 50
+are likely to have random cvs snapshots and none of them are going to build
+kernels with them anyway, as they wont work __builtin_expect or otherwise.
+
+Alan
+

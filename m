@@ -1,38 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281671AbRKUISb>; Wed, 21 Nov 2001 03:18:31 -0500
+	id <S281674AbRKUISL>; Wed, 21 Nov 2001 03:18:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281672AbRKUISW>; Wed, 21 Nov 2001 03:18:22 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:47312 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S281671AbRKUISH>; Wed, 21 Nov 2001 03:18:07 -0500
-Date: 21 Nov 2001 08:47:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8DGB4I5Hw-B@khms.westfalen.de>
-In-Reply-To: <20011121003304.A683@vger.timpanogas.org>
-Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid opcode
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
-MIME-Version: 1.0
+	id <S281672AbRKUISB>; Wed, 21 Nov 2001 03:18:01 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:6138 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281671AbRKUIRr>;
+	Wed, 21 Nov 2001 03:17:47 -0500
+Date: Wed, 21 Nov 2001 01:16:55 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Nikita Danilov <Nikita@namesys.com>
+Cc: =?iso-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        ReiserFS List <reiserfs-list@namesys.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [reiserfs-list] Re: [REISERFS TESTING] new patches on ftp.namesys.com: 2.4.15-pre7
+Message-ID: <20011121011655.M1308@lynx.no>
+Mail-Followup-To: Nikita Danilov <Nikita@namesys.com>,
+	=?iso-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+	ReiserFS List <reiserfs-list@namesys.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200111210110.fAL1Atc11275@beta.namesys.com> <15355.27299.252362.983624@beta.reiserfs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <20011120.222203.58448986.davem@redhat.com> <davem@redhat.com> <20011121001639.A813@vger.timpanogas.org> <20011120.222203.58448986.davem@redhat.com> <20011121003304.A683@vger.timpanogas.org>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <15355.27299.252362.983624@beta.reiserfs.com>; from Nikita@namesys.com on Wed, Nov 21, 2001 at 11:49:39AM +0300
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jmerkey@vger.timpanogas.org (Jeff V. Merkey)  wrote on 21.11.01 in <20011121003304.A683@vger.timpanogas.org>:
+On Nov 21, 2001  11:49 +0300, Nikita Danilov wrote:
+> Dieter NJtzel writes:
+>  > but kernel 2.4.15-pre7 + preempt + ReiserFS A-N do _NOT_ boot for me.
+>  > I've tried it with "old" and "new" (current) N-inode-attrs.patch.
+>  > But that doesn't matter.
+>  > 
+>  > [-]
+>  > IP: routing cache hash table of 8192 buckets, 64Kbytes
+>  > TCP: Hash tables configured (established 262144 bind 65536)
+>  > NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+>  > reiserfs: checking transaction log (device 08:03) ...
+>  > Using r5 hash to sort names
+>  > ReiserFS version 3.6.25
+>  > VFS: Mounted root (reiserfs filesystem) readonly.
+>  > Freeing unused kernel memory: 208k freed
+>  > "Warning: unable to open an initial console." 
+> 
+> N-inode-attrs.patch uses previously unused field in reiserfs on-disk
+> inode structure to store inode attributes. It seems that in some cases
+> this field actually contains garbage. It may happen that you have got
+> immutable bit for your console device this way.
 
-> download pre7, apply my patch, and do the build.  I went back
-> over how I did the build, and this is the result of the build
-> if you have unpacked, patched, then run "make oldconfig."  If I
-> do a "make dep" then this problem does not occur, and the build
+Hmm, this may be a kernel bug also, in a way.  I don't know if ext2
+allows you to set attributes on char/block special files, but if it
+does, then the "immutable" attribute should _probably_ apply to
+changing the device inode, rather than writing to the device itself.
 
-Isn't that exactly the FAQ Keith points out every other day or so (usually  
-because of a modprobe "symbol not found"), one of the design bugs that  
-kbuild 2.5 fixes (i.e., the kernel does not notice when it needs to make  
-dep, so kbuild 2.5 handles dependencies differently)?
+In any case, it is also a bad thing to leave garbage in unused parts of
+on-disk data structs for just this reason, so mkreiserfs should zero
+everything that is unused inside allocated structs (and the kernel too,
+because reiserfs allocates inode tables dynamically, right?).
 
-MfG Kai
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

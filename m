@@ -1,27 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279529AbRJ2VM4>; Mon, 29 Oct 2001 16:12:56 -0500
+	id <S279531AbRJ2VSQ>; Mon, 29 Oct 2001 16:18:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279531AbRJ2VMr>; Mon, 29 Oct 2001 16:12:47 -0500
-Received: from cnexch.calix.com ([12.43.50.35]:27409 "EHLO cnexch.calix.com")
-	by vger.kernel.org with ESMTP id <S279529AbRJ2VMi>;
-	Mon, 29 Oct 2001 16:12:38 -0500
-Message-ID: <1D7F262B87C0D31180C800508BDCDEC79142F3@petntm02>
-From: Chris Rumpf <Chris.Rumpf@calix.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: join?
-Date: Mon, 29 Oct 2001 13:13:08 -0800
+	id <S279535AbRJ2VSG>; Mon, 29 Oct 2001 16:18:06 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43274 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S279531AbRJ2VRt>; Mon, 29 Oct 2001 16:17:49 -0500
+Subject: Re: Need blocking /dev/null
+To: marko@pacujo.nu (Marko Rauhamaa)
+Date: Mon, 29 Oct 2001 21:24:29 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200110292107.NAA09665@lumo.pacujo.nu> from "Marko Rauhamaa" at Oct 29, 2001 01:07:25 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15yJtV-00044i-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to join this mailing list.
+> I noticed that I need a pseudodevice that opens normally but blocks all
+> reads (and writes). The only way out would be through a signal. Neither
 
-/* ---
-     Christopher M. Rumpf
-     707.766.3390
-     --- */
-
+Try using a pipe

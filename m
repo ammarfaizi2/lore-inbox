@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317978AbSHaTrT>; Sat, 31 Aug 2002 15:47:19 -0400
+	id <S317994AbSHaTuW>; Sat, 31 Aug 2002 15:50:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317977AbSHaTrT>; Sat, 31 Aug 2002 15:47:19 -0400
-Received: from ppp-217-133-221-247.dialup.tiscali.it ([217.133.221.247]:4824
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S317950AbSHaTrS>; Sat, 31 Aug 2002 15:47:18 -0400
-Subject: Re: [PATCH] Initial support for struct vfs_cred   [0/1]
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: trond.myklebust@fys.uio.no
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux FSdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <15728.61345.184030.293634@charged.uio.no>
-References: <15728.61345.184030.293634@charged.uio.no>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-sYEUNULf6EqN04Wodilt"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 31 Aug 2002 21:51:40 +0200
-Message-Id: <1030823500.4408.133.camel@ldb>
+	id <S318007AbSHaTuW>; Sat, 31 Aug 2002 15:50:22 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:13546 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S317994AbSHaTuV>;
+	Sat, 31 Aug 2002 15:50:21 -0400
+Date: Sat, 31 Aug 2002 21:54:48 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: FIXED in bitkeeper tree: Re: keyboard slowdown regression in 2.5.32 (right .config) Re: FIXED in 2.5.29 Re: keyboard ONLY functions in 2.5.27 with local APIC on for UP
+Message-ID: <20020831195447.GB9522@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+References: <20020720222905.GA15288@outpost.ds9a.nl> <20020728204051.A15238@ucw.cz> <20020728203211.GA20082@outpost.ds9a.nl> <20020831182645.GA8812@outpost.ds9a.nl> <20020831205337.A65739@ucw.cz> <20020831191432.GA9522@outpost.ds9a.nl> <20020831211922.C67247@ucw.cz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020831211922.C67247@ucw.cz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Aug 31, 2002 at 09:19:22PM +0200, Vojtech Pavlik wrote:
 
---=-sYEUNULf6EqN04Wodilt
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> > > Can you check with the attached patch? Or (better) Linus's current BK
+> > > tree?
+> > 
+> > When I refind Rik van Riel's bk-to-patch directory, I'll give it a shot.
+> > Again, thanks!
 
-Forgot to mention that, of course, the vfs_cred_groups struct needs to
-be recreated if modified and we must keep an atomic reference count in
-it.
-This allows to avoid having to copy the whole groups array for each task
-on modification.
-uid and gid instead are placed directly in task_struct since checking
-them is faster and thus needs more optimization.
-Same reasoning applies for eventual ACLs or similar structures.
+Thanks to Rik's bitkeeper script, I can confirm that my problem is gone in
+the bitkeeper tree as of a few hours ago.
 
+Regards,
 
---=-sYEUNULf6EqN04Wodilt
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+bert hubert
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9cR5Mdjkty3ft5+cRAnmqAJ9KTOt3XBm/Uvb+ckyeaI9cL2hODwCfcmPa
-LC/gUQmq0D812qZf+TimNyo=
-=GAtG
------END PGP SIGNATURE-----
-
---=-sYEUNULf6EqN04Wodilt--
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

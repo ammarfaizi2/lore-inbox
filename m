@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131651AbRCOFUF>; Thu, 15 Mar 2001 00:20:05 -0500
+	id <S131587AbRCOF3z>; Thu, 15 Mar 2001 00:29:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131652AbRCOFTz>; Thu, 15 Mar 2001 00:19:55 -0500
-Received: from harrier.prod.itd.earthlink.net ([207.217.121.12]:62441 "EHLO
-	harrier.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S131651AbRCOFTi>; Thu, 15 Mar 2001 00:19:38 -0500
-Date: Wed, 14 Mar 2001 13:20:05 -0800 (PST)
+	id <S131649AbRCOF3q>; Thu, 15 Mar 2001 00:29:46 -0500
+Received: from falcon.prod.itd.earthlink.net ([207.217.120.74]:59584 "EHLO
+	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S131587AbRCOF3g>; Thu, 15 Mar 2001 00:29:36 -0500
+Date: Wed, 14 Mar 2001 13:30:03 -0800 (PST)
 From: James Simmons <jsimmons@linux-fbdev.org>
 X-X-Sender: <jsimmons@linux.local>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Brad Douglas <brad@neruo.com>
 cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
         Linux Fbdev development list 
 	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Linux console project <linuxconsole-dev@lists.sourceforge.net>
 Subject: Re: [Linux-fbdev-devel] [RFC] fbdev & power management
-Message-ID: <Pine.LNX.4.31.0103141251590.779-100000@linux.local>
+Message-ID: <Pine.LNX.4.31.0103141321040.779-100000@linux.local>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->>I'd go for a fallback to dummycon. It's of no use to waste power on
->>creating graphical images of the text console when asleep. And the
->>fallback to dummycon is needed anyway while a fbdev is opened (in
->>2.5.x).
->
->We do already have the backup image since we need to backup & restore the
->framebuffer content.
+>But wouldn't falling back to dummycon prevent the driver specific
+>suspend/resume calls from working?  Or at a minimum, make handling those
+>calls more complex?
 
-  What he is talking about is in 2.5.X when you explictly open /dev/fb it
-will call take_over_console with dummy con. This allows for several
-things. One is with this approach their is no chance of a conflict between
-X/DRI and fbdev. Especially when we will have fbdev drivers using DMA
-internally to preform console operations. For some hardware using DMA is
-the only way fbdev can work and on some platforms fbcon is the only
-choice. So things going into /dev/ttyX will not have a chance to interfere
-with X.  The second reason is for security. It is possible to have a
-program to open /dev/fb and see what is being typed on the fore ground
-console. I sealed up those holes using the dummy con approach and some
-test to see if the current process is local.
-  Now for fbcon its simpler. Things get writing to the shadow buffer
-(vc_screenbuf). When the console gets woken up update_screen is called.
-While power down the shadow buffer can be written to which is much faster
-than saving a image of the framebuffer. Of course if you still want to do
-this such in the case of the X server then copy the image of the
-framebuffer to regular ram. Then power down /dev/fb using some ioctl calls
-provide.
+Not if suspend/resume are handled on the fbdev driver level. Dummycon
+would only shutdown fbcon on explict open of /dev/fb. Also note it will be
+possible to have only a serial console and use /dev/fb by itself. In this
+case we don't even need dummycon since their is no VT support present.
+
+>No, there does not need to be graphical images of the text console -- a
+>simply text buffer would suffice.
+
+See email to Ben.
+
+>But what about things like GTKFb and
+>Embedded QT?  They would certainly benefit from having a backup screen
+>image, right?  I do not believe there is any way to determine if the
+>console is in fact in a 'text' or graphical state.
+
+Yes and it would not be hard to do this. I have the basic idea in the
+email to Ben. As for console in text or graphical state take a look at
+vt_ioctl.c:vt_ioctl() for KDGETMODE. You get back KD_TEXT or KD_GRAPHICS.
+
 
 MS: (n) 1. A debilitating and surprisingly widespread affliction that
 renders the sufferer barely able to perform the simplest task. 2. A disease.

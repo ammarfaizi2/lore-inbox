@@ -1,44 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbTIAQOz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 12:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262980AbTIAQOy
+	id S262997AbTIAQRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 12:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262993AbTIAQPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 12:14:54 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:1249 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id S263014AbTIAQOi convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 12:14:38 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-content-class: urn:content-classes:message
+	Mon, 1 Sep 2003 12:15:52 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:4207 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id S262997AbTIAQPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 12:15:17 -0400
+Date: Mon, 1 Sep 2003 09:15:15 -0700 (PDT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+cc: Christoph Hellwig <hch@infradead.org>, <linux-kernel@vger.kernel.org>,
+       <tigran@aivazian.fsnet.co.uk>
+Subject: Re: dontdiff for 2.6.0-test4
+In-Reply-To: <Pine.LNX.4.51.0309011808430.2626@dns.toxicfilms.tv>
+Message-ID: <Pine.GSO.4.44.0309010913220.5155-100000@north.veritas.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Bug in vsprintf.c - vsscanf()
-Date: Mon, 1 Sep 2003 21:44:09 +0530
-Message-ID: <52C85426D39B314381D76DDD480EEE0CFC6983@blr-m3-msg.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Kernel Mode File Operations Wrappers
-Thread-Index: AcNllkQcxN2VmLptTWOPPdIb/esjfA==
-From: "Ramit Bhalla" <ramit.bhalla@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <alan@redhat.com>
-X-OriginalArrivalTime: 01 Sep 2003 16:14:20.0098 (UTC) FILETIME=[197B8A20:01C370A4]
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 1 Sep 2003, Maciej Soltysiak wrote:
+> > Btw, what about putting this somewhere in the kernel tree?
+> and adding dontdiff file to the dontdiff file :)
 
-There appears to be a bug in vsprintf.c
-The function vsscanf (if I'm correct) is the kernel mode equivalent of user mode sscanf.
-If one tries to read a hex string using the format "%x" it returns an error if the read buffer contains any character other than 0-9.
+No, because it is not generated, so it shouldn't be in the dontdiff file :)
 
-I believe the culprit lies on line 640 of vsprintf.c
-
-It should be "isxdigit" instead of "isdigit".
-
-Hope I'm not missing anything here :)
-
-Ramit.

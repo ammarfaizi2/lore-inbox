@@ -1,50 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbUKKBex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbUKKBkm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbUKKBex (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 20:34:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbUKKBew
+	id S262130AbUKKBkm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 20:40:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbUKKBkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 20:34:52 -0500
-Received: from fw.osdl.org ([65.172.181.6]:34192 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262073AbUKKBev (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 20:34:51 -0500
-Date: Wed, 10 Nov 2004 17:34:50 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Broken kunmap calls in rc4-mm1.
-Message-ID: <20041110173450.O14339@build.pdx.osdl.net>
-References: <1100135825.7402.32.camel@desktop.cunninghams>
+	Wed, 10 Nov 2004 20:40:42 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:22250 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262130AbUKKBkj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 20:40:39 -0500
+Date: Wed, 10 Nov 2004 17:30:41 -0800
+From: Greg KH <greg@kroah.com>
+To: long <tlnguyen@snoqualmie.dp.intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       ak@suse.de, akpm@osdl.org, sundarapandian.durairaj@intel.com,
+       tom.l.nguyen@intel.com
+Subject: Re: [PATCH] pci-mmconfig fix for 2.6.9
+Message-ID: <20041111013041.GA27051@kroah.com>
+References: <200411102220.iAAMKNx7030359@snoqualmie.dp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1100135825.7402.32.camel@desktop.cunninghams>; from ncunningham@linuxmail.org on Thu, Nov 11, 2004 at 12:17:05PM +1100
+In-Reply-To: <200411102220.iAAMKNx7030359@snoqualmie.dp.intel.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Nigel Cunningham (ncunningham@linuxmail.org) wrote:
-> Hi Andrew et al.
+On Wed, Nov 10, 2004 at 02:20:23PM -0800, long wrote:
+> Here I have attached pci mmconfig fix for 2.6.9 kernel. 
 > 
-> That oops in kunmap got me thinking of my recent DEBUG_HIGHMEM
-> additions, so I want for a walk through the -mm4 patch, and found plenty
-> of instances of people making the same mistake I did... using the struct
-> page * in the call to kunmap, rather than the virtual address.
-> 
-> I guess the best way to handle it is find/notify the respective authors
-> of patches in the tree? The problems are in:
-> 
-> Reiser4 (lots)
-> CacheFS (lots)
-> afs
-> binfmt_elf
-> libata_core
+> This will fix the flush error in pci_mmcfg_write.
 
-I think you are confusing with kunmap_atomic?
+Applied, thanks.
 
-thanks
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+greg k-h

@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136529AbREDWDO>; Fri, 4 May 2001 18:03:14 -0400
+	id <S136531AbREDWIY>; Fri, 4 May 2001 18:08:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136531AbREDWDE>; Fri, 4 May 2001 18:03:04 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:13831 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S136529AbREDWCu>; Fri, 4 May 2001 18:02:50 -0400
-Date: Fri, 4 May 2001 18:02:11 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: <proski@fonzie.nine.com>
-To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        kernel list <linux-kernel@vger.kernel.org>, <axboe@suse.de>
-Subject: Re: 2.4.4-ac4 - oops on unload "cdrom" module
-In-Reply-To: <200105042110.XAA20705@green.mif.pg.gda.pl>
-Message-ID: <Pine.LNX.4.33.0105041748360.872-100000@fonzie.nine.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136536AbREDWIP>; Fri, 4 May 2001 18:08:15 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:23173 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S136532AbREDWH6>;
+	Fri, 4 May 2001 18:07:58 -0400
+Date: Sat, 5 May 2001 00:07:34 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Christopher Kanaan <kanaan@stanford.edu>
+Cc: kraxel@goldbach.in-berlin.de, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Patch] sis_main.c
+Message-ID: <20010505000734.A17320@khan.acc.umu.se>
+In-Reply-To: <3AF2C3B3.8C668467@stanford.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3AF2C3B3.8C668467@stanford.edu>; from kanaan@stanford.edu on Fri, May 04, 2001 at 07:58:59AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andrzej!
+On Fri, May 04, 2001 at 07:58:59AM -0700, Christopher Kanaan wrote:
+> Hello, 
+> I am a working with Dawson Englers meta compilation group at Stanford. 
+> Here is a patch for sis_main.c  Basically the patch checks to see 
+> if kmalloc returns null.  This patch applies to kernel version 2.4.4
 
-> The following patch fixes unloading of cdrom module when no cdrom driver
-> loaded (2.4.5-pre, 2.4.4-ac):
+Great, but why not follow Documentation/CodingStyle, and the example set
+by the rest of the file?!
 
-It works for me. Thank you! You have even managed to find out that I had
-my CD-ROM disconnected :-)
+Instead of:
 
-By the way, shouldn't we register sysctl, /proc/sys/dev/cdrom/ and
-/dev/cdrom/ always when the cdrom driver is loaded/initialized, not when a
-cdrom unit is found?
+> --- /usr/src/linux/drivers/video/sis/sis_main.c Fri Feb  9 11:30:23 2001
+> +++ ./sis_main.c        Fri May  4 07:34:47 2001
+> @@ -1030,6 +1030,11 @@
+>         if (heap.pohFreeList == NULL) {
+>                 poha = kmalloc(OH_ALLOC_SIZE, GFP_KERNEL);
+>  
+> +               if(!poha)
+> +                 {
+> +                   return(NULL);
+> +                 }
+> +
+>                 poha->pohaNext = heap.pohaChain;
+>                 heap.pohaChain = poha;
 
-I don't know what's the official "policy" is, but wouldn't it be logical
-to have some control over the drivers that handle no devices in the
-moment?
+Something like this:
 
-Actually, the scsi module behaves differently. Right now I have empty
-/dev/scsi and /proc/scsi/scsi contains "Attached devices: none"
+        if (heap.pohFreeList == NULL) {
+                poha = kmalloc(OH_ALLOC_SIZE, GFP_KERNEL);
+ 
++               if (!poha) {
++               	return(NULL);
++               }
++
+                poha->pohaNext = heap.pohaChain;
+                heap.pohaChain = poha;
 
-Anyway, the patch is small, straightforward and consistent with the
-current behavior of the driver. And it works.
 
--- 
-Regards,
-Pavel Roskin
 
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

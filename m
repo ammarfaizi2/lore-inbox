@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284732AbSAPXAX>; Wed, 16 Jan 2002 18:00:23 -0500
+	id <S283003AbSAPXCN>; Wed, 16 Jan 2002 18:02:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285709AbSAPXAN>; Wed, 16 Jan 2002 18:00:13 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:59009
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S284732AbSAPXAD>; Wed, 16 Jan 2002 18:00:03 -0500
-Date: Wed, 16 Jan 2002 17:43:40 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Ross Vandegrift <ross@willow.seitz.com>
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2-2.1.4 is available
-Message-ID: <20020116174340.A16302@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Ross Vandegrift <ross@willow.seitz.com>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20020116145605.A10792@thyrsus.com> <20020116175014.A21277@willow.seitz.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020116175014.A21277@willow.seitz.com>; from ross@willow.seitz.com on Wed, Jan 16, 2002 at 05:50:14PM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S286343AbSAPXCE>; Wed, 16 Jan 2002 18:02:04 -0500
+Received: from mccammon.ucsd.edu ([132.239.16.211]:10404 "EHLO
+	mccammon.ucsd.edu") by vger.kernel.org with ESMTP
+	id <S286161AbSAPXB4>; Wed, 16 Jan 2002 18:01:56 -0500
+Date: Wed, 16 Jan 2002 15:02:37 -0800 (PST)
+From: Alexei Podtelezhnikov <apodtele@mccammon.ucsd.edu>
+X-X-Sender: apodtele@chemcca18.ucsd.edu
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [o(1) sched J0] higher priority smaller timeslices, in fact
+In-Reply-To: <Pine.LNX.4.40.0201161458370.934-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.44.0201161501430.3828-100000@chemcca18.ucsd.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ross Vandegrift <ross@willow.seitz.com>:
-> On Wed, Jan 16, 2002 at 02:56:05PM -0500, Eric S. Raymond wrote:
-> I've verified that the lockup I reported earlier still happens with 2.1.4.
+man nice helped. Thanks!
 
-Keystroke sequence to reproduce, please?
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+On Wed, 16 Jan 2002, Davide Libenzi wrote:
 
-"Taking my gun away because I might shoot someone is like cutting my tongue
-out because I might yell `Fire!' in a crowded theater."
-        -- Peter Venetoklis
+> On Wed, 16 Jan 2002, Alexei Podtelezhnikov wrote:
+> 
+> >
+> > The comment and the actual macros are inconsistent.
+> > positive number * (19-n) is a decreasing function of n!
+> 
+> # man nice
+> 
+> 
+> > + * The higher a process's priority, the bigger timeslices
+> > + * it gets during one round of execution. But even the lowest
+> > + * priority process gets MIN_TIMESLICE worth of execution time.
+> > + */
+> >
+> > -#define NICE_TO_TIMESLICE(n)   (MIN_TIMESLICE + \
+> > -	((MAX_TIMESLICE - MIN_TIMESLICE) * (19 - (n))) / 39)
+> > +#define NICE_TO_TIMESLICE(n) (MIN_TIMESLICE + \
+> > +	((MAX_TIMESLICE - MIN_TIMESLICE) * (19-(n))) / 39)
+> >
+> > I still suggest a different set as faster and more readable at least to
+> > me. Just two operations instead of 4!
+> 
+> this seems quite readable to me, it's the equation at page 1 of any know
+> linear geometry book.
+> 
+> 
+> 
+> 
+> - Davide
+> 
+> 
+> 
+

@@ -1,70 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267125AbTBDGmd>; Tue, 4 Feb 2003 01:42:33 -0500
+	id <S267124AbTBDGs1>; Tue, 4 Feb 2003 01:48:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267128AbTBDGmd>; Tue, 4 Feb 2003 01:42:33 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:21265 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S267125AbTBDGmc>; Tue, 4 Feb 2003 01:42:32 -0500
-Message-Id: <200302040643.h146gps10473@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Subject: Re: [PATCH *] use 64 bit jiffies
-Date: Tue, 4 Feb 2003 08:41:13 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
-       lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33.0302022347440.24857-100000@gans.physik3.uni-rostock.de> <200302030644.h136iXs04935@Port.imtp.ilyichevsk.odessa.ua> <20030203082800.GT821@mea-ext.zmailer.org>
-In-Reply-To: <20030203082800.GT821@mea-ext.zmailer.org>
+	id <S267130AbTBDGs1>; Tue, 4 Feb 2003 01:48:27 -0500
+Received: from tag.witbe.net ([81.88.96.48]:27399 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id <S267124AbTBDGs0>;
+	Tue, 4 Feb 2003 01:48:26 -0500
+From: "Paul Rolland" <rol@as2917.net>
+To: "'John Goerzen'" <jgoerzen@complete.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.4.20 panic in scheduler
+Date: Tue, 4 Feb 2003 07:57:51 +0100
+Message-ID: <002901c2cc1a$bc53f4f0$3f00a8c0@witbe>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+In-Reply-To: <877kch8286.fsf@christoph.complete.org>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 February 2003 10:28, Matti Aarnio wrote:
-> On Mon, Feb 03, 2003 at 08:42:59AM +0200, Denis Vlasenko wrote:
-> > On 3 February 2003 00:55, Tim Schmielau wrote:
-> > > Just a note that I have rediffed for 2.5.55 the patches that use
-> > > the 64 bit jiffies value to avoid uptime and process start time
-> > > wrap after 49.5 days. I will push them Linus-wards when he's
-> > > back. They can be retrieved from
->
-> ....
->
-> > Wow... your patches are STILL not included??
-> > My 2.4 based server approaches 250 days uptime, it would be a shame
-> > to be unable to have uptime < 50 days with 2.5
->
-> You don't need to have 64-bit jiffy for things like internal
-> timers, nor for uptime tracking.
->
-> Timers have well behaving constructs to use 32-bit jiffy quite
-> successfully, and 64-bit values, especially atomicish, in 32-bit
-> register-poor machines (i386) are damn difficult.
->
-> I do have a number of machines with 100 to 300 day uptimes, all
-> with "mere" 32-bit jiffy.  With 1000 Hz clock that means at least
-> one full wrap-around of jiffy.
+Hello,
 
-Your processes will show strange start times, CPU times etc.
-This will happen in 2.5 pretty soon (after 50 days uptime).
+Maybe unrelated, maybe not...
+I too have a Dell 2650, Perc 3/Di and bcm5700, running 2.4.20...
 
-However, this is a bit cosmetic. There is a much more serious problem:
+What I see is the machine hang (really hang, nothing on the console,
+still pinging but nothing else) why doing two or three simultaneous
+copy of a 2 Gb file between the three 75Gb disks I have...
 
-		Jiffy Wrap Bugs
+I other question : bcm5700 is supported in RedHat, as a module
+only. At the same time, Kernel includes support for Broadcomm
+Tigon3... Is it safe to use Tigon3 driver with a bcm5700 hardware ?
 
-There were reports of machines hanging on jiffy wrap.
-This is typically a result of incorrect jiffy use in some driver.
-Ask Tim - he is hunting those problems regularly, but he is outnumbered
-by buggy driver authors. :(
+Regards,
+Paul
 
-There is a better solution to ensure correct jiffy wrap handling in
-*ALL* kernel code: make jiffy wrap in first five minutes of uptime.
-Tim has a patch for such config option. This is almost right.
-This MUST NOT be a config option, it MUST be mandatory in every
-kernel. Driver writers would be bitten by their own bugs and will
-fix it themself. Tim, what do you think?
---
-vda
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of John Goerzen
+> Sent: Monday, February 03, 2003 10:49 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: Kernel 2.4.20 panic in scheduler
+> 
+> 
+> Chris Wright <chris@wirex.com> writes:
+> 
+> >> Today I experienced a kernel panic running kernel 2.4.20 (plus the 
+> >> ctx vserver patch; otherwise vanilla) with a bcm5700 
+> module added in.  
+> >> It's
+> >
+> > Have you tried this without the vserver patch?  Last I looked it 
+> > touched many of the code paths in your trace below.  Also, if 
+> > possible, set up a serial console, it'll be a lot easier to 
+> catch the 
+> > full trace.
+> 
+> Unfortunately, this is on a production server, and such a 
+> drastic change to the configuration is not really possible at 
+> the moment. However, I have gone ahead and sent them this 
+> info.  We will see.
+> 
+> I'm already on the serial console option.  Hope to have it soon.
+> 
+> I saw a lot of TCP-related symbols.  Is there any chance that 
+> this is a bug in the bcm5700 module?  Or in the TCP stack?
+> 
+> -- John
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in the body of a message to 
+> majordomo@vger.kernel.org More majordomo info at  
+http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

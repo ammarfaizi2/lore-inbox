@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbTDQMOu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 08:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbTDQMOu
+	id S261326AbTDQMQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 08:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbTDQMQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 08:14:50 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:38662 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S261321AbTDQMOt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 08:14:49 -0400
-Date: Thu, 17 Apr 2003 14:26:42 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Subject: Network Latency problem 2.4.20 (may be related to cls_u32)
-Message-ID: <Pine.LNX.4.51.0304171416590.30868@dns.toxicfilms.tv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Apr 2003 08:16:28 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:59088 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S261326AbTDQMQ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 08:16:26 -0400
+Date: Thu, 17 Apr 2003 13:27:49 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: jsimmons@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: vesa fb in -bk gives too many console lines
+Message-ID: <20030417122748.GA20825@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Greg KH <greg@kroah.com>, jsimmons@infradead.org,
+	linux-kernel@vger.kernel.org
+References: <20030417062546.GA3114@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030417062546.GA3114@kroah.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, Apr 16, 2003 at 11:25:46PM -0700, Greg KH wrote:
 
-my 2.4.20 machine's network latency after some random ammount of time
-increases and makes the processing of packets very slow.
-The only cure for it I have devised is to do a
-# /etc/init.d/networking restart
+ > In the latest -bk tree, using the vesa fb driver, I get a window that is
+ > much too big for my screen.  I'm using "vga=0x0305" as a command line
+ > option, which I've been using for years on this box, and when the fb
+ > code kicks in, it creates a screen that has more lines than are
+ > displayed on the monitor (text lines that is).  I can see 48 lines, but
+ > it's acting like there are more that that present.
+ > 
+ > Is this just an operator error, in that I need to provide a different
+ > command line option now for the size of the console screen?
 
-On LAN normally i get pings of 0.1 ms. When the machine is under these
-conditions, i get results like: 200, 1000, 350, 1100 ms.
+I've seen this happen too, and a box that worked fine with vga=791
+before now gets me a screen full of garbage. I think something got
+broken somewhere along the lines.
 
-I am not sure but it may be related to the cls_u32 module because
-I can not unload it after i remove the qdiscs/filters i set up.
-Maybe there is a bug in it, maybe some memory is not free'd or something
-related.
+ > Here's the relevant portions of the boot messages:
 
-Anyway, do you have any advice on how to diagnose my problems?
-The machine is not workloaded, localhost connections work ok.
+<snip zillions of EDID junk>
 
-Regards,
-Maciej Soltysiak
+ > p.s. nice boot messages, I know now that the usb code will stop taking
+ > the heat for abusing the kernel log :)
+
+That is in the 'taking the piss' category for voluminous output.
+I hope its planned to be quitened down somewhat when we get closer to 2.6.
+AIUI, there are userspace tools that dump all that info anyway for
+interested parties.
+
+		Dave
+

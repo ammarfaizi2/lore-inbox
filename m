@@ -1,52 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270000AbUJNIZx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269997AbUJNI0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270000AbUJNIZx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 04:25:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269998AbUJNIZx
+	id S269997AbUJNI0p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 04:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269999AbUJNI0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 04:25:53 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:27580 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S269995AbUJNIZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 04:25:50 -0400
-Subject: Re: [PATCH] Support ia32 exec domains without CONFIG_IA32_SUPPORT
-From: David Woodhouse <dwmw2@infradead.org>
-To: davidm@hpl.hp.com
-Cc: Arun Sharma <arun.sharma@intel.com>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-In-Reply-To: <16750.11146.297875.521746@napali.hpl.hp.com>
-References: <41643EC0.1010505@intel.com>
-	 <20041007142710.A12688@infradead.org> <4165D4C9.2040804@intel.com>
-	 <mailman.1097223239.25078@unix-os.sc.intel.com>
-	 <41671696.1060706@intel.com>
-	 <mailman.1097403036.11924@unix-os.sc.intel.com>
-	 <416AF599.2060801@intel.com>
-	 <1097617824.5178.20.camel@localhost.localdomain>
-	 <416C5ECF.6060402@intel.com> <416DABB9.8050804@intel.com>
-	 <16750.11146.297875.521746@napali.hpl.hp.com>
-Content-Type: text/plain
-Message-Id: <1097742344.318.596.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Thu, 14 Oct 2004 09:25:45 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 14 Oct 2004 04:26:45 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:9231 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S269997AbUJNI0g
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 04:26:36 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: stsp@aknet.ru (Stas Sergeev)
+Subject: Re: [patch] allow write() on SOCK_PACKET sockets
+Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Organization: Core
+In-Reply-To: <416DF644.2070906@aknet.ru>
+X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.net
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1CI0wC-0001j8-00@gondolin.me.apana.org.au>
+Date: Thu, 14 Oct 2004 18:26:16 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-14 at 00:32 -0700, David Mosberger wrote:
->   Arun> Attached is the promised patch. It addresses Christoph's
->   Arun> comments and fixes the bug Tony found as well.
+Stas Sergeev <stsp@aknet.ru> wrote:
+>
+> I think you are looking at a wrong place.
+> You are looking into IP raw sockets code.
+> Packet sockets are really the different
+> layer. Please have a look into
+> net/packet/af_packet.c instead.
+
+Yes.  Sorry for the confusion.
+
+> But I don't seem to be able to send any
+> mail to you:
+
+Should work now.
+ 
+>> OTOH, write() and send() needs to know where the message is going
+>> to.
+>
+> That's exactly where the packet sockets are
+> different. Here's the whole point. Have a
+> look into a "struct sockaddr_pkt":
 > 
-> I like it.  Once it's in (surely it will go in, no? ;-),
+>              struct sockaddr_pkt
+>              {
+>                  unsigned short  spkt_family;
+>                  unsigned char   spkt_device[14];
+>                  unsigned short  spkt_protocol;
+>              };
 
-It certainly looks saner, yes. If this is the way we're going, then the
-new syscall needs to be added on all other architectures, and I'd
-suggest that we should see a real open-source user of it too before it's
-merged. Does anyone have the qemu patches?
+I see your point.  But I don't really like the current code that
+uses the address from bind for sending.  Even though it works here
+because the packet socket is symmetric wrt sending/receiving, it
+is counter-intuitive for the socket API in general.
 
+> My patch is probably dead anyway though.
+> SOCK_PACKET is mentioned to be deprecated
+> in man, so perhaps noone will apply any
+> patches on it... Just wanted to point out
+
+Indeed it is.
+
+> that there is a bug/inconsistency in it.
+
+Thanks anyway.
+
+Cheers,
 -- 
-dwmw2
-
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

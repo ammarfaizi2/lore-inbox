@@ -1,84 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262627AbUJ1B1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262642AbUJ1BgA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262627AbUJ1B1K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 21:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262642AbUJ1B1K
+	id S262642AbUJ1BgA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 21:36:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbUJ1BgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 21:27:10 -0400
-Received: from ozlabs.org ([203.10.76.45]:999 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262627AbUJ1B1B (ORCPT
+	Wed, 27 Oct 2004 21:36:00 -0400
+Received: from fw.osdl.org ([65.172.181.6]:29830 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262642AbUJ1Bfl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 21:27:01 -0400
-Date: Thu, 28 Oct 2004 11:16:18 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Andrew Morton <akpm@osdl.org>, James Cloos <cloos@jhcloos.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: MAP_SHARED bizarrely slow
-Message-ID: <20041028011618.GB2216@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Bill Davidsen <davidsen@tmr.com>, Andrew Morton <akpm@osdl.org>,
-	James Cloos <cloos@jhcloos.com>, linux-kernel@vger.kernel.org
-References: <20041027010659.15ec7e90.akpm@osdl.org> <41800B12.5020405@tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41800B12.5020405@tmr.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 27 Oct 2004 21:35:41 -0400
+Date: Wed, 27 Oct 2004 18:34:58 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Andrea Arcangeli <andrea@novell.com>, Larry McVoy <lm@work.bitmover.com>,
+       Joe Perches <joe@perches.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Larry McVoy <lm@bitmover.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: BK kernel workflow
+In-Reply-To: <Pine.LNX.4.61.0410272340000.877@scrub.home>
+Message-ID: <Pine.LNX.4.58.0410271825350.28839@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org>
+ <20041023161253.GA17537@work.bitmover.com> <4d8e3fd304102403241e5a69a5@mail.gmail.com>
+ <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com>
+ <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random>
+ <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random>
+ <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random>
+ <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
+ <Pine.LNX.4.61.0410252350240.17266@scrub.home> <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org>
+ <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
+ <Pine.LNX.4.61.0410272049040.877@scrub.home> <Pine.LNX.4.58.0410271409420.28839@ppc970.osdl.org>
+ <Pine.LNX.4.61.0410272340000.877@scrub.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 04:54:42PM -0400, Bill Davidsen wrote:
-> Andrew Morton wrote:
-> >James Cloos <cloos@jhcloos.com> wrote:
-> >
-> >>>>>>>"David" == David Gibson <david@gibson.dropbear.id.au> writes:
-> >>
-> >>David> http://www.ozlabs.org/people/dgibson/maptest.tar.gz
-> >>
-> >>David> On a number of machines I've tested - both ppc64 and x86 - the
-> >>David> SHARED version is consistently and significantly (50-100%)
-> >>David> slower than the PRIVATE version.
-> >>
-> >>Just gave it a test on my laptop and server.  Both are p3.  The
-> >>laptop is under heavier mem pressure; the server has just under
-> >>a gig with most free/cache/buff.  Laptop is still running 2.6.7
-> >>whereas the server is bk as of 2004-10-24.
-> >>
-> >>Buth took about 11 seconds for the private and around 30 seconds
-> >>for the shared tests.
-> >>
-> >
-> >
-> >I get the exact opposite, on a P4:
-> >
-> >vmm:/home/akpm/maptest> time ./mm-sharemmap 
-> >./mm-sharemmap  10.81s user 0.05s system 100% cpu 10.855 total
-> >vmm:/home/akpm/maptest> time ./mm-sharemmap
-> >./mm-sharemmap  11.04s user 0.05s system 100% cpu 11.086 total
-> >vmm:/home/akpm/maptest> time ./mm-privmmap 
-> >./mm-privmmap  26.91s user 0.02s system 100% cpu 26.903 total
-> >vmm:/home/akpm/maptest> time ./mm-privmmap
-> >./mm-privmmap  26.89s user 0.02s system 100% cpu 26.894 total
-> >vmm:/home/akpm/maptest> uname -a
-> >Linux vmm 2.6.10-rc1-mm1 #14 SMP Tue Oct 26 23:23:23 PDT 2004 i686 i686 
-> >i386 GNU/Linux
-> >
-> >It's all user time so I can think of no reason apart from physical page
-> >allocation order causing additional TLB reloads in one case.  One is using
-> >anonymous pages and the other is using shmem-backed pages, although I can't
-> >think why that would make a difference.
+
+
+On Thu, 28 Oct 2004, Roman Zippel wrote:
 > 
-> I think the cause was covered in another post, I'm surprised that the 
-> page overhead is reported as user time. It would have been a good hint 
-> if the big jump were in system time.
+> Linus, what happened to the early promises, that the data wouldn't be 
+> locked into bk? Is the massively reduced data set in the cvs repository 
+> really all we ever get out of it again?
 
-The cause isn't page overhead.  The problem is that the SHARED version
-actually uses a whole lot more real memory, so cache performance is
-much worse.  So the time really is in userland.
+Roman, I'm not going to bother fighing your idiotic issues any more.
 
--- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+The data is all there, and has been there since day one. That's what the 
+patches are, that's what the tar-balls I do are, and that's what the 
+snapshots that others do are.
+
+All there. Since day one.
+
+Go away now. 
+
+> You can play this game with every license
+
+Absolutely. And I do.
+
+What's so hard to understand with the single sentence:
+
+	"Don't complain about other peoples licenses."
+
+And no, it has _nothing_ to do with the GPL vs BK. It's a general truism.  
+The fact is, developers can choose whatever license they want for their
+own code. And users can choose whatever program they want, as long as they
+follow that license. And it's _their_ decisions.
+
+> I don't care what tools you use, I don't care if I can't use them, but
+> why is it acceptable for you to cut off _any_ possibility for me to
+> archive the same result in some other way?
+
+But I don't. If you don't like BK, use the tar-balls. It's exactly the 
+same source tree.
+
+And no, if you don't use BK, you can't use the BK tree. Well DUH! 
+
+And if you want to go write your own SCM, and use your own SCM for doing 
+your own Linux development, be my guest. But stop whining about choices 
+that OTHER people made, and that you don't have anything to do with.
+
+As it is, you're nothing but an uninvited religious nut at my door, trying
+to convince me on your nut-case religion. Sorry, I'm not buing it. *BLAM*
+</sound of door closing in your face />
+
+		Linus

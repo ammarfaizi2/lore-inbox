@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVCCP3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVCCPcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbVCCP3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 10:29:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVCCP3P
+	id S261690AbVCCPcO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 10:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbVCCPcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 10:29:15 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:49412 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261220AbVCCP3L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 10:29:11 -0500
-Date: Thu, 3 Mar 2005 16:29:08 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Luca Risolia <luca.risolia@studio.unibo.it>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: status of the USB w9968cf.c driver in kernel 2.6?
-Message-ID: <20050303152908.GC4608@stusta.de>
-References: <20050228231430.GW4021@stusta.de> <1109699163.4224aa5b1e4dc@posta.studio.unibo.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1109699163.4224aa5b1e4dc@posta.studio.unibo.it>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 3 Mar 2005 10:32:14 -0500
+Received: from alog0100.analogic.com ([208.224.220.115]:2958 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261690AbVCCPcK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 10:32:10 -0500
+Date: Thu, 3 Mar 2005 10:30:47 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: sounak chakraborty <sounakrin@yahoo.co.in>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: architecture to implement communication between static kernel
+ with dynamic module
+In-Reply-To: <20050303150901.71989.qmail@web53301.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.61.0503031024170.20045@chaos.analogic.com>
+References: <20050303150901.71989.qmail@web53301.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 01, 2005 at 06:46:03PM +0100, Luca Risolia wrote:
-> Scrive Adrian Bunk <bunk@stusta.de>: 
->  
-> > I noticed the following regarding the drivers/usb/media/ov511.c driver: 
->                                                           ^^^^^^^ 
-> > - it's not updated compared to upstream: 
->  
-> Could you provide more details? 
 
-Sorry, my fault.
-I confused this with a different driver.
+I think there are entirely too many module-wanabees on yahoo!
 
-> > - there's no w9968cf-vpp module in the kernel sources 
->  
-> w9968cf-vpp is an optional, gpl'ed module, which can not be included in the 
-> mainline kernel, as I explained in the documentation of the driver. 
+On Thu, 3 Mar 2005, sounak chakraborty wrote:
 
-  Please keep in mind that official kernels do not include the second 
-  module for performance purposes.
+> there is one my_own module
+> which i will insert whenever i like through
+> insmod.
+> thus when the module is loaded it will create a proc
+> file
+>
 
-What exactly does this mean?
+Can you tell us or me what it is that you are trying to do.
+I don't want to know how you've coded it, but rather what
+you are trying to accomplish even before you start to write
+code!
 
-Is it useful or not?
+If you tell us what it is that you are trying to accomplish,
+then people who know something about the kernel may try
+to teach you how do do it.
 
-> Regards, 
->       Luca 
+Also, it doesn't do any good to use another name from another
+yahoo account. We all know that they are free and we can
+detect when the same kinds of questions and answers are
+repeated.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

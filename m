@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272776AbTHENjN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 09:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272777AbTHENjN
+	id S272788AbTHENsx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 09:48:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272789AbTHENsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 09:39:13 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:23707 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S272776AbTHENjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 09:39:10 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Tue, 5 Aug 2003 15:39:08 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Bernd Petrovitsch <bernd@firmix.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FS: hardlinks on directories
-Message-Id: <20030805153908.50681fa4.skraw@ithnet.com>
-In-Reply-To: <1060089227.19802.5.camel@tara.firmix.at>
-References: <20030804141548.5060b9db.skraw@ithnet.com>
-	<03080409334500.03650@tabby>
-	<20030804170506.11426617.skraw@ithnet.com>
-	<03080416092800.04444@tabby>
-	<20030805003210.2c7f75f6.skraw@ithnet.com>
-	<3F2FA862.2070401@aitel.hist.no>
-	<20030805150351.5b81adfe.skraw@ithnet.com>
-	<1060089227.19802.5.camel@tara.firmix.at>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 5 Aug 2003 09:48:53 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:56802 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S272788AbTHENsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 09:48:35 -0400
+Date: Tue, 5 Aug 2003 15:48:23 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: heine@instmath.rwth-aachen.de, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: time for some drivers to be removed?
+Message-ID: <20030805134823.GD16091@fs.tum.de>
+References: <200308051242.h75CgSj6028203@harpo.it.uu.se> <20030805130324.GC16091@fs.tum.de> <16175.45710.993756.301205@gargle.gargle.HOWL>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16175.45710.993756.301205@gargle.gargle.HOWL>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05 Aug 2003 15:13:48 +0200
-Bernd Petrovitsch <bernd@firmix.at> wrote:
+On Tue, Aug 05, 2003 at 03:35:10PM +0200, Mikael Pettersson wrote:
+> 
+> ftape-4.04? That's been a non-integrated external package for ages and ages.
+> I doubt there's been any updates in it for 2.5/2.6 kernels.
+>...
 
-> We are waiting for your first patch.
+Is there a good reason why it wasn't / isn't integrated?
 
-You might have missed it somewhen in the late last century ;-)
+> Given how few still use these antiques (my "fast" Conner/Seagate drive gives
+> 150KBps backup speed, wow!) I think simply maintaining status quo is the most
+> reasonable use of peoples' time.
 
-Regards,
-Stephan
+The problem is that 2.6 doesn't maintain the status quo - it's no longer 
+possible to use ftape on a SMP workstation.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

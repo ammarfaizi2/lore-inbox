@@ -1,99 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261788AbTKBTnx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 14:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbTKBTnx
+	id S261786AbTKBThx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 14:37:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbTKBThx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 14:43:53 -0500
-Received: from ip3e83a512.speed.planet.nl ([62.131.165.18]:41572 "EHLO
-	made0120.speed.planet.nl") by vger.kernel.org with ESMTP
-	id S261788AbTKBTnv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 14:43:51 -0500
-Message-ID: <3FA55E7B.3050706@planet.nl>
-Date: Sun, 02 Nov 2003 20:43:55 +0100
-From: Stef van der Made <svdmade@planet.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031025
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Di-30 non working [bug 967]
-References: <3FA41703.1030408@planet.nl> <200311012228.29085.bzolnier@elka.pw.edu.pl> <20031101152453.42346338.akpm@osdl.org> <200311020054.49869.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200311020054.49869.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Nov 2003 14:37:53 -0500
+Received: from adsl-ull-75-87.42-151.net24.it ([151.42.87.75]:49924 "EHLO
+	gateway.milesteg.arr") by vger.kernel.org with ESMTP
+	id S261786AbTKBThw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 14:37:52 -0500
+Date: Sun, 2 Nov 2003 20:16:08 +0100
+From: Daniele Venzano <webvenza@libero.it>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mochel@osdl.org, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sorceforge.net
+Subject: Re: [PATCH] Add PM support to sis900 network driver
+Message-ID: <20031102191608.GF18017@picchio.gall.it>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, mochel@osdl.org,
+	linux-kernel@vger.kernel.org, acpi-devel@lists.sorceforge.net
+References: <20031102182852.GC18017@picchio.gall.it> <20031102111254.481bcbfd.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031102111254.481bcbfd.akpm@osdl.org>
+X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.22
+X-Copyright: Forwarding or publishing without permission is prohibited.
+X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
+X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Nov 02, 2003 at 11:12:54AM -0800, Andrew Morton wrote:
+> >  +	spin_lock_irqsave(&sis_priv->lock, flags);
+> >  +
+> >  +	/* Stop the chip's Tx and Rx Status Machine */
+> >  +	outl(RxDIS | TxDIS | inl(ioaddr + cr), ioaddr + cr);
+> >  +	
+> >  +	pci_set_power_state(pci_dev, 3);
+> 
+> pci_set_power_state() can sleep, so we shouldn't be calling it
+> under spin_lock_irqsave().  Is it necessary to hold the lock
+> here?
 
-Dear Bartlomiej,
+I don't know enough of the driver to express an opinion, but probably
+the lock is needed only for the outl call,  if needed at all. If nothing
+new comes out, tomorrow I'll rediff and send a new patch.
 
-The problem is now fully solved. I can read from the tape, use mt on the 
-tape drive. Your second patch was the final missing bit.
-
-Thanks for your help, I hope that Linus will accept the patch for test10 
-so that more people can enjoy the use of this tape drive with Linux.
-
-Stef
-
-Bartlomiej Zolnierkiewicz wrote:
-
->On Sunday 02 of November 2003 00:24, Andrew Morton wrote:
->  
->
->>Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
->>    
->>
->>>Noticed by Stuart_Hayes@Dell.com:
->>>
->>>I've noticed that, in the 2.6 (test 9) kernel, the "cmd" field (of type
->>>int) in struct request has been removed, and it looks like all of the
->>>code in ide-tape has just had a find & replace run on it to replace any
->>>instance of rq.cmd or rq->cmd with rq.flags or rq->flags.
->>>      
->>>
->>Nasty.
->>
->>    
->>
->>>@@ -193,6 +193,11 @@ enum rq_flag_bits {
->>> 	__REQ_PM_SUSPEND,	/* suspend request */
->>> 	__REQ_PM_RESUME,	/* resume request */
->>> 	__REQ_PM_SHUTDOWN,	/* shutdown request */
->>>+	__REQ_IDETAPE_PC1,	/* packet command (first stage) */
->>>+	__REQ_IDETAPE_PC2,	/* packet command (second stage) */
->>>+	__REQ_IDETAPE_READ,
->>>+	__REQ_IDETAPE_WRITE,
->>>+	__REQ_IDETAPE_READ_BUFFER,
->>> 	__REQ_NR_BITS,		/* stops here */
->>> };
->>>      
->>>
->>This takes us up to about 28 flags; we'll run out soon.
->>
->>Probably it is time to split this into generic and private flags, as we did
->>with bh_state_bits.  The scope of the "private" section needs to be
->>defined: maybe "whoever created the queue"?
->>    
->>
->
->This issue was already discussed and is planned for 2.7. :-)
->
->  
->
->>blk_dump_rq_flags() will need updating.  Probably change it to only decode
->>the "generic" flags, and print "bit XX" for the remainders.
->>
->>Your patch forgot to update rq_flags[] btw.
->>    
->>
->
->Thanks, fixed.
->
->I overlooked fact that ide-tape is calling ide_init_drive_cmd() just to zero
->rq and then overwrites rq->flags, fixed.  Stef, please try corrected patch.
->
->
->  
->
-
+-- 
+------------------------------
+Daniele Venzano
+Web: http://teg.homeunix.org

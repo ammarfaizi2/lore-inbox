@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264811AbUE0PpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264835AbUE0Prr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264811AbUE0PpN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 11:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264821AbUE0PpN
+	id S264835AbUE0Prr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 11:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264821AbUE0Prr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 11:45:13 -0400
-Received: from 8.75.30.213.rev.vodafone.pt ([213.30.75.8]:48652 "EHLO
-	odie.graycell.biz") by vger.kernel.org with ESMTP id S264811AbUE0PpK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 11:45:10 -0400
-Subject: Process hangs on blk_congestion_wait copying large file to cifs
-	filesystem
-From: Nuno Ferreira <nuno.ferreira@graycell.biz>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Graycell
-Date: Thu, 27 May 2004 16:45:06 +0100
-Message-Id: <1085672706.4350.9.camel@taz.graycell.biz>
+	Thu, 27 May 2004 11:47:47 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:38298 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S264835AbUE0Prp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 11:47:45 -0400
+Date: Thu, 27 May 2004 17:46:30 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: 4k stacks in 2.6
+Message-ID: <20040527154630.GA31077@wohnheim.fh-wedel.de>
+References: <20040527145935.GE23194@wohnheim.fh-wedel.de> <4382.1085670482@ocs3.ocs.com.au> <20040527152156.GI23194@wohnheim.fh-wedel.de> <1085672066.7179.3.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.8 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 May 2004 15:41:19.0648 (UTC) FILETIME=[0E299A00:01C44401]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1085672066.7179.3.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I'm trying to copy a large file (200Mb or bigger) from an ext3
-filesystem to a windows share mounted using CIFS and the cp process
-hangs, sometimes for a long time (several minutes).
-Calling ps, I can see that it's blocking on blk_congestion_wait.
+On Thu, 27 May 2004 17:34:26 +0200, Arjan van de Ven wrote:
+> 
+> you can write "add 100,%esp" as "sub -100, %esp" :)
+> compilers seem to do that at times, probably some cpu model inside the
+> compiler decides the later is better code in some cases  :)
 
-Trying to edit a file on the same ext3 filesystem using vi blocks on the
-same function. However, during that that same time that vi and cp were
-blocked, I was able to do a "find /usr/share/doc" and it completed
-normally, in a few seconds.
+Makes sense (in a way).  For x86 and ppc*, my script should be safe as
+a nice side effect:
+qr/^.*sub    \$(0x$x{3,5}),\%esp$/o
 
-Eventually the copy succeeds but it takes a long time (20 minutes to
-copy 200Mb) and the computer is unusable during most of that time.
+Anything above 5 digits is ignored.  That also misses allocations
+above 1MB, but as long as human stupidity is finite... ;)
 
-This is copying from my laptop (IDE disk), the network card is a RTL8139
-using 8139cp drivers.
+Jörn
 
-Is someone seeing a similiar problem? What extra info is needed to debug
-it?
-
-Thanks
 -- 
-Nuno Ferreira
-
+ticks = jiffies;
+while (ticks == jiffies);
+ticks = jiffies;
+-- /usr/src/linux/init/main.c

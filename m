@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263370AbUEGJQG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262956AbUEGJfQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263370AbUEGJQG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 05:16:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbUEGJQG
+	id S262956AbUEGJfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 05:35:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbUEGJfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 05:16:06 -0400
-Received: from 90.Red-213-97-199.pooles.rima-tde.net ([213.97.199.90]:31148
-	"HELO fargo") by vger.kernel.org with SMTP id S263370AbUEGJQD (ORCPT
+	Fri, 7 May 2004 05:35:16 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:23238 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262956AbUEGJfK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 05:16:03 -0400
-Date: Fri, 7 May 2004 11:16:00 +0200
-From: David =?iso-8859-15?Q?G=F3mez?= <david@pleyades.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: events kthread gone crazy
-Message-ID: <20040507091559.GA1166@fargo>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040506211934.GA1452@fargo> <20040506213450.GA11761@DervishD>
+	Fri, 7 May 2004 05:35:10 -0400
+Date: Fri, 7 May 2004 11:35:03 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Cache queue_congestion_on/off_threshold
+Message-ID: <20040507093503.GC21109@suse.de>
+References: <20040506064301.GC10069@suse.de> <200405062030.i46KUuF13625@unix-os.sc.intel.com> <20040506200210.44b04c38.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040506213450.GA11761@DervishD>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040506200210.44b04c38.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ;),
-
-> > I'm running kernel 2.6.5. I had running aMule and decided to preview
-> > a file, using xine. Then, suddenly, xine opened but hanged and the
-> > machine started to feel unresponsive and sluggish. I guessed that
-> > the xine process was in D state, so i did a 'ps' and found this mess:
-> [...]
-> > 11569 ?        SW<    0:00  \_ [events/0]
-> > 11570 ?        S<     0:00  |   \_ /sbin/modprobe -q -- char_major_116_0
-> > 11571 ?        D<     0:00  |       \_ /usr/sbin/alsactl restore
-> [Ad infinitum]
+On Thu, May 06 2004, Andrew Morton wrote:
+> "Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+> >
+> > >>>> Jens Axboe wrote on Wed, May 05, 2004 11:43 PM
+> > > On Wed, May 05 2004, Andrew Morton wrote:
+> > > > Jens Axboe <axboe@suse.de> wrote:
+> > > > >
+> > > > > Do you have any numbers at all for this? I'd say these calculations are
+> > > > >  severly into the noise area when submitting io.
+> > > >
+> > > > The difference will not be measurable, but I think the patch makes sense
+> > > > regardless of what the numbers say.
+> > >
+> > > Humm dunno, I'd rather save the sizeof(int) * 2.
+> > 
+> > Strictly speaking from memory consumption point of view, it probably comes
+> > for free since sizeof(struct request_queue) currently is 456 bytes on x86
+> > and 816 on 64bit arch.  The structure is being rounded to 512 or 1024 with
+> > kmalloc.
 > 
->     It seems that ALSA is screwing something. Maybe you need to
-> recompile ALSA binaries or something like that :???
+> That's a good argument for creating a standalone slab cache for request
+> queue structures ;)
 
-I think i know the cause of the problem, i'll test it later. You had
-to be careful with 'install' directives in modprobe.conf to not cause
-circular dependencies, and i think maybe this is the problem. But this
-shouldn't trash the kernel with a lot of processes in D state that 
-cannot be killed...
-
-> >    85 tty3     S      0:00 into           
-> 
->     What the hell is that crap? X''DDDD
-
-A init/login/getty clone programmed by some crazy bastard XDDD
-
->     Have you seen where xine is disk sleeping. It should not matter
-> to the sound problem, but...
-
-I was wrong, xine and aMule had nothing to do with the problem. Just a
-'modprobe snd' triggers the problem.
-
-bye
+Precisely, it's definitely not a good argument to keep loading it. I'll
+do that.
 
 -- 
-David Gómez
+Jens Axboe
 
-"The question of whether computers can think is just like the question of
- whether submarines can swim." -- Edsger W. Dijkstra

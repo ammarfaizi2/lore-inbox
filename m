@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269903AbUJMXBb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269905AbUJMXHG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269903AbUJMXBb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 19:01:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269905AbUJMXBb
+	id S269905AbUJMXHG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 19:07:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269906AbUJMXHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 19:01:31 -0400
-Received: from ozlabs.org ([203.10.76.45]:54454 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S269903AbUJMXBQ (ORCPT
+	Wed, 13 Oct 2004 19:07:06 -0400
+Received: from rproxy.gmail.com ([64.233.170.196]:2266 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269905AbUJMXHD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 19:01:16 -0400
-Subject: Re: [PATCH] Weak symbols in modules and versioned symbols
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041013145844.GA16067@vana.vc.cvut.cz>
-References: <20041013145844.GA16067@vana.vc.cvut.cz>
-Content-Type: text/plain
-Message-Id: <1097708463.14303.43.camel@localhost.localdomain>
+	Wed, 13 Oct 2004 19:07:03 -0400
+Message-ID: <35fb2e59041013160766469b06@mail.gmail.com>
+Date: Thu, 14 Oct 2004 00:07:03 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Buddy Lucas <buddy.lucas@gmail.com>
+Subject: Re: Gnome-2.8 stoped working on kernel-2.6.9-rc4-mm1
+Cc: Stef van der Made <svdmade@planet.nl>,
+       Radoslaw Szkodzinski <astralstorm@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <5d6b657504101315086d6ef159@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 14 Oct 2004 09:01:25 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0410131204580.31327@danga.com>
+	 <416D8999.7080102@pobox.com>
+	 <Pine.LNX.4.58.0410131302190.31327@danga.com>
+	 <416D8C33.9080401@osdl.org> <416D923B.3030404@planet.nl>
+	 <f44c5fdf041013134726043453@mail.gmail.com>
+	 <416D9B32.5030408@planet.nl>
+	 <5d6b657504101315086d6ef159@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-14 at 00:58, Petr Vandrovec wrote:
-> Hello,
->   is there some reason why to not apply patch below?  Without patch below
-> I'm getting
-> 
-> vmmon: no version for "sys_ioctl" found: kernel tainted.
+On Thu, 14 Oct 2004 00:08:24 +0200, Buddy Lucas <buddy.lucas@gmail.com> wrote:
 
-Sure, patch seems fine to me.  I guess you're the first one to use weak
-symbols in a module.  In fact, I think PPC64 might barf on them anyway.
+> Compiling with -fomit-frame-pointer removes information from the
+> binary that could be used for debugging. So the bugbuddy information
+> you provided was not optimal, because it lacked the crucial stuff. ;-)
+> The flag does not cause any problems, it is routinely used for
+> compiling stuff  that doesn't need debugging.
 
-Please ensure you've read Documentation/SubmittingPatches line 262
-onwards "11) Sign your work" and resend to me off-line.
+It's worth adding that the reason why programs are often built with
+-fomit-frame-pointer is for overhead reduction on stack frames, to
+make the binary slightly smaller and run maybe a bit faster so it's
+become quite popular. This discussion is beyond the scope of the
+original mail, but worthy of noting - and it ends up going down the
+path of differences between architectures, so let's just leave it at
+this clarification.
 
-Thanks!
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
+Jon.

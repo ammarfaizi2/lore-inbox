@@ -1,45 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291525AbSBSRLK>; Tue, 19 Feb 2002 12:11:10 -0500
+	id <S291531AbSBSRco>; Tue, 19 Feb 2002 12:32:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291522AbSBSRLA>; Tue, 19 Feb 2002 12:11:00 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:22230 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S291520AbSBSRKr>;
-	Tue, 19 Feb 2002 12:10:47 -0500
-From: David Mosberger <davidm@hpl.hp.com>
+	id <S291522AbSBSRcf>; Tue, 19 Feb 2002 12:32:35 -0500
+Received: from 96dyn50.com21.casema.net ([62.234.27.50]:29636 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S291531AbSBSRcX>; Tue, 19 Feb 2002 12:32:23 -0500
+Message-Id: <200202191732.SAA08008@cave.bitwizard.nl>
+Subject: Re: secure erasure of files?
+In-Reply-To: <20020219.HQ8.97132600@karlsbakk.net> from Roy Sigurd Karlsbakk
+ at "Feb 19, 2002 02:48:45 pm"
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Date: Tue, 19 Feb 2002 18:32:17 +0100 (MET)
+CC: Jens Schmidt <j.schmidt@paradise.net.nz>, linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <15474.34580.625864.963930@napali.hpl.hp.com>
-Date: Tue, 19 Feb 2002 09:10:44 -0800
-To: "Dan Maas" <dmaas@dcine.com>
-Cc: <linux-kernel@vger.kernel.org>,
-        "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-        "Ben Collins" <bcollins@debian.org>
-Subject: Re: readl/writel and memory barriers
-In-Reply-To: <092401c1b8e7$1d190660$1a01a8c0@allyourbase>
-In-Reply-To: <092401c1b8e7$1d190660$1a01a8c0@allyourbase>
-X-Mailer: VM 7.00 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 18 Feb 2002 20:45:29 -0500, "Dan Maas" <dmaas@dcine.com> said:
+Roy Sigurd Karlsbakk wrote:
+> What is sure: Ibas does not know any documented methods, scientific
+> environments or commercial services that do or demonstrate reading
+> of overwritten data.
 
-  Dan> In a quick survey of architectures that need explicit memory
-  Dan> barriers to enforce ordering of PCI accesses, it seems that
-  Dan> alpha and PPC include memory barriers inside readl() and
-  Dan> writel(), whereas MIPS, sparc64, ia64, and s390 do not include
-  Dan> them. (I'm not intimately familiar with these architectures so
-  Dan> forgive me if I got some wrong...). What is the official story
-  Dan> here?
+Ah. Our data-recovery competitor IBAS. Short addition: "Same here". 
 
-On ia64, the fact that readl()/writel() are accessing uncached space
-ensures the CPU doesn't reorder the accesses.  Furthermore, the
-accesses are performed through "volatile" pointers, which ensures that
-the compiler doesn't reorder them (and, as a side-effect, such
-pointers also generate ordered loads/stores, but this isn't strictly
-needed, due to accessing uncached space).
 
-	--david
+Wietze Venema, (I'm sure you know what he's famous for) once had a
+slide in his show that showed an image of magnetic track that had been
+overwritten with new data. You could visually see that the head had
+been mis-positioned by about 0.1 track-width, such that the old data
+was still visible from below. This would lead you to believe that
+possibly your old data could be retrieved. 
+
+This is easier said than done. In this case they had been able to
+image the patter at over 100 times more resolution than the magnetic
+head of the drive. Imaging a whole 10G platter this way would yield
+you a few terabytes of data, from which you can try to find the old
+data back. Good luck.
+
+Some success is rumored to be able to be achieved by sampling the
+normal signal, and then subtracting the "expected signal assuming the
+current sequence of bits that was read". That way you might be able to
+recover the information that peeks out from below. On the other hand,
+the electronics is ALREADY partly doing this to recover the normal
+data that is read from the platter...
+
+In practise all this doesn't work: The head will not be mispositioned
+0.1 track to the same side during the whole revolution. Thus you will
+have parts of the previous data generation peeking out on the left
+side for part of the track and data from the generation before on the
+other side. Which you will see is not predetermined.
+
+Now, if there are military secrets on the drive, the opponent may want
+to acutally go and image the platter, and reconstruct the data on a
+bit by bit basis. If you then happen to stumble on just a couple of
+"launch codes" or something like that, then "all hell breaks loose". 
+Thus the chance that this might possibly happen is to be prevented. 
+
+
+				Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

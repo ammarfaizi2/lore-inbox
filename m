@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263075AbUB0R5K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 12:57:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263084AbUB0R5K
+	id S263088AbUB0SA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 13:00:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263089AbUB0SA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 12:57:10 -0500
-Received: from 64-186-161-006.cyclades.com ([64.186.161.6]:34443 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S263075AbUB0R5E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 12:57:04 -0500
-Date: Fri, 27 Feb 2004 15:52:16 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: "Tvrtko A. =?iso-8859-2?q?Ur=B9ulin?=" <tvrtko@croadria.com>
-Cc: linux-kernel@vger.kernel.org, Atul Mukker <atulm@lsil.com>
-Subject: Re: Known problems with megaraid under 2.4.25 highmem?
-In-Reply-To: <200402271107.42050.tvrtko@croadria.com>
-Message-ID: <Pine.LNX.4.58L.0402271548290.18958@logos.cnet>
-References: <200402271107.42050.tvrtko@croadria.com>
+	Fri, 27 Feb 2004 13:00:57 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:25095 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263088AbUB0SAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 13:00:55 -0500
+Date: Fri, 27 Feb 2004 18:00:49 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: arief# <arief_m_utama@telkomsel.co.id>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Radeon Framebuffer Driver in 2.6.3?
+In-Reply-To: <1077865490.22215.217.camel@gaston>
+Message-ID: <Pine.LNX.4.44.0402271755090.2216-100000@phoenix.infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> Can you test the patch below ? :
 
-On Fri, 27 Feb 2004, Tvrtko A. [iso-8859-2] Ur?ulin wrote:
+Just a couple of things. The idea of adding another field to 
+con_blank bothers me. I think the better approach is to add more flags.
+ 
+> ===== drivers/char/vt.c 1.61 vs edited =====
+> --- 1.61/drivers/char/vt.c	Thu Feb 19 14:43:03 2004
+> +++ edited/drivers/char/vt.c	Fri Feb 27 17:27:09 2004
+> @@ -2743,12 +2743,12 @@
+>       *  Called only if powerdown features are allowed.
+>       */
+>      switch (vesa_blank_mode) {
+> -	case VESA_NO_BLANKING:
+> -	    c->vc_sw->con_blank(c, VESA_VSYNC_SUSPEND+1);
+> +    case VESA_NO_BLANKING:
+> +	    c->vc_sw->con_blank(c, VESA_VSYNC_SUSPEND+1, 0);
 
->
-> Hello,
->
-> I have experienced an I/O lockup on my dual Xeon server with megaraid adapter
-> when kernel was compiled with highmem and highmem i/o. It happened during
-> compilation of mysql with no other load.
->
-> Then I recompiled the kernel wo/highmem and everything is stable.
->
-> As, this server is now in production on different location I cannot do much
-> testing except giving detailed hw info.
+> ===== drivers/video/fbmem.c 1.90 vs edited =====
+> --- 1.90/drivers/video/fbmem.c	Mon Feb 16 23:42:15 2004
+> +++ edited/drivers/video/fbmem.c	Fri Feb 27 17:25:21 2004
+> @@ -943,7 +943,8 @@
+>  {
+>  	int err;
+>  
+> -	if (memcmp(&info->var, var, sizeof(struct fb_var_screeninfo))) {
+> +	if ((var->activate & FB_ACTIVATE_FORCE) ||
+> +	    memcmp(&info->var, var, sizeof(struct fb_var_screeninfo))) {
+>  		if (!info->fbops->fb_check_var) {
+>  			*var = info->var;
+>  			return 0;
 
-Hi,
+Ug!!! Another flag. How about instead in fbcon.c we call set_par directly 
+instead of messing with fb_set_var. 
 
-Not known to me...
+Let me play with some ideas. I can have a another patch ready over the 
+weekend. 
 
-Can you get any traces from the lockup? NMI watchdog or sysrq+p and +t?
-
-Did any previous 2.4.x work reliably?

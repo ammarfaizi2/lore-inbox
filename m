@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264346AbTEPDpg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 23:45:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264352AbTEPDpg
+	id S264354AbTEPDtL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 23:49:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264355AbTEPDtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 23:45:36 -0400
-Received: from ms-smtp-03.southeast.rr.com ([24.93.67.84]:3039 "EHLO
-	ms-smtp-03.southeast.rr.com") by vger.kernel.org with ESMTP
-	id S264346AbTEPDpf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 23:45:35 -0400
-From: Boris Kurktchiev <techstuff@gmx.net>
-Reply-To: techstuff@gmx.net
-To: linux-kernel@vger.kernel.org
-Subject: The kernel is miscalculating my RAM...
-Date: Fri, 16 May 2003 00:03:25 -0400
-User-Agent: KMail/1.5.1
-References: <200305131415.37244.techstuff@gmx.net> <200305140650.h4E6oCu04880@Port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200305140650.h4E6oCu04880@Port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Thu, 15 May 2003 23:49:11 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:41642 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264354AbTEPDtL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 23:49:11 -0400
+Date: Thu, 15 May 2003 21:01:27 -0700 (PDT)
+Message-Id: <20030515.210127.32739087.davem@redhat.com>
+To: chas@locutus.cmf.nrl.navy.mil
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] allow atm to be loaded as a module 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200305160340.h4G3eBGi016486@locutus.cmf.nrl.navy.mil>
+References: <20030515.201427.82121061.davem@redhat.com>
+	<200305160340.h4G3eBGi016486@locutus.cmf.nrl.navy.mil>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305160003.25262.techstuff@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok here is what dmesg shows:
-384MB LOWMEM available.
+   From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+   Date: Thu, 15 May 2003 23:40:11 -0400
+   
+   here is the patch again, corrected for the replicated code
+   sections
 
-then further down:
-Memory: 385584k/393216k available (2010k kernel code, 7244k reserved, 597k 
-data, 128k init, 0k highmem)
-
-now how is the little 38.../39... possible? 
-
-and then top shows this:
-Mem:    385712k total
-
-this again is different than the others...
-
-and finaly gkrellm is telling me that I have only 377 mb actually recognized 
-out of the 384mb that the kernel detected above...
-
-So the question is where does my 7mb go, why that weird 38.../39 difference 
-and why does top report another different value.
+Thanks for cleaning this up, I'll apply it.

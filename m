@@ -1,66 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262546AbTIPX7T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 19:59:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbTIPX7T
+	id S262566AbTIQABk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 20:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbTIQABk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 19:59:19 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:3085
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S262546AbTIPX7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 19:59:18 -0400
-Date: Tue, 16 Sep 2003 16:59:38 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, oliver@neukum.org
-Subject: Re: OOps in HFS was: 2.6.0-test4-mm3
-Message-ID: <20030916235938.GB3490@matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, oliver@neukum.org
-References: <20030828235649.61074690.akpm@osdl.org> <20030916214105.GA3490@matchmail.com> <20030916144012.0ab9b009.akpm@osdl.org>
+	Tue, 16 Sep 2003 20:01:40 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:25101 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S262566AbTIQABj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 20:01:39 -0400
+Date: Wed, 17 Sep 2003 02:01:36 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Another keyboard woes with 2.6.0...
+Message-ID: <20030917020136.A1717@pclin040.win.tue.nl>
+References: <20030912165044.GA14440@vana.vc.cvut.cz> <Pine.LNX.4.53.0309121341380.6886@montezuma.fsmlabs.com> <20030916232318.A1699@pclin040.win.tue.nl> <Pine.LNX.4.53.0309161844380.23370@montezuma.fsmlabs.com> <Pine.LNX.4.53.0309161911160.23370@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030916144012.0ab9b009.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.53.0309161911160.23370@montezuma.fsmlabs.com>; from zwane@linuxpower.ca on Tue, Sep 16, 2003 at 07:12:48PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 16, 2003 at 02:40:12PM -0700, Andrew Morton wrote:
-> Mike Fedyk <mfedyk@matchmail.com> wrote:
-> >
-> > Just reading a hfs floppy...
-> 
-> It's not an oops - it's a warning.
-> 
+On Tue, Sep 16, 2003 at 07:12:48PM -0400, Zwane Mwaikambo wrote:
 
-Oh, sorry, I didn't notice.  Will try harder next time. ;)
-
-> > Sep 15 10:10:49 mis-mike-wstn kernel: inserting floppy driver for 2.6.0-test4-mm3-1-mdfail
-> > Sep 15 10:10:49 mis-mike-wstn kernel: Floppy drive(s): fd0 is 1.44M
-> > Sep 15 10:10:49 mis-mike-wstn kernel: FDC 0 is a post-1991 82077
-> > Sep 15 10:10:49 mis-mike-wstn kernel: PM: Adding info for platform:floppy0
-> > Sep 15 10:11:14 mis-mike-wstn kernel: Debug: sleeping function called from invalid context at mm/slab.c:1833
-> > Sep 15 10:11:14 mis-mike-wstn kernel: Call Trace:
-> > Sep 15 10:11:14 mis-mike-wstn kernel:  [__might_sleep+99/104] __might_sleep+0x63/0x68
-> > Sep 15 10:11:15 mis-mike-wstn kernel:  [kmem_cache_alloc+37/324] kmem_cache_alloc+0x25/0x144
-> > Sep 15 10:11:15 mis-mike-wstn kernel:  [_end+340461616/1068932160] grow_entries+0x24/0xa0 [hfs]
-> > Sep 15 10:11:15 mis-mike-wstn kernel:  [_end+340462938/1068932160] get_new_entry+0x1e/0x460 [hfs]
+> Here is an excerpt from a KVM switch, ls -l, KVM switch;
 > 
-> get_entry() does disk I/O under spin_lock(&entry_lock).  Deadlock country.
-> A simple fix would be to convert entry_lock into a semaphore.
-> 
+> i8042.c: 26 <- i8042 (interrupt, kbd, 1) [150578]: l
+> i8042.c: 1f <- i8042 (interrupt, kbd, 1) [150654]: s
+> i8042.c: a6 <- i8042 (interrupt, kbd, 1) [150683]: l release
+> i8042.c: 39 <- i8042 (interrupt, kbd, 1) [150713]: space
+> i8042.c: 9f <- i8042 (interrupt, kbd, 1) [150758]: s release
+> i8042.c: 0c <- i8042 (interrupt, kbd, 1) [150789]: -
+> i8042.c: b9 <- i8042 (interrupt, kbd, 1) [150853]: space release
+> i8042.c: 26 <- i8042 (interrupt, kbd, 1) [150884]: l
+> i8042.c: 8c <- i8042 (interrupt, kbd, 1) [150931]: - release
+> i8042.c: a6 <- i8042 (interrupt, kbd, 1) [150986]: l release
+> i8042.c: 1c <- i8042 (interrupt, kbd, 1) [151090]: enter
+> i8042.c: 9c <- i8042 (interrupt, kbd, 1) [151208]: enter release
+> i8042.c: 1d <- i8042 (interrupt, kbd, 1) [152374]: LCtrl
+> i8042.c: 9d <- i8042 (interrupt, kbd, 1) [152439]: LCtrl release
+> i8042.c: 1d <- i8042 (interrupt, kbd, 1) [152653]: LCtrl
+> i8042.c: 9d <- i8042 (interrupt, kbd, 1) [152708]: LCtrl release
 
-Maybe.  It's a client diskette.  Would it be ok if a couple files were
-truncated or filled with zeros?
+Thanks!
+Nothing disturbing from your switch.
 
-> > Sep 15 10:21:11 mis-mike-wstn kernel: hfs_cat_put: trying to free free entry: c261451c
-> > Sep 15 10:21:11 mis-mike-wstn kernel: hfs_cat_put: trying to free free entry: cc08f104
-> > Sep 15 10:21:11 mis-mike-wstn kernel: hfs_cat_put: trying to free free entry: c7997ccc
-> > Sep 15 10:21:11 mis-mike-wstn kernel: hfs_cat_put: trying to free free entry: c6cb9728
-> 
-> Well that's not very good.  Can you make an image of that floppy available for download?
-> 
-> Does 2.4's HFS driver work OK?
 
-I will give that a try.
+Andries
+

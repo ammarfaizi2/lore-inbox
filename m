@@ -1,58 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261444AbUCKHG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 02:06:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbUCKHG2
+	id S261449AbUCKHVc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 02:21:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbUCKHVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 02:06:28 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:11275 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261444AbUCKHGY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 02:06:24 -0500
-Date: Thu, 11 Mar 2004 07:50:41 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Peter Williams <peterw@aurema.com>, root@chaos.analogic.com,
-       "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
-       "Godbole, Amarendra (GE Consumer & Industrial)" 
-	<Amarendra.Godbole@ge.com>
-Subject: Re: (0 == foo), rather than (foo == 0)
-Message-ID: <20040311065041.GB14537@alpha.home.local>
-References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com> <20040310100215.1b707504.rddunlap@osdl.org> <Pine.LNX.4.53.0403101324120.18709@chaos> <404F9E28.4040706@aurema.com> <Pine.LNX.4.58.0403101832580.1045@ppc970.osdl.org>
-Mime-Version: 1.0
+	Thu, 11 Mar 2004 02:21:32 -0500
+Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:48388
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S261449AbUCKHVa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 02:21:30 -0500
+Date: Wed, 10 Mar 2004 23:20:28 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Rumi Szabolcs <rumi_ml@rtfm.hu>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: Marvell PATA-SATA bridge meets 2.4.x
+In-Reply-To: <404A9D14.5030107@matchmail.com>
+Message-ID: <Pine.LNX.4.10.10403102318430.19317-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0403101832580.1045@ppc970.osdl.org>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, Mar 10, 2004 at 06:36:22PM -0800, Linus Torvalds wrote:
-> 
-> And while "0 == foo" may be logically the same thing as "foo == 0", the 
-> fact is, the latter is what people are used to seeing. And by being used 
-> to seeing it, they have an easier time thinking about it.
-> 
-> As a result, using the former just tends to increase peoples confusion by
-> making code harder to read, which in turn tends to increase the chance of 
-> bugs.
+It was me who pointed this fact out.
 
-I have a friend who constantly uses it, and his code is unreadable, because
-sometimes, a "0 == xxx" becomes "0 <= xxx" or "0 >= xxx" which is difficult
-to understand. Thinking that xxx is negative because it's written on the
-right side of a >= is complicated. And the worst he does is when he uses
-functions : 
+ATA-7 fails to address SATA w/ cable detect and now it reverts back to
+ATA-5 mess :-(
 
-   if (0 < strcmp(a, "xxx")) ...
-   if (sizeof(t) > read(fd, t, sizeof(t)) ...
-
-I have already helped him track bugs in his programs, and some of them were
-just related to this usage, because nobody's brain can understand these
-constructions immediately without thinking a bit. So I'm all against this
-sort of thing.
+I will post a patch for 2.4 for siimage.[ch] later showing how to fudge
+the driver.
 
 Cheers,
-Willy
+
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Sat, 6 Mar 2004, Mike Fedyk wrote:
+
+> Rumi Szabolcs wrote:
+> > Hello!
+> > 
+> > A while ago I reported a problem with the 2.4.22 kernel and the
+> > tiny Marvell PATA to SATA bridge chip that is used on many of
+> > the now-not-so-recent motherboards which don't have native
+> > SATA ports in their southbridges.
+> > 
+> > As it can be seen below, a native SATA150 drive is connected
+> > to a SATA port implemented using that Marvell chip hooked up
+> > to the ICH4's parallel ATA133 port and this way the drive is
+> > only recognized (and used) as UDMA33:
+> > 
+> > ICH4: IDE controller at PCI slot 00:1f.1
+> > ICH4: chipset revision 2
+> > ICH4: not 100% native mode: will probe irqs later
+> >     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
+> >     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:pio
+> > hdc: ST3160023AS, ATA DISK drive
+> > blk: queue c04a1ff4, I/O limit 4095Mb (mask 0xffffffff)
+> > ide1 at 0x170-0x177,0x376 on irq 15
+> > hdc: attached ide-disk driver.
+> > hdc: host protected area => 1
+> > hdc: 312581808 sectors (160042 MB) w/8192KiB Cache, CHS=19457/255/63, UDMA(33)
+> > 
+> > As far as I can remember someone (Jeff Garzik?) suspected the
+> > SATA cable not being recognized as a 80-conductor thus >=UDMA66
+> > capable cable. Then it was told that there is a fix underway that
+> > will be included in the 2.4.23 kernel. The above snippet shows
+> > that the 2.4.25 kernel still has this problem. Any comments?
+> 
+> You want to use a 2.6 kernel and talk to Bart, and Jeff about this...
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

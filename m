@@ -1,45 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129777AbQLMUul>; Wed, 13 Dec 2000 15:50:41 -0500
+	id <S130113AbQLMUum>; Wed, 13 Dec 2000 15:50:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130113AbQLMUub>; Wed, 13 Dec 2000 15:50:31 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:40464 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129777AbQLMUuQ>; Wed, 13 Dec 2000 15:50:16 -0500
-Date: Wed, 13 Dec 2000 12:19:19 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Signal 11 - the continuing saga
-In-Reply-To: <Pine.LNX.4.10.10012131131090.19837-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10012131213160.802-100000@penguin.transmeta.com>
+	id <S131426AbQLMUub>; Wed, 13 Dec 2000 15:50:31 -0500
+Received: from ra.lineo.com ([204.246.147.10]:8902 "EHLO thor.lineo.com")
+	by vger.kernel.org with ESMTP id <S130113AbQLMUuX>;
+	Wed, 13 Dec 2000 15:50:23 -0500
+Message-ID: <3A37D9F2.6FB11D82@Rikers.org>
+Date: Wed, 13 Dec 2000 13:20:02 -0700
+From: Tim Riker <Tim@Rikers.org>
+Organization: Riker Family (http://rikers.org/)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: alex@foogod.com
+CC: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] I-Opener fix (again)
+In-Reply-To: <20001211152331.M10618@draco.foogod.com> <Pine.LNX.4.10.10012122217440.4894-100000@master.linux-ide.org> <20001213114046.B19902@draco.foogod.com>
+X-MIMETrack: Serialize by Router on thor/Lineo(Release 5.0.5 |September 22, 2000) at 12/13/2000
+ 01:19:57 PM,
+	Serialize complete at 12/13/2000 01:19:57 PM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andre,
 
+What are the "laptops that have CFA devices that do not come on channels
+in a pair" systems you refer to?
 
-On Wed, 13 Dec 2000, Linus Torvalds wrote:
+This patch fixes the iopener and other systems here at Lineo that have
+2nd drive flash. The only other way we have been booting these is with
+"hdb=noprobe" which just disables the 2nd drive flash. hdb=flash does
+not fix it.
+
+alex@foogod.com wrote:
 > 
-> Hint: "ptep_mkdirty()".
+> On Tue, Dec 12, 2000 at 10:47:35PM -0800, Andre Hedrick wrote:
+> >
+> > Basically if the setting of
+> >
+> >  * "hdx=flash"          : allows for more than one ata_flash disk to be
+> >  *                              registered. In most cases, only one device
+> >  *                              will be present.
+> >
+> > fails then I will look into this but, the breaking of laptops that have
+> > CFA devices that do not come on channels in a pair canb not happen.
+> > If you have a vender unique setting that will follow always the way
+> > I-Opener's are setup then that is better.
+> 
+> Ok, there are two things here:
+> 
+> 1) "hdx=flash" _does_ fail, because the flash-related code clobbers hda
+>    _after_ hda's detection phase, when it's looking at hdb (which is flash).
+> 
+> 2) I can see no situation where hdb detection should ever override the
+>    _already_performed_ detection of hda in this way.
+> 
+> Basically, as is, the kernel finds hda (traditional IDE device), configures it
+> normally, then finds hdb (flash), and clobbers all the correct info it already
+> detected for hda.  This seems just plain wrong.
+> 
+> -alex
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
-In case you wonder why the bug was so insidious, what this caused was two
-separate problems, both of them able to cause SIGSGV's. 
-
-One: we didn't mark the page table entry dirty like we were supposed to.
-
-Two: by making it writable, we also made the page shared, even if it
-wasn't supposed to be shared (so when the next process wrote to the page,
-if the swap page was shared with somebody else, the changes would show up
-even in the process that _didn't_ write to it).
-
-And "ptep_mkdirty()" is only used by swapoff, so nothing else would show
-this. Which was why it hadn't been immediately obvious that anything was
-broken.
-
-		Linus
-
+-- 
+Tim Riker - http://rikers.org/ - short SIGs! <g>
+All I need to know I could have learned in Kindergarten
+... if I'd just been paying attention.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

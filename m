@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129801AbQK1VHm>; Tue, 28 Nov 2000 16:07:42 -0500
+        id <S130473AbQK1VIw>; Tue, 28 Nov 2000 16:08:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130007AbQK1VHW>; Tue, 28 Nov 2000 16:07:22 -0500
-Received: from dystopia.lab43.org ([209.217.122.210]:37384 "EHLO
-        dystopia.lab43.org") by vger.kernel.org with ESMTP
-        id <S129801AbQK1VHR>; Tue, 28 Nov 2000 16:07:17 -0500
-Date: Tue, 28 Nov 2000 15:36:57 -0500 (EST)
-From: Rod Stewart <stewart@lab43.org>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Kurt Garloff <garloff@suse.de>,
-        Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: modutils-2.3.21: modprobe looping 
-In-Reply-To: <3301.975443633@ocs3.ocs-net>
-Message-ID: <Pine.LNX.4.21.0011281535540.12642-100000@dystopia.lab43.org>
+        id <S130299AbQK1VIm>; Tue, 28 Nov 2000 16:08:42 -0500
+Received: from tahallah.claranet.co.uk ([212.126.138.206]:28166 "EHLO
+        tahallah.clara.co.uk") by vger.kernel.org with ESMTP
+        id <S130007AbQK1VIh>; Tue, 28 Nov 2000 16:08:37 -0500
+Date: Tue, 28 Nov 2000 16:36:53 +0000 (GMT)
+From: Alex Buell <alex.buell@tahallah.clara.co.uk>
+Reply-To: <alex.buell@tahallah.clara.co.uk>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18-23 w/Frame Buffer (LEVEL IV)
+In-Reply-To: <3A22E894.4E15E71@timpanogas.org>
+Message-ID: <Pine.LNX.4.30.0011281635410.5212-100000@tahallah.clara.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 27 Nov 2000, Jeff V. Merkey wrote:
 
-On Wed, 29 Nov 2000, Keith Owens wrote:
-> On Tue, 28 Nov 2000 20:22:59 +0100, 
-> Kurt Garloff <garloff@suse.de> wrote:
-> >Find attached the modules.dep that caused this: There is a circular
-> >dependency of pppoe on pppox on pppoe on ....
-> 
-> The kernel code is broken.  Circular dependencies make no sense, the
-> pppoe maintainer agrees and I thought that bug was fixed.
+> A level IV issue in 2.2.18-23.  With frame buffer enabled, upon boot,
+> the OS is displaying four penguin images instead of one penguin in the
+> upper left corner of the screen.  Looks rather tacky.  Also puts the
+> VGA text mode default into mode 274.  Is this what's supposed to
+> happen?
 
-It is fixed in test10/11.
+Have you ever used a box with more than one processor? Looks like you have
+four processors on that box.
 
--Rms
+Cheers,
+Alex
+-- 
+Tie me up, tie me down!
+
+http://www.tahallah.clara.co.uk
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

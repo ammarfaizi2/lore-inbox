@@ -1,105 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130767AbRA2VwO>; Mon, 29 Jan 2001 16:52:14 -0500
+	id <S130036AbRA2VyY>; Mon, 29 Jan 2001 16:54:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130922AbRA2VwE>; Mon, 29 Jan 2001 16:52:04 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:40207 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130767AbRA2Vvv>; Mon, 29 Jan 2001 16:51:51 -0500
-Date: Mon, 29 Jan 2001 13:51:41 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.4.0-test12: SiS pirq handling..
-Message-ID: <Pine.LNX.4.10.10101291348330.9791-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129805AbRA2VyO>; Mon, 29 Jan 2001 16:54:14 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:15984
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129334AbRA2VyG>; Mon, 29 Jan 2001 16:54:06 -0500
+Date: Mon, 29 Jan 2001 22:53:57 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: ballabio_dario@emc.com
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [uPATCH] make drivers/scsi/eata.c call pci_enable_device before rs. probing (241p11)
+Message-ID: <20010129225357.K603@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-Could people that had problems with SiS interrupt handling before please
-give 2.4.0-test12 a final whirl before I release it as 2.4.1? We got a lot
-of pirq tables from people, and Martin Diehl put them together with the
-hardware specs to come up with what looks to be the "final and correct"
-SiS pirq routing, but as always it would be good to have this verified by
-as many people as possible.
+The following patch makes drivers/scsi/eata.c wait with probing
+pci resources until we have called pci_enable_device. This is recommended
+due to hot-plug considerations (according to Jeff Garzik).
 
-The other changes in pre12 aren't likely to be all that noticeable, unless
-you happen to be hit by just that detail.. As always, fedback is
-appreciated.
+It applies against ac12 and 241p11.
 
-		Linus
+Comments?
 
 
-----
-pre12:
- - Get non-cpuid Cyrix probing right (it's not a NexGen)
- - Jens Axboe: cdrom tray status and queing cleanups
- - AGP GART: don't disable VIA, and allow i815 with external AGP
- - Coda: use iget4() in order to have big inode numbers without clashes.
- - Fix UDF writepage() page locking
- - NIIBE Yutaka: SuperH update
- - Martin Diehl and others: SiS pirq routing fixes
- - Andy Grover: ACPI update
- - Andrea Arkangeli: LVM update
- - Ingo Molnar: RAID cleanups
- - David Miller: sparc and networking updates
- - Make NFS really be able to handle large files
+--- linux-ac12-clean/drivers/scsi/eata.c	Tue Nov 28 02:49:00 2000
++++ linux-ac12/drivers/scsi/eata.c	Sat Jan 27 21:24:20 2001
+@@ -835,9 +835,9 @@
+ 
+       if (!(dev = pci_find_class(PCI_CLASS_STORAGE_SCSI << 8, dev))) break;
+ 
+-      addr = pci_resource_start (dev, 0);
+-
+       if (pci_enable_device (dev)) continue;
++
++      addr = pci_resource_start (dev, 0);
+ 
+ #if defined(DEBUG_PCI_DETECT)
+       printk("%s: tune_pci_port, bus %d, devfn 0x%x, addr 0x%x.\n",
 
-pre11:
- - Trond Myklebust: NFS/RPC client SMP fixes
- - rth: alpha pyxis and cabriolet fixes
- - remove broken sys_wait4() declarations
- - disable radeon debugging code
- - VIA IDE driver should not enable autodma unless asked for
- - Andrey Savochkin: eepro100 update. Should fix the resource timing problems.
- - Jeff Garzik: via82cxxx_audio update
- - YMF7xx PCI audio update: get rid of old broken driver, make new
-   driver handle legacy control too. 
- - fix missed wakeup on block device request list
- - hpt366 controller doesn't play nice with some IBM harddisks
- - remove inode pages from the page cache only after having removed them
-   from the page tables.
- - shared memory out-of-swap writepage() fixup (no more magic return)
 
-pre10:
- - got a few too-new R128 #defines in the Radeon merge. Fix.
- - tulip driver update from Jeff Garzik
- - more cpq and DAC elevator fixes from Jens. Looks good.
- - Petr Vandrovec: nicer ncpfs behaviour
- - Andy Grover: APCI update
- - Cort Dougan: PPC update
- - David Miller: sparc updates
- - David Miller: networking updates
- - Neil Brown: RAID5 fixes
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
 
-pre9:
- - cpq array driver elevator fixes 
- - merge radeon driver from X CVS tree
- - ispnp cleanups
- - emu10k unlock on error fixes
- - hpfs doesn't allow truncate to larger
-
-pre8:
- - Don't drop a megabyte off the old-style memory size detection
- - remember to UnlockPage() in ramfs_writepage()
- - 3c59x driver update from Andrew Morton
- - egcs-1.1.2 miscompiles depca: workaround by Andrew Morton
- - dmfe.c module init fix: Andrew Morton
- - dynamic XMM support. Andrea Arkangeli.
- - ReiserFS merge
- - USB hotplug updates/fixes
- - boots on real i386 machines
- - blk-14 from Jens Axboe
- - fix DRM R128/AGP dependency
- - fix n_tty "canon" mode SMP race
- - ISDN fixes
- - ppp UP deadlock attack fix
- - FAT fat_cache SMP race fix
- - VM balancing tuning
- - Locked SHM segment deadlock fix
- - fork() page table copy race fix
-
+While the Melissa license is a bit unclear, Melissa aggressively
+encourages free distribution of its source code.
+  -- Kevin Dalley on Melissa being Open Source
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

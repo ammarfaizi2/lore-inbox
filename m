@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264176AbUFPREq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264165AbUFPRIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264176AbUFPREq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 13:04:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264239AbUFPRAs
+	id S264165AbUFPRIH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 13:08:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbUFPRHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 13:00:48 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:59573 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264176AbUFPQ6T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 12:58:19 -0400
-Date: Wed, 16 Jun 2004 18:57:08 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-cc: Perlbroker <minime@sdf.lonestar.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: 2.6.7 does not compile (jfs errors)
-In-Reply-To: <1087403262.29041.25.camel@shaggy.austin.ibm.com>
-Message-ID: <Pine.GSO.4.58.0406161856190.1249@waterleaf.sonytel.be>
-References: <20040616133944.GA1987@8128.biz> <1087403262.29041.25.camel@shaggy.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Jun 2004 13:07:55 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:62451 "EHLO
+	orion.mvista.com") by vger.kernel.org with ESMTP id S264247AbUFPRFF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 13:05:05 -0400
+Date: Wed, 16 Jun 2004 10:04:46 -0700
+From: Jun Sun <jsun@mvista.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mips@linux-mips.org, jsun@mvista.com
+Subject: Re: [PATCH] make ps2 mouse work ...
+Message-ID: <20040616100446.J28403@mvista.com>
+References: <20040615191023.G28403@mvista.com> <20040615205611.1e9cbfcc.akpm@osdl.org> <20040616121149.GA9325@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040616121149.GA9325@ucw.cz>; from vojtech@suse.cz on Wed, Jun 16, 2004 at 02:11:49PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jun 2004, Dave Kleikamp wrote:
-> On Wed, 2004-06-16 at 08:39, Perlbroker wrote:
-> > CC [M]  fs/jfs/jfs_dtree.o
-> > fs/jfs/jfs_dtree.c: In function `add_index':
-> > fs/jfs/jfs_dtree.c:388: parse error before `struct'
-> > fs/jfs/jfs_dtree.c:389: `temp_table' undeclared (first use in this function)
-> > fs/jfs/jfs_dtree.c:389: (Each undeclared identifier is reported only once
-> > fs/jfs/jfs_dtree.c:389: for each function it appears in.)
-> > make[3]: *** [fs/jfs/jfs_dtree.o] Error 1
-> > make[2]: *** [fs/jfs] Error 2
-> > make[1]: *** [fs] Error 2
-> > make[1]: Leaving directory `/usr/src/linux-2.6.7'
->
-> This was reported in another thread by Tomas Szepe.  I don't know why
-> this sometimes compiles cleanly, but this patch should fix it:
+On Wed, Jun 16, 2004 at 02:11:49PM +0200, Vojtech Pavlik wrote:
+> On Tue, Jun 15, 2004 at 08:56:11PM -0700, Andrew Morton wrote:
+> 
+> > > I found this problem on a MIPS machine.  The problem is 
+> > > likely to happen on other register-rich RISC arches too.
+> > > 
+> > > cmdcnt needs to be volatile since it is modified by
+> > > irq routine and read by normal process context.
+> > 
+> > volatile is not the preferred way to fix this up.  This points at either a
+> > locking error in the psmouse driver or a missing "memory" thingy in the
+> > mips port somewhere.
+> > 
+> > Please describe the bug which led to this patch.  Where was it getting stuck?
+> 
+> My current BK tree has this fixed using atomic bitfields, which do
+> compilation and memory barriers. I plan to sync it to Linus post 2.6.7.
+> 
 
-Because newer gcc allows declarations of variables between statements, while
-older doesn't?
+Can you post the patch here?  I am sure many people are eagerly waiting
+for the right fix.  Plus there will be extra pairs of eyes to exam the fix.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Jun

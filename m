@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbULOPGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262369AbULOPJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbULOPGP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 10:06:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbULOPGP
+	id S262369AbULOPJL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 10:09:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbULOPJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 10:06:15 -0500
-Received: from fed1rmmtao03.cox.net ([68.230.241.36]:23699 "EHLO
-	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S261167AbULOPGF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 10:06:05 -0500
-Date: Wed, 15 Dec 2004 08:06:03 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linuxppc-embedded@ozlabs.org
-Subject: [PATCH 2.6.10-rc3] ppc32: Compile classic PPC specific ASM only on CONFIG_6xx
-Message-ID: <20041215150603.GD22316@smtp.west.cox.net>
-Mime-Version: 1.0
+	Wed, 15 Dec 2004 10:09:10 -0500
+Received: from jade.aracnet.com ([216.99.193.136]:53737 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S262364AbULOPI7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 10:08:59 -0500
+Date: Wed, 15 Dec 2004 07:08:46 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andi Kleen <ak@suse.de>
+cc: Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
+Message-ID: <690790000.1103123325@[10.10.2.4]>
+In-Reply-To: <20041215071734.GO27225@wotan.suse.de>
+References: <Pine.SGI.4.61.0412141140030.22462@kzerza.americas.sgi.com> <9250000.1103050790@flay> <20041214191348.GA27225@wotan.suse.de> <19030000.1103054924@flay> <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com> <20041215040854.GC27225@wotan.suse.de> <686170000.1103094885@[10.10.2.4]> <20041215071734.GO27225@wotan.suse.de>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ I hope this can go in prior to 2.6.10 ]
+--Andi Kleen <ak@suse.de> wrote (on Wednesday, December 15, 2004 08:17:34 +0100):
 
-Newer binutils (2.15) when they know they aren't assembling for a
-classic target (say e500 instead of 750) disallow certain opcodes,
-causing the compile to fail.
+> On Tue, Dec 14, 2004 at 11:14:46PM -0800, Martin J. Bligh wrote:
+>> Well hold on a sec. We don't need to use the hugepages pool for this,
+>> do we? This is the same as using huge page mappings for the whole of
+>> kernel space on ia32. As long as it's a kernel mapping, and 16MB aligned
+>> and contig, we get it for free, surely?
+> 
+> The whole point of the patch is to not use the direct mapping, but
+> use a different interleaved mapping on NUMA machines to spread
+> the memory out over multiple nodes.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+Right, I know it's not there pre-existant - I was thinking of frigging it 
+by hand though, rather than using the hugepage pool infrastructure.
 
----
- util.S |    2 ++
- 1 files changed, 2 insertions(+)
----
-Index: 2.6.10-rc3/arch/ppc/boot/common/util.S
-===================================================================
---- 2.6.10-rc3/arch/ppc/boot/common/util.S	(revision 11)
-+++ 2.6.10-rc3/arch/ppc/boot/common/util.S	(working copy)
-@@ -27,6 +27,7 @@
- 
- 	.text
- 
-+#ifdef CONFIG_6xx
- 	.globl	disable_6xx_mmu
- disable_6xx_mmu:
- 	/* Establish default MSR value, exception prefix 0xFFF.
-@@ -94,6 +95,7 @@
- 	sync
- 	isync
- 	blr
-+#endif
- 
- 	.globl	_setup_L2CR
- _setup_L2CR:
+>> > Using other page sizes would be probably tricky because the 
+>> > linux VM can currently barely deal with two page sizes.
+>> > I suspect handling more would need some VM infrastructure effort
+>> > at least in the changed port. 
+>> 
+>> For the general case I'd agree. But this is a setup-time only tweak
+>> of the static kernel mapping, isn't it?
+> 
+> It's probably not impossible, just lots of ugly special cases.
+> e.g. how about supporting it for /proc/kcore etc? 
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Hmmm. Yes, not considered those. 
+
+M.
+

@@ -1,75 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbUJaMTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbUJaMWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbUJaMTG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 07:19:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbUJaMTF
+	id S261565AbUJaMWG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 07:22:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbUJaMWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 07:19:05 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:3563 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261538AbUJaMSn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 07:18:43 -0500
-Date: Sun, 31 Oct 2004 13:19:37 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041031121937.GA20036@elte.hu>
-References: <1099158570.1972.5.camel@krustophenia.net> <20041030191725.GA29747@elte.hu> <20041030214738.1918ea1d@mango.fruits.de> <1099165925.1972.22.camel@krustophenia.net> <20041030221548.5e82fad5@mango.fruits.de> <1099167996.1434.4.camel@krustophenia.net> <20041030231358.6f1eeeac@mango.fruits.de> <1099189225.1754.1.camel@krustophenia.net> <20041031110039.4575e49c@mango.fruits.de> <1099224598.1459.28.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1099224598.1459.28.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 31 Oct 2004 07:22:06 -0500
+Received: from mailhub1.nextra.sk ([195.168.1.111]:33031 "EHLO
+	mailhub1.nextra.sk") by vger.kernel.org with ESMTP id S261565AbUJaMV4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 07:21:56 -0500
+Message-ID: <4184D8EB.6000306@rainbow-software.org>
+Date: Sun, 31 Oct 2004 13:22:03 +0100
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: ingmar@gonzo.schwaben.de
+CC: linux-kernel@vger.kernel.org
+Subject: HP C2502 SCSI card (NCR 53C400A based) not working
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+I have an old ISA SCSI card that came with HP ScanJet IIP scanner. It's
+HP C2502 card based on NCR 53C400A chip. I was unable to get it working
+with g_NCR5380 driver so I tried loading the official MINI400I.SYS
+driver in DOSemu. I was surprised that the values sent to the ports are 
+not the same as in the g_NCR5380 driver.
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+The g_NCR5380 driver uses these "magic outbs" to configure the card 
+(this sequence disables the card):
+outb(0x59, 0x779);
+outb(0xb9, 0x379);
+outb(0xc5, 0x379);
+outb(0xae, 0x379);
+outb(0xa6, 0x379);
+outb(0x00, 0x379);
 
-> Actually this raises an interesting point.  Maybe all IRQ threads
-> should get the same RT priority by default, so we get FIFO scheduling
-> among IRQ threads.  It seems like this would make it harder for IRQ
-> threads to starve each other.  Then we only have to elevate the
-> priority of the IRQ thread(s) we are interested in.
+This is the output from DOSemu:
+779 < f
+379 < 22
+379 < f0
+379 < 20
+379 < 80
+379 < 00
 
-we could do this too. The reason why i picked the current "start at
-SCHED_FIFO prio 49 and decrease it by 1 until it reaches 25, then stay
-constant" logic is that typically the irqs registered first are 'more
-important' - e.g. the timer interrupt.
+The magic numbers are different - so I have a card that is not supported 
+by the driver. I've changed the numbers in the driver to match my card 
+but I'm still unable to get it working.
 
-> Another idea is to allow SCHED_FIFO processes of equal priority to
-> preempt one another on a LIFO basis.  Wouldn't this be very close to
-> the traditional Linux interrupt model, where interrupts can interrupt
-> each other and we handle the most recent interrupt first?
+The g_NCR5380 driver uses this to check if the card is present at a 
+particular base address:
 
-well, it's called SCHED_*FIFO* for a reason :-) What might make sense is
-a SCHED_LIFO policy. But, i'm not so sure it's the right thing to do:
-the best work-queueing model is almost always FIFO, as it gives the best
-possible fairness between equals.
+outb(0xc0, ports[i] + 9);
+if (inb(ports[i] + 9) != 0x80)
+	continue;
 
-Fairness also often translates into better performance, because a system
-that 'fluctuates' due to LIFO often underperforms a FIFO one because
-when it fluctuates towards lower load it under-utilizes the resources,
-and when it fluctuates up it overloads.  LIFO makes sense for anonymous
-resources like pages/slabs where LIFO allocation leads to better cache
-utilization. But i'd say for non-anonymous workloads it's almost always
-a loss.
+The MINI400I.SYS uses something different:
+(this is failed presence test at base address 0x280)
+28e < 25
+28f < a5
+28f > ff
 
-	Ingo
+(this looks like a successful test at base address 0x350)
+35e < 25
+35f < a5
+35f > a5
+35f < 5a
+35f > 5a
+35e < 0
+35f < 0
+359 < 80
+359 < 10
+351 < 0
+352 < 0
+353 < 0
+354 < 0
+357 > ff
+359 < 80
+359 < 10
+351 < 0
+352 < 0
+353 < 0
+354 < 0
+357 > ff
+351 < 80
+351 < 0
+357 > ff
+
+According to this, I think that my card has the 53C400A chip registers 
+mapped to different addresses (offsets) but I'm unable to determine what 
+the mapping is. I was also unable to find the 53C400A datasheet which 
+might help a bit.
+
+-- 
+Ondrej Zary

@@ -1,110 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265223AbTLLO6X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 09:58:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265243AbTLLO56
+	id S265256AbTLLPLW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 10:11:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265257AbTLLPLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 09:57:58 -0500
-Received: from mail.dietlibc.org ([212.84.236.4]:40849 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S265223AbTLLO4y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 09:56:54 -0500
-Date: Fri, 12 Dec 2003 15:56:52 +0100
-From: Johannes Stezenbach <js@convergence.de>
-To: sensors@stimpy.netroedge.com
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: 2.6.0-test11: i2c-dev.h for userspace
-Message-ID: <20031212145652.GA30747@convergence.de>
-Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
-	sensors@stimpy.netroedge.com, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
+	Fri, 12 Dec 2003 10:11:22 -0500
+Received: from main.gmane.org ([80.91.224.249]:34466 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265256AbTLLPLT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 10:11:19 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: PROBLEM: floppy motor spins when floppy module not installed
+Date: Fri, 12 Dec 2003 16:11:17 +0100
+Message-ID: <yw1xy8tixe96.fsf@kth.se>
+References: <16345.51504.583427.499297@l.a> <yw1xd6auyvac.fsf@kth.se>
+ <Pine.LNX.4.53.0312121000150.10423@chaos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:d9FJL8AVPU12VdMTm6Br7rU0eYY=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"Richard B. Johnson" <root@chaos.analogic.com> writes:
 
-I had some trouble compiling a userspace application
-which uses the I2C device interface (the DirectFB
-Matrox driver). Apparently some stuff has been removed
-from i2c-dev.h, and Documentation/i2c/dev-interface is
-out of date. I'm using Debian unstable (where glibc is
-built with kernel 2.6 headers).
+> On Fri, 12 Dec 2003, [iso-8859-1] Måns Rullgård wrote:
+>
+>> Dale Mellor <dale@dmellor.dabsol.co.uk> writes:
+>>
+>> > 1. Floppy motor spins when floppy module not installed.
+>>
+>> It's a known problem.  Some broken BIOSes don't turn off the motor
+>> after probing for a disk.  One solution is to change the boot priority
+>> in the BIOS settings so the hard disk is tried before floppy.  If you
+>> ever need to boot from a floppy, you can change it back.
+>
+> It is not a broken BIOS! The BIOS timer that ticks 18.206 times
+> per second has an ISR that, in addition to keeping time, turns
+> OFF the FDC motor after two seconds of inactivity. This ISR is taken
+> away by Linux. Therefore Linux must turn off that motor! It is a
+> Linux bug, not a BIOS bug. Linux took control away from the BIOS
+> during boot.
 
-The patch below puts back some "#if __KERNEL__" conditionals
-so i2c.h can be included without errors in userspace progams.
+OK, but why doesn't it affect all machines?
 
-Regards,
-Johannes
+-- 
+Måns Rullgård
+mru@kth.se
 
-
-
---- linux-2.6.0-test11-bk8/include/linux/i2c.h.orig	2003-12-12 15:19:12.000000000 +0100
-+++ linux-2.6.0-test11-bk8/include/linux/i2c.h	2003-12-12 15:19:37.000000000 +0100
-@@ -28,21 +28,26 @@
- #ifndef _LINUX_I2C_H
- #define _LINUX_I2C_H
- 
-+#ifdef __KERNEL__
- #include <linux/module.h>
--#include <linux/types.h>
--#include <linux/i2c-id.h>
- #include <linux/device.h>	/* for struct device */
- #include <asm/semaphore.h>
-+#endif
-+#include <linux/types.h>
-+#include <linux/i2c-id.h>
- 
- /* --- General options ------------------------------------------------	*/
- 
- struct i2c_msg;
-+union i2c_smbus_data;
-+
-+#ifdef __KERNEL__
-+
- struct i2c_algorithm;
- struct i2c_adapter;
- struct i2c_client;
- struct i2c_driver;
- struct i2c_client_address_data;
--union i2c_smbus_data;
- 
- /*
-  * The master routines are the ones normally used to transmit data to devices
-@@ -384,6 +389,7 @@
- 
- /* Return 1 if adapter supports everything we need, 0 if not. */
- extern int i2c_check_functionality (struct i2c_adapter *adap, u32 func);
-+#endif /* #if __KERNEL__ */
- 
- /*
-  * I2C Message - used for pure i2c transaction, also from /dev interface
-@@ -530,6 +536,8 @@
- 				/* written byte (except address)	*/
- #define I2C_MDELAY	0x0706	/* millisec delay between written bytes */
- 
-+
-+#ifdef __KERNEL__
- /* ----- I2C-DEV: char device interface stuff ------------------------- */
- 
- #define I2C_MAJOR	89		/* Device major number		*/
-@@ -605,5 +613,6 @@
- 	set_current_state(TASK_INTERRUPTIBLE);
- 	schedule_timeout(timeout);
- }
-+#endif /* #if __KERNEL__ */
- 
- #endif /* _LINUX_I2C_H */
---- linux-2.6.0-test11-bk8/include/linux/i2c-dev.h.orig	2003-12-12 15:19:17.000000000 +0100
-+++ linux-2.6.0-test11-bk8/include/linux/i2c-dev.h	2003-12-12 15:19:37.000000000 +0100
-@@ -25,6 +25,7 @@
- #define _LINUX_I2C_DEV_H
- 
- #include <linux/types.h>
-+#include <linux/compiler.h>
- 
- /* Some IOCTL commands are defined in <linux/i2c.h> */
- /* Note: 10-bit addresses are NOT supported! */

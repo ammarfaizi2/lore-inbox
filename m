@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266995AbTAZVgg>; Sun, 26 Jan 2003 16:36:36 -0500
+	id <S267005AbTAZVkP>; Sun, 26 Jan 2003 16:40:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267001AbTAZVgg>; Sun, 26 Jan 2003 16:36:36 -0500
-Received: from albireo.ucw.cz ([81.27.194.19]:12294 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266995AbTAZVgg>;
-	Sun, 26 Jan 2003 16:36:36 -0500
-Date: Sun, 26 Jan 2003 22:45:50 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: geert@linux-m68k.org, Richard Henderson <rth@twiddle.net>,
-       "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.5] VGA IO on systems with multiple PCI IO domains
-Message-ID: <20030126214550.GB6873@ucw.cz>
-References: <20030126181326.A799@localhost.park.msu.ru>
-Mime-Version: 1.0
+	id <S267007AbTAZVkO>; Sun, 26 Jan 2003 16:40:14 -0500
+Received: from pat.uio.no ([129.240.130.16]:52360 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S267005AbTAZVkN>;
+	Sun, 26 Jan 2003 16:40:13 -0500
+To: Christian Reis <kiko@async.com.br>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
+       NFS@lists.sourceforge.net
+Subject: Re: [NFS] Re: NFS client locking hangs for period
+References: <20030124184951.A23608@blackjesus.async.com.br>
+	<15922.2657.267195.355147@notabene.cse.unsw.edu.au>
+	<20030126140200.A25438@blackjesus.async.com.br>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 26 Jan 2003 22:49:14 +0100
+In-Reply-To: <20030126140200.A25438@blackjesus.async.com.br>
+Message-ID: <shs8yx7lgyt.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030126181326.A799@localhost.park.msu.ru>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>>>>> " " == Christian Reis <kiko@async.com.br> writes:
 
-> But on modern systems (titan and marvel), the firmware supports vga
-> on *any* bus. Even worse, marvel doesn't have dedicated "legacy"
-> hose at all.
+     > I wonder why you can't do locking on NFS root (if it's a
+     > current limitation of if it doesn't make sense).
 
-> So we have to decode and fix IO port addresses inside our in/out
-> functions, which is awful.
+locking supposes that you are already running a statd daemon, which
+you clearly cannot be doing on an nfsroot system. If you need locking
+on a root partition, then you'll need to set up an initrd from which
+to start all the necessary daemons...
 
-Is the problem really only with VGA? Shouldn't we introduce
-isa_(in|out)(b|w) instead and remap the whole legacy I/O space?
+BTW: Did I understand you and Neil correctly when you appeared to say
+that you were sharing the *same* root partition between several
+clients?
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Don't take life too seriously -- you'll never get out of it alive.
+If so, then that could easily explain your problem: a directory like
+/var/lib/nfs simply cannot be shared among several different
+machines. Read the 'statd' manpage, and I'm sure you will understand
+why.
+
+Cheers,
+  Trond

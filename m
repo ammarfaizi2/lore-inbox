@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318205AbSHBFSe>; Fri, 2 Aug 2002 01:18:34 -0400
+	id <S318211AbSHBFVA>; Fri, 2 Aug 2002 01:21:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318211AbSHBFSe>; Fri, 2 Aug 2002 01:18:34 -0400
-Received: from pcp01179415pcs.strl1201.mi.comcast.net ([68.60.208.36]:2546
-	"EHLO mythical") by vger.kernel.org with ESMTP id <S318205AbSHBFSd>;
-	Fri, 2 Aug 2002 01:18:33 -0400
-Date: Fri, 2 Aug 2002 01:21:54 -0400 (EDT)
-From: Ryan Anderson <ryan@michonline.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: martin@dalecki.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.28 and partitions
-In-Reply-To: <Pine.GSO.4.21.0208011709390.12627-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.10.10208020111410.579-100000@mythical.michonline.com>
+	id <S318216AbSHBFVA>; Fri, 2 Aug 2002 01:21:00 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:58048 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S318211AbSHBFU7>;
+	Fri, 2 Aug 2002 01:20:59 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15690.6005.624237.902152@napali.hpl.hp.com>
+Date: Thu, 1 Aug 2002 22:24:05 -0700
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, "David S. Miller" <davem@redhat.com>,
+       Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, rohit.seth@intel.com, sunil.saxena@intel.com,
+       asit.k.mallick@intel.com
+Subject: Re: large page patch 
+In-Reply-To: <E17aSCT-0008I0-00@w-gerrit2>
+References: <Pine.LNX.4.44L.0208012246390.23404-100000@imladris.surriel.com>
+	<E17aSCT-0008I0-00@w-gerrit2>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Aug 2002, Alexander Viro wrote:
-> On Thu, 1 Aug 2002, Marcin Dalecki wrote:
-> 
-> you: "it's easy to screw up when working with ASCII strings"
-> me: "tossers will find a way to screw up on anything, no matter what it is;
->      see example of tosser screwing up on plain arithmetics"
-> you: "use of ASCII wouldn't help them in that case"
+>>>>> On Thu, 01 Aug 2002 19:29:52 -0700, Gerrit Huizenga <gh@us.ibm.com> said:
 
-Ages and ages ago (ok, not that long ago, really) I remember reading a
-vaguely similar arugment on Fidonet.
+  Gerrit> It would sure be nice if the interface wasn't some kludgey
+  Gerrit> back door but more integrated with things like mmap() or
+  Gerrit> shm*(), with semantics and behaviors that were roughly more
+  Gerrit> predictable.  Other than that, no comments as yet on the
+  Gerrit> patch internals...
 
-The argument was largely over the format of the "next gen" message
-format - RFC822 came up a lot, and the ensuing "binary header" vs "ASCII
-header" arguments would follow.
+In my opinion the proposed large-page patch addresses a relatively
+pressing need for databases (primarily).  Longer term, I'd hope that
+it can be replaced by a transparent superpage scheme.  But the
+existing patch can also serve as a nice benchmark for transparent
+schemes (and frankly, since it doesn't have to do anything smart
+behind the scenes, it's likely that the existing patch, where
+applicable, will always do slightly better than a transparent one).
 
-All I really learned from that was, "parsing email headers is more 
-complicated than people suspect" (binary or ascii, doesn't matter), and that
-ASCII has one advantage that more compact/binary/etc formats lack:
+In any case, the big issue of physical memory fragmentation can be
+experimented with indepent what the user-level interface looks like.
+So the existing patch is useful in that sense as well.
 
-When the ASCII file/header/partition table/whatever gets fscked
-beyond all recognition, I can fix the goddamn thing with a text editor.
-
-That last part is the reason most people utterly detest things like the
-Windows registry and prefer the (imo, at least), much saner /etc design
-prevalent in Linux distributions.
-
-
---
-Ryan Anderson
-  sometimes Pug Majere
-
+	--david

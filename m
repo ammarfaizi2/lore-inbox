@@ -1,62 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270866AbTGVPPj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 11:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270869AbTGVPPj
+	id S270864AbTGVPPb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 11:15:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270869AbTGVPPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 11:15:39 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:27027 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id S270866AbTGVPPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 22 Jul 2003 11:15:30 -0400
-Date: Tue, 22 Jul 2003 17:30:31 +0200
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Michael =?ISO-8859-1?Q?Tro=DF?= <mtross@compu-shack.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: CPU Lockup with 2.4.21 and 2.4.22-pre
-Message-Id: <20030722173031.338fcf32.us15@os.inf.tu-dresden.de>
-In-Reply-To: <1058887570.2357.157.camel@mtross2.csintern.de>
-References: <0001F49C@gwia.compu-shack.com>
-	<1058887570.2357.157.camel@mtross2.csintern.de>
-Organization: Fiasco Core Team
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-X-Fiasco-Rulez: Yes
-X-Mailer: X-Mailer 5.0 Gold
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.s_eQInzYHF1fFB"
+Received: from dsl-gte-19434.linkline.com ([64.30.195.78]:19353 "EHLO server")
+	by vger.kernel.org with ESMTP id S270864AbTGVPPX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 11:15:23 -0400
+Message-ID: <012d01c35066$2c56d400$3400a8c0@W2RZ8L4S02>
+From: "Jim Gifford" <maillist@jg555.com>
+To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
+Cc: "Andrea Arcangeli" <andrea@suse.de>, "lkml" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.55L.0307100025160.6316@freak.distro.conectiva> <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva> <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva> <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva> <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva> <008701c34a29$caabb0f0$3400a8c0@W2RZ8L4S02> <20030719172103.GA1971@x30.local> <018101c34f4d$430d5850$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307210943160.25565@freak.distro.conectiva> <005a01c34fed$fea51120$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307220852470.10991@freak.distro.conectiva>
+Subject: Re: 2.4.22-pre5 deadlock
+Date: Tue, 22 Jul 2003 08:30:25 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.s_eQInzYHF1fFB
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+----- Original Message ----- 
+From: "Marcelo Tosatti" <marcelo@conectiva.com.br>
+To: "Jim Gifford" <maillist@jg555.com>
+Cc: "Andrea Arcangeli" <andrea@suse.de>; "lkml"
+<linux-kernel@vger.kernel.org>
+Sent: Tuesday, July 22, 2003 4:53 AM
+Subject: Re: 2.4.22-pre5 deadlock
 
-On 22 Jul 2003 17:26:10 +0200 Michael Tro=DF (MT) wrote:
 
-MT> Seems that a spin lock is already held. Do you get this oops right after
-MT> opening the device? Then please try NoSelfTest.
+>
+>
+> On Mon, 21 Jul 2003, Jim Gifford wrote:
+>
+> > > Lets wait and see what happens without the iptables and dazuko
+modules.
+> > >
+> > Marcelo,
+> >     -pre7 seems to be working ok. Do you want me to enable the dazuko
+thing
+> > again to see if it's the cause, or do you want me to wait a little
+longer to
+> > see what happens.
+>
+> Jim,
+>
+> I prefer if you leave -pre7 running for a while to confirm its stable.
+>
+>
+>
+top - 08:29:37 up 2 days, 13:41,  2 users,  load average: 2.33, 2.12, 2.03
+Tasks: 109 total,   3 running, 106 sleeping,   0 stopped,   0 zombie
+ Cpu0 :   0.3% user,   3.9% system,  95.8% nice,   0.0% idle
+ Cpu1 :   1.3% user,   0.6% system,  98.1% nice,   0.0% idle
+Mem:   1033672k total,   639904k used,   393768k free,   160764k buffers
+Swap:   265060k total,        0k used,   265060k free,   187444k cached
 
-No, the lockup happens during operation. Sometimes the kernel runs only for
-about one hour, sometimes for a day, but never longer before the lockups
-happen.
+Do you want me to do something intensive. I have a compile that I can do
+that takes over 8 hours.
 
-I don't think going back to 2.4.18 will make a difference for this case,
-or do you think it will?
-
-Regards,
--Udo.
-
---=.s_eQInzYHF1fFB
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.3.1 (GNU/Linux)
-
-iD8DBQE/HViYnhRzXSM7nSkRAmmKAJkBoydc5TEeiZohFXzQGgRt/0TW4wCdHIoW
-jRoV6FntKvsqBl1l/VYq270=
-=+KaP
------END PGP SIGNATURE-----
-
---=.s_eQInzYHF1fFB--

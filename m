@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266997AbUBRXOu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 18:14:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266977AbUBRXOt
+	id S267743AbUBSCuk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 21:50:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267740AbUBSCuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 18:14:49 -0500
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:18308 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S266997AbUBRXNr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 18:13:47 -0500
-From: Rusty Russell <rusty@au1.ibm.com>
-To: Linda Xie <lxiep@ltcfwd.linux.ibm.com>
-Cc: John Rose <johnrose@austin.ibm.com>, Rusty Russell <rusty@au1.ibm.com>,
-       linux-kernel@vger.kernel.org, gregkh@us.ibm.com,
-       Mike Wortman <wortman@us.ibm.com>
-Subject: Re: [PATCH] PPC64 PCI Hotplug Driver for RPA 
-In-reply-to: Your message of "Wed, 18 Feb 2004 13:14:11 MDT."
-             <4033B983.6060809@ltcfwd.linux.ibm.com> 
-Date: Thu, 19 Feb 2004 09:27:18 +1100
-Message-Id: <20040218231322.65F7C17DD8@ozlabs.au.ibm.com>
+	Wed, 18 Feb 2004 21:50:40 -0500
+Received: from main.gmane.org ([80.91.224.249]:57825 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S267712AbUBSCug (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 21:50:36 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?Leandro_Guimar=E3es_Faria_Corsetti_Dutra?= 
+	<leandro@dutra.fastmail.fm>
+Subject: Re: ext3 on raid5 failure
+Date: Wed, 18 Feb 2004 23:32:37 -0300
+Organization: =?ISO-8859-1?Q?=20Fam=C3=ADlia?= Dutra
+Message-ID: <pan.2004.02.19.02.32.37.90698@dutra.fastmail.fm>
+References: <400A5FAA.5030504@portrix.net> <20040118180232.GD1748@srv-lnx2600.matchmail.com> <20040119153005.GA9261@thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 200-138-088-244.mganm7001.dsl.brasiltelecom.net.br
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <4033B983.6060809@ltcfwd.linux.ibm.com> you write:
-> >Umm, what's this?  Checking CONFIG_FOO_MODULE is basically always wrong
-> >and especially in this case.  Just use "rpaphp" always.
-> >  
-> >
-> Replaced with
-> 
-> #define MY_NAME "rpaphp"
+On Mon, 19 Jan 2004 10:30:05 -0500, Theodore Ts'o wrote:
 
-Or better, remove #define and use KBUILD_MODNAME, which for this file
-will be rpaphp anyway.
+>> On Sun, Jan 18, 2004 at 11:27:54AM +0100, Jan Dittmer wrote:
+>> > EXT3-fs error (device dm-1): ext3_readdir: bad entry in directory
+>> > #9783034: rec_len % 4 != 0 - offset=0, inode=1846971784,
+>> > rec_len=33046, name_len=154
+>> > Aborting journal on device dm-1.
+>> > ext3_abort called.
+>> > EXT3-fs abort (device dm-1): ext3_journal_start: Detected aborted
+>> > journal Remounting filesystem read-only
 
-Thanks,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+	Has this been resolved?  I have a machine due to enter production, am
+considering going back to 2.4 if there is no further information.
+
+
+-- 
+Leandro Guimarães Faria Corsetti Dutra           +55 (11) 5685 2219
+Av Sgto Geraldo Santana, 1100 6/71               +55 (11) 5686 9607
+04.674-000  São Paulo, SP                                    BRASIL
+http://br.geocities.com./lgcdutra/
+

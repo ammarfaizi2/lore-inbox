@@ -1,93 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267715AbSLGEJ4>; Fri, 6 Dec 2002 23:09:56 -0500
+	id <S267714AbSLGEUT>; Fri, 6 Dec 2002 23:20:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267716AbSLGEJ4>; Fri, 6 Dec 2002 23:09:56 -0500
-Received: from h-64-105-35-8.SNVACAID.covad.net ([64.105.35.8]:13739 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S267715AbSLGEJy>; Fri, 6 Dec 2002 23:09:54 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Fri, 6 Dec 2002 20:12:57 -0800
-Message-Id: <200212070412.UAA07362@adam.yggdrasil.com>
-To: davem@redhat.com
-Subject: Re: [RFC] generic device DMA implementation
-Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org,
-       willy@debian.org
+	id <S267716AbSLGEUT>; Fri, 6 Dec 2002 23:20:19 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:39695 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id <S267714AbSLGEUR>; Fri, 6 Dec 2002 23:20:17 -0500
+Subject: Re: 2.4.18 beats 2.5.50 in hard drive access????
+From: "Trever L. Adams" <tadams-lists@myrealbox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Ashley <dash@xdr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1039227036.25004.0.camel@irongate.swansea.linux.org.uk>
+References: <200212062300.gB6N0jg10757@xdr.com>
+	 <1039227036.25004.0.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1039235352.3232.22.camel@aurora.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 06 Dec 2002 23:29:12 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	The question of flags versus an extra procedure name is not
-actually that big of a deal to me.  I can live with either approach
-for dma_alloc.  However, I'll explain what I see as advantages of
-using a flags parameter for others to consider (or to tell me where
-they think I'm wrong or haven't thought of something).
-
-On Fri, 06 Dec 2002, David S. Miller wrote:
-> I don't want a 'flags' thing, because that tends to be the action
-> which opens the flood gates for putting random feature-of-the-day new
-> bits.
-
-	It is possible to overuse any extension mechanism.  I think
-you've made a general argument against extension mechanisms that is
-usually not true in practice, at least in Linux.  I think simple
-extension mechanisms, like having a flag word in this case when we
-need to express a choice between two options anyhow, tend to do more
-good than harm on average, even when I think about most egregious
-cases like filesystems.  Maybe if I could see an example or two
-extension mechanisms that have a net negative impact in your opinion,
-I'd better understand.
+On Fri, 2002-12-06 at 21:10, Alan Cox wrote:
+> On Fri, 2002-12-06 at 23:00, David Ashley wrote:
+> > hda is an IDE cdrom drive, but here it is:
+> 
+> Ok that would explain why DMA is off on it. The disk puzzles me - for an
+> OSB4 the code should be selecting MWDMA2
+> 
 
 
-> If you have to actually get a real API change made, it will get review
-> and won't "sneak on in"
+This may or may not be related.  I am still trying to dig through the
+ide code to see what changed, but 2.4.x will enable DMA on my disks. 
+2.5.x turns it off explicitly.  As far as I have been able to figure in
+my digging (just a half hour or so, so far), my drives aren't black
+listed.
 
-	Or Linux just won't get that optimization because people give
-up or leave their changes on the back burner indefinitely, something
-that I think happens to most Linux improvements, especially if you
-count those that don't make it to implementation because people
-correctly forsee this kind of bureaucracy.  If anyone does decide to
-propose another flag-like facility for dma_alloc, I expect people will
-complain that changing the API may require hundreds of drivers to be
-updated.
+Anyway, when I did my initial tests I had scsi cd stuff, not ide (now I
+am dropping scsi, so I have an ide cdrw).  Here is the dmesg output from
+2.4.x
 
-	I did think about the possibility of a flags parameter
-inviting features that aren't worth their complexity or other costs
-before I suggested a flags parameter.  My view was and is that if
-people handling individual architectures want to add and remove flags
-bits, even just to experiment with features, I think the existing
-process of getting patches integrated would cause enough review.  I
-also think our capacity to process changes is already exceeded by
-voluntary submissions as evidenced by backlogs and dropped patches.
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+VP_IDE: IDE controller on PCI bus 00 dev 89
+PCI: No IRQ known for interrupt pin A of device 00:11.1. Please try
+using pci=biosirq.
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+VP_IDE: VIA vt8233 (rev 00) IDE UDMA100 controller on pci00:11.1
+    ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:pio
+hda: WDC WD136AA, ATA DISK drive
+hdb: ATAPI CD-RW 40/12/48X, ATAPI CD/DVD-ROM drive
+hdc: WDC WD153BA, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 26564832 sectors (13601 MB) w/2048KiB Cache, CHS=1653/255/63,
+(U)DMA
+hdc: 30043440 sectors (15382 MB) w/2048KiB Cache, CHS=29805/16/63,
+UDMA(66)
+ide-floppy driver 0.99.newide
+Partition check:
+hda: hda1 hda2 < hda5 >
+hdc: [PTBL] [1870/255/63] hdc1 hdc2 hdc3
 
 
-> I also don't want architectures adding arch
-> specific flag bits that some drivers end up using, for example.
+and 2.5.47 (From system logs):
 
-	Here I'm guessing at your intended meaning.  If you mean that
-there will be numbering collisions, I would expect these flags to be
-defined in include/asm-xxx/dma-mapping.h.  I was going to suggest that
-we even do this for DMA_ALLOW_INCONSISENT.
-include/asm-parisc/dma-mapping.h would contain:
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+Nov 19 17:14:50 aurora kernel: VP_IDE: IDE controller at PCI slot
+00:11.1
+PCI: No IRQ known for interrupt pin A of device 00:11.1. Please try
+using pci=biosirq.
+VP_IDE: chipset revision 6
+VP_IDE: not 100%% native mode: will probe irqs later
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+VP_IDE: VIA vt8233 (rev 00) IDE UDMA100 controller on pci00:11.1
+ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:DMA
+ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:pio
+hda: WDC WD136AA, ATA DISK drive
+hdb: ATAPI CD-RW 40/12/48X, ATAPI CD/DVD-ROM drive
+hda: DMA disabled
+hdb: DMA disabled
 
-#define DMA_ALLOW_INCONSISTENT 	0x1
+What is this?
+Nov 19 19:09:06 aurora kernel: Speakup v-1.00 CVS: Tue Jun 11 14:22:53
+EDT 2002
+: initialized
+Some kind of speech stuff or the kernel?
 
-linux/dma-mapping.h would contain:
+Anyway, 2.5.x does seem a little slower to me than 2.4.x on disk access
+as well.  This DMA disabled worries me.
 
-#include <asm/dma-mapping.h>
-#ifndef DMA_ALLOW_INCONSISTENT
-# define DMA_ALLOW_INCONSISTENT		0
-#endif
+Trever Adams
 
-	By that convention, bits would not be used in architectures
-that never set them, and it could conceivably simplify some compiler
-optimizations like "flags |= DMA_SOME_FLAG;" and
-"if (flags & DMA_SOME_FLAG) {....}" on architectures where this is never
-true.  Bit assignment would be under the control of the platforms, at
-least in the absense of a flag that is meaningful on every platform (if
-there were one, it would just simplify the source code to define it only
-in linux/dma-mapping.h).
+--
+"Magazines all too frequently lead to books and should be regarded by
+the prudent as the heavy petting of literature." -- Fran Lebowitz
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263566AbTEIWwz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 18:52:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbTEIWwy
+	id S263558AbTEIWwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 18:52:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263566AbTEIWwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 18:52:54 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:44424 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263566AbTEIWwa (ORCPT
+	Fri, 9 May 2003 18:52:09 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:29164 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263558AbTEIWwH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 18:52:30 -0400
-Date: Fri, 9 May 2003 16:05:05 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Linus Torvalds <torvalds@transmeta.com>, Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5.69] suspend storing signed jiffies
-Message-Id: <20030509160505.31cae893.shemminger@osdl.org>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Fri, 9 May 2003 18:52:07 -0400
+Date: Fri, 9 May 2003 16:05:42 -0700
+From: Greg KH <greg@kroah.com>
+To: Max Krasnyansky <maxk@qualcomm.com>
+Cc: David Brownell <david-b@pacbell.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: [Bluetooth] HCI USB driver update. Support for SCO over HCI USB.
+Message-ID: <20030509230542.GA3267@kroah.com>
+References: <200304290317.h3T3HOdA027579@hera.kernel.org> <200304290317.h3T3HOdA027579@hera.kernel.org> <5.1.0.14.2.20030429131303.10d7f330@unixmail.qualcomm.com> <5.1.0.14.2.20030429145523.10c52e50@unixmail.qualcomm.com> <5.1.0.14.2.20030508123858.01c004f8@unixmail.qualcomm.com> <3EBBFC33.7050702@pacbell.net> <1052517124.10458.199.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1052517124.10458.199.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gets rid of warning because of using jiffies in int.
+On Fri, May 09, 2003 at 03:35:36PM -0700, Max Krasnyansky wrote:
+> Ok. Sounds like it should be
+> 	uint32_t hcd_cb[16]; // 64 bytes for internal use by HCD
+> 	uint32_t drv_cb[2];  // 8  bytes for internal use by USB driver
 
-diff -Nru a/kernel/suspend.c b/kernel/suspend.c
---- a/kernel/suspend.c	Fri May  9 15:54:51 2003
-+++ b/kernel/suspend.c	Fri May  9 15:54:51 2003
-@@ -201,7 +201,8 @@
- /* 0 = success, else # of processes that we failed to stop */
- int freeze_processes(void)
- {
--	int todo, start_time;
-+	int todo;
-+	unsigned long start_time;
- 	struct task_struct *g, *p;
- 	
- 	printk( "Stopping tasks: " );
+s/uint32_t/u32/ please.
+And if this is going to be used for pointers, why not just say they are
+pointers?  Otherwise people are going to have to be careful with 32 vs.
+64 bit kernels to not overrun their space.
+
+struct sk_buff uses a char, any reason not to use that here too?  Has
+being a char made things more difficult for that structure over time?
+
+thanks,
+
+greg k-h

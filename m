@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129076AbQKCJT4>; Fri, 3 Nov 2000 04:19:56 -0500
+	id <S129094AbQKCJcb>; Fri, 3 Nov 2000 04:32:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129215AbQKCJTr>; Fri, 3 Nov 2000 04:19:47 -0500
-Received: from mofeed.lnk.telstra.net ([139.130.136.169]:3340 "EHLO
-	darwin.labf.org") by vger.kernel.org with ESMTP id <S129076AbQKCJTg>;
-	Fri, 3 Nov 2000 04:19:36 -0500
-Date: Fri, 3 Nov 2000 18:47:25 +1030 (CST)
-From: Mofeed Shahin <shahin@labf.org>
+	id <S129118AbQKCJcV>; Fri, 3 Nov 2000 04:32:21 -0500
+Received: from alc119.alcatel.be ([195.207.101.119]:53999 "EHLO
+	relay1.alcatel.be") by vger.kernel.org with ESMTP
+	id <S129094AbQKCJcI>; Fri, 3 Nov 2000 04:32:08 -0500
+X-Lotus-FromDomain: ALCATEL
+From: Laurent.Kersten@alcatel.be
 To: linux-kernel@vger.kernel.org
-cc: mofeed@labf.org
-Subject: eepro checksum problem.
-Message-ID: <Pine.LNX.4.21.0011031842200.7099-100000@darwin.labf.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <C125698C.003444F5.00@bemail04.net.alcatel.be>
+Date: Fri, 3 Nov 2000 10:30:54 +0100
+Subject: Include file problem with kernel 2.2.16 (seems to be the same
+	 with 2.2.17)
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-g'day all,
 
-I am having problems with my Intel Ether Express Pro 100 card.
-I keep getting this message :
 
-eth0: Invalid EEPROM checksum 0x8107, check settings before activating
-this device.
+Hello,
 
-What does this mean?
-Can I do anything to solve this problem ?
-Or has the card gone bad ?
+I've found an unfortunate bug in the "linux/timex.h" file.  This file include "sys/time.h" and this cause any program that use the adjtimex syscall to be unable to compile (You get a lot of multiple definition error message). The only work-around, I've
+made is to comment the "#include <sys/time.h>" line and add it  myself in my  (user-mode) program that use the adjtimex syscall.
 
-Mof.
+I would like to know :
+
+1) Is there any side-effect with this ?
+2) Is it safe ?
+
+
+
+Best regards
+
+Laurent Kersten
+
+Alcatel Bell Space N.V.
+Berkenrodelei 33
+B-2660 Hoboken.
+Tel :     00-32-3-829.54.09
+Fax :     00-32-3-829.57.63
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

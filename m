@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269886AbTGOX4z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 19:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269895AbTGOX4z
+	id S269895AbTGOX5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 19:57:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269906AbTGOX5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 19:56:55 -0400
-Received: from smtp2.brturbo.com ([200.199.201.30]:26507 "EHLO
-	smtp.brturbo.com") by vger.kernel.org with ESMTP id S269886AbTGOX4y
+	Tue, 15 Jul 2003 19:57:25 -0400
+Received: from smtp.terra.es ([213.4.129.129]:57665 "EHLO tsmtp9.mail.isp")
+	by vger.kernel.org with ESMTP id S269895AbTGOX5X convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 19:56:54 -0400
-From: Marcelo Penna Guerra <eu@marcelopenna.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.0-test1: include/linux/pci.h inconsistency?
-Date: Tue, 15 Jul 2003 20:59:31 -0300
-User-Agent: KMail/1.5.9
-Cc: Lars Duesing <ld@stud.fh-muenchen.de>, linux-kernel@vger.kernel.org
-References: <1058195165.4131.6.camel@ws1.intern.stud.fh-muenchen.de> <200307151027.06474.eu@marcelopenna.org> <20030715144212.GB13207@gtf.org>
-In-Reply-To: <20030715144212.GB13207@gtf.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200307152059.31746.eu@marcelopenna.org>
+	Tue, 15 Jul 2003 19:57:23 -0400
+Date: Wed, 16 Jul 2003 02:12:10 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Piet Delaney <piet@www.piet.net>
+Cc: rddunlap@osdl.org, fsanchez@mail.usfq.edu.ec, linux-kernel@vger.kernel.org
+Subject: Re: modules problems with 2.6.0 (module-init-tools-0.9.12)
+Message-Id: <20030716021210.56ea8360.diegocg@teleline.es>
+In-Reply-To: <1058313192.21300.988.camel@www.piet.net>
+References: <3F147B8F.5000103@mail.usfq.edu.ec>
+	<20030715152257.614d628b.rddunlap@osdl.org>
+	<1058313192.21300.988.camel@www.piet.net>
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
+El 15 Jul 2003 16:53:12 -0700 Piet Delaney <piet@www.piet.net> escribió:
 
-I tried adding the PCI ids from the nvnet "source" to amd8111e.c, but it 
-didn't work. I didn't do any debugging. I'll try with pcnet32 now to see what 
-happens and do some debugging later.
+> On Tue, 2003-07-15 at 15:22, Randy.Dunlap wrote:
+> 
+> I heard that if you install the new module-init-tools package in
+> /sbin that you would be able to boot old kernels. Is that true?
 
-Thank you for the tip,
+It works here.
+i've a debian distro, i apt-get'ed module-init-tools. Man modprobe says:
 
-Marcelo Penna Guerra
+BACKWARDS COMPATIBILITY
+       This version of insmod is  for  kernels  2.5.48  and  above.   If  it
+       detects  a kernel with support for old-style modules (for which much of
+       the work was done in userspace), it will attempt to run  insmod.modu-
+       tils in its place, so it is completely transparent to the user.
 
-On Tuesday 15 July 2003 11:42, Jeff Garzik wrote:
-> On Tue, Jul 15, 2003 at 10:27:06AM -0300, Marcelo Penna Guerra wrote:
-> I really would love some person with an nForce NIC to try and use
-> amd8111e.c or pcnet32.c with their nForce2 NIC, and see what happens.
->
-> (you would need to add PCI ids, obviously, and perhaps turn on debugging
-> to see what happens)
->
-> 	Jeff
+diego@estel:~$ ls -l /sbin/insmod*
+-rwxr-xr-x    1 root     root         5072 2003-06-15 12:27 /sbin/insmod
+-rwxr-xr-x    1 root     root          359 2003-03-06 15:50 /sbin/insmod_ksymoops_clean
+-rwxr-xr-x    1 root     root        95372 2003-03-06 15:50 /sbin/insmod.modutils
+
+
+Looking at the size, insmod.modutils seems the 2.4 insmod loader. 

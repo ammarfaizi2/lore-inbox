@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291432AbSBXVqi>; Sun, 24 Feb 2002 16:46:38 -0500
+	id <S291436AbSBXVsS>; Sun, 24 Feb 2002 16:48:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291429AbSBXVqa>; Sun, 24 Feb 2002 16:46:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25616 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291414AbSBXVqN>;
-	Sun, 24 Feb 2002 16:46:13 -0500
-Message-ID: <3C795F1F.AA5E6B8@mandrakesoft.com>
-Date: Sun, 24 Feb 2002 16:46:07 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S291431AbSBXVsK>; Sun, 24 Feb 2002 16:48:10 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:4367 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S291579AbSBXVry>;
+	Sun, 24 Feb 2002 16:47:54 -0500
+Date: Sun, 24 Feb 2002 18:47:34 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
 To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Martin Dalecki <dalecki@evision-ventures.com>,
         Troy Benjegerdes <hozer@drgw.net>,
         Linus Torvalds <torvalds@transmeta.com>,
         Andre Hedrick <andre@linuxdiskcert.org>,
-        Rik van Riel <riel@conectiva.com.br>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Flash Back -- kernel 2.1.111
-In-Reply-To: <3C794DC0.7040706@evision-ventures.com> <E16f5z8-0002id-00@the-village.bc.nu> <20020224224007.A1949@ucw.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20020224224135.B1949@ucw.cz>
+Message-ID: <Pine.LNX.4.33L.0202241847130.7820-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> I have some experimental IDE based code which can detect the PCI bus
-> speed by doing some IDE transfers and measuring the time it takes. It
-> isn't 100% reliable, though. I haven't found any other way to detect PCI
-> clock reliably, unfortunately it cannot be safely guessed from the CPU
-> clock or FSB clock or anything.
+On Sun, 24 Feb 2002, Vojtech Pavlik wrote:
 
-Maybe your code cannot detect the "right answer" perfectly, but at least
-it could be useful as a sanity check, to let you know if the timings/bus
-speed are wildly off...
+> I think having two VLBs is quite impossible - they were wired right to
+> the CPU. Maybe in some early weird multiprocessor 486 or p5 machine?
 
-	Jeff
+I've had a 486 box with a PCI bus and a VLB bus behind a
+PCI-VLB bridge.
 
-
-
+Rik
 -- 
-Jeff Garzik      | "UNIX enhancements aren't."
-Building 1024    |           -- says /usr/games/fortune
-MandrakeSoft     |
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

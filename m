@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131274AbRCHFVF>; Thu, 8 Mar 2001 00:21:05 -0500
+	id <S131272AbRCHFMz>; Thu, 8 Mar 2001 00:12:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131275AbRCHFUp>; Thu, 8 Mar 2001 00:20:45 -0500
-Received: from sv.moemoe.gr.jp ([211.10.15.35]:2829 "HELO mail.moemoe.gr.jp")
-	by vger.kernel.org with SMTP id <S131274AbRCHFUi>;
-	Thu, 8 Mar 2001 00:20:38 -0500
-Date: Thu, 08 Mar 2001 14:20:10 +0900
-From: Keitaro Yosimura <ramsy@10art-ni.co.jp>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2ac14
-In-Reply-To: <E14an7j-0001rZ-00@the-village.bc.nu>
-In-Reply-To: <E14an7j-0001rZ-00@the-village.bc.nu>
-Message-Id: <20010308141636.C2DE.RAMSY@10art-ni.co.jp>
+	id <S131274AbRCHFMp>; Thu, 8 Mar 2001 00:12:45 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:12554 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S131272AbRCHFMc>;
+	Thu, 8 Mar 2001 00:12:32 -0500
+Message-ID: <3AA71B5C.5AD8661E@candelatech.com>
+Date: Wed, 07 Mar 2001 22:40:44 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.2 ext2 filesystem corruption ? (was 2.4.2: What happened ? (No
+In-Reply-To: <E14adVH-0000wL-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.00.03
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. alan.
+Alan Cox wrote:
+> 
+> > I'm not arguing it was a smart thing to do, but I would think that the
+> > fs/kernel/driver writers could keep really nasty and un-expected things
+> > from happenning.  For instance, the driver could dis-allow any new (non-hdparm)
+> 
+> Like stopping root from using rm -r ? Where is the line drawn
 
->2.4.2-ac14
+rm -r does not do un-expected things, and it does not corrupt your file
+system, it merely removes it.  That is the only thing it does, and it
+does it every time.
 
-at patching.
->The next patch would create the file `include/linux/hdlc.h',
->which already exists!  Assume -R? [n] n
->Apply anyway? [n] y
->patching file `include/linux/hdlc.h'
->Patch attempted to create file `include/linux/hdlc.h', which already exists.
->Hunk #1 FAILED at 1.
->1 out of 1 hunk FAILED -- saving rejects to include/linux/hdlc.h.rej
+However, messing with the hdparms options can do random things, at
+least from my perspective as a user:  It may bring exciting new performance
+to your system, and it may subtly, or not so, corrupt your file system.
 
-must remove before patching? or ignore it?
+If the drivers can detect what type of HD/chipset we are using, surely
+it can know not to allow the user to do stupid things that are out of
+spec w/regards to the hardware?
 
-<|> YOSHIMURA 'ramsy' Keitaro / Japan Linux Association
-<|> mailto:ramsy@linux.or.jp
-<|> http://jla.linux.or.jp/index.html
+For the power/insane user, there could be a --really-do-stupid-thing-i-told-you-to
+option, and it should be that hard to type!!
 
+Ben
+
+-- 
+Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
+Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
+http://scry.wanfear.com               http://scry.wanfear.com/~greear

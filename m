@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267716AbTBRTwz>; Tue, 18 Feb 2003 14:52:55 -0500
+	id <S268000AbTBRUcx>; Tue, 18 Feb 2003 15:32:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267817AbTBRTwz>; Tue, 18 Feb 2003 14:52:55 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:63450 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267716AbTBRTwy>; Tue, 18 Feb 2003 14:52:54 -0500
-Subject: [TRIVIAL] remap->mremap
-From: Paul Larson <plars@austin.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <1045597759.28493.208.camel@plars>
-References: <1045597759.28493.208.camel@plars>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-GT+41ZWCQ4IFUnYZZm1z"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 18 Feb 2003 13:56:44 -0600
-Message-Id: <1045598206.28493.211.camel@plars>
+	id <S268001AbTBRUcx>; Tue, 18 Feb 2003 15:32:53 -0500
+Received: from main.gmane.org ([80.91.224.249]:33752 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S268000AbTBRUcw>;
+	Tue, 18 Feb 2003 15:32:52 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: David Wuertele <dave-gnus@bfnet.com>
+Subject: Re: how to interactively break gdb debugging kernel over serial?
+Date: Tue, 18 Feb 2003 12:37:29 -0800
+Organization: Berkeley Fluent Network
+Message-ID: <m38ywd72ba.fsf@bfnet.com>
+References: <20030214234557.GC13336@doc.pdx.osdl.net> <m38ywia054.fsf@bfnet.com>
+ <3E4F3A40.3090502@mvista.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.090014 (Oort Gnus v0.14) Emacs/21.2 (i686-pc-linux-gnu)
+Cancel-Lock: sha1:vXhHcgRjdbO7LaaKarVNjYvOqGk=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> I'm debugging the kernel with gdb over a serial port.  Breakpoints and
+>> stepping through code works great, except for the fact that once the
+>> kernel is running, I can't seem to use Control-C to stop it.  Is there
+>> a keypress or other interactive way to break a running kernel?
+>> Thanks,
+>> Dave
 
---=-GT+41ZWCQ4IFUnYZZm1z
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+george> There are a great number of kgdb patches in the wild.  You
+george> would help us out a lot if you were to name the one you are
+george> using.
 
-missed one
+Here's the output from gdb --version:
 
---- linux-2.5.62/mm/mremap.c	2003-02-17 16:56:16.000000000 -0600
-+++ linux-2.5.62-trivial/mm/mremap.c	2003-02-18 13:44:20.000000000 -0600
-@@ -1,5 +1,5 @@
- /*
-- *	mm/remap.c
-+ *	mm/mremap.c
-  *
-  *	(C) Copyright 1996 Linus Torvalds
-  *
+GNU gdb Red Hat Linux (5.1.90CVS-5)
+Copyright 2002 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i386-redhat-linux".
 
+Does that help?
 
---=-GT+41ZWCQ4IFUnYZZm1z
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEABECAAYFAj5Sj/wACgkQg9lkBG+YkH8jSQCdEBl10fvKMn+b+uVXXr+bcYMC
-Q2UAnRd47ro09h4nrA5ekCuDTLJL50Kk
-=hexm
------END PGP SIGNATURE-----
-
---=-GT+41ZWCQ4IFUnYZZm1z--
+Thanks,
+Dave
 

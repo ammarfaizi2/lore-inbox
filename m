@@ -1,33 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262390AbSJIXOJ>; Wed, 9 Oct 2002 19:14:09 -0400
+	id <S262933AbSJIXP0>; Wed, 9 Oct 2002 19:15:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262414AbSJIXOJ>; Wed, 9 Oct 2002 19:14:09 -0400
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:51841 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S262390AbSJIXOI>;
-	Wed, 9 Oct 2002 19:14:08 -0400
-Date: Thu, 10 Oct 2002 00:20:02 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Mark Mielke <mark@mark.mielke.cc>
-Cc: Giuliano Pochini <pochini@denise.shiny.it>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-Message-ID: <20021009232002.GC2654@bjl1.asuk.net>
-References: <1034104637.29468.1483.camel@phantasy> <XFMail.20021009103325.pochini@shiny.it> <20021009170517.GA5608@mark.mielke.cc> <3DA4852B.7CC89C09@denise.shiny.it> <20021009222438.GD5608@mark.mielke.cc>
-Mime-Version: 1.0
+	id <S262959AbSJIXPZ>; Wed, 9 Oct 2002 19:15:25 -0400
+Received: from dp.samba.org ([66.70.73.150]:21673 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262933AbSJIXOx>;
+	Wed, 9 Oct 2002 19:14:53 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021009222438.GD5608@mark.mielke.cc>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15780.46366.112563.365010@nanango.paulus.ozlabs.org>
+Date: Thu, 10 Oct 2002 09:00:46 +1000 (EST)
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] adjust PPC sysctls
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Mielke wrote:
->     2) Pages should not be candidates for dropping if the pages belong
->        to the first few pages of a file. (First = 2? 4? 8?) The theory
->        being, that somebody could begin reading the file again from the
->        beginning.
+This patch takes out the unused KERN_PPC_ZEROPAGED sysctl, and
+restricts the KERN_PPC_POWERSAVE_NAP and KERN_PPC_L2CR sysctls to be
+present only on those PPC processors where they are useful.  This
+patch only affects PPC.
 
-This breaks the benefit of using O_STREAMING to read a lot of small
-files once, as you might do when grepping the kernel tree for example.
+Linus, please apply this patch to your tree.
 
--- Jamie
+Paul.
+
+diff -urN linux-2.5/kernel/sysctl.c linuxppc-2.5/kernel/sysctl.c
+--- linux-2.5/kernel/sysctl.c	2002-09-20 22:31:26.000000000 +1000
++++ linuxppc-2.5/kernel/sysctl.c	2002-09-20 23:03:19.000000000 +1000
+@@ -88,8 +88,8 @@
+ extern int sysctl_userprocess_debug;
+ #endif
+ 
+-#ifdef CONFIG_PPC32
+-extern unsigned long zero_paged_on, powersave_nap;
++#if defined(CONFIG_PPC32) && defined(CONFIG_6xx)
++extern unsigned long powersave_nap;
+ int proc_dol2crvec(ctl_table *table, int write, struct file *filp,
+ 		  void *buffer, size_t *lenp);
+ #endif
+@@ -190,9 +190,7 @@
+ 	{KERN_SPARC_STOP_A, "stop-a", &stop_a_enabled, sizeof (int),
+ 	 0644, NULL, &proc_dointvec},
+ #endif
+-#ifdef CONFIG_PPC32
+-	{KERN_PPC_ZEROPAGED, "zero-paged", &zero_paged_on, sizeof(int),
+-	 0644, NULL, &proc_dointvec},
++#if defined(CONFIG_PPC32) && defined(CONFIG_6xx)
+ 	{KERN_PPC_POWERSAVE_NAP, "powersave-nap", &powersave_nap, sizeof(int),
+ 	 0644, NULL, &proc_dointvec},
+ 	{KERN_PPC_L2CR, "l2cr", NULL, 0,

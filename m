@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284211AbRLATYM>; Sat, 1 Dec 2001 14:24:12 -0500
+	id <S284205AbRLATcX>; Sat, 1 Dec 2001 14:32:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284207AbRLATXw>; Sat, 1 Dec 2001 14:23:52 -0500
-Received: from hq2.fsmlabs.com ([209.155.42.199]:25361 "HELO hq2.fsmlabs.com")
-	by vger.kernel.org with SMTP id <S284205AbRLATXn>;
-	Sat, 1 Dec 2001 14:23:43 -0500
-Date: Sat, 1 Dec 2001 12:17:18 -0700
-From: Victor Yodaiken <yodaiken@fsmlabs.com>
-To: Ricardo Galli <gallir@uib.es>
-Cc: linux-kernel@vger.kernel.org, lm@bitmover.com
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
-Message-ID: <20011201121718.C1633@hq2>
-In-Reply-To: <E16AF2A-0002HG-00@linux.uib.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16AF2A-0002HG-00@linux.uib.es>
-User-Agent: Mutt/1.3.23i
-Organization: FSM Labs
+	id <S284207AbRLATcN>; Sat, 1 Dec 2001 14:32:13 -0500
+Received: from mail305.mail.bellsouth.net ([205.152.58.165]:41496 "EHLO
+	imf05bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S284205AbRLATb6>; Sat, 1 Dec 2001 14:31:58 -0500
+Message-ID: <3C093029.EEF79D5A@mandrakesoft.com>
+Date: Sat, 01 Dec 2001 14:31:53 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: 2 small patches against 2.4.17-pre2 (sym2 + email change)
+In-Reply-To: <20011201165150.M1964-300000@gerard>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 01, 2001 at 07:38:42PM +0100, Ricardo Galli wrote:
-> > Amen to that. STREAMS would be one of the strongest arguments in favor
-> > of Linus' theory that evolution takes care of it. STREAMS were done at
-> > Sun by some "architects" who thought they would be better than sockets.
-> 
-> Wasn't Dennis Ritchie one of the "architects" of STREAMS at Bell Labs?
+Gérard Roudier wrote:
+>         * version sym-2.1.17a
+>         - Use u_long instead of U32 for the IO base cookie. This is more
+>           consistent with what archs are expecting.
 
-Different thing. Same name.
+Well...  if you want to speak of style, no arch uses 'u_long'... rather
+they use 'unsigned long' :)
 
-> 
->   A Stream Input-Output System : AT&T Bell Laboratories Technical Journal 
->   63,  No. 8 Part 2 (October, 1984)
-> 
->   (http://cm.bell-labs.com/cm/cs/who/dmr/st.pdf)
-> 
-> --ricardo
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

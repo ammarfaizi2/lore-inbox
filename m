@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269247AbUJQSLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269252AbUJQSMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269247AbUJQSLu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 14:11:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269257AbUJQSLt
+	id S269252AbUJQSMg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 14:12:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269257AbUJQSL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 14:11:49 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:23271 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S269247AbUJQSLm (ORCPT
+	Sun, 17 Oct 2004 14:11:57 -0400
+Received: from findaloan.ca ([66.11.177.6]:23427 "EHLO vhosts.findaloan.ca")
+	by vger.kernel.org with ESMTP id S269256AbUJQSLn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 14:11:42 -0400
-Date: Sun, 17 Oct 2004 20:10:37 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Daniele Pizzoni <auouo@tin.it>,
-       kernel-janitors <kernel-janitors@lists.osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/8] replacing/fixing printk with pr_debug/pr_info in
- arch/i386 - intro
-In-Reply-To: <20041017161953.GA24810@elte.hu>
-Message-ID: <Pine.GSO.4.61.0410172006060.27743@waterleaf.sonytel.be>
-References: <1098031764.3023.45.camel@pdp11.tsho.org> <20041017161953.GA24810@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 17 Oct 2004 14:11:43 -0400
+Date: Sun, 17 Oct 2004 14:06:31 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Buddy Lucas <buddy.lucas@gmail.com>
+Cc: Lars Marowsky-Bree <lmb@suse.de>, David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Message-ID: <20041017180631.GA11531@mark.mielke.cc>
+Mail-Followup-To: Buddy Lucas <buddy.lucas@gmail.com>,
+	Lars Marowsky-Bree <lmb@suse.de>,
+	David Schwartz <davids@webmaster.com>,
+	"Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+References: <20041016062512.GA17971@mark.mielke.cc> <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com> <20041017133537.GL7468@marowsky-bree.de> <5d6b657504101707175aab0fcb@mail.gmail.com> <20041017172244.GM7468@marowsky-bree.de> <5d6b657504101710542e054f53@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5d6b657504101710542e054f53@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Oct 2004, Ingo Molnar wrote:
-> * Daniele Pizzoni <auouo@tin.it> wrote:
-> 
-> > Hello, I'm going to post a series of small janitorial patches focused on
-> > 1) replacing DPRINTK-style macros with pr_debug from kernel.h
-> > 2) replacing printk(KERN_INFO ...) with pr_info(...)
-> > 3) fixing _obvious_ inconsistencies of printk levels as:
-> > 
-> > printk(KERN_INFO "Start... ");
-> > ...
-> > printk("Ok!\n");
-> 
-> 1) be careful, there is no inconsistency here. It's a printk that doesnt
-> end in a "\n" in the first line.
+On Sun, Oct 17, 2004 at 07:54:04PM +0200, Buddy Lucas wrote:
+> > This isn't per se the same as saying that it's not a sensible violation,
+> > but very clearly the specs disagree with the current Linux behaviour.
+> So document it.
 
-Indeed.
+This is all I'm expecting to see. :-)
 
-Iff you ever want to replace the above, make sure to do it like this:
+Buddy: You took the opposite stance, but still stuck to the truth. I give
+you points for that.
 
-    printk_info("Start... ");
-    ...
-    printkc_info("Ok!\n");
+Cheers,
+mark
 
-(with `printkc_info()' being a continuation of `printk_info()'. And do the same
-for all other KERN_* variations. This would add real value, since the next step
-is to make the printk{,c}_*() definitions conditionally empty for embedded
-systems and/or systems with few memory.
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-Gr{oetje,eeting}s,
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-						Geert
+                           http://mark.mielke.cc/
 
-P.S. The naming conventions above are purely hypothetical. I suggest we first
-     have a few Holy Wars(tm) about them before settling :-)
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

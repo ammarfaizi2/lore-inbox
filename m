@@ -1,156 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261375AbREQIXV>; Thu, 17 May 2001 04:23:21 -0400
+	id <S261380AbREQJTN>; Thu, 17 May 2001 05:19:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261377AbREQIXM>; Thu, 17 May 2001 04:23:12 -0400
-Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:4021 "EHLO
-	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S261375AbREQIXC>; Thu, 17 May 2001 04:23:02 -0400
-Date: Thu, 17 May 2001 10:22:52 +0200 (CEST)
-From: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: CPU overheat with 2.2
-Message-Id: <Pine.LNX.4.31.0105170949430.29086-500000@phobos.fachschaften.tu-muenchen.de>
+	id <S261381AbREQJTE>; Thu, 17 May 2001 05:19:04 -0400
+Received: from mail.sai.co.za ([196.33.40.8]:18693 "EHLO mail.sai.co.za")
+	by vger.kernel.org with ESMTP id <S261380AbREQJSt>;
+	Thu, 17 May 2001 05:18:49 -0400
+From: "David Wilson" <davew@sai.co.za>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: FW: I think I've found a serious bug in AMD Athlon page_alloc.c routines, where do I mail the developer(s) ?
+Date: Thu, 17 May 2001 11:20:08 +0200
+Message-ID: <NEBBJFIIGKGLPEBIJACLIEJNDMAA.davew@sai.co.za>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1149162576-1969280990-990087772=:29086"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
+In-Reply-To: <E15080y-0004AI-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hi Alan,
 
----1149162576-1969280990-990087772=:29086
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Mmm no luck so far ;(
+I've checked that the bios is the latest available and there doesn't seem to
+be any type of chipset software patch or upgrade.
+What I have done is tried compiling the kernel for AMD K6/2, K6/3, .....this
+seems to work nicely and it's stable.
+It seems that I'll have to give the "Athlon" support a miss for now. ;(
 
-Hi,
+How does one go about obtaining a Transmeta chip ? I'm really keen to try it
+;-) ...anyways probably just a fantasy for now.
 
-I just switched my brother's computer to a 2.2 kernel, and now the CPU
-overheats under Linux after about half an hour (reproducible). It works
-fine under Windows 95b and worked under Linux 2.0.38.
+Thanks for the help anyways and keep up the fantastic work !
 
-CPU is a Pentium 166 MMX on an Asus TX97 mainboard, ISA cards are a 3c509
-and a Soundblaster.
+Regards
+David Wilson
+Technical Support Centre
+The S.A Internet
+0860 100 869
+http://www.sai.co.za
 
-   Simon
 
--- 
-GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
- Fingerprint: DC26 EB8D 1F35 4F44 2934  7583 DBB6 F98D 9198 3292
-Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
 
----1149162576-1969280990-990087772=:29086
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=".config"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.31.0105171022520.29086@phobos.fachschaften.tu-muenchen.de>
-Content-Description: .config
-Content-Disposition: attachment; filename=".config"
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: 16 May 2001 10:35
+To: David Wilson
+Cc: Alan Cox; linux-kernel@vger.kernel.org
+Subject: Re: FW: I think I've found a serious bug in AMD Athlon
+page_alloc.c routines, where do I mail the developer(s) ?
 
-Q09ORklHX0VYUEVSSU1FTlRBTD15DQoNCkNPTkZJR19NNTg2VFNDPXkNCkNP
-TkZJR19YODZfV1BfV09SS1NfT0s9eQ0KQ09ORklHX1g4Nl9JTlZMUEc9eQ0K
-Q09ORklHX1g4Nl9CU1dBUD15DQpDT05GSUdfWDg2X1BPUEFEX09LPXkNCkNP
-TkZJR19YODZfVFNDPXkNCkNPTkZJR18xR0I9eQ0KDQpDT05GSUdfTU9EVUxF
-Uz15DQpDT05GSUdfTU9EVkVSU0lPTlM9eQ0KQ09ORklHX0tNT0Q9eQ0KDQpD
-T05GSUdfTkVUPXkNCkNPTkZJR19QQ0k9eQ0KQ09ORklHX1BDSV9HT0FOWT15
-DQpDT05GSUdfUENJX0JJT1M9eQ0KQ09ORklHX1BDSV9ESVJFQ1Q9eQ0KQ09O
-RklHX1BDSV9RVUlSS1M9eQ0KQ09ORklHX1BDSV9PUFRJTUlaRT15DQpDT05G
-SUdfU1lTVklQQz15DQpDT05GSUdfU1lTQ1RMPXkNCkNPTkZJR19CSU5GTVRf
-QU9VVD15DQpDT05GSUdfQklORk1UX0VMRj15DQpDT05GSUdfQklORk1UX01J
-U0M9eQ0KQ09ORklHX1BBUlBPUlQ9bQ0KQ09ORklHX1BBUlBPUlRfUEM9bQ0K
-Q09ORklHX0FQTT15DQpDT05GSUdfQVBNX0RPX0VOQUJMRT15DQpDT05GSUdf
-QVBNX0NQVV9JRExFPXkNCkNPTkZJR19BUE1fRElTUExBWV9CTEFOSz15DQoN
-CkNPTkZJR19CTEtfREVWX0ZEPW0NCkNPTkZJR19CTEtfREVWX0lERT15DQpD
-T05GSUdfQkxLX0RFVl9JREVESVNLPXkNCkNPTkZJR19CTEtfREVWX0lERUNE
-PW0NCkNPTkZJR19CTEtfREVWX0lERVBDST15DQpDT05GSUdfQkxLX0RFVl9J
-REVETUE9eQ0KQ09ORklHX0lERURNQV9BVVRPPXkNCkNPTkZJR19CTEtfREVW
-X0xPT1A9bQ0KQ09ORklHX1BBUklERV9QQVJQT1JUPW0NCg0KQ09ORklHX1BB
-Q0tFVD15DQpDT05GSUdfRklSRVdBTEw9eQ0KQ09ORklHX1VOSVg9eQ0KQ09O
-RklHX0lORVQ9eQ0KQ09ORklHX0lQX01VTFRJQ0FTVD15DQpDT05GSUdfSVBf
-RklSRVdBTEw9eQ0KQ09ORklHX05FVF9JUElQPW0NCkNPTkZJR19TS0JfTEFS
-R0U9eQ0KQ09ORklHX0lQVjY9eQ0KQ09ORklHX0lQVjZfRVVJNjQ9eQ0KDQpD
-T05GSUdfTkVUREVWSUNFUz15DQoNCkNPTkZJR19EVU1NWT1tDQoNCkNPTkZJ
-R19ORVRfRVRIRVJORVQ9eQ0KQ09ORklHX05FVF9WRU5ET1JfM0NPTT15DQpD
-T05GSUdfRUwzPW0NCg0KQ09ORklHX1ZUPXkNCkNPTkZJR19WVF9DT05TT0xF
-PXkNCkNPTkZJR19TRVJJQUw9bQ0KQ09ORklHX1NFUklBTF9FWFRFTkRFRD15
-DQpDT05GSUdfU0VSSUFMX01BTllfUE9SVFM9eQ0KQ09ORklHX1NFUklBTF9T
-SEFSRV9JUlE9eQ0KQ09ORklHX1NFUklBTF9ERVRFQ1RfSVJRPXkNCkNPTkZJ
-R19VTklYOThfUFRZUz15DQpDT05GSUdfVU5JWDk4X1BUWV9DT1VOVD0yNTYN
-CkNPTkZJR19QUklOVEVSPW0NCkNPTkZJR19QUklOVEVSX1JFQURCQUNLPXkN
-Cg0KQ09ORklHX1dBVENIRE9HPXkNCg0KQ09ORklHX1dBVENIRE9HX05PV0FZ
-T1VUPXkNCkNPTkZJR19TT0ZUX1dBVENIRE9HPW0NCkNPTkZJR19SVEM9eQ0K
-DQpDT05GSUdfUVVPVEE9eQ0KQ09ORklHX0FVVE9GU19GUz1tDQpDT05GSUdf
-RkFUX0ZTPW0NCkNPTkZJR19WRkFUX0ZTPW0NCkNPTkZJR19JU085NjYwX0ZT
-PW0NCkNPTkZJR19KT0xJRVQ9eQ0KQ09ORklHX01JTklYX0ZTPW0NCkNPTkZJ
-R19QUk9DX0ZTPXkNCkNPTkZJR19ERVZQVFNfRlM9eQ0KQ09ORklHX0VYVDJf
-RlM9eQ0KDQpDT05GSUdfTkZTX0ZTPW0NCkNPTkZJR19ORlNfVjM9eQ0KQ09O
-RklHX1NVTlJQQz1tDQpDT05GSUdfTE9DS0Q9bQ0KQ09ORklHX1NNQl9GUz1t
-DQpDT05GSUdfU01CX05MU19ERUZBVUxUPXkNCkNPTkZJR19TTUJfTkxTX1JF
-TU9URT0iY3A0MzciDQoNCkNPTkZJR19OTFM9eQ0KDQpDT05GSUdfTkxTX0RF
-RkFVTFQ9Imlzbzg4NTktMSINCkNPTkZJR19OTFNfQ09ERVBBR0VfNDM3PW0N
-CkNPTkZJR19OTFNfQ09ERVBBR0VfODUwPW0NCkNPTkZJR19OTFNfSVNPODg1
-OV8xPW0NCkNPTkZJR19OTFNfSVNPODg1OV8xNT1tDQoNCkNPTkZJR19WR0Ff
-Q09OU09MRT15DQpDT05GSUdfVklERU9fU0VMRUNUPXkNCkNPTkZJR19GQj15
-DQpDT05GSUdfRFVNTVlfQ09OU09MRT15DQpDT05GSUdfVklERU9fU0VMRUNU
-PXkNCkNPTkZJR19GQl9NQVRST1g9eQ0KQ09ORklHX0ZCX01BVFJPWF9NSUxM
-RU5JVU09eQ0KQ09ORklHX0ZCQ09OX0FEVkFOQ0VEPXkNCkNPTkZJR19GQkNP
-Tl9NRkI9bQ0KQ09ORklHX0ZCQ09OX0NGQjI9bQ0KQ09ORklHX0ZCQ09OX0NG
-QjQ9bQ0KQ09ORklHX0ZCQ09OX0NGQjg9bQ0KQ09ORklHX0ZCQ09OX0NGQjE2
-PW0NCkNPTkZJR19GQkNPTl9DRkIyND1tDQpDT05GSUdfRkJDT05fQ0ZCMzI9
-eQ0KQ09ORklHX0ZCQ09OX1ZHQT1tDQpDT05GSUdfRkJDT05fRk9OVFM9eQ0K
-Q09ORklHX0ZPTlRfOHg4PXkNCkNPTkZJR19GT05UXzh4MTY9eQ0KQ09ORklH
-X0ZPTlRfU1VOMTJ4MjI9eQ0KDQpDT05GSUdfU09VTkQ9bQ0KQ09ORklHX1NP
-VU5EX09TUz1tDQpDT05GSUdfU09VTkRfU0I9bQ0KQ09ORklHX1NPVU5EX1lN
-MzgxMj1tDQo=
----1149162576-1969280990-990087772=:29086
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=cpuinfo
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.31.0105171022521.29086@phobos.fachschaften.tu-muenchen.de>
-Content-Description: cpuinfo
-Content-Disposition: attachment; filename=cpuinfo
 
-cHJvY2Vzc29yCTogMA0KdmVuZG9yX2lkCTogR2VudWluZUludGVsDQpjcHUg
-ZmFtaWx5CTogNQ0KbW9kZWwJCTogNA0KbW9kZWwgbmFtZQk6IFBlbnRpdW0g
-TU1YDQpzdGVwcGluZwk6IDMNCmNwdSBNSHoJCTogMTY2LjU4OQ0KZmRpdl9i
-dWcJOiBubw0KaGx0X2J1ZwkJOiBubw0Kc2VwX2J1ZwkJOiBubw0KZjAwZl9i
-dWcJOiB5ZXMNCmNvbWFfYnVnCTogbm8NCmZwdQkJOiB5ZXMNCmZwdV9leGNl
-cHRpb24JOiB5ZXMNCmNwdWlkIGxldmVsCTogMQ0Kd3AJCTogeWVzDQpmbGFn
-cwkJOiBmcHUgdm1lIGRlIHBzZSB0c2MgbXNyIG1jZSBjeDggbW14DQpib2dv
-bWlwcwk6IDMzMi41OQ0KDQo=
----1149162576-1969280990-990087772=:29086
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=modules
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.31.0105171022522.29086@phobos.fachschaften.tu-muenchen.de>
-Content-Description: modules
-Content-Disposition: attachment; filename=modules
+> I wonder if DFI has a bios or chipset patch available and whether that
+would
+> help ?
+> Maybe disabling the VIA chipset support in the kernel and running generic
+> drivers would help ?
 
-bmxzX2lzbzg4NTktMSAgICAgICAgICAgMjQwNCAgIDAgKGF1dG9jbGVhbikN
-CmlkZS1jZCAgICAgICAgICAgICAgICAgMjQwNTYgICAwIChhdXRvY2xlYW4p
-DQpjZHJvbSAgICAgICAgICAgICAgICAgIDI3NTE2ICAgMCAoYXV0b2NsZWFu
-KSBbaWRlLWNkXQ0KaXNvZnMgICAgICAgICAgICAgICAgICAxNzI3NiAgIDAg
-KGF1dG9jbGVhbikNCmF1dG9mcyAgICAgICAgICAgICAgICAgIDk0ODQgICAy
-IChhdXRvY2xlYW4pDQpuZnMgICAgICAgICAgICAgICAgICAgIDY4ODg0ICAg
-MiAoYXV0b2NsZWFuKQ0KbG9ja2QgICAgICAgICAgICAgICAgICA0NTE2OCAg
-IDEgKGF1dG9jbGVhbikgW25mc10NCnN1bnJwYyAgICAgICAgICAgICAgICAg
-NjM2NTIgICAxIChhdXRvY2xlYW4pIFtuZnMgbG9ja2RdDQozYzUwOSAgICAg
-ICAgICAgICAgICAgICA1OTY4ICAgMSAoYXV0b2NsZWFuKQ0Kc2VyaWFsICAg
-ICAgICAgICAgICAgICAyNDc0MCAgIDEgKGF1dG9jbGVhbikNCg==
----1149162576-1969280990-990087772=:29086
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=devices
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.31.0105171022523.29086@phobos.fachschaften.tu-muenchen.de>
-Content-Description: devices
-Content-Disposition: attachment; filename=devices
+Play with ideas see what you find out. You might strike lucky. So far nobody
+else has
 
-MDA6MDAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gNDMwVFgg
-LSA4MjQzOVRYIE1UWEMgKHJldiAwMSkNCjAwOjAxLjAgSVNBIGJyaWRnZTog
-SW50ZWwgQ29ycG9yYXRpb24gODIzNzFBQiBQSUlYNCBJU0EgKHJldiAwMSkN
-CjAwOjAxLjEgSURFIGludGVyZmFjZTogSW50ZWwgQ29ycG9yYXRpb24gODIz
-NzFBQiBQSUlYNCBJREUgKHJldiAwMSkNCjAwOjAxLjIgVVNCIENvbnRyb2xs
-ZXI6IEludGVsIENvcnBvcmF0aW9uIDgyMzcxQUIgUElJWDQgVVNCIChyZXYg
-MDEpDQowMDowMS4zIEJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gODIzNzFB
-QiBQSUlYNCBBQ1BJIChyZXYgMDEpDQowMDowYS4wIEV0aGVybmV0IGNvbnRy
-b2xsZXI6IFJlYWx0ZWsgU2VtaWNvbmR1Y3RvciBDby4sIEx0ZC4gUlQ4MTM5
-IChyZXYgMTApDQowMDowYy4wIFZHQSBjb21wYXRpYmxlIGNvbnRyb2xsZXI6
-IE1hdHJveCBHcmFwaGljcywgSW5jLiBNR0EgMjA2NFcgW01pbGxlbm5pdW1d
-IChyZXYgMDEpDQo=
----1149162576-1969280990-990087772=:29086--

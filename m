@@ -1,40 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268153AbUHKSQX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268139AbUHKSSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268153AbUHKSQX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 14:16:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268139AbUHKSQX
+	id S268139AbUHKSSA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 14:18:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268154AbUHKSR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 14:16:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:20888 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268154AbUHKSQN (ORCPT
+	Wed, 11 Aug 2004 14:17:59 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:36424 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268139AbUHKSQp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 14:16:13 -0400
-Date: Wed, 11 Aug 2004 11:16:09 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: davidm@hpl.hp.com
-Cc: Chris Wright <chrisw@osdl.org>, James Morris <jmorris@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Kurt Garloff <garloff@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] [LSM] Rework LSM hooks
-Message-ID: <20040811111609.H1924@build.pdx.osdl.net>
-References: <20040810131217.Q1924@build.pdx.osdl.net> <Xine.LNX.4.44.0408101630250.9412-100000@dhcp83-76.boston.redhat.com> <16665.56613.143598.768389@napali.hpl.hp.com> <20040811082510.D1924@build.pdx.osdl.net> <16666.24955.224034.291755@napali.hpl.hp.com>
+	Wed, 11 Aug 2004 14:16:45 -0400
+Message-ID: <e7963922040811111655dc228e@mail.gmail.com>
+Date: Wed, 11 Aug 2004 20:16:44 +0200
+From: Stefan Schweizer <sschweizer@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix for ALSA AC'97 Init not working in post 2.6.7 mm-kernels
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <16666.24955.224034.291755@napali.hpl.hp.com>; from davidm@napali.hpl.hp.com on Wed, Aug 11, 2004 at 11:12:11AM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* David Mosberger (davidm@napali.hpl.hp.com) wrote:
-> The macro I had in mind works only for static (compile-time)
-> predictions, I'm afraid.
+Hi,
 
-Ah, shoot.  Well, I don't like the penalty from the unlikely() approach,
-so we should keep it as-is unless there's another clever solution lurking.
+I noticed that my soundcad stopped working in the mm-kernels after 2.6.7.
+The kernel log produces this message:
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+AC'97 0 does not respond - RESET
+
+I grepped for it in the mm-patch and reverted the mm-changes there,
+that fixed it for me.
+I do not know what the change in the code is useful for but it breaks
+my soundcard
+Intel Corp. 82801BA/BAM AC'97 Audio (rev 05)
+driver snd-intel8x0
+
+My Revert-fix-patch:
+--- linux-2.6.8-rc4-mm1/sound/pci/ac97/ac97_codec.c.orig       
+2004-08-11 20:07:12.359531728 +0200
++++ linux-2.6.8-rc4-mm1/sound/pci/ac97/ac97_codec.c     2004-08-11
+20:07:24.743649056 +0200
+@@ -1891,14 +1891,8 @@
+                bus->ops->wait(ac97);
+        else {
+                udelay(50);
+-               if (ac97->scaps & AC97_SCAP_SKIP_AUDIO)
+-                       err = ac97_reset_wait(ac97, HZ/2, 1);
+-               else {
+-                       err = ac97_reset_wait(ac97, HZ/2, 0);
+-                       if (err < 0)
+-                               err = ac97_reset_wait(ac97, 0, 1);
+-               }
+-               if (err < 0) {
++               if (ac97_reset_wait(ac97, HZ/2, 0) < 0 &&
++                   ac97_reset_wait(ac97, HZ/2, 1) < 0) {
+                        snd_printk(KERN_WARNING "AC'97 %d does not
+respond - RESET\n", ac97->num);
+                        /* proceed anyway - it's often non-critical */
+                }

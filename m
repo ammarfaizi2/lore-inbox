@@ -1,20 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131315AbRAUM2g>; Sun, 21 Jan 2001 07:28:36 -0500
+	id <S136126AbRAUMes>; Sun, 21 Jan 2001 07:34:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136126AbRAUM20>; Sun, 21 Jan 2001 07:28:26 -0500
-Received: from KMLinux.fjfi.cvut.cz ([147.32.8.9]:32784 "EHLO
+	id <S136246AbRAUMei>; Sun, 21 Jan 2001 07:34:38 -0500
+Received: from KMLinux.fjfi.cvut.cz ([147.32.8.9]:33808 "EHLO
 	KMLinux.fjfi.cvut.cz") by vger.kernel.org with ESMTP
-	id <S131315AbRAUM2S>; Sun, 21 Jan 2001 07:28:18 -0500
-Date: Sun, 21 Jan 2001 13:28:00 +0100 (CET)
+	id <S136126AbRAUMe1>; Sun, 21 Jan 2001 07:34:27 -0500
+Date: Sun, 21 Jan 2001 13:34:09 +0100 (CET)
 From: Henryk Paluch <paluch@KMLinux.fjfi.cvut.cz>
 To: linux-kernel@vger.kernel.org
 Subject: kernel hangs on CD-R HP8100i if compiled w/ VIA IDE support.
-Message-ID: <Pine.LNX.4.10.10101211318300.17275-100000@KMLinux.fjfi.cvut.cz>
+Message-ID: <Pine.LNX.4.10.10101211333300.17469-100000@KMLinux.fjfi.cvut.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
 
 Hi folks!
 
@@ -378,6 +379,7 @@ Notes:
 
 Sincerely
     Henryk Paluch, paluch@KMLinux.fjfi.cvut.cz
+
 
 
 -

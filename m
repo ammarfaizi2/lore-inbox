@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262218AbUJZLAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbUJZLEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262218AbUJZLAU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 07:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbUJZLAU
+	id S262219AbUJZLEK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 07:04:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbUJZLEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 07:00:20 -0400
-Received: from zamok.crans.org ([138.231.136.6]:13956 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id S262218AbUJZLAQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 07:00:16 -0400
-To: Christophe Saout <christophe@saout.de>
-Cc: linux-kernel@vger.kernel.org, Alasdair G Kergon <agk@redhat.com>
-Subject: Re: 2.6.9-mm1: LVM stopped working
-References: <87oeitdogw.fsf@barad-dur.crans.org>
-	<1098731002.14877.3.camel@leto.cs.pocnet.net>
-From: Mathieu Segaud <matt@minas-morgul.org>
-Date: Tue, 26 Oct 2004 13:00:13 +0200
-In-Reply-To: <1098731002.14877.3.camel@leto.cs.pocnet.net> (Christophe Saout's
-	message of "Mon, 25 Oct 2004 21:03:22 +0200")
-Message-ID: <87lldt7nia.fsf@barad-dur.crans.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 26 Oct 2004 07:04:10 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36113 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262219AbUJZLEH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 07:04:07 -0400
+Date: Tue, 26 Oct 2004 12:04:02 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: George Anzinger <george@mvista.com>
+Cc: Benjamin LaHaise <bcrl@kvack.org>, john stultz <johnstul@us.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kernel/timer.c: xtime lock missing
+Message-ID: <20041026120402.B31632@flint.arm.linux.org.uk>
+Mail-Followup-To: George Anzinger <george@mvista.com>,
+	Benjamin LaHaise <bcrl@kvack.org>,
+	john stultz <johnstul@us.ibm.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <20041021190312.GA30847@kvack.org> <1098390198.20778.226.camel@cog.beaverton.ibm.com> <20041021202904.GB30847@kvack.org> <417D87BF.6060803@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <417D87BF.6060803@mvista.com>; from george@mvista.com on Mon, Oct 25, 2004 at 04:09:51PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christophe Saout <christophe@saout.de> disait dernièrement que :
+On Mon, Oct 25, 2004 at 04:09:51PM -0700, George Anzinger wrote:
+> If memory serves, there is a problem here in that the lock is taken in arch
+> code and not all archs are taking it.  I think a check of the several arch
+> time.c callers might be in order.
 
-> Are you encrypting your PV or your LVs?
->
-> There's some new dm-crypt code in -mm1 along with some API changes, but
-> backward compatibility is provided and should work.
-
-I tried 2.6.9-mm1, reverting all the new dm-crypt stuff, and it didn't make it.
-So it is not related to these patches.
-Will look further into it later; for now I must go working on my PhD :)
-
-Best regards,
+Certainly absolutely none of the ARM timer implementations were taking
+the lock.  They do now because its rather necessary to ensure working
+gettimeofday().
 
 -- 
-<riel> google rules
-<google> rules: http://www.law.cornell.edu/rules/fre/overview.html
-
-	- Rik van Riel chatting with the bots on #kernelnewbies
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

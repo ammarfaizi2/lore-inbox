@@ -1,77 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267892AbTAMSuW>; Mon, 13 Jan 2003 13:50:22 -0500
+	id <S267985AbTAMSkj>; Mon, 13 Jan 2003 13:40:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267972AbTAMSuW>; Mon, 13 Jan 2003 13:50:22 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:52763 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267892AbTAMSuV>; Mon, 13 Jan 2003 13:50:21 -0500
-Date: Mon, 13 Jan 2003 13:59:09 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200301131859.h0DIx9s10713@devserv.devel.redhat.com>
-To: Greg KH <greg@kroah.com>, torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: Re: Problems with USB
-In-Reply-To: <mailman.1042437481.27105.linux-kernel2news@redhat.com>
-References: <OF5C27F452.AC6AECA2-ONC1256CAC.0070FAA4@vgd.cz> <mailman.1042437481.27105.linux-kernel2news@redhat.com>
+	id <S267841AbTAMSkj>; Mon, 13 Jan 2003 13:40:39 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:15888 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267985AbTAMSkG>; Mon, 13 Jan 2003 13:40:06 -0500
+Date: Mon, 13 Jan 2003 13:46:26 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Robert Love <rml@tech9.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] add explicit Pentium II support
+In-Reply-To: <1042403214.834.82.camel@phantasy>
+Message-ID: <Pine.LNX.3.96.1030113134410.21781B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, Jan 12, 2003 at 09:44:42PM +0100, Petr.Titera@whitesoft.cz wrote:
->>      I have problems with USB in recent kernels (tested on 2.5.56) and
->> RedHat 8.0. Right after end of script  '/etc/rc.d/rc.sysinit' and before
->> script '/etc/rc.d/rc' which runs after USB  daemon khubd gets some signal
->> and ends.
+On 12 Jan 2003, Robert Love wrote:
 
-> greg k-h
+> On Sun, 2003-01-12 at 16:20, Luuk van der Duim wrote:
 > 
-> # USB: Fix from Jeff and Pete to keep khubd from being able to be killed
-> #      by a signal
+> > Aren't those called Willamette based Celerons?
 > 
-> diff -Nru a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-> --- a/drivers/usb/core/hub.c	Sun Jan 12 22:03:13 2003
-> +++ b/drivers/usb/core/hub.c	Sun Jan 12 22:03:13 2003
-> @@ -1085,6 +1085,12 @@
->  
->  	daemonize();
->  
-> +	/* keep others from killing us */
-> +	spin_lock_irq(&current->sig->siglock);
-> +	sigemptyset(&current->blocked);
-> +	recalc_sigpending();
-> +	spin_unlock_irq(&current->sig->siglock);
-> +
->  	/* Setup a nice name */
->  	strcpy(current->comm, "khubd");
->  
+> The current ones are, but future ones will surely be based on future
+> cores (i.e. I suspect we will see Northwood-based Celerons, soon) and
+> this option will be applicable to those, too.
+> 
+> More importantly, the consumer name is just "Celeron" i.e. the box does
+> not mention the core or anything.  The best I think we can offer is
+> "P4-based Celeron" which is a nice blanket name.
 
-For the record, I disagree with this strongly.
+I believe these have HT (although only one sibling) if someone is really
+looking for a descriptive name. I have no problem with the proposed name,
+just a thought if something else is desired.
 
-In khubd case, the existing code did it righ. It ran
-daemonize(), which should have divorced it from the session
-and process group. If daemonize is buggy, it is the place
-to fix it. Ingo has the fix for 2.5, in fact, I think he
-may have sent it to Linus already (it's __set_special_pids()).
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-My version of the patch above never was intended as anything
-but a stop-gap solution which allowed us to ship a beta on
-schedule, while I was investigating the cause.
-
-Jeff told me on IRC that "every bit in 8139too.c thread was
-added as a response to a particular problem", but he did not
-remember what particular problem this kludge fixed there.
-
-I stole the stop-gap from Stephen's kjournald. Note, that
-I do not have any idea why he put it in there. Very likely,
-for entirely different reason than working around bugs in
-daemonize().
-
--- Pete
-
-[P.S. Greg, if Jeff's P.O.V. prevails in the court of Linus,
-change that sigemptyset() to siginitsetinv(...., sigmask(SIGKILL)).
-Otherwise the whole signal checking path in khubd becomes utterly
-meaningless.]
-
-[P.P.S And take my name from the bk message. Yes, I wrote
-the patch, but I do not want to endorse it, however indirectly]

@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263697AbUEPRSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263711AbUEPRS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263697AbUEPRSm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 13:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbUEPRSm
+	id S263711AbUEPRS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 13:18:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUEPRS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 13:18:42 -0400
-Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:55183 "HELO
-	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263697AbUEPRSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 13:18:40 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.6] Synaptics driver is 'jumpy'
-Date: Sun, 16 May 2004 12:18:37 -0500
-User-Agent: KMail/1.6.2
-Cc: Jan De Luyck <lkml@kcore.org>
-References: <200405161222.48581.lkml@kcore.org>
-In-Reply-To: <200405161222.48581.lkml@kcore.org>
+	Sun, 16 May 2004 13:18:58 -0400
+Received: from mail.ccdaust.com.au ([203.29.88.42]:1326 "EHLO
+	gateway.ccdaust.com.au") by vger.kernel.org with ESMTP
+	id S263711AbUEPRSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 13:18:55 -0400
+Message-ID: <40A7A278.7010405@wasp.net.au>
+Date: Sun, 16 May 2004 21:18:48 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: libata Promise driver regression 2.6.5->2.6.6
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405161218.37521.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 May 2004 05:22 am, Jan De Luyck wrote:
-> Hello List,
-> 
-> Since installing 2.6.6 on my trusty laptop, I can't use the built-in synaptics
-> touchpad anymore. The tracking is totally broken:
-> 
-> When you touch-drag on the touchpad, the mouse cursor will jump to where you
-> stopped your action approx. 1/1.5 seconds _after_ your move. This makes using
-> the touchpad virtually impossible.
-> 
-> This problem is not present under 2.6.5, which I'm running right now.
-> Same .config.
-> 
-> Nothing seems to show up in the logs that could reflect any problem.
-> 
+G'day all,
 
-Hmm.. there was no changes to PS/2 processing between 2.6.5 and 2.6.6 except
-for some Logitech tweaking, but it should not affect Synaptics handling in
-any way...
+I have been using 2.6.5 happily for a while now on this machine.
+It's an Asus A7V600 with 3 Promise SATA150-TX4 SATA cards.
 
-Could you check if you still have DMA enabled on your disks, check your time
-source (TSC, ACPI PM timer, etc) and probably boot with acpi off?
+With 2.6.6 (and 2.6.6-bk3) it hangs with a dma timeout on boot detecting the 9th sata drive (there 
+are 10). I left it for about 10 minutes to see if anything else transpired but it just sat there.
+I'm on a serial console to this machine at the moment and I could not get it to respond to the magic 
+sysrq key over serial either.
 
-Thank you.
+I have placed all relevant info including a capture of 2.6.5 boot and 2.6.6 boot, plus all requested 
+info from linux/REPORTING-BUGS on my webpage
 
--- 
-Dmitry
+Normal working dmesg
+http://www.wasp.net.au/~brad/2.6.5.log
+
+Hung up dmesg
+http://www.wasp.net.au/~brad/2.6.6.log
+
+.config and all other info I could gather.
+http://www.wasp.net.au/~brad/2.6.6.config
+Much as I'd love to be subscribed, I just can't keep up with the volume so please cc: me.
+Willing to try patches/hacks/suggestions
+
+Actually, while I'm here I just connected 2 sata drives to the onboard via sata ports and 2.6.5 
+won't detect them. All relevant info is in the logs.
+insmod sata_via just silently loads and nothing occurs. The onboard raid bios detects the drives 
+fine and I have no raid created or enabled.
+
+Regards,
+Brad

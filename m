@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVCGGCv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVCGGKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbVCGGCv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 01:02:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbVCGGCv
+	id S261636AbVCGGKd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 01:10:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVCGGKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 01:02:51 -0500
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:41349 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261641AbVCGGCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 01:02:46 -0500
-Message-ID: <422BEE83.7020607@yahoo.com.au>
-Date: Mon, 07 Mar 2005 17:02:43 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Prakash Punnoor <prakashp@arcor.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] nicksched for 2.6.11
-References: <4225A020.5060001@yahoo.com.au> <42299D31.7020901@arcor.de>
-In-Reply-To: <42299D31.7020901@arcor.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Mar 2005 01:10:32 -0500
+Received: from 64-85-47-3.ip.van.radiant.net ([64.85.47.3]:11 "EHLO vlinkmail")
+	by vger.kernel.org with ESMTP id S261636AbVCGGKZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 01:10:25 -0500
+Date: Sat, 5 Mar 2005 22:55:55 -0800
+From: Greg KH <greg@kroah.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Nishanth Aravamudan <nacc@us.ibm.com>
+Subject: Re: [BK PATCH] I2C patches for 2.6.11
+Message-ID: <20050306065555.GD14943@kroah.com>
+References: <20050304203531.GA31644@kroah.com> <20050305125902.71286764.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050305125902.71286764.khali@linux-fr.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prakash Punnoor wrote:
-> Nick Piggin schrieb:
+On Sat, Mar 05, 2005 at 12:59:02PM +0100, Jean Delvare wrote:
+> Hi Greg,
 > 
->>I've had a few queries about this, so by "popular" demand, I've
->>put my latest nicksched stuff here:
->>
->>www.kerneltrap.org/~npiggin/2.6.11-nicksched.gz
->>
->>It includes all the multiprocessor stuff that's in -mm, and also
->>my alternate scheduler policy.
+> > Here is a I2C update for 2.6.11.  It includes a number of fixes, and
+> > some new i2c drivers.  All of these patches have been in the past few
+> > -mm releases.
 > 
+> I checked against my own list of patches and found that I have two more,
+> which were posted to the sensors and kernel-janitors list in early
+> february:
+> http://archives.andrew.net.au/lm-sensors/msg29340.html
+> http://archives.andrew.net.au/lm-sensors/msg29342.html
 > 
-> Hi,
-> 
-> just to make sure, is it still advised to renice X when using your scheduler?
-> 
+> They never made it to your own i2c tree, nor Andrew's tree. What do we
+> want to do with these?
 
-Yes it is. I have a hack in there that automatically renices any
-binary starting with 'XF' to -10 for people who forget. So this
-includes XFree86, though maybe it doesn't get the x.org server?
+They should show up in the -kj tree, right?  That will make it to the
+-mm tree, and then the kernel janitor maintainer will split them up and
+send them to me and you.
 
-Nick
+Or Nish can get frustrated at how long the whole process is taking, and
+just resend them again :)
 
+thanks,
+
+greg k-h

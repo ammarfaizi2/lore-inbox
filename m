@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266441AbUFQKDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266439AbUFQKG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266441AbUFQKDr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 06:03:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266442AbUFQKDq
+	id S266439AbUFQKG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 06:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266442AbUFQKG1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 06:03:46 -0400
-Received: from bart.webpack.hosteurope.de ([217.115.142.76]:59307 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S266441AbUFQKDp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 06:03:45 -0400
-Envelope-to: linux-kernel@vger.kernel.org
-Date: Thu, 17 Jun 2004 12:09:23 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-X-X-Sender: martin@notebook.home.mdiehl.de
-To: Christoph Hellwig <hch@infradead.org>
-cc: Oliver Neukum <oliver@neukum.org>, <davids@webmaster.com>,
-       <erikharrison@gmail.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: more files with licenses that aren't GPL-compatible
-In-Reply-To: <20040617075926.GA27938@infradead.org>
-Message-ID: <Pine.LNX.4.44.0406171201100.7337-100000@notebook.home.mdiehl.de>
+	Thu, 17 Jun 2004 06:06:27 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:1933 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266439AbUFQKG0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 06:06:26 -0400
+Date: Thu, 17 Jun 2004 12:06:17 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       "David S. Miller" <davem@redhat.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+Subject: ip6_tables warning (was: Re: Linux 2.4.27-pre6)
+In-Reply-To: <20040616183343.GA9940@logos.cnet>
+Message-ID: <Pine.GSO.4.58.0406171139020.22919@waterleaf.sonytel.be>
+References: <20040616183343.GA9940@logos.cnet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-HE-MXrcvd: no
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jun 2004, Christoph Hellwig wrote:
 
-> On Thu, Jun 17, 2004 at 12:45:32AM +0200, Oliver Neukum wrote:
-> > This all boils down to the question of whether fimware is code or not.
-> 
-> No, that's exactly the political discussion we don't want to discuss here.
-> The keyspan case is worse where a file used in the kernel built has a
-> GPL-incompatible license.
+This is not a new problem, but I never bothered to report it before:
 
->From a technical point of view I'm just wondering how it comes this 
-firmware is derived from the Linux kernel? I mean this is running on an 
-8-bit microcontroller with some 4KiB of memory so it sounds pretty much 
-impossible to me.
+| ip6_tables.c: In function `tcp_match':
+| ip6_tables.c:1596: warning: implicit declaration of function `ipv6_skip_exthdr'
+It needs to include <net/ipv6.h> to kill the warning.
 
-If anybody would have a point calling this a derived work from Linux, I'd 
-be very concerned about SCO might have a point with their claims wrt. 
-Linux being derived from their IP =(:-(
+Sorry, no patch, since my development machine is offline.
 
->From the maintenance POV of course it would be much better not to have it 
-aggregated with the kernel sources.
+Gr{oetje,eeting}s,
 
-SCNR
-Martin
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

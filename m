@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbTIKWVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 18:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbTIKWVZ
+	id S261587AbTIKWXo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 18:23:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbTIKWXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 18:21:25 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:52644 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S261556AbTIKWVY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 18:21:24 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16224.62817.533540.928220@gargle.gargle.HOWL>
-Date: Fri, 12 Sep 2003 00:21:21 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: mathieu.desnoyers@polymtl.ca
-Subject: [PATCH][2.4.23-pre3] repair mpparse for default MP systems
-CC: linux-kernel@vger.kernel.org, macro@ds2.pg.gda.pl
-X-Mailer: VM 6.90 under Emacs 20.7.1
+	Thu, 11 Sep 2003 18:23:43 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:17927 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261587AbTIKWXm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 18:23:42 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [PATCH] AES i586-asm optimized
+Date: 11 Sep 2003 22:14:47 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bjqs4n$u7c$1@gatekeeper.tmr.com>
+References: <20030910153859.GA17919@leto2.endorphin.org> <20030910161738.GA29990@gtf.org> <3F5F5A22.956A72A6@pp.inet.fi> <3F6095B5.9010100@pobox.com>
+X-Trace: gatekeeper.tmr.com 1063318487 30956 192.168.12.62 (11 Sep 2003 22:14:47 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu,
+In article <3F6095B5.9010100@pobox.com>,
+Jeff Garzik  <jgarzik@pobox.com> wrote:
+| Jari Ruusu wrote:
 
-This patch for 2.4.23-pre3 should fix the problems your dual
-P5 with default MP config has been having since 2.4.21-pre2.
-Please let us know if it works or not.
+| > It uses classic Pentium instruction set. Speed optimized for my 300 MHz
+| > Pentium-2 test box. Original Gladman version that I started with was pretty
+| > fast but I was able to improve performance about 7% over original version.
+| > 
+| > On my same 300 MHz P2 test box, assembler implementation is about twice as
+| > fast as the mainline kernel C implementation.
+| 
+| 
+| Neat.  Consider me surprised, then  ;-)
+| 
+| Don't take my message as objection to the merge.  I dunno what DaveM or 
+| JamesM thinks, but I definitely support merging patches like this.  It 
+| provides a great example, if nothing else.
+| 
+| Eventually I bet there will be issues about automatic algorithm 
+| selection:  like the RAID5 code, which benchmarks all available 
+| algorithms, and selects the fastest one.
 
-/Mikael
+Didn't we just have this discussion? ;-) RAID5 benchmarks all available
+code and then uses SSE2 or whatever because it doesn't plunk the
+registers or cache or something... sorry, the details escape me, or the
+sorry details escape me, or whatever.
 
---- linux-2.4.23-pre3/arch/i386/kernel/mpparse.c.~1~	2003-09-11 19:49:56.000000000 +0200
-+++ linux-2.4.23-pre3/arch/i386/kernel/mpparse.c	2003-09-11 23:31:32.000000000 +0200
-@@ -683,6 +683,24 @@
- 	struct mpc_config_lintsrc lintsrc;
- 	int linttypes[2] = { mp_ExtINT, mp_NMI };
- 	int i;
-+	struct {
-+		int mp_bus_id_to_type[MAX_MP_BUSSES];
-+		int mp_bus_id_to_node[MAX_MP_BUSSES];
-+		int mp_bus_id_to_local[MAX_MP_BUSSES];
-+		int mp_bus_id_to_pci_bus[MAX_MP_BUSSES];
-+		struct mpc_config_intsrc mp_irqs[MAX_IRQ_SOURCES];
-+	} *bus_data;
-+
-+	bus_data = alloc_bootmem(sizeof(*bus_data));
-+	if (!bus_data)
-+		panic("SMP mptable: out of memory!\n");
-+	mp_bus_id_to_type = bus_data->mp_bus_id_to_type;
-+	mp_bus_id_to_node = bus_data->mp_bus_id_to_node;
-+	mp_bus_id_to_local = bus_data->mp_bus_id_to_local;
-+	mp_bus_id_to_pci_bus = bus_data->mp_bus_id_to_pci_bus;
-+	mp_irqs = bus_data->mp_irqs;
-+	for (i = 0; i < MAX_MP_BUSSES; ++i)
-+		mp_bus_id_to_pci_bus[i] = -1;
- 
- 	/*
- 	 * local APIC has default address
+BTW: I do agree with your point here, I'm using cryptoloop for some
+stuff I'm doing, and while I never do enough disk i/o to care, this is a
+good thing for the future. I'm using a PII-350, but next month I have to
+add a P55C SMP machine, and will be doing much more crypto.
+
+Thanks for asking for clarification, the patch looks better for it.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

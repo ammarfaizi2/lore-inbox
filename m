@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292536AbSBTWDi>; Wed, 20 Feb 2002 17:03:38 -0500
+	id <S292535AbSBTWD2>; Wed, 20 Feb 2002 17:03:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292538AbSBTWD3>; Wed, 20 Feb 2002 17:03:29 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53258 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292536AbSBTWDL>;
-	Wed, 20 Feb 2002 17:03:11 -0500
-Message-ID: <3C741D1D.CB66A615@mandrakesoft.com>
-Date: Wed, 20 Feb 2002 17:03:09 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Stroupe <dstroupe@keyed-upsoftware.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Q: PCI Driver ioremap
-In-Reply-To: <3C741BAF.9090300@keyed-upsoftware.com>
+	id <S292538AbSBTWDS>; Wed, 20 Feb 2002 17:03:18 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:43495 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S292535AbSBTWDC>; Wed, 20 Feb 2002 17:03:02 -0500
+Date: Wed, 20 Feb 2002 15:20:11 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
+Subject: Re: ioremap()/PCI sickness in 2.4.18-rc2 (FIXED ALMOST)
+Message-ID: <20020220152011.A1252@vger.timpanogas.org>
+In-Reply-To: <20020220103320.A32211@vger.timpanogas.org> <20020220103539.B32211@vger.timpanogas.org> <3C73DC34.E83CCD35@mandrakesoft.com> <20020220.093034.112623671.davem@redhat.com> <20020220110004.A32431@vger.timpanogas.org> <20020220145449.A1102@vger.timpanogas.org> <3C741A44.94FE4F56@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C741A44.94FE4F56@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Wed, Feb 20, 2002 at 04:51:00PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Stroupe wrote:
+On Wed, Feb 20, 2002 at 04:51:00PM -0500, Jeff Garzik wrote:
+> "Jeff V. Merkey" wrote:
+> > regions of memory.  I would propose that the maintainer of
+> > vmalloc.c look at using 48 bit PTE entries or some other solution
+> > as a way to alloc larger virtual address frames when the system has
+> > a lot of physical memory.  It's seems pretty lame to me for a machine
+> > with 2 GB of physical memory not to have at lest 256 MB of address space
+> > left over for address mapping.
 > 
-> I am creating a PCI driver for a custom card and want to write 0xffff to
-> a location offset from the base by 0x48 and
-> have the following code:
+> Instead of constantly trying to map >32-bit addresses onto 32-bit
+> processors, why not just get a 64-bit processor?
 > 
-> <snip>
-> unsigned int io_addr;
-> unsigned int io_size;
-> void* base;
-> pci_enable_device (pdev)
-> io_addr = pci_resource_start(pdev, 0);
-> io_size = pci_resource_len(pdev, 0);
-> if ((pci_resource_flags(pdev, 0) & IORESOURCE_MEM)){
->        if(check_mem_region(io_addr, io_size))
->             DBG("Already In Use");//this is never reached
->         request_mem_region(io_addr, io_size , "Card Driver");
-
-In 2.4 and later, check request_mem_region return value, and never call
-check_mem_region.
-
->         base=ioremap(io_addr, io_size);
->         if(base==0)
->            DBG("memory mapped wrong\n");//this is never reached
->         writew(0xffff, base + 0x48);
-> <snip>
+> One constantly runs into limitations with highmem...
 > 
-> The card is found, io_addr = 0xe9011000 and io_size = 0x200.
+> 	Jeff
+
+Sigh .... I am only using 2 GB on a 4GB capable processor (actually 
+a 64 GB capable processor).  Looks like a patch is needed.  Who is 
+maintaining vmalloc.c at present so I know who to submit a patch 
+to?
+
+Jeff
+
+
 > 
-> The write is unsuccessful or at least the data never reaches the card.
->  What am I doing incorrectly?
-
-Looks correct to me... maybe you need to do
-	readw(base + 0x48)
-to flush the transaction?
-
--- 
-Jeff Garzik      | "Why is it that attractive girls like you
-Building 1024    |  always seem to have a boyfriend?"
-MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
-                 |             - BBC TV show "Coupling"
+> 
+> 
+> -- 
+> Jeff Garzik      | "Why is it that attractive girls like you
+> Building 1024    |  always seem to have a boyfriend?"
+> MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
+>                  |             - BBC TV show "Coupling"
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

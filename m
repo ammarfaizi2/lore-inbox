@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266240AbUFPLJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266241AbUFPLNl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266240AbUFPLJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 07:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266241AbUFPLJ6
+	id S266241AbUFPLNl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 07:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266242AbUFPLNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 07:09:58 -0400
-Received: from cantor.suse.de ([195.135.220.2]:15082 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266240AbUFPLJy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 07:09:54 -0400
-Date: Wed, 16 Jun 2004 13:00:51 +0200
-From: Andi Kleen <ak@suse.de>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86_64: remove duplicate COMPATIBLE_IOCTL lines
-Message-Id: <20040616130051.7b8fe3e1.ak@suse.de>
-In-Reply-To: <200406111510.37981.arnd@arndb.de>
-References: <200406111510.37981.arnd@arndb.de>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 16 Jun 2004 07:13:41 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:55940 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S266241AbUFPLNj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 07:13:39 -0400
+Date: Wed, 16 Jun 2004 13:13:29 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: linux-kernel@vger.kernel.org
+Cc: netdev@oss.sgi.com
+Subject: Re: Linux 2.6.7
+Message-ID: <20040616111329.GA1571@louise.pinerecords.com>
+References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jun 2004 15:10:37 +0200
-Arnd Bergmann <arnd@arndb.de> wrote:
+On Jun-15 2004, Tue, 22:56 -0700
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-> Some of the ioctl numbers in ia32_ioctl are already defined in
-> include/linux/compat_ioctl.h, so they can be removed here.
-> Maybe we should have a runtime check for duplicate numbers?
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Summary of changes from v2.6.7-rc3 to v2.6.7
+[snip]
 
-Thanks. Your patch was corrupted somehow, but I applied it by
-hand.
+2.6.7's airo.ko (unlike 2.6.6's) won't allow the user to set
+ESSID via "echo myessid >/proc/driver/aironet/ethX/SSID".
 
--Andi
+Changes like this shouldn't probably be made in the middle
+of a stable series.
+
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263442AbTJLJ01 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 05:26:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263447AbTJLJ01
+	id S263440AbTJLJ5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 05:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbTJLJ5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 05:26:27 -0400
-Received: from smtp2.att.ne.jp ([165.76.15.138]:52955 "EHLO smtp2.att.ne.jp")
-	by vger.kernel.org with ESMTP id S263442AbTJLJ0Z (ORCPT
+	Sun, 12 Oct 2003 05:57:23 -0400
+Received: from smtp2.libero.it ([193.70.192.52]:49311 "EHLO smtp2.libero.it")
+	by vger.kernel.org with ESMTP id S263440AbTJLJ5W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 05:26:25 -0400
-Message-ID: <2c8a01c390a2$cee80640$5cee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Mikael Pettersson" <mikpe@csd.uu.se>, <pavel@ucw.cz>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test6 APM/IDE double-suspend weirdness
-Date: Sun, 12 Oct 2003 18:23:51 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Sun, 12 Oct 2003 05:57:22 -0400
+Date: Sun, 12 Oct 2003 11:57:20 +0200
+From: Ludovico Gardenghi <garden@despammed.com>
+To: linux-kernel@vger.kernel.org
+Subject: vfat corruption in 2.6.0?
+Message-ID: <20031012095720.GA21405@ripieno.somiere.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson and Pavel Machek wrote:
+Hi.
 
-> > > In test6 (and test5 and possibly earlier), when suspending
-> > > my aging Latitude with APM, the machine turns off, only to
-> > > turn itself on again one second later with the disk spinning
-> > > up. Then it turns itself off again a second later.
+A friend of mine had the same problem with 2 different test releases
+(test3 and test6), and I don't know if this problem is still here as
+of test7.
 
-In test7 and earlier, when suspending (using command "apm -s" since
-2.6.0-test[1-7] disable the keyboard's hotkeys), my Let's Note turns off the
-hard disk, only to turn on the hard disk one second later, and then finally
-put the entire machine in suspend-to-RAM.
+He has a quite big vfat partition (60 GB) created with mkfs.vfat; he
+ran a program that had to write ~5000 files summing up to 18 GB but
+some hour after that program started (it's a simulation tool that
+runs for ~20 hours on an athlon XP 2500+) his /var started to fill with
+log errors of "attempt to access beyond the end of the device".
+The files are very fragmented because they are written line by line
+more or less in parallel.
 
->  > Try removing pm_send_all from apm.c
->
-> Ok I tried removing all pm_send_all from apm.c.
-> I made no difference at all.
+Moreover, the partition resulted unmountable and fsck.vfat could not
+manage to repair it --- the only solution being running MS win's
+scandisk tool. After the repair some of the smaller files on the disk
+got lost and some part of the bigger files got corrupted.
 
-I am not surprised.  2.4.20 has the same pm_send_all but does not have
-double-suspend weirdness.  I removed the call device_suspend(3) instead,
-since 2.4.20 didn't call device_suspend(3).  This solved it for me in
-2.6.0-test7.
+This happened twice (with test3 and test6) and the partition was
+completely erased and re-created between the 2 crashes.
 
-Hmm.  I've been running with apm=debug for a while, ever since checking
-whether the keyboard's hotkeys really were completely disabled (they were,
-the BIOS doesn't even find out that I pressed the suspend key or hibernate
-key).  I wonder if hda powered up again just to write a syslog entry?  But
-still, it doesn't happen any more after I removed the call
-device_suspend(3).
+I can't tell much more than this because my friend had to erase his logs
+because they filled up /var.
 
-What is the intended effect of device_suspend(3)?  Am I asking for trouble
-by removing it?
-
+Ludovico
+-- 
+<dunadan@libero.it>          #acheronte (irc.freenode.net) ICQ: 64483080
+GPG ID: 07F89BB8              Jabber: garden@jabber.students.cs.unibo.it
+-- This is signature nr. 1249

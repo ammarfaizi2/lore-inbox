@@ -1,60 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbTJSRh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 13:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbTJSRh2
+	id S261940AbTJSRg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 13:36:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbTJSRg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 13:37:28 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:20232 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S262006AbTJSRhP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 13:37:15 -0400
-Date: Sun, 19 Oct 2003 19:37:13 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [2.6 patch] add a config option for -Os compilation
-Message-ID: <20031019173713.GA1776@mars.ravnborg.org>
-Mail-Followup-To: Ingo Oeser <ioe-lkml@rameria.de>,
-	Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>
-References: <20031015225055.GS17986@fs.tum.de.suse.lists.linux.kernel> <20031018105733.380ea8d2.akpm@osdl.org.suse.lists.linux.kernel> <p731xtapd4r.fsf@oldwotan.suse.de> <200310191556.56469.ioe-lkml@rameria.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200310191556.56469.ioe-lkml@rameria.de>
-User-Agent: Mutt/1.4.1i
+	Sun, 19 Oct 2003 13:36:57 -0400
+Received: from 66.Red-80-38-104.pooles.rima-tde.net ([80.38.104.66]:3456 "HELO
+	fulanito.nisupu.com") by vger.kernel.org with SMTP id S261940AbTJSRgw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 13:36:52 -0400
+Message-ID: <006b01c39667$f32211c0$0514a8c0@HUSH>
+From: "Carlos Fernandez Sanz" <cfs-lk@nisupu.com>
+To: "Tomi Orava" <Tomi.Orava@ncircle.nullnet.fi>
+Cc: <linux-kernel@vger.kernel.org>
+References: <00b801c3955c$7e623100$0514a8c0@HUSH>    <48236.192.168.9.10.1066565636.squirrel@ncircle.nullnet.fi>    <006501c39660$cf306cf0$0514a8c0@HUSH> <40464.192.168.9.10.1066583818.squirrel@ncircle.nullnet.fi>
+Subject: Re: HighPoint 374
+Date: Sun, 19 Oct 2003 19:39:23 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 19, 2003 at 03:56:56PM +0200, Ingo Oeser wrote:
-> Maybe there should be sth. in the build system for that, which is called
-> $(call optimize_for_speed, $target) and $(call optimize_for_size,$target) 
-> which then can be added on a per file basis and per directory tree,
-> where it really matters and letting it to the default otherwise.
-> 
-> That way we can tune gradually and remove GCC options.
-> 
-> Simple implementation today:
-> 
-> optimize_for_speed := CFLAGS_$1 += -O3
-> optimize_for_size  := CFLAGS_$1 += -Os
-> 
-> 
-> Sam: What do you think?
+>
+> Very interesting. The other type of errors I have received (the last time
+> with 2.4.23-pre4) were:
+>
+> Sep 14 14:29:49 alderan kernel: hde: set_drive_speed_status: status=0xff {
+> Busy }
+> Sep 14 14:29:49 alderan kernel: blk: queue c0492188, I/O limit 4095Mb
+> (mask 0xffffffff)
 
-Focussing on -O2 versus -Os is too narrowscoped for the build system.
-A much more general solution is needed, without loosing the flexibility
-we have today.
-For 2.7 I have planned making it possible to modify CFLAGS, and make the
-change be effective for all recursive builds.
-This could be usefull if for example acpi decides to use -Werror for
-all files. One change in one makefile and the desired effect is achieved.
-The same infrastructure will be possible to use for -Owhatever.
+Same here.
 
-We sould stick with -O2 for 2.6, lets play with other settings for 2.7.
-Router people and others with special needs can finetune it at will in
-2.6 - it is one line in the top-level makefile so not a big deal.
+> Currently my disk-drivers are made by 2*samsung (SV8004H) and
+> 2*Samsung(SV1604N), in case that changes anything.
 
-	Sam
+I'm using two seagates (different models), one Samsung and one Maxtor, this
+happens in all 4.
+I'm not using any kind of RAID.
+
+>
+> BTW. Have you noticed in what situation the lock up happens ?
+
+If the filesystems are mounted read only it seems to run stable (even though
+I do see those errors)....if I mount r/w, any write is likely to make the
+system crash rather soon.
+
+> What does /proc/interrupts show in your case ?
+
+Using the HPT drivers:
+
+           CPU0
+  0:     118661          XT-PIC  timer
+  1:         14          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  3:       2698          XT-PIC  eth1
+  5:       1133          XT-PIC  hpt374
+  7:          0          XT-PIC  usb-uhci
+  8:          1          XT-PIC  rtc
+  9:       1098          XT-PIC  usb-uhci, eth0
+ 12:         28          XT-PIC  PS/2 Mouse
+ 14:      69807          XT-PIC  ide0
+ 15:         54          XT-PIC  ide1
+NMI:          0
+ERR:          0
+
+Using the regular kernel IDE drivers
+
+           CPU0
+  0:       9318          XT-PIC  timer
+  1:         12          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  3:        151          XT-PIC  eth1
+  5:        130          XT-PIC  ide2, ide3, ide4, ide5
+  7:          0          XT-PIC  usb-uhci
+  8:          1          XT-PIC  rtc
+  9:        573          XT-PIC  usb-uhci, eth0
+ 12:         28          XT-PIC  PS/2 Mouse
+ 14:       9163          XT-PIC  ide0
+ 15:         54          XT-PIC  ide1
+NMI:          0
+ERR:          0
+
+>
+> And have you tried with ACPI on/off and io-apic on/off ?
+
+No, to be honest I didn't even think of this. You think it could make a
+difference? Given the fact that the card works correctly with the HPT
+drivers, pretty much everything that does not relate directly to the IDE
+drivers seems ruled out as the cause...
+
+
+

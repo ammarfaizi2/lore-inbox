@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312988AbSC0KGh>; Wed, 27 Mar 2002 05:06:37 -0500
+	id <S312989AbSC0LMa>; Wed, 27 Mar 2002 06:12:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312989AbSC0KG1>; Wed, 27 Mar 2002 05:06:27 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:11999 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S312988AbSC0KGM>;
-	Wed, 27 Mar 2002 05:06:12 -0500
-Message-ID: <3CA197B9.2070502@yahoo.com>
-Date: Wed, 27 Mar 2002 12:58:17 +0300
-From: Stas Sergeev <stssppnn@yahoo.com>
-Reply-To: stas.orel@mailcity.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
-X-Accept-Language: ru, en
-MIME-Version: 1.0
-To: a.d.opmeer@student.utwente.nl
-CC: linux-kernel@vger.kernel.org
+	id <S312826AbSC0LMT>; Wed, 27 Mar 2002 06:12:19 -0500
+Received: from www.wen-online.de ([212.223.88.39]:15634 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S312550AbSC0LMI>;
+	Wed, 27 Mar 2002 06:12:08 -0500
+Date: Wed, 27 Mar 2002 12:24:19 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: stas.orel@mailcity.com
+cc: linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Anyone else seen VM related oops on 2.4.18?
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3CA197B9.2070502@yahoo.com>
+Message-ID: <Pine.LNX.4.10.10203271222230.8985-100000@mikeg.wen-online.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Wed, 27 Mar 2002, Stas Sergeev wrote:
 
-Arjan Opmeer wrote:
-> Are there other people that are suffering from a VM related oops on kernel 
-> 2.4.18?
-Yes:(
-I've seen that oops 24/7 after installing a
-new video card Radeon 7500 AGP.
-Before I had PCI video card.
-When DRI is enabled, the whole box hangs after
-~10 minutes of using OpenGL, and if DRI disabled
-and radeon.o is unloaded, I have a vm-related Oopses.
-Exactly the same: invalid operand in __free_pages_ok().
-I still have a lot of them in my system log, but I am
-afraid I don't have the relevant System.map for
-ksymoops'ing them.
-I tried to switch to -ac tree and what I get is just
-about the same Oops:
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0203.3/0308.html
+> Hello.
+> 
+> Arjan Opmeer wrote:
+> > Are there other people that are suffering from a VM related oops on kernel 
+> > 2.4.18?
+> Yes:(
+> I've seen that oops 24/7 after installing a
+> new video card Radeon 7500 AGP.
+> Before I had PCI video card.
+> When DRI is enabled, the whole box hangs after
+> ~10 minutes of using OpenGL, and if DRI disabled
+> and radeon.o is unloaded, I have a vm-related Oopses.
 
-BUT: Andrea vm patches seems to cure that!
-I am only two days with them, so everything is
-still possible, but before it used to Oops just
-about every half an hour.
-So thousands of thanks goes to Andrea:)
+You can use dri with your 7500?  Same processor as 8500 cards?
+If so, which X sources are you using?
 
-Btw, I've seen exactly the same reports in DRI
-mailing lists and they were reported with different video 
-cards, but the similar thing was that all the reporters
-has an AMD 751 Irongate as host bridge.
-I also have it.
-What is your north bridge?
-This really seems strange for me that video card
-or the host bridge causes vm to oops, but who knows...
-Anyway, it is definitely not a nvidia drivers related:(
+I bought an 8500 Evil Master II specifically because I saw Radeon
+support in the kernel and X source.  Much to my chagrin, I can't
+use dri because the source (4.2.0) says dri is not yet implimented
+for that processor.
 
-If anyone wants me to reproduce and ksymoops this
-Oops, feel free to ask. I am ready to do just
-about everything to get this problem fixed, else
-I just can't use my new cool Radeon...
+	-Mike
+

@@ -1,80 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbVCVThT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261733AbVCVTnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261760AbVCVThT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 14:37:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbVCVTge
+	id S261733AbVCVTnr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 14:43:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbVCVTnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 14:36:34 -0500
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:9745 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S261733AbVCVTdI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 14:33:08 -0500
-X-SBRSScore: None
-X-IronPort-AV: i="3.91,111,1110150000"; 
-   d="scan'208"; a="6598011:sNHT36491064"
-Message-ID: <424072E8.7080006@fujitsu-siemens.com>
-Date: Tue, 22 Mar 2005 20:32:56 +0100
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+	Tue, 22 Mar 2005 14:43:47 -0500
+Received: from smtp.uninet.ee ([194.204.0.4]:13833 "EHLO smtp.uninet.ee")
+	by vger.kernel.org with ESMTP id S261733AbVCVTlE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 14:41:04 -0500
+Message-ID: <424074EB.9020904@tuleriit.ee>
+Date: Tue, 22 Mar 2005 21:41:31 +0200
+From: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
+Reply-To: indrek.kruusa@tuleriit.ee
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050215)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: S390: bug in signal frame set up when using SA_ONSTACK
-Content-Type: multipart/mixed;
- boundary="------------040600070405030009000609"
+Subject: Re: ALSA bugs in list [was Re: 2.6.12-rc1-mm1]
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040600070405030009000609
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Lee Revell <rlrevell@xxxxxxxxxxx> wrote:
+ >
+ >/ On Mon, 2005-03-21 at 12:41 -0800, Andrew Morton wrote:/
+ >/ > From: bugme-daemon@xxxxxxxx/
+ >/ > Subject: [Bug 4282] ALSA driver in Linux 2.6.11 causes a kernel 
+panic when loading the EMU10K1 driver/
+ >/ > /
+ >/ /
+ >/ This one is a real mystery. No one can reproduce it./
 
-Hi
+Not quite true. This bug was current till today in Mandrake's kernel, 
+but with  2.6.11-5mdk they managed to get rid of it.
+The problem is not with loading the driver but when alsactl tries to 
+store/restore mixer settings.
 
-IMHO, there is a bug in s390's signal frame handling:
+I have tried again with 2.6.12-rc1-mm1 and it is still there (for 
+example the Gnome won't start due to this).
+Below the oops part from messages.
 
-If a signal handler is set to use the signal stack (SA_ONSTACK), but
-the signal stack is disabled, the signal frame should be written to
-the current stack without stack switching.
-S390 doesn't note, that the signal stack is disabled, so it does
-stack switching to a stack at 0, size 0. Then it writes the signal frame
-to "0x00000000 - sizeof(sigframe)".
-If a further signal comes in, while the handler is running, the next
-signal frame even will overwrite the previous one.
-
-The reason for the bug is get_sigframe() using on_sig_stack() instead
-of sas_ss_flags(), which would be ok. (Oneliner patch attached)
-
-AFAICS, the problem is in 2.4 and 2.6 kernels.
-
-If the error occurs, bit 0 of stack pointer gpr15 is set. In
-arch/s390/kernel/signal.c, there is no masking of gpr15 before passing
-it to do_sigaltstack() or on_sig_stack()/sas_ss_flags(). Wouldn't it
-be better to reset bit 0, to avoid possible problems?
-
-Please CC me, I'm not on the list.
-
-		Bodo
+thanks,
+Indrek
 
 
---------------040600070405030009000609
-Content-Type: text/x-diff;
- name="s390-fix-signalstack.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="s390-fix-signalstack.patch"
 
---- a/arch/s390/kernel/signal.c	2005-03-22 11:07:39.000000000 +0100
-+++ b/arch/s390/kernel/signal.c	2005-03-22 11:08:44.000000000 +0100
-@@ -285,7 +285,7 @@
- 
- 	/* This is the X/Open sanctioned signal stack switching.  */
- 	if (ka->sa.sa_flags & SA_ONSTACK) {
--		if (! on_sig_stack(sp))
-+		if (! sas_ss_flags(sp))
- 			sp = current->sas_ss_sp + current->sas_ss_size;
- 	}
- 
+Mar 22 21:05:21 bedroom alsa:  succeeded
+Mar 22 21:05:21 bedroom kernel: Unable to handle kernel NULL pointer 
+dereference at virtual address 0000000c
+Mar 22 21:05:21 bedroom kernel:  printing eip:
+Mar 22 21:05:21 bedroom kernel: dfa929e8
+Mar 22 21:05:21 bedroom kernel: *pde = 00000000
+Mar 22 21:05:21 bedroom kernel: Oops: 0000 [#1]
+Mar 22 21:05:21 bedroom kernel: SMP
+Mar 22 21:05:21 bedroom kernel: Modules linked in: snd_pcm_oss 
+snd_mixer_oss snd_emu10k1 snd_rawmidi snd_seq_device snd_ac97_codec 
+snd_pcm snd_timer snd_page_alloc snd_util_mem snd_hwdep snd soundcore 
+af_packet eth1394 e100 mii ide_cd ohci1394 ieee1394 nls_iso8859_15 
+nls_cp850 vfat fat intel_agp agpgart hw_random emu10k1_gp gameport 
+ata_piix libata ehci_hcd uhci_hcd usbcore evdev
+Mar 22 21:05:21 bedroom kernel: CPU:    0
+Mar 22 21:05:21 bedroom kernel: EIP:    
+0060:[pg0+527297000/1069851648]    Not tainted VLI
+Mar 22 21:05:21 bedroom kernel: EIP:    0060:[<dfa929e8>]    Not tainted VLI
+Mar 22 21:05:21 bedroom kernel: EFLAGS: 00010002   (2.6.12-r1m1)
+Mar 22 21:05:21 bedroom kernel: EIP is at 
+snd_emu10k1_efx_send_routing_put+0x98/0xd5 [snd_emu10k1]
+Mar 22 21:05:21 bedroom kernel: eax: 00000000   ebx: dd6cb1a8   ecx: 
+0000000c   edx: 00000004
+Mar 22 21:05:21 bedroom kernel: esi: 00000004   edi: 00000000   ebp: 
+dd6ca000   esp: dce73ed4
+Mar 22 21:05:21 bedroom kernel: ds: 007b   es: 007b   ss: 0068
+Mar 22 21:05:21 bedroom kernel: Process alsactl (pid: 5019, 
+threadinfo=dce72000 task=decaa550)
+Mar 22 21:05:21 bedroom kernel: Stack: 00000000 00000000 00000000 
+dd6ca508 0000000f 00000001 00000246 ddc3c14c
+Mar 22 21:05:21 bedroom kernel:        ddfe9200 de1a0440 ddc3c000 
+dfa18e30 ddfe9200 de1a0400 00000000 00000000
+Mar 22 21:05:21 bedroom kernel:        00000000 ddfe9200 c01b845c 
+ddfe9200 fffffff3 decc1180 de1a0400 bf886950
+Mar 22 21:05:21 bedroom kernel: Call Trace:
+Mar 22 21:05:21 bedroom kernel:  [pg0+526798384/1069851648] 
+snd_ctl_elem_write+0x126/0x177 [snd]
+Mar 22 21:05:21 bedroom kernel:  [<dfa18e30>] 
+snd_ctl_elem_write+0x126/0x177 [snd]
+Mar 22 21:05:21 bedroom kernel:  [copy_from_user+70/126] 
+copy_from_user+0x46/0x7e
+Mar 22 21:05:21 bedroom kernel:  [<c01b845c>] copy_from_user+0x46/0x7e
+Mar 22 21:05:21 bedroom kernel:  [pg0+526798563/1069851648] 
+snd_ctl_elem_write_user+0x62/0xaf [snd]
+Mar 22 21:05:21 bedroom kernel:  [<dfa18ee3>] 
+snd_ctl_elem_write_user+0x62/0xaf [snd]
+Mar 22 21:05:21 bedroom kernel:  [do_ioctl+154/169] do_ioctl+0x9a/0xa9
+Mar 22 21:05:21 bedroom kernel:  [<c017352a>] do_ioctl+0x9a/0xa9
+Mar 22 21:05:21 bedroom kernel:  [vfs_ioctl+101/481] vfs_ioctl+0x65/0x1e1
+Mar 22 21:05:21 bedroom kernel:  [<c01736df>] vfs_ioctl+0x65/0x1e1
+Mar 22 21:05:21 bedroom kernel:  [sys_ioctl+69/109] sys_ioctl+0x45/0x6d
+Mar 22 21:05:21 bedroom kernel:  [<c01738a0>] sys_ioctl+0x45/0x6d
+Mar 22 21:05:21 bedroom kernel:  [sysenter_past_esp+84/117] 
+sysenter_past_esp+0x54/0x75
+Mar 22 21:05:21 bedroom kernel:  [<c01030c7>] sysenter_past_esp+0x54/0x75
+Mar 22 21:05:21 bedroom kernel: Code: 24 10 23 4c 90 44 0f b6 04 13 39 
+c8 74 0b 88 0c 13 c7 44 24 14 01 00 00 00 83 c2 01 39 f2 7c da 8b 44 24 
+14 85 c0 74 0b 8b 43 38 <8b> 44 b8 0c 85 c0 75 19 8b 44 24 0c 8b 54 24 
+18 e8 c9 3c 83 e0
 
---------------040600070405030009000609--

@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317752AbSHGKYe>; Wed, 7 Aug 2002 06:24:34 -0400
+	id <S317083AbSHGJ5q>; Wed, 7 Aug 2002 05:57:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317767AbSHGKYe>; Wed, 7 Aug 2002 06:24:34 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:2809 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317752AbSHGKYd>; Wed, 7 Aug 2002 06:24:33 -0400
-Subject: Re: ethtool documentation
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jonathan Lundell <linux@lundell-bros.com>
-Cc: Dax Kelson <dax@gurulabs.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <p05111a08b9766ed1d753@[207.213.214.37]>
-References: <Pine.LNX.4.44.0208062318350.4696-100000@mooru.gurulabs.com> 
-	<p05111a08b9766ed1d753@[207.213.214.37]>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 07 Aug 2002 12:47:00 +0100
-Message-Id: <1028720820.18130.260.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317107AbSHGJ5q>; Wed, 7 Aug 2002 05:57:46 -0400
+Received: from ns.suse.de ([213.95.15.193]:64523 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317083AbSHGJ5p>;
+	Wed, 7 Aug 2002 05:57:45 -0400
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre1
+References: <200208062329.g76NTqP30962@devserv.devel.redhat.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 07 Aug 2002 12:01:24 +0200
+In-Reply-To: Alan Cox's message of "7 Aug 2002 01:35:54 +0200"
+Message-ID: <p73vg6nhtsb.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-07 at 07:30, Jonathan Lundell wrote:
-> At 11:32 PM -0600 8/6/02, Dax Kelson wrote:
-> >The sky is not falling, you protest too much.
-> 
-> Ha! Just wait until the jack-booted IEEE enforcers kick down *your* 
-> door in the middle of the night to nab you for MAC-address trespass. 
-> THEN we'll see who' protesting too much.
+Alan Cox <alan@redhat.com> writes:
 
-Just don't use it to go around proprietary software license managers,
-because if so the fbi might just do that...
+> 	- Remove mess where x86_64 sticks its arse in all sorts of
+> 	  config files and makes a mess of it. Other ports done because
+> 	  the result sucks, x86_64 shouldnt either
+
+Can you explain this further. How else do you propose to get rid of 
+unmaintained-and-absolutely-hopeless-on-64bit drivers in the configuration? 
+I definitely do not want to get bug reports about these not working on x86-64.
+
+If you think CONFIG_X86_64 is too ugly, perhaps an generic CONFIG_64BIT would 
+be preferable for you? I personally would prefer CONFIG_UNMAINTAINED_AND_BROKEN and telling users they are on their own when they enable it, but that is 
+probably just me.
+
+> 	- Drop utterly bogus change todrivers/sound/Config.in
+
+Given that one was bogus. Must have been a merge mistake on my part.
+
+-Andi
+

@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263765AbTKZAgH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 19:36:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbTKZAgH
+	id S263850AbTKZAkP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 19:40:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263870AbTKZAkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 19:36:07 -0500
-Received: from pat.uio.no ([129.240.130.16]:61421 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S263765AbTKZAgE (ORCPT
+	Tue, 25 Nov 2003 19:40:15 -0500
+Received: from pat.uio.no ([129.240.130.16]:16371 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S263850AbTKZAkM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 19:36:04 -0500
-To: Akinobu Mita <mita@miraclelinux.com>
+	Tue, 25 Nov 2003 19:40:12 -0500
+To: Matt Bernstein <mb/lkml@dcs.qmul.ac.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG 2.4] NFS unlocking operation accesses invalid file struct
-References: <200311252000.32094.mita@miraclelinux.com>
+Subject: Re: 2.6: can't lockf() over NFS
+References: <Pine.LNX.4.58.0311251613230.20810@lucy.dcs.qmul.ac.uk>
 From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 25 Nov 2003 19:35:55 -0500
-In-Reply-To: <200311252000.32094.mita@miraclelinux.com>
-Message-ID: <shs1xrwvudw.fsf@charged.uio.no>
+Date: 25 Nov 2003 19:39:50 -0500
+In-Reply-To: <Pine.LNX.4.58.0311251613230.20810@lucy.dcs.qmul.ac.uk>
+Message-ID: <shssmkcufmx.fsf@charged.uio.no>
 User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,36 +25,15 @@ X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Akinobu Mita <mita@miraclelinux.com> writes:
+>>>>> " " == Matt Bernstein <mb/lkml@dcs.qmul.ac.uk> writes:
 
+     > I can't get Debian testing to log in to GNOME when home
+     > directories are mounted over NFS (Linux 2.6 client -> Linux
+     > 2.4-ac server). It claims not to be able to lock a file..
 
-     > Does anyone have a idea of how to fix it ?
-
-Yes. I posted a patch about a week or 2 ago. The original patch can be
-found on
-
-  http://www.fys.uio.no/~trondmy/src/Linux-2.4.x/2.4.23-rc1/linux-2.4.23-01-posix_race.dif
-
-However, I now believe the real problem here is that
-locks_remove_posix() should also be checking the pid (as is done in
-all the other POSIX locking checks by calling locks_same_owner()).
-
-It is wrong for locks_remove_posix() to be deleting locks that don't
-belong to this pid... Note: this bug exists in 2.6.x. too, although
-there it does not cause an Oops...
+IIRC Debian had some issues with rpc.statd. They were using some
+incorrect compilation options. Try grabbing a newer version from
+'unstable'.
 
 Cheers,
   Trond
-
---- linux-2.4.23-rc1/fs/locks.c.orig	2003-11-16 19:30:53.000000000 -0500
-+++ linux-2.4.23-rc1/fs/locks.c	2003-11-25 19:34:02.000000000 -0500
-@@ -1746,7 +1746,8 @@
- 	lock_kernel();
- 	before = &inode->i_flock;
- 	while ((fl = *before) != NULL) {
--		if ((fl->fl_flags & FL_POSIX) && fl->fl_owner == owner) {
-+		if ((fl->fl_flags & FL_POSIX) && fl->fl_owner == owner &&
-+				fl->fl_pid == current->pid) {
- 			locks_unlock_delete(before);
- 			before = &inode->i_flock;
- 			continue;

@@ -1,95 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316853AbSGHMRn>; Mon, 8 Jul 2002 08:17:43 -0400
+	id <S316847AbSGHMMv>; Mon, 8 Jul 2002 08:12:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316855AbSGHMRn>; Mon, 8 Jul 2002 08:17:43 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:29315 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S316853AbSGHMRl>; Mon, 8 Jul 2002 08:17:41 -0400
-Date: Mon, 8 Jul 2002 08:21:59 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Daniel Phillips <phillips@arcor.de>
-cc: Pavel Machek <pavel@ucw.cz>, "Stephen C. Tweedie" <sct@redhat.com>,
-       Bill Davidsen <davidsen@tmr.com>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: simple handling of module removals Re: [OKS] Module removal
-In-Reply-To: <E17PtqU-0000RJ-00@starship>
-Message-ID: <Pine.LNX.3.95.1020708082014.19138A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316851AbSGHMMu>; Mon, 8 Jul 2002 08:12:50 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61195 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316847AbSGHMMt>;
+	Mon, 8 Jul 2002 08:12:49 -0400
+Date: Mon, 8 Jul 2002 13:15:25 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Matthew Wilcox <willy@debian.org>, Dave Hansen <haveblue@us.ibm.com>,
+       Oliver Neukum <oliver@neukum.name>,
+       Thunder from the hill <thunder@ngforever.de>, Greg KH <greg@kroah.com>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BKL removal
+Message-ID: <20020708131525.Q27706@parcelfarce.linux.theplanet.co.uk>
+References: <20020708033409.P27706@parcelfarce.linux.theplanet.co.uk> <Pine.GSO.4.21.0207072255020.24900-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.21.0207072255020.24900-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sun, Jul 07, 2002 at 10:58:04PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jul 2002, Daniel Phillips wrote:
-
-> On Wednesday 03 July 2002 05:48, Pavel Machek wrote:
-> > Hi!
-> > 
-> > Okay. So we want modules and want them unload. And we want it bugfree.
-> > 
-> > So... then its okay if module unload is *slow*, right?
-> > 
-> > I believe you can just freeze_processes(), unload module [now its
-> > safe, you *know* noone is using that module, because all processes are
-> > in your refrigerator], thaw_processes().
-> > 
-> > That's going to take *lot* of time, but should be very simple and very
-> > effective.
+On Sun, Jul 07, 2002 at 10:58:04PM -0400, Alexander Viro wrote:
+> On Mon, 8 Jul 2002, Matthew Wilcox wrote:
+> > one struct file per open(), yes.  however, fork() shares a struct file,
+> > as does unix domain fd passing.  so we need protection between different
+> > processes.  there's some pretty good reasons to want to use a semaphore
+> > to protect the struct file (see fasync code.. bleugh).
 > 
-> Hi Pavel,
-> 
-> Is it just the mod_dec_use_count; return/unload race we're worried about?  
-> I'm not clear on why this is hard.  I'd think it would be sufficient just to 
-> walk all runnable processes to ensure none has an execution address inside the
-> module.  For smp, an ipi would pick up the current process on each cpu.
-> 
-> At this point the use count must be zero and the module deregistered, so all 
-> we're interested in is that every process that dec'ed the module's use count 
-> has succeeded in executing its way out of the module.  If not, we try again 
-> later, or if we're impatient, also bump any processes still inside the module 
-> to the front of the run queue.
-> 
-> I'm sure I must have missed something.
-> 
-> -- 
-> Daniel
-> 
+> ??? What exactly do you want to protect there?
 
-Assuming that there are no users of a module, i.e., the current
-MOD_DEC_USE_COUNT mechanism, checked under a lock, I think all
-you have to do to assure race-free module removal is to:
+andrea & i discussed this off-list a few days ago... see fs/fcntl.c
 
-(1)	Make sure that `current` isn't preempted. There are several
-        ways to do this. This may require another global variable.
+                case F_SETFL:
+                        lock_kernel();
+                        err = setfl(fd, filp, arg);
+                        unlock_kernel();
 
-(2)	Execute cleanup_module(). It is assumed that the user-code
-	will deallocate interrupts, and free resources, etc.
+setfl() does:
 
-(3)	Set a global flag "module_remove", it doesn't have to be atomic.
-	It needs only to be volatile. It is used in schedule() to trap
-	all CPUs.
-        schedule()
-        {
-            while(module_remove)
-                ;
-        }
+        if ((arg ^ filp->f_flags) & FASYNC) {
+                if (filp->f_op && filp->f_op->fasync) {
+                        error = filp->f_op->fasync(fd, filp, (arg & FASYNC) != 0);
 
-(4)	Wait number-of-CPUs timer-ticks with interrupts alive and well.
-        This will make certain that everything queued on the timer gets
-        a chance to be executed and everything that would be preempted
-        gets trapped in schedule().
- 
-(5)	Remove the module, reset the flag.
+and:
 
-The cost is the single variable that must be checked every time schedule()
-is executed plus the 'don't preempt me' variable (if necessary).
+        if (arg & O_DIRECT) {
+                down(&inode->i_sem);
+                if (!filp->f_iobuf)
+                        error = alloc_kiovec(1, &filp->f_iobuf);
+                up(&inode->i_sem);
 
+and finally:
 
-Cheers,
-Dick Johnson
+        filp->f_flags = (arg & SETFL_MASK) | (filp->f_flags & ~SETFL_MASK);
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+i pointed out that if alloc_kiovec slept, the BKL provides no protection
+against someone else doing a setfl at the same time, so we can get the
+wrong number of fasync events sent.  Marcus Alanen pointed out that
+fasync can also sleep, so we're at risk anyway.  i don't think that
+abusing i_sem as andrea did is the Right Thing to do...
 
-                 Windows-2000/Professional isn't.
-
+-- 
+Revolutions do not require corporate support.

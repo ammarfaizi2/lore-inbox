@@ -1,67 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131942AbRCaCDT>; Fri, 30 Mar 2001 21:03:19 -0500
+	id <S132027AbRCaCvF>; Fri, 30 Mar 2001 21:51:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131950AbRCaCDJ>; Fri, 30 Mar 2001 21:03:09 -0500
-Received: from platan.vc.cvut.cz ([147.32.240.81]:24841 "EHLO
-	platan.vc.cvut.cz") by vger.kernel.org with ESMTP
-	id <S131942AbRCaCDC>; Fri, 30 Mar 2001 21:03:02 -0500
-Message-ID: <3AC53A18.C08FFC38@vc.cvut.cz>
-Date: Fri, 30 Mar 2001 17:59:52 -0800
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac28-4g i686)
-X-Accept-Language: cz, cs, en
-MIME-Version: 1.0
-To: J Brook <jbk@postmark.net>
-CC: mythos <papadako@csd.uoc.gr>, Alan Olsen <alan@clueserver.org>,
-   linux-kernel@vger.kernel.org
-Subject: Re: Matrox G400 Dualhead
-In-Reply-To: <20010331001238.10669.qmail@venus.postmark.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132005AbRCaCu4>; Fri, 30 Mar 2001 21:50:56 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:9476 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S131986AbRCaCuo>; Fri, 30 Mar 2001 21:50:44 -0500
+Message-Id: <200103310250.f2V2o1fw001120@pincoya.inf.utfsm.cl>
+To: linux-kernel@vger.kernel.org
+cc: sparclinux@vger.kernel.org
+Subject: 2.4.3 CVS 20010330: No floppy
+X-Mailer: MH [Version 6.8.4]
+Date: Fri, 30 Mar 2001 22:50:00 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J Brook wrote:
-> 
-> > Does anyone know why fualhead is not working anymore?
-> > I just get a screen with rubbish on the second head.
-> > Also when kernel loads and and registers fb1 I lose signal
-> > on the second head.
+Mostlt RH 6.2 on sparc64. 2.2.18 works fine. A strace(1) of a failed
+mdir(1) ends:
 
-On G400 there is no signal on second head after poweron. So you cannot
-lose it ;-) On G450 there is same signal on both heads - but you are
-talking about G400. Or no? They are very different (they have different
-everything except PCI device ID register :-( ). You should add
-'Option "UseFBDev"' into your XF86Config-4 - probably together with 
-'Option "NoHWCursor"'.
-
-> ...
-> 
-> >With 2.4.2 it was working just fine.
-> 
-> I have also noticed problems with the 2.4.3 release. I have a G450
-> 32Mb, that I use in single-head mode. The console framebuffer runs
-> fine at boot time, but when I load X (4.0.3 compiled with Matrox HAL
-> library) and then return to the console, I get a blank screen (signal
-> lost).
-
-It is easy - do not do that. Matroxfb really does not expect that
-someone
-will powerdown parts of chip which matroxfb needs, but which XFree does
-not use (for example clock source for secondary head) or that it will
-change
-some undocumented registers (for example Matrox HAL driver changes
-memory
-clock speed).
- 
-> I don't know what the problem is. I can confirm with Mythos that
-> under
-> 2.4.2 it was working just fine :-)
-
-I have no idea what changed between 2.4.2 and 2.4.3 - I do not
-remember that I was doing some changes into the matroxfb during
-last few weeks - so maybe that source of these problems is in XFree
-4.0.3 ?
-					Petr Vandrovec
-					vandrove@vc.cvut.cz
+open("/dev/fd0", O_RDONLY|O_LARGEFILE)  = 3
+SYS_63()                                = 0
+flock(3, LOCK_SH|LOCK_NB)               = 0
+ioctl(3, FDGETPRM, 0xefffde98)          = -1 ENODEV (No such device)
+close(3)                                = 0
+write(2, "init: set default params\n", 25init: set default params
+) = 25
+write(2, "Cannot initialize \'A:\'\n", 23Cannot initialize 'A:'
+) = 23
+exit(1)                                 = ?
+-- 
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

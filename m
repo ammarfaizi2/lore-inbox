@@ -1,346 +1,394 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269796AbTGKF76 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 01:59:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269797AbTGKF76
+	id S266606AbTGKGG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 02:06:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269803AbTGKGG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 01:59:58 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:48787 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S269796AbTGKF7v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 01:59:51 -0400
-Date: Thu, 10 Jul 2003 23:14:19 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 898] New: Very HIGH File & VM system latencies and system stop responding while extracting big tar  archive file.
-Message-ID: <111930000.1057904059@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 11 Jul 2003 02:06:58 -0400
+Received: from web40010.mail.yahoo.com ([66.218.78.28]:44191 "HELO
+	web40010.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S269798AbTGKGGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 02:06:50 -0400
+Message-ID: <20030711062131.63757.qmail@web40010.mail.yahoo.com>
+Date: Thu, 10 Jul 2003 23:21:31 -0700 (PDT)
+From: Justin Swanhart <jswanhart@yahoo.com>
+Reply-To: swany@hour13.com
+Subject: PROBLEM: assert in inode.c (2.4.21)
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=898
+PROBLEM: assertion/crash in latest stable kernel
+2.4.21 (inode.c)
 
-           Summary: Very HIGH File & VM system latencies and system stop
-                    responding while extracting big tar  archive file.
-    Kernel Version: 2.5.75
-            Status: NEW
-          Severity: high
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: bakhtiar@softhome.net
+DETAIL:
+This server crashes under medium load running apache
+(httpd).  It crashes consistently since the 
+maxclients value wa increased to accomodate an
+increased amount of traffic to the site.  The kernel
+was crashing in a kernel page fault so we decided to
+ugprade to 2.4.21.  After the upgrade the crash
+occurs as before but with an assert in inode.c instead
+of a kernel page fault.  
 
+keywords: kernel, assertion, inode.c, autofs, apache
 
-Distribution:Slackware v7.1 : glibc v2.1.3
-Hardware Environment: P!!! 550 MHz, 256 MB RAM. HP Brio BA600
+VERSION
+Linux version 2.4.21 (root@ahp1) (gcc version 2.96
+20000731 (Red Hat Linux 7.3 2.96-113)) #1 Wed Jul 9
+07:09:36 MDT 2003
 
-Software Environment:# lspci
-00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (rev 03)
-00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge (rev 03)
-00:04.0 Multimedia audio controller: Cirrus Logic CS 4614/22/24 [CrystalClear
-SoundFusion Audio Accelerator] (rev 01)
-00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
-00:0f.0 Ethernet controller: Accton Technology Corporation SMC2-1211TX (rev 10)
-00:12.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev 07)
-00:12.1 Input device controller: Creative Labs SB Live! (rev 07)
-01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 AGP (rev 03)
+OOPS W/ TRACE
+ksymoops 2.4.9 on i686 2.4.21.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.21/ (default)
+     -m /usr/src/linux/System.map (default)
 
-Problem Description:
-1) lmbench v3.0 indicates VERY slow file handling since v2.5.74. I am using
-reiserfs as a default FS.
+Warning: You did not tell me where to find symbol
+information.  I will
+assume that the log matches the kernel and modules
+that are running
+right now and I'll use the default options above for
+symbol resolution.
+If the current kernel and/or modules do not match the
+log, you can get
+more accurate output by telling me the kernel version
+and where to find
+map, modules, ksyms etc.  ksymoops -h explains the
+options.
 
-File & VM system latencies in microseconds - smaller is better
--------------------------------------------------------------------------------
-Host                 OS   0K File      10K File     Mmap    Prot   Page   100fd
-                        Create Delete Create Delete Latency Fault  Fault  selct
---------- ------------- ------ ------ ------ ------ ------- ----- ------- -----
-vfr        Linux 2.5.72   92.9 6.2000  272.0 6.4290  1120.0 0.836 3.12030  13.6
-vfr        Linux 2.5.73   94.8 4.1030  197.8 4.2720  1076.0 0.782 2.85340  11.1
-*vfr       Linux 2.5.74  155.4  170.4  391.8  247.7  1111.0 0.781 2.95210  11.1
-*vfr       Linux 2.5.75  153.1  163.0  381.4  225.6  1044.0 0.656 2.77480  11.0
-
-
-
-2) System stop responding while extracting big tar.bz2 archive file; example;
-MozillaFirebird.tar.bz2 (about 32MB). ps indicates that sistem stuck at tar
-process (pid 3607)
-
-# ps aux
-root      3598  0.0  0.0     0    0 ?        SW   11:26   0:00 [rpciod]
-root      3599  0.0  0.0     0    0 ?        SW   11:26   0:00 [lockd]
-root      3608 13.4  1.5  4712 4000 vc/1     S    11:27   0:58 bzip2 -d
-root      3607  4.4  0.7  3428 1848 vc/1     D    11:27   0:19 tar xvfy
-/mnt/nfs/mozilla/MozillaFirebird-0.6-source.tar.bz2
-
-# cat /proc/vmstat
-nr_dirty 26052
-nr_writeback 0
-nr_unstable 0
-nr_page_table_pages 92
-nr_mapped 3224
-nr_slab 4825
-pgpgin 101596
-pgpgout 392800
-pswpin 0
-pswpout 0
-pgalloc 6592963
-pgfree 6594126
-pgactivate 53079
-pgdeactivate 12278
-pgfault 3215804
-pgmajfault 420
-pgscan 56954
-pgrefill 13927
-pgsteal 56118
-pginodesteal 0
-kswapd_steal 54230
-kswapd_inodesteal 8706
-pageoutrun 141
-allocstall 59
-pgrotated 0
-
-Load average also VERY high ... more than 4.00.
-
-Steps to reproduce:
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_PREEMPT=y
-CONFIG_X86_TSC=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_HOTPLUG=y
-CONFIG_PCMCIA_PROBE=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-CONFIG_PARPORT_1284=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_IDE_TASKFILE_IO=y
-CONFIG_BLK_DEV_IDEPCI=yCONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=m
-CONFIG_BLK_DEV_SD=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_TFTP=m
-CONFIG_IP_NF_AMANDA=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_PKTTYPE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_ECN=m
-CONFIG_IP_NF_MATCH_DSCP=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_HELPER=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_MATCH_UNCLEAN=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_MIRROR=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_NAT_TFTP=m
-CONFIG_IP_NF_NAT_AMANDA=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-CONFIG_IPV6_SCTP__=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_BONDING=m
-CONFIG_TUN=m
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_8139TOO=y
-CONFIG_PLIP=m
-CONFIG_PPP=m
-CONFIG_PPP_MULTILINK=y
-CONFIG_PPP_FILTER=y
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_SYNC_TTY=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-CONFIG_PPPOE=m
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-CONFIG_RTC=y
-CONFIG_AGP=y
-CONFIG_AGP_INTEL=y
-CONFIG_DRM=y
-CONFIG_DRM_MGA=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=y
-CONFIG_AUTOFS4_FS=m
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_UDF_FS=y
-CONFIG_FAT_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_NTFS_FS=m
-CONFIG_NTFS_RW=y
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-CONFIG_NFS_V4=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_V4=y
-CONFIG_NFSD_TCP=y
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=m
-CONFIG_SUNRPC=m
-CONFIG_SUNRPC_GSS=m
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=y
-CONFIG_SND_EMU10K1=m
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_UHCI_HCD=y
-CONFIG_USB_STORAGE=m
-CONFIG_USB_MOUSE=y
-CONFIG_ZLIB_INFLATE=m
-CONFIG_ZLIB_DEFLATE=m
-CONFIG_X86_BIOS_REBOOT=y
-
-Extra configurations:
-/usr/src/linux/Makefile modifcation
-HOSTCFLAGS      = -Wall -Wstrict-prototypes -Os -s -fomit-frame-pointer
-
-/usr/src/linux/i366/Makefile
-cflags-$(CONFIG_MPENTIUMIII)    += $(call check_gcc,-march=pentium3 -mmmx -msse,
--march=i686)
-
-I hope this report enough to solve the problem...
-
-Best wish...
-
-Yours,
-Mohammad Bahathir Hashim
-MALAYSIA.
+Jul 10 14:03:51 ahp1 kernel: kernel BUG at
+inode.c:851!
+Jul 10 14:03:51 ahp1 kernel: invalid operand: 0000
+Jul 10 14:03:51 ahp1 kernel: CPU:    0
+Jul 10 14:03:51 ahp1 kernel: EIP:   
+0010:[autofs:__insmod_autofs_O/lib/modules/2.4.21/kernel/fs/autofs/autof+-2217349/96]
+   Not tainted
+Jul 10 14:03:51 ahp1 kernel: EFLAGS: 00010286
+Jul 10 14:03:51 ahp1 kernel: eax: 0000004a   ebx:
+f6692e40   ecx: 00000000   edx: 00000000
+Jul 10 14:03:51 ahp1 kernel: esi: 00000000   edi:
+00000000   ebp: 00000000   esp: f65bbbd0
+Jul 10 14:03:51 ahp1 kernel: ds: 0018   es: 0018   ss:
+0018
+Jul 10 14:03:51 ahp1 kernel: Process httpd (pid: 5541,
+stackpage=f65bb000)
+Jul 10 14:03:51 ahp1 kernel: Stack: f886bc60 f8863d12
+dff520fc f6692e00 00000000 00000000 f6b09cc0 dd89c0a0
+Jul 10 14:03:51 ahp1 kernel:        dff520fc c01ef8ab
+dff520fc 00000014 bfabe8d3 dff52110 dd89c0a0 00000014
+Jul 10 14:03:51 ahp1 kernel:        0008e287 dd89c1c0
+dff520fc c01ea9b8 000001cd 080c5df9 000001b9 c01c4a93
+Jul 10 14:03:51 ahp1 kernel: Call Trace:   
+[autofs:__insmod_autofs_O/lib/modules/2.4.21/kernel/fs/autofs/autof+-2184096/96]
+[autofs:__insmod_autofs_O/lib/modules/2.4.21/kernel/fs/autofs/autof+-2216686/96]
+[tcp_v4_send_check+107/176]
+[tcp_transmit_skb+1368/1552]
+[skb_copy_and_csum_datagram+131/912]
+Jul 10 14:03:51 ahp1 kernel: Code: 0f 0b 53 03 6f dc
+86 f8 83 c4 14 56 8b 44 24 18 50 8b 74 24
+Using defaults from ksymoops -t elf32-i386 -a i386
 
 
+>>ebx; f6692e40 <_end+363a68a4/38520a64>
+>>esp; f65bbbd0 <_end+362cf634/38520a64>
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   0f 0b                     ud2a
+Code;  00000002 Before first symbol
+   2:   53                        push   %ebx
+Code;  00000003 Before first symbol
+   3:   03 6f dc                  add   
+0xffffffdc(%edi),%ebp
+Code;  00000006 Before first symbol
+   6:   86 f8                     xchg   %bh,%al
+Code;  00000008 Before first symbol
+   8:   83 c4 14                  add    $0x14,%esp
+Code;  0000000b Before first symbol
+   b:   56                        push   %esi
+Code;  0000000c Before first symbol
+   c:   8b 44 24 18               mov   
+0x18(%esp,1),%eax
+Code;  00000010 Before first symbol
+  10:   50                        push   %eax
+Code;  00000011 Before first symbol
+  11:   8b 74 24 00               mov   
+0x0(%esp,1),%esi
+
+
+1 warning issued.  Results may not be reliable.
+
+PROCESSOR INFO:
+[root@ahp1 tmp]# cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 10
+cpu MHz         : 997.532
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8
+apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+
+
+MODULES:
+[root@ahp1 linux]# cat /proc/modules
+autofs                 11172   0 (autoclean) (unused)
+eepro100               20652   1
+mii                     3800   0 [eepro100]
+ext3                   65152   2
+jbd                    46924   2 [ext3]
+aic7xxx               132160   3
+sd_mod                 12412   6
+scsi_mod              104916   2 [aic7xxx sd_mod]
+
+IO PORTS
+[root@ahp1 log]# cat /proc/ioports
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+01f0-01f7 : ide0
+02f8-02ff : serial(auto)
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial(auto)
+08b0-08bf : ServerWorks OSB4 IDE Controller
+  08b0-08b7 : ide0
+  08b8-08bf : ide1
+0cf8-0cff : PCI conf1
+d800-d8ff : Adaptec AIC-7899P U160/m (#2)
+dc00-dcff : Adaptec AIC-7899P U160/m
+e800-e8ff : ATI Technologies Inc Rage XL
+ecc0-ecff : Intel Corp. 82557/8/9 [Ethernet Pro 100]
+  ecc0-ecff : eepro100
+
+IOMEM
+[root@ahp1 log]# cat /proc/iomem
+00000000-0009ffff : System RAM
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000c8000-000cdfff : Extension ROM
+000f0000-000fffff : System ROM
+00100000-7fffdfff : System RAM
+  00100000-00216c8b : Kernel code
+  00216c8c-0028981f : Kernel data
+7fffe000-7fffffff : reserved
+f9000000-f9000fff : Adaptec AIC-7899P U160/m (#2)
+  f9000000-f9000fff : aic7xxx
+f9001000-f9001fff : Adaptec AIC-7899P U160/m
+  f9001000-f9001fff : aic7xxx
+fc000000-fcffffff : ATI Technologies Inc Rage XL
+fe000000-fe0fffff : Intel Corp. 82557/8/9 [Ethernet
+Pro 100]
+fe100000-fe100fff : ServerWorks OSB4/CSB5 OHCI USB
+Controller
+fe101000-fe101fff : ATI Technologies Inc Rage XL
+fe102000-fe102fff : Intel Corp. 82557/8/9 [Ethernet
+Pro 100]
+  fe102000-fe102fff : eepro100
+fec00000-fec0ffff : reserved
+fee00000-fee0ffff : reserved
+fff80000-ffffffff : reserved
+
+PCI DEVICES
+[root@ahp1 log]# /sbin/lspci -vvv
+00:00.0 Host bridge: ServerWorks CNB20LE Host Bridge
+(rev 06)
+        Control: I/O- Mem+ BusMaster+ SpecCycle-
+MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr-
+DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 48, cache line size 08
+
+00:00.1 Host bridge: ServerWorks CNB20LE Host Bridge
+(rev 06)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle-
+MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr-
+DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 48, cache line size 08
+
+00:02.0 Ethernet controller: Intel Corp. 82557/8/9
+[Ethernet Pro 100] (rev 08)
+        Subsystem: Dell Computer Corporation: Unknown
+device 009b
+        Control: I/O+ Mem+ BusMaster+ SpecCycle-
+MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr-
+DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (2000ns min, 14000ns max), cache
+line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at fe102000 (32-bit,
+non-prefetchable) [size=4K]
+        Region 1: I/O ports at ecc0 [size=64]
+        Region 2: Memory at fe000000 (32-bit,
+non-prefetchable) [size=1M]
+        Expansion ROM at fd000000 [disabled] [size=1M]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI+ D1+ D2+
+AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=2
+PME-
+
+00:0e.0 VGA compatible controller: ATI Technologies
+Inc Rage XL (rev 27) (prog-if 00 [VGA])
+        Subsystem: Dell Computer Corporation: Unknown
+device 00ce
+        Control: I/O+ Mem+ BusMaster+ SpecCycle-
+MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr-
+DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (2000ns min), cache line size 08
+        Region 0: Memory at fc000000 (32-bit,
+non-prefetchable) [size=16M]
+        Region 1: I/O ports at e800 [size=256]
+        Region 2: Memory at fe101000 (32-bit,
+non-prefetchable) [size=4K]
+        Expansion ROM at <unassigned> [disabled]
+[size=128K]
+        Capabilities: [5c] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+
+AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0
+PME-
+
+00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev
+50)
+        Subsystem: ServerWorks OSB4 South Bridge
+        Control: I/O+ Mem+ BusMaster+ SpecCycle-
+MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr-
+DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+
+00:0f.1 IDE interface: ServerWorks OSB4 IDE Controller
+(prog-if 8a [Master SecP PriP])
+        Control: I/O+ Mem- BusMaster+ SpecCycle-
+MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr-
+DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64
+        Region 4: I/O ports at 08b0 [size=16]
+
+00:0f.2 USB Controller: ServerWorks OSB4/CSB5 USB
+Controller (rev 04) (prog-if 10 [OHCI])
+        Subsystem: ServerWorks OSB4/CSB5 USB
+Controller
+        Control: I/O+ Mem+ BusMaster+ SpecCycle-
+MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr-
+DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (20000ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at fe100000 (32-bit,
+non-prefetchable) [size=4K]
+
+01:02.0 SCSI storage controller: Adaptec AIC-7899P
+U160/m (rev 01)
+        Subsystem: Dell Computer Corporation: Unknown
+device 00ce
+        Control: I/O- Mem+ BusMaster+ SpecCycle-
+MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr-
+DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (10000ns min, 6250ns max), cache
+line size 08
+        Interrupt: pin A routed to IRQ 5
+        BIST result: 00
+        Region 0: I/O ports at dc00 [disabled]
+[size=256]
+        Region 1: Memory at f9001000 (64-bit,
+non-prefetchable) [size=4K]
+        Expansion ROM at f8000000 [disabled]
+[size=128K]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2-
+AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0
+PME-
+
+01:02.1 SCSI storage controller: Adaptec AIC-7899P
+U160/m (rev 01)
+        Subsystem: Dell Computer Corporation: Unknown
+device 00ce
+        Control: I/O- Mem+ BusMaster+ SpecCycle-
+MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr-
+DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (10000ns min, 6250ns max), cache
+line size 08
+        Interrupt: pin B routed to IRQ 11
+        BIST result: 00
+        Region 0: I/O ports at d800 [disabled]
+[size=256]
+        Region 1: Memory at f9000000 (64-bit,
+non-prefetchable) [size=4K]
+        Expansion ROM at f8000000 [disabled]
+[size=128K]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2-
+AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0
+PME-
+
+SCSI DEVICES
+[root@ahp1 log]# cat /proc/scsi/scsi
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: FUJITSU  Model: MAN3735MP        Rev: 5507
+  Type:   Direct-Access                    ANSI SCSI
+revision: 03
+
+
+FILESYSTEMS
+LABEL=/                 /       ext3   
+defaults,usrquota,grpquota      1      1
+LABEL=/boot             /boot                   ext3  
+ defaults        1 2
+none                    /dev/pts                devpts
+ gid=5,mode=620  0 0
+none                    /proc                   proc  
+ defaults        0 0
+none                    /dev/shm                tmpfs 
+ defaults        0 0
+/dev/sda2               swap                    swap  
+ defaults        0 0
+/swapfile               swap                    swap  
+ defaults        0 0
+/swapfile1              swap                    swap  
+ defaults        0 0
+/swapfile2              swap                    swap  
+ defaults        0 0
+/dev/cdrom              /mnt/cdrom             
+iso9660 noauto,owner,kudzu,ro 0 0
+/dev/fd0                /mnt/floppy             auto  
+ noauto,owner,kudzu 0 0
+
+
+
+__________________________________
+Do you Yahoo!?
+SBC Yahoo! DSL - Now only $29.95 per month!
+http://sbc.yahoo.com

@@ -1,94 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131953AbRDJTc3>; Tue, 10 Apr 2001 15:32:29 -0400
+	id <S131886AbRDJTb2>; Tue, 10 Apr 2001 15:31:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131958AbRDJTcT>; Tue, 10 Apr 2001 15:32:19 -0400
-Received: from mailgw.prontomail.com ([216.163.180.10]:47769 "EHLO
-	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
-	id <S131953AbRDJTcN>; Tue, 10 Apr 2001 15:32:13 -0400
-Message-ID: <3AD35EFB.40ED7810@mvista.com>
-Date: Tue, 10 Apr 2001 12:28:59 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+	id <S131953AbRDJTbT>; Tue, 10 Apr 2001 15:31:19 -0400
+Received: from [216.33.104.134] ([216.33.104.134]:38154 "HELO mail.lig.net")
+	by vger.kernel.org with SMTP id <S131886AbRDJTbF>;
+	Tue, 10 Apr 2001 15:31:05 -0400
+Message-ID: <3AD35119.D1C5E90D@lig.net>
+Date: Tue, 10 Apr 2001 14:29:45 -0400
+From: "Stephen D. Williams" <sdw@lig.net>
+Organization: CCI / Insta, Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1dp i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        high-res-timers-discourse@lists.sourceforge.net
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        David Schleef <ds@schleef.org>, Mark Salisbury <mbs@mc.com>,
-        Jeff Dike <jdike@karaya.com>, schwidefsky@de.ibm.com,
+To: James Antill <james@and.org>
+Cc: Michael Lindner <mikel@att.net>, Chris Wedgwood <cw@f00f.org>,
+        Dan Maas <dmaas@dcine.com>, Edgar Toernig <froese@gmx.de>,
         linux-kernel@vger.kernel.org
-Subject: Re: No 100 HZ timer !
-In-Reply-To: <20010410193521.A21133@pcep-jamie.cern.ch> <E14n2hi-0004ma-00@the-village.bc.nu> <20010410202416.A21512@pcep-jamie.cern.ch>
+Subject: Re: PROBLEM: select() on TCP socket sleeps for 1 tick even if data   
+ available
+In-Reply-To: <fa.nc2eokv.1dj8r80@ifi.uio.no> <fa.dcei62v.1s5scos@ifi.uio.no>
+		<015e01c082ac$4bf9c5e0$0701a8c0@morph> <3A69361F.EBBE76AA@att.net>
+		<20010120200727.A1069@metastasis.f00f.org> <3A694254.B52AE20B@att.net>
+		<3A6A09F2.8E5150E@gmx.de> <022f01c08342$088f67b0$0701a8c0@morph>
+		<20010121133433.A1112@metastasis.f00f.org> <3A6A558D.5E0CF29E@att.net>
+		<3AD1CD13.F1A917FA@lig.net> <nnbsq5opdz.fsf@code.and.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just for your information we have a project going that is trying to come
-up with a good solution for all of this:
+James Antill wrote:
+> 
+> "Stephen D. Williams" <sdw@lig.net> writes:
+> 
+> > An old thread, but important to get these fundamental performance
+> > numbers up there:
+> >
+> > 2.4.2 on an 800mhz PIII Sceptre laptop w/ 512MB ram:
+> >
+> > elapsed time for 100000 pingpongs is
+> > 3.81327
+> > 100000/3.81256
+> >         ~26229.09541095746689888159
+> > 10000/.379912
+> >         ~26321.88506812103855629724
+...
+>  I seemed to miss the original post, so I can't really comment on the
+> tests. However...
 
-http://sourceforge.net/projects/high-res-timers
+It was a thread in January, but just ran accross it looking for
+something else.  See below for results.
 
-We have a mailing list there where we have discussed much of the same
-stuff.  The mailing list archives are available at sourceforge.
 
-Lets separate this into findings and tentative conclusions :)
+> > Michael Lindner wrote:
+...
+> > >      0.052371 send(7, "\0\0\0
+> > > \177\0\0\1\3243\0\0\0\2\4\236\216\341\0\0\v\277"..., 32, 0) = 32
+> > > <0.000529>
+> > >      0.000882 rt_sigprocmask(SIG_BLOCK, ~[], [RT_0], 8) = 0 <0.000021>
+> > >      0.000242 rt_sigprocmask(SIG_SETMASK, [RT_0], NULL, 8) = 0
+> > > <0.000021>
+> > >      0.000173 select(8, [3 4 6 7], NULL, NULL, NULL) = 1 (in [6])
+> > > <0.000047>
+> > >      0.000328 read(6, "\0\0\0 ", 4)     = 4 <0.000031>
+> > >      0.000179 read(6,
+> > > "\177\0\0\1\3242\0\0\0\2\4\236\216\341\0\0\7\327\177\0\0"..., 28) = 28
+> > > <0.000075>
+> 
+>  The strace here shows select() with an infinite timeout, you're
+> numbers will be much better if you do (pseudo code)...
+> 
+>   struct timeval zerotime;
+> 
+>   zerotime.tv_sec = 0;
+>   zerotime.tv_usec = 0;
+> 
+>  if (!(ret = select( ... , &zerotime)))
+>   ret = select( ... , NULL);
+> 
+> ...basically you completely miss the function call for __pollwait()
+> inside poll_wait (include/linux/poll.h in the linux sources, with
+> __pollwait being in fs/select.c).
 
-Findings:
+Apparently the extra system call overhead outweighs any benefit.  In any
+case, what you suggest would be better done in the kernel anyway.  The
+time went from 3.7 to 4.4 seconds per 100000.
 
-a) The University of Kansas and others have done a lot of work here.
+> 
+> --
+> # James Antill -- james@and.org
+> :0:
+> * ^From: .*james@and\.org
+> /dev/null
 
-b) High resolution timer events can be had with or without changing HZ.
-
-c) High resolution timer events can be had with or without eliminating
-the 1/HZ tick.
-
-d) The organization of the timer list should reflect the existence of
-the 1/HZ tick or not.  The current structure is not optimal for a "tick
-less" implementation.  Better would be strict expire order with indexes
-to "interesting times".
-
-e) The current organization of the timer list generates a hiccup every
-2.56 seconds to handle "cascading".  Hiccups are bad.
-
-f) As noted, the account timers (task user/system times) would be much
-more accurate with the tick less approach.  The cost is added code in
-both the system call and the schedule path.  
-
-Tentative conclusions:
-
-Currently we feel that the tick less approach is not acceptable due to
-(f).  We felt that this added code would NOT be welcome AND would, in a
-reasonably active system, have much higher overhead than any savings in
-not having a tick.  Also (d) implies a list organization that will, at
-the very least, be harder to understand.  (We have some thoughts here,
-but abandoned the effort because of (f).)  We are, of course, open to
-discussion on this issue and all others related to the project
-objectives.
-
-We would reorganize the current timer list structure to eliminate the
-cascade (e) and to add higher resolution entries.  The higher resolution
-entries would carry an addition word which would be the fraction of a
-jiffie that needs to be added to the jiffie value for the timer.  This
-fraction would be in units defined by the platform to best suit the sub
-jiffie interrupt generation code.  Each of the timer lists would then be
-ordered by time based on this sub jiffie value.  In addition, in order
-to eliminate the cascade, each timer list would carry all timers for
-times that expire on the (jiffie mod (size of list)).  Thus, with the
-current 256 first order lists, all timers with the same (jiffies & 255)
-would be in the same list, again in expire order.  We also think that
-the list size should be configurable to some power of two.  Again we
-welcome discussion of these issues.
-
-George
-
-Alan Cox wrote:
-
->> It's also all interrupts, not only syscalls, and also context switch if you
->> want to be accurate.
-
->We dont need to be that accurate. Our sample rate is currently so low the
->data is worthless anyway
+-- 
+sdw@lig.net  http://sdw.st
+Stephen D. Williams
+43392 Wayside Cir,Ashburn,VA 20147-4622 703-724-0118W 703-995-0407Fax 
+Dec2000

@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285963AbRLVAwi>; Fri, 21 Dec 2001 19:52:38 -0500
+	id <S286303AbRLVAy2>; Fri, 21 Dec 2001 19:54:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286414AbRLVAw3>; Fri, 21 Dec 2001 19:52:29 -0500
-Received: from marine.sonic.net ([208.201.224.37]:6254 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S286367AbRLVAwV>;
-	Fri, 21 Dec 2001 19:52:21 -0500
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Fri, 21 Dec 2001 16:52:15 -0800
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.17
-Message-ID: <20011222005215.GC6619@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0112211744080.7492-100000@freak.distro.conectiva> <4.3.2.7.2.20011221193149.00ca6f00@mail.osagesoftware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4.3.2.7.2.20011221193149.00ca6f00@mail.osagesoftware.com>
-User-Agent: Mutt/1.3.24i
+	id <S286428AbRLVAyV>; Fri, 21 Dec 2001 19:54:21 -0500
+Received: from tourian.nerim.net ([62.4.16.79]:65293 "HELO tourian.nerim.net")
+	by vger.kernel.org with SMTP id <S286303AbRLVAyK>;
+	Fri, 21 Dec 2001 19:54:10 -0500
+Message-ID: <3C23D9B0.3010109@free.fr>
+Date: Sat, 22 Dec 2001 01:54:08 +0100
+From: Lionel Bouton <Lionel.Bouton@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011214
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [BUG] 2.4.17-rc1, IDE : SIS735/SIS5513 unusable ?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 21, 2001 at 07:34:29PM -0500, David Relson wrote:
-> My thought is that the _only_ difference between the last -rc and -final is 
-> correctly setting "EXTRAVERSION=" in Makefile.
+Short :
 
-Perhaps Documentation/* changes.
+SIS735 IDE subsystem unreliable -> system unusable.
 
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+Long :
+
+I recently purchased an ECS K7S5AL mb built around the SIS735 chipset. 
+The system built around this mb worked perfectly for one week before 
+failing to boot with root fs mount errors. Subsequent tries to reinstall 
+  the OS failed : either during the RedHat 7.2 install (fs error) or on 
+the first boot after install (root fs mount error).
+
+I trust all other components of the system (except the RAM and PSU which 
+I purchased recently too) as they were heavily used in a previous one 
+without a glitch.
+
+I saw one other bugreport on lklm from one person with several SIS735 
+mbs all failing on IDE DMA transfers and hints in the following thread 
+that the init code for the SIS5513 is not complete for the SIS735 and 
+might lead to the kind of problem I encountered (stable operation for a 
+while followed by an unusable IDE subsystem).
+
+I'm now on the way of heavy testing (Clean install on a drive in a 
+separate system, master of the drive, move in the not-so-cooperative mb 
+and several iterations of test-screwup-master_recopy-test-... ). I'll 
+test different BIOS revisions, ide kernel parameters while searching for 
+the SIS735 technical specs and then attempts at kernel hacking.
+
+I noticed Andre by private mail and posted a bugreport on sis support 
+web site asking them to supply appropriate init code to him. Is there 
+something else I can do (specific sis e-mail contacts for technical 
+papers for example, preliminary patch to test) ?
+
+Lionel
+

@@ -1,96 +1,128 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313419AbSEFLjT>; Mon, 6 May 2002 07:39:19 -0400
+	id <S314389AbSEFLnu>; Mon, 6 May 2002 07:43:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314389AbSEFLjS>; Mon, 6 May 2002 07:39:18 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:44559 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S313419AbSEFLjQ>; Mon, 6 May 2002 07:39:16 -0400
-Message-ID: <3CD66A0F.4020302@namesys.com>
-Date: Mon, 06 May 2002 15:33:35 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Oliver.Schersand@BASF-IT-Services.com
-CC: chris.mason@suse.com, alessandro.suardi@oracle.com, sbrand@mainz.ibm.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Review: Servercrash with kernel SuSE 2.4.16
-In-Reply-To: <OF10FE0462.9B5B7937-ONC1256BB1.002ADC0F@bcs.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S314393AbSEFLnu>; Mon, 6 May 2002 07:43:50 -0400
+Received: from postman.arcor-online.net ([151.189.0.87]:530 "EHLO
+	postman.arcor-online.net") by vger.kernel.org with ESMTP
+	id <S314389AbSEFLns>; Mon, 6 May 2002 07:43:48 -0400
+Date: Mon, 6 May 2002 13:41:43 +0200
+From: Stefan Frank <sfr@gmx.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: 2.4.19-pre8 compile error [in drivers/char/serial.c]
+Message-ID: <20020506114143.GA26760@asterix>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver.Schersand@BASF-IT-Services.com wrote:
+Hi,
 
->Hi,
->
->This is the actual result of the analys of our oracle server crashes on
->linux servers with suse Enterprise Server 7 and Kernel 2.4.16
->
->The reason for theses crashes where  the compaq remote inside and compaq
->health drivers. These drivers are deliverd from compaq. On stardup of these
->agents, they load binary kernel modules, which are very version sensitive.
->This modules  corrupt the virtual memory management of the server on heavy
->load
->
->This shows us a main problem of Linux in datacenter environment. The
->automatic guarding of the local attached storage and the hardware is very
->importend in this environments. In this environment we use expensive high
->performance hardware. These hardware is not  good  supported by the
->standard linux kernel. The companies which sell these hardware deliver not
->all features of these hardware to the community of linux.  There drivers
->and guarding agents are not distributed under GPL.
->
->
->Here is the statement of Compaq ( HPQ)
->
->   The new health driver that can be run on any re-compiled kernel is due
->   out in the SmartStart 5.50 timeframe (3Q02).  The reason for this is
->   that it also provides support for new servers as well.
->   The delivery method will be via the Compaq web site and the SmartStart
->   Cd.
->
->   The customer expectation is that it will work with any re-compiled
->   kernel.  Most likely that will be true however it will be impossible for
->   us to validate it with every possibility due to the open source nature
->   of Linux.
->
-Well, if they supplied the source code then customers could validate it 
-and fix it.;-)
+got the following compile error :
 
->
->   Today, customers actually can run the existing health driver on
->   re-compiled kernels by evoking a "fix-up" script that will be available
->   on our website.  This is not an ideal solution but it will work in a
->   majority of the situations.
->
->
->Thank you very much for all the help with this problem
->
->Oliver Schersand
->
->
->
->  
->
 
-I think that any product which lacks source code is unsuited for use in 
-a mission-critical Linux server application.  I think customers should 
-tell companies this.  When things break, you need to be able to fix 
-them, and not listen to excuses about how it is somehow the customer's 
-fault that they used a version of Linux that works except for the 
-vendor's code.  The paradigm has changed.....
+make-kpkg --revision=1 kernel_image
+.
+.
+.
+gcc -D__KERNEL__ -I/usr/src/linux-2.4/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
+-pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -I
+/usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=console
+-DEXPORT_SYMTAB -c console.c
+gcc -D__KERNEL__ -I/usr/src/linux-2.4/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
+-pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -I
+/usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=selection
+-DEXPORT_SYMTAB -c selection.c
+gcc -D__KERNEL__ -I/usr/src/linux-2.4/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
+-pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -I
+/usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=serial
+-DEXPORT_SYMTAB -c serial.c
+In file included from serial.c:186:
+/usr/src/linux-2.4/include/linux/serialP.h:27: parse error
+serial.c:206: parse error
+serial.c:209: parse error
+serial.c:230: parse error
+serial.c:683: parse error
+serial.c:1444: parse error
+serial.c:1593: parse error
+serial.c:2169: parse error
+serial.c:2216: parse error
+serial.c:2393: parse error
+serial.c:2550: parse error
+serial.c:2565: parse error
+serial.c:3179: parse error
+serial.c:3846: parse error
+serial.c:3851: linux/symtab_begin.h: No such file or directory
+serial.c:3854: linux/symtab_end.h: No such file or directory
+serial.c:5360: parse error
+serial.c:5363: parse error
+serial.c:5398: parse error
+serial.c:5401: parse error
+serial.c:5412: parse error
+serial.c:5419: parse error
+serial.c: In function `receive_chars':
+serial.c:686: warning: implicit declaration of function `queue_task_irq_off'
+serial.c: In function `rs_write':
+serial.c:1888: warning: implicit declaration of function `copy_from_user'
+serial.c: In function `get_serial_info':
+serial.c:2086: warning: implicit declaration of function `copy_to_user'
+serial.c: At top level:
+serial.c:3850: variable `serial_syms' has initializer but incomplete type
+serial.c:3852: warning: implicit declaration of function `X'
+serial.c:3852: warning: excess elements in struct initializer
+serial.c:3852: warning: (near initialization for `serial_syms')
+serial.c:3853: warning: excess elements in struct initializer
+serial.c:3853: warning: (near initialization for `serial_syms')
+serial.c:2410: warning: `rs_break' defined but not used
+serial.c:3850: warning: `serial_syms' defined but not used
+make[4]: *** [serial.o] Fehler 1
+make[4]: Leaving directory `/usr/src/linux-2.4/drivers/char'
+make[3]: *** [first_rule] Fehler 2
+make[3]: Leaving directory `/usr/src/linux-2.4/drivers/char'
+make[2]: *** [_subdir_char] Fehler 2
+make[2]: Leaving directory `/usr/src/linux-2.4/drivers'
+make[1]: *** [_dir_drivers] Fehler 2
+make[1]: Leaving directory `/usr/src/linux-2.4'
+make: *** [stamp-build] Fehler 2
 
-You have my sympathies.  I will restrain myself from telling you about 
-buying a Dell laptop, and having customer service tell me that they 
-would not provide me any support unless I installed the original 
-(windows) OS when I had a clearly hardware problem.....
+asterix:/usr/src/linux/scripts# ./ver_linux 
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+ 
+ Linux asterix 2.4.18-a1 #1 Mon Apr 15 19:53:06 CEST 2002 i686 unknown
+  
+  Gnu C                  2.95.4
+  Gnu make               3.79.1
+  util-linux             2.11n
+  mount                  2.11n
+  modutils               2.4.15
+  e2fsprogs              1.27
+  PPP                    2.4.1
+  Linux C Library        2.2.5
+  Dynamic linker (ldd)   2.2.5
+  Procps                 2.0.7
+  Net-tools              1.60
+  Console-tools          0.2.3
+  Sh-utils               2.0.11
+  Modules Loaded         parport_pc lp parport snd-seq-midi snd-seq-oss
+  snd-seq-midi-event snd-seq snd-pcm-oss snd-mixer-oss snd-cs46xx
+  snd-pcm snd-timer snd-rawmidi snd-seq-device snd-ac97-codec snd
+  soundcore 3c59x w83781d i2c-proc i2c-viapro i2c-matroxfb i2c-algo-bit
+  i2c-core apm ide-scsi rtc
+  
 
-I should have bought IBM and waited 4-6 weeks for their incompetent 
-(incompetent only in that they take too long to ship) shipping 
-department to build and send me my laptop....
+This is on Debian sid using the kernel-package.
 
-Hans
+Bye, Stefan
 
+-- 
+Proboscis:  The rudimentary organ of an elephant which serves him in place
+of the knife-and-fork that Evolution has as yet denied him.  For purposes
+of humor it is popularly called a trunk.
+-- Ambrose Bierce

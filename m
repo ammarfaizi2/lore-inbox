@@ -1,44 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314303AbSD0R42>; Sat, 27 Apr 2002 13:56:28 -0400
+	id <S314318AbSD0SBV>; Sat, 27 Apr 2002 14:01:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314318AbSD0R41>; Sat, 27 Apr 2002 13:56:27 -0400
-Received: from kahuna.kalkatraz.de ([62.145.25.91]:15755 "EHLO
-	golem.home.local") by vger.kernel.org with ESMTP id <S314303AbSD0R41>;
-	Sat, 27 Apr 2002 13:56:27 -0400
-Date: Sat, 27 Apr 2002 19:56:09 +0200
-From: Lars Weitze <cd@kalkatraz.de>
-To: linux-kernel@vger.kernel.org
-Subject: 100 Mbit on slow machine
-Message-Id: <20020427195609.0a397df9.cd@kalkatraz.de>
-Organization: http://www.liquidsteel.net
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: "Add'HrsHhg}pA?6>_fl]8[PNFwpJTSTW?I_:}%1O}rQof)E5W:qQbr1i>J?[?W:9"~?}]; ,?}|UTr8Ww=d%HY}-ap:|nv&<Y?3}t~lcR9D/?<~c</0{]DzT-Oj[cU;XPiM\CR6FjHk)5'ztDGpD< j]qoHG:5[;Y!
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S314321AbSD0SBV>; Sat, 27 Apr 2002 14:01:21 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:62715 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S314318AbSD0SBU>; Sat, 27 Apr 2002 14:01:20 -0400
+Date: Sat, 27 Apr 2002 19:57:28 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Dave Jones <davej@suse.de>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: [patch stolen from -ac] fix IKCONFIG compile in 2.5.10-dj1 for
+ non-modular kernels
+Message-ID: <Pine.NEB.4.44.0204271950360.3103-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Dave,
 
-I am using a P200 MMX as an Fileserver. After i upgraded it to an 100
-Mbit/s NIC (tulip chip and 3Com "Vortex" tried) i am getting the follwing
-behaviour: The network stack seems to "block" when sending files to the
-machine with full 100 Mbit/s. There are -no- kernel messages. Doing a ping
-an the machine gives all ping packets back in "one bunch". Even after
-stopping accesing the machine at full speed (stopping the transfer) i am
-just getting this "packaged" ping reply (9000 ms and more).
+I got the following error when trying to compile kernel 2.5.10-dj1 with
+CONFIG_IKCONFIG enabled and CONFIG_MODULES disabled:
 
-A ping -f -s 65000 will also lock up the machine. Doing an ifdown -a ;
-ifup -a resloves the problem until the next "flood".
+<--  snip  -->
 
-Regards
-CD
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.5/linux-2.5.10/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=k6   -DEXPORT_SYMTAB -c
+-o configs.o configs.c
+In file included from configs.c:2:
+/home/bunk/linux/kernel-2.5/linux-2.5.10/include/linux/module.h:21:
+linux/modversions.h: No such file or directory
+make[2]: *** [configs.o] Error 1
+make[2]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.10/kernel'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.10/kernel'
+make: *** [_dir_kernel] Error 2
+
+<--  snip  -->
+
+A similar problem was in early -ac kernels and it seems the solution was
+the following patch (this is btw the only difference between the
+mkconfigs.c in 2.4.19-pre7-ac2 and 2.5.10-dj1):
+
+--- linux.19pre3-ac2/scripts/mkconfigs.c	Fri Mar 15 22:34:00 2002
++++ linux.19pre3-ac4/scripts/mkconfigs.c	Wed Mar 20 15:47:46 2002
+@@ -69,7 +69,7 @@
+ void make_intro (FILE *sourcefile)
+ {
+ 	fprintf (sourcefile, "#include <linux/init.h>\n");
+-	fprintf (sourcefile, "#include <linux/module.h>\n");
++/////	fprintf (sourcefile, "#include <linux/module.h>\n");
+ 	fprintf (sourcefile, "\n");
+ /////	fprintf (sourcefile, "char *configs[] __initdata = {\n");
+ 	fprintf (sourcefile, "static char __attribute__ ((unused)) *configs[] __initdata = {\n");
+
+cu
+Adrian
+
 -- 
-    "Ihre Meinung ist mir zwar widerlich, aber ich werde mich
-     dafuer totschlagen lassen, dass sie sie sagen duerfen."
-                                                        Voltaire
 
-PGP-Key:          http://cd.kalkatraz.de
-PGP fingerprint:  4950 8576 778F DEDF 85D1  C04D 586F 2C45 E714 E13A
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

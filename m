@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131253AbRCHAyl>; Wed, 7 Mar 2001 19:54:41 -0500
+	id <S131242AbRCHA4B>; Wed, 7 Mar 2001 19:56:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131254AbRCHAyV>; Wed, 7 Mar 2001 19:54:21 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:34569 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S131253AbRCHAyP>; Wed, 7 Mar 2001 19:54:15 -0500
-Message-Id: <200103080053.f280rpO33821@aslan.scsiguy.com>
-To: "J . A . Magallon" <jamagallon@able.es>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: aic7xxx funcs without return values 
-In-Reply-To: Your message of "Thu, 08 Mar 2001 01:21:49 +0100."
-             <20010308012149.A1158@werewolf.able.es> 
-Date: Wed, 07 Mar 2001 17:53:51 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S131256AbRCHAzw>; Wed, 7 Mar 2001 19:55:52 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:3316 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S131255AbRCHAzi>;
+	Wed, 7 Mar 2001 19:55:38 -0500
+Date: Wed, 7 Mar 2001 16:59:55 -0800
+From: Greg KH <greg@wirex.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2ac14
+Message-ID: <20010307165955.C788@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <E14an7j-0001rZ-00@the-village.bc.nu> <20010307164052.B788@wirex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010307164052.B788@wirex.com>; from greg@wirex.com on Wed, Mar 07, 2001 at 04:40:52PM -0800
+X-Operating-System: Linux 2.4.2-immunix (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi,
->
->Just a note to make gcc 2.96 (and future) happy. The aic7xxx driver is full of
->inline funcs that should return a value and do not do that:
+On Wed, Mar 07, 2001 at 04:40:52PM -0800, Greg KH wrote:
+> On Wed, Mar 07, 2001 at 11:13:37PM +0000, Alan Cox wrote:
+> > o	Fix the non build problem with do_BUG		(Andrew Morton)
+> 
+> gcc -D__KERNEL__ -I/home/greg/linux/linux-2.4.2-ac14/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -march=i686  -mno-terminator-canary    -DEXPORT_SYMTAB -c i386_ksyms.c
+> i386_ksyms.c:170: `do_BUG' undeclared here (not in a function)
+> i386_ksyms.c:170: initializer element for `__ksymtab_do_BUG.value' is not constant
+> make[1]: *** [i386_ksyms.o] Error 1
+> make[1]: Leaving directory
+> `/home/greg/linux/linux-2.4.2-ac14/arch/i386/kernel'
+> make: *** [_dir_arch/i386/kernel] Error 2
+> 
+> .config attached
 
-They don't return a value because doing so is meaningless.  You aren't
-going to get past the panic.  The compiler should know that assuming
-panic is properly tagged as a function that cannot return.
+Enabling CONFIG_DEBUG_BUGVERBOSE allows the build to work.
 
-You may also want to check up on your C since having a break after
-a return is, well, kinda silly.  In all the usage of this inline, the
-width is constant, so gcc should completely optimize away the switch
-and surrounding code.
+greg k-h
 
---
-Justin
+-- 
+greg@(kroah|wirex).com
+http://immunix.org/~greg

@@ -1,58 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267445AbUG2Vh6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267457AbUG2VjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267445AbUG2Vh6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 17:37:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbUG2Vh6
+	id S267457AbUG2VjO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 17:39:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbUG2VjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 17:37:58 -0400
-Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:36817 "EHLO
-	clueserver.org") by vger.kernel.org with ESMTP id S267445AbUG2VeE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 17:34:04 -0400
-Date: Thu, 29 Jul 2004 13:40:01 -0700 (PDT)
-From: alan <alan@clueserver.org>
-X-X-Sender: alan@www.fnordora.org
-To: Rogier Wolff <Rogier@wolff.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OK, anybody have any hints and tips to get an MFM drive working
- again?
-In-Reply-To: <20040729201458.GA19252@bitwizard.nl>
-Message-ID: <Pine.LNX.4.44.0407291336470.29726-100000@www.fnordora.org>
+	Thu, 29 Jul 2004 17:39:13 -0400
+Received: from [67.107.88.26] ([67.107.88.26]:48900 "HELO default")
+	by vger.kernel.org with SMTP id S267451AbUG2Vib (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 17:38:31 -0400
+From: "petp1951" <petp1951@spinfinder.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: GOOD DAY 
+Date: Thu, 29 Jul 04 22:59:44 W. Central Africa Standard Time
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed;boundary= "----=_NextPart_000_00D2_2E867AC3.A5623F55"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000 
+Message-Id: <S267451AbUG2Vib/20040729213831Z+684@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jul 2004, Rogier Wolff wrote:
+------=_NextPart_000_00D2_2E867AC3.A5623F55
+Content-Type: text/plain; charset= "US-ASCII"
+Content-Transfer-Encoding: base64
 
-> We need to recover some data off an old MFM drive. We've got a bunch
-> of those cards, we've got a bunch of drives to experment with, but 
-> once we get things working we'll recover some 2x20Mb of data off two
-> 20Mb drives....
-> 
-> We've tried the modern IDE driver, and the 2.4.20 one, and the "old
-> hd only" driver. 
-> 
-> Going "retro": Compiling 2.0.39 gives me: "bus error" while doing 
-> make dep. 
-> 
-> I THINK we have a couple of those cards that don't have any 
-> interrupts. Would Linux be able to work with those?
-> 
-> Yes, we pass "hda=615,4,17" to the IDE driver. 
-> 
-> Any suggestions of things to try?
-
-First of all, what format is the data on the drives? ext2 or fat?
-
-What mfm card are you using? I assume it is an isa card.  (I have never 
-heard of a pci mfm card.)
-
-If this is a one time thing, you might try tracking down an older version 
-of Linux. (One with XT drive support.)
-
-If you can't find one, contact me off-line.  I have versions going back to 
-the Yggdrasil beta.  An old version of Slackware should work.
-
-
-
+RlJPTTogTVIuUEVURVIgUFJJRUJFDQpCSUxMUyBBTkQgRVhDSEFOR0UgTUFOQUdFUg0KU0JN
+IE5lZGJhbmsgSW50ZXJuYXRpb25hbCBMaW1pdGVkICANCjZ0aCBGbG9vciwgU3RhdGUgQmFu
+ayBUb3dlciAgDQpRdWVlbiBFbGl6YWJldGggSUkgQXZlbnVlIA0KUG9ydCBMb3VpcywgTWF1
+cml0aXVzIA0KRU1BSUw6IHBldHAxOTUxQHNwaW5maW5kZXIuY29tDQogDQpQUklWQVRFIEFO
+RCBVUkdFTlQuDQpGaXJzdCBJIG11c3Qgc29saWNpdCB5b3VyIGNvbmZpZGVuY2UgaW4gdGhp
+cyB0cmFuc2FjdGlvbiwgdGhpcyBpcyBieSB2aXJ0dWUgb2YgaXQncyBuYXR1cmUgYXMgYmVp
+bmcgdXR0ZXJseSBjb25maWRlbnRpYWwgYW5kIHRvcCANCnNlY3JldC4gVGhvdWdoIEkga25v
+dyB0aGF0IGEgdHJhbnNhY3Rpb24gb2YgdGhpcyBtYWduaXR1ZGUgd2lsbCBtYWtlIGFueSBv
+bmUgYXBwcmVoZW5zaXZlIGFuZCB3b3JyaWVkLCBidXQgSSBhbSANCmFzc3VyaW5nIHlvdSB0
+aGF0IGFsbCB3aWxsIGJlIHdlbGwgYXQgdGhlIGVuZCBvZiB0aGUgZGF5LiBUaGVyZSBpcyBu
+byBkb3VidCB0aGF0IHRydXN0IGNvbmNlcHR1YWxseSBpcyBhIGNvbnVuZHJ1bSB3aGljaCAN
+CmxlYWRzIGl0c2VsZiB0byBkZWZlcnJpbmcgaW50ZXJwcmV0YXRpb24sIHdlIGhhdmUgZGVj
+aWRlZCB0byBjb250YWN0IHlvdSBkdWUgdG8gdGhlIHVyZ2VuY3kgb2YgdGhpcyB0cmFuc2Fj
+dGlvbi4gDQoNCkkgYW0gdGhlIG1hbmFnZXIsIGJpbGxzIGFuZCBleGNoYW5nZSBhdCB0aGUg
+Zm9yZWlnbiByZW1pdHRhbmNlIGRlcGFydG1lbnQgb2YgdGhlIFNCTSBOZWRiYW5rIEludGVy
+bmF0aW9uYWwgQmFuaywgDQpNYXVyaXRpdXMgSSBjYW1lIHRvIGtub3cgeW91IGluIG15IHBy
+aXZhdGUgc2VhcmNoIGZvciBhIHJlbGlhYmxlIGFuZCByZXB1dGFibGUgcGVyc29uIHRvIGhh
+bmRsZSB0aGlzIENvbmZpZGVudGlhbCANClRyYW5zYWN0aW9uLCB3aGljaCBpbnZvbHZlcyB0
+aGUgdHJhbnNmZXIgb2YgYSBodWdlIHN1bSBvZiBtb25leSB0byBhIGZvcmVpZ24gYWNjb3Vu
+dCByZXF1aXJpbmcgbWF4aW11bSBjb25maWRlbmNlLg0KDQpQUk9QT1NJVElPTjsNCldlIGRp
+c2NvdmVyZWQgYW4gYWJhbmRvbmVkIHN1bSBvZiBVUyQxNywzMjAsMDAwLjAwIChzZXZlbnRl
+ZW4gbWlsbGlvbiB0aHJlZSBodW5kcmVkIGFuZCB0d2VudHkgdGhvdXNhbmQgdW5pdGVkIA0K
+c3RhdGVzIGRvbGxhcnMpIGluIGFuIGFjY291bnQgdGhhdCBiZWxvbmdzIHRvIG9uZSBvZiBv
+dXIgZm9yZWlnbiBjdXN0b21lcnMgd2hvIGRpZWQgYWxvbmcgd2l0aCBoaXMgZW50aXJlIGZh
+bWlseSBvZiBhIA0Kd2lmZSBhbmQgdHdvIGNoaWxkcmVuIGluIG5vdmVtYmVyIDE5OTggaW4g
+YSBwbGFuZSBjcmFzaC4gU2luY2UgaGlzIGRlYXRoLCBub25lIG9mIGhpcyBuZXh0LW9mLWtp
+biBvciByZWxhdGlvbnMgaGFzIGNvbWUgDQpmb3J3YXJkIHRvIGxheSBjbGFpbXMgZm9yIHRo
+aXMgbW9uZXkgYXMgdGhlIGhlaXIuIFdlIGNhbm5vdCByZWxlYXNlIHRoZSBmdW5kIGZyb20g
+aGlzIGFjY291bnQgdW5sZXNzIHNvbWVvbmUgYXBwbGllcyANCmZvciBjbGFpbSBhcyB0aGUg
+bmV4dC1vZi1raW4gdG8gdGhlIGRlY2Vhc2VkIGFzIGluZGljYXRlZCBpbiBvdXIgYmFua2lu
+ZyBndWlkZWxpbmVzLCB1bmZvcnR1bmF0ZWx5LCBubyBmYW1pbHkgbWVtYmVyIG5vciANCnJl
+bGF0aXZlIGhhcyBldmVyIGFwcGVhcmVkIHRvIGNsYWltIHRoZSBzYWlkIGZ1bmQuIFVwb24g
+dGhpcyBkaXNjb3ZlcnksIHdlIG5vdyBzZWVrIHlvdXIgcGVybWlzc2lvbiB0byBoYXZlIHlv
+dSBzdGFuZCANCmFzIG5leHQgb2Yga2luIHRvIHRoZSBkZWNlYXNlZCBzbyB0aGF0IHRoZSBm
+dW5kcyAoc2V2ZW50ZWVuIG1pbGxpb24gdGhyZWUgaHVuZHJlZCBhbmQgdHdlbnR5IHRob3Vz
+YW5kIHVuaXRlZCBzdGF0ZXMgDQpkb2xsYXJzKSBjYW4gYmUgcmVsZWFzZWQgYW5kIHBhaWQg
+aW50byB5b3VyIGFjY291bnQgYXMgdGhlIGJlbmVmaWNpYXJ5J3MgbmV4dCBvZiBraW4gb3Ro
+ZXJ3aXNlIHRoZSBmdW5kIHdpbGwgYmUgcmV0dXJuZWQgdG8gDQp0cmVhc3VyeSBhcyB1bmNs
+YWltZWQgZnVuZHMgd2hpY2ggd2lsbCBzdWJzZXF1ZW50bHkgYmUgZG9uYXRlZCB0byB0aGUg
+dHJ1c3QgZnVuZCBmb3IgYXJtcyBhbmQgYW1tdW5pdGlvbiB0byBmdXJ0aGVyIA0KZW5oYW5j
+ZSB0aGUgY291cnNlIG9mIHdhciBpbiB0aGUgV29ybGQuIEFsbCBkb2N1bWVudHMgdG8gZW5h
+YmxlIHlvdSByZWNlaXZlIHRoaXMgZnVuZHMgd2lsbCBiZSBjYXJlZnVsbHkgd29ya2VkIG91
+dCBieSANCnVzIGFzIHdlIGFscmVhZHkgaGF2ZSBzZWN1cmVkIGZyb20gdGhlIHByb2JhdGUg
+YW4gb3JkZXIgb2YgbWFuZGFtdXMgdG8gbG9jYXRlIGFueSBvZiBkZWNlYXNlZCBiZW5lZmlj
+aWFyaWVzLCBhbmQgbW9yZSANCnNvIHdlIGFyZSBhc3N1cmluZyB5b3UgdGhhdCB0aGlzIGJ1
+c2luZXNzIGlzIHNhZmUuDQoNClBsZWFzZSBhY2tub3dsZWRnZSByZWNlaXB0IG9mIHRoaXMg
+bWVzc2FnZSBpbiBhY2NlcHRhbmNlIG9mIG91ciBtdXR1YWwgYnVzaW5lc3MgZW5kZWF2b3Vy
+IGJ5IGZ1cm5pc2hpbmcgbWUgd2l0aCB0aGUgDQpmb2xsb3dpbmc7DQoNCjEuIEJlbmVmaWNp
+YXJ5IG5hbWUgYW5kIGFkZHJlc3MNCjIuIERpcmVjdCBUZWxlcGhvbmUgYW5kIGZheCBudW1i
+ZXJzDQoNClRoZXNlIHJlcXVpcmVtZW50cyB3aWxsIGVuYWJsZSB1cyBmaWxlIGxldHRlcnMg
+b2YgY2xhaW0gdG8gdGhlIGFwcHJvcHJpYXRlIGRlcGFydG1lbnRzIGZvciBuZWNlc3Nhcnkg
+YXBwcm92YWxzIGluIHlvdXIgDQpmYXZvdXIgYmVmb3JlIHRoZSB0cmFuc2ZlciBjYW4gYmUg
+bWFkZS4gV2UgaGF2ZSBhZ3JlZWQgdGhhdCBvdXIgcmF0aW8gb2Ygc2hhcmluZyB3aWxsIGJl
+IGFzIHN0YXRlZCB0aHVzOyBPbiBmaW5hbCANCmNvbmNsdXNpb24gb2YgdGhpcyBwcm9qZWN0
+LCA2NSUgb2YgdGhpcyBzdXJwbHVzIHNoYWxsIGJlIGZvciB1cywgd2hpbGUgMzAlIHNoYWxs
+IGJlIGZvciB5b3UgYW5kIHRoZSByZW1haW5pbmcgNSUgc2hhbGwgDQpiZSB1c2VkIHRvIGNv
+bXBlbnNhdGUgZWl0aGVyIHBhcnR5IGZvciBhbnkgZXhwZW5zZXMgaW5jdXJyZWQuIFlvdXIg
+c2hhcmUgc3RheXMgd2hpbGUgdGhlIHJlc3Qgc2hhbGwgYmUgZm9yIHVzIGZvciANCmludmVz
+dG1lbnQgcHVycG9zZXMuIA0KDQpXaGlsc3QgdGhpcyBhbm9ybWFsaXRpZXMgbWF5IHdlbGwg
+cmFpc2UgeW91ciBkb3VidHMgaW4gdmlldyBvZiB0aGUgZmFjdCB0aGF0IHlvdSBhcmUgYSBw
+ZXJzb24gbm90IHBoeXNpY2FsbHkga25vd24gdG8gdXMsIA0KSSBhZHZpY2UgdGhhdCBhIGhl
+YWx0aHkgZGVncmVlIG9mIGNhdXRpb24gYmUgZXhlcmNpc2VkIGJlZm9yZSBjb25jbHVzaW9u
+cyBhcmUgcmVhY2hlZCBieSB5b3VyIGdvb2RzZWxmLiBJZiB0aGlzIHByb3Bvc2FsIGlzIA0K
+YWNjZXB0YWJsZSBieSB5b3UsIGRvIG5vdCB0YWtlIHVuZHVlIGFkdmFudGFnZSBvZiB0aGUg
+dHJ1c3Qgd2UgaGF2ZSBiZXN0b3dlZCBpbiB5b3UsIEkgYXdhaXQgeW91ciB1cmdlbnQgbWFp
+bC4gUGxlYXNlIA0KcmVwbHkgdG8gRU1BSUw6IHBldHAxOTUxQG1haWwybWF1cml0aXVzLmNv
+bQ0KDQpCZXN0IFJlZ2FyZHMsDQoNCiANCk1SLiBQRVRFUiBQUklFQkUgDQoNCiAgICA=
+------=_NextPart_000_00D2_2E867AC3.A5623F55--

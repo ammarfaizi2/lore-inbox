@@ -1,75 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277532AbRKMRed>; Tue, 13 Nov 2001 12:34:33 -0500
+	id <S277541AbRKMRhN>; Tue, 13 Nov 2001 12:37:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277514AbRKMReX>; Tue, 13 Nov 2001 12:34:23 -0500
-Received: from t2.redhat.com ([199.183.24.243]:48885 "EHLO
-	dhcp-177.hsv.redhat.com") by vger.kernel.org with ESMTP
-	id <S277431AbRKMReG>; Tue, 13 Nov 2001 12:34:06 -0500
-Date: Tue, 13 Nov 2001 11:34:01 -0600
-From: Tommy Reynolds <reynolds@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Changed message for GPLONLY symbols
-Message-Id: <20011113113401.55b75a1b.reynolds@redhat.com>
-In-Reply-To: <2349543194.1005671437@[10.132.113.67]>
-In-Reply-To: <10444.1005619809@kao2.melbourne.sgi.com>
-	<2349543194.1005671437@[10.132.113.67]>
-Organization: Red Hat Software, Inc. / Embedded Development
-X-Mailer: Sylpheed version 0.6.5cvs3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="6Q72)M8=.L9hj,)g"
+	id <S277514AbRKMRhF>; Tue, 13 Nov 2001 12:37:05 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:8964 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S277435AbRKMRg6>; Tue, 13 Nov 2001 12:36:58 -0500
+Date: Tue, 13 Nov 2001 14:18:42 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: "Craig I. Hagan" <hagan@cih.com>
+Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org,
+        lars.nakkerud@compaq.com
+Subject: Re: Tuning Linux for high-speed disk subsystems
+In-Reply-To: <Pine.LNX.4.33.0111130939030.1083-200000@svr.cih.com>
+Message-ID: <Pine.LNX.4.21.0111131418130.2030-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---6Q72)M8=.L9hj,)g
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-It was a dark and stormy night.  Suddenly "Alex Bligh - linux-kernel" <linux-kernel@alex.org.uk> began to type:
 
-> Keith,
+On Tue, 13 Nov 2001, Craig I. Hagan wrote:
+
+> > After some testing at Compaq's lab in Oslo, I've come to the conclusion
+> > that Linux cannot scale higher than about 30-40MB/sec in or out of a
+> > hardware or software RAID-0 set with several stripe/chunk sizes tried out.
+> > The set is based on 5 18GB 10k disks running SCSI-3 (160MBps) alone on a
+> > 32bit/33MHz PCI bus.
 > 
-> --On Tuesday, November 13, 2001 1:50 PM +1100 Keith Owens <kaos@ocs.com.au> 
-> wrote:
+> this isn't quite true. use either the RH kernel, the -ac series, or the
+> attached patch (for 2.4.15-pre4). Then set /proc/sys/vm/max-readahead to 511 or
+> 1023 (power of 2 minus 1)
 > 
-> > Hint: You are trying to load a module without a GPL compatible license
-> >       and it has unresolved symbols.  The module may be trying to access
-> >       GPLONLY symbols but the problem is more likely to be a coding or
-> >       user error.  Contact the module supplier for assistance.
-> >
-> > Does anyone think that this message can be misunderstood by anybody
-> > with the "intelligence" of the normal Windoze user?
-> 
-> Yes I think it can be misunderstood, and, perhaps more importantly, still
-> points the user at GPLONLY when it's more likely to be a straightforward
-> version mismatch. Better might be:
-> 
-> Hint: You are trying to load a module which has unresolved symbols. These
->       symbols may not be exported by this version of the kernel (perhaps
->       you have a version mismatch), or they may be exported GPLONLY,
->       (in which case they will not be available to your module which does
->       not carry a GPL compatible license). In either case, contact
->       the *only* module supplier for assistance; no one else can help you.
-             ^^^^                                  ^^^^^^^^^^^^^^^^^^^^^^^^
+> this should allow you to generate large enough io's for streaming reads to do
+> what you are looking for.
 
----------------------------------------------+-----------------------------
-Tommy Reynolds                               | mailto: <reynolds@redhat.com>
-Red Hat, Inc., Embedded Development Services | Phone:  +1.256.704.9286
-307 Wynn Drive NW, Huntsville, AL 35805 USA  | FAX:    +1.256.837.3839
-Senior Software Developer                    | Mobile: +1.919.641.2923
+Craig,
 
---6Q72)M8=.L9hj,)g
-Content-Type: application/pgp-signature
+This patch is already on my pending list. 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iEYEARECAAYFAjvxWY0ACgkQWEn3bOOMcuqO7QCfXqBm/OojtxhhoajD9Gh7t8wl
-aP8AnR4IC7nyBqr9VtZoFymI3eVNHgwb
-=lgrw
------END PGP SIGNATURE-----
-
---6Q72)M8=.L9hj,)g--
+So if Linus does not apply it, I will.
 

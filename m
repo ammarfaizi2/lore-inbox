@@ -1,49 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263078AbTEMGFA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 02:05:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263084AbTEMGFA
+	id S263084AbTEMGIj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 02:08:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbTEMGIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 02:05:00 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:57070 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id S263078AbTEMGE7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 02:04:59 -0400
-Date: Mon, 12 May 2003 23:16:55 -0700
-From: Chris Wright <chris@wirex.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, hch@infradead.org, greg@kroah.com,
-       linux-security-module@wirex.com
-Subject: Re: [PATCH] Early init for security modules
-Message-ID: <20030512231655.B21486@figure1.int.wirex.com>
-Mail-Followup-To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-	hch@infradead.org, greg@kroah.com, linux-security-module@wirex.com
-References: <20030512200309.C20068@figure1.int.wirex.com> <20030512201518.X19432@figure1.int.wirex.com> <20030513050336.GA10596@Wotan.suse.de> <20030512222000.A21486@figure1.int.wirex.com> <20030513052832.GF10596@Wotan.suse.de>
+	Tue, 13 May 2003 02:08:39 -0400
+Received: from f15.mail.ru ([194.67.57.45]:7690 "EHLO f15.mail.ru")
+	by vger.kernel.org with ESMTP id S263084AbTEMGIh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 02:08:37 -0400
+From: "Andrey Borzenkov" <arvidjaar@mail.ru>
+To: "Michael Reincke" <reincke.m@stn-atlas.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-rc:  lost interrupt wgen usinf atapi cdrom-drive
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030513052832.GF10596@Wotan.suse.de>; from ak@suse.de on Tue, May 13, 2003 at 07:28:33AM +0200
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [212.248.25.26]
+Date: Tue, 13 May 2003 10:21:19 +0400
+Reply-To: "Andrey Borzenkov" <arvidjaar@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E19FTA7-000Mgw-00.arvidjaar-mail-ru@f15.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andi Kleen (ak@suse.de) wrote:
-> On Mon, May 12, 2003 at 10:20:00PM -0700, Chris Wright wrote:
-> > 
-> > This is too late.  Those are just for order in do_initcalls() which is
-> > well after some kernel threads have been created and filesystems have been
-> > mounted, etc.  This patch allows statically linked modules to catch
-> > the creation of such kernel objects and give them all consistent labels.
-> 
-> I would give them a generic name then in case someone else needs that too, 
-> like "early_initcalls" 
+> i upgraded the linux kernel of my computer from 2.4.21-pre4 to
+> 2.4.21-rc2 and got the following messages in syslog when using my
+> atapi-cdrom drive:
+>
+> May 12 09:42:42 pcew80 kernel: sr0: scsi3-mmc drive: 24x/24x writer
+> cd/rw xa/form2 cdda tray
+> May 12 09:42:42 pcew80 kernel: Uniform CD-ROM driver Revision: 3.12
+> May 12 09:42:42 pcew80 kernel: sr1: scsi-1 drive
+> May 12 09:42:42 pcew80 kernel: hdc: attached ide-cdrom driver.
+> May 12 09:42:42 pcew80 kernel: hdc: ATAPI 48X CD-ROM drive, 120kB Cache,
+> UDMA(33)
+> May 12 09:42:42 pcew80 kernel: ISO 9660 Extensions: Microsoft Joliet
+> Level 3
+> May 12 09:42:52 pcew80 kernel: hdc: DMA interrupt recovery
+> May 12 09:42:52 pcew80 kernel: hdc: lost interrupt
+> May 12 09:42:52 pcew80 kernel: hdc: status timeout: status=0xd0 { Busy }
+> May 12 09:42:52 pcew80 kernel: hdc: status timeout: error=0x00
+> May 12 09:42:52 pcew80 kernel: hdc: DMA disabled
+> May 12 09:42:52 pcew80 kernel: hdc: drive not ready for command
+> May 12 09:42:52 pcew80 kernel: hdc: ATAPI reset complete
 
-I orginally thought it would be nice to make it generic, but it's
-location is somewhat specific to the security hooks.  It seems there is
-easily tension between conflicting needs, should be earlier...should be
-later, so I made it specific.  Is there currently a need?
 
-thanks,
-chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+It smells like ide_do_request forgets to enable interrupts when
+request queue is empty.
+
+drivers/ide/ide-io.c:
+
+void ide_do_request (ide_hwgroup_t *hwgroup, int masked_irq)
+{
+        ide_drive_t     *drive;
+        ide_hwif_t      *hwif;
+        struct request  *rq;
+        ide_startstop_t startstop;
+
+        /* for atari only: POSSIBLY BROKEN HERE(?) */
+        ide_get_lock(&ide_intr_lock, ide_intr, hwgroup);
+
+        /* necessary paranoia: ensure IRQs are masked on local CPU */
+        local_irq_disable();
+           ^^^^^^^^
+              [...]
+                if (drive == NULL) {
+                              [...]
+                        if (sleep) {
+                              [...]
+                        } else {
+                                /* Ugly, but how can we sleep for the lock
+                                 * otherwise? perhaps from tq_disk?
+                                 */
+
+                                /* for atari only */
+                                ide_release_lock(&ide_intr_lock);
+                                hwgroup->busy = 0;
+                        }
+                        /* no more work for this hwgroup (for now) */
+                        return;
+                   Oops. local_irq_disable remains in effect
+                     [...]
+                spin_unlock(&io_request_lock);
+                local_irq_enable();
+                ^^^^^^^^^^^^^^^^^^^
+                        /* allow other IRQs while we start this request */
+                startstop = start_request(drive, rq);
+                spin_lock_irq(&io_request_lock);
+                if (masked_irq && hwif->irq != masked_irq)
+                        enable_irq(hwif->irq);
+                if (startstop == ide_stopped)
+                        hwgroup->busy = 0;
+
+Ironically it does not release ide_intr_lock in this case but we
+are not on m68k so we do not care :)
+
+Could you please try to add local_irq_enable() before ide_release_lock() above and see if it helps?
+It has been reported to have fixed fix problems for other people. OTOH
+I did have sevral hard lockups with this so there may be more subtle
+problems issues.
+
+-andrey

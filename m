@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315419AbSHTGwm>; Tue, 20 Aug 2002 02:52:42 -0400
+	id <S293680AbSHTHWF>; Tue, 20 Aug 2002 03:22:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315449AbSHTGwm>; Tue, 20 Aug 2002 02:52:42 -0400
-Received: from pD9E23620.dip.t-dialin.net ([217.226.54.32]:1157 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S315419AbSHTGwm>; Tue, 20 Aug 2002 02:52:42 -0400
-Date: Tue, 20 Aug 2002 00:56:39 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: "David S. Miller" <davem@redhat.com>
-cc: thunder@lightweight.ods.org, <zdzichu@irc.pl>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 and full ipv6 - will it happen?
-In-Reply-To: <20020819.162340.133733118.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0208200054260.3234-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313571AbSHTHWF>; Tue, 20 Aug 2002 03:22:05 -0400
+Received: from laibach.mweb.co.za ([196.2.53.177]:12483 "EHLO
+	laibach.mweb.co.za") by vger.kernel.org with ESMTP
+	id <S293680AbSHTHWE>; Tue, 20 Aug 2002 03:22:04 -0400
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Rik van Riel <riel@conectiva.com.br>, wish@nightloop.de,
+       linux-kernel@vger.kernel.org
+From: bonganilinux@mweb.co.za
+Subject: Re: Re: Linux 2.4.20-pre4
+Date: Tue, 20 Aug 2002 07:24:34 GMT
+X-Posting-IP: 196.34.86.10 via 172.24.158.16
+X-Mailer: Endymion MailMan  
+Message-Id: <E17h3FL-0000Xd-00@laibach.mweb.co.za>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 19 Aug 2002, David S. Miller wrote:
-> The keyword is "you", you are using is locally at your site.
+> >> Is the -aa VM going to be merged into 2.4.20 or will this happen at any
+> >> later release of 2.4?
+> > 
+> > Is somebody going to split up the -aa VM in small pieces and
+> > send those to marcelo, including an explanation of what each
+> > individual piece does and why ?
+> > 
+> > If so, there's probably quite a decent chance stuff will be
+> > merged.
 > 
-> There are zero backbone ipv6 routers, everyone is still tunneling
-> or has a custom network layout for their usage.
+> I thought Andrew already did that?
 
-Not quite (see other posts). And, not to mention, there are lots of other 
-huge networks than the Internet, some of them already are on IPv6. There 
-are also parts of the Internet that are just tunneling your IPv4 
-connection over IPv6. But you won't exactly notice.
+He did, and last time I heard some where applied to 2.4.19 and the rest
+will be applied to
+2.4.20
 
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
+---------------------------------------------
+This message was sent using M-Web Airmail.
+JUST LIKE THAT
+Are you ready for 10-digit dialling?
+To find out how this will affect your Internet connection go to www.mweb.co.za/ten
+http://airmail.mweb.co.za/
+
 

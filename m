@@ -1,74 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVAaTcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVAaTeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbVAaTcL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 14:32:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVAaTau
+	id S261337AbVAaTeh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 14:34:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVAaTcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 14:30:50 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42158 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261330AbVAaTaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 14:30:03 -0500
-Date: Mon, 31 Jan 2005 19:29:55 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Brian King <brking@us.ibm.com>
-Cc: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-pci@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: pci: Arch hook to determine config space size
-Message-ID: <20050131192955.GJ31145@parcelfarce.linux.theplanet.co.uk>
-References: <200501281456.j0SEuI12020454@d01av01.pok.ibm.com> <20050128185234.GB21760@infradead.org> <20050129040647.GA6261@kroah.com> <41FE82B6.9060407@us.ibm.com>
+	Mon, 31 Jan 2005 14:32:50 -0500
+Received: from waste.org ([216.27.176.166]:1933 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261327AbVAaTam (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 14:30:42 -0500
+Date: Mon, 31 Jan 2005 11:30:32 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/8] lib/sort: Heapsort implementation of sort()
+Message-ID: <20050131193032.GR2891@waste.org>
+References: <2.416337461@selenic.com> <1107191783.21706.124.camel@winden.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41FE82B6.9060407@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1107191783.21706.124.camel@winden.suse.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 31, 2005 at 01:10:46PM -0600, Brian King wrote:
-> Greg KH wrote:
-> >On Fri, Jan 28, 2005 at 06:52:34PM +0000, Christoph Hellwig wrote:
-> >
-> >>>+int __attribute__ ((weak)) pcibios_exp_cfg_space(struct pci_dev *dev) { 
-> >>>return 1; }
-> >>
-> >>- prototypes belong to headers
-> >>- weak linkage is the perfect way for total obsfucation
-> >>
-> >>please make this a regular arch hook
-> >
-> >
-> >I agree.  Also, when sending PCI related patches, please cc the
-> >linux-pci mailing list.
+On Mon, Jan 31, 2005 at 06:16:23PM +0100, Andreas Gruenbacher wrote:
+> Hello,
 > 
-> How about this?
+> On Mon, 2005-01-31 at 08:34, Matt Mackall wrote:
+> > This patch adds a generic array sorting library routine. This is meant
+> > to replace qsort, which has two problem areas for kernel use.
+> 
+> looks reasonable.
+> 
+> > Note that this function has an extra parameter for passing in an
+> > optimized swapping function. This is worth 10% or more over the
+> > typical byte-by-byte exchange functions.
+> 
+> I would appreciate a version without the swap callback.
 
-Thanks for copying linux-pci.  I hate this patch.
+Why? To eliminate an argument?
 
-Basically, ppc64's config ops are broken and need to check the offset
-being read.  Here's i386:
+> The optimized version of swap should use the machine word size
+> instead of u32.
 
-static int pci_conf1_write (int seg, int bus, int devfn, int reg, int len, u32 v
-alue)
-{
-        unsigned long flags;
+That occurred to me, but most instances I found in my audit were using
+u32 rather than long.
 
-        if ((bus > 255) || (devfn > 255) || (reg > 255)) 
-                return -EINVAL;
+> How about this approach instead, if you think we
+> must really optimize swapping?
+>
+> static inline void swap(void *a, void *b, int size)
+> {
+>         if (size % sizeof(long)) {
+>                 char t;
+>                 do {
+>                         t = *(char *)a;
+>                         *(char *)a++ = *(char *)b;
+>                         *(char *)b++ = t;
+>                 } while (--size > 0);
+>         } else {
+>                 long t;
+>                 do {
+>                         t = *(long *)a;
+>                         *(long *)a = *(long *)b;
+>                         *(long *)b = t;
+>                         size -= sizeof(long);
+>                 } while (size > sizeof(long));
+>         }
+> }
 
-I think all the config ops in ppc64 are broken and need to check for these
-limits.  Also, it does some checks that are already performed by upper layers:
+This makes things worse. Sort isn't inlined, so we don't know size
+until we're called and then we're branching in the innermost loop and
+growing the code footprint to boot. Function pointer wins in my
+benchmarks.
 
-        if (where & (size - 1))
-                return PCIBIOS_BAD_REGISTER_NUMBER;
+Note that there are callers like IA64 extable that want a custom swap already:
 
-is checked for in drivers/pci/access.c
+- * stack may be more than 2GB away from the exception-table).
++ * Sort the exception table. It's usually already sorted, but there
++ * may be unordered entries due to multiple text sections (such as the
++ * .init text section). Note that the exception-table-entries contain
++ * location-relative addresses, which requires a bit of care during
++ * sorting to avoid overflows in the offset members (e.g., it would
++ * not be safe to make a temporary copy of an exception-table entry on
++ * the stack, because the stack may be more than 2GB away from the
++ * exception-table).
+  */
+
+There are a bunch of other potential users that sort parallel arrays
+a[] and b[] with keys in a[] that want this too.
 
 -- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Mathematics is the supreme nostalgia of our time.

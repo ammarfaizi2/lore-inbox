@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263301AbTDVRiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 13:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263305AbTDVRiJ
+	id S263300AbTDVRfa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 13:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263301AbTDVRfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 13:38:09 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:48647 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263301AbTDVRiI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 13:38:08 -0400
-Date: Tue, 22 Apr 2003 19:50:03 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: casus@mail.ru, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x high irq contention
-Message-Id: <20030422195003.30b6177f.skraw@ithnet.com>
-In-Reply-To: <1051019272.14881.0.camel@dhcp22.swansea.linux.org.uk>
-References: <20030422033201.GA523@casus.home.my>
-	<20030422124042.200a3a60.skraw@ithnet.com>
-	<1051019272.14881.0.camel@dhcp22.swansea.linux.org.uk>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 22 Apr 2003 13:35:30 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:7552 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263300AbTDVRf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 13:35:29 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304221749.h3MHnf0F000224@81-2-122-30.bradfords.org.uk>
+Subject: Re: LSE conference call
+To: hannal@us.ibm.com
+Date: Tue, 22 Apr 2003 18:49:41 +0100 (BST)
+Cc: lse-tech@lists.sourceforge.net, john@grabjohn.com (John Bradford),
+       linux-kernel@vger.kernel.org, cliffw@osdl.org, wli@holomorphy.com
+In-Reply-To: <55950000.1051033382@w-hlinder> from "Hanna Linder" at Apr 22, 2003 10:43:02 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Apr 2003 14:47:53 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> In light of our speaker sleeping through the meeting and
+> the fact that kernel hackers tend not to be awake early
+> in the morning I propose moving the time of the call to
+> 1pm Pacific Time (GMT-0800). 
 
-> On Maw, 2003-04-22 at 11:40, Stephan von Krawczynski wrote:
-> > I don't know much about your network load, but if you have a lot, then you
-> > should probably throw away the 8139 network card and use tulip or 3com
-> > instead.
+10 PM U.K. time is no problem for me.
+
+> Originally we chose 9:30am to encourage people in Europe and 
+> India to attend. However, the time change has not increased 
+> attendance so I think we should move it to a more reasonable 
+> time for North American Continental dwellers who are the 
+> main attendees.
 > 
-> Won't help a lot. If its all IRQ load (eg lots of multicast streaming
-> audio small frames) then you want an eepro100 or something similar that
-> has interrupt mitigators.
+> Any comments? Debate? Hate mail?
 
-Well, handwaving about the network load/type ;-)
-Could as well be two RTL back-to-back, normal packets but high bandwidth. 
-(watch collisions for this case :-)
+Flame war?  :-)
 
-Regards,
-Stephan
-
+John.

@@ -1,43 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267513AbRGRSTM>; Wed, 18 Jul 2001 14:19:12 -0400
+	id <S267915AbRGRSgo>; Wed, 18 Jul 2001 14:36:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267867AbRGRSTE>; Wed, 18 Jul 2001 14:19:04 -0400
-Received: from cs159246.pp.htv.fi ([213.243.159.246]:3711 "EHLO
-	porkkala.cs159246.pp.htv.fi") by vger.kernel.org with ESMTP
-	id <S267513AbRGRSS5>; Wed, 18 Jul 2001 14:18:57 -0400
-Message-ID: <3B55D2F2.71BF34D5@pp.htv.fi>
-Date: Wed, 18 Jul 2001 21:18:26 +0300
-From: Jussi Laako <jlaako@pp.htv.fi>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en
+	id <S267917AbRGRSgY>; Wed, 18 Jul 2001 14:36:24 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:34311 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S267914AbRGRSgS>;
+	Wed, 18 Jul 2001 14:36:18 -0400
+Date: Wed, 18 Jul 2001 15:36:17 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Marcelo W. Tosatti" <marcelo@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>, Dave McCracken <dmc@austin.ibm.com>,
+        Dirk Wetter <dirkw@rentec.com>
+Subject: [PATCH] swap usage of high memory (fwd)
+Message-ID: <Pine.LNX.4.33L.0107181529100.28730-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        andre@linux-ide.org
-Subject: 2.4.6-ac5 and VIA Athlon chipsets
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi Alan, Linus,
 
-It looks like the 2.4.6-ac5 fixed the deadlock feature with ASUS A7V133
-mobo. It's been running stable for over 24 hours now. VIA and Promise IDE
-controllers are in use.
+Dave found a stupid bug in the swapin code, leading to
+bad balancing problems in the VM.
 
-Few remaining features:
+I suspect marcelo's zone VM hack could even go away
+with this patch applied ;)
 
-VIA IDE still misdetects 40w cable as 80w (I have also changed the cable
-without effect).
+Rik
+---------- Forwarded message ----------
+Date: Wed, 18 Jul 2001 13:15:07 -0500
+From: Dave McCracken <dmc@austin.ibm.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-mm@kvack.org
+Subject: Patch for swap usage of high memory
 
-HDD led stays lit regardless of disk activity (this one is new feature since
-2.4.5-ac9).
 
-Best regards,
+This patch fixes the problem where pages allocated for swap space reads
+will not be allocated from high memory.
 
- - Jussi Laako
+Rik, could you please forward this to the kernel mailing list?  I am
+temporarily unable to reach it directly due to ECN problems.
 
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+Thanks,
+Dave McCracken
+
+--------
+
+--- linux-2.4.6/mm/swap_state.c	Mon Jun 11 21:15:27 2001
++++ linux-2.4.6-mm/mm/swap_state.c	Wed Jul 18 12:56:01 2001
+@@ -226,7 +226,7 @@
+ 	if (found_page)
+ 		goto out_free_swap;
+
+-	new_page = alloc_page(GFP_USER);
++	new_page = alloc_page(GFP_HIGHUSER);
+ 	if (!new_page)
+ 		goto out_free_swap;	/* Out of memory */
+
+--------
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmc@austin.ibm.com                                      T/L   678-3059
+
+

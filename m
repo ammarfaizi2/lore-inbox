@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbUC3Wjs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 17:39:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUC3Wjs
+	id S261517AbUC3Wmh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 17:42:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbUC3WkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 17:39:48 -0500
-Received: from uslink-66.173.43-133.uslink.net ([66.173.43.133]:37791 "EHLO
-	dingdong.cryptoapps.com") by vger.kernel.org with ESMTP
-	id S261497AbUC3Wg2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 17:36:28 -0500
-Date: Tue, 30 Mar 2004 14:36:25 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Chris Mason <mason@suse.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] barrier patch set
-Message-ID: <20040330223625.GA1245@dingdong.cryptoapps.com>
-References: <20040319153554.GC2933@suse.de> <200403201723.11906.bzolnier@elka.pw.edu.pl> <1079800362.11062.280.camel@watt.suse.com> <200403201805.26211.bzolnier@elka.pw.edu.pl> <1080662685.1978.25.camel@sisko.scot.redhat.com> <1080674384.3548.36.camel@watt.suse.com> <1080683417.1978.53.camel@sisko.scot.redhat.com> <4069F2FC.90003@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4069F2FC.90003@pobox.com>
+	Tue, 30 Mar 2004 17:40:09 -0500
+Received: from [202.105.112.41] ([202.105.112.41]:42254 "ehlo sina.com")
+	by vger.kernel.org with ESMTP id S261517AbUC3WjL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 17:39:11 -0500
+From: "Emma" <hytechsales1@sina.com>
+Subject: Headset mp3 player comes out with a very good price!
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;charset="GB2312"
+Reply-To: hytechsales1@sina.com
+Date: Wed, 31 Mar 2004 06:39:26 +0800
+X-Priority: 2
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+Message-Id: <S261517AbUC3WjL/20040330223911Z+26@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear friends,
 
-> For IDE, O_DIRECT and O_SYNC can use special "FUA" commands, which
-> don't return until the data is on the platter.
+Good day!
 
-On modern drives how reliable is this?  At one point disk-scrubbing
-software which used FUA (to ensure data was being written to the
-platters) showed that some drives completely ignore this.
+Just a short message from HY Technology Co, Ltd.
+ 
+We just updated our Mp3 players with internal FM radio function to support 8 languages, 
+English, 
+Chinese, French, Italian, German, Spanish, Czech, Swede. 
 
-Has the state of things changed significantly that we can assume this
-is very rare or might we need to have to kind of whitelist/blacklist
-system?
+>From now on, our BX1002Na, BX1002Nd and BXKing can come with internal FM radio function and 
+support 8 languages also.
+
+The price is only 50 USD for 128M and 68 USD for 256M.
+ 
+By the way, did you get our introduction about our latest Mp3 player------Butterfly, the 
+headset 
+Mp3 player?
+ 
+The Mp3 IC and pc board are already installed in headphone. 
+You can enjoy music completely free now, without any wire around you!
+
+The price is only 54 USD for 128M and 75 USD for 256M.
+
+We have 20 kings of mp3 players to satisfy your demand. And the smallest mp3 player in the 
+world- BXDIOMAND!
+ 
+If you need catalogue and price list, please kindly tell us and we will send them to you.
+ 
+Looking forward to any comment from you. 
+ 
+Have a nice day!
 
 
-    --cw
+Emma
+
+HY Technology (Hong Kong) Company Ltd.
+

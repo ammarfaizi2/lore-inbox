@@ -1,25 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269637AbRHHX1Y>; Wed, 8 Aug 2001 19:27:24 -0400
+	id <S269638AbRHHXaE>; Wed, 8 Aug 2001 19:30:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269638AbRHHX1O>; Wed, 8 Aug 2001 19:27:14 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:34059 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S269637AbRHHX1H>;
-	Wed, 8 Aug 2001 19:27:07 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Duplicate symbols in usb cams, -ac
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 09 Aug 2001 09:27:14 +1000
-Message-ID: <6380.997313234@ocs3.ocs-net>
+	id <S269639AbRHHX3y>; Wed, 8 Aug 2001 19:29:54 -0400
+Received: from guestpc.physics.umanitoba.ca ([130.179.72.122]:6916 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S269638AbRHHX3h>; Wed, 8 Aug 2001 19:29:37 -0400
+Date: Wed, 8 Aug 2001 18:29:28 -0500
+Message-Id: <200108082329.f78NTSc02344@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] one of $BIGNUM devfs races
+In-Reply-To: <Pine.GSO.4.21.0108081742350.22542-100000@weyl.math.psu.edu>
+In-Reply-To: <9ksa6j$jo7$1@cesium.transmeta.com>
+	<Pine.GSO.4.21.0108081742350.22542-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.4.7-ac9, if both ultracam and cam are built into the kernel, cams
-is a duplicate symbol.
+Alexander Viro writes:
+> 
+> On 8 Aug 2001, H. Peter Anvin wrote:
+> 
+> > Followup to:  <Pine.GSO.4.21.0108071510390.18565-100000@weyl.math.psu.edu>
+> > By author:    Alexander Viro <viro@math.psu.edu>
+> > In newsgroup: linux.dev.kernel
+> > > 
+> > > It is not reliable. E.g. on NFS inumbers are not unique - 32 bits is
+> > > not enough.
+> > 
+> > Unfortunately there is a whole bunch of other things too that rely on
+> > it, and *HAVE* to rely on it -- (st_dev, st_ino) are defined to
+> > specify the identity of a file, and if the current types aren't large
+> > enough we *HAVE* to go to new types.  THERE IS NO OTHER WAY TO TEST
+> > FOR FILE IDENTITY IN UNIX, and being able to perform such a test is
+> > vital for many things, including security and hard link detection
+> 
+> Indeed, but it still doesn't help libc5 getcwd(3), which uses 32 bit
+> values.
 
-drivers/usb/ultracam.o(.data+0x0): multiple definition of `cams'
-drivers/usb/ibmcam.o(.data+0x0): first defined here
+FYI: the problem that spawned this sub-thread is fixed. The
+devfs-patch-v185 that I released last night fixes this. So the libc5
+getcwd(3) is fine with 32 bit inums on devfs.
 
+Filesystems with larger inums are left as an exercise for the reader
+:-)
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

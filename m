@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279556AbRKVNfO>; Thu, 22 Nov 2001 08:35:14 -0500
+	id <S279499AbRKVNfe>; Thu, 22 Nov 2001 08:35:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279509AbRKVNfE>; Thu, 22 Nov 2001 08:35:04 -0500
-Received: from 10fwd.cistron-office.nl ([195.64.65.197]:38157 "EHLO
-	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
-	id <S279505AbRKVNew>; Thu, 22 Nov 2001 08:34:52 -0500
-Date: Thu, 22 Nov 2001 14:34:50 +0100
-From: Miquel van Smoorenburg <miquels@cistron.nl>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] block_dev.c: fsync() on close() considered harmful
-Message-ID: <20011122143450.A28020@cistron.nl>
-Reply-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-NCC-RegID: nl.cistron
+	id <S279407AbRKVNfZ>; Thu, 22 Nov 2001 08:35:25 -0500
+Received: from chiark.greenend.org.uk ([195.224.76.132]:39178 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id <S279505AbRKVNfH>; Thu, 22 Nov 2001 08:35:07 -0500
+From: Colin Watson <cjwatson@flatline.org.uk>
+To: Ian Stirling <root@mauve.demon.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Can't link?
+In-Reply-To: <200111200206.CAA07946@mauve.demon.co.uk>
+Organization: riva.ucam.org
+Message-Id: <E166u0Q-0006Yv-00@chiark.greenend.org.uk>
+Date: Thu, 22 Nov 2001 13:35:06 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running an INN usenet news server that uses raw partitions for
-storage. I.e. it opens /dev/sda7 etc. and mmap()s [which finally
-works in 2.4, hurray]
+In article <200111200206.CAA07946@mauve.demon.co.uk>, Ian Stirling wrote:
+>Rather odd thing happening right now, that I can't figure out.
+>
+>Running 2.4.11 on a ext2 filesystem, with a couple of 40Gb drives, and 
+>some NFS mounts.
+>
+>After reading man link, I tried the following in /
+>
+>bash-2.03# >1 
+>bash-2.03# ls -l
+>total 0
+>-rw-r--r--   1 root     root            0 Nov 20 01:57 1
+>bash-2.03# ln 1 2
+>ln: cannot create hard link `2' to `1': No such file or directory
 
-Even though the server is keeping those devices open, when a utility
-program (sm) opens that file/device and closes() it the close() causes
-a fsync() on the device, something that is not wanted.
+2.4.11 was badly broken (it's called 2.4.11-dontuse in the kernel
+archives now). Have you tried later kernels?
 
-I applied the following patch which fixes it for me, it prevents
-the sync-after-close if it was close() calling blkdev_put()
-and we're not the last one to call blkdev_put().
-
-That means fsync() will still be done on unmounts or when the
-last user of the device closes it, but not otherwise.
-
-Is this correct or am I overlooking something?
-
---- linux-2.4.15-pre8/fs/block_dev.c.orig	Thu Oct 25 22:58:35 2001
-+++ linux-2.4.15-pre8/fs/block_dev.c	Wed Nov 21 13:32:16 2001
-@@ -603,7 +603,7 @@
- 
-	down(&bdev->bd_sem);
-	lock_kernel();
--	if (kind == BDEV_FILE)
-+	if (kind == BDEV_FILE && bdev->bd_openers == 1)
-		__block_fsync(bd_inode);
-	else if (kind == BDEV_FS)
-		fsync_no_super(rdev);
-
-
-Mike.
 -- 
-"Only two things are infinite, the universe and human stupidity,
- and I'm not sure about the former" -- Albert Einstein.
+Colin Watson                                  [cjwatson@flatline.org.uk]

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264910AbTLWBXR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 20:23:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbTLWBXR
+	id S264913AbTLWBYx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 20:24:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264966AbTLWBYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 20:23:17 -0500
-Received: from mail.kroah.org ([65.200.24.183]:62903 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264910AbTLWBXP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 20:23:15 -0500
-Date: Mon, 22 Dec 2003 17:23:10 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 010 release
-Message-ID: <20031223012310.GJ5427@kroah.com>
-References: <20031223005809.GB5341@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 22 Dec 2003 20:24:53 -0500
+Received: from c211-28-147-198.thoms1.vic.optusnet.com.au ([211.28.147.198]:60110
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S264913AbTLWBYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 20:24:52 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Nick Piggin <piggin@cyberone.com.au>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [PATCH] 2.6.0 batch scheduling, HT aware
+Date: Tue, 23 Dec 2003 12:24:48 +1100
+User-Agent: KMail/1.5.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200312231138.21734.kernel@kolivas.org> <3FE79626.1060105@cyberone.com.au>
+In-Reply-To: <3FE79626.1060105@cyberone.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031223005809.GB5341@kroah.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200312231224.49069.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 22, 2003 at 04:58:09PM -0800, Greg KH wrote:
-> I've released the 010 version of udev.  It can be found at:
->  	kernel.org/pub/linux/utils/kernel/hotplug/udev-010.tar.gz
+On Tue, 23 Dec 2003 12:11, Nick Piggin wrote:
+> I think this patch is much too ugly to get into such an elegant scheduler.
+> No fault to you Con because its an ugly problem.
 
-Oh, forgot to mention that udev runs a _lot_ slower now, taking at least
-1 second for every device addition.  This makes the initscript or the
-test scripts take a long time.
+You're too kind. No it's ugly because of my code but it works for now.
 
-This was done to try to fix the race condition where udev beats the
-kernel before it has created all of the sysfs links and files.  I need
-some libsysfs changes before this can be done properly, without the big
-speed hit (the libsysfs people are working on it.)
+> How about this: if a task is "delta" priority points below a task running
+> on another sibling, move it to that sibling (so priorities via timeslice
+> start working). I call it active unbalancing! I might be able to make it
+> fit if there is interest. Other suggestions?
 
-If anyone's interested in it, take a look at the FIXMEs in namedev.c.
-I tried messing around with just a simple stat() call, but still
-couldn't reliably get stuff to work for partitions on usb-storage
-devices (which are slow to enumerate.)  Any help here would be
-apprecated.
+I discussed this with Ingo and that's the sort of thing we thought of. Perhaps 
+a relative crossover of 10 dynamic priorities and an absolute crossover of 5 
+static priorities before things got queued together. This is really only 
+required for the UP HT case.
 
-thanks,
+Con
 
-greg k-h

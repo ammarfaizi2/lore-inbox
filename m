@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267721AbUJLUJM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267725AbUJLUTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267721AbUJLUJM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 16:09:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267734AbUJLUJM
+	id S267725AbUJLUTr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 16:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267734AbUJLUTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 16:09:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:45744 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267721AbUJLUJC (ORCPT
+	Tue, 12 Oct 2004 16:19:47 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:6057 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267725AbUJLUTq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 16:09:02 -0400
-Date: Tue, 12 Oct 2004 13:08:59 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       wli@holomorphy.com
-Subject: Re: [BUG]  oom killer not triggering in 2.6.9-rc3
-Message-ID: <20041012130859.G2441@build.pdx.osdl.net>
-References: <41672D4A.4090200@nortelnetworks.com> <1097503078.31290.23.camel@localhost.localdomain> <416B6594.5080002@nortelnetworks.com> <20041012094439.GA3223@pclin040.win.tue.nl> <416BF927.7000000@nortelnetworks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <416BF927.7000000@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Tue, Oct 12, 2004 at 09:32:55AM -0600
+	Tue, 12 Oct 2004 16:19:46 -0400
+Date: Tue, 12 Oct 2004 13:19:22 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: George Anzinger <george@mvista.com>
+cc: johnstul@us.ibm.com, Ulrich.Windl@rz.uni-regensburg.de, jbarnes@sgi.com,
+       linux-kernel@vger.kernel.org, roland@redhat.com
+Subject: Periodic posix timer support broke between 2.6.9-rc1 and 2.6.9-rc1-bk17
+In-Reply-To: <Pine.LNX.4.58.0410062150310.18565@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0410121315170.5785@schroedinger.engr.sgi.com>
+References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
+ <Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com>
+ <4154F349.1090408@redhat.com> <Pine.LNX.4.58.0409242253080.13099@schroedinger.engr.sgi.com>
+ <41550B77.1070604@redhat.com> <B6E8046E1E28D34EB815A11AC8CA312902CD327E@mtv-atc-605e--n.corp.sgi.com>
+ <Pine.LNX.4.58.0409271344220.32308@schroedinger.engr.sgi.com>
+ <4159B920.3040802@redhat.com> <Pine.LNX.4.58.0409282017340.18604@schroedinger.engr.sgi.com>
+ <415AF4C3.1040808@mvista.com> <B6E8046E1E28D34EB815A11AC8CA31290322B307@mtv-atc-605e--n.corp.sgi.com>
+ <Pine.LNX.4.58.0410062150310.18565@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Chris Friesen (cfriesen@nortelnetworks.com) wrote:
-> However, isn't it a bad thing that a vanilla 2.6.9-rc3 can be totally locked up 
-> by an unpriviledged user by running two tasks?
+I ran some test programs and discovered that the periodic timer support
+is broken. The timer is triggered once and then never again. Single shot
+timers work fine. 2.6.9-rc1 is fine. The first kernel that I tested where
+I noticed the breakage was 2.6.9-rc1-bk17. 2.6.9-rc2 and following all
+cannot do periodic timer signals.
 
-Chris, did you try the patch I sent you (it's in mainline now, so if you
-re-test on 2.6.9-rc4 you'd pick it up)?  With that patch, with 2G of
-memory and no swap, my machine did not lock up, and the conditions that
-the patch protect against were triggered.  And, with the patch backed
-out, kswapd spins out of control.  I believe this is fixed.
+I looked through the changelog but I cannot see anything that would cause
+the problem. Roland's patch surely could not have done this.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Will try to track this down further, time permitting...

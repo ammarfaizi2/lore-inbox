@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312453AbSDNUg2>; Sun, 14 Apr 2002 16:36:28 -0400
+	id <S312457AbSDNUxU>; Sun, 14 Apr 2002 16:53:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312455AbSDNUg1>; Sun, 14 Apr 2002 16:36:27 -0400
-Received: from server0011.freedom2surf.net ([194.106.56.14]:33144 "EHLO
-	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
-	id <S312453AbSDNUg0>; Sun, 14 Apr 2002 16:36:26 -0400
-Date: Sun, 14 Apr 2002 21:43:45 +0100
-From: Ian Molton <spyro@armlinux.org>
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: usb-uhci *BUG*
-Message-Id: <20020414214345.677aa1f5.spyro@armlinux.org>
-In-Reply-To: <3CB9D940.8040303@wanadoo.fr>
-Reply-To: spyro@armlinux.org
-Organization: The dragon roost
-X-Mailer: Sylpheed version 0.7.4cvs5 (GTK+ 1.2.10; )
+	id <S312458AbSDNUxT>; Sun, 14 Apr 2002 16:53:19 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8714 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S312457AbSDNUxT>; Sun, 14 Apr 2002 16:53:19 -0400
+Date: Sun, 14 Apr 2002 22:53:21 +0200
+From: Jan Kara <jack@suse.cz>
+To: Ivan Ivanov <ivandi@vamo.orbitel.bg>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext2 quota bug in 2.4.18
+Message-ID: <20020414205321.GA9108@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <3CA8A379.EA510E15@vamo.orbitel.bg> <20020408144431.GB23734@atrey.karlin.mff.cuni.cz> <3CB1CF4D.794AAFFE@vamo.orbitel.bg>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Rousselet Awoke this dragon, who will now respond:
-
-> Ian Molton wrote:
-> > Its a VIA based board, and it /is/ an add-on card. its a 4 port OPTi
-> > based card.
+> Jan Kara wrote:
 > 
->  From FAQ on Alcatel site:
+> > > on ext2 filesystem chown/chgroup doesn't change quota
+> > > ext3 is OK
+> >   Kernel version, quota utils version, etc...?
+> >
+> >                                                 Honza
 > 
-> Q11: My modem often powers down without any reason and I have to reboot 
-> to connect again.
+> kernel 2.4.18
+> quota 2.00 and 3.04
+> 
+> also
+> kernel 2.4.18 with 50_quota-patch-2.4.15-2.4.16 + dquot_deadlock.diff
+> 
+> ext3 works fine
+  Sorry it took me so long to reply. I tried to reproduce your problem
+but I haven't succeeded. Is quota really turned on on the filesystem?
+Did you know which kernel version was the last working?
 
-the modem doesnt power down. all I get is an oops.
-
-the machine is a k6-ii and is otherwise reliable (even with 100mbit
-ethernet).
-
-I've been poking about and have replaced the BUG() with a printk("about to
-die!\n"), and return NULL.
-
-I then hardened dl_reverse_done_list so it wouldnt die on receiving a NULL.
-
-this seems to have improved things a LITTLE. I see a few 'about to die's
-whizz by, and it stiffs shortly after.
-
-does that help anyone?
+								Honza
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

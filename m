@@ -1,51 +1,215 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269216AbTGJLcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 07:32:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269217AbTGJLcZ
+	id S269219AbTGJLmt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 07:42:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266315AbTGJLmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 07:32:25 -0400
-Received: from f15.mail.ru ([194.67.57.45]:11024 "EHLO f15.mail.ru")
-	by vger.kernel.org with ESMTP id S269216AbTGJLcY (ORCPT
+	Thu, 10 Jul 2003 07:42:49 -0400
+Received: from tmi.comex.ru ([217.10.33.92]:10408 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S269219AbTGJLmp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 07:32:24 -0400
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: =?koi8-r?Q?=22?=Nikita Danilov=?koi8-r?Q?=22=20?= 
-	<Nikita@Namesys.COM>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Are =?koi8-r?Q?=22?=,=?koi8-r?Q?=22=20?=and =?koi8-r?Q?=22?=..=?koi8-r?Q?=22=20?=in directory required=?koi8-r?Q?=3F?=
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.248.25.26]
-Date: Thu, 10 Jul 2003 15:47:04 +0400
-In-Reply-To: <16141.16899.777319.699253@laputa.namesys.com>
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E19aZtA-000MFD-00.arvidjaar-mail-ru@f15.mail.ru>
+	Thu, 10 Jul 2003 07:42:45 -0400
+X-Comment-To: Andrew Morton
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH] minor optimization for EXT3
+From: Alex Tomas <bzzz@tmi.comex.ru>
+Organization: HOME
+Date: Thu, 10 Jul 2003 15:56:56 +0000
+In-Reply-To: <20030710042016.1b12113b.akpm@osdl.org> (Andrew Morton's
+ message of "Thu, 10 Jul 2003 04:20:16 -0700")
+Message-ID: <87y8z6gyt3.fsf@gw.home.net>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.3 (gnu/linux)
+References: <87smpeigio.fsf@gw.home.net>
+	<20030710042016.1b12113b.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+here is more optimized vertion of the patch. if inode bitmap isn't in
+cache then we do not try to use it and read inode from disk to
+prevent double I/O.
 
->  > bor@itsrm2% cd foo
->  > bor@itsrm2% sudo rmdir /tmp/foo
->  > bor@itsrm2% ls -la .
->  > .: No such file or directory
->  > 
->  > how do I access this? OK I could have opendir on it ... but then,
-> 
-> You should access it through getcwd(2).  Try 'ls -al'. readdir has
-> special case for such directories (IS_DEADDIR), so it will come up as
-> empty without dot and dotdot.
-> 
+patch is against 2.5.7[34]
 
-OK I tried it not under Linux the first time.
 
-Tnx
+ext3_get_inode_loc() read inode's block only if:
+  1) this inode has no copy in memory
+  2) inode's block has another valid inode(s)
 
--andrey
+this optimization allows to avoid needless I/O in two cases:
+1) just allocated inode is first valid in the inode's block
+2) kernel wants to write inode, but buffer in which inode
+   belongs to gets freed by VM
 
+
+
+
+diff -puN fs/ext3/inode.c~ext3-noread-inode fs/ext3/inode.c
+--- linux-2.5.73/fs/ext3/inode.c~ext3-noread-inode	Thu Jul 10 12:03:52 2003
++++ linux-2.5.73-alexey/fs/ext3/inode.c	Thu Jul 10 15:52:59 2003
+@@ -2286,7 +2286,7 @@ out_stop:
+  * inode's underlying buffer_head on success. 
+  */
+ 
+-int ext3_get_inode_loc (struct inode *inode, struct ext3_iloc *iloc)
++int ext3_get_inode_loc (struct inode *inode, struct ext3_iloc *iloc, int in_mem)
+ {
+ 	struct buffer_head *bh = 0;
+ 	unsigned long block;
+@@ -2328,12 +2328,88 @@ int ext3_get_inode_loc (struct inode *in
+ 		EXT3_INODE_SIZE(inode->i_sb);
+ 	block = le32_to_cpu(gdp[desc].bg_inode_table) +
+ 		(offset >> EXT3_BLOCK_SIZE_BITS(inode->i_sb));
+-	if (!(bh = sb_bread(inode->i_sb, block))) {
++	if (!(bh = sb_getblk(inode->i_sb, block))) {
+ 		ext3_error (inode->i_sb, "ext3_get_inode_loc",
+ 			    "unable to read inode block - "
+ 			    "inode=%lu, block=%lu", inode->i_ino, block);
+ 		goto bad_inode;
+ 	}
++	if (!buffer_uptodate(bh)) {
++		lock_buffer(bh);
++		if (buffer_uptodate(bh)) {
++			/* someone has already initialized buffer */
++			unlock_buffer(bh);
++			goto has_buffer;
++		}
++
++		/* we can't skip I/O if inode is on a disk only */
++		if (in_mem) {
++			struct buffer_head *bitmap_bh; 
++			struct ext3_group_desc *desc;
++			int inodes_per_buffer;
++			int inode_offset, i;
++			int start;
++
++			/*
++			 * if this inode is only valid in buffer we need not I/O
++			 */
++			inodes_per_buffer = bh->b_size /
++				EXT3_INODE_SIZE(inode->i_sb);
++			inode_offset = ((inode->i_ino - 1) %
++					EXT3_INODES_PER_GROUP(inode->i_sb));
++			start = inode_offset & ~(inodes_per_buffer - 1);
++
++			/* check is inode bitmap is in cache? */
++			desc = ext3_get_group_desc(inode->i_sb, block_group, NULL);
++			if (!desc)
++				goto make_io;
++
++			bitmap_bh = sb_getblk(inode->i_sb, le32_to_cpu(desc->bg_inode_bitmap));
++			if (!bitmap_bh)
++				goto make_io;
++
++			/* 
++			 * if inode bitmap isn't in cache then we may end up by 2 reads
++			 * instead of 1 read before optimizing. skip it
++			 */
++			if (!buffer_uptodate(bitmap_bh)) {
++				brelse(bitmap_bh);
++				goto make_io;
++			}
++			for (i = start; i < start + inodes_per_buffer; i++) {
++				if (i == inode_offset)
++					continue;
++				if (ext3_test_bit(i, bitmap_bh->b_data))
++					break;
++			}
++			brelse(bitmap_bh);
++			if (i == start + inodes_per_buffer) {
++				/* all inodes (but our) are free. so, we skip I/O */
++				memset(bh->b_data, 0, bh->b_size);
++				set_buffer_uptodate(bh);
++				unlock_buffer(bh);
++				goto has_buffer;
++			}
++		}
++
++make_io:
++		/*
++		 * No, there are another valid inodes in the buffer
++		 * so, to preserve them we have to read buffer from
++		 * the disk
++		 */
++		get_bh(bh);
++		bh->b_end_io = end_buffer_io_sync;
++		submit_bh(READ, bh);
++		wait_on_buffer(bh);
++		if (!buffer_uptodate(bh)) {
++			ext3_error (inode->i_sb, "ext3_get_inode_loc",
++					"unable to read inode block - "
++					"inode=%lu, block=%lu", inode->i_ino, block);
++			goto bad_inode;
++		}
++	}
++  has_buffer:
+ 	offset &= (EXT3_BLOCK_SIZE(inode->i_sb) - 1);
+ 
+ 	iloc->bh = bh;
+@@ -2376,7 +2452,7 @@ void ext3_read_inode(struct inode * inod
+ 	ei->i_acl = EXT3_ACL_NOT_CACHED;
+ 	ei->i_default_acl = EXT3_ACL_NOT_CACHED;
+ #endif
+-	if (ext3_get_inode_loc(inode, &iloc))
++	if (ext3_get_inode_loc(inode, &iloc, 0))
+ 		goto bad_inode;
+ 	bh = iloc.bh;
+ 	raw_inode = iloc.raw_inode;
+@@ -2781,7 +2857,7 @@ ext3_reserve_inode_write(handle_t *handl
+ {
+ 	int err = 0;
+ 	if (handle) {
+-		err = ext3_get_inode_loc(inode, iloc);
++		err = ext3_get_inode_loc(inode, iloc, 1);
+ 		if (!err) {
+ 			BUFFER_TRACE(iloc->bh, "get_write_access");
+ 			err = ext3_journal_get_write_access(handle, iloc->bh);
+@@ -2879,7 +2955,7 @@ ext3_pin_inode(handle_t *handle, struct 
+ 
+ 	int err = 0;
+ 	if (handle) {
+-		err = ext3_get_inode_loc(inode, &iloc);
++		err = ext3_get_inode_loc(inode, &iloc, 1);
+ 		if (!err) {
+ 			BUFFER_TRACE(iloc.bh, "get_write_access");
+ 			err = journal_get_write_access(handle, iloc.bh);
+diff -puN fs/ext3/ialloc.c~ext3-noread-inode fs/ext3/ialloc.c
+--- linux-2.5.73/fs/ext3/ialloc.c~ext3-noread-inode	Thu Jul 10 13:05:37 2003
++++ linux-2.5.73-alexey/fs/ext3/ialloc.c	Thu Jul 10 13:06:12 2003
+@@ -50,7 +50,7 @@
+  *
+  * Return buffer_head of bitmap on success or NULL.
+  */
+-static struct buffer_head *
++struct buffer_head *
+ read_inode_bitmap(struct super_block * sb, unsigned long block_group)
+ {
+ 	struct ext3_group_desc *desc;
+diff -puN include/linux/ext3_fs.h~ext3-noread-inode include/linux/ext3_fs.h
+--- linux-2.5.73/include/linux/ext3_fs.h~ext3-noread-inode	Thu Jul 10 13:41:59 2003
++++ linux-2.5.73-alexey/include/linux/ext3_fs.h	Thu Jul 10 14:40:13 2003
+@@ -717,6 +717,8 @@ extern unsigned long ext3_count_free_ino
+ extern unsigned long ext3_count_dirs (struct super_block *);
+ extern void ext3_check_inodes_bitmap (struct super_block *);
+ extern unsigned long ext3_count_free (struct buffer_head *, unsigned);
++extern struct buffer_head * read_inode_bitmap(struct super_block *, unsigned long);
++
+ 
+ 
+ /* inode.c */
+@@ -724,7 +726,7 @@ extern int ext3_forget(handle_t *, int, 
+ extern struct buffer_head * ext3_getblk (handle_t *, struct inode *, long, int, int *);
+ extern struct buffer_head * ext3_bread (handle_t *, struct inode *, int, int, int *);
+ 
+-extern int  ext3_get_inode_loc (struct inode *, struct ext3_iloc *);
++extern int  ext3_get_inode_loc (struct inode *, struct ext3_iloc *, int);
+ extern void ext3_read_inode (struct inode *);
+ extern void ext3_write_inode (struct inode *, int);
+ extern int  ext3_setattr (struct dentry *, struct iattr *);
+
+_
 

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317777AbSGPH4u>; Tue, 16 Jul 2002 03:56:50 -0400
+	id <S317778AbSGPH7E>; Tue, 16 Jul 2002 03:59:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317778AbSGPH4t>; Tue, 16 Jul 2002 03:56:49 -0400
-Received: from mailer.psp.ucl.ac.be ([130.104.83.246]:55426 "EHLO
-	guppy.psp.ucl.ac.be") by vger.kernel.org with ESMTP
-	id <S317777AbSGPH4t>; Tue, 16 Jul 2002 03:56:49 -0400
-Mime-Version: 1.0
-Message-Id: <p05100302b9597d1e930e@[130.104.82.36]>
-Date: Tue, 16 Jul 2002 09:59:37 +0200
+	id <S317779AbSGPH7D>; Tue, 16 Jul 2002 03:59:03 -0400
+Received: from mtiwmhc23.worldnet.att.net ([204.127.131.48]:13477 "EHLO
+	mtiwmhc23.worldnet.att.net") by vger.kernel.org with ESMTP
+	id <S317778AbSGPH7C>; Tue, 16 Jul 2002 03:59:02 -0400
+Date: Tue, 16 Jul 2002 04:07:22 -0400
 To: linux-kernel@vger.kernel.org
-From: Bernard Paris <Bernard.Paris@psp.ucl.ac.be>
-Subject: crash while dumping on SCSI tapes
-Cc: bernard.paris@psp.ucl.ac.be
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Subject: Re: Linux 2.4.19-rc1-ac5 -- Build error in mpparse.c (possible fix)
+Message-ID: <20020716080722.GA9375@lnuxlab.ath.cx>
+References: <200207152148.g6FLm7Q24750@devserv.devel.redhat.com> <1026792066.1417.19.camel@localhost.localdomain> <20020716075437.GA9226@lnuxlab.ath.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020716075437.GA9226@lnuxlab.ath.cx>
+User-Agent: Mutt/1.3.28i
+From: khromy@lnuxlab.ath.cx (khromy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi from Belgium,
+Nevermind, this is broken.  pci-pc.c fails to compile.
 
-I encounter several severe server crashes, mostly while dumping on 
-SCSI tapes (HP DAT and HP DLT). This appear on 3 similar machines 
-(that excludes hardware problem). Crash is severe because when they 
-occur, the system is completely frozen, with a black console. No 
-error message. I just need to switch off then on.
-I never have had this problem when I was previously running 2.0.36 
-kernel on same hardware.
+On Tue, Jul 16, 2002 at 03:54:37AM -0400, khromy wrote:
+> --- include/asm-i386/smp.h.old	Tue Jul 16 03:21:52 2002
+> +++ include/asm-i386/smp.h	Tue Jul 16 03:39:00 2002
+> @@ -34,11 +34,6 @@
+>  #define		INT_DEST_ADDR_MODE		1     /* logical delivery */
+>  # endif
+>  #else
+> -#define		clustered_apic_mode		(0)
+> -#define		clustered_apic_logical		(0)
+> -#define		clustered_apic_physical		(0)
+> -#define		apic_broadcast_id		(APIC_BROADCAST_ID_APIC)
+> -#define		esr_disable			(0)
+>  #define		INT_DELIVERY_MODE		1     /* logical delivery */
+>  #define		TARGET_CPUS			0x01
+>  #define		INT_DEST_ADDR_MODE		1     /* logical delivery */
+> 
 
-- all  disks are SCSI
-- SCSI card Adaptec 2940UW
-- processor is AMD K6-266 MHz
-- for 1 year now, I've been using several 2.4.x kernel versions (-> 2.17)
-- last I've last tried kernel 2.17 patched with 
-"linux-aic7xxx-6.2.5-2.4.17.patch"
-(cf. http://people.freebsd.org/~gibbs/linux/)
-- glibc 2.2.2-10,  X is not running
-
-
-
-
-please cc:  answers to bernard.paris@psp.ucl.ac.be
+-- 
+L1:	khromy		;khromy(at)lnuxlab.ath.cx

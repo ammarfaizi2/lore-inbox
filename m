@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263309AbTJKOn5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 10:43:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263313AbTJKOn5
+	id S262066AbTJKPBe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 11:01:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTJKPBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 10:43:57 -0400
-Received: from h80ad24a2.async.vt.edu ([128.173.36.162]:63880 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263309AbTJKOn4 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 10:43:56 -0400
-Message-Id: <200310111443.h9BEhr6s022474@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Norman Diamond <ndiamond@wta.att.ne.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test7 + X11 + screen savers vs. user 
-In-Reply-To: Your message of "Sat, 11 Oct 2003 18:00:45 +0900."
-             <228201c38fd6$32b82c90$5cee4ca5@DIAMONDLX60> 
-From: Valdis.Kletnieks@vt.edu
-References: <228201c38fd6$32b82c90$5cee4ca5@DIAMONDLX60>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-412297664P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Sat, 11 Oct 2003 11:01:34 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:1205 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262066AbTJKPBd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 11:01:33 -0400
+Message-ID: <3F881B46.6070301@colorfullife.com>
+Date: Sat, 11 Oct 2003 17:01:26 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch] SMP races in the timer code, timer-fix-2.6.0-test7-A0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Sat, 11 Oct 2003 10:43:52 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-412297664P
-Content-Type: text/plain; charset=us-ascii
+Ingo wrote:
 
-On Sat, 11 Oct 2003 18:00:45 +0900, Norman Diamond <ndiamond@wta.att.ne.jp>  said:
-> In 2.6.0-test1 through test7, when running X11, the screen saver kicks in
-> about every 5 minutes.  I haven't checked the configuration but have
-> confidence that it's obeying the timing correctly.  The problem is that it
-> doesn't care whether the keyboard and mouse have been used during that time.
+>fixing this second race is hard - it involves a heavy race-check operation
+>that has to lock all bases, and has to re-check the base->running_timer
+>value, and timer_pending condition atomically.
+>  
+>
+What about moving the "timer running" information into the timer_list, 
+instead of keeping it in the base?
+For example base=0 means neither running nor pending. base=1 means 
+running, but not pending, and pointers mean pending on the given base.
 
-Which screen saver is this?
+This would allow an atomic test without the brute force locking.
 
-jwz's xscreensaver 4.13 mostly works for me with XFree86 4.3.0, and notices
-keyboard activity and mouse cursor movement, but fails to detect mouse button
-events - so if you're in a mail program and reading a lot of mail and hitting 'delete'
-over and over, the screensaver can kick in anyhow.
+--   
+     Manfred
 
-I have to admit I've not tracked down if this is xscreensaver's fault, or the
-X server's fault, or the kernel's fault.
 
---==_Exmh_-412297664P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/iBcocC3lWbTT17ARAmPPAJ4hFT0E8gi33mGNXa6Rvqbp0ayzqwCfQ4Ci
-OhtRJGI+iWeMfy9QA3qzymA=
-=IjpI
------END PGP SIGNATURE-----
-
---==_Exmh_-412297664P--

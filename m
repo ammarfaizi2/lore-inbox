@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265783AbRFXW5E>; Sun, 24 Jun 2001 18:57:04 -0400
+	id <S265788AbRFXXSV>; Sun, 24 Jun 2001 19:18:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265784AbRFXW4y>; Sun, 24 Jun 2001 18:56:54 -0400
-Received: from iq.sch.bme.hu ([152.66.214.168]:37837 "EHLO iq.rulez.org")
-	by vger.kernel.org with ESMTP id <S265783AbRFXW4s>;
-	Sun, 24 Jun 2001 18:56:48 -0400
-Date: Mon, 25 Jun 2001 01:08:01 +0200 (CEST)
-From: Sasi Peter <sape@iq.rulez.org>
-To: "J . A . Magallon" <jamagallon@able.es>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] gcc 2.95.2 vs. 3.0 (fwd)
-In-Reply-To: <20010625004822.C1799@werewolf.able.es>
-Message-ID: <Pine.LNX.4.33.0106250059000.27257-100000@iq.rulez.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265791AbRFXXSL>; Sun, 24 Jun 2001 19:18:11 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:20234 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S265788AbRFXXSG>;
+	Sun, 24 Jun 2001 19:18:06 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "John Nilsson" <pzycrow@hotmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Some experience of linux on a Laptop 
+In-Reply-To: Your message of "Sun, 24 Jun 2001 22:51:56 +0200."
+             <F175UFyfL1QMaCAP6Ki00001f92@hotmail.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 25 Jun 2001 09:17:58 +1000
+Message-ID: <23815.993424678@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Jun 2001, J . A . Magallon wrote:
+On Sun, 24 Jun 2001 22:51:56 +0200, 
+"John Nilsson" <pzycrow@hotmail.com> wrote:
+>1: Make the whole insmod-rmmod tingie a kernel internal so they could be 
+>trigged before rootmount.
 
-> Sure it is opendivx ? I think you are just using gcc compiled code for
-> the 'interface' and 'glue' to windows divx decoders (/usr/lib/win32/*.dll)
-> that do the real hard work.
+initrd.
 
-Have a look at mplayer.sourceforge.net. MPlayer besides DLL loading also
-features native Opendivx en/decoding, and native MPEG1/2 decoding.
-Actually the tests were performed by the leader of the development of
-mplayer, and he did compile the whole opendivx encore/decore code used in
-this player, taken from the original sources.
+>2: Compile time optimization options in Make menuconfig
 
-> Redo the tests with am MPEG2 movie.
+Select the processor type.
 
-Actually since the original posting, on the mplayer-devel list the
-maintainer of mpeg2play (the portable parts of mplayer as a separate
-player, w/o the dll stuff) also tested how well MPEG1/2 decoding works if
-compiled w/ gcc 2.95.2 vs 3.0, and he was disappointed too, because there
-was a slight decrease in the performanceof the generated code...
+>3: Lilo/grub config in make menuconfig
 
-If you want proof of these, grab the C sources from the mentioned
-sourceforge project site, and repeat the test yourself.
+Will be in the 2.5 makefile rewrite.
 
--- 
-SaPE - Peter, Sasi - mailto:sape@sch.hu - http://sape.iq.rulez.org/
+>4: make bzImage && make modules && make modules install && cp 
+>arch/i386/boot/bzImage /boot/'uname -r' something inside make menuconfig
+
+Will be in the 2.5 makefile rewrite.
 

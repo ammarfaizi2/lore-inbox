@@ -1,80 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131966AbRANVEF>; Sun, 14 Jan 2001 16:04:05 -0500
+	id <S133080AbRANVQI>; Sun, 14 Jan 2001 16:16:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132799AbRANVD4>; Sun, 14 Jan 2001 16:03:56 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:63250 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S131966AbRANVDi>; Sun, 14 Jan 2001 16:03:38 -0500
-Date: Sun, 14 Jan 2001 16:04:31 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Urban Widmark <urban@teststation.com>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: eth1: Transmit timed out, status 0000, PHY status 0000
-In-Reply-To: <Pine.LNX.4.30.0101141132100.22034-100000@cola.teststation.com>
-Message-ID: <Pine.LNX.4.31.0101141505470.935-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
+	id <S133105AbRANVP6>; Sun, 14 Jan 2001 16:15:58 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:57606 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S133080AbRANVPt>; Sun, 14 Jan 2001 16:15:49 -0500
+Date: Sun, 14 Jan 2001 21:15:41 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go?
+In-Reply-To: <Pine.LNX.4.10.10101141209030.4086-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.30.0101142107420.25589-100000@imladris.demon.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Jan 2001, Urban Widmark wrote:
+On Sun, 14 Jan 2001, Linus Torvalds wrote:
 
->> eth1: Transmit timed out, status 0000, PHY status 0000,
->> resetting...
->[snip]
->> Keeps going nonstop until I ifdown eth1.
->>
->> Card worked fine 2 days ago...
->
->So what did you change?
+> This is what "request_module()" and "kmod" is all about. Once we probe the
+> hardware, the drievr itself can ask for more drivers.
+> 
+> I completely fail to see the arguments that have been brought up for drm
+> doing ugly things. The code should simply do
+> 
+> 	drm_agp_head_t * head = inter_module_get("drm_agp");
+> 
+> 	if (!head) {
+> 		request_module("drm-agp");
+> 		head = inter_module_get("drm_agp");
+> 		if (!head)
+> 			return -ENOAGP;
+> 	}
+> 
+> and be done with it. THE ABOVE MAKES SENSE. The code says _exactly_ what
+> the module wants to do: it wants to find the AGP support, and if it cannot
+> find the AGP support it wants to load them.
 
-Nothing.
+It's the same with CFI command-set-specific code. Except that the 
+command-set specific code didn't previously have to be initialised at all, 
+and now we've got to initialise it (and have it call 
+inter_module_register) before it's required by the cfi_probe code.
 
->Has the machine been up since then?
+The difference here is that while drm_agp actually had to do some hardware
+initialisation, the CFI command set handlers didn't - the only thing their
+module_init routine does is call inter_module_register(). So we've
+introduced the init order dependencies where previously they weren't
+necessary.
 
-No.  I rebooted to W98 a few times.  W98 doesn't have a driver
-installed for that card though - and wont.
+That's the one flaw in the inter_module_get() stuff - we could do with a
+way to put entries in the table at _compile_ time, rather than _only_ at
+run time. 
 
+While I accept that we can't eliminate init order dependencies completely,
+I still think we should avoid them where it's possible. Which it would be
+in this case, without much difficulty at all.
 
+-- 
+dwmw2
 
->Someone else with the same symptoms (in 2.4)
->    http://www.uwsg.iu.edu/hypermail/linux/net/0011.0/0027.html
->
->Becker's reply
->    http://www.uwsg.iu.edu/hypermail/linux/net/0011.0/0032.html
->
->"Try unplugging the system and doing a really cold boot. A soft-off does
-> not reset the chip.
-
-Tried that too.. didn't work.  I switched PCI slots and whatnot
-though and it works again..  <shrug>
-
-
-> If this solves the problem, we will have to add code to re-load the
-> EEPROM info into the chip."
-
-If the problem recurs I will try to test it out more and report
-to the list.
-
-FWIW it is a DLink DFE 530TX.
-
-Thanks for the reply.
-
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Free Software advocate
-          This message is copyright 2001, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-
-#[Mike A. Harris bash tip #1 - separate history files per virtual console]
-# Put the following at the bottom of your ~/.bash_profile
-[ ! -d ~/.bash_histdir ] && mkdir ~/.bash_histdir
-tty |grep "^/dev/tty[0-9]" >& /dev/null && \
-        export HISTFILE=~/.bash_histdir/.$(tty | sed -e 's/.*\///')
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

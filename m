@@ -1,56 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130367AbRAAW1p>; Mon, 1 Jan 2001 17:27:45 -0500
+	id <S130664AbRAAWe5>; Mon, 1 Jan 2001 17:34:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131005AbRAAW1Z>; Mon, 1 Jan 2001 17:27:25 -0500
-Received: from isis.telemach.net ([213.143.65.10]:34063 "HELO
-	isis.telemach.net") by vger.kernel.org with SMTP id <S130367AbRAAW1V>;
-	Mon, 1 Jan 2001 17:27:21 -0500
-Message-ID: <3A50FD1F.A008B64F@telemach.net>
-Date: Mon, 01 Jan 2001 22:56:47 +0100
-From: Jure Pecar <pegasus@telemach.net>
-Organization: Select Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: andrea@suse.de, jef@acme.com
-Cc: linux-kernel@vger.kernel.org, thttpd@bomb.acme.com
-Subject: Re: linux 2.2.19pre and thttpd (VM-global problem?) 
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+	id <S130833AbRAAWes>; Mon, 1 Jan 2001 17:34:48 -0500
+Received: from adsl-141-154-69-10.bostma.adsl.bellatlantic.net ([141.154.69.10]:6916
+	"EHLO monty.adgsoftware.com") by vger.kernel.org with ESMTP
+	id <S130664AbRAAWeh>; Mon, 1 Jan 2001 17:34:37 -0500
+Date: Mon, 1 Jan 2001 17:07:41 -0500
+From: Andy Galasso <andy@adgsoftware.com>
+To: linux-kernel@vger.kernel.org
+Subject: Promise PDC20267 irq timeout
+Message-ID: <20010101170741.A14537@adgsoftware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.11i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again,
+I'm attempting to use a Promise FastTrak100 in native Ultra100 mode. Anyone
+have any idea how to get this working?
 
-After more-than-expected amount of hours spent on this, i managed to
-localize the problem and found a partial solution.
-I ran a series of test with thttpd compiled on rh6 and rh7 serving a
-couple of files on different kernels. In the first run i used 6 average
-sized mp3s and could not reproduce the problem, but then i added a
-couple of 100mb and 200mb mpeg videos and boing, there it was.
+Linux-2.4.0-prerelease SMP
+Promise FastTrak100 - no array defined in adapter BIOS
+4 IBM DTLA-307030 drives
+boot params: ide2=0xac00 ide3=0xb400
 
-		libc		
-kernel		version		result
+VP_IDE: IDE controller on PCI bus 00 dev 39
+VP_IDE: chipset revision 16
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: VIA vt82c686a IDE UDMA66 controller on pci0:7.1
+    ide0: BM-DMA at 0x9000-0x9007, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0x9008-0x900f, BIOS settings: hdc:DMA, hdd:pio
+PDC20267: IDE controller on PCI bus 00 dev 70
+PDC20267: chipset revision 2
+PDC20267: not 100% native mode: will probe irqs later
+PDC20267: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER Mode.
+PDC20267: neither IDE port enabled (BIOS)
+hde: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
+hde: IBM-DTLA-307030, ATA DISK drive
+hdf: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
+hdf: IBM-DTLA-307030, ATA DISK drive
+hdg: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
+hdg: IBM-DTLA-307030, ATA DISK drive
+hdh: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
+hdh: IBM-DTLA-307030, ATA DISK drive
+ide1 at 0x170-0x177,0x376 on irq 15
+ide2 at 0xac00-0xac07,0xae06 on irq 16
+ide3 at 0xb400-0xb407,0xb606 on irq 16 (shared with ide2)
+hde: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63
+hdf: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63
+hdg: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63
+hdh: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63
+Partition check:
+ hde:hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+ide2: reset: master: error (0x00?)
+hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+hde: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+ide2(?): unexpected interrupt, status=0x58, count=1
+ide2: reset: master: error (0x00?)
+hde: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+end_request: I/O error, dev 21:00 (hde), sector 0
+hde: drive not ready for command
+ unable to read partition table
+ hdf:hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
+hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
+hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
+hdf: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+ide2(?): unexpected interrupt, status=0x58, count=2
+ide2: reset: master: error (0x00?)
+hdf: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdf: drive not ready for command
+hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
+hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
+hdf: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+ide2(?): unexpected interrupt, status=0x58, count=3
+ide2: reset: master: error (0x00?)
+hdf: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+end_request: I/O error, dev 21:40 (hdf), sector 0
+hdf: drive not ready for command
+ unable to read partition table
+...
+(similar for hdg ... hdh ...)
+...
 
-2.2.18raid	2.1.3		ok
-2.2.18raid	2.1.94		ok
-2.2.18cdhs	2.1.3		crash at the third simultaneous connection
-2.2.18cdhs	2.1.94		ok
-2.2.19pre3aa4	2.1.3		ok
-2.2.19pre3aa4	2.1.94		ok
-2.4.0-test10	2.1.3		ok
-2.4.0-test10	2.1.94		ok
 
-Now i use thttpd statically compiled with newer libc with the 2.2.18cdhs
-on the box that was making problems before and so far it runs smooth.
-If anyone is interested of strace outputs of above tests and wants to
-discover the source of the problem, i can help.
+Thanks,
 
--- 
-
-
-Pegasus
+Andy Galasso
+andy@adgsoftware.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

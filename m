@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135975AbRD0LKo>; Fri, 27 Apr 2001 07:10:44 -0400
+	id <S135804AbRD0LGY>; Fri, 27 Apr 2001 07:06:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136017AbRD0LKe>; Fri, 27 Apr 2001 07:10:34 -0400
-Received: from AMontpellier-201-1-2-100.abo.wanadoo.fr ([193.253.215.100]:753
-	"EHLO microsoft.com") by vger.kernel.org with ESMTP
-	id <S135975AbRD0LK1>; Fri, 27 Apr 2001 07:10:27 -0400
-Subject: Re: 2.4 and 2GB swap partition limit
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
+	id <S135939AbRD0LGO>; Fri, 27 Apr 2001 07:06:14 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:53000 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S135804AbRD0LF6>; Fri, 27 Apr 2001 07:05:58 -0400
+Date: Fri, 27 Apr 2001 12:58:45 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: "David S. Miller" <davem@redhat.com>,
+        "Grover, Andrew" <andrew.grover@intel.com>,
+        "'John Fremlin'" <chief@bandits.org>,
+        "'Simon Richter'" <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
+        "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
+        "'Pavel Machek'" <pavel@suse.cz>,
+        Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
         linux-kernel@vger.kernel.org
-In-Reply-To: <87elw8v2ay.fsf@mose.informatik.uni-tuebingen.de>
-In-Reply-To: <200103031114.MAA13672@cave.bitwizard.nl> 
-	<87elw8v2ay.fsf@mose.informatik.uni-tuebingen.de>
-Content-Type: text/plain; charset=ISO-8859-1
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 27 Apr 2001 12:51:34 +0200
-Message-Id: <988368729.1406.2.camel@nomade>
+Subject: Re: Let init know user wants to shutdown [linux-power] [linux-pm-devel] [linux-kernel-mailing-list] [some-other-list]
+Message-ID: <20010427125845.C13099@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <15080.40123.543633.854889@pizda.ninka.net> <4148FEAAD879D311AC5700A0C969E89006CDDD9F@orsmsx35.jf.intel.com> <15080.40123.543633.854889@pizda.ninka.net> <17244.988362192@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <17244.988362192@redhat.com>; from dwmw2@infradead.org on Fri, Apr 27, 2001 at 10:03:12AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 08 Mar 2001 14:05:25 +0100, Goswin Brederlow a écrit :
+Hi!
 
-> I believe the 2xRAM rule comes from the OS's where ram was only buffer
-> for the swap. So with 1xRAM you had a running system with 1xRAM
-> memory, so nothing is gained by that much swap.
+> > You can break the whole power management problem down to "here are the
+> > levels of low-power provided by the hardware, here are the idleness
+> > triggers that may be monitored".  That's it, nothing more.
+> > This is powerful enough to do all the things you could want a pm layer
+> > to do:
+> >
+> >	1) CPU's have been in their idle threads for X percent of
+> >	   of the past measurement quantum, half clock the processors.
+> >
+> >	2) The user has hit the "sleep" trigger, spin down the disks,
+> >	   reduce clock the cpus, bus, PCI controller and PCI devices.
+> 
+> Often the 'sleep trigger' is an _absence_ of activity rather than anything
+> explicit like a button being pressed. You need inactivity timers, and events
+> which _reset_ those timers, on triggers like keyboard/touchscreen/serial
+> input, etc. 
 
-I think kernels 2.4.x came back to this behavior.
- 
-> On Linux any swap adds to the memory pool, so 1xRAM would be
-> equivalent to 2xRAM with the old old OS's.
-
-no more true AFAIK
-
-Xav
-
+I believe that at least thermal managment should be done in
+kernelspace. You do not want to overheat your cpu because you
+accidentally killed powerd, right?
+								Pavel
+-- 
+The best software in life is free (not shareware)!		Pavel
+GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+

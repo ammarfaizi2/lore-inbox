@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266810AbUHCUGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265148AbUHCUHh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266810AbUHCUGN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 16:06:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265148AbUHCUGN
+	id S265148AbUHCUHh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 16:07:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266830AbUHCUHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 16:06:13 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:15046 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S266824AbUHCUGL
+	Tue, 3 Aug 2004 16:07:36 -0400
+Received: from email-out2.iomega.com ([147.178.1.83]:58059 "EHLO
+	email.iomega.com") by vger.kernel.org with ESMTP id S265148AbUHCUHW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 16:06:11 -0400
-Date: Tue, 3 Aug 2004 22:06:10 +0200
-From: Frank van Maarseveen <frankvm@xs4all.nl>
-To: Heikki Linnakangas <hlinnaka@iki.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Retrying root mounting for booting off USB
-Message-ID: <20040803200610.GA5148@janus>
-Mail-Followup-To: Frank van Maarseveen <frankvm@xs4all.nl>,
-	Heikki Linnakangas <hlinnaka@iki.fi>, linux-kernel@vger.kernel.org
-References: <Pine.OSF.4.60.0408032154400.205783@kosh.hut.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.60.0408032154400.205783@kosh.hut.fi>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+	Tue, 3 Aug 2004 16:07:22 -0400
+In-Reply-To: <06F0F452-E491-11D8-94F5-00039398BB5E@ieee.org>
+References: <40926261-E3D3-11D8-B01E-00039398BB5E@ieee.org> <1091397374.6458
+	 .9.camel@patibmrh9> <20040802121712.GD15884@logos.cnet> <06F0F452-E491-11D
+	8-94F5-00039398BB5E@ieee.org>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed
+Message-Id: <BBD076AD-E588-11D8-9102-00039398BB5E@ieee.org>
+Content-Transfer-Encoding: 7bit
+Cc: Mathias Kretschmer <posting@blx4.net>
+From: Pat LaVarre <p.lavarre@ieee.org>
+Subject: Re: 2.4.27rc2, DVD-RW support broke DVD-RAM writes
+Date: Tue, 3 Aug 2004 14:07:23 -0600
+To: linux-kernel@vger.kernel.org
+X-Mailer: Apple Mail (2.618)
+X-OriginalArrivalTime: 03 Aug 2004 20:07:19.0963 (UTC) FILETIME=[7B5766B0:01
+	C47995]
+X-imss-version: 2.0
+X-imss-result: Passed
+X-imss-scores: Clean:19.48023 C:20 M:1 S:5 R:5
+X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 03, 2004 at 10:33:04PM +0300, Heikki Linnakangas wrote:
-> Currently, booting off USB devices doesn't work in all environments. The 
-> root fs mounting code in init/do_mounts.c decides that the root filesystem 
-> is not available and gives up before the USB mass storage driver gets 
-> fully initialized.
+> what you see in 2.4.27-rc3 when you try:
+> sudo blockdev --getro /dev/hd*
 
-what do you think of http://dedasys.com/freesoftware/patches/blkdev_wakeup.patch ?
+Sorry, never mind, I can now reproduce this effect myself, because 
+Michael Tilelli kindly lent me a PATAPI DVD-RAM drive.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109122295308836&w=2
+We must have an asymmetry in 2.4 drivers/ide/ide-cd.c vs. 
+drivers/scsi/sr.c.  I see 2.4.26 work, but then 2.4.27-rc3 chokes:
 
--- 
-Frank
+$ uname -msr
+Linux 2.4.27-rc4 i686
+$
+$ sudo rrd scan /dev/hdd
+/dev/hdd is MATSHITA DVD-RAM A127 not RRD
+$
+$ sudo dd if=/dev/hdd bs=32K skip=0 count=1 | hexdump -C
+00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  
+|................|
+*
+1+0 records in
+1+0 records out
+00008000
+$ sudo dd of=/dev/hdd bs=32K skip=0 count=1 <xae.bin
+dd: opening `/dev/hdd': Read-only file system
+$ sudo blockdev --getro /dev/hdd
+0
+$
+
+Pat LaVarre
+

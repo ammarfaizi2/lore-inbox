@@ -1,73 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266544AbUBLR1m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 12:27:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266542AbUBLR1m
+	id S266541AbUBLR1c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 12:27:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266544AbUBLR1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 12:27:42 -0500
-Received: from mail.ccur.com ([208.248.32.212]:38674 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id S266544AbUBLR1g (ORCPT
+	Thu, 12 Feb 2004 12:27:32 -0500
+Received: from p68.rivermarket.wintek.com ([208.13.56.68]:16768 "EHLO dust")
+	by vger.kernel.org with ESMTP id S266541AbUBLR12 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 12:27:36 -0500
-Subject: Re: PATCH - raise max_anon limit
-From: Jim Houston <jim.houston@ccur.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: thockin@sun.com, torvalds@osdl.org, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-kernel@vger.kernel.org, george@mvista.com
-In-Reply-To: <20040211172046.37e18a2f.akpm@osdl.org>
-References: <20040211203306.GI9155@sun.com>
-	 <Pine.LNX.4.58.0402111236460.2128@home.osdl.org>
-	 <20040211210930.GJ9155@sun.com> <20040211135325.7b4b5020.akpm@osdl.org>
-	 <20040211222849.GL9155@sun.com> <20040211144844.0e4a2888.akpm@osdl.org>
-	 <20040211233852.GN9155@sun.com> <20040211155754.5068332c.akpm@osdl.org>
-	 <20040212003840.GO9155@sun.com> <20040211164233.5f233595.akpm@osdl.org>
-	 <20040212010822.GP9155@sun.com>  <20040211172046.37e18a2f.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Concurrent Computer Corp.
-Message-Id: <1076606773.990.165.camel@new.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 12 Feb 2004 12:26:14 -0500
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Feb 2004 12:27:28 -0500
+Date: Thu, 12 Feb 2004 12:30:22 -0500 (EST)
+From: Alex Goddard <agoddard@purdue.edu>
+To: Rik van Riel <riel@redhat.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Documentation on how to debug modules
+In-Reply-To: <Pine.LNX.4.44.0402121013040.1068-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.58.0402121219210.22024@dust>
+References: <Pine.LNX.4.44.0402121013040.1068-100000@chimarrao.boston.redhat.com>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463785916-1739359682-1076607022=:22024"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-11 at 20:20, Andrew Morton wrote:
-> Tim Hockin <thockin@sun.com> wrote:
-> > No, it doesn't store the counter with the id.  They expect you to do that.
-> > My best understanding is that thi sis to prevent re-use of the same key.
-> > I'm not sure I grok why it is useful.  If you release a key, it should be
-> > safe to reuse.  Period.  I assume there was some use case that brought about
-> > this "feature" but if so, I don't know what it is.  The big comment about it
-> > is just confusing me.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
+
+---1463785916-1739359682-1076607022=:22024
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+On Thu, 12 Feb 2004, Rik van Riel wrote:
+
+> On Thu, 12 Feb 2004, Rusty Russell wrote:
 > 
-> Maybe Jim can tell us why it's there.  Certainly, the idr interface would
-> be more useful if it just returned id's which start from zero.
+> > Just remove the debugging message which fill people's logs: the
+> > correct way of debugging module problems is something like this:
+> 
+> Could you add that to Documentation/  ;)
 
-Hi Andrew, Everyone,
+I couldn't think of, or find a good place to put this, so I put the
+information in it's own file.  I'm only moderately sure I've generated the
+patch correctly.  However, it does apply with patch -p1 to a clean
+2.6.3-rc2-bk2 tree, so it should be fine.
 
-If this new use of idr.c as a sparse bitmap catches on, it might deserve
-a new flavor which would not waste the space for the pointer array
-at the lowest layer.
+The wording is a slightly changed version of what Rusty said at the start
+of this thread.
 
-When I wrote the original code, I was thinking of allocating process
-id values where there is a tradition of allocating sequential values.
- 
-George Anzinger rewrote most of my code.  The r in idr.c is for
-immediate reuse.  His version picks the lowest available bit in the
-sparse bitmap.  The RESERVED_BITS comments seem to be stale.
+-- 
+Alex Goddard
+agoddard at purdue dot edu
+---1463785916-1739359682-1076607022=:22024
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="debugging-modules.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.58.0402121230220.22024@dust>
+Content-Description: 
+Content-Disposition: attachment; filename="debugging-modules.patch"
 
-The rational for avoiding immediate reuse of id values is to catch
-application errors.   Consider:
+ZGlmZiAtTnVycCBsaW51eC0yLjYuMy1yYzItYmsyL0RvY3VtZW50YXRpb24v
+ZGVidWdnaW5nLW1vZHVsZXMudHh0IHBlcnNvbmFsLTIuNi4zLXJjMi1iazIv
+RG9jdW1lbnRhdGlvbi9kZWJ1Z2dpbmctbW9kdWxlcy50eHQNCi0tLSBsaW51
+eC0yLjYuMy1yYzItYmsyL0RvY3VtZW50YXRpb24vZGVidWdnaW5nLW1vZHVs
+ZXMudHh0CTE5NjktMTItMzEgMTk6MDA6MDAuMDAwMDAwMDAwIC0wNTAwDQor
+KysgcGVyc29uYWwtMi42LjMtcmMyLWJrMi9Eb2N1bWVudGF0aW9uL2RlYnVn
+Z2luZy1tb2R1bGVzLnR4dAkyMDA0LTAyLTEyIDEyOjE1OjExLjkzNTQ4ODcy
+MCAtMDUwMA0KQEAgLTAsMCArMSwxOCBAQA0KK0RlYnVnZ2luZyBNb2R1bGVz
+IGFmdGVyIDIuNi4zDQorLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0N
+CisNCitJbiBhbG1vc3QgYWxsIGRpc3RyaWJ1dGlvbnMsIHRoZSBrZXJuZWwg
+YXNrcyBmb3IgbW9kdWxlcyB3aGljaCBkb24ndA0KK2V4aXN0LCBzdWNoIGFz
+ICJuZXQtcGYtMTAiIG9yIHdoYXRldmVyLiAgQ2hhbmdpbmcgIm1vZHByb2Jl
+IC1xIiB0bw0KKyJzdWNjZWVkIiBpbiB0aGlzIGNhc2UgaXMgaGFja3kgYW5k
+IGJyZWFrcyBzb21lIHNldHVwcywgYW5kIGFsc28gd2UNCit3YW50IHRvIGtu
+b3cgaWYgaXQgZmFpbGVkIGZvciB0aGUgZmFsbGJhY2sgY29kZSBmb3Igb2xk
+IGFsaWFzZXMgaW4NCitmcy9jaGFyX2Rldi5jLCBmb3IgZXhhbXBsZS4NCisN
+CitJbiB0aGUgcGFzdCBhIGRlYnVnZ2luZyBtZXNzYWdlIHdoaWNoIHdvdWxk
+IGZpbGwgcGVvcGxlJ3MgbG9ncyB3YXMgDQorZW1pdHRlZC4gIFRoaXMgZGVi
+dWdnaW5nIG1lc3NhZ2UgaGFzIGJlZW4gcmVtb3ZlZC4gIFRoZSBjb3JyZWN0
+IHdheSANCitvZiBkZWJ1Z2dpbmcgbW9kdWxlIHByb2JsZW1zIGlzIHNvbWV0
+aGluZyBsaWtlIHRoaXM6DQorDQorZWNobyAnIyEgL2Jpbi9zaCcgPiAvdG1w
+L21vZHByb2JlDQorZWNobyAnZWNobyAiJEAiID4+IC90bXAvbW9kcHJvYmUu
+bG9nJyA+PiAvdG1wL21vZHByb2JlDQorZWNobyAnZXhlYyAvc2Jpbi9tb2Rw
+cm9iZSAiJEAiJyA+PiAvdG1wL21vZHByb2JlDQorY2htb2QgYSt4IC90bXAv
+bW9kcHJvYmUNCitlY2hvIC90bXAvbW9kcHJvYmUgPiAvcHJvYy9zeXMva2Vy
+bmVsL21vZHByb2JlDQo=
 
-	fd1 = open_like_call(...);
-	read(fd1,...);
-	close(fd1);
-	fd2 = open_like_call(...);
-	write(fd1...);
-
-If fd2 has a different value than the recently closed fd1, the
-error is detected immediately.
-
-Jim Houston - Concurrent Computer Corp.
-
+---1463785916-1739359682-1076607022=:22024--

@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266880AbTGTKkg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 06:40:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266885AbTGTKkf
+	id S266892AbTGTK4b (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 06:56:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266896AbTGTK4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 06:40:35 -0400
-Received: from home.wiggy.net ([213.84.101.140]:60346 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S266880AbTGTKka (ORCPT
+	Sun, 20 Jul 2003 06:56:31 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:40619 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S266892AbTGTK4T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 06:40:30 -0400
-Date: Sun, 20 Jul 2003 12:55:29 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OFFTOPIC] RMS and reactions to him
-Message-ID: <20030720105529.GC29459@wiggy.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200301201338.h0KDcLjd001178@eeyore.valparaiso.cl> <E18bHfV-0002QE-00@fencepost.gnu.org> <20030122162107.GA26725@mark.mielke.cc> <pan.2003.07.20.02.27.22.526885@terra.com.br> <871xwl7h6j.fsf@deneb.enyo.de> <pan.2003.07.20.08.49.28.615976@terra.com.br>
+	Sun, 20 Jul 2003 06:56:19 -0400
+Date: Sun, 20 Jul 2003 13:10:41 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Jan Rychter <jan@rychter.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>
+Subject: Re: [Swsusp-devel] Re: [Swsusp] 2.5 suspend.c changes ahead
+Message-ID: <20030720111041.GA305@elf.ucw.cz>
+References: <20030708233507.GB140@elf.ucw.cz> <200307091940.52781.mflt1@micrologica.com.hk> <20030709181830.GA355@elf.ucw.cz> <m2u19rau8v.fsf@tnuctip.rychter.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <pan.2003.07.20.08.49.28.615976@terra.com.br>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <m2u19rau8v.fsf@tnuctip.rychter.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Leandro Guimarães Faria Corsetti Dutra wrote:
-> 	It won't be the first disagreement.  Debian actually was
-> poised to become *the* GNU distribution until they insisted on
-> carrying non-free software, when that was even more essential.
+Hi!
 
-Please get your facts straight. Debian never insisted on carrying
-non-free software. There was disagreement over references to non-free
-software in Documentation. FSF would not allow documentation to mention
-the OSS drivers for example. 
+>  > I guess I'll do some big kernel/suspend.c changes tommorow. If you
+>  > have some changes pending, please submit them within next 10 hours (I
+>  > can't code while I sleep ;-).  Pavel
+>  >>
+>  >> Looking forward!
+> 
+>  Pavel> Okay, I should start doing something.
+> 
+>  >> Swsusp for 2.4 is nearing 1.0.
+> 
+> How is 2.5 swsusp going to be related to 2.4 swsusp? I am not sure I
+> understand the relationship -- it seems the two codebases have diverged
+> quite a bit?
+> 
+> Is it going to be an entirely different beast?
 
-> Every so often this issue is raised again; presumably they will shed
-> non-free completely once a recent free version of Java 2, SWF player
-> and assorted stuff becomes available.
-
-And perhaps not.
-
-Wichert.
-
+Entirely different beast.
+								Pavel
 -- 
-Wichert Akkerman <wichert@wiggy.net>      It is simple to make things.
-http://www.wiggy.net/                     It is hard to make things simple.
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

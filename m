@@ -1,99 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262239AbTDHXIP (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 19:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262515AbTDHXIP (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 19:08:15 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:3202 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S262239AbTDHXIL (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 19:08:11 -0400
-Date: Wed, 9 Apr 2003 00:19:49 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Larry McVoy <lm@work.bitmover.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-ID: <20030408231949.GB31923@mail.jlokier.co.uk>
-References: <200304081354_MC3-1-3386-1A33@compuserve.com> <20030408180225.GC27912@work.bitmover.com>
+	id S262561AbTDHXMJ (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 19:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbTDHXMJ (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 19:12:09 -0400
+Received: from [12.47.58.221] ([12.47.58.221]:31211 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262561AbTDHXMI (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 19:12:08 -0400
+Date: Tue, 8 Apr 2003 15:22:15 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org, Rick Lindsley <ricklind@us.ibm.com>
+Subject: Re: 2.5 io statistics?
+Message-Id: <20030408152215.00b7beca.akpm@digeo.com>
+In-Reply-To: <20030408155858.GB27912@work.bitmover.com>
+References: <20030408155858.GB27912@work.bitmover.com>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030408180225.GC27912@work.bitmover.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Apr 2003 23:23:38.0707 (UTC) FILETIME=[E27FDA30:01C2FE25]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote about unreleased improvements to Bitkeeper:
-> [...] we're worried about the open source guys stealing them.
+Larry McVoy <lm@bitmover.com> wrote:
+>
+> Is there a writeup of the changes anywhere?  I'd like to port cstat to 2.5.
+> Cstat is sort of a netstat/vmstat combo:
+> 
+> load free cach swap pgin  pgou dk0 dk1 dk2 dk3 ipkt opkt  int  ctx  usr sys idl
+> 0.00  19M 562M  48M 4.0K   12K   0   0   0   0  137   25  267   83    0   0 100
+> 0.00  18M 563M  48M   0    12K   0   0   0   0  133   22  258   77    0   1  99
 
-Seriously, do you see it as "stealing" if someone mimics your best ideas?
+It's currently undergoing a bit of change.
 
-What if they believe they had the idea too, but you implemented it first..?
+In 2.5.67 all IO activity is monitored by opening and reading
+/sys/block/hda/stat.  This certainly doesn't scale when you have thousands of
+disks, so there's a patch in -mm which performs runtime aggregation of global
+stats and exposes that via /proc/diskstats.
 
-Personally if someone releases a piece of software that contains an
-idea similar to one that I've had, and they did a great job of
-implementing or just plain explaining the idea, and they did it before
-I even started, I _feel_ deep in my gut that I've lost something due
-to their action.
+So if you want to monitor the "global" IO activity, you don't need to open all
+those sysfs files.
 
-(Forget about philosophy and economics for a moment.  This message is
-about gut feelings and psychology.)
+I don't know if the aggregate disk stats patch is ready to go yet.  I'm
+awaiting testing results, conversion of userspace tools, etc.  I just plonked
+it in there and haven't heard anything since.
 
-In other words, if someone releases a great implementation of an idea
-long before I would have done so, even if I would never have gotten
-around to it, I _feel_ much the same as if the idea had been stolen
-from me.  They get the credit, I lost the opportunity for credit.
+As far as I know, neither the format of the sysfs file nor the format of
+/proc/diskstats is documented anywhere.
 
-This is obviously not a fair reflection on their great work - of
-course they deserve heaps of credit for their work.  It stills feels
-painful though.
+Perhaps Rick can prepare a description for inclusion under Dcumentation/
+somewhere?
 
-This horrible feeling is much worse when the other person insists that
-they alone had the idea and I, if I ever do anything with it later,
-will be accused of copying their superior thinking - something that I
-sometimes cannot disprove.
-
-When that happens, not only is my opportunity for credit lost, my
-integrity is doubted as well.
-
-To avoid that horrible consequential feeling, it seems safest not to
-build too much on the ideas of others, lest I be accused of "stealing".
-
-While that does make me feel a bit better in some ways, it does not
-seem a good way to live when I take a more objective perspective.
-Also, it does not seem very great in terms of bettering society and
-other other-person-oriented ideals.
-
-That's why I prefer the idea of "sharing" ideas, and promoting that as
-a way of thinking about ideas, so that thay are not perceived as owned
-by one person or another.  (Ironically, this is my response to painful
-feelings that I have due to a personal sense of certain ideas being
-owned by me but acted out by others).
-
-Although that does leave me feeling a little uneasy too, it is not
-such a horrible feeling as being on a knife-edge race to implement
-things just before the other person, just so I can be perceived as
-"the" originator of an idea.  Another reason I don't like that kind of
-race is that if I win, how must the person I beat feel?
-
-Well, this wasn't meant to be a rant about my personal psychological
-issues but it has turned into one :) The point was to illustrate
-underlying reasons why at least one person on this list believes it is
-better - kinder, fairer - to think of building upon another person's
-brilliantly expressed ideas as "sharing", rather than "stealing".
-
-For me, the principle of open source vs. closed source flows from
-that.  For me it has little to do with access to source.  (I can
-reverse engineer a binary if necessary, for the time being).  It's
-about permission, praise, encouragement, and ultimately happiness.
-
-Not that the issue is ever that simple.
-
-It also underlines the importance of granting credit where it's due -
-not just as a line in a copyright notice, but with full recognition of
-the work done to refine a difficult idea.  And, Larry, you're right
-that years of hard work can be cloned in a few days.  It does suck
-when someone does that and then takes all the credit for the result -
-whether that's personal or economic in form.
-
-I guess the economics of ideas, implementations and credit has plenty
-of maturing left to do.
-
--- Jamie

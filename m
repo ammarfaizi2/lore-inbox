@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273593AbRIQM06>; Mon, 17 Sep 2001 08:26:58 -0400
+	id <S273589AbRIQM0G>; Mon, 17 Sep 2001 08:26:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273588AbRIQM0R>; Mon, 17 Sep 2001 08:26:17 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:64273 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S273587AbRIQM0G>;
-	Mon, 17 Sep 2001 08:26:06 -0400
-Date: Mon, 17 Sep 2001 09:26:13 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
+	id <S273588AbRIQMZ4>; Mon, 17 Sep 2001 08:25:56 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:31251 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S273589AbRIQMZm>; Mon, 17 Sep 2001 08:25:42 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jan Harkes <jaharkes@cs.cmu.edu>, Linus Torvalds <torvalds@transmeta.com>
 Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <Pine.LNX.4.33.0109161738110.1054-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0109170923190.2990-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+Date: Mon, 17 Sep 2001 14:33:12 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010917003422Z16197-2757+375@humbolt.nl.linux.org> <Pine.LNX.4.33.0109161738110.1054-100000@penguin.transmeta.com> <20010917011157.A22989@cs.cmu.edu>
+In-Reply-To: <20010917011157.A22989@cs.cmu.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010917122559Z16382-2758+129@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Sep 2001, Linus Torvalds wrote:
+On September 17, 2001 07:11 am, Jan Harkes wrote:
+> As far as I can understand the _original_ design on which the current VM
+> is based, aging only occurs to pages on the active 'ring', the inactive
+> lists are basically LRU-ordered victim caches. Pages are unmapped before
+> they go to the inactive_dirty list and buffers are flushed before they
+> can go to inactive_clean.
+>
+> Ofcourse both the used_once changes and -pre10 sort of flushed these
+> designs down the toilet by putting mapped pages on the inactive_dirty
+> list and turning the active list into an LRU.
 
->  - truly anonymous pages (ie before they've been added to the swap cache)
->    are not necessarily going to behave as nicely as other pages. They
->    magically appear after VM scanning as a "1st reference", and I have a
->    reasonably good argument that says that they'll have been aged up and
->    down roughly the same number of times, which makes this more-or-less
->    correct. But it's still a theoretical argument, nothing more.
+The active list is *supposed* to approximate an LRU.  The inactive lists
+are not LRUs but queues, and have always been.
 
-This nicely points out the problem with page aging which Linux
-has always had. Pages which are referenced all the time by the
-processes using them STILL get aged down all the time.
+The inactive queues have always had both mapped and unmapped pages on
+them. The reason for unmapping a swap cache page page when putting it
+on the inactive queue is to give it some time to be rescued, since we
+otherwise have no information about its short-term activity because
+we have no way of accessing the hardware dirty bit given the physical
+page on the lru.  A second reason for unmapping it is, we don't have
+any choice.  The point where we place it on the inactive queue is the
+last point where we're able to find its userspace page table entry.
 
-I suspect that the biggest impact the reverse mapping patch
-has right now seems to be caused by fixing this behaviour and
-just aging up a page when it is referenced and down when it is
-not.
+<paid advertisement>
+We'd be able to avoid unmapping swap cache pages with Rik's rmap
+patch because we can easily check the hardware referenced bit before
+finally evicting the page.  Plus, and I hope I'm interpreting this
+correctly, we can allocate the swap slot and perform swap clustering
+at that time, greatly simplifying the swapout code.
+</paid advertisment> ;-)
 
->  - I don't like the lack of aging in 'reclaim_page()'. It will walk the
->    whole LRU list if required, which kind of defeats the purpose of having
->    reference bits and LRU on that list. The code _claims_ that it almost
->    always succeeds with the first page, but I don't see why it would. I
->    think that comment assumed that the inactive_clean list cannot have any
->    referenced pages, but that's never been true.
+Drifting a little further offtopic.  As far as I can tell, there's no 
+fundamental reason why we cannot make the current strategy work as 
+well as Rik's rmaps probably will, with some more blood, sweat and
+code study.  On the other hand, Matt Dillon, the reigning champion of
+virtual memory managment, was quite firm in stating that we should
+drop the current virtually scanning strategy in favor of 100%
+physical scanning as BSD uses, relying on reverse mapping.
 
-This depends on whether we do reactivation in __find_page_nolock()
-or if we leave the page alone and wait for kswapd to do that for
-us.
+   http://mail.nl.linux.org/linux-mm/2000-05/msg00419.html
+   (Matt Dillon holds forth on the design of BSD's memory manager)
 
-regards,
-
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+--
+Daniel

@@ -1,66 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264328AbTFVIr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 04:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264399AbTFVIr3
+	id S264091AbTFVIuh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 04:50:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTFVIuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 04:47:29 -0400
-Received: from mta02-svc.ntlworld.com ([62.253.162.42]:21940 "EHLO
-	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S264328AbTFVIrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 04:47:23 -0400
-Date: Sun, 22 Jun 2003 10:02:23 +0100
-From: Dave Bentham <dave.bentham@ntlworld.com>
-To: Adam Majer <adamm@galacticasoftware.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.21 crash
-Message-Id: <20030622100223.13c25efb.dave.bentham@ntlworld.com>
-In-Reply-To: <20030622034132.GA4854@galacticasoftware.com>
-References: <200306162148.h5GLmXsN002578@telekon.davesnet>
-	<20030622034132.GA4854@galacticasoftware.com>
-X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 22 Jun 2003 04:50:37 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:48070 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264091AbTFVIuf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 04:50:35 -0400
+Date: Sun, 22 Jun 2003 11:04:33 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>,
+       Andrew Morton <akpm@digeo.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Permit big console scrolls
+In-Reply-To: <200306210621.h5L6LbUo011422@hera.kernel.org>
+Message-ID: <Pine.GSO.4.21.0306221102430.869-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Jun 2003 22:41:32 -0500
-Adam Majer <adamm@galacticasoftware.com> wrote:
-
-> On Mon, Jun 16, 2003 at 10:48:33PM +0100, dave.bentham@ntlworld.com
-> wrote:
-> > Hello
-> > 
-> > But there seems to be a major failure when the computer just stops
-> > with no warning. Two scenarios that seem to repeat it include
-> > starting Loki's Heretic2 off, and mounting the CDRW drive via
-> > WindowMaker dock app. I cannot do anything when this happens; can't
-> > hotkey out of X, can't telnet to it from my other networked PC. I
-> > have to power down and back up.
+On Sat, 21 Jun 2003, Linux Kernel Mailing List wrote:
+> ChangeSet 1.1381, 2003/06/20 22:14:31-07:00, akpm@digeo.com
 > 
-> There was something like this posted on the list a few days ago.
-> Someone said that it has to do with IDE-SCSI timing or what not. That
-> is, try if you can reproduce it without the ide-scsi driver in the
-> kernel..
-
-You may be right - I turned off SCSI support in the kernel and removed
-the'hdd=ide-scsi' boot appendage and I could mount the CDRW ok.
-
-I'll try and find the history of this known bug.
-
+> 	[PATCH] Permit big console scrolls
+> 	
+> 	From: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>
+> 	
+> 	Changes the new console scrolling ioctl to permit distances greater than
+> 	+127/-128.
 > 
-> > It seems to be a few seconds after the trigger that the lock up
-> > occurs, and also it starts flashing the keyboard Caps Lock and
-> > Scroll Lock LEDs in step at about 1 Hz. I'm sure its trying to tell
-> > me something...
 > 
-> That means the kernel detected something evil (oops caused by null
-> pointer access, etc...). Sicne the leds are still flashing, at least
-> the kernel is not totally dead. :)
+> # This patch includes the following deltas:
+> #	           ChangeSet	1.1380  -> 1.1381 
+> #	   drivers/char/vt.c	1.52    -> 1.53   
+> #
 > 
+>  vt.c |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletion(-)
+> 
+> 
+> diff -Nru a/drivers/char/vt.c b/drivers/char/vt.c
+> --- a/drivers/char/vt.c	Fri Jun 20 23:21:41 2003
+> +++ b/drivers/char/vt.c	Fri Jun 20 23:21:41 2003
+> @@ -75,6 +75,7 @@
+>   */
+>  
+>  #include <linux/module.h>
+> +#include <linux/types.h>
+>  #include <linux/sched.h>
+>  #include <linux/tty.h>
+>  #include <linux/tty_flip.h>
+> @@ -2279,7 +2280,7 @@
+>  			ret = fg_console;
+>  			break;
+>  		case TIOCL_SCROLLCONSOLE:
+> -			if (get_user(lines, (char *)arg+1)) {
+						    ^^^^^
+> +			if (get_user(lines, (s32 *)((char *)arg+4))) {
+							    ^^^^^
+>  				ret = -EFAULT;
+>  			} else {
+>  				scrollfront(lines);
 
-It may as well be totally dead!!!
+Why was the `arg+1' changed to `arg+4'? Do we really want to skip 12 bytes?
 
-Thanks
-Dave
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

@@ -1,19 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVAPIEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262454AbVAPIHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbVAPIEo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 03:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbVAPIEn
+	id S262454AbVAPIHz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 03:07:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbVAPIHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 03:04:43 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21775 "HELO
+	Sun, 16 Jan 2005 03:07:37 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:34575 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262453AbVAPIDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 03:03:38 -0500
-Date: Sun, 16 Jan 2005 09:03:30 +0100
+	id S262454AbVAPIGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 03:06:11 -0500
+Date: Sun, 16 Jan 2005 09:06:08 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] i386/kernel/i387.c: misc cleanups
-Message-ID: <20050116080330.GD4274@stusta.de>
+To: mingo@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] i386 io_apic.c: make two variables static
+Message-ID: <20050116080608.GF4274@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,86 +22,29 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below contains the following cleanups:
-- make a needlessly global variable static
-- #if 0 four unused global functions
-
-
-diffstat output:
- arch/i386/kernel/i387.c |    8 +++++++-
- include/asm-i386/i387.h |    6 ------
- 2 files changed, 7 insertions(+), 7 deletions(-)
+The aptch below makes two needlessly global variables static.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.11-rc1-mm1-full/include/asm-i386/i387.h.old	2005-01-16 04:32:43.000000000 +0100
-+++ linux-2.6.11-rc1-mm1-full/include/asm-i386/i387.h	2005-01-16 04:34:41.000000000 +0100
-@@ -17,7 +17,6 @@
- #include <asm/sigcontext.h>
- #include <asm/user.h>
+--- linux-2.6.11-rc1-mm1-full/arch/i386/kernel/io_apic.c.old	2005-01-16 04:38:36.000000000 +0100
++++ linux-2.6.11-rc1-mm1-full/arch/i386/kernel/io_apic.c	2005-01-16 04:38:57.000000000 +0100
+@@ -264,7 +264,7 @@
+ static int irqbalance_disabled = IRQBALANCE_CHECK_ARCH;
+ static int physical_balance = 0;
  
--extern unsigned long mxcsr_feature_mask;
- extern void mxcsr_feature_mask_init(void);
- extern void init_fpu(struct task_struct *);
- /*
-@@ -86,13 +85,8 @@
-  */
- extern unsigned short get_fpu_cwd( struct task_struct *tsk );
- extern unsigned short get_fpu_swd( struct task_struct *tsk );
--extern unsigned short get_fpu_twd( struct task_struct *tsk );
- extern unsigned short get_fpu_mxcsr( struct task_struct *tsk );
+-struct irq_cpu_info {
++static struct irq_cpu_info {
+ 	unsigned long * last_irq;
+ 	unsigned long * irq_delta;
+ 	unsigned long irq;
+@@ -286,7 +286,7 @@
+ #define BALANCED_IRQ_MORE_DELTA		(HZ/10)
+ #define BALANCED_IRQ_LESS_DELTA		(HZ)
  
--extern void set_fpu_cwd( struct task_struct *tsk, unsigned short cwd );
--extern void set_fpu_swd( struct task_struct *tsk, unsigned short swd );
--extern void set_fpu_twd( struct task_struct *tsk, unsigned short twd );
--
- /*
-  * Signal frame handlers...
-  */
---- linux-2.6.11-rc1-mm1-full/arch/i386/kernel/i387.c.old	2005-01-16 04:33:07.000000000 +0100
-+++ linux-2.6.11-rc1-mm1-full/arch/i386/kernel/i387.c	2005-01-16 04:35:11.000000000 +0100
-@@ -24,7 +24,7 @@
- #define HAVE_HWFP 1
- #endif
+-long balanced_irq_interval = MAX_BALANCED_IRQ_INTERVAL;
++static long balanced_irq_interval = MAX_BALANCED_IRQ_INTERVAL;
  
--unsigned long mxcsr_feature_mask = 0xffffffff;
-+static unsigned long mxcsr_feature_mask = 0xffffffff;
- 
- void mxcsr_feature_mask_init(void)
- {
-@@ -175,6 +175,7 @@
- 	}
- }
- 
-+#if 0
- unsigned short get_fpu_twd( struct task_struct *tsk )
- {
- 	if ( cpu_has_fxsr ) {
-@@ -183,6 +184,7 @@
- 		return (unsigned short)tsk->thread.i387.fsave.twd;
- 	}
- }
-+#endif  /*  0  */
- 
- unsigned short get_fpu_mxcsr( struct task_struct *tsk )
- {
-@@ -193,6 +195,8 @@
- 	}
- }
- 
-+#if 0
-+
- void set_fpu_cwd( struct task_struct *tsk, unsigned short cwd )
- {
- 	if ( cpu_has_fxsr ) {
-@@ -220,6 +224,8 @@
- 	}
- }
- 
-+#endif  /*  0  */
-+
- /*
-  * FXSR floating point environment conversions.
-  */
+ static unsigned long move(int curr_cpu, cpumask_t allowed_mask,
+ 			unsigned long now, int direction)
 

@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262739AbREVTZj>; Tue, 22 May 2001 15:25:39 -0400
+	id <S262741AbREVTdt>; Tue, 22 May 2001 15:33:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262740AbREVTZ3>; Tue, 22 May 2001 15:25:29 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:42492 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262739AbREVTZN>;
-	Tue, 22 May 2001 15:25:13 -0400
-Date: Tue, 22 May 2001 15:25:10 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Guest section DW <dwguest@win.tue.nl>
-cc: Oliver Xymoron <oxymoron@waste.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] struct char_device
-In-Reply-To: <20010522212238.A11203@win.tue.nl>
-Message-ID: <Pine.GSO.4.21.0105221523550.15685-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262742AbREVTdj>; Tue, 22 May 2001 15:33:39 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:58013 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262741AbREVTd1>;
+	Tue, 22 May 2001 15:33:27 -0400
+Date: Tue, 22 May 2001 21:33:23 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200105221933.VAA78546.aeb@vlet.cwi.nl>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [patch] s_maxbytes handling
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus writes:
 
+	0 is EOF _for_reads_. For writes it is not very well defined
 
-On Tue, 22 May 2001, Guest section DW wrote:
+Hmm.
 
-> One often has to go through all occurrences of a variable or
-> field of a struct. That is much easier with cd_hash and cd_dev
-> than with hash and dev.
-> 
-> No, it is a good habit, these prefixes, even though it is no longer
-> necessary because of the C compiler. 
+	So -EFBIG is certainly the preferable return value,
 
-True, except for the stuff that should remain local.
+Yes. The Austin 6th draft writes
 
+EFBIG:
+An attempt was made to write a file that exceeds the implementation-defined
+maximum file size  or the process' file size limit, and there was no room for 
+any bytes to be written.
+
+Andries

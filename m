@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbTETVmo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 17:42:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbTETVmo
+	id S261265AbTETVoH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 17:44:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbTETVoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 17:42:44 -0400
-Received: from node-d-e642.a2000.nl ([62.195.230.66]:16394 "HELO 62.195.230.66")
-	by vger.kernel.org with SMTP id S261241AbTETVmn (ORCPT
+	Tue, 20 May 2003 17:44:07 -0400
+Received: from 213-97-199-90.uc.nombres.ttd.es ([213.97.199.90]:8631 "HELO
+	fargo") by vger.kernel.org with SMTP id S261265AbTETVoG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 17:42:43 -0400
-From: lhoSara Elisa <rmsara.elisa@go.ro>
-To: linux-kernel@vger.kernel.org
-Subject: Sara ed Elisa.... la nostra Video chat sexy.....e non solo !!!!!! mad
+	Tue, 20 May 2003 17:44:06 -0400
+Date: Wed, 21 May 2003 00:02:02 +0200
+From: David =?iso-8859-15?Q?G=F3mez?= <david@pleyades.net>
+To: "Feldman, Scott" <scott.feldman@intel.com>
+Cc: Hugo Mills <hugo-lkml@carfax.org.uk>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: e100 driver
+Message-ID: <20030520220202.GA15628@fargo>
+Mail-Followup-To: "Feldman, Scott" <scott.feldman@intel.com>,
+	Hugo Mills <hugo-lkml@carfax.org.uk>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <C6F5CF431189FA4CBAEC9E7DD5441E010107D71E@orsmsx402.jf.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Tue, 20 May 2003 23.55.41 +0200
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-Message-Id: <S261241AbTETVmn/20030520214243Z+12962@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E010107D71E@orsmsx402.jf.intel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ciao, 
+Hi Scott,
 
-i nostri nomi sono Sara ed Elisa, 
-abbiamo 23 anni.
+> > <31>May 19 09:05:42 kernel: hw tcp v4 csum failed
+> > <31>May 19 09:11:11 kernel: icmp v4 hw csum failure
+> 
+> David/Hugo, can you try turning off Rx checksum offloading in e100?  Set the
+> module parameter XsumRX=0 to turn it off.  
 
-Studiamo economia aziendale, 
-lavoriamo partime come fotomodelle 
-e ora anche come sexy 
-chattiste nella nostra Videochat
+I reloaded again the e100 module with this parameter. Let's see how it performs.
+Thanks for the advice ;)
 
-http://213.157.187.103/sara/index.htm
+I'll let you know if checksum errors doesn't show anymore.
 
-Vuoi conoscerci? 
-Vuoi parlare con noi? 
-Vuoi vederci in diretta sul tuo computer? 
-Collegati alla nostra VIDEOCHAT
 
-Viene a trovarci
-Sara ed Elisa
-http://213.157.187.103/sara/index.htm
+-- 
+David Gómez
 
-PS: i contenuti trattati sono adatti ad un pubblico
-adulto. Per accedere a questo servizio devi essere maggiorenne.
-
-fcyxpcpvcejkvjwmofeufxshqg
+"The question of whether computers can think is just like the question of
+ whether submarines can swim." -- Edsger W. Dijkstra

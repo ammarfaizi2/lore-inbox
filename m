@@ -1,70 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267650AbRGQXmq>; Tue, 17 Jul 2001 19:42:46 -0400
+	id <S267564AbRGRAah>; Tue, 17 Jul 2001 20:30:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267636AbRGQXmg>; Tue, 17 Jul 2001 19:42:36 -0400
-Received: from gadolinium.btinternet.com ([194.73.73.111]:22735 "EHLO
-	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
-	id <S267708AbRGQXmW>; Tue, 17 Jul 2001 19:42:22 -0400
-Date: Wed, 18 Jul 2001 00:42:31 +0000 (GMT)
-From: James Stevenson <mistral@stev.org>
-To: "Jorg Pitts (306170)" <jorgp@bartnet.net>
-cc: Linux-Kernel-Owner <linux-kernel@vger.kernel.org>
-Subject: RE: serious cd writer kernel bug 2.4.x
-In-Reply-To: <GBEALFKJGAFHFMBNFHAEGEBFCLAA.jorgp@bartnet.net>
-Message-ID: <Pine.LNX.4.30.0107180038180.2075-100000@cyrix.stev.org>
+	id <S267670AbRGRAa0>; Tue, 17 Jul 2001 20:30:26 -0400
+Received: from isis.its.uow.edu.au ([130.130.68.21]:4237 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S267564AbRGRAaV>; Tue, 17 Jul 2001 20:30:21 -0400
+Message-ID: <3B54D8FB.F5EA4B57@uow.edu.au>
+Date: Wed, 18 Jul 2001 10:31:55 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Lessem <Jeff.Lessem@Colorado.EDU>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Too much memory causes crash when reading/writing to disk
+In-Reply-To: Andrew Morton's message of Wed, 18 Jul 2001 00:00:54 +1000.,
+		<200107171322.HAA245907@ibg.colorado.edu> <3B544516.FF6643E8@uow.edu.au> <200107171615.KAA254078@ibg.colorado.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Jeff Lessem wrote:
+> 
+> >For interest's sake, could you please try booting with the
+> >`noapic' option, and also send another NMI watchdog trace?
+> 
+> I tried that, but the Symbios SCSI controller freaks out with noapic.
+> I can be more detailed if that would be useful.
 
-> I experience almost the exact same thing with my cd-rw.
-> PlexWriter 8/4/32A, does the same thing, and if I compile the modules
-> ide-scsi and scsi
+Please do - that sounds like a strange interaction.
 
-> directly into the kernel, whenever I access the cd-rw at all (try to mount a
-> valid filesystem) entire system locks and have to hard reboot.. I can access
+> I can also try a
+> non-smp kernel and run the machine with 1 processor and 8GB, if you
+> think that would be useful in solving the problem.
 
-i am not running modules but the ide-scsi stuff is compiled into the
-kernel both drives are running under the scsi-emu.
-can you also access the cd rom fine under linux.
+May as well - all data is good data.
 
-the cd-rom works fine for me
-as soon as i touch the writer it dies.
+Can you please send a couple more ksymoops traces from the
+NMI watchdog trap?
 
-> boot). I am using stock Mandrake 8.0 with 2.4.6-ac2 kernel. I can run
-> cdrecord --scanbus and it sees the cd-rw fine
+Have you tried 2.2.19, 2.4.4 and -ac kernels? 
 
-i am also running mandrake 8.0 and cdrecord works up to that point
-i have seen it crash under.
-
-2.4.3
-2.4.4
-2.4.5
-2.4.5-ac15
-2.4.6
-2.4.6-ac5
-
-i have not tried earlery kernels for various other resons.
-
-> hda - disk 1
-> hdb - disk 2
-> hdc - cd-rom
-> hdd - cd-rw
-
-almost like that but its
-hda - disk 1
-hdb - disk 2
-hdc - cd writer
-hdd - cd rom
-
-
--- 
----------------------------------------------
-Web: http://www.stev.org
-Mobile: +44 07779080838
-E-Mail: mistral@stev.org
- 12:30am  up 35 min,  6 users,  load average: 1.90, 2.32, 2.30
-
+-

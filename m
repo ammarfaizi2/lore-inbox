@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262546AbTCMVDJ>; Thu, 13 Mar 2003 16:03:09 -0500
+	id <S262543AbTCMVLh>; Thu, 13 Mar 2003 16:11:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262547AbTCMVDI>; Thu, 13 Mar 2003 16:03:08 -0500
-Received: from packet.digeo.com ([12.110.80.53]:10459 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262546AbTCMVDH>;
-	Thu, 13 Mar 2003 16:03:07 -0500
-Date: Thu, 13 Mar 2003 13:08:24 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: thunder7@xs4all.nl
-Cc: linux-fbdev-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.64 tdfxfb problems: 'fb: can't remap 3Dfx VooDoo 5 register
- area'
-Message-Id: <20030313130824.5ab1673e.akpm@digeo.com>
-In-Reply-To: <20030313155829.GA1338@middle.of.nowhere>
-References: <20030313155829.GA1338@middle.of.nowhere>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S262547AbTCMVLh>; Thu, 13 Mar 2003 16:11:37 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:42758 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id <S262543AbTCMVLg>;
+	Thu, 13 Mar 2003 16:11:36 -0500
+Date: Thu, 13 Mar 2003 22:21:46 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: Rusty Lynch <rusty@linux.co.intel.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Watchdog-Drivers
+Message-ID: <20030313212146.GC679@alpha.home.local>
+References: <1046796116.1351.4.camel@vmhack> <20030313232437.A24873@medelec.uia.ac.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Mar 2003 21:13:35.0782 (UTC) FILETIME=[68DA7C60:01C2E9A5]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030313232437.A24873@medelec.uia.ac.be>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jurriaan <thunder7@xs4all.nl> wrote:
->
-> When I try to use the tdfxfb framebuffer module with the 2.5.64 kernel,
-> I get the following message:
-> 
-> fb: Can't remap 3Dfx Voodoo5 register area.
-> 
-> Is there any way to solve this? I tried google, but I can't find any
-> solution for this :-(
-> 
-> If I compile the tdfxfb framebuffer into the kernel, I get an oops
-> during booting with the backlog below. That is rather less nice, but
-> even as a module it won't work.
-> 
-> Thanks for your attention,
-> Jurriaan
-> 
-> remap_area_pages
-> get_vm_Area
-> __ioremap
-> rioremap_nocache
-> sysfs_mkdir
-> pci_device_probe
-> bus_match
-> driver_attach
-> bus_add_driver
-> driver_register
-> proc_register
-> pci_register_driver
-> init
-> init
+Hello !
 
-This looks like the sysfs oops in 2.5.64 plus assorted stack gunk.  Suggest
-you retest with 2.5.64 plus
+On Thu, Mar 13, 2003 at 11:24:37PM +0100, Wim Van Sebroeck wrote:
+ 
+> I personnaly think we should go for multiple watchdog_driver devices on the same system.
+> (Reason why: suppose you have a multi-processor system where each processor-board would have it's own CPU it's own external cache and it's own watchdog, in this case you would need multiple watchdog devices on the same system).
 
-http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/cset-1.1068.1.17-to-1.1104.txt.gz
+I have another use for this : for remote management, I'd like to have a
+short-time watchdog and a long-time watchdog. The short time watchdog would
+avoid remote users to be annoyed by a system hang which takes too long a time
+to reboot, while the long one would allow me to recover from a wrong
+manipulation in a time shorter than what it takes to get on the remote site :
+when I do something risky (network restart, fw...), I simply kill the long
+watchdog daemon so that I do my work while the counter still runs. If I shoot
+myself in the foot, it will end in a spontaneous reboot. But I don't want the
+system to always run on such a slow timer, reason for the second watchdog.
 
+Cheers,
+Willy
 

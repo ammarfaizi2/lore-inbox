@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265493AbUBAWw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 17:52:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265516AbUBAWw1
+	id S265494AbUBAXEN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 18:04:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265504AbUBAXEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 17:52:27 -0500
-Received: from smtp09.auna.com ([62.81.186.19]:47865 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id S265493AbUBAWw0 (ORCPT
+	Sun, 1 Feb 2004 18:04:13 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:31207 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S265494AbUBAXEL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 17:52:26 -0500
-Date: Sun, 1 Feb 2004 23:52:24 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Greg KH <greg@kroah.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: hal daemon and ide-floppy
-Message-ID: <20040201225224.GA4001@werewolf.able.es>
-References: <20040126215036.GA6906@kroah.com>
+	Sun, 1 Feb 2004 18:04:11 -0500
+Date: Mon, 2 Feb 2004 00:04:09 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Markus =?iso-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+Cc: Paul Jakma <paul@clubi.ie>, Christian Borntraeger <kernel@borntraeger.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Uptime counter
+Message-ID: <20040201230409.GH15492@khan.acc.umu.se>
+Mail-Followup-To: Markus =?iso-8859-1?Q?H=E4stbacka?= <midian@ihme.org>,
+	Paul Jakma <paul@clubi.ie>,
+	Christian Borntraeger <kernel@borntraeger.net>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0402012235270.1071@fogarty.jakma.org> <Pine.LNX.4.44.0402020058010.7840-100000@midi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20040126215036.GA6906@kroah.com> (from greg@kroah.com on Mon, Jan 26, 2004 at 22:50:36 +0100)
-X-Mailer: Balsa 2.0.16
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0402020058010.7840-100000@midi>
+User-Agent: Mutt/1.4.1i
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
+On Mon, Feb 02, 2004 at 12:59:26AM +0200, Markus Hästbacka wrote:
+> On Sun, 1 Feb 2004, Paul Jakma wrote:
+> >
+> > 2.0? 2.2 has been out more than long enough for boxes running such
+> > kernels to have rolled over several times already.
+> >
+> Well, not for boxen with 2.0.40-rc8 (Check release date @ kernel.org and
+> be suprised :-)
 
-It looks like haldaemon is polling my zip to see inserted disks
-(it is the only hadware I have that uses ide-floppy).
-I get a message like this
+And for more amusement, check release-date for 2.0.40-rc6 first, then
+-rc7...
 
-Feb  1 23:50:15 werewolf kernel: ide-floppy: hdd: I/O error, pc =  0, key =  2, asc = 3a, ascq =  0
-Feb  1 23:50:15 werewolf kernel: ide-floppy: hdd: I/O error, pc = 1b, key =  2, asc = 3a, ascq =  0
-Feb  1 23:50:15 werewolf kernel: hdd: No disk in drive
+> > security: if the box concerned is heavily firewalled and partitioned
+> > away from rest of internet, whats the problem? :)
+> >
+> Nah, it's a webserver!
 
-every 2 seconds, both in messages and syslog.
-They can grow very large after some uptime ;)
+Cool.  I'm assuming it's NOT an SMP-machine?
 
-What is the policy here ? Kill the message in ide-floppy.c ?
-I suppose there can be some other similat messages around there...
 
-TIA
-
+Regards: David Weinehall
 -- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 10.0 (Cooker) for i586
-Linux 2.6.2-rc2-jam1 (gcc 3.3.2 (Mandrake Linux 10.0 3.3.2-4mdk))
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

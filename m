@@ -1,158 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267246AbTBIMBE>; Sun, 9 Feb 2003 07:01:04 -0500
+	id <S267227AbTBIMI7>; Sun, 9 Feb 2003 07:08:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267243AbTBIMAV>; Sun, 9 Feb 2003 07:00:21 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:5968
+	id <S267260AbTBIMId>; Sun, 9 Feb 2003 07:08:33 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:12112
 	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267246AbTBIL6c>; Sun, 9 Feb 2003 06:58:32 -0500
-Date: Sun, 9 Feb 2003 07:07:16 -0500 (EST)
+	id <S267227AbTBIL7y>; Sun, 9 Feb 2003 06:59:54 -0500
+Date: Sun, 9 Feb 2003 07:08:39 -0500 (EST)
 From: Zwane Mwaikambo <zwane@holomorphy.com>
 X-X-Sender: zwane@montezuma.mastecende.com
 To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2.5][11/15] smp_call_function/_on_cpu - s390x
-Message-ID: <Pine.LNX.4.50.0302090653540.2812-100000@montezuma.mastecende.com>
+Subject: [PATCH][2.5][15/15] smp_call_function/_on_cpu - fallout
+Message-ID: <Pine.LNX.4.50.0302090701410.2812-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- smp.c |   69 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--------
- 1 files changed, 61 insertions(+), 8 deletions(-)
+This patch fixes smp_call_function users in none architecture specific 
+code.
 
-Index: linux-2.5.59-bk/arch/s390x/kernel/smp.c
+ drivers/char/agp/agp.h   |    2 +-
+ drivers/s390/char/sclp.c |    2 +-
+ drivers/s390/net/iucv.c  |    4 ++--
+ fs/buffer.c              |    2 +-
+ mm/slab.c                |    2 +-
+ 5 files changed, 6 insertions(+), 6 deletions(-)
+
+Index: linux-2.5.59-bk/drivers/char/agp/agp.h
 ===================================================================
-RCS file: /build/cvsroot/linux-2.5.59-bk/arch/s390x/kernel/smp.c,v
+RCS file: /build/cvsroot/linux-2.5.59-bk/drivers/char/agp/agp.h,v
 retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 smp.c
---- linux-2.5.59-bk/arch/s390x/kernel/smp.c	9 Feb 2003 09:08:34 -0000	1.1.1.1
-+++ linux-2.5.59-bk/arch/s390x/kernel/smp.c	9 Feb 2003 09:23:30 -0000
-@@ -101,13 +101,10 @@
-  * in the system.
-  */
+diff -u -r1.1.1.1 agp.h
+--- linux-2.5.59-bk/drivers/char/agp/agp.h	9 Feb 2003 09:08:43 -0000	1.1.1.1
++++ linux-2.5.59-bk/drivers/char/agp/agp.h	9 Feb 2003 09:23:29 -0000
+@@ -42,7 +42,7 @@
  
--int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
--			int wait)
- /*
-  * [SUMMARY] Run a function on all other CPUs.
-  * <func> The function to run. This must be fast and non-blocking.
-  * <info> An arbitrary pointer to pass to the function.
-- * <nonatomic> currently unused.
-  * <wait> If true, wait (atomically) until function has completed on other CPUs.
-  * [RETURNS] 0 on success, else a negative status code. Does not return until
-  * remote CPUs are nearly ready to execute <<func>> or are or have executed.
-@@ -115,6 +112,8 @@
-  * You must not call this function with disabled interrupts or from a
-  * hardware interrupt handler or from a bottom half handler.
-  */
-+
-+int smp_call_function (void (*func) (void *info), void *info, int wait)
+ static void __attribute__((unused)) global_cache_flush(void)
  {
- 	struct call_data_struct data;
- 	int cpus = num_online_cpus()-1;
-@@ -147,6 +146,60 @@
- 	return 0;
+-	if (smp_call_function(ipi_handler, NULL, 1, 1) != 0)
++	if (smp_call_function(ipi_handler, NULL, 1) != 0)
+ 		panic(PFX "timed out waiting for the other CPUs!\n");
+ 	flush_agp_cache();
+ }
+Index: linux-2.5.59-bk/drivers/s390/char/sclp.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.59-bk/drivers/s390/char/sclp.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 sclp.c
+--- linux-2.5.59-bk/drivers/s390/char/sclp.c	9 Feb 2003 09:08:59 -0000	1.1.1.1
++++ linux-2.5.59-bk/drivers/s390/char/sclp.c	9 Feb 2003 09:23:29 -0000
+@@ -481,7 +481,7 @@
+ do_machine_quiesce(void)
+ {
+ 	cpu_quiesce_map = cpu_online_map;
+-	smp_call_function(do_load_quiesce_psw, NULL, 0, 0);
++	smp_call_function(do_load_quiesce_psw, NULL, 0);
+ 	do_load_quiesce_psw(NULL);
+ }
+ #else
+Index: linux-2.5.59-bk/drivers/s390/net/iucv.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.59-bk/drivers/s390/net/iucv.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 iucv.c
+--- linux-2.5.59-bk/drivers/s390/net/iucv.c	9 Feb 2003 09:09:00 -0000	1.1.1.1
++++ linux-2.5.59-bk/drivers/s390/net/iucv.c	9 Feb 2003 09:23:29 -0000
+@@ -620,7 +620,7 @@
+ 	if (smp_processor_id() == 0)
+ 		iucv_declare_buffer_cpu0(&b2f0_result);
+ 	else
+-		smp_call_function(iucv_declare_buffer_cpu0, &b2f0_result, 0, 1);
++		smp_call_function(iucv_declare_buffer_cpu0, &b2f0_result, 1);
+ 	iucv_debug(1, "Address of EIB = %p", iucv_external_int_buffer);
+ 	if (b2f0_result == 0x0deadbeef)
+ 	    b2f0_result = 0xaa;
+@@ -642,7 +642,7 @@
+ 		if (smp_processor_id() == 0)
+ 			iucv_retrieve_buffer_cpu0(0);
+ 		else
+-			smp_call_function(iucv_retrieve_buffer_cpu0, 0, 0, 1);
++			smp_call_function(iucv_retrieve_buffer_cpu0, NULL, 1);
+ 		declare_flag = 0;
+ 	}
+ 	iucv_debug(1, "exiting");
+Index: linux-2.5.59-bk/fs/buffer.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.59-bk/fs/buffer.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 buffer.c
+--- linux-2.5.59-bk/fs/buffer.c	9 Feb 2003 09:09:10 -0000	1.1.1.1
++++ linux-2.5.59-bk/fs/buffer.c	9 Feb 2003 09:23:29 -0000
+@@ -1408,7 +1408,7 @@
+ {
+ 	preempt_disable();
+ 	invalidate_bh_lru(NULL);
+-	smp_call_function(invalidate_bh_lru, NULL, 1, 1);
++	smp_call_function(invalidate_bh_lru, NULL, 1);
+ 	preempt_enable();
  }
  
-+/*
-+ * smp_call_function_on_cpu - Runs func on all processors in the mask
-+ *
-+ * @func: The function to run. This must be fast and non-blocking.
-+ * @info: An arbitrary pointer to pass to the function.
-+ * @wait: If true, wait (atomically) until function has completed on other CPUs.
-+ * @mask The bitmask of CPUs to call the function
-+ * 
-+ * Returns 0 on success, else a negative status code. Does not return until
-+ * remote CPUs are nearly ready to execute func or have executed it.
-+ *
-+ * You must not call this function with disabled interrupts or from a
-+ * hardware interrupt handler or from a bottom half handler.
-+ */
-+
-+int smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
-+				unsigned long mask)
-+{
-+	struct call_data_struct data;
-+	int cpu, i, num_cpus = hweight64(mask);
-+
-+	/* FIXME: get cpu lock -hc */
-+	if (num_cpus == 0)
-+		return 0;
-+
-+	cpu = get_cpu();
-+	data.func = func;
-+	data.info = info;
-+	atomic_set(&data.started, 0);
-+	data.wait = wait;
-+	if (wait)
-+		atomic_set(&data.finished, 0);
-+
-+	spin_lock(&call_lock);
-+	call_data = &data;
-+	/* Send a message to all other CPUs and wait for them to respond */
-+	for (i = 0; i < NR_CPUS; i++) {
-+		if (cpu_online(i) && ((1UL << i) & mask))
-+			smp_ext_bitcall(i, ec_call_function);
-+	}
-+
-+	/* Wait for response */
-+	while (atomic_read(&data.started) != num_cpus)
-+		barrier();
-+
-+	if (wait)
-+		while (atomic_read(&data.finished) != num_cpus)
-+			barrier();
-+
-+	spin_unlock(&call_lock);
-+	put_cpu_no_resched();
-+	return 0;
-+}
-+
- static inline void do_send_stop(void)
- {
-         u32 dummy;
-@@ -227,7 +280,7 @@
- void machine_restart_smp(char * __unused) 
- {
- 	cpu_restart_map = cpu_online_map;
--        smp_call_function(do_machine_restart, NULL, 0, 0);
-+        smp_call_function(do_machine_restart, NULL, 0);
- 	do_machine_restart(NULL);
- }
+Index: linux-2.5.59-bk/mm/slab.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.59-bk/mm/slab.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 slab.c
+--- linux-2.5.59-bk/mm/slab.c	9 Feb 2003 09:09:35 -0000	1.1.1.1
++++ linux-2.5.59-bk/mm/slab.c	9 Feb 2003 09:23:29 -0000
+@@ -1121,7 +1121,7 @@
+ 	func(arg);
+ 	local_irq_enable();
  
-@@ -246,7 +299,7 @@
- 
- void machine_halt_smp(void)
- {
--        smp_call_function(do_machine_halt, NULL, 0, 0);
-+        smp_call_function(do_machine_halt, NULL, 0);
- 	do_machine_halt(NULL);
- }
- 
-@@ -265,7 +318,7 @@
- 
- void machine_power_off_smp(void)
- {
--        smp_call_function(do_machine_power_off, NULL, 0, 0);
-+        smp_call_function(do_machine_power_off, NULL, 0);
- 	do_machine_power_off(NULL);
- }
- 
-@@ -383,7 +436,7 @@
- 	parms.end_ctl = cr;
- 	parms.orvals[cr] = 1 << bit;
- 	parms.andvals[cr] = -1L;
--	smp_call_function(smp_ctl_bit_callback, &parms, 0, 1);
-+	smp_call_function(smp_ctl_bit_callback, &parms, 1);
-         __ctl_set_bit(cr, bit);
- }
- 
-@@ -397,7 +450,7 @@
- 	parms.end_ctl = cr;
- 	parms.orvals[cr] = 0;
- 	parms.andvals[cr] = ~(1L << bit);
--	smp_call_function(smp_ctl_bit_callback, &parms, 0, 1);
-+	smp_call_function(smp_ctl_bit_callback, &parms, 1);
-         __ctl_clear_bit(cr, bit);
+-	if (smp_call_function(func, arg, 1, 1))
++	if (smp_call_function(func, arg, 1))
+ 		BUG();
  }
  

@@ -1,144 +1,180 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVBIROr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbVBIRVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbVBIROr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 12:14:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbVBIROq
+	id S261853AbVBIRVm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 12:21:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVBIRVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 12:14:46 -0500
-Received: from lug-owl.de ([195.71.106.12]:17844 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S261852AbVBIROj (ORCPT
+	Wed, 9 Feb 2005 12:21:42 -0500
+Received: from styx.suse.cz ([82.119.242.94]:13969 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261853AbVBIRVe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 12:14:39 -0500
-Date: Wed, 9 Feb 2005 18:14:38 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: LKML <linux-kernel@vger.kernel.org>,
-       Linux-Input <linux-input@atrey.karlin.mff.cuni.cz>
-Cc: Paulo Marques <pmarques@grupopie.com>, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [RFC/RFT] [patch] Elo serial touchscreen driver
-Message-ID: <20050209171438.GI10594@lug-owl.de>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>,
-	Linux-Input <linux-input@atrey.karlin.mff.cuni.cz>,
-	Paulo Marques <pmarques@grupopie.com>,
-	Vojtech Pavlik <vojtech@suse.cz>
-References: <20050208164227.GA9790@ucw.cz> <420A0ECF.3090406@grupopie.com> <20050209170015.GC16670@ucw.cz>
+	Wed, 9 Feb 2005 12:21:34 -0500
+Date: Wed, 9 Feb 2005 18:19:21 +0100
+From: Jirka Bohac <jbohac@suse.cz>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: Jirka Bohac <jbohac@suse.cz>, lkml <linux-kernel@vger.kernel.org>,
+       vojtech@suse.cz, roman@augan.com, hch@nl.linux.org
+Subject: Re: [rfc] keytables - the new keycode->keysym mapping
+Message-ID: <20050209171921.GB11359@dwarf.suse.cz>
+References: <20050209132654.GB8343@dwarf.suse.cz> <20050209152740.GD12100@apps.cwi.nl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2MeieX8lS1K8IJ9W"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050209170015.GC16670@ucw.cz>
-X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050209152740.GD12100@apps.cwi.nl>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 09, 2005 at 04:27:40PM +0100, Andries Brouwer wrote:
+> On Wed, Feb 09, 2005 at 02:26:54PM +0100, Jirka Bohac wrote:
+> > Hi folks,
+> > 
+> > find attached a patch that improves the keycode to keysym mapping in the
+> > kernel. The current system has its limits, not allowing to implement keyboard
+> > maps that people in different countries are used to. This patch tries to solve
+> > this. Please, tell me what you think, and merge if possible.
+> > 
+> > Current state:
+> > --------------
+> > 
+> > The keycodes are mapped into keysyms using so-called keymaps. A keymap is
+> > an array (of 255 elements per default) of keysyms, and there is one such
+> > keymap for each modifier combination. There are 9 modifiers (such as Alt,
+> > Ctrl, ....), so one would need to allocate 2^9 = 512 such keymaps to make
+> > use of all modifier combinations. However, there is a limit of 256 keymaps
+> > to prevent them eating too much memory. In short, you need a whole keymap
+> > to add a new modifier combination to a single key -- bad.
+> > 
+> > The problem is, that not all keyboard modifiers can actually be assigned a
+> > keyboard map - CapsLock and NumLock simply aren't on the list.
+> 
+> The current keyboard code is far more powerful than you seem to think.
+> 
+> Keymaps are allocated dynamically, and only few people use more than 16.
+> You can have 256 keymaps, but they are not necessarily the 2^8 maps
+> belonging to all 2^8 combinations of simultaneously pressed modifier keys.
+> 
+> You can assign the "modifier" property to any key you like.
+> You can assign the effect of each modifier key as you like.
+> There are modifier keys with action while pressed, and modifier keys
+> that act on the next non-modifier keystroke (say, for handicapped),
+> and modifier keys that lock a state (say, to switch between Latin
+> and Cyrillic keyboards).
 
---2MeieX8lS1K8IJ9W
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I know that. But still, there is a problem with K_CAPS and K_NUM. They are
+hard wired into the code on several places. They toggle the state of the keyboard LED, 
+and later the state of the LED directly influences the keycode->keysym mapping; e.g.:
 
-On Wed, 2005-02-09 18:00:15 +0100, Vojtech Pavlik <vojtech@suse.cz>
-wrote in message <20050209170015.GC16670@ucw.cz>:
-> On Wed, Feb 09, 2005 at 01:23:27PM +0000, Paulo Marques wrote:
-> > Vojtech Pavlik wrote:
-> > >Hi!
-> > >
-> > >I've written a driver for probably the most common touchscreen type -
-> > >the serial Elo touchscreen.
-> >=20
-> > If we are serious about getting support for serial touchscreens into th=
-e=20
-> > kernel, I can certainly give a hand there.
->=20
-> I want serious support for ALL touchscreens in Linux.
+if (type == KT_LETTER) {
+	type = KT_LATIN;
+        if (vc_kbd_led(kbd, VC_CAPSLOCK)) {
+        	key_map = key_maps[shift_final ^ (1 << KG_SHIFT)];
+                if (key_map)
+                	keysym = key_map[keycode];
+        }
+}
 
-Maybe I'd write drivers for the T-Sharc and fujitsu controllers, too.
-These are in a lot of POS hardware, too, and sometimes they're a pain to
-use (esp. calibration).
 
-Linux at the Point Of Sale is quite well running (I'm employed at a POS
-software company).
+> 
+> It seems very unlikely that you cannot handle Czech with all
+> combinations of 8 keys pressed, and need 9.
+> Please document carefully what you want to do and why you want
+> to do it. I think most reasonable things are possible.
 
-> And I'm glad there is interest. :)
+In the standard Czech keyboard, there are letters with diacritics on the
+1234567890 keys, this is what you should get wgen pressing those keys:
 
-If I find a minute, I'll possibly give it a test run. I've got actual
-hardware around.
+1) with CapsLock off:
+1a) no shift pressed: plus, ecaron, scaron, ccaron, rcaron, zcaron, yacute, aacute, iacute ,eacute
+1b) SHIFT pressed: 1, 2, 3, 4, 5, 6, 7, 8, 9, 0
+2) with CapsLock on:
+1a) no shift pressed: Plus, Ecaron, Scaron, Ccaron, Rcaron, Zcaron, Yacute, Aacute, Iacute ,Eacute
+1b) SHIFT pressed: 1, 2, 3, 4, 5, 6, 7, 8, 9, 0
 
-> > Also, I've already seen touchscreens where the POS manufacturer got the=
-=20
-> > pin-out wrong (or something like that) so the touch reports the X=20
-> > coordinate where the Y should be, and vice-versa. I really don't know=
-=20
-> > where this should be handled (driver, input layer, application?), but i=
-t=20
-> > must be handled somewhere for the applications to work.
->=20
-> I think the best place would be in the X event driver, if X is used, or
-> the graphics toolkit, and worst case the application.
+This is not possible to achieve with the current code, because the K_CAPS
+behaviour is hard wired in the code and not controlled by an extra set of
+keymaps.
 
-First of all, we need a really properly working Linux event driver in
-XFree86/X.Org.  I'm not sure if this is already the case.
+There are presently two ways around this, neither of them good enough
+1) assigning one of the other modifier keysyms to the CapsLock key 
+   -- the LED will not work
+2) assigning a nonstandard keysym to the Shift key -- will breeak 
+   programs like mcedit
 
-> I don't believe the mirroring/flipping is kernel's job, since it tries
-> to always pass the data with the least amount of transformation applied
-> to achieve hardware abstraction.
+The NumLock is hardwired in the code in a similar way. I think this is a
+design misconcept. These keys should have been treated as other modifiers.
 
-ACK. Should be handled by XFree86's driver.
+But by adding two modifiers to almost every keyboard map, you would
+increase the space occupied by the keymaps four times. ... erm ... eight
+times, because there is also this "applkey" (application keypad) flag,
+that will be needed as another modifier.
 
-Additionally, there are two other things that need to be addressed (and
-I'm willing to actually write code for this, but need input from other
-parties, too:)
+This, of course, is undesirable. The new implementation solves this
+problem:
 
-	- Touchscreen calibration
-		Basically all these touchscreens are capable of being
-		calibrated. It's not done with just pushing the X/Y
-		values the kernel receives into the Input API. These
-		beasts may get physically mis-calibrated and eg. report
-		things like (xmax - xmin) <=3D 20, so resolution would be
-		really bad and kernel reported min/max values were only
-		"theoretical" values, based on the protocol specs.
+- you only define the meaning of additional modifiers for those keys for
+  which they make any difference - not wasting memory by huge keymaps that
+  are mostly filled by K_HOLEs
 
-		I think about a simple X11 program for this. Comments?
+- all the clever things you pointed out are still there
 
-	- POS keyboards
-		These are real beasties. Next to LEDs and keycaps, they
-		can contain barcode scanners, magnetic card readers and
-		displays. Right now, there's no good API to pass
-		something as complex as "three-track magnetic stripe
-		data" or a whole scanned EAN barcode. Also, some
-		keyboards can be written to (change display contents,
-		switch on/off scanners, ...).
+- the resulting memory size occupied by the needed structures will
+  generally be smaller or equal to the current state. Of course there are
+  insane worst-case examples that end up bloating much more memory.
 
-		This is usually "solved" with a little patch that allows
-		userspace to write to the keyboard (/dev/psaux like),
-		but this is a bad hack (just look at the patches
-		floating around for this...).
+- the implementation is fully compatible with the old IOCTL interface --
+  the only drawback is, that the resulting keytables created by the old
+  IOCTLs are not optimal and actually take up more memory than the
+  original implementation. But this is a temporary state, which can be
+  fixed by creating a keyboard map in the new format
 
-MfG, JBG
+- the proposed keyboard map file format is IMHO much much nicer than the
+  old one, although this is dependent on personal tastes. Maybe by looking
+  at an example, people will better understand how it works:
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
-k!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+  	keytable Esc {     		#defines the escape key
+          	alt      = Meta_Escape	#if alt is pressed, produce Meta_Escape
+	         	 = Escape	#if not, produce an escape
+	}
 
---2MeieX8lS1K8IJ9W
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+	# This effectively defined all the 4096 combinations on two lines.
+	# The first line says: Only have look at the curent state of ALT,
+	#	and if it is on, produce a Meta_Escape. 
+	# The second line says: Don't look on the state of anything and
+	#	produce Escape
+	
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+	keytable Enter {	
+	        !shift !altgr !control alt !shiftl !shiftr !ctrll !ctrlr !capsshift = Meta_Control_m
+		= Return
+	}
 
-iD8DBQFCCkT+Hb1edYOZ4bsRAvuGAJ9YMGrVsCH1uKKqBgEw+VSbtCwi9gCfb9cd
-rgEULRfGKS0kiJDKQbyRBlM=
-=BXGu
------END PGP SIGNATURE-----
+	# In this example, the first line says: Have look at the state of
+	#	the shift, altgr, control, alt, shiftl, shiftr, ctrll,
+	#	ctrlr and capshift modifiers. If all of them are off,
+	#	except alt which is on, produce a Meta_Control_m
+	# The second line fallbacks to Return.
 
---2MeieX8lS1K8IJ9W--
+   As you can see, this is quite effective. And this is exactly the way it
+   is represented in the memory - each of the lines is represented by a
+   6-byte entry in the keytable. 
+
+   Have a look at the default keymap, which is included in the patch, to
+   see just how effective this can get. It saves both typing and memory.
+   Once you get the simple idea, it is much clearer to understand than the
+   old format, imho.
+
+> (The weakest part is the support for Unicode / UTF8 - don't know
+> whether improvement would be good - it is clear that one doesnt
+> want to have full Unicode support in the kernel, but there is
+> continued pressure to add some support for diacriticals. We might.)
+
+There is unicode support for everything BUT the dead keys, WRT to keyboard
+mappings. It seems that dead keys were simply forgotten.
+
+regards,
+
+-- 
+Jirka Bohac <jbohac@suse.cz>
+SUSE Labs, SUSE CR
+

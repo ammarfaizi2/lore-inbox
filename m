@@ -1,52 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbVANA4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVANBAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbVANA4o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 19:56:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbVANAys
+	id S261848AbVANBAb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 20:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbVANA5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 19:54:48 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:44674 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261749AbVANAue
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 19:50:34 -0500
-Date: Thu, 13 Jan 2005 16:50:32 -0800
-From: Greg KH <greg@kroah.com>
-To: Armen Babikyan <armenb@cs.umass.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hardware sensors problem with 2.4.21 on IBM eServer 335/345
-Message-ID: <20050114005032.GB4140@kroah.com>
-References: <106F50BA-65B9-11D9-9300-003065F94C4C@cs.umass.edu>
-Mime-Version: 1.0
+	Thu, 13 Jan 2005 19:57:52 -0500
+Received: from smtp3.akamai.com ([63.116.109.25]:11959 "EHLO smtp3.akamai.com")
+	by vger.kernel.org with ESMTP id S261730AbVANAy6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 19:54:58 -0500
+Message-ID: <41E7193D.2690EDF1@akamai.com>
+Date: Thu, 13 Jan 2005 16:58:37 -0800
+From: Prasanna Meda <pmeda@akamai.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/self/maps still not right in 2.6.10-mm3
+References: <1105652592.1208.14.camel@localhost>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <106F50BA-65B9-11D9-9300-003065F94C4C@cs.umass.edu>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 06:15:50PM -0500, Armen Babikyan wrote:
-> Hi,
-> 
-> I am trying to get hardware sensors (i.e. cpu temp, fan speed, and 
-> voltage sensors) working on an IBM eServer 335 system that is running 
-> RedHat (Enterprise edition) with kernel 2.4.21 (2.4.21-27 actually).
-> 
-> The driver for the sensors chip on this particular mainboard is found 
-> using sensors-detect:
-> 
-> Use driver `i2c-piix4' for device 00:0f.0: ServerWorks CSB5 South Bridge
-> 
-> However, the driver failed to load with the following error:
-> 
-> i2c-core.o: i2c core module
-> i2c-dev.o: i2c /dev entries driver module
-> i2c-core.o: driver i2c-dev dummy driver registered.
-> i2c-piix4.o version 2.6.5 (20020915)
-> i2c-piix4.o: Found CSB5 device
+Jeremy Fitzhardinge wrote:
 
-This driver is not in the mainline kernel tree, right?  I suggest asking
-about this on the lm-sensors mailing list, or ask Red Hat.
+> Looks like there's another problem.  If you read /proc/self/maps with
+> >4k chunks, the reads are always truncated to < 4k.  However, at those
 
-Good luck,
+Since m->buf starts at  4K, read truncation is expected. But the next
+truncation should be at 8K, 16K and so on.  We doube the buffer size.
 
-greg k-h
+
+>
+> points, it misses an entry.  If you read in smaller chunks, the results
+> look good.
+
+Yes, loosing record on truncation is bug.   We now have  no boundary
+bugs in mmaps walking logic in our start, next or stop methods.
+
+This is due to miscommunication between seq_file.c and our version
+update logic.
+
+m_show:show_maps:seq_printf()
+int seq_printf(struct seq_file *m, const char *f, ...)
+{
+        va_list args;
+        int len;
+
+        if (m->count < m->size) {
+                va_start(args, f);
+                len = vsnprintf(m->buf + m->count, m->size - m->count, f, args);
+                va_end(args);
+                if (m->count + len < m->size) {
+                        m->count += len;
+                        return 0;
+                }
+        }
+        m->count = m->size;
+        return -1;
+}
+It reads a partial data of the last record, and m->count becomes m->size.
+
+Now in seq_read():
+       /* we need at least one record in buffer */
+        while (1) {
+                pos = m->index;
+                p = m->op->start(m, &pos);
+                err = PTR_ERR(p);
+                if (!p || IS_ERR(p))
+                        break;
+                err = m->op->show(m, p);
+                if (err)
+                        break;
+                if (m->count < m->size)
+                        goto Fill;
+                m->op->stop(m, p);
+                kfree(m->buf);
+                m->buf = kmalloc(m->size <<= 1, GFP_KERNEL);
+                if (!m->buf)
+                        goto Enomem;
+                m->count = 0;
+        }
+        m->op->stop(m, p);
+        m->count = 0;
+        goto Done;
+  Fill:
+        /* they want more? let's try to get some more */
+        while (m->count < size) {
+                size_t offs = m->count;
+                loff_t next = pos;
+                p = m->op->next(m, p, &next);
+                if (!p || IS_ERR(p)) {
+                        err = PTR_ERR(p);
+                        break;
+                }
+                err = m->op->show(m, p);
+                if (err || m->count == m->size) {
+                        m->count = offs;
+                        break;
+                }
+                pos = next;
+        }
+        m->op->stop(m, p);
+
+It allocates the bigger buffer(8K) on 4k exhaustion.
+It does not  copy the partial record to user or to bigger
+buffer and throws  it away. But that is fine,  since pos
+ is not updated.  For us, it is a problem, since version
+ has already been updated.
+
+One way of fixing this problem is,  have 100 or 200
+bytes of tail room in m->buf for overflows and handle
+that like we had before moving to seq  files.
+This would be slightly better since, we do not throw
+the data.
+
+Other solution is,  update f_version on successful
+m_show,  not on m_start or m_next. Slight variation
+is reset the version on failed m_show. Since this does
+not involve changes in seq_file,  we go for this and
+I will send you a patch.
+
+
+Thanks,
+Prasanna.
+
+
+
+

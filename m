@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbTEUWoI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 18:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbTEUWoI
+	id S262297AbTEUWnw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 18:43:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTEUWnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 18:44:08 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:9288 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262316AbTEUWoG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 18:44:06 -0400
-Date: Wed, 21 May 2003 15:55:39 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
-Subject: Re: must-fix list, v5
-Message-Id: <20030521155539.51ecc0e6.akpm@digeo.com>
-In-Reply-To: <20030521224928.GA774@ip68-0-152-218.tc.ph.cox.net>
-References: <20030521152255.4aa32fba.akpm@digeo.com>
-	<20030521152334.4b04c5c9.akpm@digeo.com>
-	<20030521224928.GA774@ip68-0-152-218.tc.ph.cox.net>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 21 May 2003 18:43:52 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:31960 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262297AbTEUWnv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 18:43:51 -0400
+Date: Wed, 21 May 2003 15:55:16 -0700 (PDT)
+Message-Id: <20030521.155516.41646323.davem@redhat.com>
+To: mbligh@aracnet.com
+Cc: habanero@us.ibm.com, haveblue@us.ibm.com, wli@holomorphy.com,
+       arjanv@redhat.com, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
+       gh@us.ibm.com, johnstul@us.ibm.com, jamesclv@us.ibm.com, akpm@digeo.com,
+       mannthey@us.ibm.com
+Subject: Re: userspace irq balancer
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <6610000.1053529089@[10.10.2.4]>
+References: <200305200907.41443.habanero@us.ibm.com>
+	<20030520.163833.104040023.davem@redhat.com>
+	<6610000.1053529089@[10.10.2.4]>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 May 2003 22:57:09.0283 (UTC) FILETIME=[4EE43F30:01C31FEC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini <trini@kernel.crashing.org> wrote:
->
-> I talked with RMK on IRC a bit about this.  After reading
-> drivers/char/rtc.c, I think this can be vastly simplied to:
-> Add support for alarms to the existing generic rtc driver
-> (drivers/char/genrtc.c).
-> 
-> Does this sound like a plan?
+   From: "Martin J. Bligh" <mbligh@aracnet.com>
+   Date: Wed, 21 May 2003 07:58:11 -0700
+   
+   Despite whatever political wrangling there is between userspace and
+   kernelspace implementations (and some very valid points about other
+   arches), there is still a dearth of testing, as far as I can see.
 
-It certainly does, thanks.
+I've never in my life heard the argument that we kept something
+in the kernel that didn't belong there due to "userland testing".
+That's a bogus argument.
+
+When I ripped RARP out of the kernel, we didn't immediately have
+a replacement, but one showed up shortly.  So what?
+
+And in this ase we already have Arjan's stuff.  So start testing
+his code instead of whining about keeping the current stuff in
+the tree.

@@ -1,70 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269680AbUJADfc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269679AbUJADkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269680AbUJADfc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 23:35:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269681AbUJADfb
+	id S269679AbUJADkq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 23:40:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269685AbUJADkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 23:35:31 -0400
-Received: from nabe.tequila.jp ([211.14.136.221]:50371 "HELO nabe.tequila.jp")
-	by vger.kernel.org with SMTP id S269679AbUJADfI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 23:35:08 -0400
-Message-ID: <415CD05F.4040305@tequila.co.jp>
-Date: Fri, 01 Oct 2004 12:34:55 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.3) Gecko/20040917 Thunderbird/0.8 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
+	Thu, 30 Sep 2004 23:40:46 -0400
+Received: from gizmo10bw.bigpond.com ([144.140.70.20]:50404 "HELO
+	gizmo10bw.bigpond.com") by vger.kernel.org with SMTP
+	id S269679AbUJADkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 23:40:42 -0400
+From: Ross Dickson <ross@datscreative.com.au>
+Reply-To: ross@datscreative.com.au
+Organization: Dat's Creative Pty Ltd
+To: "Maciej W. Rozycki" <macro@linux-mips.org>,
+       Andy Currid <ACurrid@nvidia.com>
+Subject: Re: nforce2 bugs?
+Date: Fri, 1 Oct 2004 13:41:04 +1000
+User-Agent: KMail/1.5.1
+Cc: "Prakash K. Cheemplavam" <prakashkc@gmx.de>,
+       Allen Martin <AMartin@nvidia.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       white phoenix <white.phoenix@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <8E5ACAE05E6B9E44A2903C693A5D4E8A01C45A1C@hqemmail02.nvidia.com> <Pine.LNX.4.58L.0409301705180.25286@blysk.ds.pg.gda.pl>
+In-Reply-To: <Pine.LNX.4.58L.0409301705180.25286@blysk.ds.pg.gda.pl>
 MIME-Version: 1.0
-To: gene.heskett@verizon.net
-CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       "Markus T." <markus@trippelsdorf.net>
-Subject: Re: Linux 2.6.9-rc3
-References: <Pine.LNX.4.58.0409292036010.2976@ppc970.osdl.org> <415C80C1.8070406@pobox.com> <415CA7DB.7080203@tequila.co.jp> <200409302330.26396.gene.heskett@verizon.net>
-In-Reply-To: <200409302330.26396.gene.heskett@verizon.net>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410011341.04506.ross@datscreative.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Friday 01 October 2004 02:59, Maciej W. Rozycki wrote:
+> On Thu, 30 Sep 2004, Andy Currid wrote:
+> 
+> > I'm taking a look at the patches discussed in other recent emails on the
+> > list, but I'm curious about the timer issue that Maciej notes here. In
+> > systems running in IOAPIC mode where this problem has been observed, is
+> > ACPI enabled?
+> 
+>  One I can test a bit has indeed ACPI enabled.
+> 
+> > I strongly suspect that it is. Some BIOSes on nForce systems contain an
+> > incorrect INT override for the timer interrupt in their ACPI tables,
+> > indicating that in IOAPIC mode the timer interrupts on IRQ2 rather than
+> > IRQ0. The kernel honors the override, then notices the timer interrupt
+> > isn't working and subsequently rescues the situation by configuring the
+> > timer in ExtInt mode. That recovers the timer interrupt but I suspect
+> > that configuration may be responsible for the "noisy" behavior (it's a
+> > faulty configuration).
 
-On 10/01/2004 12:30 PM, Gene Heskett wrote:
+It is indeed the other way around, the clock skew occurs on some Mobos
+with timer interrupts routed to the IntIn0 and to my knowledge is not evident
+in the ExtInt routing mode.
+The downside of using the ExtInt routing mode is that you can no longer use
+nmi_watchdog=1 because it only works on nforce2 boards with IntIn0 timer routing.
 
-|> Beats me, Clemens.  But at the time, I got curious and the problem was
-|> 100% repeatable using the bz2 src code files I had.  The third time I
-|> went after the srcs and patches to build that kernel, I got the .gz
-|> versions of both, and they worked first time.  Then I went back to
-|> the .bz2's and was seeing the same problem as the first 2 downloads
-|> gave me.  I mv'd that src file & patch, went after the .bz2's again
-|> (for the 3rd time), and that time it worked flawlessly.  Both the 2nd
-|> and 3rd dl's files had the exact same md5sum too.  Go figure.
+> 
+>  The firmware (BIOS) reports I/O APIC interrupts correctly on this box --
+> there's no override for IRQ0.  Timer interrupts work correctly in the
+> ExtInt mode.  They only fail in the I/O APIC mode.
+> 
+>  Older reports from the list show exactly the same problem, e.g.  
+> "http://www.uwsg.iu.edu/hypermail/linux/kernel/0404.1/0739.html", which is
+> probably one of the earliest references to the clock skew problem with I/O
+> APIC routing.  As I believe both the 8254 and 8259A and the I/O APIC are
+> internal to the chipset, I doubt that can be a problem specific to board
+> design; it may be a firmware fault, though, such as an initialization bug.  
+> As Ross used to maintain temporary workarounds for nforce2 problems, he
+> may be able to comment on what reports he received.  Ross?
 
-have you unpacked the source and made a diff? is the source the same
-then? perhaps its something with CPU/RAM ? Ever thought of that. If only
-you have it, then what kind of libraries are you using, perhaps it some
-problem only on your box. Can you repeat that on other boxes, etc.
+An earlier Thread on the Topic of the time skew with I/O Apic routing:
+http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-01/3129.html
 
-|> bz2 problem?  DamnedifIknow.  snilmerg maybe?  But it goes away if I
-|> stick to the .gz's.
+A couple of Skewing Mobos Involved:
+Abit NF7-S V2.0 motherboard. 
+A7N8X Deluxe mobo/Athlon
 
-It would be interesting to investigate this further. Because if bz2 is
-not save to transport data, then you can't use it anymore.
+Maybe they are using the same revision of non GPU nforce2 silicon?
+I personally never had any clock skew but I have only used Mobos with graphics
+onboard, several Albatron KM18G and an Epox 8RGA+
 
-- --
-[ Clemens Schwaighofer                      -----=====:::::~ ]
-[ TBWA\ && TEQUILA\ Japan IT Group                           ]
-[                6-17-2 Ginza Chuo-ku, Tokyo 104-0061, JAPAN ]
-[ Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343 ]
-[ http://www.tequila.co.jp        http://www.tbwajapan.co.jp ]
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+-Ross
 
-iD8DBQFBXNBfjBz/yQjBxz8RAkLBAKCTFd4niu/StV85xloSuHmOowcOUgCdGTyI
-18/zlWp2oyfNz/jSJ7Zpjig=
-=iG6j
------END PGP SIGNATURE-----
+
+
+> 
+>   Maciej
+> 
+> 
+> 
+

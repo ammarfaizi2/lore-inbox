@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265326AbRGEPL2>; Thu, 5 Jul 2001 11:11:28 -0400
+	id <S265315AbRGEPKI>; Thu, 5 Jul 2001 11:10:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265319AbRGEPLK>; Thu, 5 Jul 2001 11:11:10 -0400
-Received: from smtp102.urscorp.com ([64.17.27.233]:4112 "EHLO
-	smtp102.urscorp.com") by vger.kernel.org with ESMTP
-	id <S265326AbRGEPKt>; Thu, 5 Jul 2001 11:10:49 -0400
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Tom spaziani <digiphaze@deming-os.org>, Dan Maas <dmaas@dcine.com>,
-        linux-kernel@vger.kernel.org,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: VM Requirement Document - v0.0
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-From: mike_phillips@urscorp.com
-Message-ID: <OF56241C86.6CC1E0F8-ON85256A80.004CE12A@urscorp.com>
-Date: Thu, 5 Jul 2001 11:09:01 -0400
-X-MIMETrack: Serialize by Router on SMTP102/URSCorp(Release 5.0.5 |September 22, 2000) at
- 07/05/2001 11:04:51 AM,
-	Serialize complete at 07/05/2001 11:04:51 AM
+	id <S265319AbRGEPJ7>; Thu, 5 Jul 2001 11:09:59 -0400
+Received: from home.paris.trader.com ([195.68.19.162]:31208 "EHLO
+	smtp-gw.netclub.com") by vger.kernel.org with ESMTP
+	id <S265315AbRGEPJv>; Thu, 5 Jul 2001 11:09:51 -0400
+Message-ID: <3B4483E8.2C31AC01@trader.com>
+Date: Thu, 05 Jul 2001 17:12:40 +0200
+From: Joseph Bueno <joseph.bueno@trader.com>
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: nick@guardiandigital.com
+CC: Peter Zaitsev <pz@spylog.ru>, linux-kernel@vger.kernel.org
+Subject: Re: Is  Swapping on software RAID1 possible  in linux 2.4 ?
+In-Reply-To: <1011478953412.20010705152412@spylog.ru> <3B447FAD.1E4724C9@guardiandigital.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, on a laptop memory and disk bandwith are rarely wasted - they cost
-> battery life.
+Nick DeClario wrote:
+> 
+> Just out of curiousity what are the advantages to having a RAID1 swap
+> partition?  Setting the swap priority to 0 (pri=0) in the fstab of all
+> the swap partitions on your system should have the same effect as doing
+> it with RAID but without the overhead, right?  RAID1 would also mirror
+> your swap.  Why would you want that?
+> 
+> Regards,
+>         -Nick
+> 
+Hi,
 
-I've been playing around with different scenarios to see the differences 
-in performance. A good way to trigger the cache problem is to untar a 
-couple of kernel source trees or other large amounts of files, until free 
-memory is down to less than 2mb. Then try to fire up a few apps that need 
-some memory. The hard drive thrashes around as the VM tries to free up 
-enough space, often using swap instead of flushing out the cache. 
+Setting swap priority to 0 is equivalent to RAID0 (striping) not RAID1 (mirroring).
 
-These source trees can then be deleted which frees up the memory the cache 
-was using and performance returns to where it should be. 
+Mirroring your swap partition is important because if the disk containing
+your swap fails, your system is dead. If you want to keep your system running
+even if one disk fails you need to mirror ALL your active partitions including
+swap.
+If you only mirror your data partitions, your are only protected against data
+loss in case of a disk crash (assuming you shutdown gracefully before it panics
+while it tries to read/write  on a crashed swap partition and leave your data in
+some inconsistent state).
 
-However, if I just fire up enough apps to use up all the memory and then 
-go into swap, response is still acceptable. If the app requires loading 
-from swap there is just a short lag while the VM does its thing and then 
-life is good. 
-
-I don't expect to be able to run more apps than I have memory for without 
-a performance hit, but I do expect to be able to run with over 128MB of 
-"real" free memory and not suffer from performance degradation (which 
-doesn't happen at present)
-
-Mike
-
+Regards
+--
+Joseph Bueno

@@ -1,54 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266066AbUAUEim (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 23:38:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265964AbUAUEgL
+	id S266061AbUAUEmg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 23:42:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266056AbUAUEjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 23:36:11 -0500
-Received: from dp.samba.org ([66.70.73.150]:29409 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266052AbUAUEfx (ORCPT
+	Tue, 20 Jan 2004 23:39:09 -0500
+Received: from mcgroarty.net ([64.81.147.195]:56207 "EHLO pinkbits.internal")
+	by vger.kernel.org with ESMTP id S266061AbUAUEgW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 23:35:53 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andy Lutomirski <luto@myrealbox.com>
-Cc: Nick Piggin <piggin@cyberone.com.au>, Rusty Russell <rusty@au1.ibm.com>,
-       vatsa@in.ibm.com, lhcs-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: CPU Hotplug: Hotplug Script And SIGPWR 
-In-reply-to: Your message of "Tue, 20 Jan 2004 09:49:39 -0800."
-             <400D6A33.6020108@myrealbox.com> 
-Date: Wed, 21 Jan 2004 15:33:16 +1100
-Message-Id: <20040121043608.62C342C0C4@lists.samba.org>
+	Tue, 20 Jan 2004 23:36:22 -0500
+Date: Tue, 20 Jan 2004 22:35:36 -0600
+To: M?ns Rullg?rd <mru@kth.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HPT370 status [2.4/2.6]
+Message-ID: <20040121043536.GA14390@mcgroarty.net>
+References: <1g0ZG-2q6-15@gated-at.bofh.it> <400D72B5.40705@gmx.at> <yw1x4quqo1gx.fsf@ford.guide> <20040120204537.GA6820@mcgroarty.net> <yw1xoesymilb.fsf@ford.guide>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qDbXVdCdHGoSgWSk"
+Content-Disposition: inline
+In-Reply-To: <yw1xoesymilb.fsf@ford.guide>
+X-Debian-GNU-Linux: Rocks
+From: Brian McGroarty <brian@mcgroarty.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <400D6A33.6020108@myrealbox.com> you write:
-> (At some point, linux may want to suspend itself after inactivity.  Both 
-> RT tasks and some interactive tasks may want to supress that.)  Why not 
-> add a SIGPM signal, which is only sent if handles, and which indicates 
-> that PM event is happening.  Give usermode some method of responding to 
-> it (e.g. handler returns a value, or a new syscall), and let 
-> /sbin/hotplug handle events for tasks that either ignore the signal or 
-> responded that they were uninterested.  This seems be close to optimal 
-> for every case I can think of.
 
-This was my original idea too.  AIX has this, but in reality the
-control ends up all in userspace for non-trivial uses.  ie. some
-"workload manager" program consults with all the interested parties
-*before* telling the kernel what to do.
+--qDbXVdCdHGoSgWSk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The async and non-consultive nature of hotplug is policy for good
-reason.  Giving someone 30 seconds to respond to a signal can always
-fail, and making it configurable is just a bandaid.
+On Tue, Jan 20, 2004 at 10:10:56PM +0100, M?ns Rullg?rd wrote:
+> Brian McGroarty <brian@mcgroarty.net> writes:
+>=20
+> > Wilfried Weissmann <Wilfried.Weissmann@gmx.at> writes:
+> >> Jan De Luyck wrote:
+> >>> Hello List,
+> >>> Before I start frying my disks and all, what's the usability status
+> >>> of the Hightpoint HPT370 ide "raid" controller on linux 2.4 and 2.6?
+> >>
+> >> 2.4 is fine if you use the ataraid code. mirroring is not fault
+> >> tolerant so you would not want to use that.
+> >
+> > No problems with 2.4 here.
+> >
+> > 2.6 recognizes my 374, which uses the hpt366 driver like the
+> > 370. However, no devices are being made available from it [1].
+> >
+> > If others' experiences are any different, I'd love to hear.
+>=20
+> I've been successfully using an hpt374 based board for a year or so.
+> Right now I'm running Linux 2.6.0 (no reboot after 2.6.1 release).
 
-I have nothing against SIGRECONFIG (think memory hotplug), but the AIX
-guys indicated from their experience it seems that non-toy users don't
-use it anyway (they have a hotplug-style script system, too).
+Can you say a bit about your configuration?
 
-So: trying to cover every corner case isn't worthwhile in practice, it
-seems.  I like the signal for RC5 challenge etc, but that's about it.
+- What module(s) do you load? Any parameters?
 
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+- What devices do you access the hpt374 through?
+
+- Are you running a RAID, or individual drives?
+
+Any other info (dmesg, contents of ide procdir, etc) would be great
+for us to compare.
+
+Very much appreciated!
+
+--qDbXVdCdHGoSgWSk
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFADgGY2PBacobwYH4RAtUDAJ9HQ4DMezNt++2lCqVXppXwXCP1uwCfZdRq
+DEM79+e9PxnRd/eXSfYc+wk=
+=aGn/
+-----END PGP SIGNATURE-----
+
+--qDbXVdCdHGoSgWSk--

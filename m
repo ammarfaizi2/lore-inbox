@@ -1,46 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261978AbSJTVp3>; Sun, 20 Oct 2002 17:45:29 -0400
+	id <S262065AbSJTVxs>; Sun, 20 Oct 2002 17:53:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262065AbSJTVp3>; Sun, 20 Oct 2002 17:45:29 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:30992
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261978AbSJTVp3>; Sun, 20 Oct 2002 17:45:29 -0400
-Subject: Re: Bitkeeper outrage, old and new
-From: Robert Love <rml@tech9.net>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Ben Collins <bcollins@debian.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1035150122.967.5.camel@bip>
-References: <20021014170248.A19897@infradead.org>
-	<E181WHl-00010N-00@fencepost.gnu.org> <20021015193138.A4010@infradead.org>
-	<200210161856.g9GIu57t013710@santafe.santafe.edu>
-	<20021016201328.A24882@infradead.org> <E1832Lh-0004xH-00@fencepost.gnu.org>
-	<20021019161201.A26017@work.bitmover.com> <3DB1EAAB.30401@pobox.com>
-	<20021020154609.GD696@phunnypharm.org> <3DB2E661.8070802@pobox.com> 
-	<20021020173438.GK696@phunnypharm.org> 
-	<1035141319.16887.293.camel@phantasy>  <1035150122.967.5.camel@bip>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 20 Oct 2002 17:51:10 -0400
-Message-Id: <1035150671.16888.300.camel@phantasy>
+	id <S262094AbSJTVxs>; Sun, 20 Oct 2002 17:53:48 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:40889 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262065AbSJTVxr>; Sun, 20 Oct 2002 17:53:47 -0400
+Date: Sun, 20 Oct 2002 14:59:47 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org,
+       andmike@us.ibm.com
+Subject: Re: 2.5.44: problemn when shutting down, drivers/base/power.c and the global_device_list
+Message-ID: <20021020145947.A11444@eng2.beaverton.ibm.com>
+Mail-Followup-To: Patrick Mochel <mochel@osdl.org>,
+	Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org,
+	andmike@us.ibm.com
+References: <20021019153417.GA567@middle.of.nowhere> <Pine.LNX.4.44.0210201117080.963-100000@cherise.pdx.osdl.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.44.0210201117080.963-100000@cherise.pdx.osdl.net>; from mochel@osdl.org on Sun, Oct 20, 2002 at 01:21:29PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-10-20 at 17:42, Xavier Bestel wrote:
-
-> You're plain wrong. 
+On Sun, Oct 20, 2002 at 01:21:29PM -0700, Patrick Mochel wrote:
 > 
-> You both have the copyright on your work.
+> On Sat, 19 Oct 2002, Jurriaan wrote:
+> 
+> > DEV: registering device: ID = 'scsi0', name = sym53c8xx
 
-It is called copyright _assignment_ for a reason.  How the hell are two
-people supposed to simultaneously own a copyright on the same work?
+Above is from scsi_set_pci_device() call.
 
-The assignment says (I quote) "I hereby transfer... my entire right,
-title, and interest (including all rights under copyright)... in my
-program".
+> > scsi0 : sym53c8xx-1.7.3c-20010512
+> > DEV: registering device: ID = 'scsi0', name = sym53c8xx
 
-	Robert Love
+Above are from scsi_register_host().
 
+> > sym53c860-0-<1,*>: FAST-20 SCSI 20.0 MB/s (50.0 ns, offset 8)
+> >   Vendor: TOSHIBA   Model: DVD-ROM SD-M1401  Rev: 1007
+> >   Type:   CD-ROM                             ANSI SCSI revision: 02
+
+> 
+> It appears the same device is being added twice. After doing some digging
+> in the sym53c8xx and the scsi host code, that suspicion grows, though I'm 
+> not positively sure how the host is being added twice. 
+> 
+
+Looks like we have two device_register(&shost->host_driverfs_dev) calls,
+one in scsi_set_pci_device, and one in scsi_register_host(). I think 
+Mike meant to delete the one in scsi_register_host, but I can't tell
+for certain which one should go away.
+
+And this must might be why I can't shutdown (i.e. no auto reboot).
+
+So in 2.5.44 have:
+
+	scsi_register_host() calls
+		attach [ncr_attach] calls
+			scsi_register
+			scsi_set_pci_device calls
+				device_register(&shost->host_driverfs_dev)
+		call to device_register() again in scsi_register_host
+
+This removes the scsi_register_host() one, I can shutdown/reboot
+with this patch, I didn't dump anything else or try rmmod's:
+
+--- bleed-2.5/drivers/scsi/hosts.c	Sat Oct 19 10:30:01 2002
++++ bleed-2.5/drivers/scsi/hosts.c-mine	Sun Oct 20 14:46:13 2002
+@@ -543,7 +543,6 @@
+ 				       shost->host_no, dm_name);
+ 
+ 				/* first register parent with driverfs */
+-				device_register(&shost->host_driverfs_dev);
+ 				scan_scsis(shost, 0, 0, 0, 0);
+ 			}
+ 		}
+
+> scsi_register_host() then loops through the hosts, and registers all the 
+> ones that this driver added. (Q: why is that function constantly looping 
+> through all the scsi hosts just to operate on the one passed in?).
+
+A Scsi_Host_Template is passed in, it loops over Scsi_Hosts to find
+everyone that is using the Scsi_Host_Template, the names are confusing
+as well as the code.
+
+> The SCSI code is confusing and likely the culprit. 
+
+Yes and yes ...
+
+-- Patrick Mansfield

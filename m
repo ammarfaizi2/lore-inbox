@@ -1,92 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267484AbUHXLSH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267482AbUHXLVg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267484AbUHXLSH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 07:18:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267482AbUHXLSH
+	id S267482AbUHXLVg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 07:21:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267486AbUHXLVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 07:18:07 -0400
-Received: from cantor.suse.de ([195.135.220.2]:5071 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267484AbUHXLRj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 07:17:39 -0400
-Date: Tue, 24 Aug 2004 13:17:35 +0200
-From: Andi Kleen <ak@suse.de>
-To: Dave Jones <davej@redhat.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Fix MTRR strings definition.
-Message-Id: <20040824131735.3980c21a.ak@suse.de>
-In-Reply-To: <20040824110001.GD28237@redhat.com>
-References: <20040823232320.GA1875@redhat.com>
-	<20040824081729.311ee677.ak@suse.de>
-	<20040824110001.GD28237@redhat.com>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 24 Aug 2004 07:21:36 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4108 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S267482AbUHXLVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 07:21:21 -0400
+Date: Tue, 24 Aug 2004 12:21:16 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alsa Devel list <alsa-devel@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Fwd: [Alsa-devel] 2.6.6-rc2 build warnings
+Message-ID: <20040824122116.A5031@flint.arm.linux.org.uk>
+Mail-Followup-To: Alsa Devel list <alsa-devel@lists.sourceforge.net>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Aug 2004 12:00:01 +0100
-Dave Jones <davej@redhat.com> wrote:
+A reminder that this problem remains unresolved.
 
-> On Tue, Aug 24, 2004 at 08:17:29AM +0200, Andi Kleen wrote:
->  > On Tue, 24 Aug 2004 00:23:20 +0100
->  > Dave Jones <davej@redhat.com> wrote:
->  > 
->  > > Instead of deleting the extern from include/asm/mtrr.h, I believe
->  > > the correct fix would be to move the strings back to the include file
->  > > where they belong.
->  > > The reason behind this, is that there are userspace apps (admittedly
->  > > few, but we even ship two in Documentation/mtrr.txt) that rely upon
->  > > these definitions being in that header.  This has been broken for
->  > > all 2.6 releases so far. Patch below fixes things back the way it
->  > > was in 2.4
->  > 
->  > That's rather ugly. It would be cleaner to just have a 
->  > macro that expands to the strings, and everybody who wants to use
->  > it declares an own array using that macro.
-> 
-> feel free to go rewrite the userspace that uses this.
+----- Forwarded message from Russell King <rmk+alsa@arm.linux.org.uk> -----
+From: Russell King <rmk+alsa@arm.linux.org.uk>
+To: Alsa Devel list <alsa-devel@lists.sourceforge.net>
+Subject: [Alsa-devel] 2.6.6-rc2 build warnings
+Date: Sun, 30 May 2004 11:00:08 +0100
 
-Umm - since when do we care about user space gratuously including kernel 
-headers?  I normally avoid breaking user space by this without need, but depending
-on a static variable declaration in a header is really far too ugly
-to be kept alive.
+Someone may wish to look into the cause of this... CONFIG_PCI is
+unselected in this case.
+
+  CC [M]  sound/core/oss/mixer_oss.o
+In file included from sound/core/oss/mixer_oss.c:26:
+include/sound/core.h:215: warning: `struct pci_dev' declared inside parameter list
+include/sound/core.h:215: warning: its scope is only this definition or declaration, which is probably not what you want
+include/sound/core.h:216: warning: `struct pci_dev' declared inside parameter list
+  CC [M]  sound/core/oss/pcm_oss.o
+In file included from sound/core/oss/pcm_oss.c:35:
+include/sound/core.h:215: warning: `struct pci_dev' declared inside parameter list
+include/sound/core.h:215: warning: its scope is only this definition or declaration, which is probably not what you want
+include/sound/core.h:216: warning: `struct pci_dev' declared inside parameter list
+...
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core
 
 
->  > > Andi, I don't have gcc 3.5 to hand, I trust this fixes whatever
->  > > problem you saw there too ?
->  > 
->  > 3.5 doesn't like it when something is declared both extern and static.
->  > Your new patch has this problem again.
-> 
-> The extern definitions no longer exist.
+-------------------------------------------------------
+This SF.Net email is sponsored by: Oracle 10g
+Get certified on the hottest thing ever to hit the market... Oracle 10g. 
+Take an Oracle 10g class now, and we'll give you the exam FREE.
+http://ads.osdn.com/?ad_id=3149&alloc_id=8166&op=click
+_______________________________________________
+Alsa-devel mailing list
+Alsa-devel@lists.sourceforge.net
+https://lists.sourceforge.net/lists/listinfo/alsa-devel
 
-Your patch was: 
+----- End forwarded message -----
 
---- latest-FC2/include/asm-x86_64/mtrr.h~	2004-08-24 00:20:17.377436336 +0100
-+++ latest-FC2/include/asm-x86_64/mtrr.h	2004-08-24 00:21:04.137327752 +0100
-@@ -69,6 +69,19 @@
- #define MTRR_TYPE_WRBACK     6
- #define MTRR_NUM_TYPES       7
- 
-+#ifdef MTRR_NEED_STRINGS
-+static char *mtrr_strings[MTRR_NUM_TYPES] =
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+{
-+	"uncachable",		/* 0 */
-+	"write-combining",	/* 1 */
-+	"?",			/* 2 */
-+	"?",			/* 3 */
-+	"write-through",	/* 4 */
-+	"write-protect",	/* 5 */
-+	"write-back",		/* 6 */
-+};
-+#endif
-+
- #ifdef __KERNEL__
- 
- extern char *mtrr_strings[MTRR_NUM_TYPES];
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
--Andi
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

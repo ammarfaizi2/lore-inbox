@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbTFJIT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 04:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbTFJIT1
+	id S262444AbTFJIPv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 04:15:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbTFJIPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 04:19:27 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:51415 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S262451AbTFJIT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 04:19:27 -0400
-Subject: IDE IRQ probe brokenness.
-From: David Woodhouse <dwmw2@infradead.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1055233984.29633.56.camel@passion.cambridge.redhat.com>
+	Tue, 10 Jun 2003 04:15:51 -0400
+Received: from userk185.dsl.pipex.com ([62.188.58.185]:33432 "HELO
+	userk185.dsl.pipex.com") by vger.kernel.org with SMTP
+	id S262444AbTFJIPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 04:15:50 -0400
+From: "Sean Hunter" <sean@uncarved.com>
+Date: Tue, 10 Jun 2003 08:29:30 +0000
+To: Shawn <core@enodev.com>
+Cc: Matthias Schniedermeyer <ms@citd.de>,
+       "Leonardo H. Machado" <leoh@dcc.ufmg.br>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: cachefs on linux
+Message-ID: <20030610082930.GA26777@uncarved.com>
+Mail-Followup-To: Sean Hunter <sean@uncarved.com>, Shawn <core@enodev.com>,
+	Matthias Schniedermeyer <ms@citd.de>,
+	"Leonardo H. Machado" <leoh@dcc.ufmg.br>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0306091624370.14854-100000@volga.dcc.ufmg.br> <20030609204249.GA11373@citd.de> <1055191776.13435.6.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
-Date: Tue, 10 Jun 2003 09:33:04 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1055191776.13435.6.camel@localhost>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have on my desk a machine where all PCI interrupts are routed to 
-IRQ 0.
+On Mon, Jun 09, 2003 at 03:49:36PM -0500, Shawn wrote:
+> Well, it's a nice way to simulate writing on r/o filesystems IIRC. Like
+> mounting a cdrom then writing to it, but you're not.
+> 
+> Was that was this was? Anyway, linux also does not have unionFS. If it
+> was that big of a deal, someone would write it. As it is, it's a
+> whizbang no one cares about enough.
 
-The IDE code doesn't seem very happy with it -- it seems to think that
-hwif->irq == 0 means that no IRQ has been set. It should be using -1 for
-that instead.
+Its particularly handy for fast read-only NFS stuff.  We have thousands
+of linux hosts and distributing software to all of them is a pain.  With
+cachefs with NFS as the "back" filesystem, you push to the masters and
+the clients get the changes over NFS and then store them in their local
+cache so your software distribution nightmare becomes no problem at all.
+Clients read off the local disk if they can, but fetch over NFS as
+required.  You can tune the cache size on all of the client machines so
+they can cache more or less of the most recently used NFS junk on its
+local disk.
 
-This error is in both 2.4 and 2.5.
-
--- 
-dwmw2
-
+Sean

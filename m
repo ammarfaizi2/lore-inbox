@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268335AbTCFUd4>; Thu, 6 Mar 2003 15:33:56 -0500
+	id <S268376AbTCFUeB>; Thu, 6 Mar 2003 15:34:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268376AbTCFUd4>; Thu, 6 Mar 2003 15:33:56 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:19604 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S268335AbTCFUdy>; Thu, 6 Mar 2003 15:33:54 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 6 Mar 2003 12:52:59 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HT and idle = poll
-In-Reply-To: <Pine.LNX.4.44.0303061204120.8404-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.50.0303061219270.1670-100000@blue1.dev.mcafeelabs.com>
-References: <Pine.LNX.4.44.0303061204120.8404-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268377AbTCFUeB>; Thu, 6 Mar 2003 15:34:01 -0500
+Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:53398 "EHLO
+	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id <S268376AbTCFUd6>; Thu, 6 Mar 2003 15:33:58 -0500
+Message-Id: <200303062044.h26Ki7Gi013598@locutus.cmf.nrl.navy.mil>
+To: Werner Almesberger <wa@almesberger.net>
+cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] make atm (and clip) modular + try_module_get() 
+In-reply-to: Your message of "Wed, 05 Mar 2003 12:52:31 -0300."
+             <20030305125230.B525@almesberger.net> 
+X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
+X-mailer: nmh 1.0
+Date: Thu, 06 Mar 2003 15:44:07 -0500
+From: chas williams <chas@locutus.cmf.nrl.navy.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Mar 2003, Linus Torvalds wrote:
+In message <20030305125230.B525@almesberger.net>,Werner Almesberger writes:
+>native ATM VCs, owned by atmarpd. When atmarpd clears them for IP
+>traffic, all the data that has been queued so far (i.e. any ATMARP
+>messages, and any IP - typically I'd expect to find a SYN there)
+>is removed from the native ATM VC's queue, and fed into the non-ATM
+>part of the stack, for de-encapsulation, etc.
 
->
-> On Thu, 6 Mar 2003, Davide Libenzi wrote:
-> >
-> > Not only. The polling CPU will also shoot a strom of memory requests,
-> > clobbering the CPU's memory I/O stages.
->
-> Well, that would only be true with a really crappy CPU with no caches.
->
-> Polling the same location (as long as it's a pure poll, not trying to do
-> some locked read-modify-write cycle) should be fine. At least for
-> something like idle-polling, where the one location it _is_ polling should
-> not actually be touched by anybody else until the wakeup actually happens.
+while you could make skb_migrate() generic, in this case it doesnt
+really need to be.  since the dest list is on the stack you wouldn't
+need to lock it -- only the source list.  however, this whole migrate
+thing makes me a bit nervous.  you copy the pending data and then
+requeue the data.  what keeps data from arriving on the vcc while
+you are reprocessing -- this could lead to out of order packet
+arrival.
 
-We are talking about HT, don't we ? Cores share execution units and memory
-requests are shot on the memory I/O units of the CPU. Before there is a
-cache circuitry intervention. Something like "while (!run);" will generate
-an enormous amount of memory I/O requests on the CPU's memory units. That
-are shared by cores. Even with non-HT CPU, the above loop creates problems
-respect of the latency to exit the loop itself when the condition will
-become true. This because of the huge number of alloc request issued, that
-must be, exiting the loop, 1) discarded 2) checked against reordering. But
-I don't think the exit latency matters a lot here.
-
-
-
-- Davide
+perhaps the recvq could be locked (to prevent new arrivals) and then
+go through and feed the ip traffic to clip_vcc() leaving the atmarp
+traffic in the queue.  then, unlock and wakeup the vcc to force atmarp
+to get the data pending for it (if any).  this would prevent get 
+around the need to 'migrate' the data back and forth.
 

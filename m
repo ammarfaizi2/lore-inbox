@@ -1,73 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275322AbTHMTRq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 15:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275328AbTHMTRq
+	id S275305AbTHMTRV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 15:17:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275308AbTHMTRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 15:17:46 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:22917 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S275322AbTHMTRm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 15:17:42 -0400
-Date: Wed, 13 Aug 2003 15:20:32 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Stephen Hemminger <shemminger@osdl.org>
-cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] get rid of bcopy warning
-In-Reply-To: <20030813113635.3d3b71ce.shemminger@osdl.org>
-Message-ID: <Pine.LNX.4.53.0308131506540.18802@chaos>
-References: <20030813113635.3d3b71ce.shemminger@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 13 Aug 2003 15:17:21 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:7912 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S275305AbTHMTRT (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 15:17:19 -0400
+Date: Wed, 13 Aug 2003 21:17:09 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Bill Davidsen <davidsen@tmr.com>, Tomas Szepe <szepe@pinerecords.com>,
+       John Bradford <john@grabjohn.com>, Riley@Williams.Name,
+       Linux-Kernel@vger.kernel.org
+Subject: Re: [2.6 patch] let broken drivers depend on BROKEN{,ON_SMP}
+Message-ID: <20030813191709.GI569@fs.tum.de>
+References: <20030731091525.GI12849@louise.pinerecords.com> <Pine.LNX.3.96.1030813104305.11041B-100000@gatekeeper.tmr.com> <20030813153144.GA10579@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030813153144.GA10579@gtf.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Aug 2003, Stephen Hemminger wrote:
+On Wed, Aug 13, 2003 at 11:31:45AM -0400, Jeff Garzik wrote:
+> On Wed, Aug 13, 2003 at 10:50:12AM -0400, Bill Davidsen wrote:
+>...
+> > If you get a bunch of compiler errors without a clear indication that the
+> > driver is known to have problems, it is more likely to produce a "Linux is
+> > crap" reaction. With the problems Windows is showing this week, I'd like
+> > to show Linux as the reliable alternative, not whatever MS is saying about
+> > hacker code this week.
+> 
+> The people who want Linux to be reliable won't be compiling their own
+> kernels, typically.  Because, the people that _do_ compile their own
+> kernels have sense enough to disable broken drivers :)  That's what Red
+> Hat, SuSE, and others do today.
 
-> Get rid of warning because internal definition of bcopy
-> conflicts with builtin.  The warning is probably a bogus
-> bug of GCC 3.2.3, but the workaround is simple.
->
-> Almost no driver really uses bcopy anyway, and no code
-> uses the return value.
+It occurs quite often that you need e.g. the latest -pre or -ac to
+support some of your hardware.
 
-There should never have been a return value from a function
-called bcopy() anyway.
+These are situations when an average systems administrator has to 
+compile his on kernel.
 
->
-> diff -Nru a/lib/string.c b/lib/string.c
-> --- a/lib/string.c	Wed Aug 13 11:31:13 2003
-> +++ b/lib/string.c	Wed Aug 13 11:31:13 2003
-> @@ -432,14 +432,13 @@
->   * You should not use this function to access IO space, use memcpy_toio()
->   * or memcpy_fromio() instead.
->   */
-> -char * bcopy(const char * src, char * dest, int count)
-> +void bcopy(const void * src, void * dest, size_t count)
->  {
-> + 	const char *s = src;
->  	char *tmp = dest;
->
->  	while (count--)
-> -		*tmp++ = *src++;
-> -
-> -	return dest;
-> +		*tmp++ = *s++;
->  }
->  #endif
->
+> 	Jeff
 
-This whole thing is bogus. bcopy() is supposed to handle
-copies of overlapping buffers (IEEE Std 1003.1-2001).
+cu
+Adrian
 
-This means that if destination is at a greater offset than the
-source, the data has to be copied backwards. The code above
-is broken.
+-- 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132680AbRDUOy1>; Sat, 21 Apr 2001 10:54:27 -0400
+	id <S132684AbRDUPHj>; Sat, 21 Apr 2001 11:07:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132682AbRDUOyS>; Sat, 21 Apr 2001 10:54:18 -0400
-Received: from off.net ([64.39.30.25]:16136 "HELO erasmus.off.net")
-	by vger.kernel.org with SMTP id <S132680AbRDUOyN>;
-	Sat, 21 Apr 2001 10:54:13 -0400
-Date: Sat, 21 Apr 2001 10:54:13 -0400
-From: Zach Brown <zab@zabbo.net>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, maestro-users@zabbo.net
-Subject: [PATCH] maestro3 2.4.4-pre5 fixes
-Message-ID: <20010421105413.B8818@erasmus.off.net>
+	id <S132686AbRDUPH3>; Sat, 21 Apr 2001 11:07:29 -0400
+Received: from stanis.onastick.net ([207.96.1.49]:21772 "EHLO
+	stanis.onastick.net") by vger.kernel.org with ESMTP
+	id <S132684AbRDUPHS>; Sat, 21 Apr 2001 11:07:18 -0400
+Date: Sat, 21 Apr 2001 11:07:17 -0400
+From: Disconnect <lkml@sigkill.net>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, arjan@fenrus.demon.nl
+Subject: Re: Athlon problem report summary
+Message-ID: <20010421110717.A5804@sigkill.net>
+In-Reply-To: <20010420203029.C20176@sigkill.net> <E14qlMO-0002bj-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14qlMO-0002bj-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The maestro3 driver has a error cleanup bug that would leave its reboot
-notifier registerd after exiting init_module with an error.  Bayad.
-It also had a minor bug where it didn't explicitly set the codec->id
-before probing..
+> I wrote a set of programs to tune the MMX code. Arjan I suspect did similar
+> when he reoptimised the code for the newer Athlon. Simple stuff like
 
-this patch vs 2.4.4-pre5 (I hope, its really vs jeff's cvs :)) fixes both.
+Alan - your proggy ran (no output) for about 5 seconds or so, then exited.
 
-Linus, please apply.
+Arjan - from yours, I get the results below.  Either way, no OOPs, no
+errors, etc.  (Felt pretty silly as I remounted all my drives and brought
+it back up to multi-user mode ;) ..)
 
--- 
- zach
+So am I correct in assuming at this point that MMX is working fine on this
+mobo/chip combo?  What's next?
 
-Index: maestro3.c
-===================================================================
-RCS file: /cvsroot/gkernel/linux_2_4/drivers/sound/maestro3.c,v
-retrieving revision 1.1.1.24.6.1
-diff -u -r1.1.1.24.6.1 maestro3.c
---- maestro3.c	2001/04/20 01:40:38	1.1.1.24.6.1
-+++ maestro3.c	2001/04/21 14:36:21
-@@ -2307,6 +2307,8 @@
-     codec->private_data = card;
-     codec->codec_read = m3_ac97_read;
-     codec->codec_write = m3_ac97_write;
-+    /* someday we should support secondary codecs.. */
-+    codec->id = 0;
- 
-     if (ac97_probe_codec(codec) == 0) {
-         printk(KERN_ERR PFX "codec probe failed\n");
-@@ -2933,6 +2935,7 @@
- 
-     if (!pci_register_driver(&m3_pci_driver)) {
-         pci_unregister_driver(&m3_pci_driver);
-+        unregister_reboot_notifier(&m3_reboot_nb);
-         return -ENODEV;
-     }
-     return 0;
+
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
+clear_page() tests
+clear_page function 'warm up run'        took 16151 cycles per page
+clear_page function '2.4 non MMX'        took 11893 cycles per page
+clear_page function '2.4 MMX fallback'   took 11736 cycles per page
+clear_page function '2.4 MMX version'    took 10436 cycles per page
+clear_page function 'faster_clear_page'  took 4998 cycles per page
+clear_page function 'even_faster_clear'  took 4881 cycles per page
+
+copy_page() tests
+copy_page function 'warm up run'         took 17595 cycles per page
+copy_page function '2.4 non MMX'         took 26701 cycles per page
+copy_page function '2.4 MMX fallback'    took 26708 cycles per page
+copy_page function '2.4 MMX version'     took 17649 cycles per page
+copy_page function 'faster_copy'         took 10480 cycles per page
+copy_page function 'even_faster'         took 10464 cycles per page
+
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1 [www.ebb.org/ungeek]
+GIT/CC/CM/AT d--(-)@ s+:-- a-->? C++++$ ULBS*++++$ P+>+++ L++++>+++++ 
+E--- W+++ N+@ o+>$ K? w--->+++++ O- M V-- PS+() PE Y+@ PGP++() t 5--- 
+X-- R tv+@ b++++>$ DI++++ D++(+++) G++ e* h(-)* r++ y++
+------END GEEK CODE BLOCK------

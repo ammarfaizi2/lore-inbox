@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281051AbRKDRZs>; Sun, 4 Nov 2001 12:25:48 -0500
+	id <S281054AbRKDR1s>; Sun, 4 Nov 2001 12:27:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280037AbRKDRZi>; Sun, 4 Nov 2001 12:25:38 -0500
-Received: from are.twiddle.net ([64.81.246.98]:43962 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S280969AbRKDRZW>;
-	Sun, 4 Nov 2001 12:25:22 -0500
-Date: Sun, 4 Nov 2001 09:25:17 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: csr21@cam.ac.uk, linux-kernel@vger.kernel.org
-Subject: Re: SPARC and SA_SIGINFO signal handling
-Message-ID: <20011104092517.A10981@twiddle.net>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>, csr21@cam.ac.uk,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011031094342.A27520@cam.ac.uk> <20011031.021131.74751566.davem@redhat.com> <20011103115900.B5984@twiddle.net> <20011103.155422.74749787.davem@redhat.com>
+	id <S280970AbRKDR1i>; Sun, 4 Nov 2001 12:27:38 -0500
+Received: from 10cust182.starstream.net ([63.205.212.182]:19866 "HELO
+	10cust182.starstream.net") by vger.kernel.org with SMTP
+	id <S280042AbRKDR11>; Sun, 4 Nov 2001 12:27:27 -0500
+Date: Sun, 4 Nov 2001 09:27:21 -0800
+From: Ted Deppner <ted@psyber.com>
+To: jarboui@laas.fr
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Regression testing of 2.4.x before release?
+Message-ID: <20011104092721.B16083@dondra.ofc.psyber.com>
+Reply-To: Ted Deppner <ted@psyber.com>
+In-Reply-To: <3BE4E835.CF85035B@kegel.com> <20011103231503.A16083@dondra.ofc.psyber.com> <3BE52ECB.DFE7B040@laas.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011103.155422.74749787.davem@redhat.com>; from davem@redhat.com on Sat, Nov 03, 2001 at 03:54:22PM -0800
+In-Reply-To: <3BE52ECB.DFE7B040@laas.fr>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 03, 2001 at 03:54:22PM -0800, David S. Miller wrote:
-> Is it required?  All the information that thing provides is
-> determinable via other methods.
+On Sun, Nov 04, 2001 at 01:04:27PM +0100, Tahar wrote:
+> Just a newbie question: where can we find such stress tests, and what
+> are the kernel parts targeted by these tests ?
 
-*shrug* Define "required".  It's a standard format.
+A few searches for "linux benchmark", "unix benchmark", or perhaps just
+"benchmark" on Google and Freshmeat.net should turn up plenty to keep you
+busy.
 
+Linus and others have said in the past thought, that YOUR usage is the
+testing they want...  So it's best if you install the kernel and use it
+normally, whatever you'd use a kernel to do.
 
-r~
+I am concerned about lots of I/O and multiprocessing... So I test by doing
+CD-RW burns to two drives (12x and a 4x), NFS data moves (using bonnie,
+dd, and cat), while listening to MP3 streams, reading my email, and
+watching extace, with some of my mysql data loading scripts running.
+
+These are all things I do normally, and I'm the best able to compare new
+performance to past performance.  Sure, I don't do all of those things all
+at the same time _usually_, but that's the main body of my 'test bench'.
+
+-- 
+Ted Deppner
+http://www.psyber.com/~ted/

@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316434AbSG1NHX>; Sun, 28 Jul 2002 09:07:23 -0400
+	id <S316499AbSG1NMK>; Sun, 28 Jul 2002 09:12:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316499AbSG1NHX>; Sun, 28 Jul 2002 09:07:23 -0400
-Received: from horkos.telenet-ops.be ([195.130.132.45]:53732 "EHLO
-	horkos.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S316434AbSG1NHW> convert rfc822-to-8bit; Sun, 28 Jul 2002 09:07:22 -0400
+	id <S316500AbSG1NMJ>; Sun, 28 Jul 2002 09:12:09 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:27154 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S316499AbSG1NMJ>; Sun, 28 Jul 2002 09:12:09 -0400
+Message-Id: <200207281311.g6SDBVT29125@Port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain;
   charset="us-ascii"
-From: Bart De Schuymer <bart.de.schuymer@pandora.be>
-To: linux-kernel@vger.kernel.org
-Subject: EXPORT_SYMBOL problem, in networking code
-Date: Sun, 28 Jul 2002 15:11:40 +0200
-X-Mailer: KMail [version 1.4]
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Federico Sevilla III <jijo@free.net.ph>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux-XFS Mailing List <linux-xfs@oss.sgi.com>
+Subject: Re: Unkillable processes stuck in "D" state running forever
+Date: Sun, 28 Jul 2002 16:09:33 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <20020728102246.GG1265@leathercollection.ph> <20020728113536.GI1265@leathercollection.ph>
+In-Reply-To: <20020728113536.GI1265@leathercollection.ph>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200207281511.40633.bart.de.schuymer@pandora.be>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On 28 July 2002 09:35, Federico Sevilla III wrote:
+> On Sun, Jul 28, 2002 at 06:22:46PM +0800, Federico Sevilla III wrote:
+> > I have been noticing problems on two of my boxes here with some
+> > processes somehow getting stuck in "D" state, which cannot be killed
+> > even by a SIGKILL by root, and stay on running forever. I have noticed
+> > the problem, so far, on 2.4.18-xfs and 2.4.19-rc2-xfs kernels.
+>
+> I do not know how small a tidbit this will be, but together with these
+> processes stuck in state "D", there is a continuing rise in the load
+> averages of the system as reported by various interfaces
+> (top/uptime/w/phpSysInfo). On the system running 2.4.18-xfs this rose to
+> up to 25 before I eventually rebooted the box.
+>
+> Another bit: on the 2.4.18-xfs box, the number of processes getting
+> stuck in state "D" kept growing. Various `ps ax` and `sync` processes in
+> particular, would get stuck and stall as I would issue them. It may be
+> interesting to note that with 2.4.19-rc2-xfs, with which I had my "latest
+> encounter" with this problem, no `ps ax` or `sync` processes got stuck.
+> Only the couple of apt-method processes that got stuck (and any new ones
+> I would launch in an attempt to download a package from the Internet for
+> installation) were there.
 
-I use a function pointer called broute_decision that is default set to NULL, 
-but can be initialized by another kernel module.
-The definition of the function pointer is situated in net/bridge/br_input.c, 
-this file contains the right EXPORT_SYMBOL(broute_decision); line.
+D state processes are sitting in kernel code waiting for something
+to happen. It is ok to sit in D state for milliseconds, it is acceptable
+to sit for seconds. If those processes are stuck forever, it's a bug.
 
-When compiling the kernel with the  both the bridge and my code as a module, I 
-get the following error after "make modules_install":
-
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.18/kernel/net/bridge/netfilter/ebtable_broute.o
-depmod:	broute_decision_Rsmp_b3a20e56
-
-using objdump gives:
-#>objdump --disassemble -j __ksymtab net/bridge/br_input.o'
-net/bridge/br_input.o:	file format elf32-i386
-Disassembly of section __ksymtab:
-00000000 <__ksymtab_broute_decision_Rsmp_b3a20e56
-
-#>objdump --disassemble -j __ksymtab net/bridge/bridge.o'
-net/bridge/bridge.o:	file format elf32-i386
-
-So, although br_input.o has the symbol in its table, bridge.o doesn't. 
-My difficulties come, AFAIK, from the fact that the bridge module is composed 
-out of multiple c-files, here is (an excerpt of) the bridge Makefile:
-
-O_TARGET        := bridge.o
-# the follwing line is added by me
-export-objs := br_input.o
-obj-y := br.o br_device.o br_fdb.o br_forward.o br_if.o br_input.o \
-                        br_ioctl.o br_notify.o br_stp.o br_stp_bpdu.o \
-                        br_stp_if.o br_stp_timer.o
-obj-m := $(O_TARGET)
-
-When compiling the same kernel, but with the bridge and my code built into the 
-kernel (not as modules), everything compiles and it works fine.
-
-I have a "solution" by defining broute_decision in net/core/dev.c and doing 
-the EXPORT_SYMBOL in net/netsyms.c. This works. But broute_decision is not 
-used  in net/core/dev.c, so I would like the definition to be in 
-net/bridge/br_input.c.
-
-How do I get this to work?
-Please CC me as I'm not subscribed to the list.
-I can provide the compilable code (using net/core/dev.c) and the 
-non-compilable code (using net/bridge/br_input.c) if necessary.
-
--- 
-cheers,
-Bart
-
+Capture Alt-SysRq-T output and ksymoops relevant part
+Yes it means you should have ksymoops installed and tested,
+which is easy to get wrong. I've done that too often.
+--
+vda

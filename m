@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130879AbQK3Exr>; Wed, 29 Nov 2000 23:53:47 -0500
+        id <S131120AbQK3Ex5>; Wed, 29 Nov 2000 23:53:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130075AbQK3Evi>; Wed, 29 Nov 2000 23:51:38 -0500
+        id <S131070AbQK3Exs>; Wed, 29 Nov 2000 23:53:48 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:25872 "EHLO zeus.kernel.org")
-        by vger.kernel.org with ESMTP id <S129983AbQK3Evh>;
+        by vger.kernel.org with ESMTP id <S129998AbQK3Evh>;
         Wed, 29 Nov 2000 23:51:37 -0500
-Message-ID: <139801c05a7c$65f76310$0a25a8c0@wizardess.wiz>
-From: "J. Dow" <jdow@earthlink.net>
-To: "Federico Grau" <donfede@casagrau.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20001129213933.A5309@casagrau.org>
-Subject: Re: rocketport pci question... it stopped working after 250 days uptime
-Date: Wed, 29 Nov 2000 19:19:46 -0800
+Date: Wed, 29 Nov 2000 16:24:18 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Bonding...
+Message-ID: <Pine.LNX.4.30.0011291619440.22577-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Federico Grau" <donfede@casagrau.org>
+When using ethernet bonding, does it divide the load between the
+two based on connection, or packet by packet?  In other words, if
+a single TCP connection were established between the two
+machines, would it be twice as fast -using both cables for a
+single file transfer lets say, or is it like SMP where it just
+means you can have twice as many connections, and any given
+connection would go only through a single cable, but multiple
+traffic will be load balanced between both?
 
-> We have several linux boxes useing 8 port rocketport pci multiport serial
-> cards.  Earlier last week 3 of them stopped working within a 24 hour period.
-> These three boxes had similar uptimes (since their last kernel rebuild); 249
-> days, 248 days, 250 days.  Comparing the logs of each box, we saw that each
-> box's rocketport stopped working after aproximately 248 days 16 hours uptime.
 
-If it was 248 days 13 hours 13 minutes 56.48 seconds this represents a 32 bit
-counter on a 5ms clock overflowing. I'd look for that in the RocketPort code.
-Although I remember Jeff remarking about something else failing at about the
-same uptime.
 
-{^_^}    Joanne Dow, jdow@earthlink.net
 
+
+
+----------------------------------------------------------------------
+      Mike A. Harris  -  Linux advocate  -  Open source advocate
+          This message is copyright 2000, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+
+#[Mike A. Harris bash tip #1 - separate history files per virtual console]
+# Put the following at the bottom of your ~/.bash_profile
+[ ! -d ~/.bash_histdir ] && mkdir ~/.bash_histdir
+tty |grep "^/dev/tty[0-9]" >& /dev/null && \
+        export HISTFILE=~/.bash_histdir/.$(tty | sed -e 's/.*\///')
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

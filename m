@@ -1,78 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280262AbRJaPQQ>; Wed, 31 Oct 2001 10:16:16 -0500
+	id <S280267AbRJaPbr>; Wed, 31 Oct 2001 10:31:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280264AbRJaPQG>; Wed, 31 Oct 2001 10:16:06 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:34062 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S280263AbRJaPQD>;
-	Wed, 31 Oct 2001 10:16:03 -0500
-Date: Wed, 31 Oct 2001 13:16:15 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] correct cached statistics
-Message-ID: <Pine.LNX.4.33L.0110311314270.2963-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S280269AbRJaPbh>; Wed, 31 Oct 2001 10:31:37 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34823 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S280267AbRJaPbX>; Wed, 31 Oct 2001 10:31:23 -0500
+Date: Wed, 31 Oct 2001 07:28:49 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: pre6 oom killer oops
+In-Reply-To: <3BE00078.FF088117@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0110310725330.32330-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-it seems a small change from the blockdev-in-pagecache changes
-has crept into 2.4.13-ac, the following patch backs out that
-change and should make the cached stats correct again.
+On Wed, 31 Oct 2001, Jeff Garzik wrote:
+>
+> 2.4.14-pre6 on alpha.  three oops attached, an oops right after oom
+> killer kicked in, and two hits on this BUG:  kernel BUG at buffer.c:498!
 
-Please apply for the next one.
+This isn't the oom killer - look more closely at your oops:
 
-thanks,
+	do_wp_page: bogus page at address 2000002dbc0 (page 0xfffffc173ab13b00)
+	VM: killing process cc1(29719)
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+Note the "do_wp_page" message _before_ the VM decided to kill the process.
+And the first oops seems to be more of the same: big corruption in the
+page tables.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Looks like the oom killer kicked in under extreme memory load, but the
+extreme memory load caused something else too.
 
-
---- linux-2.4.13-ac5/fs/proc/proc_misc.c.blkpg	Wed Oct 31 13:09:51 2001
-+++ linux-2.4.13-ac5/fs/proc/proc_misc.c	Wed Oct 31 13:12:27 2001
-@@ -140,7 +140,9 @@
- {
- 	struct sysinfo i;
- 	int len;
--	int pg_size;
-+	unsigned int cached;
-+
-+	cached = atomic_read(&page_cache_size) - atomic_read(&shmem_nrpages);
-
- /*
-  * display in kilobytes.
-@@ -149,14 +151,12 @@
- #define B(x) ((unsigned long long)(x) << PAGE_SHIFT)
- 	si_meminfo(&i);
- 	si_swapinfo(&i);
--	pg_size = atomic_read(&page_cache_size) - i.bufferram ;
--
- 	len = sprintf(page, "        total:    used:    free:  shared: buffers:  cached:\n"
- 		"Mem:  %8Lu %8Lu %8Lu %8Lu %8Lu %8Lu\n"
- 		"Swap: %8Lu %8Lu %8Lu\n",
- 		B(i.totalram), B(i.totalram-i.freeram), B(i.freeram),
- 		B(i.sharedram), B(i.bufferram),
--		B(pg_size), B(i.totalswap),
-+		B(cached), B(i.totalswap),
- 		B(i.totalswap-i.freeswap), B(i.freeswap));
- 	/*
- 	 * Tagged format, for easy grepping and expansion.
-@@ -184,7 +184,7 @@
- 		K(i.freeram),
- 		K(i.sharedram),
- 		K(i.bufferram),
--		K(pg_size - swapper_space.nrpages),
-+		K(cached - swapper_space.nrpages),
- 		K(swapper_space.nrpages),
- 		K(nr_active_pages),
- 		K(nr_inactive_dirty_pages),
+		Linus
 

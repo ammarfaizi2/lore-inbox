@@ -1,210 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267615AbRGUJ0b>; Sat, 21 Jul 2001 05:26:31 -0400
+	id <S267621AbRGUMZx>; Sat, 21 Jul 2001 08:25:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267619AbRGUJ0W>; Sat, 21 Jul 2001 05:26:22 -0400
-Received: from vti01.vertis.nl ([145.66.4.26]:13575 "EHLO vti01.vertis.nl")
-	by vger.kernel.org with ESMTP id <S267615AbRGUJ0I>;
-	Sat, 21 Jul 2001 05:26:08 -0400
-Message-Id: <200107210925.LAA06725@linux06.vertis.nl>
-Date: Sat, 21 Jul 2001 11:21:41 +0200
-From: Rolf Fokkens <FokkensR@vertis.nl>
-To: linux-kernel@vger.kernel.org
-Subject: PATCH: DAC960 (2.4.7) DECLARE_MUTEX_LOCKED -> DECLARE_COMPLETION
+	id <S267622AbRGUMZn>; Sat, 21 Jul 2001 08:25:43 -0400
+Received: from tartarus.telenet-ops.be ([195.130.132.34]:25267 "HELO
+	smtp2.pandora.be") by vger.kernel.org with SMTP id <S267621AbRGUMZf>;
+	Sat, 21 Jul 2001 08:25:35 -0400
+Date: Sat, 21 Jul 2001 14:25:39 +0200
+From: Sven Vermeulen <sven.vermeulen@rug.ac.be>
+To: Linux-kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: 2.4.7 build failure : esssolo1.c troubles
+Message-ID: <20010721142539.A6276@Zenith.starcenter>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.4.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi!
+gcc -D__KERNEL__ -I/home/nitro/src/linux-2.4.7/include -Wall \
+  -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer \
+  -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 \
+  -march=k6    -c -o esssolo1.o esssolo1.c \
+esssolo1.c:2455: warning: initialization from incompatible pointer type
+esssolo1.c:2457: warning: initialization from incompatible pointer type
 
-Linus' decision to replace "DECLARE_MUTEX_LOCKED" by "DECLARE_COMPLETION"
-apparently hasn't reached the DAC960 driver. This patch fixes that. This means
-the driver now compiles. I don't have the hardware, so I can't tell if the
-driver actually works.
+and
 
-Rolf
+drivers/sound/sounddrivers.o: In function `solo1_probe':
+drivers/sound/sounddrivers.o(.text.init+0x3ab): undefined reference to \
+  `gameport_register_port'
+drivers/sound/sounddrivers.o: In function `solo1_remove':
+drivers/sound/sounddrivers.o(.text.init+0x4d7): undefined reference to \
+  `gameport_unregister_port'
+make: *** [vmlinux] Error 1
 
---- linux/drivers/block/DAC960.h.dac960	Wed Feb 21 06:26:22 2001
-+++ linux/drivers/block/DAC960.h	Sat Jul 21 10:54:04 2001
-@@ -2153,7 +2153,7 @@
- typedef struct pt_regs Registers_T;
- typedef struct request IO_Request_T;
- typedef request_queue_t RequestQueue_T;
--typedef struct semaphore Semaphore_T;
-+typedef struct completion Wait_T;
- typedef struct super_block SuperBlock_T;
- typedef struct timer_list Timer_T;
- typedef wait_queue_head_t WaitQueue_T;
-@@ -2220,7 +2220,7 @@
-   DAC960_CommandType_T CommandType;
-   struct DAC960_Controller *Controller;
-   struct DAC960_Command *Next;
--  Semaphore_T *Semaphore;
-+  Wait_T *Wait;
-   unsigned int LogicalDriveNumber;
-   unsigned int BlockNumber;
-   unsigned int BlockCount;
---- linux/drivers/block/DAC960.c.dac960	Sun May 27 14:12:55 2001
-+++ linux/drivers/block/DAC960.c	Sat Jul 21 11:02:28 2001
-@@ -40,6 +40,7 @@
- #include <linux/spinlock.h>
- #include <linux/timer.h>
- #include <linux/pci.h>
-+#include <linux/completion.h>
- #include <asm/io.h>
- #include <asm/segment.h>
- #include <asm/uaccess.h>
-@@ -484,14 +485,14 @@
- static void DAC960_ExecuteCommand(DAC960_Command_T *Command)
- {
-   DAC960_Controller_T *Controller = Command->Controller;
--  DECLARE_MUTEX_LOCKED(Semaphore);
-+  DECLARE_COMPLETION(Wait);
-   unsigned long ProcessorFlags;
--  Command->Semaphore = &Semaphore;
-+  Command->Wait = &Wait;
-   DAC960_AcquireControllerLock(Controller, &ProcessorFlags);
-   DAC960_QueueCommand(Command);
-   DAC960_ReleaseControllerLock(Controller, &ProcessorFlags);
-   if (in_interrupt()) return;
--  down(&Semaphore);
-+  wait_for_completion(&Wait);
- }
- 
- 
-@@ -1316,7 +1317,7 @@
- 						 *Controller)
- {
-   DAC960_V1_DCDB_T DCDBs[DAC960_V1_MaxChannels], *DCDB;
--  Semaphore_T Semaphores[DAC960_V1_MaxChannels], *Semaphore;
-+  Wait_T Waits[DAC960_V1_MaxChannels], *Wait;
-   unsigned long ProcessorFlags;
-   int Channel, TargetID;
-   for (TargetID = 0; TargetID < Controller->Targets; TargetID++)
-@@ -1327,12 +1328,12 @@
- 	  DAC960_SCSI_Inquiry_T *InquiryStandardData =
- 	    &Controller->V1.InquiryStandardData[Channel][TargetID];
- 	  InquiryStandardData->PeripheralDeviceType = 0x1F;
--	  Semaphore = &Semaphores[Channel];
--	  init_MUTEX_LOCKED(Semaphore);
-+	  Wait = &Waits[Channel];
-+	  init_completion(Wait);
- 	  DCDB = &DCDBs[Channel];
- 	  DAC960_V1_ClearCommand(Command);
- 	  Command->CommandType = DAC960_ImmediateCommand;
--	  Command->Semaphore = Semaphore;
-+	  Command->Wait = Wait;
- 	  Command->V1.CommandMailbox.Type3.CommandOpcode = DAC960_V1_DCDB;
- 	  Command->V1.CommandMailbox.Type3.BusAddress = Virtual_to_Bus32(DCDB);
- 	  DCDB->Channel = Channel;
-@@ -1363,11 +1364,11 @@
- 	  DAC960_SCSI_Inquiry_UnitSerialNumber_T *InquiryUnitSerialNumber =
- 	    &Controller->V1.InquiryUnitSerialNumber[Channel][TargetID];
- 	  InquiryUnitSerialNumber->PeripheralDeviceType = 0x1F;
--	  Semaphore = &Semaphores[Channel];
--	  down(Semaphore);
-+	  Wait = &Waits[Channel];
-+	  wait_for_completion(Wait);
- 	  if (Command->V1.CommandStatus != DAC960_V1_NormalCompletion)
- 	    continue;
--	  Command->Semaphore = Semaphore;
-+	  Command->Wait = Wait;
- 	  DCDB = &DCDBs[Channel];
- 	  DCDB->TransferLength = sizeof(DAC960_SCSI_Inquiry_UnitSerialNumber_T);
- 	  DCDB->BusAddress = Virtual_to_Bus32(InquiryUnitSerialNumber);
-@@ -1381,7 +1382,7 @@
- 	  DAC960_AcquireControllerLock(Controller, &ProcessorFlags);
- 	  DAC960_QueueCommand(Command);
- 	  DAC960_ReleaseControllerLock(Controller, &ProcessorFlags);
--	  down(Semaphore);
-+	  wait_for_completion(Wait);
- 	}
-     }
-   return true;
-@@ -2768,7 +2769,7 @@
-   if (Request->cmd == READ)
-     Command->CommandType = DAC960_ReadCommand;
-   else Command->CommandType = DAC960_WriteCommand;
--  Command->Semaphore = Request->sem;
-+  Command->Wait = Request->waiting;
-   Command->LogicalDriveNumber = DAC960_LogicalDriveNumber(Request->rq_dev);
-   Command->BlockNumber =
-     Request->sector
-@@ -2924,10 +2925,10 @@
- 	  /*
- 	    Wake up requestor for swap file paging requests.
- 	  */
--	  if (Command->Semaphore != NULL)
-+	  if (Command->Wait != NULL)
- 	    {
--	      up(Command->Semaphore);
--	      Command->Semaphore = NULL;
-+	      complete(Command->Wait);
-+	      Command->Wait = NULL;
- 	    }
- 	  add_blkdev_randomness(DAC960_MAJOR + Controller->ControllerNumber);
- 	}
-@@ -2972,10 +2973,10 @@
- 	  /*
- 	    Wake up requestor for swap file paging requests.
- 	  */
--	  if (Command->Semaphore != NULL)
-+	  if (Command->Wait != NULL)
- 	    {
--	      up(Command->Semaphore);
--	      Command->Semaphore = NULL;
-+	      complete(Command->Wait);
-+	      Command->Wait = NULL;
- 	    }
- 	}
-     }
-@@ -3589,8 +3590,8 @@
-     }
-   if (CommandType == DAC960_ImmediateCommand)
-     {
--      up(Command->Semaphore);
--      Command->Semaphore = NULL;
-+      complete(Command->Wait);
-+      Command->Wait = NULL;
-       return;
-     }
-   if (CommandType == DAC960_QueuedCommand)
-@@ -3934,10 +3935,10 @@
- 	  /*
- 	    Wake up requestor for swap file paging requests.
- 	  */
--	  if (Command->Semaphore != NULL)
-+	  if (Command->Wait != NULL)
- 	    {
--	      up(Command->Semaphore);
--	      Command->Semaphore = NULL;
-+	      complete(Command->Wait);
-+	      Command->Wait = NULL;
- 	    }
- 	  add_blkdev_randomness(DAC960_MAJOR + Controller->ControllerNumber);
- 	}
-@@ -3982,10 +3983,10 @@
- 	  /*
- 	    Wake up requestor for swap file paging requests.
- 	  */
--	  if (Command->Semaphore != NULL)
-+	  if (Command->Wait != NULL)
- 	    {
--	      up(Command->Semaphore);
--	      Command->Semaphore = NULL;
-+	      complete(Command->Wait);
-+	      Command->Wait = NULL;
- 	    }
- 	}
-     }
-@@ -4539,8 +4540,8 @@
-     }
-   if (CommandType == DAC960_ImmediateCommand)
-     {
--      up(Command->Semaphore);
--      Command->Semaphore = NULL;
-+      complete(Command->Wait);
-+      Command->Wait = NULL;
-       return;
-     }
-   if (CommandType == DAC960_QueuedCommand)
+
+-- 
+ Sven Vermeulen            -    Key-ID CDBA2FDB 
+ LUG: http://www.lugwv.be  -    http://www.keyserver.net
+

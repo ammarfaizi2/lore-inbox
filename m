@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267845AbTBYUIR>; Tue, 25 Feb 2003 15:08:17 -0500
+	id <S268220AbTBYUNN>; Tue, 25 Feb 2003 15:13:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268220AbTBYUIR>; Tue, 25 Feb 2003 15:08:17 -0500
-Received: from uni00du.unity.ncsu.edu ([152.1.13.100]:35723 "EHLO
-	uni00du.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id <S267845AbTBYUIR>; Tue, 25 Feb 2003 15:08:17 -0500
-From: jlnance@unity.ncsu.edu
-Date: Tue, 25 Feb 2003 15:18:32 -0500
-To: linux-kernel@vger.kernel.org
+	id <S268222AbTBYUNN>; Tue, 25 Feb 2003 15:13:13 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:57734 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S268220AbTBYUNM>;
+	Tue, 25 Feb 2003 15:13:12 -0500
+Date: Tue, 25 Feb 2003 21:23:35 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
+       Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sf.et,
+       linux-kernel@vger.kernel.org
 Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030225201832.GA9442@ncsu.edu>
-References: <20030225051956.GA18302@f00f.org> <FKEAJLBKJCGBDJJIPJLJMEOOEPAA.scott@coyotegulch.com>
+Message-ID: <20030225202335.GU29467@dualathlon.random>
+References: <96700000.1045871294@w-hlinder> <20030222192424.6ba7e859.akpm@digeo.com> <20030225171727.GN29467@dualathlon.random> <20030225174359.GA10411@holomorphy.com> <20030225175928.GP29467@dualathlon.random> <20030225185008.GF10396@holomorphy.com> <20030225191817.GT29467@dualathlon.random> <20030225201023.GG10396@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <FKEAJLBKJCGBDJJIPJLJMEOOEPAA.scott@coyotegulch.com>
+In-Reply-To: <20030225201023.GG10396@holomorphy.com>
 User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2003 at 02:59:05PM -0500, Scott Robert Ladd wrote:
-> > In two year this kind of hardware probably will be SMP (HT or some
-> > variant).
-> 
-> HT is not the same thing as SMP; while the chip may appear to be two
-> processors, it is actually equivalent 1.1 to 1.3 processors, depending on
-> the application.
-> 
-> Multicore processors and true SMP systems are unlikely to become mainstream
-> consumer items, given the premium price charged for such systems.
+On Tue, Feb 25, 2003 at 12:10:23PM -0800, William Lee Irwin III wrote:
+> I'd just bite the bullet and do the anonymous rework. Building
+> pte_chains lazily raises the issue of needing to allocate in order to
 
-I think the difference between SMP and HT is likely to decrease rather
-than increase in the future.  Even now people want to put multiple CPUs
-on the same piece of silicon.  Once you do that it only makes sense to
-start sharning things between them.  If you had a system with 2 CPUs
-which shared a common L1 cache is that going to be a HT or an SMP system?
-Or you could go further and have 2 CPUs which share an FPU.  There are
-all sorts of combinations you could come up with.  I think designers
-will experiment and find the one that gives the most throughput for
-the least money.
+note that there is no need of allocate to free.
 
-Jim
+Andrea

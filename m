@@ -1,68 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262459AbTE2RzU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 13:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbTE2RzU
+	id S262465AbTE2R7P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 13:59:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbTE2R7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 13:55:20 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:2257 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262459AbTE2RzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 13:55:19 -0400
-Date: Thu, 29 May 2003 20:08:31 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Xose Vazquez Perez <xose@wanadoo.es>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, miquels@cistron-office.nl
-Subject: Re: [announce] procps 2.0.13 with NPTL enhancements
-Message-ID: <20030529180830.GG5643@fs.tum.de>
-References: <3ED6426F.6010807@wanadoo.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3ED6426F.6010807@wanadoo.es>
-User-Agent: Mutt/1.4.1i
+	Thu, 29 May 2003 13:59:15 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:32225 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262465AbTE2R7N convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 13:59:13 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: RFC Proposal to enable MSI support in Linux kernel
+Date: Thu, 29 May 2003 11:12:18 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502413624E@orsmsx404.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: RFC Proposal to enable MSI support in Linux kernel
+Thread-Index: AcMlbfBELuwWxvgpSsiyShQt6/BKIgAnrXtw
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Zwane Mwaikambo" <zwane@linuxpower.ca>, "Jeff Garzik" <jgarzik@pobox.com>
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 29 May 2003 18:12:19.0177 (UTC) FILETIME=[D7B30590:01C3260D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 29, 2003 at 07:25:03PM +0200, Xose Vazquez Perez wrote:
+I am working on an updated patch to 2.5.70 to incorporate the comments from you and Jeff Garzik. Regarding the variable renaming of irq, I am open to any suggestions. Please make a recommendation and I will incorporate it into the next update.  Regarding platform_legacy_irq, I have not seen an edge-triggered interrupt failure caused by platform_legacy_irq.
+
+           CPU0       CPU1       
+  0:     380044          0    IO-APIC-edge  timer
+  1:        590          0    IO-APIC-edge  i8042
+  2:          0          0          XT-PIC  cascade
+ 12:        715          0    IO-APIC-edge  i8042
+ 14:       7902          0    IO-APIC-edge  ide0
+ 15:          2          0    IO-APIC-edge  ide1
+169:          0          0   IO-APIC-level  uhci-hcd
+185:          0          0   IO-APIC-level  uhci-hcd
+193:         84          0   IO-APIC-level  aic79xx
+201:         30          0   IO-APIC-level  aic79xx
+225:         16          0   IO-APIC-level  aic7xxx
+233:         16          0   IO-APIC-level  aic7xxx
+NMI:          0          0 
+LOC:     379962     380218 
+ERR:          0
+MIS:          0
+
+Thanks,
+Tom
+
+-----Original Message-----
+From: Zwane Mwaikambo [mailto:zwane@linuxpower.ca]
+Sent: Wednesday, May 28, 2003 4:06 PM
+To: Jeff Garzik
+Cc: Nguyen, Tom L; Nakajima, Jun; linux-kernel@vger.kernel.org; Saxena,
+Sunil; Mallick, Asit K; Carbonari, Steven
+Subject: Re: RFC Proposal to enable MSI support in Linux kernel
+
+
+On Wed, 28 May 2003, Jeff Garzik wrote:
+
+> > +#ifdef CONFIG_PCI_USE_VECTOR
+> > +	for (i = 0; i < (NR_VECTORS - FIRST_EXTERNAL_VECTOR); i++) {
+> > +#else
+> >  	for (i = 0; i < NR_IRQS; i++) {
+> > +#endif
 > 
-> --from the http://procps.sourceforge.net/faq.html --
-> Why are there so many procps projects?
-> 
-> The original maintainer seems to have had little time for procps.
-> Whatever his reasons, the project didn't get maintained. Starting
-> in 1997, Albert Cahalan wrote a new ps program for the package.
-> For the next few years, Albert quietly helped the Debian package
-> maintainer fix bugs. In 2001, Rik van Riel decided to do something
-> about what appeared to be the lack of a maintainer. He picked up
-> the buggy old code in Red Hat's CVS and started adding patches.
-> Meanwhile, other people have patched procps in a great many ways.
-> In 2002, Albert moved procps to this site. This was done to ensure
-> that years of testing and bug fixes would not be lost. The major
-> version number was changed to 3, partly to avoid confusing users
-> and partly because the top program has been redone.
-> --end--
-> 
-> I think too that is to waste the time&resources to have two,
-> and to do a little  different some LiNUX distributions in a basic
-> and important package
-> 
-> but if both have freetime... ;-)
+> This ifdef isn't necessary.  ifdef in a header somewhere.  For example, 
+> make NR_IRQS (or some other constant, if changing NR_IRQS definition 
+> isn't ok) condition on the CONFIG_xxx options.
 
-Well, since I read Albert Cahalan's comment in Debian bug #172735 [1] 
-I understand the people maintaining a different branch...
+Actually we can simply use;
 
-> regards,
+for (i = 0; i < (NR_VECTORS - FIRST_EXTERNAL_VECTOR); i++) {
+	vector = ...
+	if (i >= NR_IRQS)
+		break;
+	...
+	set_intr_gate(vector, interrupt[i]);
+}
 
-cu
-Adrian
+> split into two functions, maybe?  (due to the ifdef)  Your call, it's 
+> mainly a programmer preference.
 
-[1] http://bugs.debian.org/172735
+I agree.
 
+> A bigger question though:  if platform_legacy_irq() returns zero, will 
+> the handler _ever_ be edge-triggered?
+
+Good question, i wouldn't think so, that would collapse that section into 
+two lines.
+
+> As I see more and more of these ifdefs, I wonder if they couldn't be 
+> hidden inside wrappers?
+
+Yes some of them are a bit easy to botch up later on.. like the following 
+excerpt.
+
+> > +#ifdef CONFIG_PCI_USE_VECTOR
+> > +			if (!platform_legacy_irq(irq))
+> > +				entry->irq = IO_APIC_VECTOR(irq);
+> > +			else
+> > +#endif
+> >  			entry->irq = irq;
+> >  			continue;
+
+Thanks,
+	Zwane
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+function.linuxpower.ca

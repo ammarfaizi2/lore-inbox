@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbTJAJS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 05:18:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbTJAJS1
+	id S262006AbTJAJYR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 05:24:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbTJAJYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 05:18:27 -0400
-Received: from [217.146.195.163] ([217.146.195.163]:59404 "EHLO mail.rin.ru")
-	by vger.kernel.org with ESMTP id S262052AbTJAJS0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 05:18:26 -0400
-From: "Gallery-a" <1cat_a_lqe@rin.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Art-catalogue update (0537156284)@-d-v -SCs
-Date: 01 Oct 2003 13:18:00 +0400
-Message-ID: <2003.10.01.1D3F6E892E396DA6@rin.ru>
-MIME-Version: 1.0
+	Wed, 1 Oct 2003 05:24:17 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:44731 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262006AbTJAJYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 05:24:16 -0400
+Subject: Re: [BUG] 2.4.x RT signal leak with kupdated (and maybe others)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+In-Reply-To: <20030930182255.GX17274@velociraptor.random>
+References: <1064939275.673.42.camel@gaston>
+	 <20030930173651.GU17274@velociraptor.random>
+	 <1064944028.5634.49.camel@gaston>
+	 <20030930182255.GX17274@velociraptor.random>
 Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
+Message-Id: <1065000241.5636.53.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 01 Oct 2003 11:24:01 +0200
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Ladies and Gentlemen,
 
-Dear Ladies and Gentlemen,
-We are pleased to inform you, that during the process of our site 
-modernization, due to every day updating of our link system, we became one 
-of the most full world art catalogues, as well as the largest catalogue of 
-the art sites and museums.
-                http://www.gallery-a.ru/links
-If you are the owner of a art-website than you have a chance to register 
-yourself in our catalogue, to add a link and banner to your site via this 
-registration form: http://www.gallery-a.ru/links/register.php
+> That's because nobody else sends signals to the daemons I guess. And
+> even if they do the daemon won't clear the pending bitflag, so there's
+> no risk to queue more than 1 non-RT entry per signal per daemon like it
+> happened with kupdate.
 
-Now in the “Links” section you can find more than 5000 links to the art-
-sites all round the world.   1074 of them are Russian sites, 20003 are 
-links to the sites of the former USSR.
-We have plans to enlarge this system up to the size of art-portal in the 
-nearest future. 
-If you would like to be informed about the new events in art and art-
-business, to get acquainted with the contemporary creative work of the 
-contemporary artists, welcome to our web site!
-Gallery curator.
+And any daemon can cause the same leak by sending it RT signals... I just
+verified sending for example a bunch of 33's (SIGRTMIN) to khubd, that
+increased the count permanently.
 
-Also available on our site
-E-Cards:http://www.gallery-a.ru/ecards/compose.php
-Wallpapers: http://www.gallery-a.ru/luxury.php
+I agree this should not happen normally, and I suppose only root can do
+that and we aren't here to prevent root from shooting itself in the
+foot, are we ?
 
-Welcome to our website!
-Gallery curator.
+The question is should I spend some time adding some flush_signals() to
+the loop of those various kernel daemons I can find or that isn't worth ?
 
+Regarding kupated, dequeue_signal is a better option as we actually care
+about the signal, I'm testing a patch it will be there in a few minutes.
 
-Sorry if that information not interesting for You and we disturb You with 
-our message!
-For removing yor address from this mailing list just replay this message 
-with word 'unsubscribe' in subject field
-or simple click this link:
- http://www.gallery-a.ru/unsubscribe.php?e=bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzoxNjk4NDY3Mg==
-
-
-
+Ben.
+ 
 

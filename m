@@ -1,79 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262524AbTFZUbR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 16:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbTFZUbQ
+	id S262498AbTFZUiX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 16:38:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbTFZUiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 16:31:16 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:11226 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262524AbTFZUbF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 16:31:05 -0400
-Date: Thu, 26 Jun 2003 22:45:17 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: =?iso-8859-2?Q?Terje_F=E5berg?= <terje_fb@yahoo.no>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.73 - keyboard failure, repost no. 3
-Message-ID: <20030626224517.C5633@ucw.cz>
-References: <Pine.LNX.4.44.0306221150440.17823-100000@old-penguin.transmeta.com> <20030623203224.1180.qmail@web12902.mail.yahoo.com>
+	Thu, 26 Jun 2003 16:38:23 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:47249 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262498AbTFZUiT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 16:38:19 -0400
+Date: Thu, 26 Jun 2003 13:52:21 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Robert White <rwhite@casabyte.com>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, Larry McVoy <lm@bitmover.com>,
+       wa@almesberger.net, miquels@cistron-office.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-ID: <20030626205221.GC14299@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Robert White <rwhite@casabyte.com>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	Larry McVoy <lm@bitmover.com>, wa@almesberger.net,
+	miquels@cistron-office.nl, linux-kernel@vger.kernel.org
+References: <20030626125053.1391e59f.skraw@ithnet.com> <PEEPIDHAKMCGHDBJLHKGOEGEDBAA.rwhite@casabyte.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030623203224.1180.qmail@web12902.mail.yahoo.com>; from terje_fb@yahoo.no on Mon, Jun 23, 2003 at 10:32:24PM +0200
+In-Reply-To: <PEEPIDHAKMCGHDBJLHKGOEGEDBAA.rwhite@casabyte.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 23, 2003 at 10:32:24PM +0200, Terje Fåberg wrote:
-> 
-> Hi all, 
-> 
-> (and yes, I read the post-halloween docs!)
-> 
-> Just a note on the side: 2.5.73 fails to make use of
-> the keyboard on my Mitac 8375 Laptop. It correctly
-> identifies the controller AND the keyboard, but no
-> keypresses are recognized.
-> 
-> What can I do to track this down?
+On Thu, Jun 26, 2003 at 01:41:49PM -0700, Robert White wrote:
+> The idea that you "don't learn anything from (playing a less skilled
+> opponent)" and by extension you also can not learn anything from a
+> non-player is so flawed as to be laughable.
 
-	#define DEBUG
+In theory, you can learn anything from anyone.
+In practice, the highest concentration of useful information comes from
+someone with more experience and skill than yourself.
 
-in
+Who do you want to have as your doctor?  Someone who has done it for 20
+years or someone who is observing other doctors?  Repeat for any other
+profession, sport, discipline, whatever.  Maybe you want to have your
+heart surgery done by someone who thinks he can do it, me, I'd pick 
+someone who has done it successfully a few hundred times.
 
-	drivers/input/serio/i8042.c
-
-then recompile and send me the output of that.
-
-> 
-> This problem exists at least since 2.5.67.  Linux-2.4 
-> runs perfectly.
-> 
-> Please see the .config and kernel output
-> ...
-> pc110pad: I/O area 0x15e0-0x15e4 un use.
-> i8042.c: Detected active multiplexing controller, rev
-> 1.1
-> serio: i8042 AUX0 port at 0x60,0x64 irq 12
-> serio: i8042 AUX1 port at 0x60,0x64 irq 12
-> Synaptics Touchpad, model 1
->   Firware: 5.1
->   180 degree mounted touchpad
->   Sensor: 15
->   new absolute packet format
->   Touchpad has extended capability bits
->   -> four buttons
->   -> multifinger detection
->   -> palm detection
->  input: Synaptics Synaptics Touchpad on isa0060/serio3
-> serio: i8042 AUX3 port at 0x60,0x64 irq 12
-> serio: i8042 AUX4 port at 0x60,0x64 irq 12
-> input: AT Set 2 keyboard on isa006 0/serio0
-> serio: i8042 KBD port at 0x60,0x64 irq1
-> ...
-> 
-
+That's my point of view, it's clear it isn't your point of view.  That's
+fine, how about we agree to have different points of views and let this
+thread die?
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

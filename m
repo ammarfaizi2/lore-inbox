@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313070AbSFYJY2>; Tue, 25 Jun 2002 05:24:28 -0400
+	id <S314448AbSFYKYo>; Tue, 25 Jun 2002 06:24:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313477AbSFYJY1>; Tue, 25 Jun 2002 05:24:27 -0400
-Received: from smtp-in.sc5.paypal.com ([216.136.155.8]:3465 "EHLO
-	smtp-in.sc5.paypal.com") by vger.kernel.org with ESMTP
-	id <S313070AbSFYJY0>; Tue, 25 Jun 2002 05:24:26 -0400
-Date: Tue, 25 Jun 2002 02:24:21 -0700
-From: Brad Heilbrun <bheilbrun@paypal.com>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Q] change_parent() - would this work?
-Message-ID: <20020625092421.GA20315@paypal.com>
-Mail-Followup-To: Thunder from the hill <thunder@ngforever.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0206220435310.4307-100000@hawkeye.luckynet.adm>
+	id <S314702AbSFYKYn>; Tue, 25 Jun 2002 06:24:43 -0400
+Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:12211 "EHLO
+	harrier.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S314448AbSFYKYn>; Tue, 25 Jun 2002 06:24:43 -0400
+Date: Tue, 25 Jun 2002 06:26:09 -0400
+To: ak@muc.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [NEW PATCH, testers needed] was Re: [PATCH] poll/select fast path
+Message-ID: <20020625102609.GA12253@rushmore>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0206220435310.4307-100000@hawkeye.luckynet.adm>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 22, 2002 at 04:36:53AM -0600, Thunder from the hill wrote:
-> Hi,
-> 
-> My question is: would this work?
+> The patch should apply & works for me on 2.4 too, no need to use 2.5
+> (select/poll are virtually unchanged between 2.4 and 2.5)
 
-I don't believe so...
+Running lmbench on quad xeon with Andi's patch shows a reduction
+in select latency in all cases compared to -pre10.
 
-> +#define change_parent(p)	list_move_tail(&(p)->sibling,&(parent)->children)
+File select - times in microseconds - smaller is better
+Average of 25 runs.  -ak-axboe is select/poll patch +
+blockhighmem.
 
-On the above line change_parent takes one argument.
-
-> +				change_parent(p, p->parent);
-
-Here, it takes two.
-
-Otherwise it looks good, and removes a couple of assignments. Not sure
-how useful it is though, is this done a lot?
+                      select select select select  select select select select
+kernel                10 fd  100 fd 250 fd 500 fd  10 TCP 100TCP 250TCP 500TCP
+--------------------- ------ ------ ------ ------  ------ ------ ------ ------
+2.4.19-pre10            4.73  30.66  74.62 143.77    5.67 40.879 97.914 193.10
+2.4.19-pre10-ak-axboe   3.85  27.83  71.55 142.78    4.86 37.517 94.205 191.54
+2.4.19-pre10-aa4        4.54  29.48  73.96 147.52    5.60 39.485 98.895 194.58
+2.4.19-pre10-ac2        4.63  29.60  73.33 141.86    5.64 39.328 98.898 192.82
 
 -- 
-Brad Heilbrun
+Randy Hron
+http://home.earthlink.net/~rwhron/bigbox.html
+

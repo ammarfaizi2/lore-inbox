@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281267AbRKUDMx>; Tue, 20 Nov 2001 22:12:53 -0500
+	id <S281493AbRKUDti>; Tue, 20 Nov 2001 22:49:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281441AbRKUDMm>; Tue, 20 Nov 2001 22:12:42 -0500
-Received: from mail008.mail.bellsouth.net ([205.152.58.28]:49305 "EHLO
-	imf08bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S281267AbRKUDMW>; Tue, 20 Nov 2001 22:12:22 -0500
-Subject: Re: radeonfb bug: text ends up scrolling in the middle of tux.
-From: Louis Garcia <louisg00@bellsouth.net>
-To: Ingo.Saitz@stud.uni-hannover.de
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 20 Nov 2001 22:13:33 -0500
-Message-Id: <1006312414.18119.8.camel@tiger>
+	id <S281497AbRKUDt2>; Tue, 20 Nov 2001 22:49:28 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:52878 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S281493AbRKUDtU>;
+	Tue, 20 Nov 2001 22:49:20 -0500
+Date: Tue, 20 Nov 2001 19:49:15 -0800 (PST)
+Message-Id: <20011120.194915.90520140.davem@redhat.com>
+To: anton@samba.org
+Cc: groudier@free.fr, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] small sym-2 fix
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011121131900.B13279@krispykreme>
+In-Reply-To: <20011120170219.A10454@krispykreme>
+	<20011120181131.F1961-100000@gerard>
+	<20011121131900.B13279@krispykreme>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can't seem to find that patch. This bug is annoying, can you please
-tell me where I can get it?
+   From: Anton Blanchard <anton@samba.org>
+   Date: Wed, 21 Nov 2001 13:19:01 +1100
+   
+   I didnt make these changes and it would seem we can link IO address <->
+   pci bus,dev,fn in other ways, if it turns out many drivers cannot use u64
+   for IO ports then we will have to investigate them.
 
-Thanks, Louis
+Any driver which cannot handle PCI I/O resources being an unsigned
+long is completely broken.
 
-
-> On Mon, Nov 19, 2001 at 08:33:29PM -0500, Dan Merillat wrote:
-> > Ok, I've poked around but I can't find a penguin or tux bitmap to
-> > figure out why scrolling is so broken. I've got to login blind and 
-type
-> > reset to get the console back. Needless to say, no kernel messages
-> > are readable after the mode-switch (they all overwrite themselves on
-> > a single line)
->
-> Yes, I encontered the same. See my previous message for a patch:
->
-> Message-ID: <20011118163244.A1100@pinguin.subspace.exe>
-> Subject: Debugging (?) output in 2.4.14 breaks radeon framebuffer
->
-> The offending code seems to have entered the kernel at 2.4.14,
-> 2.4.13 was OK on my box.
->
->   Ingo
-
-
-
-
-
+They are 64-bits on Sparc64 already, and this is the type of
+PCI resource values.

@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273349AbRJPHRh>; Tue, 16 Oct 2001 03:17:37 -0400
+	id <S273385AbRJPHgc>; Tue, 16 Oct 2001 03:36:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273385AbRJPHR1>; Tue, 16 Oct 2001 03:17:27 -0400
-Received: from zok.sgi.com ([204.94.215.101]:42155 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S273349AbRJPHRW>;
-	Tue, 16 Oct 2001 03:17:22 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [patch] 2.4.12 optionally prevent kbuild reading /usr/include
-Mime-Version: 1.0
+	id <S273463AbRJPHgW>; Tue, 16 Oct 2001 03:36:22 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:2632 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S273385AbRJPHgM>; Tue, 16 Oct 2001 03:36:12 -0400
+Message-ID: <3BCBE29D.CFEC1F05@alacritech.com>
+Date: Tue, 16 Oct 2001 00:32:45 -0700
+From: "Matt D. Robinson" <yakker@alacritech.com>
+Organization: Alacritech, Inc.
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Keith Owens <kaos@ocs.com.au>
+CC: Cristiano Paris <c.paris@libero.it>, linux-kernel@vger.kernel.org
+Subject: Re: libz, libbz2, ramfs and cramfs
+In-Reply-To: <19978.1003206943@kao2.melbourne.sgi.com>
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 16 Oct 2001 17:17:45 +1000
-Message-ID: <21371.1003216665@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A few bits of kernel code are incorrectly reading from /usr/include,
-giving different results on different distributions.  kbuild 2.5 will
-prevent this, all include files must be in the kernel tree.  The patch
-below (for 2.4.12 but fits 2.4.13-pre3) defines kbuild_2_4_nostdinc.
-Linus, please add to 2.4.13-prex.
+Keith Owens wrote:
+> On Mon, 15 Oct 2001 15:06:42 +0200 (CEST),
+> Cristiano Paris <c.paris@libero.it> wrote:
+> >I'm interested in developing a file system which could take features from
+> >ramfs and cramfs so I have a couple of questions which possibly Linus
+> >would answer to.
+> >Second, quoting from the jffs2's TODO list :
+> >
+> >- fix zlib. It's ugly as hell and there are at least three copies in the
+> >kernel tree
+> 
+> The -ac tree is moving to a single copy of zlib, in fs/inflate_fs.  It
+> is currently used by cramfs and zisofs.  jffs2 in the -ac tree still
+> uses its own copy of zlib and should be converted.
 
-The various maintainers can optionally check that their code is not
-reading from outside the kernel, see the comments in the patch.  I
-strongly recommend that maintainers check their code now, even if it is
-only on their own machine.  There is no need to patch the sub Makefiles
-in Linus's tree, as long as the code has been tested.
+Any plans to fix this for the Linus tree?  Also, why place this in fs?
+Shouldn't this be around for PPP along with other things that
+can use it (like LKCD)?
 
-Based on a suggestion by Christoph Hellwig.
-
-Index: 12.1/Makefile
---- 12.1/Makefile Thu, 11 Oct 2001 20:11:18 +1000 kaos (linux-2.4/T/c/50_Makefile 1.1.2.15.1.2.2.25.2.2.1.17.1.4.1.29.1.4 644)
-+++ 12.1(w)/Makefile Tue, 16 Oct 2001 17:08:15 +1000 kaos (linux-2.4/T/c/50_Makefile 1.1.2.15.1.2.2.25.2.2.1.17.1.4.1.29.1.4 644)
-@@ -240,6 +240,16 @@ MRPROPER_DIRS = \
- 
- include arch/$(ARCH)/Makefile
- 
-+# Optional cflags for kbuild 2.4, to prevent individual files or an entire
-+# directory including files from outside the kernel.  To control an individual
-+# file, use CFLAGS_foo.o += $(kbuild_2_4_nostdinc), to control an entire
-+# directory use EXTRA_CFLAGS += $(kbuild_2_4_nostdinc).  In kbuild 2.5 the
-+# default is to forbid includes from outside the kernel tree, you can use this
-+# variable in kbuild 2.4 to ensure that your code is clean before 2.5.  KAO.
-+
-+kbuild_2_4_nostdinc     := -nostdinc $(shell $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/-I \1include/gp')
-+export kbuild_2_4_nostdinc
-+
- export	CPPFLAGS CFLAGS AFLAGS
- 
- export	NETWORKS DRIVERS LIBS HEAD LDFLAGS LINKFLAGS MAKEBOOT ASFLAGS
-
+--Matt

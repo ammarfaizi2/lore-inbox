@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293386AbSDCMqO>; Wed, 3 Apr 2002 07:46:14 -0500
+	id <S310258AbSDCMtO>; Wed, 3 Apr 2002 07:49:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293457AbSDCMqE>; Wed, 3 Apr 2002 07:46:04 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:63504 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S293386AbSDCMpy>; Wed, 3 Apr 2002 07:45:54 -0500
-To: Jos Hulzink <josh@stack.nl>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, Helge Hafting <helgehaf@aitel.hist.no>,
-        <linux-kernel@vger.kernel.org>
+	id <S311320AbSDCMtF>; Wed, 3 Apr 2002 07:49:05 -0500
+Received: from oak.sktc.net ([208.46.69.4]:33284 "EHLO oak.sktc.net")
+	by vger.kernel.org with ESMTP id <S310258AbSDCMsz>;
+	Wed, 3 Apr 2002 07:48:55 -0500
+Message-ID: <3CAAFA36.80109@sktc.net>
+Date: Wed, 03 Apr 2002 06:48:54 -0600
+From: "David D. Hagood" <wowbagger@sktc.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020221
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
 Subject: Re: [Q] FAT driver enhancement
 In-Reply-To: <20020403140516.C38235-100000@toad.stack.nl>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Wed, 03 Apr 2002 21:45:21 +0900
-Message-ID: <87ofh1lzmm.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jos Hulzink <josh@stack.nl> writes:
-
-> On Wed, 3 Apr 2002, OGAWA Hirofumi wrote:
-> 
-> > Mike Fedyk <mfedyk@matchmail.com> writes:
-> >
-> > > > I mean I/O error, not data damage.
-> > >
-> > > It is the block layer's responsibility to retry such soft errors and recover.
-> >
-> > Yes.
-> 
-> But what about the data damage errors ?
-> 
-> > > Probably the best you can do, is retry the read a few times if there
-> > > is an error reported, and then fail if it persists.
-> >
-> > Umm, there is a `copy of FAT table' for this kind of error. If the I/O
-> > error occurs, the FAT driver should use the other FAT table.
-> 
+Jos Hulzink wrote:
 > How should the FAT driver know that the first FAT is bad if it doesn't
 > scan the FAT ? You don't want the second FAT to be used, you want the
 > mount to fail, and fsck.xxx to fix the mess. Who tells you that the second
 > copy of the FAT is the correct one, and not the first ?
 
-FAT16/FAT32 use the second entry of FAT table for data damage.
-The 1 bit of second entry is a clean/dirty unmount flag.
+Seems to me you would want a mount-time option to the FAT fs code to say 
+"use FAT#<n>", defaulting to the first if no parm given. If that copy of 
+the FAT has any problems, fail the mount.
 
-But, it's not perfect. Furthermore, currently not implemented.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Then you'd want the fsck.fat to have a similar option, saying "use 
+FAT#<n> for the check" - that way if the FATs are out of sync, you could 
+do a dry run check on each FAT, and go with the one that seemed to be 
+better. Perhaps even having the tool allow you to pick and choose if 
+needed (although this would probably be better as a seperate tool, that 
+allowed you to view a file given a selected FAT and copy it to a clean 
+file system.)
+
+

@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263496AbTFGTz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 15:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263458AbTFGTz4
+	id S263458AbTFGT7p (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 15:59:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263503AbTFGT7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 15:55:56 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:12829 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263452AbTFGTzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 15:55:54 -0400
-Date: Sat, 7 Jun 2003 13:09:38 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: bunk@fs.tum.de, jt@bougret.hpl.hp.com, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: [patch] fix vlsi_ir.c compile if !CONFIG_PROC_FS
-Message-Id: <20030607130938.01caef92.akpm@digeo.com>
-In-Reply-To: <Pine.SOL.4.30.0306071815120.6449-100000@mion.elka.pw.edu.pl>
-References: <20030607152434.GQ15311@fs.tum.de>
-	<Pine.SOL.4.30.0306071815120.6449-100000@mion.elka.pw.edu.pl>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 7 Jun 2003 15:59:45 -0400
+Received: from pcp01184054pcs.strl301.mi.comcast.net ([68.60.186.73]:4552 "EHLO
+	michonline.com") by vger.kernel.org with ESMTP id S263458AbTFGT7o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 15:59:44 -0400
+Date: Sat, 7 Jun 2003 16:18:48 -0400
+From: Ryan Anderson <ryan@michonline.com>
+To: Andi Kleen <ak@muc.de>
+Cc: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@wide.ad.jp>,
+       linux-kernel@vger.kernel.org, akpm@digeo.com, vojtech@suse.cz
+Subject: Re: [PATCH] Making keyboard/mouse drivers dependent on CONFIG_EMBEDDED
+Message-ID: <20030607201848.GE20872@michonline.com>
+Mail-Followup-To: Andi Kleen <ak@muc.de>,
+	"YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@wide.ad.jp>,
+	linux-kernel@vger.kernel.org, akpm@digeo.com, vojtech@suse.cz
+References: <20030607063424.GA12616@averell> <20030607.154958.108408804.yoshfuji@wide.ad.jp> <20030607184018.GA3473@averell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Jun 2003 20:09:29.0742 (UTC) FILETIME=[B3F5DAE0:01C32D30]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030607184018.GA3473@averell>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
->
-> -static inline void remove_proc_entry(const char *name, struct proc_dir_entry *parent) {};
->  +#define remove_proc_entry(name, parent)	/* nothing */
+On Sat, Jun 07, 2003 at 08:40:18PM +0200, Andi Kleen wrote:
+> On Sat, Jun 07, 2003 at 03:49:58PM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ wrote:
+> > Why isn't it enough to change default to "y"?
+> 
+> Because that won't override make oldconfig
+> 
+> > Not showing the config is not good.
+> > I want to disable it while using standard (not embeded) PC.
+> 
+> You can still. That is what CONFIG_EMBEDDED is for.
 
-oh, OK.
+Thinking about this, would a CONFIG_DWIM type setting make sense?
+Something to drive "least surprise" settings from, without tying it to
+any other functionality?
 
---- 25/include/linux/proc_fs.h~remove_proc_entry-fix	2003-06-07 13:07:46.000000000 -0700
-+++ 25-akpm/include/linux/proc_fs.h	2003-06-07 13:08:51.000000000 -0700
-@@ -205,7 +205,8 @@ static inline void proc_pid_flush(struct
- static inline struct proc_dir_entry *create_proc_entry(const char *name,
- 	mode_t mode, struct proc_dir_entry *parent) { return NULL; }
- 
--static inline void remove_proc_entry(const char *name, struct proc_dir_entry *parent) {};
-+#define remove_proc_entry(name, parent) do {} while (0)
-+
- static inline struct proc_dir_entry *proc_symlink(const char *name,
- 		struct proc_dir_entry *parent,char *dest) {return NULL;}
- static inline struct proc_dir_entry *proc_mknod(const char *name,mode_t mode,
+(For the acronym impaired, DWIM = Do What I Mean[t])
 
-_
+-- 
 
+Ryan Anderson
+  sometimes Pug Majere

@@ -1,255 +1,236 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316408AbSETWUS>; Mon, 20 May 2002 18:20:18 -0400
+	id <S316422AbSETW1O>; Mon, 20 May 2002 18:27:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316416AbSETWUR>; Mon, 20 May 2002 18:20:17 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:43788 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S316408AbSETWUP>; Mon, 20 May 2002 18:20:15 -0400
-Date: Tue, 21 May 2002 00:20:11 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.16
-In-Reply-To: <Pine.LNX.4.44.0205191742130.10180-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0205202357390.23394-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316423AbSETW1N>; Mon, 20 May 2002 18:27:13 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:40965 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S316422AbSETW1M>; Mon, 20 May 2002 18:27:12 -0400
+Date: Mon, 20 May 2002 23:27:08 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] bfs header move around + warning fix
+Message-ID: <20020520232708.A16768@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Tigran Aivazian <tigran@veritas.com>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Now that bfs no more is included in the big unions in fs.h it makes
+sense to move the contents of bfs_fs_i.h and bfs_fs_sb.h to a bfs-private
+location.  I've created fs/bfs/bfs.h for that, also merging in bfs_defs.h.
 
-On Sun, 19 May 2002, Linus Torvalds wrote:
+In addition I've changes si_imap to and unsigned long pointer as the bitops
+now use that type explicitly.
 
-> That reminds me - we should increment the rss for page directories now on
-> the allocation path, because we will decrement rss for them when we free
-> them (and because it's the right thing to do anyway, I guess - better
-> resource tracking).
-
-The patch does this as well. It seems to get the rss tracking right, at
-least I couldn't trigger the print with some basic tests here and allows
-to simplify tlb_finish_mmu().
-Changes:
-
-asm-generic/tlb.h: 
-- introduce tlb_fast_mode() and reduce table size to optimize for UP only mode
-- fix and simplify rss handling
-linux/mm.h:
-- __free_pte() doesn't exist anymore
-binfmt_{aout,elf}.c:
-- initializing of mm->rss/mm->mmap is redundant
-pte_alloc_one()/pte_free():
-- add rss accounting (pte_free needs mm arg for this)
-do_no_page()
-- fix rss accounting
-exit_mmap()
-- check mm->rss on exit
-
-bye, Roman
-
-Index: arch/i386/mm/init.c
-===================================================================
-RCS file: /usr/src/cvsroot/linux-2.5/arch/i386/mm/init.c,v
-retrieving revision 1.1.1.7
-diff -u -p -r1.1.1.7 init.c
---- arch/i386/mm/init.c	6 May 2002 17:56:30 -0000	1.1.1.7
-+++ arch/i386/mm/init.c	20 May 2002 20:46:17 -0000
-@@ -656,9 +656,10 @@ struct page *pte_alloc_one(struct mm_str
- #else
- 		pte = alloc_pages(GFP_KERNEL, 0);
- #endif
--		if (pte)
-+		if (pte) {
-+			mm->rss++;
- 			clear_highpage(pte);
--		else {
-+		} else {
- 			current->state = TASK_UNINTERRUPTIBLE;
- 			schedule_timeout(HZ);
- 		}
-Index: fs/binfmt_aout.c
-===================================================================
-RCS file: /usr/src/cvsroot/linux-2.5/fs/binfmt_aout.c,v
-retrieving revision 1.1.1.3
-diff -u -p -r1.1.1.3 binfmt_aout.c
---- fs/binfmt_aout.c	14 Apr 2002 20:01:10 -0000	1.1.1.3
-+++ fs/binfmt_aout.c	20 May 2002 20:46:17 -0000
-@@ -308,8 +308,6 @@ static int load_aout_binary(struct linux
- 	current->mm->brk = ex.a_bss +
- 		(current->mm->start_brk = N_BSSADDR(ex));
- 
--	current->mm->rss = 0;
--	current->mm->mmap = NULL;
- 	compute_creds(bprm);
-  	current->flags &= ~PF_FORKNOEXEC;
- #ifdef __sparc__
-Index: fs/binfmt_elf.c
-===================================================================
-RCS file: /usr/src/cvsroot/linux-2.5/fs/binfmt_elf.c,v
-retrieving revision 1.1.1.6
-diff -u -p -r1.1.1.6 binfmt_elf.c
---- fs/binfmt_elf.c	14 Apr 2002 20:01:09 -0000	1.1.1.6
-+++ fs/binfmt_elf.c	20 May 2002 20:46:18 -0000
-@@ -600,13 +600,11 @@ static int load_elf_binary(struct linux_
- 	current->mm->start_data = 0;
- 	current->mm->end_data = 0;
- 	current->mm->end_code = 0;
--	current->mm->mmap = NULL;
- 	current->flags &= ~PF_FORKNOEXEC;
- 	elf_entry = (unsigned long) elf_ex.e_entry;
- 
- 	/* Do this so that we can load the interpreter, if need be.  We will
- 	   change some of these later */
--	current->mm->rss = 0;
- 	setup_arg_pages(bprm); /* XXX: check error */
- 	current->mm->start_stack = bprm->p;
- 
-Index: include/asm-generic/tlb.h
-===================================================================
-RCS file: /usr/src/cvsroot/linux-2.5/include/asm-generic/tlb.h,v
-retrieving revision 1.1.1.4
-diff -u -p -r1.1.1.4 tlb.h
---- include/asm-generic/tlb.h	18 May 2002 13:39:29 -0000	1.1.1.4
-+++ include/asm-generic/tlb.h	20 May 2002 20:46:18 -0000
-@@ -14,10 +14,17 @@
- #define _ASM_GENERIC__TLB_H
- 
- #include <linux/config.h>
-+#include <linux/swap.h>
- #include <asm/tlbflush.h>
- 
-+#ifdef CONFIG_SMP
-+#define tlb_fast_mode(tlb) ((tlb)->nr == ~0UL)	
- /* aim for something that fits in the L1 cache */
- #define FREE_PTE_NR	508
-+#else
-+#define tlb_fast_mode(tlb) (1)
-+#define FREE_PTE_NR	1
-+#endif
- 
- /* mmu_gather_t is an opaque type used by the mm code for passing around any
-  * data needed by arch specific code for tlb_remove_page.  This structure can
-@@ -55,12 +62,10 @@ static inline mmu_gather_t *tlb_gather_m
- 
- static inline void tlb_flush_mmu(mmu_gather_t *tlb, unsigned long start, unsigned long end)
- {
--	unsigned long nr;
+--- a/fs/bfs/bfs_defs.h	Tue May 21 00:51:18 2002
++++ /dev/null	Thu Dec 13 11:34:58 2001
+@@ -1,3 +0,0 @@
+-#define printf(format, args...) \
+-	printk(KERN_ERR "BFS-fs: %s(): " format, __FUNCTION__, ## args)
 -
- 	flush_tlb_mm(tlb->mm);
--	nr = tlb->nr;
--	if (nr != ~0UL) {
--		unsigned long i;
-+	if (!tlb_fast_mode(tlb)) {
-+		unsigned long nr, i;
-+		nr = tlb->nr;
- 		tlb->nr = 0;
- 		for (i=0; i < nr; i++)
- 			free_page_and_swap_cache(tlb->pages[i]);
-@@ -73,13 +78,7 @@ static inline void tlb_flush_mmu(mmu_gat
-  */
- static inline void tlb_finish_mmu(mmu_gather_t *tlb, unsigned long start, unsigned long end)
- {
--	int freed = tlb->freed;
--	struct mm_struct *mm = tlb->mm;
--	int rss = mm->rss;
--
--	if (rss < freed)
--		freed = rss;
--	mm->rss = rss - freed;
-+	tlb->mm->rss -= tlb->freed;
- 	tlb_flush_mmu(tlb, start, end);
- }
- 
-@@ -91,8 +90,9 @@ static inline void tlb_finish_mmu(mmu_ga
-  */
- static inline void tlb_remove_page(mmu_gather_t *tlb, struct page *page)
- {
--	/* Handle the common case fast, first. */\
--	if (tlb->nr == ~0UL) {
-+	/* Handle the common case fast, first. */
-+	tlb->freed++;
-+	if (tlb_fast_mode(tlb)) {
- 		free_page_and_swap_cache(page);
- 		return;
- 	}
-Index: include/asm-i386/pgalloc.h
-===================================================================
-RCS file: /usr/src/cvsroot/linux-2.5/include/asm-i386/pgalloc.h,v
-retrieving revision 1.1.1.9
-diff -u -p -r1.1.1.9 pgalloc.h
---- include/asm-i386/pgalloc.h	18 May 2002 13:39:30 -0000	1.1.1.9
-+++ include/asm-i386/pgalloc.h	20 May 2002 20:50:25 -0000
-@@ -30,8 +30,9 @@ static inline void pte_free_kernel(pte_t
- 	free_page((unsigned long)pte);
- }
- 
--static inline void pte_free(struct page *pte)
-+static inline void pte_free(struct mm_struct *mm, struct page *pte)
- {
-+	mm->rss--;
- 	__free_page(pte);
- }
- 
-Index: include/linux/mm.h
-===================================================================
-RCS file: /usr/src/cvsroot/linux-2.5/include/linux/mm.h,v
-retrieving revision 1.1.1.11
-diff -u -p -r1.1.1.11 mm.h
---- include/linux/mm.h	18 May 2002 13:39:19 -0000	1.1.1.11
-+++ include/linux/mm.h	20 May 2002 20:50:19 -0000
-@@ -383,8 +383,6 @@ extern void swapin_readahead(swp_entry_t
- extern int can_share_swap_page(struct page *);
- extern int remove_exclusive_swap_page(struct page *);
- 
--extern void __free_pte(pte_t);
--
- /* mmap.c */
- extern void lock_vma_mappings(struct vm_area_struct *);
- extern void unlock_vma_mappings(struct vm_area_struct *);
-Index: mm/memory.c
-===================================================================
-RCS file: /usr/src/cvsroot/linux-2.5/mm/memory.c,v
-retrieving revision 1.1.1.12
-diff -u -p -r1.1.1.12 memory.c
---- mm/memory.c	18 May 2002 13:39:18 -0000	1.1.1.12
-+++ mm/memory.c	20 May 2002 20:46:18 -0000
-@@ -148,7 +148,7 @@ pte_t * pte_alloc_map(struct mm_struct *
- 		 * entry, as somebody else could have populated it..
- 		 */
- 		if (pmd_present(*pmd)) {
--			pte_free(new);
-+			pte_free(mm, new);
- 			goto out;
- 		}
- 		pmd_populate(mm, pmd, new);
-@@ -1326,7 +1326,8 @@ static int do_no_page(struct mm_struct *
- 	 */
- 	/* Only go through if we didn't race with anybody else... */
- 	if (pte_none(*page_table)) {
--		++mm->rss;
-+		if (!PageReserved(new_page))
-+			++mm->rss;
- 		flush_page_to_ram(new_page);
- 		flush_icache_page(vma, new_page);
- 		entry = mk_pte(new_page, vma->vm_page_prot);
-Index: mm/mmap.c
-===================================================================
-RCS file: /usr/src/cvsroot/linux-2.5/mm/mmap.c,v
-retrieving revision 1.1.1.7
-diff -u -p -r1.1.1.7 mmap.c
---- mm/mmap.c	18 May 2002 13:39:18 -0000	1.1.1.7
-+++ mm/mmap.c	20 May 2002 20:46:18 -0000
-@@ -1128,6 +1128,9 @@ void exit_mmap(struct mm_struct * mm)
- 	clear_page_tables(tlb, FIRST_USER_PGD_NR, USER_PTRS_PER_PGD);
- 	tlb_finish_mmu(tlb, FIRST_USER_PGD_NR*PGDIR_SIZE, USER_PTRS_PER_PGD*PGDIR_SIZE);
- 
-+	if (mm->rss)
-+		printk("mm %p has nonzero rss (%ld) (%d,%s)\n", mm, mm->rss, current->pid, current->comm);
+--- /dev/null	Thu Dec 13 11:34:58 2001
++++ b/fs/bfs/bfs.h	Tue May 21 01:14:18 2002
+@@ -0,0 +1,60 @@
++/*
++ *	fs/bfs/bfs.h
++ *	Copyright (C) 1999 Tigran Aivazian <tigran@veritas.com>
++ */
++#ifndef _FS_BFS_BFS_H
++#define _FS_BFS_BFS_H
 +
- 	mpnt = mm->mmap;
- 	mm->mmap = mm->mmap_cache = NULL;
- 	mm->mm_rb = RB_ROOT;
-
-
-
++#include <linux/bfs_fs.h>
++
++/*
++ * BFS file system in-core superblock info
++ */
++struct bfs_sb_info {
++	unsigned long si_blocks;
++	unsigned long si_freeb;
++	unsigned long si_freei;
++	unsigned long si_lf_ioff;
++	unsigned long si_lf_sblk;
++	unsigned long si_lf_eblk;
++	unsigned long si_lasti;
++	unsigned long * si_imap;
++	struct buffer_head * si_sbh;		/* buffer header w/superblock */
++	struct bfs_super_block * si_bfs_sb;	/* superblock in si_sbh->b_data */
++};
++
++/*
++ * BFS file system in-core inode info
++ */
++struct bfs_inode_info {
++	unsigned long i_dsk_ino; /* inode number from the disk, can be 0 */
++	unsigned long i_sblock;
++	unsigned long i_eblock;
++	struct inode vfs_inode;
++};
++
++static inline struct bfs_sb_info *BFS_SB(struct super_block *sb)
++{
++	return sb->u.generic_sbp;
++}
++
++static inline struct bfs_inode_info *BFS_I(struct inode *inode)
++{
++	return list_entry(inode, struct bfs_inode_info, vfs_inode);
++}
++
++
++#define printf(format, args...) \
++	printk(KERN_ERR "BFS-fs: %s(): " format, __FUNCTION__, ## args)
++
++
++/* file.c */
++extern struct inode_operations bfs_file_inops;
++extern struct file_operations bfs_file_operations;
++extern struct address_space_operations bfs_aops;
++
++/* dir.c */
++extern struct inode_operations bfs_dir_inops;
++extern struct file_operations bfs_dir_operations;
++
++#endif /* _FS_BFS_BFS_H */
+--- a/fs/bfs/dir.c	Mon May 20 15:34:46 2002
++++ b/fs/bfs/dir.c	Tue May 21 01:13:12 2002
+@@ -6,10 +6,9 @@
+ 
+ #include <linux/time.h>
+ #include <linux/string.h>
+-#include <linux/bfs_fs.h>
++#include <linux/fs.h>
+ #include <linux/smp_lock.h>
+-
+-#include "bfs_defs.h"
++#include "bfs.h"
+ 
+ #undef DEBUG
+ 
+--- a/fs/bfs/file.c	Mon May 20 15:34:48 2002
++++ b/fs/bfs/file.c	Tue May 21 01:12:35 2002
+@@ -5,9 +5,9 @@
+  */
+ 
+ #include <linux/fs.h>
+-#include <linux/bfs_fs.h>
++#include <linux/fs.h>
+ #include <linux/smp_lock.h>
+-#include "bfs_defs.h"
++#include "bfs.h"
+ 
+ #undef DEBUG
+ 
+--- a/fs/bfs/inode.c	Mon May 20 15:34:50 2002
++++ b/fs/bfs/inode.c	Tue May 21 01:12:51 2002
+@@ -9,12 +9,10 @@
+ #include <linux/mm.h>
+ #include <linux/slab.h>
+ #include <linux/init.h>
+-#include <linux/bfs_fs.h>
++#include <linux/fs.h>
+ #include <linux/smp_lock.h>
+-
+ #include <asm/uaccess.h>
+-
+-#include "bfs_defs.h"
++#include "bfs.h"
+ 
+ MODULE_AUTHOR("Tigran A. Aivazian <tigran@veritas.com>");
+ MODULE_DESCRIPTION("SCO UnixWare BFS filesystem for Linux");
+--- a/include/linux/bfs_fs.h	Sun Mar 17 12:23:52 2002
++++ b/include/linux/bfs_fs.h	Tue May 21 01:10:35 2002
+@@ -6,9 +6,6 @@
+ #ifndef _LINUX_BFS_FS_H
+ #define _LINUX_BFS_FS_H
+ 
+-#include <linux/bfs_fs_i.h>
+-#include <linux/bfs_fs_sb.h>
+-
+ #define BFS_BSIZE_BITS		9
+ #define BFS_BSIZE		(1<<BFS_BSIZE_BITS)
+ 
+@@ -79,26 +76,4 @@
+ #define BFS_UNCLEAN(bfs_sb, sb)	\
+ 	((bfs_sb->s_from != -1) && (bfs_sb->s_to != -1) && !(sb->s_flags & MS_RDONLY))
+ 
+-#ifdef __KERNEL__
+-
+-/* file.c */
+-extern struct inode_operations bfs_file_inops;
+-extern struct file_operations bfs_file_operations;
+-extern struct address_space_operations bfs_aops;
+-
+-/* dir.c */
+-extern struct inode_operations bfs_dir_inops;
+-extern struct file_operations bfs_dir_operations;
+-
+-static inline struct bfs_sb_info *BFS_SB(struct super_block *sb)
+-{
+-	return sb->u.generic_sbp;
+-}
+-
+-static inline struct bfs_inode_info *BFS_I(struct inode *inode)
+-{
+-	return list_entry(inode, struct bfs_inode_info, vfs_inode);
+-}
+-
+-#endif /* __KERNEL__ */
+ #endif	/* _LINUX_BFS_FS_H */
+--- b/include/linux/bfs_fs_i.h	Tue May 21 00:41:23 2002
++++ /dev/null	Thu Dec 13 11:34:58 2001
+@@ -1,21 +0,0 @@
+-/*
+- *	include/linux/bfs_fs_i.h
+- *	Copyright (C) 1999 Tigran Aivazian <tigran@veritas.com>
+- */
+-
+-#ifndef _LINUX_BFS_FS_I
+-#define _LINUX_BFS_FS_I
+-
+-#include <linux/fs.h>
+-
+-/*
+- * BFS file system in-core inode info
+- */
+-struct bfs_inode_info {
+-	unsigned long i_dsk_ino; /* inode number from the disk, can be 0 */
+-	unsigned long i_sblock;
+-	unsigned long i_eblock;
+-	struct inode vfs_inode;
+-};
+-
+-#endif	/* _LINUX_BFS_FS_I */
+--- a/include/linux/bfs_fs_sb.h	Tue May 21 00:10:32 2002
++++ /dev/null	Thu Dec 13 11:34:58 2001
+@@ -1,25 +0,0 @@
+-/*
+- *	include/linux/bfs_fs_sb.h
+- *	Copyright (C) 1999 Tigran Aivazian <tigran@veritas.com>
+- */
+-
+-#ifndef _LINUX_BFS_FS_SB
+-#define _LINUX_BFS_FS_SB
+-
+-/*
+- * BFS file system in-core superblock info
+- */
+-struct bfs_sb_info {
+-	unsigned long si_blocks;
+-	unsigned long si_freeb;
+-	unsigned long si_freei;
+-	unsigned long si_lf_ioff;
+-	unsigned long si_lf_sblk;
+-	unsigned long si_lf_eblk;
+-	unsigned long si_lasti;
+-	char * si_imap;
+-	struct buffer_head * si_sbh;		/* buffer header w/superblock */
+-	struct bfs_super_block * si_bfs_sb;	/* superblock in si_sbh->b_data */
+-};
+-
+-#endif	/* _LINUX_BFS_FS_SB */

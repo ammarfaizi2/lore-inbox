@@ -1,127 +1,257 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263618AbTJ0W5i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 17:57:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263634AbTJ0W5i
+	id S263636AbTJ0W4P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 17:56:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263660AbTJ0W4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 17:57:38 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:25361 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S263618AbTJ0W5d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 17:57:33 -0500
-Date: Mon, 27 Oct 2003 14:57:27 -0800
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Blockbusting news, results end
-Message-ID: <20031027225727.GI8540@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <20031027205854.GF8540@pegasys.ws> <Pine.LNX.4.10.10310271425000.14405-100000@master.linux-ide.org>
+	Mon, 27 Oct 2003 17:56:14 -0500
+Received: from fw.osdl.org ([65.172.181.6]:19144 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263636AbTJ0W4B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 17:56:01 -0500
+Date: Mon, 27 Oct 2003 14:55:31 -0800
+From: cliff white <cliffw@osdl.org>
+To: Michael Frank <mhf@linuxmail.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test8/test9 io scheduler needs tuning?
+Message-Id: <20031027145531.2eb01017.cliffw@osdl.org>
+In-Reply-To: <200310261201.14719.mhf@linuxmail.org>
+References: <200310261201.14719.mhf@linuxmail.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10310271425000.14405-100000@master.linux-ide.org>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: The contents of this message may cause confusion and disorientation to persons think they know everything.  Read at your own risk.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 27, 2003 at 02:27:09PM -0800, Andre Hedrick wrote:
+On Tue, 28 Oct 2003 05:52:45 +0800
+Michael Frank <mhf@linuxmail.org> wrote:
+
+> To my surprise 2.6 - which used to do better then 2.4 - does no longer 
+> handle these test that well.
 > 
-> To date IDEMA has not released a formal spec for drive makers to switch to
-> 4Kb sectors.  If they have, then when running in compatibility mode, a
-> heavy read-modify-write happens to goto the pseudo sector of 512b.
+> Generally, IDE IO throughput is _very_ uneven and IO _stops_ at times with the
+> system cpu load very high (and the disk LED off).
 > 
-> Linux can not handled new IDEMA calls currently.
+> IMHO the CPU scheduling is OK but the IO scheduling acts up here.
+> 
+> The test system is a 2.4GHz P4 with 512M RAM and a 55MB/s udma IDE harddisk.
+> 
+> The tests load the system to loadavg > 30. IO should be about 20MB/s on avg.
+> 
+> Enclosed are vmstat -1 logs for 2.6-test9-Vanilla, followed by 2.6-test8-Vanilla 
+> (-mm1 behaves similar), 2.4.22-Vanilla and 2.4.21+swsusp all compiled wo preempt.
+> 
+> IO on 2.6 stops now for seconds at a time. -test8 is worse than -test9
 
-Irrelevant!
+We see the same delta at OSDL. Try repeating your tests with 'elevator=deadline' 
+to confirm.
+For example, on the 8-cpu platform:
+STP id Kernel Name         MaxJPM      Change  Options
+281669 linux-2.6.0-test8   7014.42      0.0    
+281671 linux-2.6.0-test8   8294.94     +18.26%  elevator=deadline
 
-I am assuming that these numbers are applicable (one is
-unknown):
-	logical sector size == 512B
-	physical sector size == ???B
-	page size/filesystem block size == 4KB
+The -mm kernels don't show this big delta. We also do not see this delta on
+smaller machines
 
-Whether the write of a 4KB block is a single 4KB write or 8
-512B writes i expect the drive will gather it so that 4KB is
-being written.  If that 4KB (or whatever size write) is less
-than the size of a physical sector a read-modify-write cycle
-must occur inside the drive.  If the read portion of the
-read-modify-write fails the requested write(s) must either fail
-or data in the logical sectors adjacent to the write will
-become corrupted.  This is whether or not the physical
-sector is relocated.
-
-Judging by logic and earlier discussions on the matter of
-write errors if that write fails because of a read error in
-the read-modify-write to the application it would appear to
-have succeeded unless it were synchronous all the way to the
-media.
-
-This sounds very much like the described behaviour of the
-Toshiba drive that started this whole thread.
-
-To the best of my knowledge we have no way to know what the
-physical sector size of a disk is.  For that matter it might
-not even be a constant.  Perhaps the someone could inform us
-what the drive will actually do if the read portion of a
-read-modify-write fails.
+cliffw
 
 > 
-> Cheers,
+> 2.6-test9-Vanilla:
 > 
-> Andre Hedrick
-> LAD Storage Consulting Group
+>    procs                      memory      swap          io     system      cpu
+>  r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
+> 11 10  2      0  17164  60408  96292    0    0     0  5756 1147 30803 21 79  0
+> 13  7  1      0  22968  60600  83876    0    0     0 30100 1079  6475 19 81  0
+> 16  6  4      0   4728  59900 106028    0    0     4 29556 1122 71394 23 77  0
+> 12  7  3      0  27128  60056  70588    0    0    68  6344 1212 111635 19 81  0
+> 13  8  2      0  45176  60200  51656    0    0     0 22868 1238 20471 13 87  0
+> 12  9  2      0  18544  60324  76668    0    0     0 14720 1267 36875 22 78  0
+> 15  5  1      0   4784  60352  95196    0    0   184 37448 1191 144856 32 68  0
+>  3 15  1      0  14768  59980  91368    0    0   180 12376 1112 133689 41 59  0
+>  4 15  1      0  40816  60112  59320    0    0   164   188 1092 75854 31 69  0
+>  6 14  1      0   4976  60164 102640    0    0    16 56904 1122 85364 27 73  0
+> 11  8  1      0  25648  60188  79316    0    0     4  3784 1100 75808 26 74  0
+>  9  8  3      0   8896  60280 103316    0    0     0 24772 1154  4031 23 77  0
+>  5 14  2      0  23744  60408  75220    0    0   232   108 1157 86855 38 62  0
+> 10  8  1      0  12032  60028  91796    0    0     8 27048 1272 79355 24 76  0
+> 10 10  2      0  21120  60292  80144    0    0     0 49700 1092  3015 10 90  0
+> 13  8  2      0  34064  60488  66528    0    0     0   172 1061  3871 10 90  0
+> 14  7  2      0  40200  60540  79824    0    0     8 36864 1121  3138 12 88  0
+> 20  2  2      0  42304  60544  78452    0    0     4   504 1103 281659 23 77  0
+> 12  8  1      0  59024  60656  61688    0    0    28 26080 1156 158476 22 78  0
+> 14  4  1      0  59536  60924  54128    0    0     0  9132 1251  3056  9 91  0
+> 15  2  3      0  46528  61108  65628    0    0     0 23092 1360 58596 11 89  0
+>  8 10  4      0   4288  61244 103836    0    0    56 25904 1135 33984 21 79  0
+> 14  3  2      0  48640  61340  67512    0    0    56 18156 1252 53401 24 76  0
+> 13  1  2      0  30336  61572  80856    0    0     4 15192 1365  1880 20 80  0
+> 10  7  1      0  13376  61752  93496    0    0   176  2320 1225 21294 30 70  0
+> 12  3  2      0  22272  62012  81292    0    0   112 17808 1238 38432 19 81  0
+> 10  3  2      0  12736  62288  91356    0    0   192 21840 1121  2531 21 79  0
+> 16  2  3      0  26752  62228  67660    0    0    56 32500 1745  2100 21 79  0
+> 15  8  2      0   4208  62292  74004    0    0    20   108 1152  4642 37 63  0
+> 17  7  4      0  25200  62444  68544    0    0    60 19184 1384  2337 20 80  0
+> 22  4  4      0  45224  62540  59164    0    0    64 24852 1309   451 14 86  0
+> 22  4  4      0  27240  62684  77048    0    0     0  7480 1280   323 15 85  0
+> 24  3  3      0  26528  62960  66448    0    0     0 24788 1240   837  9 91  0
+> 23  3  2      0  26656  63208  62952    0    0     4   204 1068   616  8 92  0
+> 24  3  2      0  20704  63500  69628    0    0    40     0 1029   440  7 93  0
+> 24  3  2      0  13400  63796  76536    0    0     4     0 1020   426  8 92  0
+> 25  3  2      0  13400  64032  76340    0    0     0     0 1019   371 10 90  0
+> 26  3  2      0  23688  64048  81792    0    0   124 31828 1098  2308 22 78  0
+> 18  5  2      0  30664  64356  69520    0    0   304  2828 1099  4965 32 68  0
+> 22  0  2      0  26120  64424  68936    0    0    40 31328 1076  1737 29 71  0
+> 19  2  3      0  21960  64580  71500    0    0    36  7136 1167  1952 23 77  0
+> 21  2  2      0  15496  64772  87160    0    0   136 30928 1143  2391 19 81  0
+> 23  1  3      0  21720  64904  96284    0    0   304 19200 1118  3474 19 81  0
+> 15  5  3      0  18008  65232  91716    0    0   164 17032 1153  1545 19 81  0
+> 19  0  3      0  18376  64508  80988    0    0    68     0 1145  2052 11 89  0
+> 19  2  3      0   6088  64696  95896    0    0   140 21112 1241  3761 11 89  0
+> 15  7  2      0  16408  64184  89024    0    0   600 28172 1141  1273 25 75  0
+> 15 10  0      0  54024  64420  50096    0    0  1544     0 1182  5076 35 65  0
+> 24  1  2      0   8520  64660  92148    0    0   268 32496 1136   695 14 86  0
+> 11  9  1      0  47560  64908  54868    0    0   436   864 1199  7414 49 51  0
+> 18  0  2      0  14424  65260  86804    0    0   160 46684 1179  2291 16 84  0
+> 15  8  4      0  16728  65552  86248    0    0   288  7612 1159  6312 27 73  0
+> 21  1  4      0  14488  65868  93388    0    0   296     4 1188 11041 20 80  0
+> 18  7  4      0  41752  66116  52124    0    0   196   880 1115 80040 16 84  0
 > 
-> On Mon, 27 Oct 2003, jw schultz wrote:
+> 2.6-test8-Vanilla:
 > 
-> > On Sun, Oct 26, 2003 at 08:25:26PM +0900, Norman Diamond wrote:
-> > > Pavel Machek replied to me:
-> > > 
-> > > > > The drive finally reallocated the block and there are no longer any
-> > > > > visible bad blocks.
-> > > >
-> > > > And what was the operation that made it realocate?
-> > > 
-> > > At first I wasn't sure.  I noticed that the drive was behaving differently
-> > > when I told dd to use bs=4096 instead of 512.  Until seeing Oleg Drokin's
-> > > message about ReiserFS, I thought that the drive itself was doing something
-> > > differently.  That didn't make much sense to me because the physical sectors
-> > > are much longer than 4096 and the pseudo-sectors are the conventional 512,
-> > > so why did 4096 cause different behaviour?  From Oleg Drokin's message, I
-> > > guess that the use of 4096 might make a difference in the sequence of
-> > > read-modify-write cycles involved in the logical write operation.
-> > 
-> > You bring up an interesting point.  If the physical sector
-> > is larger than the data being written how can the drive
-> > reallocate the sector without silently losing data?
-> > 
-> > To put it in the concrete, if the physical sector were 16K
-> > and we only do a 4K write and there is a unrecoverable read
-> > error on the physical sector as part of the
-> > read-modify-write sequence what is the drive to do?  The
-> > other 12K for which the drive has no data could be other
-> > files not related to the 4K being written or even filesystem
-> > meta-data.  Reallocation in that case would cause silent
-> > corruption.
-> > 
-> > Perhaps what finally allowed the reallocation was that the
-> > entire physical sector finally accumulated writes to all the
-> > logical sectors needed to be a complete physical sector
-> > write.
-> > 
-> > -- 
-> > ________________________________________________________________
-> > 	J.W. Schultz            Pegasystems Technologies
-> > 	email address:		jw@pegasys.ws
-> > 
-> > 		Remember Cernan and Schmitt
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
+> This one is terrible. The disk led goes off for many seconds.
+> 
+>    procs                      memory      swap          io     system      cpu
+>  r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
+> 29  1  1      0 313908   9272  89024    0    0     0     0 2572 17213 82 18  0
+> 29  2  1      0 313924   9272  89024    0    0     0     0 2216 90773 64 36  0
+> 31  2  1      0 313660   9272  89024    0    0     0     0 1203 286591 29 71  0
+> 30  2  1      0 313276   9280  89024    0    0     0    44 1294 283827 33 67  0
+> 27  3  1      0 313756   9280  89024    0    0     0     0 2311 64008 78 22  0
+> 29  3  1      0 314316   9280  89028    0    0     0     0 2513  2516 82 18  0
+> 23  2  2      0 317620   9304  84124    0    0    28  6348 1865 86787 55 45  0
+> 19  0  0      0 318148   9448  81264    0    0   140   540 2235  2050 78 22  0
+> 14  3  2      0 317884   9524  81288    0    0   100    36 2460  2556 77 23  0
+> 19  0  1      0 317476   9564  81300    0    0    32   160 2310  2426 76 24  0
+> 24  0  1      0 307748   9584  90536    0    0     4     0 2314  2270 71 29  0
+> 26  0  1      0 314036   9596  84132    0    0     0     0 2208  2606 68 32  0
+> 24  0  2      0 304356   9616  93268    0    0    36     0 2486  2650 80 20  0
+> 18  0  2      0 284724   9676 111564    0    0    24 12048 2296  2230 69 31  0
+> 18  3  2      0 277100   9724 118888    0    0     0 21120 2690  2464 74 26  0
+> 22  1  4      0 295068   9756 100984    0    0     0  9828 2584  2549 76 24  0
+> 20  0  4      0 288220   9796 107940    0    0     4   288 2104  1927 60 40  0
+> 22  0  4      0 287236   9852 108188    0    0     8     0 2293  2094 70 30  0
+> 20  0  5      0 291212   9884 104208    0    0    12     0 2317  2212 79 21  0
+> 22  0  5      0 295756   9904  99764    0    0     0     0 2395  2178 79 21  0
+> 21  0  5      0 294740   9932 100796    0    0     4     0 2398  2441 79 21  0
+> 23  0  5      0 287444   9952 107812    0    0     0 10620 2456  1828 83 17  0
+> 21  0  5      0 296580   9956  98816    0    0     0     0 2413  1852 81 19  0
+> 24  2  5      0 296564   9956  98816    0    0     0     0 2107  1114 83 17  0
+> 26  0  5      0 296596   9956  98816    0    0     0     0 1920  1232 73 27  0
+> 29  0  5      0 296380   9956  98820    0    0     4     0 2192  1731 77 23  0
+> 28  0  5      0 296324   9968  98820    0    0     0  5956 2561  2448 81 19  0
+> 32  0  5      0 296300   9968  98808    0    0     0    92 2019  1247 79 21  0
+> 32  0  5      0 296308   9968  98808    0    0     0     0 2053  1444 83 17  0
+> 32  0  5      0 296316   9968  98808    0    0     0     0 2070  1390 82 18  0
+> 31  0  5      0 296324   9968  98808    0    0     0     0 2267  1900 81 19  0
+> 32  0  5      0 296316   9976  98808    0    0     0   112 2292  1971 85 15  0
+> 31  0  5      0 296324   9976  98808    0    0     0     0 2127  1392 84 16  0
+> 32  0  5      0 296308   9976  98808    0    0     0     0 2284  1902 84 16  0
+> 31  0  5      0 296308   9976  98808    0    0     0     0 2112  1617 81 19  0
+> 31  0  5      0 296308   9976  98808    0    0     0     0 2160  1645 81 19  0
+> 32  0  5      0 296236   9976  98808    0    0     0     0 2698  2965 81 19  0
+> 32  0  5      0 296380   9976  98808    0    0     0     0 2151  1548 82 18  0
+> 31  0  5      0 296364   9976  98808    0    0     0     0 2068  1309 83 17  0
+> 32  0  5      0 296364   9976  98808    0    0     0     0 2337  2073 79 21  0
+> 38  0  5      0 296212   9976  98808    0    0     0     0 2294  2077 81 19  0
+> 36  0  5      0 296220   9976  98808    0    0     0     0 2294  1933 84 16  0
+> 35  0  5      0 296236   9976  98808    0    0     0     0 2577  2775 84 16  0
+> 35  0  5      0 296140   9976  98808    0    0     0     0 2565  2671 77 23  0
+> 37  0  5      0 296236   9984  98808    0    0     0    68 1844   908 85 15  0
+> 38  0  5      0 296236   9984  98808    0    0     0     0 1892   943 84 16  0
+> 29  5  5      0 293348  10004  98884    0    0   100   220 1950  1235 81 19  0
+> 25 10  4      0 267476  10080 123724    0    0   464 24416 2020  1288 72 28  0
+> 26 10  4      0 267996  10084 124488    0    0   768     0 2382  1824 79 21  0
+> 25 10  4      0 267684  10124 124948    0    0   500     0 2053  1389 83 17  0
+> 25 10  4      0 266908  10168 125012    0    0   108     0 2179  1654 85 15  0
+> 23 10  4      0 266468  10236 125148    0    0   204     0 2182  1673 82 18  0
+> 27 10  4      0 266428  10296 125248    0    0   160     0 2496  2356 85 15  0
+> 25 11  5      0 266340  10308 125248    0    0    12     0 2781  3085 84 16  0
+> 22 13  5      0 266348  10316 125252    0    0    12     0 2828  3210 86 14  0
+> 21 13  5      0 266364  10320 125256    0    0     8     0 2777  3052 86 14  0
+> 22 13  5      0 266300  10324 125268    0    0    16     0 2769  3124 85 15  0
+> 23 13  5      0 266148  10324 125268    0    0     0     0 2789  3229 83 17  0
+> 33  4  2      0 266692  10380 124560    0    0    16  4744 2560  2557 77 23  0
+> 31  5  3      0 276908  10400 114340    0    0    12    56 2676  2859 82 18  0
+> 33  5  3      0 268884  10408 122176    0    0     0     0 2855  3324 83 17  0
+> 34  5  3      0 265684  10412 125284    0    0     0     0 2947  3480 84 16  0
+> 
+> If you compare this with 2.4.22, it's io load is comparatively even
+> and it never stops:
+> 
+>    procs                      memory      swap          io     system      cpu
+>  r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
+> 15  9  1      0 198856  19864 185180    0    0   244 18060  659  8954 34 66  0
+> 11 13  1      0 178604  19896 179860    0    0    52 19120  692 87760 37 63  0
+>  9 15  1      0 192816  19940 159160    0    0    52 20720  685 94859 31 69  0
+>  8 15  1      0 201836  19948 150144    0    0     0 17604  650 113990 34 66  0
+> 10 15  1      0 198572  20004 149444    0    0    72 21172  728 100160 30 70  0
+> 12 11  1      0 129312  20156 176044    0    0   140  8940  584 54396 30 70  0
+> 16  8  1      0  84604  20288 185412    0    0    32 25852  746 48955 33 67  0
+> 18  8  1      0  86116  20384 183840    0    0    96 13404  662 51891 27 73  0
+> 19  7  1      0  88336  20508 182492    0    0    48 14340  697 40311 19 81  0
+> 17  9  1      0  82640  20608 183760    0    0   100 23088  735 62380 39 61  0
+>  2 21  1      0  61484  20628 188908    0    0    44 18112  674 45239 36 64  0
+>  2 21  1      0  37096  20684 196092    0    0    40 24252  729   572 25 75  0
+>  2 21  1      0  47580  20684 182996    0    0     0 13464  653   363 43 57  0
+>  3 21  1      0  59624  20712 171620    0    0     8 22988  646   448 39 61  0
+>  2 21  1      0  50584  20744 178204    0    0    16 23008  805   657 31 69  0
+>  2 21  1      0  59244  20744 169552    0    0    24 17672  670   408 44 56  0
+> 14  2  1      0  36096  20836 175416    0    0     4 19148  730  1044 40 60  0
+> 15  7  1     76  35792  19384 150752    0    0    52 14492  658   843 22 78  0
+> 11 15  1     76  34736  19540 153128    0    0    60 17396  745  1346 23 77  0
+>  2 21  1     76  27060  19548 159248    0    0    44 21008  703   543 36 64  0
+>  2 21  1     76  38796  19548 147504    0    0     0 18528  712   495 43 57  0
+>  2 23  1     76  39448  19592 148160    0    0    56 23328  725   625 33 67  0
+> 22  8  1     76  30200  19616 157304    0    0     0 20876  680   499 29 71  0
+> 12  3  1     76   4420  19712 151292    0    0    64 23968  675  2676 24 76  0
+> 15  5  1     76   4632  19764 116028    0    0    60 13824  695  1015 27 73  0
+> 24  3  1    244   4356  19432 128800    0    0    24 23752  636  1174 28 72  0
+> 23  3  1    244  29684  19532 113968    0    0    40 26124  724 18608 25 75  0
+> 21  2  1    244  17316  19592 124904    0    0    88 18596  660 51583 38 62  0
+> 17  9  1    244  20728  19660 107408    0    0    52 22244  710 55023 27 73  0
+> 21  5  1    244  24172  19748 115872    0    0   108 22824  680 44490 25 75  0
+> 23  4  1    244   4460  19832 113824    0    0   240 15136  691 44779 25 75  0
+> 14 12  1    244   5588  19884 131408    0    0    72 20208  719 69408 25 75  0
+> 23  4  1    244   4404  19964 133028    0    0   128 18564  659 51254 24 76  0
+> 22  5  1    244   9084  20068 129856    0    0   208 16824  631 22191 28 72  0
+>  7 17  1    244  35000  20100 104024    0    0    28 18816  708 106858 38 62  0
+> 
+> Also 2.4.21, it's behavior is similar to 2.4.22.
+> 
+>    procs                      memory      swap          io     system      cpu
+>  r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
+>  3 20  2  22480   5472   2032  82500    8    0   128 14716 3279  4137 71 26  3
+>  8 19  1  22480   5068   2044  76988   56    0    96 15016 2704 104072 56 25 19
+>  2 24  1  22480   4976   2044  77008    8    0    28 12836 3521 167313 52 48  0
+>  3 24  1  22480   4788   2044  77036   72    0   100 16684 2886 155685 60 40  0
+>  5 23  2  22480  12092   1876  83660   96    4   304 12556 2953 68285 39 61  0
+>  4 27  2  22480  10796   1892  79136   56    0   144  8544 2373 139592 50 50  0
+>  6 30  1  22480  20548   1912  72924   76    0   124 17428 2858 69541 39 61  0
+>  6 26  1  22480   9284   1952  89440   36    0   152 17128 2334 65785 40 60  0
+>  7 26  1  22480   9056   1952  89552   24    0   136 10440 2475 72782 42 58  0
+>  6 26  2  22480   8428   1956  89732  128    0   312 22380 2704 79724 50 50  0
+>  6 25  1  22340  29768   2016  67656  104    0   216 17048 2198 71301 42 58  0
+>  6 31  1  21552  39852   2060  57028  124    0   288 16376 2845 39256 51 49  0
+>  6 29  1  21552  39708   2064  57084   20    0    80 17832 2381  5321 50 50  0
+>  7 21  1  21464  27672   2192  74152  184    0   356  6808 2006  5181 32 68  0
+>  5 23  1  21400  27032   2196  62272  180    0   284 14552 2903  7905 40 60  0
+>  6 23  1  21340  26540   2196  62312  204    0   244 15556 2279  6140 53 47  0
+>  1 26  1  21284  25952   2212  62416  124    0   244 19804 3322  8600 54 46  0
+> 
+> Regards
+> Michael
+> 
 > 
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
@@ -130,9 +260,7 @@ read-modify-write fails.
 > Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
 
-		Remember Cernan and Schmitt
+-- 
+The church is near, but the road is icy.
+The bar is far, but i will walk carefully. - Russian proverb

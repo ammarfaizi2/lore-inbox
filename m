@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265330AbSJRTgT>; Fri, 18 Oct 2002 15:36:19 -0400
+	id <S265336AbSJRTfY>; Fri, 18 Oct 2002 15:35:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265337AbSJRTgS>; Fri, 18 Oct 2002 15:36:18 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:64774 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265330AbSJRTgM>; Fri, 18 Oct 2002 15:36:12 -0400
-Date: Fri, 18 Oct 2002 15:41:30 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][TRIVIAL] de2104x.c missing __devexit_p in 2.5.43
-In-Reply-To: <3DAEF15E.4030105@pobox.com>
-Message-ID: <Pine.LNX.3.96.1021018153930.23760C-100000@gatekeeper.tmr.com>
+	id <S265330AbSJRTfU>; Fri, 18 Oct 2002 15:35:20 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:23950 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265322AbSJRTfS>;
+	Fri, 18 Oct 2002 15:35:18 -0400
+Subject: [ANNOUNCE]  Journaled File System (JFS)  release 1.0.24
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF3D8E5A8B.F23AA2EF-ON85256C56.006BE407@pok.ibm.com>
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Fri, 18 Oct 2002 14:41:09 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
+ 10/18/2002 03:41:13 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Oct 2002, Jeff Garzik wrote:
 
-> Adam J. Richter wrote:
-> > 	I believe that there are motherboards that use a chipset from
-> > Compaq that allows hot plugging and unplugging of ordinary PCI cards,
-> > supported by drivers in linux-2.5.43/drivers/hotplug/cpq*.[ch].  At a
-> > trade show, I saw a demo of a motherboard with such a capability (not
-> > running Linux, but I think from Compaq).
-> 
-> 
-> You are correct that all PCI cards are now hotpluggable.
-> 
-> My position is that _my_ driver will not be converted to be hotpluggable 
-> until someone actually does so.  Until such a time, I prefer the space 
-> savings that keeping it non-hotplug-able provides.
+Release 1.0.24 of JFS was made available today.
 
-If I read the original post correctly, you save a LOT of space, becasue
-the driver won't link without the patch. Sorry if I misread that, and it's
-desirable to avoid such a dependency, but if it's hack or forget, expect
-hack.
+Drop 62 on October 18, 2002 (jfs-2.4-1.0.24.tar.gz
+and jfsutils-1.0.24.tar.gz) includes fixes to the file
+system and utilities.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Utilities changes
+
+- byte-swapping fixes for big-endian hardware
+  (fixes in logredo and fsck.jfs)
+
+
+File System changes
+
+- readSuper() was incorrectly checking return status of sb_bread()
+- change name of get_index to read_index fixes MIPS build issue
+- Releasing LOGGC_LOCK too early
+   In txLazyCommit, we are releasing log->gclock (LOGGC_LOCK) before
+   checking tblk->flag for tblkGC_LAZY. For the case that tblkGC_LAZY
+   is not set, the user thread may release the tblk, and it may be
+   reused and the tblkGC_LAZY bit set again, between the time we release
+   the spinlock until we check the flag. This problem is easy to hit on
+   a 2.5 kernel with CONFIG_PREEMPT set, but it is a potential problem
+   on SMP as well.
+   The fix is to hold the spinlock until after we've checked the flag.
+
+For more details about JFS, please see the patch instructions or
+changelog.jfs files.
+
+
+Steve
+JFS for Linux http://oss.software.ibm.com/jfs
+
 

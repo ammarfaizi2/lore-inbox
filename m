@@ -1,50 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319276AbSHVAxi>; Wed, 21 Aug 2002 20:53:38 -0400
+	id <S319243AbSHUXkC>; Wed, 21 Aug 2002 19:40:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319277AbSHVAxi>; Wed, 21 Aug 2002 20:53:38 -0400
-Received: from 205-158-62-94.outblaze.com ([205.158.62.94]:64439 "HELO
-	ws3-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S319276AbSHVAxi>; Wed, 21 Aug 2002 20:53:38 -0400
-Message-ID: <20020822005730.9319.qmail@email.com>
-Content-Type: text/plain; charset="iso-8859-1"
+	id <S319247AbSHUXkC>; Wed, 21 Aug 2002 19:40:02 -0400
+Received: from codepoet.org ([166.70.99.138]:25565 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S319243AbSHUXkC>;
+	Wed, 21 Aug 2002 19:40:02 -0400
+Date: Wed, 21 Aug 2002 17:44:12 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre2-ac6
+Message-ID: <20020821234411.GA26772@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+References: <200208212025.g7LKPda15450@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "James Hayhurst" <herrdoktor@email.com>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 21 Aug 2002 19:57:30 -0500
-Subject: Cannot unmount initrd
-X-Originating-Ip: 198.4.83.52
-X-Originating-Server: ws3-4.us4.outblaze.com
+In-Reply-To: <200208212025.g7LKPda15450@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm making a boot CD and having problems unmounting and freeing the initrd after pivoting to a different root.  First off, for some reaosn it seems that /linuxrc is not being executed.  Just to test this, I have it as a simple script (with execute permissions) printing something to the screen and it never printed....at boot it just seems to go to /sbin/init on the initrd image.  After pivoting to a cramfs root, I cannot unmount /initrd as it says that the device or resource is busy.  Checking out /proc, it looks like [keventd], [ksoftirqd_CPU0], [kswapd] and [kupdated] are holding onto open fd from /initrd, namely /initrd/dev/console.  Strangely though, some of the fd's they're holding are the  "normal" /dev/console.
+On Wed Aug 21, 2002 at 04:25:39PM -0400, Alan Cox wrote:
+> IDE status
+> 	Chasing two reports of strange ide-scsi crashes
+> 	Still some Promise glitches - need to review merge carefully
 
-My /sbin/init on the initrd script looks something like:
+Its doesn't understand that I indeed am using 80 pin cables for
+the drives connected to my Promise 20267 controller.  Also, it would
+be nice to clean up the formatting on the "80-pin cable" message to
+keep it from wrapping.
 
-#I have the new root mount on /new_root/root.cfs and all directories are set up to pivot
-cd /new_root
-pivot_root . initrd
-export PATH=/bin:/usr/bin:/sbin
-echo Done pivoting
 
-umount /initrd/proc
-umount /initrd/devfs
-umount /initrd
 
-exec chroot . sbin/startup < dev/console > dev/console 2> dev/console
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha1
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PDC20267: IDE controller on PCI bus 00 dev 58
+PDC20267: chipset revision 2
+PDC20267: not 100% native mode: will probe irqs later
+PDC20267: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+    ide2: BM-DMA at 0xb800-0xb807, BIOS settings: hde:DMA, hdf:DMA
+    ide3: BM-DMA at 0xb808-0xb80f, BIOS settings: hdg:DMA, hdh:pio
+[-------snip-------]
+hde: IC35L040AVER07-0, ATA DISK drive
+ULTRA 66/100/133: Primary channel of Ultra 66/100/133 requires an 80-pin cable for Ultra66
+operation.
+         Switching to Ultra33 mode.
+Warning: Primary channel requires an 80-pin cable for operation.
+hde reduced to Ultra33 mode.
+hdg: WDC WD1200BB-00CAA1, ATA DISK drive
+ULTRA 66/100/133: Secondary channel of Ultra 66/100/133 requires an 80-pin cable for Ultra66
+operation.
+         Switching to Ultra33 mode.
+Warning: Secondary channel requires an 80-pin cable for operation.
+hdg reduced to Ultra33 mode.
+[-------snip-------]
+hde: host protected area => 1
+hde: setmax LBA 80418240, native  1992187
+hde: 1992187 sectors (1020 MB) w/1916KiB Cache, CHS=1976/16/63, UDMA(33)
+hdg: host protected area => 1
+hdg: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=232581/16/63, UDMA(33)
 
-Should i unmount /proc and /devfs before I pivot?  Any suggestions would be wonderful!
 
-Cheers,
-James
+ -Erik
 
-Please CC to me directly if you can, i'm not suscribed to the mailing list, bad me!
--- 
-__________________________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,74 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270384AbTGRWXh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 18:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270383AbTGRWXX
+	id S271824AbTGRW1F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 18:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270397AbTGRWX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 18:23:23 -0400
-Received: from mta05ps.bigpond.com ([144.135.25.137]:58599 "EHLO
-	mta05ps.bigpond.com") by vger.kernel.org with ESMTP id S271927AbTGRWVI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 18:21:08 -0400
-Date: Sat, 19 Jul 2003 08:36:27 +1000
-From: Michael Still <mikal@stillhq.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Sam Ravnborg <sam@ravnborg.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andries Brouwer <aebr@win.tue.nl>
-Subject: Re: [PATCH] docbook: Added support for generating man files
-In-Reply-To: <1058565240.19558.91.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0307190828070.1829-100000@diskbox.stillhq.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 18 Jul 2003 18:23:56 -0400
+Received: from mail.iskon.hr ([213.191.128.4]:58536 "HELO mail.iskon.hr")
+	by vger.kernel.org with SMTP id S271924AbTGRWTb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 18:19:31 -0400
+Date: Sat, 19 Jul 2003 00:34:25 +0200
+From: Kresimir Kukulj <madmax@iskon.hr>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] siimage.c - turning DMA on because of 'md' kernel thread.
+Message-ID: <20030718223425.GA21110@max.zg.iskon.hr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Jul 2003, Alan Cox wrote:
+Hi
 
-Hey,
+	I'm trying to use Sil3112a controller with two Seagate 120Gb SATA
+disks for RAID-1 (mirror) with 'md - multiple devices' driver. I am aware
+that I need to use some tricks to get it working, like this:
 
-thanks to Sam, Andries and yourself for showing an interest in the patch.
+ # hdparm -d1 -X69 /dev/xxx
+ # echo "max_kb_per_request:15" > /proc/ide/hd?/settings
 
-> On Gwe, 2003-07-18 at 22:23, Sam Ravnborg wrote:
-> > Hi Linus - please apply. Only docbook relevant changes [with patch this time].
-> > 
-> > Originally by Michael Still <mikal@stillhq.com>
-> >  
-> > This patch adds two new targets to the docbook makefile -- mandocs, and
-> 
-> IS there any chance it could incorporate the GPL by a slightly smaller
-> reference or even a link for the HTML one, it looks great except that
-> 90% of the manual page is a GPL each time 8)
+First one prevents freezing the system when enabling DMA.
+Second one stops IO errors.
 
-Well, the only part which comes from this patch is:
+As far as I can tell, it works ok, but with reduced bandwidth (because of
+max_kb_per_request). When using 'md' driver for RAID-1 mirror (rootfs, swap)
+with persistent superblocks I have problems. If server crashes (for some
+reason), 'md' tries to resync mirrors automatically. That is done by a kernel
+thread that is activated before init(8) is started. I have put 'hdparm' cludge
+very early in the boot process, but that happens _after_ 'md' thread starts to
+resync.  That means that disks are busy (in PIO mode), and when hdparm -d1 -X69
+executes, system freezes [if there is no disk/little activity hdparm cludge
+passes ok - for example, if RAID-1 is clean so there is no resync].
 
-<para>
-If you have comments on the formatting of this manpage, then please contact
-Michael Still (mikal\@stillhq.com).
-</para>
+For past two days I tried to find a way to force ide driver to initialize disk
+in dma mode automatically by the kernel itself although disks are set to PIO by
+the bios for some reason. I devised a patch that does hdparm + echo cludge. I
+have never seen linux kernel, so I am unsure if I did it correctly. Patch is
+attached.  Please, if anyone uses it, test it to see if  it works ok for you! I
+am not familiar with linux ide driver so I did this with a lot of printk's and
+trial & error.
 
-<para>
-This documentation was generated with kernel version $ARGV[2].
-</para>
+With this patch, disks are initialized by kernel to UDMA100, with
+max_kb_per_request:15.  Now, RAID-1 is resynced at boot with DMA already
+activated (so there is no need for hdparm) and it completed successfully.
+At least it works for me. I need to do more disk stress tests to be sure it is
+stable.
 
-I can shorten this if people would like.
+This is all done with vanilla 2.4.21.
+2.4.22-pre4 didn't work at all. Copying a few MB of data freezes the kernel.
 
-The GPL bit people have commented on is actually extracted from the front
-matter of the SGML file being converted inside
-<legalnotice></legalnotice>. Therefore, if the SGML kerneldoc output we
-already have includes the GPL, then so does the man page. I have not
-imposed new license conditions on the documentation.
+My motherboard is Asus P4G8X deluxe.
+http://www.asus.com/products/mb/socket478/p4g8x-d/overview.htm
 
-If people are comfortable with dropping the legal notice, or perhaps 
-inserting a line saying "refer to file X for the license on this 
-documentation", then I'll do that and send a new patch.
+--- siimage.c.orig	Fri Jul 18 23:36:58 2003
++++ siimage.c	Fri Jul 18 23:36:59 2003
+@@ -97,7 +97,7 @@
+ 
+ 	switch(hwif->pci_dev->device) {
+ 		case PCI_DEVICE_ID_SII_3112:
+-			return 4;
++			return 3;
+ 		case PCI_DEVICE_ID_SII_680:
+ 			if ((scsc & 0x30) == 0x10)	/* 133 */
+ 				mode = 4;
+@@ -297,7 +297,7 @@
+ 	struct hd_driveid *id	= drive->id;
+ 
+ 	if ((id->capability & 1) != 0 && drive->autodma) {
+-		if (!(hwif->atapi_dma))
++		if ((hwif->atapi_dma))
+ 			goto fast_ata_pio;
+ 		/* Consult the list of known "bad" drives */
+ 		if (hwif->ide_dma_bad_drive(drive))
+@@ -803,7 +803,7 @@
+ 	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
+ 	class_rev &= 0xff;
+ 
+-	hwif->rqsize = 128;
++	hwif->rqsize = 15;
+ 	if ((dev->device == PCI_DEVICE_ID_SII_3112) && (!(class_rev)))
+ 		hwif->rqsize = 16;
+ 
+-----------------------
 
-Cheers,
-Mikal
+I'm confused why is this check there:
+ 	if ((id->capability & 1) != 0 && drive->autodma) {
+ 		if (!(hwif->atapi_dma))
+ 			goto fast_ata_pio;
+
+Is it intentional ?
 
 -- 
-
-Michael Still (mikal@stillhq.com) | Stage 1: Steal underpants
-http://www.stillhq.com            | Stage 2: ????
-UTC + 10                          | Stage 3: Profit
-
+Kresimir Kukulj                      madmax@iskon.hr
++--------------------------------------------------+
+Old PC's never die. They just become Unix terminals.

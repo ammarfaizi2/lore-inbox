@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263081AbTI3CYG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 22:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263083AbTI3CYG
+	id S263083AbTI3CxL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 22:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbTI3CxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 22:24:06 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:61344 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S263081AbTI3CYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 22:24:04 -0400
-To: Maciej Zenczykowski <maze@cela.pl>
-Cc: Valdis.Kletnieks@vt.edu, Jamie Lokier <jamie@shareable.org>,
-       Muli Ben-Yehuda <mulix@mulix.org>, Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] document optimizing macro for translating PROT_ to VM_
- bits
-References: <Pine.LNX.4.44.0309291918070.26827-100000@gaia.cela.pl>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 30 Sep 2003 11:15:51 +0900
-In-Reply-To: <Pine.LNX.4.44.0309291918070.26827-100000@gaia.cela.pl>
-Message-ID: <buoisnb3tt4.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	Mon, 29 Sep 2003 22:53:11 -0400
+Received: from mail010.syd.optusnet.com.au ([211.29.132.56]:18626 "EHLO
+	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263083AbTI3CxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 22:53:10 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16248.59825.930284.259695@wombat.chubb.wattle.id.au>
+Date: Tue, 30 Sep 2003 12:25:53 +1000
+To: Peter Osterlund <petero2@telia.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.6.0-test6: synaptics upside down? 
+In-Reply-To: <Pine.LNX.4.44.0309290731120.25735-100000@telia.com>
+References: <16247.49897.60412.898864@wombat.chubb.wattle.id.au>
+	<Pine.LNX.4.44.0309290731120.25735-100000@telia.com>
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej Zenczykowski <maze@cela.pl> writes:
-> That probably also explains why the convoluted long code with division
-> above is faster - the division and multiplication most likely gets
-> resolved during compile (since we're dealing with compile time constants)
-> into a single shift and results in an execution of bitop 'and' followed by
-> 'shift left/right', which due to lacking and conditional branches
-> (necessary for ?:) is usually significantly faster due to a lack of 
-> branch mispredictions.
+>>>>> "Peter" == Peter Osterlund <petero2@telia.com> writes:
 
-Hmmm, on my arch (v850) gcc-2.9x produce different, but equally
-efficient (no branches) code for both the old `obvious' expression and
-the new `convoluted' expression.  gcc-3.3.x produces the _same_ two
-instructions for both expressions, except that the two instructions are
-in different orders.  :-)
+Peter> On Mon, 29 Sep 2003, Peter Chubb wrote:
+>> Hi folks, On the latest 2.6.0-test6 kernel, the synaptics touchpad
+>> on my Clevo is upside down -- moving my finger up moves the pointer
+>> down, et vice versa.
 
--Miles
--- 
-Freedom's just another word, for nothing left to lose   --Janis Joplin
+Peter> Try upgrading to version 0.11.7 of the XFree86 driver.
+
+Thanks, that fixed it.
+
+Peter C

@@ -1,46 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276951AbRJHQOG>; Mon, 8 Oct 2001 12:14:06 -0400
+	id <S276996AbRJHQRQ>; Mon, 8 Oct 2001 12:17:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276978AbRJHQN4>; Mon, 8 Oct 2001 12:13:56 -0400
-Received: from [216.191.240.114] ([216.191.240.114]:43909 "EHLO
-	shell.cyberus.ca") by vger.kernel.org with ESMTP id <S276951AbRJHQNk>;
-	Mon, 8 Oct 2001 12:13:40 -0400
-Date: Mon, 8 Oct 2001 12:11:12 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Andrea Arcangeli <andrea@suse.de>,
-        Ingo Molnar <mingo@elte.hu>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <E15qczg-00011N-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.30.0110081206250.5473-100000@shell.cyberus.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276985AbRJHQQ4>; Mon, 8 Oct 2001 12:16:56 -0400
+Received: from mfe1.be1.service.telerelay.net ([213.164.192.20]:31707 "EHLO
+	smtp-cust-out.service.telerelay.com") by vger.kernel.org with ESMTP
+	id <S276975AbRJHQQx>; Mon, 8 Oct 2001 12:16:53 -0400
+Message-Id: <5.1.0.14.2.20011008181614.00acd340@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 08 Oct 2001 18:17:32 +0200
+To: linux-kernel@vger.kernel.org
+From: DevilKin <devilkin@gmx.net>
+Subject: AGP Stability tests?
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I know it's a bit OT, but is there a way to do some AGP stability tests 
+under linux? I'm encountering infrequent crashes (not the kernel, no, just 
+X) and I want to find out if the AGP is working 'good'...
 
+Thanks,
 
-On Mon, 8 Oct 2001, Alan Cox wrote:
-
-> > Agreed if you add the polling cardbus bit.
-> > Note polling cardbus would require more changes than the above.
->
-> I don't think it does.
-
-I was repsonding to your earlier comment that:
-
-> Once you disable the IRQ and kick over to polling the cardbus and the
-> ethernet both still get regular service. Ok so your pps rate and your
-> latency are unpleasant, but you are not dead.
-
-basically pointing that we'll need more work to be done to get Ingos patch
-to poll the cardbus and eth0 in the example i gave.
-those will have to be per driver. Did i miss something?
-Agree on your other points there
-
-cheers,
-jamal
+DevilKin
 

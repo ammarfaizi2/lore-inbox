@@ -1,53 +1,207 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268814AbRHBGbB>; Thu, 2 Aug 2001 02:31:01 -0400
+	id <S268823AbRHBGmW>; Thu, 2 Aug 2001 02:42:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268816AbRHBGav>; Thu, 2 Aug 2001 02:30:51 -0400
-Received: from goliath.siemens.de ([194.138.37.131]:58353 "EHLO
-	goliath.siemens.de") by vger.kernel.org with ESMTP
-	id <S268814AbRHBGam>; Thu, 2 Aug 2001 02:30:42 -0400
-X-Envelope-Sender-Is: Andrej.Borsenkow@mow.siemens.ru (at relayer goliath.siemens.de)
-From: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Persistent device numbers
-Date: Thu, 2 Aug 2001 10:30:44 +0400
-Message-ID: <000901c11b1c$a87b1f40$21c9ca95@mow.siemens.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
-Importance: Normal
+	id <S268819AbRHBGmO>; Thu, 2 Aug 2001 02:42:14 -0400
+Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:55052 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S268817AbRHBGmF>; Thu, 2 Aug 2001 02:42:05 -0400
+Date: Thu, 2 Aug 2001 00:42:00 -0600
+Message-Id: <200108020642.f726g0L15715@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Cc: devfs-announce-list@mobilix.ras.ucalgary.ca
+Subject: [RFT] #2 Support for ~2144 SCSI discs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As far as I understand, currently kernel assigns device numbers dynamically.
-It means, that actual, user visible, controller/drive name may change if
+  Hi, all. Below is my second cut of a patch that adds support for
+large numbers of SCSI discs (approximately 2144). I'd like people to
+try this out. I've fixed a couple of "minor" typos that happened to
+disable sd detection. I've also tested this patch: it works fine on my
+3 drive system. In addition, I've switched to using vmalloc() for key
+data structures, so the kmalloc() limitations shouldn't hit us. I've
+added an in_interrupt() test to sd_init() just in case.
 
-- hardware configuaration is changed (added ot removed controller, added or
-removed drive)
+There are now 2 cases I'd like to have tested:
+- people with 17 to 128 SCSI discs
+- people with >128 SCSI discs
 
-- for some reasons order of initialisation in kernel changes (which may
-result in nasty surprise after update)
+because each of these exercises a slightly different setup path.
+Please send success or failure reports to me.
 
-Moreover, it near to impossible to know which name device gets in advance
-(or why it gets this name).
+				Regards,
 
-Most commercial systems (O.K. those I looked into) have some sort of logical
-device numbering that assigns fixed name based on some unique hardware
-address (cf /etc/path_to_inst in Solaris). Hardware address usually is a
-path needed to access device - i.e. Bus/Slot/Channel[/drive id], so that you
-can set
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca
 
-PCI0/Slot3/Channel1 == eth3
+begin 644 devfs-patch-current.gz
+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
+88A>,M)N!!4ZW@5);/+?^`E*%'=[<5@``
+`
+end
 
-and this never changes if you add or remove any card.
-
-Do I miss something and Linux has such mechanism?
-
-TIA
-
--andrej

@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131226AbRC3JGS>; Fri, 30 Mar 2001 04:06:18 -0500
+	id <S131236AbRC3JW3>; Fri, 30 Mar 2001 04:22:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131232AbRC3JGJ>; Fri, 30 Mar 2001 04:06:09 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:43021 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S131226AbRC3JF6>;
-	Fri, 30 Mar 2001 04:05:58 -0500
-Date: Fri, 30 Mar 2001 12:05:01 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: George Bonser <george@gator.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: 2.4.3 aic7xxx wont compile
-Message-ID: <20010330120501.P23336@mea-ext.zmailer.org>
-In-Reply-To: <CHEKKPICCNOGICGMDODJOEHOCJAA.george@gator.com>
-Mime-Version: 1.0
+	id <S131248AbRC3JWK>; Fri, 30 Mar 2001 04:22:10 -0500
+Received: from toxo.com.uvigo.es ([193.146.38.146]:55815 "EHLO
+	lixo.com.uvigo.es") by vger.kernel.org with ESMTP
+	id <S131236AbRC3JV6>; Fri, 30 Mar 2001 04:21:58 -0500
+Message-ID: <3AC4508E.7C7E7E64@com.uvigo.es>
+Date: Fri, 30 Mar 2001 11:23:26 +0200
+From: Eduardo Diaz Comellas <ediaz@com.uvigo.es>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac2 i686)
+X-Accept-Language: es, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Problem with swap on 2.4.x
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CHEKKPICCNOGICGMDODJOEHOCJAA.george@gator.com>; from george@gator.com on Thu, Mar 29, 2001 at 11:19:22PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 29, 2001 at 11:19:22PM -0800, George Bonser wrote:
-> Just tried to build 2.4.3, got:
-> 
-> make[6]: Entering directory
-> `/usr/local/src/linux/drivers/scsi/aic7xxx/aicasm'
-> gcc -I/usr/include -ldb1 aicasm_gram.c aicasm_scan.c aicasm.c
-> aicasm_symbol.c -o aicasm
-> aicasm/aicasm_gram.y:45: ../queue.h: No such file or directory
-> aicasm/aicasm_gram.y:50: aicasm.h: No such file or directory
-...
-> `/usr/local/src/linux/drivers/scsi/aic7xxx/aicasm'
-> ...
-> Looks like something's missing here. Had 2.4.2 patched to 2.4.3-pre7, backed
-> out pre7 and applied 2.4.3.
+Hi!
 
-  Yes,  "-I." from gcc flags.
+I've got a linux 2.4 machine acting as a router, with an ATM
+(Fore PCA-200E) and two 3c905C nics. This system has been
+experiencing kernel panics since it was put in production state.
 
-  The sad part is that people have been patching right and left to get
-  that monster utility to compile because the dependencies say that it
-  must be used to remake the AIC sequencer binary image; which image is
-  perfectly ok except of its timestampts due to patching process.
+I've tried several kernels (from 2.4.0-test to 2.4.2-ac21)
+with no luck. It always gives the same message (Unable to
+dereference null pointer, killing interrupt handler).
 
-  Sources from a tarball never get to this, because Linus has suffered
-  the episode of patching it in, and compiling once -> timestamps are
-  such that the resulting binary (ok, hex version of it) is newer than
-  the source.
+The process shown in the crash message changed from time
+to time, sometimes it was the atm signaling daemon (atmsigd)
+and others the swapper.
 
-  There are two bugs in those aic7xxx/aicasm makefile(s):
-    - Missing that  -I.  parameter for ${CC}
-    - Having any sort of dependency from sequencer's images
-      hexified binary (which the driver includes) to its source.
+Reading the mailing list, I found some reference to the
+amount of swap needed with the 2.4 kernel series (2*RAM),
+but after increasing the swap area the problem persisted.
+At last, I tried increasing the RAM and deactivating the swap,
+and it seems that this was the rigth move, as the system has
+been working flawlessly afterwards.
 
-  While mr. Gibbs is right that it makes a lot of sense to supply
-  the entire tool-chain to generate all generated parts of the aic7xxx
-  driver, nobody should be forced to do the compilation, or then
-  'make mrproper' should throw away the hexified sequencer code...
+I am sorry I dont have the exact kernel panic's messages. I'm
+just
+telling this here in case it is of any help.
 
-  Compiling of the sequencer source should be *some* make target in
-  that driver directory, but not any of which normal users will
-  encounter at any time.  That is, not a dependency target !
+Regards.
 
-  Very few people need to go poking at the sequencer source, and
-  they should manage to take a bit more complicated approach, than
-  'make bzImage' or 'make modules' to achieve that.
-  (i.e.: cd drivers/scsi/aic7xxx;make XYZ)
 
-/Matti Aarnio  -- presenting own opinnions, obviously

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129655AbRAEUDI>; Fri, 5 Jan 2001 15:03:08 -0500
+	id <S129324AbRAEUGr>; Fri, 5 Jan 2001 15:06:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130017AbRAEUC5>; Fri, 5 Jan 2001 15:02:57 -0500
-Received: from cd168990-a.ctjams1.mb.wave.home.com ([24.108.112.42]:35968 "EHLO
-	cd168990-a.ctjams1.mb.wave.home.com") by vger.kernel.org with ESMTP
-	id <S129749AbRAEUCr>; Fri, 5 Jan 2001 15:02:47 -0500
-Date: Fri, 5 Jan 2001 14:02:46 -0600
-From: Evan Thompson <evaner@bigfoot.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.0-ac2
-Message-ID: <20010105140246.A838@evaner.penguinpowered.com>
-Reply-To: evaner@bigfoot.com
-Mail-Followup-To: Evan Thompson <evaner@bigfoot.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E14Eale-000873-00@the-village.bc.nu>
+	id <S129588AbRAEUGj>; Fri, 5 Jan 2001 15:06:39 -0500
+Received: from jalon.able.es ([212.97.163.2]:409 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129324AbRAEUG0>;
+	Fri, 5 Jan 2001 15:06:26 -0500
+Date: Fri, 5 Jan 2001 21:06:16 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Module section warning
+Message-ID: <20010105210616.A872@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <E14Eale-000873-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jan 05, 2001 at 05:35:03PM +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm...seems as though Alan released 2.4.0-ac2 1 year ago (check out
-the time stamps on ftp.kernel.org/pub/linux/kernel/people/alan/2.4/)
--- 
-+----------------------------------+-----------------------------------+
-| Evan Thompson                    |            POWERED BY:            |
-| evaner@bigfoot.com               | Linux cd168990-a 2.4.0-ac2 #1 Fri |
-| Freelance Computer Nerd          |  Jan 5 11:58:30 CST 2001 i686     |
-| http://evaner.penguinpowered.com |   unknown                         |
-+----------------------------------+-----------------------------------+
+Hi everyone.
+
+As linux-2.4.0/Documentation/canges says, you need:
+
+o  binutils               2.9.1.0.25              # ld -v
+o  modutils               2.4.0                   # insmod -V
+
+and 2.4 uses gas instead of as86 for real mode.
+
+Are not that versions enough to delete the
+
+__asm__(".section .modinfo\n\t.previous");
+
+in module.h ?
+
+--
+
+J.A. Magallon                                         $> cd pub
+mailto:jamagallon@able.es                             $> more beer
+
+Linux werewolf 2.2.19-pre6 #1 SMP Wed Jan 3 21:28:10 CET 2001 i686
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

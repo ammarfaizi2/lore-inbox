@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267241AbSKVAqQ>; Thu, 21 Nov 2002 19:46:16 -0500
+	id <S267242AbSKVAwa>; Thu, 21 Nov 2002 19:52:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267242AbSKVAqQ>; Thu, 21 Nov 2002 19:46:16 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6158 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267241AbSKVAqP>; Thu, 21 Nov 2002 19:46:15 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] export e820 table on x86
-Date: 21 Nov 2002 16:53:04 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <arjv5g$c2b$1@cesium.transmeta.com>
-References: <3DDD7067.6090500@us.ibm.com> <Pine.LNX.4.44.0211211556340.5779-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S267243AbSKVAwa>; Thu, 21 Nov 2002 19:52:30 -0500
+Received: from mail.cafes.net ([207.65.182.3]:53917 "EHLO mail.cafes.net")
+	by vger.kernel.org with ESMTP id <S267242AbSKVAw3>;
+	Thu, 21 Nov 2002 19:52:29 -0500
+Date: Thu, 21 Nov 2002 18:53:55 -0600
+From: Mike Eldridge <diz@cafes.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20-rc2-xfs lockups
+Message-ID: <20021121185355.A4376@ornery.cafes.net>
+References: <20021121153122.B13338@ornery.cafes.net> <20021121172619.B13450@ornery.cafes.net> <1037925505.9160.13.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1037925505.9160.13.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Fri, Nov 22, 2002 at 12:38:25AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.44.0211211556340.5779-100000@penguin.transmeta.com>
-By author:    Linus Torvalds <torvalds@transmeta.com>
-In newsgroup: linux.dev.kernel
+On Fri, Nov 22, 2002 at 12:38:25AM +0000, Alan Cox wrote:
+> On Thu, 2002-11-21 at 23:26, Mike Eldridge wrote:
+> > On Thu, Nov 21, 2002 at 03:31:22PM -0600, Mike Eldridge wrote:
+> > > i recently replaced a pII-350 with a pair of pIII-500s in a tyan
+> > > S1836-DLUAN-GX board (440GX dual slot 1).  i'm now getting loads of NMI
+> > > interrupts for unknown reasons (reasons 2c and 3c).
+> > 
+> > after more googling, i've found several pieces of information that seem
+> > to suggest interrupt routing on 440GX-based motherboards is busted.
+> > 
+> > can anyone confirm this?  will booting with 'noapic' fix this problem?
+> > am i doomed to run a UP kernel?
 > 
-> See also how we artificially only show 32-bit resources, because "struct
-> resource" uses "unsigned long". That's a design mistake, and it _should_
-> be "u64" (this actually could cause problems already on 64-bit PCI on
-> 32-bit hosts, although it appears that nobody even tries to map devices
-> past the 4GB area anyway), but I've never had a test-case for fixing it
-> and seeing any difference.
-> 
+> It varies. Unfortunately Intel won't tell us how to sort this mess out. 
 
-Perhaps an abstract type, like resaddr_t, would make more sense?  That
-way we'll have less of an issue when the next category of weird system
-architecture comes along, which may want some kind of node-based
-addressing, who knows...
+hrm :/
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+ironically, i've got another box here (440GX dual pIII-500) running
+linux-2.2.20 with apic enabled that doesn't have this problem.
+interestingly, the NMI line from /proc/interrupts only lists counts for
+CPU0, not for CPU1.  and it's sitting comfortably at 0.
+
+running with 'noapic' on the troublesome machine still produces NMIs and
+random hangs.
+
+-mike
+
+------------------------------------------------------------------------
+   /~\  the ascii                "rich gifts wax poor when givers prove
+   \ /  ribbon campaign                                         unkind"
+    X   against html              -- ophelia (hamlet; act III, scene 1)
+   / \  email!

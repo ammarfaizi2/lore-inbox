@@ -1,41 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbULIAvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbULIAve@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbULIAvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 19:51:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbULIAvQ
+	id S261378AbULIAve (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 19:51:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbULIAve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 19:51:16 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:2722 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261358AbULIAvO
+	Wed, 8 Dec 2004 19:51:34 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:47787 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261378AbULIAv3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 19:51:14 -0500
-Date: Thu, 9 Dec 2004 01:50:15 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Nicholas Papadakos <panic@quake.gr>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: realtek r8169 + kernel 2.4.24 (openmosix)
-Message-ID: <20041209005015.GA25868@electric-eye.fr.zoreil.com>
-References: <20041205122414.GA22383@electric-eye.fr.zoreil.com> <200412051317.iB5DHrOL026570@kane.otenet.gr> <20041205135132.GA23262@electric-eye.fr.zoreil.com> <20041206234131.GA12838@electric-eye.fr.zoreil.com>
+	Wed, 8 Dec 2004 19:51:29 -0500
+Subject: Re: [RFC] New timeofday proposal (v.A1)
+From: john stultz <johnstul@us.ibm.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
+       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max <amax@us.ibm.com>, mahuja@us.ibm.com
+In-Reply-To: <Pine.LNX.4.58.0412081640020.5165@schroedinger.engr.sgi.com>
+References: <1102470914.1281.27.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0412081009540.27324@schroedinger.engr.sgi.com>
+	 <1102533066.1281.81.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0412081114590.27324@schroedinger.engr.sgi.com>
+	 <1102535891.1281.148.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0412081207010.28001@schroedinger.engr.sgi.com>
+	 <1102549009.1281.267.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0412081548010.4783@schroedinger.engr.sgi.com>
+	 <1102551441.1281.286.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0412081640020.5165@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Message-Id: <1102553491.1281.297.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041206234131.GA12838@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 08 Dec 2004 16:51:32 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu <romieu@fr.zoreil.com> :
-[unstable backport of the r8169 driver]
+On Wed, 2004-12-08 at 16:40, Christoph Lameter wrote:
+> On Wed, 8 Dec 2004, john stultz wrote:
+> 
+> > Well, its not *that* bad. Similar to the ntp_scale() function, it would
+> > look something like:
+> >
+> > if (interval <= offset_len)
+> > 	return (interval * singleshot_mult)>>shift;
+> > else {
+> > 	cycle_t v1,v2;
+> > 	v1 = (offset_len * singleshot_mult)>>shift;
+> > 	v2 = (interval-offset_len)*adjusted_mult)>>shift;
+> > 	return v1+v2;
+> > }
+> >
+> > Where:
+> > 	singleshot_mult = original_mult + ntp_adj + ss_mult
+> > and
+> > 	adjusted_mult = original_mult + ntp_adj
+> >
+> >
+> 
+> Yuck. Do we support this kind of thing today? Support for periods of a
+> tick or so is not an issue right?
 
-Nicholas, can you give a try at the patch below against vanilla 2.4.28 ?
-http://www.fr.zoreil.com/people/francois/misc/20041209-2.4.28-r8169.c-test.patch
+Well, ok, you're right. I got my wires twisted and misspoke. Today we
+really don't, since NTP adjustments only occur on tick boundaries. So
+yes, singleshot adjustments are in multiples of ticks right now. But we
+do assume ticks arrive at regular periods. If they don't, well, then we
+apply it for only one ticks worth, but we've lost a tick so we're wrong
+anyway. 
 
-This patch does not trivially crash and you should be able to set the
-mtu around 7200 bytes.
+The code above, however, can handle non-regular interrupt intervals,
+which is something I think we should assume will occur.
 
-The detail of the (43) patches is available at:
-http://www.fr.zoreil.com/linux/kernel/2.4.x/2.4.28/r8169.
+thanks
+-john
 
---
-Ueimor
+

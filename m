@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285449AbRLNSKs>; Fri, 14 Dec 2001 13:10:48 -0500
+	id <S285451AbRLNSfK>; Fri, 14 Dec 2001 13:35:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285448AbRLNSK3>; Fri, 14 Dec 2001 13:10:29 -0500
-Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:28420
-	"HELO marcus.pants.nu") by vger.kernel.org with SMTP
-	id <S285440AbRLNSK1>; Fri, 14 Dec 2001 13:10:27 -0500
-Subject: Re: reiser4 (was Re: [PATCH] Revised extended attributes  interface)
-To: reiser@namesys.com (Hans Reiser)
-Date: Fri, 14 Dec 2001 10:27:14 -0800 (PST)
-Cc: andrew@pimlott.ne.mediaone.net (Andrew Pimlott),
-        aia21@cam.ac.uk (Anton Altaparmakov), nathans@sgi.com (Nathan Scott),
-        ag@bestbits.at (Andreas Gruenbacher), linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com
-In-Reply-To: <3C19DE41.6000507@namesys.com> from "Hans Reiser" at Dec 14, 2001 02:10:57 PM
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
+	id <S285452AbRLNSfA>; Fri, 14 Dec 2001 13:35:00 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:49216 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S285451AbRLNSep>; Fri, 14 Dec 2001 13:34:45 -0500
+Date: Fri, 14 Dec 2001 19:32:17 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Chris Mason <mason@suse.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Johan Ekenberg <johan@ekenberg.se>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, jack@suse.cz,
+        linux-kernel@vger.kernel.org
+Subject: Re: Lockups with 2.4.14 and 2.4.16
+Message-ID: <20011214193217.H2431@athlon.random>
+In-Reply-To: <000a01c1829f$75daf7a0$050010ac@FUTURE> <000a01c1829f$75daf7a0$050010ac@FUTURE> <3825380000.1008348567@tiny> <3C1A3652.52B989E4@zip.com.au> <3845670000.1008352380@tiny>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20011214182715.08C352B54A@marcus.pants.nu>
-From: flar@pants.nu (Brad Boyer)
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3845670000.1008352380@tiny>; from mason@suse.com on Fri, Dec 14, 2001 at 12:53:00PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> Brad Boyer wrote:
-> >Yes, these things can be survived, but speaking as someone who currently
-> >has a job involving multiple NetApp boxes, I can say that the .snapshot
-> >directory has some seriously annoying properties that break tar and
-> >other programs that expect things to look normal. The snapshots have
-> >saved my ass a few times, but they're still a pain to work with due
-> >to a few little quirks. In particular, the files in the snapshot keep
-> >the same inode number as the actual file. Just remember that clever
-> >solutions that almost fit the traditional model can have strange
-> >results over time.
-> 
-> Can you detail the problem?
-> 
+On Fri, Dec 14, 2001 at 12:53:00PM -0500, Chris Mason wrote:
+> I'll try this, and also add kinoded so we can avoid using keventd.  I'm wary
 
-The problem with the NetApp snapshots is that tar and cp and a few other
-programs that check inode numbers get confused and think everything in
-the snapshot is a hard link. So you can't copy a snapshot of a file back
-over the original without copying it somewhere else first, and it's
-painful to make an archive of the snapshots. We have data files on our
-filers that get updated frequently, and any time I need to analyze the
-same file over time, or restore an old file, it causes problems. I was
-throwing it out more as an example of what sort of unexpected things
-happen when you slightly change the way the filesystem works.
+using keventd for that doesn't look too bad to me. Just like we do with
+the dirty inode flushing. keventd doesn't do anything 99.9% of the time,
+so it sounds a bit wasteful to add yet another daemon that will remain
+idle 99% of the time too... :)
 
-	Brad Boyer
-	flar@allandria.com
-
+Andrea

@@ -1,98 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261898AbUAIQCo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 11:02:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbUAIQCo
+	id S262128AbUAIQTU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 11:19:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbUAIQTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 11:02:44 -0500
-Received: from mail.gmx.de ([213.165.64.20]:22181 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261898AbUAIQCm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 11:02:42 -0500
-X-Authenticated: #20450766
-Date: Fri, 9 Jan 2004 17:02:02 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Wakko Warner <wakko@animx.eu.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Strange lockup with 2.6.0
-In-Reply-To: <20040109104955.B6840@animx.eu.org>
-Message-ID: <Pine.LNX.4.44.0401091653340.19686-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 Jan 2004 11:19:20 -0500
+Received: from tench.street-vision.com ([212.18.235.100]:19334 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id S262128AbUAIQTT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 11:19:19 -0500
+Subject: Re: kernel 2.4.24 - weird priorities for RAID processes
+From: Justin Cormack <justin@street-vision.com>
+To: Konstantin Kudin <konstantin_kudin@yahoo.com>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040109161047.46078.qmail@web21204.mail.yahoo.com>
+References: <20040109161047.46078.qmail@web21204.mail.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 09 Jan 2004 16:19:19 +0000
+Message-Id: <1073665160.1766.23.camel@lotte.street-vision.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Jan 2004, Wakko Warner wrote:
+Update your procps utils.
 
-> Guennadi Liakhovetski wrote:
-> > On Fri, 9 Jan 2004, Wakko Warner wrote:
-> >
-> > > I usually do a backup of each filesystem simply using tar.  I attempted to
-> > > backup a machine I had that's running 2.6.0 and it hard locked.
-> >
-> > Are sysrq-keys enabled? If so, could you catch the tar backtrace during
-> > the lock-up (ALT-SysRq-t)? What was the latest kernel-version that worked?
->
-> Yes, but the machine hard locks.  sysrq does not work.  I have a small
 
-__THAT__ hard...:-)
-
-> utility I wrote that will set the state of the parport (I used this to tell
-> if it locks up) using outb to the port (This does not effect it in anyway,
-> it will lockup w/o it running)
-
-You mean it just toggles a bit periodically?
-
-> > Can you just try to write some data over NFS? Would it lock if you write 1
->
-> I am constantly accessing NFS with this machine.  Read and write.  It was
-
-How much data at one go (max)?
-
-> only when I backed it up with tar.  In the event it doesn't lock, tar
-> crashes w/o error/warning (over NFS).
-
-So, it locks not always?
-
-> > byte or 1K or 1M? Does it lock immediately as you start the backup or
->
-> It locks up usually at one point, but not always.
-
-Since you could backup to Jazz, looks like your filesystem is ok, NFS also
-works in principle...
-
-> > after some time (you could start some process in the background
-> > periodically printing some info on the terminal, like vmstat, cat
-> > /proc/interrupts, free, tcpdump on both ends to a file...) Can you try NFS
->
-> I can do this I think.  It's fun when running with init being bash.  It will
-> take some time to do since I can't scroll backwards.
-
-You could also attach a serial console and direct the output there (then
-you also can scroll).
-
-> > over TCP? Are other machines, where backup works, also running 2.6,
->
-> I can try TCP, but I'm not sure about the server accepting TCP (was there a
-> compile time option for NFSD to use TCP?)  These 2 machines are the only
-
-Yes.
-
-> ones I have on 2.6.
->
-> > 10/100mbps?
->
-> 100 FD always.
-
-Why I am interested in your experiences is that I also have a problem
-transferring large (several M) files over NFS when the server is 2.6 and
-both ends have 100 FD. (You can see my posts this week about 2.6 NFS.) And
-in my case it TCP fixed it. But I never had hard-locks, just cp hanged in
-D, and tcpdump showed timed out reassembly on the receiving side. But I
-was reading from the server.
-
-Guennadi
----
-Guennadi Liakhovetski
+On Fri, 2004-01-09 at 16:10, Konstantin Kudin wrote:
+>  The 2.4.24 kernel reports weird priorities for
+> certain processes.
+> 
+> 
+> kiev:~>cat /proc/version
+> Linux version 2.4.24 (root@kiev.somewhere.EDU) (gcc
+> version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)) #1 SMP
+> Thu
+> Jan 8 16:47:09 EST 2004
+> 
+> 
+>   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM
+>   TIME CPU COMMAND
+>     6 root       9   0     0    0     0 SW    0.0  0.0
+>   0:00   0 bdflush
+>     7 root       9   0     0    0     0 SW    0.0  0.0
+>   0:00   0 kupdated
+>     8 root     18446744073709551615 -20     0    0    
+> 0 SW<   0.0  0.0   0:00   1 mdrecoveryd
+>    16 root     18446744073709551615 -20     0    0    
+> 0 SW<   0.0  0.0   0:00   0 raid1d
+> 
+> 
+> 
+> 
+> 
+> __________________________________
+> Do you Yahoo!?
+> Yahoo! Hotjobs: Enter the "Signing Bonus" Sweepstakes
+> http://hotjobs.sweepstakes.yahoo.com/signingbonus
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 

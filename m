@@ -1,126 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVA2Rtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVA2Rvr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbVA2Rtu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 12:49:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVA2Rtt
+	id S261482AbVA2Rvr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 12:51:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVA2Rvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 12:49:49 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:62373 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261529AbVA2RsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 12:48:25 -0500
-Message-ID: <41FBCC91.8010602@comcast.net>
-Date: Sat, 29 Jan 2005 12:49:05 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jakub Jelinek <jakub@redhat.com>
-CC: Rik van Riel <riel@redhat.com>, Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Patch 4/6  randomize the stack pointer
-References: <20050127101322.GE9760@infradead.org> <41F92721.1030903@comcast.net> <1106848051.5624.110.camel@laptopd505.fenrus.org> <41F92D2B.4090302@comcast.net> <Pine.LNX.4.58.0501271010130.2362@ppc970.osdl.org> <41F95F79.6080904@comcast.net> <1106862801.5624.145.camel@laptopd505.fenrus.org> <41F96C7D.9000506@comcast.net> <Pine.LNX.4.61.0501282147090.19494@chimarrao.boston.redhat.com> <41FB2DD2.1070405@comcast.net> <20050129173704.GM11199@devserv.devel.redhat.com>
-In-Reply-To: <20050129173704.GM11199@devserv.devel.redhat.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Sat, 29 Jan 2005 12:51:47 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:25411 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261482AbVA2Rv0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 12:51:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=d3172sjyUumGhryLQmjGkHurK/6vUs1vCXvVijcri8L3h/81LXexjZikSRxLuXmd7SaGsw+a5mT7cE1HCa1M1IJa7l7mtlOHzc1K18j7+lPAOIL0Pv5PS5G192PzQWNvuNEg5Z1RXUDjXBHPSA4Qd1MuEzFQnjHfblkFL/5ezfw=
+Message-ID: <58cb370e05012909513cc96b17@mail.gmail.com>
+Date: Sat, 29 Jan 2005 18:51:25 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] drivers/cdrom/isp16.c: small cleanups
+Cc: H.T.M.v.d.Maarel@marin.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <20050129171108.GB28047@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20050129171108.GB28047@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-
-
-Jakub Jelinek wrote:
-> On Sat, Jan 29, 2005 at 01:31:46AM -0500, John Richard Moser wrote:
+On Sat, 29 Jan 2005 18:11:08 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> This patch makes the needlessly global function isp16_init static.
 > 
->>Finally, although an NX stack is nice, you should probably take into
->>account IBM's stack smash protector, ProPolice.  Any attack that can
->>evade SSP reliably can evade an NX stack; but ProPolice protects from
->>other overflows.  Now I'm sure RH is over there inventing something that
->>detects buffer overflows at compile time and misses or warns about the
->>ones it can't identify:
->>
->>if (strlen(a) > 4)
->>  a[5] = '\0';
->>foo(a);
->>
->>void foo(char *a) {
->>   char b[5];
->>   strcpy(b,a);
->>}
->>
->>This code is safe, but you can't tell from looking at foo().  You don't
->>get a look at every other object being compiled against this one that
->>may call foo() either.  So compile time buffer overflow detection is a
->>best-effort at best.
+> As a result, it turned out that both this function and some other code
+> are only required #ifdef MODULE.
+
+Your patch is correct but it is wrong. ;)
+
+#ifdefs around isp16_init() need to be removed as
+otherwise this driver is not initialized in built-in case.
+
+Bartlomiej
+
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 > 
+> ---
 > 
-> If strlen(a) > 4 above, then -D_FORTIFY_SOURCE={1,2} compiled program
-> will be terminated in the strcpy call.  At compile time it computes
-> that the strcpy call can fill in at most 5 bytes and if it copies more,
-> then it terminates.
-
-And somehow you check every operation like this with less overhead than
-propolice?
-
+>  drivers/cdrom/isp16.c |   13 ++++++++-----
+>  drivers/cdrom/isp16.h |    1 -
+>  2 files changed, 8 insertions(+), 6 deletions(-)
 > 
+> --- linux-2.6.11-rc2-mm1-full/drivers/cdrom/isp16.h.old 2005-01-29 16:46:18.000000000 +0100
+> +++ linux-2.6.11-rc2-mm1-full/drivers/cdrom/isp16.h     2005-01-29 16:47:11.000000000 +0100
+> @@ -71,4 +71,3 @@
+>  #define ISP16_IO_BASE 0xF8D
+>  #define ISP16_IO_SIZE 5  /* ports used from 0xF8D up to 0xF91 */
 > 
->>ProPolice protects local variables with 0 overhead; passed arguments
->>with a few instructions; and the return pointer and stack frame pointer
->>with a couple instructions.  At runtime.  Want to impress me?  Actually
->>deploy ProPolice instead of showing up 3 years from now waving around
->>your own patch that you wrote that half-impliments half of it.  If you
->>want "something better," it's GPL, so grab it and start hacking.
+> -int isp16_init(void);
+> --- linux-2.6.11-rc2-mm1-full/drivers/cdrom/isp16.c.old 2005-01-29 16:47:19.000000000 +0100
+> +++ linux-2.6.11-rc2-mm1-full/drivers/cdrom/isp16.c     2005-01-29 17:46:38.000000000 +0100
+> @@ -58,6 +58,7 @@
+>  #include <asm/io.h>
+>  #include "isp16.h"
 > 
+> +#ifdef MODULE
+>  static short isp16_detect(void);
+>  static short isp16_c928__detect(void);
+>  static short isp16_c929__detect(void);
+> @@ -66,6 +67,7 @@
+>  static short isp16_type;       /* dependent on type of interface card */
+>  static u_char isp16_ctrl;
+>  static u_short isp16_enable_port;
+> +#endif  /*  MODULE  */
 > 
-> __builtin_object_size () checking/-D_FORTIFY_SOURCE=n changes are (partly)
-> orthogonal to ProPolice.  There are exploits prevented by
-> -D_FORTIFY_SOURCE={1,2} checking and not ProPolice and vice versa.
-
-So a belt-and-suspenders approach is better.
-
-> Things that the former protects and the latter does not are e.g.
-> some non-automatic buffer overflows or heap overflows, some format string
-> vulnerabilities and for automatic variables e.g. those that don't
-> overflow into another function's frame, but just overwrite other local
-> variables in the same function.  ProPolice on the other side will detect
-> stack overflows that overflow into another function's frame,
-
-or past the top of any buffer by at most 2 ints (I didn't check with 1
-int or 1 char when I wrote my regression suite), definitely before it
-hits the SFP and return pointer
-
-> even if they
-> aren't done through string operations (<string.h>, s*printf, gets, etc.)
-> or if the compiler can't figure out what certain arguments to these
-> functions points to (and where) at compile time.
+>  static int isp16_cdrom_base = ISP16_CDROM_IO_BASE;
+>  static int isp16_cdrom_irq = ISP16_CDROM_IRQ;
+> @@ -106,13 +108,13 @@
 > 
-> The ideas in IBM's ProPolice changes are good and worth
-> implementing, but the current implementation is bad.
+>  __setup("isp16=", isp16_setup);
 > 
-
-Lies.  I've read the paper on the current implementation, it's
-definitely good.  It only operates on C/C++ code though, but that's the
-scope of it.
-
-> FYI, you can find some details about -D_FORTIFY_SOURCE=n in
-> http://gcc.gnu.org/ml/gcc-patches/2004-09/msg02055.html
+> -#endif                         /* MODULE */
+> +#else                          /* MODULE */
 > 
-> 	Jakub
+>  /*
+>   *  ISP16 initialisation.
+>   *
+>   */
+> -int __init isp16_init(void)
+> +static int __init isp16_init(void)
+>  {
+>         u_char expected_drive;
 > 
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB+8yPhDd4aOud5P8RAsekAJsGklzrgWi7ymrRmfhXpqv2LjB//gCeNBDy
-8sCZBhtzy6l6L/WDjQpMq6A=
-=4/Dz
------END PGP SIGNATURE-----
+> @@ -366,15 +368,16 @@
+>         return 0;
+>  }
+> 
+> +module_init(isp16_init);
+> +
+> +#endif
+> +
+>  void __exit isp16_exit(void)
+>  {
+>         release_region(ISP16_IO_BASE, ISP16_IO_SIZE);
+>         printk(KERN_INFO "ISP16: module released.\n");
+>  }
+> 
+> -#ifdef MODULE
+> -module_init(isp16_init);
+> -#endif
+>  module_exit(isp16_exit);
+> 
+>  MODULE_LICENSE("GPL");
+>

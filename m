@@ -1,81 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268706AbUI2Rgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268745AbUI2RlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268706AbUI2Rgn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 13:36:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268735AbUI2Rgm
+	id S268745AbUI2RlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 13:41:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268735AbUI2RlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 13:36:42 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:30682 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S268706AbUI2RgT (ORCPT
+	Wed, 29 Sep 2004 13:41:25 -0400
+Received: from open.hands.com ([195.224.53.39]:41350 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S268756AbUI2RlJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 13:36:19 -0400
-Date: Wed, 29 Sep 2004 19:33:43 +0200
-From: Jens Axboe <axboe@suse.de>
-To: John Cherry <cherry@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 1 New compile/sparse warning (overnight build)
-Message-ID: <20040929173343.GF2322@suse.de>
-References: <1096478522.20465.11.camel@cherrybomb.pdx.osdl.net>
+	Wed, 29 Sep 2004 13:41:09 -0400
+Date: Wed, 29 Sep 2004 18:52:04 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] to allow sys_pread64 and sys_pwrite64 to be used from modules
+Message-ID: <20040929175204.GA6488@lkcl.net>
+References: <20040929125835.GA6764@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1096478522.20465.11.camel@cherrybomb.pdx.osdl.net>
+In-Reply-To: <20040929125835.GA6764@lkcl.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-hands-com-MailScanner-SpamScore: s
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 29 2004, John Cherry wrote:
-> This sparse warning was introduced with patch 1.2000 (axboe).
-> In fs/bio.c (line 509),
-> 
-> 	if (copy_from_user(addr, (char *) p, bvec->bv_len))
-> 
-> should probably be
-> 
-> 	if (copy_from_user(addr, (char __user *) p, bvec->bv_len))
+scratch that: i found that vfs_read along with filp_open and filp_close
+would do the job.
 
-It's not a new warning, just look at your own generated output:
+having a ball :)
 
-> New warnings:
-> -------------
-> fs/bio.c:509:30: warning: incorrect type in argument 2 (different
-> address spaces)
-> fs/bio.c:509:30:    expected void const [noderef] *from<asn:1>
-> fs/bio.c:509:30:    got char *<noident>
+On Wed, Sep 29, 2004 at 01:58:35PM +0100, Luke Kenneth Casson Leighton wrote:
+> i do not know if this does any damage (and i'm going to find out!)
+> 
+> i seek to use these two functions from an experimental kernel module: i
+> get warnings about "symbol not found" without this patch:
 > 
 > 
-> Fixed warnings:
-> ---------------
-> fs/bio.c:462:31: warning: incorrect type in argument 2 (different
-> address spaces)
-> fs/bio.c:462:31:    expected void const [noderef] *from<asn:1>
-> fs/bio.c:462:31:    got char *<noident>
-
-The warning simply moved. This should fix it, though.
-
-Signed-off-by: Jens Axboe <axboe@suse.de>
-
-===== fs/bio.c 1.67 vs edited =====
---- 1.67/fs/bio.c	2004-09-28 17:59:14 +02:00
-+++ edited/fs/bio.c	2004-09-29 19:34:39 +02:00
-@@ -497,7 +497,7 @@
- 	 * success
- 	 */
- 	if (!write_to_vm) {
--		unsigned long p = uaddr;
-+		char __user *p = (char __user *) uaddr;
- 
- 		/*
- 		 * for a write, copy in data to kernel pages
-@@ -506,7 +506,7 @@
- 		bio_for_each_segment(bvec, bio, i) {
- 			char *addr = page_address(bvec->bv_page);
- 
--			if (copy_from_user(addr, (char *) p, bvec->bv_len))
-+			if (copy_from_user(addr, p, bvec->bv_len))
- 				goto cleanup;
- 			p += bvec->bv_len;
- 		}
+> Index: fs/read_write.c
+> ===================================================================
+> RCS file: /cvsroot/selinux/nsa/linux-2.6/fs/read_write.c,v
+> retrieving revision 1.1.1.6
+> diff -u -3 -p -u -r1.1.1.6 read_write.c
+> --- fs/read_write.c	18 Jun 2004 19:30:06 -0000	1.1.1.6
+> +++ fs/read_write.c	29 Sep 2004 12:45:31 -0000
+> @@ -318,6 +318,7 @@ asmlinkage ssize_t sys_pread64(unsigned 
+>  
+>  	return ret;
+>  }
+> +EXPORT_SYMBOL_GPL(sys_pread64);
+>  
+>  asmlinkage ssize_t sys_pwrite64(unsigned int fd, const char __user *buf,
+>  			      size_t count, loff_t pos)
+> @@ -337,6 +338,7 @@ asmlinkage ssize_t sys_pwrite64(unsigned
+>  
+>  	return ret;
+>  }
+> +EXPORT_SYMBOL_GPL(sys_pwrite64);
+>  
+>  /*
+>   * Reduce an iovec's length in-place.  Return the resulting number of segments
+> 
+> 
+> -- 
+> --
+> Truth, honesty and respect are rare commodities that all spring from
+> the same well: Love.  If you love yourself and everyone and everything
+> around you, funnily and coincidentally enough, life gets a lot better.
+> --
+> <a href="http://lkcl.net">      lkcl.net      </a> <br />
+> <a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+> 
 
 -- 
-Jens Axboe
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 

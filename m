@@ -1,112 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313242AbSEIOz0>; Thu, 9 May 2002 10:55:26 -0400
+	id <S313299AbSEIPBN>; Thu, 9 May 2002 11:01:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313217AbSEIOzZ>; Thu, 9 May 2002 10:55:25 -0400
-Received: from [199.128.236.1] ([199.128.236.1]:59142 "EHLO
-	intranet.reeusda.gov") by vger.kernel.org with ESMTP
-	id <S313206AbSEIOzX>; Thu, 9 May 2002 10:55:23 -0400
-Message-ID: <630DA58AD01AD311B13A00C00D00E9BC05D20134@CSREESSERVER>
-From: "Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov>
-To: "'root@chaos.analogic.com'" <root@chaos.analogic.com>,
-        "Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov>
-Cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Anyone aware of known issues with the scsi driver in kernel-s
-	mp-2 .4.2-2?
-Date: Thu, 9 May 2002 10:55:41 -0400 
+	id <S313293AbSEIPBM>; Thu, 9 May 2002 11:01:12 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:5588 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S313299AbSEIPBK>;
+	Thu, 9 May 2002 11:01:10 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15578.36627.478751.622066@napali.hpl.hp.com>
+Date: Thu, 9 May 2002 08:00:35 -0700
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, engebret@vnet.ibm.com,
+        justincarlson@cmu.edu, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org, anton@samba.org, ak@suse.de
+Subject: Re: Memory Barrier Definitions
+In-Reply-To: <20020509173646.5c1b5baa.rusty@rustcorp.com.au>
+X-Mailer: VM 7.03 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-THanks Richard,
+>>>>> On Thu, 9 May 2002 17:36:46 +1000, Rusty Russell <rusty@rustcorp.com.au> said:
 
-and Thanks to everyone who responded. There are several suggestions I
-received, things I must work on.
+  Rusty> On Wed, 8 May 2002 10:07:08 -0700 David Mosberger
+  Rusty> <davidm@napali.hpl.hp.com> wrote:
 
--mike
+  >> The ia64 memory ordering model is quite orthogonal to the one
+  >> that Linux uses (which is based on the Alpha instructions): Linux
+  >> distinguishes between read and write memory barriers.  ia64 uses
+  >> an acquire/release model instead.  An acquire orders all *later*
+  >> memory accesses and a release orders all *earlier* accesses
+  >> (regardless of whether they are reads or writes).  Another
+  >> difference is that the acquire/release semantics is attached to
+  >> load/store instructions, respectively.  This means that in an
+  >> ideal world, ia64 would rarely need to use the memory barrier
+  >> instruction.
 
------Original Message-----
-From: Richard B. Johnson [mailto:root@chaos.analogic.com]
-Sent: Thursday, May 09, 2002 10:15 AM
-To: Martinez, Michael - CSREES/ISTM
-Cc: 'linux-scsi@vger.kernel.org'; 'linux-kernel@vger.kernel.org'
-Subject: Re: Anyone aware of known issues with the scsi driver in
-kernel-smp-2 .4.2-2?
+  Rusty> Hmmm... could you explain more?  You're saying that every
+  Rusty> load is an "acquire" and every store a "release"?  Or that
+  Rusty> they can be flagged that way, but aren't always?
 
+The latter: loads can have "acquire" semantics and stores can have
+"release" semantics.  For example, at the assembly level, ld8.acq
+would be an 8-byte load with acquire semantics, st8.rel an 8-byte
+store with release semantics.  At the C level, acquire/release
+semantics is used for all accesses to "volatile" variables.
 
-On Thu, 9 May 2002, Martinez, Michael - CSREES/ISTM wrote:
+One way to think of all this is that using .acq/.rel for *all* memory
+accesses will give you a memory model that exactly matches that of a
+Pentium III.
 
-> I'm using kernel-smp-2.4.2-2, and I'm having some problems with my
-> scsi tape, which is a HP SureDat device; and using Sony DDS-3 DAT tapes.
-> 
-> Any sort of write and recover procedure (tar; dump; cat; dd) results in
-> random byte mistakes in the recovered data. These byte mistakes always
-> follow the form of being offset from the original byte, by 2.
-> 
-> For example, if the original byte had an octal value of 88; then the
-                                           ^^^^^
-FYI there is no octal value of 88, perhaps you mean hex or decimal?
+  Rusty> Does this means that an "acquire" means "all accesses after
+  Rusty> this insn (in the code stream) must occur after this insn (in
+  Rusty> time)"?
 
-> recovered byte would be 90.
+Yes.
 
-A value change from 0x88 to 0x90 = 0x08, must be decimal.
+  Rusty> Does that only apply to the address that instruction
+  Rusty> touched, or all?
 
-> 
-> A file of 12kbytes would have on average five or six of these mistakes. 
-> 
-> Has anyone heard of an issue with the SCSI driver that would produce this
-> type of problem?
-> 
+No, the address doesn't matter (data dependencies are always honored).
 
-My machines use SCSI tapes, both DAT and video-8, every night.
-I do recoveries on the average once a week and have never
-found bad data (Linux 2.4.18).
-
-It's practically impossible for the SCSI driver(s) to change data.
-Bugs could result in overwriting buffers, etc., but the data that
-got spilled would have been "good".
-
-You could have some module that is writing data somewhere it shouldn't
-and corrupting buffers.
-
-I would suggest:
-
-(1) Remove any modules, not in use (just `rmmod` from a running machine).
-Try to backup/restore some directory tree and see if it's "fixed".
-
-(2)  If you updated from an earlier version, make sure that the user-mode
-'bdflush' is not running. Periodic sync() is now done in the kernel.
-I found that the user-mode sync() has some race condition that will
-cause problems on a SMP machine. For instance, if you are doing a
-kernel compile and you execute `sync()` from another task, the
-kernel compile may error-out with 'file-not-found' errors. This
-problem has been around since the internal bdflush (kflushd) was
-incorporated.
-
-This may be messing up your file-system during a tape restore. It
-can also mess up your file-system without you knowing it, just
-modify the init startup so it never starts bdflush.
-
-(3)  All known tape-drives do CRC so the data coming out should be
-good, but... you could have an intermittent SCSI cable-connection so
-that data bit 1 is sometimes not present when it should be. That
-can change some data values by 2. As a hack, just change the cable
-if you have another laying around. The act of unplugging and re-plugging
-SCSI cables often removes accumulated dirt or oxides that are messing
-up data.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+	--david

@@ -1,116 +1,270 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269043AbRHLKSi>; Sun, 12 Aug 2001 06:18:38 -0400
+	id <S269064AbRHLKoR>; Sun, 12 Aug 2001 06:44:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269049AbRHLKS2>; Sun, 12 Aug 2001 06:18:28 -0400
-Received: from mail.direcpc.com ([198.77.116.30]:33929 "EHLO
-	postoffice2.direcpc.com") by vger.kernel.org with ESMTP
-	id <S269043AbRHLKSY>; Sun, 12 Aug 2001 06:18:24 -0400
-Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
-From: Jeffrey Ingber <jhingber@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <997611708.29909.22.camel@DESK-2>
-In-Reply-To: <20010811225232.A19327@thyrsus.com> 
-	<997611708.29909.22.camel@DESK-2>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 12 Aug 2001 06:23:33 -0400
-Message-Id: <997611819.29909.25.camel@DESK-2>
-Mime-Version: 1.0
+	id <S269067AbRHLKoI>; Sun, 12 Aug 2001 06:44:08 -0400
+Received: from elin.scali.no ([195.139.250.10]:42500 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S269064AbRHLKoD>;
+	Sun, 12 Aug 2001 06:44:03 -0400
+Message-ID: <3B765F4D.17B4DB64@scali.no>
+Date: Sun, 12 Aug 2001 12:49:49 +0200
+From: Steffen Persvold <sp@scali.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
+Subject: Write Combining (Write Coalescing) on memory mapped I/O on IA64.
+In-Reply-To: <20010811090902.A1978@bytesex.org>
+Content-Type: multipart/mixed;
+ boundary="------------A8EF1264F1A4B7B91E5A9A57"
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On 11 Aug 2001 22:52:32 -0400, Eric S. Raymond wrote:
+This is a multi-part message in MIME format.
+--------------A8EF1264F1A4B7B91E5A9A57
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Hi,
+
+I have a PCI adapter which does a lot of PIO (sort of network adapter using
+host CPU to send data). On IA32 architechtures we could enable Write Combining
+to get large burst on the PCI bus, but on IA64 I get at max 8 byte stores (ld8,
+st8) at a time.
+
+The driver for this adapter also exports the memory to user-space (with mmap())
+and when doing this I do (inside the mmap function) :
+
+int ssci_mmap(struct file *file, struct vm_area_struct *vma)
+{
+.....
+#ifdef __ia64__      
+   vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
+#endif
+   map_page_range(file, vma, vm_start,physaddr,
+		      contlen, vma->vm_page_prot);
+
+   remap_page_range(vma->vm_start,
+		       phys_addr,
+		       vma->vm_end - vma->vm_start,
+		       vma->vm_page_prot))
+....
+}
+
+This way we get Write Combining on IA64, but only for userspace mappings.
+Kernel space clients use ioremap() and don't get Write Combining (ioremap on
+IA64 use the uncacheable region directly).
+
+To solve this I've tried to make my own __ia64_ioremap() (created
+arch/ia64/mm/ioremap.c) wich has a 'flags' input paramenter so that I can set
+the _PAGE_MA_WC attribute. I've taken a look on how other architechtures does
+this (e.g i386 or s390), and made it nearly identical, but it doesn't seem to
+work. The mapping gets set up, but if I try to read or write something to this
+address I get a "Unable to handle kernel paging request at virtual address
+0xa00000000015c000" which is the address I'm accessing.
+
+
+I've attached the patch I made. Please let me know if this is doable on IA64 at
+all. Feedback greatly appreciated.
+
+Thanks,
+-- 
+  Steffen Persvold               Systems Engineer
+  Email : mailto:sp@scali.no     Scali AS (http://www.scali.com)
+  Tlf   : (+47) 22 62 89 50      Olaf Helsets vei 6
+  Fax   : (+47) 22 62 89 51      N-0621 Oslo, Norway
+--------------A8EF1264F1A4B7B91E5A9A57
+Content-Type: text/plain; charset=us-ascii;
+ name="ia64-ioremap.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ia64-ioremap.patch"
+
+--- linux-2.4.4/arch/ia64/mm/Makefile.~1~	Thu Jan  4 21:50:17 2001
++++ linux-2.4.4/arch/ia64/mm/Makefile	Sat Aug 11 21:20:03 2001
+@@ -9,6 +9,6 @@
  
-> The evidence for this is indirect but strong.  The hang happened in every
-> pre-2.4.8 configuration we tested if there was an SB Live! actually in the
-> machine.  It never happened if either 2.4.8 was running or the SB Live! was
-> removed.  This theory also accounts for our failure to observe hangs during
+ O_TARGET := mm.o
+ 
+-obj-y	 := init.o fault.o tlb.o extable.o
++obj-y	 := init.o fault.o ioremap.o tlb.o extable.o
+ 
+ include $(TOPDIR)/Rules.make
+--- linux-2.4.4/arch/ia64/mm/ioremap.c.~1~	Tue May  5 22:32:27 1998
++++ linux-2.4.4/arch/ia64/mm/ioremap.c	Sat Aug 11 23:57:31 2001
+@@ -0,0 +1,148 @@
++/*
++ *  arch/s390/mm/ioremap.c
++ *
++ *  IA64 version
++ *    Copyright (C) 2001 Scali AS
++ *    Author(s): Steffen Persvold (sp@scali.com)
++ *
++ *  Derived from "arch/i386/mm/ioremap.c"
++ *    (C) Copyright 1995 1996 Linus Torvalds
++ *
++ * Re-map IO memory to kernel address space so that we can access it.
++ */
++
++#include <linux/vmalloc.h>
++#include <asm/io.h>
++#include <asm/pgalloc.h>
++
++static inline void remap_area_pte(pte_t * pte, unsigned long address, unsigned long size,
++        unsigned long phys_addr, unsigned long flags)
++{
++        unsigned long end;
++
++        address &= ~PMD_MASK;
++        end = address + size;
++        if (end > PMD_SIZE)
++                end = PMD_SIZE;
++	if (address >= end)
++		BUG();
++        do {
++                if (!pte_none(*pte)) {
++                        printk("remap_area_pte: page already exists\n");
++			BUG();
++		}
++                set_pte(pte, mk_pte_phys(phys_addr, __pgprot(_PAGE_A | _PAGE_P | _PAGE_D |
++					_PAGE_AR_RW | _PAGE_PL_0 | flags)));
++                address += PAGE_SIZE;
++                phys_addr += PAGE_SIZE;
++                pte++;
++        } while (address && (address < end));
++}
++
++static inline int remap_area_pmd(pmd_t * pmd, unsigned long address, unsigned long size,
++        unsigned long phys_addr, unsigned long flags)
++{
++	unsigned long end;
++
++	address &= ~PGDIR_MASK;
++	end = address + size;
++	if (end > PGDIR_SIZE)
++		end = PGDIR_SIZE;
++	phys_addr -= address;
++	if (address >= end)
++		BUG();
++	do {
++		pte_t * pte = pte_alloc(&init_mm, pmd, address);
++		if (!pte)
++			return -ENOMEM;
++		remap_area_pte(pte, address, end - address, address + phys_addr, flags);
++		address = (address + PMD_SIZE) & PMD_MASK;
++		pmd++;
++	} while (address && (address < end));
++	return 0;
++}
++
++static int remap_area_pages(unsigned long address, unsigned long phys_addr,
++				 unsigned long size, unsigned long flags)
++{
++	int error;
++	pgd_t * dir;
++	unsigned long end = address + size;
++
++	phys_addr -= address;
++	dir = pgd_offset(&init_mm, address);
++	flush_cache_all();
++	if (address >= end)
++		BUG();
++	spin_lock(&init_mm.page_table_lock);
++	do {
++		pmd_t *pmd;
++		pmd = pmd_alloc(&init_mm, dir, address);
++		error = -ENOMEM;
++		if (!pmd)
++			break;
++		if (remap_area_pmd(pmd, address, end - address,
++					 phys_addr + address, flags))
++			break;
++		error = 0;
++		address = (address + PGDIR_SIZE) & PGDIR_MASK;
++		dir++;
++	} while (address && (address < end));
++	spin_unlock(&init_mm.page_table_lock);
++	flush_tlb_all();
++	return error;
++}
++
++/*
++ * Generic mapping function (not visible outside):
++ */
++
++/*
++ * Remap an arbitrary physical address space into the kernel virtual
++ * address space. Needed when the kernel wants to access high addresses
++ * directly.
++ *
++ * NOTE! We need to allow non-page-aligned mappings too: we will obviously
++ * have to convert them into an offset in a page-aligned mapping, but the
++ * caller shouldn't need to know that small detail.
++ */
++void * __ia64_ioremap(unsigned long phys_addr, unsigned long size, unsigned long flags)
++{
++	void * addr;
++	struct vm_struct * area;
++	unsigned long offset, last_addr;
++
++	/* Don't allow wraparound or zero size */
++	last_addr = phys_addr + size - 1;
++	if (!size || last_addr < phys_addr)
++		return NULL;
++
++	/*
++	 * Mappings have to be page-aligned
++	 */
++	offset = phys_addr & ~PAGE_MASK;
++	phys_addr &= PAGE_MASK;
++	size = PAGE_ALIGN(last_addr) - phys_addr;
++
++	/*
++	 * Ok, go for it..
++	 */
++	area = get_vm_area(size, VM_IOREMAP);
++	if (!area)
++		return NULL;
++	addr = area->addr;
++
++	if (flags == 0)
++	   flags = _PAGE_MA_UC;
++		
++	if (remap_area_pages(VMALLOC_VMADDR(addr), phys_addr, size, flags)) {
++		vfree(addr);
++		return NULL;
++	}
++	return (void *) (offset + (char *)addr);
++}
++
++void __ia64_iounmap(void *addr)
++{
++	return vfree((void *) (PAGE_MASK & (unsigned long) addr));
++}
+--- linux-2.4.4/arch/ia64/kernel/ia64_ksyms.c.~1~	Thu Apr  5 21:51:47 2001
++++ linux-2.4.4/arch/ia64/kernel/ia64_ksyms.c	Sat Aug 11 23:57:12 2001
+@@ -39,6 +39,8 @@
+ EXPORT_SYMBOL(ip_fast_csum);
+ 
+ #include <asm/io.h>
++EXPORT_SYMBOL(__ia64_ioremap);
++EXPORT_SYMBOL(__ia64_iounmap);
+ EXPORT_SYMBOL(__ia64_memcpy_fromio);
+ EXPORT_SYMBOL(__ia64_memcpy_toio);
+ EXPORT_SYMBOL(__ia64_memset_c_io);
+--- linux-2.4.4/include/asm-ia64/io.h.~1~	Thu Apr  5 21:51:47 2001
++++ linux-2.4.4/include/asm-ia64/io.h	Sat Aug 11 23:59:36 2001
+@@ -386,6 +386,9 @@
+ 
+ #define ioremap_nocache(o,s)	ioremap(o,s)
+ 
++extern void * __ia64_ioremap(unsigned long offset, unsigned long size, unsigned long flags);
++extern void __ia64_iounmap(void *addr);
++
+ # ifdef __KERNEL__
+ 
+ /*
 
-I've used ALSA for quite awhile for EMU10k1 (E-MU APS, not SBLive) and
-have had no problems.  I noticed that the EMU10K1 driver was updated in
-2.4.8 so I tried it.  I had a lockup four times during audio playback,
-so I switched back to ALSA and now everything is stable once again.
-
-Jeffrey H. Ingber (jhingber _at_ ix.netcom.com)
-
-> 
-> > moderate to intense X GUI activity -- that traffic was going over the AGP
-> > bus, and we had enough memory in the box that it never swapped.
-> > 
-> > Now that we seem to be out of the woods, I can cop to why I'm doing
-> > qualification tests on bleeding-edge PCs.  I'm writing an article for
-> > Linux Journal on building the ultimate Linux box.  I won't spoil the
-> > surprise by telling you what else is in the machine, but I will tell
-> > you that it is jaw-droppingly fast and sexy hardware and that you'll
-> > get to read all about it before the end of the year.
-> > 
-> > In the meantime, here is my draft writeup on the hang problem:
-> > 
-> > <sect1 id='horror_story'><title>The Inevitable Horror Story</title>
-> > 
-> > <para>Sadly, life got much less pleasant for quite a while after that. We
-> > started seeing mysterious hangs -- the machine would lock up hard and
-> > random intervals, usually during disk I/O operations.  This is almost the
-> > worst kind of problem to troubleshoot, as it leaves no clues other than the
-> > bare fact of the machine's catatonia -- you get no oops message, and all
-> > the state you might have used to post-mortem disappears when the machine is
-> > reset.  The only kind of problem that's worse is one that adds
-> > irreproducibility to the catatonia.  But fortunately, we found that doing
-> > <command>make clean</command> or <command>make world</command> on an X
-> > source tree produced the hang pretty reliably.</para>
-> > 
-> > <para>Approximately thirty hours of troubleshooting (interrupted by far too
-> > little sleep) ensued as Gary and I tried to track down the problem.  We
-> > formed and discarded lots of theories based on where we had not yet seen
-> > the hang.  For a while we thought the problem only bit in console mode, not
-> > in X mode. For another while we thought it happened only under SMP kernels.
-> > For a third while we thought we could avoid it by compiling kernels for the
-> > Pentium II rather than the Athlon. All these beliefs were eventually
-> > falsified amidst much wailing and gnashing of teeth.</para>
-> > 
-> > <para>Once it became clear that there was a problem at or near the hardware
-> > level, we still had a lot of hypotheses to choose from -- with all of them
-> > having pretty unpleasant ramifications for our chances of qualifying this
-> > box before I had to fly home.  Quite possibly the motherboard was bad.  Or
-> > we might have been seeing thermal flakeouts due to insufficient cooling of
-> > the motherboard chips or memory.</para>
-> > 
-> > <para>About eighteen hours in, just before we both crashed in exhaustion,
-> > we posted the problem to the <email>linux-kernel</email> mailing list.  We
-> > got a rather larger number of responses than we expected (nearly twenty)
-> > within a few hours.  Several were quite helpful.  And the breakthrough came
-> > when a couple of linux-kernel people confirmed that the SB Live! is a
-> > frequent source of hangs and lockups on other fast PCI machines.  With a
-> > few more hours of testing (during which our X source tree probably got
-> > cleaned and rebuilt more times than is allowed by law) we satisfied
-> > ourselves that the lockups stop happening when the SB Live! has been
-> > summarily yanked from the machine.</para>
-> > 
-> > <para>The most helpful advice we got came from one Daniel T. Chen, who
-> > reported that he had nailed some similar lockups to the SB Live! running
-> > over a Via chipset -- and that they stopped when he upgraded to 2.4.8 and
-> > the newest version of the emu10k1 driver.  So while Gary took a much-needed
-> > break (and his wife and kids to a David Byrne concert), I built 2.4.8 (with
-> > emu10k1.o hard-compiled in) and ran our torture test -- first with the SB
-> > Live! omitted, and then with it in the machine.  No hang.  Victory!</para>
-> > 
-> > <para>Perhaps it's belaboring the obvious, but the way this problem got
-> > resolved was yet another testimony to the power of open-source development
-> > and the community that has evolved around it.  Once again, our
-> > technology and our social machine complemented each other and delivered
-> > the goods.</para>
-> > -- 
-> > 		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-> > 
-> > What is a magician but a practicing theorist?
-> > 	-- Obi-Wan Kenobi, 'Return of the Jedi'
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+--------------A8EF1264F1A4B7B91E5A9A57--
 

@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280056AbRKIUWL>; Fri, 9 Nov 2001 15:22:11 -0500
+	id <S280091AbRKIUkM>; Fri, 9 Nov 2001 15:40:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280086AbRKIUWA>; Fri, 9 Nov 2001 15:22:00 -0500
-Received: from omnis-mail.omnis.com ([216.239.128.28]:46354 "HELO omnis.com")
-	by vger.kernel.org with SMTP id <S280056AbRKIUVo>;
-	Fri, 9 Nov 2001 15:21:44 -0500
-Message-ID: <3BEC3B3A.6040005@sh.nu>
-Date: Fri, 09 Nov 2001 12:23:22 -0800
-From: Daniel Ceregatti <vi@sh.nu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011010
-X-Accept-Language: en-us
+	id <S280095AbRKIUkB>; Fri, 9 Nov 2001 15:40:01 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:531 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S280091AbRKIUjn>; Fri, 9 Nov 2001 15:39:43 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Ken Brownfield <brownfld@irridia.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.>=13 VM/kswapd/shmem/Oracle issue (was Re: Google's mm problems)
+Date: Fri, 9 Nov 2001 22:39:11 +0000
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <E15yhyY-0000Yb-00@starship.berlin> <20011109033851.A15099@asooo.flowerfire.com>
+In-Reply-To: <20011109033851.A15099@asooo.flowerfire.com>
 MIME-Version: 1.0
-CC: vi@sh.nu, linux-kernel@vger.kernel.org
-Subject: MS Natural keyboard extra keys using usb
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Message-Id: <01110922391101.00807@nemo>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 09 November 2001 09:38, Ken Brownfield wrote:
 
-First off, I do not subcribe to the kernel list, so if anyone responds
-to this, please CC me at vi@sh.nu.
+> We're seeing an easily reproducible problem that I believe to be along
+> the same lines as what Google is seeing.  I'm not sure if Oracle's SGA
+> (shmem) can be mlock()ed, but I'm guessing there's a state analogous to
+> Solaris' ISM.  We're seeing this on a 4GB machine with HIGHMEM/HIGHMEM4G
+> set, using 2.4.1{3,4,5-pre1}.
 
-I've got an MS Natural keyboard plugged in via USB. I've mapped all the
-"Internet Keys", those blue keys above the keyboard, in X using xmodmap.
-I use them to control xmms, volume, spawn shells, etc.
+[SNIP]
 
-Ever since 2.4.10, these keys have stopped working. I suspect it's some
-issue with USB, as my mouse, an MS Intellimouse Optical, also stopped
-working in X with that kernel. The fix for the mouse was to change the
-protocol from NetmousePS/2 to ExplorerPS/2. I never use console, so I
-don't know if it broke there too. Keep in mind here that the only thing
-that changed was the kernel. Nothing in X changed. If I go back to
-2.4.9, everything works as it did before. This problem exists with all
-kernels between 2.4.10 and 2.4.13.
+Oracle is a horrendous memory hog.
+Looks like it's getting more bloated with each next release.
 
-To further prove the usb theory, these mouse and keyboard issues have
-been present in all the ac kernels since about 2.4.5-acX. I understand
-that a lot of these ac changes were merged into 2.4.10. So it seems
-logical to conclude that something that was merged from ac is the cause
-of this.
+If I will start some seriuos database programming,
+I will try PostgreSQL first... it is at least Open Source,
+we can see what's inside.
 
-I'm not a kernel programmer, so I have no idea how to troubleshoot this.
-I've searched high and low for resolutions to this issue and have come
-up blank. That is why I'm posting here.
+> Basically, this problem makes it impossible to run Oracle on Linux,
+> which is really a massive problem from our point of view.  If someone
+> could show me how to provide more useful information or further debug
+> this problem, I would greatly appreciate it.  This includes specific
+> alternate kernels, or perhaps without HIGHMEM4G or HIGHMEM.
 
-Thanks,
-
-Daniel Ceregatti
-
+Whee, looks like you guys really willing to resolve this...
+Pity I can't do anything for you. Let's hope some VM folks will be
+interested.
+--
+vda

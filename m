@@ -1,68 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130188AbQLIObM>; Sat, 9 Dec 2000 09:31:12 -0500
+	id <S130849AbQLIOoq>; Sat, 9 Dec 2000 09:44:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130849AbQLIObC>; Sat, 9 Dec 2000 09:31:02 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:2052 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S130188AbQLIOay>; Sat, 9 Dec 2000 09:30:54 -0500
-Date: Sat, 9 Dec 2000 14:00:20 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Johannes Erdfelt <johannes@erdfelt.com>
-cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: [FIXED] Re: USB-related lockup in test12-pre5
-In-Reply-To: <20001208200504.G15095@sventech.com>
-Message-ID: <Pine.LNX.4.30.0012091349010.1122-100000@imladris.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131123AbQLIOog>; Sat, 9 Dec 2000 09:44:36 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:47375 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130849AbQLIOoZ>;
+	Sat, 9 Dec 2000 09:44:25 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Announce: modutils 2.3.22 is available 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 10 Dec 2000 01:13:51 +1100
+Message-ID: <13086.976371231@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.3
 
->>EIP; c0270c21 <stext_lock+4e6d/8f50>   <=====
-Trace; c01f488e <usb_submit_urb+1e/30>
-Trace; ca8578be <[audio]usbout_completed+7e/c0>
-Trace; c01ffc3e <process_urb+1de/230>
-Trace; c01ffd49 <uhci_interrupt+b9/120>
+patch-modutils-2.3.22.gz        Patch from modutils 2.3.21 to 2.3.22
+modutils-2.3.22.tar.gz          Source tarball, includes RPM spec file
+modutils-2.3.22-1.src.rpm       As above, in SRPM format
+modutils-2.3.22-1.i386.rpm      Compiled with egcs-2.91.66, glibc 2.1.2
+modutils-2.3.22-1.sparc.rpm     Compiled for combined sparc 32/64
+patch-2.4.0-test12-pre7.gz	Adds persistent data and generic string
+				support to kernel 2.4.0-test12-pre7.
 
-1. process_urb() obtains the urb_list_lock.
-2. Then calls urb->complete() which is audio.c::usbout_complete()
-3. Which in turn calls usb_submit_urb()
-4. Which calls uhci_submit_urb()
-5. Which tries to obtain urb_list_lock --> BOOM!
+Changelog extract
 
-As it seems that we were already able to drop the lock in process_urb()
-and not worry about the consequences, I've just made it do so.
+	* POSIXification/newlib changes.  Werner Almesberger.
+	* modprobe -C did not print probe/probeall.  Wolfgang Oertl.
+	* options statement was confused by /dev/snd and snd.  Wolfgang Oertl.
+	* Report failing module in a dependency list.  Original patch by
+	  Pavel Roskin, reworked by Keith Owens.
+	* IA64 unwind fix.  Richard Henderson via Redhat.
+	* modprobe -c used incorrect keywords for generated filenames.
+	  Reported by Gabor Z. Papp.
+	* char-major-10-184 microcode.  Tigran Aivazian.
+	* Reinstate sys_oim.c in util/Makefile.in.
+	* Add support for persistent module data.
+	* Correct test for unexpected REL/RELA sections.  Maciej W. Rozycki.
+	* Limit stack recursion in modprobe.  Kurt Garloff.
+	* Support MODULE_GENERIC_STRING.  Jaroslav Kysela.
 
-Index: drivers/usb/usb-uhci.c
-===================================================================
-RCS file: /net/passion/inst/cvs/linux/drivers/usb/usb-uhci.c,v
-retrieving revision 1.1.2.21
-diff -u -r1.1.2.21 usb-uhci.c
---- drivers/usb/usb-uhci.c	2000/12/07 09:36:19	1.1.2.21
-+++ drivers/usb/usb-uhci.c	2000/12/09 13:49:50
-@@ -2626,14 +2626,14 @@
- 			// Completion
- 			if (urb->complete) {
- 				urb->dev = NULL;
-+				spin_unlock(&s->urb_list_lock);
- 				urb->complete ((struct urb *) urb);
- 				// Re-submit the URB if ring-linked
- 				if (is_ring && (urb->status != -ENOENT) &&
-!contains_killed) {
- 					urb->dev=usb_dev;
--					spin_unlock(&s->urb_list_lock);
- 					uhci_submit_urb (urb);
--					spin_lock(&s->urb_list_lock);
- 				}
-+				spin_lock(&s->urb_list_lock);
- 			}
+Support for persistent module data is the main change.  If persistdir
+is set or defaulted in modules.conf _and_ insmod is run with option -e
+then insmod will read persistent data from a file when the module is
+loaded and rmmod will write persistent data to that file when the
+module is unloaded.  man modules.conf, man insmod for details.
 
- 			usb_dec_dev_use (usb_dev);
+Notes:
 
--- 
-dwmw2
+(1) Persistent data is not on by default, you must run insmod with -e
+    to support persistent data.  If you are loading modules via
+    modprobe and you want persistent data for all modules then you need
 
+      insmod_opt -e ""
+
+    in /etc/modules.conf.
+
+(2) Current kernels do not support persistent data nor generic strings.
+    You must apply patch-2.4.0-test12-pre7 to get kernel support for
+    these features.
+
+(3) No modules currently have persistent data.  Module writers who
+    want data to be persistent must make a one character change to
+    their modules, read the above patch.  Even then, the user must
+    activate the persistent data, see note (1).
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

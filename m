@@ -1,43 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbUKXA3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbUKXAJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261676AbUKXA3j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 19:29:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbUKXA3P
+	id S261396AbUKXAJo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 19:09:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbUKXAEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 19:29:15 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:14013 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261676AbUKXAYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 19:24:34 -0500
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-X-Message-Flag: Warning: May contain useful information
-References: <20041123814.rXLIXw020elfd6Da@topspin.com>
-	<20041123814.m1N7Tf2QmSCq9s5q@topspin.com>
-	<20041124001328.GE2927@stusta.de>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 23 Nov 2004 16:24:24 -0800
-In-Reply-To: <20041124001328.GE2927@stusta.de> (Adrian Bunk's message of
- "Wed, 24 Nov 2004 01:13:28 +0100")
-Message-ID: <52is7w2ix3.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [PATCH][RFC/v2][2/21] Add core InfiniBand support
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 24 Nov 2004 00:24:30.0218 (UTC) FILETIME=[F6C176A0:01C4D1BB]
+	Tue, 23 Nov 2004 19:04:32 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:47496
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261629AbUKXADN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 19:03:13 -0500
+Date: Tue, 23 Nov 2004 16:02:46 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix weird placement of inline and static keywords in
+ sctp.h
+Message-Id: <20041123160246.07342988.davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.61.0411240046310.3389@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.61.0411240046310.3389@dragon.hygekrogen.localhost>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Adrian> This "default n" has no effect.
 
-Thanks, I've deleted it from our tree.
-
- - Roland
-
-
-
+Applied, thanks Jesper.

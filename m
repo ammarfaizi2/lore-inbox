@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264826AbUETCBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264839AbUETCS5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264826AbUETCBp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 22:01:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264829AbUETCBp
+	id S264839AbUETCS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 22:18:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264719AbUETCS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 22:01:45 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19436 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264826AbUETCBo
+	Wed, 19 May 2004 22:18:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64493 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264839AbUETCSz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 22:01:44 -0400
-Message-ID: <40AC117B.3010800@pobox.com>
-Date: Wed, 19 May 2004 22:01:31 -0400
+	Wed, 19 May 2004 22:18:55 -0400
+Message-ID: <40AC1580.6090401@pobox.com>
+Date: Wed, 19 May 2004 22:18:40 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: davidm@hpl.hp.com
-CC: Andrew Morton <akpm@osdl.org>, Robert.Picco@hp.com,
-       linux-kernel@vger.kernel.org, venkatesh.pallipadi@intel.com
-Subject: Re: [PATCH] HPET driver
-References: <40A3F805.5090804@hp.com>	<40A40204.1060509@pobox.com>	<40A93DA5.4020701@hp.com>	<20040517160508.63e1ddf0.akpm@osdl.org>	<20040517161212.659746db.akpm@osdl.org>	<40A94857.9030507@pobox.com>	<20040517163356.506a9c8f.akpm@osdl.org>	<40A94DF7.30307@pobox.com>	<20040517184621.0da52a3c.akpm@osdl.org>	<40A96E11.5040000@pobox.com> <16553.28862.590897.171478@napali.hpl.hp.com>
-In-Reply-To: <16553.28862.590897.171478@napali.hpl.hp.com>
+To: Paul Mundt <lethal@linux-sh.org>
+CC: shemminger@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix 8139too ring size for dreamcast/embedded
+References: <20040511125405.GA14578@linux-sh.org>
+In-Reply-To: <20040511125405.GA14578@linux-sh.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger wrote:
-> What about atomicity?  Are there any platforms where
-> {read,write}[bwl]() don't translate into a single bus-transaction?  I
-> didn't think so, but I could well be wrong.
+Paul Mundt wrote:
+> Presently 2.6.6 backs out the CONFIG_8139_RXBUF_IDX in favor of using a
+> hardcoded 8139_RXBUF_IDX (again). This seems to have been done due to
+> some issues occuring with 8139_RXBUF_IDX == 3, however (as the Kconfig
+> pointed out), we still need 8139_RXBUF_IDX == 1 in the CONFIG_SH_DREAMCAST
+> case.
+> 
+> The patch which made this change can be seen at:
+> 
+> http://linux.bkbits.net:8080/linux-2.5/user=shemminger/cset@1.1371.719.67?nav=!-|index.html|stats|!+|index.html|ChangeSet@-8w
+> 
+> Before that, CONFIG_8139_RXBUF_IDX was set to 1 both in the CONFIG_SH_DREAMCAST
+> and CONFIG_EMBEDDED cases. This patch adds that back into the current 8139too.
+
+Patch applied to 2.6.x.
 
 
-This is a good point, as the ensuing thread indicates.
+> Additionally, why remove the config option at all? Wouldn't it just be
+> easier to drop the range from 0 - 3 to 0 - 2 until problems with a 64K ring
+> size are resolved?
 
-Current usage by drivers doesn't require atomicity, so the proposed 
-implementation is fine.
+<shrug>  Mainly it was easier just to hardcode it in the driver.
 
-Thinking about the atomicity issues now is definitely something that 
-should be done, though...
+I would not object to your suggestion of "0 - 2", however I tend to 
+think that the current lack of option, with your patch applied, serves 
+the user best:  the driver will always use the largest RX buffer 
+possible for the hardware.
 
 	Jeff
 

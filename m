@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262171AbVBQAsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbVBQAuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262171AbVBQAsq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 19:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbVBQAsq
+	id S262173AbVBQAuv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 19:50:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbVBQAuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 19:48:46 -0500
-Received: from gate.crashing.org ([63.228.1.57]:50332 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262171AbVBQAsg (ORCPT
+	Wed, 16 Feb 2005 19:50:51 -0500
+Received: from fire.osdl.org ([65.172.181.4]:35226 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262173AbVBQAul (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 19:48:36 -0500
-Subject: Re: [PATCH] quiet non-x86 option ROM warnings
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jesse Barnes <jbarnes@sgi.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200502161554.02110.jbarnes@sgi.com>
-References: <200502151557.06049.jbarnes@sgi.com>
-	 <1108515817.13375.63.camel@gaston>  <200502161554.02110.jbarnes@sgi.com>
-Content-Type: text/plain
-Date: Thu, 17 Feb 2005 11:48:14 +1100
-Message-Id: <1108601294.5426.1.camel@gaston>
+	Wed, 16 Feb 2005 19:50:41 -0500
+Date: Wed, 16 Feb 2005 16:50:31 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] procfs: use C99 struct inits
+Message-Id: <20050216165031.25880e41.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-02-16 at 15:54 -0800, Jesse Barnes wrote:
-> On Tuesday, February 15, 2005 5:03 pm, Benjamin Herrenschmidt wrote:
-> > What about printing "No PCI ROM detected" ? I like having that info when
-> > getting user reports, but I agree that a less worrying message would
-> > be good.
-> 
-> Ok, how about this then?  It changes the printks in both drivers to KERN_INFO 
-> and describes the situation a bit more accurately.
-> 
-> Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
-> 
-> Thanks,
-> Jesse
-> 
-> P.S. Jon, I think the pci_map_rom code is buggy--if the option ROM signature 
-> is missing or indicates that there's no ROM, the routine still returns a 
-> valid pointer making the caller thing it succeeded.  If we fix that up we can 
-> fix up the callers.
-
-No, pci_map_rom shouldn't test the signature IMHO. While PCI ROMs should
-have the signature to be recognized as containing valid firmware images
-on x86 BIOSes an OF, it's just a convention on these platforms, and I
-would rather let people put whatever they want in those ROMs and still
-let them map it...
-
-Ben.
+Al,
+Please add this to your patch queue if you don't already have it.
 
 
+Use C99 struct inits as requested by sparse:
+fs/proc/base.c:738:2: warning: obsolete struct initializer, use C99 syntax
+fs/proc/base.c:739:2: warning: obsolete struct initializer, use C99 syntax
+
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+
+diffstat:=
+ fs/proc/base.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -Naurp ./fs/proc/base.c~proc_c99_inits ./fs/proc/base.c
+--- ./fs/proc/base.c~proc_c99_inits	2005-02-15 13:48:46.310312808 -0800
++++ ./fs/proc/base.c	2005-02-15 20:34:41.335786152 -0800
+@@ -735,8 +735,8 @@ static ssize_t oom_adjust_write(struct f
+ }
+ 
+ static struct file_operations proc_oom_adjust_operations = {
+-	read:		oom_adjust_read,
+-	write:		oom_adjust_write,
++	.read		= oom_adjust_read,
++	.write		= oom_adjust_write,
+ };
+ 
+ static struct inode_operations proc_mem_inode_operations = {
+
+
+---

@@ -1,75 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbUEAAOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUEAAll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbUEAAOk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 20:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbUEAAOk
+	id S261875AbUEAAll (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 20:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbUEAAlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 20:14:40 -0400
-Received: from mail.tpgi.com.au ([203.12.160.59]:11915 "EHLO mail3.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S261897AbUEAAOi (ORCPT
+	Fri, 30 Apr 2004 20:41:40 -0400
+Received: from mesa.unizar.es ([155.210.11.66]:64490 "EHLO relay.unizar.es")
+	by vger.kernel.org with ESMTP id S261875AbUEAAlj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 20:14:38 -0400
-Date: Sat, 01 May 2004 10:03:26 +1000
-From: "Nigel Cunningham" <ncunningham@linuxmail.org>
-To: "Todd Poynor" <tpoynor@mvista.com>,
-       "Russell King" <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [PATCH] Hotplug for device power state changes
-Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-       "Patrick Mochel" <mochel@digitalimplant.org>,
-       linux-hotplug-devel@lists.sourceforge.net,
-       "Linux Kernel list" <linux-kernel@vger.kernel.org>
-Reply-To: ncunningham@linuxmail.org
-References: <20040429202654.GA9971@dhcp193.mvista.com> <20040429224243.L16407@flint.arm.linux.org.uk> <40918375.2090806@mvista.com> <1083286226.20473.159.camel@gaston> <20040430093012.A30928@flint.arm.linux.org.uk> <4092B02C.5090205@mvista.com>
-Content-Type: text/plain; format=flowed; delsp=yes; charset=us-ascii
-MIME-Version: 1.0
+	Fri, 30 Apr 2004 20:41:39 -0400
+Date: Sat, 1 May 2004 02:40:14 +0200
+From: Jorge Bernal <koke@sindominio.net>
+To: Marc Boucher <marc@linuxant.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       "'Sean Estabrooks'" <seanlkml@rogers.com>,
+       "'Paul Wagland'" <paul@wagland.net>, "'Rik van Riel'" <riel@redhat.com>,
+       "'Bartlomiej Zolnierkiewicz'" <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "'Peter Williams'" <peterw@aurema.com>, Hua Zhong <hzhong@cisco.com>,
+       "'Timothy Miller'" <miller@techsource.com>,
+       "'lkml - Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       "'Rusty Russell'" <rusty@rustcorp.com.au>,
+       "'David Gibson'" <david@gibson.dropbear.id.au>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+Message-ID: <20040501004014.GA5256@amedias.org>
+References: <009701c42edf$25e47390$ca41cb3f@amer.cisco.com> <Pine.LNX.4.58.0404301212070.18014@ppc970.osdl.org> <90DD8A88-9AE2-11D8-B83D-000A95BCAC26@linuxant.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Message-ID: <opr7anr02fshwjtr@laptop-linux.wpcb.org.au>
-In-Reply-To: <4092B02C.5090205@mvista.com>
-User-Agent: Opera M2/7.50 (Linux, build 663)
-X-TPG-Antivirus: Passed
+In-Reply-To: <90DD8A88-9AE2-11D8-B83D-000A95BCAC26@linuxant.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, Apr 30, 2004 at 04:11:29PM -0400, Marc Boucher wrote:
+> 
+> The purpose of the workaround is not to circumvent any protection, but 
+> to fix a real usability issue for systems in the field, which, as an 
+> expert you perhaps do not see, but users definitely massively felt and 
+> complained about.
+> 
 
-Sorry for getting in on this conversion a little late; I've only just  
-noticed it.
+You have argued this a lot of times during this thread and I want to say
+smoenthing about that. I have used some binary-only modules: nvidia,
+vmware and some time ago HSF drivers. When I installed the nvidia
+propetary driver was the first time I saw the word 'tainted' and it
+makes sense: I was at the console.
 
-The usual way in which userspace notification of suspending/resuming is  
-handled at the moment is via scripts which are run prior to suspending and  
-after resuming. As has been noted, the first thing the kernel side  
-implementations does is freeze userspace, keeping things static until post  
-resume. This seems to me to be a good, simple model. DHCP releases can be  
-handled from user space, prior to echo 4 > /proc/acpi/sleep (or  
-alternatives) and the whole difficulty regarding interactions between  
-userspace and kernelspace just goes away.
+I mean that most of users work on X (except when installing X drivers
+:)) and probably they will never see this "confusing" warnings.
 
-Note too that the actual invocation of a suspend can still be in response  
-to kernel events. An ACPI event can be sent to the userspace ACPI daemon,  
-which does userspace preparations and then invokes the kernel suspend  
-mechanism. After resume, it can also do userspace reinitialisation.
+When my system boots, it loads the nvidia and vmware modules and most of
+time (I could say always) I don't notice that my kernel is tainted
+(though I know) so I don't see the reason to hide the license.
 
-Given this model, I would suggest that hotplug should silently drop any  
-events that happen while suspending, and queue events that occur while  
-resuming until the kernelspace part of resuming is complete and userspace  
-can run as normal. It shouldn't rely upon device suspend/resume  
-notifications because they can and do happen while we're still in the  
-process of suspending and resuming. The means to detect whether we're  
-suspending or resuming or running normally could be implemented as a  
-simple function that could test the status of the different suspend  
-implementations.
+I think it should be good for all to stop flaming and put some things in
+order. You have lied about the license and it seems you want to keep
+lying so -quoting Linus- it seems you don't have shame.
 
-Is that at all helpful?
-
-Regards,
-
-Nigel
+Cheers,
+	Koke
 
 -- 
-Nigel Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614, Australia.
-+61 (2) 6251 7727 (wk)
+"Sólo el éxito diferencia al genio del loco"
 
-At just the right time, while we were still powerless, Christ
-died for the ungodly. (Romans 5:6)
+Blog: http://www.amedias.org/koke
+Web Personal: http://sindominio.net/~koke/
+JID: koke@zgzjabber.ath.cx

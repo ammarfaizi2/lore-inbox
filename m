@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317978AbSHBDUL>; Thu, 1 Aug 2002 23:20:11 -0400
+	id <S317980AbSHBDWv>; Thu, 1 Aug 2002 23:22:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317980AbSHBDUK>; Thu, 1 Aug 2002 23:20:10 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34833 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317978AbSHBDUK>; Thu, 1 Aug 2002 23:20:10 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: large page patch
-Date: Fri, 2 Aug 2002 03:23:39 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <aictvr$1dd$1@penguin.transmeta.com>
-References: <3D49D45A.D68CCFB4@zip.com.au> <20020801.174301.123634127.davem@redhat.com> <3D49DFD0.FE0DBC1D@zip.com.au> <20020801.181944.09310618.davem@redhat.com>
-X-Trace: palladium.transmeta.com 1028258603 13304 127.0.0.1 (2 Aug 2002 03:23:23 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 2 Aug 2002 03:23:23 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S318035AbSHBDWv>; Thu, 1 Aug 2002 23:22:51 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:48088 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S317980AbSHBDWv>; Thu, 1 Aug 2002 23:22:51 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Ivan Gyurdiev <ivangurdiev@attbi.com>
+Reply-To: ivangurdiev@attbi.com
+Organization: ( )
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.30
+Date: Wed, 31 Jul 2002 23:30:31 -0400
+User-Agent: KMail/1.4.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200207312330.31101.ivangurdiev@attbi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020801.181944.09310618.davem@redhat.com>,
-David S. Miller <davem@redhat.com> wrote:
->   From: Andrew Morton <akpm@zip.com.au>
->   Date: Thu, 01 Aug 2002 18:26:40 -0700
->
->   "David S. Miller" wrote:
->   > This is probably done to increase the likelyhood that 4MB page orders
->   > are available.  If we collapse 4MB pages deeper, they are less likely
->   > to be broken up because smaller orders would be selected first.
->   
->   This is leakage from ia64, which supports up to 256k pages.
->
->Ummm, 4MB > 256K and even with a 4K PAGE_SIZE MAX_ORDER coalesces
->up to 4MB already :-)
+The following trivial patches are still missing from the kernel:
 
-That should be 256_M_ pages (13 bits of page size + 15 bits of MAX_ORDER
-gives you 256MB max).
+	 - devfs patch to fix the problem with missing virtual consoles - only 0 in 
+/dev/vc: drivers/char/console.c
 
-		Linus
+	 - patch to drivers/acpi/system.c, adding a missing include...
+			I believe it was interrupt.h
+
+
+
+
+
+
+

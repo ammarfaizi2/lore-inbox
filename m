@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129042AbQKCTXu>; Fri, 3 Nov 2000 14:23:50 -0500
+	id <S130826AbQKCT3A>; Fri, 3 Nov 2000 14:29:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130826AbQKCTXl>; Fri, 3 Nov 2000 14:23:41 -0500
-Received: from mirrors.planetinternet.be ([194.119.238.163]:28164 "EHLO
-	mirrors.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S129042AbQKCTXf>; Fri, 3 Nov 2000 14:23:35 -0500
-Date: Fri, 3 Nov 2000 20:23:27 +0100
-From: Kurt Roeckx <Q@ping.be>
+	id <S131202AbQKCT2v>; Fri, 3 Nov 2000 14:28:51 -0500
+Received: from neuron.moberg.com ([209.152.208.195]:57870 "EHLO
+	neuron.moberg.com") by vger.kernel.org with ESMTP
+	id <S130826AbQKCT2n>; Fri, 3 Nov 2000 14:28:43 -0500
+Message-ID: <3A03120A.DFC62AD5@moberg.com>
+Date: Fri, 03 Nov 2000 14:29:14 -0500
+From: george@moberg.com
+Organization: Moberg Research, Inc.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: conflicting types for `mktime' is userspave programs using libc5
-Message-ID: <20001103202327.A961@ping.be>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="zYM0uCDKw75PZbzx"
-X-Mailer: Mutt 1.0pre2i
+Subject: Can EINTR be handled the way BSD handles it? -- a plea from a user-land 
+ programmer...
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Considering that the threading library for Linux uses signals to make it
+work, would it be possible to change the Linux kernel to operate the way
+BSD does--instead of returning EINTR, just restart the interrupted
+primitive?
 
---zYM0uCDKw75PZbzx
-Content-Type: text/plain; charset=us-ascii
+For example, if I'm using read(2) to read data from a file descriptor,
+and a signal happens, the signal handler runs, and read(2) returns EINTR
+after the system call finishes.  Then I'm supposed to catch this and
+re-try the system call.
 
-When trying to compile something using libc5, with the
-2.4.0-test10 kernel, I get this:
+I assume that this is true for _any_ system call which makes the process
+block, right?
 
-/usr/include/time.h:85: conflicting types for `mktime'
-/usr/include/linux/time.h:69: previous declaration of `mktime'
+Can we _PLEASE_PLEASE_PLEASE_ not do this anymore and have the kernel do
+what BSD does:  re-start the interrupted call?
 
-A simple diff is attached
+Please?  If this is something that would be acceptable for integration
+into a mainline kernel, I would do my best to help with a patch.
 
+If I'm wrong about this, please enlighten me.  Also, please cc: me off
+the list, as I don't get the list directly.
 
---zYM0uCDKw75PZbzx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="mktime.diff"
-
---- include/linux/time.h~	Fri Nov  3 20:22:14 2000
-+++ include/linux/time.h	Fri Nov  3 20:21:22 2000
-@@ -46,6 +46,7 @@
- 	value->tv_sec = jiffies / HZ;
- }
- 
-+#ifdef	__KERNEL__
- /* Converts Gregorian date to seconds since 1970-01-01 00:00:00.
-  * Assumes input in normal date format, i.e. 1980-12-31 23:59:59
-  * => year=1980, mon=12, day=31, hour=23, min=59, sec=59.
-@@ -78,6 +79,7 @@
- 	  )*60 + min /* now have minutes */
- 	)*60 + sec; /* finally seconds */
- }
-+#endif
- 
- 
- struct timeval {
-
---zYM0uCDKw75PZbzx--
+Thank you for your consideration.
+--
+George T. Talbot
+<george at moberg dot com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

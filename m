@@ -1,69 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVBNShZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVBNSid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261516AbVBNShZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 13:37:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbVBNShZ
+	id S261517AbVBNSid (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 13:38:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVBNSid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 13:37:25 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:65521 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261516AbVBNShS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 13:37:18 -0500
-Date: Mon, 14 Feb 2005 18:36:43 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrea Arcangeli <andrea@suse.de>
-cc: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Subject: Re: [RFC] Changing COW detection to be memory hotplug friendly
-In-Reply-To: <20050214174158.GE13712@opteron.random>
-Message-ID: <Pine.LNX.4.61.0502141815320.9608@goblin.wat.veritas.com>
-References: <20050203035605.C981A7046E@sv1.valinux.co.jp> 
-    <Pine.LNX.4.61.0502072041130.30212@goblin.wat.veritas.com> 
-    <Pine.LNX.4.61.0502081549320.2203@goblin.wat.veritas.com> 
-    <20050210190521.GN18573@opteron.random> 
-    <Pine.LNX.4.61.0502101953190.6194@goblin.wat.veritas.com> 
-    <20050210204025.GS18573@opteron.random> 
-    <Pine.LNX.4.61.0502110710150.5866@goblin.wat.veritas.com> 
-    <20050211085239.GD18573@opteron.random> 
-    <Pine.LNX.4.61.0502111258310.7808@goblin.wat.veritas.com> 
-    <20050214174158.GE13712@opteron.random>
+	Mon, 14 Feb 2005 13:38:33 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:25031 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261517AbVBNSiY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 13:38:24 -0500
+Message-ID: <4210F01E.9070707@us.ibm.com>
+Date: Mon, 14 Feb 2005 10:38:22 -0800
+From: Mingming Cao <cmm@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Alex Tomas <alex@clusterfs.com>
+CC: Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+       tytso@mit.edu, pbadari@us.ibm.com, suparna@in.ibm.com,
+       gerrit@us.ibm.com, tappro@clusterfs.com,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] Re: Latest ext3 patches (extents, mballoc, delayed
+ allocation)
+References: <1106354192.3634.19.camel@dyn318043bld.beaverton.ibm.com>	<m3hdl2lehb.fsf@bzzz.home.net> <4207BBEA.7090705@us.ibm.com> <m3y8dude4q.fsf@bzzz.home.net>
+In-Reply-To: <m3y8dude4q.fsf@bzzz.home.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Feb 2005, Andrea Arcangeli wrote:
-> > By the way, while we're talking of remove_exclusive_swap_page:
-> > a more functional issue I sometimes wonder about, why don't we
-> > remove_exclusive_swap_page on write fault?  Keeping the swap slot
-> > is valuable if read fault, but once the page is dirtied, wouldn't
-> > it usually be better to free that slot and allocate another later?
+Alex Tomas wrote:
+
+> Good day all, 
 > 
-> Avoiding swap fragmentation is one reason to leave it allocated. So you
-> can swapin/swapout/swapin/swapout always in the same place on disk as
-> long as there's plenty of swap still available. I'm not sure how much
-> speedup this provides, but certainly it makes sense.
+> I've updated the patchset against 2.6.10. A bunch of bugs have been
+> fixed and mballoc now behaves smarter a bit. Extents and mballoc 
+> patches collects some stats they print upon umount. NOTE: they must
+> not be used to store important data. A lot of things are to be done.
+> 
 
-I rather thought it would tend to increase swap fragmentation: that
-the next time (if) this page has to be written out to swap, the disk
-has to seek back to some ancient position to write this page, when
-the rest of the cluster being written is more likely to come from a
-recently allocated block of contiguous swap pages (though if many of
-them are being rewritten rather than newly allocated, they'll all be
-all over the disk, no contiguity at all).
+Thanks Alex, for the hard work.
 
-Of course, freeing as soon as dirty does leave a hole behind, which
-tends towards swap fragmentation: but I thought the swap allocator
-tried for contiguous clusters before it fell back on isolated pages
-(I haven't checked, and akpm has changes to swap allocation in -mm).
+> Please review. Any comments and suggestions are very welcome.
 
-Hmm, I think you're thinking of the overall fragmentation of swap,
-and are correct about that; whereas I'm saying "fragmentation"
-when what I'm really concerned about is increased seeking.
+Will do.
 
-But only research would tell the true story.  I suspect the change
-from 2.4's linear vma scanning to 2.6's rmap against the bottom of
-LRU may have changed the rules for swap layout strategy.
+> 
+> 
+> The followins crazy listing shows tiobench's results for SMP box:
+> 
+> Random Reads
+>                               File  Blk   Num                   Avg     CPU
+> Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency   Eff
+> ---------------------------- ------ ----- ---  ------ ------ --------- -----
+> ext2                          512   4096    1  119.05 40.37%     0.031   295
+> ext3                          512   4096    1  134.78 37.08%     0.028   363
+> ext3rs                        512   4096    1   25.18 8.377%     0.154   301
 
-Hugh
+The throughput here is really weird. Reservation code does not touch 
+read code path. I could imagine that it maybe change the disk layout and 
+make a difference on sequential reads, but I am not sure how it will 
+affect the random read. And this is happening on 1 thread and 4 threads, 
+but for 2 threads, reservation case is the best. I will see if I could 
+repeat the same results here.
+
+Mingming

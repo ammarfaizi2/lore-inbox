@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262728AbTEFMp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 08:45:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262735AbTEFMp4
+	id S262718AbTEFMxq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 08:53:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbTEFMxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 08:45:56 -0400
-Received: from pollux.ds.pg.gda.pl ([213.192.76.3]:50700 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262728AbTEFMpx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 08:45:53 -0400
-Date: Tue, 6 May 2003 14:58:21 +0200 (CEST)
-From: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]   include/linux/sunrpc/svc.h compilation error
-In-Reply-To: <1052222558.3873.19.camel@nalesnik>
-Message-ID: <Pine.LNX.4.51L.0305061457160.1232@piorun.ds.pg.gda.pl>
-References: <Pine.LNX.4.44.0305041739020.1737-100000@home.transmeta.com> 
- <Pine.LNX.4.51L.0305061205400.1232@piorun.ds.pg.gda.pl> <1052222558.3873.19.camel@nalesnik>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	Tue, 6 May 2003 08:53:46 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:36361 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S262718AbTEFMxo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 08:53:44 -0400
+Date: Tue, 6 May 2003 14:39:02 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: kkeil@suse.de, kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org
+Subject: Re: ISDN massive packet drops while DVD burn/verify
+Message-Id: <20030506143902.2b3fcecd.skraw@ithnet.com>
+In-Reply-To: <1052218412.28797.18.camel@dhcp22.swansea.linux.org.uk>
+References: <20030416151221.71d099ba.skraw@ithnet.com>
+	<Pine.LNX.4.44.0304161056430.5477-100000@chaos.physics.uiowa.edu>
+	<20030419193848.0811bd90.skraw@ithnet.com>
+	<1050789691.3955.17.camel@dhcp22.swansea.linux.org.uk>
+	<20030505164653.GA30015@pingi3.kke.suse.de>
+	<20030505192652.7f17ea9e.skraw@ithnet.com>
+	<1052218412.28797.18.camel@dhcp22.swansea.linux.org.uk>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 May 2003, Grzegorz Jaskiewicz wrote:
-> > That kernel fails for me when building...
-> > [cut]
-> > 
-> > gcc -Wp,-MD,fs/lockd/.clntproc.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4 -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include -DMODULE -DKBUILD_BASENAME=clntproc -DKBUILD_MODNAME=lockd -c -o fs/lockd/.tmp_clntproc.o fs/lockd/clntproc.c
-> > In file included from fs/lockd/clntproc.c:17:
-> > include/linux/sunrpc/svc.h: In function `svc_take_page': 
-> > include/linux/sunrpc/svc.h:180: invalid lvalue in assignment
-> > make[3]: *** [fs/lockd/clntproc.o] Error 1
-> > make[2]: *** [fs/lockd] Error 2
-> > make[1]: *** [fs] Error 2
-> > make: *** [modules] Error 2
+On 06 May 2003 11:53:32 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+
+> On Llu, 2003-05-05 at 18:26, Stephan von Krawczynski wrote:
+> > You mean UDMA 2 does not make it (which I had in the test case)?
 > 
-> Looks like gcc fault, can You Pawel give as gcc version  ?
+> But is the transfer being done in UDMA mode ?
 
-gcc-2.95.4-20010823
 
-At least now it builds - I'll check later if it works :)
+# hdparm -v /dev/hdc
 
-Thanks for your cooperation.
+/dev/hdc:
+ HDIO_GET_MULTCOUNT failed: Invalid argument
+ IO_support   =  0 (default 16-bit)
+ unmaskirq    =  0 (off)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ BLKRAGET failed: Invalid argument
+ HDIO_GETGEO failed: Invalid argument
+ 
 
--- 
-pozdr.  Pawe³ Go³aszewski        
----------------------------------
-worth to see: http://www.againsttcpa.com/
-CPU not found - software emulation...
+using_dma means it's using dma for transfer, right?
+
+Regards,
+Stephan
+
+
+

@@ -1,78 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135697AbRDSUit>; Thu, 19 Apr 2001 16:38:49 -0400
+	id <S135700AbRDSUlt>; Thu, 19 Apr 2001 16:41:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135698AbRDSUig>; Thu, 19 Apr 2001 16:38:36 -0400
-Received: from pop.gmx.net ([194.221.183.20]:22 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S135696AbRDSUiN>;
-	Thu, 19 Apr 2001 16:38:13 -0400
-Message-ID: <3ADE6C70.5A12D80A@gmx.de>
-Date: Thu, 19 Apr 2001 06:41:20 +0200
-From: Edgar Toernig <froese@gmx.de>
+	id <S135704AbRDSUlh>; Thu, 19 Apr 2001 16:41:37 -0400
+Received: from runyon.cygnus.com ([205.180.230.5]:29070 "EHLO cygnus.com")
+	by vger.kernel.org with ESMTP id <S135696AbRDSUlI>;
+	Thu, 19 Apr 2001 16:41:08 -0400
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: light weight user level semaphores
+In-Reply-To: <Pine.LNX.4.31.0104191036220.5052-100000@penguin.transmeta.com>
+	<m3ofts3d4k.fsf@otr.mynet.cygnus.com>
+	<20010419222228.J682@nightmaster.csn.tu-chemnitz.de>
+Reply-To: drepper@cygnus.com (Ulrich Drepper)
+X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
+X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
+From: Ulrich Drepper <drepper@redhat.com>
+Date: 19 Apr 2001 13:40:19 -0700
+In-Reply-To: Ingo Oeser's message of "Thu, 19 Apr 2001 22:22:28 +0200"
+Message-ID: <m31yqo1v4c.fsf@otr.mynet.cygnus.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
 MIME-Version: 1.0
-To: kambo@home.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PACKET_MMAP help
-In-Reply-To: <10336.010418@home.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de> writes:
 
-kambo@home.com wrote:
-> 
-> 1. for tp_frame_size, I dont want to truncate any data on ethernet, I
-> need 1514 bytes, is this the best way to do it and not waste space?
-> 
-> static const int TURBO_FRAME_SIZE=
->      TPACKET_ALIGN(TPACKET_ALIGN(sizeof(tpacket_hdr)) +
->                    TPACKET_ALIGN(sizeof(struct sockaddr_ll)+ETH_HLEN) + 1500);
+> Are you sure, you can implement SMP-safe, atomic operations (which you need
+> for all up()/down() in user space) WITHOUT using privileged
+> instructions on ALL archs Linux supports?
 
-Looks OK.  Maybe instead of ETH_HLEN min(ETH_HLEN,16)?  The framesize
-calculation is really strange...
+Which processors have no such instructions but are SMP-capable?
 
-> 2. what is tp_block_nr for?  I dont understand it, I just set it to 1
-> and make tp_block_size big enough for all the frames I need, so its
-> just one contiguous space, all I need is about a megabyte I think.
+> How do we do this on nccNUMA machines later? How on clusters[1]?
 
-Better go the other way around - set tb_block_size to PAGE_SIZE and
-tb_block_nr appropriate.  tb_block_size is the contiguous physical memory
-the kernel tries to allocate.  Anything above PAGE_SIZE is likely to fail.
-For you that would mean only 2 packets per 4k-page.  You could try to
-start with bigger (power of 2) block sizes and go down to smaller ones if
-it fails (ENOMEM). [1].  Btw, there's in implicit limit on tb_block_nr.
-The vector to manage the blocks is kmalloc'ed and may not be larger than
-128kb giving max 32768 blocks.  Hmm... moment... seems there's a similar
-limit for tp_frame_nr (max 32768 frames).  I'm pretty sure _that_ limit
-was not there when I worked with this during 2.3.  Not so nice on gigabit
-ethernet :-(
-
-> 3. is this the general approach for the api?
-> [...]
-
-Looks OK too.
-
->    if (tp->status == 0) poll() for pollin on the socket  /* is there a
->    race here? */
-
-No race.
-
-> 4. what does the copy threshold setsockopt tuning accomplish? doesnt it always
-> have to copy anyway, to the mmaped area?
-
-I haven't used it myself.  Reading the sources it does something different.
-Afaics when active if there's a packet that has been truncated by the
-framesize it is additionally stored in the socket's receive queue to be
-fetched by a normal read/recv.  It notifies you about this by setting
-the TP_STATUS_COPY bit.  So it seems to mean: copy to socket if threshold
-(framesize) exceeded.
-
-Ciao, ET.
+Clusters are not my problem.  They require additional software.  And
+NUMA machines maybe be requiring a certain sequence in which the
+operations must be performed and the hardware should take care of the
+rest.
 
 
-[1] The PACKET_RX_RING sockopt accepts all block sizes that are a multiple
-of PAGE_SIZE but always allocates a power of 2 size chunk.  So using non
-power of 2 sizes will waste locked kernel memory.
+I don't really care what the final implementation will be like.  For
+UP and SMP machines I definitely want to have as much as possible at
+user-level.  If you need a special libpthread for NUMA machines, so be
+it.
 
+-- 
+---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------

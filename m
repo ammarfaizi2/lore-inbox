@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317858AbSIOGC4>; Sun, 15 Sep 2002 02:02:56 -0400
+	id <S317859AbSIOGJ1>; Sun, 15 Sep 2002 02:09:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317859AbSIOGC4>; Sun, 15 Sep 2002 02:02:56 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:63114 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S317858AbSIOGC4>; Sun, 15 Sep 2002 02:02:56 -0400
-Date: Sun, 15 Sep 2002 02:07:39 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-Message-ID: <20020915020739.A22101@devserv.devel.redhat.com>
-References: <Pine.LNX.4.44.0209101156510.7106-100000@home.transmeta.com> <E17qRfU-0001qz-00@starship>
+	id <S317861AbSIOGJ1>; Sun, 15 Sep 2002 02:09:27 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:15630 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317859AbSIOGJ0>;
+	Sun, 15 Sep 2002 02:09:26 -0400
+Date: Sat, 14 Sep 2002 23:10:27 -0700
+From: Greg KH <greg@kroah.com>
+To: Brad Hards <bhards@bigpond.net.au>
+Cc: Brian Craft <bcboy@thecraftstudio.com>, linux-kernel@vger.kernel.org
+Subject: Re: delay before open() works
+Message-ID: <20020915061026.GA484@kroah.com>
+References: <20020914094225.A1267@porky.localdomain> <200209151525.01920.bhards@bigpond.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E17qRfU-0001qz-00@starship>; from phillips@arcor.de on Sun, Sep 15, 2002 at 07:10:00AM +0200
+In-Reply-To: <200209151525.01920.bhards@bigpond.net.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Daniel Phillips <phillips@arcor.de>
-> Date: Sun, 15 Sep 2002 07:10:00 +0200
+On Sun, Sep 15, 2002 at 03:25:01PM +1000, Brad Hards wrote:
+> 
+> After discussions with Oliver Neukem at Linux Kongress, the idea of a second 
+> hotplug event emerges. This is signalled by the driver that actually 
+> registers the interface after the interface is properly established (so in 
+> your example, USB core does one call_usermode_helper(), which probably does 
+> something like "modprobe scanner"; and the scanner driver does a second 
+> call_usermode_helper(), which loads xsane).
 
->[...]
-> Let's try a different show of hands: How many users would be happier if
-> they knew that kernel developers are using modern techniques to improve
-> the quality of the kernel?
+This "second" hotplug event will happen when the driver registers with
+the "class".  So for the example of the USB scanner driver, it registers
+itself with the USB "class" to set up the file_ops structure (this is
+done in usb_register_dev().  At that point in time, /sbin/hotplug will
+be called again.
 
-I do not see how using a debugger improves a quality of the kernel.
-Good thinking and coding does improve kernel quality. Debugger
-certainly does not help if someone cannot code.
+Ok, the scanner driver isn't the best example, as it's both a USB
+device, and uses the USB class interface.  A better example would be a
+USB keyboard, which would get the USB device /sbin/hotplug call when it
+is first seen, and then after the driver is loaded, and registered with
+the input layer, a input layer class event would be called through
+/sbin/hotplug.  And right now, there is the start of input class support
+in the 2.5 kernel, if people want to play with it.
 
-A debugger can do some good things. Some people argue that it
-improves productivity, which I think may be true under some
-circomstances. If your build system sucks and/or slow, and
-if you work with a binary only software, debugger helps.
-If you work with something like Linux, and compile on something
-better than a 333MHz x86, it probably does not help your
-productivity. This is all wonderful, but has nothing to do
-with the code quality.
+> BTW: I'm not sure who actually came up with the idea - it was in the hotplug 
+> BoF, but I missed this part of it.
 
-And to think that your users would be happier with a crap produced
-by a debugger touting Windows graduate than with a quality code
-debugged with observation simply defies any reason.
+I'm pretty sure it's documented in Pat Mochel's OLS 2002 paper.  If not,
+I know we talked about it at the OLS and Kernel Summit talks about
+device naming and driverfs.
 
--- Pete
+> Solves this race. Unfortunately requires some janitorial work. Patch away...
+
+I have a patch around here somewhere for this, for the USB class only,
+but I've been focusing on the struct device_driver work lately.  After
+that's done, I'll be adding class support (and the /sbin/hotplug class
+support).  But I'd gladly accept help if anyone's offering :)
+
+thanks,
+
+greg k-h

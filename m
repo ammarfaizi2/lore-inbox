@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279890AbRJ3Hfm>; Tue, 30 Oct 2001 02:35:42 -0500
+	id <S279889AbRJ3Hgn>; Tue, 30 Oct 2001 02:36:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279889AbRJ3Hfc>; Tue, 30 Oct 2001 02:35:32 -0500
-Received: from [62.245.135.174] ([62.245.135.174]:45956 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S279894AbRJ3HfR>;
-	Tue, 30 Oct 2001 02:35:17 -0500
-Message-ID: <3BDE5853.540BCCA5@TeraPort.de>
-Date: Tue, 30 Oct 2001 08:35:47 +0100
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-ac4 i686)
-X-Accept-Language: en, de
+	id <S279892AbRJ3Hgc>; Tue, 30 Oct 2001 02:36:32 -0500
+Received: from gw.lowendale.com.au ([203.26.242.120]:18288 "EHLO
+	marina.lowendale.com.au") by vger.kernel.org with ESMTP
+	id <S279889AbRJ3Hg1>; Tue, 30 Oct 2001 02:36:27 -0500
+Date: Tue, 30 Oct 2001 18:46:03 +1100 (EST)
+From: Neale Banks <neale@lowendale.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Nasty suprise with uptime
+In-Reply-To: <E15yJD1-0003uO-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.05.10110301839250.23080-100000@marina.lowendale.com.au>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Very high "cached" value
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 10/30/2001 08:35:48 AM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 10/30/2001 08:35:54 AM,
-	Serialize complete at 10/30/2001 08:35:54 AM
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 29 Oct 2001, Alan Cox wrote:
 
- running 2.4.13-ac4+preempt, I found a rather strange xosview display
-this morning, complaining about a negative field. Inspection of
-/proc/meminfo gives a pretty unlikely value for "cached":
+> > and received a nasty surprise. The uptime, which had been 496+ days
+> > on Friday, was back down to a few hours. I was ready to lart somebody
+> > with great vigor when I realized the uptime counter had simply wrapped
+> > around.
+> > 
+> > So, I thought to myself, at least the 2.4 kernels on our new boxes won't
+> 
+> It wraps at 496 days. The drivers are aware of it and dont crash the box
 
-/home/martink> cat /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  327233536 323653632  3579904  6352896 131874816
-18446744073682300928
-Swap: 674455552   475136 673980416
-MemTotal:       319564 kB
-MemFree:          3496 kB
-MemShared:        6204 kB
-Buffers:        128784 kB
-Cached:       4294940220 kB
-SwapCached:        464 kB
-Active:         103016 kB
-Inact_dirty:    126400 kB
-Inact_clean:      1540 kB
-Inact_target:    65508 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       319564 kB
-LowFree:          3496 kB
-SwapTotal:      658648 kB
-SwapFree:       658184 kB
+You mean there was a time when uptime>496days would crash a system?
 
- This is on a Toshiba 7200 Notebook with 320 MB and about twice as much
-swap.
+If so, approximtely when did that get fixed?
 
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+(I'm thinking back to an as yet unexplained crash of a 2.0.38 system at
+~496days uptime :-( )
+
+Thanks,
+Neale.
+

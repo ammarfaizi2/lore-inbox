@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265171AbUEZEuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265175AbUEZEus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265171AbUEZEuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 00:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265165AbUEZEuQ
+	id S265175AbUEZEus (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 00:50:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265165AbUEZEus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 00:50:16 -0400
-Received: from gate.crashing.org ([63.228.1.57]:34440 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265155AbUEZEuL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 00:50:11 -0400
-Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "David S. Miller" <davem@redhat.com>, wesolows@foobazco.org,
-       willy@debian.org, Andrea Arcangeli <andrea@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, mingo@elte.hu,
-       bcrl@kvack.org, linux-mm@kvack.org,
-       Linux Arch list <linux-arch@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0405252031270.15534@ppc970.osdl.org>
-References: <1085369393.15315.28.camel@gaston>
-	 <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
-	 <1085371988.15281.38.camel@gaston>
-	 <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
-	 <1085373839.14969.42.camel@gaston>
-	 <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
-	 <20040525034326.GT29378@dualathlon.random>
-	 <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
-	 <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk>
-	 <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>
-	 <20040525153501.GA19465@foobazco.org>
-	 <Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org>
-	 <20040525102547.35207879.davem@redhat.com>
-	 <Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org>
-	 <20040525105442.2ebdc355.davem@redhat.com>
-	 <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>
-	 <1085521251.24948.127.camel@gaston>
-	 <Pine.LNX.4.58.0405251452590.9951@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0405251455320.9951@ppc970.osdl.org>
-	 <1085522860.15315.133.camel@gaston>
-	 <Pine.LNX.4.58.0405251514200.9951@ppc970.osdl.org>
-	 <1085530867.14969.143.camel@gaston>
-	 <Pine.LNX.4.58.0405251749500.9951@ppc970.osdl.org>
-	 <1085541906.14969.412.camel@gaston>
-	 <Pine.LNX.4.58.0405252031270.15534@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1085546780.5584.19.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 26 May 2004 14:46:20 +1000
+	Wed, 26 May 2004 00:50:48 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:56262 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S265176AbUEZEuq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 00:50:46 -0400
+Message-ID: <40B41367.5070607@kegel.com>
+Date: Tue, 25 May 2004 20:47:51 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en, de-de
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: bringing back 'make symlinks'?
+References: <40B36A0E.5080509@kegel.com> <20040525214328.GA2675@mars.ravnborg.org>
+In-Reply-To: <20040525214328.GA2675@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, your patch just missed the do_wp_page() case which needs the same
-medication as break_cow(), which leaves us with only one caller of
-ptep_establish... the one which just sets those 2 bits and shouldn't
-be named ptep establish at all ;)
+Sam Ravnborg wrote:
+> On Tue, May 25, 2004 at 08:45:18AM -0700, Dan Kegel wrote:
+> 
+>>In the 2.4 kernel, 'make symlinks' created the symlinks needed
+>>to use the kernel tree's headers for building a gcc/glibc toolchain.
+>>
+>>In the 2.6 kernel, you can do the same thing with 'include include/asm'.
+>>Unless you're trying to build arm or cris, or maybe others, in which case 
+>>you also need 'include/asm-$(ARCH)/.arch'.
+> ...
+> 
+> In current 2.6 there exitst a target named: modules_prepare
+> It does a bit more than what symlinks did in 2.4 - actually prepare for
+> building external modules.
 
-What do we do ?
+Right, and that's a problem, because the 'bit more' it does
+requires a target compiler -- which isn't available while
+bootstrapping the target compiler!
 
-I'd rather have ptep_establish do the ptep_clear_flush & set_pte, and
-the later just do the bit flip, but then, the arch (and possibly
-generic) implementation of that bit flip must also do the TLB flush
-when necessary (it's not on ppc).
+The way things are now, I can build toolchains for everything
+except the sh architecture (though my toolchain bootstrap script
+is ugly as noted due to the lack of 'make symlinks').
+I'm not sure if the sh architecture makefile even has targets
+to make all the needed symlinks in the absense of a working
+target compiler; I'll look at that and maybe submit a minimal
+patch when I get a chance.
+- Dan
 
-Ben.  
-
-
+-- 
+My technical stuff: http://kegel.com
+My politics: see http://www.misleader.org for examples of why I'm for regime change

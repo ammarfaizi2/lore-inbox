@@ -1,68 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262355AbUBHGCb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 01:02:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbUBHGCb
+	id S262353AbUBHGAR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 01:00:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbUBHGAQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 01:02:31 -0500
-Received: from slask.tomt.net ([217.8.136.223]:19584 "EHLO pelle.tomt.net")
-	by vger.kernel.org with ESMTP id S262355AbUBHGC3 (ORCPT
+	Sun, 8 Feb 2004 01:00:16 -0500
+Received: from dslb138.fsr.net ([12.7.7.138]:56555 "EHLO sandall.us")
+	by vger.kernel.org with ESMTP id S262353AbUBHGAK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 01:02:29 -0500
-Message-ID: <4025D0F2.1020400@tomt.net>
-Date: Sun, 08 Feb 2004 07:02:26 +0100
-From: Andre Tomt <andre@tomt.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Sun, 8 Feb 2004 01:00:10 -0500
+Message-ID: <1076220154.4025d0fa71a19@horde.sandall.us>
+Date: Sat,  7 Feb 2004 22:02:34 -0800
+From: Eric Sandall <eric@sandall.us>
+To: Steve Lee <steve@tuxsoft.com>
+Cc: gene.heskett@verizon.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: aRTS vs 2.6.3-rc1, aRTS loses
+References: <026201c3edf3$73ed8e50$e501a8c0@saturn>
+In-Reply-To: <026201c3edf3$73ed8e50$e501a8c0@saturn>
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.3-rc1
-References: <Pine.LNX.4.58.0402061823040.30672@home.osdl.org> <4024BCE4.2060600@tomt.net> <200402071722.10242.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200402071722.10242.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 192.168.0.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On Saturday 07 of February 2004 11:24, Andre Tomt wrote:
->>pdc202xx_old OOPS's on load in case of completely modular IDE (core and
->>pci ide drivers). I have yet to capture the OOPS, as someone has just
->>ran away with the one serial cable over here.
->>
->>If we're lucky Bart knows what's missing without the trace ( :-) ! ). If
->>not, I'll see if I can get netconsole up and running.
+Quoting Steve Lee <steve@tuxsoft.com>:
+> I'm having the same problem you described in your original message.  I
+> built 2.6.3-rc1 as you described here, ".config + a make oldconfig" but
+> arts dies with a message saying, "Sound server error, CPU overload".  I
+> click OK, but about 30 seconds later it says the same thing again.  This
+> is with KDE 3.2 all compiled from sources with GCC 3.3.2.  I boot under
+> 2.6.2 and everything works well again.  I did notice that the sound
+> config file saved by doing "alsactl store" under 2.6.2 is not compatible
+> with that of the 2.6.3-rc1 kernel or versus.  If anyone else has any
+> ideas, I'm interested.  I was really hoping this kernel would solve some
+> issues I was seeing with 2.6.2.
 > 
-> 
-> :-(
-> 
-> Please try to capture this OOPS.
+> Thanks,
+> Steve
 
-Hmm. Netconsole just hangs my kernel, probably due to me mis-merging it 
-into  2.6.3-rc1. So here it is, the pen and paper version :-)
+I can verify that this happens with 2.6.2-mm1 as well. KDE 3.2.0, gcc 3.3.2,
+glibc 2.3.2+NPTL, all compiled from source (athlon-mp).
 
-It is somewhat shortened, if you need more information from the oops, 
-ask and I'll see what I can do.
+-sandalle
 
-Unable to handle kernel virtual paging request at virtual address 24748b24
+-- 
+PGP Key Fingerprint:  FCFF 26A1 BE21 08F4 BB91  FAED 1D7B 7D74 A8EF DD61
+http://search.keyserver.net:11371/pks/lookup?op=get&search=0xA8EFDD61
 
-EIP is at ide_pci_register_host_proc+0x27/0x40 [ide_core]
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCS/E/IT$ d-- s++:+>: a-- C++(+++) BL++++VIS>$ P+(++) L+++ E-(---) W++ N+@ o?
+K? w++++>-- O M-@ V-- PS+(+++) PE(-) Y++(+) PGP++(+) t+() 5++ X(+) R+(++)
+tv(--)b++(+++) DI+@ D++(+++) G>+++ e>+++ h---(++) r++ y+
+------END GEEK CODE BLOCK------
 
-init_chipset_pdc202xx	[pdc202xx_old]
-do_ide_setup_pci_device	[ide_core]
-ide_setup_pci_device	[ide_core]
-pdc202xx_init_one	[pdc202xx_old]
-create_dir
-pci_device_probe_static
-__pci_device_probe
-pci_device_probe
-bus_match
-driver_attach
-bus_add_driver
-driver_register
-pci_register_driver
-ide_pci_register_driver	[ide_core]
-pdc202xx_ide_init	[pdc202xx_old]
-sys_init_module
-syscall_call
+Eric Sandall                     |  Source Mage GNU/Linux Developer
+eric@sandall.us                  |  http://www.sourcemage.org/
+http://eric.sandall.us/          |  SysAdmin @ Inst. Shock Physics @ WSU
+http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
+
+----------------------------------------------------------------
+This message was sent using IMP, the Internet Messaging Program.

@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVAMHUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVAMHXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbVAMHUc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 02:20:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVAMHUc
+	id S261184AbVAMHXP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 02:23:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVAMHXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 02:20:32 -0500
-Received: from pat.uio.no ([129.240.130.16]:52157 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261183AbVAMHU2 (ORCPT
+	Thu, 13 Jan 2005 02:23:15 -0500
+Received: from holomorphy.com ([207.189.100.168]:58304 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261184AbVAMHXO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 02:20:28 -0500
-Subject: Re: [RFC] Avoiding fragmentation through different allocator
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Mel Gorman <mel@csn.ul.ie>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050113070314.GL2995@waste.org>
-References: <Pine.LNX.4.58.0501122101420.13738@skynet>
-	 <20050113070314.GL2995@waste.org>
-Content-Type: text/plain
-Date: Thu, 13 Jan 2005 02:20:01 -0500
-Message-Id: <1105600801.11555.6.camel@lade.trondhjem.org>
+	Thu, 13 Jan 2005 02:23:14 -0500
+Date: Wed, 12 Jan 2005 23:19:49 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: davej@redhat.com, torvalds@osdl.org, marcelo.tosatti@cyclades.com,
+       greg@kroah.com, chrisw@osdl.org, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050113071949.GA1226@holomorphy.com>
+References: <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org> <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com> <20050112194239.0a7b720b.akpm@osdl.org> <20050113044942.GI14443@holomorphy.com> <20050112225412.5957c5d7.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050112225412.5957c5d7.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on den 12.01.2005 Klokka 23:03 (-0800) skreiv Matt Mackall:
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> Most of the local DoS's I'm aware of are memory management -related,
+>>  i.e. user- triggerable proliferation of pinned kernel data structures.
 
-> You might stress higher order page allocation with a) 8k stacks turned
-> on b) UDP NFS with large read/write.
+On Wed, Jan 12, 2005 at 10:54:12PM -0800, Andrew Morton wrote:
+> Well.  A heck of a lot of the DoS opportunities we've historically seen
+> involved memory leaks, deadlocks or making the kernel go oops or BUG with
+> locks held or with kernel memory allocated.
 
-   b) Unless your network uses jumbo frames, UDP NFS should not be doing
-higher order page allocation.
+I'd consider those even more severe.
 
-Cheers,
-  Trond
 
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
-
+-- wli

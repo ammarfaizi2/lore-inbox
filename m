@@ -1,173 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266447AbUANXsi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 18:48:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266458AbUANXsh
+	id S266448AbUANXsO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 18:48:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266455AbUANXsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 18:48:37 -0500
-Received: from smtp12.eresmas.com ([62.81.235.112]:44522 "EHLO
-	smtp12.eresmas.com") by vger.kernel.org with ESMTP id S266447AbUANXrp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 18:48:14 -0500
+Received: from kiuru.kpnet.fi ([193.184.122.21]:25485 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S266448AbUANXrp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 14 Jan 2004 18:47:45 -0500
-Message-ID: <4005D4B4.1000705@wanadoo.es>
-Date: Thu, 15 Jan 2004 00:45:56 +0100
-From: Xose Vazquez Perez <xose@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: gl, es, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-Subject: [summary] state of scsi drivers
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Subject: [PATCH] Same keyboard.c as in 2.6.0
+From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+To: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kQObtfPoVxe/ZDFKOG0G"
+Message-Id: <1074124061.1278.5.camel@midux>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 15 Jan 2004 01:47:41 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        * unofficial 2.4 LiNUX kernel SCSI/RAID drivers list *
 
-                        <xose@wanadoo.es>
+--=-kQObtfPoVxe/ZDFKOG0G
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-                         linux-2.4.25-pre4+BK
-                     Thu Jan 15 00:27:20 CET 2004
+Hi list,
+I think many of you have run into this problem:
+Some of your keys doesn't work in 2.6.1.=20
 
+If you linux gurus know a better way to do this - please tell.
 
-x features:
-    64_bit_SG block_device_driver highmem_io hot-plug vary_io
+Compiled and tested against 2.6.1-bk2
 
-o aacraid
-   manufacturer: ADAPTEC
-   kernel: 1.1.2 (15 May 2003)
-   latest: 1.1.4 (23 Dec 2003)
-   arch: i386 ia64 x86_64 alpha (sparc not confirmed, but expected)
-   features: 64_bit_SG highmem_io vary_io
-   maintainer: <Mark_Salyzyn*AT*adaptec.com> <aacraid*AT*adaptec.com>
-   url: http://linux.adaptec.com
-        http://linux.dell.com/raid.shtml#aacraid
-   ml: http://lists.us.dell.com/mailman/listinfo/linux-aacraid-devel
+I made a small patch that makes them work as in 2.6.0:
+--- CUT HERE ---
+--- linux-2.6.1/drivers/char/keyboard.c 2004-01-09 08:59:26.000000000
++0200
++++ linux-2.6.0/drivers/char/keyboard.c 2003-12-18 04:58:46.000000000
++0200
+@@ -941,16 +941,16 @@ static unsigned short x86_keycodes[256]=20
+         32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+         48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+         64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+-        80, 81, 82, 83, 84, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
+-       284,285,309,311,312, 91,327,328,329,331,333,335,336,337,338,339,
+-       367,288,302,304,350, 89,334,326,116,377,109,111,126,347,348,349,
+-       360,261,262,263,298,376,100,101,321,316,373,286,289,102,351,355,
++        80, 81, 82, 83, 43, 85, 86, 87, 88,115,119,120,121,375,123, 90,
++       284,285,309,298,312, 91,327,328,329,331,333,335,336,337,338,339,
++       367,288,302,304,350, 92,334,512,116,377,109,111,373,347,348,349,
++       360, 93, 94, 95, 98,376,100,101,321,316,354,286,289,102,351,355,
+        103,104,105,275,287,279,306,106,274,107,294,364,358,363,362,361,
+-       291,108,381,281,290,272,292,305,280, 99,112,257,258,359,113,114,
+-       264,117,271,374,379,115,125,273,121,123, 92,265,266,267,268,269,
+-       120,119,118,277,278,282,283,295,296,297,299,300,301,293,303,307,
+-       308,310,313,314,315,317,318,319,320,357,322,323,324,325,276,330,
+-       332,340,365,342,343,344,345,346,356,270,341,368,369,370,371,372
+};
++       291,108,381,281,290,272,292,305,280, 99,112,257,258,359,270,114,
++       118,117,125,374,379,115,112,125,121,123,264,265,266,267,268,269,
++       271,273,276,277,278,282,283,295,296,297,299,300,301,293,303,307,
++       308,310,313,314,315,317,318,319,320,357,322,323,324,325,326,330,
++       332,340,365,342,343,344,345,346,356,113,341,368,369,370,371,372
+};
+=20
+ #ifdef CONFIG_MAC_EMUMOUSEBTN
+ extern int mac_hid_mouse_emulate_buttons(int, int, int);
+@@ -972,18 +972,11 @@ static int emulate_raw(struct vc_data *v
+        if (keycode > 255 || !x86_keycodes[keycode])
+                return -1;=20
+=20
+-       switch (keycode) {
+-               case KEY_PAUSE:
+-                       put_queue(vc, 0xe1);
+-                       put_queue(vc, 0x1d | up_flag);
+-                       put_queue(vc, 0x45 | up_flag);
+-                       return 0;
+-               case KEY_LANG1:
+-                       if (!up_flag) put_queue(vc, 0xf1);
+-                       return 0;
+-               case KEY_LANG2:
+-                       if (!up_flag) put_queue(vc, 0xf2);
+-                       return 0;
++       if (keycode =3D=3D KEY_PAUSE) {
++               put_queue(vc, 0xe1);
++               put_queue(vc, 0x1d | up_flag);
++               put_queue(vc, 0x45 | up_flag);
++               return 0;
+        }=20
+=20
+        if (keycode =3D=3D KEY_SYSRQ && sysrq_alt) {
+--- CUT HERE ---
+--=20
+"Software is like sex, it's better when it's free."
+Markus H=E4stbacka <midian at ihme dot org>
 
-o aic7xxx/aic79xx
-   manufacturer: ADAPTEC
-   kernel: 6.2.36/1.3.10 (03 Jun 2003)
-   latest: 6.3.4 /2.0.5  (22 Dec 2003)
-   arch: i386 ia64 powerpc
-   features: highmem_io vary_io
-   maintainer: kernel nobody - vendor <gibbs*AT*scsiguy.com>
-   url: http://people.freebsd.org/~gibbs/linux/SRC/
-   ml: http://lists.freebsd.org/mailman/listinfo/aic7xxx
+--=-kQObtfPoVxe/ZDFKOG0G
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-o cciss
-   manufacturer: HP
-   kernel: 2.4.50
-   latest: 2.4.50
-   arch: i386
-   features: block_device_driver highmem_io vary_io
-   maintainer: <mike.miller*AT*hp.com> <arrays*AT*hp.com>
-   url: http://sf.net/projects/cciss/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-o DAC960
-   manufacturer: LSI Logic
-   kernel: 2.4.11 (11 Oct 2001)
-   latest: 2.4.20 (01 May 2003)
-   arch: i386 ia64 alpha
-   features: block_device_driver highmem_io
-   maintainer: <dmo*AT*osdl.org>
-   url: http://www.osdl.org/archive/dmo/DAC960/
-        http://www.dandelion.com/Linux/DAC960.html
+iD8DBQBABdUc3+NhIWS1JHARAuiSAJ99zA+MmsHZqVaAJszyntC1N8XYVQCgko2d
+fpdOPLD+UjKwLRSLPFWwGQI=
+=nwY/
+-----END PGP SIGNATURE-----
 
-o dpt_i2o
-   manufacturer: ADAPTEC
-   kernel: 2.4.5 (25 Jul 2001)
-   latest: 2.5.0 (11 Sep 2003)
-   arch: i386 ia64 alpha sparc x86_64
-   features: 64_bit_SG highmem_io
-   maintainer: <Mark_Salyzyn*AT*adaptec.com>
-   url: http://linux.adaptec.com
-
-o emulex
-   manufacturer: EMULEX
-   kernel: -
-   latest: 1.23a
-   arch: i386 ia64 ppc
-   features:
-   maintainer: vendor <tech.support*AT*emulex.com>
-   url: http://www.emulex.com/ts/docfc/linuxos.shtml
-
-o feral_isp
-   manufacturer: QLOGIC
-   kernel: -
-   latest: Linux Platform 2.1 Common Core Code 2.7 (13 Nov 2003)
-   arch: i386 alpha sparc powerpc
-   features:
-   maintainer: external <mjacob*AT*feral.com>
-   url: http://www.feral.com/isp.html
-
-o fusion
-   manufacturer: LSI Logic
-   kernel: 2.05.05+ (14 Apr 2003)
-   latest: 2.05.11  (09 Jan 2004)
-   arch: i386 alpha sparc ia64 x86_64
-   features: highmem_io vary_io
-   maintainer: <emoore*AT*lsil.com> <mpt_linux_developer*AT*lsil.com>
-   url: ftp://ftp.lsil.com/HostAdapterDrivers/linux/Fusion-MPT/
-
-o gdth
-   manufacturer: ADAPTEC
-   kernel: 2.05  (03 Oct 2002)
-   latest: 2.06a (04 Aug 2003)
-   arch: i386 alpha ia64
-   features:
-   maintainer: <achim_leubner*AT*adaptec.com>
-   url: http://www.icp-vortex.com/english/download/rz_neu/linux/linux_e.htm
-
-o ips
-   manufacturer: ADAPTEC
-   kernel: 6.10.24
-   latest: 6.10.24
-   arch: i386 ia64 x86_64
-   features: highmem_io
-   maintainer: <david_jeffery*AT*adaptec.com> <jack_hammer*AT*adaptec.com>
-               <ipslinux*AT*adaptec.com>
-
-o megaraid
-   manufacturer: LSI Logic
-   kernel: v1.18k/v2.00.9 (Sep 04, 2003)
-   latest: v1.18k/v2.10.1 (Dec 03, 2003)
-   arch: i386
-   features: highmem_io vary_io
-   maintainer: <atulm*AT*lsil.com>
-   url: ftp://ftp.lsil.com/pub/linux-megaraid/
-        http://linux.dell.com/raid.shtml#megaraid
-
-o qla1280
-   manufacturer: QLOGIC
-   kernel: 3.23.37
-   latest: 3.23.37
-   arch: i386 alpha
-   features:
-   maintainer: <jes*AT*wildopensource.com>
-
-o qla2x00
-   manufacturer: QLOGIC
-   kernel: -
-   latest: 6.06.10   (06 Oct 2003)
-   beta:   8.00.00b9 (13 Jan 2004)
-   arch: i386
-   features:
-   maintainer: vendor <andrew.vasquez*AT*qlogic.com>
-   url: http://www.qlogic.com/support/product_resources.asp?id=339
-        http://sf.net/projects/linux-qla2xxx/
-
-o sym53c8xx_2
-   manufacturer: LSI Logic
-   kernel: 2.1.17a     (Dec 01 2001)
-   latest: 2.1.19-pre3 (Nov 23 2002)
-   arch: i386 alpha sparc powerpc ia64
-   features:
-   maintainer: nobody
-   url: http://www.tux.org/pub/tux/roudier/drivers/linux/stable/
-
-# EOT
+--=-kQObtfPoVxe/ZDFKOG0G--
 

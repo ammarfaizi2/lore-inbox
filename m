@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264885AbSK0Wgu>; Wed, 27 Nov 2002 17:36:50 -0500
+	id <S264892AbSK0Wjf>; Wed, 27 Nov 2002 17:39:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264889AbSK0Wgu>; Wed, 27 Nov 2002 17:36:50 -0500
-Received: from mons.uio.no ([129.240.130.14]:28809 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S264885AbSK0Wgt>;
-	Wed, 27 Nov 2002 17:36:49 -0500
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
-       Ext2 devel <ext2-devel@lists.sourceforge.net>,
-       NFS maillist <nfs@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext2-devel] Re: [NFS] htree+NFS (NFS client bug?)
-References: <1038354285.1302.144.camel@sherkaner.pao.digeo.com>
-	<shsptsrd761.fsf@charged.uio.no>
-	<1038387522.31021.188.camel@ixodes.goop.org>
-	<20021127150053.A2948@redhat.com>
-	<15845.10815.450247.316196@charged.uio.no>
-	<20021127205554.J2948@redhat.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 27 Nov 2002 23:44:01 +0100
-In-Reply-To: <20021127205554.J2948@redhat.com>
-Message-ID: <shslm3e4or2.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S264907AbSK0Wjf>; Wed, 27 Nov 2002 17:39:35 -0500
+Received: from h-64-105-35-74.SNVACAID.covad.net ([64.105.35.74]:10120 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S264892AbSK0Wje>; Wed, 27 Nov 2002 17:39:34 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 27 Nov 2002 14:44:24 -0800
+Message-Id: <200211272244.OAA07729@baldur.yggdrasil.com>
+To: hch@infradead.org
+Subject: Re: Patch/resubmit(2.5.49): Use struct io_restrictions in blkdev.h
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Stephen C Tweedie <sct@redhat.com> writes:
+Christoph Hellwig wrote:
+>On Wed, Nov 27, 2002 at 12:59:46PM -0800, Adam J. Richter wrote:
+>> >On Wed, Nov 27, 2002 at 11:49:40AM -0800, Adam J. Richter wrote:
+>> >> 	Here is an updated version of the patch.  The struct
+>> >> io_restrictions declaration is in <linux/device-mapper.h> so that the
+>> >> device-mapper user level utilities compile properly (device-mapper.h
+>> >> is written to support inclusion by user level programs).
+>> 
+>> >They shouldn't include it anyway.  Please put it into a proper place.
+>> 
+>> 	I don't know what you mean by "shouldn't" or "proper" in this
+>> context.  If you'd state technical advantages or disadvanges, others
+>> could determine these labels for themselves.
+>> 
+>> 	Anyhow, what would be a "proper" place as you see it?
 
-    >> If glibc issued a new readdir request (which is what I suspect
-    >> has happened here), the NFS client has no idea what the
-    >> previous reply was
+>blkdev.h
 
-     > Well, glibc will *always* issue another readdir, because the
-     > only way we can ever tell glibc that we're at EOF on the
-     > directory is when we eventually return 0 from getdents.  The
-     > question about client behaviour is, if we've already been told
-     > that the stream is at EOF, should the client simply discard
-     > that info and keep reading regardless, or should it cache the
-     > EOF status?
+	I expect struct io_restrictions to be useful beyond blkdev.  I
+want to evolve it for use in DMA scatterlists in general, so blkdev.h
+could only be a temporary home.  If you really want and nobody else
+objects, I'd be willing to create a separate .h file for struct
+io_restrictions.  (I assume that what you find "improper" about
+device-mapper.h is that block devices themselves do not depend
+on any abstractions specific to the device mapper.)
 
-We could possibly cache the EOF status by overloading some other field
-in the struct file. f_version comes to mind as a useful candidate,
-since it automatically gets reset by llseek.
+	That would not break device-mapper, and you could take the
+less disruptive approach of submitting a patch to glibc and/or
+device-mapper to eliminate the user level program including kernel
+headers.
 
-Cheers,
-  Trond
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

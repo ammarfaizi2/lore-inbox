@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268111AbUIVXWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268119AbUIVXZl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268111AbUIVXWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 19:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268115AbUIVXWJ
+	id S268119AbUIVXZl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 19:25:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268120AbUIVXZl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 19:22:09 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:24204 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S268111AbUIVXWG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 19:22:06 -0400
-Subject: Re: [patch] inotify: locking
-From: Robert Love <rml@novell.com>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1095895360.29226.17.camel@vertex>
-References: <1095881861.5090.59.camel@betsy.boston.ximian.com>
-	 <1095895360.29226.17.camel@vertex>
-Content-Type: text/plain
-Date: Wed, 22 Sep 2004 19:22:05 -0400
-Message-Id: <1095895325.2454.135.camel@localhost>
+	Wed, 22 Sep 2004 19:25:41 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:44661 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268119AbUIVXZj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 19:25:39 -0400
+Message-ID: <311601c904092216257bfd5752@mail.gmail.com>
+Date: Wed, 22 Sep 2004 17:25:38 -0600
+From: Eric Mudama <edmudama@gmail.com>
+Reply-To: Eric Mudama <edmudama@gmail.com>
+To: "valdis.kletnieks@vt.edu" <valdis.kletnieks@vt.edu>
+Subject: Re: The ultimate TOE design
+Cc: David Stevens <dlstevens@us.ibm.com>, Netdev <netdev@oss.sgi.com>,
+       leonid.grossman@s2io.com, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200409172027.i8HKRVwY005444@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 (1.5.94.1-1) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <4148991B.9050200@pobox.com>
+	 <OF8783A4F6.D566336C-ON88256F10.006E51CE-88256F10.006EDA93@us.ibm.com>
+	 <311601c90409162346184649eb@mail.gmail.com>
+	 <200409172027.i8HKRVwY005444@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-22 at 19:22 -0400, John McCutchan wrote:
+On Fri, 17 Sep 2004 16:27:31 -0400, valdis.kletnieks@vt.edu
+<valdis.kletnieks@vt.edu> wrote:
+> No, he means "offload the processing of the filesystem to the disk itself".
 
-> Okay, this is my first kernel project so I didn't know/follow all of the
-> rules, I admit it is a bit of a mishmash.
+I know what was meant.
 
-Heh, none of these issues were big, and everything else was fine.
-
-> Yes, AFAIK the only places where we rely on the dev not going away are
-> when we are handling a request from user space. As long as VFS
-> operations are serialized I don't think we have to worry about that.
-
-You can see what locks and serialization the VFS uses in
-Documentation/filesystems/Locking
-
-	Robert Love
-
-
+I'm not saying the filesystem on the drive is very advanced, but it's
+still a filesystem.  Our "Record ID" is the LBA identifier, and all
+records are 1 block in size.  We can handle defects, reallocations,
+and other issues, with some success.

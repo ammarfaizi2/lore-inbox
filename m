@@ -1,104 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbUKBWv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262394AbUKBWv2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262232AbUKBWv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 17:51:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbUKBWnw
+	id S262394AbUKBWv2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 17:51:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbUKBWru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 17:43:52 -0500
-Received: from dialin-212-144-169-200.arcor-ip.net ([212.144.169.200]:32425
-	"EHLO karin.de.interearth.com") by vger.kernel.org with ESMTP
-	id S262359AbUKBWhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 17:37:13 -0500
-In-Reply-To: <1099414727.4618.11.camel@hostmaster.org>
-References: <5AC1EEB8-2CD7-11D9-BF00-000A958E35DC@fhm.edu> <1099414727.4618.11.camel@hostmaster.org>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-16-868739776"
-Message-Id: <B817E9A8-2D1F-11D9-BF00-000A958E35DC@fhm.edu>
-Content-Transfer-Encoding: 7bit
-Cc: Linux Mailing List Kernel <linux-kernel@vger.kernel.org>
-From: Daniel Egger <degger@fhm.edu>
-Subject: Re: 2.6.8 and 2.6.9 Dual Opteron glitches
-Date: Tue, 2 Nov 2004 23:37:03 +0100
-To: Thomas Zehetbauer <thomasz@hostmaster.org>
-X-Pgp-Agent: GPGMail 1.0.2
-X-Mailer: Apple Mail (2.619)
+	Tue, 2 Nov 2004 17:47:50 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:16864 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262418AbUKBWqe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 17:46:34 -0500
+Message-ID: <41880E0A.3000805@us.ibm.com>
+Date: Tue, 02 Nov 2004 14:45:30 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@novell.com>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: fix iounmap and a pageattr memleak (x86 and x86-64)
+References: <4187FA6D.3070604@us.ibm.com> <20041102220720.GV3571@dualathlon.random>
+In-Reply-To: <20041102220720.GV3571@dualathlon.random>
+Content-Type: multipart/mixed;
+ boundary="------------040507060905090305070404"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Apple-Mail-16-868739776
+This is a multi-part message in MIME format.
+--------------040507060905090305070404
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-On 02.11.2004, at 17:58, Thomas Zehetbauer wrote:
+Andrea Arcangeli wrote:
+> Still I recommend investigating _why_ debug_pagealloc is violating the
+> API. It might not be necessary to wait for the pageattr universal
+> feature to make DEBUG_PAGEALLOC work safe.
 
-> I am using a not-so-new Tyan Thunder K8W S2885 based Dual Opteron
-> System.
+This makes the DEBUG_PAGEALLOC stuff symmetric enough to boot for me, 
+and it's pretty damn simple.  Any ideas for doing this without bloating 
+'struct page', even in the debugging case?
 
-Mine is a Tyan Tiger K8W. :)
+--------------040507060905090305070404
+Content-Type: text/plain;
+ name="Z3-page_debugging.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="Z3-page_debugging.patch"
 
->> 2) 64 bit kernel vgettimeofday panic: The kernel panics in
 
-> Cannot confirm this, both 2.6.8.1 and 2.6.9 boot OK.
 
-Could be the compiler, I'm using a gcc HEAD snapshot from yesterday.
+---
 
-However since I do not have any problems with the panics replaced by
-printk I have troubles to understand the meaning of them.
+ memhotplug1-dave/arch/i386/mm/pageattr.c |    7 +++++--
+ memhotplug1-dave/include/linux/mm.h      |    3 +++
+ memhotplug1-dave/mm/page_alloc.c         |    5 ++++-
+ 3 files changed, 12 insertions(+), 3 deletions(-)
 
->> 3) Interrupt distribution 32 bit vs. 64 bit. Below is a copy of the
+diff -puN include/linux/mm.h~Z3-page_debugging include/linux/mm.h
+--- memhotplug1/include/linux/mm.h~Z3-page_debugging	2004-11-02 14:29:51.000000000 -0800
++++ memhotplug1-dave/include/linux/mm.h	2004-11-02 14:37:08.000000000 -0800
+@@ -245,6 +245,9 @@ struct page {
+ 	void *virtual;			/* Kernel virtual address (NULL if
+ 					   not kmapped, ie. highmem) */
+ #endif /* WANT_PAGE_VIRTUAL */
++#ifdef CONFIG_DEBUG_PAGEALLOC
++	int mapped;
++#endif
+ };
+ 
+ #ifdef CONFIG_MEMORY_HOTPLUG
+diff -puN arch/i386/mm/pageattr.c~Z3-page_debugging arch/i386/mm/pageattr.c
+--- memhotplug1/arch/i386/mm/pageattr.c~Z3-page_debugging	2004-11-02 14:31:07.000000000 -0800
++++ memhotplug1-dave/arch/i386/mm/pageattr.c	2004-11-02 14:41:00.000000000 -0800
+@@ -153,7 +153,7 @@ __change_page_attr(struct page *page, pg
+ 		printk("pgprot_val(PAGE_KERNEL): %08lx\n", pgprot_val(PAGE_KERNEL));
+ 		printk("(pte_val(*kpte) & _PAGE_PSE): %08lx\n", (pte_val(*kpte) & _PAGE_PSE)); 
+ 		printk("path: %d\n", path);
+-		BUG();
++		WARN_ON(1);
+ 	}
+ 
+ 	if (cpu_has_pse && (page_count(kpte_page) == 1)) {
+@@ -224,7 +224,10 @@ void kernel_map_pages(struct page *page,
+ 	/* the return value is ignored - the calls cannot fail,
+ 	 * large pages are disabled at boot time.
+ 	 */
+-	change_page_attr(page, numpages, enable ? PAGE_KERNEL : __pgprot(0));
++	if (enable && !page->mapped)
++		change_page_attr(page, numpages, PAGE_KERNEL);
++	else if (!enable && page->mapped)
++		change_page_attr(page, numpages, __pgprot(0));
+ 	/* we should perform an IPI and flush all tlbs,
+ 	 * but that can deadlock->flush only current cpu.
+ 	 */
+diff -puN mm/page_alloc.c~Z3-page_debugging mm/page_alloc.c
+--- memhotplug1/mm/page_alloc.c~Z3-page_debugging	2004-11-02 14:37:53.000000000 -0800
++++ memhotplug1-dave/mm/page_alloc.c	2004-11-02 14:42:56.000000000 -0800
+@@ -1840,8 +1840,11 @@ void __devinit memmap_init_zone(unsigned
+ 		INIT_LIST_HEAD(&page->lru);
+ #ifdef WANT_PAGE_VIRTUAL
+ 		/* The shift won't overflow because ZONE_NORMAL is below 4G. */
+-		if (!is_highmem_idx(zone))
++		if (!is_highmem_idx(zone)) {
+ 			set_page_address(page, __va(start_pfn << PAGE_SHIFT));
++			page->mapped = 1;
++		} else
++			page->mapped = 0;
+ #endif
+ 		start_pfn++;
+ 	}
+_
 
-> Cannot confirm this, interrupts seem to be almost equally distributed
-> with 64-bit kernel and irqbalance running. Did you note that x86_64 
-> does
-> not provide in-kernel IRQ balancing.
-
-Fair enough. Thanks for the pointer.
-
->> 4) ACPI powermanagement (32bit and 64bit): No matter which ACPI 
->> options
-
-> AFAIK power management is almost unsupported on SMP systems.
-
-Strange. The ACPI tables seem to be filled with valueable information
-which I can enable pretty finegrained in the BIOS and I even seem to get
-somewhat useful options with the first CPU.
-
-Also /proc/cpuinfo mentions powermanagement:
-...
-TLB size        : 1088 4K pages
-clflush size    : 64
-cache_alignment : 64
-address sizes   : 40 bits physical, 48 bits virtual
-power management: ts ttp
-
-Whatever ts and ttp may mean.
-
-I'd really love to have this machine running and use its power on demand
-instead of having to think about a more sophisticated airflow to keep
-the temperature (of idle CPUs) and thus the noiselevel down.
-
-Servus,
-       Daniel
-
---Apple-Mail-16-868739776
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
-
-iQEVAwUBQYgMDzBkNMiD99JrAQIxxwf/QG3S7rXjwYecDEc5Mok+94cl9x9rbCH1
-aLfrhlrtnbNX75bhMSgMbKoGTstqGxSkqZfVygC1Bnn+u6paa6r6vIl0Hag9SOl9
-0p3g0L8U+kaFofSSedejbCQS1q+8Fr/G7NBq9YfvfQODdysaSEuw6AuyvxRitcDB
-SDlqpe/ibX1JOtsHBCqq4C8DYSLBkux9Q5OwttUQ3/hvYqiQlQDgwdzwDOl8w4lo
-aTR2B1OIBWKQciNv6gYFZHE1biN20gyNo9MTl1TXAx6bboOG/XvuYk1Wtgj977Ws
-04PRohCQRYhTe/nDxbjOGjyDGqr6lUaOmn4P2akXmEKwXx5YaWjqYw==
-=jr2s
------END PGP SIGNATURE-----
-
---Apple-Mail-16-868739776--
-
+--------------040507060905090305070404--

@@ -1,69 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263503AbUCTSmk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 13:42:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbUCTSmk
+	id S263504AbUCTSsm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 13:48:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263507AbUCTSsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 13:42:40 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:48138 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263503AbUCTSmi
+	Sat, 20 Mar 2004 13:48:42 -0500
+Received: from painless.aaisp.net.uk ([217.169.20.17]:65005 "EHLO
+	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S263504AbUCTSsj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 13:42:38 -0500
-Date: Sat, 20 Mar 2004 19:42:52 +0100
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, RANDAZZO@ddc-web.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2 nics in the same machine...
-Message-ID: <20040320184252.GA2016@hh.idb.hist.no>
-References: <89760D3F308BD41183B000508BAFAC4104B17010@DDCNYNTD> <405ABA74.5030409@aitel.hist.no> <20040319223656.GF14537@alpha.home.local>
+	Sat, 20 Mar 2004 13:48:39 -0500
+Subject: ACPI error with 2.4.26-pre5
+From: Andrew Clayton <andrew@digital-domain.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1079808518.1120.25.camel@alpha.digital-domain.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040319223656.GF14537@alpha.home.local>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sat, 20 Mar 2004 18:48:38 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 19, 2004 at 11:36:56PM +0100, Willy Tarreau wrote:
-> Hi,
-> 
-> On Fri, Mar 19, 2004 at 10:16:36AM +0100, Helge Hafting wrote:
->  
-> > If you want to test NICs (or cables & hubs) do this:
-> > 
-> > 1. Run a packet sniffer on the "listening" NIC.  Run it in
-> >   promiscuous mode so it'll even sniff packets not meant for it.
-> > 
-> > 2. Set a default route to the "sending" NIC.  Or at least a route
-> >   to some network that isn't on your machine.
-> > 
-> > 3. Ping the remote network.  You will not get an answer, but:
-> >   The packet will be sent through the "sending" NIC, 
-> >   and sniffed by the "listening" NIC.  So you'll verify that
-> >   NICs and cable works.  Optionally make a script that reverses
-> >   the roles of the two NICs if you want to test both ways.
-> 
-> Nearly right. He will need to enter static ARP entries for this to
-> work because his host will try to resolve the gateway's address first,
-> so nothing except ARP will go out.
-> 
-I didn't think of that.  Of course, capturing an ARP broadcast is probably
-good enough for testing cables.  One might want better than that
-for testing the NIC driver though.
+Hello,
 
-> DNAT out + SNAT in may be OK. I've used this setup in the past, but didn't
-> not go on because of performance problems. Now, Julian Anastasov has written
-> a wonderful patch named "send-to-self" which does the trick automagically.
-> You can get it on his site ( http://www.ssi.bg/~ja/ IIRC ).
-> 
-> > If, on the other hand, you're testing apps/protocols, don't worry that 
-> > the traffic don't hit the wire.  A test utilizing internal loopback
-> > is just as good.
-> 
-> Right. Except that in some very weird cases, the higher MTU on loopback may
-> affect the app's behaviour (less packets, or bigger reads at once, etc...).
+With 2.4.26-pre5 I am seeing the following error at boot up.
 
-ifconfig lo mtu 1500  :-)
 
-Helge Hafting 
+ACPI: Subsystem revision 20040311
+PCI: PCI BIOS revision 2.10 entry at 0xe8964, last bus=1
+PCI: Using configuration type 1
+    ACPI-0433: *** Warning: Existing references (4) on node being
+deleted (c129e
+660)
+    ACPI-0433: *** Warning: Existing references (9) on node being
+deleted (c12ae
+da0)
+ACPI: IRQ9 SCI: Edge set to Level Trigger.
+    ACPI-0097: *** Error: Unable to initialize general purpose events,
+AE_NOT_FO
+UND
+ACPI: Unable to start the ACPI Interpreter
+    ACPI-0433: *** Warning: Existing references (65419) on node being
+deleted (c
+129e4e0)
+PCI: Probing PCI hardware
+PCI: ACPI tables contain no PCI IRQ routing entries
+PCI: Probing PCI hardware (bus 00)
+PCI: Using IRQ router VIA [1106/3074] at 00:11.0
+
+
+
+2.4.26-pre4 works fine. This is on a Fujitsu-Siemens C-1020 laptop
+running Fedora Core 1
+
+
+To keep the size of this email down I have provided links to relevant
+bits of information.
+
+2.4.26-pre5 .config
+http://digital-domain.net/kernel/config
+
+2.4.26-pre5 kernel boot messages
+http://digital-domain.net/kernel/2.4.26-pre5.dmesg
+
+2.4.26.-pre4 kernel boot messages (for comparison)
+http://digital-domain.net/kernel/2.4.26-pre4.dmesg
+
+Output of lspci -vv
+http://digital-domain.net/kernel/lspci-vv
+
+
+If you would like any extra info please CC me...
+
+
+Cheers,
+
+Andrew Clayton
+
+

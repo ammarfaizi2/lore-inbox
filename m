@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263053AbVAFVy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263052AbVAFV7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263053AbVAFVy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 16:54:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263052AbVAFVyD
+	id S263052AbVAFV7i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 16:59:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263054AbVAFV7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 16:54:03 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:27856 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263036AbVAFVvQ
+	Thu, 6 Jan 2005 16:59:05 -0500
+Received: from quark.didntduck.org ([69.55.226.66]:27610 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S263052AbVAFV5b
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 16:51:16 -0500
-Date: Thu, 6 Jan 2005 13:41:32 -0800
-From: Greg KH <greg@kroah.com>
-To: Jason Gaston <jason.d.gaston@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] I2C support for Intel ICH7 - 2.6.10
-Message-ID: <20050106214132.GA26109@kroah.com>
-References: <200412301024.39384.jason.d.gaston@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412301024.39384.jason.d.gaston@intel.com>
-User-Agent: Mutt/1.5.6i
+	Thu, 6 Jan 2005 16:57:31 -0500
+Message-ID: <41DDB465.8000705@didntduck.org>
+Date: Thu, 06 Jan 2005 16:57:57 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Terence Ripperda <tripperda@nvidia.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: inter_module_get and __symbol_get
+References: <20050106213225.GJ6184@hygelac>
+In-Reply-To: <20050106213225.GJ6184@hygelac>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 30, 2004 at 10:24:39AM -0800, Jason Gaston wrote:
-> This patch adds the Intel ICH7 DID to the i2c-i801.c driver and adds
-> an entry to Kconfig for I2C(SMBus) support. ?
-> Note: This patch relies on the already submitted and accepted PATA
-> patch to pci_ids.h containing all ICH7 DID's.
+Terence Ripperda wrote:
+> Hello,
+> 
+> we've noticed that in recent 2.6.10 kernels that the inter_module_
+> routines (such as inter_module_get) are marked deprecated. it appears
+> that the __symbol_ routines (such as __symbol_get) are intended as the
+> replacement routines.
+> 
+> unfortunately, __symbol_get is only exported as a GPL symbol (I see a
+> reference to a _gpl verion in module.h, but no definition). is this
+> intentional? will there be a non-gpled version of an equivalent
+> routine?
+> 
+> Thanks,
+> Terence
 
-Did I already apply this patch?
+I believe there is an AGP/DRM rewrite in progress that should eliminate 
+the need to use inter_module or symbol_get stuff.
 
-> If acceptable, please apply. 
-
-I need a "Signed-off-by:" line to be able to apply it.  See
-Documentation/SubmittingPatches for more info.
-
-Care to resend it?
-
-thanks,
-
-greg k-h
+--
+				Brian Gerst

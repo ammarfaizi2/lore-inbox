@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272315AbRIKHra>; Tue, 11 Sep 2001 03:47:30 -0400
+	id <S272325AbRIKIa3>; Tue, 11 Sep 2001 04:30:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272316AbRIKHrU>; Tue, 11 Sep 2001 03:47:20 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:28427 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S272315AbRIKHrM>; Tue, 11 Sep 2001 03:47:12 -0400
-Message-ID: <3B9DC12C.9C9C31D2@idb.hist.no>
-Date: Tue, 11 Sep 2001 09:45:48 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.10-pre7 i686)
-X-Accept-Language: no, en
+	id <S272330AbRIKIaS>; Tue, 11 Sep 2001 04:30:18 -0400
+Received: from ktirunilai.blr.novell.com ([164.99.144.243]:14342 "EHLO
+	ktirunilai.blr.novell.com") by vger.kernel.org with ESMTP
+	id <S272325AbRIKIaG>; Tue, 11 Sep 2001 04:30:06 -0400
+Date: Tue, 11 Sep 2001 14:04:38 +0530 (IST)
+From: trkannan76 <trkannan76@myrealbox.com>
+X-X-Sender: <trkannan76@ktirunilai.blr.novell.com>
+To: <linux-kernel@vger.kernel.org>
+cc: <trkannan76@myrealbox.com>
+Subject: ps -ef hangs on linux-2.4.9
+Message-ID: <Pine.LNX.4.33.0109111357330.3538-100000@ktirunilai.blr.novell.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.10-pre5
-In-Reply-To: <Pine.LNX.4.33.0109101909010.1290-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Hello ,
+       I am running a multithreaded daemon on the 2.4.9 kernel. One of
+the threads of the daemon is getting a SIGSEGV. After this when I tried to
+find the process state using the command:
+   $ ps -ef
+   This just hangs, Ctrl-C or Ctrl-Z also does not interrupt this. The
+only option I have is to reboot machine.
+   When I did a strace on the same command, I found out that ps -ef , was
+hanging when it tried to read from the /proc/<pid of killed daemon>/*.
+   Is there any way I can reset the /proc directory without rebooting the
+machine. After this , even the killall -9 does not work , even this
+command hangs.
+   Any help will be of real great value. Thank you for the help.
 
-> > An observation: logical readahead can *never* read a block before it knows
-> > what the physical mapping is, whereas physical readahead can.
-> 
-> Sure. But the meta-data is usually on the order of 1% or less of the data,
-> which means that you tend to need to read a meta-data block only 1% of the
-> time you need to read a real data block.
+Regards,
+Kannan
 
-Seems to me a readahead without metadata don't buy very much.  Sure,
-you get the file page early without looking up metadata on disk.  But
-oops - it cannot be used yet as we don't yet know the fact that it _is_
-part of the file!  When the process gets to ask for that part of the
-file
-we still have to wait for metadata.
-
-Physical readahead may or may not help - but I cannot see that this
-particular aspect helps anything.
-
-Helge Hafting

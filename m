@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVCQUdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVCQUhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbVCQUdo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 15:33:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVCQUdo
+	id S261156AbVCQUhP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 15:37:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVCQUhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 15:33:44 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:42722 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261154AbVCQUdl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 15:33:41 -0500
-Subject: Re: linux: detect application crash
-From: Robert Love <rml@novell.com>
-To: Allison <fireflyblue@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <17d7988050317122755d6958b@mail.gmail.com>
-References: <17d7988050317122755d6958b@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 17 Mar 2005 15:33:39 -0500
-Message-Id: <1111091619.28562.141.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Thu, 17 Mar 2005 15:37:15 -0500
+Received: from li-22.members.linode.com ([64.5.53.22]:62609 "EHLO
+	www.cryptography.com") by vger.kernel.org with ESMTP
+	id S261156AbVCQUhL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 15:37:11 -0500
+Message-ID: <4239E9BA.7050105@root.org>
+Date: Thu, 17 Mar 2005 12:34:02 -0800
+From: Nate Lawson <nate@root.org>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+CC: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] IDE failure on ACPI resume
+References: <1110741241.8136.46.camel@tyrosine>  <423518E7.3030300@root.org> <1111072221.8136.171.camel@tyrosine>
+In-Reply-To: <1111072221.8136.171.camel@tyrosine>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-17 at 15:27 -0500, Allison wrote:
-
-> Several times when I worked with Windows, I have had a scenario when I
-> am editing a file and saved some time ago and then the application
-> crashes and I lose all recent data.
+Matthew Garrett wrote:
+> On Sun, 2005-03-13 at 20:53 -0800, Nate Lawson wrote:
 > 
-> Can the operating system detect all application crashes ? If so, why
-> can't the OS save the user data to disk before the application quits ?
 > 
-> How does this work in Linux. I was curious if such a functionality
-> already exists in Linux. If not, what are the issues involved in
-> implementing this functionality.
+>>Sounds like PCI not being completely restored.  We had to work around 
+>>some weird ATA issues in FreeBSD with the status register being invalid 
+>>for quite a while after resume.  A retry loop was the solution.
+> 
+> 
+> FreeBSD seems to fail in the same way on the same hardware,
+> unfortunately. I'm leaning towards suspecting that we need to be doing
+> something with the contents of the _GTF method, but by the looks of that
+> that requires us to be able to work out which methods correspond to
+> which hardware. Is anyone working on implementing this?
+> 
 
-It is hard to just wholesale "save the user's data" because the
-application is crashing, things are inconsistent, something is broken,
-etc.
+Very interesting.  I was hoping to someday have _GTF et al implemented 
+but the ATA knowledge required was above my head.  I also strongly 
+suspected that the info published by _GTF would likely be invalid.  Does 
+Windows actually use that method or just hardcoded ATA initialization?
 
-But it is possible to dump all memory (a core dump).  Linux does this
-now.
-
-It is also possible to catch a segfault and handle it.  Various GUI
-libraries do this.  For example, GNOME handles segfaults, presenting the
-user with various options (send bug report, restart application, etc).
-
-The best bet, from an application developer's standpoint, is to just not
-crash.  Second best, save early and save often.
-
-	Robert Love
-
-
+-- 
+Nate

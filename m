@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317235AbSEXSb5>; Fri, 24 May 2002 14:31:57 -0400
+	id <S317242AbSEXSfc>; Fri, 24 May 2002 14:35:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317238AbSEXSb4>; Fri, 24 May 2002 14:31:56 -0400
-Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:14218 "EHLO
-	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
-	id <S317235AbSEXSby>; Fri, 24 May 2002 14:31:54 -0400
-Message-ID: <180577A42806D61189D30008C7E632E8793902@boca213a.boca.ssc.siemens.com>
-From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-To: linux-kernel@vger.kernel.org
-Subject: signal handling
-Date: Fri, 24 May 2002 14:31:53 -0400
+	id <S317239AbSEXSf1>; Fri, 24 May 2002 14:35:27 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48142 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317222AbSEXSf1>; Fri, 24 May 2002 14:35:27 -0400
+Subject: Re: Linux crypto?
+To: dent@cosy.sbg.ac.at (Thomas 'Dent' Mirlacher)
+Date: Fri, 24 May 2002 19:55:38 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davem@redhat.com (David S. Miller),
+        tori@ringstrom.mine.nu, imipak@yahoo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.05.10205242028060.11037-100000@mausmaki.cosy.sbg.ac.at> from "Thomas 'Dent' Mirlacher" at May 24, 2002 08:30:57 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17BKDy-00075q-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a rather strange situation. I am running an embedded system using Red
-Hat 7.0 (Kernel 2.2-16). It si pretty much a stripped down version. I have
-installed my own signal handler in my application for SIGTERM and SIGTSTP
-(and a couple of others).  The handler itself is nothing more than a "case
-signal of" construct. I always hit the default leg because the signal number
-which is passed into my application appears to contain garbage. When a
-repeat the same test with a full install it works correctly.
+> well probably everything which isn't plain english written with a pen
+> on white paper would be outlawed by then ;)
+> ... but what about having all the crypto stuff in question beeing handled
+> by modules (developed outside the USSA) and having the networking-related
+> code in the kernel - could the hooks itself be a problem?
 
-Some background. the application is written using Borland Kylix 2.0. I have
-set the compiler options so that the selected signals are handled internally
-by the application (i.e. not by the debugger). If anybody has an idea of
-what may cause this please CC me directly.
-
-Thanks in advance. 
-
-Jack Bloch
-Siemens Carrier Networks
-e-mail    : jack.bloch@icn.siemens.com
-phone     : (561) 923-6550
-
+The US types really want to make that possibility exist. FreeSWAN put a 
+huge amount of effort into their project. They don't want to make it
+possible for the US government to screw them around as well.

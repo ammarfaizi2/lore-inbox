@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261508AbSJHIp7>; Tue, 8 Oct 2002 04:45:59 -0400
+	id <S261331AbSJHIkZ>; Tue, 8 Oct 2002 04:40:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261554AbSJHIp7>; Tue, 8 Oct 2002 04:45:59 -0400
-Received: from k100-28.bas1.dbn.dublin.eircom.net ([159.134.100.28]:51977 "EHLO
-	corvil.com.") by vger.kernel.org with ESMTP id <S261508AbSJHIp6>;
-	Tue, 8 Oct 2002 04:45:58 -0400
-Message-ID: <3DA29C17.1020005@corvil.com>
-Date: Tue, 08 Oct 2002 09:49:27 +0100
-From: Padraig Brady <padraig.brady@corvil.com>
-Organization: Corvil Networks
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
+	id <S261399AbSJHIkZ>; Tue, 8 Oct 2002 04:40:25 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:26098 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261331AbSJHIkY>; Tue, 8 Oct 2002 04:40:24 -0400
+Date: Tue, 8 Oct 2002 10:46:01 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Francois Romieu <romieu@cogenit.fr>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 2.4.20-pre9 - drivers/atm/iphase.c : GFP_KERNEL with
+ spinlock held
+In-Reply-To: <20021008001552.A24132@se1.cogenit.fr>
+Message-ID: <Pine.NEB.4.44.0210081040560.8340-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: Daniel Phillips <phillips@arcor.de>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Oliver Neukum <oliver@neukum.name>, Rob Landley <landley@trommello.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not
- 3.0  -  (NUMA))
-References: <Pine.LNX.4.33.0210071455070.1337-100000@penguin.transmeta.com> <E17yfxq-0003vd-00@starship> <3DA206C3.9AD2941A@digeo.com>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Daniel Phillips wrote:
-> 
->>On Monday 07 October 2002 23:55, Linus Torvalds wrote:
->>
->>>On Mon, 7 Oct 2002, Daniel Phillips wrote:
->>>
->>>>>Sure. The mey is:
->>>>
->>>>            ^^^ <---- "bet" ?
->>>
->>>Yeah. What the heck happened to my fingers?
->>
->>Apparently, one of them missed the key it was aiming for and the other one
->>changed hands.
->>
-> 
-> They don't call him Kubys for nothing.
-> 
-> I dug out and dusted off Al's Orlov allocator patch.  And found
-> a comment which rather helps explain how it works.
-> 
-> I performance tested this back in November.  See
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0111.1/0281.html
-> 
-> Bottom line: it's as good as the use-first-fit-everywhere
-> approach, and appears to have better long-term antifragmentation
-> characteristics.
-> 
-> I shall test it.
+On Tue, 8 Oct 2002, Francois Romieu wrote:
 
-See dirpref (Orlov's allocator) here:
-http://www.maths.tcd.ie/~dwmalone/p/usenix02.pdf
-I was going to do this myself but of course it's
-already done, silly me.
+> Marcelo Tosatti <marcelo@conectiva.com.br> :
+> [...]
+> > It seems correct. Have you tried to send this to Peter Wang
+> > <pwang@iphase.com> ?
+>
+> Not this one. Last try was something like:
+>...
 
-Pádraig.
+Mitchell Blank Jr <mitch@sfgoth.com> is the current ATM maintainer, could
+you try to contact him?
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
+
 

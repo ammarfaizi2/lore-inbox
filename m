@@ -1,234 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbULOTIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262392AbULOTJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262469AbULOTIl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 14:08:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbULOTIN
+	id S262392AbULOTJg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 14:09:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbULOTJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 14:08:13 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:6891 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262450AbULOTEC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 14:04:02 -0500
-Date: Wed, 15 Dec 2004 11:03:30 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Adam Litke <agl@us.ibm.com>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Akinobu Mita <amgta@yacht.ocn.ne.jp>, nickpiggin@yahoo.com.au,
-       Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org, hugh@veritas.com,
-       benh@kernel.crashing.org, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Anticipatory prefaulting in the page fault handler V3
-In-Reply-To: <1103052678.28318.446.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0412151102140.12306@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
-  <156610000.1102546207@flay>  <Pine.LNX.4.58.0412091130160.796@schroedinger.engr.sgi.com>
-  <200412132330.23893.amgta@yacht.ocn.ne.jp> 
- <Pine.LNX.4.58.0412130905140.360@schroedinger.engr.sgi.com>  <8880000.1102976179@flay>
-  <Pine.LNX.4.58.0412131730410.817@schroedinger.engr.sgi.com>
- <1103052678.28318.446.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Dec 2004 14:09:36 -0500
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:43749 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S262392AbULOTD6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 14:03:58 -0500
+Date: Wed, 15 Dec 2004 20:03:43 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Greg KH <greg@kroah.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at mm/rmap.c:480 in 2.6.10-rc3-bk7
+Message-ID: <20041215190343.GI16322@dualathlon.random>
+References: <20041215011132.GA16099@kroah.com> <Pine.LNX.4.44.0412151656010.2704-100000@localhost.localdomain> <20041215175805.GA9207@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041215175805.GA9207@kroah.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changes from V2 to V3:
-- check for empty pte before setting additional pte's in aggregate
-  read
+This was my original code in GA/SP1:
 
-The page fault handler for anonymous pages can generate significant overhead
-apart from its essential function which is to clear and setup a new page
-table entry for a never accessed memory location. This overhead increases
-significantly in an SMP environment.
+#ifndef CONFIG_DISCONTIGMEM
+	/* this check is unreliable with numa enabled */
+	BUG_ON(!pfn_valid(page_to_pfn(new_page)));
+#endif
+	pageable = !PageReserved(new_page);
+	as = !!new_page->mapping;
 
-In the page table scalability patches, we addressed the issue by changing
-the locking scheme so that multiple fault handlers are able to be processed
-concurrently on multiple cpus. This patch attempts to aggregate multiple
-page faults into a single one. It does that by noting
-anonymous page faults generated in sequence by an application.
+	BUG_ON(!pageable && as);
 
-If a fault occurred for page x and is then followed by page x+1 then it may
-be reasonable to expect another page fault at x+2 in the future. If page
-table entries for x+1 and x+2 would be prepared in the fault handling for
-page x+1 then the overhead of taking a fault for x+2 is avoided. However
-page x+2 may never be used and thus we may have increased the rss
-of an application unnecessarily. The swapper will take care of removing
-that page if memory should get tight.
+	pageable &= as;
 
-The following patch makes the anonymous fault handler anticipate future
-faults. For each fault a prediction is made where the fault would occur
-(assuming linear acccess by the application). If the prediction turns out to
-be right (next fault is where expected) then a number of pages is
-preallocated in order to avoid a series of future faults. The order of the
-preallocation increases by the power of two for each success in sequence.
+	/* ->nopage cannot return swapcache */
+	BUG_ON(PageSwapCache(new_page));
+	/* ->nopage cannot return anonymous pages */
+	BUG_ON(PageAnon(new_page));
 
-The first successful prediction leads to an additional page being allocated.
-Second successful prediction leads to 2 additional pages being allocated.
-Third to 4 pages and so on. The max order is 3 by default. In a large
-continous allocation the number of faults is reduced by a factor of 8.
+[..]
 
-Patch against 2.6.10-rc3-bk7:
+		/* a reserved vma cannot have pageable pages in it */
+		BUG_ON(vma->vm_flags & VM_RESERVED);
+[..]
+	if (likely(pageable))
+			page_add_rmap(new_page, vma, address, anon);
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.9/include/linux/sched.h
-===================================================================
---- linux-2.6.9.orig/include/linux/sched.h	2004-12-13 15:14:40.000000000 -0800
-+++ linux-2.6.9/include/linux/sched.h	2004-12-14 12:21:26.000000000 -0800
-@@ -537,6 +537,8 @@
- #endif
 
- 	struct list_head tasks;
-+	unsigned long anon_fault_next_addr;	/* Predicted sequential fault address */
-+	int anon_fault_order;			/* Last order of allocation on fault */
- 	/*
- 	 * ptrace_list/ptrace_children forms the list of my children
- 	 * that were stolen by a ptracer.
-Index: linux-2.6.9/mm/memory.c
-===================================================================
---- linux-2.6.9.orig/mm/memory.c	2004-12-13 15:14:40.000000000 -0800
-+++ linux-2.6.9/mm/memory.c	2004-12-14 12:23:36.000000000 -0800
-@@ -55,6 +55,7 @@
 
- #include <linux/swapops.h>
- #include <linux/elf.h>
-+#include <linux/pagevec.h>
+Hugh rejected all the above robustness bugcheck for no apparent good
+reason.
 
- #ifndef CONFIG_DISCONTIGMEM
- /* use the per-pgdat data instead for discontigmem - mbligh */
-@@ -1432,52 +1433,103 @@
- 		unsigned long addr)
- {
- 	pte_t entry;
--	struct page * page = ZERO_PAGE(addr);
--
--	/* Read-only mapping of ZERO_PAGE. */
--	entry = pte_wrprotect(mk_pte(ZERO_PAGE(addr), vma->vm_page_prot));
-+ 	unsigned long end_addr;
-+
-+	addr &= PAGE_MASK;
-+
-+ 	if (likely((vma->vm_flags & VM_RAND_READ) || current->anon_fault_next_addr != addr)) {
-+		/* Single page */
-+		current->anon_fault_order = 0;
-+		end_addr = addr + PAGE_SIZE;
-+	} else {
-+		/* Sequence of faults detect. Perform preallocation */
-+ 		int order = ++current->anon_fault_order;
-+
-+		if ((1 << order) < PAGEVEC_SIZE)
-+			end_addr = addr + (PAGE_SIZE << order);
-+		else {
-+			end_addr = addr + PAGEVEC_SIZE * PAGE_SIZE;
-+			current->anon_fault_order = 3;
-+		}
+In the process he seems that Hugh introduced a bug that didn't exist in
+my original code, can you try this?
 
--	/* ..except if it's a write access */
-+		if (end_addr > vma->vm_end)
-+			end_addr = vma->vm_end;
-+		if ((addr & PMD_MASK) != (end_addr & PMD_MASK))
-+			end_addr &= PMD_MASK;
-+	}
- 	if (write_access) {
--		/* Allocate our own private page. */
-+
-+		unsigned long a;
-+		int i;
-+		struct pagevec pv;
-+
- 		pte_unmap(page_table);
- 		spin_unlock(&mm->page_table_lock);
+From: Andrea Arcangeli <andrea@suse.de>
+Subject: don't track pages not belonging to a mapping out of ->nopage
 
-+		pagevec_init(&pv, 0);
-+
- 		if (unlikely(anon_vma_prepare(vma)))
--			goto no_mem;
--		page = alloc_page_vma(GFP_HIGHUSER, vma, addr);
--		if (!page)
--			goto no_mem;
--		clear_user_highpage(page, addr);
-+			return VM_FAULT_OOM;
-+
-+		/* Allocate the necessary pages */
-+		for(a = addr; a < end_addr ; a += PAGE_SIZE) {
-+			struct page *p = alloc_page_vma(GFP_HIGHUSER, vma, a);
-+
-+			if (likely(p)) {
-+				clear_user_highpage(p, a);
-+				pagevec_add(&pv, p);
-+			} else {
-+				if (a == addr)
-+					return VM_FAULT_OOM;
-+				break;
-+			}
-+		}
+Signed-off-by: Andrea Arcangeli <andrea@suse.de>
 
- 		spin_lock(&mm->page_table_lock);
--		page_table = pte_offset_map(pmd, addr);
-
--		if (!pte_none(*page_table)) {
-+		for(i = 0; addr < a; addr += PAGE_SIZE, i++) {
-+			struct page *p = pv.pages[i];
-+
-+			page_table = pte_offset_map(pmd, addr);
-+			if (unlikely(!pte_none(*page_table))) {
-+				/* Someone else got there first */
-+				pte_unmap(page_table);
-+				page_cache_release(p);
-+				continue;
-+			}
-+
-+ 			entry = maybe_mkwrite(pte_mkdirty(mk_pte(p,
-+ 						 vma->vm_page_prot)),
-+ 					      vma);
-+
-+			mm->rss++;
-+			lru_cache_add_active(p);
-+			SetPageReferenced(p);
-+			page_add_anon_rmap(p, vma, addr);
-+
-+			set_pte(page_table, entry);
- 			pte_unmap(page_table);
--			page_cache_release(page);
--			spin_unlock(&mm->page_table_lock);
--			goto out;
-+
-+ 			/* No need to invalidate - it was non-present before */
-+ 			update_mmu_cache(vma, addr, entry);
-+		}
-+ 	} else {
-+ 		/* Read */
-+		entry = pte_wrprotect(mk_pte(ZERO_PAGE(addr), vma->vm_page_prot));
-+nextread:
-+		set_pte(page_table, entry);
-+		pte_unmap(page_table);
-+		update_mmu_cache(vma, addr, entry);
-+		addr += PAGE_SIZE;
-+		if (unlikely(addr < end_addr)) {
-+			page_table = pte_offset_map(pmd, addr);
-+			if (likely(pte_none(*page_table)))
-+				goto nextread;
+--- sl9.2/mm/memory.c.~1~	2004-12-15 14:20:54.000000000 +0100
++++ sl9.2/mm/memory.c	2004-12-15 19:59:59.806978776 +0100
+@@ -427,7 +427,8 @@ static void zap_pte_range(struct mmu_gat
+ 			if (pte_young(pte) && !PageAnon(page))
+ 				mark_page_accessed(page);
+ 			tlb->freed++;
+-			page_remove_rmap(page);
++			if (page->mapping)
++				page_remove_rmap(page);
+ 			tlb_remove_page(tlb, page);
+ 			continue;
  		}
--		mm->rss++;
--		entry = maybe_mkwrite(pte_mkdirty(mk_pte(page,
--							 vma->vm_page_prot)),
--				      vma);
--		lru_cache_add_active(page);
--		mark_page_accessed(page);
--		page_add_anon_rmap(page, vma, addr);
+@@ -1495,7 +1496,7 @@ do_no_page(struct mm_struct *mm, struct 
+ 	pte_t entry;
+ 	int sequence = 0;
+ 	int ret = VM_FAULT_MINOR;
+-	int anon = 0;
++	int anon, pageable, as;
+ 
+ 	if (!vma->vm_ops || !vma->vm_ops->nopage)
+ 		return do_anonymous_page(mm, vma, page_table,
+@@ -1517,9 +1518,26 @@ retry:
+ 	if (new_page == NOPAGE_OOM)
+ 		return VM_FAULT_OOM;
+ 
++#ifndef CONFIG_DISCONTIGMEM
++	/* this check is unreliable with numa enabled */
++	BUG_ON(!pfn_valid(page_to_pfn(new_page)));
++#endif
++	pageable = !PageReserved(new_page);
++	as = !!new_page->mapping;
++
++	BUG_ON(!pageable && as);
++
++	pageable &= as;
++
++	/* ->nopage cannot return swapcache */
++	BUG_ON(PageSwapCache(new_page));
++	/* ->nopage cannot return anonymous pages */
++	BUG_ON(PageAnon(new_page));
++
+ 	/*
+ 	 * Should we do an early C-O-W break?
+ 	 */
++	anon = 0;
+ 	if (write_access && !(vma->vm_flags & VM_SHARED)) {
+ 		struct page *page;
+ 
+@@ -1532,6 +1550,10 @@ retry:
+ 		page_cache_release(new_page);
+ 		new_page = page;
+ 		anon = 1;
++		pageable = 1; /* not really necessary but cleaner */
++
++		/* a reserved vma cannot have pageable pages in it */
++		BUG_ON(vma->vm_flags & VM_RESERVED);
  	}
--
--	set_pte(page_table, entry);
--	pte_unmap(page_table);
--
--	/* No need to invalidate - it was non-present before */
--	update_mmu_cache(vma, addr, entry);
-+	current->anon_fault_next_addr = addr;
- 	spin_unlock(&mm->page_table_lock);
--out:
- 	return VM_FAULT_MINOR;
--no_mem:
--	return VM_FAULT_OOM;
- }
-
- /*
+ 
+ 	spin_lock(&mm->page_table_lock);
+@@ -1571,7 +1593,7 @@ retry:
+ 		if (anon) {
+ 			lru_cache_add_active(new_page);
+ 			page_add_anon_rmap(new_page, vma, address);
+-		} else
++		} else if (pageable)
+ 			page_add_file_rmap(new_page);
+ 		pte_unmap(page_table);
+ 	} else {

@@ -1,67 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262120AbTDQA5F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 20:57:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbTDQA5D
+	id S262024AbTDQA4W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 20:56:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbTDQA4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 20:57:03 -0400
-Received: from rrcs-midsouth-24-172-39-28.biz.rr.com ([24.172.39.28]:1797 "EHLO
-	maunzelectronics.com") by vger.kernel.org with ESMTP
-	id S262120AbTDQA47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 20:56:59 -0400
-Message-ID: <3E9DFEA5.F3F22E79@justirc.net>
-Date: Wed, 16 Apr 2003 21:08:53 -0400
-From: Mark Rutherford <mark@justirc.net>
-X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ac97, alc101+kt8235 sound
-References: <Pine.LNX.4.44.0304150537330.28926-100000@q.dyndns.org> <1050406611.27745.34.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 16 Apr 2003 20:56:22 -0400
+Received: from inet-mail3.oracle.com ([148.87.2.203]:53153 "EHLO
+	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
+	id S262024AbTDQA4U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 20:56:20 -0400
+Date: Wed, 16 Apr 2003 18:07:40 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: linux-kernel@vger.kernel.org
+Subject: WimMark I report for 2.5.67-mm3
+Message-ID: <20030417010739.GB7570@ca-server1.us.oracle.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since we are on this subject...
+WimMark I report for 2.5.67-mm3
 
-I tried this kernel about 2 days ago, and had unexpected results at times.
-1. the kernel would lock up, and so dead that not even the sysrq key did
-anything (I usually turn that debugging stuff on)
-2. it would work, but more than 1 application accessing the sound would cause
-the kernel or give it up and once again, lock up.
-3. it would just lock up the second app trying to gain access to the sound.
-I do not have any output from the kernel, it crashed that hard (why..?)
-first thing I did was apply the 2.4.21 pre patch, then the -ac patch to a
-2.4.20 tree, this right?
-anyone has any ideas on getting this to work right, and have at least more
-than 1 application access the card, let me know.
-im trying to get quake + teamspeak to co-exist.
+Runs (deadline):  1778.54 1656.24 1487.90
+Runs (antic):  635.58 636.05 592.61
 
-
-Alan Cox wrote:
-
-> On Maw, 2003-04-15 at 12:49, Benson Chow wrote:
-> > hoping that these via chips were pretty close.  Unfortunately no, it
-> > still doesn't work.  It did, however, find the AC97 codec fine (I added
-> > some printk's), but no sound is produced.  Any ideas on how to get this
-> > vt8235-based motherboard sound working?  (and ALSA-0.9.2 seems to do
-> > nothing but segfault it seems.)
->
-> See 2.4.21pre - that has the driver for VIA8233/5
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
---
-Regards,
-Mark Rutherford
-mark@justirc.net
-
-PGP key: http://www.justirc.net/~mark/markrutherford.asc
-fingerprint: 1CF2 6229 306D A2C8 2C89  46BE FFD6 D910 5170 4FA9
+	WimMark I is a rough benchmark we have been running
+here at Oracle against various kernels.  Each run tests an OLTP
+workload on the Oracle database with somewhat restrictive memory
+conditions.  This reduces in-memory buffering of data, allowing for
+more I/O.  The I/O is read and sync write, random and seek-laden.  The
+runs all do ramp-up work to populate caches and the like.
+	The benchmark is called "WimMark I" because it has no
+official standing and is only a relative benchmark useful for comparing
+kernel changes.  The benchmark is normalized an arbitrary kernel, which
+scores 1000.0.  All other numbers are relative to this.  A bigger number
+is a better number.  All things being equal, a delta <50 is close to
+unimportant, and a delta < 20 is very identical.
+	This benchmark is sensitive to random system events.  I run
+three runs because of this.  If two runs are nearly identical and the
+remaining run is way off, that run should probably be ignored (it is
+often a low number, signifying that something on the system impacted
+the benchmark).
+	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
+of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
+10K RPM U2W SCSI of similar vintage.  The data files are living on an
+ext3 filesystem.  Unless mentioned, all runs are
+on this machine (variation in hardware would indeed change the
+benchmark).
 
 
+-- 
+
+"The opposite of a correct statement is a false statement. The
+ opposite of a profound truth may well be another profound truth."
+         - Niels Bohr 
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

@@ -1,65 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbQKBS2e>; Thu, 2 Nov 2000 13:28:34 -0500
+	id <S129080AbQKBSeE>; Thu, 2 Nov 2000 13:34:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129129AbQKBS2Y>; Thu, 2 Nov 2000 13:28:24 -0500
-Received: from newaccess.hereintown.net ([207.196.96.3]:13176 "EHLO
-	newaccess.hereintown.net") by vger.kernel.org with ESMTP
-	id <S129069AbQKBS2K>; Thu, 2 Nov 2000 13:28:10 -0500
-Date: Thu, 2 Nov 2000 13:38:18 -0500 (EST)
-From: Chris Meadors <clubneon@hereintown.net>
-To: Ulrich Drepper <drepper@redhat.com>
-cc: root@chaos.analogic.com, kernel@kvack.org,
-        "Dr. David Gilbert" <dg@px.uk.com>, linux-kernel@vger.kernel.org
-Subject: Re: Dual XEON - >>SLOW<< on SMP
-In-Reply-To: <m3bsvy2qlb.fsf@otr.mynet.cygnus.com>
-Message-ID: <Pine.LNX.4.21.0011021334170.83-100000@rc.priv.hereintown.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129099AbQKBSdz>; Thu, 2 Nov 2000 13:33:55 -0500
+Received: from 128-VALL-X7.libre.retevision.es ([62.83.213.128]:27776 "EHLO
+	looping.es") by vger.kernel.org with ESMTP id <S129080AbQKBSdr>;
+	Thu, 2 Nov 2000 13:33:47 -0500
+Date: Thu, 2 Nov 2000 19:38:56 +0100
+From: Ragnar Hojland Espinosa <ragnar@jazzfree.com>
+To: linux-kernel@vger.kernel.org
+Cc: "M.H.VanLeeuwen" <vanl@megsinet.net>,
+        "CRADOCK, Christopher" <cradockc@oup.co.uk>, torvalds@transmeta.com
+Subject: Re: Linux-2.4.0-test10
+Message-ID: <20001102193856.A1204@macula.net>
+In-Reply-To: <A528EB7F25A2D111838100A0C9A6E5EF068A1DBC@exc01.oup.co.uk> <3A00B8E9.D5FD12B0@megsinet.net> <20001102185706.A984@macula.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 0.95.6i
+In-Reply-To: <20001102185706.A984@macula.net>; from Ragnar Hojland Espinosa on Thu, Nov 02, 2000 at 06:57:06PM +0100
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://maculaisdeadsoimmovingit/lightside
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2 Nov 2000, Ulrich Drepper wrote:
+On Thu, Nov 02, 2000 at 06:57:06PM +0100, Ragnar Hojland Espinosa wrote:
+> Well, here never did until today :)   With test9, I had left the box idle
 
-> I'm seeing this as well, but only with PIII Xeon systems, not PII
-> Xeon.  Every single timer interrupt on any CPU is accompanied by a NMI
-> and LOC increment on every CPU.
-> 
->            CPU0       CPU1       
->   0:     146727     153389    IO-APIC-edge  timer
-> [...]
-> NMI:     300035     300035 
-> LOC:     300028     300028 
+Just happened with test10, same circumstances .. font map got corrupted, and
+noise on the screen.  Switching back and forth from X to a vc fixed it, tho. 
 
-You mean that isn't supposed to happen?
+Sort of amusing that it (apparently) only happens with ppp + wget ..
 
-           CPU0       CPU1
-  0:    8480192    7786028    IO-APIC-edge  timer
-  1:          3          1    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  8:          0          0    IO-APIC-edge  rtc
- 13:          0          0          XT-PIC  fpu
- 23:     188915     191259   IO-APIC-level  eth0
- 28:         16         14   IO-APIC-level  sym53c8xx
- 29:      33655      33665   IO-APIC-level  sym53c8xx
- 30:          0          0   IO-APIC-level  es1371
-NMI:   16266140   16266140
-LOC:   16266123   16266122
-ERR:          0
-
-This machine isn't even a Xeon, just a PIII CuMine on a ServerWorks HeIII
-chipset.
-
-I reported this on -test6 but got no replies.  I'm now running -test10 and
-still seeing it.
-
--Chris
 -- 
-Two penguins were walking on an iceburg.  The first one said to the
-second, "you look like you are wearing a tuxedo."  The second one said,
-"I might be..."
-                                              --David Lynch, Twin Peaks
+____/|  Ragnar Højland     Freedom - Linux - OpenGL      Fingerprint  94C4B
+\ o.O|                                                   2F0D27DE025BE2302C
+ =(_)=  "Thou shalt not follow the NULL pointer for      104B78C56 B72F0822
+   U     chaos and madness await thee at its end."       hkp://keys.pgp.com
 
+Handle via comment channels only.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

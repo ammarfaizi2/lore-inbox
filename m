@@ -1,101 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261945AbTDIBse (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 21:48:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTDIBse (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 21:48:34 -0400
-Received: from miranda.zianet.com ([216.234.192.169]:18955 "HELO
-	miranda.zianet.com") by vger.kernel.org with SMTP id S261945AbTDIBsc (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 21:48:32 -0400
-Subject: Re: 2.5.67 - reiserfs go boom.
-From: Steven Cole <elenstev@mesatop.com>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030409011802.GD25834@suse.de>
-References: <20030409011802.GD25834@suse.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049853413.31551.27.camel@spc>
+	id S261304AbTDIBvB (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 21:51:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbTDIBvB (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 21:51:01 -0400
+Received: from netrealtor.ca ([216.209.85.42]:32780 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id S261304AbTDIBu6 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 21:50:58 -0400
+Date: Tue, 8 Apr 2003 22:09:21 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Larry McVoy <lm@work.bitmover.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Message-ID: <20030409020921.GA16313@mark.mielke.cc>
+References: <200304081354_MC3-1-3386-1A33@compuserve.com> <20030408180225.GC27912@work.bitmover.com> <20030408231949.GB31923@mail.jlokier.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2-3mdk 
-Date: 08 Apr 2003 19:56:53 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030408231949.GB31923@mail.jlokier.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-04-08 at 19:18, Dave Jones wrote:
-> Whilst running fsx.. (Though fsx didn't trigger any error,
-> and is still running)..
+Does it matter? If an 'open source guy' comes up with the idea
+independently, having never had a copy of the 'closed source', then he
+has proof that he came up with it originally (although he may not be
+the first to have thought of it).
+
+And who cares about "first"? How can you ever guarantee that somebody
+didn't think of your idea "first"? Maybe aliens having been using B-Tree's
+for billions of years.
+
+It doesn't matter.
+
+mark
+
+
+On Wed, Apr 09, 2003 at 12:19:49AM +0100, Jamie Lokier wrote:
+> Larry McVoy wrote about unreleased improvements to Bitkeeper:
+> > [...] we're worried about the open source guys stealing them.
 > 
-> 		Dave
+> Seriously, do you see it as "stealing" if someone mimics your best ideas?
 > 
-> buffer layer error at fs/buffer.c:127
-> Call Trace:
->  [<c016d260>] __wait_on_buffer+0xd0/0xe0
->  [<c0121760>] autoremove_wake_function+0x0/0x50
->  [<c0121760>] autoremove_wake_function+0x0/0x50
->  [<c02886c8>] reiserfs_unmap_buffer+0x68/0xa0
->  [<c0288768>] unmap_buffers+0x68/0x70
->  [<c0288948>] indirect2direct+0x1d8/0x2b0
->  [<c0286584>] reiserfs_cut_from_item+0x3d4/0x4e0
->  [<c0286955>] reiserfs_do_truncate+0x265/0x520
->  [<c0170e12>] block_prepare_write+0x32/0x50
->  [<c027446a>] reiserfs_truncate_file+0x15a/0x3b0
->  [<c028cfc7>] journal_end+0x27/0x30
->  [<c0275f2c>] reiserfs_file_release+0x39c/0x600
->  [<c014c9bb>] check_poison_obj+0x3b/0x1b0
->  [<c014e934>] kmem_cache_alloc+0x124/0x170
->  [<c016c711>] get_empty_filp+0x51/0x100
->  [<c016c9a1>] __fput+0xf1/0x100
->  [<c016ab3a>] filp_close+0x15a/0x230
->  [<c01833a3>] do_fcntl+0xe3/0x1c0
->  [<c0182ebc>] sys_dup2+0xec/0x130
->  [<c010a457>] syscall_call+0x7/0xb
+> What if they believe they had the idea too, but you implemented it first..?
 > 
+> Personally if someone releases a piece of software that contains an
+> idea similar to one that I've had, and they did a great job of
+> implementing or just plain explaining the idea, and they did it before
+> I even started, I _feel_ deep in my gut that I've lost something due
+> to their action.
+> 
+> (Forget about philosophy and economics for a moment.  This message is
+> about gut feelings and psychology.)
+> 
+> In other words, if someone releases a great implementation of an idea
+> long before I would have done so, even if I would never have gotten
+> around to it, I _feel_ much the same as if the idea had been stolen
+> from me.  They get the credit, I lost the opportunity for credit.
+> 
+> This is obviously not a fair reflection on their great work - of
+> course they deserve heaps of credit for their work.  It stills feels
+> painful though.
+> 
+> This horrible feeling is much worse when the other person insists that
+> they alone had the idea and I, if I ever do anything with it later,
+> will be accused of copying their superior thinking - something that I
+> sometimes cannot disprove.
+> 
+> When that happens, not only is my opportunity for credit lost, my
+> integrity is doubted as well.
+> 
+> To avoid that horrible consequential feeling, it seems safest not to
+> build too much on the ideas of others, lest I be accused of "stealing".
+> 
+> While that does make me feel a bit better in some ways, it does not
+> seem a good way to live when I take a more objective perspective.
+> Also, it does not seem very great in terms of bettering society and
+> other other-person-oriented ideals.
+> 
+> That's why I prefer the idea of "sharing" ideas, and promoting that as
+> a way of thinking about ideas, so that thay are not perceived as owned
+> by one person or another.  (Ironically, this is my response to painful
+> feelings that I have due to a personal sense of certain ideas being
+> owned by me but acted out by others).
+> 
+> Although that does leave me feeling a little uneasy too, it is not
+> such a horrible feeling as being on a knife-edge race to implement
+> things just before the other person, just so I can be perceived as
+> "the" originator of an idea.  Another reason I don't like that kind of
+> race is that if I win, how must the person I beat feel?
+> 
+> Well, this wasn't meant to be a rant about my personal psychological
+> issues but it has turned into one :) The point was to illustrate
+> underlying reasons why at least one person on this list believes it is
+> better - kinder, fairer - to think of building upon another person's
+> brilliantly expressed ideas as "sharing", rather than "stealing".
+> 
+> For me, the principle of open source vs. closed source flows from
+> that.  For me it has little to do with access to source.  (I can
+> reverse engineer a binary if necessary, for the time being).  It's
+> about permission, praise, encouragement, and ultimately happiness.
+> 
+> Not that the issue is ever that simple.
+> 
+> It also underlines the importance of granting credit where it's due -
+> not just as a line in a copyright notice, but with full recognition of
+> the work done to refine a difficult idea.  And, Larry, you're right
+> that years of hard work can be cloned in a few days.  It does suck
+> when someone does that and then takes all the credit for the result -
+> whether that's personal or economic in form.
+> 
+> I guess the economics of ideas, implementations and credit has plenty
+> of maturing left to do.
+> 
+> -- Jamie
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Gee, that looks remarkably similar to what I was getting
-with ext3.  This happened on every boot with 2.5.67 with
-the base distro being Mandrake 9.1.  Then, I replaced LM 9.1
-with Redhat 9 and I never saw this again with 2.5.67.
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-buffer layer error at fs/buffer.c:127
-Call Trace:
- [<c0148170>] __wait_on_buffer+0xe0/0xf0
- [<c0117010>] autoremove_wake_function+0x0/0x50
- [<c0117010>] autoremove_wake_function+0x0/0x50
- [<c014a0dd>] __block_prepare_write+0x13d/0x490
- [<c01821b0>] ext3_mark_inode_dirty+0x50/0x60
- [<c018d1ba>] start_this_handle+0x9a/0x1c0
- [<c014acc4>] block_prepare_write+0x34/0x50
- [<c017f2b0>] ext3_get_block+0x0/0xb0
- [<c017f962>] ext3_prepare_write+0x92/0x1b0
- [<c017f2b0>] ext3_get_block+0x0/0xb0
- [<c012e4d9>] generic_file_aio_write_nolock+0x359/0xa10
- [<c01496bc>] __find_get_block+0x7c/0x120
- [<c01815f3>] ext3_get_inode_loc+0xf3/0x1a0
- [<c0181908>] ext3_read_inode+0x1f8/0x360
- [<c012eca1>] generic_file_aio_write+0x71/0x90
- [<c017cf14>] ext3_file_write+0x44/0xe0
- [<c0146deb>] do_sync_write+0x8b/0xc0
- [<c0154108>] link_path_walk+0x608/0x900
- [<c018c85f>] ext3_permission+0x1f/0x30
- [<c015359a>] permission+0x3a/0x40
- [<c0147b15>] get_empty_filp+0x75/0xf0
- [<c0154d1d>] open_namei+0x9d/0x420
- [<c01460de>] dentry_open+0x16e/0x180
- [<c0145f68>] filp_open+0x68/0x70
- [<c0146ede>] vfs_write+0xbe/0x130
- [<c0146720>] generic_file_llseek+0x0/0xd0
- [<c0146fee>] sys_write+0x3e/0x60
- [<c01092bb>] syscall_call+0x7/0xb
-
-Steven
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+                           http://mark.mielke.cc/
 

@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbVA3Qz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVA3Qzd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbVA3Qz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 11:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVA3Qzi
+	id S261728AbVA3Qzd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 11:55:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVA3Qzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 11:55:38 -0500
-Received: from alg138.algor.co.uk ([62.254.210.138]:45804 "EHLO
-	mail.linux-mips.net") by vger.kernel.org with ESMTP id S261729AbVA3Qz3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 11:55:29 -0500
-Date: Sun, 30 Jan 2005 16:49:28 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, bunk@stusta.de
-Subject: Re: [PATCH] Fix SERIAL_TXX9 dependencies
-Message-ID: <20050130164928.GA27703@linux-mips.org>
-References: <20050129131134.75dacb41.akpm@osdl.org> <20050129231255.GA3185@stusta.de> <20050130001555.GA3648@linux-mips.org> <20050130.220537.45151614.anemo@mba.ocn.ne.jp>
+	Sun, 30 Jan 2005 11:55:32 -0500
+Received: from mo01.iij4u.or.jp ([210.130.0.20]:32506 "EHLO mo01.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S261728AbVA3QzZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 11:55:25 -0500
+Date: Mon, 31 Jan 2005 01:55:16 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.11-rc2-mm2] mips: fixed restore_sigcontext
+Message-Id: <20050131015516.74aaba48.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050130.220537.45151614.anemo@mba.ocn.ne.jp>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 30, 2005 at 10:05:37PM +0900, Atsushi Nemoto wrote:
+This patch had fixed restore_sigcontext about MIPS.
+This patch is only for 2.6.11-rc2-mm2.
 
-> Well, "depends on MIPS || PCI" was intentional.  The driver can be
-> used for both TX39/TX49 internal SIO and TC86C001 PCI chip.  TC86C001
-> chip can be available for any platform with PCI bus (though I have
-> never seen it on platform other than MIPS ...)
+Yoichi
 
-One encounter on #mipslinux a few days before your patch :-)
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
 
-> So I suppose "depends on HAS_TXX9_SERIAL || PCI" might be better, but
-> Ralf's patch will be OK for now.
+diff -urN -X dontdiff a-orig/arch/mips/kernel/signal-common.h a/arch/mips/kernel/signal-common.h
+--- a-orig/arch/mips/kernel/signal-common.h	Mon Jan 31 00:42:13 2005
++++ a/arch/mips/kernel/signal-common.h	Mon Jan 31 01:02:19 2005
+@@ -62,6 +62,7 @@
+ restore_sigcontext(struct pt_regs *regs, struct sigcontext *sc)
+ {
+ 	int err = 0;
++	unsigned int used_math;
+ 
+ 	/* Always make any pending restarted system calls return -EINTR */
+ 	current_thread_info()->restart_block.fn = do_no_restart_syscall;
+@@ -86,7 +87,7 @@
+ 	restore_gp_reg(31);
+ #undef restore_gp_reg
+ 
+-	err |= __get_user(!!used_math(), &sc->sc_used_math);
++	err |= __get_user(used_math, &sc->sc_used_math);
+ 	conditional_used_math(used_math);
+ 
+ 	preempt_disable();
 
-I realize that || PCI would have been more correct but I'm considering
-it an extremly rare configuration, so I left that out.  We sure can add
-that if you think it's more apropriate.
-
-  Ralf

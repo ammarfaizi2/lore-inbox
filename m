@@ -1,15 +1,15 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315946AbSENSAf>; Tue, 14 May 2002 14:00:35 -0400
+	id <S315956AbSENSHb>; Tue, 14 May 2002 14:07:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315945AbSENSAd>; Tue, 14 May 2002 14:00:33 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:39282 "EHLO
+	id <S315957AbSENSHa>; Tue, 14 May 2002 14:07:30 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:43122 "EHLO
 	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S315944AbSENSAb>; Tue, 14 May 2002 14:00:31 -0400
-Date: Tue, 14 May 2002 13:00:23 -0500 (CDT)
+	id <S315956AbSENSH3>; Tue, 14 May 2002 14:07:29 -0400
+Date: Tue, 14 May 2002 13:07:26 -0500 (CDT)
 From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200205141800.NAA73317@tomcat.admin.navo.hpc.mil>
-To: mark@mark.mielke.cc, Elladan <elladan@eskimo.com>
+Message-Id: <200205141807.NAA71526@tomcat.admin.navo.hpc.mil>
+To: elladan@eskimo.com, Mark Mielke <mark@mark.mielke.cc>
 Subject: Re: [RFC] ext2 and ext3 block reservations can be bypassed
 Cc: Christoph Hellwig <hch@infradead.org>,
         Linux-Kernel <linux-kernel@vger.kernel.org>
@@ -17,25 +17,28 @@ X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Mielke <mark@mark.mielke.cc>:
 > 
-> Notice how the space can only be filled up if a setuid program is used
-> to actually fill it up. Even if it is a partial 'security feature', every
-> administrator knows that setuid violates security in a non-natural way.
+> A second method was proposed as well - create a file with a hole in it,
+> map it, then dirty the pages in the hole and exit.  This would not
+> require suid.
 
-Actually, any existing daemon (read "syslog") can use this space. This is
-partly why it is a "security feature" so that the logs can still get to disk
-even if the filesystem is "full".
+Actually, the allocation that fills the partition (and goes one over)
+should fail. Even if that is only adding a block to the hole, it should
+fail. Now if it DOES continue then you have found a bug since it
+shouldn't do that.
 
-> 1) Provide a patch and see if it is accepted.
+> This is basically a documentation issue, unless someone wants to go fix
+> it.  I wouldn't bother myself - it's ext[23] only and not really very
+> useful.
+> 
+> The basic problem is this: the documentation states "This is intended to
+> allow for the system to continue functioning even if non-priveleged
+> users fill up all the space available to them."  This states that it's a
+> security feature.  It does not work as intended - all users are
+> privileged to do this - so the documentation should be updated.
 
-Patch not necessary - it is a tuneable feature. All that is missing is
-an understanding of what the reservation is/can be used for.
-
-> 2) Convince somebody else that they should put time into features of
->    questionable value such as this one.
-
-Already done - see "man tune2fs".
+There is nothing wrong with the documentation. Though it could have
+additions to more clearly explain why. The feature can already be disabled.
 
 -------------------------------------------------------------------------
 Jesse I Pollard, II

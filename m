@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269203AbUJQQlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269196AbUJQQp1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269203AbUJQQlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 12:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269247AbUJQQhL
+	id S269196AbUJQQp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 12:45:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269193AbUJQQp0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 12:37:11 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:5027 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S269179AbUJQQNG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 12:13:06 -0400
-Date: Sun, 17 Oct 2004 18:12:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Daniel Walker <dwalker@mvista.com>, Bill Huey <bhuey@lnxw.com>,
-       Andrew Morton <akpm@osdl.org>, Adam Heath <doogie@debian.org>,
-       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
-       Andrew Rodland <arodland@entermail.net>
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
-Message-ID: <20041017161228.GB22620@elte.hu>
-References: <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <1097888438.6737.63.camel@krustophenia.net> <1097894120.31747.1.camel@krustophenia.net> <20041016064205.GA30371@elte.hu> <1097917325.1424.13.camel@krustophenia.net> <20041016103608.GA3548@elte.hu> <32801.192.168.1.5.1098018846.squirrel@192.168.1.5> <20041017132107.GA18462@elte.hu> <32793.192.168.1.5.1098023139.squirrel@192.168.1.5>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 17 Oct 2004 12:45:26 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:17167 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S269205AbUJQQlV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 12:41:21 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Sam Ravnborg <sam@ravnborg.org>, Albert Cahalan <albert@users.sf.net>
+Subject: Re: Building on case-insensitive systems
+Date: Sun, 17 Oct 2004 19:41:11 +0300
+User-Agent: KMail/1.5.4
+Cc: Dan Kegel <dank@kegel.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       sam@ravnborg.org
+References: <1097989574.2674.14246.camel@cube> <1097991836.2666.14274.camel@cube> <20041017092730.GA9081@mars.ravnborg.org>
+In-Reply-To: <20041017092730.GA9081@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <32793.192.168.1.5.1098023139.squirrel@192.168.1.5>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200410171941.11271.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
-
-> > eth0: 3Com Gigabit LOM (3C940)
-> > eth0: network connection down
-> >       PrefPort:A  RlmtMode:Check Link State
-> >
-> > is this normal? Could the stall simply be a bootup stall due to no
-> > network available?
-> >
+On Sunday 17 October 2004 12:27, Sam Ravnborg wrote:
+> Try to estimate the cost associated with the shift:
+> - Training
+> - Less efficiency in a period
+> - Missing important tools so a terminal service is needed
+> - etc.
 > 
-> Yes, I think it's normal. The fact is that on the non-RT kernel, the eth0
-> device comes up immediately after, as you can see on minicom.cap.{6,7,8}
-> capture files.
+> The valid solution here would be to deploy a Linux server.
+> But then your arguments suffer compared to other OS'es where
+> everything is running on the users current host - why have
+> the hassle with a Linux server.
 
-ok, then please try to do a sysrq-T. The bootup is soft-hung for some 
-reason, lets see what tasks are around.
+One Linux addict among employees should be enough to do it.
 
-	Ingo
+Typically, there are some old "slow" boxes lying around
+which are not usable anymore with "improved" MS OSes due to
+"insufficient" RAM/disk.
+--
+vda
+

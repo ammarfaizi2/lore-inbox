@@ -1,96 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbUKOUlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbUKOUp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbUKOUlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 15:41:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbUKOUjl
+	id S261695AbUKOUp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 15:45:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbUKOUnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 15:39:41 -0500
-Received: from [81.23.229.73] ([81.23.229.73]:30595 "EHLO mail.eduonline.nl")
-	by vger.kernel.org with ESMTP id S261688AbUKOUfj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 15:35:39 -0500
-From: Norbert van Nobelen <Norbert@edusupport.nl>
-Organization: EduSupport
-To: Robin Holt <holt@sgi.com>
-Subject: Re: 21 million inodes is causing severe pauses.
-Date: Mon, 15 Nov 2004 21:35:35 +0100
-User-Agent: KMail/1.6.2
-References: <20041115195551.GA15380@lnx-holt.americas.sgi.com>
-In-Reply-To: <20041115195551.GA15380@lnx-holt.americas.sgi.com>
-Cc: linux-kernel@vger.kernel.org
+	Mon, 15 Nov 2004 15:43:47 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:2031 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261695AbUKOUld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 15:41:33 -0500
+Date: Mon, 15 Nov 2004 20:41:12 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Andrea Arcangeli <andrea@novell.com>, Andi Kleen <ak@suse.de>,
+       Christoph Rohland <cr@sap.com>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] tmpfs symlink corrupts mempolicy
+Message-ID: <Pine.LNX.4.44.0411152037340.4131-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411152135.35121.Norbert@edusupport.nl>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It would help a lot if you provided logins to everybody on this list to this 
-desktop system of you (-:
+Andrea discovered that short symlinks on tmpfs, stored within the inode
+itself, overwrote the NUMA mempolicy field which shmem_destroy_inode
+expected to find there.  His fix was good, but Hugh changed it around a
+little, to match existing shmem.c practice (now mpol_init in cases which
+might allocate a page, mpol_free in shmem_truncate_inode), and allow for
+possibility that mpol_init for a long symlink might one day do something
+which really needs mpol_free.
 
-Anyway: There is temporary solution, which will help a little in this case: 
-Increase the blocksize so that your total number of inodes decreases. Since 
-XFS is your own filesystem, you could calculate the results of this pretty 
-quick.
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
 
-Using another filesystem could help too, but I don't have any comparison bases 
-for this since the largest system we have here at this moment only has 1 TB 
-of diskspace.
-I will monitor this thread though, we are in tender for a somewhat larger 
-project in which problems like this could become our problem too.
+Thanks a lot for working that out, Andrea: is this version okay with you?
+I've not studied the mempolicy.c part of the patch you posted, which
+seemed to be an entirely separate (and less urgent) patch,
+better reviewed by Andi.
 
-On Monday 15 November 2004 20:55, you wrote:
-> The subject line is a little deceiving.  That number comes from using
-> XFS on a 2.4 kernel.  With a 2.6 kernel, we see problems similar to the
-> ones we are experiencing on 2.4, only less severe.
->
-> Digging into this some more, we determined the problem is the large number
-> of inodes and dentry items held.  For a machine with 32GB of memory and
-> 8 cpus doing build type activity, we have found it stabilizes at between
-> 2 and 8 million entries.
->
-> One significant problem we are running into is autofs trying to umount the
-> file systems.  This results in the umount grabbing the BKL and inode_lock,
-> holding it while it scans through the inode_list and others looking for
-> inodes used by this super block and attempting to free them.
->
-> We patched a SLES9 kernel with the patch found in the -mm tree which
-> attempts to address this problem by linking inodes off the sb structure.
-> This does make the umount somewhat quicker, but on a busy nfs mounted
-> filesystem, the BKL and inode_lock do still get in the way causing
-> frequent system pauses on the order of seconds.  This is on a SLES9
-> kernel which we just put into a test production environment last Thursday.
-> By 8:00 AM Friday, the system was unusable.
->
-> Additionally, we experience NULL pointer dereferences during
-> remove_inode_buffers.  I have not looked for additional patches in the
-> -mm tree to address that problem.
->
-> While discussing this in the hallway, we have come up with a few possible
-> alternatives.
->
-> 1) Have the dentry and inode sizes limited on a per sb basis
->    with a mount option as an override for the default setting.
->
-> 2) Have the vfs limit dentry and inode cache sizes based on
->    slab usage (ie, nfs, ext2, and xfs slab sizes are limited independently
->    of each other.
->
-> 3) Have the vfs limit it based on total inode_list entries.
->
-> We are not sure which if any is the right direction to go at this time.
-> We are only hoping to start a discussion.  Any guidance would be
-> appreciated.
->
-> Thank you,
-> Robin Holt
->
-> PS:  The patch referred to above is:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=109474397830096&w=2
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--- 2.6.10-rc2/mm/shmem.c	2004-11-15 16:21:24.000000000 +0000
++++ linux/mm/shmem.c	2004-11-15 19:08:58.366829456 +0000
+@@ -672,6 +672,7 @@ static void shmem_delete_inode(struct in
+ 		shmem_unacct_size(info->flags, inode->i_size);
+ 		inode->i_size = 0;
+ 		shmem_truncate(inode);
++		mpol_free_shared_policy(&info->policy);
+ 		if (!list_empty(&info->swaplist)) {
+ 			spin_lock(&shmem_swaplist_lock);
+ 			list_del_init(&info->swaplist);
+@@ -1292,7 +1293,6 @@ shmem_get_inode(struct super_block *sb, 
+ 		info = SHMEM_I(inode);
+ 		memset(info, 0, (char *)inode - (char *)info);
+ 		spin_lock_init(&info->lock);
+- 		mpol_shared_policy_init(&info->policy);
+ 		INIT_LIST_HEAD(&info->swaplist);
+ 
+ 		switch (mode & S_IFMT) {
+@@ -1303,6 +1303,7 @@ shmem_get_inode(struct super_block *sb, 
+ 		case S_IFREG:
+ 			inode->i_op = &shmem_inode_operations;
+ 			inode->i_fop = &shmem_file_operations;
++ 			mpol_shared_policy_init(&info->policy);
+ 			break;
+ 		case S_IFDIR:
+ 			inode->i_nlink++;
+@@ -1766,12 +1767,13 @@ static int shmem_symlink(struct inode *d
+ 		memcpy(info, symname, len);
+ 		inode->i_op = &shmem_symlink_inline_operations;
+ 	} else {
++		inode->i_op = &shmem_symlink_inode_operations;
++ 		mpol_shared_policy_init(&info->policy);
+ 		error = shmem_getpage(inode, 0, &page, SGP_WRITE, NULL);
+ 		if (error) {
+ 			iput(inode);
+ 			return error;
+ 		}
+-		inode->i_op = &shmem_symlink_inode_operations;
+ 		kaddr = kmap_atomic(page, KM_USER0);
+ 		memcpy(kaddr, symname, len);
+ 		kunmap_atomic(kaddr, KM_USER0);
+@@ -2026,7 +2028,6 @@ static struct inode *shmem_alloc_inode(s
+ 
+ static void shmem_destroy_inode(struct inode *inode)
+ {
+-	mpol_free_shared_policy(&SHMEM_I(inode)->policy);
+ 	kmem_cache_free(shmem_inode_cachep, SHMEM_I(inode));
+ }
+ 
+

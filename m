@@ -1,53 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278805AbRKAMVm>; Thu, 1 Nov 2001 07:21:42 -0500
+	id <S278879AbRKAM3w>; Thu, 1 Nov 2001 07:29:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278867AbRKAMVc>; Thu, 1 Nov 2001 07:21:32 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:41489 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S278358AbRKAMVT>;
-	Thu, 1 Nov 2001 07:21:19 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild-2.5 
-In-Reply-To: Your message of "Thu, 01 Nov 2001 11:19:02 -0000."
-             <22644.1004613542@warthog.cambridge.redhat.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 01 Nov 2001 23:21:07 +1100
-Message-ID: <30762.1004617267@ocs3.intra.ocs.com.au>
+	id <S278871AbRKAM3n>; Thu, 1 Nov 2001 07:29:43 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:35026 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S278887AbRKAM31>;
+	Thu, 1 Nov 2001 07:29:27 -0500
+Message-ID: <3BE13FF0.809@athlon.maya.org>
+Date: Thu, 01 Nov 2001 13:28:32 +0100
+From: Andreas Hartmann <andihartmann@freenet.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: de, en-us
+MIME-Version: 1.0
+To: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: [VM Kernel 2.4.13] Congratulation - first time, backup has been working without break
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 01 Nov 2001 11:19:02 +0000, 
-David Howells <dhowells@redhat.com> wrote:
->Okay... for users of emacs, here's an elisp function that looks to see if it's
->in a subdirectory of a kernel tree (and if so whether it's kbuild or
->traditional), and if so invents an appropriate command line for compiling just
->in that subdir:-) Otherwise it just falls back to the usual compile function.
->(defun kernel-compile ()
->....
->	  (if (and
->	       (file-readable-p (concat curdir "/COPYING"))
+Hello all!
 
-Won't work with separate source and object trees in kbuild 2.5.
+I'm very glad of VM in kernel 2.4.13. It was the first time today, that 
+my backup run without any problem and without massive caching on the 
+backup-Server (only about 10MB during KDE2-session with konqueror, 
+knode, ...) . Working parallel with other applications has acceptable 
+performance.
 
-  export KBUILD_SRCTREE_000=/build/kaos/2.4.13-kbuild-2.5
-  export KBUILD_OBJTREE=/build/kaos/object-2.4.13
-  cd /anywhere/you/like
-  make -f $KBUILD_SRCTREE_000/Makefile-2.5
+Comparison with 2.4.13-ac4:
+Nearly the same programs running in background, the backup break down 
+after about 60s of getting datas via ethernet. At this point, the swap 
+has been grown over 56Mb!! Normally (= if the backup runs to the end at 
+the second or third try), 300MB swap weren't enough. Working with other 
+applications is impossible or painful.
 
-If you define the kbuild tree variables then you can be in any
-directory when you issue the make command.  If you are using shadow
-trees then you can be in a sparse source tree which only contains of
-the files.
 
->	      ;; determine whether using kbuild or not
->	      (if (file-readable-p (concat curdir "/scripts/shadow.pl"))
+I do my backups of the whole harddisks (all in one over 20 GB) with 
+rsync (of remote machines too) to another HD on the desktop, which is 
+only used for these backups.
 
-grep CONFIG_KBUILD_2_5 .config is better, you can still build using
-kbuild 2.4 even after applying the 2.5 patch.  The presence of a kbuild
-2.5 file is not definitive.  Of course the .config is in $KBUILD_OBJTREE
-which might not be the current directory.
+
+My system:
+backup-server (also desktop): 512 MB RAM, usually 256 MB cache, Athlon 
+800 with 2 UDMA4-disks (20 and 45GB).
+
+lspci
+00:00.0 Host bridge: VIA Technologies, Inc. VT8371 [KX133] (rev 02)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8371 [PCI-PCI Bridge]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 22)
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10)
+00:07.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10)
+00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] 
+(rev 30)
+00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686 
+[Apollo Super AC97/Audio] (rev 20)
+00:08.0 Ethernet controller: Silicon Integrated Systems [SiS] SiS900 
+10/100 Ethernet (rev 02)
+00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 
+(rev 10)
+01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 PF
+
+
+Unfortunately, there is one great (old) problem with any 
+2.4.x-vanilla-kernel, which isn't fixed until today and which prevents 
+me of using the vanilla kernel:
+Usually after some restarts of the X-sserver (4.x.y), my screen (not the 
+monitor itself; no sleep-modus is shown) is beginning to go off and on 
+again (when the mouse is moved) within seconds. You can't get rid of it 
+by restarting X - you have to reboot the machine.
+This problem doesn't occur with ac-kernels.
+I'm using DRI - but without DRI, the problem doesn't disappear :-(. I'm 
+using no energy-safing modes - and nothing is configured or compiled 
+thereto.
+
+
+Regards,
+Andreas Hartmann
 

@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290710AbSBFRlO>; Wed, 6 Feb 2002 12:41:14 -0500
+	id <S290713AbSBFRnY>; Wed, 6 Feb 2002 12:43:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290713AbSBFRlG>; Wed, 6 Feb 2002 12:41:06 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36364 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S290710AbSBFRk7>; Wed, 6 Feb 2002 12:40:59 -0500
-Date: Wed, 6 Feb 2002 09:40:05 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dave McCracken <dmccr@us.ibm.com>
-cc: Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5.3] Second version of signal changes for thread groups
-In-Reply-To: <54170000.1013014940@baldur>
-Message-ID: <Pine.LNX.4.33.0202060914410.22843-100000@athlon.transmeta.com>
+	id <S290715AbSBFRnO>; Wed, 6 Feb 2002 12:43:14 -0500
+Received: from dial-up-2.energonet.ru ([195.16.109.101]:12928 "EHLO
+	dial-up-2.energonet.ru") by vger.kernel.org with ESMTP
+	id <S290713AbSBFRnG>; Wed, 6 Feb 2002 12:43:06 -0500
+Date: Wed, 6 Feb 2002 20:46:08 +0000 (GMT)
+From: ertzog <ertzog@bk.ru>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Anuradha Ratnaweera <anuradha@gnu.org>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [ANNOUNCE] kernelconf-0.1.2
+In-Reply-To: <20020125163213.A1635@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.21.0202062043520.919-100000@dial-up-2.energonet.ru>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> Therefore my intention was to point you in the direction of
+> an although incomplete implementation of a CML2 compiler
+> written in C.
+> This could give you the possibility to use the well documented
+> and by several people already accepted CML2 language, but at the
+> same time you had the flexibility to create your own front-end.
 
-On Wed, 6 Feb 2002, Dave McCracken wrote:
->
-> --On Tuesday, February 05, 2002 17:26:22 -0800 Linus Torvalds
-> <torvalds@transmeta.com> wrote:
->
-> > Your mailer does horrible things to whitespace (word wrap etc). Please fix
-> > it, the patch itself looks ok.
->
-> My apologies.  It's not my mailer that was broken, it was my brain.  I
-> accidentally set a config option wrong.
 
-This one was broken too, I get whitespace removed at end of lines, and
-lines wrapped. I think it's the "format=flowed" part of
+Sorry, but I cannot understand, if a new text parser is going to be
+written. I tried to compare a parser, written by my self in C and
+in lex+yacc. The second was 4 times quicker and 4 times easier to write,
+so can I repeat the question:
 
-	Content-Type: text/plain; charset=us-ascii; format=flowed
-
-and I'm fairly sure it's from your end (ie I have other emails in my
-folder that do not have these problems).
-
-You seem to be using Mulberry, I'm sure there must be some way to fix it,
-but I don't know mb myself.
-
-(I can edit and hand-apply patches like these, but I hate to do it, and I
-really really hate to have developers with broken mail configurations, so
-I'd rather go through this several times to get it fixed than to work
-around it)
-
-		Linus
+how syntax is parsed ?
 

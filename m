@@ -1,86 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270711AbTHJVOq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 17:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270712AbTHJVOq
+	id S270734AbTHJVT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 17:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270739AbTHJVT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 17:14:46 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:46349 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S270711AbTHJVOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 17:14:44 -0400
-Date: Sun, 10 Aug 2003 17:02:55 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Dave Jones <davej@suse.de>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH][2.6] Make MTRR init conform with recommended procedure
-Message-ID: <Pine.LNX.4.53.0308101640060.31799@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 10 Aug 2003 17:19:59 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:46599 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S270734AbTHJVT5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 17:19:57 -0400
+Date: Sun, 10 Aug 2003 23:19:55 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Jan Niehusmann <jan@gondor.com>
+Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
+Subject: Re: uncorrectable ext2 errors
+Message-ID: <20030810231955.A16852@pclin040.win.tue.nl>
+References: <20030806150335.GA5430@gondor.com> <20030807110641.GA31809@gondor.com> <20030807211236.GA5637@win.tue.nl> <20030810205513.GA6337@gondor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030810205513.GA6337@gondor.com>; from jan@gondor.com on Sun, Aug 10, 2003 at 10:55:13PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
-	This is a patch to make the MTRR initialisation more conformant 
-with what is stated in volume 3 of (10-36 Memory Cache Control). The most 
-notable change is entering the no-fill cache mode before clearing the PGE 
-bit in cr4. Intel also states that we should do the cache flush via the 
-cr3 register shuffle. If there is a problem with the patch please don't 
-hesitate to beat me vigorously with a clue-by-four.
+On Sun, Aug 10, 2003 at 10:55:13PM +0200, Jan Niehusmann wrote:
+> On Thu, Aug 07, 2003 at 11:12:36PM +0200, Andries Brouwer wrote:
+> > Last September or so there was a long discussion about a
+> > filesystem that was destroyed. But what I recall is that
+> > in the end it turned out not to be a hardware problem,
+> > but a precedence problem - two missing parentheses in the driver.
+> > 
+> > Google will tell you all, I suppose. Search for Promise and Isely.
+> 
+> Yes, thanks, I found these mails, and they may describe exactly the 
+> symptoms I saw on my server. So perhaps the fixes have not been
+> (correctly) applied?
+> 
+> I only saw the mails from Mike Isely, but no 'official' response. Do you
+> remember if the patches got accepted by one of the maintainers? Andre?
 
-It has been tested on a 3x Pentium 133, 8x PIII Xeon 700, 1x Celeron 550 and 32x 
-PIII 500 NUMAQ (hardware courtesy of OSDL)
+I see no kernel version in your post, that would be the first thing
+of interest. Next, look at this addressing variable via /proc.
+It it is zero, then you are hit by something avoided by the patch
+I sketched yesterday evening or so. Otherwise we must look further.
 
-Index: linux-2.6.0-test3-huge_kpage/arch/i386/kernel/cpu/mtrr/generic.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test3/arch/i386/kernel/cpu/mtrr/generic.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 generic.c
---- linux-2.6.0-test3-huge_kpage/arch/i386/kernel/cpu/mtrr/generic.c	10 Aug 2003 08:41:39 -0000	1.1.1.1
-+++ linux-2.6.0-test3-huge_kpage/arch/i386/kernel/cpu/mtrr/generic.c	10 Aug 2003 20:24:49 -0000
-@@ -8,6 +8,7 @@
- #include <asm/msr.h>
- #include <asm/system.h>
- #include <asm/cpufeature.h>
-+#include <asm/tlbflush.h>
- #include "mtrr.h"
- 
- struct mtrr_state {
-@@ -241,19 +242,21 @@ static void prepare_set(void)
- 	   more invasive changes to the way the kernel boots  */
- 	spin_lock(&set_atomicity_lock);
- 
-+	/*  Enter the no-fill (CD=1, NW=0) cache mode and flush caches. */
-+	cr0 = read_cr0() | 0x40000000;	/* set CD flag */
-+	wbinvd();
-+	write_cr0(cr0);
-+	wbinvd();
-+
- 	/*  Save value of CR4 and clear Page Global Enable (bit 7)  */
- 	if ( cpu_has_pge ) {
- 		cr4 = read_cr4();
- 		write_cr4(cr4 & (unsigned char) ~(1 << 7));
- 	}
- 
--	/*  Disable and flush caches. Note that wbinvd flushes the TLBs as
--	    a side-effect  */
--	cr0 = read_cr0() | 0x40000000;
--	wbinvd();
--	write_cr0(cr0);
--	wbinvd();
--
-+	/* Flush all TLBs via a mov %cr3, %reg; mov %reg, %cr3 */
-+	__flush_tlb();
-+	
- 	/*  Save MTRR state */
- 	rdmsr(MTRRdefType_MSR, deftype_lo, deftype_hi);
- 
-@@ -265,6 +268,7 @@ static void post_set(void)
- {
- 	/*  Flush caches and TLBs  */
- 	wbinvd();
-+	__flush_tlb();
- 
- 	/* Intel (P6) standard MTRRs */
- 	wrmsr(MTRRdefType_MSR, deftype_lo, deftype_hi);
+It looks like all your corrupted places are at a multiple of 2^27.
+
+Also, I see that you do e2fsck on a mounted filesystem. Terrible.
+
+Andries
+
+

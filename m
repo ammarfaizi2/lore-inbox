@@ -1,85 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284886AbSABWKe>; Wed, 2 Jan 2002 17:10:34 -0500
+	id <S287017AbSABWIe>; Wed, 2 Jan 2002 17:08:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287016AbSABWKT>; Wed, 2 Jan 2002 17:10:19 -0500
-Received: from white.pocketinet.com ([12.17.167.5]:27108 "EHLO
-	white.pocketinet.com") by vger.kernel.org with ESMTP
-	id <S287044AbSABWJw>; Wed, 2 Jan 2002 17:09:52 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <nknight@pocketinet.com>
-Reply-To: nknight@pocketinet.com
-To: Keith Owens <kaos@ocs.com.au>, "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Subject: Re: system.map
-Date: Wed, 2 Jan 2002 14:09:53 -0800
-X-Mailer: KMail [version 1.3.1]
-Cc: timothy.covell@ashavan.org, adriankok2000@yahoo.com.hk (adrian kok),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <10236.1010007095@ocs3.intra.ocs.com.au>
-In-Reply-To: <10236.1010007095@ocs3.intra.ocs.com.au>
+	id <S287045AbSABWI1>; Wed, 2 Jan 2002 17:08:27 -0500
+Received: from svr3.applink.net ([206.50.88.3]:21256 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S287023AbSABWIK>;
+	Wed, 2 Jan 2002 17:08:10 -0500
+Message-Id: <200201022208.g02M81Sr022656@svr3.applink.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: "ChristianK."@t-online.de (Christian Koenig),
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+Date: Wed, 2 Jan 2002 16:04:20 -0600
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020102151539.A14925@thyrsus.com> <16Lstn-0eAVxAC@fwd07.sul.t-online.com>
+In-Reply-To: <16Lstn-0eAVxAC@fwd07.sul.t-online.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <WHITEAiPyTxQplr0tEj00000aaa@white.pocketinet.com>
-X-OriginalArrivalTime: 02 Jan 2002 22:08:19.0346 (UTC) FILETIME=[FC515720:01C193D9]
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 January 2002 01:31 pm, Keith Owens wrote:
-> On Wed, 2 Jan 2002 16:17:30 -0500 (EST),
+On Wednesday 02 January 2002 15:28, Christian Koenig wrote:
+> Hi,
 >
-> "Albert D. Cahalan" <acahalan@cs.uml.edu> wrote:
-> >That's not a nice place. Besides the fact that System.map is
-> >neither library nor module, /lib/modules is less likely to
-> >exist than /boot is. It's a wee bit slower too.
+> On Wednesday 02 January 2002 21:15, Eric S. Raymond wrote:
+> > Is there any way to safely probe a PCI motherboard to determine whether
+> > or not it has ISA cards present, or ISA card slots?
+> >
+> > Note: the question is *not* about a probe for whether the board has an
+> > ISA bridge, but a probe for the presence of actual ISA cards (or slots).
+> >
+> > (Yes, I'm working on a smart autoconfigurator.  It's a development of
+> > Giacomo Catenazzi's code, but able to use the CML2 deduction engine.)
 >
-> /boot is a hangover from old i386 systems that could not boot past
-> cylinder 1024 so you needed a special partition to hold the boot
-> images.  That restriction does not exist on any system less than 5
-> years old nor on most non-i386 machines, the requirement for a
-> special /boot is obsolete on most machines.
->
-> System.map is not required for booting, it is only used after init
-> starts, therefore it does not belong in /boot anyway.
->
-> IA64 requires boot files to be in /boot/efi which must be a VFAT
-> style partition.  Trust me, you don't want anything in /boot/efi
-> unless you have to.
->
-> For all those reasons, putting System.map and .config in /boot is the
-> wrong thing to do.  There is no point in creating yet another
+> Nope, AFAIK even if the motherboard dosn't have ISA-Slots, the ISA-like
+> chipset (DMA/old IRQ/Timer) is still present because off compatiblity
+> reasons.
 
-For what reasons? I see no valid reason for it being the "Wrong" thing 
-to do. I wouldn't even call it QUESTIONABLE. Nor is it simply a 
-"holdover". There are still systems in use whos BIOS simply *does not 
-support* booting past the 1024th cyl.
-1. Putting stuff in /boot is generaly the "standard" thing to do, 
-generaly won't cause confusion among experienced users, and will make 
-sense to new users; /lib/modules/* will make no sense whatsoever.
+Here's a good quotation from the lm_sensors man page:
 
-2. /boot is shorter than /lib/modules/`uname -r`, and no I'm not 
-kidding. I like short pathnames, it's for this reason I prefer to 
-deposit stuff in /usr instead of /usr/local when it's on my personal 
-desktop system. I'll sometimes spend hours copying kernels around or 
-troubleshooting. The last thing I want to do is type 
-/lib/mod<tab>/2.4<tab><damn forgot, more than one 2..4 
-kernel>.18<tab><damn forgot more than one -pre <pre-1>/bz<tab> when I 
-could instead type /bo<tab>/kern<tab>2.4.18....
-This of course assumes I'm using a shell with filename completion! That 
-in itself is not always possible on an extremely broken system.
+2.3 I don't have an ISA bus!
 
-3. Given that neither system is inherently bad, what makes you 
-qualified to say it's "wrong" ?
+    We promise, you do, even if you don't have any old ISA slots.
+The "ISA Bus" exists in your computer even if you don't have ISA slots;
+it is simply a memory-mapped area, 64KB in size (0x0000 - 0xFFFF)
+where many "legacy" functions, such as keyboard and interrupt controllers,
+are found. It isn't necessarily a separate physical bus.
+See the file /proc/ioports for a list of devices living on
+the "ISA Bus" in your system. If you don't like the term "ISA Bus"
+think "I/O Space".
 
-> directory to hold these files when /lib/modules/`uname -r` will do
-> the job.  Even on systems with no modules, /lib/modules can be
-> created to hold the kernel specific files.  I put my bootable kernels
-> in /lib/modules as well, then I have exactly one place to remove to
-> get rid of an old kernel.
+
 >
-> If it makes you feel happier, think of /lib/modules as 'kernel
-> specific data'.  Pity about the name but it is hard coded into too
-> many programs to change it to /lib/kernel or /kernel.
+> But if you only want to know if a specified IO-range is on an ISA-card you
+> could try to turn off the PCI-ISA brige, done this with Intel chipset
+> before (they call this power saveing mode).
 >
-> >It's a wee bit slower too.
->
-> ????
+> MfG, Christian König.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+timothy.covell@ashavan.org.

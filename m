@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287862AbSBCXBw>; Sun, 3 Feb 2002 18:01:52 -0500
+	id <S287860AbSBCXBA>; Sun, 3 Feb 2002 18:01:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287863AbSBCXBl>; Sun, 3 Feb 2002 18:01:41 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19973 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287862AbSBCXB3>; Sun, 3 Feb 2002 18:01:29 -0500
-Message-ID: <3C5DC138.3080106@zytor.com>
-Date: Sun, 03 Feb 2002 15:01:12 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Rob Landley <landley@trommello.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org> <20020203221750.HMXG18301.femail20.sdc1.sfba.home.com@there> <3C5DB8B7.4030304@zytor.com> <20020203225841.IBCK18525.femail19.sdc1.sfba.home.com@there>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S287862AbSBCXAu>; Sun, 3 Feb 2002 18:00:50 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:22152 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S287860AbSBCXAc>;
+	Sun, 3 Feb 2002 18:00:32 -0500
+Date: Mon, 4 Feb 2002 00:00:30 +0100
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.17 NFS hangup
+Message-ID: <20020203230030.GA14478@csoma.elte.hu>
+In-Reply-To: <20020203202251.GA22797@csoma.elte.hu> <shsbsf61di3.fsf@charged.uio.no> <20020203213422.GA703@csoma.elte.hu> <15453.48475.123973.610574@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15453.48475.123973.610574@charged.uio.no>
+User-Agent: Mutt/1.3.27i
+X-Accept-Language: en, hu
+From: "=?iso-8859-2?Q?Burj=E1n_G=E1bor?=" 
+	<buga+dated+1013036430.1fd862@elte.hu>
+X-Delivery-Agent: TMDA/0.43 (Python 2.1.1+; linux2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
+On Sun, Feb 03, Trond Myklebust wrote:
 
-> 
-> You can pivot_root after the bios hands control over to the kernel, sure.  
-> But if the bios can actually boot from arbitrary blocks on the CD before the 
-> kernel takes over, this is news to me.  And for the kernel to read from the 
-> CD, it needs its drivers already loaded for it, so they have to be in that 
-> 2.88 megs somewhere.  (Statically linked, ramdisk, etc.)
-> 
+> Are you seeing any kernel log messages about 'Tx FIFO error!' that
+> might indicate that particular code is getting triggered?
 
+No, nothing logged except the NFS related messages.  However, after NFS
+hangup I cannot scp from the host, but ssh works...   I am beginning to
+think that this is not an NFS issue.  Then what could it be?
 
-No, the boot specification allows direct access to the CD.  See the El 
-Torito specification, specifically the parts that talk about "no 
-emulation" mode.
-
-
-> I was just pointing out that small boot environments weren't going away any 
-> time soon, even if floppy drivers were to finally manage it.  When you 
-> install your system, the initial image you bootstrap from is generally tiny.
-> 
-> Now I'm not so familiar with that etherboot stuff, intel's whatsis 
-> specification (PXE?) for sucking a bootable image through the network.  All 
-> I've ever seen that boot is a floppy image, but I don't know if that's a 
-> limitation in the spec or just the way people are using it...
-
-
-That's just the way *some* people are using it.  Look at PXELINUX for 
-something that doesn't.  PXELINUX can use the UDP API provided by the 
-PXE specification to download arbitrary files, specified at runtime, via 
-TFTP.
-
-	-hpa
-
-
+	buga

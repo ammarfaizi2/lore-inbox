@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267498AbSLLUtq>; Thu, 12 Dec 2002 15:49:46 -0500
+	id <S267499AbSLLUup>; Thu, 12 Dec 2002 15:50:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267499AbSLLUtq>; Thu, 12 Dec 2002 15:49:46 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:14983 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267498AbSLLUto>;
-	Thu, 12 Dec 2002 15:49:44 -0500
-Date: Thu, 12 Dec 2002 21:56:56 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Mark Mielke <mark@mark.mielke.cc>
-Cc: Terje Eggestad <terje.eggestad@scali.com>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021212215656.A2078@ucw.cz>
-References: <1039610907.25187.190.camel@pc-16.office.scali.no> <3DF78911.5090107@zytor.com> <1039686176.25186.195.camel@pc-16.office.scali.no> <20021212203646.GA14228@mark.mielke.cc>
+	id <S267502AbSLLUuo>; Thu, 12 Dec 2002 15:50:44 -0500
+Received: from attila.bofh.it ([213.92.8.2]:51157 "EHLO attila.bofh.it")
+	by vger.kernel.org with ESMTP id <S267499AbSLLUuT>;
+	Thu, 12 Dec 2002 15:50:19 -0500
+Date: Thu, 12 Dec 2002 21:57:30 +0100
+From: "Marco d'Itri" <md@Linux.IT>
+To: Jim Houston <jim.houston@attbi.com>, julie.n.fleischer@intel.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.51 nanosleep fails
+Message-ID: <20021212205730.GA4564@wonderland.linux.it>
+References: <3DF7A890.A688AF54@attbi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021212203646.GA14228@mark.mielke.cc>; from mark@mark.mielke.cc on Thu, Dec 12, 2002 at 03:36:46PM -0500
+In-Reply-To: <3DF7A890.A688AF54@attbi.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 12, 2002 at 03:36:46PM -0500, Mark Mielke wrote:
-> On Thu, Dec 12, 2002 at 10:42:56AM +0100, Terje Eggestad wrote:
-> > On ons, 2002-12-11 at 19:50, H. Peter Anvin wrote:
-> > > Terje Eggestad wrote:
-> > > > PS:  rdtsc on P4 is also painfully slow!!!
-> > > Now that's just braindead...
-> > It takes about 11 cycles on athlon, 34 on PII, and a whooping 84 on P4.
-> > For a simple op like that, even 11 is a lot... Really makes you wonder.
-> 
-> Some of this discussion is a little bit unfair. My understanding of what
-> Intel has done with the P4, is create an architecture that allows for
-> higher clock rates. Sure the P4 might take 84, vs PII 34, but how many
-> PII 2.4 Ghz machines have you ever seen on the market?
-> 
-> Certainly, some of their decisions seem to be a little odd on the surface.
-> 
-> That doesn't mean the situation is black and white.
+On Dec 11, Jim Houston <jim.houston@attbi.com> wrote:
 
-Assume a 1GHz P-III. 34 clocks @ 1GHz = 34 ns. 84 clocks @ 2.4 GHz = 35 ns.
-That's actually slower. Fortunately the P4 isn't this bad on all
-instructions.
+ >I was able to reproduce this issue.  It happens on all the
+ >kernels I tried including a stock Redhat kernel.  This is just 
+ >an idiosyncrasy of strace. In this case both the strace and
+No, it is not. It does not happen with 2.4.x kernel and probably did not
+happen with 2.5.50.
+It *does* happen with 2.5.51 even when strace is not used:
+
+md@wonderland:~$LANG= tail -f /var/log/uucp/Log
+[...]
+uucico bofh - (2002-12-12 21:50:27.54 4484) Call complete (4 seconds 2336 bytes 584 bps)
+
+[2]+  Stopped                 LANG= tail -f /var/log/uucp/Log
+md@wonderland:~$ fg
+LANG= tail -f /var/log/uucp/Log
+tail: cannot read realtime clock: Bad address
+[Exit 1]
+md@wonderland:~$
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+ciao,
+Marco

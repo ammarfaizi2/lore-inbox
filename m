@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313552AbSDQLGZ>; Wed, 17 Apr 2002 07:06:25 -0400
+	id <S313536AbSDQLMb>; Wed, 17 Apr 2002 07:12:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313551AbSDQLGY>; Wed, 17 Apr 2002 07:06:24 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:26515
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S313536AbSDQLGW>; Wed, 17 Apr 2002 07:06:22 -0400
-Date: Wed, 17 Apr 2002 07:09:37 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: bert hubert <ahu@ds9a.nl>, Olaf Fraczyk <olaf@navi.pl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: please merge 64-bit jiffy patches. Was Re: Why HZ on i386 is 100 ?
-Message-ID: <20020417070937.A29310@animx.eu.org>
-In-Reply-To: <20020416074748.GA16657@venus.local.navi.pl> <20020416233457.A1731@outpost.ds9a.nl> <20020416222156.GB20464@turbolinux.com> <20020417102828.D11817@outpost.ds9a.nl>
+	id <S313550AbSDQLMa>; Wed, 17 Apr 2002 07:12:30 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:7301 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S313536AbSDQLM3>; Wed, 17 Apr 2002 07:12:29 -0400
+Date: Wed, 17 Apr 2002 13:12:28 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: Olaf Fraczyk <olaf@navi.pl>, linux-kernel@vger.kernel.org
+Subject: Re: please merge 64-bit jiffy patches.
+Message-ID: <20020417131228.A16445@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Tim Schmielau <tim@physik3.uni-rostock.de>,
+	Olaf Fraczyk <olaf@navi.pl>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020417102828.D11817@outpost.ds9a.nl> <Pine.LNX.4.33.0204171258310.14333-100000@gans.physik3.uni-rostock.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Trivially fixed with the existing 64-bit jiffies patches.  As it is,
-> > your uptime wraps to zero after 472 days or something like that if you
-> > don't have the 64-bit jiffies patch, which is totally in the realm of
-> > possibility for Linux servers.
-> 
-> I feel your pain 
-> 
-> 4:26am  up 482 days, 10:33,  2 users,  load average: 0.04, 0.02, 0.00
-> 
-> On a very remote server.
-> 
-> So can we please merge the 64-bit jiffies patches? I sometimes think that
-> that is the main reason why alpha DOES have HZ=1024 - the jiffies there
-> don't wrap in an embarrassing way within two months :-)
+On Wed, Apr 17, 2002 at 11:07:49AM +0000, Tim Schmielau wrote:
 
-Yes, but being that the alpha is 64-bit, it doesn't wrap at 49.7 days.  I've
-seen mine at 60 days or so.
+> Rik van Riel correctly suggested to merge it in 2.5 first. I have a 
+> forward-ported version, but it has a minor locking issue on UP.
+
+I think that would be right. It touches a lot of code.
+
+> Albert Cahalan suggested to get rid of locking at all by only updating the 
+> high word from the timer interupt. I will try to code this on the weekend.
+
+Smart.
+
+> I'm sorry I had no time for lobbying the merge in the last month.
+
+Anything I can do to help, just let me know. Right now I am actually facing
+costs because of this issue, so I am very much in favour of saving those
+costs 500 days from now :-)
+
+Regards,
+
+bert 
 
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

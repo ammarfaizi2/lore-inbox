@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268056AbRG2QAB>; Sun, 29 Jul 2001 12:00:01 -0400
+	id <S268053AbRG2P5L>; Sun, 29 Jul 2001 11:57:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268057AbRG2P7w>; Sun, 29 Jul 2001 11:59:52 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:61202 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S268056AbRG2P7h>;
-	Sun, 29 Jul 2001 11:59:37 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200107291559.TAA15413@ms2.inr.ac.ru>
-Subject: Re: missing icmp errors for udp packets
-To: pekkas@netcore.fi (Pekka Savola)
-Date: Sun, 29 Jul 2001 19:59:11 +0400 (MSK DST)
-Cc: therapy@endorphin.org, netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-        davem@redhat.com (Dave Miller)
-In-Reply-To: <Pine.LNX.4.33.0107290739370.2081-100000@netcore.fi> from "Pekka Savola" at Jul 29, 1 07:57:48 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S268056AbRG2P5C>; Sun, 29 Jul 2001 11:57:02 -0400
+Received: from mail3.iadfw.net ([209.196.123.3]:31241 "HELO mail3.iadfw.net")
+	by vger.kernel.org with SMTP id <S268053AbRG2P4v>;
+	Sun, 29 Jul 2001 11:56:51 -0400
+From: "Art Haas" <ahaas@neosoft.com>
+Date: Sun, 29 Jul 2001 11:00:45 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] two small patches for fs/exec.c and fs/ramfs/inode.c
+Message-ID: <20010729110045.C347@localhost.neosoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello!
+Hi.
 
-> So in conclusion:
-> 
-> with net.ipv4.icmp_echoreply_rate=0:
+Here are two trivial patches that remove warnings. The fs/exec.c patch
+removes an unused variable, and the fs/ramfs/inode.c patch replaces
+a call of `linux/malloc.h' with `linux/slab.h'. Both patches I've
+applied to my 2.4.7-ac2 kernel. Sorry if this is the 50th time you've
+seen these posted to the mailing list ...
 
-Congratulations! That's why I do not see this, forgot to ping before. :-)
+My thanks to everyone working on the kernel. The 2.4 kernels keep
+getting better every day!
 
-The patch is enclosed.
+Art Haas 
 
-Alexey
+====================================================
 
-
---- ../dust/vger3-010728/linux/net/ipv4/icmp.c	Thu Jun 14 22:49:44 2001
-+++ linux/net/ipv4/icmp.c	Sun Jul 29 19:52:55 2001
-@@ -240,12 +240,15 @@
- int xrlim_allow(struct dst_entry *dst, int timeout)
- {
- 	unsigned long now;
-+	static int burst;
+--- fs/exec.c.orig	Sat Jul 28 11:52:47 2001
++++ fs/exec.c	Sat Jul 28 12:25:28 2001
+@@ -929,7 +929,6 @@
  
- 	now = jiffies;
- 	dst->rate_tokens += now - dst->rate_last;
- 	dst->rate_last = now;
--	if (dst->rate_tokens > XRLIM_BURST_FACTOR*timeout)
--		dst->rate_tokens = XRLIM_BURST_FACTOR*timeout;
-+	if (burst < XRLIM_BURST_FACTOR*timeout)
-+		burst = XRLIM_BURST_FACTOR*timeout;
-+	if (dst->rate_tokens > burst)
-+		dst->rate_tokens = burst;
- 	if (dst->rate_tokens >= timeout) {
- 		dst->rate_tokens -= timeout;
- 		return 1;
+ int do_coredump(long signr, struct pt_regs * regs)
+ {
+-	struct mm_struct *mm;
+ 	struct linux_binfmt * binfmt;
+ 	char corename[6+sizeof(current->comm)+10];
+ 	struct file * file;
+
+====================================================
+
+--- fs/ramfs/inode.c.orig	Sat Jul 28 11:52:50 2001
++++ fs/ramfs/inode.c	Sat Jul 28 13:00:26 2001
+@@ -30,7 +30,7 @@
+ #include <linux/string.h>
+ #include <linux/locks.h>
+ #include <linux/highmem.h>
+-#include <linux/malloc.h>
++#include <linux/slab.h>
+ 
+ #include <asm/uaccess.h>
+ #include <linux/spinlock.h>
+

@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVCCGA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbVCCFfT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261516AbVCCGA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 01:00:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVCCF7K
+	id S261506AbVCCFfT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 00:35:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVCCFfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 00:59:10 -0500
-Received: from gate.crashing.org ([63.228.1.57]:32468 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261544AbVCCF44 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 00:56:56 -0500
-Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       clameter@sgi.com, Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, Anton Blanchard <anton@samba.org>
-In-Reply-To: <20050302213831.7e6449eb.davem@davemloft.net>
-References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
-	 <Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
-	 <20050302174507.7991af94.akpm@osdl.org>
-	 <Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>
-	 <20050302185508.4cd2f618.akpm@osdl.org>
-	 <Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>
-	 <20050302201425.2b994195.akpm@osdl.org>
-	 <16934.39386.686708.768378@cargo.ozlabs.ibm.com>
-	 <20050302213831.7e6449eb.davem@davemloft.net>
-Content-Type: text/plain
-Date: Thu, 03 Mar 2005 16:54:08 +1100
-Message-Id: <1109829248.5679.178.camel@gaston>
+	Thu, 3 Mar 2005 00:35:16 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:54897 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261506AbVCCFbf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 00:31:35 -0500
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: [PATCH][4/11] IB/mthca: add missing break
+In-Reply-To: <2005322131.O2Ym8iporsXeypcV@topspin.com>
+X-Mailer: Roland's Patchbomber
+Date: Wed, 2 Mar 2005 21:31:22 -0800
+Message-Id: <2005322131.oecVhU1CS3swCooO@topspin.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+To: akpm@osdl.org
+Content-Transfer-Encoding: 7BIT
+From: Roland Dreier <roland@topspin.com>
+X-OriginalArrivalTime: 03 Mar 2005 05:31:22.0663 (UTC) FILETIME=[3C52DB70:01C51FB2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Add missing break statements in switch in mthca_profile.c (pointed out
+by Michael Tsirkin).
 
-> However, if this pte_cmpxchg() thing is used for removing access, then
-> sparc64 can't use it.  In such a case a race in the TLB handler would
-> result in using an invalid PTE.  I could "spin" on some lock bit, but
-> there is no way I'm adding instructions to the carefully constructed
-> TLB miss handler assembler on sparc64 just for that :-)
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
-Can't you add a lock bit in the PTE itself like we do on ppc64 hash
-refill ?
 
-Ok, ok, you don't want to add instructions, fair enough :) On ppc64, I
-had to do that to close some nasty race we had in the hash refill, but
-it came almost for free as we already had an atomic loop in there.
-
-Ben.
-
+--- linux-export.orig/drivers/infiniband/hw/mthca/mthca_profile.c	2005-03-02 20:26:03.023831785 -0800
++++ linux-export/drivers/infiniband/hw/mthca/mthca_profile.c	2005-03-02 20:26:11.904904003 -0800
+@@ -241,10 +241,12 @@
+ 		case MTHCA_RES_UDAV:
+ 			dev->av_table.ddr_av_base = profile[i].start;
+ 			dev->av_table.num_ddr_avs = profile[i].num;
++			break;
+ 		case MTHCA_RES_UARC:
+ 			init_hca->uarc_base   = profile[i].start;
+ 			init_hca->log_uarc_sz = ffs(request->uarc_size) - 13;
+ 			init_hca->log_uar_sz  = ffs(request->num_uar) - 1;
++			break;
+ 		default:
+ 			break;
+ 		}
 

@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262707AbTLJAQL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 19:16:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbTLJAQF
+	id S262115AbTLJA1k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 19:27:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTLJA1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 19:16:05 -0500
-Received: from gprs145-126.eurotel.cz ([160.218.145.126]:40578 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262707AbTLJAQB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 19:16:01 -0500
-Date: Wed, 10 Dec 2003 01:16:52 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Jeremy Maitin-Shepard <jbms@attbi.com>
-Cc: linux-kernel@vger.kernel.org, Kendrick Hamilton <hamilton@sedsystems.ca>
-Subject: Re: Linux Kernel and GPL section 2c
-Message-ID: <20031210001652.GC618@elf.ucw.cz>
-References: <3FD4BF6E.7070503@sedsystems.ca> <87ptezgnfv.fsf@jay.local.invalid>
+	Tue, 9 Dec 2003 19:27:40 -0500
+Received: from 217-124-44-246.dialup.nuria.telefonica-data.net ([217.124.44.246]:7050
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S262115AbTLJA1j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 19:27:39 -0500
+Date: Wed, 10 Dec 2003 01:27:37 +0100
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Device-mapper submission for 2.4
+Message-ID: <20031210002737.GA27208@localhost>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0312092047450.1289-100000@logos.cnet> <Pine.LNX.4.56.0312092329280.30298@fogarty.jakma.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87ptezgnfv.fsf@jay.local.invalid>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <Pine.LNX.4.56.0312092329280.30298@fogarty.jakma.org>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tuesday, 09 December 2003, at 23:46:13 +0000,
+Paul Jakma wrote:
 
-> > Hello all,
-> >     I noticed the discussion about linux kernel modules that happened last
-> >     week. I was wondering about something with regards to the linux kernel and
-> >     Section 2c of the GPL. Why doesn't the kernel on booting print something
-> >     about the kernel being free software licensed under the GPL, and shouldn't
-> >     it?
+> There are people who store their data in LVM, we need compatibility,
+> and ideally we'd like to be able to migrate in small steps.
 > 
-> Presumably, 1) the kernel as a whole is not a "modified" work, but
-> rather at least parts of it are the original work, 2) it does not read
-> commands interactively when run, 3) it does not normally print such
-> announcements.
+Install "module-init-tools", install "LVM2" (that can drive both LVM1
+and DM Logical Volumes), compile a 2.6.x Linux kernel, reboot and you
+should be done.
 
-I see such announcements. I think we should just kill them all:
+As far as I remember, migration is just that easy, and you can always go
+back to plain 2.4.x while you don't update LVM metadata to newer version 2.
 
-Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-CSLIP: code copyright 1989 Regents of the University of California.
-Linux agpgart interface v0.100 (c) Dave Jones
-ip_tables: (C) 2000-2002 Netfilter core team
+Greetings.
 
-Or perhaps we can replace 'POSIX conformance testing by UNIFIX' with
-'Distribute under GPLv2'?
-									Pavel
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test10-mm1)

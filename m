@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136685AbREASLy>; Tue, 1 May 2001 14:11:54 -0400
+	id <S136688AbREASOn>; Tue, 1 May 2001 14:14:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136684AbREASLm>; Tue, 1 May 2001 14:11:42 -0400
-Received: from nwcst287.netaddress.usa.net ([204.68.23.32]:26337 "HELO
-	nwcst287.netaddress.usa.net") by vger.kernel.org with SMTP
-	id <S136683AbREASLe> convert rfc822-to-8bit; Tue, 1 May 2001 14:11:34 -0400
-Message-ID: <20010501181133.2486.qmail@nwcst287.netaddress.usa.net>
-Date: 1 May 2001 13:11:33 CDT
-From: shreenivasa H V <shreenihv@usa.net>
-To: linux-kernel@vger.kernel.org
-Subject: Compiling modules for kernel 2.4
-X-MSMail-Priority: High
-X-Priority: 1
-X-Mailer: USANET web-mailer (34FM.0700.17C.01)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+	id <S136683AbREASOc>; Tue, 1 May 2001 14:14:32 -0400
+Received: from c1123685-a.crvlls1.or.home.com ([65.12.164.15]:12049 "EHLO
+	inbetween.blorf.net") by vger.kernel.org with ESMTP
+	id <S136687AbREASOX>; Tue, 1 May 2001 14:14:23 -0400
+Date: Tue, 1 May 2001 11:14:13 -0700 (PDT)
+From: Jacob Luna Lundberg <kernel@gnifty.net>
+Reply-To: jacob@chaos2.org
+To: Ronny Haryanto <ronny-linux@haryan.to>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: tulip driver broken in 2.4.4?
+In-Reply-To: <20010501125721.A1734@haryan.to>
+Message-ID: <Pine.LNX.4.21.0105011108500.2956-100000@inbetween.blorf.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I am having trouble compiling the modules for kernel 2.4. The compilation
-doesn't go through, it just goes into each directory and says "nothing to do"
-and comes out. The object files are not created. Has anyone else faced the
-same problem? Do I have to do any other setup before doing
 
-make mrproper config dep clean bzImage modules modules_install
+Well, I guess I should chip in here with the rather amusing fact that
+2.4.4 is the first kernel *not* to do this to me...  ;-)
 
-I tried the same stuff with with kernel 2.2.16 and the modules compile fine.
+I am, of course, glad to help out testing stuff if needed.  My card is
+also a LinkSys LNE100TX v4.1, which the tulip driver identifies as an
+ADMtek Comet rev 17 (although somebody told me it's really a Centaur).
 
-thanks,
-shreeni.
+-Jacob
 
-____________________________________________________________________
-Get free email and a permanent address at http://www.netaddress.com/?N=1
+On Tue, 1 May 2001, Ronny Haryanto wrote:
+> On 01-May-2001, Jeff Garzik wrote:
+> > Ronny Haryanto wrote:
+> > > 
+> > > Just tried 2.4.4 yesterday and found that my eth1 was dead after 5 minutes.
+> > 
+> > Does 2.4.3 work for you?
+> 
+> Yes. I just tried 2.4.3, and it works fine. So it looks like there's a bug
+> introduced between 2.4.3 and 2.4.4. Too bad I can't use 2.4.3; I need 2.4.4
+> due to the VIA chipset bug. Is there any other info that I could provide
+> from here to help debugging?
+
+

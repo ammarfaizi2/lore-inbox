@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288967AbSAITF3>; Wed, 9 Jan 2002 14:05:29 -0500
+	id <S288970AbSAITGj>; Wed, 9 Jan 2002 14:06:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288969AbSAITFU>; Wed, 9 Jan 2002 14:05:20 -0500
-Received: from 213-97-45-174.uc.nombres.ttd.es ([213.97.45.174]:31754 "EHLO
-	pau.intranet.ct") by vger.kernel.org with ESMTP id <S288967AbSAITFB>;
-	Wed, 9 Jan 2002 14:05:01 -0500
-Date: Wed, 9 Jan 2002 20:04:54 +0100 (CET)
-From: Pau Aliagas <linux4u@wanadoo.es>
-X-X-Sender: <pau@pau.intranet.ct>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: build errors 2.4.18-pre2
-Message-ID: <Pine.LNX.4.33.0201092004200.27466-100000@pau.intranet.ct>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288969AbSAITGa>; Wed, 9 Jan 2002 14:06:30 -0500
+Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:18650 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S288970AbSAITGY>;
+	Wed, 9 Jan 2002 14:06:24 -0500
+Message-Id: <m16OO2K-000OVeC@amadeus.home.nl>
+Date: Wed, 9 Jan 2002 19:05:20 +0000 (GMT)
+From: arjan@fenrus.demon.nl
+To: Athanasius@gurus.tf (Athanasius)
+Subject: Re: [PATCH] Athlon XP 1600+ and _mmx_memcpy symbol in modules
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020109182224.GI15688@gurus.tf>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20020109182224.GI15688@gurus.tf> you wrote:
+> Hi,
+>  I've just upraded from my old PII-400 system to an Athlon XP 1600+
+> based system so changed from "Pentium-Pro/Celeron/Pentium-II"
+> (CONFIG_M686) to "Athlon/Duron/K7" (CONFIG_MK7).  In doing so I suddenly
+> saw a LOT of problems with modules and the symbol _mmx_memcpy being
+> undefined.
 
-gcc -D__KERNEL__ -I/home/pau/LnxZip/RPM/BUILD/kernel-2.4.18pre2/include 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=i686 -DMODULE -DMODVERSIONS -include 
-/home/pau/LnxZip/RPM/BUILD/kernel-2.4.18pre2/include/linux/modversions.h   
--c -o radeonfb.o radeonfb.c
-radeonfb.c: In function `radeon_save_state':
-radeonfb.c:2283: `TMDS_TRANSMITTER_CNTL' undeclared (first use in this 
-function)
-radeonfb.c:2283: (Each undeclared identifier is reported only once
-radeonfb.c:2283: for each function it appears in.)
-radeonfb.c: In function `radeon_load_video_mode':
-radeonfb.c:2560: `TMDS_RAN_PAT_RST' undeclared (first use in this 
-function)
-radeonfb.c:2561: `ICHCSEL' undeclared (first use in this function)
-radeonfb.c:2561: `TMDS_PLLRST' undeclared (first use in this function)
-radeonfb.c: In function `radeon_write_mode':
-radeonfb.c:2650: `TMDS_TRANSMITTER_CNTL' undeclared (first use in this 
-function)
-radeonfb.c:2655: `LVDS_STATE_MASK' undeclared (first use in this function)
-radeonfb.c: At top level:
-radeonfb.c:2957: warning: `fbcon_radeon8' defined but not used
-make[3]: *** [radeonfb.o] Error 1
-make[3]: Leaving directory 
-`/home/pau/LnxZip/RPM/BUILD/kernel-2.4.18pre2/drivers/video'
-make[2]: *** [_modsubdir_video] Error 2
-make[2]: Leaving directory 
-`/home/pau/LnxZip/RPM/BUILD/kernel-2.4.18pre2/drivers'
-make[1]: *** [_mod_drivers] Error 2
-make[1]: Leaving directory `/home/pau/LnxZip/RPM/BUILD/kernel-2.4.18pre2'
-error: Bad exit status from /home/pau/LnxZip/tmp/rpm-tmp.6614 (%build)
+>  I finally kludged/fixed this by changing line 121 of
+> arch/i386/kernel/i386_ksyms.c from:
 
+> EXPORT_SYMBOL(_mmx_memcpy);
 
--- 
-
-Pau
-
+you forgot to make mrproper ;) (or at least make clean)
+yes the makefile for modversions is missing a dependency......

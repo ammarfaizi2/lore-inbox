@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267618AbTAHAdI>; Tue, 7 Jan 2003 19:33:08 -0500
+	id <S267612AbTAHAjR>; Tue, 7 Jan 2003 19:39:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267617AbTAHAdH>; Tue, 7 Jan 2003 19:33:07 -0500
-Received: from barry.mail.mindspring.net ([207.69.200.25]:7732 "EHLO
-	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S267621AbTAHAdG>; Tue, 7 Jan 2003 19:33:06 -0500
-Message-ID: <3E1B73F3.2070604@emageon.com>
-Date: Tue, 07 Jan 2003 18:42:27 -0600
-From: Brian Tinsley <btinsley@emageon.com>
-Organization: Emageon
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: long stalls
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267614AbTAHAjR>; Tue, 7 Jan 2003 19:39:17 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:10889
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267612AbTAHAjQ>; Tue, 7 Jan 2003 19:39:16 -0500
+Subject: Re: Oops on dual P5 (mp_bus_id_to_pci_bus==NULL)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: greg@kroah.org, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030107151144.A1904@devserv.devel.redhat.com>
+References: <20030107151144.A1904@devserv.devel.redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1041989504.22457.4.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 08 Jan 2003 01:31:44 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have been having terrible problems with long stalls, meaning from a 
-couple of minutes to an hour, happening when filesystem I/O load gets 
-high. The system time as reported by vmstat or sar will increase up to 
-99% and as it spreads to each procesor, the system becomes completely 
-unresponsive (except that it responds to pings just fine - 
-interesting!). When the system finally returns to the world of the 
-living, the only evidence that something bad has happened is the runtime 
-for kswapd is abnormally high. I have seen this happen with the stock 
-2.4.17, 2.4.19, and 2.4.20 kernels on SMP PIII and PIV machines (either 
-4GB or 8GB RAM, all SCSI disks, dual GigE NICs). I've searched the lkml 
-archives and google and have found several similar postings, but there 
-is never an explanation or resolution. Any help would be *very* much 
-appreciated! If any info from the system in question is desired, I will 
-be glad to provide it.
+On Tue, 2003-01-07 at 20:11, Pete Zaitcev wrote:
+> Greg, the attached patch is broken. What do you think happens
+> if (mpf->mpf_feature1 != 0) in get_smp_config()?
+> In my case, it looks like this:
+> 
+> Intel MultiProcessor Specification v1.1
+>     Virtual Wire compatibility mode.
+> Default MP configuration #6
+> Processor #0 Pentium(tm) APIC version 16
+> Processor #1 Pentium(tm) APIC version 16
+> I/O APIC #2 Version 16 at 0xFEC00000.
+> Processors: 2
+> ............... blah blah blah
+> PCI: PCI BIOS revision 2.00 entry at 0xfcad0, last bus=0
+> PCI: Using configuration type 2
+> PCI: Probing PCI hardware
+> Unable to handle kernel NULL pointer dereference at virtual address 00000000
+>  <--- IO_APIC_get_PCI_irq_vector dies in if (mp_bus_id_to_pci_bus[bus] == -1)
+> 
+> I hope you have the time to fix this for -pre4.
 
-
-
--- 
-
--[========================]-
--[      Brian Tinsley     ]-
--[ Chief Systems Engineer ]-
--[        Emageon         ]-
--[========================]-
-
+I already sent Marcelo the fix.
 

@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263642AbUEGPzR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263653AbUEGQBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263642AbUEGPzR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 11:55:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263644AbUEGPyk
+	id S263653AbUEGQBx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 12:01:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263644AbUEGQBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 11:54:40 -0400
-Received: from outgoingmail.adic.com ([63.81.117.28]:29115 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263642AbUEGPxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 11:53:39 -0400
-Message-ID: <409BAFAC.70601@xfs.org>
-Date: Fri, 07 May 2004 10:47:56 -0500
-From: Steve Lord <lord@xfs.org>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Arjan van de Ven <arjanv@redhat.com>, Paul Jakma <paul@clubi.ie>,
+	Fri, 7 May 2004 12:01:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:31198 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263654AbUEGP74 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 11:59:56 -0400
+Date: Fri, 7 May 2004 17:59:43 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Steve Lord <lord@xfs.org>
+Cc: Dave Jones <davej@redhat.com>, Paul Jakma <paul@clubi.ie>,
        Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
        Linux Kernel ML <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
-References: <20040505013135.7689e38d.akpm@osdl.org> <200405051312.30626.dominik.karall@gmx.net> <200405051822.i45IM2uT018573@turing-police.cc.vt.edu> <20040505215136.GA8070@wohnheim.fh-wedel.de> <200405061518.i46FIAY2016476@turing-police.cc.vt.edu> <1083858033.3844.6.camel@laptop.fenrus.com> <Pine.LNX.4.58.0405070136010.1979@fogarty.jakma.org> <20040507065105.GA10600@devserv.devel.redhat.com> <20040507151317.GA15823@redhat.com>
-In-Reply-To: <20040507151317.GA15823@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040507155941.GA17850@devserv.devel.redhat.com>
+References: <20040505013135.7689e38d.akpm@osdl.org> <200405051312.30626.dominik.karall@gmx.net> <200405051822.i45IM2uT018573@turing-police.cc.vt.edu> <20040505215136.GA8070@wohnheim.fh-wedel.de> <200405061518.i46FIAY2016476@turing-police.cc.vt.edu> <1083858033.3844.6.camel@laptop.fenrus.com> <Pine.LNX.4.58.0405070136010.1979@fogarty.jakma.org> <20040507065105.GA10600@devserv.devel.redhat.com> <20040507151317.GA15823@redhat.com> <409BAFAC.70601@xfs.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
+Content-Disposition: inline
+In-Reply-To: <409BAFAC.70601@xfs.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Fri, May 07, 2004 at 08:51:05AM +0200, Arjan van de Ven wrote:
->  > 
->  > On Fri, May 07, 2004 at 01:37:54AM +0100, Paul Jakma wrote:
->  > > On Thu, 6 May 2004, Arjan van de Ven wrote:
->  > > 
->  > > > Ok I don't want to start a flamewar but... Do we want to hold linux
->  > > > back until all binary only module vendors have caught up ??
->  > > 
->  > > What about normal linux modules though? Eg, NFS (most likely):
->  > > 
->  > > 	https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=121804
->  > 
->  > NFSv4 has a > 1Kb stack user; Dave Jones has a fix pending for that...
+
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Fri, May 07, 2004 at 10:47:56AM -0500, Steve Lord wrote:
+> >-	if (mlen > sizeof(buf))
+> >+	obj.data = kmalloc(1024, GFP_KERNEL);
+> >+	if (!obj.data)
+> >+		return -ENOMEM;
+> >+
+> >+	if (mlen > 1024) {
 > 
-> Hmm, this one maybe?
->  
-> 		Dave
-> 
+> That's what I hate about all of this, just think how much stack that
+> kmalloc can take in low memory situations.... it might end up in
+> writepage on another nfs file....
 
->  
-> -	if (mlen > sizeof(buf))
-> +	obj.data = kmalloc(1024, GFP_KERNEL);
-> +	if (!obj.data)
-> +		return -ENOMEM;
-> +
-> +	if (mlen > 1024) {
+it clearly needs to be GFP_NOFS
 
-That's what I hate about all of this, just think how much stack that
-kmalloc can take in low memory situations.... it might end up in
-writepage on another nfs file.... Moving stuff off the stack and
-into kmalloc just reduces the possibility of stack overflow, it
-does not fix the problem. Having memory reclaim take place inside
-the thread which is waiting for memory makes that a pretty hard
-problem to fix.
+--uAKRQypu60I7Lcqm
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Steve
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAm7JtxULwo51rQBIRAoQgAJ9PQIYFry25OYd9KGC101pI5jEZ4ACfZu+4
+QsloLOsOG+7deqxihbFDh4k=
+=J6gx
+-----END PGP SIGNATURE-----
+
+--uAKRQypu60I7Lcqm--

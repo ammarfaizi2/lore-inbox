@@ -1,39 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289645AbSBEVzz>; Tue, 5 Feb 2002 16:55:55 -0500
+	id <S289653AbSBEWDO>; Tue, 5 Feb 2002 17:03:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289653AbSBEVzp>; Tue, 5 Feb 2002 16:55:45 -0500
-Received: from natpost.webmailer.de ([192.67.198.65]:32459 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S289645AbSBEVzb>; Tue, 5 Feb 2002 16:55:31 -0500
-Date: Tue, 5 Feb 2002 22:53:48 +0100
-From: Kristian <kristian.peters@korseby.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New scheduler in 2.4. series?
-Message-Id: <20020205225348.03f614fd.kristian.peters@korseby.net>
-In-Reply-To: <Pine.LNX.4.33.0202060024430.22859-100000@localhost.localdomain>
-In-Reply-To: <20020205222244.4b763103.kristian.peters@korseby.net>
-	<Pine.LNX.4.33.0202060024430.22859-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.7.0claws5 (GTK+ 1.2.10; i386-redhat-linux)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S289824AbSBEWDF>; Tue, 5 Feb 2002 17:03:05 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:45245 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S289653AbSBEWCw>;
+	Tue, 5 Feb 2002 17:02:52 -0500
+Date: Tue, 05 Feb 2002 22:02:45 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: How to check the kernel compile options ?
+Message-ID: <2006875340.1012946564@[195.224.237.69]>
+In-Reply-To: <a3mjhc$qba$1@cesium.transmeta.com>
+In-Reply-To: <a3mjhc$qba$1@cesium.transmeta.com>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
-> true, the old scheduler did not do much with the nice level. In the new
-> scheduler there is some real difference between nice levels - and this is
-> a feature. I'd suggest for you to try something like nice -5. What kind of
-> application are you renicing?
 
-Just multiple 'nice -n -20 tar -cvjf` in a row for "high priority backup when my DTLA drives makes wierd noises again". I'm just compiling -K2. (BTW: -J2 behaves really bad while moving windows during a kernel compilation.)
 
-*Kristian
+--On Monday, 04 February, 2002 10:22 AM -0800 "H. Peter Anvin" 
+<hpa@zytor.com> wrote:
 
-  :... [snd.science] ...:
- ::
- :: http://www.korseby.net
- :: http://gsmp.sf.net
-  :.........................:: ~/$ kristian@korseby.net :
+> I have had in my /sbin/installkernel a clause to save .config as
+> config-<foo> when I install vmlinuz-<foo>; I believe anyone not doing
+> that[1] is, quite frankly, a moron.
+
+Always being willing to rise to the challenge of being called
+a moron:
+
+Seems to me that if the prefered method of booting becomes
+an initrd-esque thing + pivot_root, I /may/ (reasonably)
+perhaps have these files on the initrd anyway, and /might/
+not have it mounted (or at least not mounted on the same
+path across multiple distributions), in which case being
+able to access them through /proc (which incidentally
+could do the decompression for us, giving plain text
+out of /proc and using minimal memory) might be useful.
+[of course this /is/ saving config-foo, but to a place
+where it's might be useful to access it from /proc]
+
+Ditto ksyms etc.
+
+An advantage of having the kernel, config, ksyms
+etc. as one atomic lump is one of the same reasons
+as people are looking to have kernel and modules as one
+atomic lump - i.e. much less chance of the wrong
+ones being looked at.
+
+I would be surprised if there is anyone on this list
+who has not lost at some point either the .config, the
+kysms, or something similar associated with at least
+one build they've made.
+
+--
+Alex Bligh

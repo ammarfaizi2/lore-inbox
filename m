@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318207AbSGWT6w>; Tue, 23 Jul 2002 15:58:52 -0400
+	id <S318202AbSGWUKX>; Tue, 23 Jul 2002 16:10:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318211AbSGWT6v>; Tue, 23 Jul 2002 15:58:51 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:5646 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318207AbSGWT6v>; Tue, 23 Jul 2002 15:58:51 -0400
-Date: Tue, 23 Jul 2002 17:01:32 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Paul Larson <plars@austin.ibm.com>
-cc: dmccr@us.ibm.com, William Lee Irwin III <wli@holomorphy.com>,
-       lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
-       <haveblue@us.ibm.com>
-Subject: Re: [OOPS] 2.5.27 - __free_pages_ok()
-In-Reply-To: <1027454241.7700.34.camel@plars.austin.ibm.com>
-Message-ID: <Pine.LNX.4.44L.0207231701000.3086-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S318203AbSGWUKW>; Tue, 23 Jul 2002 16:10:22 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:53512
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S318202AbSGWUKW>; Tue, 23 Jul 2002 16:10:22 -0400
+Date: Tue, 23 Jul 2002 13:08:35 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: please DON'T run 2.5.27 with IDE!
+In-Reply-To: <20020723195231.GA14288@ravel.coda.cs.cmu.edu>
+Message-ID: <Pine.LNX.4.10.10207231304530.29975-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Jul 2002, Paul Larson wrote:
+On Tue, 23 Jul 2002, Jan Harkes wrote:
 
-> I was asking Dave McCracken and he mentioned that rmap and highmem pte
-> don't play nice together.  I tried turning that off and it boots without
-> error now.
+> On Tue, Jul 23, 2002 at 03:58:58PM +0200, Marcin Dalecki wrote:
+> > That's actually not true... At least the setting of the
+> > request rq->flags is significantly different here and there.
+> > However I think but I'm not sure that the fact aht we have rq->special 
+> > != NULL here has the hidded side effect that we indeed accomplish the
+> > same semantics.
+> > 
+> > >And yes it will be useful to move it to block layer.
+> > 
+> > Done. Just needs testing. I have at least an ZIP parport drive, which
+> > allows me to do some basic checks.
+> 
+> Ehh, you are testing all those IDE changes with a ZIP drive connected to
+> the parallel port? Don't you have any real IDE devices?? I'm sure we can
+> all chip in and buy you a drive if you need one.
 
-OK, good to hear that.
+Would be faster to get a real maintainer, but nobody cares about actually
+finishing 2.5 or they would find one that could actually make it work
+proper.
 
-> Someone might want to take a look at getting those two to
-> work cleanly together especially now that rmap is in.
+Andre Hedrick
+LAD Storage Consulting Group
 
-William Irwin has been working on this for a few days now ;)
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+-------------------------------------------------------
+2.4, has crappy code, an arse-hole maintainer, and a working safe driver.
+2.5, erm "Two of Three, ain't BAD"
 

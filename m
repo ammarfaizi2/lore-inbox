@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310256AbSCKRKE>; Mon, 11 Mar 2002 12:10:04 -0500
+	id <S310278AbSCKRNL>; Mon, 11 Mar 2002 12:13:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310261AbSCKRJw>; Mon, 11 Mar 2002 12:09:52 -0500
-Received: from h24-71-103-168.ss.shawcable.net ([24.71.103.168]:21774 "HELO
-	discworld.dyndns.org") by vger.kernel.org with SMTP
-	id <S310256AbSCKRJr>; Mon, 11 Mar 2002 12:09:47 -0500
-Date: Mon, 11 Mar 2002 11:10:19 -0600
-From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6 IDE 19
-Message-ID: <20020311111019.F25601@twoflower.internal.do>
-In-Reply-To: <E16kT8L-00014f-00@the-village.bc.nu> <3C8CE34B.4030800@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C8CE34B.4030800@evision-ventures.com>; from dalecki@evision-ventures.com on Mon, Mar 11, 2002 at 06:03:07PM +0100
+	id <S310255AbSCKRNF>; Mon, 11 Mar 2002 12:13:05 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:31246 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S310278AbSCKRMv>;
+	Mon, 11 Mar 2002 12:12:51 -0500
+Date: Mon, 11 Mar 2002 09:12:31 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Larry McVoy <lm@bitmover.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        "Jonathan A. George" <JGeorge@greshamstorage.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
+In-Reply-To: <20020311090512.N26447@work.bitmover.com>
+Message-ID: <Pine.LNX.4.33L2.0203110911530.3326-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki <dalecki@evision-ventures.com> wrote:
-> 
-> For your information: I have read the standard papers and comments
-> to them. But the application notes from IBM and actual code
-> from different operating systems gives a much better formal
-> description of what is needed anyway. Or are you going to claim
-> that narrative languaue is more precise then actual C code?
+On Mon, 11 Mar 2002, Larry McVoy wrote:
 
-It appears that you're confusing an implementation of a specification with the
-specification itself.  The specification wins out, and therefore you can't
-just copy the behvaiour of another implementation.
+| On Thu, Mar 07, 2002 at 08:59:47PM -0300, Rik van Riel wrote:
+| > 3) graphical 2-way merging tool like bitkeeper has
+| >    (this might not seem essential to people who have
+| >    never used it, but it has saved me many many hours)
+|
+| I haven't verified this, but I suspect what Rik is using is the 3-way
+| file merge.  If it looks like
+|
+| 	http://www.bitkeeper.com/newmerge.gif
+|
+| that's a 3 way file merge, the 2 big side by side windows are showing
+| you 3 diffs, the diff from the ancestor to the local version in the left
+| window, the diff from the ancestor to the remote version in the right
+| window, and then side by side diffs in that they are lined up.
+|
+| If Rik is using the 2 way file merge and likes that, he's in for a quantum
+| leap in productivity, commercial customers have reported as much as an
+| 18:1 productivity increase from the 3 way file merge.
 
-Charles
+Just curious, how is this productivity increase measured?
+
+Thanks,
 -- 
------------------------------------------------------------------------
-Charles Cazabon                            <linux@discworld.dyndns.org>
-GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
------------------------------------------------------------------------
+~Randy
+

@@ -1,300 +1,286 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262894AbTDYEIc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 00:08:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbTDYEIc
+	id S262903AbTDYEL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 00:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbTDYEL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 00:08:32 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:26857 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262894AbTDYEI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 00:08:26 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780C592420@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Add generic file support to sysfs ...
-Date: Thu, 24 Apr 2003 21:20:27 -0700
+	Fri, 25 Apr 2003 00:11:58 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:20378 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S262903AbTDYELv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 00:11:51 -0400
+Date: Thu, 24 Apr 2003 21:23:30 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.5.68-mjb2
+Message-ID: <102050000.1051244610@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C30AE2.00135720"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+The patchset contains mainly scalability and NUMA stuff, and anything 
+else that stops things from irritating me. It's meant to be pretty stable, 
+not so much a testing ground for new stuff.
 
-------_=_NextPart_000_01C30AE2.00135720
-Content-Type: text/plain;
-	charset="iso-8859-1"
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.68/patch-2.5.68-mjb
+2.bz2
+(may take a few minutes after sending this to appear)
 
-Hi Patrick
+additional:
 
-How opposed would you be to something like this? [see inlined patch below]
+(these two form the qlogic feral driver)
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.67/2.5.67
+-mm1/broken-out/linux-isp.patch
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.67/2.5.67
+-mm1/broken-out/isp-update-1.patch
 
-Basically I am adding the ability to create short of an "attribute"
-that has specific file_operations and a private pointer. The struct
-generic_file contains that. Once any of the fops is called, from
-the file->f_dentry->d_fsdata it is possible to get to the 'struct
-generic_file', from where the 'private' pointer can be obtained
-for whatever purpose.
+(shared pagetables - will appear later ;-))
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.68/shpte
 
-[as a matter of fact, I could just put the 'generic_file->private'
-ptr in f_dentry->d_fsdata and things would be the same].
+Since 2.5.68-mjb1 (~ = changed, + = added, - = dropped)
 
-Usage for this: I am working in this 'kue' silly thing for event
-delivery, and I wanted to be able to have a /sysfs/events/ directory,
-and then, on there, different files for different message queues.
+Notes:
 
-Some other people around here also voiced that it'd be interesting
-to have it.
+Now in Linus' tree:
 
-Only issue I see right now is that it is left to the fops to 
-do kobject_{get,put}() management of the parent. Maybe they could be 
-wrapped in tin foil, do the get(), call the actual method, do the put()
-and return the obtained value ... but I am not sure this is really
-needed.
+New: 
 
-Need to clean up this patch, though, this is just a draft. If 
-you are ok, I want to add some doc in Documentation/ and whatever
-else you/anyone else might need/want.
++ lost_tick_fix					John Stultz
+	Lost tick stuff
++ warn_e1000					Dave Hansen
+	Kill e1000 warning
++ pidmaps_nodepages				Dave Hansen
+	Provide per-pid node mem usage info
++ dentry_stat_fix				Maneesh
+	corrects the dentry_stat.nr_unused calculation
++ follow_hugetlb_page				Bill Irwin
+	Fix follow_hugetlb_page() 
++ hugetlb_mem_enough				Bill Irwin
+	fixes an overflow when there is more than 4GB of hugetlb
++ aio_fix					Badari Pulavarty
+	Fix something in AIO
++ config_numasched				Dave Hansen
+	Turn NUMA scheduler into a config option
++ lockmeter_tytso				Ted Tso
+	Fix lockmeter
++ aiofix2					Mingming Cao
+	fixed a bug in ioctx_alloc()
++ oom_locking					Bill Irwin / Robert Love
+	Fix OOM locking
 
-If not ok ... why? :)
+Pending:
+Hyperthreaded scheduler (Ingo Molnar)
+scheduler callers profiling (Anton or Bill Hartner)
+Child runs first (akpm)
+Kexec
+e1000 fixes
+Update the lost timer ticks code
 
-Thanks,
+Present in this patch:
 
-PS: Patch is vs. 2.5.66 ... should patch fine in others as long
-as the bin support is there already.
+early_printk					Dave Hansen et al.
+	Allow printk before console_init
 
-diff -u -r1.1.1.2 -r1.1.1.2.4.1
---- fs/sysfs/Makefile	8 Mar 2003 01:31:15 -0000	1.1.1.2
-+++ fs/sysfs/Makefile	25 Apr 2003 04:03:27 -0000	1.1.1.2.4.1
-@@ -2,4 +2,5 @@
- # Makefile for the sysfs virtual filesystem
- #
- 
--obj-y		:= inode.o file.o dir.o symlink.o mount.o bin.o
-+obj-y		:= inode.o file.o dir.o symlink.o mount.o bin.o gfile.o
-+
-diff -N fs/sysfs/gfile.c
---- /dev/null	1 Jan 1970 00:00:00 -0000
-+++ fs/sysfs/gfile.c	25 Apr 2003 04:03:52 -0000	1.1.2.1
-@@ -0,0 +1,62 @@
-+/*
-+ * gfile.c - general file operations for sysfs.
-+ */
-+
-+#include <linux/fs.h>
-+#include <linux/kobject.h>
-+
-+#include "sysfs.h"
-+
-+
-+/**
-+ *	sysfs_create_generic_file - create generic file for object.
-+ *	@kobj:	object.
-+ *	@gfile:	generic file descriptor.
-+ *
-+ */
-+
-+int sysfs_create_generic_file(struct kobject * kobj, struct generic_file *
-gfile)
-+{
-+	struct dentry * dentry;
-+	struct dentry * parent;
-+	int error = 0;
-+
-+	if (!kobj || !gfile)
-+		return -EINVAL;
-+
-+	parent = kobj->dentry;
-+
-+	down(&parent->d_inode->i_sem);
-+	dentry = sysfs_get_dentry(parent,gfile->attr.name);
-+	if (!IS_ERR(dentry)) {
-+		dentry->d_fsdata = (void *)gfile;
-+		error = sysfs_create(dentry,
-+				     (gfile->attr.mode & S_IALLUGO) |
-S_IFREG,
-+				     NULL);
-+		if (!error) {
-+			dentry->d_inode->i_size = 0;
-+			dentry->d_inode->i_fop = &gfile->fops;
-+		}
-+	} else
-+		error = PTR_ERR(dentry);
-+	up(&parent->d_inode->i_sem);
-+	return error;
-+}
-+
-+
-+/**
-+ *	sysfs_remove_generic_file - remove generic file for object.
-+ *	@kobj:	object.
-+ *	@gfile:	generic file descriptor.
-+ *
-+ */
-+
-+int sysfs_remove_generic_file (struct kobject * kobj,
-+			       struct generic_file *gfile)
-+{
-+	sysfs_hash_and_remove(kobj->dentry,gfile->attr.name);
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL(sysfs_create_generic_file);
-+EXPORT_SYMBOL(sysfs_remove_generic_file);
-diff -u -r1.1.1.2 -r1.1.1.2.4.1
---- include/linux/sysfs.h	8 Mar 2003 01:31:18 -0000	1.1.1.2
-+++ include/linux/sysfs.h	25 Apr 2003 04:04:42 -0000	1.1.1.2.4.1
-@@ -30,6 +30,12 @@
- 	ssize_t (*write)(struct kobject *, struct sysfs_bin_buffer *);
- };
- 
-+struct generic_file {
-+	struct attribute         attr;
-+	struct file_operations * fops;
-+	void *                   private;
-+};
-+
- struct sysfs_ops {
- 	ssize_t	(*show)(struct kobject *, struct attribute *,char *);
- 	ssize_t	(*store)(struct kobject *,struct attribute *,const char *,
-size_t);
-@@ -55,5 +61,13 @@
- 
- extern void
- sysfs_remove_link(struct kobject *, char * name);
-+
-+extern int
-+sysfs_create_generic_file (struct kobject *,
-+			   struct generic_file *);
-+
-+extern int
-+sysfs_remove_generic_file (struct kobject *,
-+			   struct generic_file *);
- 
- #endif /* _SYSFS_H_ */
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
 
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
 
-------_=_NextPart_000_01C30AE2.00135720
-Content-Type: application/octet-stream;
-	name="gfile-2.5.66-draft.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="gfile-2.5.66-draft.patch"
+schedstat					Rick Lindsley
+	Provide stats about the scheduler under /proc/schedstat
 
-diff -u -r1.1.1.2 -r1.1.1.2.4.1=0A=
---- fs/sysfs/Makefile	8 Mar 2003 01:31:15 -0000	1.1.1.2=0A=
-+++ fs/sysfs/Makefile	25 Apr 2003 04:03:27 -0000	1.1.1.2.4.1=0A=
-@@ -2,4 +2,5 @@=0A=
- # Makefile for the sysfs virtual filesystem=0A=
- #=0A=
- =0A=
--obj-y		:=3D inode.o file.o dir.o symlink.o mount.o bin.o=0A=
-+obj-y		:=3D inode.o file.o dir.o symlink.o mount.o bin.o gfile.o=0A=
-+=0A=
-diff -N fs/sysfs/gfile.c=0A=
---- /dev/null	1 Jan 1970 00:00:00 -0000=0A=
-+++ fs/sysfs/gfile.c	25 Apr 2003 04:03:52 -0000	1.1.2.1=0A=
-@@ -0,0 +1,62 @@=0A=
-+/*=0A=
-+ * gfile.c - general file operations for sysfs.=0A=
-+ */=0A=
-+=0A=
-+#include <linux/fs.h>=0A=
-+#include <linux/kobject.h>=0A=
-+=0A=
-+#include "sysfs.h"=0A=
-+=0A=
-+=0A=
-+/**=0A=
-+ *	sysfs_create_generic_file - create generic file for object.=0A=
-+ *	@kobj:	object.=0A=
-+ *	@gfile:	generic file descriptor.=0A=
-+ *=0A=
-+ */=0A=
-+=0A=
-+int sysfs_create_generic_file(struct kobject * kobj, struct =
-generic_file * gfile)=0A=
-+{=0A=
-+	struct dentry * dentry;=0A=
-+	struct dentry * parent;=0A=
-+	int error =3D 0;=0A=
-+=0A=
-+	if (!kobj || !gfile)=0A=
-+		return -EINVAL;=0A=
-+=0A=
-+	parent =3D kobj->dentry;=0A=
-+=0A=
-+	down(&parent->d_inode->i_sem);=0A=
-+	dentry =3D sysfs_get_dentry(parent,gfile->attr.name);=0A=
-+	if (!IS_ERR(dentry)) {=0A=
-+		dentry->d_fsdata =3D (void *)gfile;=0A=
-+		error =3D sysfs_create(dentry,=0A=
-+				     (gfile->attr.mode & S_IALLUGO) | S_IFREG,=0A=
-+				     NULL);=0A=
-+		if (!error) {=0A=
-+			dentry->d_inode->i_size =3D 0;=0A=
-+			dentry->d_inode->i_fop =3D &gfile->fops;=0A=
-+		}=0A=
-+	} else=0A=
-+		error =3D PTR_ERR(dentry);=0A=
-+	up(&parent->d_inode->i_sem);=0A=
-+	return error;=0A=
-+}=0A=
-+=0A=
-+=0A=
-+/**=0A=
-+ *	sysfs_remove_generic_file - remove generic file for object.=0A=
-+ *	@kobj:	object.=0A=
-+ *	@gfile:	generic file descriptor.=0A=
-+ *=0A=
-+ */=0A=
-+=0A=
-+int sysfs_remove_generic_file (struct kobject * kobj,=0A=
-+			       struct generic_file *gfile)=0A=
-+{=0A=
-+	sysfs_hash_and_remove(kobj->dentry,gfile->attr.name);=0A=
-+	return 0;=0A=
-+}=0A=
-+=0A=
-+EXPORT_SYMBOL(sysfs_create_generic_file);=0A=
-+EXPORT_SYMBOL(sysfs_remove_generic_file);=0A=
-diff -u -r1.1.1.2 -r1.1.1.2.4.1=0A=
---- include/linux/sysfs.h	8 Mar 2003 01:31:18 -0000	1.1.1.2=0A=
-+++ include/linux/sysfs.h	25 Apr 2003 04:04:42 -0000	1.1.1.2.4.1=0A=
-@@ -30,6 +30,12 @@=0A=
- 	ssize_t (*write)(struct kobject *, struct sysfs_bin_buffer *);=0A=
- };=0A=
- =0A=
-+struct generic_file {=0A=
-+	struct attribute         attr;=0A=
-+	struct file_operations * fops;=0A=
-+	void *                   private;=0A=
-+};=0A=
-+=0A=
- struct sysfs_ops {=0A=
- 	ssize_t	(*show)(struct kobject *, struct attribute *,char *);=0A=
- 	ssize_t	(*store)(struct kobject *,struct attribute *,const char *, =
-size_t);=0A=
-@@ -55,5 +61,13 @@=0A=
- =0A=
- extern void=0A=
- sysfs_remove_link(struct kobject *, char * name);=0A=
-+=0A=
-+extern int=0A=
-+sysfs_create_generic_file (struct kobject *,=0A=
-+			   struct generic_file *);=0A=
-+=0A=
-+extern int=0A=
-+sysfs_remove_generic_file (struct kobject *,=0A=
-+			   struct generic_file *);=0A=
- =0A=
- #endif /* _SYSFS_H_ */=0A=
+schedstat2					Rick Lindsley
+	Provide more stats about the scheduler under /proc/schedstat
 
-------_=_NextPart_000_01C30AE2.00135720--
+schedstat-scripts				Rick Lindsley
+	Provide some scripts for schedstat analysis under scripts/
+
+sched_tunables					Robert Love
+	Provide tunable parameters for the scheduler (+ NUMA scheduler)
+
+node_balance					Martin J. Bligh
+	Turn on node balance - it's not overagressive anymore 
+
+irq_affinity					Martin J. Bligh
+	Workaround for irq_affinity on clustered apic mode systems (eg x440)
+
+partial_objrmap					Dave McCracken
+	Object based rmap for filebacked pages.
+
+objrmap_fix					Dave McCracken
+	Fix detection of anon pages
+
+objrmap_fixes					Dave McCracken / Hugh Dickins
+	Fix up some mapped sizing bugs in objrmap
+
+objrmap_mapcount				Dave McCracken
+	Fix up some mapped sizing bugs in objrmap
+
+kgdb						Andrew Morton
+	The older version of kgdb, synched with 2.5.54-mm1
+
+kprobes						Vamsi Krishna S
+	Add kernel probes hooks to the kernel
+
+thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
+	Prep work to reduce kernel stacks to 4K
+	
+interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
+	Create a per-cpu interrupt stack.
+
+stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
+	Check for kernel stack overflows.
+
+4k_stack            (4K stacks pt 4)		Dave Hansen
+	Config option to reduce kernel stacks to 4K
+
+fix_kgdb					Dave Hansen
+	Fix interaction between kgdb and 4K stacks
+
+stacks_from_slab				William Lee Irwin
+	Take kernel stacks from the slab cache, not page allocation.
+
+thread_under_page				William Lee Irwin
+	Fix THREAD_SIZE < PAGE_SIZE case
+
+lkcd						LKCD team
+	Linux kernel crash dump support
+
+percpu_loadavg					Martin J. Bligh
+	Provide per-cpu loadaverages, and real load averages
+
+spinlock_inlining				Andrew Morton
+	Inline spinlocks for profiling. Made into a ugly config option by me.
+
+summit_pcimap					Matt Dobson
+	Provide pci bus -> node mapping for x440
+
+# shpte						Dave McCracken
+	Shared pagetables
+
+reiserfs_dio					Mingming Cao
+	DIO for Reiserfs
+
+sched_interactive				Ingo Molnar
+	Bugfix for interactive scheduler
+
+kgdb_cleanup					Martin J. Bligh
+	Stop kgdb renaming schedule to do_schedule when it's not even enabled
+
+acenic_fix					Martin J. Bligh
+	Fix warning in acenic driver
+
+sisfix						Martin J. Bligh
+	Fix warning & bug in sis900 driver
+
+local_balance_exec				Martin J. Bligh
+	Modify balance_exec to use node-local queues when idle
+
+membind						Matt Dobson
+	NUMA memory binding API
+
+tcp_speedup					Martin J. Bligh
+	Speedup TCP (avoid double copy) as suggested by Linus
+
+early_printk_fix				Keith Mannthey
+	Fix commandline parsing in early printk (yay!)
+
+disable preempt					Martin J. Bligh
+	I broke preempt somehow, temporarily disable it to stop accidents
+
+sched_idle					Martin J. Bligh
+	Call load_balance with proper idle flag (pointed out by John Hawkes)
+
+diskstats					Rick Lindsley
+	Make disk stats available in /proc so they scale to lotsa disks.
+
+ppc64 fixes					Anton Blanchard
+	Various PPC64 fixes / updates
+
+numameminfo fix					Martin J. Bligh
+	Correct /proc/meminfo.numa for zholes_size.
+
+more_async					Andrew Morton
+	Make MS_ASYNC more async
+
+separate_pmd					Dave Hansen
+	Separate kernel pmd per process
+
+config_debug					Martin J. Bligh
+	Make '-g' for the kernel a config option
+
+akpm_bear_pit					Andrew Morton
+	Add a printk for some buffer error I was hitting
+
+32bit_dev_t					Andries Brouwer
+	Make dev_t 32 bit
+
+dynamic_hd_struct				Badari Pulavarty
+	Allocate hd_structs dynamically
+
+devfs_fixup					Badari Pulavarty ?
+	Fix some random thing in devfs
+
+iosched_hashes					Badari Pulavarty
+	Twiddle with the iosched hash tables for fun & profit
+
+lotsa_sds					Badari Pulavarty
+	Create some insane number of sds
+
+per_node_idt					Zwane Mwaikambo
+	Per node IDT so we can do silly numbers of IO-APICs on NUMA-Q
+
+banana_split					Dave Hansen
+	Provide non PMD aligned splits with PAE mode (eg 3.5:0.5)
+
+tulip_warning					Dave Hansen
+	Fix silly warning in tulip driver for PAE mode
+
+lost_tick_fix					John Stultz
+	Lost tick stuff
+
+warn_e1000					Dave Hansen
+	Kill e1000 warning
+
+pidmaps_nodepages				Dave Hansen
+	Provide per-pid node mem usage info
+
+dentry_stat_fix					Maneesh
+	corrects the dentry_stat.nr_unused calculation
+
+follow_hugetlb_page				Bill Irwin
+	Fix follow_hugetlb_page() 
+
+hugetlb_mem_enough				Bill Irwin
+	fixes an overflow when there is more than 4GB of hugetlb
+
+aio_fix						Badari Pulavarty
+	Fix something in AIO
+
+config_numasched				Dave Hansen
+	Turn NUMA scheduler into a config option
+
+lockmeter_tytso					Ted Tso
+	Fix lockmeter
+
+aiofix2						Mingming Cao
+	fixed a bug in ioctx_alloc()
+
+oom_locking					Bill Irwin / Robert Love
+	Fix OOM locking
+
+-mjb						Martin J. Bligh
+	Add a tag to the makefile
+

@@ -1,32 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275224AbRJ2NlW>; Mon, 29 Oct 2001 08:41:22 -0500
+	id <S275126AbRJ2NjB>; Mon, 29 Oct 2001 08:39:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275178AbRJ2NlM>; Mon, 29 Oct 2001 08:41:12 -0500
-Received: from mout02.kundenserver.de ([195.20.224.133]:27405 "EHLO
-	mout02.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S275278AbRJ2NlG>; Mon, 29 Oct 2001 08:41:06 -0500
-Message-ID: <000c01c1607f$6a8cccd0$0242a8c0@alpha.de>
-From: "Frank Peters" <frank@zur-boersch.de>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <019d01c16073$299f5d20$0242a8c0@alpha.de>
-Subject: Re: How to access /proc/*/mem ?
-Date: Mon, 29 Oct 2001 14:41:23 +0100
+	id <S275110AbRJ2Niw>; Mon, 29 Oct 2001 08:38:52 -0500
+Received: from web20508.mail.yahoo.com ([216.136.226.143]:268 "HELO
+	web20508.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S275278AbRJ2Nip>; Mon, 29 Oct 2001 08:38:45 -0500
+Message-ID: <20011029133921.74466.qmail@web20508.mail.yahoo.com>
+Date: Mon, 29 Oct 2001 14:39:21 +0100 (CET)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: Ethernet NIC dual homing
+To: Laurent Deniel <deniel@worldnet.fr>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sorry!
+Hi Laurent,
 
-i must lseek to a valid position!
+> Does someone know if there is some work in the area
+of NIC
+> dual homing ?
+
+I have implemented this for 2.2 kernel a while ago,
+and Chad
+Tindel has completed the port to 2.4. Some other
+contributors
+have added features such as XOR distribution. You can
+take
+a look at it, kernel 2.4 patches are on :
+
+   http://sf.net/projects/bonding/
+
+and 2.2 patches are on :
+
+ 
+http://www-miaif.lip6.fr/willy/linux-patches/bonding/
+
+Regards,
+Willy
 
 
-
-
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Courrier : http://courrier.yahoo.fr

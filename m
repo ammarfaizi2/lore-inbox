@@ -1,58 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263820AbUD0G0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263815AbUD0GmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263820AbUD0G0u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 02:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263831AbUD0G0l
+	id S263815AbUD0GmD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 02:42:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbUD0GmD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 02:26:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:48095 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263820AbUD0GZp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 02:25:45 -0400
-Date: Mon, 26 Apr 2004 23:25:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Clemens Schwaighofer <cs@tequila.co.jp>
-Cc: linux-scsi@vger.kernel.org, dlang@digitalinsight.com,
-       linux-kernel@vger.kernel.org, go@turbolinux.co.jp
-Subject: Re: 2.6.6-rc2-mm2 + Adaptec I2O
-Message-Id: <20040426232522.253594a2.akpm@osdl.org>
-In-Reply-To: <408DFBEE.3080803@tequila.co.jp>
-References: <408DE95F.5010201@tequila.co.jp>
-	<20040426221814.490a0cfd.akpm@osdl.org>
-	<Pine.LNX.4.58.0404262223260.17702@dlang.diginsite.com>
-	<408DF117.4060309@tequila.co.jp>
-	<20040426230455.53406d74.akpm@osdl.org>
-	<408DFBEE.3080803@tequila.co.jp>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Apr 2004 02:42:03 -0400
+Received: from smtp1.Stanford.EDU ([171.67.16.120]:5861 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S263815AbUD0Gl7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 02:41:59 -0400
+Date: Mon, 26 Apr 2004 23:41:55 -0700 (PDT)
+From: Junfeng Yang <yjf@stanford.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <ext2-devel@lists.sourceforge.net>, <mc@stanford.edu>,
+       Madanlal S Musuvathi <madan@stanford.edu>,
+       "David L. Dill" <dill@cs.stanford.edu>
+Subject: [CHECKER] warnings in fs/ext3/namei.c (2.4.19) where disk read errors
+ get ignored, causing non-empty dir to be deleted
+Message-ID: <Pine.GSO.4.44.0404262339360.7250-100000@elaine24.Stanford.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clemens Schwaighofer <cs@tequila.co.jp> wrote:
->
-> Andrew Morton wrote:
->  | Clemens Schwaighofer <cs@tequila.co.jp> wrote:
->  |
->  |> on this URL [http://www.smartcgi.com/?action=docs,kernel26-adaptec] you
->  |> can find a patch that I could successfully path again 2.6.5 (vanilla)
->  |> and compile successfully.
->  |
->  |
->  | hm.  Against 2.6.0.  Go, would you have time to send that patch in to the
->  | scsi team at linux-scsi@vger.kernel.org?
-> 
->  yes,
-> 
->  remark:
-> 
->  ~ Originally this patch has been released by Go Taniguchi at
->  http://pkgcvs.turbolinux.co.jp/~go/patch-2.6/dpt_i2o.patch
-> 
->  patch attached
+Hi,
 
-Sorry, my question was directed to Go Taniguchi <go@turbolinux.co.jp> - Go
-should submit the patch.
+We checked EXT3 filesystem on 2.4.19 recently and found 2 cases that look
+like bugs.  For both of the cases, disk read errors are ignored, which
+appears to cause a non-empty directory to be wrongly deleted or a dir to
+contain more than one entries with identical names.
 
-Thanks.
+I'm not sure if they are real bugs or not, so your confirmations
+/clarifications are appericated.
+
+Please let me know if anything isn't clear
+
+all warnings are in file fs/ext3/namei.c
+
+----------------------------------------------------------------------------
+[BUG] A non-empty dir may be deleted because ext3_read errors are ignored
+by ext3_find_entry.  empty_dir is called whenenver ext3_rmdir tries to
+remove a directory.
+
+
+static int empty_dir (struct inode * inode)
+{
+			bh = ext3_bread (NULL, inode,
+				offset >> EXT3_BLOCK_SIZE_BITS(sb), 0, &err);
+			if (!bh) {
+#if 0
+				ext3_error (sb, "empty_dir",
+				"directory #%lu contains a hole at offset %lu",
+					inode->i_ino, offset);
+#endif
+				offset += sb->s_blocksize;
+ERROR --->			continue;
+			}
+			de = (struct ext3_dir_entry_2 *) bh->b_data;
+		}
+
+----------------------------------------------------------------------------
+[BUG] A dir may end up containing more than one entries with identical
+names because because disk read errors are ignored by ext3_find_entry.
+ext3_find_entry is called by lots of other ext3 functions (ext3_add_entry,
+ext3_unlink, ext3_rename)
+
+static struct buffer_head * ext3_find_entry (struct dentry *dentry,
+					struct ext3_dir_entry_2 ** res_dir)
+{
+.....
+		if ((bh = bh_use[ra_ptr++]) == NULL)
+			goto next;
+		wait_on_buffer(bh);
+		if (!buffer_uptodate(bh)) {
+			/* read error, skip block & hope for the best */
+			brelse(bh);
+ERROR --->		goto next;
+		}
+
+
+
+

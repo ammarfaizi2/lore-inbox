@@ -1,96 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263694AbUC3O4w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 09:56:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbUC3O4v
+	id S263695AbUC3O53 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 09:57:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbUC3O53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 09:56:51 -0500
-Received: from hades.almg.gov.br ([200.198.60.36]:33464 "EHLO
-	hades.almg.gov.br") by vger.kernel.org with ESMTP id S263694AbUC3O4o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 09:56:44 -0500
-Message-ID: <40698AE4.7020006@almg.gov.br>
-Date: Tue, 30 Mar 2004 11:57:40 -0300
-From: Humberto Massa <humberto.massa@almg.gov.br>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.7a) Gecko/20040219
-X-Accept-Language: pt-br, en-us, en
-MIME-Version: 1.0
-To: debian-devel@lists.debian.org
-CC: debian-legal@lists.debian.org, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: Binary-only firmware covered by the GPL?
-References: <8RnZwD.A.91B.qHYaAB@murphy>
-In-Reply-To: <8RnZwD.A.91B.qHYaAB@murphy>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Mar 2004 09:57:29 -0500
+Received: from madrid10.amenworld.com ([62.193.203.32]:37388 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S263695AbUC3O5Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 09:57:24 -0500
+Date: Tue, 30 Mar 2004 16:50:13 +0200
+From: DervishD <raul@pleyades.net>
+To: Matthew Reppert <repp0017@tc.umn.edu>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+       Lev Lvovsky <lists1@sonous.com>, linux-kernel@vger.kernel.org
+Subject: Re: older kernels + new glibc?
+Message-ID: <20040330145013.GD8304@DervishD>
+Mail-Followup-To: Matthew Reppert <repp0017@tc.umn.edu>,
+	"Richard B. Johnson" <root@chaos.analogic.com>,
+	Lev Lvovsky <lists1@sonous.com>, linux-kernel@vger.kernel.org
+References: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com> <Pine.LNX.4.53.0403291602340.2893@chaos> <20040329222710.GA8204@DervishD> <1080604519.32741.8.camel@minerva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1080604519.32741.8.camel@minerva>
+User-Agent: Mutt/1.4.2.1i
+Organization: Pleyades
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh, man, it seems that I *must* repeat myself one more time, at least
-to see if I'm not in everyone's killfile :-)
+    Hi Matthew :)
 
-@ 30/03/2004 11:19 : wrote Pavel Machek :
+ * Matthew Reppert <repp0017@tc.umn.edu> dixit:
+> >     Mmm, I'm confused. As far as I knew, you *should* use symlinks to
+> > your current (running) kernel includes for /usr/include/asm and
+> > /usr/include/linux. I've been doing this for years (in fact I
+> > compiled my libc back in the 2.2 days IIRC), without problems. Why it
+> > should be avoided and what kind of problems may arise if someone
+> > (like me) has those symlinks?
+> See http://www.kernelnewbies.org/faq/index.php3#headers
 
-> Hi!
-Hi!
-> 
-> 
->>> #include <hallo.h> * David Schwartz [Thu, Mar 25 2004,
->>> 04:41:23PM]:
->>>>> IMHO code that can be compiled would probably be the
->>>>> preferred form of the work.
->>>> You are seriously arguing that the obfuscated binary of the 
->>>> firmware is the preferred form of the firmware for the
->>>> purpose of making modifications to it?!
-I don't know if that's what /he/ is arguing, but *I* am arguing that 
-in the cases I've seen here and in debian-legal, we have the following 
-circumstances (the qla2xxx/ql2100_fw.c canonical example):
-* the file in question (and its brothers and cousins) have the 
-following structure IIRC:
-	+ GPL license comment-header
-	+ some includes?
-	+ the firmware in c-blob format or unsigned char fw[] = ....
-	+ nothing else.
-* as the file is clearly marked by the copyright holder as being 
-_distributed under the terms of the GPL_ and no other format is given 
-to modify the fw[], at least *legally* is MHO that any 
-recipient/redistributor of the file _can_ and _must_ consider the file 
-in *that* format as the preferred form for modification (pf4m) *and*, 
-considering it the source code, follow the directions of the GPL in 
-respect to modification and redistribution.
-* the /status quo/ obtained by observation of the previous item 
-prevails _until somebody proves_ that the fw[] = {} is *not* the 
-source code; this, usually, can be proven only by confession, i.e., 
-the original copyright holder *comes out and says:* "hmmm, this is not 
-the source code". Notice that the copyright holder maintaining silence 
-is _not_ confession.
-* in this case (copyright holder confesses it's not the source code) 
-applied to the examples in casu, i.e., firmware, the kernel people 
-cannot distribute the binary blob *inside the kernel tree*, but can do 
-it separately _if the copyright holder grants a license_ to.
-* even so, Debian could not distribute it.
+    Thanks a lot for the information, it's been quite useful :)))
 
->>> Yes, the driver authors PREFERS to make the changes on the C
->>> source code, he never has to modify the firmware. Exactly what
->>> the GPL requests, where is your problem?
->> 
->> But the firmware didn't appear out of thin air - someone wrote it
->>  somehow. If that's using a hex editor or inside the C code
->> doesn't matter, but most likely they used some other language
->> like either C or assembly (no, not all firmware is written using
->> assembly), and there are cases where some are in fact written
->> using a hex editor but I can't remember any that has been for the
->> last 30 or so years but I'm sure there has been cases where there
->> hasn't been a working assembler.
+    I find the explanation extremely sensible, but the problem I see
+is that some user-space tools that are very coupled with the kernel
+(for example, hdparm) assume that the kernel headers can be accessed
+throuhg a system standard include directory (like /usr/include). What
+I mean is that all these tools just #include <linux/whatever.h>,
+without making assumptions about where are they.
 
-But there are cases, even if you don't know of them. And this is the 
-case that has to be taken in account when we start *presuming* things, 
-at least legally, IMHO.
-> If my code contains picture of human, do I have to provide his DNA,
-> too? Pavel
-> 
-> (runs away)
+    If I've understood correctly, these tools (like hdparm) should
+*not* use current (running) kernel headers, but those that were in
+use when glibc was built, am I right? Which, BTW, is a big problem
+because I don't have the slightest idea about which kernel was in use
+when I built my glibc.
 
+    But putting under /usr/include/linux and /usr/include/asm the
+headers in use when glibc is built can lead to a problem, too.
+Imagine that at some point in the future, the contents of the asm or
+linux dirs depends on which facilities the kernel has configured
+e.g. no scsi.h if no scsi support is present in the configured
+kernel. That way, you don't have scsi.h under your
+/usr/include/linux, but you may need it if you add an SCSI card with
+your running kernel and want to compile some 'scsiutils' or whatever
+like that.
+
+    I confess that this is a very weird scenario, very difficult to
+appear but... Just wondering.
+ 
+> The correct place, I've read, to get the headers for the current running
+> kernel is /lib/modules/$(uname -r)/build/include
+
+    Please correct me if I'm wrong: only external kernel modules
+should use current (running, again) kernel headers, no?    
+ 
+> Basically, the potential problem as I understand it is binary
+> incompatibility with the currently installed glibc.
+
+    That has never happened to me, but reading Linus' explanation,
+that can bite me in the future (if some interface I use in userspace
+changes in the kernel).
+
+    Raúl Núñez de Arenas Coronado
 
 -- 
-best regards,M
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

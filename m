@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267733AbSLTCTe>; Thu, 19 Dec 2002 21:19:34 -0500
+	id <S267701AbSLTCVT>; Thu, 19 Dec 2002 21:21:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267736AbSLTCTe>; Thu, 19 Dec 2002 21:19:34 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28652
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267733AbSLTCT3>; Thu, 19 Dec 2002 21:19:29 -0500
-Subject: RE: [PATCH 2.5.52] Use __set_current_state() instead of current->
-	state = (take 1)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: "'Robert Love'" <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <A46BBDB345A7D5118EC90002A5072C7806CACA31@orsmsx116.jf.intel.com>
-References: <A46BBDB345A7D5118EC90002A5072C7806CACA31@orsmsx116.jf.intel.com>
-Content-Type: text/plain
+	id <S267708AbSLTCVT>; Thu, 19 Dec 2002 21:21:19 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:26614 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267701AbSLTCUf>; Thu, 19 Dec 2002 21:20:35 -0500
+Date: Thu, 19 Dec 2002 18:22:18 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Hanna Linder <hannal@us.ibm.com>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Dedicated kernel bug database
+Message-ID: <56740000.1040350938@flay>
+In-Reply-To: <73850000.1040350256@w-hlinder>
+References: <200212192155.gBJLtV6k003254@darkstar.example.net> <3E0240CA.4000502@inet.com> <42790000.1040337942@w-hlinder> <50260000.1040348396@flay> <73850000.1040350256@w-hlinder>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 20 Dec 2002 03:08:28 +0000
-Message-Id: <1040353708.30925.20.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-19 at 19:04, Perez-Gonzalez, Inaky wrote:
+>> There are a bunch of categories that aren't really "owned" as such,
+>> and default to khoa or myself. Those are really good candidates to
+>> steal ... they'll be owned by bugme-janitors soon to make this more
+>> obvious ...
 > 
-> > > And that would now really work when CONFIG_X86_OOSTORE=1 is required
-> > > [after all, it is a write, so it'd need the equivalent of a wmb() or
-> > > xchg()].
-> > 
-> > Is this a hint that your employer may have an x86 chip in the future
-> > with weak ordering? :)
-> 
-> Hmmm ... taking into account that there are some many thousands of
-> employees in my company and that I know less than one hundred ...
-> and that they are all software ... well, I don't think I am into
-> the rumour mill :]
+> OK. Which categories are not owned? Anything with you or khoa as owners?
 
-Also OOSTORE is there because other vendors already make weak store
-order capable x86 processors. One example of this is the Winchip - where
-turning off strict store ordering is worth 30% performance.
+More or less, yes. There are a couple of categories I really own, eg
+NUMA/discontigmem, and I'll probably look after ia32 specific bugs
+unless Linus wants his category back ;-)
 
-In addition you have to treat store ordering/locking carefully due to
-the pentium pro store fencing errata. (Thats why our < PII kernel
-generates lock movb to unlock when in theory the lock isnt needed).
+Will switch to bugme-janitors in a few days, then will all be much more
+obvious
 
-Alan
+M.
+
 

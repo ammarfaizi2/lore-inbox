@@ -1,78 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265484AbSLMVuY>; Fri, 13 Dec 2002 16:50:24 -0500
+	id <S265470AbSLMV5I>; Fri, 13 Dec 2002 16:57:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265508AbSLMVuY>; Fri, 13 Dec 2002 16:50:24 -0500
-Received: from jtkxgl.cm.chello.no ([62.179.175.88]:26260 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S265484AbSLMVuX>; Fri, 13 Dec 2002 16:50:23 -0500
-Subject: Re: Intel P6 vs P7 system call performance
-From: Terje Eggestad <terje.eggestad@scali.com>
-To: Ville Herva <vherva@niksula.hut.fi>
-Cc: "J.A. Magallon" <jamagallon@able.es>, Mark Mielke <mark@mark.mielke.cc>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@codemonkey.org.uk>
-In-Reply-To: <20021213155859.GC1095@niksula.cs.hut.fi>
-References: <1039610907.25187.190.camel@pc-16.office.scali.no>
-	<3DF78911.5090107@zytor.com>
-	<1039686176.25186.195.camel@pc-16.office.scali.no>
-	<20021212203646.GA14228@mark.mielke.cc>
-	<20021212205655.GA1658@werewolf.able.es>
-	<1039771270.29298.41.camel@pc-16.office.scali.no> 
-	<20021213155859.GC1095@niksula.cs.hut.fi>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 13 Dec 2002 22:57:55 +0100
-Message-Id: <1039816682.10496.13.camel@eggis1>
-Mime-Version: 1.0
+	id <S265477AbSLMV5I>; Fri, 13 Dec 2002 16:57:08 -0500
+Received: from comtv.ru ([217.10.32.4]:37040 "EHLO comtv.ru")
+	by vger.kernel.org with ESMTP id <S265470AbSLMV5H>;
+	Fri, 13 Dec 2002 16:57:07 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] 2tb limit in sd.c
+From: Alex Tomas <bzzz@tmi.comex.ru>
+Organization: HOME
+Date: 14 Dec 2002 00:58:23 +0300
+Message-ID: <m3wumdy41s.fsf@lexa.home.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I haven't tried the vsyscall patch, but there was a sysenter patch
-floating around that I tried. It reduced the syscall overhead with 1/3
-to 1/4, but I never tried it on P4.
 
-FYI: Just note that I say overhead, which I assume to be the time it
-take to do someting like getpid(), write(-1,...), select(-1, ...) (etc
-that is immediatlely returned with -EINVAL by the kernel). 
-Since the kernel do execute a quite afew instructions beside the
-int/iret sysenter/sysexit, it's an assumption that the int 80  is the
-culprit. 
+Good day!
 
-I would be nice if someone bothered to try this on an windoze box.
-(Un)fortunatly I live in a windoze free environment. :-)
+modern storage boxes support >2TB arrays, but READ CAPACITY
+may return 2TB only (with 512 bytes blocksize). According to
+SBC, target may return 0xffffffff as device size in order to
+notify initiator that device size can't fit into 32 bits and
+that initiator should use Long READ CAPACITY with 64bits LBA
+field. Following patch implements this logic. Is it possible
+to include patch into 2.5 ?
 
-TJ
-
-
-On Fri, 2002-12-13 at 16:58, Ville Herva wrote:
-    On Fri, Dec 13, 2002 at 10:21:11AM +0100, you [Terje Eggestad] wrote:
-    >   
-    > Well, it does make sense if Intel optimized away rdtsc for more commonly
-    > used things, but even that don't seem to be the case. I'm measuring the
-    > overhead of doing a syscall on Linux (int 80) to be ~280 cycles on PIII,
-    > and Athlon, while it's 1600 cycles on P4.
-    
-    Just out of interest, how much would sysenter (or syscall on amd) cost,
-    then? (Supposing it can be feasibly implemented.)
-    
-    I think I heard WinXP (W2k too?) is using sysenter?
-    
-    
-    -- v --
-    
-v@iki.fi
--- 
-_________________________________________________________________________
-
-Terje Eggestad                  mailto:terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
-
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
-N-0619 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
+diff -uNr linux-2.5.47/drivers/scsi/sd.c linux-2.5.51/drivers/scsi/sd.c
+--- linux-2.5.47/drivers/scsi/sd.c	Sat Dec 14 00:30:14 2002
++++ linux-2.5.51/drivers/scsi/sd.c	Fri Dec 13 23:58:59 2002
+@@ -908,11 +908,15 @@
+ 	struct scsi_device *sdp = sdkp->device;
+ 	int the_result, retries;
+ 	int sector_size;
++	int longrc = 0;
+ 
++repeat:
+ 	retries = 3;
+ 	do {
+ 		cmd[0] = READ_CAPACITY;
+ 		memset((void *) &cmd[1], 0, 9);
++		if (longrc)
++			cmd[1] = 0x02;	/* Long LBA */
+ 		memset((void *) buffer, 0, 8);
+ 
+ 		SRpnt->sr_cmd_len = 0;
+@@ -921,7 +925,7 @@
+ 		SRpnt->sr_data_direction = SCSI_DATA_READ;
+ 
+ 		scsi_wait_req(SRpnt, (void *) cmd, (void *) buffer,
+-			      8, SD_TIMEOUT, SD_MAX_RETRIES);
++			      longrc ? 12 : 8, SD_TIMEOUT, SD_MAX_RETRIES);
+ 
+ 		if (media_not_present(sdkp, SRpnt))
+ 			return;
+@@ -958,14 +962,34 @@
+ 
+ 		return;
+ 	}
+-
+-	sdkp->capacity = 1 + (((sector_t)buffer[0] << 24) |
+-			      (buffer[1] << 16) |
+-			      (buffer[2] << 8) |
+-			      buffer[3]);
+-
+-	sector_size = (buffer[4] << 24) |
+-		(buffer[5] << 16) | (buffer[6] << 8) | buffer[7];
++	
++	if (!longrc) {
++		if (buffer[0] == 0xff && buffer[1] == 0xff &&
++			buffer[2] == 0xff && buffer[3] == 0xff) {
++			printk ("very big device. try to send long\n");
++			longrc = 1;
++			goto repeat;
++		}
++		sdkp->capacity = 1 + (((sector_t)buffer[0] << 24) |
++			(buffer[1] << 16) |
++			(buffer[2] << 8) |
++			buffer[3]);
++			
++		sector_size = (buffer[4] << 24) |
++			(buffer[5] << 16) | (buffer[6] << 8) | buffer[7];
++	} else {
++		sdkp->capacity = 1 + (((sector_t)buffer[0] << 56) |
++			((sector_t)buffer[1] << 48) |
++			((sector_t)buffer[2] << 40) |
++			((sector_t)buffer[3] << 32) |
++			((sector_t)buffer[4] << 24) |
++			((sector_t)buffer[5] << 16) |
++			((sector_t)buffer[6] << 8)  |
++			(sector_t)buffer[7]);
++			
++		sector_size = (buffer[8] << 24) |
++			(buffer[9] << 16) | (buffer[10] << 8) | buffer[11];
++	}	
+ 
+ 	if (sector_size == 0) {
+ 		sector_size = 512;
 

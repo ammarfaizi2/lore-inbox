@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315179AbSG2LJA>; Mon, 29 Jul 2002 07:09:00 -0400
+	id <S315200AbSG2LGp>; Mon, 29 Jul 2002 07:06:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315257AbSG2LJA>; Mon, 29 Jul 2002 07:09:00 -0400
-Received: from webmail25.rediffmail.com ([203.199.83.147]:16788 "HELO
-	webmail25.rediffmail.com") by vger.kernel.org with SMTP
-	id <S315179AbSG2LI7>; Mon, 29 Jul 2002 07:08:59 -0400
-Date: 29 Jul 2002 11:12:38 -0000
-Message-ID: <20020729111238.11416.qmail@webmail25.rediffmail.com>
+	id <S315257AbSG2LGp>; Mon, 29 Jul 2002 07:06:45 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:44814 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315200AbSG2LGp>; Mon, 29 Jul 2002 07:06:45 -0400
+Message-ID: <3D452165.7060207@evision.ag>
+Date: Mon, 29 Jul 2002 13:05:09 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-From: "Nandakumar  NarayanaSwamy" <nanda_kn@rediffmail.com>
-Reply-To: "Nandakumar  NarayanaSwamy" <nanda_kn@rediffmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: kernel crash in fault.c
-Content-type: text/plain;
-	format=flowed
-Content-Disposition: inline
+To: Jens Axboe <axboe@suse.de>
+CC: martin@dalecki.de, Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.28 small REQ_SPECIAL abstraction
+References: <Pine.LNX.4.33.0207241410040.3542-100000@penguin.transmeta.com> <3D40E62B.9070202@evision.ag> <20020726143840.GC8761@suse.de> <3D416625.4050205@evision.ag> <20020728212523.A3460@suse.de> <3D4517EA.5030305@evision.ag> <20020729124436.D4861@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
-I am getting a kernel crash when i try to load (using insmod) my
-driver module into the kernel.
-When the kernel boots up, it identifies my device (hardware
-device) and allocates memory and fixup irq for that.
-Mean while in driver i am registering the driver using,
-pci_register_driver. When i tried to access (write a word) the 
-PCI
-memory space allocated for my device, the kernel crashes saying
-"Unable to handle kernel paging request at virtual address "
-in fault.c function : do_page_fault?
+Jens Axboe wrote:
+> On Mon, Jul 29 2002, Marcin Dalecki wrote:
+> 
+>>Jens Axboe wrote:
+>>
+>>
+>>>But the crap still got merged, sigh... Yet again an excellent point of
+>>>why stuff like this should go through the maintainer. Apparently Linus
+>>>blindly applies this stuff.
+>>
+>>Jens. Please note that this doesn't make *anything* worser then before,
+>>since I don't use this function right now.
+> 
+> 
+> SCSI does, though :-)
+> 
+> It's ok now, the issue is resolved as far as I'm concerned.
 
-Can anyone throw a light on this?
+Fine. So I will start to use it soon in IDE too...
 
-Thanks in advance,
-Nanda.
 

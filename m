@@ -1,102 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVAHGbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261926AbVAHGbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261927AbVAHGbP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 01:31:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbVAHGa6
+	id S261926AbVAHGbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 01:31:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVAHGae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 01:30:58 -0500
-Received: from mail.kroah.org ([69.55.234.183]:15238 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261927AbVAHFsq convert rfc822-to-8bit
+	Sat, 8 Jan 2005 01:30:34 -0500
+Received: from mail.kroah.org ([69.55.234.183]:14982 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261926AbVAHFsq convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 8 Jan 2005 00:48:46 -0500
-Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
-In-Reply-To: <11051632663258@kroah.com>
+Subject: Re: [PATCH] I2C patches for 2.6.10
+In-Reply-To: <11051627731563@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 7 Jan 2005 21:47:46 -0800
-Message-Id: <11051632662317@kroah.com>
+Date: Fri, 7 Jan 2005 21:39:34 -0800
+Message-Id: <1105162774441@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 Content-Transfer-Encoding: 7BIT
 From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.446.26, 2004/12/15 16:37:38-08:00, david-b@pacbell.net
+ChangeSet 1.1938.439.47, 2005/01/06 13:55:26-08:00, khali@linux-fr.org
 
-[PATCH] USB: UHCI and HCD API change (14/15)
+[PATCH] I2C: Fix MAX6657/8/9 detection in lm90
 
-UHCI changes to match the updated HCD glue calls.  Since it's handed the
-relevant endpoint queue on a silver platter, the driver no longer needs
-to search anything to find the queue entries.
+I received no additional feedback about my MAX6657/8/9 detection fix.
+Since it was correct for the only chips I got a report for, I propose we
+apply it. After all, maybe people don't know they have such a chip
+because the detection was previously not correct.
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+The patch below is the one I sent to the LM Sensors and Linux Kernel
+mailing-lists two weeks ago, unchanged. Thanks.
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/usb/host/uhci-hcd.c |   39 +++++----------------------------------
- 1 files changed, 5 insertions(+), 34 deletions(-)
+ drivers/i2c/chips/lm90.c |   28 ++++++++++++++++++++--------
+ 1 files changed, 20 insertions(+), 8 deletions(-)
 
 
-diff -Nru a/drivers/usb/host/uhci-hcd.c b/drivers/usb/host/uhci-hcd.c
---- a/drivers/usb/host/uhci-hcd.c	2005-01-07 15:48:04 -08:00
-+++ b/drivers/usb/host/uhci-hcd.c	2005-01-07 15:48:04 -08:00
-@@ -1255,7 +1255,9 @@
- 	return NULL;
- }
+diff -Nru a/drivers/i2c/chips/lm90.c b/drivers/i2c/chips/lm90.c
+--- a/drivers/i2c/chips/lm90.c	2005-01-07 14:54:33 -08:00
++++ b/drivers/i2c/chips/lm90.c	2005-01-07 14:54:33 -08:00
+@@ -35,12 +35,13 @@
+  * Among others, it has a higher accuracy than the LM90, much like the
+  * LM86 does.
+  *
+- * This driver also supports the MAX6657 and MAX6658, sensor chips made
+- * by Maxim. These chips are similar to the LM86. Complete datasheet
+- * can be obtained at Maxim's website at:
++ * This driver also supports the MAX6657, MAX6658 and MAX6659 sensor
++ * chips made by Maxim. These chips are similar to the LM86. Complete
++ * datasheet can be obtained at Maxim's website at:
+  *   http://www.maxim-ic.com/quick_view2.cfm/qv_pk/2578
+- * Note that there is no way to differenciate between both chips (but
+- * no need either).
++ * Note that there is no easy way to differenciate between the three
++ * variants. The extra address and features of the MAX6659 are not
++ * supported by this driver.
+  *
+  * Since the LM90 was the first chipset supported by this driver, most
+  * comments will refer to this chipset, but are actually general and
+@@ -70,9 +71,11 @@
  
--static int uhci_urb_enqueue(struct usb_hcd *hcd, struct urb *urb, int mem_flags)
-+static int uhci_urb_enqueue(struct usb_hcd *hcd,
-+		struct usb_host_endpoint *ep,
-+		struct urb *urb, int mem_flags)
- {
- 	int ret;
- 	struct uhci_hcd *uhci = hcd_to_uhci(hcd);
-@@ -2293,44 +2295,13 @@
- 	return &uhci->hcd;
- }
+ /*
+  * Addresses to scan
+- * Address is fully defined internally and cannot be changed.
++ * Address is fully defined internally and cannot be changed except for
++ * MAX6659.
+  * LM86, LM89, LM90, LM99, ADM1032, MAX6657 and MAX6658 have address 0x4c.
+  * LM89-1, and LM99-1 have address 0x4d.
++ * MAX6659 can have address 0x4c, 0x4d or 0x4e (unsupported).
+  */
  
--/* Are there any URBs for a particular device/endpoint on a given list? */
--static int urbs_for_ep_list(struct list_head *head,
--		struct hcd_dev *hdev, int ep)
--{
--	struct urb_priv *urbp;
--
--	list_for_each_entry(urbp, head, urb_list) {
--		struct urb *urb = urbp->urb;
--
--		if (hdev == urb->dev->hcpriv && ep ==
--				(usb_pipeendpoint(urb->pipe) |
--				 usb_pipein(urb->pipe)))
--			return 1;
--	}
--	return 0;
--}
--
--/* Are there any URBs for a particular device/endpoint? */
--static int urbs_for_ep(struct uhci_hcd *uhci, struct hcd_dev *hdev, int ep)
--{
--	int rc;
--
--	spin_lock_irq(&uhci->schedule_lock);
--	rc = (urbs_for_ep_list(&uhci->urb_list, hdev, ep) ||
--			urbs_for_ep_list(&uhci->complete_list, hdev, ep) ||
--			urbs_for_ep_list(&uhci->urb_remove_list, hdev, ep));
--	spin_unlock_irq(&uhci->schedule_lock);
--	return rc;
--}
--
- /* Wait until all the URBs for a particular device/endpoint are gone */
- static void uhci_hcd_endpoint_disable(struct usb_hcd *hcd,
--		struct hcd_dev *hdev, int endpoint)
-+		struct usb_host_endpoint *ep)
- {
- 	struct uhci_hcd *uhci = hcd_to_uhci(hcd);
- 
--	wait_event_interruptible(uhci->waitqh,
--			!urbs_for_ep(uhci, hdev, endpoint));
-+	wait_event_interruptible(uhci->waitqh, list_empty(&ep->urb_list));
- }
- 
- static int uhci_hcd_get_frame_number(struct usb_hcd *hcd)
+ static unsigned short normal_i2c[] = { 0x4c, 0x4d, I2C_CLIENT_END };
+@@ -386,8 +389,17 @@
+ 			}
+ 		} else
+ 		if (man_id == 0x4D) { /* Maxim */
+-			if (address == 0x4C
+-			 && (reg_config1 & 0x1F) == 0
++			/*
++			 * The Maxim variants do NOT have a chip_id register.
++			 * Reading from that address will return the last read
++			 * value, which in our case is those of the man_id
++			 * register. Likewise, the config1 register seems to
++			 * lack a low nibble, so the value will be those of the
++			 * previous read, so in our case those of the man_id
++			 * register.
++			 */
++			if (chip_id == man_id
++			 && (reg_config1 & 0x1F) == (man_id & 0x0F)
+ 			 && reg_convrate <= 0x09) {
+ 			 	kind = max6657;
+ 			}
 

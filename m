@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261937AbTCYL0s>; Tue, 25 Mar 2003 06:26:48 -0500
+	id <S261962AbTCYL0X>; Tue, 25 Mar 2003 06:26:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262045AbTCYL0s>; Tue, 25 Mar 2003 06:26:48 -0500
-Received: from horse.idknet.com ([217.19.208.18]:17315 "EHLO horse.idknet.com")
-	by vger.kernel.org with ESMTP id <S261937AbTCYL0g>;
-	Tue, 25 Mar 2003 06:26:36 -0500
-X-AV-Checked: Tue Mar 25 13:37:41 2003 OK
-Date: Tue, 25 Mar 2003 13:37:41 +0200
-From: MaxiM Basunov <maxim@idknet.com>
-X-Mailer: The Bat! (v1.60) Personal
-Reply-To: MaxiM Basunov <maxim@idknet.com>
-Organization: JSCC Interdnestrcom
-X-Priority: 3 (Normal)
-Message-ID: <1275572723.20030325133741@idknet.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.4.19 kernel and Intel SE7500WV2
-MIME-Version: 1.0
+	id <S261952AbTCYL0X>; Tue, 25 Mar 2003 06:26:23 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:16790 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261937AbTCYL0T>;
+	Tue, 25 Mar 2003 06:26:19 -0500
+Date: Tue, 25 Mar 2003 12:37:24 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: dougg@torque.net, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [patch for playing] 2.5.65 patch to support > 256 disks
+Message-ID: <20030325113724.GU2371@suse.de>
+References: <200303211056.04060.pbadari@us.ibm.com> <3E7C4251.4010406@torque.net> <20030322030419.1451f00b.akpm@digeo.com> <3E7C4D05.2030500@torque.net> <20030322040550.0b8baeec.akpm@digeo.com> <20030325105629.GS2371@suse.de> <20030325112307.GT2371@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030325112307.GT2371@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Andre.
+On Tue, Mar 25 2003, Jens Axboe wrote:
+> On Tue, Mar 25 2003, Jens Axboe wrote:
+> > Here's a patch that makes the request allocation (and io scheduler
+> > private data) dynamic, with upper and lower bounds of 4 and 256
+> > respectively. The numbers are a bit random - the 4 will allow us to make
+> > progress, but it might be a smidgen too low. Perhaps 8 would be good.
+> > 256 is twice as much as before, but that should be alright as long as
+> > the io scheduler copes. BLKDEV_MAX_RQ and BLKDEV_MIN_RQ control these
+> > two variables.
+> > 
+> > We loose the old batching functionality, for now. I can resurrect that
+> > if needed. It's a rough fit with the mempool, it doesn't _quite_ fit our
+> > needs here. I'll probably end up doing a specialised block pool scheme
+> > for this.
+> > 
+> > Hasn't been tested all that much, it boots though :-)
+> 
+> Here's a version with better lock handling. We drop the queue_lock for
+> most parts of __make_request(), except the actual io scheduler calls.
 
-  I need to install Linux on Intel SE7500WV2 with integrated Promise
-  FastTrak TX2000 Lite, mirror over 2 IDE disks on RAID.
+That was buggy, fixing... Back later.
 
-  After loading, kernel hangs up with error: Bad EIP value.
-  First line of call trace says about:
-  [<c01c0243> pdc202xx_tune_drive [kernel] 0x383 (0xc44c5f00))
-
-  I tries different kernels. Same errors on all RedHat 80 kernels.
-
-  If TX2000 does not containt ANY IDE disk, kernel works OK, but if any ide
-  drive connected, kernel hangs after detecting drive.
-
-  Can you help me with this?
-  
 -- 
-WBR, MaxiM                          mailto:maxim@idknet.com
-JSCC Interdnestrcom
-Tiraspol, Moldova
-www.idknet.com, www.isp.idknet.com
+Jens Axboe
 

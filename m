@@ -1,41 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274496AbRJACmJ>; Sun, 30 Sep 2001 22:42:09 -0400
+	id <S274505AbRJADKp>; Sun, 30 Sep 2001 23:10:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274497AbRJAClu>; Sun, 30 Sep 2001 22:41:50 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:48008 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S274496AbRJAClj>;
-	Sun, 30 Sep 2001 22:41:39 -0400
+	id <S274506AbRJADKf>; Sun, 30 Sep 2001 23:10:35 -0400
+Received: from rj.sgi.com ([204.94.215.100]:65175 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S274505AbRJADKZ>;
+	Sun, 30 Sep 2001 23:10:25 -0400
 X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
 From: Keith Owens <kaos@ocs.com.au>
-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	 Coronado <dervishd@jazzfree.com>
+To: Alan Cox <laughing@shared-source.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cannot unload some modules 
-In-Reply-To: Your message of "Thu, 27 Sep 2001 15:54:19 +0200."
-             <E15mbcJ-0001Hd-00@DervishD> 
+Subject: Re: Linux 2.4.10-ac1 
+In-Reply-To: Your message of "Mon, 01 Oct 2001 00:15:19 +0100."
+             <20011001001519.A30470@lightning.swansea.linux.org.uk> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 01 Oct 2001 12:41:51 +1000
-Message-ID: <13500.1001904111@kao2.melbourne.sgi.com>
+Date: Mon, 01 Oct 2001 13:10:34 +1000
+Message-ID: <17878.1001905834@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Sep 2001 15:54:19 +0200, 
-=?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas Coronado <dervishd@jazzfree.com> wrote:
->    I have a problem with some modules, specially with 'dummy.o' (the
->dummy network device driver) and some USB ones: they aren't unloaded,
->even when unused and autocleanable, issuing two or more 'rmmod -a'
->commands.
+On Mon, 1 Oct 2001 00:15:19 +0100, 
+Alan Cox <laughing@shared-source.org> wrote:
+>2.4.10-ac1
+>o	Merge with Linux 2.4.10 tree
 
-Auto unload ignores modules that have not been used, to avoid a race
-condition.  Either use the module or don't auto load them in the first
-place.
-
->    BTW, I've noticed too that the serial module sometimes has a
->negative value in its 'use' count :!!
-
-That could be the serial driver saying that it handles its own unload
-count but is more likely to be a bug in the code.  Report it to the
-serial driver maintainer.
+You deleted include/linux/rbtree.h, lib/rbtree.c and include/asm-s390/tlb.h
+from Linus's tree.  I doubt that was deliberate.
 

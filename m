@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262694AbTCMXyp>; Thu, 13 Mar 2003 18:54:45 -0500
+	id <S263163AbTCMXzP>; Thu, 13 Mar 2003 18:55:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263147AbTCMXyo>; Thu, 13 Mar 2003 18:54:44 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17083 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262694AbTCMXx1>;
-	Thu, 13 Mar 2003 18:53:27 -0500
-Message-ID: <3E711C8C.3050800@pobox.com>
-Date: Thu, 13 Mar 2003 19:04:28 -0500
+	id <S263149AbTCMXzG>; Thu, 13 Mar 2003 18:55:06 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18107 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262922AbTCMXx4>;
+	Thu, 13 Mar 2003 18:53:56 -0500
+Message-ID: <3E711CA8.6080706@pobox.com>
+Date: Thu, 13 Mar 2003 19:04:56 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
 Organization: none
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
@@ -15,204 +15,249 @@ X-Accept-Language: en
 MIME-Version: 1.0
 To: lkml <linux-kernel@vger.kernel.org>
 CC: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH 3/5] rng driver update
+Subject: [PATCH 4/5] rng driver update
 References: <3E711C0A.40705@pobox.com>
 In-Reply-To: <3E711C0A.40705@pobox.com>
 Content-Type: multipart/mixed;
- boundary="------------000305010403050303030903"
+ boundary="------------010200030509020802010102"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------000305010403050303030903
+--------------010200030509020802010102
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
---------------000305010403050303030903
+--------------010200030509020802010102
 Content-Type: text/plain;
- name="patch.3"
+ name="patch.4"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="patch.3"
+ filename="patch.4"
 
 # This is a BitKeeper generated patch for the following project:
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.1106  -> 1.1107 
-#	include/asm-i386/msr.h	1.12    -> 1.13   
-#	arch/i386/kernel/cpu/common.c	1.19    -> 1.20   
-#	arch/i386/kernel/cpu/centaur.c	1.6     -> 1.7    
-#	include/asm-i386/cpufeature.h	1.6     -> 1.7    
-#	arch/i386/kernel/cpu/proc.c	1.8     -> 1.9    
+#	           ChangeSet	1.1107  -> 1.1108 
+#	drivers/char/Kconfig	1.9     -> 1.10   
+#	drivers/char/hw_random.c	1.5     -> 1.6    
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 03/03/13	jgarzik@redhat.com	1.1107
-# [ia32] cpu capabilities cleanups and additions
-# 
-# * Add support for new Centaur(VIA) and Intel cpuid feature bits,
-#   expanding the x86_capability array by two.
-# * (cleanup) Move cpu setup for newer Via C3 cpus into its own
-#   function, init_c3()
-# * Add support for RNG control msr on VIA Nehemiah
-# * export X86_FEATURE_XSTORE and cpu_has_xstore macros so that
-#   kernel code may easily test for cpu support of the new
-#   "xstore" instruction.
+# 03/03/13	jgarzik@redhat.com	1.1108
+# [hw_random] add support for VIA Nehemiah RNG ("xstore" instruction)
 # --------------------------------------------
 #
-diff -Nru a/arch/i386/kernel/cpu/centaur.c b/arch/i386/kernel/cpu/centaur.c
---- a/arch/i386/kernel/cpu/centaur.c	Thu Mar 13 18:52:54 2003
-+++ b/arch/i386/kernel/cpu/centaur.c	Thu Mar 13 18:52:54 2003
-@@ -248,6 +248,37 @@
- }
- #endif
+diff -Nru a/drivers/char/Kconfig b/drivers/char/Kconfig
+--- a/drivers/char/Kconfig	Thu Mar 13 18:53:05 2003
++++ b/drivers/char/Kconfig	Thu Mar 13 18:53:05 2003
+@@ -710,7 +710,7 @@
+ 	  If you're not sure, say N.
  
-+static void __init init_c3(struct cpuinfo_x86 *c)
+ config HW_RANDOM
+-	tristate "Intel/AMD H/W Random Number Generator support"
++	tristate "Intel/AMD/Via H/W Random Number Generator support"
+ 	depends on (X86 || IA64) && PCI
+ 	---help---
+ 	  This driver provides kernel-side support for the Random Number
+diff -Nru a/drivers/char/hw_random.c b/drivers/char/hw_random.c
+--- a/drivers/char/hw_random.c	Thu Mar 13 18:53:05 2003
++++ b/drivers/char/hw_random.c	Thu Mar 13 18:53:05 2003
+@@ -1,5 +1,5 @@
+ /*
+- 	Hardware driver for the Intel/AMD Random Number Generators (RNG)
++ 	Hardware driver for the Intel/AMD/Via Random Number Generators (RNG)
+ 	(c) Copyright 2003 Red Hat Inc <jgarzik@redhat.com>
+  
+  	derived from
+@@ -35,6 +35,11 @@
+ #include <linux/mm.h>
+ #include <linux/delay.h>
+ 
++#ifdef __i386__
++#include <asm/msr.h>
++#include <asm/cpufeature.h>
++#endif
++
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+ 
+@@ -88,6 +93,11 @@
+ static unsigned int amd_data_present (void);
+ static u32 amd_data_read (void);
+ 
++static int __init via_init(struct pci_dev *dev);
++static void __exit via_cleanup(void);
++static unsigned int via_data_present (void);
++static u32 via_data_read (void);
++
+ struct rng_operations {
+ 	int (*init) (struct pci_dev *dev);
+ 	void (*cleanup) (void);
+@@ -117,6 +127,7 @@
+ 	rng_hw_none,
+ 	rng_hw_intel,
+ 	rng_hw_amd,
++	rng_hw_via,
+ };
+ 
+ static struct rng_operations rng_vendor_ops[] __initdata = {
+@@ -129,6 +140,9 @@
+ 
+ 	/* rng_hw_amd */
+ 	{ amd_init, amd_cleanup, amd_data_present, amd_data_read, 4 },
++
++	/* rng_hw_via */
++	{ via_init, via_cleanup, via_data_present, via_data_read, 1 },
+ };
+ 
+ /*
+@@ -332,6 +346,127 @@
+ 
+ /***********************************************************************
+  *
++ * Via RNG operations
++ *
++ */
++
++enum {
++	VIA_STRFILT_CNT_SHIFT	= 16,
++	VIA_STRFILT_FAIL	= (1 << 15),
++	VIA_STRFILT_ENABLE	= (1 << 14),
++	VIA_RAWBITS_ENABLE	= (1 << 13),
++	VIA_RNG_ENABLE		= (1 << 6),
++	VIA_XSTORE_CNT_MASK	= 0x0F,
++
++	VIA_RNG_CHUNK_8		= 0x00,	/* 64 rand bits, 64 stored bits */
++	VIA_RNG_CHUNK_4		= 0x01,	/* 32 rand bits, 32 stored bits */
++	VIA_RNG_CHUNK_4_MASK	= 0xFFFFFFFF,
++	VIA_RNG_CHUNK_2		= 0x02,	/* 16 rand bits, 32 stored bits */
++	VIA_RNG_CHUNK_2_MASK	= 0xFFFF,
++	VIA_RNG_CHUNK_1		= 0x03,	/* 8 rand bits, 32 stored bits */
++	VIA_RNG_CHUNK_1_MASK	= 0xFF,
++};
++
++u32 via_rng_datum;
++
++/*
++ * Investigate using the 'rep' prefix to obtain 32 bits of random data
++ * in one insn.  The upside is potentially better performance.  The
++ * downside is that the instruction becomes no longer atomic.  Due to
++ * this, just like familiar issues with /dev/random itself, the worst
++ * case of a 'rep xstore' could potentially pause a cpu for an
++ * unreasonably long time.  In practice, this condition would likely
++ * only occur when the hardware is failing.  (or so we hope :))
++ *
++ * Another possible performance boost may come from simply buffering
++ * until we have 4 bytes, thus returning a u32 at a time,
++ * instead of the current u8-at-a-time.
++ */
++
++static inline u32 xstore(u32 *addr, u32 edx_in)
 +{
-+	u32  lo, hi;
++	u32 eax_out;
 +
-+	/* Test for Centaur Extended Feature Flags presence */
-+	if (cpuid_eax(0xC0000000) >= 0xC0000001) {
-+		/* store Centaur Extended Feature Flags as
-+		 * word 5 of the CPU capability bit array
-+		 */
-+		c->x86_capability[5] = cpuid_edx(0xC0000001);
-+	}
++	asm(".byte 0x0F,0xA7,0xC0 /* xstore %%edi (addr=%0) */"
++		:"=m"(*addr), "=a"(eax_out)
++		:"D"(addr), "d"(edx_in));
 +
-+	switch (c->x86_model) {
-+		case 6 ... 8:		/* Cyrix III family */
-+			rdmsr (MSR_VIA_FCR, lo, hi);
-+			lo |= (1<<1 | 1<<7);	/* Report CX8 & enable PGE */
-+			wrmsr (MSR_VIA_FCR, lo, hi);
-+
-+			set_bit(X86_FEATURE_CX8, c->x86_capability);
-+			set_bit(X86_FEATURE_3DNOW, c->x86_capability);
-+
-+			/* fall through */
-+
-+		case 9:	/* Nehemiah */
-+		default:
-+			get_model_name(c);
-+			display_cacheinfo(c);
-+			break;
-+	}
++	return eax_out;
 +}
 +
- static void __init init_centaur(struct cpuinfo_x86 *c)
- {
- 	enum {
-@@ -386,21 +417,7 @@
- 			break;
- 
- 		case 6:
--			switch (c->x86_model) {
--				case 6 ... 8:		/* Cyrix III family */
--					rdmsr (MSR_VIA_FCR, lo, hi);
--					lo |= (1<<1 | 1<<7);	/* Report CX8 & enable PGE */
--					wrmsr (MSR_VIA_FCR, lo, hi);
--
--					set_bit(X86_FEATURE_CX8, c->x86_capability);
--					set_bit(X86_FEATURE_3DNOW, c->x86_capability);
--
--				case 9:	/* Nehemiah */
--				default:
--					get_model_name(c);
--					display_cacheinfo(c);
--					break;
--			}
-+			init_c3(c);
- 			break;
++static unsigned int via_data_present(void)
++{
++	u32 bytes_out;
++
++	/* We choose the recommended 1-byte-per-instruction RNG rate,
++	 * for greater randomness at the expense of speed.  Larger
++	 * values 2, 4, or 8 bytes-per-instruction yield greater
++	 * speed at lesser randomness.
++	 *
++	 * If you change this to another VIA_CHUNK_n, you must also
++	 * change the ->n_bytes values in rng_vendor_ops[] tables.
++	 * VIA_CHUNK_8 requires further code changes.
++	 *
++	 * A copy of MSR_VIA_RNG is placed in eax_out when xstore
++	 * completes.
++	 */
++	via_rng_datum = 0; /* paranoia, not really necessary */
++	bytes_out = xstore(&via_rng_datum, VIA_RNG_CHUNK_1) & VIA_XSTORE_CNT_MASK;
++	if (bytes_out == 0)
++		return 0;
++
++	return 1;
++}
++
++static u32 via_data_read(void)
++{
++	return via_rng_datum;
++}
++
++static int __init via_init(struct pci_dev *dev)
++{
++	u32 lo, hi, old_lo;
++
++	/* Control the RNG via MSR.  Tread lightly and pay very close
++	 * close attention to values written, as the reserved fields
++	 * are documented to be "undefined and unpredictable"; but it
++	 * does not say to write them as zero, so I make a guess that
++	 * we restore the values we find in the register.
++	 */
++	rdmsr(MSR_VIA_RNG, lo, hi);
++
++	old_lo = lo;
++	lo &= ~(0x7f << VIA_STRFILT_CNT_SHIFT);
++	lo &= ~VIA_XSTORE_CNT_MASK;
++	lo &= ~(VIA_STRFILT_ENABLE | VIA_STRFILT_FAIL | VIA_RAWBITS_ENABLE);
++	lo |= VIA_RNG_ENABLE;
++
++	if (lo != old_lo)
++		wrmsr(MSR_VIA_RNG, lo, hi);
++
++	/* perhaps-unnecessary sanity check; remove after testing if
++	   unneeded */
++	rdmsr(MSR_VIA_RNG, lo, hi);
++	if ((lo & VIA_RNG_ENABLE) == 0) {
++		printk(KERN_ERR PFX "cannot enable Via C3 RNG, aborting\n");
++		return -ENODEV;
++	}
++
++	return 0;
++}
++
++static void __exit via_cleanup(void)
++{
++	u32 lo, hi;
++
++	rdmsr(MSR_VIA_RNG, lo, hi);
++	lo &= ~VIA_RNG_ENABLE;
++	wrmsr(MSR_VIA_RNG, lo, hi);
++}
++
++
++/***********************************************************************
++ *
+  * /dev/hwrandom character device handling (major 10, minor 183)
+  *
+  */
+@@ -470,6 +605,15 @@
+ 			goto match;
+ 		}
  	}
- }
-diff -Nru a/arch/i386/kernel/cpu/common.c b/arch/i386/kernel/cpu/common.c
---- a/arch/i386/kernel/cpu/common.c	Thu Mar 13 18:52:54 2003
-+++ b/arch/i386/kernel/cpu/common.c	Thu Mar 13 18:52:54 2003
-@@ -211,9 +211,10 @@
- 	
- 		/* Intel-defined flags: level 0x00000001 */
- 		if ( c->cpuid_level >= 0x00000001 ) {
--			u32 capability;
--			cpuid(0x00000001, &tfms, &junk, &junk, &capability);
-+			u32 capability, excap;
-+			cpuid(0x00000001, &tfms, &junk, &excap, &capability);
- 			c->x86_capability[0] = capability;
-+			c->x86_capability[4] = excap;
- 			c->x86 = (tfms >> 8) & 15;
- 			c->x86_model = (tfms >> 4) & 15;
- 			c->x86_mask = tfms & 15;
-diff -Nru a/arch/i386/kernel/cpu/proc.c b/arch/i386/kernel/cpu/proc.c
---- a/arch/i386/kernel/cpu/proc.c	Thu Mar 13 18:52:54 2003
-+++ b/arch/i386/kernel/cpu/proc.c	Thu Mar 13 18:52:54 2003
-@@ -37,7 +37,20 @@
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 
- 		/* Other (Linux-defined) */
--		"cxmmx", "k6_mtrr", "cyrix_arr", "centaur_mcr", NULL, NULL, NULL, NULL,
-+		"cxmmx", "k6_mtrr", "cyrix_arr", "centaur_mcr",
-+		NULL, NULL, NULL, NULL,
-+		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-+		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-+		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 +
-+		/* Intel-defined (#2) */
-+		"pni", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, NULL,
-+		"tm2", NULL, "cnxt_id", NULL, NULL, NULL, NULL, NULL,
-+		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-+		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-+
-+		/* VIA/Cyrix/Centaur-defined */
-+		NULL, NULL, "xstore", NULL, NULL, NULL, NULL, NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-diff -Nru a/include/asm-i386/cpufeature.h b/include/asm-i386/cpufeature.h
---- a/include/asm-i386/cpufeature.h	Thu Mar 13 18:52:54 2003
-+++ b/include/asm-i386/cpufeature.h	Thu Mar 13 18:52:54 2003
-@@ -9,9 +9,9 @@
++#ifdef __i386__
++	/* Probe for Via RNG */
++	if (cpu_has_xstore) {
++		rng_ops = &rng_vendor_ops[rng_hw_via];
++		pdev = NULL;
++		goto match;
++	}
++#endif
  
- #include <linux/bitops.h>
- 
--#define NCAPINTS	4	/* Currently we have 4 32-bit words worth of info */
-+#define NCAPINTS	6	/* Currently we have 6 32-bit words worth of info */
- 
--/* Intel-defined CPU features, CPUID level 0x00000001, word 0 */
-+/* Intel-defined CPU features, CPUID level 0x00000001 (edx), word 0 */
- #define X86_FEATURE_FPU		(0*32+ 0) /* Onboard FPU */
- #define X86_FEATURE_VME		(0*32+ 1) /* Virtual Mode Extensions */
- #define X86_FEATURE_DE		(0*32+ 2) /* Debugging Extensions */
-@@ -64,6 +64,11 @@
- #define X86_FEATURE_CYRIX_ARR	(3*32+ 2) /* Cyrix ARRs (= MTRRs) */
- #define X86_FEATURE_CENTAUR_MCR	(3*32+ 3) /* Centaur MCRs (= MTRRs) */
- 
-+/* Intel-defined CPU features, CPUID level 0x00000001 (ecx), word 4 */
-+
-+/* VIA/Cyrix/Centaur-defined CPU features, CPUID level 0xC0000001, word 5 */
-+#define X86_FEATURE_XSTORE	(5*32+ 2) /* on-CPU RNG present (xstore insn) */
-+
- 
- #define cpu_has(c, bit)		test_bit(bit, (c)->x86_capability)
- #define boot_cpu_has(bit)	test_bit(bit, boot_cpu_data.x86_capability)
-@@ -87,6 +92,7 @@
- #define cpu_has_k6_mtrr		boot_cpu_has(X86_FEATURE_K6_MTRR)
- #define cpu_has_cyrix_arr	boot_cpu_has(X86_FEATURE_CYRIX_ARR)
- #define cpu_has_centaur_mcr	boot_cpu_has(X86_FEATURE_CENTAUR_MCR)
-+#define cpu_has_xstore		boot_cpu_has(X86_FEATURE_XSTORE)
- 
- #endif /* __ASM_I386_CPUFEATURE_H */
- 
-diff -Nru a/include/asm-i386/msr.h b/include/asm-i386/msr.h
---- a/include/asm-i386/msr.h	Thu Mar 13 18:52:54 2003
-+++ b/include/asm-i386/msr.h	Thu Mar 13 18:52:54 2003
-@@ -218,6 +218,7 @@
- /* VIA Cyrix defined MSRs*/
- #define MSR_VIA_FCR			0x1107
- #define MSR_VIA_LONGHAUL		0x110a
-+#define MSR_VIA_RNG			0x110b
- #define MSR_VIA_BCR2			0x1147
- 
- /* Transmeta defined MSRs */
+ 	DPRINTK ("EXIT, returning -ENODEV\n");
+ 	return -ENODEV;
 
---------------000305010403050303030903--
+--------------010200030509020802010102--
 

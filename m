@@ -1,50 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262335AbVCVHAB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbVCVHCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262335AbVCVHAB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 02:00:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbVCVG7D
+	id S262084AbVCVHCr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 02:02:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVCVHBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 01:59:03 -0500
-Received: from mx1.suse.de ([195.135.220.2]:25233 "EHLO mail.suse.de")
-	by vger.kernel.org with ESMTP id S262195AbVCVG4q (ORCPT
+	Tue, 22 Mar 2005 02:01:17 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42668 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262065AbVCUWcH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 01:56:46 -0500
-Date: Tue, 22 Mar 2005 07:56:42 +0100
-From: Karsten Keil <kkeil@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Problem with w6692 & kernel >=2.6.10
-Message-ID: <20050322065642.GL30742@pingi3.kke.suse.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <dd02451d050303132662482b66@mail.gmail.com> <20050321142823.672f0749.akpm@osdl.org>
+	Mon, 21 Mar 2005 17:32:07 -0500
+Date: Mon, 21 Mar 2005 23:31:46 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Mws <mws@twisted-brains.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2/2] SquashFS
+Message-ID: <20050321223146.GM1390@elf.ucw.cz>
+References: <20050314170653.1ed105eb.akpm@osdl.org> <423727BD.7080200@grupopie.com> <20050321101441.GA23456@elf.ucw.cz> <200503211908.46602.mws@twisted-brains.org> <20050321185418.GC1390@elf.ucw.cz> <423F496C.10004@twisted-brains.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050321142823.672f0749.akpm@osdl.org>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.8-24.10-default i686
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <423F496C.10004@twisted-brains.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 21, 2005 at 02:28:23PM -0800, Andrew Morton wrote:
-> Marko Rebrina <mrebrina@gmail.com> wrote:
+Hi!
+
+> >>>>Well, probably Phillip can answer this better than me, but the main 
+> >>>>differences that affect end users (and that is why we are using 
+> >>>>SquashFS right now) are:
+> >>>>                         CRAMFS          SquashFS
+> >>>>
+> >>>>Max File Size               16Mb               4Gb
+> >>>>Max Filesystem Size        256Mb              4Gb?
+> >>>>       
+> >>>>
+> >>>So we are replacing severely-limited cramfs with also-limited
+> >>>squashfs... For live DVDs etc 4Gb filesystem size limit will hurt for
+> >>>sure, and 4Gb file size limit will hurt, too. Can those be fixed?
+> >>>     
+> >>>
 > >
-> > I have problem with w6692 (mISDN-2005-02-25) & kernel >=2.6.10 (with
-> > 2.6.9 is OK!) 
-> 
-> There haven't been any changes in the w6692 driver for ages, so I'd be
-> suspecting PCI changes or something like that.  Are you able to test
-> 2.6.12-rc1?
-> 
+> >...
+> > 
+> >
+> >>but if there is a contribution from the outside - it is not taken "as is" 
+> >>and maybe fixed up, which
+> >>should be nearly possible in the same time like analysing and commenting 
+> >>the code - it ends up
+> >>in having less supported hardware. 
+> >>
+> >>imho if a hardware company does indeed provide us with opensource 
+> >>drivers, we should take these
+> >>things as a gift, not as a "not coding guide a'like" intrusion which
+> >>has to be defeated.
+> >
+> >Remember that horse in Troja? It was a gift, too.
 
-Marko do not point to the in kernel w6692 driver, but to the (still ALPHA)
-mISDN driver from cvs.isdn4linux.de.
-This driver had a problem with the pci_register_driver return code changes
-in 2.6.10, it now always returns 0 (if no error), but < 2.6.10 did return
-the number of detected devices, which was tested in this driver.
-This is fixed since last week in our CVS.
+> of course there had been a horse in troja., but thinking like that 
+> nowadays is a bit incorrect - don't you agree?
+> 
+> code is reviewed normally - thats what i told before and i stated as 
+> good feature - but there is no serious reason
+> to blame every code to have potential "trojan horses" inside and to 
+> reject it.
 
+I should have added a smiley.
+
+I'm not seriously suggesting that it contains deliberate problem. But
+codestyle uglyness and arbitrary limits may come back and haunt us in
+future. Once code is in kernel, it is very hard to change on-disk
+format, for example.
+								Pavel
 -- 
-Karsten Keil
-SuSE Labs
-ISDN development
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

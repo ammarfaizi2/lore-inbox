@@ -1,41 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289431AbSAJMqE>; Thu, 10 Jan 2002 07:46:04 -0500
+	id <S289434AbSAJMve>; Thu, 10 Jan 2002 07:51:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289432AbSAJMpz>; Thu, 10 Jan 2002 07:45:55 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:34777 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S289431AbSAJMpp>;
-	Thu, 10 Jan 2002 07:45:45 -0500
-Date: Thu, 10 Jan 2002 13:45:05 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rik van Riel <riel@conectiva.com.br>, Jim Crilly <noth@noth.is.eleet.ca>,
-        Chris Ball <chris@void.printf.net>,
-        Benjamin S Carrell <ben@xmission.com>, linux-kernel@vger.kernel.org
-Subject: Re: Bigggg Maxtor drives (fwd)
-Message-ID: <20020110134504.E5235@khan.acc.umu.se>
-In-Reply-To: <Pine.LNX.4.33L.0201101010090.2985-100000@imladris.surriel.com> <E16OeVc-0004HF-00@the-village.bc.nu>
+	id <S289432AbSAJMvQ>; Thu, 10 Jan 2002 07:51:16 -0500
+Received: from smtp03.wxs.nl ([195.121.6.37]:16090 "EHLO smtp03.wxs.nl")
+	by vger.kernel.org with ESMTP id <S289428AbSAJMvC>;
+	Thu, 10 Jan 2002 07:51:02 -0500
+Subject: Re: [PATCH] Combined APM patch
+From: Thomas Hood <jdthood@mail.com>
+To: linux-laptop@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20020107155226.5c6409b6.sfr@canb.auug.org.au>
+In-Reply-To: <20020107155226.5c6409b6.sfr@canb.auug.org.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 10 Jan 2002 07:51:05 -0500
+Message-Id: <1010667066.12688.41.camel@thanatos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <E16OeVc-0004HF-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jan 10, 2002 at 12:40:40PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10, 2002 at 12:40:40PM +0000, Alan Cox wrote:
-> > I think you'll agree with him the moment you end up with
-> > a cheap 160 GB drive in your machine and the old driver
-> > (which is limited to 32(?)-bit LBA) won't let you use a
-> > large portion of the disk ;)
+Just browsing the diff between my patch and Stephen's, I have
+a couple of questions.
+
+< static int			suspends_pending; /* = 0 */
+---
+> static int			suspends_pending;
+
+Is it not good practice to note when the code _assumes_ zero-
+initialization?  I have seen comments like these elsewhere in
+the kernel sources.
+
+< 	static int use_apm_idle; /* = 0 */
+< 	static unsigned int last_jiffies; /* = 0 */
+< 	static unsigned int last_stime; /* = 0 */
+---
+> 	static int use_apm_idle = 0;
+> 	static unsigned int last_jiffies = 0;
+> 	static unsigned int last_stime = 0;
+
+Are static variables defined within functions not initialized
+to zero at load time, as global static variables are?
+
+< 			ignore_sys_suspend = 0;
+---
+> 			waiting_for_resume = 0;
+
+Don't you think "ignore_sys_suspend" is a name more consistent
+with the other "ignore_yadda_yadda" variable names?  Minor issue.
+
+Everything else looks good to me.
+
+On Sun, 2002-01-06 at 23:52, Stephen Rothwell wrote:
+> This is my version of the combined APM patches;
 > 
-> Its also the only thing that is stable on my highpoint secondary controllers
+> 	Change notification order so that user mode is notified
+> 		before drivers of impending suspends.
+> 	Move the idling back into the idle loop.
+> 	A couple of small tidy ups.
+> 
+> See header comments for attributions.
+> 
+> This works for me (including as a module).
+> 
+> Please test and let me know - it seems to lower my power requirements
+> by about 10% on my Thinkpad (over stock 2.4.17).
+> 
+> http://www.canb.auug.org.au/~sfr/2.4.17-APM.1.diff
 
-What is, the new or the old driver?
+The kernel compiles fine with your patch; I'll test over the
+next few days.
+
+Thanks
+Thomas
 
 
-Regards: David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+
+

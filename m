@@ -1,162 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264134AbUFKQTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264239AbUFKQ0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264134AbUFKQTh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 12:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264138AbUFKQTD
+	id S264239AbUFKQ0S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 12:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264196AbUFKQSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 12:19:03 -0400
+	Fri, 11 Jun 2004 12:18:30 -0400
 Received: from mion.elka.pw.edu.pl ([194.29.160.35]:8089 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264147AbUFKQQP
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264134AbUFKQQN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 12:16:15 -0400
+	Fri, 11 Jun 2004 12:16:13 -0400
 From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 To: linux-ide@vger.kernel.org
-Subject: [PATCH] IDE update for 2.6.7-rc3 [11/12]
-Date: Fri, 11 Jun 2004 18:16:10 +0200
+Subject: [PATCH] IDE update for 2.6.7-rc3 [6/12]
+Date: Fri, 11 Jun 2004 18:18:17 +0200
 User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200406111759.12066.bzolnier@elka.pw.edu.pl>
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406111816.10369.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[PATCH] ide: kill task_[un]map_rq()
+Could somebody explain why ALTERNATE_STATE_DIAGRAM_MULTI_OUT was needed?
 
-PIO handlers under CONFIG_IDE_TASKFILE_IO=n are never used for bio
-based requests (rq->bio is always NULL) so we can use rq->buffer
-directly instead of calling ide_[un]map_buffer().
+[PATCH] ide: remove ALTERNATE_STATE_DIAGRAM_MULTI_OUT from ide-taskfile.c
+
+First introduced in 2.4.19/2.5.3 as ALTSTAT_SCREW_UP, never used.
 
 Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
 
- linux-2.6.7-rc3-bzolnier/drivers/ide/ide-taskfile.c |   25 ++++----------------
- 1 files changed, 5 insertions(+), 20 deletions(-)
+ linux-2.6.7-rc3-bzolnier/drivers/ide/ide-taskfile.c |   38 --------------------
+ 1 files changed, 38 deletions(-)
 
-diff -puN drivers/ide/ide-taskfile.c~ide_task_rq_mapping drivers/ide/ide-taskfile.c
---- linux-2.6.7-rc3/drivers/ide/ide-taskfile.c~ide_task_rq_mapping	2004-06-11 16:28:38.227656176 +0200
-+++ linux-2.6.7-rc3-bzolnier/drivers/ide/ide-taskfile.c	2004-06-11 16:29:20.524226120 +0200
-@@ -301,9 +301,6 @@ EXPORT_SYMBOL(task_no_data_intr);
-  */
- #ifndef CONFIG_IDE_TASKFILE_IO
+diff -puN drivers/ide/ide-taskfile.c~ide_alt_pio_mulout drivers/ide/ide-taskfile.c
+--- linux-2.6.7-rc3/drivers/ide/ide-taskfile.c~ide_alt_pio_mulout	2004-06-10 23:00:18.900409664 +0200
++++ linux-2.6.7-rc3-bzolnier/drivers/ide/ide-taskfile.c	2004-06-10 23:00:18.907408600 +0200
+@@ -503,18 +503,8 @@ ide_startstop_t task_out_intr (ide_drive
  
--#define task_map_rq(rq, flags)		ide_map_buffer((rq), (flags))
--#define task_unmap_rq(rq, buf, flags)	ide_unmap_buffer((rq), (buf), (flags))
+ EXPORT_SYMBOL(task_out_intr);
+ 
+-#undef ALTERNATE_STATE_DIAGRAM_MULTI_OUT
 -
- /*
-  * Handler for command with PIO data-in phase, READ
-  */
-@@ -313,7 +310,6 @@ ide_startstop_t task_in_intr (ide_drive_
- 	ide_hwif_t *hwif	= HWIF(drive);
- 	char *pBuf		= NULL;
- 	u8 stat;
--	unsigned long flags;
- 
- 	if (!OK_STAT(stat = hwif->INB(IDE_STATUS_REG),DATA_READY,BAD_R_STAT)) {
- 		if (stat & (ERR_STAT|DRQ_STAT)) {
-@@ -327,11 +323,10 @@ ide_startstop_t task_in_intr (ide_drive_
- 		}
- 	}
- 
--	pBuf = task_map_rq(rq, &flags);
-+	pBuf = rq->buffer + task_rq_offset(rq);
- 	DTF("Read: %p, rq->current_nr_sectors: %d, stat: %02x\n",
- 		pBuf, (int) rq->current_nr_sectors, stat);
- 	taskfile_input_data(drive, pBuf, SECTOR_WORDS);
--	task_unmap_rq(rq, pBuf, &flags);
- 
- 	/* FIXME: check drive status */
- 	if (--rq->current_nr_sectors <= 0)
-@@ -358,7 +353,6 @@ ide_startstop_t task_mulin_intr (ide_dri
- 	char *pBuf		= NULL;
- 	unsigned int msect	= drive->mult_count;
- 	unsigned int nsect;
--	unsigned long flags;
- 	u8 stat;
- 
- 	if (!OK_STAT(stat = hwif->INB(IDE_STATUS_REG),DATA_READY,BAD_R_STAT)) {
-@@ -375,12 +369,11 @@ ide_startstop_t task_mulin_intr (ide_dri
- 		nsect = rq->current_nr_sectors;
- 		if (nsect > msect)
- 			nsect = msect;
--		pBuf = task_map_rq(rq, &flags);
-+		pBuf = rq->buffer + task_rq_offset(rq);
- 		DTF("Multiread: %p, nsect: %d, msect: %d, " \
- 			" rq->current_nr_sectors: %d\n",
- 			pBuf, nsect, msect, rq->current_nr_sectors);
- 		taskfile_input_data(drive, pBuf, nsect * SECTOR_WORDS);
--		task_unmap_rq(rq, pBuf, &flags);
- 		rq->errors = 0;
- 		rq->current_nr_sectors -= nsect;
- 		msect -= nsect;
-@@ -404,8 +397,6 @@ EXPORT_SYMBOL(task_mulin_intr);
-  */
- ide_startstop_t pre_task_out_intr (ide_drive_t *drive, struct request *rq)
+ ide_startstop_t pre_task_mulout_intr (ide_drive_t *drive, struct request *rq)
  {
--	char *pBuf		= NULL;
+-#ifdef ALTERNATE_STATE_DIAGRAM_MULTI_OUT
+-	ide_hwif_t *hwif		= HWIF(drive);
+-	char *pBuf			= NULL;
+-	unsigned int nsect = 0, msect	= drive->mult_count;
+-        u8 stat;
 -	unsigned long flags;
+-#endif /* ALTERNATE_STATE_DIAGRAM_MULTI_OUT */
+-
+ 	ide_task_t *args = rq->special;
  	ide_startstop_t startstop;
  
- 	if (ide_wait_stat(&startstop, drive, DATA_READY,
-@@ -416,10 +407,8 @@ ide_startstop_t pre_task_out_intr (ide_d
+@@ -525,31 +515,6 @@ ide_startstop_t pre_task_mulout_intr (id
+ 			drive->addressing ? "MULTWRITE_EXT" : "MULTWRITE");
  		return startstop;
  	}
- 	/* For Write_sectors we need to stuff the first sector */
--	pBuf = task_map_rq(rq, &flags);
--	taskfile_output_data(drive, pBuf, SECTOR_WORDS);
-+	taskfile_output_data(drive, rq->buffer + task_rq_offset(rq), SECTOR_WORDS);
- 	rq->current_nr_sectors--;
--	task_unmap_rq(rq, pBuf, &flags);
- 	return ide_started;
+-#ifdef ALTERNATE_STATE_DIAGRAM_MULTI_OUT
+-
+-	do {
+-		nsect = rq->current_nr_sectors;
+-		if (nsect > msect)
+-			nsect = msect;
+-		pBuf = task_map_rq(rq, &flags);
+-		DTF("Pre-Multiwrite: %p, nsect: %d, msect: %d, " \
+-			"rq->current_nr_sectors: %ld\n",
+-			pBuf, nsect, msect, rq->current_nr_sectors);
+-		msect -= nsect;
+-		taskfile_output_data(drive, pBuf, nsect * SECTOR_WORDS);
+-		task_unmap_rq(rq, pBuf, &flags);
+-		rq->current_nr_sectors -= nsect;
+-		if (!rq->current_nr_sectors) {
+-			if (!DRIVER(drive)->end_request(drive, 1, 0))
+-				if (!rq->bio) {
+-					stat = hwif->INB(IDE_STATUS_REG);
+-					return ide_stopped;
+-				}
+-		}
+-	} while (msect);
+-	rq->errors = 0;
+-	return ide_started;
+-#else /* ! ALTERNATE_STATE_DIAGRAM_MULTI_OUT */
+ 	if (!(drive_is_ready(drive))) {
+ 		int i;
+ 		for (i=0; i<100; i++) {
+@@ -563,7 +528,6 @@ ide_startstop_t pre_task_mulout_intr (id
+ 	 * move the DATA-TRANSFER T-Bar as BSY != 0. <andre@linux-ide.org>
+ 	 */
+ 	return args->handler(drive);
+-#endif /* ALTERNATE_STATE_DIAGRAM_MULTI_OUT */
  }
  
-@@ -435,7 +424,6 @@ ide_startstop_t task_out_intr (ide_drive
- 	ide_hwif_t *hwif	= HWIF(drive);
- 	struct request *rq	= HWGROUP(drive)->rq;
- 	char *pBuf		= NULL;
--	unsigned long flags;
- 	u8 stat;
- 
- 	if (!OK_STAT(stat = hwif->INB(IDE_STATUS_REG), DRIVE_READY, drive->bad_wstat)) {
-@@ -450,11 +438,10 @@ ide_startstop_t task_out_intr (ide_drive
- 			return ide_stopped;
- 	if ((rq->current_nr_sectors==1) ^ (stat & DRQ_STAT)) {
- 		rq = HWGROUP(drive)->rq;
--		pBuf = task_map_rq(rq, &flags);
-+		pBuf = rq->buffer + task_rq_offset(rq);
- 		DTF("write: %p, rq->current_nr_sectors: %d\n",
- 			pBuf, (int) rq->current_nr_sectors);
- 		taskfile_output_data(drive, pBuf, SECTOR_WORDS);
--		task_unmap_rq(rq, pBuf, &flags);
- 		rq->errors = 0;
- 		rq->current_nr_sectors--;
+ EXPORT_SYMBOL(pre_task_mulout_intr);
+@@ -632,7 +596,6 @@ ide_startstop_t task_mulout_intr (ide_dr
+ 		return ide_started;
  	}
-@@ -507,7 +494,6 @@ ide_startstop_t task_mulout_intr (ide_dr
- 	char *pBuf			= NULL;
- 	unsigned int msect		= drive->mult_count;
- 	unsigned int nsect;
--	unsigned long flags;
  
- 	if (!OK_STAT(stat, DATA_READY, BAD_R_STAT) || !rq->current_nr_sectors) {
- 		if (stat & (ERR_STAT|DRQ_STAT)) {
-@@ -536,13 +522,12 @@ ide_startstop_t task_mulout_intr (ide_dr
+-#ifndef ALTERNATE_STATE_DIAGRAM_MULTI_OUT
+ 	if (HWGROUP(drive)->handler != NULL) {
+ 		unsigned long lflags;
+ 		spin_lock_irqsave(&ide_lock, lflags);
+@@ -640,7 +603,6 @@ ide_startstop_t task_mulout_intr (ide_dr
+ 		del_timer(&HWGROUP(drive)->timer);
+ 		spin_unlock_irqrestore(&ide_lock, lflags);
+ 	}
+-#endif /* ALTERNATE_STATE_DIAGRAM_MULTI_OUT */
+ 
+ 	do {
  		nsect = rq->current_nr_sectors;
- 		if (nsect > msect)
- 			nsect = msect;
--		pBuf = task_map_rq(rq, &flags);
-+		pBuf = rq->buffer + task_rq_offset(rq);
- 		DTF("Multiwrite: %p, nsect: %d, msect: %d, " \
- 			"rq->current_nr_sectors: %ld\n",
- 			pBuf, nsect, msect, rq->current_nr_sectors);
- 		msect -= nsect;
- 		taskfile_output_data(drive, pBuf, nsect * SECTOR_WORDS);
--		task_unmap_rq(rq, pBuf, &flags);
- 		rq->current_nr_sectors -= nsect;
- 
- 		/* FIXME: check drive status */
 
 _
 

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264802AbRF1WbB>; Thu, 28 Jun 2001 18:31:01 -0400
+	id <S264797AbRF1W3l>; Thu, 28 Jun 2001 18:29:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264800AbRF1Wa5>; Thu, 28 Jun 2001 18:30:57 -0400
-Received: from petrus.schuldei.org ([195.84.105.112]:43187 "HELO
-	petrus.schuldei.org") by vger.kernel.org with SMTP
-	id <S264794AbRF1WaL>; Thu, 28 Jun 2001 18:30:11 -0400
-Date: Fri, 29 Jun 2001 00:39:00 +0200
-From: Andreas Schuldei <andreas@schuldei.org>
-To: linux-kernel@vger.kernel.org
-Subject: artificial latency for a network interface
-Message-ID: <20010629003900.A6065@sigrid.schuldei.com>
-Mime-Version: 1.0
+	id <S264791AbRF1W3b>; Thu, 28 Jun 2001 18:29:31 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50961 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264779AbRF1W3S>; Thu, 28 Jun 2001 18:29:18 -0400
+Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m achi ne
+To: jes@sunsite.dk (Jes Sorensen)
+Date: Thu, 28 Jun 2001 23:28:31 +0100 (BST)
+Cc: davem@redhat.com (David S. Miller),
+        hiren_mehta@agilent.com ("MEHTA,HIREN (A-SanJose,ex1)"),
+        linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+In-Reply-To: <d3u2109rho.fsf@lxplus015.cern.ch> from "Jes Sorensen" at Jun 29, 2001 12:20:03 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15FkH1-0007l5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-to simulate a sattelite link, I need to add a latency to a
-network connection. 
+> The interface we use works well, so why should it be changed for other
+> architecures? Instead it would make a lot more sense to support it on
+> other architectures that can do 64 bit DMA.
 
-What is the easiest and best way to do that?
+The changes needed are small IMHO. The big problem wa the pci_dma_mask
+not being pci_dma_mask_bit(foo) - a minor oversight we can fix in 2.5 without
+breaking anything else.
 
-I wanted to do that using two tun devices. 
-I had hoped to have a routing like this:
+It can even default to 32 for non DAC cards.
 
- <-> eth0 <-> tun0 <-> userspace, waiting queue <-> tun1 <-> eth1
+We will also have to address those cards that have 28/30/31 bit limits (yes
+they exist) when we start doing direct I/O for 32bits of memory - one reason
+I'm very wary of Jens patch ever being in 2.4
 
-I need to do it this way and not with iptables help, because it
-needs to work also on 2.2.x kernels.
 
-Now I started experimenting with the tun0 interfaces and got
-problems: till now I have not succeeded to get a tun0 interface
-up. the example code (br_select.c) in the package (as found for
-example on sourceforge) looks fishy and does not work too well. 
-is it correct that only one /dev/tun file is necessary, but
-/dev/tun0 and tun1 are opend for reading and writing?
+Alan
 
-I also did not manage to point any routes at tun0 or tun1. thoes
-interfaces do not show up in the /proc/net/dev either.
-
-only the module is loaded.
-
-I seem to miss something. who has used those devices before and
-got them working and could help me debug this?

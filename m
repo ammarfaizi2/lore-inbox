@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262381AbUKKVFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbUKKVLC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262381AbUKKVFf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 16:05:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbUKKVFe
+	id S262382AbUKKVLC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 16:11:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbUKKVLC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 16:05:34 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:15808 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262381AbUKKVFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 16:05:30 -0500
-Date: Thu, 11 Nov 2004 21:05:11 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] WTF is VLI?
-Message-ID: <Pine.LNX.4.44.0411112103060.3167-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Thu, 11 Nov 2004 16:11:02 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:22668 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262382AbUKKVLA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 16:11:00 -0500
+Date: Thu, 11 Nov 2004 16:10:50 -0500
+From: Dave Jones <davej@redhat.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] WTF is VLI?
+Message-ID: <20041111211050.GC32275@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0411112103060.3167-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0411112103060.3167-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is this "VLI" that 2.6.9 started putting after the taint string
-in i386 oopses?  Vick Library Index?  Vineyard Leadership Institute?
-Shall we just remove it?
+On Thu, Nov 11, 2004 at 09:05:11PM +0000, Hugh Dickins wrote:
+ > What is this "VLI" that 2.6.9 started putting after the taint string
+ > in i386 oopses?  Vick Library Index?  Vineyard Leadership Institute?
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+"Variable length instructions".  I think newer ksymoops looks
+for this tag and does something magical when doing disassembly.
 
---- 2.6.10-rc1-bk20/arch/i386/kernel/traps.c	2004-11-10 14:05:34.000000000 +0000
-+++ linux/arch/i386/kernel/traps.c	2004-11-11 20:53:06.725490224 +0000
-@@ -215,7 +215,7 @@ void show_registers(struct pt_regs *regs
- 		ss = regs->xss & 0xffff;
- 	}
- 	print_modules();
--	printk("CPU:    %d\nEIP:    %04x:[<%08lx>]    %s VLI\nEFLAGS: %08lx"
-+	printk("CPU:    %d\nEIP:    %04x:[<%08lx>]    %s\nEFLAGS: %08lx"
- 			"   (%s) \n",
- 		smp_processor_id(), 0xffff & regs->xcs, regs->eip,
- 		print_tainted(), regs->eflags, system_utsname.release);
+		Dave
 

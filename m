@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131466AbRCST6N>; Mon, 19 Mar 2001 14:58:13 -0500
+	id <S131604AbRCSUDX>; Mon, 19 Mar 2001 15:03:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131490AbRCST6E>; Mon, 19 Mar 2001 14:58:04 -0500
-Received: from tallinn.sydamekirurgia.ee ([193.40.6.9]:61968 "EHLO
-	ns.linking.ee") by vger.kernel.org with ESMTP id <S131466AbRCST5u>;
-	Mon, 19 Mar 2001 14:57:50 -0500
-Date: Mon, 19 Mar 2001 21:56:54 +0200 (GMT-2)
-From: Elmer Joandi <elmer@linking.ee>
-To: linux-kernel@vger.kernel.org
-Subject: True multihead, lots of crashes
-Message-ID: <Pine.LNX.4.21.0103192142480.28482-100000@ns.linking.ee>
+	id <S131609AbRCSUDE>; Mon, 19 Mar 2001 15:03:04 -0500
+Received: from smtp2.sentex.ca ([199.212.134.9]:34313 "EHLO smtp2.sentex.ca")
+	by vger.kernel.org with ESMTP id <S131604AbRCSUCu>;
+	Mon, 19 Mar 2001 15:02:50 -0500
+Message-ID: <3AB66449.5F5C673F@coplanar.net>
+Date: Mon, 19 Mar 2001 14:55:53 -0500
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Tim Moore <timothymoore@bigfoot.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: UDMA 100 / PIIX4 question
+In-Reply-To: <20010318165246Z131240-406+1417@vger.kernel.org> <3AB65C51.3DF150E5@bigfoot.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tim Moore wrote:
 
+> quintaq@yahoo.co.uk wrote:
+> > I have an IBM DTLA 307030 (ATA 100 / UDMA 5) on an 815e board (Asus CUSL2), which has a PIIX4 controller.
+> > ...
+> > My problem is that (according to hdparm -t), I never get a better transfer rate than approximately 15.8 Mb/sec.  I achieve this when DMA is enabled, - without it I fall back to about 5 Mb /sec.  No amount of fiddling with other hdparm settings makes any difference.
+> > ...
+>
+> 15MB/s for hdparm is about right.
 
-Hi,
-DUAL-Celeron, 2.4.0, 
-	ATI64 Rage pro AGP, 
-	Matrox Millenium,
-	Matrox Mystique,
-	ATI Rage II+ PCI,
-	normal keyboard
-	USB keyboard,
-	2x USB mouse.
-	USB hub and USB hub in keyboard.
+You should be able to get about 30 MB/s at the start of the disk (zone 0) according to IBM's datasheet at
 
-	1. Just plain Xfree 4.0.2  with xinerama works stable, just 
-	gets killed by memory-hogging netscape.
-	2. framebuffer leads to hardlock sometimes quite soon. whatever,
-	ati or matrox. Looks like at VT switch. No way to debug,
+http://ssdweb01.storage.ibm.com/techsup/hddtech/prodspec/dtla_spw.pdf
 
-	3. I have here second patched Xfree, got someones patch and
-	rebuilt rpm, to support USB keyboard. the box crashes also without
-	it.
-	It looks like all places where VT switch may occur, are commented
-	out from xfree. 
-	Without framebuffer, everything works, but vt switch
-	still occurs and only one X is usable... 
-	first X stalls until second gets killed and then works again.
-	sometimes I can even switch between them from console.
-	Does the console input trigger console switch... dont understand.
-	strace doesnt show anything ... looks like two copies of X talk
-	each other via shared memory or something...
-		
-elmer.
+so if you were testing say /dev/hda1 which is at the start of the disk it should be faster.
 
+Try hdparm -i /dev/hda (or whatever) .. . note the reported MaxMultSect= value,
+and put it in place of X in command:
 
+hdparm -u 1 -d 1 -m X -c 1 /dev/hda
 
+Cheers,
 
+Jeremy
+
+PS - please let me know if this fixed your problem, since I have a system
+with the same motherboard.
 

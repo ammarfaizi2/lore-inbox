@@ -1,46 +1,266 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261866AbREZW7F>; Sat, 26 May 2001 18:59:05 -0400
+	id <S261979AbREZW6z>; Sat, 26 May 2001 18:58:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262584AbREZW64>; Sat, 26 May 2001 18:58:56 -0400
+	id <S262445AbREZW6p>; Sat, 26 May 2001 18:58:45 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:20647 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262137AbREZW6k>;
-	Sat, 26 May 2001 18:58:40 -0400
-Message-ID: <006e01c0e616$e849e600$44a6b3d0@Toshiba>
-From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-To: "Mike Galbraith" <mikeg@wen-online.de>
-Cc: "Alan Cox" <laughing@shared-source.org>, <linux-kernel@vger.kernel.org>,
-        "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-In-Reply-To: <Pine.LNX.4.33.0105251401220.476-100000@mikeg.weiden.de>
-Subject: Re: Linux 2.4.4-ac17
-Date: Sat, 26 May 2001 12:06:00 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	by vger.kernel.org with ESMTP id <S261968AbREZW6c>;
+	Sat, 26 May 2001 18:58:32 -0400
+Date: Sat, 26 May 2001 22:58:25 +0100
+From: Alan Cox <laughing@shared-source.org>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.5-ac1
+Message-ID: <20010526225825.A31713@lightning.swansea.linux.org.uk>
+Mail-Followup-To: Alan Cox <laughing@shared-source.org>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> The OS resides on disk, yes.  I suppose I could plunk a minimal
-> system into ramfs, pivot_root and umount disk, but I don't see
-> any way that could matter for a memory leak.
->
 
-It is very difficult to see memory leak , with hard disks .
+	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
 
-As i told you , in my case i am using no harddisks , only thing i have is
-RAM , so i am using only Ramdisk and ramfs, so in my case my Ram will full
-within few minutes and My machine hangs .
+		 Intermediate diffs are available from
+			http://www.bzimage.org
 
-Thanks ,
+In terms of going through the code audit almost all the sound drivers still 
+need fixing to lock against format changes during a read/write. Poll creating 
+and starting a buffer as write does and also mmap during write, write during
+an mmap.
 
-Jaswinder.
---
-These are my opinions not 3Di.
+This is the merge with Linus 2.4.5 tree. Its probably primarily of interest
+to folks who want to review the merge - in paticular on the VM side of
+things.
 
+2.4.5-ac1
+o	Merge Linus 2.4.5 tree
 
+Summary of changes for Linux 2.4.5-ac versus Linus 2.4.5
+
+o	Fix memory leak in wanrouter
+o	Fix memory leak in wanmain
+o	Use non atomic memory for linearising NFS buffers as they are 
+	done in task context
+o	Fix dereference of freed memory in NetROM drivers
+o	Fix writing to freed memory in ax25_ip
+o	Support debugging of slab pools
+o	NinjaSCSI pcmcia scsi driver
+o	Raw HID device for USB peripheral buttons/controllers
+o	Updated NTFS
+o	RAMfs with resource limits
+o	NMI watchdog available on uniprocessor x86
+o	Update CMPCI drivers (not yet SMP safe)
+o	Configurable max_map_count
+o	Dynamic sysctl key registration
+o	SE401 USB camera driver
+o	Updated Zoran ZR3606x driver (replaces buz)
+o	w9966 parallel port camera driver (partially merged with Linus)
+o	Include headers in etags
+o	Don't delete empty directories on make distclean
+o	Fix halt/reboot handling on Alcor Alpha
+o	IDE driver support for Etrax E100
+o	IDE infrastructure support for IDE using non standard data transfers
+o	Run ~/bin/installkernel if present
+o	Support for out of order stores on x86 with this mode (IDT Winchip)
+	- worth 20% performance on them
+o	Configure level debugging menu
+o	Make BUG() default to an oops only - saves 70K
+o	Power management help for UP-APIC
+o	Work around 440BX APIC hang (eg the ne2000 SMP hang)
+o	Run time configurable APM behaviour (interrupts, psr etc)
+o	Smarter DMI parser - handles multiple use of names
+o	DMI layer has blacklist tables fixing Dell Inspiron 5000e crashes,
+	PowerEdge reboot problems , and IBM laptop APM problems
+o	PNPBios support
+o	Fix atomicity of IRQ error count
+o	Handle PCI/ISA boxes that don't list edge levels but have an ELCR
+o	Don't erroneously mangle settings on all VIA bridges - cures the 
+	horrible performance problem in 2.4.5 vanilla with VIA
+o	Fix bootmem corruption on x86 boot
+o	Scan and retrieve multipliers for processors (not yet used to handle
+	the SMP cases where we need to disable tsc use)
+o	Support machine check on Athlon and Pentium
+o	Fix SUS violation with signal stacks
+o	Handle boxes where firmware resets the timer to 18Hz (this should
+	now not show false positives)
+o	Better OOPS formatting on x86
+o	Fix nasty problems with interrupts being disabled for long periods
+	in frame buffer drivers
+o	PAE mode alignment assumption fixes
+o	32bit UID clean quota
+o	Fix quota deadlocks
+o	Fix TLB shootdown races
+o	Experimental merge of usermode Linux
+o	Fix memory leaks and othe rproblems with the iphase driver
+o	IBM AS/400 iSeries virtual drivers
+o	DAC960 null pointer checks
+o	CCISS driver leak fixes
+o	MPT fusion drivers for scsi and networking
+o	Handle out of memory allocating request queue entries and avoid oops
+o	Free the initial ramdisk correctly
+o	Small CD-ROM layer updates
+o	AGP power management hooks
+o	First basic applicom driver fixes
+o	Fix copy_from_user with interrupts off in cyclades driver
+o	Fix out of memory handling in DRM
+o	Clean up dsp56K driver
+o	Update generic serial driver with break support
+o	Clean up h8 driver namespace
+o	Fix keymap changing problems in console drivers
+o	Fix locking in machzwd
+o	Updated rio serial driver
+o	A2232 driver
+o	Fix serial driver mangling of some clone uarts
+o	Handle xircom serial port setup delay bug
+o	Updated sx driver for newer generic_serial
+o	W83877F watchdog driver
+o	ITE8172 IDE driver support
+o	Q40/Q60 IDE support
+o	Fix nodma handling bug in alim15x3
+o	hpt366 DMA blacklist
+o	IDE-CD updates
+o	Updated IDE DMA blacklist
+o	OOPS catch for sg reuse in IDE driver
+o	Support formatting of IDE floppies
+o	Support PIIX4U4 (851EM)
+o	Enable second port on promise pseudo raid
+o	Support nodma on pmac
+o	Support more PCI irq sharing on IDE
+o	IDE tape updates - DI-50 support, 
+o	Much updated VIA IDE support
+o	video1394 updated to newer module API
+o	Support write on the input event driver
+o	Quieten mouse and keyboard input drivers
+o	Fix compile problem with pc110pad
+o	Fix memory leak in isdnppp
+o	LVM updates
+o	Fix plan b locking
+o	Fix saa5249 locking
+o	Fix stradis locking
+o	Acenic driver updates
+o	aironet4500 cleanups, probe tables
+o	Ariadne updated to newer API
+o	Don't limit mtu to 68+ in arlan drivers
+o	Updated eepro100 driver
+o	Fix potential crash on downing a bpqether port
+o	Updated nsc-ircc driver
+o	Updated toshoboe driver
+o	Intel Panther LP486e ethernet driver
+o	Remove erroneous check in eth_change_mtu
+o	Alternative xircom_cb driver
+o	Avoid ibm tr being rebuilt each make
+o	Updated ibm token ring drivers
+o	Add 'static' to bits of ppp code
+o	Add pci probe table to roadrunner
+o	Fix memory leak in sk_ge
+o	sk_g16 updates
+o	sk_mca updates
+o	Add tools to generate starfire firmware
+o	Synclink driver can be compiled in
+o	Fix possible oops in lapbether
+o	Fix memory leak in lanmedia driver
+o	Fix SDLA_X25 warnings
+o	Fix syncppp negotiation loop bug
+o	GSC parallel port support
+o	PCMCIA parallel port support
+o	Support PnPBIOS probing for PC parallel ports
+o	Fix leak in PCMCIA bulkmem driver
+o	Fix leak in PCMCIA ds driver
+o	Add more cards to the ti list for the yenta pcmcia
+o	Updated 3ware scsi driver
+o	NCR 53c700 and 53c700/66 driver core
+o	Fix pci_enable/resource read order on buslogic
+o	Updated NCR53c8xx driver
+o	Updated SYM53c8xx driver
+o	Fix NCR53c406 warnings
+o	NCR dual MCA driver
+o	AIC7xxx pci probe table for hotplug
+o	Updated aic7xxx_old
+o	Fix resource leaks in dec esp driver
+o	Fix printk levels in dmx3191 driver
+o	Allow per device max sector counts. (2.4 workaround until 2.5 does
+	this in the block layer per device)
+o	Support SCSI2/SCSI3 extended LUN numbering
+o	Limit qlogicisp and qlogicpti to 64 sectors/write
+o	Fix missing EFAULT return in scsi proc
+o	Fix locking of scsi_unregister_host
+o	Fix leaks in scsi_ioctl
+o	Fix potential lost requests in scsi merges
+o	Fix leak on write when scsi driver has no proc write op
+o	Extend the scsi black/whitelist
+o	Fix locking/eject/rescan on removable scsi disk media
+o	Updated scsi generic driver
+o	Updated scsi cdrom driver
+o	Correct ac97 handling on sparc
+o	Fix use after kfree in cs4281
+o	Update ess solo to new PCI style and PM
+o	Update maestro to new PCI style and PM
+o	Add docking station support to maestro
+o	Update sonicvies to new PCI api
+o	Fix trident locking problems
+o	Fix buzzing on ymfpci
+o	Power management for ymfpci
+o	Fix leak/missized copy on xjack driver
+o	CDCEther driver
+o	ACM driver with fixed CLOCAL
+o	Updated USB audio drivers
+o	Fix locking/reporting in USB device list
+o	Allow dsbr100 to take a radio_nr option
+o	HP5300 series USB scanner driver
+o	Updated IBM cam driver
+o	Fix USB inode locking
+o	Driver for Kawasaki based USB ethernet
+o	Small ov511 fixes
+o	Updated USB storage drivers
+o	Entries for Sony MSC-U01N memory stick, Fujifilm FinePix 1400Zoom,
+	Casio QV Digial Camera
+o	USB Ultracam driver
+o	Fix derefence of freed memory in the USB code
+o	Generic USB host->host drivers for anchorchip 2270, ipaq, netchip
+	1080, and Prolific PL-2301/2
+o	Updated ATI frame buffer drivers
+o	Updated clgen and control frame buffer drivers
+o	Updated cyber2000 driver
+o	Documentation for fbcon driver
+o	Additional modes for titanium powerbook (1152x768)
+o	Updated matrxofb drivers
+o	Support __setup in mdacon
+o	Radeon console driver
+o	Handle out of memory on sun3 fb
+o	Updated tga/vesa fb
+o	CMS file system (basic R/O)
+o	JFFS journalling flash file system with compression
+o	Updated AFFS file system
+o	Threaded core dumps
+o	Fix security holes in binfmt_misc
+o	Allow flushing of low buffers only when we need bounce buffers
+o	Use brelse in cramfs
+o	Fix memory leaks in freevxfs
+o	Updated isofs
+o	Small lockd updates (experimental)
+o	Fix nfs alignment funnies
+o	Report correct SuS errors on some opens
+o	Add generic_file_open to get 64bit stuff right
+o	Locking on make_inode_number for procfs
+o	Report shmem size in shared memory proc field
+o	Fail lseek outside of allowed range for filesystem
+o	Fix select race with fdset growth
+o	Kernel message levels and handle oom on superblock/mount ops
+o	Updated frame buffer logos
+o	Prefetch support for AMD Athlon
+o	Support out of order stores in spinlocks on x86
+o	m68k bitop compile fixes
+o	Add truncatepage op to address operations
+o	shmem filesystem cleanups and updates
+o	Fix off by one on real time pre-emption in scheduler
+o	Use prefetches in scheduler and wakeups
+o	Support GFP_FAIL to avoid highmem deadlocks
+ 
+---
+Alan Cox <alan@lxorguk.ukuu.org.uk>
+Red Hat Kernel Hacker
+& Linux 2.2 Maintainer                        Brainbench MVP for TCP/IP
+http://www.linux.org.uk/diary                 http://www.brainbench.com

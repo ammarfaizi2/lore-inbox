@@ -1,49 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264252AbTDJX3k (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 19:29:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbTDJX3k (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 19:29:40 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:33527 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264249AbTDJX2f convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 19:28:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [patch for playing] Patch to support 4000 disks and maintain backward compatibility
-Date: Thu, 10 Apr 2003 16:37:53 -0700
-User-Agent: KMail/1.4.1
-References: <UTC200304102333.h3ANXTi28340.aeb@smtp.cwi.nl>
-In-Reply-To: <UTC200304102333.h3ANXTi28340.aeb@smtp.cwi.nl>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200304101637.53017.pbadari@us.ibm.com>
+	id S264247AbTDJX2T (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 19:28:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264248AbTDJX2T (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 19:28:19 -0400
+Received: from smtp1.clear.net.nz ([203.97.33.27]:4800 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S264247AbTDJX2R (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 19:28:17 -0400
+Date: Fri, 11 Apr 2003 11:36:56 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: PATCH: Fixes for ide-disk.c
+In-reply-to: <1050011724.12930.138.camel@dhcp22.swansea.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1050017816.2629.8.camel@laptop-linux.cunninghams>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1049527877.1865.17.camel@laptop-linux.cunninghams>
+ <1049561200.25700.7.camel@dhcp22.swansea.linux.org.uk>
+ <1049570711.3320.2.camel@laptop-linux.cunninghams>
+ <1049641400.963.18.camel@dhcp22.swansea.linux.org.uk>
+ <20030410183839.GC4293@zaurus.ucw.cz>
+ <1050011724.12930.138.camel@dhcp22.swansea.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 April 2003 04:33 pm, Andries.Brouwer@cwi.nl wrote:
->     From: Badari Pulavarty <pbadari@us.ibm.com>
->
->     > Then we don't know which disks have disappeared. Pity.
->     > If the number space is infinite then
->     >    index = next_index++;
->     > gives a new number each time we need one.
->
->     Yes !! I agree. I am not worried about running out them.
->     I am more worried about names slipping. I atleast hope
->     to see device names not changing by just doing
->     rmmod/insmod.
->
-> But you see, the present sd_index_bits[] gives no such
-> guarantee. In sd_detach a bit is cleared, in sd_attach
-> the first free bit is given out. There is no memory.
+Hi.
 
-But the disks are probed in the same manner as last time
-(if the disks/controllers are not moved, crashed etc..). 
-So we will end up getting same names.
+As far as ide code goes, I'm trying to:
 
-Ofcourse, we need a device naming solution to fix
-this for real.
+1) Get rid of messages that don't need to appear during suspend (so the
+'nice display' looks nice (hence printk changes)
+2) Make sure the data actually does make it to disk before we poweroff
+(hence write back cache interest)
+3) Make sure ide_suspend/unsuspend do the right thing (however that's
+defined).
 
-Thanks,
-Badari
+I hadn't looked at the code yet to see why it's called twice - too busy
+with other things. I did wonder if 
+
+        device_suspend(4, SUSPEND_NOTIFY);
+        device_suspend(4, SUSPEND_SAVE_STATE);
+        device_suspend(4, SUSPEND_DISABLE);
+
+might do it, but it's an untested theory.
+
+Regards,
+
+Nigel
+
+On Fri, 2003-04-11 at 09:55, Alan Cox wrote:
+> On Thu, 2003-04-10 at 19:38, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > > Okay. We need a different solution then, but the problem remains - the
+> > > > driver can get multiple, nexted calls to block and unblock. Can it
+> > > > become a counting lock?
+> > > 
+> > > Blocked is a binary power management described state, its not a lock.
+> > > What are you actually trying to do ?
+> > 
+> > He's trying to fix swsusp. Just now it likes
+> > to BUG() for some people.
+> 
+> I meant at a slightly lower and more detailed level
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
+
+Be diligent to present yourself approved to God as a workman who does
+not need to be ashamed, handling accurately the word of truth.
+	-- 2 Timothy 2:14, NASB.
+

@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314057AbSEFByr>; Sun, 5 May 2002 21:54:47 -0400
+	id <S314065AbSEFCDt>; Sun, 5 May 2002 22:03:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314065AbSEFByq>; Sun, 5 May 2002 21:54:46 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:53489
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S314057AbSEFByp>; Sun, 5 May 2002 21:54:45 -0400
-Date: Sun, 5 May 2002 18:54:44 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: "Mark H. Wood" <mwood@IUPUI.Edu>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
-Message-ID: <20020506015444.GK2392@matchmail.com>
-Mail-Followup-To: "Mark H. Wood" <mwood@IUPUI.Edu>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0205021738410.17171-100000@weyl.math.psu.edu> <Pine.LNX.4.33.0205031554180.10456-100000@mhw.ULib.IUPUI.Edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S314067AbSEFCDt>; Sun, 5 May 2002 22:03:49 -0400
+Received: from dsl-213-023-038-176.arcor-ip.net ([213.23.38.176]:24510 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S314065AbSEFCDs>;
+	Sun, 5 May 2002 22:03:48 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Russell King <rmk@arm.linux.org.uk>
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Date: Mon, 6 May 2002 04:03:15 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020502180632.I11414@dualathlon.random> <E174Vq8-0004BK-00@starship> <20020506015505.B14956@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E174XqN-0004D2-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 03, 2002 at 04:05:52PM -0500, Mark H. Wood wrote:
-> There is a reason that this issue keesp rising from the grave.  I just
-> downloaded the glibc 2.2.5 source tarball and in INSTALL I find
-> this:
+On Monday 06 May 2002 02:55, Russell King wrote:
+> On Mon, May 06, 2002 at 01:54:52AM +0200, Daniel Phillips wrote:
+> > I must be guilty of not explaining clearly.  Suppose you have the following
+> > physical memory map:
+> > 
+> > 	          0: 128 MB
+> > 	  8000,0000: 128 MB
+> > 	1,0000,0000: 128 MB
+> > 	1,8000,0000: 128 MB
+> > 	2,0000,0000: 128 MB
+> > 	2,8000,0000: 128 MB
+> > 	3,0000,0000: 128 MB
+> > 	3,8000,0000: 128 MB
+> > 
+> > The total is 1 GB of installed ram.  Yet the kernel's 1G virtual space,
+> > can only handle 128 MB of it.
 > 
-> [begin quote]
-> Specific advice for Linux systems
-> =================================
-> 
->    If you are installing GNU libc on a Linux system, you need to have
-> the header files from a 2.2 kernel around for reference.  You do not
-> need to use the 2.2 kernel, just have its headers where glibc can access
-> at them.  The easiest way to do this is to unpack it in a directory
-> such as `/usr/src/linux-2.2.1'.  In that directory, run `make config'
-> and accept all the defaults.  Then run `make include/linux/version.h'.
-> Finally, configure glibc with the option
-> `--with-headers=/usr/src/linux-2.2.1/include'.  Use the most recent
-> kernel you can get your hands on.
-> 
->    An alternate tactic is to unpack the 2.2 kernel and run `make
-> config' as above.  Then rename or delete `/usr/include', create a new
-> `/usr/include', and make the usual symbolic links of
-> `/usr/include/linux' and `/usr/include/asm' into the 2.2 kernel
-> sources.  You can then configure glibc with no special options.  This
-> tactic is recommended if you are upgrading from libc5, since you need
-> to get rid of the old header files anyway.
-> 
->    Note that `/usr/include/net' and `/usr/include/scsi' should *not* be
-> symlinks into the kernel sources.  GNU libc provides its own versions
-> of these files.
-> [end quote]
+> I see no problem with the above with the existing discontigmem stuff.
+> discontigmem does *not* require a linear relationship between kernel
+> virtual and physical memory.  I've been running kernels for a while
+> on such systems.
 
-I believe this is only for building Glibc, but all apps that depend on Glibc
-should use whatever kernel headers that glibc is using...
+I just went through every variant of arm in the kernel tree, and I found that
+*all* of them implement a simple linear relationship between kernel virtual and
+physical memory, of the form:
+
+   #define __virt_to_phys(vpage) ((vpage) - PAGE_OFFSET + PHYS_OFFSET)
+   #define __phys_to_virt(ppage) ((ppage) + PAGE_OFFSET - PHYS_OFFSET)
+
+With such a linear mapping you *cannot* map physical memory distributed across
+more than one gig into one gig of kernel virtual memory.
+
+Are you talking about code that isn't in the tree?
+
+-- 
+Daniel

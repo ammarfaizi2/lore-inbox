@@ -1,95 +1,244 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbUBZXTg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 18:19:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbUBZXSc
+	id S261238AbUBZXRd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 18:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbUBZXQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 18:18:32 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19391 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261216AbUBZWyo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 17:54:44 -0500
-Date: Thu, 26 Feb 2004 15:00:25 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ulrich Drepper <drepper@redhat.com>
-cc: Jakub Jelinek <jakub@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add getdents32t syscall
-In-Reply-To: <403E7348.60503@redhat.com>
-Message-ID: <Pine.LNX.4.58.0402261438470.7830@ppc970.osdl.org>
-References: <20040226193819.GA3501@sunsite.ms.mff.cuni.cz>
- <Pine.LNX.4.58.0402261411420.7830@ppc970.osdl.org>
- <Pine.LNX.4.58.0402261415590.7830@ppc970.osdl.org> <403E7348.60503@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 26 Feb 2004 18:16:52 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2692 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261231AbUBZXP7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 18:15:59 -0500
+Date: Thu, 26 Feb 2004 23:15:50 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Go Taniguchi <go@turbolinux.co.jp>, willy@debian.org,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.3-mm3 hangs on  boot x440 (scsi?)
+Message-ID: <20040226231550.GY25779@parcelfarce.linux.theplanet.co.uk>
+References: <20040222172200.1d6bdfae.akpm@osdl.org> <1077668801.2857.63.camel@cog.beaverton.ibm.com> <20040224170645.392abcff.akpm@osdl.org> <403E0563.9050007@turbolinux.co.jp> <1077830762.2857.164.camel@cog.beaverton.ibm.com> <1077836576.2857.168.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1077836576.2857.168.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 26 Feb 2004, Ulrich Drepper wrote:
-> Linus Torvalds wrote:
+On Thu, Feb 26, 2004 at 03:02:56PM -0800, john stultz wrote:
+> On Thu, 2004-02-26 at 13:26, john stultz wrote:
+> > On Thu, 2004-02-26 at 06:40, Go Taniguchi wrote:
+> > > Hi,
+> > > 
+> > > Andrew Morton wrote:
+> > > > john stultz <johnstul@us.ibm.com> wrote:
+> > > >>I went back to 2.6.3-mm1 (as it was a smaller diff) and the problem was
+> > > >>there as well. 
+> > > 
+> > > Problem patch is expanded-pci-config-space.patch.
+> > > x440 can not enable acpi by dmi_scan.
+> > > expanded-pci-config-space.patch need acpi support.
+> > > So, kernel can not get x440's xAPIC interrupt.
+> > 
+> > Wow, thanks for that analysis Go! I'll test it here to confirm. 
 > 
-> >  - pre-fill the dirent area with 0xff or something
+> Yep, I've confirmed that backing out the expanded-pci-config-space patch
+> solves it. Thanks again, Go, for hunting that down! 
 > 
-> fill whole temporary buffer allocated by opendir() for every call to
-> getdents(2)?
+> Matthew, any ideas why the patch fails if the system has an ACPI
+> blacklist entry?
 
-No no.
+Hrm.  I was just asked to break out some of the ACPI code rearrangement
+from the rest of the patch.  Can you try this patch instead of the
+expanded-pci-config-space.patch and tell me whether it continues to fail
+for you?
 
-You only need to do this _once_. Once you know that the kernel is ok, you 
-never ever need to do it again.
+I don't understand why it should make a difference though.  It looks
+to me like the current code will also fail to call the HPET code if the
+bios is blacklisted.
 
-It's not even "once per file descriptor" or anything like that. It's 
-literally _once_. 
+Index: arch/i386/kernel/acpi/boot.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/arch/i386/kernel/acpi/boot.c,v
+retrieving revision 1.10
+diff -u -p -r1.10 boot.c
+--- a/arch/i386/kernel/acpi/boot.c	17 Feb 2004 12:51:46 -0000	1.10
++++ b/arch/i386/kernel/acpi/boot.c	26 Feb 2004 16:34:12 -0000
+@@ -398,55 +398,10 @@ acpi_find_rsdp (void)
+ 	return rsdp_phys;
+ }
+ 
+-/*
+- * acpi_boot_init()
+- *  called from setup_arch(), always.
+- *	1. maps ACPI tables for later use
+- *	2. enumerates lapics
+- *	3. enumerates io-apics
+- *
+- * side effects:
+- *	acpi_lapic = 1 if LAPIC found
+- *	acpi_ioapic = 1 if IOAPIC found
+- *	if (acpi_lapic && acpi_ioapic) smp_found_config = 1;
+- *	if acpi_blacklisted() acpi_disabled = 1;
+- *	acpi_irq_model=...
+- *	...
+- *
+- * return value: (currently ignored)
+- *	0: success
+- *	!0: failure
+- */
+ 
+-int __init
+-acpi_boot_init (void)
++static int acpi_apic_setup(void)
+ {
+-	int			result = 0;
+-
+-	if (acpi_disabled && !acpi_ht)
+-		 return 1;
+-
+-	/*
+-	 * The default interrupt routing model is PIC (8259).  This gets
+-	 * overriden if IOAPICs are enumerated (below).
+-	 */
+-	acpi_irq_model = ACPI_IRQ_MODEL_PIC;
+-
+-	/* 
+-	 * Initialize the ACPI boot-time table parser.
+-	 */
+-	result = acpi_table_init();
+-	if (result) {
+-		acpi_disabled = 1;
+-		return result;
+-	}
+-
+-	result = acpi_blacklisted();
+-	if (result) {
+-		printk(KERN_WARNING PREFIX "BIOS listed in blacklist, disabling ACPI support\n");
+-		acpi_disabled = 1;
+-		return result;
+-	}
++	int result;
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 
+@@ -506,24 +461,17 @@ acpi_boot_init (void)
+ 
+ 	acpi_lapic = 1;
+ 
+-#endif /*CONFIG_X86_LOCAL_APIC*/
++#endif /* CONFIG_X86_LOCAL_APIC */
+ 
+ #if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI_INTERPRETER)
+ 
+ 	/* 
+ 	 * I/O APIC 
+-	 * --------
+ 	 */
+ 
+-	/*
+-	 * ACPI interpreter is required to complete interrupt setup,
+-	 * so if it is off, don't enumerate the io-apics with ACPI.
+-	 * If MPS is present, it will handle them,
+-	 * otherwise the system will stay in PIC mode
+-	 */
+-	if (acpi_disabled || acpi_noirq) {
++	if (acpi_noirq) {
+ 		return 1;
+-        }
++	}
+ 
+ 	/*
+  	 * if "noapic" boot option, don't look for IO-APICs
+@@ -538,8 +486,7 @@ acpi_boot_init (void)
+ 	if (!result) {
+ 		printk(KERN_ERR PREFIX "No IOAPIC entries present\n");
+ 		return -ENODEV;
+-	}
+-	else if (result < 0) {
++	} else if (result < 0) {
+ 		printk(KERN_ERR PREFIX "Error parsing IOAPIC entry\n");
+ 		return result;
+ 	}
+@@ -576,9 +523,71 @@ acpi_boot_init (void)
+ 	}
+ #endif
+ 
++	return 0;
++}
++
++/*
++ * acpi_boot_init()
++ *  called from setup_arch(), always.
++ *	1. maps ACPI tables for later use
++ *	2. enumerates lapics
++ *	3. enumerates io-apics
++ *
++ * side effects:
++ *	acpi_lapic = 1 if LAPIC found
++ *	acpi_ioapic = 1 if IOAPIC found
++ *	if (acpi_lapic && acpi_ioapic) smp_found_config = 1;
++ *	if acpi_blacklisted() acpi_disabled = 1;
++ *	acpi_irq_model=...
++ *	...
++ *
++ * return value: (currently ignored)
++ *	0: success
++ *	!0: failure
++ */
++
++int __init
++acpi_boot_init (void)
++{
++	int result, error;
++
++	if (acpi_disabled && !acpi_ht)
++		 return 1;
++
++	/*
++	 * The default interrupt routing model is PIC (8259).  This gets
++	 * overriden if IOAPICs are enumerated (below).
++	 */
++	acpi_irq_model = ACPI_IRQ_MODEL_PIC;
++
++	/* 
++	 * Initialize the ACPI boot-time table parser.
++	 */
++	result = acpi_table_init();
++	if (result) {
++		acpi_disabled = 1;
++		return result;
++	}
++
++	result = acpi_blacklisted();
++	if (result) {
++		printk(KERN_WARNING PREFIX "BIOS listed in blacklist, disabling ACPI support\n");
++		acpi_disabled = 1;
++		return result;
++	}
++
++	error = acpi_apic_setup();
++
+ #ifdef CONFIG_HPET_TIMER
+-	acpi_table_parse(ACPI_HPET, acpi_parse_hpet);
++	result = acpi_table_parse(ACPI_HPET, acpi_parse_hpet);
++	if (result < 0) {
++		printk(KERN_ERR PREFIX "Error %d parsing HPET\n", result);
++		if (!error)
++			error = result;
++	} else if (result > 1) {
++		printk(KERN_WARNING PREFIX "Multiple HPET tables exist\n");
++	}
+ #endif
+ 
+-	return 0;
++	return error;
+ }
 
-And you don't need to fill the whole buffer even that first time. You 
-only need to fill enough to guarantee that the _first_ entry is filled 
-up.
-
-In fact, if you're willing to have an algorithm that always works, but
-might under some circumstances be a bit conservative, you can avoid
-filling entirely, and just have a static flag that says "newformat", you
-can do the following:
-
- - assume old format
- - if you ever see a reclen that is "too big" for the name length, you 
-   know you have a new-format case (this will happen with any name that is 
-   of length 1 modulo 4 on a 32-bit architecture).
-
-For old-format stuff, you return DT_UNKNOWN, or you do your old existing 
-song and dance. For new-format stuff you do the trivial thing.
-
-And guess what? The entry "." will give you the information abotu whether 
-it is old-format or not. On an old-format thing, "." will look like this:
-
-	offset
-	 0:	32-bit d_ino
-	 4:	32-bit d_offset = 12
-	 8:     16-bit d_namelen = 1
-	10:	string ".\0"
-
-	12:	32-bit d_ino for the next entry
-	...
-
-while with a new-format readdir you will get
-
-	offset
-	 0:	32-bit d_ino
-	 4:	32-bit d_offset = 16
-	 8:	16-bit d_namelen = 1
-	10:	string ".\0"
-	12-14:	three bytes of garbage
-	15:	8-bit d_type
-
-	16:	32-bit d_ino for the next entry..
-	...
-
-Notice? You are guaranteed to find out really quickly whether it's old- or 
-new-format unless the user is doing something really really strange, and 
-even if the user is doing something strange, returning D_UNKNOWN is always 
-"correct".
-
-So not only is my solution simple in kernel space, it allows you to 
-simplify glibc too, if you are willing to make the old case go slower.
-
-			Linus
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

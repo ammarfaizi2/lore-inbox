@@ -1,78 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbUJYIVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbUJYI0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261714AbUJYIVe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 04:21:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbUJYIUG
+	id S261695AbUJYI0H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 04:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbUJYIZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 04:20:06 -0400
-Received: from [211.58.254.17] ([211.58.254.17]:7314 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S261729AbUJYIAv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 04:00:51 -0400
-Date: Mon, 25 Oct 2004 17:00:46 +0900
-From: Tejun Heo <tj@home-tj.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: mochel@osdl.org, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC/PATCH] Per-device parameter support (13/16)
-Message-ID: <20041025080046.GC20995@home-tj.org>
-References: <20041023043138.GN3456@home-tj.org> <1098683773.8098.43.camel@localhost.localdomain>
+	Mon, 25 Oct 2004 04:25:22 -0400
+Received: from gprs187-64.eurotel.cz ([160.218.187.64]:4225 "EHLO
+	midnight.suse.cz") by vger.kernel.org with ESMTP id S261410AbUJYIXg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 04:23:36 -0400
+Date: Mon, 25 Oct 2004 10:23:14 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Stephen Wille Padnos <spadnos@sover.net>
+Cc: Bodo Eggert <7eggert@gmx.de>, linux-kernel@vger.kernel.org,
+       geert@linux-m68k.org
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Message-ID: <20041025082314.GA1433@ucw.cz>
+References: <Pine.LNX.4.58.0410232104510.3984@be1.lrz> <417C5A91.40008@sover.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1098683773.8098.43.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <417C5A91.40008@sover.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 03:56:13PM +1000, Rusty Russell wrote:
-> On Sat, 2004-10-23 at 13:31 +0900, Tejun Heo wrote:
-> > +void devparam_module_done(struct module *mod)
-> > +{
-> > +	struct vector *vec = &mod->param_vec;
-> > +	int i;
-> > +
-> > +	for (i = 0; i < vector_len(vec); i++) {
-> > +		char **param = vector_elem(vec, i, 0);
-> > +		if (param[0])
-> > +			printk(KERN_ERR
-> > +			       "Device params: Unknown parameter `%s'\n",
-> > +			       param[0]);
-> > +	}
-> > +	
-> > +	vector_destroy(vec);
-> > +}
-> 
-> That seems a strange place to warn...  Is that right?
+On Sun, Oct 24, 2004 at 09:44:49PM -0400, Stephen Wille Padnos wrote:
 
- Yes, it's right.  Because a module may contain more than one drivers,
-devparam puts all paramters into an array and mask them off with NULL
-when they are taken and, after module initialization is done, above
-devparam_module_done() is called and prints warnings about untaken
-paramters.  The same approach is used for boot options too.
+> >Since some VGA cards used to depend on the MDA/CGA BIOS routines, most
+> >(all?) BIOS variants will implement all nescensary IO functions. You'll
+> >need some MDA registers for the cursor position (that don't even clash with
+> >EGA/VGA/CGA), 4K mapped memory at B000:0000 and a loop translating the 
+> >text.
 
-> > +
-> > +	/* Module parameter vector, used by deviceparam */
-> > +	struct vector param_vec;
-> 
-> I don't mind the addition of your vector type, but adding infrastructure
-> always results in arguments.  Can you think of another place which needs
-> it?
+> Right - all video cards provide these BIOS routines (including one the 
+> one being considered here).  They aren't in the system BIOS.  (Not that 
+> there are no broken BIOSes around, but strictly speaking, there is no 
+> need at all for the system BIOS to know anything about the display card 
+> being used)
+ 
+Wrong - the CGA/MDA cards didn't come with any BIOS on them, and all the
+support routines were (and most probably still are) located in the
+system BIOS. The first card that replaced IRQ 10 with it's own set of
+routines was the EGA and used its own BIOS ROM for that.
 
- I just find dynamically expandable arrays very useful when I code
-stuff.  Expanding/shrinking in the middle is maybe unnecessary but in
-general, a vector w/ constructor/destructor is handy.  I cannot
-pinpoint any specific code right now but I am pretty positive that
-there are many places where unncessary fixed limit is employed to
-avoid dynamic array management (not that fixed limit is always bad but
-it's better to avoid them when possible without much overhead).
-
- If getting the vector in is difficult, I can merge vector codes into
-devparam or change devparam to use list instead.  No problem there.
-But I think that having generic vector around isn't a bad idea.  I'll
-try to find places where vector can be useful if I can find some time.
-
- Thanks.
+So there is no need to have a BIOS on the card to still see the system
+BIOS boot messages.
 
 -- 
-tejun
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

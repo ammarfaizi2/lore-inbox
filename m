@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266474AbUGKBs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266475AbUGKB76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266474AbUGKBs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 21:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266475AbUGKBs6
+	id S266475AbUGKB76 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 21:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266477AbUGKB76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 21:48:58 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:38529 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266474AbUGKBs4
+	Sat, 10 Jul 2004 21:59:58 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:39809 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266475AbUGKB74
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 21:48:56 -0400
-Date: Sat, 10 Jul 2004 21:48:47 -0400 (EDT)
+	Sat, 10 Jul 2004 21:59:56 -0400
+Date: Sat, 10 Jul 2004 21:59:47 -0400 (EDT)
 From: "Richard B. Johnson" <root@chaos.analogic.com>
 X-X-Sender: root@chaos
 Reply-To: root@chaos.analogic.com
-To: Jean Francois Martinez <jfm512@free.fr>
+To: Qiuyu Zhang <qiuyu.zhang@gmail.com>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Integrated ethernet on SiS chipset doesn't work
-In-Reply-To: <1089480939.2779.22.camel@agnes>
-Message-ID: <Pine.LNX.4.53.0407102141560.5590@chaos>
-References: <1089480939.2779.22.camel@agnes>
+Subject: Re: Question about copy_from_user/copy_to_user
+In-Reply-To: <c26fd82804071013442f4c1447@mail.gmail.com>
+Message-ID: <Pine.LNX.4.53.0407102153400.5590@chaos>
+References: <c26fd82804071013442f4c1447@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Jul 2004, Jean Francois Martinez wrote:
+On Sat, 10 Jul 2004, Qiuyu Zhang wrote:
 
-> I have a friend who owns a computer manufactured by Medion and who
-> sports an MSI motherboard who has a SiS chipset.  The MSI motherboard
-> seems to have ben made specially for Medion since it isn't
-> referenced on MSI's site.  The problems is that the integrated ethernet
-> doesn't work at all under Linux be it with 2.4 or 2.6 kernel.  He can't
-> ping or connect to other boxes.  His ethernet works when he boots
-> Windows.
+> Hi all,
 >
-> I include the output of lspci
+> I am working on a module driver. A user application alloc a bunch of
+> memory for storing packet. And module driver can read /write data
+> from/into the memory in user space. I use ioctl function to pass the
+> pointer of memory of user space to module driver.  What I want to do
+> is to store the pointer in kernel space and when I need to write or
+> read data from memory of user space, I try to use copy_from_user or
+> copy_to_user to get/put data. But I always get wrong data. I don't
+> know the reason. Would you guys give me some help?
+>
+> Simple description of the code:
+>
+> device_ioctl() {
+>      // get the pointer of memory of user space, and assign the
+> pointer to kernel variable.
+> }
+>
+>
+>
+> device_xmit(){
+>      // when upper layer send a packet to this device.
+>      //  I try to use the copy_from_user to get some information from
+> user space buf
+>      // but I cannot get correct information.
+> }
+>
+> Thx
+> -
 
-Tell him to plug a supported ethernet board into a PCI slot
-and forget trying to get the embeded one working. It probably
-isn't "turned on" by some secret incantations to some secret
-registers. If you were to actually find out what was necessary
-to make the board work, then that software won't work with a
-regular SiS setup so nobody will put it into the kernel. The
-usual problem with these imbeded boards is that the vendor
-saved 18 US cents (actually) by not putting in the serial
-EEPROM that enables I/O and sets the IEEE station address
-(the MAC address). If you poke the correct registers, you
-can get it turned ON, then what MAC address would you use?
+The kernel executes functions upon behalf of the caller. The
+caller's pointer is only valid when the caller calls the
+kernel. At another time, the kernel has its data-segment
+set to KERNEL_DS and other times set to the virtual address
+space of other callers.
 
-Buried in some BAR somewhere is the MAC address. Forget it.
-Get a real ethernet board. Been there, done that.
-
+Anything written like you propose is likely to vomit and
+take your corner of the galaxy with it. Please get a good
+book about kernel device drivers first before you start.
 
 Cheers,
 Dick Johnson

@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277738AbRKVMRu>; Thu, 22 Nov 2001 07:17:50 -0500
+	id <S277861AbRKVMSk>; Thu, 22 Nov 2001 07:18:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277861AbRKVMRk>; Thu, 22 Nov 2001 07:17:40 -0500
-Received: from pat.uio.no ([129.240.130.16]:37302 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S277738AbRKVMRc>;
-	Thu, 22 Nov 2001 07:17:32 -0500
-To: Stephane Brossier <stephane.brossier@sun.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem when using a nfs mounted filesystem.
-In-Reply-To: <3BFC3CD8.3B955DA8@sun.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 22 Nov 2001 13:17:26 +0100
-In-Reply-To: <3BFC3CD8.3B955DA8@sun.com>
-Message-ID: <shslmgzgfu1.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S277918AbRKVMSe>; Thu, 22 Nov 2001 07:18:34 -0500
+Received: from pollux.et6.tu-harburg.de ([134.28.85.242]:24848 "HELO
+	mail.et6.tu-harburg.de") by vger.kernel.org with SMTP
+	id <S277861AbRKVMSU>; Thu, 22 Nov 2001 07:18:20 -0500
+Message-ID: <3BFCED0B.5113@tu-harburg.de>
+Date: Thu, 22 Nov 2001 13:18:19 +0100
+From: Thomas Mueller <th.mueller@tu-harburg.de>
+Organization: TUHH
+X-Mailer: Mozilla 3.01Gold (X11; I; HP-UX B.10.20 9000/712)
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: kernel panic with promise sx6000
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Stephane Brossier <stephane.brossier@sun.com> writes:
+Hi folks,
 
-     > [root@localhost mnt]# mount -t nfs -o "hard,intr,nodev,nosuid"
-     > hats105:/export1 /mnt/export1
+I've been stupid enough to buy one of those Promise SX6000 RAID
+controllers, because there was 'some kind of Linux support' for it.
 
-<snip>
+Now I've got the problem that with several kernel versions I have tried
+out (2.4.13-ac8, 2.4.14, 2.4.15-pre7) every time I start the i2o_block
+module, I receive a kernel panic based on an interrupt handler problem.
 
-     > Everything seems OK for a while since I can access any
-     > directory/file under /mnt/export1. Suddenly, after a few
-     > minutes, I cannot access anymore this file system. All my
-     > programs which where using these filesystems are frozen and I
-     > they dont even receive any signals. I cannot umount this
-     > filesystem neither. I checked the nfs server is still up and
-     > running so the problem seems to come from the client side.
+Does any one have any suggestions how to get out of that ??
 
-Usually, when this happens, it is due to some problem in the
-networking driver. A tcpdump should show what is happening when the
-filesystem hangs.
+Thanks
 
-Please also
-   - check the connection between the client and server. In particular
-     switch settings.
-   - Check if reducing r/wsize helps.
-
-
-Cheers,
-   Trond
+Thomas
+-- 
+...................................................
+:  Thomas Mueller                                 :
+:  Technische Universitaet Hamburg-Harburg        :
+:  Kommunikationsnetze                            :
+:  FSP 4-06                                       :
+:                                                 :
+:  Denickestrasse 17                              :
+:  D-21071 Hamburg                                :
+:  Germany                                        :
+:  ---------------------------------------------  :
+:  Tel. +49-40-42878-3939                         :
+:  Fax  +49-40-42878-2941                         :
+:                                                 :
+:  e-mail:  Th.Mueller@TU-Harburg.de              :
+:.................................................:

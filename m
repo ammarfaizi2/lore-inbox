@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129031AbRBEV6f>; Mon, 5 Feb 2001 16:58:35 -0500
+	id <S129116AbRBEWD2>; Mon, 5 Feb 2001 17:03:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129116AbRBEV6Z>; Mon, 5 Feb 2001 16:58:25 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14599 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129031AbRBEV6N>; Mon, 5 Feb 2001 16:58:13 -0500
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-To: sct@redhat.com (Stephen C. Tweedie)
-Date: Mon, 5 Feb 2001 21:51:23 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        sct@redhat.com (Stephen C. Tweedie),
-        manfred@colorfullife.com (Manfred Spraul),
-        hch@caldera.de (Christoph Hellwig), lord@sgi.com (Steve Lord),
-        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
-In-Reply-To: <20010205205429.V1167@redhat.com> from "Stephen C. Tweedie" at Feb 05, 2001 08:54:29 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129516AbRBEWDT>; Mon, 5 Feb 2001 17:03:19 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:36626 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S129116AbRBEWDI>; Mon, 5 Feb 2001 17:03:08 -0500
+Message-ID: <3A7F230A.BB1CBA25@Hell.WH8.TU-Dresden.De>
+Date: Mon, 05 Feb 2001 23:02:50 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac2 i686)
+X-Accept-Language: en, de-DE
 MIME-Version: 1.0
+To: Peter Horton <pdh@colonel-panic.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: VIA silent disk corruption - bad news
+In-Reply-To: <20010205195331.A736@colonel-panic.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14PtXi-0004Fp-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> OK, this is exactly where we have a problem: I can see too many cases
-> where we *do* need to know about completion stuff at a fine
-> granularity when it comes to disk IO (unlike network IO, where we can
-> usually rely on a caller doing retransmit at some point in the stack).
+Peter Horton wrote:
+> 
+> The patch doesn't work for me. Maybe I need to disable some more of
+> those North bridge features :-(
+> 
+> Oh bum. Back to testing with "normal" ...
 
-Ok so whats wrong with embedded kiovec points into somethign bigger, one
-kmalloc can allocate two arrays, one of buffers (shared with networking etc)
-followed by a second of block io completion data.
+FWIW, here's the output of my lspci for A7V with working 1003 BIOS
+and still no corruption (after 2 hours stresstest).
 
-Now you can also kind of cast from the bigger to the smaller object and get
-the right result if the kiovec array is the start of the combined allocation
+00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 02)
+        Subsystem: Asustek Computer, Inc.: Unknown device 8033
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
+        Latency: 0
+        Region 0: Memory at e0000000 (32-bit, prefetchable) [size=128M]
+        Capabilities: [a0] AGP version 2.0
+                Status: RQ=31 SBA+ 64bit- FW+ Rate=x1,x2
+                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+00: 06 11 05 03 06 00 10 a2 02 00 00 06 00 00 00 00
+10: 08 00 00 e0 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 43 10 33 80
+30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
 
+I'll leave the comparing work to you. If you need more info, just holler.
 
+-Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

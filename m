@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285000AbRLZWnZ>; Wed, 26 Dec 2001 17:43:25 -0500
+	id <S285017AbRLZWqP>; Wed, 26 Dec 2001 17:46:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285007AbRLZWnR>; Wed, 26 Dec 2001 17:43:17 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:38017 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S285000AbRLZWnH>;
-	Wed, 26 Dec 2001 17:43:07 -0500
-Date: Wed, 26 Dec 2001 17:43:07 -0500
-From: Legacy Fishtank <garzik@havoc.gtf.org>
-To: Arturas V <arturasv@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: EEPro100 problems in SMP on 2.4.5 ?
-Message-ID: <20011226174307.B14542@havoc.gtf.org>
-In-Reply-To: <F1331RVM0t2CD7Lsb0O0001005d@hotmail.com>
+	id <S285016AbRLZWqG>; Wed, 26 Dec 2001 17:46:06 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:7948 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S285013AbRLZWp5>;
+	Wed, 26 Dec 2001 17:45:57 -0500
+Date: Wed, 26 Dec 2001 20:46:16 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Vacation
+Message-ID: <20011226204616.A27612@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0112261917480.9973-100000@freak.distro.conectiva> <Pine.LNX.4.33L.0112262038340.24031-100000@imladris.surriel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <F1331RVM0t2CD7Lsb0O0001005d@hotmail.com>; from arturasv@hotmail.com on Wed, Dec 26, 2001 at 03:43:52PM -0500
+In-Reply-To: <Pine.LNX.4.33L.0112262038340.24031-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 26, 2001 at 03:43:52PM -0500, Arturas V wrote:
-> We had similar problems with Compaq Proliant XEON EEPro100 NIC and Compaq 
-> Spart Array. System would periodically hang or panic. Problems went away 
-> after I replaced EEPRO100 NIC with TLAN NICs(Texas instruments or 
-> "Thunderland"). It's a good indication that there could be a problem with 
-> eepro driver.
+Em Wed, Dec 26, 2001 at 08:39:48PM -0200, Rik van Riel escreveu:
+> On Wed, 26 Dec 2001, Marcelo Tosatti wrote:
+> 
+> > I'm going out on vacation (beach, weee) tomorrow (Thursday), and I'll
+> > return around Jan 4.
+> >
+> > Unfortunately there will be no Internet connection at the place I'll
+> > stay, sorry.
+> 
+> ITYM "fortunately".
+> 
+> Nothing is as good for relaxing (and hacking) as being
+> away from the internet for a week or so ;)
 
-You not only replaced the driver but the hardware too.  So, that tells
-us nothing about the eepro100 driver really.
+Yeah, he came to me and said: save my life, get a Conectiva notebook for me
+to use while on the beach! ;)
 
-	Jeff
-
-
+- Arnaldo

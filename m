@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272599AbTG1Dnz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 23:43:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272638AbTG1Dnz
+	id S272638AbTG1DoK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 23:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272639AbTG1DoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 23:43:55 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18334 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272599AbTG1Dnz (ORCPT
+	Sun, 27 Jul 2003 23:44:10 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:25861 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S272638AbTG1DoH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 23:43:55 -0400
-Date: Sun, 27 Jul 2003 20:59:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marino Fernandez <mjferna@yahoo.com>
+	Sun, 27 Jul 2003 23:44:07 -0400
+Date: Mon, 28 Jul 2003 05:59:20 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory runs out fast with 2.6.0-test2 (and test1)
-Message-Id: <20030727205912.1bb4a635.akpm@osdl.org>
-In-Reply-To: <200307272117.23398.mjferna@yahoo.com>
-References: <200307272117.23398.mjferna@yahoo.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: 2.6.0-test2 has i8042 mux problems
+Message-ID: <20030728035920.GA1660@win.tue.nl>
+References: <Pine.LNX.4.53.0307271906020.18444@twinlark.arctic.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0307271906020.18444@twinlark.arctic.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marino Fernandez <mjferna@yahoo.com> wrote:
->
-> Everything works OK in my system... my only gripe is that I run out of memory 
->  quickly.
+On Sun, Jul 27, 2003 at 07:13:26PM -0700, dean gaudet wrote:
 
-Please monitor /proc/meminfo and /proc/slabinfo, see if you can work out
-where the memory has gone and post the results.
+> this was a bug i reported back a few versions as well -- and i don't think
+> i received any responses (nor from the maintainer).
+> 
+> i've got a box on which 2.4.x works fine, but 2.6.0-test2 gets into a snit
+> when it's trying to initialize the i8042.  i can get 2.6.0-test2 to boot
+> if i add "i8042_nomux".
+> 
+> the mux initialization code seems kind of ... wonk -- it seems to write
+> values to the registers then read back and if the value is the same then
+> it assumes the mux is there.  that seems way too likely to be broken in
+> situations when the mux isn't there... it'd be better to be looking for
+> some value which is different after writing.
 
-What filesystems are you using there?
+No, it writes f0, 56, a4 and if it gets f0, 56, and not a4, then it assumes
+there is a mux.
+
+[This is a Synaptics convention.]
+
+What hardware do you have? And what is the conversation?
+

@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262266AbSLZDpc>; Wed, 25 Dec 2002 22:45:32 -0500
+	id <S262296AbSLZD4Y>; Wed, 25 Dec 2002 22:56:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262296AbSLZDpc>; Wed, 25 Dec 2002 22:45:32 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:44974 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262266AbSLZDpb>;
-	Wed, 25 Dec 2002 22:45:31 -0500
-Date: Wed, 25 Dec 2002 19:51:22 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: put ext2 next to ext3 in config
-In-Reply-To: <20021225150808.GB721@gallifrey>
-Message-ID: <Pine.LNX.4.33L2.0212251945220.26694-100000@dragon.pdx.osdl.net>
+	id <S262258AbSLZD4Y>; Wed, 25 Dec 2002 22:56:24 -0500
+Received: from mail.econolodgetulsa.com ([198.78.66.163]:21252 "EHLO
+	mail.econolodgetulsa.com") by vger.kernel.org with ESMTP
+	id <S262296AbSLZD4W>; Wed, 25 Dec 2002 22:56:22 -0500
+Date: Wed, 25 Dec 2002 20:04:32 -0800 (PST)
+From: Josh Brooks <user@mail.econolodgetulsa.com>
+To: Billy Rose <billyrose@billyrose.net>
+cc: bp@dynastytech.com, <linux-kernel@vger.kernel.org>,
+       <felipewd@terra.com.br>
+Subject: Re: CPU failures ... or something else ?
+In-Reply-To: <E18RPFA-0001ci-00@host.ehost4u.biz>
+Message-ID: <20021225200357.U6873-100000@mail.econolodgetulsa.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Good, thanks for doing this.  :)
+Understood.  Thank you for that diagnosis.
 
-I would prefer to see some of this help text in
-Documentation/filesystems/ext*.txt, but this is still good.
+usually it says proc #1 in the error, but the first time it said proc #0 -
+is that interesting ?
 
---
-~Randy
 
-On Wed, 25 Dec 2002, Dr. David Alan Gilbert wrote:
 
-| Minor little patch - this puts the Ext2 config switch next to the Ext3
-| config switch in the config menus, and also calls it Ext2 rather than
-| Second Extended.
-|
-| {<>}{<>}{<>}{<>}{<>}{<>}{<>}{<>}{<>}{<>}{<>}{<>}{<>}{<>}{<>}{<>}{<>}{<>}{<>}{<>}
-| --- linux-2.5.53/fs/Kconfig.predag	2002-12-25 14:59:31.000000000 +0000
-| +++ linux-2.5.53/fs/Kconfig	2002-12-25 15:00:43.000000000 +0000
+On Wed, 25 Dec 2002, Billy Rose wrote:
+
+> i agree with felipe, sounds like either a stick of ram is bad, or proc
+> #1 is fried (possibly its vrm though).
+>
+> a DRAC is the dell remote assistant card. it sits in a pci slot, has
+> an intel i860 proc on it, and has a 10/100 for a net cable. if you
+> have no cards, then it is obviously ruled out.
+>
+> billy
+> =====
+> "there's some milk in the fridge that's about to go bad...
+> and there it goes..." -bobby
+>
 

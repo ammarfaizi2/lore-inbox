@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263064AbVCDUlq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263095AbVCDUp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263064AbVCDUlq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 15:41:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263083AbVCDUdg
+	id S263095AbVCDUp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 15:45:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263108AbVCDUnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 15:33:36 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:21483 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S263116AbVCDUbq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 15:31:46 -0500
-Message-ID: <4228C6D9.8010701@tmr.com>
-Date: Fri, 04 Mar 2005 15:36:41 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-CC: Pierre Ossman <drzeus-list@drzeus.cx>, LKML <linux-kernel@vger.kernel.org>,
-       alsa-devel@lists.sourceforge.net
-Subject: Re: intel 8x0 went silent in 2.6.11
-References: <4227085C.7060104@drzeus.cx><4227085C.7060104@drzeus.cx> <29495f1d05030309455a990c5b@mail.gmail.com>
-In-Reply-To: <29495f1d05030309455a990c5b@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 4 Mar 2005 15:43:23 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:918 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S263085AbVCDUeA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 15:34:00 -0500
+Subject: Re: cfq: depth 4 reached, tagging now on
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+In-Reply-To: <20050304090031.GE14764@suse.de>
+References: <200503040355_MC3-1-979D-F1DE@compuserve.com>
+	 <20050304090031.GE14764@suse.de>
+Content-Type: text/plain
+Date: Fri, 04 Mar 2005 15:33:54 -0500
+Message-Id: <1109968434.6710.6.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nish Aravamudan wrote:
-> On Thu, 03 Mar 2005 13:51:40 +0100, Pierre Ossman <drzeus-list@drzeus.cx> wrote:
-> 
->>I just upgraded to Linux 2.6.11 and the soundcard on my machine went
->>silent. All volume controls are correct and there are no errors
->>reported. But no sound coming from the speakers. And here's the kicker,
->>the headphones work fine!
->>2.6.10 still works so the bug appeared in one of the patches in between.
->>The sound card is the one integrated into intels mobile ICH4 chipset.
-> 
-> 
-> There was some discussion of this on LKML a while ago. Are you sure
-> you have disabled "Headphone Jack Sense" and "Line Jack Sense" in
-> alsamixer?
+On Fri, 2005-03-04 at 10:00 +0100, Jens Axboe wrote:
+> On Fri, Mar 04 2005, Chuck Ebbert wrote:
+> > On 2005-02-21 at 8:20:44, Jens Axboe wrote:
+> > 
+> > > On Sat, Feb 19 2005, Lee Revell wrote:
+> > > > Starting around 2.6.11-rc4 I get this printk during the boot process
+> > > > after kjournald starts, and again if I stress the filesystem.
 
-Is there some option to alsamixer to get those to show up? There's no 
-such entry in the default display (FC3 w/ kernel.org 2.6.1[01]).
+Whoever dropped me from the cc: list, please don't do that.  Thanks.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Lee
+

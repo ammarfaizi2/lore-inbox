@@ -1,29 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269390AbRGaSNz>; Tue, 31 Jul 2001 14:13:55 -0400
+	id <S269393AbRGaSPF>; Tue, 31 Jul 2001 14:15:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269391AbRGaSNq>; Tue, 31 Jul 2001 14:13:46 -0400
-Received: from boreas.isi.edu ([128.9.160.161]:36600 "EHLO boreas.isi.edu")
-	by vger.kernel.org with ESMTP id <S269390AbRGaSNb>;
-	Tue, 31 Jul 2001 14:13:31 -0400
-To: Riley Williams <rhw@MemAlpha.CX>
-cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-        =?iso-8859-1?Q?christophe_barb=E9?= <christophe.barbe@lineo.fr>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: OT: Virii on vger.kernel.org lists 
-In-Reply-To: Your message of "Tue, 31 Jul 2001 19:02:18 BST."
-             <Pine.LNX.4.33.0107311858360.23876-100000@infradead.org> 
-Date: Tue, 31 Jul 2001 11:12:44 -0700
-Message-ID: <22369.996603164@ISI.EDU>
-From: Craig Milo Rogers <rogers@ISI.EDU>
+	id <S269395AbRGaSPB>; Tue, 31 Jul 2001 14:15:01 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:47374 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S269393AbRGaSOc>; Tue, 31 Jul 2001 14:14:32 -0400
+Message-Id: <200107311814.f6VIEUw7013141@pincoya.inf.utfsm.cl>
+To: Rick Hohensee <humbubba@smarty.smart.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: LANCE ethernet chip - ~24 drivers 
+In-Reply-To: Message from Rick Hohensee <humbubba@smarty.smart.net> 
+   of "Tue, 31 Jul 2001 12:58:10 -0400." <200107311658.MAA03706@smarty.smart.net> 
+Date: Tue, 31 Jul 2001 14:14:30 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
->Is there any way we can set up an automatic virus scan of all
->attachments at vger, and have it deal with any virii at source?
+Rick Hohensee <humbubba@smarty.smart.net> said:
 
-	Better than that, simply strip all non-text MIME attachments,
-or bounce the messages containing them.  End of story.
+[...]
 
-					Craig Milo Rogers
+> This raises a question about open source. How do you aknowledge code
+> removal? Given a system at some level of existing functionality, removing
+> code is one of the best things you can do for it, but it doesn't get your
+> name anywhere that sticks. Maybe Linux needs a linux/NO_MAINTENANCE .
+
+What about TOP-DELETERS sorted by the numbers of lines each one has axed?
+-- 
+Dr. Horst H. von Brand                Usuario #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

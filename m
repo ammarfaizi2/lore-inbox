@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284497AbRLRShn>; Tue, 18 Dec 2001 13:37:43 -0500
+	id <S284541AbRLRSlq>; Tue, 18 Dec 2001 13:41:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284491AbRLRShi>; Tue, 18 Dec 2001 13:37:38 -0500
-Received: from e23.nc.us.ibm.com ([32.97.136.229]:9968 "EHLO outside")
-	by vger.kernel.org with ESMTP id <S284467AbRLRSgk>;
-	Tue, 18 Dec 2001 13:36:40 -0500
-Date: Tue, 18 Dec 2001 10:35:47 -0800
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: degger@fhm.edu
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Scheduler ( was: Just a second ) ...
-Message-ID: <20011218103547.B1176@w-mikek2.des.beaverton.ibm.com>
-In-Reply-To: <E16GKvk-0007Sc-00@the-village.bc.nu> <20011218164152.1E4835A3E@Nicole.fhm.edu>
-Mime-Version: 1.0
+	id <S284491AbRLRSk1>; Tue, 18 Dec 2001 13:40:27 -0500
+Received: from m851-mp1-cvx1c.edi.ntl.com ([62.253.15.83]:20718 "EHLO
+	pinkpanther.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S284521AbRLRSjL>; Tue, 18 Dec 2001 13:39:11 -0500
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200112181513.fBIFDco15925@pinkpanther.swansea.linux.org.uk>
+Subject: Re: 2.4.16 deadlock in kswapd
+To: akpm@zip.com.au (Andrew Morton)
+Date: Tue, 18 Dec 2001 15:13:38 +0000 (GMT)
+Cc: popo.enlighted@free.fr (FORT David), linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <3C1E2A19.BC654FF0@zip.com.au> from "Andrew Morton" at Dec 17, 2001 09:23:37 
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011218164152.1E4835A3E@Nicole.fhm.edu>; from degger@fhm.edu on Tue, Dec 18, 2001 at 04:34:57PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 18, 2001 at 04:34:57PM +0100, degger@fhm.edu wrote:
-> What about a CONFIG_8WAY which, if set, activates a scheduler that
-> performs better on such nontypical machines?
+> > Trace; c01117b5 <flush_tlb_page+75/80>
+> > Trace; c012f052 <swap_out+312/4b0>
+> > ...
+> 
+> Dodgy hardware, I'm afraid - it looks like a cross-CPU interrupt
+> was sent but not received.  Not uncommon.
 
-I'm pretty sure that we can create a scheduler that works well on
-an 8-way, and works just as well as the current scheduler on a UP
-machine.  There is already a CONFIG_SMP which is all that should
-be necessary to distinguish between the two.
+Andrea claimed there were races in the x86 ipi code. I dont know if his
+change was applied however. The x86 messaging is reliable (you'll see
+showers of apic errors before it fails) but does sometimes replay a message
+which is much fun
 
-What may be of more concern is support for different architectures
-such as HMT and NUMA.  What about better scheduler support for
-people working in the RT embedded space?  Each of these seem to
-have different scheduling requirements.  Do people working on these
-'non-typical' machines need to create their own scheduler patches?
-OR is there some 'clean' way to incorporate them into the source
-tree?
-
--- 
-Mike

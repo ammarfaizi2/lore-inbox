@@ -1,29 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268164AbUH0INm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267934AbUH0IQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268164AbUH0INm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 04:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268162AbUH0INa
+	id S267934AbUH0IQR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 04:16:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268215AbUH0IOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 04:13:30 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:40664 "EHLO
+	Fri, 27 Aug 2004 04:14:05 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:5850 "EHLO
 	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S267934AbUH0IMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 04:12:46 -0400
-Message-ID: <412EECFC.5050804@namesys.com>
-Date: Fri, 27 Aug 2004 01:12:44 -0700
+	id S267934AbUH0INl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 04:13:41 -0400
+Message-ID: <412EED36.3080802@namesys.com>
+Date: Fri, 27 Aug 2004 01:13:42 -0700
 From: Hans Reiser <reiser@namesys.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@lst.de>
-CC: Nikita Danilov <nikita@clusterfs.com>,
-       Dmitry Baryshkov <mitya@school.ioffe.ru>, Andrew Morton <akpm@osdl.org>,
-       linux-fsdevel@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>, flx@namesys.com,
-       torvalds@osdl.org, reiserfs-list@namesys.com
+To: Jeremy Allison <jra@samba.org>
+CC: Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>, wichert@wiggy.net,
+       torvalds@osdl.org, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com,
+       reiserfs-list@namesys.com
 Subject: Re: silent semantic changes with reiser4
-References: <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com> <20040826014542.4bfe7cc3.akpm@osdl.org> <412DAC59.4010508@namesys.com> <1093548414.5678.74.camel@krustophenia.net> <20040826203017.GA14361@school.ioffe.ru> <1093552692.13881.43.camel@leto.cs.pocnet.net> <16686.22336.829096.678178@thebsh.namesys.com> <1093556818.13881.75.camel@leto.cs.pocnet.net> <16686.24120.761440.969273@thebsh.namesys.com> <20040826220546.GA12401@lst.de>
-In-Reply-To: <20040826220546.GA12401@lst.de>
+References: <412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <112698263.20040826005146@tnonline.net> <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1939276887.20040826114028@tnonline.net> <20040826024956.08b66b46.akpm@osdl.org> <20040826173227.GB1570@legion.cup.hp.com>
+In-Reply-To: <20040826173227.GB1570@legion.cup.hp.com>
 X-Enigmail-Version: 0.85.0.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -31,38 +30,26 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+I think Jeremy is accurate in saying the below.
 
->On Fri, Aug 27, 2004 at 02:03:36AM +0400, Nikita Danilov wrote:
->  
->
->> > What about fs/reiser4/plugin/node/ and fs/reiser4/plugin/disk_format/?
->> > 
->> > Of course you can implement another filesystem inside the plugins but
->> > they wouldn't use fs/reiser4/*.c, so this would be rather stupid. Right?
->> > 
->>
->>That was the message of my message.
+Jeremy Allison wrote:
+
+>>What compelling reason is there for doing this in the kernel?
 >>    
 >>
 >
->And I think Christophe and me already agreed in this thread that these
->upper level plugin facility should go away before merge anyway.  We made
->the mistake of not requesting removel of that one for XFS and now SGI
->blocks it's removal.
 >
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+>Because without kernel support there is no way someone can
+>publish a new metadata type and have it automatically supported
+>by all application data files (ie. most apps ignore it, and only
+>apps that are aware of it can see it). Without kernel support
+>you have to have all apps agree on a data format. And
+>that's harder to do than getting linux kernel VFS engineers
+>to agree on things :-).
+>
+>Jeremy.
 >
 >
 >  
 >
-Your arrogance is misplaced for a man who has never done a significant 
-piece of research.
 
-Christoph, we are doing work, you are in the way, get out of the way.
-
-Hans

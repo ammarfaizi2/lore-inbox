@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbTE2ALx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 20:11:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTE2ALx
+	id S261769AbTE2A0S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 20:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTE2A0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 20:11:53 -0400
-Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:64361
-	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S261752AbTE2ALw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 20:11:52 -0400
-Message-ID: <3ED55380.7010306@infidigm.net>
-Date: Wed, 28 May 2003 20:25:36 -0400
-From: Jeff Muizelaar <kernel@infidigm.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
+	Wed, 28 May 2003 20:26:18 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:29346 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S261769AbTE2A0S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 20:26:18 -0400
+Date: Wed, 28 May 2003 17:36:13 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.70 compile error
+Message-ID: <31970000.1054168572@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.3.96.1030528180246.21414A-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1030528180246.21414A-100000@gatekeeper.tmr.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Jeff Muizelaar <muizelaar@rogers.com>
-CC: "Randy.Dunlap" <rddunlap@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cleanup up seq file usage in resource.c
-References: <3ED54ECD.1050005@rogers.com>
-In-Reply-To: <3ED54ECD.1050005@rogers.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.43.126.4] using ID <muizelaar@rogers.com> at Wed, 28 May 2003 20:25:09 -0400
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The extra 'up' does not belong in the subject.
+> You will not get people to leave it alone by making it unreadable, you
+> will just confust the shit out of them by letting them see such detail if
+> they don't go looking for it. IMHO of course.
 
--Jeff
+Oh, I wasn't disputing that should be fixed. I always use menuconfig,
+or pipe something to oldconfig, so I don't see it personally ... but
+that seemed to be under no debate - Roman already said he'd fix that;
+it's obviously a bug.
+
+M.
 

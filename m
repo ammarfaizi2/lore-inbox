@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262695AbSJBW5g>; Wed, 2 Oct 2002 18:57:36 -0400
+	id <S262638AbSJBWg1>; Wed, 2 Oct 2002 18:36:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262696AbSJBW5g>; Wed, 2 Oct 2002 18:57:36 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:11185 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262695AbSJBW5f>;
-	Wed, 2 Oct 2002 18:57:35 -0400
-Date: Wed, 2 Oct 2002 19:02:57 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Kevin Corry <corryk@us.ibm.com>
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       evms-devel@lists.sourceforge.net
-Subject: Re: EVMS Submission for 2.5
-In-Reply-To: <02100217031903.18102@boiler>
-Message-ID: <Pine.GSO.4.21.0210021848420.13480-100000@weyl.math.psu.edu>
+	id <S262642AbSJBWg1>; Wed, 2 Oct 2002 18:36:27 -0400
+Received: from dp.samba.org ([66.70.73.150]:56286 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262638AbSJBWg0>;
+	Wed, 2 Oct 2002 18:36:26 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15771.30104.815144.546550@argo.ozlabs.ibm.com>
+Date: Thu, 3 Oct 2002 08:39:20 +1000 (EST)
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Snapshot of shared page tables
+In-Reply-To: <45850000.1033570655@baldur.austin.ibm.com>
+References: <45850000.1033570655@baldur.austin.ibm.com>
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave McCracken writes:
 
+> Ok, here it is.  This patch works for my simple tests, both under UP and
+> SMP, including under memory pressure.  I'd appreciate anyone who'd like to
+> take it and beat on it.  Please let me know of any problems you find.
 
-On Wed, 2 Oct 2002, Kevin Corry wrote:
+Interesting.  I notice that you are using the _PAGE_RW bit in the
+PMDs.  Are you relying on the hardware to do anything with that bit,
+or is it only used by software?
 
-> So the question is, will there be a method to simply get a list of registered 
-> disks on the system, or an API to call to run a function for each disk? If 
-> so, we'll gladly switch to using that. If not, do you have any suggestions 
-> for how this kind of functionality can be achieved with your upcoming changes?
+(If you are relying on the hardware to do something different when
+_PAGE_RW is clear in the PMD, then your approach isn't portable.)
 
-That _really_ depends on the nature of functions you want to call that
-way.
-
-I might agree with something along the lines of
-	* when evms is initialized, it's notified of all existing gendisks
-	* whenever disk is added after evms initialization, we notify evms
-	* whenever disk is removed, we notify evms
-
-However, I doubt that it's what you really want.  In particular, you
-probably want to see partitioning changes as well as gendisk ones
-(and no, "evms will handle all partitioning" is _not_ an acceptable
-answer).  Moreover, "gendisk is here" != "something is in the drive".
-
-IOW, the real question is what are you going to do with that list of
-gendisks?
-
+Paul.

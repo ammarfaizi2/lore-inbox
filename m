@@ -1,75 +1,372 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263537AbREYFTw>; Fri, 25 May 2001 01:19:52 -0400
+	id <S263546AbREYFZl>; Fri, 25 May 2001 01:25:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263538AbREYFTm>; Fri, 25 May 2001 01:19:42 -0400
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:57260 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S263537AbREYFTb>; Fri, 25 May 2001 01:19:31 -0400
-Date: Fri, 25 May 2001 01:20:00 -0400 (EDT)
-From: Scott Murray <scott@spiteful.org>
-X-X-Sender: <scottm@godzilla.spiteful.org>
-To: Maciek Nowacki <maciek@Voyager.powersurfr.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Busy on BLKFLSBUF w/initrd
-In-Reply-To: <20010524123943.A797@wintermute.starfire>
-Message-ID: <Pine.LNX.4.33.0105250040520.15501-100000@godzilla.spiteful.org>
+	id <S263543AbREYFZW>; Fri, 25 May 2001 01:25:22 -0400
+Received: from smtp2.Stanford.EDU ([171.64.14.116]:13234 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S263541AbREYFZS>; Fri, 25 May 2001 01:25:18 -0400
+Message-Id: <200105250525.f4P5PGH07138@smtp2.Stanford.EDU>
+From: Praveen Srinivasan <praveens@stanford.edu>
+Subject: Re: [PATCH] fsm.c - null ptr fixes for 2.4.4
+To: linux-kernel@vger.kernel.org
+Reply-To: praveens@stanford.edu
+Date: Thu, 24 May 2001 22:26:34 -0700
+In-Reply-To: <fa.grcpbkv.31cp2e@ifi.uio.no> <fa.fnhuk1v.17hak3c@ifi.uio.no>
+Organization: Stanford University
+User-Agent: KNode/0.5.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 May 2001, Maciek Nowacki wrote:
+We tried to minimize the amount of changes we made; your patch is far more 
+extensive. As this is not our code, we felt it would be a bad idea to make 
+changes to the underlying structure.
 
-> Problem seems to be solved. Here is what I did, for anyone who is interested
-> in using a loopback file on a local disk as root:
-[snip recipe]
-> This method depends on the change_root() mechanism which I had assumed is
-> becoming obsolete. It works, and there is no need to mess with
-> /proc/sys/kernel/real_root_dev if the root is specified on the command line.
-> Trying to use only pivot_root did not work as /dev/rd/0 could never be
-> flushed (see previous messages in this thread).
+Praveen Srinivasan and Frederick Akalin
 
-I was having similiar problems a few months back.  I was also trying
-to pivot_root out of an initial ramdisk and then unmount it.  I got it
-working, but kept forgetting to post one of the fixes that I found
-necessary to make it work when using auto-mounted devfs.
+Kai Germaschewski wrote:
 
-Here it is (exported from BitKeeper, hence the a and b):
-
-diff -Nru a/init/main.c b/init/main.c
---- a/init/main.c	Fri May 25 00:31:25 2001
-+++ b/init/main.c	Fri May 25 00:31:25 2001
-@@ -273,6 +273,9 @@
- #ifdef CONFIG_NFTL
- 	{ "nftla", 0x5d00 },
- #endif
-+#ifdef CONFIG_DEVFS_MOUNT
-+	{ "rd/",     0x0100 },
-+#endif
- 	{ NULL, 0 }
- };
-
-What this does is make /dev/rd/* parseable by name_to_kdev_t, with
-the result that ROOT_DEV gets set correctly in root_dev_setup and
-the initrd logic at the bottom of do_basic_setup doesn't automatically
-trigger the change_root.  The same effect can be achieved by setting
-real_root_dev in proc in your ramdisk, but since that's not required
-for non-devfs ramdisks, it takes some digging for the uninitiated to
-figure out why things don't work.
-
-With this fix and the fix for the missing bldev_put in drivers/block/rd.c
-(which has been in Alan's tree for ages), the pivot_root instructions
-given in the file Documentation/initrd.txt have been working fine for me.
-
-Scott
-
-
--- 
-=============================================================================
-Scott Murray                                        email: scott@spiteful.org
-http://www.spiteful.org (coming soon)                 ICQ: 10602428
------------------------------------------------------------------------------
-     "Good, bad ... I'm the guy with the gun." - Ash, "Army of Darkness"
-
+> On Thu, 24 May 2001, Praveen Srinivasan wrote:
+> 
+>> Using the Stanford checker, we searched for null-pointer bugs in the
+>> linux kernel code. This patch fixes numerous unchecked pointers in the
+>> ISDN hisax card driver (fsm.c).
+> 
+> Is one numerous? Anyway, thanks for you effort. Your fix is not
+> correct though, because it replaces the bug with another one.
+> 
+> In case the allocation fails, the current code will oops directly, so it's
+> quite easy to track down what went wrong. After applying your patch, the
+> code will still oops, but at a later time, when one of the not correctly
+> initialized state machines is actually used, so the problem is harder to
+> track.
+> 
+> The correct way to fix the problem is something along the lines of the
+> appended patch. You need to notify the caller of the allocation failure
+> and handle it correctly.
+> 
+> Thanks for your work, I'll take care of submitting the right fix to Linus.
+> 
+> --Kai
+> 
+> Index: callc.c
+> ===================================================================
+> RCS file: /scratch/kai/cvsroot/linux_2_4/drivers/isdn/hisax/callc.c,v
+> retrieving revision 1.1.1.2
+> diff -u -r1.1.1.2 callc.c
+> --- callc.c   2001/04/23 22:51:03     1.1.1.2
+> +++ callc.c   2001/05/24 16:04:16
+> @@ -850,14 +850,14 @@
+> 
+>  #define FNCOUNT (sizeof(fnlist)/sizeof(struct FsmNode))
+> 
+> -void __init
+> +int __init
+>  CallcNew(void)
+>  {
+>  callcfsm.state_count = STATE_COUNT;
+>  callcfsm.event_count = EVENT_COUNT;
+>  callcfsm.strEvent = strEvent;
+>  callcfsm.strState = strState;
+> -     FsmNew(&callcfsm, fnlist, FNCOUNT);
+> +     return FsmNew(&callcfsm, fnlist, FNCOUNT);
+>  }
+> 
+>  void
+> Index: config.c
+> ===================================================================
+> RCS file: /scratch/kai/cvsroot/linux_2_4/drivers/isdn/hisax/config.c,v
+> retrieving revision 1.1.1.4.32.1
+> diff -u -r1.1.1.4.32.1 config.c
+> --- config.c  2001/05/24 07:52:56     1.1.1.4.32.1
+> +++ config.c  2001/05/24 16:17:00
+> @@ -1332,18 +1332,28 @@
+> 
+>  static int __init HiSax_init(void)
+>  {
+> -     int i;
+> +     int i, retval;
+>  #ifdef MODULE
+>  int j;
+>  int nzproto = 0;
+>  #endif
+> 
+>  HiSaxVersion();
+> -     CallcNew();
+> -     Isdnl3New();
+> -     Isdnl2New();
+> -     TeiNew();
+> -     Isdnl1New();
+> +     retval = CallcNew();
+> +     if (retval)
+> +             goto out;
+> +     retval = Isdnl3New();
+> +     if (retval)
+> +             goto out_callc;
+> +     retval = Isdnl2New();
+> +     if (retval)
+> +             goto out_isdnl3;
+> +     retval = TeiNew();
+> +     if (retval)
+> +             goto out_isdnl2;
+> +     retval = Isdnl1New();
+> +     if (retval)
+> +             goto out_tei;
+> 
+>  #ifdef MODULE
+>  if (!type[0]) {
+> @@ -1490,17 +1500,26 @@
+>  printk(KERN_DEBUG "HiSax: Total %d card%s defined\n",
+>  nrcards, (nrcards > 1) ? "s" : "");
+> 
+> -     if (HiSax_inithardware(NULL)) {
+> -             /* Install only, if at least one card found */
+> -             return (0);
+> -     } else {
+> -             Isdnl1Free();
+> -             TeiFree();
+> -             Isdnl2Free();
+> -             Isdnl3Free();
+> -             CallcFree();
+> -             return -EIO;
+> +     /* Install only, if at least one card found */
+> +     if (!HiSax_inithardware(NULL)) {
+> +             retval = -EIO;
+> +             goto out_isdnl1;
+>  }
+> +
+> +     return 0;
+> +
+> + out_isdnl1:
+> +     Isdnl1Free();
+> + out_tei:
+> +     TeiFree();
+> + out_isdnl2:
+> +     Isdnl2Free();
+> + out_isdnl3:
+> +     Isdnl3Free();
+> + out_callc:
+> +     CallcFree();
+> + out:
+> +     return retval;
+>  }
+> 
+>  static void __exit HiSax_exit(void)
+> Index: fsm.c
+> ===================================================================
+> RCS file: /scratch/kai/cvsroot/linux_2_4/drivers/isdn/hisax/fsm.c,v
+> retrieving revision 1.1.1.2
+> diff -u -r1.1.1.2 fsm.c
+> --- fsm.c     2001/04/23 22:51:00     1.1.1.2
+> +++ fsm.c     2001/05/24 16:03:22
+> @@ -15,13 +15,16 @@
+> 
+>  #define FSM_TIMER_DEBUG 0
+> 
+> -void __init
+> +int __init
+>  FsmNew(struct Fsm *fsm, struct FsmNode *fnlist, int fncount)
+>  {
+>  int i;
+> 
+>  fsm->jumpmatrix = (FSMFNPTR *)
+>  kmalloc(sizeof (FSMFNPTR) * fsm->state_count * fsm->event_count,
+>  GFP_KERNEL);
+> +     if (!fsm->jumpmatrix)
+> +             return -ENOMEM;
+> +
+>  memset(fsm->jumpmatrix, 0, sizeof (FSMFNPTR) * fsm->state_count *
+>  fsm->event_count);
+> 
+>  for (i = 0; i < fncount; i++)
+> @@ -32,6 +35,7 @@
+>  } else
+>  fsm->jumpmatrix[fsm->state_count * fnlist[i].event +
+>  fnlist[i].state] = (FSMFNPTR) fnlist[i].routine;
+> +     return 0;
+>  }
+> 
+>  void
+> Index: hisax.h
+> ===================================================================
+> RCS file: /scratch/kai/cvsroot/linux_2_4/drivers/isdn/hisax/hisax.h,v
+> retrieving revision 1.1.1.4
+> diff -u -r1.1.1.4 hisax.h
+> --- hisax.h   2001/04/24 00:23:56     1.1.1.4
+> +++ hisax.h   2001/05/24 16:09:43
+> @@ -1304,7 +1304,7 @@
+>  int getcallref(u_char * p);
+>  int newcallref(void);
+> 
+> -void FsmNew(struct Fsm *fsm, struct FsmNode *fnlist, int fncount);
+> +int FsmNew(struct Fsm *fsm, struct FsmNode *fnlist, int fncount);
+>  void FsmFree(struct Fsm *fsm);
+>  int FsmEvent(struct FsmInst *fi, int event, void *arg);
+>  void FsmChangeState(struct FsmInst *fi, int newstate);
+> @@ -1335,19 +1335,19 @@
+> 
+>  int ll_run(struct IsdnCardState *cs, int addfeatures);
+>  void ll_stop(struct IsdnCardState *cs);
+> -void CallcNew(void);
+> +int CallcNew(void);
+>  void CallcFree(void);
+>  int CallcNewChan(struct IsdnCardState *cs);
+>  void CallcFreeChan(struct IsdnCardState *cs);
+> -void Isdnl1New(void);
+> +int Isdnl1New(void);
+>  void Isdnl1Free(void);
+> -void Isdnl2New(void);
+> +int Isdnl2New(void);
+>  void Isdnl2Free(void);
+> -void Isdnl3New(void);
+> +int Isdnl3New(void);
+>  void Isdnl3Free(void);
+>  void init_tei(struct IsdnCardState *cs, int protocol);
+>  void release_tei(struct IsdnCardState *cs);
+>  char *HiSax_getrev(const char *revision);
+> -void TeiNew(void);
+> +int TeiNew(void);
+>  void TeiFree(void);
+>  int certification_check(int output);
+> Index: isdnl1.c
+> ===================================================================
+> RCS file: /scratch/kai/cvsroot/linux_2_4/drivers/isdn/hisax/isdnl1.c,v
+> retrieving revision 1.1.1.2
+> diff -u -r1.1.1.2 isdnl1.c
+> --- isdnl1.c  2001/04/23 22:51:01     1.1.1.2
+> +++ isdnl1.c  2001/05/24 16:06:14
+> @@ -736,26 +736,41 @@
+> 
+>  #define L1B_FN_COUNT (sizeof(L1BFnList)/sizeof(struct FsmNode))
+> 
+> -void __init
+> +int __init
+>  Isdnl1New(void)
+>  {
+> -#ifdef HISAX_UINTERFACE
+> -     l1fsm_u.state_count = L1U_STATE_COUNT;
+> -     l1fsm_u.event_count = L1_EVENT_COUNT;
+> -     l1fsm_u.strEvent = strL1Event;
+> -     l1fsm_u.strState = strL1UState;
+> -     FsmNew(&l1fsm_u, L1UFnList, L1U_FN_COUNT);
+> -#endif
+> +     int retval;
+> +
+>  l1fsm_s.state_count = L1S_STATE_COUNT;
+>  l1fsm_s.event_count = L1_EVENT_COUNT;
+>  l1fsm_s.strEvent = strL1Event;
+>  l1fsm_s.strState = strL1SState;
+> -     FsmNew(&l1fsm_s, L1SFnList, L1S_FN_COUNT);
+> +     retval = FsmNew(&l1fsm_s, L1SFnList, L1S_FN_COUNT);
+> +     if (retval)
+> +             return retval;
+> +
+>  l1fsm_b.state_count = L1B_STATE_COUNT;
+>  l1fsm_b.event_count = L1_EVENT_COUNT;
+>  l1fsm_b.strEvent = strL1Event;
+>  l1fsm_b.strState = strL1BState;
+> -     FsmNew(&l1fsm_b, L1BFnList, L1B_FN_COUNT);
+> +     retval = FsmNew(&l1fsm_b, L1BFnList, L1B_FN_COUNT);
+> +     if (retval) {
+> +             FsmFree(&l1fsm_s);
+> +             return retval;
+> +     }
+> +#ifdef HISAX_UINTERFACE
+> +     l1fsm_u.state_count = L1U_STATE_COUNT;
+> +     l1fsm_u.event_count = L1_EVENT_COUNT;
+> +     l1fsm_u.strEvent = strL1Event;
+> +     l1fsm_u.strState = strL1UState;
+> +     retval = FsmNew(&l1fsm_u, L1UFnList, L1U_FN_COUNT);
+> +     if (retval) {
+> +             FsmFree(&l1fsm_s);
+> +             FsmFree(&l1fsm_b);
+> +             return retval;
+> +     }
+> +#endif
+> +     return 0;
+>  }
+> 
+>  void Isdnl1Free(void)
+> Index: isdnl2.c
+> ===================================================================
+> RCS file: /scratch/kai/cvsroot/linux_2_4/drivers/isdn/hisax/isdnl2.c,v
+> retrieving revision 1.1.1.2
+> diff -u -r1.1.1.2 isdnl2.c
+> --- isdnl2.c  2001/04/23 22:51:01     1.1.1.2
+> +++ isdnl2.c  2001/05/24 16:06:36
+> @@ -1831,14 +1831,14 @@
+>  {
+>  }
+> 
+> -void __init
+> +int __init
+>  Isdnl2New(void)
+>  {
+>  l2fsm.state_count = L2_STATE_COUNT;
+>  l2fsm.event_count = L2_EVENT_COUNT;
+>  l2fsm.strEvent = strL2Event;
+>  l2fsm.strState = strL2State;
+> -     FsmNew(&l2fsm, L2FnList, L2_FN_COUNT);
+> +     return FsmNew(&l2fsm, L2FnList, L2_FN_COUNT);
+>  }
+> 
+>  void
+> Index: isdnl3.c
+> ===================================================================
+> RCS file: /scratch/kai/cvsroot/linux_2_4/drivers/isdn/hisax/isdnl3.c,v
+> retrieving revision 1.1.1.2
+> diff -u -r1.1.1.2 isdnl3.c
+> --- isdnl3.c  2001/04/23 22:51:01     1.1.1.2
+> +++ isdnl3.c  2001/05/24 16:07:16
+> @@ -591,14 +591,14 @@
+>  }
+>  }
+> 
+> -void __init
+> +int __init
+>  Isdnl3New(void)
+>  {
+>  l3fsm.state_count = L3_STATE_COUNT;
+>  l3fsm.event_count = L3_EVENT_COUNT;
+>  l3fsm.strEvent = strL3Event;
+>  l3fsm.strState = strL3State;
+> -     FsmNew(&l3fsm, L3FnList, L3_FN_COUNT);
+> +     return FsmNew(&l3fsm, L3FnList, L3_FN_COUNT);
+>  }
+> 
+>  void
+> Index: tei.c
+> ===================================================================
+> RCS file: /scratch/kai/cvsroot/linux_2_4/drivers/isdn/hisax/tei.c,v
+> retrieving revision 1.1.1.2
+> diff -u -r1.1.1.2 tei.c
+> --- tei.c     2001/04/23 22:51:00     1.1.1.2
+> +++ tei.c     2001/05/24 16:07:11
+> @@ -446,14 +446,14 @@
+> 
+>  #define TEI_FN_COUNT (sizeof(TeiFnList)/sizeof(struct FsmNode))
+> 
+> -void __init
+> +int __init
+>  TeiNew(void)
+>  {
+>  teifsm.state_count = TEI_STATE_COUNT;
+>  teifsm.event_count = TEI_EVENT_COUNT;
+>  teifsm.strEvent = strTeiEvent;
+>  teifsm.strState = strTeiState;
+> -     FsmNew(&teifsm, TeiFnList, TEI_FN_COUNT);
+> +     return FsmNew(&teifsm, TeiFnList, TEI_FN_COUNT);
+>  }
+> 
+>  void
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

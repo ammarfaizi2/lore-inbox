@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbTJWRyi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 13:54:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbTJWRyi
+	id S261484AbTJWSNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 14:13:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbTJWSNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 13:54:38 -0400
-Received: from D71cc.d.pppool.de ([80.184.113.204]:42684 "EHLO
-	karin.de.interearth.com") by vger.kernel.org with ESMTP
-	id S261239AbTJWRyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 13:54:36 -0400
-Subject: Re: srfs - a new file system.
-From: Daniel Egger <degger@fhm.edu>
-To: Eric Sandall <eric@sandall.us>
+	Thu, 23 Oct 2003 14:13:09 -0400
+Received: from walker.svs.informatik.uni-oldenburg.de ([134.106.22.19]:48516
+	"EHLO walker.pmhahn.de") by vger.kernel.org with ESMTP
+	id S261484AbTJWSNH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 14:13:07 -0400
+Date: Thu, 23 Oct 2003 20:12:52 +0200
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1066683638.3f944cf6e6763@horde.sandall.us>
-References: <Pine.LNX.4.44_heb2.09.0310201031150.20172-100000@nexus.cs.bgu.ac.il>
-	 <1066683638.3f944cf6e6763@horde.sandall.us>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-vPVzxTAjre5r45KYRHY1"
-Message-Id: <1066907220.1686.22.camel@sonja>
+Subject: Re: Linux 2.4.23-pre8
+Message-ID: <20031023181251.GA5490@titan.lahn.de>
+Mail-Followup-To: Philipp Matthias Hahn <pmhahn@titan.lahn.de>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 23 Oct 2003 19:46:04 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet>
+Organization: UUCP-Freunde Lahn e.V.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Marcelo, Trond, LKML.
 
---=-vPVzxTAjre5r45KYRHY1
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Wed, Oct 22, 2003 at 09:24:17PM -0200, Marcelo Tosatti wrote:
+> Trond Myklebust:
+>   o Fix a deadlock in the NFS asynchronous write code
+>   o A request cannot be used as part of the RTO estimation if it gets
+>     resent since you don't know whether the server is replying to the 
+>     first or the second transmission. However we're currently setting the 
+>     cutoff point to be the timeout of the first transmission.
+>   o UDP round trip timer fix. Modify Karn's algorithm so that we inherit timeouts from previous requests.
+>   o Increase the minimum RTO timer value to 1/10 second. This is more in line with what is done for TCP.
+>   o Fix a stack overflow problem that was noticed by Jeff Garzik by removing some unused readdirplus cruft.
+>   o Make the client act correctly if the RPC server's asserts that it does not support a given program, version or procedure call.
 
-Am Mon, den 20.10.2003 schrieb Eric Sandall um 23:00:
+make[3]: Entering directory `/usr/src/linux-2.4.23/net/sunrpc'
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.23/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -fno-optimize-sibling-calls -DMODULE  -nostdinc -iwithprefix include -DKBUILD_BASENAME=clnt  -c -o clnt.o clnt.c
+clnt.c: In function `call_verify':
+clnt.c:946: error: duplicate case value
+clnt.c:926: error: previously used here
+clnt.c:951: error: duplicate case value
+clnt.c:937: error: previously used here
 
-> This sounds fairly similar to Coda[0], which is already in development an=
-d use.
-
-The last time I looked Coda was a horrible mess of a code, closely
-impossible to get it compile let alone configure and it seems to have
-the same interoperability problems like intermezzo i.e. it didn't work
-between i386<->powerpc. I haven't looked at Lustre light or srfs yet but
-I certainly welcome any fresh projects in the area of distributed or
-replicating filesystems.
-
---=20
-Servus,
-       Daniel
-
---=-vPVzxTAjre5r45KYRHY1
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/l7ZUchlzsq9KoIYRArcSAJ445xODn7yWmxANXcnmI04cppPNgACcDJVO
-jXeJTAnV4grnto5PuOeFGeg=
-=IJ03
------END PGP SIGNATURE-----
-
---=-vPVzxTAjre5r45KYRHY1--
-
+BYtE
+Philipp
+-- 
+  / /  (_)__  __ ____  __ Philipp Hahn
+ / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de

@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316683AbSIJQ7j>; Tue, 10 Sep 2002 12:59:39 -0400
+	id <S317359AbSIJRPA>; Tue, 10 Sep 2002 13:15:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316838AbSIJQ7j>; Tue, 10 Sep 2002 12:59:39 -0400
-Received: from dsl-213-023-020-046.arcor-ip.net ([213.23.20.46]:39634 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316683AbSIJQ7i>;
-	Tue, 10 Sep 2002 12:59:38 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-Date: Tue, 10 Sep 2002 18:57:01 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Rik van Riel <riel@conectiva.com.br>, trond.myklebust@fys.uio.no,
-       Chuck Lever <cel@citi.umich.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <E17natE-0006OB-00@starship> <E17oWsf-0006vQ-00@starship> <3D7D2175.53BFE81D@digeo.com>
-In-Reply-To: <3D7D2175.53BFE81D@digeo.com>
+	id <S317398AbSIJRPA>; Tue, 10 Sep 2002 13:15:00 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:57258 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S317359AbSIJRO6>;
+	Tue, 10 Sep 2002 13:14:58 -0400
+Date: Tue, 10 Sep 2002 13:19:36 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Oleg Drokin <green@namesys.com>
+cc: linux-kernel@vger.kernel.org, axboe@suse.de, andre@linux-ide.org
+Subject: Re: 2.5.34 BUG at kernel/sched.c:944 (partitions code related?)
+In-Reply-To: <20020910175639.A830@namesys.com>
+Message-ID: <Pine.GSO.4.21.0209101313570.6397-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17ooJx-0007EG-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 September 2002 00:32, Andrew Morton wrote:
-> Daniel Phillips wrote:
-> > 
-> > > > void invalidate_inode_pages(struct inode *inode)
-> > > > {
-> > > >         truncate_inode_pages(mapping, 0);
-> > > > }
-> > > >
-> > > > Is it any harder than that?
-> > >
-> > > Pretty much - need to leave i_size where it was.
-> > 
-> > This doesn't touch i_size.
+
+
+On Tue, 10 Sep 2002, Oleg Drokin wrote:
+
+> Hello!
 > 
-> Sorry - I was thinking vmtruncate(). truncate_inode_pages() would
-> result in all the mmapped pages becoming out-of-date anonymous
-> memory.  NFS needs to take down the pagetables so that processes
-> which are mmapping the file which changed on the server will take
-> a major fault and read a fresh copy.  I believe.
+>     Starting with yesterday I am seeing kernel BUG at sched.c:944 
+>     on 2.5.3[34], I've seen similar report for 2.5.31 in the list with no
+>     responces, however 2.5.31 was working fine for me.
+> 
+>     Stack trace for the BUG was entirely within idle task (default_idle,
+>     rest_init, cpu_idle, ...)
+> 
+>     It explodes immediatelly after printing:
+>  hda: hda1 hda2 hda3 hda4 < hda5
+> 
+>     Then panics trying to kill interrupt handler.
+> 
+>     On 2.4 this partition layout looks like this:
+>  hda: [PTBL] [7476/255/63] hda1 hda2 hda3 hda4 < hda5 hda6 >
 
-Oh, um.  Yes, we need the additional pte zapping behaviour of 
-vmtruncate_list.  It doesn't look particularly hard to produce a
-variant of vmtruncation that does (doesn't do) what you suggest.
-Let's see how the discussion goes with the NFS crowd.
+Interesting.  At that point we are just reading sectors from disk
+using normal IO path.  Had already done two reads and still have
+at least one more to do.  Results of parsing are stored in temporary
+array and partitioning information is yet to be changed - we hadn't
+even started updating it (that would happen after parsing is over).
 
--- 
-Daniel
+Basically, the shit hits the fan in the middle of work that is identical
+in 2.5.34 and 2.5.33...
+
+>    Box itself is Dual Athlon MP 1700+. IDE only, 1G RAM, highmem enabled.
+> 
+>    Other strange thing that caught my attention is this, if in 2.5.31 I had
+>    this order or disk detection:
+> <4>hda: IC35L060AVER07-0, ATA DISK drive
+> <4>hdb: IC35L060AVER07-0, ATA DISK drive
+> <4>ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> <4>hda: host protected area => 1
+> <6>hda: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
+> <4>hdb: host protected area => 1
+> <6>hdb: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
+> <6> hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
+> <6> hdb: hdb1
+> 
+>    Now it does it in reverse like this:
+> hdb: host protected area => 1
+> hdb: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
+> hdb: hdb1
+> hda: host protected area => 1
+> hda: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
+> hda: hda1 hda2 hda3 hda4 < hda5PANIC
+
+Detection happens in the same order.  Attaching to subdrivers doesn't,
+but that's not a problem...
+

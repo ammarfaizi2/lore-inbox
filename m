@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268620AbTGIX1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 19:27:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268682AbTGIX1Z
+	id S266205AbTGIXZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 19:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266209AbTGIXZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 19:27:25 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:27826
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S268620AbTGIX04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 19:26:56 -0400
-Subject: Re: [PATCH] Readd BUG for SMP TLB IPI
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030709193246.059ee57d.ak@suse.de>
-References: <20030709124915.3d98054b.ak@suse.de>
-	 <1057750022.6255.41.camel@dhcp22.swansea.linux.org.uk>
-	 <20030709134109.65efa245.ak@suse.de>
-	 <1057769607.6262.63.camel@dhcp22.swansea.linux.org.uk>
-	 <20030709185823.1f243367.ak@suse.de>
-	 <1057770255.6255.70.camel@dhcp22.swansea.linux.org.uk>
-	 <20030709193246.059ee57d.ak@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1057793934.7138.9.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 9 Jul 2003 19:25:57 -0400
+Received: from 12-226-168-214.client.attbi.com ([12.226.168.214]:64396 "EHLO
+	marta.kurtwerks.com") by vger.kernel.org with ESMTP id S266205AbTGIXZ4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 19:25:56 -0400
+Date: Wed, 9 Jul 2003 19:40:35 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.22-pre3: P3 and P4 for chekc_gcc
+Message-ID: <20030709234035.GI267@kurtwerks.com>
+References: <20030709223355.GA2604@werewolf.able.es> <3F0C9EE8.2050005@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 10 Jul 2003 00:38:56 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F0C9EE8.2050005@pobox.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.21-krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-07-09 at 18:32, Andi Kleen wrote:
-> > > How do you know it an happen on them? Do you have backtraces?
+Quoth Jeff Garzik:
+> J.A. Magallon wrote:
 > > 
-> > I sat down with a BP6 owner and did lots of debugging.
-> 
-> I meant on the not known-to-be-nearly-unusable boards. Or are you saying that
-> on the other boards the APIC bus could be lossy too, but it's very unlikely? 
-> [my personal feeling would be to consider the lossy APIC bus to be a hardware
-> problem, like an MCE that cannot be really handled] 
+> > ifdef CONFIG_MPENTIUMIII
+> >-CFLAGS += -march=i686
+> >+CFLAGS += $(call check_gcc,-march=pentium3,-march=i686)
+> > endif
 
-APIC errors can occur on any box. The checksum ensures they get
-retransmitted but does mean you can ger replay of events
+[...]
 
-> I suspect when you have a lossy APIC bug you will run into problems with other IPIs too,
-> it's really an uphill fight which you are likely to lose.
+> I haven't had any problems at all, but I'm curious if anyone has any 
+> negative feedback...  It's rather easy to be conservative and ignore the 
+> patch, since -march=i686 should always work.
 
-If you follow intels recommendations it ought to just work. Its basically about 
-checking if the message is one you processed and not repeating the execution
+No problems over here. I've been running it since it was first submitted.
 
+Kurt
+-- 
+If God had meant for us to be in the Army, we would have been born with
+green, baggy skin.

@@ -1,157 +1,194 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262758AbTIKAP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 20:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266110AbTIKAP4
+	id S265958AbTIKA53 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 20:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265961AbTIKA53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 20:15:56 -0400
-Received: from mail5.intermedia.net ([206.40.48.155]:8964 "EHLO
-	mail5.intermedia.net") by vger.kernel.org with ESMTP
-	id S262758AbTIKAPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 20:15:48 -0400
-Subject: Re: [OOPS] Linux-2.6.0-test5-bk
-From: Ranjeet Shetye <ranjeet.shetye2@zultys.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@osdl.org>,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <20030910154608.14ad0ac8.akpm@osdl.org>
-References: <1063232210.4441.14.camel@ranjeet-pc2.zultys.com>
-	 <20030910154608.14ad0ac8.akpm@osdl.org>
+	Wed, 10 Sep 2003 20:57:29 -0400
+Received: from amdext2.amd.com ([163.181.251.1]:50138 "EHLO amdext2.amd.com")
+	by vger.kernel.org with ESMTP id S265958AbTIKA5X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 20:57:23 -0400
+Message-ID: <99F2150714F93F448942F9A9F112634C0638B196@txexmtae.amd.com>
+From: richard.brunner@amd.com
+To: linux-kernel@vger.kernel.org
+Subject: Update on AMD Athlon/Opteron/Athlon64 Prefetch Errata
+Date: Wed, 10 Sep 2003 19:56:56 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 134117D31917888-01-01
 Content-Type: text/plain
-Organization: Zultys Technologies Inc.
-Message-Id: <1063239544.1328.22.camel@ranjeet-pc2.zultys.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 10 Sep 2003 17:19:05 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-09-10 at 15:46, Andrew Morton wrote:
-> Ranjeet Shetye <ranjeet.shetye2@zultys.com> wrote:
-> >
-> > Unable to handle kernel paging request at virtual address ffffffef
-> >  printing eip:
-> > c027184c
-> > *pde = 00001067
-> > *pte = 00000000
-> > Oops: 0000 [#1]
-> > CPU:    0
-> > EIP:    0060:[<c027184c>]    Not tainted
-> > EFLAGS: 00010282
-> > EIP is at atomic_dec_and_lock+0x8/0x54
-> > eax: ffffffef   ebx: ffffffef   ecx: ffffffef   edx: cf372254
-> > esi: ffffffef   edi: cf743e20   ebp: c12efea8   esp: c12efea0
-> > ds: 007b   es: 007b   ss: 0068
-> > Process swapper (pid: 1, threadinfo=c12ee000 task=c12ed8c0)
-> > Stack: ffffffef ffffffef c12efec4 c01675e4 ffffffef c05a21b0 ffffffef cf7469b4 
-> >        cf743e20 c12efee4 c018aa52 ffffffef 000041ed c018a998 c05f0f80 00000000 
-> >        c05f0f80 c12eff00 c018aab1 c05f0f80 cf743e20 c05f0f84 00000000 c05f0f80 
-> > Call Trace:
-> >  [<c01675e4>] dput+0x24/0x227
-> >  [<c018aa52>] create_dir+0x9e/0xa4
-> >  [<c018a998>] init_dir+0x0/0x1c
-> >  [<c018aab1>] sysfs_create_dir+0x36/0x6c
-> >  [<c026eee0>] create_dir+0x1f/0x49
-> >  [<c026f331>] kobject_add+0x4d/0x124
-> 
-> Bug in fs/sysfs/dir.c:create_dir() - sysfs_create() returned -EEXIST and we
-> turned that into a pointer and did a dput() on it.  
-> 
-> Something like this should fix it.  The -EEXIST return may be another bug?
-> 
-> 
-> 
-> diff -puN fs/sysfs/dir.c~sysfs-create_dir-oops-fix fs/sysfs/dir.c
-> --- 25/fs/sysfs/dir.c~sysfs-create_dir-oops-fix	Wed Sep 10 15:41:35 2003
-> +++ 25-akpm/fs/sysfs/dir.c	Wed Sep 10 15:44:42 2003
-> @@ -24,10 +24,11 @@ static int init_dir(struct inode * inode
->  static struct dentry * 
->  create_dir(struct kobject * k, struct dentry * p, const char * n)
->  {
-> -	struct dentry * dentry;
-> +	struct dentry *dentry, *ret;
->  
->  	down(&p->d_inode->i_sem);
->  	dentry = sysfs_get_dentry(p,n);
-> +	ret = dentry;
->  	if (!IS_ERR(dentry)) {
->  		int error = sysfs_create(dentry,
->  					 S_IFDIR| S_IRWXU | S_IRUGO | S_IXUGO,
-> @@ -36,11 +37,11 @@ create_dir(struct kobject * k, struct de
->  			dentry->d_fsdata = k;
->  			p->d_inode->i_nlink++;
->  		} else
-> -			dentry = ERR_PTR(error);
-> +			ret = ERR_PTR(error);
->  		dput(dentry);
->  	}
->  	up(&p->d_inode->i_sem);
-> -	return dentry;
-> +	return ret;
->  }
->  
-> 
-> 
-> _
+Dear LKML,
 
-Hi Andrew,
+Continuing my yearly tradition of posting just one long
+novel to LKML every year, here is the literary update on the
+Prefetch Errata that the early 2.6 Kernels hit on AMD Athlon
+Processors.
 
-Your changes fixed the issue. Thanks a lot for your help. I still get
-this call trace, but no more OOPS on bootup.
+This previously published errata can occur infrequently and
+is present in all AMD Athlon processors and earlier AMD
+Opteron/Athlon64 processors.  See [1] and [2].
 
-kobject_register failed for Ensoniq AudioPCI (-17)
-Call Trace:
- [<c026f45c>] kobject_register+0x50/0x59
- [<c02f8003>] bus_add_driver+0x4c/0xaf
- [<c02f8453>] driver_register+0x31/0x35
- [<c027c3bf>] pci_populate_driver_dir+0x29/0x2b
- [<c027c491>] pci_register_driver+0x5e/0x83
- [<c06a145f>] alsa_card_ens137x_init+0x15/0x41
- [<c068475a>] do_initcalls+0x2a/0x97
- [<c012e920>] init_workqueues+0x12/0x2a
- [<c01050a3>] init+0x39/0x196
- [<c010506a>] init+0x0/0x196
- [<c0108f31>] kernel_thread_helper+0x5/0xb
+The full details are below, but the key point is that under
+certain circumstances, prefetch instructions can get memory
+management faults for addresses which would fault if they
+were accessed by a load or store instruction.  We plan to
+revise our published errata with the new information below.
 
+The errata requires a kernel workaround, but the good news
+is that it is:
 
-Also, I wanted to ask one more thing:
+  - Harmless in most cases where it could occur. Most of the
+    time the prefetch will be targeting memory that is
+    accessible under the current privilege mode. So the page
+    will simply be "faulted in" slightly earlier than
+    needed.
 
-In the top level Makefile, I have replaced
+  - Rare and Infrequent. AMD Athlon processors have been
+    available for years running numerous Operating Systems
+    and only recently have we hit this errata outside of
+    code specifically designed to target the errata --
+    requiring tens of thousands of iterations to cause it.
 
-EXTRAVERSION = -test5
+  - It can be worked around. Andi Kleen has a 2.6 and a 2.4
+    Kernel patches that we have tested at AMD on a large
+    number of AMD Athlon processors and AMD Opteron/Athlon64
+    processors (both legacy x86 and x86-64 long mode).  It
+    works just fine. (Andi will be posting them soon when he 
+    wakes up ;-)
 
-with 
+  - AMD is fixing this in future revisions of AMD
+    Opteron/Athlon64 processors.
 
-TESTVERSION = -test5
-BKVERSION = $(shell if [ -d "./BitKeeper" ]; then echo '-bk-`bk changes
-| head -1 | cut -f 2 -d @ | cut -f 1 -d ,`' ; else echo ''; fi)
-EXTRAVERSION = $(TESTVERSION)$(BKVERSION)
-
-As a result 'uname -r' on a bk-based kernel now returns a more useful
-'2.6.0-test5-bk-1.1227.1.49' instead of just '2.6.0-test5'. For non-bk
-based source code trees, the version is still '2.6.0-test5'. This is
-very useful to me because I have 2 seperate 2.6 trees (bk and vanilla),
-and this lets me figure out where I got my kernel from and esp. at what
-bk changeset it was built.
-
-I am not very familiar with bk (still stumbling around) and hence I
-couldn't generate a bk diff or do a bk send etc; if you think this
-change is useful, please send it over to be included in the main tree.
-
-thanks again,
-Ranjeet.
-
--- 
-
-Ranjeet Shetye
-Senior Software Engineer
-Zultys Technologies
-Ranjeet dot Shetye2 at Zultys dot com
-http://www.zultys.com/
+  - Andi's kernel patches will not be needed on future
+    AMD processors but it is forward compatible and so
+    won't break on them either.
  
-The views, opinions, and judgements expressed in this message are solely
-those of the author. The message contents have not been reviewed or
-approved by Zultys.
 
+
+The Details
+===========
+Software prefetch instructions are defined to ignore page
+faults. Under highly specific and detailed internal
+circumstances, the following conditions may cause the
+PREFETCH instruction to report a page fault.
+
++ The target address of the PREFETCH would cause a page
+  fault if the address was accessed by an actual memory load
+  or store instruction under the current privilege mode.
+
++ The instruction is a PREFETCH or PREFETCHNTA/0/1/2
+  followed in execution-order by an actual or speculative
+  byte-sized load to the same address.
+
+  In this case, the page fault exception error code bits for
+  the faulting PREFETCH would be identical to that for a
+  byte-sized load to the same address.
+
++ The instruction is a PREFETCHW followed in execution-order
+  by an actual or speculative byte-sized store to the same
+  address.
+  
+  In this case, the page fault exception error code bits for
+  the faulting PREFETCHW would be identical to that for a
+  byte-sized store to the same address.
+
+Note that some misaligned accesses can be broken up by the
+processor into multiple accesses where at least one of the
+accesses is a byte-sized access.
+
+If the target address of the subsequent memory load or store
+is aligned and not byte-sized, this errata does not occur
+and no work-around is needed.
+
+So the net effect is that an unexpected page fault may occur
+infrequently on a PREFETCH instruction.
+
+
+Kernel Work-around
+=================
+The kernel can work around the errata by modifying the Page
+Fault Handler in the following way.  This is what Andi
+Kleen's patches do.  Because the actual errata is infrequent
+it does not produce an excessive number of page faults that
+affect system performance.
+   
++ Continue to allow the page fault handler to satisfy the
+  page fault.  If the faulting instruction is permitted
+  access to the page, return to it as usual.
+
++ If the faulting instruction is not permitted access to the
+  page, scan the instruction stream bytes at the faulting
+  Instruction Pointer to determine if the instruction is a
+  PREFETCH. 
+
++ If it is not a PREFETCH instruction, generate the
+  appropriate memory access control violation as
+  appropriate.
+
++ If the faulting instruction is a PREFETCH instruction,
+  simply return back to it; the internal hardware conditions
+  that caused the PREFETCH to fault should be removed and
+  operation should continue normally.
+
+
+General Work-around
+===================
+If the page-fault handler for a kernel can be patched as
+described above, no further action by software is
+required. The following general work-arounds should only be
+considered for kernels where the page-fault handler can not
+be patched and a PREFETCH instruction could end up targeting
+an address in an "inaccessible" page. (An "inaccessible"
+page is one for which memory accesses are not allowed under
+the current privilege mode.)
+
+Because the actual errata is infrequent, it does not produce
+an excessive number of page faults that affect system
+performance.  Therefore a page fault from a PREFETCH
+instruction for an address within an "accessible" page does
+not require any general work-around.  (An "accessible" page
+is one for which memory accesses are allowed under the
+current privilege mode once the page is resident in memory)
+
+Software can minimize the occurrence of the errata by
+issuing only one PREFETCH instruction per cache-line (a
+naturally-aligned 64-byte quantity on AMD Athlon and AMD
+Opteron/Athlon64) and ensuring one of the following:
+
++ In many cases, if a particular target address of a
+  prefetch is known to encounter this errata, simply change
+  the prefetch to target the next byte.
+
++ Avoid prefetching inaccessible memory locations, when
+  possible.
+
++ In the general case, ensure that the address used by the
+  PREFETCH is offset into the middle of an aligned quadword
+  near the end of the cache-line. For example, if the
+  address desired to be prefetched is "ADDR", use an offset
+  of 0x33 to compute the address used by the actual PREFETCH
+  instruction as: "(ADDR & ~0x3f) + 0x33"
+
+
+
+
+Footnotes
+=========
+[1] AMD Athlon(tm) Processor Model 6 Revision Guide 24332F June 2003.
+    
+www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/24332.pdf
+
+
+[2] Revision Guide for AMD Opteron(tm) Processors 25759 Rev. 3.07 Aug 2003
+
+www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/25759.PDF
+
+
+] -Rich ...
+] AMD Fellow
 

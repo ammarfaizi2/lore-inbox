@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269989AbRHEShH>; Sun, 5 Aug 2001 14:37:07 -0400
+	id <S269993AbRHESog>; Sun, 5 Aug 2001 14:44:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269987AbRHESg5>; Sun, 5 Aug 2001 14:36:57 -0400
-Received: from cs159246.pp.htv.fi ([213.243.159.246]:3913 "EHLO
-	porkkala.cs159246.pp.htv.fi") by vger.kernel.org with ESMTP
-	id <S269986AbRHESgo>; Sun, 5 Aug 2001 14:36:44 -0400
-Message-ID: <3B6D921E.B5EFB98@pp.htv.fi>
-Date: Sun, 05 Aug 2001 21:36:14 +0300
-From: Jussi Laako <jlaako@pp.htv.fi>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: bvermeul@devel.blackstar.nl
-CC: Russell King <rmk@arm.linux.org.uk>, Per Jessen <per.jessen@enidan.com>,
-        linux-kernel@vger.kernel.org, linux-laptop@vger.kernel.org
-Subject: Re: PCMCIA control I82365 stops working with 2.4.4
-In-Reply-To: <Pine.LNX.4.33.0108041122520.15321-100000@devel.blackstar.nl>
+	id <S269991AbRHESo2>; Sun, 5 Aug 2001 14:44:28 -0400
+Received: from sr2.terra.com.br ([200.176.2.128]:47626 "EHLO sr2.terra.com.br")
+	by vger.kernel.org with ESMTP id <S269986AbRHESoL>;
+	Sun, 5 Aug 2001 14:44:11 -0400
+Date: Sun, 5 Aug 2001 15:44:17 -0300
+From: Rodrigo Souza de Castro <rcastro@ime.usp.br>
+To: Alan <alan@clueserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with ASUS CUV4X-D board
+Message-ID: <20010805154417.A691@vinci>
+In-Reply-To: <20010805194247.190906E42@clueserver.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010805194247.190906E42@clueserver.org>; from alan@clueserver.org on Sun, Aug 05, 2001 at 10:27:34AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bvermeul@devel.blackstar.nl wrote:
+On Sun, Aug 05, 2001 at 10:27:34AM -0700, Alan wrote:
+> I am running this under 2.4.3. I will be testing 2.4.7 this afternoon to see 
+> if I can fix the problem.
 > 
-> > > Try going to your bios and setting the PCMCIA adapter to 
-> > > Cardbus/16bit instead of Auto. The Toshiba Topic chipsets are buggy, 
-> > Dunno how to change those. The machine had just windows based setup 
-> > program.
-> Press Esc when the laptop boots. It'll tell you you did something stupid,
-> and please press F1 to enter setup.
+> The board works fine with a uniprocessor kernel.
+> 
+> When booking under the stock mandrake 8.0 kernel, I get cascading error 
+> messages about clock problems and blaming a VIA686A chipset.
+> 
+> This has a VT82C686B PCI chipset.
+> 
+> I tried to find info on the web on this and was not ver successful.  (This is 
+> at a friend's house.  He is out in the middle on nowhere and is lucky if he 
+> get 28.8k connections.)
+> 
+> It this one of the non-correctable VIA chipsets?  Is there a workaround for 
+> this?
+> 
+> It is a dual P-III 733 with a gig of ram. I would hate to see it go to waste. 
+>  (Actually it will because it is not at MY house, but that is another 
+> problem. ]:> )
+> 
+> I was going to get one of these boards. I am glad I did not...
 
-OK, I changed that and now it works fine. :)
-
-> My Dell Inspiron 8000 (Ati video chipset) works flawlessly for me. Got
-> everything working like it should.
-
-IrDA also?
-
-
- - Jussi Laako
+	I have this board with a dual P-III 1 GHz and it works fine
+with 2.4.7. Make sure you have at least revision 1007A for you BIOS
+(the latest is 1010) and disable MPS 1.4 in BIOS configuration.
 
 -- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+Rodrigo S. de Castro   <rcastro@ime.usp.br>
+

@@ -1,88 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288614AbSANSTM>; Mon, 14 Jan 2002 13:19:12 -0500
+	id <S288606AbSANSUw>; Mon, 14 Jan 2002 13:20:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288658AbSANSTD>; Mon, 14 Jan 2002 13:19:03 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:5372 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S288606AbSANSSv>;
-	Mon, 14 Jan 2002 13:18:51 -0500
-Date: Mon, 14 Jan 2002 11:18:43 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Michael Zhu <mylinuxk@yahoo.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: "dd" collapsed the loop device
-Message-ID: <20020114111843.P26688@lynx.adilger.int>
-Mail-Followup-To: Michael Zhu <mylinuxk@yahoo.ca>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020114175446.24132.qmail@web14913.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020114175446.24132.qmail@web14913.mail.yahoo.com>; from mylinuxk@yahoo.ca on Mon, Jan 14, 2002 at 12:54:46PM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S287862AbSANSUm>; Mon, 14 Jan 2002 13:20:42 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:54400 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S288606AbSANSU0>;
+	Mon, 14 Jan 2002 13:20:26 -0500
+Date: Mon, 14 Jan 2002 13:20:20 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org, linux-LVM@sistina.com
+Subject: Re: [RFLART] kdev_t in ioctls
+In-Reply-To: <Pine.LNX.4.33.0201140957040.15128-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0201141309270.224-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 14, 2002  12:54 -0500, Michael Zhu wrote:
-> Hello,everyone,I have a problem when I used the loop
-> device. I don't know whether is a loop device bug.
 
-User bug.
 
-> I used the following commands to connect the loop device
-> with the floppy disk device.
-> 
-> losetup -e xor /dev/loop0 /dev/fd0
-> mke2fs /dev/loop0
-> mount /dev/loop0 /floppy
-> 
-> Then I copy something to the floppy and read it back.
-> Everything is OK. It works perfectly. 
+On Mon, 14 Jan 2002, Linus Torvalds wrote:
 
-Great.
+> The good news is that the bit-for-bit representation of old kdev_t and
+> "dev_t" are obviously 100% the same, so we should just make the damn thing
+> be dev_t, and user land will never notice anything.
+> 
+> So we can just change all structures that are exported to user land to use
+> "dev_t", and add the required conversion magic. Possibly by duplicating
+> the structure, and having "used_lvm_struct_x" and functions to read and
+> write them from/to user space.
 
-> The problem was happened when I try to copy something
-> directly from the /dev/fd0. I use the following
-> demand.
-> 
-> dd if=test.c of=/dev/fd0
-> 
-> The output of the upper command is:
-> 50+1 records in
-> 50+1 records out
-> 
-> Then I used the "ls /floppy". I found nothing copied
-> to the floppy.
+... that, BTW, would kill the crap like
 
-Well, this is wrong for several reasons:
-1) don't access /dev/fd0 when you use it via loopback, use /dev/loop0
-2) don't use "dd" to copy a file, use "cp"
-3) don't write into the device, but the filesystem instead:
-   cp test.c /floppy
+typedef struct ...
+	...
+#ifdef __KERNEL__
+        struct kiobuf *lv_iobuf;
+        sector_t blocks[LVM_MAX_SECTORS];
+        struct kiobuf *lv_COW_table_iobuf;
+        struct rw_semaphore lv_lock;
+        struct list_head *lv_snapshot_hash_table;
+        uint32_t lv_snapshot_hash_table_size;
+        uint32_t lv_snapshot_hash_mask;
+        wait_queue_head_t lv_snapshot_wait;
+        int     lv_snapshot_use_rate;
+        struct vg_v3    *vg;
 
-> Then I used "umount /floppy" to umount the floppy disk
-> device. After that I used the following command to try
-> to mount the floppy disk again.
->
-> mount /dev/loop0 /floppy
-> 
-> It returned an error. Say:
-> 
-> mount: wrong fs type. bad option. bad superblock on
-> /dev/loop0. or too many mounted file systems
-> 
-> It seemed that the "dd if=test.c of=/dev/fd0"
-> corrupted the data on the floppy disk. What is wrong?
+        uint lv_allocated_snapshot_le;
+#else
+        char dummy[200];
+#endif
+} lv_t;
 
-Because test.c is not a filesystem, and you have overwritten
-the filesystem on /dev/fd0 with junk.  This is not a bug
-in the loop driver.
+Yup, structure "shared" by kernel and userland.  Look through the
+include/linux/lvm.h - it's choke-full of that.  And quite a few
+of them contain fields like
+	struct proc_dir_entry *foo
+	struct block_device *bar
+	struct list_head baz
+outside of these #ifdef __KERNEL__...
+ 
+> > Public statement along the lines "any API that passes kdev_t values
+> > across the kernel boundary is unacceptable" would be a nice thing...
+> 
+> Consider that done. ANYTHING that exports kdev_t to user space is
+> incredibly broken, and will not work in a few months when the actual bit
+> representation (and size) will change.
+> 
+> Do we have any lvm people willing to fix this? (linux-lvm cc'd, but I know
+> they've been very silent on the 2.5.x changes so far)
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Umm...  Is the version in main tree actually maintained?
 

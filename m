@@ -1,32 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262935AbUCKBnI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 20:43:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262936AbUCKBnI
+	id S262938AbUCKBml (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 20:42:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262935AbUCKBml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 20:43:08 -0500
-Received: from mail.kroah.org ([65.200.24.183]:13485 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262935AbUCKBnG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 20:43:06 -0500
-Date: Wed, 10 Mar 2004 17:29:35 -0800
-From: Greg KH <greg@kroah.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] class_simple cleanup in misc
-Message-ID: <20040311012935.GD13045@kroah.com>
-References: <20040303200312.M21045@build.pdx.osdl.net>
+	Wed, 10 Mar 2004 20:42:41 -0500
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:4527 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S262933AbUCKBmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 20:42:38 -0500
+Date: Thu, 11 Mar 2004 10:34:47 +0900 (JST)
+Message-Id: <20040311.103447.10929472.t-kochi@bq.jp.nec.com>
+To: kaneshige.kenji@jp.fujitsu.com
+Cc: davidm@hpl.hp.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix PCI interrupt setting for ia64
+From: Takayoshi Kochi <t-kochi@bq.jp.nec.com>
+In-Reply-To: <MDEEKOKJPMPMKGHIFAMAEELHDGAA.kaneshige.kenji@jp.fujitsu.com>
+References: <16463.30226.948230.439549@napali.hpl.hp.com>
+	<MDEEKOKJPMPMKGHIFAMAEELHDGAA.kaneshige.kenji@jp.fujitsu.com>
+X-Mailer: Mew version 3.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040303200312.M21045@build.pdx.osdl.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 03, 2004 at 08:03:13PM -0800, Chris Wright wrote:
-> Error path doesn't class_simple_destroy.
+Hi,
 
-Applied, thanks.
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: RE: [PATCH] fix PCI interrupt setting for ia64
+Date: Thu, 11 Mar 2004 09:34:06 +0900
 
-greg k-h
+> Hi,
+> 
+> I'm sorry that the report falls behind. I wanted to check out by using
+> real device driver which uses a probe_irq_on(), but I don't have appropriate
+> environment now.
+> 
+> Though I didn't check out on a real machine yet, I believe my patch doesn't
+> have any influence on probe_irq_on() because current probe_irq_on() calls
+> startup callback to unmask the RTEs as you said before.
+
+My concern was that if there's a buggy PCI device that raises
+interrupts all the time until it's initialized by some device driver,
+probe_irq_on() would not work as expected regardless of whether
+your patch is applied or not.  I thought masking the interrupt line
+doesn't work around this case.
+
+---
+Takayoshi Kochi <t-kochi@bq.jp.nec.com>

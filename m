@@ -1,50 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbUKJAUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbUKJAVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbUKJAUP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 19:20:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbUKJAUO
+	id S261806AbUKJAVb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 19:21:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbUKJAVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 19:20:14 -0500
-Received: from smtp812.mail.ukl.yahoo.com ([217.12.12.202]:16221 "HELO
-	smtp812.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261801AbUKJAT6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 19:19:58 -0500
-From: Nick Sanders <sandersn@btinternet.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: Problem burning Audio CDs
-Date: Wed, 10 Nov 2004 00:20:24 +0000
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <200411061049.38278.sandersn@btinternet.com> <41915C71.9090609@tmr.com>
-In-Reply-To: <41915C71.9090609@tmr.com>
+	Tue, 9 Nov 2004 19:21:30 -0500
+Received: from ns1.g-housing.de ([62.75.136.201]:45956 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S261806AbUKJAVS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 19:21:18 -0500
+Message-ID: <41915EF9.6060604@g-house.de>
+Date: Wed, 10 Nov 2004 01:21:13 +0100
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Matt Domsch <Matt_Domsch@dell.com>, Linus Torvalds <torvalds@osdl.org>,
+       Pekka Enberg <penberg@gmail.com>, Greg KH <greg@kroah.com>
+Subject: Re: Oops in 2.6.10-rc1 (almost solved)
+References: <418F6E33.8080808@g-house.de> <Pine.LNX.4.58.0411080951390.2301@ppc970.osdl.org> <418FDE1F.7060804@g-house.de> <419005F2.8080800@g-house.de> <41901DF0.8040302@g-house.de> <84144f02041108234050d0f56d@mail.gmail.com> <4190B910.7000407@g-house.de> <20041109164238.M12639@g-house.de> <Pine.LNX.4.58.0411091026520.2301@ppc970.osdl.org> <4191530D.8020406@g-house.de> <20041109234053.GA4546@lists.us.dell.com>
+In-Reply-To: <20041109234053.GA4546@lists.us.dell.com>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411100020.24781.sandersn@btinternet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 November 2004 00:10, Bill Davidsen wrote:
-> Nick Sanders wrote:
-> > Hi,
-> >
-> > I've got problem with burning audio cds using k3b with 2.6.9 onwards. It
-> > gets about 22% through and then cdrecord hangs saying '/usr/bin/cdrecord:
-> > Caught interrupt.'
-> >
-> > 2.6.7 works fine and I couldn't test 2.6.8.
-> >
-> > I noticed that the CPU usage is alot higher in the caes where it fails
-> >
-> > Buring data CDs and DVDs works fine.
-> >
-> > I have also just noticed audio cd ripping doesn't work.
-> >
-> > Has anyone else had this problem?
->
-> Are you going direct or using ide-scsi?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-it's using ide-cd (compiled in) I haven't tried with ide-scsi. It seems that 
-without the cdrecord option '-text' it doesn't hang.
+Matt Domsch schrieb:
+> 
+> -BIOS EDD facility v0.16 2004-Jun-25, 16 devices found
+> +BIOS EDD facility v0.16 2004-Jun-25, 6 devices found
+> 
+> So with the latest EDD patch noted above, it's finding more disks than
+> before.  How many disks do you actually have in the system?
+
+i have one scsi disk (sda) and two atapi cdrom drives:
+
+hda: CRD-8483B, ATAPI CD/DVD-ROM drive
+hdb: AOPEN CD-RW CRW3248 1.17 20020620, ATAPI CD/DVD-ROM drive
+...
+SCSI device sda: 35548320 512-byte hdwr sectors (18201 MB)
+SCSI device sda: drive cache: write back
+
+the "scsi0 : sym-2.1.18k" is on a pci card, the atapi devices are
+connected onboard. if it helps:
+
+http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/lspci-v.txt
+http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/lspci-vv.txt
+
+> I'll review the assembly again to see where I could have miscounted,
+> and see how that may affect the EDD sysfs exports.  Likely no answer
+> from me before tomorrow though.
+
+that's ok, real life kicks in here too...
+
+thanks,
+Christian.
+
+PS: do you have *any* idea how this could be related to the snd-es1371
+driver (which is producing the oops then)?
+- --
+BOFH excuse #449:
+
+greenpeace free'd the mallocs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBkV75+A7rjkF8z0wRAl67AJ9P+SF1WfRe7r2zoF9D/b/fyDeD0QCfe6/f
+Uxt5DVlb/IzW9VSWuFJqLlI=
+=Hpg9
+-----END PGP SIGNATURE-----

@@ -1,100 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264560AbTDPS2J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 14:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264562AbTDPS2I
+	id S264552AbTDPSUx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 14:20:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264554AbTDPSUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 14:28:08 -0400
-Received: from mx03.cyberus.ca ([216.191.240.24]:6663 "EHLO mx03.cyberus.ca")
-	by vger.kernel.org with ESMTP id S264560AbTDPS2G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 14:28:06 -0400
-Date: Wed, 16 Apr 2003 14:39:17 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Catalin BOIE <util@deuroconsult.ro>, Tomas Szepe <szepe@pinerecords.com>,
-       "" <linux-kernel@vger.kernel.org>, "" <netdev@oss.sgi.com>,
-       "" <kuznet@ms2.inr.ac.ru>
-Subject: Re: [PATCH] qdisc oops fix
-In-Reply-To: <3E9D755A.8060601@colorfullife.com>
-Message-ID: <20030416142802.E5912@shell.cyberus.ca>
-References: <20030415084706.O1131@shell.cyberus.ca>
- <Pine.LNX.4.53.0304160838001.25861@hosting.rdsbv.ro> <20030416072952.E4013@shell.cyberus.ca>
- <3E9D755A.8060601@colorfullife.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Apr 2003 14:20:53 -0400
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:17898 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S264552AbTDPSUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 14:20:50 -0400
+Subject: Re: RedHat 9 and 2.5.x support
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Antonio Vargas <wind@cocodriloo.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030416165408.GD30098@wind.cocodriloo.com>
+References: <20030416165408.GD30098@wind.cocodriloo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050517953.598.16.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 16 Apr 2003 20:32:34 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-04-16 at 18:54, Antonio Vargas wrote:
+> I've just installed RedHat 9 on my desktop machine and I'd like
+> if it will support running under 2.5.65+ instead of his usual
+> 2.4.19+.
 
-On Wed, 16 Apr 2003, Manfred Spraul wrote:
+I'm running on RHL 9 with 2.5.67-mm3 (plus Russell King PCMCIA/CardBus
+patches) and updated modutils + procutils + nfs-utils. It works
+flawlessly, although I needed some tweaking for "/etc/init.d/rc.sysinit"
+which insists in setting the module and hotplug helper binaries to
+"/sbin/true" due to missing "/proc/ksyms".
+-- 
+Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
+Linux Registered User #287198
 
-> jamal wrote:
->
-> >This is a different problem from previous one posted.
-> >
-> >Theres a small window (exposed given that you are provisioning a lot
-> >of qdiscs  and running traffic at the same time) that an incoming packet
-> >interupt will cause the BUG().
-> >
-> >GFP_ATOMIC will fix it, but i wonder if it appropriate.
-> >
-> >
-> This is a 2.4 kernel, correct?
->
-
-Catalin, Can you what kernel that is?
-
-> >>With many rules (~5000 classes and ~3500 qdiscs and ~50000 filters)
-> >>the kernel oopses in slab.c:1128.
-> >>
-> This check?
->        if (in_interrupt() && (flags & SLAB_LEVEL_MASK) != SLAB_ATOMIC)
->                 BUG();
-
-thats the one i meant.
-
-> It's triggered, because someone does something like
->     spin_lock_bh(&my_lock);
->     p = kmalloc(,GFP_KERNEL);
->
-> I don't like the proposed fix: usually code that calls
-> kmalloc(,GFP_KERNEL) assumes that it runs at process space, e.g. uses
-> semaphores, or non-bh spinlocks, etc.
-> slab just happens to contain a test that complains about illegal calls.
-
-ok. Nice.
-
->
-> >>Trace; c0127e0f <kmalloc+eb/110>
-> >>Trace; c01d3cac <qdisc_create_dflt+20/bc>
-> >>Trace; d081ecc7 <END_OF_CODE+1054ff0f/????>
-> >>Trace; c01d5265 <tc_ctl_tclass+1cd/214>
-> >>Trace; d0820600 <END_OF_CODE+10551848/????>
-> >>Trace; c01d27e4 <rtnetlink_rcv+298/3bc>
-> >>Trace; c01d0605 <__neigh_event_send+89/1b4>
-> >>Trace; c01d7cd4 <netlink_data_ready+1c/60>
-> >>Trace; c01d7730 <netlink_unicast+230/278>
-> >>Trace; c01d7b73 <netlink_sendmsg+1fb/20c>
-> >>Trace; c01c79d5 <sock_sendmsg+69/88>
-> >>Trace; c01c8b48 <sys_sendmsg+18c/1e8>
-> >>Trace; c0120010 <map_user_kiobuf+8/f8>
-> >>
-> >>
-> >>
-> >>
-> I don't understand the backtrace. Were any modules loaded? Perhaps
-> 0xd081ecc7 is a module.
->
-
-Probably a module. Again Catalin, run no modules.
-
-> I'd add a
->     if(in_interrupt()) show_stack(NULL);
-> into qdisc_create_dflt(), and try to reproduce the bug without modules.
->
-
-Catalin - again instead of your fix can you please add this call?
-
-cheers,
-jamal

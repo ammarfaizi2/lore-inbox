@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281864AbRKWCgU>; Thu, 22 Nov 2001 21:36:20 -0500
+	id <S281865AbRKWCoC>; Thu, 22 Nov 2001 21:44:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281865AbRKWCgL>; Thu, 22 Nov 2001 21:36:11 -0500
-Received: from mx5.sac.fedex.com ([199.81.194.37]:28173 "EHLO
-	mx5.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S281864AbRKWCgD>; Thu, 22 Nov 2001 21:36:03 -0500
-Date: Fri, 23 Nov 2001 10:35:42 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: Marcelo Borges Ribeiro <marcelo@datacom-telematica.com.br>,
-        Tyler BIRD <birdty@uvsc.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: Filesize limit on SMBFS
-In-Reply-To: <20011122125759.K1308@lynx.no>
-Message-ID: <Pine.LNX.4.42.0111231034330.15987-100000@boston.corp.fedex.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/23/2001
- 10:35:51 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/23/2001
- 10:35:53 AM,
-	Serialize complete at 11/23/2001 10:35:53 AM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281866AbRKWCnw>; Thu, 22 Nov 2001 21:43:52 -0500
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:18185 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S281865AbRKWCnl>;
+	Thu, 22 Nov 2001 21:43:41 -0500
+Subject: Re: Thinkpad t21 hard lockup when left overnight
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: Jeff Chua <jchua@fedex.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.42.0111231023490.15987-100000@boston.corp.fedex.com>
+In-Reply-To: <Pine.LNX.4.42.0111231023490.15987-100000@boston.corp.fedex.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 22 Nov 2001 21:43:21 -0500
+Message-Id: <1006483403.10497.2.camel@zaphod>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Nov 2001, Andreas Dilger wrote:
+On Thu, 2001-11-22 at 21:27, Jeff Chua wrote:
+> 
+> On 22 Nov 2001, Shaya Potter wrote:
+> 
+> > When I've left my thinkpad on overnight (without apm --suspend'ing it)
+> > when I wake up in the morning, it's locked up hard.  For some reason it
+> > seems to run for a few hours w/o any interaction on the machine itself,
+> 
+> You need to run apmd. Without it, it'll freeze your system. I had a 240X
+> and a 240Z. Both will freeze after a while if I don't run apmd.
+> 
+> The Thinkpad works better under Linux than Windows98!
 
-> VFAT does have a 2GB limit, AFAIK, but I could be wrong.
+I am.
 
-Use "mkdosfs -F32" or use msdos fdisk,format to get >2GB.
-
-I'm using 3GB for VFAT partition.
-
-Jeff.
-
+root       254  0.0  0.1  1292  508 ?        S    08:58   0:00
+/usr/sbin/apmd -P /etc/apm/apmd_proxy
 

@@ -1,91 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262657AbTHZPef (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 11:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbTHZPef
+	id S261467AbTHZP0N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 11:26:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbTHZP0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 11:34:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:15248 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262657AbTHZPeZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 11:34:25 -0400
-Date: Tue, 26 Aug 2003 08:31:55 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Greg KH <greg@kroah.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: PCI PM & compatibility
-In-Reply-To: <20030823184819.B1158@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0308260817190.942-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Aug 2003 11:26:12 -0400
+Received: from smtp.urbanet.ch ([195.202.193.135]:2021 "HELO
+	anniviers.urbanet.ch") by vger.kernel.org with SMTP id S261509AbTHZP0H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 11:26:07 -0400
+Subject: oops is when suspending ide-default driver
+From: Sylvain Pasche <sylvain_pasche@yahoo.fr>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1061911572.1128.8.camel@highscreen>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 26 Aug 2003 17:26:12 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-> When a device "A" is registered with the driver model, we call
-> device_add().  This adds the device to the bus, which calls any
-> registered driver methods.  Once the device has been added to the
-> bus, we add the device to the tail of the device power list.
-> 
-> In the case where a device driver for device "A" registers further
-> devices, which are siblings of device "A", two things can happen:
-> 
->  - If a driver is already registered for the device, we call its
->    probe method before we have added device "A" to the power lists.
->    Therefore, the siblings will be added to the tail of the device
->    power list _before_ the device "A" has been added.
-> 
->  - If the driver registers after the device, the device "A" will be
->    added to the power list _before_ the siblings.
-> 
-> So in one case, we have PARENT SIBLING SIBLING SIBLING and in the
-> other case we have SIBLING SIBLING SIBLING PARENT.
+I've got an ide cdrom on my system, which uses the ide-cd module. If I
+try to suspend the system when the ide-cd module is not loaded, kernel
+oopses:
 
-I haven't been ignoring you. I've been trying to figure exactly what 
-you're talking about. Do you have a concrete example? Is it some PCMCIA 
-driver, or some platform driver? 
+[<c01f4e26>] start_request+0x11c/0x25e
+[<c01f51b1>] ide_do_request+0x226/0x3f7
+[<c01f59d3>] ide_do_drive_cmd+0xd1/0x126
+[<c01fdd18>] generic_ide_suspend+0x82/0x8f
+[<c01e7b23>] suspend_device+0x77/0xbd
+[<c01e7bc4>] device_suspend+0x5b/0x76
+[<c012e58c>] suspend_prepare+0x44/0x91
+[<c012e654>] enter_state+0x42/0x77
+[<c0124c66>] sys_reboot+0x2e0/0x33d
+[<c013f7d4>] handle_mm_fault+0xd8/0x169
+[<c0113f22>] do_page_fault+0x25e/0x4a4
+[<c01d09d7>] write_chan+0x0/0x224
+[<c01cb44f>] tty_write+0x0/0x2f2
+[<c014c3cb>] vfs_write+0xba/0x10c
+[<c014c4b9>] sys_write+0x3f/0x5d
+[<c0113cc4>] do_page_fault+0x0/0x4a4
+[<c0109117>] syscall_call+0x7/0xb
 
-I fail to see the problem, in theory, besides the driver itself. In the
-case where the driver registers first, ->probe() will not be called until
-it matches a device, which implies the device will have been added before
-->probe() is called.
+If found out with some printk that it is because the
+DRIVER(drive)->start_power_step pointer is NULL is start_request when
+called with the ide-default subdriver.
 
-Also, I think I initially misunderstood your vocabulary. Each SIBLING is a
-sibling of one another, but are CHILDREN of the PARENT. Right?
+As soon as I load ide-cd, there's no oops anymore. I guess the fix might
+be not to run the suspend stuff if the driver has no start_power_step
+defined.
 
-> Now, we do have this pm_users thing which seems to imply that it
-> describes the relationship between two devices.  However, its non-
-> functional.  It operates on a per-device variable called "pm_users"
-> which is only ever _written_ !
-
-Hey, I hadn't finished that part, because I considered fixing the system 
-power management interface more important that day. 
-
-It works like this: 
-
-- A driver is able to set ->power.pm_parent for a device by calling 
-  device_pm_set_parent() after its registered. By default, pm_parent is 
-  set to the phsyical parent of the device. 
-
-- A device with other devices that are dependent on it for power has a 
-  positive pm_users count. 
-
-- A device may only be suspended when pm_users == 0. 
-
-- When a device is suspended, the pm_users count of its pm_parent is 
-  decremented, and incremented when the device is resumed. 
-
-- device_suspend() makes multiple passes over the device list, in case
-  power dependencies cause some devices to be deferred. It fails with an 
-  error (and resumes all suspended devices) if a pass was made in which 
-  no devicse were suspended, but there are still devices with a positive
-  pm_users count. 
-
-Sound good? 
-
-
-	Pat
-
+Regards,
+Sylvain Pasche

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318206AbSHMQBg>; Tue, 13 Aug 2002 12:01:36 -0400
+	id <S318194AbSHMP6N>; Tue, 13 Aug 2002 11:58:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318207AbSHMQBg>; Tue, 13 Aug 2002 12:01:36 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:64778 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S318206AbSHMQBe>; Tue, 13 Aug 2002 12:01:34 -0400
-Date: Tue, 13 Aug 2002 17:05:22 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] clone_startup(), 2.5.31-A0
-Message-ID: <20020813170522.A12224@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-References: <20020813164415.A11554@infradead.org> <Pine.LNX.4.44.0208130852450.7291-100000@home.transmeta.com>
+	id <S318192AbSHMP6N>; Tue, 13 Aug 2002 11:58:13 -0400
+Received: from mnh-1-01.mv.com ([207.22.10.33]:52996 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S318194AbSHMP6M>;
+	Tue, 13 Aug 2002 11:58:12 -0400
+Message-Id: <200208131705.MAA02401@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org, jdike@karaya.com
+Subject: [PATCH] UML - part 1 of 3
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0208130852450.7291-100000@home.transmeta.com>; from torvalds@transmeta.com on Tue, Aug 13, 2002 at 09:01:56AM -0700
+Date: Tue, 13 Aug 2002 12:05:47 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 13, 2002 at 09:01:56AM -0700, Linus Torvalds wrote:
-> > First the name souns horrible.  What about spawn_thread or create_thread
-> > instead?  it's not our good old clone and not a lookalike, it's some
-> > pthreadish monster..
-> 
-> This one definitely isn't a pthread-specific problem. The old UNIX fork()  
-> semantics for <pid> returning really are fairly broken, since the notion
-> of returning the pid in a local register is inherently racy for _anything_
-> that wants to maintain a list of its children and needs to access the list 
-> in the SIGCHLD handler.
+When you reverted the stringify changes I sent last time, you missed removing
+a comment, which is now grossly wrong.  This patch finishes the job.
 
-The TLS setting makes it pretty pthread-specific, though (or at least
-thread-specific).  Also the fn parameter makes it very different from
-both clone and fork.  What about spawn() if you dislike a thread in the name?
+				Jeff
+
+diff -Naur orig/include/linux/stringify.h linus/include/linux/stringify.h
+--- orig/include/linux/stringify.h	Mon Aug 12 22:29:53 2002
++++ linus/include/linux/stringify.h	Tue Aug 13 11:37:18 2002
+@@ -4,10 +4,6 @@
+ /* Indirect stringification.  Doing two levels allows the parameter to be a
+  * macro itself.  For example, compile with -DFOO=bar, __stringify(FOO)
+  * converts to "bar".
+- *
+- * The "..." is gcc's cpp vararg macro syntax.  It is required because __ALIGN,
+- * in linkage.h, contains a comma, which when expanded, causes it to look 
+- * like two arguments, which breaks the standard non-vararg stringizer.
+  */
+ 
+ #define __stringify_1(x)	#x
 

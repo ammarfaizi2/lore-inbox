@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129962AbRAEBYF>; Thu, 4 Jan 2001 20:24:05 -0500
+	id <S130110AbRAEBcP>; Thu, 4 Jan 2001 20:32:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130110AbRAEBXz>; Thu, 4 Jan 2001 20:23:55 -0500
-Received: from jalon.able.es ([212.97.163.2]:49537 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129962AbRAEBXm>;
-	Thu, 4 Jan 2001 20:23:42 -0500
-Date: Fri, 5 Jan 2001 02:23:35 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to Power off with ACPI/APM?
-Message-ID: <20010105022335.E743@werewolf.able.es>
-In-Reply-To: <3A54DC87.5B861B7@goingware.com> <m37l4akdn5.fsf@austin.jhcloos.com> <20010105021623.C743@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20010105021623.C743@werewolf.able.es>; from jamagallon@able.es on Fri, Jan 05, 2001 at 02:16:23 +0100
-X-Mailer: Balsa 1.0.1
+	id <S131182AbRAEBcF>; Thu, 4 Jan 2001 20:32:05 -0500
+Received: from waste.org ([209.173.204.2]:16192 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S130110AbRAEBbv>;
+	Thu, 4 Jan 2001 20:31:51 -0500
+Date: Thu, 4 Jan 2001 19:31:39 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Marko Kreen <marko@l-t.ee>, linux-kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-fbdev@vuser.vu.union.edu>
+Subject: Re: [patch] big udelay's in fb drivers (2.4.0-prerelease)
+In-Reply-To: <E14EKLE-0006gk-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0101041814140.14623-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 5 Jan 2001, Alan Cox wrote:
 
-On 2001.01.05 J . A . Magallon wrote:
-> 
-> > 
-> > Either way you need the userspace daemon running to actually do
-> > anything.  Even my notebook's key for toggling full-screen vs
-> > un-expanded display on the lcd does nothing unless apmd or acpid
-> > as applicable are running....
-> > 
+> > Once the comments are unweirded, they become completely superfluous. At
+> > which point its best not to have them - when someone next comes along and
+> > changes the delay, it might end up disagreeing with the comment and
+> > causing confusion.
+>
+> Before you remove the comments check with the author and the manuals.
 
-I forgot it. If you just want to power-off:
-- activate APM in the BIOS
-- activate APM in kernel
+Huh? Granted that's generally a good idea, but if you've got code that
+says
 
-I have an SMP box, so APM does not work fully, but just power-off works.
-So if for any reason you box says is not capable of doing APM, add this
-to lilo.conf:
-append="apm=power-off"
-so at least this will work.
+ udelay(15000); /* delay 15ms */
+
+the comment is just extra baggage. No sense touching it generally, but if
+you're gonna change it to mdelay..
 
 -- 
-J.A. Magallon                                         $> cd pub
-mailto:jamagallon@able.es                             $> more beer
-
-Linux werewolf 2.2.19-pre6 #1 SMP Wed Jan 3 21:28:10 CET 2001 i686
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

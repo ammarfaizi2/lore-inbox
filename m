@@ -1,37 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311195AbSCLNhm>; Tue, 12 Mar 2002 08:37:42 -0500
+	id <S311166AbSCLNwo>; Tue, 12 Mar 2002 08:52:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311197AbSCLNhX>; Tue, 12 Mar 2002 08:37:23 -0500
-Received: from dsl-213-023-043-170.arcor-ip.net ([213.23.43.170]:32407 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S311195AbSCLNhV>;
-	Tue, 12 Mar 2002 08:37:21 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Brian Gerst <bgerst@didntduck.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] struct superblock cleanup - minixfs
-Date: Tue, 12 Mar 2002 14:32:46 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <3C8D36D0.C43162A2@didntduck.org>
-In-Reply-To: <3C8D36D0.C43162A2@didntduck.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16kmOU-0001v7-00@starship>
+	id <S311202AbSCLNwY>; Tue, 12 Mar 2002 08:52:24 -0500
+Received: from calhau.terra.com.br ([200.176.3.20]:4531 "EHLO
+	calhau.terra.com.br") by vger.kernel.org with ESMTP
+	id <S311200AbSCLNwW>; Tue, 12 Mar 2002 08:52:22 -0500
+Date: Tue, 12 Mar 2002 10:52:15 -0300
+From: Lucio Maciel <abslucio@terra.com.br>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] zlib double-free fix
+Message-Id: <20020312105215.0f2c1294.abslucio@terra.com.br>
+Organization: Absoluta
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart_Tue__12_Mar_2002_10:52:15_-0300_08268b98"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 11, 2002 11:59 pm, Brian Gerst wrote:
-> These two patches are the start of cleaning up the union of
-> filesystem-specific structures in struct super_block.  The goal is to
-> remove dependence on filesystem headers in fs.h.  The first patch
-> abstracts the access to the minix_sb_info structure through the function
-> minix_sb().  The second patch switches to using kmalloc to allocate the
-> structure.
+This is a multi-part message in MIME format.
 
-Nice to see it happening, even if it got there by a twisty path ;-)
+--Multipart_Tue__12_Mar_2002_10:52:15_-0300_08268b98
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+
+
+Forgot to attach the diff... sorry...
+so here it goes..
+
+
+Here is a small patch to fix the double-free in drivers/net/zlib.c
+
+its against 2.4.19-pre3 but works fine in others versions
 
 -- 
-Daniel
+::: Lucio Maciel
+::: abslucio@terra.com.br
+::: Absoluta.Net :::
+
+--Multipart_Tue__12_Mar_2002_10:52:15_-0300_08268b98
+Content-Type: application/octet-stream;
+ name="zlib.diff"
+Content-Disposition: attachment;
+ filename="zlib.diff"
+Content-Transfer-Encoding: base64
+
+LS0tIGRyaXZlcnMvbmV0L3psaWIuYy5vcmlnCVR1ZSBNYXIgMTIgMTA6MTU6MTYgMjAwMgorKysg
+ZHJpdmVycy9uZXQvemxpYi5jCVR1ZSBNYXIgMTIgMTA6Mjk6MjggMjAwMgpAQCAtMzg2MCwxMCAr
+Mzg2MCwxMiBAQAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAmcy0+c3ViLnRyZWVzLnRi
+LCB6KTsKICAgICAgIGlmICh0ICE9IFpfT0spCiAgICAgICB7Ci0gICAgICAgIFpGUkVFKHosIHMt
+PnN1Yi50cmVlcy5ibGVucyk7CiAgICAgICAgIHIgPSB0OwogICAgICAgICBpZiAociA9PSBaX0RB
+VEFfRVJST1IpCisgICAgICAgIHsKICAgICAgICAgICBzLT5tb2RlID0gQkFEQjsKKyAgICAgICAg
+ICBaRlJFRSh6LCBzLT5zdWIudHJlZXMuYmxlbnMpOworICAgICAgICB9CiAgICAgICAgIExFQVZF
+CiAgICAgICB9CiAgICAgICBzLT5zdWIudHJlZXMuaW5kZXggPSAwOwpAQCAtMzkyOCwxNCArMzkz
+MCwxNyBAQAogI2VuZGlmCiAgICAgICAgIHQgPSBpbmZsYXRlX3RyZWVzX2R5bmFtaWMoMjU3ICsg
+KHQgJiAweDFmKSwgMSArICgodCA+PiA1KSAmIDB4MWYpLAogICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIHMtPnN1Yi50cmVlcy5ibGVucywgJmJsLCAmYmQsICZ0bCwgJnRkLCB6KTsK
+LSAgICAgICAgWkZSRUUoeiwgcy0+c3ViLnRyZWVzLmJsZW5zKTsKICAgICAgICAgaWYgKHQgIT0g
+Wl9PSykKICAgICAgICAgewogICAgICAgICAgIGlmICh0ID09ICh1SW50KVpfREFUQV9FUlJPUikK
+KyAgICAgICAgICB7CiAgICAgICAgICAgICBzLT5tb2RlID0gQkFEQjsKKyAgICAgICAgICAgIFpG
+UkVFKHosIHMtPnN1Yi50cmVlcy5ibGVucyk7CisgICAgICAgICAgfQogICAgICAgICAgIHIgPSB0
+OwogICAgICAgICAgIExFQVZFCiAgICAgICAgIH0KKyAgICAgICAgWkZSRUUoeiwgcy0+c3ViLnRy
+ZWVzLmJsZW5zKTsKICAgICAgICAgVHJhY2V2KChzdGRlcnIsICJpbmZsYXRlOiAgICAgICB0cmVl
+cyBvaywgJWQgKiAlZCBieXRlcyB1c2VkXG4iLAogICAgICAgICAgICAgICBpbmZsYXRlX2h1ZnRz
+LCBzaXplb2YoaW5mbGF0ZV9odWZ0KSkpOwogICAgICAgICBpZiAoKGMgPSBpbmZsYXRlX2NvZGVz
+X25ldyhibCwgYmQsIHRsLCB0ZCwgeikpID09IFpfTlVMTCkK
+
+--Multipart_Tue__12_Mar_2002_10:52:15_-0300_08268b98--

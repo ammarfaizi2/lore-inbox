@@ -1,174 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262762AbTCPVcr>; Sun, 16 Mar 2003 16:32:47 -0500
+	id <S262763AbTCPVlg>; Sun, 16 Mar 2003 16:41:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262763AbTCPVcr>; Sun, 16 Mar 2003 16:32:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8621 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262762AbTCPVcl>;
-	Sun, 16 Mar 2003 16:32:41 -0500
-Date: Sun, 16 Mar 2003 21:43:34 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: [PATCH] Increase efficiency of CONFIG_NET=n
-Message-ID: <20030316214334.GR29631@parcelfarce.linux.theplanet.co.uk>
+	id <S262768AbTCPVlg>; Sun, 16 Mar 2003 16:41:36 -0500
+Received: from mail-2.tiscali.it ([195.130.225.148]:62352 "EHLO
+	mail.tiscali.it") by vger.kernel.org with ESMTP id <S262763AbTCPVle>;
+	Sun, 16 Mar 2003 16:41:34 -0500
+Date: Sun, 16 Mar 2003 22:52:19 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Nicolas Pitre <nico@cam.org>, Ben Collins <bcollins@debian.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
+Message-ID: <20030316215219.GX1252@dualathlon.random>
+References: <Pine.LNX.4.44.0303161341520.5348-100000@xanadu.home> <Pine.LNX.4.44.0303162014090.12110-100000@serv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303162014090.12110-100000@serv>
 User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[ hoping this is the last email in this thread, I know I'm not
+  contributing to this reach this objective :) ]
 
-This patch adds a file net/nonet.c and amends the Makefile to compile
-this and nothing else when CONFIG_NET=n.  It shaves approximately 90k
-off the size of a CONFIG_NET=n build (and allows us to remove some ifdefs
-from other files which is my real motivation).  Still, this should make
-some embedded people happy.
+On Sun, Mar 16, 2003 at 08:33:18PM +0100, Roman Zippel wrote:
+> Hi,
+> 
+> On Sun, 16 Mar 2003, Nicolas Pitre wrote:
+> 
+> > > The missing bits are absolutely not worthless. They are very useful when 
+> > > you want to test other SCM system to simulate distributed development.
+> > 
+> > This is completely ridiculous.  Isn't this a bit too demanding?
+> 
+> Not really, it's actually more simple to what Larry is currently offering. 
+> easy to add as well. If you now also add a sequence number is quite simple 
+> to modify a CVS server which can export the data reliably.
 
-Comments?
+CVS basically exports RCS through the network, your argument makes no
+sense to me, what's the difference, I don't see what you mean.
 
-diff -urpNX ../dontdiff linux-2.5.64/net/Makefile linux-2.5.64-flock/net/Makefile
---- linux-2.5.64/net/Makefile	2003-02-20 22:46:57.000000000 -0500
-+++ linux-2.5.64-flock/net/Makefile	2003-03-16 16:07:00.000000000 -0500
-@@ -5,8 +5,9 @@
- # Rewritten to use lists instead of if-statements.
- #
- 
--obj-y	:= socket.o core/
-+obj-y	:= nonet.o
- 
-+obj-$(CONFIG_NET)		:= socket.o core/
- # LLC has to be linked before the files in net/802/
- obj-$(CONFIG_LLC)		+= llc/
- obj-$(CONFIG_NET)		+= ethernet/ 802/ sched/ netlink/
-diff -urpNX ../dontdiff linux-2.5.64/net/nonet.c linux-2.5.64-flock/net/nonet.c
---- linux-2.5.64/net/nonet.c	1969-12-31 19:00:00.000000000 -0500
-+++ linux-2.5.64-flock/net/nonet.c	2003-03-16 16:11:19.000000000 -0500
-@@ -0,0 +1,122 @@
-+/*
-+ * net/nonet.c
-+ *
-+ * Dummy functions to allow us to configure network support entirely
-+ * out of the kernel.
-+ *
-+ * Distributed under the terms of the GNU GPL version 2.
-+ * Copyright (c) Matthew Wilcox 2003
-+ */
-+
-+#include <linux/errno.h>
-+#include <linux/fs.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/linkage.h>
-+#include <linux/socket.h>
-+
-+void __init sock_init(void)
-+{
-+	printk(KERN_INFO "Linux NoNET1.0 for Linux 2.6\n");
-+}
-+
-+static int sock_no_open(struct inode *irrelevant, struct file *dontcare)
-+{
-+	return -ENXIO;
-+}
-+
-+struct file_operations bad_sock_fops = {
-+	.open = sock_no_open,
-+};
-+
-+asmlinkage long sys_socket(int family, int type, int protocol)
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_socketpair(int family, int type, int protocol, int usockvec[2])
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_bind(int fd, struct sockaddr *umyaddr, int addrlen)
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_listen(int fd, int backlog)
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_accept(int fd, struct sockaddr *upeer_sockaddr, int *upeer_addrlen)
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_connect(int fd, struct sockaddr *uservaddr, int addrlen)
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_getsockname(int fd, struct sockaddr *usockaddr, int *usockaddr_len)
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_getpeername(int fd, struct sockaddr *usockaddr, int *usockaddr_len)
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_sendto(int fd, void * buff, size_t len, unsigned flags,
-+			   struct sockaddr *addr, int addr_len)
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_send(int fd, void * buff, size_t len, unsigned flags)
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_recvfrom(int fd, void * ubuf, size_t size, unsigned flags,
-+			     struct sockaddr *addr, int *addr_len)
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_recv(int fd, void * ubuf, size_t size, unsigned flags)
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_setsockopt(int fd, int level, int optname, char *optval, int optlen)
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_getsockopt(int fd, int level, int optname, char *optval, int *optlen)
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_shutdown(int fd, int how)
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_sendmsg(int fd, struct msghdr *msg, unsigned flags)
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_recvmsg(int fd, struct msghdr *msg, unsigned int flags)
-+{
-+	return -ENOSYS;
-+}
-+
-+asmlinkage long sys_socketcall(int call, unsigned long *args)
-+{
-+	return -ENOSYS;
-+}
+> > Be realistic.  The missing bits are worthless and add absolutely no value to 
+> > kernel development which is supposed to be the topic for this mailing list.  
+> 
+> If you want to test an alternative system to see whether it's usable for 
+> kernel development, what better data is there? How could you compare it 
+> against bk?
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+Larry has all the rights to not to help providing a testcase, it makes
+no sense for you to complain he's not providing a testcase for a
+competitive system. It make no sense just like complaining that if Larry
+changes the bk format to something encrypted compressed or .doc. he has
+the rights to do it, so please stop raising pointless arguments.
+
+You could make a bit more of sense if your argument was that you still
+miss the visibility on the jfs developement or similar, but the fact a
+"testcase" for a competitive SCM this way is missing makes no sense at
+all. Infact a much testcase is not missing! just give us the alternative
+open SCM and we'll be glad to try using it in real life, which is an
+order of magnitude better testcase than feeding the old data into the
+repository offline.
+
+If you're still unhappy now that the mainline data is open it means
+you're either a jfs developer (but I assume they're all fine with bk
+since they're just using it, so I doubt this is the case) or your
+problem is that you don't like the fact that Linux is still developed
+with proprietary software but in such case go speak with Linus not with
+Larry.
+
+>From my part - now that the full data and metadata of the main branch is
+available in the open in a usable form - I have no problem anymore with
+Linus using bitkeeper. I'm not religious about Linux, I'm only religious
+about my freedom. Sure, now I would like if Linus and Marcelo would be
+the only one using bitkeeper (so CVS would miss zero info), yes, but
+really all other branches are of nearly zero interest to me compared to
+the main branch and usually important branches like the jfs one (I don't
+know the others since I can't see them, I only know the jfs one because
+it gave me troubles with bkweb, this is why I'm only mentioning such
+one) can be retrieved via other methods (like asking the developers by
+emails).
+
+Now I need to write tools to extract the stuff and parse it with more
+intelligent software than CVS, one of those tools is just available, so
+please stop these complains, and help writing a reliable changelog
+extractor using the dates and verifying the stuff with the logic tag. It
+doesn't matter if the CVS protocol is good or bad, as far as the whole
+mainline kernel evolution data is available reliably in the open, so
+from my part I'm extremely happy because I finally have a chance to
+start appreciating the advantages of Linus and Marcelo using bitkeeper ;)
+
+Andrea

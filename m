@@ -1,68 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268245AbTGINUW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 09:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268246AbTGINUV
+	id S268253AbTGINWc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 09:22:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268257AbTGINWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 09:20:21 -0400
-Received: from rtichy.netro.cz ([213.235.180.210]:41713 "HELO 192.168.1.21")
-	by vger.kernel.org with SMTP id S268245AbTGINUS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 09:20:18 -0400
-Message-ID: <027901c3461e$e023c670$401a71c3@izidor>
-From: "Milan Roubal" <roubm9am@barbora.ms.mff.cuni.cz>
-To: <Mitch@0Bits.COM>, <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.53.0307091413030.683@mx.homelinux.com>
-Subject: Re: Promise SATA 150 TX2 plus
-Date: Wed, 9 Jul 2003 15:34:51 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Wed, 9 Jul 2003 09:22:32 -0400
+Received: from 69-55-72-142.ppp.netsville.net ([69.55.72.142]:50371 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id S268253AbTGINWa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 09:22:30 -0400
+Subject: Re: 2.4.22-pre3 and reiserfs boot problem
+From: Chris Mason <mason@suse.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>, green@namesys.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030709140138.141c3536.skraw@ithnet.com>
+References: <20030706183453.74fbfaf2.skraw@ithnet.com>
+	 <1057515223.20904.1315.camel@tiny.suse.com>
+	 <20030709140138.141c3536.skraw@ithnet.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057757764.26768.170.camel@tiny.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 09 Jul 2003 09:36:04 -0400
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the answer, it has got PDC 20375, not
-20376, but it changes nothing. As Alan mentioned
-here: http://marc.theaimsgroup.com/?l=linux-kernel&m=105440080221319&w=2
-promise has got their own drivers. Have somebody seen
-this drivers really working? My card is not RAID,
-its only controller, I want only see the harddrives.
-Thanx a lot
-    Milan Roubal
+On Wed, 2003-07-09 at 08:01, Stephan von Krawczynski wrote:
+> On 06 Jul 2003 14:13:44 -0400
+> Chris Mason <mason@suse.com> wrote:
+> 
+> > [...]
+> > Is reiserfs on your root drive?  If not can you please boot into single
+> > user mode, enable sysrq, try the mount again and get the decoded output
+> > from sysrq-p and sysrq-t if it hangs.
+> > 
+> > -chris
+> 
+> Hello Chris,
+> 
+> I tried to produce some useful output but failed. Additionals I found:
+> 
+> - pre3-ac1 has the same problem
+> - the box _hangs_ in fact, no sysrq is working.
+>   (you need hw-reset to revive the box)
+> - I can see no disk activity on the 3ware RAID in question
+> - It always shows up, completely reproducable
+> - It shows during boot and during single- or multiuser (mount from console)
 
------ Original Message ----- 
-From: <Mitch@0Bits.COM>
-To: <linux-kernel@vger.kernel.org>
-Cc: <roubm9am@barbora.ms.mff.cuni.cz>
-Sent: Wednesday, July 09, 2003 3:16 PM
-Subject: Re: Promise SATA 150 TX2 plus
+Step one is to figure out if the problem is reiserfs or 3ware.  Instead
+of mounting the filesystem, run debugreiserfs -d /dev/xxxx > /dev/null
+and see if you still hang.
+
+This will read the FS metadata and should generate enough io to trigger
+the hang if it is a 3ware problem.
+
+(I'm on vacation for a few days, so Oleg is cc'd)
+
+-chris
 
 
-> 
-> I believe that is the Promise PDC 20736 controller
-> for which there is no current driver yet. Search in
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&r=1&b=200307&w=2
-> 
-> for "20736" and read the thread(s) there.
-> 
-> Cheers
-> M
-> 
-> Milan Roubal wrote:
-> > Hi,
-> > I got one card SATA 150 TX2 plus with version v1.00.0.20 on chip.
-> > I want to make it working under SuSE linux 8.0. I have downloaded
-> > drivers from www.promise.com, but driver is not working, because of bad
-> > major/minor numbers of /dev/sda, /dev/sda1, /dev/sdb, .....
-> > What are the major/minor numbers for making it work?
-> >
-> > Or is there any other driver that I should use for making this card =
-> > working?
-> > What are major/minor numbers for that drivers?
-> > Thanks very much for your answers.

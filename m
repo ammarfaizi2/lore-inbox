@@ -1,85 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbUJ0WzC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262734AbUJ0VDP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262765AbUJ0WzC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 18:55:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbUJ0Wqk
+	id S262734AbUJ0VDP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 17:03:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbUJ0Uzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 18:46:40 -0400
-Received: from mail.dif.dk ([193.138.115.101]:31671 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262765AbUJ0Wnn (ORCPT
+	Wed, 27 Oct 2004 16:55:54 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:31442 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262619AbUJ0UuQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 18:43:43 -0400
-Date: Thu, 28 Oct 2004 00:52:01 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dave Airlie <airlied@gmail.com>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: The naming wars continue...
-In-Reply-To: <Pine.LNX.4.58.0410271424590.28839@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.61.0410280036490.3284@dragon.hygekrogen.localhost>
-References: <4179F81A.4010601@yahoo.com.au> <417D7089.3070208@tmr.com> 
- <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org>  <20041027200805.GA17759@4t2.com>
-  <Pine.LNX.4.58.0410271323040.28839@ppc970.osdl.org>
- <21d7e997041027141358b05c41@mail.gmail.com> <Pine.LNX.4.58.0410271424590.28839@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 27 Oct 2004 16:50:16 -0400
+Date: Wed, 27 Oct 2004 22:51:26 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
+Message-ID: <20041027205126.GA25091@elte.hu>
+References: <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <5225.195.245.190.94.1098880980.squirrel@195.245.190.94> <20041027135309.GA8090@elte.hu> <12917.195.245.190.94.1098890763.squirrel@195.245.190.94>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <12917.195.245.190.94.1098890763.squirrel@195.245.190.94>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004, Linus Torvalds wrote:
 
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+
+> On RT-V0.4.1, xruns seems slighly reduced, but plenty enough for my
+> taste.
 > 
-> 
-> On Thu, 28 Oct 2004, Dave Airlie wrote:
-> > 
-> > There has been a fair bit of bike shedding going on... so I think we
-> > should use some sort of timber and paint it red...
-> 
-> Ok, I nominate this for the strangest entry in the discussion so far.
-> 
-Heh, yeah, glad I'm not the only one incapable of making sense of that. :)
+> Running jackd -R with 6 fluidsynth instances gives me 0 (zero) xruns
+> on RT-U3, but more than 20 (twenty) on RT-V0.4.1, under a 5 minute
+> time frame. It was 30 (thirty something) on RT-V0.4, but overall
+> "feel" is about the same.
 
-Anyway, I've been reading this thread and just want to add my own small 
-comments to it  :
+ok, i've uploaded RT-V0.4.2 which has more of the same: it fixes other
+missed preemption checks. Does it make any difference to the xruns on
+your UP box?
 
-Personally I was a bit sceptical of the "new development model" at first, 
-but as 2.6.x has progressed I've come to like it very much.
-I'm using 2.6 on a number of boxes, servers, workstations at work and my 
-personal machine at work, and my impression is that it's the fastest 
-kernel we've had so far, and it's stable (at least I've not had any major 
-issues). So to me it seems to be working just fine.
-
-Some people have been asking for a sepperate tree for all the experimental 
-and unstable stuff, but as I see it that role is fulfilled by Andrews -mm 
-tree.
-Things go into -mm, then get a bit (or a lot in some cases) workout and 
-then slowly migrate into the mainline (Linus) tree as they settle down and 
-are proven to be stable. This is good since it keeps the stable kernel 
-up-to-date feature wise, and stuff has a place to get fixed and 
-stabilized before it moves to mainline, so mainline 2.6 is not a minefield 
-of unstable changes (and I think Andrew is doing a very good job at 
-this), but it's not a hugely out-of-date thing as it used to be with a 
-sepperate 2.<odd number>.x development tree.
-
-The people asking for a very stable 2.6.x.y.z.whatever tree are forgetting 
-a few things in my oppinion;
-First they seem to forget that point releases actually serve the role of 
-"new and improved stable kernel", so 2.6.x is the new "maintainance 
-release" of the 2.6.x-1 kernel. 
-Also they forget that there's a period of -rc releases before a point 
-release where stability and incompatibility problems can be dealt with.
-They also forget that there's nothing stopping them from forking off 2.6.x 
-at any point in time and maintaining their own "ultra stable" kernel based 
-on that release (hopefully they would still merge their fixes into 
-whatever is the current Linus kernel).
-
-I'm starting to ramble, all I really want to say is that I think the 
-current model works well - changes get testing in -mm before hitting 
-mainline, and mainline is not lacking behind in fixes and features as 
-badly as we've seen earlier with 2.4.x vs 2.5.x, 2.3.x vs 2.2.x and 
-previous development branches. And I think Andrew, Linus and the other 
-main kernel people are doing a very good job with the kernel atm.
-
---
-Jesper Juhl
-
+	Ingo

@@ -1,100 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVBFQNB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVBFQ1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbVBFQNB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 11:13:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVBFQMx
+	id S261210AbVBFQ1u (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 11:27:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVBFQ1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 11:12:53 -0500
-Received: from 1-1-3-46a.gml.gbg.bostream.se ([82.182.110.161]:31186 "EHLO
-	kotiaho.net") by vger.kernel.org with ESMTP id S261197AbVBFQMf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 11:12:35 -0500
-Date: Sun, 6 Feb 2005 17:15:16 +0100 (CET)
-From: "J.O. Aho" <trizt@iname.com>
-X-X-Sender: trizt@linux.local.lan
-To: linux-kernel@vger.kernel.org
-Subject: Map Hauppauge PVR250/350 remote buttons right in ir-kbd-i2c
-Message-ID: <Pine.LNX.4.61.0502061713030.32320@linux.local.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 6 Feb 2005 11:27:50 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:23469 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261191AbVBFQ1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 11:27:49 -0500
+Date: Sun, 6 Feb 2005 16:27:44 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Martins Krikis <mkrikis@yahoo.com>, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [ANNOUNCE] "iswraid" (ICHxR ataraid sub-driver) for 2.4.29
+Message-ID: <20050206162744.GA1752@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+	Martins Krikis <mkrikis@yahoo.com>, marcelo.tosatti@cyclades.com,
+	linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+References: <87651hdoiv.fsf@yahoo.com> <420582C6.7060407@pobox.com> <1107682076.22680.58.camel@laptopd505.fenrus.org> <58cb370e050206044513eb7f89@mail.gmail.com> <42062BFE.7070907@pobox.com> <1107701373.22680.115.camel@laptopd505.fenrus.org> <420631BF.7060407@pobox.com> <20050206155017.GA1215@infradead.org> <42064141.6040003@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42064141.6040003@pobox.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Feb 06, 2005 at 11:09:37AM -0500, Jeff Garzik wrote:
+> I'm talking about being able to access data, or not.
 
-Version: 2.6.10
-Description: This patch fixes the buttons mapping for the Hauppauge
-   PVR 250/350 remotes (at least those sold in Sweden),
-   all buttons are now bound.
-Fixes: All buttons are bound to a key
-   Mute button works now as mute on/off
-Notes: I'm not part of the maillist, so CC me if you want me to know
-   something.
-
-
---- drivers/media/video/ir-kbd-i2c.c.org 2005-02-06 16:02:52.793914120 +0100
-+++ drivers/media/video/ir-kbd-i2c.c 2005-02-06 16:39:16.376959040 +0100
-@@ -43,6 +43,51 @@
-
-  #include <media/ir-common.h>
-
-+/*  J.O. Aho <trizt@iname.com>
-+ *  The ir_codes_rc5_tv causes that keys are wrongly
-+ *  mapped on for the Hauppauge PVR 250/350 remotes,
-+ *  at least those sold in Sweden.
-+ *  The ATI-REMOTE keybindings has been used as
-+ *  guidelines.
-+ */
-+static IR_KEYTAB_TYPE ir_codes_pvr[IR_KEYTAB_SIZE] = {
-+	[ 0x00 ] = KEY_KP0,             // 0
-+	[ 0x01 ] = KEY_KP1,             // 1
-+	[ 0x02 ] = KEY_KP2,             // 2
-+	[ 0x03 ] = KEY_KP3,             // 3
-+	[ 0x04 ] = KEY_KP4,             // 4
-+	[ 0x05 ] = KEY_KP5,             // 5
-+	[ 0x06 ] = KEY_KP6,             // 6
-+	[ 0x07 ] = KEY_KP7,             // 7
-+	[ 0x08 ] = KEY_KP8,             // 8
-+	[ 0x09 ] = KEY_KP9,             // 9
-+
-+	[ 0x0b ] = KEY_R,               // Red Button
-+	[ 0x0c ] = KEY_REFRESH,         // Unmarked button on PVR250
-+	[ 0x0f ] = KEY_MUTE,            // mute / demute
-+	[ 0x0d ] = KEY_MENU,            // display, PVR Menu
-+	[ 0x10 ] = KEY_VOLUMEUP,        // volume +
-+	[ 0x11 ] = KEY_VOLUMEDOWN,      // volume -
-+	[ 0x1e ] = KEY_NEXTSONG,        // Next >>|
-+	[ 0x1f ] = KEY_BACKSPACE,       // PVR Back/Exit
-+	[ 0x20 ] = KEY_UP,              // channel / program +
-+	[ 0x21 ] = KEY_DOWN,            // channel / program -
-+	[ 0x24 ] = KEY_PREVIOUSSONG,    // Previous |<<
-+	[ 0x25 ] = KEY_ENTER,           // PVR Ok
-+	[ 0x29 ] = KEY_B,               // Blue Button
-+	[ 0x2e ] = KEY_G,               // Green Button
-+	[ 0x30 ] = KEY_PAUSE,           // pause
-+	[ 0x32 ] = KEY_REWIND,          // rewind <<
-+	[ 0x34 ] = KEY_FORWARD,         // wind >>
-+	[ 0x35 ] = KEY_PLAYPAUSE,       // play
-+	[ 0x36 ] = KEY_STOP,            // stop
-+	[ 0x37 ] = KEY_RECORD,          // recording
-+	[ 0x38 ] = KEY_Y,               // Yellow button
-+	[ 0x3b ] = KEY_GOTO,            // Go button
-+	[ 0x3c ] = KEY_FRONT,           // full
-+	[ 0x3d ] = KEY_POWER,           // power (green, left upper corner)
-+};
-+
-  /* Mark Phalan <phalanm@o2.ie> */
-  static IR_KEYTAB_TYPE ir_codes_pv951[IR_KEYTAB_SIZE] = {
-  	[  0 ] = KEY_KP0,
-@@ -362,6 +407,11 @@
-  ir_codes    = ir_codes_pv951;
-  break;
-  	case 0x18:
-+		name        = "Hauppauge PVR";
-+		ir->get_key = get_key_haup;
-+		ir_type     = IR_TYPE_RC5;
-+		ir_codes    = ir_codes_pvr;
-+		break;
-  case 0x1a:
-  name        = "Hauppauge";
-  ir->get_key = get_key_haup;
+And your point is?
 

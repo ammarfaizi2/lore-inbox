@@ -1,88 +1,75 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314959AbSD2JNa>; Mon, 29 Apr 2002 05:13:30 -0400
+	id <S314961AbSD2JTA>; Mon, 29 Apr 2002 05:19:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314960AbSD2JN3>; Mon, 29 Apr 2002 05:13:29 -0400
-Received: from balu.sch.bme.hu ([152.66.208.40]:22522 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S314959AbSD2JN2>;
-	Mon, 29 Apr 2002 05:13:28 -0400
-Date: Mon, 29 Apr 2002 11:13:02 +0200 (MEST)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: initrd and devfs
-In-Reply-To: <22788.1020070005@kao2.melbourne.sgi.com>
-Message-ID: <Pine.GSO.4.30.0204291107420.11078-100000@balu>
+	id <S314962AbSD2JS7>; Mon, 29 Apr 2002 05:18:59 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:47867 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S314961AbSD2JS6>; Mon, 29 Apr 2002 05:18:58 -0400
+Date: Mon, 29 Apr 2002 11:14:57 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Dave Jones <davej@suse.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.10-dj1
+In-Reply-To: <20020427030823.GA21608@suse.de>
+Message-ID: <Pine.NEB.4.44.0204290906540.3103-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Dave,
 
-I'm not absolutely sure that this is what you want, but I think I have a
-similar case.
-I boot from a CD a kernel which has cdrom support compiled as modules, and
-devfs compiled in:
+while building 2.5.10-dj the following build error occured that doesn't
+occur when I back out the changes to drivers/scsi/aic7xxx/aicasm that are
+in the -dj1 patch:
 
-syslinux starts kernel with this:
- /boot/bzImage devfs=mount root=/dev/cdroms/cdrom0 initrd=/boot/initrd
+<--  snip  -->
 
-Then the initrd loads the needed modules, and _exits_.
-The kernel then mounts the given root, and the system boots successfully.
+...
+make[5]: Entering directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.10/drivers/sc
+si/aic7xxx/aicasm'
+yacc -d -b aicasm_gram aicasm_gram.y
+aicasm_gram.y:921: warning: previous rule lacks an ending `;'
+aicasm_gram.y:935: warning: previous rule lacks an ending `;'
+mv aicasm_gram.tab.c aicasm_gram.c
+mv aicasm_gram.tab.h aicasm_gram.h
+lex  -t aicasm_scan.l > aicasm_scan.c
+gcc -I/usr/include -I. -ldb aicasm.c aicasm_symbol.c aicasm_gram.c
+aicasm_macro_gram.c aicasm_scan.c aicasm_macro_scan.c -o aicasm
+aicasm_gram.y:1846: warning: type mismatch with previous implicit
+declaration
+/usr/share/bison/bison.simple:924: warning: previous implicit declaration
+of `yyerror'
+aicasm_gram.y:1846: warning: `yyerror' was previously implicitly declared
+to return `int'
+aicasm_macro_gram.y:162: warning: type mismatch with previous implicit
+declaration
+/usr/share/bison/bison.simple:924: warning: previous implicit declaration
+of `mmerror'
+aicasm_macro_gram.y:162: warning: `mmerror' was previously implicitly
+declared to return `int'
+make[5]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.10/drivers/scsi/aic7xxx/aicasm'
+aicasm/aicasm -I. -r aic7xxx_reg.h -o aic7xxx_seq.h aic7xxx.seq
+aicasm/aicasm: Stopped at file aic7xxx.reg, line 1013 - parse error
+aicasm/aicasm: Removing aic7xxx_seq.h due to error
+aicasm/aicasm: Removing aic7xxx_reg.h due to error
+make[4]: *** [aic7xxx_reg.h] Error 65
+make[4]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.10/drivers/scsi/aic7xxx'
 
-So all I needed to do is give the root partition as a parameter, and no
-mkrootdev or pivot_root was needed.
+<--  snip  -->
+
+cu
+Adrian
 
 -- 
-Balazs Pozsar
 
-On Mon, 29 Apr 2002, Keith Owens wrote:
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 
-> I am having problems with the combination of initrd and devfs.
->
-> mkinitrd 3.3.9, hacked to build an ia64 initrd on ia32.
-> Kernel 2.4.18-ia64-020410, config extract.
->
-> CONFIG_DEVFS_FS=y
-> CONFIG_DEVFS_MOUNT=y
-> CONFIG_BLK_DEV_RAM=y
-> CONFIG_BLK_DEV_RAM_SIZE=8192
-> CONFIG_BLK_DEV_INITRD=y
->
-> linuxrc commands:
->
-> insmod /lib/qla1280.o
-> echo Mounting /proc filesystem
-> mount -t proc /proc /proc
-> echo Creating root device
-> mkrootdev /dev/root
->   fails "mkrootdev: mknod failed: 17".  devfs has already created
->   /dev/root as a symlink.
-> echo 0x0100 > /proc/sys/kernel/real-root-dev
-> echo Mounting root filesystem
-> mount --ro -t ext2 /dev/root /sysroot
->   fails "mount: error 16 mounting ext2" because /dev/root is wrong.
-> pivot_root /sysroot /sysroot/initrd
->   fails "pivotroot: pivot_root(/sysroot,/sysroot/initrd) failed: 2"
->
-> By removing /dev/root immediately before mkrootdev /dev/root I can get
-> past those errors, even pivot_root works.  But then it gets nasty :-
->
-> INIT: version 2.78 booting
->                         Welcome to Red Hat Linux
->                 Press 'I' to enter interactive startup.
-> Mounting proc filesystem:  [  OK  ]
-> Unmounting initrd:  umount: /initrd: device is busy
->   Because of this mount - none /initrd/dev devfs rw 0 0
->
-> If I boot with initrd and devfs=nomount it goes through initrd
-> processing and successfully umounts initrd, but then fails "Remounting
-> root filesystem in read-write mode: mount: no such partition found".
-> /proc/mounts contains
->
->   /dev/root / ext2 ro 0 0
->
-> What is the correct way of using initrd and devfs together?
->
-> devfsd.conf is not the answer, initrd does not run the devfsd daemon.
 

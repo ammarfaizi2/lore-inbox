@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266891AbUITSAD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266895AbUITSBB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266891AbUITSAD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 14:00:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266895AbUITSAD
+	id S266895AbUITSBB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 14:01:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266894AbUITSBB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 14:00:03 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4580 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266891AbUITR7y
+	Mon, 20 Sep 2004 14:01:01 -0400
+Received: from fw.osdl.org ([65.172.181.6]:17795 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266885AbUITSAq convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 13:59:54 -0400
-Message-ID: <414F1A8C.10803@pobox.com>
-Date: Mon, 20 Sep 2004 13:59:40 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Francois Romieu <romieu@fr.zoreil.com>
-CC: Andy Lutomirski <luto@myrealbox.com>, Hans-Frieder Vogt <hfvogt@arcor.de>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: 2.6.9-rc1-bk11+ and 2.6.9-rc1-mm3,4 r8169: freeze during boot
- (FIX included)
-References: <200409130035.50823.hfvogt@arcor.de> <20040916070211.GA32592@electric-eye.fr.zoreil.com> <200409161320.16526.jdmason@us.ltcfwd.linux.ibm.com> <200409171043.21772.jdmason@us.ltcfwd.linux.ibm.com> <20040917160151.GA29337@electric-eye.fr.zoreil.com> <414DF773.7060402@myrealbox.com> <20040919213952.GA32570@electric-eye.fr.zoreil.com> <414E46F1.9050309@pobox.com> <20040920071743.GA7115@electric-eye.fr.zoreil.com>
-In-Reply-To: <20040920071743.GA7115@electric-eye.fr.zoreil.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Sep 2004 14:00:46 -0400
+Date: Mon, 20 Sep 2004 10:58:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Magnus =?ISO-8859-1?B?TeTkdHTk?= <magnus@php.net>
+Cc: linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>
+Subject: Re: 2.6.9-rc2-mm1
+Message-Id: <20040920105836.3ed07df4.akpm@osdl.org>
+In-Reply-To: <200409201939.04207.>
+References: <20040916024020.0c88586d.akpm@osdl.org>
+	<200409201939.04207.>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu wrote:
-> Jeff Garzik <jgarzik@pobox.com> :
-> [...]
+Magnus M‰‰tt‰ <magnus@php.net> wrote:
+>
+> I'm getting
+>  *** Warning: "afs_file_page_mkwrite" [fs/afs/kafs.ko] undefined!
+>  when I build the kernel.
 > 
->>That sounds like a bug right there...  need all the addresses set up 
->>before we turn on stuff.
-> 
-> 
-> The description of the CPlusCmd in the 8169 datasheet includes a small note
-> which suggests that this register should be set up early.
-> 
-> It does not cost much to try and see if it makes a difference for DAC though.
+>  If I remove make-afs-use-cachefs.patch it works just fine.
 
-Let me know what happens :)
+Like this, I guess.
 
-	Jeff
-
-
+--- 25/fs/afs/file.c~afs-cachefs-dependency-fix	2004-09-20 10:56:28.714441752 -0700
++++ 25-akpm/fs/afs/file.c	2004-09-20 10:57:39.770639568 -0700
+@@ -33,7 +33,9 @@ static int afs_file_releasepage(struct p
+ 
+ static ssize_t afs_file_write(struct file *file, const char __user *buf,
+ 			      size_t size, loff_t *off);
++#ifdef CONFIG_AFS_CACHEFS
+ static int afs_file_page_mkwrite(struct page *page);
++#endif
+ 
+ struct inode_operations afs_file_inode_operations = {
+ 	.getattr	= afs_inode_getattr,
+@@ -56,7 +58,9 @@ struct address_space_operations afs_fs_a
+ 	.set_page_dirty	= __set_page_dirty_nobuffers,
+ 	.releasepage	= afs_file_releasepage,
+ 	.invalidatepage	= afs_file_invalidatepage,
++#ifdef CONFIG_AFS_CACHEFS
+ 	.page_mkwrite	= afs_file_page_mkwrite,
++#endif
+ };
+ 
+ /*****************************************************************************/
+_
 

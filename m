@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267034AbTBLLqU>; Wed, 12 Feb 2003 06:46:20 -0500
+	id <S267035AbTBLLqr>; Wed, 12 Feb 2003 06:46:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267035AbTBLLqU>; Wed, 12 Feb 2003 06:46:20 -0500
-Received: from mario.gams.at ([194.42.96.10]:29546 "EHLO mario.gams.at")
-	by vger.kernel.org with ESMTP id <S267034AbTBLLqU> convert rfc822-to-8bit;
-	Wed, 12 Feb 2003 06:46:20 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.3
-From: Bernd Petrovitsch <bernd@gams.at>
-To: raghu@sunlux-india.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SHARING LINUX FILES ON WINDOWS MACHINE 
-References: <NPECLGLNJBOPLFMJIKIPEEAHCAAA.raghu@sunlux-india.com> 
-In-reply-to: Your message of "Wed, 12 Feb 2003 17:19:08 +0530."
-             <NPECLGLNJBOPLFMJIKIPEEAHCAAA.raghu@sunlux-india.com> 
-X-url: http://www.luga.at/~bernd/
+	id <S267038AbTBLLqr>; Wed, 12 Feb 2003 06:46:47 -0500
+Received: from mnh-1-21.mv.com ([207.22.10.53]:17412 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S267035AbTBLLqq>;
+	Wed, 12 Feb 2003 06:46:46 -0500
+Message-Id: <200302121149.GAA01822@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: Oleg Drokin <green@namesys.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.60 
+In-Reply-To: Your message of "12 Feb 2003 01:11:23 MST."
+             <m17kc5yl3o.fsf@frodo.biederman.org> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: Wed, 12 Feb 2003 12:56:03 +0100
-Message-ID: <8233.1045050963@frodo.gams.co.at>
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 12 Feb 2003 06:49:49 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Raghu" <raghu@sunlux-india.com> wrote:
->I am a software engineer working for Sunlux technologies.I wanted details
->regarding sharing Linux files on a windows machine.
+ebiederm@xmission.com said:
+> Just for throwing out suggestions, UML can easily avoid using glibc
+> altogether as it is already intimate with the system call layer. 
 
-Ever tried Google?
+Easily?  As in write my own system call wrappers?  And how is UML intimate
+with the system calls, anyway?  It is no more intimate with the host's
+system calls than any other app.
 
->I want to see the Linux machine on the windows network and thereby access
->the same.Is it possible?
+It also uses some smaller higher-level pieces of libc (printf early in boot,
+readdir et al in hostfs, etc).
 
-Yes. The tool in question is named "samba". And it has nothing to do 
-with the kernel.
+> Or it can use the linker to play games with symbol names to move the
+> kernel off into it's own separate name space.
 
-	Bernd
--- 
-Bernd Petrovitsch                              Email : bernd@gams.at
-g.a.m.s gmbh                                  Fax : +43 1 205255-900
-Prinz-Eugen-Straße 8                    A-1040 Vienna/Austria/Europe
-                     LUGA : http://www.luga.at
+Maybe, I'm not expert enough with the linker to do that.
 
+> This sounds like a good opportunity to figure out which makes most
+> sense  and future proof UML. 
+
+My current thinking is that I will bundle all the userspace code into a
+single object which then gets linked (-r IIRC) against libc.  That should
+resolve all libc references, at which point I can link it into the kernel,
+and I think there won't be any conflicts.
+
+				Jeff
 

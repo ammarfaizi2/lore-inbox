@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262762AbVCPTMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVCPTPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262762AbVCPTMt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 14:12:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVCPTLG
+	id S261363AbVCPTPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 14:15:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbVCPTPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 14:11:06 -0500
-Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:30592 "EHLO mta2.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S262733AbVCPTIc (ORCPT
+	Wed, 16 Mar 2005 14:15:16 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:13508 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261363AbVCPTNq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 14:08:32 -0500
-In-Reply-To: <20050316190611.GA27945@infradead.org>
-References: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk> <20050316143130.GA21959@infradead.org> <Pine.LNX.4.61.0503160959530.4104@chimarrao.boston.redhat.com> <20050316181042.GA26788@infradead.org> <521a4568db3e955cb245d10aaba2d3ce@cl.cam.ac.uk> <20050316190611.GA27945@infradead.org>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <0d70200856fbba2e3fa027d2a66dd2cb@cl.cam.ac.uk>
-Content-Transfer-Encoding: 7bit
-Cc: akpm@osdl.org, Ian.Pratt@cl.cam.ac.uk, linux-kernel@vger.kernel.org,
-       Rik van Riel <riel@redhat.com>, kurt@garloff.de,
-       Christian.Limpach@cl.cam.ac.uk
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
-Date: Wed, 16 Mar 2005 19:11:24 +0000
-To: Christoph Hellwig <hch@infradead.org>
-X-Mailer: Apple Mail (2.619.2)
+	Wed, 16 Mar 2005 14:13:46 -0500
+Date: Wed, 16 Mar 2005 11:12:30 -0800 (PST)
+From: Paul Jackson <pj@sgi.com>
+To: trivial@rustcorp.com.au
+Cc: Simon Derr <Simon.Derr@bull.net>, Martin Hicks <mort@sgi.com>,
+       Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
+Message-Id: <20050316191234.25203.12688.sendpatchset@sam.engr.sgi.com>
+Subject: [Trivial Patch] cpusets docs - a couple typos
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Following fixes a couple of trivial typos in the cpusets
+Documentation file, that is now in Linus's bk tree.
 
-On 16 Mar 2005, at 19:06, Christoph Hellwig wrote:
+Thanks to Martin Hicks <mort@sgi.com> for noticing these.
 
->> The AGP driver is only configurable for ppc32, alpha, x86, x86_64 and
->> ia64, all of which have virt_to_bus.
->
-> and ppc64 now, which doesn't.
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
-Sounds like the new DMA-mapping interface is the way to go then.
+===================================================================
+--- 2.6.12-pj.orig/Documentation/cpusets.txt	2005-03-16 01:04:48.000000000 -0800
++++ 2.6.12-pj/Documentation/cpusets.txt	2005-03-16 11:07:35.000000000 -0800
+@@ -130,7 +130,7 @@ Cpusets extends these two mechanisms as 
+ The implementation of cpusets requires a few, simple hooks
+ into the rest of the kernel, none in performance critical paths:
+ 
+- - in main/init.c, to initialize the root cpuset at system boot.
++ - in init/main.c, to initialize the root cpuset at system boot.
+  - in fork and exit, to attach and detach a task from its cpuset.
+  - in sched_setaffinity, to mask the requested CPUs by what's
+    allowed in that tasks cpuset.
+@@ -138,7 +138,7 @@ into the rest of the kernel, none in per
+    the CPUs allowed by their cpuset, if possible.
+  - in the mbind and set_mempolicy system calls, to mask the requested
+    Memory Nodes by what's allowed in that tasks cpuset.
+- - in page_alloc, to restrict memory to allowed nodes.
++ - in page_alloc.c, to restrict memory to allowed nodes.
+  - in vmscan.c, to restrict page recovery to the current cpuset.
+ 
+ In addition a new file system, of type "cpuset" may be mounted,
 
-  -- Keir
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

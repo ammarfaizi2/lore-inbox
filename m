@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131320AbRCULDe>; Wed, 21 Mar 2001 06:03:34 -0500
+	id <S131311AbRCUK6M>; Wed, 21 Mar 2001 05:58:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131341AbRCULDY>; Wed, 21 Mar 2001 06:03:24 -0500
-Received: from mailgw.prontomail.com ([216.163.180.10]:10401 "EHLO
-	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
-	id <S131320AbRCULDO>; Wed, 21 Mar 2001 06:03:14 -0500
-Message-ID: <3AB88929.D1B324F2@mvista.com>
-Date: Wed, 21 Mar 2001 02:57:45 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: Keith Owens <kaos@ocs.com.au>, nigel@nrg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for 2.5] preemptible kernel
-In-Reply-To: <Pine.LNX.4.05.10103201920410.26853-100000@cosmic.nrg.org>
-		<22991.985166394@ocs3.ocs-net> <15032.30533.638717.696704@pizda.ninka.net>
+	id <S131315AbRCUK6C>; Wed, 21 Mar 2001 05:58:02 -0500
+Received: from x86unx3.comp.nus.edu.sg ([137.132.90.2]:64746 "EHLO
+	x86unx3.comp.nus.edu.sg") by vger.kernel.org with ESMTP
+	id <S131311AbRCUK5z>; Wed, 21 Mar 2001 05:57:55 -0500
+Date: Wed, 21 Mar 2001 18:56:45 +0800
+From: Zou Min <zoum@comp.nus.edu.sg>
+To: Andreas Dilger <adilger@turbolinux.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, Josh Grebe <squash@primary.net>,
+        Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Question about memory usage in 2.4 vs 2.2
+Message-ID: <20010321185645.B5559@comp.nus.edu.sg>
+Mail-Followup-To: Zou Min <zoum@comp.nus.edu.sg>,
+	Andreas Dilger <adilger@turbolinux.com>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Josh Grebe <squash@primary.net>, Jan Harkes <jaharkes@cs.cmu.edu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010321172800.A11353@comp.nus.edu.sg> <200103210951.f2L9pot18383@webber.adilger.int>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200103210951.f2L9pot18383@webber.adilger.int>; from adilger@turbolinux.com on Wed, Mar 21, 2001 at 02:51:49AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+> > Lastly, which cache can be reclaimed, and which can't?
 > 
-> Keith Owens writes:
->  > Or have I missed something?
-> 
-> Nope, it is a fundamental problem with such kernel pre-emption
-> schemes.  As a result, it would also break our big-reader locks
-> (see include/linux/brlock.h).
+> Slab cache will shrink if there are whole pages which are empty (it may
+> be that they have to be at the end of the cache).  It is hard to tell
+> from the above numbers if any of the caches could shrink, because it
+> depends on the number of objects per page, and if there are any whole
+> pages without allocated objects.
 
-He has this one covered.  The patch puts preemption locks around
-read_locks.
 
-By the by, if a preemption lock is all that is needed the patch defines
-it and it is rather fast (an inc going in and a dec & test comming
-out).  A lot faster than a spin lock with its "LOCK" access.  A preempt
-lock does not need to be "LOCK"ed because the only contender is the same
-cpu.
+Btw, how to know the size of each objects in different cache?
 
-George
-
-> 
-> Basically, anything which uses smp_processor_id() would need to
-> be holding some lock so as to not get pre-empted.
-> 
-> Later,
-> David S. Miller
-> davem@redhat.com
+-- 
+Cheers!
+--Zou Min 

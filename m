@@ -1,56 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129417AbRBRTUr>; Sun, 18 Feb 2001 14:20:47 -0500
+	id <S129249AbRBRTZr>; Sun, 18 Feb 2001 14:25:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129945AbRBRTUg>; Sun, 18 Feb 2001 14:20:36 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:10502 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129417AbRBRTUa>;
-	Sun, 18 Feb 2001 14:20:30 -0500
-Date: Sun, 18 Feb 2001 20:19:54 +0100
-From: Jens Axboe <axboe@suse.de>
-To: John Fremlin <chief@bandits.org>
-Cc: johnsom@orst.edu, linux-kernel@vger.kernel.org
-Subject: Re: Changes to ide-cd for 2.4.1 are broken?
-Message-ID: <20010218201954.B6593@suse.de>
-In-Reply-To: <m2k86pnfch.fsf@boreas.yi.org.>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m2k86pnfch.fsf@boreas.yi.org.>; from chief@bandits.org on Sat, Feb 17, 2001 at 09:56:30PM +0000
+	id <S129945AbRBRTZh>; Sun, 18 Feb 2001 14:25:37 -0500
+Received: from bacchus.veritas.com ([204.177.156.37]:3236 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S129944AbRBRTZS>; Sun, 18 Feb 2001 14:25:18 -0500
+Date: Sun, 18 Feb 2001 19:31:36 +0000 (GMT)
+From: Mark Hemment <markhe@veritas.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] HIGHMEM+buffers
+Message-ID: <Pine.LNX.4.21.0102181919230.11260-200000@alloc>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="168455872-793547845-982524696=:11260"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 17 2001, John Fremlin wrote:
-> Specifically, this part:
-> 
-> @@ -2324,11 +2309,17 @@
->                     sense.ascq == 0x04)
->                         return CDS_DISC_OK;
->  
-> +
-> +               /*
-> +                * If not using Mt Fuji extended media tray reports,
-> +                * just return TRAY_OPEN since ATAPI doesn't provide
-> +                * any other way to detect this...
-> +                */
->                 if (sense.sense_key == NOT_READY) {
-> -                       /* ATAPI doesn't have anything that can help
-> -                          us decide whether the drive is really
-> -                          emtpy or the tray is just open. irk. */
-> -                       return CDS_TRAY_OPEN;
-> +                       if (sense.asc == 0x3a && (!sense.ascq||sense.ascq == 1))
-> +                               return CDS_NO_DISC;
-> +                       else
-> +                               return CDS_TRAY_OPEN;
->                 }
-> 
-> My tray is open as I type, and it is misreported as CDS_NO_DISC. In
-> 2.4.0 it worked fine.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Your drive is broken, the only other valid combination is 0x3a/0x02 which means
-no media and tray open. You could try and dump the asc and ascq to see what
-your drive reports for the different states.
+--168455872-793547845-982524696=:11260
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
--- 
-Jens Axboe
+Hi,
 
+  On a 4GB SMP box, configured with HIGHMEM support, making a 670G
+(obviously using a volume manager) ext2 file system takes 12minutes (over
+10minutes of sys time).
+
+  One problem is buffer allocations do not use HIGHMEM, but the
+nr_free_buffer_pages() doesn't take this into account causing
+balance_dirty_state() to return the wrong state.
+
+  The attached patch fixes the worse part of nr_free_buffer_pages() - with
+HIGHMEM it now only counts free+inactive pages in the NORMAL and DMA
+zone.  It doesn't fix the inactive_dirty calculation.
+  Also, in buffer.c:flush_dirty_buffers(), it is worthwhile to kick the
+disk queues if it decides to reschedule.
+
+  With the patch, that 670G filesystem can be created in 5m36secs (under
+half the time).
+
+  Patch is against 2.4.1-ac18.
+
+Mark
+
+--168455872-793547845-982524696=:11260
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="buffer.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0102181931360.11260@alloc>
+Content-Description: buffer.patch
+Content-Disposition: attachment; filename="buffer.patch"
+
+ZGlmZiAtdXJOIC1YIGRvbnRkaWZmIHZhbmlsbGEtMi40LjEtYWMxOC9mcy9i
+dWZmZXIuYyBtYXJraGUtMi40LjEtYWMxOC9mcy9idWZmZXIuYw0KLS0tIHZh
+bmlsbGEtMi40LjEtYWMxOC9mcy9idWZmZXIuYwlTdW4gRmViIDE4IDE1OjA2
+OjI2IDIwMDENCisrKyBtYXJraGUtMi40LjEtYWMxOC9mcy9idWZmZXIuYwlT
+dW4gRmViIDE4IDE5OjAzOjE5IDIwMDENCkBAIC0yNjM4LDggKzI2MzgsMTEg
+QEANCiAJCWxsX3J3X2Jsb2NrKFdSSVRFLCAxLCAmYmgpOw0KIAkJYXRvbWlj
+X2RlYygmYmgtPmJfY291bnQpOw0KIA0KLQkJaWYgKGN1cnJlbnQtPm5lZWRf
+cmVzY2hlZCkNCisJCWlmIChjdXJyZW50LT5uZWVkX3Jlc2NoZWQpIHsNCisJ
+CQkvKiBraWNrIHdoYXQgd2UndmUgYWxyZWFkeSBwdXNoZWQgZG93biAqLw0K
+KwkJCXJ1bl90YXNrX3F1ZXVlKCZ0cV9kaXNrKTsNCiAJCQlzY2hlZHVsZSgp
+Ow0KKwkJfQ0KIAkJZ290byByZXN0YXJ0Ow0KIAl9DQogIG91dF91bmxvY2s6
+DQpkaWZmIC11ck4gLVggZG9udGRpZmYgdmFuaWxsYS0yLjQuMS1hYzE4L2lu
+Y2x1ZGUvbGludXgvc3dhcC5oIG1hcmtoZS0yLjQuMS1hYzE4L2luY2x1ZGUv
+bGludXgvc3dhcC5oDQotLS0gdmFuaWxsYS0yLjQuMS1hYzE4L2luY2x1ZGUv
+bGludXgvc3dhcC5oCVN1biBGZWIgMTggMTU6MDY6MjkgMjAwMQ0KKysrIG1h
+cmtoZS0yLjQuMS1hYzE4L2luY2x1ZGUvbGludXgvc3dhcC5oCVN1biBGZWIg
+MTggMTg6MTE6MDMgMjAwMQ0KQEAgLTY1LDcgKzY1LDkgQEANCiANCiBleHRl
+cm4gaW50IG5yX3N3YXBfcGFnZXM7DQogRkFTVENBTEwodW5zaWduZWQgaW50
+IG5yX2ZyZWVfcGFnZXModm9pZCkpOw0KK0ZBU1RDQUxMKHVuc2lnbmVkIGlu
+dCBucl9mcmVlX3BhZ2VzX3pvbmUoaW50KSk7DQogRkFTVENBTEwodW5zaWdu
+ZWQgaW50IG5yX2luYWN0aXZlX2NsZWFuX3BhZ2VzKHZvaWQpKTsNCitGQVNU
+Q0FMTCh1bnNpZ25lZCBpbnQgbnJfaW5hY3RpdmVfY2xlYW5fcGFnZXNfem9u
+ZShpbnQpKTsNCiBGQVNUQ0FMTCh1bnNpZ25lZCBpbnQgbnJfZnJlZV9idWZm
+ZXJfcGFnZXModm9pZCkpOw0KIGV4dGVybiBpbnQgbnJfYWN0aXZlX3BhZ2Vz
+Ow0KIGV4dGVybiBpbnQgbnJfaW5hY3RpdmVfZGlydHlfcGFnZXM7DQpkaWZm
+IC11ck4gLVggZG9udGRpZmYgdmFuaWxsYS0yLjQuMS1hYzE4L21tL3BhZ2Vf
+YWxsb2MuYyBtYXJraGUtMi40LjEtYWMxOC9tbS9wYWdlX2FsbG9jLmMNCi0t
+LSB2YW5pbGxhLTIuNC4xLWFjMTgvbW0vcGFnZV9hbGxvYy5jCVN1biBGZWIg
+MTggMTU6MDY6MjkgMjAwMQ0KKysrIG1hcmtoZS0yLjQuMS1hYzE4L21tL3Bh
+Z2VfYWxsb2MuYwlTdW4gRmViIDE4IDE5OjA0OjM2IDIwMDENCkBAIC01NDcs
+NiArNTQ3LDIzIEBADQogfQ0KIA0KIC8qDQorICogVG90YWwgYW1vdW50IG9m
+IGZyZWUgKGFsbG9jYXRhYmxlKSBSQU0gaW4gYSBnaXZlbiB6b25lLg0KKyAq
+Lw0KK3Vuc2lnbmVkIGludCBucl9mcmVlX3BhZ2VzX3pvbmUgKGludCB6b25l
+X3R5cGUpDQorew0KKwlwZ19kYXRhX3QJKnBnZGF0Ow0KKwl1bnNpZ25lZCBp
+bnQJIHN1bTsNCisNCisJc3VtID0gMDsNCisJcGdkYXQgPSBwZ2RhdF9saXN0
+Ow0KKwl3aGlsZSAocGdkYXQpIHsNCisJCXN1bSArPSAocGdkYXQtPm5vZGVf
+em9uZXMrem9uZV90eXBlKS0+ZnJlZV9wYWdlczsNCisJCXBnZGF0ID0gcGdk
+YXQtPm5vZGVfbmV4dDsNCisJfQ0KKwlyZXR1cm4gc3VtOw0KK30NCisNCisv
+Kg0KICAqIFRvdGFsIGFtb3VudCBvZiBpbmFjdGl2ZV9jbGVhbiAoYWxsb2Nh
+dGFibGUpIFJBTToNCiAgKi8NCiB1bnNpZ25lZCBpbnQgbnJfaW5hY3RpdmVf
+Y2xlYW5fcGFnZXMgKHZvaWQpDQpAQCAtNTY1LDE0ICs1ODIsNDMgQEANCiB9
+DQogDQogLyoNCisgKiBUb3RhbCBhbW91bnQgb2YgaW5hY3RpdmVfY2xlYW4g
+KGFsbG9jYXRhYmxlKSBSQU0gaW4gYSBnaXZlbiB6b25lLg0KKyAqLw0KK3Vu
+c2lnbmVkIGludCBucl9pbmFjdGl2ZV9jbGVhbl9wYWdlc196b25lIChpbnQg
+em9uZV90eXBlKQ0KK3sNCisJcGdfZGF0YV90CSpwZ2RhdDsNCisJdW5zaWdu
+ZWQgaW50CSBzdW07DQorDQorCXN1bSA9IDA7DQorCXBnZGF0ID0gcGdkYXRf
+bGlzdDsNCisJd2hpbGUgKHBnZGF0KSB7DQorCQlzdW0gKz0gKHBnZGF0LT5u
+b2RlX3pvbmVzK3pvbmVfdHlwZSktPmluYWN0aXZlX2NsZWFuX3BhZ2VzOw0K
+KwkJcGdkYXQgPSBwZ2RhdC0+bm9kZV9uZXh0Ow0KKwl9DQorCXJldHVybiBz
+dW07DQorfQ0KKw0KKw0KKy8qDQogICogQW1vdW50IG9mIGZyZWUgUkFNIGFs
+bG9jYXRhYmxlIGFzIGJ1ZmZlciBtZW1vcnk6DQorICoNCisgKiBGb3IgSElH
+SE1FTSBzeXN0ZW1zIGRvbid0IGNvdW50IEhJR0hNRU0gcGFnZXMuDQorICog
+VGhpcyBpcyBmdW5jdGlvbiBpcyBzdGlsbCBmYXIgZnJvbSBwZXJmZWN0IGZv
+ciBISUdITUVNIHN5c3RlbXMsIGJ1dA0KKyAqIGl0IGlzIGNsb3NlIGVub3Vn
+aCBmb3IgdGhlIHRpbWUgYmVpbmcuDQogICovDQogdW5zaWduZWQgaW50IG5y
+X2ZyZWVfYnVmZmVyX3BhZ2VzICh2b2lkKQ0KIHsNCiAJdW5zaWduZWQgaW50
+IHN1bTsNCiANCi0Jc3VtID0gbnJfZnJlZV9wYWdlcygpOw0KLQlzdW0gKz0g
+bnJfaW5hY3RpdmVfY2xlYW5fcGFnZXMoKTsNCisjaWYJQ09ORklHX0hJR0hN
+RU0NCisJc3VtID0gbnJfZnJlZV9wYWdlc196b25lKFpPTkVfTk9STUFMKSAr
+DQorCSAgICAgIG5yX2ZyZWVfcGFnZXNfem9uZShaT05FX0RNQSkgKw0KKwkg
+ICAgICBucl9pbmFjdGl2ZV9jbGVhbl9wYWdlc196b25lKFpPTkVfTk9STUFM
+KSArDQorCSAgICAgIG5yX2luYWN0aXZlX2NsZWFuX3BhZ2VzX3pvbmUoWk9O
+RV9ETUEpOw0KKyNlbHNlDQorCXN1bSA9IG5yX2ZyZWVfcGFnZXMoKSArDQor
+CSAgICAgIG5yX2luYWN0aXZlX2NsZWFuX3BhZ2VzKCk7DQorI2VuZGlmDQog
+CXN1bSArPSBucl9pbmFjdGl2ZV9kaXJ0eV9wYWdlczsNCiANCiAJLyoNCg==
+--168455872-793547845-982524696=:11260--

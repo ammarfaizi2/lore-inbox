@@ -1,222 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272389AbTHBAxs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 20:53:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272457AbTHBAxs
+	id S272675AbTHBBEM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 21:04:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272676AbTHBBEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 20:53:48 -0400
-Received: from viriato1.servicios.retecal.es ([212.89.0.44]:20386 "EHLO
-	viriato1.servicios.retecal.es") by vger.kernel.org with ESMTP
-	id S272389AbTHBAxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 20:53:42 -0400
-Subject: [2.6.0-test2-mm2] Badness in device_release at
-	drivers/base/core.c:84
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
-	 =?UTF-8?Q?=F3=AE=A0=92?= <ramon.rey@hispalinux.es>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Qj7EADQKmGLYHfwtQvTV"
-Organization: Hispalinux - http://www.hispalinux.es
-Message-Id: <1059785617.1873.5.camel@debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 02 Aug 2003 02:53:38 +0200
+	Fri, 1 Aug 2003 21:04:12 -0400
+Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:4230 "EHLO
+	smtp-out4.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S272675AbTHBBEI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 21:04:08 -0400
+Message-ID: <3F2B0E06.9000907@cn.stir.ac.uk>
+Date: Sat, 02 Aug 2003 02:04:06 +0100
+From: Bernd Porr <Bernd.Porr@cn.stir.ac.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, comedi@comedi.org
+Subject: compiling external kernel modules (comedi.org)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Aug 2003 01:04:06.0472 (UTC) FILETIME=[F8D50C80:01C35891]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
---=-Qj7EADQKmGLYHfwtQvTV
-Content-Type: multipart/mixed; boundary="=-Bw44shZ1b0ehIobBHJve"
+I'm trying to compile comedi on 2.6-test2. The very naive way (with 
+configure) does not work (as expected). However, comedi conforms 
+(mainly) to the kernel makefile convention. So I tried this:
+
+make -C /usr/src/linux-2.6.0-test2 
+SUBDIRS=/home/bp1/c/usb/2.6/comedi/comedi/ V=1
+
+make -f scripts/Makefile.build 
+obj=/home/bp1/c/usb/2.6/comedi/comedi//drivers
+scripts/Makefile.build:27: kbuild: 
+/home/bp1/c/usb/2.6/comedi/comedi//drivers/Makefile - Usage of 
+export-objs is obsolete in 2.5. Please fix!
+make -f scripts/Makefile.build 
+obj=/home/bp1/c/usb/2.6/comedi/comedi//kcomedilib
+scripts/Makefile.build:27: kbuild: 
+/home/bp1/c/usb/2.6/comedi/comedi//kcomedilib/Makefile - Usage of 
+export-objs is obsolete in 2.5. Please fix!
+make -f scripts/Makefile.build obj=arch/i386/boot arch/i386/boot/bzImage
+make -f scripts/Makefile.build obj=arch/i386/boot/compressed \
+                                IMAGE_OFFSET=0x100000 
+arch/i386/boot/compressed/
+vmlinux
+Kernel: arch/i386/boot/bzImage is ready
+  Building modules, stage 2.
+make -rR -f scripts/Makefile.modpost
+  scripts/modpost vmlinux drivers/net/pcmcia/3c574_cs.o 
+drivers/net/pcmcia/3c589
+_cs.o drivers/net/8139cp.o drivers/net/8139too.o drivers/net/8390.o 
+drivers/char
+/agp/agpgart.o drivers/net/wireless/airo.o 
+drivers/net/wireless/airo_cs.o driver
+s/net/wireless/arlan-proc.o drivers/net/wireless/arlan.o 
+drivers/net/wireless/at
+mel.o drivers/net/wireless/atmel_cs.o drivers/usb/class/audio.o 
+drivers/net/pcmc
+
+Looks like as if the kernel itself has been compiled and not comedi.
+
+In comparison: kernel 2.4.x makes it (nearly) right:
+
+make -C /usr/src/linux SUBDIRS=/home/bp1/c/usb/2.6/comedi/comedi/
+
+make: Entering directory `/usr/src/linux-2.4.21'
+. scripts/mkversion > .tmpversion
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.21/include -Wall 
+-Wstrict-prototypes -Wno-
+trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer 
+-pipe -mpref
+erred-stack-boundary=2 -march=athlon  -DUTS_MACHINE='"i386"' 
+-DKBUILD_BASENAME=v
+ersion -c -o init/version.o init/version.c
+make CFLAGS="-D__KERNEL__ -I/usr/src/linux-2.4.21/include -Wall 
+-Wstrict-prototy
+pes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-fomit-frame-pointer -pi
+pe -mpreferred-stack-boundary=2 -march=athlon " -C  
+/home/bp1/c/usb/2.6/comedi/c
+omedi
+make[1]: Entering directory `/home/bp1/c/usb/2.6/comedi/comedi'
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.21/include -Wall 
+-Wstrict-prototypes -Wno-
+trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer 
+-pipe -mpref
+erred-stack-boundary=2 -march=athlon  -D__KERNEL__ 
+-I/usr/src/linux-2.4.21/inclu
+de  -c -o comedi_fops.o comedi_fops.c
+make[1]: Leaving directory `/home/bp1/c/usb/2.6/comedi/comedi'
+make: Leaving directory `/usr/src/linux-2.4.21'
+
+Is it a kernel2.6 issue or is it a comedi issue? Actually the comedi 
+configuration is a hack and does not completely comply with the kernel 
+makefile conventions. Probably because it has to run on either 2.x.x 
+kernel. Who can help? Is the way to compile exernal modules from the 
+2.4.x kernel deprecated? Is there another (more elegant) way? Would be 
+nice to use as much as possible from the 2.6 stuff. Just now comdi does 
+most of the stuff by a "configure" by itself. This leads to another 
+problem where comedi is not able to obtain the compiler flags etc from 
+the 2-6 kernel. However, this is a hack and has to be chnanged anyway.
+
+Therefore my questions: What is the best way to compile external modules?
+What has changed from 2.4 to 2.6? I noticed that .htdepend is no longer 
+there and that there is no rules file.
+
+/Bernd
+
+-- 
+http://www.cn.stir.ac.uk/~bp1/
+mailto:bp1@cn.stir.ac.uk
 
 
---=-Bw44shZ1b0ehIobBHJve
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
-
-Hi.
-
-I obtain the included log messages on reboots
-
-Badness in device_release at drivers/base/core.c:84
-Badness in kobject_cleanup at lib/kobject.c:402
-
---=20
-Ram=F3n Rey Vicente       <ramon dot rey at hispalinux dot es>
-        jabber ID       <rreylinux at jabber dot org>
-------------------------------------------------------------
-gpg public key ID 0xBEBD71D5 # http://pgp.escomposlinux.org/
-
---=-Bw44shZ1b0ehIobBHJve
-Content-Disposition: inline; filename=syslog
-Content-Type: text/plain; name=syslog; charset=ISO-8859-15
-Content-Transfer-Encoding: base64
-
-QXVnICAyIDAyOjI4OjI5IGRlYmlhbiBzcXVpZFs4ODddOiBQcmVwYXJpbmcgZm9yIHNodXRkb3du
-IGFmdGVyIDE0MDIgcmVxdWVzdHMgDQpBdWcgIDIgMDI6Mjg6MjkgZGViaWFuIHNxdWlkWzg4N106
-IFdhaXRpbmcgMzAgc2Vjb25kcyBmb3IgYWN0aXZlIGNvbm5lY3Rpb25zIHRvIGZpbmlzaCANCkF1
-ZyAgMiAwMjoyODoyOSBkZWJpYW4gc3F1aWRbODg3XTogRkQgMTIgQ2xvc2luZyBIVFRQIGNvbm5l
-Y3Rpb24gDQpBdWcgIDIgMDI6Mjg6MjkgZGViaWFuIHNxdWlkWzg4N106IFNodXR0aW5nIGRvd24u
-Li4gDQpBdWcgIDIgMDI6Mjg6MjkgZGViaWFuIHNxdWlkWzg4N106IEZEIDEzIENsb3NpbmcgSUNQ
-IGNvbm5lY3Rpb24gDQpBdWcgIDIgMDI6Mjg6MjkgZGViaWFuIHNxdWlkWzg4N106IENsb3Npbmcg
-dW5saW5rZCBwaXBlIG9uIEZEIDEwIA0KQXVnICAyIDAyOjI4OjI5IGRlYmlhbiBzcXVpZFs4ODdd
-OiBzdG9yZURpcldyaXRlQ2xlYW5Mb2dzOiBTdGFydGluZy4uLiANCkF1ZyAgMiAwMjoyODoyOSBk
-ZWJpYW4gc3F1aWRbODg3XTogICBGaW5pc2hlZC4gIFdyb3RlIDg0OTYgZW50cmllcy4gDQpBdWcg
-IDIgMDI6Mjg6MjkgZGViaWFuIHNxdWlkWzg4N106ICAgVG9vayAwLjAgc2Vjb25kcyAoMTcwODg3
-LjIgZW50cmllcy9zZWMpLiANCkF1ZyAgMiAwMjoyODoyOSBkZWJpYW4gc3F1aWRbODg3XTogU3F1
-aWQgQ2FjaGUgKFZlcnNpb24gMi41LlNUQUJMRTMpOiBFeGl0aW5nIG5vcm1hbGx5LiANCkF1ZyAg
-MiAwMjoyODoyOSBkZWJpYW4gc3F1aWRbODg1XTogU3F1aWQgUGFyZW50OiBjaGlsZCBwcm9jZXNz
-IDg4NyBleGl0ZWQgd2l0aCBzdGF0dXMgMA0KQXVnICAyIDAyOjI4OjMwIGRlYmlhbiBrZXJuZWw6
-IHVoY2ktaGNkIDAwMDA6MDA6MDcuMjogcmVtb3ZlLCBzdGF0ZSAzDQpBdWcgIDIgMDI6Mjg6MzAg
-ZGViaWFuIGtlcm5lbDogdXNiIHVzYjE6IFVTQiBkaXNjb25uZWN0LCBhZGRyZXNzIDENCkF1ZyAg
-MiAwMjoyODozMCBkZWJpYW4ga2VybmVsOiBEZXZpY2UgJzEtMDowJyBkb2VzIG5vdCBoYXZlIGEg
-cmVsZWFzZSgpIGZ1bmN0aW9uLCBpdCBpcyBicm9rZW4gYW5kIG11c3QgYmUgZml4ZWQuDQpBdWcg
-IDIgMDI6Mjg6MzAgZGViaWFuIGtlcm5lbDogQmFkbmVzcyBpbiBkZXZpY2VfcmVsZWFzZSBhdCBk
-cml2ZXJzL2Jhc2UvY29yZS5jOjg0DQpBdWcgIDIgMDI6Mjg6MzAgZGViaWFuIGtlcm5lbDogQ2Fs
-bCBUcmFjZToNCkF1ZyAgMiAwMjoyODozMCBkZWJpYW4ga2VybmVsOiAgW2tvYmplY3RfY2xlYW51
-cCsxMDAvMTI4XSBrb2JqZWN0X2NsZWFudXArMHg2NC8weDgwDQpBdWcgIDIgMDI6Mjg6MzAgZGVi
-aWFuIGtlcm5lbDogIFtfX2NyY194ZnJtX2ZpbmRfYWNxX2J5c2VxKzI1MjU0NzQvMTAzMjIxMDNd
-IHVzYl9kaXNjb25uZWN0KzB4OWQvMHgxMDAgW3VzYmNvcmVdDQpBdWcgIDIgMDI6Mjg6MzAgZGVi
-aWFuIGtlcm5lbDogIFtfX2NyY194ZnJtX2ZpbmRfYWNxX2J5c2VxKzI1NTU1NDcvMTAzMjIxMDNd
-IHVzYl9oY2RfcGNpX3JlbW92ZSsweDc2LzB4MTYwIFt1c2Jjb3JlXQ0KQXVnICAyIDAyOjI4OjMw
-IGRlYmlhbiBrZXJuZWw6ICBbcGNpX2RldmljZV9yZW1vdmUrNDYvNjRdIHBjaV9kZXZpY2VfcmVt
-b3ZlKzB4MmUvMHg0MA0KQXVnICAyIDAyOjI4OjMwIGRlYmlhbiBrZXJuZWw6ICBbZGV2aWNlX3Jl
-bGVhc2VfZHJpdmVyKzc0Lzk2XSBkZXZpY2VfcmVsZWFzZV9kcml2ZXIrMHg0YS8weDYwDQpBdWcg
-IDIgMDI6Mjg6MzAgZGViaWFuIGtlcm5lbDogIFtkcml2ZXJfZGV0YWNoKzI3LzY0XSBkcml2ZXJf
-ZGV0YWNoKzB4MWIvMHg0MA0KQXVnICAyIDAyOjI4OjMwIGRlYmlhbiBrZXJuZWw6ICBbYnVzX3Jl
-bW92ZV9kcml2ZXIrNDEvOTZdIGJ1c19yZW1vdmVfZHJpdmVyKzB4MjkvMHg2MA0KQXVnICAyIDAy
-OjI4OjMwIGRlYmlhbiBrZXJuZWw6ICBbZHJpdmVyX3VucmVnaXN0ZXIrMTEvMjddIGRyaXZlcl91
-bnJlZ2lzdGVyKzB4Yi8weDFiDQpBdWcgIDIgMDI6Mjg6MzAgZGViaWFuIGtlcm5lbDogIFtwY2lf
-dW5yZWdpc3Rlcl9kcml2ZXIrMTQvMzJdIHBjaV91bnJlZ2lzdGVyX2RyaXZlcisweGUvMHgyMA0K
-QXVnICAyIDAyOjI4OjMwIGRlYmlhbiBrZXJuZWw6ICBbX19jcmNfeGZybV9maW5kX2FjcV9ieXNl
-cSsyNDkxNTk5LzEwMzIyMTAzXSB1aGNpX2hjZF9jbGVhbnVwKzB4YS8weDRkIFt1aGNpX2hjZF0N
-CkF1ZyAgMiAwMjoyODozMCBkZWJpYW4ga2VybmVsOiAgW3N5c19kZWxldGVfbW9kdWxlKzI4MC8z
-MjBdIHN5c19kZWxldGVfbW9kdWxlKzB4MTE4LzB4MTQwDQpBdWcgIDIgMDI6Mjg6MzAgZGViaWFu
-IGtlcm5lbDogIFtkb19tdW5tYXArMjQ4LzMyMF0gZG9fbXVubWFwKzB4ZjgvMHgxNDANCkF1ZyAg
-MiAwMjoyODozMCBkZWJpYW4ga2VybmVsOiAgW3N5c19tdW5tYXArNDkvOTZdIHN5c19tdW5tYXAr
-MHgzMS8weDYwDQpBdWcgIDIgMDI6Mjg6MzAgZGViaWFuIGtlcm5lbDogIFtzeXNjYWxsX2NhbGwr
-Ny8xMV0gc3lzY2FsbF9jYWxsKzB4Ny8weGINCkF1ZyAgMiAwMjoyODozMCBkZWJpYW4ga2VybmVs
-OiANCkF1ZyAgMiAwMjoyODozMCBkZWJpYW4ga2VybmVsOiB1aGNpLWhjZCAwMDAwOjAwOjA3LjI6
-IFVTQiBidXMgMSBkZXJlZ2lzdGVyZWQNCkF1ZyAgMiAwMjoyODozMCBkZWJpYW4ga2VybmVsOiBr
-b2JqZWN0ICdjbGFzc19vYmonIGRvZXMgbm90IGhhdmUgYSByZWxlYXNlKCkgZnVuY3Rpb24sIGl0
-IGlzIGJyb2tlbiBhbmQgbXVzdCBiZSBmaXhlZC4NCkF1ZyAgMiAwMjoyODozMCBkZWJpYW4ga2Vy
-bmVsOiBCYWRuZXNzIGluIGtvYmplY3RfY2xlYW51cCBhdCBsaWIva29iamVjdC5jOjQwMg0KQXVn
-ICAyIDAyOjI4OjMwIGRlYmlhbiBrZXJuZWw6IENhbGwgVHJhY2U6DQpBdWcgIDIgMDI6Mjg6MzAg
-ZGViaWFuIGtlcm5lbDogIFtrb2JqZWN0X2NsZWFudXArNzUvMTI4XSBrb2JqZWN0X2NsZWFudXAr
-MHg0Yi8weDgwDQpBdWcgIDIgMDI6Mjg6MzAgZGViaWFuIGtlcm5lbDogIFtfX2NyY194ZnJtX2Zp
-bmRfYWNxX2J5c2VxKzI1NTU2ODMvMTAzMjIxMDNdIHVzYl9oY2RfcGNpX3JlbW92ZSsweGZlLzB4
-MTYwIFt1c2Jjb3JlXQ0KQXVnICAyIDAyOjI4OjMwIGRlYmlhbiBrZXJuZWw6ICBbcGNpX2Rldmlj
-ZV9yZW1vdmUrNDYvNjRdIHBjaV9kZXZpY2VfcmVtb3ZlKzB4MmUvMHg0MA0KQXVnICAyIDAyOjI4
-OjMwIGRlYmlhbiBrZXJuZWw6ICBbZGV2aWNlX3JlbGVhc2VfZHJpdmVyKzc0Lzk2XSBkZXZpY2Vf
-cmVsZWFzZV9kcml2ZXIrMHg0YS8weDYwDQpBdWcgIDIgMDI6Mjg6MzAgZGViaWFuIGtlcm5lbDog
-IFtkcml2ZXJfZGV0YWNoKzI3LzY0XSBkcml2ZXJfZGV0YWNoKzB4MWIvMHg0MA0KQXVnICAyIDAy
-OjI4OjMwIGRlYmlhbiBrZXJuZWw6ICBbYnVzX3JlbW92ZV9kcml2ZXIrNDEvOTZdIGJ1c19yZW1v
-dmVfZHJpdmVyKzB4MjkvMHg2MA0KQXVnICAyIDAyOjI4OjMwIGRlYmlhbiBrZXJuZWw6ICBbZHJp
-dmVyX3VucmVnaXN0ZXIrMTEvMjddIGRyaXZlcl91bnJlZ2lzdGVyKzB4Yi8weDFiDQpBdWcgIDIg
-MDI6Mjg6MzAgZGViaWFuIGtlcm5lbDogIFtwY2lfdW5yZWdpc3Rlcl9kcml2ZXIrMTQvMzJdIHBj
-aV91bnJlZ2lzdGVyX2RyaXZlcisweGUvMHgyMA0KQXVnICAyIDAyOjI4OjMwIGRlYmlhbiBrZXJu
-ZWw6ICBbX19jcmNfeGZybV9maW5kX2FjcV9ieXNlcSsyNDkxNTk5LzEwMzIyMTAzXSB1aGNpX2hj
-ZF9jbGVhbnVwKzB4YS8weDRkIFt1aGNpX2hjZF0NCkF1ZyAgMiAwMjoyODozMCBkZWJpYW4ga2Vy
-bmVsOiAgW3N5c19kZWxldGVfbW9kdWxlKzI4MC8zMjBdIHN5c19kZWxldGVfbW9kdWxlKzB4MTE4
-LzB4MTQwDQpBdWcgIDIgMDI6Mjg6MzAgZGViaWFuIGtlcm5lbDogIFtkb19tdW5tYXArMjQ4LzMy
-MF0gZG9fbXVubWFwKzB4ZjgvMHgxNDANCkF1ZyAgMiAwMjoyODozMCBkZWJpYW4ga2VybmVsOiAg
-W3N5c19tdW5tYXArNDkvOTZdIHN5c19tdW5tYXArMHgzMS8weDYwDQpBdWcgIDIgMDI6Mjg6MzAg
-ZGViaWFuIGtlcm5lbDogIFtzeXNjYWxsX2NhbGwrNy8xMV0gc3lzY2FsbF9jYWxsKzB4Ny8weGIN
-CkF1ZyAgMiAwMjoyODozMCBkZWJpYW4ga2VybmVsOiANCkF1ZyAgMiAwMjoyODozMSBkZWJpYW4g
-a2VybmVsOiBrb2JqZWN0ICd1c2InIGRvZXMgbm90IGhhdmUgYSByZWxlYXNlKCkgZnVuY3Rpb24s
-IGl0IGlzIGJyb2tlbiBhbmQgbXVzdCBiZSBmaXhlZC4NCkF1ZyAgMiAwMjoyODozMSBkZWJpYW4g
-a2VybmVsOiBCYWRuZXNzIGluIGtvYmplY3RfY2xlYW51cCBhdCBsaWIva29iamVjdC5jOjQwMg0K
-QXVnICAyIDAyOjI4OjMxIGRlYmlhbiBrZXJuZWw6IENhbGwgVHJhY2U6DQpBdWcgIDIgMDI6Mjg6
-MzEgZGViaWFuIGtlcm5lbDogIFtrb2JqZWN0X2NsZWFudXArNzUvMTI4XSBrb2JqZWN0X2NsZWFu
-dXArMHg0Yi8weDgwDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogIFtfX2NyY194ZnJt
-X2ZpbmRfYWNxX2J5c2VxKzI1NTEzNzUvMTAzMjIxMDNdIHVzYl9tYWpvcl9jbGVhbnVwKzB4YS8w
-eDQwIFt1c2Jjb3JlXQ0KQXVnICAyIDAyOjI4OjMxIGRlYmlhbiBrZXJuZWw6ICBbX19jcmNfeGZy
-bV9maW5kX2FjcV9ieXNlcSsyNTU2MTkwLzEwMzIyMTAzXSB1c2JfZXhpdCsweDE5LzB4MzEgW3Vz
-YmNvcmVdDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogIFtzeXNfZGVsZXRlX21vZHVs
-ZSsyODAvMzIwXSBzeXNfZGVsZXRlX21vZHVsZSsweDExOC8weDE0MA0KQXVnICAyIDAyOjI4OjMx
-IGRlYmlhbiBrZXJuZWw6ICBbZG9fbXVubWFwKzI0OC8zMjBdIGRvX211bm1hcCsweGY4LzB4MTQw
-DQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogIFtzeXNfbXVubWFwKzQ5Lzk2XSBzeXNf
-bXVubWFwKzB4MzEvMHg2MA0KQXVnICAyIDAyOjI4OjMxIGRlYmlhbiBrZXJuZWw6ICBbc3lzY2Fs
-bF9jYWxsKzcvMTFdIHN5c2NhbGxfY2FsbCsweDcvMHhiDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFu
-IGtlcm5lbDogDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogZHJpdmVycy91c2IvY29y
-ZS91c2IuYzogZGVyZWdpc3RlcmluZyBkcml2ZXIgaHViDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFu
-IGtlcm5lbDoga29iamVjdCAndXNiX2hvc3QnIGRvZXMgbm90IGhhdmUgYSByZWxlYXNlKCkgZnVu
-Y3Rpb24sIGl0IGlzIGJyb2tlbiBhbmQgbXVzdCBiZSBmaXhlZC4NCkF1ZyAgMiAwMjoyODozMSBk
-ZWJpYW4ga2VybmVsOiBCYWRuZXNzIGluIGtvYmplY3RfY2xlYW51cCBhdCBsaWIva29iamVjdC5j
-OjQwMg0KQXVnICAyIDAyOjI4OjMxIGRlYmlhbiBrZXJuZWw6IENhbGwgVHJhY2U6DQpBdWcgIDIg
-MDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogIFtrb2JqZWN0X2NsZWFudXArNzUvMTI4XSBrb2JqZWN0
-X2NsZWFudXArMHg0Yi8weDgwDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogIFtfX2Ny
-Y194ZnJtX2ZpbmRfYWNxX2J5c2VxKzI1Mzg5OTEvMTAzMjIxMDNdIHVzYl9ob3N0X2NsZWFudXAr
-MHhhLzB4MjAgW3VzYmNvcmVdDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogIFtfX2Ny
-Y194ZnJtX2ZpbmRfYWNxX2J5c2VxKzI1NTYyMDEvMTAzMjIxMDNdIHVzYl9leGl0KzB4MjQvMHgz
-MSBbdXNiY29yZV0NCkF1ZyAgMiAwMjoyODozMSBkZWJpYW4ga2VybmVsOiAgW3N5c19kZWxldGVf
-bW9kdWxlKzI4MC8zMjBdIHN5c19kZWxldGVfbW9kdWxlKzB4MTE4LzB4MTQwDQpBdWcgIDIgMDI6
-Mjg6MzEgZGViaWFuIGtlcm5lbDogIFtkb19tdW5tYXArMjQ4LzMyMF0gZG9fbXVubWFwKzB4Zjgv
-MHgxNDANCkF1ZyAgMiAwMjoyODozMSBkZWJpYW4ga2VybmVsOiAgW3N5c19tdW5tYXArNDkvOTZd
-IHN5c19tdW5tYXArMHgzMS8weDYwDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogIFtz
-eXNjYWxsX2NhbGwrNy8xMV0gc3lzY2FsbF9jYWxsKzB4Ny8weGINCkF1ZyAgMiAwMjoyODozMSBk
-ZWJpYW4ga2VybmVsOiANCkF1ZyAgMiAwMjoyODozMSBkZWJpYW4ga2VybmVsOiBrb2JqZWN0ICdk
-cml2ZXJzJyBkb2VzIG5vdCBoYXZlIGEgcmVsZWFzZSgpIGZ1bmN0aW9uLCBpdCBpcyBicm9rZW4g
-YW5kIG11c3QgYmUgZml4ZWQuDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogQmFkbmVz
-cyBpbiBrb2JqZWN0X2NsZWFudXAgYXQgbGliL2tvYmplY3QuYzo0MDINCkF1ZyAgMiAwMjoyODoz
-MSBkZWJpYW4ga2VybmVsOiBDYWxsIFRyYWNlOg0KQXVnICAyIDAyOjI4OjMxIGRlYmlhbiBrZXJu
-ZWw6ICBba29iamVjdF9jbGVhbnVwKzc1LzEyOF0ga29iamVjdF9jbGVhbnVwKzB4NGIvMHg4MA0K
-QXVnICAyIDAyOjI4OjMxIGRlYmlhbiBrZXJuZWw6ICBbYnVzX3VucmVnaXN0ZXIrMTQvNDFdIGJ1
-c191bnJlZ2lzdGVyKzB4ZS8weDI5DQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogIFtf
-X2NyY194ZnJtX2ZpbmRfYWNxX2J5c2VxKzI1NTYyMTEvMTAzMjIxMDNdIHVzYl9leGl0KzB4MmUv
-MHgzMSBbdXNiY29yZV0NCkF1ZyAgMiAwMjoyODozMSBkZWJpYW4ga2VybmVsOiAgW3N5c19kZWxl
-dGVfbW9kdWxlKzI4MC8zMjBdIHN5c19kZWxldGVfbW9kdWxlKzB4MTE4LzB4MTQwDQpBdWcgIDIg
-MDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogIFtkb19tdW5tYXArMjQ4LzMyMF0gZG9fbXVubWFwKzB4
-ZjgvMHgxNDANCkF1ZyAgMiAwMjoyODozMSBkZWJpYW4ga2VybmVsOiAgW3N5c19tdW5tYXArNDkv
-OTZdIHN5c19tdW5tYXArMHgzMS8weDYwDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDog
-IFtzeXNjYWxsX2NhbGwrNy8xMV0gc3lzY2FsbF9jYWxsKzB4Ny8weGINCkF1ZyAgMiAwMjoyODoz
-MSBkZWJpYW4ga2VybmVsOiANCkF1ZyAgMiAwMjoyODozMSBkZWJpYW4ga2VybmVsOiBrb2JqZWN0
-ICdkZXZpY2VzJyBkb2VzIG5vdCBoYXZlIGEgcmVsZWFzZSgpIGZ1bmN0aW9uLCBpdCBpcyBicm9r
-ZW4gYW5kIG11c3QgYmUgZml4ZWQuDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogQmFk
-bmVzcyBpbiBrb2JqZWN0X2NsZWFudXAgYXQgbGliL2tvYmplY3QuYzo0MDINCkF1ZyAgMiAwMjoy
-ODozMSBkZWJpYW4ga2VybmVsOiBDYWxsIFRyYWNlOg0KQXVnICAyIDAyOjI4OjMxIGRlYmlhbiBr
-ZXJuZWw6ICBba29iamVjdF9jbGVhbnVwKzc1LzEyOF0ga29iamVjdF9jbGVhbnVwKzB4NGIvMHg4
-MA0KQXVnICAyIDAyOjI4OjMxIGRlYmlhbiBrZXJuZWw6ICBbYnVzX3VucmVnaXN0ZXIrMjkvNDFd
-IGJ1c191bnJlZ2lzdGVyKzB4MWQvMHgyOQ0KQXVnICAyIDAyOjI4OjMxIGRlYmlhbiBrZXJuZWw6
-ICBbX19jcmNfeGZybV9maW5kX2FjcV9ieXNlcSsyNTU2MjExLzEwMzIyMTAzXSB1c2JfZXhpdCsw
-eDJlLzB4MzEgW3VzYmNvcmVdDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogIFtzeXNf
-ZGVsZXRlX21vZHVsZSsyODAvMzIwXSBzeXNfZGVsZXRlX21vZHVsZSsweDExOC8weDE0MA0KQXVn
-ICAyIDAyOjI4OjMxIGRlYmlhbiBrZXJuZWw6ICBbZG9fbXVubWFwKzI0OC8zMjBdIGRvX211bm1h
-cCsweGY4LzB4MTQwDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogIFtzeXNfbXVubWFw
-KzQ5Lzk2XSBzeXNfbXVubWFwKzB4MzEvMHg2MA0KQXVnICAyIDAyOjI4OjMxIGRlYmlhbiBrZXJu
-ZWw6ICBbc3lzY2FsbF9jYWxsKzcvMTFdIHN5c2NhbGxfY2FsbCsweDcvMHhiDQpBdWcgIDIgMDI6
-Mjg6MzEgZGViaWFuIGtlcm5lbDogDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDoga29i
-amVjdCAndXNiJyBkb2VzIG5vdCBoYXZlIGEgcmVsZWFzZSgpIGZ1bmN0aW9uLCBpdCBpcyBicm9r
-ZW4gYW5kIG11c3QgYmUgZml4ZWQuDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogQmFk
-bmVzcyBpbiBrb2JqZWN0X2NsZWFudXAgYXQgbGliL2tvYmplY3QuYzo0MDINCkF1ZyAgMiAwMjoy
-ODozMSBkZWJpYW4ga2VybmVsOiBDYWxsIFRyYWNlOg0KQXVnICAyIDAyOjI4OjMxIGRlYmlhbiBr
-ZXJuZWw6ICBba29iamVjdF9jbGVhbnVwKzc1LzEyOF0ga29iamVjdF9jbGVhbnVwKzB4NGIvMHg4
-MA0KQXVnICAyIDAyOjI4OjMxIGRlYmlhbiBrZXJuZWw6ICBbX19jcmNfeGZybV9maW5kX2FjcV9i
-eXNlcSsyNTU2MjExLzEwMzIyMTAzXSB1c2JfZXhpdCsweDJlLzB4MzEgW3VzYmNvcmVdDQpBdWcg
-IDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogIFtzeXNfZGVsZXRlX21vZHVsZSsyODAvMzIwXSBz
-eXNfZGVsZXRlX21vZHVsZSsweDExOC8weDE0MA0KQXVnICAyIDAyOjI4OjMxIGRlYmlhbiBrZXJu
-ZWw6ICBbZG9fbXVubWFwKzI0OC8zMjBdIGRvX211bm1hcCsweGY4LzB4MTQwDQpBdWcgIDIgMDI6
-Mjg6MzEgZGViaWFuIGtlcm5lbDogIFtzeXNfbXVubWFwKzQ5Lzk2XSBzeXNfbXVubWFwKzB4MzEv
-MHg2MA0KQXVnICAyIDAyOjI4OjMxIGRlYmlhbiBrZXJuZWw6ICBbc3lzY2FsbF9jYWxsKzcvMTFd
-IHN5c2NhbGxfY2FsbCsweDcvMHhiDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogDQpB
-dWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogS2VybmVsIGxvZ2dpbmcgKHByb2MpIHN0b3Bw
-ZWQuDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGtlcm5lbDogS2VybmVsIGxvZyBkYWVtb24gdGVy
-bWluYXRpbmcuDQpBdWcgIDIgMDI6Mjg6MzEgZGViaWFuIGV4aXRpbmcgb24gc2lnbmFsIDE1DQpB
-dWcgIDIgMDI6Mjk6MjEgZGViaWFuIHN5c2xvZ2QgMS40LjEjMTE6IHJlc3RhcnQuDQo=
-
---=-Bw44shZ1b0ehIobBHJve--
-
---=-Qj7EADQKmGLYHfwtQvTV
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/KwuRRGk68b69cdURAl1sAJ4kFQT8Kc963wIrWZgAuTXEuW9AYACeLpHV
-kkQGe3ZpJPguFvPocXDbZaQ=
-=TwqB
------END PGP SIGNATURE-----
-
---=-Qj7EADQKmGLYHfwtQvTV--
 

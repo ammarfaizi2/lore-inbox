@@ -1,58 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266186AbUJWGYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266547AbUJVRZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266186AbUJWGYH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 02:24:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267612AbUJWGUu
+	id S266547AbUJVRZU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 13:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267326AbUJVRVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 02:20:50 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:13231 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267633AbUJWGUO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 02:20:14 -0400
-Message-ID: <4179F81A.4010601@yahoo.com.au>
-Date: Sat, 23 Oct 2004 16:20:10 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Fri, 22 Oct 2004 13:21:53 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:21453 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S266741AbUJVRRP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 13:17:15 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: William Lee Irwin III <wli@holomorphy.com>, Matt Mackall <mpm@selenic.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The naming wars continue...
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041022234631.GF28904@waste.org> <20041023011549.GK17038@holomorphy.com> <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
+Date: Fri, 22 Oct 2004 10:16:23 -0700
+Message-ID: <88056F38E9E48644A0F562A38C64FB6003287D18@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
+Thread-Index: AcS4WiKWhV0AqR8aQlCbIA4gbRXIRwAADLdw
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Kendall Bennett" <KendallB@scitechsoft.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-fbdev-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 22 Oct 2004 17:16:24.0827 (UTC) FILETIME=[DBD9D4B0:01C4B85A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+ 
 
-> More importantly, maybe we could all realize that it isn't actually that 
-> big of an issue ;)
-> 
-> 		Linus
+>-----Original Message-----
+>From: Kendall Bennett [mailto:KendallB@scitechsoft.com] 
+>Sent: Friday, October 22, 2004 10:11 AM
+>To: Pallipadi, Venkatesh
+>Cc: linux-kernel@vger.kernel.org; 
+>linux-fbdev-devel@lists.sourceforge.net
+>Subject: RE: [Linux-fbdev-devel] Re: Generic VESA framebuffer 
+>driver and Video card BOOT?
+>
+>"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com> wrote:
+>
+>> I have done some experiments with this video post stuff. I think
+>> this should be done using x86 emulator rather than doing in real
+>> mode. The reason being, with an userlevel emulator we can call it
+>> at different times during resume. The current real mode videopost
+>> does it before the driver has restored the PCI config space. Some
+>> systems (mostly the ones with Radeon card) requires this to be
+>> done after PCI config space is restored. With a userspace
+>> emulator, we can call it at various places during the driver
+>> restore. 
+>> 
+>> I have seen the SciTech's x86 emulator in X.org. I could seperate
+>> it out from X into a stand alone application that does x86
+>> emulation. I use it to get the video back on my laptop (which has
+>> radeon card), by calling this user level emulator using
+>> usermodehelper call. I hope we will have x86 emulator sitting in a
+>> standard place in userspace. That way we can use it in driver
+>> restore and solve the S3 video restore problem in a more generic
+>> way. 
+>
+>We already have all this code completely separate from X and would 
+>release this as part of the Video Boot package for Linux. The kernel 
+>module is one part of it, but the code can be compiled as a 
+>stand alone 
+>user land program as well (SNAPBoot we call it right now). 
+>
 
-Linus I agree it isn't a huge issue. The main thing for me is that
-I could just give a _real_ release candidate more testing - run it
-through some regression tests, make sure it functions OK on all my
-computers, etc. I expect this would be helpful for people with large
-sets of regression tests, and maybe those maintaining 'other'
-architectures too.
+That is really nice to know. That will make "video on S3 resume" problem
+go away on quite a few laptops. Will look forward to release of such a
+code.
 
-I understand there's always "one more" patch to go in, but now that
-we're doing this stable-development system, I think a week or two
-weeks or even three weeks to stabalize the release with only
-really-real-bugfixes can't be such a bad thing.
-
-2.6.x-rc (rc for Ridiculous Count) can then be our development
-releases, and 2.6.x-rc (rc for Release Candidate) are then closer
-to stable releases (in terms of getting patches in).
-
-Optionally, you could change Ridiculous Count to PRErelease to avoid
-confusion :)
-
-Other than that I don't have much to complain about... so keep up the
-good work!
-
-Nick
+Thanks,
+Venki

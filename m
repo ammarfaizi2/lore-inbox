@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263240AbTCSWYT>; Wed, 19 Mar 2003 17:24:19 -0500
+	id <S263297AbTCSWb1>; Wed, 19 Mar 2003 17:31:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263239AbTCSWYT>; Wed, 19 Mar 2003 17:24:19 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:7050 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S263240AbTCSWYG>; Wed, 19 Mar 2003 17:24:06 -0500
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: Oops with bttv in latest bk
-Date: 19 Mar 2003 23:44:22 +0100
-Organization: SuSE Labs, Berlin
-Message-ID: <87he9z7z95.fsf@bytesex.org>
-References: <3E78BB99.3070605@portrix.net>
-NNTP-Posting-Host: localhost
+	id <S263298AbTCSWb1>; Wed, 19 Mar 2003 17:31:27 -0500
+Received: from smtp-102.noc.nerim.net ([62.4.17.102]:10761 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id <S263297AbTCSWb0>; Wed, 19 Mar 2003 17:31:26 -0500
+Date: Wed, 19 Mar 2003 23:42:24 +0100
+From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
+	<philippe.gramoulle@mmania.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Alexander Hoogerhuis <alexh@ihatent.com>, linux-kernel@vger.kernel.org
+Subject: Re: Hard freeze with 2.5.65-mm1
+Message-Id: <20030319234224.1da18196.philippe.gramoulle@mmania.com>
+In-Reply-To: <20030319121909.74f957af.akpm@digeo.com>
+References: <20030319104927.77b9ccf9.philippe.gramoulle@mmania.com>
+	<8765qfacaz.fsf@lapper.ihatent.com>
+	<20030319182442.4a9fa86c.philippe.gramoulle@mmania.com>
+	<877kav5ikv.fsf@lapper.ihatent.com>
+	<20030319121909.74f957af.akpm@digeo.com>
+Organization: Lycos Europe
+X-Mailer: Sylpheed version 0.8.11claws24 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Trace: bytesex.org 1048113862 27617 127.0.0.1 (19 Mar 2003 22:44:22 GMT)
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Dittmer <j.dittmer@portrix.net> writes:
 
-> Starting 'zapping' (Gnome TV application, Version V0.6.6-1 from Debian
-> unstable) gives the following error and an immediate X restart.
-> The overlay window is corrupted afterwards till next reboot.
-> Don't know, when this was introduced - it was the first time I ever
-> started it, but there weren't any changes lately so I suppose this was
-> in longer. Xawtv is working fine.
-> Linux is latest 2.5.65 from bk.
-> Is there anything specific I could try?
+Hi,
 
-http://bytesex.org/patches/2.5/patch-2.5.65-kraxel.gz
+Just for info, here are my gcc and ld versions:
 
-  Gerd
+$ gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-linux/3.2.3/specs
+Configured with: ../src/configure -v --enable-languages=c,c++,java,f77,proto,pascal,objc,ada --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-gxx-include-dir=/usr/include/c++/3.2 --enable-shared --with-system-zlib --enable-nls --without-included-gettext --enable-__cxa_atexit --enable-clocale=gnu --enable-java-gc=boehm --enable-objc-gc i386-linux
+Thread model: posix
+gcc version 3.2.3 20030309 (Debian prerelease)
+$ ld -v
+GNU ld version 2.13.90.0.18 20030121 Debian GNU/Linux
 
--- 
-/join #zonenkinder
+Thanks,
+
+Philippe
+
+On Wed, 19 Mar 2003 12:19:09 -0800
+Andrew Morton <akpm@digeo.com> wrote:
+
+  | With what compiler are you building your kernels?

@@ -1,29 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289110AbSAJCMQ>; Wed, 9 Jan 2002 21:12:16 -0500
+	id <S289120AbSAJCQq>; Wed, 9 Jan 2002 21:16:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289119AbSAJCMG>; Wed, 9 Jan 2002 21:12:06 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61189 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289110AbSAJCLy>; Wed, 9 Jan 2002 21:11:54 -0500
-Subject: Re: [PATCH][RFCA] Sound: adding /proc/driver/{vendor}/{dev_pci}/ac97
-To: salvador@inti.gov.ar
-Date: Thu, 10 Jan 2002 02:23:23 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3C3C8093.7213A219@inti.gov.ar> from "salvador" at Jan 09, 2002 02:40:35 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16OUsF-00035V-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S289121AbSAJCQg>; Wed, 9 Jan 2002 21:16:36 -0500
+Received: from nile.gnat.com ([205.232.38.5]:14740 "HELO nile.gnat.com")
+	by vger.kernel.org with SMTP id <S289120AbSAJCQZ>;
+	Wed, 9 Jan 2002 21:16:25 -0500
+From: dewar@gnat.com
+To: fjh@cs.mu.OZ.AU, pbarada@mail.wm.sps.mot.com
+Subject: Re: [PATCH] C undefined behavior fix
+Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
+Message-Id: <20020110021624.21D50F3147@nile.gnat.com>
+Date: Wed,  9 Jan 2002 21:16:24 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Also a card can have multiple ac97 codecs
-> 
-> You are right, will also take care about it. Do you think
-> /proc/driver/{vendor}/{dev_pci}/{num_ac97}/ac97 will be ok?
+<< |        [#5] The least requirements on a  conforming  implementation
+ |        are:
+ |
+ |          -- At  sequence points, volatile objects are stable in the
+ |             sense  that  previous   accesses   are   complete   and
+ |             subsequent accesses have not yet occurred.
+>>
 
-I'm dubious about the entire /proc entries. 8)
+Note that this particular requirement is much laxer than that in the 
+Ada standard, since it is specialized to sequence points, and would
+appear to allow reordering of accesses between sequence points)

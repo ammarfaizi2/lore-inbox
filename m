@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131387AbRCSJrZ>; Mon, 19 Mar 2001 04:47:25 -0500
+	id <S131385AbRCSJuf>; Mon, 19 Mar 2001 04:50:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131376AbRCSJrO>; Mon, 19 Mar 2001 04:47:14 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:29965 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S131385AbRCSJrJ>;
-	Mon, 19 Mar 2001 04:47:09 -0500
-Date: Mon, 19 Mar 2001 11:46:15 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: watermodem <aquamodem@ameritech.net>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Jiffy question and sound.
-Message-ID: <20010319114615.E23336@mea-ext.zmailer.org>
-In-Reply-To: <3AB5A53F.F8B0373B@ameritech.net>
+	id <S131393AbRCSJuZ>; Mon, 19 Mar 2001 04:50:25 -0500
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:48651 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S131385AbRCSJuN>; Mon, 19 Mar 2001 04:50:13 -0500
+Date: Mon, 19 Mar 2001 09:49:51 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] 2.4.3-pre4: allow more than 3 printers
+Message-ID: <20010319094951.D1204@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3AB5A53F.F8B0373B@ameritech.net>; from aquamodem@ameritech.net on Mon, Mar 19, 2001 at 12:20:47AM -0600
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 19, 2001 at 12:20:47AM -0600, watermodem wrote:
-> With the 2.4.0 kernel the loops_per_sec field was replaced (for i386)
-> with current_cpu_data.loops_per_jiffy.
-...
-> #define LOOPS_PER_SEC current_cpu_data.loops_per_jiffy * 100
+It's easier to add parallel ports to a machine nowadays, so the
+default maximum of three printer devices is becoming a bit
+restrictive.
 
-  The intention was to accomodate systems with faster than 2 GHz clock
-  at which the LOOPS_PER_SEC counter spins around a bit too fast..
-  ('signed long' at i386 handles 0..2G just fine, then it thinks the sign
-   got inverted..  'unsigned long' works fine until 4 GHz processors.)
+Here's a patch to increase it.  Any objections?
 
-  Why does the ALSA need  LOOPS_PER_SEC ?
-  Is it doing timing by busy-looping ?
+Tim.
+*/
 
-> Now compiling the same  ALSA modules with 2.4.2 this problem happens
-> much quicker and you don't need any other activity.  In fact it is hard
-> to play more than half a song.  (MP3)
-> It doesn't matter if what set of music players or tools I use the
-> problem is quite visible.
-> 
-> When I boot back to the original 2.2.x kernel everything is perfect.   
-> 
-> So I guess I have a few questions here.
->  1)   Is a jiffy 100th of a second or is it smaller  (so my loop count
-> is starving things.) (10ms) ?
+2001-03-19  Tim Waugh  <twaugh@redhat.com>
 
-	"HZ" is the answer.  E.g. Alpha has HZ=1024, while i386 has HZ=100
-	Nearly all architectures have different values based on what some
-	other UNIX uses at given system.
+	* include/linux/parport.h: Increase PARPORT_MAX to 16.
+	* drivers/char/lp.c: Increase LP_NO to 16.
 
->  2)   Why is it so much worse in 2.4.2 than 2.4.0?
->  3)   Any other "gotch's" that are important to watch for when moving
-> 2.2.x drivers to 2.4.x?
-
-	The FAQ may have some pointers to "porting drivers to 2.4" documents.
-
-> Thanks....
-> Watermodem
-> -
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-/Matti Aarnio
+--- linux/include/linux/parport.h.printers	Mon Mar 19 09:41:22 2001
++++ linux/include/linux/parport.h	Mon Mar 19 09:42:08 2001
+@@ -11,8 +11,8 @@
+ 
+ /* Start off with user-visible constants */
+ 
+-/* Maximum of 8 ports per machine */
+-#define PARPORT_MAX  8 
++/* Maximum of 16 ports per machine */
++#define PARPORT_MAX  16
+ 
+ /* Magic numbers */
+ #define PARPORT_IRQ_NONE  -1
+--- linux/drivers/char/lp.c.printers	Mon Mar 19 09:41:12 2001
++++ linux/drivers/char/lp.c	Mon Mar 19 09:41:41 2001
+@@ -135,8 +135,8 @@
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
+ 
+-/* if you have more than 3 printers, remember to increase LP_NO */
+-#define LP_NO 3
++/* if you have more than 16 printers, remember to increase LP_NO */
++#define LP_NO 16
+ 
+ /* ROUND_UP macro from fs/select.c */
+ #define ROUND_UP(x,y) (((x)+(y)-1)/(y))

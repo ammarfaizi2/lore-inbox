@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbUFCGzr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbUFCGzv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbUFCGzr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 02:55:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbUFCGzq
+	id S261378AbUFCGzv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 02:55:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbUFCGzv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 02:55:46 -0400
-Received: from mail.gurulabs.com ([66.62.77.7]:40118 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S261358AbUFCGzl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 02:55:41 -0400
-Subject: Re: Dell TrueMobile 1150 PCMCIA/Orinoco/Yenta problem w/ 2.6.4/5
-From: Dax Kelson <dax@gurulabs.com>
-To: Aaron Mulder <ammulder@alumni.princeton.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0406022305580.6314@saturn.opentools.org>
-References: <Pine.LNX.4.58.0406022305580.6314@saturn.opentools.org>
+	Thu, 3 Jun 2004 02:55:51 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:2735 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S261378AbUFCGzp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 02:55:45 -0400
+Subject: RE: idebus setup problem (2.6.7-rc1)
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Zhu, Yi" <yi.zhu@intel.com>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Auzanneau Gregory <mls@reolight.net>, Jeff Garzik <jgarzik@pobox.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F842DB1E2@PDSMSX403.ccr.corp.intel.com>
+References: <3ACA40606221794F80A5670F0AF15F842DB1E2@PDSMSX403.ccr.corp.intel.com>
 Content-Type: text/plain
-Message-Id: <1086245693.3772.42.camel@mentor.gurulabs.com>
+Message-Id: <1086245632.7991.531.camel@bach>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.7 (1.5.7-2) 
-Date: Thu, 03 Jun 2004 00:54:53 -0600
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 03 Jun 2004 16:53:53 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-06-02 at 23:31 -0400, Aaron Mulder wrote:
-> 	I'm working with a Dell Inspiron 8200 laptop, and I've tried SuSE
-> 9.1 Pro (2.6.4-54.5) and Fedora Core 2 (2.6.5-x I think, but I'm on SuSE
-> now).  The laptop has 2 normal PCMCIA slots, and a Dell TrueMobile 1150
-> mini-PCI card, which is apparently implemented as a PCMCIA card in a 3rd
-> PCMCIA slot (handled by the orinoco_cs driver).
+On Fri, 2004-05-28 at 02:38, Zhu, Yi wrote:
+> linux-kernel-owner@vger.kernel.org wrote:
+> > Bartlomiej Zolnierkiewicz wrote:
+> >> 
+> >> It breaks all "idex=" and "hdx=" options.
+> >> Please take a look at how ide_setup().
+> > 
+> > Yes, thanks for pointing out. Maybe we need some wildcard
+> > support. If module_param() can do this, that's great.
 > 
+> Does below change acceptable to make module_param support 
+> wildcard '?' ?
 
-The Fedora tracking bug is:
+Dislike this idea.  If you have hundreds of parameters, maybe it's
+supposed to be a PITA?
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=121742
-
-It has currently about a dozen people Cc'ing it.
-
-> 	I guess I'm assuming that this is a kernel bug and that it
-> shouldn't matter if the orinoco_cs module is loaded before PCMCIA and/or
-> yenta_socket.  But I guess it could be a distro bug if the module behavior
-> is intentional.
-
-It would be nice to find out which scenario it is.
-
-Dax Kelson
+Rusty,
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

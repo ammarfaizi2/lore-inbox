@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129261AbRBLXwH>; Mon, 12 Feb 2001 18:52:07 -0500
+	id <S129738AbRBLXyG>; Mon, 12 Feb 2001 18:54:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129268AbRBLXv4>; Mon, 12 Feb 2001 18:51:56 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:60170 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129261AbRBLXvm>; Mon, 12 Feb 2001 18:51:42 -0500
-Message-ID: <3A8876FA.EA2034D1@transmeta.com>
-Date: Mon, 12 Feb 2001 15:51:22 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: James Sutherland <jas88@cam.ac.uk>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Werner Almesberger <Werner.Almesberger@epfl.ch>,
-        linux-kernel@vger.kernel.org
-Subject: Re: LILO and serial speeds over 9600
-In-Reply-To: <Pine.SOL.4.21.0102122331360.21380-100000@yellow.csi.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129813AbRBLXx4>; Mon, 12 Feb 2001 18:53:56 -0500
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:41232 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S129738AbRBLXxq>; Mon, 12 Feb 2001 18:53:46 -0500
+Date: Mon, 12 Feb 2001 11:21:34 +0100
+From: Kurt Garloff <kurt@garloff.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: dc295
+Message-ID: <20010212112134.B1027@garloff.etpnet.phys.tue.nl>
+In-Reply-To: <m3bssa8qb2.fsf@h0050bad6338d.ne.mediaone.net>
+Mime-Version: 1.0
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m3bssa8qb2.fsf@h0050bad6338d.ne.mediaone.net>; from nick@coelacanth.com on Sat, Feb 10, 2001 at 11:18:25AM -0500
+X-Operating-System: Linux 2.2.16 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TUE/NL, SuSE/FRG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Sutherland wrote:
-> >
-> > Depends on what the client can handle.  For the kernel, that might be
-> > true, but for example a boot loader may only have a few K worth of buffer
-> > space.
+
+On Sat, Feb 10, 2001 at 11:18:25AM -0500, Nick Papadonis wrote:
+> I saw a posting about the DC-395 from you.
 > 
-> Fortunately, the bulky stuff (printk's from the booting kernel) will be
-> going from the boot loader to the server, and should be buffered there
-> OK until they can be processed. Only the stuff sent to the client will
-> need buffering, and that should be simple keystrokes...
-> 
+> What the current state of the driver?  Where is it? =20
 
-Well, any time there is a network there needs to be buffering, if you
-want to have any kind of ACK protocol.
+http://www.garloff.de/kurt/linux/dc395/
 
-	-hpa
+Works perfectly for most people, but corrupts data for some.
 
+> I just bought the card thinking a Linux driver was available, but one
+> doesn't appear to be in the 2.4 kernel tree.
+
+I won't push it into the kernel with the "corruption for a few" feature.
+Data loss is not what you expect from your Linux.
+And it's hard to fix without any reasonable chipset docu.
+
+> Any insight appreciated.
+
+Regards,
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
+Physics: Plasma simulations  <K.Garloff@Phys.TUE.NL>  [TU Eindhoven, NL]
+Linux: SCSI, Security          <garloff@suse.de>   [SuSE Nuernberg, FRG]
+ (See mail header or public key servers for PGP2 and GPG public keys.)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

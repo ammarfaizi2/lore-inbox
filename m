@@ -1,69 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314461AbSDRVUv>; Thu, 18 Apr 2002 17:20:51 -0400
+	id <S314462AbSDRV0L>; Thu, 18 Apr 2002 17:26:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314462AbSDRVUu>; Thu, 18 Apr 2002 17:20:50 -0400
-Received: from cpe.atm2-0-1071208.0x50c4d862.boanxx10.customer.tele.dk ([80.196.216.98]:63629
-	"EHLO fugmann.dhs.org") by vger.kernel.org with ESMTP
-	id <S314461AbSDRVUt>; Thu, 18 Apr 2002 17:20:49 -0400
-Message-ID: <3CBF389F.7010807@fugmann.dhs.org>
-Date: Thu, 18 Apr 2002 23:20:31 +0200
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020412 Debian/0.9.9-6
+	id <S314463AbSDRV0K>; Thu, 18 Apr 2002 17:26:10 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:2576 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S314462AbSDRV0J>;
+	Thu, 18 Apr 2002 17:26:09 -0400
+Date: Thu, 18 Apr 2002 14:22:12 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: <linux-kernel@vger.kernel.org>
+cc: Gabor Kerenyi <wom@tateyama.hu>
+Subject: Re: offtpic: GPL driver vs. non GPL driver
+In-Reply-To: <E16xnL9-00022l-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33L2.0204181410570.11734-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-To: "Nicolae P. Costescu" <nick@strongholdtech.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CPU scheduler question: processes created faster than  destroyed?
-In-Reply-To: <4.3.2.7.2.20020418153151.019a98e0@mail.qrts.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolae P. Costescu wrote:
-> At the point where the server replied to the client, the client 
-> disconnects and is ready to send another message to the master server, 
-> which will cause another 4 forks, etc.
+On Wed, 17 Apr 2002, Alan Cox wrote:
 
-So, your clients are contacting the server repeatably...
+| > First question: Is it possible to write the driver in GPL and then develop a
+| > binary only LIB? (I think yes because the LIB is in user space)
+|
+| Thats a legal question about derivative works again. Its a lawyer question.
+| Don't ask lawyers how to program, don't ask programmers how the law works 8)
+|
+| In business terms a binary only driver means that it won't be considered for
+| the mainstream kernel and you will need to rebuild it for every exact kernel
+| version your customers want. Irrespective of the GPL/lib question it may be
+| helpful to provide your customers source code to the kernel part of the
+| driver if only so you don't have to keep recompiling it. VMware follows very
+| much this model - their kernel bits are source code, vmware itself is most
+| definitely proprietary and per copy licensed.
 
-First there is something in your desctiption that was not entirely clear.
-After the server has received a request and has spawned four processes, does it sleep while
-waiting for data?
+Hi-
 
-If yes, the server would get a high counter. This means that the "dynamic proirity" of the server
-process would be higher than the spawned processes, and hence be able to starve the child processes
-for a small ammount of time. Therefore it is able to send the answer back to the client and receive a
-new request before any of the first spawned processes has terminated. Also the new spawned children will
-possibly have a higher "dynamic priority" (Really hate to use this term) than the first spawned processes.
+If this isn't clear to you, consider all of the processor-type
+possibilities, CONFIG possibilities, etc., that you could need to
+build for...not that anyone does all of this, but you could have
+customers who want all of these variations.[1]
 
-Try and understand the line:
-     p->counter = (p->counter >> 1) + NICE_TO_TICKS(p->nice);
-in kernel/sched.c#624 - 2.4.18, especially when a process is sleeping.
+Furthermore, with open source code, you get lots of debugging
+help and often get help porting the driver to newer kernel
+versions (there's always something needed for the next kernel
+version).
 
- > Is this just bad design on our part, or is there something in the CPU scheduler that leads to this
- > behavior - where processes are started quicker than they die?
-
-Well. If my assumptions are correct it is both. The scheduler works in this way, but
-that should not harm your application (it actually speed it up), but you might want
-to redesign your application to avoid too many proccesse being spawned.
-
-I would suggest one of two ways to do this.
-
-1) Let the server wait for the spawned processes to die, before accepting new requests.
-The draw back migh be that it will slow down the server process a bit.
-
-2) Dont spawn new processes all the time. Spawn the four needed processes once and for all,
-and insted of terminating after proccessing, let them wait for a new command (acting just like your server).
-
-Hope it helps.
-Anders Fugmann
+Another argument, if your company is concerned about exposing IP,
+is that you expose IP that is not exactly the latest and greatest.
+So what?  Maybe some other company will try to copy it.
+If they do, they will be working on a design that is a generation
+behind your company's new/latest design!
 
 
+[1] from 2.4.18:
+alpha/  cris/  ia64/  mips/    parisc/  s390/   sh/     sparc64/
+arm/    i386/  m68k/  mips64/  ppc/     s390x/  sparc/
 
+CONFIG_SMP=y or n requires a different kernel build.
 
+CONFIG_HIGHMEM=z requires a different kernel build.
 
+Not to mention CONFIG_module support, processor tuning...
 
+(probably missed a few CONFIG options here...)
 
+Now how many target kernel binaries do you want to build for
+each kernel version?
 
+15 processor_types * 2 * 2 = 60 kernel binaries per kernel version
+(but obviously worst case since you won't support all of
+those processor types)
+
+-- 
+~Randy
 

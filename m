@@ -1,77 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273524AbRIQKV1>; Mon, 17 Sep 2001 06:21:27 -0400
+	id <S273562AbRIQKpI>; Mon, 17 Sep 2001 06:45:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273561AbRIQKVI>; Mon, 17 Sep 2001 06:21:08 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:53766 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S273524AbRIQKU6>; Mon, 17 Sep 2001 06:20:58 -0400
-Date: Mon, 17 Sep 2001 12:21:20 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Forced umount (was lazy umount)
-Message-ID: <20010917122120.C13815@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010917000325.A25189@vitelus.com> <Pine.GSO.4.21.0109170416340.20053-100000@weyl.math.psu.edu>
+	id <S273565AbRIQKpB>; Mon, 17 Sep 2001 06:45:01 -0400
+Received: from warande3094.warande.uu.nl ([131.211.123.94]:50035 "EHLO
+	xar.sliepen.oi") by vger.kernel.org with ESMTP id <S273562AbRIQKoz>;
+	Mon, 17 Sep 2001 06:44:55 -0400
+Date: Mon, 17 Sep 2001 12:45:00 +0200
+From: Guus Sliepen <guus@warande3094.warande.uu.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Disk errors and Reiserfs
+Message-ID: <20010917124500.A30176@sliepen.warande.net>
+Mail-Followup-To: Guus Sliepen <guus@sliepen.warande.net>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <200109162329.f8GNTY918084@demai05.mw.mediaone.net> <E15imSi-00068f-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0109170416340.20053-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <E15imSi-00068f-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.20i
+X-oi: oi
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Sep 2001, Alexander Viro wrote:
 
-> > On Mon, Sep 17, 2001 at 09:57:47AM +0300, Ville Herva wrote:
-> > > > Basically, I want a 'kill -KILL' for filesystems.
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Me, too, similarly.
+On Mon, Sep 17, 2001 at 01:40:36AM +0100, Alan Cox wrote:
 
-> Look at it that way: we have two actions that need to be done upon umount.
-> 	1) detach it from the mountpoint(s)
-> 	2) shut it down
-> 
-> For the latter we need to have no active IO on that fs _and_ nothing
-> that could initiate such IO.  We can separate #1 and #2, letting fs
-> shutdown happen when it's no longer busy.  That's what MNT_DETACH
-> does.
-> 
-> What you are asking for is different - you want fs-wide revoke().
-> That's all nice and dandy, but it's an independent problem and it
-> will take a _lot_ of work.  Including work in fs drivers.  It _is_
-> worth doing, but it's 2.5 stuff (along with normal revoke(2)).
+> > Is it possible for the kernel to handle this with enough grace that you=
+=20
+> > can kill the processes and unmount the partition?  (Thus allowing the b=
+ox=20
+> > to continue in a hobbled, but function manner.)  Failing that, is it=20
+> > possible for the kernel to handle it well enough for 'shutdown' to clea=
+nly=20
+> > shutdown the box?
+>=20
+> Killing the process isnt neccessary, its been halted in its tracks. As to
+> a clean shutdown - no chance. You've just hit a disk failure, the on disk
+> state is not precisely known, writes have been lost. Nothing is going to
+> make a clean shutdown possible under such circumstances.
 
-Well, I think there's another way, not sure if that's feasible, but it
-looks so:
+Of course. But I did notice that (for ext2) the filesystem dirty flag is not
+set if there are errors from the underlying block device, only when it actu=
+ally
+detects some corruption. So these errors will not trigger an appropiate
+response like remounting read-only or fscking on reboot.
 
-You say "no active IO and nothing that initiates that". So add a
-MNT_KILLBUSY flag that sends SIGKILL to all process that have resources
-on the file system and wake them from "D" state. That way, processes
-holding resources will be nuked right away, and the kernel can let go of
-the file system.
+--=20
+Met vriendelijke groet / with kind regards,
+  Guus Sliepen <guus@sliepen.warande.net>
 
-Possibly needed: Patch other parts of the kernel to allow SIGKILL to
-kill a process in 'D' state, interrupting its operations.
+--ZGiS0Q5IWpPtfppv
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-FreeBSD can do umount -f for anything except /, not sure how it
-implements that, never looked at the source. unmount(2) says "Active
-special devices continue to work, but any further accesses to any other
-active files result in errors even if the filesystem is later
-remounted."
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-That'd be ok for me, it'd be some sort of a stale local file handle for
-the processes that got their filesystem pulled from beneath their feet,
-and it's probably the only way to prevent corruption. 
+iD8DBQE7pdQrAxLow12M2nsRAqqvAJ9JsLntuCcPqUZFIc9681bz0Ej8EACgpFrX
+Jo6DNKuclU/6HdPbFl2GdSY=
+=wBx1
+-----END PGP SIGNATURE-----
 
-Newly connected processes after a mount should be unaffected by all this
-and behave as though the file system had never been (lazily or forcibly)
-unmounted before.
-
-However, thanks for the first step in the right way.
-
--- 
-Matthias Andree
-
-"Those who give up essential liberties for temporary safety deserve
-neither liberty nor safety." - Benjamin Franklin
+--ZGiS0Q5IWpPtfppv--

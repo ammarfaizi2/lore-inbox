@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261790AbUKPUwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261804AbUKPVAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261790AbUKPUwM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 15:52:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUKPUwM
+	id S261804AbUKPVAY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 16:00:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUKPVAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 15:52:12 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:39872 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261790AbUKPUvy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 15:51:54 -0500
-Date: Tue, 16 Nov 2004 21:51:51 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: linux-os@analogic.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Work around a lockup?
-In-Reply-To: <Pine.LNX.4.61.0411161524450.1562@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.53.0411162145240.20538@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.53.0411162038490.8374@yvahk01.tjqt.qr>
- <Pine.LNX.4.61.0411161456030.983@chaos.analogic.com>
- <Pine.LNX.4.53.0411162111440.32739@yvahk01.tjqt.qr>
- <Pine.LNX.4.61.0411161524450.1562@chaos.analogic.com>
+	Tue, 16 Nov 2004 16:00:23 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:18912 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261804AbUKPVAU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 16:00:20 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16794.27234.878948.164327@thebsh.namesys.com>
+Date: Wed, 17 Nov 2004 00:00:18 +0300
+To: "Andrew A." <aathan-linux-kernel-1542@cloakmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: pthread_cond_signal not waking thread
+In-Reply-To: <NFBBICMEBHKIKEFBPLMCKEPHJMAA.aathan-linux-kernel-1542@cloakmail.com>
+References: <16794.25535.97260.366902@thebsh.namesys.com>
+	<NFBBICMEBHKIKEFBPLMCKEPHJMAA.aathan-linux-kernel-1542@cloakmail.com>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->If there is a continuous loop inside the kernel, something outside
->the kernel (you) are never going to get control except from an
->interrupt. The keyboard interrupt is going to let you see what
->is happening, but you won't get any real control because the
->kernel is not a task. If the kernel were a task (like VMS),
+Andrew A. writes:
+ > 
+ > Nikita:
+ > 
+ > I am running 2.6.10-rc1-bk7 ... what version of the kernel are you
+ > talking about?  The link you included does not work.
 
-(Surprise.) Yes, I can still ping it and initiate a connection (i.e. the queue
-accepts it, because someone did listen() on the socket), but that's all. I bet
-that's due to the network card generating an interrupt.
+Sorry, I wasn't specific enough. This is URL to the official "Linus tree"
+kept in Bitkeeper. Install Bitkeeper and do 
 
->you could (maybe) context-switch out of the kernel. But,
->the kernel is some common code that executes on behalf of
->all the tasks in the context of "current". If the current
->task is stuck inside the kernel code, it has nowhere to go.
+    bk clone http://linux.bkbits.net/linux-2.5
 
-Wait, an interrupt can ... well interrupt a task, /even/ if it is in kernel
-mode, otherwise jiffies would not get incremented. So, would not it be possible
-to call some sort of schedule() when do_timer() (or similar) is run?
-Like:
-  foreach p in runqueue {
-    if(p->location==KERNELSPACE && exceeded-kernelspace-timeslic) {
-      switch_to(rq->next); // "never returns"
-    }
-  }
+to download it.
 
->When some user task executes outside the kernel, it doesn't
->have the priviliges to loop forever. A context switch will
->occur and the CPU will be shared with others. However, when
->that user task calls some kernel function, perhaps from
->a driver interface, that function has the priviliges to
->keep the CPU forever. If the driver is improperly written,
->it will.
-
-So to summarize what I need: disprivilege a process to keep the CPU forever
-when it is in kernel mode.
-
-
-
-Jan Engelhardt
--- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+Nikita.

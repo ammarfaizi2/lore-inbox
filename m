@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbUCFRWn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 12:22:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbUCFRWn
+	id S261355AbUCFRdl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 12:33:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbUCFRdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 12:22:43 -0500
-Received: from vsmtp14.tin.it ([212.216.176.118]:10994 "EHLO vsmtp14.tin.it")
-	by vger.kernel.org with ESMTP id S261691AbUCFRWm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 12:22:42 -0500
-Message-ID: <000801c4039f$9f7e6280$2101a8c0@melchiorsi1sy1>
-From: "Maggio" <voloterreno@tin.it>
-To: "walt" <wa1ter@myrealbox.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <fa.aoloalv.146ee19@ifi.uio.no> <4049EC1E.6010203@myrealbox.com>
-Subject: Re: IRQ USB , freezes with ABIT KV7
-Date: Sat, 6 Mar 2004 18:22:37 +0100
+	Sat, 6 Mar 2004 12:33:41 -0500
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:28055 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S261355AbUCFRdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Mar 2004 12:33:37 -0500
+Message-ID: <404A0AB7.5020603@pacbell.net>
+Date: Sat, 06 Mar 2004 09:30:31 -0800
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: davidm@hpl.hp.com
+CC: Greg KH <greg@kroah.com>, vojtech@suse.cz,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, pochini@shiny.it
+Subject: Re: [linux-usb-devel] Re: serious 2.6 bug in USB subsystem?
+References: <200310272235.h9RMZ9x1000602@napali.hpl.hp.com>	<20031028013013.GA3991@kroah.com>	<200310280300.h9S30Hkw003073@napali.hpl.hp.com>	<3FA12A2E.4090308@pacbell.net>	<16289.29015.81760.774530@napali.hpl.hp.com>	<16289.55171.278494.17172@napali.hpl.hp.com>	<3FA28C9A.5010608@pacbell.net>	<16457.12968.365287.561596@napali.hpl.hp.com>	<404959A5.6040809@pacbell.net> <16457.38721.119739.816533@napali.hpl.hp.com>
+In-Reply-To: <16457.38721.119739.816533@napali.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Mosberger wrote:
 
------ Original Message -----
-From: "walt" <wa1ter@myrealbox.com>
-To: "Maggio" <voloterreno@tin.it>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Saturday, March 06, 2004 4:19 PM
-Subject: Re: IRQ USB , freezes with ABIT KV7
+> Here is patch #3.  It also Works For Me.  I was wondering whether it
+
+I've had several "Works For Me" patches too, but then if the
+silicion got kicked a bit differently it'd not behave... :(
 
 
-> Maggio wrote:
-> >
-> > Hi all ,
-> >
-> > I've recently switched from an MSI KT4 Ultra motherboard to an Abit KV7
-> > board ,and the system worked well until today that I'm attempting to
-> > reinstall the system .
-> >
-> > It seems that the USB make some conflicts in IRQ , infact , if I enable
-> > the option "Allocate IRQ to USB" in the BIOS , I'm unable to start any
-> > Installation CD of any distribution , the booting simply hangup .
->
-> Is there a BIOS setting for 'USB Legacy Support'?
+> it is really safe to mess with the OHCI control registers the way
+> ed_deschedule() does at a time the OHCI is running.  To test this
 
-I've checked in the BIOS and doesn't seem to exist (I have Award BIOS ) ,
-maybe it has another name? But anyway doesn't seem to exist nothing similar
-.
+It must be, or we'd not have had a driver working for several
+years now!
 
-Please help  (I've tried GENtoo, Slack and CRUX)
+The quick stop/restart cycles haven't seemed to be a problem
+with any OHCI silicion in the way they are with, for example,
+VIA EHCI.
 
-Marcello
+
+> theory, I delayed the ed_deschedule() handling to finish_unlinks(), as
+> shown in the patch below.  I don't know whether this is really safe as
+> far as the host's lists are concerned, but it does avoid the crashes.
+
+My suspicions have been focussing on finish_unlinks().
+
+That's really the only place the HCD does anything
+that could corrupt the ED queues, which is what looks
+to be happening.
+
+Your change doesn't actually _unlink_ in the same way;
+interesting change, I'll have to think about it.  It
+certainly changes timings.
+
+
+> What's the argument as to why it's safe to update the OHCI control
+> registers in ed_deschedule() at the time start_ed_unlink() is running?
+
+It's always safe to update those registers, except
+that some silicon doesn't support that while the
+controller is suspended.
+
+- Dave
+
 

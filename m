@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262504AbSIZMWK>; Thu, 26 Sep 2002 08:22:10 -0400
+	id <S262506AbSIZM13>; Thu, 26 Sep 2002 08:27:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262505AbSIZMWK>; Thu, 26 Sep 2002 08:22:10 -0400
-Received: from pc-62-31-66-34-ed.blueyonder.co.uk ([62.31.66.34]:63106 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S262504AbSIZMWJ>; Thu, 26 Sep 2002 08:22:09 -0400
-Date: Thu, 26 Sep 2002 13:27:23 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jakob Oestergaard <jakob@unthought.net>,
-       "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: jbd bug(s) (?)
-Message-ID: <20020926132723.D2721@redhat.com>
-References: <20020924072117.GD2442@unthought.net> <20020925173605.A12911@redhat.com> <20020926122124.GS2442@unthought.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020926122124.GS2442@unthought.net>; from jakob@unthought.net on Thu, Sep 26, 2002 at 02:21:24PM +0200
+	id <S262507AbSIZM13>; Thu, 26 Sep 2002 08:27:29 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:62223 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S262506AbSIZM12>; Thu, 26 Sep 2002 08:27:28 -0400
+Message-Id: <200209261204.g8QC4vp04049@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Norbert Nemec <nobbi@theorie3.physik.uni-erlangen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Serious Problems with PCI and SMP
+Date: Thu, 26 Sep 2002 14:59:14 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <20020923155355.GA565@cognac.physik.uni-erlangen.de> <200209240828.g8O8Stp24897@Port.imtp.ilyichevsk.odessa.ua> <20020926090754.GA22448@cognac.physik.uni-erlangen.de>
+In-Reply-To: <20020926090754.GA22448@cognac.physik.uni-erlangen.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 26 September 2002 07:07, Norbert Nemec wrote:
 
-On Thu, Sep 26, 2002 at 02:21:24PM +0200, Jakob Oestergaard wrote:
+BTW, for lkml readers: this was in original post:
+=================================================
+We have a number of machines with identical dual PPro 200 mainboards. They all
+run fine on 2.2.13 kernels. Trying 2.4.18,2.4.19,2.4.20-pre7 and even 2.2.19, 
+the same problem shows up:
+With SMP activated in the kernel, I get the boot-messages
+---------
+PCI: PCI BIOS revision 2.10 entry at 0xfb0a0, last bus=0
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+PCI BIOS passed nonexistent PCI bus 0!
+PCI BIOS passed nonexistent PCI bus 0!
+Limiting direct PCI/PCI transfers.
+---------
+Afterwards, everything runs fine, except that PCI seems to be only half-way
+functional: network-cards don't give any error messages but behave just
+as if the cable was disconnected scsi-cards give strange errors (don't recall
+what exactly)
+With SMP disabled in the kernel, everything works just fine.
+================================
+> > Post your .config and dmesg
+>
+> Here they are. In this version, CONFIG_PCI_GOBIOS=y is set. Switching to
+> CONFIG_PCI_GODIRECT=y or CONFIG_PCI_GOANY=y only adds the line
+> ----
+>  PCI: PCI BIOS revision 2.10 entry at 0xfb0a0, last bus=0
+> +PCI: Using configuration type 1
+>  PCI: Probing PCI hardware
+> ----
+> without any further difference.
 
-> Originally it was my impression that the index was written fairly
-> frequently, *and* that you did not have the atomic-sector-write
-> guarantee.
+> .config:
+> ---------------------------
+> #
+> # Processor type and features
+> #
+> CONFIG_M686=y
 
-The index is only updated when we purge stuff out of the journal.
-That can still be quite frequent on a really busy journal, but it's
-definitely not a required part of a transaction.  
-
-That's deliberate --- the ext3 journal is designed to be written as
-sequentially as possible, so seeking to the index block is an expense
-which we try to avoid.
-
-> RAID wouldn't save me in the case where the journal index is screwed due
-> to a partial sector write and a power loss.
-
-A partial sector write is essentially impossible.  It's unlikely that
-the data on disk would be synchronised beyond the point at which the
-write stopped, and even if it was, the CRC would be invalid, so you'd
-get a bad sector error return on subsequent attempts to read that data
---- you'd not be given silently corrupt data.
-
-Making parts of the disk suddenly unreadable on power-fail is
-generally considered a bad thing, though, so modern disks go to great
-lengths to ensure the write finishes.
-
---Stephen
+Can you try to boot 486-optimized kernel?
+Can you remove one CPU and run SMP kernel on UP configuration?
+--
+vda

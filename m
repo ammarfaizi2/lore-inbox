@@ -1,46 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268129AbUH1XcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268131AbUH1Xmd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268129AbUH1XcM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 19:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268131AbUH1XcG
+	id S268131AbUH1Xmd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 19:42:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268133AbUH1Xmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 19:32:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58779 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268129AbUH1XbH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 19:31:07 -0400
-Message-ID: <413115AF.4010306@pobox.com>
-Date: Sat, 28 Aug 2004 19:30:55 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: achew <achew@nvidia.com>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [PATCH 2.6.8.1] sata_nv.c
-References: <4125106A.2020903@nvidia.com>
-In-Reply-To: <4125106A.2020903@nvidia.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Aug 2004 19:42:32 -0400
+Received: from dp.samba.org ([66.70.73.150]:32479 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S268131AbUH1Xm1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 19:42:27 -0400
+Date: Sat, 28 Aug 2004 16:47:38 -0700
+From: Jeremy Allison <jra@samba.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, Rik van Riel <riel@redhat.com>,
+       Spam <spam@tnonline.net>, Jamie Lokier <jamie@shareable.org>,
+       Hans Reiser <reiser@namesys.com>, David Masover <ninja@slaphack.com>,
+       Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
+       hch@lst.de, linux-fsdevel@vger.kernel.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, flx@namesys.com,
+       reiserfs-list@namesys.com,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040828234738.GC2611@localhost.localdomain>
+Reply-To: Jeremy Allison <jra@samba.org>
+References: <Pine.LNX.4.44.0408272158560.10272-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0408271902410.14196@ppc970.osdl.org> <20040828170515.GB24868@hh.idb.hist.no> <Pine.LNX.4.58.0408281038510.2295@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408281038510.2295@ppc970.osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-achew wrote:
-> This patch fixes a problem introduced when CK804 support was added.  
-> mmio_base can only be set in the CK804 case,
-> else libata will attempt to iounmap mmio_base, which isn't iomapped for 
-> the non-CK804 case.  Still need the bar 5
-> address, so steal from host_set->ports[0]->ioaddr.scr_addr.  Jeff, let 
-> me know if this is a bad thing to do.
+On Sat, Aug 28, 2004 at 11:09:38AM -0700, Linus Torvalds wrote:
+> 
+> If you look at the Solaris interface, the _nice_ part about "openat()" is 
+> that you can do something like
+> 
+> 	file = open(filename, O_RDONLY);
+> 	if (file < 0)
+> 		return -ENOENT;
+> 	icon = openat(file, "icon", O_RDONLY | O_XATTR);
+> 	if (icon < 0)
+> 		icon = default_icon_file;
+> 	..
+> 
+> and it will work regardless of whether "filename" is a directory or a 
+> regular file, if I've understood correctly.
+> 
+> Now, I think that makes sense for several reasons:
+>  - single case
+>  - race-free (think "stat()" vs "fstat()" races).
+>  - I think we want to do "openat()" regardless of whether we ever 
+>    support extended attributes or not ("openat()" is nice for doing 
+>    "namei()" in user space even in the absense of any attributes or 
+>    named streams).
+> 
+> So what we can do is
+>  - implement openat() regardless, and expect to do the Solaris thing for 
+>    it if we ever do streams.
 
-applied.
+Hurrah ! Definately the best way to go as far as Samba is concerned.
+Makes our portability easier. Now the NT interface allows an open on
+a named data stream without an open on the containing file (ie.
+you can do CreateFile("filename::STREAMNAME",....) without doing
+CreateFile("filename",..." first, but I personally think those
+semantics are a nasty hack. It makes much more sense (IMHO) to
+ensure that you already have an open fd on a file before allowing
+access to the named streams inside, Windows be damned. If we have
+some semantic issues mapping from the Windows semantics to Solaris/Linux
+semantics then so be it, it's a Samba problem so to speak :-).
 
-PLEASE use a descriptive subject line.
+Thanks,
 
-The email subject, after stripping '\[.*]', becomes a one-line summary 
-of the change, and is directly injected into the BK changelog.
-
-	Jeff
-
-
-
+	Jeremy.

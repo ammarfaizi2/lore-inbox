@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316712AbSFUSKF>; Fri, 21 Jun 2002 14:10:05 -0400
+	id <S316728AbSFUSX3>; Fri, 21 Jun 2002 14:23:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316715AbSFUSKE>; Fri, 21 Jun 2002 14:10:04 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3592 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316712AbSFUSKE>;
-	Fri, 21 Jun 2002 14:10:04 -0400
-Message-ID: <3D136BEF.3030509@mandrakesoft.com>
-Date: Fri, 21 Jun 2002 14:09:51 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/00200205
-X-Accept-Language: en-us, en
+	id <S316739AbSFUSX2>; Fri, 21 Jun 2002 14:23:28 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:1691 "EHLO geena.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S316728AbSFUSX1>;
+	Fri, 21 Jun 2002 14:23:27 -0400
+Date: Fri, 21 Jun 2002 11:18:30 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@geena.pdx.osdl.net>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.x: arch/i386/kernel/cpu
+In-Reply-To: <aeouoe$a66$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0206211116590.8496-100000@geena.pdx.osdl.net>
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@transmeta.com>, Cort Dougan <cort@fsmlabs.com>,
-       Benjamin LaHaise <bcrl@redhat.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Linux, the microkernel (was Re: latest linus-2.5 BK broken)
-References: <Pine.LNX.4.44.0206201003500.8225-100000@home.transmeta.com> <m1r8j1rwbp.fsf@frodo.biederman.org> <20020621105055.D13973@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> the first place.  It's proactive rather than reactive.  And the reason
-> I harp on this is that I'm positive (and history supports me 100%)
-> that the reactive approach doesn't work, you'll be stuck with it,
-> there is no way to "fix" it other than starting over with a new kernel.
-> Then we get to repeat this whole discussion in 15 years with one of the
-> Linux veterans trying to explain to the NewOS guys that multi threading
-> really isn't as cool as it sounds and they should try this other approach.
 
+On 18 Jun 2002, H. Peter Anvin wrote:
 
-One point that is missed, I think, is that Linux secretly wants to be a 
-microkernel.
+> Whomever broke up arch/i386/kernel/setup.c and created the CPU
+> directory (very good idea) messed up in at least one place:
 
-Oh, I don't mean the strict definition of microkernel, we are continuing 
-to push the dogma of "do it in userspace" or "do it in process context" 
-(IOW userspace in the kernel).
+Ah! I just noticed this (as I was cleaning out my inbox before I head off 
+to Canada). 
 
-Look at the kernel now -- the current kernel is not simply an 
-event-driven, monolithic program [the tradition kernel design].  Linux 
-also depends on a number of kernel threads to perform various 
-asynchronous tasks.  We have had userspace agents managing bits of 
-hardware for a while now, and that trend is only going to be reinforced 
-with Al's initramfs.
+> The *AMD-defined* CPUID flags (0x80000001) are not just used on AMD
+> processors!  In fact, at least AMD, Transmeta, Cyrix and VIA all use
+> them; I don't know about Centaur or Rise.  Intel supports the actual
+> level starting with the P4 although it returns all zero.
+> 
+> It should, in my opinion, be moved into generic_identify().  Anyone
+> who has a reason why that shouldn't be done speak now or I'll send the
+> patch to Linus.
 
-IMO, the trend of the kernel is towards a collection of asynchronous 
-tasks, which lends itself to high parallelism.  Hardware itself is 
-trending towards playing friendly with other hardware in the system 
-(examples: TCQ-driven bus release and interrupt coalescing), another 
-element of parallelism.
+If you've already sent it, good. If not, and you have something readily 
+available, good. If not, I'll add it to my short list and look at it in 
+the next few days (hopefully).
 
-I don't see the future of Linux as a twisted nightmare of spinlocks.
+Thanks,
 
-	Jeff
-
-
-
-(I wonder if, shades of the old Linus/Tanenbaum flamewar, I will catch 
-hell from Linus for mentioning the word "microkernel"  :))
+	-pat
 

@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267873AbRGVDKH>; Sat, 21 Jul 2001 23:10:07 -0400
+	id <S267876AbRGVDdW>; Sat, 21 Jul 2001 23:33:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267874AbRGVDJ6>; Sat, 21 Jul 2001 23:09:58 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:62984 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S267873AbRGVDJv>;
-	Sat, 21 Jul 2001 23:09:51 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Michael S. Miles" <mmiles@alacritech.com>, linux-kernel@vger.kernel.org
-Subject: Re: kgdb and/or kdb for RH7.1 
-In-Reply-To: Your message of "Sun, 22 Jul 2001 11:58:15 +1000."
-             <1632.995767095@ocs3.ocs-net> 
+	id <S267877AbRGVDdM>; Sat, 21 Jul 2001 23:33:12 -0400
+Received: from haybaler.sackheads.org ([209.133.38.16]:12816 "HELO
+	haybaler.sackheads.org") by vger.kernel.org with SMTP
+	id <S267876AbRGVDdJ>; Sat, 21 Jul 2001 23:33:09 -0400
+Date: Sat, 21 Jul 2001 23:33:13 -0400
+From: Jimmie Mayfield <mayfield+usenet@sackheads.org>
+To: linux-kernel@vger.kernel.org
+Subject: Interesting disk throughput performance problem
+Message-ID: <20010721233313.A15232@sackheads.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 22 Jul 2001 13:09:50 +1000
-Message-ID: <1910.995771390@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sun, 22 Jul 2001 11:58:15 +1000, 
-Keith Owens <kaos@ocs.com.au> wrote:
->On Sat, 21 Jul 2001 12:30:34 -0400, 
->"Michael S. Miles" <mmiles@alacritech.com> wrote:
->>Does anyone know if patches exist against the stock RedHat 7.1
->>kernel(2.4.2-2) to support remote kernel debugging(kgdb).  I would also be
->>interested in the same for kdb, but I'm primarily interested in kgdb.
->
->ftp://oss.sgi.com/projects/xfs/download/Release-1.0/patches/linux-2.4.2-kdb-04112001.patch.gz
->is kdb v1.8 against Redhat 7.1.
+Hi.  I'm running into some disk throughput issues that I can't explain.
+Hopefully someone reading this can offer an explanation.
 
-Correction, that patch is against a standard 2.4.2 kernel.  The closest
-I could find is
-ftp://oss.sgi.com/projects/xfs/download/testing/Release-1.0.1-PR3/patches/patch-RH2.4.3-xfs-1.0.1-kdb
-That is against Rawhide rather than RH 7.1 but it should be fairly
-close.  So many patches, so little time :(.
+One of my machines is running 2.4.5 and has 2 hard drives: a 7200 rpm
+ATA100 Maxtor and a 5400 rpm ATA33 IBM.  Each drive is a master on its own
+controller (AMI CMD649 as found on the IWill KT266-R).  Both drives contain
+reiserfs 3.6x filesystems.  
+
+By all local benchmarks, the 7200 rpm drive is the faster drive.  But this 
+doesn't seem to be the case for large files originating from remote clients.  
+Witness:
+
+My crude test involves scp'ing a 100MB file from another machine on my home 
+network over 100bT ethernet.
+
+1)  scp to the 5400rpm drive:  roughly 10MB/sec.  
+2)  scp to the 7200rpm drive:  roughly 2MB/sec.  
+
+I've tried 'tail' and 'notail' mount options with no change (as expected since 
+this is a single large file).  I suspect that the machine would become CPU-bound 
+somewhere in the 20MB/sec range (see below for my reasoning).
+
+I see the same sort of behavior using Samba though not nearly as 
+pronounced (the 5400rpm drive is merely 2x as fast as the 7200rpm drive).
+
+Okay.  Since the test involved 2 separate drives with different geometries,
+I figured this might be due to physical block location.  Perhaps the file
+is getting allocated to the fastest cylinders on the 5400 rpm drive and
+the slowest cylinders on the 7200 rpm drive.  Or it could be a fragmentation
+issue.
+
+So I tried the test locally:  with the file stored on the 5400rpm drive, 
+scp it to localhost and write it to the 7200rpm drive.  Results were a little 
+below 10MB/sec (CPU near 100% presumably due to encrypting/decrypting on 
+the fly).
+
+Any ideas why the 7200rpm drive performs so poorly for remote clients but 
+performs wonderfully well when those same operations are performed locally?
+
+Jimmie
 

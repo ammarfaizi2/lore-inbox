@@ -1,288 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbVCSXUB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbVCSXef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261924AbVCSXUB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 18:20:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbVCSXUA
+	id S261909AbVCSXef (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 18:34:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVCSXef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 18:20:00 -0500
-Received: from relay00.pair.com ([209.68.1.20]:17934 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S261929AbVCSXS3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 18:18:29 -0500
-X-pair-Authenticated: 24.126.76.52
-Message-ID: <423CA616.1040400@kegel.com>
-Date: Sat, 19 Mar 2005 14:22:14 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/4.0 (compatible;MSIE 5.5; Windows 98)
-X-Accept-Language: en, de-de
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] gcc-4.0 compatibility fixes for i386, m68k, ppc64, x86_64
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 19 Mar 2005 18:34:35 -0500
+Received: from ns3.dataphone.se ([212.37.0.170]:45775 "EHLO
+	mail-slave.dataphone.se") by vger.kernel.org with ESMTP
+	id S261909AbVCSXe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 18:34:29 -0500
+From: Magnus Damm <damm@opensource.se>
+To: linux-kernel@vger.kernel.org
+Cc: Magnus Damm <damm@opensource.se>
+Message-Id: <20050319230648.19238.42743.71351@clementine.local>
+Subject: [PATCH] disable builtin modules
+Date: Sun, 20 Mar 2005 00:34:27 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc-4.0 fails with
-"error: array type has incomplete element type"
-(see http://gcc.gnu.org/ml/gcc/2005-02/msg00053.html)
-on several files in linux-2.6.11.3.
+This patch makes it possible to disable built in code from the kernel
+command line. The patch is rather simple - it extends the compiled-in case 
+of module_init() to include __setup() with a name based on KBUILD_MODNAME.
 
-Who knows, maybe all this is fixed in the -mm tree already,
-but what the heck, here are a few fixes I haven't seen anyone
-else post yet.  These fix build problems for me, and
-are all trivial.  I haven't tested the resulting binaries.
+Problem: Say that your Firewire PHY breaks and you find yourself unable to 
+boot any installation cd that includes built in Firewire support because 
+the ohci1394 code together with your broken hardware makes the kernel crash 
+during bootup.
 
-See also related sets of fixes at
-http://user.it.uu.se/~mikpe/linux/patches/2.6/patch-gcc4-fixes-v2-2.6.11
-and
-http://archives.andrew.net.au/lm-sensors/msg29809.html
-I don't duplicate any of those here, I think.
+Solution: Boot a kernel that includes this patch and pass ohci1394=off.
 
---- part 1 ---
-Fixes
+Signed-off-by: Magnus Damm <damm@opensource.se>
 
-In file included from include/asm/thread_info.h:16,
-                  from include/linux/thread_info.h:21,
-                  from include/linux/spinlock.h:12,
-                  from include/linux/capability.h:45,
-                  from include/linux/sched.h:7,
-                  from arch/i386/kernel/asm-offsets.c:7:
-include/asm/processor.h:87: error: array type has incomplete element type
-make[1]: *** [arch/i386/kernel/asm-offsets.asm] Error 1
-
---- linux-2.6.11.3/include/asm-i386/processor.h.old	Tue Mar 15 06:45:26 2005
-+++ linux-2.6.11.3/include/asm-i386/processor.h	Tue Mar 15 06:46:45 2005
-@@ -81,6 +81,64 @@
-  #define X86_VENDOR_UNKNOWN 0xff
-
-  /*
-+ * Size of io_bitmap.
-+ */
-+#define IO_BITMAP_BITS  65536
-+#define IO_BITMAP_BYTES (IO_BITMAP_BITS/8)
-+#define IO_BITMAP_LONGS (IO_BITMAP_BYTES/sizeof(long))
-+#define INVALID_IO_BITMAP_OFFSET 0x8000
-+#define INVALID_IO_BITMAP_OFFSET_LAZY 0x9000
+diff -urNp linux-2.6.11.4/include/linux/init.h linux-2.6.11.4-disable_builtin/include/linux/init.h
+--- linux-2.6.11.4/include/linux/init.h	2005-03-16 10:56:20.000000000 +0100
++++ linux-2.6.11.4-disable_builtin/include/linux/init.h	2005-03-19 23:42:29.417496240 +0100
+@@ -143,6 +143,16 @@ struct obs_kernel_param {
+ 
+ /* Relies on saved_command_line being set */
+ void __init parse_early_param(void);
 +
-+struct tss_struct {
-+	unsigned short	back_link,__blh;
-+	unsigned long	esp0;
-+	unsigned short	ss0,__ss0h;
-+	unsigned long	esp1;
-+	unsigned short	ss1,__ss1h;	/* ss1 is used to cache MSR_IA32_SYSENTER_CS */
-+	unsigned long	esp2;
-+	unsigned short	ss2,__ss2h;
-+	unsigned long	__cr3;
-+	unsigned long	eip;
-+	unsigned long	eflags;
-+	unsigned long	eax,ecx,edx,ebx;
-+	unsigned long	esp;
-+	unsigned long	ebp;
-+	unsigned long	esi;
-+	unsigned long	edi;
-+	unsigned short	es, __esh;
-+	unsigned short	cs, __csh;
-+	unsigned short	ss, __ssh;
-+	unsigned short	ds, __dsh;
-+	unsigned short	fs, __fsh;
-+	unsigned short	gs, __gsh;
-+	unsigned short	ldt, __ldth;
-+	unsigned short	trace, io_bitmap_base;
-+	/*
-+	 * The extra 1 is there because the CPU will access an
-+	 * additional byte beyond the end of the IO permission
-+	 * bitmap. The extra byte must be all 1 bits, and must
-+	 * be within the limit.
-+	 */
-+	unsigned long	io_bitmap[IO_BITMAP_LONGS + 1];
-+	/*
-+	 * Cache the current maximum and the last task that used the bitmap:
-+	 */
-+	unsigned long io_bitmap_max;
-+	struct thread_struct *io_bitmap_owner;
-+	/*
-+	 * pads the TSS to be cacheline-aligned (size is 0x100)
-+	 */
-+	unsigned long __cacheline_filler[35];
-+	/*
-+	 * .. and then another 0x100 bytes for emergency kernel stack
-+	 */
-+	unsigned long stack[64];
-+} __attribute__((packed));
++void __init disable_initcall(void *fn);
++#define __module_init_disable(x)				\
++static int __init x##_disable_module(char *str)			\
++{								\
++	disable_initcall(x);					\
++	return 1;						\
++}								\
++__setup(__stringify(KBUILD_MODNAME) "=off", x##_disable_module)
 +
-+#define IO_BITMAP_OFFSET offsetof(struct tss_struct,io_bitmap)
-+#define ARCH_MIN_TASKALIGN	16
+ #endif /* __ASSEMBLY__ */
+ 
+ /**
+@@ -153,7 +163,7 @@ void __init parse_early_param(void);
+  * builtin) or at module insertion time (if a module).  There can only
+  * be one per module.
+  */
+-#define module_init(x)	__initcall(x);
++#define module_init(x)	__initcall(x); __module_init_disable(x);  
+ 
+ /**
+  * module_exit() - driver exit entry point
+diff -urNp linux-2.6.11.4/init/main.c linux-2.6.11.4-disable_builtin/init/main.c
+--- linux-2.6.11.4/init/main.c	2005-03-16 10:56:20.000000000 +0100
++++ linux-2.6.11.4-disable_builtin/init/main.c	2005-03-19 23:31:52.676295616 +0100
+@@ -527,6 +527,17 @@ struct task_struct *child_reaper = &init
+ 
+ extern initcall_t __initcall_start[], __initcall_end[];
+ 
++void __init disable_initcall(void *fn)
++{
++	initcall_t *call;
 +
-+/*
-   * capabilities of CPUs
-   */
-
-@@ -308,16 +366,6 @@
-
-  #define HAVE_ARCH_PICK_MMAP_LAYOUT
-
--/*
-- * Size of io_bitmap.
-- */
--#define IO_BITMAP_BITS  65536
--#define IO_BITMAP_BYTES (IO_BITMAP_BITS/8)
--#define IO_BITMAP_LONGS (IO_BITMAP_BYTES/sizeof(long))
--#define IO_BITMAP_OFFSET offsetof(struct tss_struct,io_bitmap)
--#define INVALID_IO_BITMAP_OFFSET 0x8000
--#define INVALID_IO_BITMAP_OFFSET_LAZY 0x9000
--
-  struct i387_fsave_struct {
-  	long	cwd;
-  	long	swd;
-@@ -371,54 +419,6 @@
-  } mm_segment_t;
-
-  struct thread_struct;
--
--struct tss_struct {
--	unsigned short	back_link,__blh;
--	unsigned long	esp0;
--	unsigned short	ss0,__ss0h;
--	unsigned long	esp1;
--	unsigned short	ss1,__ss1h;	/* ss1 is used to cache MSR_IA32_SYSENTER_CS */
--	unsigned long	esp2;
--	unsigned short	ss2,__ss2h;
--	unsigned long	__cr3;
--	unsigned long	eip;
--	unsigned long	eflags;
--	unsigned long	eax,ecx,edx,ebx;
--	unsigned long	esp;
--	unsigned long	ebp;
--	unsigned long	esi;
--	unsigned long	edi;
--	unsigned short	es, __esh;
--	unsigned short	cs, __csh;
--	unsigned short	ss, __ssh;
--	unsigned short	ds, __dsh;
--	unsigned short	fs, __fsh;
--	unsigned short	gs, __gsh;
--	unsigned short	ldt, __ldth;
--	unsigned short	trace, io_bitmap_base;
--	/*
--	 * The extra 1 is there because the CPU will access an
--	 * additional byte beyond the end of the IO permission
--	 * bitmap. The extra byte must be all 1 bits, and must
--	 * be within the limit.
--	 */
--	unsigned long	io_bitmap[IO_BITMAP_LONGS + 1];
--	/*
--	 * Cache the current maximum and the last task that used the bitmap:
--	 */
--	unsigned long io_bitmap_max;
--	struct thread_struct *io_bitmap_owner;
--	/*
--	 * pads the TSS to be cacheline-aligned (size is 0x100)
--	 */
--	unsigned long __cacheline_filler[35];
--	/*
--	 * .. and then another 0x100 bytes for emergency kernel stack
--	 */
--	unsigned long stack[64];
--} __attribute__((packed));
--
--#define ARCH_MIN_TASKALIGN	16
-
-  struct thread_struct {
-  /* cached TLS descriptors. */
---- part 2 ---
-Fixes
-
-In file included from include/asm/setup.h:8,
-                  from include/asm/machdep.h:8,
-                  from include/asm/irq.h:6,
-                  from include/asm/hardirq.h:8,
-                  from include/linux/hardirq.h:6,
-                  from include/asm-generic/local.h:6,
-                  from include/asm/local.h:4,
-                  from include/linux/module.h:21,
-                  from init/main.c:16:
-include/asm-m68k/setup.h:365: error: array type has incomplete element type
-
-when compiling with gcc-4.0.  (Affects ppc, too, for some reason.)
-
---- linux-2.6.11.3/include/asm-m68k/setup.h.old	Fri Mar 18 13:48:03 2005
-+++ linux-2.6.11.3/include/asm-m68k/setup.h	Fri Mar 18 13:48:14 2005
-@@ -362,12 +362,13 @@
-  #ifndef __ASSEMBLY__
-  extern int m68k_num_memory;		/* # of memory blocks found (and used) */
-  extern int m68k_realnum_memory;		/* real # of memory blocks found */
--extern struct mem_info m68k_memory[NUM_MEMINFO];/* memory description */
-
-  struct mem_info {
-  	unsigned long addr;		/* physical address of memory chunk */
-  	unsigned long size;		/* length of memory chunk (in bytes) */
-  };
++	for (call = __initcall_start; call < __initcall_end; call++) {
 +
-+extern struct mem_info m68k_memory[NUM_MEMINFO];/* memory description */
-  #endif
-
-  #endif /* __KERNEL__ */
---- part 3 ---
-Fixes
-
-In file included from include/asm/current.h:4,
-                  from include/linux/wait.h:27,
-                  from include/asm/semaphore.h:15,
-                  from include/linux/sched.h:19,
-                  from arch/ppc64/kernel/asm-offsets.c:18:
-include/asm/paca.h:25: error: array type has incomplete element type
-make[1]: *** [arch/ppc64/kernel/asm-offsets.s] Error 1
-
-when building with gcc-4.0
-
---- linux-2.6.11.3/include/asm-ppc64/paca.h.old	Fri Mar 18 13:23:40 2005
-+++ linux-2.6.11.3/include/asm-ppc64/paca.h	Fri Mar 18 13:24:04 2005
-@@ -22,7 +22,6 @@
-  #include	<asm/iSeries/ItLpRegSave.h>
-  #include	<asm/mmu.h>
-
--extern struct paca_struct paca[];
-  register struct paca_struct *local_paca asm("r13");
-  #define get_paca()	local_paca
-
-@@ -114,5 +113,7 @@
-  	struct ItLpRegSave reg_save;
-  #endif
-  };
++		if (*call == fn)
++			*call = NULL;
++	}
++}
 +
-+extern struct paca_struct paca[];
-
-  #endif /* _PPC64_PACA_H */
---- part 4 ---
-Fixes:
-
-In file included from include/linux/spinlock.h:16,
-                  from include/linux/capability.h:45,
-                  from include/linux/sched.h:7,
-                  from arch/x86_64/kernel/asm-offsets.c:7:
-include/asm/processor.h:79: error: array type has incomplete element type
-make[1]: *** [arch/x86_64/kernel/asm-offsets.asm] Error 1
-
---- linux-2.6.11.3/include/asm-x86_64/processor.h.old	Tue Mar 15 07:05:07 2005
-+++ linux-2.6.11.3/include/asm-x86_64/processor.h	Tue Mar 15 07:09:53 2005
-@@ -179,7 +179,6 @@
-  #define IO_BITMAP_BITS  65536
-  #define IO_BITMAP_BYTES (IO_BITMAP_BITS/8)
-  #define IO_BITMAP_LONGS (IO_BITMAP_BYTES/sizeof(long))
--#define IO_BITMAP_OFFSET offsetof(struct tss_struct,io_bitmap)
-  #define INVALID_IO_BITMAP_OFFSET 0x8000
-
-  struct i387_fxsave_struct {
-@@ -222,6 +221,8 @@
-  	 */
-  	unsigned long io_bitmap[IO_BITMAP_LONGS + 1];
-  } __attribute__((packed)) ____cacheline_aligned;
-+
-+#define IO_BITMAP_OFFSET offsetof(struct tss_struct,io_bitmap)
-
-  extern struct cpuinfo_x86 boot_cpu_data;
-  DECLARE_PER_CPU(struct tss_struct,init_tss);
-
--- 
-Trying to get a job as a c++ developer?  See http://kegel.com/academy/getting-hired.html
+ static void __init do_initcalls(void)
+ {
+ 	initcall_t *call;
+@@ -541,7 +552,8 @@ static void __init do_initcalls(void)
+ 			printk("\n");
+ 		}
+ 
+-		(*call)();
++		if (*call)
++			(*call)();
+ 
+ 		msg = NULL;
+ 		if (preempt_count() != count) {

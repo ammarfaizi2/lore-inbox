@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274457AbRITMeM>; Thu, 20 Sep 2001 08:34:12 -0400
+	id <S274464AbRITMkc>; Thu, 20 Sep 2001 08:40:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274456AbRITMeC>; Thu, 20 Sep 2001 08:34:02 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7178 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274457AbRITMdu>; Thu, 20 Sep 2001 08:33:50 -0400
-Subject: Re: [PATCH] for drivers/char/sysrq.c
-To: rgooch@ras.ucalgary.ca (Richard Gooch)
-Date: Thu, 20 Sep 2001 13:38:16 +0100 (BST)
-Cc: torvalds@transmeta.com, crutcher+kernel@datastacks.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200109200345.f8K3jbr29597@vindaloo.ras.ucalgary.ca> from "Richard Gooch" at Sep 19, 2001 09:45:37 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15k35s-0005C3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S274463AbRITMkM>; Thu, 20 Sep 2001 08:40:12 -0400
+Received: from t2.redhat.com ([199.183.24.243]:8181 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S274461AbRITMkG>; Thu, 20 Sep 2001 08:40:06 -0400
+To: manfred@colorfullife.com, andrea@suse.de
+Cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: Deadlock on the mm->mmap_sem 
+In-Reply-To: Message from Studierende der Universitaet des Saarlandes <masp0008@stud.uni-sb.de> 
+   of "Thu, 20 Sep 2001 10:57:08 -0000." <3BA9CB84.16616163@stud.uni-saarland.de> 
+Date: Thu, 20 Sep 2001 13:40:29 +0100
+Message-ID: <16291.1000989629@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How did something this basic get submitted in the first place?!?
-> Doesn't anyone bother compiling patches before sending to Linus?
-> This is the second time today I've had to patch the kernel just to get
-> the rotten thing to compile. I'm not happy that whoever put in those
-> __builtin_expect()'s didn't bother testing with THE RECOMMENDED
-> COMPILER!!! It's not the first time that sort of thing has happened.
-> </whinge>
 
-It got broken because the stable kernel API isnt. When I submitted it to
-Linus I missed one specific random api of the week variance. Its been in
-the -ac tree and vendor distros for a while, so it was tested.
+> David, coredump is the only difficult recursive user of mmap_sem.  ptrace &
+> /proc/pid/mem double buffer into kernel buffers, fork just doesn't lock the
+> new mm_struct - it's new, noone can get a pointer to it before it's linked
+> into the various lists.
 
-Alan
+Yes, you're right. So what you and Andrea are proposing is to have a field in
+the task struct that counts the number of active readlocks you hold on your
+own mm_struct. If this is >0, then you can add another readlock to it. If this
+is the case, then you can add an extra asm-rwsem operation that simply
+increments the semaphore counter. BUT you can only use this operation if you
+_know_ you already have a readlock. And as you know that some function higher
+up the stack holds the lock, you can guarantee that the lock isn't going to go
+away.
+
+Give me a few minutes, and I can handle this:-)
+
+David

@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269701AbUJMN2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269702AbUJMNe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269701AbUJMN2j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 09:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269708AbUJMN2j
+	id S269702AbUJMNe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 09:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269703AbUJMNe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 09:28:39 -0400
-Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:27793 "EHLO
-	kartuli.timesys") by vger.kernel.org with ESMTP id S269701AbUJMN2h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 09:28:37 -0400
-Message-ID: <416D2D08.3060709@timesys.com>
-Date: Wed, 13 Oct 2004 09:26:32 -0400
-From: "La Monte H.P. Yarroll" <piggy@timesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en, de-de
-MIME-Version: 1.0
-To: Martijn Sipkema <martijn@entmoot.nl>
-CC: Sven Dietrich <sdietrich@mvista.com>, "Bill Huey (hui)" <bhuey@lnxw.com>,
-       Thomas Gleixner <tglx@linutronix.de>, dwalker@mvista.com,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       amakarov@ru.mvista.com, ext-rt-dev@mvista.com,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext-rt-dev] Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-References: <20041012211201.GA28590@nietzsche.lynx.com> <EOEGJOIIAIGENMKBPIAEGEJGDKAA.sdietrich@mvista.com> <20041012225706.GC30966@nietzsche.lynx.com> <027e01c4b12a$188fda40$161b14ac@boromir>
-In-Reply-To: <027e01c4b12a$188fda40$161b14ac@boromir>
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+	Wed, 13 Oct 2004 09:34:28 -0400
+Received: from mx2.magma.ca ([206.191.0.250]:37343 "EHLO mx2.magma.ca")
+	by vger.kernel.org with ESMTP id S269702AbUJMNe1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 09:34:27 -0400
+Subject: Re: 2.6.9-rc4-mm1
+From: Jesse Stockall <stockall@magma.ca>
+To: Mathieu Segaud <matt@minas-morgul.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <87r7o23gdu.fsf@barad-dur.crans.org>
+References: <20041011032502.299dc88d.akpm@osdl.org>
+	 <1097672832.5500.60.camel@homer.blizzard.org>
+	 <87r7o23gdu.fsf@barad-dur.crans.org>
+Content-Type: text/plain
+Message-Id: <1097674487.5500.62.camel@homer.blizzard.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 13 Oct 2004 09:34:47 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martijn Sipkema wrote:
+On Wed, 2004-10-13 at 09:19, Mathieu Segaud wrote:
+> 
+> here's a fix
+> cd /usr/src/linux-2.6.9-rc4-mm1
+> wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/broken-out/optimize-profile-path-slightly.patch
+> patch -R -p1 < optimize-profile-path-slightly.patch
+> 
+> this should fix the sources and so...
 
->[...]
->  
->
->>>It was intended to promote discussion, and that seems to be working.
->>>      
->>>
->>Yeah, for me a bit of freak out Saturday that is still
->>kind of happening since this has been a personal project
->>of mine for a long time. :) I interpreted it as a visibility
->>move on your company's part, which I hate to say is a bit
->>unnerving to know that another group was doing the same
->>work. TimeSys's Scott Wood and friends are doing something
->>like this as well. I'm only being fair by mentioning them. :)
->>    
->>
->
->As you are mentioning TimeSys; they are distributing a modified kernel
->with added realtime features, but do they also make the source available?
->  
->
-Yes we do.  We're releasing all of our 2.6.x work.  Is there anything 
-you're having difficulty finding?
+Yup, that fixed it.
 
->I know that they used to extend the kernel using a proprietary kernel
->module; a clear violation of the GPL.
->  
->
+Thanks
+
 -- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell's sig
+Jesse Stockall <stockall@magma.ca>
 

@@ -1,75 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265253AbUF1WGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265255AbUF1WIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265253AbUF1WGn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 18:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbUF1WGn
+	id S265255AbUF1WIe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 18:08:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUF1WIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 18:06:43 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:1458 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265253AbUF1WGQ (ORCPT
+	Mon, 28 Jun 2004 18:08:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:32425 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265255AbUF1WI2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 18:06:16 -0400
-Subject: [PATCH] fix page->count discrepancy for zero page
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: linux-mm <linux-mm@kvack.org>,
-       "BRADLEY CHRISTIANSEN [imap]" <bradc1@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>
-Content-Type: multipart/mixed; boundary="=-cV4YYfqp3aExvEPFBNz3"
-Message-Id: <1088460353.5471.406.camel@nighthawk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 28 Jun 2004 15:05:53 -0700
+	Mon, 28 Jun 2004 18:08:28 -0400
+Date: Mon, 28 Jun 2004 15:08:24 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] signal handler defaulting fix ...
+In-Reply-To: <Pine.LNX.4.58.0406281453250.18879@bigblue.dev.mdolabs.com>
+Message-ID: <Pine.LNX.4.58.0406281507090.28764@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0406281430470.18879@bigblue.dev.mdolabs.com>
+ <20040628144003.40c151ff.akpm@osdl.org> <Pine.LNX.4.58.0406281446460.28764@ppc970.osdl.org>
+ <Pine.LNX.4.58.0406281453250.18879@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-cV4YYfqp3aExvEPFBNz3
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 
-While writing some analysis tools for memory hot-remove, we came across
-a single page which had a ->count that always increased, without bound. 
-It ended up always being the zero page, and it was caused by a leaked
-reference in some do_wp_page() code that ends up avoiding PG_reserved
-pages.
+On Mon, 28 Jun 2004, Davide Libenzi wrote:
+> 
+> It's not that the program try to block the signal. It's the kernel that 
+> during the delivery disables the signal. Then when the signal handler 
+> longjmp(), the signal remains disabled. The next time the signal is raised 
+> again, the kernel does not honor the existing handler, but it reset to 
+> SIG_DFL.
 
-Basically what happens is that page_cache_release()/put_page() ignore
-PG_reserved pages, while page_cache_get()/get_page() go ahead and take
-the reference.  So, each time there's a COW fault on the zero-page, you
-get a leaked page->count increment.
+So? That program is buggy. Setting the signal handler to SIG_DFL causes it 
+to be killed with a nice "killed by SIGFPE" message, and now the bug is 
+visible, and can be fixed.
 
-It's pretty rare to have a COW fault on anything that's PG_reserved, in
-fact, I can't think of anything else that this applies to other than the
-zero page.
+Hint: it should have done a siglongjmp().
 
-In any case, it the bug doesn't cause any real problems, but it is a bit
-of an annoyance and is obviously incorrect.  We've been running with
-this patch for about 3 months now, and haven't run into any problems
-with it.
-
-Attached patch is against 2.6.7 and applies to -mm3 properly.
-
--- Dave
-
---=-cV4YYfqp3aExvEPFBNz3
-Content-Disposition: attachment; filename=patch-2.6.7-zpage
-Content-Type: text/x-patch; name=patch-2.6.7-zpage; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
-
-diff -urp linux-2.6.7/mm/memory.c linux-2.6.7-zpage/mm/memory.c
---- linux-2.6.7/mm/memory.c	Tue Jun 15 22:19:22 2004
-+++ linux-2.6.7-zpage/mm/memory.c	Thu Jun 24 12:08:42 2004
-@@ -1064,7 +1064,8 @@ static int do_wp_page(struct mm_struct *
- 	/*
- 	 * Ok, we need to copy. Oh, well..
- 	 */
--	page_cache_get(old_page);
-+	if (!PageReserved(old_page))
-+		page_cache_get(old_page);
- 	spin_unlock(&mm->page_table_lock);
- 
- 	if (unlikely(anon_vma_prepare(vma)))
-
---=-cV4YYfqp3aExvEPFBNz3--
-
+		Linus

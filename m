@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278469AbRJOWly>; Mon, 15 Oct 2001 18:41:54 -0400
+	id <S278468AbRJOWog>; Mon, 15 Oct 2001 18:44:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278466AbRJOWlo>; Mon, 15 Oct 2001 18:41:44 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11015 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S278469AbRJOWla>; Mon, 15 Oct 2001 18:41:30 -0400
-Subject: Re: Status of ServerWorks UDMA
-To: jamagallon@able.es (J . A . Magallon)
-Date: Mon, 15 Oct 2001 23:48:02 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Lista Linux-Kernel)
-In-Reply-To: <20011016003812.A28638@werewolf.able.es> from "J . A . Magallon" at Oct 16, 2001 12:38:12 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S278467AbRJOWoZ>; Mon, 15 Oct 2001 18:44:25 -0400
+Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:35025 "HELO
+	msgbas1.cos.agilent.com") by vger.kernel.org with SMTP
+	id <S278468AbRJOWoP>; Mon, 15 Oct 2001 18:44:15 -0400
+Message-ID: <01A7DAF31F93D511AEE300D0B706ED9208E496@axcs13.cos.agilent.com>
+From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
+To: "'arjan@fenrus.demon.nl'" <arjan@fenrus.demon.nl>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: spin locks and timers in scsi hba driver
+Date: Mon, 15 Oct 2001 16:44:44 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15tGWg-0003fP-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have just installed a system with kernel 2.4.20, and it stops booting
-> with a message like:
-> 
-> 	Controller is in an impossible state. Disable UDMA.
+Well, I thought spin_unlock_irq() is supposed to enable all maskable
+interrupts
+by setting IF flag in the EFLAGS register which gets cleared by
+local_irq_save().
+I understand that spin_unlock_irq does not restore all the flags. But it
+atleast sets the IF flag which enables the interrupt. I believe that this
+is atleast true in case of intel x86 arch. We have not made our sources
+open-source yet. So I cannot give out the sources. Sorry.
 
-That is triggered when we see a case that can cause disk corruption.
+Thanks and regards,
+-hiren
 
-> Board is a SuperMicro 370DLE (SW LE chipset). I have tried disabling 
-> ide channels on the bios, but kernel still sees them. I have tried to
+-----Original Message-----
+From: arjan@fenrus.demon.nl [mailto:arjan@fenrus.demon.nl]
+Sent: Monday, October 15, 2001 3:11 PM
+To: hiren_mehta@agilent.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: spin locks and timers in scsi hba driver
 
-At some point I'll sort this properly if Andre doesnt do it first.
 
-> boot with ide0=nodma (is this options real, or I just have invented it ??)
-> No solution.
+In article <01A7DAF31F93D511AEE300D0B706ED9208E495@axcs13.cos.agilent.com>
+you wrote:
+> Hi List,
 
-ide=nodma
+> I want to make sure that my hba-driver timers do run
+> when the uppar scsi-layer calls any of the error handler entry points
+> and while I am still doing the error handling. As I know, scsi-layer
+> calls spin_lock_irqsave(&io_request_lock, flags) before calling the
+> error handlers and they call spin_unlock_irqrestore(&io_request_lock,
+flags)
+> after returning from the error handlers. So, inside the error handlers,
+> I call spin_unlock_irq(&io_request_lock); wait for the timers to run,
+> and the again call spin_lock_irq(&io_request_lock). 
 
-Please send me details on the system. lspci -v output too.
+well interrupts are still disabled...
+Could you give an URL to the source of your driver so that I and others can
+see what you really are trying to do ?
+
+Greetings,
+   Arjan van de Ven

@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265971AbUJAS0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266048AbUJASgm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265971AbUJAS0g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 14:26:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266143AbUJAS0g
+	id S266048AbUJASgm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 14:36:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266136AbUJASgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 14:26:36 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:42112 "EHLO midnight.suse.cz")
-	by vger.kernel.org with ESMTP id S265971AbUJAS0W (ORCPT
+	Fri, 1 Oct 2004 14:36:42 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:5563 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S266048AbUJASgk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 14:26:22 -0400
-Date: Fri, 1 Oct 2004 20:26:02 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Greg KH <greg@kroah.com>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Andrew Morton <akpm@osdl.org>,
-       "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm4
-Message-ID: <20041001182602.GA1613@ucw.cz>
-References: <20040926181021.2e1b3fe4.akpm@osdl.org> <1096586774l.5206l.1l@werewolf.able.es> <20040930170505.6536197c.akpm@osdl.org> <200410010030.39826.dtor_core@ameritech.net> <20041001180101.GC14015@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041001180101.GC14015@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 1 Oct 2004 14:36:40 -0400
+Content-Type: text/plain;
+  charset="CP 1252"
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: jmerkey@comcast.net, linux-kernel@vger.kernel.org
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
+Date: Fri, 1 Oct 2004 13:23:23 -0500
+X-Mailer: KMail [version 1.2]
+Cc: jmerkey@drdos.com
+References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net>
+In-Reply-To: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net>
+MIME-Version: 1.0
+Message-Id: <04100113232300.13462@tabby>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 01, 2004 at 11:01:01AM -0700, Greg KH wrote:
-> On Fri, Oct 01, 2004 at 12:30:39AM -0500, Dmitry Torokhov wrote:
-> > On Thursday 30 September 2004 07:05 pm, Andrew Morton wrote:
-> > > > One other question. Isn't /dev/input/mice supposed to be a multiplexor
-> > > > for mice ? I think I remember some time when I could have both a PS2 and
-> > > > a USB mouse connected and X pointer followed both. Now if I boot with the
-> > > > USB mouse plugged, the PS2 one does not work. If I boot with usb unplugged
-> > > > and plug it after boot, both work; usb mouse works fine, and PS2 just
-> > > > jumps half screen each time I move it, and with big delays.
-> > > > 
-> > > 
-> > 
-> > I bet it's USB legacy emulation topic again. Try loading USB modules first
-> > and then psmouse, should help.
-> > 
-> > Vojtech, what is the status of USB handoff patches. I have seen several
-> > variants and so far heard only success stories from people using them. Can
-> > we have them in kernel proper?
-> 
-> They are already in the -mm tree, but they need to be explicitly enabled
-> with a boot command line option to have the handoff happen.
- 
-I think we really need them by default. I had seven bugs with touchpads,
-lost synchronization with PS/2 mice and similar fixed just by enabling
-this patch unconditionally in the SuSE tree.
+On Friday 01 October 2004 12:40, jmerkey@comcast.net wrote:
+> Who cares about GPL violations in Linux .  What can anyone do about it
+> anyway.  The FSF isn't going to sue anyone unless someone give them the
+> money to do it.  Most of this banter and name calling people do about it is
+> a waste of time.  What punishment will anyone get for it.  A few people
+> writing mean emails and finder pointing -- Yeah -- this will really stop
+> someone from doing it.  If you give your code away GPL, or not you have
+> just done just that.   Tigrian is correct in his statements.
+>
+> Even if you review it and make a fuss it does nothing to stop people.  The
+> GPL is flawed since it does not require people to go back to the copyright
+> holders and demand a license for commerical use.  This is the only way you
+> will ever stop these people.  So instead of being whinny babies about it,
+> fix the GPL and add this language.  Then anyone who uses the code in a
+> commerical enterprise will be required to get a license, and you can
+> actually do something about it.
+>
+> Oops.  Too late.  Linux has a huge trail of everyone's code under the GPL
+> so you cannot re-release the code under another license unless the entire
+> code base is re-written.  So anyone can fork it at any point and claim, "we
+> never accepted the license even though we download and use the code.  Guess
+> what, this is legally valid to say and totally circumvents the GPL, they
+> just have to leave your copyright notices in place.
+>
+> :-)
+>
+> Jeff
 
-As far as I know, there are only a few nForce boards where enabling the
-patch hurts - we should be able to do a DMI exception for those. Anyway,
-those boards have bigger problems, as USB reportedly doesn't work there
-(because the USB drivers do the same handoff).
+Anybody that has code in the kernel under GPL is CAN start a lawsuit for
+compliance. But that doesn't mean they HAVE to do so.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+But if they don't know it may be happening, how could they decide?
+
+So "make a fuss". If someone DOES decide to go after them.. fine.

@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262606AbVAVRwC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262601AbVAVRzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262606AbVAVRwC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 12:52:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbVAVRwC
+	id S262601AbVAVRzm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 12:55:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbVAVRzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 12:52:02 -0500
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:16850 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262606AbVAVRdP convert rfc822-to-8bit
+	Sat, 22 Jan 2005 12:55:42 -0500
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:13522 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262601AbVAVRdM convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 12:33:15 -0500
+	Sat, 22 Jan 2005 12:33:12 -0500
 Cc: linux-kernel@vger.kernel.org, js@linuxtv.org
 In-Reply-To: <1106415266247@linuxtv.org>
 X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Sat, 22 Jan 2005 18:34:29 +0100
-Message-Id: <11064152692242@linuxtv.org>
+Date: Sat, 22 Jan 2005 18:34:31 +0100
+Message-Id: <11064152711787@linuxtv.org>
 Mime-Version: 1.0
 To: Linus Torvalds <torvalds@osdl.org>
 From: Johannes Stezenbach <js@linuxtv.org>
 X-SA-Exim-Connect-IP: 217.231.47.99
-Subject: [PATCH 4/9] support nxt2002 frontend, misc skystar2 fixes
+Subject: [PATCH 6/9] refactoring
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
@@ -26,1780 +26,1211 @@ X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- [DVB] nxt2002: add support for nxt2002 frontend (firmware extraction, Kconfig, driver)
-- [DVB] skystar2: misc cleanup, remove unneeded casts, remove unreachable
-        code, patches by Francois Romieu
-- [DVB] skystar2: fix mt352 clock setting for VHF (6 and 7 MHz bw channels),
-        patch by Thomas Martin and Dieter Zander:
-- [DVB] b2c2-usb-core: fix file permissions to be octal, ISO C90 compile fix,
-        temporally repaired the request_types
-- [DVB] remove remains of dibusb driver after splitup
+- [DVB] dib3000: driver refactoring, makes it easier to support device clones
 
 Signed-off-by: Michael Hunold <hunold@linuxtv.org>
 Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
-diff -uraNwB linux-2.6.11-rc2/Documentation/dvb/get_dvb_firmware linux-2.6.11-rc2-dvb/Documentation/dvb/get_dvb_firmware
---- linux-2.6.11-rc2/Documentation/dvb/get_dvb_firmware	2005-01-20 19:55:06.000000000 +0100
-+++ linux-2.6.11-rc2-dvb/Documentation/dvb/get_dvb_firmware	2004-12-17 22:00:17.000000000 +0100
-@@ -21,7 +21,8 @@
- use File::Temp qw/ tempdir /;
- use IO::Handle;
- 
--@components = ( "sp8870", "sp887x", "tda10045", "tda10046", "av7110", "dec2000t", "dec2540t", "dec3000s", "vp7041", "dibusb" );
-+@components = ( "sp8870", "sp887x", "tda10045", "tda10046", "av7110", "dec2000t",
-+		"dec2540t", "dec3000s", "vp7041", "dibusb", "nxt2002" );
- 
- # Check args
- syntax() if (scalar(@ARGV) != 1);
-@@ -233,6 +234,23 @@
- 	$outfile;
- }
- 
-+sub nxt2002 {
-+    my $sourcefile = "Broadband4PC_4_2_11.zip";
-+    my $url = "http://www.bbti.us/download/windows/$sourcefile";
-+    my $hash = "c6d2ea47a8f456d887ada0cfb718ff2a";
-+    my $outfile = "dvb-fe-nxt2002.fw";
-+    my $tmpdir = tempdir(DIR => "/tmp", CLEANUP => 1);
-+
-+    checkstandard();
-+    
-+    wgetfile($sourcefile, $url);
-+    unzip($sourcefile, $tmpdir);
-+    verify("$tmpdir/SkyNETU.sys", $hash);
-+    extract("$tmpdir/SkyNETU.sys", 375832, 5908, $outfile);
-+
-+    $outfile;
-+}
-+
- # ---------------------------------------------------------------
- # Utilities
- 
-diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/frontends/Makefile linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/Makefile
---- linux-2.6.11-rc2/drivers/media/dvb/frontends/Makefile	2005-01-20 19:54:04.000000000 +0100
-+++ linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/Makefile	2004-12-17 22:00:17.000000000 +0100
-@@ -24,3 +24,5 @@
- obj-$(CONFIG_DVB_TDA80XX) += tda80xx.o
- obj-$(CONFIG_DVB_TDA10021) += tda10021.o
- obj-$(CONFIG_DVB_STV0297) += stv0297.o
-+obj-$(CONFIG_DVB_NXT2002) += nxt2002.o
-+
-diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/frontends/Kconfig linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/Kconfig
---- linux-2.6.11-rc2/drivers/media/dvb/frontends/Kconfig	2005-01-20 19:54:04.000000000 +0100
-+++ linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/Kconfig	2005-01-20 19:56:37.000000000 +0100
-@@ -46,6 +46,7 @@
- config DVB_SP8870
-  	tristate "Spase sp8870 based"
- 	depends on DVB_CORE
-+	select FW_LOADER
- 	help
-  	  A DVB-T tuner module. Say Y when you want to support this frontend.
- 
-@@ -56,6 +57,7 @@
- config DVB_SP887X
-  	tristate "Spase sp887x based"
- 	depends on DVB_CORE
-+	select FW_LOADER
- 	help
- 	  A DVB-T tuner module. Say Y when you want to support this frontend.
- 
-@@ -84,6 +86,7 @@
- config DVB_TDA1004X
- 	tristate "Philips TDA10045H/TDA10046H based"
- 	depends on DVB_CORE
-+	select FW_LOADER
- 	help
- 	  A DVB-T tuner module. Say Y when you want to support this frontend.
- 
-@@ -145,4 +148,13 @@
- 	help
- 	  A DVB-C tuner module. Say Y when you want to support this frontend.
- 
-+comment "ATSC (North American/Korean Terresterial DTV) frontends"
-+	depends on DVB_CORE
-+
-+config DVB_NXT2002
-+	tristate "Nxt2002 based"
-+	depends on DVB_CORE
-+	help
-+	  An ATSC 8VSB tuner module. Say Y when you want to support this frontend.
-+
- endmenu
-diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/b2c2/Kconfig linux-2.6.11-rc2-dvb/drivers/media/dvb/b2c2/Kconfig
---- linux-2.6.11-rc2/drivers/media/dvb/b2c2/Kconfig	2005-01-20 19:54:05.000000000 +0100
-+++ linux-2.6.11-rc2-dvb/drivers/media/dvb/b2c2/Kconfig	2004-12-17 22:00:17.000000000 +0100
-@@ -4,9 +4,11 @@
- 	select DVB_STV0299
- 	select DVB_MT352
- 	select DVB_MT312
-+	select DVB_NXT2002
- 	help
- 	  Support for the Skystar2 PCI DVB card by Technisat, which
--	  is equipped with the FlexCopII chipset by B2C2.
-+	  is equipped with the FlexCopII chipset by B2C2, and
-+	  for the B2C2/BBTI Air2PC-ATSC card.
- 
- 	  Say Y if you own such a device and want to use it.
- 
-@@ -17,7 +19,7 @@
- 	select DVB_MT352
- 	help
- 	  Support for the Air/Sky/Cable2PC USB DVB device by B2C2. Currently
--	  this does nothing, but providing basic function for the used usb
-+	  the does nothing, but providing basic function for the used usb 
- 	  protocol.
- 
- 	  Say Y if you own such a device and want to use it.
-diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/b2c2/skystar2.c linux-2.6.11-rc2-dvb/drivers/media/dvb/b2c2/skystar2.c
---- linux-2.6.11-rc2/drivers/media/dvb/b2c2/skystar2.c	2005-01-20 19:55:47.000000000 +0100
-+++ linux-2.6.11-rc2-dvb/drivers/media/dvb/b2c2/skystar2.c	2005-01-20 19:56:37.000000000 +0100
-@@ -53,7 +53,7 @@
- #include "stv0299.h"
- #include "mt352.h"
- #include "mt312.h"
--
-+#include "nxt2002.h"
- 
- static int debug;
- static int enable_hw_filters = 2;
-@@ -1379,10 +1378,7 @@
- 		write_reg_dw(adapter, 0x008, adapter->dmaq1.bus_addr & 0xfffffffc);
- 		udelay(1000);
- 
--		if (subbuffers == 0)
--			dma_enable_disable_irq(adapter, 0, 1, 0);
--		else
--			dma_enable_disable_irq(adapter, 0, 1, 1);
-+		dma_enable_disable_irq(adapter, 0, 1, subbuffers ? 1 : 0);
- 
- 		irq_dma_enable_disable_irq(adapter, 1);
- 
-@@ -1681,84 +1677,80 @@
- 	return IRQ_HANDLED;
- }
- 
--static void init_dma_queue(struct adapter *adapter)
-+static int init_dma_queue_one(struct adapter *adapter, struct dmaq *dmaq,
-+			      int size, int dmaq_offset)
- {
-+	struct pci_dev *pdev = adapter->pdev;
- 	dma_addr_t dma_addr;
- 
--	if (adapter->dmaq1.buffer != 0)
--		return;
--
--	adapter->dmaq1.head = 0;
--	adapter->dmaq1.tail = 0;
--	adapter->dmaq1.buffer = NULL;
--
--	adapter->dmaq1.buffer = pci_alloc_consistent(adapter->pdev, SIZE_OF_BUF_DMA1 + 0x80, &dma_addr);
-+	dmaq->head = 0;
-+	dmaq->tail = 0;
- 
--	if (adapter->dmaq1.buffer != 0) {
--		memset(adapter->dmaq1.buffer, 0, SIZE_OF_BUF_DMA1);
--
--		adapter->dmaq1.bus_addr = dma_addr;
--		adapter->dmaq1.buffer_size = SIZE_OF_BUF_DMA1;
--
--		dma_init_dma(adapter, 0);
-+	dmaq->buffer = pci_alloc_consistent(pdev, size + 0x80, &dma_addr);
-+	if (!dmaq->buffer)
-+		return -ENOMEM;
- 
--		adapter->dma_status = adapter->dma_status | 0x10000000;
-+	dmaq->bus_addr = dma_addr;
-+	dmaq->buffer_size = size;
- 
--		ddprintk("%s: allocated dma buffer at 0x%p, length=%d\n", __FUNCTION__, adapter->dmaq1.buffer, SIZE_OF_BUF_DMA1);
-+	dma_init_dma(adapter, dmaq_offset);
- 
--	} else {
-+	ddprintk("%s: allocated dma buffer at 0x%p, length=%d\n",
-+		 __FUNCTION__, dmaq->buffer, size);
- 
--		adapter->dma_status = adapter->dma_status & ~0x10000000;
-+	return 0;
- 	}
- 
--	if (adapter->dmaq2.buffer != 0)
--		return;
--
--	adapter->dmaq2.head = 0;
--	adapter->dmaq2.tail = 0;
--	adapter->dmaq2.buffer = NULL;
--
--	adapter->dmaq2.buffer = pci_alloc_consistent(adapter->pdev, SIZE_OF_BUF_DMA2 + 0x80, &dma_addr);
--
--	if (adapter->dmaq2.buffer != 0) {
--		memset(adapter->dmaq2.buffer, 0, SIZE_OF_BUF_DMA2);
--
--		adapter->dmaq2.bus_addr = dma_addr;
--		adapter->dmaq2.buffer_size = SIZE_OF_BUF_DMA2;
--
--		dma_init_dma(adapter, 1);
--
--		adapter->dma_status = adapter->dma_status | 0x20000000;
--
--		ddprintk("%s: allocated dma buffer at 0x%p, length=%d\n", __FUNCTION__, adapter->dmaq2.buffer, (int) SIZE_OF_BUF_DMA2);
-+static int init_dma_queue(struct adapter *adapter)
-+{
-+	struct {
-+		struct dmaq *dmaq;
-+		u32 dma_status;
-+		int size;
-+	} dmaq_desc[] = {
-+		{ &adapter->dmaq1, 0x10000000, SIZE_OF_BUF_DMA1 },
-+		{ &adapter->dmaq2, 0x20000000, SIZE_OF_BUF_DMA2 }
-+	}, *p = dmaq_desc;
-+	int i;
- 
--	} else {
-+	for (i = 0; i < 2; i++, p++) {
-+		if (init_dma_queue_one(adapter, p->dmaq, p->size, i) < 0)
-+			adapter->dma_status &= ~p->dma_status;
-+		else
-+			adapter->dma_status |= p->dma_status;
-+	}
-+	return (adapter->dma_status & 0x30000000) ? 0 : -ENOMEM;
-+}
- 
--		adapter->dma_status = adapter->dma_status & ~0x20000000;
-+static void free_dma_queue_one(struct adapter *adapter, struct dmaq *dmaq)
-+{
-+	if (dmaq->buffer) {
-+		pci_free_consistent(adapter->pdev, dmaq->buffer_size + 0x80,
-+				    dmaq->buffer, dmaq->bus_addr);
-+		memset(dmaq, 0, sizeof(*dmaq));
- 	}
- }
- 
- static void free_dma_queue(struct adapter *adapter)
- {
--	if (adapter->dmaq1.buffer != 0) {
--		pci_free_consistent(adapter->pdev, SIZE_OF_BUF_DMA1 + 0x80, adapter->dmaq1.buffer, adapter->dmaq1.bus_addr);
-+	struct dmaq *dmaq[] = {
-+		&adapter->dmaq1,
-+		&adapter->dmaq2,
-+		NULL
-+	}, **p;
- 
--		adapter->dmaq1.bus_addr = 0;
--		adapter->dmaq1.head = 0;
--		adapter->dmaq1.tail = 0;
--		adapter->dmaq1.buffer_size = 0;
--		adapter->dmaq1.buffer = NULL;
-+	for (p = dmaq; *p; p++)
-+		free_dma_queue_one(adapter, *p);
- 	}
- 
--	if (adapter->dmaq2.buffer != 0) {
--		pci_free_consistent(adapter->pdev, SIZE_OF_BUF_DMA2 + 0x80, adapter->dmaq2.buffer, adapter->dmaq2.bus_addr);
-+static void release_adapter(struct adapter *adapter)
-+{
-+	struct pci_dev *pdev = adapter->pdev;
- 
--		adapter->dmaq2.bus_addr = 0;
--		adapter->dmaq2.head = 0;
--		adapter->dmaq2.tail = 0;
--		adapter->dmaq2.buffer_size = 0;
--		adapter->dmaq2.buffer = NULL;
--	}
-+	iounmap(adapter->io_mem);
-+	pci_disable_device(pdev);
-+	pci_release_region(pdev, 0);
-+	pci_release_region(pdev, 1);
- }
- 
- static void free_adapter_object(struct adapter *adapter)
-@@ -1766,16 +1758,9 @@
- 	dprintk("%s:\n", __FUNCTION__);
- 
- 	close_stream(adapter, 0);
--
--	if (adapter->irq != 0)
- 		free_irq(adapter->irq, adapter);
--
- 	free_dma_queue(adapter);
--
--	if (adapter->io_mem)
--		iounmap(adapter->io_mem);
--
--	if (adapter != 0)
-+	release_adapter(adapter);
- 	kfree(adapter);
- }
- 
-@@ -1784,21 +1769,24 @@
- static int claim_adapter(struct adapter *adapter)
- {
- 	struct pci_dev *pdev = adapter->pdev;
--
- 	u16 var;
-+	int ret;
- 
--	if (!request_region(pci_resource_start(pdev, 1), pci_resource_len(pdev, 1), skystar2_pci_driver.name))
--		return -EBUSY;
-+	ret = pci_request_region(pdev, 1, skystar2_pci_driver.name);
-+	if (ret < 0)
-+		goto out;
- 
--	if (!request_mem_region(pci_resource_start(pdev, 0), pci_resource_len(pdev, 0), skystar2_pci_driver.name))
--		return -EBUSY;
-+	ret = pci_request_region(pdev, 0, skystar2_pci_driver.name);
-+	if (ret < 0)
-+		goto err_pci_release_1;
- 
- 	pci_read_config_byte(pdev, PCI_CLASS_REVISION, &adapter->card_revision);
- 
- 	dprintk("%s: card revision %x \n", __FUNCTION__, adapter->card_revision);
- 
--	if (pci_enable_device(pdev))
--		return -EIO;
-+	ret = pci_enable_device(pdev);
-+	if (ret < 0)
-+		goto err_pci_release_0;
- 
- 	pci_read_config_word(pdev, 4, &var);
- 
-@@ -1811,13 +1799,23 @@
- 
- 	if (!adapter->io_mem) {
- 		dprintk("%s: can not map io memory\n", __FUNCTION__);
--
--		return 2;
-+		ret = -EIO;
-+		goto err_pci_disable;
- 	}
- 
- 	dprintk("%s: io memory maped at %p\n", __FUNCTION__, adapter->io_mem);
- 
--	return 1;
-+	ret = 1;
-+out:
-+	return ret;
-+
-+err_pci_disable:
-+	pci_disable_device(pdev);
-+err_pci_release_0:
-+	pci_release_region(pdev, 0);
-+err_pci_release_1:
-+	pci_release_region(pdev, 1);
-+	goto out;
- }
- 
- /*
-@@ -1873,11 +1871,12 @@
- {
- 	struct adapter *adapter;
- 	u32 tmp;
-+	int ret = -ENOMEM;
- 
--	if (!(adapter = kmalloc(sizeof(struct adapter), GFP_KERNEL))) {
-+	adapter = kmalloc(sizeof(struct adapter), GFP_KERNEL);
-+	if (!adapter) {
- 		dprintk("%s: out of memory!\n", __FUNCTION__);
--
--		return -ENOMEM;
-+		goto out;
- 	}
- 
- 	memset(adapter, 0, sizeof(struct adapter));
-@@ -1887,20 +1886,16 @@
- 	adapter->pdev = pdev;
- 	adapter->irq = pdev->irq;
- 
--	if ((claim_adapter(adapter)) != 1) {
--		free_adapter_object(adapter);
--
--		return -ENODEV;
--	}
-+	ret = claim_adapter(adapter);
-+	if (ret < 0)
-+		goto err_kfree;
- 
- 	irq_dma_enable_disable_irq(adapter, 0);
- 
--	if (request_irq(pdev->irq, isr, 0x4000000, "Skystar2", adapter) != 0) {
-+	ret = request_irq(pdev->irq, isr, 0x4000000, "Skystar2", adapter);
-+	if (ret < 0) {
- 		dprintk("%s: unable to allocate irq=%d !\n", __FUNCTION__, pdev->irq);
--
--		free_adapter_object(adapter);
--
--		return -ENODEV;
-+		goto err_release_adapter;
- 	}
- 
- 	read_reg_dw(adapter, 0x208);
-@@ -1908,13 +1903,9 @@
- 	write_reg_dw(adapter, 0x210, 0xb2ff);
- 	write_reg_dw(adapter, 0x208, 0x40);
- 
--	init_dma_queue(adapter);
--
--	if ((adapter->dma_status & 0x30000000) == 0) {
--		free_adapter_object(adapter);
--
--		return -ENODEV;
--	}
-+	ret = init_dma_queue(adapter);
-+	if (ret < 0)
-+		goto err_free_irq;
- 
- 	adapter->b2c2_revision = (read_reg_dw(adapter, 0x204) >> 0x18);
- 
-@@ -1931,11 +1922,8 @@
- 	default:
- 		printk("%s: The revision of the FlexCop chip on your card is %d\n", __FILE__, adapter->b2c2_revision);
- 		printk("%s: This driver works only with FlexCopII(rev.130), FlexCopIIB(rev.195) and FlexCopIII(rev.192).\n", __FILE__);
--		free_adapter_object(adapter);
--		pci_set_drvdata(pdev, NULL);
--		release_region(pci_resource_start(pdev, 1), pci_resource_len(pdev, 1));
--		release_mem_region(pci_resource_start(pdev, 0), pci_resource_len(pdev, 0));
--			return -ENODEV;
-+		ret = -ENODEV;
-+		goto err_free_dma_queue;
- 		}
- 
- 	decide_how_many_hw_filters(adapter);
-@@ -1979,16 +1967,26 @@
- 		ctrl_enable_mac(adapter, 1);
- 	}
- 
--	spin_lock_init(&adapter->lock);
-+	adapter->lock = SPIN_LOCK_UNLOCKED;
- 
--	return 0;
-+out:
-+	return ret;
-+
-+err_free_dma_queue:
-+	free_dma_queue(adapter);
-+err_free_irq:
-+	free_irq(pdev->irq, adapter);
-+err_release_adapter:
-+	release_adapter(adapter);
-+err_kfree:
-+	pci_set_drvdata(pdev, NULL);
-+	kfree(adapter);
-+	goto out;
- }
- 
- static void driver_halt(struct pci_dev *pdev)
- {
--	struct adapter *adapter;
--
--	adapter = pci_get_drvdata(pdev);
-+	struct adapter *adapter = pci_get_drvdata(pdev);
- 
- 	irq_dma_enable_disable_irq(adapter, 0);
- 
-@@ -1998,9 +1996,9 @@
- 
- 	pci_set_drvdata(pdev, NULL);
- 
--	release_region(pci_resource_start(pdev, 1), pci_resource_len(pdev, 1));
--
--	release_mem_region(pci_resource_start(pdev, 0), pci_resource_len(pdev, 0));
-+	pci_disable_device(pdev);
-+	pci_release_region(pdev, 1);
-+	pci_release_region(pdev, 0);
- }
- 
- static int dvb_start_feed(struct dvb_demux_feed *dvbdmxfeed)
-@@ -2325,11 +2323,22 @@
- 
- 
- 
-+static int nxt2002_request_firmware(struct dvb_frontend* fe, const struct firmware **fw, char* name)
-+{
-+	struct adapter* adapter = (struct adapter*) fe->dvb->priv;
-+
-+	return request_firmware(fw, name, &adapter->pdev->dev);
-+}
- 
- 
-+static struct nxt2002_config samsung_tbmv_config = {
-+	.demod_address = 0x0A,
-+	.request_firmware = nxt2002_request_firmware,
-+};
-+
- static int samsung_tdtc9251dh0_demod_init(struct dvb_frontend* fe)
- {
--	static u8 mt352_clock_config [] = { 0x89, 0x10, 0x2d };
-+	static u8 mt352_clock_config [] = { 0x89, 0x18, 0x2d };
- 	static u8 mt352_reset [] = { 0x50, 0x80 };
- 	static u8 mt352_adc_ctl_1_cfg [] = { 0x8E, 0x40 };
- 	static u8 mt352_agc_cfg [] = { 0x67, 0x28, 0xa1 };
-@@ -2407,7 +2416,15 @@
- static void frontend_init(struct adapter *skystar2)
- {
- 	switch(skystar2->pdev->device) {
--	case 0x2103: // Technisat Skystar2 OR Technisat Airstar2
-+	case 0x2103: // Technisat Skystar2 OR Technisat Airstar2 (DVB-T or ATSC)
-+
-+		// Attempt to load the Nextwave nxt2002 for ATSC support 
-+		skystar2->fe = nxt2002_attach(&samsung_tbmv_config, &skystar2->i2c_adap);
-+		if (skystar2->fe != NULL) {
-+			skystar2->fe_sleep = skystar2->fe->ops->sleep;
-+			skystar2->fe->ops->sleep = flexcop_sleep;
-+			break;
-+		}
- 
- 		// try the skystar2 v2.6 first (stv0299/Samsung tbmu24112(sl1935))
- 		skystar2->fe = stv0299_attach(&samsung_tbmu24112_config, &skystar2->i2c_adap);
-@@ -2462,26 +2479,24 @@
- 	struct adapter *adapter;
- 	struct dvb_adapter *dvb_adapter;
- 	struct dvb_demux *dvbdemux;
-+	struct dmx_demux *dmx;
-+	int ret = -ENODEV;
- 
--	int ret;
--
--	if (pdev == NULL)
--		return -ENODEV;
-+	if (!pdev)
-+		goto out;
- 
--	if (driver_initialize(pdev) != 0)
--		return -ENODEV;
--
--	dvb_register_adapter(&dvb_adapter, skystar2_pci_driver.name, THIS_MODULE);
-+	ret = driver_initialize(pdev);
-+	if (ret < 0)
-+		goto out;
- 
--	if (dvb_adapter == NULL) {
-+	ret = dvb_register_adapter(&dvb_adapter, skystar2_pci_driver.name,
-+				   THIS_MODULE);
-+	if (ret < 0) {
- 		printk("%s: Error registering DVB adapter\n", __FUNCTION__);
--
--		driver_halt(pdev);
--
--		return -ENODEV;
-+		goto err_halt;
- 	}
- 
--	adapter = (struct adapter *) pci_get_drvdata(pdev);
-+	adapter = pci_get_drvdata(pdev);
- 
- 	dvb_adapter->priv = adapter;
- 	adapter->dvb_adapter = dvb_adapter;
-@@ -2504,14 +2517,13 @@
- 	adapter->i2c_adap.algo_data         = NULL;
- 	adapter->i2c_adap.id                = I2C_ALGO_BIT;
- 
--	if (i2c_add_adapter(&adapter->i2c_adap) < 0) {
--		dvb_unregister_adapter (adapter->dvb_adapter);
--		return -ENOMEM;
--	}
-+	ret = i2c_add_adapter(&adapter->i2c_adap);
-+	if (ret < 0)
-+		goto err_dvb_unregister;
- 
- 	dvbdemux = &adapter->demux;
- 
--	dvbdemux->priv = (void *) adapter;
-+	dvbdemux->priv = adapter;
- 	dvbdemux->filternum = N_PID_SLOTS;
- 	dvbdemux->feednum = N_PID_SLOTS;
- 	dvbdemux->start_feed = dvb_start_feed;
-@@ -2519,68 +2531,87 @@
- 	dvbdemux->write_to_decoder = NULL;
- 	dvbdemux->dmx.capabilities = (DMX_TS_FILTERING | DMX_SECTION_FILTERING | DMX_MEMORY_BASED_FILTERING);
- 
--	dvb_dmx_init(&adapter->demux);
-+	ret = dvb_dmx_init(&adapter->demux);
-+	if (ret < 0)
-+		goto err_i2c_del;
-+
-+	dmx = &dvbdemux->dmx;
- 
- 	adapter->hw_frontend.source = DMX_FRONTEND_0;
--
- 	adapter->dmxdev.filternum = N_PID_SLOTS;
--	adapter->dmxdev.demux = &dvbdemux->dmx;
-+	adapter->dmxdev.demux = dmx;
- 	adapter->dmxdev.capabilities = 0;
- 
--	dvb_dmxdev_init(&adapter->dmxdev, adapter->dvb_adapter);
-+	ret = dvb_dmxdev_init(&adapter->dmxdev, adapter->dvb_adapter);
-+	if (ret < 0)
-+		goto err_dmx_release;
- 
--	ret = dvbdemux->dmx.add_frontend(&dvbdemux->dmx, &adapter->hw_frontend);
-+	ret = dmx->add_frontend(dmx, &adapter->hw_frontend);
- 	if (ret < 0)
--		return ret;
-+		goto err_dmxdev_release;
- 
- 	adapter->mem_frontend.source = DMX_MEMORY_FE;
- 
--	ret = dvbdemux->dmx.add_frontend(&dvbdemux->dmx, &adapter->mem_frontend);
-+	ret = dmx->add_frontend(dmx, &adapter->mem_frontend);
- 	if (ret < 0)
--		return ret;
-+		goto err_remove_hw_frontend;
- 
--	ret = dvbdemux->dmx.connect_frontend(&dvbdemux->dmx, &adapter->hw_frontend);
-+	ret = dmx->connect_frontend(dmx, &adapter->hw_frontend);
- 	if (ret < 0)
--		return ret;
-+		goto err_remove_mem_frontend;
- 
- 	dvb_net_init(adapter->dvb_adapter, &adapter->dvbnet, &dvbdemux->dmx);
- 
- 	frontend_init(adapter);
-+out:
-+	return ret;
- 
--	return 0;
-+err_remove_mem_frontend:
-+	dvbdemux->dmx.remove_frontend(&dvbdemux->dmx, &adapter->mem_frontend);
-+err_remove_hw_frontend:
-+	dvbdemux->dmx.remove_frontend(&dvbdemux->dmx, &adapter->hw_frontend);
-+err_dmxdev_release:
-+	dvb_dmxdev_release(&adapter->dmxdev);
-+err_dmx_release:
-+	dvb_dmx_release(&adapter->demux);
-+err_i2c_del:
-+	i2c_del_adapter(&adapter->i2c_adap);
-+err_dvb_unregister:
-+	dvb_unregister_adapter(adapter->dvb_adapter);
-+err_halt:
-+	driver_halt(pdev);
-+	goto out;
- }
- 
- static void skystar2_remove(struct pci_dev *pdev)
- {
--	struct adapter *adapter;
-+	struct adapter *adapter = pci_get_drvdata(pdev);
- 	struct dvb_demux *dvbdemux;
-+	struct dmx_demux *dmx;
- 
--	if (pdev == NULL)
-+	if (!adapter)
- 		return;
- 
--	adapter = pci_get_drvdata(pdev);
--
--	if (adapter != NULL) {
- 		dvb_net_release(&adapter->dvbnet);
- 		dvbdemux = &adapter->demux;
-+	dmx = &dvbdemux->dmx;
- 
--		dvbdemux->dmx.close(&dvbdemux->dmx);
--		dvbdemux->dmx.remove_frontend(&dvbdemux->dmx, &adapter->hw_frontend);
--		dvbdemux->dmx.remove_frontend(&dvbdemux->dmx, &adapter->mem_frontend);
-+	dmx->close(dmx);
-+	dmx->remove_frontend(dmx, &adapter->hw_frontend);
-+	dmx->remove_frontend(dmx, &adapter->mem_frontend);
- 
- 		dvb_dmxdev_release(&adapter->dmxdev);
--		dvb_dmx_release(&adapter->demux);
-+	dvb_dmx_release(dvbdemux);
-+
-+	if (adapter->fe != NULL)
-+		dvb_unregister_frontend(adapter->fe);
- 
--		if (adapter->fe != NULL) dvb_unregister_frontend(adapter->fe);
-+	dvb_unregister_adapter(adapter->dvb_adapter);
- 
--		if (adapter->dvb_adapter != NULL) {
- 			i2c_del_adapter(&adapter->i2c_adap);
- 
--			dvb_unregister_adapter(adapter->dvb_adapter);
--		}
- 		driver_halt(pdev);
- 	}
--}
- 
- static struct pci_device_id skystar2_pci_tbl[] = {
- 	{0x000013d0, 0x00002103, 0xffffffff, 0xffffffff, 0x00000000, 0x00000000, 0x00000000},
-diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/b2c2/b2c2-usb-core.c linux-2.6.11-rc2-dvb/drivers/media/dvb/b2c2/b2c2-usb-core.c
---- linux-2.6.11-rc2/drivers/media/dvb/b2c2/b2c2-usb-core.c	2005-01-20 19:55:47.000000000 +0100
-+++ linux-2.6.11-rc2-dvb/drivers/media/dvb/b2c2/b2c2-usb-core.c	2005-01-20 19:56:37.000000000 +0100
-@@ -33,7 +33,7 @@
- }
- 
+diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/frontends/dib3000-common.c linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/dib3000-common.c
+--- linux-2.6.11-rc2/drivers/media/dvb/frontends/dib3000-common.c	2005-01-20 19:54:04.000000000 +0100
++++ linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/dib3000-common.c	2005-01-20 19:56:37.000000000 +0100
+@@ -2,7 +2,7 @@
+ 
+ #ifdef CONFIG_DVB_DIBCOM_DEBUG
  static int debug;
 -module_param(debug, int, 0x644);
 +module_param(debug, int, 0644);
- MODULE_PARM_DESC(debug, "set debugging level (1=info,ts=2,ctrl=4 (or-able)).");
- 
+ MODULE_PARM_DESC(debug, "set debugging level (1=info,2=i2c,4=srch (|-able)).");
+ #endif
  #define deb_info(args...) dprintk(0x01,args)
-@@ -89,12 +89,22 @@
+@@ -42,65 +41,6 @@
+ 	return i2c_transfer(state->i2c,msg, 1) != 1 ? -EREMOTEIO : 0;
+ }
  
- /* request types */
- typedef enum {
-+
-+/* something is wrong with this part
- 	RTYPE_READ_DW         = (1 << 6),
- 	RTYPE_WRITE_DW_1      = (3 << 6),
- 	RTYPE_READ_V8_MEMORY  = (6 << 6),
- 	RTYPE_WRITE_V8_MEMORY = (7 << 6),
- 	RTYPE_WRITE_V8_FLASH  = (8 << 6),
- 	RTYPE_GENERIC         = (9 << 6),
-+*/
-+	RTYPE_READ_DW = (3 << 6),
-+	RTYPE_WRITE_DW_1 = (1 << 6),
-+	
-+	RTYPE_READ_V8_MEMORY  = (6 << 6),
-+	RTYPE_WRITE_V8_MEMORY = (7 << 6),
-+	RTYPE_WRITE_V8_FLASH  = (8 << 6),
-+	RTYPE_GENERIC         = (9 << 6),
- } b2c2_usb_request_type_t;
+-int dib3000_init_pid_list(struct dib3000_state *state, int num)
+-{
+-	int i;
+-	if (state != NULL) {
+-		state->pid_list = kmalloc(sizeof(struct dib3000_pid) * num,GFP_KERNEL);
+-		if (state->pid_list == NULL)
+-			return -ENOMEM;
+-
+-		deb_info("initializing %d pids for the pid_list.\n",num);
+-		spin_lock_init(&state->pid_list_lock);
+-		memset(state->pid_list,0,num*(sizeof(struct dib3000_pid)));
+-		for (i=0; i < num; i++) {
+-			state->pid_list[i].pid = 0;
+-			state->pid_list[i].active = 0;
+-		}
+-		state->feedcount = 0;
+-	} else
+-		return -EINVAL;
+-
+-	return 0;
+-}
+-
+-void dib3000_dealloc_pid_list(struct dib3000_state *state)
+-{
+-	if (state != NULL && state->pid_list != NULL)
+-		kfree(state->pid_list);
+-}
+-
+-/* fetch a pid from pid_list */
+-int dib3000_get_pid_index(struct dib3000_pid pid_list[], int num_pids, int pid,
+-		spinlock_t *pid_list_lock,int onoff)
+-{
+-	int i,ret = -1;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(pid_list_lock,flags);
+-	for (i=0; i < num_pids; i++)
+-		if (onoff) {
+-			if (!pid_list[i].active) {
+-				pid_list[i].pid = pid;
+-				pid_list[i].active = 1;
+-				ret = i;
+-				break;
+-			}
+-		} else {
+-			if (pid_list[i].active && pid_list[i].pid == pid) {
+-				pid_list[i].pid = 0;
+-				pid_list[i].active = 0;
+-				ret = i;
+-				break;
+-			}
+-		}
+-
+-	deb_info("setting pid: %5d %04x at index %d '%s'\n",pid,pid,ret,onoff ? "on" : "off");
+-
+-	spin_unlock_irqrestore(pid_list_lock,flags);
+-	return ret;
+-}
+-
+ int dib3000_search_status(u16 irq,u16 lock)
+ {
+ 	if (irq & 0x02) {
+@@ -139,7 +79,4 @@
  
- /* request */
-@@ -391,9 +401,9 @@
- 		}
- 	/* initialising and submitting iso urbs */
- 	for (i = 0; i < B2C2_USB_NUM_ISO_URB; i++) {
--		deb_info("initializing and submitting urb no. %d (buf_offset: %d).\n",i,buffer_offset);
- 		int frame_offset = 0;
- 		struct urb *urb = b2c2->iso_urb[i];
-+		deb_info("initializing and submitting urb no. %d (buf_offset: %d).\n",i,buffer_offset);
- 
- 		urb->dev = b2c2->udev;
- 		urb->context = b2c2;
-diff -uraN b/drivers/media/dvb/dibusb/dvb-dibusb.c a/drivers/media/dvb/dibusb/dvb-dibusb.c
---- b/drivers/media/dvb/dibusb/dvb-dibusb.c	2005-01-21 15:27:02.000000000 +0100
-+++ a/drivers/media/dvb/dibusb/dvb-dibusb.c	1970-01-01 01:00:00.000000000 +0100
-@@ -1,1032 +0,0 @@
--/*
-- * Driver for mobile USB Budget DVB-T devices based on reference
-- * design made by DiBcom (http://www.dibcom.fr/)
-- *
-- * dvb-dibusb.c
-- *
+ EXPORT_SYMBOL(dib3000_read_reg);
+ EXPORT_SYMBOL(dib3000_write_reg);
+-EXPORT_SYMBOL(dib3000_init_pid_list);
+-EXPORT_SYMBOL(dib3000_dealloc_pid_list);
+-EXPORT_SYMBOL(dib3000_get_pid_index);
+ EXPORT_SYMBOL(dib3000_search_status);
+diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/frontends/dib3000-common.h linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/dib3000-common.h
+--- linux-2.6.11-rc2/drivers/media/dvb/frontends/dib3000-common.h	2005-01-20 19:55:47.000000000 +0100
++++ linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/dib3000-common.h	2005-01-20 19:56:37.000000000 +0100
+@@ -4,7 +4,7 @@
+  *
+  * DiBcom (http://www.dibcom.fr/)
+  *
 - * Copyright (C) 2004 Patrick Boettcher (patrick.boettcher@desy.de)
-- *
-- * based on GPL code from DiBcom, which has
-- * Copyright (C) 2004 Amaury Demol for DiBcom (ademol@dibcom.fr)
-- *
-- * Remote control code added by David Matthews (dm@prolingua.co.uk)
-- *
-- *	This program is free software; you can redistribute it and/or
-- *	modify it under the terms of the GNU General Public License as
-- *	published by the Free Software Foundation, version 2.
-- *
-- * Acknowledgements
-- *
-- *  Amaury Demol (ademol@dibcom.fr) from DiBcom for providing specs and driver
-- *  sources, on which this driver (and the dib3000mb/mc/p frontends) are based.
-- *
-- * see Documentation/dvb/README.dibusb for more information
++ * Copyright (C) 2004-5 Patrick Boettcher (patrick.boettcher@desy.de)
+  *
+  * based on GPL code from DibCom, which has
+  *
+@@ -29,19 +28,10 @@
+ #include "dvb_frontend.h"
+ #include "dib3000.h"
+ 
+-/* info and err, taken from usb.h, if there is anything available like by default,
+- * please change !
 - */
+-#define err(format, arg...) printk(KERN_ERR "%s: " format "\n" , __FILE__ , ## arg)
+-#define info(format, arg...) printk(KERN_INFO "%s: " format "\n" , __FILE__ , ## arg)
+-#define warn(format, arg...) printk(KERN_WARNING "%s: " format "\n" , __FILE__ , ## arg)
 -
--#include <linux/config.h>
--#include <linux/kernel.h>
--#include <linux/usb.h>
--#include <linux/firmware.h>
--#include <linux/version.h>
--#include <linux/moduleparam.h>
--#include <linux/pci.h>
--#include <linux/input.h>
+-/* a PID for the pid_filter list, when in use */
+-struct dib3000_pid
+-{
+-	u16 pid;
+-	int active;
+-};
++/* info and err, taken from usb.h, if there is anything available like by default. */
++#define err(format, arg...) printk(KERN_ERR "dib3000mX: " format "\n" , ## arg)
++#define info(format, arg...) printk(KERN_INFO "dib3000mX: " format "\n" , ## arg)
++#define warn(format, arg...) printk(KERN_WARNING "dib3000mX: " format "\n" , ## arg)
+ 
+ /* frontend state */
+ struct dib3000_state {
+@@ -52,25 +42,18 @@
+ /* configuration settings */
+ 	struct dib3000_config config;
+ 
+-	spinlock_t pid_list_lock;
+-	struct dib3000_pid *pid_list;
 -
--#include "dmxdev.h"
--#include "dvb_demux.h"
--#include "dvb_filter.h"
--#include "dvb_net.h"
+-	int feedcount;
+-
+ 	struct dvb_frontend frontend;
+ 	int timing_offset;
+ 	int timing_offset_comp_done;
++
++	fe_bandwidth_t last_tuned_bw;
++	u32 last_tuned_freq;
+ };
+ 
+ /* commonly used methods by the dib3000mb/mc/p frontend */
+ extern int dib3000_read_reg(struct dib3000_state *state, u16 reg);
+ extern int dib3000_write_reg(struct dib3000_state *state, u16 reg, u16 val);
+ 
+-extern int dib3000_init_pid_list(struct dib3000_state *state, int num);
+-extern void dib3000_dealloc_pid_list(struct dib3000_state *state);
+-extern int dib3000_get_pid_index(struct dib3000_pid pid_list[], int num_pids,
+-	int pid, spinlock_t *pid_list_lock,int onoff);
+-
+ extern int dib3000_search_status(u16 irq,u16 lock);
+ 
+ /* handy shortcuts */
+@@ -81,7 +64,7 @@
+ 
+ #define wr_foreach(a,v) { int i; \
+ 	if (sizeof(a) != sizeof(v)) \
+-		err("sizeof: %zd %zd is different",sizeof(a),sizeof(v));\
++		err("sizeof: %d %d is different",sizeof(a),sizeof(v));\
+ 	for (i=0; i < sizeof(a)/sizeof(u16); i++) \
+ 		wr(a[i],v[i]); \
+ 	}
+@@ -136,8 +119,8 @@
+ #define DIB3000_DDS_INVERSION_OFF		(     0)
+ #define DIB3000_DDS_INVERSION_ON		(     1)
+ 
+-#define DIB3000_TUNER_WRITE_ENABLE(a)	(0xffff & (a << 7))
+-#define DIB3000_TUNER_WRITE_DISABLE(a)	(0xffff & ((a << 7) | (1 << 7)))
++#define DIB3000_TUNER_WRITE_ENABLE(a)	(0xffff & (a << 8))
++#define DIB3000_TUNER_WRITE_DISABLE(a)	(0xffff & ((a << 8) | (1 << 7)))
+ 
+ /* for auto search */
+ extern u16 dib3000_seq[2][2][2];
+diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/frontends/dib3000.h linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/dib3000.h
+--- linux-2.6.11-rc2/drivers/media/dvb/frontends/dib3000.h	2005-01-20 19:54:04.000000000 +0100
++++ linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/dib3000.h	2005-01-20 19:56:37.000000000 +0100
+@@ -2,7 +2,7 @@
+  * public header file of the frontend drivers for mobile DVB-T demodulators
+  * DiBcom 3000-MB and DiBcom 3000-MC/P (http://www.dibcom.fr/)
+  *
+- * Copyright (C) 2004 Patrick Boettcher (patrick.boettcher@desy.de)
++ * Copyright (C) 2004-5 Patrick Boettcher (patrick.boettcher@desy.de)
+  *
+  * based on GPL code from DibCom, which has
+  *
+@@ -31,25 +31,24 @@
+ 	/* the demodulator's i2c address */
+ 	u8 demod_address;
+ 
+-	/* The i2c address of the PLL */
+-	u8 pll_addr;
+-
+-	/* PLL maintenance */
+-	int (*pll_init)(struct dvb_frontend *fe);
+-	int (*pll_set)(struct dvb_frontend *fe, struct dvb_frontend_parameters* params);
++	/* PLL maintenance and the i2c address of the PLL */
++	u8 (*pll_addr)(struct dvb_frontend *fe);
++	int (*pll_init)(struct dvb_frontend *fe, u8 pll_buf[5]);
++	int (*pll_set)(struct dvb_frontend *fe, struct dvb_frontend_parameters* params, u8 pll_buf[5]);
+ };
+ 
+-struct dib3000_xfer_ops
++struct dib_fe_xfer_ops
+ {
+ 	/* pid and transfer handling is done in the demodulator */
+ 	int (*pid_parse)(struct dvb_frontend *fe, int onoff);
+ 	int (*fifo_ctrl)(struct dvb_frontend *fe, int onoff);
+-	int (*pid_ctrl)(struct dvb_frontend *fe, int pid, int onoff);
++	int (*pid_ctrl)(struct dvb_frontend *fe, int index, int pid, int onoff);
++	int (*tuner_pass_ctrl)(struct dvb_frontend *fe, int onoff, u8 pll_ctrl);
+ };
+ 
+ extern struct dvb_frontend* dib3000mb_attach(const struct dib3000_config* config,
+-					     struct i2c_adapter* i2c, struct dib3000_xfer_ops *xfer_ops);
++					     struct i2c_adapter* i2c, struct dib_fe_xfer_ops *xfer_ops);
+ 
+ extern struct dvb_frontend* dib3000mc_attach(const struct dib3000_config* config,
+-					     struct i2c_adapter* i2c, struct dib3000_xfer_ops *xfer_ops);
++					     struct i2c_adapter* i2c, struct dib_fe_xfer_ops *xfer_ops);
+ #endif // DIB3000_H
+diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/frontends/dib3000mb.c linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/dib3000mb.c
+--- linux-2.6.11-rc2/drivers/media/dvb/frontends/dib3000mb.c	2005-01-20 19:54:04.000000000 +0100
++++ linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/dib3000mb.c	2005-01-20 19:56:37.000000000 +0100
+@@ -2,7 +2,7 @@
+  * Frontend driver for mobile DVB-T demodulator DiBcom 3000-MB
+  * DiBcom (http://www.dibcom.fr/)
+  *
+- * Copyright (C) 2004 Patrick Boettcher (patrick.boettcher@desy.de)
++ * Copyright (C) 2004-5 Patrick Boettcher (patrick.boettcher@desy.de)
+  *
+  * based on GPL code from DibCom, which has
+  *
+@@ -29,7 +28,6 @@
+ #include <linux/init.h>
+ #include <linux/delay.h>
+ 
 -#include "dvb_frontend.h"
--#include "dib3000.h"
--
--#include "dvb-dibusb.h"
--
--
--/* debug */
--#ifdef CONFIG_DVB_DIBCOM_DEBUG
--#define dprintk(level,args...) \
--	    do { if ((debug & level)) { printk(args); } } while (0)
--
--#define debug_dump(b,l) if (debug) {\
--	int i; deb_xfer("%s: %d > ",__FUNCTION__,l); \
--	for (i = 0; i < l; i++) deb_xfer("%02x ", b[i]); \
--	deb_xfer("\n");\
--}
--
--static int debug;
+ #include "dib3000-common.h"
+ #include "dib3000mb_priv.h"
+ #include "dib3000.h"
+@@ -41,7 +39,7 @@
+ 
+ #ifdef CONFIG_DVB_DIBCOM_DEBUG
+ static int debug;
 -module_param(debug, int, 0x644);
--MODULE_PARM_DESC(debug, "set debugging level (1=info,2=xfer,4=alotmore,8=ts,16=err,32=rc (|-able)).");
--#else
--#define dprintk(args...)
--#define debug_dump(b,l)
--#endif
++module_param(debug, int, 0644);
+ MODULE_PARM_DESC(debug, "set debugging level (1=info,2=xfer,4=setfe,8=getfe (|-able)).");
+ #endif
+ #define deb_info(args...) dprintk(0x01,args)
+@@ -49,6 +47,8 @@
+ #define deb_setf(args...) dprintk(0x04,args)
+ #define deb_getf(args...) dprintk(0x08,args)
+ 
++static int dib3000mb_tuner_pass_ctrl(struct dvb_frontend *fe, int onoff, u8 pll_addr);
++
+ static int dib3000mb_get_frontend(struct dvb_frontend* fe,
+ 				  struct dvb_frontend_parameters *fep);
+ 
+@@ -61,11 +61,9 @@
+ 	int search_state,seq;
+ 
+ 	if (tuner) {
+-		wr(DIB3000MB_REG_TUNER,
+-				DIB3000_TUNER_WRITE_ENABLE(state->config.pll_addr));
+-		state->config.pll_set(fe, fep);
+-		wr(DIB3000MB_REG_TUNER,
+-				DIB3000_TUNER_WRITE_DISABLE(state->config.pll_addr));
++		dib3000mb_tuner_pass_ctrl(fe,1,state->config.pll_addr(fe));
++		state->config.pll_set(fe, fep, NULL);
++		dib3000mb_tuner_pass_ctrl(fe,0,state->config.pll_addr(fe));
+ 
+ 		deb_setf("bandwidth: ");
+ 		switch (ofdm->bandwidth) {
+@@ -390,11 +388,9 @@
+ 	wr(DIB3000MB_REG_DATA_IN_DIVERSITY,DIB3000MB_DATA_DIVERSITY_IN_OFF);
+ 
+ 	if (state->config.pll_init) {
+-		wr(DIB3000MB_REG_TUNER,
+-			DIB3000_TUNER_WRITE_ENABLE(state->config.pll_addr));
+-		state->config.pll_init(fe);
+-		wr(DIB3000MB_REG_TUNER,
+-			DIB3000_TUNER_WRITE_DISABLE(state->config.pll_addr));
++		dib3000mb_tuner_pass_ctrl(fe,1,state->config.pll_addr(fe));
++		state->config.pll_init(fe,NULL);
++		dib3000mb_tuner_pass_ctrl(fe,0,state->config.pll_addr(fe));
+ 	}
+ 
+ 	return 0;
+@@ -414,6 +410,7 @@
+ 		return 0;
+ 
+ 	dds_val = ((rd(DIB3000MB_REG_DDS_VALUE_MSB) & 0xff) << 16) + rd(DIB3000MB_REG_DDS_VALUE_LSB);
++	deb_getf("DDS_VAL: %x %x %x",dds_val, rd(DIB3000MB_REG_DDS_VALUE_MSB), rd(DIB3000MB_REG_DDS_VALUE_LSB));
+ 	if (dds_val < threshold)
+ 		inv_test1 = 0;
+ 	else if (dds_val == threshold)
+@@ -422,6 +419,7 @@
+ 		inv_test1 = 2;
+ 
+ 	dds_val = ((rd(DIB3000MB_REG_DDS_FREQ_MSB) & 0xff) << 16) + rd(DIB3000MB_REG_DDS_FREQ_LSB);
++	deb_getf("DDS_FREQ: %x %x %x",dds_val, rd(DIB3000MB_REG_DDS_FREQ_MSB), rd(DIB3000MB_REG_DDS_FREQ_LSB));
+ 	if (dds_val < threshold)
+ 		inv_test2 = 0;
+ 	else if (dds_val == threshold)
+@@ -714,18 +712,11 @@
+ }
+ 
+ /* pid filter and transfer stuff */
+-static int dib3000mb_pid_control(struct dvb_frontend *fe,int pid,int onoff)
++static int dib3000mb_pid_control(struct dvb_frontend *fe,int index, int pid,int onoff)
+ {
+ 	struct dib3000_state *state = fe->demodulator_priv;
+-	int index = dib3000_get_pid_index(state->pid_list, DIB3000MB_NUM_PIDS, pid, &state->pid_list_lock,onoff);
+ 	pid = (onoff ? pid | DIB3000_ACTIVATE_PID_FILTERING : 0);
 -
--#define deb_info(args...) dprintk(0x01,args)
--#define deb_xfer(args...) dprintk(0x02,args)
--#define deb_alot(args...) dprintk(0x04,args)
--#define deb_ts(args...)   dprintk(0x08,args)
--#define deb_err(args...)   dprintk(0x10,args)
--#define deb_rc(args...)   dprintk(0x20,args)
--
--static int pid_parse;
--module_param(pid_parse, int, 0x644);
--MODULE_PARM_DESC(pid_parse, "enable pid parsing (filtering) when running at USB2.0");
--
--/* Version information */
--#define DRIVER_VERSION "0.1"
--#define DRIVER_DESC "Driver for DiBcom based USB Budget DVB-T device"
--#define DRIVER_AUTHOR "Patrick Boettcher, patrick.boettcher@desy.de"
--
--static int dibusb_readwrite_usb(struct usb_dibusb *dib,
--		u8 *wbuf, u16 wlen, u8 *rbuf, u16 rlen)
--{
--	int actlen,ret = -ENOMEM;
--
--	if (wbuf == NULL || wlen == 0)
--		return -EINVAL;
--
--	if ((ret = down_interruptible(&dib->usb_sem)))
--		return ret;
--
--	if (dib->feedcount &&
--		wbuf[0] == DIBUSB_REQ_I2C_WRITE &&
--		dib->dibdev->parm->type == DIBUSB1_1)
--		deb_err("BUG: writing to i2c, while TS-streaming destroys the stream."
--				"(%x reg: %x %x)\n", wbuf[0],wbuf[2],wbuf[3]);
--			
--	debug_dump(wbuf,wlen);
--
--	ret = usb_bulk_msg(dib->udev,usb_sndbulkpipe(dib->udev,
--			dib->dibdev->parm->cmd_pipe), wbuf,wlen,&actlen,
--			DIBUSB_I2C_TIMEOUT);
--
--	if (ret)
--		err("bulk message failed: %d (%d/%d)",ret,wlen,actlen);
--	else
--		ret = actlen != wlen ? -1 : 0;
--
--	/* an answer is expected, and no error before */
--	if (!ret && rbuf && rlen) {
--		ret = usb_bulk_msg(dib->udev,usb_rcvbulkpipe(dib->udev,
--				dib->dibdev->parm->result_pipe),rbuf,rlen,&actlen,
--				DIBUSB_I2C_TIMEOUT);
--
--		if (ret)
--			err("recv bulk message failed: %d",ret);
--		else {
--			deb_alot("rlen: %d\n",rlen);
--			debug_dump(rbuf,actlen);
--		}
--	}
--
--	up(&dib->usb_sem);
--	return ret;
--}
--
--static int dibusb_i2c_msg(struct usb_dibusb *dib, u8 addr,
--		u8 *wbuf, u16 wlen, u8 *rbuf, u16 rlen)
--{
--	u8 sndbuf[wlen+4]; /* lead(1) devaddr,direction(1) addr(2) data(wlen) (len(2) (when reading)) */
--	/* write only ? */
--	int wo = (rbuf == NULL || rlen == 0),
--		len = 2 + wlen + (wo ? 0 : 2);
--
--	deb_alot("wo: %d, wlen: %d, len: %d\n",wo,wlen,len);
--
--	sndbuf[0] = wo ? DIBUSB_REQ_I2C_WRITE : DIBUSB_REQ_I2C_READ;
--	sndbuf[1] = (addr & 0xfe) | (wo ? 0 : 1);
--
--	memcpy(&sndbuf[2],wbuf,wlen);
--
--	if (!wo) {
--		sndbuf[wlen+2] = (rlen >> 8) & 0xff;
--		sndbuf[wlen+3] = rlen & 0xff;
--	}
--
--	return dibusb_readwrite_usb(dib,sndbuf,len,rbuf,rlen);
--}
--
--/*
-- * DVB stuff
-- */
--static void dibusb_urb_complete(struct urb *urb, struct pt_regs *ptregs)
--{
--	struct usb_dibusb *dib = urb->context;
--
--	deb_ts("urb complete feedcount: %d, status: %d\n",dib->feedcount,urb->status);
--
--	if (dib->feedcount > 0 && urb->status == 0) {
--		deb_ts("URB return len: %d\n",urb->actual_length);
--		if (urb->actual_length % 188)
--			deb_ts("TS Packets: %d, %d\n", urb->actual_length/188,urb->actual_length % 188);
--
--		/* Francois recommends to drop not full-filled packets, even if they may 
--		 * contain valid TS packets
--		 */
--		if (urb->actual_length == dib->dibdev->parm->default_size && dib->dvb_is_ready)
--		dvb_dmx_swfilter_packets(&dib->demux, (u8*) urb->transfer_buffer,urb->actual_length/188);
--		else
--			deb_ts("URB dropped because of the " 
--					"actual_length or !dvb_is_ready (%d).\n",dib->dvb_is_ready);
--	} else 
--		deb_ts("URB dropped because of feedcount or status.\n");
--
--		usb_submit_urb(urb,GFP_KERNEL);
--}
--
--static int dibusb_ctrl_feed(struct usb_dibusb *dib, int pid, int onoff)
--{
--	if (dib->dibdev->parm->firmware_bug && dib->feedcount) {
--		deb_ts("stop feeding\n");
--		if (dib->xfer_ops.fifo_ctrl != NULL) {
--			if (dib->xfer_ops.fifo_ctrl(dib->fe,0)) {
--				err("error while inhibiting fifo.");
--				return -ENODEV;
--			}
--		} else {
--			err("fifo_ctrl is not set.");
--			return -ENODEV;
--		}
--	}
--
--	dib->feedcount += onoff ? 1 : -1;
--
--	if (dib->pid_parse) {
--	if (dib->xfer_ops.pid_ctrl != NULL) {
--		if (dib->xfer_ops.pid_ctrl(dib->fe,pid,onoff) < 0) {
--		err("no free pid in list.");
--		return -ENODEV;
--	}
+-	if (index >= 0) {
+ 		wr(index+DIB3000MB_REG_FIRST_PID,pid);
 -	} else {
--		err("no pid ctrl callback.");
--		return -ENODEV;
--	}
--	}
--	/*
--	 * start the feed, either if there is the firmware bug or
--	 * if this was the first pid to set.
--	 */
--	if (dib->dibdev->parm->firmware_bug || dib->feedcount == onoff) {
--
--		deb_ts("controlling pid parser\n");
--		if (dib->xfer_ops.pid_parse != NULL) {
--			if (dib->xfer_ops.pid_parse(dib->fe,dib->pid_parse) < 0) {
--				err("could not handle pid_parser");
--			}
--		}
--
--		deb_ts("start feeding\n");
--		if (dib->xfer_ops.fifo_ctrl != NULL) {
--			if (dib->xfer_ops.fifo_ctrl(dib->fe,1)) {
--				err("error while enabling fifo.");
--				return -ENODEV;
--			}
--		} else {
--			err("fifo_ctrl is not set.");
--			return -ENODEV;
--}
--	}
--	return 0;
--}
--
--static int dibusb_start_feed(struct dvb_demux_feed *dvbdmxfeed)
--{
--	struct usb_dibusb *dib = dvbdmxfeed->demux->priv;
--	deb_ts("pid: 0x%04x, feedtype: %d\n", dvbdmxfeed->pid,dvbdmxfeed->type);
--	dvbdmxfeed->priv = dib;
--	return dibusb_ctrl_feed(dib,dvbdmxfeed->pid,1);
--}
--
--static int dibusb_stop_feed(struct dvb_demux_feed *dvbdmxfeed)
--{
--	struct usb_dibusb *dib = (struct usb_dibusb *) dvbdmxfeed->priv;
--	if (dib == NULL) {
--		err("dib in dmxfeed->priv was NULL");
--		return -EINVAL;
--}
--	deb_ts("dvbdmxfeed pid: 0x%04x, feedtype: %d\n",
--			dvbdmxfeed->pid, dvbdmxfeed->type);
--	return dibusb_ctrl_feed(dib,dvbdmxfeed->pid,0);
--}
--
--/* Table to map raw key codes to key events.  This should not be hard-wired
--   into the kernel.  */
--static const struct { u8 c0, c1, c2; uint32_t key; } rc_keys [] =
--{
--	/* Key codes for the little Artec T1/Twinhan/HAMA/ remote. */
--	{ 0x00, 0xff, 0x16, KEY_POWER },
--	{ 0x00, 0xff, 0x10, KEY_MUTE },
--	{ 0x00, 0xff, 0x03, KEY_1 },
--	{ 0x00, 0xff, 0x01, KEY_2 },
--	{ 0x00, 0xff, 0x06, KEY_3 },
--	{ 0x00, 0xff, 0x09, KEY_4 },
--	{ 0x00, 0xff, 0x1d, KEY_5 },
--	{ 0x00, 0xff, 0x1f, KEY_6 },
--	{ 0x00, 0xff, 0x0d, KEY_7 },
--	{ 0x00, 0xff, 0x19, KEY_8 },
--	{ 0x00, 0xff, 0x1b, KEY_9 },
--	{ 0x00, 0xff, 0x15, KEY_0 },
--	{ 0x00, 0xff, 0x05, KEY_CHANNELUP },
--	{ 0x00, 0xff, 0x02, KEY_CHANNELDOWN },
--	{ 0x00, 0xff, 0x1e, KEY_VOLUMEUP },
--	{ 0x00, 0xff, 0x0a, KEY_VOLUMEDOWN },
--	{ 0x00, 0xff, 0x11, KEY_RECORD },
--	{ 0x00, 0xff, 0x17, KEY_FAVORITES }, /* Heart symbol - Channel list. */
--	{ 0x00, 0xff, 0x14, KEY_PLAY },
--	{ 0x00, 0xff, 0x1a, KEY_STOP },
--	{ 0x00, 0xff, 0x40, KEY_REWIND },
--	{ 0x00, 0xff, 0x12, KEY_FASTFORWARD },
--	{ 0x00, 0xff, 0x0e, KEY_PREVIOUS }, /* Recall - Previous channel. */
--	{ 0x00, 0xff, 0x4c, KEY_PAUSE },
--	{ 0x00, 0xff, 0x4d, KEY_SCREEN }, /* Full screen mode. */
--	{ 0x00, 0xff, 0x54, KEY_AUDIO }, /* MTS - Switch to secondary audio. */
--	/* additional keys TwinHan VisionPlus, the Artec seemingly not have */
--	{ 0x00, 0xff, 0x0c, KEY_CANCEL }, /* Cancel */
--	{ 0x00, 0xff, 0x1c, KEY_EPG }, /* EPG */
--	{ 0x00, 0xff, 0x00, KEY_TAB }, /* Tab */
--	{ 0x00, 0xff, 0x48, KEY_INFO }, /* Preview */
--	{ 0x00, 0xff, 0x04, KEY_LIST }, /* RecordList */
--	{ 0x00, 0xff, 0x0f, KEY_TEXT }, /* Teletext */
--	/* Key codes for the KWorld/ADSTech/JetWay remote. */
--	{ 0x86, 0x6b, 0x12, KEY_POWER },
--	{ 0x86, 0x6b, 0x0f, KEY_SELECT }, /* source */
--	{ 0x86, 0x6b, 0x0c, KEY_UNKNOWN }, /* scan */
--	{ 0x86, 0x6b, 0x0b, KEY_EPG },
--	{ 0x86, 0x6b, 0x10, KEY_MUTE },
--	{ 0x86, 0x6b, 0x01, KEY_1 },
--	{ 0x86, 0x6b, 0x02, KEY_2 },
--	{ 0x86, 0x6b, 0x03, KEY_3 },
--	{ 0x86, 0x6b, 0x04, KEY_4 },
--	{ 0x86, 0x6b, 0x05, KEY_5 },
--	{ 0x86, 0x6b, 0x06, KEY_6 },
--	{ 0x86, 0x6b, 0x07, KEY_7 },
--	{ 0x86, 0x6b, 0x08, KEY_8 },
--	{ 0x86, 0x6b, 0x09, KEY_9 },
--	{ 0x86, 0x6b, 0x0a, KEY_0 },
--	{ 0x86, 0x6b, 0x18, KEY_ZOOM },
--	{ 0x86, 0x6b, 0x1c, KEY_UNKNOWN }, /* preview */
--	{ 0x86, 0x6b, 0x13, KEY_UNKNOWN }, /* snap */
--	{ 0x86, 0x6b, 0x00, KEY_UNDO },
--	{ 0x86, 0x6b, 0x1d, KEY_RECORD },
--	{ 0x86, 0x6b, 0x0d, KEY_STOP },
--	{ 0x86, 0x6b, 0x0e, KEY_PAUSE },
--	{ 0x86, 0x6b, 0x16, KEY_PLAY },
--	{ 0x86, 0x6b, 0x11, KEY_BACK },
--	{ 0x86, 0x6b, 0x19, KEY_FORWARD },
--	{ 0x86, 0x6b, 0x14, KEY_UNKNOWN }, /* pip */
--	{ 0x86, 0x6b, 0x15, KEY_ESC },
--	{ 0x86, 0x6b, 0x1a, KEY_UP },
--	{ 0x86, 0x6b, 0x1e, KEY_DOWN },
--	{ 0x86, 0x6b, 0x1f, KEY_LEFT },
--	{ 0x86, 0x6b, 0x1b, KEY_RIGHT },
--};
--
--/*
-- * Read the remote control and feed the appropriate event.
-- * NEC protocol is used for remote controls
-- */
--static int dibusb_read_remote_control(struct usb_dibusb *dib)
--{
--	u8 b[1] = { DIBUSB_REQ_POLL_REMOTE }, rb[5];
--	int ret;
--	int i;
--	if ((ret = dibusb_readwrite_usb(dib,b,1,rb,5)))
--		return ret;
--
--	switch (rb[0]) {
--		case DIBUSB_RC_NEC_KEY_PRESSED:
--			/* rb[1-3] is the actual key, rb[4] is a checksum */
--			deb_rc("raw key code 0x%02x, 0x%02x, 0x%02x, 0x%02x\n",
--				rb[1], rb[2], rb[3], rb[4]);
--
--			if ((0xff - rb[3]) != rb[4]) {
--				deb_rc("remote control checksum failed.\n");
--				break;
--			}
--
--			/* See if we can match the raw key code. */
--			for (i = 0; i < sizeof(rc_keys)/sizeof(rc_keys[0]); i++) {
--				if (rc_keys[i].c0 == rb[1] &&
--					rc_keys[i].c1 == rb[2] &&
--				    rc_keys[i].c2 == rb[3]) {
--					dib->rc_input_event = rc_keys[i].key;
--					deb_rc("Translated key 0x%04x\n", dib->rc_input_event);
--					/* Signal down and up events for this key. */
--					input_report_key(&dib->rc_input_dev, dib->rc_input_event, 1);
--					input_report_key(&dib->rc_input_dev, dib->rc_input_event, 0);
--					input_sync(&dib->rc_input_dev);
--					break;
--				}
--			}
--			break;
--		case DIBUSB_RC_NEC_EMPTY: /* No (more) remote control keys. */
--			break;
--		case DIBUSB_RC_NEC_KEY_REPEATED:
--			/* rb[1]..rb[4] are always zero.*/
--			/* Repeats often seem to occur so for the moment just ignore this. */
--			deb_rc("Key repeat\n");
--			break;
--		default:
--			break;
--	}
--	
--	return 0;
--}
--
--#define RC_QUERY_INTERVAL (100)	/* milliseconds */
--
--/* Remote-control poll function - called every RC_QUERY_INTERVAL ms to see
--   whether the remote control has received anything. */
--static void dibusb_query_rc (void *data)
--{
--	struct usb_dibusb *dib = (struct usb_dibusb *) data;
--	/* TODO: need a lock here.  We can simply skip checking for the remote control
--	   if we're busy. */
--	dibusb_read_remote_control(dib);
--	schedule_delayed_work(&dib->rc_query_work,
--			      msecs_to_jiffies(RC_QUERY_INTERVAL));
--}
--
--/*
-- * Cypress controls
-- */
--
--#if 0
--/*
-- * #if 0'ing the following functions as they are not in use _now_,
-- * but probably will be sometime.
-- */
--
--/*
-- * do not use this, just a workaround for a bug,
-- * which will hopefully never occur :).
-- */
--static int dibusb_interrupt_read_loop(struct usb_dibusb *dib)
--{
--	u8 b[1] = { DIBUSB_REQ_INTR_READ };
--	return dibusb_write_usb(dib,b,1);
--}
--
--/*
-- * ioctl for power control
-- */
--static int dibusb_hw_sleep(struct usb_dibusb *dib)
--{
--	u8 b[1] = { DIBUSB_IOCTL_POWER_SLEEP };
--	return dibusb_ioctl_cmd(dib,DIBUSB_IOCTL_CMD_POWER_MODE, b,1);
--}
--
--#endif
--static int dibusb_write_usb(struct usb_dibusb *dib, u8 *buf, u16 len)
--{
--	return dibusb_readwrite_usb(dib,buf,len,NULL,0);
--}
--
--/*
-- * ioctl for the firmware
-- */
--static int dibusb_ioctl_cmd(struct usb_dibusb *dib, u8 cmd, u8 *param, int plen)
--{
--	u8 b[34];
--	int size = plen > 32 ? 32 : plen;
--	b[0] = DIBUSB_REQ_SET_IOCTL;
--	b[1] = cmd;
--	memcpy(&b[2],param,size);
--
--	return dibusb_write_usb(dib,b,2+size);
--}
--
--static int dibusb_hw_wakeup(struct usb_dibusb *dib)
--{
--	u8 b[1] = { DIBUSB_IOCTL_POWER_WAKEUP };
--	return dibusb_ioctl_cmd(dib,DIBUSB_IOCTL_CMD_POWER_MODE, b,1);
--}
--
--/*
-- * I2C
-- */
--static int dibusb_i2c_xfer(struct i2c_adapter *adap,struct i2c_msg msg[],int num)
--{
--	struct usb_dibusb *dib = i2c_get_adapdata(adap);
--	int i;
--
--	if (down_interruptible(&dib->i2c_sem) < 0)
--		return -EAGAIN;
--
--	for (i = 0; i < num; i++) {
--		/* write/read request */
--		if (i+1 < num && (msg[i+1].flags & I2C_M_RD)) {
--			if (dibusb_i2c_msg(dib, msg[i].addr, msg[i].buf,msg[i].len,
--						msg[i+1].buf,msg[i+1].len) < 0)
--				break;
--			i++;
--		} else
--			if (dibusb_i2c_msg(dib, msg[i].addr, msg[i].buf,msg[i].len,NULL,0) < 0)
--				break;
--	}
--
--	up(&dib->i2c_sem);
--	return i;
--}
--
--static u32 dibusb_i2c_func(struct i2c_adapter *adapter)
--{
--	return I2C_FUNC_I2C;
--}
--
--static int thomson_cable_eu_pll_set(struct dvb_frontend* fe, struct
--		dvb_frontend_parameters* params);
--
--static struct dib3000_config thomson_cable_eu_config = {
--	.demod_address = 0x10,
--	.pll_addr = 194,
--	.pll_set = thomson_cable_eu_pll_set,
--};
--
--static int thomson_cable_eu_pll_set(struct dvb_frontend* fe, struct
--		dvb_frontend_parameters* params)
--{
--	struct usb_dibusb* dib = (struct usb_dibusb*) fe->dvb->priv;
--	u8 buf[4];
--	struct i2c_msg msg = {
--		.addr = thomson_cable_eu_config.pll_addr,
--		.flags = 0,
--		.buf = buf,
--		.len = sizeof(buf)
--	};
--	u32 tfreq = (params->frequency + 36125000) / 62500;
--	int vu,p0,p1,p2;
--
--	if (params->frequency > 403250000)
--		vu = 1, p2 = 1, p1 = 0, p0 = 1;
--	else if (params->frequency > 115750000)
--		vu = 0, p2 = 1, p1 = 1, p0 = 0;
--	else if (params->frequency > 44250000)
--		vu = 0, p2 = 0, p1 = 1, p0 = 1;
--	else
--		return -EINVAL;
--
--	buf[0] = (tfreq >> 8) & 0x7f;
--	buf[1] = tfreq & 0xff;
--   	buf[2] = 0x8e;
--   	buf[3] = (vu << 7) | (p2 << 2) | (p1 << 1) | p0;
--
--	if (i2c_transfer (&dib->i2c_adap, &msg, 1) != 1)
--		return -EIO;
--
--	msleep(1);
--	return 0;
--}
--
--static int panasonic_cofdm_env57h1xd5_pll_set(struct dvb_frontend *fe, struct
--		dvb_frontend_parameters *params);
--
--static struct dib3000_config panasonic_cofdm_env57h1xd5 = {
--	.demod_address = 0x18,
--	.pll_addr = 192,
--	.pll_set = panasonic_cofdm_env57h1xd5_pll_set,
--};
--
--static int panasonic_cofdm_env57h1xd5_pll_set(struct dvb_frontend *fe, struct
--		dvb_frontend_parameters *params)
--{
--	struct usb_dibusb* dib = (struct usb_dibusb*) fe->dvb->priv;
--	u8 buf[4];
--	u32 freq = params->frequency;
--	u32 tfreq = (freq + 36125000) / 1000000 * 6 + 1;
--	u8 TA, T210, R210, ctrl1, cp210, p4321;
--	struct i2c_msg msg = {
--		.addr = panasonic_cofdm_env57h1xd5.pll_addr,
--		.flags = 0,
--		.buf = buf,
--		.len = sizeof(buf)
--	};
--
--	if (freq > 858000000) {
--		err("frequency cannot be larger than 858 MHz.");
--		return -EINVAL;
--	}
--
--	// contol data 1 : 1 | T/A=1 | T2,T1,T0 = 0,0,0 | R2,R1,R0 = 0,1,0
--	TA = 1;
--	T210 = 0;
--	R210 = 0x2;
--	ctrl1 = (1 << 7) | (TA << 6) | (T210 << 3) | R210;
--
--// ********    CHARGE PUMP CONFIG vs RF FREQUENCIES     *****************
--	if (freq < 470000000)
--		cp210 = 2;  // VHF Low and High band ch E12 to E4 to E12
--	else if (freq < 526000000)
--		cp210 = 4;  // UHF band Ch E21 to E27
--	else // if (freq < 862000000)
--		cp210 = 5;  // UHF band ch E28 to E69
--
--//*********************    BW select  *******************************
--	if (freq < 153000000)
--		p4321  = 1; // BW selected for VHF low
--	else if (freq < 470000000)
--		p4321  = 2; // BW selected for VHF high E5 to E12
--	else // if (freq < 862000000)
--		p4321  = 4; // BW selection for UHF E21 to E69
--
--	buf[0] = (tfreq >> 8) & 0xff;
--	buf[1] = (tfreq >> 0) & 0xff;
--	buf[2] = 0xff & ctrl1;
--	buf[3] =  (cp210 << 5) | (p4321);
--
--	if (i2c_transfer (&dib->i2c_adap, &msg, 1) != 1)
--		return -EIO;
--
--	msleep(1);
--	return 0;
--}
--
--static struct i2c_algorithm dibusb_algo = {
--	.name			= "DiBcom USB i2c algorithm",
--	.id				= I2C_ALGO_BIT,
--	.master_xfer	= dibusb_i2c_xfer,
--	.functionality	= dibusb_i2c_func,
--};
--
--static void frontend_init(struct usb_dibusb* dib)
--{
--	switch (dib->dibdev->parm->type) {
--		case DIBUSB1_1:
--		case DIBUSB1_1_AN2235:
--	dib->fe = dib3000mb_attach(&thomson_cable_eu_config, &dib->i2c_adap,&dib->xfer_ops);
--			break;
--		case DIBUSB2_0:
--			dib->fe = dib3000mc_attach(&panasonic_cofdm_env57h1xd5,&dib->i2c_adap, &dib->xfer_ops);
--			break;
--	}
--
--	if (dib->fe == NULL) {
--		printk("dvb-dibusb: A frontend driver was not found for device %04x/%04x\n",
--		       le16_to_cpu(dib->udev->descriptor.idVendor),
--		       le16_to_cpu(dib->udev->descriptor.idProduct));
--	} else {
--		if (dvb_register_frontend(dib->adapter, dib->fe)) {
--			printk("dvb-dibusb: Frontend registration failed!\n");
--			if (dib->fe->ops->release)
--				dib->fe->ops->release(dib->fe);
--			dib->fe = NULL;
--		}
--	}
--}
--
--static int dibusb_dvb_init(struct usb_dibusb *dib)
--{
--	int ret;
--
--#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,4)
--    if ((ret = dvb_register_adapter(&dib->adapter, DRIVER_DESC)) < 0) {
--#else
--    if ((ret = dvb_register_adapter(&dib->adapter, DRIVER_DESC ,
--			THIS_MODULE)) < 0) {
--#endif
--		deb_info("dvb_register_adapter failed: error %d", ret);
--		goto err;
--	}
--	dib->adapter->priv = dib;
--
--	strncpy(dib->i2c_adap.name,dib->dibdev->name,I2C_NAME_SIZE);
--#ifdef I2C_ADAP_CLASS_TV_DIGITAL
--	dib->i2c_adap.class = I2C_ADAP_CLASS_TV_DIGITAL,
--#else
--	dib->i2c_adap.class = I2C_CLASS_TV_DIGITAL,
--#endif
--	dib->i2c_adap.algo 		= &dibusb_algo;
--	dib->i2c_adap.algo_data = NULL;
--	dib->i2c_adap.id		= I2C_ALGO_BIT;
--
--	i2c_set_adapdata(&dib->i2c_adap, dib);
--
--	if ((i2c_add_adapter(&dib->i2c_adap) < 0)) {
--		err("could not add i2c adapter");
--		goto err_i2c;
--	}
--
--	dib->demux.dmx.capabilities = DMX_TS_FILTERING | DMX_SECTION_FILTERING;
--
--	dib->demux.priv = (void *)dib;
--	/* get pidcount from demod */
--	dib->demux.feednum = dib->demux.filternum = 16;
--	dib->demux.start_feed = dibusb_start_feed;
--	dib->demux.stop_feed = dibusb_stop_feed;
--	dib->demux.write_to_decoder = NULL;
--	if ((ret = dvb_dmx_init(&dib->demux)) < 0) {
--		err("dvb_dmx_init failed: error %d",ret);
--		goto err_dmx;
--	}
--
--	dib->dmxdev.filternum = dib->demux.filternum;
--	dib->dmxdev.demux = &dib->demux.dmx;
--	dib->dmxdev.capabilities = 0;
--	if ((ret = dvb_dmxdev_init(&dib->dmxdev, dib->adapter)) < 0) {
--		err("dvb_dmxdev_init failed: error %d",ret);
--		goto err_dmx_dev;
--	}
--
--	dvb_net_init(dib->adapter, &dib->dvb_net, &dib->demux.dmx);
--
--	frontend_init(dib);
--
--	/* Start the remote-control polling. */
--	schedule_delayed_work(&dib->rc_query_work, msecs_to_jiffies(RC_QUERY_INTERVAL));
--
--	goto success;
--err_dmx_dev:
--	dvb_dmx_release(&dib->demux);
--err_dmx:
--	i2c_del_adapter(&dib->i2c_adap);
--err_i2c:
--	dvb_unregister_adapter(dib->adapter);
--err:
--	return ret;
--success:
--	dib->dvb_is_ready = 1;
--	return 0;
--}
--
--static int dibusb_dvb_exit(struct usb_dibusb *dib)
--{
--	cancel_delayed_work(&dib->rc_query_work);
--	flush_scheduled_work();
--	input_unregister_device(&dib->rc_input_dev);
--
--	dib->dvb_is_ready = 0;
--	deb_info("unregistering DVB part\n");
--	dvb_net_release(&dib->dvb_net);
--	dib->demux.dmx.close(&dib->demux.dmx);
--	dvb_dmxdev_release(&dib->dmxdev);
--	dvb_dmx_release(&dib->demux);
--	if (dib->fe != NULL) dvb_unregister_frontend(dib->fe);
--	i2c_del_adapter(&dib->i2c_adap);
--	dvb_unregister_adapter(dib->adapter);
--
--	return 0;
--}
--
--static int dibusb_exit(struct usb_dibusb *dib)
--{
--	int i;
--	if (dib->urb_list != NULL) {
--		for (i = 0; i < dib->dibdev->parm->num_urbs; i++) {
--			if (dib->urb_list[i] != NULL) {
--			deb_info("killing URB no. %d.\n",i);
--
--				/* stop the URBs */
--#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,7)
--				usb_unlink_urb(dib->urb_list[i]);
--#else
--				usb_kill_urb(dib->urb_list[i]);
--#endif
--			
--			deb_info("freeing URB no. %d.\n",i);
--				/* free the URBs */
--				usb_free_urb(dib->urb_list[i]);
--			}
--		}
--		/* free the urb array */
--		kfree(dib->urb_list);
--		}
--
--	pci_free_consistent(NULL,
--		dib->dibdev->parm->urb_buf_size*dib->dibdev->parm->num_urbs,dib->buffer,
--		dib->dma_handle);
--	return 0;
--}
--
--static int dibusb_init(struct usb_dibusb *dib)
--{
--	int ret,i,bufsize;
--	sema_init(&dib->usb_sem, 1);
--	sema_init(&dib->i2c_sem, 1);
--
--	/*
--	 * when reloading the driver w/o replugging the device
--	 * a timeout occures, this helps
--	 */
--	usb_clear_halt(dib->udev,usb_sndbulkpipe(dib->udev,dib->dibdev->parm->cmd_pipe));
--	usb_clear_halt(dib->udev,usb_rcvbulkpipe(dib->udev,dib->dibdev->parm->result_pipe));
--	usb_clear_halt(dib->udev,usb_rcvbulkpipe(dib->udev,dib->dibdev->parm->data_pipe));
--
--	/* allocate the array for the data transfer URBs */
--	dib->urb_list = kmalloc(dib->dibdev->parm->num_urbs*sizeof(struct urb *),GFP_KERNEL);
--	if (dib->urb_list == NULL)
--		return -ENOMEM;
--	memset(dib->urb_list,0,dib->dibdev->parm->num_urbs*sizeof(struct urb *));
--
--	bufsize = dib->dibdev->parm->num_urbs*dib->dibdev->parm->urb_buf_size;
--	deb_info("allocate %d bytes as buffersize for all URBs\n",bufsize);
--	/* allocate the actual buffer for the URBs */
--	if ((dib->buffer = pci_alloc_consistent(NULL,bufsize,&dib->dma_handle)) == NULL) {
--		deb_info("not enough memory.\n");
--		dibusb_exit(dib);
+-		err("no more pids for filtering.");
 -		return -ENOMEM;
 -	}
--	deb_info("allocation complete\n");
--	memset(dib->buffer,0,bufsize);
+ 	return 0;
+ }
+ 
+@@ -749,10 +740,21 @@
+ 	return 0;
+ 	}
+ 
++static int dib3000mb_tuner_pass_ctrl(struct dvb_frontend *fe, int onoff, u8 pll_addr)
++{
++	struct dib3000_state *state = (struct dib3000_state*) fe->demodulator_priv;
++	if (onoff) {
++		wr(DIB3000MB_REG_TUNER, DIB3000_TUNER_WRITE_ENABLE(pll_addr));
++	} else {
++		wr(DIB3000MB_REG_TUNER, DIB3000_TUNER_WRITE_DISABLE(pll_addr));
++	}
++	return 0;
++}
++
+ static struct dvb_frontend_ops dib3000mb_ops;
+ 
+ struct dvb_frontend* dib3000mb_attach(const struct dib3000_config* config,
+-				      struct i2c_adapter* i2c, struct dib3000_xfer_ops *xfer_ops)
++				      struct i2c_adapter* i2c, struct dib_fe_xfer_ops *xfer_ops)
+ {
+ 	struct dib3000_state* state = NULL;
+ 
+@@ -773,9 +775,6 @@
+ 	if (rd(DIB3000_REG_DEVICE_ID) != DIB3000MB_DEVICE_ID)
+ 		goto error;
+ 
+-	if (dib3000_init_pid_list(state,DIB3000MB_NUM_PIDS))
+-		goto error;
 -
--	/* allocate and submit the URBs */
--	for (i = 0; i < dib->dibdev->parm->num_urbs; i++) {
--		if (!(dib->urb_list[i] = usb_alloc_urb(0,GFP_KERNEL))) {
--		dibusb_exit(dib);
+ 	/* create dvb_frontend */
+ 	state->frontend.ops = &state->ops;
+ 	state->frontend.demodulator_priv = state;
+@@ -784,6 +783,7 @@
+ 	xfer_ops->pid_parse = dib3000mb_pid_parse;
+ 	xfer_ops->fifo_ctrl = dib3000mb_fifo_control;
+ 	xfer_ops->pid_ctrl = dib3000mb_pid_control;
++	xfer_ops->tuner_pass_ctrl = dib3000mb_tuner_pass_ctrl;
+ 
+ 	return &state->frontend;
+ 
+@@ -807,6 +807,7 @@
+ 				FE_CAN_QPSK | FE_CAN_QAM_16 | FE_CAN_QAM_64 | FE_CAN_QAM_AUTO |
+ 				FE_CAN_TRANSMISSION_MODE_AUTO |
+ 				FE_CAN_GUARD_INTERVAL_AUTO |
++				FE_CAN_RECOVER |
+ 				FE_CAN_HIERARCHY_AUTO,
+ 	},
+ 
+diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/frontends/dib3000mc.c linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/dib3000mc.c
+--- linux-2.6.11-rc2/drivers/media/dvb/frontends/dib3000mc.c	2005-01-20 19:54:04.000000000 +0100
++++ linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/dib3000mc.c	2005-01-20 19:56:38.000000000 +0100
+@@ -2,9 +2,9 @@
+  * Frontend driver for mobile DVB-T demodulator DiBcom 3000-MC/P
+  * DiBcom (http://www.dibcom.fr/)
+  *
+- * Copyright (C) 2004 Patrick Boettcher (patrick.boettcher@desy.de)
++ * Copyright (C) 2004-5 Patrick Boettcher (patrick.boettcher@desy.de)
+  *
+- * based on GPL code from DibCom, which has
++ * based on GPL code from DiBCom, which has
+  *
+  * Copyright (C) 2004 Amaury Demol for DiBcom (ademol@dibcom.fr)
+  *
+@@ -28,7 +28,6 @@
+ #include <linux/init.h>
+ #include <linux/delay.h>
+ 
+-#include "dvb_frontend.h"
+ #include "dib3000-common.h"
+ #include "dib3000mc_priv.h"
+ #include "dib3000.h"
+@@ -40,14 +39,16 @@
+ 
+ #ifdef CONFIG_DVB_DIBCOM_DEBUG
+ static int debug;
+-module_param(debug, int, 0x644);
+-MODULE_PARM_DESC(debug, "set debugging level (1=info,2=xfer,4=setfe,8=getfe (|-able)).");
++module_param(debug, int, 0644);
++MODULE_PARM_DESC(debug, "set debugging level (1=info,2=xfer,4=setfe,8=getfe,16=stat (|-able)).");
+ #endif
+ #define deb_info(args...) dprintk(0x01,args)
+ #define deb_xfer(args...) dprintk(0x02,args)
+ #define deb_setf(args...) dprintk(0x04,args)
+ #define deb_getf(args...) dprintk(0x08,args)
++#define deb_stat(args...) dprintk(0x10,args)
+ 
++static int dib3000mc_tuner_pass_ctrl(struct dvb_frontend *fe, int onoff, u8 pll_addr);
+ 
+ static int dib3000mc_set_impulse_noise(struct dib3000_state * state, int mode,
+ 	fe_transmit_mode_t transmission_mode, fe_bandwidth_t bandwidth)
+@@ -185,46 +186,33 @@
+ 	return 0;
+ }
+ 
+-static int dib3000mc_get_frontend(struct dvb_frontend* fe,
+-				  struct dvb_frontend_parameters *fep);
++static int dib3000mc_set_adp_cfg(struct dib3000_state *state, fe_modulation_t con)
++{
++	switch (con) {
++		case QAM_64: 
++			wr_foreach(dib3000mc_reg_adp_cfg,dib3000mc_adp_cfg[2]);
++			break;
++		case QAM_16: 
++			wr_foreach(dib3000mc_reg_adp_cfg,dib3000mc_adp_cfg[1]);
++			break;
++		case QPSK: 
++			wr_foreach(dib3000mc_reg_adp_cfg,dib3000mc_adp_cfg[0]);
++			break;
++		case QAM_AUTO:
++			break;
++		default:
++			warn("unkown constellation.");
++			break;
++	}
++	return 0;
++}
+ 
+-static int dib3000mc_set_frontend(struct dvb_frontend* fe,
+-				  struct dvb_frontend_parameters *fep, int tuner)
++static int dib3000mc_set_general_cfg(struct dib3000_state *state, struct dvb_frontend_parameters *fep, int *auto_val)
+ {
+-	struct dib3000_state* state = (struct dib3000_state*) fe->demodulator_priv;
+ 	struct dvb_ofdm_parameters *ofdm = &fep->u.ofdm;
+ 	fe_code_rate_t fe_cr = FEC_NONE;
+-	int search_state, seq;
+-	u16 val;
+ 	u8 fft=0, guard=0, qam=0, alpha=0, sel_hp=0, cr=0, hrch=0;
+-
+-	if (tuner) {
+-		wr(DIB3000MC_REG_TUNER,
+-				DIB3000_TUNER_WRITE_ENABLE(state->config.pll_addr));
+-		state->config.pll_set(fe, fep);
+-		wr(DIB3000MC_REG_TUNER,
+-				DIB3000_TUNER_WRITE_DISABLE(state->config.pll_addr));
+-	}
+-
+-	dib3000mc_set_timing(state,0,ofdm->transmission_mode,ofdm->bandwidth);
+-	dib3000mc_init_auto_scan(state, ofdm->bandwidth, 0);
+-
+-	wr(DIB3000MC_REG_RESTART,DIB3000MC_RESTART_AGC);
+-	wr(DIB3000MC_REG_RESTART,DIB3000MC_RESTART_OFF);
+-
+-/* Default cfg isi offset adp */
+-	wr_foreach(dib3000mc_reg_offset,dib3000mc_offset[0]);
+-
+-	wr(DIB3000MC_REG_ISI,DIB3000MC_ISI_DEFAULT | DIB3000MC_ISI_INHIBIT);
+-	wr_foreach(dib3000mc_reg_adp_cfg,dib3000mc_adp_cfg[1]);
+-	wr(DIB3000MC_REG_UNK_133,DIB3000MC_UNK_133);
+-
+-	wr_foreach(dib3000mc_reg_bandwidth_general,dib3000mc_bandwidth_general);
+-	if (ofdm->bandwidth == BANDWIDTH_8_MHZ) {
+-		wr_foreach(dib3000mc_reg_bw,dib3000mc_bw[3]);
+-	} else {
+-		wr_foreach(dib3000mc_reg_bw,dib3000mc_bw[0]);
+-	}
++	int seq;
+ 
+ 	switch (ofdm->transmission_mode) {
+ 		case TRANSMISSION_MODE_2K: fft = DIB3000_TRANSMISSION_MODE_2K; break;
+@@ -282,8 +270,7 @@
+ 		case INVERSION_OFF:
+ 			wr(DIB3000MC_REG_SET_DDS_FREQ_MSB,DIB3000MC_DDS_FREQ_MSB_INV_OFF);
+ 			break;
+-		case INVERSION_AUTO:
+-			break;
++		case INVERSION_AUTO: /* fall through */
+ 		case INVERSION_ON:
+ 			wr(DIB3000MC_REG_SET_DDS_FREQ_MSB,DIB3000MC_DDS_FREQ_MSB_INV_ON);
+ 			break;
+@@ -298,168 +285,12 @@
+ 
+ 	deb_setf("seq? %d\n", seq);
+ 	wr(DIB3000MC_REG_SEQ_TPS,DIB3000MC_SEQ_TPS(seq,1));
+-
+-	dib3000mc_set_impulse_noise(state,0,ofdm->constellation,ofdm->bandwidth);
+-
+-	val = rd(DIB3000MC_REG_DEMOD_PARM);
+-	wr(DIB3000MC_REG_DEMOD_PARM,val|DIB3000MC_DEMOD_RST_DEMOD_ON);
+-	wr(DIB3000MC_REG_DEMOD_PARM,val);
+-
+-	msleep(70);
+-
+-	wr_foreach(dib3000mc_reg_agc_bandwidth, dib3000mc_agc_bandwidth);
+-
+-	/* something has to be auto searched */
+-	if (ofdm->constellation == QAM_AUTO ||
++	*auto_val = ofdm->constellation == QAM_AUTO ||
+ 		ofdm->hierarchy_information == HIERARCHY_AUTO ||
+ 		ofdm->guard_interval == GUARD_INTERVAL_AUTO ||
+ 		ofdm->transmission_mode == TRANSMISSION_MODE_AUTO ||
+ 		fe_cr == FEC_AUTO ||
+-		fep->inversion == INVERSION_AUTO
+-		) {
+-		int as_count=0;
+-
+-		deb_setf("autosearch enabled.\n");
+-
+-		val = rd(DIB3000MC_REG_DEMOD_PARM);
+-		wr(DIB3000MC_REG_DEMOD_PARM,val | DIB3000MC_DEMOD_RST_AUTO_SRCH_ON);
+-		wr(DIB3000MC_REG_DEMOD_PARM,val);
+-
+-		while ((search_state = dib3000_search_status(
+-					rd(DIB3000MC_REG_AS_IRQ),1)) < 0 && as_count++ < 100)
+-			msleep(10);
+-
+-		deb_info("search_state after autosearch %d after %d checks\n",search_state,as_count);
+-
+-		if (search_state == 1) {
+-			struct dvb_frontend_parameters feps;
+-			feps.u.ofdm.bandwidth = ofdm->bandwidth; /* bw is not auto searched */;
+-			if (dib3000mc_get_frontend(fe, &feps) == 0) {
+-				deb_setf("reading tuning data from frontend succeeded.\n");
+-				return dib3000mc_set_frontend(fe, &feps, 0);
+-			}
+-		}
+-	} else {
+-		wr(DIB3000MC_REG_ISI,DIB3000MC_ISI_DEFAULT|DIB3000MC_ISI_ACTIVATE);
+-		wr_foreach(dib3000mc_reg_adp_cfg,dib3000mc_adp_cfg[qam]);
+-		/* set_offset_cfg */
+-		wr_foreach(dib3000mc_reg_offset,
+-				dib3000mc_offset[(ofdm->transmission_mode == TRANSMISSION_MODE_8K)+1]);
+-
+-//		dib3000mc_set_timing(1,ofdm->transmission_mode,ofdm->bandwidth);
+-
+-//		wr(DIB3000MC_REG_LOCK_MASK,DIB3000MC_ACTIVATE_LOCK_MASK); /* activates some locks if needed */
+-
+-/*		set_or(DIB3000MC_REG_DEMOD_PARM,DIB3000MC_DEMOD_RST_AUTO_SRCH_ON);
+-		set_or(DIB3000MC_REG_DEMOD_PARM,DIB3000MC_DEMOD_RST_AUTO_SRCH_OFF);
+-		wr(DIB3000MC_REG_RESTART_VIT,DIB3000MC_RESTART_VIT_ON);
+-		wr(DIB3000MC_REG_RESTART_VIT,DIB3000MC_RESTART_VIT_OFF);*/
+-	}
+-
+-	return 0;
+-}
+-
+-
+-static int dib3000mc_fe_init(struct dvb_frontend* fe, int mobile_mode)
+-{
+-	struct dib3000_state* state = (struct dib3000_state*) fe->demodulator_priv;
+-
+-	state->timing_offset = 0;
+-	state->timing_offset_comp_done = 0;
+-
+-	wr(DIB3000MC_REG_ELEC_OUT,DIB3000MC_ELEC_OUT_DIV_OUT_ON);
+-	wr(DIB3000MC_REG_OUTMODE,DIB3000MC_OM_PAR_CONT_CLK);
+-	wr(DIB3000MC_REG_RST_I2C_ADDR,
+-		DIB3000MC_DEMOD_ADDR(state->config.demod_address) |
+-		DIB3000MC_DEMOD_ADDR_ON);
+-
+-	wr(DIB3000MC_REG_RST_I2C_ADDR,
+-		DIB3000MC_DEMOD_ADDR(state->config.demod_address));
+-
+-	wr(DIB3000MC_REG_RESTART,DIB3000MC_RESTART_CONFIG);
+-	wr(DIB3000MC_REG_RESTART,DIB3000MC_RESTART_OFF);
+-
+-	wr(DIB3000MC_REG_CLK_CFG_1,DIB3000MC_CLK_CFG_1_POWER_UP);
+-	wr(DIB3000MC_REG_CLK_CFG_2,DIB3000MC_CLK_CFG_2_PUP_MOBILE);
+-	wr(DIB3000MC_REG_CLK_CFG_3,DIB3000MC_CLK_CFG_3_POWER_UP);
+-	wr(DIB3000MC_REG_CLK_CFG_7,DIB3000MC_CLK_CFG_7_INIT);
+-
+-	wr(DIB3000MC_REG_RST_UNC,DIB3000MC_RST_UNC_OFF);
+-	wr(DIB3000MC_REG_UNK_19,DIB3000MC_UNK_19);
+-
+-	wr(33,5);
+-	wr(36,81);
+-	wr(DIB3000MC_REG_UNK_88,DIB3000MC_UNK_88);
+-
+-	wr(DIB3000MC_REG_UNK_99,DIB3000MC_UNK_99);
+-	wr(DIB3000MC_REG_UNK_111,DIB3000MC_UNK_111_PH_N_MODE_0); /* phase noise algo off */
+-
+-	/* mobile mode - portable reception */
+-	wr_foreach(dib3000mc_reg_mobile_mode,dib3000mc_mobile_mode[1]);
+-
+-/* TUNER_PANASONIC_ENV57H12D5: */
+-	wr_foreach(dib3000mc_reg_agc_bandwidth,dib3000mc_agc_bandwidth);
+-	wr_foreach(dib3000mc_reg_agc_bandwidth_general,dib3000mc_agc_bandwidth_general);
+-	wr_foreach(dib3000mc_reg_agc,dib3000mc_agc_tuner[1]);
+-
+-	wr(DIB3000MC_REG_UNK_110,DIB3000MC_UNK_110);
+-	wr(26,0x6680);
+-	wr(DIB3000MC_REG_UNK_1,DIB3000MC_UNK_1);
+-	wr(DIB3000MC_REG_UNK_2,DIB3000MC_UNK_2);
+-	wr(DIB3000MC_REG_UNK_3,DIB3000MC_UNK_3);
+-	wr(DIB3000MC_REG_SEQ_TPS,DIB3000MC_SEQ_TPS_DEFAULT);
+-
+-	wr_foreach(dib3000mc_reg_bandwidth_general,dib3000mc_bandwidth_general);
+-	wr_foreach(dib3000mc_reg_bandwidth,dib3000mc_bandwidth_8mhz);
+-
+-	wr(DIB3000MC_REG_UNK_4,DIB3000MC_UNK_4);
+-
+-	wr(DIB3000MC_REG_SET_DDS_FREQ_MSB,DIB3000MC_DDS_FREQ_MSB_INV_OFF);
+-	wr(DIB3000MC_REG_SET_DDS_FREQ_LSB,DIB3000MC_DDS_FREQ_LSB);
+-
+-	dib3000mc_set_timing(state,0,TRANSMISSION_MODE_2K,BANDWIDTH_8_MHZ);
+-//	wr_foreach(dib3000mc_reg_timing_freq,dib3000mc_timing_freq[3]);
+-
+-	wr(DIB3000MC_REG_UNK_120,DIB3000MC_UNK_120);
+-	wr(DIB3000MC_REG_UNK_134,DIB3000MC_UNK_134);
+-	wr(DIB3000MC_REG_FEC_CFG,DIB3000MC_FEC_CFG);
+-
+-	dib3000mc_set_impulse_noise(state,0,TRANSMISSION_MODE_8K,BANDWIDTH_8_MHZ);
+-
+-/* output mode control, just the MPEG2_SLAVE */
+-	set_or(DIB3000MC_REG_OUTMODE,DIB3000MC_OM_SLAVE);
+-	wr(DIB3000MC_REG_SMO_MODE,DIB3000MC_SMO_MODE_SLAVE);
+-	wr(DIB3000MC_REG_FIFO_THRESHOLD,DIB3000MC_FIFO_THRESHOLD_SLAVE);
+-	wr(DIB3000MC_REG_ELEC_OUT,DIB3000MC_ELEC_OUT_SLAVE);
+-
+-/* MPEG2_PARALLEL_CONTINUOUS_CLOCK
+-	wr(DIB3000MC_REG_OUTMODE,
+-		DIB3000MC_SET_OUTMODE(DIB3000MC_OM_PAR_CONT_CLK,
+-			rd(DIB3000MC_REG_OUTMODE)));
+-
+-	wr(DIB3000MC_REG_SMO_MODE,
+-			DIB3000MC_SMO_MODE_DEFAULT |
+-			DIB3000MC_SMO_MODE_188);
+-
+-	wr(DIB3000MC_REG_FIFO_THRESHOLD,DIB3000MC_FIFO_THRESHOLD_DEFAULT);
+-	wr(DIB3000MC_REG_ELEC_OUT,DIB3000MC_ELEC_OUT_DIV_OUT_ON);
+-*/
+-/* diversity */
+-	wr(DIB3000MC_REG_DIVERSITY1,DIB3000MC_DIVERSITY1_DEFAULT);
+-	wr(DIB3000MC_REG_DIVERSITY2,DIB3000MC_DIVERSITY2_DEFAULT);
+-
+-	wr(DIB3000MC_REG_DIVERSITY3,DIB3000MC_DIVERSITY3_IN_OFF);
+-
+-	set_or(DIB3000MC_REG_CLK_CFG_7,DIB3000MC_CLK_CFG_7_DIV_IN_OFF);
+-
+-
+-/*	if (state->config->pll_init) {
+-		wr(DIB3000MC_REG_TUNER,
+-			DIB3000_TUNER_WRITE_ENABLE(state->config->pll_addr));
+-		state->config->pll_init(fe);
+-		wr(DIB3000MC_REG_TUNER,
+-			DIB3000_TUNER_WRITE_DISABLE(state->config->pll_addr));
+-	}*/
++			fep->inversion == INVERSION_AUTO;
+ 	return 0;
+ }
+ 
+@@ -476,7 +307,8 @@
+ 	if (!(rd(DIB3000MC_REG_LOCK_507) & DIB3000MC_LOCK_507))
+ 		return 0;
+ 
+-	dds_val = ((rd(DIB3000MC_REG_DDS_FREQ_MSB) & 0xff) << 16) + rd(DIB3000MC_REG_DDS_FREQ_LSB);
++	dds_val = (rd(DIB3000MC_REG_DDS_FREQ_MSB) << 16) + rd(DIB3000MC_REG_DDS_FREQ_LSB);
++	deb_getf("DDS_FREQ: %6x\n",dds_val);
+ 	if (dds_val < threshold)
+ 		inv_test1 = 0;
+ 	else if (dds_val == threshold)
+@@ -484,7 +316,8 @@
+ 	else
+ 		inv_test1 = 2;
+ 
+-	dds_val = ((rd(DIB3000MC_REG_SET_DDS_FREQ_MSB) & 0xff) << 16) + rd(DIB3000MC_REG_SET_DDS_FREQ_LSB);
++	dds_val = (rd(DIB3000MC_REG_SET_DDS_FREQ_MSB) << 16) + rd(DIB3000MC_REG_SET_DDS_FREQ_LSB);
++	deb_getf("DDS_SET_FREQ: %6x\n",dds_val);
+ 	if (dds_val < threshold)
+ 		inv_test2 = 0;
+ 	else if (dds_val == threshold)
+@@ -499,6 +332,9 @@
+ 
+ 	deb_getf("inversion %d %d, %d\n", inv_test2, inv_test1, fep->inversion);
+ 
++	fep->frequency = state->last_tuned_freq;
++	fep->u.ofdm.bandwidth= state->last_tuned_bw;
++	
+ 	tps_val = rd(DIB3000MC_REG_TUNING_PARM);
+ 
+ 	switch (DIB3000MC_TP_QAM(tps_val)) {
+@@ -614,9 +450,211 @@
+ 			err("unexpected transmission mode return by TPS (%d)", tps_val);
+ 			break;
+ 	}
++	deb_getf("\n");
++
++	return 0;
++}
++
++static int dib3000mc_set_frontend(struct dvb_frontend* fe,
++				  struct dvb_frontend_parameters *fep, int tuner)
++{
++	struct dib3000_state* state = (struct dib3000_state*) fe->demodulator_priv;
++	struct dvb_ofdm_parameters *ofdm = &fep->u.ofdm;
++	int search_state,auto_val;
++	u16 val;
++	
++	if (tuner) { /* initial call from dvb */
++		dib3000mc_tuner_pass_ctrl(fe,1,state->config.pll_addr(fe));
++		state->config.pll_set(fe,fep,NULL);
++		dib3000mc_tuner_pass_ctrl(fe,0,state->config.pll_addr(fe));
++		
++		state->last_tuned_freq = fep->frequency;
++	//	if (!scanboost) {
++			dib3000mc_set_timing(state,0,ofdm->transmission_mode,ofdm->bandwidth);
++			dib3000mc_init_auto_scan(state, ofdm->bandwidth, 0);
++			state->last_tuned_bw = ofdm->bandwidth;
++
++			wr_foreach(dib3000mc_reg_agc_bandwidth,dib3000mc_agc_bandwidth);
++			wr(DIB3000MC_REG_RESTART,DIB3000MC_RESTART_AGC);
++			wr(DIB3000MC_REG_RESTART,DIB3000MC_RESTART_OFF);
++			
++			/* Default cfg isi offset adp */
++			wr_foreach(dib3000mc_reg_offset,dib3000mc_offset[0]);
++
++			wr(DIB3000MC_REG_ISI,DIB3000MC_ISI_DEFAULT | DIB3000MC_ISI_INHIBIT);
++			dib3000mc_set_adp_cfg(state,ofdm->constellation);
++			wr(DIB3000MC_REG_UNK_133,DIB3000MC_UNK_133);
++
++			wr_foreach(dib3000mc_reg_bandwidth_general,dib3000mc_bandwidth_general);
++			/* power smoothing */
++			if (ofdm->bandwidth != BANDWIDTH_8_MHZ) {
++				wr_foreach(dib3000mc_reg_bw,dib3000mc_bw[0]);
++			} else {
++				wr_foreach(dib3000mc_reg_bw,dib3000mc_bw[3]);
++			}
++			auto_val = 0;
++			dib3000mc_set_general_cfg(state,fep,&auto_val);
++			dib3000mc_set_impulse_noise(state,0,ofdm->constellation,ofdm->bandwidth);
++		
++			val = rd(DIB3000MC_REG_DEMOD_PARM);
++			wr(DIB3000MC_REG_DEMOD_PARM,val|DIB3000MC_DEMOD_RST_DEMOD_ON);
++			wr(DIB3000MC_REG_DEMOD_PARM,val);
++	//	}
++		msleep(70);
++
++		/* something has to be auto searched */
++		if (auto_val) {
++			int as_count=0;
++
++			deb_setf("autosearch enabled.\n");
++			
++			val = rd(DIB3000MC_REG_DEMOD_PARM);
++			wr(DIB3000MC_REG_DEMOD_PARM,val | DIB3000MC_DEMOD_RST_AUTO_SRCH_ON);
++			wr(DIB3000MC_REG_DEMOD_PARM,val);
++
++			while ((search_state = dib3000_search_status(
++						rd(DIB3000MC_REG_AS_IRQ),1)) < 0 && as_count++ < 100) 
++				msleep(10);
++			
++			deb_info("search_state after autosearch %d after %d checks\n",search_state,as_count);
++			
++			if (search_state == 1) {
++				struct dvb_frontend_parameters feps;
++				if (dib3000mc_get_frontend(fe, &feps) == 0) {
++					deb_setf("reading tuning data from frontend succeeded.\n");
++					return dib3000mc_set_frontend(fe, &feps, 0);
++				}
++			}
++		} else {
++			dib3000mc_set_impulse_noise(state,0,ofdm->transmission_mode,ofdm->bandwidth);
++			wr(DIB3000MC_REG_ISI,DIB3000MC_ISI_DEFAULT|DIB3000MC_ISI_ACTIVATE);
++			dib3000mc_set_adp_cfg(state,ofdm->constellation);
++			
++			/* set_offset_cfg */
++			wr_foreach(dib3000mc_reg_offset,
++					dib3000mc_offset[(ofdm->transmission_mode == TRANSMISSION_MODE_8K)+1]);
++		}
++	} else { /* second call, after autosearch (fka: set_WithKnownParams) */
++//		dib3000mc_set_timing(state,1,ofdm->transmission_mode,ofdm->bandwidth);
++		
++		auto_val = 0;
++		dib3000mc_set_general_cfg(state,fep,&auto_val);
++		if (auto_val)
++			deb_info("auto_val is true, even though an auto search was already performed.\n");
++
++		dib3000mc_set_impulse_noise(state,0,ofdm->constellation,ofdm->bandwidth);
++		
++		val = rd(DIB3000MC_REG_DEMOD_PARM);
++		wr(DIB3000MC_REG_DEMOD_PARM,val | DIB3000MC_DEMOD_RST_AUTO_SRCH_ON);
++		wr(DIB3000MC_REG_DEMOD_PARM,val);
++		
++		msleep(30);
++		
++		wr(DIB3000MC_REG_ISI,DIB3000MC_ISI_DEFAULT|DIB3000MC_ISI_ACTIVATE);
++			dib3000mc_set_adp_cfg(state,ofdm->constellation);
++		wr_foreach(dib3000mc_reg_offset,
++				dib3000mc_offset[(ofdm->transmission_mode == TRANSMISSION_MODE_8K)+1]);
++		
++				
++	}
+ 	return 0;
+ }
+ 
++static int dib3000mc_fe_init(struct dvb_frontend* fe, int mobile_mode)
++{
++	deb_info("init start\n");
++	struct dib3000_state* state = (struct dib3000_state*) fe->demodulator_priv;
++
++	state->timing_offset = 0;
++	state->timing_offset_comp_done = 0;
++	
++	wr(DIB3000MC_REG_RESTART,DIB3000MC_RESTART_CONFIG);
++	wr(DIB3000MC_REG_RESTART,DIB3000MC_RESTART_OFF);
++	wr(DIB3000MC_REG_CLK_CFG_1,DIB3000MC_CLK_CFG_1_POWER_UP);
++	wr(DIB3000MC_REG_CLK_CFG_2,DIB3000MC_CLK_CFG_2_PUP_MOBILE);
++	wr(DIB3000MC_REG_CLK_CFG_3,DIB3000MC_CLK_CFG_3_POWER_UP);
++	wr(DIB3000MC_REG_CLK_CFG_7,DIB3000MC_CLK_CFG_7_INIT);
++	
++	wr(DIB3000MC_REG_RST_UNC,DIB3000MC_RST_UNC_OFF);
++	wr(DIB3000MC_REG_UNK_19,DIB3000MC_UNK_19);
++
++	wr(33,5);
++	wr(36,81);
++	wr(DIB3000MC_REG_UNK_88,DIB3000MC_UNK_88);				  
++	
++	wr(DIB3000MC_REG_UNK_99,DIB3000MC_UNK_99);
++	wr(DIB3000MC_REG_UNK_111,DIB3000MC_UNK_111_PH_N_MODE_0); /* phase noise algo off */
++
++	/* mobile mode - portable reception */
++	wr_foreach(dib3000mc_reg_mobile_mode,dib3000mc_mobile_mode[1]); 
++
++/* TUNER_PANASONIC_ENV57H12D5: */
++	wr_foreach(dib3000mc_reg_agc_bandwidth,dib3000mc_agc_bandwidth);
++	wr_foreach(dib3000mc_reg_agc_bandwidth_general,dib3000mc_agc_bandwidth_general);
++	wr_foreach(dib3000mc_reg_agc,dib3000mc_agc_tuner[1]);
++
++	wr(DIB3000MC_REG_UNK_110,DIB3000MC_UNK_110);
++	wr(26,0x6680);
++	wr(DIB3000MC_REG_UNK_1,DIB3000MC_UNK_1);
++	wr(DIB3000MC_REG_UNK_2,DIB3000MC_UNK_2);
++	wr(DIB3000MC_REG_UNK_3,DIB3000MC_UNK_3);
++	wr(DIB3000MC_REG_SEQ_TPS,DIB3000MC_SEQ_TPS_DEFAULT);
++	
++	wr_foreach(dib3000mc_reg_bandwidth,dib3000mc_bandwidth_8mhz);
++	wr_foreach(dib3000mc_reg_bandwidth_general,dib3000mc_bandwidth_general);
++	
++	wr(DIB3000MC_REG_UNK_4,DIB3000MC_UNK_4);
++
++	wr(DIB3000MC_REG_SET_DDS_FREQ_MSB,DIB3000MC_DDS_FREQ_MSB_INV_OFF);
++	wr(DIB3000MC_REG_SET_DDS_FREQ_LSB,DIB3000MC_DDS_FREQ_LSB);
++
++	dib3000mc_set_timing(state,0,TRANSMISSION_MODE_8K,BANDWIDTH_8_MHZ); 
++//	wr_foreach(dib3000mc_reg_timing_freq,dib3000mc_timing_freq[3]);
++	
++	wr(DIB3000MC_REG_UNK_120,DIB3000MC_UNK_120);
++	wr(DIB3000MC_REG_UNK_134,DIB3000MC_UNK_134);
++	wr(DIB3000MC_REG_FEC_CFG,DIB3000MC_FEC_CFG);
++	
++	wr(DIB3000MC_REG_DIVERSITY3,DIB3000MC_DIVERSITY3_IN_OFF);
++	
++	dib3000mc_set_impulse_noise(state,0,TRANSMISSION_MODE_8K,BANDWIDTH_8_MHZ);
++
++/* output mode control, just the MPEG2_SLAVE */
++//	set_or(DIB3000MC_REG_OUTMODE,DIB3000MC_OM_SLAVE);
++	wr(DIB3000MC_REG_OUTMODE,DIB3000MC_OM_SLAVE);
++	wr(DIB3000MC_REG_SMO_MODE,DIB3000MC_SMO_MODE_SLAVE);
++	wr(DIB3000MC_REG_FIFO_THRESHOLD,DIB3000MC_FIFO_THRESHOLD_SLAVE);
++	wr(DIB3000MC_REG_ELEC_OUT,DIB3000MC_ELEC_OUT_SLAVE);
++
++/* MPEG2_PARALLEL_CONTINUOUS_CLOCK
++	wr(DIB3000MC_REG_OUTMODE,
++		DIB3000MC_SET_OUTMODE(DIB3000MC_OM_PAR_CONT_CLK,
++			rd(DIB3000MC_REG_OUTMODE)));
++
++	wr(DIB3000MC_REG_SMO_MODE,
++			DIB3000MC_SMO_MODE_DEFAULT | 
++			DIB3000MC_SMO_MODE_188);
++
++	wr(DIB3000MC_REG_FIFO_THRESHOLD,DIB3000MC_FIFO_THRESHOLD_DEFAULT);
++	wr(DIB3000MC_REG_ELEC_OUT,DIB3000MC_ELEC_OUT_DIV_OUT_ON);
++*/
++	
++/* diversity */
++	wr(DIB3000MC_REG_DIVERSITY1,DIB3000MC_DIVERSITY1_DEFAULT);
++	wr(DIB3000MC_REG_DIVERSITY2,DIB3000MC_DIVERSITY2_DEFAULT);
++
++	set_and(DIB3000MC_REG_DIVERSITY3,DIB3000MC_DIVERSITY3_IN_OFF);
++
++	set_or(DIB3000MC_REG_CLK_CFG_7,DIB3000MC_CLK_CFG_7_DIV_IN_OFF);
++
++/*	if (state->config->pll_init) {
++		dib3000mc_tuner_pass_ctrl(fe,1,state->config.pll_addr(fe));
++		state->config->pll_init(fe,NULL);
++		dib3000mc_tuner_pass_ctrl(fe,0,state->config.pll_addr(fe));
++	}*/
++	deb_info("init end\n");
++	return 0;
++}
+ static int dib3000mc_read_status(struct dvb_frontend* fe, fe_status_t *stat)
+ {
+ 	struct dib3000_state* state = (struct dib3000_state*) fe->demodulator_priv;
+@@ -627,12 +665,12 @@
+ 		*stat |= FE_HAS_SIGNAL;
+ 	if (DIB3000MC_CARRIER_LOCK(lock))
+ 		*stat |= FE_HAS_CARRIER;
+-	if (DIB3000MC_TPS_LOCK(lock)) /* VIT_LOCK ? */
++	if (DIB3000MC_TPS_LOCK(lock))
+ 		*stat |= FE_HAS_VITERBI;
+ 	if (DIB3000MC_MPEG_SYNC_LOCK(lock))
+ 		*stat |= (FE_HAS_SYNC | FE_HAS_LOCK);
+ 
+-	deb_info("actual status is %2x\n",*stat);
++	deb_stat("actual status is %2x fifo_level: %x,244: %x, 206: %x, 207: %x, 1040: %x\n",*stat,rd(510),rd(244),rd(206),rd(207),rd(1040));
+ 
+ 	return 0;
+ }
+@@ -659,7 +697,7 @@
+ 	u16 val = rd(DIB3000MC_REG_SIGNAL_NOISE_LSB);
+ 	*strength = (((val >> 6) & 0xff) << 8) + (val & 0x3f);
+ 
+-	deb_info("signal: mantisse = %d, exponent = %d\n",(*strength >> 8) & 0xff, *strength & 0xff);
++	deb_stat("signal: mantisse = %d, exponent = %d\n",(*strength >> 8) & 0xff, *strength & 0xff);
+ 	return 0;
+ }
+ 
+@@ -667,9 +705,8 @@
+ static int dib3000mc_read_snr(struct dvb_frontend* fe, u16 *snr)
+ {
+ 	struct dib3000_state* state = (struct dib3000_state*) fe->demodulator_priv;
+-
+-	u16 val = rd(DIB3000MC_REG_SIGNAL_NOISE_MSB),
+-		val2 = rd(DIB3000MC_REG_SIGNAL_NOISE_LSB);
++	u16 val = rd(DIB3000MC_REG_SIGNAL_NOISE_LSB),
++		val2 = rd(DIB3000MC_REG_SIGNAL_NOISE_MSB);
+ 	u16 sig,noise;
+ 
+ 	sig =   (((val >> 6) & 0xff) << 8) + (val & 0x3f);
+@@ -679,9 +716,9 @@
+ 	else
+ 		*snr = (u16) sig/noise;
+ 
+-	deb_info("signal: mantisse = %d, exponent = %d\n",(sig >> 8) & 0xff, sig & 0xff);
+-	deb_info("noise:  mantisse = %d, exponent = %d\n",(noise >> 8) & 0xff, noise & 0xff);
+-	deb_info("snr: %d\n",*snr);
++	deb_stat("signal: mantisse = %d, exponent = %d\n",(sig >> 8) & 0xff, sig & 0xff);
++	deb_stat("noise:  mantisse = %d, exponent = %d\n",(noise >> 8) & 0xff, noise & 0xff);
++	deb_stat("snr: %d\n",*snr);
+ 	return 0;
+ }
+ 
+@@ -698,7 +735,7 @@
+ 
+ static int dib3000mc_fe_get_tune_settings(struct dvb_frontend* fe, struct dvb_frontend_tune_settings *tune)
+ {
+-	tune->min_delay_ms = 800;
++	tune->min_delay_ms = 2000;
+ 	tune->step_size = 166667;
+ 	tune->max_drift = 166667 * 2;
+ 
+@@ -718,23 +755,15 @@
+ static void dib3000mc_release(struct dvb_frontend* fe)
+ {
+ 	struct dib3000_state *state = (struct dib3000_state*) fe->demodulator_priv;
+-	dib3000_dealloc_pid_list(state);
+ 	kfree(state);
+ }
+ 
+ /* pid filter and transfer stuff */
+-static int dib3000mc_pid_control(struct dvb_frontend *fe,int pid,int onoff)
++static int dib3000mc_pid_control(struct dvb_frontend *fe,int index, int pid,int onoff)
+ {
+ 	struct dib3000_state *state = fe->demodulator_priv;
+-	int index = dib3000_get_pid_index(state->pid_list, DIB3000MC_NUM_PIDS, pid, &state->pid_list_lock,onoff);
+ 	pid = (onoff ? pid | DIB3000_ACTIVATE_PID_FILTERING : 0);
+-
+-	if (index >= 0) {
+ 		wr(index+DIB3000MC_REG_FIRST_PID,pid);
+-	} else {
+-		err("no more pids for filtering.");
 -		return -ENOMEM;
 -	}
--		deb_info("submitting URB no. %d\n",i);
+ 	return 0;
+ }
+ 
+@@ -742,10 +771,14 @@
+ {
+ 	struct dib3000_state *state = (struct dib3000_state*) fe->demodulator_priv;
+ 	u16 tmp = rd(DIB3000MC_REG_SMO_MODE);
+-	deb_xfer("%s fifo",onoff ? "enabling" : "disabling");
++	
++	deb_xfer("%s fifo\n",onoff ? "enabling" : "disabling");
++	
+ 	if (onoff) {
++		deb_xfer("%d %x\n",tmp & DIB3000MC_SMO_MODE_FIFO_UNFLUSH,tmp & DIB3000MC_SMO_MODE_FIFO_UNFLUSH);
+ 		wr(DIB3000MC_REG_SMO_MODE,tmp & DIB3000MC_SMO_MODE_FIFO_UNFLUSH);
+ 	} else {
++		deb_xfer("%d %x\n",tmp | DIB3000MC_SMO_MODE_FIFO_FLUSH,tmp | DIB3000MC_SMO_MODE_FIFO_FLUSH);
+ 		wr(DIB3000MC_REG_SMO_MODE,tmp | DIB3000MC_SMO_MODE_FIFO_FLUSH);
+ 	}
+ 	return 0;
+@@ -755,19 +788,57 @@
+ {
+ 	struct dib3000_state *state = fe->demodulator_priv;
+ 	u16 tmp = rd(DIB3000MC_REG_SMO_MODE);
+-	deb_xfer("%s pid parsing",onoff ? "enabling" : "disabling");
++	
++	deb_xfer("%s pid parsing\n",onoff ? "enabling" : "disabling");
++	
+ 	if (onoff) {
++		deb_xfer("%d %x\n",tmp | DIB3000MC_SMO_MODE_PID_PARSE,tmp | DIB3000MC_SMO_MODE_PID_PARSE);
+ 		wr(DIB3000MC_REG_SMO_MODE,tmp | DIB3000MC_SMO_MODE_PID_PARSE);
+ 	} else {
++		deb_xfer("%d %x\n",tmp & DIB3000MC_SMO_MODE_NO_PID_PARSE,tmp & DIB3000MC_SMO_MODE_NO_PID_PARSE);
+ 		wr(DIB3000MC_REG_SMO_MODE,tmp & DIB3000MC_SMO_MODE_NO_PID_PARSE);
+ 	}
+ 	return 0;
+ }
+ 
++static int dib3000mc_tuner_pass_ctrl(struct dvb_frontend *fe, int onoff, u8 pll_addr)
++{
++	struct dib3000_state *state = (struct dib3000_state*) fe->demodulator_priv;
++	if (onoff) {
++		wr(DIB3000MC_REG_TUNER, DIB3000_TUNER_WRITE_ENABLE(pll_addr));
++	} else {
++		wr(DIB3000MC_REG_TUNER, DIB3000_TUNER_WRITE_DISABLE(pll_addr));
++	}
++	return 0;
++}
++
++static int dib3000mc_demod_init(struct dib3000_state *state) 
++{
++	u16 default_addr = 0x0a;
++	/* first init */
++	if (state->config.demod_address != default_addr) {
++		deb_info("initializing the demod the first time. Setting demod addr to 0x%x\n",default_addr);
++		wr(DIB3000MC_REG_ELEC_OUT,DIB3000MC_ELEC_OUT_DIV_OUT_ON);
++		wr(DIB3000MC_REG_OUTMODE,DIB3000MC_OM_PAR_CONT_CLK);
++		
++		wr(DIB3000MC_REG_RST_I2C_ADDR,
++			DIB3000MC_DEMOD_ADDR(default_addr) |
++			DIB3000MC_DEMOD_ADDR_ON);
++	
++		state->config.demod_address = default_addr;
++		
++		wr(DIB3000MC_REG_RST_I2C_ADDR,
++			DIB3000MC_DEMOD_ADDR(default_addr));
++	} else
++		deb_info("demod is already initialized. Demod addr: 0x%x\n",state->config.demod_address);
++	return 0;
++}
++
++
+ static struct dvb_frontend_ops dib3000mc_ops;
+ 
+ struct dvb_frontend* dib3000mc_attach(const struct dib3000_config* config,
+-				      struct i2c_adapter* i2c, struct dib3000_xfer_ops *xfer_ops)
++				      struct i2c_adapter* i2c, struct dib_fe_xfer_ops *xfer_ops)
+ {
+ 	struct dib3000_state* state = NULL;
+ 	u16 devid;
+@@ -790,19 +861,15 @@
+ 	if (devid != DIB3000MC_DEVICE_ID && devid != DIB3000P_DEVICE_ID)
+ 		goto error;
+ 
 -
--		usb_fill_bulk_urb( dib->urb_list[i], dib->udev,
--				usb_rcvbulkpipe(dib->udev,dib->dibdev->parm->data_pipe),
--				&dib->buffer[i*dib->dibdev->parm->urb_buf_size],
--				dib->dibdev->parm->urb_buf_size,
--				dibusb_urb_complete, dib);
+ 	switch (devid) {
+ 		case DIB3000MC_DEVICE_ID:
+-			info("Found a DiBcom 3000-MC.");
++			info("Found a DiBcom 3000-MC, interesting...");
+ 			break;
+ 		case DIB3000P_DEVICE_ID:
+ 			info("Found a DiBcom 3000-P.");
+ 			break;
+ 	}
+ 
+-	if (dib3000_init_pid_list(state,DIB3000MC_NUM_PIDS))
+-		goto error;
 -
--		dib->urb_list[i]->transfer_flags = 0;
--#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,7)
--		dib->urb_list[i]->timeout = 0;
--#endif
--
--		if ((ret = usb_submit_urb(dib->urb_list[i],GFP_KERNEL))) {
--			err("could not submit buffer urb no. %d\n",i);
--			dibusb_exit(dib);
--			return ret;
--		}
--	}
--
--	dib->dvb_is_ready = 0;
--
--	/* Initialise the remote-control structures.*/
--	init_input_dev(&dib->rc_input_dev);
--
--	dib->rc_input_dev.evbit[0] = BIT(EV_KEY);
--	dib->rc_input_dev.keycodesize = sizeof(unsigned char);
--	dib->rc_input_dev.keycodemax = KEY_MAX;
--	dib->rc_input_dev.name = DRIVER_DESC " remote control";
--
--	for (i=0; i<sizeof(rc_keys)/sizeof(rc_keys[0]); i++)
--		set_bit(rc_keys[i].key, dib->rc_input_dev.keybit);
--
--	input_register_device(&dib->rc_input_dev);
--
--	dib->rc_input_event = KEY_MAX;
--
--	INIT_WORK(&dib->rc_query_work, dibusb_query_rc, dib);
--
--	dibusb_hw_wakeup(dib);
--
--	if ((ret = dibusb_dvb_init(dib))) {
--		dibusb_exit(dib);
--		return ret;
--	}
--	return 0;
--}
--
--/*
-- * load a firmware packet to the device
+ 	/* create dvb_frontend */
+ 	state->frontend.ops = &state->ops;
+ 	state->frontend.demodulator_priv = state;
+@@ -811,6 +878,9 @@
+ 	xfer_ops->pid_parse = dib3000mc_pid_parse;
+ 	xfer_ops->fifo_ctrl = dib3000mc_fifo_control;
+ 	xfer_ops->pid_ctrl = dib3000mc_pid_control;
++	xfer_ops->tuner_pass_ctrl = dib3000mc_tuner_pass_ctrl;
++
++	dib3000mc_demod_init(state);
+ 
+ 	return &state->frontend;
+ 
+@@ -834,6 +904,7 @@
+ 				FE_CAN_QPSK | FE_CAN_QAM_16 | FE_CAN_QAM_64 | FE_CAN_QAM_AUTO |
+ 				FE_CAN_TRANSMISSION_MODE_AUTO |
+ 				FE_CAN_GUARD_INTERVAL_AUTO |
++				FE_CAN_RECOVER |
+ 				FE_CAN_HIERARCHY_AUTO,
+ 	},
+ 
+diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/frontends/dib3000mc_priv.h linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/dib3000mc_priv.h
+--- linux-2.6.11-rc2/drivers/media/dvb/frontends/dib3000mc_priv.h	2005-01-20 19:54:04.000000000 +0100
++++ linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/dib3000mc_priv.h	2005-01-20 19:56:38.000000000 +0100
+@@ -13,31 +13,6 @@
+ #ifndef __DIB3000MC_PRIV_H__
+ #define __DIB3000MC_PRIV_H__
+ 
+-/* info and err, taken from usb.h, if there is anything available like by default,
+- * please change !
 - */
--static int dibusb_writemem(struct usb_device *udev,u16 addr,u8 *data, u8 len)
--{
--	return usb_control_msg(udev, usb_sndctrlpipe(udev,0),
--			0xa0, USB_TYPE_VENDOR, addr, 0x00, data, len, 5*HZ);
--}
+-#define err(format, arg...) printk(KERN_ERR "%s: " format "\n" , __FILE__ , ## arg)
+-#define info(format, arg...) printk(KERN_INFO "%s: " format "\n" , __FILE__ , ## arg)
+-#define warn(format, arg...) printk(KERN_WARNING "%s: " format "\n" , __FILE__ , ## arg)
 -
--static int dibusb_loadfirmware(struct usb_device *udev,
--		struct dibusb_device *dibdev)
--{
--	const struct firmware *fw = NULL;
--	const char **fws;
--	u16 addr;
--	u8 *b,*p;
--	int ret = 0,i;
+-// defines the phase noise algorithm to be used (O:Inhib, 1:CPE on)
+-#define DEF_PHASE_NOISE_MODE                0
 -
--	fws = dibdev->parm->fw_filenames;
+-// define Mobille algorithms
+-#define DEF_MOBILE_MODE      Auto_Reception
 -
--	for (i = 0; i < sizeof(fws)/sizeof(const char*); i++) {
--		if ((ret = request_firmware(&fw, fws[i], &udev->dev)) == 0) {
--			info("using firmware file (%s).",fws[i]);
--			break;
--		}
--		deb_info("tried to find '%s' firmware - unsuccessful. (%d)\n",
--				fws[i],ret);
--	}
+-// defines the tuner type
+-#define DEF_TUNER_TYPE   TUNER_PANASONIC_ENV57H13D5
 -
--	if (fw == NULL) {
--		err("did not find a valid firmware file. "
--			"Please see linux/Documentation/dvb/ for more details on firmware-problems.");
--		return -EINVAL;
--	}
--	p = kmalloc(fw->size,GFP_KERNEL);
--	if (p != NULL) {
--		u8 reset;
--		/*
--		 * you cannot use the fw->data as buffer for
--		 * usb_control_msg, a new buffer has to be
--		 * created
--		 */
--		memcpy(p,fw->data,fw->size);
+-// defines the impule noise algorithm to be used
+-#define DEF_IMPULSE_NOISE_MODE      0
 -
--		/* stop the CPU */
--		reset = 1;
--		if ((ret = dibusb_writemem(udev,dibdev->parm->usb_cpu_csreg,&reset,1)) != 1)
--			err("could not stop the USB controller CPU.");
--		for(i = 0; p[i+3] == 0 && i < fw->size; ) {
--			b = (u8 *) &p[i];
--			addr = *((u16 *) &b[1]);
+-// defines the MPEG2 data output format
+-#define DEF_MPEG2_OUTPUT_188       0
 -
--			ret = dibusb_writemem(udev,addr,&b[4],b[0]);
+-// defines the MPEG2 data output format
+-#define DEF_OUTPUT_MODE       MPEG2_PARALLEL_CONTINUOUS_CLOCK
 -
--			if (ret != b[0]) {
--				err("error while transferring firmware "
--					"(transferred size: %d, block size: %d)",
--					ret,b[0]);
--				ret = -EINVAL;
--				break;
--			}
--			i += 5 + b[0];
--		}
--		/* length in ret */
--		if (ret > 0)
--			ret = 0;
--		/* restart the CPU */
--		reset = 0;
--		if (ret || dibusb_writemem(udev,dibdev->parm->usb_cpu_csreg,&reset,1) != 1) {
--			err("could not restart the USB controller CPU.");
--			ret = -EINVAL;
--		}
--
--		kfree(p);
--	} else {
--		ret = -ENOMEM;
--	}
--	release_firmware(fw);
--
--	return ret;
--}
--
--/*
-- * USB
-- */
--static int dibusb_probe(struct usb_interface *intf,
--		const struct usb_device_id *id)
--{
--	struct usb_device *udev = interface_to_usbdev(intf);
--	struct usb_dibusb *dib = NULL;
--	struct dibusb_device *dibdev = NULL;
--
--	int ret = -ENOMEM,i,cold=0;
--
--	for (i = 0; i < DIBUSB_SUPPORTED_DEVICES; i++)
--		if (dibusb_devices[i].cold_product_id == le16_to_cpu(udev->descriptor.idProduct) ||
--			dibusb_devices[i].warm_product_id == le16_to_cpu(udev->descriptor.idProduct)) {
--			dibdev = &dibusb_devices[i];
--
--			cold = dibdev->cold_product_id == le16_to_cpu(udev->descriptor.idProduct);
--
--			if (cold)
--				info("found a '%s' in cold state, will try to load a firmware",dibdev->name);
--			else
--				info("found a '%s' in warm state.",dibdev->name);
--		}
--
--	if (dibdev == NULL) {
--		err("something went very wrong, "
--				"unknown product ID: %.4x",le16_to_cpu(udev->descriptor.idProduct));
--		return -ENODEV;
--	}
--
--	if (cold)
--		ret = dibusb_loadfirmware(udev,dibdev);
--	else {
--		dib = kmalloc(sizeof(struct usb_dibusb),GFP_KERNEL);
--		if (dib == NULL) {
--			err("no memory");
--			return ret;
--		}
--		memset(dib,0,sizeof(struct usb_dibusb));
--
--		dib->pid_parse = 1;
--		switch (udev->speed) {
--			case USB_SPEED_LOW:
--				err("cannot handle USB speed because it is to sLOW.");
--				break;
--			case USB_SPEED_FULL:
--				info("running at FULL speed, will use pid parsing.");
--				break;
--			case USB_SPEED_HIGH:
--				if (!pid_parse) {
--					dib->pid_parse = 0;
--				info("running at HIGH speed, will deliver the complete TS.");
--				} else
--					info("running at HIGH speed, will use pid_parsing anyway.");
--				break;
--			case USB_SPEED_UNKNOWN: /* fall through */
--			default:
--				err("cannot handle USB speed because it is unkown.");
--				break;
--		}
--
--		dib->udev = udev;
--		dib->dibdev = dibdev;
--
--		usb_set_intfdata(intf, dib);
--
--		ret = dibusb_init(dib);
--	}
--
--	if (ret == 0)
--		info("%s successfully initialized and connected.",dibdev->name);
--	else
--		info("%s error while loading driver (%d)",dibdev->name,ret);
--	return ret;
--}
--
--static void dibusb_disconnect(struct usb_interface *intf)
--{
--	struct usb_dibusb *dib = usb_get_intfdata(intf);
--	const char *name = DRIVER_DESC;
--
--	usb_set_intfdata(intf,NULL);
--	if (dib != NULL) {
--		name = dib->dibdev->name;
--		dibusb_dvb_exit(dib);
--		dibusb_exit(dib);
--		kfree(dib);
--	}
--	info("%s successfully deinitialized and disconnected.",name);
--
--}
--
--/* usb specific object needed to register this driver with the usb subsystem */
--static struct usb_driver dibusb_driver = {
--	.owner		= THIS_MODULE,
--	.name		= "dvb_dibusb",
--	.probe 		= dibusb_probe,
--	.disconnect = dibusb_disconnect,
--	.id_table 	= dibusb_table,
--};
--
--/* module stuff */
--static int __init usb_dibusb_init(void)
--{
--	int result;
--	if ((result = usb_register(&dibusb_driver))) {
--		err("usb_register failed. Error number %d",result);
--		return result;
--	}
--
--	return 0;
--}
--
--static void __exit usb_dibusb_exit(void)
--{
--	/* deregister this driver from the USB subsystem */
--	usb_deregister(&dibusb_driver);
--}
--
--module_init (usb_dibusb_init);
--module_exit (usb_dibusb_exit);
--
--MODULE_AUTHOR(DRIVER_AUTHOR);
--MODULE_DESCRIPTION(DRIVER_DESC);
--MODULE_LICENSE("GPL");
+ /*
+  * Demodulator parameters
+  * reg: 0  1 1  1 11 11 111
+@@ -115,7 +90,7 @@
+ 	{ 0x1c, 0xfba5, 0x60, 0x9c25, 0x1e3, 0x0cb7, 0x1, 0xb0d0 };
+ 
+ static u16 dib3000mc_bandwidth_8mhz[] =
+-	{ 0x19, 0x5c30, 0x54, 0x88a0, 0x1a6, 0xab20, 0x1, 0xb0b0 };
++	{ 0x19, 0x5c30, 0x54, 0x88a0, 0x1a6, 0xab20, 0x1, 0xb0d0 };
+ 
+ static u16 dib3000mc_reg_bandwidth_general[] = { 12,13,14,15 };
+ static u16 dib3000mc_bandwidth_general[] = { 0x0000, 0x03e8, 0x0000, 0x03f2 };
+@@ -173,11 +148,11 @@
+ static u16 dib3000mc_reg_imp_noise_ctl[] = { 34,35 };
+ 
+ static u16 dib3000mc_imp_noise_ctl[][2] = {
+-	{ 0x1294, 0xfff8 }, /* mode 0 */
+-	{ 0x1294, 0xfff8 }, /* mode 1 */
+-	{ 0x1294, 0xfff8 }, /* mode 2 */
+-	{ 0x1294, 0xfff8 }, /* mode 3 */
+-	{ 0x1294, 0xfff8 }, /* mode 4 */
++	{ 0x1294, 0x1ff8 }, /* mode 0 */
++	{ 0x1294, 0x1ff8 }, /* mode 1 */
++	{ 0x1294, 0x1ff8 }, /* mode 2 */
++	{ 0x1294, 0x1ff8 }, /* mode 3 */
++	{ 0x1294, 0x1ff8 }, /* mode 4 */
+ };
+ 
+ /* AGC registers */
+@@ -314,12 +289,26 @@
+ #define DIB3000MC_REG_FEC_CFG			(   195)
+ #define DIB3000MC_FEC_CFG				(  0x10)
+ 
++/*
++ * reg 206, output mode
++ *              1111 1111
++ *              |||| ||||
++ *              |||| |||+- unk
++ *              |||| ||+-- unk
++ *              |||| |+--- unk (on by default)
++ *              |||| +---- fifo_ctrl (1 = inhibit (flushed), 0 = active (unflushed))
++ *              |||+------ pid_parse (1 = enabled, 0 = disabled)
++ *              ||+------- outp_188  (1 = TS packet size 188, 0 = packet size 204)
++ *              |+-------- unk 
++ *              +--------- unk
++ */
++
+ #define DIB3000MC_REG_SMO_MODE			(   206)
+ #define DIB3000MC_SMO_MODE_DEFAULT		(1 << 2)
+ #define DIB3000MC_SMO_MODE_FIFO_FLUSH	(1 << 3)
+-#define DIB3000MC_SMO_MODE_FIFO_UNFLUSH	~DIB3000MC_SMO_MODE_FIFO_FLUSH
++#define DIB3000MC_SMO_MODE_FIFO_UNFLUSH	(0xfff7)
+ #define DIB3000MC_SMO_MODE_PID_PARSE	(1 << 4)
+-#define DIB3000MC_SMO_MODE_NO_PID_PARSE	~DIB3000MC_SMO_MODE_PID_PARSE
++#define DIB3000MC_SMO_MODE_NO_PID_PARSE	(0xffef)
+ #define DIB3000MC_SMO_MODE_188			(1 << 5)
+ #define DIB3000MC_SMO_MODE_SLAVE		(DIB3000MC_SMO_MODE_DEFAULT | \
+ 			DIB3000MC_SMO_MODE_188 | DIB3000MC_SMO_MODE_PID_PARSE | (1<<1))
+@@ -392,7 +381,7 @@
+ 
+ #define DIB3000MC_REG_RST_I2C_ADDR		(  1024)
+ #define DIB3000MC_DEMOD_ADDR_ON			(     1)
+-#define DIB3000MC_DEMOD_ADDR(a)			((a << 3) & 0x03F0)
++#define DIB3000MC_DEMOD_ADDR(a)			((a << 4) & 0x03F0)
+ 
+ #define DIB3000MC_REG_RESTART			(  1027)
+ #define DIB3000MC_RESTART_OFF			(0x0000)
 

@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbVADRnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVADRqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261750AbVADRnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 12:43:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbVADRjB
+	id S261748AbVADRqO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 12:46:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVADRqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 12:39:01 -0500
-Received: from quechua.inka.de ([193.197.184.2]:26520 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261750AbVADRiP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 12:38:15 -0500
-From: Bernd Eckenfels <ecki-news2004-12@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <20050104155844.GI2708@holomorphy.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
-Message-Id: <E1ClsdF-00027q-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Tue, 04 Jan 2005 18:38:09 +0100
+	Tue, 4 Jan 2005 12:46:07 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:40909 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261726AbVADRpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 12:45:49 -0500
+Subject: RE: How to add/drop SCSI drives from within the driver?
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+Cc: Matt Domsch <Matt_Domsch@Dell.com>,
+       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>, brking@us.ibm.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>, bunk@fs.tum.de,
+       Andrew Morton <akpm@osdl.org>, "Ju, Seokmann" <sju@lsil.com>,
+       "Doelfel, Hardy" <hdoelfel@lsil.com>, "Mukker, Atul" <Atulm@lsil.com>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230CAD3@exa-atlanta>
+References: <0E3FA95632D6D047BA649F95DAB60E570230CAD3@exa-atlanta>
+Content-Type: text/plain
+Date: Tue, 04 Jan 2005 11:42:32 -0600
+Message-Id: <1104860553.5327.46.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20050104155844.GI2708@holomorphy.com> you wrote:
-> You could in principle base version numbers on external influences. In a
-> 5-point decimal system, then 2.6.x.y.z would be released daily, 2.6.x.y.0
-> released every 10 days, 2.6.x.0.0 released every 100 days, and 2.7.0.0.0
-> released after 1000 days, and so on.
+On Tue, 2005-01-04 at 12:25 -0500, Bagalkote, Sreenivas wrote:
+> A minor point is that an application should ideally force scan only those
+> drives
 
-the age does, however not say anything about the intention and preparations.
-The version numbers are mainly to communicate intention. Otherwise you can
-use a timestamp.
+Yes, it's a bit overkill, but it would work ... it's not like
+reconfiguration is something you do every day.
 
-And thats why I dont think it is good to keep innovations back by not
-opening a 2.7 tree nor is it good to caue trouble for users by merging a lot
-of new features to 2.6.
+> that it has added. But more importantly, this will not help an application
+> to delete
+> the drives. Correct?
 
-A lot of media and books has explained the linux numbering scheme, this is
-valuable knowledge, dont dump it.
+Well, no, I think that would work under this scheme, too:  to delete a
+drive, it must already exist, so if you've published the logical number
+in sysfs, you can easily find it by logical ID and delete it by host
+channel, pun and lun.
 
-Bernd
+James
+
+

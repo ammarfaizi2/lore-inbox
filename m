@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317475AbSFRQWN>; Tue, 18 Jun 2002 12:22:13 -0400
+	id <S317476AbSFRQWX>; Tue, 18 Jun 2002 12:22:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317476AbSFRQWM>; Tue, 18 Jun 2002 12:22:12 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:57264 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S317475AbSFRQWL>; Tue, 18 Jun 2002 12:22:11 -0400
-Message-ID: <3D0F5DFE.5060301@antefacto.com>
-Date: Tue, 18 Jun 2002 17:21:18 +0100
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
-X-Accept-Language: en-us, en
+	id <S317477AbSFRQWW>; Tue, 18 Jun 2002 12:22:22 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:53973 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S317476AbSFRQWU>; Tue, 18 Jun 2002 12:22:20 -0400
+Date: Tue, 18 Jun 2002 11:22:21 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: James Bottomley <James.Bottomley@steeleye.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: make dep fails on 2.5.22
+In-Reply-To: <200206181550.g5IFoQ005746@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0206181115180.5695-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-To: DervishD <raul@pleyades.net>
-CC: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Shrinking ext3 directories
-References: <3D0F5AFC.mailGSE111D9L@viadomus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DervishD wrote:
->     Hi all :))
+On Tue, 18 Jun 2002, James Bottomley wrote:
+
+> It currently errors out for me with my NCR_D700 controller because 53c700.c 
+> requires 53c700_d.h which is an automatically generated header file and thus 
+> doesn't exist when make dep is run.
 > 
->     All of you know that if you create a lot of files or directories
-> within a directory on ext2/3 and after that you remove them, the
-> blocks aren't freed (this is the reason behind the lost+found block
-> preallocation). If you want to 'shrink' the directory now that it
-> doesn't contain a lot of leafs, the only solution I know is creating
-> a new directory, move the remaining leafs to it, remove the
-> 'big-unshrinken' directory and after that renaming the new directory:
+> I can fix this by adding the rule:
 > 
->     $ mkdir new-dir
->     $ mv bigone/* new-dir/
->     $ rmdir bigone
->     $ mv new-dir bigone
->     (Well, sort of)
+> $(MODVERDIR)/53c700.ver: 53c700_d.h
+> 
+> but this looks wrong.  The dependency is already listed in the existing rule:
+> 
+> 53c700.o: 53c700_d.h
 
-The zipdir component of fslint does this (while maintaining permissions
-etc.).
+Well, actually, it looks right to me: It says to build the .ver file, we
+need the header (since it'll be included during the process).
 
->     Any other way of doing the same without the mess?
+It looks somewhat ugly, but I think it's one of the very few places where
+something like this is needed.  Of course, if there was a way to tell make
+"$(MODVERDIR)/%.ver has the same prequisites as %.o" that'd be nicer, but
+there isn't AFAICT.
 
-Not at present I think. Perhaps we'll get it for free with
-the new htree directory indexing?
+Another possibility would be to record these kind of explicit dependencies 
+on generated files into variables, so Rules.make could do the right thing.
 
-Padraig.
+Something like
+
+	53c700.o-needs := 53c700_d.h
+
+But I'm not sure that's so much nicer.
+
+--Kai
 

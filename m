@@ -1,284 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262042AbUCQUIm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 15:08:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbUCQUIm
+	id S262043AbUCQUHw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 15:07:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbUCQUHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 15:08:42 -0500
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:3085 "EHLO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S262046AbUCQUIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 15:08:05 -0500
-Message-ID: <4058AE91.8000909@hp.com>
-Date: Wed, 17 Mar 2004 15:01:21 -0500
-From: Robert Picco <Robert.Picco@hp.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Jesse Barnes <jbarnes@sgi.com>, linux-kernel@vger.kernel.org,
-       colpatch@us.ibm.com, haveblue@us.ibm.com
-Subject: Re: boot time node and memory limit options
-References: <4057392A.8000602@hp.com> <20040316174329.GA29992@sgi.com> <34060000.1079465992@flay> <405879BC.7060904@hp.com> <1745150000.1079541412@[10.10.2.4]> <4058A75A.3080409@hp.com> <2611830000.1079552673@[10.10.2.4]>
-In-Reply-To: <2611830000.1079552673@[10.10.2.4]>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Mar 2004 15:07:52 -0500
+Received: from mail.shareable.org ([81.29.64.88]:47757 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262043AbUCQUHq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 15:07:46 -0500
+Date: Wed, 17 Mar 2004 20:07:02 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Mark Gross <mgross@linux.co.intel.com>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Call for HRT in 2.6 kernel was Re: finding out the value of HZ from userspace
+Message-ID: <20040317200702.GA25293@mail.shareable.org>
+References: <20040311141703.GE3053@luna.mooo.com> <200403161757.48786.mgross@linux.intel.com> <20040317023059.GD19564@mail.shareable.org> <200403170848.01156.mgross@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403170848.01156.mgross@linux.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
+Mark Gross wrote:
+> > If, however, you can't do that, consider: on i386 HZ is currently
+> > 1000.  So your request for 2ms timer is perfectly satisfiable using
+> > the standard timers.  Remember to turn on CONFIG_PREEMPT, and use a
+> > SCHED_FIFO sceduling policy.
+> 
+> Check out the non-HRT timer code it rounds up to the next jiffies, always.  
 
->>I agree with sizing issues at boot of hash tables.  I've seen them all recover when failing to allocate based
->>on num_physpages and then iterating at smaller allocations until successful.  All the primary initialization allocations recover but probably not all drivers.   You could have similiar failure scenarios for any boot line parameter(s) implementation which reduces memory. 
->>    
->>
->>>Don't we have the same arch dependant issue with the current mem= anyway?
->>>Can we come up with something where the arch code calls back into a generic
->>>function to derive limitations, and thereby at least get the parsing done
->>>in a common routine for consistency? There aren't *that* many NUMA arches
->>>to change anyway ...
->>> 
->>>
->>>      
->>>
->>Well this is heading in the direction Dave has proposed and probably 2.7 material.  This would really solve the problem differently than my proposed patch.
->>    
->>
->
->Yes ... that's looking very 2.7-ish to reorganise all that stuff. However,
->for now, I still think we need to restrict memory very early on, before 
->anything else can allocate bootmem. Are you the absolute first thing that
->ever runs in the boot allocator?
->
->M.
->  
->
-All the machine dependent initialization code could have allocated 
-and/or reserved bootmem  before the patch would claim additional memory 
-based on boot line parameters.  The patch is  called just before 
-mem_init.  There aren't any pages on freelist yet because mem_init 
-hasn't been called. So I'm not the first thing that ever runs in the 
-boot allocator.  I'm not sure that my answer is addressing your question?
+You said you wanted a _2ms_ timer.  Rounded up to the next jiffie,
+that's... 2ms!
 
-Bob
+> Running with the HRT patch, we get a lot closer to what is being asked for.  
 
->  
->
->>thanks,
->>
->>Bob
->>
->>    
->>
->>>M.
->>>
->>> 
->>>
->>>      
->>>
->>>>Bob
->>>>Martin J. Bligh wrote:
->>>>
->>>>   
->>>>
->>>>        
->>>>
->>>>>--On Tuesday, March 16, 2004 09:43:29 -0800 Jesse Barnes <jbarnes@sgi.com> wrote:
->>>>>
->>>>>
->>>>>
->>>>>     
->>>>>
->>>>>          
->>>>>
->>>>>>On Tue, Mar 16, 2004 at 12:28:10PM -0500, Robert Picco wrote:
->>>>>>  
->>>>>>
->>>>>>       
->>>>>>
->>>>>>            
->>>>>>
->>>>>>>This patch supports three boot line options.  mem_limit limits the
->>>>>>>amount of physical memory.  node_mem_limit limits the amount of
->>>>>>>physical memory per node on a NUMA machine.  nodes_limit reduces the
->>>>>>>number of NUMA nodes to the value specified.  On a NUMA machine an
->>>>>>>eliminated node's CPU(s) are removed from the cpu_possible_map.  
->>>>>>>
->>>>>>>The patch has been tested on an IA64 NUMA machine and uniprocessor X86
->>>>>>>machine.
->>>>>>>    
->>>>>>>
->>>>>>>         
->>>>>>>
->>>>>>>              
->>>>>>>
->>>>>>I think this patch will be really useful.  Matt and Martin, does it look
->>>>>>ok to you?  Given that discontiguous support is pretty platform specific
->>>>>>right now, I thought it might be less code if it was done in arch/, but
->>>>>>a platform independent version is awfully nice...
->>>>>>  
->>>>>>
->>>>>>       
->>>>>>
->>>>>>            
->>>>>>
->>>>>I haven't looked at your code yet, but I've had a similar patch in my tree
->>>>>from Dave Hansen for a while you might want to look at:
->>>>>
->>>>>diff -purN -X /home/mbligh/.diff.exclude 320-kcg/arch/i386/kernel/numaq.c 330-numa_mem_equals/arch/i386/kernel/numaq.c
->>>>>--- 320-kcg/arch/i386/kernel/numaq.c	2003-10-01 11:47:33.000000000 -0700
->>>>>+++ 330-numa_mem_equals/arch/i386/kernel/numaq.c	2004-03-14 09:54:00.000000000 -0800
->>>>>@@ -42,6 +42,10 @@ extern long node_start_pfn[], node_end_p
->>>>>* function also increments numnodes with the number of nodes (quads)
->>>>>* present.
->>>>>*/
->>>>>+extern unsigned long max_pages_per_node;
->>>>>+extern int limit_mem_per_node;
->>>>>+
->>>>>+#define node_size_pages(n) (node_end_pfn[n] - node_start_pfn[n])
->>>>>static void __init smp_dump_qct(void)
->>>>>{
->>>>>	int node;
->>>>>@@ -60,6 +64,8 @@ static void __init smp_dump_qct(void)
->>>>>				eq->hi_shrd_mem_start - eq->priv_mem_size);
->>>>>			node_end_pfn[node] = MB_TO_PAGES(
->>>>>				eq->hi_shrd_mem_start + eq->hi_shrd_mem_size);
->>>>>+			if (node_size_pages(node) > max_pages_per_node)
->>>>>+				node_end_pfn[node] = node_start_pfn[node] + max_pages_per_node;
->>>>>		}
->>>>>	}
->>>>>}
->>>>>diff -purN -X /home/mbligh/.diff.exclude 320-kcg/arch/i386/kernel/setup.c 330-numa_mem_equals/arch/i386/kernel/setup.c
->>>>>--- 320-kcg/arch/i386/kernel/setup.c	2004-03-11 14:33:36.000000000 -0800
->>>>>+++ 330-numa_mem_equals/arch/i386/kernel/setup.c	2004-03-14 09:54:00.000000000 -0800
->>>>>@@ -142,7 +142,7 @@ static void __init probe_roms(void)
->>>>>	probe_extension_roms(roms);
->>>>>}
->>>>>
->>>>>-static void __init limit_regions(unsigned long long size)
->>>>>+void __init limit_regions(unsigned long long size)
->>>>>{
->>>>>	unsigned long long current_addr = 0;
->>>>>	int i;
->>>>>@@ -478,6 +478,7 @@ static void __init setup_memory_region(v
->>>>>	print_memory_map(who);
->>>>>} /* setup_memory_region */
->>>>>
->>>>>+unsigned long max_pages_per_node = 0xFFFFFFFF; 
->>>>>
->>>>>static void __init parse_cmdline_early (char ** cmdline_p)
->>>>>{
->>>>>@@ -521,6 +522,14 @@ static void __init parse_cmdline_early (
->>>>>				userdef=1;
->>>>>			}
->>>>>		}
->>>>>+		
->>>>>+		if (c == ' ' && !memcmp(from, "memnode=", 8)) {
->>>>>+			unsigned long long node_size_bytes;
->>>>>+			if (to != command_line)
->>>>>+				to--;
->>>>>+			node_size_bytes = memparse(from+8, &from);
->>>>>+			max_pages_per_node = node_size_bytes >> PAGE_SHIFT;
->>>>>+		}
->>>>>
->>>>>		if (c == ' ' && !memcmp(from, "memmap=", 7)) {
->>>>>			if (to != command_line)
->>>>>diff -purN -X /home/mbligh/.diff.exclude 320-kcg/arch/i386/kernel/srat.c 330-numa_mem_equals/arch/i386/kernel/srat.c
->>>>>--- 320-kcg/arch/i386/kernel/srat.c	2003-10-01 11:47:33.000000000 -0700
->>>>>+++ 330-numa_mem_equals/arch/i386/kernel/srat.c	2004-03-14 09:54:01.000000000 -0800
->>>>>@@ -53,6 +53,10 @@ struct node_memory_chunk_s {
->>>>>};
->>>>>static struct node_memory_chunk_s node_memory_chunk[MAXCHUNKS];
->>>>>
->>>>>+#define chunk_start(i)	(node_memory_chunk[i].start_pfn)
->>>>>+#define chunk_end(i)	(node_memory_chunk[i].end_pfn)
->>>>>+#define chunk_size(i) 	(chunk_end(i)-chunk_start(i))
->>>>>+
->>>>>static int num_memory_chunks;		/* total number of memory chunks */
->>>>>static int zholes_size_init;
->>>>>static unsigned long zholes_size[MAX_NUMNODES * MAX_NR_ZONES];
->>>>>@@ -198,6 +202,9 @@ static void __init initialize_physnode_m
->>>>>	}
->>>>>}
->>>>>
->>>>>+extern unsigned long max_pages_per_node;
->>>>>+extern int limit_mem_per_node; 
->>>>>+
->>>>>/* Parse the ACPI Static Resource Affinity Table */
->>>>>static int __init acpi20_parse_srat(struct acpi_table_srat *sratp)
->>>>>{
->>>>>@@ -281,23 +288,27 @@ static int __init acpi20_parse_srat(stru
->>>>>		       node_memory_chunk[j].start_pfn,
->>>>>		       node_memory_chunk[j].end_pfn);
->>>>>	}
->>>>>- 
->>>>>+
->>>>>	/*calculate node_start_pfn/node_end_pfn arrays*/
->>>>>	for (nid = 0; nid < numnodes; nid++) {
->>>>>-		int been_here_before = 0;
->>>>>+		unsigned long node_present_pages = 0;
->>>>>
->>>>>+		node_start_pfn[nid] = -1;
->>>>>		for (j = 0; j < num_memory_chunks; j++){
->>>>>-			if (node_memory_chunk[j].nid == nid) {
->>>>>-				if (been_here_before == 0) {
->>>>>-					node_start_pfn[nid] = node_memory_chunk[j].start_pfn;
->>>>>-					node_end_pfn[nid] = node_memory_chunk[j].end_pfn;
->>>>>-					been_here_before = 1;
->>>>>-				} else { /* We've found another chunk of memory for the node */
->>>>>-					if (node_start_pfn[nid] < node_memory_chunk[j].start_pfn) {
->>>>>-						node_end_pfn[nid] = node_memory_chunk[j].end_pfn;
->>>>>-					}
->>>>>-				}
->>>>>-			}
->>>>>+			unsigned long proposed_size;
->>>>>+
->>>>>+			if (node_memory_chunk[j].nid != nid)
->>>>>+				continue;
->>>>>+
->>>>>+			proposed_size = node_present_pages + chunk_size(j);
->>>>>+			if (proposed_size > max_pages_per_node)
->>>>>+				chunk_end(j) = chunk_start(j) +	
->>>>>+					max_pages_per_node - node_present_pages;
->>>>>+			node_present_pages += chunk_size(j);
->>>>>+
->>>>>+			if (node_start_pfn[nid] == -1)
->>>>>+				node_start_pfn[nid] = chunk_start(j);
->>>>>+			node_end_pfn[nid] = chunk_end(j);
->>>>>		}
->>>>>	}
->>>>>	return 1;
->>>>>
->>>>>-
->>>>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>>>>the body of a message to majordomo@vger.kernel.org
->>>>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>>>>Please read the FAQ at  http://www.tux.org/lkml/
->>>>>
->>>>>
->>>>>
->>>>>     
->>>>>
->>>>>          
->>>>>
->>>>   
->>>>
->>>>        
->>>>
->>>-
->>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>>the body of a message to majordomo@vger.kernel.org
->>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>>Please read the FAQ at  http://www.tux.org/lkml/
->>>
->>> 
->>>
->>>      
->>>
->>    
->>
->
->
->  
->
+Ok.
 
+> > If you measure the jitter and find it is unacceptable, be aware that
+> > none of the high-res timer patches for non-real-time linux will
+> > improve that.
+> 
+> Not true.  The HRT patch does indeed improve things a lot.  In fact
+> it more or less does the job and it enables the application.  Its
+> not perfect, but its good.
+
+Ok.  My point was theoretical and I got it wrong, you're right and you
+tried it. :)
+
+> The high res timer patch re-programs the PIT to produce an interrupt
+> as close to the timeout as it can, where just the jiffies clock will
+> wake up on the following jiffies tick.  On average 1 jiffies late!
+> Thats a LOT of jitter.  If you look at the code and follow through
+> the logic, if you ask for a 2ms sleep, you are basically going to
+> get a 3ms sleep.  If you ask for a 1.1ms sleep you get a 2ms (with
+> random larger jitters) sleep.
+
+Yes.  The point is that the added delay with the standard timers is
+predictable, so it is possible to structure your program around that,
+synchronising to the jiffies clock: have your program tick every
+1.99ms or whatever that _actual_ rate of HZ/2 is on 2.6 x86 kernels.
+(I gather the jiffie is slightly shorter than 1ms due to timer chip
+limitation).
+
+I don't see that the unpredictable part of the jitter would be
+improved with high res timers: the unpredictable part being due to
+disabled preemption, other interrupts etc.
+
+That's what I meant by jitter, sorry for the lack of precision (no pun
+intended).
+
+> To change this without doing some of the things in the HRT patch opens up the timer code to waking up 
+> the process too early.  Also a bad thing.
+
+That's what I did with my old "Snake" program: determine when select()
+will round up, and then wake up early and busy-wait in a loop calling
+gettimeofday() until the precise time arrives.
+
+It's not good, although the busy wait is limited to the length of 1
+jiffie, or less if you can structure your program to compute
+synchronised with the jiffie clock.
+
+> This just isn't good enough for an entire class of applications that
+> could exist on linux if it weren't for this issue.
+
+Hmm.
+
+For VoIP, I'm wondering why you need a timebase other than the sound
+card.  Won't it provide an interrupt for every new sound fragment?
+
+> > > Linux needs a low jitter time base standard for desktop multi-media
+> > > applications of many types.
+> >
+> > That's one of the reasons why HZ was changed to 1000 on x86 for 2.6
+> > kernels, and the major motivation for adding CONFIG_PREEMPT.
+> 
+> I know, but the current solution still isn't good enough, on a
+> number of levels.
+
+To demonstrate that 1000Hz ticks aren't good enough, because you need
+much smaller jitter than 1ms on "ordinary machines" i.e. standard
+distros, you'll have to demonstrate that you really are seeing much
+smaller jitter than 1ms in your HRT-patched kernels and that it makes
+a useful difference.
+
+The pre-emptive patches was initially rejected, but Linus changed his
+mind after a lot of good experimental data showing significant and
+consistent improvements in latency statistics, the fact that the
+patches were remarkeably non-invasive (because most of the work had
+been done to support fine-grained SMP by then), and perhaps most
+importantly, and surprisingly, I/O performance improved.
+
+So there is hope with HRT, but it needs more than an implementation to
+get into the standard tree (IMHO): it has to be fairly small,
+non-invasive, not harm existing performance, and backed by convincing
+experimental data showing worthwhile improvements.
+
+On the bright side, HRT makes it possible to eliminate the jiffie tick
+entirely, which is quite likely to be good for performance and power
+consumption.  The objection to that has been that changing code which
+depends on the timer tick to not use it any more would complicate that
+code without much gain, and it's just not worth complicating anything
+for it.  But maybe, as for kernel pre-emption, it will turn out
+simpler than expected.
+
+-- Jamie

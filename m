@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131335AbRCWS4k>; Fri, 23 Mar 2001 13:56:40 -0500
+	id <S131336AbRCWS6A>; Fri, 23 Mar 2001 13:58:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131336AbRCWS4a>; Fri, 23 Mar 2001 13:56:30 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:49935 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S131335AbRCWS4Z>; Fri, 23 Mar 2001 13:56:25 -0500
-Message-ID: <3ABB992F.D898885C@evision-ventures.com>
-Date: Fri, 23 Mar 2001 19:42:55 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, de
+	id <S131341AbRCWS5v>; Fri, 23 Mar 2001 13:57:51 -0500
+Received: from mail.inconnect.com ([209.140.64.7]:8336 "HELO
+	mail.inconnect.com") by vger.kernel.org with SMTP
+	id <S131336AbRCWS5l>; Fri, 23 Mar 2001 13:57:41 -0500
+Date: Fri, 23 Mar 2001 11:56:58 -0700 (MST)
+From: Dax Kelson <dax@gurulabs.com>
+To: Gerhard Mack <gmack@innerfire.net>
+cc: Bob Lorenzini <hwm@newportharbornet.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux Worm (fwd)
+In-Reply-To: <Pine.LNX.4.10.10103231028250.9403-100000@innerfire.net>
+Message-ID: <Pine.LNX.4.30.0103231150460.18026-100000@duely.gurulabs.com>
 MIME-Version: 1.0
-To: SodaPop <soda@xirr.com>
-CC: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <Pine.LNX.4.30.0103231053020.27155-100000@xirr.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SodaPop wrote:
-> 
-> Rik, is there any way we could get a /proc entry for this, so that one
-> could do something like:
+Gerhard Mack said once upon a time (Fri, 23 Mar 2001):
 
-I will respond; NO there is no way for security reasons this is not a
-good idea.
- 
-> cat /proc/oom-kill-scores | sort +3
+> On Fri, 23 Mar 2001, Bob Lorenzini wrote:
+>
+> > I'm annoyed when persons post virus alerts to unrelated lists but this
+> > is a serious threat. If your offended flame away.
+>
+> This should be a wake up call... distributions need to stop using product
+> with consistently bad security records.
+
+This TSIG bug in BIND 8 that is being exploited was added to BIND 8 by the
+same team who wrote BIND 9.
+
+In fact the last two major remote root compromises (TSIG and NXT) for BIND
+8 was in code added to BIND 8 by the BIND 9 developers.
+
+Dax
+

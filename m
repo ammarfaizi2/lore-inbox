@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261880AbUCVLPc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 06:15:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbUCVLPc
+	id S261874AbUCVLUg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 06:20:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbUCVLUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 06:15:32 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:4780 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261880AbUCVLPb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 06:15:31 -0500
-Date: Mon, 22 Mar 2004 12:15:26 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] barrier patch set
-Message-ID: <20040322111526.GB9299@merlin.emma.line.org>
-Mail-Followup-To: Helge Hafting <helgehaf@aitel.hist.no>,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20040319153554.GC2933@suse.de> <405B2127.8090705@pobox.com> <20040319230136.GC7161@merlin.emma.line.org> <200403200102.39716.bzolnier@elka.pw.edu.pl> <20040320185209.GB2016@hh.idb.hist.no>
-Mime-Version: 1.0
+	Mon, 22 Mar 2004 06:20:36 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:29568 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261874AbUCVLUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 06:20:34 -0500
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cowlinks v2
+References: <Pine.LNX.4.44.0403212109020.826-100000@bigblue.dev.mdolabs.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 22 Mar 2004 04:20:31 -0700
+In-Reply-To: <Pine.LNX.4.44.0403212109020.826-100000@bigblue.dev.mdolabs.com>
+Message-ID: <m1ekrldt6o.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040320185209.GB2016@hh.idb.hist.no>
-User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Mar 2004, Helge Hafting wrote:
+Davide Libenzi <davidel@xmailserver.org> writes:
 
-> On Sat, Mar 20, 2004 at 01:02:39AM +0100, Bartlomiej Zolnierkiewicz wrote:
-> [...]
-> > There were reports that on some drives you can't disable write cache
-> > and even (?) that some drives lie (WC still enabled but marked as disabled).
+> On 21 Mar 2004, Eric W. Biederman wrote:
+> 
+> > Davide Libenzi <davidel@xmailserver.org> writes:
 > > 
-> I think the simple solution of not supporting data integrity properly
-> on such a broken disk is perfectly ok.
+> > > > Actually there is...  You don't do the copy until an actual write occurs.
+> > > > Some files are opened read/write when there is simply the chance they
+> might
+> 
+> > > > be written to so delaying the copy is generally a win.
+> > > 
+> > > What about open+mmap?
+> > 
+> > The case is nothing really different from having a hole in your file.
+> > 
+> > There are two pieces to implementing this.  First you create separate
+> > page cache  entries for the cow file and it's original, so the
+> > laziness of mmapped file writes will not bite you..  Second you make
+> > aops -> writepage trigger the actual copy of the file, and have it
+> > return -ENOSPC if you can't do the copy.
+> 
+> There has been a misunderstanding. I thought you were talking about a 
+> userspace solution ala fl-cow. Of course if you are inside the kernel you 
+> can catch both explicit writes and page syncs.
 
-At least Linux should warn the user that his data is heading for doom.
+Right.  Although there is nothing prevent the copy to be in user space
+even with the trigger hooks down in the write path.
 
--- 
-Matthias Andree
+The nice features of having the hook at that point in the kernel are:
+1) No new failure modes for user space to worry about.
+2) With cow directory support instant fs level check pointing is achieved.
 
-Encrypt your mail: my GnuPG key ID is 0x052E7D95
+Eric

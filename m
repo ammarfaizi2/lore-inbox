@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262389AbUCLS5y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 13:57:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbUCLS5y
+	id S262406AbUCLTDP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 14:03:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbUCLTDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 13:57:54 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:15247 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262389AbUCLS5x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 13:57:53 -0500
-Date: Fri, 12 Mar 2004 13:57:49 -0500 (EST)
-From: Matthew Galgoci <mgalgoci@redhat.com>
-X-X-Sender: mgalgoci@lacrosse.corp.redhat.com
-To: "Theodore Ts'o" <tytso@mit.edu>
-cc: akpm@osdl.org, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] atkbd shaddup
-In-Reply-To: <20040312183738.GA3233@thunk.org>
-Message-ID: <Pine.LNX.4.44.0403121356560.28918-100000@lacrosse.corp.redhat.com>
+	Fri, 12 Mar 2004 14:03:15 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:38811 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262406AbUCLTDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 14:03:14 -0500
+Message-ID: <40520928.4050409@nortelnetworks.com>
+Date: Fri, 12 Mar 2004 14:02:00 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rik van Riel <riel@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: anon_vma RFC2
+References: <Pine.LNX.4.44.0403121346580.6494-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0403121346580.6494-100000@chimarrao.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Mar 2004, Theodore Ts'o wrote:
-
-> On Fri, Mar 12, 2004 at 12:37:06PM -0500, Matthew Galgoci wrote:
-> > 
-> > Andrew,
-> > 
-> > I can't be the only person to be annoyed by the "too many keys
-> > pressed" error message that often gets spewed across the console
-> > when I am typing fast. This patch turns that error message (and
-> > others) into info message. Also, one debug message was turned into
-> > info, and a couple of warnings were turned into info where I thought
-> > it made sense.
+Rik van Riel wrote:
+> On Fri, 12 Mar 2004, Linus Torvalds wrote:
 > 
-> I'd go even further.  Do we need to print the "too many keys pressed"
-> message at *all*?  Why would anyone care?
+> 
+>>I think your approach could work (reverse map by having separate address
+>>spaces for unrelated processes), but I don't see any good "page->index"  
+>>allocation scheme that is implementable.
 
-I wondered the same thing. Maybe it should be #ifdef DEBUG'd instead of toned
-down.
+> Note that since we count page->index in PAGE_SIZE unit we
+> have PAGE_SIZE times as much space as a process can take,
+> so we definately have enough address space to come up with
+> a creative allocation scheme.
+
+What happens when you have more than PAGE_SIZE processes running?
+
+Chris
 
 -- 
-Matthew Galgoci
-System Administrator
-Red Hat, Inc
-919.754.3700 x44155
-
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

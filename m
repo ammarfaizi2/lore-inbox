@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261840AbRENHgh>; Mon, 14 May 2001 03:36:37 -0400
+	id <S261507AbRENHf0>; Mon, 14 May 2001 03:35:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262032AbRENHg2>; Mon, 14 May 2001 03:36:28 -0400
-Received: from nwcst284.netaddress.usa.net ([204.68.23.29]:9122 "HELO
-	nwcst284.netaddress.usa.net") by vger.kernel.org with SMTP
-	id <S261840AbRENHfs> convert rfc822-to-8bit; Mon, 14 May 2001 03:35:48 -0400
-Message-ID: <20010514073547.12678.qmail@nwcst284.netaddress.usa.net>
-Date: 14 May 2001 01:35:47 MDT
-From: Blesson Paul <blessonpaul@usa.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Re: Inodes]
-X-Mailer: USANET web-mailer (34FM.0700.17C.01)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+	id <S261925AbRENHfR>; Mon, 14 May 2001 03:35:17 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:47624 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261840AbRENHfB>; Mon, 14 May 2001 03:35:01 -0400
+Date: 14 May 2001 09:05:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Message-ID: <80qQpWhmw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.21.0105131330350.20613-100000@penguin.transmeta.com>
+Subject: Re: page_launder() bug
+X-Mailer: CrossPoint v3.12d.kh6 R/C435
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <Pine.LNX.4.21.0105131330350.20613-100000@penguin.transmeta.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi J
-                  You misunderstood my question. Let take an example.
-Let I have a msdos partition. No msdos files has inode numbers, right. Let I
-mount that msdos partition. Then what happens, That is my question. Will the
-inode numbers are assigned to all msdos files at mounting time itself
-Thanks for the reply
-                   by
-                      Blesson
+torvalds@transmeta.com (Linus Torvalds)  wrote on 13.05.01 in <Pine.LNX.4.21.0105131330350.20613-100000@penguin.transmeta.com>:
 
+> And that's why I'd rather have generic support for _any_ page mapping that
+> wants to drop pages early than have specific logic for swapping.
+> Historically, we've always had very good results from trying to avoid
+> having special cases and instead trying to find what the common rules
+> might be.
 
+Just a thought: isn't a dead swap page a rather similar condition to a  
+page in a file without any links, open file descriptors, or open mmaps? In  
+both cases, writeback really makes no sense.
 
-J Sloan <jjs@mirai.cx> wrote:
-Blesson Paul wrote:
-
-> Hi
->                     This is an another doubt related to VFS. I want to know
-> wheather all files are assigned their inode number at the mounting time
-itself
-> or inodes are assigned to files upon accessing only
-
-er..
-
-inode numbers are assigned at file creation time.
-
-cu
-
-jjs
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-____________________________________________________________________
-Get free email and a permanent address at http://www.netaddress.com/?N=1
+MfG Kai

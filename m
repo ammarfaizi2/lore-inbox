@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbTIXTiS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 15:38:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbTIXTiS
+	id S261347AbTIXTvh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 15:51:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbTIXTvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 15:38:18 -0400
-Received: from relay1.eltel.net ([195.209.236.38]:5544 "EHLO relay1.eltel.net")
-	by vger.kernel.org with ESMTP id S261624AbTIXTiR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 15:38:17 -0400
-Date: Wed, 24 Sep 2003 23:37:08 +0400
-From: Andrew Zabolotny <zap@homelink.ru>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: __make_request() bug and a fix variant
-Message-Id: <20030924233708.39ffc921.zap@homelink.ru>
-In-Reply-To: <20030920113737.GQ21870@suse.de>
-References: <20030919231732.7f7874e6.zap@homelink.ru>
-	<20030920113737.GQ21870@suse.de>
-Organization: home
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 24 Sep 2003 15:51:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37339 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261347AbTIXTvg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 15:51:36 -0400
+Date: Wed, 24 Sep 2003 20:51:33 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: olof@austin.ibm.com
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [2.4] Re: /proc/ioports overrun patch
+Message-ID: <20030924195133.GY7665@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.55L.0308291025340.21063@freak.distro.conectiva> <Pine.A41.4.44.0309241437330.22232-100000@forte.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.A41.4.44.0309241437330.22232-100000@forte.austin.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Sep 2003 13:37:37 +0200
-Jens Axboe <axboe@suse.de> wrote:
+On Wed, Sep 24, 2003 at 02:42:44PM -0500, olof@austin.ibm.com wrote:
+> Marcelo,
+> 
+> On Fri, 29 Aug 2003, Marcelo Tosatti wrote:
+> 
+> > Your change to do_resource_list() will avoid copying out of bound by
+> > truncating the resource output. Which means users might get truncated
+> > information (only information that fits in the buffer) and not the full
+> > information.
+> >
+> > Is that correct?
+> >
+> > If so, I would prefer to have a fix which outputs the full resource
+> > information. For that we would need seq_file().
+> 
+> I finally got some time to revisit this and convert /proc/ioports and
+> /proc/iomem to seq_file. See below patch -- it's backed against the
+> current BK tree.
 
-> You can see the initialisor for buffer_heads is
-> init_buffer_head, which memsets the entire buffer_head. When a
-> buffer_head is detached from the request list, b_reqnext is cleared
-> too.
-I did some more research on this subject. Indeed, I was wrong. The
-problem is that when you acquire a buffer_head by calling
-kmem_cache_alloc and you return it with kmem_cache_free the returned
-buffer can be filled with any garbage *except* the b_reqnext field
-which *should* be set to NULL, otherwise the next driver who'll get this
-buffer_head will most probably crash.
-
-Not that relying on this field being NULL is a bad practice (because
-in kernel performance is top priority), but it's not clean (and
-nowhere mentioned - even in the source code). So I think it would be a
-Good Thing{tm} to mention somewhere(say at least in buffers.c before
-put_unused_buffer_head) that before returning a buffer to the common
-pool you should ensure that b_reqnext is NULL (although it is not
-related only to put_unused_buffer_head but to kmem_cache_free as well -
-but the later is not related to buffer_head's:).
-
-Sorry for borrowed time and thank very much for assistance.
-
---
-Greetings,
-   Andrew
+Hmm...  Why not make the iterator traverse the resource tree instead?
+After all, all it takes is addition of pointer to parent resource into
+struct resource.  Goes for both 2.4 and 2.6...

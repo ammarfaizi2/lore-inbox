@@ -1,108 +1,264 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbVCBTns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbVCBTrI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262441AbVCBTns (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 14:43:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbVCBTns
+	id S262406AbVCBTrI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 14:47:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbVCBTrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 14:43:48 -0500
-Received: from news.cistron.nl ([62.216.30.38]:22224 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S262441AbVCBTnc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 14:43:32 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: 2.6.11: iostat values broken, or IDE siimage driver ?
-Date: Wed, 2 Mar 2005 19:43:31 +0000 (UTC)
-Organization: Cistron
-Message-ID: <d05513$8fr$1@news.cistron.nl>
-References: <d053g8$6et$1@news.cistron.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1109792611 8699 194.109.0.112 (2 Mar 2005 19:43:31 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@cistron.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	Wed, 2 Mar 2005 14:47:07 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:29099 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262406AbVCBTpz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 14:45:55 -0500
+Message-ID: <422617F1.2080404@mvista.com>
+Date: Wed, 02 Mar 2005 13:45:53 -0600
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Documentation for krefs
+Content-Type: multipart/mixed;
+ boundary="------------010409040907000901090303"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <d053g8$6et$1@news.cistron.nl>,
-Miquel van Smoorenburg <miquels@cistron.nl> wrote:
->I just upgrades one of our newsservers from 2.6.9 to 2.6.11. I
->use "iostat -k -x 2" to see live how busy the disks are. But
->I don't believe that Linux optimizes things so much that a disk
->can be 1849.55% busy :)
->
+This is a multi-part message in MIME format.
+--------------010409040907000901090303
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The stats also show 10-30 MB/sec writes to the disks, which make
-no sense at all. The system feels very slow and (being a usenet
-news server) can only keep up with about 8 mbit/sec (so it should
-in this case write 1 MB/sec to all disks combined).
+Greg,
 
-Perhaps this is the cause:
+Here is the documentation for krefs, with the kref_checked
+stuff removed and a few other things cleaned up.
 
-Mar  2 19:55:25 hdg: sata_error = 0x00000000, watchdog = 0, siimage_mmio_ide_dma_test_irq
-Mar  2 19:55:26 quantum last message repeated 12 times
-hdg: sata_error = 0x00000000, watchdog = 0, siimage_mmio_ide_dma_test_irq
-Mar  2 19:55:57 quantum last message repeated 172 times
-Mar  2 19:56:58 quantum last message repeated 551 times
-Mar  2 19:57:59 quantum last message repeated 517 times
-Mar  2 19:59:00 quantum last message repeated 608 times
-.. etc etc ..
+-Corey
 
-I have a serial console attached, so that probably explains why
-the system feels so slow when it is spewing these errors (but
-it doesn't explain the weird iostat values, or does it ?)
+--------------010409040907000901090303
+Content-Type: text/plain;
+ name="kref-docs.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kref-docs.diff"
 
-This is the config:
+Add some documentation for krefs.
 
-ICH5-SATA: not 100%% native mode: will probe irqs later
-    ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:DMA, hdd:DMA
-Probing IDE interface ide0...
-hda: Maxtor 6Y080L0, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Probing IDE interface ide1...
-hdc: Maxtor 6Y080M0, ATA DISK drive
-hdd: Maxtor 6Y080M0, ATA DISK drive
-ide1 at 0x170-0x177,0x376 on irq 15
-SiI3112 Serial ATA: IDE controller at PCI slot 0000:03:03.0
-ACPI: PCI interrupt 0000:03:03.0[A] -> GSI 19 (level, low) -> IRQ 19
-SiI3112 Serial ATA: chipset revision 2
-SiI3112 Serial ATA: 100%% native mode on irq 19
-    ide2: MMIO-DMA , BIOS settings: hde:pio, hdf:pio
-    ide3: MMIO-DMA , BIOS settings: hdg:pio, hdh:pio
-Probing IDE interface ide2...
-hde: Maxtor 6Y080M0, ATA DISK drive
-ide2 at 0xf8802e80-0xf8802e87,0xf8802e8a on irq 19
-Probing IDE interface ide3...
-hdg: Maxtor 6Y080M0, ATA DISK drive
-ide3 at 0xf8802ec0-0xf8802ec7,0xf8802eca on irq 19
-Probing IDE interface ide4...
-Probing IDE interface ide5...
-hda: max request size: 128KiB
-hda: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=65535/16/63, UDMA(100)
-hda: cache flushes supported
- hda: hda1 hda2 hda3 < hda5 hda6 hda7 >
-hdc: max request size: 128KiB
-hdc: 160086528 sectors (81964 MB) w/7936KiB Cache, CHS=65535/16/63, UDMA(33)
-hdc: cache flushes supported
- hdc: hdc1 hdc2
-hdd: max request size: 128KiB
-hdd: 160086528 sectors (81964 MB) w/7936KiB Cache, CHS=65535/16/63, UDMA(33)
-hdd: cache flushes supported
- hdd: hdd1
-hde: max request size: 64KiB
-hde: 160086528 sectors (81964 MB) w/7936KiB Cache, CHS=65535/16/63
-hde: cache flushes supported
- hde: hde1
-hdg: max request size: 64KiB
-hdg: 160086528 sectors (81964 MB) w/7936KiB Cache, CHS=65535/16/63
-hdg: cache flushes supported
- hdg:<4>hdg: sata_error = 0x00000000, watchdog = 0, siimage_mmio_ide_dma_test_irq
- hdg1
+Signed-off-by: Corey Minyard <minyard@acm.org>
 
-I've now rebooted to 2.6.9 and that kernel runs just fine.
+Index: linux-2.6.11-rc5-mm1/Documentation/kref.txt
+===================================================================
+--- /dev/null
++++ linux-2.6.11-rc5-mm1/Documentation/kref.txt
+@@ -0,0 +1,209 @@
++
++krefs allow you to add reference counters to your objects.  If you
++have objects that are used in multiple places and passed around, and
++you don't have refcounts, your code is almost certainly broken.  If
++you want refcounts, krefs are the way to go.
++
++To use a kref, add a one to your data structures like:
++
++struct my_data
++{
++	.
++	.
++	struct kref refcount;
++	.
++	.
++};
++
++The kref can occur anywhere within the data structure.
++
++You must initialize the kref after you allocate it.  To do this, call
++kref init as so:
++
++     struct my_data *data;
++
++     data = kmalloc(sizeof(*data), GFP_KERNEL);
++     if (!data)
++            return -ENOMEM;
++     kref_init(&data->refcount);
++
++This sets the refcount in the kref to 1.
++
++Once you have a refcount, you must follow the following rules:
++
++1) If you make a non-temporary copy of a pointer, especially if
++   it can be passed to another thread of execution, you must
++   increment the refcount with kref_get() before passing it off:
++       kref_get(&data->refcount);
++   If you already have a valid pointer to a kref-ed structure (the
++   refcount cannot go to zero) you may do this without a lock.
++
++2) When you are done with a pointer, you must call kref_put():
++       kref_put(&data->refcount, data_release);
++   If this is the last reference to the pointer, the release
++   routine will be called.  If the code never tries to get
++   a valid pointer to a kref-ed structure without already
++   holding a valid pointer, it is safe to do this without
++   a lock.
++
++3) If the code attempts to gain a reference to a kref-ed structure
++   without already holding a valid pointer, it must serialize access
++   where a kref_put() cannot occur during the kref_get(), and the
++   structure must remain valid during the kref_get().
++
++For example, if you allocate some data and then pass it to another
++thread to process:
++
++void data_release(struct kref *ref)
++{
++	struct my_data *data = container_of(ref, struct my_data, refcount);
++	kfree(data);
++}
++
++void more_data_handling(void *cb_data)
++{
++	struct my_data *data = cb_data;
++	.
++	. do stuff with data here
++	.
++	kref_put(data, data_release);
++}
++
++int my_data_handler(void)
++{
++	int rv = 0;
++	struct my_data *data;
++	struct task_struct *task;
++	data = kmalloc(sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++	kref_init(&data->refcount);
++
++	kref_get(&data->refcount);
++	task = kthread_run(more_data_handling, data, "more_data_handling");
++	if (task == ERR_PTR(-ENOMEM)) {
++		rv = -ENOMEM;
++	        kref_put(&data->refcount);
++		goto out;
++	}
++
++	.
++	. do stuff with data here
++	.
++ out:
++	kref_put(data, data_release);
++	return rv;
++}
++
++This way, it doesn't matter what order the two threads handle the
++data, the put handles knowing when the data is free and releasing it.
++The kref_get() does not require a lock, since we already have a valid
++pointer that we own a refcount for.  The put needs no lock because
++nothing tries to get the data without already holding a pointer.
++
++Note that the "before" in rule 1 is very important.  You should never
++do something like:
++
++	task = kthread_run(more_data_handling, data, "more_data_handling");
++	if (task == ERR_PTR(-ENOMEM)) {
++		rv = -ENOMEM;
++		goto out;
++	} else
++		/* BAD BAD BAD - get is after the handoff */
++		kref_get(&data->refcount);
++
++Don't assume you know what you are doing and use the above construct.
++First of all, you may not know what you are doing.  Second, you may
++know what you are doing (there are some situations where locking is
++involved where the above may be legal) but someone else who doesn't
++know what they are doing may change the code or copy the code.  It's
++bad style.  Don't do it.
++
++There are some situations where you can optimize the gets and puts.
++For instance, if you are done with an object and enqueuing it for
++something else or passing it off to something else, there is no reason
++to do a get then a put:
++
++	/* Silly extra get and put */
++	kref_get(&obj->ref);
++	enqueue(obj);
++	kref_put(&obj->ref, obj_cleanup);
++
++Just do the enqueue.  A comment about this is always welcome:
++
++	enqueue(obj);
++	/* We are done with obj, so we pass our refcount off
++	   to the queue.  DON'T TOUCH obj AFTER HERE! */
++
++The last rule (rule 3) is the nastiest one to handle.  Say, for
++instance, you have a list of items that are each kref-ed, and you wish
++to get the first one.  You can't just pull the first item off the list
++and kref_get() it.  That violates rule 3 because you are not already
++holding a valid pointer.  You must add locks or semaphores.  For
++instance:
++
++static DECLARE_MUTEX(sem);
++static LIST_HEAD(q);
++struct my_data
++{
++	struct kref      refcount;
++	struct list_head link;
++};
++
++static struct my_data *get_entry()
++{
++	struct my_data *entry = NULL;
++	down(&sem);
++	if (!list_empty(&q)) {
++		entry = container_of(q.next, struct my_q_entry, link);
++		kref_get(&entry->refcount);
++	}
++	up(&sem);
++	return entry;
++}
++
++static void release_entry(struct kref *ref)
++{
++	struct my_data *entry = container_of(ref, struct my_data, refcount);
++
++	list_del(&entry->link);
++	kfree(entry);
++}
++
++static void put_entry(struct my_data *entry)
++{
++	down(&sem);
++	kref_put(&entry->refcount, release_entry);
++	up(&sem);
++}
++
++The kref_put() return value is useful if you do not want to hold the
++lock during the whole release operation.  Say you didn't want to call
++kfree() with the lock held in the example above (since it is kind of
++pointless to do so).  You could use kref_put() as follows:
++
++static void release_entry(struct kref *ref)
++{
++	/* All work is done after the return from kref_put(). */
++}
++
++static void put_entry(struct my_data *entry)
++{
++	down(&sem);
++	if (kref_put(&entry->refcount, release_entry)) {
++		list_del(&entry->link);
++		up(&sem);
++		kfree(entry);
++	} else
++		up(&sem);
++}
++
++This is really more useful if you have to call other routines as part
++of the free operations that could take a long time or might claim the
++same lock.  Note that doing everything in the release routine is still
++preferred as it is a little neater.
++
++
++Corey Minyard <minyard@acm.org>
++
++A lot of this was lifted from Greg KH's OLS presentation on krefs.
 
-Mike.
-
+--------------010409040907000901090303--

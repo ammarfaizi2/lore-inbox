@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311430AbSCSQih>; Tue, 19 Mar 2002 11:38:37 -0500
+	id <S311431AbSCSQk1>; Tue, 19 Mar 2002 11:40:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311431AbSCSQi3>; Tue, 19 Mar 2002 11:38:29 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:9996 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S311430AbSCSQiK>; Tue, 19 Mar 2002 11:38:10 -0500
-Date: Tue, 19 Mar 2002 11:35:39 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-In-Reply-To: <E16mMcT-0000m9-00@starship>
-Message-ID: <Pine.LNX.3.96.1020319113155.1772C-100000@gatekeeper.tmr.com>
+	id <S311435AbSCSQkR>; Tue, 19 Mar 2002 11:40:17 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:39945 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S311431AbSCSQj6>;
+	Tue, 19 Mar 2002 11:39:58 -0500
+Date: Tue, 19 Mar 2002 17:40:07 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: linux-kernel@vger.kernel.org
+Subject: oops at boot with 2.5.7 and i810
+Message-ID: <Pine.LNX.4.44.0203191716170.24700-100000@Expansa.sns.it>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Mar 2002, Daniel Phillips wrote:
+HI,
 
-> It breaks down somewhat as virtual memory range goes way beyond 4GB.  
-> There's the relatively minor issue of extra levels of tree traversal, 
-> currently limited to 4 by AMD's architecture but not so limited on other 
-> architectures.  A bigger problem is what to do about internal fragmentation 
-> in the page table tree, say if somebody mmaps a 2 TB sparse file, then writes 
-> one byte every 2 meg.  Bang, 4 gig worth of page tables, this is probably not 
-> what we want.  IMHO, 'don't do that then' isn't a reasonable response.
+also with 2.5.7, as with 2.5.6, I have problems at boot.
+I get the usual oops while initialising IDE.
 
-  Perhaps not, but "if you do that it will be slow" is a reasonable
-response when any operation requires an unusual resource to complete. The
-best solution is to reduce the resources needed by being clever, but the
-next best is to prevent one process from beating the machine to death for
-all others (if any).
+my ide controller is:
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+00:1f.1 IDE interface: Intel Corporation 82801AA IDE (rev 02) (prog-if 80
+[Master])
+        Subsystem: Intel Corporation 82801AA IDE
+        Flags: bus master, medium devsel, latency 0
+        I/O ports at 2460 [size=16]
+
+unfortunatelly, I do not have even the time to write down oops message,
+but eip is c0135068, but then I do not find a similar entry in system.map
+
+any hint
+
+my rootfs in reiserFS, but i do not even reach the mount ...
+
 

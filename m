@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267482AbUHXLVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267494AbUHXLYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267482AbUHXLVg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 07:21:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267486AbUHXLVg
+	id S267494AbUHXLYU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 07:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267486AbUHXLYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 07:21:36 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4108 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S267482AbUHXLVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 07:21:21 -0400
-Date: Tue, 24 Aug 2004 12:21:16 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Alsa Devel list <alsa-devel@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Fwd: [Alsa-devel] 2.6.6-rc2 build warnings
-Message-ID: <20040824122116.A5031@flint.arm.linux.org.uk>
-Mail-Followup-To: Alsa Devel list <alsa-devel@lists.sourceforge.net>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
+	Tue, 24 Aug 2004 07:24:20 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:42155 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S267532AbUHXLXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 07:23:05 -0400
+Date: Tue, 24 Aug 2004 12:22:45 +0100
+From: Dave Jones <davej@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Fix MTRR strings definition.
+Message-ID: <20040824112245.GA7847@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
+	torvalds@osdl.org, linux-kernel@vger.kernel.org
+References: <20040823232320.GA1875@redhat.com> <20040824081729.311ee677.ak@suse.de> <20040824110001.GD28237@redhat.com> <20040824131735.3980c21a.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040824131735.3980c21a.ak@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A reminder that this problem remains unresolved.
+On Tue, Aug 24, 2004 at 01:17:35PM +0200, Andi Kleen wrote:
 
------ Forwarded message from Russell King <rmk+alsa@arm.linux.org.uk> -----
-From: Russell King <rmk+alsa@arm.linux.org.uk>
-To: Alsa Devel list <alsa-devel@lists.sourceforge.net>
-Subject: [Alsa-devel] 2.6.6-rc2 build warnings
-Date: Sun, 30 May 2004 11:00:08 +0100
+ > > The extern definitions no longer exist.
+ > Your patch was: 
 
-Someone may wish to look into the cause of this... CONFIG_PCI is
-unselected in this case.
+Oops. I missed the x86-64 one as I thought you killed that when you
+killed the i386 one.
 
-  CC [M]  sound/core/oss/mixer_oss.o
-In file included from sound/core/oss/mixer_oss.c:26:
-include/sound/core.h:215: warning: `struct pci_dev' declared inside parameter list
-include/sound/core.h:215: warning: its scope is only this definition or declaration, which is probably not what you want
-include/sound/core.h:216: warning: `struct pci_dev' declared inside parameter list
-  CC [M]  sound/core/oss/pcm_oss.o
-In file included from sound/core/oss/pcm_oss.c:35:
-include/sound/core.h:215: warning: `struct pci_dev' declared inside parameter list
-include/sound/core.h:215: warning: its scope is only this definition or declaration, which is probably not what you want
-include/sound/core.h:216: warning: `struct pci_dev' declared inside parameter list
-...
+		Dave
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
-
-
--------------------------------------------------------
-This SF.Net email is sponsored by: Oracle 10g
-Get certified on the hottest thing ever to hit the market... Oracle 10g. 
-Take an Oracle 10g class now, and we'll give you the exam FREE.
-http://ads.osdn.com/?ad_id=3149&alloc_id=8166&op=click
-_______________________________________________
-Alsa-devel mailing list
-Alsa-devel@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/alsa-devel
-
------ End forwarded message -----
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+ > --- latest-FC2/include/asm-x86_64/mtrr.h~	2004-08-24 00:20:17.377436336 +0100
+ > +++ latest-FC2/include/asm-x86_64/mtrr.h	2004-08-24 00:21:04.137327752 +0100
+ > @@ -69,6 +69,19 @@
+ >  #define MTRR_TYPE_WRBACK     6
+ >  #define MTRR_NUM_TYPES       7
+ >  
+ > +#ifdef MTRR_NEED_STRINGS
+ > +static char *mtrr_strings[MTRR_NUM_TYPES] =
+ > ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ > +{
+ > +	"uncachable",		/* 0 */
+ > +	"write-combining",	/* 1 */
+ > +	"?",			/* 2 */
+ > +	"?",			/* 3 */
+ > +	"write-through",	/* 4 */
+ > +	"write-protect",	/* 5 */
+ > +	"write-back",		/* 6 */
+ > +};
+ > +#endif
+ > +
+ >  #ifdef __KERNEL__
+ >  
+ >  extern char *mtrr_strings[MTRR_NUM_TYPES];
+ > ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ > 
+ > -Andi
+---end quoted text---

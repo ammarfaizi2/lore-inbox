@@ -1,142 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313034AbSDCDFd>; Tue, 2 Apr 2002 22:05:33 -0500
+	id <S313032AbSDCDGv>; Tue, 2 Apr 2002 22:06:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313033AbSDCDFP>; Tue, 2 Apr 2002 22:05:15 -0500
-Received: from zero.tech9.net ([209.61.188.187]:55051 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S313032AbSDCDEN>;
-	Tue, 2 Apr 2002 22:04:13 -0500
-Subject: [PATCH] 2.4-ac: BUG_ON (2/2)
-From: Robert Love <rml@tech9.net>
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 02 Apr 2002 22:03:18 -0500
-Message-Id: <1017802999.2941.604.camel@phantasy>
+	id <S313036AbSDCDGd>; Tue, 2 Apr 2002 22:06:33 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:58572 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S313032AbSDCDGW>;
+	Tue, 2 Apr 2002 22:06:22 -0500
+Date: Tue, 2 Apr 2002 19:06:21 -0800
+To: Greg KH <greg@kroah.com>
+Cc: irda-users@lists.sourceforge.net,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] : ir257_usb_disconnect_atomic-2.diff
+Message-ID: <20020402190621.A25089@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <20020402182413.G24912@bougret.hpl.hp.com> <20020403030038.GA6366@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
+On Tue, Apr 02, 2002 at 07:00:38PM -0800, Greg KH wrote:
+> On Tue, Apr 02, 2002 at 06:24:13PM -0800, Jean Tourrilhes wrote:
+> > @@ -1519,33 +1544,47 @@ static void *irda_usb_probe(struct usb_d
+> >  /*
+> >   * The current irda-usb device is removed, the USB layer tell us
+> >   * to shut it down...
+> > + * One of the constraints is that when we exit this function,
+> > + * we cannot use the usb_device no more. Gone. Destroyed. kfree().
+> > + * Most other subsystem allow you to destroy the instance at a time
+> > + * when it's convenient to you, to postpone it to a later date, but
+> > + * not the USB subsystem.
+> > + * So, we must make bloody sure that everything gets deactivated.
+> > + * Jean II
+> 
+> That's one of the next things I'm going to be working on fixing :)
 
-This patch, which requires the previous BUG_ON part 1 patch, changes a
-few uses of BUG -> BUG_ON in fast paths in the kernel, partly to
-demonstrate readability, partly for the optimization, mostly to give a
-reason to take part 1. ;)
+	By the time you will "fix" that, all the USB driver will be
+fixed to workaround this issue. Actually, it force to be a bit more
+careful about the disconnect, and avoid zombies instances all over the
+place, so is not such a bad thing after all.
 
-This is a separate patch from the Marcelo variant as part 2 does not
-apply cleanly to your tree due to various changes.
+> The patch looks good.  Thanks for setting the proper GFP_* flag.
 
-Patch is against 2.4.19-pre4-ac3, please apply.
+	That was Martin... Don't need to thank, because the impact is
+limited to the IrDA driver...
 
-	Robert Love
+> greg k-h
 
-diff -urN linux-2.4.19-pre4-ac3/arch/i386/kernel/smp.c linux/arch/i386/kernel/smp.c
---- linux-2.4.19-pre4-ac3/arch/i386/kernel/smp.c	Sat Mar 30 18:48:32 2002
-+++ linux/arch/i386/kernel/smp.c	Sat Mar 30 18:49:22 2002
-@@ -301,8 +301,7 @@
-  */
- static void inline leave_mm (unsigned long cpu)
- {
--	if (cpu_tlbstate[cpu].state == TLBSTATE_OK)
--		BUG();
-+	BUG_ON(cpu_tlbstate[cpu].state == TLBSTATE_OK);
- 	clear_bit(cpu, &cpu_tlbstate[cpu].active_mm->cpu_vm_mask);
- }
- 
-diff -urN linux-2.4.19-pre4-ac3/kernel/exit.c linux/kernel/exit.c
---- linux-2.4.19-pre4-ac3/kernel/exit.c	Sat Mar 30 18:47:40 2002
-+++ linux/kernel/exit.c	Sat Mar 30 18:49:22 2002
-@@ -362,7 +362,7 @@
- 	mm_release();
- 	if (mm) {
- 		atomic_inc(&mm->mm_count);
--		if (mm != tsk->active_mm) BUG();
-+		BUG_ON(mm != tsk->active_mm);
- 		/* more a memory barrier than a real lock */
- 		task_lock(tsk);
- 		tsk->mm = NULL;
-diff -urN linux-2.4.19-pre4-ac3/kernel/fork.c linux/kernel/fork.c
---- linux-2.4.19-pre4-ac3/kernel/fork.c	Sat Mar 30 18:47:40 2002
-+++ linux/kernel/fork.c	Sat Mar 30 18:49:22 2002
-@@ -275,7 +275,7 @@
-  */
- inline void __mmdrop(struct mm_struct *mm)
- {
--	if (mm == &init_mm) BUG();
-+	BUG_ON(mm == &init_mm);
- 	pgd_free(mm->pgd);
- 	destroy_context(mm);
- 	free_mm(mm);
-diff -urN linux-2.4.19-pre4-ac3/kernel/sched.c linux/kernel/sched.c
---- linux-2.4.19-pre4-ac3/kernel/sched.c	Sat Mar 30 18:47:40 2002
-+++ linux/kernel/sched.c	Sat Mar 30 18:49:22 2002
-@@ -749,8 +749,8 @@
- 	list_t *queue;
- 	int idx;
- 
--	if (unlikely(in_interrupt()))
--		BUG();
-+	BUG_ON(in_interrupt());
-+
- 	release_kernel_lock(prev, smp_processor_id());
- 	prev->sleep_timestamp = jiffies;
- 	spin_lock_irq(&rq->lock);
-diff -urN linux-2.4.19-pre4-ac3/mm/rmap.c linux/mm/rmap.c
---- linux-2.4.19-pre4-ac3/mm/rmap.c	Sat Mar 30 18:47:40 2002
-+++ linux/mm/rmap.c	Sat Mar 30 18:49:22 2002
-@@ -136,8 +136,7 @@
- {
- 	struct pte_chain * pc, * prev_pc = NULL;
- 
--	if (!page || !ptep)
--		BUG();
-+	BUG_ON(!page || !ptep);
- 	if (!VALID_PAGE(page) || PageReserved(page))
- 		return;
- 
-@@ -186,8 +185,7 @@
- 	pte_t pte;
- 	int ret;
- 
--	if (!mm)
--		BUG();
-+	BUG_ON(!mm);
- 
- 	/*
- 	 * We need the page_table_lock to protect us from page faults,
-@@ -255,13 +253,10 @@
- 	int ret = SWAP_SUCCESS;
- 
- 	/* This page should not be on the pageout lists. */
--	if (!VALID_PAGE(page) || PageReserved(page))
--		BUG();
--	if (!PageLocked(page))
--		BUG();
-+	BUG_ON(!VALID_PAGE(page) || PageReserved(page));
-+	BUG_ON(!PageLocked(page));
- 	/* We need backing store to swap out a page. */
--	if (!page->mapping)
--		BUG();
-+	BUG_ON(!page->mapping);
- 
- 	for (pc = page->pte_chain; pc; pc = next_pc) {
- 		next_pc = pc->next;
-diff -urN linux-2.4.19-pre4-ac3/mm/slab.c linux/mm/slab.c
---- linux-2.4.19-pre4-ac3/mm/slab.c	Sat Mar 30 18:47:40 2002
-+++ linux/mm/slab.c	Sat Mar 30 18:49:22 2002
-@@ -666,8 +666,7 @@
- 	 * Always checks flags, a caller might be expecting debug
- 	 * support which isn't available.
- 	 */
--	if (flags & ~CREATE_MASK)
--		BUG();
-+	BUG_ON(flags & ~CREATE_MASK);
- 
- 	/* Get cache's description obj. */
- 	cachep = (kmem_cache_t *) kmem_cache_alloc(&cache_cache, SLAB_KERNEL);
+	Have fun...
 
-
-
+	Jean

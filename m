@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266425AbRGTBPN>; Thu, 19 Jul 2001 21:15:13 -0400
+	id <S266448AbRGTBYx>; Thu, 19 Jul 2001 21:24:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266428AbRGTBPC>; Thu, 19 Jul 2001 21:15:02 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:5588 "HELO
-	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S266425AbRGTBO4>; Thu, 19 Jul 2001 21:14:56 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@webofficenow.com>
-Reply-To: landley@webofficenow.com
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Subject: Re: Stability of ReiserFS onj Kernel 2.4.x (sp. 2.4.[56]{-ac*}
-Date: Tue, 17 Jul 2001 15:40:15 -0400
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org (lkml)
-In-Reply-To: <200107160022.f6G0MBn310960@saturn.cs.uml.edu>
-In-Reply-To: <200107160022.f6G0MBn310960@saturn.cs.uml.edu>
-MIME-Version: 1.0
-Message-Id: <01071715401507.13440@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S266464AbRGTBYn>; Thu, 19 Jul 2001 21:24:43 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:18235 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S266448AbRGTBYa>; Thu, 19 Jul 2001 21:24:30 -0400
+Date: Thu, 19 Jul 2001 21:24:34 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200107200124.f6K1OYj25195@devserv.devel.redhat.com>
+To: aia21@cus.cam.ac.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Minor cleanup and export three functions
+In-Reply-To: <mailman.995592065.10838.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.995592065.10838.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sunday 15 July 2001 20:22, Albert D. Cahalan wrote:
+>   This message is in MIME format.  The first part should be readable text,
+>   while the remaining parts are likely unreadable without MIME-aware tools.
 
-> An extra 4 bits buys us 6 years maybe. Nice, except that we
-> already have people complaining. Maybe somebody remembers when
-> the complaining started.
+Quite so. Linus told you many times not to send patches
+in MIME and I happen to agree.
 
-I blame Charles Babbage, myself...
-
-As for the scalable block numbers, assuming moore's law holds at 18 
-months/doubling without hitting subatomic quantum weirdness limits, the jump 
-from 32 to 64 bits gives us another 48 years.  48 years ago was 1953.  Univac 
-(powered by vacuum tubes) hit the market in 1951.  Project whirlwind would do 
-prototype work applying transistors to computers in 1954.
-
-Just a sense of perspective.  Scalable block numbers sound cool if they save 
-metadata space, but not as a source of extra scalability.  And they sound 
-like a can of worms in terms of complexity.
-
-Feel free to bring up the Y2K problem as a counter-example as to why 
-"rewriting it when it becomes a problem" is a bad idea.  But the problem 
-there was closed (and lost) source code, wasn't it?
-
-Rob
-
+> Content-Type: TEXT/PLAIN; charset=US-ASCII; name="patch-2.4.7-pre8-aia1"
+> Content-Transfer-Encoding: BASE64
+> Content-ID: <Pine.SOL.3.96.1010720021900.20239B@virgo.cus.cam.ac.uk>
+> Content-Description: 
+> 
+> ZGlmZiAtdXJOIGxpbnV4LTIuNC43LXByZTgtdmFuaWxsYS9mcy9idWZmZXIu
+> YyBsaW51eC0yLjQuNy1wcmU4LXRuZy1tcnByb3Blci9mcy9idWZmZXIuYw0K
+>[.... lots of crap skipped ....]

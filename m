@@ -1,174 +1,96 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315718AbSFFJCM>; Thu, 6 Jun 2002 05:02:12 -0400
+	id <S316853AbSFFJOe>; Thu, 6 Jun 2002 05:14:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315748AbSFFJCL>; Thu, 6 Jun 2002 05:02:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23821 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315718AbSFFJCJ>;
-	Thu, 6 Jun 2002 05:02:09 -0400
-Message-ID: <3CFF25E2.1ED9453D@zip.com.au>
-Date: Thu, 06 Jun 2002 02:05:38 -0700
+	id <S316404AbSFFJOd>; Thu, 6 Jun 2002 05:14:33 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30989 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316080AbSFFJOc>;
+	Thu, 6 Jun 2002 05:14:32 -0400
+Message-ID: <3CFF28C8.407FB932@zip.com.au>
+Date: Thu, 06 Jun 2002 02:18:00 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: johnl@golden.net
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Is there something strange going on with the ext2 Filesystem?
-In-Reply-To: <20020606041707.7fac8668.jlmales@yahoo.com>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+CC: axboe@suse.de, colpatch@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: Patch??: linux-2.5.20/fs/bio.c - ll_rw_kio could generate bio's 
+ bigger than queue could handle
+In-Reply-To: <200206060849.BAA00355@baldur.yggdrasil.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"John L. Males" wrote:
+"Adam J. Richter" wrote:
 > 
-> Hi,
+> Andrew Moreton wrote:
+            ^ hey.
+
+> >It looks like BIO_MAX_FOO needs to become an API function.
+> >Question is: what should it return? Number of sectors, number
+> >of bytes or number of pages?
+> >
+> >For my purposes, I'd prefer number of pages.  ie: the vector
+> >count which gets passed into bio_alloc:
+> >
+> >        unsigned bio_max_iovecs(struct block_device *bdev);
+> >
+> >        nr_iovecs = bio_max_iovecs(bdev);
+> >        bio = bio_alloc(GFP_KERNEL, nr_iovecs);
+> >
+> >would suit.
+> >
+> >And if, via this, we can submit BIOs which are larger than 64k
+> >for the common "it's just a disk" case then that is icing.
 > 
-> ***** Please BCC me in on any reply, not CC me.  Two reasons, I am not
-> on the LKML, and second I am suffering BIG time with SPAM from posting
-> to the mailing list.  Thanks in advance. *****
+>         Here is my attempt at implimenting your idea.  I am composing
+> this email on a machine that has this code compiled into the kernel,
+> but I do not know if any of the effected code paths have ever been
+> executed.
 
-Don't be silly. Install spamassassin like everyone else.
+If you're using ext2 or ext3 they have.
 
-> Ok, I have been having some odd, to very serious problems with the
-> ext2 file system.  The problems seemed to have started when I started
-> using the 2.4.x kernels.  Possible suspect are in the 2.4.15-pre5. I
-> had used 2.4.9-ac10, 2.4.9-ac18, 2.4.10-ac12, 2.4.13-ac5 in the past
-> and a SuSE 2.4.9 varient that was simply had some odd problems, not
-> file system related, that I used for a very short one session, and
-> short boot.
+>         The interface to the routine is:
 > 
-> There are three basic issues at hand:
+>         int bio_max_iovecs(request_queue_t *q, int *iovec_size)
+
+hm.  OK.  But why not just a block_device, rather than
+plucking out bd_queue at each call site?
+
+>         iovec_size is both an input and output variable.  You give it
+> the desired number of bytes you want to stuff in each iovec, and the
+> number may come back chopped it exceeds q->max_sectors * 512.  It
+> returns the number of iovecs of that size that you can safely stuff
+> into a single bio for the underlying block device driver.
 > 
->  1) e2fsck 1.19 would hang with a 2.4.x kernel.  Kernel occurred on
-> was 2.4.15-pre5, then tried 2.4.13-ac5, and 2.4.9-ac18 and these two
-> also had e2fsch hang.  No changes made, just booted to 2.2.19 (current
-> at time) on same system as already had 2.4.19 with the OpenWall patch
-> and e2fsck run to completion.  I do not recall if there were errors
-> detected.  I may have notes on this, as in the comsole messages, but I
-> have to do a bit of digging.
-
-Note that e2fsprogs is at version 1.27.  1.19 is rather old.
-
-If it's not a fsck bug, it's conceivably a VM problem.  More
-likely it's a lost interrupt from your disk system.
- 
->   2) BIG TIME cross node problems, BIG BIG time bit map problems that
-> is either realted to the special test programs I have developed for
-> testing the kernel VM subsystem, or maybe unrelated.
-
-Can you make these programs available?  
-
->  Bottom line I
-> had real serious problems after this e2fsck wherein many files were
-> lost or say the "ps" name entry no longer pointed to the "ps" program,
-> but say the Free Pascal compiler.  There were a number of these messes
-> and so I have since moved back to the 2.2.x kernel series.  There had
-> been "smaller scale" problems like these, but not with cross
-> linked/duplicae nodes or the like with other 2.4.x kernels before
-> 2.4.15-pre5.  I therefore feel there is a problem sitting about that
-> may not have been addressed yet.  I have no notes on this as these
-> problems were with the root file system and I had no ability to hold
-> the messages and try to copy the, at times, several hundred, numbers,
-> messages.  For my other mounts I can as I have XFree up at that time
-> and can cut and past the console messages into an editor and save the
-> messages and all.
-
-Sounds like hardware, and/or a buggy driver which wasn't buggy
-in 2.2.
-
-How many systems have you been able to reproduce this on?
- 
->  3) I am starting to see a parallel even not that I have been using
-> the 2.2.19/2.2.20 kernel for a number of months now.  The parallel is
-> when the file system gets full, I will skip how this happens but it
-> does frequently in what things I do, either the next boot of the
-> system or the next scheduled e2fsck reults in various bitmap, wrong
-> group, directory counts, etc.  The number of times this has happened
-> is more than suggestive of a problem.
-
-I can well believe that.  We've had several ENOSPC bugs, and
-they were (hopefully) fixed in kernels which are later than
-the ones you've been testing.
-
->  I currently do not have the
-> time or a "current" mainstream release of Linux to try testing my
-> theory on this without risking my one and only Linux day to day use
-> system.  I am trying to find time and current distribution I can
-> download over 56K modem line to do such a test.  I aslo need to see if
-> my VM tests are a factor, as in when the kernel is stressed in the VM
-> context, it has secondary negative effects.  Not to mention seeing
-> what progress the VM subsystem has made.  My last check with
-> 2.4.15-pre5 was ok, but still many problems.
-
-2.4.14/2.4.15 VM was pretty rough.  Suggest you grab a current
-vendor kernel or 2.4.19-pre10.
- 
->   4) Now in past few days I had a case where the system was shut down
-> normally,  Then started again next day for a few hours of very light
-> activity and shut down again normally,  Then the next startup there
-> are group/directory count problems, and bitmap problems.  All after
-> two clean shutdowns and no mount/device full conditions during any of
-> these prior sessions.
-
-That's too easy.  Again, busted hardware, memory or driver.
- 
-> In conclusion, I think there needs to be some more formalized and
-> specific QA/Testing testing of file systems.  The conditions to be
-> tested needs to bacome a formal and routine part Linux kernel testing.
-
-The vendors do a lot of testing.  (pretty lame testing IMO, but
-they do their best ;))
-
->  I realize it can be time consuming, but there can be "creative" ways
-> and techniques applied to ease the effort and automate the process to
-> a great extent I am sure.
-
-Automation doesn't help for much but regression testing.  Because
-you're always running the same test.  The most valuable test lab
-is the people who use this software daily, and report stuff.
-
->  From my ongoing experiences the ext2 file
-> system with regard to device/file system full conditions, using
-> different block sizes, inode density configurations, and kernel stress
-> conditions are key starting elements in such a ongoing sanity check of
-> the kernel.  I would expect all the other file systems to be put
-> throught the generic file system tests as well as in combination with
-> their own specific file system configurations/options.  I happened not
-> to take the defaults and therefore these may not have been tested at
-> all or not very well tested for any file system, not just the ext2
-> file system.
-
-Please send a detailed bug report which will enable a developer to
-reproduce these problems.
- 
-> I would like to trust Linux with its file system management, as I can
-> tell you first hand The Other OS has big time problems, on a routine
-> basis with thw two primary file systems it uses.  I know from first
-> hand experience, BIT TIME.  I can tell you I am not your average user,
-> and I know there are many very large installations that have used
-> Linux under what are believed stressful and demanding uses over
-> several hours.  All I can tell you is for some reason I seem to break
-> the general 80/20 rule more often and my uses of systems tend to be
-> more a 70/30 or 60/40 split.
+>         Notes on these changes:
 > 
-> For that reason I seem to encounter and find by "accident" more
-> problems than others in my day to day use of systems.  I will not tell
-> you what happens when I actually try to test and break software to
-> validate its design/stability/duty cycles.
+>               1. BIO_MAX_SECTORS et al are gone.  Nothing uses them
+>                  anymore.
 
-You sound like a useful chap.  Please send those detailed bug
-reports.  (But please verify them on a different machine first).
+Have to check that with Jens.  I was basing the bvec count on
+q->max_sectors a while back and it had a problem.
  
-> ...
-> ==================================================================
-> Please BCC me by replacing yahoo.com after the "@" as follows"
-> TLD =         The last three letters of the word internet
-> Domain name = The first four letters of the word software,
->               followed by the last four letters of the word
->               homeless.
+>               2. I changed do_mpage_readpage and mpage_writepage to
+>                  precompute bdev = inode->i_sb->s_bdev, rather than
+>                  repeatedly getting it from a data returned from
+>                  the get_block function.  This allow bio_max_iovecs()
+>                  to be called once in each routine, rather than repeatedly
+>                  within a loop.  If bdev really could have some other
+>                  value, then my optimization needs to be undone.
 
-softless.net ain't registered.   ihbt.
+That won't work for reads from blockdevs.  `cat /dev/hda1' will
+probably go splat.  The blockdev superblock is shared between
+all blockdevs.  We have to stick with the bdev which get_block()
+gave us.
+ 
+>               3. I assume that "goto confused" in these routines causes
+>                  a safer but slower approach to be used.  I added jumps
+>                  to these labels for the case where the underlying queue
+>                  could not handle enough sectors in a single bio to cover
+>                  even one page.
 
+That looks fine.
+ 
 -

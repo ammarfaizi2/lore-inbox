@@ -1,31 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261617AbREXL7B>; Thu, 24 May 2001 07:59:01 -0400
+	id <S261645AbREXMFl>; Thu, 24 May 2001 08:05:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261628AbREXL6v>; Thu, 24 May 2001 07:58:51 -0400
-Received: from eriador.apana.org.au ([203.14.152.116]:28684 "EHLO
-	eriador.apana.org.au") by vger.kernel.org with ESMTP
-	id <S261617AbREXL6k>; Thu, 24 May 2001 07:58:40 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: viro@math.psu.edu (Alexander Viro), linux-kernel@vger.kernel.org
-Subject: Re: Busy on BLKFLSBUF w/initrd
-In-Reply-To: <Pine.GSO.4.21.0105240724000.21818-100000@weyl.math.psu.edu>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.4-686-smp (i686))
-Message-Id: <E152tkM-0003T8-00@gondolin.me.apana.org.au>
-Date: Thu, 24 May 2001 21:57:42 +1000
+	id <S261679AbREXMFb>; Thu, 24 May 2001 08:05:31 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:44050 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261645AbREXMFP>; Thu, 24 May 2001 08:05:15 -0400
+Subject: Re: Dual Athlon on 2.2.19 ?
+To: psubash@turbolinux.com (Prasanna P Subash)
+Date: Thu, 24 May 2001 13:02:11 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010522182740.A3125@turbolinux.com> from "Prasanna P Subash" at May 22, 2001 06:27:40 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E152toh-0004uo-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro <viro@math.psu.edu> wrote:
+> 	Is there a patch to make dual athlons work on 2.2.19 ? I know it work on
+> 2.4.3-pre1 with AA's patch.
 
-> Erm... You pin the inode down. That makes filesystem busy by any
-> definition I can think of...
+2.2.20pre1 and 2.4.current should both work
 
-That's just because the 2.4.4 code doesn't release it with a blkdev_put.
-The fix is in the ac patches.
--- 
-Debian GNU/Linux 2.2 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVCCGgB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262493AbVCBWJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbVCCGgB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 01:36:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbVCCGfg
+	id S262493AbVCBWJd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 17:09:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVCBWHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 01:35:36 -0500
-Received: from gate.crashing.org ([63.228.1.57]:59348 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261550AbVCCGdT (ORCPT
+	Wed, 2 Mar 2005 17:07:21 -0500
+Received: from tantale.fifi.org ([64.81.251.130]:28298 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id S262479AbVCBWAc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 01:33:19 -0500
-Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "David S. Miller" <davem@davemloft.net>, Paul Mackerras <paulus@samba.org>,
-       Andrew Morton <akpm@osdl.org>, clameter@sgi.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, Anton Blanchard <anton@samba.org>
-In-Reply-To: <42274727.2070200@yahoo.com.au>
-References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
-	 <Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
-	 <20050302174507.7991af94.akpm@osdl.org>
-	 <Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>
-	 <20050302185508.4cd2f618.akpm@osdl.org>
-	 <Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>
-	 <20050302201425.2b994195.akpm@osdl.org>
-	 <16934.39386.686708.768378@cargo.ozlabs.ibm.com>
-	 <20050302213831.7e6449eb.davem@davemloft.net>
-	 <1109829248.5679.178.camel@gaston>  <42274727.2070200@yahoo.com.au>
-Content-Type: text/plain
-Date: Thu, 03 Mar 2005 17:30:28 +1100
-Message-Id: <1109831428.5680.187.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Mar 2005 17:00:32 -0500
+To: linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux@syskonnect.de
+Subject: 2.4.29 sk98lin patch for Asus K8W SE Deluxe 
+Mail-Copies-To: nobody
+From: Philippe Troin <phil@fifi.org>
+Date: 02 Mar 2005 14:00:30 -0800
+Message-ID: <873bvdbtdt.fsf@ceramic.fifi.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-04 at 04:19 +1100, Nick Piggin wrote:
+The EEPROM (or whatever that is) on Asus K8V SE Deluxe motherboards
+contains buggy firmware.  This buggy firmware has one flipped bit, and
+causes the sk98lin driver refuses to work correctly.  Please look at
+this thread:
 
-> You don't want to do that for all architectures, as I said earlier.
-> eg. i386 can concurrently set the dirty bit with the MMU (which won't
-> honour the lock).
-> 
-> So you then need an atomic lock, atomic pte operations, and atomic
-> unlock where previously you had only the atomic pte operation. This is
-> disastrous for performance.
+  http://www.ussg.iu.edu/hypermail/linux/kernel/0404.0/1439.html
 
-Of course, but I was answering to David about sparc64 which uses
-software TLB load :)
+It contains a patch for 2.6 that fixs the problem.  Enclosed is a copy
+of this patch for 2.4.29.  Please consider applying.
 
-Ben.
+Phil.
 
+Signed-Off-By: Philippe Troin <phil@fifi.rog>
 
+diff -ruN linux-2.4.29.orig/drivers/net/sk98lin/skvpd.c linux-2.4.29/drivers/net/sk98lin/skvpd.c
+--- linux-2.4.29.orig/drivers/net/sk98lin/skvpd.c	Wed Apr 14 06:05:30 2004
++++ linux-2.4.29/drivers/net/sk98lin/skvpd.c	Mon Feb 21 02:03:00 2005
+@@ -466,6 +466,15 @@
+ 	
+ 	pAC->vpd.vpd_size = vpd_size;
+ 
++	/* Asus K8V Se Deluxe bugfix. Correct VPD content */
++	/* MBo April 2004 */
++	if( ((unsigned char)pAC->vpd.vpd_buf[0x3f] == 0x38) &&
++	    ((unsigned char)pAC->vpd.vpd_buf[0x40] == 0x3c) &&
++	    ((unsigned char)pAC->vpd.vpd_buf[0x41] == 0x45) ) {
++		printk("sk98lin : humm... Asus mainboard with buggy VPD ? correcting data.\n");
++		(unsigned char)pAC->vpd.vpd_buf[0x40] = 0x38;
++	}
++
+ 	/* find the end tag of the RO area */
+ 	if (!(r = vpd_find_para(pAC, VPD_RV, &rp))) {
+ 		SK_DBG_MSG(pAC, SK_DBGMOD_VPD, SK_DBGCAT_ERR | SK_DBGCAT_FATAL,

@@ -1,44 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269893AbRHEBnK>; Sat, 4 Aug 2001 21:43:10 -0400
+	id <S269894AbRHEBnK>; Sat, 4 Aug 2001 21:43:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269894AbRHEBnA>; Sat, 4 Aug 2001 21:43:00 -0400
-Received: from [12.33.25.73] ([12.33.25.73]:47271 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id <S269895AbRHEBms>;
-	Sat, 4 Aug 2001 21:42:48 -0400
-Date: Sat, 4 Aug 2001 18:42:00 -0700 (PDT)
-From: Simon Trimmer <simon@veritas.com>
-X-X-Sender: <simon@localhost.localdomain>
-To: <kernelnewbies@nl.linux.org>, <linux-kernel@vger.kernel.org>
-cc: Simon Trimmer <simon@urbanmyth.org>
-Subject: kernel debugging talk
-Message-ID: <Pine.LNX.4.33.0108041814590.473-100000@localhost.localdomain>
+	id <S269895AbRHEBnA>; Sat, 4 Aug 2001 21:43:00 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32265 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269893AbRHEBmr>; Sat, 4 Aug 2001 21:42:47 -0400
+Subject: Re: Error when compiling 2.4.7ac6
+To: aia21@cam.ac.uk (Anton Altaparmakov)
+Date: Sun, 5 Aug 2001 02:43:49 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        kiwiunixman@yahoo.co.nz (Matthew Gardiner),
+        linux-kernel@vger.kernel.org (Mr Kernel Dude)
+In-Reply-To: <no.id> from "Anton Altaparmakov" at Aug 05, 2001 02:39:30 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15TCxJ-0005mH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
-I wrote a talk entitled "An Introduction to Linux Kernel Debugging" a while
-back for the Greater London LUG and thought it might be of general
-interest.
+> It's quite funny gcc-2.96 doesn't give these warnings. Perhaps it sees that 
+> the defines are identical and shuts up?
 
-It runs though the basics like crash recognition, capture, decoding and
-object dissassembly in a fairly straightforward way targetted at a good
-sysadmin and developer level.
-
-The Magicpoint slides are online along with html renderings and my crib sheet
-(i.e. notes) at
-
-	http://www.urbanmyth.org/linux/oops/
-
-Hope they are of some use :)
-
-Cheers,
--Simon
-
-Simon Trimmer <simon@veritas.com>           VERITAS R&D Watford
-
-
-
-
+They are actually not identical - the bracketing varies

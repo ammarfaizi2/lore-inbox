@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291388AbSBMF5J>; Wed, 13 Feb 2002 00:57:09 -0500
+	id <S291390AbSBMF63>; Wed, 13 Feb 2002 00:58:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291390AbSBMF47>; Wed, 13 Feb 2002 00:56:59 -0500
-Received: from angband.namesys.com ([212.16.7.85]:50562 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S291388AbSBMF4y>; Wed, 13 Feb 2002 00:56:54 -0500
-Date: Wed, 13 Feb 2002 08:56:53 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Luigi Genoni <kernel@Expansa.sns.it>
-Cc: Alex Riesen <fork0@users.sourceforge.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [reiserfs-dev] 2.5.4-pre1: zero-filled files reiserfs
-Message-ID: <20020213085653.A5957@namesys.com>
-In-Reply-To: <20020212200124.A2267@namesys.com> <Pine.LNX.4.44.0202121807120.15720-100000@Expansa.sns.it>
-Mime-Version: 1.0
+	id <S291392AbSBMF6P>; Wed, 13 Feb 2002 00:58:15 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:56585
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S291390AbSBMF5x>; Wed, 13 Feb 2002 00:57:53 -0500
+Date: Tue, 12 Feb 2002 21:46:54 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Vojtech Pavlik <vojtech@suse.cz>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Pavel Machek <pavel@suse.cz>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: another IDE cleanup: kill duplicated code
+In-Reply-To: <20020212175718.P1907@suse.de>
+Message-ID: <Pine.LNX.4.10.10202122143380.32729-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0202121807120.15720-100000@Expansa.sns.it>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, 12 Feb 2002, Jens Axboe wrote:
 
-On Tue, Feb 12, 2002 at 06:13:18PM +0100, Luigi Genoni wrote:
+> On Tue, Feb 12 2002, Vojtech Pavlik wrote:
+> > On Tue, Feb 12, 2002 at 02:17:48PM +0100, Martin Dalecki wrote:
+> > 
+> > > So the conclusions is that not just the read_ahead array is bogous now.
+> > > The max_readahead array can be killed entierly from the kernel as well ;-).
+> > > 
+> > > The answer is: I'm now confident that you can just remove all the
+> > > max_readahead initialization from the ide code.
+> > 
+> > Since I've come to the same conclusion, here is the patch. It removes
+> > read_ahead, max_readahead, BLKRAGET, BLKRASET, BLKFRAGET and BLKFRASET
+> > completely.
+> > 
+> > Comments, Jens?
+> 
+> Could you battle it out, and I'll take a good look at the patch
+> tomorrow :-). I'm all for a bit of spring cleaning here, it's needed it
+> badly for quite a while.
 
-> I run slackware 8.0.49, and there was no log replaying.
-Ok.
+Basically the LOT of all of you are WRONG and quit submitting patches to
+try and dork up the works.  Since we already have added back one ratehole
+from 2.4 that Linus strictly forbid, I am glad to see everyone here is an
+expert!
 
-> The corruption is the one we are talking about since some days,
-> file are fille of 0s instead of their supposed content.
-Hm. Was that a plain reboot?
-Did you tried to run reiserfsck --rebuild-tree between reboots before
-finding files with zeroes.
-(if you did, that may somewhat explain what you've seen)
+I just love how the copy of a request has worked its way back into to the
+code-base. :-/  I recall Linus stating it was/is a horrid mess.
 
-> I usually restore corrupted file, so I should keep one fopr you, I think.
-Ok, if it became all zeroes, then I do not need it.
+Regards,
 
-Bye,
-    Oleg
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
+

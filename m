@@ -1,67 +1,163 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281556AbRKPV1l>; Fri, 16 Nov 2001 16:27:41 -0500
+	id <S281555AbRKPVaV>; Fri, 16 Nov 2001 16:30:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281555AbRKPV1c>; Fri, 16 Nov 2001 16:27:32 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:12281
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S281556AbRKPV1S>; Fri, 16 Nov 2001 16:27:18 -0500
-Date: Fri, 16 Nov 2001 13:27:07 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: James Bourne <jbourne@MtRoyal.AB.CA>
-Cc: Nagy Tibor <nagyt@otpbank.hu>, linux-kernel@vger.kernel.org,
-        jesper@home.linuxpusher.dk, jalvo@mbay.net
-Subject: Re: 2.2.14 hangs on Dell PowerEdge 6300
-Message-ID: <20011116132707.B21354@mikef-linux.matchmail.com>
-Mail-Followup-To: James Bourne <jbourne@MtRoyal.AB.CA>,
-	Nagy Tibor <nagyt@otpbank.hu>, linux-kernel@vger.kernel.org,
-	jesper@home.linuxpusher.dk, jalvo@mbay.net
-In-Reply-To: <3BF4C19A.10E7844F@otpbank.hu> <Pine.LNX.4.33.0111160718370.12990-100000@jbourne2.mtroyal.ab.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0111160718370.12990-100000@jbourne2.mtroyal.ab.ca>
-User-Agent: Mutt/1.3.23i
+	id <S281559AbRKPVaN>; Fri, 16 Nov 2001 16:30:13 -0500
+Received: from ns.suse.de ([213.95.15.193]:58896 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S281555AbRKPVaB>;
+	Fri, 16 Nov 2001 16:30:01 -0500
+Date: Fri, 16 Nov 2001 22:30:00 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] AMD SMP capability sanity checking.
+Message-ID: <Pine.LNX.4.30.0111162219170.22827-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 16, 2001 at 07:25:44AM -0700, James Bourne wrote:
-> On Fri, 16 Nov 2001, Nagy Tibor wrote:
-> 
-> > I am sorry, this the same message as yesterday, but I misstyped the
-> > version. It is about 2.4..., of cource.
-> >
-> > Hi,
-> >
-> > we were satisfied with linux kernel version 2.4.9. Our linux server is
-> > unusable with kernel version 2.4.10 and higher, also with 2.4.14
-> > declared to be stable.
-> >
-> > We are working on Dell PowerEdge 6300 (4 Pentium Xeon/550Mhz, 4GB RAM).
-> > Any kernel from 2.4.10 to 2.4.14 brings our machine to a hanging state.
-> > Nothing can be determined, I guess, something is wrong with memory
-> > management. Unfortunately there is no more information about the
-> > problem.
-> 
-> I think you will need more information to get any type of sane reply.
-> 
-> We are running 2.4.14 on a PE6400, quad 700/4G in a production environment.
-> It has been stable, VM works well, using ext2 due to problems with the ext3
-> patch for that particular version of kernel.
-> 
 
-Do you mean the "cached" overflow (undeflow?) with ext3 applied?  If so,
-this patch will fix it.
+In the wake of the recent fallout of "are Athlon XP's SMP capable or not",
+the following patch adds some sanity checking to the SMP boot up code.
+This code is based upon information from the folks at AMD. There are
+no exceptions to these rules.
 
---- 2.4.14-ext3_0.9.15-2414/fs/jbd/transaction.c~	Wed Nov  7 22:41:13 2001
-+++ 2.4.14-ext3_0.9.15-2414/fs/jbd/transaction.c	Wed Nov  7 22:43:14 2001
-@@ -1930,7 +1930,6 @@
- 
- 	if (!offset) {
- 		if (!may_free || !try_to_free_buffers(page, 0)) {
--			atomic_inc(&buffermem_pages);
- 			return 0;
- 		}
- 		J_ASSERT(page->buffers == NULL);
+Before sending this to Linus, I want to make sure I didn't do something
+dumb, like misplace a bracket, isolating a valid config.
+It works on systems I've tested it on so far, but obviously there are
+some combinations that are not tested.
 
-Mike
+Any "But my system is fine in SMP and isn't in the list" whinges won't
+get it added to the list. The list is compiled from AMD approved
+valid systems, added to by any system which reports itself as
+multiprocessor capable in its cpu flags.
+
+Note, this code will not stop you from continuing to use unsupported
+configurations, but will..
+a. Print a boot time warning.
+b. Taint any oopses so that SMP problem oopses can be isolated easily.
+
+I repeat, there is *no* loss of functionality.
+
+Patch against 2.4.15pre5 follows.
+
+regards,
+
+Dave.
+
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+
+diff -urN --exclude-from=/home/davej/.exclude linux-2.4.15-pre5/arch/i386/kernel/setup.c linux-2.4.15-pre5-dj/arch/i386/kernel/setup.c
+--- linux-2.4.15-pre5/arch/i386/kernel/setup.c	Fri Nov 16 18:14:11 2001
++++ linux-2.4.15-pre5-dj/arch/i386/kernel/setup.c	Fri Nov 16 18:30:29 2001
+@@ -2707,7 +2707,7 @@
+ 		/* AMD-defined */
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 		NULL, NULL, NULL, "syscall", NULL, NULL, NULL, NULL,
+-		NULL, NULL, NULL, NULL, NULL, NULL, "mmxext", NULL,
++		NULL, NULL, NULL, "mp", NULL, NULL, "mmxext", NULL,
+ 		NULL, NULL, NULL, NULL, NULL, "lm", "3dnowext", "3dnow",
+
+ 		/* Transmeta-defined */
+diff -urN --exclude-from=/home/davej/.exclude linux-2.4.15-pre5/arch/i386/kernel/smpboot.c linux-2.4.15-pre5-dj/arch/i386/kernel/smpboot.c
+--- linux-2.4.15-pre5/arch/i386/kernel/smpboot.c	Fri Oct  5 01:42:54 2001
++++ linux-2.4.15-pre5-dj/arch/i386/kernel/smpboot.c	Fri Nov 16 21:09:33 2001
+@@ -30,10 +30,12 @@
+  *		Tigran Aivazian	:	fixed "0.00 in /proc/uptime on SMP" bug.
+  *	Maciej W. Rozycki	:	Bits for genuine 82489DX APICs
+  *		Martin J. Bligh	: 	Added support for multi-quad systems
++ *		Dave Jones	:	Report invalid combinations of Athlon CPUs.
+  */
+
+ #include <linux/config.h>
+ #include <linux/init.h>
++#include <linux/kernel.h>
+
+ #include <linux/mm.h>
+ #include <linux/kernel_stat.h>
+@@ -156,6 +158,35 @@
+ 		 * Remember we have B step Pentia with bugs
+ 		 */
+ 		smp_b_stepping = 1;
++
++	/*
++	 * Certain Athlons might work (for various values of 'work') in SMP
++	 * but they are not certified as MP capable.
++	 */
++	if ((c->x86_vendor == X86_VENDOR_AMD) && (c->x86 == 6)) {
++
++		/* Athlon 660/661 is valid. */
++		if ((c->x86_model==6) && ((c->x86_mask==0) || (c->x86_mask==1)))
++			goto valid_athlon;
++
++		/* Duron 670 is valid */
++		if ((c->x86_model==7) && (c->x86_mask==0))
++			goto valid_athlon;
++
++		/* Athlon 662, Duron 671, and Athlon >model 7 have capability bit */
++		if (((c->x86_model==6) && (c->x86_mask>=2)) ||
++			((c->x86_model==7) && (c->x86_mask>=1)) ||
++			 (c->x86_model> 7))
++			if (cpu_has_mp)
++				goto valid_athlon;
++
++		/* If we get here, it's not a certified SMP capable AMD system. */
++		printk (KERN_INFO "WARNING: This combination of AMD processors is not suitable for SMP.\n");
++		tainted |= (1<<2);
++
++	}
++valid_athlon:
++
+ }
+
+ /*
+diff -urN --exclude-from=/home/davej/.exclude linux-2.4.15-pre5/include/asm-i386/cpufeature.h linux-2.4.15-pre5-dj/include/asm-i386/cpufeature.h
+--- linux-2.4.15-pre5/include/asm-i386/cpufeature.h	Mon Nov 13 05:55:50 2000
++++ linux-2.4.15-pre5-dj/include/asm-i386/cpufeature.h	Fri Nov 16 18:29:24 2001
+@@ -46,6 +46,7 @@
+ /* AMD-defined CPU features, CPUID level 0x80000001, word 1 */
+ /* Don't duplicate feature flags which are redundant with Intel! */
+ #define X86_FEATURE_SYSCALL	(1*32+11) /* SYSCALL/SYSRET */
++#define X86_FEATURE_MP		(1*32+19) /* MP Capable. */
+ #define X86_FEATURE_MMXEXT	(1*32+22) /* AMD MMX extensions */
+ #define X86_FEATURE_LM		(1*32+29) /* Long Mode (x86-64) */
+ #define X86_FEATURE_3DNOWEXT	(1*32+30) /* AMD 3DNow! extensions */
+diff -urN --exclude-from=/home/davej/.exclude linux-2.4.15-pre5/include/asm-i386/processor.h linux-2.4.15-pre5-dj/include/asm-i386/processor.h
+--- linux-2.4.15-pre5/include/asm-i386/processor.h	Fri Nov 16 18:14:14 2001
++++ linux-2.4.15-pre5-dj/include/asm-i386/processor.h	Fri Nov 16 19:08:34 2001
+@@ -90,6 +90,7 @@
+ #define cpu_has_xmm	(test_bit(X86_FEATURE_XMM,  boot_cpu_data.x86_capability))
+ #define cpu_has_fpu	(test_bit(X86_FEATURE_FPU,  boot_cpu_data.x86_capability))
+ #define cpu_has_apic	(test_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability))
++#define cpu_has_mp (test_bit(X86_FEATURE_MP, boot_cpu_data.x86_capability))
+
+ extern char ignore_irq13;
+
+diff -urN --exclude-from=/home/davej/.exclude linux-2.4.15-pre5/kernel/panic.c linux-2.4.15-pre5-dj/kernel/panic.c
+--- linux-2.4.15-pre5/kernel/panic.c	Sun Sep 30 19:26:08 2001
++++ linux-2.4.15-pre5-dj/kernel/panic.c	Fri Nov 16 20:46:17 2001
+@@ -103,6 +103,10 @@
+ /**
+  *	print_tainted - return a string to represent the kernel taint state.
+  *
++ *  'P' - Proprietory module has been loaded.
++ *  'F' - Module has been forcibly loaded.
++ *  'S' - SMP with CPUs not designed for SMP.
++ *
+  *	The string is overwritten by the next call to print_taint().
+  */
+
+@@ -112,7 +116,8 @@
+ 	if (tainted) {
+ 		snprintf(buf, sizeof(buf), "Tainted: %c%c",
+ 			tainted & 1 ? 'P' : 'G',
+-			tainted & 2 ? 'F' : ' ');
++			tainted & 2 ? 'F' : ' ',
++			tainted & 4 ? 'S' : ' ');
+ 	}
+ 	else
+ 		snprintf(buf, sizeof(buf), "Not tainted");
+

@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263594AbTDTO4x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 10:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263595AbTDTO4w
+	id S263596AbTDTPAU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 11:00:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263597AbTDTPAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 10:56:52 -0400
-Received: from siaag2ad.compuserve.com ([149.174.40.134]:52361 "EHLO
-	siaag2ad.compuserve.com") by vger.kernel.org with ESMTP
-	id S263594AbTDTO4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 10:56:52 -0400
-Date: Sun, 20 Apr 2003 11:06:20 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
+	Sun, 20 Apr 2003 11:00:20 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:50354 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263596AbTDTPAT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 11:00:19 -0400
+Date: Sun, 20 Apr 2003 08:12:17 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304201108_MC3-1-3533-D395@compuserve.com>
+Subject: [Bug 606] New: Hang occurs at reboot
+Message-ID: <9990000.1050851537@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+http://bugme.osdl.org/show_bug.cgi?id=606
+
+           Summary: Hang occurs at reboot
+    Kernel Version: 2.5.67 and earlier versions
+            Status: NEW
+          Severity: low
+             Owner: mbligh@aracnet.com
+         Submitter: m4341@abc.se
 
 
-> Buy IDE disks in pairs use md1, and remember to continually send the
-> hosed ones back to the vendor/shop (and if they keep appearing DOA to
-> your local trading standards/fair trading type bodies).
+Distribution:
+RedHat 8.0+ kernel 2.5.67, RootLinux 1.3
+
+Hardware Environment:
+HP Vectra XU 2*200MHz Pentium Pro, Mitac 8575 laptop P4, 2GHz
+
+Software Environment:
+Problem Description:
+The system hangs instead of shut downs or reboots during a shutdown, but all
+buffers are at least flushed since the filesystems are clean at bootup, so this
+is a minor annoyance. There are however some differences: On the HP Vectra it is
+not always a hang, while it is always a hang on the Mitac. But the 2.4 kernel
+seems to reboot (the few times I had to revert) fine on both machines. It
+doesn't seem like there is any difference between reboot and shutdown.
+
+This problem was encountered on a Mitac 8575 laptop first, and there I
+considered it as a possible odd hardware case, since even Windows XP hangs
+occasionally on that machine during shutdown.
+
+Workaround: Issue a hard reset, or a powerdown/powerup.
 
 
-  I buy three drives at a time so I have a matching spare, because AFAIC
-you shouldn't be doing RAID on unmatched drives.
-
-  Using RAID1 is especially important when using software instead
-of hardware for fault-tolerance because the software is more likely to
-have bugs just because of the 'culture' of hardware vs. software
-developers, and the RAID5 algorithm is very hard to get right anyway,
-especially in failure/rebuild mode.  Even on a hardware controller
-RAID5 is still inherently less reliable.
-
- (...and what's all this about unreliable drives, anyway?  Every drive
-I have bought since 1987 still works.)
-------
- Chuck

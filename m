@@ -1,49 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285213AbRLXSYM>; Mon, 24 Dec 2001 13:24:12 -0500
+	id <S285216AbRLXSuf>; Mon, 24 Dec 2001 13:50:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285216AbRLXSYC>; Mon, 24 Dec 2001 13:24:02 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:7614 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S285213AbRLXSXq>; Mon, 24 Dec 2001 13:23:46 -0500
-Message-ID: <3C2772B1.3080202@redhat.com>
-Date: Mon, 24 Dec 2001 13:23:45 -0500
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011217
-X-Accept-Language: en-us
+	id <S285226AbRLXSuZ>; Mon, 24 Dec 2001 13:50:25 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:42001 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S285216AbRLXSuL>; Mon, 24 Dec 2001 13:50:11 -0500
+Date: Mon, 24 Dec 2001 10:52:46 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Victor Yodaiken <yodaiken@fsmlabs.com>
+cc: Mike Kravetz <kravetz@us.ibm.com>, Momchil Velikov <velco@fadata.bg>,
+        george anzinger <george@mvista.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Scheduler issue 1, RT tasks ...
+In-Reply-To: <20011223223348.A20895@hq2>
+Message-ID: <Pine.LNX.4.40.0112241023310.1517-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: David Lang <david.lang@digitalinsight.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
-        Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Assigning syscall numbers for testing
-In-Reply-To: <Pine.LNX.4.40.0112240951030.24605-100000@dlang.diginsite.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang wrote:
+On Sun, 23 Dec 2001, Victor Yodaiken wrote:
 
-> so this just means that an eye needs to be kept on the non-dynamic
-> syscalls  and up the starting point for dynamic syscalls significantly
-> before we run out of space for the non-dynamic ones.
-> 
-> running software that depends on features in a new kernel on a
-> significantly older kernel is always questionable, if you software really
-> needs to do that you need to watch for a bunch of things.
+> On Sun, Dec 23, 2001 at 05:31:11PM -0800, Davide Libenzi wrote:
+> > On Sun, 23 Dec 2001, Victor Yodaiken wrote:
+> >
+> > >
+> > >
+> > > Run a "RT"  task that is scheduled   every millisecond (or time of your
+> > > choice)
+> > > 	while(1`){
+> > > 		read cycle timer
+> > > 		clock_nanosleep(time period using aabsolute time
+> > > 		read cycle timer - what was actual delay? track worst
+> > > 			case
+> > > 		}
+> > >
+> > > Run this
+> > > 	a) on aaaaaaaaan unstressed system
+> > > 	b) under stress
+> > > 	c) while a timed non-rt benchmark runs to figure out "RT"
+> > > 	overhead.
+> >
+> > I've coded a test app that uses the LatSched latency patch ( that uses
+> > rdtsc ).
+> > It basically does 1) set the current process priority to RT 2) an ioctl()
+> > to activate the scheduler latency sampler 3) sleep for 1-2 secs 4) ioctl()
+> > to stop the sampler 5) peek the sample with pid == getpid().
+> > In this way i get the net RT task scheduler latency. Yes it does not get
+> > the real one that includes accessories kernel paths but my code does not
+> > affect these ones. And they add noise to the measure.
+>
+>
+> Seems to me that you are not testing what apps see. Internal benchmarks
+> are useful only for figuring out how to remove bottlenecks that
+> effect actual user apps - in my humble opinion of course.
+> The nice thing about my benchmark is that it actually tests something
+> useful - how well you can do periodic tasks. BTW, on RTLinux we get
+> under 100 microseconds on even 50Mhzx PPC860 - 17us on a 800Mhz K7.
+> I'd be happy to see some decent numbers in Linux, but you gotta
+> measure something more applied.
+
+I know what you're saying but my goal now is to fix the scheduler not the
+overall RT latency ( at least not the one that does not depend on the
+scheduler ). Just take for example your 17us for your 800MHz machine, in
+my dual PIII 733 MHz with an rqlen of 4 the scheduler latency ( with that
+std scheduler ) is about 0.9us ( real one, not lat_ctx ). That means the
+the scheduler responsibility in your 17us is about 5%, and the remaining
+95% is due "external" kernel paths. With an rqlen of 16 ( std scheduler )
+the latency peaks up to ~2.4us going to ~14-15% of scheduler responsibility.
+I've coded this simple app :
+
+http://www.xmailserver.org/linux-patches/lnxsched.html#RtLats
+
+and i use it with the cpuhog ( hi-tech software that is available inside
+the same link ) to load the run queue. I'm going to plot the measured
+latency versus the runqueue length. Thanks to OSDLAB i'll have an 8 way
+machine to make some test on these big SMPs. I'll code even the simple
+app you're proposing but the real problem is how to load the system. The
+cpuhog load is a runqueue load and is "neutral", that means that is the
+same on all the systems. Loading the system with other kind of loads can
+introduce a device-driver/hw dependency on the measure ( much or less run
+time with irq disabled for example ).
 
 
-No.  This is different.  Calling a syscall and expecting to get either A) 
-the syscall you intended or B) -ENOSYS is an accepted, safe practice under 
-Unix/Linux.  This breaks that practice.
 
 
 
+- Davide
 
 
--- 
-
-  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-       Please check my web site for aic7xxx updates/answers before
-                       e-mailing me about problems
 

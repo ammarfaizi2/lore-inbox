@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262812AbSJ1Cgz>; Sun, 27 Oct 2002 21:36:55 -0500
+	id <S262813AbSJ1Cxv>; Sun, 27 Oct 2002 21:53:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262813AbSJ1Cgz>; Sun, 27 Oct 2002 21:36:55 -0500
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:34827 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S262812AbSJ1Cgy>; Sun, 27 Oct 2002 21:36:54 -0500
-Date: Sun, 27 Oct 2002 21:40:50 -0500
-From: "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>
-To: Naohiko Shimizu <nshimizu@keyaki.cc.u-tokai.ac.jp>
-Cc: linux-kernel@vger.kernel.org, Jeff Wiedemeier <Jeff.Wiedemeier@hp.com>
+	id <S262814AbSJ1Cxv>; Sun, 27 Oct 2002 21:53:51 -0500
+Received: from keyaki.cc.u-tokai.ac.jp ([150.7.3.4]:25799 "HELO
+	keyaki.cc.u-tokai.ac.jp") by vger.kernel.org with SMTP
+	id <S262813AbSJ1Cxv>; Sun, 27 Oct 2002 21:53:51 -0500
+Date: Mon, 28 Oct 2002 12:00:08 +0900
+From: Naohiko Shimizu <nshimizu@keyaki.cc.u-tokai.ac.jp>
+To: "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH,RFC] Transparent SuperPage Support for 2.5.44
-Message-ID: <20021027214050.A7886@dsnt25.mro.cpqcorp.net>
+Message-Id: <20021028120008.13ce08bf.nshimizu@keyaki.cc.u-tokai.ac.jp>
+In-Reply-To: <20021027214050.A7886@dsnt25.mro.cpqcorp.net>
 References: <20021028105849.424265cb.nshimizu@keyaki.cc.u-tokai.ac.jp>
+	<20021027214050.A7886@dsnt25.mro.cpqcorp.net>
+Organization: Tokai University
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021028105849.424265cb.nshimizu@keyaki.cc.u-tokai.ac.jp>; from nshimizu@keyaki.cc.u-tokai.ac.jp on Mon, Oct 28, 2002 at 10:58:49AM +0900
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 28, 2002 at 10:58:49AM +0900, Naohiko Shimizu wrote:
-> This patch includes i386, alpha, sparc64 ports.
-> But I could not compile for alpha even with plain 2.5.44, and
+Thank you Jeff for the fix.
+I also needed to add set_pte_raw for sparc64 port.
+Revised patch is placed at:
 
-Here's a small patch on top of yours to fix a typo and add set_pte_raw
-for Alpha. 
+http://shimizu-lab.dt.u-tokai.ac.jp/lsp/super_page-2.5.44_021028-1.patch
 
-/jeff
-
-----
-diff -Nuar superpage/include/asm-alpha/pgtable.h superpage.alpha/include/asm-alpha/pgtable.h
---- superpage/include/asm-alpha/pgtable.h	Sun Oct 27 21:16:02 2002
-+++ superpage.alpha/include/asm-alpha/pgtable.h	Sun Oct 27 21:20:45 2002
-@@ -275,7 +275,7 @@
- #define SUPER_PAGE_MASK 0x0060
- #define SUPER_PAGE_MASK_SHIFT 5
- #define SUPER_PAGE_NR 4
--#define SIZEOF_PTE_LOG2 SEZEOF_PTR_LOG2
-+#define SIZEOF_PTE_LOG2 SIZEOF_PTR_LOG2
- void down_pte_sp(pte_t *pteptr, int index);
- void clear_pte_sp(pte_t *pteptr, int index);
- extern int super_page_order[];
-@@ -288,6 +288,7 @@
- 	{pte_val(pte) &= ~SUPER_PAGE_MASK; return pte;} 
- extern inline void pte_clear(pte_t *ptep)	\
- 	{ pte_t pte; pte_val(pte)=0; set_pte(ptep, pte); }
-+#define set_pte_raw(pteptr, pteval) set_pte(pteptr, pteval)
- #else
- extern inline int pte_none(pte_t pte)          { return !(pte_val(pte)); }
- extern inline void pte_clear(pte_t *ptep)      { pte_val(*ptep)=0; }
-
-
+-- 
+Naohiko Shimizu
+Dept. Communications Engineering/Tokai University
+1117 Kitakaname Hiratsuka 259-1292 Japan
+TEL.+81-463-58-1211(ext. 4084) FAX.+81-463-58-8320
+http://shimizu-lab.dt.u-tokai.ac.jp/

@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288109AbSACCK5>; Wed, 2 Jan 2002 21:10:57 -0500
+	id <S288135AbSACCWr>; Wed, 2 Jan 2002 21:22:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288126AbSACCKs>; Wed, 2 Jan 2002 21:10:48 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:61061
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S288109AbSACCKm>; Wed, 2 Jan 2002 21:10:42 -0500
-Date: Wed, 2 Jan 2002 19:10:21 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020103021021.GW1803@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <E16Lvh8-0006E6-00@the-village.bc.nu> <25193.1010018130@redhat.com>
+	id <S288136AbSACCWh>; Wed, 2 Jan 2002 21:22:37 -0500
+Received: from jalon.able.es ([212.97.163.2]:9399 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S288135AbSACCWV>;
+	Wed, 2 Jan 2002 21:22:21 -0500
+Date: Thu, 3 Jan 2002 03:25:19 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Taavo Raykoff <traykoff@snet.net>
+Cc: linux-kernel@vger.kernel.org, Taavo Raykoff <traykoff@snet.net>
+Subject: Re: prog for no OS. language?
+Message-ID: <20020103032519.A12550@werewolf.able.es>
+In-Reply-To: <GBEMILBDKGNHMNHPAAKBAEODCAAA.traykoff@snet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <25193.1010018130@redhat.com>
-User-Agent: Mutt/1.3.24i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <GBEMILBDKGNHMNHPAAKBAEODCAAA.traykoff@snet.net>; from traykoff@snet.net on Thu, Jan 03, 2002 at 03:04:28 +0100
+X-Mailer: Balsa 1.3.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 03, 2002 at 12:35:30AM +0000, David Woodhouse wrote:
-> 
-> (cc list trimmed)
-> 
-> alan@lxorguk.ukuu.org.uk said:
-> >  If you want a strcpy that isnt strcpy then change its name or use a
-> > different language 8)
-> 
-> The former is not necessarily sufficient in this case. You've still done the
-> broken pointer arithmetic, so even if the function isn't called strcpy() the
-> compiler is _still_ entitled to replace it with a call to memcpy() or even
-> machine_restart() before sleeping with your mother and starting WW III.
-> 
-> Granted, it probably _won't_ do any of those today, but you should know
-> better than to rely on that.
-> 
-> What part of 'undefined behaviour' is so difficult for people to understand?
 
-I think it comes down to an expectation that if the behaviour is
-undefined, anything _could_ happen, but what should happen is that it
-should just be passed along to (in this case) strcpy un-modified.
-Anything _could_ happen, but why do something that probably won't help
-all the same?
+On 20020103 Taavo Raykoff wrote:
+>
+>> On Monday 31 December 2001 02:52 am, samson swanson wrote:
+>> > hello,
+>> >
+>> > I had a quick question. Say I want to write a program
+>> > to run without an OS, what language/tools do i need?
+>> 
+>
+>Check out the code for etherboot.  It is simpler than the kernel
+>in many respects, and runs off of the "bare metal".
+>
 
-But this is moot anyhow since I _think_ Paul's suggestion of doing RELOC
-and friends as asm will work (and echo'd by rth?).
+Or memtest86.
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.18-pre1-beo #3 SMP Thu Dec 27 10:15:27 CET 2001 i686

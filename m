@@ -1,96 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266802AbUIMOOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266850AbUIMOTF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266802AbUIMOOq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 10:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266825AbUIMOOq
+	id S266850AbUIMOTF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 10:19:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266898AbUIMOTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 10:14:46 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:25832 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S266802AbUIMOOi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 10:14:38 -0400
-Subject: Re: /proc/sys/kernel/pid_max issues
-From: Albert Cahalan <albert@users.sf.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>, cw@f00f.org,
-       mingo@elte.hu, anton@samba.org
-In-Reply-To: <20040913074230.GW2660@holomorphy.com>
-References: <1095045628.1173.637.camel@cube>
-	 <20040913074230.GW2660@holomorphy.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1095084688.1173.1329.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 13 Sep 2004 10:11:29 -0400
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Sep 2004 10:19:05 -0400
+Received: from [209.88.178.130] ([209.88.178.130]:63741 "EHLO constg.qlusters")
+	by vger.kernel.org with ESMTP id S266850AbUIMOSz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 10:18:55 -0400
+Message-ID: <4145ABEE.5050606@qlusters.com>
+Date: Mon, 13 Sep 2004 17:17:18 +0300
+From: Constantine Gavrilov <constg@qlusters.com>
+Reply-To: Constantine Gavrilov <constg@qlusters.com>
+Organization: Qlusters
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: bugs@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: Fwd: Calling syscalls from x86-64 kernel results in a crash on
+ Opteron machines
+References: <200409131715.27584.anatolya@qlusters.com>
+In-Reply-To: <200409131715.27584.anatolya@qlusters.com>
+Content-Type: multipart/mixed;
+ boundary="------------000803090101040500050100"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-09-13 at 03:42, William Lee Irwin III wrote:
-> On Sun, Sep 12, 2004 at 11:20:29PM -0400, Albert Cahalan wrote:
-> > I'd much prefer LRU allocation. There are
-> > lots of system calls that take PID values.
-> > All such calls are hazardous. They're pretty
-> > much broken by design.
-> > Better yet, make a random choice from
-> > the 50% of PID space that has been least
-> > recently used.
-> 
-> I'd favor fully pseudorandom allocation over LRU or approximate LRU
-> allocation, as at least pseudorandom is feasible without large impacts
-> on resource scalability. OTOH the cache characteristics of pseudorandom
-> allocation are usually poor; perhaps hierarchically pseudorandom
-> allocation where one probes a sequence of cachelines of the bitmap
-> according to one PRNG, and within each cacheline probes a random
-> sequence of bits according to some other PRNG, would resolve that.
-> 
-> 
-> On Sun, Sep 12, 2004 at 11:20:29PM -0400, Albert Cahalan wrote:
-> > Another idea is to associate PIDs with users
-> > to some extent. You keep getting back the same
-> > set of PIDs unless the system runs low in some
-> > global pool and has to steal from one user to
-> > satisfy another.
-> 
-> The resource tracking and locking implications of this are disturbing.
-> Would fully pseudorandom allocation be acceptable?
+This is a multi-part message in MIME format.
+--------------000803090101040500050100
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-There's no point.
+>
+>
+>Subject: Calling syscalls from x86-64 kernel results in a crash on Opteron machines
+>Date: Mon, 13 Sep 2004 17:04:17 +0300
+>From: Constantine Gavrilov <constg@qlusters.com>
+>To: bugs@x86-64.org, linux-kernel@vger.kernel.org
+>
+>Hello:
+>
+>We have a piece of kernel code that calls some system calls in kernel
+>context (from a process with mm and a daemonized kernel thread that does
+>not have mm). This works fine on IA64 and i386 architectures.
+>
+..............
 
-LRU reduces accidents that don't involve an attacker.
+>Attached please find a test module that tries to call the umask() (JUST
+>TO DEMONSTRATE a problem) via the syscall machanism. Both methods (the
+>_syscall1() marco and GLIBC INLINE_SYCALL() were used.
+>  
+>
 
-Strong crypto random can make some attacks a bit harder.
-OpenBSD does this. It doesn't work well enough to bother
-with if the implementation is problematic; there's not
-much you can do while avoiding 64-bit or 128-bit PIDs.
-Pseudorandom is 100% useless.
+I forgot to attach a header file with glibc version of syscall inline 
+implementation.
 
-Per-user PID recycling would make it much harder for
-an attacker to grab a specific PID. Perhaps the attacker
-knows that a sched_setscheduler call is coming, and he
-has a way to make the right process restart or crash.
-Normally, this lets him get SCHED_FIFO or somesuch.
-With per-user PID recycling, it would be difficult for
-him to grab the desired PID.
-
-> On Sun, Sep 12, 2004 at 11:20:29PM -0400, Albert Cahalan wrote:
-> > BTW, since pid_max is now adjustable, reducing
-> > the default to 4 digits would make sense. Try a
-> > "ps j" to see the use. (column width changes if
-> > you change max_pid)
-> 
-> Is the maximum possible pid exported by the kernel somehow? Perhaps
-> it should be; the maximum number of decimal digits required to
-> represent PID_MAX_LIMIT (4*1024*1024) should suffice in all cases.
-> Perhaps you need to detect PID_MAX_LIMIT somehow?
-
-I do indeed detect pid_max via /proc/sys/kernel/pid_max
-and adjust column widths as needed. (ps only, for now)
-
-Since we're not getting the benefits of strong crypto
-PIDs anyway, we might as well have 4-digit PIDs be default.
-Very few people would need to increase this.
+-- 
+----------------------------------------
+Constantine Gavrilov
+Kernel Developer
+Qlusters Software Ltd
+1 Azrieli Center, Tel-Aviv
+Phone: +972-3-6081977
+Fax:   +972-3-6081841
+----------------------------------------
 
 
+--------------000803090101040500050100
+Content-Type: text/plain;
+ name="gsyscall.h"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="gsyscall.h"
+
+#ifndef _GSYSCALL_H_
+#define _GSYSCALL_H_
+
+#define __set_errno(Val) errno = (Val)
+
+#undef INLINE_SYSCALL
+#define INLINE_SYSCALL(name, nr, args...) \
+  ({									      \
+    unsigned long resultvar = INTERNAL_SYSCALL (name, , nr, args);	      \
+    if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (resultvar, ), 0))	      \
+      {									      \
+	__set_errno (INTERNAL_SYSCALL_ERRNO (resultvar, ));		      \
+	resultvar = (unsigned long) -1;					      \
+      }									      \
+    (long) resultvar; })
+
+#undef INTERNAL_SYSCALL_DECL
+#define INTERNAL_SYSCALL_DECL(err) do { } while (0)
+
+
+
+#undef INTERNAL_SYSCALL
+#define INTERNAL_SYSCALL(name, err, nr, args...) \
+  ({									      \
+    unsigned long resultvar;						      \
+    LOAD_ARGS_##nr (args)						      \
+    asm volatile (							      \
+    "movq %1, %%rax\n\t"						      \
+    "syscall\n\t"							      \
+    : "=a" (resultvar)							      \
+    : "i" (__NR_##name) ASM_ARGS_##nr : "memory", "cc", "r11", "cx");	      \
+    (long) resultvar; })
+
+#undef INTERNAL_SYSCALL_ERROR_P
+#define INTERNAL_SYSCALL_ERROR_P(val, err) \
+  ((unsigned long) (val) >= -4095L)
+
+#undef INTERNAL_SYSCALL_ERRNO
+#define INTERNAL_SYSCALL_ERRNO(val, err)	(-(val))
+
+#define LOAD_ARGS_0()
+#define ASM_ARGS_0
+
+#define LOAD_ARGS_1(a1)					\
+  register long int _a1 asm ("rdi") = (long) (a1);	\
+  LOAD_ARGS_0 ()
+#define ASM_ARGS_1	ASM_ARGS_0, "r" (_a1)
+
+#define LOAD_ARGS_2(a1, a2)				\
+  register long int _a2 asm ("rsi") = (long) (a2);	\
+  LOAD_ARGS_1 (a1)
+#define ASM_ARGS_2	ASM_ARGS_1, "r" (_a2)
+
+#define LOAD_ARGS_3(a1, a2, a3)				\
+  register long int _a3 asm ("rdx") = (long) (a3);	\
+  LOAD_ARGS_2 (a1, a2)
+#define ASM_ARGS_3	ASM_ARGS_2, "r" (_a3)
+
+#define LOAD_ARGS_4(a1, a2, a3, a4)			\
+  register long int _a4 asm ("r10") = (long) (a4);	\
+  LOAD_ARGS_3 (a1, a2, a3)
+#define ASM_ARGS_4	ASM_ARGS_3, "r" (_a4)
+
+#define LOAD_ARGS_5(a1, a2, a3, a4, a5)			\
+  register long int _a5 asm ("r8") = (long) (a5);	\
+  LOAD_ARGS_4 (a1, a2, a3, a4)
+#define ASM_ARGS_5	ASM_ARGS_4, "r" (_a5)
+
+#define LOAD_ARGS_6(a1, a2, a3, a4, a5, a6)		\
+  register long int _a6 asm ("r9") = (long) (a6);	\
+  LOAD_ARGS_5 (a1, a2, a3, a4, a5)
+#define ASM_ARGS_6	ASM_ARGS_5, "r" (_a6)
+
+#endif
+
+--------------000803090101040500050100--
 

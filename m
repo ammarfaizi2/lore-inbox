@@ -1,185 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264911AbUHHGEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265102AbUHHGH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264911AbUHHGEr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 02:04:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUHHGEr
+	id S265102AbUHHGH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 02:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265195AbUHHGH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 02:04:47 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:3522 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S264911AbUHHGEk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 02:04:40 -0400
-Date: Sun, 8 Aug 2004 02:08:30 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH][2.6] Completely out of line spinlocks / x86_64
-In-Reply-To: <Pine.LNX.4.58.0408072217170.19619@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.58.0408080156550.19619@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0408072217170.19619@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 8 Aug 2004 02:07:58 -0400
+Received: from [61.155.114.21] ([61.155.114.21]:56843 "EHLO
+	mail.mobilesoft.com.cn") by vger.kernel.org with ESMTP
+	id S265102AbUHHGHr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 02:07:47 -0400
+Date: Sun, 8 Aug 2004 14:12:06 +0800
+From: Wu Jian Feng <jianfengw@mobilesoft.com.cn>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       linux-mtd@lists.infradead.org
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [BUG] 2.6.8-rc3 slab corruption (jffs2?)
+Message-ID: <20040808061206.GA5417@mobilesoft.com.cn>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	linux-mtd@lists.infradead.org,
+	Russell King <rmk+lkml@arm.linux.org.uk>
+References: <20040807150458.E2805@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040807150458.E2805@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Aug 2004, Zwane Mwaikambo wrote:
+Can't figure out why but have a quick workaround for this:
 
-> Pulled from the -tiny tree, the focus of this patch is for reduced kernel
-> image size, the shared spinlock text may be more of a benefit later on
-> when multicore packages with shared caches arrive but should benefit
-> em64t systems with HT enabled. I've set the config option to y so
-> that it gets a bit of runtime, but it can be left as a config option.
->
-> Tested on 4x logical em64t.
->
->    text    data     bss     dec     hex filename
-> 3870057 1350301  508048 5728406  576896 vmlinux-after
-> 3885801 1352134  508048 5745983  57ad3f vmlinux-before
-
-A few changes from the i386 thread.
-
- arch/x86_64/Kconfig           |   10 ++++++++++
- arch/x86_64/lib/Makefile      |    1 +
- arch/x86_64/lib/spinlock.c    |   38 ++++++++++++++++++++++++++++++++++++++
- include/asm-x86_64/spinlock.h |   22 ++++++++++++++++++++--
- 4 files changed, 69 insertions(+), 2 deletions(-)
-
-Index: linux-2.6.8-rc3-mm1-amd64/arch/x86_64/Kconfig
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.8-rc3-mm1/arch/x86_64/Kconfig,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 Kconfig
---- linux-2.6.8-rc3-mm1-amd64/arch/x86_64/Kconfig	5 Aug 2004 16:37:48 -0000	1.1.1.1
-+++ linux-2.6.8-rc3-mm1-amd64/arch/x86_64/Kconfig	7 Aug 2004 22:47:30 -0000
-@@ -438,6 +438,16 @@ config DEBUG_SPINLOCK
- 	  best used in conjunction with the NMI watchdog so that spinlock
- 	  deadlocks are also debuggable.
-
-+config COOL_SPINLOCK
-+	bool "Completely out of line spinlocks"
-+	depends on SMP
-+	default y
-+	help
-+	  Say Y here to build spinlocks which have common text for contended
-+	  and uncontended paths. This reduces kernel text size by at least
-+	  50k on most configurations, plus there is the additional benefit
-+	  of better cache utilisation.
-+
- # !SMP for now because the context switch early causes GPF in segment reloading
- # and the GS base checking does the wrong thing then, causing a hang.
- config CHECKING
-Index: linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/Makefile
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.8-rc3-mm1/arch/x86_64/lib/Makefile,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 Makefile
---- linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/Makefile	5 Aug 2004 16:37:48 -0000	1.1.1.1
-+++ linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/Makefile	7 Aug 2004 22:32:44 -0000
-@@ -13,3 +13,4 @@ lib-y += memcpy.o memmove.o memset.o cop
-
- lib-$(CONFIG_HAVE_DEC_LOCK) += dec_and_lock.o
- lib-$(CONFIG_KGDB) += kgdb_serial.o
-+lib-$(CONFIG_COOL_SPINLOCK) += spinlock.o
-Index: linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/spinlock.c
-===================================================================
-RCS file: linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/spinlock.c
-diff -N linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/spinlock.c
---- /dev/null	1 Jan 1970 00:00:00 -0000
-+++ linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/spinlock.c	8 Aug 2004 05:39:04 -0000
-@@ -0,0 +1,38 @@
-+#include <linux/module.h>
-+
-+#define PROC(name)	\
-+	".align 4\n"	\
-+	".globl " #name"\n" \
-+	#name":\n"
-+
-+asm (PROC(__spin_lock_loop_flags)
-+	"lock; decb (%rax)\n\t"
-+	"js 1f\n\t"
-+	"nop\n\t"
-+	"ret\n\t"
-+	"1:\n\t"
-+	"test $0x200, %rbx\n\t"
-+	"jz 1f\n\t"
-+	"sti\n\t"
-+	"2: rep; nop\n\t"
-+	"cmpb $0, (%rax)\n\t"
-+	"jle 2b\n\t"
-+	"cli\n\t"
-+	"jmp __spin_lock_loop_flags\n\t"
-+);
-+
-+asm (PROC(__spin_lock_loop)
-+	"lock; decb (%rax)\n\t"
-+	"js 1f\n\t"
-+	"nop\n\t"
-+	"ret\n\t"
-+	"1: rep; nop\n\t"
-+	"cmpb $0, (%rax)\n\t"
-+	"jle 1b\n\t"
-+	"jmp __spin_lock_loop\n\t"
-+);
-+
-+void __spin_lock_loop_flags(void);
-+void __spin_lock_loop(void);
-+EXPORT_SYMBOL(__spin_lock_loop_flags);
-+EXPORT_SYMBOL(__spin_lock_loop);
-Index: linux-2.6.8-rc3-mm1-amd64/include/asm-x86_64/spinlock.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.8-rc3-mm1/include/asm-x86_64/spinlock.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 spinlock.h
---- linux-2.6.8-rc3-mm1-amd64/include/asm-x86_64/spinlock.h	5 Aug 2004 16:37:48 -0000	1.1.1.1
-+++ linux-2.6.8-rc3-mm1-amd64/include/asm-x86_64/spinlock.h	8 Aug 2004 05:19:41 -0000
-@@ -42,6 +42,13 @@ typedef struct {
- #define spin_is_locked(x)	(*(volatile signed char *)(&(x)->lock) <= 0)
- #define spin_unlock_wait(x)	do { barrier(); } while(spin_is_locked(x))
-
-+#ifdef CONFIG_COOL_SPINLOCK
-+#define spin_lock_string \
-+	"call __spin_lock_loop\n\t"
-+
-+#define spin_lock_string_flags \
-+	"call __spin_lock_loop_flags\n\t"
-+#else
- #define spin_lock_string \
- 	"\n1:\t" \
- 	"lock ; decb %0\n\t" \
-@@ -70,6 +77,7 @@ typedef struct {
- 	"cli\n\t" \
- 	"jmp 1b\n" \
- 	LOCK_SECTION_END
-+#endif
-
- /*
-  * This works. Despite all the confusion.
-@@ -138,7 +146,12 @@ printk("eip: %p\n", &&here);
- #endif
- 	__asm__ __volatile__(
- 		spin_lock_string
--		:"=m" (lock->lock) : : "memory");
-+#ifdef CONFIG_COOL_SPINLOCK
-+		: : "a" (&lock->lock) : "memory"
-+#else
-+		:"=m" (lock->lock) : : "memory"
-+#endif
-+	);
+--- a/fs/jffs2/erase.c	2004-08-08 14:03:06.000000000 +0800
++++ b/fs/jffs2/erase.c	2004-08-08 14:05:41.000000000 +0800
+@@ -72,8 +72,10 @@
+ 	((struct erase_priv_struct *)instr->priv)->c = c;
+ 
+ 	ret = c->mtd->erase(c->mtd, instr);
+-	if (!ret)
++	if (!ret) {
++		kfree(instr);
+ 		return;
++	}
+ 
+ 	bad_offset = instr->fail_addr;
+ 	kfree(instr);
+@@ -206,7 +208,6 @@
+ 	} else {
+ 		jffs2_erase_succeeded(priv->c, priv->jeb);
+ 	}	
+-	kfree(instr);
  }
-
- static inline void _raw_spin_lock_flags (spinlock_t *lock, unsigned long flags)
-@@ -152,7 +165,12 @@ here:
- 	}
- #endif
- 	__asm__ __volatile__(spin_lock_string_flags
--		:"=m" (lock->lock) : "r" (flags) : "memory");
-+#ifdef CONFIG_COOL_SPINLOCK
-+		: : "a" (&lock->lock), "d" (flags) : "memory"
-+#else
-+		:"=m" (lock->lock) : "r" (flags) : "memory"
-+#endif
-+	);
- }
-
-
+ #endif /* !__ECOS */
+ 
+On Sat, Aug 07, 2004 at 03:04:58PM +0100, Russell King wrote:
+> Not sure exactly what caused this, but it happened while logging in
+> (after fixing the previous two reported problems - the first by backing
+> out the last change to redboot.c and the second by commenting out
+> ri->usercompr in fs/jffs2/read.c.)
+> 
+> Slab corruption: start=c1e39474, len=64
+> Redzone: 0x5a2cf071/0x5a2cf071.
+> Last user: [<c032ca10>](cfi_intelext_erase_varsize+0x58/0x64)
+> 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 4f 6b
+> Prev obj: start=c1e39428, len=64
+> Redzone: 0x5a2cf071/0x5a2cf071.
+> Last user: [<c02c767c>](jffs2_garbage_collect_deletion_dirent+0x80/0x8c)
+> 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> Next obj: start=c1e394c0, len=64
+> Redzone: 0x170fc2a5/0x170fc2a5.
+> Last user: [<c03514f8>](neigh_hh_init+0x64/0x11c)
+> 000: 00 00 00 00 03 00 00 00 08 00 00 00 0e 00 00 00
+> 010: 00 b0 34 c0 00 00 08 00 2b 95 1d 7b 00 c0 1b 00
+> 
+> Due to tail call optimisation, its difficult to work out exactly what's
+> going on, but the first seems to be a kfree call from the erase callback
+> (possibly jffs2_erase_callback).  The second function is the call to
+> jffs2_free_full_dirent() in jffs2_garbage_collect_deletion_dirent().
+> 
+> Any ideas?  I haven't been able to reproduce (presumably because the
+> erase succeeded, and we didn't need to re-erase again.)
+> 
+> -- 
+> Russell King
+>  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+>  maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+>                  2.6 Serial core
+> 
+> ______________________________________________________
+> Linux MTD discussion mailing list
+> http://lists.infradead.org/mailman/listinfo/linux-mtd/

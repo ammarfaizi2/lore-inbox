@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbULHXqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbULHXsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbULHXqp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 18:46:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbULHXqo
+	id S261409AbULHXsq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 18:48:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbULHXsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 18:46:44 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:1436 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261406AbULHXqk (ORCPT
+	Wed, 8 Dec 2004 18:48:45 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:46274 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261409AbULHXsg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 18:46:40 -0500
-Message-ID: <41B7925E.5070700@us.ibm.com>
-Date: Wed, 08 Dec 2004 17:46:38 -0600
-From: Brian King <brking@us.ibm.com>
-Reply-To: brking@us.ibm.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Wed, 8 Dec 2004 18:48:36 -0500
+Date: Wed, 8 Dec 2004 15:47:21 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: George Anzinger <george@mvista.com>
+cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       tim@physik3.uni-rostock.de, albert@users.sourceforge.net,
+       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
+       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max <amax@us.ibm.com>, mahuja@us.ibm.com
+Subject: Re: [RFC] New timeofday proposal (v.A1)
+In-Reply-To: <41B77134.90804@mvista.com>
+Message-ID: <Pine.LNX.4.58.0412081545080.4783@schroedinger.engr.sgi.com>
+References: <1102470914.1281.27.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.58.0412081009540.27324@schroedinger.engr.sgi.com> 
+ <1102533066.1281.81.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.58.0412081114590.27324@schroedinger.engr.sgi.com>
+ <1102535891.1281.148.camel@cog.beaverton.ibm.com>
+ <Pine.LNX.4.58.0412081207010.28001@schroedinger.engr.sgi.com>
+ <41B77134.90804@mvista.com>
 MIME-Version: 1.0
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-CC: Matt Domsch <Matt_Domsch@dell.com>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
-       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>,
-       "Mukker, Atul" <Atulm@lsil.com>
-Subject: Re: How to add/drop SCSI drives from within the driver?
-References: <0E3FA95632D6D047BA649F95DAB60E570230CA8C@exa-atlanta>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230CA8C@exa-atlanta>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bagalkote, Sreenivas wrote:
-> Adding a drive:- For application to use sysfs to scan newly added drive,
-> it needs to know the HCTL (SCSI address - Host, Channel, Target & Lun)
-> of the drive. Driver is the only one that knows the mapping between a 
-> drive and the corresponding HCTL.
+On Wed, 8 Dec 2004, George Anzinger wrote:
 
-Can you explain from a high level how megaraid adds logical devices?
-I assume a management app of some sort sends a command to the adapter
-to create a disk array. What interface is used for this?
-Does this trigger any notification from the adapter to the device
-driver?
+> Right.  We seem to be doing ok now by just adjusting things at tick time and
+> using the "normal" interpolation between ticks.
+>
+> As for the math, the current code keeps a running "remainder" which is the
+> amount of the correction that was finer than the clock resolution (i.e. less
+> than a nano second) and rolls this in on the next tick.  This gives resolution
+> out to several bits to the right of the nano second.  And I think this is all
+> done with 32 bit math (if memory serves).
 
-> Removing a drive:- There is no sane way for the application to map out
-> drives to /dev/sd<x>. 
-
-This information is all available in sysfs. Have you looked at libsysfs
-at all?
-
-
-
--- 
-Brian King
-eServer Storage I/O
-IBM Linux Technology Center
+That is probably the i386 version with which I am not familiar. The time
+interpolator logic (IA64 and SPARC64) does fine with a scaled 64 bit
+factor without a remainder. The factor may be used to express fractions of
+nanoseconds.
 

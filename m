@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266247AbUFPLfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266249AbUFPLts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266247AbUFPLfu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 07:35:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266248AbUFPLft
+	id S266249AbUFPLts (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 07:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266248AbUFPLtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 07:35:49 -0400
-Received: from mail012.syd.optusnet.com.au ([211.29.132.66]:52115 "EHLO
-	mail012.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266247AbUFPLfr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 07:35:47 -0400
-Message-ID: <40D03084.3030604@kolivas.org>
-Date: Wed, 16 Jun 2004 21:35:32 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7a (X11/20040614)
+	Wed, 16 Jun 2004 07:49:47 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:53207 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S266249AbUFPLtq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 07:49:46 -0400
+Message-ID: <40D033C9.9040100@t-online.de>
+Date: Wed, 16 Jun 2004 13:49:29 +0200
+From: "Harald Dunkel" <harald.dunkel@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Stairacse scheduler v6.E for 2.6.7-rc3
-References: <1087333441.40cf6441277b5@vds.kolivas.org> <1087367927.1692.2.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1087367927.1692.2.camel@teapot.felipe-alfaro.com>
+To: Geoff Mishkin <gmishkin@comcast.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ld segfault at end of 2.6.6 compile
+References: <1087385018.8669.36.camel@amsa>
+In-Reply-To: <1087385018.8669.36.camel@amsa>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-ID: JbTQumZrQeRGOYPnED0llNWLqFfsj4cyHiHFP1JTEYIX9k4BSmcpoV
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe Alfaro Solana wrote:
-> On Wed, 2004-06-16 at 07:04 +1000, Con Kolivas wrote:
+Geoff Mishkin wrote:
+> I tried it again with linux-2.6.7-rc3, but got the same error.
 > 
->>Here is an updated version of the staircase scheduler. I've been trying to hold
->>off for 2.6.7 final but this has not been announced yet. Here is a brief update
->>summary.
+> My glibc version is 2.3.3.20040420.  The kernel still compiles fine on
+> my other machine.  I also compiled on the nonworking machine with the
+> same .config as the working one, and still got the same problem.
 > 
-> 
-> I'm currently testing this one. The problems I was having when trying to
-> suspend have gone away with this new release, so it looks promising to
-> me. Will keep you informed.
+Maybe you are simply running out of memory at link time. You
+could use 'top -d 1' on another terminal to watch memory
+consumption while the linker is running.
 
-Great!
 
-> Thanks!
+Regards
 
-Welcome
-
-> PS: I'm modifying your patch for 2.6.7-rc3-mm2. Could you please provide
-> newer versions of this patch against -mm kernels?
-
-There already was a patch for 2.6.7-rc3-mm2 on my website... just look 
-up a directory :-\
-
-Con
+Harri

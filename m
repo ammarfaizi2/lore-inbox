@@ -1,37 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129145AbQKQD0q>; Thu, 16 Nov 2000 22:26:46 -0500
+	id <S129147AbQKQD3R>; Thu, 16 Nov 2000 22:29:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129147AbQKQD0h>; Thu, 16 Nov 2000 22:26:37 -0500
-Received: from clem.digital.net ([204.215.239.73]:7180 "EHLO clem.digital.net")
-	by vger.kernel.org with ESMTP id <S129145AbQKQD01>;
-	Thu, 16 Nov 2000 22:26:27 -0500
-From: Pete Clements <clem@clem.digital.net>
-Message-Id: <200011170256.VAA10669@clem.digital.net>
-Subject: 2.4.0-test11-pre6 fails compile (dev.c)
-To: linux-kernel@vger.kernel.org (linux-kernel)
-Date: Thu, 16 Nov 2000 21:56:23 -0500 (EST)
-X-Mailer: ELM [version 2.4ME+ PL48 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S129314AbQKQD3H>; Thu, 16 Nov 2000 22:29:07 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:36875 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129147AbQKQD24>; Thu, 16 Nov 2000 22:28:56 -0500
+Date: Thu, 16 Nov 2000 20:55:22 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: NCPFS not returning Volume Size (???)
+Message-ID: <20001116205522.A15544@vger.timpanogas.org>
+In-Reply-To: <20001116204029.A15356@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001116204029.A15356@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Thu, Nov 16, 2000 at 08:40:29PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI:
+On Thu, Nov 16, 2000 at 08:40:29PM -0700, Jeff V. Merkey wrote:
+> Petr,
+> 
+> NCPFS in 2.2.18-pre21 is not returning volume size via df -h.  I checked
+> your code and found this comment:
+> 
+> static int ncp_statfs(struct super_block *sb, struct statfs *buf, int bufsiz)
+> {
+> 	struct statfs tmp;
+> 
+> 	/* We cannot say how much disk space is left on a mounted
+> 	   NetWare Server, because free space is distributed over
+> 	   volumes, and the current user might have disk quotas. So
+> 	   free space is not that simple to determine. Our decision
+> 	   here is to err conservatively. */
+> 
+> 	tmp.f_type = NCP_SUPER_MAGIC;
+> 	tmp.f_bsize = 512;
+> 	tmp.f_blocks = 0;
+> 	tmp.f_bfree = 0;
+> 	tmp.f_bavail = 0;
+> 	tmp.f_files = -1;
+> 	tmp.f_ffree = -1;
+> 	tmp.f_namelen = 12;
+> 	return copy_to_user(buf, &tmp, bufsiz) ? -EFAULT : 0;
+> }
+> 
+> NCP Code
+> 
+> 2222/17E6   Get Object's Remaining Disk Space
+> 
+> (I have docs on this one and can send if you need it).
+> 
+> will return in NetWare sized blocks the space remaining for this 
+> user (which will be the user ID used to login).  The fact that quota's 
+> are present for a user (user space restriction node -- in NWDIR.H) 
+> should be irrelevant, since from the view of a Linux client attached to 
+> a NetWare server, this is their assigned storage.
+> 
+> This NCP also speaks in hardcoded blocksizes of 4096 bytes, so that's 
+> the factor for free space for whatever login ID was used to mount 
+> the NetWare Volume that can be used in ncpfs_statfs() to return 
+> free space.
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.0-test11/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686    -c -o dev.o dev.c
-dev.c: In function `run_sbin_hotplug':
-dev.c:2736: `hotplug_path' undeclared (first use in this function)
-dev.c:2736: (Each undeclared identifier is reported only once
-dev.c:2736: for each function it appears in.)
-make[3]: *** [dev.o] Error 1
-make[3]: Leaving directory `/sda3/usr/src/linux-2.4.0-test11/net/core'
-make[2]: *** [first_rule] Error 2
+COrrection.  3.x always reports as 4096 blocks, 4.11 > reports as
+4K, 8K, 16K, 32K, and 64K.  I have not checked what NSS is reporting,
+but will test tonight.  
 
--- 
-Pete Clements 
-clem@clem.digital.net
+Jeff
+
+> 
+> I have not gone through your userspace code as of yet, but to make 
+> this work, you need the ObjectID for the User Account you used to
+> connect to the server in order to make this work.  
+> 
+> I noticed I could not get free space from my Server with NCPFS with
+> df -h, and tracked it down.  Several NetWare customers migrating 
+> installations of NetWare to Linux pointed it out when they were 
+> moving Oracle databases over to Linux from NetWare.
+> 
+> I noticed that 2.4 also is not reporting Volume free space.  
+> 
+> The current NCPFS code, like a lot of Linux code, is structured
+> in a manner that's very different from Novell's internal code,
+> (the names are shorter for one, which is an improvement).  The 
+> way the NCP codes are peeled off is different and not the 
+> large case and switch structure employed in NetWare, so it's
+> a little hard for me to follow since I am used to NCPs being 
+> grouped into case/switch classes.  If you can point me to 
+> where 1) the login ID is stored and B) where NCP packet 
+> request/reponse headers are constructed, i.e. a skeleton 
+> to send/receive the requests I can grab, I'll try to 
+> code this for you.
+> 
+> :-)
+> 
+> Jeff 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,79 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267048AbRGSH6K>; Thu, 19 Jul 2001 03:58:10 -0400
+	id <S267053AbRGSIWn>; Thu, 19 Jul 2001 04:22:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267053AbRGSH6B>; Thu, 19 Jul 2001 03:58:01 -0400
-Received: from sun.rhrk.uni-kl.de ([131.246.137.50]:17863 "HELO
-	sun.rhrk.uni-kl.de") by vger.kernel.org with SMTP
-	id <S267048AbRGSH5u>; Thu, 19 Jul 2001 03:57:50 -0400
-Date: Thu, 19 Jul 2001 09:57:50 +0200
-From: Martin Vogt <mvogt@rhrk.uni-kl.de>
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.4.6 segfault in scsi sr.c
-Message-ID: <20010719095750.B36012@rhrk.uni-kl.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S267055AbRGSIWd>; Thu, 19 Jul 2001 04:22:33 -0400
+Received: from unamed.infotel.bg ([212.39.68.18]:16645 "EHLO l.himel.bg")
+	by vger.kernel.org with ESMTP id <S267053AbRGSIWT>;
+	Thu, 19 Jul 2001 04:22:19 -0400
+Date: Thu, 19 Jul 2001 11:23:06 +0300 (EEST)
+From: Julian Anastasov <ja@ssi.bg>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org
+Subject: Re: cpuid_eax damages registers (2.4.7pre7)
+In-Reply-To: <200107182204.f6IM4K001282@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10107191113080.2341-100000@l>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+	Hello,
 
-Hello,
+On Wed, 18 Jul 2001, Linus Torvalds wrote:
+
+> Can you verify with this alternate patch instead? Yours works ok on
+> older gcc's, but the gcc team feels that clobbers must never cover
+> inputs or outputs, so your patch really generates invalid asms.  Here's
+> a alternate, can you verify that it works for you guys, and perhaps
+> people can at the same time eye-ball it for any other issues they can
+> think of?
+
+	This patch works for me too (I checked all cpuid_XXX calls).
+After some thinking I produced another patch. The interesting part is
+that __volatile__ solves the problem. Patch appended. I see in other
+kernel files that volatile solves gcc bugs. The question is whether
+the volatile is needed only as a work-around or it is needed in this
+case particulary, i.e. where the output registers are not used and are
+optimized.
+
+> 		Linus
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
 
 
-I have an Adaptec AIC-7881U (rev 1) controller and kernel 2.4.6.
-When I try to mount a CD the kernel segfaults.
-This is the lines it prints:
+--- include/asm-i386/processor.h.orig1	Wed Jul 18 12:03:26 2001
++++ include/asm-i386/processor.h	Thu Jul 19 10:58:06 2001
+@@ -136,7 +136,7 @@
+ {
+ 	unsigned int eax, ebx, ecx, edx;
 
->sr0: unsupported sector size 2336.
+-	__asm__("cpuid"
++	__asm__ __volatile__ ("cpuid"
+ 		: "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx)
+ 		: "a" (op));
+ 	return eax;
+@@ -145,7 +145,7 @@
+ {
+ 	unsigned int eax, ebx, ecx, edx;
 
-And then not so usefull things like:
+-	__asm__("cpuid"
++	__asm__ __volatile__ ("cpuid"
+ 		: "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx)
+ 		: "a" (op));
+ 	return ebx;
+@@ -154,7 +154,7 @@
+ {
+ 	unsigned int eax, ebx, ecx, edx;
 
->Unable to handle kernel NULL pointer dereference at virtual address 00000018
-> printing eip:
->c683a61f
->*pde = 00000000
->Oops: 0000
-[.....]
+-	__asm__("cpuid"
++	__asm__ __volatile__ ("cpuid"
+ 		: "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx)
+ 		: "a" (op));
+ 	return ecx;
+@@ -163,7 +163,7 @@
+ {
+ 	unsigned int eax, ebx, ecx, edx;
 
-I have looked in the source code:
-
-drivers/scsi/sr.c:
-
-
-In line 604 begins a switch statement:
-
-                switch (sector_size) {
-                case 0:   
-                case 2340:
-                case 2352:
-                        sector_size = 2048;
-                        /* fall through */
-                case 2048:
-                        scsi_CDs[i].capacity *= 4;
-                        /* fall through */
-                case 512:
-                        break;
-                default:
-kernel message -->      printk("sr%d: unsupported sector size %d.\n",
-                               i, sector_size);
-                        scsi_CDs[i].capacity = 0;
-                        scsi_CDs[i].needs_sector_size = 1;
-
-//
-// here it still has the "wrong" sector_size
-//
-                }
-
-                scsi_CDs[i].device->sector_size = sector_size;
-
-// and here it stores it.
-
-I think that the "unsupported" sector size then leads to a segfault
-somewhere later in the code.
-
-Martin
-
+-	__asm__("cpuid"
++	__asm__ __volatile__ ("cpuid"
+ 		: "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx)
+ 		: "a" (op));
+ 	return edx;
 

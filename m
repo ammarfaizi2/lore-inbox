@@ -1,43 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVANXDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbVANXHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbVANXDS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 18:03:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVANXCy
+	id S261909AbVANXHV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 18:07:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbVANXCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 18:02:54 -0500
-Received: from orb.pobox.com ([207.8.226.5]:22958 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261416AbVANXAX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 18:00:23 -0500
-Date: Fri, 14 Jan 2005 15:00:01 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: David Jacoby <dj@outpost24.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux kernel 2.4.20-18.7smp bug
-Message-ID: <20050114230001.GB4841@ip68-4-98-123.oc.oc.cox.net>
-References: <200501140901.j0E91Lk07957@adf141.allyes.com> <1105695993.6080.25.camel@laptopd505.fenrus.org> <41E7E008.7040603@outpost24.com> <1105708214.6042.12.camel@laptopd505.fenrus.org> <41E7E308.2080504@outpost24.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41E7E308.2080504@outpost24.com>
-User-Agent: Mutt/1.5.5.1i
+	Fri, 14 Jan 2005 18:02:14 -0500
+Received: from fmmailgate04.web.de ([217.72.192.242]:27604 "EHLO
+	fmmailgate04.web.de") by vger.kernel.org with ESMTP id S261965AbVANXBi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 18:01:38 -0500
+Date: Sat, 15 Jan 2005 00:01:28 +0100
+Message-Id: <764381258@web.de>
+MIME-Version: 1.0
+From: "Enrico Bartky" <DOSProfi@web.de>
+To: "MatthewDharm" <mdharm-kernel@one-eyed-alien.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lspci != scanpci !?
+Organization: http://freemail.web.de/
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 04:19:36PM +0100, David Jacoby wrote:
-> Well sorry for not making me clear, i forgot to say that
-> im not using 2.4.20 or any other default kernel. Im using
-> 2.6.10 from kernel.org.
+In the kernel config I have aktivate the direct pci-access.
+
+
+Matthew Dharm <mdharm-kernel@one-eyed-alien.net> schrieb am 14.01.05 23:37:23:
+
+On Fri, Jan 14, 2005 at 09:57:00PM +0100, Enrico Bartky wrote:
+> Hello,
 > 
-> the "vulnerability" im talking about is the following:
+> I have a Gigabyte GA-5AA Board with ALi Aladdin IV Chipset ( 1533, 1541 ). I
+> tried to get the smbus to work, but Gigabyte have disabled it and I can't
+> activate it in the BIOS. I use kernel 2.6.10 and looked at the m7101-hotplug
+> for kernel 2.4-module from lm_sensors. I added the following to
+> drivers/pci/quirks.c:
 > 
-> http://www.isec.pl/vulnerabilities/isec-0022-pagefault.txt
+> ....
+> /* ALi 1533 fixup to enable the M7101 SMBus Controller
+> * ported from prog/hotplug of the lm_sensors
+> * package
+> */
+> static void __devinit quirk_ali1533_smbus(struct pci_dev *dev)
+> {
+> u8 val = 0;
+> 
+> pci_read_config_byte ( dev, 0x5F, &val );
+> if ( val & 0x4 )
+> {
+> pci_write_config_byte ( dev, 0x5F, val & 0xFB );
+> }
+> }
+> DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533,
+> quirk_ali1533_smbus );
+> ....
+> 
+> Now the scanpci command shows the M7101 BUT lspci and /proc/pci,
+> /proc/bus/pci, /sys/bus/pci NOT. What can I do? Is there anything like a
+> "update_pci" command?
 
-Try running a 2.6-ac kernel (the one that fixes this vulnerability is
-2.6.10-ac9). The patch from 2.6.10 to 2.6.10-ac9 is linked on the
-kernel.org web site. Here's the URL anyway:
+I think there is a kernel command-line parameter you can use to tell the
+kernel to ignore the BIOS-supplied PCI map and generate it's own via
+scanning (ala what scanpci does).
 
-http://kernel.org/pub/linux/kernel/people/alan/linux-2.6/2.6.10/patch-2.6.10-ac9.bz2
+Matt
 
--Barry K. Nathan <barryn@pobox.com>
+-- 
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.net 
+Maintainer, Linux USB Mass Storage Driver
+
+Department of Justice agent.  I have come to purify the flock.
+					-- DOJ agent
+User Friendly, 5/22/1998
+
+
+
+__________________________________________________________
+Mit WEB.DE FreePhone mit hoechster Qualitaet ab 0 Ct./Min.
+weltweit telefonieren! http://freephone.web.de/?mc=021201
 

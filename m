@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267350AbTA2Vt2>; Wed, 29 Jan 2003 16:49:28 -0500
+	id <S266731AbTA2V76>; Wed, 29 Jan 2003 16:59:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267357AbTA2Vt2>; Wed, 29 Jan 2003 16:49:28 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:56209 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S267350AbTA2Vt1>;
-	Wed, 29 Jan 2003 16:49:27 -0500
-From: Mikael Pettersson <mikpe@csd.uu.se>
+	id <S266733AbTA2V75>; Wed, 29 Jan 2003 16:59:57 -0500
+Received: from mail.somanetworks.com ([216.126.67.42]:7362 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id <S266731AbTA2V74>; Wed, 29 Jan 2003 16:59:56 -0500
+Date: Wed, 29 Jan 2003 17:09:14 -0500 (EST)
+From: Scott Murray <scottm@somanetworks.com>
+X-X-Sender: scottm@rancor.yyz.somanetworks.com
+To: Ed Vance <EdV@macrolink.com>
+cc: "'Rusty Lynch'" <rusty@linux.co.intel.com>,
+       Stanley Wang <stanley.wang@linux.co.intel.com>,
+       Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       PCI_Hot_Plug_Discuss <pcihpd-discuss@lists.sourceforge.net>
+Subject: RE: [Pcihpd-discuss] [RFC] Enhance CPCI Hot Swap driver
+In-Reply-To: <11E89240C407D311958800A0C9ACF7D1A33D71@EXCHANGE>
+Message-ID: <Pine.LNX.4.44.0301291655040.17194-100000@rancor.yyz.somanetworks.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15928.20117.266542.506842@harpo.it.uu.se>
-Date: Wed, 29 Jan 2003 22:58:45 +0100
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
-Subject: Re: 2.5.59 NFS server keeps local fs live after being stopped
-In-Reply-To: <15928.16811.851512.105997@notabene.cse.unsw.edu.au>
-References: <15927.56648.966141.528675@harpo.it.uu.se>
-	<15928.16811.851512.105997@notabene.cse.unsw.edu.au>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown writes:
- > On Wednesday January 29, mikpe@csd.uu.se wrote:
- > > Kernel 2.5.59. A local ext2 file system is mounted at $MNTPNT
- > > and exported through NFS V3. A client mounts and unmounts it,
- > > w/o any I/O in between. The NFS server is shut down. Nothing in
- > > user-space refers to $MNTPNT.
- > > 
- > > The bug is that $MNTPNT now can't be unmounted. umount fails with
- > > "device is busy". A forced umount at shutdown fails with "device
- > > or resource busy" and "illegal seek", and leaves the underlying
- > > fs marked dirty.
- > > 
- > > I can't say exactly when this began, but the problem is present
- > > in 2.5.59 and 2.5.55. 2.4.21-pre4 does not have this problem.
- > 
- > How do you shut down the nfs server?
+On Wed, 29 Jan 2003, Ed Vance wrote:
 
-/etc/rc.d/init.d/nfs stop
-which basically does a kill on rpc.mountd, nfsd, and rpc.quotad
-(standard RH8.0 user-space)
+> On Tue, January 28, 2003 at 12:40 AM, Rusty Lynch wrote:
+> > 
+> > On Tue, 2003-01-28 at 23:50, Stanley Wang wrote:
+> > > Hi, Scott,
+> > > After reading your CPCI Hot Swap support codes, I have a suggestion
+> > > to enhance it:
+> > > How about to make it be full hot swap compliant?
+> > > I mean we could also do some works like "disable_slot" when 
+> > we receive
+> > > the #ENUM & EXT signal. Hence the user could yank the hot 
+> > swap board 
+> > > without issuing command on the console.
+> > > How do you think about it?
+> > > 
+> > 
+> > How does this behavior translate to "full hot swap 
+> > compliant"?  I assume
+> > you are talking about wording from PICMG 2.16, which in my opinion
+> > describes the full software stack, not just the driver.  Any kind of
+> > full CPCI solution would have all the user space components to
+> > coordinate disabling a slot before the operator physically yanks the
+> > board (and therefore behave as PICMG specifies).  I'm not so sure the
+> > driver knows enough to make a policy decision on what to do when an
+> > operator bypasses the world and just yanks a board out with 
+> > no warning.
+> 
+> How is this functionally different from ejecting a PCMCIA card in use? Is
+> the driver obligated to do more than prevent a system crash and present
+> errors to user level until the last close? 
 
-I've checked that all *nfs* processes are gone.
+cPCI hotswap as defined in the PICMG 2.1 specification is a different 
+beast from PCMCIA because it was purposely defined to give software a 
+chance to do something before the device disappears.  The specification
+even goes so far as to say that the system is in an undefined state if
+a device is yanked without waiting for the system software indicating it
+is safe to do so.  In reality, handling someone yanking a board is indeed 
+desireable, although it seems unlikely that the vast array of PCI device
+drivers will ever get updated to handle it.
 
- > Is anything in /proc/fs/nfs/export after the shutdown?
+Scott
 
-Except for the two header lines, it's empty.
 
-/Mikael
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
+

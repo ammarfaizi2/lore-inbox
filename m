@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264619AbTFYP4u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 11:56:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264651AbTFYP4t
+	id S264667AbTFYQDe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 12:03:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264694AbTFYQDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 11:56:49 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:23755 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S264619AbTFYP4B
+	Wed, 25 Jun 2003 12:03:34 -0400
+Received: from mail.convergence.de ([212.84.236.4]:61363 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S264667AbTFYQDd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 11:56:01 -0400
-Date: Wed, 25 Jun 2003 18:11:06 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       akpm@digeo.com
-Subject: Re: [PATCH] unexpected IO-APIC update
-In-Reply-To: <20030625085714.3cd7759e.rddunlap@osdl.org>
-Message-ID: <Pine.GSO.3.96.1030625180438.19428C-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	Wed, 25 Jun 2003 12:03:33 -0400
+Message-ID: <3EF9CB25.4050105@convergence.de>
+Date: Wed, 25 Jun 2003 18:17:41 +0200
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3) Gecko/20030408
+X-Accept-Language: de-at, de, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: DVB Include files
+References: <20030625150629.GA1045@mars.ravnborg.org> <20030625160830.A19958@infradead.org> <20030625154223.GB1333@mars.ravnborg.org>
+In-Reply-To: <20030625154223.GB1333@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Jun 2003, Randy.Dunlap wrote:
+Hello Sam,
 
-> | But the ugliness part I care about, and I wonder if it wouldn't be better 
-> | in this case to just make the register definition a "union", and have 
-> | something like
-> | 
-> | 	union reg_03 {
-> | 		u32 value;
-> | 		struct {
-> | 			u32 boot_DT:1,
-> | 			    reserved:31;
-> | 		} bits;
-> | 	};
-[...]
-> Sure, I'll do that.
+> For the dvb case, the .h files are used by files located in:
+> dvb/frontends
+> dvb/ttpci
 
- Perhaps using "raw" instead of "value" would be prettier and certainly we
-would save two characters per reference. ;-)  Anyway, it's indeed a good
-opportunity to do a clean-up while fiddling with these bits.
+Just to get things straight:
+Current header files, which must be present for user space
+applications, are located in include/linux.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+The internal header files for the dvb-core are in
+drivers/media/dvb/dvb-core.
+
+These are accessed by drivers/media/dvb/frontends for example,
+this is true.
+
+ > Therefore I suggested linux/media.
+
+There is no particular reason that they must stay there, so
+I suggest that I move them to include/dvb just like hch said.
+
+> 	Sam
+
+If this is ok, I'll do this with the next patchset.
+
+CU
+Michael.
+
 

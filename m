@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290423AbSBYRxR>; Mon, 25 Feb 2002 12:53:17 -0500
+	id <S292036AbSBYR7S>; Mon, 25 Feb 2002 12:59:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292036AbSBYRxH>; Mon, 25 Feb 2002 12:53:07 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:484 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S292027AbSBYRw7>; Mon, 25 Feb 2002 12:52:59 -0500
-Date: Mon, 25 Feb 2002 12:52:38 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org, ddcarpen1@cs.bemidjistate.edu
-Subject: Patch for YMFPCI Configure.help
-Message-ID: <20020225125238.A15611@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S292908AbSBYR7I>; Mon, 25 Feb 2002 12:59:08 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:58888 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S292036AbSBYR65>; Mon, 25 Feb 2002 12:58:57 -0500
+Date: Mon, 25 Feb 2002 09:58:41 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Carlos Manuel Duclos Vergara <carlos@embedded.cl>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: PATCH: FrameBuffer Monitor Functions
+In-Reply-To: <20020225145015.46d7c9ad.carlos@embedded.cl>
+Message-ID: <Pine.LNX.4.10.10202250957110.10454-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Configure.help entry was completely bogus. Sorry.
-Please give credit to Dan D. Carpenter in the changelog.
 
--- Pete
+> Hi,
+> this patch is to avoid the cooking of monitors from inside the
+> framebuffer subsystem. Normally this would be made by
+> fbmon_valid_timings function, but actually this function does nothing.
+> So i start writing a new implementation that will make some checks, note
+> that is not the full answer because it requires to user use another data
+> structures normally don't used, but for now it checks the basic stuff.
+> bye
 
---- linux-2.4.18-rc2/Documentation/Configure.help	Tue Feb 19 16:12:05 2002
-+++ linux-2.4.18-rc2-p3/Documentation/Configure.help	Mon Feb 25 09:49:03 2002
-@@ -18943,8 +18943,11 @@
- 
- Yamaha YMF7xx PCI audio (native mode)
- CONFIG_SOUND_YMFPCI
--  Support for Yamaha cards including the YMF711, YMF715, YMF718,
--  YMF719, YMF724, Waveforce 192XG, and Waveforce 192 Digital.
-+  Support for Yamaha cards with the following chipsets: YMF724,
-+  YMF724F, YMF740, YMF740C, YMF744, and YMF754.
-+
-+  Two common cards that use this type of chip are Waveforce 192XG,
-+  and Waveforce 192 Digital.
- 
- Yamaha PCI legacy ports support
- CONFIG_SOUND_YMFPCI_LEGACY
+Patch is where? Also please send the patch to me, Geert and the fbdev
+list. 
+
+   . ---
+   |o_o |
+   |:_/ |   Give Micro$oft the Bird!!!!
+  //   \ \  Use Linux!!!!
+ (|     | )
+ /'_   _/`\
+ ___)=(___/
+

@@ -1,57 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267602AbUIUMMo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267607AbUIUMOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267602AbUIUMMo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 08:12:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267615AbUIUMLb
+	id S267607AbUIUMOw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 08:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267619AbUIUMNT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 08:11:31 -0400
-Received: from guardian.hermes.si ([193.77.5.150]:51217 "EHLO
-	guardian.hermes.si") by vger.kernel.org with ESMTP id S267602AbUIUMK7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 08:10:59 -0400
-Message-ID: <B1ECE240295BB146BAF3A94E00F2DBFF0902E2@piramida.hermes.si>
-From: David Balazic <david.balazic@hermes.si>
-To: "'Jens Axboe'" <axboe@suse.de>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] modular io schedulers with online switching
-Date: Tue, 21 Sep 2004 14:10:16 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+	Tue, 21 Sep 2004 08:13:19 -0400
+Received: from dialin-212-144-167-176.arcor-ip.net ([212.144.167.176]:65414
+	"EHLO karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S267612AbUIUMLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 08:11:16 -0400
+In-Reply-To: <1095686020.26647.10.camel@localhost.localdomain>
+References: <20040919095857.GD17602@lain.chroot.de> <1095686020.26647.10.camel@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-24--650186704"
+Message-Id: <3153148F-0BC7-11D9-9709-000A958E35DC@fhm.edu>
+Content-Transfer-Encoding: 7bit
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Aiko Barz <aiko@chroot.de>
+From: Daniel Egger <degger@fhm.edu>
+Subject: Re: WRT54G
+Date: Tue, 21 Sep 2004 14:10:13 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Pgp-Agent: GPGMail 1.0.2
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-I just wonder, if there any schedulers with priority ?
+--Apple-Mail-24--650186704
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-Like : I does not matter if the disk backup pauses for 5 seconds, but if my
-romantic video playback stops for 1 sec, my girlfriend might leave me, as
-an incompetent-guy-who-can-not-play-simple-movies-
-with-his-PC-without-stutter ?
+On 20.09.2004, at 15:13, Alan Cox wrote:
 
-Regards,
-David Balazic
-----------------------------------------------------------------------------
------------
-http://noepatents.org/           Innovation, not litigation !
----
-David Balazic                      mailto:david.balazic@hermes.si
-HERMES Softlab                 http://www.hermes-softlab.com
-Zagrebska cesta 104            Phone: +386 2 450 8851 
-SI-2000 Maribor
-Slovenija
-----------------------------------------------------------------------------
------------
-"Be excellent to each other." -
-Bill S. Preston, Esq. & "Ted" Theodore Logan
-----------------------------------------------------------------------------
------------
+>> This site http://www.linksys.com/support/gpl.asp also implies, that i
+>> can redistribute those drivers and firmwares. But it is the same
+>> problem with them. Those wrt54g-firmwares also contain non-GPL
+>> sourcecodes and binaries.
 
+> It's up to Linksys what license they grant you for their non-free 
+> stuff.
+> If its linked with GPL stuff then it might be GPL because its a
+> derivative work. Sveasoft's only business is code they own the 
+> copyright
+> to themselves and didn't give other people rights to redistribute (or
+> gave them specifically revokable rights to distribute)
 
+IANAL but I'd very calm about this specific threat. Linksys published
+the complete source code to this router product including Makefiles
+to build your own firmware. The only parts which were only delivered
+as binaries are the tools to assemble a firmware, the bootloader and
+the helper code for the OpenSource module controlling the WLAN chipset.
 
+Most of the software they bundle is GPL (including the kernel, uclibc
+(LGPL), busybox, iptables, dnsmasq...) so Linksys is doing pretty well
+in releasing the source. The also include applications which are
+marked "propietary" but AFAIS they're not linked against any GPLed
+source so I'd consider them still as belonging to Linksys.
 
+IOW if Sveasoft is distributing any *part* of the original firmware
+(and they have to at least for the WLAN interface) they're in
+violation of the GPL *and* (probably illegally) distributing
+propietary applications written or licensed by Linksys. And I really
+doubt they changed the OS to something non-GPLed and use a
+completely different environment.
 
+If I were them I'd rather hide behind rock and hope that noone
+notices that they're violating licenses instead of threatening people.
 
+Servus,
+       Daniel
 
+--Apple-Mail-24--650186704
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
+
+iQEVAwUBQVAaJjBkNMiD99JrAQKxXwf+JWD1SLL7CziGy5qZaBlarnuVHAQxKe1C
+rKzE3ACaY1BBmrTfjiy6OAGIpmtgYzkb65VavN5FzAeML9TWSP4idsBnA2cc1cfA
+RTznGYfpadvnIVuWfAMb3LjJUyMynX4AIbLqt30UR25ORuQi86sYE4MYOTPxHqZ5
++nkpRDLAwjn6nUF8FvzHPghP6SISRUkCIH9Hpvgj9FZKLa1hF+DGwVPRvg+AdwFS
+TOOoocNdGFqro3gwTRQfZevw2acNDgdrUopMBQHfiDv9ISzoNGsOgNKw3p+29J+p
+95JZMXzn7OlpabOHb0zVrTV3OeH8HQW4wBDsRgtJxNNptQ0jbs7+5w==
+=gVEB
+-----END PGP SIGNATURE-----
+
+--Apple-Mail-24--650186704--
 

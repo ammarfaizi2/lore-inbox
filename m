@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130008AbRAYMYt>; Thu, 25 Jan 2001 07:24:49 -0500
+	id <S135517AbRAYMZ7>; Thu, 25 Jan 2001 07:25:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135412AbRAYMYj>; Thu, 25 Jan 2001 07:24:39 -0500
-Received: from indyio.rz.uni-sb.de ([134.96.7.3]:56141 "EHLO
-	indyio.rz.uni-sb.de") by vger.kernel.org with ESMTP
-	id <S130008AbRAYMY3>; Thu, 25 Jan 2001 07:24:29 -0500
-Message-ID: <3A701AEB.CF4CE9C3@stud.uni-saarland.de>
-Date: Thu, 25 Jan 2001 12:24:11 +0000
-From: Studierende der Universitaet des Saarlandes 
-	<masp0008@stud.uni-sb.de>
-Reply-To: manfred@colorfullife.com
-Organization: Studierende Universitaet des Saarlandes
-X-Mailer: Mozilla 4.08 [en] (X11; I; Linux 2.0.36 i686)
-MIME-Version: 1.0
-To: ak@suse.de, davem@redhat.com, linux-kernel@vger.kernel.org,
-        kuznet@ms2.inr.ac.ru
+	id <S135499AbRAYMZt>; Thu, 25 Jan 2001 07:25:49 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:7415 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S135517AbRAYMZj>; Thu, 25 Jan 2001 07:25:39 -0500
+Date: Thu, 25 Jan 2001 12:25:17 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: "David S. Miller" <davem@redhat.com>
+cc: Andi Kleen <ak@suse.de>, kuznet@ms2.inr.ac.ru,
+        Manfred Spraul <manfred@colorfullife.COM>,
+        linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.2.16 through 2.2.18preX TCP hang bug triggered by rsync
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <14960.3804.197814.496909@pizda.ninka.net>
+Message-ID: <Pine.SOL.4.21.0101251224350.651-100000@orange.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi wrote:
-> Basically it would accept the acks with the data in most
-> cases except when the application has totally stopped
-> reading and in that case it doesn't harm to ignore the
-> acks. 
+On Thu, 25 Jan 2001, David S. Miller wrote:
 
-But it seems that that's exactly what rsync does:
-It performs bulk data writes without reading. There are 32 kB in the
-receive buffers, and rsync continues to write. If the process would read
-some data the TCP stack would immediately recover.
+> 
+> Andi Kleen writes:
+>  > It's mostly for security to make it more difficult to nuke connections
+>  > without knowing the sequence number.
+>  > 
+>  > Remember RFC is from a very different internet with much less DoS attacks.
+> 
+> Andi, one of the worst DoSs in the world is not being able to
+> communicate with half of the systems out there.
+> 
+> BSD and Solaris both make these kinds of packets, therefore it is must
+> to handle them properly.  So we will fix Linux, there is no argument.
 
-RST are already processed, ACK's should be processed, but what about
-URG? 
+Hang on... From what was quoted of the RFC, this behaviour (accepting
+these packets) isn't required of hosts? In which case, if BSD or Solaris
+depend on it, THEY are violating the protocol, not Linux??
 
---
-	Manfred
+
+James.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,78 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262655AbTCPLe7>; Sun, 16 Mar 2003 06:34:59 -0500
+	id <S262657AbTCPLmi>; Sun, 16 Mar 2003 06:42:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262656AbTCPLe7>; Sun, 16 Mar 2003 06:34:59 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:37363 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S262655AbTCPLe6>; Sun, 16 Mar 2003 06:34:58 -0500
-Date: Sun, 16 Mar 2003 12:45:45 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@digeo.com>
+	id <S262658AbTCPLmi>; Sun, 16 Mar 2003 06:42:38 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:7941 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S262657AbTCPLmh>;
+	Sun, 16 Mar 2003 06:42:37 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: William Lee Irwin III <wli@holomorphy.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.5.64-mm8: fs/affs/dir.c doesn't compile
-Message-ID: <20030316114545.GJ24791@fs.tum.de>
-References: <20030316024239.484f8bda.akpm@digeo.com>
+Subject: Re: cpu-2.5.64-1 
+In-reply-to: Your message of "Sun, 16 Mar 2003 03:32:54 -0800."
+             <20030316113254.GH20188@holomorphy.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030316024239.484f8bda.akpm@digeo.com>
-User-Agent: Mutt/1.4i
+Date: Sun, 16 Mar 2003 22:53:19 +1100
+Message-ID: <17605.1047815599@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 16, 2003 at 02:42:39AM -0800, Andrew Morton wrote:
->...
-> +affs-lock_kernel-fix.patch
-> 
->  Missing an unlock_kernel().  (Why didn't any of the checkers notice this?)
->...
+On Sun, 16 Mar 2003 03:32:54 -0800, 
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>On Sun, Mar 16, 2003 at 10:12:24PM +1100, Keith Owens wrote:
+>> Some of the 64 bit archs implement test_bit() as taking int * instead
+>> of long *.  That generates unoptimized code for the case of NR_CPUS <
+>> 64.
 
-It seems noone tried to compile the patched file:
+Come to think of it, using any of the bitops generates unoptimized code
+for cpu mask testing when we know that NR_CPUS will fit into a single
+long.  For NR_CPUS <= 8*sizeof(long), using mask & (1UL << cpu) removes
+the unnecessary array calculations.
 
-<--  snip  -->
+>What's the state of 2.5.x on the big machines where you're at?
 
-...
-  gcc -Wp,-MD,fs/affs/.dir.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=k6 
--Iinclude/asm-i386/mach-default -g -nostdinc -iwithprefix include    
--DKBUILD_BASENAME=dir -DKBUILD_MODNAME=affs -c -o fs/affs/dir.o 
-fs/affs/dir.c
-fs/affs/dir.c: In function `affs_readdir':
-fs/affs/dir.c:81: `ret' undeclared (first use in this function)
-fs/affs/dir.c:81: (Each undeclared identifier is reported only once
-fs/affs/dir.c:81: for each function it appears in.)
-make[2]: *** [fs/affs/dir.o] Error 1
+I could tell you, but then marketing would kill me :(  Wait a bit.
 
-<--  snip  -->
+>Another thought I had was wrapping things in structures for both small
+>and large, even UP systems so proper typechecking is enforced at all
+>times. That would probably need a great deal of arch sweeping to do,
+>especially as a number of arches are UP-only (non-SMP case's motive #2).
 
-
-The following patch solves it:
-
-
---- linux-2.5.64-mm8/fs/affs/dir.c.old	2003-03-16 12:39:54.000000000 +0100
-+++ linux-2.5.64-mm8/fs/affs/dir.c	2003-03-16 12:43:30.000000000 +0100
-@@ -78,7 +78,7 @@
- 	if (f_pos == 0) {
- 		filp->private_data = (void *)0;
- 		if (filldir(dirent, ".", 1, f_pos, inode->i_ino, DT_DIR) < 0) {
--			ret = 0;
-+			res = 0;
- 			goto out;
- 		}
- 		filp->f_pos = f_pos = 1;
-
-
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Keep the optimized model, where cpu_online_map is #defined to 1 for UP.
+Changing it to an ADT just to get type checking on architectures that
+only support UP looks like a bad tradeoff.
 

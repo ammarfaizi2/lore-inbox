@@ -1,85 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263993AbUCZKGh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 05:06:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263990AbUCZKGh
+	id S263984AbUCZKKP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 05:10:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263995AbUCZKKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 05:06:37 -0500
-Received: from MailBox.iNES.RO ([80.86.96.21]:40206 "EHLO MailBox.iNES.RO")
-	by vger.kernel.org with ESMTP id S263993AbUCZKG2 (ORCPT
+	Fri, 26 Mar 2004 05:10:14 -0500
+Received: from gamemakers.de ([217.160.141.117]:38876 "EHLO www.gamemakers.de")
+	by vger.kernel.org with ESMTP id S263984AbUCZKKE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 05:06:28 -0500
-Subject: Re: Binary-only firmware covered by the GPL?
-From: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@ines.ro>
-To: Stefan Smietanowski <stesmi@stesmi.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Adrian Bunk <bunk@fs.tum.de>, 239952@bugs.debian.org,
-       debian-devel@lists.debian.org, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <4063EEC1.9080203@stesmi.com>
-References: <E1B6Izr-0002Ai-00@r063144.stusta.swh.mhn.de>
-	 <20040325082949.GA3376@gondor.apana.org.au>
-	 <20040325220803.GZ16746@fs.tum.de>  <40635DD9.8090809@pobox.com>
-	 <1080260235.3643.103.camel@imladris.demon.co.uk>
-	 <4063EEC1.9080203@stesmi.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-EZXwy1whWHkLAIMXbdLa"
-Organization: iNES Group
-Message-Id: <1080294208.27237.2.camel@LNX.iNES.RO>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.5 
-Date: Fri, 26 Mar 2004 11:43:28 +0200
-X-RAVMilter-Version: 8.4.1(snapshot 20020919) (MailBox.iNES.RO)
+	Fri, 26 Mar 2004 05:10:04 -0500
+Message-ID: <406401F1.1050201@gamemakers.de>
+Date: Fri, 26 Mar 2004 11:12:01 +0100
+From: =?ISO-8859-1?Q?R=FCdiger_Klaehn?= <rudi@gamemakers.de>
+Reply-To: rudi@lambda-computing.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC,PATCH] dnotify: enhance or replace?
+References: <4061986E.6020208@gamemakers.de> <1080142815.8108.90.camel@localhost.localdomain> <1080146269.23224.5.camel@vertex> <4061BD2E.2060900@gamemakers.de> <1080158032.30769.13.camel@vertex> <20040324200443.GS31500@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040324200443.GS31500@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+viro@parcelfarce.linux.theplanet.co.uk wrote:
 
---=-EZXwy1whWHkLAIMXbdLa
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+[snip]
 
-On Fri, 2004-03-26 at 09:50 +0100, Stefan Smietanowski wrote:
-> /*
->      This file is under the GPL, yada yada
-> */
-> #include "things.h"
->=20
-> void some_func(void)
-> {
->    does_something();
-> }
->=20
-> char firmware[]=3D{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
->=20
-> void upload_firmware(void)
-> {
->    do_upload(firmware);
-> }
->=20
-> --
->=20
-> Then it seems clear to me that the firmware is under the GPL because it
-> is PART of the GPL'd file.
+ > "Doctor, It Hurts When I Do It"
+ >
+ > Seriously, dnotify sucks in a lot of ways, starting with the basic
+ > premise - that userland can do notification-based maintainig of directory
+ > tree image.  It's racy by definition, so any attempts to use it for
+ > "security improvements" are scam.  Which leaves us with file manglers
+ > and their ilk.
+ >
+I thought about this some more. If you watch for e.g. all writes on the 
+root of a file system you get a complete, correctly ordered log of all 
+file writes on that filesystem. So you can find out wether a certain 
+file has been changed or not. That could be relevant security information.
 
+You would get changes to the file pointed to by the path /etc/shadow, 
+even if the file has been changed by a hard link from /tmp/bla.
 
-If you're right, then the "binary" of the firmware it's GPL, not the
-source of the firmware, because that's what you have in this case :)
+I am assuming here that there is a way like inode numbers to uniquely 
+identify and persistently identify a file. If something like this does 
+not exist, you are out of luck.
 
-You can have that ? GPL the binary but not the source ? :)
+ > Note that any attempts to trace "aliases" in userland are hopelessly 
+racy;
 
---=20
-Cioby
+You don't trace aliases in userland. All the relevant information is 
+logged in kernel space. The only thing you do in userspace is to convert 
+this information into a user readable form. You can take as long as you 
+want for that.
 
---=-EZXwy1whWHkLAIMXbdLa
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Btw: why did you put aliases in quotes? Is aliases not the correct term 
+when refering to multiple paths pointing to the same file?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+ > that mounting/unmounting doesn't even show on the radar;
 
-iD8DBQBAY/s/QisRnSkd59cRAufwAJsHNzMld0DucqhRxASL1csizPySDQCeIwFz
-8IB2cyzJ6DcHpUZ7ZHc4Ky0=
-=b0qO
------END PGP SIGNATURE-----
+There is an event for mounting and unmounting.
 
---=-EZXwy1whWHkLAIMXbdLa--
+ > hat different users can see different parts of tree or, while we are
+ > at it, completely different trees;
+ >
+That is why the paths returned by the mechanism are relative to the 
+directory from which you watch.
 
+ > that this crap is a DDoS on a server that exports any
+ > sort of network filesystem to many clients - *especially* if you want
+ > notifications on the entire tree.
+ >
+If you have 100 clients, and each client wants its own notification for 
+/home, you would indeed have a problem. But if a single process like fam 
+watches for changes in /home on behalf of all 100 clients, it would be 
+no problem.
+
+ > IOW, idea is fundamentally flawed and IMO the real fix is to try and 
+figure
+ > out a decent UI that would provide what file managers are really used 
+for.
+ >
+File managers are just one application of an enhanced file change 
+notification mechanism. There are many much more interesting 
+applications. For file managers the current dnotify mechanism is OK.

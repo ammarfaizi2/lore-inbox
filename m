@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281214AbSA2VwB>; Tue, 29 Jan 2002 16:52:01 -0500
+	id <S281916AbSA2V5L>; Tue, 29 Jan 2002 16:57:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281916AbSA2Vvw>; Tue, 29 Jan 2002 16:51:52 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58381 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281214AbSA2Vvh>; Tue, 29 Jan 2002 16:51:37 -0500
-Date: Tue, 29 Jan 2002 13:50:19 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Oliver Xymoron <oxymoron@waste.org>
-cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
-Subject: Re: Note describing poor dcache utilization under high memory pressure
-In-Reply-To: <Pine.LNX.4.44.0201291512330.25443-100000@waste.org>
-Message-ID: <Pine.LNX.4.33.0201291326340.1334-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282843AbSA2V5B>; Tue, 29 Jan 2002 16:57:01 -0500
+Received: from ns.suse.de ([213.95.15.193]:43787 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S281916AbSA2V4u>;
+	Tue, 29 Jan 2002 16:56:50 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <Pine.LNX.4.33.0201291324560.3610-100000@localhost.localdomain.suse.lists.linux.kernel> <E16VYD8-0003ta-00@the-village.bc.nu.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 29 Jan 2002 22:56:49 +0100
+In-Reply-To: Alan Cox's message of "29 Jan 2002 14:14:30 +0100"
+Message-ID: <p73aduwddni.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-On Tue, 29 Jan 2002, Oliver Xymoron wrote:
->
-> I don't think read-only for the tables is sufficient if the pages
-> themselves are writable.
+> > If a patch gets ignored 33 times in a row then perhaps the person doing
+> > the patch should first think really hard about the following 4 issues:
+> 
+> Lots of the stuff getting missed is tiny little fixes, obvious 3 or 4 liners.
+> The big stuff is not the problem most times. That stuff does get ripped to
 
-At least on x86, the WRITE bit in the page directory entries will override
-any bits int he PTE. In other words, it doesn't make the page directory
-entries thmselves unwritable - it makes the final pages unwritable.
+"Most times". For example the EA patches have badly failed so far, just because
+Linus ignored all patches to add sys call numbers for a repeatedly discussed 
+and stable API and nobody else can add syscall numbers on i386. 
 
-Which are exactly the semantics we want.
-
-I have this strong feeling (but am lazy enough to not try to find the
-documentation) that on alpha the access bits in the upper page tables are
-just ignored (ie you have to actually turn off the present bit), which is
-a bit sad as it shouldn't matter from a PAL-code standpoint (just two more
-"and" instructions to and all the levels access bits together).
-
-		Linus
-
+-Andi

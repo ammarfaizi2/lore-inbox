@@ -1,116 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290062AbSBFKfY>; Wed, 6 Feb 2002 05:35:24 -0500
+	id <S290470AbSBFMKT>; Wed, 6 Feb 2002 07:10:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290338AbSBFKfP>; Wed, 6 Feb 2002 05:35:15 -0500
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:49412
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S290062AbSBFKez>; Wed, 6 Feb 2002 05:34:55 -0500
-Message-Id: <5.1.0.14.2.20020206052318.00a8a3a8@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 06 Feb 2002 05:30:26 -0500
-To: Martin Dalecki <dalecki@evision-ventures.com>
-From: Stevie O <stevie@qrpff.net>
-Subject: Re: windows is more secure than linux!!
-Cc: linux-kernel@vger.kernel.org, David Blomberg <dblomber@Libertec.com>,
-        caszonyi@yahoo.com
-In-Reply-To: <3C6100DD.2000800@evision-ventures.com>
-In-Reply-To: <5.1.0.14.2.20020206001038.00ab7490@whisper.qrpff.net>
+	id <S290454AbSBFMKJ>; Wed, 6 Feb 2002 07:10:09 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:32012 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S290461AbSBFMJv>;
+	Wed, 6 Feb 2002 07:09:51 -0500
+Date: Tue, 5 Feb 2002 22:45:39 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Dave Jones <davej@suse.de>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Trivial typo fix in Documentation
+Message-ID: <20020205214539.GA14952@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Let's see, three private responses and a few public ones...
+Hi!
 
-At 9:15am on 2/6/2002, Szonyi Calin (Calin Szonyi?) wrote:
+This needs to go at least to 2.5.3...
 
-> > Face it guys, statistics don't lie:
->
->Ever heard of a survey made on 1000 people which
->is relevant for 250,000,000 people ?
->
-> >
-> > [Windows]
-> > Bugs in Windows XP system services resulting in a
-> > security hole: 1 (UnPnP)
->
->And the viruses ?
->And the older windows OS's ?
->try on a 98 box
->Start-> run -> /con/con
->
-> >
-> > [Linux]
-> > Bugs in wu-ftpd and BIND: billions
->
->You are still using wu-ftpd ? Than ... enjoy :-))
->In linux you can run a program chrooted.
->
->In Mickey$oft $oftware you have to wait for the
->patches. And wait, and wait ...
->
-> >
-> > Linux is so way worse!
-> >
->
->Enjoy windows! Enjoy computer taking control over you!
->Enjoy BSOD! Enjoy viruses! Enjoy no customization!
->Enjoy spontaneus reboots! Enjoy a 32bit GUI on a top
->of a 16bit OS (win 9x)
-> >
-> > what? wu-ftpd isnt linux? yes it is! its on
-> > freshmeat!
->
->You mean every "fresh meat" == "Linux" ?
->No comment
->
->Calin
+--- clean/Documentation/SubmittingDrivers	Mon Aug 27 17:59:16 2001
++++ linux/Documentation/SubmittingDrivers	Thu Oct 25 13:26:15 2001
+@@ -3,7 +3,7 @@
+ 
+ This document is intended to explain how to submit device drivers to the
+ Linux 2.2 and 2.4 kernel trees. Note that if you are interested in video
+-card drivers you should probably talk to XFree86 (http://wwww.xfree86.org) 
++card drivers you should probably talk to XFree86 (http://www.xfree86.org) 
+ instead.
+ 
+ Also read the Documentation/SubmittingPatches document.
 
-
----
-
-
-At 6:17pm 2/6/2002 +0900, David Blomberg wrote:
-
->         > Face it guys, statistics don't lie:
->
->         http://securityfocus.com/vulns/stats.shtml
->Read the real article
->
->         >
->         > Linux is so way worse!
->         >
->
->         Counting 3+ Sql Servers, a few mail servers, a dozen web browsers, a
->couple office suites
->         compared to MS OS (yeah that's a fair comparison and Linux still
->comes out even) :>
->
->Since when did fresh meat become the sole Linux authority?
-
----
-
-
-At 11:09 AM 2/6/2002 +0100, Martin Dalecki wrote:
-
->>Face it guys, statistics don't lie:
->>
->>[Windows]
->>Bugs in Windows XP system services resulting in a security hole: 1 (UnPnP)
->>
->>[Linux]
->>Bugs in wu-ftpd and BIND: billions
->You miss the simple fact that there is no wu-ftpd equivalent on Windows XP 
->running.
-
----
-
-http://www.dictionary.com/cgi-bin/dict.pl?term=satire
-
-
---
-Stevie-O
-
-Real programmers use COPY CON PROGRAM.EXE
-
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

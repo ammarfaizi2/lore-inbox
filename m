@@ -1,76 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275809AbRJBFTt>; Tue, 2 Oct 2001 01:19:49 -0400
+	id <S275816AbRJBFYT>; Tue, 2 Oct 2001 01:24:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275816AbRJBFTk>; Tue, 2 Oct 2001 01:19:40 -0400
-Received: from unthought.net ([212.97.129.24]:63899 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S275809AbRJBFTV>;
-	Tue, 2 Oct 2001 01:19:21 -0400
-Date: Tue, 2 Oct 2001 07:19:49 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: "Oleg A. Yurlov" <kris@spylog.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAID sync
-Message-ID: <20011002071949.B5302@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	"Oleg A. Yurlov" <kris@spylog.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1101445461994.20011001182753@spylog.com>
+	id <S275822AbRJBFYK>; Tue, 2 Oct 2001 01:24:10 -0400
+Received: from granger.mail.mindspring.net ([207.69.200.148]:28935 "EHLO
+	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S275816AbRJBFYC>; Tue, 2 Oct 2001 01:24:02 -0400
+Subject: Re: ext3 0.9.10 for Alan's tree
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: sct@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3BB946B4.C7479C16@zip.com.au>
+In-Reply-To: <1001989916.2780.61.camel@phantasy> 
+	<3BB946B4.C7479C16@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.14.99+cvs.2001.09.30.08.08 (Preview Release)
+Date: 02 Oct 2001 01:24:31 -0400
+Message-Id: <1002000273.865.13.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <1101445461994.20011001182753@spylog.com>; from kris@spylog.com on Mon, Oct 01, 2001 at 06:27:53PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 01, 2001 at 06:27:53PM +0400, Oleg A. Yurlov wrote:
-> 
->         Privet :-)
-> 
->         Kernel 2.4.6.SuSE-4GB-SMP, 2 CPU, 2Gb RAM, 4 HDD SCSI, M/B Intel L440GX.
-> Messages from dmesg:
-> 
-...
-> md: sdc2 [events: 0000001e](write) sdc2's sb offset: 15815872
-> md: considering sdb2 ...
-> md:  adding sdb2 ...
-> md:  adding sda2 ...
-> md: created md0
-> md: bind<sda2,1>
-> md: bind<sdb2,2>
-> md: running: <sdb2><sda2>
-> md: now!
-> md: sdb2's event counter: 0000001c
-> md: sda2's event counter: 0000001d
-> md: superblock update time inconsistency -- using the most recent one
-> md: freshest: sda2
-> md0: max total readahead window set to 508k
-> md0: 1 data-disks, max readahead per data-disk: 508k
-> raid1: device sdb2 operational as mirror 1
-> raid1: device sda2 operational as mirror 0
-> raid1: raid set md0 active with 2 out of 2 mirrors
-> md: updating md0 RAID superblock on device
-> md: sdb2 [events: 0000001e](write) sdb2's sb offset: 15815872
-> md: sda2 [events: 0000001e](write) sda2's sb offset: 15815872
-> md: ... autorun DONE.
-> 
->         Why RAID do not start synchronization ? It is normal ?
+On Tue, 2001-10-02 at 00:46, Andrew Morton wrote:
+> Yes, sorry.  It's turning out to be a lot of work keeping the master
+> ext3 tree in sync with two (rather different) kernels, and running around
+> after all the changes which are happening in (ahem) one of them.
 
-Doesn't it ?
+Don't explain that -- I know :) I think all of us are wanting a
+single-tree development kernel about now...
 
-Try "cat /proc/mdstat"
+> We prefer to test a lot before releasing, and the one time I skipped
+> that step was for 2.4.10, and it was the one which is broken. Sigh.
+> 
+> Rob, I've added this patch to the download site for interested parties
+> to use.  http://www.uow.edu.au/~andrewm/linux/ext3/
 
-Synchronization is a background operation - your array is functional
-immediately.
+Great.
 
-(this behaviour was changed from the really really old RAID code in unpatched
- 2.2 to standard 2.4)
+> But for a merge with Alan we do have a few more changes backed up,
+> and some more testing must be done.  I'll try to prepare 0.9.11
+> for -ac this week.  I'm inclined to down-tools on Linus kernels
+> for a while, wait for things to settle down there.
+
+I'll be happy to test and do anything else I can.  Thanks for the reply
+and all.
+
+> Thanks!
+
+You are welcome :)
 
 -- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

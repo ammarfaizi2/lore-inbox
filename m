@@ -1,33 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbVBOTuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVBOUDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbVBOTuE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 14:50:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbVBOTtS
+	id S261848AbVBOUDM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 15:03:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVBOT7C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 14:49:18 -0500
-Received: from fire.osdl.org ([65.172.181.4]:11905 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261844AbVBOToY (ORCPT
+	Tue, 15 Feb 2005 14:59:02 -0500
+Received: from mail.murom.net ([213.177.124.17]:13507 "EHLO ns1.murom.ru")
+	by vger.kernel.org with ESMTP id S261852AbVBOT6W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 14:44:24 -0500
-Date: Tue, 15 Feb 2005 11:44:13 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andreas Schwab <schwab@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Tue, 15 Feb 2005 14:58:22 -0500
+Date: Tue, 15 Feb 2005 22:58:02 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
 Subject: Re: Pty is losing bytes
+Message-Id: <20050215225802.6321e9a8.vsu@altlinux.ru>
 In-Reply-To: <Pine.LNX.4.58.0502151053060.5570@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0502151129210.5570@ppc970.osdl.org>
-References: <jebramy75q.fsf@sykes.suse.de> <Pine.LNX.4.58.0502151053060.5570@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <jebramy75q.fsf@sykes.suse.de>
+	<Pine.LNX.4.58.0502151053060.5570@ppc970.osdl.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i586-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Tue__15_Feb_2005_22_58_02_+0300_jexgoBfDBr+lpwkk"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Signature=_Tue__15_Feb_2005_22_58_02_+0300_jexgoBfDBr+lpwkk
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
+On Tue, 15 Feb 2005 11:08:07 -0800 (PST) Linus Torvalds wrote:
 
-On Tue, 15 Feb 2005, Linus Torvalds wrote:
-> 
 > On Tue, 15 Feb 2005, Andreas Schwab wrote:
 > >
 > > Recent kernel are losing bytes on a pty. 
@@ -45,34 +50,36 @@ On Tue, 15 Feb 2005, Linus Torvalds wrote:
 > 4kB-1 bytes. That in turn implies that "ldisc.receive_room()" disagrees 
 > with "ldisc.receive_buf()".
 
-Ok, I just tried this myself, and yes, the change from 4kB chunks to 2kB 
-chunks seems to fix your PTY test code.
+The problem also goes away after unsetting ECHO on the slave terminal.
+This seems to point to this code in n_tty_receive_char():
 
-However, then when I start looking at n_tty_receive_room() and 
-n_tty_receive_buf(), my stomach gets a bit queasy. I have this horrid 
-feeling that I had something to do with the mess, but I'm going to lash 
-out and blame somebody else, like tytso, for most of it. That's some _old_ 
-code, regardless (gone through a lot of "let's fix up that detail", but 
-not a lot of "boy, I bet we could fix it entirely").
+	if (L_ECHO(tty)) {
+		if (tty->read_cnt >= N_TTY_BUF_SIZE-1) {
+			put_char('\a', tty); /* beep if no space */
+			return;
+		}
+	.......
+	}
 
-We should get rid of the separate "how much room do you have to write" and 
-"do the write" stuff, and just make "receive_buf()" able to write partial 
-results. As it is, if (as it seems to be the case) n_tty_receive_room() 
-claims to have more room than "n_tty_receive_buf()" can actually fill, 
-then the tty layer will never know that somebody lied, and that characters
-got dropped on the floor.
+This code sets the maximum number of buffered characters to
+N_TTY_BUF_SIZE-1, however, put_tty_queue() considers the maximum to be
+N_TTY_BUF_SIZE, and n_tty_receive_room() also returns N_TTY_BUF_SIZE for
+canonical mode if the canon_data buffer is empty - therefore after
+unsetting ECHO bytes are no longer lost.
 
-This bug was apparently hidden just because the PTY layer used the flip 
-buffers as it's staging area, and that happens to be 2kB in size. That, 
-in turn, is only half of what the actual N_TTY_BUF_SIZE is, so a single
-call could never fill up N_TTY_BUF_SIZE, even if characters were expanded 
-(ie LF -> CRLF translation etc).
+BTW, for the noncanonical mode n_tty_receive_room() calculates the
+result assuming that the buffer can hold at most N_TTY_BUF_SIZE-1
+characters - not the full N_TTY_BUF_SIZE.
 
-I'd love for somebody to try to take a look at where n_tty goes wrong, but 
-I think that for now I'll just make the fix be the cheezy "limit tty 
-chunks to 2kB". It's worked for a decade, it can work for a bit longer ;)
+--Signature=_Tue__15_Feb_2005_22_58_02_+0300_jexgoBfDBr+lpwkk
+Content-Type: application/pgp-signature
 
-Who here feels they know n_tty and have a strong stomach?  Raise your 
-hands now. Don't be shy.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-		Linus
+iD8DBQFCElRNW82GfkQfsqIRAszNAKCUc4ic0Sl0gIgVxssR6b+K7hIx5ACeIofo
+dYZM5lrz+tk55KWfSxpjiEQ=
+=OKMf
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__15_Feb_2005_22_58_02_+0300_jexgoBfDBr+lpwkk--

@@ -1,136 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268123AbTCFQjP>; Thu, 6 Mar 2003 11:39:15 -0500
+	id <S268143AbTCFQlj>; Thu, 6 Mar 2003 11:41:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262289AbTCFQjO>; Thu, 6 Mar 2003 11:39:14 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:55257 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S268123AbTCFQjG>;
-	Thu, 6 Mar 2003 11:39:06 -0500
-Subject: [ANNOUNCE] LTP-20030206
-To: ltp-list@lists.sourceforge.net, ltp-announce@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 6.0 September 26, 2002
-Message-ID: <OF4AF5DDD6.DCAA7D63-ON85256CE1.0057F0C5-86256CE1.005CD250@pok.ibm.com>
-From: "Robert Williamson" <robbiew@us.ibm.com>
-Date: Thu, 6 Mar 2003 10:49:21 -0600
-X-MIMETrack: Serialize by Router on D01ML076/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 03/06/2003 11:48:37 AM
+	id <S268144AbTCFQlj>; Thu, 6 Mar 2003 11:41:39 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:19843 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id <S268143AbTCFQlg>; Thu, 6 Mar 2003 11:41:36 -0500
+Date: Thu, 6 Mar 2003 16:53:56 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@digeo.com>
+cc: Dave McCracken <dmccr@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH] nonlinear oddities
+Message-ID: <Pine.LNX.4.44.0303061618460.2422-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Linux Test Project test suite ltp-full-20030206.tgz has been released.
-Visit our website (http://ltp.sourceforge.net) to download the latest
-version of the testsuite that contains 1000+ tests for the Linux OS.  Our
-site also contains other information such as: test results, a Linux test
-tools matrix, technical papers and HowTos on Linux testing, and a code
-coverage analysis tool.  A new area for keeping up with fixes for known
-blocking problems in 2.5 kernel releases has been added as well, and can
-be found at http://ltp.sourceforge.net/errata .
+1.  Revert MAP_NONLINEAR and VM_NONLINEAR: I can easily imagine wanting
+VM_NONLINEAR in future, warning that vma is unusual, but currently it's
+not useful: install_page just needs to SetPageAnon if the page is put
+somewhere try_to_unmap_obj_one wouldn't be able to find it.
 
-The list of test cases that are expected to fail is located at:
-http://ltp.sourceforge.net/expected-errors.php
+2.  filemap_populate and shmem_populate expect an absolute pgoff, but
+try_to_unmap_one is forgetting to add in vm_pgoff when doing set_pte.
+Could be done the other way round, with relative pgoff in the pte?
+No, that would make splitting a vma tedious.
 
-The highlights of this release are:
+3.  No patch included, but I believe 2.5.64-mm1 is testing Ingo's
+file-offset-in-pte very much less than you imagine (I've yet to hit
+a breakpoint on do_file_page, and I don't think that's down to the
+patches above): Dave's work means that the file pages don't arrive
+at Ingo's code to set the pte with file offset (unless you actually
+use Ingo's syscall) - difficult to test both at once, I think.
 
-- All tests from the Open POSIX* Testsuite have been ported and merged in.
-- New test scripts have been added for system stress and LVM testing.
-- Entire suite has been updated to support non-root 'make install'
-- New API added to allow test creators to easily query the kernel
-  version of the test machine.
-- Changes were implemented to support GCC 3.3 standards.
-- All patches, fixes, and updates accepted into CVS have been included.
+Hugh 
 
-We encourage the community to post results, patches, or new tests on our
-mailing list, and to use the CVS bug tracking facility to report problems
-that you might encounter. More details available at our web-site.
-
-- Robbie
-
-Robert V. Williamson <robbiew@us.ibm.com>
-Linux Test Project
-IBM Linux Technology Center
-Phone: (512) 838-9295   T/L: 678-9295
-Fax: (512) 838-4603
-Web: http://ltp.sourceforge.net
-IRC: #ltp on freenode.irc.net
-====================
-"Only two things are infinite, the universe and human stupidity, and I'm
-not sure about the former." -Albert Einstein
-
-ChangeLog
----------
-- Changed IDcheck.sh to only prompt for id        ( Robbie Williamson )
-  creation if the user is root.
-- Added LVM test execution scripts.               ( Marty Ridgeway )
-- Added system stress execution script.           ( Robbie Williamson )
-- Added tst_kvercmp() API to allow test           ( Paul Larson )
-  creators to query the kernel version.
-- Removed all external int declarations of        ( Anton Blanchard,
-  "errno" and replaced with includes of errno.h     Susanne Wintenberger,
-                                                    Robbie Williamson )
-- Replaced usage of sigaction() with signal()     ( Nathan Straz )
-  in `pan`.
-- Ported and merged all tests from the Open       ( Robbie Williamson )
-  POSIX* Testsuite:
-    pthreads
-    semaphores
-    timers
-    clock()
-    nanosleep()
-    raise()
-    sigsetops
-- Added flock06 test.                             ( Matthew Wilcox )
-- Added ipchains and dhcpd (server) tests.        ( Manoj Iyer )
-- Patched Makefiles to stop execution on errors.  ( Vasan Sundar )
-- Patched Makefiles to allow non-root users to    ( Robbie Williamson )
-  run 'make install'.
-- Fixed 'ar' test to use CC defintion in          ( Anton Blanchard )
-  Makefile.
-- Corrected typos in install section of           ( Manoj Iyer )
-  commands/fileutils/<test> Makefiles.
-- Added tests for gzip/gunzip.                    ( Manoj Iyer )
-- Added tests for unzip.                          ( Manoj Iyer )
-- Applied patch to fsstress's Makefile to         ( Anton Blanchard )
-  define _GNU_SOURCE to allow O_DIRECT.
-- Applied changes to allow testcases to be        ( Susanne Wintenberger )
-  GCC 3.3 compliant.
-- Fixed semaphore initialization bug in sem02.    ( Jacky Malcles )
-- Applied patch to mem/mtest07/shm_test.c to      ( Chris Dearman )
-  correct character buffer variable: buff.
-- Fixed hangup01 to initialize variable,          ( Robbie Williamson )
-  usrstr.len, to avoid junk data storage.
-- Applied patch to clone01 to allow test to       ( Andi Kleen )
-  be more architecture independent.
-- Added kernel checking code to module tests.     ( Paul Larson )
-- Applied 31bit emulation s390x patch to          ( Susanne Wintenberger )
-  delete_module02 and query_module03.
-- Fixed cleanup section of ftruncate01.           ( Robbie Williamson )
-- Applied patch to gettimeofday01 to not allow    ( Andi Kleen )
-  execution on x86_64 architectures.
-- Added x86_64 as valid architecture for ioperm() ( Andi Kleen )
-  and iopl() tests.
-- Applied patch to semctl() tests to correctly    ( Anton Blanchard )
-  test the ipc call.
-- Removed unspecified/undocumented case from      ( Anton Blanchard )
-  munlock01.
-- Fixed personality02 test.                       ( Paul Larson )
-- Applied MIPS specific architecture patch to     ( Chris Dearman )
-  profil01.
-- Removed unspecified/undocumented case from      ( Robbie Williamson )
-  sendmsg01.
-- Applied patch to swapoff() and swapon()         ( Jacky Malcles )
-  testcases to allow correct execution on IA64
-- Applied patch to sysfs01 to allow execution on  ( Susanne Wintenberger )
-  64bit machines.
-- Added test for ustat().                         ( Aniruddha Marathe )
-- Patched float_ tests to generate datafiles      ( Robbie Williamson )
-  during execution.
-- Added test for iproute.                         ( Manoj Iyer )
-- Added test for xinetd.                          ( Manoj Iyer )
-- Added test for traceroute.                      ( Manoj Iyer )
-
-
-
+--- 2.5.64-mm1/include/asm-i386/mman.h	Thu Mar  6 08:24:23 2003
++++ linux/include/asm-i386/mman.h	Thu Mar  6 15:59:49 2003
+@@ -20,7 +20,6 @@
+ #define MAP_NORESERVE	0x4000		/* don't check for reservations */
+ #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
+ #define MAP_NONBLOCK	0x10000		/* do not block on IO */
+-#define MAP_NONLINEAR	0x20000		/* will be used for remap_file_pages */
+ 
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_INVALIDATE	2		/* invalidate the caches */
+--- 2.5.64-mm1/include/asm-ppc64/mman.h	Thu Mar  6 08:24:23 2003
++++ linux/include/asm-ppc64/mman.h	Thu Mar  6 15:59:49 2003
+@@ -36,7 +36,6 @@
+ 
+ #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
+ #define MAP_NONBLOCK	0x10000		/* do not block on IO */
+-#define MAP_NONLINEAR	0x20000		/* Mapping may use remap_file_pages */
+ 
+ #define MADV_NORMAL	0x0		/* default page-in behavior */
+ #define MADV_RANDOM	0x1		/* page-in minimum required */
+--- 2.5.64-mm1/include/linux/mm.h	Thu Mar  6 08:24:24 2003
++++ linux/include/linux/mm.h	Thu Mar  6 15:59:49 2003
+@@ -107,7 +107,6 @@
+ #define VM_RESERVED	0x00080000	/* Don't unmap it from swap_out */
+ #define VM_ACCOUNT	0x00100000	/* Is a VM accounted object */
+ #define VM_HUGETLB	0x00400000	/* Huge TLB Page VM */
+-#define VM_NONLINEAR	0x00800000	/* Nonlinear area */
+ 
+ #ifdef CONFIG_STACK_GROWSUP
+ #define VM_STACK_FLAGS	(VM_GROWSUP | VM_DATA_DEFAULT_FLAGS | VM_ACCOUNT)
+--- 2.5.64-mm1/mm/fremap.c	Thu Mar  6 08:24:24 2003
++++ linux/mm/fremap.c	Thu Mar  6 15:59:49 2003
+@@ -1,5 +1,5 @@
+ /*
+- *   linux/mm/mpopulate.c
++ *   linux/mm/fremap.c
+  * 
+  * Explicit pagetable population and nonlinear (random) mappings support.
+  *
+@@ -57,6 +57,7 @@
+ 	pgd_t *pgd;
+ 	pmd_t *pmd;
+ 	struct pte_chain *pte_chain;
++	unsigned long pgidx;
+ 
+ 	pte_chain = pte_chain_alloc(GFP_KERNEL);
+ 	if (!pte_chain)
+@@ -79,7 +80,10 @@
+ 	flush_icache_page(vma, page);
+ 	entry = mk_pte(page, prot);
+ 	set_pte(pte, entry);
+-	if (vma->vm_flags & VM_NONLINEAR)
++	pgidx = (addr - vma->vm_start) >> PAGE_SHIFT;
++	pgidx += vma->vm_pgoff;
++	pgidx >>= PAGE_CACHE_SHIFT - PAGE_SHIFT;
++	if (page->index != pgidx)
+ 		SetPageAnon(page);
+ 	pte_chain = page_add_rmap(page, pte, pte_chain);
+ 	pte_unmap(pte);
+@@ -139,8 +143,7 @@
+ 	 * and that the remapped range is valid and fully within
+ 	 * the single existing vma:
+ 	 */
+-	if (vma &&
+-	    ((vma->vm_flags & (VM_SHARED|VM_NONLINEAR)) == (VM_SHARED|VM_NONLINEAR)) &&
++	if (vma && (vma->vm_flags & VM_SHARED) &&
+ 		vma->vm_ops && vma->vm_ops->populate &&
+ 			end > start && start >= vma->vm_start &&
+ 				end <= vma->vm_end)
+--- 2.5.64-mm1/mm/mmap.c	Thu Mar  6 08:24:24 2003
++++ linux/mm/mmap.c	Thu Mar  6 15:59:49 2003
+@@ -219,7 +219,6 @@
+ 	flag_bits =
+ 		_trans(flags, MAP_GROWSDOWN, VM_GROWSDOWN) |
+ 		_trans(flags, MAP_DENYWRITE, VM_DENYWRITE) |
+-		_trans(flags, MAP_NONLINEAR, VM_NONLINEAR) |
+ 		_trans(flags, MAP_EXECUTABLE, VM_EXECUTABLE);
+ 	return prot_bits | flag_bits;
+ #undef _trans
+--- 2.5.64-mm1/mm/rmap.c	Thu Mar  6 08:24:24 2003
++++ linux/mm/rmap.c	Thu Mar  6 15:59:49 2003
+@@ -598,6 +598,8 @@
+ 		 * in the pte.
+ 		 */
+ 		pgidx = (address - vma->vm_start) >> PAGE_SHIFT;
++		pgidx += vma->vm_pgoff;
++		pgidx >>= PAGE_CACHE_SHIFT - PAGE_SHIFT;
+ 		if (1 || page->index != pgidx) {
+ 			set_pte(ptep, pgoff_to_pte(page->index));
+ 			BUG_ON(!pte_file(*ptep));
 

@@ -1,75 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274971AbTHFWhv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 18:37:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274979AbTHFWhv
+	id S274804AbTHFWlX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 18:41:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274982AbTHFWlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 18:37:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:1201 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S274971AbTHFWg7 (ORCPT
+	Wed, 6 Aug 2003 18:41:03 -0400
+Received: from iwoars.net ([217.160.110.113]:37647 "HELO iwoars.net")
+	by vger.kernel.org with SMTP id S274997AbTHFWjc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 18:36:59 -0400
-Subject: Re: linux-2.6.0-test2-mm4 O_DIRECT
-From: Daniel McNeil <daniel@osdl.org>
-To: RaTao <ratao@toxyn.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F3173D5.8000705@toxyn.org>
-References: <3F30CFC1.1090205@toxyn.org>
-	 <20030806121759.50a48626.akpm@osdl.org>  <3F3173D5.8000705@toxyn.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1060209414.1903.7.camel@ibm-c.pdx.osdl.net>
+	Wed, 6 Aug 2003 18:39:32 -0400
+Date: Thu, 7 Aug 2003 00:40:22 +0200
+From: Thomas Themel <themel@iwoars.net>
+To: linux-kernel@vger.kernel.org
+Subject: Device-backed loop broken in 2.6.0-test2?
+Message-ID: <20030806224022.GA3741@iwoars.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 06 Aug 2003 15:36:54 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Jabber-ID: themel0r@jabber.at
+X-ICQ-UIN: 8774749
+X-Postal: Hauptplatz 8/4, 9500 Villach, Austria
+X-Phone: +43 676 846623 13
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-O_DIRECT also works for me on ext3 using regular write and async i/o
-using 512-byte i/o.
+Hi,
 
-Is your buffer alignment correct?
-O_DIRECT requires a 512-byte aligned buffer.
+it seems that device backed loopback is broken in the 2.6.0-test2 series.
 
-Daniel
-On Wed, 2003-08-06 at 14:32, RaTao wrote:
-> Hi!
-> 
-> I've correct my (don't know how) misspelled subject :)
-> 
-> Andrew Morton wrote:
-> 
-> [..snip..]
-> > 
-> > 
-> > It works OK here.
-> > 
-> > 
-> >>- vmstat doesn't show bi/bo for O_DIRECT's disk access.
-> > 
-> > 
-> > It does here.
-> > 
-> 
-> Maybe goofed somewhere. I can't test it again today, I'll do it tomorrow.
-> 
-> 
-> > 
-> > I'd be suspecting your test app: is it checking the return value of all
-> > syscalls?
-> 
-> I'll double check.
-> Thanks,
-> 
-> Ratao
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I've noticed the error while testing cryptoloop, but it still appears
+reliably when using plain loop without encryption.
 
+I set up a loopback device on an IDE partition
+
+losetup /dev/loop0 /dev/hda6
+
+and create an ext3 filesystem on it. Then, when trying to fill it with
+data, it works for a while until errors of the form 
+
+Buffer I/O error on device loop0, logical block 377367
+Buffer I/O error on device loop0, logical block 377380
+Buffer I/O error on device loop0, logical block 377419
+Buffer I/O error on device loop0, logical block 378937
+Buffer I/O error on device loop0, logical block 378983
+Buffer I/O error on device loop0, logical block 380008
+Buffer I/O error on device loop0, logical block 380009
+
+start to appear in the kernel log. This does not affect the writes,
+however, and only manifests later when the filesystem breaks or data in
+files is corrupted. 
+
+ciao,
+-- 
+[*Thomas  Themel*] I read what some of you folks here write and all I can
+[extended contact] say is that I hope you are inside the fireballs when the
+[info provided in] freedom fighters take out the Great Satan.
+[*message header*]	- Tim May on cypherpunks

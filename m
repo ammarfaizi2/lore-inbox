@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263046AbUB0Qs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 11:48:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263047AbUB0Qs5
+	id S263048AbUB0Q4i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 11:56:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263049AbUB0Q4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 11:48:57 -0500
-Received: from pop.gmx.net ([213.165.64.20]:59605 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263046AbUB0Qs4 (ORCPT
+	Fri, 27 Feb 2004 11:56:38 -0500
+Received: from fw.osdl.org ([65.172.181.6]:31113 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263048AbUB0Q4h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 11:48:56 -0500
-X-Authenticated: #4512188
-Message-ID: <403F74F8.9020805@gmx.de>
-Date: Fri, 27 Feb 2004 17:48:56 +0100
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040216)
-X-Accept-Language: en-us, en
+	Fri, 27 Feb 2004 11:56:37 -0500
+Message-Id: <200402271656.i1RGuME16838@mail.osdl.org>
+Date: Fri, 27 Feb 2004 08:56:17 -0800 (PST)
+From: markw@osdl.org
+Subject: Re: AS performance with reiser4 on 2.6.3
+To: Nikita@Namesys.COM
+cc: piggin@cyberone.com.au, reiserfs-list@Namesys.COM,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <16446.13520.5837.193556@laputa.namesys.com>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, sensors@stimpy.netroedge.com
-Subject: Re: 2.6.3-mm4
-References: <20040225185536.57b56716.akpm@osdl.org> <403E82D8.3030209@gmx.de> <20040225185536.57b56716.akpm@osdl.org> <20040227001115.GA2627@werewolf.able.es> <20040227004602.GB15075@kroah.com>
-In-Reply-To: <20040227004602.GB15075@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Yup, we changed all of the sensors sysfs names :)
+On 26 Feb, Nikita Danilov wrote:
+> markw@osdl.org writes:
+>  > Hi Nick,
+>  > 
+>  > I started getting some results with dbt-2 on 2.6.3 and saw that reiser4
+>  > is doing a bit worse with the AS elevator.  Although reiser4 wasn't
+>  > doing well to begin with, compared to the other filesystems.  I have
+>  > links to the STP results on our 4-ways and 8-ways here:
+>  > 	http://developer.osdl.org/markw/fs/dbt2_stp_results.html
 > 
-> Hey, we did warn everyone here on lkml we were going to do this, and no
-> one complained...
+> There were no changes between 2.6.2 and 2.6.3 that could affect reiser4
+> performance, so it is not clear why numbers are so different. Probably
+> results should be averaged over several runs. Also can you run test with
+> 
+> http://www.namesys.com/snapshots/2004.02.25/extra/e_05-proc-sleep.patch
+> 
+> applied? To use it turn CONFIG_PROC_SLEEP on (depends on
+> CONFIG_FRAME_POINTER), and do "cat /proc/sleep" before and after test
+> run.
 
-Ok, that explains it. Seems like I have not seen it. :-) (Well, I 
-started using sensors only since a few days, btw...)
+http://khack.osdl.org/stp/288905/results/
 
-Prakash
+There are a set of /proc/sleep files there from a 4-way system.
+
+Mark

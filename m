@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbUDROcE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 10:32:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbUDROcE
+	id S261204AbUDROk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 10:40:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbUDROk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 10:32:04 -0400
-Received: from smtp3.wanadoo.fr ([193.252.22.28]:38328 "EHLO
-	mwinf0302.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S261162AbUDROcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 10:32:02 -0400
-Date: Sun, 18 Apr 2004 16:37:34 +0000
-From: Philippe Elie <phil.el@wanadoo.fr>
-To: Anton Blanchard <anton@samba.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       oprofile-list@lists.sourceforge.net
-Subject: Re: [PATCH] Oprofilefs cant handle > 99 cpus
-Message-ID: <20040418163734.GA384@zaniah>
-References: <20040418110658.GC26086@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040418110658.GC26086@krispykreme>
-User-Agent: Mutt/1.4i
+	Sun, 18 Apr 2004 10:40:56 -0400
+Received: from netrider.rowland.org ([192.131.102.5]:56590 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S261204AbUDROkz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 10:40:55 -0400
+Date: Sun, 18 Apr 2004 10:40:55 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Duncan Sands <baldrick@free.fr>
+cc: Oliver Neukum <oliver@neukum.org>, Greg KH <greg@kroah.com>,
+       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
+       Frederic Detienne <fd@cisco.com>
+Subject: Re: [linux-usb-devel] [PATCH 1/9] USB usbfs: take a reference to
+ the usb device
+In-Reply-To: <200404181136.32308.baldrick@free.fr>
+Message-ID: <Pine.LNX.4.44L0.0404181037350.7619-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Apr 2004 at 21:06 +0000, Anton Blanchard wrote:
+On Sun, 18 Apr 2004, Duncan Sands wrote:
 
+> > > gives correctness, but at the cost of a probable performance hit.  In
+> > > later steps we can (1) turn dev->serialize into a rwsem
+> >
+> > Rwsems are _slower_ in the normal case of no contention.
 > 
-> Hi,
-> 
-> Oprofilefs cant handle > 99 cpus. This should fix it.
+> Right, but remember that dev->serialize is per device, not per interface.  So if two
+> programs grab different interfaces of the same device using usbfs, or if multiple
+> threads in the same program beat on the same interface, then they could lose time
+> fighting for dev->serialize when in fact they could run in parallel.  Personally I doubt
+> it matters much, but since most of usbfs only requires read access to the data structures
+> protected by dev->serialize, it seems logical to use a rwsem.
 
-right.
- 
-> ===== oprofile_stats.c 1.6 vs edited =====
-> --- 1.6/drivers/oprofile/oprofile_stats.c	Mon Jan 19 17:33:51 2004
-> +++ edited/oprofile_stats.c	Sun Apr 18 19:46:35 2004
-> @@ -55,7 +55,7 @@
->  			continue;
->  
->  		cpu_buf = &cpu_buffer[i]; 
-> -		snprintf(buf, 6, "cpu%d", i);
-> +		snprintf(buf, 10, "cpu%d", i);
->  		cpudir = oprofilefs_mkdir(sb, dir, buf);
->   
->  		/* Strictly speaking access to these ulongs is racy,
+There was a lengthy discussion about this a few months ago.  On the whole, 
+people felt that using an rwsem wasn't a good idea.
 
-Andrew, can you apply this patch ?
+Personally, I think that contention for a single device will be very rare, 
+so we don't need to consider it and can leave things as they are.
 
-regards,
-Phil
+Alan Stern
+

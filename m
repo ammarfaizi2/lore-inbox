@@ -1,50 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267393AbTBLOdq>; Wed, 12 Feb 2003 09:33:46 -0500
+	id <S267173AbTBLOJT>; Wed, 12 Feb 2003 09:09:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267396AbTBLOdq>; Wed, 12 Feb 2003 09:33:46 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:15511 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S267393AbTBLOdo>; Wed, 12 Feb 2003 09:33:44 -0500
-Date: Wed, 12 Feb 2003 15:37:14 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Dave Jones <davej@codemonkey.org.uk>,
-       James McKenzie <james@fishsoup.dhs.org>,
-       Christian Gennerat <christian.gennerat@polytechnique.org>,
-       Martin Lucina <mato@kotelna.sk>,
-       Paul Bristow <paul.bristow@technologist.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] rename all symbols in drivers/net/irda/donauboe.c
-Message-ID: <20030212143714.GB18753@wohnheim.fh-wedel.de>
-References: <20030212132313.GB22472@wohnheim.fh-wedel.de> <20030212134430.GB3770@codemonkey.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030212134430.GB3770@codemonkey.org.uk>
-User-Agent: Mutt/1.3.28i
+	id <S267160AbTBLOIX>; Wed, 12 Feb 2003 09:08:23 -0500
+Received: from 12-237-214-24.client.attbi.com ([12.237.214.24]:19734 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S266955AbTBLOID>;
+	Wed, 12 Feb 2003 09:08:03 -0500
+Message-ID: <3E4A578C.7000302@mvista.com>
+Date: Wed, 12 Feb 2003 08:17:48 -0600
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: suparna@in.ibm.com, Kenneth Sumrall <ken@mvista.com>,
+       linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net
+Subject: Re: Kexec, DMA, and SMP
+References: <3E448745.9040707@mvista.com> <m1isvuzjj2.fsf@frodo.biederman.org>	<3E45661A.90401@mvista.com> <m1d6m1z4bk.fsf@frodo.biederman.org>	<20030210174243.B11250@in.ibm.com>	<m18ywoyq78.fsf@frodo.biederman.org> <20030211182508.A2936@in.ibm.com>	<20030211191027.A2999@in.ibm.com> <3E490374.1060608@mvista.com>	<20030211201029.A3148@in.ibm.com> <3E4914CA.6070408@mvista.com> <m1of5ixgun.fsf@frodo.biederman.org>
+In-Reply-To: <m1of5ixgun.fsf@frodo.biederman.org>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 February 2003 13:44:30 +0000, Dave Jones wrote:
-> 
-> But with both drivers built into the kernel, it'll always default
-> to the first one that gets initialised. There's a common
-> PCI_DEVICE_ID_FIR701 in the pci_device_id tables of both drivers.
-> 
-> It sounds like these should be mutually exclusive when built-in.
-> If you need a configuration with both, use modules.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Agreed.
+Eric W. Biederman wrote:
 
-Making them mutually exclusive should be next to impossible with the
-2.4 config language, but it might make sense for 2.5. I will look into
-it later.
+|Corey Minyard <cminyard@mvista.com> writes:
+|
+|>
+|>You don't understand.  You don't *want* to set aside a block of memory 
+that's
+|>reserved for DMA.  You want to be able to DMA directly into any user 
+address.
+|>Consider demand paging.  The performance would suck if you DMA into some
+|>fixed region then copied to the user address.  Plus you then have another
+|>resource you have to manage in the kernel.  And you still have to 
+change all
+|>the drivers, buffer management, etc. to add a flag that says "I'm 
+going to use
+|>this for DMA" to allocations.  You might as well add the quiesce 
+function, it's
+|>probably easier to do.  And it doesn't help if you DMA to static memory
+|>addresses.
+|>
+|>I, too, would like a simpler solution.  I just don't think this is it.
+|
+|
+|You have it backwards.  It is not about reserving a block of memory
+|for DMA.  It is about reserving a block of memory to not do DMA in.
+|Something like 4MB or so.  
+|
+|The idea is not to let the original kernel touch the reserved block at all.
+|We just put the kernel that kexec will start in that block of memory.
+|
+|Eric
+|
+Ah, it makes much more sense now.  Thank you.  I still don't think it's 
+as easy as you think, though.
+Because there's no designation on most memory allocations to give you 
+this information.  There's
+GFP_DMA, but according to the docs that's just for x86 ISA DMA devices.  
+You would
+have to hunt down all the memory allocations, figure out of they are DMA 
+targets or not, and add a
+flag for that.  I still say it's easier to just add the function to the 
+drivers.
 
-Jörn
+- -Corey
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
--- 
-Correctness comes second.
-Features come third.
-Performance comes last.
-Maintainability is needed for all of them.
+iD8DBQE+SleKmUvlb4BhfF4RAjbMAJ0RANUJ6OsH0yvKEtfPBty1TPP2dgCfSl48
+zjLWwW5Vf7Y/igLXUSdcpNQ=
+=MT+8
+-----END PGP SIGNATURE-----
+
+

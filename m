@@ -1,32 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293052AbSBWAPm>; Fri, 22 Feb 2002 19:15:42 -0500
+	id <S293056AbSBWAWO>; Fri, 22 Feb 2002 19:22:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293053AbSBWAPc>; Fri, 22 Feb 2002 19:15:32 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54281 "EHLO
+	id <S293055AbSBWAWE>; Fri, 22 Feb 2002 19:22:04 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59145 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293052AbSBWAPZ>; Fri, 22 Feb 2002 19:15:25 -0500
-Subject: Re: [PATCH] 2.4.18-rc2 Fix for get_pid hang
-To: plars@austin.ibm.com (Paul Larson)
-Date: Sat, 23 Feb 2002 00:29:47 +0000 (GMT)
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-In-Reply-To: <1014416988.12007.461.camel@plars.austin.ibm.com> from "Paul Larson" at Feb 22, 2002 04:29:48 PM
+	id <S293053AbSBWAVw>; Fri, 22 Feb 2002 19:21:52 -0500
+Subject: Re: 2.4.17: oops in kapm-idled?   (on IBM Thinkpad A30P [2653-66U])
+To: beh@icemark.net (Benedikt Heinen)
+Date: Sat, 23 Feb 2002 00:36:02 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jdthood@mail.com (Thomas Hood),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0202222133570.1183-100000@berenium.icemark.ch> from "Benedikt Heinen" at Feb 22, 2002 09:43:31 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16eQ4R-0003cZ-00@the-village.bc.nu>
+Message-Id: <E16eQAU-0003de-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This was made against 2.4.18-rc2 but applies cleanly against
-> 2.4.18-rc4.  This is a fix for a problem where if we run out of
-> available pids, get_pid will hang the system while it searches through
-> the tasks for an available pid forever.
+> I can't switch off all individual devices in the notebook, but if I
+> use the prism2 driver from linux-wlan.com, I can't get the full
+> performance out of it - but just something like ~20kb/s throughput
+> in ftp  (Win2K gets more than 500kb/s)...
 
-Wouldn't it be a much cleaner patch to limit the maximum number of processes
-to less than the number of pids available. You seem to be fixing a non
-problem by adding branches to the innards of a loop.
-
-
+What happens if you use the in kernel pcmcia, and the in kernel prism 
+chipset drivers ?

@@ -1,57 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269428AbRHGUwU>; Tue, 7 Aug 2001 16:52:20 -0400
+	id <S269432AbRHGUxU>; Tue, 7 Aug 2001 16:53:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269433AbRHGUwK>; Tue, 7 Aug 2001 16:52:10 -0400
-Received: from h24-76-51-121.vf.shawcable.net ([24.76.51.121]:940 "EHLO
-	whiskey.enposte.net") by vger.kernel.org with ESMTP
-	id <S269428AbRHGUwB>; Tue, 7 Aug 2001 16:52:01 -0400
-Date: Tue, 7 Aug 2001 13:51:35 -0700
-From: Stuart Lynne <sl@fireplug.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-Message-ID: <20010807135135.J17723@fireplug.net>
+	id <S269433AbRHGUxE>; Tue, 7 Aug 2001 16:53:04 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:50189 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S269432AbRHGUw6>;
+	Tue, 7 Aug 2001 16:52:58 -0400
+Date: Tue, 7 Aug 2001 13:18:57 -0400
+From: Anton Blanchard <anton@samba.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Andrew Tridgell <tridge@valinux.com>, lkml <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: 2.4.8preX VM problems
+Message-ID: <20010807131857.A13210@krispykreme>
+In-Reply-To: <Pine.LNX.4.21.0108061954001.11203-100000@freak.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0108061954001.11203-100000@freak.distro.conectiva>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+Hi Marcelo,
 
->  >>> Lets assume that eth0-eth3 are not initialized at boot time and
->  >>> your init scripts attempt to initialize eth4 ...
+> Can you please use readprofile to find out where kswapd is spending its
+> time when you reach 4G of pagecache ?
 > 
-> I gather that I misunderstood what you were saying above, so let me
-> clarify what I now understand by your comments:
-> 
->  1. You are assuming a broken set of init scripts. Specifically,
->     they load the individual modules manually by the name of the
->     module, rather than stating that you wish to initialise a
->     particular interface and letting kmod sort out the correct
->     module.
-> 
->     If this is your assumption, then you've created an artificial
->     situation that by its very nature is broken and unreliable.
-> 
+> I've never seen kswapd burn CPU time except cases where a lot of memory is
+> anonymous and there is a need for lots of swap space allocations.
+> (scan_swap_map() is where kswapd spends "all" of its time in such
+> workloads)
 
->  >>> To avoid such problems one probably should add a lot of
->  >>> pre-install parameters in modules.conf.
-> 
->  >> What problems?
-> 
->  > Described above.
-> 
-> What KERNEL problems then? I don't see any yet.
+I was doing a run with 512M lowmem and 2.5G highmem and found this:
 
-So not being able to reliable map ethernet devices to names is a feature
-not a bug .... 
+__alloc_pages: 1-order allocation failed.
+__alloc_pages: 1-order allocation failed.
+__alloc_pages: 1-order allocation failed.
 
-It *should* be possible to reliably name devices without having to rely
-on order dependant initialization.
+# cat /proc/meminfo 
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  3077513216 3067564032  9949184        0 13807616 2311172096
+Swap: 2098176000        0 2098176000
+MemTotal:      3005384 kB
+MemFree:          9716 kB
+MemShared:           0 kB
+Buffers:         13484 kB
+Cached:        2257004 kB
+SwapCached:          0 kB
+Active:         888916 kB
+Inact_dirty:   1335552 kB
+Inact_clean:     46020 kB
+Inact_target:      316 kB
+HighTotal:     2621440 kB
+HighFree:         7528 kB
+LowTotal:       383944 kB
+LowFree:          2188 kB
+SwapTotal:     2049000 kB
+SwapFree:      2049000 kB
 
--- 
-                                            __O 
-Lineo - For Embedded Linux Solutions      _-\<,_ 
-PGP Fingerprint: 28 E2 A0 15 99 62 9A 00 (_)/ (_) 88 EC A3 EE 2D 1C 15 68
-Stuart Lynne <sl@fireplug.net>         www.lineo.com         604-461-7532
+# readprofile | sort -nr | less
+11967239 total                                      7.3285
+7417874 idled                                    45230.9390
+363813 do_page_launder                          119.3612
+236764 ppc_irq_dispatch_handler                 332.5337
+
+I can split out the do_page_launder usage if you want. I had a quick look
+at the raw profile information and it appears that we are just looping a
+lot.
+
+Paulus and I moved the ppc32 kernel to load at 2G so we have 1.75G of
+lowmem. This has stopped the kswapd problem, but I thought the above
+information might be useful to you anyway.
+
+Anton

@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315168AbSFAJDO>; Sat, 1 Jun 2002 05:03:14 -0400
+	id <S316484AbSFALEB>; Sat, 1 Jun 2002 07:04:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315424AbSFAJDN>; Sat, 1 Jun 2002 05:03:13 -0400
-Received: from maile.telia.com ([194.22.190.16]:21188 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S315168AbSFAJDM>;
-	Sat, 1 Jun 2002 05:03:12 -0400
-To: Alessandro Suardi <alessandro.suardi@oracle.com>
-Cc: linux-kernel@vger.kernel.org, mochel@geena.pdx.osdl.net
-Subject: Re: 2.5.19 OOPS in pcmcia setup code
-In-Reply-To: <3CF6843C.6090101@oracle.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 01 Jun 2002 11:03:02 +0200
-Message-ID: <m2bsavpe0p.fsf@ppro.localdomain>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S316571AbSFALEA>; Sat, 1 Jun 2002 07:04:00 -0400
+Received: from kc.hitachisoftware.com ([205.158.62.105]:63648 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S316484AbSFALD7>; Sat, 1 Jun 2002 07:03:59 -0400
+Message-ID: <20020601110355.26944.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Anthony Spinillo" <tspinillo@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Sat, 01 Jun 2002 19:03:55 +0800
+Subject: INTEL 845G Chipset IDE Quandry
+X-Originating-Ip: 24.49.78.239
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alessandro Suardi <alessandro.suardi@oracle.com> writes:
+I am having trouble enabling DMA on a recently
+installed motherboard. (Intel D845GBVL - 845g chipset). I am running a fresh RedHat7.3 install 
+and have tried the stock RH kernel, and I'm up to 2.4.19-pre9. I have a CD burner and DVD drive 
+attached which operated with DMA on an older 
+845 mobo. If I run hdparm -d1 /dev/hd(a or c),
+I now get:
 
-> decoded oops follows, 100% reproducable.
-> 
-> Dell Latitude CPxJ750GT, PIII-750, Xircom RBEM56G100-TX,
->   kernel compiled with GCC 3.1. NB, 2.5.18 compiled with
->   GCC 3.1 works fine.
-> 
-> I tried recompiling with RH7.3 GCC but I still get an oops
->   on boot - I can't decode it since it scrolls maybe a dozen
->   screenfuls before stopping, so here's the GCC 3.1 one:
+HDIO_SET_DMA failed: Operation not permitted
 
-My laptop also oopses on boot, but this patch makes things work again:
+Here is a snippet from dmesg:
 
---- drivers/pci/hotplug.c.old	Sat Jun  1 10:53:53 2002
-+++ drivers/pci/hotplug.c	Sat Jun  1 10:52:05 2002
-@@ -61,7 +61,7 @@
- 	struct list_head *ln;
- 
- 	for(ln=pci_bus_type.drivers.next; ln != &pci_bus_type.drivers; ln=ln->next) {
--		struct pci_driver *drv = list_entry(ln, struct pci_driver, node);
-+		struct pci_driver *drv = list_entry(ln, struct pci_driver, driver.bus_list);
- 		if (drv->remove && pci_announce_device(drv, dev))
- 			break;
- 	}
+ide: Assuming 33MHz system bus speed for PIO modes;
+override with idebus=xx
+PCI_IDE: unknown IDE controller on PCI bus 00 device
+f9, VID=8086, DID=24cb
+PCI: Device 00:1f.1 not available because of resource
+collisions
+PCI_IDE: (ide_setup_pci_device:) Could not enable
+device.
+
+Here is some lspci
+
+00:00.0 Host bridge: Intel Corp.: Unknown device 2560 (rev 01)
+00:01.0 PCI bridge: Intel Corp.: Unknown device 2561 (rev 01)
+00:1d.0 USB Controller: Intel Corp.: Unknown device 24c2 (rev 01)
+00:1d.1 USB Controller: Intel Corp.: Unknown device 24c4 (rev 01)
+00:1d.2 USB Controller: Intel Corp.: Unknown device 24c7 (rev 01)
+00:1e.0 PCI bridge: Intel Corp. 82801BA/CA PCI Bridge (rev 81)
+00:1f.0 ISA bridge: Intel Corp.: Unknown device 24c0 (rev 01)
+00:1f.1 IDE interface: Intel Corp.: Unknown device 24cb (rev 01)
+
+I followed some recent threads, and tried fixes to similiar problems but I'm still locked out.
+
+Aside from this glitch everything else seems to run fine. Could someone give my a hand? Am I missing something simple, is my bios borked, or do I need a patch to support the newer chipset?
+
+Thanks,
+
+Tony
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+Get your free email from www.linuxmail.org 
+
+
+Powered by Outblaze

@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271687AbRH0KeG>; Mon, 27 Aug 2001 06:34:06 -0400
+	id <S271690AbRH0Kj5>; Mon, 27 Aug 2001 06:39:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271690AbRH0Kd4>; Mon, 27 Aug 2001 06:33:56 -0400
-Received: from fe090.worldonline.dk ([212.54.64.152]:9477 "HELO
-	fe090.worldonline.dk") by vger.kernel.org with SMTP
-	id <S271687AbRH0Kdv>; Mon, 27 Aug 2001 06:33:51 -0400
-Date: Mon, 27 Aug 2001 12:37:00 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: "David S. Miller" <davem@redhat.com>
-Subject: [patch] zero-bounce block highmem I/O, #13
-Message-ID: <20010827123700.B1092@suse.de>
-Mime-Version: 1.0
+	id <S271692AbRH0Kjs>; Mon, 27 Aug 2001 06:39:48 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:261 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271690AbRH0Kjh>; Mon, 27 Aug 2001 06:39:37 -0400
+Subject: Re: VCool - cool your Athlon/Duron during idle
+To: andrew.grover@intel.com (Grover, Andrew)
+Date: Mon, 27 Aug 2001 11:42:52 +0100 (BST)
+Cc: jan@gondor.com ('Jan Niehusmann'),
+        Dieter.Nuetzel@hamburg.de (=?iso-8859-1?Q?Dieter_N=FCtzel?=),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel List),
+        mpet@bigfoot.de ('mpet@bigfoot.de')
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0B7@orsmsx35.jf.intel.com> from "Grover, Andrew" at Aug 27, 2001 02:26:09 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15bJr2-0003fx-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> handle a too-hot cpu, but all C2/C3 gets you is reduced power when =
+> idle.
+> This results in better battery life on a laptop but that is irrelevant =
+> on a
+> desktop system.
 
-I've uploaded a new version. Changes since last time includes the
-following:
+Thus speaks the country with chronic californian power shortages, and that
+wouldn't sign up to a global accord on global warming 8)
 
-- Merge BIO_CONTIG from 2.5 bio patches to unify testing of contigious
-  buffer heads (BH_CONTIG in 2.4 tree) (me)
+C2 and C3 are useful IMHO even on a desktop PC. The slight hit on the
+transition is not noticable, the change on the power bill is.
 
-- cciss, cpqarray, and ide-dma wrongly used 0 for lastdataend in segment
-  merging, which is wrong since 0 is a valid physical address. A case of
-  s/NULL/0 substition when changing from virtual to physical tests.
-  (davem)
-
-- cciss/cpqarray - drop my_sg list, just use the kernel supplied
-  scatterlist. my_sg used unsigned short for length, which is too small.
-  (pointed out by davem, fixed by me)
-
-- cciss/cpqarray - rewrite loop-until-empty in request queueing. (me)
-
-- BLK_BOUNCE_ANY was b0rken, the ->bounce_page would wrap and thus not
-  work. (pointed davem out by davem, fixed by me -- temporarily, will
-  change to test for highest page instead in next version)
-
-- Always use 64-bit type for BLK_BOUNCE_ANY (davem)
-
-- IPS must check number of segments mapped by pci_map_sg instead of
-  using the SCSI supplied sg count. (pointed out by davem, fixed by me).
-  IPS still has some highmem fixes pending.
-
-2.4.9 version is here:
-
-*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.9/block-highmem-all-13
-
-2.4.8-ac12 version is here:
-
-*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.8-ac12/block-highmem-all-13-ac12
-
--- 
-Jens Axboe
-
+Alan

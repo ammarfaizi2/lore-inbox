@@ -1,48 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316578AbSIIHWA>; Mon, 9 Sep 2002 03:22:00 -0400
+	id <S316576AbSIIHWY>; Mon, 9 Sep 2002 03:22:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316580AbSIIHWA>; Mon, 9 Sep 2002 03:22:00 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:38300 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316578AbSIIHV7>;
-	Mon, 9 Sep 2002 03:21:59 -0400
-Date: Mon, 09 Sep 2002 00:19:02 -0700 (PDT)
-Message-Id: <20020909.001902.28439948.davem@redhat.com>
-To: taka@valinux.co.jp
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zerocopy NFS for 2.5.33
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020909.161123.74745039.taka@valinux.co.jp>
-References: <20020909.161123.74745039.taka@valinux.co.jp>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316580AbSIIHWY>; Mon, 9 Sep 2002 03:22:24 -0400
+Received: from dsl092-066-024.bos1.dsl.speakeasy.net ([66.92.66.24]:8716 "HELO
+	everypoint.net") by vger.kernel.org with SMTP id <S316576AbSIIHWW>;
+	Mon, 9 Sep 2002 03:22:22 -0400
+Date: 09 Sep 2002 03:27:11 -0400
+Message-Id: <m24rczzkq8.fsf@everypoint.net>
+From: Allan MacKinnon <allanmac@everypoint.net>
+To: linux-kernel@vger.kernel.org
+Cc: mingo@elte.hu
+Subject: results on "fully HT-aware scheduler" patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Hirokazu Takahashi <taka@valinux.co.jp>
-   Date: Mon, 09 Sep 2002 16:11:23 +0900 (JST)
 
-   Using TSO code is commented out at this moment as TSO for UDP isn't
-   implemented yet. I'm waiting for it so that we would remove "#ifdef NotYet"
-   to send jumbo UDP frames without any fragmentation and any checksumming.
-   Then I hope we will get great performance.
-   
-Actually, device interface for what could be used is there, see
-NETIF_F_FRAGLIST.  No devices set this and IP never makes use of it
-yet though :-)
+All,
 
-Acenic and Tigon3 will be able to do this, probably e1000 has this
-feature as well.
+I've been running some simple tests on Ingo Molnar's "fully HT-aware
+scheduler" patch and included the initial results at the end of this
+message.  [ see: http://lwn.net/Articles/8553/ for patch info ]
 
-But it does not work how you imagine.  One passes already fragmented
-list of packets to card, and it can checksum the packet if you tell it
-which descriptor is first of fragmented frame and which is last.
+Some observations...
 
-It does not do the fragmentation of UDP frames for you, only
-checksumming of UDP portion.  No card does what you mention.
+- Tests with one or two active tasks show significant improvement with
+  the HT-aware patch.  [ See Ingo's comments about this in his patch
+  notes. ]
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+- I was a little surprised to see that having as few as three active
+  (user) tasks is efficient -- at least in the 'make bzImage' case.
+
+- There was quite a bit of variance from run to run with my internal
+  tests _without_ the HT-aware scheduler.  With the patch it was very
+  consistent.
+
+  Note that the "everypoint internal" test is written in Java and is
+  memory intensive (lots of search).  It also has at least two active
+  threads.  It appears that this test corresponds with the best case
+  for the HT-aware scheduler and the worst for the existing
+  implementations.  Thus my hunt for HT "fixes"...
+
+- With four active folding@home tasks and the HT-patch, %CPU and %user
+  stats indicate that the tasks are each receiving over 50% of each
+  (logical) CPU.  To be more clear, CPU0+1 shows a total of ~116% user
+  and CPU2+3 shows ~109%.
+
+
+-ASM
+
+
+----------------------------------------------------------------------------------------------------------------
+
+       test              kernel:  2.5.33-HT-aware  2.5.33         2.4.8-10bigmem  notes
+----------------------   -------  ---------------  -------------  --------------  ------------------------------
+
+make -j 1 bzImage                 195              206            210             make the 2.5.33 kernel
+                                         +5.3%
+make -j 2 bzImage                 117              138,147        127                       "
+                                        +15.2%
+make -j 3 bzImage                 110              110            110                       "
+
+make -j 4 bzImage                 109              109            107                       "
+
+make -j 5 bzImage                 109              109            109                       "
+
+everypoint internal bench         150              168,188,218    154,216,224     Sun 1.4.1RC1 "-server -Xms..."
+                                        +10.7%
+                                      -----------
+                                      %over2.5.33
+
+Supermicro P4DPE-G2               1. times are in real time
+E7500 chipset                     2. multiple times are listed if there is variance
+2 x 2.2GHz Xeon                   3. otherwise, best times were selected
+Hyperthreading enabled in BIOS
+8GB RAM
+
+Allan MacKinnon
+allanmac@everypoint.net
+
+----------------------------------------------------------------------------------------------------------------
+

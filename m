@@ -1,73 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131873AbRCVVCi>; Thu, 22 Mar 2001 16:02:38 -0500
+	id <S132009AbRCVVEj>; Thu, 22 Mar 2001 16:04:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131891AbRCVVC3>; Thu, 22 Mar 2001 16:02:29 -0500
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:60365 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S131873AbRCVVCQ>; Thu, 22 Mar 2001 16:02:16 -0500
-Date: Thu, 22 Mar 2001 22:01:30 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Stephen Clouse <stephenc@theiqgroup.com>
-Cc: Guest section DW <dwguest@win.tue.nl>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-Message-ID: <20010322220130.G11126@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <3AB9313C.1020909@missioncriticallinux.com> <Pine.LNX.4.21.0103212047590.19934-100000@imladris.rielhome.conectiva> <20010322124727.A5115@win.tue.nl> <20010322142831.A929@owns.warpcore.org>
-Mime-Version: 1.0
+	id <S131891AbRCVVEb>; Thu, 22 Mar 2001 16:04:31 -0500
+Received: from netel-gw.online.no ([193.215.46.129]:9741 "EHLO
+	InterJet.networkgroup.no") by vger.kernel.org with ESMTP
+	id <S132009AbRCVVDd>; Thu, 22 Mar 2001 16:03:33 -0500
+Message-ID: <3ABA6848.B56CB12B@powertech.no>
+Date: Thu, 22 Mar 2001 22:02:00 +0100
+From: Geir Thomassen <geirt@powertech.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jim Penny <jpenny@universal-fasteners.com>, linux-kernel@vger.kernel.org
+Subject: Re: Serial port latency
+In-Reply-To: <3ABA42A8.A806D0E7@powertech.no> <20010322141937.C22479@universal-fasteners.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010322142831.A929@owns.warpcore.org>; from stephenc@theiqgroup.com on Thu, Mar 22, 2001 at 02:28:31PM -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 22, 2001 at 02:28:31PM -0600, Stephen Clouse wrote:
-[Another OOM-Killing thread] 
-> It would be nice to give immunity to certain uids, or better
-> yet, just turn the damn thing off entirely.  I've already
-> hacked that in...errr, out.
+Jim Penny wrote:
+> 
+> On Thu, Mar 22, 2001 at 07:21:28PM +0100, Geir Thomassen wrote:
+> > My program controls a device (a programmer for microcontrollers) via the
+> > serial port. The program sits in a tight loop, writing a few (typical 6)
+> > bytes to the port, and waits for a few (typ. two) bytes to be returned from
+> > the programmer.
+> >
+> > The program works, but it is very slow. I use an oscilloscope to monitor the
+> > serial lines, and notices that there is a large delay between the returned
+> > data, and the next new command. I really don't know if the delay is on the
+> > sending or the receiving side (or both).
+> >
 
-That's fine and suits best for all.
 
-I have provided an API for installing such OOM handlers (and have
-provided even an simple example for using it).
+> 
+> 500ms seems a bit too long, but the quick answer is scheduler latency.
+> You will certainly be scheduled out by the read, after all, it is not
+> your program that is doing the read, but the kernel.  I think you are
+> scheduled out after the write, as well.
 
-See http://www.tu-chemnitz.de/~ioe/oom-kill-api/index.html for
-details.
+I do believe the write will make the kernel write the first byte
+into the UART transmit buffer directly. If this is the case, then the
+data should appear on the serial lines almost immediately. There might be a
+delay before the bottom half handler process the byte (or is the bottom half
+only used on receive ?), but I do believe that this happens before the next
+process is scheduled (BH handlers are all finished before any syscalls returns).
+If this is the case, then scheduling out on write should not do any harm.
 
-It applies to all regular kernels and with some offsets even to
-ac20. So this is the way to go for custom OOM handling. 
+> 
+> Your task is then sitting idle until the scheduler's next pass, if nothing
+> else is happening, an interrupt is scheduled on the RTC, the CPU is set to
+> idle power, and your system sleeps until the RTC wakes it back up, and
+> the schedule queue is re-examined.
+> 
+> This normally implies a wait of at least a jiffy after every read.
+>
 
-Rik noted once, that not much research has been done yet on this
-topic and that he is certain, that his code cannot cover all
-cases.
 
-Linus on the other hand doesn't like the idea of 'plugins' for
-core kernel code. 
+Isn't a jiffy 10ms on i386 ? Scheduling delays should not be any
+more than say 50 ms, but I am measuring 500ms. I could live with
+50ms, which would make my program finish in 3 min. Now it is using
+30 min !!
 
-So this patch is the best thing, that can be done about the
-situation.
+> 
+> (But your time seems really excessive.)
 
-All work should be based on it, since it allows customers and
-researchers, that LIKE to try such 'plugins' to try all of them
-instead of having to patch and recompile the kernel for every OOM
-handler available.
+Yep  :-(
 
-I would LOVE to start a link collection for all OOM handlers
-based on my patch or even host them, IF they are implemented as
-modules (as suggested by my API). This should avoid duplicate
-effort of this.
+> The usual cure is to write a custom driver which does a single
+> read/write command.  If, as I recall, you are scheduled out on reads
+> as well as writes, this lets you get rid of half the jiffies.
 
-Of course I hope to satisfy all needs by this. I'm also willing
-to include any API changes (read: exported functions, structs and
-variables) necessary for some OOM handlers in my patch.
+That could be the solution to my problem, but I won't start on that
+before I understand what the problem is ...
 
-Thanks & Regards
 
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>
+Geir, geirt@powertech.no

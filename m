@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274102AbRJKIvb>; Thu, 11 Oct 2001 04:51:31 -0400
+	id <S273996AbRJKIuM>; Thu, 11 Oct 2001 04:50:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274964AbRJKIvX>; Thu, 11 Oct 2001 04:51:23 -0400
-Received: from zeus.eurotux.com ([194.38.142.74]:46486 "HELO zeus.eurotux.com")
-	by vger.kernel.org with SMTP id <S274034AbRJKIum> convert rfc822-to-8bit;
-	Thu, 11 Oct 2001 04:50:42 -0400
-Message-ID: <3BC56B0B.92C0A31@eurotux.com>
-Date: Thu, 11 Oct 2001 09:48:59 +0000
-From: Ricardo Manuel Oliveira <rmo@eurotux.com>
-Organization: Eurotux =?iso-8859-1?Q?Inform=E1tica?=, SA
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Intel 82815 VGA
-In-Reply-To: <E15kPHi-0008Ev-00@the-village.bc.nu>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S274034AbRJKIuC>; Thu, 11 Oct 2001 04:50:02 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:60337 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S273996AbRJKItt>; Thu, 11 Oct 2001 04:49:49 -0400
+Date: Thu, 11 Oct 2001 09:50:18 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Stefan Smietanowski <stesmi@stesmi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Uhhuh.. 2.4.12
+Message-ID: <20011011095018.N10562@redhat.com>
+In-Reply-To: <9q3lbs$16o$1@penguin.transmeta.com> <63488.212.247.172.29.1002789729.squirrel@webmail.stesmi.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="0rEjiS+nMGFQ7Kkj"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <63488.212.247.172.29.1002789729.squirrel@webmail.stesmi.com>; from stesmi@stesmi.com on Thu, Oct 11, 2001 at 10:42:09AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> >  Problem with i815EM chipset (in ASUS M1000 laptop series) -
-> > the display blinks *VERY* frequently - seems to blink for
-> > every disk access or so.
-> 
-> It shouldnt be affected by PCI traffic but I guess its possible someone
-> has been sawing bits off. Try turning off ide DMA
 
- I keep getting emails from people which have seen my post.
-To all of them (and everyone else):
+--0rEjiS+nMGFQ7Kkj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
- There's an undocumented bit in an undocumented register in
-the built-in graphics device of Intel's i810 (i815?) chipset
-(GMCH).  Setting that bit to a 1 solved out this problem
-(which someone affectuously called 'the damn blinking
-problem').
+On Thu, Oct 11, 2001 at 10:42:09AM +0200, Stefan Smietanowski wrote:
 
- Get the code at http://www.cl.cam.ac.uk/~pb/wmi810.tar.gz ,
-compile, install, read the README/INSTALL. It's as simple as
-that.
+> Hmm. Does that mean that 2.4.x-ac will become the standard tree or ?
 
+No, it means that I have to write out 'I will not edit patches by hand
+without testing them' a thousand times, _without_ using cut and
+paste..
 
- To everyone who has tried to help in this mailing list, my
-apollogies. This should be fixed in the XFree driver (I hope
-it'll be fixed in the next release). Also, my thanks to
-every single one who tried to help.
+Tim.
+*/
 
+--0rEjiS+nMGFQ7Kkj
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-----
-Ricardo Manuel Oliveira
-Eurotux Informática, SA
-Tel: +351 253257395 // +351 919475934
-Fax: +351 253257396
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7xV1KyaXy9qA00+cRAhVVAKC3sK6seqP+/VyGPfXWfXiUSQ2Z7gCdFlHh
+i7ED54zLJZZkDgNnfkSphf8=
+=t9Um
+-----END PGP SIGNATURE-----
+
+--0rEjiS+nMGFQ7Kkj--

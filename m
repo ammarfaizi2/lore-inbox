@@ -1,60 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269623AbTHETRY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 15:17:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269628AbTHETRY
+	id S270109AbTHETVG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 15:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270534AbTHETVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 15:17:24 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:12816
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S269623AbTHETRX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 15:17:23 -0400
-Date: Tue, 5 Aug 2003 12:17:18 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] automate patch names in kernel versions
-Message-ID: <20030805191718.GC970@matchmail.com>
-Mail-Followup-To: Oliver Xymoron <oxymoron@waste.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030729204419.GE6049@waste.org>
+	Tue, 5 Aug 2003 15:21:06 -0400
+Received: from buttons.universal-fasteners.com ([205.138.133.26]:55056 "HELO
+	ykk-ufi.com") by vger.kernel.org with SMTP id S270109AbTHETVB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 15:21:01 -0400
+Date: Tue, 5 Aug 2003 15:21:01 -0400
+From: Jim Penny <jpenny@universal-fasteners.com>
+To: linux-kernel@vger.kernel.org
+Subject: ipsec and tunnel mode on kernel 2.6.0-test2
+Message-Id: <20030805152101.12d4bfd3.jpenny@universal-fasteners.com>
+X-Mailer: Sylpheed version 0.9.3claws (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030729204419.GE6049@waste.org>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 29, 2003 at 03:44:19PM -0500, Oliver Xymoron wrote:
-> Perhaps times have changed enough that I can revive this idea from a
-> few years ago:
-> 
-> http://groups.google.com/groups?q=patchname+oxymoron&hl=en&lr=&ie=UTF-8&selm=fa.jif8l5v.1b049jd%40ifi.uio.no&rnum=1
-> 
-> <quote year=1999>
-> This four-line patch provides a means for listing what patches have
-> been built into a kernel. This will help track non-standard kernel
-> versions, such as those released by Redhat, or Alan's ac series, etc.
-> more easily.
-> 
-> With this patch in place, each new patch can include a file of the
-> form "patchname.[identifier]" in the top level source directory and
-> [identifier] will then be added to the kernel version string. For
-> instance, Alan's ac patches could include a file named patchdesc.ac2
-> (containing a change log, perhaps), and the resulting kernel would be
-> identified as 2.2.0-pre6+ac2, both at boot and by uname.
-> 
-> This may prove especially useful for tracking problems with kernels
-> built by distribution packagers and problems reported by automated
-> tools.
-> </quote>
-> 
-> The patch now appends patches as -name rather than +name to avoid
-> issues that might exist with packaging tools and scripts.
+Is it working?
 
-Has anything happened with this patch?
+Suppose I am trying to connect 172.18.243.0/24 to 172.18.254.0/24 via
+172.18.253.253 and 172.18.254.254. 
 
-I for one would love it to be merged.
+I have tried the setkey command:
+
+
+spdadd 172.18.253.0/24 172.18.254.0/24 any -P in ipsec
+        esp/tunnel/172.18.253.253-172.18.254.254/require
+        ah/transport//require;
+
+
+setkey -v -f ...
+yieldssadb_msg{ version=2 type=9 errno=0 satype=0
+  len=2 reserved=0 seq=0 pid=5474
+
+sadb_msg{ version=2 type=9 errno=0 satype=0
+  len=2 reserved=0 seq=0 pid=5474
+
+sadb_msg{ version=2 type=19 errno=0 satype=0
+  len=2 reserved=0 seq=0 pid=5474
+
+sadb_msg{ version=2 type=19 errno=0 satype=0
+  len=2 reserved=0 seq=0 pid=5474
+
+sadb_msg{ version=2 type=14 errno=0 satype=0
+  len=16 reserved=0 seq=0 pid=5474
+sadb_ext{ len=8 type=18 }
+sadb_x_policy{ type=2 dir=2 id=0 }
+ { len=40 proto=50 mode=2 level=1 reqid=0
+sockaddr{ len=16 family=2 port=0
+ ac12fefe  }
+sockaddr{ len=16 family=2 port=0
+ ac12fdfd  }
+ }
+ { len=8 proto=51 mode=1 level=2 reqid=0
+ }
+sadb_ext{ len=3 type=5 }
+sadb_address{ proto=255 prefixlen=24 reserved=0x0000 }
+sockaddr{ len=16 family=2 port=0
+ ac12fd00  }
+sadb_ext{ len=3 type=6 }
+sadb_address{ proto=255 prefixlen=24 reserved=0x0000 }
+sockaddr{ len=16 family=2 port=0
+ ac12fe00  }
+
+sadb_msg{ version=2 type=14 errno=22 satype=0
+  len=2 reserved=0 seq=0 pid=5474
+
+The result of line 21: Invalid argument.
+
+--------
+
+Could someone please tell me what I am doing wrong?  
+
+Notes:  direction does not matter, both orders give the same error. 
+Ipsec does work if tunnel is replaced by transport.  But I really do
+want tunneling!  Presence, or absence of a manual esp with or without -m
+tunnel does not appear to matter.  presence or absence of ah line,
+presence or absence of manual ah does not appear to matter.
+
+TIA
+
+Jim Penny
+
+
+

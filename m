@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbTDQIe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 04:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTDQIe4
+	id S261288AbTDQIx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 04:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbTDQIx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 04:34:56 -0400
-Received: from siaab2ab.compuserve.com ([149.174.40.130]:5829 "EHLO
-	siaab2ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S261258AbTDQIez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 04:34:55 -0400
-Date: Thu, 17 Apr 2003 04:43:23 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Problem: 2.4.20, 2.5.66 have different IDE channel order
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304170446_MC3-1-34CA-A41@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Thu, 17 Apr 2003 04:53:27 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:48151 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S261288AbTDQIx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 04:53:26 -0400
+Date: Thu, 17 Apr 2003 09:04:44 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [BK+PATCH] remove __constant_memcpy
+Message-ID: <20030417090444.A4209@devserv.devel.redhat.com>
+References: <Pine.LNX.4.44.0304161904170.1534-100000@home.transmeta.com> <1050569207.1412.1.camel@laptop.fenrus.com> <Pine.LNX.4.44.0304171102040.12110-100000@serv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0304171102040.12110-100000@serv>; from zippel@linux-m68k.org on Thu, Apr 17, 2003 at 11:02:43AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Thu, Apr 17, 2003 at 11:02:43AM +0200, Roman Zippel wrote:
+> Hi,
+> 
+> On 17 Apr 2003, Arjan van de Ven wrote:
+> 
+> > it can do that ANYWAY for all kinds of things.
+> > We really should ask the gcc folks to add a
+> > -fdontyoudareusefloatingpoint flag (well different name probably) to
+> > make sure it never ever will generate FP code. (would also help catch
+> > abusers of FP code in the kernel as a bonus ;)
+> 
+> -msoft-float?
 
-
->>    2.5 nonmodular seems to be doing it in BIOS order  -- the HPT370 BIOS
->>  initializes before the Promise (and won't let it boot but I can deal
->>  with that.)  I'll probably replace it with a PDC20262 before looking
->
-> Im a bit puzzled by this because it does look like a bug. Our pci
-> scan code hasnt changed that materially. I assume the promise and
-> hpt are both plug in cards >
-
-
-  Tried PDC20268 + 20262 and the IDE channel order is still rearranged
-in 2.5 even though the BIOSen now initialize in bus order (it can
-boot from hd again.)
-
-  Why it goes from (1,2,3) in 2.4 to (1,3,2) in 2.5 is still a mystery.
-I could see it reversing, but not this.
-
-  Tried 2.5.66-ac1 with no APIC support and IDE was still backwards.
-It also spewed continuous keyboard errors until I hit reset:
-
-
-   atkbd.c: Unknown key (set 0, scancode 0xfc, on isa0060/serio1) pressed.
-
-
-
---
- Chuck
+that is a decent start but has a different effect, eg it doesnt' actually
+forbid gcc from generatic fpu code, just tells it to use emu lib functions
+for it .

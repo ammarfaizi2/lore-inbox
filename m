@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262798AbTEAXvi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 19:51:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262797AbTEAXuC
+	id S262801AbTEAXzg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 19:55:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbTEAXzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 19:50:02 -0400
-Received: from rth.ninka.net ([216.101.162.244]:46553 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S262794AbTEAXty (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 19:49:54 -0400
-Subject: Re: Broadcom BCM4306/BCM2050  support
-From: "David S. Miller" <davem@redhat.com>
-To: Stuffed Crust <pizza@shaftnet.org>
-Cc: bas.mevissen@hetnet.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <20030429144055.GA11583@shaftnet.org>
-References: <4b4e01c30e4e$0352c5a0$d16897c2@hetnet.nl>
-	 <20030429144055.GA11583@shaftnet.org>
-Content-Type: text/plain
+	Thu, 1 May 2003 19:55:36 -0400
+Received: from mx12.arcor-online.net ([151.189.8.88]:22205 "EHLO
+	mx12.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262801AbTEAXzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 19:55:35 -0400
+From: Daniel Phillips <dphillips@sistina.com>
+Reply-To: dphillips@sistina.com
+Organization: Sistina
+To: Thomas Schlichter <schlicht@uni-mannheim.de>,
+       Willy TARREAU <willy@w.ods.org>, hugang <hugang@soulinfo.com>
+Subject: Re: [RFC][PATCH] Faster generic_fls
+Date: Fri, 2 May 2003 02:13:41 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
+References: <200304300446.24330.dphillips@sistina.com> <20030501171627.GA1785@pcw.home.local> <200305020127.26279.schlicht@uni-mannheim.de>
+In-Reply-To: <200305020127.26279.schlicht@uni-mannheim.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051786888.8772.7.camel@rth.ninka.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 May 2003 04:01:28 -0700
+Content-Disposition: inline
+Message-Id: <200305020213.41721.dphillips@sistina.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-04-29 at 07:40, Stuffed Crust wrote:
-> RF tables and regulation might be an excuse chipset companies use to
-> hide their specs, but the real reasons tend to be a bit more along the
-> lines of:
-> 
-> "We want to protect our valuable IP"
-> 
-> ...which translates to:
-> 
-> "We want to protect our violations of other people's valuable IP"
-> 
-> It's CYA, plain and simple.
+On Friday 02 May 2003 01:27, Thomas Schlichter wrote:
+> ...So for me the table version seems to be the slowest one. The BSRL
+> instruction on the K6-III seems to be very slow, too. The tree and my shift
+> version are faster than the original version here...
+>
+> That someone else can test my fls_shift version I'll provide it here again:
+> static inline int fls_shift(int x)
+> {
+> 	int bit = 32;
+>
+> 	while(x > 0) {
+> 		--bit;
+> 		x <<= 1;
+> 	}
+>
+> 	return x ? bit : 0;
+> }
 
-This is very far from the truth.  And as Alan and myself have been
-talking to upper management entities at various wireless card
-companies we know the real reason has to do with making regulation
-agencies happy.  They do have drivers, and they do want to publish
-them and yes they recognize that this will expose a lot of their
-IP and they accept that.
+Your shift version is the fastest on the PIII as well, finishing in 45.3 
+seconds vs 53.4 for my original, and using only 12 bytes of text.  This was a 
+big surprise.  The time was the same, whether I inlined it or not.  I take 
+this to mean that -O3 inlines such a short function in either case.
 
--- 
-David S. Miller <davem@redhat.com>
+Regards,
+
+Daniel

@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264551AbTFEJmh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 05:42:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264554AbTFEJmh
+	id S261159AbTFEJuR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 05:50:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbTFEJuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 05:42:37 -0400
-Received: from h24-87-160-169.vn.shawcable.net ([24.87.160.169]:1412 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id S264551AbTFEJmg
+	Thu, 5 Jun 2003 05:50:17 -0400
+Received: from ns0.eris.dera.gov.uk ([128.98.1.1]:15162 "HELO
+	ns0.eris.dera.gov.uk") by vger.kernel.org with SMTP id S261159AbTFEJuQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 05:42:36 -0400
-Date: Thu, 5 Jun 2003 02:56:06 -0700
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.70] ext2 floppy corruption
-Message-ID: <20030605095606.GA4415@netnation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Thu, 5 Jun 2003 05:50:16 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: Geller Sandor <wildy@petra.hos.u-szeged.hu>
+Subject: Re: Linux 2.4.21-rc7-ac1
+Date: Thu, 5 Jun 2003 10:57:46 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0306051117050.24047-100000@petra.hos.u-szeged.hu>
+In-Reply-To: <Pine.LNX.4.44.0306051117050.24047-100000@petra.hos.u-szeged.hu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200306051057.46382.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.5.70 and 2.5.66 (just tried those two), I see floppy corruption
-when I attempt to copy a kernel file to a floppy formatted with ext2. 
-Rebooting into 2.4.21rc7 and rerunning the copy seems to cure the
-problem.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-To reproduce:
 
-mke2fs /dev/fd0
-mount /dev/fd0 /a
-cp -a /vmlinuz /a
-umount /a
-mount /a
-md5sum /a/vmlinuz /vmlinuz
+> On Thu, 5 Jun 2003, Mark Watts wrote:
+> > I wonder if you could confirm whether the usb-ohci module should be
+> > loaded automatically if I have the following line in modules.conf (this
+> > is with 2.4.21-rc6-ac2)
+> >
+> > probeall usb-interface usb-ohci
+>
+> No. You have to modprobe 'usb-interface' somewhere in your rc scripts.
+> See the manpage for modules.conf
+>
+> What distribution are you using?
 
-I get the wrong md5sum consistently from the floppy.  When attempting to
-boot this kernel with grub, I get a "attempting to access data outside of
-partition" error after it is loading for a little while.
+Mandrake 9.1
 
-If I mkdosfs on the same floppy and copy over the kernel, it seems to
-work properly.
+>
+> In debian, /etc/modules contains the modules, which are loaded at system
+> startup.
 
-I will try to track this down further if nobody has any immediate ideas.
+I've never needed to put it into /etc/modules before, so maybe Mandrake does 
+it differently.
 
-Simon-
+I'll try that - thanks
 
-[        Simon Kirby        ][        Network Operations        ]
-[     sim@netnation.com     ][     NetNation Communications     ]
-[  Opinions expressed are not necessarily those of my employer. ]
+Mark.
+
+- -- 
+Mark Watts
+Systems Engineer
+QinetiQ TIM
+St Andrews Road, Malvern
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+3xQaBn4EFUVUIO0RAu5WAJ9FRh1szMYDBAa921t2caLoqE+mVQCfVkvG
+1Sx9/mWvGrTl+2Hu7MSB5S8=
+=OtZc
+-----END PGP SIGNATURE-----
+

@@ -1,70 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262912AbSJ1KWP>; Mon, 28 Oct 2002 05:22:15 -0500
+	id <S262937AbSJ1KXT>; Mon, 28 Oct 2002 05:23:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262937AbSJ1KWP>; Mon, 28 Oct 2002 05:22:15 -0500
-Received: from [81.29.64.88] ([81.29.64.88]:12197 "EHLO bjl1.asuk.net")
-	by vger.kernel.org with ESMTP id <S262912AbSJ1KWO>;
-	Mon, 28 Oct 2002 05:22:14 -0500
-Date: Mon, 28 Oct 2002 10:28:09 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Paul Eggert <eggert@twinsun.com>
-Cc: andrew@pimlott.net, linux-kernel@vger.kernel.org
-Subject: Re: nanosecond file timestamp resolution in filesystems, GNU make, etc.
-Message-ID: <20021028102809.GA16062@bjl1.asuk.net>
-References: <20021027153651.GB26297@pimlott.net> <200210280947.g9S9l9H01162@sic.twinsun.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210280947.g9S9l9H01162@sic.twinsun.com>
-User-Agent: Mutt/1.4i
+	id <S263203AbSJ1KXS>; Mon, 28 Oct 2002 05:23:18 -0500
+Received: from 62-190-218-55.pdu.pipex.net ([62.190.218.55]:31361 "EHLO
+	nemesis.cube") by vger.kernel.org with ESMTP id <S262937AbSJ1KXR>;
+	Mon, 28 Oct 2002 05:23:17 -0500
+Message-ID: <3DBD1182.1000402@walrond.org>
+Date: Mon, 28 Oct 2002 10:29:22 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: landley@trommello.org
+CC: linux-kernel@vger.kernel.org, reiser@namesys.com, alan@lxorguk.ukuu.org.uk,
+       davem@redhat.com, boissiere@adiglobal.com
+Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge
+ candidate list.
+References: <200210272017.56147.landley@trommello.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Eggert wrote:
-> My personal experience is that it's hard to read and write code that
-> futzes with timestamps of various resolutions, and there is a real
-> advantage to sticking with a simple rule that always takes the floor
-> when going to a lower-precision timestamp, even if that rule has
-> suboptimal results in some cases.
+A concise and very useful summary of upcoming/potential features, not 
+only for you kernel hackers but also for people using linux and trying 
+to keep half an eye on whats brewing...
 
-I have to disagree.  The whole point of accurate timestamps is that a
-program can reliably ask "are my assumptions about the contents of
-this file still valid?", "do I have to read the file to revalidate my
-assumptions?"
+I wish something like this was available all the time and not just in 
+the run-up to a freeze
 
-When you don't have accurate timestamps, or resolutions are mixed,
-then it's not possible to answer this question.  The only correct
-behaviour for a program, such as a cacheing dynamic web server, a
-cacheing JIT compiler or something like Make, is to round the
-timestamp _up_.
+Andrew
 
-Which is fine so long as you can write this in the application code:
 
-    if (ts_nanoseconds == 0)
-        ts_nanoseconds = 1e9-1;
 
-That's a rare enough occurrence when timestamps have nanosecond
-accuracy that the the glitch is not a problem.
-
-Unfortunately that application code breaks when the filesystem may
-have timestamps with resolution better than 1 second, but worse than 1
-nanosecond.  Then the application just can't do the right thing,
-unless it knows what rounding was applied by the kernel/filesystem, so
-it can change that rounding in a safe direction.
-
-So for applications which actually _depend_ on accurate timestamps for
-reliability, I see only two valid things for the kernel to do:
-
-     1. Round timestamps _up_.
-
-     2. Or, round timestamps down _and_ store the rounding resolution in
-        struct stat, in addition to the timestamp.
-
-I'm in favour of 1.
-
-(With Paul's suggestion of just rounding down without telling me when
-that happened, AFAICT my _reliable_ cacheing applications must simply
-ignore the nanoseconds field, which is a bit unfortunate isn't it?)
-
--- Jamie

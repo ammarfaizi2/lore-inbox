@@ -1,64 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269113AbUICH1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269247AbUICH2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269113AbUICH1r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 03:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269247AbUICH1q
+	id S269247AbUICH2R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 03:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269290AbUICH2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 03:27:46 -0400
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:35671 "HELO
-	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269113AbUICH1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 03:27:44 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-Subject: Re: [2.6.8.1-mm1][input] - IBM TouchPad support added? Which patch is this? - Unsure still
-Date: Fri, 3 Sep 2004 02:27:42 -0500
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200408170349.44626.shawn.starr@rogers.com> <200408170801.00068.dtor_core@ameritech.net> <41381972.8080600@bio.ifi.lmu.de>
-In-Reply-To: <41381972.8080600@bio.ifi.lmu.de>
+	Fri, 3 Sep 2004 03:28:16 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:63993 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S269247AbUICH2H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 03:28:07 -0400
+Message-ID: <41381C2D.7080207@mvista.com>
+Date: Fri, 03 Sep 2004 00:24:29 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Albert Cahalan <albert@users.sourceforge.net>
+CC: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       tim@physik3.uni-rostock.de, Ulrich.Windl@rz.uni-regensburg.de,
+       clameter@sgi.com, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
+       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
+References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>	 <4137CB3E.4060205@mvista.com> <1094193731.434.7232.camel@cube>
+In-Reply-To: <1094193731.434.7232.camel@cube>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409030227.42441.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 03 September 2004 02:12 am, Frank Steiner wrote:
-> Dmitry Torokhov wrote:
-> > On Tuesday 17 August 2004 03:02 am, Shawn Starr wrote:
-> > 
-> >>Sorry, I stand corrected. I don't know where this patch is added from which 
-> >>enables the touchpad to act as a 'button press'.
-> >>
-> > 
-> > 
-> > mousedev now does tap emulation for touchpads working in absolute mode
-> > (Synaptics) so you don't need to use psmouse.proto= parameter to force
-> > it in PS/2 compatibility mode. Use mousedev.tap_time= option to control
-> > it.
-> > 
-> > The patch is only in -mm at the moment.
+Albert Cahalan wrote:
+> On Thu, 2004-09-02 at 21:39, George Anzinger wrote:
 > 
-> Can that patch be downloaded somewhere to patch against 2.6.8.1? I don't
-> have any tapping support for my synaptic touchpad on my compaq laptop after
-> switching from 2.4 to 2.6.
-> It seems that most of the patches at http://www.geocities.com/dt_or/input/2_6_7/
-> are already in 2.6.8.1: Just the tapping stuff seems to be missing. And
-> I can't extract your patch from the 2.6.9-rc1-mm2 stuff, because it seems
-> to be mixed with some other patches there.
-> Is there a sole version of this patch fir 2.6.8.1 somewhere?
+>>john stultz wrote:
 > 
+> 
+>>>+
+>>>+static nsec_t jiffies_cyc2ns(cycle_t cyc, cycle_t* remainder)
+>>>+{
+>>>+
+>>>+	cyc *= NSEC_PER_SEC/HZ;
+>>
+>>Hm... This assumes that 1/HZ is what is needed here.  Today this value is 
+>>999898.  Not exactly reachable by NSEC_PER_SEC/HZ.  Or did I miss something, 
+>>like the relationship of jiffie to 1/HZ and to real time.
+> 
+> 
+> HZ not being HZ is the source of many foul problems.
+> 
+> NTP should be able to correct for the error. For systems
+> not running NTP, provide a fake NTP to make corrections
+> based on the expected frequency error.
+> 
+> Based on that, skip or double-up on the ticks to make
+> them be exactly HZ over long periods of time.
 
-No, I don't think I have one... If you are using BitKeeper, yo could just do:
+There are several problems here.  First, to make this possible, you will have to 
+outlaw several values for HZ (1024 comes to mind).  Second, like it or not, 1/HZ 
+or something close to it, is the timer resolution.  I think we need to try and 
+keep this a power of 10, mostly because there are a lot of folks who just don't 
+understand it if it is not.  And third, you need to get real close to it with 
+the hardware timer.  If you introduce NTP or some such to fix things, well, 
+things just break another place.  For example, we started 2.6 with HZ=1000 and 
+had problems like:
+ > time sleep 10
+sleeping for 9.9 seconds.  This will just not do.  Any corrections made to the 
+wall clock really need to be made to the timer system as well.  As it is we 
+assume that, by correctly choosing the tick value, the wall clock will be 
+correct on average, even under NTP.  I.e. that the NTP correction will be, over 
+time, very small.  We really do want code that is much more accurate than "time 
+sleep 10" to be right, i.e. if we sleep for x nanoseconds, the wall clock will 
+have changed by x nanoseconds while we did so.
+> 
+>
 
-	bk pull bk://dtor.bkbits.net/input
-
-But have you tried installing XFree86/XOrg Synaptics driver
-(http://w1.894.telia.com/~u89404340/touchpad/index.html)?
-It does support tapping just fine...
+~
 
 -- 
-Dmitry
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

@@ -1,54 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbUIDVpm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUIDV6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbUIDVpm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 17:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUIDVpm
+	id S261724AbUIDV6X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 17:58:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbUIDV6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 17:45:42 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:40915 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261602AbUIDVpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 17:45:40 -0400
-Subject: Re: New proposed DRM interface design
-From: Lee Revell <rlrevell@joe-job.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Dave Airlie <airlied@linux.ie>,
-       Keith Whitwell <keith@tungstengraphics.com>,
-       Dave Jones <davej@redhat.com>, Jon Smirl <jonsmirl@yahoo.com>,
-       dri-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040904132512.B14904@infradead.org>
-References: <20040904102914.B13149@infradead.org>
-	 <41398EBD.2040900@tungstengraphics.com>
-	 <20040904104834.B13362@infradead.org>
-	 <413997A7.9060406@tungstengraphics.com>
-	 <20040904112535.A13750@infradead.org>
-	 <4139995E.5030505@tungstengraphics.com> <20040904112930.GB2785@redhat.com>
-	 <4139A9F4.4040702@tungstengraphics.com>
-	 <20040904124658.A14628@infradead.org>
-	 <Pine.LNX.4.58.0409041253390.25475@skynet>
-	 <20040904132512.B14904@infradead.org>
-Content-Type: text/plain
-Message-Id: <1094334347.6575.412.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 04 Sep 2004 17:45:48 -0400
+	Sat, 4 Sep 2004 17:58:23 -0400
+Received: from omx2-ext.SGI.COM ([192.48.171.19]:56226 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261724AbUIDV6U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 17:58:20 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: multi-domain PCI and sysfs
+Date: Sat, 4 Sep 2004 14:57:46 -0700
+User-Agent: KMail/1.7
+Cc: lkml <linux-kernel@vger.kernel.org>
+References: <9e4733910409041300139dabe0@mail.gmail.com>
+In-Reply-To: <9e4733910409041300139dabe0@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409041457.46578.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-09-04 at 08:25, Christoph Hellwig wrote:
-> Okay, let's take Debian stable as an example.  How do you get an agpgart
-> that deals with the i915 into the 2.4.18 kernel woody ships?
+On Saturday, September 4, 2004 1:00 pm, Jon Smirl wrote:
+> How do multiple PCI domains appear in sysfs? I don't own a machine
+> with these so I can't just look.
+>
+> Do they appear like:
+> /sys/devices/pci0000:00
+> /sys/devices/pci0001:00
+> /sys/devices/pci0002:00
 
-The same way you demonstrate that the driver you just wrote is stable. 
-Run it for a few years and get back to them.  Or do you expect them to
-take your word for it?
+Yep, on all the machines I've used.
 
-Stability can only be proven in the field which takes time.  Debian
-stable is for a box that you will install and stick in a closet and
-forget about for a year or two, and be basically guaranteed that the
-hardware will fail long before the software does.
+sn2 (ia64):
+[root@flatearth ~]# ls -l /sys/devices
+total 0
+drwxr-xr-x  5 root root 0 Sep  5 08:07 pci0000:01
+drwxr-xr-x  3 root root 0 Sep  5 08:07 pci0000:02
+drwxr-xr-x  2 root root 0 Sep  5 08:07 platform
+drwxr-xr-x  5 root root 0 Sep  5 08:07 system
+[root@flatearth ~]# ls -l /sys/devices/pci0000\:02
+total 0
+drwxr-xr-x  2 root root     0 Sep  5 08:07 0000:02:01.0
+-rw-r--r--  1 root root 16384 Sep  5 08:07 detach_state
 
-Lee
+ppc32:
+jbarnes@mill:~$ ls -l /sys/devices
+total 0
+drwxr-xr-x   5 root root 0 Sep  4 13:37 pci0000:00/
+drwxr-xr-x  13 root root 0 Sep  4 13:37 pci0001:01/
+drwxr-xr-x   7 root root 0 Sep  4 13:37 pci0002:06/
+drwxr-xr-x   3 root root 0 Sep  4 13:37 platform/
+drwxr-xr-x   4 root root 0 Sep  4 13:37 system/
+drwxr-xr-x   5 root root 0 Sep  4 13:37 uni-n-i2c/
+jbarnes@mill:~$ ls -l /sys/devices/pci0001\:01/
+total 0
+drwxr-xr-x  3 root root    0 Sep  4 13:37 0001:01:0b.0/
+drwxr-xr-x  3 root root    0 Sep  4 13:37 0001:01:12.0/
+drwxr-xr-x  3 root root    0 Sep  4 13:37 0001:01:13.0/
+drwxr-xr-x  4 root root    0 Sep  4 13:37 0001:01:17.0/
+drwxr-xr-x  3 root root    0 Sep  4 13:37 0001:01:18.0/
+drwxr-xr-x  3 root root    0 Sep  4 13:37 0001:01:19.0/
+drwxr-xr-x  4 root root    0 Sep  4 13:37 0001:01:1a.0/
+drwxr-xr-x  4 root root    0 Sep  4 13:37 0001:01:1b.0/
+drwxr-xr-x  4 root root    0 Sep  4 13:37 0001:01:1b.1/
+drwxr-xr-x  3 root root    0 Sep  4 13:37 0001:01:1b.2/
+-rw-r--r--  1 root root 4096 Sep  4 13:37 detach_state
+drwxr-xr-x  2 root root    0 Sep  4 13:37 power/
 
+Jesse

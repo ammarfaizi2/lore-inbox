@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272445AbRH3Utz>; Thu, 30 Aug 2001 16:49:55 -0400
+	id <S272449AbRH3Uxp>; Thu, 30 Aug 2001 16:53:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272446AbRH3Utp>; Thu, 30 Aug 2001 16:49:45 -0400
-Received: from d-dialin-2885.addcom.de ([213.61.82.5]:55534 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S272445AbRH3Uti>; Thu, 30 Aug 2001 16:49:38 -0400
-Date: Thu, 30 Aug 2001 22:49:24 +0200 (CEST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: <kai@vaio>
-To: Erik Tews <erik.tews@gmx.net>
-cc: Alan Cox <laughing@shared-source.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.9-ac4
-In-Reply-To: <20010830181856.A6691@no-maam.dyndns.org>
-Message-ID: <Pine.LNX.4.33.0108302130420.4426-100000@vaio>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272450AbRH3Uxf>; Thu, 30 Aug 2001 16:53:35 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:26890 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S272449AbRH3Ux2>;
+	Thu, 30 Aug 2001 16:53:28 -0400
+Date: Thu, 30 Aug 2001 13:51:43 -0700
+From: Greg KH <greg@kroah.com>
+To: Stefan Fleiter <stefan.fleiter@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Diet /sbin/hotplug package released
+Message-ID: <20010830135143.B18294@kroah.com>
+In-Reply-To: <20010830124700.A3694@shuttle.mothership.home.dhs.org> <3117682009.999188508@[10.132.112.53]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3117682009.999188508@[10.132.112.53]>; from linux-kernel@alex.org.uk on Thu, Aug 30, 2001 at 04:21:48PM +0100
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Aug 2001, Erik Tews wrote:
-
-> On Thu, Aug 30, 2001 at 03:46:37PM +0100, Alan Cox wrote:
-> > 2.4.9-ac4
-> > o	Fix X.75 with new hisax drivers and an isdn	(Kai Germaschewski)
-> > 	disconnect race
+On Thu, Aug 30, 2001 at 04:21:48PM +0100, Alex Bligh - linux-kernel wrote:
 > 
-> What is that exactly? I got the problem that mppp is not working
-> correctly with 2.4.9 and 2.4.10-pre2 (and I tried some 2.4.9-ac too).
-
-These fixes only affect the new ST5481 USB driver.
-
-> When I came to my router, I had the following lines on my console
 > 
-> isdn_ppp_mp_receive: lpq->ppp_slot -1
-> isdn_ppp_mp_receive: lpq->ppp_slot -1
-> isdn_ppp_mp_receive: lpq->ppp_slot -1
-> isdn_ppp_mp_receive: lpq->ppp_slot -1
-> isdn_ppp_xmit: lp->ppp_slot -1
+> --On Thursday, August 30, 2001 12:47 PM +0200 Stefan Fleiter 
+> <stefan.fleiter@gmx.de> wrote:
+> 
+> > Does it really make any sense to optimize for size and at the same time
+> > force the user to install a bash compatible shell?
+> 
+> No, that's why diet /sbin/hotplug didn't require any shell (as I understood
+> it), whereas the normal hotplug suite does.
 
-MPPP is still buggy, and unfortunately nobody seems to have the time to 
-fix it - probably because it seems easier to rewrite it than to fix the 
-mess.
+Exactly.  diethotplug does not require any shell or awk to be present to
+work.  It compiles to a binary which is smaller than the existing
+modules.usbmap file is (and can get smaller, I haven't started to
+optimize for space yet.)
 
---Kai
+To help clear up a few questions I've been getting, diethotplug is for
+systems that care about space, like embedded or boot rescue discs.  It
+will also be handy for loading PCI and USB kernel modules at boot time
+based on what devices are present in the system, with the upcoming 2.5
+initrd method.
 
+It is not a replacement for the current linux-hotplug scrips, but
+another alternative for situations that they didn't make sense.
 
+thanks,
+
+greg k-h

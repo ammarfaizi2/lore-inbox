@@ -1,48 +1,120 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154230AbPKKMU4>; Thu, 11 Nov 1999 07:20:56 -0500
-Received: by vger.rutgers.edu id <S153912AbPKKMUu>; Thu, 11 Nov 1999 07:20:50 -0500
-Received: from dukat.scot.redhat.com ([195.89.149.246]:1321 "EHLO dukat.scot.redhat.com") by vger.rutgers.edu with ESMTP id <S154224AbPKKMUE>; Thu, 11 Nov 1999 07:20:04 -0500
-From: "Stephen C. Tweedie" <sct@redhat.com>
+Received: by vger.rutgers.edu via listexpand id <S154457AbPKLNQ1>; Fri, 12 Nov 1999 08:16:27 -0500
+Received: by vger.rutgers.edu id <S154249AbPKLNDE>; Fri, 12 Nov 1999 08:03:04 -0500
+Received: from chiara.csoma.elte.hu ([157.181.71.18]:4121 "EHLO chiara.csoma.elte.hu") by vger.rutgers.edu with ESMTP id <S154277AbPKLM5O>; Fri, 12 Nov 1999 07:57:14 -0500
+Date: Fri, 12 Nov 1999 15:02:31 +0100 (CET)
+From: Ingo Molnar <mingo@chiara.csoma.elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.rutgers.edu, "Stephen C. Tweedie" <sct@redhat.com>
+Subject: [patch] zoned-2.3.27-E0
+Message-ID: <Pine.LNX.4.10.9911121502120.7240-200000@chiara.csoma.elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14378.46183.729723.903734@dukat.scot.redhat.com>
-Date: Thu, 11 Nov 1999 12:19:51 +0000 (GMT)
-To: yodaiken@chelm.cs.nmt.edu
-Cc: Roman Zippel <zippel@fh-brandenburg.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>, Jes.Sorensen@cern.ch, linux-kernel@vger.rutgers.edu, Stephen Tweedie <sct@redhat.com>
-Subject: Re: linux interrupt handling problem
-In-Reply-To: <19991110085430.A3482@chelm.cs.nmt.edu>
-References: <E11lGba-0005EE-00@the-village.bc.nu> <Pine.GSO.4.10.9911101123510.2832-100000@zeus.fh-brandenburg.de> <19991110085430.A3482@chelm.cs.nmt.edu>
+Content-Type: MULTIPART/MIXED; BOUNDARY="650352740-1569456166-942415351=:7240"
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hi,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-On Wed, 10 Nov 1999 08:54:30 -0700, yodaiken@chelm.cs.nmt.edu said:
+--650352740-1569456166-942415351=:7240
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-> On Wed, Nov 10, 1999 at 11:30:53AM +0100, Roman Zippel wrote:
->> That's a problem I would like to address later, since it's a perfomance
->> only problem, where the sti() stuff is also a portability problem.
 
-> Any measurements to show that this is a real problem? My intuition
-> is that the simple Linux model has enormous advantages over
-> more complex schemes. 
+Stephen noticed that 2.3.27 doesnt boot on <=16MB boxes due to the zoned
+allocator changes. The attached patch should fix this. Unfortunately i
+found no way to prevent introducing the runtime 'nr_zones' variable.
 
-There was a Usenix paper a couple of years ago:
+-- mingo
 
-    http://www.usenix.org/publications/library/proceedings/ana97/small.html
 
-at which they did an evaluation of the normal splx() mechanism in NetBSD
-with a simplified, Linux-like mechanism.  The simpler one won
-hands-down.  They did note that spl made sense on older machines where
-interrupt routines were, relatively, much longer due to the slower clock
-speeds, but concluded that it didn't make sense on modern, fast CPUs.
+--650352740-1569456166-942415351=:7240
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="zoned-2.3.27-E0"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.10.9911121502310.7240@chiara.csoma.elte.hu>
+Content-Description: 
+Content-Disposition: attachment; filename="zoned-2.3.27-E0"
 
-Their proposal in the end is to protect kernel critical sections with
-cli/sti, but to keep interrupts enabled during IRQs and rely on the PIC
-to keep the interrupt line disabled during the ISR.  Odd, that looks
-familiar, doesn't it?  :-)
-
---Stephen
+LS0tIGxpbnV4L21tL3BhZ2VfYWxsb2MuYy5vcmlnCUZyaSBOb3YgMTIgMDE6
+MzQ6NDYgMTk5OQ0KKysrIGxpbnV4L21tL3BhZ2VfYWxsb2MuYwlGcmkgTm92
+IDEyIDAyOjI3OjIyIDE5OTkNCkBAIC01MSwxMSArNTEsMTMgQEANCiANCiAj
+aWZkZWYgQ09ORklHX0hJR0hNRU0NCiAjIGRlZmluZSBaT05FX0hJR0hNRU0J
+CTINCi0jIGRlZmluZSBOUl9aT05FUwkJMw0KKyMgZGVmaW5lIE1BWF9OUl9a
+T05FUwkJMw0KICNlbHNlDQotIyBkZWZpbmUgTlJfWk9ORVMJCTINCisjIGRl
+ZmluZSBNQVhfTlJfWk9ORVMJCTINCiAjZW5kaWYNCiANCitpbnQgbnJfem9u
+ZXMgPSBNQVhfTlJfWk9ORVM7DQorDQogdHlwZWRlZiBzdHJ1Y3Qgem9uZV9z
+dHJ1Y3Qgew0KIAlzcGlubG9ja190IGxvY2s7DQogCXVuc2lnbmVkIGxvbmcg
+b2Zmc2V0Ow0KQEAgLTY4LDcgKzcwLDcgQEANCiAJY2hhciAqIG5hbWU7DQog
+fSB6b25lX3Q7DQogDQotc3RhdGljIHpvbmVfdCB6b25lc1tOUl9aT05FU10g
+PQ0KK3N0YXRpYyB6b25lX3Qgem9uZXNbTUFYX05SX1pPTkVTXSA9DQogCXsN
+CiAJCXsgbmFtZTogIkRNQSIgfSwNCiAJCXsgbmFtZTogIk5vcm1hbCIgfSwN
+CkBAIC0xMjAsMTIgKzEyMiwxMiBAQA0KIAkvKg0KIAkgKiBXaGljaCB6b25l
+IGlzIHRoaXMgcGFnZSBiZWxvbmdpbmcgdG8uDQogCSAqDQotCSAqIChOUl9a
+T05FUyBpcyBsb3csIGFuZCB3ZSBkbyBub3Qgd2FudCAoeWV0KSB0byBpbnRy
+b2R1Y2UNCisJICogKG5yX3pvbmVzIGlzIGxvdywgYW5kIHdlIGRvIG5vdCB3
+YW50ICh5ZXQpIHRvIGludHJvZHVjZQ0KIAkgKiBwdXQgcGFnZS0+em9uZSwg
+aXQgaW5jcmVhc2VzIHRoZSBzaXplIG9mIG1lbV9tYXBbXQ0KIAkgKiB1bm5l
+Y2Vzc2VyaWx5LiBUaGlzIHNtYWxsIGxvb3AgaXMgYmFzaWNhbGx5IGVxdWl2
+YWxlbnQNCiAJICogdG8gdGhlIHByZXZpb3VzICNpZmRlZiBqdW5nbGUsIHNw
+ZWVkLXdpc2UuKQ0KIAkgKi8NCi0JaSA9IE5SX1pPTkVTLTE7DQorCWkgPSBu
+cl96b25lcy0xOw0KIAl6b25lID0gem9uZXMgKyBpOw0KIAlmb3IgKCA7IGkg
+Pj0gMDsgaS0tLCB6b25lLS0pDQogCQlpZiAobWFwX25yID49IHpvbmUtPm9m
+ZnNldCkNCkBAIC0zNDUsNyArMzQ3LDcgQEANCiANCiBzdGF0aWMgaW5saW5l
+IHpvbmVfdCAqIGdmcF9tYXNrX3RvX3pvbmUgKGludCBnZnBfbWFzaykNCiB7
+DQotCXpvbmVfdCAqem9uZTsNCisJem9uZV90ICp6b25lLCAqbGltaXQ7DQog
+DQogI2lmIENPTkZJR19ISUdITUVNDQogCWlmIChnZnBfbWFzayAmIF9fR0ZQ
+X0hJR0hNRU0pDQpAQCAtMzU2LDYgKzM1OCw5IEBADQogCQkJem9uZSA9IHpv
+bmVzICsgWk9ORV9ETUE7DQogCQllbHNlDQogCQkJem9uZSA9IHpvbmVzICsg
+Wk9ORV9OT1JNQUw7DQorCWxpbWl0ID0gem9uZXMgKyBucl96b25lcy0xOw0K
+KwlpZiAoem9uZSA+IGxpbWl0KQ0KKwkJem9uZSA9IGxpbWl0Ow0KIAlyZXR1
+cm4gem9uZTsNCiB9DQogDQpAQCAtMzgzLDcgKzM4OCw3IEBADQogCXpvbmVf
+dCAqem9uZTsNCiANCiAJc3VtID0gMDsNCi0JZm9yICh6b25lID0gem9uZXM7
+IHpvbmUgPCB6b25lcytOUl9aT05FUzsgem9uZSsrKQ0KKwlmb3IgKHpvbmUg
+PSB6b25lczsgem9uZSA8IHpvbmVzK25yX3pvbmVzOyB6b25lKyspDQogCQlz
+dW0gKz0gem9uZS0+ZnJlZV9wYWdlczsNCiAJcmV0dXJuIHN1bTsNCiB9DQpA
+QCAtNDI5LDcgKzQzNCw3IEBADQogCQlmcmVlcGFnZXMubG93LA0KIAkJZnJl
+ZXBhZ2VzLmhpZ2gpOw0KIA0KLQlmb3IgKHR5cGUgPSAwOyB0eXBlIDwgTlJf
+Wk9ORVM7IHR5cGUrKykgew0KKwlmb3IgKHR5cGUgPSAwOyB0eXBlIDwgbnJf
+em9uZXM7IHR5cGUrKykgew0KIAkJem9uZV90ICp6b25lID0gem9uZXMgKyB0
+eXBlOw0KICAJCXVuc2lnbmVkIGxvbmcgdG90YWwgPSAwOw0KIA0KQEAgLTQ2
+NiwxMiArNDcxLDEyIEBADQogdm9pZCBfX2luaXQgZnJlZV9hcmVhX2luaXQo
+dW5zaWduZWQgaW50ICp6b25lc19zaXplKQ0KIHsNCiAJbWVtX21hcF90ICog
+cDsNCi0JdW5zaWduZWQgbG9uZyBpLCBqOw0KKwlpbnQgaSwgajsNCiAJdW5z
+aWduZWQgbG9uZyBtYXBfc2l6ZTsNCiAJdW5zaWduZWQgaW50IHRvdGFscGFn
+ZXMsIG9mZnNldDsNCiANCiAJdG90YWxwYWdlcyA9IDA7DQotCWZvciAoaSA9
+IDA7IGkgPCBOUl9aT05FUzsgaSsrKQ0KKwlmb3IgKGkgPSAwOyBpIDwgbnJf
+em9uZXM7IGkrKykNCiAJCXRvdGFscGFnZXMgKz0gem9uZXNfc2l6ZVtpXTsN
+CiAJcHJpbnRrKCJ0b3RhbHBhZ2VzOiAlMDh4XG4iLCB0b3RhbHBhZ2VzKTsN
+CiANCkBAIC01MTQsMTIgKzUxOSwxOCBAQA0KIAl9DQogDQogCW9mZnNldCA9
+IDA7CQ0KLQlmb3IgKGogPSAwOyBqIDwgTlJfWk9ORVM7IGorKykgew0KKwlm
+b3IgKGogPSAwOyBqIDwgTUFYX05SX1pPTkVTOyBqKyspIHsNCiAJCXpvbmVf
+dCAqem9uZSA9IHpvbmVzICsgajsNCiAJCXVuc2lnbmVkIGxvbmcgbWFzayA9
+IC0xOw0KIAkJdW5zaWduZWQgbG9uZyBzaXplOw0KIA0KIAkJc2l6ZSA9IHpv
+bmVzX3NpemVbal07DQorCQlwcmludGsoInpvbmUgJWQsIHNpemUgJTA4bHhc
+biIsIGosIHNpemUpOw0KKwkJaWYgKCFzaXplKSB7DQorCQkJcHJpbnRrKCJz
+ZXR0aW5nIG5yX3pvbmVzIHRvICVkXG4iLCBucl96b25lcyk7DQorCQkJbnJf
+em9uZXMgPSBqOw0KKwkJCWJyZWFrOw0KKwkJfQ0KIAkJem9uZS0+c2l6ZSA9
+IHNpemU7DQogCQl6b25lLT5vZmZzZXQgPSBvZmZzZXQ7DQogCQl6b25lLT5w
+YWdlc19sb3cgPSBmcmVlcGFnZXMubG93Ow0KLS0tIGxpbnV4L2FyY2gvaTM4
+Ni9tbS9pbml0LmMub3JpZwlGcmkgTm92IDEyIDAxOjQyOjUxIDE5OTkNCisr
+KyBsaW51eC9hcmNoL2kzODYvbW0vaW5pdC5jCUZyaSBOb3YgMTIgMDE6NDU6
+MTQgMTk5OQ0KQEAgLTQ0OCwxMiArNDQ4LDE4IEBADQogCWttYXBfaW5pdCgp
+Ow0KICNlbmRpZg0KIAl7DQotCQl1bnNpZ25lZCBpbnQgem9uZXNfc2l6ZVsz
+XTsNCisJCXVuc2lnbmVkIGludCBtYXhfZG1hX3BmbjsNCisJCXVuc2lnbmVk
+IGludCB6b25lc19zaXplWzNdID0geyAwLCAwLCAwIH07DQogDQotCQl6b25l
+c19zaXplWzBdID0gdmlydF90b19waHlzKChjaGFyICopTUFYX0RNQV9BRERS
+RVNTKQ0KLQkJCQkJID4+IFBBR0VfU0hJRlQ7DQotCQl6b25lc19zaXplWzFd
+ID0gbWF4X2xvd19wZm4gLSB6b25lc19zaXplWzBdOw0KLQkJem9uZXNfc2l6
+ZVsyXSA9IGhpZ2hlbmRfcGZuIC0gem9uZXNfc2l6ZVswXSAtIHpvbmVzX3Np
+emVbMV07DQorIAkJbWF4X2RtYV9wZm4gPSB2aXJ0X3RvX3BoeXMoKGNoYXIg
+KilNQVhfRE1BX0FERFJFU1MpPj5QQUdFX1NISUZUOw0KKwkJaWYgKG1heF9s
+b3dfcGZuIDwgbWF4X2RtYV9wZm4pDQorCQkJem9uZXNfc2l6ZVswXSA9IG1h
+eF9sb3dfcGZuOw0KKwkJZWxzZSB7DQorCQkJem9uZXNfc2l6ZVswXSA9IG1h
+eF9kbWFfcGZuOw0KKwkJCXpvbmVzX3NpemVbMV0gPSBtYXhfbG93X3BmbiAt
+IHpvbmVzX3NpemVbMF07DQorCQkJem9uZXNfc2l6ZVsyXSA9IGhpZ2hlbmRf
+cGZuIC0gem9uZXNfc2l6ZVswXQ0KKwkJCQkJCQkgLSB6b25lc19zaXplWzFd
+Ow0KKwkJfQ0KIA0KIAkJZnJlZV9hcmVhX2luaXQoem9uZXNfc2l6ZSk7DQog
+CX0NCg==
+--650352740-1569456166-942415351=:7240--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

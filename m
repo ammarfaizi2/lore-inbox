@@ -1,72 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135404AbRD0KE7>; Fri, 27 Apr 2001 06:04:59 -0400
+	id <S135444AbRD0KE7>; Fri, 27 Apr 2001 06:04:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135444AbRD0KEt>; Fri, 27 Apr 2001 06:04:49 -0400
-Received: from www.wen-online.de ([212.223.88.39]:64519 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S135404AbRD0KEc>;
-	Fri, 27 Apr 2001 06:04:32 -0400
-Date: Fri, 27 Apr 2001 12:04:00 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: #define HZ 1024 -- negative effects?
-In-Reply-To: <OE54ug1uBnF36bxQ3T100003b0d@hotmail.com>
-Message-ID: <Pine.LNX.4.33.0104270848530.425-100000@mikeg.weiden.de>
+	id <S135464AbRD0KEt>; Fri, 27 Apr 2001 06:04:49 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:47113 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S135444AbRD0KEg>; Fri, 27 Apr 2001 06:04:36 -0400
+Message-ID: <3AE9415D.A6F65CAC@evision-ventures.com>
+Date: Fri, 27 Apr 2001 11:52:29 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andries.Brouwer@cwi.nl
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PATCH for 2.4.3 - tinny mount code cleanup (kernel 0.97 
+ compatibility)
+In-Reply-To: <UTC200104261723.TAA20960.aeb@vlet.cwi.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I have not tried it, but I would think that setting HZ to 1024
-> > should make a big improvement in responsiveness.
-> >
-> > Currently, the time slice allocated to a standard Linux
-> > process is 5*HZ, or 50ms when HZ is 100.  That means that you
-> > will notice keystrokes being echoed slowly in X when you have
-> > just one or two running processes,
->
-> Rubbish.  Whenever a higher-priority thread than the current
-> thread becomes runnable the current thread will get preempted,
-> regardless of whether its timeslices is over or not.
+Andries.Brouwer@cwi.nl wrote:
+> 
+>     From: Martin Dalecki <dalecki@evision-ventures.com>
+> 
+>     The attached patch is fixing georgeous "backward compatibility"
+>     in the mount system command. It is removing two useless defines in
+>     the kernel headers and finally doubles the number of possible
+>     flags for the mount command.
+> 
+>     Please apply.
+> 
+> You have it all backwards. Your patch halves the number of
+> possible flags. The present kernel can use 32 (or 31) flags.
+> 
+>     @@ -1317,10 +1313,6 @@
+>          struct super_block *sb;
+>          int retval = 0;
+> 
+>     -    /* Discard magic */
+>     -    if ((flags & MS_MGC_MSK) == MS_MGC_VAL)
+>     -        flags &= ~MS_MGC_MSK;
+>     -
+>          /* Basic sanity checks */
+> 
+>          if (!dir_name || !*dir_name || !memchr(dir_name, 0, PAGE_SIZE))
+> 
+> You see what this code does: if the top half has this old magic
+> (as it has today in 100% of all Linux installations),
+> then the top half is ignored.
+> If the value is non-conventional, it can be used to mean something.
+> 
+> Maybe you did not realize that mount still puts that value there?
 
-(hmm.. noone mentioned this, and it doesn't look like anyone is
-going to volunteer to be my proxy [see ionut's .sig].  oh well)
+Oops typo in find ./ ... grep on my side  maybe?
 
-What about SCHED_YIELD and allocating during vm stress times?
+Anyway at least the comment there is at best missleading...
 
-Say you have only two tasks.  One is the gui and is allocating,
-the other is a pure compute task.  The compute task doesn't do
-anything which will cause preemtion except use up it's slice.
-The gui may yield the cpu but the compute job never will.
+> The mount we use today will be around for many years to come.
+> This "discard magic" part cannot be removed within five years.
+> 
+> Andries
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-(The gui won't _become_ runnable if that matters.  It's marked
-as running, has yielded it's remaining slice and went to sleep..
-with it's eyes open;)
-
-Since increasing HZ reduces timeslice, the maximum amount of time
-that you can yield is also decreased.  In the above case, isn't
-it true that changing HZ from 100 to 1000 decreases sleep time
-for the yielder from 50ms to 5ms if the compute task is at the
-start of it's slice when the gui yields?
-
-It seems likely that even if you're running a normal mix of tasks,
-that the gui, big fat oinker that the things tend to be, will yield
-much more often than the slimmer tasks it's competing with for cpu
-because it's likely allocating/yielding much more often.
-
-It follows that increasing HZ must decrease latency for the gui if
-there's any vm stress.. and that's the time that gui responsivness
-complaints usually refer to.  Throughput for yielding tasks should
-also increase with a larger HZ value because the number of yields
-is constant (tied to the number of allocations) but the amount of
-cpu time lost per yield is smaller.
-
-Correct?
-
-(if big fat tasks _don't_ generally allocate more than slim tasks,
-my refering to ionuts .sig was most unfortunate.  i hope it's safe
-to assume that you can't become that obese without eating a lot;)
-
- 	-Mike
-
+-- 
+- phone: +49 214 8656 283
+- job:   eVision-Ventures AG, LEV .de (MY OPINIONS ARE MY OWN!)
+- langs: de_DE.ISO8859-1, en_US, pl_PL.ISO8859-2, last ressort:
+ru_RU.KOI8-R

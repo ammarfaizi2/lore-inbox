@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261699AbSJJSBw>; Thu, 10 Oct 2002 14:01:52 -0400
+	id <S261647AbSJJSET>; Thu, 10 Oct 2002 14:04:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261744AbSJJSBw>; Thu, 10 Oct 2002 14:01:52 -0400
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:19178 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S261699AbSJJSBv>; Thu, 10 Oct 2002 14:01:51 -0400
-Message-ID: <3DA5C1AB.8060708@drugphish.ch>
-Date: Thu, 10 Oct 2002 20:06:35 +0200
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S261823AbSJJSET>; Thu, 10 Oct 2002 14:04:19 -0400
+Received: from pyxis.eclipse.net.uk ([212.104.129.226]:15635 "HELO
+	pyxis.eclipse.net.uk") by vger.kernel.org with SMTP
+	id <S261647AbSJJSER> convert rfc822-to-8bit; Thu, 10 Oct 2002 14:04:17 -0400
+From: morgad <morgad@eclipse.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.41 compiling
+Date: Thu, 10 Oct 2002 19:08:40 +0100
+Organization: the great unwashed
+Reply-To: morgad@eclipse.co.uk
+Message-ID: <0ufbqu825c05tlu97unvmlcmq1ujbvsnjp@4ax.com>
+X-Mailer: Forte Agent 1.92/32.572
 MIME-Version: 1.0
-To: Gianni Tedesco <gianni@ecsc.co.uk>
-Cc: Martin Renold <martinxyz@gmx.ch>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] tcp connection tracking 2.4.19
-References: <20021008205053.GA2621@old.homeip.net>	 <3DA348EF.7060709@drugphish.ch> <1034166655.30384.13.camel@lemsip>	 <3DA4668A.5070501@drugphish.ch> <1034246310.1489.74.camel@lemsip>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Fair enough. I thought that last time I checked with the code the SYN 
->>cookie functionality would only kick in _after_ the backlog queue is full.
-> > It does. When using syn cookies you cant use some of the new advanced
-> features of tcp. Linux uses the backlog queue when not under attack.
-> When the queue overflows it just uses cookies - but can still accept
-> connections.
+Hi,
 
-That was my understanding so far. So then I haven't gone crazy, thank god.
+I am currently running 2.4.19 successfully on
+my K7 based Debian 3.0 box.
 
-> I don't think these statements are entirely true. While it is true that
-> you can't use things like window scaling or SACK - syncookies 100%
-> successfully stop syn flood attacks.
+I thought I would try to test the new 2.5 series
+kernels, however having tried 2.5.40, 2.5.40-ac5,
+2.5.41 and 2.5.41-ac2 I am unable to compile any of them !
 
-Someone needs to adjust the text then.
+they all fail in the drivers/video area.
 
-> The attack is that if you fill the syn backlog queue with bogus requests
-> then legitimate clients can no longer connect. The syn flood attack
-> isn't "your legitimate connections wont be able to use window scaling".
+I got my config file by copying the working
+2.4.19 one over and running 'make oldconfig'
 
-I completely agree with this definition of SYN flooding and then I will 
-also say that you can 'stop' SYN flooding, well, at least you give 
-legitimate clients a real chance to still successfully connect to your 
-service, while it is under a SYN flood. I think we agree now. It should 
-only be remarked that the line is still flooded, thus the wording "100 
-stop SYN flood" is simply inappropriate in my eyes. It's all a matter of 
-definition.
+(is there an better way of migrating configs
+between kernel series ?)
 
-Regards,
-Roberto Nibali, ratz
--- 
-echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
+I have put my current config at
+
+http://www.eclipse.co.uk/morgd/linux  
+
+could someone please check it and tell me how I have
+broken things ?
+
+(video card is radeon 7500)
+
+best regards
+dave morgan
 

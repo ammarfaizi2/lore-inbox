@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269684AbRHJP6v>; Fri, 10 Aug 2001 11:58:51 -0400
+	id <S269936AbRHJQDl>; Fri, 10 Aug 2001 12:03:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269936AbRHJP6c>; Fri, 10 Aug 2001 11:58:32 -0400
-Received: from [64.7.140.42] ([64.7.140.42]:42712 "EHLO inet.connecttech.com")
-	by vger.kernel.org with ESMTP id <S269684AbRHJP61>;
-	Fri, 10 Aug 2001 11:58:27 -0400
-Message-ID: <017801c121b5$e254f3e0$294b82ce@connecttech.com>
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "Caleb Tennis" <caleb@aei-tech.com>, <linux-kernel@vger.kernel.org>,
-        <tytso@mit.edu>
-In-Reply-To: <01081010190800.03758@pete.aei-tech.com>
-Subject: Re: [PATCH] serial.c to support ConnectTech Blueheat PCI
-Date: Fri, 10 Aug 2001 12:02:41 -0400
-Organization: Connect Tech Inc.
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S269937AbRHJQDb>; Fri, 10 Aug 2001 12:03:31 -0400
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:16570 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S269936AbRHJQDT>; Fri, 10 Aug 2001 12:03:19 -0400
+Date: Fri, 10 Aug 2001 17:03:21 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Linux-Kernel (Lista Correo)" <linux-kernel@vger.kernel.org>
+Subject: Re: Can I have a serial display output and a kbd PS/2 input?
+Message-ID: <20010810170321.D27072@flint.arm.linux.org.uk>
+In-Reply-To: <001b01c12194$a34a3370$66011ec0@frank> <20010810164959.E760@lug-owl.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010810164959.E760@lug-owl.de>; from jbglaw@lug-owl.de on Fri, Aug 10, 2001 at 04:49:59PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Caleb Tennis" <caleb@aei-tech.com>
-> My first attempt at a patch - this fix was actually supported by
-ConnectTech
-> but for an older version of the serial driver - this patch brings it up to
-> date with changes made to the kernel since 2.2.
+On Fri, Aug 10, 2001 at 04:49:59PM +0200, Jan-Benedict Glaw wrote:
+> I think something like "console=ttyS1 console=tty0" should do.
+> 
+> This (as boot parameters) means: "output to all defined consoles
+> and input from tty0" as your keyboard is connected to tty0.
 
-This patch is maintained by me; it applies to 5.05. I'm not sure how
-5.05[abc] are different from vanilla 5.05 though.
+No, you're missing his point.
 
-The reason this patch hasn't been seen on lkml is that I prefer
-to have all the serial driver patches go through Ted (T'so the
-serial driver maintainer) first. He's rejected this patch once
-already on the basis that it adds specific board functionality to
-the driver, which he's trying to avoid. I resubmitted it Jun 27 2001
-with a lengthy explanation that all boards with half duplex and slave
-multiplex functionality would have to have some method of doing the
-switching between the modes, and that this isn't specific to our
-products. I haven't heard back from him since.
-
-He has been working intermittently on the driver, at the time I
-submitted the 485 patch in Jun I'd also done some work on his devel
-tarball, as we had a customer issue to fix. I'm sure that a new
-version will show up in a while.
-
-Linus, Alan, whomever else maintains kernels: if you wish to apply
-this patch regardless of Ted's opinion, please contact me.
-
-Caleb: I appreciate the effort, thanks.
-
-Ted: What's the news with a new version?
-
-..Stu
+He wants a getty (not only kernel console) to take input from the
+keyboard, and output through a serial port, which can't be done
+presently.
 
 --
-
-We make multiport serial boards.
-www.connecttech.com
-(519) 836-1291
-
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

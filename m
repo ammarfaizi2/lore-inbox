@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132732AbRDIMdn>; Mon, 9 Apr 2001 08:33:43 -0400
+	id <S132734AbRDIMek>; Mon, 9 Apr 2001 08:34:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132734AbRDIMdb>; Mon, 9 Apr 2001 08:33:31 -0400
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:63929 "EHLO
-	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S132732AbRDIMdN>; Mon, 9 Apr 2001 08:33:13 -0400
-From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
-Message-Id: <200104091229.OAA00554@sunrise.pg.gda.pl>
-Subject: Re: [PATCH] net drivers: missing __init's
-To: pazke@orbita.don.sitek.net (Andrey Panin)
-Date: Mon, 9 Apr 2001 14:29:55 +0200 (MET DST)
-Cc: linux-kernel@vger.kernel.org, kernel-janitor-discuss@lists.sourceforge.net
-In-Reply-To: <20010409161152.B3723@debian> from "Andrey Panin" at Apr 09, 2001 04:11:52 PM
-Reply-To: ankry@green.mif.pg.gda.pl
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132738AbRDIMeb>; Mon, 9 Apr 2001 08:34:31 -0400
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:53388 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S132735AbRDIMe0>;
+	Mon, 9 Apr 2001 08:34:26 -0400
+Message-Id: <5.0.2.1.2.20010409131813.00a68b80@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Mon, 09 Apr 2001 13:34:30 +0100
+To: Andi Kleen <ak@suse.de>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Q: process concurrency and sigaction()
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010409134550.A26660@gruyere.muc.suse.de>
+In-Reply-To: <5.0.2.1.2.20010409115354.00a311a0@pop.cus.cam.ac.uk>
+ <5.0.2.1.2.20010409115354.00a311a0@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Andrey Panin wrote:"
-> 
-> attached patches add missing __init and (__devinit) to some network drivers:
-> 	at1700.c, eepro.c, epic100.c, hamachi.c, sis900.c,=20
-> 	tokenring/abyss.c, tokenring/tmsisa.c, tokenring/tmspci.c.
-> 
+Andi,
 
-> diff -ur -x *.o -x *.flags /linux.vanilla/drivers/net/tokenring/tmsisa.c /l=
-> inux/drivers/net/tokenring/tmsisa.c
-> --- /linux.vanilla/drivers/net/tokenring/tmsisa.c	Mon Apr  2 15:45:22 2001
-> +++ /linux/drivers/net/tokenring/tmsisa.c	Sun Apr  8 18:18:51 2001
-> @@ -19,7 +19,7 @@
->   *  TODO:
->   *	1. Add support for Proteon TR ISA adapters (1392, 1392+)
->   */
-> -static const char *version = "tmsisa.c: v1.00 14/01/2001 by Jochen Friedrich\n";
-> +static const char version[] __initdata = "tmsisa.c: v1.00 14/01/2001 by Jochen Friedrich\n";
+Thanks a lot for the explanations! All clear now. (-:
 
-You should move this line after 
-#include <linux/init.h>
+[snip]
+At 12:45 09/04/01, Andi Kleen wrote:
+>It's ok, but you don't really need to spin. A flag is enough. Also you
+>could use the signal blocking function (sigprocmask), but they're slightly
+>more expensive than just setting a flag.
 
->  #include <linux/module.h>
->  #include <linux/kernel.h>
+Yes, good point. Saves me a whole variable in my data structs in fact, as I 
+already have 32 bits worth of mostly unused, atomic flags.
 
-Andrzej
+sigprocmask would be rather excessive considering it requires a full 
+context switch into the kernel to execute and the high frequency of 
+lock/unlocks in the normal code while the handler only executes once every 
+5 seconds...
+
+Best regards,
+
+         Anton
+
+
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

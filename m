@@ -1,35 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130125AbRBGUhE>; Wed, 7 Feb 2001 15:37:04 -0500
+	id <S130080AbRBGUio>; Wed, 7 Feb 2001 15:38:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129945AbRBGUg4>; Wed, 7 Feb 2001 15:36:56 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:41994 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S130337AbRBGUgl>;
-	Wed, 7 Feb 2001 15:36:41 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102072036.XAA05599@ms2.inr.ac.ru>
-Subject: Re: 2.4.1 tcp ack bug ?
-To: pochini@denise.shiny.IT (Giuliano Pochini)
-Date: Wed, 7 Feb 2001 23:36:27 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A806260.BB77D017@denise.shiny.it> from "Giuliano Pochini" at Feb 7, 1 11:15:02 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S129945AbRBGUie>; Wed, 7 Feb 2001 15:38:34 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3846 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129806AbRBGUiX>; Wed, 7 Feb 2001 15:38:23 -0500
+Subject: Re: Linux 2.4.1-ac5
+To: hch@caldera.de (Christoph Hellwig)
+Date: Wed, 7 Feb 2001 20:39:12 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <200102072030.VAA06500@ns.caldera.de> from "Christoph Hellwig" at Feb 07, 2001 09:30:57 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14QbMw-0001JD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> Hi Alan,
+> now that -ac grows that huge, could you put out incremental patches?
 
-> 20:56:26.172532 ppp0 < mc105-v-2.royaume.com.6699 > ppp12.shiny.it.33148: .
-> 88073:89533(1460) ack 77 win 8684 (DF)
-....
-> Ok, it has just received the missing part, so why it does not ack 98313 ?
-
-Apparently, because this segment has not been received.
-
-Look at checksum errros statistics, for example.
-
-Alexey
+Takes me too much time. But if anyone else wants to, go ahead
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

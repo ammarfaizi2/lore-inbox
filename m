@@ -1,75 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317214AbSFRBli>; Mon, 17 Jun 2002 21:41:38 -0400
+	id <S317215AbSFRBkx>; Mon, 17 Jun 2002 21:40:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317230AbSFRBlh>; Mon, 17 Jun 2002 21:41:37 -0400
-Received: from dsl092-042-129.lax1.dsl.speakeasy.net ([66.92.42.129]:39685
-	"EHLO mgix.com") by vger.kernel.org with ESMTP id <S317214AbSFRBlc>;
-	Mon, 17 Jun 2002 21:41:32 -0400
-From: <mgix@mgix.com>
-To: "David Schwartz" <davids@webmaster.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Question about sched_yield()
-Date: Mon, 17 Jun 2002 18:41:33 -0700
-Message-ID: <AMEKICHCJFIFEDIBLGOBCEEECBAA.mgix@mgix.com>
+	id <S317230AbSFRBkw>; Mon, 17 Jun 2002 21:40:52 -0400
+Received: from twinlark.arctic.org ([208.44.199.239]:13000 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id <S317214AbSFRBkw>; Mon, 17 Jun 2002 21:40:52 -0400
+Date: Mon, 17 Jun 2002 18:40:53 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Andrew Morton <akpm@zip.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 3x slower file reading oddity
+In-Reply-To: <3D0E807C.5D50C17E@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0206171755450.18507-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20020618004630.AAA28082@shell.webmaster.com@whenever>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 17 Jun 2002, Andrew Morton wrote:
+
+> dean gaudet wrote:
+> > what if you have a disk array with lots of spindles?  it seems at some
+> > point that you need to give the array or some lower level driver a lot of
+> > i/os to choose from so that it can get better parallelism out of the
+> > hardware.
+>
+> mm.  For that particular test, you'd get nice speedups from striping
+> the blockgroups across disks, so each `cat' is probably talking to
+> a different disk.  I don't think I've seen anything like that proposed
+> though.
+
+heh, a 128MB stripe?  that'd be huge :)
+
+> You could fork one `cat' per file ;)  (Not so silly, really.  But if
+> you took this approach, you'd need "many" more threads than blockgroups).
+
+i actually tried this first :)  the problem then becomes a fork()
+bottleneck before you run into the disk bottlenecks.  iirc the numbers
+were ~45s for the 1-file-per-cat (for any -Pn, n<=10), ~30s for
+100-files-per-cat (-P1) and ~1m15s for 100-files-per-cat (-P2).
+
+> hmm.  What else?  Physical readahead - read metadata into the block
+> device's pagecache and flip pages from there into directories and
+> files on-demand.  Fat chance of that happening.
+
+one idea i had -- given that the server has a volume manager and you're
+working from a snapshot volume anyhow (only sane way to do backups), it
+might make a lot more sense to use userland ext2/3 libraries to read the
+snapshot block device anyhow.  but this kind of makes me cringe :)
+
+-dean
 
 
-> -----Original Message-----
-> From: David Schwartz [mailto:davids@webmaster.com]
-> Sent: Monday, June 17, 2002 5:46 PM
-> To: mgix@mgix.com; linux-kernel@vger.kernel.org
-> Subject: Re: Question about sched_yield()
-> 
-> 
-> 
-> On Sat, 15 Jun 2002 15:15:32 -0700, mgix@mgix.com wrote:
-> >
-> >Hello,
-> >
-> >I am seeing some strange linux scheduler behaviours,
-> >and I thought this'd be the best place to ask.
-> >
-> >I have two processes, one that loops forever and
-> >does nothing but calling sched_yield(), and the other
-> >is basically benchmarking how fast it can compute
-> >some long math calculation.
-> [snip]
-> 
-> 	You seem to have a misconception about what sched_yield is for. It is not a 
-> replacement for blocking or a scheduling priority adjustment. It simply lets 
-> other ready-to-run tasks be scheduled before returning to the current task.
-> 
-> 	Here's a quote from SuS3:
-> 
-> "The sched_yield() function shall force the running thread to relinquish the 
-> processor until it again becomes the head of its thread list. It takes no 
-> arguments."
-> 
-> 	This neither says nor implies anything about CPU usage. It simply says that 
-> the current thread will yield and be put at the end of the list.
-
-If so, please enlighten me as to when, why, and what for you would use sched_yield.
-
-If willingly and knowingly relinquinshing a CPU does not make it possible
-for other processes to use what would otherwise have been your very own slice
-of processing time then what could it be used for, I really wonder.
-
-Second, I have tried to run my misconception on various other OS'es I have
-access to:Win2k, Mac OSX and OpenBSD, and suprinsingly enough, all of them
-seem to be sharing my twisted views of How Things Should Be (tm).
-
-	- Mgix
 
 

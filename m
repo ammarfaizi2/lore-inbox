@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318428AbSIKHCb>; Wed, 11 Sep 2002 03:02:31 -0400
+	id <S318455AbSIKHDj>; Wed, 11 Sep 2002 03:03:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318432AbSIKHCb>; Wed, 11 Sep 2002 03:02:31 -0400
-Received: from angband.namesys.com ([212.16.7.85]:53898 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S318428AbSIKHC1>; Wed, 11 Sep 2002 03:02:27 -0400
-Date: Wed, 11 Sep 2002 11:07:09 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Robert Love <rml@tech9.net>
-Cc: Thomas Molina <tmolina@cox.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5 Problem Status Report
-Message-ID: <20020911110709.A6193@namesys.com>
-References: <Pine.LNX.4.44.0209102057340.944-100000@dad.molina> <1031716821.1571.91.camel@phantasy>
+	id <S318458AbSIKHDj>; Wed, 11 Sep 2002 03:03:39 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:43780 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S318455AbSIKHDi>;
+	Wed, 11 Sep 2002 03:03:38 -0400
+Date: Wed, 11 Sep 2002 09:08:25 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] drivers/char/Makefile: Remove pty.o from export-objs
+Message-ID: <20020911090825.B16000@mars.ravnborg.org>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1031716821.1571.91.camel@phantasy>
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Remove pty.o from the export-objs list, since pty.c does not export
+any symbols.
+A /* EXPORT_SYMBOL */ comment may have fooled the original author.
 
-On Wed, Sep 11, 2002 at 12:00:20AM -0400, Robert Love wrote:
+	Sam
 
-> >    BUG at kernel/sched.c        open                  10 Sep 2002
-> What exactly is this?
-
-Looks like this is my bugreport for BUG in kernel/sched.c:944 in the middle
-of partition parsing output on boot.
-
-Subject of email was
-'2.5.34 BUG at kernel/sched.c:944 (partitions code related?)'
-msgid: 20020910175639.A830@namesys.com
-
-Bye,
-    Oleg
+===== drivers/char/Makefile 1.34 vs edited =====
+--- 1.34/drivers/char/Makefile	Mon Sep  2 21:24:29 2002
++++ edited/drivers/char/Makefile	Wed Sep 11 08:57:46 2002
+@@ -13,7 +13,7 @@
+ # This list comes from 'grep -l EXPORT_SYMBOL *.[hc]'.
+ 
+ export-objs     :=	busmouse.o console.o generic_serial.o ip2main.o \
+-			ite_gpio.o misc.o nvram.o pty.o random.o rtc.o \
++			ite_gpio.o misc.o nvram.o random.o rtc.o \
+ 			selection.o sonypi.o sysrq.o tty_io.o tty_ioctl.o
+ 
+ obj-$(CONFIG_VT) += vt.o vc_screen.o consolemap.o consolemap_deftbl.o selection.o keyboard.o

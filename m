@@ -1,84 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130196AbQL0SDT>; Wed, 27 Dec 2000 13:03:19 -0500
+	id <S130214AbQL0SIa>; Wed, 27 Dec 2000 13:08:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130214AbQL0SDK>; Wed, 27 Dec 2000 13:03:10 -0500
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:54285
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S130196AbQL0SDD>; Wed, 27 Dec 2000 13:03:03 -0500
-Date: Wed, 27 Dec 2000 09:32:36 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Gregory Maxwell <greg@linuxpower.cx>
-Cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
-        linux-kernel@vger.kernel.org
-Subject: Re: high load & poor interactivity on fast thread creation
-Message-ID: <20001227093236.A1409@work.bitmover.com>
-Mail-Followup-To: Gregory Maxwell <greg@linuxpower.cx>,
-	Michael Rothwell <rothwell@holly-springs.nc.us>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3A266895.F522A0E2@austin.ibm.com> <20001130081443.A8118@bach.iverlek.kotnet.org> <3A266895.F522A0E2@austin.ibm.com> <4.3.2.7.2.20001227110018.00e5ba90@cam-pop.cambridge.arm.com> <3A4A22A8.D434B7F@holly-springs.nc.us> <20001227122508.A29579@xi.linuxpower.cx>
+	id <S130485AbQL0SIV>; Wed, 27 Dec 2000 13:08:21 -0500
+Received: from unthought.net ([212.97.129.24]:15509 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S130214AbQL0SIQ>;
+	Wed, 27 Dec 2000 13:08:16 -0500
+Date: Wed, 27 Dec 2000 18:37:48 +0100
+From: Jakob Østergaard <jakob@unthought.net>
+To: Paul Jakma <paulj@itg.ie>
+Cc: Ian Stirling <root@mauve.demon.co.uk>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: RAID - IDE - here we go again...
+Message-ID: <20001227183748.A9491@unthought.net>
+Mail-Followup-To: Jakob Østergaard <jakob@unthought.net>,
+	Paul Jakma <paulj@itg.ie>, Ian Stirling <root@mauve.demon.co.uk>,
+	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+In-Reply-To: <200012261952.TAA11390@mauve.demon.co.uk> <Pine.LNX.4.30.0012271620530.24075-100000@rossi.itg.ie>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
-In-Reply-To: <20001227122508.A29579@xi.linuxpower.cx>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.30.0012271620530.24075-100000@rossi.itg.ie>; from paulj@itg.ie on Wed, Dec 27, 2000 at 04:23:43PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Great post.  Rob Pike said it best, if you are trying to distill it down
-to one sentence, when he said
-
-    "If you think you need threads, you processes are too fat"
-
-Stevel Kleiman had a somewhat more cryptic comment (somewhat is an
-understatement, it took me years to let it sink in) in reference to
-a popular DB technology from a west coast University:
-
-    "They didn't use mmap"
-
-I don't have anything as catchy, but for years I've felt that plain old 
-processes combined with mmap give you all the sharing you need.  You do
-pay a price for not sharing TLB entries if the OS is stupid (Linux' is
-not).
-
-On Wed, Dec 27, 2000 at 12:25:09PM -0500, Gregory Maxwell wrote:
-> On Wed, Dec 27, 2000 at 12:11:04PM -0500, Michael Rothwell wrote:
-> [snip]
-> > One notable difference between Linux and NT threads and processes is
-> > that it is more expensive to create new processes on NT than on Linux,
-> > and on NT thread creation is cheaper than process creation. Typically
-> > Windows programs use multiple threads rather than multiple processes,
-> > whereas on Unix the reverse is true.
+On Wed, Dec 27, 2000 at 04:23:43PM +0000, Paul Jakma wrote:
+> On Tue, 26 Dec 2000, Ian Stirling wrote:
 > 
-> This is the meaty difference. Under Linux, full *process* operations 
-> are faster then NT *thread* operations. The Linux 'threads' (lightweight
-> processes) are somewhat faster then unlightweight processes, but nowhere
-> near the magnitude of difference that NT experiences.
+> > The PCI bus can move around 130MB/sec,
 > 
-> Because of this, lightweight processes are used differently under Linux: They
-> are treated just like processes and can share variable amounts of state with
-> other processes.
+> in bursts yes, but sustained data bandwidth of PCI is a lot lower,
+> maybe 30 to 50MB/s. And you won't get sustained RAID performance >
+> sustained PCI performance.
+
+Much higher than 30-50 - but yes, the total bandwidth won't exceed
+the slowest channel.
+
 > 
-> In Linux, you use threads when it makes sense to code with threads. You can
-> share as little or as much makes sense with your design. You almost never use
-> threads for performance reasons, because regular processes are so fast that
-> it seldom makes sense to use threads for performance (they can be faster but
-> usually the additional development/debugging difficulty makes it a non-issue).
+> > Anyway, in clarification, Rik mentioned that two reads from different
+> > disk (arrays?) on the same controller at the same time get more or less
+> > the same speed.
 > 
-> In Windows NT, you MUST use threads for decent performance in many places
-> where processes (or other different semi-lightweight structures) might make
-> more sense. Threads are the largest construction capable of really good
-> performance, so you don't have the flexibility to chose what you share:
-> What is shared is not a programming design decision but an OS performance
-> decision.
->  
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+> try scsi.
+
+SCSI won't get you a faster PCI bus.  Guys, *PLEASE*, - everyone on this list
+knows what the respective virtues and horrors of SCSI and IDE are.   Configured
+properly, both can perform well, configured wrongly, both will suck.
+
+The timings below are from a dual PII-350, Asus P2B-DS, it has a six disk SCSI
+RAID and a five disk IDE RAID.  The IDE raid is configured properly with one
+channel per disk - which would have solved the performance problem in the array
+that spawned this thread. 
+
+(By the way: the SCSI RAID is configured with three controllers for the six
+disks, because of the low SCSI bus bandwidth, reality rules in the SCSI world
+as well)
+
+Kernel is 2.2, RAID is 0.90, IDE is Andre's
+
+---------------------------------------
+Dual PII-350, 256 MB RAM, test on 1 GB file
+
+Filesystem:  75 GB ext2fs
+RAID:        Linux Softare RAID-5
+Disks:       5 pcs. IBM Deskstar 75 GXP (30GB)
+Controller:  3 pcs. Promise PDC-2067
+
+              -------Sequential Output-------- ---Sequential Input-- --Random--
+              -Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --Seeks---
+Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU  /sec %CPU
+         1024  4998 98.0 28660 45.9 14586 50.4  5386 98.5 71468 79.1 338.6  5.2                               
+
+28 MB/sec write, 71MB/sec read on RAID-5.
+
+---------------------------------------
+Same box, test on 1 GB file
+
+Filesystem:  18 GB ext2fs
+RAID:        Linux Softare RAID-0
+
+This array is built on other partitions on the same disks as above.
+
+              -------Sequential Output-------- ---Sequential Input-- --Random--
+              -Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --Seeks---
+Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU  /sec %CPU
+         1024  5381 99.7 44267 50.1 22613 62.1  5469 99.4 98075 91.4 311.0  5.0                               
+44 MB/sec write, 98 MB/sec read on RAID-0.  That's thru *one* PCI bus folks.
+
+Please, for further comments or another IDE-hotplug-can!-cannot!-can-so!, let's
+take this to linux-raid or #offtopic   ;)
+
+Enough said.
 
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271971AbRIMSrH>; Thu, 13 Sep 2001 14:47:07 -0400
+	id <S271973AbRIMS70>; Thu, 13 Sep 2001 14:59:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271975AbRIMSqr>; Thu, 13 Sep 2001 14:46:47 -0400
-Received: from 65-45-81-178.customer.algx.net ([65.45.81.178]:41468 "EHLO
-	postbox.aslab.com") by vger.kernel.org with ESMTP
-	id <S271971AbRIMSqf> convert rfc822-to-8bit; Thu, 13 Sep 2001 14:46:35 -0400
-Date: Thu, 13 Sep 2001 11:32:18 -0700 (PDT)
-From: "John D. Kim" <johnkim@aslab.com>
-To: hugang <linuxbest@soul.com.cn>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <gero@gkminix.han.de>,
-        <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
-Subject: Re: A patch for dhcp and nfsroot.
-In-Reply-To: <20010829081411.753c1d1b.linuxbest@soul.com.cn>
-Message-ID: <Pine.LNX.4.31.0109131131200.18725-100000@postbox.aslab.com>
+	id <S271975AbRIMS7Q>; Thu, 13 Sep 2001 14:59:16 -0400
+Received: from 63-151-64-156.hsacorp.net ([63.151.64.156]:58890 "EHLO
+	boojiboy.eorbit.net") by vger.kernel.org with ESMTP
+	id <S271973AbRIMS7K>; Thu, 13 Sep 2001 14:59:10 -0400
+From: chris@boojiboy.eorbit.net
+Message-Id: <200109131955.MAA07591@boojiboy.eorbit.net>
+Subject: Re: 2.4.9-ac9 APM w/Compaq 16xx laptop...
+To: linux-kernel@vger.kernel.org
+Date: Thu, 13 Sep 2001 12:55:56 -0700 (PDT)
+Cc: J.A.K.Mouw@ITS.TUDelft.NL
+In-Reply-To: <20010913091748.A21626@arthur.ubicom.tudelft.nl> from "Erik Mouw" at Sep 13, 2001 09:17:48 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anyone tried this yet?  I've tried it on 2.4.9-ac8, but the module
-complains of not being able find the kernel it was built for.
+> > > > When my bios is set ACPI=NO, and APM is compiled in:
+> > > > A 'shutdown -r' hangs after the "Restarting System" message.  
+> > > > Depressing the power switch cause a power off.
 
-On Wed, 29 Aug 2001, hugang wrote:
+> > Here is the APM config:
+> > # CONFIG_APM_CPU_IDLE is not set
+>     ^^^^^^^^^^^^^^^^^^^
+> Any reason why this is not enabled? There's no much use for APM without it.
 
-> Alan Cox:
-> 	Hello.
->
-> 	This is my first kernel patch . It change the kernel dhcp auto config to module. So we can dynamic insmod the net card before insmod dhcp .This is useful to disaster recover linux.
->
-> --
-> Best Regard!
-> 礼！
-> ----------------------------------------------------
-> hugang : 胡刚 	GNU/Linux User
-> email  : gang_hu@soul.com.cn linuxbest@soul.com.cn
-> Tel    : +861068425741/2/3/4
-> Web    : http://www.soul.com.cn
->
-> 	Beijing Soul technology Co.Ltd.
-> 	   北京众志和达科技有限公司
-> ----------------------------------------------------
->
+This is now set  CONFIG_APM_CPU_IDLE=y
 
+> Could you also tell what the kernel thinks about your laptop? It should
+> print things like "BIOS Vendor: Phoenix Technologies LTD".
+
+Here is the newly patched dmesg output:
+
+Linux version 2.4.9-ac9 (root@oso) (gcc version 2.95.3 20010315 (release)) #1 Thu Sep 13 10:51:23 PDT 2001
+...
+Initializing RT netlink socket
+DMI 2.2 present.
+11 structures occupying 403 bytes.
+DMI table at 0x000DC010.
+BIOS Vendor: Phoenix Technologies LTD
+BIOS Version: 4.06
+BIOS Release: 08/16/99
+System Vendor: Compaq.
+Product Name: Compaq PC.
+Version 0F0B.
+Serial Number 1V96CLS9D42J.
+Board Vendor: Compaq.
+Board Name: 0548h.
+Board Version: Rev.A.
+Asset Tag: No Asset Tag.
+apm: BIOS version 1.2 Flags 0x03 (Driver version 1.14)

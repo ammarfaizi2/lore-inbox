@@ -1,62 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbVCIV3X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVCIVts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262437AbVCIV3X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 16:29:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbVCIV0M
+	id S261520AbVCIVts (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 16:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262466AbVCIVqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 16:26:12 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:2463 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262441AbVCIUdm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 15:33:42 -0500
-Message-ID: <422F5DA4.60807@us.ltcfwd.linux.ibm.com>
-Date: Wed, 09 Mar 2005 15:33:40 -0500
-From: Wen Xiong <wendyx@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: "Kilau, Scott" <Scott_Kilau@digi.com>, Wen Xiong <wendyx@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ patch 6/7] drivers/serial/jsm: new serial device driver
-References: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D9EB@minimail.digi.com> <20050309195110.GA28312@kroah.com>
-In-Reply-To: <20050309195110.GA28312@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Mar 2005 16:46:25 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:23727 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261552AbVCIVgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 16:36:11 -0500
+Date: Wed, 9 Mar 2005 13:36:05 -0800
+Message-Id: <200503092136.j29La5E26081@unix-os.sc.intel.com>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Cc: Tim Bird <tim.bird@am.sony.com>
+From: Tony Luck <tony.luck@intel.com>
+Subject: Re: [PATCH] add timing information to printk messages
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+> Here's a little patch which is useful for showing timing information for
+> kernel bootup activities.
+> 
+> This patch adds a new Kconfig option under "Kernel Hacking" and a new
+> option for the kernel command line.  It also provides a script for
+> showing delta information.
 
->On Wed, Mar 09, 2005 at 01:35:41PM -0600, Kilau, Scott wrote:
->  
->
->>As it stands today, your requirement appears to be that she needs
->>to yank all diags ioctls and sysfs files before the driver can make
->>it into the kernel sources.
->>    
->>
->
->Not all sysfs files, sysfs files are fine, as long as they are
->implemented properly, and are there for things that "make sense".
->
->But yes, it should would be easier to accept the driver if the ioctls
->were not there :)
->
->thanks,
->
->greg k-h
->
->  
->
-Hi All,
+I'm seeing some odd output with CONFIG_PRINTK_TIME=y during boot.  When
+it is set to "no", I see this from "dmesg":
 
-I think Digi's DPA magagement tool has very good user interfaces. I am 
-going to change and fix the problem.
-Then Greg can decide if he want to pick it up or not.
+Total of 4 processors activated (7168.96 BogoMIPS).
+CPU0 attaching sched-domain:
+ domain 0: span f
+  groups: 1 2 4 8
+CPU1 attaching sched-domain:
+ domain 0: span f
+  groups: 2 4 8 1
+CPU2 attaching sched-domain:
+ domain 0: span f
+  groups: 4 8 1 2
+CPU3 attaching sched-domain:
+ domain 0: span f
+  groups: 8 1 2 4
 
-I will attatch the DPA graphic interface for you next time.
+Setting CONFIG_PRINTK_TIME=y I see (the "<NUL>" pieces are actually
+each a single ASCII '\0' character):
 
-Thanks,
-wendy
+[    0.240887] Total of 4 processors activated (7168.96 BogoMIPS).
+[    0.240926] CPU0 attaching sched-domain:
+[    0.240930] <NUL>PU0 attaching sched-domain:
+[    0.240933]  domain 0: span f
+[    0.240967] <NUL> f
+[    0.240969]   groups: 1 2 4 8
+[    0.241024] CPU1 attaching sched-domain:
+[    0.241027] <NUL>PU1 attaching sched-domain:
+[    0.241030]  domain 0: span f
+[    0.241063] <NUL> f
+[    0.241065]   groups: 2 4 8 1
+[    0.241146] CPU2 attaching sched-domain:
+[    0.241149] <NUL>PU2 attaching sched-domain:
+[    0.241151]  domain 0: span f
+[    0.241186] <NUL> f
+[    0.241188]   groups: 4 8 1 2
+[    0.241267] CPU3 attaching sched-domain:
+[    0.241270] <NUL>PU3 attaching sched-domain:
+[    0.241273]  domain 0: span f
+[    0.241307] <NUL> f
+[    0.241309]   groups: 8 1 2 4
 
+At first I thought that the lines that begin with whitespace were causing
+the confusion, but there are other lines during boot that are ok.
+
+[This is on an ia64 system ... but these messages come from generic kern/sched.c]
+
+-Tony

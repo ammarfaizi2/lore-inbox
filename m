@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265118AbTL2UxM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 15:53:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbTL2UxM
+	id S264137AbTL2Uy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 15:54:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbTL2Uy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 15:53:12 -0500
-Received: from mail.nzol.net ([210.55.200.32]:57829 "EHLO linuxmail1.nzol.net")
-	by vger.kernel.org with ESMTP id S265118AbTL2UxJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 15:53:09 -0500
-Message-ID: <1072727428.3ff08584d2f6c@webmail.nzol.net>
-Date: Tue, 30 Dec 2003 08:50:28 +1300
-From: akmiller@nzol.net
-To: Francois Romieu <romieu@fr.zoreil.com>
+	Mon, 29 Dec 2003 15:54:28 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10502 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264137AbTL2Uy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 15:54:26 -0500
+Date: Mon, 29 Dec 2003 20:54:22 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Ryan Lackey <ryan@venona.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide: "lost interrupt" with 2.6.0
-References: <1072657930.3fef760a50062@webmail.nzol.net> <20031229093610.A8892@electric-eye.fr.zoreil.com>
-In-Reply-To: <20031229093610.A8892@electric-eye.fr.zoreil.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Originating-IP: 210.55.200.11
+Subject: Re: cisco airo problem on apm reinsert w/ 2.6.0-*
+Message-ID: <20031229205422.D30785@flint.arm.linux.org.uk>
+Mail-Followup-To: Ryan Lackey <ryan@venona.com>,
+	linux-kernel@vger.kernel.org
+References: <20031229190636.GA2100@metacolo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031229190636.GA2100@metacolo.com>; from ryan@venona.com on Mon, Dec 29, 2003 at 07:06:36PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Francois Romieu <romieu@fr.zoreil.com>:
+On Mon, Dec 29, 2003 at 07:06:36PM +0000, Ryan Lackey wrote:
+> Since at least 2.6.0-test7, I've had problems when re-inserting my cisco
+> airo 340 pc card after sleeping the system.  It doesn't happen 100% of
+> the time, but happens about 90% of the time -- I haven't figured out a
+> pattern yet.  Once this happens, I have to reboot before the card will
+> work again.
 
-> akmiller@nzol.net <akmiller@nzol.net> :
-> [accusys acs7500 lost interrupt]
-> > Has anyone else seen this sort of problem? (Sorry if this is a known issue,
-> I
-> 
-> Probably but with a slightly different model:
->         Model Number:       Accusys ACS7500 A2X1
->         Serial Number:      A75X000881
-> I saw some interesting things where an ACS7500 was smart enough to pass the
-> announced lba48 capability of the disk whereas it could not really handle
-> it.
-> Do you notice the same issue with a non-lba48 capable disk ?
-I contacted the manufacturer, and they provided me with a firmware upgrade tool
-and the firmware version CDVL(as opposed to C5VL). It seems they fixed the
-problem with their firmware in the latest version.
+I think a patch appeared on lkml a while ago which fixes this problem,
+but I'm unsure what the end result was.  It's caused by the airo module
+trying to second-guess the kernels behaviour and coming out with the
+wrong answer.
 
-I'm not sure whether or not it is worth fixing the 2.6.x kernels to support the
-broken firmware, as they seem to offer the upgrade to all customers anyway.
 -- 
-Andrew
-> 
-> --
-> Ueimor
-> 
-
-
-
-
--------------------------------------------------
-This mail sent through NZOL Webmail: http://webmail.nzol.net/
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

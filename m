@@ -1,77 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262582AbUKVT5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262498AbUKVT7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262582AbUKVT5h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 14:57:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbUKVT4F
+	id S262498AbUKVT7b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 14:59:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbUKVT6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 14:56:05 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:50625 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262582AbUKVTu6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 14:50:58 -0500
-Message-ID: <41A242C1.10600@sgi.com>
-Date: Mon, 22 Nov 2004 13:49:21 -0600
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>, holt@sgi.com,
-       Dean Roe <roe@sgi.com>, Brian Sumner <bls@sgi.com>,
-       John Hawkes <hawkes@tomahawk.engr.sgi.com>
-Subject: Re: [Lse-tech] Re: scalability of signal delivery for Posix Threads
-References: <41A20AF3.9030408@sgi.com> <20041122160705.GG25636@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20041122160705.GG25636@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 22 Nov 2004 14:58:15 -0500
+Received: from fmr99.intel.com ([192.55.52.32]:19657 "EHLO
+	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262551AbUKVT40 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 14:56:26 -0500
+Subject: Re: 2.6.10-rc2 doesn't boot (if no floppy device)
+From: Len Brown <len.brown@intel.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Chris Wright <chrisw@osdl.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0411201048470.20993@ppc970.osdl.org>
+References: <20041115152721.U14339@build.pdx.osdl.net>
+	 <1100819685.987.120.camel@d845pe> <20041118230948.W2357@build.pdx.osdl.net>
+	 <1100941324.987.238.camel@d845pe> <20041120124001.GA2829@stusta.de>
+	 <Pine.LNX.4.58.0411200940410.20993@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0411201048470.20993@ppc970.osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1101153314.20008.95.camel@d845pe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 22 Nov 2004 14:55:15 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-> On Mon, Nov 22, 2004 at 09:51:15AM -0600, Ray Bryant wrote:
+On Sat, 2004-11-20 at 14:10, Linus Torvalds wrote:
 > 
->>Since signals are sent much more often than sigaction() is called, it would
->>seem to make more sense to make sigaction() take a heavier weight lock of
->>some kind (to update the signal handler decription) and to have the signal
->>delivery mechanism take a lighter weight lock.  Making 
->>current->sighand->siglock a rwlock_t really doesn't improve the situation
->>much, since cache line contention is just a severe in that case (if not 
->>worse) than it is with the current definition.
+> On Sat, 20 Nov 2004, Linus Torvalds wrote:
+> >
+> > In particular, the code will disable irq12 (mouse interrupt), so the
+> mouse
+> > has no chance of working.
 > 
-> 
-> What about RCU or seqlock?
-> 
+> Btw, looking closer still, this all will most likely vary wildly
+> according to southbridge (and BIOS setups). At least some SB's seem to
+> put the legacy interrupts totally separately from the PIRQ stuff, in
+> which case the PIRQ disable will not matter one whit - the legacy
+> interrupt is inserted "after" the PIRQ gating/translation anyway. This
+> seems to be especially common for controllers for keyboard/mouse/i2c
+> etc that are actually on the southbridge itself.
 
-Well, the sighand->siglock is taken so many places in the kernel (>200 times)
-that RCUing its usage looks like a daunting change to make.
+Right, programming a PIRQ router to an IRQ doesn't mean that a legacy
+device isn't still attached to that IRQ.
 
-In principle, I guess a seqlock could be made to work.  The idea would be that
-we'd want to get a consistent copy of the sighand structure in the presence
-of very rare updates.  Once again, I'd have to modify all of those code
-paths mentioned above.
+> But the basic notion remains: disabling a PIRQ line is valid only if
+> you know it's only used by PCI devices. There might be other special
+> devices on the board that don't show up as PCI devices, eg things like
+> the Sony programmable I/O thing that doesn't show up as a PCI device
+> at all, it's just "invisibly" connected to the bus (it just hijacks
+> port 0x66 or something - the range 0-0x3ff is generally reserved for
+> "motherboard devices").
 
-Since a seqlock was created AFAIK as an alternate to a brlock, and the
-global/local locking structure I described before is more or less equivalent
-to a brlock, I think we are thinking along similar lines.
+> These kinds of things hopefully aren't all that common (there can't be
+> a lot of extra hw required to follow the PCI spec _properly_), but if
+> I were a hw designer, I'd connect such a chip to the PIRQ input, and
+> just make the BIOS enable it automatically.
 
-For me, converting spinlock_irqsave(&p->sighand->siglock) to
-spinlock_irqsave(&p->siglock) and then checking to make sure that
-only task local data is updated in the critical section is an easier
-way to go than modifying each of the code paths to deal with the
-"failure" case for a seqlock.  But I could be proven wrong.
+While there may be non-standard non-PCI legacy devices that
+(erroneously) use PIRQ routers on legacy systms, that isn't the issue at
+hand.
 
-Anyway, Andi makes a good point -- if I can fast patch SIGPROF handling,
-then I may have a more localized change, and that is a good thing [tm].
+The issue at hand is what to do in ACPI mode.
 
--- 
-Best Regards,
-Ray
------------------------------------------------
-                   Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-            so I installed Linux.
------------------------------------------------
+ACPI PCI Interrupt Link Devices, by definition, are used only by PCI
+devices, or devices that look like them.  You look up the device in the
+_PRT by its devid.  Although links are often implemented underneath by
+PIRQ routers, they are much more general.  ACPI PCI Interrupt Links can
+specificy any trigger/polarity, as well as connect to IOAPIC inputs.
+
+If there is "special" hardware using an ACPI PCI Interrupt Link without
+being listed in the DSDT _PRT that describes the link, then the BIOS is
+simply broken.
+
+-Len
+
+
+

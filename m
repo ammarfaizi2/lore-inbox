@@ -1,70 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbUELWdX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbUELWoz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbUELWdX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 18:33:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUELWdX
+	id S262176AbUELWoz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 18:44:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbUELWoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 18:33:23 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:21992 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S262129AbUELWdQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 18:33:16 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Wed, 12 May 2004 18:44:55 -0400
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:16104 "EHLO
+	ti41.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S262176AbUELWoy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 18:44:54 -0400
+Date: Wed, 12 May 2004 18:44:54 -0400
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>, mingo@elte.hu,
+       linux-kernel@vger.kernel.org, Netdev <netdev@oss.sgi.com>,
+       Sridhar Samudrala <sri@us.ibm.com>, davem@redhat.com,
+       George Anzinger <george@mvista.com>
+Subject: Re: MSEC_TO_JIFFIES is messed up...
+Message-ID: <20040512224454.GJ21953@ti64.telemetry-investments.com>
+Reply-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+	Andrew Morton <akpm@osdl.org>, mingo@elte.hu,
+	linux-kernel@vger.kernel.org, Netdev <netdev@oss.sgi.com>,
+	Sridhar Samudrala <sri@us.ibm.com>, davem@redhat.com,
+	George Anzinger <george@mvista.com>
+References: <20040512020700.6f6aa61f.akpm@osdl.org> <20040512181903.GG13421@kroah.com> <40A26FFA.4030701@pobox.com> <20040512205407.GD25515@ti64.telemetry-investments.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16546.42537.765495.231960@napali.hpl.hp.com>
-Date: Wed, 12 May 2004 15:33:13 -0700
-To: Andrew Morton <akpm@osdl.org>
-Cc: davidm@hpl.hp.com, rddunlap@osdl.org, ebiederm@xmission.com,
-       drepper@redhat.com, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
-In-Reply-To: <20040512152815.76280eac.akpm@osdl.org>
-References: <20040511212625.28ac33ef.rddunlap@osdl.org>
-	<40A1AF53.3010407@redhat.com>
-	<m13c66qicb.fsf@ebiederm.dsl.xmission.com>
-	<40A243C8.401@redhat.com>
-	<m1brktod3f.fsf@ebiederm.dsl.xmission.com>
-	<40A2517C.4040903@redhat.com>
-	<m17jvhoa6g.fsf@ebiederm.dsl.xmission.com>
-	<20040512143233.0ee0405a.rddunlap@osdl.org>
-	<16546.41076.572371.307153@napali.hpl.hp.com>
-	<20040512152815.76280eac.akpm@osdl.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <20040512205407.GD25515@ti64.telemetry-investments.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 12 May 2004 15:28:15 -0700, Andrew Morton <akpm@osdl.org> said:
+On Wed, May 12, 2004 at 04:54:07PM -0400, Bill Rugolsky Jr. wrote:
+> The attached patch combines Sridhar's consolidation patch with my
+> more accurate routines in the spirit of the rest of time.h.  It is against
+> 2.6.6-rc3-bk3.  Feedback welcome.  I'm happy to rediff against latest kernel,
+> I just haven't had time the last few days.
+ 
+Sorry to reply to myself, but please ignore the patch that I sent;
+upon reflection, the 64-bit logic is (still) wrong.
 
-  >> ia64 does have VDSO (and has had it for some time).
-
-  >> I quite like Uli's idea.
-
-  Andrew> Is anyone doing VDSO development for x86?  I don't recall
-  Andrew> seeing anything.
-
-It's already there?
-
-	--david
-
-$ tail -17 arch/i386/kernel/vsyscall.lds
-/*
- * This controls what symbols we export from the DSO.
- */
-VERSION
-{
-  LINUX_2.5 {
-    global:
-        __kernel_vsyscall;
-        __kernel_sigreturn;
-        __kernel_rt_sigreturn;
-
-    local: *;
-  };
-}
-
-/* The ELF entry point can be used to set the AT_SYSINFO value.  */
-ENTRY(__kernel_vsyscall);
+	Bill Rugolsky

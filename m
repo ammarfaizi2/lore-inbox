@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265842AbRFYCM4>; Sun, 24 Jun 2001 22:12:56 -0400
+	id <S265846AbRFYCTG>; Sun, 24 Jun 2001 22:19:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265844AbRFYCMf>; Sun, 24 Jun 2001 22:12:35 -0400
-Received: from mailout4-1.nyroc.rr.com ([24.92.226.166]:52705 "EHLO
-	mailout4-0.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S265842AbRFYCMb>; Sun, 24 Jun 2001 22:12:31 -0400
-Message-Id: <200106250212.WAA05336@soyata.home>
-To: linux-kernel@vger.kernel.org
-Subject: mounting a fs in two places at once?
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <5331.993435148.1@soyata.home>
-Date: Sun, 24 Jun 2001 22:12:29 -0400
-From: "Marty Leisner" <leisner@rochester.rr.com>
+	id <S265845AbRFYCS4>; Sun, 24 Jun 2001 22:18:56 -0400
+Received: from c109854-a.frmt1.sfba.home.com ([65.11.45.79]:49425 "HELO
+	windriver.loc") by vger.kernel.org with SMTP id <S265846AbRFYCSn>;
+	Sun, 24 Jun 2001 22:18:43 -0400
+Date: Sun, 24 Jun 2001 19:18:41 -0700
+From: Galen Hancock <galen@CSUA.Berkeley.EDU>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+Message-ID: <20010624191841.X12235@c109854-a.frmt1.sfba.home.com>
+Mail-Followup-To: "J . A . Magallon" <jamagallon@able.es>,
+	"linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010625003002.A1767@werewolf.able.es>
+User-Agent: Mutt/1.3.18i
+X-URL: http://www.CSUA.Berkeley.EDU/~galen/gh.xhtml
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just installed redhat 7.1 on a system.
+On Mon, Jun 25, 2001 at 12:30:02AM +0200, J . A . Magallon wrote:
+> shell scripting, for example. Or multithreaded web servers. With the above
+> test (fork() + immediate exec()), you just try to mesaure the speed of fork().
 
-Cleaning up, a made a fs for home...(mounted on /mnt
-to write the stuff to it)
+The benchmark that used lmbench that was posted tested fork follwed fork
+by exit not follwed by exec.
 
-Then I accidently mounted it on /home.
+Although you could have used vfork in that test, the point of the test
+was to get some feel for how much overhead the fork and exit together
+had. A real application could not use vfork, because it would do some
+actual work before the exit.
 
-So it was mounted on /home and /mnt at the same time.
-(I didn't bother going in to see what was there).
-Shouldn't this NOT happen?
-[root@pb /]# mount
-/dev/hda9 on / type ext2 (rw)
-none on /proc type proc (rw)
-/dev/hda5 on /boot type ext2 (rw)
-/dev/hda7 on /usr type ext2 (rw)
-/dev/hda6 on /var type ext2 (rw)
-none on /dev/pts type devpts (rw,gid=5,mode=620)
-automount(pid603) on /misc type autofs (rw,fd=5,pgrp=603,minproto=2,maxproto=3)
-pb:(pid704) on /net type nfs (intr,rw,port=1023,timeo=8,retrans=110,indirect,ma
-p=/etc/amd.net,dev=00000007)
-/dev/hda10 on /mnt type ext2 (rw)
-/dev/hda10 on /home type ext2 (rw)
+> Say you have a fork'ing server. On each connection you fork and exec the
+> real transfer program.
 
+Most forking servers I know of don't exec programs to deal with accepted
+connections. (The only exception I can think of is inetd and its
+cousins, the performance of which is not important.)
 
-Is this a feature or a bug?
+>                        There time for fork matters. It can run very fast
+> in Linux but suck in other systems. Just because the programmer chose fork()
+> instead of vfork().
 
-This is with 2.4.2...
+vfork is not portable. There are standards that specify what it does,
+but the portable semantics are so useless that if you use it you will
+almost certainly wind up with undefined behavior.
 
+However, the original discussion was about threads. How to do fork+exec
+(or vfork+exec if you insist on using that broken interface) quickly is
+beside the point.
 
+> >> The clean battle should be linux fork-exec vs vfork-exec in
+> >> Solaris, because for in linux is really a vfork in solaris.
 
-Marty Leisner
-leisner@rochester.rr.com
+> >But the point of threading is it's a fork WITHOUT an exec.
 
+> Not always, see above.
+
+You appear to be saying that spawning child programs is an example of
+threading. I don't think that's what most people mean by threading.
+
+					Galen

@@ -1,89 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261762AbSJQDgy>; Wed, 16 Oct 2002 23:36:54 -0400
+	id <S261650AbSJQDs2>; Wed, 16 Oct 2002 23:48:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261763AbSJQDgy>; Wed, 16 Oct 2002 23:36:54 -0400
-Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:26246
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S261762AbSJQDgw>; Wed, 16 Oct 2002 23:36:52 -0400
+	id <S261768AbSJQDs2>; Wed, 16 Oct 2002 23:48:28 -0400
+Received: from [203.117.131.12] ([203.117.131.12]:45966 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S261650AbSJQDs1>; Wed, 16 Oct 2002 23:48:27 -0400
+Message-ID: <3DAE3465.6060006@metaparadigm.com>
+Date: Thu, 17 Oct 2002 11:54:13 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+MIME-Version: 1.0
+To: GrandMasterLee <masterlee@digitalroadkill.net>
+Cc: Simon Roscic <simon.roscic@chello.at>, linux-kernel@vger.kernel.org
 Subject: Re: [Kernel 2.5] Qlogic 2x00 driver
-From: GrandMasterLee <masterlee@digitalroadkill.net>
-To: Andrew Vasquez <praka@san.rr.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021017031125.GA21251@praka.local.home>
-References: <1034710299.1654.4.camel@localhost.localdomain>
-	 <200210152153.08603.simon.roscic@chello.at>
-	 <3DACD41F.2050405@metaparadigm.com> <1034740592.29313.0.camel@localhost>
-	 <3DACEB6E.6050700@metaparadigm.com> <3DACEC85.3020208@tmsusa.com>
-	 <3DACF908.70207@metaparadigm.com> <20021016054035.GM15552@clusterfs.com>
-	 <20021017015903.GA20960@praka.local.home> <1034822651.27.3.camel@localhost>
-	 <20021017031125.GA21251@praka.local.home>
-Content-Type: text/plain
+References: <200210152120.13666.simon.roscic@chello.at>	 <200210152153.08603.simon.roscic@chello.at>	 <3DACD41F.2050405@metaparadigm.com>	 <200210161828.18985.simon.roscic@chello.at>	 <3DAD988B.40704@metaparadigm.com> <1034824350.26.33.camel@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: Digitalroadkill.net
-Message-Id: <1034826170.27.61.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
-Date: 16 Oct 2002 22:42:50 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-16 at 22:11, Andrew Vasquez wrote:
-...
-> > Does this mean that 6.01 will NOT work either? What drivers will be
-> > affected? We've already made the move to remove LVM from the mix, but
-> > your comments above give me some doubt as to how definite it is, that
-> > the stack clobbering will be fixed by doing so. 
-> >
-
-I was asking because We crashed, while using this driver, AND LVM. 
- 
-> The 6.x series driver basically branched from the 5.x series driver.  
-> Changes made, many moons ago, are already in the 6.x series driver.
-> To quell your concerns, yes, stack overflow is not an issue with the
-> 6.x series driver. 
+On 10/17/02 11:12, GrandMasterLee wrote:
+> On Wed, 2002-10-16 at 11:49, Michael Clark wrote:
+>>Seems to be the correlation so far. qlogic driver without lvm works okay.
+>>qlogic driver with lvm, oopsorama.
 > 
-> I believe if we are to get anywhere regarding this issue, we need to 
-> shift focus from stack corruption in early versions of the driver.
+> 
+> Michael, what exactly do your servers do? Are they DB servers with ~1Tb
+> connected, or file-servers with hundreds of gigs, etc?
 
-In this way, you mean, that it is not an issue since you guys don't try
-to use LVM.
+My customer currently has about 400Gb on this particular 4 node Application
+cluster (actually 2 x 2 node clusters using kimberlite HA software).
 
+It has 11 logical hosts (services) spread over the 4 nodes with services such
+as Oracle 8.1.7, Oracle Financials (11i), a busy openldap server, and busy
+netatalk AppleShare Servers, Cyrus IMAP server. All are on ext3 partitions
+and were previously using LVM to slice up the storage.
 
-> > > IAC, I believe the support tech working with MasterLee had asked 
-> > > for additional information regarding the configuration as well as
-> > > some basic logs.  Ideally we'd like to setup a similiar configuration
-> > > in house and see what's happening...
-> > 
-> > In-house?
-> > 
-> Sorry, short introduction, Andrew Vasquez, Linux driver development at
-> QLogic.
+The cluster usually has around 200-300 active users.
 
-Nice to meet ya. :)
+We have had oops (in ext3) on differing logical hosts which where running
+different services. ie. has oopsed on the node mastering the fileserver,
+and also on the node mastering the oracle database.
 
-> > Just curious. What can "I" do to know if our configuration
-> > won't get broken, just by removing LVM? TIA.
-> >
-> I've personally never used LVM before, so I cannot even begin to
-> attempt to answer your question --  
+Cross fingers, since removing LVM (which was the only change we have made,
+same kernel) we have had 3 times our longest uptime and still counting.
 
-We've removed LVM from the config, per Michael's issue and
-recommendation, but I'm just scared that we *could* see this issue with
-XFS and Qlogic. Since you're saying the 6.01 has no stack clobbering
-issues, then is it XFS, LVM and Qlogic? 
+By the sounds, from earlier emails I had posted, users had responded
+to me who were also using qlogic and none of them had had any problems,
+the key factor was none of them were running LVM - this is what made
+me think to try and remove it (it was really just a hunch). We had
+gone through months of changing kernel versions, changing GigE network
+adapters, driver versions, etc, to no avail, then finally the LVM removal.
 
-> please work with the tech on this
-> one, if it's a driver problem, we'd like to fix it.
+Due to the potential nature of it being a stack problem. The problem
+really can't just be pointed at LVM but more the additive effect this
+would have on some underlying stack problem.
 
-I'm going to try, but we've got to get up and in production ASAP. Since
-it takes *days* to cause the crash, I don't know how I can cause it  and
-get the stack dump.
+I believe the RedHat kernels i tried (rh7.2 2.4.9-34 errata was the most
+recent) also had this 'stack' problem. I am currently using 2.4.19pre10aa4.
 
-> --
-> Andrew
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I would hate to reccomend you remove LVM and it not work, but i
+must say it has worked for me (i'm just glad i didn't go to XFS instead
+of removing LVM as i did - as this was the other option i was pondering).
+
+~mc
+

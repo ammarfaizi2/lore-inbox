@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266453AbUGJWPc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266457AbUGJWmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266453AbUGJWPc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 18:15:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266454AbUGJWPc
+	id S266457AbUGJWmi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 18:42:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266458AbUGJWmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 18:15:32 -0400
-Received: from pirx.hexapodia.org ([65.103.12.242]:42314 "EHLO
-	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S266453AbUGJWPa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 18:15:30 -0400
-Date: Sat, 10 Jul 2004 17:15:29 -0500
-From: Andy Isaacson <adi@hexapodia.org>
-To: carbonated beverage <ramune@net-ronin.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bk pull from bkbits screwy?
-Message-ID: <20040710221529.GA12455@hexapodia.org>
-References: <20040710065802.GA29604@net-ronin.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 Jul 2004 18:42:38 -0400
+Received: from ms-smtp-01-smtplb.ohiordc.rr.com ([65.24.5.135]:59826 "EHLO
+	ms-smtp-01-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S266457AbUGJWmh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 18:42:37 -0400
+From: Rob Couto <rpc@cafe4111.org>
+Reply-To: rpc@cafe4111.org
+Organization: Cafe 41:11
+To: linux-kernel@vger.kernel.org
+Subject: Re: 1000 days uptime.
+Date: Sat, 10 Jul 2004 18:41:55 -0400
+User-Agent: KMail/1.6.2
+References: <Pine.LNX.4.44.0407102122060.21103-100000@linicks.net>
+In-Reply-To: <Pine.LNX.4.44.0407102122060.21103-100000@linicks.net>
+Cc: Nick Warne <nick@linicks.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040710065802.GA29604@net-ronin.org>
-User-Agent: Mutt/1.4.1i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407101841.55569.rpc@cafe4111.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 09, 2004 at 11:58:02PM -0700, carbonated beverage wrote:
-> I sent a patch a while ago to change the bk:// to http:// in the docs,
-> but was told bk:// was working again.  Just did a bk pull again right now,
-> and bk:// doesn't seem to be working, whereas reparenting my repo to http://
-> and doing a bk pull works.  Am I missing something?
+On Saturday 10 July 2004 04:31 pm, you wrote:
+> This is a 486 box serving web pages from a home base (via NFS to gateway).
+> No UPS, no special treatment expect dust and usual day-to-day abuse stuck
+> under two other boxes in a 'stack' of sorts I done a long time ago...
 
-How about giving the command that didn't work, and the error messages it
-printed?  I just did a pull using bk://linux.bkbits.net/linux-2.5 and it
-succeeded:
+Wow. I wish -my- power wouldn't go out for 2 and a half years...
 
-...
-takepatch: 25577 new revisions, 0 conflicts in 6840 files
-8439936 bytes uncompressed to 36145013, 4.28X expansion
-Running resolve to apply new work ...
-Using :0.0 as graphical display
-resolve: found 491 renames in pass 1
-resolve: resolved 491 renames in pass 2
-resolve: applied 6840 files in pass 4
-resolve: running consistency check, please wait...
-100% |=================================================================| OK
-Consistency check passed, resolve complete.
-straum% bk pull
-Pull bk://linux.bkbits.net/linux-2.5
-  -> file://data/linux/linux-2.5
-Nothing to pull.
-straum%
+> Thank _you all_ for the great work :)
 
-There are two different URL syntaxes that start "bk://" and perhaps
-you're using the wrong one.  (I got caught by that one a while back.)
+hell yeah, thanks for this most excellent hammer for our Windows Smashing Kit 
+;)
 
-And yes, bk:// is preferred over http://, in general.
-
--andy
+-- 
+Rob Couto [rpc@cafe4111.org]
+computer safety tip: use only a non-conducting, static-free hammer.
+EDIT: --unless Internet Explorer is involved.
+--

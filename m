@@ -1,74 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131703AbQLVHaV>; Fri, 22 Dec 2000 02:30:21 -0500
+	id <S131732AbQLVHbb>; Fri, 22 Dec 2000 02:31:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131749AbQLVHaM>; Fri, 22 Dec 2000 02:30:12 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:61445 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S131703AbQLVHaB>; Fri, 22 Dec 2000 02:30:01 -0500
-Date: Fri, 22 Dec 2000 02:00:06 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: The NSA's Security-Enhanced Linux (fwd)
-Message-ID: <Pine.LNX.4.31.0012220159400.666-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
+	id <S131884AbQLVHbV>; Fri, 22 Dec 2000 02:31:21 -0500
+Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:62734 "EHLO
+	pobox.com") by vger.kernel.org with ESMTP id <S131749AbQLVHbF>;
+	Fri, 22 Dec 2000 02:31:05 -0500
+From: "Barry K. Nathan" <barryn@pobox.com>
+Message-Id: <200012220700.XAA09901@pobox.com>
+Subject: Re: recommended gcc compiler version
+To: reaster@comptechnews.com (Robert B. Easter)
+Date: Thu, 21 Dec 2000 23:00:46 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org
+Reply-To: barryn@pobox.com
+In-Reply-To: <0012212320430F.02217@comptechnews> from "Robert B. Easter" at Dec 21, 2000 11:20:43 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anyone looked into this?
+Robert B. Easter wrote:
+> This is a newbie question, but what are the recommended gcc compiler versions 
+> for compiling,
 
+This is discussed in the Documentation/Changes file, in a given kernel's
+source. Brief summaries follow (which assume you're using an x86 CPU).
 
+> Linux 2.2.18?
 
-----------------------------------------------------------------------
-      Mike A. Harris  -  Linux advocate  -  Open source advocate
-          This message is copyright 2000, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
+gcc 2.7.2.3 is safest, but egcs 1.1.2 should be safe even for
+mission-critical stuff. gcc 2.95.2 seems to work for many people, but
+isn't necessarily safe.
 
+> Linux 2.4.0?
 
----------- Forwarded message ----------
-Date: Fri, 22 Dec 2000 00:14:42 +0100
-From: Ralf-Philipp Weinmann <weinmann@RBG.INFORMATIK.TU-DARMSTADT.DE>
-To: VULN-DEV@SECURITYFOCUS.COM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Subject: The NSA's Security-Enhanced Linux
+egcs 1.1.2 is the safe choice, but gcc 2.95.2 seems to work. gcc 2.7.2.3
+miscompiles 2.4 more often than not, so 2.4 has a preprocessor check that
+stops any attempts to compile it with 2.7.2.3.
 
-citing http://www.nsa.gov/selinux/background.html:
-
-"Researchers in the Information Assurance Research
- Office of the National Security Agency (NSA) worked
- with Secure Computing Corporation (SCC) to develop a
- strong, flexible mandatory access control architecture
- based on Type Enforcement, a mechanism first
- developed for the LOCK system. The NSA and SCC
- developed two Mach-based prototypes of the
- architecture: DTMach and DTOS. The NSA and SCC
- then worked with the University of Utah's Flux research
- group to transfer the architecture to the Fluke research
- operating system. During this transfer, the architecture
- was enhanced to provide better support for dynamic
- security policies. This enhanced architecture was named
- Flask. The NSA is now integrating the Flask architecture
- into the Linux operating system to transfer the
- technology to a larger developer and user community."
-
-[...]
-
-The result is available for download at the above URL
-as well. Has anyone here toyed with it already ?
-
-Cheers,
--Ralf
-
---
-Ralf-P. Weinmann <rpw@uni.de>
-PGP fingerprint: 2048/46C772078ACB58DEF6EBF8030CBF1724
-Emacs is my operating system, and Linux its device driver.
-  -- Bake Timmons
+-Barry K. Nathan <barryn@pobox.com>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

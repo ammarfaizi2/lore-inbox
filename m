@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267485AbSLSAgg>; Wed, 18 Dec 2002 19:36:36 -0500
+	id <S267431AbSLSAeM>; Wed, 18 Dec 2002 19:34:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267492AbSLSAgg>; Wed, 18 Dec 2002 19:36:36 -0500
-Received: from dp.samba.org ([66.70.73.150]:64745 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267485AbSLSAgg>;
-	Wed, 18 Dec 2002 19:36:36 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-Cc: vamsi@in.ibm.com, Zwane Mwaikambo <zwane@holomorphy.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] module-init-tools 0.9.3, rmmod modules with '-' 
-In-reply-to: Your message of "Wed, 18 Dec 2002 11:47:26 MDT."
-             <Pine.LNX.4.44.0212181144120.21707-100000@chaos.physics.uiowa.edu> 
-Date: Thu, 19 Dec 2002 11:39:24 +1100
-Message-Id: <20021219004437.23CE82C055@lists.samba.org>
+	id <S267432AbSLSAeM>; Wed, 18 Dec 2002 19:34:12 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:63493 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267431AbSLSAeL>;
+	Wed, 18 Dec 2002 19:34:11 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212190053.gBJ0rJPu008648@darkstar.example.net>
+Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
+To: alan@redhat.com (Alan Cox)
+Date: Thu, 19 Dec 2002 00:53:19 +0000 (GMT)
+Cc: lm@bitmover.com, torvalds@transmeta.com, davej@codemonkey.org.uk,
+       vonbrand@inf.utfsm.cl, linux-kernel@vger.kernel.org, akpm@digeo.com
+In-Reply-To: <200212190008.gBJ08vw02314@devserv.devel.redhat.com> from "Alan Cox" at Dec 18, 2002 07:08:57 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0212181144120.21707-100000@chaos.physics.uiowa.edu> y
-ou write:
-> On Wed, 18 Dec 2002, Rusty Russell wrote:
-> > Has there ever been a simple way?
+> > I don't understand why BK is part of the conversation.  It has nothing to
+> > do with it.  If every time I post to this list the assumption is that it's
+> > "time to beat larry up about BK" then it's time for me to get off the list.
+> > 
+> > I can understand it when we're discussing BK; other than that, it's pretty
+> > friggin lame.  If that's what was behind your posts, Alan, there is an
+> > easy procmail fix for that.
 > 
-> Well, you can do
+> It wasnt me who brought up bitkeeper
 > 
-> cd my_module
-> echo "obj-m := my_module.o" > Makefile
-> vi my_module.c
-> make -C <path/to/kernel/src> SUBDIRS=$PWD modules
-> 
-> That's not too bad (and basically works for 2.4 as well)
 
-And then you're independent of changes in the build system, too.  I
-like it.
+No, it's my fault - I was skimming through list traffic, and not
+concentrating, (proof of this is the fact that I've had sendmail
+configured incorrectly all day, and been posting from the wrong
+address, and only just realised :-) ).
 
-Thanks for the tip!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+I saw Larry mention kernel.bkbits.net, and Alan say, "We've got one -
+its called linux-kernel", (in a separate message without quoting
+anything, so it's really your fault :-) :-) :-) ), and assumed that a
+BK argument was imminent, and I made a joke comment that it, (an
+argument), was not a 2.6 required feature.
+
+Sorry about the wasted bandwidth, I'll stop posting as it's now past
+midnight, and I obviously need sleep.
+
+Oh, 2.4.20-pre2 compiled OK for me, I hope that proves I've done
+something useful tonight.
+
+John.

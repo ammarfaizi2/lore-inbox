@@ -1,23 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261173AbSJPR3Y>; Wed, 16 Oct 2002 13:29:24 -0400
+	id <S261276AbSJPRaW>; Wed, 16 Oct 2002 13:30:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261295AbSJPR3X>; Wed, 16 Oct 2002 13:29:23 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1152 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S261173AbSJPR3U>; Wed, 16 Oct 2002 13:29:20 -0400
-Date: Wed, 16 Oct 2002 13:35:09 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
+	id <S261295AbSJPR33>; Wed, 16 Oct 2002 13:29:29 -0400
+Received: from darkwing.uoregon.edu ([128.223.142.13]:16368 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S261277AbSJPR3W>; Wed, 16 Oct 2002 13:29:22 -0400
+Date: Wed, 16 Oct 2002 10:37:37 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
 To: Mark Cuss <mcuss@cdlsystems.com>
 cc: linux-kernel@vger.kernel.org
 Subject: Re: Kernel reports 4 CPUS instead of 2...
 In-Reply-To: <077901c27538$ef71b4a0$2c0e10ac@frinkiac7>
-Message-ID: <Pine.LNX.3.95.1021016133227.139A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.44.0210161033070.9805-100000@twin.uoregon.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+disable hyper-threading in your bios if you want to see two cpu's...
+
+otherwise see:
+
+http://developer.intel.com/technology/hyperthread/
+
+practically speaking you may see a performance hit in some application 
+mixes from having it enabled.
+
+joelja
 
 On Wed, 16 Oct 2002, Mark Cuss wrote:
 
@@ -46,18 +57,27 @@ On Wed, 16 Oct 2002, Mark Cuss wrote:
 > 
 > Mark
 > 
+> 
+> Mark Cuss
+> Real Time Systems Analyst
+> CDL Systems Ltd.
+> Suite 230
+> 3553 - 31 Street NW
+> Calgary, Alberta
+> T2L 2K7
+> 
+> Phone (403) 289-1733 extension 226
+> Email:  mcuss@cdlsystems.com
+> URL: www.cdlsystems.com
+> 
 
-This has become a FAQ. The processors are capable of so-called
-"hyperthreading". They have two execution units, therefore seem
-like two CPUs.
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
+--    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
+  In Dr. Johnson's famous dictionary patriotism is defined as the last
+  resort of the scoundrel.  With all due respect to an enlightened but
+  inferior lexicographer I beg to submit that it is the first.
+	   	            -- Ambrose Bierce, "The Devil's Dictionary"
 
-This is the correct behavior. If you don't like this, you can
-swap motherboards with me ;) Otherwise, grin and bear it!
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
 

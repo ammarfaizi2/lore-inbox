@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266203AbUGPCW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266289AbUGPCpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266203AbUGPCW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 22:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266240AbUGPCW3
+	id S266289AbUGPCpY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 22:45:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266253AbUGPCpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 22:22:29 -0400
-Received: from mail240.whitebroadcasting.com ([216.171.174.240]:63675 "HELO
-	mail240.whitebroadcasting.com") by vger.kernel.org with SMTP
-	id S266203AbUGPCW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 22:22:27 -0400
-Date: Thu, 15 Jul 2004 15:40:09 -0400
-From: "Sean M" <nores@e-ticket-marketing.com>
-To: linux-kernel@vger.kernel.org
-Subject: why your computer is running slow 
+	Thu, 15 Jul 2004 22:45:24 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:14530 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266240AbUGPCpW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 22:45:22 -0400
+Date: Thu, 15 Jul 2004 19:44:13 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: George Anzinger <george@mvista.com>
+cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       ia64 <linux-ia64@vger.kernel.org>
+Subject: Re: gettimeofday nanoseconds patch (makes it possible for the
+ posix-timer functions to return higher accuracy)
+In-Reply-To: <40F70C6D.5050506@mvista.com>
+Message-ID: <Pine.LNX.4.58.0407151941010.24953@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com>
+ <1089835776.1388.216.camel@cog.beaverton.ibm.com> <40F70C6D.5050506@mvista.com>
 MIME-Version: 1.0
-X-Mailer: xfr v8.3.2.1000.31115525
-Reply-To: r.738.31115525@bluecomcast.com
-Message-Id: <20040715154009.ylmpinzvwd@bluecomcast.com>
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
+On Thu, 15 Jul 2004, George Anzinger wrote:
 
-Have you noticed your computer running slower than ever? 
+> As to accuracy, the more "accurate" way is to change get_offset to return
+> nanoseconds.  This way there is only one round off (by the divide) instead of
+> two (the get_offset and the divide).  I ran into this problem in the latest HRT
+> patch.  One of my tests is to do a gettimeofday and a clock_gettime and make
+> sure there is no "backward" stuff happening.  Test failed by 1 micro second
+> "some" of the time because of this double round off.
 
-The reason for that may have to do with online advertisers adding SpyWare or AdWare to your computer without your knowledge. "Spyware" is a common term for files that are installed on your system without your knowledge that allow companies to monitor your Internet activity. "AdWare" is software that will show you popup ads over and over. What they don't tell you, however, is how these files can be extremely dangerous to your PC and could cause major problems with your PC. 
-
-We are offering every computer owner, including yourself, the opportunity to scan your computer to see how many "SpyWare" infections your PC has free of charge. 
-
-To scan your computer for free, click here: 
-http://bluecomcast.com/dbm83/l.php?959&31115525&riceez420/trekblue8
-
-
-Our goal is to put an end to shady online advertising so that Internet users can enjoy the World Wide Web without having their privacy intruded upon. 
-
-We urge you to run the free scan! 
-
-Click Here To Begin Scan: 
-http://bluecomcast.com/dbm83/l.php?959&31115525&riceez420/trekblue8
-PLACE URL HERE 
-
-Thank you for your time, and we hope that we have been of some help. 
-
-
---------------------------------------------
-We hope you enjoyed receiving this email, but if you no longer wish to 
-receive our emails please respond here: http://bluecomcast.com/dbm83/un.php?738&31115525
-
-To Remove by Mail
-e-ticket-marketing.com
-PO Box 9
-Irvine Ca 92650
-
-ohguqbs
-
-       
-       
+Well yes this is what the interpolator etc does on IA64.
+time_interpolator_get_offset returns nanoseconds. I have done
+tests to insure that no backward stuff happens. Tests were done
+with the mentioned patch and clock_gettime was returning nanosecond
+accuracy.
 
 

@@ -1,55 +1,176 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270726AbRHPDww>; Wed, 15 Aug 2001 23:52:52 -0400
+	id <S270728AbRHPENP>; Thu, 16 Aug 2001 00:13:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270727AbRHPDwn>; Wed, 15 Aug 2001 23:52:43 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:41992 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S270726AbRHPDwe>;
-	Wed, 15 Aug 2001 23:52:34 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200108160352.f7G3qbw236026@saturn.cs.uml.edu>
-Subject: Re: daddr_t is inconsistent and barely used
-To: hch@ns.caldera.de (Christoph Hellwig)
-Date: Wed, 15 Aug 2001 23:52:37 -0400 (EDT)
-Cc: kaos@ocs.com.au (Keith Owens), linux-kernel@vger.kernel.org
-In-Reply-To: <20010816052119.A28800@caldera.de> from "Christoph Hellwig" at Aug 16, 2001 05:21:19 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S270730AbRHPENG>; Thu, 16 Aug 2001 00:13:06 -0400
+Received: from trained-monkey.org ([209.217.122.11]:29944 "EHLO
+	savage.trained-monkey.org") by vger.kernel.org with ESMTP
+	id <S270728AbRHPEMv>; Thu, 16 Aug 2001 00:12:51 -0400
+Date: Thu, 16 Aug 2001 00:11:00 -0400
+Message-Id: <200108160411.f7G4B0A19402@savage.trained-monkey.org>
+From: <jes@trained-monkey.org>
+To: ipslinux@us.ibm.com
+CC: alan@redhat.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [patch] ips.c spin lock 64 bit issues
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
->>> In article <9980.997929632@kao2.melbourne.sgi.com> you wrote:
+Hi
 
->>>> The use of daddr_t in freevxfs may give different in core
->>>> and disk layouts on different machines.  Is that intended?.
-...
-> vx_daddr_t is for disk structures, daddr_t for core.
+I noticed the ips.c driver used 32 bit data types for it's cpu_flags
+variables passed to spin_lock_irqsave() etc. which isn't safe on 64
+systems.
 
-This is asking for trouble. The disk structures aren't about
-to change. See include/linux/ext2_fs.h for a safe way to do
-the on-disk structure. For the in-core stuff, "unsigned long"
-is a perfectly fine data type -- and yes I know it gets wider
-with a 64-bit system.
+Here is a patch that solves the problem (think I got them all).
 
-To save you the trouble of looking up my example:
+Cheers
+Jes
 
-/*
- * Structure of a blocks group descriptor
- */
-struct ext2_group_desc
-{
-        __u32   bg_block_bitmap;                /* Blocks bitmap block */
-        __u32   bg_inode_bitmap;                /* Inodes bitmap block */
-        __u32   bg_inode_table;         /* Inodes table block */
-        __u16   bg_free_blocks_count;   /* Free blocks count */
-        __u16   bg_free_inodes_count;   /* Free inodes count */
-        __u16   bg_used_dirs_count;     /* Directories count */
-        __u16   bg_pad;
-        __u32   bg_reserved[3];
-};
-
-Don't forget to add explicit padding as needed to give natural alignment.
-
+--- drivers/scsi/ips.c~	Sat May 19 20:43:06 2001
++++ drivers/scsi/ips.c	Thu Aug 16 00:06:57 2001
+@@ -1416,7 +1416,7 @@
+ ips_eh_reset(Scsi_Cmnd *SC) {
+    int                   ret;
+    int                   i;
+-   u32                   cpu_flags;
++   unsigned long         cpu_flags;
+    ips_ha_t             *ha;
+    ips_scb_t            *scb;
+    ips_copp_wait_item_t *item;
+@@ -1607,7 +1607,7 @@
+ int
+ ips_queue(Scsi_Cmnd *SC, void (*done) (Scsi_Cmnd *)) {
+    ips_ha_t         *ha;
+-   u32               cpu_flags;
++   unsigned long     cpu_flags;
+    DECLARE_MUTEX_LOCKED(sem);
+ 
+    METHOD_TRACE("ips_queue", 1);
+@@ -1854,7 +1854,7 @@
+ void
+ do_ipsintr(int irq, void *dev_id, struct pt_regs *regs) {
+    ips_ha_t         *ha;
+-   u32               cpu_flags;
++   unsigned long     cpu_flags;
+ 
+    METHOD_TRACE("do_ipsintr", 2);
+ 
+@@ -1909,7 +1909,7 @@
+    ips_scb_t        *scb;
+    IPS_STATUS        cstatus;
+    int               intrstatus;
+-   u32               cpu_flags;
++   unsigned long     cpu_flags;
+ 
+    METHOD_TRACE("ips_intr", 2);
+ 
+@@ -1981,7 +1981,7 @@
+    ips_scb_t        *scb;
+    IPS_STATUS        cstatus;
+    int               intrstatus;
+-   u32               cpu_flags;
++   unsigned long     cpu_flags;
+ 
+    METHOD_TRACE("ips_intr_morpheus", 2);
+ 
+@@ -3548,8 +3548,8 @@
+    ips_copp_wait_item_t *item;
+    int                   ret;
+    int                   intr_status;
+-   u32                   cpu_flags;
+-   u32                   cpu_flags2;
++   unsigned long         cpu_flags;
++   unsigned long         cpu_flags2;
+ 
+    METHOD_TRACE("ips_next", 1);
+ 
+@@ -4403,7 +4403,7 @@
+ static void
+ ips_done(ips_ha_t *ha, ips_scb_t *scb) {
+    int ret;
+-   u32 cpu_flags;
++   unsigned long cpu_flags;
+ 
+    METHOD_TRACE("ips_done", 1);
+ 
+@@ -5520,7 +5520,7 @@
+ static ips_scb_t *
+ ips_getscb(ips_ha_t *ha) {
+    ips_scb_t     *scb;
+-   u32            cpu_flags;
++   unsigned long  cpu_flags;
+ 
+    METHOD_TRACE("ips_getscb", 1);
+ 
+@@ -5554,7 +5554,7 @@
+ /****************************************************************************/
+ static void
+ ips_freescb(ips_ha_t *ha, ips_scb_t *scb) {
+-   u32          cpu_flags;
++   unsigned long cpu_flags;
+ 
+    METHOD_TRACE("ips_freescb", 1);
+ 
+@@ -5967,7 +5967,7 @@
+ static int
+ ips_reset_copperhead(ips_ha_t *ha) {
+    int reset_counter;
+-   u32 cpu_flags;
++   unsigned long cpu_flags;
+ 
+    METHOD_TRACE("ips_reset_copperhead", 1);
+ 
+@@ -6012,7 +6012,7 @@
+ static int
+ ips_reset_copperhead_memio(ips_ha_t *ha) {
+    int reset_counter;
+-   u32 cpu_flags;
++   unsigned long cpu_flags;
+ 
+    METHOD_TRACE("ips_reset_copperhead_memio", 1);
+ 
+@@ -6058,7 +6058,7 @@
+ ips_reset_morpheus(ips_ha_t *ha) {
+    int reset_counter;
+    u8  junk;
+-   u32 cpu_flags;
++   unsigned long cpu_flags;
+ 
+    METHOD_TRACE("ips_reset_morpheus", 1);
+ 
+@@ -6237,7 +6237,7 @@
+ ips_issue_copperhead(ips_ha_t *ha, ips_scb_t *scb) {
+    u32       TimeOut;
+    u16       val;
+-   u32       cpu_flags;
++   unsigned long       cpu_flags;
+ 
+    METHOD_TRACE("ips_issue_copperhead", 1);
+ 
+@@ -6300,7 +6300,7 @@
+ ips_issue_copperhead_memio(ips_ha_t *ha, ips_scb_t *scb) {
+    u32       TimeOut;
+    u32       val;
+-   u32       cpu_flags;
++   unsigned long cpu_flags;
+ 
+    METHOD_TRACE("ips_issue_copperhead_memio", 1);
+ 
+@@ -6361,7 +6361,7 @@
+ /****************************************************************************/
+ static int
+ ips_issue_i2o(ips_ha_t *ha, ips_scb_t *scb) {
+-   u32       cpu_flags;
++   unsigned long cpu_flags;
+ 
+    METHOD_TRACE("ips_issue_i2o", 1);
+ 
+@@ -6401,7 +6401,7 @@
+ /****************************************************************************/
+ static int
+ ips_issue_i2o_memio(ips_ha_t *ha, ips_scb_t *scb) {
+-   u32       cpu_flags;
++   unsigned long cpu_flags;
+ 
+    METHOD_TRACE("ips_issue_i2o_memio", 1);
+ 

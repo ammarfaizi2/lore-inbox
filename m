@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130018AbRAFIeh>; Sat, 6 Jan 2001 03:34:37 -0500
+	id <S130157AbRAFI6O>; Sat, 6 Jan 2001 03:58:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130372AbRAFIe1>; Sat, 6 Jan 2001 03:34:27 -0500
-Received: from bzq-128-3.bezeqint.net ([212.179.127.3]:63749 "HELO arava.co.il")
-	by vger.kernel.org with SMTP id <S130018AbRAFIeP>;
-	Sat, 6 Jan 2001 03:34:15 -0500
-Date: Sat, 6 Jan 2001 10:33:27 +0200 (IST)
-From: Matan Ziv-Av <matan@svgalib.org>
-Reply-To: Matan Ziv-Av <matan@svgalib.org>
+	id <S130200AbRAFI6E>; Sat, 6 Jan 2001 03:58:04 -0500
+Received: from austin.jhcloos.com ([206.224.83.202]:19216 "HELO
+	austin.jhcloos.com") by vger.kernel.org with SMTP
+	id <S130157AbRAFI5q>; Sat, 6 Jan 2001 03:57:46 -0500
 To: linux-kernel@vger.kernel.org
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] svgalib error in mmap documentation
-Message-ID: <Pine.LNX.4.21_heb2.09.0101061029360.1256-100000@matan.home>
+Subject: ixj.o vs ixj_cs.o
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+Date: 06 Jan 2001 02:57:45 -0600
+Message-ID: <m3zoh5njli.fsf@austin.jhcloos.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If CONFIG_PCMCIA=y, CONFIG_PHONE!=n and CONFIG_IXJ=m, the resultant
+ixj.o will support the (PCMCIA) internet phonecard, provided it is
+insmod(8)ed as ixj_cs.o.
 
+As such, were make modules_install (iff the above config) to:
 
-Hi,
+  mkdir $(MODDIR)/kernel/drivers/telephony/pcmcia
+  ln -s ../ixj.o $(MODDIR)/kernel/drivers/telephony/pcmcia/ixj_cs.o
 
-svgalib needs to be compiled without background support in order to run
-under kernl 2.4.0 or newer. Here's a patch to Documentation/Changes that
-says this.
+things would Just Work.
 
---- /usr/src/linux.b/Documentation/Changes        Tue Dec 12 18:43:22 2000
-+++ linux/Documentation/Changes     Sat Jan  6 10:28:20 2001
-@@ -517,6 +517,14 @@
- Older isdn4k-utils versions don't support EXTRAVERSION into kernel version
- string. A upgrade to isdn4k-utils.v3.1beta7 or later is recomented.
+But that just doesn't seem like the right solution.
 
-+SVGAlib
-+=======
-+If you want svgalib programs to run with kernel 2.4.0 or newer, svgalib
-+needs to be compiled without background support (BACKGROUND not defined in
-+Makefile.cfg). This is relevant to any svgalib version.
-+This is because svgalib uses mmap of /proc/mem to emulate vga's memory bank
-+switching when in background, and kernel 2.4.0 stopped supporting this feature.
-+
+Looks like were $(TOPDIR)/drivers/telephon/pcmcia to exist with
+a suitable makefile to cp ../ixj.o ixj_cs.o iff the above config
+things would also just work.
 
+But I suspect ixj.c needs to be broken out, perhaps to ixj.c,
+ixj-main.c and pcmcia/ixj_cs.c?  Or just a pcmcia/ixj_cs.c which
+links against ../ixj.o?
 
+What is the proper solution?
+
+(And, for that matter, is this essentially the same problem the drm
+tree has wrt modules?)
+
+-JimC
 -- 
-Matan Ziv-Av.                         matan@svgalib.org
-
+James H. Cloos, Jr.  <http://jhcloos.com/public_key>     1024D/ED7DAEA6 
+<cloos@jhcloos.com>  E9E9 F828 61A4 6EA9 0F2B  63E7 997A 9F17 ED7D AEA6
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,65 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263154AbTJJV2X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 17:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263155AbTJJV2X
+	id S263152AbTJJV1e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 17:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbTJJV1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 17:28:23 -0400
-Received: from marlin.dnsvelocity.com ([64.21.80.21]:31139 "EHLO
-	marlin.dnsvelocity.com") by vger.kernel.org with ESMTP
-	id S263154AbTJJV2S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 17:28:18 -0400
-Subject: kernel developers:two openings
-From: hotjobs <hotjobs@secureallinc.com>
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-       kernelnewbies@nl.linux.org, hotjobs@secureallinc.com
-Content-Type: text/plain
-Organization: SecureaAll
-Message-Id: <1065821197.1612.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 10 Oct 2003 14:26:42 -0700
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - marlin.dnsvelocity.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - secureallinc.com
+	Fri, 10 Oct 2003 17:27:34 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:30862 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263152AbTJJV1b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 17:27:31 -0400
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] x86_84 pci_map_sg fix for 2.6.0-test7
+Date: Fri, 10 Oct 2003 14:26:33 -0700
+User-Agent: KMail/1.4.1
+Cc: ak@suse.de
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_9W8KFFNGXIN4AJEQUH6N"
+Message-Id: <200310101426.33773.pbadari@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-US-CA-San-Jose, CA-Senior Linux Kernel Engineer
 
-SecureAll Inc., headquartered in the Silicon Valley, California, is a
-well-funded start-up in the Enterprise Information Security domain. It
-is well recognized that enterprises are on the average 6 months behind
-on applying security patches.During this period, despite employing
-firewalls and intrusion detection systems, enterprises are vulnerable to
-exploits leveraging the un-patched weaknesses.It is also acknowledged
-that patch management is an imperfect science and does not take away the
-risk of applying patches without adequate testing. SecureAll offers 
-a solution that is truly radical and solves the above problems in an
-elegant fashion. The foundation of the company is based on a patented
-breakthrough technology that takes network-based enterprise security to
-the next level. We are currently looking to fill two full-time regular
-positions in our San Jose, CA facility both requiring extensive
-experience with Linux Kernel programming.  
+--------------Boundary-00=_9W8KFFNGXIN4AJEQUH6N
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+Here is the patch to fix few minor issues with pci_map_sg() and pci_map_c=
+ont()
+for x86_64. I ran into these asserts while testing with qlogic fc driver.
+
+The patch fixes following:
+
+1) pci_map_sg() coalsces "sg" entries without modifying command's
+"use_sg" value. It sets the "sg" entries length to "0" to indicate that
+these entires are coalsced. If the command gets retried, the pci_map_sg()=
+=20
+code trips on the assert that all entries length should be > 0.
+
+2) __pci_map_cont() incorrectly assumes that "start" is always 0, so it
+trips on few asserts.
+
+Thanks,
+Badari
 
 
-Sr. Linux Kernel Development Engineer (2 Positions):
 
-Senior software engineers with 5-10 years of experience in the design,
-implementation,and ongoing development of the Kernels. At least 1 year
-experience with Linux Kernel.Kernel Software development and debugging
-experience preferably in Linux environment.A very strong understanding
-of TCP/IP protocol stack. Development with the stack is a plus.
-Development with Linux 2.6 is a plus Good Understanding of memory
-management, SMP, clustering issues is a plus Experience with the
-hardening of kernel and various protocol stacks for security is a plus
-Experience with design and architecture of mid- to large-sized software
-projects.
 
-To Apply for this job, please send a word/text resume to
-hotjobs@secureallinc.com with the position title in the subject line.
+--------------Boundary-00=_9W8KFFNGXIN4AJEQUH6N
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="pci-gart.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="pci-gart.patch"
 
+--- linux-2.6.0-test7/arch/x86_64/kernel/pci-gart.c	2003-10-10 11:48:40.324040400 -0700
++++ linux-2.6.0-test7.new/arch/x86_64/kernel/pci-gart.c	2003-10-10 11:49:12.281182176 -0700
+@@ -395,7 +395,7 @@ static int __pci_map_cont(struct scatter
+ 	for (i = start; i < stopat; i++) {
+ 		struct scatterlist *s = &sg[i];
+ 		unsigned long start_addr = s->dma_address;
+-		BUG_ON(i > 0 && s->offset);
++		BUG_ON(i > start && s->offset);
+ 		if (i == start) {
+ 			*sout = *s; 
+ 			sout->dma_address = iommu_bus_base;
+@@ -409,8 +409,8 @@ static int __pci_map_cont(struct scatter
+ 			SET_LEAK(iommu_page);
+ 			addr += PAGE_SIZE;
+ 			iommu_page++;
+-	} 
+-		BUG_ON(i > 0 && addr % PAGE_SIZE); 
++		} 
++		BUG_ON(i > start && addr % PAGE_SIZE); 
+ 	} 
+ 	BUG_ON(iommu_page - iommu_start != pages);	
+ 	return 0;
+@@ -451,7 +451,8 @@ int pci_map_sg(struct pci_dev *dev, stru
+ 		struct scatterlist *s = &sg[i];
+ 		dma_addr_t addr = page_to_phys(s->page) + s->offset;
+ 		s->dma_address = addr;
+-		BUG_ON(s->length == 0); 
++		if (s->length == 0)
++			break;
+ 
+ 		size += s->length; 
+ 
+
+--------------Boundary-00=_9W8KFFNGXIN4AJEQUH6N--
 

@@ -1,91 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267413AbUHDUgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267411AbUHDUhk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267413AbUHDUgK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 16:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267411AbUHDUgK
+	id S267411AbUHDUhk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 16:37:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267415AbUHDUhk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 16:36:10 -0400
-Received: from kerberos2.troja.mff.cuni.cz ([195.113.28.3]:25192 "HELO
-	kerberos2.troja.mff.cuni.cz") by vger.kernel.org with SMTP
-	id S267413AbUHDUgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 16:36:04 -0400
-Received: from argo.troja.mff.cuni.cz (195.113.28.11)
-  by vger.kernel.org with SMTP; 4 Aug 2004 20:36:02 -0000
-Date: Wed, 4 Aug 2004 22:36:02 +0200 (MET DST)
-From: Pavel Kankovsky <peak@argo.troja.mff.cuni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux kernel file offset pointer races
-In-Reply-To: <Pine.LNX.4.44.0408041220550.26961-100000@isec.pl>
-Message-ID: <20040804214056.6369.0@argo.troja.mff.cuni.cz>
+	Wed, 4 Aug 2004 16:37:40 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:34279 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267414AbUHDUh3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 16:37:29 -0400
+Date: Wed, 04 Aug 2004 13:36:36 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrew Morton <akpm@osdl.org>, kernel@kolivas.org,
+       linux-kernel@vger.kernel.org, Rick Lindsley <ricklind@us.ibm.com>
+Subject: Re: 2.6.8-rc2-mm2 performance improvements (scheduler?)
+Message-ID: <216720000.1091651795@flay>
+In-Reply-To: <20040804201019.GA25908@elte.hu>
+References: <20040804122414.4f8649df.akpm@osdl.org> <211490000.1091648060@flay> <20040804201019.GA25908@elte.hu>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Aug 2004, Paul Starzetz wrote:
+--On Wednesday, August 04, 2004 22:10:19 +0200 Ingo Molnar <mingo@elte.hu> wrote:
 
-> static ssize_t mtrr_read(struct file *file, char *buf, size_t len,
->                          loff_t *ppos)
-> {
-> [1] if (*ppos >= ascii_buf_bytes) return 0;
-> [2] if (*ppos + len > ascii_buf_bytes) len = ascii_buf_bytes - *ppos;
->     if ( copy_to_user (buf, ascii_buffer + *ppos, len) ) return -EFAULT;
-> [3] *ppos += len;
->     return len;
-> }  /*  End Function mtrr_read  */
->
-> It is quite easy to see that since copy_to_user can  sleep,  the  second
-> reference  to  *ppos  may  use  another  value.  Or in other words, code
-> operating on the file->f_pos variable through a pointer must  be  atomic
-> in  respect  to  the current thread. We expect even more troubles in the
-> SMP case though.
+> 
+> * Martin J. Bligh <mbligh@aracnet.com> wrote:
+> 
+>> >>  SDET 16  (see disclaimer)
+>> >>                             Throughput    Std. Dev
+>> >>                      2.6.7       100.0%         0.3%
+>> >>                  2.6.8-rc2        99.5%         0.3%
+>> >>              2.6.8-rc2-mm2       118.5%         0.6%
+>> > 
+>> > hum, interesting.  Can Con's changes affect the inter-node and inter-cpu
+>> > balancing decisions, or is this all due to caching effects, reduced context
+>> > switching etc?
+> 
+> Martin, could you try 2.6.8-rc2-mm2 with staircase-cpu-scheduler 
+> unapplied a re-run at least part of your tests?
+> 
+> there are a number of NUMA improvements queued up on -mm, and it would
+> be nice to know what effect these cause, and what effect the staircase
+> scheduler has.
 
-Oh no! Another old bug getting bored of being ignored and promoting itself
-into a security vulnerability (see Bugtraq/Full-Disclosure archive for a 
-complete story).
+Sure. I presume it's just the one patch:
 
-IMHO, the proper fix is to serialize all operations modifying a shared
-file pointer (file->f_pos): read(), readv(), write(), writev(),
-lseek()/llseek(). As far as I can tell, this is required by POSIX:
+staircase-cpu-scheduler-268-rc2-mm1.patch
 
-  [read() specification]
-  On files that support seeking (for example, a regular file), the
-  read() shall start at a position in the file given by the file offset
-  associated with fildes. The file offset shall be incremented by the
-  number of bytes actually read.
+which seemed to back out clean and is building now. Scream if that's not
+all of it ...
 
-  [write() specification]
-  On a regular file or other file capable of seeking, the actual writing
-  of data shall proceed from the position in the file indicated by the
-  file offset associated with fildes. Before successful return from
-  write(), the file offset shall be incremented by the number of bytes
-  actually written.
-
-  [write() specification]
-  If the O_APPEND flag of the file status flags is set, the file offset
-  shall be set to the end of the file prior to each write and no
-  intervening file modification operation shall occur between changing the
-  file offset and the write operation.
-
-Moreover, there should probably be some kind of serialization between
-groups of reads from a file (read: inode) and individual writes to the
-same file even among different struct file:
-
-  [read() rationale]
-  I/O is intended to be atomic to ordinary files and pipes and
-  FIFOs. Atomic means that all the bytes from a single operation that
-  started out together end up together, without interleaving from other
-  I/O operations.
-
-  [write() rationale]
-  Writes can be serialized with respect to other reads and writes. If a
-  read() of file data can be proven (by any means) to occur after a
-  write() of the data, it must reflect that write(), even if the calls are
-  made by different processes. A similar requirement applies to multiple
-  write operations to the same file position.
-
---Pavel Kankovsky aka Peak  [ Boycott Microsoft--http://www.vcnet.com/bms ]
-"Resistance is futile. Open your source code and prepare for assimilation."
-
-
+M.
 

@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271608AbRHZWNR>; Sun, 26 Aug 2001 18:13:17 -0400
+	id <S271557AbRHZWbm>; Sun, 26 Aug 2001 18:31:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271609AbRHZWNH>; Sun, 26 Aug 2001 18:13:07 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:12806 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271608AbRHZWNA>;
-	Sun, 26 Aug 2001 18:13:00 -0400
-Date: Sun, 26 Aug 2001 19:12:15 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: <pcg@goof.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-In-Reply-To: <20010826210026Z16294-32383+1508@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33L.0108261909570.5646-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271560AbRHZWbc>; Sun, 26 Aug 2001 18:31:32 -0400
+Received: from grobbebol.xs4all.nl ([194.109.248.218]:58462 "EHLO
+	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S271557AbRHZWbP>; Sun, 26 Aug 2001 18:31:15 -0400
+Date: Sun, 26 Aug 2001 22:29:57 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.9 && ETH0 stalls (8029)
+Message-ID: <20010826222957.A711@grobbebol.xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+X-OS: Linux grobbebol 2.4.7 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Aug 2001, Daniel Phillips wrote:
+I have osted this before but haven't seen it on the list. Sometimes, it
+seems to fail at vger for whatever reason. sorry if this was double.
 
-> Good, but should we rest on our laurels now?
+2.4.9. again shows tieouts onETH0 with the 8029 realtek stuff. 2.4.8 and
+2.4.7 work fine here.
 
-If you have an idea on how to improve things or want to
-implement one of the proposed ideas, feel free. I'll
-happily help think about the stuff and/or test patches.
+messages:Aug 24 21:26:53 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+messages:Aug 24 21:26:53 grobbebol kernel: eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x3, t=116.
+messages:Aug 24 21:27:01 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+messages:Aug 24 21:27:01 grobbebol kernel: eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x3, t=756.
+messages:Aug 24 21:27:03 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+messages:Aug 24 21:27:03 grobbebol kernel: eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x3, t=119.
+messages:Aug 24 21:27:06 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+messages:Aug 24 21:27:06 grobbebol kernel: eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x3, t=119.
+messages:Aug 24 21:27:09 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+messages:Aug 24 21:27:09 grobbebol kernel: eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x3, t=219.
+messages:Aug 24 21:27:11 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+messages:Aug 24 21:27:11 grobbebol kernel: eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x3, t=119.
+messages:Aug 24 21:27:23 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+messages:Aug 24 21:27:23 grobbebol kernel: eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x3, t=116.
 
-cheers,
+etc. and a reboiot is required. 2.4.9 never survives more than between
+12 and 24 hours before it 'kills' the eth0.
 
-Rik
+00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+RTL-8029(AS)
+
+(hopefully this article gets posted now :-)
+
 -- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Grobbebol's Home                   |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
+Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  

@@ -1,61 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbULBFLx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbULBFue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbULBFLx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 00:11:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbULBFLx
+	id S261556AbULBFue (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 00:50:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbULBFue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 00:11:53 -0500
-Received: from gizmo03bw.bigpond.com ([144.140.70.13]:51868 "HELO
-	gizmo03bw.bigpond.com") by vger.kernel.org with SMTP
-	id S261557AbULBFLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 00:11:19 -0500
-Message-ID: <41AEA3F0.9080100@bigpond.net.au>
-Date: Thu, 02 Dec 2004 16:11:12 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-References: <E1CZiZZ-0005ew-00@calista.eckenfels.6bone.ka-ip.net>
-In-Reply-To: <E1CZiZZ-0005ew-00@calista.eckenfels.6bone.ka-ip.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Dec 2004 00:50:34 -0500
+Received: from mail.donpac.ru ([80.254.111.2]:5046 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S261556AbULBFuX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 00:50:23 -0500
+Date: Thu, 2 Dec 2004 08:50:20 +0300
+From: Andrey Panin <pazke@donpac.ru>
+To: akpm <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] VISWS: prevent APM
+Message-ID: <20041202055020.GC20380@pazke>
+Mail-Followup-To: akpm <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+References: <20041201115758.294585c3.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oTHb8nViIGeoXxdp"
+Content-Disposition: inline
+In-Reply-To: <20041201115758.294585c3.rddunlap@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
+X-SMTP-Authenticated: pazke@donpac.ru (ntlm)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Eckenfels wrote:
-> In article <Pine.LNX.4.58.0412011948450.22796@ppc970.osdl.org> you wrote:
-> 
->>I think you're making that up. Maybe there's some sw cult that swears by 
->>"contract programming"
-> 
-> 
-> Design by Contract is the reason for descibing the agreement between
-> caller/callee as an contract.
 
-Design by contract isn't really an agreement between the caller and the 
-callee (which may not even exist when the contract is created).  It's 
-more of a (one way) promise by the callee that if the interface is used 
-as described in the contract that it will correctly perform the 
-advertised operation (where the advertised operation generally includes 
-descriptions of possible failures and how they will be signalled).  Most 
-C APIs meet these criteria even though their pre and post conditions are 
-expressed less formally than an Eiffel interface.
+--oTHb8nViIGeoXxdp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Bertran Meyer added the pre-conditions and
-> post-conditions (kind of asserts) to his Eiffel Language, and I dont think
-> that that is limited to a single system, but is also valid for bondaries
-> like an ABI. It describes conventions like syscall numbers, too.
+On 336, 12 01, 2004 at 11:57:58AM -0800, Randy.Dunlap wrote:
+> (resend)
+>=20
+> Prevent X86_VISWS config from building APM support.
+> APM isn't supported and it won't build if attempted.
+> Also disable P4THERMAL for VISWS.
+>=20
+> Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
 
-I agree but think it's important to realize that it's a unilateral 
-promise on the part of the callee (rather than agreement between the 
-callee and the caller) which is in accord with Linus's view of the ABI.
+Look good. Please apply.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Signed-off-by: Andrey Panin <pazke@donpac.ru>
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+> diffstat:=3D
+>  arch/i386/Kconfig |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff -Naurp ./arch/i386/Kconfig~visws_noapm ./arch/i386/Kconfig
+> --- ./arch/i386/Kconfig~visws_noapm	2004-10-11 10:54:31.019559744 -0700
+> +++ ./arch/i386/Kconfig	2004-10-14 09:52:24.131743344 -0700
+> @@ -584,7 +584,7 @@ config X86_MCE_NONFATAL
+> =20
+>  config X86_MCE_P4THERMAL
+>  	bool "check for P4 thermal throttling interrupt."
+> -	depends on X86_MCE && (X86_UP_APIC || SMP)
+> +	depends on X86_MCE && (X86_UP_APIC || SMP) && !X86_VISWS
+>  	help
+>  	  Enabling this feature will cause a message to be printed when the P4
+>  	  enters thermal throttling.
+> @@ -879,7 +879,7 @@ source kernel/power/Kconfig
+>  source "drivers/acpi/Kconfig"
+> =20
+>  menu "APM (Advanced Power Management) BIOS Support"
+> -depends on PM
+> +depends on PM && !X86_VISWS
+> =20
+>  config APM
+>  	tristate "APM (Advanced Power Management) BIOS support"
+
+--=20
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+
+--oTHb8nViIGeoXxdp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBrq0cby9O0+A2ZecRAsE/AJ419XjXpjLEUh63C9G5Jczc0Z+kbgCdElci
+nuAI4T9O9ToXoZwxzhsSRno=
+=r5/Z
+-----END PGP SIGNATURE-----
+
+--oTHb8nViIGeoXxdp--

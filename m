@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129049AbRBBVrK>; Fri, 2 Feb 2001 16:47:10 -0500
+	id <S129181AbRBBVul>; Fri, 2 Feb 2001 16:50:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129181AbRBBVrA>; Fri, 2 Feb 2001 16:47:00 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:65031 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129049AbRBBVqu>; Fri, 2 Feb 2001 16:46:50 -0500
-Date: Fri, 2 Feb 2001 15:41:29 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] PCI-SCI Drivers v1.1-6 released
-Message-ID: <20010202154129.A2911@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S129637AbRBBVuY>; Fri, 2 Feb 2001 16:50:24 -0500
+Received: from vmlinux.demon.co.uk ([193.237.10.217]:27922 "EHLO vmlinux.net")
+	by vger.kernel.org with ESMTP id <S129181AbRBBVuS>;
+	Fri, 2 Feb 2001 16:50:18 -0500
+Date: Fri, 2 Feb 2001 21:49:59 +0000 (GMT)
+From: John Morrison <john@vmlinux.net>
+To: Alan Cox <alan@redhat.com>
+cc: Hans Reiser <reiser@namesys.com>, Chris Mason <mason@suse.com>,
+        Jan Kasprzak <kas@informatics.muni.cz>, <linux-kernel@vger.kernel.org>,
+        <reiserfs-list@namesys.com>,
+        "Yury Yu. Rupasov" <yura@yura.polnet.botik.ru>
+Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
+In-Reply-To: <200102022139.f12LdII21148@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.30.0102022148260.13975-100000@vmlinux.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Linux Kernel,
+Lets not go overboard Alan ;-)
 
-(Sorry, had one more change that did not make the patch.  this release
-contains the corrected patch).
 
-Version 1.1-6 of the Dolphin PCI-SCI (Scalable Coherent Interface) drivers
-for Linux kernels 2.2.X and 2.4.X have been posted at 
-vger.timpanogas.org:/sci.  These drivers are freely available under
-the GNU public license and are provided in both RPM and tar.gz 
-formats.
-
-NOTES: 
-
-This release corrects an SMP/non-SMP auto-detection problem during 
-driver install. If someone is using an SMP kernel on a single processor
-system, this version checks the kernel build tree to determine which 
-option was built with the drivers in the /usr/src/linux/.config 
-file prior to installing the drivers.
-
-This version corrects a reported bug for those folks who compile 
-an SMP kernel on a APIC supported single CPU system during driver
-install.
-
-Jeff
-
+> > It makes sense to refuse to build a piece of the kernel if it break's
+> > a machine - anything else is a timebomb waiting to explode.
+>
+> The logical conclusion of that is to replace the entire kernel tree with
+>
+> #error "compiler or program might have a bug. Aborting"
+>
+> The kernel is NOT some US home appliance festooned with 'do not eat this
+> furniture' and 'do not expose your laserwrite to naked flame' messages.
+> The readme says its been tested with egcs-1.1.2 and gcc 2.95.
+>
+> The same people who can't read documentation will just mail the list with
+> 'it doesnt compile, help' or 'it doesnt compile, you suck' in less enlightened
+> cases/
+>
+> Large numbers of people routinely build the kernel with 'unsupported' compilers
+> notably the pgcc project people and another group you will cause problems for
+> - the GCC maintainers. They use the kernel tree as part of the test set for
+> their kernel, something putting #ifdefs all over it will mean they have to
+> mess around to fix too.
+>
+> Alan
+>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

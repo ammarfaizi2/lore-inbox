@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263298AbRFTQNC>; Wed, 20 Jun 2001 12:13:02 -0400
+	id <S262856AbRFTQJx>; Wed, 20 Jun 2001 12:09:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263357AbRFTQMw>; Wed, 20 Jun 2001 12:12:52 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:6785 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S263298AbRFTQMp>; Wed, 20 Jun 2001 12:12:45 -0400
-Date: Wed, 20 Jun 2001 10:12:38 -0600
-Message-Id: <200106201612.f5KGCca06372@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Mike Galbraith <mikeg@wen-online.de>, Rik van Riel <riel@conectiva.com.br>,
-        Pavel Machek <pavel@suse.cz>, John Stoffel <stoffel@casc.com>,
-        Roger Larsson <roger.larsson@norran.net>, <thunder7@xs4all.nl>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Early flush (was: spindown)
-In-Reply-To: <01062016294903.00439@starship>
-In-Reply-To: <Pine.LNX.4.33.0106171156410.318-100000@mikeg.weiden.de>
-	<01062003503300.00439@starship>
-	<200106200439.f5K4d4501462@vindaloo.ras.ucalgary.ca>
-	<01062016294903.00439@starship>
+	id <S263060AbRFTQJm>; Wed, 20 Jun 2001 12:09:42 -0400
+Received: from [128.165.17.16] ([128.165.17.16]:48146 "EHLO cic-mail.lanl.gov")
+	by vger.kernel.org with ESMTP id <S262856AbRFTQJf>;
+	Wed, 20 Jun 2001 12:09:35 -0400
+Date: Wed, 20 Jun 2001 10:09:33 -0600
+From: "Eric H. Weigle" <ehw@lanl.gov>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG][PATCH] /proc duplicate entries
+Message-ID: <20010620100933.B1457@lanl.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Eric-Unconspiracy: There ought to be a conspiracy
+X-Editor: Vim, http://www.vim.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips writes:
-> On Wednesday 20 June 2001 06:39, Richard Gooch wrote:
-> > Starting I/O immediately if there is no load sounds nice. However,
-> > what about the other case, when the disc is already spun down (and
-> > hence there's no I/O load either)? I want the system to avoid doing
-> > writes while the disc is spun down. I'm quite happy for the system to
-> > accumulate dirtied pages/buffers, reclaiming clean pages as needed,
-> > until it absolutely has to start writing out (or I call sync(2)).
-> 
-> I'd like that too, but what about sync writes?  As things stand now,
-> there is no option but to spin the disk back up.  To get around this
-> we'd have to change the basic behavior of the block device and
-> that's doable, but it's an entirely different proposition than the
-> little patch above.
+Hello-
 
-I don't care as much about sync writes. They don't seem to happen very
-often on my boxes.
+Hopefully this isn't redundant, I haven't checked the latest -ac or -pre
+releases. I just noticed on my 2.4.5 box that I have two /proc/dri/ directory
+entries (I've got both on-board and AGP video in the box and both are trying
+to register entries).
 
-> You know about this project no doubt:
-> 
->    http://noflushd.sourceforge.net/
+Yes, code that tries to register the same name twice is broken, but the
+filesystem still shouldn't allow bad code to break its semantics (duplicate
+entries of the same name).
 
-Only vaguely. It's huge. Over 2300 lines of C code and >560 lines in
-.h files! As you say, not really lightweight. There must be a better
-way. Also, I suspect (without having looked at the code) that it
-doesn't handle memory pressure well. Things may get nasty when we run
-low on free pages.
+The following patch performs a duplicate name check.
 
-				Regards,
+--------------------------------------------------------------------------------
+--- fs/proc/generic.c.orig	Tue Jun 19 15:44:05 2001
++++ fs/proc/generic.c	Wed Jun 20 10:02:32 2001
+@@ -421,6 +421,14 @@
+ 		goto out;
+ 	len = strlen(fn);
+ 
++	/* check for name conflicts */
++	for (ent=(*parent)->subdir; ent; ent=ent->next) {
++		if (proc_match(len,name,ent)) {
++			ent = NULL;
++			goto out;
++		}
++	}
++
+ 	ent = kmalloc(sizeof(struct proc_dir_entry) + len + 1, GFP_KERNEL);
+ 	if (!ent) goto out;
+--------------------------------------------------------------------------------
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Thanks
+-Eric
+
+-- 
+--------------------------------------------
+ Eric H. Weigle   CCS-1, RADIANT team
+ ehw@lanl.gov     Los Alamos National Lab
+ (505) 665-4937   http://home.lanl.gov/ehw/
+--------------------------------------------

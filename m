@@ -1,48 +1,39 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S153857AbQCYNe4>; Sat, 25 Mar 2000 08:34:56 -0500
-Received: by vger.rutgers.edu id <S153848AbQCYNer>; Sat, 25 Mar 2000 08:34:47 -0500
-Received: from paris11-nas2-43-237.dial.proxad.net ([212.27.43.237]:2763 "HELO alienor.populi.vox") by vger.rutgers.edu with SMTP id <S153680AbQCYNeW>; Sat, 25 Mar 2000 08:34:22 -0500
-Date: Sat, 25 Mar 2000 10:49:19 +0100
-From: Thierry Danis <danis@mail.dotcom.fr>
-To: linux-kernel@vger.rutgers.edu
-Subject: Very low cpio tansfer rates with 2.2.12-20
-Message-ID: <20000325104918.A16983@alienor.populi.vox>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 0.95.6i
+Received: by vger.rutgers.edu via listexpand id <S153852AbQCYPXo>; Sat, 25 Mar 2000 10:23:44 -0500
+Received: by vger.rutgers.edu id <S153848AbQCYPXe>; Sat, 25 Mar 2000 10:23:34 -0500
+Received: from draal.apex.net.au ([203.37.38.10]:19063 "EHLO draal.apex.net.au") by vger.rutgers.edu with ESMTP id <S153682AbQCYPXT>; Sat, 25 Mar 2000 10:23:19 -0500
+Message-ID: <38DCDB0C.1E52E915@cupid.suninternet.com>
+Date: Sun, 26 Mar 2000 02:28:12 +1100
+From: Martijn van Oosterhout <kleptog@cupid.suninternet.com>
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.14 i586)
+MIME-Version: 1.0
+To: linux kernel <linux-kernel@vger.rutgers.edu>
+Subject: [RFC] Packet-Shaping-HOWTO
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+Hello people,
 
-Hello,
+Recently I've had occasion to try to make the QoS and queueing
+code from the 2.2 kernel to work for me, but found the 
+documentation to be a bit technical and not really aimed for 
+users. So, I've summed up my experience with the packet
+shaping and stuffed it all into a HOWTO.
 
-I needed to transfer a news spool tree (almost 650.000 files) between
-two computers. I did that using a cpio through the network.
+However some of it is still guess work since there are some
+concepts going on here that I still don't get. No matter,
+I would just like people to read over it to see if I got
+it right.
 
-The command was :
-# cd /var/spool
-# find news -depth | cpio -oB | rsh other_computer 'cd /var/spool; cpio -iBdm'
+Note that this is specifically 2.2, I don't know if 
+2.[34] is the same.
 
-As soon as I had to much files in some directories (say, more than 3000,
-maybe less), the cpio paused 10 or 15 seconds every 100 files, with no
-network load, no disk access, and no CPU load as well.
-When in directories with few files, or at the beginning of a directory,
-the transfer went back to normal.
+http://cupid.suninternet.com/~kleptog/Packet-Shaping-HOWTO.html
 
-It tooks hours to transfer all the spool tree, and the source computer
-had a very low average load.
-
-Both machines are RH 6.1 Stock RH kernel 2.2.12-20. Hard drives are 4 Go
-UW SCSI. The source machine is a P100, 48Mb RAM, NE2000 PCI 10 Mb/s.
-The destination machine is a Celeron 400, 64 Mb RAM, SMC 100 Mb/s.
-
-The question is why was the machine almost idle during the transfer ?
-
-A+,
+Please CC any replies.
 -- 
-	Thierry Danis
-# rm *;o
-o : commande non trouvée
+Martijn van Oosterhout <kleptog@cupid.suninternet.com>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

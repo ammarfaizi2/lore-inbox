@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315334AbSGEAI7>; Thu, 4 Jul 2002 20:08:59 -0400
+	id <S315202AbSGDXu1>; Thu, 4 Jul 2002 19:50:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317456AbSGEAHL>; Thu, 4 Jul 2002 20:07:11 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:35742 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317440AbSGEAFx>; Thu, 4 Jul 2002 20:05:53 -0400
-Message-ID: <3D24E368.5060905@us.ibm.com>
-Date: Thu, 04 Jul 2002 17:08:08 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
+	id <S315167AbSGDXsV>; Thu, 4 Jul 2002 19:48:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44045 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315207AbSGDXqf>;
+	Thu, 4 Jul 2002 19:46:35 -0400
+Message-ID: <3D24E051.A222D615@zip.com.au>
+Date: Thu, 04 Jul 2002 16:54:57 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove BKL from driverfs
-References: <Pine.GSO.4.21.0207041953370.12731-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: [patch 20/27] fix a writeback race
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
-> On Thu, 4 Jul 2002, Dave Hansen wrote:
-> 
->>CC'ing Al for comments...
->>
->>Greg KH wrote:
->>
->>>bleah, a proliferation of a zillion little spinlocks all across the
->>>kernel is not my idea of fun :(
->>
->>A zillion locks each with a single purpose is a lot more fun than 1 
->>lock with a zillion different uses.
-> 
-> Wrong.  It's fun if you are into taking a turd and turning it into a thin film
-> spread over all available surfaces.  The former has a chance to be removed.
-> The latter is hopeless.
-> 
-> "Zillion little spinlocks" means that kernel is scaled into oblivion.
-> Literally.  If you want to play with resulting body - feel free, but
-> I like it less kinky.
-> 
 
-So, can we remove the spread in this case?
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+Fixes a bug in generic_writepages() and its cut-n-paste-cousin,
+mpage_writepages().
 
+The code was clearing PageDirty and then baling out if it discovered
+the page was nder writeback.  Which would cause the dirty bit to be
+lost.
+
+It's a very small window, but reversing the order so PageDirty is only
+cleared when we know for-sure that IO will be started fixes it up.
+
+
+
+ fs/mpage.c          |    4 ++--
+ mm/page-writeback.c |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+--- 2.5.24/fs/mpage.c~writeback-dirty-fix	Thu Jul  4 16:17:30 2002
++++ 2.5.24-akpm/fs/mpage.c	Thu Jul  4 16:22:05 2002
+@@ -515,8 +515,8 @@ mpage_writepages(struct address_space *m
+ 
+ 		lock_page(page);
+ 
+-		if (page->mapping && TestClearPageDirty(page) &&
+-					!PageWriteback(page)) {
++		if (page->mapping && !PageWriteback(page) &&
++					TestClearPageDirty(page)) {
+ 			/* FIXME: batch this up */
+ 			if (!PageActive(page) && PageLRU(page)) {
+ 				spin_lock(&pagemap_lru_lock);
+--- 2.5.24/mm/page-writeback.c~writeback-dirty-fix	Thu Jul  4 16:17:30 2002
++++ 2.5.24-akpm/mm/page-writeback.c	Thu Jul  4 16:22:05 2002
+@@ -383,8 +383,8 @@ int generic_writepages(struct address_sp
+ 		lock_page(page);
+ 
+ 		/* It may have been removed from swapcache: check ->mapping */
+-		if (page->mapping && TestClearPageDirty(page) &&
+-					!PageWriteback(page)) {
++		if (page->mapping && !PageWriteback(page) &&
++					TestClearPageDirty(page)) {
+ 			/* FIXME: batch this up */
+ 			if (!PageActive(page) && PageLRU(page)) {
+ 				spin_lock(&pagemap_lru_lock);
+
+-

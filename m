@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129534AbRCCPLh>; Sat, 3 Mar 2001 10:11:37 -0500
+	id <S129072AbRCCPmo>; Sat, 3 Mar 2001 10:42:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129583AbRCCPL1>; Sat, 3 Mar 2001 10:11:27 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:59409 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129534AbRCCPLG>;
-	Sat, 3 Mar 2001 10:11:06 -0500
-Date: Sat, 3 Mar 2001 16:10:44 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Steven Brooks <umbrook0@cs.umanitoba.ca>
+	id <S129175AbRCCPmf>; Sat, 3 Mar 2001 10:42:35 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:38925 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129072AbRCCPm0>;
+	Sat, 3 Mar 2001 10:42:26 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200103031542.SAA25105@ms2.inr.ac.ru>
+Subject: Re: Another rsync over ssh hang (repeatable, with 2.4.1 on both ends)
+To: laird@internap.COM (Scott Laird)
+Date: Sat, 3 Mar 2001 18:42:16 +0300 (MSK)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: block loop device hangs
-Message-ID: <20010303161044.F2528@suse.de>
-In-Reply-To: <3AA10876.7050906@cs.umanitoba.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3AA10876.7050906@cs.umanitoba.ca>; from umbrook0@cs.umanitoba.ca on Sat, Mar 03, 2001 at 09:06:30AM -0600
+In-Reply-To: <Pine.LNX.4.33.0103011607540.17365-100000@laird.ocp.internap.com> from "Scott Laird" at Mar 2, 1 03:45:01 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 03 2001, Steven Brooks wrote:
-> When mounting a file using the loopback device, the mount program hangs
-> for ever.  Other than that, the system is still usable.
+Hello!
 
-Please read lkml archives before posting, this problem has been
-all over the list for the past two weeks.
+> this kernel was compiled with GCC 2.95.2,
 
-Use the latest 2.4.2-ac or wait for 2.4.3-pre2
+This is a hint.
 
--- 
-Jens Axboe
+Could you make the following things:
 
+1. to disassemble tcp_poll() (the easiest way is to gdb vmlinux, to 
+   say x/i tcp_poll and to hold enter pressed long enough, copying screen
+   to file) and to send the result to me.
+2. to apply the enclosed patchlet.
+3. if 3 does not change anything, recompile with egcs-1.1.2
+
+Alexey
+
+
+
+--- ../vger3-010223/linux/net/ipv4/tcp.c	Fri Feb 23 21:28:34 2001
++++ linux/net/ipv4/tcp.c	Sat Mar  3 18:37:22 2001
+@@ -442,6 +443,8 @@
+ 				set_bit(SOCK_ASYNC_NOSPACE, &sk->socket->flags);
+ 				set_bit(SOCK_NOSPACE, &sk->socket->flags);
+ 
++				barrier();
++
+ 				/* Race breaker. If space is freed after
+ 				 * wspace test but before the flags are set,
+ 				 * IO signal will be lost.

@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbUBNLNv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 06:13:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbUBNLNv
+	id S261779AbUBNL33 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 06:29:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbUBNL33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 06:13:51 -0500
-Received: from atari.saturn5.com ([209.237.231.200]:43661 "HELO
-	atari.saturn5.com") by vger.kernel.org with SMTP id S261774AbUBNLNu
+	Sat, 14 Feb 2004 06:29:29 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:2067 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261779AbUBNL32
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 06:13:50 -0500
-Date: Sat, 14 Feb 2004 03:13:49 -0800
-From: Steve Simitzis <steve@saturn5.com>
-To: linux-kernel@vger.kernel.org
-Subject: e1000 problems in 2.6.x
-Message-ID: <20040214111349.GC1040@saturn5.com>
+	Sat, 14 Feb 2004 06:29:28 -0500
+Date: Sat, 14 Feb 2004 12:42:25 +0100
+To: Christian Borntraeger <kernel@borntraeger.net>
+Cc: Mike Bell <kernel@mikebell.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: devfs vs udev, thoughts from a devfs user
+Message-ID: <20040214114225.GA19349@hh.idb.hist.no>
+References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040213211920.GH14048@kroah.com> <20040214085110.GG5649@tinyvaio.nome.ca> <200402141013.50633.kernel@borntraeger.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-gestalt: heart, barbed wire
-X-Cat: calico
+In-Reply-To: <200402141013.50633.kernel@borntraeger.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello. since upgrading to 2.6 from 2.4.22, my e1000 devices have
-been angry. i've tried running both 2.6.2 and 2.6.3-rc2, but the
-results have been the same. when i return to 2.4.22, all of the
-problems go away.
+On Sat, Feb 14, 2004 at 10:13:50AM +0100, Christian Borntraeger wrote:
+> Mike Bell wrote:
+> > On Fri, Feb 13, 2004 at 01:19:20PM -0800, Greg KH wrote:
+> > > > That's a pretty minor difference, from the kernel's point of view.
+> > > > It's basically putting the same numbers in different fields.
+> > >
+> > > Heh, that's a HUGE difference!
+> >
+> > Only from userspace's point of view. To the kernel, it's basically the
+> > same thing.
+> 
+> No. Giving a major and minor number is simple. 
+> Creating a device node means: you have to define a policy. Now the kernel 
+> has to think about:
+> - user id
+> - group id
+> - access rights
+> - naming
+> 
+> These are the reasons why devfsd was/is necessary for devfs.
+> A Kernel should only enforce a policy, it should not define it.
+> 
+There is one more security-related point:
+We may decide to not make the device node at all, in order
+to prevent use of some dangerous/experimental device or driver.
+We can't do that if the device is auto-created.
 
-i'm getting these over and over again:
+Root is usually capable of running mknod of course,
+but it can be prevented. For example with a fs that
+starts out rw but is remounted ro with no option for going back.
+Or /dev on cdrom . . .
 
-Feb 11 19:57:55 sg1 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Feb 11 19:57:57 sg1 kernel: e1000: eth1 NIC Link is Up 100 Mbps Full Duplex
-Feb 11 19:58:17 sg1 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Feb 11 19:58:18 sg1 kernel: e1000: eth1 NIC Link is Up 100 Mbps Full Duplex
-
-i'm also seeing about 10-20% of my RX packets as errors when running 2.6.x,
-and 0 errors when running 2.4.22.
-
-another oddity is that even after forcing my interfaces to 100 Mbps
-full duplex, my switch is reporting half duplex. again, this only happens
-in 2.6.x. when running 2.4.22, full duplex is properly negotiated between
-the e1000 and my switch.
-
-i tried turning off TSO, as suggested elsewhere by Scott Feldman, but that
-had no effect.
-
-i would love to run 2.6, so if there's anything else i can try (or if
-this is a known problem and about to be fixed), please let me know.
-
-thanks in advance.
-
-:)
-
--- 
-
-steve simitzis : /sim' - i - jees/
-          pala : saturn5 productions
- www.steve.org : 415.282.9979
-  hath the daemon spawn no fire?
-
+Helge Hafting

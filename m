@@ -1,35 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317415AbSGTO1u>; Sat, 20 Jul 2002 10:27:50 -0400
+	id <S317404AbSGTO3g>; Sat, 20 Jul 2002 10:29:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317416AbSGTO1u>; Sat, 20 Jul 2002 10:27:50 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:40203 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317415AbSGTO1t>; Sat, 20 Jul 2002 10:27:49 -0400
-Message-ID: <3D3972C3.2010307@evision.ag>
-Date: Sat, 20 Jul 2002 16:25:07 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-       Russell King <rmk@arm.linux.org.uk>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: [announce, patch, RFC] "big IRQ lock" removal, IRQ cleanups.
-References: <Pine.LNX.4.44.0207202235400.23137-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317416AbSGTO3g>; Sat, 20 Jul 2002 10:29:36 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:39301 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S317404AbSGTO3f>;
+	Sat, 20 Jul 2002 10:29:35 -0400
+Date: Sat, 20 Jul 2002 08:31:18 -0600
+From: yodaiken@fsmlabs.com
+To: Georg Nikodym <georgn@somanetworks.com>
+Cc: yodaiken@fsmlabs.com, Larry McVoy <lm@work.bitmover.com>,
+       Rob Landley <landley@trommello.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
+Message-ID: <20020720083118.A31658@hq.fsmlabs.com>
+References: <200207190432.g6J4WD2366706@pimout5-int.prodigy.net> <20020718213857.E23208@work.bitmover.com> <20020719082023.A4884@hq.fsmlabs.com> <1027174927.1702.11.camel@keller>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1027174927.1702.11.camel@keller>; from georgn@somanetworks.com on Sat, Jul 20, 2002 at 10:22:07AM -0400
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> RMK, is there any chance to get your new serial layer into 2.5 sometime
-> soon? ['soon' as in 'tomorrow' :-) ] That is perhaps one of the biggest
+On Sat, Jul 20, 2002 at 10:22:07AM -0400, Georg Nikodym wrote:
+> On Fri, 2002-07-19 at 10:20, yodaiken@fsmlabs.com wrote:
+> > On Thu, Jul 18, 2002 at 09:38:57PM -0700, Larry McVoy wrote:
+> > > On Thu, Jul 18, 2002 at 06:33:54PM -0400, Rob Landley wrote:
+> > > > I've been sitting on this question for years, hoping I'd come across the 
+> > > > answer, and I STILL don't know what the "i" is short for.  Somebody here has 
+> > > > got to know this. :)
+> > > 
+> > > Incore node, I believe.  In the original Unix code there was dinode and
+> > > inode if I remember correctly, for disk node and incore node.
+> > 
+> > So what was that program that was used to fix file system errors called? Started
+> > with a "d". I remembered the name up until a few years ago when I said
+> > something about fixing filesystems with whatever it was and adb in front of Dave Miller
+> > who seemed ready to rush me off to the museum to be exhibited in the paleology section.
+> > Now I'm too old to even remember the name.
+> 
+> Sure you're not thinking of "fsdb"?
 
-Well I would like to allo wmysefl to allow a tad bit of advocacy for
-this step.
+icheck and dcheck - thanks to the people who sent me mail reminding me.
 
-I looked at it already quite a time ago and *second* it!
+
+
+> 
+> -g
+> 
+
+
+
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

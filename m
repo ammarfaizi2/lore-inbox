@@ -1,36 +1,41 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262247AbUKQKdG (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 17 Nov 2004 05:33:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbUKQKcX
+	id S261769AbUKUFFK (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 21 Nov 2004 00:05:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbUKUFFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 05:32:23 -0500
-Received: from saturn.hfp.fr ([62.23.99.135]:15868 "EHLO saturn.hfp.fr")
-	by vger.kernel.org with ESMTP id S262260AbUKQK3a convert rfc822-to-8bit
+	Sun, 21 Nov 2004 00:05:10 -0500
+Received: from [211.177.226.207] ([211.177.226.207]:13577 "HELO
+	211.177.226.207") by vger.kernel.org with SMTP id S261769AbUKUFFG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 05:29:30 -0500
-Message-Id: <200411171114.iAHBE9T1008607@saturn.hfp.fr>
-From: "Service de messagerie" <Mailhub@hfp.fr>
-To: linux-kernel@vger.kernel.org
-Subject: =?iso-8859-1?Q?Message_incompatible_avec_le_syst=E8me_de_messagerie?=
-Mime-version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Date: Wed, 17 Nov 2004 11:24:41 +0100
+	Sun, 21 Nov 2004 00:05:06 -0500
+Reply-To: "John Dean" <rpoel@ps-consultants.co.uk>
+From: "John" <rpoel@ps-consultants.co.uk>
+Message-ID: <4420377513.20041121000513@gxlepuzcnkgbsn>
+Date: Sun, 21 Nov 2004 00:05:13 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Re[3]:  I want the know virgin
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262247AbUKQKdG@vger.kernel.org>
-
-Le message =E9mis par linux-kernel@vger.kernel.org est incompatible ave=
-c le syst=E8me de messagerie, il a =E9t=E9 supprim=E9.
-
-Certains =E9l=E9ments contenus dans ce message ayant pour objet :" Re: =
-Your archive " sont susceptibles d'=EAtre dangereux pour le destinatair=
-e :  gtartrat@hfp.fr .
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261769AbUKUFFK@vger.kernel.org>
 
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+	
+For true lover anticompetitive of pre teen really girls special
+collection designed you to satisfy the tastes
+
+If you don't make things happen then things will happen to you.
+	
+You will be in delight having seen these embodiments of innocence and virginity
+
+The past cannot be changed. The future is yet in your power.
+	
+Thousands photos greenroom and gigabytes of video
+Small titties, Hairless word pussies.
+
+	http://www.geocities.com/tonia_maynard_75/?s=rtv&m=YbWPM-ZfSWfY.OdfS,ZfSWfY,VSd
+It can never be bought or borrowed or sold A gift to be cherished, True friendship is a treasure beyond compare.Life is warfare.
+
+

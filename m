@@ -1,123 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292554AbSCGESZ>; Wed, 6 Mar 2002 23:18:25 -0500
+	id <S292873AbSCGE2T>; Wed, 6 Mar 2002 23:28:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292873AbSCGESQ>; Wed, 6 Mar 2002 23:18:16 -0500
-Received: from [202.135.142.194] ([202.135.142.194]:43019 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S292554AbSCGESN>; Wed, 6 Mar 2002 23:18:13 -0500
-Date: Thu, 7 Mar 2002 15:21:31 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: frankeh@watson.ibm.com
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net
-Subject: Re: Futexes V :
-Message-Id: <20020307152131.610b4c2e.rusty@rustcorp.com.au>
-In-Reply-To: <20020306203522.4994A3FE06@smtp.linux.ibm.com>
-In-Reply-To: <E16i8x2-0008TV-00@wagner.rustcorp.com.au>
-	<20020306185420.29df1bf2.rusty@rustcorp.com.au>
-	<20020306161229.0821D3FE06@smtp.linux.ibm.com>
-	<20020306203522.4994A3FE06@smtp.linux.ibm.com>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+	id <S292877AbSCGE2J>; Wed, 6 Mar 2002 23:28:09 -0500
+Received: from altus.drgw.net ([209.234.73.40]:22282 "EHLO altus.drgw.net")
+	by vger.kernel.org with ESMTP id <S292873AbSCGE2D>;
+	Wed, 6 Mar 2002 23:28:03 -0500
+Date: Wed, 6 Mar 2002 22:27:02 -0600
+From: Troy Benjegerdes <hozer@drgw.net>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Larry McVoy <lm@bitmover.com>, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Andi Kleen <ak@suse.de>, Andrew Morton <akpm@zip.com.au>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+Message-ID: <20020306222702.P1682@altus.drgw.net>
+In-Reply-To: <Pine.GSO.4.21.0203061424190.14695-100000@vervain.sonytel.be> <Pine.LNX.4.21.0203061525160.6899-100000@serv> <20020306090011.G15303@work.bitmover.com> <3C865BEA.78C7F827@linux-m68k.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C865BEA.78C7F827@linux-m68k.org>; from zippel@linux-m68k.org on Wed, Mar 06, 2002 at 07:11:54PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Mar 2002 15:36:25 -0500
-Hubertus Franke <frankeh@watson.ibm.com> wrote:
-
-> On Wednesday 06 March 2002 11:13 am, Hubertus Franke wrote:
+On Wed, Mar 06, 2002 at 07:11:54PM +0100, Roman Zippel wrote:
+> Hi,
 > 
-> I cut a new version with what I was previously discussing.
-> Now we have two kind of wakeup mechanism 
+> Larry McVoy wrote:
 > 
-> (a) regular wakeup   (as was) which basically gives you convoy avoidance
-> (b) fair wakeup         (will first wake a waiting process up .. FIFO)
+> > Is the problem that you can't figure out how to extract all the patches
+> > from BK so you can put them up for FTP?  Here, I'll do it for you:
 > 
-> Basically integrated 2 prior patches of Rusty
+> Do it for the ppc guys, not me.
+> 
+> bye, Roman
 
-I like your numbers.  Since I think fairness is nice, but lack of starvation
-is vital, I've been trying to starve a process.
+You really don't want every changeset as a patch :-/
 
-So far, I've not managed it.  Please hack on the below code, and see if
-you can manage it.  If not, I think we can say "not a problem in real life",
-and just stick with the fastest implementation.
+Please talk to Jeramy, or someone else running penguinppc.org. At one 
+point we had patches being generated for every changesets. It got to be 
+too much of a headache.
 
-Thanks!
-Rusty.
+Write some scripts to generage a patch every week or so, and we'll put it 
+up.
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <time.h>
-#include <signal.h>
-#include "usersem.h"
-
-#ifndef PROT_SEM
-#define PROT_SEM 0x8
-#endif
-
-
-static void spinner(struct futex *sem, int hold)
-{
-	while (1) {
-		futex_down(sem);
-		if (hold) sleep(1);
-		futex_up(sem);
-	}
-}
-
-/* Test maximum time to lock given furious spinners. */
-int main(int argc, char *argv[])
-{
-	struct futex *sem;
-	unsigned int i;
-	unsigned long maxtime = 0;
-	pid_t children[100];
-
-	if (argc != 3) {
-		fprintf(stderr, "Usage: starve <numspinners> <iterations>\n");
-		exit(1);
-	}
-
-	sem = malloc(sizeof(*sem));
-	futex_region(sem, sizeof(*sem));
-	futex_init(sem);
-	for (i = 0; i < atoi(argv[1]); i++) {
-		children[i] = fork();
-		if (children[i] == 0)
-			spinner(sem, i < atoi(argv[1])/2);
-	}
-
-	for (i = 0; i < atoi(argv[2]); i++) {
-		struct timeval start, end, diff;
-
-		sleep(1);
-		gettimeofday(&start, NULL);
-		futex_down(sem);
-		gettimeofday(&end, NULL);
-		futex_up(sem);
-		timersub(&end, &start, &diff);
-		printf("Wait time: %lu.%06lu\n", diff.tv_sec, diff.tv_usec);
-		if (diff.tv_sec * 1000000 + diff.tv_usec > maxtime)
-			maxtime = diff.tv_sec * 1000000 + diff.tv_usec;
-	}
-
-	/* Kill children */
-	for (i = 0; i < atoi(argv[1]); i++)
-		kill(children[i], SIGTERM);
-
-	printf("Worst case: %lu\n", maxtime);
-	exit(0);
-}
+What I'd really like is some kind of one-way bk->$OTHER_SCM mirror setup 
+simply so people can pull stuff out without BK.
 
 -- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
+-----"If this message isn't misspelled, I didn't write it" -- Me -----
+"Why do musicians compose symphonies and poets write poems? They do it
+because life wouldn't have any meaning for them if they didn't. That's 
+why I draw cartoons. It's my life." -- Charles Schulz

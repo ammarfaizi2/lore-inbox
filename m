@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262634AbVCJAzD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262182AbVCJDYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262634AbVCJAzD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 19:55:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVCJArI
+	id S262182AbVCJDYn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 22:24:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbVCJBJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 19:47:08 -0500
-Received: from mail.kroah.org ([69.55.234.183]:55455 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262628AbVCJAmb convert rfc822-to-8bit
+	Wed, 9 Mar 2005 20:09:20 -0500
+Received: from mail.kroah.org ([69.55.234.183]:50079 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262619AbVCJAm2 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 19:42:31 -0500
-Cc: gregkh@suse.de
-Subject: [PATCH] class: add a semaphore to struct class, and use that instead of the subsystem rwsem.
-In-Reply-To: <11104148863516@kroah.com>
+	Wed, 9 Mar 2005 19:42:28 -0500
+Cc: kay.sievers@vrfy.org
+Subject: [PATCH] block core: export MAJOR/MINOR to the hotplug env
+In-Reply-To: <1110414880513@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 9 Mar 2005 16:34:46 -0800
-Message-Id: <11104148861716@kroah.com>
+Date: Wed, 9 Mar 2005 16:34:41 -0800
+Message-Id: <11104148811634@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,125 +24,96 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2055, 2005/03/09 15:41:29-08:00, gregkh@suse.de
+ChangeSet 1.2040, 2005/03/09 09:32:58-08:00, kay.sievers@vrfy.org
 
-[PATCH] class: add a semaphore to struct class, and use that instead of the subsystem rwsem.
+[PATCH] block core: export MAJOR/MINOR to the hotplug env
 
-This moves us away from using the rwsem, although recursive adds and removes of class devices
-is not yet possible (nor is it really known if it even is needed.)  So this simple change is
-done instead.
-
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/base/class.c   |   23 +++++++++++------------
- include/linux/device.h |    2 +-
- 2 files changed, 12 insertions(+), 13 deletions(-)
+ drivers/block/genhd.c |   53 ++++++++++++++++++++++++++++++++------------------
+ 1 files changed, 34 insertions(+), 19 deletions(-)
 
 
-diff -Nru a/drivers/base/class.c b/drivers/base/class.c
---- a/drivers/base/class.c	2005-03-09 16:28:04 -08:00
-+++ b/drivers/base/class.c	2005-03-09 16:28:04 -08:00
-@@ -140,6 +140,7 @@
- 
- 	INIT_LIST_HEAD(&cls->children);
- 	INIT_LIST_HEAD(&cls->interfaces);
-+	init_MUTEX(&cls->sem);
- 	error = kobject_set_name(&cls->subsys.kset.kobj, "%s", cls->name);
- 	if (error)
- 		return error;
-@@ -413,12 +414,12 @@
- 
- 	/* now take care of our own registration */
- 	if (parent) {
--		down_write(&parent->subsys.rwsem);
-+		down(&parent->sem);
- 		list_add_tail(&class_dev->node, &parent->children);
- 		list_for_each_entry(class_intf, &parent->interfaces, node)
- 			if (class_intf->add)
- 				class_intf->add(class_dev);
--		up_write(&parent->subsys.rwsem);
-+		up(&parent->sem);
- 	}
- 
- 	if (MAJOR(class_dev->devt))
-@@ -448,12 +449,12 @@
- 	struct class_interface * class_intf;
- 
- 	if (parent) {
--		down_write(&parent->subsys.rwsem);
-+		down(&parent->sem);
- 		list_del_init(&class_dev->node);
- 		list_for_each_entry(class_intf, &parent->interfaces, node)
- 			if (class_intf->remove)
- 				class_intf->remove(class_dev);
--		up_write(&parent->subsys.rwsem);
-+		up(&parent->sem);
- 	}
- 
- 	if (class_dev->dev)
-@@ -509,8 +510,8 @@
- 
- int class_interface_register(struct class_interface *class_intf)
+diff -Nru a/drivers/block/genhd.c b/drivers/block/genhd.c
+--- a/drivers/block/genhd.c	2005-03-09 16:29:48 -08:00
++++ b/drivers/block/genhd.c	2005-03-09 16:29:48 -08:00
+@@ -430,42 +430,57 @@
+ static int block_hotplug(struct kset *kset, struct kobject *kobj, char **envp,
+ 			 int num_envp, char *buffer, int buffer_size)
  {
--	struct class * parent;
--	struct class_device * class_dev;
-+	struct class *parent;
-+	struct class_device *class_dev;
+-	struct device *dev = NULL;
+ 	struct kobj_type *ktype = get_ktype(kobj);
++	struct device *physdev;
++	struct gendisk *disk;
++	struct hd_struct *part;
+ 	int length = 0;
+ 	int i = 0;
  
- 	if (!class_intf || !class_intf->class)
- 		return -ENODEV;
-@@ -519,14 +520,13 @@
- 	if (!parent)
- 		return -EINVAL;
- 
--	down_write(&parent->subsys.rwsem);
-+	down(&parent->sem);
- 	list_add_tail(&class_intf->node, &parent->interfaces);
+-	/* get physical device backing disk or partition */
+ 	if (ktype == &ktype_block) {
+-		struct gendisk *disk = container_of(kobj, struct gendisk, kobj);
+-		dev = disk->driverfs_dev;
++		disk = container_of(kobj, struct gendisk, kobj);
++		add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size,
++				    &length, "MINOR=%u", disk->first_minor);
+ 	} else if (ktype == &ktype_part) {
+-		struct gendisk *disk = container_of(kobj->parent, struct gendisk, kobj);
+-		dev = disk->driverfs_dev;
+-	}
 -
- 	if (class_intf->add) {
- 		list_for_each_entry(class_dev, &parent->children, node)
- 			class_intf->add(class_dev);
+-	if (dev) {
+-		/* add physical device, backing this device  */
+-		char *path = kobject_get_path(&dev->kobj, GFP_KERNEL);
++		disk = container_of(kobj->parent, struct gendisk, kobj);
++		part = container_of(kobj, struct hd_struct, kobj);
++		add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size,
++				    &length, "MINOR=%u",
++				    disk->first_minor + part->partno);
++	} else
++		return 0;
++
++	add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size, &length,
++			    "MAJOR=%u", disk->major);
++
++	/* add physical device, backing this device  */
++	physdev = disk->driverfs_dev;
++	if (physdev) {
++		char *path = kobject_get_path(&physdev->kobj, GFP_KERNEL);
+ 
+ 		add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size,
+ 				    &length, "PHYSDEVPATH=%s", path);
+ 		kfree(path);
+ 
+-		/* add bus name of physical device */
+-		if (dev->bus)
++		if (physdev->bus)
+ 			add_hotplug_env_var(envp, num_envp, &i,
+ 					    buffer, buffer_size, &length,
+-					    "PHYSDEVBUS=%s", dev->bus->name);
++					    "PHYSDEVBUS=%s",
++					    physdev->bus->name);
+ 
+-		/* add driver name of physical device */
+-		if (dev->driver)
++		if (physdev->driver)
+ 			add_hotplug_env_var(envp, num_envp, &i,
+ 					    buffer, buffer_size, &length,
+-					    "PHYSDEVDRIVER=%s", dev->driver->name);
+-
+-		envp[i] = NULL;
++					    "PHYSDEVDRIVER=%s",
++					    physdev->driver->name);
  	}
--	up_write(&parent->subsys.rwsem);
-+	up(&parent->sem);
++
++	/* terminate, set to next free slot, shrink available space */
++	envp[i] = NULL;
++	envp = &envp[i];
++	num_envp -= i;
++	buffer = &buffer[length];
++	buffer_size -= length;
  
  	return 0;
  }
-@@ -539,14 +539,13 @@
- 	if (!parent)
- 		return;
- 
--	down_write(&parent->subsys.rwsem);
-+	down(&parent->sem);
- 	list_del_init(&class_intf->node);
--
- 	if (class_intf->remove) {
- 		list_for_each_entry(class_dev, &parent->children, node)
- 			class_intf->remove(class_dev);
- 	}
--	up_write(&parent->subsys.rwsem);
-+	up(&parent->sem);
- 
- 	class_put(parent);
- }
-diff -Nru a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h	2005-03-09 16:28:04 -08:00
-+++ b/include/linux/device.h	2005-03-09 16:28:04 -08:00
-@@ -15,7 +15,6 @@
- #include <linux/ioport.h>
- #include <linux/kobject.h>
- #include <linux/list.h>
--#include <linux/spinlock.h>
- #include <linux/types.h>
- #include <linux/module.h>
- #include <linux/pm.h>
-@@ -148,6 +147,7 @@
- 	struct subsystem	subsys;
- 	struct list_head	children;
- 	struct list_head	interfaces;
-+	struct semaphore	sem;	/* locks both the children and interfaces lists */
- 
- 	struct class_attribute		* class_attrs;
- 	struct class_device_attribute	* class_dev_attrs;
 

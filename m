@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVCFSzt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVCFTA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261467AbVCFSzt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 13:55:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVCFSzt
+	id S261476AbVCFTA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 14:00:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVCFTA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 13:55:49 -0500
-Received: from mail.gondor.com ([212.117.64.182]:6931 "EHLO moria.gondor.com")
-	by vger.kernel.org with ESMTP id S261467AbVCFSzo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 13:55:44 -0500
-Date: Sun, 6 Mar 2005 19:55:39 +0100
-From: Jan Niehusmann <jan@gondor.com>
-To: linux-kernel@vger.kernel.org
-Cc: len.brown@intel.com
-Subject: Re: bouncing keys and skipping sound with 2.6.11
-Message-ID: <20050306185539.GA2149@gondor.com>
-References: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org> <20050228184414.GA31929@gondor.com> <20050302200632.GA24529@gondor.com>
+	Sun, 6 Mar 2005 14:00:56 -0500
+Received: from thumbler.kulnet.kuleuven.ac.be ([134.58.240.45]:51436 "EHLO
+	thumbler.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id S261476AbVCFTAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 14:00:51 -0500
+From: "Panagiotis Issaris" <panagiotis.issaris@mech.kuleuven.ac.be>
+Date: Sun, 6 Mar 2005 20:00:46 +0100
+To: vernux@us.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.11-mm1] acpiphp_ibm: add failure handling for memory allocation
+Message-ID: <20050306190046.GA6992@mech.kuleuven.ac.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050302200632.GA24529@gondor.com>
-X-Request-PGP: http://gondor.com/key.asc
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 09:06:32PM +0100, Jan Niehusmann wrote:
-> the problem with bouncing keys I reported with 2.6.11-rc5 is still
-> present in 2.6.11. Additionally, I noticed that audio has short outages
+Hi,
 
-By trying different kernel versions, I traced down the problem to the
-changes introduced between linux-2.6.11-rc2-bk9 and
-linux-2.6.11-rc2-bk10, and, more specifically, to the ACPI changes
-within that patch. (Therefore the Cc: to Len Brown, who wrote or
-submitted most of these changes, as far as I can tell from the
-changelog)
+This patch adds failure handling for kmalloc in the ACPI PCI Hot Plug IBM
+Extension driver.
 
-Len, do you have any idea which of the ACPI changes could have caused
-the described key bouncing problems on my ASUS M2400N laptop, or how I
-could debug this?
+Signed-off-by: <panagiotis.issaris@mech.kuleuven.ac.be>
 
-Yours,
-Jan
-
+diff -pruN linux-2.6.11-orig/drivers/pci/hotplug/acpiphp_ibm.c linux-2.6.11-pi/drivers/pci/hotplug/acpiphp_ibm.c
+--- linux-2.6.11-orig/drivers/pci/hotplug/acpiphp_ibm.c	2005-03-05 03:38:06.000000000 +0100
++++ linux-2.6.11-pi/drivers/pci/hotplug/acpiphp_ibm.c	2005-03-06 19:35:06.000000000 +0100
+@@ -163,6 +163,11 @@ static union apci_descriptor *ibm_slot_f
+ ibm_slot_done:
+ 	if (ret) {
+ 		ret = kmalloc(sizeof(union apci_descriptor), GFP_KERNEL);
++		if (!ret) {
++			err("%s:  Memory allocation failed.\n", __FUNCTION__);
++			kfree(table);
++			return -ENOMEM;
++		}
+ 		memcpy(ret, des, sizeof(union apci_descriptor));
+ 	}
+ 	kfree(table);

@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293410AbSCOW2T>; Fri, 15 Mar 2002 17:28:19 -0500
+	id <S293440AbSCOWhK>; Fri, 15 Mar 2002 17:37:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293424AbSCOW2K>; Fri, 15 Mar 2002 17:28:10 -0500
-Received: from h24-83-222-158.vc.shawcable.net ([24.83.222.158]:3205 "EHLO
-	me.bcgreen.com") by vger.kernel.org with ESMTP id <S293410AbSCOW2E>;
-	Fri, 15 Mar 2002 17:28:04 -0500
-Message-ID: <3C92704C.1070909@bcgreen.com>
-Date: Fri, 15 Mar 2002 14:06:04 -0800
-From: Stephen Samuel <samuel@bcgreen.com>
-Organization: Just Another Radical
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020227
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-CC: Robert Love <rml@tech9.net>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] syscall interface for cpu affinity
-In-Reply-To: <1015784104.1261.8.camel@phantasy> <20020311013853.A1545@devcon.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S293439AbSCOWhA>; Fri, 15 Mar 2002 17:37:00 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:46299 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S293434AbSCOWgu> convert rfc822-to-8bit; Fri, 15 Mar 2002 17:36:50 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.51 (1003) - Registered Version
+Date: Fri, 15 Mar 2002 14:36:48 -0800
+Subject: RFC2385 (MD5 signature in TCP packets) support
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <20020315223649.AAA27488@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Picking nits, but....
 
-Andreas Ferber wrote:
+	Has anyone made a patch or done any work on RFC2385 support for Linux? I'm 
+willing to code the subset of it that I need if there's a general consensus 
+that my approach is reasonable.
 
- > Setting the affinity of a whole process group also makes sense IMHO.
- > Therefore I think an interface more like the setpriority syscall
- > for sched_set_affinity (with two parameters which/who instead of a
- > single PID) would be more flexible, eg.
- >
- >     int sched_set_affinity(int which, int who, unsigned int len,
- >                            unsigned long *new_mask_ptr);
- >
- > with who one of {PRIO_PROCESS,PRIO_PGRP,PRIO_USER} and which according
- > to the value of who.
+	I don't plan to add a table of IPs/ports and have the kernel automatically 
+invoke authentication for those IPs/ports. This is mostly because I don't 
+need this functionality, but if it's felt that this is the only way to go, 
+then I'll reconsider my plans.
 
-I soule suggest that the order be
+	I plan to add a socket option. You use it after you bind for inbound TCP 
+connections and before you connect for outbound. You simply set the key to be 
+used on the connection in the sockopt call. There would also be an option to 
+allow/disallow unkeyed connections (should the key be optional or mandatory). 
+Also, a get socket option would allow you to determine whether the key was 
+being used or not.
 
-int sched_set_affinity(int who, int which, unsigned int len,
-                             unsigned long *new_mask_ptr);
+	One limitation of this approach is that for inbound connections, you can't 
+have a different password for multiple hosts that might connect to you.
 
-This would have the {p,pg}id be the first thing that a programmer
-would see (likely more important than the 'which'.).
+	My interest for this is mostly for Zebra to be able to make secure BGP 
+connections, so I would also contribute a patch for Zebra to support this 
+feature on Linux.
 
+	Am I wasting my time? Is there interest?
 
 -- 
-Stephen Samuel +1(604)876-0426                samuel@bcgreen.com
-		   http://www.bcgreen.com/~samuel/
-Powerful committed communication, reaching through fear, uncertainty and
-doubt to touch the jewel within each person and bring it to life.
+David Schwartz
+<davids@webmaster.com>
+
 

@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266157AbUHVFBT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266143AbUHVFBM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266157AbUHVFBT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 01:01:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUHVFBT
+	id S266143AbUHVFBM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 01:01:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266157AbUHVFBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 01:01:19 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:43153 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266157AbUHVFBR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 01:01:17 -0400
-Date: Sat, 21 Aug 2004 22:00:44 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] use hlist for pid hash
-Message-Id: <20040821220044.6974387d.davem@redhat.com>
-In-Reply-To: <4128252E.1080002@yahoo.com.au>
-References: <412824BE.4040801@yahoo.com.au>
-	<4128252E.1080002@yahoo.com.au>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 22 Aug 2004 01:01:12 -0400
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:41116 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266143AbUHVFBL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 01:01:11 -0400
+Message-ID: <412827DF.1080408@yahoo.com.au>
+Date: Sun, 22 Aug 2004 14:58:07 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Thomas Davis <tadavis@lbl.gov>, linux-kernel@vger.kernel.org,
+       Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: 2.6.8.1-mm3
+References: <20040820031919.413d0a95.akpm@osdl.org>	<412821C4.7060402@lbl.gov> <20040821214824.4bf5e6fd.akpm@osdl.org>
+In-Reply-To: <20040821214824.4bf5e6fd.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Aug 2004 14:46:38 +1000
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Andrew Morton wrote:
+> Thomas Davis <tadavis@lbl.gov> wrote:
 
-> Any reason why this shouldn't be done? Anyone know of a decent test that
-> stresses the pid hash?
+>>3) Interactivity performance when compiling a kernel (make rpm) sucks.  I have a Dell Poweredge 400SC, with a Hyper threaded P4/1GB of ram, ATI Radeon 9600 based video.  Load average jumps to the 4's, and stays there - while each cpu in the hyper thread shows about 50% idle time.  Mouse pointer jumps all over the place, mouse clicks are lost, menus are slow to drop down, etc..
+> 
+> 
+> Ingo found a ghastly performance problem with X, but that'll be present in
+> 2.6.8.1 as well.
 
-I can't think of any way in which this could decrease
-performance.  I highly recommend this patch :-)
+The other thing is I may have botched moving my scheduler on top of smtnice.
+I hadn't tested that too well (I have an HT system, but it doesn't run X).
 
+If you get time, could you try turning off CONFIG_SCHED_SMT - if that still
+doesn't help, try turning off hyperthreading completely. Thanks.

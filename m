@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265480AbSLQRTk>; Tue, 17 Dec 2002 12:19:40 -0500
+	id <S265135AbSLQRUG>; Tue, 17 Dec 2002 12:20:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265484AbSLQRTk>; Tue, 17 Dec 2002 12:19:40 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:18339 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265480AbSLQRTj>;
-	Tue, 17 Dec 2002 12:19:39 -0500
-Date: Tue, 17 Dec 2002 09:22:28 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: "James H. Cloos Jr." <cloos@jhcloos.com>
-cc: <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH] move LOG_BUF_SIZE to header file
-In-Reply-To: <m3isxtm9ne.fsf@lugabout.jhcloos.org>
-Message-ID: <Pine.LNX.4.33L2.0212170917400.17648-100000@dragon.pdx.osdl.net>
+	id <S265174AbSLQRUG>; Tue, 17 Dec 2002 12:20:06 -0500
+Received: from packet.digeo.com ([12.110.80.53]:40703 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265135AbSLQRUE>;
+	Tue, 17 Dec 2002 12:20:04 -0500
+Message-ID: <3DFF5E67.C0BA874C@digeo.com>
+Date: Tue, 17 Dec 2002 09:27:03 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] move LOG_BUF_SIZE to header file
+References: <Pine.LNX.4.33L2.0212121517300.19827-100000@dragon.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Dec 2002 17:27:56.0693 (UTC) FILETIME=[A366F450:01C2A5F1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Dec 2002, James H. Cloos Jr. wrote:
+"Randy.Dunlap" wrote:
+> 
+> ...
+> One other thing that I considered doing was using a common
+> Kconfig file for all 20 arch'es by adding a
+>   source "kernel/Kconfig"
+> at the end of each <arch>/Kconfig file.  This would provide
+> a common "General setup (more)" that could be used after most
+> config options are set instead of near the top of the menu.
+> Does that make sense to anybody?
+> 
 
-| I was just looking at doing that.
-
-Did you have any ideas for a better solution?
-
-| I'd suggest including CONFIG_CRYPTO_TEST in the default size
-| determination, and allowing both smaller sizes (for low ram
-| applications, such as embedded systems) and larger ones.
-
-and I'd agree with the latter half of this, but I think that if
-one <quote> Quick & dirty crypto test module </quote> causes a
-log buffer overrun, the general kernel config doesn't need to provide
-a solution for it.
-
-| With all of the crypto =y, the test wipes everything before ACPI out
-| of the buffer before syslogd gets to start and log the buffer to disk.
-| Even with a 64k buffer.
-
-Use a larger buffer or reduce the output?
-
--- 
-~Randy
-
+I think so.  There are times when one wants to add arch-neutral
+config items which just don't logically fit into any of the
+existing menus.  The right place to put the item is into each
+and every architecture's arch/<arch>/Kconfig, and that's plain
+silly.

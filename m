@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271719AbRHUPbV>; Tue, 21 Aug 2001 11:31:21 -0400
+	id <S271720AbRHUPcb>; Tue, 21 Aug 2001 11:32:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271720AbRHUPbL>; Tue, 21 Aug 2001 11:31:11 -0400
-Received: from smtp3.cern.ch ([137.138.131.164]:40895 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S271719AbRHUPbA>;
-	Tue, 21 Aug 2001 11:31:00 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Qlogic/FC firmware
-In-Reply-To: <no.id> <E15ZCmV-00080q-00@the-village.bc.nu> <20010821.074720.118955855.davem@redhat.com>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 21 Aug 2001 17:29:37 +0200
-In-Reply-To: "David S. Miller"'s message of "Tue, 21 Aug 2001 07:47:20 -0700 (PDT)"
-Message-ID: <d3ofp98m8u.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S271721AbRHUPcW>; Tue, 21 Aug 2001 11:32:22 -0400
+Received: from mx3.sac.fedex.com ([199.81.208.11]:6670 "EHLO mx3.sac.fedex.com")
+	by vger.kernel.org with ESMTP id <S271720AbRHUPcE>;
+	Tue, 21 Aug 2001 11:32:04 -0400
+Date: Tue, 21 Aug 2001 23:33:14 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: <root@boston.corp.fedex.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andris Pavenis <pavenis@latnet.lv>, <linux-kernel@vger.kernel.org>
+Subject: Re: i810 audio doesn't work with 2.4.9
+In-Reply-To: <E15ZC3v-0007tI-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0108212332480.4687-100000@boston.corp.fedex.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David S Miller <davem@redhat.com> writes:
+it works for me on 2.4.9.
 
-David>    From: Alan Cox <alan@lxorguk.ukuu.org.uk> Date: Tue, 21 Aug
-David> 2001 15:45:26 +0100 (BST)
-   
->    Ok so you have a sparc specific firmware loading problem.
 
-David> No, it is a non-x86 firmware loading problem.  Do not label it
-David> is as a "all the world a Sparc" problem, it isn't centric to
-David> any particular platform.
+Thanks,
+Jeff
+[ jchua@fedex.com ]
 
-It's centric to a limited userbase, other systems such as Alpha and
-ia64 can load the firmware off the cards no problem.
+On Tue, 21 Aug 2001, Alan Cox wrote:
 
-Doesn't mean we have solved your problem, true. But initrd is still a
-cleaner solution and gets around the licensing problem as well.
+> > i810 audio didn't work for me with kernel 2.4.9 (artsd from KDE goes into infinite loop, no sound).
+> >
+> > Reverting to kernel 2.4.7 or replacing in 2.4.9 drivers/sound/ac97_codec.c, drivers/sound/i810_audio.c,
+> > include/linux/ac97_codec.h from 2.4.8-ac8 fixed the problem for me
+>
+> Thats good to know - the 2.4.8-ac8 one is scheduled to go to Linus
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Jes

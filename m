@@ -1,78 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267219AbUHOW7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267214AbUHOXBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267219AbUHOW7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 18:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267214AbUHOW7Q
+	id S267214AbUHOXBz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 19:01:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267226AbUHOXBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 18:59:16 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:20405 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267198AbUHOW7J (ORCPT
+	Sun, 15 Aug 2004 19:01:55 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:42119 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S267214AbUHOXBv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 18:59:09 -0400
-Date: Sun, 15 Aug 2004 15:58:27 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: page fault fastpath: Increasing SMP scalability by introducing
- pte locks?
-In-Reply-To: <20040815130919.44769735.davem@redhat.com>
-Message-ID: <Pine.LNX.4.58.0408151552280.3370@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
- <20040815130919.44769735.davem@redhat.com>
+	Sun, 15 Aug 2004 19:01:51 -0400
+Date: Mon, 16 Aug 2004 01:01:35 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Adrian Bunk <bunk@fs.tum.de>, Arnd Bergmann <arnd@arndb.de>,
+       Christoph Hellwig <hch@infradead.org>, wli@holomorphy.com,
+       "David S. Miller" <davem@redhat.com>, schwidefsky@de.ibm.com,
+       linux390@de.ibm.com, sparclinux@vger.kernel.org,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       kbuild-devel@lists.sourceforge.net
+Subject: Re: architectures with their own "config PCMCIA"
+In-Reply-To: <Pine.GSO.4.58.0408152136400.9281@waterleaf.sonytel.be>
+Message-ID: <Pine.LNX.4.61.0408160050440.12687@scrub.home>
+References: <20040807170122.GM17708@fs.tum.de> <20040807181051.A19250@infradead.org>
+ <20040807172518.GA25169@fs.tum.de> <200408072013.01168.arnd@arndb.de>
+ <20040811201725.GJ26174@fs.tum.de> <20040811214032.GC7207@mars.ravnborg.org>
+ <20040812001003.GV26174@fs.tum.de> <Pine.LNX.4.58.0408121056270.20634@scrub.home>
+ <20040814204711.GD1387@fs.tum.de> <Pine.LNX.4.61.0408151928490.12687@scrub.home>
+ <Pine.GSO.4.58.0408152136400.9281@waterleaf.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Aug 2004, David S. Miller wrote:
+Hi,
 
->
-> Is the read lock in the VMA semaphore enough to let you do
-> the pgd/pmd walking without the page_table_lock?
-> I think it is, but just checking.
+On Sun, 15 Aug 2004, Geert Uytterhoeven wrote:
 
-That would be great.... May I change the page_table lock to
-be a read write spinlock instead?
+> > What about normal numbers? I don't think requiring quotes everywhere for
+> > this is a good idea.
+> 
+> And numbers (both decimal and hex) can easily be distinguished from y, n, and m
+> anyway.
 
-I would then convert all spin_locks to write_locks and
-then use read locks to switch to a "pte locking mode". The read
-lock would allow simultanous threads operating on the page table
-that will only modify individual pte's via pte locks. Write locks
-still exclude the readers and thus the whole scheme should allow
-a gradual transition.
+I did consider this at some point, but I didn't want to add further 
+special cases. Every symbol has a tristate and a string value and so you 
+can compare pretty much everything with everything else. Splitting the 
+string value further into other types isn't worth the trouble. The problem 
+at hand is easy enough to solve by adding a type declaration.
 
-Maybe such a locking policy could do some good.
-
-However, performance is only increased somewhat. Scalability
-is still bad with more than 32 CPUs despite my hack. More
-extensive work is needed <sigh>:
-
-Regular kernel 512 CPU's 16G allocation per thread:
-
- Gb Rep Threads   User      System     Wall flt/cpu/s fault/wsec
- 16   3    1    0.748s     67.200s  67.098s 46295.921  46270.533
- 16   3    2    0.899s    100.189s  52.021s 31118.426  60242.544
- 16   3    4    1.517s    103.467s  31.021s 29963.479 100777.788
- 16   3    8    1.268s    166.023s  26.035s 18803.807 119350.434
- 16   3   16    6.296s    453.445s  33.082s  6842.371  92987.774
- 16   3   32   22.434s   1341.205s  48.026s  2306.860  65174.913
- 16   3   64   54.189s   4633.748s  81.089s   671.026  38411.466
- 16   3  128  244.333s  17584.111s 152.026s   176.444  20659.132
- 16   3  256  222.936s   8167.241s  73.018s   374.930  42983.366
- 16   3  512  207.464s   4259.264s  39.044s   704.258  79741.366
-
-Modified kernel:
- Gb Rep Threads   User      System     Wall flt/cpu/s fault/wsec
- 16   3    1    0.884s     64.241s  65.014s 48302.177  48287.787
- 16   3    2    0.931s     99.156s  51.058s 31429.640  60979.126
- 16   3    4    1.028s     88.451s  26.096s 35155.837 116669.999
- 16   3    8    1.957s     61.395s  12.099s 49654.307 242078.305
- 16   3   16    5.701s     81.382s   9.039s 36122.904 334774.381
- 16   3   32   15.207s    163.893s   9.094s 17564.021 316284.690
- 16   3   64   76.056s    440.771s  13.037s  6086.601 235120.800
- 16   3  128  203.843s   1535.909s  19.084s  1808.145 158495.679
- 16   3  256  274.815s    755.764s  12.058s  3052.387 250010.942
- 16   3  512  205.505s    381.106s   7.060s  5362.531 413531.352
-
-
+bye, Roman

@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276102AbRI1PA2>; Fri, 28 Sep 2001 11:00:28 -0400
+	id <S276099AbRI1PC2>; Fri, 28 Sep 2001 11:02:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276100AbRI1PAL>; Fri, 28 Sep 2001 11:00:11 -0400
-Received: from ns.caldera.de ([212.34.180.1]:59561 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S276099AbRI1O7p>;
-	Fri, 28 Sep 2001 10:59:45 -0400
-Date: Fri, 28 Sep 2001 17:00:04 +0200
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: Joachim Weller <JoachimWeller@web.de>
-Cc: Joachim Weller <joachim_weller@hsgmed.com>, axboe@suse.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: BUG: cat /proc/partitions endless loop
-Message-ID: <20010928170004.A14892@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch>,
-	Joachim Weller <JoachimWeller@web.de>,
-	Joachim Weller <joachim_weller@hsgmed.com>, axboe@suse.de,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200109281448.f8SEmvh08284@mailgate5.cinetic.de>
-Mime-Version: 1.0
+	id <S276104AbRI1PCS>; Fri, 28 Sep 2001 11:02:18 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:13714
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S276099AbRI1PCK>; Fri, 28 Sep 2001 11:02:10 -0400
+Date: Fri, 28 Sep 2001 11:02:21 -0400
+From: Chris Mason <mason@suse.com>
+To: Matt Bernstein <matt@theBachChoir.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: weirdness in reiserfs
+Message-ID: <643320000.1001689341@tiny>
+In-Reply-To: <Pine.LNX.4.33.0109281509080.10065-100000@nick.dcs.qmul.ac.uk>
+In-Reply-To: <Pine.LNX.4.33.0109281509080.10065-100000@nick.dcs.qmul.ac.uk>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200109281448.f8SEmvh08284@mailgate5.cinetic.de>; from JoachimWeller@web.de on Fri, Sep 28, 2001 at 04:48:57PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 28, 2001 at 04:48:57PM +0200, Joachim Weller wrote:
-> Christoph Hellwig <hch@ns.caldera.de> schrieb am 28.09.01:
-> > In article <200109281315.f8SDFpA01669@bmdipc2c.germany.agilent.com> you wrote:
-> > >  I traced the problem down to drivers/block/genhd.c, 
-> > > where the function get_partition_list() outer loop does not 
-> > > terminate due to the last element in the structured list starting 
-> > > with gendisk_head is not initialized to NULL, by whatever reason.
-> > > My fix does not cure the pointered endless loop, but prevents
-> > > from looping when stepping thru the pointered list.
-> > 
-> > I think the fix could be simpler.  What about:
-> [...] 
-> 
-> > + for (gp = gendisk_head; gp != gendisk_head; gp = gp->next) {
-> 
-> This will break your for loop immedeately, because the loop criteria
-> is already violated by the initialization !
-> 
-> But I tried another solution:
->   for (gp = gendisk_head; gp && (gp->next != gendisk_head); gp = gp->next) {
-> 
-> with no success - the cat /proc/partition only printed the heading line.
-> This proofed to me, that the pointered list is created the wrong way,
-> in other words, gendisk_head->next is a pointer to itself.
-> It looks to me, that the "next" field in 
-> /*static*/ struct gendisk *gendisk_head;
-> is not initialized (by the compiler ?) correctly to NULL. 
 
-That's odd, could you try initilazing gendisk_head to NULL explicitly and try
-my proposed fix?  The gendisk list handling starts to smell _really_ funny.
 
-	Christoph
+On Friday, September 28, 2001 03:44:19 PM +0100 Matt Bernstein
+<matt@theBachChoir.org.uk> wrote:
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+> I have a 240GB reiserfs ataraid partition on one of my servers (2.4.9-ac10
+> + ext3 0.9.9 + ext3 speedup + ext3 "experimental VM patch" + jfs 1.0.4),
+> which I had populated with lots of little files, probably huge amounts of
+> tail-packing going on.
+
+[ slow deleting of 25GB, horrible latency ]
+
+Hmmm, I'd be curious to see how 2.4.9-ac16 (or 2.4.10) performs there.  The
+reiserfs delete code should be scheduling enough due to transaction
+stop/starts that interactive performance isn't that bad.
+
+You should be able to repeat your results by doing the same tests on sparse
+files:
+
+dd if=/dev/zero of=foo bs=1M count=1 seek=250000
+
+-chris
+
+
+

@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129918AbRBAPvl>; Thu, 1 Feb 2001 10:51:41 -0500
+	id <S129536AbRBAQAf>; Thu, 1 Feb 2001 11:00:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130322AbRBAPvb>; Thu, 1 Feb 2001 10:51:31 -0500
-Received: from mailgate.rz.uni-karlsruhe.de ([129.13.64.97]:9990 "EHLO
-	mailgate.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
-	id <S129918AbRBAPvT>; Thu, 1 Feb 2001 10:51:19 -0500
-To: Arjan van de Ven <arjan@fenrus.demon.nl>
-Cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org, pellicci@home.com,
-        Markus.Kuhn@cl.cam.ac.uk, R.A.Reitsma@wbmt.tudelft.nl
-Subject: RE: 2.4.1 -- Unresolved symbols in radio-miropcm20.o
-From: Robert Siemer <Robert.Siemer@gmx.de>
-In-Reply-To: <4987.980895146@ocs3.ocs-net>
-	<NCBBIEBKAIAPGJDGPNCJOENCCFAA.R.A.Reitsma@wbmt.tudelft.nl>
-X-Mailer: Mew version 1.94b25 on Emacs 20.5 / Mule 4.0 (HANANOEN)
-Reply-To: Robert Siemer <siemer@panorama.hadiko.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20010201165058B.siemer@panorama.hadiko.de>
-Date: Thu, 01 Feb 2001 16:50:58 +0100
-X-Dispatcher: imput version 990425(IM115)
+	id <S130322AbRBAQAZ>; Thu, 1 Feb 2001 11:00:25 -0500
+Received: from mx2out.umbc.edu ([130.85.253.52]:39558 "EHLO mx2out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S129536AbRBAQAI>;
+	Thu, 1 Feb 2001 11:00:08 -0500
+Date: Thu, 1 Feb 2001 11:00:05 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: "Michael J. Dikkema" <mjd@moot.ca>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1 - can't read root fs (devfs maybe?)
+In-Reply-To: <Pine.LNX.4.21.0101312258190.227-100000@sliver.moot.ca>
+Message-ID: <Pine.SGI.4.31L.02.0102011058520.71788-100000@irix2.gl.umbc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Miles Lane <miles@megapath.net> wrote:
-> >>depmod: *** Unresolved symbols in
-> >>/lib/modules/2.4.1/kernel/drivers/media/radio/radio-miropcm20.o
-> >>depmod: 	aci_write_cmd
-> >>depmod: 	aci_indexed_cmd
-> >>depmod: 	aci_write_cmd_d
+On Wed, 31 Jan 2001, Michael J. Dikkema wrote:
 
-I made up an new patch for 2.4.1. You can find it on
-http://www.uni-karlsruhe.de/~Robert.Siemer/Private/
+> I went from 2.4.0 to 2.4.1 and was surprised that either the root
+> filesystem wasn't mounted, or it couldn't be read. I'm using devfs.. I'm
+> thinking there might have been a change with regards to the devfs
+> tree.. is the legacy /dev/hda1 still /dev/discs/disc0/part1?
+>
+> I can't even get a shell with init=/bin/bash..
 
-It works when:
-a)  aci: module    miropcm20: module
-b)  aci: build in  miropcm20: module
-c)  aci: build in  miropcm20: build in
+Sounds like a lack of devfsd, which handles backwards compatibility for
+/dev entries.
 
-Violation to this table is still unchecked...
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 
-Arjan, I want to include your #ifdef solution, but was unable to find
-it in 2.2.18... - And further: why did it remove somebody in 2.3.x?
-
-Also (at least) in the case of c) videodev_init() is called twice. -
-It does not hurt, but maybe someone can give me a hint why this
-happens...
-
-
-Ciao,
-	Robert
-
-PS: Miles email address (miles@megapath.net) is invalid, isn't it?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

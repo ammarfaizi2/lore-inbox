@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263802AbUFNTWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUFNT0c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263802AbUFNTWT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 15:22:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbUFNTWS
+	id S263818AbUFNT0c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 15:26:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263817AbUFNT00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 15:22:18 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:9438 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263802AbUFNTWR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 15:22:17 -0400
-Date: Mon, 14 Jun 2004 20:22:15 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.6: modular scsi/mca_53c9x doesn't work (fwd)
-Message-ID: <20040614192215.GA5360@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Adrian Bunk <bunk@fs.tum.de>, James.Bottomley@SteelEye.com,
-	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20040614185256.GJ13951@fs.tum.de>
+	Mon, 14 Jun 2004 15:26:26 -0400
+Received: from salzburg.nitnet.com.br ([200.157.204.105]:10371 "EHLO
+	nat.cesarb.net") by vger.kernel.org with ESMTP id S263815AbUFNT0Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 15:26:25 -0400
+Date: Mon, 14 Jun 2004 16:25:24 -0300
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Alexander Viro <viro@math.psu.edu>
+Subject: Re: [PATCH] O_NOATIME support
+Message-ID: <20040614192524.GB1961@flower.home.cesarb.net>
+References: <20040612011129.GD1967@flower.home.cesarb.net> <20040614095529.GA11563@infradead.org> <20040614134652.GA1961@flower.home.cesarb.net> <20040614140356.GA21349@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040614185256.GJ13951@fs.tum.de>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20040614140356.GA21349@infradead.org>
+User-Agent: Mutt/1.5.6+20040523i
+From: Cesar Eduardo Barros <cesarb@nitnet.com.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 14, 2004 at 08:52:56PM +0200, Adrian Bunk wrote:
-> The issue described in the mail forwarded below is still present in 
-> 2.6.7-rc3-mm2 (but not specific to -mm).
+On Mon, Jun 14, 2004 at 03:03:56PM +0100, Christoph Hellwig wrote:
+> On Mon, Jun 14, 2004 at 10:46:52AM -0300, Cesar Eduardo Barros wrote:
+> > I don't see why preserving the mtime and ctime would be necessary, since
+> > to move a file away you either don't touch it (using rename) or only
+> > read and unlink it (to write to a tape or other filesystem, and you can
+> > save the atime and mtime while doing it). So O_NOATIME is enough for
+> > both behaviours.
 > 
-> I'd suggest the following workaround:
+> Maybe some day the file needs to come back from the tape ;-)  Or rather
+> in the HSM scenario a part of the file.
 
-Please add the exports instead.  It'll affect all the other 53C9X-based
-drivers aswell.
+When it comes back, it can be written to a temporary file, have its
+atime/mtime set with utimes, and atomically renamed to the right place.
+
+If you want to play with parts of files, you would need an atime for
+each block of the file ;-)
+
+-- 
+Cesar Eduardo Barros
+cesarb@nitnet.com.br
+cesarb@dcc.ufrj.br

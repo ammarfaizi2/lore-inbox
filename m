@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266945AbTGKWiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 18:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267004AbTGKWiZ
+	id S266997AbTGKWrE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 18:47:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266998AbTGKWrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 18:38:25 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:14777
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S266945AbTGKWiY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 18:38:24 -0400
-Subject: Re: SECURITY - data leakage due to incorrect strncpy implementation
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+	Fri, 11 Jul 2003 18:47:04 -0400
+Received: from smtp1.clear.net.nz ([203.97.33.27]:61360 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S266997AbTGKWrC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 18:47:02 -0400
+Date: Sat, 12 Jul 2003 10:45:47 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Thoughts wanted on merging Software Suspend enhancements
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0307111544020.4337-100000@home.osdl.org>
-References: <Pine.LNX.4.44.0307111544020.4337-100000@home.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Message-id: <1057963547.3207.22.camel@laptop-linux>
 Organization: 
-Message-Id: <1057963814.20636.72.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Jul 2003 23:50:15 +0100
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-07-11 at 23:44, Linus Torvalds wrote:
-> On 11 Jul 2003, Alan Cox wrote:
-> > 
-> > Lots of kernel drivers rely on the libc definition of strncpy. 
-> 
-> But that's ok. We _do_ do the padding. I hated it when I wrote it, but as 
-> far as I know, the kernel strncpy() has done padding pretty much since day 
-> one.
+Hi Linus.
 
-/**
- * strncpy - Copy a length-limited, %NUL-terminated string
- * @dest: Where to copy the string to
- * @src: Where to copy the string from
- * @count: The maximum number of bytes to copy
- *
- * Note that unlike userspace strncpy, this does not %NUL-pad the buffer.
- * However, the result is not %NUL-terminated if the source exceeds
- * @count bytes.
- */
+As you may know, there has been a lot of work done on the 2.4 version of
+software suspend. This includes:
 
-Only x86 does the padding 
+- async i/o
+- back out on errors rather than panicing (where possible)
+- enhancements to refrigerator so it successfully freezes processes even
+under high load
+- save a full image rather than freeing just about all the memory first
+- highmem support
+- image compression support
+- swapfile support in progress
+- nice display
+- user can abort at any time during suspend (oh, I forgot, I wanted
+to...) by just pressing Escape
+- extensive debugging info that doesn't need to be compiled in and can
+be adjusted during the suspend cycle (very handy for diagnosing issues)
+
+I'm wanting to get your thoughts on how we should go about merging it. I
+don't think these qualify as bug fixes, but current users (and I'm not
+excluding myself!) would certainly like to see the patch merged sooner
+rather than later. Would it be a good idea to seek to get Marcello and
+Andrew to take it into 2.4 and 2.6, and then aim for 2.[7|9]?
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
+
+You see, at just the right time, when we were still powerless,
+Christ died for the ungodly.
+	-- Romans 5:6, NIV.
 

@@ -1,57 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262394AbTCKBP0>; Mon, 10 Mar 2003 20:15:26 -0500
+	id <S262785AbTCKCEt>; Mon, 10 Mar 2003 21:04:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262764AbTCKBP0>; Mon, 10 Mar 2003 20:15:26 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:27396 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262394AbTCKBPZ>;
-	Mon, 10 Mar 2003 20:15:25 -0500
-Date: Mon, 10 Mar 2003 17:15:32 -0800
-From: Greg KH <greg@kroah.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Oliver Neukum <oliver@neukum.name>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Jeff Garzik <jgarzik@pobox.com>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: PCI driver module unload race?
-Message-ID: <20030311011532.GH13145@kroah.com>
-References: <20030308104749.A29145@flint.arm.linux.org.uk> <20030308202101.GA26831@kroah.com> <20030310214443.GA13145@kroah.com> <200303110048.43514.oliver@neukum.name> <20030310235131.GF13145@kroah.com> <Pine.LNX.4.44.0303110147390.32518-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303110147390.32518-100000@serv>
-User-Agent: Mutt/1.4i
+	id <S262789AbTCKCEt>; Mon, 10 Mar 2003 21:04:49 -0500
+Received: from smtp0.euronet.nl ([194.134.35.141]:34753 "EHLO smtp0.euronet.nl")
+	by vger.kernel.org with ESMTP id <S262785AbTCKCEs>;
+	Mon, 10 Mar 2003 21:04:48 -0500
+Message-ID: <3E6D469C.8060209@koffie.nl>
+Date: Tue, 11 Mar 2003 03:14:52 +0100
+From: Segher Boessenkool <segher@koffie.nl>
+User-Agent: Mozilla/5.0 (Macintosh; U; PPC; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Albert Cahalan <albert@users.sf.net>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       oprofile-list@lists.sourceforge.net, linuxppc-dev@lists.linuxppc.org,
+       o.oppitz@web.de, afleming@motorola.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] oprofile for ppc
+References: <200303070929.h279TGTu031828@saturn.cs.uml.edu>		<1047032003.12206.5.camel@zion.wanadoo.fr>  <1047061862.1900.67.camel@cube>	<1047136206.12202.85.camel@zion.wanadoo.fr>  <3E6C0B93.5040205@koffie.nl> <1047277876.2012.360.camel@cube>
+In-Reply-To: <1047277876.2012.360.camel@cube>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 11, 2003 at 02:04:20AM +0100, Roman Zippel wrote:
-> On Mon, 10 Mar 2003, Greg KH wrote:
+Albert Cahalan wrote:
+> On Sun, 2003-03-09 at 22:50, Segher Boessenkool wrote:
 > 
-> > > It seems that the semaphore in bus_add_device() makes this unnecessary.
-> > 
-> > Hm, yes.  I think you are correct.
-> > 
-> > So this patch is not needed, and the struct module * can be ripped out
-> > of struct usb_driver too :)
+>>Benjamin Herrenschmidt wrote:
 > 
-> I think it's not easy. I haven't studied the code completely yet, but e.g. 
-> when you attach a device to a driver you also have to get a reference to 
-> the driver.
+> 
+>>>Beware though that some G4s have a nasty bug that
+>>>prevents using the performance counter interrupt
+>>>(and the thermal interrupt as well).
+>>
+>>MPC7400 version 1.2 and lower have this problem.
+> 
+> 
+> MPC7410 you mean, right? Are those early revisions
+> even popular?
 
-You get a link to the driver, but you can't increment the module count
-of the driver at that time, as we have to be able to remove a module
-somehow :)
+7400 and 7410 core versions are identical, afaik.  I don't
+think any 7410 core lower than version 2.0 was ever used
+in any consumer machines.  ymmv.
 
-> I think there are more interesting races, e.g. when you create a sysfs 
-> symlink, that symlink might also have references to a module.
+> I'm wondering if the MPC7400 is also affected.
+> The MPC7400 has some significant differences.
+> The pipeline length changed.
 
-Yeah, I still think there are some nasty issues with regards to being in
-a sysfs directory, with a open file handle, and the module is removed.
-But I haven't checked stuff like that in a while.
+Between 7400 and 7410?  That's news to me...
 
-CONFIG_MODULE_UNLOAD, just say no.
+>>>The problem is that if any of those fall at the same
+>>>time as the DEC interrupt, the CPU messes up it's
+>>>internal state and you lose SRR0/SRR1, which means
+>>>you can't recover from the exception.
+>>
+>>But the worst that happens is that you lose that
+>>process, isn't it?  Not all that big a problem,
+>>esp. since the window in which this can happen is
+>>very small.
+> 
+> I think you'd get an infinite loop of either
+> the decrementer or performance monitor. That's
+> mostly fixable by checking for the condition and
+> killing the affected process, but that process
+> could be one of the ones built into the kernel.
 
-thanks,
+That would be a problem, yes :-(
 
-greg k-h
+> So the use of oprofile comes down to a choice:
+> 
+> a. Ignore the problem.
+>    rare crashes
+
+As long as its rare, that's not _too_ big of a problem,
+really.  Just document it ;)
+
+> b. The decrementer goes much faster for profiling.
+>    high overhead, awkwardness in non-time measurement
+
+Bad idea, I think.
+
+> c. The performance monitor is used for clock ticks.
+>    hard choices about sharing or frequency
+
+I'd go for this option.
+
+
+Segher
+
+

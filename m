@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265466AbUAZVqV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 16:46:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265548AbUAZVqV
+	id S265465AbUAZVnW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 16:43:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265369AbUAZVnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 16:46:21 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:56829 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S265466AbUAZVqT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 16:46:19 -0500
-Message-ID: <40158A88.7070007@mvista.com>
-Date: Mon, 26 Jan 2004 13:45:44 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
-CC: "Amit S. Kale" <amitkale@emsyssoft.com>,
-       Powerpc Linux <linuxppc-dev@lists.linuxppc.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
-Subject: Re: PPC KGDB changes and some help?
-References: <200401211946.17969.amitkale@emsyssoft.com> <20040121153019.GR13454@stop.crashing.org> <200401212223.13347.amitkale@emsyssoft.com> <20040121184217.GU13454@stop.crashing.org> <20040121192128.GV13454@stop.crashing.org> <20040121192230.GW13454@stop.crashing.org> <20040122174416.GJ15271@stop.crashing.org> <20040122180555.GK15271@stop.crashing.org> <20040123224605.GC15271@stop.crashing.org> <4011B07F.5060409@mvista.com> <20040126204631.GB32525@stop.crashing.org>
-In-Reply-To: <20040126204631.GB32525@stop.crashing.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Jan 2004 16:43:22 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:55938 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S265465AbUAZVm7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 16:42:59 -0500
+Date: Mon, 26 Jan 2004 13:42:57 -0800
+To: "David S. Miller" <davem@redhat.com>
+Cc: bunk@fs.tum.de, marcelo.tosatti@cyclades.com,
+       irda-users@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, linux-net@vger.kernel.org
+Subject: Re: [2.4 patch] fix via-ircc.c .text.exit error
+Message-ID: <20040126214257.GB17646@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20040125004030.GE6441@fs.tum.de> <20040126192836.GA17134@bougret.hpl.hp.com> <20040126210126.GG513@fs.tum.de> <20040126.130242.74547942.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040126.130242.74547942.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
+On Mon, Jan 26, 2004 at 01:02:42PM -0800, David S. Miller wrote:
+>    From: Adrian Bunk <bunk@fs.tum.de>
+>    Date: Mon, 26 Jan 2004 22:01:26 +0100
 > 
->>There is a real danger of passing signal info back to gdb as it will want 
->>to try to deliver the signal which is a non-compute in most kgdbs in the 
->>field.  I did put code in the mm-kgdb to do just this, but usually the 
->>arrival of such a signal (other than SIGTRAP) is the end of the kernel.  
->>All that is left is to read the tea leaves.
+>    On Mon, Jan 26, 2004 at 11:28:36AM -0800, Jean Tourrilhes wrote:
+>    > 	Thanks you Adrian. Yes, I must confess that I never test
+>    > non-modular build (because it doesn't work).
+>    
+>    Are you saying it might compile statically, but it won't work?
+>    
+> It won't link because many IRDA drivers erroneously don't
+> mark their module_{init,exit}() routines static, thus
+> symbols conflict.
 > 
-> 
-> The gdb I've been testing this with knows better than to try and send a
-> singal back, so that's not a worry.  The motivation behind doing this
-> however is along the lines of "if it ain't broke, don't remove it".  The
-> original stub was getting all of this information correctly, so why stop
-> doing it?
-> 
-You sure.  If so what gdb?  And how does it know?  I suppose you could tell it 
-with a script, but then what if one forgets?
+> I'm fixing that now.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+	I was talking with Adrian about 2.4.X where things are quite
+different with respect to driver initialisation.
 
+	Jean

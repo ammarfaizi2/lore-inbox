@@ -1,56 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132414AbRDCSqi>; Tue, 3 Apr 2001 14:46:38 -0400
+	id <S132416AbRDCSrb>; Tue, 3 Apr 2001 14:47:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132416AbRDCSq2>; Tue, 3 Apr 2001 14:46:28 -0400
-Received: from mail5.speakeasy.net ([216.254.0.205]:18184 "HELO
-	mail5.speakeasy.net") by vger.kernel.org with SMTP
-	id <S132414AbRDCSqP>; Tue, 3 Apr 2001 14:46:15 -0400
-Message-ID: <3ACA0C83.1E5A6020@megapathdsl.net>
-Date: Tue, 03 Apr 2001 10:46:43 -0700
-From: Miles Lane <miles@megapathdsl.net>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2-ac28 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S132419AbRDCSrT>; Tue, 3 Apr 2001 14:47:19 -0400
+Received: from dsl081-146-215.chi1.dsl.speakeasy.net ([64.81.146.215]:18437
+	"EHLO manetheren.eigenray.com") by vger.kernel.org with ESMTP
+	id <S132416AbRDCSrL>; Tue, 3 Apr 2001 14:47:11 -0400
+Date: Tue, 3 Apr 2001 13:43:19 -0500 (CDT)
+From: Paul Cassella <pwc@speakeasy.net>
 To: linux-kernel@vger.kernel.org
-CC: David Brownell <david-b@pacbell.net>
-Subject: Contacts within AMD?  AMD-756 USB host-controller blacklisted due to 
- erratum #4.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: Hangs under 2.4.2-ac{18,19,24} that do not happen under -ac12.
+In-Reply-To: <Pine.SGI.3.96.1010328165432.10707A-100000@fsgi626.americas.sgi.com>
+Message-ID: <Pine.LNX.4.21.0104031339380.740-100000@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Running 2.4.2-ac28, I get the following error:
+On Wed, 28 Mar 2001, Paul Cassella wrote:
 
-usb-ohci.c: 00:07.4 (Advanced Micro Devices [AMD] AMD-756 [Viper] USB):
-blacklisted, erratum #4
+> Hangs under 2.4.2-ac{18,19,24} that do not happen under -ac12.
 
-David Brownell recently added this check to the usb-ohci driver
-since noone has gotten information from AMD for the workaround,
-which is rumored to exist, for this bug.
+I've been running -ac27 for over 5 days, and it's been fine, so this seems
+to have been fixed.
 
-Do any of you have contacts within AMD who might be able to
-get an explanation of the workaround to David Brownell?
+-- 
+Paul Cassella
 
-The bug is that the NDP value sent by the AMD-756 is sometimes
-bogus.  The following examples, collected before the chip
-was blacklisted, show the failure.  As you can see, the bogus 
-value given varies.  Rereading NDP seems to give a valid value.  
-I am not really clear why we don't simply read the value twice 
-whenever the host-controller is detected to be an AMD-756.
-
-Mar  4 17:20:52 aerie kernel: usb-ohci.c: bogus NDP=128 for OHCI
-usb-00:07.4
-Mar  4 17:20:52 aerie kernel: usb-ohci.c: rereads as NDP=4
-
-Mar  4 17:50:29 aerie kernel: usb-ohci.c: bogus NDP=245 for OHCI
-usb-00:07.4
-Mar  4 17:50:29 aerie kernel: usb-ohci.c: rereads as NDP=4
-
-Mar  6 21:11:07 aerie kernel: usb-ohci.c: bogus NDP=210 for OHCI
-usb-00:07.4
-Mar  6 21:11:07 aerie kernel: usb-ohci.c: rereads as NDP=4
-
-Thanks,
-	Miles

@@ -1,64 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266233AbUBFC0J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 21:26:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266243AbUBFC0J
+	id S266271AbUBFC3I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 21:29:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266398AbUBFC3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 21:26:09 -0500
-Received: from ns.suse.de ([195.135.220.2]:6088 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266233AbUBFC0E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 21:26:04 -0500
-Date: Fri, 6 Feb 2004 03:20:54 +0100
-From: Andi Kleen <ak@suse.de>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: akpm@osdl.org, pavel@ucw.cz, linux-kernel@vger.kernel.org,
-       piggy@timesys.com, trini@kernel.crashing.org, george@mvista.com
-Subject: Re: kgdb support in vanilla 2.6.2
-Message-Id: <20040206032054.3fd7db8d.ak@suse.de>
-In-Reply-To: <200402052320.04393.amitkale@emsyssoft.com>
-References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel>
-	<20040204155452.49c1eba8.akpm@osdl.org.suse.lists.linux.kernel>
-	<p73n07ykyop.fsf@verdi.suse.de>
-	<200402052320.04393.amitkale@emsyssoft.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 5 Feb 2004 21:29:07 -0500
+Received: from h80ad253b.async.vt.edu ([128.173.37.59]:10880 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S266271AbUBFC3A (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 21:29:00 -0500
+Message-Id: <200402060228.i162SwKo004935@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.2-mm1, selinux, and initrd
+From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_235859181P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Thu, 05 Feb 2004 21:28:57 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Feb 2004 23:20:04 +0530
-"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+--==_Exmh_235859181P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <4921.1076034530.1@turing-police.cc.vt.edu>
 
-> On Thursday 05 Feb 2004 8:41 am, Andi Kleen wrote:
-> > Andrew Morton <akpm@osdl.org> writes:
-> > > need to take a look at such things and really convice ourselves that
-> > > they're worthwhile.  Personally, I'd only be interested in the basic
-> > > stub.
-> >
-> > What I found always extremly ugly in the i386 stub was that it uses
-> > magic globals to talk to the page fault handler. For the x86-64
-> > version I replaced that by just using __get/__put_user in the memory
-> > accesses, which is much cleaner. I would suggest doing that for i386
-> > too.
-> 
-> May be I am missing something obvious. When debugging a page fault handler if 
-> kgdb accesses an swapped-out user page doesn't it deadlock when trying to 
-> hold mm semaphore?
+On my laptop, I use an initrd to get things started (mostly SElinux
+and LVM).  (I've attached the 'linuxrc' below).
 
-Modern i386 kernels don't grab the mm semaphore when the access is >= TASK_SIZE
-and the access came from kernel space (actually I see x86-64 still does, but that's 
-a bug, will fix). You could only see a deadlock when using user addresses
-and you already hold the mm semaphore for writing (normal read lock is ok). 
-Just don't do that. 
+Under 2.6.2-rc3-mm1, I got the following while booting:
+
+Feb  5 09:40:34 turing-police kernel: RAMDISK: Compressed image found at block 0
+Feb  5 09:40:34 turing-police kernel: VFS: Mounted root (ext2 filesystem).
+Feb  5 09:40:34 turing-police kernel: Mounted devfs on /dev
+Feb  5 09:40:34 turing-police kernel: security:  3 users, 5 roles, 1039 types
+Feb  5 09:40:34 turing-police kernel: security:  30 classes, 128126 rules
+Feb  5 09:40:35 turing-police kernel: SELinux:  Completing initialization.
+Feb  5 09:40:35 turing-police kernel: SELinux:  Setting up existing superblocks.
+Feb  5 09:40:35 turing-police kernel: SELinux: initialized (dev , type selinuxfs), uses genfs_contexts
+Feb  5 09:40:35 turing-police kernel: SELinux: initialized (dev ram0, type ext2), uses xattr
+
+Booting 2.6.2-mm1, I get:
+
+RAMDISK: Compressed image found at block 0
+VFS: Mounted root (ext2 filesystem).
+Mounted devfs on /dev
+VFS: Cannot open root device 
+
+and things come to a screeching halt.  Absolutely nothing in the linuxrc
+seems to happen - and since the real root is on an LVM, we come to a
+screeching halt.
+
+The system boots OK (minus selinux functionality of course)if I pass
+'selinux=0' as a kernel parameter, so I'm suspecting these 3 patches:
+
++selinux-01-context-mount-support.patch
++selinux-02-nfs-context-mounts.patch
++selinux-03-context-mounts-selinux.patch
+
+I'm suspecting that try_context_mount() is choking because we haven't
+loaded the policy or anything, so we hit this:
+
+       rc = try_context_mount(sb, data);
+        if (rc)
+                goto out;
+
+and die a horrid death...
+
+Oh, and the linuxrc:
+
+#!/bin/nash
+
+echo Loading policy
+mount -t selinuxfs none /selinux
+/bin/load_policy /etc/security/selinux/policy.15
+umount /selinux
+
+echo Mounting /proc filesystem
+mount -t proc /proc /proc
+echo Creating block devices
+mkdevices /dev
+echo Scanning logical volumes
+lvm vgscan
+echo Activating logical volumes
+lvm vgchange -ay
+echo 0x0100 > /proc/sys/kernel/real-root-dev
+echo Mounting root filesystem
+mount -o noatime,nodev --ro -t ext3 /dev/rootvg/root /sysroot
+pivot_root /sysroot /sysroot/initrd
+umount /initrd/proc
 
 
-> George has coded cfi directives i386 too. He can use them to backtrace past 
-> irqs stack.
 
-Problem is that he did it without binutils support. I don't think that's a good
-idea because it makes the code basically unmaintainable for normal souls
-(it's like writing assembly code directly in hex) 
 
--Andi
+--==_Exmh_235859181P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAIvvpcC3lWbTT17ARAuBTAKDqtz3UhpDP6e2ztSlS8/woG1hviQCgwkT/
+0uugB5rEL/awK+aALdD+L28=
+=+AXj
+-----END PGP SIGNATURE-----
+
+--==_Exmh_235859181P--

@@ -1,48 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265393AbSJXLYv>; Thu, 24 Oct 2002 07:24:51 -0400
+	id <S265407AbSJXL3K>; Thu, 24 Oct 2002 07:29:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265395AbSJXLYv>; Thu, 24 Oct 2002 07:24:51 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:31600 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S265393AbSJXLYu>; Thu, 24 Oct 2002 07:24:50 -0400
-Date: Thu, 24 Oct 2002 13:31:06 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: chrisl@vmware.com, linux-kernel@vger.kernel.org
-Subject: Re: writepage return value check in vmscan.c
-Message-ID: <20021024113106.GE3354@dualathlon.random>
-References: <20021024082505.GB1471@vmware.com> <3DB7B11B.9E552CFF@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DB7B11B.9E552CFF@digeo.com>
-User-Agent: Mutt/1.3.27i
+	id <S265408AbSJXL3K>; Thu, 24 Oct 2002 07:29:10 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:28434 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S265407AbSJXL3J>; Thu, 24 Oct 2002 07:29:09 -0400
+Message-Id: <200210241129.g9OBTpp09266@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, netdev@oss.sgi.com
+Subject: Re: [RESEND] tuning linux for high network performance?
+Date: Thu, 24 Oct 2002 14:22:25 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200210231218.18733.roy@karlsbakk.net> <200210231309.g9ND9Bp03373@Port.imtp.ilyichevsk.odessa.ua> <200210231536.24269.roy@karlsbakk.net>
+In-Reply-To: <200210231536.24269.roy@karlsbakk.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 01:36:43AM -0700, Andrew Morton wrote:
-> prod.  We should do something about that.
+On 23 October 2002 11:36, Roy Sigurd Karlsbakk wrote:
+> > > 905182 total                                      0.4741
+> > > 121426 csum_partial_copy_generic                474.3203
+> >
+> > Well, maybe take a look at this func and try to optimize it?
+>
+> I don't know assembly that good - sorry.
 
-you need to preallocate the file, then to mmap it. If you do, the kernel
-won't throw the data away. So the fix for vmware is to preallocate the
-file and later to mmap it. This way you will be notified by -ENOSPC if
-you run out of disk/shmfs space.  Other than this I'm not so against the
-MAP_SHARED like Andrew, the reason the API is not so clean is that we
-cannot have an API at all inside a page fault to notify userspace that
-the ram modifications cannot be written to disk. the page fault must be
-transparent, there's no retvalue, so if you run out of disk space during
-the page fault, the page fault cannot easily tell userspace. As said the
-fix is very easy and consists in preallocating the space on disk (I
-understand that on shmfs it may not be extremely desiderable since you
-may prefer to defer allocation lazily to when you will need the memory
-but assuming your allocations are worthwhile it won't make difference
-after a few minutes/hours of usage and this way you will trap the -ENOSPC).
+Well, I like it. Maybe I can look into it. Feel free
+to bug me :-)
 
-As for the task being able to reference a deleted file in memory, that's
-true for many other scenarios (the user could leak space by keeping the
-fd open and unlinking the file and at the same time to alloc lots of ram
-with malloc, the result would be similar), and that's why root will have
-to kill these malicious tasks in order to reclaim ram and disk space.
+> > >  93633 default_idle                             1800.6346
+> > >  74665 do_wp_page                               111.1086
+> >
+> > What's this?
+>
+> do_wp_page is Defined as a function in: mm/memory.c
+>
+> comments from the file:
+> [snip]
 
-Andrea
+Please delete memory.o, rerun make bzImage, capture gcc
+command used for compiling memory.c, modify it:
+
+gcc ... -o memory.o  ->  gcc ... -S -o memory.s ...
+
+and examine assembler code. Maybe something will stick out
+(or use objdump to disassemble memory.o, I recall nice
+option to produce assembler output with C code intermixed
+as comments!) (send disasmed listing to me offlist).
+
+> > >  65857 ide_intr                                 184.9916
+> >
+> > You have 1 ide_intr per 2 csum_partial_copy_generic... hmmm...
+> > how large is your readahead? I assume you'd like to fetch
+> > more sectors from ide per interrupt. (I hope you do DMA ;)
+>
+> doing DMA - RAID-0 with 1MB chunk size on 4 disks.
+
+You should aim at maxing out IDE performance.
+Please find out how many sectors you read in one go.
+Maybe:
+
+# cat /proc/interrupts
+# dd bs=1m count=1 if=/dev/hda of=/dev/null
+# cat /proc/interrupts
+
+and calculate how many IDE interrupts happened. (1mb = 2048 sectors)
+--
+vda

@@ -1,48 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129535AbQLWQYK>; Sat, 23 Dec 2000 11:24:10 -0500
+	id <S129666AbQLWQ0A>; Sat, 23 Dec 2000 11:26:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130300AbQLWQYA>; Sat, 23 Dec 2000 11:24:00 -0500
-Received: from winds.org ([209.115.81.9]:13830 "EHLO winds.org")
-	by vger.kernel.org with ESMTP id <S129535AbQLWQXp>;
-	Sat, 23 Dec 2000 11:23:45 -0500
-Date: Sat, 23 Dec 2000 10:53:11 -0500 (EST)
-From: Byron Stanoszek <gandalf@winds.org>
-To: Rok Pergarec <mammbo@knux.nu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ATI Mach 64 (2.4.0-test12)
-In-Reply-To: <Pine.LNX.4.20.0012230940310.1633-100000@ns.knux.nu>
-Message-ID: <Pine.LNX.4.21.0012231048530.2110-100000@winds.org>
+	id <S129761AbQLWQZu>; Sat, 23 Dec 2000 11:25:50 -0500
+Received: from cm698210-a.denton1.tx.home.com ([24.17.129.59]:23044 "HELO
+	cm698210-a.denton1.tx.home.com") by vger.kernel.org with SMTP
+	id <S129666AbQLWQZf>; Sat, 23 Dec 2000 11:25:35 -0500
+Message-ID: <3A44CAD5.70CCA0B0@home.com>
+Date: Sat, 23 Dec 2000 09:55:01 -0600
+From: Matthew Vanecek <linux4us@home.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: recommended gcc compiler version
+In-Reply-To: <0012212320430F.02217@comptechnews> <001901c06bdf$1d6c74e0$3b42b0d1@pittscomp.com> <20001221230819.A1678@scutter.internal.splhi.com> <9209d6$7nt$1@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Dec 2000, Rok Pergarec wrote:
-
-> Hello,
+Linus Torvalds wrote:
 > 
-> I have problems with the ATI Mach 64 (Rage 2) video card. After a boot, I
-> get just a blank screen with a few vertical lines, but the system boots up
-> normally beacuse I can reboot the machine anyway. I don't get a sigle
-> error in compiling.
+> In article <20001221230819.A1678@scutter.internal.splhi.com>,
+> Tim Wright  <timw@splhi.com> wrote:
+> >
+> >So....
+> >egcs-1.1.2 is good for either, 2.7.2 is OK for 2.2, bad for 2.4. 2.95.2 and
+> >later are risky. RedHat just released a bugfixed "2.96" which is an unknown
+> >quantity AFAIK. Anybody brave enough to try it should probably post their
+> >results.
+> 
+> Note that despite my public comments about it beign a bad idea to ship
+> extremely untested compilers in a major release, I actually think that
+> it would be wonderful to have people who are ready to face the
+> consequences to try the new 2.96.
+> 
+> It's not been all that widely tested, but if you kno a bit about what
+> you're doing (or want to learn), gcc-2.96 _does_ potentially create
+> better code, and if nobody is willing to test it, any potential bugs (be
+> they in the kernel sources and triggered by a smarter compiler, or in
+> the compiler itself) won't be found.
+> 
+> So please do try it out, but please mention the fact if you end up
+> having to report a bug (it won't make your bug-report be ignored, don't
+> ever worry about something like that. But i would be good to have an
+> older compiler handy to correlate the bug with the compiler for sure).
+> 
+> In fact, I'd love to hear about experiences even with the CVS snapshots.
+> I just don't like them showing up in distributions ;)
+> 
+>                 Linus
 
-Try configuring just standard 'VGA text console' and disabling 'Video mode
-selection support'. Don't configure any special ATI choices either (or frame
-buffering), and see if it boots up then. The Mach64 should have standard VGA
-capabilities and should be compatible with every other vga card on bootup.
+I've been using 2.96 for the last couple of kernel compiles, and it's
+been working fine (pasting warnings and all).  This is the 2nd-to-latest
+update from RH 7.0.  The only issue I have is the very occasional Signal
+11--but I had those with kgcc, as well, so I don't reckon those are
+compiler-related.
 
-If it still doesn't work, send me your /usr/src/linux/.config file so I can see
-what you have configured.
-
-Regards,
- Byron
-
+Right now, I have test12.  This is on my desktop machine, doing normal
+desktop stuff (finances, StarOffice, Netscape, Java development, etc). 
+Seems to be working well, and test12 runs *much* faster than previous
+kernels...
 -- 
-Byron Stanoszek                         Ph: (330) 644-3059
-Systems Programmer                      Fax: (330) 644-8110
-Commercial Timesharing Inc.             Email: bstanoszek@comtime.com
-
+Matthew Vanecek
+perl -e 'print
+$i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
+********************************************************************************
+For 93 million miles, there is nothing between the sun and my shadow
+except me.
+I'm always getting in the way of something...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

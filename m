@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265849AbRGEDac>; Wed, 4 Jul 2001 23:30:32 -0400
+	id <S266093AbRGEDin>; Wed, 4 Jul 2001 23:38:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265855AbRGEDaW>; Wed, 4 Jul 2001 23:30:22 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:3964 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S265849AbRGEDaO>; Wed, 4 Jul 2001 23:30:14 -0400
-Message-ID: <3B43DE8C.7060404@kalifornia.com>
-Date: Wed, 04 Jul 2001 20:27:08 -0700
-From: Ben Ford <ben@kalifornia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Shawn Starr <spstarr@sh0n.net>
-CC: bri@cs.uchicago.edu, linux-kernel@vger.kernel.org
-Subject: Re: Kernel HOWTO update?
-In-Reply-To: <Pine.LNX.4.30.0107042313210.4004-100000@coredump.sh0n.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265941AbRGEDiX>; Wed, 4 Jul 2001 23:38:23 -0400
+Received: from chmls06.mediaone.net ([24.147.1.144]:24763 "EHLO
+	chmls06.mediaone.net") by vger.kernel.org with ESMTP
+	id <S265861AbRGEDiM>; Wed, 4 Jul 2001 23:38:12 -0400
+From: andrew@pimlott.ne.mediaone.net (Andrew Pimlott)
+Date: Wed, 4 Jul 2001 23:29:24 -0400
+To: George Bonser <george@gator.com>
+Cc: kern@wolf.ericsson.net.nz, linux-kernel@vger.kernel.org
+Subject: Re: tcp stack tuning and Checkpoint FW1 & Legato Networker
+Message-ID: <20010704232924.A13077@pimlott.ne.mediaone.net>
+Mail-Followup-To: George Bonser <george@gator.com>,
+	kern@wolf.ericsson.net.nz, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0107051331190.2882-100000@wolf.ericsson.net.nz> <CHEKKPICCNOGICGMDODJIELKDIAA.george@gator.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <CHEKKPICCNOGICGMDODJIELKDIAA.george@gator.com>; from george@gator.com on Wed, Jul 04, 2001 at 07:02:36PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shawn Starr wrote:
+On Wed, Jul 04, 2001 at 07:02:36PM -0700, George Bonser wrote:
+> > I want to set the tcp_keepalive timer to 60 seconds and understand
+> > possible implications for Linux.
+> 
+> echo 60 >/proc/sys/net/ipv4/tcp_keepalive_time
 
->Section:
->7.6 You forgot to run LILO, or system doesn't boot at all
->
->You might want to update the following line:
->
->"Using LILO with big drives (more than 1024 cylinders) can cause problems.
->See the LILO mini-HOWTO or documentation for help on that."
->
->This isn't true anymore unless your using an older version of LILO.
->
-Or an old hard drive.
+By default, this is only polled by the kernel every 75 seconds, so
+you would still lose.  In 2.2, this is hard-coded.  In 2.4,
+/proc/sys/net/ipv4/tcp_keepalive_intvl will probably help, but I
+haven't tried it.
 
--- 
-:    __o
-:   -\<,
-:   0/ 0
------------
-
-
-
+Andrew

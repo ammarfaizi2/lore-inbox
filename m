@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314018AbSDKKfs>; Thu, 11 Apr 2002 06:35:48 -0400
+	id <S314019AbSDKKmW>; Thu, 11 Apr 2002 06:42:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314019AbSDKKfr>; Thu, 11 Apr 2002 06:35:47 -0400
-Received: from arm.t19.ds.pwr.wroc.pl ([156.17.236.105]:7441 "EHLO misie.k.pl")
-	by vger.kernel.org with ESMTP id <S314018AbSDKKfr> convert rfc822-to-8bit;
-	Thu, 11 Apr 2002 06:35:47 -0400
+	id <S314020AbSDKKmV>; Thu, 11 Apr 2002 06:42:21 -0400
+Received: from sebula.traumatized.org ([193.121.72.130]:28549 "EHLO
+	sparkie.is.traumatized.org") by vger.kernel.org with ESMTP
+	id <S314019AbSDKKmV>; Thu, 11 Apr 2002 06:42:21 -0400
+Date: Thu, 11 Apr 2002 12:34:44 +0200
+From: Jurgen Philippaerts <jurgen@pophost.eunet.be>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: atyfb on 2.4.18
-X-Attribution: arekm
-X-URL: http://www.t17.ds.pwr.wroc.pl/~misiek/ipv6/
-Organization: PLD Linux Distribution Team
-From: Arkadiusz Miskiewicz <misiek@pld.ORG.PL>
-Date: 11 Apr 2002 12:35:45 +0200
-Message-ID: <87ofgqjzem.fsf@arm.t19.ds.pwr.wroc.pl>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+Subject: Re: arch/sparc64/kernel/traps.c
+Message-ID: <20020411103444.GA7280@sparkie.is.traumatized.org>
+In-Reply-To: <20020409212000.GK9996@sparkie.is.traumatized.org> <20020409.155757.34666328.davem@redhat.com> <20020410133908.GJ11858@sparkie.is.traumatized.org> <200204110547.g3B5l3X08802@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i (Linux 2.4.19-pre5 sparc64)
+X-Files: the truth is out there
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 11, 2002 at 08:00:08AM +0200, Denis Vlasenko wrote:
 
-Without this compilation of atyfb on powerpc using gcc 2.95.4 prerelease
-fails. Unfortunately I'm not sure if this patch is really correct. Is it?
+> > > ksymoops should be already installed on your system
+> > > at /usr/bin/ksymoops, if it isn't find the package
+> > > to install or complain to your distribution maintainer :-)
+> > >
+> > > If you still want to compile ksymoops from source you need to update
+> > > and install a new binutils to get the latest BFD library.
+> >
+> > allright, ksymoops doesn't come with my distribution (Splack)
+> > so i got the source, and went from there.
+> >
+> > now it compiled nicely.
+> >
+> > here's the output that i get (i'm not quite sure what to expect, so i
+> > hope this is what you need:)
+> 
+> [snip]
+> 
+> > Error (Oops_bfd_perror): set_section_contents Bad value
+> 
+> [snip]
+> 
+> I've seen the same when ksymoops was linked against old libbfd.
+> It builds without errors but could not disassemble oopsed code.
+> Check for old libbfd lying around.
 
---- linux/drivers/video/aty/atyfb_base.c~	Mon Feb 25 19:38:07 2002
-+++ linux/drivers/video/aty/atyfb_base.c	Thu Apr 11 10:04:45 2002
-@@ -310,7 +310,7 @@
-     const char *name;
-     int pll, mclk;
-     u32 features;
--} aty_chips[] __initdata = {
-+} aty_chips[] __devinitdata = {
- #ifdef CONFIG_FB_ATY_GX
-     /* Mach64 GX */
-     { 0x4758, 0x00d7, 0x00, 0x00, m64n_gx,      135,  50, M64F_GX },
+sorry for the long lines, but it would't be very readable otherwise
+:)
 
--- 
-Arkadiusz Mi¶kiewicz   IPv6 ready PLD Linux at http://www.pld.org.pl
-misiek(at)pld.org.pl   AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PWr
+$ locate libbfd | xargs ls -ld
+-rwxr-xr-x    1 root     root       632951 Apr 10 15:18 /usr/lib/libbfd-2.12.so
+-rw-r--r--    1 root     root       737648 Apr 10 15:18 /usr/lib/libbfd.a
+-rwxr-xr-x    1 root     root          771 Apr 10 15:18 /usr/lib/libbfd.la
+lrwxrwxrwx    1 root     root           14 Apr 10 15:24 /usr/lib/libbfd.so -> libbfd-2.12.so
 
+$ locate bfd.h | xargs ls -ld
+-rw-r--r--    1 root     root       134077 Apr 10 15:18 /usr/include/bfd.h
+
+it all looks like the new version to me
+
+
+ps: it's the first time i actually use ksymoops, so excuse my
+newbie-like behaviour :)
+
+Jurgen.

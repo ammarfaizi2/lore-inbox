@@ -1,116 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278437AbRJ3V6n>; Tue, 30 Oct 2001 16:58:43 -0500
+	id <S278481AbRJ3WFo>; Tue, 30 Oct 2001 17:05:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278465AbRJ3V6Y>; Tue, 30 Oct 2001 16:58:24 -0500
-Received: from pscgate.progress.com ([192.77.186.1]:25771 "EHLO
-	pscgate.progress.com") by vger.kernel.org with ESMTP
-	id <S278472AbRJ3V6F>; Tue, 30 Oct 2001 16:58:05 -0500
-Subject: Re: What is standing in the way of opening the 2.5 tree?
-From: "Sujal Shah" <sshah@progress.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0110301335230.9312-100000@methlab.23.org>
-In-Reply-To: <Pine.LNX.4.30.0110301335230.9312-100000@methlab.23.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-gI/7I0fTaLJXARVwh0VM"
-X-Mailer: Evolution/0.16.99+cvs.2001.10.29.22.54 (Preview Release)
-Date: 30 Oct 2001 16:59:25 -0500
-Message-Id: <1004479166.31041.13.camel@pcsshah>
-Mime-Version: 1.0
+	id <S278476AbRJ3WFe>; Tue, 30 Oct 2001 17:05:34 -0500
+Received: from mons.uio.no ([129.240.130.14]:34743 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S278472AbRJ3WF0>;
+	Tue, 30 Oct 2001 17:05:26 -0500
+To: Lars Magne Ingebrigtsen <larsi@gnus.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nfs_lookup_validate and dud inodes
+In-Reply-To: <m3zo68rjk7.fsf@quimbies.gnus.org>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 30 Oct 2001 23:05:57 +0100
+In-Reply-To: <m3zo68rjk7.fsf@quimbies.gnus.org>
+Message-ID: <shs8zds941m.fsf@susy.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Lars Magne Ingebrigtsen <larsi@gnus.org> writes:
 
---=-gI/7I0fTaLJXARVwh0VM
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+     > [larsi@quimbies ~]$ ls -l /tftpboot/sparky/lib/libe2p.so.2*
+     > lrwxrwxrwx 1 root root 13 Oct 30 20:23
+     > /tftpboot/sparky/lib/libe2p.so.2 -> libe2p.so.2.3 -rw-r--r-- 1
+     > root root 13400 Sep 22 17:15 /tftpboot/sparky/lib/libe2p.so.2.3
 
-On Tue, 2001-10-30 at 16:39, lost wrote:
-> sounds like more complication to me.  i personally think both do a great
-> job at getting the job done.  sure there are problems with any source
-> tree.  but adding more version numbers and turning kernels over to other
-> people doesnt seem like the solution for making anything more stable.
-[SNIP]
+     > So the error message is when trying to access the symlink.
 
-For my .02, I completely disagree with you.  I'll explain in a minute.
+<snip>
 
-> On 30 Oct 2001, Thomas Hood wrote:
-[SNIP]
-> > Having suggested, this, I'll remind everyone that Linus
-> > and Alan can do whatever the hell the like.  Which is
-> > what I like about Linux.
-> >
+     > Is this a known bug?
 
-This has to be a strength, to be honest.  I'd take this further by
-proposing something else.
+Known and fixed in the 2.2.20-pre series. It's just that the symlink
+code in 2.2.19 doesn't call nfs_revalidate_inode() in order to verify
+data cache consistency.
 
-<Flame Retardant Suit>
-
-To be honest, I think that any x.y.z kernel is "unstable."  As we move
-into a situation with an even larger installed base, I think you're
-going to see a third tier become more evident: a) unstable, b) stable,
-c) vendor supported.  Quite frankly, if I'm making recommendations to
-customers and clients for a linux installation, I typically recommend
-for them to go with a vendor supplied kernel and manage it through the
-vendor.
-
-So, while I don't appreciate "massive" VM changes in the middle of my
-own testing and development :-), I always treat every new kernel
-iteration as potentially "unstable" and operate on the "if it ain't
-broke, don't fix it" principle on my daily use boxes (unless something
-in a Linus or AC changelog looks too tempting ;-)
-
-One can hope that the number of people reading this list plus those
-keeping up with most kernel releases know what they're doing, and are a
-far smaller number than those people running vendor supplied kernels and
-installations.  If this isn't true today, I hope it is true at some
-point in the future.
-
-Just my opinion,
-
-Sujal
-
-> > --
-> > Thomas Hood
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->=20
-> 			************************
->  "If you want a picure of the future, imagine a boot smashing a human fac=
-e"
-> 						      - 1984, George Orwell
->  email: lost@23.org * website: http://www.23.org/~lost
-> 			************************
->=20
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
-n
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---=20
----- Sujal Shah ---- PSC Labs (Progress Software) ----=20
-
-Now Playing: none
-
---=-gI/7I0fTaLJXARVwh0VM
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA73yK9rdegDpOByoARAtGeAJ97iqBK5rz763vQHwVBKZmWuV/WTQCfedvS
-PImTcuIcWXzBpsspZvcA4gg=
-=2s20
------END PGP SIGNATURE-----
-
---=-gI/7I0fTaLJXARVwh0VM--
-
+Cheers,
+   Trond

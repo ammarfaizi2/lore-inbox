@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316928AbSGCGEx>; Wed, 3 Jul 2002 02:04:53 -0400
+	id <S316933AbSGCGWf>; Wed, 3 Jul 2002 02:22:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316935AbSGCGEw>; Wed, 3 Jul 2002 02:04:52 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:59279 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S316928AbSGCGEv>;
-	Wed, 3 Jul 2002 02:04:51 -0400
-Date: Wed, 3 Jul 2002 02:07:20 -0400 (EDT)
+	id <S316952AbSGCGWe>; Wed, 3 Jul 2002 02:22:34 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:63404 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S316933AbSGCGWd>;
+	Wed, 3 Jul 2002 02:22:33 -0400
+Date: Wed, 3 Jul 2002 02:25:02 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
-To: Matthew Wilcox <willy@debian.org>
-cc: Paul Menage <pmenage@ensim.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
+To: Paul Menage <pmenage@ensim.com>
+cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Shift BKL into ->statfs()
-In-Reply-To: <20020703035744.K27706@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.GSO.4.21.0207030202040.6472-100000@weyl.math.psu.edu>
+In-Reply-To: <E17PYtv-0004Fd-00@pmenage-dt.ensim.com>
+Message-ID: <Pine.GSO.4.21.0207030208080.6472-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,34 +20,36 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 3 Jul 2002, Matthew Wilcox wrote:
+On Tue, 2 Jul 2002, Paul Menage wrote:
 
-> On Tue, Jul 02, 2002 at 06:25:47PM -0700, Paul Menage wrote:
-> > This patch removes BKL protection from the invocation of the
-> > super_operations ->statfs() method, and shifts it into the filesystems
-> > where necessary. Any out-of-tree filesystems may need to take the BKL in
-> > their statfs() methods if they were relying on it for synchronisation.
 > 
-> Sure, makes sense to do.  For real credit though, let's see how much we
-> need the BKL.  In ext2's statfs, we reference:
+> This patch removes BKL protection from the invocation of the
+> super_operations ->statfs() method, and shifts it into the filesystems
+> where necessary. Any out-of-tree filesystems may need to take the BKL in
+> their statfs() methods if they were relying on it for synchronisation.
+> 
+> All ->statfs() implementations have been modified to take the BKL,
+> except for the following, which don't reference any external mutable
+> data:
+> 
+> simple_statfs
+> isofs_statfs
+> ncp_statfs
+> cramfs_statfs
+> romfs_statfs
+> 
+> Additionally, capifs is changed to use simple_statfs rather than its 
+> own home-grown version.
 
-[snip]
+Patch makes sense.  However
 
-> s_mount_opt doesn't actually need to be locked due to how it is
-> modified & used.  So it _looks_ like we only need to lock_super(sb); /
-> unlock_super(sb); in ext2.  Anyone more familiar with ext2 locking care
-> to comment?
+	1) please, let's keep Documentation/filesystems/porting more or less
+in chronological order.  I.e. somebody who wants to check what's new should
+be able to check the end of the list, not hunt through the middle for changes.
+IOW, I'd rather see duplicate sections (or even "->statfs() had lost BKL; see
+section on ->write_super()")
 
-We actually don't need even that - the only places that might need
-lock_super() (ext2_count_free_blocks()/ext2_count_free_inodes()) are
-already taking it.
+	2) ext2, shmem, FAT, minix and sysv ->statfs() don't need BKL.
 
-So BKL can be dropped in ext2_statfs() and no extra locks are needed.
-
-> I bet most other filesystems can handle lock_super / unlock_super
-> for themselves.  See if some kerneljanitors are willing to help audit,
-> perhaps?
-
-Depending on filesystem, lock_super() might be a bad idea.  Keep in
-mind that these days ->s_lock is a private filesystem lock...
+	3) efs and vxfs are read-only.
 

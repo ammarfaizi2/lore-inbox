@@ -1,130 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269055AbTBXBRI>; Sun, 23 Feb 2003 20:17:08 -0500
+	id <S269054AbTBXBQv>; Sun, 23 Feb 2003 20:16:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269058AbTBXBRH>; Sun, 23 Feb 2003 20:17:07 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:48780 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id <S269055AbTBXBRA>; Sun, 23 Feb 2003 20:17:00 -0500
-Date: Sun, 23 Feb 2003 20:27:02 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
-Message-Id: <200302240127.h1O1R2Nd027860@locutus.cmf.nrl.navy.mil>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][ATM] empty tx queue in lane client when flush completes
+	id <S269055AbTBXBQv>; Sun, 23 Feb 2003 20:16:51 -0500
+Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:202 "EHLO
+	garbo.kenjo.org") by vger.kernel.org with ESMTP id <S269054AbTBXBQt>;
+	Sun, 23 Feb 2003 20:16:49 -0500
+Subject: Re: Minutes from Feb 21 LSE Call
+From: Kenneth Johansson <ken@kenjo.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Xavier Bestel <xavier.bestel@free.fr>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1046044629.2210.3.camel@irongate.swansea.linux.org.uk>
+References: <E18moa2-0005cP-00@w-gerrit2>
+	 <Pine.LNX.4.44.0302222354310.8609-100000@dlang.diginsite.com>
+	 <20030223082036.GI10411@holomorphy.com>
+	 <b3b6oa$bsj$1@penguin.transmeta.com>
+	 <1046031687.2140.32.camel@bip.localdomain.fake>
+	 <16920000.1046033458@[10.10.2.4]>
+	 <1046044629.2210.3.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1046050010.2840.14.camel@tiger>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 24 Feb 2003 02:26:51 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the lane spec says the following about path switching:
+On Mon, 2003-02-24 at 00:57, Alan Cox wrote:
+> On Sun, 2003-02-23 at 20:50, Martin J. Bligh wrote:
+> > >> And the baroque instruction encoding on the x86 is actually a _good_
+> > >> thing: it's a rather dense encoding, which means that you win on icache. 
+> > >> It's a bit hard to decode, but who cares? Existing chips do well at
+> > >> decoding, and thanks to the icache win they tend to perform better - and
+> > >> they load faster too (which is important - you can make your CPU have
+> > >> big caches, but _nothing_ saves you from the cold-cache costs). 
+> > > 
+> > > Next step: hardware gzip ?
+> > 
+> > They did that already ... IBM were demonstrating such a thing a couple of
+> > years ago. Don't see it helping with icache though, as it unpacks between
+> > memory and the processory, IIRC.
+> 
+> I saw the L2/L3 compressed cache thing, and I thought "doh!", and I watched and
+> I've not seen it for a long time. What happened to it ?
+> 
 
-        10.1.2.7 Transmitting Held Frames
+http://www-3.ibm.com/chips/techlib/techlib.nsf/products/CodePack
 
-        Once the LE_FLUSH_RESPONSE is received, the LE Client MUST
-        transmit any held  data frames on the new data path before
-        transmitting any further frames on the new path.
+If you are thinking of this it dose look like people was not using it I
+know I'm not.It reduces memory for instructions but that is all and
+memory is seems is not a problem at least not for instructions. 
 
-        10.1.2.8 Switching Over Paths Without Flush
+It dose not exist in new cpu's from IBM I don't know the official reason
+for the removal.
 
-        Regardless of the provisions of the rest of Section 10.1, when
-        switching from the old path to a new path, if an LE Client has
-        not transmitted a data frame to a particular LAN Destination via
-        the old path for a period of time greater than or equal to the
-        C22 Path Switching Delay, then it MAY start using the new path
-        without employing the Flush protocol.
+If you really do mean compressed cache I don't think anybody has done
+that for real.
 
-the lane client in linux-atm does do this but it doesnt send the
-held frames until a frame is transmitted on the vcc after the flush
-has completed.  often this doesnt happen until you get an ip retransmit.
-the following patch sends the held frames after the flush completes
-(or the switching delay expires):
-
-Index: linux/net/atm/lec.c
-===================================================================
-RCS file: /home/chas/CVSROOT/linux/net/atm/lec.c,v
-retrieving revision 1.4
-retrieving revision 1.5
-diff -u -d -b -w -r1.4 -r1.5
---- linux/net/atm/lec.c	22 Feb 2003 17:43:41 -0000	1.4
-+++ linux/net/atm/lec.c	22 Feb 2003 19:23:22 -0000	1.5
-@@ -198,6 +198,23 @@
-         return 0;
- }
- 
-+static __inline__ void
-+lec_send(struct atm_vcc *vcc, struct sk_buff *skb, struct lec_priv *priv)
-+{
-+	if (atm_may_send(vcc, skb->len)) {
-+		atomic_add(skb->truesize, &vcc->tx_inuse);
-+	        ATM_SKB(skb)->vcc = vcc;
-+	        ATM_SKB(skb)->iovcnt = 0;
-+	        ATM_SKB(skb)->atm_options = vcc->atm_options;
-+		priv->stats.tx_packets++;
-+		priv->stats.tx_bytes += skb->len;
-+		vcc->send(vcc, skb);
-+	} else {
-+		priv->stats.tx_dropped++;
-+		dev_kfree_skb(skb);
-+	}
-+}
-+
- static int 
- lec_send_packet(struct sk_buff *skb, struct net_device *dev)
- {
-@@ -343,34 +360,10 @@
-                 DPRINTK("MAC address 0x%02x:%02x:%02x:%02x:%02x:%02x\n",
-                         lec_h->h_dest[0], lec_h->h_dest[1], lec_h->h_dest[2],
-                         lec_h->h_dest[3], lec_h->h_dest[4], lec_h->h_dest[5]);
--                ATM_SKB(skb2)->vcc = send_vcc;
--                ATM_SKB(skb2)->iovcnt = 0;
--                ATM_SKB(skb2)->atm_options = send_vcc->atm_options;
--                DPRINTK("%s:sending to vpi:%d vci:%d\n", dev->name,
--                        send_vcc->vpi, send_vcc->vci);       
--                if (atm_may_send(send_vcc, skb2->len)) {
--                        atomic_add(skb2->truesize, &send_vcc->tx_inuse);
--                        priv->stats.tx_packets++;
--                        priv->stats.tx_bytes += skb2->len;
--                        send_vcc->send(send_vcc, skb2);
--                } else {
--                        priv->stats.tx_dropped++;
--                        dev_kfree_skb(skb2);
--		}
-+		lec_send(send_vcc, skb2, priv);
-         }
- 
--        ATM_SKB(skb)->vcc = send_vcc;
--        ATM_SKB(skb)->iovcnt = 0;
--        ATM_SKB(skb)->atm_options = send_vcc->atm_options;
--        if (atm_may_send(send_vcc, skb->len)) {
--                atomic_add(skb->truesize, &send_vcc->tx_inuse);
--                priv->stats.tx_packets++;
--                priv->stats.tx_bytes += skb->len;
--                send_vcc->send(send_vcc, skb);
--        } else {
--                priv->stats.tx_dropped++;
--                dev_kfree_skb(skb);
--	}
-+	lec_send(send_vcc, skb, priv);
- 
- #if 0
-         /* Should we wait for card's device driver to notify us? */
-@@ -1615,6 +1608,10 @@
-                                            &&
-                                            time_after_eq(now, entry->timestamp+
-                                            priv->path_switching_delay)) {
-+			                        struct sk_buff *skb;
-+
-+ 				                while ((skb = skb_dequeue(&entry->tx_wait)))
-+					                lec_send(entry->vcc, skb, entry->priv);
-                                                 entry->last_used = jiffies;
-                                                 entry->status = 
-                                                         ESI_FORWARD_DIRECT;
-@@ -2008,6 +2005,10 @@
-                 for (entry=priv->lec_arp_tables[i];entry;entry=entry->next) {
-                         if (entry->flush_tran_id == tran_id &&
-                             entry->status == ESI_FLUSH_PENDING) {
-+			        struct sk_buff *skb;
-+
-+ 				while ((skb = skb_dequeue(&entry->tx_wait)))
-+					lec_send(entry->vcc, skb, entry->priv);
-                                 entry->status = ESI_FORWARD_DIRECT;
-                                 DPRINTK("LEC_ARP: Flushed\n");
-                         }

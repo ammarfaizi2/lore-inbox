@@ -1,28 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267255AbTAGB6x>; Mon, 6 Jan 2003 20:58:53 -0500
+	id <S267270AbTAGCL3>; Mon, 6 Jan 2003 21:11:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267261AbTAGB6x>; Mon, 6 Jan 2003 20:58:53 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:48336 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S267255AbTAGB6x>; Mon, 6 Jan 2003 20:58:53 -0500
-Date: Tue, 7 Jan 2003 03:07:29 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.20 IDE for 2.4.21-pre3
-Message-ID: <20030107020729.GS5984@louise.pinerecords.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S267263AbTAGCL3>; Mon, 6 Jan 2003 21:11:29 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:249 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S267261AbTAGCL2>;
+	Mon, 6 Jan 2003 21:11:28 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 7 Jan 2003 03:19:45 +0100 (MET)
+Message-Id: <UTC200301070219.h072JjD19965.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, patmans@us.ibm.com
+Subject: Re: IDs
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, mdharm-kernel@one-eyed-alien.net,
+       zwane@holomorphy.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.20 IDE for 2.4.21-pre3
+> We can tell if the id sdev->name should be unique by looking at
+> the first byte (it is not unique if the value is 'Z'),
+> SCSI_UID_UNKNOWN.
 
-http://www.pinerecords.com/kala/linux/2420ide/2.4.21-pre3-2420ide-1.gz
-588k
+Such things are nontrivial.
 
-Whom do I ask for a kernel.org directory, btw?  hpa?
+% cat /sysfs/devices/ide-scsi/0:0:0:0/0:0:0:0/name
+SHP      CD-Writer+ 8200 [
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+Here the serial number consists of the '[' only.
+(And this is not because of truncation.)
+
+I can see your intentions, but view these names/ids more
+like heuristics than like reliable data.
+More or less like mount, which will usually figure out the
+filesystem type for you, but no guarantees are given.
+
+And where we have heuristics only, it cannot be "wrong"
+to truncate at 50 positions or so. The heuristic does
+not become appreciably weaker.
+
+(And, in case of heuristics, I like 98% heuristics better
+than 99.98% heuristics. They keep you honest. No important
+things will depend upon them. With 99.98% one may forget
+that it is a heuristic.)
+
+Andries

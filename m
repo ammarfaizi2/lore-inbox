@@ -1,103 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbULTPV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbULTPV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261534AbULTPV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 10:21:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbULTPUd
+	id S261532AbULTPV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 10:21:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbULTPTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 10:20:33 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:64173 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261534AbULTPRd (ORCPT
+	Mon, 20 Dec 2004 10:19:51 -0500
+Received: from fsmlabs.com ([168.103.115.128]:35022 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261532AbULTPMa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 10:17:33 -0500
-Date: Mon, 20 Dec 2004 10:17:28 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, robert_hentosh@dell.com
-Subject: [PATCH][2/2] do not OOM kill if we skip writing many pages
-Message-ID: <Pine.LNX.4.61.0412201013420.13935@chimarrao.boston.redhat.com>
+	Mon, 20 Dec 2004 10:12:30 -0500
+Date: Mon, 20 Dec 2004 08:12:24 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Boottime allocated GDTs and doublefault handler
+In-Reply-To: <Pine.LNX.4.61.0412192307490.18310@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.61.0412200806060.17024@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.61.0412191730330.18272@montezuma.fsmlabs.com>
+ <Pine.LNX.4.58.0412191824280.4112@ppc970.osdl.org>
+ <Pine.LNX.4.61.0412192307490.18310@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simply running "dd if=/dev/zero of=/dev/hd<one you can miss>" will
-result in OOM kills, with the dirty pagecache completely filling up
-lowmem.  This patch is part 2 to fixing that problem.
+On Mon, 20 Dec 2004, Zwane Mwaikambo wrote:
 
-Note that this test case demonstrates that the false OOM kills can
-also be reproduced with pages that are not "pinned" by the swap token
-at all, so there are some serious VM problems left still...
+> Ok =), i've added the page table walker and some basic code to fish out 
+> 'current' and dump a few words of its stack. Sorry about the noise in the 
+> patch but the nested if()s were beginning to go too far.
 
-If we cannot write out a number of pages because of congestion on
-the filesystem or block device, do not cause an OOM kill.  These
-pages will become freeable later, when the congestion clears.
+William Irwin pointed out my faulty highmem page check;
 
-Signed-off-by: Rik van Riel <riel@redhat.com>
+ arch/i386/kernel/doublefault.c |   89 +++++++++++++++++++++++++++++++----------
+ arch/i386/kernel/traps.c       |    6 --
+ include/asm-i386/thread_info.h |    6 ++
+ 3 files changed, 75 insertions(+), 26 deletions(-)
 
---- linux-2.6.9/mm/vmscan.c.oomkill	2004-12-17 12:19:36.000000000 -0500
-+++ linux-2.6.9/mm/vmscan.c	2004-12-17 13:38:31.368294772 -0500
-@@ -43,6 +43,8 @@
-  typedef enum {
-  	/* failed to write page out, page is locked */
-  	PAGE_KEEP,
-+	/* failed to write page out because of busy disk, page is locked */
-+	PAGE_CONGESTED,
-  	/* move page to the active list, page is locked */
-  	PAGE_ACTIVATE,
-  	/* page has been sent to the disk successfully, page is unlocked */
-@@ -61,6 +63,9 @@
-  	/* Incremented by the number of pages reclaimed */
-  	unsigned long nr_reclaimed;
-
-+	/* Incremented by the number of pages skipped due to congestion */
-+	unsigned long nr_congested;
+===== arch/i386/kernel/doublefault.c 1.4 vs edited =====
+--- 1.4/arch/i386/kernel/doublefault.c	2004-08-24 03:08:41 -06:00
++++ edited/arch/i386/kernel/doublefault.c	2004-12-20 08:08:40 -07:00
+@@ -3,6 +3,7 @@
+ #include <linux/init.h>
+ #include <linux/init_task.h>
+ #include <linux/fs.h>
++#include <linux/highmem.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -13,37 +14,85 @@
+ static unsigned long doublefault_stack[DOUBLEFAULT_STACKSIZE];
+ #define STACK_START (unsigned long)(doublefault_stack+DOUBLEFAULT_STACKSIZE)
+ 
+-#define ptr_ok(x) ((x) > PAGE_OFFSET && (x) < PAGE_OFFSET + 0x1000000)
++static int ptr_ok(unsigned long vaddr)
++{
++	pgd_t *pgd;
++	pmd_t *pmd;
++	pte_t pte;
 +
-  	unsigned long nr_mapped;	/* From page_state */
-
-  	/* How many pages shrink_cache() should reclaim */
-@@ -312,7 +317,7 @@
-  	if (mapping->a_ops->writepage == NULL)
-  		return PAGE_ACTIVATE;
-  	if (!may_write_to_queue(mapping->backing_dev_info))
--		return PAGE_KEEP;
-+		return PAGE_CONGESTED;
-
-  	if (clear_page_dirty_for_io(page)) {
-  		int res;
-@@ -424,6 +429,9 @@
-
-  			/* Page is dirty, try to write it out here */
-  			switch(pageout(page, mapping)) {
-+			case PAGE_CONGESTED:
-+				sc->nr_congested++;
-+				/* fall through */
-  			case PAGE_KEEP:
-  				goto keep_locked;
-  			case PAGE_ACTIVATE:
-@@ -910,6 +918,7 @@
-  		sc.nr_mapped = read_page_state(nr_mapped);
-  		sc.nr_scanned = 0;
-  		sc.nr_reclaimed = 0;
-+		sc.nr_congested = 0;
-  		sc.priority = priority;
-  		shrink_caches(zones, &sc);
-  		shrink_slab(sc.nr_scanned, gfp_mask, lru_pages);
-@@ -940,7 +949,8 @@
-  		if (sc.nr_scanned && priority < DEF_PRIORITY - 2)
-  			blk_congestion_wait(WRITE, HZ/10);
-  	}
--	if ((gfp_mask & __GFP_FS) && !(gfp_mask & __GFP_NORETRY))
-+	if ((gfp_mask & __GFP_FS) && !(gfp_mask & __GFP_NORETRY) &&
-+			sc.nr_congested < SWAP_CLUSTER_MAX)
-  		out_of_memory(gfp_mask);
-  out:
-  	for (i = 0; zones[i] != 0; i++)
-@@ -1062,6 +1072,7 @@
-  				zone->prev_priority = priority;
-  			sc.nr_scanned = 0;
-  			sc.nr_reclaimed = 0;
-+			sc.nr_congested = 0;
-  			sc.priority = priority;
-  			shrink_zone(zone, &sc);
-  			reclaim_state->reclaimed_slab = 0;
++	__asm__ __volatile__("movl %%cr3, %0" : "=r"(pgd));
++	pgd = __va(pgd);
++	pgd += pgd_index(vaddr);
++	pmd = pmd_offset(pgd, vaddr);
++	if (pmd_none(*pmd))
++		return 0;
++	else if (pmd_large(*pmd))
++		return 1;
++#ifdef CONFIG_HIGHMEM
++	else if ((pmd_val(*pmd) >> PAGE_SHIFT) > page_to_pfn(highmem_start_page))
++		return 0;
++#endif
++	pte = *pte_offset_kernel(pmd, vaddr);
++	if (!pte_present(pte))
++		return 0;
++
++	return 1;
++}
+ 
+ static void doublefault_fn(void)
+ {
+ 	struct Xgt_desc_struct gdt_desc = {0, 0};
+-	unsigned long gdt, tss;
++	struct tss_struct *t;
++	struct thread_info *ti;
++	struct task_struct *tsk;
++	unsigned long gdt, tss, *esp;
++	int r = 0;
+ 
+ 	__asm__ __volatile__("sgdt %0": "=m" (gdt_desc): :"memory");
+ 	gdt = gdt_desc.address;
+ 
+ 	printk("double fault, gdt at %08lx [%d bytes]\n", gdt, gdt_desc.size);
+ 
+-	if (ptr_ok(gdt)) {
+-		gdt += GDT_ENTRY_TSS << 3;
+-		tss = *(u16 *)(gdt+2);
+-		tss += *(u8 *)(gdt+4) << 16;
+-		tss += *(u8 *)(gdt+7) << 24;
+-		printk("double fault, tss at %08lx\n", tss);
+-
+-		if (ptr_ok(tss)) {
+-			struct tss_struct *t = (struct tss_struct *)tss;
+-
+-			printk("eip = %08lx, esp = %08lx\n", t->eip, t->esp);
+-
+-			printk("eax = %08lx, ebx = %08lx, ecx = %08lx, edx = %08lx\n",
+-				t->eax, t->ebx, t->ecx, t->edx);
+-			printk("esi = %08lx, edi = %08lx\n",
+-				t->esi, t->edi);
+-		}
+-	}
++	if (!ptr_ok(gdt))
++		goto done;
++
++	gdt += GDT_ENTRY_TSS << 3;
++	tss = *(u16 *)(gdt+2);
++	tss += *(u8 *)(gdt+4) << 16;
++	tss += *(u8 *)(gdt+7) << 24;
++	printk("double fault, tss at %08lx\n", tss);
++
++	if (!ptr_ok(tss))
++		goto done;
++
++	t = (struct tss_struct *)tss;
++	printk("eip = %08lx, esp = %08lx\n", t->eip, t->esp);
++	printk("eax = %08lx, ebx = %08lx, ecx = %08lx, edx = %08lx\n",
++		t->eax, t->ebx, t->ecx, t->edx);
++	printk("esi = %08lx, edi = %08lx\n",
++		t->esi, t->edi);
++
++	if (!ptr_ok(t->esp))
++		goto done;
++
++	ti = (struct thread_info *)(t->esp & ~(THREAD_SIZE - 1));
++	tsk = ti->task;
++	if (!ptr_ok((unsigned long)tsk))
++		goto done;
++
++	esp = (unsigned long *)t->esp;
++	printk("task: %p (%s) stack:\n", tsk, tsk->comm);
++#if 0
++	show_stack(tsk, esp);
++#else
++	while (ptr_ok((unsigned long)esp) && valid_stack_ptr(ti, esp)) {
++		printk("%08lx ", *esp++);
++		if (!(++r % 8))
++			printk("\n");
++        }
++#endif
+ 
++done:
+ 	for (;;) /* nothing */;
+ }
+ 
+===== arch/i386/kernel/traps.c 1.91 vs edited =====
+--- 1.91/arch/i386/kernel/traps.c	2004-11-23 17:47:27 -07:00
++++ edited/arch/i386/kernel/traps.c	2004-12-20 00:04:38 -07:00
+@@ -105,12 +105,6 @@ int register_die_notifier(struct notifie
+ 	return err;
+ }
+ 
+-static inline int valid_stack_ptr(struct thread_info *tinfo, void *p)
+-{
+-	return	p > (void *)tinfo &&
+-		p < (void *)tinfo + THREAD_SIZE - 3;
+-}
+-
+ static inline unsigned long print_context_stack(struct thread_info *tinfo,
+ 				unsigned long *stack, unsigned long ebp)
+ {
+===== include/asm-i386/thread_info.h 1.23 vs edited =====
+--- 1.23/include/asm-i386/thread_info.h	2004-11-19 00:03:11 -07:00
++++ edited/include/asm-i386/thread_info.h	2004-12-20 00:09:19 -07:00
+@@ -95,6 +95,12 @@ static inline struct thread_info *curren
+ /* how to get the current stack pointer from C */
+ register unsigned long current_stack_pointer asm("esp") __attribute_used__;
+ 
++static inline int valid_stack_ptr(struct thread_info *tinfo, void *p)
++{
++        return  p > (void *)tinfo &&
++                p < (void *)tinfo + THREAD_SIZE - 3;
++}
++
+ /* thread information allocation */
+ #ifdef CONFIG_DEBUG_STACK_USAGE
+ #define alloc_thread_info(tsk)					\

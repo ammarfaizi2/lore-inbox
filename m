@@ -1,151 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265832AbTIETOx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 15:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265780AbTIETOe
+	id S265755AbTIETJz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 15:09:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265758AbTIETJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 15:14:34 -0400
-Received: from fw.osdl.org ([65.172.181.6]:19857 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265784AbTIETKH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 15:10:07 -0400
-Date: Fri, 5 Sep 2003 11:54:50 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: fsdev <linux-fsdevel@vger.kernel.org>
-Subject: [CFT] [4/15] autofs options parsing
-Message-Id: <20030905115450.08fc5d9f.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 5 Sep 2003 15:09:55 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:7629 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S265755AbTIETJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 15:09:52 -0400
+Date: Fri, 5 Sep 2003 21:09:02 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
+Subject: Re: How can I force a read to hit the disk?
+Message-ID: <20030905190902.GD24951@wohnheim.fh-wedel.de>
+References: <20030905121522.B30448@schatzie.adilger.int> <Pine.LNX.4.44L0.0309051439560.678-100000@ida.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44L0.0309051439560.678-100000@ida.rowland.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 5 September 2003 14:49:15 -0400, Alan Stern wrote:
+> On Fri, 5 Sep 2003, Andreas Dilger wrote:
+> 
+> > If you open the file with O_DIRECT, it should read/write directly on the
+> > disk, and it will also invalidate any existing cache for the read/written
+> > area.
+> 
+> Unfortunately that's not a good solution for me.  The file has already 
+> been opened without O_DIRECT, and O_DIRECT wouldn't be appropriate because 
+> most of the time I do want I/O to go through the cache.  It's just on a 
+> few rare occasions that I need direct access to the disk.
+> 
+> Maybe simply opening a new struct file using O_DIRECT, for purposes of 
+> the verification, while keeping the old struct file around for other uses 
+> later, will work?  That would be awkward though -- and there's no 
+> guarantee that the original filename would still exist.  It would be a lot 
+> nicer to do everything using the original file reference.
 
-diff -Naurp -X /home/rddunlap/doc/dontdiff-osdl linux-260-test4-pv/fs/autofs/inode.c linux-260-test4-fs/fs/autofs/inode.c
---- linux-260-test4-pv/fs/autofs/inode.c	2003-08-22 16:58:11.000000000 -0700
-+++ linux-260-test4-fs/fs/autofs/inode.c	2003-08-27 11:19:07.000000000 -0700
-@@ -14,6 +14,7 @@
- #include <linux/mm.h>
- #include <linux/slab.h>
- #include <linux/file.h>
-+#include <linux/parser.h>
- #include <asm/bitops.h>
- #include "autofs_i.h"
- #include <linux/module.h>
-@@ -45,9 +46,22 @@ static struct super_operations autofs_so
- 	.statfs		= simple_statfs,
- };
- 
-+enum {Opt_err, Opt_fd, Opt_uid, Opt_gid, Opt_pgrp, Opt_minproto, Opt_maxproto};
-+
-+static match_table_t autofs_tokens = {
-+	{Opt_fd, "fd=%d"},
-+	{Opt_uid, "uid=%d"},
-+	{Opt_gid, "gid=%d"},
-+	{Opt_pgrp, "pgrp=%d"},
-+	{Opt_minproto, "minproto=%d"},
-+	{Opt_maxproto, "maxproto=%d"},
-+	{Opt_err, NULL}
-+};
-+
- static int parse_options(char *options, int *pipefd, uid_t *uid, gid_t *gid, pid_t *pgrp, int *minproto, int *maxproto)
- {
--	char *this_char, *value;
-+	char *p;
-+	substring_t args[MAX_OPT_ARGS];
- 	
- 	*uid = current->uid;
- 	*gid = current->gid;
-@@ -57,55 +71,37 @@ static int parse_options(char *options, 
- 
- 	*pipefd = -1;
- 
--	if ( !options ) return 1;
--	while ((this_char = strsep(&options,",")) != NULL) {
--		if (!*this_char)
-+	if (!options)
-+		return 1;
-+
-+	while ((p = strsep(&options, ",")) != NULL) {
-+		int token;
-+		if (!*p)
- 			continue;
--		if ((value = strchr(this_char,'=')) != NULL)
--			*value++ = 0;
--		if (!strcmp(this_char,"fd")) {
--			if (!value || !*value)
--				return 1;
--			*pipefd = simple_strtoul(value,&value,0);
--			if (*value)
--				return 1;
--		}
--		else if (!strcmp(this_char,"uid")) {
--			if (!value || !*value)
--				return 1;
--			*uid = simple_strtoul(value,&value,0);
--			if (*value)
--				return 1;
--		}
--		else if (!strcmp(this_char,"gid")) {
--			if (!value || !*value)
--				return 1;
--			*gid = simple_strtoul(value,&value,0);
--			if (*value)
--				return 1;
--		}
--		else if (!strcmp(this_char,"pgrp")) {
--			if (!value || !*value)
--				return 1;
--			*pgrp = simple_strtoul(value,&value,0);
--			if (*value)
--				return 1;
--		}
--		else if (!strcmp(this_char,"minproto")) {
--			if (!value || !*value)
--				return 1;
--			*minproto = simple_strtoul(value,&value,0);
--			if (*value)
--				return 1;
--		}
--		else if (!strcmp(this_char,"maxproto")) {
--			if (!value || !*value)
--				return 1;
--			*maxproto = simple_strtoul(value,&value,0);
--			if (*value)
-+
-+		token = match_token(p, autofs_tokens, args);
-+		switch (token) {
-+			case Opt_fd:
-+				*pipefd = match_int(&args[0]);
-+				break;
-+			case Opt_uid:
-+				*uid = match_int(&args[0]);
-+				break;
-+			case Opt_gid:
-+				*gid = match_int(&args[0]);
-+				break;
-+			case Opt_pgrp:
-+				*pgrp = match_int(&args[0]);
-+				break;
-+			case Opt_minproto:
-+				*minproto = match_int(&args[0]);
-+				break;
-+			case Opt_maxproto:
-+				*maxproto = match_int(&args[0]);
-+				break;
-+			default:
- 				return 1;
- 		}
--		else break;
- 	}
- 	return (*pipefd < 0);
- }
+Maybe these help you here:
+man 3 fdopen
+man 3 fileno
 
+No filename needed for the second open.
 
---
-~Randy
+Jörn
+
+-- 
+"Error protection by error detection and correction."
+-- from a university class

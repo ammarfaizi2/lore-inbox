@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319085AbSHFOAN>; Tue, 6 Aug 2002 10:00:13 -0400
+	id <S319091AbSHFOHM>; Tue, 6 Aug 2002 10:07:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319086AbSHFOAN>; Tue, 6 Aug 2002 10:00:13 -0400
-Received: from daimi.au.dk ([130.225.16.1]:58508 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S319085AbSHFOAM>;
-	Tue, 6 Aug 2002 10:00:12 -0400
-Message-ID: <3D4FD736.DA443B4B@daimi.au.dk>
-Date: Tue, 06 Aug 2002 16:03:34 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: manfred@colorfullife.com, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: [TRIVIAL] Warn users about machines with non-working WP bit
-References: <3D4F942D.7020100@colorfullife.com> <20020806.022813.27560736.davem@redhat.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S319088AbSHFOGg>; Tue, 6 Aug 2002 10:06:36 -0400
+Received: from jdike.solana.com ([198.99.130.100]:33408 "EHLO karaya.com")
+	by vger.kernel.org with ESMTP id <S319086AbSHFOGe>;
+	Tue, 6 Aug 2002 10:06:34 -0400
+Message-Id: <200208061412.g76ECPB13837@karaya.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode 
+In-Reply-To: Your message of "Tue, 06 Aug 2002 15:04:47 +0200."
+             <20020806150447.2af350b0.us15@os.inf.tu-dresden.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 06 Aug 2002 10:12:25 -0400
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
-> verify_area() checks aren't enough, consider a threaded application
-> calling mprotect() while the copy is in progress.
+us15@os.inf.tu-dresden.de said:
+> Does this work for you? 
 
-Couldn't we just freeze all other processes with the same mm while
-a copy_to_user is in progress?
+No :-)
 
-Of course this should only be done if CONFIG_X86_WP_WORKS_OK is
-not enabled, so systems with a working wp doesn't have to take a
-performance hit.
+> It doesn't for me, for the reason I described
+> earlier.
 
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razrep@daimi.au.dk
-or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk
+Indeed.  I misread the !capable(CAP_KILL) as "I am not allowed to kill the
+other guy", which clearly you are when you just forked it.
+
+This looks like a bug to me.  If you own the process, you can send it any
+signal you want, so you should be allowed to sign it up for SIGURG/SIGIO via
+F_SETOWN.
+
+				Jeff
+

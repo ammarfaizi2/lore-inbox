@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271212AbRHTNwD>; Mon, 20 Aug 2001 09:52:03 -0400
+	id <S271223AbRHTN5O>; Mon, 20 Aug 2001 09:57:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271206AbRHTNvx>; Mon, 20 Aug 2001 09:51:53 -0400
-Received: from customers.imt.ru ([212.16.0.33]:18461 "HELO smtp.direct.ru")
-	by vger.kernel.org with SMTP id <S271203AbRHTNvr>;
-	Mon, 20 Aug 2001 09:51:47 -0400
-Message-ID: <20010820064814.A704@saw.sw.com.sg>
-Date: Mon, 20 Aug 2001 06:48:14 -0700
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Szabolcs Szakacsits <szaka@f-secure.com>
-Cc: Ivan Kalvatchev <iive@yahoo.com>, kernelbug <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: DoS tmpfs,ramfs, malloc, saga continues
-In-Reply-To: <E15Wl1I-0001ua-00@the-village.bc.nu> <Pine.LNX.4.30.0108151544520.2660-100000@fs131-224.f-secure.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <Pine.LNX.4.30.0108151544520.2660-100000@fs131-224.f-secure.com>; from "Szabolcs Szakacsits" on Wed, Aug 15, 2001 at 05:20:09PM
+	id <S271215AbRHTN5D>; Mon, 20 Aug 2001 09:57:03 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:30693 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S271213AbRHTN4z>;
+	Mon, 20 Aug 2001 09:56:55 -0400
+Date: Mon, 20 Aug 2001 14:57:03 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Martin Dalecki <dalecki@evision-ventures.com>,
+        Johan Adolfsson <johan.adolfsson@axis.com>
+Cc: Robert Love <rml@tech9.net>, Oliver Xymoron <oxymoron@waste.org>,
+        linux-kernel@vger.kernel.org, riel@conectiva.com.br,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
+Message-ID: <2248596630.998319423@[10.132.112.53]>
+In-Reply-To: <3B80EADC.234B39F0@evision-ventures.com>
+In-Reply-To: <3B80EADC.234B39F0@evision-ventures.com>
+X-Mailer: Mulberry/2.1.0b3 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 15, 2001 at 05:20:09PM +0300, Szabolcs Szakacsits wrote:
-> 
-> > usage of a system well but not your case. The more complex answer is to
-> > provide the option for very precise group based resource accounting (aka
-> > the beancounter patch). That is for those who want to pay the probable 2%
-> > or so system penalty for being able to precisely manage a system resource
-> > set. With the beancounter infrastructure you can then get to the point where
-> 
-> It's not ready for use. It was touched last time about one year ago for
-> 2.4.0-test7.
+> The device get's powerd up at a random time for the attacker.
+> That's entierly sufficient if you assume that your checksum function
+> f(i) hat the property that there is no function g, where we have
+> f(i+1)=g(f(i)), where g has a polynomial order over the time domain.
+> i is unknown for the attacker.
 
-I just can't spare time now to maintain the patch properly and make a port
-for each kernel release.
-When 2.5 is started, I've promised myself to put other things aside and work
-on the patch to have it in the mainstream.
+So, your argument is that there is no point in all this
+entropy collection anyway. So if everything is hunky dory,
+why have /dev/random block under such a circumstance?
+(which was the original poster's  problem).
 
-	Andrey
+--
+Alex Bligh

@@ -1,77 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266937AbRGHRNJ>; Sun, 8 Jul 2001 13:13:09 -0400
+	id <S266932AbRGHRP3>; Sun, 8 Jul 2001 13:15:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266936AbRGHRMt>; Sun, 8 Jul 2001 13:12:49 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:4103 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266932AbRGHRMp>; Sun, 8 Jul 2001 13:12:45 -0400
-Date: Sun, 8 Jul 2001 10:11:49 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Mike Galbraith <mikeg@wen-online.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: VM in 2.4.7-pre hurts...
-In-Reply-To: <Pine.LNX.4.33L.0107071710180.1389-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0107081002490.7044-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266934AbRGHRPT>; Sun, 8 Jul 2001 13:15:19 -0400
+Received: from [194.213.32.142] ([194.213.32.142]:13828 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S266932AbRGHRPE>;
+	Sun, 8 Jul 2001 13:15:04 -0400
+Date: Sat, 30 Jun 2001 14:57:33 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-mips@oss.sgi.com
+Subject: Re: [ANNOUNCE] Secondary mips tree.
+Message-ID: <20010630145732.E255@toy.ucw.cz>
+In-Reply-To: <Pine.LNX.4.10.10106221348150.9835-100000@transvirtual.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.10.10106221348150.9835-100000@transvirtual.com>; from jsimmons@transvirtual.com on Fri, Jun 22, 2001 at 01:57:38PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Sat, 7 Jul 2001, Rik van Riel wrote:
->
-> Not quite. The more a page has been used, the higher the
-> page->age will be. This means the system has a way to
-> distinguish between anonymous pages which were used once
-> and anonymous pages which are used lots of times.
+>  	We have started a secondary tree for linux mips. This tree will
+> be to SGI mips tree as Alan Cox's tree is to linus branch. We will test
+> and play with "experimental patches" and then in time hand them off to the
+> main branch Ralf Baechle maintains. Also one of the main reasons for this
+> branch was to unite several of the mips trees into one place. Anyones
+> patches (if good) are welcomed. The site is 
 
-Wrong.
+Do you want to "eat" linux-vr tree? linux-vr list is dead and there's no
+(or not much) development in its CVS (at 240t7 :-()
 
-We already _have_ that aging: it's called "do not add anonymous pages to
-the page cache unless they are old".
+> http://www.sf.net/projects/linux-mips
 
-Pages that are used lots of time won't ever _get_ to the point where they
-get added to the swap cache, because they are always marked young.
+Is this sourceforge?
 
-So by the time we get to this point, we _know_ what the age should be. I
-tried to explain this to you earlier. We should NOT use the old
-"page->age", because that one is 100% and totally bogus. It has _nothing_
-to do with the page age. It's ben randomly incremented, without ever
-having been on any of the aging lists, and as such it is a totally bogus
-number.
+> We also have a mailing list which instructions are on the SF page on how
+> to join. Thank you. 
 
-In comparison, just setting page->age to PAGE_AGE_START is _not_ a random
-number. It's a reasonable number that depends on the _knowledge_ that
+Is it ok to be used as linux-vr list?
 
- (a) _had_ the page been on any of the aging lists, it would have been
-     aged down every time we passed it, and
- (b) it's obviously been aged up every time we passed it in the VM so far
-     (because it hadn't been added to the swap cache earlier).
-
-Are you with me?
-
-Now, add to the above two _facts_, the knowledge that the aging of the VM
-space is done roughly at the same rate as the aging of the active lists
-(we call "swap_out()" every time we age the active list when under memory
-pressure, and they go through similar percentages of their respective
-address spaces), and you get
-
- - an anonymous page, by the time we add it to the swap cache, would have
-   been aged down and up roughly the same number of times.
-
-Ergo, it's age _should_ be the same as PAGE_AGE_START.
-
-> > That would certainly help explain why aging doesn't work for some people.
->
-> As would your patch ;)
-
-No. Do the math. My patch gives the age the _right_ age. Previously, it
-had a completely random age that had _nothing_ to do with any other page
-age.
-
-		Linus
+> P.S
+>     If anyone has the mips cobalt working with 2.4.X I really like those
+> patches. Thank you.
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

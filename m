@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267595AbUHXMBl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267596AbUHXMSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267595AbUHXMBl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 08:01:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267596AbUHXMBk
+	id S267596AbUHXMSq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 08:18:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267601AbUHXMSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 08:01:40 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:16057 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S267595AbUHXMBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 08:01:38 -0400
-Message-Id: <200408241201.i7OC1RWf021834@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
-To: Jerry Haltom <wasabi@larvalstage.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: setpeuid(pid_t, uid_t) proposal 
-In-Reply-To: Your message of "Tue, 24 Aug 2004 01:27:50 CDT."
-             <1093328870.1248.31.camel@localhost> 
-From: Valdis.Kletnieks@vt.edu
-References: <1093323005.1248.21.camel@localhost> <200408240558.i7O5wFuP031966@turing-police.cc.vt.edu>
-            <1093328870.1248.31.camel@localhost>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1630948809P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 24 Aug 2004 08:18:46 -0400
+Received: from mail.math.TU-Berlin.DE ([130.149.12.212]:12176 "EHLO
+	mail.math.TU-Berlin.DE") by vger.kernel.org with ESMTP
+	id S267596AbUHXMSp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 08:18:45 -0400
+From: Thomas Richter <thor@math.TU-Berlin.DE>
+Message-Id: <200408241218.OAA09873@cleopatra.math.tu-berlin.de>
+Subject: Re: Amiga partition reading patch
+In-Reply-To: <00f301c489ce$c2cd01a0$1225a8c0@kittycat>
+To: jdow <jdow@earthlink.net>
+Date: Tue, 24 Aug 2004 14:18:29 +0200 (CEST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL100 (25)]
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Date: Tue, 24 Aug 2004 08:01:27 -0400
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1630948809P
-Content-Type: text/plain; charset=us-ascii
 
-On Tue, 24 Aug 2004 01:27:50 CDT, Jerry Haltom said:
-> > What does this buy you that having the separate daemon just do
-> > a fork/seteuid/exec to do the work, and passing the results back via a
-> > Unix socket or shared mem or what-have-you?
-> 
-> To do a seteuid the daemon would need to be root.
+Hi Joanne,
 
-And how is this different from:
+> This is a patch known good against Mandrake 2.6.3-7mdk. I suspect it will
+> apply to later versions equally well since the file affected appears to
+> be unchanged as late as 2.6.9-rc1.
 
-> Only a process with uid 0 may call it. The first argument is a process
-> id. The second argument is a uid. The function is effictivly the exact
-> same as seteuid() except that it operates on another process. Very
-> simple explanation, now here's why.
-.....
-> Apache runs as a low privledge user, but can obtain the permissions of
-> the user that requested the service. Apache can't give itself access, so
-> it relies on a seperate process to do so. A request is received to
+Sorry, I don't have a patch attached here. Forgot to include?
 
-You've already stated that the separate process has to be running as root....
+> This partitioning information is known correct. I wrote the low level
+> portion of the hard disk partitioning code for AmigaDOS 3.5 and 3.9. I
+> am also responsible for one of the more frequently used partitioning
+> tools, RDPrepX, before that.
 
---==_Exmh_-1630948809P
-Content-Type: application/pgp-signature
+I can confirm this (as "just another guy" who wrote on AmigaOs 3.9).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+So long,
+	Thomas
 
-iD8DBQFBKy4XcC3lWbTT17ARAmZCAJ9p7YFEq2TXN52R8l3+ykCZ+h2RSACgrEik
-XexGjm1jLliNzZk8XG55Y38=
-=/nsg
------END PGP SIGNATURE-----
-
---==_Exmh_-1630948809P--

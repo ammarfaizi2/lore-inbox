@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316430AbSHDMpa>; Sun, 4 Aug 2002 08:45:30 -0400
+	id <S316659AbSHDMtW>; Sun, 4 Aug 2002 08:49:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316532AbSHDMpa>; Sun, 4 Aug 2002 08:45:30 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:45559 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316430AbSHDMp3>; Sun, 4 Aug 2002 08:45:29 -0400
-Subject: Re: 2.4.19 IDE Partition Check issue
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alex Davis <alex14641@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, alien.ant@ntlworld.com
-In-Reply-To: <20020804054239.62923.qmail@web9203.mail.yahoo.com>
-References: <20020804054239.62923.qmail@web9203.mail.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 04 Aug 2002 15:07:17 +0100
-Message-Id: <1028470037.14195.24.camel@irongate.swansea.linux.org.uk>
+	id <S316757AbSHDMtW>; Sun, 4 Aug 2002 08:49:22 -0400
+Received: from stingr.net ([212.193.32.15]:37530 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S316659AbSHDMtS>;
+	Sun, 4 Aug 2002 08:49:18 -0400
+Date: Sun, 4 Aug 2002 16:52:51 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 make allmodconfig - undefined symbols
+Message-ID: <20020804125251.GB13637@stingr.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <29906.1028456000@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <29906.1028456000@ocs3.intra.ocs.com.au>
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-08-04 at 06:42, Alex Davis wrote:
-> What is UDMA44????
-> 
-> 
-> Aug  3 16:04:23 shaun kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> Aug  3 16:04:23 shaun kernel: ide2 at 0x4400-0x4407,0x4412 on irq 23
-> Aug  3 16:04:23 shaun kernel: hde: 60030432 sectors (30736 MB) w/2048KiB \
->                 Cache,CHS=59554/16/63, UDMA(66)
-> Aug  3 16:04:23 shaun kernel: hdf: 90069840 sectors (46116 MB) w/1916KiB Cache, \
->                 CHS=89355/16/63, UDMA(44)
+Replying to Keith Owens:
+> 2.4.19 make allmodconfig.  Besides the perennial drivers/net/wan/comx.o
+> wanting proc_get_inode, there was only one undefined symbol.  In the
+> extremely unlikely event that binfmt_elf is a module (how do you load
+> modules when binfmt_elf is a module?), smp_num_siblings is unresolved.
 
-There are several actual speed steppings other than UDMA 33/66. The
-33/66 are the top end for the control/cable. The drive may actually
-choose a speed in between
+I wrote about it many times at 19-pre stage. With patches, err, to warning
+cases too. _Nothing_ is applied.
 
+They still in my tree ... but who interested in my tree ? :)
+
+-- 
+Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
+  When you're invisible, the only one really watching you is you (my keychain)

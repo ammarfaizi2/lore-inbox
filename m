@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264513AbTDPPSE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 11:18:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbTDPPSE
+	id S264448AbTDPPW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 11:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264484AbTDPPW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 11:18:04 -0400
-Received: from web12407.mail.yahoo.com ([216.136.173.134]:6454 "HELO
-	web12407.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264513AbTDPPSD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 11:18:03 -0400
-Message-ID: <20030416152956.76292.qmail@web12407.mail.yahoo.com>
-Date: Wed, 16 Apr 2003 08:29:56 -0700 (PDT)
-From: Amol Lad <dal_loma@yahoo.com>
-Subject: sending signal to a kernel thread
-To: linux-kernel@vger.kernel.org
+	Wed, 16 Apr 2003 11:22:29 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:29845 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S264448AbTDPPW2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 11:22:28 -0400
+Message-ID: <20030416153300.11525.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 16 Apr 2003 23:33:00 +0800
+Subject: Re: SoundBlaster Live! with kernel 2.5.x
+X-Originating-Ip: 62.101.98.215
+X-Originating-Server: ws5-2.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[root@amol 5]# ps -ef | grep kswapd | grep -v grep
-root         5     0  0 Apr04 ?        00:00:49
-[kswapd]
-
-[root@amol 5]# kill -9 5
-[root@amol 5]# 
-
-[root@amol 5]# pwd
-/proc/5
-
-[root@amol 5]# cat status
-Name:   kswapd
-State:  S (sleeping)
-Tgid:   0
-Pid:    5
-PPid:   0
-TracerPid:      0
-Uid:    0       0       0       0
-Gid:    0       0       0       0
-FDSize: 32
-Groups:
-SigPnd: 0000000000000100
-SigBlk: ffffffffffffffff
-SigIgn: 0000000000000000
-SigCgt: 0000000000000000
-CapInh: 0000000000000000
-CapPrm: 00000000ffffffff
-CapEff: 00000000fffffeff
-----------------------------------------
-
-Is it ok to at all permit sending signal to kernel
-thread ? 
+I have a similar problem,
+see http://bugzilla.kernel.org/show_bug.cgi?id=395
 
 
-__________________________________________________
-Do you Yahoo!?
-The New Yahoo! Search - Faster. Easier. Bingo
-http://search.yahoo.com
+Advanced Linux Sound Architecture Driver Version 0.9.0rc7 (Sat Feb 15 15:01:21 
+2003 UTC).
+request_module: failed /sbin/modprobe -- snd-card-0. error = -16
+no UART detected at 0xffff
+Motu MidiTimePiece on parallel port irq: 7 ioport: 0x378
+ALSA sound/drivers/mpu401/mpu401.c:76: specify port
+PCI: Found IRQ 5 for device 00:0d.0
+ALSA device list:
+  #0: Dummy 1
+  #1: Virtual MIDI Card 1
+  #2: 
+  #3: ESS Maestro3 PCI at 0x1800, irq 5
+
+Ciao,
+       Paolo
+
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
+
+Powered by Outblaze

@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAIR3E>; Tue, 9 Jan 2001 12:29:04 -0500
+	id <S129511AbRAIRce>; Tue, 9 Jan 2001 12:32:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129538AbRAIR2y>; Tue, 9 Jan 2001 12:28:54 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:10253 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129431AbRAIR2t>; Tue, 9 Jan 2001 12:28:49 -0500
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-To: mingo@elte.hu
-Date: Tue, 9 Jan 2001 17:29:29 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), sct@redhat.com (Stephen C. Tweedie),
-        hch@caldera.de (Christoph Hellwig), davem@redhat.com (David S. Miller),
-        riel@conectiva.com.br, netdev@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0101091743090.5932-100000@e2> from "Ingo Molnar" at Jan 09, 2001 05:48:32 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14G2aT-00071v-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129534AbRAIRcY>; Tue, 9 Jan 2001 12:32:24 -0500
+Received: from law2-f66.hotmail.com ([216.32.181.66]:1547 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S129511AbRAIRcR>;
+	Tue, 9 Jan 2001 12:32:17 -0500
+X-Originating-IP: [208.5.125.50]
+From: "Kambo Lohan" <kambo77@hotmail.com>
+To: linux-kernel@vger.kernel.org, eepro100@scyld.com
+Subject: Re: [eepro100] ...
+Date: Tue, 09 Jan 2001 12:32:11 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <LAW2-F66OTNECfI6JA900000707@hotmail.com>
+X-OriginalArrivalTime: 09 Jan 2001 17:32:11.0585 (UTC) FILETIME=[19472310:01C07A62]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ever seen, this is why i quoted it - the talk was about block-IO
-> performance, and Stephen said that our block IO sucks. It used to suck,
-> but in 2.4, with the right patch from Jens, it doesnt suck anymore. )
+>You could try the Intel driver (e100.c), which is downloadable from their 
+>website. It apparently has some silicon bug workarounds that Donald's 
+>driver hasn't.
 
-Thats fine. Get me 128K-512K chunks nicely streaming into my raid controller
-and I'll be a happy man
+We've been back and forth with that driver, yeah.  It has its own set of 
+problems, sometimes it doesnt even autonegotiate properly, falls to 10 half 
+duplex, etc.  It also seems to have gotten quite large code wise (code wise) 
+in the latest version (1.3.x.something) :)    We dont need any of their 
+ans/teaming/proc stuff, but it is stable on this particular problem.
 
-I don't have a problem with the claim that its not the per page stuff and 
-plugging that breaks ll_rw_blk. If there is evidence contradicting the SGI
-stuff it's very interesting
+Their driver doesnt even compile out of the box on 2.2.18 btw (intel e100.c 
+1.3.2, latest I could find), _badudelay.  I had to change one call to 
+mdelay, and comment out their dma_addr_t type because of the conflicting 
+declaration.  Doesnt give me much confidence :(
+
+>Also please note that such a subject line is not a good motivation to help 
+>you for free.
+>-Andi
+
+Sorry.  It wasnt my subject though, I was replying to someone else and just 
+put the 'Re:' in.  But I will be more careful...
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

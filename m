@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267617AbSIRRhI>; Wed, 18 Sep 2002 13:37:08 -0400
+	id <S267702AbSIRRhS>; Wed, 18 Sep 2002 13:37:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267702AbSIRRhI>; Wed, 18 Sep 2002 13:37:08 -0400
-Received: from holomorphy.com ([66.224.33.161]:28651 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267617AbSIRRhH>;
-	Wed, 18 Sep 2002 13:37:07 -0400
-Date: Wed, 18 Sep 2002 10:36:53 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andries Brouwer <aebr@win.tue.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] lockless, scalable get_pid(), for_each_process() elimination, 2.5.35-BK
-Message-ID: <20020918173653.GV3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-References: <20020918164553.GB28202@holomorphy.com> <Pine.LNX.4.44.0209181932580.24794-100000@localhost.localdomain>
-Mime-Version: 1.0
+	id <S267844AbSIRRhS>; Wed, 18 Sep 2002 13:37:18 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:55632 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S267702AbSIRRhR>; Wed, 18 Sep 2002 13:37:17 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: hadi@cyberus.ca, akpm@digeo.com, manfred@colorfullife.com,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Info: NAPI performance at "low" loads
+References: <3D87A59C.410FFE3E@digeo.com>
+	<Pine.GSO.4.30.0209172053360.3686-100000@shell.cyberus.ca>
+	<20020917.180014.07882539.davem@redhat.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 18 Sep 2002 11:27:34 -0600
+In-Reply-To: <20020917.180014.07882539.davem@redhat.com>
+Message-ID: <m1hegnky2h.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209181932580.24794-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Sep 2002, William Lee Irwin III wrote:
->> The lockups I see range from hours to "it spun over the weekend, time to
->> pull the plug".
+"David S. Miller" <davem@redhat.com> writes:
 
-On Wed, Sep 18, 2002 at 07:36:00PM +0200, Ingo Molnar wrote:
-> this can happen if there's a genuine PID space squeeze wrt. nr_threads -
-> that is solved by adding Linus' suggestion to the PID allocator. I believe
-> you saw that problem, not any inherent get_pid() algorithmic inefficiency.
-> nevertheless we do lock up for 32 seconds if there are 32K PIDs allocated
-> in a row and last_pid hits that range - regardless of pid_max. (Depending
-> on the cache architecture it could take significantly more.)
+>    From: jamal <hadi@cyberus.ca>
+>    Date: Tue, 17 Sep 2002 20:57:58 -0400 (EDT)
+>    
+>    I am not so sure with that 6% difference there is no other bug lurking
+>    there; 6% seems too large for an extra two PCI transactions per packet.
+> 
+> {in,out}{b,w,l}() operations have a fixed timing, therefore his
+> results doesn't sound that far off.
+????
 
-There were only 10K tasks, with likely consecutively-allocated PID's,
-and some minor background fork()/exit() activity, but there are more
-offenders on the read side than get_pid() itself.
+I don't see why they should be.  If it is a pci device the cost should
+the same as a pci memory I/O.  The bus packets are the same.  So things like
+increasing the pci bus speed should make it take less time.
 
-There is no question of PID space: the full 2^30 was configured in
-the tests done after the PID space expansion. 
+Plus I have played with calibrating the TSC with outb to port
+0x80 and there was enough variation that it was unuseable.  On some
+newer systems it would take twice as long as on some older ones.
 
-
-Bill
+Eric

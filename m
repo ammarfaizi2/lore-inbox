@@ -1,64 +1,55 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154422AbPGXOSI>; Sat, 24 Jul 1999 10:18:08 -0400
-Received: by vger.rutgers.edu id <S154399AbPGXORn>; Sat, 24 Jul 1999 10:17:43 -0400
-Received: from Astro.Dyer.Vanderbilt.Edu ([129.59.241.17]:5171 "EHLO Astro.Dyer.Vanderbilt.Edu") by vger.rutgers.edu with ESMTP id <S154467AbPGXORG>; Sat, 24 Jul 1999 10:17:06 -0400
-Date: Sat, 24 Jul 1999 09:17:01 -0500 (CDT)
-From: "Andre M. Hedrick" <hedrick@Astro.Dyer.Vanderbilt.Edu>
-Reply-To: "Andre M. Hedrick" <hedrick@Astro.Dyer.Vanderbilt.Edu>
-To: Gerard Roudier <groudier@club-internet.fr>
-cc: Linux <linux-kernel@vger.rutgers.edu>, linux-scsi@vger.rutgers.edu
-Subject: Re: Joking PCI bridges: still another one.
-In-Reply-To: <Pine.LNX.3.95.990724151242.1018A-100000@localhost>
-Message-ID: <Pine.LNX.3.96.990724090241.5016D-100000@Astro.Dyer.Vanderbilt.Edu>
+Received: by vger.rutgers.edu via listexpand id <S154344AbPGZTyu>; Mon, 26 Jul 1999 15:54:50 -0400
+Received: by vger.rutgers.edu id <S154301AbPGZTye>; Mon, 26 Jul 1999 15:54:34 -0400
+Received: from franz.videotron.net ([205.151.222.14]:65385 "EHLO franz.videotron.net") by vger.rutgers.edu with ESMTP id <S154372AbPGZTyV>; Mon, 26 Jul 1999 15:54:21 -0400
+Message-ID: <379CBE18.B89F1837@info.polymtl.ca>
+Date: Mon, 26 Jul 1999 15:59:20 -0400
+From: Karim Yaghmour <karym@info.polymtl.ca>
+X-Mailer: Mozilla 4.6 [en] (X11; I; Linux 2.2.10 i686)
+X-Accept-Language: French/France, fr-FR, French/Canada, fr-CA, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: rjwalsh@durables.org
+CC: linux-kernel@vger.rutgers.edu
+Subject: Re: kernel profiling
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Sat, 24 Jul 1999, Gerard Roudier wrote:
+On Thu, 8 Jul 1999, Robert Walsh wrote:
 
-> Based on my current investigations, it may be the case that numerous PCI
-> device drivers of ours may encounter problems on some non-Intel and
-> non-IBM bridge-based systems, due to bridge not implementing the standard
-> about transaction ordering rules.
+> We're currently profiling the kernel NFS daemon (the entire path from
+> network to disk) using SPECsfs and other benchmarking mechanisms, and
+> before I start working on a home-grown profiling mechanism I'd like to
+> make sure I'm not reinventing the wheel.
 
-Do you mean the super socket 7 hell?
+You might want to check on the tool i've been working on, which enables
+you to see exactly what if happening on your system at all times. It
+would enable you to see what time is spent in kernel, what time is
+spent in the rest of the system, and why.
 
-I am have to access host and isa bridges to setup/identify capablity of
-these ide-chipsets.  One of them is so bad that I have to determine the
-revision of the isa-bridge to decide the feature limits of the ide
-host-adapter, or determine the identity of the host-host device to try and
-guess the setep of the isa-bridge lot/stamp.
+Moreover, the mechanisms I use are easily extendable. Therefore, if
+you find the information given insufficient, you can make the kernel
+generate more information without modifying too many things.
 
-The other chipset vender places a double ident chipset with two level of
-access.  The two possible isa-bridge devices must be detected to determine
-the features list.  If you get the one with latest bridge, you still have
-to access the lower bridge to setup the ide host-adapter.  Oh did I forget
-to mention that the irq routing table for the IDE is only settable in the
-isa-bridge, or that you have to dork with a few bits to disable the pnp
-simplex block.
+You can find the Linux 
+Trace Toolkit at the following address :
 
-It gets worse, now that I have a broader insight into the madness.
+http://www.info.polymtl.ca/users/karym/www/trace/
 
-Is this familar?
+The information on how to use it is there and so is some information
+on how it works. If you need more info, don't hesitate to contact me
+if you need more information.
 
-> As I wrote in some previous posting, I plan to propose serious work-arounds 
-> for joking PCI bridges:) for the stuff I maintain (ncr/sym driver) before
-> the end of August if we survive August the 11'th obviously:-).
-> This may consist in a few number of lines mostly trivial, or to end up
-> with crossing fingers for some situations, but I need to investigate
-> the issue prior to do the changes in the code.
-> 
-> It will be interesting, in my opinion, to allow PCI device drivers to have
-> knowledge about the PCI-HOST bridge of the system or to have access to
-> some quirk flags associated with that bridge. 
+Of course, it's all under GPL ...
 
-Been there........got the T-Shirt............
+Regards.
 
-Andre Hedrick
-The Linux IDE guy
-
-
-
+==============================================
+              Karim Yaghmour
+          karym@info.polymtl.ca
+            Computer Engineer
+      Ecole Polytechnique de Montreal
+==============================================
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

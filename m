@@ -1,73 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262979AbSJWIhC>; Wed, 23 Oct 2002 04:37:02 -0400
+	id <S262911AbSJWIak>; Wed, 23 Oct 2002 04:30:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263016AbSJWIhC>; Wed, 23 Oct 2002 04:37:02 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:13758 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262979AbSJWIhB>;
-	Wed, 23 Oct 2002 04:37:01 -0400
-Date: Wed, 23 Oct 2002 10:42:22 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Take Vos <Take.Vos@binary-magic.com>, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: PROBLEM: PS/2 mouse wart does not work, while scratch pad does.
-Message-ID: <20021023104222.B28139@ucw.cz>
-References: <200210221046.46700.Take.Vos@binary-magic.com> <5001.1035330391@passion.cambridge.redhat.com>
+	id <S262912AbSJWIak>; Wed, 23 Oct 2002 04:30:40 -0400
+Received: from relay.muni.cz ([147.251.4.35]:1667 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id <S262911AbSJWIaj>;
+	Wed, 23 Oct 2002 04:30:39 -0400
+Date: Wed, 23 Oct 2002 10:36:16 +0200
+From: Jan Kasprzak <kas@informatics.muni.cz>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org,
+       hch@infradead.org
+Subject: Re: 2.4.20-pre11 /proc/partitions read
+Message-ID: <20021023103616.B20511@fi.muni.cz>
+References: <20021022184034.GA26585@win.tue.nl> <Pine.LNX.4.44L.0210221609260.7060-100000@freak.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <5001.1035330391@passion.cambridge.redhat.com>; from dwmw2@infradead.org on Wed, Oct 23, 2002 at 12:46:31AM +0100
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44L.0210221609260.7060-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Tue, Oct 22, 2002 at 04:10:02PM -0200
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 12:46:31AM +0100, David Woodhouse wrote:
+Marcelo Tosatti wrote:
+: 
+: 
+: On Tue, 22 Oct 2002, Andries Brouwer wrote:
+: 
+: > On Tue, Oct 22, 2002 at 04:19:57PM +0200, Jan Kasprzak wrote:
+: >
+: > > 	I.e. if you read the /proc/partitions in single read() call,
+: > > it gets read OK. However, if you read() with smaller-sized blocks,
+: > > you get the truncated contents.
+: >
+: > Having statistics in /proc/partitions leads to such problems.
+: > Make sure you do not ask for them.
 
-> Take.Vos@binary-magic.com said:
-> > hardware:DELL Inspiron 8100
-> 
-> >  The internal scratch pad works, but the internal wart mouse doesn't,
-> > in the  BIOS it is set to use both devices for input. This is tested
-> > with both  Xfree86 and running cat on /dev/input/mice and /dev/input/
-> > mouse0 and  /dev/input/event0. 
-> 
-> Probing for various other PS/2 extensions appears to confuse the thing such 
-> that the clitmouse no longer works. If we probe for it first and then abort 
-> the other probes, it seems happier...
+	Yes I have CONFIG_BLK_STATS (and I need this to know
+when my server gets overloaded).
+: 
+: Its not forced behaviour. Its a config option and its defaulted to off.
+: 
+: Some people want it.
 
-Thanks, applied.
+	Yes.
 
-> --- 1.16/drivers/input/mouse/psmouse.c  Tue Oct  8 11:51:30 2002
-> +++ edited/drivers/input/mouse/psmouse.c        Wed Oct 23 00:39:06 2002
-> @@ -311,6 +311,26 @@
->         if (psmouse_noext)
->                 return PSMOUSE_PS2;
-> 
-> +/*
-> + * Try Synaptics TouchPad magic ID
-> + */
-> +
-> +       param[0] = 0;
-> +       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-> +       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-> +       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-> +       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-> +       psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
-> +
-> +       if (param[1] == 0x47) {
-> +               /* We could do more here. But it's sufficient just
-> +                  to stop the subsequent probes from screwing the
-> +                  thing up. */
-> +               psmouse->vendor = "Synaptics";
-> +               psmouse->name = "TouchPad";
-> +               return PSMOUSE_PS2;
-> +       }
-> +
->  /*
->   * Try Genius NetMouse magic init.
->   */
+	Maybe it should be documented that you have to read it
+in a single read() syscall with big enough buffer.
+
+-Yenya
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+|-- If you start doing things because you hate others and want to screw  --|
+|-- them over the end result is bad.   --Linus Torvalds to the BBC News  --|

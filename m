@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268271AbUHXUWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268270AbUHXUZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268271AbUHXUWU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 16:22:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268275AbUHXUWT
+	id S268270AbUHXUZd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 16:25:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268277AbUHXUZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 16:22:19 -0400
-Received: from mail.dif.dk ([193.138.115.101]:17612 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S268271AbUHXUTv (ORCPT
+	Tue, 24 Aug 2004 16:25:33 -0400
+Received: from verein.lst.de ([213.95.11.210]:4007 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S268270AbUHXUZ2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 16:19:51 -0400
-Date: Tue, 24 Aug 2004 22:25:26 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Josh Boyer <jdub@us.ibm.com>
-Cc: Florian Weimer <fw@deneb.enyo.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-rc1
-In-Reply-To: <1093378401.2991.32.camel@weaponx.rchland.ibm.com>
-Message-ID: <Pine.LNX.4.61.0408242221030.2770@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org> 
- <20040824184245.GE5414@waste.org>  <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
-  <871xhwb9c6.fsf@deneb.enyo.de> <1093378401.2991.32.camel@weaponx.rchland.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Aug 2004 16:25:28 -0400
+Date: Tue, 24 Aug 2004 22:25:21 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org, reiser@namesys.com
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: silent semantic changes with reiser4
+Message-ID: <20040824202521.GA26705@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
+	reiser@namesys.com, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Aug 2004, Josh Boyer wrote:
+After looking trough the code and mailinglists I'm quite unhappy with
+a bunch of user-visible changes that Hans sneaked in and make reiser4
+incompatible with other filesystems and have a slight potential to break
+even in the kernel.
 
-> On Tue, 2004-08-24 at 14:54, Florian Weimer wrote:
-> > * Linus Torvalds:
-> > 
-> > > On Tue, 24 Aug 2004, Matt Mackall wrote:
-> > >> 
-> > >> Phew, I was worried about that. Can I get a ruling on how you intend
-> > >> to handle a x.y.z.1 to x.y.z.2 transition? I've got a tool that I'm
-> > >> looking to unbreak. My preference would be for all x.y.z.n patches to
-> > >> be relative to x.y.z.
-> > >
-> > > Hmm.. I have no strong preferences. There _is_ obviously a well-defined 
-> > > ordering from x.y.z.1 -> x.y.z.2 (unlike the -rcX releases that don't have 
-> > > any ordering wrt the bugfixes), so either interdiffs or whole new full 
-> > > diffs are totally "logical". We just have to chose one way or the other, 
-> > > and I don't actually much care.
-> > 
-> > It would be slightly more consistent to diff .2 against .1 because
-> > this is what already happens when a new x.y.z release is published.
-> 
-> Yes, but the -rcX releases aren't done that way.  It's mostly how you
-> view things.  From a users point of view, do I want to download x.y.z
-> and apply patches .1 through .N?  Or do I want to download x.y.z and
-> apply 1 patch to get me to the x.y.z.N level?
-> 
-> Personally, I prefer the "one patch to rule them all" method. :)
-> 
-I agree, that would be my personal preference as well. Stick to what's 
-currently done with the -rc, -mm etc patches - make x.y.z.2 be based on 
-x.y.z, much easier on users. 
-Also, the x.y.z.N patches are also most likely going to be pretty small 
-even if diff'ed against x.y.z, so why burden the user with having to apply 
-a series of patches?
+ o files as directories
+   - O_DIRECTORY opens succeed on all files on reiser4.  Besides breaking
+     .htaccess handling in apache and glibc compilation this also renders
+     this flag entirely useless and opens up the races it tries to
+     prevent against cmpletely useless
+   - meaning of the -x permission.  This one has different meanings on
+     directories vs files on UNIX systems.  If we want to support
+     directories as files we'll probably have to find a way to work
+     around this.
+   - dentry aliasing.  I can't find a formal guarantee in the code this
+     can't happen
+ 
+ o metafiles - ..metas as a magic name that's just taken out of the
+   namespace doesn't sound like a good idea.  If we want this it should
+   be a VFS-level option and there should be a translation-layer to
+   xattrs.  Not doing this will again confuse applications greatly that
+   expect uniform filesystem behaviour.
 
---
-Jesper Juhl
-
+Given these problems I request that these interfaces are removed from
+reiser4 for the kernel merge, and if added later at the proper VFS level
+after discussion on linux-kernel and linux-fsdevel, like we did for
+xattrs.

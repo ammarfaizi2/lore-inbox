@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274337AbRJNFmS>; Sun, 14 Oct 2001 01:42:18 -0400
+	id <S274426AbRJNGSr>; Sun, 14 Oct 2001 02:18:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274362AbRJNFmJ>; Sun, 14 Oct 2001 01:42:09 -0400
-Received: from www.wen-online.de ([212.223.88.39]:13829 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S274337AbRJNFmC>;
-	Sun, 14 Oct 2001 01:42:02 -0400
-Date: Sun, 14 Oct 2001 07:41:20 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: <rwhron@earthlink.net>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        <ltp-list@lists.sourceforge.net>
-Subject: Re: VM test on 2.4.12-ac1, 2.4.12aa1, and 2.4.13-pre2
-In-Reply-To: <20011014010333.A245@earthlink.net>
-Message-ID: <Pine.LNX.4.33.0110140729280.361-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274427AbRJNGSg>; Sun, 14 Oct 2001 02:18:36 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:19 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S274426AbRJNGSc>; Sun, 14 Oct 2001 02:18:32 -0400
+Date: Sun, 14 Oct 2001 08:18:56 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Robert Love <rml@ufl.edu>
+Cc: Andrea Arcangeli <andrea@suse.de>, safemode <safemode@speakeasy.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10-ac10-preempt lmbench output.
+Message-ID: <20011014081856.A31943@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20011010003636Z271005-760+23005@vger.kernel.org> <20011010031803.F8384@athlon.random> <20011010020935.50DEF1E756@Cantor.suse.de> <20011010043003.C726@athlon.random> <1002681480.1044.67.camel@phantasy> <20011012132220.B35@toy.ucw.cz> <1003015290.864.70.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1003015290.864.70.camel@phantasy>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Oct 2001 rwhron@earthlink.net wrote:
+Hi!
 
-> Kernels test summary:
->
-> 2.4.12-ac1	Wide variance in memory allocation
-> 2.4.12aa1	Interesting vmstat/mp3blaster pattern
-> 2.4.13-pre2	Locked up on 7th iteration
->
-> Test:
->
-> Run loop of 10 iterations of Linux Test Project's "mtest01 -p80 -w"
-> This test attempts to allocate 80% of virtual memory and write to
-> each page.  Simulataneously listen to mp3blaster.
+> > > Now dbench (or any task) is in kernel space for too long.  The CPU time
+> > > xmms needs will of course still be given, but _too late_.  Its just not
+> > > a cpu resource problem, its a timing problem.  xmms needs x units of CPU
+> > > every y units of time.  Just getting the x whenever is not enough.
+> > 
+> > Yep, with
+> > 
+> > x = 60msec
+> > y = 600msec
+> 
+> How are you arriving at that y?  On what system?
 
-Hi,
+Toshiba sattelite notebook. I remember being able to ^Z splay process
+playing mp3, and bg-ing it in time not to skip. That means that y is
+at least 300msec or so.
 
-You should try out 2.4.13pre2.aa1.. it out performs both 2.4.12-ac1 and
-2.4.13-pre2 with the [heavy] vm burner I watch here.  It's considerably
-smoother than 2.4.13-pre2 at full throttle, with improved cpu utilization.
-
-	-Mike
-
+[I wanted to retry it on k6/400 with sblive and mpg123 (not splay) and
+could not do the trick.]
+							Pavel
+-- 
+Casualities in World Trade Center: 6453 dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

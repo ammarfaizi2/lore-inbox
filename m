@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVDEJb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVDEJaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbVDEJb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 05:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVDEJbR
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 05:31:17 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:41438 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261665AbVDEJaw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S261650AbVDEJaw (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 5 Apr 2005 05:30:52 -0400
-Date: Tue, 5 Apr 2005 10:30:20 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Dave Airlie <airlied@gmail.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm1
-Message-ID: <20050405093020.GA28620@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Paul Mackerras <paulus@samba.org>, Dave Airlie <airlied@gmail.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050405000524.592fc125.akpm@osdl.org> <20050405074405.GE26208@infradead.org> <21d7e99705040502073dfa5e5@mail.gmail.com> <16978.22617.338768.775203@cargo.ozlabs.ibm.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVDEJ2y
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 5 Apr 2005 05:28:54 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:908 "EHLO lirs02.phys.au.dk")
+	by vger.kernel.org with ESMTP id S261650AbVDEJ0b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 05:26:31 -0400
+Date: Tue, 5 Apr 2005 11:25:55 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+       Gene Heskett <gene.heskett@verizon.net>,
+       LKML <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
+In-Reply-To: <20050405053410.GA18839@elte.hu>
+Message-Id: <Pine.OSF.4.05.10504051105040.10558-100000@da410.phys.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16978.22617.338768.775203@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-DAIMI-Spam-Score: 0 () 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Btw, some more comments on the 32bit compat code in drm:
+On Tue, 5 Apr 2005, Ingo Molnar wrote:
 
- - instead of set_fs & co and passing kernel addresses to drm_ioctl
-   please use compat_alloc_user_space()
+> 
+> * Esben Nielsen <simlo@phys.au.dk> wrote:
+> 
+> > > Now the question is, who will fix it? Preferably the maintainers, but I
+> > > don't know how much of a priority this is to them. I don't have the time
+> > > now to look at this and understand enough about the code to be able to
+> > > make a proper fix, and I'm sure you have other things to do too.
+> > 
+> > How about adding a
+> >  if(rt_task(current)) {
+> >         WARN_ON(1);
+> >         mutex_setprio(current, MAX_PRIO-1)
+> >  }
+> > ?
+> > 
+> > to find all calls to yields from rt-tasks. That will force the user 
+> > (aka the real-time developer) to either stop calling the subsystems 
+> > still using yield from his RT-tasks, or fix those subsystems.
+> 
+> i've added this to the -43-08 patch, so that we can see the scope of the 
+> problem. But any yield() use could become a problem due to priority 
+> inheritance. (which might eventually be expanded to userspace locking 
+> too)
+> 
+Any calls to non-deterministic subsystems breaks the real-time properties.
+yield() is certainly not the only problem. Code waiting for RCU-completion
+or whatever is bad too. Calling code like that from RT-tasks or calling
+them while having locks shared with RT-tasks is just bad. Anyone knowing
+about RT development _has_ to know that. Putting warnings and traces into
+the kernel is a nice feature. 
 
- - this:
+Static code analyzes would also help quite a bit. What about having a new
+attribute "nonrt" for functions and locks? yield() and syncronize_kernel() are 
+certain candidates. Any function having nonrt operations are marked 
+nonrt. Any lock becomes held while doing a nonrt operation is marked
+nonrt. Taking a nonrt lock is a nonrt operation. (Might end up marking the
+whole kernel nonrt....)
 
-+ifeq ($(CONFIG_COMPAT),y)
-+drm-objs    += drm_ioc32.o
-+radeon-objs += radeon_ioc32.o
-+endif
+Esben
 
-   should be written as
+> 	Ingo
 
-drm-$(CONFIG_COMPAT)	+= drm_ioc32.o
-radeon-$(CONFIG_COMPAT)	+= radeon_ioc32.o
 
-   and everything else should use foo-y instead of foo-objs
 
- - the magic CONFIG_COMPAT changes for SHM handles should only be done when
-   a module is set.  CONFIG_COMPAT is set for mostly 64bit systems that can
-   run 32bit code and drm shouldn't behave differently just because we can
-   run 32bit code.

@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131027AbQLNMNw>; Thu, 14 Dec 2000 07:13:52 -0500
+	id <S130356AbQLNMSW>; Thu, 14 Dec 2000 07:18:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131186AbQLNMNm>; Thu, 14 Dec 2000 07:13:42 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:50887 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S131027AbQLNMNc>; Thu, 14 Dec 2000 07:13:32 -0500
-Message-ID: <3A38B242.8319E5C2@haque.net>
-Date: Thu, 14 Dec 2000 06:42:58 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S130507AbQLNMSN>; Thu, 14 Dec 2000 07:18:13 -0500
+Received: from verisity41.verisity.com ([216.216.10.41]:15593 "EHLO
+	verisity.com") by vger.kernel.org with ESMTP id <S130356AbQLNMSC>;
+	Thu, 14 Dec 2000 07:18:02 -0500
+From: Michael Livshin <mlivshin@bigfoot.com>
+To: orbit-list@gnome.org
+Cc: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        "Mohammad A. Haque" <mhaque@haque.net>, Ben Ford <ben@kalifornia.com>,
+        linux-kernel@vger.kernel.org, korbit-cvs@lists.sourceforge.net
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <Pine.LNX.4.21.0012132106070.24665-100000@www.nondot.org>
+Organization: the Church of God the Utterly Indifferent
+In-Reply-To: Chris Lattner's message of "Wed, 13 Dec 2000 21:12:05 -0600 (CST)"
+Date: 14 Dec 2000 13:46:57 +0200
+Message-ID: <s3r93bb4y6.fsf@bigfoot.com.cmm>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: test12 lockups -- need feedback
-In-Reply-To: <Pine.LNX.4.30.0012132157020.1272-100000@viper.haque.net> <Pine.LNX.4.30.0012132244290.1875-100000@viper.haque.net> <20001214132118.A829@nightmaster.csn.tu-chemnitz.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmmm, does syslog sending to another machine catch oops? I guess we'll
-find out.
+Chris Lattner <sabre@nondot.org> writes:
 
-Ingo Oeser wrote:
-> I have no oops yet of this lockup, because of X, but I'll ask a
-> friend of mine, whether the remote logging made it to him and
-> send you the results.
+> > p9fs exists.  I didn't see these patches since August, but probably I can poke
+> > Roman into porting it to the current tree.  9P is quite simple and unlike
+> > CORBA it had been designed for taking kernel stuff to userland.  Besides,
+> > authors definitely understand UNIX...
+> 
+> One thing that you might want to mention Alexander: 9P is not a general
+> communications protocol.  In fact, it doesn't work very well across the
+> internet at all.  To get decent performance, the Plan9 group (which, is a
+> very cool group.  :) has to specify a new protocol that competes with TCP
+> on the level of complexity (IL: http://plan9.bell-labs.com/sys/doc/il/il.html)
+
+this might be because the Bell Labs folks don't like RPC in general
+when network latencies become involved?  I'm guessing.
+
+'cause CORBA is still pretty much objectified RPC, as far as I know.
+I don't think you want to abstract the network out just like that when 
+dealing with kernels.
 
 -- 
+Entropy isn't what it used to be.
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,233 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318969AbSIIW2j>; Mon, 9 Sep 2002 18:28:39 -0400
+	id <S318983AbSIIW3R>; Mon, 9 Sep 2002 18:29:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318957AbSIIWVV>; Mon, 9 Sep 2002 18:21:21 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:15883 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318943AbSIIWTZ>;
-	Mon, 9 Sep 2002 18:19:25 -0400
-Date: Mon, 9 Sep 2002 15:21:12 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [BK PATCH] PCI hotplug changes for 2.5.34
-Message-ID: <20020909222112.GK7433@kroah.com>
-References: <20020909221627.GE7433@kroah.com> <20020909221955.GG7433@kroah.com> <20020909222016.GH7433@kroah.com> <20020909222037.GI7433@kroah.com> <20020909222057.GJ7433@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020909222057.GJ7433@kroah.com>
-User-Agent: Mutt/1.4i
+	id <S318975AbSIIW2r>; Mon, 9 Sep 2002 18:28:47 -0400
+Received: from ns2.nealtech.net ([64.29.20.117]:12221 "EHLO nealtech.net")
+	by vger.kernel.org with ESMTP id <S318967AbSIIW10>;
+	Mon, 9 Sep 2002 18:27:26 -0400
+Message-Id: <200209092232.SAA05145@nealtech.net>
+Content-Type: text/plain; charset=US-ASCII
+From: anton wilson <anton.wilson@camotion.com>
+To: linux-kernel@vger.kernel.org
+Subject: do_gettimeofday vs. rdtsc in the scheduler
+Date: Mon, 9 Sep 2002 18:21:57 -0400
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.628   -> 1.629  
-#	drivers/hotplug/ibmphp.h	1.3     -> 1.4    
-#	drivers/hotplug/ibmphp_ebda.c	1.5     -> 1.6    
-#	drivers/hotplug/ibmphp_hpc.c	1.7     -> 1.8    
-#	drivers/hotplug/ibmphp_core.c	1.9     -> 1.10   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/09/09	zubarev@us.ibm.com	1.629
-# [PATCH] IBM PCI Hotplug driver update for PCI based controllers
-# 
-# --------------------------------------------
-#
-diff -Nru a/drivers/hotplug/ibmphp.h b/drivers/hotplug/ibmphp.h
---- a/drivers/hotplug/ibmphp.h	Mon Sep  9 15:09:39 2002
-+++ b/drivers/hotplug/ibmphp.h	Mon Sep  9 15:09:39 2002
-@@ -737,6 +737,7 @@
- struct controller {
- 	struct ebda_hpc_slot *slots;
- 	struct ebda_hpc_bus *buses;
-+	struct pci_dev *ctrl_dev; /* in case where controller is PCI */
- 	u8 starting_slot_num;	/* starting and ending slot #'s this ctrl controls*/
- 	u8 ending_slot_num;
- 	u8 revision;
-diff -Nru a/drivers/hotplug/ibmphp_core.c b/drivers/hotplug/ibmphp_core.c
---- a/drivers/hotplug/ibmphp_core.c	Mon Sep  9 15:09:39 2002
-+++ b/drivers/hotplug/ibmphp_core.c	Mon Sep  9 15:09:39 2002
-@@ -1636,6 +1636,11 @@
- 
- 	max_slots = get_max_slots ();
- 	
-+	if ((rc = ibmphp_register_pci ())) {
-+		ibmphp_unload ();
-+		return rc;
-+	}
-+
- 	if (init_ops ()) {
- 		ibmphp_unload ();
- 		return -ENODEV;
-diff -Nru a/drivers/hotplug/ibmphp_ebda.c b/drivers/hotplug/ibmphp_ebda.c
---- a/drivers/hotplug/ibmphp_ebda.c	Mon Sep  9 15:09:39 2002
-+++ b/drivers/hotplug/ibmphp_ebda.c	Mon Sep  9 15:09:39 2002
-@@ -131,6 +131,7 @@
- 	controller->slots = NULL;
- 	kfree (controller->buses);
- 	controller->buses = NULL;
-+	controller->ctrl_dev = NULL;
- 	kfree (controller);
- }
- 
-@@ -798,6 +799,8 @@
- 	return NULL;
- }
- 
-+static struct pci_driver ibmphp_driver;
-+
- /*
-  * map info (ctlr-id, slot count, slot#.. bus count, bus#, ctlr type...) of
-  * each hpc from physical address to a list of hot plug controllers based on
-@@ -929,6 +932,7 @@
- 				hpc_ptr->u.pci_ctlr.dev_fun = readb (io_mem + addr + 1);
- 				hpc_ptr->irq = readb (io_mem + addr + 2);
- 				addr += 3;
-+				debug ("ctrl bus = %x, ctlr devfun = %x, irq = %x\n", hpc_ptr->u.pci_ctlr.bus, hpc_ptr->u.pci_ctlr.dev_fun, hpc_ptr->irq);
- 				break;
- 
- 			case 0:
-@@ -954,12 +958,6 @@
- 				return -ENODEV;
- 		}
- 
--		/* following 3 line: Now our driver only supports I2c/ISA ctlrType */
--		if ((hpc_ptr->ctlr_type != 2) && (hpc_ptr->ctlr_type != 4) && (hpc_ptr->ctlr_type != 0)) {
--			err ("Please run this driver on IBM xSeries440 or xSeries 235\n ");
--			return -ENODEV;
--		}
--
- 		//reorganize chassis' linked list
- 		combine_wpg_for_chassis ();
- 		combine_wpg_for_expansion ();
-@@ -1213,11 +1211,16 @@
- 	struct controller *controller = NULL;
- 	struct list_head *list;
- 	struct list_head *next;
-+	int pci_flag = 0;
- 
- 	list_for_each_safe (list, next, &ebda_hpc_head) {
- 		controller = list_entry (list, struct controller, ebda_hpc_list);
- 		if (controller->ctlr_type == 0)
- 			release_region (controller->u.isa_ctlr.io_start, (controller->u.isa_ctlr.io_end - controller->u.isa_ctlr.io_start + 1));
-+		else if ((controller->ctlr_type == 1) && (!pci_flag)) {
-+			++pci_flag;
-+			pci_unregister_driver (&ibmphp_driver);
-+		}
- 		free_ebda_hpc (controller);
- 	}
- }
-@@ -1234,3 +1237,59 @@
- 		resource = NULL;
- 	}
- }
-+
-+static struct pci_device_id id_table[] __devinitdata = {
-+	{
-+		vendor:		PCI_VENDOR_ID_IBM,
-+		device:		HPC_DEVICE_ID,
-+		subvendor:	PCI_VENDOR_ID_IBM,
-+		subdevice:	HPC_SUBSYSTEM_ID,
-+		class:		((PCI_CLASS_SYSTEM_PCI_HOTPLUG << 8) | 0x00),
-+	}, {}
-+};		
-+
-+MODULE_DEVICE_TABLE(pci, id_table);
-+
-+static int ibmphp_probe (struct pci_dev *, const struct pci_device_id *);
-+static struct pci_driver ibmphp_driver = {
-+	name:		"ibmphp",
-+	id_table:	id_table,
-+	probe:		ibmphp_probe,
-+};
-+
-+int ibmphp_register_pci (void)
-+{
-+	struct controller *ctrl;
-+	struct list_head *tmp;
-+	int rc = 0;
-+
-+	list_for_each (tmp, &ebda_hpc_head) {
-+		ctrl = list_entry (tmp, struct controller, ebda_hpc_list);
-+		if (ctrl->ctlr_type == 1) {
-+			rc = pci_module_init (&ibmphp_driver);
-+			break;
-+		}
-+	}
-+	return rc;
-+}
-+static int ibmphp_probe (struct pci_dev * dev, const struct pci_device_id *ids)
-+{
-+	struct controller *ctrl;
-+	struct list_head *tmp;
-+
-+	debug ("inside ibmphp_probe \n");
-+	
-+	list_for_each (tmp, &ebda_hpc_head) {
-+		ctrl = list_entry (tmp, struct controller, ebda_hpc_list);
-+		if (ctrl->ctlr_type == 1) {
-+			if ((dev->devfn == ctrl->u.pci_ctlr.dev_fun) && (dev->bus->number == ctrl->u.pci_ctlr.bus)) {
-+				ctrl->ctrl_dev = dev;
-+				debug ("found device!!! \n");
-+				debug ("dev->device = %x, dev->subsystem_device = %x\n", dev->device, dev->subsystem_device);
-+				return 0;
-+			}
-+		}
-+	}
-+	return -ENODEV;
-+}
-+
-diff -Nru a/drivers/hotplug/ibmphp_hpc.c b/drivers/hotplug/ibmphp_hpc.c
---- a/drivers/hotplug/ibmphp_hpc.c	Mon Sep  9 15:09:39 2002
-+++ b/drivers/hotplug/ibmphp_hpc.c	Mon Sep  9 15:09:39 2002
-@@ -379,6 +379,26 @@
- 	outb (data, port_address);
- }
- 
-+static u8 pci_ctrl_read (struct controller *ctrl, u8 offset)
-+{
-+	u8 data = 0x00;
-+	debug ("inside pci_ctrl_read\n");
-+	if (ctrl->ctrl_dev)
-+		pci_read_config_byte (ctrl->ctrl_dev, HPC_PCI_OFFSET + offset, &data);
-+	return data;
-+}
-+
-+static u8 pci_ctrl_write (struct controller *ctrl, u8 offset, u8 data)
-+{
-+	u8 rc = -ENODEV;
-+	debug ("inside pci_ctrl_write\n");
-+	if (ctrl->ctrl_dev) {
-+		pci_write_config_byte (ctrl->ctrl_dev, HPC_PCI_OFFSET + offset, data);
-+		rc = 0;
-+	}
-+	return rc;
-+}
-+
- static u8 ctrl_read (struct controller *ctlr, void *base, u8 offset)
- {
- 	u8 rc;
-@@ -386,6 +406,9 @@
- 	case 0:
- 		rc = isa_ctrl_read (ctlr, offset);
- 		break;
-+	case 1:
-+		rc = pci_ctrl_read (ctlr, offset);
-+		break;
- 	case 2:
- 	case 4:
- 		rc = i2c_ctrl_read (ctlr, base, offset);
-@@ -402,6 +425,9 @@
- 	switch (ctlr->ctlr_type) {
- 	case 0:
- 		isa_ctrl_write(ctlr, offset, data);
-+		break;
-+	case 1:
-+		rc = pci_ctrl_write (ctlr, offset, data);
- 		break;
- 	case 2:
- 	case 4:
+
+
+I'm writing a patch for the scheduler that allows normal processes to run 
+occasionally even though real-time processes completely dominate the CPU. In 
+order to do this the way I want to for a specific real-time application, I 
+need to keep track of the times that the schedule(void) function gets called. 
+This time is then used to calculate the time difference between when a normal 
+process was run last and the current time. I was trying to avoid 
+do_gettimeofday because of the overhead, but now I'm wondering if rdtsc on an 
+SMP machine may mess up my readings because the TSC from two different 
+processors may be read. Am I right in assuming this? Secondly, any good 
+suggestions on how to proceed with my patch? 
+
+
+Thanks,
+
+Anton

@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313895AbSDJVzM>; Wed, 10 Apr 2002 17:55:12 -0400
+	id <S313898AbSDJVzg>; Wed, 10 Apr 2002 17:55:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313898AbSDJVzL>; Wed, 10 Apr 2002 17:55:11 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:20489 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S313895AbSDJVzL>;
-	Wed, 10 Apr 2002 17:55:11 -0400
-Date: Wed, 10 Apr 2002 18:54:48 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Randy.Dunlap" <rddunlap@osdl.org>
+	id <S313900AbSDJVzf>; Wed, 10 Apr 2002 17:55:35 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:58536 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S313898AbSDJVzf>; Wed, 10 Apr 2002 17:55:35 -0400
+Date: Wed, 10 Apr 2002 17:55:29 -0400
+From: Bill Nottingham <notting@redhat.com>
+To: hch@ns.caldera.de, alan@redhat.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: scsi_merge oops (2.5.8-pre2)
-In-Reply-To: <Pine.LNX.4.33L2.0204101416350.25409-100000@dragon.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44L.0204101853300.18660-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: psaux change in -ac breaks USB keyboard + PS/2 mouse
+Message-ID: <20020410175529.A22665@wierzbowski.devel.redhat.com>
+Mail-Followup-To: hch@ns.caldera.de, alan@redhat.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Apr 2002, Randy.Dunlap wrote:
+This change (from 2.4.18rc2-ac2):
 
-> with much paging, swapping, memory pressure...
->
-> [root@dev8-003 root]# kernel BUG at scsi_merge.c:82!
+o Improve handling of psaux open with no mouse present (Christoph Hellwig)
 
-> so, does this mean that it's a BUG() not to be able to allocate
-> with <gfp_nowait> ?
+breaks the handling of the case where there is a PS/2 mouse
+and no PS/2 keyboard (for example, USB keyboard.) In this
+situation, the first time /dev/psaux is opened, it will return
+-ENXIO. Subsequent opens appear to act normal.
 
-Yup, the SCSI layer crashes when RAM is really, really low.
-
-This might be triggerable by too many incoming network
-packets, if you're really unlucky.
-
-> sounds odd to me.
-
-After a while you'll stop wondering why the SCSI layer does things. ;)
-
-kind regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Bill

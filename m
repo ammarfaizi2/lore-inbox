@@ -1,34 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278213AbRJMAFv>; Fri, 12 Oct 2001 20:05:51 -0400
+	id <S277827AbRJMALa>; Fri, 12 Oct 2001 20:11:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278209AbRJMAFk>; Fri, 12 Oct 2001 20:05:40 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:57046 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S278212AbRJMAFa>;
-	Fri, 12 Oct 2001 20:05:30 -0400
-Date: Fri, 12 Oct 2001 20:06:01 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Signal9 <signal9@gmx.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: possible bug in VFS ?
-In-Reply-To: <01101301503101.00295@apocalipsis>
-Message-ID: <Pine.GSO.4.21.0110122004080.76-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278209AbRJMALU>; Fri, 12 Oct 2001 20:11:20 -0400
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:56634 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S277844AbRJMALO>; Fri, 12 Oct 2001 20:11:14 -0400
+From: joeja@mindspring.com
+Date: Fri, 12 Oct 2001 20:11:46 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.11 && 2.4.12
+Message-ID: <Springmail.105.1002931906.0.04908300@www.springmail.com>
+X-Originating-IP: 4.20.162.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+    Last night I tried 2.4.12.  I patched a stock 2.4.10 kernel with 2.4.11.donuse and then with 2.4.12.  It compiled the kernel, but make modules failed miserably with all sorts of errors and warnings.  Should I have patched my 2.4.10 with 2.4.12 and just skipped over 2.4.11?  The patching went fine, the compiling was a mess.
+    Needless to say that I have reverted back to 2.4.10 which seems to be doing fine on my machine.
 
+    This kinda reminds me of the 2.2.x series when around 2.2.14 the kernel started getting stable. 
 
-On Sat, 13 Oct 2001, Signal9 wrote:
-
->                root = current->fs->rootmnt;
->                list_for_each(ptr, &root->mnt_list) {
->                         mnt = list_entry(ptr, struct vfsmount, mnt_list);
->                         sb = mnt ? mnt->mnt_sb : NULL;
->                          if (NULL != sb && dev == sb->s_dev) <============
->                                         mntget(mnt);
->                 }
-
-	What the hell is it trying to do?
+Joe
 

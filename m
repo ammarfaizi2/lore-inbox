@@ -1,94 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264961AbTK3Rbm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 12:31:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264957AbTK3Rbl
+	id S264971AbTK3Re4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 12:34:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264972AbTK3Rez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 12:31:41 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:28842 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264971AbTK3R3N (ORCPT
+	Sun, 30 Nov 2003 12:34:55 -0500
+Received: from gprs151-64.eurotel.cz ([160.218.151.64]:6017 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S264971AbTK3Rer (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 12:29:13 -0500
-Date: Sun, 30 Nov 2003 18:28:55 +0100
-From: Jens Axboe <axboe@suse.de>
+	Sun, 30 Nov 2003 12:34:47 -0500
+Date: Sun, 30 Nov 2003 18:35:35 +0100
+From: Pavel Machek <pavel@ucw.cz>
 To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Prakash K. Cheemplavam" <prakashkc@gmx.de>, marcush@onlinehome.de,
-       linux-kernel@vger.kernel.org, eric_mudama@Maxtor.com
-Subject: Re: Silicon Image 3112A SATA trouble
-Message-ID: <20031130172855.GA6454@suse.de>
-References: <3FC36057.40108@gmx.de> <200311301547.32347.bzolnier@elka.pw.edu.pl> <3FCA1220.2040508@gmx.de> <200311301721.41812.bzolnier@elka.pw.edu.pl> <20031130162523.GV10679@suse.de> <3FCA1DD3.70004@pobox.com> <20031130165146.GY10679@suse.de> <3FCA2672.8020202@pobox.com>
+Cc: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: FYI: My current suspend bigdiff
+Message-ID: <20031130173535.GC516@elf.ucw.cz>
+References: <3FC789F5.2000208@gmx.de> <20031128175503.GB18072@elf.ucw.cz> <3FC7908A.9030007@gmx.de> <20031128235623.GB18147@elf.ucw.cz> <3FC8C0DB.9050107@gmx.de> <20031129172537.GB459@elf.ucw.cz> <3FC9C560.2070902@gmx.de> <20031130171833.GB516@elf.ucw.cz> <3FCA2742.8070107@gmx.de> <3FCA280A.40805@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FCA2672.8020202@pobox.com>
+In-Reply-To: <3FCA280A.40805@pobox.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 30 2003, Jeff Garzik wrote:
-> Jens Axboe wrote:
-> >On Sun, Nov 30 2003, Jeff Garzik wrote:
-> >>fond of partial completions, as I feel they add complexity, particularly 
-> >>so in my case:  I can simply use the same error paths for both the 
-> >>single-sector taskfile and the "everything else" taskfile, regardless of 
-> >>which taskfile throws the error.
+Hi!
+
+> >>>>Well... it could work with scsi. You can try it, but be carefull. [If
+> >>>>it goes wrong it might eat your data.]
+> >>>
+> >>>
+> >>>Thats why I use xfs on my main system to test... And I tried with 
+> >>>libata and it won't work as it complains that the "katad" process 
+> >>>cannot be stopped, so swsusp immediatly comes back.
+> >>
+> >>
+> >>
+> >>I do not know how much more support is needed to allow powermanagment
+> >>for libata, but this one should be easy...
 > >
 > >
-> >It's just a questions of maintaining the proper request state so you
-> >know how much and what part of a request is pending. Requests have been
-> >handled this way ever since clustered requests, that is why
-> >current_nr_sectors differs from nr_sectors. And with hard_* duplicates,
-> >it's pretty easy to extend this a bit. I don't see this as something
-> >complex, and if the alternative you are suggesting (your implementation
-> >idea is not clear to me...) is to fork another request then I think it's
-> >a lot better.
-> [snip howto]
+> >Uhm, Jeff already fixed it in libata using the same call. Can both fixes 
+> >"hurt" each other or are the safe?
 > 
-> Yeah, I know how to do partial completions.  The increased complexity 
-> arises in my driver.  It's simply less code in my driver to treat each 
-> transaction as an "all or none" affair.
->
-> For the vastly common case, it's less i-cache and less interrupts to do 
-> all-or-none.  In the future I'll probably want to put partial 
-> completions in the error path...
-
-Oh come one, i-cache? We're doing IO here, a cache line more or less in
-request handling is absolutely so much in the noise. 
-
-What are the "increased complexity" involved with doing partial
-completions? You don't even have to know it's a partial request in the
-error handling, it's "just the request" state. Honestly, I don't see a
-problem there. You'll have to expand on what exactly you see as added
-complexity. To me it still seems like the fastest and most elegant way
-to handle it. It requires no special attention on request buildup, it
-requires no extra request and ugly split-code in the request handling.
-And the partial-completions come for free with the block layer code.
-
-> >>(thinking out loud)  Though best for simplicity, I am curious if a 
-> >>succession of "tiny/huge" transaction pairs are efficient?  I am hoping 
-> >>that the drive's cache, coupled with the fact that each pair of 
-> >>taskfiles is sequentially contiguous, will not hurt speed too much over 
-> >>a non-errata configuration...
-> >
-> >
-> >My gut would say rather two 64kb than a 124 and 4kb. But you should do
-> >the numbers, of course :). I'd be surprised if the former wouldn't be
-> >more efficient.
 > 
-> That's why I was thinking out loud, and also why I CC'd Eric :)  We'll 
+> As you suspect, you want only one of the fixes.
+> 
+> I would probably prefer Pavel's patch over mine, as he knows the suspend 
+> subsystem better than me :)
 
-Numbers are better than Eric :)
-
-> see.  I'll implement whichever is easier first, which will certainly be 
-> better than the current sledgehammer limit.  Any improvement over the 
-
-Definitely, the current static limit completely sucks...
-
-> current code will provide dramatic performance increases, and we can 
-> tune after that...
-
-A path needs to be chosen first, though.
-
+Well, as I did not even try to compile it, take Jeff's patch.
+								Pavel
 -- 
-Jens Axboe
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

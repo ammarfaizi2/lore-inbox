@@ -1,124 +1,186 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266680AbUHIQGw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266701AbUHIQGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266680AbUHIQGw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 12:06:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266666AbUHIQGw
+	id S266701AbUHIQGK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 12:06:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266666AbUHIQGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 12:06:52 -0400
-Received: from digitalimplant.org ([64.62.235.95]:14302 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S266725AbUHIQCj
+	Mon, 9 Aug 2004 12:06:09 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:41386 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S266731AbUHIQDn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 12:02:39 -0400
-Date: Mon, 9 Aug 2004 09:02:30 -0700 (PDT)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Pavel Machek <pavel@ucw.cz>
-cc: linux-kernel@vger.kernel.org, "" <benh@kernel.crashing.org>,
-       "" <david-b@pacbell.net>
-Subject: Re: [RFC] Fix Device Power Management States
-In-Reply-To: <20040809113829.GB9793@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.50.0408090840560.16137-100000@monsoon.he.net>
-References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net>
- <20040809113829.GB9793@elf.ucw.cz>
+	Mon, 9 Aug 2004 12:03:43 -0400
+Message-ID: <41179ED1.2000909@watson.ibm.com>
+Date: Mon, 09 Aug 2004 11:57:05 -0400
+From: Hubertus Franke <frankeh@watson.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030901 Thunderbird/0.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Shailabh Nagar <nagar@watson.ibm.com>
+CC: Erich Focht <efocht@hpce.nec.com>, Paul Jackson <pj@sgi.com>,
+       mbligh@aracnet.com, lse-tech@lists.sourceforge.net, akpm@osdl.org,
+       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
+       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
+       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com,
+       ckrm-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <200408061730.06175.efocht@hpce.nec.com> <20040806231013.2b6c44df.pj@sgi.com> <200408071722.36705.efocht@hpce.nec.com> <41168B97.1010704@watson.ibm.com>
+In-Reply-To: <41168B97.1010704@watson.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please add ckrm-tech@lists.sourceforge.net if CKRM isses are requested.
 
-On Mon, 9 Aug 2004, Pavel Machek wrote:
+See further comments to this thread below.
 
-> > - ->dev_stop() and ->dev_start() to struct class
-> >   This provides the framework to shutdown a device from a functional
-> >   level, rather than at a hardware level, as well as the entry points
-> >   to stop/start ALL devices in the system.
->
-> Hmm, that will need lots of new code to call these, right? Like
-> device_suspend() will now get device_stop() equivalent, etc....
+-- Hubertus
 
-Uh, not really. During suspend-to-disk, you would call
+Shailabh Nagar wrote:
 
-	device_stop();
-	device_save();
-	<snapshot system>
-	class_device_start(suspend_device);
-	<write snapshot>
-	class_device_stop(suspend_device);
-	device_power_down(state);
+> Erich Focht wrote:
+> 
+>> On Saturday 07 August 2004 08:10, Paul Jackson wrote:
+>>
+>> Cpusets are a complex resource which needs to be managed. You already
+>> provided an interface for management but on the horizon there is this
+>> CKRM thing... I really don't care too much about the interface as long
+>> as it is comfortable (advocating for your bitset manipulation routines
+>> here ;-). CKRM will some day come in and maybe try to unify the
+>> resource control through a generalized interface. In my understand
+>> CKRM "classes" are (for the cpusets resource) your "sets". I was
+>> trying to anticipate that CKRM might want to present the single entry
+>> point for managing resources, including cpusets.
+> 
+> 
+> That is the intended utility of the CKRM core+interface, atleast for any 
+> resource for which it is useful to impose controls on a group of objects 
+> at once, as opposed to individually.
+> 
+>>
+>> If I understand correctly, CKRM is fine for simple resources like
+>> amount of memory or cputime and designed to control flexible sharing
+>> of these resources and ensure some degree of fairness. Cpusets is a
+>> complex NUMA specific compound resource which actually only allows for
+>> a rather static distribution across processes (especially with the
+>> exclusive bits set). Including cpusets control into CKRM will be
+>> trivial, because you already provide all that's needed.
+> 
+> 
+> If we move to the new model where each controller has an independent 
+> hierarchy, this becomes a real possibility. We'd still need to negotiate 
+> on the interface. Implementationally its pretty simple....the main 
+> question is - should there be some uniformity in the interfaces at the 
+> /rcfs/<?> level for each controller or not. If there isn't, the only 
+> thing that CKRM brings to the table (for cpusets) is the filesystem.
+> 
+>>
+>> What I proposed was to include cpusets ASAP. As we learned from
+>> Hubertus, CKRM is undergoing some redesign (after the kernel summit),
+>> so let's now get used to cpusets and forget about the generic resource
+>> controller until that is mature to enter the kernel. 
+> 
 
-> >   This is implemented by iterating through the list of struct classes,
-> >   then through each of their struct class_device's. The class_device is
-> >   the only argument to those functions.
->
-> Aha, so you are saying these do not need to be done in hardware order?
+Let's look where the restructuring is conceptually heading.
+As indicated by Shailabh above (and requested at the kernel summit),
+the resource controllers are becoming external entities in that they
+will be addressed directly by through the /rcfs/<rc>/<class-hierarchy>,
+rather then indirectly through their association with the classtypes
+right now.
 
-AFAICT, no.
-
-> Semantics of dev_stop is "may not do DMA and interrupts when stopped",
-> right?
-
-To be more precise, "device is not processing any transactions and will
-not be used to submit more to". It's up to the class to remove it from any
-queues, etc, so DMA never has a chance to begin.
-
-> I do not think we want to see "u32 state" any more. This really needs
-> to be specified as "enum something" otherwise everyone will get it
-> wrong... again.
-
-That's not the point, at least at this stage. Eventually, the u32 could be
-replaced with an enum. But, remember why there is confusion - the value of
-the system suspend level was also passed to the drivers as the device
-suspend level. If you read the email again and look at the code, you will
-see that drivers always get passed a 'struct pm_state', and the 'u32' are
-only used between the suspend imeplementations and the driver core (which
-is the re-mapper). I think compile-time checks are good, but we're in
-bigger trouble if we can't get a half-dozen calls using the right value..
-
-> > pointers, that is in dev->power.pm_system. The pointers in that array
-> > point to entries in dev->power.pm_supports, which is an array of all the
-> > device power states that device supports. Please see include/linux/pm.h in
-> > the patch below. These arrays should be initialized by the bus, though
-> > they can be fixed up by the individual drivers, should they have a
-> > different set of states they support, or given user policy.
->
-> I'd simply pass system state down to the driver, and let them map as
-> they see fit... This seems to be way too complex. OTOH you are solving
-> 'runtime suspend', too...
-
-It's not too complex; it's simply that the driver core is the one
-responsible between mapping a system suspend state to the device suspend
-state, based on values that the driver knows a priori. If you push that
-responsibility down to the drivers, you require all of them to implement
-the same thing, causing code duplication, which means more copy-n-pasting,
-and more of a chance to get it wrong. If we choose to do it once and right
-in the driver core, the resulting drivers become simpler, since they only
-have to respond to something that says "enter this power state, damnit"
-
-On the other hand, if it's too complicated for you, I encourage you to
-modify the patch or create a new one that solves all of the problems in a
-simpler manner.
-
-> > +enum {
-> > +	pm_sys_ON = 1,
-> > +	pm_sys_SHUTDOWN,
-> > +	pm_sys_RESET,
-> > +	pm_sys_STANDBY,
-> > +	pm_sys_SUSPEND,
-> > +	pm_sys_HIBERNATE,
-> > +	pm_sys_NUM,
-> > +};
->
-> I believe different state is needed for "quiesce for atomic copy" and
-> for "we are really going down to S4 now".
-
-There is nothing fundamentally different at the functional level - you
-don't want any devices fulfilling any request. Besides, by the time the
-system is actually ready to be placed in S4, the devices have long-since
-been stopped, and the class devices do not need another notification
-beyond "stop"
-
-Thanks,
+In essense, the /rcfs interface can be used if a strict hierarchy can be
+generated in the class hierarchy for a given resource.
+Furthermore, each resource controller manipulates a set of attributes 
+and constraints. Today we are talking about shares (min,max, guarantee).
+There is no reason why these attributes/constraints can not be resource 
+controller specific. For instance for the cpu sets, the attribute would 
+be "cpus_allowed" and the controller would verify its own constraints,
+such as cpus_allowed has to be a subset of its parents cpus.
+Whether at this point "shares" is still the right filename is debateable.
 
 
-	Pat
+> Might ? :-) We think its a home run :-)
+> 
+>> and the
+>> cpusets user interface will be yet another filesystem for controlling
+>> some hierarchical structures... The complaints about the huge size of
+>> the patch should therefore have in mind that we might well get rid of
+>> the user interface part of it. The core infrastructure of cpusets will
+>> be needed anyway and the amount of code is the absolutely required
+>> minimum, IMHO.
+>>
+>>
+>>
+>>> The other reason that this suggestion worries me is a bit more
+>>> philosophical.  I'm sure that for all the other, well known,
+>>> resources that CKRM manages, no one is proposing replacing whatever
+>>> existing names and mechanisms exist for those resources, such as
+>>> bandwidth, compute cycles, memory, ...  Rather I presume that CKRM
+>>> provides an additional resource management layer on top of the
+>>> existing resources, which retain their classic names and apparatus.
+>>> [...]
+>>
+>>
+>>
+>> I hope cpusets will be an "existing resource" when CKRM comes into
+>> play. It's a compound resource built of cpus and memories (and the
+>> name cpuset is a bit misleading) but it fully makes sense on a NUMA
+>> machine to have these two elementary resources glued together. If CKRM
+>> was to build a resource controller for cpu masks and memories, or two
+>> separate resource controllers, the really acceptable end result would
+>> look like the current cpusets infrastructure. So why waste time?
+>>
+>> Later cpusets could borrow the user interface of CKRM or, if the
+>> cpusets user interface is better suited, maybe we can just have a
+>> /rcfs/cpusets/ directory tree with the current cpusets look and feel?
+>> Question to CKRM people: would it make sense to have a class with
+>> another way of control than the shares/targets/members files?
+
+See above.. I think if we relax the fixed attributes that currently
+exist for "shares" and "stats" into something where the attribute
+names are verified and interpreted by the resource controller than
+that's effectively what you suggest here.
+
+> 
+> 
+> Need to mull this over in ckrm-tech, as mentioned earlier.
+> There are two issues:
+> - should controllers be allowed to create their own virtual files ?
+> - are all of the existing shares/targets/members files sufficiently 
+> useful to existing and future controllers to make them available by 
+> default (and offer the user some consistency) ?
+> 
+> I feel the answer to the second one is a yes though I'm not convinced 
+> that the attributes within the shares file need to be the same.
+> 
+> But saying yes to the first one will mean controllers have to implement 
+> some filesystem-related code (as is done by CKRM's Classification Engine 
+> modules, which also sit under /rcfs but have a completely different 
+> interface in terms of virtual files). We could work something out where 
+> controllers could use common code where available and then roll their 
+> own extras.
+
+I don't think we need to worry about the file system here (yet).
+rcfs takes care of the class object hierarchy and passes (as done today
+in other cases ) its attribute-setting strings down to the resource 
+controllers. We won't however have to do the parsing at /rcfs level.
+
+> 
+> If there's interest in this idea from the cpusets team and if we can 
+> come up with a way in which cpu/mem/io etc. could continue to share 
+> common rcfs code (as they do today) CKRM could consider this option.
+> 
+> -- Shailabh
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email is sponsored by OSTG. Have you noticed the changes on
+> Linux.com, ITManagersJournal and NewsForge in the past few weeks? Now,
+> one more big change to announce. We are now OSTG- Open Source Technology
+> Group. Come see the changes on the new OSTG site. www.ostg.com
+> _______________________________________________
+> Lse-tech mailing list
+> Lse-tech@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/lse-tech
+> 
 

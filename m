@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266689AbSKOUqK>; Fri, 15 Nov 2002 15:46:10 -0500
+	id <S266379AbSKOUoG>; Fri, 15 Nov 2002 15:44:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266690AbSKOUqK>; Fri, 15 Nov 2002 15:46:10 -0500
-Received: from mons.uio.no ([129.240.130.14]:53465 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S266689AbSKOUqJ>;
-	Fri, 15 Nov 2002 15:46:09 -0500
+	id <S266688AbSKOUoG>; Fri, 15 Nov 2002 15:44:06 -0500
+Received: from dav35.sea2.hotmail.com ([207.68.164.92]:8466 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S266379AbSKOUoG>;
+	Fri, 15 Nov 2002 15:44:06 -0500
+X-Originating-IP: [216.36.75.11]
+From: "Arcot Arumugam" <arcot_arumugam@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: TCPPureAcks TCPHPAcks - Definition?
+Date: Fri, 15 Nov 2002 13:03:29 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <15829.24239.643774.231548@helicity.uio.no>
-Date: Fri, 15 Nov 2002 21:53:03 +0100
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
-       richard@bouska.cz
-Subject: Re: NFS mountned  directory  and apache2 (2.5.47)
-In-Reply-To: <20021115202649.A18706@infradead.org>
-References: <79A23782BB8@vcnet.vc.cvut.cz>
-	<15829.22032.166977.73195@helicity.uio.no>
-	<20021115202649.A18706@infradead.org>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <DAV35iMCIqtQvAauNjV00005dc0@hotmail.com>
+X-OriginalArrivalTime: 15 Nov 2002 20:50:57.0554 (UTC) FILETIME=[B28AD720:01C28CE8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-    >> I disagree. Sendfile can *always* be emulated using the
-    >> standard file 'read' method.
+I am browsing linux TCP MIB header code and I see many fields but no
+explanation on what those fields are.
 
-     > Linus removed that in early 2.5 because it led to kmap()
-     > deadlocks.  sendfile can fail with EINVAL and userspace must
-     > not rely on it working on any object.
+Some of them are obvious but others are not.
 
-Fair enough. The kernel may not be the appropriate place for providing
-such an emulation, but there's no reason why glibc shouldn't be able
-to do so for the case where sendfile returns EINVAL.
+you can see all of them by typing
 
-However none of this changes the matter of the NFS client. The latter
-*does* support a pagecache, and so the one-line patch is appropriate.
+/proc/net/netstat
 
-Cheers,
-  Trond
+Does anyone know about what these fields contain? Is it documented anywhere?
+
+I did a google but could not find anything.
+
+Thanks
+
+Arcot
+

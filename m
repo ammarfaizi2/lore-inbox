@@ -1,60 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135650AbRD1VXv>; Sat, 28 Apr 2001 17:23:51 -0400
+	id <S135652AbRD1VXv>; Sat, 28 Apr 2001 17:23:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133022AbRD1VXm>; Sat, 28 Apr 2001 17:23:42 -0400
-Received: from 13dyn184.delft.casema.net ([212.64.76.184]:56846 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S135652AbRD1VXY>; Sat, 28 Apr 2001 17:23:24 -0400
-Message-Id: <200104282123.XAA05735@cave.bitwizard.nl>
-Subject: Re: 2.4 and 2GB swap partition limit
-In-Reply-To: <200104281804.f3SI4ar368494@saturn.cs.uml.edu> from "Albert D. Cahalan"
- at "Apr 28, 2001 02:04:35 pm"
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Date: Sat, 28 Apr 2001 23:23:15 +0200 (MEST)
-CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Wakko Warner <wakko@animx.eu.org>,
-        Xavier Bestel <xavier.bestel@free.fr>,
-        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
-        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
-        linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S135650AbRD1VXi>; Sat, 28 Apr 2001 17:23:38 -0400
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:42786 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S133022AbRD1VXL>; Sat, 28 Apr 2001 17:23:11 -0400
+Message-ID: <028201c0d042$936591a0$8501a8c0@gromit>
+From: "Michael Rothwell" <rothwell@holly-springs.nc.us>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010428211327Z135639-409+788@vger.kernel.org>
+Subject: Re: Common GUI Config for All Users
+Date: Sat, 28 Apr 2001 17:23:11 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan wrote:
-> So that is a factor of 50 in price. It's what, a factor of 1000000
-> in access time?
+Hmmm... this is the kernel list... not only the wrong place to ask UI
+questions, but lots of people here don't even like UIs. :)
 
-Actually it's only about 100000. 
+http://www.gnome.org
 
-> > That disk space is just sitting there. Never to be used. I spent $400
-> > on the RAM, and I'm now reserving about $8 worth of disk space for
-> > swap. I think that the $8 is well worth it. It keeps my machine
-> > functional a while longer should something go haywire... As I said:
-> > If you don't want to see it that way: Fine with me. 
-> 
-> It is a disaster waiting to happen. Instead of having the offending
-> process get killed, your machine could suffer extreme thrashing.
-> 
-> Have enough swap for idle processes and no more.
+-M
 
-Right. Now there is some time where "extreme thrashing" will alert ME
-(a human, I think) to try and find/kill the offending process.
+----- Original Message -----
+From: <cacook@freedom.net>
+To: <linux-kernel@vger.kernel.org>
+Sent: Saturday, April 28, 2001 2:13 PM
+Subject: Common GUI Config for All Users
 
-Otherwise I have to trust Rik's OOM killer. Now his OOM killer isn't
-all that bad. But it isn't human. Humans are better at actually
-finding the real CAUSE. An OOM killer might hit one or two innocent
-processes along the way. So far I've killed the right process ALL the
-time. I can't say the same for the OOM killer.
 
-				Roger. 
+> Looking for the best way to give all users a common desktop, which comes
+from one source (for easy administration).
+>
+> Found copying my /root/.gnome & .sawfish directories to a user home breaks
+the user's GUI, implying a symlink wouldn't work.  I am told .gnome &
+.sawfish can be copied to /etc/skel to give common look for new users, but
+need ongoing single-source control.  Besides, I tried copying root's config
+files to skel & it broke user GUIs.
+>
+> Security is also a concern, so couldn't symlink into root anyway.
+>
+> Recommendations welcomed, please.
+> --
+> C.
+>
+> The best way out is always through.
+>       - Robert Frost  A Servant to Servants, 1914
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 

@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261536AbSJCQ1e>; Thu, 3 Oct 2002 12:27:34 -0400
+	id <S261428AbSJCQt4>; Thu, 3 Oct 2002 12:49:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261539AbSJCQ1e>; Thu, 3 Oct 2002 12:27:34 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:43020 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261536AbSJCQ1d>;
-	Thu, 3 Oct 2002 12:27:33 -0400
-Date: Thu, 3 Oct 2002 09:30:19 -0700
-From: Greg KH <greg@kroah.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Kevin Corry <corryk@us.ibm.com>, linux-kernel@vger.kernel.org,
-       evms-devel@lists.sourceforge.net, torvalds@transmeta.com
-Subject: Re: EVMS Submission for 2.5
-Message-ID: <20021003163018.GC32588@kroah.com>
-References: <20021003161320.GA32588@kroah.com> <Pine.GSO.4.21.0210031217430.15787-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0210031217430.15787-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.4i
+	id <S261407AbSJCQt4>; Thu, 3 Oct 2002 12:49:56 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16644 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261428AbSJCQtq>; Thu, 3 Oct 2002 12:49:46 -0400
+Date: Thu, 3 Oct 2002 09:56:42 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: jbradford@dial.pipex.com, <jgarzik@pobox.com>, <kessler@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <saw@saw.sw.com.sg>, <rusty@rustcorp.com.au>,
+       <richardj_moore@uk.ibm.com>
+Subject: Re: [OT] 2.6 not 3.0 - (WAS Re: [PATCH-RFC] 4 of 4 - New problem
+ logging macros, SCSI RAIDdevice)
+In-Reply-To: <1033663078.28850.19.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0210030952010.2067-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 12:21:13PM -0400, Alexander Viro wrote:
-> On Thu, 3 Oct 2002, Greg KH wrote:
-> > /sbin/hotplug already gets called for _every_ device that is added to
-> > the system as of 2.5.40, so you should probably use that as your
-> > userspace notifier event.  If there's anything that the /sbin/hotplug
-> > call misses, that you need for evms, please let me know.
+
+On 3 Oct 2002, Alan Cox wrote:
+> > 
+> > "Stick to"? We've never had that as any criteria for major numbers in the
+> > kernel. Binary compatibility has _never_ been broken as a release policy,
+> > only as a "that code is old, and we've given people 5 years to migrate to
+> > the new system calls, the old ones are TOAST".
 > 
-> We need it
-> 	a) early enough
+> We've generally done better than that. Libc 2.2.2 stil works
 
-Your initramfs patches will enable this to happen :)
+We have removed _some_ stuff, and we've definitely broken some of the more
+esoteric configuration stuff (ie things like "top" and "ps" and "ifconfig"
+have broken multiple times over the last 11 years).
 
-> 	b) called for things like umem, etc. - random drivers built into
-> the tree and exporting several block devices.
+And that "old_stat()" thing really ought to go some day.. It's not much of
+a support burden, and yeah, we can point people to "that old a.out binary
+from 1993 still works fine", so I guess we'll keep it another ten years,
+but at this point that has less to do with technical judgement than with
+sentimentality, I think ;^)
 
-All devices that have a "struct device" (which should be about
-everything these days, if not, please let me know), cause a
-/sbin/hotplug event to happen.  This event says what type of device was
-added or removed, and includes the location of the device in the
-driverfs tree so that userspace can then determine what it wants to do
-with this device.
+But yeah, I think on the whole we've done pretty well on being binary 
+compatible.
 
-I'm working on adding a call to /sbin/hotplug when classes are
-registered with the kernel (like disk and other things that live in the
-class driverfs tree).
+		Linus
 
-Is this enough information to do what you need?
-
-thanks,
-
-greg k-h

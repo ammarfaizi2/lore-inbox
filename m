@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261728AbTCaRdj>; Mon, 31 Mar 2003 12:33:39 -0500
+	id <S261734AbTCaRo1>; Mon, 31 Mar 2003 12:44:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261730AbTCaRdj>; Mon, 31 Mar 2003 12:33:39 -0500
-Received: from host044163.arnet.net.ar ([200.45.44.163]:57519 "EHLO
-	menichini.com.ar") by vger.kernel.org with ESMTP id <S261728AbTCaRdi>;
-	Mon, 31 Mar 2003 12:33:38 -0500
-Date: Mon, 31 Mar 2003 14:39:49 -0300 (ART)
-From: Pablo Menichini <pablo@menichini.com.ar>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: Adam Belay <ambx1@neo.rr.com>, Jaroslav Kysela <perex@perex.cz>
-Subject: [PATCH 2.5] ALS100: kmalloc params fix
-Message-ID: <Pine.LNX.4.33.0303301510040.278-100000@pablo.menichini.com.ar>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261738AbTCaRo1>; Mon, 31 Mar 2003 12:44:27 -0500
+Received: from to-telus.redhat.com ([207.219.125.105]:17918 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S261734AbTCaRo1>; Mon, 31 Mar 2003 12:44:27 -0500
+Date: Mon, 31 Mar 2003 12:55:48 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Kenny Simpson <theonetruekenny@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mmap-related questions
+Message-ID: <20030331125548.D20730@redhat.com>
+References: <20030331144110.55232.qmail@web20003.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030331144110.55232.qmail@web20003.mail.yahoo.com>; from theonetruekenny@yahoo.com on Mon, Mar 31, 2003 at 06:41:10AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch swaps the arguments of kmalloc, and relax the type
-of allocation to GFP_KERNEL as others PnP functions do.
+On Mon, Mar 31, 2003 at 06:41:10AM -0800, Kenny Simpson wrote:
+> I tested that fsync() does not seem to sync pages that
+> were mapped with mmap.  Is there some way to sync all
+> data associated with the file?  Is there a way which
+> is also portable to Solaris 2.6?
 
-Pablo
+No.  You must use msync().  Note that fsync() after munmap() will flush the 
+pages to disk under Linux.
 
+> BTW: I'm using 2.4.7 (RH enterprise)
 
---- linux-2.5.66/sound/isa/als100.c	Sun Mar 30 14:33:19 2003
-+++ linux-local/sound/isa/als100.c	Sun Mar 30 14:33:52 2003
-@@ -121,7 +121,7 @@
- 					    const struct pnp_card_id *id)
- {
- 	struct pnp_dev *pdev;
--	struct pnp_resource_table * cfg = kmalloc(GFP_ATOMIC, sizeof(struct pnp_resource_table));
-+	struct pnp_resource_table *cfg = kmalloc(sizeof(*cfg), GFP_KERNEL);
- 	int err;
- 	if (!cfg)
- 		return -ENOMEM;
+2.4.7 is way out of date and should be updated for the numerous bugfixes and 
+security errata.
 
-
-
-
-
-
-
-
+		-ben

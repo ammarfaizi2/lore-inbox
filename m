@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317214AbSGXNiP>; Wed, 24 Jul 2002 09:38:15 -0400
+	id <S317152AbSGXNe4>; Wed, 24 Jul 2002 09:34:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317264AbSGXNiO>; Wed, 24 Jul 2002 09:38:14 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:23133 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S317214AbSGXNiN>; Wed, 24 Jul 2002 09:38:13 -0400
-Date: Wed, 24 Jul 2002 16:40:52 +0300
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Nico Schottelius <nicos-mutt@pcsystems.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.5.27 floppy driver
-Message-ID: <20020724134052.GM1548@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Nico Schottelius <nicos-mutt@pcsystems.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20020724134026.GB479@schottelius.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020724134026.GB479@schottelius.org>
-User-Agent: Mutt/1.3.25i
+	id <S317142AbSGXNe4>; Wed, 24 Jul 2002 09:34:56 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:50560 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317117AbSGXNew>; Wed, 24 Jul 2002 09:34:52 -0400
+Date: Wed, 24 Jul 2002 09:37:51 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Per Gregers Bilse <bilse@qbfox.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 clock warps 4294 seconds
+In-Reply-To: <200207241235.NAA01282@spirit.qbfox.com>
+Message-ID: <Pine.LNX.3.95.1020724092843.8629A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 24, 2002 at 03:40:26PM +0200, you [Nico Schottelius] wrote:
-> Sorry to disturb again:
-> The floppy driver is broken in this kernel, too.
-> Reading/writing lets the accessing program just 'hang around'.
-> 
-> Luckily the floppy driver is happy and reports its problems to us.
+On Wed, 24 Jul 2002, Per Gregers Bilse wrote:
 
-Seems the same I got with 2.5.26:
+> [1.] System clock (as returned by eg time(2)) warps 4294 seconds
+[SNIPPED...]
 
-http://groups.google.com/groups?ie=UTF-8&oe=utf-8&as_umsgid=20020722075313.GN1465@niksula.cs.hut.fi&lr=&num=50&hl=en
+Do you have a time-daemon running that synchronizes your machine to
+some other?
+
+Run this program as:
+./xxx &>xxx.log &
+
+...and see if your machine is really jumping.
+
+#include <stdio.h>
+#include <time.h>
 
 
--- v --
+int main()
+{
+    time_t tim;
+    time_t last;
+    (void)time(&last);
+    (void)time(&tim);
+    for(;;)
+    {
+        (void)time(&tim);
+        if(tim != last)
+        {
+            if((last +1) != tim)
+            {
+                fprintf(stderr,"Time = %08lx\n", tim);
+                fprintf(stderr,"Last = %08lx\n", last);
+            }
+            last = tim;
+        }
+    }
+}
 
-v@iki.fi
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
+

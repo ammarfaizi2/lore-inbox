@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267361AbUJVTo3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267333AbUJVTsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267361AbUJVTo3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 15:44:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267298AbUJVTly
+	id S267333AbUJVTsz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 15:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267376AbUJVTp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 15:41:54 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:16263 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S267251AbUJVTjI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 15:39:08 -0400
-Date: Fri, 22 Oct 2004 21:35:54 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
-Cc: Andrew Morton <akpm@osdl.org>, xhejtman@mail.muni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9 - e1000 - page allocation failed
-Message-ID: <20041022193554.GA4216@electric-eye.fr.zoreil.com>
-References: <2E314DE03538984BA5634F12115B3A4E01BC3FA5@email1.mitretek.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2E314DE03538984BA5634F12115B3A4E01BC3FA5@email1.mitretek.org>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+	Fri, 22 Oct 2004 15:45:59 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:59901 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S267338AbUJVTkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 15:40:55 -0400
+Message-ID: <4179623C.9050807@nortelnetworks.com>
+Date: Fri, 22 Oct 2004 13:40:44 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@novell.com>
+Subject: Re: How is user space notified of CPU speed changes?
+References: <1098399709.4131.23.camel@krustophenia.net>	 <1098444170.19459.7.camel@localhost.localdomain> <1098468316.5580.18.camel@krustophenia.net>
+In-Reply-To: <1098468316.5580.18.camel@krustophenia.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Piszcz, Justin Michael <justin.piszcz@mitretek.org> :
-[...]
-> I found this in regards to TSO:
-> http://www.kerneltrap.org/node.php?id=397
-> 
-> Which option enables TSO?
+Lee Revell wrote:
 
-It is included in the IP stack and depends on the ability of your hardware.
-'ethtool -K ethX tso on' should activate it. See 'man 8 ethtool' for details.
+> Seems like you are implying that any userspace app that needs to know
+> the CPU speed is broken.  Is this correct?
 
-This question would probably be more accurate on netdev@oss.sgi.com.
+No, we're saying that Intel's tsc implementation is broken.  <grin>
 
---
-Ueimor
+x86 really could use an on-die register that increments at 1GHz independent of 
+clock speed and is synchronized across all CPUs in an SMP box.
+
+Chris

@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266615AbUIIWVP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266633AbUIIWVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266615AbUIIWVP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 18:21:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266633AbUIIWVP
+	id S266633AbUIIWVt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 18:21:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267940AbUIIWVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 18:21:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:20643 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266615AbUIIWVO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 18:21:14 -0400
-Date: Thu, 9 Sep 2004 15:24:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: eric.valette@free.fr
-Cc: linux-kernel@vger.kernel.org, petkan@nucleusys.com,
-       Greg KH <greg@kroah.com>
-Subject: Re: 2.6.9-rc1-mm4 badness in rtl8150.c ethernet driver : fixed
-Message-Id: <20040909152454.14f7ebc9.akpm@osdl.org>
-In-Reply-To: <4140256C.5090803@free.fr>
-References: <413DB68C.7030508@free.fr>
-	<4140256C.5090803@free.fr>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+	Thu, 9 Sep 2004 18:21:49 -0400
+Received: from web52902.mail.yahoo.com ([206.190.39.179]:58499 "HELO
+	web52902.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266633AbUIIWVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 18:21:45 -0400
+Message-ID: <20040909222145.42540.qmail@web52902.mail.yahoo.com>
+Date: Thu, 9 Sep 2004 23:21:45 +0100 (BST)
+From: =?iso-8859-1?q?Chris=20Rankin?= <rankincj@yahoo.com>
+Subject: RE: Latest microcode data from Intel.
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Valette <eric.valette@free.fr> wrote:
->
-> Here is a small patch that makes the card functionnal again. I've 
-> forwarded the patch to driver author also.
-> 
-> --- linux/drivers/usb/net/rtl8150.c-2.6.9-rc1-mm4.orig	2004-09-09 11:15:11.000000000 +0200
-> +++ linux/drivers/usb/net/rtl8150.c	2004-09-09 11:15:46.000000000 +0200
-> @@ -341,7 +341,7 @@
->  
->  static int rtl8150_reset(rtl8150_t * dev)
->  {
-> -	u8 data = 0x11;
-> +	u8 data = 0x10;
+> I have received and tested the latest microcode data
+> file from Intel, The file is dated 2nd September
+> 2004.
 
-hm, OK.  Presumably the change (which comes in via the bk-usb tree) was
-made for a reason.  So I suspect both versions are wrong ;)
+Aha! And this microcode file actually contains data
+for my dual P4 Xeons (HT):
 
-But it might be risky for Greg to merge this patch up at present.
+IA-32 Microcode Update Driver: v1.14 <tigran@xxxx>
+microcode: CPU2 updated from revision 0x18 to 0x22,
+date = 03242004
+microcode: CPU1 updated from revision 0x18 to 0x22,
+date = 03242004
+microcode: CPU0 updated from revision 0x18 to 0x22,
+date = 03242004
+microcode: CPU3 updated from revision 0x18 to 0x22,
+date = 03242004
 
+The July 27th offering didn't contain anything for
+these CPUs at all. In fact, the July file was
+suspiciously smaller than the one from 16th March.
+
+Chris
+
+
+
+	
+	
+		
+___________________________________________________________ALL-NEW Yahoo! Messenger - all new features - even more fun!  http://uk.messenger.yahoo.com

@@ -1,40 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317024AbSFQVXJ>; Mon, 17 Jun 2002 17:23:09 -0400
+	id <S317025AbSFQVXK>; Mon, 17 Jun 2002 17:23:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317026AbSFQVXI>; Mon, 17 Jun 2002 17:23:08 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:18817 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S317024AbSFQVXI>;
+	id <S317026AbSFQVXK>; Mon, 17 Jun 2002 17:23:10 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27917 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317025AbSFQVXI>;
 	Mon, 17 Jun 2002 17:23:08 -0400
-Date: Mon, 17 Jun 2002 14:23:01 -0700
-From: Bob Miller <rem@osdl.org>
-To: Dave Jones <davej@suse.de>, Benjamin LaHaise <bcrl@redhat.com>,
+Message-ID: <3D0E52DD.4CE57058@zip.com.au>
+Date: Mon, 17 Jun 2002 14:21:33 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Martin Dalecki <dalecki@evision-ventures.com>,
        Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] v2.5.22 - add wait queue function callback support
-Message-ID: <20020617142301.B24347@doc.pdx.osdl.net>
-References: <20020617161434.D1457@redhat.com> <20020617222812.I758@suse.de> <20020617135744.A24347@doc.pdx.osdl.net> <20020617230831.J758@suse.de>
-Mime-Version: 1.0
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 1/19] writeback tunables
+References: <3D0D86D7.644F0C13@zip.com.au> <3D0DBAEE.2030409@evision-ventures.com> <20020617114957.A4130@flint.arm.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020617230831.J758@suse.de>; from davej@suse.de on Mon, Jun 17, 2002 at 11:08:32PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 17, 2002 at 11:08:32PM +0200, Dave Jones wrote:
-> Your patch was to use wq_write_lock and friends in sched.c iirc.
-> That change is now removed from my tree (though I've not put up a
-> version containing that change yet).
+Russell King wrote:
 > 
-> Since 2.5.20 or so, the wq_write_lock functions are dead as in gone.
-> Not around, Extinct. They are ex-functions.
+> On Mon, Jun 17, 2002 at 12:33:18PM +0200, Martin Dalecki wrote:
+> ...
+> > > +int dirty_expire_centisecs = 30 * 100;
+> > > +
+> >
+> > Blind guess - didn't the 100 wan't to be HZ?!
 > 
->         Dave
+> The units are centiseconds (as the name suggests). 5 * 100 centiseconds = 5
+> seconds, so the dirty writeback timeout is 5 seconds.  Check the code a
+> little further and you'll see HZ gets factored into them on use.
+> 
 
-Always look before you leap.  Just looked a 2.5.20 kernel and these
-are indeed gone.  Sorry for the fire drill.
+Yup.  Sorry about the "_centisecs" thing.  That's a bit anal, but
+I tend to think that it's best to be really explicit about the
+units, make it a bit easier to use.  I don't know how many times
+I've had to peer in fs/buffer.c to remember what those dang numbers do.
 
--- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+Possibly, "seconds" may be sufficiently high resolution for
+these things.  But I wasn't sure - maybe someone wants to
+run the kupdate function five times per second?  Dunno.
+
+There are some departures from 2.4 tradition which are worth
+mentioning here:
+
+- There is no range checking on the settings.  (But a divide-by
+  zero isn't possible, so I think that's OK)
+
+- Unlike the 2.4 bdflush settings, these parameters are not
+  updated in a single hit.  So if you modify them by a large
+  amount while the system is under heavy writeback load, perhaps
+  some whacky things will happen if you create an irrational
+  intermediate state.  But that's quite unlikely.
+
+- Unlike 2.4, the settings are scaled by HZ.  So that bdflush
+  tuning tool whose name I forget will no longer make kupdate
+  run ten times too fast on Alphas.
+
+-

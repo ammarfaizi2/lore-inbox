@@ -1,73 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293408AbSBYTiL>; Mon, 25 Feb 2002 14:38:11 -0500
+	id <S292223AbSBYTnK>; Mon, 25 Feb 2002 14:43:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292944AbSBYTiB>; Mon, 25 Feb 2002 14:38:01 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:13067 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S293454AbSBYThP>; Mon, 25 Feb 2002 14:37:15 -0500
-Date: Mon, 25 Feb 2002 20:37:08 +0100
-From: Jan Kara <jack@ucw.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Quota fixes
-Message-ID: <20020225193708.GF25698@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="V0207lvV8h4k8FAm"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.24i
+	id <S293471AbSBYTnB>; Mon, 25 Feb 2002 14:43:01 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:25100 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S292223AbSBYTmo>; Mon, 25 Feb 2002 14:42:44 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 25 Feb 2002 11:45:24 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Larry McVoy <lm@bitmover.com>
+cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Erich Focht <focht@ess.nec.de>, Mike Kravetz <kravetz@us.ibm.com>,
+        Jesse Barnes <jbarnes@sgi.com>, Peter Rival <frival@zk3.dec.com>,
+        <lse-tech@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] NUMA scheduling
+In-Reply-To: <Pine.LNX.4.44.0202251121390.1499-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.44.0202251144290.1499-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 25 Feb 2002, Davide Libenzi wrote:
 
---V0207lvV8h4k8FAm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> On Mon, 25 Feb 2002, Larry McVoy wrote:
+>
+> > On Mon, Feb 25, 2002 at 10:55:03AM -0800, Martin J. Bligh wrote:
+> > > > - The load_balancing() concept is different:
+> > > > 	- there are no special time intervals for balancing across pool
+> > > > 	boundaries, the need for this can occur very quickly and I
+> > > > 	have the feeling that 2*250ms is a long time for keeping the
+> > > > 	nodes unbalanced. This means: each time load_balance() is called
+> > > > 	it _can_ balance across pool boundaries (but doesn't have to).
+> > >
+> > > Imagine for a moment that there's a short spike in workload on one node.
+> > > By agressively balancing across nodes, won't you incur a high cost
+> > > in terms of migrating all the cache data to the remote node (destroying
+> > > the cache on both the remote and local node), when it would be cheaper
+> > > to wait for a few more ms, and run on the local node?
+> >
+> > Great question!  The answer is that you are absolutely right.  SGI tried
+> > a pile of things in this area, both on NUMA and on traditional SMPs (the
+> > NUMA stuff was more page migration and the SMP stuff was more process
+> > migration, but the problems are the same, you screw up the cache).  They
+> > never got the page migration to give them better performance while I was
+> > there and I doubt they have today.  And the process "migration" from CPU
+> > to CPU didn't work either, people tended to lock processes to processors
+> > for exactly the reason you alluded to.
+> >
+> > If you read the early hardware papers on SMP, they all claim "Symmetric
+> > Multi Processor", i.e., you can run any process on any CPU.  Skip forward
+> > 3 years, now read the cache affinity papers from the same hardware people.
+> > You have to step back and squint but what you'll see is that these papers
+> > could be summarized on one sentence:
+> >
+> > 	"Oops, we lied, it's not really symmetric at all"
+> >
+> > You should treat each CPU as a mini system and think of a process reschedule
+> > someplace else as a checkpoint/restart and assume that is heavy weight.  In
+> > fact, I'd love to see the scheduler code forcibly sleep the process for
+> > 500 milliseconds each time it lands on a different CPU.  Tune the system
+> > to work well with that, then take out the sleep, and you'll have the right
+> > answer.
+>
+> I made this test on 8 way NUMA machines ( thx to OSDLAB ). When a CPUs
 
-  Hello Alan,
+s/NUMA/SMP/
 
-  two attached patches fix bugs in quota code. First one fixes
-possible deadlock/inode list corruption (Chris Mason actually
-fixed this bug), second one fixes possible quotafile corruption
-on heavily loaded machines. Please apply.
 
-								Honza
 
---V0207lvV8h4k8FAm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="dquot_deadlock.diff"
+- Davide
 
---- linux/fs/dquot.c Mon, 15 Oct 2001 03:51:05 -0400 root (linux/i/40_dquot.c 1.1.2.1.3.1.1.1 644)
-+++ linux/fs/dquot.c Mon, 15 Oct 2001 14:12:57 -0400 root (linux/i/40_dquot.c 1.1.2.1.3.1.1.1 644)
-@@ -1246,6 +1246,8 @@
- {
- 	if (dquot->dq_dup_ref && dquot->dq_count - dquot->dq_dup_ref <= 1)
- 		return 1;
-+	if (dquot->dq_count <= 1 && dquot->dq_flags & DQ_MOD) 
-+		return 1; 
- 	return 0;
- }
- 
 
---V0207lvV8h4k8FAm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="quota-corrupt.diff"
-
---- linux/fs/dquot.c	Fri Feb  8 00:34:36 2002
-+++ linux/fs/dquot.c	Fri Feb  8 00:35:17 2002
-@@ -804,9 +804,11 @@
- {
- 	uint tmp = DQTREEOFF;
- 
--	if (!dquot->dq_off)	/* Even not allocated? */
--		return;
- 	down(&sb_dqopt(dquot->dq_sb)->dqio_sem);
-+	if (!dquot->dq_off) {	/* Even not allocated? */
-+		up(&sb_dqopt(dquot->dq_sb)->dqio_sem);
-+		return;
-+	}
- 	remove_tree(dquot, &tmp, 0);
- 	up(&sb_dqopt(dquot->dq_sb)->dqio_sem);
- }
-
---V0207lvV8h4k8FAm--

@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267048AbSLNElH>; Fri, 13 Dec 2002 23:41:07 -0500
+	id <S267138AbSLNEqC>; Fri, 13 Dec 2002 23:46:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267116AbSLNElH>; Fri, 13 Dec 2002 23:41:07 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:19598 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S267048AbSLNElG> convert rfc822-to-8bit; Fri, 13 Dec 2002 23:41:06 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Matt Young <wz6b@arrl.net>
-Reply-To: wz6b@arrl.net
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.5.50 enable USB - ethernet?
-Date: Fri, 13 Dec 2002 20:48:20 -0800
-User-Agent: KMail/1.4.3
+	id <S267142AbSLNEqC>; Fri, 13 Dec 2002 23:46:02 -0500
+Received: from windsormachine.com ([206.48.122.28]:40969 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S267138AbSLNEqC>; Fri, 13 Dec 2002 23:46:02 -0500
+Date: Fri, 13 Dec 2002 23:53:51 -0500 (EST)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: GrandMasterLee <masterlee@digitalroadkill.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <Pine.LNX.4.33.0212132319280.29293-100000@router.windsormachine.com>
+Message-ID: <Pine.LNX.4.33.0212132345040.12319-100000@router.windsormachine.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200212132048.21047.wz6b@arrl.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seems especially strange that kmalloc is not exported
+On Fri, 13 Dec 2002, Mike Dresser wrote:
 
-make -f scripts/Makefile.modinst obj=arch/i386/lib
-echo /sbin/depmod
-/sbin/depmod
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.50; fi
-depmod: *** Unresolved symbols in /lib/modules/2.5.50/kernel/dummy.o
-depmod:         __kfree_skb
-depmod:         ether_setup
-depmod:         kmalloc
-depmod:         unregister_netdev
-depmod:         register_netdev
-depmod:         dev_alloc_name
-depmod:         kfree
+> The single P4/2.53 in another machine can haul down in 3m17s
+>
+Amend that to 2m19s, forgot to kill a background backup that was moving
+files around at about 20 meg a second.
+
+Mike
 

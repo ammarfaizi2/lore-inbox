@@ -1,62 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317326AbSGIQmn>; Tue, 9 Jul 2002 12:42:43 -0400
+	id <S315379AbSGIQzX>; Tue, 9 Jul 2002 12:55:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317302AbSGIQml>; Tue, 9 Jul 2002 12:42:41 -0400
-Received: from smtp014.mail.yahoo.com ([216.136.173.58]:64269 "HELO
-	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317326AbSGIQmf>; Tue, 9 Jul 2002 12:42:35 -0400
-Subject: Re: freezing afer switching from graphical to console
-From: Michael Gruner <stockraser@yahoo.de>
-To: Bernd Schubert <bernd-schubert@web.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200207091227.15957.bernd-schubert@web.de>
-References: <1026193021.1076.29.camel@highflyer> 
-	<200207091227.15957.bernd-schubert@web.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1026232702.757.9.camel@highflyer>
+	id <S316434AbSGIQzW>; Tue, 9 Jul 2002 12:55:22 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:13324 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S315379AbSGIQzV>; Tue, 9 Jul 2002 12:55:21 -0400
+Date: Tue, 9 Jul 2002 17:57:54 +0100
+From: John Levon <movement@marcelothewonderpenguin.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Enhanced profiling support (was Re: vm lock contention reduction)
+Message-ID: <20020709165754.GA96901@compsoc.man.ac.uk>
+References: <20020708113928.GA80073@compsoc.man.ac.uk> <Pine.LNX.4.44.0207081039390.2921-100000@home.transmeta.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 09 Jul 2002 18:39:24 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207081039390.2921-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Boards of Canada - Geogaddi
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jul 08, 2002 at 10:52:36AM -0700, Linus Torvalds wrote:
 
-ok, did it as you say: in the BIOS I switched to Vsync/blank screen.
-Let's see what happens.
+>  - I'd associate each profiling event with a dentry/offset pair, simply
+>    because that's the highest-level thing that the kernel knows about and
+>    that is "static".
 
-BTW: My graphics card isn't a nvidia as many of you suggested but an ATI
-Rage pro (what did you wrote Bernd? ;-) ).
+This makes sense, I think.
 
-Another interesting thing I got back in mind today was: one day my XMMS
-played a mp3 song and I switched to console (oooops...you know what
-happend) but the song kept on playing in a loop that was some
-milliseconds until I powered the box off. I don't know what to think
-about that.
+>  - I'd suggest that the profiler explicitly mark the dentries it wants
+>    profiled, so that the kernel can throw away events that we're not
+>    interested in. The marking function would return a cookie to user
+>    space, and increment the dentry count (along with setting the
+>    "profile" flag in the dentry)
 
-best regards,
- michael
+For a system-wide profiler, this needs to be /all/ dentries that get
+mapped in with executable permissions, or we lose any mappings of shared
+libraries we don't know about etc. Essentially, oprofile wants samples
+against any dentry that gets mmap()ed with PROT_EXEC, so this marking
+would really need to happen at mmap() time. Missing out on any dentry
+profiles amounts to data loss in the system profile and has the
+potential to mislead.
 
-Am Die, 2002-07-09 um 12.27 schrieb Bernd Schubert:
-> Hi, 
+>  - the "cookie" (which would most easily just be the kernel address of the
+>    dentry) would be the thing that we give to user-space (along with
+>    offset) on profile read. The user app can turn it back into a filename.
 > 
-> we have seen it, too. Seems to be graphics card dependend (ati ones are not 
-> effected, but nvidia cards are ) and what powersaving mode is enabled in the 
-> BIOS (Suspend for the Monitor causes a lock up when switching from X to the 
-> console, but when using VSync/empty screen (or something like this) all works 
-> fine).
+> Whether it is the original "mark this file for profiling" phase that saves
+> away the cookie<->filename association, or whether we also have a system
+> call for "return the path of this cookie", I don't much care about.
+> Details, details.
 > 
-> Bernd
-> 
--- 
-Windmuehlenweg 22 07907 Schleiz
-mobil: +491628955029
-e-Mail: Michael.Gruner@fh-hof.de
+> Anyway, what would be the preferred interface from user level?
 
+oprofile currently receives eip-pid pairs, along with the necessary
+syscall tracing info needed to reconstruct file offsets. The above
+scheme removes the dependency on the pid, but this also unfortunately
+throws away some useful information.
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+It is often useful to be able to separate out shared-library samples on
+a per-process (and/or per-application) basis. Any really useful profile
+buffer facility really needs to preserve this info, but just including
+the raw pid isn't going to work when user-space can't reconstruct the
+"name" of the pid (where "name" would be something "/bin/bash") because
+the process exited in the meantime.
 
+The same goes for kernel samples that happen in process context.
+
+So this might work well in tandem with some global process-tree tracing
+scheme, but I don't know what form that might take ...
+
+(Then there are kernel modules, but that's probably best served by
+patching modutils)
+
+regards
+john

@@ -1,51 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280494AbRKTDG4>; Mon, 19 Nov 2001 22:06:56 -0500
+	id <S280840AbRKTDU7>; Mon, 19 Nov 2001 22:20:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280819AbRKTDGr>; Mon, 19 Nov 2001 22:06:47 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52071 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S280494AbRKTDGd>; Mon, 19 Nov 2001 22:06:33 -0500
-To: James A Sutherland <jas88@cam.ac.uk>
-Cc: Erik Gustavsson <cyrano@algonet.se>, linux-kernel@vger.kernel.org
-Subject: Re: Swap
-In-Reply-To: <3BF82443.5D3E2E11@starband.net> <1006124602.3890.0.camel@bettan>
-	<m1snba7hpw.fsf@frodo.biederman.org>
-	<E165tpy-0002Dm-00@mauve.csi.cam.ac.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 19 Nov 2001 19:47:36 -0700
-In-Reply-To: <E165tpy-0002Dm-00@mauve.csi.cam.ac.uk>
-Message-ID: <m1ofly6tvb.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S280845AbRKTDUt>; Mon, 19 Nov 2001 22:20:49 -0500
+Received: from ihemail1.lucent.com ([192.11.222.161]:38286 "EHLO
+	ihemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id <S280840AbRKTDUj>; Mon, 19 Nov 2001 22:20:39 -0500
+Message-ID: <3BF9CC1B.70105@lucent.com>
+Date: Mon, 19 Nov 2001 22:20:59 -0500
+From: John Ellson <ellson@lucent.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011014
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] "make modules_install" breaks with new /bin/cp
+In-Reply-To: <3BF980F6.6080503@lucent.com> <200111192228.fAJMSUD32747@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James A Sutherland <jas88@cam.ac.uk> writes:
+Richard Gooch wrote:
 
-> On Monday 19 November 2001 6:12 pm, Eric W. Biederman wrote:
-> > Erik Gustavsson <cyrano@algonet.se> writes:
-> > > I agree...   After a while it always seems that 80% or more of my RAM is
-> > > used for cache and buffers while my open, but not currently used apps
-> > > get pushed onto disk. Then when I decide to switch to that mozilla
-> > > window of emacs session I have to wait for it to be loaded from disk
-> > > again. Also considering the kind of disk activity this box has, the data
-> > > in the cache is mostly the last few hour's MP3's, in other words utterly
-> > > useless as that data will not be used again. I'd rather my apps stayed
-> > > in RAM...
-> > >
-> > >
-> > > Is there a way to limit the size of the cache?
-> >
-> > Reasonable.  It looks like the use once heuristics are failing for your
-> > mp3 files.   Find out why that is happening and they should push the
-> > rest of your system into swap.
-> 
-> Getting clobbered by the mp3 player accessing the ID3 tag? That way, at least 
-> part of the file is used twice, so use-ONCE won't matter...
+>John Ellson writes:
+>
+>>linux-2.4.15-pre6, fileutils-4.1.1-1.i386.rpm
+>>
+>>With my configuration (details not important), "make modules_install" results in:
+>>
+>>mkdir -p /lib/modules/2.4.15-pre6/kernel/drivers/sound/
+>>cp soundcore.o sound.o cs4232.o ad1848.o pss.o ad1848.o mpu401.o cs4232.o uart401.o ad1848.o mpu401.o uart6850.o 
+>>v_midi.o btaudio.o /lib/modules/2.4.15-pre6/kernel/drivers/sound/
+>>cp: will not overwrite just-created `/lib/modules/2.4.15-pre6/kernel/drivers/sound/ad1848.o' with `ad1848.o'
+>>cp: will not overwrite just-created `/lib/modules/2.4.15-pre6/kernel/drivers/sound/cs4232.o' with `cs4232.o'
+>>cp: will not overwrite just-created `/lib/modules/2.4.15-pre6/kernel/drivers/sound/ad1848.o' with `ad1848.o'
+>>cp: will not overwrite just-created `/lib/modules/2.4.15-pre6/kernel/drivers/sound/mpu401.o' with `mpu401.o'
+>>make[2]: *** [_modinst__] Error 1
+>>
+>>This hasn't been a problem with earlier version of /bin/cp (upto
+>>fileutils-4.1-4.i386.rpm in RH7.2), but /bin/cp from
+>>fileutils-4.1.1-1.i386.rpm (in the Rawhide collection) is more
+>>pedantic about multiple copies of the same file.
+>>
+>>This patch works around this "feature".  It would be better if the
+>>Makefiles were changed to only install modules once, but thats a
+>>deeper problem.
+>>
+>
+>No, the fix is to upgrade to fileutils-4.1-4.i386.rpm. cp should not
+>be complaining unless you ask it to. The default should be to do what
+>you ask. For the same reason, cp does not have "cp -i" as the default
+>behaviour.
+>
 
-For that page perhaps.  But that is only 4K.  That doesn't explain the rest
-of it.  use-once is per page.
+Unfortunately 4.1.1 comes after 4.1, so what you suggest is a downgrade.
 
-Eric
+If you want to argue with the fileutils maintainers, please go ahead. 
+ I'm just giving a heads-up to
+linux-kernel folks that this problem is coming and offering a work-around.
+
+I could agree that any behavior change to a 30 year old utility is a 
+bug, even if some argue that
+it is an improvement.  However, this is not the place to argue about cp.
+
+I'm more concerned about the Makefile bug that installs modules multiple 
+times.  Perhaps this is
+fixed by Eric's CML, in which case all that is needed is a work-around 
+for a while.
+
+John
+
+
+

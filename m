@@ -1,37 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267363AbUHVO6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267360AbUHVPDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267363AbUHVO6i (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 10:58:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267364AbUHVO6i
+	id S267360AbUHVPDK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 11:03:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267364AbUHVPDK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 10:58:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:981 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267363AbUHVO6h (ORCPT
+	Sun, 22 Aug 2004 11:03:10 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:5257 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S267360AbUHVPDH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 10:58:37 -0400
-Date: Sun, 22 Aug 2004 10:58:31 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Julia M <juliamrus@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: LowFree memory going down -server freezes
-In-Reply-To: <20040821223551.67748.qmail@web41101.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.44.0408221057470.19417-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 22 Aug 2004 11:03:07 -0400
+Date: Sun, 22 Aug 2004 17:03:02 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.8.1-mm3: nsc-ircc driver crashes on shutdown
+Message-ID: <20040822150302.GF24092@vana.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Aug 2004, Julia M wrote:
-
-> I am using Linux version 2.4.9-e.3smp
-
-That kernel is 2 years old.  You really should upgrade to
-kernel 2.4.9-e.40 or newer...
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Hi,
+  bk-dma-decleare-coherent-memory patch adds a requirement for dma_free_coherent
+that dev cannot be NULL... But it can (nsc-ircc has no suitable dev) and as
+dma_alloc_coherent allows NULL dev, dma_free_coherent should allow it too
+IMHO.
+						Thanks,
+							Petr Vandrovec
 
 
+diff -urN linux/arch/i386/kernel/pci-dma.c linux/arch/i386/kernel/pci-dma.c
+--- linux/arch/i386/kernel/pci-dma.c	2004-08-21 00:51:49.000000000 +0200
++++ linux/arch/i386/kernel/pci-dma.c	2004-08-21 13:51:03.000000000 +0200
+@@ -58,7 +58,7 @@
+ void dma_free_coherent(struct device *dev, size_t size,
+ 			 void *vaddr, dma_addr_t dma_handle)
+ {
+-	struct dma_coherent_mem *mem = dev->dma_mem;
++	struct dma_coherent_mem *mem = dev ? dev->dma_mem : NULL;
+ 	int order = get_order(size);
+ 	
+ 	if (mem && vaddr >= mem->virt_base && vaddr < (mem->virt_base + (mem->size << PAGE_SHIFT))) {

@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286297AbRLTRIm>; Thu, 20 Dec 2001 12:08:42 -0500
+	id <S286296AbRLTRZC>; Thu, 20 Dec 2001 12:25:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286298AbRLTRIW>; Thu, 20 Dec 2001 12:08:22 -0500
-Received: from colorfullife.com ([216.156.138.34]:59657 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S286297AbRLTRIU>;
-	Thu, 20 Dec 2001 12:08:20 -0500
-Message-ID: <3C221B09.4090201@colorfullife.com>
-Date: Thu, 20 Dec 2001 18:08:25 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Anton Blanchard <anton@samba.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] improve spinlock debugging
-In-Reply-To: <3C0BDC33.6E18C815@colorfullife.com> <20011219025332.GA18344@krispykreme>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S286299AbRLTRYw>; Thu, 20 Dec 2001 12:24:52 -0500
+Received: from tangens.hometree.net ([212.34.181.34]:7821 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S286296AbRLTRYe>; Thu, 20 Dec 2001 12:24:34 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: henning@forge.intermeta.de (Henning Schmiedehausen)
+Newsgroups: hometree.linux.kernel
+Subject: Re: aio
+Date: Thu, 20 Dec 2001 17:24:32 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9vt6sg$50u$1@forge.intermeta.de>
+In-Reply-To: <20011219171631.A544@burn.ucsd.edu> <20011219.184527.31638196.davem@redhat.com>
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1008869072 12510 212.34.181.4 (20 Dec 2001 17:24:32 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Thu, 20 Dec 2001 17:24:32 +0000 (UTC)
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard wrote:
+"David S. Miller" <davem@redhat.com> writes:
 
->
->What do you think of the idea below? We create arch specific spinlock
->functions as __foo and wrap the debugging bits around them as foo. This
->should also allow us to unify the UP and SMP spinlock debugging somewhat.
->
-I tried to create a minimal patch, to reduce the probability of patch 
-conflicts with earlier/future kernels.
+>The people doing Java server applets are such a small fraction of the
+>Linux user community.
 
-I agree that your solutition is better if the patch is included in 
-Linus/Marcelo's tree.
-Have you asked Linus about it? I love runtime checks, but IIRC the 
-majority of the kernel maintainers disagrees.
+The people doing Java Servlets are maybe a small fraction of the Linux
+Kernel Hackers community. Not the user community. They simply do not
+show up here because they don't care for Linux 2.5.0-rc1-prepatched.
 
---
-    Manfred
+Short head count: Who here is also a regular reader on Apache Jakarta
+lists?
 
+Kernel hacking and Java most of the times doesn't mix. And Java folks
+are completly ambivalent to their OS: If Linux doesn't deliver,
+well. Windows, Solaris and BSD do. That's what Java is all about. 
+
+	Regards
+		Henning
+
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,75 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265137AbUGCPCw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265139AbUGCPSo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265137AbUGCPCw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 11:02:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUGCPCw
+	id S265139AbUGCPSo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 11:18:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265140AbUGCPSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 11:02:52 -0400
-Received: from mail011.syd.optusnet.com.au ([211.29.132.65]:11698 "EHLO
-	mail011.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265137AbUGCPCt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 11:02:49 -0400
-Date: Sun, 4 Jul 2004 01:02:04 +1000
-From: Andrew Clausen <clausen@gnu.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       Andries Brouwer <Andries.Brouwer@cwi.nl>,
-       Steffen Winterfeldt <snwint@suse.de>, linux-kernel@vger.kernel.org,
-       Thomas Fehr <fehr@suse.de>, bug-parted@gnu.org
-Subject: Re: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for BIOS / CHS stuff)
-Message-ID: <20040703150203.GN630@gnu.org>
-References: <Pine.LNX.4.21.0407021936550.30622-100000@mlf.linux.rulez.org> <s5gzn6iz2or.fsf@patl=users.sf.net> <20040703025457.GC630@gnu.org> <Pine.LNX.4.60.0407030843400.2415@hermes-1.csi.cam.ac.uk> <20040703124435.GH630@gnu.org> <Pine.LNX.4.60.0407031535230.6149@hermes-1.csi.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0407031535230.6149@hermes-1.csi.cam.ac.uk>
-X-Accept-Language: en,pt
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sat, 3 Jul 2004 11:18:44 -0400
+Received: from tag.witbe.net ([81.88.96.48]:47242 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S265139AbUGCPSm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 11:18:42 -0400
+Message-Id: <200407031518.i63FIcX01117@tag.witbe.net>
+Reply-To: <rol@as2917.net>
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Chris Siebenmann'" <cks@utcc.utoronto.ca>
+Cc: "'Linux Kernel mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux scheduler (scheduling) questions vs threads
+Date: Sat, 3 Jul 2004 17:18:34 +0200
+Organization: AS2917
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcRhBTJP8p+5dfFoTSq+ADm7XkrRHQAC7e8g
+In-Reply-To: <40E6BB39.4080405@tmr.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 03, 2004 at 03:40:01PM +0100, Anton Altaparmakov wrote:
-> > XP home edition (the green box)
-> 
-> Hm, I only ever tried XP Pro.
-
-I guess we can try diff'ing the bootstrap code.  Should probably do this
-in private for copyright reasons...
-
-> > > Does it use NTFS as both the boot and system drive?
+> Chris Siebenmann wrote:
+> > You write:
+> > | Ingo Molnar wrote:
+> > [...]
+> > | > so the normal Linux scheduling policy applies to 
+> 'threads' too. [...]
+> > [...]
+> > | On a multi-user machine this may result in undesirable 
+> behaviour, since 
+> > | each thread seems to compete for resources and the 
+> machine may get VERY 
+> > | slow if someone deos something anti-social.
 > > 
-> > I am using a single NTFS partition.
+> >  This is nothing unique to threads; the same problem appears if a
+> > program (or a user) uses a bunch of CPU-eating processes. I imagine
+> > that any real solution will have to be per-user 'beancounting' and
+> > limits, which have yet to make it into the Linux kernel.
 > 
-> I have lots of partitions (mostly Linux, NTFS is at end of disk).
 
-If NTFS is at the end of the disk, doesn't it have to use LBA to address
-it?
+What about ulimit'ing users ?
 
-> > Note: I reversed-engineered the Windows FAT bootstrap code.  My analysis
-> > is contained in the file doc/FAT in the Parted source distribution.  I
-> > concluded that Windows uses LBA if the LBA flag is set in the boot
-> > partition table entry.  (i.e. the partition type includes LBA in the
-> > fdisk codes - this corresponds to a bit being set)
-> 
-> Interesting.  Maybe I don't have this bit set?
+bash-2.05$ ulimit -a
+core file size (blocks)     0
+data seg size (kbytes)      unlimited
+file size (blocks)          unlimited
+max locked memory (kbytes)  unlimited
+max memory size (kbytes)    unlimited
+open files                  1024
+pipe size (512 bytes)       8
+stack size (kbytes)         8192
+cpu time (seconds)          unlimited
+max user processes          4087
+virtual memory (kbytes)     unlimited
 
-This bit only applies to FAT, AFAIK.  There is no corresponding bit
-for NTFS.
-
-> > > u16 sectors_per_track; /* Required to boot Windows. */
-> > > u16 heads;             /* Required to boot Windows. */
-> > > u32 hidden_sectors;    /* Offset to the start of the partition relative 
-> > > to the disk in sectors.  Required to boot Windows. */
-> > 
-> > I just set the first 2 of these fields to 0, and everything still works.
-> > Am I blessed?  (Or perhaps cursed!)
-> 
-> Odd.  Messing up any of the above three values makes my XP Pro fail to 
-> boot!
-
-Interesting.  How is your BIOS configured?  (LBA, Auto, CHS or Large?
-what CHS values?)
-
-Cheers,
-Andrew
+Regards,
+Paul
 

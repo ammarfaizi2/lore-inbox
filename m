@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271832AbRIQQrx>; Mon, 17 Sep 2001 12:47:53 -0400
+	id <S271847AbRIQQyy>; Mon, 17 Sep 2001 12:54:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271847AbRIQQrn>; Mon, 17 Sep 2001 12:47:43 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1550 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S271832AbRIQQrf>; Mon, 17 Sep 2001 12:47:35 -0400
-Date: Mon, 17 Sep 2001 09:46:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, <ast@domdv.de>
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <20010917183433.5b992e74.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.33.0109170942161.8900-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271856AbRIQQyn>; Mon, 17 Sep 2001 12:54:43 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:59895 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S271847AbRIQQyk>; Mon, 17 Sep 2001 12:54:40 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Mon, 17 Sep 2001 10:54:54 -0600
+To: Juan <piernas@ditec.um.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ext3 journal on its own device?
+Message-ID: <20010917105454.B26122@turbolinux.com>
+Mail-Followup-To: Juan <piernas@ditec.um.es>, linux-kernel@vger.kernel.org
+In-Reply-To: <3BA61CC0.C9ECC8A0@ditec.um.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BA61CC0.C9ECC8A0@ditec.um.es>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sep 17, 2001  17:54 +0200, Juan wrote:
+> I have been browsing the Ext3 source (version 0.0.7a), and it seems
+> impossible to use a block device as an Ext3 journal. Is that true?.
 
-On Mon, 17 Sep 2001, Stephan von Krawczynski wrote:
-> >
-> > No, I think they are related, and bad. I suspect it just means that pages
-> > really do not get elevated to the active list, and it's probably _too_
-> > unwilling to activate pages. That's bad too - it means that the inactive
-> > list is the one solely responsible for working set changes, and the VM
-> > won't bother with any other pages. Which also leads to bad results..
->
-> Hm, remember my setup: I read a lot from CD, write it to disk and read a lot
-> from nfs and write it to disk. Basically both are read once - write once
-> setups, so the pages are touched once (or worst twice) at maximum, so I see a
-> good chance none of them ever make it to the active list, according to your
-> state explanation from previous posts.
+The code to support this is not included in the 2.2 ext3 only in 2.4 ext3.
+There was a patch for 2.2 journal devices long ago, but I'm not sure if
+it was updated to work with the new "format" of the external journal.  It
+was posted to ext2-devel by Marcelo Tossatti, probably 6 months ago or more.
 
-Right. That part is fine.
-
-The problematic part is that I suspect that _because_ there's a lot of
-inactive pages, the VM layer won't even try to age the active ones.
-Which will result in the inactive pages being re-circulated reasonably
-quickly..
-
-Hmm. Although maybe that's the right behaviour, considering that you don't
-actually _want_ to cache them. It leaves your _truly_ active set
-untouched.
-
-> Anyway I cannot "feel" a difference in performance (maybe even worse than
-> before), but it _looks_ cleaner. How about taking it as a first step in the
-> cleanup direction? :-)
-
-"Looks cleaner" is very important for me for maintenance reasons - having
-behaviour that you cannot explain tends to result in more and more ad-hoc
-hacks over time, and it just tends to get worse and worse.
-
-However, at the same time I'd really like to hear about improved
-behaviour, not just "feels the same". And certainly not "(maybe even
-worse.."
-
-		Linus
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

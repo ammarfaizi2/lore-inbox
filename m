@@ -1,57 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281061AbRKTVoq>; Tue, 20 Nov 2001 16:44:46 -0500
+	id <S281016AbRKTVoq>; Tue, 20 Nov 2001 16:44:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280998AbRKTVoj>; Tue, 20 Nov 2001 16:44:39 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:30969 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281016AbRKTVob>;
-	Tue, 20 Nov 2001 16:44:31 -0500
-Date: Tue, 20 Nov 2001 14:44:14 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Luis Miguel Correia Henriques <umiguel@alunos.deis.isec.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: copy to user
-Message-ID: <20011120144414.C1308@lynx.no>
-Mail-Followup-To: Luis Miguel Correia Henriques <umiguel@alunos.deis.isec.pt>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.31.0111202040180.23000-100000@mail.deis.isec.pt>
+	id <S281061AbRKTVoi>; Tue, 20 Nov 2001 16:44:38 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:61938
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S280998AbRKTVoY>; Tue, 20 Nov 2001 16:44:24 -0500
+Date: Tue, 20 Nov 2001 13:44:18 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Nick LeRoy <nleroy@cs.wisc.edu>
+Cc: Steffen Persvold <sp@scali.no>,
+        Christopher Friesen <cfriesen@nortelnetworks.com>,
+        root@chaos.analogic.com, linux-kernel@vger.kernel.org
+Subject: Re: Swap
+Message-ID: <20011120134418.C4210@mikef-linux.matchmail.com>
+Mail-Followup-To: Nick LeRoy <nleroy@cs.wisc.edu>,
+	Steffen Persvold <sp@scali.no>,
+	Christopher Friesen <cfriesen@nortelnetworks.com>,
+	root@chaos.analogic.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1011120111730.7650A-100000@chaos.analogic.com> <3BFAC5A1.81474E74@scali.no> <20011120131839.B4210@mikef-linux.matchmail.com> <200111202134.fAKLYSt15090@schroeder.cs.wisc.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.LNX.4.31.0111202040180.23000-100000@mail.deis.isec.pt>; from umiguel@alunos.deis.isec.pt on Tue, Nov 20, 2001 at 08:54:42PM +0000
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <200111202134.fAKLYSt15090@schroeder.cs.wisc.edu>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 20, 2001  20:54 +0000, Luis Miguel Correia Henriques wrote:
-> The reason that I need it to spend CPU time is that I'm developing a fault
-> injector. The purpose of a fault injection tool is, as you could imagine,
-> to test some critical systems and it's capacity to recover from fails. The
-> reason for changing the code of a process is that process must be delayed
-> but without leaving the CPU - everything must look like nothing wrong is
-> happening, except for other processes that are waiting for something from
-> the delayed process...
->
-> I suppose now you can understand why SIGSTOP won't work.
+On Tue, Nov 20, 2001 at 03:33:28PM -0600, Nick LeRoy wrote:
+> On Tuesday 20 November 2001 15:18, Mike Fedyk wrote:
+> > On Tue, Nov 20, 2001 at 10:05:37PM +0100, Steffen Persvold wrote:
+> > > Christopher Friesen wrote:
+> > > > "Richard B. Johnson" wrote:
+> > > > > On Tue, 20 Nov 2001, Wolfgang Rohdewald wrote:
+> > > > > > On Tuesday 20 November 2001 15:51, J.A. Magallon wrote:
+> > > > > > > When a page is deleted for one executable (because we can re-read
+> > > > > > > it from on-disk binary), it is discarded, not paged out.
+> > > > > >
+> > > > > > What happens if the on-disk binary has changed since loading the
+> > > > > > program? -
+> > > > >
+> > > > > It can't. That's the reason for `install` and other methods of
+> > > > > changing execututable files (mv exe-file exe-file.old ; cp newfile
+> > > > > exe-file). The currently open, and possibly mapped file can be
+> > > > > re-named, but it can't be overwritten.
+> > > >
+> > > > Actually, with NFS (and probably others) it can.  Suppose I change the
+> > > > file on the server, and it's swapped out on a client that has it
+> > > > mounted.  When it swaps back in, it can get the new information.
+> > >
+> > > This sounds really dangerous... What about shared libraries ??
+> >
+> > IIRC (if wrong flame...)
+> >
+> > When you delete an open file, the entry is removed from the directory, but
+> > not unlinked until the file is closed.  This is a standard UNIX semantic.
+> >
+> > Now, if you have a set of processes with shared memory, and one closes, and
+> > another is created to replace, the new process will get the new libraries,
+> > or even new version of the process.  This could/will bring down the entire
+> > set of processes.
+> >
+> > Apps like samba come to mind...
+> 
+> *Any* time that you write to an executing executable, all bets are off.  The 
+> most likely outcome is a big 'ol crash & burn.  With a local FS, Unix 
+> prevents you from shooting yourself in the foot, but with NFS, fire away..  
+> I've done it.  It *does* let you, but...
+> 
+> Solution:  Don't do that.  Shut them all down, on all clients, upgrade the 
+> binaries, then restart the processes on the clients.
+> 
+> As far as the scenerio that you've described, I *think* that it would 
+> actually work.  When the new process is fork()ed, it gets a copy of the file 
+> descriptors from it's parent, so the file is still open to it.  If it the 
+> exec()s, the new image no longer has any real ties to it's parent (at least, 
+> not that are relevant to this).
+> 
 
-If you put the process in (un)interruptible sleep in the kernel, won't this
-be enough?  This is different than SIGSTOP.  Is the requirement that this
-process not leave the kernel call, or that it is actually consuming CPU
-cycles as well?
-
-> About using udelay... this soluction seemed fine to me at first but if I
-> hang the CPU with udelay the scheduler will no be doing it's job (isn't
-> it?). This would give me even more intrusiveness (another requirement: the
-> less intrusiveness as possible).
-
-It would probably work OK on an SMP system, since tasks can still be run
-on the other CPU.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+What about processes with shared memory such as samba 2.0?

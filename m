@@ -1,44 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316342AbSHXOIZ>; Sat, 24 Aug 2002 10:08:25 -0400
+	id <S316235AbSHXON3>; Sat, 24 Aug 2002 10:13:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316408AbSHXOIZ>; Sat, 24 Aug 2002 10:08:25 -0400
-Received: from ip29.xiotech.com ([209.46.118.29]:39439 "EHLO
-	pdamail.xiotech.com") by vger.kernel.org with ESMTP
-	id <S316342AbSHXOIY>; Sat, 24 Aug 2002 10:08:24 -0400
-Message-ID: <ED8EDD517E0AA84FA2C36C8D6D205C1303F1C305@alfred.xiotech.com>
-From: "Brueggeman, Steve" <steve_brueggeman@xiotech.com>
-To: "'Grover, Andrew'" <andrew.grover@intel.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Anyone know how to get soft-power-down to work on an Intel SC
-	 B2??
-Date: Sat, 24 Aug 2002 09:12:32 -0500
+	id <S316258AbSHXON3>; Sat, 24 Aug 2002 10:13:29 -0400
+Received: from p50887F28.dip.t-dialin.net ([80.136.127.40]:50339 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316235AbSHXON2>; Sat, 24 Aug 2002 10:13:28 -0400
+Date: Sat, 24 Aug 2002 08:12:46 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Tomas Szepe <szepe@pinerecords.com>
+Subject: [RFC] make localconfig
+Message-ID: <Pine.LNX.4.44.0208240759120.3234-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam-Babelsberg; Germany
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, I sent too soon.  There's no mention of ACPI in the
-Dell Precission 610.  There is mention of APM in the
-dmesg though.
+Hi,
 
-Steve Brueggeman
-
-
------Original Message-----
-From: Brueggeman, Steve 
-Sent: Saturday, August 24, 2002 9:09 AM
-To: 'Grover, Andrew'; 'linux-kernel@vger.kernel.org'
-Subject: RE: Anyone know how to get soft-power-down to work on an Intel
-SC B2??
+No code available yet, but while doing the compras I've physically crashed 
+(on my bike) into an idea:
 
 
-I forgot to mention, I compiled a version of linux-2.4.9-34 with
-ACPI and APM enabled, and tarballed the kernel and modules, and
-installed them on several intel machines.  They all successfully
-did the soft-power-off, includeing a Dell Precission 610, which
-is a dual-processor system.
 
-Steve Brueggeman
+localconfig(9)	    Generating local configuration	    localconfig(9)
+
+NAME
+	localconfig - generate a .config for the local computer
+
+SYNOPSIS
+	make localconfig
+	make dep ... etc... pp...
+
+DESCRIPTION
+	Generate a .config for the local computer, so that the kernel 
+	could be built right in that moment. Therefor the local computer 
+	is being examined, probed and configured and all the devices that
+	we find go into your .config.
+
+	The version is probably never 100% accurate, it might be a good 
+	idea to manually recheck the .config (e.g. via make menuconfig)
+
+	This is supposed to be a first step into a new direction where 
+	we no longer copy vendor kernels from the vendor CD to the system 
+	in the first position, but rather configure a new kernel for each 
+	system, hoping that somewhen the boxes will be fast enough to 
+	handle it in no time.
+
+AVAILABILITY
+	Linux 2.7+
+
+SEE ALSO
+	make(1), kbuild(9)
+
+	scripts/localconfig.pl
+
+AUTHORS
+	(...)
+	Thunder from the hill <thunder@ngforever.de>
+
+BUGS
+	Well, how could I tell yet?!
+
+Linux build system	    $EPOCH+$x			    localconfig(9)
+
+
+
+
+
+Now I want your comments...
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
+

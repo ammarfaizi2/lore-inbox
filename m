@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314477AbSDWWn6>; Tue, 23 Apr 2002 18:43:58 -0400
+	id <S314480AbSDWWoG>; Tue, 23 Apr 2002 18:44:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314480AbSDWWn5>; Tue, 23 Apr 2002 18:43:57 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:27914 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S314477AbSDWWn5>;
-	Tue, 23 Apr 2002 18:43:57 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200204232242.g3NMgaW215059@saturn.cs.uml.edu>
-Subject: Re: Why HZ on i386 is 100 ?
-To: matti.aarnio@zmailer.org (Matti Aarnio)
-Date: Tue, 23 Apr 2002 18:42:35 -0400 (EDT)
-Cc: rml@tech9.net (Robert Love), torvalds@transmeta.com (Linus Torvalds),
-        mark@mark.mielke.cc (Mark Mielke), davidm@hpl.hp.com,
-        davidel@xmailserver.org (Davide Libenzi), linux-kernel@vger.kernel.org
-In-Reply-To: <20020417110440.G12961@mea-ext.zmailer.org> from "Matti Aarnio" at Apr 17, 2002 11:04:40 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S314481AbSDWWoF>; Tue, 23 Apr 2002 18:44:05 -0400
+Received: from zero.tech9.net ([209.61.188.187]:49670 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S314480AbSDWWoD>;
+	Tue, 23 Apr 2002 18:44:03 -0400
+Subject: Re: [PATCH] 2.5: MAX_PRIO cleanup
+From: Robert Love <rml@tech9.net>
+To: mingo@elte.hu
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204230948150.10873-100000@elte.hu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 23 Apr 2002 18:43:58 -0400
+Message-Id: <1019601843.1469.257.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matti Aarnio writes:
-> On Wed, Apr 17, 2002 at 02:01:42AM -0400, Robert Love wrote:
->> On Wed, 2002-04-17 at 01:34, Linus Torvalds wrote:
+On Tue, 2002-04-23 at 03:53, Ingo Molnar wrote:
 
->>> No, it also makes it much easier to convert to/from the standard UNIX time
->>> formats (ie "struct timeval" and "struct timespec") without any surprises,
->>> because a jiffy is exactly representable in both if you have a HZ value
->>> of 100 or 100, but not if your HZ is 1024.
->>
->> Exactly - this was my issue.  So what _was_ the rationale behind Alpha
->> picking 1024 (and others following)?  More importantly, can we change to
->> 1000?
->
-> Alpha processors don't have full division hardware, they have to
-> iterate it one bit at the time. They do have a flash multiplier,
-> and a barrel-shifter.  Shifts take one pipeline cycle, like to
-> addition and substraction.  Multiply takes 6-12 depending on model,
-> but division takes 64...
+> >  /*
+> > - * Priority of a process goes from 0 to 139. The 0-99
+> > - * priority range is allocated to RT tasks, the 100-139
+> > - * range is for SCHED_OTHER tasks. Priority values are
+> > - * inverted: lower p->prio value means higher priority.
+> > + * Priority of a process goes from 0 to MAX_PRIO-1.  The
+> > + * 0 to MAX_RT_PRIO-1 priority range is allocated to RT tasks,
+> > + * the MAX_RT_PRIO to MAX_PRIO range is for SCHED_OTHER tasks.
+> > + * Priority values are inverted: lower p->prio value means higher
+> > + * priority.
+> 
+> this i dont agree with either. The point of comments is easy
+> understanding, so i intentionally kept the 'hard' constants and i'm
+> updating them constantly - it's much easier to understand how things
+> happen if it does not happen via a define. The code itself i agree should
+> stay abstract, but the comments should stay as humanly readable as
+> possible.
 
-Division by 1000 is a UMULH followed by a right shift.
-So maybe it costs you one cycle more than division by 1024 would.
+Now that I am working on the configurable maximum RT value patch, I see
+why I did this: we can't hardcode the values like "0 to 99" because that
+99 is set now via a compile-time define.  Even if it defaults to 100, it
+can be a range of values so the comments should be specific and give the
+exact define.
+
+That is why I did it in the invariant patch, anyhow - and I think it
+makes the most sense to do it in this patch.
+
+	Robert Love
+

@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261398AbSLONj7>; Sun, 15 Dec 2002 08:39:59 -0500
+	id <S261411AbSLONn7>; Sun, 15 Dec 2002 08:43:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261409AbSLONj7>; Sun, 15 Dec 2002 08:39:59 -0500
-Received: from bitute.b4net.lt ([213.190.43.225]:27784 "EHLO mg.homelinux.net")
-	by vger.kernel.org with ESMTP id <S261398AbSLONj7>;
-	Sun, 15 Dec 2002 08:39:59 -0500
-Date: Sun, 15 Dec 2002 15:47:28 +0200
-From: Marius Gedminas <mgedmin@centras.lt>
+	id <S261506AbSLONn7>; Sun, 15 Dec 2002 08:43:59 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:44805 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S261411AbSLONn6>;
+	Sun, 15 Dec 2002 08:43:58 -0500
+From: John Bradford <john@bradfords.org.uk>
+Message-Id: <200212151403.gBFE3Ti5000861@darkstar.example.net>
+Subject: Union mounts
 To: linux-kernel@vger.kernel.org
-Subject: Re: How to do -nostdinc?
-Message-ID: <20021215134728.GA8248@mg.home>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <1357.1039954001@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
+Date: Sun, 15 Dec 2002 14:03:29 +0000 (GMT)
+Cc: junkio@cox.net, andrew@walrond.org
+In-Reply-To: <200212151258.gBFCwEDZ000672@darkstar.example.net> from "John Bradford" at Dec 15, 2002 12:58:14 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1357.1039954001@ocs3.intra.ocs.com.au>
-User-Agent: Mutt/1.4i
-X-Message-Flag: If you do not see this message correctly, stop using Outlook.
-X-GPG-Fingerprint: 8121 AD32 F00A 8094 748A  6CD0 9157 445D E7A6 D78F
-X-GPG-Key: http://www.b4net.lt/~mgedmin/mg-pgp-key.txt
-X-URL: http://www.b4net.lt/~mgedmin/
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 15, 2002 at 11:06:41PM +1100, Keith Owens wrote:
-> There are two ways of setting the -nostdinc flag in the kernel Makefile :-
+> I disagree.  It should create it in directory d, even though that is
+> the mount point.
 > 
-> (1) -nostdinc $(shell $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/-I \1include/gp')
-> (2) -nostdinc -iwithprefix include
+> A union mount should include files from another directory, but writes
+> should go to the actual named directory.
 > 
-> The first format breaks with non-English locales, however the fix is trivial.
+> Union mounts should be read only.
 > 
-> (1a) -nostdinc $(shell LANG=C $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/-I \1include/gp')
+> If read-write union mounts are needed, I don't think that we should
+> implement them significantly differently to the way they work in BSD.
 
-Wouldn't LC_ALL=C be more reliable?
+That wasn't very well explained, what I mean is this:
 
-Marius Gedminas
--- 
-No proper program contains an indication which as an operator-applied
-occurrence identifies an operator-defining occurrence which as an
-indication-applied occurrence identifies an indication-defining occurrence
-different from the one identified by the given indication as an
-indication-applied occurrence.
-                -- ALGOL 68 Report
+Example:
+
+# cd /
+# mkdir foo
+# mount -o union /dev/hda2 /foo
+# echo foobar > foo/bar
+# umount /dev/hda2
+# cat foo/bar
+foobar
+
+That's what I would consider to be the most useful way to implement
+union mounts - the contents of /dev/hda2 would be accessible,
+read-only, at /foo/bar, with files that already exist in /foo/bar
+replacing files that would otherwise be visible from /dev/hda2.
+
+Writes would go to the directory foo, which is just an ordinary
+subdirectory of the root filesystem.
+
+This is completely different to the mount_union behavior in BSD, where
+writes go to the most recently added union mount.
+
+However, it might be best to implement things the BSD way for
+compatibility reasons, but I'm not sure how widespread the use of
+mount_union is.  It's probably not widely used.
+
+John.

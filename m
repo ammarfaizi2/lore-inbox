@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314492AbSD1UfY>; Sun, 28 Apr 2002 16:35:24 -0400
+	id <S314493AbSD1Uio>; Sun, 28 Apr 2002 16:38:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314495AbSD1UfX>; Sun, 28 Apr 2002 16:35:23 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:6350 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S314492AbSD1UfW>; Sun, 28 Apr 2002 16:35:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dominik Brodowski <devel@brodo.de>
-To: Pavel Machek <pavel@ucw.cz>,
-        ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] 2.5.10+ acpi0419 breakage
-Date: Sun, 28 Apr 2002 22:31:34 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <20020428110630.GA702@elf.ucw.cz>
-MIME-Version: 1.0
-Message-Id: <02042822313402.00870@sonnenschein>
-Content-Transfer-Encoding: 7BIT
+	id <S314495AbSD1Uio>; Sun, 28 Apr 2002 16:38:44 -0400
+Received: from ns.suse.de ([213.95.15.193]:58381 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S314493AbSD1Uin>;
+	Sun, 28 Apr 2002 16:38:43 -0400
+Date: Sun, 28 Apr 2002 22:38:42 +0200
+From: Dave Jones <davej@suse.de>
+To: Alexander Hoogerhuis <alexh@ihatent.com>
+Cc: rudmer@legolas.dynup.net, linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: Linux 2.5.10-dj1
+Message-ID: <20020428223842.J14743@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Alexander Hoogerhuis <alexh@ihatent.com>, rudmer@legolas.dynup.net,
+	linux-kernel@vger.kernel.org, vojtech@suse.cz
+In-Reply-To: <20020427030823.GA21608@suse.de> <200204271313.g3RDD4024060@smtp1.wanadoo.nl> <20020427155116.I14743@suse.de> <200204281145.g3SBjJJ20178@smtp2.wanadoo.nl> <m3lmb7zjkp.fsf@lapper.ihatent.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
+ > On 2.5.10-dj1 it works like this: keyboard led is responsive to
+ > hitting caps lock, but when LED is off I get upper case letter typed,
+ > and when LED is off I get lower case letters. However, the strange bit
+ > is that lets say I type in my username and password so that they
+ > appear in lowercase on the screen, I still don't get in. And just fir
+ > having tried, typing with the caps lock LED off, thus getting upper
+ > case text, doesn't help either.
+ > 
+ > Any pointer to where I go off to track this down?
 
-On Sunday, 28. April 2002 13:06, Pavel Machek wrote:
-> Hi!
->
-> On athlon desktop:
->
-> ....
-> ide: unexpected interrupt 1 15
-> ide1 at 0x170-0x177,0x376 on irq 15
-> ide: unexpected interrupt 0 14
-> ...
-> hcd.c: new USB bus registered, assigned bus number 1
-> [hang]
->
-> acpi=off fixes it.
-IOAPIC enabled or present? Please wait for the next acpi-release, ACPI + 
-IOAPICs does not work at the moment. If not, please see comments for Toshiba 
-below:
+Add a #define ATKBD_DEBUG to drivers/input/keyboard/atkbd.c
+and a #define I8042_DEBUG_IO to drivers/input/serio/i8042.c, and maybe
+Vojtech can figure out whats going wrong from the output?
 
-> On toshiba notebook, boot is broken *only after cold boot*. I can boot
-> successfully from warm boot.
-Strange. Could you please send me a dmesg?
-
-> It says
-> ide: unexpected interrupt 1 15
-> Unable to handle NULL pointer dereference
-> EIP=somewhere in __ide_end_request. acpi=off does not fix this one.
-Could you please try the pciirq.9.acpi.diff or -even better- pciirq.12, 
-available at
-http://www.brodo.de/english/pub/acpi/pci_irq/
-
-The assignation of non-dynamic IRQs is somewhat broken (by me :-( in 
-acpi-20020419, I suspect your systems are affected by that bug. Sorry for 
-that.
-
-Dominik
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

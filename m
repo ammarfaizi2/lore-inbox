@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270421AbTGNMDL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 08:03:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270417AbTGNMDL
+	id S270417AbTGNME1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 08:04:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270423AbTGNME0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 08:03:11 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:21454 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S270565AbTGNMCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 08:02:15 -0400
-Date: Mon, 14 Jul 2003 14:16:57 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: utimes/futimes/lutimes syscalls
-Message-ID: <20030714121657.GB21817@louise.pinerecords.com>
-References: <3F0F9B0C.10604@redhat.com> <20030711224210.6fee6a73.akpm@osdl.org> <16146.24474.707720.580442@laputa.namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16146.24474.707720.580442@laputa.namesys.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 14 Jul 2003 08:04:26 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:35972
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270417AbTGNMDT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 08:03:19 -0400
+Date: Mon, 14 Jul 2003 13:17:19 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200307141217.h6ECHJpD030842@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, marcelo@conectiva.com
+Subject: PATCH: allow legacy free hw with no smi cmd port
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [Nikita@Namesys.COM]
-> 
-> so does reiser4.
-
-Speaking of which, when is reiser4 going to be ready?
-
--- 
-Tomas Szepe <szepe@pinerecords.com>
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.22-pre5/drivers/acpi/hardware/hwacpi.c linux.22-pre5-ac1/drivers/acpi/hardware/hwacpi.c
+--- linux.22-pre5/drivers/acpi/hardware/hwacpi.c	2003-07-14 12:27:34.000000000 +0100
++++ linux.22-pre5-ac1/drivers/acpi/hardware/hwacpi.c	2003-07-07 16:30:46.000000000 +0100
+@@ -208,6 +208,10 @@
+ 
+ 	ACPI_FUNCTION_TRACE ("hw_get_mode");
+ 
++	/* If there's no smi_cmd port, then it's ACPI only hw */
++	if (!acpi_gbl_FADT->smi_cmd)
++		return_VALUE (ACPI_SYS_MODE_ACPI);
++
+ 	status = acpi_get_register (ACPI_BITREG_SCI_ENABLE, &value, ACPI_MTX_LOCK);
+ 	if (ACPI_FAILURE (status)) {
+ 		return_VALUE (ACPI_SYS_MODE_LEGACY);

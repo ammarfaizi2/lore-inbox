@@ -1,121 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267899AbTBLWxL>; Wed, 12 Feb 2003 17:53:11 -0500
+	id <S267917AbTBLW4J>; Wed, 12 Feb 2003 17:56:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267913AbTBLWxL>; Wed, 12 Feb 2003 17:53:11 -0500
-Received: from aramis.rutgers.edu ([128.6.4.2]:59534 "EHLO aramis.rutgers.edu")
-	by vger.kernel.org with ESMTP id <S267899AbTBLWxJ>;
-	Wed, 12 Feb 2003 17:53:09 -0500
-Subject: Re: O_DIRECT foolish question
-From: Bruno Diniz de Paula <diniz@cs.rutgers.edu>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030212224226.GA13129@f00f.org>
-References: <1045084764.4767.76.camel@urca.rutgers.edu>
-	 <20030212140338.6027fd94.akpm@digeo.com>
-	 <1045088991.4767.85.camel@urca.rutgers.edu>
-	 <20030212224226.GA13129@f00f.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-pAZvpknmIeHOkSY78KKI"
-Organization: Rutgers University
-Message-Id: <1045090977.21195.87.camel@urca.rutgers.edu>
+	id <S267922AbTBLW4J>; Wed, 12 Feb 2003 17:56:09 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:40452 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267917AbTBLW4H>; Wed, 12 Feb 2003 17:56:07 -0500
+Date: Wed, 12 Feb 2003 23:05:50 +0000
+From: "'Christoph Hellwig'" <hch@infradead.org>
+To: Crispin Cowan <crispin@wirex.com>
+Cc: magniett <Frederic.Magniette@lri.fr>, torvalds@transmeta.com,
+       "Stephen D. Smalley" <sds@epoch.ncsc.mil>, greg@kroah.com,
+       linux-security-module@wirex.com, linux-kernel@vger.kernel.org,
+       "Makan Pourzandi (LMC)" <Makan.Pourzandi@ericsson.ca>
+Subject: What went wrong with LSM, was: Re: [BK PATCH] LSM changes for 2.5.59
+Message-ID: <20030212230550.A19831@infradead.org>
+Mail-Followup-To: 'Christoph Hellwig' <hch@infradead.org>,
+	Crispin Cowan <crispin@wirex.com>,
+	magniett <Frederic.Magniette@lri.fr>, torvalds@transmeta.com,
+	"Stephen D. Smalley" <sds@epoch.ncsc.mil>, greg@kroah.com,
+	linux-security-module@wirex.com, linux-kernel@vger.kernel.org,
+	"Makan Pourzandi (LMC)" <Makan.Pourzandi@ericsson.ca>
+References: <7B2A7784F4B7F0409947481F3F3FEF8305CC954F@eammlex037.lmc.ericsson.se> <3E4A9C4D.F580576E@lri.fr> <20030212183812.A14810@infradead.org> <3E4AC92A.4020705@wirex.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 12 Feb 2003 18:02:58 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3E4AC92A.4020705@wirex.com>; from crispin@wirex.com on Wed, Feb 12, 2003 at 02:22:34PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 12, 2003 at 02:22:34PM -0800, Crispin Cowan wrote:
+> WRT "taking away LSM patches": HCH wants to remove hooks that "no one 
+> uses" and also complains about LSM being a big ugly undesigned hack 
+> lacking abstraction.
 
---=-pAZvpknmIeHOkSY78KKI
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> LSM does have an abstract design: it mediates 
+> access to major internal kernel objects (processes, inodes, etc.) by 
+> user-space processes, throwing access requests out to the LSM module.
 
-On Wed, 2003-02-12 at 17:42, Chris Wedgwood wrote:
-> On Wed, Feb 12, 2003 at 05:29:52PM -0500, Bruno Diniz de Paula wrote:
->=20
-> > But I am using multiples of page size in both buffer alignment and
-> > buffer size (2nd and 3rd parameters of read).  The issue is that
-> > when I try to read files with sizes that are NOT multiples of block
-> > size (and therefore also not multiples of page size), the read
-> > syscall returns 0, with no errors.
->=20
-> What filesystem?
+We seem to use the term design differently.  And maybe my english
+wording wasn't perfect (I'm no native speaker..).  My objection is that
+LSM by itself does not enforce the tightest bit of security policy
+design.  Your "design" is putting in hooks before object accesses
+without making them tied to enforcing some security policy.
 
-ext2.
+Now I hear people scream "but we want $BIGNUM totally different security
+policies", but that;'s not what I want to take away.  Look at the Linux
+VFS, it enforces quite a lot of stuff, and still we have tons of entirely
+different filesystems.  Of course that could also have worked by putting
+a function vector directly below the syscall level, similar to say the SVR3
+filesystem switch.  But that means a) we duplicate tons of code because
+filesystems are filesystem and there's stuff they will have to duplicate
+anyway.  and b) there's stuff we just can't handle that way properly.
+(see the cross-directory rename issue still present in most non-linux
+unices).
 
->=20
-> Can you send an strace of this occurring?
+Now getting a LSM-replacement in place that is as well-designed,
+feature-rich and still rather slick as the Linux VFS won't happen
+over night.  But if you see how we got that code is that we had
+example filesystems that showed would should go into common code.
 
-execve("./testopen", ["./testopen"], [/* 30 vars */]) =3D 0
-uname({sys=3D"Linux", node=3D"urca", ...})  =3D 0
-brk(0)                                  =3D 0x80497fc
-open("/etc/ld.so.preload", O_RDONLY)    =3D -1 ENOENT (No such file or
-directory)
-open("/etc/ld.so.cache", O_RDONLY)      =3D 3
-fstat64(3, {st_mode=3DS_IFREG|0644, st_size=3D57677, ...}) =3D 0
-old_mmap(NULL, 57677, PROT_READ, MAP_PRIVATE, 3, 0) =3D 0x40012000
-close(3)                                =3D 0
-open("/lib/libc.so.6", O_RDONLY)        =3D 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0]Z\1\000"...,
-1024) =3D 1024
-fstat64(3, {st_mode=3DS_IFREG|0755, st_size=3D1102984, ...}) =3D 0
-old_mmap(NULL, 1112740, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) =3D
-0x40021000
-mprotect(0x40129000, 31396, PROT_NONE)  =3D 0
-old_mmap(0x40129000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED,
-3, 0x107000) =3D 0x40129000
-old_mmap(0x4012f000, 6820, PROT_READ|PROT_WRITE,
-MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) =3D 0x4012f000
-close(3)                                =3D 0
-old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS,
--1, 0) =3D 0x40131000
-munmap(0x40012000, 57677)               =3D 0
-open("/var/tmp/testopen.txt", O_RDONLY|O_DIRECT) =3D 3
-brk(0)                                  =3D 0x80497fc
-brk(0x804c7fc)                          =3D 0x804c7fc
-brk(0)                                  =3D 0x804c7fc
-brk(0x804d000)                          =3D 0x804d000
-read(3, "", 4096)                       =3D 0
-fstat64(1, {st_mode=3DS_IFCHR|0600, st_rdev=3Dmakedev(136, 4), ...}) =3D 0
-old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS,
--1, 0) =3D 0x40012000
-write(1, "0 bytes read from file.\n", 240 bytes read from file.
-) =3D 24
-close(3)                                =3D 0
-write(1, "Message: ", 9Message: )                =3D 9
-munmap(0x40012000, 4096)                =3D 0
-exit_group(0)                           =3D ?
+That's one of the reason why I think merging LSM-like hooks without
+examples (three or four general purpose policies best) doesn't make
+much sense.  We need to see what we can abstract out and how.
 
-Thanks a lot,
+And here we see _the_ problem with the LSM process.  LSM wasn't
+developed as part of the broad kernel community (lkml) but on
+a rather small, almost private list.  People added hooks not because
+they generally make sense but because their module needed it.
+When reading this thread some people (e.g. David [*]) still seem that
+changes should be done for LSM's sake - but that's entirely wrong.
+The point of getting LSM or something similar in is for the sake
+of the _linux_ _kernel_ getting usefull features, not for enabling
+some small community writing out of tree modules.
 
-Bruno.
+> If 
+> you remove some of these hooks because they don't have a *present* 
+> module using them, then you break the abstraction.
 
->=20
-> > So the question remains, am I able to read just files whose size is
-> > a multiple of block size?
->=20
-> No.
->=20
-> You ideally should be able to read any length file with O_DIRECT.
-> Even a 1-byte file.
->=20
->=20
->=20
->   --cw
---=20
-Bruno Diniz de Paula <diniz@cs.rutgers.edu>
-Rutgers University
+An abstraction that isn't used is worthless.
 
---=-pAZvpknmIeHOkSY78KKI
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+	Christoph
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+StKhZGORSF4wrt8RAkYrAJ48dpIYiqz49bE6jnU8XWNQdiYLrACfY74A
-JU3YzMdg1xAsEqmpIXICKnU=
-=4w1d
------END PGP SIGNATURE-----
-
---=-pAZvpknmIeHOkSY78KKI--
-
+[*] and btw, question in mails sent to a list I'm not subscribed to in
+    reply to mails from me won't get answered, sorry.

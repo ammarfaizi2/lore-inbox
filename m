@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316743AbSERB5h>; Fri, 17 May 2002 21:57:37 -0400
+	id <S316260AbSERCLX>; Fri, 17 May 2002 22:11:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316745AbSERB5g>; Fri, 17 May 2002 21:57:36 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:39128 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S316743AbSERB5f>;
-	Fri, 17 May 2002 21:57:35 -0400
-Date: Fri, 17 May 2002 18:57:35 -0700
-To: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Question : Broadcast Inter Process Communication ?
-Message-ID: <20020517185735.A30559@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <20020517143052.A30047@bougret.hpl.hp.com> <873cwqrzmm.fsf@goat.bogus.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S316265AbSERCLW>; Fri, 17 May 2002 22:11:22 -0400
+Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:17580
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S316260AbSERCLV>; Fri, 17 May 2002 22:11:21 -0400
+Date: Fri, 17 May 2002 22:11:10 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3 
+In-Reply-To: <14700.1021685959@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.44.0205172157540.4117-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 18, 2002 at 03:52:33AM +0200, Olaf Dietsche wrote:
-> Hi Jean,
+On Sat, 18 May 2002, Keith Owens wrote:
+
+> On Fri, 17 May 2002 11:42:26 -0400 (EDT), 
+> Nicolas Pitre <nico@cam.org> wrote:
+> >Keith gets ignored.  He receives suggestions for alternative ways which he 
+> >ignores too.  I therefore intend to ignore his work as well.
 > 
-> > 	This "one sender - multiple reader" model seems common and
-> > usefull enough that there must be a way to do that under Linux. I know
-> > that it exist under Windows. Can somebody help me to find out how to
-> > do it under Linux ?
-> 
-> 
-> Maybe, you're looking for multicast. But you need a TCP/IP stack for
-> this and I don't know, wether this is implemented in Linux.
+> I ignore stupid comments, yours falls into that category.  I have good
+> reason for asking for Linus's OPINION before sending the patch.  Note I
+> am not asking Linus to take the patch right now, I am asking for some
+> guidance.  Unless you have something useful to contribute, I will
+> continue to ignore you.
 
-	I've used multicast with great success in the past and I know
-that it's possible to bind a multicast socket on an interface. So,
-basically I would bind a multicast socket on the loopback. That what I
-was refering to in my e-mail by "UDP broadcast".
-	But, it just seems to me inefficient to have to go through all
-the way down in the network stack to the loopback interface (through
-IP and TCP) just for simple IPC. A multicast unix socket would be much
-more efficient (because it would no mess with any headers and support
-higher MTU).
+Well the above was a stupid comment made on purpose to cynically depict the
+current situation.  But this answer from you just shows that you don't
+necessarily ignore stupid comments...
 
-> Regards, Olaf.
+It just looks like you are failing to obtain guidance from Linus so _maybe_
+submiting multiple small patches that can be reviewed from within a mailer
+might be easier for someone who already stated his preferences for that
+matter.
 
-	Thanks...
+No offense intended. Really.
 
-	Jean
+
+Nicolas
+

@@ -1,75 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270683AbUJUOYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270484AbUJUO2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270683AbUJUOYW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 10:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270484AbUJUOYV
+	id S270484AbUJUO2j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 10:28:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUJUO2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 10:24:21 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:32987 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S270683AbUJUOUd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 10:20:33 -0400
-Date: Thu, 21 Oct 2004 16:16:35 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: john cooper <john.cooper@timesys.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Jens Axboe <axboe@suse.de>, Rui Nuno Capela <rncbc@rncbc.org>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-In-Reply-To: <4177A49E.3060901@timesys.com>
-Message-Id: <Pine.OSF.4.05.10410211601500.11909-100000@da410.ifa.au.dk>
+	Thu, 21 Oct 2004 10:28:00 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:6275 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S270679AbUJUOZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 10:25:46 -0400
+Date: Thu, 21 Oct 2004 16:26:53 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: "O.Sezer" <sezeroz@ttnet.net.tr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory leak in 2.4.27 kernel, using mmap raw packet sockets
+Message-ID: <20041021142653.GK8756@dualathlon.random>
+References: <4177BBFD.5090300@ttnet.net.tr>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-DAIMI-Spam-Score: -2.82 () ALL_TRUSTED
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4177BBFD.5090300@ttnet.net.tr>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Oct 2004, john cooper wrote:
+On Thu, Oct 21, 2004 at 04:39:09PM +0300, O.Sezer wrote:
+> I can't find to which suse kernel these patch(es) apply. I assume
+> your first one comes down to the attached one-liner for vanilla-2.4,
+> can you confirm?
 
-> Ingo Molnar wrote:
-> 
-> >* Thomas Gleixner <tglx@linutronix.de> wrote:
-> >
-> >
-> >>Yeah, for a semaphore it is, but not for a mutex.
-> >>
-> >
-> >but mutexes dont exist in upstream Linux as a separate entity. (they
-> >exist in my tree but that's another ballgame.)
-> >
-> Mutexes layered on existing semaphores seems convenient
-> at the moment. However a more native mutex mechanism
-> which tracks ownership would provide a basis for PI as
-> well as further instrumentation. This may not be an
-> issue at the present but I don't think it is too far
-> off.
-> 
-> -john
-> 
+yes.
 
-Actually you need to have another kind of semaphore based on a new kind of
-wait-queue: Priority based. I.e. the task with the highest priority get
-woken up first. Then on top of that you build your mutex.
+> For your second: I think it needs your 9999_z-get_user_pages_pte_pin-1
+> patch applied beforehand?. Without that patch, are there any problems
 
-I was planning to start to look at it and try to see if I could get
-anything to work, but I must admit I haven't got much further than
-just getting Igno's -U8.1 up running.
+... plus yet another incremental patch not yet in 2.4.23aa3.  I'll
+upload an aa4 soon with all of this included.
 
-An idea I had was to make a macro in list.h called
- list_insert_sorted(list, element, condition_statement)
-and use that in this kind of wait_queue...
+> to be fixed? Can you post patches for vanilla kernels, please?
 
-To get a mutex with priority inheritance add an element pointing to the
-current owner and a field where you store the owners original priority
-which it has to be set back to when it relases the mutex (I am not sure
-how this will work out if someone holds several mutexes!)
-
-Regards,
-Esben
-
-
+I'll upload an aa4, then the future 9999_z-get_user_pages_pte_pin-2 will
+included every known fix to get_user_pages. I hope it's the same for
+you. I've a set of incremental fixes, and I'll join all of them together
+in 9999_z-get_user_pages_pte_pin-2 (the PageReserved fix will get mixed
+into it too, I hope that's not too confusing, the idea is that such
+patch will fix all issues in get_user_pages in 2.4).

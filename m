@@ -1,38 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271428AbUJVQUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271442AbUJVQ2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271428AbUJVQUF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 12:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271432AbUJVQUE
+	id S271442AbUJVQ2M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 12:28:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271444AbUJVQ2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 12:20:04 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:48319 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S271428AbUJVQS7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 12:18:59 -0400
-Date: Fri, 22 Oct 2004 18:19:33 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Rik van Riel <riel@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, shaggy@austin.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] zap_pte_range should not mark non-uptodate pages dirty
-Message-ID: <20041022161933.GG14325@dualathlon.random>
-References: <20041022004159.GB14325@dualathlon.random> <Pine.LNX.4.44.0410212250500.13944-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0410212250500.13944-100000@chimarrao.boston.redhat.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Fri, 22 Oct 2004 12:28:11 -0400
+Received: from ns1.skjellin.no ([80.239.42.66]:50078 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S271442AbUJVQ2K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 12:28:10 -0400
+Message-ID: <41793519.1080500@tomt.net>
+Date: Fri, 22 Oct 2004 18:28:09 +0200
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: gene.heskett@verizon.net
+CC: linux-kernel@vger.kernel.org, root@chaos.analogic.com,
+       Kasper Sandberg <lkml@metanurb.dk>,
+       =?ISO-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>, umbrella@cs.aau.dk
+Subject: Re: Gigantic memory leak in linux-2.6.[789]!
+References: <200410221613.35913.ks@cs.aau.dk> <1098455535.12574.1.camel@localhost> <Pine.LNX.4.61.0410221102300.12605@chaos.analogic.com> <200410221215.32597.gene.heskett@verizon.net>
+In-Reply-To: <200410221215.32597.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 10:51:34PM -0400, Rik van Riel wrote:
-> That depends on the filesystem.  I hope the clustered filesystems
+Gene Heskett wrote:
+> On Friday 22 October 2004 11:07, Richard B. Johnson wrote:
+> 
+>>while true ; do tar -xzf linux-2.6.9.tar.gz ; rm -rf linux-2.6.9 ;
+>>vmstat ; done
+> 
+> 
+> Stable, yes.  But only after about 3 or 4 iterations.  The first 3 
+> rather handily used 500+ megs of memory that I did not get back when 
+> I stopped it and cleaned up the mess.
 
-I agree if you do a "is_underlying_fs_GFS?" check then you can make more
-assumptions.
 
-But if you don't do that, the linux API always left undefined the
-mmapped contents after O_DIRECT writes on the mmapped data.
-
+It should get freed when something else needs it. Usually not before.

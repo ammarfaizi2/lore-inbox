@@ -1,62 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267643AbTAQTYH>; Fri, 17 Jan 2003 14:24:07 -0500
+	id <S267646AbTAQT0j>; Fri, 17 Jan 2003 14:26:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267645AbTAQTYG>; Fri, 17 Jan 2003 14:24:06 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:26256 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S267643AbTAQTYE>;
-	Fri, 17 Jan 2003 14:24:04 -0500
-Date: Fri, 17 Jan 2003 14:32:56 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Initcall / device model meltdown?
-Message-ID: <20030117193256.GE8304@gtf.org>
-References: <20030117192356.F13888@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	id <S267649AbTAQT0i>; Fri, 17 Jan 2003 14:26:38 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:49568 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267646AbTAQT0h>; Fri, 17 Jan 2003 14:26:37 -0500
+Date: Fri, 17 Jan 2003 11:26:43 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Erich Focht <efocht@ess.nec.de>, Ingo Molnar <mingo@elte.hu>,
+       colpatch@us.ibm.com
+cc: Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       Andrew Theurer <habanero@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] Re: [patch] sched-2.5.59-A2
+Message-ID: <148970000.1042831603@flay>
+In-Reply-To: <147000000.1042830254@flay>
+References: <Pine.LNX.4.44.0301170921430.3723-100000@localhost.localdomain> <200301171535.21226.efocht@ess.nec.de> <200301171911.29514.efocht@ess.nec.de> <147000000.1042830254@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030117192356.F13888@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 17, 2003 at 07:23:56PM +0000, Russell King wrote:
-> 1. the device model requires a certain initialisation order.
-> 2. modules need to use module_init() which means the initialisation order
->    is link-order dependent, despite our multi-level initialisation system.
+>> I repeated the tests with your B0 version and it's still not
+>> satisfying. Maybe too aggressive NODE_REBALANCE_IDLE_TICK, maybe the
+>> difference is that the other calls of load_balance() never have the
+>> chance to balance across nodes.
 > 
-> Obviously one solution would be to spread the drivers for this
-> multifunction chip throughout the kernel tree (ie, by function not
-> by device) so the touchscreen driver would live under drivers/input.
-> 
-> However, then we need to make sure that the multifunction chip's
-> bus type is initialised before any of the other subsystems, and of
-> course, the bus type is initialised using module_init() since it
-> lives in a module...
-> 
-> I think we need to re-think what we're doing with the initialisation
-> handling and the device model before these sorts of problems get out
-> of hand.
+> Nope, I found the problem. The topo cleanups are broken - we end up 
+> taking all mem accesses, etc to node 0.
 
-IMO this link order business is a problem that's existed for ages,
-it's unrelated to the device model, and adding seven levels of
-initcalls merely hid this problem a little bit.
+Kernbench:
+                                   Elapsed        User      System         CPU
+                        2.5.59     20.032s     186.66s      47.73s       1170%
+               2.5.59-ingo-mjb     19.986s    187.044s     48.592s     1178.8%
 
-Back when I was doing fbdev stuff, I just gave up and did things "the
-old way", a la
+NUMA schedbench 4:
+                                   AvgUser     Elapsed   TotalUser    TotalSys
+                        2.5.59        0.00       36.38       90.70        0.62
+               2.5.59-ingo-mjb        0.00       34.70       88.58        0.69
 
-	#ifdef MODULE
-	module_init(my_driver);
-	#endif
+NUMA schedbench 8:
+                                   AvgUser     Elapsed   TotalUser    TotalSys
+                        2.5.59        0.00       42.78      249.77        1.85
+               2.5.59-ingo-mjb        0.00       49.33      256.59        1.69
 
-and then call my_driver from other code, when it is built into the
-kernel, overriding link order.
+NUMA schedbench 16:
+                                   AvgUser     Elapsed   TotalUser    TotalSys
+                        2.5.59        0.00       56.84      848.00        2.78
+               2.5.59-ingo-mjb        0.00       65.67      875.05        3.58
 
-Not a great solution, I know.  My preferred solution has always been to
-explicitly list the dependencies, so a build-time tool can figure out
-the link order automagically.
+NUMA schedbench 32:
+                                   AvgUser     Elapsed   TotalUser    TotalSys
+                        2.5.59        0.00      116.36     1807.29        5.75
+               2.5.59-ingo-mjb        0.00      142.77     2039.47        8.42
 
-	Jeff
+NUMA schedbench 64:
+                                   AvgUser     Elapsed   TotalUser    TotalSys
+                        2.5.59        0.00      240.01     3634.20       14.57
+               2.5.59-ingo-mjb        0.00      293.48     4534.99       20.62
 
+System times are little higher (multipliers are set at busy = 10,
+idle = 10) .... I'll try setting the idle multipler to 100, but
+the other thing to do would be into increase the cross-node migrate
+resistance by setting some minimum imbalance offsets. That'll 
+probably have to be node-specific ... something like the number
+of cpus per node ... but probably 0 for the simple HT systems.
 
+M.
 

@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270579AbTGTA4z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 20:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270583AbTGTA4z
+	id S270584AbTGTBRz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 21:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270585AbTGTBRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 20:56:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54470 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S270579AbTGTA4z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 20:56:55 -0400
-Message-ID: <3F19EC4E.9000901@pobox.com>
-Date: Sat, 19 Jul 2003 21:11:42 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bitkeeper
-References: <20030718204405.GA658@work.bitmover.com> <MDEHLPKNGKAHNMBLJOLKOEIFEHAA.davids@webmaster.com> <20030718222702.GC658@work.bitmover.com> <20030719204219.GG7977@fs.tum.de> <20030719215740.GD24197@work.bitmover.com> <20030719222838.GB6942@fs.tum.de> <20030719223956.GG24197@work.bitmover.com> <20030719234519.GC6942@fs.tum.de> <20030720000232.GA28055@work.bitmover.com>            <3F19DDDD.9020900@tupshin.com> <200307200026.h6K0Q8bF018135@turing-police.cc.vt.edu>
-In-Reply-To: <200307200026.h6K0Q8bF018135@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 19 Jul 2003 21:17:55 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:49354 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S270584AbTGTBRy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 21:17:54 -0400
+Date: Sun, 20 Jul 2003 03:32:51 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au
+Subject: [2.6 patch] remove bouncing digilnux list from MAINTAINERS
+Message-ID: <20030720013251.GB14128@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-THIS IS NOT A BITKEEPER LIST.
+The patch below removes a bouncing mailing list for an orphaned driver 
+from MAINTAINERS.
 
-Thanks,
+Please apply
+Adrian
 
-	Jeff
-
+--- linux-2.6.0-test1-mm1/MAINTAINERS.old	2003-07-20 03:28:47.000000000 +0200
++++ linux-2.6.0-test1-mm1/MAINTAINERS	2003-07-20 03:29:06.000000000 +0200
+@@ -572,9 +572,8 @@
+ DIGIBOARD PC/XE AND PC/XI DRIVER
+ P:	Christoph Lameter
+ M:	christoph@lameter.com
+ W:	http://www.digi.com
+-L:	digilnux@dgii.com
+ S:	Orphaned
+ 
+ DIRECTORY NOTIFICATION
+ P:	Stephen Rothwell
 
 

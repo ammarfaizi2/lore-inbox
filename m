@@ -1,54 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262155AbUBXBaN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 20:30:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbUBXBaL
+	id S262162AbUBXB00 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 20:26:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbUBXBQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 20:30:11 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:63877 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S262124AbUBXB3q (ORCPT
+	Mon, 23 Feb 2004 20:16:44 -0500
+Received: from mail.gmx.de ([213.165.64.20]:8074 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262166AbUBXBNx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 20:29:46 -0500
-Date: Mon, 23 Feb 2004 17:29:42 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Hansjoerg Lipp <hjlipp@web.de>
-Cc: aebr@win.tue.nl, jamie@shareable.org, linux-kernel@vger.kernel.org
+	Mon, 23 Feb 2004 20:13:53 -0500
+X-Authenticated: #20799612
+Date: Tue, 24 Feb 2004 01:13:13 +0100
+From: Hansjoerg Lipp <hjlipp@web.de>
+To: Paul Jackson <pj@sgi.com>
+Cc: jamie@shareable.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
-Message-Id: <20040223172942.5a18528a.pj@sgi.com>
-In-Reply-To: <20040224011355.GC6426@hobbes>
-References: <20040216133418.GA4399@hobbes>
-	<20040222020911.2c8ea5c6.pj@sgi.com>
-	<20040222155410.GA3051@hobbes>
-	<20040222125312.11749dfd.pj@sgi.com>
-	<20040222225750.GA27402@mail.shareable.org>
-	<20040222214457.6f8d2224.pj@sgi.com>
-	<20040223142215.GB30321@mail.shareable.org>
-	<20040223173446.GA2830@pclin040.win.tue.nl>
-	<20040223134610.3b6d01a9.pj@sgi.com>
-	<20040224011355.GC6426@hobbes>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Message-ID: <20040224001313.GA6426@hobbes>
+References: <20040216133418.GA4399@hobbes> <20040222020911.2c8ea5c6.pj@sgi.com> <20040222155410.GA3051@hobbes> <20040222125312.11749dfd.pj@sgi.com> <20040222225750.GA27402@mail.shareable.org> <20040222214457.6f8d2224.pj@sgi.com> <20040223202524.GC13914@hobbes> <20040223140027.5c035157.pj@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040223140027.5c035157.pj@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't see any reason, why one should stick to the limits of some other
-> operating systems, when it's not necessary.
+On Mon, Feb 23, 2004 at 02:00:27PM -0800, Paul Jackson wrote:
+> Hansjoerg wrote:
+> > I still don't understand your argument... If there is a shell having
+> > those problems, nobody would use something like
+> 
+> I will acknowledge that while one _could_ code a shell so that your
+> proposed change would break it, it would be a stupid, silly and ugly
+> way to code a shell.
+> 
+> That is, one _could_ code a shell to say:
+> 
+>  1) If argv[1] starts with a '-', consume and handle as an option
+>     (or possibly as a space separated list of options).
+>  2) Presume the next argument, if any, is a shell script file.
 
-If I make it a habit to write portable code, then over the years, I
-cause fewer problems for myself and others.  More things "just work". 
-I've got scripts that I use that are 10 or 20 years old, and have been
-used on all manner of evironments that could not have been anticipated
-when the script was first written.
+There is no problem with such a shell if you use scripts beginning with
 
-Also my habits need not change - the more things I can do without
-thinking, the more thinking I have left over to do something useful.
+#!/some/shell
 
-Somedays, boring beats fine tuning.
+or
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+#!/some/shell -some_arg
+
+if some_arg does not contain whitespace characters. In both cases,
+argv will be the same as it is with the current code.
+
+/some/script param1 param2
+
+will become
+
+/some/shell /some/script param1 param2
+
+or
+
+/some/shell -some_arg /some/script param1 param2
+
+as it has been before.
+
+There is a problem with a shebang line like
+
+#!/some/shell -x -y
+
+_but_ this was most probably an error, before. (Unless this shell
+accepts _one_ parameter "-x -y" containing a space.)
+
+So, I really can't see any problem with such a shell...
+
+Regards,
+
+	Hansjoerg Lipp

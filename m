@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbUJ3VO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbUJ3UxW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbUJ3VO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 17:14:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbUJ3VO4
+	id S261313AbUJ3UxW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 16:53:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbUJ3UxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 17:14:56 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:10099 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261324AbUJ3VOu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 17:14:50 -0400
-Date: Sun, 31 Oct 2004 01:15:38 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Keith Owens <kaos@sgi.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch 2.6.10-rc1] Include useful absolute symbols in kallsyms
-Message-ID: <20041030231538.GD9592@mars.ravnborg.org>
-Mail-Followup-To: Keith Owens <kaos@sgi.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <19397.1099042621@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <19397.1099042621@kao2.melbourne.sgi.com>
-User-Agent: Mutt/1.5.6i
+	Sat, 30 Oct 2004 16:53:22 -0400
+Received: from smtp2.myrealbox.com ([192.108.102.207]:16309 "EHLO
+	smtp2-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S261313AbUJ3UxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 16:53:19 -0400
+Date: Sat, 30 Oct 2004 13:54:07 -0700 (PDT)
+From: walt <wa1ter@hotmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BK kernel workflow
+In-Reply-To: <fa.d7r9f2v.1i6a6on@ifi.uio.no>
+Message-ID: <20041030135242.F14723@x9.ybpnyarg>
+References: <fa.gikv4k0.1tk6shk@ifi.uio.no> <fa.d7r9f2v.1i6a6on@ifi.uio.no>
+Organization: none
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 07:37:01PM +1000, Keith Owens wrote:
-> Some absolute symbols are useful, they can even appear in back traces.
-> Tweak kallsyms to retain the useful absolute symbols.
-> 
-> Signed-off-by: Keith Owens <kaos@sgi.com>
-> 
-> ---
-> 
-> This list is from ia64, add absolute symbols from other architectures
-> as required.
 
-I've applied the following patch (clash with some arm changes):
-===== scripts/kallsyms.c 1.14 vs edited =====
---- 1.14/scripts/kallsyms.c	2004-10-08 17:34:20 +02:00
-+++ edited/scripts/kallsyms.c	2004-10-31 01:12:45 +02:00
-@@ -132,7 +132,17 @@
- 		_sinittext = s->addr;
- 	else if (strcmp(str, "_einittext") == 0)
- 		_einittext = s->addr;
--	else if (toupper(s->type) == 'A' || toupper(s->type) == 'U' ||
-+	else if (toupper(s->type) == 'A')
-+	{
-+		/* Keep these useful absolute symbols */
-+		if (strcmp(str, "__kernel_syscall_via_break") &&
-+		    strcmp(str, "__kernel_syscall_via_epc") &&
-+		    strcmp(str, "__kernel_sigtramp") &&
-+		    strcmp(str, "__gp"))
-+			return -1;
-+
-+	}
-+	else if (toupper(s->type) == 'U' ||
- 		 is_arm_mapping_symbol(str))
- 		return -1;
- 
+
+On Sat, 30 Oct 2004, Adrian Bunk wrote:
+
+> On Thu, Oct 28, 2004 at 02:35:34PM -0700, Larry McVoy wrote:
+> > > Note that German copyright lay doesn't differentiate whether you paid
+> > > or not - it only requires that you allowed to use the program.
+> >
+> > Sure, but you aren't allowed to use it if you are going to do this.
+> > That's pretty unambiguous as well and we think we can make it stick,
+> > or at least that's what the lawyers have told me.
+> >...
+>
+> The German copyright law says the licence clauses are invalid - not the
+> licence itself.
+>
+> I'm not sure how a lawyer would circumvent the law...
+
+It can't be difficult -- most lawyers do it every day.
 

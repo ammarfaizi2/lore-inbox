@@ -1,33 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317531AbSFEB2A>; Tue, 4 Jun 2002 21:28:00 -0400
+	id <S317527AbSFEB1U>; Tue, 4 Jun 2002 21:27:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317532AbSFEB17>; Tue, 4 Jun 2002 21:27:59 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:31678 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S317531AbSFEB16>;
-	Tue, 4 Jun 2002 21:27:58 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.20 i2c uses nonexistent linux/i2c-old.h
+	id <S317530AbSFEB1T>; Tue, 4 Jun 2002 21:27:19 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:39920 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S317527AbSFEB1T>; Tue, 4 Jun 2002 21:27:19 -0400
+Date: Tue, 4 Jun 2002 18:26:35 -0700
+From: Chris Wright <chris@wirex.com>
+To: ipslinux@us.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.20 drivers/scsi/ips.c cleanup
+Message-ID: <20020604182635.A9720@figure1.int.wirex.com>
+Mail-Followup-To: ipslinux@us.ibm.com, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 05 Jun 2002 11:27:50 +1000
-Message-ID: <20279.1023240470@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/media/video/adv7175.c:#include <linux/i2c-old.h>
-drivers/media/video/bt819.c:#include <linux/i2c-old.h>
-drivers/media/video/bt856.c:#include <linux/i2c-old.h>
-drivers/media/video/i2c-parport.c:#include <linux/i2c-old.h>
-drivers/media/video/i2c-old.c:#include <linux/i2c-old.h>
-drivers/media/video/saa7110.c:#include <linux/i2c-old.h>
-drivers/media/video/saa7111.c:#include <linux/i2c-old.h>
-drivers/media/video/saa7185.c:#include <linux/i2c-old.h>
-drivers/media/video/zr36067.c:#include <linux/i2c-old.h>
-drivers/media/video/zr36120.h:#include <linux/i2c-old.h>
+Hi,
 
-There is no file called i2c-old.h in 2.5.20.  These only build because
-they pick up i2c-old.h from /usr/include/linux :(.
+The IBM ServeRAID driver does not compile in recent 2.5 kernels.  The
+simple patch below fixes the compilation error and has been tested at OSDL.
 
+thanks,
+-chris
+
+--- a/drivers/scsi/ips.c	Mon May 20 15:07:16 2002
++++ b/drivers/scsi/ips.c	Tue Jun  4 15:11:01 2002
+@@ -596,7 +596,7 @@
+    }
+ 
+    return (1);
+-
++}
+ __setup("ips=", ips_setup);
+ 
+ #else
+@@ -633,9 +633,9 @@
+       }
+    }
+ 
++}
+ #endif
+ 
+-}
+ 
+ /****************************************************************************/
+ /*                                                                          */

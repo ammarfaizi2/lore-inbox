@@ -1,79 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUJHTBB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUJHS3v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbUJHTBB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 15:01:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUJHS5G
+	id S263117AbUJHS3v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 14:29:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUJHS1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 14:57:06 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:55945 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264648AbUJHSz7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 14:55:59 -0400
-Subject: Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Erich Focht <efocht@hpce.nec.com>,
-       LSE Tech <lse-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       ckrm-tech@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>,
-       simon.derr@bull.net, frankeh@watson.ibm.com
-In-Reply-To: <41666E90.2000208@yahoo.com.au>
-References: <1097110266.4907.187.camel@arrakis>
-	 <200410081214.20907.efocht@hpce.nec.com>  <41666E90.2000208@yahoo.com.au>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1097261691.5650.23.camel@arrakis>
+	Fri, 8 Oct 2004 14:27:39 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:54219 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263778AbUJHSZ5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 14:25:57 -0400
+Date: Fri, 8 Oct 2004 11:23:19 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+Cc: ricklind@us.ibm.com, colpatch@us.ibm.com, mbligh@aracnet.com,
+       Simon.Derr@bull.net, pwil3058@bigpond.net.au, dipankar@in.ibm.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
+Subject: Re: [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20041008112319.63b694de.pj@sgi.com>
+In-Reply-To: <4166B569.60408@watson.ibm.com>
+References: <20041007015107.53d191d4.pj@sgi.com>
+	<200410071053.i97ArLnQ011548@owlet.beaverton.ibm.com>
+	<20041007072842.2bafc320.pj@sgi.com>
+	<4165A31E.4070905@watson.ibm.com>
+	<20041008061426.6a84748c.pj@sgi.com>
+	<4166B569.60408@watson.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 08 Oct 2004 11:54:52 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-08 at 03:40, Nick Piggin wrote:
-> And so you want to make a partition with CPUs {0,1,2,4,5}, and {3,6,7}
-> for some crazy reason, the new domains would look like this:
+Hubertus, responding to Paul:
+> >  (*) P.S. - It's more like CKRM is now the combination of
+> >      a virtual resource manager framework and a particular
+> >      instance of such (the fair shair controllers that have
+> >      their conceptual origins in IBM's WLM, I suspect).  If
+> >      numa placement controllers (aka cpusets) are going to
+> >      exist as well, then CKRM needs to split into (1) a
+> >      virtual resource manager framework (vrm), and (2) the
+> >      fair share stuff.  The vrm framework should be neutral
+> >      of either fair share or numa placement bias.
 > 
-> 0 1  2  4 5    3  6 7
-> ---  -  ---    -  ---  <- 0
->   |   |   |     |   |
->   -----   -     -   -   <- 1
->     |     |     |   |
->     -------     -----   <- 2 (global, partitioned)
+> As indicated in many notes so are the usage of cpusets.
+
+Cpusets pretends to be nothing more than what it is now.  I am not
+recommending to Andrew that cpusets incorporate your fair shair
+scheduling.
+
+CKRM aspires to be both a general purpose resource management framework
+and the embodiment of fair share scheduling.
+
+Let me put the question again, and this time don't try to dodge it by
+saying "but cpusets does it too ..."
+
+> >      If numa placement controllers (aka cpusets) are going to
+> >      exist as well, then CKRM needs to split into (1) a
+> >      virtual resource manager framework (vrm), and (2) the
+> >      fair share stuff.  The vrm framework should be neutral
+> >      of either fair share or numa placement bias.
+
+Hubertus' second response to the above:
+>
+> Very few people have the #cpus to even worry about this.
+
+If for whatever reason, you don't think it is worth the effort to morph
+the virtual resouce manager that is currently embedded within CKRM into
+an independent, neutral framework, then don't expect the rest of us to
+embrace it.  Do you think Reiser would have gladly used vfs to plug in
+his file system if it had been called "ext"?  In my personal opinion, it
+would be foolhardy for SGI, NEC, Bull, Platform (LSF) or Altair (PBS) to
+rely on critical technology so clearly biased toward and dominated by a
+natural competitor.
+
+> But by self admission, you are driven by timing constraints as
+> your bacon is sizzling.
+
+You broke your promise - you said no more analogies ;)
+
+Of _course_ I have scheduling pressures.  You don't?
+
+> > Keep talking.
 > 
-> Agreed? You don't need to get fancier than that, do you?
-> 
-> Then how to input the partitions... you could have a sysfs entry that
-> takes the complete partition info in the form:
-> 
-> 0,1,2,3 4,5,6 7,8 ...
-> 
-> Pretty dumb and simple.
+> To whom ?   :-)
 
-How do we describe the levels other than the first?  We'd either need
-to:
-1) come up with a language to describe the full tree.  For your example
-I quoted above:
-   echo "0,1,2,4,5 3,6 7,8;0,1,2 4,5 3 6,7;0,1 2 4,5 3 6,7" > partitions
+A duh ... to us, here.
 
-2) have multiple files:
-   echo "0,1,2,4,5 3,6,7" > level2
-   echo "0,1,2 4,5 3 6,7" > level1
-   echo "0,1 2 4,5 3 6,7" > level0
+Just in case there was a communication failure here, let me be explicit.
+When I said "Here's where I stand today - keep talking" it meant that my
+current position was thus, but that I was still open to further
+discussion and analysis.
 
-3) Or do it hierarchically as Paul implemented in cpusets, and as I
-described in an earlier mail:
-   mkdir level2
-   echo "0,1,2,4,5 3,6,7" > level2/partitions
-   mkdir level1
-   echo "0,1,2 4,5 3 6,7" > level1/partitions
-   mkdir level0
-   echo "0,1 2 4,5 3 6,7" > level0/partitions
+When someone offers you an open door ("Keep talking"), don't slam it in
+their face.  It might not open again.
 
-I personally like the hierarchical idea.  Machine topologies tend to
-look tree-like, and every useful sched_domain layout I've ever seen has
-been tree-like.  I think our interface should match that.
+... keep talking ...
 
--Matt
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

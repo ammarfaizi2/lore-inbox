@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263678AbTDTTMd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 15:12:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263680AbTDTTMd
+	id S263681AbTDTTa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 15:30:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263686AbTDTTa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 15:12:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44765 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263678AbTDTTMc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 15:12:32 -0400
-Date: Sun, 20 Apr 2003 20:24:34 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [CFT] more kdev_t-ectomy
-Message-ID: <20030420192434.GI10374@parcelfarce.linux.theplanet.co.uk>
-References: <20030420133143.GF10374@parcelfarce.linux.theplanet.co.uk> <20030420160034.GA20123@win.tue.nl>
+	Sun, 20 Apr 2003 15:30:28 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:53716
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263681AbTDTTa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 15:30:28 -0400
+Subject: Re: [PATCH] hpt366.c compilation fix
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andries.Brouwer@cwi.nl
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <UTC200304201823.h3KINFi18073.aeb@smtp.cwi.nl>
+References: <UTC200304201823.h3KINFi18073.aeb@smtp.cwi.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1050864264.11658.2.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030420160034.GA20123@win.tue.nl>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 20 Apr 2003 19:44:24 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[cc fixed - my apologies]
-
-On Sun, Apr 20, 2003 at 06:00:34PM +0200, Andries Brouwer wrote:
- 
-> So, the interface with filesystems and with userspace has dev_t.
-> For kernel-internal numbers kdev_t is better than dev_t.
+On Sul, 2003-04-20 at 19:23, Andries.Brouwer@cwi.nl wrote:
+> Remove declaration of unused variables.
 > 
-> Of course it may be possible to avoid kernel-internal numbers altogether.
-> Sometimes that is an improvement, sometimes not. Pointers are more
-> complicated than numbers - they point at something that must be allocated
-> and freed and reference counted. A number is like a pointer without the
-> reference counting.
+> diff -u --recursive --new-file -X /linux/dontdiff a/drivers/ide/pci/hpt366.c b/drivers/ide/pci/hpt366.c
+> --- a/drivers/ide/pci/hpt366.c	Sun Apr 20 12:59:31 2003
+> +++ b/drivers/ide/pci/hpt366.c	Sun Apr 20 20:11:59 2003
+> @@ -1105,7 +1105,6 @@
+>  		    (findev->device == dev->device) &&
+>  		    ((findev->devfn - dev->devfn) == 1) &&
+>  		    (PCI_FUNC(findev->devfn) & 1)) {
+> -			u8 irq = 0, irq2 = 0;
+>  			if (findev->irq != dev->irq) {
+>  				/* FIXME: we need a core pci_set_interrupt() */
+>  				findev->irq = dev->irq;
 
-Sigh...   And what, pray tell, do we do with these numbers?  That's
-right, at some point(s) we use them to obtain <drumroll> pointers
-to driver-supplied objects.  And that's where the lack of refcounting,
-locking, etc. bites you.
+Well it compiles regardless but yes that seems right to me
 
-Let's sort that mess out for good.  Papering over this stuff won't do
-us any good and will only bring more kludgy interfaces.  $DEITY witness,
-we already have enough of those.
-
-It's not about pointers vs. numbers - we certainly have enough cases when
-we really deal with the latter.  However, I'd rather have clear separation
-between "32bit value presented to/by userland to identify device node"
-and "value in range 0--7, representing the number of channel on a multiport
-card FooLink-8X".  The latter makes perfect sense for a driver.  As does
-"structure that represents given instance of FooLink-8X".  The former belongs
-to interaction with userland and using it outside of that context is a kludge.
-Dangerous kludge in case if it masks the aforementioned complications.
-It also breeds all sorts of ugliness in the code - see the crap around
-reassigning ->f_op and problems with clean implementation of revoke(2)
-analogs for instance.  Or a buttload of fun induced by (completely
-artificial) separation into major and minor - see the mess around UNIX98
-ptys implementation, etc.
-
-By now all uses of mk_kdev()/major()/minor()/MAJOR()/MINOR() in the drivers
-are either trivially removable or represent very real problems.  And it's
-not that there was a lot of them - in my current tree there's ~85 instances
-of kdev_t in the source.  And only one of them (->i_rdev) is widely used -
-~500 instances, most of them go away as soon as CIDR patch gets merged.
-The rest is part noise, part real bugs that need to be fixed anyway (~40--80
-of those).

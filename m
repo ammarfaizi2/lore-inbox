@@ -1,47 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280372AbRKEInu>; Mon, 5 Nov 2001 03:43:50 -0500
+	id <S280382AbRKEIr3>; Mon, 5 Nov 2001 03:47:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280373AbRKEInj>; Mon, 5 Nov 2001 03:43:39 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:23052 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S280372AbRKEInY>; Mon, 5 Nov 2001 03:43:24 -0500
-Message-ID: <3BE64FE3.DBEF8E21@zip.com.au>
-Date: Mon, 05 Nov 2001 00:37:55 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: Zwane Mwaikambo <zwane@linux.realnet.co.sz>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13-ac5-preempt, overflow in cached memory stat?
-In-Reply-To: <Pine.LNX.4.33.0111051019080.6741-100000@netfinity.realnet.co.sz>,
-		<Pine.LNX.4.33.0111051019080.6741-100000@netfinity.realnet.co.sz> <1004948146.806.4.camel@phantasy>
+	id <S280384AbRKEIrU>; Mon, 5 Nov 2001 03:47:20 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:30724 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S280382AbRKEIrO>; Mon, 5 Nov 2001 03:47:14 -0500
+Date: Mon, 5 Nov 2001 09:47:01 +0100
+From: Jan Kara <jack@suse.cz>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>, ext2-devel@lists.sourceforge.net
+Subject: Re: disk throughput
+Message-ID: <20011105094701.H29577@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <3BE5F5BF.7A249BDF@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3BE5F5BF.7A249BDF@zip.com.au>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+> I've been taking a look at one particular workload - the creation
+> and use of many smallish files.  ie: the things we do every day
+> with kernel trees.
 > 
-> > PS I know you keep hearing this, but that preempt patch makes for some
-> > damn smooth interactive performance ;)
+> There are a number of things which cause linux to perform quite badly
+> with this workload.  I've fixed most of them and the speedups are quite
+> dramatic.  The changes include:
 > 
-> I can't hear it enough :)
+> - reorganise the sync_inode() paths so we don't do
+>   read-a-block,write-a-block,read-a-block, ...
 > 
+> - asynchronous preread of an ext2 inode's block when we
+>   create the inode, so:
+> 
+>   a) the reads will cluster into larger requests and
+>   b) during inode writeout we don't keep stalling on
+>      reads, preventing write clustering.
+> 
+> - Move ext2's bitmap loading code outside lock_super(),
+>   so other threads can still get in and write to the
+>   fs while the reader sleeps, thus increasing write
+>   request merging.  This benefits multithreaded workloads
+>   (ie: dbench) and needs more thought.
+> 
+> The above changes are basically a search-and-destroy mission against
+> the things which are preventing effective writeout request merging.
+> Once they're in place we also need:
+> 
+> - Alter the request queue size and elvtune settings
+> 
+> 
+> The time to create 100,000 4k files (10 per directory) has fallen
+> from 3:09 (3min 9second) down to 0:30.  A six-fold speedup.
+  Nice :).
 
-umm...  Look.  Sorry.  But I don't see any theoretical reason
-why interactivity should be noticeably different from the
-little patch at
+> All well and good, and still a WIP.  But by far the most dramatic
+> speedups come from disabling ext2's policy of placing new directories
+> in a different blockgroup from the parent:
+> 
+> --- linux-2.4.14-pre8/fs/ext2/ialloc.c	Tue Oct  9 21:31:40 2001
+> +++ linux-akpm/fs/ext2/ialloc.c	Sun Nov  4 17:40:43 2001
+> @@ -286,7 +286,7 @@ struct inode * ext2_new_inode (const str
+>  repeat:
+>  	gdp = NULL; i=0;
+>  	
+> -	if (S_ISDIR(mode)) {
+> +	if (0 && S_ISDIR(mode)) {
+>  		avefreei = le32_to_cpu(es->s_free_inodes_count) /
+>  			sb->u.ext2_sb.s_groups_count;
+>  /* I am not yet convinced that this next bit is necessary.
+> 
+> 
+> Numbers.  The machine has 768 megs; the disk is IDE with a two meg cache.
+> The workload consists of untarring, tarring, diffing and removing kernel
+> trees. This filesystem is 21 gigs, and has 176 block groups.
+  I'm not sure if this speedup isn't connected just with your testcase..
+If I understood well the code it tries to spread files uniformly over the
+fs (ie. all groups equally full). I think that if you have filesystem like
+/home where are large+small files changing a lot your change can actually
+lead to more fragmentation - groups in the beginning gets full (files
+are created in the same group as it's parent). Then if some file gets deleted
+and new one created filesystem will try to stuff new file in the first
+groups and that causes fragmentation.. But it's just an idea - some testing
+would be probably more useful...
 
-http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.14pre7aa2/00_lowlatency-fixes-2
+> After each test which wrote data a `sync' was performed, and was included
+> in the timing under the assumption that all the data will be written back
+> by kupdate in a few seconds, and running `sync' allows measurement of the
+> cost of that.
+> 
+> The filesystem was unmounted between each test - all tests are with
+> cold caches.
+> 
+>                                 stock   patched 
+> untar one kernel tree, sync:    0:31     0:14
+> diff two trees:                 3:04     1:12
+> tar kernel tree to /dev/null:   0:15     0:03
+> remove 2 kernel trees, sync:    0:30     0:10
+> 
+> A significant thing here is the improvement in read performance as well
+> as writes.  All of the other speedup changes only affect writes.
+> 
+> We are paying an extremely heavy price for placing directories in
+> different block groups from their parent.  Why do we do this, and
+> is it worth the cost?
 
-and I did some quantitative testing a week or so back which
-bears this out.  With either patch, worst-case latencies
-are very rare, and very bad.   Usual latencies are excellent.
-
-Is there any reason why preempt should be noticeably better than
-that little patch?  If it is, then where on earth are the
-problematic commonly-occuring, long-running, lock-free code paths?
-
--
+								Honza
+--
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

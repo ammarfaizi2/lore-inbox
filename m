@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265336AbSJXHtB>; Thu, 24 Oct 2002 03:49:01 -0400
+	id <S265339AbSJXHwA>; Thu, 24 Oct 2002 03:52:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265339AbSJXHtB>; Thu, 24 Oct 2002 03:49:01 -0400
-Received: from [202.88.156.6] ([202.88.156.6]:2993 "EHLO saraswati.hathway.com")
-	by vger.kernel.org with ESMTP id <S265336AbSJXHtA>;
-	Thu, 24 Oct 2002 03:49:00 -0400
-Date: Thu, 24 Oct 2002 13:20:04 +0530
-From: Dipankar Sarma <dipankar@gamebox.net>
-To: Corey Minyard <cminyard@mvista.com>
-Cc: linux-kernel@vger.kernel.org, John Levon <levon@movementarian.org>
-Subject: Re: [PATCH] NMI request/release, version 4
-Message-ID: <20021024132004.A29039@dikhow>
-Reply-To: dipankar@gamebox.net
-References: <20021022232345.A25716@dikhow> <3DB59385.6050003@mvista.com> <20021022233853.B25716@dikhow> <3DB59923.9050002@mvista.com> <20021022190818.GA84745@compsoc.man.ac.uk> <3DB5C4F3.5030102@mvista.com> <20021023230327.A27020@dikhow> <3DB6E45F.5010402@mvista.com> <20021024002741.A27739@dikhow> <3DB7033C.1090807@mvista.com>
-Mime-Version: 1.0
+	id <S265340AbSJXHv7>; Thu, 24 Oct 2002 03:51:59 -0400
+Received: from packet.digeo.com ([12.110.80.53]:16895 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265339AbSJXHv7>;
+	Thu, 24 Oct 2002 03:51:59 -0400
+Message-ID: <3DB7A80C.7D13C750@digeo.com>
+Date: Thu, 24 Oct 2002 00:58:04 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Helge Hafting <helgehaf@aitel.hist.no>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [long]2.5.44-mm3 UP went into unexpected trashing
+References: <3DB7A581.9214EFCC@aitel.hist.no>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DB7033C.1090807@mvista.com>; from cminyard@mvista.com on Wed, Oct 23, 2002 at 03:14:52PM -0500
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Oct 2002 07:58:04.0969 (UTC) FILETIME=[153D6990:01C27B33]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, some more comments -
+Helge Hafting wrote:
+> 
+> 2.5.44-mm3 just began trashing.  I ran debsums -s in order
+> to verify installed packages.  This checksums all
+> binaries.  Things got a little sluggish, but it finished.
+> 
+> Then I started a compile for 2.5.44-mm4, and the machine
+> became so hopeless that I stopped the compile.  That
+> haven't happened before, I have 256M.
+> 
+> Looking at a running vmstat I saw lots of swapping,
+> almost no free memory (as usual) but _cache_
+> was down to 4004 too!
 
-On Wed, Oct 23, 2002 at 03:14:52PM -0500, Corey Minyard wrote:
-> +void release_nmi(struct nmi_handler *handler)
-> +{
-> +	wait_queue_t  q_ent;
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&nmi_handler_lock, flags);
-> +	list_del_rcu(&(handler->link));
-> +
-> +	/* Wait for handler to finish being freed.  This can't be
-> +           interrupted, we must wait until it finished. */
-> +	init_waitqueue_head(&(handler->wait));
-> +	init_waitqueue_entry(&q_ent, current);
-> +	add_wait_queue(&(handler->wait), &q_ent);
-> +	call_rcu(&(handler->rcu), free_nmi_handler, handler);
-> +	for (;;) {
-> +		set_current_state(TASK_UNINTERRUPTIBLE);
-> +		if (list_empty(&(handler->link)))
-> +			break;
-> +		spin_unlock_irqrestore(&nmi_handler_lock, flags);
-> +		schedule();
-> +		spin_lock_irqsave(&nmi_handler_lock, flags);
-> +	}
-> +	remove_wait_queue(&(handler->wait), &q_ent);
-> +	spin_unlock_irqrestore(&nmi_handler_lock, flags);
-> +}
+Memory leak.
 
-Can release_nmi() be done from irq context ? If not, I don't see
-why spin_lock_irqsave() is required here. If it can be called
-from irq context, then I can't see how you can schedule()
-(or wait_for_completion() for that matter :)).
 
-Thanks
-Dipankar
+> dentry_cache      1174824 1174824    140 41958 41958    1 :  248  124 : 1174824 1174923 41958    0    0    0  276 : 1131352  43467      0      0
+
+160 megabytes of dcache.
+
+Hopefully the rcu fix in -mm4 will cure this.

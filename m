@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271931AbRIVStk>; Sat, 22 Sep 2001 14:49:40 -0400
+	id <S271935AbRIVSzA>; Sat, 22 Sep 2001 14:55:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271935AbRIVStb>; Sat, 22 Sep 2001 14:49:31 -0400
-Received: from ohiper1-80.apex.net ([209.250.47.95]:3081 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S271931AbRIVSt2>; Sat, 22 Sep 2001 14:49:28 -0400
-Date: Sat, 22 Sep 2001 13:48:58 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: wolfgang buesser <wolfgang_buesser@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ftape 4.0x and Kernel 2.4.x
-Message-ID: <20010922134858.A3500@hapablap.dyn.dhs.org>
-Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
-	wolfgang buesser <wolfgang_buesser@yahoo.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010922181004.54680.qmail@web13307.mail.yahoo.com>
-Mime-Version: 1.0
+	id <S271978AbRIVSyv>; Sat, 22 Sep 2001 14:54:51 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28173 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271935AbRIVSyh>; Sat, 22 Sep 2001 14:54:37 -0400
+Subject: Re: Re[03]: Linux Kernel 2.2.20-pre10 Initial Impressions
+To: jlmales@softhome.net
+Date: Sat, 22 Sep 2001 20:00:06 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3BAC8E1C.2201.524EE2@localhost> from "John L. Males" at Sep 22, 2001 01:11:56 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010922181004.54680.qmail@web13307.mail.yahoo.com>; from wolfgang_buesser@yahoo.com on Sat, Sep 22, 2001 at 11:10:04AM -0700
-X-Uptime: 1:43pm  up 2 days, 21:49,  2 users,  load average: 2.38, 1.77, 1.59
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15ks0U-0003xB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 22, 2001 at 11:10:04AM -0700, wolfgang buesser wrote:
-> What is the status of the integration of ftape 4.0x
-> into kernel 2.4.x?
-> 
-> I am using a Conner 3200 MB Travan 3 Streamer which
-> does not work properly with ftape 3.04.
-> I tried to compile ftape4.04a into kernel 2.4.9
-> using gcc 2.96 and libc-2.2.2 but get tons of errors
-> (the patch by stephen walter does not work either).
-> 
-> Any advise ?
+> Understood, but I actually took my 2.2.19 .config and ran "make
+> oldconfig", then "make xconfig" making no changes, just saved it
 
-This looks to be caused, at least in part, by the new in-kernel min/max
-macros, which ftape wasn't intended to use.
+Excellent. That makes the data so much more valuable
 
-I'm not sure what the development status is of ftape.  Perhaps a
-newer/CVS version is availible that is more in-sync with the current
-kernel tree?
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
-Freedom is slavery. Ignorance is strength. War is peace.
-			-- George Orwell
+> I am likely to do the benchmark tonight to get hard numbers on the
+> difference I sense.  I am a QA/Testing Specialist, so I am all to
+> aware of the importance of keeping the variables all the same.  My
+> initial background was with assembler back in the real core
+> memory/keypunch days where I disassembled and heavily modified the
+> OS, compiler, assembler, system utilities and wrote a new way to load
+> the OS, compilers, etc from scratch to a new disk.  Ony advising you
+> so you have a sense of my mindset and level of understanding.  Not
+> current with intimate x86 details or assembler, but will someday now
+> that "falt" memory is back! :))
+> 
+> I will let you know what I find.  If in meantime you feel there are
+> other things needed or for me to check please let me know and I will
+> be most happy to assist.
+
+I look forward to the results. Can you cc Andrea Arcangeli on them if they
+look VM related as Andrea is the 2.2.19 VM person (and now the 2.4.10pre
+one)

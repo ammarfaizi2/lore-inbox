@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262362AbTJOFTT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 01:19:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbTJOFTS
+	id S261660AbTJOFc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 01:32:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbTJOFc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 01:19:18 -0400
-Received: from smtprelay01.ispgateway.de ([62.67.200.156]:22687 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S262362AbTJOFTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 01:19:17 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Andrew Morton <akpm@osdl.org>, Eyal Lebedinsky <eyal@eyal.emu.id.au>
+	Wed, 15 Oct 2003 01:32:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:29417 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261660AbTJOFc1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 01:32:27 -0400
+Date: Tue, 14 Oct 2003 22:34:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: eyal@eyal.emu.id.au, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.0-test7: saa7134 breaks on gcc 2.95
-Date: Wed, 15 Oct 2003 07:16:58 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <3F8C9705.26CA0B63@eyal.emu.id.au> <20031014175938.04d94087.akpm@osdl.org>
-In-Reply-To: <20031014175938.04d94087.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Message-Id: <20031014223425.6ee72e10.akpm@osdl.org>
+In-Reply-To: <200310150716.58737.ioe-lkml@rameria.de>
+References: <3F8C9705.26CA0B63@eyal.emu.id.au>
+	<20031014175938.04d94087.akpm@osdl.org>
+	<200310150716.58737.ioe-lkml@rameria.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310150716.58737.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 October 2003 02:59, Andrew Morton wrote:
-> Eyal Lebedinsky <eyal@eyal.emu.id.au> wrote:
-> > This compiler does not like dangling comma in funcs, so this patch
-> >  is needed. For:
-> >
-> >  #define dprintk(fmt, arg...)    if (core_debug) \
-> >  	printk(KERN_DEBUG "%s/core: " fmt, dev->name, ## arg)
-> >
-> >  Lines like this:
-> >
-> >  	dprintk("hwinit1\n");
-> >
-> >  should be hacked like this:
-> >
-> >  	dprintk("hwinit1\n", "");
+Ingo Oeser <ioe-lkml@rameria.de> wrote:
 >
-> I couldn't find a sane way.  Ended up doing this:
-[splitting the printk]
+> GCC 2.95 doesn't like no space BEFORE AND AFTER the comma in the argument right
+>  before the "## arg".
 
+Yup.
 
-GCC 2.95 doesn't like no space BEFORE AND AFTER the comma in the argument right
-before the "## arg".
+--- 25/drivers/media/video/saa7134/saa7134-core.c~a	Tue Oct 14 22:29:09 2003
++++ 25-akpm/drivers/media/video/saa7134/saa7134-core.c	Tue Oct 14 22:29:25 2003
+@@ -95,7 +95,7 @@ struct list_head  saa7134_devlist;
+ unsigned int      saa7134_devcount;
+ 
+ #define dprintk(fmt, arg...)	if (core_debug) \
+-	printk(KERN_DEBUG "%s/core: " fmt, dev->name, ## arg)
++	printk(KERN_DEBUG "%s/core: " fmt, dev->name , ## arg)
+ 
+ /* ------------------------------------------------------------------ */
+ /* debug help functions                                               */
 
-So just having a space there should work without splitting the printk. Not
-compile tested, since I need to go now.
-
-Regards
-
-Ingo Oeser
-
+_
 

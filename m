@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264059AbTDJOln (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 10:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264062AbTDJOln (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 10:41:43 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:18358 "HELO
+	id S264058AbTDJOke (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 10:40:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264059AbTDJOke (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 10:40:34 -0400
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:6070 "HELO
 	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S264059AbTDJOlm (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 10:41:42 -0400
+	id S264058AbTDJOkd (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 10:40:33 -0400
 Subject: Re: ATAPI cdrecord issue 2.5.67
 From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
 To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1049984188.887.11.camel@gregs>
-References: <1049983308.888.5.camel@gregs>  <1049984188.887.11.camel@gregs>
+In-Reply-To: <1049983308.888.5.camel@gregs>
+References: <1049983308.888.5.camel@gregs>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1049986391.599.6.camel@teapot.felipe-alfaro.com>
+Message-Id: <1049986320.599.4.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 10 Apr 2003 16:53:11 +0200
+Date: 10 Apr 2003 16:52:00 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-04-10 at 16:16, Grzegorz Jaskiewicz wrote:
-> it works fine if i will do dev=/dev/hdd
-> but still output of cdrecord is supprising to me.
-> Also after inserting ide-scsi /dev/scd* nor /dev/sg* apears.
+On Thu, 2003-04-10 at 16:01, Grzegorz Jaskiewicz wrote:
+> I noticed strange bahavior while truing to record CD using ATAPI on
+> 2.5.67 kernel:
+> 
+> bash-2.05b$ cdrecord -scanbus dev=ATAPI
 
-ide-scsi is still broken in 2.5... don't know if it's gonna get fixed or
-deprecated as ATAPI support is working.
+You must use /dev/hdX device naming convention:
+
+cdrecord --device=/dev/hdd -inq
+
+At least, it works fine for me :-)
 
 -- 
 Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.

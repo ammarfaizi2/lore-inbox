@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261897AbTDQTQq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 15:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbTDQTQq
+	id S261886AbTDQTXk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 15:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbTDQTXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 15:16:46 -0400
-Received: from relay.pair.com ([209.68.1.20]:41990 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S261897AbTDQTQp (ORCPT
+	Thu, 17 Apr 2003 15:23:40 -0400
+Received: from mail3.bluewin.ch ([195.186.1.75]:988 "EHLO mail3.bluewin.ch")
+	by vger.kernel.org with ESMTP id S261886AbTDQTXj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 15:16:45 -0400
-X-pair-Authenticated: 64.211.218.23
-Subject: Re: [patch] VMnet/VMware workstation 4.0
-From: Daniel Gryniewicz <dang@fprintf.net>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: Lucas Correia Villa Real <lucasvr@gobolinux.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <D79F957BFD@vcnet.vc.cvut.cz>
-References: <D79F957BFD@vcnet.vc.cvut.cz>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1050607717.2477.9.camel@athena.fprintf.net>
+	Thu, 17 Apr 2003 15:23:39 -0400
+Date: Thu, 17 Apr 2003 21:34:53 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Mark Syms <mark@marksyms.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Via-Rhine dirve in 2.4.21-pre7
+Message-ID: <20030417193453.GB1370@k3.hellgate.ch>
+Mail-Followup-To: Mark Syms <mark@marksyms.demon.co.uk>,
+	linux-kernel@vger.kernel.org
+References: <1049706637.963.6.camel@athlon> <1050602030.988.4.camel@athlon>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 17 Apr 2003 15:28:37 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1050602030.988.4.camel@athlon>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.5.65 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-04-17 at 14:12, Petr Vandrovec wrote:
-> On 17 Apr 03 at 13:48, Lucas Correia Villa Real wrote:
-> 
-> > Is there a "correct" place at vmware.com to send these patches? I tryied 
-> > sending it to feature-request@vmware.com, but I got no response from them. 
-> > 
-> > Anyway, below follows the patch providing support to devfs on the vmnet driver 
-> > for vmware workstation 4.0. 
-> 
-> You can send them to me if you do not trust feature-request...
-> 
-> Proble with your patch is that it does not look like that it will
-> build on 2.2.x without complaints, but I can fix that. More important
-> question to me is: do people really use devfs? 
-> 
-> And if change will not make into next WS release, I can always distribute it
-> from my site.
->                                                 Petr Vandrovec
+On Thu, 17 Apr 2003 18:53:50 +0100, Mark Syms wrote:
+> Just saw your response on the mailing list archive. Sorry I haven't
+> responded earlier but as I said below I'm not subscribed to the list.
 
-Gentoo uses devfs, and some people (like me) use VMware on gentoo.  Not
-that this matters, because the vmware startup files make the correct
-device nodes.  (I've never used vmware on non-devfs but I assumed it
-works fine there.)
+Your email bounced. I would have told you, but your email bounced :-P.
+(list cced in case it happens again)
 
-Daniel
--- 
-Daniel Gryniewicz <dang@fprintf.net>
-
+Roger

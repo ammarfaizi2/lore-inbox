@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbVBKWc5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVBKWfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262370AbVBKWc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 17:32:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbVBKWc5
+	id S262373AbVBKWfP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 17:35:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbVBKWfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 17:32:57 -0500
-Received: from matheson.swishmail.com ([209.10.110.114]:4844 "EHLO
-	matheson.swishmail.com") by vger.kernel.org with ESMTP
-	id S262370AbVBKWcy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 17:32:54 -0500
-Subject: /proc/*/statm, exactly what does "shared" mean?
-From: "Richard F. Rebel" <rrebel@whenu.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sn1V27o5Gp4ZZqaiGTeO"
-Organization: Whenu.com
-Date: Fri, 11 Feb 2005 17:32:53 -0500
-Message-Id: <1108161173.32711.41.camel@rebel.corp.whenu.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3-1.1.101mdk 
+	Fri, 11 Feb 2005 17:35:14 -0500
+Received: from mail.linicks.net ([217.204.244.146]:56460 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S262373AbVBKWfG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 17:35:06 -0500
+From: Nick Warne <nick@linicks.net>
+To: Terence Ripperda <tripperda@nvidia.com>, linux-kernel@vger.kernel.org
+Subject: Re: How to disable slow agpgart in kernel config?
+Date: Fri, 11 Feb 2005 22:34:59 +0000
+User-Agent: KMail/1.7.2
+References: <200502111804.06899.nick@linicks.net> <20050211184821.GC15721@redhat.com> <20050211221956.GO24747@hygelac>
+In-Reply-To: <20050211221956.GO24747@hygelac>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502112234.59690.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 11 February 2005 22:19, Terence Ripperda wrote:
 
---=-sn1V27o5Gp4ZZqaiGTeO
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> >  > I just read through the nVidia readme file, and there is a
+> >  > comprehensive section on what module to use for what chipset (and
+> >  > card).  It recommends using the nVagp for my setup,
+>
+> is that the "CONFIGURING AGP" appendix? I didn't think that we
+> recommended which agp driver to use. the intention was just to
+> document which chipsets are supported by nvagp and point out that
+> agpgart may/probably supports more chipsets. that section also
+> documents some hardware 'issues' that we work around. we work around
+> these issues regardless of which agp driver is being used.
 
+Thats the one.  I read this in APPENDIX F:
 
-Hello,
+"The following AGP chipsets are supported by NVIDIA's AGP; for all other
+chipsets it is recommended that you use the AGPGART module."
 
-I can't seem to find clear documentation about the 'share' column
-from /proc/<pid>/statm.
+as saying 'if you have one of these chipsets use nVagp' else use agpgart.
 
-Does this include pages that are shared with forked children marked as
-copy-on-write?
+> for this via kt133 issue, I looked through the agpgart and nvagp
+> initializations and didn't see anything much different. both
+> initialize and flush gart mappings the same way. both seem to allocate
+> memory the same way (nvagp uses __get_free_pages, which eventually
+> calls alloc_pages) with the GFP_KERNEL flag.  I'm not sure why there
+> would be much difference between the two.
 
-Does this only reflect libraries that are dynamically loaded?  What
-about shared memory segments/mmaps (ala shmat or mmmap)?
+I have had no issue at all running agpgart on Slackware 10 with KDE 3.3.x.  It 
+was just when I read this thread I didn't realise there was another option of 
+a different NV module.  I just tried it after reading deeper in the 
+readme.txt ref. the Quake2 OpenGL 'rippling wave' I get every 5 minutes or 
+so.  It fixed it, BTW.  I now have a constant clear display 100% in Quake2 :)  
+I haven't noticed any difference at all in 2d desktop stuff (except maybe it 
+is slightly brighter).
 
-If there is a place where I might find documentation that is more clear
-beyond the proc.txt in the kernel docs and then man pages for procfs,
-I'd welcome a pointer.
-
-Thanks,
-
---=20
-Richard F. Rebel
-
-cat /dev/null > `tty`
-
---=-sn1V27o5Gp4ZZqaiGTeO
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBCDTKVx1ZaISfnBu0RAuCQAJ4zYk+x4WU719cpg33rPnu01RUUBwCggQ3d
-GKfcIuEKAK2kYFHTmfbKJXE=
-=Hqiy
------END PGP SIGNATURE-----
-
---=-sn1V27o5Gp4ZZqaiGTeO--
-
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

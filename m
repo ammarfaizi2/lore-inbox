@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261377AbSI3Ukm>; Mon, 30 Sep 2002 16:40:42 -0400
+	id <S261382AbSI3UtN>; Mon, 30 Sep 2002 16:49:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261381AbSI3Ukm>; Mon, 30 Sep 2002 16:40:42 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:30132 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261377AbSI3Ukk>;
-	Mon, 30 Sep 2002 16:40:40 -0400
-Date: Mon, 30 Sep 2002 13:39:04 -0700 (PDT)
-Message-Id: <20020930.133904.96601483.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: bunk@fs.tum.de, jochen@scram.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.3.39 compile errors on Alpha
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1033391751.16468.51.camel@irongate.swansea.linux.org.uk>
-References: <1033389340.16337.14.camel@irongate.swansea.linux.org.uk>
-	<20020930.052555.123500588.davem@redhat.com>
-	<1033391751.16468.51.camel@irongate.swansea.linux.org.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S261387AbSI3UtN>; Mon, 30 Sep 2002 16:49:13 -0400
+Received: from mail.cogenit.fr ([195.68.53.173]:13760 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S261382AbSI3UtN>;
+	Mon, 30 Sep 2002 16:49:13 -0400
+Date: Mon, 30 Sep 2002 22:54:37 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Generic HDLC interface continued
+Message-ID: <20020930225437.A19967@se1.cogenit.fr>
+References: <m3y99nrtsu.fsf@defiant.pm.waw.pl> <20020928202138.A17244@se1.cogenit.fr> <m3smzsnbx9.fsf@defiant.pm.waw.pl>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m3smzsnbx9.fsf@defiant.pm.waw.pl>; from khc@pm.waw.pl on Sun, Sep 29, 2002 at 03:49:22PM +0200
+X-Organisation: Marie's fan club - III
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: 30 Sep 2002 14:15:50 +0100
-   
-   Because I was looking over the gettimeoffset code and forgot that
-   gettimeofday itself takes the xtime_lock 8)
+Krzysztof Halasa <khc@pm.waw.pl> :
+[...]
+> Not exactly. The caller always knows meaning of the returned value
+> (or it reports error etc). The caller doesn't just know size of the value
+> _in_advance_, as it isn't constant. Still, meaning of the variable portion
+> of the data is defined by the constant part.
 
-It used to be possible to implement this lockless using a $(sizeof
-xtime)-bit load.  But once you start adding complications such as
-wall_jiffies, it isn't feasible anymore.
+The caller doesn't know size in advance but he gets 'type' and 'size' at
+the same time. Why shouldn't 'size' be deduced from 'type' ?
 
-The next idea is to have a tick cookie that could later be converted
-to/from a full timeval.  This trick doesn't work on things like Alpha
-where the guarenteed life of the tick is only 6 seconds or something
-like that.
-
-Most of the time the timestamp isn't even used.
-
-If someone can propose other ideas I'm ready and listening :-)
+-- 
+Ueimor

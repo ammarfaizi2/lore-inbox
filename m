@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271184AbTGWRf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 13:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271185AbTGWRf1
+	id S271183AbTGWRm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 13:42:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271185AbTGWRmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 13:35:27 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:20747 "EHLO
-	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S271184AbTGWRfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 13:35:23 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: 2.4.22-pre7: are security issues solved?
-Date: Wed, 23 Jul 2003 17:50:14 +0000 (UTC)
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <bfmhsm$n1o$2@abraham.cs.berkeley.edu>
-References: <Pine.LNX.4.44.0307212234390.3580-100000@localhost.localdomain> <E19fGMZ-0000Zm-00@gondolin.me.apana.org.au> <20030723033505.145db6b8.davem@redhat.com> <20030723115742.GK150921@niksula.cs.hut.fi>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1058982614 23608 128.32.153.211 (23 Jul 2003 17:50:14 GMT)
-X-Complaints-To: usenet@abraham.cs.berkeley.edu
-NNTP-Posting-Date: Wed, 23 Jul 2003 17:50:14 +0000 (UTC)
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	Wed, 23 Jul 2003 13:42:25 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:40186 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S271183AbTGWRmR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 13:42:17 -0400
+Subject: Re: kernel bug in socketpair()
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Glenn Fowler <gsf@research.att.com>
+Cc: davem@redhat.com, dgk@research.att.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+In-Reply-To: <200307231656.MAA69129@raptor.research.att.com>
+References: <200307231428.KAA15254@raptor.research.att.com>
+	 <20030723074615.25eea776.davem@redhat.com>
+	 <200307231656.MAA69129@raptor.research.att.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058982641.5520.98.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Jul 2003 18:50:41 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ville Herva  wrote:
->Further, if you monitor the /proc/tty/driver/serial character counts with
->small enough resolution, I guess you could learn the delays between
->individual key presses when the user enters his password. This can be used
->to further aid the brute force attack (delays between different key pairs
->have different average delays statistically, just as different characters
->have different frequencies in a given language. I think there is a paper on
->this, and someone suggested an attack like this for snooping ssh
->passwords.)
+On Mer, 2003-07-23 at 17:56, Glenn Fowler wrote:
+> you can eliminate the security implications for all fd types by
+> simply translating
+> 	open("/dev/fd/N",...)
+> to
+> 	dup(atoi(N))
+> w.r.t. fd N in the current process
 
-Yes.  The paper describing the attack on SSH is here:
-  http://www.cs.berkeley.edu/~daw/papers/ssh-use01.ps
-  http://www.cs.berkeley.edu/~daw/papers/ssh-use01.pdf
-  Dawn Xiaodong Song, David Wagner, and Xuqing Tian,
-  "Timing Analysis of Keystrokes and Timing Attacks on SSH",
-  10th USENIX Security Symposium, 2001.
-A nice summary can be found here:
-  http://linux.oreillynet.com/lpt/a/linux/2001/11/08/ssh_keystroke.html
+This has very different semantics. Consider lseek().
+
+> otherwise there is a bug in the /dev/fd/N -> /proc/self/fd/N implementation
+> and /dev/fd/N should be separated out to its (original) dup(atoi(N))
+> semantics
+
+I don't see a bug. I see differing behaviour between Linux and BSD on a
+completely non standards defined item. Also btw nobody ever really wrote
+a /dev/fd/ for Linux - it was just a byproduct of the proc stuff someone
+noticed. I guess someone could write a Plan-9 style dev/fd or devfdfs
+for Linux if they wanted.
+
+Alan
+

@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbTJPKs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 06:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbTJPKs1
+	id S262851AbTJPLVf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 07:21:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbTJPLVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 06:48:27 -0400
-Received: from smtprelay02.ispgateway.de ([62.67.200.157]:23744 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S262838AbTJPKsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 06:48:23 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Eli Billauer <eli_billauer@users.sf.net>
-Subject: Re: [RFC] frandom - fast random generator module
-Date: Thu, 16 Oct 2003 12:45:59 +0200
-User-Agent: KMail/1.5.4
-References: <3F8E552B.3010507@users.sf.net>
-In-Reply-To: <3F8E552B.3010507@users.sf.net>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 16 Oct 2003 07:21:35 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45445 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262851AbTJPLVd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 07:21:33 -0400
+Message-ID: <3F8E7F2F.3060109@pobox.com>
+Date: Thu, 16 Oct 2003 07:21:19 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Roberto Di Cosmo <roberto@dicosmo.org>
+CC: linux-kernel@vger.kernel.org, fedor@karpelevitch.net
+Subject: Re: Full specifications available for RealTek 8180 wireless chipset
+References: <16270.23843.175822.920013@gargle.gargle.HOWL>
+In-Reply-To: <16270.23843.175822.920013@gargle.gargle.HOWL>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310161245.59939.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 October 2003 10:22, Eli Billauer wrote:
-> (3) I agree with both. And I use /dev/zero a lot. I know how to write a
-> zero-generating application in user space.
+Roberto Di Cosmo wrote:
+> Having experienced a large set of delusions using the closed source
+> drivers for the  RealTek 8180 wireless chipset available on
+> RealTek web site on a stock kernel 2.4.20, that do confirm the
+> posting of fedor@karpelevitch.net on September 11 2003 about
+> kernel freeze with stock 2.4.22, I politely complained with
+> RealTek, suggesting they open the code or release the chipset
+> specifications to the community.
+> 
+> I received today the full chipset specifications, that I uploaded
+> to http://www.dicosmo.org/RTL8180spec_1_3.pdf
+> 
+> I hope this may help, if somebody is willing to undertake writing
+> a real, full fledged, Linux-quality driver for this chipset.
+> 
+> Sorry for not being able to do this myself.
 
-There is a good reason for this: You can implement pages containing only
-zeroes very efficiently in the kernel. You can map pages containing only
-zeroes to a single physical page in the kernel (the ZERO_PAGE). You can
-ignore the refcounting on this page and save precious cache flushes and
-much more by doing this in the kernel.
 
-Compare an application with memset() and mmaping of /dev/zero in
-multiple processes, writing to only some of these pages later.
+Having announced this to thousands of people -- including RealTek 
+subscribers, no doubt -- you have poisoned any effort to write a driver 
+off this obviously-stolen document.
 
-> (4) The module is small: 6kB of source code as a standalone module, and
-> 2.3 kB of kernel memory.
+I hope others learn from your example, of what NOT to do.
 
-That's a price worth as an "default to off" option. We have much more
-seldom used stuff in the kernel and maintain it, which is a bigger mess
-than this.
+Thanks for damaging my efforts to work on this through RealTek,
+
+	Jeff
+
 
 

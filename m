@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319294AbSIKTHE>; Wed, 11 Sep 2002 15:07:04 -0400
+	id <S319281AbSIKTCN>; Wed, 11 Sep 2002 15:02:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319295AbSIKTHE>; Wed, 11 Sep 2002 15:07:04 -0400
-Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:28052 "EHLO
-	rrzs2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S319294AbSIKTHD>; Wed, 11 Sep 2002 15:07:03 -0400
-Date: Wed, 11 Sep 2002 21:11:06 +0200
-From: Christian Guggenberger 
-	<christian.guggenberger@physik.uni-regensburg.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org, hch@infradead.org
-Subject: Re: 2.4.20pre5aa2
-Message-ID: <20020911211106.G13655@pc9391.uni-regensburg.de>
-References: <20020911201602.A13655@pc9391.uni-regensburg.de> <20020911194447.A7073@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
+	id <S319291AbSIKTCN>; Wed, 11 Sep 2002 15:02:13 -0400
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:64197 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S319281AbSIKTCM> convert rfc822-to-8bit; Wed, 11 Sep 2002 15:02:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: Xuan Baldauf <xuan--reiserfs@baldauf.org>
+Subject: Re: Heuristic readahead for filesystems
+Date: Wed, 11 Sep 2002 21:04:41 +0200
+User-Agent: KMail/1.4.1
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L.0209111340060.1857-100000@imladris.surriel.com> <200209112030.27269.oliver@neukum.name> <3D7F8ECA.21086A5@baldauf.org>
+In-Reply-To: <3D7F8ECA.21086A5@baldauf.org>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20020911194447.A7073@infradead.org>; from hch@infradead.org on Mit, Sep 11, 2002 at 20:44:47 +0200
-X-Mailer: Balsa 1.2.4
+Message-Id: <200209112104.41987.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am 11 Sep 2002 20:44:47 schrieb(en) Christoph Hellwig:
-> Could you please try the following patch from Andrea?
-> 
-> --- 2.4.20pre5aa3/fs/xfs/pagebuf/page_buf.c.~1~	Wed Sep 11
-> 05:17:46 2002
-> +++ 2.4.20pre5aa3/fs/xfs/pagebuf/page_buf.c	Wed Sep 11 06:00:35
-> 2002
-> @@ -2055,9 +2055,9 @@ pagebuf_iodone_daemon(
->  	spin_unlock_irq(&current->sigmask_lock);
-> 
->  	/* Migrate to the right CPU */
-> -	current->cpus_allowed = 1UL << cpu;
-> -	while (smp_processor_id() != cpu)
-> -		schedule();
-> +	set_cpus_allowed(current, 1UL << cpu);
-> +	if (cpu() != cpu)
-> +		BUG();
-> 
->  	sprintf(current->comm, "pagebuf_io_CPU%d", bind_cpu);
->  	INIT_LIST_HEAD(&pagebuf_iodone_tq[cpu]);
-> 
-> 
+Am Mittwoch, 11. September 2002 20:43 schrieb Xuan Baldauf:
 
-andrea,
+> > Please correct me, if I am wrong, but wouldn't read() block ?
+>
+> AFAIK, "man open" tells
+>
+> [...]
+>       int open(const char *pathname, int flags);
+> [...]
+>        O_NONBLOCK or O_NDELAY
+>                The file is opened in non-blocking mode. Neither the open
+> nor any __subsequent__ operations  on  the  file  descriptor
+>                which is returned will cause the calling process to wait.
+> [...]
+>
+> So read won't block if the file has been opened with O_NONBLOCK.
 
-I applied your patch to page_buf.c (but not the ext3/reiserfs stuff, 
-because there's no need for me) and now everything seems to work fine!
+Well, so the man page tells you. The kernel sources tell otherwise, unless
+I am badly mistaken.
 
-thank you!
-Christian
-ge
+> > Aio should be able to do it. But even that want help you with the stat
+> > data.
+>
+> Aio would help me announcing stat() usage for the future?
+
+No, it won't. But it would solve the issue of reading ahead.
+Stating needs a kernel implementation of 'stat ahead'

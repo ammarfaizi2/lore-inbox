@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261841AbTCaUip>; Mon, 31 Mar 2003 15:38:45 -0500
+	id <S261833AbTCaUhs>; Mon, 31 Mar 2003 15:37:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261842AbTCaUio>; Mon, 31 Mar 2003 15:38:44 -0500
-Received: from CPE0080c8c9b431-CM014280010574.cpe.net.cable.rogers.com ([24.114.72.97]:2314
-	"EHLO stargate.coplanar.net") by vger.kernel.org with ESMTP
-	id <S261841AbTCaUin>; Mon, 31 Mar 2003 15:38:43 -0500
-Subject: Re: hdparm and removable IDE?
-From: Jeremy Jackson <jerj@coplanar.net>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Ron House <house@usq.edu.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1030331140112.32749A-100000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1030331140112.32749A-100000@gatekeeper.tmr.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049143734.1258.46.camel@contact.skynet.coplanar.net>
+	id <S261839AbTCaUhs>; Mon, 31 Mar 2003 15:37:48 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:31926 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261833AbTCaUhr>;
+	Mon, 31 Mar 2003 15:37:47 -0500
+Date: Mon, 31 Mar 2003 12:44:40 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Nicholas Wourms <nwourms@myrealbox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [announce] kmsgdump for 2.5.65/66
+Message-Id: <20030331124440.3d9bc6bf.rddunlap@osdl.org>
+In-Reply-To: <3E88942F.2090407@myrealbox.com>
+References: <20030319141048.GA19361@suse.de>
+	<20030320112559.A12732@namesys.com>
+	<20030320132409.GA19042@suse.de>
+	<20030320165941.0d19d09d.akpm@digeo.com>
+	<20030320231335.GB4638@suse.de>
+	<20030320153427.6265e864.rddunlap@osdl.org>
+	<3E7CBB27.8090506@myrealbox.com>
+	<20030331105341.72ec6b8a.rddunlap@osdl.org>
+	<3E88942F.2090407@myrealbox.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 31 Mar 2003 15:48:54 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-31 at 14:14, Bill Davidsen wrote:
-> > IDE bus to disconnect/*reconnect*?) But hot swap will always affect both
-> > cables.
-> 
-> Boy I hope that's a typo... I hope you meant both devices on a cable and
-> not really both cables on a controller.
+On Mon, 31 Mar 2003 14:17:03 -0500 Nicholas Wourms <nwourms@myrealbox.com> wrote:
 
-Yep, sorry.  The IDE controller must tri-state off an entire cable...
-both devices.  I guess you could have 2 devices, and swap one but leave
-the other, you just have to halt all IO durring the swap, perhaps reset
-both devices when the cable is switched back on.
+| Randy.Dunlap wrote:
+| > 
+| > so.....
+| > 
+| > kmsgdump for Linux 2.5.65/2.5.66
+| > 2003-03-31
+| > version 0.4.5
+| 
+| Thanks for porting this to 2.5.66!
+| 
+| [SNIP]
+| 
+| 
+| > 2.  The kmsgdump text-mode interface doesn't work with a USB-only keyboard
+| > setup.  I had to add a PS/2 keyboard to my test system to use it.
+| 
+| Hey, it's better then the alternative ;-).  I, too, use a 
+| usb keyboard.  Perhaps some of the kdb usb code could be 
+| ripped off?
 
-Interesting to note, Intel's PIIX (forget what version) had a feature
-that would split the primary cable (from the OS point of view - think
-dos here) so the master was on the primary cable, and the slave was on
-the secondary cable.  each device (ie swap bay in a laptop) could be
-tristated separately.  of course you loose the secondary channel.
--- 
-Jeremy Jackson <jerj@coplanar.net>
+Maybe.  I haven't looked at that code, although I am aware of kdb having it.
+However, kmsgdump operates in real mode (currently), so this might need
+to be real-mode USB drivers.  And then if a USB keyboard is supported,
+someone will say, "how about supporting a USB floppy or USB printer?".  :(
 
+--
+~Randy

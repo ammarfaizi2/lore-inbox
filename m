@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268781AbUJEFNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268791AbUJEFQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268781AbUJEFNv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 01:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268791AbUJEFNu
+	id S268791AbUJEFQq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 01:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268800AbUJEFQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 01:13:50 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:58301 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S268781AbUJEFNr convert rfc822-to-8bit (ORCPT
+	Tue, 5 Oct 2004 01:16:46 -0400
+Received: from fw.osdl.org ([65.172.181.6]:56031 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268791AbUJEFPz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 01:13:47 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 5 Oct 2004 01:15:55 -0400
+Date: Mon, 4 Oct 2004 22:15:44 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andy Lutomirski <luto@myrealbox.com>
+cc: Andi Kleen <ak@muc.de>, Florian Bohrer <Florian.Bohrer@t-online.de>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: [PATCH] AES x86-64-asm impl.
+In-Reply-To: <4161EC43.3070907@myrealbox.com>
+Message-ID: <Pine.LNX.4.58.0410042214540.8290@ppc970.osdl.org>
+References: <2KWl4-wq-25@gated-at.bofh.it> <m3acv4zz5f.fsf@averell.firstfloor.org>
+ <41613937.8BF0FE0D@users.sourceforge.net> <20041004130839.GA9075@muc.de>
+ <4161EC43.3070907@myrealbox.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] 2.6 SGI Altix I/O code reorganization
-Date: Mon, 4 Oct 2004 22:13:41 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0221C647@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 2.6 SGI Altix I/O code reorganization
-Thread-Index: AcSqXa/bEnQdG8rtS+WQEoPSntFttQAOz/hg
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Pat Gefre" <pfg@sgi.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 05 Oct 2004 05:13:42.0499 (UTC) FILETIME=[14DDEB30:01C4AA9A]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm ok with the delete/add of most of the SGI
-specific files (maybe it still isn't perfect yet,
-but it may be close enough to take it, and then
-clean up with some small patches).
 
-But you seem to be touching some files outside of pure SGI
-stuff.  These two are a bit of a concern:
 
-  include/asm-ia64/io.h
-  arch/ia64/pci/pci.c
+On Mon, 4 Oct 2004, Andy Lutomirski wrote:
+> 
+> WHAT?  We're dropping potentially better code because someone _who 
+> didn't submit it_ disagrees for personal political reasons?  (Jari- I'm 
+> not questioning your reasons for not wanting to be involved in 
+> cryptoapi, but IIRC you did release that code under the GPL.)
 
-These others are outside of my area (well I *might* push
-the drivers that are only used by SGI ... but hotplug
-and qla1280 are definitely not mine).  So they need to be
-split out into separate patches.
+Guys. Please remember this: don't bother with code that Jari supposedly 
+"releases". It's simply not worth the bother.
 
-  drivers/char/mmtimer.c
-  drivers/char/snsc.c
-  drivers/ide/pci/sgiioc4.c
-  drivers/pci/hotplug/Kconfig
-  drivers/scsi/qla1280.c
-  drivers/serial/sn_console.c
-
--Tony
+		Linus

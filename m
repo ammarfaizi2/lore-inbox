@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132494AbRCZRDN>; Mon, 26 Mar 2001 12:03:13 -0500
+	id <S132491AbRCZRTN>; Mon, 26 Mar 2001 12:19:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132493AbRCZRDE>; Mon, 26 Mar 2001 12:03:04 -0500
-Received: from mail4.one.net ([206.112.192.132]:9025 "EHLO mail4.one.net")
-	by vger.kernel.org with ESMTP id <S132491AbRCZRC5>;
-	Mon, 26 Mar 2001 12:02:57 -0500
-Date: Mon, 26 Mar 2001 12:01:55 -0500
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: ext2 corruption in 2.4.2, scsi only system
-Message-ID: <20010326120155.A31414@clifton-labs.com>
-In-Reply-To: <3ABF71A1.99D041E1@torque.net>
+	id <S132497AbRCZRTE>; Mon, 26 Mar 2001 12:19:04 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59406 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S132489AbRCZRSr>;
+	Mon, 26 Mar 2001 12:18:47 -0500
+Date: Mon, 26 Mar 2001 18:18:03 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: LA Walsh <law@sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: 64-bit block sizes on 32-bit systems
+Message-ID: <20010326181803.F31126@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <3ABF70B9.573C2F85@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3ABF71A1.99D041E1@torque.net>; from dougg@torque.net on Mon, Mar 26, 2001 at 11:43:13AM -0500
-From: Dale E Martin <dmartin@cliftonlabs.com>
+In-Reply-To: <3ABF70B9.573C2F85@sgi.com>; from law@sgi.com on Mon, Mar 26, 2001 at 08:39:21AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Dale,
-> Alan Cox has reported the following:
-> 
-> > 2.4.2-ac19
-> > .......
-> > o       Hopefully fix the buslogic corruptions          (me)
-> 
-> Alan's ac tree also contains a consolidated set of
-> patches from Eric Youngdale for the SCSI midlevel.
-> Alan's latest is ac25 and may be worth trying (ac24
-> has been working fine for me).
+On Mon, Mar 26, 2001 at 08:39:21AM -0800, LA Walsh wrote:
+> I vaguely remember a discussion about this a few months back.
+> If I remember, the reasoning was it would unnecessarily slow
+> down smaller systems that would never have block devices in
+> the 4-28T range attached.  
 
-After scanning the mailing list archives, I was under the impression that
-this Buslogic issue was an AC series problem.  Is there a known problem
-with Buslogic controllers in 2.4.2?  
+4k page size * 2GB = 8TB.
 
-Thanks for the info.
+i consider it much more likely on such systems that the page size will
+be increased to maybe 16 or 64k which would give us 32TB or 128TB.
+you keep on trying to increase the size of types without looking at
+what gcc outputs in the way of code that manipulates 64-bit types.
+seriously, why don't you just try it?  see what the performance is.
+see what the code size is.  then come back with some numbers.  and i mean
+numbers, not `it doesn't feel any slower'.
 
-  Dale
+personally, i'm going to see what the situation looks like in 5 years time
+and try to solve the problem then.  there're enough real problems with the
+VFS today that i don't feel inclined to fix tomorrow's potential problems.
+
 -- 
-Dale E. Martin, Clifton Labs, Inc.
-Senior Computer Engineer
-dmartin@cliftonlabs.com
-http://www.cliftonlabs.com
-pgp key available
+Revolutions do not require corporate support.

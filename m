@@ -1,249 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267365AbUHJAix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267366AbUHJAne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267365AbUHJAix (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 20:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267367AbUHJAix
+	id S267366AbUHJAne (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 20:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267367AbUHJAne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 20:38:53 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:13291 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S267365AbUHJAi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 20:38:29 -0400
-Date: Mon, 9 Aug 2004 17:38:24 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: [PATCH 2.6] Remove spaces from PCI I2C pci_driver.name fields
-Message-ID: <20040810003824.GA8643@plexity.net>
-Reply-To: dsaxena@plexity.net
+	Mon, 9 Aug 2004 20:43:34 -0400
+Received: from gate.crashing.org ([63.228.1.57]:36052 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S267366AbUHJAn2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 20:43:28 -0400
+Subject: Re: [RFC] Fix Device Power Management States
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>, David Brownell <david-b@pacbell.net>
+In-Reply-To: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net>
+Content-Type: text/plain
+Message-Id: <1092098425.14102.69.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 10 Aug 2004 10:40:26 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Greg,
+> The highlights are that it adds:
+> 
+> - To struct class:
+> 
+> 	int     (*dev_start)(struct class_device * dev);
+> 	int     (*dev_stop)(struct class_device * dev);
+> 
+> - ->dev_stop() and ->dev_start() to struct class
+>   This provides the framework to shutdown a device from a functional
+>   level, rather than at a hardware level, as well as the entry points
+>   to stop/start ALL devices in the system.
+> 
+>   This is implemented by iterating through the list of struct classes,
+>   then through each of their struct class_device's. The class_device is
+>   the only argument to those functions.
 
-Same thing as IDE...spaces in PCI driver names show up in sysfs file 
-names.  I've also cleaned up all the .name fields to be in the format 
-(${NAME}_i2c|${NAME}_smbus) so they are consistent.
+Hrm... I don't agree, that iteration should be done in bus ordering too.
 
-Please apply,
-~Deepak
+For example, if you stop operation of a USB host controller, you have to
+do that after you have stopped operation of child devices. Same goes
+with the ATA disk vs. controller. The ordering requirements for stopping
+operations are the same as for PM
+> 
+> - To struct bus_type:
+> 	int             (*pm_save)(struct device *, struct pm_state *);
+> 	int             (*pm_restore)(struct device *);
+> 
+>   These methods provide the interface for saving and restoring low-
+>   level device state only. The intent is to remove the callbacks from
+>   struct device_driver, and unconditionally call through the bus. (That's
+>   what all buses with drivers that implement those functions do today.)
+> 
+>   The methods are called for each device in the global device list, in
+>   a reverse order (so children are saved before parents).
 
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
+What about passing the previous state to restore ? could be useful...
+
+> - To struct bus_type:
+> 
+> 	int             (*pm_power)(struct device *, struct pm_state *);
+> 
+>   This method is used to do all power transitions, including both
+>   shutdown/reset and device power management states.
+
+Who calls it ? It's the driver calling it's bus or what ? It make no
+sense to power manage a device before suspending activity... I agree it
+may be worth splitting dev_start/stop from PM transitions proper, that
+would help dealing with various policies, however, there are still some
+dependencies between those, and they all need to be tied to the bus
+topology. 
+
+> The 2nd argument to ->pm_save() and ->pm_power() is determined by mapping
+> an enumerated system power state to a static array of 'struct pm_state'
+> pointers, that is in dev->power.pm_system. The pointers in that array
+> point to entries in dev->power.pm_supports, which is an array of all the
+> device power states that device supports. Please see include/linux/pm.h in
+> the patch below. These arrays should be initialized by the bus, though
+> they can be fixed up by the individual drivers, should they have a
+> different set of states they support, or given user policy.
+> 
+> The actual value of the 'struct pm_state' instances is driver-specific,
+> though again, the bus drivers should provide the set of power states valid
+> for that bus. For example:
+
+I have to ponder that a bit more, but it looks like it's going to the
+right direction. 
+
+> struct pm_state {
+>         char    * name;
+>         u32     state;
+> };
+> 
+> #define decl_state(n, s) \
+>         struct pm_state pm_state_##n = {        \
+>                 .name   = __stringify(n),       \
+>                 .state  = s,                    \
+>         }
+> 
+> drivers/pci/ should do:
+> 
+> decl_state(d0, PCI_PM_CAP_PME_D0);
+> EXPORT_SYMBOL(pm_state_d0);
+> 
+> decl_state(d1, PCI_PM_CAP_PME_D1);
+> EXPORT_SYMBOL(pm_state_d1);
+> 
+> decl_state(d2, PCI_PM_CAP_PME_D2);
+> EXPORT_SYMBOL(pm_state_d2);
+> 
+> decl_state(d3, PCI_PM_CAP_PME_D3);
+> EXPORT_SYMBOL(pm_state_d3);
+> 
+> 
+> This provides a meaningful tag to each state that is completely local to
+> the bus, but can be handled easily by the core.
+> 
+> To handle runtime power management, a set of sysfs files will be created,
+> inclding 'current' and 'supports'. The latter will display all the
+> possible states the device supports, as specified its ->power.pm_supports
+> array, in an attractive string format. 'current' will display the current
+> power state, as an ASCII string. Writing to this file will look up the
+> state requested in ->pm_supports, and if found, translate that into the
+> device-specific power state and suspend the device.
+> 
+> The patches to implement that, as well as initial PCI support and system
+> power support, will hopefuly eek out in the next week..
+
+What about partial tree ? We need to suspend childs first and we need to
+tied PM transition with dev_start/stop (or have some way to indicate the
+device we want it to auto-resume when it gets a request, or something).
+We need to work out policy a bit more here I suppose...
 
 
-===== drivers/i2c/busses/i2c-ali1563.c 1.7 vs edited =====
---- 1.7/drivers/i2c/busses/i2c-ali1563.c	Tue May 18 09:00:17 2004
-+++ edited/drivers/i2c/busses/i2c-ali1563.c	Mon Aug  9 17:30:48 2004
-@@ -395,7 +395,7 @@
- };
- 
- static struct pci_driver ali1563_pci_driver = {
-- 	.name		= "i2c-ali1563",
-+ 	.name		= "ali1563_i2c",
- 	.id_table	= ali1563_id_table,
-  	.probe		= ali1563_probe,
- 	.remove		= ali1563_remove,
-===== drivers/i2c/busses/i2c-ali15x3.c 1.21 vs edited =====
---- 1.21/drivers/i2c/busses/i2c-ali15x3.c	Tue May 18 09:00:17 2004
-+++ edited/drivers/i2c/busses/i2c-ali15x3.c	Mon Aug  9 17:30:53 2004
-@@ -509,7 +509,7 @@
- }
- 
- static struct pci_driver ali15x3_driver = {
--	.name		= "ali15x3 smbus",
-+	.name		= "ali15x3_smbus",
- 	.id_table	= ali15x3_ids,
- 	.probe		= ali15x3_probe,
- 	.remove		= __devexit_p(ali15x3_remove),
-===== drivers/i2c/busses/i2c-amd756.c 1.20 vs edited =====
---- 1.20/drivers/i2c/busses/i2c-amd756.c	Tue May 18 09:00:17 2004
-+++ edited/drivers/i2c/busses/i2c-amd756.c	Mon Aug  9 17:30:56 2004
-@@ -394,7 +394,7 @@
- }
- 
- static struct pci_driver amd756_driver = {
--	.name		= "amd756 smbus",
-+	.name		= "amd756_smbus",
- 	.id_table	= amd756_ids,
- 	.probe		= amd756_probe,
- 	.remove		= __devexit_p(amd756_remove),
-===== drivers/i2c/busses/i2c-amd8111.c 1.19 vs edited =====
---- 1.19/drivers/i2c/busses/i2c-amd8111.c	Tue May 18 09:00:17 2004
-+++ edited/drivers/i2c/busses/i2c-amd8111.c	Mon Aug  9 17:31:01 2004
-@@ -392,7 +392,7 @@
- }
- 
- static struct pci_driver amd8111_driver = {
--	.name		= "amd8111 smbus 2",
-+	.name		= "amd8111_smbus2",
- 	.id_table	= amd8111_ids,
- 	.probe		= amd8111_probe,
- 	.remove		= __devexit_p(amd8111_remove),
-===== drivers/i2c/busses/i2c-hydra.c 1.1 vs edited =====
---- 1.1/drivers/i2c/busses/i2c-hydra.c	Sun Jan 25 02:30:13 2004
-+++ edited/drivers/i2c/busses/i2c-hydra.c	Mon Aug  9 17:31:06 2004
-@@ -158,7 +158,7 @@
- 
- 
- static struct pci_driver hydra_driver = {
--	.name		= "hydra smbus",
-+	.name		= "hydra_smbus",
- 	.id_table	= hydra_ids,
- 	.probe		= hydra_probe,
- 	.remove		= __devexit_p(hydra_remove),
-===== drivers/i2c/busses/i2c-i801.c 1.23 vs edited =====
---- 1.23/drivers/i2c/busses/i2c-i801.c	Tue May 18 09:00:17 2004
-+++ edited/drivers/i2c/busses/i2c-i801.c	Mon Aug  9 17:31:09 2004
-@@ -623,7 +623,7 @@
- }
- 
- static struct pci_driver i801_driver = {
--	.name		= "i801 smbus",
-+	.name		= "i801_smbus",
- 	.id_table	= i801_ids,
- 	.probe		= i801_probe,
- 	.remove		= __devexit_p(i801_remove),
-===== drivers/i2c/busses/i2c-i810.c 1.4 vs edited =====
---- 1.4/drivers/i2c/busses/i2c-i810.c	Mon Mar 15 02:25:23 2004
-+++ edited/drivers/i2c/busses/i2c-i810.c	Mon Aug  9 17:31:11 2004
-@@ -231,7 +231,7 @@
- }
- 
- static struct pci_driver i810_driver = {
--	.name		= "i810 smbus",
-+	.name		= "i810_smbus",
- 	.id_table	= i810_ids,
- 	.probe		= i810_probe,
- 	.remove		= __devexit_p(i810_remove),
-===== drivers/i2c/busses/i2c-nforce2.c 1.12 vs edited =====
---- 1.12/drivers/i2c/busses/i2c-nforce2.c	Sun May  9 10:05:17 2004
-+++ edited/drivers/i2c/busses/i2c-nforce2.c	Mon Aug  9 17:31:15 2004
-@@ -384,7 +384,7 @@
- }
- 
- static struct pci_driver nforce2_driver = {
--	.name		= "nForce2 SMBus",
-+	.name		= "nForce2_smbus",
- 	.id_table	= nforce2_ids,
- 	.probe		= nforce2_probe,
- 	.remove		= __devexit_p(nforce2_remove),
-===== drivers/i2c/busses/i2c-piix4.c 1.31 vs edited =====
---- 1.31/drivers/i2c/busses/i2c-piix4.c	Sun Jun 27 00:19:29 2004
-+++ edited/drivers/i2c/busses/i2c-piix4.c	Mon Aug  9 17:31:18 2004
-@@ -493,7 +493,7 @@
- }
- 
- static struct pci_driver piix4_driver = {
--	.name		= "piix4-smbus",
-+	.name		= "piix4_smbus",
- 	.id_table	= piix4_ids,
- 	.probe		= piix4_probe,
- 	.remove		= __devexit_p(piix4_remove),
-===== drivers/i2c/busses/i2c-prosavage.c 1.10 vs edited =====
---- 1.10/drivers/i2c/busses/i2c-prosavage.c	Mon Mar 15 02:25:23 2004
-+++ edited/drivers/i2c/busses/i2c-prosavage.c	Mon Aug  9 17:31:21 2004
-@@ -314,7 +314,7 @@
- };
- 
- static struct pci_driver prosavage_driver = {
--	.name		=	"prosavage-smbus",
-+	.name		=	"prosavage_smbus",
- 	.id_table	=	prosavage_pci_tbl,
- 	.probe		=	prosavage_probe,
- 	.remove		=	prosavage_remove,
-===== drivers/i2c/busses/i2c-savage4.c 1.6 vs edited =====
---- 1.6/drivers/i2c/busses/i2c-savage4.c	Mon Mar 15 02:25:23 2004
-+++ edited/drivers/i2c/busses/i2c-savage4.c	Mon Aug  9 17:31:24 2004
-@@ -178,7 +178,7 @@
- }
- 
- static struct pci_driver savage4_driver = {
--	.name		= "savage4 smbus",
-+	.name		= "savage4_smbus",
- 	.id_table	= savage4_ids,
- 	.probe		= savage4_probe,
- 	.remove		= __devexit_p(savage4_remove),
-===== drivers/i2c/busses/i2c-sis5595.c 1.11 vs edited =====
---- 1.11/drivers/i2c/busses/i2c-sis5595.c	Tue May 18 09:00:17 2004
-+++ edited/drivers/i2c/busses/i2c-sis5595.c	Mon Aug  9 17:31:27 2004
-@@ -393,7 +393,7 @@
- }
- 
- static struct pci_driver sis5595_driver = {
--	.name		= "sis5595 smbus",
-+	.name		= "sis5595_smbus",
- 	.id_table	= sis5595_ids,
- 	.probe		= sis5595_probe,
- 	.remove		= __devexit_p(sis5595_remove),
-===== drivers/i2c/busses/i2c-sis630.c 1.10 vs edited =====
---- 1.10/drivers/i2c/busses/i2c-sis630.c	Tue May 18 09:00:17 2004
-+++ edited/drivers/i2c/busses/i2c-sis630.c	Mon Aug  9 17:31:31 2004
-@@ -494,7 +494,7 @@
- 
- 
- static struct pci_driver sis630_driver = {
--	.name		= "sis630 smbus",
-+	.name		= "sis630_smbus",
- 	.id_table	= sis630_ids,
- 	.probe		= sis630_probe,
- 	.remove		= __devexit_p(sis630_remove),
-===== drivers/i2c/busses/i2c-sis96x.c 1.11 vs edited =====
---- 1.11/drivers/i2c/busses/i2c-sis96x.c	Tue May 18 09:00:17 2004
-+++ edited/drivers/i2c/busses/i2c-sis96x.c	Mon Aug  9 17:31:34 2004
-@@ -339,7 +339,7 @@
- }
- 
- static struct pci_driver sis96x_driver = {
--	.name		= "sis96x smbus",
-+	.name		= "sis96x_smbus",
- 	.id_table	= sis96x_ids,
- 	.probe		= sis96x_probe,
- 	.remove		= __devexit_p(sis96x_remove),
-===== drivers/i2c/busses/i2c-via.c 1.9 vs edited =====
---- 1.9/drivers/i2c/busses/i2c-via.c	Sun May  9 10:05:17 2004
-+++ edited/drivers/i2c/busses/i2c-via.c	Mon Aug  9 17:31:37 2004
-@@ -158,7 +158,7 @@
- 
- 
- static struct pci_driver vt586b_driver = {
--	.name		= "vt586b smbus",
-+	.name		= "vt586b_smbus",
- 	.id_table	= vt586b_ids,
- 	.probe		= vt586b_probe,
- 	.remove		= __devexit_p(vt586b_remove),
-===== drivers/i2c/busses/i2c-viapro.c 1.14 vs edited =====
---- 1.14/drivers/i2c/busses/i2c-viapro.c	Tue May 18 09:00:17 2004
-+++ edited/drivers/i2c/busses/i2c-viapro.c	Mon Aug  9 17:31:40 2004
-@@ -455,7 +455,7 @@
- };
- 
- static struct pci_driver vt596_driver = {
--	.name		= "vt596 smbus",
-+	.name		= "vt596_smbus",
- 	.id_table	= vt596_ids,
- 	.probe		= vt596_probe,
- 	.remove		= __devexit_p(vt596_remove),
-===== drivers/i2c/busses/i2c-voodoo3.c 1.7 vs edited =====
---- 1.7/drivers/i2c/busses/i2c-voodoo3.c	Wed May  5 02:40:37 2004
-+++ edited/drivers/i2c/busses/i2c-voodoo3.c	Mon Aug  9 17:31:45 2004
-@@ -224,7 +224,7 @@
- }
- 
- static struct pci_driver voodoo3_driver = {
--	.name		= "voodoo3 smbus",
-+	.name		= "voodoo3_smbus",
- 	.id_table	= voodoo3_ids,
- 	.probe		= voodoo3_probe,
- 	.remove		= __devexit_p(voodoo3_remove),
-
--- 
-Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
-
-"Unlike me, many of you have accepted the situation of your imprisonment and
- will die here like rotten cabbages." - Number 6

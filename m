@@ -1,33 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261300AbTCGAnn>; Thu, 6 Mar 2003 19:43:43 -0500
+	id <S261308AbTCGAtg>; Thu, 6 Mar 2003 19:49:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261310AbTCGAnn>; Thu, 6 Mar 2003 19:43:43 -0500
-Received: from jaring.my ([192.228.128.20]:31924 "EHLO jaring.my")
-	by vger.kernel.org with ESMTP id <S261300AbTCGAnm>;
-	Thu, 6 Mar 2003 19:43:42 -0500
-Date: Fri, 7 Mar 2003 08:54:08 +0800 (MYT)
-From: Jaring Account Administrator <account@jaring.my>
-Message-Id: <200303070054.IAA13605@jaring.my>
+	id <S261311AbTCGAtg>; Thu, 6 Mar 2003 19:49:36 -0500
+Received: from pollux.ds.pg.gda.pl ([213.192.76.3]:24583 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S261308AbTCGAtg>; Thu, 6 Mar 2003 19:49:36 -0500
+Date: Fri, 7 Mar 2003 02:00:01 +0100 (CET)
+From: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
 To: linux-kernel@vger.kernel.org
-Reply-To: register@jaring.my
-Subject: Re: [JARREG-030307.000034] Re: Darling
+Subject: [2.5.64] depmod problem
+Message-ID: <Pine.LNX.4.51L.0303070158580.14030@piorun.ds.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a computer generated message to acknowledge your email to JARING
-Registration Dept.
+When making depmod on fresh 2.5.64 I get:
 
-Please take note that many help document are available by sending email to
-info@jaring.my . Your request will be automatically replied by our computer.
-To get the documents, send an email to info@jaring.my and in the body of the
-email put the following message(s):
+# /sbin/depmod -ae -F System.map  2.5.64
+WARNING: /lib/modules/2.5.64/kernel/drivers/hotplug/acpiphp.ko needs unknown symbol acpi_resource_to_address64
 
-         get help
-         get balance
-         get phone.txt
-
-For additional info, please refer to www.jaring.my
-
-Sincerely,
-JARING Account Administrator
+-- 
+---------------------------------
+pozdr.  Pawe³ Go³aszewski        
+---------------------------------
+CPU not found - software emulation...

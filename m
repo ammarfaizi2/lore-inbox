@@ -1,74 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132502AbRDQBhZ>; Mon, 16 Apr 2001 21:37:25 -0400
+	id <S132511AbRDQBkz>; Mon, 16 Apr 2001 21:40:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132503AbRDQBhR>; Mon, 16 Apr 2001 21:37:17 -0400
-Received: from snowbird.megapath.net ([216.200.176.7]:1547 "EHLO
-	megapathdsl.net") by vger.kernel.org with ESMTP id <S132502AbRDQBhA>;
-	Mon, 16 Apr 2001 21:37:00 -0400
-Message-ID: <3ADB9E59.B4EF71CC@megapathdsl.net>
-Date: Mon, 16 Apr 2001 18:37:29 -0700
-From: Miles Lane <miles@megapathdsl.net>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.3-ac2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time, please get 
- better audio.
-In-Reply-To: <3ADB922B.4DE1F9A4@megapathdsl.net> <15067.37887.604760.637443@pizda.ninka.net>
+	id <S132503AbRDQBkq>; Mon, 16 Apr 2001 21:40:46 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:60935 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S132508AbRDQBkf>; Mon, 16 Apr 2001 21:40:35 -0400
+Date: Mon, 16 Apr 2001 22:39:17 -0300
+From: Harald Welte <laforge@gnumonks.org>
+To: David Findlay <david_j_findlay@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IP Acounting Idea for 2.5
+Message-ID: <20010416223917.N16697@corellia.laforge.distro.conectiva>
+In-Reply-To: <01041707532801.00352@workshop>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.14i
+In-Reply-To: <01041707532801.00352@workshop>; from david_j_findlay@yahoo.com.au on Tue, Apr 17, 2001 at 07:53:28AM +1000
+X-Operating-System: Linux corellia.laforge.distro.conectiva 2.4.3
+X-Date: Today is Sweetmorn, the 33rd day of Discord in the YOLD 3167
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
-> Miles Lane writes:
->  > There is one major shortcoming of the recordings.
->  > Usually, only the comments of the presenter(s)
->  > can be heard.
-> 
-> The problem is that nobody wants to wait for one of the microphones to
-> go across the entire room before they can begin speaking, this is what
-> was happening.  Sometimes there was a dialogue going on between three
-> people sitting at tables, there were 2 microphones to go around...
-> 
-> One solution I've seen sort of work is to have 2 standing fixed
-> microphones in the isles, but this only really functions correctly
-> for a Q&A type session after a presentation.
-> 
-> It does not work in a relaxed "people sit at tables and comment
-> at arbitrary points in time during a talk" setting such as the
-> kernel summit.  Besides putting a microphone at every table (which
-> isn't all that practical honestly) I can't come up with a solution.
+On Tue, Apr 17, 2001 at 07:53:28AM +1000, David Findlay wrote:
 
-I agree that this is another important issue.  It's most 
-important in these events that the flow and exchange of ideas 
-proceed unhindered.  I do believe there is a way to record the
-dialog without introducing significant impediments, though.
+> In the 2.5 series of kernels, working towards 2.6, could you please make the 
+> IP Accounting so that I can set a single rule that will make it watch all IP 
+> traffic going from the local network, through the masquerading service to the 
+> internet, and log local IP Addresses using it? This would allow me to set 1 
+> rule, but have the information I want on a per IP address system.
 
-What usually is done these days, when a few groups of people
-need to hold a conference call, for example, is that a few 
-omni-directional microphones are used (these are the sort of 
-spaceship-looking things that get placed in the center of a 
-large table around which the groups sit).  There are drawbacks 
-with this, in that, for a large group, there's signal loss if 
-current speaker does not face the microphone.  However, these 
-microphones do a pretty good job of picking up voice audio in 
-a 360 degree radius.
+:) Well... there was a discussion about this on the netfilter-devel
+list some weeks ago. 
 
-There would need to be some post-event sound mixing.  For example,
-if you have ten tables, each with its own omni-directional table
-microphone, plus unidirectional microphones for the presenter(s),
-you'd need to mix the signals from the microphones or perhaps
-switch between the various microphone recordings and adjust for 
-volume differences.  You'd likely get the best recording from
-the table microphone a particular participant was sitting at.
-You'd also likely get much stronger signals from the presenter's
-microphone.
+This is definitely not a 2.5 / 2.6 issue, as it could be easily implemented
+by using the already existing flexibility of netfilter/iptables.
 
-What say you all?
+It's just a matter of somebody who needs it getting around actually 
+implementing it. Could be either implemented as a 'raw' netfilter 
+hook-attaching module or (more convenient) as a new iptables target, 
+which allocates some internal tables for storing the accounting data.
 
-Cheers,
-	Miles
+Doesn't make sense to have a discussion about it on linux-kernel, and
+it certainly doesn't belong into a 2.5 featurelist.
+
+Please refer to the netfilter-devel mailinglist (subscription information
+available at http://netfilter.samba.org/)
+
+> David
+
+-- 
+Live long and prosper
+- Harald Welte / laforge@gnumonks.org                http://www.gnumonks.org
+============================================================================
+GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
+V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)

@@ -1,85 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319185AbSHTQXv>; Tue, 20 Aug 2002 12:23:51 -0400
+	id <S319186AbSHTQb2>; Tue, 20 Aug 2002 12:31:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319186AbSHTQXv>; Tue, 20 Aug 2002 12:23:51 -0400
-Received: from miranda.axis.se ([193.13.178.2]:4016 "EHLO miranda.axis.se")
-	by vger.kernel.org with ESMTP id <S319185AbSHTQXu>;
-	Tue, 20 Aug 2002 12:23:50 -0400
-From: johan.adolfsson@axis.com
-Message-ID: <03f401c24867$2d5260c0$b9b270d5@homeip.net>
-Reply-To: <johan.adolfsson@axis.com>
-To: "Oliver Xymoron" <oxymoron@waste.org>, <johan.adolfsson@axis.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <01a301c2482c$51a00e40$b9b270d5@homeip.net> <20020820140346.GC19225@waste.org>
-Subject: Re: [RFC] Improved add_timer_randomness for __CRIS__ (instead of rdtsc())
-Date: Tue, 20 Aug 2002 18:32:29 +0200
+	id <S319188AbSHTQb2>; Tue, 20 Aug 2002 12:31:28 -0400
+Received: from dark.pcgames.pl ([195.205.62.2]:35540 "EHLO dark.pcgames.pl")
+	by vger.kernel.org with ESMTP id <S319186AbSHTQb1>;
+	Tue, 20 Aug 2002 12:31:27 -0400
+Date: Tue, 20 Aug 2002 18:35:27 +0200 (CEST)
+From: Krzysztof Oledzki <ole@ans.pl>
+X-X-Sender: <ole@dark.pcgames.pl>
+To: <linux-kernel@vger.kernel.org>
+cc: <marcelo@conectiva.com.br>
+Subject: /proc/partitions in 2.4.20-pre3/4
+Message-ID: <Pine.LNX.4.33.0208201827510.22200-100000@dark.pcgames.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello :)
 
-From: "Oliver Xymoron" <oxymoron@waste.org>
-> On Tue, Aug 20, 2002 at 11:31:10AM +0200, johan.adolfsson@axis.com wrote:
-> > The cris architecture don't have any tsc, but it has a couple of
-> > timer registers that can be used to get better than jiffie resolution.
-> >
-> > I set the time to a 40 us resolution counter with a slight
-> > "jump" since lower 8 bit only counts from 0 to 249,
-> > the patch does not take wrapping of the register into account either
-> > to save some cycles, is that a problem or a good thing?
-> 
-> That should be fine. More important is actually scaling the entropy
-> count based on the timing granularity of the source. Keyboards and
-> mice tend to have a granularity of about 1khz so timestamps better
-> than milliseconds 'invent' entropy in the current code.
+There is something wrong with /proc/partitions. It seems that last changes
+broken this file:
 
-The ETRAX chips where the cris architecture is used is typically used in
-headless embedded devices connected to a network. Currently I don't think 
-we use SA_RANDOM anywhere in our device drivers although it would be
-nice to be able to use network and other interfaces as entropy/randomness
-source (serial, parallel etc.) without to much concerns.
+"cat /proc/partitions |wc -c"  shows that this file has 29167 bytes. First
+part of files has lot of \0 characters. With software raid enabled (not
+ataraid) it has all md0 - md255 devices (and not only used devices) and
+does not have informations for phisical disks (sdXX, hdXX).
 
-> > The num is xor:d with the value from 2 timer registers,
-> > which in turn contains different fields breifly described below.
-> > 
-> > Does the patch below look sane?
-> 
-> Looks fine, but I think we want to come up with a cleaner scheme of
-> having per-arch high-res timestamps. I'd hate to have that grow to
-> several pages of ifdefs and not have it available anywhere else. 
+Best Regards,
 
-Yes, I've seen the discussion before.
-Any idea of how such a solution should look like?
-Put an inline function or macro in asm/timex.h (?) together with an
-ARCH_HAS_RANDOM_TIMESTAMP define?
 
-E.g. like this for i386:
-#define ARCH_HAS_RANDOM_TIMESTAMP
-#define RANDOM_TIMESTAMP(time, num) do{\
- if ( test_bit(X86_FEATURE_TSC, &boot_cpu_data.x86_capability) ) { \
-  __u32 high; \
-  rdtsc(time, high); \
-  num ^= high; \
- } else { \
-  time = jiffies; \
- } \
-}while(0)
- 
-And then in random.c:
-ifdef ARCH_HAS_RANDOM_TIMESTAMP
-  RANDOM_TIMESTAMP(time, num);
-#else
-  time = jiffies;
-#endif
-
-/Johan
-
+			Krzysztof Oledzki
 

@@ -1,535 +1,516 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVCEWsy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVCEWxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261306AbVCEWsy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 17:48:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVCEWrL
+	id S261297AbVCEWxT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 17:53:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVCEWwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 17:47:11 -0500
-Received: from coderock.org ([193.77.147.115]:38309 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261303AbVCEWmb (ORCPT
+	Sat, 5 Mar 2005 17:52:11 -0500
+Received: from coderock.org ([193.77.147.115]:35493 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261297AbVCEWmY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 17:42:31 -0500
-Subject: [patch 4/4] acorn: clean up printk()'s in drivers/acorn/block/mfmhd.c
+	Sat, 5 Mar 2005 17:42:24 -0500
+Subject: [patch 3/4] acorn: clean up printk()'s in drivers/acorn/block/fd1772.c
 To: spyro@f2s.com
 Cc: linux-kernel@vger.kernel.org, domen@coderock.org, james4765@cwazy.co.uk,
        james4765@gmail.com
 From: domen@coderock.org
-Date: Sat, 05 Mar 2005 23:41:55 +0100
-Message-Id: <20050305224155.A2CA31F07A@trashy.coderock.org>
+Date: Sat, 05 Mar 2005 23:41:51 +0100
+Message-Id: <20050305224152.3F3481EE1E@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 This patch puts KERN_ constants in printk()'s and makes the debugging printk()'s
-more consistent in drivers/acorn/block/mfmhd.c
+more consistent in drivers/acorn/block/fd1772.c
 
 Signed-off-by: James Nelson <james4765@gmail.com>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj-domen/drivers/acorn/block/mfmhd.c |  151 +++++++++++++++--------------------
- 1 files changed, 66 insertions(+), 85 deletions(-)
+ kj-domen/drivers/acorn/block/fd1772.c |  138 ++++++++++++++++------------------
+ 1 files changed, 68 insertions(+), 70 deletions(-)
 
-diff -puN drivers/acorn/block/mfmhd.c~printk-drivers_acorn_block_mfmhd drivers/acorn/block/mfmhd.c
---- kj/drivers/acorn/block/mfmhd.c~printk-drivers_acorn_block_mfmhd	2005-03-05 16:11:44.000000000 +0100
-+++ kj-domen/drivers/acorn/block/mfmhd.c	2005-03-05 16:11:44.000000000 +0100
-@@ -98,6 +98,8 @@
-  *  This would be a performance boost with dual drive systems.
+diff -puN drivers/acorn/block/fd1772.c~printk-drivers_acorn_block_fd1772 drivers/acorn/block/fd1772.c
+--- kj/drivers/acorn/block/fd1772.c~printk-drivers_acorn_block_fd1772	2005-03-05 16:11:43.000000000 +0100
++++ kj-domen/drivers/acorn/block/fd1772.c	2005-03-05 16:11:43.000000000 +0100
+@@ -124,6 +124,8 @@
+  *                Minor parameter, name layouts for 2.4.x differences
   */
  
 +#undef DEBUG /* define to enable debugging statements */
 +
- #include <linux/module.h>
- #include <linux/config.h>
  #include <linux/sched.h>
-@@ -126,6 +128,7 @@ static void (*do_mfm)(void) = NULL;
- static struct request_queue *mfm_queue;
- static DEFINE_SPINLOCK(mfm_lock);
- 
-+#define PFX "mfm: "
- #define MAJOR_NR	MFM_ACORN_MAJOR
- #define QUEUE (mfm_queue)
- #define CURRENT elv_next_request(mfm_queue)
-@@ -153,12 +156,7 @@ struct hd_geometry {
-  * Linux I/O address of onboard MFM controller or 0 to disable this
-  */
- #define ONBOARD_MFM_ADDRESS ((0x002d0000 >> 2) | 0x80000000)
--/*
-- * Uncomment this to enable debugging in the MFM driver...
-- */
--#ifndef DEBUG
--/*#define DEBUG */
--#endif
-+
- /*
-  * End of configuration
-  */
-@@ -300,28 +298,8 @@ int number_mfm_drives = 1;
- #define STAT_POL	0x0200	/* Polling */
- 
- /* ------------------------------------------------------------------------------------------ */
+ #include <linux/fs.h>
+ #include <linux/fcntl.h>
+@@ -166,13 +168,6 @@
+ /* Ditto worries for Arc - DAG */
+ #define FD_MAX_UNITS 4
+ #define TRACKBUFFER 0
+-/*#define DEBUG*/
+-
 -#ifdef DEBUG
--static void console_printf(const char *fmt,...)
--{
--	static char buffer[2048];	/* Arbitary! */
--	extern void console_print(const char *);
--	unsigned long flags;
--	va_list ap;
--
--	local_irq_save(flags);
--
--	va_start(ap, fmt);
--	vsprintf(buffer, fmt, ap);
--	console_print(buffer);
--	va_end(fmt);
- 
--	local_irq_restore(flags);
--};	/* console_printf */
--
--#define DBG(x...) console_printf(x)
+-#define DPRINT(a)	printk a
 -#else
--#define DBG(x...)
+-#define DPRINT(a)
 -#endif
+ 
+ static struct request_queue *floppy_queue;
+ 
+@@ -181,6 +176,9 @@ static struct request_queue *floppy_queu
+ #define DEVICE_NAME "floppy"
+ #define QUEUE (floppy_queue)
+ #define CURRENT elv_next_request(floppy_queue)
++#define PFX DEVICE_NAME ": "
++
 +#define DBG(fmt, args...) pr_debug(PFX "%s(): " fmt, __FUNCTION__ , ## args)
  
- static void print_status(void)
+ /* Disk types: DD */
+ static struct archy_disk_type {
+@@ -241,9 +239,9 @@ extern volatile int fdc1772_fdc_int_done
+ void FDC1772_WRITE(int reg, unsigned char val)
  {
-@@ -377,23 +355,23 @@ static void issue_command(int command, u
- 	int status;
- #ifdef DEBUG
- 	int i;
--	console_printf("issue_command: %02X: ", command);
-+	DBG("%02X:", command);
- 	for (i = 0; i < len; i++)
--		console_printf("%02X ", cmdb[i]);
--	console_printf("\n");
-+		printk(" %02X", cmdb[i]);
-+	printk("\n");
- #endif
+ 	if (reg == FDC1772REG_CMD) {
+-		DPRINT(("FDC1772_WRITE new command 0x%x @ %d\n", val,jiffies));
++		DBG("new command 0x%x @ %d\n", val,jiffies);
+ 		if (fdc1772_fdc_int_done) {
+-			DPRINT(("FDC1772_WRITE: Hmm fdc1772_fdc_int_done true - resetting\n"));
++			DBG("Hmm fdc1772_fdc_int_done true - resetting\n");
+ 			fdc1772_fdc_int_done = 0;
+ 		};
+ 	};
+@@ -410,9 +408,7 @@ static void fd_select_side(int side)
  
- 	do {
- 		status = inw(MFM_STATUS);
- 	} while (status & (STAT_BSY | STAT_POL));
--	DBG("issue_command: status after pol/bsy loop: %02X:\n ", status >> 8);
-+	DBG("status after pol/bsy loop: %02X:\n", status >> 8);
- 
- 	if (status & (STAT_CPR | STAT_CED | STAT_SED | STAT_DER | STAT_ABN)) {
- 		outw(CMD_RCAL, MFM_COMMAND);
- 		while (inw(MFM_STATUS) & STAT_BSY);
- 	}
- 	status = inw(MFM_STATUS);
--	DBG("issue_command: status before parameter issue: %02X:\n ", status >> 8);
-+	DBG("status before parameter issue: %02X:\n", status >> 8);
- 
- 	while (len > 0) {
- 		outw(cmdb[1] | (cmdb[0] << 8), MFM_DATAOUT);
-@@ -401,11 +379,11 @@ static void issue_command(int command, u
- 		cmdb += 2;
- 	}
- 	status = inw(MFM_STATUS);
--	DBG("issue_command: status before command issue: %02X:\n ", status >> 8);
-+	DBG("status before command issue: %02X:\n", status >> 8);
- 
- 	outw(command, MFM_COMMAND);
- 	status = inw(MFM_STATUS);
--	DBG("issue_command: status immediately after command issue: %02X:\n ", status >> 8);
-+	DBG("status immediately after command issue: %02X:\n", status >> 8);
- }
- 
- static void wait_for_completion(void)
-@@ -434,7 +412,7 @@ static void mfm_rw_intr(void)
+ static void fd_select_drive(int drive)
  {
- 	int old_status;		/* Holds status on entry, we read to see if the command just finished */
- #ifdef DEBUG
--	console_printf("mfm_rw_intr...dataleft=%d\n", hdc63463_dataleft);
-+	DBG("dataleft=%d ", hdc63463_dataleft);
- 	print_status();
- #endif
+-#ifdef DEBUG
+-	printk("fd_select_drive:%d\n", drive);
+-#endif
++	DBG("%d\n", drive);
+ 	/* Hmm - nowhere do we seem to turn the motor on - I'm going to do it here! */
+ 	oldlatch_aupdate(LATCHA_MOTOR | LATCHA_INUSE, 0);
  
-@@ -443,7 +421,7 @@ static void mfm_rw_intr(void)
- 		/* Something has gone wrong - let's try that again */
- 		outw(CMD_RCAL, MFM_COMMAND);	/* Clear interrupt condition */
- 		if (cont) {
--			DBG("mfm_rw_intr: DER/ABN err\n");
-+			DBG("DER/ABN err\n");
- 			cont->error();
- 			cont->redo();
- 		};
-@@ -457,7 +435,7 @@ static void mfm_rw_intr(void)
- 	if (CURRENT->cmd == WRITE) {
- 		extern void hdc63463_writedma(void);
- 		if ((hdc63463_dataleft <= 0) && (!(mfm_status & STAT_CED))) {
--			printk("mfm_rw_intr: Apparent DMA write request when no more to DMA\n");
-+			printk(KERN_WARNING PFX "mfm_rw_intr: Apparent DMA write request when no more to DMA\n");
- 			if (cont) {
- 				cont->error();
- 				cont->redo();
-@@ -468,7 +446,7 @@ static void mfm_rw_intr(void)
- 	} else {
- 		extern void hdc63463_readdma(void);
- 		if ((hdc63463_dataleft <= 0) && (!(mfm_status & STAT_CED))) {
--			printk("mfm_rw_intr: Apparent DMA read request when no more to DMA\n");
-+			printk(KERN_WARNING PFX "mfm_rw_intr: Apparent DMA read request when no more to DMA\n");
- 			if (cont) {
- 				cont->error();
- 				cont->redo();
-@@ -482,7 +460,7 @@ static void mfm_rw_intr(void)
- 	if (hdc63463_dataptr != ((unsigned int) Copy_buffer + 256)) {
- 		/* If we didn't actually manage to get any data on this interrupt - but why? We got the interrupt */
- 		/* Ah - well looking at the status its just when we get command end; so no problem */
--		/*console_printf("mfm: dataptr mismatch. dataptr=0x%08x Copy_buffer+256=0x%08p\n",
-+		/*DBG("dataptr mismatch. dataptr=0x%08x Copy_buffer+256=0x%08p ",
- 		   hdc63463_dataptr,Copy_buffer+256);
- 		   print_status(); */
- 	} else {
-@@ -492,7 +470,7 @@ static void mfm_rw_intr(void)
+@@ -435,7 +431,7 @@ static void fd_deselect(void)
+ {
+ 	unsigned long flags;
  
- 		/* We have come to the end of this request */
- 		if (!Sectors256LeftInCurrent) {
--			DBG("mfm: end_request for CURRENT=0x%p CURRENT(sector=%d current_nr_sectors=%d nr_sectors=%d)\n",
-+			DBG("end_request for CURRENT=0x%p CURRENT(sector=%d current_nr_sectors=%d nr_sectors=%d)\n",
- 				       CURRENT, CURRENT->sector, CURRENT->current_nr_sectors, CURRENT->nr_sectors);
+-	DPRINT(("fd_deselect\n"));
++	DBG("start\n");
  
- 			CURRENT->nr_sectors -= CURRENT->current_nr_sectors;
-@@ -511,10 +489,10 @@ static void mfm_rw_intr(void)
+ 	oldlatch_aupdate(LATCHA_FDSELALL | LATCHA_MOTOR | LATCHA_INUSE, 0xf | LATCHA_MOTOR | LATCHA_INUSE);
  
- 				if (Copy_Sector != CURRENT->sector * 2)
- #ifdef DEBUG
--					/*console_printf*/printk("mfm: Copy_Sector mismatch. Copy_Sector=%d CURRENT->sector*2=%d\n",
-+					DBG("Copy_Sector mismatch. Copy_Sector=%d CURRENT->sector*2=%d\n",
- 					Copy_Sector, CURRENT->sector * 2);
- #else
--					printk("mfm: Copy_Sector mismatch! Eek!\n");
-+					printk(KERN_ERR PFX "Copy_Sector mismatch! Eek!\n");
- #endif
- 			};	/* CURRENT */
- 		};	/* Sectors256LeftInCurrent */
-@@ -525,7 +503,7 @@ static void mfm_rw_intr(void)
- 	if (mfm_status & (STAT_DER | STAT_ABN)) {
- 		/* Something has gone wrong - let's try that again */
- 		if (cont) {
--			DBG("mfm_rw_intr: DER/ABN error\n");
-+			DBG("DER/ABN error\n");
- 			cont->error();
- 			cont->redo();
- 		};
-@@ -547,7 +525,7 @@ static void mfm_rw_intr(void)
- 		};
- 	};			/* Result read */
- 
--	/*console_printf ("mfm_rw_intr nearexit [%02X]\n", __raw_readb(mfm_IRQPollLoc)); */
-+	/*DBG("nearexit [%02X]\n", __raw_readb(mfm_IRQPollLoc)); */
- 
- 	/* If end of command move on */
- 	if (mfm_status & (STAT_CED)) {
-@@ -556,7 +534,7 @@ static void mfm_rw_intr(void)
- 		if (cont) {
- 			cont->done(1);
+@@ -475,7 +471,7 @@ static void fd_motor_off_timer(unsigned 
+ 		 * off on the Arc, since the motor control is actually on
+ 		 * Latch A
+ 		 */
+-		DPRINT(("fdc1772: deselecting in fd_motor_off_timer\n"));
++		DBG("deselecting\n");
+ 		fd_deselect();
+ 		MotorOn = 0;
+ 		restore_flags(flags);
+@@ -524,7 +520,7 @@ static void check_change(unsigned long d
+ 		/* The idea here is that if the write protect line has changed then
+ 		the disc must have changed */
+ 		if (stat != unit[drive].wpstat) {
+-			DPRINT(("wpstat[%d] = %d\n", drive, stat));
++			DBG("wpstat[%d] = %d\n", drive, stat);
+ 			unit[drive].wpstat = stat;
+ 			set_bit(drive, &changed_floppies);
  		}
--		DBG("mfm_rw_intr: returned from cont->done\n");
-+		DBG("returned from cont->done\n");
+@@ -580,12 +576,13 @@ static void floppy_irqconsequencehandler
+ 	if (handler) {
+ 		nop();
+ 		status = (unsigned char) fdc1772_comendstatus;
+-		DPRINT(("FDC1772 irq, status = %02x handler = %08lx\n", (unsigned int) status, (unsigned long) handler));
++		DBG("status = %02x handler = %08lx\n", (unsigned int) status,
++			(unsigned long) handler);
+ 		handler(status);
  	} else {
- 		/* Its going to generate another interrupt */
- 		do_mfm = mfm_rw_intr;
-@@ -565,7 +543,7 @@ static void mfm_rw_intr(void)
- 
- static void mfm_setup_rw(void)
- {
--	DBG("setting up for rw...\n");
-+	DBG("start\n");
- 
- 	do_mfm = mfm_rw_intr;
- 	issue_command(raw_cmd.cmdcode, raw_cmd.cmddata, raw_cmd.cmdlen);
-@@ -574,12 +552,12 @@ static void mfm_setup_rw(void)
- static void mfm_recal_intr(void)
- {
- #ifdef DEBUG
--	console_printf("recal intr - status = ");
-+	DBG("status = ");
- 	print_status();
- #endif
- 	outw(CMD_RCAL, MFM_COMMAND);	/* Clear interrupt condition */
- 	if (mfm_status & (STAT_DER | STAT_ABN)) {
--		printk("recal failed\n");
-+		printk(KERN_ERR PFX "recal failed\n");
- 		MFM_DRV_INFO.cylinder = NEED_2_RECAL;
- 		if (cont) {
- 			cont->error();
-@@ -601,18 +579,18 @@ static void mfm_recal_intr(void)
- 		issue_command(CMD_POL, NULL, 0);
- 		return;
+-		DPRINT(("FDC1772 irq, no handler status=%02x\n", fdc1772_comendstatus));
++		DBG("no handler status=%02x\n", fdc1772_comendstatus);
  	}
--	printk("recal: unknown status\n");
-+	printk(KERN_ERR PFX "recal: unknown status\n");
+-	DPRINT(("FDC1772 irq: end of floppy_irq\n"));
++	DBG("end\n");
  }
  
- static void mfm_seek_intr(void)
+ 
+@@ -595,16 +592,16 @@ static void floppy_irqconsequencehandler
+ 
+ static void fd_error(void)
  {
- #ifdef DEBUG
--	console_printf("seek intr - status = ");
-+	DBG("status = ");
- 	print_status();
- #endif
- 	outw(CMD_RCAL, MFM_COMMAND);	/* Clear interrupt condition */
- 	if (mfm_status & (STAT_DER | STAT_ABN)) {
--		printk("seek failed\n");
-+		printk(KERN_ERR PFX "seek failed\n");
- 		MFM_DRV_INFO.cylinder = NEED_2_RECAL;
- 		if (cont) {
- 			cont->error();
-@@ -631,7 +609,7 @@ static void mfm_seek_intr(void)
- 		issue_command(CMD_POL, NULL, 0);
+-	printk("FDC1772: fd_error\n");
++	DBG("start\n");
+ 	/*panic("fd1772: fd_error"); *//* DAG tmp */
+ 	if (!CURRENT)
  		return;
- 	}
--	printk("seek: unknown status\n");
-+	printk(KERN_ERR PFX "seek: unknown status\n");
- }
- 
- /* IDEA2 seems to work better - its what RiscOS sets my
-@@ -686,7 +664,7 @@ static void mfm_seek(void)
- 	DBG("seeking...\n");
- 	if (MFM_DRV_INFO.cylinder < 0) {
- 		do_mfm = mfm_recal_intr;
--		DBG("mfm_seek: about to call specify\n");
-+		DBG("about to call specify\n");
- 		mfm_specify ();	/* DAG added this */
- 
- 		cmdb[0] = raw_cmd.dev + 1;
-@@ -709,19 +687,20 @@ static void mfm_seek(void)
- 
- static void mfm_initialise(void)
- {
--	DBG("init...\n");
-+	DBG("start\n");
- 	mfm_seek();
- }
- 
- static void request_done(int uptodate)
- {
--	DBG("mfm:request_done\n");
-+	DBG("start\n");
- 	if (uptodate) {
- 		unsigned char block[2] = {0, 0};
- 
- 		/* Apparently worked - let's check bytes left to DMA */
- 		if (hdc63463_dataleft != (PartFragRead_SectorsLeft * 256)) {
--			printk("mfm: request_done - dataleft=%d - should be %d - Eek!\n", hdc63463_dataleft, PartFragRead_SectorsLeft * 256);
-+			printk(KERN_ERR PFX "request_done - dataleft=%d - should be %d - Eek!\n",
-+				hdc63463_dataleft, PartFragRead_SectorsLeft * 256);
- 			end_request(CURRENT, 0);
- 			Busy = 0;
- 		};
-@@ -740,7 +719,8 @@ static void request_done(int uptodate)
- 		/* ah well - perhaps there is another fragment to go */
- 
- 		/* Increment pointers/counts to start of next fragment */
--		if (SectorsLeftInRequest > 0) printk("mfm: SectorsLeftInRequest>0 - Eek! Shouldn't happen!\n");
-+		if (SectorsLeftInRequest > 0)
-+			printk(KERN_CRIT PFX "SectorsLeftInRequest > 0 - Eek! Shouldn't happen!\n");
- 
- 		/* No - its the end of the line */
- 		/* end_request's should have happened at the end of sector DMAs */
-@@ -749,12 +729,12 @@ static void request_done(int uptodate)
- 			issue_command(CMD_CKV, block, 2);
- 
- 		Busy = 0;
--		DBG("request_done: About to mfm_request\n");
-+		DBG("About to mfm_request\n");
- 		/* Next one please */
- 		mfm_request();	/* Moved from mfm_rw_intr */
--		DBG("request_done: returned from mfm_request\n");
-+		DBG("returned from mfm_request\n");
- 	} else {
--		printk("mfm:request_done: update=0\n");
-+		DBG("update=0\n");
+ 	CURRENT->errors++;
+ 	if (CURRENT->errors >= MAX_ERRORS) {
+-		printk("fd%d: too many errors.\n", SelectedDrive);
++		printk(KERN_ERR "fd%d: too many errors, giving up\n", SelectedDrive);
  		end_request(CURRENT, 0);
- 		Busy = 0;
+ 	} else if (CURRENT->errors == RECALIBRATE_ERRORS) {
+-		printk("fd%d: recalibrating\n", SelectedDrive);
++		printk(KERN_ERR "fd%d: error, recalibrating...\n", SelectedDrive);
+ 		if (SelectedDrive != -1)
+ 			unit[SelectedDrive].track = -1;
  	}
-@@ -762,7 +742,7 @@ static void request_done(int uptodate)
- 
- static void error_handler(void)
+@@ -628,7 +625,7 @@ static void fd_error(void)
+ static void do_fd_action(int drive)
  {
--	printk("error detected... status = ");
-+	printk(KERN_ERR PFX "error detected... status = ");
- 	print_status();
- 	(*errors)++;
- 	if (*errors > MFM_DRV_INFO.errors.abort)
-@@ -773,7 +753,7 @@ static void error_handler(void)
+ 	struct request *req;
+-	DPRINT(("do_fd_action unit[drive].track=%d\n", unit[drive].track));
++	DBG("unit[drive].track=%d\n", unit[drive].track);
  
- static void rw_interrupt(void)
+ #ifdef TRACKBUFFER
+ repeat:
+@@ -676,12 +673,12 @@ repeat:
+ 
+ static void fd_calibrate(void)
  {
--	printk("rw_interrupt\n");
+-	DPRINT(("fd_calibrate\n"));
 +	DBG("start\n");
- }
- 
- static struct cont rw_cont =
-@@ -807,7 +787,7 @@ static void issue_request(unsigned int b
- 	/* Then add in the number of sectors left on this track */
- 	sectors_to_next_cyl += (p->sectors - start_sector);
- 
--	DBG("issue_request: mfm_info[dev].sectors=%d track=%d\n", p->sectors, track);
-+	DBG("mfm_info[dev].sectors=%d track=%d\n", p->sectors, track);
- 
- 	raw_cmd.dev = dev;
- 	raw_cmd.sector = start_sector;
-@@ -869,7 +849,7 @@ static void issue_request(unsigned int b
-  */
- static void mfm_rerequest(void)
- {
--	DBG("mfm_rerequest\n");
-+	DBG("start\n");
- 	cli();
- 	Busy = 0;
- 	mfm_request();
-@@ -879,12 +859,12 @@ static struct gendisk *mfm_gendisk[2];
- 
- static void mfm_request(void)
- {
--	DBG("mfm_request CURRENT=%p Busy=%d\n", CURRENT, Busy);
-+	DBG("CURRENT=%p Busy=%d\n", CURRENT, Busy);
- 
- 	/* If we are still processing then return; we will get called again */
- 	if (Busy) {
- 		/* Again seems to be common in 1.3.45 */
--		/*DBG*/printk("mfm_request: Exiting due to busy\n");
-+		DBG("Exiting due to busy\n");
+ 	if (unit[SelectedDrive].track >= 0) {
+ 		fd_calibrate_done(0);
  		return;
  	}
- 	Busy = 1;
-@@ -893,28 +873,28 @@ static void mfm_request(void)
- 		unsigned int block, nsect;
- 		struct gendisk *disk;
+-	DPRINT(("fd_calibrate (after track compare)\n"));
++	DBG("(after track compare)\n");
+ 	SET_IRQ_HANDLER(fd_calibrate_done);
+ 	/* we can't verify, since the speed may be incorrect */
+ 	FDC1772_WRITE(FDC1772REG_CMD, FDC1772CMD_RESTORE | unit[SelectedDrive].steprate);
+@@ -695,12 +692,12 @@ static void fd_calibrate(void)
  
--		DBG("mfm_request: loop start\n");
-+		DBG("loop start\n");
- 		sti();
+ static void fd_calibrate_done(int status)
+ {
+-	DPRINT(("fd_calibrate_done()\n"));
++	DBG("start\n");
+ 	STOP_TIMEOUT();
  
--		DBG("mfm_request: before !CURRENT\n");
-+		DBG("before !CURRENT\n");
+ 	/* set the correct speed now */
+ 	if (status & FDC1772STAT_RECNF) {
+-		printk("fd%d: restore failed\n", SelectedDrive);
++		printk(KERN_ERR "fd%d: restore failed\n", SelectedDrive);
+ 		fd_error();
+ 	} else {
+ 		unit[SelectedDrive].track = 0;
+@@ -716,8 +713,8 @@ static void fd_calibrate_done(int status
+ static void fd_seek(void)
+ {
+ 	unsigned long flags;
+-	DPRINT(("fd_seek() to track %d (unit[SelectedDrive].track=%d)\n", ReqTrack,
+-		unit[SelectedDrive].track));
++	DBG("to track %d (unit[SelectedDrive].track=%d)\n", ReqTrack,
++		unit[SelectedDrive].track);
+ 	if (unit[SelectedDrive].track == ReqTrack <<
+ 	    unit[SelectedDrive].disktype->stretch) {
+ 		fd_seek_done(0);
+@@ -743,12 +740,12 @@ static void fd_seek(void)
  
- 		if (!CURRENT) {
--			printk("mfm_request: Exiting due to empty queue (pre)\n");
-+			DBG("Exiting due to empty queue (pre)\n");
- 			do_mfm = NULL;
- 			Busy = 0;
+ static void fd_seek_done(int status)
+ {
+-	DPRINT(("fd_seek_done()\n"));
++	DBG("start\n");
+ 	STOP_TIMEOUT();
+ 
+ 	/* set the correct speed */
+ 	if (status & FDC1772STAT_RECNF) {
+-		printk("fd%d: seek error (to track %d)\n",
++		printk(KERN_ERR "fd%d: seek error (to track %d)\n",
+ 		       SelectedDrive, ReqTrack);
+ 		/* we don't know exactly which track we are on now! */
+ 		unit[SelectedDrive].track = -1;
+@@ -777,7 +774,7 @@ static void fd_rwsec(void)
+ 	unsigned int rwflag, old_motoron;
+ 	unsigned int track;
+ 
+-	DPRINT(("fd_rwsec(), Sec=%d, Access=%c\n", ReqSector, ReqCmd == WRITE ? 'w' : 'r'));
++	DBG("Sec=%d, Access=%c\n", ReqSector, ReqCmd == WRITE ? 'w' : 'r');
+ 	if (ReqCmd == WRITE) {
+ 		/*cache_push( (unsigned long)ReqData, 512 ); */
+ 		paddr = (unsigned long) ReqData;
+@@ -791,11 +788,11 @@ static void fd_rwsec(void)
+ 		rwflag = 0;
+ 	}
+ 
+-	DPRINT(("fd_rwsec() before sidesel rwflag=%d sec=%d trk=%d\n", rwflag,
+-		ReqSector, FDC1772_READ(FDC1772REG_TRACK)));
++	DBG("before sidesel rwflag=%d sec=%d trk=%d\n", rwflag,
++		ReqSector, FDC1772_READ(FDC1772REG_TRACK));
+ 	fd_select_side(ReqSide);
+ 
+-	/*DPRINT(("fd_rwsec() before start sector \n")); */
++	/*DBG("before start sector\n"); */
+ 	/* Start sector of this operation */
+ #ifdef TRACKBUFFER
+ 	FDC1772_WRITE( FDC1772REG_SECTOR, !read_track ? ReqSector : 1 );
+@@ -811,7 +808,7 @@ static void fd_rwsec(void)
+ 	}
+ 	udelay(25);
+ 
+-	DPRINT(("fd_rwsec() before setup DMA \n"));
++	DBG("before setup DMA\n");
+ 	/* Setup DMA - Heavily modified by DAG */
+ 	save_flags(flags);
+ 	clf();
+@@ -839,7 +836,7 @@ static void fd_rwsec(void)
+ 		));
+ 
+ 	restore_flags(flags);
+-	DPRINT(("fd_rwsec() after DMA setup flags=0x%08x\n", flags));
++	DBG("after DMA setup flags=0x%08x\n", flags);
+ 	/*sti(); *//* DAG - Hmm */
+ 	/* Hmm - should do something DAG */
+ 	old_motoron = MotorOn;
+@@ -858,15 +855,15 @@ static void fd_rwsec(void)
+ 		 */
+ 		/* 1 rot. + 5 rot.s if motor was off  */
+ 		mod_timer(&readtrack_timer, jiffies + HZ/5 + (old_motoron ? 0 : HZ));
+-		DPRINT(("Setting readtrack_timer to %d @ %d\n",
+-			readtrack_timer.expires,jiffies));
++		DBG("setting readtrack_timer to %d @ %d\n",
++			readtrack_timer.expires,jiffies);
+ 		MultReadInProgress = 1;
+ 	}
+ #endif
+ 
+-	/*DPRINT(("fd_rwsec() before START_TIMEOUT \n")); */
++	/*DBG("before START_TIMEOUT\n"); */
+ 	START_TIMEOUT();
+-	/*DPRINT(("fd_rwsec() after START_TIMEOUT \n")); */
++	/*DBG("after START_TIMEOUT\n"); */
+ }
+ 
+ 
+@@ -877,7 +874,7 @@ static void fd_readtrack_check(unsigned 
+ 	unsigned long flags, addr;
+ 	extern unsigned char *fdc1772_dataaddr;
+ 
+-	DPRINT(("fd_readtrack_check @ %d\n",jiffies));
++	DBG("%d jiffies\n", jiffies);
+ 
+ 	save_flags(flags);
+ 	clf();
+@@ -897,7 +894,7 @@ static void fd_readtrack_check(unsigned 
+ 
+ 	/* get the current DMA address */
+ 	addr=(unsigned long)fdc1772_dataaddr; /* DAG - ? */
+-	DPRINT(("fd_readtrack_check: addr=%x PhysTrackBuffer=%x\n",addr,PhysTrackBuffer));
++	DBG("addr=%x PhysTrackBuffer=%x\n",__FUNCTION__, addr,PhysTrackBuffer);
+ 
+ 	if (addr >= (unsigned int)PhysTrackBuffer + unit[SelectedDrive].disktype->spt*512) {
+ 		/* already read enough data, force an FDC interrupt to stop
+@@ -905,7 +902,7 @@ static void fd_readtrack_check(unsigned 
+ 		 */
+ 		SET_IRQ_HANDLER( NULL );
+ 		restore_flags(flags);
+-		DPRINT(("fd_readtrack_check(): done\n"));
++		DBG("done\n");
+ 		FDC1772_WRITE( FDC1772REG_CMD, FDC1772CMD_FORCI );
+ 		udelay(25);
+ 
+@@ -916,7 +913,7 @@ static void fd_readtrack_check(unsigned 
+ 	} else {
+ 		/* not yet finished, wait another tenth rotation */
+ 		restore_flags(flags);
+-		DPRINT(("fd_readtrack_check(): not yet finished\n"));
++		DBG("not yet finished\n");
+ 		readtrack_timer.expires = jiffies + HZ/5/10;
+ 		add_timer( &readtrack_timer );
+ 	}
+@@ -928,7 +925,7 @@ static void fd_rwsec_done(int status)
+ {
+ 	unsigned int track;
+ 
+-	DPRINT(("fd_rwsec_done() status=%d @ %d\n", status,jiffies));
++	DBG("status=%d @ %d\n", status,jiffies);
+ 
+ #ifdef TRACKBUFFER
+ 	if (read_track && !MultReadInProgress)
+@@ -950,7 +947,7 @@ static void fd_rwsec_done(int status)
+ 			      unit[SelectedDrive].disktype->stretch);
+ 	}
+ 	if (ReqCmd == WRITE && (status & FDC1772STAT_WPROT)) {
+-		printk("fd%d: is write protected\n", SelectedDrive);
++		printk(KERN_ERR "fd%d: floppy is write protected\n", SelectedDrive);
+ 		goto err_end;
+ 	}
+ 	if ((status & FDC1772STAT_RECNF)
+@@ -987,17 +984,17 @@ static void fd_rwsec_done(int status)
+ 			do_fd_action(SelectedDrive);
  			return;
  		}
+-		printk("fd%d: sector %d not found (side %d, track %d)\n",
++		printk(KERN_ERR "fd%d: sector %d not found (side %d, track %d)\n",
+ 		       SelectedDrive, FDC1772_READ(FDC1772REG_SECTOR), ReqSide, ReqTrack);
+ 		goto err_end;
+ 	}
+ 	if (status & FDC1772STAT_CRC) {
+-		printk("fd%d: CRC error (side %d, track %d, sector %d)\n",
++		printk(KERN_ERR "fd%d: CRC error (side %d, track %d, sector %d)\n",
+ 		       SelectedDrive, ReqSide, ReqTrack, FDC1772_READ(FDC1772REG_SECTOR));
+ 		goto err_end;
+ 	}
+ 	if (status & FDC1772STAT_LOST) {
+-		printk("fd%d: lost data (side %d, track %d, sector %d)\n",
++		printk(KERN_ERR "fd%d: lost data (side %d, track %d, sector %d)\n",
+ 		       SelectedDrive, ReqSide, ReqTrack, FDC1772_READ(FDC1772REG_SECTOR));
+ 		goto err_end;
+ 	}
+@@ -1051,7 +1048,7 @@ static void fd_times_out(unsigned long d
+ 	FDC1772_WRITE(FDC1772REG_CMD, FDC1772CMD_FORCI);
+ 	udelay(25);
  
--		DBG("mfm_request:                 before arg extraction\n");
-+		DBG("before arg extraction\n");
+-	printk("floppy timeout\n");
++	printk(KERN_WARNING "floppy timeout\n");
+ 	STOP_TIMEOUT();		/* hmm - should we do this ? */
+ 	fd_error();
+ }
+@@ -1073,7 +1070,7 @@ static void finish_fdc(void)
+ 	if (!NeedSeek) {
+ 		finish_fdc_done(0);
+ 	} else {
+-		DPRINT(("finish_fdc: dummy seek started\n"));
++		DBG("dummy seek started\n");
+ 		FDC1772_WRITE(FDC1772REG_DATA, unit[SelectedDrive].track);
+ 		SET_IRQ_HANDLER(finish_fdc_done);
+ 		FDC1772_WRITE(FDC1772REG_CMD, FDC1772CMD_SEEK);
+@@ -1091,7 +1088,7 @@ static void finish_fdc_done(int dummy)
+ {
+ 	unsigned long flags;
  
- 		disk = CURRENT->rq_disk;
- 		block = CURRENT->sector;
- 		nsect = CURRENT->nr_sectors;
- 		if (block >= get_capacity(disk) ||
- 		    block+nsect > get_capacity(disk)) {
--			printk("%s: bad access: block=%d, count=%d, nr_sects=%ld\n",
-+			printk(KERN_ERR "%s: bad access: block=%d, count=%d, nr_sects=%ld\n",
- 			       disk->disk_name, block, nsect, get_capacity(disk));
--			printk("mfm: continue 1\n");
-+			DBG("continue 1\n");
+-	DPRINT(("finish_fdc_done entered\n"));
++	DBG("start\n");
+ 	STOP_TIMEOUT();
+ 	NeedSeek = 0;
+ 
+@@ -1114,7 +1111,7 @@ static void finish_fdc_done(int dummy)
+ 	wake_up(&fdc_wait);
+ 	restore_flags(flags);
+ 
+-	DPRINT(("finish_fdc() finished\n"));
++	DBG("end\n");
+ }
+ 
+ 
+@@ -1194,8 +1191,8 @@ static void setup_req_params(int drive)
+ 	read_track = (ReqCmd == READ && CURRENT->errors == 0);
+ #endif
+ 
+-	DPRINT(("Request params: Si=%d Tr=%d Se=%d Data=%08lx\n", ReqSide,
+-		ReqTrack, ReqSector, (unsigned long) ReqData));
++	DBG("Request params: Si=%d Tr=%d Se=%d Data=%08lx\n", ReqSide,
++		ReqTrack, ReqSector, (unsigned long) ReqData);
+ }
+ 
+ 
+@@ -1204,9 +1201,9 @@ static void redo_fd_request(void)
+ 	int drive, type;
+ 	struct archy_floppy_struct *floppy;
+ 
+-	DPRINT(("redo_fd_request: CURRENT=%p dev=%s CURRENT->sector=%ld\n",
++	DBG("CURRENT=%p dev=%s CURRENT->sector=%ld\n"
+ 		CURRENT, CURRENT ? CURRENT->rq_disk->disk_name : "",
+-		CURRENT ? CURRENT->sector : 0));
++		CURRENT ? CURRENT->sector : 0);
+ 
+ repeat:
+ 
+@@ -1219,7 +1216,7 @@ repeat:
+ 
+ 	if (!floppy->connected) {
+ 		/* drive not connected */
+-		printk("Unknown Device: fd%d\n", drive);
++		printk(KERN_ERR "Unknown Device: fd%d\n", drive);
+ 		end_request(CURRENT, 0);
+ 		goto repeat;
+ 	}
+@@ -1234,7 +1231,7 @@ repeat:
+ 		/* user supplied disk type */
+ 		--type;
+ 		if (type >= NUM_DISK_TYPES) {
+-			printk("fd%d: invalid disk format", drive);
++			printk(KERN_ERR "fd%d: invalid disk format", drive);
  			end_request(CURRENT, 0);
- 			Busy = 0;
- 			continue;
-@@ -930,25 +910,25 @@ static void mfm_request(void)
- 		Copy_buffer = CURRENT->buffer;
- 		Copy_Sector = CURRENT->sector << 1;
- 
--		DBG("mfm_request: block after offset=%d\n", block);
-+		DBG("block after offset=%d\n", block);
- 
- 		if (CURRENT->cmd != READ && CURRENT->cmd != WRITE) {
--			printk("unknown mfm-command %d\n", CURRENT->cmd);
-+			printk(KERN_ERR "unknown mfm-command %d\n", CURRENT->cmd);
- 			end_request(CURRENT, 0);
- 			Busy = 0;
--			printk("mfm: continue 4\n");
-+			DBG("continue 4\n");
- 			continue;
+ 			goto repeat;
  		}
- 		issue_request(block, nsect, CURRENT);
- 
- 		break;
- 	}
--	DBG("mfm_request: Dropping out bottom\n");
-+	DBG("Dropping out bottom\n");
- }
- 
- static void do_mfm_request(request_queue_t *q)
+@@ -1280,7 +1277,7 @@ static void do_fd_request(request_queue_
  {
--	DBG("do_mfm_request: about to mfm_request\n");
-+	DBG("about to mfm_request\n");
- 	mfm_request();
+ 	unsigned long flags;
+ 
+-	DPRINT(("do_fd_request for pid %d\n", current->pid));
++	DBG("pid %d\n", current->pid);
+ 	if (fdc_busy) return;
+ 	save_flags(flags);
+ 	cli();
+@@ -1359,7 +1356,7 @@ static int fd_test_drive_present(int dri
+ 	unsigned char status;
+ 	int ok;
+ 
+-	printk("fd_test_drive_present %d\n", drive);
++	DBG("drive %d\n", drive);
+ 	if (drive > 1)
+ 		return (0);
+ 	return (1);		/* Simple hack for the moment - the autodetect doesn't seem to work on arc */
+@@ -1397,15 +1394,15 @@ static int fd_test_drive_present(int dri
+ 		/* dummy seek command to make WP bit accessible */
+ 		FDC1772_WRITE(FDC1772REG_DATA, 0);
+ 		FDC1772_WRITE(FDC1772REG_CMD, FDC1772CMD_SEEK);
+-		printk("fd_test_drive_present: just before wait for int\n");
++		DBG("just before wait for int\n");
+ 		/* DAG: Guess means wait for interrupt */
+ 		while (!(ioc_readb(IOC_FIQSTAT) & 2));
+-		printk("fd_test_drive_present: just after wait for int\n");
++		DBG("just after wait for int\n");
+ 		status = FDC1772_READ(FDC1772REG_STATUS);
+ 	}
+-	printk("fd_test_drive_present: just before ENABLE_IRQ\n");
++	DBG("just before ENABLE_IRQ\n");
+ 	ENABLE_IRQ();
+-	printk("fd_test_drive_present: about to return\n");
++	DBG("about to return\n");
+ 	return (ok);
  }
  
-@@ -958,7 +938,7 @@ static void mfm_interrupt_handler(int un
- 
- 	do_mfm = NULL;
- 
--	DBG("mfm_interrupt_handler (handler=0x%p)\n", handler);
-+	DBG("(handler=0x%p)\n", handler);
- 
- 	mfm_status = inw(MFM_STATUS);
- 
-@@ -978,7 +958,7 @@ static void mfm_interrupt_handler(int un
- 		return;
- 	}
- 	outw (CMD_RCAL, MFM_COMMAND);	/* Clear interrupt condition */
--	printk ("mfm: unexpected interrupt - status = ");
-+	printk (KERN_WARNING PFX "unexpected interrupt - status = ");
- 	print_status ();
- 	while (1);
- }
-@@ -996,7 +976,7 @@ static void mfm_geometry(int drive)
- 	struct gendisk *disk = mfm_gendisk[drive];
- 	disk->private_data = p;
- 	if (p->cylinders)
--		printk ("%s: %dMB CHS=%d/%d/%d LCC=%d RECOMP=%d\n",
-+		pr_info ("%s: %dMB CHS=%d/%d/%d LCC=%d RECOMP=%d\n",
- 			disk->disk_name,
- 			p->cylinders * p->heads * p->sectors / 4096,
- 			p->cylinders, p->heads, p->sectors,
-@@ -1108,7 +1088,8 @@ static int mfm_initdrives(void)
- 
- 	if (number_mfm_drives > MFM_MAXDRIVES) {
- 		number_mfm_drives = MFM_MAXDRIVES;
--		printk("No. of ADFS MFM drives is greater than MFM_MAXDRIVES - you can't have that many!\n");
-+		printk(KERN_WARNING "No. of ADFS MFM drives is greater than "
-+			"MFM_MAXDRIVES - you can't have that many!\n");
- 	}
- 
- 	for (drive = 0; drive < number_mfm_drives; drive++) {
-@@ -1199,7 +1180,7 @@ void xd_set_geometry(struct block_device
- 		p->cylinders = discsize / (secsptrack * heads * secsize);
- 
- 		if ((heads < 1) || (p->cylinders > 1024)) {
--			printk("%s: Insane disc shape! Setting to 512/4/32\n",
-+			printk(KERN_WARNING "%s: Insane disc shape! Setting to 512/4/32\n",
- 				bdev->bd_disk->disk_name);
- 
- 			/* These values are fairly arbitary, but are there so that if your
-@@ -1260,7 +1241,7 @@ static int mfm_do_init(unsigned char irq
+@@ -1418,14 +1415,15 @@ static void config_types(void)
  {
- 	int i, ret;
+ 	int drive, cnt = 0;
  
--	printk("mfm: found at address %08X, interrupt %d\n", mfm_addr, mfm_irq);
-+	pr_info(PFX "controller found at address %08X, interrupt %d\n", mfm_addr, mfm_irq);
+-	printk("Probing floppy drive(s):\n");
++	pr_info("Probing floppy drive(s):");
+ 	for (drive = 0; drive < FD_MAX_UNITS; drive++) {
+ 		fd_probe(drive);
+ 		if (unit[drive].connected) {
+-			printk("fd%d\n", drive);
++			printk(" fd%d", drive);
+ 			++cnt;
+ 		}
+ 	}
++	printk ("\n");
  
- 	ret = -EBUSY;
- 	if (!request_region (mfm_addr, 10, "mfm"))
-@@ -1299,11 +1280,11 @@ static int mfm_do_init(unsigned char irq
- 		mfm_gendisk[i] = disk;
+ 	if (FDC1772_READ(FDC1772REG_STATUS) & FDC1772STAT_BUSY) {
+ 		/* If FDC1772 is still busy from probing, give it another FORCI
+@@ -1495,7 +1493,7 @@ static int floppy_release(struct inode *
+ 	if (fd_ref[drive] < 0)
+ 		fd_ref[drive] = 0;
+ 	else if (!fd_ref[drive]--) {
+-		printk("floppy_release with fd_ref == 0");
++		printk(KERN_WARNING "floppy_release with fd_ref == 0\n");
+ 		fd_ref[drive] = 0;
  	}
  
--	printk("mfm: detected %d hard drive%s\n", mfm_drives,
-+	pr_info(PFX "detected %d hard drive%s\n", mfm_drives,
- 				mfm_drives == 1 ? "" : "s");
- 	ret = request_irq(mfm_irq, mfm_interrupt_handler, SA_INTERRUPT, "MFM harddisk", NULL);
- 	if (ret) {
--		printk("mfm: unable to get IRQ%d\n", mfm_irq);
-+		printk(KERN_ERR PFX "unable to get IRQ%d\n", mfm_irq);
- 		goto out4;
- 	}
+@@ -1540,12 +1538,12 @@ int fd1772_init(void)
+ 
+ 	err = -EBUSY;
+ 	if (request_dma(FLOPPY_DMA, "fd1772")) {
+-		printk("Unable to grab DMA%d for the floppy (1772) driver\n", FLOPPY_DMA);
++		printk(KERN_ERR "Unable to grab DMA%d for the floppy (1772) driver\n", FLOPPY_DMA);
+ 		goto err_blkdev;
+ 	};
+ 
+ 	if (request_dma(FIQ_FD1772, "fd1772 end")) {
+-		printk("Unable to grab DMA%d for the floppy (1772) driver\n", FIQ_FD1772);
++		printk(KERN_ERR "Unable to grab DMA%d for the floppy (1772) driver\n", FIQ_FD1772);
+ 		goto err_dma1;
+ 	};
  
 _

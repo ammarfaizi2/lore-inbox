@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbUK3Dir@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261966AbUK3DqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbUK3Dir (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 22:38:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbUK3Dir
+	id S261966AbUK3DqB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 22:46:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbUK3DqB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 22:38:47 -0500
-Received: from holomorphy.com ([207.189.100.168]:47510 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261965AbUK3Dip (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 22:38:45 -0500
-Date: Mon, 29 Nov 2004 19:38:26 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, linux-kernel@vger.kernel.org,
-       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
-       Keir.Fraser@cl.cam.ac.uk, "David S. Miller" <davem@redhat.com>
-Subject: Re: [4/7] Xen VMM patch set : /dev/mem io_remap_page_range for CONFIG_XEN
-Message-ID: <20041130033826.GF2714@holomorphy.com>
-References: <E1CVHzW-0004XC-00@mta1.cl.cam.ac.uk> <E1CVI5c-0004bf-00@mta1.cl.cam.ac.uk> <20041130030812.GN4365@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041130030812.GN4365@dualathlon.random>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 29 Nov 2004 22:46:01 -0500
+Received: from twinlark.arctic.org ([168.75.98.6]:63619 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP id S261966AbUK3Dp4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 22:45:56 -0500
+Date: Mon, 29 Nov 2004 19:45:55 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: efficeon and longrun
+In-Reply-To: <cogd81$2nt$1@terminus.zytor.com>
+Message-ID: <Pine.LNX.4.61.0411291835500.18845@twinlark.arctic.org>
+References: <16810.26231.936086.930240@metzlerbros.de> <cogd81$2nt$1@terminus.zytor.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 19, 2004 at 11:22:51PM +0000, Ian Pratt wrote:
->> This patch modifies /dev/mem to call io_remap_page_range rather than
->> remap_pfn_range under CONFIG_XEN.  This is required because in arch
+On Tue, 30 Nov 2004, H. Peter Anvin wrote:
 
-On Tue, Nov 30, 2004 at 04:08:12AM +0100, Andrea Arcangeli wrote:
-> Why don't we change /dev/mem to use io_remap_page_range unconditionally
-> for ranges above high_memory? Clearly io_remap_page_range can map device
-> space, and I guess that's what io_remap_page_range is there for. sparc
-> and sparc64 are the only two ones implementing io_remap_page_range, so
-> maybe Dave or Wli can tell us if there's any penalty in using
-> io_remap_page_range in mmap(/dev/mmap) for phys ranges above
-> high_memory. I don't know the sparc architectural details of mk_pte_io
-> invoked by io_remap_page_range of the sparc arch.
-> There's also an issue with io_remap_page_range where sparc has 6 args
-> while everyone else has 5 args. It's perfectly fine that sparc will be
-> the only one parsing the last value, but we should pass that last value
-> to all archs, so that people can avoid writing code like the below
-> (drivers/char/drm):
+> longrun-0.9 is hideously out of date, and was never debugged to begin
+> with.  Given that these days longrun is handled via cpufreq, there
+> doesn't seem to be much reason for the standalone longrun program.
 
-On sparc32, all IO memory is above the 32-bit boundary. So it's
-generally okay for that. The general ongoing work in the
-io_remap_page_range() area to unify the sparc32/sparc64 case with other
-architectures is based in part on the remap_pfn_range() work (as noted
-by davem in another followup).
+the tool still has a place... for folks not using cpufreq/2.6 especially.  
+but also the longrun cpufreq driver is lacking support for 
+scaling_available_frequencies, and doesn't display the voltages anywhere.  
+in most cases the ACPI P-states driver works fine instead though.
 
-Unfortunately the effort to debug the effects of pending changes in
-2.6.10-rc2-mm3 is blocking the io_remap_page_range() work.
+i prefer the tool -- but then my requirements are pretty specific (i don't 
+want cpufreq doing anything i'm not expecting while doing perf/debugging 
+work).
 
-
--- wli
+-dean

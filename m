@@ -1,73 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267055AbRGSI2x>; Thu, 19 Jul 2001 04:28:53 -0400
+	id <S267483AbRGSIsR>; Thu, 19 Jul 2001 04:48:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267062AbRGSI2o>; Thu, 19 Jul 2001 04:28:44 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:38414 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S267055AbRGSI22>;
-	Thu, 19 Jul 2001 04:28:28 -0400
-Date: Thu, 19 Jul 2001 12:28:26 +0400
-To: Martin Vogt <mvogt@rhrk.uni-kl.de>
+	id <S267486AbRGSIsI>; Thu, 19 Jul 2001 04:48:08 -0400
+Received: from grobbebol.xs4all.nl ([194.109.248.218]:28767 "EHLO
+	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S267483AbRGSIsA>; Thu, 19 Jul 2001 04:48:00 -0400
+Date: Thu, 19 Jul 2001 08:47:40 +0000
+From: "Roeland Th. Jansen" <bengel@grobbebol.xs4all.nl>
+To: bug-sh-utils@gnu.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.6 segfault in scsi sr.c
-Message-ID: <20010719122826.A10075@orbita1.ru>
-In-Reply-To: <20010719095750.B36012@rhrk.uni-kl.de>
+Subject: who command misses tty1..kernel or sh-utils ?
+Message-ID: <20010719084740.A3717@grobbebol.xs4all.nl>
+Reply-To: roel@grobbebol.xs4all.nl
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010719095750.B36012@rhrk.uni-kl.de>; from mvogt@rhrk.uni-kl.de on Thu, Jul 19, 2001 at 09:57:50AM +0200
-X-Uptime: 12:05pm  up 2 days,  2:41,  2 users,  load average: 0.03, 0.07, 0.01
-X-Uname: Linux orbita1.ru 2.2.20pre2-acl
-From: pazke@orbita1.ru
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+who (GNU sh-utils) 2.0
+Written by Joseph Arceneaux and David MacKenzie.
 
-On Thu, Jul 19, 2001 at 09:57:50AM +0200, Martin Vogt wrote:
->=20
->=20
-> In line 604 begins a switch statement:
->=20
->                 switch (sector_size) {
->                 case 0:  =20
+Copyright (C) 1999 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-WILD GUESS: why not insert 'case 2336:' here ?
 
->                 case 2340:
->                 case 2352:
->                         sector_size =3D 2048;
->                         /* fall through */
->                 case 2048:
->                         scsi_CDs[i].capacity *=3D 4;
->                         /* fall through */
->                 case 512:
->                         break;
->                 default:
-> kernel message -->      printk("sr%d: unsupported sector size %d.\n",
+who seems to loose interest in the fact that tty1 is also being used.
 
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
+initially i's shown after a restart but after a while it is missed.
+maybe a kernel problem, maybe not :
 
---0OAP2g/MAC+5xKAE
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+grobbebol:~ $ w
+  8:42am  up 4 days,  4:42,  6 users,  load average: 0.34, 0.18, 0.06
+USER     TTY      FROM              LOGIN@   IDLE   JCPU   PCPU  WHAT
+root     tty2     -                Mon 9am 38.00s  0.82s  0.69s  -bash
+bengel   tty3     -                Sun10pm  0.00s  7.21s  0.04s  w
+bengel   tty4     -                Sun 4am 11.00s  0.45s  0.12s  mutt
+bengel   tty5     -                Sun11pm  1:59  26.06s 25.88s  tin
+bengel   tty6     -                Mon 9am  7:24   0.24s  0.15s  -bash
+roel     tty8     -                Sun10pm 23:39m  4.33s  4.17s  mutt
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+grobbebol:~ $ who
+root     tty2     Jul 16 09:01
+bengel   tty3     Jul 15 22:46
+bengel   tty4     Jul 15 04:13
+bengel   tty5     Jul 15 23:01
+bengel   tty6     Jul 16 09:19
+roel     tty8     Jul 15 22:31
 
-iD8DBQE7VpopBm4rlNOo3YgRAoLyAKCBjD/kVzkecl5s5MuXo93gP+JDJQCfUH0L
-XZdHetwnC+Y4n8Goh7bgG4U=
-=SnJX
------END PGP SIGNATURE-----
+I have seen this with many, if not all 2.4 kernels. this is 2.4.6.
+tty1 _is_ active :
 
---0OAP2g/MAC+5xKAE--
+[....]
+root      3857  0.0  0.4  2812 1120 tty1     R    08:46   0:00 ps aux
+
+so.. kernel problem or sh-utils ?
+
+Linux grobbebol 2.4.6 #1 SMP Wed Jul 4 18:13:45 GMT 2001 i686 unknown
+
+-- 
+Grobbebol's Home                     |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel         | Use your real e-mail address   /\
+Linux 2.4.6.(apic) SMP 466MHz/256 MB |        on Usenet.             _\_v  

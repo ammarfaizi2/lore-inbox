@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318155AbSIOSXt>; Sun, 15 Sep 2002 14:23:49 -0400
+	id <S318158AbSIOS1J>; Sun, 15 Sep 2002 14:27:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318158AbSIOSXt>; Sun, 15 Sep 2002 14:23:49 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:8467 "EHLO probity.mcc.ac.uk")
-	by vger.kernel.org with ESMTP id <S318155AbSIOSXs>;
-	Sun, 15 Sep 2002 14:23:48 -0400
-Date: Sun, 15 Sep 2002 19:28:38 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: vesafb one pixel left?!
-Message-ID: <20020915182838.GA84263@compsoc.man.ac.uk>
-References: <20020915181632.GA188@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020915181632.GA188@elf.ucw.cz>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *17qe8M-0000uG-00*pPPUjYydQuw* (Manchester Computing, University of Manchester)
+	id <S318161AbSIOS1J>; Sun, 15 Sep 2002 14:27:09 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18695 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318158AbSIOS1I>; Sun, 15 Sep 2002 14:27:08 -0400
+Date: Sun, 15 Sep 2002 11:32:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] thread-exec-2.5.34-B1, BK-curr
+In-Reply-To: <Pine.LNX.4.44.0209151902560.7866-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0209151128580.10830-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 15, 2002 at 08:16:32PM +0200, Pavel Machek wrote:
 
-> Hi!
+On Sun, 15 Sep 2002, Ingo Molnar wrote:
 > 
-> On 2.5.34 I noticed that one pixel at the left was missing. I switched
-> consoles and problem went away. Weird.
+> the attached patch (against BK-curr + all my previous patches) implements
+> one of the last missing POSIX threading details - exec() semantics.
 
-I have had pixel droppings and missing pixels with vesafb for as long as
-I remember (that is, years)
+Ingo, can you create a test-case to verify that a new-style thread can
+sanely do
 
-regards
-john
--- 
-"Be advised. Your bedroom may quietly detach from the house while you sleep."
-	- Sarah Bee
+	if (!vfork())
+		execve();
+	thread_exit();
+
+which leaves the other threads alive and well and is reasonably 
+efficient..
+
+I don't personally much like the POSIX execve() behaviour, and I'd like to 
+make sure that it can be avoided for cases where that makes sense (ie a 
+threaded app that wants to start some other helper program should be able 
+to do so).
+
+		Linus
+

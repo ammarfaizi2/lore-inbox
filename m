@@ -1,116 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262369AbTEVARd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 20:17:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTEVARd
+	id S262378AbTEVATI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 20:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbTEVATI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 20:17:33 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:4777 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262369AbTEVARa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 20:17:30 -0400
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-cc: jamesclv@us.ibm.com, haveblue@us.ibm.com, pbadari@us.ibm.com,
-       linux-kernel@vger.kernel.org, johnstul@us.ibm.com, mannthey@us.ibm.com
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: userspace irq balancer 
-In-reply-to: Your message of Wed, 21 May 2003 14:43:18 PDT.
-             <3014AAAC8E0930438FD38EBF6DCEB5640204334F@fmsmsx407.fm.intel.com> 
+	Wed, 21 May 2003 20:19:08 -0400
+Received: from mail.casabyte.com ([209.63.254.226]:25102 "EHLO
+	mail.1casabyte.com") by vger.kernel.org with ESMTP id S262378AbTEVATG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 20:19:06 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: <root@chaos.analogic.com>, "Helge Hafting" <helgehaf@aitel.hist.no>,
+       "Linux kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: recursive spinlocks. Shoot.
+Date: Wed, 21 May 2003 17:32:00 -0700
+Message-ID: <PEEPIDHAKMCGHDBJLHKGAEIFCMAA.rwhite@casabyte.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <5155.1053563385.1@us.ibm.com>
-Date: Wed, 21 May 2003 17:29:45 -0700
-Message-Id: <E19Idxq-0001LD-00@w-gerrit2>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20030522001358.GB14406@parcelfarce.linux.theplanet.co.uk>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yeah, I suppose this userland policy change means we should pull
-the scheduler policy decisions out of the kernel and write user level
-HT, NUMA, SMP and UP schedulers.  Also, the IO schedulers should
-probably be pulled out - I'm sure AS and CFQ and linus_scheduler
-could be user land policies, as well as the elevator.  Memory
-placement and swapping policies, too.
+yep, I kind of figured that was going to happen... (doh! 8-)
 
-Oh, wait, some people actually do this - they call it, what,
-Workload Management or some such thing.  But I don't know any
-style of workload management that leaves *no* default, semi-sane
-policy in the kernel.
+(I was groping for the example without my references at hand.  My bad for
+crediting someone with willingness to reason when I know they deliberately
+do not want to get the point...  My apologies to the rest of the list
+here... 8-)
 
-gerrit
+Did my error in routine selection render you so fixated on counting coup
+that you TOTALLY missed the point about aggregation of operations?
 
-On Wed, 21 May 2003 14:43:18 PDT, "Nakajima, Jun" wrote:
-> Again, since the userland is using /proc/irq/N/smp_affinity, the
-> in-kernel one won't touch whatever settings done by the userlannd. So
-> I don't think we have issues here - if the userland has more knowledge,
-> then it simply uses binding. If not, use the generic but dumb one in the
-> kernel. Same thing as scheduling. If the dumb one has a critical problem,
-> we should fix it.
-> 
-> At the same time, I don't believe a single almighty userland policy
-> exists, either. One might need to write or modify his program to do the
-> best for the system anyway. Or a very simple script might just work fine.
-> 
-> Jun
-> > -----Original Message-----
-> > From: James Cleverdon [mailto:jamesclv@us.ibm.com]
-> > Sent: Wednesday, May 21, 2003 7:27 AM
-> > To: David S. Miller; akpm@digeo.com
-> > Cc: arjanv@redhat.com; haveblue@us.ibm.com; wli@holomorphy.com;
-> > pbadari@us.ibm.com; linux-kernel@vger.kernel.org; gh@us.ibm.com;
-> > johnstul@us.ibm.com; mannthey@us.ibm.com
-> > Subject: Re: userspace irq balancer
-> > 
-> > On Tuesday 20 May 2003 05:22 pm, David S. Miller wrote:
-> > >    From: Andrew Morton <akpm@digeo.com>
-> > >    Date: Tue, 20 May 2003 02:17:12 -0700
-> > >
-> > >    Concerns have been expressed that the /proc interface may be a bit
-> > racy.
-> > >    One thing we do need to do is to write a /proc stresstest tool which
-> > > pokes numbers into the /proc files at high rates, run that under traffic
-> > > for a few hours.
-> > >
-> > > This issue is %100 independant of whether policy belongs in the
-> > > kernel or not.  Also, the /proc race problem exists and should be
-> > > fixed regardless.
-> > >
-> > >    Nobody has tried improving the current balancer.
-> > >
-> > > Policy does not belong in the kernel.  I don't care what algorithm
-> > > people decide to use, but such decisions do NOT belong in the kernel.
-> > 
-> > You keep saying that, but suppose I want to try HW IRQ balancing using the
-> > TPR
-> > registers.  How could I do that from userspace?  And if I could, wouldn't
-> > the
-> > benefit of real time IRQ routing be lost?
-> > 
-> > It seems to me that only long term interrupt policy can be done from
-> > userland.
-> > Anything that does fast responses to fluctuating load must be inside the
-> > kernel.
-> > 
-> > At the moment we don't do any fast IRQ policy.  Even the original
-> > irq_balance
-> > only looked for idle CPUs after an interrupt was serviced.  However,
-> > suppose
-> > you had a P4 with hyperthreading turned on.  If an IRQ is to be delivered
-> > to
-> > the main thread but it is busy and its sibling is idle, why shouldn't we
-> > deliver the interrupt to the idle sibling?  They both share the same
-> > caches,
-> > etc, so cache warmth isn't a problem.
-> > 
-> > --
-> > James Cleverdon
-> > IBM xSeries Linux Solutions
-> > {jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+I bet it did...
+
+/sigh
+
+-----Original Message-----
+From: viro@www.linux.org.uk [mailto:viro@www.linux.org.uk]On Behalf Of
+viro@parcelfarce.linux.theplanet.co.uk
+Sent: Wednesday, May 21, 2003 5:14 PM
+To: Robert White
+Cc: root@chaos.analogic.com; Helge Hafting; Linux kernel
+Subject: Re: recursive spinlocks. Shoot.
+
+
+On Wed, May 21, 2003 at 02:56:12PM -0700, Robert White wrote:
+> Lets say I have a file system with a perfectly implemented unlink and a
+> perfectly implemented rename.  Both of these routines need to exist
+exactly
+> as they are.  Both of these routines need to lock the vfs dentry subsystem
+> (look it up.)
+
+_Do_ look it up.  Neither ->unlink() nor ->rename() need to do anything with
+any sort of dentry locking or modifications.
+
+Illustrates the point rather nicely, doesn't it?  What was that about
+taking locks out of laziness and ignorance, again?  2%?  You really
+like to feel yourself a member of select group...
+
+Unfortunately, that group is nowhere near that select - look up the
+Sturgeon's Law somewhere.  90% of anything and all such...
+

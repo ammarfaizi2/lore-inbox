@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316672AbSEVSsj>; Wed, 22 May 2002 14:48:39 -0400
+	id <S316675AbSEVSuD>; Wed, 22 May 2002 14:50:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316675AbSEVSsi>; Wed, 22 May 2002 14:48:38 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:17544
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S316672AbSEVSsh>; Wed, 22 May 2002 14:48:37 -0400
-Date: Wed, 22 May 2002 11:47:22 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.17 IDE 67
-Message-ID: <20020522184722.GB5575@opus.bloom.county>
-In-Reply-To: <3CEB466B.3090604@evision-ventures.com> <20020522171329.GG1209@opus.bloom.county> <3CEBC576.4060703@evision-ventures.com> <20020522173137.GH1209@opus.bloom.county> <3CEBC9EE.2090701@evision-ventures.com>
-Mime-Version: 1.0
+	id <S316680AbSEVSuC>; Wed, 22 May 2002 14:50:02 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:18640 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316675AbSEVSuA>;
+	Wed, 22 May 2002 14:50:00 -0400
+Date: Wed, 22 May 2002 11:48:00 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        "M. Edward Borasky" <znmeb@aracnet.com>, linux-kernel@vger.kernel.org,
+        andrea@suse.de, akpm@zip.com.au
+Subject: Re: Have the 2.4 kernel memory management problems on large machines been fixed?
+Message-ID: <372130000.1022093280@flay>
+In-Reply-To: <Pine.LNX.4.44L.0205221528070.14140-100000@imladris.surriel.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 22, 2002 at 06:40:14PM +0200, Martin Dalecki wrote:
-> Uz.ytkownik Tom Rini napisa?:
-> >
-> >And when the PPC4xx drivers are ready to be submitted we'll need to add
-> >in __powerpc__ tests too.  Can't we just keep CONFIG_DMA_NONPCI for now?
+>> don't want to upgrade your CPU's, it's a _whole_ lot easier to just have a
+>> magic "map_large_page()" system call, and start using the 2MB page support
+>> of the x86.
+>> 
+>> And no, this should NOT be a mmap.
+>> 
+>> It's a magic x86-only system call,
 > 
-> Plese feel free to add them when and where they are needed.
-> It's no problem to clean this all up
-> then again if a true usage pattern emerges.
-> And I have no problem with patches toching "core" driver stuff as long
-> as the changes are justified I will integrate them with pleasure at time.
+>> Making the _generic_ code jump through hoops because some stupid special
+>> case that nobody else is interested in is bad.
+> 
+> Actually, I suspect that MIPS, x86-64 and other
+> architectures are also interested ...
 
-Okay. :)
+Indeed. Even if you happen to have a spare 10Gb of RAM, and can address it
+efficiently, that's still no reason to blow it on mindless copies of data ;-)
 
-BTW, maybe it's part of the great IDE rewrite and all, but the
-CONFIG_DMA_NONPCI part of drivers/ide/ide.c didn't get a __CRIS__ added
-back in.
+M.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/

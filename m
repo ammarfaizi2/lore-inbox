@@ -1,112 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269008AbUIMWqd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269037AbUIMWte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269008AbUIMWqd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 18:46:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269027AbUIMWqG
+	id S269037AbUIMWte (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 18:49:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269026AbUIMWs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 18:46:06 -0400
-Received: from itapoa.terra.com.br ([200.154.55.227]:40838 "EHLO
-	itapoa.terra.com.br") by vger.kernel.org with ESMTP id S269024AbUIMWjj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 18:39:39 -0400
-Date: Mon, 13 Sep 2004 18:43:50 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@conectiva.com.br>
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] - remove ugly code from usb/serial/usb-serial.c.
-Message-Id: <20040913184350.44788366.lcapitulino@conectiva.com.br>
-Organization: Conectiva S/A.
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-conectiva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 13 Sep 2004 18:48:29 -0400
+Received: from mail03.powweb.com ([66.152.97.36]:62730 "EHLO mail03.powweb.com")
+	by vger.kernel.org with ESMTP id S269034AbUIMWr7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 18:47:59 -0400
+From: "David Dabbs" <david@dabbs.net>
+To: "'ReiserFS List'" <reiserfs-list@namesys.com>,
+       <linux-kernel@vger.kernel.org>
+Cc: <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: RE: Re: [PATCH] use S_ISDIR() in link_path_walk() to decide whether the last path component is a directory
+Date: Mon, 13 Sep 2004 17:47:50 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: 
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Thread-Index: AcSZ2Wr/B6Nedt+kRzGeuLC3soNW6QACF4lQ
+Message-Id: <20040913224757.B2EAC15C76@mail03.powweb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
- Greg,
+> viro wrote:
+>>     if (*name == '/') {
+>>        if (*(name+1)=='/' && *(name+2)==':') {
+>>           name+=3;
+>
+>	Pathname resolution is a hell of a fundamental thing and kludges
+>like that are too ugly to be acceptable.  If you can't make that clean
+>and have to resort to stuffing "special cases" (read: barfbag of ioctl
+>magnitude) into the areas that might be unspecified by POSIX, don't do it
+>at all.
+>
 
- This patch removes ugly code from some function in usb/serial/usb-serial.c
-which is using a goto statement intead of a simple `return'.
+Even though SuS allows for implementation-specific resolution for pathnames
+starting with "//"? It's kludgy, and I suspected that might be the response,
+but I thought I'd float it nonetheless.
 
- To be true, I'm not certain if there is a special reason to do that, if so
-ignore me. ;)
+>I don't like the amount of handwaving from Hans, but *that* is far
+>worse.  Vetoed.
+
+Kludgy, yes, but far worse?  At least I bothered to take the SuS into
+consideration and took the time to try an approach, however kludgy, that
+might work within them. 
+
+Bilious or not, thanks for the feedback.
 
 
-Signed-off-by: Luiz Capitulino <lcapitulino@conectiva.com.br>
-
- drivers/usb/serial/usb-serial.c |   20 ++++----------------
- 1 files changed, 4 insertions(+), 16 deletions(-)
+david
 
 
-diff -X /home/capitulino/kernels/2.6/dontdiff -Nparu a/drivers/usb/serial/usb-serial.c a~/drivers/usb/serial/usb-serial.c
---- a/drivers/usb/serial/usb-serial.c	2004-09-12 18:36:22.000000000 -0300
-+++ a~/drivers/usb/serial/usb-serial.c	2004-09-12 18:47:32.000000000 -0300
-@@ -621,15 +621,12 @@ static void serial_throttle (struct tty_
- 
- 	if (!port->open_count) {
- 		dbg ("%s - port not open", __FUNCTION__);
--		goto exit;
-+		return;
- 	}
- 
- 	/* pass on to the driver specific version of this function */
- 	if (port->serial->type->throttle)
- 		port->serial->type->throttle(port);
--
--exit:
--	;
- }
- 
- static void serial_unthrottle (struct tty_struct * tty)
-@@ -640,15 +637,12 @@ static void serial_unthrottle (struct tt
- 
- 	if (!port->open_count) {
- 		dbg("%s - port not open", __FUNCTION__);
--		goto exit;
-+		return;
- 	}
- 
- 	/* pass on to the driver specific version of this function */
- 	if (port->serial->type->unthrottle)
- 		port->serial->type->unthrottle(port);
--
--exit:
--	;
- }
- 
- static int serial_ioctl (struct tty_struct *tty, struct file * file, unsigned int cmd, unsigned long arg)
-@@ -681,15 +675,12 @@ static void serial_set_termios (struct t
- 
- 	if (!port->open_count) {
- 		dbg("%s - port not open", __FUNCTION__);
--		goto exit;
-+		return;
- 	}
- 
- 	/* pass on to the driver specific version of this function if it is available */
- 	if (port->serial->type->set_termios)
- 		port->serial->type->set_termios(port, old);
--
--exit:
--	;
- }
- 
- static void serial_break (struct tty_struct *tty, int break_state)
-@@ -700,15 +691,12 @@ static void serial_break (struct tty_str
- 
- 	if (!port->open_count) {
- 		dbg("%s - port not open", __FUNCTION__);
--		goto exit;
-+		return;
- 	}
- 
- 	/* pass on to the driver specific version of this function if it is available */
- 	if (port->serial->type->break_ctl)
- 		port->serial->type->break_ctl(port, break_state);
--
--exit:
--	;
- }
- 
- static int serial_read_proc (char *page, char **start, off_t off, int count, int *eof, void *data)

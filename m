@@ -1,128 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318473AbSH1S0J>; Wed, 28 Aug 2002 14:26:09 -0400
+	id <S318891AbSH1S1R>; Wed, 28 Aug 2002 14:27:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318349AbSH1S0I>; Wed, 28 Aug 2002 14:26:08 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:9742 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S318284AbSH1S0F>; Wed, 28 Aug 2002 14:26:05 -0400
-Date: Wed, 28 Aug 2002 11:28:32 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: ide-2.4.20-pre4-ac2.patch
-In-Reply-To: <20020828182616.GA16018@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.10.10208281126560.24156-100000@master.linux-ide.org>
+	id <S318813AbSH1S1Q>; Wed, 28 Aug 2002 14:27:16 -0400
+Received: from pat.uio.no ([129.240.130.16]:42884 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S318626AbSH1S0i>;
+	Wed, 28 Aug 2002 14:26:38 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15725.5853.229315.140365@charged.uio.no>
+Date: Wed, 28 Aug 2002 20:30:53 +0200
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: Re: problems with changing UID/GID
+In-Reply-To: <19220000.1030544663@baldur.austin.ibm.com>
+References: <Pine.LNX.4.44.0208260855480.3234-100000@hawkeye.luckynet.adm>
+	<shsvg5wqemp.fsf@charged.uio.no>
+	<20020827200110.GB8985@tapu.f00f.org>
+	<200208280009.03090.trond.myklebust@fys.uio.no>
+	<19220000.1030544663@baldur.austin.ibm.com>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Dave McCracken <dmccr@us.ibm.com> writes:
 
-Big jump in clean up and debloating.
-If you try the patch and it repeats, you can re-LART me.
+     > Shouldn't the Linux cred structure include the capabilities, as
+     > well?  What about places that want to see both uid and euid?
+     > Shouldn't euid/egid also be in the structure?  I realize that
+     > for file operations they're not strictly necessary, but we
+     > should make the structure useful across all parts of the kernel
+     > that want to see credentials.
 
-On Wed, 28 Aug 2002, Tomas Szepe wrote:
+The BSD approach is to split out the user credentials, since they are
+used all over the place in the filesystems, and often need to be
+cached. The uid, euid, ... are kept in a reference-counted 'process'
+credential of the form
 
-> > WHOA Tomas,
-> > 
-> > That is a major problem, are you using legacy patch or taskfile io?
-> > Ben H reported he was having problems with legacy path on PPC, but the new
-> > taskfile io worked fine.
-> 
-> Damn! Andre, I owe you **A BIG** apology -- it turns out the kernel that
-> caused the mess was actually a plain 2.4.20-pre4-ac2 _without_ your patch
-> applied -- dunno how far that is from what you have now. Nevertheless,
-> here's the corresponding 2.4.20-pre4-ac2 IDE config:
-> 
-> #
-> # IDE chipset support/bugfixes
-> #
-> # CONFIG_BLK_DEV_CMD640 is not set
-> # CONFIG_BLK_DEV_CMD640_ENHANCED is not set
-> # CONFIG_BLK_DEV_ISAPNP is not set
-> CONFIG_BLK_DEV_IDEPCI=y
-> CONFIG_BLK_DEV_GENERIC=y
-> CONFIG_IDEPCI_SHARE_IRQ=y
-> CONFIG_BLK_DEV_IDEDMA_PCI=y
-> # CONFIG_BLK_DEV_OFFBOARD is not set
-> # CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-> CONFIG_IDEDMA_PCI_AUTO=y
-> # CONFIG_IDEDMA_ONLYDISK is not set
-> CONFIG_BLK_DEV_IDEDMA=y
-> # CONFIG_IDEDMA_PCI_WIP is not set
-> # CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
-> CONFIG_BLK_DEV_ADMA=y
-> # CONFIG_BLK_DEV_AEC62XX is not set
-> # CONFIG_BLK_DEV_ALI15X3 is not set
-> # CONFIG_WDC_ALI15X3 is not set
-> # CONFIG_BLK_DEV_AMD74XX is not set
-> # CONFIG_AMD74XX_OVERRIDE is not set
-> # CONFIG_BLK_DEV_CMD64X is not set
-> # CONFIG_BLK_DEV_CY82C693 is not set
-> # CONFIG_BLK_DEV_CS5530 is not set
-> # CONFIG_BLK_DEV_HPT34X is not set
-> # CONFIG_HPT34X_AUTODMA is not set
-> # CONFIG_BLK_DEV_HPT366 is not set
-> CONFIG_BLK_DEV_PIIX=y
-> # CONFIG_BLK_DEV_NFORCE is not set
-> # CONFIG_BLK_DEV_NS87415 is not set
-> # CONFIG_BLK_DEV_OPTI621 is not set
-> # CONFIG_BLK_DEV_PDC202XX_OLD is not set
-> # CONFIG_PDC202XX_BURST is not set
-> CONFIG_BLK_DEV_PDC202XX_NEW=y
-> # CONFIG_PDC202XX_FORCE is not set
-> # CONFIG_BLK_DEV_RZ1000 is not set
-> # CONFIG_BLK_DEV_SVWKS is not set
-> # CONFIG_BLK_DEV_SIIMAGE is not set
-> # CONFIG_BLK_DEV_SIS5513 is not set
-> # CONFIG_BLK_DEV_SLC90E66 is not set
-> # CONFIG_BLK_DEV_TRM290 is not set
-> # CONFIG_BLK_DEV_VIA82CXXX is not set
-> # CONFIG_IDE_CHIPSETS is not set
-> CONFIG_IDEDMA_AUTO=y
-> # CONFIG_IDEDMA_IVB is not set
-> # CONFIG_DMA_NONPCI is not set
-> CONFIG_BLK_DEV_PDC202XX=y
-> CONFIG_BLK_DEV_IDE_MODES=y
-> # CONFIG_BLK_DEV_ATARAID is not set
-> # CONFIG_BLK_DEV_ATARAID_PDC is not set
-> # CONFIG_BLK_DEV_ATARAID_HPT is not set
-> 
-> 
-> > On Wed, 28 Aug 2002, Tomas Szepe wrote:
-> > 
-> > > > This is out and has been forwarded to AC for review.
-> > > 
-> > > Okay, I tested this the hard way -- the root of one of my machines
-> > > got trashed. The controller used was a PDC20268 (Ultra100TX2), the
-> > > disks (with two partitions of equal size on each forming a raid0)
-> > > are IBM and WD. Soon after the kernel came up, it started spitting
-> > > messages like 'DMA disabled' and 'No DRQ after WRITE has been issued',
-> > > after which the machine froze entirely. Rebooting w/ an alternate
-> > > kernel revealed massive fs corruption with the superblock completely
-> > > overwritten.
-> > > 
-> > >   *** Everybody please treat this patch with extreme care. ***
-> > > 
-> > > Reiserfs people, this unfortunate event also made me find out about
-> > > the inability of reiserfsck 3.6.3-pre1 to rebuild the node tree --
-> > > the program pretends to work just fine but the in-kernel fs code
-> > > barfs when it's to operate on a repaired fs. 3.x.1b was able to
-> > > get the job done for me, though.
-> > > 
-> > > T.
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > 
-> > 
-> > Andre Hedrick
-> > LAD Storage Consulting Group
-> 
+struct pcred {
+       struct ucred *ucred;
+       uid_t uid, euid, suid;
+       gid_t gid, egid, sgid;
+       int count;
+};
 
-Andre Hedrick
-LAD Storage Consulting Group
+In Linux, we should probably also include the capabilities as part of
+the pcred. They sort of fall outside the BSD model, so it's hard to
+tell exactly where they belong...
+That said, I'm motivated to move away from thinking that they belong
+in the ucred, by the fact that capabilities contain information about
+whether or not you are allowed to change those user credentials. That
+just doesn't fit with the idea of copy on write.
 
+     > BTW, you've convinced me that your approach is the right way to
+     > go.  I'll make another stab at CLONE_CRED after the VFS changes
+     > are made, which will make it a 2.7 item, I'm sure.
+
+Great. As I said, I've resumed working on the ucred stuff. Expect the
+first patches to be announced for 2.5.x soon. The first few patches
+are ready, I just need to test them with a post-2.5.32 kernel (as soon
+as I find one that will actually boot on my laptop even without the
+patches applied).
+
+Note: If you'd like to take a peek at what I've got (and help me with
+some feedback), see the directory
+
+  http://www.fys.uio.no/~trondmy/src/2.5.32-alpha
+
+Cheers,
+  Trond

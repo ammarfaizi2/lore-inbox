@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267439AbUBRStL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 13:49:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267821AbUBRStL
+	id S267639AbUBRRsL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 12:48:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267640AbUBRRsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 13:49:11 -0500
-Received: from fw.osdl.org ([65.172.181.6]:44199 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267439AbUBRStH (ORCPT
+	Wed, 18 Feb 2004 12:48:11 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:25265 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S267639AbUBRRsG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 13:49:07 -0500
-Date: Wed, 18 Feb 2004 10:50:16 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-mm1
-Message-Id: <20040218105016.44ca830c.akpm@osdl.org>
-In-Reply-To: <20040218135623.112C92C3B8@lists.samba.org>
-References: <20040218012553.1228ae34.akpm@osdl.org>
-	<20040218135623.112C92C3B8@lists.samba.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 18 Feb 2004 12:48:06 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16435.42315.529207.505662@napali.hpl.hp.com>
+Date: Wed, 18 Feb 2004 09:47:55 -0800
+To: Pat Gefre <pfg@sgi.com>
+Cc: akpm@osdl.org, davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [2.6 PATCH] Altix update
+In-Reply-To: <200402181441.i1IEfIWX024531@fsgi900.americas.sgi.com>
+References: <200402181441.i1IEfIWX024531@fsgi900.americas.sgi.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
->
-> Do you want me to consolidate the patches in your tree?  At the moment
->  you're carrying:
-> 
->  kthread-primitive.patch
->  kthread-affinity-fix.patch
->  kthread-affinity-fix-fix.patch
->  kthread-handle-non-booting-CPUs.patch
->  kthread-stop-using-signals.patch
-> 
->  Which are logically a single "kthread-without-signals" patch.
+>>>>> On Wed, 18 Feb 2004 08:41:18 -0600 (CST), Pat Gefre <pfg@sgi.com> said:
 
-Is OK, thanks - that is merely a matter of typing `joinpatch $(nextpatch);
-drop-patch $(nextpatch)' four times.
+  Pat> Andrew, Here's a small mod for Altix. It breaks up our 'pci
+  Pat> fixup' function and has some other smallish clean ups.
 
-I generally keep these things separated for quite a long time because it
-aids in the binary-search-to-see-what-broke-it game.
+  Pat> For the ia64 crowd I've added 'platform_data' back into
+  Pat> include/asm-ia64/pci.h
+
+Please don't send such patches to Andrew.  I don't want to have
+divergence on fundamental ia64 data structures.
+
+  Pat> Can you take this ?
+
+Feel free to send me incremental ia64 patches.  I asked you to send
+the monster SN2 update patch to Andrew because I didn't want to get
+stuck with it in my tree.  But now that that is taken care of, I'm
+perfectly happy to handle your incremental patches.
+
+	--david

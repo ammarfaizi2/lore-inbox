@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312085AbSCTTrG>; Wed, 20 Mar 2002 14:47:06 -0500
+	id <S312086AbSCTTsq>; Wed, 20 Mar 2002 14:48:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312083AbSCTTq5>; Wed, 20 Mar 2002 14:46:57 -0500
-Received: from imladris.infradead.org ([194.205.184.45]:2317 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S312081AbSCTTqx>;
-	Wed, 20 Mar 2002 14:46:53 -0500
-Date: Wed, 20 Mar 2002 19:45:49 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Hugh Dickins <hugh@veritas.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Dave McCracken <dmccr@us.ibm.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Creating a per-task kernel space for kmap, user pagetables, et al
-Message-ID: <20020320194549.A32457@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch>,
-	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-	Andrea Arcangeli <andrea@suse.de>, Hugh Dickins <hugh@veritas.com>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Dave McCracken <dmccr@us.ibm.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <127930000.1016651345@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S312082AbSCTTsh>; Wed, 20 Mar 2002 14:48:37 -0500
+Received: from lightning.hereintown.net ([207.196.96.3]:6568 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S312083AbSCTTsX>; Wed, 20 Mar 2002 14:48:23 -0500
+Date: Wed, 20 Mar 2002 15:05:49 -0500 (EST)
+From: Chris Meadors <clubneon@hereintown.net>
+To: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RE: task_struct changes?
+In-Reply-To: <61DB42B180EAB34E9D28346C11535A78062DA0@nocmail101.ma.tmpw.net>
+Message-ID: <Pine.LNX.4.40.0203201502170.7618-100000@rc.priv.hereintown.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Any chance to make your mailer wrap lines after 76 lines?
- That would make reading a lot easier..]
+On Wed, 20 Mar 2002, Holzrichter, Bruce wrote:
 
-On Wed, Mar 20, 2002 at 11:09:05AM -0800, Martin J. Bligh wrote:
-> Imagine we create a hybrid "u-k-space" with the protections of k-space, but the locality
-> of u-space .... either by making part of the current k-space per task or by making part of
-> the current u-space protected like k-space ... not sure which would be easier.
-> 
-> This u-k-space would be a good area for at least two things (and probably others):
+> p_pptr changed to parent and you could just swap them in the code,
+>
+> IE:
+> task_struct->p_pptr would become task_struct->parent
+>
+> Not sure about the p_opptr, but I bet you'll find the same type of change.
+>
+> I found this on Sparc64 as well, if you grep the 2.5.7 patch file, you
+> should be able to find p_opptr pretty quickly, I bet.
+>
+> Hope this helps..
+>
+> Bruce H.
 
-That has been implemented in Caldera OpenUnix in the last years.
-There was a nice overview paper by Steve Baumel and Rohit Chawla on this,
-called "Managing More Physical With Less Virtual" which I think appeared
-in some Y2000 Byte issue.
+Thanks it did help.
 
-	Christoph
+I guessed right, but just wanted to make sure.
+
+And I found p_opptr became real_parent, if anyone else was wondering.
+
+-Chris
+-- 
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
 

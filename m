@@ -1,78 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263496AbTKQNdA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 08:33:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbTKQNdA
+	id S263513AbTKQNeb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 08:34:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263517AbTKQNeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 08:33:00 -0500
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:32266 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id S263496AbTKQNc6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 08:32:58 -0500
-Message-ID: <3FB8CE08.6070001@dcrdev.demon.co.uk>
-Date: Mon, 17 Nov 2003 13:32:56 +0000
-From: Dan Creswell <dan@dcrdev.demon.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en, en-us
+	Mon, 17 Nov 2003 08:34:31 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55556 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263513AbTKQNe1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 08:34:27 -0500
+Date: Mon, 17 Nov 2003 08:23:41 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Jens Axboe <axboe@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+In-Reply-To: <20031115134325.GV4441@suse.de>
+Message-ID: <Pine.LNX.3.96.1031117080832.13362B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Hard lock on 2.6-test9 (More Info)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Both SMP kernels (2.4 and 2.6) appear to have the same interrupt map 
-(cat /proc/interrupts):
+On Sat, 15 Nov 2003, Jens Axboe wrote:
 
-Kernel 2.4:
+> On Sat, Nov 15 2003, Bill Davidsen wrote:
 
-           CPU0       CPU1
-  0:      10942       8009    IO-APIC-edge  timer
-  1:        199        208    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  8:          1          0    IO-APIC-edge  rtc
- 12:       2275       1615    IO-APIC-edge  PS/2 Mouse
- 14:         57         56    IO-APIC-edge  ide0
- 16:        118          0   IO-APIC-level  usb-uhci, eth0
- 17:       5267       3420   IO-APIC-level  ohci1394, Intel ICH4, nvidia
- 18:          0          0   IO-APIC-level  usb-uhci
- 19:          0          0   IO-APIC-level  usb-uhci
- 23:          0          0   IO-APIC-level  ehci_hcd
- 24:       9083       3661   IO-APIC-level  ioc0
- 25:         42          0   IO-APIC-level  ioc1
-NMI:          0          0
-LOC:      18878      18807
-ERR:          0
-MIS:          0
+> > Sorry, as far as I can tell it's just the wrong direction. Devices mounted
+> > by USB look like... SCSI. And ZIP drives and tapes mounted on parallel
+> > (ppa) look like... SCSI. If Linux had one fully functional ide-scsi driver
+> > it would then present a consistant all-SCSI interface to the applications.
+> 
+> Crap. 2.6 block layer can pass "looks like SCSI" commands through the
+> plain queue just fine, why on earth would I need to go through two extra
+> layers to send a command to ide-cd? Presenting all-SCSI interface to
+> applications is bogus. The number of actual SCSI devices is going down
+> by the minute. Basically all storage-like devices talk some packetized
+> commands that looks like SCSI, but they are not.
+> 
+> What we do need is something that allows you to submit commands to a
+> device, no matter where it's attached. You still don't seem to grasp
+> that.
 
-Kernel 2.6:
+That's exactly why making ATAPI devices look like SCSI is desirable, so I
+can use the cd, block, and tape drivers used for actual SCSI devices with
+ATAPI devices, just as everyone already does with USB and parallel
+devices.
 
-           CPU0       CPU1
-  0:      75737      51102    IO-APIC-edge  timer
-  1:        152        278    IO-APIC-edge  i8042
-  2:          0          0          XT-PIC  cascade
-  8:          1          0    IO-APIC-edge  rtc
- 12:         61          0    IO-APIC-edge  i8042
- 14:         22          1    IO-APIC-edge  ide0
- 16:         92          0   IO-APIC-level  eth0
- 17:          3          0   IO-APIC-level  ohci1394, Intel 82801DB-ICH4
- 23:          0          0   IO-APIC-level  ehci_hcd
- 24:       2635        715   IO-APIC-level  ioc0
- 25:         42          0   IO-APIC-level  ioc1
-NMI:          0          0
-LOC:     126582     126581
-ERR:          0
-MIS:          0
+> 
+> > No more ide-floppy, ide-cd, ide-tape, just one driver. And that would
+> > allow use of applications from BSD, Sun, and SysV.
+> 
+> One drive to manage different device types? What are you smoking.
 
-When I boot X under kernel 2.6, I see the additional nvidia interrupt 
-path as per the 2.4 output (which was taken whilst I was running X).
+I don't understand that sentence, if I assume you meant "driver" it still
+doesn't seem to convey your meaning. Clearly the sd driver works with real
+SCSI, USB flash devices, parallel attach ZIP and similar (ppa driver)
+devices, and in 2.4 ATAPI ZIP drives and other similar devices. So I
+assume I'm missing your meaning.
 
-But, within seconds of this additional interrupt assignment appearing, 
-2.6 dies a horrible death whilst 2.4 just keeps on rolling.
-
-Cheers,
-
-Dan.
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

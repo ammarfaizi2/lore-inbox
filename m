@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280027AbRKITOj>; Fri, 9 Nov 2001 14:14:39 -0500
+	id <S277366AbRKITL2>; Fri, 9 Nov 2001 14:11:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280029AbRKITO3>; Fri, 9 Nov 2001 14:14:29 -0500
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:15497 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S280027AbRKITOP>;
-	Fri, 9 Nov 2001 14:14:15 -0500
-Date: Fri, 9 Nov 2001 14:14:15 -0500 (EST)
-From: "Calin A. Culianu" <calin@ajvar.org>
-To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-Cc: David Grant <davidgrant79@hotmail.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon cooling
-In-Reply-To: <Pine.LNX.4.33.0111081752490.2404-100000@twin.uoregon.edu>
-Message-ID: <Pine.LNX.4.30.0111091413330.10332-100000@rtlab.med.cornell.edu>
+	id <S280027AbRKITLT>; Fri, 9 Nov 2001 14:11:19 -0500
+Received: from [192.55.52.18] ([192.55.52.18]:33274 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S277366AbRKITLF>;
+	Fri, 9 Nov 2001 14:11:05 -0500
+Message-ID: <59885C5E3098D511AD690002A5072D3C42D724@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Anders Peter Fugmann'" <afu@fugmann.dhs.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: [PATCH] fix ACPI multible power entries
+Date: Fri, 9 Nov 2001 11:10:59 -0800 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Nov 2001, Joel Jaeggli wrote:
+We should already be handling multiple power button definitions, so I'm
+confused why you're still seeing the problem. Could you please send me your
+dmesg output and /proc/acpi/dsdt output?
 
-> CONFIG_APM_CPU_IDLE
->
-> in the apm setup...
->
-> clock throttling is a subject of some debate on the linux kernel list... ;)
-> but the apm idle call will at least idle the cpu once the idle loop has
-> been running for a while.
+Thanks -- Regards -- Andy
 
-Yes, and i believe this is done via judicious use of the 'hlt'
-instruction.  Also note that on some older K6's there are problems with
-this instruction.. namely it halts the machine altogether!
-
->
-> joelja
->
-> On Thu, 8 Nov 2001, David Grant wrote:
->
-> > There is a program for Windows called CPUIdle, which cools the Athlon
-> > tremendoulsy.  I can get my temp. from 52C down to 36C.  It makes the CPU
-> > truly go idle.  Is there anything like this for Linux, and I'm wondering if
-> > anyone knows the instructions (and/or signals) which could be used to put
-> > the Athlon into this state.  I guess it's more of a question for some APM
-> > guys, but I thought some people here might know the interface to the Athlon,
-> > and might thus know how this software cooling works.  Actually the low-level
-> > apm stuff is part of the kernel right?  so maybe this is on-topic.
-> >
-> > http://www.cpuidle.de/
-> >
-> > Cheers,
-> > David Grant
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
->
-
+> -----Original Message-----
+> From: Anders Peter Fugmann [mailto:afu@fugmann.dhs.org]
+> Sent: Friday, November 09, 2001 4:01 AM
+> To: andrew.grover@intel.com
+> Cc: linux-kernel@vger.kernel.org
+> Subject: [PATCH] fix ACPI multible power entries
+> Importance: High
+> 
+> 
+> Hi.
+> 
+> In trying to get ACPI to work on my system, i was stumbled to see two 
+> button entries under /proc/acpi/button/.
+> 
+> Attached is a patch which corrects this behaviour.
+> The patch applies to 2.4.14.
+> 
+> Regards
+> Anders Fugmann
+> 
+> 
+> 

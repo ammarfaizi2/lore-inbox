@@ -1,52 +1,126 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267103AbRGJT1R>; Tue, 10 Jul 2001 15:27:17 -0400
+	id <S265714AbRGJT3h>; Tue, 10 Jul 2001 15:29:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267116AbRGJT1I>; Tue, 10 Jul 2001 15:27:08 -0400
-Received: from geos.coastside.net ([207.213.212.4]:56994 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S267103AbRGJT04>; Tue, 10 Jul 2001 15:26:56 -0400
+	id <S267112AbRGJT31>; Tue, 10 Jul 2001 15:29:27 -0400
+Received: from [209.234.73.40] ([209.234.73.40]:61199 "EHLO altus.drgw.net")
+	by vger.kernel.org with ESMTP id <S265714AbRGJT3W>;
+	Tue, 10 Jul 2001 15:29:22 -0400
+Date: Tue, 10 Jul 2001 14:28:13 -0500
+From: Troy Benjegerdes <hozer@drgw.net>
+To: Andreas Dilger <adilger@turbolinux.com>,
+        Johan Simon Seland <johans@netfonds.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "Trying to free nonexistent swap-page" error message.
+Message-ID: <20010710142813.O4148@altus.drgw.net>
+In-Reply-To: <la8zibpur5.fsf@glass.netfonds.no> <200106290902.f5T924Qv014328@webber.adilger.int>
 Mime-Version: 1.0
-Message-Id: <p0510031cb77103632663@[207.213.214.37]>
-In-Reply-To: <Pine.LNX.3.95.1010710142459.19170A-100000@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.3.95.1010710142459.19170A-100000@chaos.analogic.com>
-Date: Tue, 10 Jul 2001 12:26:39 -0700
-To: root@chaos.analogic.com
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: What is the truth about Linux 2.4's RAM limitations?
-Cc: Timur Tabi <ttabi@interactivesi.com>, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200106290902.f5T924Qv014328@webber.adilger.int>; from adilger@turbolinux.com on Fri, Jun 29, 2001 at 03:02:03AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 2:45 PM -0400 2001-07-10, Richard B. Johnson wrote:
->  > AT&T days that there were Unix ports with separate kernel (vs user)
->>  address spaces, as well as processors with special instructions for
->
->No. The difference between kernel and user address space is protection.
->Let's say that you decided to revamp all the user space to go from
->0 to 2^32-1. You call the kernel with a pointer to a buffer into
->which you need to write kernel data:
->
->You will need to set a selector that will access both user and
->kernel data at the same time. Since the user address space is
->paged, this will not be possible, you get one or the other, but
->not both. Therefore, you need to use two selectors. In the case
->of ix86 stuff, you could set DS = KERNEL_DS and ES = a separately
->calculated selector that represents the base address of the caller's
->virtual address space. Note that you can't just use the caller's
->DS or ES because they can be changed by the caller.
+On Fri, Jun 29, 2001 at 03:02:03AM -0600, Andreas Dilger wrote:
+> Johan Seland
+> > One one of our Linux Oracle servers the following messages has started
+> > to appear : 
+> > 
+> > Jun 29 07:16:32 blanco kernel: swap_free: Trying to free nonexistent swap-page
+> > Jun 29 07:16:32 blanco kernel: swap_free: Trying to free nonexistent swap-page
+> > 
+> > I also find some of these:
+> > 
+> > Jun 29 06:25:01 blanco kernel: EXT2-fs error (device sd(8,10)): ext2_readdir: bad entry in directory #172258: rec_len %% 4 != 0 - offset=192, inode=812610409, rec_len=11833, name_len=115
+> > Jun 29 06:25:32 blanco kernel: EXT2-fs error (device sd(8,10)): ext2_readdir: bad entry in directory #172258: rec_len %% 4 != 0 - offset=192, inode=812610409, rec_len=11833, name_len=115
+> > 
+> > Machine is a 2x933MhZ P3 with 2GB of memory. Kernel version is now
+> > 2.2.19, but the same problem appeared with 2.2.18 as well.
+> 
+> My first guess would be some sort of hardware/software problem with your
+> SCSI controller, cables, disk, etc.  I'm not sure about the swap problem,
+> but the ext2 problems are caused by corruption of the disk or memory.
 
-Sure, for IA-32, it's a royal pain. But Unix runs, after all, on 
-other CPUs. In point of simple historical fact, there have been Unix 
-ports with separate kernel and user address spaces, and there are 
-CPUs that, unlike IA-32, can simultaneously address the two spaces, 
-by virtue of having separate page table pointers and instructions for 
-copying between the two spaces.
+My first guess would be hardware also, except in this case I've seen
+similiar things on three different dual processor G4 systems running 2.2,
+and they work fine with 2.4.
 
-To the extent that we're talking about Linux on IA-32, though, I 
-entirely agree that the cost of expanding user space from 3GB to 4GB 
-far outweighs any benefit. Especially with 64-bit architectures 
-coming online.
+Does Oracle for Linux us pthreads or the 'clone()' system call?
+
+Can you try running the included pthreads program on an 2.2.19 SMP system
+(but make it's idle, since if this is a genric 2.2 SMP bug it will
+probably crash the system)
+
+Compile with the following command:
+gcc -o pt pthread-test.c -lpthread 
+
+Run it repeatedly:
+I=0; while [ $? -eq 0 ] ; let I=I+1; do ./pt ; done ; echo $I
+
+on 2.2.19 on a mac dual G4, the pthreads program will sometimes get 
+segfaults and illegal instructions, and if I run it long enough, I will 
+eventually get the following in dmesg:
+
+swap_free: Trying to free nonexistent swap-page
+swap_free: offset exceeds max
+swap_free: Trying to free nonexistent swap-page
+swap_free: Trying to free nonexistent swap-page
+swap_free: offset exceeds max
+swap_free: Trying to free nonexistent swap-page
+swap_free: Trying to free nonexistent swap-page
+swap_free: offset exceeds max
+swap_free: offset exceeds max
+swap_free: offset exceeds max
+swap_free: Trying to free nonexistent swap-page
+swap_free: Trying to free nonexistent swap-page
+swap_free: Trying to free nonexistent swap-page
+swap_free: Trying to free nonexistent swap-page
+swap_free: offset exceeds max
+swap_free: offset exceeds max
+swap_free: offset exceeds max
+
+If I keep running it, I will eventually wind up with a kernel panic on an 
+illegal instruction. Something is corrupting memory, and in my case, the 
+kernel panics are caused by a '0x00000008' being written over a random 
+location in the kernel code.
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <pthread.h>
+ 
+#define NTH 8
+ 
+void
+thread(void *arg)
+{
+        printf("THREAD: pid %d\n", getpid());
+ 
+        return;
+}
+
+int
+main(int argc, char **argv)
+{
+        int i;
+        pthread_t t[NTH];
+ 
+        for (i=0; i<NTH; i++)
+           pthread_create(t+i, NULL, thread, NULL);
+ 
+        for (i=0; i<NTH; i++)
+           pthread_join(t[i], NULL);
+ 
+        return 0;
+}
+
+
+
 -- 
-/Jonathan Lundell.
+Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
+-----"If this message isn't misspelled, I didn't write it" -- Me -----
+"Why do musicians compose symphonies and poets write poems? They do it
+because life wouldn't have any meaning for them if they didn't. That's 
+why I draw cartoons. It's my life." -- Charles Shulz

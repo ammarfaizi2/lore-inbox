@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269760AbUHZW6r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269774AbUHZWy0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269760AbUHZW6r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 18:58:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269688AbUHZW5x
+	id S269774AbUHZWy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 18:54:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269752AbUHZWuB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 18:57:53 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55936 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269760AbUHZWxJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 18:53:09 -0400
-Date: Thu, 26 Aug 2004 23:53:08 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Rik van Riel <riel@redhat.com>, Diego Calleja <diegocg@teleline.es>,
-       jamie@shareable.org, christophe@saout.de, christer@weinigel.se,
-       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
-       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: [some sanity for a change] possible design issues for hybrids
-Message-ID: <20040826225308.GC21964@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.44.0408261356330.27909-100000@chimarrao.boston.redhat.com> <200408262128.41326.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.58.0408261132150.2304@ppc970.osdl.org> <20040826191323.GY21964@parcelfarce.linux.theplanet.co.uk> <20040826203228.GZ21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408261344150.2304@ppc970.osdl.org> <20040826212853.GA21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408261436480.2304@ppc970.osdl.org> <20040826223625.GB21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408261538030.2304@ppc970.osdl.org>
+	Thu, 26 Aug 2004 18:50:01 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42118 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269750AbUHZWrd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 18:47:33 -0400
+Date: Thu, 26 Aug 2004 15:50:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm1
+Message-Id: <20040826155048.71e28a34.akpm@osdl.org>
+In-Reply-To: <200408270046.36419.rjw@sisk.pl>
+References: <20040826014745.225d7a2c.akpm@osdl.org>
+	<200408270046.36419.rjw@sisk.pl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408261538030.2304@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 03:45:09PM -0700, Linus Torvalds wrote:
-> No, lookup would just return the dentry, but the dentry would already be 
-> filled in with the mount-point information.
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+>
+> On Thursday 26 of August 2004 10:47, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6
+> >.9-rc1-mm1/
+> >
+> >
+> > - nicksched is still here.  There has been very little feedback, except
+> > that it seems to slow some workloads on NUMA.
+> >
 > 
-> And you can do that with a simple vfs helper function, ie the filesystem 
-> itself would just need to do
+> It has the problem that I have reported for 2.6.8.1-mm4, that after issuing:
 > 
-> 	pseudo_mount(dentry, inode);
+> # rmmod snd_seq_oss
 > 
-> thing - which just fills in dentry->d_mountpoint with a new vfsmount
-> thing. It would allocate a new root dentry (for the pseudo-mount) and a
-> new vfsmount, and make dentry->d_mountpoint point to it.
+> the kernel goes into a strange state:
 
-What dentry->d_mountpoint?  No such thing...
+Rusty sent out a couple of patches which should fix this up.  They'll be in
+next -mm.
 
-Note that we can't get vfsmount by dentry - that's the point of having these
-guys in the first place.  So I'm not sure what you are trying to do here -
-dentry + inode is definitely not enough to attach any vfsmounts anywhere.
+Probably the below patch:
 
-That's not about namespaces - same fs mounted in several places will give
-the same problem - one dentry, many vfsmounts.  And we obviously *can't*
-have one vfsmount for all of them - if the same fs is mounted on /foo and
-/bar, we will have the same dentry for /foo/splat and /bar/splat.  So
-what should we get for /foo/splat/. and /bar/splat/.?  Same dentry *and*
-same vfsmount?  I'd expect .. from the former to give /foo and from the
-latter - /bar...
+--- .13565-linux-2.6.8.1-mm4/kernel/stop_machine.c	2004-05-10 15:13:59.000000000 +1000
++++ .13565-linux-2.6.8.1-mm4.updated/kernel/stop_machine.c	2004-08-26 16:24:56.000000000 +1000
+@@ -82,7 +86,7 @@ static int stop_machine(void)
+ 	int i, ret = 0;
+ 	struct sched_param param = { .sched_priority = MAX_RT_PRIO-1 };
+ 
+ 	/* One high-prio thread per cpu.  We'll do this one. */
+-	sys_sched_setscheduler(current->pid, SCHED_FIFO, &param);
++	sys_sched_setscheduler(current->pid, SCHED_RR, &param);
+ 
+ 	atomic_set(&stopmachine_thread_ack, 0);
+

@@ -1,80 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264673AbRFTXUw>; Wed, 20 Jun 2001 19:20:52 -0400
+	id <S263165AbRFTXXm>; Wed, 20 Jun 2001 19:23:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264679AbRFTXUg>; Wed, 20 Jun 2001 19:20:36 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:48297 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S264673AbRFTXUO>;
-	Wed, 20 Jun 2001 19:20:14 -0400
-Date: Thu, 21 Jun 2001 01:21:08 +0200 (CEST)
-From: Martin Wilck <mwilck@freenet.de>
-To: <linux-kernel@vger.kernel.org>
-Cc: <mwilck@freenet.de>
-Subject: [PATCH] disk_index weirdness
-Message-ID: <Pine.LNX.4.30.0106210114120.4131-100000@odysseus.riemann-30.de>
+	id <S263625AbRFTXXc>; Wed, 20 Jun 2001 19:23:32 -0400
+Received: from 200-206-139-161-br-arqfisb1.public.telesp.net.br ([200.206.139.161]:8198
+	"EHLO blackjesus.async.com.br") by vger.kernel.org with ESMTP
+	id <S263165AbRFTXXY>; Wed, 20 Jun 2001 19:23:24 -0400
+Date: Wed, 20 Jun 2001 20:23:06 -0300 (BRT)
+From: Christian Robottom Reis <kiko@async.com.br>
+To: <NFS@lists.sourceforge.net>
+cc: <linux-kernel@vger.kernel.org>, <reiserfs-list@namesys.com>
+Subject: NFS insanity 
+Message-ID: <Pine.LNX.4.32.0106202015380.2976-100000@blackjesus.async.com.br>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
+I've got an NFS server, version 2.4.4, using reiserfs with trond's NFS
+patches and the reiser-2.4.4 nfs patch.
 
-I suggest the follwoing patch to make /proc/stat work as expected in 2.4.
-I noted that "gkrellm" erroneously reported my disk hdc as hde. the reason
-is that (a relict from the 2.2 series, I suppose) disk_index adds 2 to
-the disk number for IDE controller 1. This is IMO wrong, because in 2.4
-the disks are indexed by major and minor number.
+On a client running 2.4.5 with trond's patches and the corresponding
+reiser patches, I get the wierdest behaviour:
 
-I also added more major numbers to the routine and tried to order the
-majors such that the "right" results are found quickly.
+# on client
+cp libgkcontent.so libgkcontent.so.x
+diff libgkcontent.so libgkcontent.so.x
+# no diff
 
-Regards,
-Martin
+# on server
+diff libgkcontent.so libgkcontent.so.x
+Binary files libgkcontent.so and libgkcontent.so.x differ
 
-PS: I'm not subscribed to this list, but I read the archives regularly.
+It _only_ happens in this file of all files I've tried out so far. I'm
+trying to get xdelta to show me what's differing so I can see if there's a
+pattern or something, but it's awful - data corruption not only possibly
+but happening. :-)
 
---- include/linux/genhd.h.orig	Tue Mar 27 01:48:11 2001
-+++ include/linux/genhd.h	Wed Jun 20 19:17:09 2001
-@@ -248,21 +248,30 @@
- 	unsigned int index;
+I haven't tried remounting yet to see what I get, but I don't see the
+problems on unpatched 2.4.2. I'll wait a bit to see if anyone has seen
+this. Anyone?
 
- 	switch (major) {
--		case DAC960_MAJOR+0:
--			index = (minor & 0x00f8) >> 3;
--			break;
- 		case SCSI_DISK0_MAJOR:
- 			index = (minor & 0x00f0) >> 4;
- 			break;
- 		case IDE0_MAJOR:	/* same as HD_MAJOR */
- 		case XT_DISK_MAJOR:
-+		case IDE1_MAJOR:
-+		case IDE2_MAJOR:
-+		case IDE3_MAJOR:
-+		case IDE4_MAJOR:
-+		case IDE5_MAJOR:
- 			index = (minor & 0x0040) >> 6;
- 			break;
--		case IDE1_MAJOR:
--			index = ((minor & 0x0040) >> 6) + 2;
-+	        case SCSI_CDROM_MAJOR:
-+			index = minor & 0x000f;
- 			break;
- 		default:
--			return 0;
-+			if (major >= SCSI_DISK1_MAJOR && major <= SCSI_DISK7_MAJOR)
-+				index = (minor & 0x00f0) >> 4;
-+			else if (major >= DAC960_MAJOR && major <= DAC960_MAJOR + 7)
-+				index = (minor & 0x00f8) >> 3;
-+			else if (major >= IDE6_MAJOR && major <= IDE9_MAJOR)
-+				index = (minor & 0x0040) >> 6;
-+			else
-+				return 0;
- 	}
- 	return index;
- }
-
+Take care,
 --
-Martin Wilck <mwilck@freenet.de>
-Inst. for Tropospheric Research, Permoserstr. 15, 04303 Leipzig, Germany
+/\/\ Christian Reis, Senior Engineer, Async Open Source, Brazil
+~\/~ http://async.com.br/~kiko/ | [+55 16] 274 4311
+
 

@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293603AbSDMT0r>; Sat, 13 Apr 2002 15:26:47 -0400
+	id <S293632AbSDMT2s>; Sat, 13 Apr 2002 15:28:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293680AbSDMT0q>; Sat, 13 Apr 2002 15:26:46 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:28229 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S293603AbSDMT0p>; Sat, 13 Apr 2002 15:26:45 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        "David S. Miller" <davem@redhat.com>, taka@valinux.co.jp,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zerocopy NFS updated
-In-Reply-To: <20020412.213011.45159995.taka@valinux.co.jp>
-	<20020412143559.A25386@wotan.suse.de>
-	<20020412222252.A25184@kushida.apsleyroad.org>
-	<20020412.143150.74519563.davem@redhat.com>
-	<20020413012142.A25295@kushida.apsleyroad.org>
-	<20020413083952.A32648@wotan.suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 13 Apr 2002 13:19:46 -0600
-Message-ID: <m1662vjtil.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S293680AbSDMT2q>; Sat, 13 Apr 2002 15:28:46 -0400
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:43306 "EHLO
+	hotmale.boyland.org") by vger.kernel.org with ESMTP
+	id <S293632AbSDMT1o>; Sat, 13 Apr 2002 15:27:44 -0400
+Message-ID: <3CB88785.2060109@blue-labs.org>
+Date: Sat, 13 Apr 2002 15:31:17 -0400
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020402
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: [OOPS] Unable to handle kernel NULL pointer deref.. 2.4.19-pre6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+Unable to handle kernel NULL pointer dereference at virtual address 00000132
+c01497b8
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c01497b8>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010202
+eax: ccd519d4   ebx: c27bde74   ecx: 00000000   edx: c27bde74
+esi: 00000100   edi: 00000000   ebp: 00000001   esp: c968df88
+ds: 0018   es: 0018   ss: 0018
+Process mozilla-bin (pid: 217, stackpage=c968d000)
+Stack: c27bde74 00000000 41b22e90 bffff0e8 c013553d 00000000 c27bde74 
+00000000
+       c27bde74 00000049 c01355b3 c27bde74 cb99b898 c968c000 c0108a9b 
+00000049
+       00000001 4020b858 00000049 41b22e90 bffff0e8 00000006 c010002b 
+0000002b
+Call Trace: [<c013553d>] [<c01355b3>] [<c0108a9b>]
+Code: 0f b7 46 32 25 00 f0 00 00 66 3d 00 40 74 0a b8 ec ff ff ff
 
-> > I wonder if it is reasonable to depend on that: -- i.e. I'll only ever
-> > see zeros, not say random bytes, or ones or something.  I'm sure that's
-> > so with the current kernel, and probably all of them ever (except for
-> > bugs) but I wonder whether it's ok to rely on that.
-> 
-> With truncates you should only ever see zeros. If you want this guarantee
-> over system crashes you need to make sure to use the right file system
-> though (e.g. ext2 or reiserfs without the ordered data mode patches or
-> ext3 in writeback mode could give you junk if the system crashes at the
-> wrong time). Still depending on only seeing zeroes would
-> seem to be a bit fragile on me (what happens when the disk dies for 
-> example?), using some other locking protocol is probably more safe.
+ >>EIP; c01497b8 <fcntl_dirnotify+28/170>   <=====
+Trace; c013553d <filp_close+2d/60>
+Trace; c01355b3 <sys_close+43/50>
+Trace; c0108a9b <system_call+33/38>
+Code;  c01497b8 <fcntl_dirnotify+28/170>
+00000000 <_EIP>:
+Code;  c01497b8 <fcntl_dirnotify+28/170>   <=====
+   0:   0f b7 46 32               movzwl 0x32(%esi),%eax   <=====
+Code;  c01497bc <fcntl_dirnotify+2c/170>
+   4:   25 00 f0 00 00            and    $0xf000,%eax
+Code;  c01497c1 <fcntl_dirnotify+31/170>
+   9:   66 3d 00 40               cmp    $0x4000,%ax
+Code;  c01497c5 <fcntl_dirnotify+35/170>
+   d:   74 0a                     je     19 <_EIP+0x19> c01497d1 
+<fcntl_dirnotify+41/170>
+Code;  c01497c7 <fcntl_dirnotify+37/170>
+   f:   b8 ec ff ff ff            mov    $0xffffffec,%eax
 
-Could the garbage from ext3 in writeback mode be considered an
-information leak?  I know that is why most places in the kernel
-initialize pages to 0.  So you don't accidentally see what another
-user put there.
 
-Eric
-k

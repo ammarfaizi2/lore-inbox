@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261368AbTKTFYR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 00:24:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbTKTFYR
+	id S264271AbTKTF1T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 00:27:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264273AbTKTF1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 00:24:17 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44462 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261368AbTKTFYQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 00:24:16 -0500
-Message-ID: <3FBC4FE0.2020705@pobox.com>
-Date: Thu, 20 Nov 2003 00:23:44 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: viro@parcelfarce.linux.theplanet.co.uk
-CC: netdev@oss.sgi.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT] 2.6.x experimental net driver updates
-References: <3FBBA954.6000601@pobox.com> <20031120025423.GB24159@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20031120025423.GB24159@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Nov 2003 00:27:19 -0500
+Received: from holomorphy.com ([199.26.172.102]:10156 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264271AbTKTF1S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 00:27:18 -0500
+Date: Wed, 19 Nov 2003 21:26:59 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: jt@hpl.hp.com, Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Pontus Fuchs <pof@users.sourceforge.net>
+Subject: Re: Announce: ndiswrapper
+Message-ID: <20031120052659.GF22764@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Jeff Garzik <jgarzik@pobox.com>, jt@hpl.hp.com,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	Pontus Fuchs <pof@users.sourceforge.net>
+References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com> <20031120040034.GF19856@holomorphy.com> <3FBC5036.3020503@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FBC5036.3020503@pobox.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Wed, Nov 19, 2003 at 12:33:08PM -0500, Jeff Garzik wrote:
-> 
->>Ok, Al Viro's net driver refcounting work is pretty much complete, and 
-> 
-> 
-> The hell it is.  We are through with legacy probes, we are through with
-> init_etherdev(), we are practically through with static struct net_device.
+William Lee Irwin III wrote:
+>> And what good would it be to have an entire driver subsystem populated
+>> by binary-only drivers? That's not part of Linux, that's "welcome to
+>> nvidia hell" for that subsystem too, and not just graphics cards.
+>> I say we should go the precise opposite direction and take a hard line
+>> stance against binary drivers, lest we find there are none left we even
+>> have source to and are bombarded with unfixable bugreports.
 
-hehe :)  I don't mean to suggest that all is clean and pure :)
+On Thu, Nov 20, 2003 at 12:25:10AM -0500, Jeff Garzik wrote:
+> Who brought binary drivers into this?  And when I have ever advocated 
+> binary drivers?
+> ndiswrapper has one use IMHO (which was pointed out me in this 
+> thread)... to assist in reverse engineering.
 
-
-> However, we still have weird allocators (I've got almost all of them
-> done by now, will submit in the next batch) and we still have struct
-> net_device embedded as a field of other structures in several drivers.
-
-Some of that will be interesting.  ns83820 for example embedded 
-net_device on purpose...  Ben seemed to think at the time it gave him 
-some speed, a few less pointer derefs and such.
-
-	Jeff
+Hmm, maybe I've gotten the whole purpose of the thread wrong. =(
 
 
-
+-- wli

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264413AbTEaO73 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 10:59:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbTEaO73
+	id S264453AbTEaPDA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 11:03:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264475AbTEaPC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 10:59:29 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44512
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264413AbTEaO70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 10:59:26 -0400
-Subject: Re: [PATCH] Eat keys on panic
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@digeo.com
-In-Reply-To: <20030531115653.GA11119@wotan.suse.de>
-References: <20030531115653.GA11119@wotan.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054390488.27311.5.camel@dhcp22.swansea.linux.org.uk>
+	Sat, 31 May 2003 11:02:59 -0400
+Received: from ns.suse.de ([213.95.15.193]:46090 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264453AbTEaPC6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 11:02:58 -0400
+Date: Sat, 31 May 2003 17:16:19 +0200
+From: Andi Kleen <ak@suse.de>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Exception trace for i386, mark II
+Message-ID: <20030531151619.GA26552@wotan.suse.de>
+References: <20030531121008$2041@gated-at.bofh.it> <200305311512.h4VFCHhj010685@post.webmailer.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 31 May 2003 15:14:51 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305311512.h4VFCHhj010685@post.webmailer.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-05-31 at 12:56, Andi Kleen wrote:
+On Sat, May 31, 2003 at 04:39:37PM +0200, Arnd Bergmann wrote:
+> Andi Kleen wrote:
+> 
+> > 
+> > This is a new implementation of exception trace for i386.
+> > 
+> > It adds a new exception-trace sysctl (default to off), which when enabled
+> > triggers printk for unhandled fault signals (SIGSEGV etc.). 
+> 
+> Isn't this very similar to the KERN_S390_USER_DEBUG_LOGGING sysctl?
+> Maybe the code can be merged, or at least they can use the same
+> numeric value for the sysctl.
 
-> +void eat_key(void)
-> +{
-> +        if (inb(0x60) & 1) 
-> +                inb(0x64);
->  }
+No problem from my side, although it seems a bit pointless for just 
+an sysctl.  I don't think anybody expects new sysctls binary values to be stable
+anymore - all the distribution kernels vary them widely.
 
-This will crash at least one of my machines. The keyboard controller
-has mandatory access delays of up to 1mS. Respect them or some stuff
-dies horribly.
-
-
+-Andi

@@ -1,38 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbUL0O50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261886AbUL0PBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbUL0O50 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 09:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbUL0O50
+	id S261886AbUL0PBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 10:01:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbUL0PBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 09:57:26 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:42250 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S261882AbUL0O5Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 09:57:24 -0500
-Message-ID: <41D022D1.8060107@domdv.de>
-Date: Mon, 27 Dec 2004 15:57:21 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Mon, 27 Dec 2004 10:01:25 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:33691 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261886AbUL0PBW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 10:01:22 -0500
+Subject: PATCH: 2.6.10 - Still mishandles volumes without geometry data
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       torvalds@osdl.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.10-ac1
-References: <1104103881.16545.2.camel@localhost.localdomain> <58cb370e04122616577e1bd33@mail.gmail.com> <41CF649E.20409@domdv.de> <200412271536.29783.rjw@sisk.pl>
-In-Reply-To: <200412271536.29783.rjw@sisk.pl>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1104155840.20898.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 27 Dec 2004 13:57:20 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
-> AFAIK, you can't disable the io-apic on these boards.
+An IDE device can choose not to report geometry. In this situation the
+base 2.6 kernel tries to verify the LBA data despite having nothing to
+validate it against and prints it out (although now only as pr_debug).
 
-Hmm, boot with noapic and /proc/interrupts only shows XT-PIC entries.
+This patch fixes these problems and has in various forms been in
+2.6.9-ac and Fedora Core for a considerable time now
 
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.10/drivers/ide/ide-disk.c linux-2.6.10/drivers/ide/ide-disk.c
+--- linux.vanilla-2.6.10/drivers/ide/ide-disk.c	2004-12-25 21:15:34.000000000 +0000
++++ linux-2.6.10/drivers/ide/ide-disk.c	2004-12-26 21:55:43.084714368 +0000
+@@ -84,6 +84,10 @@
+ {
+ 	unsigned long lba_sects, chs_sects, head, tail;
+ 
++	/* No non-LBA info .. so valid! */
++	if (id->cyls == 0)
++		return 1;
++		
+ 	/*
+ 	 * The ATA spec tells large drives to return
+ 	 * C/H/S = 16383/16/63 independent of their size.
+@@ -201,7 +205,8 @@
+ 		head  = track % drive->head;
+ 		cyl   = track / drive->head;
+ 
+-		pr_debug("%s: CHS=%u/%u/%u\n", drive->name, cyl, head, sect);
++		if(drive->bios_cyl)
++			pr_debug("%s: CHS=%u/%u/%u\n", drive->name, cyl, head, sect);
+ 
+ 		hwif->OUTB(0x00, IDE_FEATURE_REG);
+ 		hwif->OUTB(nsectors.b.low, IDE_NSECTOR_REG);
+

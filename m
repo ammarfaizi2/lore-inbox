@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263863AbTD0JO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 05:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263865AbTD0JO0
+	id S263897AbTD0KWj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 06:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263912AbTD0KWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 05:14:26 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:25606 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S263863AbTD0JOZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 05:14:25 -0400
-Date: Sun, 27 Apr 2003 19:26:27 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Junfeng Yang <yjf@stanford.edu>
-cc: linux-kernel@vger.kernel.org, Chris Wright <chris@wirex.com>,
-       <mc@cs.stanford.edu>
-Subject: Re: [CHECKER] 30 potential dereference of user-pointer errors
-In-Reply-To: <Pine.GSO.4.44.0304251855390.21961-100000@elaine24.Stanford.EDU>
-Message-ID: <Mutt.LNX.4.44.0304271925350.870-100000@excalibur.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 27 Apr 2003 06:22:37 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:46341 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263897AbTD0KWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 06:22:36 -0400
+Date: Sun, 27 Apr 2003 10:02:00 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Willy TARREAU <willy@w.ods.org>
+Cc: marcelo@conectiva.com.br, vandrove@vc.cvut.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.4] was: Matrox FB problem in latest 2.4.21-rc1-BK
+Message-ID: <20030427100200.A26804@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Willy TARREAU <willy@w.ods.org>, marcelo@conectiva.com.br,
+	vandrove@vc.cvut.cz, linux-kernel@vger.kernel.org
+References: <20030427083232.GA171@pcw.home.local> <20030427085711.GA181@pcw.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030427085711.GA181@pcw.home.local>; from willy@w.ods.org on Sun, Apr 27, 2003 at 10:57:11AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Apr 2003, Junfeng Yang wrote:
-
-> Where bugs occur:
+On Sun, Apr 27, 2003 at 10:57:11AM +0200, Willy TARREAU wrote:
+> Hi again,
 > 
-> net/ipv4/ip_sockglue.c
+> OK I found it to be a typo in cset-1.1134 (intel fb fixes) which disabled CFB8.
+> It now works with this patch. Christoph, you might also have the typo in your
+> tree.
 
-Which kernel version is this for?
-
-
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
+Yes, sorry for the typo.
 

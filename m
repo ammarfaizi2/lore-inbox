@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264322AbTKZTSx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 14:18:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264325AbTKZTSx
+	id S263402AbTKZTbI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 14:31:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263463AbTKZTbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 14:18:53 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:61080 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S264322AbTKZTSw convert rfc822-to-8bit (ORCPT
+	Wed, 26 Nov 2003 14:31:08 -0500
+Received: from holomorphy.com ([199.26.172.102]:14270 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263402AbTKZTbH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 14:18:52 -0500
-Date: Wed, 26 Nov 2003 20:19:03 +0100
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <aradorlinux@yahoo.es>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: john@grabjohn.com, ak@suse.de, davem@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fire Engine??
-Message-Id: <20031126201903.1f4a278a.aradorlinux@yahoo.es>
-In-Reply-To: <20031126185028.GA1566@mis-mike-wstn.matchmail.com>
-References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com.suse.lists.linux.kernel>
-	<20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel>
-	<p73fzgbzca6.fsf@verdi.suse.de>
-	<200311261135.hAQBZ3Ku000202@81-2-122-30.bradfords.org.uk>
-	<20031126185028.GA1566@mis-mike-wstn.matchmail.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Wed, 26 Nov 2003 14:31:07 -0500
+Date: Wed, 26 Nov 2003 11:30:59 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: amanda vs 2.6
+Message-ID: <20031126193059.GS8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Gene Heskett <gene.heskett@verizon.net>,
+	linux-kernel@vger.kernel.org
+References: <200311261212.10166.gene.heskett@verizon.net> <20031126171925.GR8039@holomorphy.com> <200311261415.52304.gene.heskett@verizon.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200311261415.52304.gene.heskett@verizon.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Wed, 26 Nov 2003 10:50:28 -0800 Mike Fedyk <mfedyk@matchmail.com> escribió:
+On Wednesday 26 November 2003 12:19, William Lee Irwin III wrote:
+>> echo 1 > /proc/sys/vm/overcommit_memory
 
-> > http://bulk.fefe.de/scalability/
-> 
-> No such file or directory.
+On Wed, Nov 26, 2003 at 02:15:52PM -0500, Gene Heskett wrote:
+> Unforch, this seems to have fubared the system, and I will have to 
+> reboot as I cannot (it hangs) do an "su amanda" after executeing 
+> this.
 
-It works here. I don't know if those numbers represent anything for networking.
-Some of the benchmarks look more like "vm benchmarking". And the ones which
-are measuring latency are valid, considering that BSDs are lacking "preempt"?
-(shooting in the dark)
+Sounds like trouble. Are there any external signs of what's going on?
+e.g. is the disk thrashing?
 
-Diego Calleja.
+
+-- wli

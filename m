@@ -1,22 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261401AbUCEWxn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 17:53:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbUCEWxn
+	id S261407AbUCEW5G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 17:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbUCEW5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 17:53:43 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:59497 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261401AbUCEWxl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 17:53:41 -0500
-Date: Fri, 5 Mar 2004 23:56:10 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Daniel Mack <daniel@zonque.org>
-Subject: [PATCH] kbuild: fix usage with directories containing '.o'
-Message-ID: <20040305225610.GA6644@mars.ravnborg.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Daniel Mack <daniel@zonque.org>
+	Fri, 5 Mar 2004 17:57:06 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:56711 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S261407AbUCEW5C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 17:57:02 -0500
+Date: Fri, 5 Mar 2004 22:55:56 +0000
+From: Dave Jones <davej@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] mismatched syscall protos.
+Message-ID: <20040305225556.GA18732@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,48 +25,49 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Daniel Mack <daniel@zonque.org>, me
+Sparse noticed a bunch of mismatched prototypes in the new syscalls.h file
+when compiling net/socket.c  Whilst most of them are just missing __user
+tags, the last argument of sys_socketpair was completely different.
 
-modpost unconditionally searched for ".o" assuming this is always
-the suffix of the module. This fails in two cases:
-a) when building external modules where any
-   directory include ".o" in the name.
-   One example is a directory named: .../cvs.alsa.org/...
-b) when someone names a kernel directory so it contains ".o".
-   One example is drivers/scsi/aic.ok/...
+		Dave
 
-case b) was triggered by renaming the directory for aic7xxx, and
-modifying Makefile and Kconfig. This caused make modules to fail.
-
-	Sam
-
-kbuild-fix-modpost.patch:
-===== scripts/modpost.c 1.19 vs edited =====
---- 1.19/scripts/modpost.c	Fri Feb 27 06:33:07 2004
-+++ edited/scripts/modpost.c	Fri Mar  5 23:42:26 2004
-@@ -64,17 +64,20 @@
- {
- 	struct module *mod;
- 	char *p;
-+	size_t len;
- 	
- 	mod = NOFAIL(malloc(sizeof(*mod)));
- 	memset(mod, 0, sizeof(*mod));
--	mod->name = NOFAIL(strdup(modname));
-+	p = NOFAIL(strdup(modname));
+--- bk-linus/include/linux/syscalls.h~	Fri Mar  5 17:52:01 2004
++++ bk-linus/include/linux/syscalls.h	Fri Mar  5 17:55:40 2004
+@@ -386,24 +386,24 @@
+ 				unsigned int count);
  
--	/* strip trailing .o */
--	p = strstr(mod->name, ".o");
--	if (p)
--		*p = 0;
-+	len = strlen(p);
- 
-+	/* strip trailing .o */
-+	if (len > 2 && p[len-2] == '.' && p[len-1] == 'o')
-+		p[len -2] = '\0';
-+	
- 	/* add to list */
-+	mod->name = NOFAIL(strdup(p));	
- 	mod->next = modules;
- 	modules = mod;
- 
+ asmlinkage long sys_setsockopt(int fd, int level, int optname,
+-				char *optval, int optlen);
++				char __user *optval, int optlen);
+ asmlinkage long sys_getsockopt(int fd, int level, int optname,
+ 				char __user *optval, int __user *optlen);
+-asmlinkage long sys_bind(int, struct sockaddr *, int);
+-asmlinkage long sys_connect(int, struct sockaddr *, int);
+-asmlinkage long sys_accept(int, struct sockaddr *, int *);
+-asmlinkage long sys_getsockname(int, struct sockaddr *, int *);
+-asmlinkage long sys_getpeername(int, struct sockaddr *, int *);
+-asmlinkage long sys_send(int, void *, size_t, unsigned);
+-asmlinkage long sys_sendto(int, void *, size_t, unsigned,
+-				struct sockaddr *, int);
++asmlinkage long sys_bind(int, struct sockaddr __user *, int);
++asmlinkage long sys_connect(int, struct sockaddr __user *, int);
++asmlinkage long sys_accept(int, struct sockaddr __user *, int __user *);
++asmlinkage long sys_getsockname(int, struct sockaddr __user *, int __user *);
++asmlinkage long sys_getpeername(int, struct sockaddr __user *, int __user *);
++asmlinkage long sys_send(int, void __user *, size_t, unsigned);
++asmlinkage long sys_sendto(int, void __user *, size_t, unsigned,
++				struct sockaddr __user *, int);
+ asmlinkage long sys_sendmsg(int fd, struct msghdr __user *msg, unsigned flags);
+-asmlinkage long sys_recv(int, void *, size_t, unsigned);
+-asmlinkage long sys_recvfrom(int, void *, size_t, unsigned,
+-				struct sockaddr *, int *);
++asmlinkage long sys_recv(int, void __user *, size_t, unsigned);
++asmlinkage long sys_recvfrom(int, void __user *, size_t, unsigned,
++				struct sockaddr __user *, int __user *);
+ asmlinkage long sys_recvmsg(int fd, struct msghdr __user *msg, unsigned flags);
+ asmlinkage long sys_socket(int, int, int);
+-asmlinkage long sys_socketpair(int, int, int, int [2]);
++asmlinkage long sys_socketpair(int, int, int, int __user *);
+ asmlinkage long sys_socketcall(int call, unsigned long __user *args);
+ asmlinkage long sys_listen(int, int);
+ asmlinkage long sys_poll(struct pollfd __user *ufds, unsigned int nfds,

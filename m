@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVALXuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVALXZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbVALXuU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 18:50:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVALXuM
+	id S261567AbVALXZH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 18:25:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVALXXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 18:50:12 -0500
-Received: from out003pub.verizon.net ([206.46.170.103]:22448 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S261600AbVALXsb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 18:48:31 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None, usuallly detectable by casual observers
+	Wed, 12 Jan 2005 18:23:37 -0500
+Received: from terrhq.ru ([81.222.97.18]:33754 "EHLO mail.terrhq.ru")
+	by vger.kernel.org with ESMTP id S261570AbVALXTw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 18:19:52 -0500
+From: Yaroslav Rastrigin <yarick@it-territory.ru>
+Organization: IT-Territory 
 To: linux-kernel@vger.kernel.org
-Subject: Re: ieee1394 errors on attempted insmod
-Date: Wed, 12 Jan 2005 18:48:30 -0500
-User-Agent: KMail/1.7
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>
-References: <200501120000.15177.gene.heskett@verizon.net> <200501121758.38121.gene.heskett@verizon.net> <41E5AC72.1040301@osdl.org>
-In-Reply-To: <41E5AC72.1040301@osdl.org>
+Subject: Re: [fuse-devel] Merging?
+Date: Thu, 13 Jan 2005 02:19:31 +0300
+User-Agent: KMail/1.7.1
+References: <200501122233.58450.vincenzo_mlRE.MOVE@yahoo.it>
+In-Reply-To: <200501122233.58450.vincenzo_mlRE.MOVE@yahoo.it>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200501121848.30432.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.58.236] at Wed, 12 Jan 2005 17:48:30 -0600
+Message-Id: <200501130219.32461.yarick@it-territory.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 12 January 2005 18:02, Randy.Dunlap wrote:
-
-[...]
+Hi,
+On 13 January 2005 00:33, you wrote:
+> a particular filesystem and has ended up resorting to plasticfs (which
+> uses the LD_PRELOAD trick - not quite satisfying but it does not
 >
->C automatically terminates quoted strings with a nul char.
-
-Thanks, it confirms I don't have alzheimers. (Yet...)
-
->> One other item that might bear, the card claims S400 speed, but
->> the camera only claims S100, is the protocol not auto-negotiating?
->
->I dunno, I still suggest asking on the linux1394 mailing list.
-
-I'm doing that also, even an occasional crosspost.
-
-Thanks Randy, I appreciate the pointers.  I was able to find a few 
-mknod rules on their site.  Now all I have to do is find some 
-caffiene and digest all this.  Had too much yesterday, so I'm walking 
-around in a bit of a haze today.
-
+> require kernel patching) saying:
+> > Most of the problem I have [...] will still be in a better
+> > MLFUSE, which is that it requires to modify the kernel by loading a
+> > module (which is often tied to one particular version of Linux which
+> > means that it is tedious to maintain such module), and users hate
+> > that.
+Can't agree more. I don't want to release my fuse-based SMB-connector (smb 
+kioslave/gnome-vfs replacement :-) for exactly this reason - having released 
+some projects earlier , I can't afford (in terms of time) to answer emails 
+asking how to install fuse , where to grab it and which version, how to build 
+etc, so I'm eagerly awaiting when fuse will be merged and I could point to 
+kernel.org and required kernel version... 
+Right now I think -mm tree will be a good starting point to instantly increase 
+fuse testing base to iron out possible glitches and to ensure official 
+acceptance.
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.31% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+Managing your Territory since the dawn of times ...

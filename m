@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288932AbSAFXrO>; Sun, 6 Jan 2002 18:47:14 -0500
+	id <S289045AbSAFXrz>; Sun, 6 Jan 2002 18:47:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289045AbSAFXrD>; Sun, 6 Jan 2002 18:47:03 -0500
-Received: from ns1.yggdrasil.com ([209.249.10.20]:24453 "EHLO
+	id <S289047AbSAFXro>; Sun, 6 Jan 2002 18:47:44 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:32901 "EHLO
 	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S288932AbSAFXqz>; Sun, 6 Jan 2002 18:46:55 -0500
+	id <S289045AbSAFXrb>; Sun, 6 Jan 2002 18:47:31 -0500
 From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 6 Jan 2002 15:46:54 -0800
-Message-Id: <200201062346.PAA01750@baldur.yggdrasil.com>
+Date: Sun, 6 Jan 2002 15:47:30 -0800
+Message-Id: <200201062347.PAA01754@baldur.yggdrasil.com>
 To: linux-kernel@vger.kernel.org
 Subject: Re: PATCH 2.5.2.9: fbdev kdev_t build fixes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
->This patch fixes the build for the rest of fbdev in 2.5.2-pre9...
+Jeff Garzik wrote:
+>"Adam J. Richter" wrote:
 
-        I submitted a patch two days ago that fixed drivers/video
-compilation.  The difference between my patch and yours is that
-while I deleted the initializations of the form "fb_info.node = -1;",
-you replaced them with "fb_info.node = NODEV;".
+>> [...] So, as far as I
+>> can tell, these initializations of fb_info.node are just wasting
+>> CPU cycles and confusing developers.
+>> 
+>>         Can anyone identify a place that uses the initialized value
+>> of fb_info.node prior to fb_info.node being set by register_framebuffer?
 
-        -1 is all ones, NODEV is currently encoded as all zeroes.
-I see no change in your patch that modifies any test for the
-value of the "node" field, so, if there was any test that relied
-on this value, it is now broken.
+>Your question here shows that you did not check.
 
-        However, I believe that there is no test that relies on the
-initial value of fb_info.node before any call to register_framebuffer
-(which sets fb_info.node to something meaningful).  So, as far as I
-can tell, these initializations of fb_info.node are just wasting
-CPU cycles and confusing developers.
+>There are failure paths in register_framebuffer by which an
+>uninitialized value may be displayed by a printk, if you delete the
+>.node = NODEV initialization.  So, your patch breaks things.
 
-        Can anyone identify a place that uses the initialized value
-of fb_info.node prior to fb_info.node being set by register_framebuffer?
+>       Jeff
+
+        I looked before and did not notice any such case.  I looked
+again now at register_framebuffer and did not notice any such case.
+It is something that can be missed and I don't know why you phrased
+your response as if it would not be easy to miss ("Your question here
+shows that you did not check").  Attempts at proof by intimidation
+can produce bad decisions, in this case it may produce slightly
+slower and bigger code.
+
+        How about pointing out where this occurs in
+register_framebuffer?  Then we can see if it is something where printing
+out this initialized value actually records information that it not
+otherwise clear from the printk (e.g., perhaps it is a printk that
+is never called after the "node" field has been set to something
+sensible).
 
 Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
 adam@yggdrasil.com     \ /                  San Jose, California 95129-1034

@@ -1,99 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263563AbUESAOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263591AbUESAP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263563AbUESAOF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 20:14:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbUESAOF
+	id S263591AbUESAP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 20:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbUESAP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 20:14:05 -0400
-Received: from fw.osdl.org ([65.172.181.6]:42935 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263563AbUESAOA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 20:14:00 -0400
-Date: Tue, 18 May 2004 17:16:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: VANDROVE@vc.cvut.cz, vince@kyllikki.org,
-       linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: vga16fb broke
-Message-Id: <20040518171612.516ad43c.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0405142314060.25927-100000@phoenix.infradead.org>
-References: <20040514145559.55202998.akpm@osdl.org>
-	<Pine.LNX.4.44.0405142314060.25927-100000@phoenix.infradead.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 18 May 2004 20:15:27 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:24529
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263591AbUESAPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 20:15:21 -0400
+Date: Wed, 19 May 2004 02:15:20 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: invalidate_inode_pages2
+Message-ID: <20040519001520.GO3044@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons <jsimmons@infradead.org> wrote:
->
-> 
-> > Guys, can you help with http://bugme.osdl.org/show_bug.cgi?id=2711 ?
-> > 
-> > The recent change broke it on x86 becuase we're now doing ioremap()
-> > of a kernel-virtual address, but the oriiginal version doesn't work on ARM.
-> > 
-> > Should it just be:
-> > 
-> > 	vga16fb.screen_base = VGA_MAP_MEM(VGA_FB_PHYS);
-> 
-> I went looking at the various platforms to see what exactly was going on.
-> We have:
-> 
-> Useage
-> 
-> ./drivers/video/console/mdacon.c: mda_vram_base = VGA_MAP_MEM(0xb0000);
-> ./drivers/video/console/vgacon.c: vga_vram_base = VGA_MAP_MEM(vga_vram_base);
-> ./drivers/video/console/vgacon.c: vga_vram_end = VGA_MAP_MEM(vga_vram_end);
-> ./drivers/video/console/vgacon.c: charmap = (char *) VGA_MAP_MEM(colourmap);
-> ./drivers/video/console/vgacon.c: charmap = (char *) VGA_MAP_MEM(blackwmap);
-> ./drivers/video/hgafb.c:	hga_fix.smem_start = VGA_MAP_MEM(hga_vram_base);
-> ./drivers/video/vga16fb.c:	vga16fb.screen_base = ioremap(VGA_MAP_MEM(VGA_FB_PHYS), VGA_FB_PHYS_LEN);
-> ./drivers/video/vga16fb.c:	vga16fb.fix.smem_start	= VGA_MAP_MEM(vga16fb.fix.smem_start);
-> 
-> ioremap happy
-> 
-> ./include/asm-alpha/vga.h:#define VGA_MAP_MEM(x) ((unsigned long) ioremap((x), 0))
-> ./include/asm-ia64/vga.h:#define VGA_MAP_MEM(x)	((unsigned long) ioremap((x), 0))
-> ./include/asm-ppc64/vga.h:#define VGA_MAP_MEM(x) ((unsigned long) ioremap((x), 0))
-> 
-> can be ioremap happy because ioremap in io.h matches below definetions. 
-> 
-> ./include/asm-i386/vga.h:#define VGA_MAP_MEM(x) (unsigned long)phys_to_virt(x)
-> ./include/asm-sparc64/vga.h:#define VGA_MAP_MEM(x) (x)
-> ./include/asm-x86_64/vga.h:#define VGA_MAP_MEM(x) (unsigned long)phys_to_virt(x)
-> 
-> Not happy.
-> 
-> ./include/asm-arm/vga.h:#define VGA_MAP_MEM(x)	(PCIMEM_BASE + (x))
-> ./include/asm-mips/vga.h:#define VGA_MAP_MEM(x)	(0xb0000000L + (unsigned long)(x))
-> ./include/asm-ppc/vga.h:#define VGA_MAP_MEM(x) (x + vgacon_remap_base)
-> 
-> 
-> So you can see that VGA_MAP_MEM is already ioremapping which is causing 
-> the problem. Personally I like to see the lose ends fixed on ARM, MIPS, 
-> and PPC so we can use just ioremap.
+Something broke in invalidate_inode_pages2 between 2.4 and 2.6, this
+causes malfunctions with mapped pages in 2.6.
 
-I have pondered your email at length and have failed to understand it.
+I guess the below untested one liner should be enough to fix it. The
+only single point of invalidate_inode_pages2, is to invalidate _mapped_
+pages too. Otherwise we could as well use invalidate_inode_pages.
+Clearly the dirty bit doesn't mean invalidate, invalidate primarly means
+clearing the uptodate bitflag.
 
-I _think_ you're saying that we need to do this, which will fix x86:
-
---- 25/drivers/video/vga16fb.c~vga16fb-fix	Tue May 18 17:10:14 2004
-+++ 25-akpm/drivers/video/vga16fb.c	Tue May 18 17:10:39 2004
-@@ -1347,7 +1347,7 @@ int __init vga16fb_init(void)
- 
- 	/* XXX share VGA_FB_PHYS and I/O region with vgacon and others */
- 
--	vga16fb.screen_base = ioremap(VGA_MAP_MEM(VGA_FB_PHYS), VGA_FB_PHYS_LEN);
-+	vga16fb.screen_base = VGA_MAP_MEM(VGA_FB_PHYS);
- 	if (!vga16fb.screen_base) {
- 		printk(KERN_ERR "vga16fb: unable to map device\n");
- 		ret = -ENOMEM;
-
-_
-
-and that ARM and others need to teach their VGA_MAP_MEM() to do an internal
-ioremap().
-
-Or do you mean something else?  Please be more clear?
+--- sles/mm/truncate.c.~1~	2004-05-18 19:24:40.000000000 +0200
++++ sles/mm/truncate.c	2004-05-19 02:09:28.311781864 +0200
+@@ -260,9 +260,10 @@ void invalidate_inode_pages2(struct addr
+ 			if (page->mapping == mapping) {	/* truncate race? */
+ 				wait_on_page_writeback(page);
+ 				next = page->index + 1;
+-				if (page_mapped(page))
++				if (page_mapped(page)) {
++					ClearPageUptodate(page);
+ 					clear_page_dirty(page);
+-				else
++				} else
+ 					invalidate_complete_page(mapping, page);
+ 			}
+ 			unlock_page(page);

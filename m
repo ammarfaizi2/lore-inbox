@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319547AbSIMHqk>; Fri, 13 Sep 2002 03:46:40 -0400
+	id <S319550AbSIMIBR>; Fri, 13 Sep 2002 04:01:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319548AbSIMHqj>; Fri, 13 Sep 2002 03:46:39 -0400
-Received: from denise.shiny.it ([194.20.232.1]:37789 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id <S319547AbSIMHqj>;
-	Fri, 13 Sep 2002 03:46:39 -0400
-Message-ID: <XFMail.20020913095116.pochini@shiny.it>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S319552AbSIMIBQ>; Fri, 13 Sep 2002 04:01:16 -0400
+Received: from urtica.linuxnews.pl ([217.67.200.130]:20750 "EHLO
+	urtica.linuxnews.pl") by vger.kernel.org with ESMTP
+	id <S319550AbSIMIBP>; Fri, 13 Sep 2002 04:01:15 -0400
+Date: Fri, 13 Sep 2002 10:05:55 +0200 (CEST)
+From: Pawel Kot <pkot@bezsensu.pl>
+X-X-Sender: <pkot@urtica.linuxnews.pl>
+To: Grega Fajdiga <Gregor.Fajdiga@telemach.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: NTFS errors
+In-Reply-To: <20020913093529.517f6d14.Gregor.Fajdiga@telemach.net>
+Message-ID: <Pine.LNX.4.33.0209131003100.19974-100000@urtica.linuxnews.pl>
 MIME-Version: 1.0
-In-Reply-To: <Pine.LNX.4.44.0209121551310.10048-100000@hawkeye.luckynet.adm>
-Date: Fri, 13 Sep 2002 09:51:16 +0200 (CEST)
-From: Giuliano Pochini <pochini@shiny.it>
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Subject: Re: Killing/balancing processes when overcommited
-Cc: riel@conectiva.com.br
-Cc: riel@conectiva.com.br,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jim Sibley <jlsibley@us.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jesse Pollard <pollard@admin.navo.hpc.mil>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 13 Sep 2002, Grega Fajdiga wrote:
 
->> Now, which of these processes should be killed?
-> 
-> ...the last of the user who has the most processes?
+Hi Grega,
 
-No, the last one it's likely to be the sysadmin that
-logged in to try to fix the situation.
+> I am using lk 2.4.19 + a NTFS 2.1.0 patch. Once in a while I get
+> lots of these errors:
+>
+> Sep 10 09:24:27 mujo kernel: NTFS-fs error (device 03:01): ntfs_ucstonls(): Unicode name contains characters that cannot be converted to character set iso8859-1.
+> Sep 12 09:39:29 mujo kernel: NTFS-fs error (device 03:01): ntfs_ucstonls(): Unicode name contains characters that cannot be converted to character set iso8859-1.
+> Sep 13 09:19:28 mujo kernel: NTFS-fs error (device 03:01): ntfs_ucstonls(): Unicode name contains characters that cannot be converted to character set iso8859-1.
+> Sep 13 09:20:22 mujo kernel: NTFS-fs error (device 03:01): ntfs_ucstonls(): Unicode name contains characters that cannot be converted to character set iso8859-1.
+>
+>
+> Are these errors serious? How can I get rid of them?
 
+No, they are not serious. It's just warning that some file names won't be
+displayed correctly. They contain some non-iso8859-1 characters. The
+solution would be (writing from memory, refer to the mount manual to check
+this out):
+mount -o remount,iocharset=utf8 /path/where/you/mountes/ntfs/volume
 
-Bye.
+pkot
+-- 
+mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
+http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
 

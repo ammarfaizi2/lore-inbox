@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264436AbTEPPIH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 11:08:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264438AbTEPPIH
+	id S264438AbTEPPOB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 11:14:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264454AbTEPPOB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 11:08:07 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:44683 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S264436AbTEPPIG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 11:08:06 -0400
-Date: Fri, 16 May 2003 06:06:52 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 726] New: Battery info/status query called twice through /proc interface 
-Message-ID: <255970000.1053090412@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 16 May 2003 11:14:01 -0400
+Received: from PACIFIC-CARRIER-ANNEX.MIT.EDU ([18.7.21.83]:57041 "EHLO
+	pacific-carrier-annex.mit.edu") by vger.kernel.org with ESMTP
+	id S264438AbTEPPN7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 11:13:59 -0400
+To: Nathan Neulinger <nneul@umr.edu>
+Cc: Christoph Hellwig <hch@infradead.org>, David Howells <dhowells@redhat.com>,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
+Subject: Re: [OpenAFS-devel] Re: [PATCH] PAG support only
+References: <8943.1052843591@warthog.warthog>
+	<20030513213759.A9244@infradead.org>
+	<1052864839.20037.2.camel@nneul-laptop>
+From: Derek Atkins <warlord@MIT.EDU>
+Date: 16 May 2003 11:24:02 -0400
+In-Reply-To: <1052864839.20037.2.camel@nneul-laptop>
+Message-ID: <sjmaddmewz1.fsf@kikki.mit.edu>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-           Summary: Battery info/status query called twice through /proc
-                    interface
-    Kernel Version: 2.4.21-rc/acpi 2002-04-24
-            Status: NEW
-          Severity: normal
-             Owner: andrew.grover@intel.com
-         Submitter: markus@gaugusch.at
+Nathan Neulinger <nneul@umr.edu> writes:
 
+> Per pag on most clients will only have a single token, but number of
+> pags will depend totally on the nature of the machine. 
 
-Problem Description:
-The acpi code is executed twice when doing 'cat /proc/acpi/BAT1/info' (same with
-'state'). I added debug printk's to the appropriate functions to find this out.
+Uh, no, at least around MIT per-pag users usually have about 2-3
+tokens on average.  I've run with as many as 10.  Please do not assume
+some max. number of tokens in a pag.
 
+> I also have machines that have a few hundred pags around that don't have
+> any tokens in them, but could at any time.
+> 
+> -- Nathan
 
+-- 
+       Derek Atkins, SB '93 MIT EE, SM '95 MIT Media Laboratory
+       Member, MIT Student Information Processing Board  (SIPB)
+       URL: http://web.mit.edu/warlord/    PP-ASEL-IA     N1NWH
+       warlord@MIT.EDU                        PGP key available

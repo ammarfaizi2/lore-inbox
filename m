@@ -1,63 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262580AbRFNNFm>; Thu, 14 Jun 2001 09:05:42 -0400
+	id <S262582AbRFNNRh>; Thu, 14 Jun 2001 09:17:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262582AbRFNNFW>; Thu, 14 Jun 2001 09:05:22 -0400
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:45319 "EHLO
-	mailout01.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S262580AbRFNNFS>; Thu, 14 Jun 2001 09:05:18 -0400
-Message-Id: <200106141305.f5ED5hD00663@thunderbird.ncptiddische.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Nils Holland <nils@nightcastleproductions.org>
-Organization: NightCastle Productions
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: obsolete code must die
-Date: Thu, 14 Jun 2001 15:05:43 +0200
-X-Mailer: KMail [version 1.2.2]
-In-Reply-To: <27525795B28BD311B28D00500481B7601F1458@ftrs1.intranet.ftr.nl>
-In-Reply-To: <27525795B28BD311B28D00500481B7601F1458@ftrs1.intranet.ftr.nl>
-NCP-Opt: Powered by Linux
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S262609AbRFNNRR>; Thu, 14 Jun 2001 09:17:17 -0400
+Received: from danielle.hinet.hr ([195.29.254.157]:14352 "EHLO
+	danielle.hinet.hr") by vger.kernel.org with ESMTP
+	id <S262582AbRFNNRO>; Thu, 14 Jun 2001 09:17:14 -0400
+Date: Thu, 14 Jun 2001 15:17:10 +0200
+From: Mario Mikocevic <mozgy@hinet.hr>
+To: Juri Haberland <juri@koschikode.com>
+Cc: linux-kernel@vger.kernel.org, haberland@altus.de, kraxel@bytesex.org
+Subject: Re: Need a helping hand (realproducer and radio device)
+Message-ID: <20010614151709.A30276@danielle.hinet.hr>
+In-Reply-To: <20010614093405.C6467@danielle.hinet.hr> <20010614092617.12555.qmail@babel.spoiled.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010614092617.12555.qmail@babel.spoiled.org>; from juri@koschikode.com on Thu, Jun 14, 2001 at 09:26:17AM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 14 June 2001 12:22, Heusden, Folkert van wrote:
-> Yeah, and while you're at it: make it closed source and ask big time $$
-> for every single line of update.
-> If your stupid idea will be followed, a lot of african people will not
-> be happy. (me neither. proud owner of a 486 (at home))
+Hi,
 
-Well, although I am not involved in developement of the kernel, I'm pretty 
-much about this "cleaning up" idea. While I'm not one of those folks who are 
-actually working on the code, I don't see a reason for limiting the range of 
-hardware that Linux suppurts, which is what this clean-up would do.
+> > I have an Hauppauge WinTV/Radio card and I want to be able to use it's radio
+> > device as a source for live broadcast.
+> > 
+> > It's RH71 distro updated with mainstream 2.4.5 .
+> > 
+> > Radio device works fine on it's own meaning that I can tune the station and
+> > listen to it.
+> > 
+> > RealProducer (8.5) also works fine meaning that it encodes video inputs and Line-In
+> > input into realmedia stream just fine.
+> > 
+> > The problem is that in startup realproducer mutes (IMO) or shuts down or something, that radio
+> > device on bt8x8 card and therefore no actual audio signal gets to Line-In resulting in no audio
+> > in realmedia stream.
+> 
+> I had a similar problem long time ago. The point is that the realproducer
+> mutes the recording source in the mixer. Try to reenable it using aumix or
+> a similar application.
 
-Some ideas that have been presented here are not of much relevance to me, but 
-I think dropping support for the serial and parallel ports is an insane idea. 
-Why not also stop supporting other devices that are in use by probably 70% of 
-the users?
+Well, it seems that problem is not in muted device ->
 
-Besides the fact that Linux is free, stable and fast, I have always liked the 
-fact that I could put it on almost any machine I got my hands on. That holds 
-true to my fastest Athlon with 512 MB of RAM, as well as for a 486SX with 16 
-MB of RAM.  With Linux, even such old machines could be put to good use. And 
-now, after this suggested clean-up, I wouldn't even be able to use my non-USB 
-supporting Pentium machines anymore. I wonder what that would be good for.
+before starting realproducer :
 
-I really cannot imagine that the older features in the kernel are big 
-problems of any kind that make it impossible (or harder) for the developers 
-to focus on supporting new features. The only thing a clean-up would do is 
-probably making a whole lot of users unhappy.
+# aumix -q
+vol 94, 94
+pcm 94, 94
+speaker 0, 0
+line 93, 93, R
+mic 0, 0, P
+cd 0, 0, P
+pcm2 0, 0
+igain 0, 0, P
+line1 0, 0, P
+phin 0, 0, P
+phout 0, 0
+video 0, 0, P
 
-Greetings
-Nils
+
+after starting realproducer :
+
+# aumix -q
+vol 94, 94
+pcm 50, 0
+speaker 0, 0
+line 93, 93, R
+mic 0, 0, P
+cd 0, 0, P
+pcm2 0, 0
+igain 0, 0, P
+line1 0, 0, P
+phin 0, 0, P
+phout 0, 0
+video 0, 0, P
+
+
+if I get back those values with aumix I still don't get audio from radio device so it
+must be something with bt8x8 radio part ->
+
+# radio 88.1 <> /dev/null 
+open /dev/radio: Device or resource busy
+
+Gerd, can you help here please !?
 
 -- 
-----------------------------------------------------------
-Nils Holland - nils@nightcastleproductions.org
-NightCastle Productions - Linux in Tiddische, Germany
-http://www.nightcastleproductions.org
-"They asked me where this earthquake would begin,
- I offered to let them feel my pulse."
-----------------------------------------------------------
+Mario Mikoèeviæ (Mozgy)
+My favourite FUBAR ...

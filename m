@@ -1,71 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263601AbTIBIHv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 04:07:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263603AbTIBIHu
+	id S263599AbTIBIEq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 04:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263601AbTIBIEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 04:07:50 -0400
-Received: from hauptpostamt.charite.de ([193.175.66.220]:22681 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id S263601AbTIBIHs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 04:07:48 -0400
-Date: Tue, 2 Sep 2003 10:07:33 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Re:Re: Linux 2.6.0-test4
-Message-ID: <20030902080733.GA14380@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030831120605.08D6.CHRIS@heathens.co.nz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030831120605.08D6.CHRIS@heathens.co.nz>
-User-Agent: Mutt/1.5.4i
+	Tue, 2 Sep 2003 04:04:45 -0400
+Received: from dyn-ctb-203-221-73-133.webone.com.au ([203.221.73.133]:12294
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S263599AbTIBIEn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 04:04:43 -0400
+Message-ID: <3F544F11.4010700@cyberone.com.au>
+Date: Tue, 02 Sep 2003 18:04:33 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Nick's scheduler policy v10
+References: <3F5044DC.10305@cyberone.com.au> <1806700000.1062361257@[10.10.2.4]> <1807550000.1062362498@[10.10.2.4]> <3F52A546.9020608@cyberone.com.au> <6860000.1062441073@[10.10.2.4]>
+In-Reply-To: <6860000.1062441073@[10.10.2.4]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Chris Heath <chris@heathens.co.nz>:
-> > Aug 27 18:53:41 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-> > Aug 27 19:15:14 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0) pressed.
-> > Aug 27 19:42:50 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-> > Aug 28 10:14:14 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-> > 
-> > Basically, CTRL was stuck. Even when I switched to X11.
-> 
-> Well, this completely baffles me.  I thought X11 maintains its own
-> keydown array.
-> 
-> Anyway, I've included a patch that should hopefully give us better
-> debugging information.  When you get an unknown key error, it will also
-> dump the last 16 bytes that were sent from the keyboard.  Be careful
-> with this one.  If you post any errors to the list, make sure it doesn't
-> contain any sensitive passwords. :-)
 
-I got some more events, and today I even was able to reproduc the
-"CTRL-is-stuck" problem.
 
-I was able to get the key unstuck by switching back and forth between
-dirrerent FB consoles and by pushing and releaseing CTRL in them...
+Martin J. Bligh wrote:
 
-Sep  2 09:10:01 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9c, on isa0060/serio0) pressed.
-Sep  2 09:10:01 hummus2 kernel: i8042 history: e0 d0 1c 9c 2e ae 10 90 e0 50 e0 d0 e0 d0 1c 9c
+>>>>Kernbench: (make -j vmlinux, maximal tasks)
+>>>>                             Elapsed      System        User         CPU
+>>>>             2.6.0-test4       45.87      116.92      571.10     1499.00
+>>>>      2.6.0-test4-nick10       46.91      114.03      584.16     1489.25
+>>>>
+>>>>
+>>>Actually, now looks like you have significantly more idle time, so perhaps
+>>>the cross-cpu (or cross-node) balancing isn't agressive enough:
+>>>
+>>>
+>>Yeah, there is a patch for this in mm that is not in mine. It should
+>>help both mine and mainline though...
+>>
+>
+>Not convinced of that - mm performs worse than mainline for me.
+>
 
-Sep  2 09:10:06 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0xa0, on isa0060/serio0) pressed.
-Sep  2 09:10:06 hummus2 kernel: i8042 history: 1c 9c 1c 9c e0 50 e0 d0 e0 50 e0 d0 e0 d0 20 a0
+Well, one of Con's patches caused a lot of idle time on volanomark.
+The reason for the change was unclear. I guess either a fairness or
+wakeup latency change (yes, it was a very scientific process, ahem).
 
-Sep  2 09:14:54 hummus2 kernel: input: AT Set 2 keyboard on isa0060/serio0
+Anyway, in the process of looking at the load balancing, we found
+and fixed a problem (although it might now possibly over balance).
+This did cure most of the idle problems.
 
-Sep  2 09:25:44 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-Sep  2 09:25:44 hummus2 kernel: i8042 history: e0 50 e0 d0 e0 50 e0 d0 e0 d0 1d 2d ad 1f 9f 9d
+So it could just be small changes causing things to go out of whack.
+I will try to get better data after (if ever) the thing is working
+nicely on the desktop.
 
-Sep  2 09:30:34 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0) pressed.
-Sep  2 09:30:34 hummus2 kernel: i8042 history: e0 48 e0 c8 39 b9 e0 38 56 d6 e0 b8 e0 b8 39 b9
 
-Sep  2 09:35:51 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0) pressed.
-Sep  2 09:35:51 hummus2 kernel: i8042 history: a0 20 a0 9d e0 4d e0 cd e0 4d e0 cd e0 cd 39 b9
-
--- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
-Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
-AIM: ralfpostfix

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289550AbSA2LqB>; Tue, 29 Jan 2002 06:46:01 -0500
+	id <S289547AbSA2LqA>; Tue, 29 Jan 2002 06:46:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289521AbSA2Lo5>; Tue, 29 Jan 2002 06:44:57 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:61711 "HELO
+	id <S289577AbSA2Lou>; Tue, 29 Jan 2002 06:44:50 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:62735 "HELO
 	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S289582AbSA2Lkv>; Tue, 29 Jan 2002 06:40:51 -0500
-Date: Mon, 28 Jan 2002 20:28:34 +0300
-Message-Id: <200201281728.g0SHSYa22958@bitshadow.namesys.com>
+	id <S289521AbSA2Lkv>; Tue, 29 Jan 2002 06:40:51 -0500
+Date: Mon, 28 Jan 2002 20:22:20 +0300
+Message-Id: <200201281722.g0SHMK122940@bitshadow.namesys.com>
 From: Hans Reiser <reiser@namesys.com>
 To: torvalds@transmeta.com
 CC: reiser@namesys.com, reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] ReiserFS 2.5 Update Patch Set 3 of 25
+Subject: [PATCH] ReiserFS 2.5 Update Patch Set 1 of 25
 MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -21,20 +21,8 @@ This set of patches of which this is one will update ReiserFS in 2.5
 to contain all bugfixes applied to 2.4 plus allow relocating the journal plus
 uuid support plus fix the kdev_t compilation failure.
 
-03-check_nlink_in_reiserfs_read_inode2.diff
-    It is possible that knfsd is trying to access inode of a file
-    that is being removed from the disk by some other thread. As we
-    update sd on unlink all that is required is to check for nlink
-    here. This bug was first found by Sizif when debugging
-    SquidNG/Butterfly, forgotten, and found again after Philippe
-    Gramoulle <philippe.gramoulle@mmania.com> reproduced it.
-
-    More logical fix would require changes in fs/inode.c:iput() to
-    remove inode from hash-table _after_ fs cleaned disk stuff up and
-    in iget() to return NULL if I_FREEING inode is found in
-    hash-table.  We await Al Viro doing the more logical fix, and we
-    provide this fix so that users can work while we wait for the
-    better fix.
+01-reiserfs-kdev-fixed.diff
+    kdev_t fixes to comply with new interface.
 
 
 The other patches in this set are:
@@ -184,50 +172,91 @@ The other patches in this set are:
 
 
 
---- linux-2.5.3-pre4.o/fs/reiserfs/inode.c	Thu Jan 24 10:45:26 2002
-+++ linux-2.5.3-pre4/fs/reiserfs/inode.c	Thu Jan 24 11:12:24 2002
-@@ -1135,6 +1135,30 @@
-     }
+
+diff -u -r linux-src/fs/reiserfs/procfs.c linux/fs/reiserfs/procfs.c
+--- linux-2.5.2-pre8/fs/reiserfs/procfs.c	Fri Jan  4 19:40:37 2002
++++ linux/fs/reiserfs/procfs.c	Sat Jan  5 05:12:34 2002
+@@ -77,7 +77,7 @@
+ 	int len = 0;
+ 	struct super_block *sb;
+     
+-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
++	sb = procinfo_prologue( to_kdev_t((int)data) );
+ 	if( sb == NULL )
+ 		return -ENOENT;
+ 	len += sprintf( &buffer[ len ], "%s format\twith checks %s\n",
+@@ -134,7 +134,7 @@
+ 	struct reiserfs_sb_info *r;
+ 	int len = 0;
+     
+-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
++	sb = procinfo_prologue( to_kdev_t((int)data) );
+ 	if( sb == NULL )
+ 		return -ENOENT;
+ 	r = &sb->u.reiserfs_sb;
+@@ -214,7 +214,7 @@
+ 	int len = 0;
+ 	int level;
+ 	
+-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
++	sb = procinfo_prologue( to_kdev_t((int)data) );
+ 	if( sb == NULL )
+ 		return -ENOENT;
+ 	r = &sb->u.reiserfs_sb;
+@@ -293,7 +293,7 @@
+ 	struct reiserfs_sb_info *r = &sb->u.reiserfs_sb;
+ 	int len = 0;
+     
+-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
++	sb = procinfo_prologue( to_kdev_t((int)data) );
+ 	if( sb == NULL )
+ 		return -ENOENT;
+ 	r = &sb->u.reiserfs_sb;
+@@ -334,7 +334,7 @@
+ 	int hash_code;
+ 	int len = 0;
+     
+-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
++	sb = procinfo_prologue( to_kdev_t((int)data) );
+ 	if( sb == NULL )
+ 		return -ENOENT;
+ 	sb_info = &sb->u.reiserfs_sb;
+@@ -387,7 +387,7 @@
+ 	int len = 0;
+ 	int exact;
+     
+-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
++	sb = procinfo_prologue( to_kdev_t((int)data) );
+ 	if( sb == NULL )
+ 		return -ENOENT;
+ 	sb_info = &sb->u.reiserfs_sb;
+@@ -438,7 +438,7 @@
+ 	struct reiserfs_super_block *rs;
+ 	int len = 0;
+     
+-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
++	sb = procinfo_prologue( to_kdev_t((int)data) );
+ 	if( sb == NULL )
+ 		return -ENOENT;
+ 	r = &sb->u.reiserfs_sb;
+@@ -491,7 +491,7 @@
+ 			"prepare_retry: \t%12lu\n",
  
-     init_inode (inode, &path_to_sd);
-+   
-+    /* It is possible that knfsd is trying to access inode of a file
-+       that is being removed from the disk by some other thread. As we
-+       update sd on unlink all that is required is to check for nlink
-+       here. This bug was first found by Sizif when debugging
-+       SquidNG/Butterfly, forgotten, and found again after Philippe
-+       Gramoulle <philippe.gramoulle@mmania.com> reproduced it. 
-+
-+       More logical fix would require changes in fs/inode.c:iput() to
-+       remove inode from hash-table _after_ fs cleaned disk stuff up and
-+       in iget() to return NULL if I_FREEING inode is found in
-+       hash-table. */
-+    /* Currently there is one place where it's ok to meet inode with
-+       nlink==0: processing of open-unlinked and half-truncated files
-+       during mount (fs/reiserfs/super.c:finish_unfinished()). */
-+    if( ( inode -> i_nlink == 0 ) && 
-+	! inode -> i_sb -> u.reiserfs_sb.s_is_unlinked_ok ) {
-+	    reiserfs_warning( "vs-13075: reiserfs_read_inode2: "
-+			      "dead inode read from disk %K. "
-+			      "This is likely to be race with knfsd. Ignore\n", 
-+			      &key );
-+	    make_bad_inode( inode );
-+    }
-+
-     reiserfs_check_path(&path_to_sd) ; /* init inode should be relsing */
- 
+ 			DJF( s_journal_block ),
+-			DJF( s_journal_dev ) == 0 ? "none" : bdevname( DJF( s_journal_dev ) ), 
++			DJF( s_journal_dev ) == 0 ? "none" : bdevname( to_kdev_t( DJF( s_journal_dev ) ) ),
+ 			DJF( s_journal_dev ),
+ 			DJF( s_orig_journal_size ),
+ 			DJF( s_journal_trans_max ),
+@@ -578,7 +578,7 @@
+ {
+ 	return ( sb->u.reiserfs_sb.procdir ) ? create_proc_read_entry
+ 		( name, 0, sb->u.reiserfs_sb.procdir, func, 
+-		  ( void * ) ( int ) sb -> s_dev ) : NULL;
++		  ( void * ) kdev_t_to_nr( sb -> s_dev ) ) : NULL;
  }
---- linux-2.5.3-pre4.o/include/linux/reiserfs_fs_sb.h	Thu Jan 24 11:11:41 2002
-+++ linux-2.5.3-pre4/include/linux/reiserfs_fs_sb.h	Thu Jan 24 11:12:24 2002
-@@ -360,6 +360,10 @@
-     int s_bmaps_without_search;
-     int s_direct2indirect;
-     int s_indirect2direct;
-+	/* set up when it's ok for reiserfs_read_inode2() to read from
-+	   disk inode with nlink==0. Currently this is only used during
-+	   finish_unfinished() processing at mount time */
-+    int s_is_unlinked_ok;
-     reiserfs_proc_info_data_t s_proc_info_data;
-     struct proc_dir_entry *procdir;
- };
+ 
+ void reiserfs_proc_unregister( struct super_block *sb, const char *name )
+
+
 

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289886AbSA2VBq>; Tue, 29 Jan 2002 16:01:46 -0500
+	id <S289889AbSA2VF4>; Tue, 29 Jan 2002 16:05:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289887AbSA2VBh>; Tue, 29 Jan 2002 16:01:37 -0500
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:36307 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S289886AbSA2VB3>;
-	Tue, 29 Jan 2002 16:01:29 -0500
-Date: Tue, 29 Jan 2002 16:01:29 -0500 (EST)
+	id <S289888AbSA2VFr>; Tue, 29 Jan 2002 16:05:47 -0500
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:37331 "HELO
+	openlab.rtlab.org") by vger.kernel.org with SMTP id <S289829AbSA2VFj>;
+	Tue, 29 Jan 2002 16:05:39 -0500
+Date: Tue, 29 Jan 2002 16:05:39 -0500 (EST)
 From: "Calin A. Culianu" <calin@ajvar.org>
-To: Vladimir Trebicky <trebi@post.cz>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Memory Hole on 2.4
-In-Reply-To: <003701c1a8f4$002f9710$1b00a8c0@guru>
-Message-ID: <Pine.LNX.4.30.0201291558220.10200-100000@rtlab.med.cornell.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Steven Hassani <hassani@its.caltech.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon Optimization Problem
+In-Reply-To: <E16VJ0e-0001me-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0201291604340.10200-100000@rtlab.med.cornell.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jan 2002, Vladimir Trebicky wrote:
+On Mon, 28 Jan 2002, Alan Cox wrote:
 
-> I want to upgrade from 2.2.16 to 2.4. I have Compaq Prosignia 300 with a
-> memory hole, which cannot be turned off. There was no problem with that on
-> 2.2.16, I just put "mem=64M" to kernel as a boot option. It does not appear
-> to be functional on 2.4, I only finds 15MB. I use the same LILO v.21, rh6.2.
+> > Hmm.  What do you recommend?  I remember seeing a spec sheet and register
+> > 0x95 was the memory write queue timer.. but I could have dreamed it..
+> > Anyone know what register 0x95 does?
+>
+> It may well the case. All I know is that for some people at least leaving
+> 0x95 as the bios set it up works and touching it does not - while for
+> the 0x55 case on older chips it all seems to be positive. VIA's own stuff
+> doesn't touch 0x95 - maybe there is a reason
+>
 
-Well this is unrelated to your problem, but as a side-note: if you are
-planning on using 2.4 going forward, you may need to upgrade some of your
-OS-related tools like modutils, binutils, e2fsprogs, et al.  Look in
-Documentation/Changes.
+Really?  VIA's own stuff doesn't touch 0x95?  Hmm.  Well is there ever a
+case where touching 0x95 solved ANYTHING?
 
-Again, this has nothing to do with your current memory hole issues, but it
-is something to consider if you solve your memory hole issues.
+What do you think?  Should I change the patch to not touch 0x95?
 
-I seem to remember being able to map out ranges of memory either as
-parameters to the kernel.. or by editing a source file--so that if you
-know the linear address of the memory range you want to omit, you can do
-so.  Actually I think to do this you may need to modify one of the kernel
-source files.  If you are willing to do this write me back and I will try
-hard and remember which file you have to modify...
 
--Calin
 

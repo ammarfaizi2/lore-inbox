@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264916AbTLWDRE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 22:17:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264934AbTLWDRE
+	id S264905AbTLWDKt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 22:10:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264916AbTLWDKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 22:17:04 -0500
-Received: from c211-28-147-198.thoms1.vic.optusnet.com.au ([211.28.147.198]:52687
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S264930AbTLWDRB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 22:17:01 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [PATCH] 2.6.0 batch scheduling, HT aware
-Date: Tue, 23 Dec 2003 14:16:58 +1100
-User-Agent: KMail/1.5.3
-Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200312231138.21734.kernel@kolivas.org> <3FE7AF24.40600@cyberone.com.au> <200312231415.38611.kernel@kolivas.org>
-In-Reply-To: <200312231415.38611.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Dec 2003 22:10:49 -0500
+Received: from smtp.everyone.net ([216.200.145.17]:29007 "EHLO
+	rmta01.mta.everyone.net") by vger.kernel.org with ESMTP
+	id S264905AbTLWDKr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 22:10:47 -0500
+Date: Mon, 22 Dec 2003 22:09:59 -0500
+From: "Kevin O'Connor" <kevin@koconnor.net>
+To: vandrove@vc.cvut.cz, linux-fbdev-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] matroxfb_maven module OOPS on insmod
+Message-ID: <20031223030959.GA3038@arizona.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="Q68bSM7Ycu6FN28Q"
 Content-Disposition: inline
-Message-Id: <200312231416.58998.kernel@kolivas.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Dec 2003 14:15, Con Kolivas wrote:
-> On Tue, 23 Dec 2003 13:57, Nick Piggin wrote:
-> > Con Kolivas wrote:
-> > >On Tue, 23 Dec 2003 12:36, Nick Piggin wrote:
-> > >>Con Kolivas wrote:
-> > >>>I discussed this with Ingo and that's the sort of thing we thought of.
-> > >>>Perhaps a relative crossover of 10 dynamic priorities and an absolute
-> > >>>crossover of 5 static priorities before things got queued together.
-> > >>> This is really only required for the UP HT case.
-> > >>
-> > >>Well I guess it would still be nice for "SMP HT" as well. Hopefully the
-> > >>code can be generic enough that it would just carry over nicely.
-> > >
-> > >I disagree. I can't think of a real world scenario where 2+ physical
-> > > cpus would benefit from this.
-> >
-> > Well its the same problem. A nice -20 process can still lose 40-55% of
-> > its performance to a nice 19 process, a figure of 10% is probably too
-> > high and we'd really want it <= 5% like what happens with a single
-> > logical processor.
->
-> I changed my mind just after I sent that mail. 4 physical cores running
-> three nice 20 and one nice -20 task gives the nice -20 task only 25% of the
-> total cpu and 25% to each of the nice 20 tasks.
 
-Err that should read 4 logical cores.
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Con
+Hi,
 
+When running the following commands:
+
+/sbin/modprobe i2c-algo-bit
+/sbin/modprobe i2c-matroxfb
+/sbin/modprobe matroxfb_maven
+
+the 2.6.0 kernel will reliably oops.  The problem is a result of calling
+device_add with uninitialized data.  The following patch allows the module
+to be inserted.
+
+-Kevin
+
+-- 
+ ---------------------------------------------------------------------
+ | Kevin O'Connor                  "BTW, IMHO we need a FAQ for      |
+ | kevin@koconnor.net               'IMHO', 'FAQ', 'BTW', etc. !"    |
+ ---------------------------------------------------------------------
+
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=matrox_diff
+
+--- gold-2.6/drivers/video/matrox/matroxfb_maven.c	2003-10-25 14:42:44.000000000 -0400
++++ linux-2.6.0/drivers/video/matrox/matroxfb_maven.c	2003-12-22 21:55:04.082725504 -0500
+@@ -1249,6 +1249,7 @@
+ 		err = -ENOMEM;
+ 		goto ERROR0;
+ 	}
++	memset(new_client, 0, sizeof(*new_client) + sizeof(*data));
+ 	data = (struct maven_data*)(new_client + 1);
+ 	i2c_set_clientdata(new_client, data);
+ 	new_client->addr = address;
+
+--Q68bSM7Ycu6FN28Q--

@@ -1,110 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVASTgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVASTkI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261432AbVASTgW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 14:36:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbVASTgW
+	id S261493AbVASTkI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 14:40:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVASTkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 14:36:22 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:6112 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261432AbVASTgI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 14:36:08 -0500
-Message-ID: <41EEB6A7.9010809@acm.org>
-Date: Wed, 19 Jan 2005 13:36:07 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Wed, 19 Jan 2005 14:40:08 -0500
+Received: from web53803.mail.yahoo.com ([206.190.36.198]:38793 "HELO
+	web53803.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261493AbVASTig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 14:38:36 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=CvPubSWP7u4H4BpAra4vL8WatOsb1zwTZkKut4CFbrstz+kghX+rgC5h3RCw+l2EPjMJQ6sfMuPhKrhy1WIjsgx4uh4runnSsZMenWXTUcIZQ+dSmi1Ypx5SffOin3ncrEFxTh4MD/W6vR8sxNJ4pVfA1H/xDt56AwhFXLfXtDw=  ;
+Message-ID: <20050119193832.34975.qmail@web53803.mail.yahoo.com>
+Date: Wed, 19 Jan 2005 11:38:32 -0800 (PST)
+From: Carl Spalletta <cspalletta@yahoo.com>
+Subject: [ANNOUNCE] Linux-tracecalls, a new tool for Kernel development, released
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Minor IPMI driver updates
-Content-Type: multipart/mixed;
- boundary="------------020808040506070200070104"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020808040506070200070104
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+>From http://www.linuxrd.com/~carl/cgi-bin/lnxtc.pl?help
 
-The following patch fixes some minor problems with the IPMI driver.  
-Relative to 2.6.11-rc1
+"'LINUX-TRACECALLS' finds all call chains leading to a given function in the Linux
+kernel, to some arbitrary depth. It consists of two parts - a set of specially
+prepared cscope databases for the kernel source tree, and a perl program, 'lnxtc.pl',
+to do the call chain discovery based on the information in the cscope DBs."
 
-Thanks,
+"It works, in part, by expanding function-yielding macros and by mangling function names
+with the name of the file containing the function's definition, prior to creating the
+cscope files."
 
--Corey
-
---------------020808040506070200070104
-Content-Type: text/plain;
- name="ipmi_fixes_2.6.11-rc3.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ipmi_fixes_2.6.11-rc3.diff"
+"It is believed to be highly accurate.."
 
 
-This patch fixes counting of unhandled messages.  Messages that were
-handled internally by the driver (to the NULL user) were miscounted
-as unhanlded responses.  This counts them properly.
-
-This patch also fixes the DMI 16-byte setting, which was set as a
-16-bit setting.
-
-It also uses the right value to initilize the address memory when
-using a memory-based interface.
-
-Signed-off-by: Corey Minyard <minyard@acm.org>
-
-Index: linux-2.6.11-rc1/drivers/char/ipmi/ipmi_msghandler.c
-===================================================================
---- linux-2.6.11-rc1.orig/drivers/char/ipmi/ipmi_msghandler.c	2005-01-19 09:54:15.000000000 -0600
-+++ linux-2.6.11-rc1/drivers/char/ipmi/ipmi_msghandler.c	2005-01-19 09:58:35.000000000 -0600
-@@ -2301,12 +2301,17 @@
- 
- 	if (!found) {
- 		/* Special handling for NULL users. */
--		if (!recv_msg->user && intf->null_user_handler)
-+		if (!recv_msg->user && intf->null_user_handler){
- 			intf->null_user_handler(intf, msg);
--		/* The user for the message went away, so give up. */
--		spin_lock_irqsave(&intf->counter_lock, flags);
--		intf->unhandled_local_responses++;
--		spin_unlock_irqrestore(&intf->counter_lock, flags);
-+			spin_lock_irqsave(&intf->counter_lock, flags);
-+			intf->handled_local_responses++;
-+			spin_unlock_irqrestore(&intf->counter_lock, flags);
-+		}else{
-+			/* The user for the message went away, so give up. */
-+			spin_lock_irqsave(&intf->counter_lock, flags);
-+			intf->unhandled_local_responses++;
-+			spin_unlock_irqrestore(&intf->counter_lock, flags);
-+		}
- 		ipmi_free_recv_msg(recv_msg);
- 	} else {
- 		struct ipmi_system_interface_addr *smi_addr;
-Index: linux-2.6.11-rc1/drivers/char/ipmi/ipmi_si_intf.c
-===================================================================
---- linux-2.6.11-rc1.orig/drivers/char/ipmi/ipmi_si_intf.c	2005-01-19 09:54:15.000000000 -0600
-+++ linux-2.6.11-rc1/drivers/char/ipmi/ipmi_si_intf.c	2005-01-19 09:58:46.000000000 -0600
-@@ -1299,7 +1299,7 @@
- 	memset(info, 0, sizeof(*info));
- 
- 	info->io_setup = mem_setup;
--	info->io.info = (void *) addrs[intf_num];
-+	info->io.info = &addrs[intf_num];
- 	info->io.addr = NULL;
- 	info->io.regspacing = regspacings[intf_num];
- 	if (!info->io.regspacing)
-@@ -1587,8 +1587,9 @@
- 	case 0x01: /* 32-bit boundaries */
- 		ipmi_data->offset = 4;
- 		break;
--	case 0x02: /* 16-bit boundaries */
--		ipmi_data->offset = 2;
-+	case 0x02: /* 16-byte boundaries */
-+		ipmi_data->offset = 16;
-+		break;
- 	default:
- 		printk("ipmi_si: Unknown SMBIOS IPMI Base Addr"
- 		       " Modifier: 0x%x\n", reg_spacing);
-
---------------020808040506070200070104--

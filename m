@@ -1,73 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136279AbRARXcS>; Thu, 18 Jan 2001 18:32:18 -0500
+	id <S135714AbRARXdI>; Thu, 18 Jan 2001 18:33:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136313AbRARXcI>; Thu, 18 Jan 2001 18:32:08 -0500
-Received: from [202.123.212.187] ([202.123.212.187]:18443 "EHLO ns1.b2s.com")
-	by vger.kernel.org with ESMTP id <S136279AbRARXcB>;
-	Thu, 18 Jan 2001 18:32:01 -0500
-Message-ID: <3A677CFA.DE6F7D93@vtc.edu.hk>
-Date: Fri, 19 Jan 2001 07:32:10 +0800
-From: Nick Urbanik <nicku@vtc.edu.hk>
-Organization: Institute of Vocational Education (Tsing Yi)
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+	id <S136176AbRARXc6>; Thu, 18 Jan 2001 18:32:58 -0500
+Received: from mail08.voicenet.com ([207.103.0.34]:33176 "HELO mail08")
+	by vger.kernel.org with SMTP id <S135714AbRARXcm>;
+	Thu, 18 Jan 2001 18:32:42 -0500
+Message-ID: <3A677D17.8000701@voicefx.com>
+Date: Thu, 18 Jan 2001 18:32:39 -0500
+From: "John O'Donnell" <johnod@voicefx.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; m18) Gecko/20010115
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
-        Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: rsync + ssh fail on raid; okay on 2.2.x
-In-Reply-To: <Pine.LNX.4.10.10101181225030.7200-100000@coffee.psychology.mcmaster.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Matthew Fredrickson <lists@frednet.dyndns.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: VIA chipset discussion
+In-Reply-To: <Pine.LNX.4.21.0101171358020.1171-100000@ns-01.hislinuxbox.com> <20010118020408.A4713@iname.com> <20010118121356.A28529@frednet.dyndns.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hahn wrote:
+Matthew Fredrickson wrote:
 
-> > Kernel: 2.4.0, no patches
->
-> use 2.4.1-pre8.  much better VM tuning.
+> On Thu, Jan 18, 2001 at 02:04:08AM -0200, Rogerio Brito wrote:
+> 
+>> On Jan 17 2001, David D.W. Downey wrote:
+>> 
+>>> Could those that were involved in the VIA chipset discussion email me
+>>> privately at pgpkeys@hislinuxbox.com?
+>> 
+>> 	Just to add a datapoint to the discussion, I'm using a VIA
+>> 	chipset here (in fact, it's an Asus A7V board with a Duron), a
+>> 	2.2.18 kernel with André's patches and I'm only using IDE
+>> 	(UDMA/66 and UDMA/33 here) and I'm *not* seeing any problems.
+> 
+> 
+> BTW, are you having any trouble with your ps/2 mouse port in X?  On my new
+> ASUS board, ps/2 mouse devices (just in X, gpm works fine) act a little
+> crazy (random mouse movement, random clicking, etc., except I'm not the
+> one doing all the random movement).  I'm not sure what it is, though I do
+> know it's not as bad once I upgraded from 2.2.18pre21 to 2.4.0.  I think
+> I'm going to try using the mouse as a usb device and see if I still have
+> trouble.  Anyway, just wondering if you're seeing the same problem.
 
-Thank you Mark, I will try that.
+I have the ASUS CUV4X.
+VIA vt82c686a (cf/cg) IDE UDMA66 controller on pci0:4.1
+I also run DMA66 with no problems here.
 
-> > PIII 450MHz, 256MB RAM, Acus P3B-F motherboard (Intel 440BX)
-> > Mail going to Raid 1 device
-> > The file Inbox is only 2.9MB
-> > OS = Red Hat 7 with all updates, both home and work.
-> > Same with ppp 2.3.x and ppp 2.4.0
-> > Same whether work machine runs 2.2.16 or 2.4.0 kernel.
->
-> any swap?
+I never have seen any issues with the PS/2 mouse and X.
+I use the Logitech cordless wheel mouse.  I use the "MouseManPlusPS/2"
+driver in XFree.  When I was first setting this up (about a year ago)
+I had the problems you mention.  I read an article on setting up your
+scroll wheel in X and it said to use the IMPS/2 setting.  This was
+nothing but trouble, till I RTFM on XFree and mice and found my solution.
+Can you tell us what kind of mouse this is and how you have it set up in
+XFree.
 
-Yes, 400MB swap, only a small fraction of it used; vmstat 5 looks okay
-and shows no understandable reason for the error message.  Here are a
-few lines from vmstat: the point at which free memory jumps up is just
-after the "Write failed: Cannot allocate memory" message:
+Let's take this mouse discussion off list as it has nuttin to do with
+the kernel....
+Johnny O
 
- 2  0  0   9276   1792   8952 110388   0   0   378     0 2400   295  11  26  63
-
- 2  0  0   9276   1760   8952 110420   0   0     0     0  492   319   6   2  92
-
- 3  0  0   9276   1596   8952 110588   0   0    96     0  754   326   8   5  87
-
- 2  1  0   9276   1620   8828 110692   0   0   751   207 5378   275  19  74   7
-
- 1  0  0   9276  26680   8828  91760   0   0   115     0 1094   307   9  11  80
-
- 2  0  0   9276  26680   8828  91760   0   0     0     0  120   318   4   1  95
-
-I have many hundreds of MB or GB of disk space in the various
-partititions.  I will try the newer kernel, though I am interested in
-understanding what's going on here too.
-
---
-Nick Urbanik, Dept. of Computing and Mathematics
-Hong Kong Institute of Vocational Education (Tsing Yi)
-email: nicku@vtc.edu.hk
-Tel:   (852) 2436 8576, (852) 2436 8579   Fax: (852) 2435 1406
-pgp ID: 7529555D fingerprint: 53 B6 6D 73 52 EE 1F EE EC F8 21 98 45 1C 23 7B
-
-
+-- 
+<SomeLamer> what's the difference between chattr and chmod?
+<SomeGuru> SomeLamer: man chattr > 1; man chmod > 2; diff -u 1 2 | less
+	-- Seen on #linux on irc
+=== Never ask a geek why, just nod your head and slowly back away.===
++==============================+====================================+
+| John O'Donnell (Sr. Systems Engineer, Net Admin, Webmaster, etc.) |
+| Voice FX Corporation (a subsidiary of Student Advantage)          |
+| One Plymouth Meeting         |     E-Mail: johnod@voicefx.com     |
+| Suite 610                    |           www.voicefx.com          |
+| Plymouth Meeting, PA 19462   |         www.campusdirect.com       |
++==============================+====================================+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,78 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266978AbSLEANA>; Wed, 4 Dec 2002 19:13:00 -0500
+	id <S267137AbSLEAKz>; Wed, 4 Dec 2002 19:10:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267022AbSLEANA>; Wed, 4 Dec 2002 19:13:00 -0500
-Received: from holomorphy.com ([66.224.33.161]:29063 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S266978AbSLEAM7>;
-	Wed, 4 Dec 2002 19:12:59 -0500
-Date: Wed, 4 Dec 2002 16:20:23 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Trivial Patch Monkey <trivial@rustcorp.com.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] fix broken topology functions
-Message-ID: <20021205002023.GC9882@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Matthew Dobson <colpatch@us.ibm.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Trivial Patch Monkey <trivial@rustcorp.com.au>,
-	linux-kernel@vger.kernel.org
-References: <3DEE959F.7080600@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DEE959F.7080600@us.ibm.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S267160AbSLEAKy>; Wed, 4 Dec 2002 19:10:54 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59409 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267137AbSLEAKx>; Wed, 4 Dec 2002 19:10:53 -0500
+Date: Wed, 4 Dec 2002 16:18:39 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jim Houston <jim.houston@ccur.com>
+cc: george anzinger <george@mvista.com>,
+       Stephen Rothwell <sfr@canb.auug.org.au>,
+       LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
+       "David S. Miller" <davem@redhat.com>, <ak@muc.de>, <davidm@hpl.hp.com>,
+       <schwidefsky@de.ibm.com>, <ralf@gnu.org>, <willy@debian.org>
+Subject: Re: [PATCH] compatibility syscall layer (lets try again)
+In-Reply-To: <3DEE92EF.350F4F9F@ccur.com>
+Message-ID: <Pine.LNX.4.44.0212041600070.3100-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 03:54:07PM -0800, Matthew Dobson wrote:
-> Linus,
-> 	The register_(node|memblk)_driver functions are broken.  Pat Mochel 
-> recently updated sysfs to make sure that when you register a driver that 
-> it's associated devclass is already registered.  The way node/memblk 
-> registration is done now is backwards and causes panic's on NUMA 
-> systems.  Please apply this patch to fix it.
-> Cheers!
 
-That didn't check the return value of devclass_register():
+On Wed, 4 Dec 2002, Jim Houston wrote:
+> 
+> Agreed!  In my alternative version of the Posix timers patch, I avoid
+> calling do_signal() from clock_nanosleep by using a variant of the 
+> existing ERESTARTNOHAND mechanism.  The problem I ran into was that I
+> could not tell on entry to clock_nanosleep if it was a new call or
+> an old one being restarted.
 
+Restarting has other problems too, namely how to save off the partial 
+results.
 
+>				  I solved this by adding a new 
+> ERESTARTNANOSLP error code and making a small change in do_signal().
+> The handling of ERESTARTNANOSLP is the same as ERESTARTNOHAND but also
+> sets a new flag in the task_struct before restarting the system call.
 
-Reorder devclass_register() and driver_register() so these things
-stop oopsing.
+The problem I see with this is that the signal handler can do a 
+"siglongjump()" out of the regular path, and the next system call may well 
+be a _new_ nanosleep() that has nothing to do with the old one. And 
+realizing that it's _not_ a restarted one is interesting.
 
- memblk.c |    4 ++--
- node.c   |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+A better and more flexible approach would be to not restart the same
+system call with the same parameters, but having some way of telling
+do_signal to restart with new parameters and a new system call number.
 
+For example, it shouldn't be impossible to have an interface more akin to
 
-diff -urpN mm1-2.5.50/drivers/base/memblk.c mm1-2.5.50-1/drivers/base/memblk.c
---- mm1-2.5.50/drivers/base/memblk.c	2002-11-27 14:36:23.000000000 -0800
-+++ mm1-2.5.50-1/drivers/base/memblk.c	2002-12-04 12:53:59.000000000 -0800
-@@ -49,7 +49,7 @@ int __init register_memblk(struct memblk
- 
- static int __init register_memblk_type(void)
- {
--	driver_register(&memblk_driver);
--	return devclass_register(&memblk_devclass);
-+	int error = devclass_register(&memblk_devclass);
-+	return error ? error : driver_register(&memblk_driver);
- }
- postcore_initcall(register_memblk_type);
-diff -urpN mm1-2.5.50/drivers/base/node.c mm1-2.5.50-1/drivers/base/node.c
---- mm1-2.5.50/drivers/base/node.c	2002-11-27 14:35:50.000000000 -0800
-+++ mm1-2.5.50-1/drivers/base/node.c	2002-12-04 12:53:05.000000000 -0800
-@@ -93,7 +93,7 @@ int __init register_node(struct node *no
- 
- static int __init register_node_type(void)
- {
--	driver_register(&node_driver);
--	return devclass_register(&node_devclass);
-+	int error = devclass_register(&node_devclass);
-+	return error ? error : driver_register(&node_driver);
- }
- postcore_initcall(register_node_type);
+	...
+	thread_info->restart_block.syscall = __NR_nanosleep_restart;
+	thread_info->restart_block.arg0 = timeout + jiffies; /* absolute time */
+	return -ERESTARTSYS_RESTARTBLOCK;
+
+where the signal stack stuff re-writes not just eip (like the current 
+restart logic does), but also rewrites the system call number and the 
+argument registers.
+
+This way you can get a truly restartable system call, because the
+arguments really need to be fundamentally changed (the restarted system
+call had better have _absolute_ time, not relative time, since we don't
+know how much time passed before it got restarted).
+
+		Linus
+

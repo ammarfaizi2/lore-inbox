@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262421AbTHYXBH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 19:01:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbTHYXBD
+	id S262248AbTHYWwU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 18:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTHYWwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 19:01:03 -0400
-Received: from smtp.mailix.net ([216.148.213.132]:3432 "EHLO smtp.mailix.net")
-	by vger.kernel.org with ESMTP id S262421AbTHYXAs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 19:00:48 -0400
-Date: Tue, 26 Aug 2003 01:00:44 +0200
-From: Alex Riesen <fork0@users.sf.net>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [PATCH]O18.1int
-Message-ID: <20030825230044.GA27016@steel.home>
-Reply-To: Alex Riesen <fork0@users.sf.net>
-References: <200308231555.24530.kernel@kolivas.org> <20030825102133.GA14402@Synopsys.COM> <20030825210254.GA12781@steel.home> <200308260848.23538.kernel@kolivas.org>
+	Mon, 25 Aug 2003 18:52:20 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38161 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262248AbTHYWwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 18:52:16 -0400
+Date: Mon, 25 Aug 2003 23:52:10 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: [CFT] Clean up yenta_socket
+Message-ID: <20030825235210.J16790@flint.arm.linux.org.uk>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <20030825003529.K16635@flint.arm.linux.org.uk> <3F4A9096.2000700@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200308260848.23538.kernel@kolivas.org>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F4A9096.2000700@pobox.com>; from jgarzik@pobox.com on Mon, Aug 25, 2003 at 06:41:26PM -0400
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas, Tue, Aug 26, 2003 00:48:23 +0200:
-> > Afaics, the application (rxvt) just sleeps at the beginning waiting for
-> > input from X. As every terminal would do. At some point its inferior
-> > process finishes, but it fails to notice this spinning madly in the
-> > internal loop calling select, which returns immediately (because other
-> > side of pty was closed. That is the error in rxvt). Probably it has
-> > accumulated enough "priority" up to this moment to block other
-> > applications (window manager, for example) when it suddenly starts running?
-> 
-> Something like that. Interesting you point out select as wli was 
-> profiling/tracing the mozilla/acroread plugin combination that spins on wait 
-> and also found select was causing grief. It was calling select with a 15ms 
-> timeout and X was getting less than 5ms to do it's work and respond and it 
-> was repeatedly timing out. Seems a common link there.
-> 
+On Mon, Aug 25, 2003 at 06:41:26PM -0400, Jeff Garzik wrote:
+> WIBNI?
 
-Yes, looks similar. Probably a simplier test could be to let the
-program loop using select on stdin with zero timeout (it is a pty
-usually :)
+"wouldn't it be nice if"
+
+> Anyway, MSI needs more than the standard size as well.
+> 
+> But I would actually prefer the interface to go the other way:
+> 
+> 	pci_save_state(pdev);
+> 		and
+> 	pci_restore_state(pdev);
+> 
+> Allocate and store the state in a pointer in struct pci_dev, or 
+> somesuch.  And somebody other than the low-level driver figures out the 
+> amount to save and restore.
+
+Hmm.  The reason I wanted to stear clear of that was that sometimes we
+don't know what's there.  Taking the yenta as an example, we know that
+the "standard" space is 0x48 bytes long.  However, some devices have
+extra control registers at 0x80, and then there's the PCI PM registers
+up at around 0xa0 or so.
+
+On a different cardbus bridge, the PCI PM registers might be somewhere
+else.
+
+Do we care if we overwrite the PCI PM registers with possibly old/stale
+data?
+
+In other words, how does the PCI layer itself know how much configuration
+space to save and restore over power management calls?
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

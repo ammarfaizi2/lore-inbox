@@ -1,66 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVBIQGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261843AbVBIQ3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbVBIQGA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 11:06:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVBIQGA
+	id S261843AbVBIQ3q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 11:29:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVBIQ3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 11:06:00 -0500
-Received: from cantor.suse.de ([195.135.220.2]:64385 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261840AbVBIQFz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 11:05:55 -0500
-Message-ID: <420A34E1.2020608@suse.de>
-Date: Wed, 09 Feb 2005 17:05:53 +0100
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+	Wed, 9 Feb 2005 11:29:45 -0500
+Received: from smtpauth05.mail.atl.earthlink.net ([209.86.89.65]:23504 "EHLO
+	smtpauth05.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S261843AbVBIQ3m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 11:29:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=simple;
+  s=test1; d=earthlink.net;
+  h=Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=NbqXIJiIUeTLthtdsxO2inHjB+3d9cKRobpwPnokuKh9JwIVOVzu8dsRg9i3wlzs;
+Message-ID: <420A3A8D.9030705@earthlink.net>
+Date: Wed, 09 Feb 2005 11:30:05 -0500
+From: Todd Shetter <tshetter-lkml@earthlink.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: aurelien francillon <aurel@naurel.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG]  linux-2.6.11-rc3 probably in ACPI  battery procfs ...
-References: <4207557B.2090500@naurel.org>
-In-Reply-To: <4207557B.2090500@naurel.org>
-Content-Type: multipart/mixed;
- boundary="------------080202030507080406040101"
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x kernel BUG at filemap.c:81
+References: <42099C57.9030306@earthlink.net> <20050209121011.GA13614@logos.cnet>
+In-Reply-To: <20050209121011.GA13614@logos.cnet>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ELNK-Trace: 20b3e7689bd2545e1aa676d7e74259b7b3291a7d08dfec79d8385d84aea0f7c159eac2ae770e8081350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 24.144.117.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080202030507080406040101
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Marcelo Tosatti wrote:
 
-aurelien francillon wrote:
+>On Wed, Feb 09, 2005 at 12:15:03AM -0500, Todd Shetter wrote:
+>  
+>
+>>Running slackware 10 and 10.1, with kernels 2.4.26, 2.4.27, 2.4.28, 
+>>2.4.29 with highmem 4GB, and highmem i/o support enabled, I get a system 
+>>lockup. This happens in both X and console. Happens with and without my 
+>>Nvidia drivers loaded. I cannot determine what makes this bug present it 
+>>self besides highmem and high i/o support enabled. Im guessing the 
+>>system is fine until highmem is actually used to some point and then it 
+>>borks, but I really have no idea and so im just making a random guess. I 
+>>ran memtest86 for a few hours a while ago thinking that it may be bad 
+>>memory, but that did not seem to be the problem.
+>>
+>>If you need anymore information, or have questions, or wish me to test 
+>>anything, PLEASE feel free to contact me, I would really like to see 
+>>this bug resolved. =)
+>>
+>>--
+>>Todd Shetter
+>>
+>>
+>>Feb  8 19:49:31 quark kernel: kernel BUG at filemap.c:81!
+>>Feb  8 19:49:31 quark kernel: invalid operand: 0000
+>>Feb  8 19:49:31 quark kernel: CPU:    0
+>>Feb  8 19:49:31 quark kernel: EIP:    0010:[<c01280d1>]    Tainted: P
+>>    
+>>
+>
+>Hi Todd, 
+>
+>Why is your kernel tainted ?
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+I had the nvidia 1.0-6629 driver loaded when I got that error. I 
+compiled the kernel using the slackware 10.1 config, enabled highmem 4GB 
+support, highmem i/o, and then some kernel hacking options including 
+debugging for highmen related things.
 
-> CONFIG_ACPI_DEBUG=y
+I booted, loaded X with KDE, opened firefox a few times, and then 
+started running hdparm because some newer 2.4.x kernels dont play nice 
+with my SATA, ICH5, and DMA. hdparm segfaulted while running the drive 
+read access portion of its tests, and things locked up from there in 
+about 30secs.
 
-This one is also bad for you. If you unset this, it will even run fast
-even without the object cache (i'm recompiling right now with object
-cache _and_ unset debug to see what i can gain from this :-)
-Maybe a patch like the attached one for the Kconfig help text is apropriate.
+I've gotten the same error with the nvidia driver not loaded, so I dont 
+think that is part of the problem.
 
-Good luck
+As I said, if you want me to test or try anything feel free to ask.  =)
 
-    Stefan
-
---------------080202030507080406040101
-Content-Type: text/plain;
- name="acpi-debug.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="acpi-debug.diff"
-
---- linux/drivers/acpi/Kconfig~	2005-02-09 17:02:27.000000000 +0100
-+++ linux/drivers/acpi/Kconfig	2005-02-09 17:03:47.000000000 +0100
-@@ -276,7 +276,8 @@
- 	help
- 	  The ACPI driver can optionally report errors with a great deal
- 	  of verbosity. Saying Y enables these statements. This will increase
--	  your kernel size by around 50K.
-+	  your kernel size by around 50K. It may also severely impact the
-+	  performance of the system.
- 
- config ACPI_BUS
- 	bool
-
---------------080202030507080406040101--
+--
+Todd Shetter

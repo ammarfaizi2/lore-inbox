@@ -1,35 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131578AbRC0VQ1>; Tue, 27 Mar 2001 16:16:27 -0500
+	id <S131588AbRC0VO5>; Tue, 27 Mar 2001 16:14:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131589AbRC0VQR>; Tue, 27 Mar 2001 16:16:17 -0500
-Received: from fireball.blast.net ([207.162.131.33]:19466 "EHLO
-	fireball.blast.net") by vger.kernel.org with ESMTP
-	id <S131578AbRC0VQL>; Tue, 27 Mar 2001 16:16:11 -0500
-Message-ID: <3AC102EF.A86D484E@voicenet.com>
-Date: Tue, 27 Mar 2001 16:15:27 -0500
-From: Uncle George <gatgul@voicenet.com>
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.14-7.0 alpha)
-X-Accept-Language: en
+	id <S131578AbRC0VOs>; Tue, 27 Mar 2001 16:14:48 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:11280 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131589AbRC0VOj>; Tue, 27 Mar 2001 16:14:39 -0500
+Date: Tue, 27 Mar 2001 23:13:47 +0200
+From: Andreas Rogge <lu01@rogge.yi.org>
+To: Andreas Dilger <adilger@turbolinux.com>,
+        Martin Dalecki <dalecki@evision-ventures.com>
+cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Jonathan Morton <chromi@cyberspace.org>,
+        Rogier Wolff <R.E.Wolff@bitwizard.nl>, linux-kernel@vger.kernel.org
+Subject: Re: OOM killer???
+Message-ID: <237970000.985727627@hades>
+In-Reply-To: <200103271955.f2RJtoH05928@webber.adilger.int>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-Subject: Re: slow latencies on IDE disk drives( controller? )
-In-Reply-To: <Pine.LNX.4.10.10103270904490.16125-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The fix is a lot simpler. It has to be placed in release notes that the
-generic ide can cause the sound device to distort the sound stream. 
-Would that be a fair statement ?
+--On Tuesday, March 27, 2001 12:55:50 -0700 Andreas Dilger 
+<adilger@turbolinux.com> wrote:
 
+> Every time this subject comes up, I point to AIX and SIGDANGER - a signal
+> sent to processes when the system gets OOM.  If the process has registered
+> a SIGDANGER handler, it has a chance to free cache and such (or do a clean
+> shutdown), otherwise the default signal handler will kill the process.
 
-Andre Hedrick wrote:
-> 
->
-> 
-> This is your fix....
-> 
-> Andre Hedrick
->
+Having a SIGDANGER would be a fine thing, but this will need patching in all
+current daemons and there has to be a possibility to configure the behaviour
+of the process when recieving a SIGDANGER. i.e. it is a good idea to kill
+apache on a workstation, but a very bad idea to kill apache on a webserver.
+Generally I'd like to see such an implementation, but wouldn't it be better
+to have a pre-seclction of the processes getting SIGDANGER?
+
+For example: if OOM occours, send SIGDANGER to all non-root-processes with a
+nice-level of n or higher (where n should be discussed).
+
+This would make it easy to "configure" SIGDANGER-unaware Applications - in 
+the meantime, until all applications are SIGDANGER-aware -  to deal with
+OOM-situations. You just do an "nice -n -1 httpd" and one's httpd won't
+get killed when OOM occours.
+
+IMO this would dramatically improve the OOM-Problems right now.
+
+--
+Andreas Rogge <lu01@rogge.yi.org>
+Available on IRCnet:#linux.de as Dyson

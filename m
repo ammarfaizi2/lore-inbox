@@ -1,62 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129075AbRBSPBZ>; Mon, 19 Feb 2001 10:01:25 -0500
+	id <S129392AbRBSPFz>; Mon, 19 Feb 2001 10:05:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129238AbRBSPBQ>; Mon, 19 Feb 2001 10:01:16 -0500
-Received: from [209.58.33.70] ([209.58.33.70]:50951 "EHLO ns1.sdnpk.org")
-	by vger.kernel.org with ESMTP id <S129075AbRBSPBA>;
-	Mon, 19 Feb 2001 10:01:00 -0500
-Message-ID: <3A913520.3011C7D6@khi.sdnpk.org>
-Date: Mon, 19 Feb 2001 20:00:48 +0500
-From: Ansari <mike@khi.sdnpk.org>
-X-Mailer: Mozilla 4.61 [en] (Win95; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Running Bind 9 on Redhat 7
+	id <S129539AbRBSPFq>; Mon, 19 Feb 2001 10:05:46 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:3607 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129238AbRBSPFj>; Mon, 19 Feb 2001 10:05:39 -0500
+Date: Mon, 19 Feb 2001 16:06:07 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: tytso@valinux.com
+Cc: alan@lxorguk.ukuu.org.uk, sflory@valinux.com, chip@valinux.com,
+        linux-kernel@vger.kernel.org, sct@redhat.com
+Subject: Re: mke2fs and kernel VM issues
+Message-ID: <20010219160607.C5170@athlon.random>
+In-Reply-To: <E14ThUy-0002ed-00@the-village.bc.nu> <E14TkFk-0007Nz-00@beefcake.hdqt.valinux.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E14TkFk-0007Nz-00@beefcake.hdqt.valinux.com>; from tytso@valinux.com on Fri, Feb 16, 2001 at 04:44:48AM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !!
+On Fri, Feb 16, 2001 at 04:44:48AM -0800, Theodore Y. Ts'o wrote:
+> Note that this only shows up when using mke2fs to create very large
+> filesystems, and you have relatively little memory.  In this particular
 
-I am configuring Bind 9 on Redhat 7 but unable to start the named.
-Here is my /var/log message log:
+If you can reproduce the oom of mke2fs on recent 2.2.19pre, could you try
+again after applying this additional VM patch?
 
-
-Feb 20 09:49:58 ns2 named[2003]: starting BIND 9.0.0
-Feb 20 09:49:58 ns2 named[2005]: loading configuration from
-'/var/named/named.bo
-ot'
-Feb 20 09:49:58 ns2 named[2005]: the default for the 'auth-nxdomain'
-option is n
-ow 'no'
-Feb 20 09:49:58 ns2 modprobe: modprobe: Can't locate module net-pf-10
-Feb 20 09:49:58 ns2 named[2005]: no IPv6 interfaces found
-Feb 20 09:49:58 ns2 named[2005]: listening on IPv4 interface lo,
-127.0.0.1#53
-Feb 20 09:49:58 ns2 named[2005]: socket.c:1183: unexpected error:
-Feb 20 09:49:58 ns2 named[2005]: setsockopt(10, SO_TIMESTAMP) failed
-Feb 20 09:49:58 ns2 named[2005]: listening on IPv4 interface eth0,
-209.58.33.71#
-53
-Feb 20 09:49:58 ns2 named[2005]: socket.c:1183: unexpected error:
-Feb 20 09:49:58 ns2 named[2005]: setsockopt(12, SO_TIMESTAMP) failed
-Feb 20 09:49:58 ns2 named[2005]: socket.c:1183: unexpected error:
-Feb 20 09:49:58 ns2 named[2005]: setsockopt(9, SO_TIMESTAMP) failed
-Feb 20 09:49:58 ns2 named[2005]: dns_master_load: db.127.0.0:1: no TTL
-specified
-Feb 20 09:49:58 ns2 named[2005]: dns_zone_load: zone
-0.0.127.IN-ADDR.ARPA/IN: da
-tabase db.127.0.0: dns_db_load failed: no ttl
-Feb 20 09:49:58 ns2 named[2005]: loading zones: no ttl
-Feb 20 09:49:58 ns2 named[2005]: exiting (due to fatal error)
-Feb 20 09:50:00 ns2 CROND[2010]: (root) CMD (   /sbin/rmmod -as)
-
-
-Anyone have an idea how to solve this problem.
-
-Thanx,
-Nauman Ansrai
-
+--- VM-locked/fs/buffer.c.~1~	Sun Feb 18 04:01:32 2001
++++ VM-locked/fs/buffer.c	Sun Feb 18 23:03:32 2001
+@@ -1530,9 +1530,13 @@
+ 		struct buffer_head *p = tmp;
+ 		tmp = tmp->b_this_page;
+ 
+-		if (buffer_dirty(p))
+-			if (test_and_set_bit(BH_Wait_IO, &p->b_state))
+-				ll_rw_block(WRITE, 1, &p);
++		if (buffer_dirty(p) || buffer_locked(p))
++			if (test_and_set_bit(BH_Wait_IO, &p->b_state)) {
++				if (buffer_dirty(p))
++					ll_rw_block(WRITE, 1, &p);
++				else if (buffer_locked(p))
++					wait_on_buffer(p);
++			}
+ 	} while (tmp != bh);
+ 
+ 	/* Restore the visibility of the page before returning. */
+--- VM-locked/include/linux/fs.h.~1~	Sun Feb 18 04:01:32 2001
++++ VM-locked/include/linux/fs.h	Sun Feb 18 22:59:00 2001
+@@ -810,7 +810,6 @@
+ 	if (test_and_clear_bit(BH_Dirty, &bh->b_state)) {
+ 		if (bh->b_list == BUF_DIRTY)
+ 			refile_buffer(bh);
+-		clear_bit(BH_Wait_IO, &bh->b_state);
+ 	}
+ }
+ 
+--- VM-locked/include/linux/locks.h.~1~	Sun Feb 18 06:31:15 2001
++++ VM-locked/include/linux/locks.h	Sun Feb 18 22:59:09 2001
+@@ -29,6 +29,7 @@
+ extern inline void unlock_buffer(struct buffer_head *bh)
+ {
+ 	clear_bit(BH_Lock, &bh->b_state);
++	clear_bit(BH_Wait_IO, &bh->b_state);
+ 	wake_up(&bh->b_wait);
+ }
+ 
+Andrea

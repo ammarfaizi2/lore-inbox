@@ -1,85 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262421AbSJDQYP>; Fri, 4 Oct 2002 12:24:15 -0400
+	id <S262055AbSJDPaC>; Fri, 4 Oct 2002 11:30:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262422AbSJDQYP>; Fri, 4 Oct 2002 12:24:15 -0400
-Received: from fep01.tuttopmi.it ([212.131.248.100]:21724 "EHLO
-	fep01-svc.flexmail.it") by vger.kernel.org with ESMTP
-	id <S262421AbSJDQYN> convert rfc822-to-8bit; Fri, 4 Oct 2002 12:24:13 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Frederik Nosi <fredi@e-salute.it>
-Reply-To: fredi@e-salute.it
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-pre9: kbuild strangeness
-Date: Fri, 4 Oct 2002 18:39:45 +0200
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210041839.45319.fredi@e-salute.it>
+	id <S262056AbSJDPaC>; Fri, 4 Oct 2002 11:30:02 -0400
+Received: from host194.steeleye.com ([66.206.164.34]:64775 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S262055AbSJDP3N>; Fri, 4 Oct 2002 11:29:13 -0400
+Message-Id: <200210041534.g94FYdQ03332@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: rickh@Capaccess.org
+cc: linux-kernel@vger.kernel.org, James.Bottomley@HansenPartnership.com
+Subject: Re: an open letter to George Soros
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 04 Oct 2002 11:34:39 -0400
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I followed the usual steps:
+I'm not interested in disputing or evaluating any of the allegations raised in 
+your letter, I'll leave everyone to draw their own conclusions.  However, I am 
+curious about the consequences of what you propose.  In particular, your 
+remedies.
 
-patched the kernel to 2.4.20-p9
-make mrproper, make oldconfig, make dep, make bzImage, make modules
+Let us assume that George Soros accepts your letter and withdraws funding from 
+Transmeta.  What are the consequences for Linux and Microsoft?
 
-During kernel/modules building I get no errors, only this warnings:
+Transmeta could easily collapse, thus throwing several prominent Linux 
+developers out into the job market.  Worse, the resulting publicity about the 
+reasons would create a media circus that would be highly damaging to Linux as 
+a whole and the release of 2.6 in particular.
 
-agpgart_be.c: In function `agp_generic_create_gatt_table':
-agpgart_be.c:591: warning: assignment from incompatible pointer type
-Loading defkeymap.map
-base.c: In function `devfsd_ioctl':
-base.c:3433: warning: unused variable `lock'
-{standard input}: Assembler messages:
-{standard input}:1018: Warning: indirect lcall without `*'
-{standard input}:1102: Warning: indirect lcall without `*'
-{standard input}:1186: Warning: indirect lcall without `*'
-{standard input}:1255: Warning: indirect lcall without `*'
-{standard input}:1266: Warning: indirect lcall without `*'
-{standard input}:1277: Warning: indirect lcall without `*'
-{standard input}:1350: Warning: indirect lcall without `*'
-{standard input}:1361: Warning: indirect lcall without `*'
-{standard input}:1372: Warning: indirect lcall without `*'
-{standard input}:1853: Warning: indirect lcall without `*'
-{standard input}:1953: Warning: indirect lcall without `*'
-{standard input}: Assembler messages:
-{standard input}:245: Warning: indirect lcall without `*'
-{standard input}:339: Warning: indirect lcall without `*'
-bbootsect.s: Assembler messages:
-bbootsect.s:256: Warning: indirect lcall without `*'
-bsetup.s: Assembler messages:
-bsetup.s:1512: Warning: indirect lcall without `*'
-Root device is (3, 6)
-Boot sector 512 bytes.
-Setup is 4772 bytes.
-System is 822 kB
-make: *** No rule to make target `make'.  Stop.
+Microsoft is bound to capitalise on this and sieze the opportunity to try to 
+displace Linux from the server and enterprise (the very places it currently 
+feels the greatest heat from Linux).  I don't claim it would succeed, but it 
+will certainly try.
 
-During make modules_install I get this:
+The net effect of your proposal therefore would be to cause a stall in Linux 
+development and hand Microsoft an opportunity to capture the Server market and 
+the Enterprise.  Is that really your aim?
 
-make -C  kernel modules_install
-make[1]: Entering directory `/home/fredi/src/linux-2.4.20-pre9/kernel'
-make[1]: Nothing to be done for `modules_install'.
-make[1]: Leaving directory `/home/fredi/src/linux-2.4.20-pre9/kernel'
-make -C  drivers modules_install
-make[1]: Entering directory `/home/fredi/src/linux-2.4.20-pre9/drivers'
-make -C block modules_install
-make[2]: Entering directory `/home/fredi/src/linux-2.4.20-pre9/drivers/block'
-mkdir -p /lib/modules/2.4.20-pre9/kernel/drivers/block/
-cp loop.o nbd.o /lib/modules/2.4.20-pre9/kernel/drivers/block/
-cp: impossibile fare stat di `loop.o': No such file or directory
-cp: impossibile fare stat di `nbd.o': No such file or directory
-make[2]: *** [_modinst__] Error 1
-make[2]: Leaving directory `/home/fredi/src/linux-2.4.20-pre9/drivers/block'
-make[1]: *** [_modinst_block] Error 2
-make[1]: Leaving directory `/home/fredi/src/linux-2.4.20-pre9/drivers'
-make: *** [_modinst_drivers] Error 2
+If you really hold true to the principles of openness, why not instead ask 
+Soros for funding to create a company that will produce the OS you think Linux 
+should be and compete directly with Microsoft in "the client" arena?  At least 
+that would be a positive remedy, intead of the wholly negative one you 
+propose.  Perhaps it would even give you the opportunity to see at least one 
+of your works proliferate?
 
-Hope this is useful.
-For more info please CC me, I'm not subscribed in the list
+James Bottomley
 
 
-cheers,
-Frederik Nosi

@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131587AbRCSS6K>; Mon, 19 Mar 2001 13:58:10 -0500
+	id <S131581AbRCSSxk>; Mon, 19 Mar 2001 13:53:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131586AbRCSS6B>; Mon, 19 Mar 2001 13:58:01 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:1543 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S131572AbRCSS5t>;
-	Mon, 19 Mar 2001 13:57:49 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200103191856.VAA01054@ms2.inr.ac.ru>
-Subject: Re: rsync over ssh on 2.4.2 to 2.2.18
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Mon, 19 Mar 2001 21:56:50 +0300 (MSK)
-Cc: crosser@average.ORG, linux-kernel@vger.kernel.org
-In-Reply-To: <20010319073703.B16622@flint.arm.linux.org.uk> from "Russell King" at Mar 19, 1 07:37:03 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S131586AbRCSSxb>; Mon, 19 Mar 2001 13:53:31 -0500
+Received: from chaos.ao.net ([205.244.242.21]:10757 "EHLO chaos.ao.net")
+	by vger.kernel.org with ESMTP id <S131581AbRCSSxV>;
+	Mon, 19 Mar 2001 13:53:21 -0500
+Message-Id: <200103191852.f2JIqZn03675@burned.furry.ao.net>
+To: linux-kernel@vger.kernel.org
+Subject: AMI MegaRAID support in 2.4.3-pre4
+Date: Mon, 19 Mar 2001 13:52:35 -0500
+From: Dan Merillat <harik@chaos.ao.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+(please cc: me any response, I only keep up with linux-kernel via the archives)
 
-> Well, since I moved the rsync to 5pm, and then back to 9pm, I haven't
-> seen this problem - everything is again working as expected (touch wood)
-> with 2.2.15pre13 and 2.4.0.
-> 
-> This is odd, since it wasn't a one-off problem, but something that happened
-> each and every day of a particular week.  Anyway, if it starts happening
-> again, I'll get a tcpdump of the session.
+I see pre4 has an updated megaraid.c...  It Just Don't Work(tm)
 
-Well... I can reproduce this not depending of day of week now. :-(
+I thought it might be a part of Alan's merges, but it's not
+in the -ac tree.  Linus, who sent you this patch?
 
-If I understood Andrew's mail correctly, rsync freezes when 
-large amount of errors happen. Particularly, here ssh always freezes
-trying to write to stdout (pipe linked to rsync) some chunk of data (>64K), 
-consisting of reports sort of "stat(usr/X11R6/bin/xmbind) : No such file"
-(my /usr has huge amount of stray symlinks...). rsync does not read
-this pipe, trying to write some more data to pipe, which is
-pipe linked to rsync stdin. Dead lock.
+Recognizes the controller, accesses my two logical volumes,
+cp /dev/sda /dev/null causes the drives to light up....
+but the data being copied looks to be random bits of memory.
+I see syslog in there and lilo messages... all sorts of things
+that don't belong.  It appears to be claiming pages used by /dev/hda,
+or something silly.  I even see my IDE MBR, and fdisk recognizes the 
+SCSI disc as being partitoned the same as /dev/hda.
 
-Note, that doing strace you do not see this write()! write() is interrupted
-by strace and you see succesful select(). You can see real place of lockup
-via ps axl or starting strace before lockup happened.
+AMI MegaRAID express 500, trying 2.4.2, 2.4.3-pre4.
 
-Andrew said about one more common case, when large amount of errors happens:
-wrong permission on some target directory.
+Apparently the chip is too new for driver version 1.07b, (not recognized
+at all by the kernel) and 1.14g has the problems I'm going over here.
 
-I have impression that long ago I observed the same affect,
-when disk space at target exhausted.
+I also tried I2O, but it didn't recognize the card either.
 
-Why do I tall this? Well, probably, something changed at fs,
-wich you rsync and rsync generates less errors.
 
-Alexey

@@ -1,77 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317902AbSGPRbw>; Tue, 16 Jul 2002 13:31:52 -0400
+	id <S317940AbSGPRjc>; Tue, 16 Jul 2002 13:39:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317906AbSGPRbv>; Tue, 16 Jul 2002 13:31:51 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:64141 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S317902AbSGPRbt>;
-	Tue, 16 Jul 2002 13:31:49 -0400
-Date: Tue, 16 Jul 2002 10:33:14 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Removal of pci_find_* in 2.5
-In-Reply-To: <m1ofd8ndoq.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.33.0207161025230.14360-100000@geena.pdx.osdl.net>
+	id <S317944AbSGPRjb>; Tue, 16 Jul 2002 13:39:31 -0400
+Received: from daimi.au.dk ([130.225.16.1]:35824 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S317940AbSGPRj3>;
+	Tue, 16 Jul 2002 13:39:29 -0400
+Message-ID: <3D345AEE.7CCFDC5B@daimi.au.dk>
+Date: Tue, 16 Jul 2002 19:42:06 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: root@chaos.analogic.com
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: if_exist_pid()
+References: <Pine.LNX.3.95.1020716131206.19310A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 16 Jul 2002, Eric W. Biederman wrote:
-
-> Greg KH <greg@kroah.com> writes:
+"Richard B. Johnson" wrote:
 > 
-> > On Sun, Jul 14, 2002 at 02:07:01PM -0600, Eric W. Biederman wrote:
-> > > 
-> > > The driver is a mtd map driver.  It knows there is a rom chip behind 
-> > > a pci->isa bridge.  And it needs to find the pci->isa bridge to
-> > > properly set it up to access the rom chip (enable writes and the
-> > > like).  
-> > > 
-> > > It isn't a driver for the pci->isa bridge, (I'm not even certain we
-> > > have a good model for that).  So it does not use pci_register_driver.
-> > > 
-> > > If you can give me a good proposal for how to accomplish that kind of
-> > > functionality I would be happy to use the appropriate
-> > > xxx_register_driver.
-> > 
-> > I don't think there is a good way for you to convert over to
-> > _register_driver(), that's the main reason I'm keeping the pci_find_*
-> > functions around, they are quite useful for lots of situations.
-> > 
-> > It doesn't sound like you are worrying about your device working in a
-> > pci hotplug system, and you would probably be willing do any pci device
-> > conversion work to the new driver model yourself, right?  :)
-> 
-> Assuming I can actually fit in better with the new driver model.  As
-> far as hot-plug.  It is an abuse but I regularly hot-swap my rom chips
-> in my development system.
+> Anybody know the 'correct' way of determining if a pid still
+> exists?  I've been using "kill(pid, 0)" and, if it does not
+> return an error, it is supposed to exist.
 
-No, but you do do firmware, and you have a desire to tell the kernel about 
-which devices are in the system from the firmware. The code path once you 
-discover the device is exactly the same as if you were to actually plug 
-in the device, or probe for it natively.
+That is correct.
 
-Though making legacy drivers hotpluggable seems absurd, the capability is 
-actually a requirement for supporting many firmwares. 
+> Sending signal 0 to a pid sometimes returns 0, even if the pid
+> is long-gone
 
-> I am probably looking at this from the wrong angle but my problem with
-> current code base seems to be that I can only have one driver per pci
-> device.
+Really? That would mean there is a bug in kill(). Of course
+you can get return value 0 if the pid has been recycled, but
+otherwise it should not happen.
 
-Don't most people? :)
-
-> In any case I would like to have code that fits in nicely with the
-> new driver system.  I can take about one change in kernel API.  For
-> the most part the drivers are trivial, and having non-trivial
-> maintenance for trivial code is less than ideal.
-
-We don't want to make things difficult. It's a PITA right now, since the 
-documentation is lacking and not all the infrastructure is in place to 
-really start plowing ahead. But, it will get better..
-
-	-pat
-
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:razrep@daimi.au.dk
+or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk

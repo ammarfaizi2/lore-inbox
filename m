@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266686AbTATTRm>; Mon, 20 Jan 2003 14:17:42 -0500
+	id <S266728AbTATTVa>; Mon, 20 Jan 2003 14:21:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266717AbTATTRl>; Mon, 20 Jan 2003 14:17:41 -0500
-Received: from jstevenson.plus.com ([212.159.71.212]:29897 "EHLO
-	alpha.stev.org") by vger.kernel.org with ESMTP id <S266686AbTATTRl>;
-	Mon, 20 Jan 2003 14:17:41 -0500
-Subject: Re: 2.4.20 and ext3 error.
-From: James Stevenson <james@stev.org>
-To: Andrey Nekrasov <andy@spylog.ru>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030120110611.GA4862@an.local>
-References: <20030120110611.GA4862@an.local>
+	id <S266730AbTATTVa>; Mon, 20 Jan 2003 14:21:30 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:54271 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S266728AbTATTV2>;
+	Mon, 20 Jan 2003 14:21:28 -0500
+Subject: Re: Fwd: Re: [PATCH] linux-2.5.54_delay-cleanup_A0
+From: john stultz <johnstul@us.ibm.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030118135408.GA22669@atrey.karlin.mff.cuni.cz>
+References: <200301180325.h0I3PGa07081@eng2.beaverton.ibm.com>
+	 <1042860792.32477.36.camel@w-jstultz2.beaverton.ibm.com>
+	 <20030118135408.GA22669@atrey.karlin.mff.cuni.cz>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 20 Jan 2003 19:27:32 +0000
-Message-Id: <1043090853.1753.40.camel@god.stev.org>
+Organization: 
+Message-Id: <1043090602.32478.54.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 20 Jan 2003 11:23:22 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-01-20 at 11:06, Andrey Nekrasov wrote:
-> Hello.
-> 
-> kernel 2.4.20 write (dmesg):
-> 
-> ...
-> EXT3-fs warning: mounting fs with errors, running e2fsck is recommended
+On Sat, 2003-01-18 at 05:54, Pavel Machek wrote:
 
-this might give a little clue. e2fsck has found a system with errors and
-marked it has errrors
+> Well, loop_delay() was big (fatal!) problem -- it can actaully wait
+> for *less* time than told to. That happens if notebook boots during
+> "battery low" and than goes to AC power. Thinkpad 560X is example of
+> such behaviour. Slow (but working!) PIT seems to be only option on
+> such machine.
 
+I need to look more at the cpu_freq code, but I suspect it could it help
+solve or lessen the problem (if we can detect the event on those older
+systems). Regardless, you make a good point, so if I get the time I'll
+look into a real PIT based delay. 
 
-yup this looks like an error to me.
-> EXT3-fs error (device ide2(33,1)): ext3_readdir: bad entry in directory #2853202:
-> rec_len % 4 != 0 - offset=0, inode=1754302946, rec_len=34858, name_len=134
-> Aborting journal on device ide2(33,1).
-> Remounting filesystem read-only
-
-> 
-> why?
+Thanks for the feeback. 
+-john
 
 
 

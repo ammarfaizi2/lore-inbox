@@ -1,99 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264957AbTLWFsO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 00:48:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264958AbTLWFsO
+	id S264892AbTLWF5X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 00:57:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264947AbTLWF5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 00:48:14 -0500
-Received: from csbd.org ([66.220.23.20]:46755 "EHLO csbd.org")
-	by vger.kernel.org with ESMTP id S264957AbTLWFsJ (ORCPT
+	Tue, 23 Dec 2003 00:57:23 -0500
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:63110 "HELO
+	develer.com") by vger.kernel.org with SMTP id S264892AbTLWF5V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 00:48:09 -0500
-To: ambx1@neo.rr.com, wli@holomorphy.com, linux-kernel@vger.kernel.org,
-       zwane@arm.linux.org.uk
-Subject: Re: 2.6.0 fails to complete boot - Sony VAIO laptop (frame buffer problem?)
-Date: Mon Dec 22 21:41:15 2003
-Content-Type: text/plain; charset="utf8"
+	Tue, 23 Dec 2003 00:57:21 -0500
+Message-ID: <3FE7D92A.1090205@develer.com>
+Date: Tue, 23 Dec 2003 06:56:58 +0100
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer S.r.l.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: mtd@infradead.org
+CC: Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix static build of drivers/mtd/chips/jedec_probe.c
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20031223054115.32A791E030CA3@csbd.org>
-From: atp@csbd.org (Alexander Poquet)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey, sorry it took me so long to reply.  I live in Asia and I didn't get
-your message until this morning, and I didn't want to reply without
-a little extra information.
+Hello,
 
-On Sun, 21 Dec 2003 23:29:56 +0000, Adam Belay wrote:
-> In this system, isapnp is probably not necessary.
+one liner fix for building jedec_probe statically in m68knommu and possibly other archs.
 
-Yes, I think so too.  But don't worry, Adam, your code is not the problem;
-my methods of identifying it were flawed.
+Applies to 2.6.0.
 
-> Agreed.  In what kernel version did you first see this problem?
 
-Unfortunately, on this laptop I am upgrading directly from 2.4.18, so I
-can't answer this question usefully, but FWIW, it worked fine in 2.4.18 :)
+--- drivers/mtd/chips/jedec_probe.c	2003-12-23 06:50:51.842514068 +0100
++++ drivers/mtd/chips/jedec_probe.c.orig	2003-12-23 06:51:15.512685112 +0100
+@@ -8,7 +8,6 @@
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
+-#include <linux/init.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ #include <asm/io.h>
 
-> Hmm, it doesn't seem possible for it to be occuring on that exact line.
-> Perhaps there is a delay between the bad code and the time the lcd actually
-> blanks. ISAPnP uses legacy probing techniques.  It is possible that it is
-> writting to one of your laptop's configuration interfaces during the probe.
-> 
-> Could you provide more information as to how you isolated the problem to 
-> this line?
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
 
-Certainly.  I simply began doing a binary search in do_initcalls, successively
-inserting a while (1) {} loop at the midpoint of each iteration, and thus
-converging on the call that I thought was producing it.  Unfortunately, my
-approach was somewhat naive -- I'm not a kernel hacker, just a hobbyist -- and
-I didn't allow for the possibility of multiple threading.  I simply noticed
-that if I put a while (1) {} loop at the beginning of isapnp initiation,
-I never lost the console; but that the end of the same function, I did.  I
-thereby narrowed it down to the release_region call.  This turned out to be
-the wrong conclusion, however.
 
-> Could you please ensure that ISAPnP is indeed the culprit by passing the 
-> "noisapnp" kernel parameter.
-
-I did this, as you requested, and as Jim McCloskey reported in his earlier
-message in this thread, disabling isapnp has no effect on the problem.  So
-I set out (using the same, flawed logic) to attempt to figure out where the
-console was blanking out.  It happens a few initcalls later, in
-fbcon_startup() (located in drivers/video/console/fbcon.c), which makes a
-lot more sense than isapnp being culprit, given the jump into a video mode.
-
-I noticed that between the 'isapnp disabled' message and invocation of
-fbcon_startup() there are no printk calls, so it occured to me that
-perhaps the isapnp release_region call was in a thread, and invocation of
-that particular function clued the scheduler to (temporarily) return
-control to the parent thread.  To test this, I booted without the noisapnp
-parameter (but with a while (1) {} hang in fbcon_startup) and found that
-isapnp exits happily, and the reason I never saw the printk saying that
-no isapnp devices were found was simply due to the main initcall thread
-reaching fbcon_startup before the printk hits the console, so to speak.
-
-I'm being verbose here, in case you're wondering, because writing it out
-helps me understand it better.  Not to mention that it exposes any bugs in
-my thinking to an army of people who will no doubt be quick to correct me
-if I'm wrong :)
-
-So anyway, Adam, your code appears to work fine on my system and I see no
-reason to think that it has anything to do with my problem, other than the
-misfortune of being executed so close to the actual bug.  Thanks a lot
-for your pointers, though.  I would like to understand the exact mechanism
-of context switching for kernel threads though, where can I find some
-documentation on that?  release_region() didn't seem to do anything I could
-interpret as a flag to "switch executing threads now" or whatever.  It called
-kfree(), but I didn't look at that function's source yet.  Anyway...
-
-> The PnPBIOS is reserving ACPI configuration space.  PCI is surprised when it
-> finds it already reserved.  Usually this isn't a problem.  It is interesting,
-> however, that the the PCI bridge and the PnP BIOS are reporting slightly
-> different ranges.
-
-Interesting as in Alice (curious acceptance of unanticipated events) or
-interesting as in Oppenheimer (that's a big explosion)?
-
-Anyway, thanks again.
-Alexander

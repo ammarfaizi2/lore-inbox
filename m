@@ -1,290 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263669AbTEYR3M (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 13:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263671AbTEYR3M
+	id S263671AbTEYRdp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 13:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263673AbTEYRdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 13:29:12 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:8967 "EHLO www.home.local")
-	by vger.kernel.org with ESMTP id S263669AbTEYR3G (ORCPT
+	Sun, 25 May 2003 13:33:44 -0400
+Received: from www.wwns.com ([209.149.59.66]:47584 "EHLO wwns.wwns.com")
+	by vger.kernel.org with ESMTP id S263671AbTEYRdn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 13:29:06 -0400
-Date: Sun, 25 May 2003 19:36:42 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.21-rc3 : IDE pb on Alpha
-Message-ID: <20030525173642.GA1365@alpha.home.local>
-References: <Pine.LNX.4.55L.0305221915450.1975@freak.distro.conectiva>
-Mime-Version: 1.0
+	Sun, 25 May 2003 13:33:43 -0400
+From: "David R. Wilson" <david@wwns.com>
+Message-Id: <200305251752.h4PHqw206618@wwns.wwns.com>
+Subject: Re: Asrock K7S8X Motherboard kernel problem
+To: mikpe@csd.uu.se
+Date: Sun, 25 May 2003 12:52:58 -0500 (CDT)
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <200305241012.h4OACiZj011434@harpo.it.uu.se> from "mikpe@csd.uu.se" at May 24, 2003 12:12:44 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55L.0305221915450.1975@freak.distro.conectiva>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks Mikael and Vojtech,
 
-Hi all !
+I tried both bootloaders (LILO and Grub) and still can't seem to get the 
+floppy controller detected with 2.4.21-rc3.
 
-I've upgraded my Alpha's kernel to 2.4.21-rc3, but it hangs on IDE at boot.
-Same with 2.4.21-rc2. It has been working one year on with 2.4.19-pre7 + Andre
-Hedrick's IDE patch. I'm now recompiling without DMA support, just in case.
-For info, this is a DS10, EV6/466, 256 MB RAM, with an ALI 1543 IDE controller.
-The first IDE controller has an old WD23200 (3.2GB) disk attached, which hosts
-the root FS. The second controller has a 120 GB Maxtor drive.
+I tried the latest stock RedHat kernel (2.4.20-13.9) and it seems to work.
+It sounds like Alan might have fixed something and hasn't told us what it 
+was yet :-).  The RedHat kernel says:
 
-I tried to boot with ide[01]=reset, ide[01]=noprobe, but with no luck. I've
-quickly written down the last messages during ide0=noprobe :
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a post-1991 82077
 
-hdc: Maxtor 6Y120L0, ATA DISK drive
-blk: queue at ffff...?????, no I/O memory limit
-ide1 at 0x170-0x177,0x376 on irq 15
-hdc: attached ide-disk driver
------- stops here ------
+With 2.4.21-rc3 I get:
+Floppy drive(s): fd0 is 1.44M
+floppy0: no floppy controllers found
 
-I can play with sysrq during a few seconds, before the keyboard finally locks.
-I'll try to get some pointers with SysRq-P.
+One other interesting bit that shows up in the RedHat dmesg is:
 
-If I boot with ide0=noprobe ide1=noprobe, it goes further, even detects the SCSI
-disks attached to an Adaptec controller, then panics because of a missing root
-device, thus proving that IDE really is the culprit here :-)
+SiS pirq: advanced IDE/ACPI/DAQ mapping not yet implemented
+advanced SiS pirq mapping not yet implemented
 
-GCC is 3.2.3. I could revert to an old 2.91.66 which is still installed on this
-system, if needed.
+The motherboard has the SiS746 chipset along with the 963 southbridge.
+I apparently copied an old dump (by hand) of the problem.  The patch
+by Vojtech Pavlik for the SIS southbridge detects the 963 without
+a problem.  I also added the Bios Enhanced Disk Device Service 3.0 patch 
+(CONFIG_EDD) to the source.
 
-The compilation just ended, I'll retry without DMA.
+http://domsch.com/linux/edd30/
 
-Cheers,
-Willy
+I still get "no floppy controllers found" 
 
-.config appended with all unset options stripped :
+I am open to suggestions....
+
+Thanks,
+Dave
 
 
-CONFIG_ALPHA=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_MODULES=y
-CONFIG_KMOD=y
-CONFIG_ALPHA_DP264=y
-CONFIG_ISA=y
-CONFIG_EISA=y
-CONFIG_PCI=y
-CONFIG_ALPHA_EV6=y
-CONFIG_ALPHA_TSUNAMI=y
-CONFIG_ALPHA_SRM=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_PCI_NAMES=y
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_SRM_ENV=y
-CONFIG_BINFMT_ELF=y
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-CONFIG_PARPORT_SERIAL=m
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_PC_SUPERIO=y
-CONFIG_PNP=y
-CONFIG_ISAPNP=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_NBD=m
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_LINEAR=y
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-CONFIG_MD_RAID5=y
-CONFIG_BLK_DEV_LVM=y
-CONFIG_PACKET=y
-CONFIG_NETLINK_DEV=y
-CONFIG_NETFILTER=y
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_MULTIPLE_TABLES=y
-CONFIG_IP_ROUTE_FWMARK=y
-CONFIG_IP_ROUTE_NAT=y
-CONFIG_IP_ROUTE_MULTIPATH=y
-CONFIG_IP_ROUTE_TOS=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_NET_IPIP=m
-CONFIG_NET_IPGRE=m
-CONFIG_INET_ECN=y
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_TFTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_QUEUE=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=y
-CONFIG_IP_NF_MATCH_MAC=y
-CONFIG_IP_NF_MATCH_PKTTYPE=y
-CONFIG_IP_NF_MATCH_MARK=y
-CONFIG_IP_NF_MATCH_MULTIPORT=y
-CONFIG_IP_NF_MATCH_TOS=y
-CONFIG_IP_NF_MATCH_AH_ESP=y
-CONFIG_IP_NF_MATCH_LENGTH=y
-CONFIG_IP_NF_MATCH_TTL=y
-CONFIG_IP_NF_MATCH_TCPMSS=y
-CONFIG_IP_NF_MATCH_HELPER=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_MATCH_UNCLEAN=y
-CONFIG_IP_NF_MATCH_OWNER=y
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_TARGET_MIRROR=y
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_NAT_LOCAL=y
-CONFIG_IP_NF_NAT_SNMP_BASIC=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_NAT_TFTP=m
-CONFIG_IP_NF_MANGLE=y
-CONFIG_IP_NF_TARGET_TOS=y
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=y
-CONFIG_IP_NF_TARGET_LOG=y
-CONFIG_IP_NF_TARGET_TCPMSS=y
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-CONFIG_VLAN_8021Q=y
-CONFIG_BRIDGE=m
-CONFIG_NET_PKTGEN=m
-CONFIG_IDE=y
-MAX_HWIFS=4
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDESCSI=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-CONFIG_CHR_DEV_ST=y
-CONFIG_BLK_DEV_SR=y
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
-CONFIG_AIC7XXX_RESET_DELAY_MS=5000
-CONFIG_SCSI_MEGARAID=m
-CONFIG_SCSI_NCR53C8XX=m
-CONFIG_SCSI_SYM53C8XX=m
-CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=8
-CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
-CONFIG_SCSI_NCR53C8XX_SYNC=20
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_BONDING=m
-CONFIG_NET_ETHERNET=y
-CONFIG_HAPPYMEAL=m
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_VORTEX=m
-CONFIG_NET_PCI=y
-CONFIG_PCNET32=m
-CONFIG_ADAPTEC_STARFIRE=m
-CONFIG_TULIP=m
-CONFIG_TULIP_MWI=y
-CONFIG_EEPRO100=m
-CONFIG_8139TOO=m
-CONFIG_ACENIC=m
-CONFIG_ACENIC_OMIT_TIGON_I=y
-CONFIG_DL2K=m
-CONFIG_E1000=m
-CONFIG_TIGON3=m
-CONFIG_PPP=m
-CONFIG_PPP_FILTER=y
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_SYNC_TTY=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-CONFIG_PPPOE=m
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_SERIAL_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-CONFIG_I2C=m
-CONFIG_I2C_ALGOBIT=m
-CONFIG_I2C_CHARDEV=m
-CONFIG_I2C_PROC=m
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-CONFIG_WATCHDOG=y
-CONFIG_ALIM1535_WDT=m
-CONFIG_ALIM7101_WDT=m
-CONFIG_SOFT_WATCHDOG=m
-CONFIG_RTC=y
-CONFIG_VIDEO_DEV=m
-CONFIG_REISERFS_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_MINIX_FS=m
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_CODA_FS=m
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_TCP=y
-CONFIG_SUNRPC=m
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_ZISOFS_FS=y
-CONFIG_PARTITION_ADVANCED=y
-CONFIG_OSF_PARTITION=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_CODEPAGE_850=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_15=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_FB=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FB_MATROX=y
-CONFIG_FB_MATROX_MILLENIUM=y
-CONFIG_FBCON_CFB8=y
-CONFIG_FBCON_CFB16=y
-CONFIG_FBCON_CFB24=y
-CONFIG_FBCON_CFB32=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_PCI_CONSOLE=y
-CONFIG_SOUND=y
-CONFIG_SOUND_ES1371=m
-CONFIG_ALPHA_LEGACY_START_ADDRESS=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MATHEMU=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=m
+mikpe@csd.uu.se wrote...
+> 
+> On Fri, 23 May 2003 17:19:31 -0500 (CDT), David R. Wilson wrote:
+> >I must be missing something, I have an Asrock K7S8X motherboard.
+> ...
+> >The boot messages mention a missing floppy controller among other 
+> >problems:
+> 
+> Key words: Asrock (ASUS actually) and no FDC found.
+> 
+> This has been observed before on semi-recent ASUS mainboards.
+> It's caused by some boot loaders that use an incorrect "out"
+> instruction intended to reset the FDC. That "out" instruction
+> was acceptable for ancient FDCs, but it locks up the FDCs in
+> newer super-I/O chips found in some ASUS mainboards. The correct
+> approach is to issue a BIOS call instead, or use a real driver
+> that knows how to identify and drive newer FDCs.
+> 
+> This bug existed in the kernel's boot loader up until 2.4.13 or
+> so when I fixed it to eliminate the FDC lock up problem on my
+> ASUS P4T-E. Lilo and syslinux-2.02 don't have the bug. 
+
+
+-- 
+David R. Wilson  WB4LHO
+World Wide Network Services
+Nashville, Tennessee USA	Need QSL cards?
+david@wwns.com			http://store.wwns.com/lz1jz
+
+

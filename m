@@ -1,68 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132640AbQLHUO0>; Fri, 8 Dec 2000 15:14:26 -0500
+	id <S131553AbQLHUO5>; Fri, 8 Dec 2000 15:14:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132603AbQLHUOR>; Fri, 8 Dec 2000 15:14:17 -0500
-Received: from frogger.telerama.com ([205.201.1.48]:33807 "EHLO
-	frogger.telerama.com") by vger.kernel.org with ESMTP
-	id <S132640AbQLHUOB>; Fri, 8 Dec 2000 15:14:01 -0500
-Date: Fri, 8 Dec 2000 14:43:30 -0500 (EST)
-From: Peter Berger <peterb@telerama.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Pthreads, linux, gdb, oh my! (fwd)
-In-Reply-To: <E144RAj-0004BT-00@the-village.bc.nu>
-Message-ID: <Pine.BSI.4.02.10012081344430.26743-100000@frogger.telerama.com>
+	id <S132641AbQLHUOn>; Fri, 8 Dec 2000 15:14:43 -0500
+Received: from blackhole.compendium-tech.com ([206.55.153.26]:61174 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S132644AbQLHUO1>; Fri, 8 Dec 2000 15:14:27 -0500
+Date: Fri, 8 Dec 2000 11:43:50 -0800 (PST)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+To: davej@suse.de
+cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>, Rainer Mager <rmager@vgkk.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Signal 11
+In-Reply-To: <Pine.LNX.4.21.0012080321180.13163-100000@neo.local>
+Message-ID: <Pine.LNX.4.21.0012081140070.24557-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Dec 2000, Alan Cox wrote:
-> > I have seen two failure modes:  on my machine (linux 2.2.5-22, glibc
-> > 2.1.1), when run under gdb 5.0, the created pthreads stick around as
-> glibc 2.1.1 definitely has problems with several bits of pthreads. You
-> want 2.1.3 or higher I believe.
+On Fri, 8 Dec 2000 davej@suse.de wrote:
 
-So you're saying that you got this to work?  Because I certainly couldn't
-get it working with a higher version either.  I would really love a
-positive ack from someone -- anyone -- that can get this working on any
-version of linux, with any version of glibc.  Likewise, if there is
-someone running a 'current' glibc who can verify for me that this fails, I
-think that would be a useful datapoint.
+> On Thu, 7 Dec 2000, Jeff V. Merkey wrote:
+> 
+> > I think there may be a case when a process forks, that the MMU or some
+> > other subsystem is either not setting the page bits correctly, or
+> > mapping in a bad page.  It's a LEVEL I bug in 2.4 is this is the case,
+> > BTW.  In core dumps (I've looked at 2 of them from SSH) it barfs right
+> > after executing fork() or one of the exec functions and at some places
+> > in the code where there's not any obvious coding bugs.  Looks like some
+> > type of mapping problem.  I reported it three months ago, but it was
+> > pretty much ignored.
+> > 
+> > Linus needs to add this one to the pre-12 list -- looks like some type
+> > of mapping bug.
+> 
+> Now that you mention it, every app that has bombed has been the type
+> that forks a lot. MpegTV, gtv, and make spring to mind. All apps drive
+> the CPU load up quite a lot, which was why I initially suspected
+> overheating. I don't see it on my other 2.4 boxes though which is
+> suspicious. But they don't get as much of a beating as this, which was
+> up until last week my main workstation.
 
-> Its unlikely to be remotely kernel related
-I'm not confident that we have enough data to make that assertion yet,
-although I'm certainly willing to believe it!  Fortunately there are ways
-of testing this (I suggest one below).
- 
-> tg->created may be out of date
-  ... 
-> You can create it, count it, then up tg->created out of order
+Just to add some input and insight on here, I loaded the system down with
+some FFT algorithms, and then ran an 8-way kernel compile. The machine in
+question is a dual P3/600 with 512MB RAM, 2.4.0-test11. The load
+skyrocketed to a mere 13.6. xmms was still running, didn't skip even
+once. The FFT algorithms didn't bitch at all. Neither did the kernel
+compile. In fact, it compiled without a hitch...
 
-Well, you're right, but this is picking lint.  Making this change (see
-http://peterb.telerama.com/thread-test.c for the corrected version)
-certainly doesn't make the problem go away (nor would I expect it to).
+I dunno what to say about these boxes that segfault all the
+time... Probably just bad hardware somewhere along the lines.
 
-I apologize for my ignorance -- I frankly don't know the intricicies of
-linux kernel development; all I know is I wrote what might be the simplest
-of all possible concurrency tests and it is failing.  If someone could
-point me to a version or combination of linux and glibc where it doesn't
-fail, I'd be happy.
-
-Glibc 2.2 (allegedly) works on both linux and the Hurd.  Are there any
-readers of linux-kernel that are running hurd installations?  Could you
-run my test program under gdb and see if it evinces the same behavior?
-Assuming we see the same broken behavior on my linux box with glibc-2.2
-(I'm compiling it now..), as on the Hurd box, we can presume it is a glibc
-problem.  If it works on the Hurd but not on linux with the same glibc, we
-can presume it is a linux problem. I'd do the Hurd test myself, but I
-haven't yet played with Hurd enough (read: at all) to be confident that I
-was setting up the test correctly.
-
-Likewise if the problem magically goes away on my linux box once I use
-glibc-2.2, I'll be sure to report back.
-
--Peter
+ Kelsey Hudson                                           khudson@ctica.com 
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

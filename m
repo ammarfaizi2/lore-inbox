@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVBWThw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVBWTx0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbVBWThw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 14:37:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVBWThv
+	id S261549AbVBWTx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 14:53:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVBWTx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 14:37:51 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:10733 "HELO
+	Wed, 23 Feb 2005 14:53:26 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:10113 "HELO
 	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261546AbVBWTgX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 14:36:23 -0500
+	id S261549AbVBWTwx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 14:52:53 -0500
 Subject: Re: More latency regressions with 2.6.11-rc4-RT-V0.7.39-02
 From: Lee Revell <rlrevell@joe-job.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0502231908040.13491@goblin.wat.veritas.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1109182061.16201.6.camel@krustophenia.net>
 References: <1109182061.16201.6.camel@krustophenia.net>
-	 <Pine.LNX.4.61.0502231908040.13491@goblin.wat.veritas.com>
-Content-Type: multipart/mixed; boundary="=-G72KGEW1lhujbI1iRR1A"
-Date: Wed, 23 Feb 2005 14:36:21 -0500
-Message-Id: <1109187381.3174.5.camel@krustophenia.net>
+Content-Type: multipart/mixed; boundary="=-rYdZRaWRStq91AH+bGVE"
+Date: Wed, 23 Feb 2005 14:52:50 -0500
+Message-Id: <1109188371.3174.9.camel@krustophenia.net>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-G72KGEW1lhujbI1iRR1A
+--=-rYdZRaWRStq91AH+bGVE
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-On Wed, 2005-02-23 at 19:16 +0000, Hugh Dickins wrote:
-> On Wed, 23 Feb 2005, Lee Revell wrote:
-> > 
-> > Did something change recently in the VM that made copy_pte_range and
-> > clear_page_range a lot more expensive?  I noticed a reference in the
-> > "Page Table Iterators" thread to excessive overhead introduced by
-> > aggressive page freeing.  That sure looks like what is going on in
-> > trace2.  trace1 and trace3 look like big fork latencies associated with
-> > copy_pte_range.
+On Wed, 2005-02-23 at 13:07 -0500, Lee Revell wrote:
+> This is all with PREEMPT_DESKTOP.
 > 
-> I'm just about to test this patch below: please give it a try: thanks...
-> 
-> Ingo's patch to reduce scheduling latencies, by checking for lockbreak
-> in copy_page_range, was in the -VP and -mm patchsets some months ago;
-> but got preempted by the 4level rework, and not reinstated since.
-> Restore it now in copy_pte_range - which mercifully makes it easier.
 
-Aha, that explains why all the latency regressions involve the VM
-subsystem. 
-
-Thanks, your patch fixes the copy_pte_range latency.  Now zap_pte_range,
-which Ingo also fixed a few months ago, is the worst offender.  Can this
-fix be easily ported too?
+Here is another new one, this time in the ext3 reservation code.
 
 Lee
 
---=-G72KGEW1lhujbI1iRR1A
-Content-Disposition: attachment; filename=trace5.txt
-Content-Type: text/plain; name=trace5.txt; charset=ANSI_X3.4-1968
+--=-rYdZRaWRStq91AH+bGVE
+Content-Disposition: attachment; filename=trace6.txt
+Content-Type: text/plain; name=trace6.txt; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 
 preemption latency trace v1.1.4 on 2.6.11-rc4-RT-V0.7.39-02
 --------------------------------------------------------------------
- latency: 197 탎, #74/74, CPU#0 | (M:preempt VP:0, KP:1, SP:1 HP:1 #P:1)
+ latency: 296 탎, #339/339, CPU#0 | (M:preempt VP:0, KP:1, SP:1 HP:1 #P:1)
     -----------------
     | task: ksoftirqd/0-2 (uid:0 nice:-10 policy:0 rt_prio:0)
     -----------------
@@ -77,82 +57,347 @@ preemption latency trace v1.1.4 on 2.6.11-rc4-RT-V0.7.39-02
                |||||     delay             
    cmd     pid ||||| time  |   caller      
       \   /    |||||   \   |   /           
-(T1/#0)            dmesg  3249 0 9 00000002 00000000 [0000163455166655] 0.000ms (+886841.090ms): <73656d64> (<61700067>)
-(T1/#2)            dmesg  3249 0 9 00000002 00000002 [0000163455167105] 0.000ms (+0.000ms): __trace_start_sched_wakeup+0x96/0xc0 <c012cbe6> (try_to_wake_up+0x81/0x150 <c010f911>)
-(T1/#3)            dmesg  3249 0 9 00000000 00000003 [0000163455167685] 0.001ms (+0.001ms): wake_up_process+0x1c/0x30 <c010f9fc> (do_softirq+0x4b/0x60 <c01042fb>)
-(T6/#4)    dmesg-3249  0dn.2    2탎 < (1)
-(T1/#5)            dmesg  3249 0 2 00000002 00000005 [0000163455168677] 0.003ms (+0.000ms): page_remove_rmap+0x8/0x40 <c0149f78> (zap_pte_range+0x13a/0x250 <c0142f4a>)
-(T1/#6)            dmesg  3249 0 2 00000002 00000006 [0000163455168975] 0.003ms (+0.000ms): __mod_page_state+0xa/0x30 <c013a09a> (page_remove_rmap+0x2c/0x40 <c0149f9c>)
-(T1/#7)            dmesg  3249 0 2 00000002 00000007 [0000163455169390] 0.004ms (+0.000ms): free_page_and_swap_cache+0x9/0x70 <c014bbb9> (zap_pte_range+0x14c/0x250 <c0142f5c>)
-(T1/#8)            dmesg  3249 0 2 00000002 00000008 [0000163455169687] 0.005ms (+0.001ms): __page_cache_release+0xb/0xc0 <c013ed4b> (zap_pte_range+0x14c/0x250 <c0142f5c>)
-(T1/#9)            dmesg  3249 0 2 00000002 00000009 [0000163455170314] 0.006ms (+0.000ms): preempt_schedule+0xa/0x70 <c027d0fa> (__page_cache_release+0xad/0xc0 <c013eded>)
-(T1/#10)            dmesg  3249 0 2 00000002 0000000a [0000163455170636] 0.006ms (+0.000ms): free_hot_page+0x8/0x10 <c0139608> (zap_pte_range+0x14c/0x250 <c0142f5c>)
-(T1/#11)            dmesg  3249 0 2 00000002 0000000b [0000163455170944] 0.007ms (+0.000ms): free_hot_cold_page+0xe/0x130 <c01394de> (zap_pte_range+0x14c/0x250 <c0142f5c>)
-(T1/#12)            dmesg  3249 0 2 00000002 0000000c [0000163455171314] 0.007ms (+0.001ms): __mod_page_state+0xa/0x30 <c013a09a> (free_hot_cold_page+0x2a/0x130 <c01394fa>)
-(T1/#13)            dmesg  3249 0 2 00000002 0000000d [0000163455172090] 0.009ms (+0.000ms): preempt_schedule+0xa/0x70 <c027d0fa> (zap_pte_range+0x14c/0x250 <c0142f5c>)
-(T1/#14)            dmesg  3249 0 2 00000002 0000000e [0000163455172432] 0.009ms (+0.000ms): set_page_dirty+0x8/0x60 <c013b428> (zap_pte_range+0x168/0x250 <c0142f78>)
-(T1/#15)            dmesg  3249 0 2 00000002 0000000f [0000163455172774] 0.010ms (+0.000ms): page_remove_rmap+0x8/0x40 <c0149f78> (zap_pte_range+0x13a/0x250 <c0142f4a>)
-(T1/#16)            dmesg  3249 0 2 00000002 00000010 [0000163455173040] 0.010ms (+0.000ms): __mod_page_state+0xa/0x30 <c013a09a> (page_remove_rmap+0x2c/0x40 <c0149f9c>)
-(T1/#17)            dmesg  3249 0 2 00000002 00000011 [0000163455173421] 0.011ms (+0.000ms): free_page_and_swap_cache+0x9/0x70 <c014bbb9> (zap_pte_range+0x14c/0x250 <c0142f5c>)
-(T1/#18)            dmesg  3249 0 2 00000002 00000012 [0000163455173704] 0.011ms (+0.001ms): __page_cache_release+0xb/0xc0 <c013ed4b> (zap_pte_range+0x14c/0x250 <c0142f5c>)
-(T1/#19)            dmesg  3249 0 2 00000002 00000013 [0000163455174397] 0.012ms (+0.000ms): preempt_schedule+0xa/0x70 <c027d0fa> (__page_cache_release+0xad/0xc0 <c013eded>)
-(T1/#20)            dmesg  3249 0 2 00000002 00000014 [0000163455174687] 0.013ms (+0.000ms): free_hot_page+0x8/0x10 <c0139608> (zap_pte_range+0x14c/0x250 <c0142f5c>)
-(T1/#21)            dmesg  3249 0 2 00000002 00000015 [0000163455175101] 0.014ms (+0.000ms): free_hot_cold_page+0xe/0x130 <c01394de> (zap_pte_range+0x14c/0x250 <c0142f5c>)
-(T1/#22)            dmesg  3249 0 2 00000002 00000016 [0000163455175436] 0.014ms (+0.001ms): __mod_page_state+0xa/0x30 <c013a09a> (free_hot_cold_page+0x2a/0x130 <c01394fa>)
-(T1/#23)            dmesg  3249 0 2 00000002 00000017 [0000163455176191] 0.015ms (+0.001ms): preempt_schedule+0xa/0x70 <c027d0fa> (zap_pte_range+0x14c/0x250 <c0142f5c>)
-(T1/#24)            dmesg  3249 0 2 00000002 00000018 [0000163455176892] 0.017ms (+0.007ms): clear_page_range+0xe/0x1d0 <c01426fe> (exit_mmap+0xa3/0x1b0 <c0148013>)
-(T1/#25)            dmesg  3249 0 2 00000002 00000019 [0000163455181331] 0.024ms (+0.000ms): __mod_page_state+0xa/0x30 <c013a09a> (clear_page_range+0x183/0x1d0 <c0142873>)
-(T1/#26)            dmesg  3249 0 2 00000002 0000001a [0000163455181781] 0.025ms (+0.000ms): free_page_and_swap_cache+0x9/0x70 <c014bbb9> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#27)            dmesg  3249 0 2 00000002 0000001b [0000163455182166] 0.025ms (+0.000ms): __page_cache_release+0xb/0xc0 <c013ed4b> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#28)            dmesg  3249 0 2 00000002 0000001c [0000163455182746] 0.026ms (+0.000ms): preempt_schedule+0xa/0x70 <c027d0fa> (__page_cache_release+0xad/0xc0 <c013eded>)
-(T1/#29)            dmesg  3249 0 2 00000002 0000001d [0000163455183036] 0.027ms (+0.000ms): free_hot_page+0x8/0x10 <c0139608> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#30)            dmesg  3249 0 2 00000002 0000001e [0000163455183293] 0.027ms (+0.000ms): free_hot_cold_page+0xe/0x130 <c01394de> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#31)            dmesg  3249 0 2 00000002 0000001f [0000163455183557] 0.028ms (+0.001ms): __mod_page_state+0xa/0x30 <c013a09a> (free_hot_cold_page+0x2a/0x130 <c01394fa>)
-(T1/#32)            dmesg  3249 0 2 00000002 00000020 [0000163455184330] 0.029ms (+0.042ms): preempt_schedule+0xa/0x70 <c027d0fa> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#33)            dmesg  3249 0 2 00000002 00000021 [0000163455210040] 0.072ms (+0.000ms): __mod_page_state+0xa/0x30 <c013a09a> (clear_page_range+0x183/0x1d0 <c0142873>)
-(T1/#34)            dmesg  3249 0 2 00000002 00000022 [0000163455210487] 0.072ms (+0.000ms): free_page_and_swap_cache+0x9/0x70 <c014bbb9> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#35)            dmesg  3249 0 2 00000002 00000023 [0000163455210867] 0.073ms (+0.001ms): __page_cache_release+0xb/0xc0 <c013ed4b> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#36)            dmesg  3249 0 2 00000002 00000024 [0000163455211481] 0.074ms (+0.000ms): preempt_schedule+0xa/0x70 <c027d0fa> (__page_cache_release+0xad/0xc0 <c013eded>)
-(T1/#37)            dmesg  3249 0 2 00000002 00000025 [0000163455211846] 0.075ms (+0.000ms): free_hot_page+0x8/0x10 <c0139608> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#38)            dmesg  3249 0 2 00000002 00000026 [0000163455212103] 0.075ms (+0.000ms): free_hot_cold_page+0xe/0x130 <c01394de> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#39)            dmesg  3249 0 2 00000002 00000027 [0000163455212367] 0.076ms (+0.001ms): __mod_page_state+0xa/0x30 <c013a09a> (free_hot_cold_page+0x2a/0x130 <c01394fa>)
-(T1/#40)            dmesg  3249 0 2 00000002 00000028 [0000163455213164] 0.077ms (+0.088ms): preempt_schedule+0xa/0x70 <c027d0fa> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#41)            dmesg  3249 0 2 00000002 00000029 [0000163455266176] 0.165ms (+0.000ms): __mod_page_state+0xa/0x30 <c013a09a> (clear_page_range+0x183/0x1d0 <c0142873>)
-(T1/#42)            dmesg  3249 0 2 00000002 0000002a [0000163455266536] 0.166ms (+0.000ms): free_page_and_swap_cache+0x9/0x70 <c014bbb9> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#43)            dmesg  3249 0 2 00000002 0000002b [0000163455267095] 0.167ms (+0.000ms): __page_cache_release+0xb/0xc0 <c013ed4b> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#44)            dmesg  3249 0 2 00000002 0000002c [0000163455267667] 0.168ms (+0.000ms): preempt_schedule+0xa/0x70 <c027d0fa> (__page_cache_release+0xad/0xc0 <c013eded>)
-(T1/#45)            dmesg  3249 0 2 00000002 0000002d [0000163455268033] 0.168ms (+0.000ms): free_hot_page+0x8/0x10 <c0139608> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#46)            dmesg  3249 0 2 00000002 0000002e [0000163455268375] 0.169ms (+0.000ms): free_hot_cold_page+0xe/0x130 <c01394de> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#47)            dmesg  3249 0 2 00000002 0000002f [0000163455268717] 0.169ms (+0.001ms): __mod_page_state+0xa/0x30 <c013a09a> (free_hot_cold_page+0x2a/0x130 <c01394fa>)
-(T1/#48)            dmesg  3249 0 2 00000002 00000030 [0000163455269434] 0.171ms (+0.006ms): preempt_schedule+0xa/0x70 <c027d0fa> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#49)            dmesg  3249 0 2 00000002 00000031 [0000163455273343] 0.177ms (+0.000ms): __mod_page_state+0xa/0x30 <c013a09a> (clear_page_range+0x183/0x1d0 <c0142873>)
-(T1/#50)            dmesg  3249 0 2 00000002 00000032 [0000163455273779] 0.178ms (+0.000ms): free_page_and_swap_cache+0x9/0x70 <c014bbb9> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#51)            dmesg  3249 0 2 00000002 00000033 [0000163455274128] 0.178ms (+0.000ms): __page_cache_release+0xb/0xc0 <c013ed4b> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#52)            dmesg  3249 0 2 00000002 00000034 [0000163455274724] 0.179ms (+0.000ms): preempt_schedule+0xa/0x70 <c027d0fa> (__page_cache_release+0xad/0xc0 <c013eded>)
-(T1/#53)            dmesg  3249 0 2 00000002 00000035 [0000163455275084] 0.180ms (+0.000ms): free_hot_page+0x8/0x10 <c0139608> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#54)            dmesg  3249 0 2 00000002 00000036 [0000163455275413] 0.180ms (+0.000ms): free_hot_cold_page+0xe/0x130 <c01394de> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#55)            dmesg  3249 0 2 00000002 00000037 [0000163455275677] 0.181ms (+0.001ms): __mod_page_state+0xa/0x30 <c013a09a> (free_hot_cold_page+0x2a/0x130 <c01394fa>)
-(T1/#56)            dmesg  3249 0 2 00000002 00000038 [0000163455276470] 0.182ms (+0.001ms): preempt_schedule+0xa/0x70 <c027d0fa> (clear_page_range+0x1a0/0x1d0 <c0142890>)
-(T1/#57)            dmesg  3249 0 2 00000002 00000039 [0000163455277321] 0.184ms (+0.000ms): preempt_schedule+0xa/0x70 <c027d0fa> (exit_mmap+0x190/0x1b0 <c0148100>)
-(T1/#58)            dmesg  3249 0 2 00000001 0000003a [0000163455277715] 0.184ms (+0.000ms): preempt_schedule+0xa/0x70 <c027d0fa> (exit_mmap+0x164/0x1b0 <c01480d4>)
-(T1/#59)            dmesg  3249 0 2 00000000 0000003b [0000163455278192] 0.185ms (+0.000ms): preempt_schedule+0xa/0x70 <c027d0fa> (exit_mmap+0x15d/0x1b0 <c01480cd>)
-(T1/#60)            dmesg  3249 0 3 00000000 0000003c [0000163455278638] 0.186ms (+0.000ms): __schedule+0xe/0x630 <c027c9be> (preempt_schedule+0x4f/0x70 <c027d13f>)
-(T1/#61)            dmesg  3249 0 3 00000000 0000003d [0000163455278977] 0.186ms (+0.000ms): profile_hit+0x9/0x50 <c0115749> (__schedule+0x3a/0x630 <c027c9ea>)
-(T1/#62)            dmesg  3249 0 3 00000001 0000003e [0000163455279418] 0.187ms (+0.001ms): sched_clock+0xe/0xe0 <c010c3ae> (__schedule+0x62/0x630 <c027ca12>)
-(T1/#63)            dmesg  3249 0 3 00000002 0000003f [0000163455280259] 0.189ms (+0.000ms): dequeue_task+0xa/0x50 <c010f4ea> (__schedule+0x1ab/0x630 <c027cb5b>)
-(T1/#64)            dmesg  3249 0 3 00000002 00000040 [0000163455280596] 0.189ms (+0.000ms): recalc_task_prio+0xc/0x1a0 <c010f64c> (__schedule+0x1c5/0x630 <c027cb75>)
-(T1/#65)            dmesg  3249 0 3 00000002 00000041 [0000163455280988] 0.190ms (+0.000ms): effective_prio+0x8/0x50 <c010f5f8> (recalc_task_prio+0xa6/0x1a0 <c010f6e6>)
-(T1/#66)            dmesg  3249 0 3 00000002 00000042 [0000163455281297] 0.190ms (+0.000ms): enqueue_task+0xa/0x80 <c010f53a> (__schedule+0x1cc/0x630 <c027cb7c>)
-(T4/#67) [ =>            dmesg ] 0.191ms (+0.000ms)
-(T1/#68)            <...>     2 0 1 00000002 00000044 [0000163455282330] 0.192ms (+0.000ms): __switch_to+0xb/0x1a0 <c0100f5b> (__schedule+0x2bd/0x630 <c027cc6d>)
-(T3/#69)    <...>-2     0d..2  193탎 : __schedule+0x2ea/0x630 <c027cc9a> <dmesg-3249> (75 69): 
-(T1/#70)            <...>     2 0 1 00000002 00000046 [0000163455283124] 0.193ms (+0.000ms): finish_task_switch+0xc/0x90 <c010fdec> (__schedule+0x2f6/0x630 <c027cca6>)
-(T1/#71)            <...>     2 0 1 00000001 00000047 [0000163455283506] 0.194ms (+0.000ms): trace_stop_sched_switched+0xa/0x150 <c012cc1a> (finish_task_switch+0x43/0x90 <c010fe23>)
-(T3/#72)    <...>-2     0d..1  194탎 : trace_stop_sched_switched+0x42/0x150 <c012cc52> <<...>-2> (69 0): 
-(T1/#73)            <...>     2 0 1 00000001 00000049 [0000163455284627] 0.196ms (+0.000ms): trace_stop_sched_switched+0xfe/0x150 <c012cd0e> (finish_task_switch+0x43/0x90 <c010fe23>)
+(T1/#0)           dbench  3399 0 9 00000002 00000000 [0000784436927163] 0.000ms (+876876.851ms): <6e656264> (<61006863>)
+(T1/#2)           dbench  3399 0 9 00000002 00000002 [0000784436927557] 0.000ms (+0.001ms): __trace_start_sched_wakeup+0x96/0xc0 <c012cbe6> (try_to_wake_up+0x81/0x150 <c010f911>)
+(T1/#3)           dbench  3399 0 9 00000000 00000003 [0000784436928168] 0.001ms (+0.000ms): wake_up_process+0x1c/0x30 <c010f9fc> (do_softirq+0x4b/0x60 <c01042fb>)
+(T6/#4)   dbench-3399  0dn.2    2탎 < (1)
+(T1/#5)           dbench  3399 0 2 00000002 00000005 [0000784436929084] 0.003ms (+0.003ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#6)           dbench  3399 0 2 00000002 00000006 [0000784436931285] 0.006ms (+0.001ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#7)           dbench  3399 0 2 00000002 00000007 [0000784436931964] 0.007ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#8)           dbench  3399 0 2 00000002 00000008 [0000784436932467] 0.008ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#9)           dbench  3399 0 2 00000002 00000009 [0000784436932849] 0.009ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#10)           dbench  3399 0 2 00000002 0000000a [0000784436933339] 0.010ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#11)           dbench  3399 0 2 00000002 0000000b [0000784436933798] 0.011ms (+0.005ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#12)           dbench  3399 0 2 00000002 0000000c [0000784436937044] 0.016ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#13)           dbench  3399 0 2 00000002 0000000d [0000784436937638] 0.017ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#14)           dbench  3399 0 2 00000002 0000000e [0000784436938093] 0.018ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#15)           dbench  3399 0 2 00000002 0000000f [0000784436938460] 0.018ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#16)           dbench  3399 0 2 00000002 00000010 [0000784436938946] 0.019ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#17)           dbench  3399 0 2 00000002 00000011 [0000784436939518] 0.020ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#18)           dbench  3399 0 2 00000002 00000012 [0000784436939929] 0.021ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#19)           dbench  3399 0 2 00000002 00000013 [0000784436940424] 0.022ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#20)           dbench  3399 0 2 00000002 00000014 [0000784436940865] 0.022ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#21)           dbench  3399 0 2 00000002 00000015 [0000784436941335] 0.023ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#22)           dbench  3399 0 2 00000002 00000016 [0000784436941819] 0.024ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#23)           dbench  3399 0 2 00000002 00000017 [0000784436942273] 0.025ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#24)           dbench  3399 0 2 00000002 00000018 [0000784436942674] 0.025ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#25)           dbench  3399 0 2 00000002 00000019 [0000784436943164] 0.026ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#26)           dbench  3399 0 2 00000002 0000001a [0000784436943610] 0.027ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#27)           dbench  3399 0 2 00000002 0000001b [0000784436944010] 0.028ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#28)           dbench  3399 0 2 00000002 0000001c [0000784436944501] 0.028ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#29)           dbench  3399 0 2 00000002 0000001d [0000784436945572] 0.030ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#30)           dbench  3399 0 2 00000002 0000001e [0000784436946139] 0.031ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#31)           dbench  3399 0 2 00000002 0000001f [0000784436946629] 0.032ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#32)           dbench  3399 0 2 00000002 00000020 [0000784436947084] 0.033ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#33)           dbench  3399 0 2 00000002 00000021 [0000784436947556] 0.033ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#34)           dbench  3399 0 2 00000002 00000022 [0000784436948042] 0.034ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#35)           dbench  3399 0 2 00000002 00000023 [0000784436948501] 0.035ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#36)           dbench  3399 0 2 00000002 00000024 [0000784436948897] 0.036ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#37)           dbench  3399 0 2 00000002 00000025 [0000784436949383] 0.036ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#38)           dbench  3399 0 2 00000002 00000026 [0000784436949824] 0.037ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#39)           dbench  3399 0 2 00000002 00000027 [0000784436950229] 0.038ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#40)           dbench  3399 0 2 00000002 00000028 [0000784436950715] 0.039ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#41)           dbench  3399 0 2 00000002 00000029 [0000784436951593] 0.040ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#42)           dbench  3399 0 2 00000002 0000002a [0000784436952106] 0.041ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#43)           dbench  3399 0 2 00000002 0000002b [0000784436952596] 0.042ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#44)           dbench  3399 0 2 00000002 0000002c [0000784436953114] 0.043ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#45)           dbench  3399 0 2 00000002 0000002d [0000784436953528] 0.043ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#46)           dbench  3399 0 2 00000002 0000002e [0000784436954018] 0.044ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#47)           dbench  3399 0 2 00000002 0000002f [0000784436954540] 0.045ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#48)           dbench  3399 0 2 00000002 00000030 [0000784436955197] 0.046ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#49)           dbench  3399 0 2 00000002 00000031 [0000784436955755] 0.047ms (+0.004ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#50)           dbench  3399 0 2 00000002 00000032 [0000784436958356] 0.051ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#51)           dbench  3399 0 2 00000002 00000033 [0000784436958860] 0.052ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#52)           dbench  3399 0 2 00000002 00000034 [0000784436959346] 0.053ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#53)           dbench  3399 0 2 00000002 00000035 [0000784436959801] 0.054ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#54)           dbench  3399 0 2 00000002 00000036 [0000784436960201] 0.054ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#55)           dbench  3399 0 2 00000002 00000037 [0000784436960705] 0.055ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#56)           dbench  3399 0 2 00000002 00000038 [0000784436961223] 0.056ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#57)           dbench  3399 0 2 00000002 00000039 [0000784436961637] 0.057ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#58)           dbench  3399 0 2 00000002 0000003a [0000784436962127] 0.058ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#59)           dbench  3399 0 2 00000002 0000003b [0000784436962717] 0.059ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#60)           dbench  3399 0 2 00000002 0000003c [0000784436963131] 0.059ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#61)           dbench  3399 0 2 00000002 0000003d [0000784436963621] 0.060ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#62)           dbench  3399 0 2 00000002 0000003e [0000784436964062] 0.061ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#63)           dbench  3399 0 2 00000002 0000003f [0000784436964539] 0.062ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#64)           dbench  3399 0 2 00000002 00000040 [0000784436965025] 0.062ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#65)           dbench  3399 0 2 00000002 00000041 [0000784436965642] 0.064ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#66)           dbench  3399 0 2 00000002 00000042 [0000784436966636] 0.065ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#67)           dbench  3399 0 2 00000002 00000043 [0000784436967181] 0.066ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#68)           dbench  3399 0 2 00000002 00000044 [0000784436967716] 0.067ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#69)           dbench  3399 0 2 00000002 00000045 [0000784436968688] 0.069ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#70)           dbench  3399 0 2 00000002 00000046 [0000784436969251] 0.070ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#71)           dbench  3399 0 2 00000002 00000047 [0000784436969840] 0.071ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#72)           dbench  3399 0 2 00000002 00000048 [0000784436970263] 0.071ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#73)           dbench  3399 0 2 00000002 00000049 [0000784436970754] 0.072ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#74)           dbench  3399 0 2 00000002 0000004a [0000784436971276] 0.073ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#75)           dbench  3399 0 2 00000002 0000004b [0000784436971838] 0.074ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#76)           dbench  3399 0 2 00000002 0000004c [0000784436972329] 0.075ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#77)           dbench  3399 0 2 00000002 0000004d [0000784436973184] 0.076ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#78)           dbench  3399 0 2 00000002 0000004e [0000784436973742] 0.077ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#79)           dbench  3399 0 2 00000002 0000004f [0000784436974237] 0.078ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#80)           dbench  3399 0 2 00000002 00000050 [0000784436974691] 0.079ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#81)           dbench  3399 0 2 00000002 00000051 [0000784436975092] 0.079ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#82)           dbench  3399 0 2 00000002 00000052 [0000784436975578] 0.080ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#83)           dbench  3399 0 2 00000002 00000053 [0000784436976019] 0.081ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#84)           dbench  3399 0 2 00000002 00000054 [0000784436976415] 0.081ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#85)           dbench  3399 0 2 00000002 00000055 [0000784436976901] 0.082ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#86)           dbench  3399 0 2 00000002 00000056 [0000784436977423] 0.083ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#87)           dbench  3399 0 2 00000002 00000057 [0000784436977837] 0.084ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#88)           dbench  3399 0 2 00000002 00000058 [0000784436978327] 0.085ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#89)           dbench  3399 0 2 00000002 00000059 [0000784436978845] 0.085ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#90)           dbench  3399 0 2 00000002 0000005a [0000784436979412] 0.086ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#91)           dbench  3399 0 2 00000002 0000005b [0000784436979902] 0.087ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#92)           dbench  3399 0 2 00000002 0000005c [0000784436980361] 0.088ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#93)           dbench  3399 0 2 00000002 0000005d [0000784436980762] 0.089ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#94)           dbench  3399 0 2 00000002 0000005e [0000784436981252] 0.089ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#95)           dbench  3399 0 2 00000002 0000005f [0000784436981698] 0.090ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#96)           dbench  3399 0 2 00000002 00000060 [0000784436982098] 0.091ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#97)           dbench  3399 0 2 00000002 00000061 [0000784436982584] 0.092ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#98)           dbench  3399 0 2 00000002 00000062 [0000784436983021] 0.092ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#99)           dbench  3399 0 2 00000002 00000063 [0000784436983417] 0.093ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#100)           dbench  3399 0 2 00000002 00000064 [0000784436983916] 0.094ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#101)           dbench  3399 0 2 00000002 00000065 [0000784436984357] 0.095ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#102)           dbench  3399 0 2 00000002 00000066 [0000784436984839] 0.095ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#103)           dbench  3399 0 2 00000002 00000067 [0000784436985392] 0.096ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#104)           dbench  3399 0 2 00000002 00000068 [0000784436986108] 0.098ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#105)           dbench  3399 0 2 00000002 00000069 [0000784436986972] 0.099ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#106)           dbench  3399 0 2 00000002 0000006a [0000784436987570] 0.100ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#107)           dbench  3399 0 2 00000002 0000006b [0000784436988083] 0.101ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#108)           dbench  3399 0 2 00000002 0000006c [0000784436988497] 0.102ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#109)           dbench  3399 0 2 00000002 0000006d [0000784436988997] 0.102ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#110)           dbench  3399 0 2 00000002 0000006e [0000784436989442] 0.103ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#111)           dbench  3399 0 2 00000002 0000006f [0000784436990144] 0.104ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#112)           dbench  3399 0 2 00000002 00000070 [0000784436990702] 0.105ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#113)           dbench  3399 0 2 00000002 00000071 [0000784436991157] 0.106ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#114)           dbench  3399 0 2 00000002 00000072 [0000784436991634] 0.107ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#115)           dbench  3399 0 2 00000002 00000073 [0000784436992187] 0.108ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#116)           dbench  3399 0 2 00000002 00000074 [0000784436992646] 0.108ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#117)           dbench  3399 0 2 00000002 00000075 [0000784436993218] 0.109ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#118)           dbench  3399 0 2 00000002 00000076 [0000784436993713] 0.110ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#119)           dbench  3399 0 2 00000002 00000077 [0000784436994167] 0.111ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#120)           dbench  3399 0 2 00000002 00000078 [0000784436994563] 0.112ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#121)           dbench  3399 0 2 00000002 00000079 [0000784436995081] 0.113ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#122)           dbench  3399 0 2 00000002 0000007a [0000784436995679] 0.114ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#123)           dbench  3399 0 2 00000002 0000007b [0000784436996102] 0.114ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#124)           dbench  3399 0 2 00000002 0000007c [0000784436996593] 0.115ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#125)           dbench  3399 0 2 00000002 0000007d [0000784436997038] 0.116ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#126)           dbench  3399 0 2 00000002 0000007e [0000784436997524] 0.117ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#127)           dbench  3399 0 2 00000002 0000007f [0000784436998015] 0.117ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#128)           dbench  3399 0 2 00000002 00000080 [0000784436998532] 0.118ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#129)           dbench  3399 0 2 00000002 00000081 [0000784436999126] 0.119ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#130)           dbench  3399 0 2 00000002 00000082 [0000784436999689] 0.120ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#131)           dbench  3399 0 2 00000002 00000083 [0000784437000193] 0.121ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#132)           dbench  3399 0 2 00000002 00000084 [0000784437000625] 0.122ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#133)           dbench  3399 0 2 00000002 00000085 [0000784437001111] 0.123ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#134)           dbench  3399 0 2 00000002 00000086 [0000784437001822] 0.124ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#135)           dbench  3399 0 2 00000002 00000087 [0000784437002375] 0.125ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#136)           dbench  3399 0 2 00000002 00000088 [0000784437002861] 0.125ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#137)           dbench  3399 0 2 00000002 00000089 [0000784437003320] 0.126ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#138)           dbench  3399 0 2 00000002 0000008a [0000784437003788] 0.127ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#139)           dbench  3399 0 2 00000002 0000008b [0000784437004279] 0.128ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#140)           dbench  3399 0 2 00000002 0000008c [0000784437004859] 0.129ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#141)           dbench  3399 0 2 00000002 0000008d [0000784437005444] 0.130ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#142)           dbench  3399 0 2 00000002 0000008e [0000784437005935] 0.131ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#143)           dbench  3399 0 2 00000002 0000008f [0000784437006398] 0.131ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#144)           dbench  3399 0 2 00000002 00000090 [0000784437006799] 0.132ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#145)           dbench  3399 0 2 00000002 00000091 [0000784437007289] 0.133ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#146)           dbench  3399 0 2 00000002 00000092 [0000784437008005] 0.134ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#147)           dbench  3399 0 2 00000002 00000093 [0000784437008545] 0.135ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#148)           dbench  3399 0 2 00000002 00000094 [0000784437009031] 0.136ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#149)           dbench  3399 0 2 00000002 00000095 [0000784437009546] 0.137ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#150)           dbench  3399 0 2 00000002 00000096 [0000784437009944] 0.137ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#151)           dbench  3399 0 2 00000002 00000097 [0000784437010435] 0.138ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#152)           dbench  3399 0 2 00000002 00000098 [0000784437010871] 0.139ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#153)           dbench  3399 0 2 00000002 00000099 [0000784437011461] 0.140ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#154)           dbench  3399 0 2 00000002 0000009a [0000784437012014] 0.141ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#155)           dbench  3399 0 2 00000002 0000009b [0000784437012464] 0.141ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#156)           dbench  3399 0 2 00000002 0000009c [0000784437012874] 0.142ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#157)           dbench  3399 0 2 00000002 0000009d [0000784437013364] 0.143ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#158)           dbench  3399 0 2 00000002 0000009e [0000784437013823] 0.144ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#159)           dbench  3399 0 2 00000002 0000009f [0000784437014224] 0.144ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#160)           dbench  3399 0 2 00000002 000000a0 [0000784437014714] 0.145ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#161)           dbench  3399 0 2 00000002 000000a1 [0000784437015160] 0.146ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#162)           dbench  3399 0 2 00000002 000000a2 [0000784437015637] 0.147ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#163)           dbench  3399 0 2 00000002 000000a3 [0000784437016127] 0.148ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#164)           dbench  3399 0 2 00000002 000000a4 [0000784437016609] 0.148ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#165)           dbench  3399 0 2 00000002 000000a5 [0000784437017032] 0.149ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#166)           dbench  3399 0 2 00000002 000000a6 [0000784437017603] 0.150ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#167)           dbench  3399 0 2 00000002 000000a7 [0000784437018040] 0.151ms (+0.002ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#168)           dbench  3399 0 2 00000002 000000a8 [0000784437019696] 0.153ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#169)           dbench  3399 0 2 00000002 000000a9 [0000784437020249] 0.154ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#170)           dbench  3399 0 2 00000002 000000aa [0000784437020834] 0.155ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#171)           dbench  3399 0 2 00000002 000000ab [0000784437021392] 0.156ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#172)           dbench  3399 0 2 00000002 000000ac [0000784437021883] 0.157ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#173)           dbench  3399 0 2 00000002 000000ad [0000784437022342] 0.158ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#174)           dbench  3399 0 2 00000002 000000ae [0000784437022828] 0.159ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#175)           dbench  3399 0 2 00000002 000000af [0000784437023327] 0.160ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#176)           dbench  3399 0 2 00000002 000000b0 [0000784437023786] 0.160ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#177)           dbench  3399 0 2 00000002 000000b1 [0000784437024187] 0.161ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#178)           dbench  3399 0 2 00000002 000000b2 [0000784437024677] 0.162ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#179)           dbench  3399 0 2 00000002 000000b3 [0000784437025118] 0.162ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#180)           dbench  3399 0 2 00000002 000000b4 [0000784437025694] 0.163ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#181)           dbench  3399 0 2 00000002 000000b5 [0000784437026198] 0.164ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#182)           dbench  3399 0 2 00000002 000000b6 [0000784437026653] 0.165ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#183)           dbench  3399 0 2 00000002 000000b7 [0000784437027121] 0.166ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#184)           dbench  3399 0 2 00000002 000000b8 [0000784437027683] 0.167ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#185)           dbench  3399 0 2 00000002 000000b9 [0000784437028142] 0.168ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#186)           dbench  3399 0 2 00000002 000000ba [0000784437028538] 0.168ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#187)           dbench  3399 0 2 00000002 000000bb [0000784437029024] 0.169ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#188)           dbench  3399 0 2 00000002 000000bc [0000784437029461] 0.170ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#189)           dbench  3399 0 2 00000002 000000bd [0000784437029857] 0.170ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#190)           dbench  3399 0 2 00000002 000000be [0000784437030343] 0.171ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#191)           dbench  3399 0 2 00000002 000000bf [0000784437030869] 0.172ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#192)           dbench  3399 0 2 00000002 000000c0 [0000784437031337] 0.173ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#193)           dbench  3399 0 2 00000002 000000c1 [0000784437031828] 0.174ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#194)           dbench  3399 0 2 00000002 000000c2 [0000784437032395] 0.175ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#195)           dbench  3399 0 2 00000002 000000c3 [0000784437033169] 0.176ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#196)           dbench  3399 0 2 00000002 000000c4 [0000784437033722] 0.177ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#197)           dbench  3399 0 2 00000002 000000c5 [0000784437034496] 0.178ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#198)           dbench  3399 0 2 00000002 000000c6 [0000784437035036] 0.179ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#199)           dbench  3399 0 2 00000002 000000c7 [0000784437035522] 0.180ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#200)           dbench  3399 0 2 00000002 000000c8 [0000784437035963] 0.181ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#201)           dbench  3399 0 2 00000002 000000c9 [0000784437036436] 0.181ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#202)           dbench  3399 0 2 00000002 000000ca [0000784437037007] 0.182ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#203)           dbench  3399 0 2 00000002 000000cb [0000784437037462] 0.183ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#204)           dbench  3399 0 2 00000002 000000cc [0000784437037939] 0.184ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#205)           dbench  3399 0 2 00000002 000000cd [0000784437038425] 0.185ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#206)           dbench  3399 0 2 00000002 000000ce [0000784437038996] 0.186ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#207)           dbench  3399 0 2 00000002 000000cf [0000784437039563] 0.187ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#208)           dbench  3399 0 2 00000002 000000d0 [0000784437040054] 0.187ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#209)           dbench  3399 0 2 00000002 000000d1 [0000784437040535] 0.188ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#210)           dbench  3399 0 2 00000002 000000d2 [0000784437041017] 0.189ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#211)           dbench  3399 0 2 00000002 000000d3 [0000784437041507] 0.190ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#212)           dbench  3399 0 2 00000002 000000d4 [0000784437041971] 0.191ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#213)           dbench  3399 0 2 00000002 000000d5 [0000784437042443] 0.191ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#214)           dbench  3399 0 2 00000002 000000d6 [0000784437042934] 0.192ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#215)           dbench  3399 0 2 00000002 000000d7 [0000784437043591] 0.193ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#216)           dbench  3399 0 2 00000002 000000d8 [0000784437044005] 0.194ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#217)           dbench  3399 0 2 00000002 000000d9 [0000784437044491] 0.195ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#218)           dbench  3399 0 2 00000002 000000da [0000784437045004] 0.196ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#219)           dbench  3399 0 2 00000002 000000db [0000784437045566] 0.197ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#220)           dbench  3399 0 2 00000002 000000dc [0000784437046061] 0.197ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#221)           dbench  3399 0 2 00000002 000000dd [0000784437046574] 0.198ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#222)           dbench  3399 0 2 00000002 000000de [0000784437046984] 0.199ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#223)           dbench  3399 0 2 00000002 000000df [0000784437047470] 0.200ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#224)           dbench  3399 0 2 00000002 000000e0 [0000784437047983] 0.201ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#225)           dbench  3399 0 2 00000002 000000e1 [0000784437048572] 0.202ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#226)           dbench  3399 0 2 00000002 000000e2 [0000784437049130] 0.202ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#227)           dbench  3399 0 2 00000002 000000e3 [0000784437049639] 0.203ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#228)           dbench  3399 0 2 00000002 000000e4 [0000784437050053] 0.204ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#229)           dbench  3399 0 2 00000002 000000e5 [0000784437050543] 0.205ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#230)           dbench  3399 0 2 00000002 000000e6 [0000784437051061] 0.206ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#231)           dbench  3399 0 2 00000002 000000e7 [0000784437051484] 0.206ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#232)           dbench  3399 0 2 00000002 000000e8 [0000784437051974] 0.207ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#233)           dbench  3399 0 2 00000002 000000e9 [0000784437052492] 0.208ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#234)           dbench  3399 0 2 00000002 000000ea [0000784437053108] 0.209ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#235)           dbench  3399 0 2 00000002 000000eb [0000784437053662] 0.210ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#236)           dbench  3399 0 2 00000002 000000ec [0000784437054166] 0.211ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#237)           dbench  3399 0 2 00000002 000000ed [0000784437054607] 0.212ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#238)           dbench  3399 0 2 00000002 000000ee [0000784437055093] 0.212ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#239)           dbench  3399 0 2 00000002 000000ef [0000784437055529] 0.213ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#240)           dbench  3399 0 2 00000002 000000f0 [0000784437055925] 0.214ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#241)           dbench  3399 0 2 00000002 000000f1 [0000784437056420] 0.215ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#242)           dbench  3399 0 2 00000002 000000f2 [0000784437056933] 0.215ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#243)           dbench  3399 0 2 00000002 000000f3 [0000784437057347] 0.216ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#244)           dbench  3399 0 2 00000002 000000f4 [0000784437057838] 0.217ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#245)           dbench  3399 0 2 00000002 000000f5 [0000784437058355] 0.218ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#246)           dbench  3399 0 2 00000002 000000f6 [0000784437058769] 0.218ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#247)           dbench  3399 0 2 00000002 000000f7 [0000784437059260] 0.219ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#248)           dbench  3399 0 2 00000002 000000f8 [0000784437059701] 0.220ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#249)           dbench  3399 0 2 00000002 000000f9 [0000784437060101] 0.221ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#250)           dbench  3399 0 2 00000002 000000fa [0000784437060592] 0.222ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#251)           dbench  3399 0 2 00000002 000000fb [0000784437061186] 0.223ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#252)           dbench  3399 0 2 00000002 000000fc [0000784437061613] 0.223ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#253)           dbench  3399 0 2 00000002 000000fd [0000784437062104] 0.224ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#254)           dbench  3399 0 2 00000002 000000fe [0000784437062545] 0.225ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#255)           dbench  3399 0 2 00000002 000000ff [0000784437062941] 0.225ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#256)           dbench  3399 0 2 00000002 00000100 [0000784437063463] 0.226ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#257)           dbench  3399 0 2 00000002 00000101 [0000784437063980] 0.227ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#258)           dbench  3399 0 2 00000002 00000102 [0000784437064484] 0.228ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#259)           dbench  3399 0 2 00000002 00000103 [0000784437064970] 0.229ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#260)           dbench  3399 0 2 00000002 00000104 [0000784437065411] 0.230ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#261)           dbench  3399 0 2 00000002 00000105 [0000784437065843] 0.230ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#262)           dbench  3399 0 2 00000002 00000106 [0000784437066334] 0.231ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#263)           dbench  3399 0 2 00000002 00000107 [0000784437066856] 0.232ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#264)           dbench  3399 0 2 00000002 00000108 [0000784437067283] 0.233ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#265)           dbench  3399 0 2 00000002 00000109 [0000784437067774] 0.233ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#266)           dbench  3399 0 2 00000002 0000010a [0000784437068296] 0.234ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#267)           dbench  3399 0 2 00000002 0000010b [0000784437068737] 0.235ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#268)           dbench  3399 0 2 00000002 0000010c [0000784437069227] 0.236ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#269)           dbench  3399 0 2 00000002 0000010d [0000784437069745] 0.237ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#270)           dbench  3399 0 2 00000002 0000010e [0000784437070181] 0.237ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#271)           dbench  3399 0 2 00000002 0000010f [0000784437070681] 0.238ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#272)           dbench  3399 0 2 00000002 00000110 [0000784437071144] 0.239ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#273)           dbench  3399 0 2 00000002 00000111 [0000784437071540] 0.240ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#274)           dbench  3399 0 2 00000002 00000112 [0000784437072026] 0.241ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#275)           dbench  3399 0 2 00000002 00000113 [0000784437072548] 0.241ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#276)           dbench  3399 0 2 00000002 00000114 [0000784437073124] 0.242ms (+0.001ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#277)           dbench  3399 0 2 00000002 00000115 [0000784437073828] 0.244ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#278)           dbench  3399 0 2 00000002 00000116 [0000784437074281] 0.244ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#279)           dbench  3399 0 2 00000002 00000117 [0000784437074758] 0.245ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#280)           dbench  3399 0 2 00000002 00000118 [0000784437075248] 0.246ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#281)           dbench  3399 0 2 00000002 00000119 [0000784437075716] 0.247ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#282)           dbench  3399 0 2 00000002 0000011a [0000784437076130] 0.247ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#283)           dbench  3399 0 2 00000002 0000011b [0000784437076621] 0.248ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#284)           dbench  3399 0 2 00000002 0000011c [0000784437077066] 0.249ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#285)           dbench  3399 0 2 00000002 0000011d [0000784437077467] 0.250ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#286)           dbench  3399 0 2 00000002 0000011e [0000784437077957] 0.250ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#287)           dbench  3399 0 2 00000002 0000011f [0000784437078403] 0.251ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#288)           dbench  3399 0 2 00000002 00000120 [0000784437078803] 0.252ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#289)           dbench  3399 0 2 00000002 00000121 [0000784437079294] 0.253ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#290)           dbench  3399 0 2 00000002 00000122 [0000784437079735] 0.253ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#291)           dbench  3399 0 2 00000002 00000123 [0000784437080315] 0.254ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#292)           dbench  3399 0 2 00000002 00000124 [0000784437080878] 0.255ms (+0.000ms): find_next_reservable_window+0xb/0x60 <c01b58bb> (alloc_new_reservation+0xd2/0x1c0 <c01b59e2>)
+(T1/#293)           dbench  3399 0 2 00000002 00000125 [0000784437081243] 0.256ms (+0.000ms): rb_next+0x8/0x60 <c01d9f88> (find_next_reservable_window+0x39/0x60 <c01b58e9>)
+(T1/#294)           dbench  3399 0 2 00000002 00000126 [0000784437081652] 0.257ms (+0.001ms): rb_next+0x8/0x60 <c01d9f88> (find_next_reservable_window+0x39/0x60 <c01b58e9>)
+(T1/#295)           dbench  3399 0 2 00000002 00000127 [0000784437082466] 0.258ms (+0.000ms): bitmap_search_next_usable_block+0xc/0xd0 <c01b551c> (alloc_new_reservation+0xf7/0x1c0 <c01b5a07>)
+(T1/#296)           dbench  3399 0 2 00000002 00000128 [0000784437082822] 0.259ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#297)           dbench  3399 0 2 00000002 00000129 [0000784437083312] 0.259ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#298)           dbench  3399 0 2 00000002 0000012a [0000784437083906] 0.260ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#299)           dbench  3399 0 2 00000002 0000012b [0000784437084424] 0.261ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#300)           dbench  3399 0 2 00000002 0000012c [0000784437084896] 0.262ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#301)           dbench  3399 0 2 00000002 0000012d [0000784437085396] 0.263ms (+0.000ms): find_next_reservable_window+0xb/0x60 <c01b58bb> (alloc_new_reservation+0xd2/0x1c0 <c01b59e2>)
+(T1/#302)           dbench  3399 0 2 00000002 0000012e [0000784437085756] 0.263ms (+0.000ms): rb_next+0x8/0x60 <c01d9f88> (find_next_reservable_window+0x39/0x60 <c01b58e9>)
+(T1/#303)           dbench  3399 0 2 00000002 0000012f [0000784437086143] 0.264ms (+0.000ms): rb_next+0x8/0x60 <c01d9f88> (find_next_reservable_window+0x39/0x60 <c01b58e9>)
+(T1/#304)           dbench  3399 0 2 00000002 00000130 [0000784437086642] 0.265ms (+0.000ms): bitmap_search_next_usable_block+0xc/0xd0 <c01b551c> (alloc_new_reservation+0xf7/0x1c0 <c01b5a07>)
+(T1/#305)           dbench  3399 0 2 00000002 00000131 [0000784437087002] 0.265ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#306)           dbench  3399 0 2 00000002 00000132 [0000784437087416] 0.266ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#307)           dbench  3399 0 2 00000002 00000133 [0000784437087916] 0.267ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#308)           dbench  3399 0 2 00000002 00000134 [0000784437088361] 0.268ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#309)           dbench  3399 0 2 00000002 00000135 [0000784437088838] 0.269ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#310)           dbench  3399 0 2 00000002 00000136 [0000784437089324] 0.269ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#311)           dbench  3399 0 2 00000002 00000137 [0000784437089801] 0.270ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#312)           dbench  3399 0 2 00000002 00000138 [0000784437090233] 0.271ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#313)           dbench  3399 0 2 00000002 00000139 [0000784437090719] 0.272ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#314)           dbench  3399 0 2 00000002 0000013a [0000784437091160] 0.272ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#315)           dbench  3399 0 2 00000002 0000013b [0000784437091556] 0.273ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#316)           dbench  3399 0 2 00000002 0000013c [0000784437092042] 0.274ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#317)           dbench  3399 0 2 00000002 0000013d [0000784437092483] 0.275ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#318)           dbench  3399 0 2 00000002 0000013e [0000784437092884] 0.275ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#319)           dbench  3399 0 2 00000002 0000013f [0000784437093374] 0.276ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#320)           dbench  3399 0 2 00000002 00000140 [0000784437093820] 0.277ms (+0.000ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0x2b/0xd0 <c01b553b>)
+(T1/#321)           dbench  3399 0 2 00000002 00000141 [0000784437094229] 0.277ms (+0.000ms): ext3_test_allocatable+0xa/0x90 <c01b548a> (bitmap_search_next_usable_block+0x41/0xd0 <c01b5551>)
+(T1/#322)           dbench  3399 0 2 00000002 00000142 [0000784437094787] 0.278ms (+0.001ms): find_next_zero_bit+0xc/0xa8 <c01db78c> (bitmap_search_next_usable_block+0xb1/0xd0 <c01b55c1>)
+(T1/#323)           dbench  3399 0 2 00000001 00000143 [0000784437095705] 0.280ms (+0.000ms): preempt_schedule+0xa/0x70 <c027d0fa> (ext3_try_to_allocate_with_rsv+0x28f/0x330 <c01b5d5f>)
+(T1/#324)           dbench  3399 0 2 00000000 00000144 [0000784437096304] 0.281ms (+0.000ms): preempt_schedule+0xa/0x70 <c027d0fa> (ext3_try_to_allocate_with_rsv+0x285/0x330 <c01b5d55>)
+(T1/#325)           dbench  3399 0 3 00000000 00000145 [0000784437096839] 0.282ms (+0.000ms): __schedule+0xe/0x630 <c027c9be> (preempt_schedule+0x4f/0x70 <c027d13f>)
+(T1/#326)           dbench  3399 0 3 00000000 00000146 [0000784437097231] 0.282ms (+0.000ms): profile_hit+0x9/0x50 <c0115749> (__schedule+0x3a/0x630 <c027c9ea>)
+(T1/#327)           dbench  3399 0 3 00000001 00000147 [0000784437097667] 0.283ms (+0.001ms): sched_clock+0xe/0xe0 <c010c3ae> (__schedule+0x62/0x630 <c027ca12>)
+(T1/#328)           dbench  3399 0 3 00000002 00000148 [0000784437098608] 0.285ms (+0.000ms): dequeue_task+0xa/0x50 <c010f4ea> (__schedule+0x1ab/0x630 <c027cb5b>)
+(T1/#329)           dbench  3399 0 3 00000002 00000149 [0000784437099166] 0.286ms (+0.000ms): recalc_task_prio+0xc/0x1a0 <c010f64c> (__schedule+0x1c5/0x630 <c027cb75>)
+(T1/#330)           dbench  3399 0 3 00000002 0000014a [0000784437099611] 0.286ms (+0.000ms): effective_prio+0x8/0x50 <c010f5f8> (recalc_task_prio+0xa6/0x1a0 <c010f6e6>)
+(T1/#331)           dbench  3399 0 3 00000002 0000014b [0000784437100012] 0.287ms (+0.001ms): enqueue_task+0xa/0x80 <c010f53a> (__schedule+0x1cc/0x630 <c027cb7c>)
+(T4/#332) [ =>           dbench ] 0.288ms (+0.001ms)
+(T1/#333)            <...>     2 0 1 00000002 0000014d [0000784437101515] 0.290ms (+0.002ms): __switch_to+0xb/0x1a0 <c0100f5b> (__schedule+0x2bd/0x630 <c027cc6d>)
+(T3/#334)    <...>-2     0d..2  292탎 : __schedule+0x2ea/0x630 <c027cc9a> <dbench-3399> (76 69): 
+(T1/#335)            <...>     2 0 1 00000002 0000014f [0000784437103484] 0.293ms (+0.000ms): finish_task_switch+0xc/0x90 <c010fdec> (__schedule+0x2f6/0x630 <c027cca6>)
+(T1/#336)            <...>     2 0 1 00000001 00000150 [0000784437103916] 0.294ms (+0.000ms): trace_stop_sched_switched+0xa/0x150 <c012cc1a> (finish_task_switch+0x43/0x90 <c010fe23>)
+(T3/#337)    <...>-2     0d..1  294탎 : trace_stop_sched_switched+0x42/0x150 <c012cc52> <<...>-2> (69 0): 
+(T1/#338)            <...>     2 0 1 00000001 00000152 [0000784437105041] 0.295ms (+0.000ms): trace_stop_sched_switched+0xfe/0x150 <c012cd0e> (finish_task_switch+0x43/0x90 <c010fe23>)
 
 
 vim:ft=help
 
---=-G72KGEW1lhujbI1iRR1A--
+--=-rYdZRaWRStq91AH+bGVE--
 

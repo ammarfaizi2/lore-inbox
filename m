@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135325AbRD1Pov>; Sat, 28 Apr 2001 11:44:51 -0400
+	id <S135331AbRD1Pym>; Sat, 28 Apr 2001 11:54:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135331AbRD1Pol>; Sat, 28 Apr 2001 11:44:41 -0400
-Received: from mail2.netcabo.pt ([212.113.161.137]:56070 "EHLO netcabo.pt")
-	by vger.kernel.org with ESMTP id <S135325AbRD1Po0> convert rfc822-to-8bit;
-	Sat, 28 Apr 2001 11:44:26 -0400
-From: =?iso-8859-1?Q?Andr=E9_Cruz?= <afafc@rnl.ist.utl.pt>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.4 breaks dhcpcd with Realtek 8139
-Date: Sat, 28 Apr 2001 16:46:40 +0100
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAArqXyEnDnsk6P8VUX1zHRj8KAAAAQAAAApXyGRgClh0mFu83phfapSQEAAAAA@rnl.ist.utl.pt>
+	id <S135416AbRD1Pyb>; Sat, 28 Apr 2001 11:54:31 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:53519 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S135331AbRD1PyS>;
+	Sat, 28 Apr 2001 11:54:18 -0400
+Date: Sat, 28 Apr 2001 17:52:42 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: Ville Herva <vherva@mail.niksula.cs.hut.fi>,
+        Fabio Riccardi <fabio@chromium.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
+Message-ID: <Pine.LNX.4.33.0104281752290.10866-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I too have this problem. The first time dhcpcd is executed it fails due
-to timeout. 
-If we execute it again it works fine. Looks like the first packets
-sent/received through the interface don't get treated right. 
-If I reverse the 2.4.4 patch to 2.4.3 it starts working well again.
-Something's up with the realtek driver update I would say.
 
-I'm not on the list so please CC me replys.
-Thanks.
+On Sat, 28 Apr 2001, Andi Kleen wrote:
 
-------------
-André Cruz
+> You can also just use the cycle counter directly in most modern CPUs.
+> It can be read with a single instruction. In fact modern glibc will do
+> it for you when you use clock_gettime(CLOCK_PROCESS_CPUTIME_ID, ...)
+
+well, it's not reliable while using things like APM, so i'd not recommend
+to depend on it too much.
+
+	Ingo
+
 

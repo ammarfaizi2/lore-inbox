@@ -1,70 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUFVH7T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbUFVIF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUFVH7T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 03:59:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUFVH7S
+	id S261378AbUFVIF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 04:05:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbUFVIF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 03:59:18 -0400
-Received: from hermes.iil.intel.com ([192.198.152.99]:7846 "EHLO
-	hermes.iil.intel.com") by vger.kernel.org with ESMTP
-	id S261239AbUFVH64 convert rfc822-to-8bit (ORCPT
+	Tue, 22 Jun 2004 04:05:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:18304 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261378AbUFVIFL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 03:58:56 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Subject: RE: [PATCH] Handle non-readable binfmt_misc executables
-Date: Tue, 22 Jun 2004 10:58:41 +0300
-Message-ID: <2C83850C013A2540861D03054B478C060416C513@hasmsx403.ger.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Handle non-readable binfmt_misc executables
-thread-index: AcRWtIpI6Y2jLT5rSJur6d06hLH+WwAzx3Zw
-From: "Zach, Yoav" <yoav.zach@intel.com>
-To: "Arjan van de Ven" <arjanv@redhat.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 22 Jun 2004 07:58:42.0129 (UTC) FILETIME=[BC21D410:01C4582E]
+	Tue, 22 Jun 2004 04:05:11 -0400
+Date: Tue, 22 Jun 2004 01:05:07 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Andries.Brouwer@cwi.nl
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: CAP_DAC_OVERRIDE
+Message-ID: <20040622010505.I22989@build.pdx.osdl.net>
+References: <UTC200406220134.i5M1YxJ20330.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <UTC200406220134.i5M1YxJ20330.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Tue, Jun 22, 2004 at 03:34:59AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Andries.Brouwer@cwi.nl (Andries.Brouwer@cwi.nl) wrote:
+> It seems that CAP_DAC_OVERRIDE is treated inconsistently.
+> In fs/namei.c:vfs_permission() it allows one to search in
+> a directory with zero permissions:
+> 
+>         if (!(mask & MAY_EXEC) ||
+>             (inode->i_mode & S_IXUGO) || S_ISDIR(inode->i_mode))
+>                 if (capable(CAP_DAC_OVERRIDE))
+>                         return 0;
+> 
+> while in fs/namei.c:exec_permission_lite() it does not.
+> Maybe the patch below would be appropriate.
+
+Andries, I agree, it's handled inconsistently.  The typical usage would
+never notice this since both caps would be either enabled or disabled.
+I believe we could actually simplify the overrides to simply:
+
+	if (capable(CAP_DAC_OVERRIDE) || capable(CAP_DAC_READ_SEARCH))
+		goto ok;
+
+Because this is only MAY_EXEC on directories check.  However, that does
+hide the override reasoning, so conservative approach below.  I changed
+it just slightly from yours to keep in line with code in vfs_permission.
+
+thanks,
+-chris
+
+===== fs/namei.c 1.96 vs edited =====
+--- 1.96/fs/namei.c	2004-06-20 18:20:57 -07:00
++++ edited/fs/namei.c	2004-06-22 01:02:00 -07:00
+@@ -316,7 +316,7 @@
+ {
+ 	umode_t	mode = inode->i_mode;
  
-
->-----Original Message-----
->From: Arjan van de Ven [mailto:arjanv@redhat.com] 
->Sent: Sunday, June 20, 2004 13:50
->To: Zach, Yoav
->Cc: Linux Kernel Mailing List
->Subject: Re: [PATCH] Handle non-readable binfmt_misc executables
->
-
->
->for one, sys_close, while currently exported, shouldn't be really.
->(it is exported right now for a few drivers that have invalid firmware
->loaders that haven't been converted to the firmware loading framework).
-
-What is the reason that sys_close should not be used by modules ?
-
->In addition it's way overkill, you created the fd so half the safety
->precautions shouldn/t be needed
->
-
-There are some checks that might be skipped. But I think that calling
-sys_close is the right thing to do here, because this way future changes
-to the procedure of closing an open fd will not need to be copied to
-the recovery code of load_misc_binary. Do you expect there will be any
-visible gain in performance if the unnecessary steps are skipped ?
-Please
-remember this is only recovery code - this is not the main stream
-execution.
-
-Thanks,
-Yoav.
-
-Yoav Zach
-IA-32 Execution Layer
-Performance Tools Lab
-Intel Corp.
-
+-	if ((inode->i_op && inode->i_op->permission))
++	if (inode->i_op && inode->i_op->permission)
+ 		return -EAGAIN;
+ 
+ 	if (current->fsuid == inode->i_uid)
+@@ -327,7 +327,8 @@
+ 	if (mode & MAY_EXEC)
+ 		goto ok;
+ 
+-	if ((inode->i_mode & S_IXUGO) && capable(CAP_DAC_OVERRIDE))
++	if (((inode->i_mode & S_IXUGO) || S_ISDIR(inode->i_mode)) &&
++	    capable(CAP_DAC_OVERRIDE))
+ 		goto ok;
+ 
+ 	if (S_ISDIR(inode->i_mode) && capable(CAP_DAC_READ_SEARCH))

@@ -1,88 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbUCQWqk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 17:46:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbUCQWqk
+	id S262126AbUCQWzu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 17:55:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbUCQWzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 17:46:40 -0500
-Received: from main.gmane.org ([80.91.224.249]:15242 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262124AbUCQWqg (ORCPT
+	Wed, 17 Mar 2004 17:55:50 -0500
+Received: from mail.kroah.org ([65.200.24.183]:45254 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262126AbUCQWzo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 17:46:36 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: Framebuffer with nVidia GeForce 2 Go on Dell Inspiron 8200
-Date: Wed, 17 Mar 2004 23:46:34 +0100
-Message-ID: <MPG.1ac2f3b3ae2e948c989687@news.gmane.org>
-References: <MPG.1ac04509fe5b83d7989685@news.gmane.org> <Pine.LNX.4.44.0403172149140.19415-100000@phoenix.infradead.org>
+	Wed, 17 Mar 2004 17:55:44 -0500
+Date: Wed, 17 Mar 2004 14:55:20 -0800
+From: Greg KH <greg@kroah.com>
+To: Kai Makisara <Kai.Makisara@kolumbus.fi>, akpm@osdl.org, corbet@lwn.net
+Cc: Mike Anderson <andmike@us.ibm.com>,
+       Matthias Andree <ma+lscsi@dt.e-technik.uni-dortmund.de>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc1 SCSI + st regressions (was: Linux 2.6.5-rc1)
+Message-ID: <20040317225520.GA4660@kroah.com>
+References: <Pine.LNX.4.58.0403152154070.19853@ppc970.osdl.org> <20040316211203.GA3679@merlin.emma.line.org> <20040316211700.GA25059@parcelfarce.linux.theplanet.co.uk> <20040316215659.GA3861@merlin.emma.line.org> <Pine.LNX.4.58.0403172145420.1093@kai.makisara.local> <Pine.LNX.4.58.0403172312410.1093@kai.makisara.local> <20040317214434.GF949@beaverton.ibm.com> <Pine.LNX.4.58.0403180022420.1090@kai.makisara.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-171-130.29-151.libero.it
-X-Newsreader: MicroPlanet Gravity v2.60
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0403180022420.1090@kai.makisara.local>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons wrote:
+On Thu, Mar 18, 2004 at 12:25:08AM +0200, Kai Makisara wrote:
+> On Wed, 17 Mar 2004, Mike Anderson wrote:
 > 
-> > > I tried vga=ask, and no VESA modes are detected.
+> > Kai Makisara [Kai.Makisara@kolumbus.fi] wrote:
+> > >  		if (!st_class_member) {
+> > >  			printk(KERN_WARNING "st%d: class_simple_device_add failed\n",
+> > >  			       dev_num);
 > > 
-> > Ok, I'm stupid. I tried vga=ask, told him to scan, still got no VESA 
-> > modes in the list, but thenand tried 318; it gave me 1024x768 (so did 
-> > 718 too, any reason why?). Can't get to 1600x1200, though (or at 
-> > least I don't know how.)
-> 
-> For some reason it never list the VESA modes with vga=ask. I just go by 
-> the does in Documentation/fb/vesafb.txt to set my mode. Let me look...
-> 
-> I need to add more info to the docs on what modes are supported. 
-> 	1600x1200		
-> 	---------
-> 256	0x119	  0x145	
-> 32K	0x11D	  0x146
-> 64K	0x11E
-> 16M		  0x14E
-> 
-> For lilo translate them to decimal number. I'm curious if the 14X numbers 
-> work.
-
-I guess I would have to input 31e or 34e at the vga=ask prompt, 
-right? Well, I never managed to get a code with letters to work :( I 
-will try again ...
-
-> > Now that I can work with the VESA driver, I'm feeling much better, 
-> > but if I load the rivafb driver I *still* get the problem (I cannot 
-> > touch it, not even with fbset -i). Using 2.6.4;
+> > Could you change the if check to use IS_ERR(st_class_member) so in the
+> > future if do_create_class_files return -E* we will not get a oops.
 > > 
-> > Just for reference, these are the logs from vesafb, rivafb and lspci:
-> 
-> > >From rivafb:
-> > ===
-> > rivafb: nVidia device/chipset 10DE0112
-> > rivafb: On a laptop.  Assuming Digital Flat Panel
-> > rivafb: Detected CRTC controller 1 being used
-> > rivafb: RIVA MTRR set to ON
-> > rivafb: PCI nVidia NV10 framebuffer ver 0.9.5b (nVidiaGeForce2-G, 
-> > 32MB @ 0xE0000000) 
-> > ===
-> > 
-> > In this case, fbset -i returns (well, doesn't because the screen goes 
-> > black, but the computer is still fully functional):
-> 
-> That a bug I have to work. I have a newer driver but I need to run more 
-> test.
+> A revised patch is at the end of this message. Thanks for pointing out 
+> this bug.
 
-If you want, I can try and test it on my computer too (if you can 
-guarantee it doesn't format my hard drive and give my syphilis ;))
+Yeah, this is a much better fix.  Sorry to cause all of this trouble, I
+should have checked to see if anyone used the kobject's name of the cdev
+structure anywhere before taking that assignement out.
 
--- 
-Giuseppe "Oblomov" Bilotta
+Andrew, this is a better fix than the one that you and Jon came up with
+earlier today.
 
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
+thanks,
 
+greg k-h
+
+> --------------------------------8<----------------------------------------------
+> --- linux-2.6.5-rc1-bk2/drivers/scsi/st.c	2004-03-17 22:37:11.000000000 +0200
+> +++ linux-2.6.5-rc1-bk2-k1/drivers/scsi/st.c	2004-03-18 00:09:07.000000000 +0200
+> @@ -17,7 +17,7 @@
+>     Last modified: 18-JAN-1998 Richard Gooch <rgooch@atnf.csiro.au> Devfs support
+>   */
+>  
+> -static char *verstr = "20040226";
+> +static char *verstr = "20040318";
+>  
+>  #include <linux/module.h>
+>  
+> @@ -4193,20 +4193,25 @@
+>  
+>  static void do_create_class_files(Scsi_Tape *STp, int dev_num, int mode)
+>  {
+> -	int rew, error;
+> +	int i, rew, error;
+> +	char name[10];
+>  	struct class_device *st_class_member;
+>  
+>  	if (!st_sysfs_class)
+>  		return;
+>  
+>  	for (rew=0; rew < 2; rew++) {
+> +		/* Make sure that the minor numbers corresponding to the four
+> +		   first modes always get the same names */
+> +		i = mode << (4 - ST_NBR_MODE_BITS);
+> +		snprintf(name, 10, "%s%s%s", rew ? "n" : "",
+> +			 STp->disk->disk_name, st_formats[i]);
+>  		st_class_member =
+>  			class_simple_device_add(st_sysfs_class,
+>  						MKDEV(SCSI_TAPE_MAJOR,
+>  						      TAPE_MINOR(dev_num, mode, rew)),
+> -						&STp->device->sdev_gendev, "%s",
+> -						STp->modes[mode].cdevs[rew]->kobj.name);
+> -		if (!st_class_member) {
+> +						&STp->device->sdev_gendev, "%s", name);
+> +		if (IS_ERR(st_class_member)) {
+>  			printk(KERN_WARNING "st%d: class_simple_device_add failed\n",
+>  			       dev_num);
+>  			goto out;

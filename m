@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263757AbTCVRoK>; Sat, 22 Mar 2003 12:44:10 -0500
+	id <S263674AbTCVRwm>; Sat, 22 Mar 2003 12:52:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263762AbTCVRoK>; Sat, 22 Mar 2003 12:44:10 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:12187
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263757AbTCVRoJ>; Sat, 22 Mar 2003 12:44:09 -0500
-Subject: Re: IDE todo list
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030322172453.GB9889@vana.vc.cvut.cz>
-References: <1048352492.9219.4.camel@irongate.swansea.linux.org.uk>
-	 <20030322172453.GB9889@vana.vc.cvut.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048360040.9221.23.camel@irongate.swansea.linux.org.uk>
+	id <S263678AbTCVRwm>; Sat, 22 Mar 2003 12:52:42 -0500
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:9147 "EHLO
+	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S263674AbTCVRwl>; Sat, 22 Mar 2003 12:52:41 -0500
+Date: Sat, 22 Mar 2003 13:10:04 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: lmbench results for 2.4 and 2.5
+Message-ID: <20030322181004.GB25553@rushmore>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 22 Mar 2003 19:07:21 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-22 at 17:24, Petr Vandrovec wrote:
->   any hope that promise 20265 driver could detect non-udma66 cable
-> and run at udma2 only? BIOS properly detect this, but Linux driver
-> wants to use udma100, and usually dies hard with CRC errors during
-> reading of PTBL extended chain (it also should not lockup when
-> CRC error happens 5 times in a row, but ...).
+If someone wants to go through individual lmbench metrics
+and find regression points, I have some data that I believe
+is mostly very good.
 
-The five CRC in a row is what causes the DMA->PIO changedown. That
-implies there is a real bug in the error handling locking, or in
-the driver handling of that.
+There is lmbench info for a lot of 2.4 and 2.5 kernels in
+these pages:
+http://home.earthlink.net/~rwhron/kernel/k6-2-475.html
+http://home.earthlink.net/~rwhron/kernel/old-k6-2-475.html
 
-Can you throw some printks into the ide code and see what kind of 
-a death you get when it tries to change back to PIO.
+They are from 2 different Linux OS's, but the same piece
+of hardware.  It would be best not to combine them because
+of the OS differences.
 
-As to the cable stuff, I'll take a look at it in time, but both
-need fixing
+If anyone feels like grabbing any of the data in my web
+pages and graphing it, feel free to do so.
+
+If you have any specific questions or want even more
+data/background let me know.  I'd love for the data
+to be more useful.
+
+There is another page with a slew of quad xeon benchmarks.
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
+-- 
+Randy Hron
 

@@ -1,49 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266233AbUJATnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266291AbUJATwC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266233AbUJATnp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 15:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266204AbUJATlN
+	id S266291AbUJATwC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 15:52:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266271AbUJATwB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 15:41:13 -0400
-Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:32206 "EHLO
-	safari.iki.fi") by vger.kernel.org with ESMTP id S266233AbUJATi1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 15:38:27 -0400
-Date: Fri, 1 Oct 2004 22:38:25 +0300
-From: Sami Farin <7atbggg02@sneakemail.com>
-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ReiserFS Mailing List <reiserfs-list@namesys.com>
-Subject: Re: Linux-2.6.9-rc2-bk7 Oops - ReiserFS: warning: vs-500: unknown uniqueness 126844928
-Message-ID: <20041001193825.GA6441@m.safari.iki.fi>
-Mail-Followup-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>,
-	ReiserFS Mailing List <reiserfs-list@namesys.com>
-References: <20040922225859.GA12833@m.safari.iki.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 1 Oct 2004 15:52:01 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:16816 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S266366AbUJATva (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 15:51:30 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc3 software suspend (pmdisk) stopped working
+Date: Fri, 1 Oct 2004 21:53:31 +0200
+User-Agent: KMail/1.6.2
+Cc: Kevin Fenzi <kevin-linux-kernel@scrye.com>
+References: <415C2633.3050802@0Bits.COM> <200410012055.29406.rjw@sisk.pl> <20041001192532.A0714A6017@voldemort.scrye.com>
+In-Reply-To: <20041001192532.A0714A6017@voldemort.scrye.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040922225859.GA12833@m.safari.iki.fi>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410012153.31376.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 01:58:59AM +0300, Sami Farin wrote:
-> I got no replies for messages <20040713110437.GA4571@m.safari.iki.fi>
-> and <20040714214146.GA23531@m.safari.iki.fi> to LKML,
-> so I try again with latest releases.  Now using 2.6.9-rc2-bk7, and I
+On Friday 01 of October 2004 21:25, Kevin Fenzi wrote:
+> >>>>> "Rafael" == Rafael J Wysocki <rjw@sisk.pl> writes:
+> 
+> Rafael> On Friday 01 of October 2004 18:03, Kevin Fenzi wrote:
+> >> >>>>> "Pavel" == Pavel Machek <pavel@ucw.cz> writes:
+> >>
+> Pavel> Hi!
+> >> >> Anyone noticed that pmdisk software suspend stopped working in
+> >> -rc3 >> ?  In -rc2 it worked just fine. My script was
+> >> >>
+> >> >> chvt 1 echo -n shutdown >/sys/power/disk echo -n disk >>
+> >> >/sys/power/state chvt 7
+> >> >>
+> >> >> In -rc3 it appears to write pages out to disk, but never shuts
+> >> down >> the machine. Is there something else i need to do or am
+> >> missing ?
+> >>
+> Pavel> You are not missing anything, it is somehow broken. I'll try to
+> Pavel> find out what went wrong and fix it. In the meantime, look at
+> Pavel> -mm series, it works there.  Pavel
+> >> I finally had a chance to try 2.6.9-rc3 here last night.
+> >>
+> >> It suspended ok for me, but on resume it would load in the cache
+> >> and then reboot. :(
+> 
+> Rafael> Always?  I mean, is it reproducible?  I have a similar
+> Rafael> problem, but it is not reproducible, apparently.  Sometimes it
+> Rafael> reboots, sometimes it reports a double fault, but most often
+> Rafael> it resumes just fine.
+> 
+> Well, I only tried it twice, but it rebooted both times.
+> 
+> After applying the patch below from Pavel on top of 2.6.9-rc3 it now
+> seems to work (again, I have only done a few cycles).
+> 
+> Do you have HIMEM enabled?
 
-Now I compiled kernel with gcc-2.95.3 and:
- 22:37:12 up 7 days, 22:34,  2 users,  load average: 0.40, 0.41, 0.43
+I'm not sure what you mean.  It's an x86-64 system with 512 MB of RAM.
 
-So, gcc 3.4 and kernel 2.6 do not like each others.
-Finding the actual bug (in kernel or compiler) left as an exercise
-for some brave hacker.
+> Does the patch below make it more stable for you?
 
-I know what Documentation/Changes says about GCC versions.
-It's just that I am stubborn and I hoped 3.4.x would just work,
-since 3.0, 3.1, 3.2 and 3.3 series have produced perfectly working
-2.4.x kernels (and 3.4.x has produced perfectly working non-kernel
-stuffs).
+I have this patch applied, but I get double faults sometimes anyway.
+
+Greets,
+RJW
 
 -- 
-Recursive die() failure while reading ~/.signature.
-
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

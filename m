@@ -1,96 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUHQDiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbUHQDlf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbUHQDiH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 23:38:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUHQDiH
+	id S262329AbUHQDlf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 23:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268085AbUHQDlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 23:38:07 -0400
-Received: from fw.osdl.org ([65.172.181.6]:1413 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262114AbUHQDiA (ORCPT
+	Mon, 16 Aug 2004 23:41:35 -0400
+Received: from holomorphy.com ([207.189.100.168]:3244 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262329AbUHQDle (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 23:38:00 -0400
-Date: Mon, 16 Aug 2004 20:28:05 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH] fix warnings in scripts/binoffset.c
-Message-Id: <20040816202805.356f134d.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 16 Aug 2004 23:41:34 -0400
+Date: Mon, 16 Aug 2004 20:41:31 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm1
+Message-ID: <20040817034131.GJ11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040816143710.1cd0bd2c.akpm@osdl.org> <20040817030748.GH11200@holomorphy.com> <20040817030957.GI11200@holomorphy.com> <20040816201915.544df590.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040816201915.544df590.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> How did you compile on ia64? I get:
 
-Correct gcc warnings for function return type, printf argument
-types, and signed/unsigned compare.
+On Mon, Aug 16, 2004 at 08:19:15PM -0700, Andrew Morton wrote:
+> I suspect I got lucky.
+> People are saying that `make -j1' will work around this.
 
-Cross-compiled with no warnings/errors for alpha, ia64,
-ppc32, ppc64, sparc32, sparc64, x86_64, and native on i386.
-(-W -Wall)
-
-[pre-built tool chains are available from:
-http://developer.osdl.org/dev/plm/cross_compile/ ]
-
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+Comes up fine on Altix, so it appears kill-clone_idletask-fix.patch
+took care of everything.
 
 
-diffstat:
- scripts/binoffset.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
-
-
---- ./scripts/binoffsetlk.c	2004-06-15 22:19:36.000000000 -0700
-+++ ./scripts/binoffset.c	2004-08-09 20:28:01.000000000 -0700
-@@ -41,7 +41,7 @@
- char		*progname;
- char		*inputname;
- int		inputfd;
--int		bix;			/* buf index */
-+unsigned int	bix;			/* buf index */
- unsigned char	patterns [PAT_SIZE] = {0}; /* byte-sized pattern array */
- int		pat_len;		/* actual number of pattern bytes */
- unsigned char	*madr;			/* mmap address */
-@@ -58,7 +58,7 @@ void usage (void)
- 	exit (1);
- }
- 
--int get_pattern (int pat_count, char *pats [])
-+void get_pattern (int pat_count, char *pats [])
- {
- 	int ix, err, tmp;
- 
-@@ -81,7 +81,7 @@ int get_pattern (int pat_count, char *pa
- 	pat_len = pat_count;
- }
- 
--int search_pattern (void)
-+void search_pattern (void)
- {
- 	for (bix = 0; bix < filesize; bix++) {
- 		if (madr[bix] == patterns[0]) {
-@@ -109,7 +109,7 @@ size_t get_filesize (int fd)
- 	struct stat stat;
- 
- 	err = fstat (fd, &stat);
--	fprintf (stderr, "filesize: %d\n", err < 0 ? err : stat.st_size);
-+	fprintf (stderr, "filesize: %ld\n", err < 0 ? (long)err : stat.st_size);
- 	if (err < 0)
- 		return err;
- 	return (size_t) stat.st_size;
-@@ -154,8 +154,8 @@ int main (int argc, char *argv [])
- 	fprintf (stderr, "number of pattern matches = %d\n", num_matches);
- 	if (num_matches == 0)
- 		firstloc = ~0;
--	printf ("%d\n", firstloc);
--	fprintf (stderr, "%d\n", firstloc);
-+	printf ("%ld\n", firstloc);
-+	fprintf (stderr, "%ld\n", firstloc);
- 
- 	exit (num_matches ? 0 : 2);
- }
-
-
---
+-- wli

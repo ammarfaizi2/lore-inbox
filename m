@@ -1,62 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262734AbUCJSHL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 13:07:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUCJSFQ
+	id S262775AbUCJSSh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 13:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbUCJSSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 13:05:16 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47761 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262736AbUCJSEj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 13:04:39 -0500
-Message-ID: <404F58A8.8040304@pobox.com>
-Date: Wed, 10 Mar 2004 13:04:24 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Wed, 10 Mar 2004 13:18:34 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:60342 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262764AbUCJSSI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 13:18:08 -0500
+Date: Wed, 10 Mar 2004 10:16:27 -0800 (PST)
+From: Sridhar Samudrala <sri@us.ibm.com>
+X-X-Sender: sridhar@localhost.localdomain
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Cleaner way to conditionally disallow a CONFIG option as static
+In-Reply-To: <Pine.LNX.4.58.0403100437040.27654@serv>
+Message-ID: <Pine.LNX.4.58.0403101006390.3016@localhost.localdomain>
+References: <Pine.LNX.4.58.0403081659170.1656@localhost.localdomain>
+ <Pine.LNX.4.58.0403100437040.27654@serv>
 MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: linux-kernel@vger.kernel.org, James.Smart@Emulex.com,
-       linux-scsi@vger.kernel.org
-Subject: Re: [Announce] Emulex LightPulse Device Driver
-References: <3356669BBE90C448AD4645C843E2BF2802C014D7@xbl.ma.emulex.com>	<mailman.1078908361.15239.linux-kernel2news@redhat.com> <20040310095908.33b2082f.zaitcev@redhat.com>
-In-Reply-To: <20040310095908.33b2082f.zaitcev@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
-> Jeff Garzik <jgarzik@pobox.com> wrote:
-> Flag problem on sparc is fixed by Keith Wesolowsky for 2.6.3-rcX,
-> and it never existed on sparc64, which keeps CWP in a separate register.
-> 
-> Why it took years to resolve is that the expirience showed that
-> there is no legitimate reason to pass flags as arguments. Every damn
-> time it was done, the author was being stupid. Keith resolved it
-> primarily because it was an unorthogonality in sparc implementation.
+On Wed, 10 Mar 2004, Roman Zippel wrote:
 
-You would never know there were so many sparc people, until I post 
-something incorrect about it.  <grin>
+> Hi,
+>
+> On Mon, 8 Mar 2004, Sridhar Samudrala wrote:
+>
+> > In 2.6, net/sctp/Kconfig
+> >
+> > config IPV6_SCTP__
+> > 	tristate
+> > 	default y if IPV6=n
+> > 	default IPV6 if IPV6
+> >
+> > config IP_SCTP
+> > 	tristate "The SCTP Protocol (EXPERIMENTAL)"
+> > 	depends on IPV6_SCTP__
+>
+> This can be written as:
+>
+> config IP_SCTP
+> 	tristate "The SCTP Protocol (EXPERIMENTAL)"
+> 	depends on IPV6 || IPV6=n
+>
 
-I stand corrected.  As someone mentioned in private, it's actually a 
-shame that was fixed, since that's one less argument that can be used 
-against such wrappers ;-)
+Thanks. Your 2.6 solution helped me come up with the following solution for
+2.4 too and avoid the hack.
 
+if [ "$CONFIG_IPV6" = "n" ]; then
+  tristate '  The SCTP Protocol (EXPERIMENTAL)' CONFIG_IP_SCTP
+else
+  dep_tristate '  The SCTP Protocol (EXPERIMENTAL)' CONFIG_IP_SCTP $CONFIG_IPV6
+fi
 
->>But this bug is only an example that serves to highlight the importance 
->>of directly using Linux API functions throughout your code.  It may 
->>sound redundant, but "Linux code should look like Linux code."  This 
->>emphasis on style may sound trivial, but it's important for 
->>review-ability, long term maintenance, and as we see here, bug prevention.
-> 
-> 
-> Yes yes yes. This is the way elx_sli_lock is harmful, not because
-> of its passing flags.
-
-Agreed.
-
-	Jeff
-
-
-
+Thanks
+-Sridhar

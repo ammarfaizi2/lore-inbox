@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262598AbTDAPPp>; Tue, 1 Apr 2003 10:15:45 -0500
+	id <S262599AbTDAP1a>; Tue, 1 Apr 2003 10:27:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262599AbTDAPPp>; Tue, 1 Apr 2003 10:15:45 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:2961 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S262598AbTDAPPo>;
-	Tue, 1 Apr 2003 10:15:44 -0500
-Date: Tue, 1 Apr 2003 10:27:03 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
+	id <S262600AbTDAP1a>; Tue, 1 Apr 2003 10:27:30 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:45069 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S262599AbTDAP13>; Tue, 1 Apr 2003 10:27:29 -0500
+Date: Tue, 1 Apr 2003 16:38:52 +0100
+From: John Levon <levon@movementarian.org>
 To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@digeo.com>, colpatch@us.ibm.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (2.5.66-mm2) War on warnings
-Message-ID: <20030401152703.GA21986@gtf.org>
-References: <19200000.1049210557@[10.10.2.4]>
+Cc: Pavel Machek <pavel@ucw.cz>, torvalds@transmeta.com,
+       Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Convert APIC to driver model: now it works with SMP
+Message-ID: <20030401153852.GA24356@compsoc.man.ac.uk>
+References: <20030330193026.GA29499@elf.ucw.cz> <14730000.1049180682@[10.10.2.4]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <19200000.1049210557@[10.10.2.4]>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <14730000.1049180682@[10.10.2.4]>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *190Nqe-0004qc-00*lNoLsG3xmN2*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 01, 2003 at 07:22:37AM -0800, Martin J. Bligh wrote:
-> drivers/base/node.c: In function `register_node_type':
-> drivers/base/node.c:96: warning: suggest parentheses around assignment used as truth value
-> drivers/base/memblk.c: In function `register_memblk_type':
-> drivers/base/memblk.c:54: warning: suggest parentheses around assignment used as truth value
-> 
-> Bah.
-> 
-> --- linux-2.5.66-mm2/drivers/base/node.c	2003-04-01 06:40:02.000000000 -0800
-> +++ 2.5.66-mm2/drivers/base/node.c	2003-04-01 06:37:32.000000000 -0800
-> @@ -93,7 +93,7 @@ int __init register_node_type(void)
->  {
->  	int error;
->  	if (!(error = devclass_register(&node_devclass)))
-> -		if (error = driver_register(&node_driver))
-> +		if ((error = driver_register(&node_driver)))
->  			devclass_unregister(&node_devclass);
+On Mon, Mar 31, 2003 at 11:04:42PM -0800, Martin J. Bligh wrote:
 
-Personally, I feel statements like these are prone to continual error
-and confusion.  I would prefer to break each test like this out into
-separate assignment and test statements.  Combining them decreases
-readability, while saving a paltry few extra bytes of source code.
+> arch/i386/oprofile/nmi_int.c:102: warning: initialization from incompatible pointer type
+> arch/i386/oprofile/nmi_int.c: In function `init_nmi_driverfs':
+> arch/i386/oprofile/nmi_int.c:129: warning: control reaches end of non-void function
 
-Sure, the gcc warning is silly, but the code is a bit obtuse too.
+Can you try Mikael's (preferable) patch ?
 
-	Jeff
-
-
-
+regards,
+john

@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317184AbSFBOAe>; Sun, 2 Jun 2002 10:00:34 -0400
+	id <S317188AbSFBOZt>; Sun, 2 Jun 2002 10:25:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317185AbSFBOAe>; Sun, 2 Jun 2002 10:00:34 -0400
-Received: from dsl-213-023-038-078.arcor-ip.net ([213.23.38.78]:28052 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317184AbSFBOAd>;
-	Sun, 2 Jun 2002 10:00:33 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Peter Osterlund <petero2@telia.com>,
-        Thunder from the hill <thunder@ngforever.de>
-Subject: Re: KBuild 2.5 Impressions
-Date: Sun, 2 Jun 2002 16:00:11 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Peter Osterlund <petero2@telia.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0206020601320.29405-100000@hawkeye.luckynet.adm> <m24rglhmhu.fsf@ppro.localdomain>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17EVu0-0000Ph-00@starship>
+	id <S317189AbSFBOZs>; Sun, 2 Jun 2002 10:25:48 -0400
+Received: from chello212186127068.14.vie.surfer.at ([212.186.127.68]:14211
+	"EHLO server.home.at") by vger.kernel.org with ESMTP
+	id <S317188AbSFBOZr>; Sun, 2 Jun 2002 10:25:47 -0400
+Subject: Re: linux-2.4.19-pre9 and sym53c8xx problem
+From: Christian Thalinger <e9625286@student.tuwien.ac.at>
+To: Douglas Gilbert <dougg@torque.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CF96804.D25F623B@torque.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 02 Jun 2002 16:21:30 +0200
+Message-Id: <1023027690.3348.3.camel@sector17.home.at>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 02 June 2002 14:51, Peter Osterlund wrote:
-> Thunder from the hill <thunder@ngforever.de> writes:
-> > Problem #2 (make NO_MAKEFILE_GEN) is a bit tricky with the new concept. 
-> > You may try to maintain it, but I wonder where you'll end up.
+On Sun, 2002-06-02 at 02:34, Douglas Gilbert wrote:
+> Christian,
+> What does the output of "cat /proc/scsi/sg/*" look like?
 > 
-> On my system I get 0.40s with NO_MAKEFILE_GEN compared to 3.41s
-> without, so my system is fast enough even without NO_MAKEFILE_GEN. I
-> just find it strange that the documentation says bug reports will be
-> ignored. If it breaks unintentionally in future kernels, fixing it
-> would probably not be too hard. Or are you planning to remove this
-> feature altogether?
+> Cdrecord should see your plextor writer both as /dev/scd0
+> and /dev/sg0 (assuming you don't have any other scsi devices).
+> Cdrecord goes on to scan the parallel generic devices (i.e. /dev/pg*)
+> if it doesn't find anything suitable on its /dev/sg* scan.
+> 
+> Your post doesn't supply any information that would link
+> this problem with the sym53c8xxx driver. If there is some
+> problem then there will be some "noise" in the /var/log/messages
+> file [typically showing multiple scsi bus resets].
+> 
+> BTW The "-vv" switch (and/or "-VV") on cdrecord will yield more
+> debug information. strace may also be useful.
+> 
+> Doug Gilbert
+> 
 
-I think what he's saying is that the feature is a hack and isn't supposed
-to work properly all the time, so don't complain about if it doesn't.  I
-think that's a reasonable attitude.  There's yet more speed to be gained
-by building the proper machinery for deciding reliably when the makefile
-has to be rebuilt, and maybe doing the job incrementally, but that's not
-the task at hand, that's a project for somebody to take their time and
-do properly later.  It's exactly this kind of work Keith has provided a
-solid base for.
+Sorry, was my fault. Lost CONFIG_CHR_DEV_SG during make oldconfig.
 
-FYI, the way it works is, it just fails to do the makefile rebuild,
-relying on human intelligence and experience to know that nothing
-changed that would require a rebuild.  IOW, use at your own risk.  I
-doubt this feature will go away, because anything that speeds up a
-edit/compile/kaboom cycle that much is going to be happily used by a
-significant number of madmen.  If it breaks for some reason, such as
-a new feature of bugfix that requires the makefile to *always* be
-updated, somebody will step up to fix it.
+Anyway, thanks for your reply. It helped to find the problem...
 
--- 
-Daniel

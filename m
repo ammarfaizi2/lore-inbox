@@ -1,79 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319604AbSIMLcq>; Fri, 13 Sep 2002 07:32:46 -0400
+	id <S319603AbSIML3o>; Fri, 13 Sep 2002 07:29:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319605AbSIMLcq>; Fri, 13 Sep 2002 07:32:46 -0400
-Received: from tomts16.bellnexxia.net ([209.226.175.4]:18888 "EHLO
-	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S319604AbSIMLcp>; Fri, 13 Sep 2002 07:32:45 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: 34-mm2 ide problems - unexpected interrupt
-Date: Fri, 13 Sep 2002 07:36:36 -0400
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <200209120838.44092.tomlins@cam.org> <200209121830.51285.tomlins@cam.org> <20020913060647.GH1847@suse.de>
-In-Reply-To: <20020913060647.GH1847@suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209130736.36966.tomlins@cam.org>
+	id <S319604AbSIML3o>; Fri, 13 Sep 2002 07:29:44 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:5885 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S319603AbSIML3n>;
+	Fri, 13 Sep 2002 07:29:43 -0400
+Date: Fri, 13 Sep 2002 17:09:43 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: akpm@digeo.com
+Cc: Rick Lindsley <ricklind@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Ravikiran G Thirumalai <kiran@in.ibm.com>
+Subject: Re: [RFC][PATCH] sard changes for 2.5.34
+Message-ID: <20020913170943.A11038@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 13, 2002 02:06 am, Jens Axboe wrote:
-> On Thu, Sep 12 2002, Ed Tomlinson wrote:
-> > On September 12, 2002 08:42 am, Jens Axboe wrote:
-> > > On Thu, Sep 12 2002, Ed Tomlinson wrote:
-> > > > Hi,
-> > > >
-> > > > Got this booting 34-mm2.  Think the are problems with the ide
-> > > > updates... UP no preempth.  Everything look ok up to the int loop.
-> > >
-> > > just delete the printk from ide.c:ide_intr(), it's not useful on
-> > > adapters with shared interrupts. patch has already been sent to Linus.
-> > >
-> > > feedback on success/problems with 34-mm2 (it seems to include bk
-> > > patches up until now?) ide would also be appreciated.
-> >
-> > No luck.  Without the printk it just sits there.  When the printk is
-> > enabled there are hundreds (maybe thousands) of messages.
->
-> "just sits there" how? It stalls a boot? And where?  Does
+In article <3D80EE1D.34AF4FF2@digeo.com> Andrew Morton wrote:
+> Rick Lindsley wrote:
+>> Regardless of which route we go, can you suggest a good exercise to
+>> demonstrate the advantage of per-cpu counters?  It seems intuitive to
+>> me, but I'm much more comfortable when I have numbers to back me up.
 
-It sits at the same point I started getting the unexpected interrupt message.
-I waited over five minutes to see if the boot would resume.
+> I don't think this is enough to justify a new subsystem like
+> statctr_t (struct statctr, please).
 
-> 2.4.20-pre5-ac4 work for you?
+statctr_t was originally used to hide the fact that in UP kernels
+it reduces to unsigned long. But I think that was not necessary -
 
-I have not built any of the recient ac series - been waiting for a reiserfs patch.
-Will try 2.4.20-pre5-ac4 and pre6-acx tonight.
+#ifdef CONFIG_SMP
+struct statctr {
+	unsigned long ctr;
+};
+#else
+struct statctr {
+	unsigned long *ctr;
+};
+#endif
 
-> > I also noticed that DMA was disabled on hda.  This drive works at
-> > UDMA2 without any problems.  The drives on promise controller should
-> > be able use support UDMA4 but timeout within 24hours when using it.
-> > Degrading to UDMA2 lets me go weeks with problems (up to 2.4.19-ac2).
->
-> So I'm thinking that you did get it to boot. 
+struct disk_stats {
+	....
+	....
+	struct statctr nr_reads;
+};
 
-No.  The boot stalled.  The hda stuff is from the dmseg log on a serial 
-console.  The other comments on general info on long standing promise 
-issues (hopfully fixed in ac).
+I would presume that for UP kernels,
 
-> Ed, I'm sorry but your report is woefully inadequate to diagnose
-> anything :-)
+static inline void statctr_inc(struct statctr *stctr)
+{
+	(stctr->ctr)++;
+}
 
-Realize how anemic this report is.  I am willing to get more info on
-this - just am not sure what you need or how to get the info.  IDE and
-the boot sequence is not an area of the kernel I know much about.  
+statctr_inc(&disk_stats.nr_reads) would generate the same code
+as diskstats.nr_reads++; We will verify this and remove statctr_t.
 
-Please let me know what would give you the best clues.
+I think justifying statctrs based on numbers from one single usage will
+likely be difficult. Our measurements (e.g. net_device_stats and
+cache event profiling with kernprof) showed that while cache misses
+in those routines are reduced significantly, it isn't enough to make
+an impact in the benchmark throughput. We need to adopt statctrs
+in many subsystems. Perhaps that will show some benefits specially
+on higher-end hardware (16CPU+).
 
-Meanwhile I wil try the recient ac(s).
+Since we are beginning to run linux on such hardware, why not adopt a simple
+framework now ?
 
-Ed
-
-
-
-
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

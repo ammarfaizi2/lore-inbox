@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267584AbRGXP6b>; Tue, 24 Jul 2001 11:58:31 -0400
+	id <S267619AbRGXQFk>; Tue, 24 Jul 2001 12:05:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267619AbRGXP6U>; Tue, 24 Jul 2001 11:58:20 -0400
-Received: from sncgw.nai.com ([161.69.248.229]:48883 "EHLO mcafee-labs.nai.com")
-	by vger.kernel.org with ESMTP id <S267584AbRGXP6N>;
-	Tue, 24 Jul 2001 11:58:13 -0400
-Message-ID: <XFMail.20010724090137.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
+	id <S267776AbRGXQFa>; Tue, 24 Jul 2001 12:05:30 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:64673 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S267619AbRGXQFW>; Tue, 24 Jul 2001 12:05:22 -0400
+Date: Tue, 24 Jul 2001 18:05:26 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org, net-tools@lina.inka.de, philb@gnu.org
+Subject: Re: ifconfig and SIOCSIFADDR
+Message-ID: <20010724180526.G750@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <200107241447.OAA07015@vlet.cwi.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <Pine.GSO.4.21.0107241141500.25475-100000@weyl.math.psu.edu>
-Date: Tue, 24 Jul 2001 09:01:37 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Alexander Viro <viro@math.psu.edu>
-Subject: Re: user-mode port 0.44-2.4.7
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
-        Jeff Dike <jdike@karaya.com>,
-        user-mode-linux-user@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org, Jan Hubicka <jh@suse.cz>,
-        Jonathan Lundell <jlundell@pobox.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <200107241447.OAA07015@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Tue, Jul 24, 2001 at 02:47:56PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Hi Andries,
 
-On 24-Jul-2001 Alexander Viro wrote:
+On Tue, Jul 24, 2001 at 02:47:56PM +0000, Andries.Brouwer@cwi.nl wrote:
+> I just noticed that the command
 > 
+> 	ifconfig eth1 netmask 255.255.255.0 broadcast 10.0.0.255 10.0.0.150
 > 
-> On Tue, 24 Jul 2001, Davide Libenzi wrote:
-> 
->> One more thing, with volatile you specify it one time ( declaration time ),
->> while with barrier() you've to spread inside the code tons of such macro
->> everywhere you touch the variable.
-> 
-> That's the whole point, damnit. Syntax (or semantics) sugar is a Bad Thing(tm).
-> If your algorithm depends on something in a nontrivial way - _spell_ _it_ _out_.
+> (with ifconfig from net-tools-1.60)
+> results in a netmask of 255.0.0.0, which is wrong in my situation.
+ 
+Just change this to 
 
-I would not call, to pretend the compiler to issue memory loads every time it access
-a variable, a nontrivial way.
-It sounds pretty clear to me.
+   ifconfig eth1 10.0.0.150  netmask 255.255.255.0 broadcast 10.0.0.255
 
+and be happy.
 
+Deciding about bugs vs. "undefined behavior" is not my business,
+so I bite my tongue about this topic ;-)
 
+Regards
 
-- Davide
-
+Ingo Oeser
+-- 
+Use ReiserFS to get a faster fsck and Ext2 to fsck slowly and gently.

@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261908AbTIPNbg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 09:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbTIPNbg
+	id S261869AbTIPNUv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 09:20:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTIPNUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 09:31:36 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:50125 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S261908AbTIPNbf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 09:31:35 -0400
-Date: Tue, 16 Sep 2003 14:30:19 +0100
-From: Dave Jones <davej@redhat.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: richard.brunner@amd.com, alan@lxorguk.ukuu.org.uk, davidsen@tmr.com,
-       zwane@linuxpower.ca, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Message-ID: <20030916133019.GA1039@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jamie Lokier <jamie@shareable.org>, richard.brunner@amd.com,
-	alan@lxorguk.ukuu.org.uk, davidsen@tmr.com, zwane@linuxpower.ca,
-	linux-kernel@vger.kernel.org
-References: <99F2150714F93F448942F9A9F112634C0638B1DE@txexmtae.amd.com> <20030916114636.GF26576@mail.jlokier.co.uk>
+	Tue, 16 Sep 2003 09:20:51 -0400
+Received: from proxy.ovh.net ([213.244.20.42]:20752 "EHLO proxy.ovh.net")
+	by vger.kernel.org with ESMTP id S261869AbTIPNUt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 09:20:49 -0400
+Date: Tue, 16 Sep 2003 15:23:29 +0200
+To: linux-kernel@vger.kernel.org
+Subject: devfs err at boot
+Message-ID: <20030916132329.GG19760@ovh.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030916114636.GF26576@mail.jlokier.co.uk>
 User-Agent: Mutt/1.5.4i
+From: bert@ovh.net (bertrand)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 16, 2003 at 12:46:36PM +0100, Jamie Lokier wrote:
+Hello, 
 
- > > The user space problem worries me more, because the expectation
- > > is that if CPUID says the program can use perfetch, it could
- > > and should regardless of what the kernel decided to do here.
- > 
- > If the workaround isn't compiled in, "prefetch" should be removed from
- > /proc/cpuinfo on the buggy chips.
+I used a 2.4.21 to boot on lan and nfs root.
 
-prefetch isn't a cpuid feature flag. The only way you could do
-what you suggest is by removing '3dnow' or 'sse', which cripples
-things more than necessary.
+Recently, i got my box rebooting endless.
 
-		Dave
+I have moved to 2.4.22 and i got that error : 
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+Looking up port of RPC 100003/2 on 213.186.32.57
+Looking up port of RPC 100005/1 on 213.186.32.57
+VFS: Mounted root (nfs filesystem).
+mount_devfs_fs(): unable to mount devfs, err: -2
+Freeing unused kernel memory: 268k freed
+Warning: unable to open an initial console.
+Kernel panic: No init found.  Try passing init= option to kernel.
+ 
+
+It's correctly mounting the nfsroot but if cannot mount the devfs .
+The kernel got nfsroot , dhcp, devfs at boot .
+
+I checked if there still was the /dev entry and it still was ...
+
+Were can I found the meaning of "err: -2" ?
+
+Do someone caught that error once ?
+
+	Bert.

@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262761AbUK0CCv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUK0DSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262761AbUK0CCv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 21:02:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263029AbUK0Bod
+	id S262406AbUK0DSY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 22:18:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbUK0DR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 20:44:33 -0500
-Received: from h151_115.u.wavenet.pl ([217.79.151.115]:61079 "EHLO
-	alpha.polcom.net") by vger.kernel.org with ESMTP id S261902AbUK0Blm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 20:41:42 -0500
-Date: Sat, 27 Nov 2004 02:41:34 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Tomas Carnecky <tom@dbservice.com>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, hch@infradead.org,
-       matthew@wil.cx, dwmw2@infradead.org, aoliva@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-In-Reply-To: <41A7D814.6060900@dbservice.com>
-Message-ID: <Pine.LNX.4.60.0411270234520.13348@alpha.polcom.net>
-References: <19865.1101395592@redhat.com> <Pine.LNX.4.60.0411270049520.29718@alpha.polcom.net>
- <41A7D814.6060900@dbservice.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 26 Nov 2004 22:17:29 -0500
+Received: from dsl081-240-014.sfo1.dsl.speakeasy.net ([64.81.240.14]:48289
+	"EHLO tumblerings.org") by vger.kernel.org with ESMTP
+	id S262600AbUK0DOm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 22:14:42 -0500
+Date: Fri, 26 Nov 2004 19:08:52 -0800
+From: Zack Brown <zbrown@tumblerings.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: lost lkml mbox
+Message-ID: <20041127030852.GA26500@tumblerings.org>
+References: <20041126235301.GC20600@tumblerings.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041126235301.GC20600@tumblerings.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Nov 2004, Tomas Carnecky wrote:
+On Fri, Nov 26, 2004 at 03:53:01PM -0800, Zack Brown wrote:
+> Hi folks,
+> 
+> If someone has all the lkml traffic from Message_ID:
+> <20041124001328.GE2927@stusta.de>
+> to
+> <20041125062649.GB29278@vagabond> please let me know. My mail system broke for a
+> couple days, and my backup MX decided to bounce mail instead of save it for me.
 
-> Grzegorz Kulewski wrote:
->> On Thu, 25 Nov 2004, David Howells wrote:
->> 
->>> (b) Make kernel file #include the user file.
->> 
->> 
->> Does kernel really need to include user headers? When it is definition
->> of some const then it should be defined in one file (to be sure it has
->> only one definition).
->
-> You have do define a interface between the kernel and the userspace..
-> you either include kernel headers from userspace (with a lot of __KERNEL__ in 
-> them) or you make separate headers with the definitions and include them in 
-> both kernel and userspace (better).
-> BTW, these are not userspace headers like the ones in /usr/include, those are 
-> just special headers preparated so that they can be included both from the 
-> kernel and userspace.
+Thanks folks. Mathis Ahrens helped me out (and several other nice folks
+also offered).
 
-Ok, so maybe do it in this way:
-1. common headers (included by 2. and 3.)
-2. kernel headers (things only for kernel + included 1.)
-3. userspace headers (things only for userspace + included 1.)
+Someone suggested that I should explain why I asked here instead of looking
+for an archive I could download from. The reason is that it's a big time-saver
+for me. About once a year or so I seem to have some sort of mail accident,
+and folks here have been very helpful. I use the mail to produce the Kernel
+Traffic newsletter (kerneltraffic.org), a free and hopefully useful weekly
+summary about some of the stuff going on here. It's pretty time-consuming
+to produce KT, and it saves me a lot of time to be able to ask here for any
+missing mail that drops out of my server.
 
-This way we will have no ifdefs, one definition per thing, user code in 
-userspace and kernel code in kernelspace only.
+Many thanks again folks, and be well,
+Zack
 
+> 
+> Many thanks,
+> Zack
+> 
+> -- 
+> Zack Brown
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
->> But user headers may have some compatibility hacks
->> that kernel do not need (and even maybe does not want) to have.
->
-> About the compatibility hacks.. now it's time to remove them, together with 
-> this change. I don't think this will happen before 2.7/2.8 and until then all 
-> should have changed their code.
-> If you announce these changes soon enough and the developers have enough time 
-> to change their code, I don't see any problems.
-> Maybe you also could wrap these definitions in some #ifdef's and mark them as 
-> deprecated and write somewhere that they'll be removed in the next stable 
-> tree (2.8). So you could check if a library compiles with the new headers or 
-> if it still uses some old definitions.
-
-Are you talking about breaking userspace (API and ABI) compatibility? And 
-possibly breaking compatibility with older versions of standards? I do not 
-think it could happen. (Well at least not for common widely-used APIs).
-
-Instead we can place such userspace only hacks in 3.
-
-
-Thanks,
-
-Grzegorz Kulewski
-
+-- 
+Zack Brown

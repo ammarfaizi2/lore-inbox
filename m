@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271982AbRIQSgT>; Mon, 17 Sep 2001 14:36:19 -0400
+	id <S272038AbRIQSm7>; Mon, 17 Sep 2001 14:42:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271995AbRIQSgK>; Mon, 17 Sep 2001 14:36:10 -0400
-Received: from mail.myrio.com ([63.109.146.2]:19453 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S271982AbRIQSf6>;
-	Mon, 17 Sep 2001 14:35:58 -0400
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CA10@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'Kristian Peters'" <kristian.peters@korseby.net>,
-        "Magnus Naeslund(f)" <mag@fbab.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: RE: IBM DTLA IDE Made In Hungary
-Date: Mon, 17 Sep 2001 11:35:59 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S271995AbRIQSmt>; Mon, 17 Sep 2001 14:42:49 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:11920
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S272038AbRIQSmj>; Mon, 17 Sep 2001 14:42:39 -0400
+Date: Mon, 17 Sep 2001 11:42:41 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Allan Sandfeld <linux@sneulv.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bzImage target for PPC
+Message-ID: <20010917114241.C23163@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <E15ivIz-00087v-00@wagner> <E15j1Jr-0002ci-00@Princess>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E15j1Jr-0002ci-00@Princess>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Without doing statistical failure analysis, it's hard to say
-if the seemingly large numbers of failing IBM drives are due to
-real hardware problems, or just because there are a lot of those
-drives out there.
+On Mon, Sep 17, 2001 at 06:32:25PM +0200, Allan Sandfeld wrote:
 
-Perhaps some sysadmins at large companies who manage hundreds of 
-computers can comment on failure rates?
+> What is holding us back from deciding on a limited number of supported and 
+> implemented make targets and making these fast(e.g. moving install to top 
+> level)? This would then become a part of kbuild2.5
 
-Nonetheless... I've had two IBM DLTA's fail on me in the last year,
-and no non-IBM failures. I have about 12 drives, mostly Maxtor and
-IBM in the various machines I use, so my sample set is perhaps
-somewhat meaningful.  
+Eh?  What kbuild2.5 does, last time I looked at it, is let the user pick from
+the list of targets for that arch, for 'installable'.  This looks great
+from the PPC side, which has ~6 targets for this right now.  No need to
+limit to some 'generic' names or limit the number.  For 2.4, I don't think
+we should bother to do anything, except _maybe_ change the text after
+oldconfig/whatnot to say 'zImage or bzImage and then install'  Or nuke
+it all together.
 
-I just had a 40 GB 5400 RPM IBM drive die on me.  It was less than 
-a year old, made in Thailand, and had seen little use.  BIOS'es on 
-two different computers didn't even see the drive, it's was like 
-there was nothing on the wire.  I revived it and rescued my data by 
-putting it in a freezer for an hour and plugging it in ice-cold.  
-
-It was still working when I finished pulling data off it, but I 
-don't really trust it now...
-
-And last year I had an HP drive (actually made by IBM Storage 
-Products Hungary) die in the classic way - bad sectors, seek errors,
-etc. That was a 7200RPM 15 GB disk.  OTOH, the 40 GB IBM I replaced 
-it with has been fine...
-
-still, I will use Maxtor for my new RAID, I've never had one of 
-those fail.  Yet.  
-
-Torrey Hoffman
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

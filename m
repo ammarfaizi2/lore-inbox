@@ -1,105 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbUKWWgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbUKWWnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbUKWWgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 17:36:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUKWWeY
+	id S261614AbUKWWnu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 17:43:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUKWWml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 17:34:24 -0500
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:28628 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S261561AbUKWWdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 17:33:11 -0500
-Date: Mon, 22 Nov 2004 14:40:00 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: tridge@samba.org
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: performance of filesystem xattrs with Samba4
-Message-ID: <20041122214000.GV1974@schnapps.adilger.int>
-Mail-Followup-To: tridge@samba.org, linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org
-References: <1098383538.987.359.camel@new.localdomain> <16797.41728.984065.479474@samba.org> <20041119101600.GM1974@schnapps.adilger.int> <16801.58215.621386.125280@samba.org>
+	Tue, 23 Nov 2004 17:42:41 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:36048 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261606AbUKWWjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 17:39:37 -0500
+Date: Tue, 23 Nov 2004 22:39:35 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jakob Oestergaard <jakob@unthought.net>, Phil Dier <phil@dier.us>,
+       linux-kernel@vger.kernel.org, Scott Holdren <scott@icglink.com>,
+       ziggy <ziggy@icglink.com>, Jack Massari <webmaster@icglink.com>
+Subject: Re: oops with dual xeon 2.8ghz  4gb ram +smp, software raid, lvm, and xfs
+Message-ID: <20041123223935.GA1889@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jakob Oestergaard <jakob@unthought.net>, Phil Dier <phil@dier.us>,
+	linux-kernel@vger.kernel.org, Scott Holdren <scott@icglink.com>,
+	ziggy <ziggy@icglink.com>, Jack Massari <webmaster@icglink.com>
+References: <20041122130622.27edf3e6.phil@dier.us> <20041122161725.21adb932.akpm@osdl.org> <20041123093744.25c09245.phil@dier.us> <20041123170222.GS4469@unthought.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AwNVUpjOmSj7UnwZ"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16801.58215.621386.125280@samba.org>
+In-Reply-To: <20041123170222.GS4469@unthought.net>
 User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 23, 2004 at 06:02:23PM +0100, Jakob Oestergaard wrote:
+> With SMP, what I see is that sometimes a directory might decide that
+> it's a file - but I can't delete it, becuase it isn't 'empty' (it's
+> still somehow a directory).  Waiting a day or two, the system will
+> change its mind back to letting the directory be a directory. Sometimes
+> modes will be fscked up as well - a regular file can change owner, or it
+> can change modes from '-rw-rw---' to '?---------'.    Weird stuff, no
+> way to reproduce it reliably.
 
---AwNVUpjOmSj7UnwZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Actually I can reproduce it reliably by running nfs_fsstress.sh for a
+looong time.  The problem is that in the current XFS code the inode
+generation counter starts at 0, but higher level code uses that as
+a wildcard for any possible generation, so you may get a newly created
+file for a stale nfs file handler of an deleted file with the same inode
+number.
 
-On Nov 23, 2004  00:02 +1100, tridge@samba.org wrote:
-> I've put up graphs of the first set of dbench3 results for various
-> filesystems at:
->=20
->    http://samba.org/~tridge/xattr_results/
->=20
-> The results show that the ext3 large inode patch is extremely
-> worthwhile. Using a 256 byte inode on ext3 gained a factor of up to 7x
-> in performance, and only lost a very small amount when xattrs were not
-> used. It took ext3 from a very mediocre performance to being the clear
-> winner among current Linux journaled filesystems for performance when
-> xattrs are used. Eventually I think that larger inodes should become
-> the default.
-
-For Lustre we tune the inode size at format time to allow the storing
-of the "default" EA data within the larger inode.  Is this the case with
-samba and 256-byte inodes (i.e. is your EA data all going to fit within
-the extra 124 bytes of space for storing EAs)?  If you have to put any
-of the commonly-used EA data into an external block the benefits are lost.
-
-> The massive gap between ext2 and the other filesystems really shows
-> clearly how much we are paying for journaling. I haven't tried any
-> journal on external device or journal on nvram card tricks yet, but it
-> looks like those will be worth pursuing.
-
-One of the other things we do for Lustre right away is create the ext3
-filesystem with larger journal sizes so that for the many-client cases
-we do not get synchronous journal flushing if there are lots of active
-threads.  This can make a huge difference in overall performance at
-high loads.  Use "mke2fs -J size=3D400 ..." to create a 400MB journal
-(assuming you have at least that much RAM and a large enough block
-device, at least 4x the journal size just from a "don't waste space"
-point of view).
-
-One factor is that you don't necessarily need to write so much data at one
-time, but also that ext3 needs to reserve journal space for the worst-case
-usage, so you get 40-100 threads allocating "worst case" then "filling"
-the journal (causing new operations to block) and finally completing with
-only a small fraction of those reserved journal blocks actually used.
-
-Having an external journal device also generally gives you a large
-journal (by default it is the full size of the block device specified)
-so sometimes the effects of the large journal are confused with the
-fact that it is external.  I haven't seen any perf numbers recently on
-what kind of effect having an external journal has.  I highly doubt that
-NVRAM cards are any better than a dedicated disk for the journal, since
-journal IO is write-only (except during recovery) and virtually seek-free.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
+The patch below fixes it for me:
 
 
---AwNVUpjOmSj7UnwZ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFBolywpIg59Q01vtYRAkY7AJ9AJVJM8xG35rN/ed3f7r+y1scsAwCghXYD
-cmKKCHjqen1VG8If5RSsBVs=
-=c/zF
------END PGP SIGNATURE-----
-
---AwNVUpjOmSj7UnwZ--
+Index: fs/xfs/xfs_inode.c
+===================================================================
+RCS file: /cvs/linux-2.6-xfs/fs/xfs/xfs_inode.c,v
+retrieving revision 1.406
+diff -u -p -r1.406 xfs_inode.c
+--- fs/xfs/xfs_inode.c	27 Oct 2004 12:06:24 -0000	1.406
++++ fs/xfs/xfs_inode.c	23 Nov 2004 20:40:56 -0000
+@@ -1224,9 +1224,16 @@ xfs_ialloc(
+ 	ip->i_d.di_nextents = 0;
+ 	ASSERT(ip->i_d.di_nblocks == 0);
+ 	xfs_ichgtime(ip, XFS_ICHGTIME_CHG|XFS_ICHGTIME_ACC|XFS_ICHGTIME_MOD);
++
+ 	/*
+-	 * di_gen will have been taken care of in xfs_iread.
++	 * Bump the generation count so no one will confuse us with an
++	 * earlier incarnations of this inode.
++	 *
++	 * Done early to skip generation 0, which is used as a wildcard
++	 * by higher level code.
+ 	 */
++	ip->i_d.di_gen++;
++
+ 	ip->i_d.di_extsize = 0;
+ 	ip->i_d.di_dmevmask = 0;
+ 	ip->i_d.di_dmstate = 0;
+@@ -2370,11 +2377,6 @@ xfs_ifree(
+ 		XFS_IFORK_DSIZE(ip) / (uint)sizeof(xfs_bmbt_rec_t);
+ 	ip->i_d.di_format = XFS_DINODE_FMT_EXTENTS;
+ 	ip->i_d.di_aformat = XFS_DINODE_FMT_EXTENTS;
+-	/*
+-	 * Bump the generation count so no one will be confused
+-	 * by reincarnations of this inode.
+-	 */
+-	ip->i_d.di_gen++;
+ 	xfs_trans_log_inode(tp, ip, XFS_ILOG_CORE);
+ 
+ 	if (delete) {

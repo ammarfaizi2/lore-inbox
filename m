@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277799AbRJIP5K>; Tue, 9 Oct 2001 11:57:10 -0400
+	id <S277798AbRJIQAA>; Tue, 9 Oct 2001 12:00:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277798AbRJIP5A>; Tue, 9 Oct 2001 11:57:00 -0400
-Received: from sushi.toad.net ([162.33.130.105]:62138 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S277797AbRJIP4y>;
-	Tue, 9 Oct 2001 11:56:54 -0400
-Subject: Re: sysctl interface to bootflags?
-From: Thomas Hood <jdthood@mail.com>
-To: Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0110091752150.11249-100000@Appserv.suse.de>
-In-Reply-To: <Pine.LNX.4.30.0110091752150.11249-100000@Appserv.suse.de>
-Content-Type: text/plain
+	id <S277802AbRJIP7v>; Tue, 9 Oct 2001 11:59:51 -0400
+Received: from [217.6.75.131] ([217.6.75.131]:62878 "EHLO
+	mail.internetwork-ag.de") by vger.kernel.org with ESMTP
+	id <S277798AbRJIP7j>; Tue, 9 Oct 2001 11:59:39 -0400
+Message-ID: <3BC32117.52E68787@internetwork-ag.de>
+Date: Tue, 09 Oct 2001 18:08:55 +0200
+From: Till Immanuel Patzschke <tip@internetwork-ag.de>
+Organization: interNetwork AG
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [Q] cannot fork w/ 1000s of procs (but still mem avail.)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 09 Oct 2001 11:56:53 -0400
-Message-Id: <1002643014.1103.42.camel@thanatos>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jdthood@thanatos:~/src/sbf$ gcc -O2 sbf.c
-jdthood@thanatos:~/src/sbf$ su
-Password: 
-root@thanatos:/home/jdthood/src/sbf# l
-./  ../  a.out*  sbf.c
-root@thanatos:/home/jdthood/src/sbf# ./a.out
-BOOT @ 0x07fd0040
-CMOS register:51
-Segmentation fault
+Hi,
 
-:(
+hopefully a simple question to answer: I get "cannot fork" messages on my
+machine running some 20000 processes and threads (1 master proc, 3 threads),
+where each (master) process opens a socket and does IP traffic over it.
+Although there is plenty of memory left (4GB box, 2GB used, 0 swap), I get
+"cannot fork - out of memory" when trying to increase the number of procs. (If
+none of the procs does IP, I can start more [of course?!].)
+Anything I can do to increase the number of active processes using IP? Any
+kernel paramter, limit, sizing?
 
-Thomas
+Many thanks for the help in advance!
 
-On Tue, 2001-10-09 at 11:52, Dave Jones wrote:
-> On 9 Oct 2001, Thomas Hood wrote:
-> 
-> > jdthood@thanatos:~/src/sbf$ gcc sbf.c
-> > Program received signal SIGSEGV, Segmentation fault.
-> > 0x80489be in outb_p ()
-> 
-> outb doesn't work unless you compile with -O2 iirc.
-> 
-> regards,
-> 
-> Dave.
-> 
-> -- 
-> | Dave Jones.        http://www.suse.de/~davej
-> | SuSE Labs
-> 
+Immanuel
+
+
+--
+Till Immanuel Patzschke                 mailto: tip@internetwork-ag.de
+interNetwork AG                         Phone:  +49-(0)611-1731-121
+Bierstadter Str. 7                      Fax:    +49-(0)611-1731-31
+D-65189 Wiesbaden                       Web:    http://www.internetwork-ag.de
+
 
 

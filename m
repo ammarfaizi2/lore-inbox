@@ -1,52 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267273AbTA0Sfg>; Mon, 27 Jan 2003 13:35:36 -0500
+	id <S267277AbTA0Snz>; Mon, 27 Jan 2003 13:43:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267274AbTA0Sfg>; Mon, 27 Jan 2003 13:35:36 -0500
-Received: from [202.88.171.30] ([202.88.171.30]:19393 "EHLO dikhow.hathway.com")
-	by vger.kernel.org with ESMTP id <S267273AbTA0Sff>;
-	Mon, 27 Jan 2003 13:35:35 -0500
-Date: Tue, 28 Jan 2003 00:18:26 +0530
-From: Dipankar Sarma <dipankar@gamebox.net>
-To: "Martin J. Bligh" <fletch@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
-Subject: Re: kernbench-16 on 2.5.59 vs 2.5.59-mm6
-Message-ID: <20030128001826.A12113@dikhow>
-Reply-To: dipankar@gamebox.net
-References: <20030127174015$5cfa@gated-at.bofh.it>
+	id <S267282AbTA0Sny>; Mon, 27 Jan 2003 13:43:54 -0500
+Received: from 12-225-92-115.client.attbi.com ([12.225.92.115]:21888 "EHLO
+	p3.coop.hom") by vger.kernel.org with ESMTP id <S267277AbTA0Snv>;
+	Mon, 27 Jan 2003 13:43:51 -0500
+Date: Mon, 27 Jan 2003 10:52:28 -0800
+From: Jerry Cooperstein <coop@axian.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: no version magic, tainting kernel.
+Message-ID: <20030127185228.GA8820@p3.attbi.com>
+References: <200301231459.22789.schlicht@uni-mannheim.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030127174015$5cfa@gated-at.bofh.it>; from fletch@aracnet.com on Mon, Jan 27, 2003 at 06:40:15PM +0100
+In-Reply-To: <200301231459.22789.schlicht@uni-mannheim.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 27, 2003 at 06:40:15PM +0100, Martin J. Bligh wrote:
-> Going from 59 to 59-mm6, I get:
-> 
-> Kernbench-16:
->                                    Elapsed        User      System         CPU
->                         2.5.59       47.45      568.02      143.17     1498.17
->                     2.5.59-mm6       47.18      567.15      138.62     1495.50
-> 
-> Summary: Scheduler stuff seems like a wash (schedule -> do_schedule). 
-> Seems to be some sort of rearrangement of the dcache stuff which 
-> appears to be mildly beneficial (what's going in there?). 
-> 
-> diffprofile (+ gets worse, - gets better).
-> 
-> 2023 do_schedule
-> 485 dentry_open
-> 289 .text.lock.file_table
+The solution
 
-Looks like you are getting hit by contention on files_lock. I have
-been messing around with some code to split up the files_lock, but
-I can't seem to get the locking in the tty layer right.
+make -C KERNEL_SOURCE SUBDIRS=$PWD modules
 
-Hmm.. .text.lock.namei is probably dcache_lock. -mms no longer has
-dcache_rcu, so not quite sure what helped you here.
+is fine, but you have to have a Makefile in the current directory,
+and that Makefile needs a somewhat different form for 2.4 and
+2.5 kernels.  Here is a quick and dirty script for generating
+a quick boilerplate for the sources in that directory.  Straightforward
+to customize and extend etc.  (You may have to change some whitespace
+to TABS for make...)
 
+======================================================================
+ Jerry Cooperstein,  Senior Consultant,  <coop@axian.com>
+ Axian, Inc., Software Consulting and Training
+ 4800 SW Griffith Dr., Ste. 202,  Beaverton, OR  97005 USA
+ http://www.axian.com/               
+======================================================================
 
-Thanks
-Dipankar
+#!/bin/bash
+
+# script for generating external Makefile for kernel modules
+# Jerry Cooperstein, Axian Inc 2003_01_27
+# Too trivial to GPL; use as desired.
+
+# do either "makeit"; assumes kernel source at /usr/src/linux-`uname -r`
+#    or     "makeit /usr/src/linux-2.5.59 or makeit /usr/src/linux-2.4.20" etc.
+
+# Should work on all 2.4, 2.5 kernels.
+# assumes all .c files in current directory are modules
+
+if [ "$1" == "" ] ; then
+    KROOT=/usr/src/linux-`uname -r`
+else
+    KROOT="$1"
+fi
+
+if [ `echo $KROOT | grep 2.5` ] ; then
+    VERSION=2.5
+else
+    VERSION=2.4
+fi
+
+OBJS=""
+for names in *.c ; do 
+    OBJS=$OBJS" `basename $names .c`.o"
+done
+
+PHONYS="$OBJS"
+
+rm -f Makefile
+
+cat <<EOF > Makefile
+obj-m += $OBJS
+KROOT=$KROOT
+all: mmodules
+EOF
+
+if [ $VERSION == 2.5 ] ; then
+CLEANSTUFF="*.o *.ko .*cmd"
+
+cat <<EOF >> Makefile
+PHONYS=$PHONYS
+.PHONY:	 \$(PHONYS) clean
+EOF
+
+else
+
+CLEANSTUFF="*.o .*flags"
+
+cat <<EOF >> Makefile
+TOPDIR=\$(KROOT)
+include \$(TOPDIR)/Rules.make
+.PHONY:	 clean
+EOF
+fi
+
+cat <<EOF >> Makefile
+mmodules:
+	\$(MAKE) -C \$(KROOT) SUBDIRS=$PWD modules
+clean:
+	rm $CLEANSTUFF
+EOF

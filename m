@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266298AbUAVVNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 16:13:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266331AbUAVVNZ
+	id S266321AbUAVRQU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 12:16:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbUAVRQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 16:13:25 -0500
-Received: from dsl-213-023-214-209.arcor-ip.net ([213.23.214.209]:18448 "HELO
-	obi.mine.nu") by vger.kernel.org with SMTP id S266298AbUAVVNA (ORCPT
+	Thu, 22 Jan 2004 12:16:20 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27569 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266321AbUAVRQS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 16:13:00 -0500
-Subject: Re: 2.6.1 on ATI Rage 128 M3: some thin vertical lines show up
-From: Andreas Oberritter <obi@saftware.de>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <401034E6.70703@t-online.de>
-References: <401034E6.70703@t-online.de>
-Content-Type: text/plain
-Message-Id: <1074805972.2081.85.camel@shiva.eth.saftware.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 22 Jan 2004 22:12:52 +0100
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Jan 2004 12:16:18 -0500
+Date: Thu, 22 Jan 2004 09:15:58 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: Karol Kozimor <sziwan@hell.org.pl>, "Georg C. F. Greve" <greve@gnu.org>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Martin Loschwitz <madkiss@madkiss.org>, linux-kernel@vger.kernel.org,
+       "Brown, Len" <len.brown@intel.com>, acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: PROBLEM: ACPI freezes 2.6.1 on boot
+In-Reply-To: <16399.55109.244040.516731@alkaid.it.uu.se>
+Message-ID: <Pine.LNX.4.58.0401220900510.2123@home.osdl.org>
+References: <7F740D512C7C1046AB53446D3720017361885C@scsmsx402.sc.intel.com>
+ <m3u12pgfpr.fsf@reason.gnu-hamburg> <m3ptddgckg.fsf@reason.gnu-hamburg>
+ <20040122120854.GB3534@hell.org.pl> <16399.55109.244040.516731@alkaid.it.uu.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-01-22 at 21:39, Harald Dunkel wrote:
-> Kernel: plain 2.6.1, booted with "vga=0x318"
-> Hardware: Dell C600 laptop
-> VGA: VGA compatible controller: ATI Technologies Inc Rage Mobility M3 AGP 2x (rev 02)
->       (XFree86 says '"ATI Rage 128 Mobility M3 LF (AGP)" (ChipID = 0x4c46)')
+
+
+On Thu, 22 Jan 2004, Mikael Pettersson wrote:
+
+> Karol Kozimor writes:
+>  > 
+>  > diff -Bru linux-2.6.0-test8/arch/i386/kernel/apic.c patched/arch/i386/kernel/apic.c
+>  > --- linux-2.6.0-test8/arch/i386/kernel/apic.c	2003-10-18 05:43:36.000000000 +0800
+>  > +++ patched/arch/i386/kernel/apic.c	2003-10-30 23:17:50.000000000 +0800
+>  > @@ -836,8 +836,8 @@
+>  >  {
+>  >  	unsigned int lvtt1_value, tmp_value;
+>  >  
+>  > -	lvtt1_value = SET_APIC_TIMER_BASE(APIC_TIMER_BASE_DIV) |
+>  > -			APIC_LVT_TIMER_PERIODIC | LOCAL_TIMER_VECTOR;
+>  > +	lvtt1_value = APIC_LVT_TIMER_PERIODIC | LOCAL_TIMER_VECTOR;
+>  > +
+>  >  	apic_write_around(APIC_LVTT, lvtt1_value);
 > 
-> If I run "make menuconfig" on the frame buffer console,
-> then some character cells (e.g. the top line to the right
-> of "Linux Kernel v2.6.1 Configuration") contain some thin
-> vertical lines in various colors instead of being plain blue.
-[...]
-> I can't remember having seen this problem with kernel 2.4.22,
-> but please don't count on this.
+> What is the purpose of this change?
+> I don't remember seeing this before on LKML. (I don't have time to read bugzilla.)
 
-Just to clarify, are you talking about vesafb? I ask, because the
-rage128 driver included in the kernel does not support flat panels.
-That's the reason why I started a new driver for my Dell C600, which I
-haven't ported to 2.6 yet (volunteers are welcome, see
-http://www.saftware.de/r128fb/r128fb-20030819.tar.bz2 ;-).
+Hmm.. It does seem to fix things for a couple of people, so it looks 
+interesting.
 
-Regards,
-Andreas
+As far as I can tell, the _only_ thing it does is to change the timer base
+from "DIV" to "CLKIN". I seem to have misplaced my ia-32 "volume 3" thing, 
+but I have an old one for a pentium, and that one doesn't actually
+haev the timer-base thing at all - and marks those bits as "reserved".
 
+So it is entirely possible that the only safe value to write there is 0.
+
+Also, why the heck do we call that "lvtt1"? It's just lvtt - no "1" there
+anywhere.
+
+So I'm inclined to apply the patch, but it would be better if somebody who 
+had more recent docs could tell me what those newer docs say is the 
+difference bewteen BASE_CLKIN (0) and BASE_DIV (2)...
+
+		Linus

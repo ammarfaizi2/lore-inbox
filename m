@@ -1,151 +1,42 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <155394-13684>; Thu, 7 Jan 1999 08:20:44 -0500
-Received: by vger.rutgers.edu id <155435-13684>; Wed, 6 Jan 1999 23:06:41 -0500
-Received: from mail13.digital.com ([192.208.46.30]:3598 "EHLO mail13.digital.com" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <156069-13684>; Wed, 6 Jan 1999 12:05:25 -0500
-Date: Wed, 6 Jan 1999 14:25:57 -0500 (EST)
-From: Phillip Ezolt <ezolt@perf.zko.dec.com>
-To: linux-kernel@vger.rutgers.edu
-Subject: Iprobe: Alpha performance tool
-Message-ID: <Pine.OSF.3.96.990106140332.11300A-100000@perf.zko.dec.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: by vger.rutgers.edu id <157339-13684>; Thu, 7 Jan 1999 14:54:50 -0500
+Received: from caffeine.ix.net.nz ([203.97.100.28]:1194 "EHLO caffeine.ix.net.nz" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <157665-13684>; Thu, 7 Jan 1999 02:29:29 -0500
+Date: Thu, 7 Jan 1999 22:54:53 +1300
+From: Chris Wedgwood <cw@ix.net.nz>
+To: scherrey@proteus-tech.com
+Cc: Kurt Garloff <K.Garloff@ping.de>, Linux kernel list <linux-kernel@vger.rutgers.edu>
+Subject: Re: [PATCH] HZ change for ix86
+Message-ID: <19990107225453.A1900@caffeine.ix.net.nz>
+References: <19990105094830.A17862@kg1.ping.de> <3692DF1C.C03DD162@gte.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95i
+In-Reply-To: <3692DF1C.C03DD162@gte.net>; from Benjamin Scherrey on Tue, Jan 05, 1999 at 10:57:16PM -0500
+X-No-Archive: Yes
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hi all, 
-	This is sort-of off topic, but I thought the kernel developers might
-find it of interest.   This is the package we use to find bottlenecks in 
-Digital Unix (amoung other things).  We have used it internally for 4-5 years 
-on DU/VMS/NT and my job was to port it to Alpha/Linux.  It is released under 
-the GPL. 
+On Tue, Jan 05, 1999 at 10:57:16PM -0500, Benjamin Scherrey wrote:
 
-It can be used to find where system/board cache misses occur, where cycles
-are spent, and more. 
+>     Thanx for the insightful information about the impact of
+> changing the HZ values. Questions: a) how platform specific is this
+> setting (i86, ALPHA, et al)
 
-We hope it'll be a boon to kernel performance enhancement. 
+each platform is differnet, for example, x86 is 100, alpha is 1024.
+Some RT people use 10,000 or so on x86 I beleive (you can also do
+this to get more fine frained shaper control)
 
---Phil
+> and b) Does increasing the HZ value increases context switches or
+> increases duration of each context?
 
-Digital/Compaq: High Performance Servers/Benchmark Performance Engineering
-Phillip.Ezolt@compaq.com                            ezolt@perf.zko.dec.com
+no
 
+> This sounds like an excellent developer's config option to me....
 
-
-
-What?
------
-Compaq/Digital's High Performance Servers/Benchmark Performance Engineering 
-presents: 
-
-The Iprobe tool suite (4.0) for Alpha/Linux. 
-
-When?
------
-Date: 1/6/99
-
-How?
----
-LICENSE: GPL.
-
-Who?
-----
-Contact: Phillip.Ezolt@compaq.com or ezolt@perf.zko.dec.com
-
-What is iprobe?
----------------
-It is a little-known fact that the Compaq Alpha processor has some nifty
-on-chip performance hardware that can be used to find bottlenecks in program
-code.  
-
-Iprobe gives the user access to this hardware.  
-
-Iprobe is a low-overhead tool suite that uses the Alpha event counters to find 
-performance bottlenecks in kernel and user space. 
-
-The iprobe suite allows one to pinpoint problem code.  It can not only
-determine where a program is spending its cycles, but it can also
-figure out where caches misses and floating point instructions occur
-as well.  Iprobe can help to answer the following questions: 
-Where is my program missing the cache?  Where is my
-program spending all of its cycles?  Which branch path is taken most often?
-
-Internally, Iprobe has been used to optimize performance in benchmarks
-(SPEC CPU95), operating systems (VMS, Digital Unix, Windows NT) and databases.
-(Oracle, and Informix)
-
-Iprobe has traditionally be a cross-platform alpha tool. It runs on 
-Digital Unix, Open VMS, and Windows NT, and it is now being released under
-GPL for Alpha/Linux.
-
-Who can run it? 
----------------
-The iprobe suite should run on all Alpha machines created prior to the EV6. 
-
-Currently, it has been tested successfully on all Alpha/Linux machines that 
-boot using the Digital SRM and aboot.  It may NOT run on machines running
-MILO. 
-
-For those that use MILO, iprobe MAY work.  The AlphaStation 250 is known to
-work, but not the AlphaStation 500.  Jay Estabrook (the MILO guru) is looking 
-into this matter, and should have an updated MILO for those that need it RSN 
-(real soon now).
-
-Iprobe also requires a kernel >2.1.132.  Any 2.2.X kernels should work. 
-
-Where do I get it? 
-------------------
-
-Iprobe is availbe at: metalab.unc.edu:/pub/Linux/Incoming
-Soon to be in: metalab.unc.edu:/pub/Linux/devel
-
-The suite consists of two required parts, and a third which is optional:
-
-1) A kernel driver (iprobe_suite-4.0-driver.o.gz)
-	This has been compiled for your convenience.  The source is availbe
-in the rpm/tarball with the source for the rest of the suite, but it
-must be compiled against a kernel with performance counter support, so for 
-ease of use,  a binary driver is provided. 
-
-2) Application Suite (iprobe_suite-4.0-1.alpha.rpm)
-	These are all the applications that actually use the performance
-counters.   Instruction on their use is provided within. 
-
-3) Source (iprobe_suite-4.0-1.src.rpm)
-	This is the source for all of the above. 
-
-
-How do I install?
------------------
-You need both the rpm and the kernel module.  One will NOT work without
-the other. 
-
-Get these files: 
-iprobe_suite-4.0-driver.o.gz 
-iprobe_suite-4.0-1.alpha.rpm
-
-Once you get the rpm, simply type
-
-rpm -i iprobe_suite-4.0-1.alpha.rpm
-
-You will also need to unzip and insert the kernel module.  More information
-is available in the INSTALL document. 
-
-*******IMPORTANT************
-
-Documentation will be installed in /usr/doc/iprobe_suite-4.0/  
-Read INSTALL for instructions on installing the suite.
-Read TUTORIAL for instructions on using the suite.
-
-If you don't read this, it will NOT work, and you will be frustrated. 
-
-What else?
----------
-We are currently looking for an external site to host a web page for to
-host information/howtos and success stories on.  If any one is interested,
-email ezolt@perf.zko.dec.com.
+why? what are you truing to achieve?
 
 
 
-
+-cw
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

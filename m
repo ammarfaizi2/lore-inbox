@@ -1,48 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132434AbQLJVKM>; Sun, 10 Dec 2000 16:10:12 -0500
+	id <S133033AbQLJVNx>; Sun, 10 Dec 2000 16:13:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132820AbQLJVKC>; Sun, 10 Dec 2000 16:10:02 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:48648 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S132434AbQLJVJx>;
-	Sun, 10 Dec 2000 16:09:53 -0500
-Date: Sun, 10 Dec 2000 21:39:38 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test11 EXT2 corruption (3)
-Message-ID: <20001210213938.D294@suse.de>
-In-Reply-To: <20001210161723.A1060@iapetus.localdomain> <20001210183101.A6947@iapetus.localdomain> <20001210213500.A17413@iapetus.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001210213500.A17413@iapetus.localdomain>; from F.vanMaarseveen@inter.NL.net on Sun, Dec 10, 2000 at 09:35:00PM +0100
+	id <S133004AbQLJVNo>; Sun, 10 Dec 2000 16:13:44 -0500
+Received: from dfmail.f-secure.com ([194.252.6.39]:7182 "HELO
+	dfmail.f-secure.com") by vger.kernel.org with SMTP
+	id <S132820AbQLJVNf>; Sun, 10 Dec 2000 16:13:35 -0500
+Date: Sun, 10 Dec 2000 22:55:52 +0200 (MET DST)
+From: Szabolcs Szakacsits <szaka@f-secure.com>
+To: Tigran Aivazian <tigran@veritas.com>
+cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] NR_RESERVED_FILES broken in 2.4 too
+In-Reply-To: <Pine.LNX.4.21.0012101646210.1350-100000@penguin.homenet>
+Message-ID: <Pine.LNX.4.30.0012102227070.5455-100000@fs129-190.f-secure.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 10 2000, Frank van Maarseveen wrote:
-> Hmm, not only I see files stuffed with random data but sometimes also with
-> a block of zeroes (about 3600 consecutive zero bytes in a .depend
-> file) At one time /var/log/messages said while doing rm -rf:
-> 
-> Dec 10 21:23:04 iapetus kernel: EXT2-fs error (device ide0(3,4)):
-> ext2_readdir: bad entry in directory #152149: rec_len is smaller than
-> minimal - offset=0, inode=0, rec_len=0, name_len=0 Dec 10 21:23:04
-> iapetus kernel: EXT2-fs warning (device ide0(3,4)): empty_dir: bad
-> directory (dir #152149) - no `.' or `..' Dec 10 21:23:05 iapetus
-> kernel: EXT2-fs error (device ide0(3,4)): ext2_readdir: bad entry in
-> directory #332361: rec_len is smaller than minimal - offset=0,
-> inode=0, rec_len=0, name_len=0 Dec 10 21:23:05 iapetus kernel: EXT2-fs
-> warning (device ide0(3,4)): empty_dir: bad directory (dir #332361) -
-> no `.' or `..'
-> 
-> Maybe it is a hardware problem?
 
-No, it's a test11 problem. Go to test12-pre[latest].
+On Sun, 10 Dec 2000, Tigran Aivazian wrote:
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+> > user% ./fd-exhaustion   # e.g. while(1) open("/dev/null",...);
+> > root# cat /proc/sys/fs/file-nr
+> > cat: /proc/sys/fs/file-nr: Too many open files in system
+> >
+> > The above happens even with increased NR_RESERVED_FILES to 96 [no
+> > wonder, get_empty_filp is broken].
+>
+> no, it is not broken. But your experiment is broken. Don't do cat file-nr
+> but compile this C program
+
+Ok, now I understand why you can't see the problem ;) You lookup the
+values in user space but I did it [additionally] in kernel space [also
+I think I understand what happens ;)]. I guess with the code below you
+claim I shouldn't see values like this when file struct allocations
+started by user apps,
+1024 0 1024
+
+Or 0 shouldn't be between 0 and NR_RESERVED_FILES. Right? Wrong. I saw
+it happens, you can reproduce it if you lookup the nr_free_files
+value, allocate that much by root, don't release them and
+immediately after this start to allocate fd's by user app. Note, if
+you already hit nr_files = max_files you won't ever be able to
+reproduce the above - but this is a half solution, kernel 2.0 was
+fine, get_empty_filp was broke somewhere between 2.0 and 2.1 and it's
+still broken. With the patch the functionality is back and also works
+the way what the authors of the book mentioned believe ;)
+
+It's quite funny, because before I was also told this is broken but I
+couldn't believe it, so I look the code and tested it, the report was
+right ...
+
+Still disagree? ;)
+
+	Szaka
+
+> #include <sys/types.h>
+> #include <sys/stat.h>
+> #include <unistd.h>
+> #include <fcntl.h>
+> #include <stdio.h>
+> #include <stdlib.h>
+>
+> int main(int argc, char *argv[])
+> {
+>         int fd, len;
+>         static char buf[2048];
+>
+>         fd = open("/proc/sys/fs/file-nr", O_RDONLY);
+>         if (fd == -1) {
+>                 perror("open");
+>                 exit(1);
+>         }
+>         while (1) {
+>                 len = read(fd, buf, 1024);
+>                 printf("len=%d %s", len, buf);
+>                 lseek(fd, 0, SEEK_SET);
+>                 sleep(1);
+>         }
+>         return 0;
+> }
+>
+> and leave it running while doing experiments on the other console. You
+> will see that everything is fine -- there is no bug. No wonder you saw the
+> bug -- you ignored my 4 emails telling you otherwise :)
+>
+> Regards,
+> Tigran
+>
+>
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268583AbUHMAhz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268908AbUHMApq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268583AbUHMAhz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 20:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268590AbUHMAhz
+	id S268908AbUHMApq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 20:45:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268590AbUHMApq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 20:37:55 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:25986 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S268583AbUHMAhu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 20:37:50 -0400
-From: Benno <benjl@cse.unsw.edu.au>
-To: Dan Aloni <da-x@colinux.org>
-Date: Fri, 13 Aug 2004 10:37:43 +1000
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Generation of *.s files from *.S files in kbuild
-Message-ID: <20040813003743.GF30576@cse.unsw.edu.au>
-References: <20040812192535.GA20953@callisto.yi.org>
+	Thu, 12 Aug 2004 20:45:46 -0400
+Received: from mail.gmx.net ([213.165.64.20]:27602 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268908AbUHMApa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 20:45:30 -0400
+X-Authenticated: #4399952
+Date: Fri, 13 Aug 2004 02:55:46 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Paul Davis <paul@linuxaudiosystems.com>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O5
+Message-Id: <20040813025546.1372fbc6@mango.fruits.de>
+In-Reply-To: <1092356877.1304.58.camel@mindpipe>
+References: <20040809104649.GA13299@elte.hu>
+	<20040810132654.GA28915@elte.hu>
+	<1092174959.5061.6.camel@mindpipe>
+	<20040811073149.GA4312@elte.hu>
+	<20040811074256.GA5298@elte.hu>
+	<1092210765.1650.3.camel@mindpipe>
+	<20040811090639.GA8354@elte.hu>
+	<20040811141649.447f112f@mango.fruits.de>
+	<20040811124342.GA17017@elte.hu>
+	<1092268536.1090.7.camel@mindpipe>
+	<20040812072127.GA20386@elte.hu>
+	<1092347654.11134.10.camel@mindpipe>
+	<1092355488.1304.52.camel@mindpipe>
+	<1092356877.1304.58.camel@mindpipe>
+X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040812192535.GA20953@callisto.yi.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Aug 12, 2004 at 22:25:35 +0300, Dan Aloni wrote:
->Hello, 
->
->Is the generation of *.s files from *.S files in the kernel
->build system a wide spread phenomenon? As far as I can see
->only vmlinux.lds.s is built that way in my default i386 config.
->
->It causes problems when trying to cross-build a kernel on a 
->file system that has case-insensitive filenames, or on a GNU
->port that is case insensitive (such as Cygwin).
->
->If anyone wondered, I'm trying to cross build a Linux kernel
->on a Cygwin system using a Linux native toolchain, in order
->to make development of the Windows port of coLinux easier
->for some people.
+On Thu, 12 Aug 2004 20:27:57 -0400
+Lee Revell <rlrevell@joe-job.com> wrote:
 
-Hi Dan, 
+> On Thu, 2004-08-12 at 20:04, Lee Revell wrote:
+> 
+> > So, it seems that if a SCHED_FIFO process opens a PCM device using
+> > mmap, then mlockall's the memory, then another process mlockall's
+> > memory, the result is an xrun 100% of the time.
+> > 
+> 
+> I have found that around 1400 KB is a magic number on my system, this
+> triggers the preempt violation/xrun about 50% of the time.  1300 never
+> triggers it, 1500 always triggers it.
+> 
+> Also the amount of memory being mlockall'ed does not affect the length
+> of the preemption violation - if we hit it at all, there's a 10ms
+> latency, whether we lock 1400KB or 100MB.
+> 
+> Hopefully O6 will give enough info to track this down.
 
-I'm having the exact same problem on Mac OSX with the case-insensitive
-HFS+ filesystem.
+Hi, 
 
-After looking the only files that use this rule are the vmlinux.lds
-files. (Although there is one of them for each architecture.)
+i think that the mlockall and client/jackd startup xruns often do not
+seem to correspond to a critical timing report.. Try the following: turn
+off xrun_debug but leave the preempt-timing stuff on. On my system, the
+mlockall_test provokes an xrun in jackd's output but i do not get a
+preempt-timing report (thresh = 500). 
 
-It is actually a bit frustrating because due to the way make works
-this is a problem even if you use a separate build directory.
+OTOH when the xrun_debug is on, the xrun_debug report actually seems to
+trigger the preempt-timing report.
 
-The solution is fairly striaght forward -- just change the suffixes,
-the problem is exactly how to change them. I would propose changing it
-such that was stick with "vmlinux.lds.S" and have it generate "vmlinux.lds"
+I think many of the jackd xruns are really jacks business. But maybe i
+misinterpret the symptom.
 
-This would require the fewest changes to implement, just
-1/ change %.s %.S rule to %.lds %.lds.S
-2/ change the link flags from "-T vmlinux.lds.s" -> "-T vmlinux.lds"
+BTW: on my system with 2*64 frames the magic mlockall number seems to be
+around 15megs.. mlockall'ing only 10megs is very unlikely to trigger an
+xrun in jackd  And even mlockall'ing 100 megs, while always producing an
+xrun in jackd, doesn't show a corresponding preempt timing report either
+[with preempt_thresh = 500] as long as the xrun_debug is off. 
 
-Cheers,
+Flo
 
-Benno
+-- 
+Palimm Palimm!
+http://affenbande.org/~tapas/
 

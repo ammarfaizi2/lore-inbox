@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318145AbSIOR5m>; Sun, 15 Sep 2002 13:57:42 -0400
+	id <S318152AbSIOSDa>; Sun, 15 Sep 2002 14:03:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318148AbSIOR5m>; Sun, 15 Sep 2002 13:57:42 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:5248 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S318145AbSIOR5l>;
-	Sun, 15 Sep 2002 13:57:41 -0400
-Date: Sun, 15 Sep 2002 17:42:48 +0200
+	id <S318153AbSIOSDa>; Sun, 15 Sep 2002 14:03:30 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:21260 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S318152AbSIOSD3>; Sun, 15 Sep 2002 14:03:29 -0400
+Date: Sun, 15 Sep 2002 20:08:26 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Christoph Hellwig <hch@infradead.org>,
-       James Blackwell <jblack@linuxguru.net>, linux-kernel@vger.kernel.org,
-       jonathan@buzzard.org.uk
-Subject: Re: [PATCH] IRQ patch for Toshiba Char Driver in 2.5.34
-Message-ID: <20020915154248.GA3647@elf.ucw.cz>
-References: <20020909115956.GA23290@comet> <20020911112938.A25726@infradead.org>
+To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
+Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org
+Subject: Re: LMbench2.0 results
+Message-ID: <20020915180826.GA11311@atrey.karlin.mff.cuni.cz>
+References: <20020914182627.28529.qmail@linuxmail.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020911112938.A25726@infradead.org>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <20020914182627.28529.qmail@linuxmail.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> You've just made the driver horribly racy on SMP or preempt
-> systems..
+> [...]
+> > I hope powermanagment is completely disabled this time.
+> > 									Pavel
+> Yes.
+> Pavel, is there a way to disable apm at boot time with a lilo
+parameter?
 
-Well, as long as toshiba does not make SMP notebooks, we are safe ;-).
-
-								Pavel
+apm=off
+					Pavel
 
 -- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135556AbRDXMEk>; Tue, 24 Apr 2001 08:04:40 -0400
+	id <S135569AbRDXMUN>; Tue, 24 Apr 2001 08:20:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135559AbRDXMEa>; Tue, 24 Apr 2001 08:04:30 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:6276 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S135556AbRDXMEZ>;
-	Tue, 24 Apr 2001 08:04:25 -0400
-Date: Tue, 24 Apr 2001 08:04:23 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: imel96@trustix.co.id
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Single user linux
-In-Reply-To: <Pine.LNX.4.33.0104241830020.11899-100000@tessy.trustix.co.id>
-Message-ID: <Pine.GSO.4.21.0104240752320.6992-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135572AbRDXMTx>; Tue, 24 Apr 2001 08:19:53 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:38502 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S135569AbRDXMTm>; Tue, 24 Apr 2001 08:19:42 -0400
+Date: Tue, 24 Apr 2001 14:19:28 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: David Howells <dhowells@warthog.cambridge.redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: rwsem benchmark [was Re: [PATCH] rw_semaphores, optimisations try #3]
+Message-ID: <20010424141928.C8253@athlon.random>
+In-Reply-To: <20010424121747.A1682@athlon.random> <6252.988108393@warthog.cambridge.redhat.com> <20010424124621.D1682@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010424124621.D1682@athlon.random>; from andrea@suse.de on Tue, Apr 24, 2001 at 12:46:21PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+There is a bug in both the C version and asm version of my rwsem
+and it is the slow path where I forgotten to drop the _irq part
+from the spinlock calls ;) Silly bug. (I inherit it also in the
+asm fast path version because I started hacking the same C slow path)
 
+I catched it now because it locks hard my alpha as soon as I play with
+any rwsem testcase, not sure why x86 is apparently immune by the hard lockup.
 
-On Tue, 24 Apr 2001 imel96@trustix.co.id wrote:
+then I also added your trick of returning the semaphore so I can declare "a"
+(sem) as read only (that is an improvement for the fast path).
 
-> a friend of my asked me on how to make linux easier to use
-> for personal/casual win user.
-> 
-> i found out that one of the big problem with linux and most
-> other operating system is the multi-user thing.
+Because of that changes I rerun all the benchmarks. I finished now to
+re-benchmark the asm version as it runs even faster than before in the write
+contention, the other numbers are basically unchanged. the read down fast path
+now runs exactly like yours (so yes it seems the "+a" was giving a no sensical
+improvement to my code for the down read fast path).
 
-What, makes it hard to write viruses for it? Awww, poor skr1pt k1dd13z...
+Of course my down write fast path remains significantly faster than yours and that
+really make sense because my smarter algorithm allows me to avoid all your
+cmpxchg stuff.
 
-> i think, no personal computer user should know about what's
-> an operating system idea of a user. they just want to use
-> the computer, that's it.
+I'm starting the benchmarks of the C version and I will post a number update
+and a new patch in a few minutes.
 
-And would that "use" by any chance include access to network?
+If you can ship me the testcase (also theorical) that breaks my algorihtm in the
+next few minutes that would help.
 
-> by a personal computer i mean home pc, notebook, tablet,
-> pda, and communicator. only one user will use those devices,
-> or maybe his/her friend/family. do you think that user want
-> to know about user account?
-
-So let him log in as root, do everything as root and be cracked
-like a bloody moron he is. Next?
-
-> from that, i also found out that it is very awkward to type
-> username and password every time i use my computer.
-
-So break your /sbin/login.
-
-> so here's a patch. i also have removed the user_struct from
-> my kernel, but i don't think you'd like #ifdef's.
-> may be it'll be good for midori too.
-
-[snip the patch that makes all user ids equivalent to root, but
-doesn't remove networking support]
-
-What for? If they want root - give them root and be done with that.
-No need to change the kernel.
-
-You know, if you really do not understand the implications of
-running everything with permissions equivalent to root - get
-the hell out of any UNIX-related programming until you learn.
-
-If you want CP/M or MacOS - you know where to find them.
-
+Andrea

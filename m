@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262139AbTKQX5R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 18:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbTKQX5R
+	id S262130AbTKQX7a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 18:59:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbTKQX7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 18:57:17 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:49855 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262139AbTKQX5Q convert rfc822-to-8bit
+	Mon, 17 Nov 2003 18:59:30 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:25351 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S262130AbTKQX73
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 18:57:16 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: format_cpumask()
-Date: Mon, 17 Nov 2003 15:56:34 -0800
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0F37B8@scsmsx401.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: format_cpumask()
-Thread-Index: AcOtY4pF1GaCZl8PQ9CsRwsKdKVrmAAAcFJQ
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "William Lee Irwin III" <wli@holomorphy.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 17 Nov 2003 23:56:38.0843 (UTC) FILETIME=[70DEE0B0:01C3AD66]
+	Mon, 17 Nov 2003 18:59:29 -0500
+Date: Mon, 17 Nov 2003 23:59:27 +0000
+From: John Levon <levon@movementarian.org>
+To: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: HOWTO build modules in 2.6.0 ...
+Message-ID: <20031117235927.GA31611@compsoc.man.ac.uk>
+References: <Pine.LNX.4.58L.0311171939150.25906@alpha.zarz.agh.edu.pl> <20031117203336.GA1714@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031117203336.GA1714@mars.ravnborg.org>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: King of Woolworths - L'Illustration Musicale
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1ALtHD-0000os-Kw*42r9e297ju6*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I was trying to make it a NR_CPUS -bit integer with the 
-> highest nybbles
-> printed first. What's your favorite alternative?
+On Mon, Nov 17, 2003 at 09:33:36PM +0100, Sam Ravnborg wrote:
 
-The prettiest output format I can think of would be
-to pretend that we had enough bits for NR_CPUS.  I.e.
-on a 128 cpu system, cpu0 looks like:
+> Use the following:
+> make -C /usr/src/linux SUBDIRS=`pwd` O=/users/cieciwa/rpm/BUILD/eagle-1.0.4/linux modules
+> 
 
- 00000000000000000000000000000001
+This requires a kernel source tree empty of built files though, so it's
+really not a great solution ...
 
-and cpu 127 is:
-
- 80000000000000000000000000000000
-
-This is probably the messiest to implement :-(
-
--Tony
+regards
+john
+-- 
+Khendon's Law:
+If the same point is made twice by the same person, the thread is over.

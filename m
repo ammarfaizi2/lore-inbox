@@ -1,71 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273269AbRKSHvS>; Mon, 19 Nov 2001 02:51:18 -0500
+	id <S273854AbRKSIAj>; Mon, 19 Nov 2001 03:00:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273305AbRKSHvI>; Mon, 19 Nov 2001 02:51:08 -0500
-Received: from smtp01.web.de ([194.45.170.210]:27400 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S273269AbRKSHux>;
-	Mon, 19 Nov 2001 02:50:53 -0500
-Message-ID: <3BF8B2CC.C172F67C@web.de>
-Date: Mon, 19 Nov 2001 08:20:44 +0100
-From: Eckehardt Luhm <bselu@web.de>
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: de-DE, en
+	id <S273588AbRKSIA3>; Mon, 19 Nov 2001 03:00:29 -0500
+Received: from web14303.mail.yahoo.com ([216.136.173.79]:53818 "HELO
+	web14303.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S273305AbRKSIAN>; Mon, 19 Nov 2001 03:00:13 -0500
+Message-ID: <20011119080012.75161.qmail@web14303.mail.yahoo.com>
+Date: Mon, 19 Nov 2001 00:00:12 -0800 (PST)
+From: Lee Chin <leechinus@yahoo.com>
+Subject: Re: sendfile from sockets
+To: Anton Blanchard <anton@samba.org>
+Cc: "linux, kernel" <linux-kernel@vger.kernel.org>,
+        Linux Net <linux-net@vger.kernel.org>
+In-Reply-To: <20011119171653.E6367@krispykreme>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Network packet drop?
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Do I need to do something special to enable sendfile
+in the kernel?  It works on a 2.2 kernel, but not on a
+2.4 kernel (and this is sendfile in general... not
+just sockets)
 
-I'm studying at the University of Karlsruhe and I'm doing some network
-measurements. In conjunction with network drivers for Linux, I'm
-experiencing very strange effects.
-
-In my setup I have two PCs each with a EEPro-100 network card in it
-connected via an X-link cable. mii-tools says they auto-negotiated a
-speed of 100baseTx-FD. Furthermore I have a program which generates UDP
-packets at the highest possible speed, simply by looping a
-sendto(socket, ...), which should block until a packet is out. What I
-want to measure is the maximum output the network card can do. So I'm
-sending n packets and divide the time needed for that by n.
-
-This works perfectly for larger packets (>500 bytes). All of them are
-being sent out. I'm able to verify this by invoking "ifconfig eth0|grep
-TX" and watch the transmitted packets grow by the number of packets I
-intended to send (in fact it grows a bit more, because of some
-ARP-packets, but that doesn't matter).
-
-But when I set the packet size to say 50 bytes (only data size without
-any headers, so on ethernet this would be 102 bytes), something strange
-is going on. Now not all of the packets I send to the other network card
-are being received. There are leaks of tens of packets at the receiver,
-I'm verifying this with tcpdump. Ok, the receiver was just overtaxed, in
-the syslog I got "eth0: Abnormal interrupt, status 00000002.". So it
-couldn't handle the flood of packets, ok.
-BUT: The sender didn't even send all of the packets! "ifconfig eth0|grep
-TX" grew only about 40-50% of the value it should! e.g. I sent 10.000
-packets, and the TX-counter grew only by 4586, not more. Sometimes I got
-even worse results, especially when decreasing the packet size.
-
-I tried several setups on different PCs, sometimes with X-linked network
-cards, sometimes with a switch between them. None of them worked. Except
-one thing: I tested the same setup described above with other network
-card, two noname products with a realtek 8139 chipset (driver module
-8139too). And you would have guessed it: That worked! The TX-counter
-grew by the correct value, so all packets have been sent out.
-
-And to make the confusion perfect: With forcing the cards to work with
-10 MBit/s-FD (with mii-tool), the same strange "packet drops" as with
-the EEPro-cards appeared.
-
-Is there anybody out there, who can explain what is going on in network
-drivers? What causes these strange effects?
+Thanks
+Lee
+--- Anton Blanchard <anton@samba.org> wrote:
+> 
+> > Although the man page says you can sendfile from a
+> > socket,I am unable to do so... I can only send
+> file
+> > from a file, to either a socket or file
+> > 
+> > Is this a kernel limitation?
+> 
+> Yes, the manpage needs updating, you can only
+> sendfile() from
+> something that exists in the pagecache (ie not a
+> socket).
+> 
+> Anton
 
 
-Regards, Elu
---- Eckehardt Luhm, eMail: bselu@web.de
-
+__________________________________________________
+Do You Yahoo!?
+Find the one for you at Yahoo! Personals
+http://personals.yahoo.com

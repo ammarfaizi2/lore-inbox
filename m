@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288503AbSAHWbH>; Tue, 8 Jan 2002 17:31:07 -0500
+	id <S288512AbSAHWc5>; Tue, 8 Jan 2002 17:32:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288511AbSAHWas>; Tue, 8 Jan 2002 17:30:48 -0500
-Received: from oflmta01bw.bigpond.com ([139.134.6.21]:24816 "EHLO
-	oflmta01bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S288503AbSAHWam>; Tue, 8 Jan 2002 17:30:42 -0500
-Message-Id: <5.1.0.14.0.20020109092628.00ba7170@mail.bigpond.com>
+	id <S288513AbSAHWcp>; Tue, 8 Jan 2002 17:32:45 -0500
+Received: from mta05bw.bigpond.com ([139.134.6.95]:21232 "EHLO
+	mta05bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S288512AbSAHWbL>; Tue, 8 Jan 2002 17:31:11 -0500
+Message-Id: <5.1.0.14.0.20020109093045.00ba7170@mail.bigpond.com>
 X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 09 Jan 2002 09:30:25 +1100
+Date: Wed, 09 Jan 2002 09:31:03 +1100
 To: linux-kernel@vger.kernel.org
 From: Dylan Egan <crack_me@bigpond.com.au>
-Subject: 
+Subject: woops forgot about it..... usbide not working
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org

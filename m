@@ -1,96 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310499AbSCGUNj>; Thu, 7 Mar 2002 15:13:39 -0500
+	id <S310497AbSCGULJ>; Thu, 7 Mar 2002 15:11:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310501AbSCGUNa>; Thu, 7 Mar 2002 15:13:30 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:63482 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S310499AbSCGUNW>;
-	Thu, 7 Mar 2002 15:13:22 -0500
-Message-ID: <3C87C9B5.C4AF0BB9@mvista.com>
-Date: Thu, 07 Mar 2002 12:12:37 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S310499AbSCGUK7>; Thu, 7 Mar 2002 15:10:59 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:33296 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S310497AbSCGUKs>;
+	Thu, 7 Mar 2002 15:10:48 -0500
+Date: Thu, 7 Mar 2002 17:10:13 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <yodaiken@fsmlabs.com>,
+        Jeff Dike <jdike@karaya.com>, Benjamin LaHaise <bcrl@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+In-Reply-To: <3C87BD22.BBBF4A86@zip.com.au>
+Message-ID: <Pine.LNX.4.44L.0203071709400.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux 
- Maintainers
-In-Reply-To: <20020305165233.A28212@fireball.zosima.org> <20020306095434.B6599@borg.org> <20020306085646.F15303@work.bitmover.com> <20020306221305.GA370@elf.ucw.cz> <a68edn$jjp$1@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> In article <20020306221305.GA370@elf.ucw.cz>,
-> Pavel Machek  <pavel@ucw.cz> wrote:
+On Thu, 7 Mar 2002, Andrew Morton wrote:
+> Daniel Phillips wrote:
 > >
-> >So you basically give bk for free because it is good for you. What if
-> >it will stop being good for you ten years from now?
-> 
-> Guys, calm down.
-> 
-> A few points:
-> 
->  - I certainly don't require BK use of anybody.  It makes my life
->    simpler with some people (mainly the ones that tend to be maintainers
->    of subsystems and send me lots of patches), but there are many
->    developers who do NOT use BK, and it doesn't slow them down at all.
-> 
->    For example, see the FS patches from Al Viro: the only thing that BK
->    has resulted in as far as Al is concerned is that the changelogs are
->    a lot better and include his email comments.
-> 
->    And I also export my tree as regular patches, the way I always have
->    (well, the actual format changed subtly, but that's purely syntactic)
-> 
->  - If Larry turns to the dark side (or, as some would say, the "even
->    darker side" ;) we're _still_ ok. The data isn't going anywhere, he
->    can't close that down. We'd just have to export it into a new format.
-> 
->    If worst comes to worst, and nobody has fixed CVS/subversion/whatever
->    by then, I can even just go back to how I used to work. Nothing lost.
-> 
->  - If people in the open-source SCM community wake up and notice that
->    the current open-source SCM systems aren't cutting it, that's _good_.
->    But it's absolutely NOT an excuse to use them today.  Sorry.  I use
->    CVS at work, and I could never use it for Linux.  I took a look at
->    subversion, and it doesn't even come close to what I wanted.
-> 
->    And I personally refuse to use inferior tools because of ideology. In
->    fact, I will go as far as saying that making excuses for bad tools
->    due to ideology is _stupid_, and people who do that think with their
->    gonads, not their brains.
+> > a GFP flag that says 'fail if this looks hard to get'.
+>
+> Something like that would provide a solution to the
+> readahead thrashing problem.
 
-Does this mean you will admit kgdb into the tree?  
+Nope.  Readahead pages are clean and very easy to evict, so
+it's still trivial to evict all the pages from another readahead
+window because everybody's readahead window is too large.
 
-(Sorry, I couldn't help myself :-)
+regards,
 
--g
-
-> 
-> In short: nobody requires BK of anybody else.  A lot of people really
-> like using it, though, and it does make some things easier.  Some people
-> aren't convinced - David Miller is trying it out, and I haven't heard
-> all happy sounds from him about it. Others have taken to BK like fish to
-> water, and you'll pry it out of their dead cold hands.
-> 
-> The most productive thing people could do might be to just do a BK->CVS
-> gateway, if you really feel like it.  Or just go on and ignore the fact
-> that some people are using BK - you don't actually have to ever even
-> know.
-> 
->                 Linus
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Rik
 -- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+<insert bitkeeper endorsement here>
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

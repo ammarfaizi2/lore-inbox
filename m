@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262725AbTJaB50 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 20:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbTJaB50
+	id S262775AbTJaCO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 21:14:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbTJaCO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 20:57:26 -0500
-Received: from tantale.fifi.org ([216.27.190.146]:41859 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id S262725AbTJaB5Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 20:57:25 -0500
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Things that Longhorn seems to be doing right
-References: <LUlv.31e.5@gated-at.bofh.it> <M7iG.41B.7@gated-at.bofh.it>
-	<MagC.82U.7@gated-at.bofh.it> <Maqe.8l3.9@gated-at.bofh.it>
-	<3FA0F1B7.7000409@softhome.net>
-	<Pine.LNX.4.58.0310301007340.11170@sm1420.belits.com>
-	<3FA1BF06.ED00123C@smart.net>
-Mail-Copies-To: nobody
-From: Philippe Troin <phil@fifi.org>
-Date: 30 Oct 2003 17:57:24 -0800
-In-Reply-To: <3FA1BF06.ED00123C@smart.net>
-Message-ID: <87fzhamanv.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Thu, 30 Oct 2003 21:14:28 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:60174 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S262775AbTJaCO1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 21:14:27 -0500
+Date: Fri, 31 Oct 2003 02:14:25 +0000
+From: John Levon <levon@movementarian.org>
+To: Dave Jones <davej@redhat.com>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Post-halloween doc updates.
+Message-ID: <20031031021425.GB24712@compsoc.man.ac.uk>
+References: <20031030141519.GA10700@redhat.com> <1067555512.16868.2.camel@glass.felipe-alfaro.com> <20031031001608.GJ11311@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031031001608.GJ11311@redhat.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: King of Woolworths - L'Illustration Musicale
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1AFOny-000NRq-6v*B02JRCVI4ew*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Daniel B." <dsb@smart.net> writes:
+On Fri, Oct 31, 2003 at 12:16:08AM +0000, Dave Jones wrote:
 
-> Alex Belits wrote:
-> > 
-> > On Thu, 30 Oct 2003, Ihar 'Philips' Filipau wrote:
-> > 
-> ...
-> > 
-> > 3. Pluggable directory generator -- a userspace process can tell the
-> > system to make an object that looks exactly like a directory, except that
-> > its contents are provided by the process, that is being queried when the
-> > directory is accessed.
+>  > > - Another much talked about feature. Ingo Molnar reworked the process
+>  > >   scheduler to use an O(1) algorithm.  In operation, you should notice
+>  > >   no changes with low loads, and increased scalability with large numbers
+>  > >   of processes, especially on large SMP systems.
+>  > 
+>  > I think we should mention excellent Con Kolivas contributions to the 2.6
+>  > kernel scheduler. He did a great job in tunning the scheduler for
+>  > maximum interactive feeling.
 > 
-> That sounds like ClearCase's dynamically generated views of directories
-> and files.
+> With no disrespect to Con, I'm not going to do this, or I'll end up
+> spending far too much time adding credits to everyone whoever improved
+> something in 2.5.  There's a place for such stuff, and it's aptly named
+> 'CREDITS' in toplevel of src dir.
 
-Or hurd's translators.
+Given that Ingo's reworkings led to horrendous interactive performance
+for many desktop users for a long time during 2.5, it seems a little odd
+to prefer crediting Ingo over Con given what you've said. How about just
+mentioning that we have an O(1) scheduler, plus there has been
+significant work on interactive performance.
 
-Phil.
+john
+-- 
+Khendon's Law:
+If the same point is made twice by the same person, the thread is over.

@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262763AbTFIKrM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 06:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262811AbTFIKrM
+	id S262818AbTFIKtW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 06:49:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTFIKtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 06:47:12 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:35337 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S262763AbTFIKrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 06:47:11 -0400
-Date: Mon, 9 Jun 2003 15:00:18 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: "David S. Miller" <davem@redhat.com>
-Cc: willy@debian.org, linux-kernel@vger.kernel.org, davidm@hpl.hp.com
-Subject: Re: [PATCH] [3/3] PCI segment support
-Message-ID: <20030609150018.B15283@jurassic.park.msu.ru>
-References: <20030609140749.A15138@jurassic.park.msu.ru> <1055154054.9884.2.camel@rth.ninka.net> <20030609144242.A15283@jurassic.park.msu.ru> <20030609.034304.52179334.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030609.034304.52179334.davem@redhat.com>; from davem@redhat.com on Mon, Jun 09, 2003 at 03:43:04AM -0700
+	Mon, 9 Jun 2003 06:49:22 -0400
+Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:48044 "EHLO
+	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id S262818AbTFIKtV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 06:49:21 -0400
+Message-Id: <200306091102.h59B2wsG020791@ginger.cmf.nrl.navy.mil>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] assorted changes to atm protocol stack 
+In-reply-to: Your message of "Sun, 08 Jun 2003 21:51:21 EDT."
+             <200306090151.h591pLC07310@relax.cmf.nrl.navy.mil> 
+X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
+X-mailer: nmh 1.0
+Date: Mon, 09 Jun 2003 07:01:06 -0400
+From: chas williams <chas@cmf.nrl.navy.mil>
+X-Spam-Score: (*) hits=1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 09, 2003 at 03:43:04AM -0700, David S. Miller wrote:
->    Root buses often do not have the self device, e.g. on alpha.
-> 
-> How can people make PCI config space accesses to them?
+> 	vcc->local = *addr;
+> 	vcc->reply = WAITING;
+>-	add_wait_queue(&vcc->sleep,&wait);
+>-	sigd_enq(vcc,as_bind,NULL,NULL,&vcc->local);
+>+	add_wait_queue(&vcc->sleep, &wait);
+>+	sigd_enq(vcc, as_bind, NULL, NULL, &vcc->local);
+> 	while (vcc->reply == WAITING && sigd) {
+> 		set_current_state(TASK_UNINTERRUPTIBLE);
+> 		schedule();
+> 	}
+>-	remove_wait_queue(&vcc->sleep,&wait);
 
-The root level controllers itself are not accessible from
-PCI config space (unlike x86 host bridges). They have
-dedicated control registers somewhere in the IO space.
-
-Ivan.
+forgot to ask but i imagine that the add_wait_queue() and remove_wait_queue()
+should probably be converted to prepare_to_wait() and finish_wait()?

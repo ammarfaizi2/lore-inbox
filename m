@@ -1,70 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262227AbVBKJtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262230AbVBKJxz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262227AbVBKJtu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 04:49:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbVBKJtu
+	id S262230AbVBKJxz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 04:53:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbVBKJxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 04:49:50 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:21775 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262227AbVBKJtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 04:49:47 -0500
-Date: Fri, 11 Feb 2005 10:49:34 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Mws <mws@twisted-brains.org>
-Cc: Andreas Oberritter <obi@linuxtv.org>, linux-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: DVB at76c651.c driver seems to be dead code
-Message-ID: <20050211094934.GO2958@stusta.de>
-References: <20050210235605.GN2958@stusta.de> <200502110211.29055.mws@twisted-brains.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502110211.29055.mws@twisted-brains.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 11 Feb 2005 04:53:55 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:36592 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262230AbVBKJxe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 04:53:34 -0500
+From: "Sven Dietrich" <sdietrich@mvista.com>
+To: "'Ingo Molnar'" <mingo@elte.hu>
+Cc: <george@mvista.com>, "'William Weston'" <weston@lysdexia.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
+Date: Fri, 11 Feb 2005 01:53:32 -0800
+Message-ID: <000601c5101f$8ca3c1e0$c800a8c0@mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <20050211082841.GA3349@elte.hu>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 11, 2005 at 02:11:17AM +0100, Mws wrote:
 
-> FYI
+
+Ingo wrote:
+
 > 
-> The atmel at76c651 frontend driver is used for the 
-> Sagem DBox2 Digital Cable Receiver. 
+> * Sven Dietrich <sdietrich@mvista.com> wrote:
 > 
-> As all other parts of the dbox2 drivers are atm not hosted at kernel cvs but at
-> cvs.tuxbox.org you won't find any components in mainline kernel tree using this.
+> > This patch adds a config option to allow you to select 
+> whether timer 
+> > IRQ runs in thread or not.
 > 
-> thus we are a hobby project - but even well known - there are not so many developer
-> available to make every kernel driver and other parts of it "kernel-style-alike". 
-> maybe there is more progress and kernel driver patching into mainline in the future.
-> we are having 2.6.9 running on dbox2 - higher versions are atm broken for support of
-> the mpc 823 architecture :/
+> this patch only changes xtime_lock back and forth - it does 
+> in no way impact the 'threadedness' of the timer IRQ. (it 
+> does not move the timer IRQ into an interrupt thread.)
 > 
-> removing this driver is not wanted.
+> nor do we really want to make it configurable - it's 
+> non-threaded right now and we'll see what effect this has on 
+> the worst-case latencies. 
+> 
+> 	Ingo
+> 
 
-If I understand it correctly, there are several drivers that only make 
-sense if they are used together. at76c651.c alone makes zero sense?
-This means it would be highly appreciated to have all parts inside the 
-kernel at some time in the future.
+Its clear that there are all sorts of issues 
+with process accounting and other race conditions
+associated with running the timer in a thread.
 
-Something different:
-The atmel at76c651 frontend driver is specific to the MPC823 
-architecture?
-In this case this dependency should be expressed in the Kconfig file 
-since it then makes no sense to offer this driver on other 
-architectures.
+The timer IRQ does have a noticable impact 
+especially on the slower CPUS. In this domain,
+precise process time accounting may not be 
+all that important, as long as the scheduler
+does not get confused, and that lone NODELAY
+IRQ doesn't get delayed (as much).
 
-> regards
-> Marcel Siegert
+It would be nice if some of the process 
+accounting could be pipelined or deferred,
+but I don't have those answers right now.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Sven
 

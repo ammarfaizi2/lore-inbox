@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316823AbSE1QQn>; Tue, 28 May 2002 12:16:43 -0400
+	id <S316826AbSE1QUH>; Tue, 28 May 2002 12:20:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316838AbSE1QQm>; Tue, 28 May 2002 12:16:42 -0400
-Received: from smtp01.fields.gol.com ([203.216.5.131]:40205 "EHLO
-	smtp01.fields.gol.com") by vger.kernel.org with ESMTP
-	id <S316823AbSE1QQl>; Tue, 28 May 2002 12:16:41 -0400
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: "J.A. Magallon" <jamagallon@able.es>,
-        Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        Keith Owens <kaos@ocs.com.au>,
-        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] PentiumPro/II split in x86 config
-In-Reply-To: <3937.1022552654@kao2.melbourne.sgi.com>
-	<buo3cwdf0b0.fsf@mcspd15.ucom.lsi.nec.co.jp>
-	<20020528030200.GL20729@conectiva.com.br>
-	<20020528140322.GA6320@werewolf.able.es>
-	<15603.38007.42661.75173@kim.it.uu.se>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-From: Miles Bader <miles@gnu.org>
-Date: 29 May 2002 01:16:30 +0900
-Message-ID: <87r8jws0wx.fsf@tc-1-100.kawasaki.gol.ne.jp>
+	id <S316837AbSE1QUG>; Tue, 28 May 2002 12:20:06 -0400
+Received: from ares.sdinet.de ([195.21.215.20]:39948 "HELO ares.sdinet.de")
+	by vger.kernel.org with SMTP id <S316826AbSE1QUF>;
+	Tue, 28 May 2002 12:20:05 -0400
+Date: Tue, 28 May 2002 18:20:08 +0200 (CEST)
+From: Sven Koch <haegar@sdinet.de>
+X-X-Sender: haegar@space.comunit.de
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: 2.4.19-pre8-ac5 compile error on alpha
+Message-ID: <Pine.LNX.4.44.0205281818130.9506-100000@space.comunit.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Abuse-Complaints: abuse@gol.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson <mikpe@csd.uu.se> writes:
-> I agree with Keith that we really should prefer standard C solutions
-> over gcc-specific hacks _when_they_exist_.
+hi...
 
-Since portability to other compilers is really not an option with linux,
-it's a lot more important that the kernel code use a _consistent_
-convention than it use a `standard' one.
+make[1]: Leaving directory `/usr/src/linux'
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
+-pipe -mno-fp-regs -ffixed-8 -mcpu=ev5 -Wa,-mev6   -DKBUILD_BASENAME=main
+-c -o init/main.o init/main.c
+In file included from init/main.c:30:
+/usr/src/linux/include/linux/suspend.h:4: asm/suspend.h: No such file or
+directory
+In file included from /usr/src/linux/include/asm/semaphore.h:16,
+                 from /usr/src/linux/include/linux/fs.h:200,
+                 from /usr/src/linux/include/linux/capability.h:17,
+                 from /usr/src/linux/include/linux/binfmts.h:5,
+                 from /usr/src/linux/include/linux/sched.h:9,
+                 from /usr/src/linux/include/linux/mm.h:4,
+                 from /usr/src/linux/include/linux/slab.h:14,
+                 from /usr/src/linux/include/linux/proc_fs.h:5,
+                 from init/main.c:15:
+/usr/src/linux/include/linux/rwsem.h: In function `down_read_trylock':
+/usr/src/linux/include/linux/rwsem.h:57: warning: implicit declaration of
+function `__down_read_trylock'
+/usr/src/linux/include/linux/rwsem.h: In function `down_write_trylock':
+/usr/src/linux/include/linux/rwsem.h:79: warning: implicit declaration of
+function `__down_write_trylock'
+make: *** [init/main.o] Error 1
 
-So before recommending that people use a different syntax than the one
-historically used, are you going to run over the whole kernel and
-replace all the existing uses of `field:' with `.field = ' (and brave
-the flamewar that it would probably require)?
 
--Miles
+c'ya
+sven
+
 -- 
-Suburbia: where they tear out the trees and then name streets after them.
+
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)
+

@@ -1,86 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272140AbTGYPDc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 11:03:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272143AbTGYPCs
+	id S272149AbTGYPGG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 11:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272138AbTGYPDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 11:02:48 -0400
-Received: from dhcp065-024-128-253.columbus.rr.com ([65.24.128.253]:29330 "EHLO
-	doug.hunley.homeip.net") by vger.kernel.org with ESMTP
-	id S272141AbTGYPAx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 11:00:53 -0400
-From: Douglas J Hunley <doug@hunley.homeip.net>
-Organization: Linux StepByStep
-To: Valdis.Kletnieks@vt.edu
-Subject: Re: 2.6.0: Badness in pci_find_subsys!!
-Date: Fri, 25 Jul 2003 11:15:56 -0400
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <200307241326.04656.doug@hunley.homeip.net> <200307250345.h6P3jTDE011119@turing-police.cc.vt.edu>
-In-Reply-To: <200307250345.h6P3jTDE011119@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	Fri, 25 Jul 2003 11:03:41 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:41607 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S272142AbTGYPCp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 11:02:45 -0400
+Date: Fri, 25 Jul 2003 08:17:32 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Yaroslav Rastrigin <yarick@relex.ru>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: SCO offers UnixWare licenses for Linux
+Message-ID: <20030725151732.GA14606@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Yaroslav Rastrigin <yarick@relex.ru>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+References: <20030724234213.GA20064@work.bitmover.com> <20030725124306.GB19075@mail.jlokier.co.uk> <20030725063743.5f2a8e31.davem@redhat.com> <200307251909.03192.yarick@relex.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307251116.00714.doug@hunley.homeip.net>
+In-Reply-To: <200307251909.03192.yarick@relex.ru>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Jul 25, 2003 at 07:09:03PM +0400, Yaroslav Rastrigin wrote:
+> Hi !
+> On Friday 25 July 2003 17:37, David S. Miller wrote:
+> > On Fri, 25 Jul 2003 13:43:06 +0100
+> >
+> > Jamie Lokier <jamie@shareable.org> wrote:
+> > > Larry McVoy wrote:
+> > > > [...] the list is sick of this.  How about you do the list a favor
+> > > > [...]
+> > >
+> > > Who is "the list"?
+> >
+> > Me, now stop talking it as Larry suggests.
+> >
+> > People who start off-topic discussions are going to get yanked
+> > from vger, and there are no discussions about this.
+> So, please, point _me_ to ml where people could discuss this and related 
+> topics. Or suggest a way to be included in respective parties' CC list. 
+> "Stop annoying me, and I don't care why  you're annoying me" is somewhat 
+> selfish, IMHO.
 
-Valdis.Kletnieks@vt.edu shocked and awed us all by speaking:
-> On Thu, 24 Jul 2003 13:26:01 EDT, Douglas J Hunley <doug@hunley.homeip.net>  
-said:
-> > Just had my athlon box lock-up solid. needed SysRq to reboot the thing..
-> > kernel info follows:
-> > Jul 24 13:08:23 doug kernel: Badness in pci_find_subsys at
-> > drivers/pci/search.c:132
-> > Jul 24 13:08:23 doug kernel: Call Trace:
-> > Jul 24 13:08:23 doug kernel:  [<c02064a1>] pci_find_subsys+0x111/0x120
-> > Jul 24 13:08:23 doug kernel:  [<c02064df>] pci_find_device+0x2f/0x40
-> > Jul 24 13:08:23 doug kernel:  [<c0206368>] pci_find_slot+0x28/0x50
-> > Jul 24 13:08:23 doug kernel:  [<f8a2ada4>] os_pci_init_handle+0x3a/0x67
->
-> The 'badness in pci_find_subsys' may not be related to your hang.
->
-> The NVidia msgs are basically caused by the fact that pci_find_slot() is
-> getting called in an interrupt, so we trigger the WARN_ON in
-> pci_find_subsys(). The worry here is that we may be walking the PCI list on
-> the interrupt side while something else is hotplugging a new device into
-> existence, causing it to walk off the end of a inconsistent list.  Unless
-> you actually crapped out right at 13:08:23, it's probably unrelated.
-
-OK. But I don't have any hot-plugging enabled on this machine. Unless the 
-kernel is internally doing things...
-
-It crapped out within a matter of seconds. Started chewing up all available 
-system RAM, then went totally non-responsive to anything but SysRQ (couldn't 
-even kill X with CTRL-ALT-BKSP)
-
->
-> (I was getting the same NVidia traceback on a regular basis (3-4 at every
-> start of the X server, and 1 at X server shutdown) under 2.5.72-mm3, they
-> stopped when I went to 2.5.73-mm1.  If you're still seeing them in
-> 2.6.0-test1, I would suspect something different in the -mm series is
-> fixing them for me - first place to look is what got added between 72-mm3
-> and 73-mm1.
-
-I try to stick w/ Linus' tree, but I'll attempt to decipher the changelogs on 
-the -mm tree...
-- -- 
-Douglas J Hunley (doug at hunley.homeip.net) - Linux User #174778
-http://doug.hunley.homeip.net && http://www.linux-sxs.org
-
-It takes 47 muscles to frown, but only 4 to pull the trigger of a finely tuned 
-sniper rifle.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/IUms2MO5UukaubkRArquAJ9uQPVhVSXeyORENJtJxm3ROL9HxgCcDETj
-5SXTjSq70hlgXz56TErFDlk=
-=EKbw
------END PGP SIGNATURE-----
-
+gnu.misc.discuss is a good idea.  
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

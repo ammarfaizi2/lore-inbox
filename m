@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262386AbTIHOmf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 10:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbTIHOme
+	id S262248AbTIHOd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 10:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbTIHOd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 10:42:34 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3792 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262386AbTIHOmd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 10:42:33 -0400
-Date: Mon, 8 Sep 2003 15:42:32 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
-       Matthew Wilcox <willy@debian.org>,
-       Erik Andersen <andersen@codepoet.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel header separation
-Message-ID: <20030908144232.GP18654@parcelfarce.linux.theplanet.co.uk>
-References: <20030902191614.GR13467@parcelfarce.linux.theplanet.co.uk> <20030903014908.GB1601@codepoet.org> <20030905144154.GL18654@parcelfarce.linux.theplanet.co.uk> <20030905211604.GB16993@codepoet.org> <20030905232212.GP18654@parcelfarce.linux.theplanet.co.uk> <1063028303.32473.333.camel@hades.cambridge.redhat.com> <1063030329.21310.32.camel@dhcp23.swansea.linux.org.uk> <20030908142545.GA3926@gtf.org> <20030908143249.GA4462@gtf.org>
+	Mon, 8 Sep 2003 10:33:26 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:54914 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262248AbTIHOdX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 10:33:23 -0400
+Date: Mon, 8 Sep 2003 16:33:34 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Sven =?iso-8859-1?Q?K=F6hler?= <skoehler@upb.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [blockdevices/NBD] huge read/write-operations are splitted by the kernel
+Message-ID: <20030908143334.GS840@suse.de>
+References: <bjgh6a$82o$1@sea.gmane.org> <20030908085802.GH840@suse.de> <bjhtmm$crf$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030908143249.GA4462@gtf.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <bjhtmm$crf$1@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 08, 2003 at 10:32:49AM -0400, Jeff Garzik wrote:
-> On Mon, Sep 08, 2003 at 10:25:45AM -0400, Jeff Garzik wrote:
-> > Whenever I see "__u8", I think "non-standard, gcc-specific dependency"
+On Mon, Sep 08 2003, Sven Köhler wrote:
+> >You'll probably find that if you bump the max_sectors count if your
+> >drive to 256 from 255 (that is the default if you haven't set it), then
+> >you'll see 128kb chunks all the time.
 > 
-> Ignore this, I stand corrected:  these are kernel types.
-> 
-> Regardless, I still prefer the C99 size-specific types, as they are the
-> most portable across all compilers, and you can depend on the compiler
-> to provide them for you.  No need to define them yourself.
+> Why is 255 the default. It seems to be an inefficient value. Perhaps the 
+> NBD itself should set it to 256.
 
-bzzt.  glibc provides them, not gcc.
+To avoid 8-bit wrap arounds, basically. Not sure it's still very valid,
+you are free to compile your kernel with it set to 256. 2.6 uses 256 by
+default.
+
+> >See max_sectors[] array.
+> 
+> Well, i found the declaration, but i can't imagine how to set the values 
+> in it.
+
+You can grep for other examples in the kernel, I would imagine?
 
 -- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+Jens Axboe
+

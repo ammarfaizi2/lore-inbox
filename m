@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269742AbUH0A7D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269797AbUH0BEb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269742AbUH0A7D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 20:59:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269834AbUH0A4g
+	id S269797AbUH0BEb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 21:04:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269863AbUH0BBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 20:56:36 -0400
-Received: from community21.interfree.it ([213.158.70.80]:42923 "EHLO
-	community21.interfree.it") by vger.kernel.org with ESMTP
-	id S269830AbUH0AC1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 20:02:27 -0400
-Date: Fri, 27 Aug 2004 02:00:06 +0200
-From: Stelian Ionescu <carlomalone@interfree.it>
-To: Wichert Akkerman <wichert@wiggy.net>
-Cc: Andrew Morton <akpm@osdl.org>, jra@samba.org, torvalds@osdl.org,
-       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040827000006.GA6970@universe.org>
-Reply-To: carlomalone@interfree.it
-Mail-Followup-To: Wichert Akkerman <wichert@wiggy.net>,
-	Andrew Morton <akpm@osdl.org>, jra@samba.org, torvalds@osdl.org,
-	reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org, flx@namesys.com,
-	reiserfs-list@namesys.com
-References: <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1939276887.20040826114028@tnonline.net> <20040826024956.08b66b46.akpm@osdl.org> <839984491.20040826122025@tnonline.net> <m3llg2m9o0.fsf@zoo.weinigel.se> <1906433242.20040826133511@tnonline.net> <20040826113332.GL2612@wiggy.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
+	Thu, 26 Aug 2004 21:01:05 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:6047 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269797AbUH0Awy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 20:52:54 -0400
+Date: Thu, 26 Aug 2004 17:51:35 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Con Kolivas <kernel@kolivas.org>, Nuno Silva <nuno.silva@vgertech.com>
+cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Rick Lindsley <ricklind@us.ibm.com>
+Subject: Re: 2.6.9-rc1-mm1
+Message-ID: <93300000.1093567895@flay>
+In-Reply-To: <412E8475.5000505@kolivas.org>
+References: <20040826014745.225d7a2c.akpm@osdl.org> <412DC47B.4000704@kolivas.org> <200408261636.06857.rjw@sisk.pl> <412E11ED.7040300@kolivas.org> <52540000.1093553736@flay> <412E7004.3070503@kolivas.org> <412E824F.90704@vgertech.com> <412E8475.5000505@kolivas.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040826113332.GL2612@wiggy.net>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 01:33:32PM +0200, Wichert Akkerman wrote:
->Previously Spam wrote:
->>   How  so?  The whole idea is that the underlaying OS that handles the
->>   copying  should  also  know  to  copy  everything, otherwise you can
->>   implement  everything  into  applications  and  just  skip the whole
->>   filesystem part.
->
->UNIX doesn't have a copy systemcall, applications copy the data
->manually.
-couldn't sendfile(2) be used for that ?
-perhaps a flag parameter could be added to sendfile(2) which specifies
-whether to copy _all_ metadata if both fd's correspond to files, something
-like either O_METADATA or O_NOMETADATA
+--On Friday, August 27, 2004 10:46:45 +1000 Con Kolivas <kernel@kolivas.org> wrote:
 
--- 
-Stelian Ionescu aka fe[nl]ix
+> Nuno Silva wrote:
+>> Con Kolivas wrote:
+>>> If you're talking about using the embedded image viewer in kde, that 
+>>> spins on wait and wastes truckloads of cpu (a perfect example of poor 
+>>> coding). Try loading it an external viewer and it will be 1000 times 
+>>> faster. If you're talking about it keeping the disk too busy on the 
+>>> other hand, that's I/O scheduling.
+>>> 
+>> 
+>> The question is: "can a poorly coded app hang the system for 30secs?"
+>> 
+>> That's a DoS ;-)
+> 
+> It does not hang the system, only it's dependant tasks (ie other kde thingies)
 
-Quidquid latine dictum sit, altum viditur.
+the display app (not KDE), however, at least seems to deny X of enough time 
+that the mouse cursor won't move. Much badness! ;-)
+
+M.
+

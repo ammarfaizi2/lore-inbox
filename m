@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131661AbRBNVjg>; Wed, 14 Feb 2001 16:39:36 -0500
+	id <S130501AbRBNVq6>; Wed, 14 Feb 2001 16:46:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131665AbRBNVj0>; Wed, 14 Feb 2001 16:39:26 -0500
-Received: from saloma.stu.rpi.edu ([128.113.199.230]:37124 "HELO
-	incandescent.mp3revolution.net") by vger.kernel.org with SMTP
-	id <S131661AbRBNVjO>; Wed, 14 Feb 2001 16:39:14 -0500
-From: dilinger@mp3revolution.net
-Date: Wed, 14 Feb 2001 16:39:06 -0500
-To: Shawn Starr <Shawn.Starr@Home.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: piix.c and tuning question
-Message-ID: <20010214163906.A2085@incandescent.mp3revolution.net>
-In-Reply-To: <20010214023538.A26558@incandescent.mp3revolution.net> <3A8A38E7.569FD70E@Home.net>
+	id <S131281AbRBNVqs>; Wed, 14 Feb 2001 16:46:48 -0500
+Received: from [213.96.124.18] ([213.96.124.18]:21996 "HELO dardhal")
+	by vger.kernel.org with SMTP id <S130501AbRBNVqj>;
+	Wed, 14 Feb 2001 16:46:39 -0500
+Date: Wed, 14 Feb 2001 22:47:44 +0000
+From: José Luis Domingo López 
+	<jldomingo@crosswinds.net>
+To: linux-kernel@vger.kernel.org
+Subject: Are the sysctl and ptrace bugs already fixed ?
+Message-ID: <20010214224744.A1302@dardhal.mired.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3A8A38E7.569FD70E@Home.net>; from Shawn.Starr@Home.net on Wed, Feb 14, 2001 at 02:51:03AM -0500
-X-Operating-System: Linux incandescent 2.4.2-pre2 
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 14, 2001 at 02:51:03AM -0500, Shawn Starr wrote:
-> 
-> hmmm this is my chipset:
-> 
-> Which motherboard do you have?
+Hi everyone:
 
-No clue, it's an old p166, and I'm not about to open up the case..
+Last week there was some advisories on the Bugtraq mailing list about
+three problems with respect to both kernel series 2.2.x and 2.4.x. They
+were about two possible local exploits trough sysctl and ptrace, and a
+minor bug about machines with Pentium III processors (any local user could
+potentially halt the CPU). At least RedHat and Caldera released patched
+kernel packages for their distributions.
 
-> 
-> 00:00.0 Host bridge: Intel Corporation 430HX - 82439HX TXC [Triton II] (rev 03)
-> 00:07.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
-> 00:07.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]
-> 
-> i've had irq timeouts but they were due to a slow CD-ROM causing the two DMA drives to timeout (don't
-> know why).
-> 
-> ive never seen ide_dmaproc though.
+It seems that Alan Cox included a patch that fixes the sysctl()
+vulnerability in 2.2.18-pre9 (I suppose it was really 2.2.19-pre9). But
+with respect to the other two vulnerabilities on 2.2.x and the whole three
+in kernel series 2.4.x haven't been able to find any information in
+neither Bugtraq, nor in the Linux kernel development archives.
 
-Me neither, which is why I initially couldn't figure out what was
-wrong..  Since setting -X34, however, I haven't had any more ide problems.
+Am I missing something here ?.
 
-> 
-> This is my following hdparm config
-> 
-> hdparm -d 1 -X34 -u1 -k 1 /dev/hdb
-> hdparm -d 1 -X34 -u1 -k 1 /dev/hda
-
-I don't use -k1, since I rely on the OS to set features if something is
-messed up.
-
-Has -u1 made much of a difference for you?
-
-> 
-> for both drives, one of them us a UDMA66 but this Pentium 200Mhz cant do UDMA even ;/
-> 
-> I have a AP53/AX AcerOpen Motherboard.
-> 
-> Shawn.
-> 
+PS: first message on the list. Don't be too cruel with me :)
 
 -- 
-"... being a Linux user is sort of like living in a house inhabited
-by a large family of carpenters and architects. Every morning when
-you wake up, the house is a little different. Maybe there is a new
-turret, or some walls have moved. Or perhaps someone has temporarily
-removed the floor under your bed." - Unix for Dummies, 2nd Edition
-        -- found in the .sig of Rob Riggs, rriggs@tesser.com
+José Luis Domingo López
+Linux Registered User #189436     Debian GNU/Linux Potato (P166 64 MB RAM)
+ 
+jdomingo AT internautas DOT   org  => Spam at your own risk
+

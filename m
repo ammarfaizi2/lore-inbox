@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263626AbUCUKbL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 05:31:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263629AbUCUKbL
+	id S263627AbUCUKbO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 05:31:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263629AbUCUKbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sun, 21 Mar 2004 05:31:14 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:64431 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S263627AbUCUKbL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 21 Mar 2004 05:31:11 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:28650 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S263626AbUCUKbK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 05:31:10 -0500
-Message-ID: <405D6EE3.50207@colorfullife.com>
-Date: Sun, 21 Mar 2004 11:30:59 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Mundt <lethal@linux-sh.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: fixmap TLB flushing clarification
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Sun, 21 Mar 2004 02:31:08 -0800
+From: Frank Cusack <fcusack@fcusack.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Does Linux sync(2) wait?
+Message-ID: <20040321023107.A31553@google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->I'm curious about the last statement, is this to mean that a TLB entry will
->be reserved at set_fixmap() time in which the translation will happen, and
->that particular entry will be locked down for the duration of the mapping?
->  
->
-No. fixmap mappings are global - identical for all processes and all 
-cpus. Therefore it's not necessary to flush them during a task switch. 
-But that's just an optimization, not a mandatory feature:
-On x86 it's possible to mark page table entries as global. Global 
-entries are not flushed by the normal tlb flush command, this gives a 
-slighly better performance. If your architecture doesn't support that, 
-then you can just flush everything during a task switch. I think the 
-support for global entries was added for the Pentium cpus - 80486 cpus 
-flush the whole tlb cache during a task switch.
+Looking at 2.4 and 2.6 sources, Linux does appear to wait before returning.
+I'm especially interested if NFS data is sent to the server.  (I want to
+be able to take a stable snapshot of a netapp volume.)
 
---
-    Manfred
+But on my RHL 9 system, I have 3 different man pages and an info page,
+all of which say something different.
 
+sync(2) says:
 
+       According  to the standard specification (e.g., SVID), sync() schedules
+       the writes, but may return before the actual writing is done.  However,
+       since  version  1.3.20  Linux does actually wait. 
 
+sync(8) says:
+
+       On Linux, sync is only guaranteed to  schedule  the  dirty  blocks  for
+       writing;  it  can  actually take a short time before all the blocks are
+       finally written.  
+
+sync(1) is in the middle and doesn't really say anything, it refers to
+the info page which also isn't specific.
+
+/fc

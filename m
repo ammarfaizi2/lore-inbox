@@ -1,159 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263128AbTJKV7b (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 17:59:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263393AbTJKV7b
+	id S263412AbTJKWTH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 18:19:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTJKWTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 17:59:31 -0400
-Received: from mtiwmhc11.worldnet.att.net ([204.127.131.115]:10693 "EHLO
-	mtiwmhc11.worldnet.att.net") by vger.kernel.org with ESMTP
-	id S263128AbTJKV71 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 17:59:27 -0400
-Message-ID: <XFMail.20031011175859.f.duncan.m.haldane@worldnet.att.net>
-X-Mailer: XFMail 1.5.4 on Linux
-X-Priority: 3 (Normal)
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="_=XFMail.1.5.4.Linux:20031011175859:3234=_"
-Date: Sat, 11 Oct 2003 17:58:59 -0400 (EDT)
-From: Duncan Haldane <f.duncan.m.haldane@worldnet.att.net>
-To: linux-parport@torque.net, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       Tim Waugh <twaugh@redhat.com>
-Subject: [PATCH] Fix broken superio DMA support in parport_pc.c
+	Sat, 11 Oct 2003 18:19:06 -0400
+Received: from fluent2.pyramid.net ([206.100.220.213]:4996 "EHLO
+	fluent2.pyramid.net") by vger.kernel.org with ESMTP id S263406AbTJKWS7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 18:18:59 -0400
+X-Not-Legal-Opinion: IANAL I am not a lawyer
+X-For-Entertainment-Purposes-Only: True
+X-message-flag: Please update my contact to send plain-text mail only.
+Message-Id: <5.2.1.1.0.20031011150156.01127670@fluent2.pyramid.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Sat, 11 Oct 2003 15:16:52 -0700
+To: Willy TARREAU <willy@w.ods.org>
+From: Stephen Satchell <list@fluent2.pyramid.net>
+Subject: Re: Job Announcements (was Linux TCP/IP Stack Developer)
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, kernelnewbies@nl.linux.org
+In-Reply-To: <20031011212936.GA15198@pcw.home.local>
+References: <5.2.1.1.0.20031011130522.011e97b0@fluent2.pyramid.net>
+ <1065826508.1612.27.camel@localhost.localdomain>
+ <1065826508.1612.27.camel@localhost.localdomain>
+ <5.2.1.1.0.20031011130522.011e97b0@fluent2.pyramid.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format
---_=XFMail.1.5.4.Linux:20031011175859:3234=_
-Content-Type: text/plain; charset=us-ascii
+At 11:29 PM 10/11/2003 +0200, you wrote:
+>So the only way to prevent this from happening, is to forbid them to do it,
+>even if some people may miss one good opportunity. There are sites for this,
+>even newsgroups, so it clearly doesn't have its place here. I'm sure David
+>also has a lot of other reasons for this, but I sincerely think that the ones
+>I exposed here are already good justifications by themselves
 
-Hi
+Willy, I agree with almost every word.  I remember what happened to UseNet 
+and some of the early mailing lists when they became over-run with 
+commercial and self-serving messages (did someone say "kibo"?) and I don't 
+envy David his job.
 
-There is a bogus test for ECP mode in the Via 686 superio support
-in drivers/parport/parport_pc.c:sio_via_686a_probe(..) 
+Bald prohibitions are easy and nasty.  Prohibitions with a steer in the 
+right direction are just as easy, and comes across as more of a service to 
+everyone.  How much better it would have been for David to have 
+said  something with a positive twist:  "Don't do it here, do it at 
+linux-jobs@vger.kernel.org" or some such.  (Assuming such a list exists -- 
+and if there isn't such a list is it time to start one?)
 
+As for sites and newsgroups, though, I have to take exception to your 
+observation.  I have yet to find one that attracts both potential employers 
+and potential employees and keeps its listings current.  The closest I have 
+found to an active job list for Linux is Craig's List; sites such as 
+www.hotlinuxjobs.com are not very up-to-date in the offerings -- every time 
+I had tried to follow up on a listing from October 2002 to April 2003  I 
+was told "that job's already filled."  The general-purpose jobs sites (Hot 
+Jobs, Dice, America's Job Bank, and others) have some Linux jobs but 
+usually as part of a package of jobs, not in isolation.
 
-The incorrect test used is that superio register F0_5 == 0x1
-(this means "ECP+EPP" parport control mode is enabled; by default, it's not)
+I'd appreciate specifics on good sites for Linux people, both from the 
+perspective of an employer and a job seeker.
 
-The correct test should be register E2_0-1 == 0x01
-(This means Parport mode is ECP (BIOS setting))
-
-see the VT82C686A data sheet, page 45 and 46
-( available at http://www.via.com.tw/pdf/productinfo/686a.pdf )
-
-
-Patches against 2.4.23-pre7 and 2.6.0-test7 are attached.
-Who can help me push these into the kernels?
-
-These patches are fully tested.  Without it DMA was never enabled by
-the superio probe.  With it, it finally is.
-
-Duncan Haldane
-duncan _haldane at users dot sourceforge dot net
-----------------------------------------------
-
-diff -uNr linux-2.6.0-test7/drivers/parport/parport_pc.c
-linux-2.6.0-test7-superio_fix/drivers/parport/parport_pc.c
---- linux-2.6.0-test7/drivers/parport/parport_pc.c      Fri Sep 12 03:05:52 2003
-+++ linux-2.6.0-test7-superio_fix/drivers/parport/parport_pc.c  Sat Oct 11
-16:35:46 2003
-@@ -2564,7 +2564,7 @@
- {
-        u8 tmp;
-        int dma, irq;
--       unsigned port1, port2, have_eppecp;
-+       unsigned port1, port2, mode;
- 
-        /*
-         * unlock super i/o configuration, set 0x85_1
-@@ -2579,9 +2579,9 @@
-        
-        /* 0xE2_1-0: Parallel Port Mode / Enable */
-        outb (0xE2, 0x3F0);
--       tmp = inb (0x3F1);
-+       mode = inb (0x3F1) & 0x03;
-        
--       if ((tmp & 0x03) == 0x03) {
-+       if (mode == 0x03) {
-                printk (KERN_INFO "parport_pc: Via 686A parallel port disabled
-in BIOS\n");
-                return 0;
-        }
-@@ -2600,10 +2600,6 @@
-                return 0;
-        }
- 
--       /* 0xF0_5: EPP+ECP enable */
--       outb (0xF0, 0x3F0);
--       have_eppecp = (inb (0x3F1) & (1 << 5));
--       
-        /*
-         * lock super i/o configuration, clear 0x85_1
-         */
-@@ -2637,7 +2633,7 @@
-        }
- 
-        /* if ECP not enabled, DMA is not enabled, assumed bogus 'dma' value */
--       if (!have_eppecp)
-+       if (mode != 0x01)
-                dma = PARPORT_DMA_NONE;
- 
-        /* Let the user (or defaults) steer us away from interrupts and DMA */
+Satch
 
 
 
-----------------------------------
-E-Mail: Duncan Haldane <f.duncan.m.haldane@worldnet.att.net>
-Date: 11-Oct-2003
-Time: 17:27:23
+-- 
+"People who seem to have had a new idea have often just stopped having an 
+old idea." -- Dr. Edwin H. Land  
 
-This message was sent by XFMail
-----------------------------------
-
---_=XFMail.1.5.4.Linux:20031011175859:3234=_
-Content-Disposition: attachment; filename="README"
-Content-Transfer-Encoding: base64
-Content-Description: README
-Content-Type: application/octet-stream; name=README; SizeOnDisk=164
-
-UGF0Y2ggZml4ZXMgYnJva2VuIFZpYSA2ODZDIERNQSBhY3RpdmF0aW9uIGluIHBhcnBvcnRfcGMu
-Yzo6c2lvX3ZpYV82ODZhX3Byb2JlCihEdW5jYW4gSGFsZGFuZSA8ZHVuY2FuX2hhbGRhbmVAdXNl
-cnMuc291cmNlZm9yZ2UubmV0Pik7CjIuNC4yMy1wcmU3IGFuZCAyLjYuMC10ZXN0Nwo=
-
---_=XFMail.1.5.4.Linux:20031011175859:3234=_
-Content-Disposition: attachment; filename="parport_pc_superio_patch.tar.bz2"
-Content-Transfer-Encoding: base64
-Content-Description: parport_pc_superio_patch.tar.bz2
-Content-Type: application/octet-stream;
- name=parport_pc_superio_patch.tar.bz2; SizeOnDisk=1475
-
-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
-
---_=XFMail.1.5.4.Linux:20031011175859:3234=_--
-End of MIME message

@@ -1,144 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265701AbUADOkG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 09:40:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265707AbUADOkF
+	id S265604AbUADOoN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 09:44:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265675AbUADOoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 09:40:05 -0500
-Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:2432 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S265701AbUADOjy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 09:39:54 -0500
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Soeren Sonnenburg <kernel@nn7.de>, Willy Tarreau <willy@w.ods.org>,
-       Mark Hahn <hahn@physics.mcmaster.ca>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       gillb4@telusplanet.net
-In-Reply-To: <200401042345.33039.kernel@kolivas.org>
-References: <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca>
-	 <200401041949.27408.kernel@kolivas.org>
-	 <1073214820.6075.254.camel@nosferatu.lan>
-	 <200401042345.33039.kernel@kolivas.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-18n9lbloEierR8nenqoQ"
-Message-Id: <1073227359.6075.284.camel@nosferatu.lan>
+	Sun, 4 Jan 2004 09:44:13 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:54707 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S265604AbUADOoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 09:44:05 -0500
+Date: Sun, 4 Jan 2004 15:43:50 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Pentium M config option for 2.6
+Message-ID: <20040104144350.GD24913@louise.pinerecords.com>
+References: <200401041410.i04EA61e007769@harpo.it.uu.se>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 04 Jan 2004 16:42:39 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401041410.i04EA61e007769@harpo.it.uu.se>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Jan-04 2004, Sun, 15:10 +0100
+Mikael Pettersson <mikpe@csd.uu.se> wrote:
 
---=-18n9lbloEierR8nenqoQ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> On Date: Sun, 4 Jan 2004 13:33:58 +0100, Tomas Szepe wrote:
+> > > IOW, don't lie to the compiler and pretend P-M == P4
+> > > with that -march=pentium4.
+> > 
+> > What do you recommend to use as march then?  There is
+> > no pentiumm subarch support in gcc yet;  I was convinced
+> > p4 was the closest match.
+> 
+> march=pentium3 is the closest safe choice, at least
+> until gcc implements P-M specific support.
 
-On Sun, 2004-01-04 at 14:45, Con Kolivas wrote:
-> On Sun, 4 Jan 2004 22:13, Martin Schlemmer wrote:
-> > On Sun, 2004-01-04 at 10:49, Con Kolivas wrote:
-> > > > I added a fprintf(stderr, "%d\n", amount); to that code and indeed
-> > > > amount was *always* 1 no matter what I did (it even was 1 when the
-> > > > (dmesg/...) output came in fast). And jump scrolling would take pla=
-ce
-> > > > if amount > 59 in my case... can this still be not a schedulers iss=
-ue ?
-> > > >
-> > > >
-> > > > Looking at that how can it not be a scheduling problem ....
-> > >
-> > > Scheduling problem, yes; of a sort.
-> > >
-> > > Solution by altering the scheduler, no.
-> > >
-> > > My guess is that turning the xterm graphic candy up or down will chan=
-ge
-> > > the balance. Trying to be both gui intensive and a console is where i=
-t's
-> > > happening. On some hardware you are falling on both sides of the fenc=
-e
-> > > with 2.6 where previously you would be on one side.
-> >
-> > So its Ok for 'eye candy' to 'lag', but xmms should not skip?  Anyhow,
-> > its xterm that he have issues with, not gnome-terminal or such with
-> > transparency.  I smell something ...
->=20
-> Sigh...=20
->=20
-> Xmms was a simple test case long forgotten but most still think all I did=
- was=20
-> make an xmms scheduler. Deleting one character from sched.c before all of=
- my=20
-> patches would make the scheduler ideal for xmms. Any braindead idiot can =
-tune=20
-> a scheduler for just one application.
+Thanks, here's the updated patch.
 
-Well, its the favorite example 8)
-
->  An application that changes it's=20
-> behaviour dynamically well in the setting of a particular scheduler, thou=
-gh?=20
-> Should a scheduler be tuned to suit a coding style or quirk?=20
->=20
-
-But the scheduler changes to a particular application?  I still am of
-opinion that the current scheduler in mainline 'breaks' priorities ...
-call it dynamic tuning or whatever you like.  Now something gets
-priority while something else starves.
-
-> I should go back to lurking before people start calling me names. This th=
-read=20
-> has gone long enough for that. If I hadn't said anything it would have di=
-ed=20
-> out by now.
-
-Well, I have stayed out of this for months now, as its always 'they' at
-fault - that app, or piece of code.  Sure, I am one of those whining
-users, and I have no particular interest in the scheduler code - that
-is if it behaves like it should.  But whatever is in now, just do not
-behave as expected, and call it a feature or whatever you want, if it
-deviates the definition, then what should we call it?  Or if its a
-feature, can we have the weirdness in priorities disabled by default
-with a sysctl or sysfs switch?
-
-> Instead I'm drawing attention to my fundamentally flawed code.
->=20
-
-The scrolling is but one part.  Just starting an app, or running
-'vim /etc/fstab' for example takes ages some times, even with
-minimal load.  If xterm, gnome-term, aterm, multi-gnome-term,
-etc is broken, how do we fix it then?  What about some of the
-other issues?  If its a problem with those apps, why is it I still
-wonder what they are doing wrong, and it not fixed?
-
-Do not worry, _I_ will go back to lurking about this issue _again_,
-but after _once_again_ seeing a issue about this being blown off
-as being something wrong with 'it', and some facts (you did see
-that the skipping code for the other user _never_ kicked in)
-were just ignored, I just could not help myself - sorry.
-
-At least I will not experience those issues of the others, and
-hopefully Nick will not stop his work, or things change too much
-to adapt his patch.
+-- 
+Tomas Szepe <szepe@pinerecords.com>
 
 
-Thanks,
-
---=20
-Martin Schlemmer
-
---=-18n9lbloEierR8nenqoQ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQA/+CZfqburzKaJYLYRAuKlAJ9z3buW98T1Orl+DUSVpXUXEl50VQCfYieh
-4oOs29ZF1wRQIso9DPeeIuI=
-=DjKH
------END PGP SIGNATURE-----
-
---=-18n9lbloEierR8nenqoQ--
-
+diff -urN a/arch/i386/Kconfig b/arch/i386/Kconfig
+--- a/arch/i386/Kconfig	2004-01-04 03:10:01.000000000 +0100
++++ b/arch/i386/Kconfig	2004-01-04 03:06:09.000000000 +0100
+@@ -231,6 +231,13 @@
+ 	  correct cache shift, and applies any applicable Pentium III
+ 	  optimizations.
+ 
++config MPENTIUMM
++	bool "Pentium M (Banias/Centrino)"
++	help
++	  Select this for Intel Pentium M chips.  This option enables
++	  compile flags optimized for the chip, uses the correct cache
++	  shift, and applies any applicable Pentium III/IV optimizations.
++
+ config MK6
+ 	bool "K6/K6-II/K6-III"
+ 	help
+@@ -330,7 +337,7 @@
+ 	default "7" if MPENTIUM4 || X86_GENERIC
+ 	default "4" if MELAN || M486 || M386
+ 	default "5" if MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCRUSOE || MCYRIXIII || MK6 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || M586TSC || M586 || MVIAC3_2
+-	default "6" if MK7 || MK8
++	default "6" if MPENTIUMM || MK7 || MK8
+ 
+ config RWSEM_GENERIC_SPINLOCK
+ 	bool
+@@ -379,17 +386,17 @@
+ 
+ config X86_GOOD_APIC
+ 	bool
+-	depends on MK7 || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || MK8
++	depends on MK7 || MPENTIUMM || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || MK8
+ 	default y
+ 
+ config X86_INTEL_USERCOPY
+ 	bool
+-	depends on MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M586MMX || X86_GENERIC || MK8 || MK7
++	depends on MPENTIUMM || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M586MMX || X86_GENERIC || MK8 || MK7
+ 	default y
+ 
+ config X86_USE_PPRO_CHECKSUM
+ 	bool
+-	depends on MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || MK8 || MVIAC3_2
++	depends on MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCYRIXIII || MK7 || MK6 || MPENTIUMM || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || MK8 || MVIAC3_2
+ 	default y
+ 
+ config X86_USE_3DNOW
+@@ -512,7 +519,7 @@
+ 
+ config X86_TSC
+ 	bool
+-	depends on (MWINCHIP3D || MWINCHIP2 || MCRUSOE || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || M586TSC || MK8 || MVIAC3_2) && !X86_NUMAQ
++	depends on (MWINCHIP3D || MWINCHIP2 || MCRUSOE || MCYRIXIII || MK7 || MK6 || MPENTIUMM || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || M586TSC || MK8 || MVIAC3_2) && !X86_NUMAQ
+ 	default y
+ 
+ config X86_MCE
+diff -urN a/arch/i386/Makefile b/arch/i386/Makefile
+--- a/arch/i386/Makefile	2003-09-28 11:38:05.000000000 +0200
++++ b/arch/i386/Makefile	2004-01-04 03:02:52.000000000 +0100
+@@ -35,6 +35,7 @@
+ cflags-$(CONFIG_MPENTIUMII)	+= $(call check_gcc,-march=pentium2,-march=i686)
+ cflags-$(CONFIG_MPENTIUMIII)	+= $(call check_gcc,-march=pentium3,-march=i686)
+ cflags-$(CONFIG_MPENTIUM4)	+= $(call check_gcc,-march=pentium4,-march=i686)
++cflags-$(CONFIG_MPENTIUMM)	+= $(call check_gcc,-march=pentium3,-march=i686)
+ cflags-$(CONFIG_MK6)		+= $(call check_gcc,-march=k6,-march=i586)
+ # Please note, that patches that add -march=athlon-xp and friends are pointless.
+ # They make zero difference whatsosever to performance at this time.
+diff -urN a/include/asm-i386/module.h b/include/asm-i386/module.h
+--- a/include/asm-i386/module.h	2003-08-23 01:52:22.000000000 +0200
++++ b/include/asm-i386/module.h	2004-01-04 03:08:17.000000000 +0100
+@@ -28,6 +28,8 @@
+ #define MODULE_PROC_FAMILY "PENTIUMIII "
+ #elif defined CONFIG_MPENTIUM4
+ #define MODULE_PROC_FAMILY "PENTIUM4 "
++#elif defined CONFIG_MPENTIUMM
++#define MODULE_PROC_FAMILY "PENTIUMM "
+ #elif defined CONFIG_MK6
+ #define MODULE_PROC_FAMILY "K6 "
+ #elif defined CONFIG_MK7

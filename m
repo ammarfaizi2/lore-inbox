@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbUKJTSU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbUKJTUZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262096AbUKJTSU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 14:18:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbUKJTSU
+	id S262104AbUKJTUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 14:20:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbUKJTUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 14:18:20 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:46479 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262096AbUKJTSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 14:18:13 -0500
-Subject: Re: CELF interest in suspend-to-flash
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Tim Bird <tim.bird@am.sony.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <20041110154136.GA12444@logos.cnet>
-References: <419256F8.3010305@am.sony.com>
-	 <1100109991.12290.41.camel@desktop.cunninghams>
-	 <20041110154136.GA12444@logos.cnet>
+	Wed, 10 Nov 2004 14:20:24 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:61649 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262104AbUKJTTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 14:19:51 -0500
+Subject: Re: IT8212 in 2.6.9-ac6 no raid 0 or raid 1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Robert Toole <robert.toole@kuehne-nagel.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4192308C.3060100@kuehne-nagel.com>
+References: <418FE1B3.8020203@kuehne-nagel.com>
+	 <1099956451.14146.4.camel@localhost.localdomain>
+	 <4192308C.3060100@kuehne-nagel.com>
 Content-Type: text/plain
-Message-Id: <1100114233.3876.4.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 11 Nov 2004 06:17:14 +1100
 Content-Transfer-Encoding: 7bit
+Message-Id: <1100110612.20556.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 10 Nov 2004 18:16:53 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mer, 2004-11-10 at 15:15, Robert Toole wrote:
+> I installed -ac7 yesterday, and have been testing for 24 hours now with 
+> no problems. (It's way better than the scsi hack from ITE) There is just 
+> one thing, the driver did not enable DMA by default, needless to say 
+> performance was awful. I turned it on with hdparm and everything appears 
+> ok. Is this by design due to the experimental nature of the driver?
 
-On Thu, 2004-11-11 at 02:41, Marcelo Tosatti wrote:
-> On Thu, Nov 11, 2004 at 05:06:31AM +1100, Nigel Cunningham wrote:
-> > Hi.
-> > 
-> > On Thu, 2004-11-11 at 04:59, Tim Bird wrote:
-> > > Hi all,
-> > > 
-> > > Lately, the CE Linux Forum power management working group is showing some
-> > > interest in suspend-to-flash.  Is there any current work in this area?
-> > > 
-> > > Who should we talk to if we want to get involved with this (or lead
-> > > an effort if there isn't one)?
-> > 
-> > Can flash be treated as a swap device at the moment? If so, it might
-> > simply be a matter of specifying the same parameter used in swapon for
-> > the resume2= boot parameter.
+Ah that is a bug. Please send me more info - drive info, hdparm etc.
+
 > 
-> Sure, you only need to have the flash as a block device (ie driven 
-> by the IDE code).
+> I am testing by copying about 400 mb of files from one folder to another 
+> on the raid array, over and over again. Is there a howto or test 
+> software out there for better method to *really* hammer on the driver?
 
-Cool. In that case, it should work fine with either swsusp (the mainline
-implementation) or suspend2.
-
-Regards,
-
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
+Just use it. Its been hammered a lot as part of my testing but the
+moment other people just use it it breaks ;) 
 

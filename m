@@ -1,27 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261463AbSKRF21>; Mon, 18 Nov 2002 00:28:27 -0500
+	id <S261486AbSKRF2s>; Mon, 18 Nov 2002 00:28:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261486AbSKRF21>; Mon, 18 Nov 2002 00:28:27 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:32529 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S261463AbSKRF21>;
-	Mon, 18 Nov 2002 00:28:27 -0500
-Date: Mon, 18 Nov 2002 00:34:32 -0500 (EST)
-Message-Id: <200211180534.gAI5YWw237230@saturn.cs.uml.edu>
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-To: linux-kernel@vger.kernel.org, Mario.Holbe@RZ.TU-limenau.DE,
-       alan@lxorguk.ukuu.org.uk, tim@physik3.uni-rostock.de
-Subject: Re: /proc/stat interface and 32bit jiffies / kernel_stat
+	id <S261492AbSKRF2s>; Mon, 18 Nov 2002 00:28:48 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:40681 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261486AbSKRF2r>;
+	Mon, 18 Nov 2002 00:28:47 -0500
+Date: Sun, 17 Nov 2002 21:33:19 -0800 (PST)
+Message-Id: <20021117.213319.39848385.davem@redhat.com>
+To: katta@csee.wvu.edu
+Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Compiling packages from source on Ultrasparc
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1037581211.30240.17.camel@indus.csee.wvu.edu>
+References: <1037581211.30240.17.camel@indus.csee.wvu.edu>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Shanti Katta <katta@csee.wvu.edu>
+   Date: 17 Nov 2002 20:00:11 -0500
 
-> "ps" will report processes started before the jiffies wrap
-> as being started in the future, but this won't do any harm.
+   I understand that userland is 32-bit on Ultrasparc. I am trying to
+   compile user-mode-linux on Ultrasparc,
 
-Sure it does harm. You might kill the wrong process,
-like so:
-
-pgrep -n foo      # kill the newest foo
-
-The CPU usage stats in "top" will also be horribly messed up.
+Maybe after you post about this ordeal 500 more times, someone
+will answer.

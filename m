@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267514AbUBSTrk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 14:47:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267515AbUBSTr2
+	id S267506AbUBSTui (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 14:50:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267508AbUBSTuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 14:47:28 -0500
-Received: from mail.kroah.org ([65.200.24.183]:9631 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267514AbUBSTrC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 14:47:02 -0500
-Date: Thu, 19 Feb 2004 11:46:10 -0800
-From: Greg KH <greg@kroah.com>
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: HOWTO use udev to manage /dev
-Message-ID: <20040219194610.GB13934@kroah.com>
-References: <20040219191636.GC10527@kroah.com> <Pine.LNX.4.44.0402191933350.26894-100000@phoenix.infradead.org>
-Mime-Version: 1.0
+	Thu, 19 Feb 2004 14:50:37 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38411 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S267506AbUBSTtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 14:49:15 -0500
+Message-ID: <40351306.1080207@zytor.com>
+Date: Thu, 19 Feb 2004 11:48:22 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Tridge <tridge@samba.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Jamie Lokier <jamie@shareable.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
+References: <Pine.LNX.4.58.0402181422180.2686@home.osdl.org> <Pine.LNX.4.58.0402181427230.2686@home.osdl.org> <16435.60448.70856.791580@samba.org> <Pine.LNX.4.58.0402181457470.18038@home.osdl.org> <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org> <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org> <Pine.LNX.4.58.0402191150120.1270@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0402191150120.1270@ppc970.osdl.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0402191933350.26894-100000@phoenix.infradead.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 07:36:07PM +0000, James Simmons wrote:
+Linus Torvalds wrote:
 > 
-> Here is a question for you. Presently both the serial ttys and VT ttys 
-> share the same major number. Minor number 1 to 63 is allocated to the VTs 
-> and 64 and above to serial ttys. One of the great limitations for my home 
-> system is that I can have only 63 VTs. Can udev work around this 
-> limitation?
+> On Thu, 19 Feb 2004, Linus Torvalds wrote:
+> 
+>>Basic approach: add two bits to the VFS dentry flags. That's all that is 
+>>needed. Then you have two new system calls:
+> 
+>                         ^^^
+> 
+>> - set_bit_one(dirfd)
+>> - set_bit_two_if_one_is_set(dirfd);
+>> - check_or_create_name(dirfd, name, case_table_pointer, newfd);
+> 
+> 
+>  [ deletia ]
+> 
+> 
+>>Am I a super-intelligent bastard, or am I a complete nincompoop? You
+>>decide.
+> 
+> 
+> I think my lack of counting ability basically answers that question.
+> 
+> Damn.
+> 
 
-udev can create different /dev nodes for these devices.  But as udev
-does not modify the kernel code at all, it can not "solve" the
-duplication of numbers in the kernel at all.  Nor is it meant to.
+How about a compomise - super-intelligent complete nincompoop bastard?
 
-Hope this helps,
+[:^)
 
-greg k-h
+	-hpa
+

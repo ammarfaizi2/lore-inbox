@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131102AbRA2WJF>; Mon, 29 Jan 2001 17:09:05 -0500
+	id <S130993AbRA2WOf>; Mon, 29 Jan 2001 17:14:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131091AbRA2WI4>; Mon, 29 Jan 2001 17:08:56 -0500
-Received: from [64.64.109.142] ([64.64.109.142]:24583 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S130400AbRA2WIq>; Mon, 29 Jan 2001 17:08:46 -0500
-Message-ID: <3A75E9C9.15A19548@didntduck.org>
-Date: Mon, 29 Jan 2001 17:08:09 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rasmus Andersen <rasmus@jaquet.dk>
-CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make drivers/scsi/seagate.c use ioremap instead of 
- isa_{read,write} (241p11)
-In-Reply-To: <20010129225907.M603@jaquet.dk>
+	id <S131034AbRA2WO0>; Mon, 29 Jan 2001 17:14:26 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:22882 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S130993AbRA2WOT>;
+	Mon, 29 Jan 2001 17:14:19 -0500
+Message-ID: <20010129231345.A10578@win.tue.nl>
+Date: Mon, 29 Jan 2001 23:13:45 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: "mirabilos" <eccesys@topmail.de>,
+        "Linux-Kernel ML" <linux-kernel@vger.kernel.org>,
+        "Andreas Huppert" <Andreas.Huppert@philosys.de>
+Subject: Re: dos-partition mount bug
+In-Reply-To: <200101292042.VAA22591@mail.philosys.de> <030301c08a35$43499750$0100a8c0@homeip.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <030301c08a35$43499750$0100a8c0@homeip.net>; from mirabilos on Mon, Jan 29, 2001 at 08:44:56PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rasmus Andersen wrote:
-> 
-> Hi.
-> 
-> (I have not been able to find a probable current maintainer for
-> this code.)
-> 
-> The following patch makes drivers/scsi/seagate.c use ioremap
-> instead of isa_{read, write}.
-> 
-> It applies against ac12 and 241p11.
-> 
-> Please comment, esp. on the size of the remappings.
+On Mon, Jan 29, 2001 at 08:44:56PM -0000, mirabilos wrote:
+> AFAICS the fs isn't corrupt.
+> No further idea.
 
-This isn't the proper way to use ioremap.  You should only ioremap once
-when the driver is loaded and save the mapped address.  Since ioremap
-special cases ISA addresses, it doesn't add much overhead the way you
-are doing it, but it is still not consistent with normal non-ISA usage
-of ioremap.
+surely, if you have a given fs image that fails to mount,
+it is entirely straightforward to find why the kernel dislikes it
 
---
-
-				Brian Gerst
+you may send an url (for the first few MB of the fs) to aeb@cwi.nl
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

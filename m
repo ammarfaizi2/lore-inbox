@@ -1,157 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVCMVio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVCMVjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbVCMVio (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 16:38:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVCMVin
+	id S261466AbVCMVjS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 16:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVCMViw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 16:38:43 -0500
-Received: from ipx10069.ipxserver.de ([80.190.240.67]:9194 "EHLO codeblau.de")
-	by vger.kernel.org with ESMTP id S261465AbVCMVi1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 16:38:27 -0500
-Date: Sun, 13 Mar 2005 22:31:45 +0100
-From: Felix von Leitner <felix-linuxkernel@fefe.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, cpufreq@ZenII.linux.org.uk
-Subject: Re: 2.6.11: USB broken on nforce4, ipv6 still broken, centrino speedstep even more broken than in 2.6.10
-Message-ID: <20050313213144.GB16224@codeblau.de>
-References: <20050311202122.GA13205@fefe.de> <20050311173517.7fe95918.akpm@osdl.org>
+	Sun, 13 Mar 2005 16:38:52 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:26068 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261466AbVCMVih convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 16:38:37 -0500
+Date: Sun, 13 Mar 2005 13:37:02 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: pluto@pld-linux.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [2.6.11.3] gcc4 / psmouse.h - compilation fix.
+Message-Id: <20050313133702.081001e9.pj@engr.sgi.com>
+In-Reply-To: <200503131230.03938.dtor_core@ameritech.net>
+References: <200503131420.12554.pluto@pld-linux.org>
+	<200503131148.46417.dtor_core@ameritech.net>
+	<200503131754.31244.pluto@pld-linux.org>
+	<200503131230.03938.dtor_core@ameritech.net>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="+HP7ph2BbKc20aGI"
-Content-Disposition: inline
-In-Reply-To: <20050311173517.7fe95918.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dmitry, responding to Pawe__:
+> > IMHO each header (e.g. psmouse.h) should include headers for types it uses.
+> > 
+> 
+> Hmm, I thought it was other way around 
 
---+HP7ph2BbKc20aGI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I tend to agree with Pawe__ here.
 
-Thus spake Andrew Morton (akpm@osdl.org):
-> > Finally Centrino SpeedStep.
-> > I have a "Intel(R) Pentium(R) M processor 1.80GHz" in my notebook.
-> > Linux does not support it.  This architecture has been out there for
-> > months now, and there even was a patch to support it posted here a in
-> > October last year or so.  Linux still does not include it.  Until
-> > 2.6.11-rc4-bk8 or so, the old patched file from back then still worked.
-> > Now it doesn't.  Because some interface changed.  Now what?  Using a
-> > Centrino notebook without CPU throttling is completely out of the
-> > question.  Linux might as well not boot on it at all.
-> Could you please dig out the old patch, send it?
+There are two extremes here that I would avoid.  Do not try to include
+in source files every header that is directly or indirectly needed, nor
+try to minimize inclusions in header files by relying on every possible
+prerequisite inclusion by the includers of that header.
 
-I didn't keep the patch, but I kept the patched C file.
-I'll attach it.
+Rather - think about the interface presented and used.
 
-Felix
+A source file should include headers for everything that it manifestly
+makes use of (even if that means it happened to include something that
+was also indirectly included elsewhere).  And no more.
 
---+HP7ph2BbKc20aGI
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="centrino-speedstep.tar.gz"
-Content-Transfer-Encoding: base64
+A header file should provide all the inclusions that its users
+(includers) will need to make use of what is in that header file,
+without presuming that any user will already have included something
+else.  And no less.
 
-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
+In this case, it seems that the header drivers/input/mouse/psmouse.h
+requires the size of a struct ps2dev.  So I would think that psmouse.h
+should include linux/libps2.h, as this patch provides for.  The users
+of psmouse.h should not have to know of this dependency.
 
---+HP7ph2BbKc20aGI--
+Respect the interfaces.  They are one of the means whereby we partial
+out responsibility for keeping code sane, in the face of rapid,
+conflicting changes from many developers across many architectures and
+drivers, where no one individual can test all possible configurations.
+
+A user of psmouse.h should not be required to include the libps2.h
+header, because someday a user of psmouse.h that didn't do this, but was
+working anyway because it happened to get libps2.h from some other
+indirect inclusion, will get broken when someone working in a quite
+different area happens to deprive our hapless psmouse.h user of its
+libps2.h.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

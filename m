@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264942AbUAaRHN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 12:07:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264954AbUAaRHN
+	id S264933AbUAaQ6S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 11:58:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264936AbUAaQ6S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 12:07:13 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:52229 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264942AbUAaRHM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 12:07:12 -0500
-Date: Sat, 31 Jan 2004 17:07:10 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       nathans@sgi.com
-Subject: Re: 2.6.2-rc2 nfsd+xfs spins in i_size_read()
-Message-ID: <20040131170710.A581@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Miquel van Smoorenburg <miquels@cistron.nl>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	nathans@sgi.com
-References: <bv8qr7$m2v$1@news.cistron.nl> <20040128222521.75a7d74f.akpm@osdl.org> <20040130202155.GM25833@drinkel.cistron.nl> <20040130221353.GO25833@drinkel.cistron.nl> <20040130143459.5eed31f0.akpm@osdl.org> <20040130225353.A26383@infradead.org> <20040130151316.40d70ed3.akpm@osdl.org> <20040131012507.GQ25833@drinkel.cistron.nl>
+	Sat, 31 Jan 2004 11:58:18 -0500
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:27867 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S264933AbUAaQ6G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 11:58:06 -0500
+Date: Sat, 31 Jan 2004 17:58:02 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: khubd crash on scanner disconnect
+Message-ID: <20040131165802.GA24942@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20040130173656.GA4570@merlin.emma.line.org> <20040130191453.GA7173@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040131012507.GQ25833@drinkel.cistron.nl>; from miquels@cistron.nl on Sat, Jan 31, 2004 at 02:25:07AM +0100
+In-Reply-To: <20040130191453.GA7173@kroah.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's an (untested) quickhack to take i_sem in linvfs_getattr.
-I'll try to come up with a real fix next week.
+On Fri, 30 Jan 2004, Greg KH wrote:
 
---- 1.39/fs/xfs/linux/xfs_iops.c	Fri Jan  9 01:07:07 2004
-+++ edited/fs/xfs/linux/xfs_iops.c	Sat Jan 31 18:41:44 2004
-@@ -478,8 +478,11 @@
- 	vnode_t		*vp = LINVFS_GET_VP(inode);
- 	int		error = 0;
- 
--	if (unlikely(vp->v_flag & VMODIFIED))
-+	if (unlikely(vp->v_flag & VMODIFIED)) {
-+		down(&inode->i_sem);
- 		error = vn_revalidate(vp);
-+		up(&inode->i_sem);
-+	}
- 	if (!error)
- 		generic_fillattr(inode, stat);
- 	return 0;
+> Known bug, don't use that module, it's OBSOLETED.  Use xscane and libusb
+> instead.
+
+You mean xsane, or any other stuff that uses original SANE backends,
+Epkowa's iscan doesn't appear to work yet (but seems to require the
+scanner module still), see sane-devel archives:
+http://lists.alioth.debian.org/pipermail/sane-devel/2003-December/009803.html
+
+JFTR, my /etc/sane.d/epson.conf (SANE 1.0.10 here) now has:
+
+# /etc/sane.d/epson.conf
+# I personally don't need this:
+scsi EPSON
+# adjust the hex numbers to vendor and product as printed
+# by sane-find-scanner, this is for instance an Epson Perfection 1650:
+usb libusb
+usb 0x04b8 0x0110
+
+KHK's "epson" backend seems to work fine though. scanimage -L, xsane.
+
+-- 
+Matthias Andree
+
+Encrypt your mail: my GnuPG key ID is 0x052E7D95

@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129790AbRBBPye>; Fri, 2 Feb 2001 10:54:34 -0500
+	id <S129816AbRBBQEe>; Fri, 2 Feb 2001 11:04:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129816AbRBBPyX>; Fri, 2 Feb 2001 10:54:23 -0500
-Received: from cloudburst.umist.ac.uk ([130.88.119.66]:35602 "EHLO
-	cloudburst.umist.ac.uk") by vger.kernel.org with ESMTP
-	id <S129790AbRBBPyM>; Fri, 2 Feb 2001 10:54:12 -0500
-From: T.Stewart@student.umist.ac.uk
-To: linux-kernel@vger.kernel.org
-Date: Fri, 2 Feb 2001 15:55:31 -0000
+	id <S129875AbRBBQEZ>; Fri, 2 Feb 2001 11:04:25 -0500
+Received: from colorfullife.com ([216.156.138.34]:19216 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129816AbRBBQEL>;
+	Fri, 2 Feb 2001 11:04:11 -0500
+Message-ID: <3A7ADA84.6892DE07@colorfullife.com>
+Date: Fri, 02 Feb 2001 17:04:20 +0100
+From: Manfred <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-pre11 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: DFE-530TX with no mac address
-Message-ID: <3A7AD873.821.F1A284@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+To: mingo@redhat.com, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+        linux-kernel@vger.kernel.org
+Subject: mpparse.c question
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-I have a D-Link DFE-530TX Rev A, PCI ethernet card, but it refuses 
-to work.
+I've started cleaning up mpparse.c/ioapic.c for the addition of acpi
+support, but I got stuck in the mess of global variables.
 
-I have looked at http://www.scyld.com/network/index.html#pci 
-which sugests using the via-rhine driver.
+What's the purpose of of the irq_2_pin in io_apic.c?
 
-I did this and compiled it into the kernel. It detects it at boot (via-
-rhine v1.08-LK1.1.6 8/9/2000 Donald Becker) but says the 
-hardware address (mac address?) is 00-00-00-00-00-00.
+I assume that I overlook something, but afaics the code allows one
+physical interrupt source (e.g. INTA from device 9 on pci bus 0) to
+arrive at multiple ioapic pins.
 
-The card is not a DF-530TX or a DFE-530TX+ AFAIK.
+Can that happen, is that important?
 
-www.d-link.com don't do linux drivers or say anything about linux.
+Silly question: Why can't we ignore all but the first pin? If we don't
+enable the additional pins, we don't have to disable them during
+disable_irq().
 
-The card works perfect with d-link drivers in win98 and w2k.
+disable_irq() and enable_irq() seem to be the only users of irq_2_pin.
 
-Whats the differance between via-rhine in 2.2.18 and 2.4.1?
+Btw, is is correct that the isa irq's are always connected to the first
+io apic? find_isa_irq_pin() doesn't handle that, and the caller just
+access io apic 0.
 
-Can any one help?
-
-Thanks for reading
-
-tom
-(can u cc replys to me)
-
-Some more info:-
-pci device 00:0a.0
-io=0xD400
-irq=9
-
-linux-2.4.1
-glibc-2.2.1
-gcc-2.95.3
-
-ps I have tryed to exaust all prosabilitys before posting here, and I 
-am sorry if this is stupid, its my first post to linux-kernel!
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

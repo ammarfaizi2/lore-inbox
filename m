@@ -1,87 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262338AbVBKUpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbVBKUwu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262338AbVBKUpU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 15:45:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbVBKUpT
+	id S262337AbVBKUwu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 15:52:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbVBKUwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 15:45:19 -0500
-Received: from mms-nat.broadcom.com ([63.70.210.58]:57099 "EHLO
-	MMS3.broadcom.com") by vger.kernel.org with ESMTP id S262339AbVBKUo2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 15:44:28 -0500
-X-Server-Uuid: 35E76369-CF33-4172-911A-D1698BD5E887
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: [PATCH] tg3: capacitive coupling detection fix
-Date: Fri, 11 Feb 2005 12:44:10 -0800
-Message-ID: <B1508D50A0692F42B217C22C02D84972020F3D93@NT-IRVA-0741.brcm.ad.broadcom.com>
-X-MS-Has-Attach: yes
-Thread-Topic: [PATCH] tg3: capacitive coupling detection fix
-thread-index: AcUQenBthEVwCOEDSUG7grDnD7JTOg==
-From: "Michael Chan" <mchan@broadcom.com>
-To: "David S. Miller" <davem@davemloft.net>
-cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-       "john stultz" <johnstul@us.ibm.com>
-X-WSS-ID: 6E13C6902WC2342986-01-01
-Content-Type: multipart/mixed;
- boundary="----_=_NextPart_001_01C5107A.707CC563"
+	Fri, 11 Feb 2005 15:52:49 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:53469 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262337AbVBKUwp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 15:52:45 -0500
+Subject: Ext2/3 32-bit stat() wrap for ~2TB files
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       "Theodore Ts'o" <tytso@mit.edu>, Alex Tomas <alex@clusterfs.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Andreas Dilger <adilger@clusterfs.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Stephen Tweedie <sct@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1108155135.1944.196.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Fri, 11 Feb 2005 20:52:16 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi all,
 
-------_=_NextPart_001_01C5107A.707CC563
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+In testing large (>4TB) device support on 2.6, I've been using a simple
+write/verify test to check both block device and regular file
+correctness. 
 
-This patch fixes the problem reported in:
+Set to write 1MB poison patterns for the whole of a file until EOF is
+encountered, it worked just fine on ext3: the file got a short write on
+the last write, leaving the file at its largest permitted size of
+0x1fffffff000 (2^32 sectors minus a page.)  Verify works fine.
 
-http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D110798711911645&w=3D2
+This 2^32 sector limit is set in ext3_max_size(), which has the comment
 
+/*
+ * Maximal file size.  There is a direct, and {,double-,triple-}indirect
+ * block limit, and also a limit of (2^32 - 1) 512-byte sectors in i_blocks.
+ * We need to be 1 filesystem block less than the 2^32 sector limit.
+ */
 
-The 5700 link problem was caused by reading uninitialized values in sram =
-and
-causing capacitive coupling mode to be enabled by mistake. This patch =
-fixes
-the problem by properly validating the sram contents.
+Trouble is, that limit *should* be an i_blocks limit, because i_blocks
+is still 32-bits, and (more importantly) is multiplied by the fs
+blocksize / 512 in stat(2) to return st_blocks in 512-byte chunks. 
+Overflow 2^32 sectors in i_blocks and stat(2) wraps.
 
+But i_blocks includes indirect blocks as well as data, so for a
+non-sparse file we wrap stat(2) st_blocks well before the file is
+2^32*512 bytes long.  Yet ext3_max_size() doesn't understand this:
+it simply caps the size with
 
-Signed-off-by: Michael Chan <mchan@broadcom.com>
+	if (res > (512LL << 32) - (1 << bits))
+		res = (512LL << 32) - (1 << bits);
 
-------_=_NextPart_001_01C5107A.707CC563
-Content-Type: application/octet-stream;
- name=tg3_cap_cpling.patch
-Content-Transfer-Encoding: base64
-Content-Description: tg3_cap_cpling.patch
-Content-Disposition: attachment;
- filename=tg3_cap_cpling.patch
+so write() keeps writing past the wrap, resulting in a file which looks
+like:
 
-ZGlmZiAtTnJ1IDIvdGczLmMgMy90ZzMuYwotLS0gMi90ZzMuYwkyMDA1LTAyLTEwIDEwOjIyOjM5
-LjAwMDAwMDAwMCAtMDgwMAorKysgMy90ZzMuYwkyMDA1LTAyLTEwIDEwOjI2OjQyLjAwMDAwMDAw
-MCAtMDgwMApAQCAtNzUxNSwxMiArNzUxNSwxOCBAQAogCXRnM19yZWFkX21lbSh0cCwgTklDX1NS
-QU1fREFUQV9TSUcsICZ2YWwpOwogCWlmICh2YWwgPT0gTklDX1NSQU1fREFUQV9TSUdfTUFHSUMp
-IHsKIAkJdTMyIG5pY19jZmcsIGxlZF9jZmc7Ci0JCXUzMiBuaWNfcGh5X2lkLCBjZmcyOworCQl1
-MzIgbmljX3BoeV9pZCwgdmVyLCBjZmcyID0gMDsKIAogCQl0ZzNfcmVhZF9tZW0odHAsIE5JQ19T
-UkFNX0RBVEFfQ0ZHLCAmbmljX2NmZyk7CiAJCXRwLT5uaWNfc3JhbV9kYXRhX2NmZyA9IG5pY19j
-Zmc7CiAKLQkJdGczX3JlYWRfbWVtKHRwLCBOSUNfU1JBTV9EQVRBX0NGR18yLCAmY2ZnMik7CisJ
-CXRnM19yZWFkX21lbSh0cCwgTklDX1NSQU1fREFUQV9WRVIsICZ2ZXIpOworCQl2ZXIgPj49IE5J
-Q19TUkFNX0RBVEFfVkVSX1NISUZUOworCQlpZiAoKEdFVF9BU0lDX1JFVih0cC0+cGNpX2NoaXBf
-cmV2X2lkKSAhPSBBU0lDX1JFVl81NzAwKSAmJgorCQkgICAgKEdFVF9BU0lDX1JFVih0cC0+cGNp
-X2NoaXBfcmV2X2lkKSAhPSBBU0lDX1JFVl81NzAxKSAmJgorCQkgICAgKEdFVF9BU0lDX1JFVih0
-cC0+cGNpX2NoaXBfcmV2X2lkKSAhPSBBU0lDX1JFVl81NzAzKSAmJgorCQkgICAgKHZlciA+IDAp
-ICYmICh2ZXIgPCAweDEwMCkpCisJCQl0ZzNfcmVhZF9tZW0odHAsIE5JQ19TUkFNX0RBVEFfQ0ZH
-XzIsICZjZmcyKTsKIAogCQllZXByb21fc2lnbmF0dXJlX2ZvdW5kID0gMTsKIApkaWZmIC1OcnUg
-Mi90ZzMuaCAzL3RnMy5oCi0tLSAyL3RnMy5oCTIwMDUtMDItMTAgMTA6MjI6NDMuMDAwMDAwMDAw
-IC0wODAwCisrKyAzL3RnMy5oCTIwMDUtMDItMTAgMTA6MjY6NDQuMDAwMDAwMDAwIC0wODAwCkBA
-IC0xNDUyLDYgKzE0NTIsOSBAQAogI2RlZmluZSAgTklDX1NSQU1fREFUQV9DRkdfRklCRVJfV09M
-CQkgMHgwMDAwNDAwMAogI2RlZmluZSAgTklDX1NSQU1fREFUQV9DRkdfTk9fR1BJTzIJCSAweDAw
-MTAwMDAwCiAKKyNkZWZpbmUgTklDX1NSQU1fREFUQV9WRVIJCQkweDAwMDAwYjVjCisjZGVmaW5l
-ICBOSUNfU1JBTV9EQVRBX1ZFUl9TSElGVAkJIDE2CisKICNkZWZpbmUgTklDX1NSQU1fREFUQV9Q
-SFlfSUQJCTB4MDAwMDBiNzQKICNkZWZpbmUgIE5JQ19TUkFNX0RBVEFfUEhZX0lEMV9NQVNLCSAw
-eGZmZmYwMDAwCiAjZGVmaW5lICBOSUNfU1JBTV9EQVRBX1BIWV9JRDJfTUFTSwkgMHgwMDAwZmZm
-Zgo=
+        [root@host scratch]# ls -lh verif-file9.tmp
+        -rw-r--r--  1 root root 2.0T Feb 10 05:49 verif-file9.tmp
+        [root@host scratch]# du -h verif-file9.tmp
+        2.1G    verif-file9.tmp
 
-------_=_NextPart_001_01C5107A.707CC563--
+Worse comes at e2fsck time: near the end of walking the indirect tree,
+e2fsck decides that the file has grown too large, as in this fsck -n
+output:
+
+        Pass 1: Checking inodes, blocks, and sizes
+        Inode 20 is too big.  Truncate? no
+        
+        Block #536346622 (980630816) causes file to be too big.  IGNORED.
+        Block #536346623 (980630817) causes file to be too big.  IGNORED.
+        Block #536346624 (980630818) causes file to be too big.  IGNORED.
+        ...
+
+Whoops.  e2fsck sees that st_blocks is too large at this point, and
+decides that it wants to truncate the file to make it fit.  So if a user
+has legitimately created such a file, fsck will effectively attempt to
+corrupt it at the next fsck.
+
+So who is right?  Should ext3 let the file grow that large? 
+
+For now, I think we need to constrain ext2/3 files so that i_blocks does
+not exceed 2^32*512/blocksize.  Even if we fix up all the stat() stuff
+to pass back 64-bit st_blocks, we still have every e2fsck in existence
+which will not be able to deal with those files.  Eventually 64-bit
+st_blocks would be good to have, but it needs to have a fs feature flag
+to let e2fsck know about it.
+
+--Stephen
 

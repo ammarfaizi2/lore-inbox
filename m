@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265432AbTLSDmI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 22:42:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265433AbTLSDmI
+	id S265438AbTLSDnq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 22:43:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265439AbTLSDnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 22:42:08 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:37584 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S265432AbTLSDmG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 22:42:06 -0500
-Message-ID: <3FE2738A.4060004@namesys.com>
-Date: Fri, 19 Dec 2003 06:42:02 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Thu, 18 Dec 2003 22:43:46 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:27546 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S265438AbTLSDnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 22:43:45 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Date: Fri, 19 Dec 2003 14:43:37 +1100
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.0
-References: <Pine.LNX.4.58.0312171951030.5789@home.osdl.org> <20031217211516.2c578bab.akpm@osdl.org> <200312181112.43745.ismail.donmez@boun.edu.tr> <006201c3c54c$2bb00c50$0e25fe0a@southpark.ae.poznan.pl> <brsju1$ckg$1@gatekeeper.tmr.com> <3FE20077.80509@namesys.com> <20031218194203.GM2069@suse.de>
-In-Reply-To: <20031218194203.GM2069@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16354.29673.680077.180198@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23: kernel: raid5: multiple 0 requests for sector
+In-Reply-To: message from Mike Fedyk on Thursday December 18
+References: <20031219032827.GR16034@matchmail.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+On Thursday December 18, mfedyk@matchmail.com wrote:
+> I have an 300GB ext3, and I'm running bonnie on it while running a read-only
+> badblocks on the block device.
+> 
+> While that's happening I got these:
+...
+> 
+> Is this because the buffer cache and page cache are both asking for the same
+> block because they're both reading/writing the same area on disk?
 
->
->
->I hope you don't expect to actually have something that's worthy of
->being merged into 2.6.x in a months time?
->
->  
->
-Have you looked at the stability of the typical experimental feature?  
-If we used that as a guide, we'd have sent it in 3 months ago.....;-)
+Yes. Actually they're both reading the same block (a 0 request is
+read, a 1 is write).
 
-We will have something we think is appropriate for inclusion as an 
-experimental feature very soon now.  Because our test scripts have 
-become much more sophisticated, it means more when we say we cannot 
-crash it, and it will go from experimental to stable faster than V3 
-did.  I won't predict how fast.
+> 
+> Dec 17 21:28:26 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 175954880
+> Dec 17 21:28:26 srv-lnx2600 kernel: raid5: multiple 0 requests for sector 175954888
 
--- 
-Hans
-
-
+NeilBrown

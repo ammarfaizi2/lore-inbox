@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311180AbSDSGfB>; Fri, 19 Apr 2002 02:35:01 -0400
+	id <S311575AbSDSGlq>; Fri, 19 Apr 2002 02:41:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311575AbSDSGfA>; Fri, 19 Apr 2002 02:35:00 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:25575 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S311180AbSDSGfA>;
-	Fri, 19 Apr 2002 02:35:00 -0400
-Date: Fri, 19 Apr 2002 06:31:15 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: mingo@elte.hu
-To: Erich Focht <efocht@ess.nec.de>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+	id <S311587AbSDSGlp>; Fri, 19 Apr 2002 02:41:45 -0400
+Received: from holomorphy.com ([66.224.33.161]:43936 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S311575AbSDSGlp>;
+	Fri, 19 Apr 2002 02:41:45 -0400
+Date: Thu, 18 Apr 2002 23:40:52 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Erich Focht <efocht@ess.nec.de>, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>
 Subject: Re: [PATCH] migration thread fix
-In-Reply-To: <Pine.LNX.4.44.0204182043110.2453-100000@beast.local>
-Message-ID: <Pine.LNX.4.44.0204190629360.3799-100000@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020419064052.GB21206@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, Erich Focht <efocht@ess.nec.de>,
+	linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0204182043110.2453-100000@beast.local> <Pine.LNX.4.44.0204190629360.3799-100000@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 19, 2002 at 06:31:15AM +0200, Ingo Molnar wrote:
+> looks perfectly good to me. Even with wli's patch i saw some migration
+> thread initialization weirdnesses.
 
-On Thu, 18 Apr 2002, Erich Focht wrote:
+It's a bit of a moot point, but I'd be interested in knowing what sort
+of weirdnesses those might be for my own edification.
 
-> The patch below applies to the 2.5.8 kernel. It does two things:
-> 
-> 1: Fixes a BUG in the migration threads: the interrupts MUST be disabled
-> before the double runqueue lock is aquired, otherwise this thing will
-> deadlock sometimes.
-> 
-> 2: Streamlines the initialization of migration threads. Instead of
-> fiddling around with cache_deccay_ticks, waiting for migration_mask bits
-> and relying on the scheduler to distribute the tasks uniformly among
-> processors, it starts the migration thread on the boot cpu and uses it
-> to reliably distribute the other threads to their target cpus.
-> 
-> Please consider applying it!
 
-looks perfectly good to me. Even with wli's patch i saw some migration
-thread initialization weirdnesses.
-
-	Ingo
-
+Cheers,
+Bill

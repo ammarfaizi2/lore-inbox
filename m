@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289659AbSBXE6T>; Sat, 23 Feb 2002 23:58:19 -0500
+	id <S289727AbSBXFBM>; Sun, 24 Feb 2002 00:01:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289727AbSBXE6J>; Sat, 23 Feb 2002 23:58:09 -0500
-Received: from gw.wmich.edu ([141.218.1.100]:23541 "EHLO gw.wmich.edu")
-	by vger.kernel.org with ESMTP id <S289659AbSBXE6B>;
-	Sat, 23 Feb 2002 23:58:01 -0500
-Subject: Re: [PATCHSET] Linux 2.4.18-rc4-jam1
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Fran?ois Cami <stilgar2k@wanadoo.fr>, "J.A. Magallon" <jamagallon@able.es>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020224030620.GR20060@matchmail.com>
-In-Reply-To: <20020223234217.C2023@werewolf.able.es>
-	<3C782531.6050701@wanadoo.fr> <1014514801.492.14.camel@psuedomode>
-	<1014516072.491.28.camel@psuedomode>  <20020224030620.GR20060@matchmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 23 Feb 2002 23:57:51 -0500
-Message-Id: <1014526676.587.29.camel@psuedomode>
-Mime-Version: 1.0
+	id <S293283AbSBXFBD>; Sun, 24 Feb 2002 00:01:03 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:20997
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S289727AbSBXFAy>; Sun, 24 Feb 2002 00:00:54 -0500
+Date: Sat, 23 Feb 2002 20:48:29 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Jens Axboe <axboe@suse.de>
+Subject: Re: ide timer trbl ...
+In-Reply-To: <Pine.LNX.4.44.0202231238060.1449-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.10.10202232046060.5715-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-02-23 at 22:06, Mike Fedyk wrote:
-> On Sat, Feb 23, 2002 at 09:01:06PM -0500, Ed Sweetman wrote:
-> > Or it could be my ext3 fs corrupting files again.
-> > 
-> 
-> Oy, do you have one of those write-back (behind) ide hard drives?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Sat, 23 Feb 2002, Davide Libenzi wrote:
 
-Probably, it's a WD 100GB.  hdparm says   WriteCache=enabled
-I dont know if the bios is set to writeback off hand, I'd have to
-reboot, which I'll probably do soon to add in another hdd and possibly
-run memtest86 instead of just memtest
+> 
+> You guys probably already know but i'm still having problems with the ide
+> timer in 2.5.5 :
+> 
+> hda: ide_set_handler: handler not null; old=c01c5e10, new=c01c5e10
+> bug: kernel timer added twice at c01c7293.
+> NFS: NFSv3 not supported.
+> nfs warning: mount version older than kernel
+> hda: ide_set_handler: handler not null; old=c01c5e10, new=c01c5e10
+> bug: kernel timer added twice at c01c7293.
+> 
+> 
+> The machine seems working fine but i get these messages at the end of the
+> kernel boot sequence. If you need more info just let me know.
+
+I know the issue because I just found it before you sent this post.
+I will generate a patch for which should solve the problem.
+
+Regards,
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
 

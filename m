@@ -1,52 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129790AbRAKP2T>; Thu, 11 Jan 2001 10:28:19 -0500
+	id <S129927AbRAKP26>; Thu, 11 Jan 2001 10:28:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131142AbRAKP17>; Thu, 11 Jan 2001 10:27:59 -0500
-Received: from smtp1.mail.yahoo.com ([128.11.69.60]:45328 "HELO
-	smtp1.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129790AbRAKP14>; Thu, 11 Jan 2001 10:27:56 -0500
-X-Apparently-From: <p?gortmaker@yahoo.com>
-Message-ID: <3A5C8DB2.48A4A48@yahoo.com>
-Date: Wed, 10 Jan 2001 11:28:34 -0500
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-X-Mailer: Mozilla 3.04 (X11; I; Linux 2.4.0 i486)
-MIME-Version: 1.0
-To: rob@sysgo.de
-CC: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
-Subject: Re: Anybody got 2.4.0 running on a 386 ?
-In-Reply-To: <01010922090000.02630@rob> <01010923324500.02850@rob> <3A5B98AB.9B6FABC6@didntduck.org> <01011000082300.03050@rob>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132138AbRAKP2t>; Thu, 11 Jan 2001 10:28:49 -0500
+Received: from pat.uio.no ([129.240.130.16]:22707 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S129927AbRAKP2i>;
+	Thu, 11 Jan 2001 10:28:38 -0500
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Russell King <rmk@arm.linux.org.uk>, Hubert Mantel <mantel@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Compatibility issue with 2.2.19pre7
+In-Reply-To: <20010110013755.D13955@suse.de> <200101100654.f0A6sjJ02453@flint.arm.linux.org.uk> <20010110163158.F19503@athlon.random>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 11 Jan 2001 16:28:28 +0100
+In-Reply-To: Andrea Arcangeli's message of "Wed, 10 Jan 2001 16:31:58 +0100"
+Message-ID: <shszogy2jmr.fsf@charged.uio.no>
+X-Mailer: Gnus v5.6.45/XEmacs 21.1 - "Channel Islands"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Kaiser wrote:
-> 
-> The one I'm currently using is an old Olivetti 386SX with 5 MB, I also
-> tried two more boards, one 386SX, one 386DX, both with 8MB. All showed 
-> the same behavior.
+>>>>> " " == Andrea Arcangeli <andrea@suse.de> writes:
 
-I tested 2.4.0 on probably the exact same box - an Olivetti M300-05 
-386sx with 5MB and it came up ok, except that memory detection is off
-by a MB. (to be fixed in 2.4.1 or boot with mem= argument in 2.4.0)
+     > As far I can see the only reason size makes sense to be 32bit
+     > is to get some more strict behaviour in the below code (to
+     > avoid discarding the most significant 16bits in sanity checks
+     > like this):
 
-What might be important here is your gcc & binutils (as/gas) version,
-combined with a miscompile in something like __verify_write that
-doesn't get used on anything but 386 (and hence went undetected).
+     > nlm4_decode_fh(u32 *p, struct nfs_fh *f) {
+     >         memset(f->data, 0, sizeof(f->data));
+     >         f-> size = ntohl(*p++);
+     >         if (f->size > NFS_MAXFHSIZE) {
+     >                 printk(KERN_NOTICE
+     >                         "lockd: bad fhandle size %d (should be
+     >                         <=%d)\n",
+     >                         f-> size, NFS_MAXFHSIZE);
+     >                 return NULL;
+     >         }
+     >         memcpy(f->data, p, f->size);
+     >         return p + XDR_QUADLEN(f->size);
+     > }
 
-Only thing strange on my box is that the kernel is compiled with 
-gcc-2.7.2 which is officially unsupported but can be managed if you 
-know what the gcc bugs are.  
+I agree, and if that's the only problem, then the appended patch will
+fix it without any need to change struct nfs_fh.
 
-Paul.
+As for the issue of casting 'fh->data' as a 'struct knfsd' then that
+is a perfectly valid operation.
+The fh->data is a cookie as far as the client is concerned, and hence
+it will pass back exactly whatever the server sent it (alignment and
+all).
+
+IOW: the knfsd server copied a struct knfsd and sent it off to the
+client, and now the exact same server is receiving a completely
+unadulterated version of said struct knfsd for use by the lockd server
+routines.
+Unless somebody is using one compiler for the knfsd directory and then
+a completely different one for lockd, I fail to see why this should
+result in structure alignment problems on PPC or on any other
+platform.
+
+Cheers,
+   Trond
 
 
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
 
+
+--- fs/lockd/xdr4.c.orig	Thu Jan 11 15:52:44 2001
++++ fs/lockd/xdr4.c	Thu Jan 11 15:53:37 2001
+@@ -83,16 +83,19 @@
+ static u32 *
+ nlm4_decode_fh(u32 *p, struct nfs_fh *f)
+ {
++	unsigned int size;
++
+ 	memset(f->data, 0, sizeof(f->data));
+-	f->size = ntohl(*p++);
+-	if (f->size > NFS_MAXFHSIZE) {
++	size = ntohl(*p++);
++	if (size > NFS_MAXFHSIZE) {
+ 		printk(KERN_NOTICE
+ 			"lockd: bad fhandle size %x (should be %d)\n",
+-			f->size, NFS_MAXFHSIZE);
++			size, NFS_MAXFHSIZE);
+ 		return NULL;
+ 	}
+-      	memcpy(f->data, p, f->size);
+-	return p + XDR_QUADLEN(f->size);
++	f->size = size;
++      	memcpy(f->data, p, size);
++	return p + XDR_QUADLEN(size);
+ }
+ 
+ static u32 *
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

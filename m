@@ -1,42 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264854AbSJOVFZ>; Tue, 15 Oct 2002 17:05:25 -0400
+	id <S264821AbSJOVBl>; Tue, 15 Oct 2002 17:01:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264850AbSJOVEH>; Tue, 15 Oct 2002 17:04:07 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:17819 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S264838AbSJOVDZ>;
-	Tue, 15 Oct 2002 17:03:25 -0400
-Date: Tue, 15 Oct 2002 23:20:29 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: "David S. Miller" <davem@redhat.com>
-Cc: maxk@qualcomm.com, <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Rename _bh to _softirq
-In-Reply-To: <20021015.131929.103080718.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0210152318150.26315-100000@localhost.localdomain>
+	id <S264824AbSJOVBO>; Tue, 15 Oct 2002 17:01:14 -0400
+Received: from fw-az.mvista.com ([65.200.49.158]:49653 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id <S264821AbSJOU7V>; Tue, 15 Oct 2002 16:59:21 -0400
+Message-ID: <3DAC839F.7060301@mvista.com>
+Date: Tue, 15 Oct 2002 14:07:43 -0700
+From: Steven Dake <sdake@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Greg KH <greg@kroah.com>
+CC: Michael Clark <michael@metaparadigm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] [PATCHES] Advanced TCA Hotswap Support in Linux Kernel
+References: <3DAB1007.6040400@mvista.com> <20021015052916.GA11190@kroah.com> <3DAC52A7.907@mvista.com> <3DAC685B.9070102@metaparadigm.com> <3DAC6C7B.1080205@mvista.com> <20021015203423.GI15864@kroah.com> <3DAC7EAA.5020408@mvista.com> <20021015205402.GL15864@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 15 Oct 2002, David S. Miller wrote:
 
->    _bh is not a "base handler" it stands for "bottom half".
+Greg KH wrote:
+
+>On Tue, Oct 15, 2002 at 01:46:34PM -0700, Steven Dake wrote:
+>  
 >
-> "base handler" and "bottom half" all refer to an execution context,
-> and these days that means softirq.
+>>The data/telecoms I've talked to require disk hotswap times of less then 
+>>20 msec from notification of hotwap to blue led (a light used to 
+>>indicate the device can be removed).  They would like 10 msec if it 
+>>could be done.  This is because of how long it takes on a surprise 
+>>extraction for the hardware to send the signal vs the user to disconnect 
+>>the hardware.
+>>    
+>>
+>
+>But what starts the "notification of hotswap"?  Is this driven by the
+>user somehow, or is it a hardware event that happens out of the blue?
+>  
+>
+In the case of Advanced TCA, an IPMI message is sent to the CPU blade 
+indicating the hotswap button is pressed on the front panel of a disk 
+blade.  The hotswap manager software unmaps the GA address, removes the 
+device from the linux kernel via the scsi-hotswap-main stuff, and sends 
+another IPMI message to the disk node telling it to light its "blue 
+led".  The user removes the disk.  Insertion is easier.
 
-i think i agree with you.
+In this case, the hotswap button on the front panel is used to indicate 
+a hotswap event.  There is talk of making the removal of the board 
+indicate a hotswap event (surprise extraction) because the technicians 
+don't wait for the blue led to remove the boards occasionally and the 
+system should be able to handle this use case.
 
-- we have 'top half' contexts, which are also called 'hardirqs'.
+>>For legacy systems such as SAFTE hotswap, polling through sg at 10 msec 
+>>intervals would be extremely painful because of all the context 
+>>switches.  A timer scheduled every 10 msec to send out a SCSI message 
+>>and handle a response if there is a hotswap event is a much better course.
+>>    
+>>
+>
+>What generates the hotswap event?
+>  
+>
+In the case of SAFTE, a SCSI processor (ASIC) is polled by some polling 
+interval about the state of the SAFTE (SCSI) backplane.  When the state 
+changes, software generates a hotswap event and removes the device.
 
-- then we have 'bottom half' contexts, which are also called 'softirqs'.
+Thanks
+-steve
 
-the fact that 'bottom halves' used to be an earlier concept that had a
-slightly different meaning from 'softirqs' for a limited amount of time
-does not remove from the meaningfulness of the naming itself. Today
-'bottom halves' and 'softirqs' are the same thing.
-
-	Ingo
+>  
+>
 

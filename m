@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbTJ2MKe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 07:10:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbTJ2MKe
+	id S262048AbTJ2Mjz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 07:39:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbTJ2Mjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 07:10:34 -0500
-Received: from wiggis.ethz.ch ([129.132.86.197]:24508 "EHLO wiggis.ethz.ch")
-	by vger.kernel.org with ESMTP id S262033AbTJ2MKd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 07:10:33 -0500
-From: Thom Borton <borton@phys.ethz.ch>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Driver for Sony Memory Stick Controller (PCI)
-Date: Wed, 29 Oct 2003 13:10:27 +0100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Oct 2003 07:39:55 -0500
+Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:13051 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id S262048AbTJ2Mjx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 07:39:53 -0500
+Date: Wed, 29 Oct 2003 13:38:20 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: mochel@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Ref-count problem in kset_find_obj?
+Message-ID: <20031029123820.GA1141@mschwid3.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310291310.27689.borton@phys.ethz.ch>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Pat,
+looking through the sysfs code I noticed a potential problem in
+kset_find_obj:
 
-Hello everybody
+struct kobject * kset_find_obj(struct kset * kset, const char * name)
+{
+        struct list_head * entry;
+        struct kobject * ret = NULL;
 
-I wonder whether/how it is possible to use my Memory Stick Slot of my 
-Sony Vaio PCG-Z600NE. lspci gives me 
+        down_read(&kset->subsys->rwsem);
+        list_for_each(entry,&kset->list) {
+                struct kobject * k = to_kobj(entry);
+                if (!strcmp(kobject_name(k),name)) {
+			ret = k;
+			break;
+                }
+        }
+        up_read(&kset->subsys->rwsem);
+        return ret;
+}
 
-00:0d.0 Non-VGA unclassified device: Sony Corporation Memory Stick 
-Controller (rev 01)
+The reference count of the kobject to be returned is not
+increased before the semaphore is released. A kobject_del/unlink
+could remove the object before the called of kset_find_obj is
+able to increase the reference count. This makes kset_find_obj
+more or less unusable, doesn't it?
 
-I have seem a couple of posts for similar devices that seem to be 
-connected to the USB bus. They suggest using the usb-storage module 
-to talk to the device. This obviously does not work here as it is a 
-PCI device.
-
-Any ideas?
-
-Thanks a lot, Thom
-
--- 
-Thom Borton
-Switzerland
+blue skies,
+  Martin.
 

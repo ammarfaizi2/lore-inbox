@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267550AbRHAQx3>; Wed, 1 Aug 2001 12:53:29 -0400
+	id <S267520AbRHAQx3>; Wed, 1 Aug 2001 12:53:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267520AbRHAQxS>; Wed, 1 Aug 2001 12:53:18 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:62473 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S267532AbRHAQxH>;
-	Wed, 1 Aug 2001 12:53:07 -0400
-Message-Id: <200107312306.DAA00493@mops.inr.ac.ru>
-Subject: Re: [PATCH] register_inet6addr_notifier
-To: utz.bacher@de.ibm.COM (Utz Bacher)
-Date: Wed, 1 Aug 2001 03:06:41 -2000 (MSD)
+	id <S267514AbRHAQxR>; Wed, 1 Aug 2001 12:53:17 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:60681 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S267516AbRHAQxF>;
+	Wed, 1 Aug 2001 12:53:05 -0400
+Message-Id: <200107312246.CAA00465@mops.inr.ac.ru>
+Subject: Re: Why istn't dup in TCP working??
+To: nitin.dhingra@dcmtech.co.IN (Nitin Dhingra)
+Date: Wed, 1 Aug 2001 02:46:56 -2000 (MSD)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <OF119FF657.6688232C-ONC1256A9A.0063BDC0@de.ibm.com> from "Utz Bacher" at Jul 31, 1 11:15:03 pm
+In-Reply-To: <7FADCB99FC82D41199F9000629A85D1A01C6508E@dcmtechdom.dcmtech.co.in> from "Nitin Dhingra" at Jul 31, 1 01:15:00 pm
 From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
 X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
@@ -20,24 +20,15 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello!
 
-> attached is a patch which introduces
-> * register_inet6addr_notifier
-> * unregister_inet6addr_notifier
+> module in 2.4.x the first error that I get is that dup is not a 
+> part of socket's operation structure anymore. 
+> 		So what is the replacement for it, I couldn't find any
+> in the proto_ops structure?
 
-Nice. But where is a use of this? [For reason of the question, see below]. 
+dup was alias for sock_create() and hence deleted.
 
-
-> cards which provide IP offload capabilities and therfore require knowledge
-> of IP addresses.
-
-Very interesting. I am very curious, what kind of "offload" is possible
-with current stack are possible. Even if you know addresses. :-)
-
-
-What's about the patch... Do you understand that currently
-it is impossible to call notifiers for adding/deletion of each IPv6 address
-in an intelligible context? Not seeing uses of such notifiers,
-it is difficult to approve such feature because of danger of misuse
-now and even worse misuse in (near) future, when context will change.
+The question in reply: what did you use this for?
+It was not used in 2.2 for anything but creating in accept()
+a socket which was instanly dropped. :-)
 
 Alexey

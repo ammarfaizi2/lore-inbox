@@ -1,41 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284282AbRL1VTH>; Fri, 28 Dec 2001 16:19:07 -0500
+	id <S284472AbRL1VX5>; Fri, 28 Dec 2001 16:23:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284272AbRL1VSr>; Fri, 28 Dec 2001 16:18:47 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:34743 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S284164AbRL1VSj>;
-	Fri, 28 Dec 2001 16:18:39 -0500
-Date: Fri, 28 Dec 2001 16:16:03 -0500
-From: Legacy Fishtank <garzik@havoc.gtf.org>
-To: linux-kernel@vger.kernel.org
-Cc: Keith Owens <kaos@ocs.com.au>, Larry McVoy <lm@bitmover.com>,
-        "Eric S. Raymond" <esr@thyrsus.com>, Dave Jones <davej@suse.de>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: State of the new config & build system
-Message-ID: <20011228161603.B5397@havoc.gtf.org>
-In-Reply-To: <18619.1009503350@ocs3.intra.ocs.com.au> <Pine.LNX.4.33.0112282035020.2889-100000@vaio>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0112282035020.2889-100000@vaio>; from kai@tp1.ruhr-uni-bochum.de on Fri, Dec 28, 2001 at 09:56:53PM +0100
+	id <S284280AbRL1VXr>; Fri, 28 Dec 2001 16:23:47 -0500
+Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:18292 "EHLO
+	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S284506AbRL1VXl>; Fri, 28 Dec 2001 16:23:41 -0500
+Posted-Date: Fri, 28 Dec 2001 21:23:33 GMT
+Date: Fri, 28 Dec 2001 21:23:32 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.cx>
+Reply-To: Riley Williams <rhw@MemAlpha.cx>
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] unchecked request_region's in drivers/net
+In-Reply-To: <20011228133459.Y12868@lynx.no>
+Message-ID: <Pine.LNX.4.21.0112282121040.3044-100000@Consulate.UFP.CX>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think one thing to note is that dependencies is that if you are smart
-about it, dependencies -really- do not even change when your .config
-changes.
+Hi Andreas.
 
-What about a system where Linus runs "make deps" -once- before he
-releases a tarball.  This in turn generates dependency information
-(perhaps not in purely make format) which includes 'ifdef CONFIG_xxx'
-information embedded within.  We know that make can support ifeq
-CONFIG_xxx for example...
+>> Can I suggest an alternative: Retain the MAINTAINERS file as it
+>> currently is, but add a PATCHES-TO file in each subdirectory that
+>> states how to handle patches relating to that directory, and have
+>> these files follow a strict format, possibly...
+>> 
+>> ===8<=== CUT ===>8===
+>> 
+>> HomeDir = linux/subsystem/
+>> List = subsystem@server.site
+>> Maintainer = Guess Who <uessWho@hear.thou.me>
+>> Watch * = Interested <interested@private.site>
+>> Watch PATCHES-TO = John Doa <administrator@linux.org>
+>> 
+>> ===8<=== CUT ===>8===
+>> 	WATCH filespec = name <email-address>
+>> 
+>> 		Specifies that the email address specified is also
+>> 		interested in patches relating to the specified
+>> 		files, and should be CC'd patches relating to just
+>> 		the files specified. Files of interest are selected
+>> 		using ls style wildcards. Can be repeated as often
+>> 		as required for either the same or different files.
+>> 		The filespec can not contain / characters, and only
+>> 		matches files in the current directory.
 
-	Jeff
+> I'd rather just skip the WATCH part entirely (or limit it to people
+> already in the MAINTAINERS list).
 
+That's a policy decision for the maintainers to make.
 
+> If someone is interested in part of the code, they can subscribe to
+> the mailing list.
+
+What if there isn't a mailing list for that part of the code and they
+can't handle the volume on L-K ???
+
+> Also, if the PATCHES-TO file already lives in a particular
+> subdirectory, I don't see the benefit of HomeDir, except to
+> increase the maintenance work.
+
+Basically, it confirms that you're looking at the right PATCHES-TO file.
+
+Best wishes from Riley.
 

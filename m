@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261900AbSLOPv0>; Sun, 15 Dec 2002 10:51:26 -0500
+	id <S262089AbSLOPxH>; Sun, 15 Dec 2002 10:53:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261996AbSLOPvZ>; Sun, 15 Dec 2002 10:51:25 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:42639 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261900AbSLOPvX>;
-	Sun, 15 Dec 2002 10:51:23 -0500
-Date: Sun, 15 Dec 2002 15:58:19 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Vergoz Michael (SYSDOOR)" <mvergoz@sysdoor.Com>
-Cc: Scott Robert Ladd <scott@coyotegulch.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel for Pentium 4 hyperthreading?
-Message-ID: <20021215155819.GC20335@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Vergoz Michael (SYSDOOR)" <mvergoz@sysdoor.Com>,
-	Scott Robert Ladd <scott@coyotegulch.com>,
-	linux-kernel@vger.kernel.org
-References: <FKEAJLBKJCGBDJJIPJLJAEICDLAA.scott@coyotegulch.com> <00d601c2a451$519c01c0$3803a8c0@descript>
+	id <S261978AbSLOPxH>; Sun, 15 Dec 2002 10:53:07 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:3076 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262089AbSLOPwq>;
+	Sun, 15 Dec 2002 10:52:46 -0500
+Date: Mon, 9 Dec 2002 08:29:11 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Eric Altendorf <EricAltendorf@orst.edu>
+Cc: Pavel Machek <pavel@ucw.cz>, Jochen Hein <jochen@jochen.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.50, ACPI] link error
+Message-ID: <20021209072911.GA2934@zaurus>
+References: <E18Ix71-0003ik-00@gswi1164.jochen.org> <200212031247.07284.EricAltendorf@orst.edu> <20021205173145.GB731@elf.ucw.cz> <200212062150.06350.EricAltendorf@orst.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <00d601c2a451$519c01c0$3803a8c0@descript>
-User-Agent: Mutt/1.4i
+In-Reply-To: <200212062150.06350.EricAltendorf@orst.edu>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 15, 2002 at 04:47:39PM +0100, Vergoz Michael (SYSDOOR) wrote:
- > Hi,
- > 
- > It's possible to enable HT on any pentium 4, you just have to patch the bios
- > :P
+Hi!
 
-A rumour perpetuated by many, and achieved by none to my knowledge.
+> > > Right ... I'm no kernel hacker so I don't know why, but I can
+> > > only get the recent kernels to compile with sleep states if I
+> > > turn *ON* software suspend as well.  However, as soon as I turn
+> > > on swsusp and get a compiled kernel, it oops'es on boot.
+> >
+> > Can you mail me decoded oops?
+> > 								Pavel
+> 
+> This is the first time I've decoded an oops, and since I had to decode it on a different kernel (2.5.25) than the one I'm debugging (2.5.50 + Dec 6 ACPI patch), and I couldn't 
+Can you try passing 
+"resume=hda5_or_whatever_your_swap_partition_is"?
 
-		Dave
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+

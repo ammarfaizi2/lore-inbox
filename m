@@ -1,95 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285169AbRL0Gyr>; Thu, 27 Dec 2001 01:54:47 -0500
+	id <S286223AbRL0HNo>; Thu, 27 Dec 2001 02:13:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286221AbRL0Gyi>; Thu, 27 Dec 2001 01:54:38 -0500
-Received: from ns2.q-station.net ([202.66.128.35]:1029 "HELO
-	smtp.q-station.net") by vger.kernel.org with SMTP
-	id <S285169AbRL0Gy0>; Thu, 27 Dec 2001 01:54:26 -0500
-Date: Thu, 27 Dec 2001 14:54:22 +0800 (CST)
-From: Leung Yau Wai <chris@gist.q-station.net>
-To: linux-kernel@vger.kernel.org
-cc: chris@q-station.net
-Subject: dd cdrom error
-Message-ID: <Pine.LNX.4.10.10112271442090.3984-100000@gist.q-station.net>
+	id <S286224AbRL0HNe>; Thu, 27 Dec 2001 02:13:34 -0500
+Received: from [194.228.240.2] ([194.228.240.2]:40207 "EHLO chudak.century.cz")
+	by vger.kernel.org with ESMTP id <S286223AbRL0HNS>;
+	Thu, 27 Dec 2001 02:13:18 -0500
+Message-ID: <3C2AC9FF.8050301@century.cz>
+Date: Thu, 27 Dec 2001 08:13:03 +0100
+From: Petr Titera <P.Titera@century.cz>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.6+) Gecko/20011203
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Peter Osterlund <petero2@telia.com>, linux-kernel@vger.kernel.org
+Subject: Re: "sr: unaligned transfer" in 2.5.2-pre1
+In-Reply-To: <m2vgexzv90.fsf@ppro.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: OK (checked by AntiVir Version 6.10.0.16)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+Peter Osterlund wrote:
 
-	I come across a problem which seem exist in kernel 2.4.x but not
-in 2.2.x.
+> Hi!
+> 
+> When trying to mount an ISO9660 CD on my USB CDRW unit, I get lots
+> of "sr: unaligned transfer" messages from the kernel and the mount
+> command fails. This message was added in kernel 2.5.1 and the
+> sr_scatter_pad() function was removed at the same time. The comment
+> above the message hints that unaligned transfers are (or were) a
+> normal thing.
+> 
+> I added a printk to get more information:
+> 
+>         sr: unaligned transfer
+>         sr: sector 64, s_size 2048, bufflen 1024
+>         sr: unaligned transfer
+>         sr: sector 68, s_size 2048, bufflen 1024
+>         sr: unaligned transfer
+>         sr: sector 72, s_size 2048, bufflen 1024
+>         ...
+>         sr: unaligned transfer
+>         sr: sector 396, s_size 2048, bufflen 1024
+>         Unable to identify CD-ROM format.
+> 
+> So, what changes are needed to make CD support work?
+> 
+> 
 
-	The problem is that, when I try to using dd to create a ISO image
-of a cdrom then around dumping the end of the disc it will give out the
-following error message:
-
-e.g. dd if=/dev/cdrom of=n.iso
-
-Dec 22 16:53:25 rainbow kernel: hdd: command error: status=0x51 {
-DriveReady SeekComplete Error }
-Dec 22 16:53:25 rainbow kernel: hdd: command error: error=0x54
-Dec 22 16:53:25 rainbow kernel: end_request: I/O error, dev 16:40 (hdd),
-sector 1324148
-Dec 22 16:56:51 rainbow kernel: hdd: command error: status=0x51 {
-DriveReady SeekComplete Error }
-Dec 22 16:56:51 rainbow kernel: hdd: command error: error=0x54
-Dec 22 16:56:51 rainbow kernel: end_request: I/O error, dev 16:40 (hdd),
-sector 1323912
-Dec 22 16:56:51 rainbow kernel: hdd: command error: status=0x51 {
-DriveReady SeekComplete Error }
-Dec 22 16:56:51 rainbow kernel: hdd: command error: error=0x54
-Dec 22 16:56:51 rainbow kernel: end_request: I/O error, dev 16:40 (hdd),
-sector 1323916
-
-
-	However, the problem will gone if I trun off the DMA support of my
-cdrom under kernel 2.4.x.
-
-e.g. hdparm -d0 /dev/hdd
-
-
-	Then I recheck everything, keeping the same OS, the same machine
-except booting the 2.2.X kernel (with UDMA patch to support my Promise
-UDMA 66 controller). Then everything will run fine even turn on the DMA
-support of the cdrom.
-
-	Could anyone tell me what happened? Or, anything I missed? or I
-should give which information to get some help?
+Use -o block=2048 as your mount option. There is error in sr code 
+causing block sizes of CD-ROM drives to be incorrectly initialized to 
+1024 bytes.
 
 
-My machine is a
-Asus P3BF
-with Promise UDMA66 add-on-card
-
-cutting a part of dmesg from booting 2.4.17 hope can help
-------------------------------------------------------------------
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PIIX4: IDE controller on PCI bus 00 dev 21
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:DMA
-PDC20262: IDE controller on PCI bus 00 dev 58
-PCI: Found IRQ 5 for device 00:0b.0
-PDC20262: chipset revision 1
-PDC20262: not 100% native mode: will probe irqs later
-PDC20262: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
-    ide2: BM-DMA at 0xa000-0xa007, BIOS settings: hde:DMA, hdf:DMA
-    ide3: BM-DMA at 0xa008-0xa00f, BIOS settings: hdg:pio, hdh:DMA
-hdd: CD-S500/A, ATAPI CD/DVD-ROM drive
-hde: IBM-DPTA-372050, ATA DISK drive
-ide1 at 0x170-0x177,0x376 on irq 15
-ide2 at 0xb400-0xb407,0xb002 on irq 5
-hde: 40088160 sectors (20525 MB) w/1961KiB Cache, CHS=39770/16/63, UDMA(66)
-
----------------------------------------------------------------------
-
-	Thanks your attention
-
-
-Chris
+Petr Titera
+P.Titera@century.cz
 

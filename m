@@ -1,79 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262796AbSLaJPL>; Tue, 31 Dec 2002 04:15:11 -0500
+	id <S262806AbSLaJPb>; Tue, 31 Dec 2002 04:15:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262806AbSLaJPL>; Tue, 31 Dec 2002 04:15:11 -0500
-Received: from [61.11.237.102] ([61.11.237.102]:40964 "HELO
-	cse-qmail.cse.iitkgp.ernet.in") by vger.kernel.org with SMTP
-	id <S262796AbSLaJPK>; Tue, 31 Dec 2002 04:15:10 -0500
-Date: 31 Dec 2002 09:23:08 -0000
-Message-ID: <20021231092308.15659.qmail@cpusrv-ibm-5.cse.iitkgp.ernet.in>
-From: "Vadlapudi Madhu" <Vadlapudi.Madhu@cse.iitkgp.dhs.org>
-To: linux-kernel@vger.kernel.org
-Subject: Require help in accessing file from kernel space
+	id <S262807AbSLaJPb>; Tue, 31 Dec 2002 04:15:31 -0500
+Received: from boden.synopsys.com ([204.176.20.19]:52637 "HELO
+	boden.synopsys.com") by vger.kernel.org with SMTP
+	id <S262806AbSLaJP3>; Tue, 31 Dec 2002 04:15:29 -0500
+Date: Tue, 31 Dec 2002 10:23:42 +0100
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: Gianni Tedesco <gianni@ecsc.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: trivial sys_mincore cleanup
+Message-ID: <20021231092342.GB26221@riesen-pc.gr05.synopsys.com>
+Reply-To: alexander.riesen@synopsys.COM
+References: <1040383074.12106.30.camel@lemsip>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1040383074.12106.30.camel@lemsip>
+User-Agent: Mutt/1.4i
+Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Friends,
+Gianni Tedesco, Fri, Dec 20, 2002 12:17:54 +0100:
+> Patch makes 2 simple cleanups:
+>  - Checks the syscall parameters before grabbing mmap semaphore.
+>  - Tidy up a comment.
 
-Please help me finding the bug in the following code. When i ran this code the system is
-hanging (kernel panic). I am trying to open a file in kernel space and try to read, it is able open
-the file but unable to read.
+The comment is actually right: it is an old mathematical notation
+to describe regions - from start until end, but not including the end.
 
-Code is :
+>         /*
+> -        * If the interval [start,end) covers some unmapped address
+> +        * If the interval [start,end] covers some unmapped address
+>          * ranges, just ignore them, but return -ENOMEM at the end.
+>          */
 
-##############################
-  struct file     *filp;
-  mm_segment_t    oldfs;
-  char 		  *fname = "/etc/testfile";
-  int 		  error = 0;
-  char            *buf = NULL;
-  int             bytesread = 0;
+-alex
 
-  oldfs = get_fs(); 
-  set_fs(get_ds());
-  
-  buf = (char*)kmalloc(50, GFP_ATOMIC);
-  if( buf == NULL ) {
-    printk(KERN_DEBUG"[Unable to allocate buf memory]\n");
-    error = -3;
-    goto out2;
-  }
-  memset(buf,0,50);
-
-  filp = filp_open(fname,O_RDONLY,0);
-
-  if( IS_ERR(filp) || filp==NULL ) {
-    printk(KERN_DEBUG"[opening file error:%s]\n",fname);
-    error = -1;
-    goto out;
-  }
-
-  if( !filp || !filp->f_op || !filp->f_op->read ) {
-    printk(KERN_DEBUG"[filp does not have read function]\n");
-    error = -2;
-    goto out1;
-  }
-// I am getting error here
-  bytesread = filp->f_op->read(filp, buf, 41, &filp->f_pos);
-  buf[bytesread]='\0';
-  printk(KERN_DEBUG"[buffer-%s]\n",buf);
-
- out1:
-  if( filp!=NULL || !IS_ERR(filp) )
-    filp_close(filp,NULL);
-  
-out:
-  if( buf != NULL )
-    kfree(buf);
-out2:
-  set_fs(oldfs); 
-
-  return error;        
-###################################
-
-Thanks in advance.
-
-Rgda,
-
-Madhu V

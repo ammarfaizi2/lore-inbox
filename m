@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280735AbRKGBcf>; Tue, 6 Nov 2001 20:32:35 -0500
+	id <S280736AbRKGBfp>; Tue, 6 Nov 2001 20:35:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280731AbRKGBc0>; Tue, 6 Nov 2001 20:32:26 -0500
-Received: from ns.suse.de ([213.95.15.193]:52229 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S280727AbRKGBcU>;
-	Tue, 6 Nov 2001 20:32:20 -0500
-Date: Wed, 7 Nov 2001 02:32:18 +0100
-From: Andi Kleen <ak@suse.de>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Andreas Gruenbacher <ag@bestbits.at>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, acl-devel@bestbits.at,
-        linux-xfs@oss.sgi.comc
-Subject: Re: [RFC][PATCH] extended attributes
-Message-ID: <20011107023218.A4754@wotan.suse.de>
-In-Reply-To: <20011107111224.C591676@wobbly.melbourne.sgi.com>
+	id <S280731AbRKGBff>; Tue, 6 Nov 2001 20:35:35 -0500
+Received: from netsrvr.ami.com.au ([203.55.31.38]:31762 "EHLO
+	netsrvr.ami.com.au") by vger.kernel.org with ESMTP
+	id <S280644AbRKGBf1>; Tue, 6 Nov 2001 20:35:27 -0500
+Message-Id: <200111070133.fA71XPh11123@numbat.os2.ami.com.au>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: root <g.anzolin@inwind.it>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Olivetti hangs in PCI initialisation 
+In-Reply-To: Your message of "Tue, 06 Nov 2001 20:48:26 +0100."
+             <20011106204826.A15663@fourier.home.intranet> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <20011107111224.C591676@wobbly.melbourne.sgi.com>; from nathans@sgi.com on Wed, Nov 07, 2001 at 11:12:24AM +1100
+Date: Wed, 07 Nov 2001 09:33:25 +0800
+From: John Summerfield <summer@os2.ami.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 07, 2001 at 11:12:24AM +1100, Nathan Scott wrote:
-> A manual page describing the system call interface can be found here[4].
-> We're very interested in feedback on this.  In partiular, Linus - would
+> 
+> --9amGYk9869ThD9tj
+> Content-Type: text/plain; charset=us-ascii
+> Content-Disposition: inline
+> 
+> Hello,
+> 
+> I've just read your messages on linux-kernel about your problems with an
+> Olivetti PC. I had similar problems with my PC (which is an Olivetti
+> Modulo): it hanged on boot and the screen got black (this part is different).
+>  
+> Then it died.
+> 
+> I've found that my problem was caused by some lines in setup.S. Given
+> that your problem has the same cause I'm attaching a patch which worked
+> for me.
+>
 
-The cursor support looks quite complicated. It doesn't even forbid 
-storing the contents of the cursor buffer somewhere and has all
-the standard problems with stateless cursors requiring nasty hacks
-with dynamic data structures with parallel modification.
-Stateless cursors are just nasty!
+It was worth a try, but it had no effect that I could see.
 
-I think it would be better to have a statefull readdir instead.
-The kernel supports it via the ->private_data field of struct file
-(not through fork,but that looks like a generic vfs bug) 
+>From other efforts it seems the problem may actually be connected with scrolling and it happens to be in the PCI detection code at the time the need arises.
 
-EA_FIRST_ENTRY to reset the fd the first entry, EA_READ_ENTRY to 
-read the next one.
 
-It would not be inherently thread safe, but also not be worse
-in this regard than standard readdir (requiring user locks)
+-- 
+Cheers
+John Summerfield
 
-It would also be possible to do a threadsafe interface although it would be 
-a bit uglier: EA_GET_LISTSIZE to get the 
-size of the buffer required, EA_GET_FULL_LIST to fetch a full
-buffer with the names of all EAs, EAGAIN on race.
+Microsoft's most solid OS: http://www.geocities.com/rcwoolley/
 
-I think doing it in one of these ways would be far easier for the
-user and easier for future kernel implementations.
+Note: mail delivered to me is deemed to be intended for me, for my disposition.
 
--Andi
+
+

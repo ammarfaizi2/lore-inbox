@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288958AbSBSTJV>; Tue, 19 Feb 2002 14:09:21 -0500
+	id <S288971AbSBSTNl>; Tue, 19 Feb 2002 14:13:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288967AbSBSTJL>; Tue, 19 Feb 2002 14:09:11 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:7144 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S288960AbSBSTI6>; Tue, 19 Feb 2002 14:08:58 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.org>
-To: cschumpf@gmx.net, linux-kernel@vger.kernel.org
-Subject: Re: Patch or module?
-Date: Tue, 19 Feb 2002 20:08:32 +0100
+	id <S288981AbSBSTNb>; Tue, 19 Feb 2002 14:13:31 -0500
+Received: from h24-71-223-13.cg.shawcable.net ([24.71.223.13]:30425 "EHLO
+	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id <S288971AbSBSTN1>; Tue, 19 Feb 2002 14:13:27 -0500
+Date: Tue, 19 Feb 2002 13:07:13 -0600
+From: John Hughes <johughes@shaw.ca>
+Subject: 2.5.5 NVidia driver compile fails
+To: linux-kernel@vger.kernel.org
+Message-id: <0GRS001V4NKSMU@l-daemon>
+MIME-version: 1.0
 X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <18920.1014143039@www57.gmx.net>
-In-Reply-To: <18920.1014143039@www57.gmx.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <16dFd0-1wqRZwC@fmrl09.sul.t-online.com>
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 February 2002 19:23, cschumpf@gmx.net wrote:
-> If thats not the right group to discuss that, please let me know.
->
-> I would like to write an IO-Bandwidth-Limiter on per Process and per
-> User-Basis for a few disk drives. I can either patch the kernel functions
-> read/write and enhance the task- and user-structure and globally check if
-> the correct devices are adressed or I can write my own module, twist
-> pointers from the filesystems on the drives and store the information about
-> users and tasks there.
+I get a whole bunch of warnings, then this:
 
-You cannot do this on the device level as the writing task is not identical
-to the task actual having caused the requirement to do IO.
+nv.c: In function `nv_kern_open':
+nv.c:1149: invalid operands to binary &
+nv.c:1153: invalid operands to binary &
+nv.c: In function `nv_kern_close':
+nv.c:1260: invalid operands to binary &
+nv.c: In function `nv_kern_mmap':
+nv.c:1389: warning: passing arg 1 of `remap_page_range_Reb32c755' makes 
+pointer from integer without a cast
+nv.c:1389: incompatible type for argument 4 of `remap_page_range_Reb32c755'
+nv.c:1389: too few arguments to function `remap_page_range_Reb32c755'
+nv.c:1406: warning: passing arg 1 of `remap_page_range_Reb32c755' makes 
+pointer from integer without a cast
+nv.c:1406: incompatible type for argument 4 of `remap_page_range_Reb32c755'
+nv.c:1406: too few arguments to function `remap_page_range_Reb32c755'
+nv.c:1438: warning: passing arg 1 of `remap_page_range_Reb32c755' makes 
+pointer from integer without a cast
+nv.c:1438: incompatible type for argument 4 of `remap_page_range_Reb32c755'
+nv.c:1438: too few arguments to function `remap_page_range_Reb32c755'
+make[2]: *** [nv.o] Error 1
 
-	HTH
-		Oliver
+Has anyone got a working patch for the NVidia tree?
+
+John Hughes

@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313817AbSEIQJ7>; Thu, 9 May 2002 12:09:59 -0400
+	id <S313862AbSEIQXf>; Thu, 9 May 2002 12:23:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313818AbSEIQJ6>; Thu, 9 May 2002 12:09:58 -0400
-Received: from relay1.pair.com ([209.68.1.20]:12302 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S313817AbSEIQJ5>;
-	Thu, 9 May 2002 12:09:57 -0400
-X-pair-Authenticated: 24.126.75.99
-Message-ID: <3CDAA018.F00E8015@kegel.com>
-Date: Thu, 09 May 2002 09:13:12 -0700
-From: Dan Kegel <dank@kegel.com>
-Reply-To: dank@kegel.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ken Brownfield <ken@irridia.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "khttpd-users@lists.alt.org" <khttpd-users@alt.org>
-Subject: Re: khttpd newbie problem
-In-Reply-To: <3CD402D2.E3A94CA2@kegel.com> <20020505005439.GA12430@krispykreme> <3CD4C93D.E543B188@kegel.com> <20020508222119.A12672@asooo.flowerfire.com> <3CDA0876.218285C7@kegel.com> <20020509003155.B12672@asooo.flowerfire.com>
+	id <S313867AbSEIQXe>; Thu, 9 May 2002 12:23:34 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:57864 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S313862AbSEIQXd>;
+	Thu, 9 May 2002 12:23:33 -0400
+Date: Thu, 9 May 2002 08:23:29 -0700
+From: Greg KH <greg@kroah.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Problems with 2.5.14 PCI reorg and non-PCI architectures
+Message-ID: <20020509152329.GC17158@kroah.com>
+In-Reply-To: <20020509084424.GC15460@kroah.com> <200205091300.g49D0TY01841@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Thu, 11 Apr 2002 13:35:16 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ken Brownfield wrote:
-> Hmm.  I've had it running *hard* for two years, never seen a single oops
-> or glitch of any sort, kernels 2.4.0-test1 through 2.4.18.  O(1),
-> preempt, low-latency all on at various times.
-
-Try cycling it up and down in a loop.  That's what triggers the bug
-my recent patch fixed. (Actually, just starting it once triggers it,
-depending on a race condition between the management thread and the
-worker threads.)
-
-> | Yukky.  Makes me want to go work with user-mode web servers instead.
+On Thu, May 09, 2002 at 09:00:28AM -0400, James Bottomley wrote:
+> greg@kroah.com said:
+> > arch/i386/pci/dma.c now only contains pci_alloc_consistent() and
+> > pci_free_consistent().  What kind of configuration are you using that
+> > works without CONFIG_PCI and yet calls those functions?  Is it a
+> > ISA_PNP type configuration?  Do you have a .config that this fails on?
 > 
-> Yeah, good luck tracking down X15.
+> The problem is that this is not necessarily PCI related on other platforms.
+> 
+> My cross platform SCSI driver, 53c700.c, uses pci_alloc_consistent because it 
+> has to work on parisc archs as well (which do have consistent memory even 
+> though a few of them don't have PCI busses).  It was failing a test compile.  
+> I can manipulate the #ifdefs so that it doesn't use the consistent allocation 
+> functions on x86, but I think, in principle, cross platform drivers should be 
+> able to use these functions.
 
-I have a copy, actually.  It uses Linux's rtsig scheme.
-Can't use it, though, as its license prohibits commercial use.
-I am tempted to add rtsig support to thttpd, though.
+But parisc has it's own implementation of pci_alloc_consistent(), so
+you're ok on that platform.  And it looks like only 2 scsi drivers use
+the 53c700.c code, lasi700.c and NCR_D700.c.  The NCR driver looks to
+need pci, and the lasi700 driver doesn't look like it will even compile
+on i386.
 
-- Dan
+No wait, the NCR driver needs Microchannel, is that true?
+
+I would like to push back and ask why you are calling a pci_* function
+from a driver that does not need pci.  Yes, I know it's a nice, generic
+function, but that hasn't stopped people from rewriting that same
+function a number of times in different forms in different places in the
+tree :)
+
+In a perfect world, we should probably create a function like:
+	void *alloc_consistent (int flags, size_t size, dma_addr_t *dma_handle);
+to solve everyone's needs, but I'm not volunteering to do that :)
+
+I'll go move the file and send the changeset to Linus.
+
+thanks,
+
+greg k-h

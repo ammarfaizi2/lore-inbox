@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbRDEXYM>; Thu, 5 Apr 2001 19:24:12 -0400
+	id <S129669AbRDEXzT>; Thu, 5 Apr 2001 19:55:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129524AbRDEXYD>; Thu, 5 Apr 2001 19:24:03 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:62350 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S129511AbRDEXX7>;
-	Thu, 5 Apr 2001 19:23:59 -0400
-Message-ID: <3ACCFE60.FF896272@mandrakesoft.com>
-Date: Thu, 05 Apr 2001 19:23:12 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S129679AbRDEXzJ>; Thu, 5 Apr 2001 19:55:09 -0400
+Received: from [63.109.146.2] ([63.109.146.2]:35322 "EHLO mail0.myrio.com")
+	by vger.kernel.org with ESMTP id <S129669AbRDEXyu>;
+	Thu, 5 Apr 2001 19:54:50 -0400
+Message-ID: <B65FF72654C9F944A02CF9CC22034CE22E1B74@mail0.myrio.com>
+From: Torrey Hoffman <torrey.hoffman@myrio.com>
+To: "'Timothy D. Witham'" <wookie@osdlab.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: RE: a quest for a better scheduler
+Date: Thu, 5 Apr 2001 16:53:27 -0700 
 MIME-Version: 1.0
-To: acc@CS.Stanford.EDU
-Cc: linux-kernel@vger.kernel.org, mc@CS.Stanford.EDU
-Subject: Re: [CHECKER] 15 potential pointer dereference errors in 2.4.3
-In-Reply-To: <20010405015251.A20904@Xenon.Stanford.EDU>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Chou wrote:
-> [BUG]
-> /u2/acc/oses/linux/2.4.3/drivers/net/tokenring/tmsisa.c:274:tms_isa_probe: ERROR:NULL:273:274: Using
-> unknown ptr "card" illegally! set by 'kmalloc':273
+Timothy D. Witham wrote :
+[...] 
+> I propose that we work on setting up a straight forward test harness 
+> that allows developers to quickly test a kernel patch against 
+> various performance yardsticks.
 
-fixed
+[...
+(proposed large server testbeds)
+...]
 
+I like this idea, but could the testbeds also include some 
+resource-constrained "embedded" or appliance-style systems, and
+include performance yardsticks for latency and responsiveness?
 
-> [BUG]
-> /u2/acc/oses/linux/2.4.3/drivers/pcmcia/rsrc_mgr.c:199:do_io_probe: ERROR:NULL:191:199: Using
-> unknown ptr "b" illegally! set by 'kmalloc':191
+It would be unfortunate if work on a revised scheduler resulted
+in Linux being a monster web server on 4-way systems, but having
+lousy interactive performance on web pads, hand helds, and set top
+boxes.  
 
-fixed
+How about a 120Mhz Pentium with 32MB of RAM and a flash disk, a 200 
+Mhz PowerPC with 64 MB?  Maybe a Transmeta web pad?  
 
--- 
-Jeff Garzik       | Sam: "Mind if I drive?"
-Building 1024     | Max: "Not if you don't mind me clawing at the dash
-MandrakeSoft      |       and shrieking like a cheerleader."
+For the process load, something that tests responsiveness and 
+latency - how about a set of processes doing multicast network 
+transfers, CPU-intensive MPEG video and audio encode / decode,
+and a test app that measures "user response", i.e. if X Windows 
+was running, would the mouse pointer move smoothly or jerkily?
+
+The "better" scheduler for these applications would make sure that 
+multicast packets were never dropped, the MPEG decode never dropped 
+frames, and the "user interface" stayed responsive, etc.
+
+Also, I would not mind a bit if the kernel had tuning options, either 
+in configuration or through /proc to adjust for these very different
+situations.
+
+Torrey Hoffman
+Torrey.Hoffman@myrio.com
+

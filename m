@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263769AbTCVR2d>; Sat, 22 Mar 2003 12:28:33 -0500
+	id <S263672AbTCVRaA>; Sat, 22 Mar 2003 12:30:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263772AbTCVR2d>; Sat, 22 Mar 2003 12:28:33 -0500
-Received: from verein.lst.de ([212.34.181.86]:20486 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S263769AbTCVR22>;
-	Sat, 22 Mar 2003 12:28:28 -0500
-Date: Sat, 22 Mar 2003 18:39:26 +0100
+	id <S263688AbTCVR3y>; Sat, 22 Mar 2003 12:29:54 -0500
+Received: from verein.lst.de ([212.34.181.86]:23558 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S263672AbTCVR3d>;
+	Sat, 22 Mar 2003 12:29:33 -0500
+Date: Sat, 22 Mar 2003 18:40:32 +0100
 From: Christoph Hellwig <hch@lst.de>
 To: torvalds@transmeta.com
-Cc: bcollins@debian.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] bring back Al's devfs changes in dv1394
-Message-ID: <20030322183926.A21623@lst.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] misc devfs_register cleanups
+Message-ID: <20030322184032.G21623@lst.de>
 Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
-	bcollins@debian.org, linux-kernel@vger.kernel.org
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,271 +21,149 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-needed to get the only callder of devfs_mk_dir where the first argument
-is not NULL back in shape.  Also a nice code cleanup..
+Avoid a bunch of non-NULL first arguments.
 
 
---- a/drivers/ieee1394/dv1394.c	Sat Mar 22 15:36:34 2003
-+++ b/drivers/ieee1394/dv1394.c	Sat Mar 22 15:36:34 2003
-@@ -177,15 +177,6 @@
+diff -Nru a/drivers/block/swim3.c b/drivers/block/swim3.c
+--- a/drivers/block/swim3.c	Sat Mar 22 17:04:07 2003
++++ b/drivers/block/swim3.c	Sat Mar 22 17:04:07 2003
+@@ -1095,9 +1095,9 @@
  
- static struct hpsb_highlevel *hl_handle; /* = NULL; */
- 
--static LIST_HEAD(dv1394_devfs);
--struct dv1394_devfs_entry {
--	struct list_head list;
--    devfs_handle_t devfs;
--	char name[32];
--	struct dv1394_devfs_entry *parent;
--};
--static spinlock_t dv1394_devfs_lock = SPIN_LOCK_UNLOCKED;
--
- /* translate from a struct file* to the corresponding struct video_card* */
- 
- static inline struct video_card* file_to_video_card(struct file *file)
-@@ -2456,137 +2447,25 @@
- };
- 
- 
--/*** DEVFS HELPERS *********************************************************/
--
--struct dv1394_devfs_entry *
--dv1394_devfs_find( char *name)
--{
--	struct list_head *lh;
--	struct dv1394_devfs_entry *p;
--
--	spin_lock( &dv1394_devfs_lock);
--	if(!list_empty(&dv1394_devfs)) {
--		list_for_each(lh, &dv1394_devfs) {
--			p = list_entry(lh, struct dv1394_devfs_entry, list);
--			if(!strncmp(p->name, name, sizeof(p->name))) {
--				goto found;
--			}
--		}
--	}
--	p = NULL;
--	
--found:
--	spin_unlock( &dv1394_devfs_lock);
--	return p;
--}
--
- #ifdef CONFIG_DEVFS_FS
- static int dv1394_devfs_add_entry(struct video_card *video)
+ 	printk(KERN_INFO "fd%d: SWIM3 floppy controller %s\n", floppy_count,
+ 		mediabay ? "in media bay" : "");
+-	sprintf(floppy_name, "%s%d", floppy_devfs_handle ? "" : "floppy",
+-			floppy_count);
+-	floppy_handle = devfs_register(floppy_devfs_handle, floppy_name, 
++
++	sprintf(floppy_name, "floppy/%d", floppy_count);
++	floppy_handle = devfs_register(NULL, floppy_name, 
+ 			DEVFS_FL_DEFAULT, FLOPPY_MAJOR, floppy_count, 
+ 			S_IFBLK | S_IRUSR | S_IWUSR | S_IRGRP |S_IWGRP, 
+ 			&floppy_fops, NULL);
+diff -Nru a/drivers/ieee1394/video1394.c b/drivers/ieee1394/video1394.c
+--- a/drivers/ieee1394/video1394.c	Sat Mar 22 17:04:07 2003
++++ b/drivers/ieee1394/video1394.c	Sat Mar 22 17:04:07 2003
+@@ -1251,7 +1251,7 @@
  {
--	char buf[32];
--	struct dv1394_devfs_entry *p;
--	struct dv1394_devfs_entry *parent;
-+	char buf[64];
+ 	struct video_card *video;
+ 	unsigned long flags;
+-	char name[16];
++	char name[24];
+ 	int minor;
  
--	p = kmalloc(sizeof(struct dv1394_devfs_entry), GFP_KERNEL);
--	if(!p) {
--		printk(KERN_ERR "dv1394: cannot allocate dv1394_devfs_entry\n");
--		goto err;
--	}
--	memset(p, 0, sizeof(struct dv1394_devfs_entry));
--	
--	snprintf(buf, sizeof(buf), "dv/host%d/%s", (video->id>>2),
--						(video->pal_or_ntsc == DV1394_NTSC ? "NTSC" : "PAL"));
--		
--	parent = dv1394_devfs_find(buf);
--	if (parent == NULL) {
--		printk(KERN_ERR "dv1394: unable to locate parent devfs of %s\n", buf);
--		goto err_free;
--	}
--	
--	video->devfs_handle = devfs_register(
--						 parent->devfs,
--					     (video->mode == MODE_RECEIVE ? "in" : "out"),
--						 DEVFS_FL_NONE,
--					     IEEE1394_MAJOR,
-+	snprintf(buf, sizeof(buf), "ieee1394/dv/host%d/%s/%s",
-+		(video->id>>2),
-+		(video->pal_or_ntsc == DV1394_NTSC ? "NTSC" : "PAL"),
-+		(video->mode == MODE_RECEIVE ? "in" : "out"));
+ 	video = kmalloc(sizeof(struct video_card), GFP_KERNEL);
+@@ -1270,9 +1270,9 @@
+ 	video->id = ohci->id;
+ 	video->ohci = ohci;
+ 
+-	sprintf(name, "%d", video->id);
++	sprintf(name, "%s/%d", VIDEO1394_DRIVER_NAME, video->id);
+ 	minor = IEEE1394_MINOR_BLOCK_VIDEO1394 * 16 + video->id;
+-	video->devfs = devfs_register(devfs_handle, name, DEVFS_FL_DEFAULT,
++	video->devfs = devfs_register(NULL, name, DEVFS_FL_DEFAULT,
+ 				      IEEE1394_MAJOR, minor,
+ 				      S_IFCHR | S_IRUSR | S_IWUSR,
+ 				      &video1394_fops, NULL);
+diff -Nru a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
+--- a/drivers/s390/block/dasd.c	Sat Mar 22 17:04:07 2003
++++ b/drivers/s390/block/dasd.c	Sat Mar 22 17:04:07 2003
+@@ -178,6 +178,7 @@
+ 	umode_t devfs_perm;
+ 	devfs_handle_t dir;
+ 	int major, minor;
++	char buf[20];
+ 
+ 	/* Increase reference count of bdev. */
+ 	if (bdget(MKDEV(device->gdp->major, device->gdp->first_minor)) == NULL)
+@@ -198,7 +199,9 @@
+ 		devfs_perm = S_IFBLK | S_IRUSR;
+ 	else
+ 		devfs_perm = S_IFBLK | S_IRUSR | S_IWUSR;
+-	device->devfs_entry = devfs_register(dir, "device", DEVFS_FL_DEFAULT,
 +
-+	video->devfs_handle = devfs_register(NULL, buf, 0, IEEE1394_MAJOR,
- 					     IEEE1394_MINOR_BLOCK_DV1394*16 + video->id,
- 					     S_IFCHR | S_IRUGO | S_IWUGO,
--					     &dv1394_fops,
--					     (void*) video);
--	p->devfs = video->devfs_handle;
--
--	if (p->devfs == NULL) {
--		printk(KERN_ERR "dv1394: unable to create /dev/ieee1394/%s/%s\n",
--			parent->name,
--			(video->mode == MODE_RECEIVE ? "in" : "out"));
--		goto err_free;
--	}
--	
--	spin_lock( &dv1394_devfs_lock);
--	INIT_LIST_HEAD(&p->list);
--	list_add_tail(&p->list, &dv1394_devfs);
--	spin_unlock( &dv1394_devfs_lock);
--	
--	return 0;
--	
-- err_free:
--	kfree(p);
-- err:
--	return -ENOMEM;
--}
--
--static int
--dv1394_devfs_add_dir( char *name,
--					struct dv1394_devfs_entry *parent, 
--					struct dv1394_devfs_entry **out)
--{
--	struct dv1394_devfs_entry *p;
--
--	p = kmalloc(sizeof(struct dv1394_devfs_entry), GFP_KERNEL);
--	if(!p) {
--		printk(KERN_ERR "dv1394: cannot allocate dv1394_devfs_entry\n");
--		goto err;
--	}
--	memset(p, 0, sizeof(struct dv1394_devfs_entry));
--	
--	if (parent == NULL) {
--		snprintf(p->name, sizeof(p->name), "%s", name);
--		p->devfs = devfs_mk_dir(ieee1394_devfs_handle, name, NULL);
--	} else {
--		snprintf(p->name, sizeof(p->name), "%s/%s", parent->name, name);
--		p->devfs = devfs_mk_dir(parent->devfs, name, NULL);
--	}
--	if (p->devfs == NULL) {
--		printk(KERN_ERR "dv1394: unable to create /dev/ieee1394/%s\n", p->name);
--		goto err_free;
-+					     &dv1394_fops, video);
-+	if (video->devfs_handle == NULL) {
-+		printk(KERN_ERR "dv1394: unable to create /dev/%s\n", buf);
-+		return -ENOMEM;
++	snprintf(buf, sizeof(buf), "dasd/%04x/device", device->devno);
++	device->devfs_entry = devfs_register(NULL, buf, 0,
+ 					     major, minor << DASD_PARTN_BITS,
+ 					     devfs_perm,
+ 					     &dasd_device_operations, NULL);
+diff -Nru a/drivers/s390/char/tubfs.c b/drivers/s390/char/tubfs.c
+--- a/drivers/s390/char/tubfs.c	Sat Mar 22 17:04:07 2003
++++ b/drivers/s390/char/tubfs.c	Sat Mar 22 17:04:07 2003
+@@ -74,8 +74,7 @@
  	}
--
--	p->parent = parent;
--	if (out != NULL) *out = p;
--
--	spin_lock( &dv1394_devfs_lock);
--	INIT_LIST_HEAD(&p->list);
--	list_add_tail(&p->list, &dv1394_devfs);
--	spin_unlock( &dv1394_devfs_lock);
--
- 	return 0;
--	
-- err_free:
--	kfree(p);
-- err:
--	return -ENOMEM;
--}
--
--void dv1394_devfs_del( char *name)
--{
--	struct dv1394_devfs_entry *p = dv1394_devfs_find(name);
--	if (p != NULL) {
--		devfs_unregister(p->devfs);
--		
--		spin_lock( &dv1394_devfs_lock);
--		list_del(&p->list);
--		spin_unlock( &dv1394_devfs_lock);
--		kfree(p);
--	}
- }
- #endif /* CONFIG_DEVFS_FS */
+ #ifdef CONFIG_DEVFS_FS
+ 	fs3270_devfs_dir = devfs_mk_dir("3270");
+-	fs3270_devfs_tub = 
+-		devfs_register(fs3270_devfs_dir, "tub", DEVFS_FL_DEFAULT,
++	fs3270_devfs_tub = devfs_register(NULL, "3270/tub", 0,
+ 			       IBM_FS3270_MAJOR, 0,
+ 			       S_IFCHR | S_IRUGO | S_IWUGO, 
+ 			       &fs3270_fops, NULL);
+diff -Nru a/arch/um/drivers/ubd_kern.c b/arch/um/drivers/ubd_kern.c
+--- a/arch/um/drivers/ubd_kern.c	Sat Mar 22 17:04:18 2003
++++ b/arch/um/drivers/ubd_kern.c	Sat Mar 22 17:04:18 2003
+@@ -488,7 +488,7 @@
+ 			struct gendisk **disk_out, devfs_handle_t dir_handle,
+ 			devfs_handle_t *handle_out)
+ {
+-	char devfs_name[sizeof("nnnnnn\0")];
++	char devfs_name[sizeof("ubd/nnnnnn\0")];
+ 	struct gendisk *disk;
+ 	int minor = unit << UBD_SHIFT;
  
-@@ -2664,7 +2543,7 @@
- 	
- #ifdef CONFIG_DEVFS_FS
- 	if (dv1394_devfs_add_entry(video) < 0)
--			goto err_free;
-+		goto err_free;
- #endif
+@@ -505,8 +505,8 @@
+ 	*disk_out = disk;
  
- 	debug_printk("dv1394: dv1394_init() OK on ID %d\n", video->id);
-@@ -2687,8 +2566,9 @@
- 		(video->pal_or_ntsc == DV1394_NTSC ? "NTSC" : "PAL"),
- 		(video->mode == MODE_RECEIVE ? "in" : "out")
- 		);
-+
- #ifdef CONFIG_DEVFS_FS
--	dv1394_devfs_del(buf);
-+	devfs_remove("ieee1394/%s", buf);
- #endif
- #ifdef CONFIG_PROC_FS
- 	dv1394_procfs_del(buf);
-@@ -2726,13 +2606,11 @@
- 	spin_unlock_irqrestore(&dv1394_cards_lock, flags);
+ 	/* /dev/ubd/N style names */
+-	sprintf(devfs_name, "%d", unit);
+-	*handle_out = devfs_register(dir_handle, devfs_name,
++	sprintf(devfs_name, "ubd/%d", unit);
++	*handle_out = devfs_register(NULL, devfs_name,
+ 				     0, major, minor,
+ 				     S_IFBLK | S_IRUSR | S_IWUSR | S_IRGRP |
+ 				     S_IWGRP, &ubd_blops, NULL);
+diff -Nru a/drivers/char/ipmi/ipmi_devintf.c b/drivers/char/ipmi/ipmi_devintf.c
+--- a/drivers/char/ipmi/ipmi_devintf.c	Sat Mar 22 17:04:18 2003
++++ b/drivers/char/ipmi/ipmi_devintf.c	Sat Mar 22 17:04:18 2003
+@@ -444,15 +444,14 @@
  
- 	n = (video->id >> 2);
-+
- #ifdef CONFIG_DEVFS_FS
--	snprintf(buf, sizeof(buf), "dv/host%d/NTSC", n);
--	dv1394_devfs_del(buf);
--	snprintf(buf, sizeof(buf), "dv/host%d/PAL", n);
--	dv1394_devfs_del(buf);
--	snprintf(buf, sizeof(buf), "dv/host%d", n);
--	dv1394_devfs_del(buf);
-+	devfs_remove("ieee1394/dv/host%d/NTSC", n);
-+	devfs_remove("ieee1394/dv/host%d/PAL", n);
-+	devfs_remove("ieee1394/dv/host%d", n);
- #endif
+ static void ipmi_new_smi(int if_num)
+ {
+-	char name[2];
++	char name[10];
  
- #ifdef CONFIG_PROC_FS
-@@ -2770,15 +2648,12 @@
- #endif
+ 	if (if_num > MAX_DEVICES)
+ 		return;
  
- #ifdef CONFIG_DEVFS_FS
--{
--	struct dv1394_devfs_entry *devfs_entry = dv1394_devfs_find("dv");
--	if (devfs_entry != NULL) {
--		snprintf(buf, sizeof(buf), "host%d", ohci->id);
--		dv1394_devfs_add_dir(buf, devfs_entry, &devfs_entry);
--		dv1394_devfs_add_dir("NTSC", devfs_entry, NULL);
--		dv1394_devfs_add_dir("PAL", devfs_entry, NULL);
--	}
--}
-+	snprintf(buf, sizeof(buf), "ieee1394/dv/host%d", ohci->id);
-+	devfs_mk_dir(NULL, buf, NULL);
-+	snprintf(buf, sizeof(buf), "ieee1394/dv/host%d/NTSC", ohci->id);
-+	devfs_mk_dir(NULL, buf, NULL);
-+	snprintf(buf, sizeof(buf), "ieee1394/dv/host%d/PAL", ohci->id);
-+	devfs_mk_dir(NULL, buf, NULL);
- #endif
- 	
- 	dv1394_init(ohci, DV1394_NTSC, MODE_RECEIVE);
-@@ -3028,7 +2903,7 @@
- 	hpsb_unregister_highlevel (hl_handle);
- 	ieee1394_unregister_chardev(IEEE1394_MINOR_BLOCK_DV1394);
- #ifdef CONFIG_DEVFS_FS
--	dv1394_devfs_del("dv");
-+	devfs_remove("ieee1394/dv");
- #endif
- #ifdef CONFIG_PROC_FS
- 	dv1394_procfs_del("dv");
-@@ -3047,8 +2922,7 @@
- 	}
+-	name[0] = if_num + '0';
+-	name[1] = '\0';
++	snprinf(name, sizeof(name), "ipmidev/%d", if_num);
  
- #ifdef CONFIG_DEVFS_FS
--	ret = dv1394_devfs_add_dir("dv", NULL, NULL);
--	if (ret < 0) {
-+	if (!devfs_mk_dir(NULL, "ieee1394/dv", NULL)) {
- 		printk(KERN_ERR "dv1394: unable to create /dev/ieee1394/dv\n");
- 		ieee1394_unregister_chardev(IEEE1394_MINOR_BLOCK_DV1394);
- 		return -ENOMEM;
-@@ -3061,7 +2935,7 @@
- 		printk(KERN_ERR "dv1394: unable to create /proc/bus/ieee1394/dv\n");
- 		ieee1394_unregister_chardev(IEEE1394_MINOR_BLOCK_DV1394);
- #ifdef CONFIG_DEVFS_FS
--		dv1394_devfs_del("dv");
-+		devfs_remove("ieee1394/dv");
- #endif
- 		return -ENOMEM;
- 	}
-@@ -3072,7 +2946,7 @@
- 		printk(KERN_ERR "dv1394: hpsb_register_highlevel failed\n");
- 		ieee1394_unregister_chardev(IEEE1394_MINOR_BLOCK_DV1394);
- #ifdef CONFIG_DEVFS_FS
--		dv1394_devfs_del("dv");
-+		devfs_remove("ieee1394/dv");
- #endif
- #ifdef CONFIG_PROC_FS
- 		dv1394_procfs_del("dv");
+-	handles[if_num] = devfs_register(devfs_handle, name, DEVFS_FL_NONE,
++	handles[if_num] = devfs_register(NULL, name, DEVFS_FL_NONE,
+ 					 ipmi_major, if_num,
+ 					 S_IFCHR | S_IRUSR | S_IWUSR,
+ 					 &ipmi_fops, NULL);
+diff -Nru a/drivers/usb/input/hiddev.c b/drivers/usb/input/hiddev.c
+--- a/drivers/usb/input/hiddev.c	Sat Mar 22 17:04:17 2003
++++ b/drivers/usb/input/hiddev.c	Sat Mar 22 17:04:18 2003
+@@ -684,7 +684,7 @@
+ 	struct hiddev *hiddev;
+ 	int minor, i;
+ 	int retval;
+-	char devfs_name[16];
++	char devfs_name[24];
+ 
+ 	for (i = 0; i < hid->maxcollection; i++)
+ 		if (hid->collection[i].type == 
+@@ -715,8 +715,8 @@
+ 	hiddev->hid = hid;
+ 	hiddev->exist = 1;
+ 
+-	sprintf(devfs_name, "hiddev%d", minor);
+-	hiddev->devfs = devfs_register(hiddev_devfs_handle, devfs_name,
++	sprintf(devfs_name, "usb/hid/hiddev%d", minor);
++	hiddev->devfs = devfs_register(NULL, devfs_name,
+ 		DEVFS_FL_DEFAULT, USB_MAJOR, minor + HIDDEV_MINOR_BASE,
+ 		S_IFCHR | S_IRUGO | S_IWUSR, &hiddev_fops, NULL);
+ 	hid->minor = minor;

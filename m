@@ -1,82 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131286AbRCMXcB>; Tue, 13 Mar 2001 18:32:01 -0500
+	id <S131323AbRCMXjb>; Tue, 13 Mar 2001 18:39:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131287AbRCMXbw>; Tue, 13 Mar 2001 18:31:52 -0500
-Received: from toscano.org ([64.50.191.142]:5343 "HELO bubba.toscano.org")
-	by vger.kernel.org with SMTP id <S131286AbRCMXbq>;
-	Tue, 13 Mar 2001 18:31:46 -0500
-Date: Tue, 13 Mar 2001 18:31:05 -0500
-From: Pete Toscano <pete@toscano.org>
-To: Juha Saarinen <juha@saarinen.org>
+	id <S131324AbRCMXjW>; Tue, 13 Mar 2001 18:39:22 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:9147 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S131323AbRCMXjO>;
+	Tue, 13 Mar 2001 18:39:14 -0500
+Message-ID: <3AAEAF58.3F4BDA3B@mandrakesoft.com>
+Date: Tue, 13 Mar 2001 18:38:00 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Michal Jaegermann <michal@harddata.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: APIC  usb MPS 1.4 and the 2.4.2 kernel
-Message-ID: <20010313183105.H5626@bubba.toscano.org>
-Mail-Followup-To: Pete Toscano <pete@toscano.org>,
-	Juha Saarinen <juha@saarinen.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010313092837.A805@wirex.com> <LNBBIBDBFFCDPLBLLLHFEEDEJGAA.juha@saarinen.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="1giRMj6yz/+FOIRq"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <LNBBIBDBFFCDPLBLLLHFEEDEJGAA.juha@saarinen.org>; from juha@saarinen.org on Wed, Mar 14, 2001 at 08:25:37AM +1300
-X-Unexpected: The Spanish Inquisition
-X-Uptime: 6:28pm  up  9:31,  4 users,  load average: 0.04, 0.12, 0.15
+Subject: Re: Linux 2.4.2ac20
+In-Reply-To: <E14cgXm-0003O5-00@the-village.bc.nu> <20010313161704.A15082@mail.harddata.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Michal Jaegermann wrote:
+> 
+> On Tue, Mar 13, 2001 at 04:36:18AM +0000, Alan Cox wrote:
+> ...
+> >
+> > 2.4.2-ac20
+> ...
+> > o     Fix Alpha build                                 (Jeff Garzik)
+> 
+> Now I see (at least on Alpha) a constant wailing:
+> 
+> ..../linux-2.4.2ac/include/linux/binfmts.h:45: warning: `struct
+> mm_struct' declared inside parameter list
+> ..../linux-2.4.2ac/include/linux/binfmts.h:45: warning: its scope is
+> only this definition or declaration, which is probably not what you want
+> 
+> Is this somehow related?
 
---1giRMj6yz/+FOIRq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Nope, I saw that before the patch.  My patch was, in any case, to a
+single .c file, not a header file, so it wouldn't spew like that.
 
+It compiled and booted, I moved on :)
 
+So solve that warning you probably need to shuffle the delicate balance
+of includes around so that linux/sched.h, where mm_struct is defined, is
+included before binfmts.h.  Or have binfmt.h include sched.h (which
+should work... but its all kinds of nested nastiness)
 
-On Wed, 14 Mar 2001, Juha Saarinen wrote:
-
-> Greg,
->=20
-> :: It seems that the APIC on this motherboard does not have most of the
-> :: pins connected, so that even if we could get the USB interrupt to work
-> :: properly (which we couldn't) there would be no benefit to run in APIC
-> :: mode.  I was going to run some crude benchmarks on the box with and
-> :: without APIC mode just to get an sense if we are missing anything
-> :: running in noapic mode, but I haven't gotten around to it yet.
->=20
-> So for Tyan Tigers, is it better to compile the kernel without APIC? About
-> to install Linux on a dual 500 P3 here.
-
-AFAIK, the option to compile w/o APIC is only for UP systems.  If you
-want to use both of your processors, you have to compile in APIC
-support, but just disable it when loading the kernel (ie. for lilo,
-'append=3D"noapic"')
-
-> :: But, Linux does seem to run just fine with USB and SMP in the noapic
-> :: mode, which is a lot better than Win2000 can say, as it doesn't even
-> :: support the VIA USB chipset on this board at all :)
->=20
-> There's a Win2K patch for VIA chip sets now... I've got USB working under
-> Win2K here.
-
-That would explain why it works for me.  Now, if only I didn't have
-devices that need to have their BIOSes upgraded via a Windows .exe...
-
-pete
-
-
---1giRMj6yz/+FOIRq
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6rq25sMikd2rK89sRAhkQAJ0Ss+QaCxMrRqT8t9BxQs1JhQJ87QCeJ2/G
-EzmcQiEk/BQBLBTTOS9CLFI=
-=JDHi
------END PGP SIGNATURE-----
-
---1giRMj6yz/+FOIRq--
+-- 
+Jeff Garzik       | May you have warm words on a cold evening,
+Building 1024     | a full mooon on a dark night,
+MandrakeSoft      | and a smooth road all the way to your door.

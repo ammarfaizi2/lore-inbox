@@ -1,34 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVCGLwS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVCGL7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261379AbVCGLwS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 06:52:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVCGLwS
+	id S261408AbVCGL7G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 06:59:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbVCGL7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 06:52:18 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:20394 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261379AbVCGLwP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 06:52:15 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20050307034747.4c6e7277.akpm@osdl.org> 
-References: <20050307034747.4c6e7277.akpm@osdl.org>  <20050307033734.5cc75183.akpm@osdl.org> <20050303123448.462c56cd.akpm@osdl.org> <20050302135146.2248c7e5.akpm@osdl.org> <20050302090734.5a9895a3.akpm@osdl.org> <9420.1109778627@redhat.com> <31789.1109799287@redhat.com> <13767.1109857095@redhat.com> <9268.1110194624@redhat.com> <9741.1110195784@redhat.com> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, davidm@snapgear.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] BDI: Provide backing device capability information 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Mon, 07 Mar 2005 11:51:54 +0000
-Message-ID: <9947.1110196314@redhat.com>
+	Mon, 7 Mar 2005 06:59:06 -0500
+Received: from mail43-s.fg.online.no ([148.122.161.43]:23458 "EHLO
+	mail43-s.fg.online.no") by vger.kernel.org with ESMTP
+	id S261408AbVCGL7D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 06:59:03 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Logitech MX1000 Horizontal Scrolling
+References: <873bxfoq7g.fsf@quasar.esben-stien.name>
+	<87zmylaenr.fsf@quasar.esben-stien.name>
+	<20050204195410.GA5279@ucw.cz>
+	<873bvyfsvs.fsf@quasar.esben-stien.name>
+	<87zmxil0g8.fsf@quasar.esben-stien.name>
+	<1110056942.16541.4.camel@localhost>
+From: Esben Stien <b0ef@esben-stien.name>
+X-Home-Page: http://www.esben-stien.name
+Date: Mon, 07 Mar 2005 12:48:05 +0100
+In-Reply-To: <1110056942.16541.4.camel@localhost> (Jeremy Nickurak's message
+ of "Sat, 05 Mar 2005 14:09:02 -0700")
+Message-ID: <87sm37vfre.fsf@quasar.esben-stien.name>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+Jeremy Nickurak <atrus@rifetech.com> writes:
 
-> > Any particular reason? It's mixed in with other unsigned longs and pointers
-> > after all...
-> 
-> Just that it's the natural wordsize of the machine, and uses less storage.
+> this is just a result of our different xmodmap configurations.
 
-Making it unsigned long on a 32-bit machine will make no difference. Making it
-unsigned int on a 64-bit machine will waste four bytes.
+Yes.
 
-David
+> Otherwise we're seeing exactly the same symptoms.
+
+Hmm, I'm getting the same hash for evdev.c between 2.6.10 and
+2.6.11. I hope Vojtech Pavlik got the reports.
+
+Is this reported as a bug?
+
+-- 
+Esben Stien is b0ef@esben-stien.name
+http://www.esben-stien.name
+irc://irc.esben-stien.name/%23contact
+[sip|iax]:b0ef@esben-stien.name

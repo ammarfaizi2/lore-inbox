@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268992AbUI2U2L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269020AbUI2U3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268992AbUI2U2L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 16:28:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269007AbUI2U2K
+	id S269020AbUI2U3h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 16:29:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268999AbUI2U3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 16:28:10 -0400
-Received: from bender.bawue.de ([193.7.176.20]:28909 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S268992AbUI2U15 (ORCPT
+	Wed, 29 Sep 2004 16:29:08 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:44908 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269007AbUI2U3A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 16:27:57 -0400
-Date: Wed, 29 Sep 2004 22:27:50 +0200
-From: Joerg Sommrey <jo175@sommrey.de>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: nmi watchdog failure on dual Athlon box
-Message-ID: <20040929202750.GA5534@sommrey.de>
-Mail-Followup-To: Joerg Sommrey <jo175@sommrey.de>,
-	"Maciej W. Rozycki" <macro@linux-mips.org>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040928163324.GA5759@sommrey.de> <Pine.LNX.4.58L.0409281802270.32231@blysk.ds.pg.gda.pl> <20040928183103.GA10593@sommrey.de> <Pine.LNX.4.58L.0409282159480.24587@blysk.ds.pg.gda.pl>
+	Wed, 29 Sep 2004 16:29:00 -0400
+Message-ID: <35fb2e590409291328458ebebd@mail.gmail.com>
+Date: Wed, 29 Sep 2004 21:28:59 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Subject: Re: processor affinity
+Cc: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Robert Love <rml@novell.com>, Ankit Jain <ankitjain1580@yahoo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <415B1064.1080302@drdos.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L.0409282159480.24587@blysk.ds.pg.gda.pl>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20040928122517.9741.qmail@web52907.mail.yahoo.com>
+	 <41596F7F.1000905@drdos.com>
+	 <1096387088.4911.4.camel@betsy.boston.ximian.com>
+	 <41598B23.50702@drdos.com>
+	 <1096408318.13983.47.camel@localhost.localdomain>
+	 <415AE953.3070105@drdos.com> <20040929184510.A15692@infradead.org>
+	 <415B0BFA.6050203@drdos.com>
+	 <35fb2e5904092913081a802944@mail.gmail.com>
+	 <415B1064.1080302@drdos.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 28, 2004 at 10:08:21PM +0100, Maciej W. Rozycki wrote:
-> On Tue, 28 Sep 2004, Joerg Sommrey wrote:
-> 
-> > |--- lockupcli.c
-> > |
-> > |main ()
-> > |{
-> > |	iopl(3);
-> > |	for (;;) asm("cli");
-> > |}
-> > 
-> > Does this mean there is a good reason for further investigations on why
-> > the IO-APIC NMI watchdog doesn't work? Until now I thought it would
-> > be ok as long as the local APIC NMI watchdog is set up.
-> 
->  Since this program does busy looping, the local APIC NMI watchdog should
-> trigger indeed.  It's "cli; hlt" that causes a problem with this watchdog.  
-> Something wrong is happening in your system, indeed.
+On Wed, 29 Sep 2004 13:43:32 -0600, Jeff V. Merkey <jmerkey@drdos.com> wrote:
 
-As I stated earlier, there *seemed* to be a working IO-APIC NMI watchdog
-with 2.6.3-mm4.  I never checked it's functionallity. Now I rebuilt that
-kernel and gave it a try.  Though it claims to have a running IO-APIC NMI
-watchdog, the lockupcli test failed.  Zwane was right when he suspected the
-nmi_watchdog=1 test working erratically in that case.  Sad but true: no NMI
-watchdog on tyan S2466.  I wonder if it's just impossible on such a board
-or if it needs some "special treatment" 
+> Since they are hiring as many top Linux folks as possible, and they have
+> invested their entire future in Linux, I think their actions speak so loud,
 
--jo
+I only asked because I'd not heard of an official patent position from
+them (but I've not looked) and I wondered if someone happened to know
+- words are completely meaningless.
 
--- 
--rw-r--r--  1 jo users 63 2004-09-29 22:10 /home/jo/.signature
+<snip>
+
+Wow, tha'ts one bitter mail you sent. Sorry to hear about it but I'd
+rather not start a general discussion about big business practices and
+Novell - just interested in the patent situation.
+
+Jon.

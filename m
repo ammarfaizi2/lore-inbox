@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129314AbQKQHAV>; Fri, 17 Nov 2000 02:00:21 -0500
+	id <S130070AbQKQHKd>; Fri, 17 Nov 2000 02:10:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130070AbQKQHAM>; Fri, 17 Nov 2000 02:00:12 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:26628 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129314AbQKQHAF>; Fri, 17 Nov 2000 02:00:05 -0500
-Date: Fri, 17 Nov 2000 00:30:00 -0600
+	id <S131793AbQKQHKX>; Fri, 17 Nov 2000 02:10:23 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:65291 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130070AbQKQHKL>; Fri, 17 Nov 2000 02:10:11 -0500
 To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: Linux 2.2.18pre21
-Message-ID: <20001117003000.B2918@wire.cadcamlab.org>
-In-Reply-To: <E13u4XD-0001oe-00@the-village.bc.nu> <20001116150704.A883@emma1.emma.line.org> <20001116171618.A25545@athlon.random> <20001116115249.A8115@wirex.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001116115249.A8115@wirex.com>; from jesse@wirex.com on Thu, Nov 16, 2000 at 11:52:49AM -0800
-From: Peter Samuelson <peter@cadcamlab.org>
+Date: 16 Nov 2000 22:40:00 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8v2js0$qpr$1@cesium.transmeta.com>
+In-Reply-To: <E13u4XD-0001oe-00@the-village.bc.nu> <20001116171618.A25545@athlon.random> <20001116115249.A8115@wirex.com> <20001117003000.B2918@wire.cadcamlab.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <20001117003000.B2918@wire.cadcamlab.org>
+By author:    Peter Samuelson <peter@cadcamlab.org>
+In newsgroup: linux.dev.kernel
+>
+> 
+> [jesse]
+> > 1.  Your server closes all open directory file descriptors and chroots.
+> > 2.  Someone manages to run some exploit code in your process space which--
+> 
+>   mkdir("foo")
+>   chroot("foo")
 
-[jesse]
-> 1.  Your server closes all open directory file descriptors and chroots.
-> 2.  Someone manages to run some exploit code in your process space which--
+BUG: you *MUST* chdir() into the chroot jail before it does you any
+good at all!
 
-  mkdir("foo")
-  chroot("foo")
-  chdir("../../../../../../../../../..")
-  chroot(".")
+I usually recommend:
 
-  mkdir proc
-  mount -t proc none proc
-  cd proc/1/cwd
+mkdir("foo");
+chdir("foo");
+chroot(".");
 
-Two easy "get out of jail free" cards.  There are other, more complex
-exploits.  You have added one more.  They all require root privileges.
+> Bottom line: once you are in the chroot jail, you must drop root
+> privileges, or you defeat the purpose.  Security-conscious coders know
+> this; it's not Linux-specific behavior or anything.
 
-Bottom line: once you are in the chroot jail, you must drop root
-privileges, or you defeat the purpose.  Security-conscious coders know
-this; it's not Linux-specific behavior or anything.
+Indeed.  They also know the above.
 
-Peter
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

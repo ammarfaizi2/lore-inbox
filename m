@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262152AbVCDGek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVCDGkD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262152AbVCDGek (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 01:34:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVCDGej
+	id S262149AbVCDGkD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 01:40:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVCDGkD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 01:34:39 -0500
-Received: from smtp3.Stanford.EDU ([171.67.16.138]:52449 "EHLO
-	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S262340AbVCDGeJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 01:34:09 -0500
-Date: Thu, 3 Mar 2005 22:33:40 -0800 (PST)
-From: Junfeng Yang <yjf@stanford.edu>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <ext2-devel@lists.sourceforge.net>,
-       <jfs-discussion@www-124.southbury.usf.ibm.com>, <reiser@namesys.com>
-cc: mc@cs.Stanford.EDU
-Subject: [CHECKER] Do ext2, jfs and reiserfs respect mount -o sync/dirsync
- option?
-Message-ID: <Pine.GSO.4.44.0503032211570.7754-100000@elaine24.Stanford.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 4 Mar 2005 01:40:03 -0500
+Received: from fire.osdl.org ([65.172.181.4]:58279 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262149AbVCDGgN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 01:36:13 -0500
+Date: Thu, 3 Mar 2005 22:34:21 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Russell Miller <rmiller@duskglow.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: auditing subsystem
+Message-ID: <20050304063421.GS28536@shell0.pdx.osdl.net>
+References: <200503032218.12062.rmiller@duskglow.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503032218.12062.rmiller@duskglow.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Russell Miller (rmiller@duskglow.com) wrote:
+> I've been doing a lot of research on this, and I keep coming up with things 
+> that don't work, have been abandoned, or are almost impossible to find or get 
+> working.  So I'll ask here.  Maybe one of the ultra-elightened linux gods 
+> will have a ready answer.
 
-Hi,
+You'll have better luck using linux-audit list.
 
-FiSC (our file system checker) emits several warnings on ext2, jfs and
-reiserfs, complaining that diretories or files are lost while FiSC
-believes they should already be persistent on disk. (ext3 behaves
-correctly.)
+> I want to be able to audit system calls - I want to log when files are opened, 
+> created, changed, deleted, etc.  Preferably I would like to do it without 
+> having to apply kernel patches, using vanilla (or close to vanilla) kernel.  
+> If this isn't possible, my net preference is to use a module.  If this isn't 
+> possible, well, I'll do what I have to.
 
-All warnings boil down to a single cause:  when these file systems are
-mounted -o sync or dirsync, dirty blocks are still written out
-asynchronously.  It appears to me that these mount options don't have any
-effect on these file systems.  Is this the intended behavior?
+No patches needed (although you will want 2.6.11 because the inode filter
+was busted, and you'll likely want to use it), for opened anyway.  You'll
+need an additional auditfs patch for created/deleted/changed(for more
+than just knowing open w/ write access) and it's not a stable patch yet.
 
-man mount shows:
+> I notice there is a CONFIG_AUDIT option.  Is this what I am looking for, and 
+> how do I use it?  /dev/audit seems not to work...
 
-              sync   All  I/O to the file system should be done
-synchronously.
+You'll need auditd, auditctl, and some rules to capture what you care
+about.
 
-              dirsync
-                     All directory updates within the file  system  should
-be
-                     done  synchronously.   This  affects the following
-system
-                     calls: creat, link, unlink, symlink, mkdir, rmdir,
-mknod
-                     and rename.
+For example:
 
-Any clafirication on this would be very helpful,
+To watch accesses to /etc/passwd (not creation/deletion events).
 
--Junfeng
+# auditd
+# auditctl -a entry,possible -S open
+# auditctl -a exit,always -S open -F inode=(inode of /etc/passwd)
 
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

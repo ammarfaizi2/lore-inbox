@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266712AbRG1O6K>; Sat, 28 Jul 2001 10:58:10 -0400
+	id <S266688AbRG1PMW>; Sat, 28 Jul 2001 11:12:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266696AbRG1O6A>; Sat, 28 Jul 2001 10:58:00 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:10507 "EHLO
-	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S266688AbRG1O5y>; Sat, 28 Jul 2001 10:57:54 -0400
-Date: 28 Jul 2001 16:37:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
+	id <S266710AbRG1PML>; Sat, 28 Jul 2001 11:12:11 -0400
+Received: from pixie.isr.ist.utl.pt ([193.136.138.97]:4100 "EHLO
+	pixie.isr.ist.utl.pt") by vger.kernel.org with ESMTP
+	id <S266688AbRG1PL5>; Sat, 28 Jul 2001 11:11:57 -0400
 To: linux-kernel@vger.kernel.org
-Message-ID: <85kynGlmw-B@khms.westfalen.de>
-In-Reply-To: <E15QF5E-0006ZL-00@the-village.bc.nu>
-Subject: Re: Strange remount behaviour with ext3-2.4-0.9.4
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
+Subject: Re: Problems with 2.4.7 and VIA IDE
+In-Reply-To: <lxvgkddrsh.fsf@pixie.isr.ist.utl.pt>
+In-Reply-To: Rodrigo Ventura's message of "28 Jul 2001 15:58:22 +0100"
+Content-Type: text/plain; charset=US-ASCII
+From: Rodrigo Ventura <yoda@isr.ist.utl.pt>
+Date: 28 Jul 2001 16:12:02 +0100
+Message-ID: <lxn15pdr5p.fsf@pixie.isr.ist.utl.pt>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <20010728090836.B1625@weta.f00f.org> <E15QF5E-0006ZL-00@the-village.bc.nu>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-alan@lxorguk.ukuu.org.uk (Alan Cox)  wrote on 27.07.01 in <E15QF5E-0006ZL-00@the-village.bc.nu>:
 
-> > more-or-less need need a tree-based fs and reference counting for all
-> > the magic bits).  In fact, doing it as the fs layer means you could
-> > have r/w snapshots with COW semantics.
->
-> You dont want r/w snapshots for archiving.
+        This is sort of a continuation of my last msg. I tried a rpm
+-Va on one xterm and a tar cf /dev/null / on another, and I got
+another dma error:
 
-Not for archiving, but when you want to run something and then throw it  
-away again, for example. You could do that by just holding onto a ro  
-snapshot and then replacing the rw tree with it later, but by having two  
-rw trees you don't need to stop your regular operations.
+hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
 
-For this to really be useful, you'd want it as an inheritable per-process  
-thing, similar to aviro's namespace thing.
+        I also have errors from the ethernet devices, e.g.
 
-MfG Kai
+eth0: Transmit error, Tx status register 82.
+Probably a duplex mismatch.  See Documentation/networking/vortex.txt
+  Flags; bus-master 1, dirty 1165(13) current 1165(13)
+  Transmit list 00000000 vs. c1277540.
+  0: @c1277200  length 800000aa status 000100aa
+  1: @c1277240  length 800000aa status 000100aa
+  2: @c1277280  length 800000aa status 000100aa
+  3: @c12772c0  length 800000aa status 000100aa
+  4: @c1277300  length 800000b2 status 000100b2
+  5: @c1277340  length 8000009e status 0001009e
+  6: @c1277380  length 800000aa status 000100aa
+  7: @c12773c0  length 800000aa status 000100aa
+  8: @c1277400  length 800000aa status 000100aa
+  9: @c1277440  length 800000aa status 000100aa
+  10: @c1277480  length 800000b2 status 000100b2
+  11: @c12774c0  length 8000009e status 0001009e
+  12: @c1277500  length 800000aa status 800100aa
+  13: @c1277540  length 800000aa status 000100aa
+  14: @c1277580  length 800000b2 status 000100b2
+  15: @c12775c0  length 8000009e status 0001009e
+
+        Cheers,
+
+-- 
+
+*** Rodrigo Martins de Matos Ventura <yoda@isr.ist.utl.pt>
+***  Web page: http://www.isr.ist.utl.pt/~yoda
+***   Teaching Assistant and PhD Student at ISR:
+***    Instituto de Sistemas e Robotica, Polo de Lisboa
+***     Instituto Superior Tecnico, Lisboa, PORTUGAL
+*** PGP fingerprint = 0119 AD13 9EEE 264A 3F10  31D3 89B3 C6C4 60C6 4585

@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263701AbTDDO0q (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 09:26:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263692AbTDDOZl (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 09:25:41 -0500
-Received: from modemcable169.53-202-24.mtl.mc.videotron.ca ([24.202.53.169]:57860
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S263701AbTDDOUE (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 09:20:04 -0500
-Date: Fri, 4 Apr 2003 09:26:43 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5-vanilla scribbles on memory on 8quad during boot
-In-Reply-To: <20030404141037.GD993@holomorphy.com>
-Message-ID: <Pine.LNX.4.50.0304040925120.30262-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0304040221510.30262-100000@montezuma.mastecende.com>
- <20030404141037.GD993@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S263707AbTDDOZW (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 09:25:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263689AbTDDOSP (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 09:18:15 -0500
+Received: from popmail.goshen.edu ([199.8.232.22]:57002 "EHLO mail.goshen.edu")
+	by vger.kernel.org with ESMTP id S263682AbTDDOPZ (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 09:15:25 -0500
+Subject: RE: RAID 5 performance problems
+From: Ezra Nugroho <ezran@goshen.edu>
+To: Jonathan Vardy <jonathan@explainerdc.com>
+Cc: "Peter L. Ashford" <ashford@sdsc.edu>,
+       Jonathan Vardy <jonathanv@explainerdc.com>,
+       Stephan van Hienen <raid@a2000.nu>, linux-raid@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <73300040777B0F44B8CE29C87A0782E101FA988F@exchange.explainerdc.com>
+References: <73300040777B0F44B8CE29C87A0782E101FA988F@exchange.explainerdc.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9.7x.1) 
+Date: 04 Apr 2003 09:39:09 -0500
+Message-Id: <1049467150.30062.6215.camel@ezran.goshen.edu>
+Mime-Version: 1.0
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Apr 2003, William Lee Irwin III wrote:
+> hdc: host protected area => 1
+> hdc: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=232581/16/63,
+> UDMA(33)
 
-> On Fri, Apr 04, 2003 at 02:26:18AM -0500, Zwane Mwaikambo wrote:
-> > This is all averted by my 'purge panic in as assign_irq_vector' 
-> > patch, as well as my not so invasive pernode idt/vector patch.
-> > Total of 32 processors activated (31453.18 BogoMIPS).
-> > ENABLING IO-APIC IRQs
-> >  printing eip:
-> > c010c954
-> > *pde = 00000000
-> > Oops: 0002
-> > CPU:    0
-> > EIP:    0060:[<c010c954>]    Not tainted
-> > EFLAGS: 00010202
-> > EIP is at set_intr_gate+0x14/0x30
-> > eax: 00606f20   ebx: 07070707   ecx: 07070707   edx: c0138e00
-> > esi: c0136f20   edi: 0000000c   ebp: 00000127   esp: c3c9ff40
-> > ds: 007b   es: 007b   ss: 0068
-> 
-> Hmm, this is ugly. As it would otherwise panic(), what workaround was
-> this done with?
 
-This one was hit when an index into a NR_IRQS array went out of bounds due 
-to the high irq count. I put in an 'if (irq > NR_IRQS) continue' in the 
-workaround patch.
+Your hdc is still running at udma(33). This is also part of the raid,
+right? This will slow the whole thing down since in raid 5 write is done
+to all disks simultaneously. Before the system finishes writing to the
+slow drive, the write is not done yet.
 
-	Zwane
--- 
-function.linuxpower.ca
+
+

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262326AbSKYCQj>; Sun, 24 Nov 2002 21:16:39 -0500
+	id <S262363AbSKYCUh>; Sun, 24 Nov 2002 21:20:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262363AbSKYCQi>; Sun, 24 Nov 2002 21:16:38 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:38416
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262326AbSKYCQi>; Sun, 24 Nov 2002 21:16:38 -0500
-Subject: Re: Which embedded linux is better for being a router? eCos?
-	uclinux?
-From: Robert Love <rml@tech9.net>
-To: paul_wu@wnexus.com.tw
-Cc: Tommy Reynolds <reynolds@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <48256C7C.0005853D.00@TWHSZDS1.WISTRON.COM.TW>
-References: <48256C7C.0005853D.00@TWHSZDS1.WISTRON.COM.TW>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1038191030.776.67.camel@phantasy>
+	id <S262366AbSKYCUh>; Sun, 24 Nov 2002 21:20:37 -0500
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:3211 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S262363AbSKYCUg>; Sun, 24 Nov 2002 21:20:36 -0500
+Date: Sun, 24 Nov 2002 21:27:18 -0500
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.49 kernel panic - cannot load root fs from 3:0a
+Message-ID: <20021125022718.GA1742@Master.Wizards>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20021124215113.GC1597@Master.Wizards> <20021125003426.GE21852@louise.pinerecords.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 24 Nov 2002 21:23:50 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021125003426.GE21852@louise.pinerecords.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-11-24 at 20:01, paul_wu@wnexus.com.tw wrote:
+On Mon, Nov 25, 2002 at 01:34:26AM +0100, Tomas Szepe wrote:
+> > I get the message referred to in the subject when trying to boot
+> > 2.5.49.
+> > My entire drive is reiserfs. kernel compiled with reiserfs.
+> > Does resierfs (v4) not work with older reiserfs?
+> 
+> 'reiser4' is an entirely new fs.  you have to compile in 'reiserfs'
+> to be able to mount v3.[56] volumes.
+> 
 
-> CPU will be MIPS. Does uclinux support multi-processes? Or there
-> is 3rd choice for such embedded Linux?
+There's only one reiserfs option in the GUI config - REISERFS_FS.
+That's set to Y.
 
-You do not need any special version of Linux.  Your chip has an MMU and
-all the other normal bits.  Just compile up a stock kernel and
-user-land.
-
-If you want an already-done distribution, there are a few out there -
-google around.  Commercial offerings are available from MontaVista, Red
-Hat, etc, too.
-
-	Robert Love
+-- 
+Murray J. Root
+------------------------------------------------
+DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
+------------------------------------------------
+Mandrake on irc.freenode.net:
+  #mandrake & #mandrake-linux = help for newbies 
+  #mdk-cooker = Mandrake Cooker 
 

@@ -1,39 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267625AbSLNPNX>; Sat, 14 Dec 2002 10:13:23 -0500
+	id <S267624AbSLNPMf>; Sat, 14 Dec 2002 10:12:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267626AbSLNPNX>; Sat, 14 Dec 2002 10:13:23 -0500
-Received: from 5-048.ctame701-1.telepar.net.br ([200.193.163.48]:62107 "EHLO
-	5-048.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S267625AbSLNPNW>; Sat, 14 Dec 2002 10:13:22 -0500
-Date: Sat, 14 Dec 2002 13:21:02 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Henning P. Schmiedehausen" <hps@intermeta.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Networking/Becker et al [was Re: pci-skeleton duplex check]
-In-Reply-To: <atfblt$nh2$1@forge.intermeta.de>
-Message-ID: <Pine.LNX.4.50L.0212141320440.32283-100000@imladris.surriel.com>
-References: <20021213092229.D9973@work.bitmover.com> <atfblt$nh2$1@forge.intermeta.de>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S267625AbSLNPMf>; Sat, 14 Dec 2002 10:12:35 -0500
+Received: from 44.Red-80-59-166.pooles.rima-tde.net ([80.59.166.44]:28291 "EHLO
+	gatsu.novasec.es") by vger.kernel.org with ESMTP id <S267624AbSLNPMe>;
+	Sat, 14 Dec 2002 10:12:34 -0500
+From: "bladi" <bladi-sec@novasec.es>
+To: linux-kernel@vger.kernel.org
+Subject: Problem with 2.4.21-pre1 Promise PDC20276
+Date: Sat, 14 Dec 2002 16:20:08 +0100
+Message-Id: <20021214152008.M92869@novasec.es>
+X-Mailer: Open WebMail 1.81 20021127
+X-OriginatingIP: 213.97.200.36 (bladi-sec)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Dec 2002, Henning P. Schmiedehausen wrote:
-> Larry McVoy <lm@bitmover.com> writes:
->
-> [... many true words ...]
+Hi.
 
-> e) put an alan-cox-like entity between him and the linux kernel developers
->    which translates. Worked terrific for Andre Hedrick. :-)
+i have PDC20276 BIOS ver 2.20.1020.13 promise device
 
-I think we should volunteer Jeff Garzik ;)
+And with kernel 2.4.21-pre1 the kernel recognize correctly the promise card
+but not the IDE devices. With 2.4.20 it work correctly using the same .config
+file.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+
+--------- 2.4.21-pre1 -----------------
+PDC20276: IDE controller at PCI slot 00:0f.0                                 
+PDC20276: chipset revision 1                                               
+PDC20276: not 100% native mode: will probe irqs later                    
+PDC20276: neither IDE port enabled (BIOS)                              
+        
+
+I try to load as kernel module too and pdc202xx_new.o give me the same error.
+/proc/ide/pdcnew
+                                MBFastTrak 133 Lite Chipset.                    
+
+
+
+---------- 2.4.20 -----------
+PDC20276: IDE controller on PCI bus 00 dev 78                               
+PDC20276: chipset revision 1                                               
+PDC20276: not 100% native mode: will probe irqs later                    
+PDC20276: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER
+Mode.       ide2: BM-DMA at 0xd000-0xd007, BIOS settings: hde:pio, hdf:pio   
+            ide3: BM-DMA at 0xd008-0xd00f, BIOS settings: hdg:pio, hdh:pio 
+            
+
+/proc/ide/pdc202xx
+PROMISE Ultra series driver Ver 1.20.0.7 2002-05-23 Adapter: Ultra Series
+--------------- Primary Channel ---------------- Secondary Channel
+-------------                enabled                          enabled 
+66 Clocking     enabled                          enabled 
+Mode            MASTER                           MASTER
+--------------- drive0 --------- drive1 -------- drive0 ---------- drive1
+------DMA enabled:    no               no              yes               no 
+UDMA Mode:      0                0               2                 0
+PIO Mode:       0                0               4                 0
+
+
+--
+NovaSec Servicios de Seguridad
+http://www.novasec.es
+
+C\ Evaristo San Miguel 4 2º6 (Princesa)
+28008 Madrid (España)
+
+Tel:  91 547 30 51
+Fax: 91 559 41 75

@@ -1,85 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267651AbUG3Hl7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267644AbUG3IGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267651AbUG3Hl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 03:41:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267647AbUG3Hl6
+	id S267644AbUG3IGO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 04:06:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267647AbUG3IGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 03:41:58 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:62674 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267651AbUG3Hlz (ORCPT
+	Fri, 30 Jul 2004 04:06:14 -0400
+Received: from styx.suse.cz ([82.119.242.94]:385 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S267644AbUG3IGI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 03:41:55 -0400
-Date: Fri, 30 Jul 2004 08:44:31 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Scott Wood <scott@timesys.com>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-M5
-Message-ID: <20040730064431.GA17777@elte.hu>
-References: <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <1091141622.30033.3.camel@mindpipe>
+	Fri, 30 Jul 2004 04:06:08 -0400
+Date: Fri, 30 Jul 2004 10:07:57 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Paul Jackson <pj@sgi.com>
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, akpm@osdl.org,
+       aebr@win.tue.nl, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix NR_KEYS off-by-one error
+Message-ID: <20040730080757.GA1068@ucw.cz>
+References: <87fz7c9j0y.fsf@devron.myhome.or.jp> <20040728134202.5938b275.pj@sgi.com> <87llh3ihcn.fsf@ibmpc.myhome.or.jp> <20040728231548.4edebd5b.pj@sgi.com> <87oelzjhcx.fsf@ibmpc.myhome.or.jp> <20040729024931.4b4e78e6.pj@sgi.com> <20040729162423.7452e8f5.akpm@osdl.org> <20040729165152.492faced.pj@sgi.com> <87pt6e2sm3.fsf@devron.myhome.or.jp> <20040730002706.2330974d.pj@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1091141622.30033.3.camel@mindpipe>
+In-Reply-To: <20040730002706.2330974d.pj@sgi.com>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+Let me summarize.
 
-> After running jackd with L2 all night, the only repeated XRUN was this
-> one:
-> 
-> ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
->  [<c01066a7>] dump_stack+0x17/0x20
->  [<de93d54b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
->  [<de979211>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
->  [<c01078d7>] handle_IRQ_event+0x47/0x90
->  [<c0107e93>] do_IRQ+0xe3/0x1b0
->  [<c0106268>] common_interrupt+0x18/0x20
->  [<c0146771>] add_to_swap+0x21/0xc0
->  [<c0139446>] shrink_list+0x156/0x4b0
->  [<c01398ed>] shrink_cache+0x14d/0x370
->  [<c013a118>] shrink_zone+0xa8/0xf0
->  [<c013a4ee>] balance_pgdat+0x1be/0x220
->  [<c013a5f9>] kswapd+0xa9/0xb0
->  [<c0104395>] kernel_thread_helper+0x5/0x10
-> 
-> This produced a few ~2ms XRUNs.  The shrink_zone -> shrink_cache ->
-> shrink_list is a recurring motif.
-> 
-> Is this addressed in M2?
+In the past, the kernel had various different values of NR_KEYS, in this
+order: 128, 512, 256, 255.
 
-not yet. I havent seen this latency yet, nor are there any immediately
-clear clues in the xrun logs you sent. (it would still be nice to check
-out -M2, to see whether with all those configurability changes it
-matches the latencies of L2+your-irq.c-hack.)
+128 was not enough, 512 didn't fit in a byte (while allowed to address
+all keycodes the input layer uses), 256 broke some apps that relied on
+unsigned char counters, and thus we ended up with the maximum value that
+kept all software happy.
 
-shrink_list() itself is preemptable once every iteration so that
-function alone shouldnt be able to generate a 2msec latency.
+Now somewhere in the process (I assume in the 512 stage, but could be
+the 256 stage as well), the kernel produced warnings about impossible
+comparisons.
 
-a strong suspect is add_to_swap(), it could be looping. Could you do a
-'echo m > /proc/sysrq-trigger' and send me the results? In particular
-are there any significant 'race' counts in the 'Swap cache:' stats?
+Thus the comparison(s) were dropped, by Andrew.
 
-the other possible suspect is get_swap_page() - it's called from
-add_to_swap() and has the potential to introduce latencies (it does
-bitmap scans, etc.) - but it never shows up in your xrun logs, which is
-a bit weird.
+Then we finalized on 255, and the comparison is needed again to prevent
+overflowing the keymap arrays.
 
-(could you perhaps also try wli's latency printing patch? That prints
-out latencies closer to where they really happen.)
+BUT some binaries are still compiled with 256 and try to set up a
+mapping for keycode 255 (although there is _no_ such keycode), and
+break. IMO it's a bug in the app.
 
-plus it seems the latency is related to certain VM activities - you
-still cannot name any particular reproducer workload - it just happens
-occasionally, right?
+Now I believe that simply adding the check back by reverting the old
+Andrew's patch and recompiling/fixing what breaks is the right way to
+go.
 
-	Ingo
+Any comments?
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

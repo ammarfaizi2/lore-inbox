@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278230AbRJSAPh>; Thu, 18 Oct 2001 20:15:37 -0400
+	id <S278227AbRJSAP5>; Thu, 18 Oct 2001 20:15:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278229AbRJSAP2>; Thu, 18 Oct 2001 20:15:28 -0400
-Received: from ns.suse.de ([213.95.15.193]:35851 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S278227AbRJSAPS>;
-	Thu, 18 Oct 2001 20:15:18 -0400
-Date: Fri, 19 Oct 2001 02:15:30 +0200
-From: Stefan Reinauer <stepan@suse.de>
-To: Ryan Cumming <bodnar42@phalynx.dhs.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch and Performance of larger pipes
-Message-ID: <20011019021530.A796@suse.de>
-In-Reply-To: <3BCF1A74.AE96F241@colorfullife.com> <E15uME1-0000Ht-00@bodnar42>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15uME1-0000Ht-00@bodnar42>
-User-Agent: Mutt/1.3.22.1i
-X-OS: Linux 2.4.12 i686
+	id <S278229AbRJSAPs>; Thu, 18 Oct 2001 20:15:48 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:13580 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S278227AbRJSAPf>;
+	Thu, 18 Oct 2001 20:15:35 -0400
+Date: Thu, 18 Oct 2001 17:22:12 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: "David E. Weekly" <dweekly@legato.com>
+cc: ML-linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Compile in tmpfs crumples in 2.4.12 w/epoll patch
+In-Reply-To: <016a01c15831$ef51c5c0$5c044589@legato.com>
+Message-ID: <Pine.LNX.4.40.0110181720370.970-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ryan Cumming <bodnar42@phalynx.dhs.org> [011019 01:05]:
-> Awesome! Although any improvement improvement in efficiency is a good thing, 
-> I am curious as to what uses pipes besides gcc -pipe. UNIX domain sockets 
-> (for local X11, for instance) aren't implemented as pipes, are they? What 
-> sort of real world performance gains could I expect from this patch?
+On Thu, 18 Oct 2001, David E. Weekly wrote:
 
-Shell scripts often use pipes to pass data between processes. Speed up should
-be quite noticable with all kinds of those.
+> Hey all,
+>
+> I was trying to speed up kernel compiles experimentally by moving the source
+> tree into tmpfs and compiling there. It seemed to work okay and crunched
+> through the dep phase and most of the main build phase just fine, but then
+> it hit a file, got an internal segfault, and stopped. I tried again -- this
+> time make itself segfaulted. Three more times of make segfaulting -- a
+> strace on make didn't reveal what was failing. Then strace started
+> segfaulting. Eventually "ls" segfaulted and the machine needed to be
+> manually rebooted. Ouch!
+>
+> I ran the full memtest86 suite on the machine, and it passed with flying
+> colors. So the memory proper is okay.
+>
+> I come to one of two conclusions: this is a wierd problem with my north
+> bridge, or there's something funky going on with tmpfs.
+>
+> Is tmpfs stable?
 
-  Best regards
-   Stefan Reinauer 
-     <stepan@suse.de>
+Or, is /dev/epoll stable ? :)
+I'm running it both on UP and 2 way SMP w/o problems from July.
+Just try w/o /dev/epoll
 
--- 
-This world is crying to be free; This world is dying, can't you see?
-We need a turn to do it right; We need a mind revolution
-To get away from this selfishness. Stop playing blind - BREAK FREE!
-					Your Turn, Helloween '91
+
+
+- Davide
+
+

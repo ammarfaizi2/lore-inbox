@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262806AbTBKQCv>; Tue, 11 Feb 2003 11:02:51 -0500
+	id <S262425AbTBKQCa>; Tue, 11 Feb 2003 11:02:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265532AbTBKQCv>; Tue, 11 Feb 2003 11:02:51 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:7847 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S262806AbTBKQCt>; Tue, 11 Feb 2003 11:02:49 -0500
-Date: Tue, 11 Feb 2003 10:12:27 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 337] New: build breakage for module versioning support 
-In-Reply-To: <83000000.1044979297@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.44.0302111010370.26687-100000@chaos.physics.uiowa.edu>
+	id <S262806AbTBKQCa>; Tue, 11 Feb 2003 11:02:30 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:21407 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262425AbTBKQC3>; Tue, 11 Feb 2003 11:02:29 -0500
+Date: Tue, 11 Feb 2003 08:11:38 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Hartmut Manz <manz@intes.de>, linux-kernel@vger.kernel.org
+Subject: Re: allocate more than 2 GB on IA32
+Message-ID: <86310000.1044979897@[10.10.2.4]>
+In-Reply-To: <200302111015.54223.manz@intes.de>
+References: <200302111015.54223.manz@intes.de>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Feb 2003, Martin J. Bligh wrote:
+> i would like to allocate more than 2 GB of memory on an IA32 architecture.
+> 
+> The machine is a dual XEON_DP with 3 GB of Ram and 4 GB of swap space.
+> 
+> I have tried with the default SUSE 8.1 kernel as well as with a
+> 2.4.20-pre4aa1 Kernel compile by my own using these Options:
+> 
+> CONFIG_HIGHMEM4G=y
+> CONFIG_HIGHMEM=y
+> CONFIG_1GB=y
+> 
+> but I am only able to allocate 2 GB with a single malloc call.
+> I tought it should be possible to allocate up to 2.9 GB of memory to a
+> process, with this kernel settings.
 
-> http://bugme.osdl.org/show_bug.cgi?id=337
-> 
->            Summary: build breakage for module versioning support
->     Kernel Version: 2.5.60, 2.5.60-bk1
->             Status: NEW
->           Severity: normal
->              Owner: bugme-janitors@lists.osdl.org
->          Submitter: john@larvalstage.com
-> 
-> 
-> Problem Description:
-> 
-> Enabling module versioning support causes build breakage.
-> 
->   gcc -Wp,-MD,arch/i386/kernel/.time.o.d -D__KERNEL__ -Iinclude -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
-> -pipe -mpreferred-stack-boundary=2 -march=athlon
-> -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include
-> -DKBUILD_BASENAME=time -DKBUILD_MODNAME=time -c -o
-> arch/i386/kernel/.tmp_time.o arch/i386/kernel/time.c
-> ld:arch/i386/kernel/.tmp_time.ver:1: parse error
-> make[1]: *** [arch/i386/kernel/time.o] Error 1
-> make: *** [arch/i386/kernel] Error 2
+Well, assuming you had no user-space code or data, or a stack, or any
+shared libraries to fit into that space as well ;-)
 
-That's caused by a sed incompatibility.
-Fix already posted on l-k: (I'll submit it to Linus)
+Try shifting TASK_UNMAPPED_BASE down from 1GB to 0.5GB - that should give
+you some more breathing room, though you'll never get to 2.9GB.
 
-===== scripts/Makefile.build 1.27 vs edited =====
---- 1.27/scripts/Makefile.build	Sat Feb  8 14:30:33 2003
-+++ edited/scripts/Makefile.build	Mon Feb 10 15:25:44 2003
-@@ -94,7 +94,7 @@
- 	else								      \
- 		$(CPP) -D__GENKSYMS__ $(c_flags) $<			      \
- 		| $(GENKSYMS) -k $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)	      \
--		| sed -n 's/\#define __ver_\(\w*\)\W*\(\w*\)/__crc_\1 = 0x\2 ;/gp' \
-+		| sed -n 's/\#define __ver_\([^ 	]*\)[ 	]*\([^ 	]*\)/__crc_\1 = 0x\2 ;/gp' \
- 		> $(@D)/.tmp_$(@F:.o=.ver);				      \
- 									      \
- 		$(LD) $(LDFLAGS) -r -o $@ $(@D)/.tmp_$(@F) 		      \
+M.
 

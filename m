@@ -1,132 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVCJGJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262376AbVCJGTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbVCJGJd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 01:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbVCJGHX
+	id S262376AbVCJGTV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 01:19:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVCIT7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 01:07:23 -0500
-Received: from gate.crashing.org ([63.228.1.57]:13513 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262451AbVCJGE6 (ORCPT
+	Wed, 9 Mar 2005 14:59:09 -0500
+Received: from colin2.muc.de ([193.149.48.15]:17159 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261912AbVCITjh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 01:04:58 -0500
-Subject: Re: [BUG] 2.6.11- sym53c8xx Broken on pp64
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Omkhar Arasaratnam <iamroot@ca.ibm.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, tgall@us.ibm.com,
-       antonb@au1.ibm.com, James Bottomley <James.Bottomley@SteelEye.com>,
-       Matthew Wilcox <matthew@wil.cx>
-In-Reply-To: <Pine.LNX.4.58.0503091944030.2530@ppc970.osdl.org>
-References: <422FA817.4060400@ca.ibm.com>
-	 <1110420620.32525.145.camel@gaston> <422FBACF.90108@ca.ibm.com>
-	 <422FC042.40303@ca.ibm.com>
-	 <Pine.LNX.4.58.0503091944030.2530@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Thu, 10 Mar 2005 16:59:43 +1100
-Message-Id: <1110434383.32525.184.camel@gaston>
+	Wed, 9 Mar 2005 14:39:37 -0500
+Date: 9 Mar 2005 20:39:36 +0100
+Date: Wed, 9 Mar 2005 20:39:36 +0100
+From: Andi Kleen <ak@muc.de>
+To: Greg KH <greg@kroah.com>
+Cc: Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] -stable, how it's going to work.
+Message-ID: <20050309193936.GC17918@muc.de>
+References: <20050309072833.GA18878@kroah.com> <m1sm35w3am.fsf@muc.de> <20050309183408.GB26902@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050309183408.GB26902@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-09 at 19:47 -0800, Linus Torvalds wrote:
-> 
-> On Wed, 9 Mar 2005, Omkhar Arasaratnam wrote:
+On Wed, Mar 09, 2005 at 10:34:08AM -0800, Greg KH wrote:
+> On Wed, Mar 09, 2005 at 10:56:33AM +0100, Andi Kleen wrote:
+> > Greg KH <greg@kroah.com> writes:
+> > >
+> > > Rules on what kind of patches are accepted, and what ones are not, into
+> > > the "-stable" tree:
+> > >  - It must be obviously correct and tested.
+> > >  - It can not bigger than 100 lines, with context.
 > > 
-> > I confirmed that this occurs with the 2.6.11 code straight from 
-> > kernel.org Here is an error from the bringup:
+> > This rule seems silly. What happens when a security fix needs 150 lines? 
 > 
-> So if 2.6.9 works, and 2.6.11 does not, can you check 2.6.10? And perhaps 
-> hunt it down even more, to a -rc release?
+> Then we bend the rules and accept it :)
 > 
-> > sym0: No NVRAM, ID 7, Fast-80 LVD, parity checking
-> > CACHE TEST FAILED: DMA error (dstat=0xa0) .sym0: CACHE INCORRECTLY CONFIGURED
-> > sym0: giving up ...
+> We'll take these as a case-by-case basis...
 > 
-> There are certainly sym changes in there too since 2.6.9, let's see if 
-> James or Willy have any suggestions. It might not be ppc64-specific.
+> > >  - Security patches will be accepted into the -stable tree directly from
+> > >    the security kernel team, and not go through the normal review cycle.
+> > >    Contact the kernel security team for more details on this procedure.
+> > 
+> > This also sounds like a bad rule. How come the security team has more
+> > competence to review patches than the subsystem maintainers?  I can
+> > see the point of overruling maintainers on security issues when they
+> > are not responsive, but if they are I think the should be still the
+> > main point of contact.
+> 
+> Security fixes go from the security team to Linus's tree directly, and
+> usually the subsystem maintainer has already been notified and has
+> reviewedit.  At that point in time, they are public and accepted into
 
-Ok, we have it working here on a similar machine with 2.6.11 and failing
-in a similar way with bk which is why I asked ;)
+What guarantees that?
 
-The bk problem is found & fixed here tho. I'll send a patch later, it's
-a bug with ppc64 iounmap() not properly flushing the hash table after
-the set_pte_at() patch due to some crap in our custom implementation of
-that guy.
+Basically what I would like to avoid is that the security team
+merges something through the backdoor that the maintainer considers crap.
 
-Here's the patch, but I want to get rid of that stuff anyway (at least
-make unmap_vm_area take the "mm", or rather make an unmap_vm_area_mm()
-and make unmap_vm_area() just call it and then use that instead of our
-own implementation, but I'm waiting for Hugh cleanup to get in before
-touching any of this).
+If anything you should have a rule like
 
---
-
-This patch fixes a bug in ppc64 local implementation of iounmap() that
-would cause it to incorrectly flush the hash table since the changes to
-set_pte have been applied.
-
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
-Index: working-2.6/arch/ppc64/mm/init.c
-===================================================================
---- working-2.6.orig/arch/ppc64/mm/init.c	2005-03-07 13:06:23.000000000 +1100
-+++ working-2.6/arch/ppc64/mm/init.c	2005-03-10 12:59:50.000000000 +1100
-@@ -288,7 +288,7 @@
- static void unmap_im_area_pte(pmd_t *pmd, unsigned long address,
- 				  unsigned long size)
- {
--	unsigned long end;
-+	unsigned long base, end;
- 	pte_t *pte;
- 
- 	if (pmd_none(*pmd))
-@@ -300,6 +300,7 @@
- 	}
- 
- 	pte = pte_offset_kernel(pmd, address);
-+	base = address & PMD_MASK;
- 	address &= ~PMD_MASK;
- 	end = address + size;
- 	if (end > PMD_SIZE)
-@@ -307,7 +308,7 @@
- 
- 	do {
- 		pte_t page;
--		page = ptep_get_and_clear(&ioremap_mm, address, pte);
-+		page = ptep_get_and_clear(&ioremap_mm, base + address, pte);
- 		address += PAGE_SIZE;
- 		pte++;
- 		if (pte_none(page))
-@@ -321,7 +322,7 @@
- static void unmap_im_area_pmd(pgd_t *dir, unsigned long address,
- 				  unsigned long size)
- {
--	unsigned long end;
-+	unsigned long base, end;
- 	pmd_t *pmd;
- 
- 	if (pgd_none(*dir))
-@@ -333,13 +334,14 @@
- 	}
- 
- 	pmd = pmd_offset(dir, address);
-+	base = address & PGDIR_MASK;
- 	address &= ~PGDIR_MASK;
- 	end = address + size;
- 	if (end > PGDIR_SIZE)
- 		end = PGDIR_SIZE;
- 
- 	do {
--		unmap_im_area_pte(pmd, address, end - address);
-+		unmap_im_area_pte(pmd, base + address, end - address);
- 		address = (address + PMD_SIZE) & PMD_MASK;
- 		pmd++;
- 	} while (address < end);
+"Send to maintainer. If he doesn't ACK in 24h send it directly"
 
 
- 
+> mainline, and need to be made availble to the -stable users as soon as
+> possible.
+> 
+> That is why the "fast track" is going to happen, the patch really was
+> reviewed properly, just not in public :)
 
-Ben.
+Well, when you really want to have such formal rules (which is a novelty in 
+Linux space BTW, for many years we did fine with unwritten rules)  then you
+should spell it out completely. Or alternatively drop all the formal
+rules and do it informally like it was always done.
 
+
+-Andi

@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262691AbRE0BcP>; Sat, 26 May 2001 21:32:15 -0400
+	id <S262689AbRE0Bbp>; Sat, 26 May 2001 21:31:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262692AbRE0BcG>; Sat, 26 May 2001 21:32:06 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:41488 "EHLO
-	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S262691AbRE0Bbw>; Sat, 26 May 2001 21:31:52 -0400
-Date: Sun, 27 May 2001 03:30:09 +0200
-From: Marc Schiffbauer <marc.schiffbauer@links2linux.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IDE Performance lack !
-Message-ID: <20010527033009.B9762@lisa.links2linux.home>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <01052622193100.01317@linux.zuhause.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01052622193100.01317@linux.zuhause.de>; from stepken@little-idiot.de on Sat, May 26, 2001 at 10:19:31PM +0200
-X-Operating-System: Linux 2.2.18-lisa01 i586
-X-Editor: VIM 5.7.8
-X-Homepage: http://www.links2linux.de
+	id <S262691AbRE0Bbf>; Sat, 26 May 2001 21:31:35 -0400
+Received: from server1.cosmoslink.net ([208.179.167.101]:57640 "EHLO
+	server1.cosmoslink.net") by vger.kernel.org with ESMTP
+	id <S262689AbRE0BbX>; Sat, 26 May 2001 21:31:23 -0400
+Message-ID: <01ce01c0e64c$b6cc01e0$52a6b3d0@Toshiba>
+From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+        "Greg Banks" <gbanks@pocketpenguins.com>
+Cc: <esr@thyrsus.com>, "CML2" <linux-kernel@vger.kernel.org>,
+        <kbuild-devel@lists.sourceforge.net>,
+        "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+In-Reply-To: <E153pEG-0008RL-00@the-village.bc.nu>
+Subject: Re: [kbuild-devel] Configure.help entries wanted
+Date: Sat, 26 May 2001 18:31:10 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Guido Stepken schrieb am 26.05.01 um 22:19 Uhr:
-> Hi !
+
+"Alan Cox" <alan@lxorguk.ukuu.org.uk> wrote :
+
+
 > 
-> RedHat 7.1 - IDE IBM 41.1 GIG
-> Update to 2.4.5 -> noticed, that hdparm -t /dev/hda went down from 10 
-> MByte/sec to 1.9 MByte/sec
-> Any special Options, beside ide-scsi driver activated ..
+> Handwriting recognition with fscrib works very well indeed.
 > 
-> Anybody noticed the same problem ? Any clues ?
-> 
-> tnx in advance ...
 
-Hi Guido,
+But not in Linux SH , there is so Touch Panel Interface in Linux SH yet :(
 
-This is a 20.1 GB Seagate Barracuda (with hdparm -d1)
+Thank you,
 
+Best Regards,
 
-homer:~ # hdparm -t /dev/hda
- 
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.74 seconds = 23.36 MB/sec
-homer:~ #
-
-
-Did you turn on dma-mode?
-
--Marc
-
+Jaswinder.
 -- 
-+-O . . . o . . . O . . . o . . . O . . .  ___  . . . O . . . o .-+
-| Ein neuer Service von Links2Linux.de:   /  o\   RPMs for SuSE   |
-| --> PackMan! <-- naeheres unter        |   __|   and  others    |
-| http://packman.links2linux.de/ . . . O  \__\  . . . O . . . O . |
+These are my opinions not 3Di.
+
+

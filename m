@@ -1,28 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317121AbSEXOb2>; Fri, 24 May 2002 10:31:28 -0400
+	id <S317140AbSEXOgQ>; Fri, 24 May 2002 10:36:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317131AbSEXOb1>; Fri, 24 May 2002 10:31:27 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59147 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317121AbSEXOb0>; Fri, 24 May 2002 10:31:26 -0400
-Subject: Re: 20275 linux driver patch dated 3/7/2002
-To: hanky@promise.com.tw (Hank Yang)
-Date: Fri, 24 May 2002 15:51:40 +0100 (BST)
-Cc: larry.hileman@quantum.com (Hileman Larry), linux-kernel@vger.kernel.org
-In-Reply-To: <008401c202c4$2e5fefc0$c0cca8c0@promise.com.tw> from "Hank Yang" at May 24, 2002 09:41:53 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317139AbSEXOgP>; Fri, 24 May 2002 10:36:15 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:5543 "EHLO mail3.aracnet.com")
+	by vger.kernel.org with ESMTP id <S317136AbSEXOgO>;
+	Fri, 24 May 2002 10:36:14 -0400
+Date: Fri, 24 May 2002 07:35:32 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.4 VM sucks. Again
+Message-ID: <1572079531.1022225730@[10.10.2.3]>
+In-Reply-To: <200205241004.g4OA4Ul28364@mail.pronto.tv>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17BGPs-0006Py-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there a newer patch available, if so, where can I find it?  can you
-> provide the URL or attach it to a response.
+>> Sounds like exactly the same problem we were having. There are two
+>> approaches to solving this - Andrea has a patch that tries to free them
+>> under memory pressure, akpm has a patch that hacks them down as soon
+>> as you've fininshed with them (posted to lse-tech mailing list). Both
+>> approaches seemed to work for me, but the performance of the fixes still
+>> has to be established.
+> 
+> Where can I find the akpm patch?
 
-Larry the 2.4.19pre8 kernel has more updated IDE than 2.4.18, and 2.4.19pre8-ac5
-more up to date than 2.4.19pre8. It would be good to know if you see
-problems against those trees (especiall 2.4.19pre8-ac5)
+http://marc.theaimsgroup.com/?l=lse-tech&m=102083525007877&w=2
+
+> Any plans to merge this into the main kernel, giving a choice 
+> (in config or /proc) to enable this?
+
+I don't think Andrew is ready to submit this yet ... before anything
+gets merged back, it'd be very worthwhile testing the relative
+performance of both solutions ... the more testers we have the
+better ;-)
+
+Thanks,
+
+M.
+

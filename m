@@ -1,14 +1,14 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266128AbSL1JMa>; Sat, 28 Dec 2002 04:12:30 -0500
+	id <S266160AbSL1Jlp>; Sat, 28 Dec 2002 04:41:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266160AbSL1JMa>; Sat, 28 Dec 2002 04:12:30 -0500
-Received: from uranus.lan-ks.de ([194.45.71.1]:64011 "EHLO uranus.lan-ks.de")
-	by vger.kernel.org with ESMTP id <S266128AbSL1JM3> convert rfc822-to-8bit;
-	Sat, 28 Dec 2002 04:12:29 -0500
+	id <S266173AbSL1Jlo>; Sat, 28 Dec 2002 04:41:44 -0500
+Received: from uranus.lan-ks.de ([194.45.71.1]:2316 "EHLO uranus.lan-ks.de")
+	by vger.kernel.org with ESMTP id <S266160AbSL1Jlo> convert rfc822-to-8bit;
+	Sat, 28 Dec 2002 04:41:44 -0500
+X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
 To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Linus Torvalds <torvalds@transmeta.com>
-Subject: [2.5.53, PATCH] fix uninitialized timer in yenta.c
+Subject: [2.5.53, KBUILD] missing dependencies for yenta_socket.ko?
 X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
 X-Message-Flag: This space is intentionally left blank
 X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
@@ -19,8 +19,8 @@ X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany)
 X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
 X-No-Archive: yes
 From: Jochen Hein <jochen@jochen.org>
-Date: Sat, 28 Dec 2002 10:07:04 +0100
-Message-ID: <87znqqcy13.fsf@gswi1164.jochen.org>
+Date: Sat, 28 Dec 2002 10:18:35 +0100
+Message-ID: <87wulucxhw.fsf@gswi1164.jochen.org>
 User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
  (i386-debian-linux-gnu)
 MIME-Version: 1.0
@@ -30,19 +30,18 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The following patch fixes a "uninitialized timer" message when loading
-yenta_socket.ko.
+I changed yenta.c and tried to recompile yenta_socket.ko, the
+resulting kernel module.  I get:
 
---- linux-2.5.53/drivers/pcmcia/yenta.c.jh	2002-12-10 03:46:11.000000000 +0100
-+++ linux-2.5.53/drivers/pcmcia/yenta.c	2002-12-28 09:45:56.000000000 +0100
-@@ -593,6 +593,7 @@
- 	if (!socket->cb_irq || request_irq(socket->cb_irq, yenta_interrupt, SA_SHIRQ, socket->dev->dev.name, socket)) {
- 		/* No IRQ or request_irq failed. Poll */
- 		socket->cb_irq = 0; /* But zero is a valid IRQ number. */
-+		init_timer(&socket->poll_timer);
- 		socket->poll_timer.function = yenta_interrupt_wrapper;
- 		socket->poll_timer.data = (unsigned long)socket;
- 		socket->poll_timer.expires = jiffies + HZ;
+root@gswi1164:/usr/src/linux-2.5.53# LANG=C make drivers/pcmcia/yenta_socket.ko
+make: Nothing to be done for `drivers/pcmcia/yenta_socket.ko'.
+root@gswi1164:/usr/src/linux-2.5.53# ls -l drivers/pcmcia/yenta_socket.ko drivers/pcmcia/yenta.c
+-rw-r--r--    1 1046     101         26000 2002-12-28 10:09 drivers/pcmcia/yenta.c
+-rw-r--r--    1 root     root        18567 2002-12-28 09:55 drivers/pcmcia/yenta_socket.ko
+
+Shouldn't that work?
+
+Jochen
 
 -- 
 Wenn Du nicht weiﬂt was Du tust, tu's mit Eleganz.

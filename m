@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281450AbRLDUWN>; Tue, 4 Dec 2001 15:22:13 -0500
+	id <S283458AbRLDUXn>; Tue, 4 Dec 2001 15:23:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283389AbRLDUUi>; Tue, 4 Dec 2001 15:20:38 -0500
-Received: from leeloo.zip.com.au ([203.12.97.48]:26120 "EHLO
-	mangalore.zipworld.com.au") by vger.kernel.org with ESMTP
-	id <S283422AbRLDUUV>; Tue, 4 Dec 2001 15:20:21 -0500
-Message-ID: <3C0D2FF4.837EEE87@zip.com.au>
-Date: Tue, 04 Dec 2001 12:20:04 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
-X-Accept-Language: en
+	id <S283389AbRLDUWQ>; Tue, 4 Dec 2001 15:22:16 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:13952 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S283421AbRLDUVi>; Tue, 4 Dec 2001 15:21:38 -0500
+Date: Tue, 4 Dec 2001 15:20:38 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Dave Jones <davej@suse.de>
+cc: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
+        Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
+        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+In-Reply-To: <Pine.LNX.4.33.0112041833150.3798-100000@Appserv.suse.de>
+Message-ID: <Pine.LNX.3.95.1011204151449.1672A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux/Pro  -- clusters
-In-Reply-To: <E16BJvR-0002uc-00@the-village.bc.nu>,
-		<E16BJvR-0002uc-00@the-village.bc.nu> <E16BK7Y-0000Rk-00@starship.berlin>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> 
-> On December 4, 2001 07:04 pm, Alan Cox wrote:
-> > > Single additional alloc -> twice as many allocs, two slabs, more cachelines
-> > > dirty.  This was hashed out on fsdevel, though apparently not to everyone's
-> > > satisfaction.
-> >
-> > Al Viro's NFS in generic_ip saved me something like 130K of memory.
-> 
-> Yes, all of these proposals would do that, by getting away from all inodes
-> being the same size (basically the size of the ext2 inode).
-> 
+On Tue, 4 Dec 2001, Dave Jones wrote:
 
-ext3 is the pig at present.  I think Andreas has half-a-patch
-to move it to generic_ip.
+> On Tue, 4 Dec 2001, Eric S. Raymond wrote:
+> 
+> > After CML2 has proven itself in 2.5, I do plan to go back to Marcelo
+> > and lobby for him accepting it into 2.4, on the grounds that doing so
+> > will simplify his maintainance task no end.
+> > ...
+> > I'm just going to say "Today's problems, today's tools."
+> 
+> So anyone perfectly happy with an older distro that didn't
+> ship python2-and-whatever-else gets screwed when they want to
+> build a newer kernel. Nice.
+> 
+> Dave.
+
+I have python. I also have ed.
+
+When the only tool you know how to use is a hammer, every problem
+begins to look like a nail.
+
+FYI, I have never known a problem that python has solved, only
+changed.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

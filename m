@@ -1,68 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292269AbSBOXYp>; Fri, 15 Feb 2002 18:24:45 -0500
+	id <S292270AbSBOXZp>; Fri, 15 Feb 2002 18:25:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292270AbSBOXY0>; Fri, 15 Feb 2002 18:24:26 -0500
-Received: from exchange.macrolink.com ([64.173.88.99]:3603 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S292269AbSBOXYX>; Fri, 15 Feb 2002 18:24:23 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A76A0@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-        "'Jeff Garzik'" <jgarzik@mandrakesoft.com>
-Cc: "'Russell King'" <rmk@arm.linux.org.uk>,
-        "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] PCI device ID Oxford 952 UART
-Date: Fri, 15 Feb 2002 15:25:21 -0800
+	id <S292271AbSBOXZh>; Fri, 15 Feb 2002 18:25:37 -0500
+Received: from femail38.sdc1.sfba.home.com ([24.254.60.32]:49623 "EHLO
+	femail38.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S292270AbSBOXZU>; Fri, 15 Feb 2002 18:25:20 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: esr@thyrsus.com, Dave Jones <davej@suse.de>,
+        Larry McVoy <lm@work.bitmover.com>,
+        Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Disgusted with kbuild developers
+Date: Fri, 15 Feb 2002 18:26:06 -0500
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20020215135557.B10961@thyrsus.com> <20020215224916.L27880@suse.de> <20020215170459.A15406@thyrsus.com>
+In-Reply-To: <20020215170459.A15406@thyrsus.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020215232517.FXLQ71.femail38.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch corrects PCI device id in pci_ids.h for Oxford Semi OX16PCI952
-PCI/dual 16950 UART chip, and adds this entry to pci.ids.  I downloaded the
-datasheet today and verified that 9521 is the correct device id.
+On Friday 15 February 2002 05:04 pm, Eric S. Raymond wrote:
 
-Generated for 2.4.18-rc1, should also be applied to 2.5.
+> Solutions that involve me doing an arbitrary and increasing amount of
+> hand-hacking on every release are right out.
 
-Thanks in
-Ed Vance
+Um, Eric?  Isn't that what being a maintainer basically means?
 
-diff -urN -X dontdiff.txt linux-2.4.18-rc1/drivers/pci/pci.ids
-rc1-ml/drivers/pci/pci.ids
---- linux-2.4.18-rc1/drivers/pci/pci.ids	Fri Feb 15 14:24:19 2002
-+++ rc1-ml/drivers/pci/pci.ids	Fri Feb 15 14:49:07 2002
-@@ -3952,6 +3952,7 @@
- 1413  Addonics
- 1414  Microsoft Corporation
- 1415  Oxford Semiconductor Ltd
-+	9521  Oxford Semi OX16PCI952 PCI/dual 16950 UART
- 1416  Multiwave Innovation pte Ltd
- 1417  Convergenet Technologies Inc
- 1418  Kyushu electronics systems Inc
-diff -urN -X dontdiff.txt linux-2.4.18-rc1/include/linux/pci_ids.h
-rc1-ml/include/linux/pci_ids.h
---- linux-2.4.18-rc1/include/linux/pci_ids.h	Fri Feb 15 14:24:27 2002
-+++ rc1-ml/include/linux/pci_ids.h	Fri Feb 15 14:51:35 2002
-@@ -1474,9 +1474,9 @@
- #define PCI_VENDOR_ID_OXSEMI		0x1415
- #define PCI_DEVICE_ID_OXSEMI_12PCI840	0x8403
- #define PCI_DEVICE_ID_OXSEMI_16PCI954	0x9501
--#define PCI_DEVICE_ID_OXSEMI_16PCI952	0x950A
- #define PCI_DEVICE_ID_OXSEMI_16PCI95N	0x9511
- #define PCI_DEVICE_ID_OXSEMI_16PCI954PP	0x9513
-+#define PCI_DEVICE_ID_OXSEMI_16PCI952	0x9521
- 
- #define PCI_VENDOR_ID_AIRONET		0x14b9
- #define PCI_DEVICE_ID_AIRONET_4800_1	0x0001
+Okay, Linus's changes killed backwards compatability with 2.4.  (He does 
+that.  That's what 2.5 is for.  It would be nice if less of it happened in 
+the stable series, but... :)
 
+A maintainer is basically there to serve Linus (the project's undisputed 
+architect), who periodically makes the architectural decision to break 
+backwards compatability on some front.
 
----------------------------------------------------------------- 
-Ed Vance              edv@macrolink.com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-PH 714.777.8800 x335  Fax 714.777.8807  http://www.macrolink.com 
-----------------------------------------------------------------
+You wanted to remain 2.4 help file maintainer as well as 2.5, and Linus did 
+not address this concern (for whatever reason: Linus blackholing email as a 
+way of disagreeing with it led to a lot of miscommunications like this one.)  
+Fine.  Water under the bridge.  Linus made an architectural decision, and it 
+has been implemented.  If it means you can't maintain 2.4 anymore, the sane 
+move is to drop 2.4 (which you did) and move on.
 
+That is why this is a dead issue, and bringing it up again doesn't serve as 
+much purpose as you think it does.  (If you want to highlight the 
+blackhole-related miscommunication, fine.  But even implying Linus's 
+architectural decision was wrong carries no weight with your audience.)
 
+> If you think this problem through, I'm sure you'll come up with a
+> design very similar to what I actually built.  Which, by Linus's
+> choice, got irrecoverably nuked.
+
+Tough.
+
+Eric, I like you and I still don't agree with you on this one.
+
+First of all, the help files really are largely orthogonal to CML2.  They 
+could be written in gzipped ebcdic.  Make a filter, read them, move on.  You 
+are pointelessly wasting brownie points on a dead side issue.
+
+Secondly, please define the problem space you're going after.  (I think that 
+the main objection people have to this tool, they don't agree with the 
+definition of the problem you're trying to solve.)
+
+If you want CML2 is to be the best configure tool for the 2.5 (and later) 
+kernel series, fine.  Then FOCUS ON THAT PROBLEM.
+
+Overhead to deal with 2.4 is bloat.  Flexibility for projects outside of the 
+kernel itself is a side issue.  Aunt Tillie is NOT the initial target 
+audience.  Usage to configure debian userspace or some such is completely 
+tangential.  All of the above may be fun, but they do not serve to advance 
+the primary objective, and bringing them up does not help make a case for 
+CML2.
+
+Back up a bit.  What would be the most minimal, stripped-down version of CML2 
+you could write?  No eye candy, no complications, no autoconfigurator, no 
+tree view, no frozen symbols.  Just solving the core problem of configuring 
+2.5 in a more flexible and less buggy way than CML1, with the three 
+interfaces (oldconfig, menuconfig, xconfig) we've got now.
+
+Think about that for a while.  Try to get THAT into the kernel.  THEN worry 
+about building on top of that.
+
+Remember: Linus likes small patches.  (CONCEPTUALLY small if possible, not 
+just lines of code...)
+
+Rob

@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261338AbTDHMik (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 08:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbTDHMij (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 08:38:39 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:60568
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261338AbTDHMih (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 08:38:37 -0400
-Subject: Re: SET_MODULE_OWNER?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Jeff Garzik <jgarzik@pobox.com>, zwane@linuxpower.ca,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hch@infradead.org
-In-Reply-To: <20030408035210.02D142C06E@lists.samba.org>
-References: <20030408035210.02D142C06E@lists.samba.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049802672.8120.14.camel@dhcp22.swansea.linux.org.uk>
+	id S261335AbTDHMiF (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 08:38:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbTDHMiF (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 08:38:05 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:35767 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261335AbTDHMiE (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 08:38:04 -0400
+Date: Tue, 8 Apr 2003 14:49:39 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] New kernel tree for embedded linux
+Message-ID: <20030408124939.GE21794@wohnheim.fh-wedel.de>
+References: <20030407171037.GB8178@wohnheim.fh-wedel.de> <20030407204812.GD17151@ip68-0-152-218.tc.ph.cox.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 08 Apr 2003 12:51:12 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030407204812.GD17151@ip68-0-152-218.tc.ph.cox.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-04-08 at 04:46, Rusty Russell wrote:
-> Unlike that, substituting dev->owner = THIS_MODULE; has no backwards
-> compatibility loss, and it removes a confusing and pointless macro
-> which *never* had a point.
+On Mon, 7 April 2003 13:48:12 -0700, Tom Rini wrote:
+> On Mon, Apr 07, 2003 at 07:10:37PM +0200, J?rn Engel wrote:
+> 
+> > Some days ago, I've started a -je [*] tree which will focus on memory
+> > reduction for the linux kernel.
+> 
+> First, I'd like to say please, no, everyone can benefit from _every
+> change_ you want to make in your tree, and it's not just an 'embedded'
+> issue.
 
-Its an abstraction macro.
+Right. The purpose of this tree is not to keep changes out of
+mainline, but to test and enhance some of the uglier ones before they
+go in.
+In a perfect world, my tree would contain exactly zero patches. :)
 
-> Unless you can come up with a real *reason*, I'll move it back under
-> "deprecated" and start substituting.
+> Second, please look up the archives (this past June -> August maybe?)
+> for the CONFIG_TINY thread.  Under that was my TWEAKS idea.  If this
+> sounds useful to you, I can try and dig up the last patch I had that got
+> all of the dependancy stuff correct, except that you had to run a
+> command if you changed a TWEAK value.
 
-Thats fun, and the rest of us can play submit patches to substitute it
-back. 
+Will do. Just give me a little time.
 
-This is not how to work with people
+Jörn
 
-
+-- 
+There's nothing better for promoting creativity in a medium than
+making an audience feel "Hmm ­ I could do better than that!"
+-- Douglas Adams in a slashdot interview

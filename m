@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129134AbRCWBmd>; Thu, 22 Mar 2001 20:42:33 -0500
+	id <S129066AbRCWBgN>; Thu, 22 Mar 2001 20:36:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129143AbRCWBmY>; Thu, 22 Mar 2001 20:42:24 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:12739 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129051AbRCWBmE>;
-	Thu, 22 Mar 2001 20:42:04 -0500
-Date: Fri, 23 Mar 2001 01:39:14 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andreas Dilger <adilger@turbolinux.com>
-Cc: Linux kernel development list <linux-kernel@vger.kernel.org>,
-        Linux FS development list <linux-fsdevel@vger.kernel.org>,
-        Alexander Viro <aviro@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [linux-lvm] EXT2-fs panic (device lvm(58,0)):
-Message-ID: <20010323013914.M7756@redhat.com>
-In-Reply-To: <200103072035.f27KZ5V20201@webber.adilger.net>
+	id <S129051AbRCWBgD>; Thu, 22 Mar 2001 20:36:03 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:41815 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S129066AbRCWBfu>; Thu, 22 Mar 2001 20:35:50 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Frank de Lange <frank@unternet.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2-ac21 
+In-Reply-To: Your message of "Fri, 23 Mar 2001 00:02:54 BST."
+             <20010323000254.A25375@unternet.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <200103072035.f27KZ5V20201@webber.adilger.net>; from adilger@turbolinux.com on Wed, Mar 07, 2001 at 01:35:05PM -0700
+Date: Fri, 23 Mar 2001 12:35:03 +1100
+Message-ID: <4514.985311303@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 23 Mar 2001 00:02:54 +0100, 
+Frank de Lange <frank@unternet.org> wrote:
+>Linux 2.4.2-ac21 does not like my box, or the other way around:
+>
+>loading the agpgart module (MGA G400 AGP) -> system hangs
+>loading the SCSI module (53c875) -> system hangs
+>
+>In both cases, the magic SysRq sequence does not work, but it is still possible
+>to ping the box from the outside. Connecting to it (ssh) does not work,
+>however. I backed out both the SCSI driver patches as well as the agpgart
+>patches, but this did not fix the symptoms. Looks more like a module-loading
+>related issue, but I have not found it yet.
+>
+>All this on an SMP (Abit BP6) box by the way...
 
-On Wed, Mar 07, 2001 at 01:35:05PM -0700, Andreas Dilger wrote:
+Activate the nmi watchdog with nmi_watchdog=1 in the boot parameters[*].
+That will trip after 5 seconds and point to where it is hanging.  If
+the nmi watchdog alone does not give enough data, add the kdb patch
+(with nmi watchdog on) and start debugging.
+http://oss.sgi.com/projects/kdb/download/ix86/, the -ac20 patch should
+fit -ac21 as well.
 
-> The only remote possibility is in ext2_free_blocks() if block+count
-> overflows a 32-bit unsigned value.  Only 2 places call ext2_free_blocks()
-> with a count != 1, and ext2_free_data() looks to be OK.  The other
-> possibility is that i_prealloc_count is bogus - that is it!  Nowhere
-> is i_prealloc_count initialized to zero AFAICS.
-> 
-Did you ever push this to Alan and/or Linus?  This looks pretty
-important!
+Am I the only person who is annoyed that nmi watchdog is now off by
+default and the only way to activate it is by a boot parameter?  You
+cannot even patch the kernel to build a version that has nmi watchdog
+on because the startup code runs out of the __setup routine, no boot
+parameter, no watchdog.
 
-Cheers,
- Stephen
-
-> ==========================================================================
-> diff -ru linux/fs/ext2/ialloc.c.orig linux/fs/ext2/ialloc.c
-> --- linux/fs/ext2/ialloc.c.orig	Fri Dec  8 18:35:54 2000
-> +++ linux/fs/ext2/ialloc.c	Wed Mar  7 12:22:11 2001
-> @@ -432,6 +444,8 @@
->  	inode->u.ext2_i.i_file_acl = 0;
->  	inode->u.ext2_i.i_dir_acl = 0;
->  	inode->u.ext2_i.i_dtime = 0;
-> +	inode->u.ext2_i.i_prealloc_count = 0;
->  	inode->u.ext2_i.i_block_group = i;
->  	if (inode->u.ext2_i.i_flags & EXT2_SYNC_FL)
->  		inode->i_flags |= S_SYNC;
-> diff -ru linux/fs/ext2/inode.c.orig linux/fs/ext2/inode.c
-> --- linux/fs/ext2/inode.c.orig	Tue Jan 16 01:29:29 2001
-> +++ linux/fs/ext2/inode.c	Wed Mar  7 12:05:47 2001
-> @@ -1048,6 +1038,8 @@
->  			(((__u64)le32_to_cpu(raw_inode->i_size_high)) << 32);
-> 	}
->  	inode->i_generation = le32_to_cpu(raw_inode->i_generation);
-> +	inode->u.ext2_i.i_prealloc_count = 0;
->  	inode->u.ext2_i.i_block_group = block_group;
->  
->  	/*

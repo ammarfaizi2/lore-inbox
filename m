@@ -1,43 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263863AbTDGXNW (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 19:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263824AbTDGXMp (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 19:12:45 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:59520
+	id S263904AbTDGXax (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 19:30:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbTDGXag (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 19:30:36 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:17025
 	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263820AbTDGXFu (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 19:05:50 -0400
-Date: Tue, 8 Apr 2003 01:24:43 +0100
+	id S263739AbTDGXUX (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 19:20:23 -0400
+Date: Tue, 8 Apr 2003 01:39:18 +0100
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200304080024.h380OhRt009107@hraefn.swansea.linux.org.uk>
+Message-Id: <200304080039.h380dIqv009294@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: fix up yam for 2.5 locking
+Subject: PATCH: more audiov ersion scrubbing
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/drivers/net/hamradio/yam.c linux-2.5.67-ac1/drivers/net/hamradio/yam.c
---- linux-2.5.67/drivers/net/hamradio/yam.c	2003-02-15 03:39:31.000000000 +0000
-+++ linux-2.5.67-ac1/drivers/net/hamradio/yam.c	2003-04-04 18:12:23.000000000 +0100
-@@ -722,7 +722,6 @@
- 	int counter = 100;
- 	int i;
- 
--	sti();
- 
- 	for (i = 0; i < NR_PORTS; i++) {
- 		yp = &yam_ports[i];
-@@ -768,7 +767,6 @@
- 	off_t pos = 0;
- 	off_t begin = 0;
- 
--	cli();
- 
- 	for (i = 0; i < NR_PORTS; i++) {
- 		if (yam_ports[i].iobase == 0 || yam_ports[i].irq == 0)
-@@ -803,8 +801,6 @@
- 			break;
- 	}
- 
--	sti();
--
- 	*start = buffer + (offset - begin);
- 	len -= (offset - begin);
- 
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/ac97_codec.c linux-2.5.67-ac1/sound/oss/ac97_codec.c
+--- linux-2.5.67/sound/oss/ac97_codec.c	2003-02-10 18:37:59.000000000 +0000
++++ linux-2.5.67-ac1/sound/oss/ac97_codec.c	2003-04-03 23:52:57.000000000 +0100
+@@ -43,7 +43,6 @@
+  *	Isolated from trident.c to support multiple ac97 codec
+  */
+ #include <linux/module.h>
+-#include <linux/version.h>
+ #include <linux/kernel.h>
+ #include <linux/string.h>
+ #include <linux/errno.h>

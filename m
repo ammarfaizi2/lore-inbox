@@ -1,95 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263191AbUC2X7G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 18:59:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263202AbUC2X7G
+	id S263215AbUC3ACD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 19:02:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263210AbUC3ACD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 18:59:06 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36767 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S263191AbUC2X7B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 18:59:01 -0500
-To: Jamie Lokier <jamie@shareable.org>
-Cc: =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Davide Libenzi <davidel@xmailserver.org>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cowlinks v2
-References: <m1vfkq80oy.fsf@ebiederm.dsl.xmission.com>
-	<20040327214238.GA23893@mail.shareable.org>
-	<m1ptax97m6.fsf@ebiederm.dsl.xmission.com>
-	<m1brmhvm1s.fsf@ebiederm.dsl.xmission.com>
-	<20040328122242.GB32296@mail.shareable.org>
-	<m14qs8vipz.fsf@ebiederm.dsl.xmission.com>
-	<20040328235528.GA2693@mail.shareable.org>
-	<m1zna0tp55.fsf@ebiederm.dsl.xmission.com>
-	<20040329123658.GA4984@mail.shareable.org>
-	<m18yhjh2d4.fsf@ebiederm.dsl.xmission.com>
-	<20040329230537.GA8568@mail.shareable.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 29 Mar 2004 16:58:33 -0700
-In-Reply-To: <20040329230537.GA8568@mail.shareable.org>
-Message-ID: <m1u107fbo6.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Mon, 29 Mar 2004 19:02:03 -0500
+Received: from mail.kroah.org ([65.200.24.183]:60837 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263215AbUC3AB6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 19:01:58 -0500
+Date: Mon, 29 Mar 2004 16:01:29 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: stern@rowland.harvard.edu, david-b@pacbell.net, viro@math.psu.edu,
+       maneesh@in.ibm.com, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Unregistering interfaces
+Message-ID: <20040330000129.GA31667@kroah.com>
+References: <20040328063711.GA6387@kroah.com> <Pine.LNX.4.44L0.0403281057100.17150-100000@netrider.rowland.org> <20040328123857.55f04527.akpm@osdl.org> <20040329210219.GA16735@kroah.com> <20040329132551.23e12144.akpm@osdl.org> <20040329231604.GA29494@kroah.com> <20040329153117.558c3263.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040329153117.558c3263.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> writes:
-
-> Eric W. Biederman wrote:
-> > So I see a problem with Scenario C.   Perhaps you can refute it.
+On Mon, Mar 29, 2004 at 03:31:17PM -0800, Andrew Morton wrote:
+> Greg KH <greg@kroah.com> wrote:
+> >
+> > > The module should remain in memory, "unhashed", until the final kobject
+> > > reference falls to zero.  Destruction of that kobject causes the refcount
+> > > on the module to fall to zero which causes the entire module to be
+> > > released.
+> > > 
+> > > (hmm, the existence of a kobject doesn't appear to contribute to its
+> > > module's refcount.  Why not?)
+> > 
+> > It does, if a file for that kobject is opened.  In this case, there was
+> > no file opened, so the module refcount isn't incremented.
 > 
-> Ick.  You're right.  I cannot refute it.
+> hm, surprised.  Shouldn't the existence of a kobject contribute to its
+> module's refcount?
 
-The upside is since we can't it makes the implementation much easier :)
- 
-> Fwiw, I would have broken the directory cows on the first write, not
-> the open.
+No, a kobject by itself knows nothing about a module.  Only the
+attribute files do (and they are the things that contain the struct
+module *), as they are what user space can grab references to.
 
-I did it only so that programs do not see inode numbers change under
-them.  For the copy that gets the original inode numbers delaying
-until write is fine, for the copy with the new inode numbers to avoid
-surprises you need to break the cow on the directory and move it to
-the files on readdir, stat, and open.
- 
-> Thus, snapshots using lazy directory copies requires either that there
-> are no hard links of the type you described (e.g. when snapshotting
-> the root of the filesystem), or rather complex metadata to track the
-> hard links, not dissimilar to the metadata needed to preserve hard
-> links _within_ the snapshot.  They both seem far too complex to be worth it.
+I never thought that the kobject would care, as it is only a directory,
+and I didn't think that anything could grab directory references on
+their own.  But then Maneesh's patch wasn't in the kernel at that time
+:)
 
-Agreed.
- 
-> Hard links just don't play well with lazy cowlinked directories.
->
-> They are fine with non-lazy directory cowlinking, where the whole
-> directory tree is duplicated and only files are cow'd.  Note that this
-> doesn't apply to the original implementation which used hard links
-> with a special flag: maintaining hard links in conjunction with
-> cowlinks requires the inode duplication we've been talking about.
+thanks,
 
-? The problem is lazy propagation of the cow flag.  The implementation
-for ordinary files does not matter.  Only the implementation
-for directories matters.
- 
-> Btw, if we have cowlinks implemented using inode duplication, then it
-> isn't necessary for both inodes to have the same metadata such as
-> mtime, ctime, mode etc.  Only the data is shared.  That means the
-> sendfile() system call could conceivably be overloaded, meaning to
-> copy the data, and let "cp --cow" decide whether it wants to copy the
-> metadata (same as as "cp -rp" or "cp -rpd"), or not (same as "cp -r").
-
-Sendfile feels about right but it has a few issues that complication
-something like this.  It works on file descriptors, and it takes
-a length parameter.
-
-There is a lot of room for things to go wrong when implementing
-cowlink(const char *oldname, const char *newname) in user space.
-
-Since the semantics are a delayed sendfile in other ways sendfile
-feels like a good fit.
-
-Eric
-
+greg k-h

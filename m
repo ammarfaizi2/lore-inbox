@@ -1,27 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281787AbSAMJmt>; Sun, 13 Jan 2002 04:42:49 -0500
+	id <S282511AbSAMJvT>; Sun, 13 Jan 2002 04:51:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282511AbSAMJmj>; Sun, 13 Jan 2002 04:42:39 -0500
-Received: from mta03ps.bigpond.com ([144.135.25.135]:10701 "EHLO
-	mta03ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S281787AbSAMJm0>; Sun, 13 Jan 2002 04:42:26 -0500
-Message-Id: <5.1.0.14.0.20020113204057.00b4af68@mail.bigpond.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 13 Jan 2002 20:42:20 +1100
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-From: Dylan Egan <crack_me@bigpond.com.au>
-Subject: Diamond Data USB CD-RW
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S282845AbSAMJvL>; Sun, 13 Jan 2002 04:51:11 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:9625 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S282511AbSAMJvD>; Sun, 13 Jan 2002 04:51:03 -0500
+Date: Sun, 13 Jan 2002 11:50:19 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: <Tony.Glader@blueberrysolutions.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: F00F-bug workaround working? 
+Message-ID: <Pine.LNX.4.33.0201131148500.28980-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The F00F bug locks up your box, the oopses have nothing to do with it. If
+the box is still alive after the oops try running ksymoops on them. If you
+notice that its a different oops each time, its probably your hardware
+going round the bend.
 
-I was just inquiring whether anyone has a diamond data usb cd-rw
+Cheers,
+	Zwane Mwaikambo
 
-Regards,
-
-Dylan
 

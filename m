@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262057AbTJASx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 14:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbTJASx4
+	id S262416AbTJATAq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 15:00:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbTJATAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 14:53:56 -0400
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:5138 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S262057AbTJASxy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 14:53:54 -0400
-Reply-To: <mail@davehatton.it>
-From: "Dave Hatton" <mail@davehatton.it>
-To: <linux-kernel@vger.kernel.org>
-Subject: Problem switching between mains and battery on a laptop since 2.5.57
-Date: Wed, 1 Oct 2003 19:55:34 +0100
-Message-ID: <NCBBJGBIBFKKILGAFKOBMECLECAA.mail@davehatton.it>
+	Wed, 1 Oct 2003 15:00:46 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:62069 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262416AbTJATAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 15:00:39 -0400
+Date: Wed, 1 Oct 2003 14:58:43 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Chris Wright <chrisw@osdl.org>
+cc: torvalds@osdl.org, <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: sys_vserver
+In-Reply-To: <20031001115127.A14425@osdlab.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.44.0310011454530.19538-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Wed, 1 Oct 2003, Chris Wright wrote:
 
-I am having a problem with my Mitac M722 laptop.
+> Multiplexing, future functionality, etc...this reasoning was shot down
+> before. The preferred method was to have well-typed interfaces that 
+> are simple and not overloaded.  Any chance some of these needs could be
+> met with existing infrastructure in 2.6?  For example, similar to the
+> sys_new_s_context issue was resolved for LSM with the /proc/pid/attr/
+> interface, could this be reused?
 
-When I pull the main cord whilst the machine is running, it continues to
-operate for 1-3 secs on battery power and then hangs/locks solid.
-After a reboot ... there's nothing obvious in the logs.
+OK, a few comments here:
 
-This problem does not occur on 2.4 (I've tried all the way up to
-2.4.22-bk27) and does not happen <= 2.5.56.
+1) the vserver functionality definately is not "future functionality",
+   people have been using it in production for a few years already
 
-I've had a look at the change log for 2.5.57 and through the patch for
-obvious things ... but nothing stands out.
+2) currently vserver only runs on 2.4 (and I think 2.2), it hasn't
+   been ported to 2.6 yet and I definately plan to port it in such
+   a way that we will be reusing other infrastructure whereever
+   possible ... it's just that vserver needs some infrastructure
+   that is not possible inside LSM
 
-Can anybody help me with this / suggest a plan of attack to narrow the
-problem down?
+3) the needs that can be met with existing infrastructure, like
+   CLONE_NEWNS or LSM should definately move out of the vserver
+   patch in the port to 2.6
 
-TIA
+4) I'm all for generalising the interface, how about sys_virtual_context ?
 
-Daveh
-
-(Please CC me at on answers as I'm not currently subscribed to the mailing
-list)
-
-
-
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

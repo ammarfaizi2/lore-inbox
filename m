@@ -1,95 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264287AbUDNRJt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 13:09:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbUDNRJt
+	id S264289AbUDNRL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 13:11:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbUDNRL2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 13:09:49 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:45276 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S264287AbUDNRJg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 13:09:36 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] [PATCH 7/9] USB usbfs: destroy submitted urbs only on the disconnected interface
-Date: Wed, 14 Apr 2004 19:09:29 +0200
-User-Agent: KMail/1.5.4
-Cc: Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sf.net>,
-       <linux-kernel@vger.kernel.org>, Frederic Detienne <fd@cisco.com>,
-       David Brownell <david-b@pacbell.net>
-References: <Pine.LNX.4.44L0.0404141226370.1474-100000@ida.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0404141226370.1474-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Apr 2004 13:11:28 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:50397
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264289AbUDNRLW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 13:11:22 -0400
+Date: Wed, 14 Apr 2004 19:11:26 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Benchmarking objrmap under memory pressure
+Message-ID: <20040414171126.GT2150@dualathlon.random>
+References: <1130000.1081841981@[10.10.2.4]> <20040413005111.71c7716d.akpm@osdl.org> <120240000.1081903082@flay> <20040414162700.GS2150@dualathlon.random> <25670000.1081960943@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200404141909.29810.baldrick@free.fr>
+In-Reply-To: <25670000.1081960943@[10.10.2.4]>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 14 Apr 2004, Duncan Sands wrote:
-> > diff -Nru a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
-> > --- a/drivers/usb/core/devio.c	Wed Apr 14 12:18:20 2004
-> > +++ b/drivers/usb/core/devio.c	Wed Apr 14 12:18:20 2004
-> > @@ -341,6 +341,7 @@
-> >  static void driver_disconnect(struct usb_interface *intf)
-> >  {
-> >  	struct dev_state *ps = usb_get_intfdata (intf);
-> > +	unsigned int ifnum = intf->altsetting->desc.bInterfaceNumber;
-> >
-> >  	if (!ps)
-> >  		return;
-> > @@ -349,11 +350,12 @@
-> >  	 * all pending I/O requests; 2.6 does that.
-> >  	 */
-> >
-> > -	clear_bit(intf->cur_altsetting->desc.bInterfaceNumber, &ps->ifclaimed);
-> > +	if (ifnum < 8*sizeof(ps->ifclaimed))
-> > +		clear_bit(ifnum, &ps->ifclaimed);
-> >  	usb_set_intfdata (intf, NULL);
-> >
-> >  	/* force async requests to complete */
-> > -	destroy_all_async (ps);
-> > +	destroy_async_on_interface(ps, ifnum);
-> >  }
-> >
-> >  struct usb_driver usbdevfs_driver = {
->
-> Quite apart from the stylistic questions about sanity tests and so on,
-> this code contains a bug.  It wasn't introduced by your patch; it was
-> there from before and I should have caught it earlier, along with a few
-> others.
+On Wed, Apr 14, 2004 at 09:42:24AM -0700, Martin J. Bligh wrote:
+> > As expected the 6 second difference was nothing compared the the noise,
+> > though I'd be curious to see an average number.
+> 
+> Yeah, I don't think either is worse or better - I really want a more stable
+> test though, if I can find one.
 
-Hi Alan, it was introduced after your last devio.c fixes by the patch
-"fix xsane breakage, hangs on device scan at launch" by someone
-who will remain nameless :)
+a test involving less tasks and that cannot take any advantage from the
+cache and the age information should be more stable, though I don't have
+obvious suggestions.
 
-> The real problem is that the code in devio.c doesn't make a clear visual
-> distinction between interface number (i.e., desc.bInterfaceNumber) and
-> interface index (i.e., dev->actconfig->interface[index]).  The two values
-> do not have to agree.
->
-> The claimintf(), releaseintf(), and checkintf() routines take an index as
-> argument, and the ifclaimed bitvector uses the same index.  findintfif()
-> takes a number and returns the corresponding index, duplicating much of
-> the functionality of usb_ifnum_to_if().  Likewise, findintfep() returns an
-> index.
->
-> The code here in driver_disconnect() uses a number where it needs to use
-> an index.
->
-> Similarly, there's a typo in proc_releaseinterface(); the second argument
-> it passes to releaseintf() should be ret, not intf.
->
-> And in proc_submiturb(), the value stored in as->intf is an index when it
-> should be an interface number.  Or possibly it could remain an index, but
-> then the value passed to destroy_async_on_interface() by
-> proc_releaseinterface() should be the index and not the number.
+> Yeah, that's odd.
 
-Good catch!  I guess the index and the interface differ because interfaces are
-not always consecutively numbered.  Is that right?  When can it happen?
+I just wonder the VM needs a bit of fixing besides the rmap removal, or
+if it was just a pure concidence. if it happens again in the -aa pass
+too then it may not be a conincidence.
 
-Thanks,
+> Because it's frigging hard to make a 16GB machine swap ;-) 'twas just my
+> desktop.
 
-Duncan.
+mem= should fix the problem for the benchmarking ;)
+
+swapping in general is important for 16GB 32-way too (and that's the
+thing that 2.4 mainline cannot swap efficiently, and that's why I had to
+add objrmap in 2.4-aa too).
+
+> Yeah, it's hard to do mem= on NUMA, but I have a patch from someone 
+> somehwere. Those machines don't tend to swap heavily anyway, but I suppose
+> page reclaim in general will happen.
+
+I see what you mean with mem= being troublesome, I forgot you're numa=y,
+you can either disable numa temporarily, or use the more complex syntax
+that you should find in arch/i386/kernel/setup.c, that should work w/o
+kernel changes and w/o patches since it simply trimes the e820 map,
+everything else numa is built on top of that map, you've just to give
+an hundred megs from the start of every node, and hopefully it'll boot ;).

@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262133AbTKGWxg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:53:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbTKGWxc
+	id S262101AbTKGWmY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:42:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbTKGW0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:53:32 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:19727 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S262133AbTKGWxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 17:53:05 -0500
-Date: Sat, 8 Nov 2003 09:52:53 +1100
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BIO] Bounce queue in bio_add_page
-Message-ID: <20031107225253.GA8864@gondor.apana.org.au>
-References: <20031103205234.GA17570@gondor.apana.org.au> <20031104084929.GH1477@suse.de> <20031104090325.GA21301@gondor.apana.org.au> <20031104090353.GM1477@suse.de> <20031105094855.GD1477@suse.de> <20031106210900.GA29000@gondor.apana.org.au> <20031107112346.GA5153@gondor.apana.org.au> <20031107112555.GC591@suse.de> <20031107112833.GA5239@gondor.apana.org.au> <20031107113235.GD591@suse.de>
+	Fri, 7 Nov 2003 17:26:45 -0500
+Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:42980 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id S264446AbTKGQNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 11:13:14 -0500
+Date: Fri, 7 Nov 2003 17:12:02 +0100
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: ptrace + EFLAGS_RF
+Message-Id: <20031107171202.02ac8a41.us15@os.inf.tu-dresden.de>
+Organization: Fiasco Core Team
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+X-Mailer: X-Mailer 5.0 Gold
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031107113235.GD591@suse.de>
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Fri__7_Nov_2003_17_12_02_+0100_rap8Ud6z9E+paBL8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 07, 2003 at 12:32:35PM +0100, Jens Axboe wrote:
-> On Fri, Nov 07 2003, Herbert Xu wrote:
-> > On Fri, Nov 07, 2003 at 12:25:55PM +0100, Jens Axboe wrote:
-> > > 
-> > > Could be related, someone is doing an unlock on an already unlocked
-> > > page. Is this the same system that saw the bounce problem initially?
-> > 
-> > Yes, see http://bugs.debian.org/218566 for details.
-> 
-> Then there's likely just some other bug wrt bouncing. Hmm, does this
-> work?
+--Signature=_Fri__7_Nov_2003_17_12_02_+0100_rap8Ud6z9E+paBL8
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-It's OK, it turns out that he applied my earlier patch which called
-blk_queue_bounce() in blk_add_page.  That obviously breaks down when
-the bio is bounced since the real end_io functions haven't been set
-yet.
 
-So this problem is resolved.
+Hi,
 
-Thanks,
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+In arch/i386/kernel/ptrace.c the kernel defines which bits of the eflags
+register user programs have access to using ptrace (PTRACE_SETREGS). Among
+the "forbidden" bits is the resume flag (0x10000), i.e. the kernel masks
+it out if userland sets it.
+
+/* determines which flags the user has access to. */
+/* 1 = access 0 = no access */
+#define FLAG_MASK 0x00044dd5
+
+When using hardware-assisted breakpoints via the debug registers (DR0...7),
+it would be helpful if the debugger could set the resume flag in order not
+to immediately hit the same breakpoint again at PTRACE_CONT/SYSCALL.
+
+What is the motivation for disallowing user programs to set the RF flag?
+I see no obvious reason how setting it could possibly screw the kernel.
+Am I overlooking something?
+
+Alternatively - what is the suggested approach to skip over breakpointed
+instructions? Resetting the breakpoint, doing a singlestep and setting it
+again doesn't seem very convenient to me.
+
+Regards,
+-Udo.
+
+--Signature=_Fri__7_Nov_2003_17_12_02_+0100_rap8Ud6z9E+paBL8
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/q8RWnhRzXSM7nSkRAkrkAJ9onIgmENioB7NXkBQV1s99hBxIHwCfWYCk
+PELrnS08LF3aoo11/4wT+d4=
+=uSYO
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__7_Nov_2003_17_12_02_+0100_rap8Ud6z9E+paBL8--

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130155AbQL1TVt>; Thu, 28 Dec 2000 14:21:49 -0500
+	id <S131607AbQL1TZw>; Thu, 28 Dec 2000 14:25:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131607AbQL1TV3>; Thu, 28 Dec 2000 14:21:29 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:39177 "EHLO
+	id <S131575AbQL1TZm>; Thu, 28 Dec 2000 14:25:42 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:47625 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130155AbQL1TV0>; Thu, 28 Dec 2000 14:21:26 -0500
-Date: Thu, 28 Dec 2000 10:50:48 -0800 (PST)
+	id <S131357AbQL1TZ1>; Thu, 28 Dec 2000 14:25:27 -0500
+Date: Thu, 28 Dec 2000 10:54:32 -0800 (PST)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Rik van Riel <riel@conectiva.com.br>, Alexander Viro <viro@math.psu.edu>,
+To: Daniel Phillips <phillips@innominate.de>
+cc: Rik van Riel <riel@conectiva.com.br>,
         linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: innd mmap bug in 2.4.0-test12
-In-Reply-To: <20001228160005.B14479@metastasis.f00f.org>
-Message-ID: <Pine.LNX.4.10.10012281049140.12260-100000@penguin.transmeta.com>
+Subject: Re: [PATCH] Re: innd mmap bug in 2.4.0-test12
+In-Reply-To: <3A4B8895.CEDA8311@innominate.de>
+Message-ID: <Pine.LNX.4.10.10012281051480.12260-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,24 +21,41 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Thu, 28 Dec 2000, Chris Wedgwood wrote:
-> 
-> this remind me; perhaps you or Al could answer this.
-> 
->   How hard would it be to have ramfs backed by swap? The goal being
->   try to achieve something like a FreeBSDs mfs.
-> 
-> I use ramfs for /tmp on my laptop -- it's very handy because it
-> extends the amount of the the disk had spent spun down and therefore
-> battery life; but writing large files into /tmp can blow away the
-> system or at the very least eat away at otherwise usable ram. Not
-> terribly desirable.
+On Thu, 28 Dec 2000, Daniel Phillips wrote:
 
-Jeff Garzik had the code to do this, and the new shared memory code should
-be able to be massaged to handle this all without actually bloating the
-kernel (ie "ramfs" would still stay very very tiny, just taking advantage
-of the common code that the VM layer already has to support for other
-things).
+> [in vmscan.c]
+> > Between line 573 and 594 the page can have 1 user and be unlocked, so it
+> > can be removed by invalidate_inode_pages, and the mapping will be
+> > cleared here:
+> > http://innominate.org/~graichen/projects/lxr/source/mm/filemap.c?v=v2.3#L98
+> 
+> This seems like the obvious thing to do:
+> 
+> --- 2.4.0-test13.clean/mm/filemap.c	Fri Dec 29 03:14:58 2000
+> +++ 2.4.0-test13/mm/filemap.c	Fri Dec 29 03:16:21 2000
+> @@ -96,6 +96,7 @@
+>  	remove_page_from_inode_queue(page);
+>  	remove_page_from_hash_queue(page);
+>  	page->mapping = NULL;
+> +	ClearPageDirty(page);
+>  }
+>  
+>  void remove_inode_page(struct page *page)
+
+No, I'd much rather have
+
+	if (PageDirty(page)) BUG();
+
+there, and then have the free_swap_cache code clear the dirty bit.
+
+We don't want to lose dirty bits by mistake. The only cases where it's ok
+to clear the dirty bit is when we truncate a page completely (so it won't
+be needed and obviously really shouldn't be written out) and when we've
+lost the last user of a swap cache entry.
+
+Any other cases might be bugs, where we remove a page from a mapping
+without noticing that it is dirty (we had this bug in reclaim_pages(), for
+example).
 
 		Linus
 

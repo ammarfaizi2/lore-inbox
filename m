@@ -1,41 +1,196 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262197AbVCOBrd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVCOBz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262197AbVCOBrd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 20:47:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbVCOBrd
+	id S261385AbVCOBz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 20:55:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVCOBzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 20:47:33 -0500
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:8557 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262197AbVCOBrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 20:47:31 -0500
-Message-ID: <42363EAB.3050603@yahoo.com.au>
-Date: Tue, 15 Mar 2005 12:47:23 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: Phillip Lougher <phillip@lougher.demon.co.uk>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: [PATCH][1/2] SquashFS
-References: <4235BAC0.6020001@lougher.demon.co.uk> <20050315003802.GH3163@waste.org>
-In-Reply-To: <20050315003802.GH3163@waste.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Mar 2005 20:55:55 -0500
+Received: from mail.autoweb.net ([198.172.237.26]:52486 "EHLO mail.autoweb.net")
+	by vger.kernel.org with ESMTP id S261385AbVCOBz3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 20:55:29 -0500
+Date: Mon, 14 Mar 2005 20:55:21 -0500
+From: Ryan Anderson <ryan@michonline.com>
+To: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Ryan Anderson <ryan@michonline.com>
+Subject: Re: [PATCH] Automatically append a semi-random version for BK users
+Message-ID: <20050315015521.GE5318@mythryan2.michonline.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Ryan Anderson <ryan@michonline.com>
+References: <20050309080638.GW7828@mythryan2.michonline.com> <20050314224317.GB31437@mars.ravnborg.org> <20050315014235.GD5318@mythryan2.michonline.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050315014235.GD5318@mythryan2.michonline.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
+Automatically append a semi-random version if the tree we're building
+isn't tagged in BitKeeper (or another SCM) and CONFIG_LOCALVERSION_AUTO
+is set.
 
->>+	for (;;) {
->>
->
->while (1)
->
->
+This fixes the case when Linus (or someone else) does a release and tags
+it, someone else does a build of that release tree (i.e, 2.6.11), and
+installs it.  Later, before another release occurs (i.e, -rc1), another
+build happens, and the actual, released 2.6.11 is overwritten with the
+-current tree.
 
-I always thought for (;;) was preferred. Or at least acceptable?
+This currently supports BitKeeper only, but support for other SCMs is
+easy to add.
+
+Signed-Off-By: Ryan Anderson <ryan@michonline.com>
 
 
+Index: local-quilt/Makefile
+===================================================================
+--- local-quilt.orig/Makefile	2005-03-14 19:17:41.000000000 -0500
++++ local-quilt/Makefile	2005-03-14 20:45:11.000000000 -0500
+@@ -549,6 +549,26 @@ export KBUILD_IMAGE ?= vmlinux
+ # images. Default is /boot, but you can set it to other values
+ export	INSTALL_PATH ?= /boot
+ 
++# If CONFIG_LOCALVERSION_AUTO is set, we automatically perform some tests
++# and try to determine if the current source tree is a release tree, of any sort,
++# or if is a pure development tree.
++#
++# A 'release tree' is any tree with a BitKeeper, or other SCM, TAG associated
++# with it.  The primary goal of this is to make it safe for a native
++# BitKeeper/CVS/SVN user to build a release tree (i.e, 2.6.9) and also to
++# continue developing against the current Linus tree, without having the Linus
++# tree overwrite the 2.6.9 tree when installed.
++#
++# Currently, only BitKeeper is supported.
++# Other SCMs can edit scripts/setlocalversion and add the appropriate
++# checks as needed.
++
++
++ifdef CONFIG_LOCALVERSION_AUTO
++	localversion-auto := $(shell $(PERL) $(srctree)/scripts/setlocalversion $(srctree))
++	LOCALVERSION := $(LOCALVERSION)$(localversion-auto)
++endif
++
+ #
+ # INSTALL_MOD_PATH specifies a prefix to MODLIB for module directory
+ # relocations required by build roots.  This is not defined in the
+Index: local-quilt/init/Kconfig
+===================================================================
+--- local-quilt.orig/init/Kconfig	2005-03-14 19:17:41.000000000 -0500
++++ local-quilt/init/Kconfig	2005-03-14 20:49:45.000000000 -0500
+@@ -69,6 +69,21 @@ config LOCALVERSION
+ 	  object and source tree, in that order.  Your total string can
+ 	  be a maximum of 64 characters.
+ 
++config LOCALVERSION_AUTO
++	bool "Automatically append version information to the version string"
++	default y
++	help
++	  This will try to automatically determine if the current tree is a
++	  release tree by looking for BitKeeper, or other SCM tags that
++	  belong to the current top of tree revision.
++
++	  A string of the format -BKxxxxxxxx will be added to the
++	  localversion.  The string generated by this will be appended 
++	  after any matching localversion* files, and after the 
++	  value set in CONFIG_LOCALVERSION
++	  Note: This requires Perl and the Digest::MD5 module, as well
++	  as BitKeeper.
++
+ config SWAP
+ 	bool "Support for paging of anonymous memory (swap)"
+ 	depends on MMU
+Index: local-quilt/scripts/setlocalversion
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ local-quilt/scripts/setlocalversion	2005-03-14 20:41:01.000000000 -0500
+@@ -0,0 +1,85 @@
++#!/usr/bin/perl
++# Copyright 2004 - Ryan Anderson <ryan@michonline.com>  GPL v2
++
++use strict;
++use warnings;
++use Digest::MD5;
++require 5.006;
++
++if (@ARGV != 1) {
++	print <<EOT;
++Usage: setlocalversion <srctree>
++EOT
++	exit(1);
++}
++
++my ($srctree) = @ARGV;
++
++my @LOCALVERSIONS = ();
++
++# BitKeeper Version Checks
++
++# We are going to use the following commands to try and determine if this
++# repository is at a Version boundary (i.e, 2.6.10 vs 2.6.10 + some patches) We
++# currently assume that all meaningful version boundaries are marked by a tag.
++# We don't care what the tag is, just that something exists.
++#
++# The process is as follows:
++#
++# 1. Get the key of the top of tree changeset:
++# 	cset=`bk changes -r+ -k`
++#    This will be something like:
++#    bunk@stusta.de[torvalds]|ChangeSet|20050314010036|43252
++#
++# 2. Get the tag, if any, associated with it:
++#       bk prs -h -d':TAG:\n' -r$cset
++#
++# 3. If no such tag exists, take the hex-encoded md5sum of the
++# changeset key, extract the first 8 characters of it, and add
++# -BK and the above 8 characters to the end of the version.
++
++sub do_bk_checks {
++	chdir($srctree);
++	my $changeset = `bk changes -r+ -k`;
++	chomp $changeset; # strip trailing \n safely
++	my $tag = `bk prs -h -d':TAG:' -r'$changeset'`;
++
++	if (length($tag) == 0) {
++		# There is no tag at the Top of Tree changeset, so this is not
++		# a release tree.  To distinguish this from the previous
++		# release tree, something must be appended to the version to
++		# distinguish it.  
++		
++		# The changeset key in $changeset is unique, but unsuitable for
++		# direct use as a version, so semi-randomly mangle it using a
++		# MD5 hash.
++		my $localversion = Digest::MD5::md5_hex($changeset);
++		$localversion = substr($localversion,0,8);
++
++		push @LOCALVERSIONS, "BK" . $localversion;
++	}
++}
++
++# Stub for CVS checks
++sub do_cvs_checks {
++
++}
++
++
++if ( -d "BitKeeper" ) {
++	my $bk = `which bk`;
++	chomp $bk;
++	if (length($bk) != 0) {
++		do_bk_checks();
++	}
++}
++
++if ( -d "CVS" ) {
++	my $cvs = `which cvs`;
++	chomp $cvs;
++	if (length($cvs) != 0) {
++		do_cvs_checks();
++	}
++}
++
++printf "-%s\n", join("-",@LOCALVERSIONS) if (scalar @LOCALVERSIONS > 0);
+
+--
+Ryan Anderson
+  sometimes Pug Majere

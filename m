@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268028AbUHKLpV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268031AbUHKLsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268028AbUHKLpV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 07:45:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268030AbUHKLpU
+	id S268031AbUHKLsP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 07:48:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268030AbUHKLsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 07:45:20 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:52720 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S268028AbUHKLpQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 07:45:16 -0400
-Date: Wed, 11 Aug 2004 13:44:26 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408111144.i7BBiQxK015041@burner.fokus.fraunhofer.de>
-To: root@chaos.analogic.com, schilling@fokus.fraunhofer.de
-Cc: alan@lxorguk.ukuu.org.uk, axboe@suse.de, diablod3@gmail.com,
-       dwmw2@infradead.org, eric@lammerts.org, james.bottomley@steeleye.com,
-       linux-kernel@vger.kernel.org, skraw@ithnet.com
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+	Wed, 11 Aug 2004 07:48:15 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:44170 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S268032AbUHKLsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 07:48:11 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O5
+References: <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu>
+	<20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu>
+	<20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu>
+	<1092174959.5061.6.camel@mindpipe> <20040811073149.GA4312@elte.hu>
+	<20040811074256.GA5298@elte.hu> <1092210765.1650.3.camel@mindpipe>
+	<20040811082712.GB6528@elte.hu>
+From: Linh Dang <linhd@nortelnetworks.com>
+Organization: Null
+Date: Wed, 11 Aug 2004 07:48:08 -0400
+In-Reply-To: <20040811082712.GB6528@elte.hu> (Ingo Molnar's message of "Wed,
+ 11 Aug 2004 10:27:12 +0200")
+Message-ID: <wn51xid99qf.fsf@linhd-2.ca.nortel.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->From root@chaos.analogic.com  Tue Aug 10 18:07:24 2004
+Hi,
 
->Sorry to break into this wonderful conversation, but it seems
->I have all the actors corralled in one place.
+I'm not running the voluntary-preempt-* patches. but I do see some
+long latencies with:
 
->The fascist US government forced 321software out-of-business. It
->was a company that provided software that could copy DVDs.
+        vanilla 2.6.7+preempt-timing+defer-softirq
 
-cdrtools do not have the problem as they do not include everything you need in 
-order to copy CSS DVDs. Cdrtools however allow you to create UDF images from
-DVD file trees and to write the UDF images to a DVD.
+which were NOT reported here. Is it useful the report them?
 
-If ever, I believe that deCSS could be problematic although I believe that it 
-may still be distributed from European sites.
-
-Jörg
-
+Regards
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+Linh Dang

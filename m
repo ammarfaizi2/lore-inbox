@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262294AbTGAMcg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 08:32:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbTGAMcg
+	id S262312AbTGAMge (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 08:36:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTGAMge
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 08:32:36 -0400
-Received: from mail.hometree.net ([212.34.181.120]:21419 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S262294AbTGAMcf
+	Tue, 1 Jul 2003 08:36:34 -0400
+Received: from mail.hometree.net ([212.34.181.120]:30123 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP id S262312AbTGAMgd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 08:32:35 -0400
+	Tue, 1 Jul 2003 08:36:33 -0400
 To: linux-kernel@vger.kernel.org
 Path: not-for-mail
 From: "Henning P. Schmiedehausen" <hps@intermeta.de>
 Newsgroups: hometree.linux.kernel
 Subject: Re: Dell vs. GPL
-Date: Tue, 1 Jul 2003 12:46:56 +0000 (UTC)
+Date: Tue, 1 Jul 2003 12:50:55 +0000 (UTC)
 Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <bdrvs0$i0d$1@tangens.hometree.net>
-References: <Pine.LNX.4.10.10306301124180.5840-100000@master.linux-ide.org> <E19X5VI-0002q3-00@calista.inka.de>
+Message-ID: <bds03f$i0d$2@tangens.hometree.net>
+References: <200306302043.h5UKhqjn003817@turing-police.cc.vt.edu> <Pine.LNX.4.10.10306301341290.5840-100000@master.linux-ide.org>
 Reply-To: hps@intermeta.de
 NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1057063616 18445 212.34.181.4 (1 Jul 2003 12:46:56 GMT)
+X-Trace: tangens.hometree.net 1057063855 18445 212.34.181.4 (1 Jul 2003 12:50:55 GMT)
 X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 1 Jul 2003 12:46:56 +0000 (UTC)
+NNTP-Posting-Date: Tue, 1 Jul 2003 12:50:55 +0000 (UTC)
 X-Copyright: (C) 1996-2003 Henning Schmiedehausen
 X-No-Archive: yes
 User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net> writes:
+Andre Hedrick <andre@linux-ide.org> writes:
 
->most likely you never needed to violate a NDA in favor of the legal truth,
->but be assured: nobody can force you to obey a contract which will make you
->lie or keep illegal methods secret. Actually most often, you can be held
->liable for knowning about it.
+>Now you are being silly, and I have to stop because your lack of
+>seriousness.  
 
-... in Germany. In the U.S., a court might let you get away with the
-NDA breach, but after that, you get sued for damages by your former
-employers. And even if you come off clean, you're broke after some
-years of paying laywers so that your case isn't dropped off the court.
+>You can not talk about what you see or hear.
+
+>What is not clear?
+
+Well, in Germany this would be illegal. The term is "sittenwidrig". 
+You could even get sued if you _know_ about a crime being committed
+and do not tell the police.
+
+However, there is also "Verh‰ltnism‰ﬂigkeit" and I'd think that
+breaking an NDA because "uh, they're ripping off some non profit
+organization that gives out their sources for free and don't put their
+modifications back in the open" don't exactly qualify as a
+court-relevant fact.
 
 	Regards
 		Henning
-
-
-You might want to watch some Ally McBeal to get the basic idea... ;-)
-Unfortunately, in real life, you almost surely won't get SFL to defend
-you...  SCNR.  (ducks, runs).
-
-
 
 -- 
 Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH

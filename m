@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLFQfV>; Wed, 6 Dec 2000 11:35:21 -0500
+	id <S129183AbQLFQ6L>; Wed, 6 Dec 2000 11:58:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129406AbQLFQfL>; Wed, 6 Dec 2000 11:35:11 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:62990 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S129183AbQLFQe6>; Wed, 6 Dec 2000 11:34:58 -0500
-From: Steven Cole <scole@lanl.gov>
-Reply-To: scole@lanl.gov
-Date: Wed, 6 Dec 2000 09:04:18 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <E143Swc-0000DH-00@the-village.bc.nu>
-In-Reply-To: <E143Swc-0000DH-00@the-village.bc.nu>
-Subject: Re: 2.4.0-test12-pre4 + cs46xx + KDE 2.0 = frozen system
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <00120609041800.00919@spc.esa.lanl.gov>
-Content-Transfer-Encoding: 8bit
+	id <S129734AbQLFQ6B>; Wed, 6 Dec 2000 11:58:01 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:1804 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129183AbQLFQ5m>;
+	Wed, 6 Dec 2000 11:57:42 -0500
+Date: Wed, 6 Dec 2000 17:27:10 +0100
+From: Andi Kleen <ak@suse.de>
+To: Olaf Kirch <okir@caldera.de>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+        security-audit@ferret.lmh.ox.ac.uk
+Subject: Re: Traceroute without s bit
+Message-ID: <20001206172710.A5145@gruyere.muc.suse.de>
+In-Reply-To: <20001206135019.L9533@monad.caldera.de> <20001206140905.A408@gruyere.muc.suse.de> <20001206160737.M9533@monad.caldera.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001206160737.M9533@monad.caldera.de>; from okir@caldera.de on Wed, Dec 06, 2000 at 04:07:38PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 December 2000 18:00, Alan Cox wrote:
-> > I did confirm that 2.4.0-test11(final) works properly with sound and KDE
-> > 2.0.
->
-> Ok. That sounds even more like its PCI changes
->
+On Wed, Dec 06, 2000 at 04:07:38PM +0100, Olaf Kirch wrote:
+> On Wed, Dec 06, 2000 at 02:09:05PM +0100, Andi Kleen wrote:
+> > IP_PKTINFO does not allow to set source addresses, only destination
+> > addresses. Source address depends on the boundage or the route. 
+> 
+> No. At least udp_sendmsg uses the spec_dst_addr field as the source
+> address.  I added some code to my traceroute that lets you select the
+> source address in order to verify that.
 
-Some new information:
+Please read the code again.
 
-I copied the cs46xx.c driver from 2.4.0-test11 to 2.4.0-test11-ac1,
-rebuilt, and I got a test11-ac1 kernel which works with KDE 2.0 and sound.
+It uses spec_dst to select the possibly policy sourced route -- the
+actual source address is only set from that route (either default or what
+was set using ip route's from flag) or the bound address.
 
-I then repeated the same with 2.4.0-test12-pre6 (which failed earlier), and
-it now works too, that is I can run 2.4.0-test12-pre6 with sound and
-KDE 2.0, with the old test11(final) cs46xx sound driver compiled as a module.
-I didn't try compiling the old driver into the kernel, but that should work 
-too. I saved the test12-pre6 cs46xx.c in case further testing is needed.
 
-Now I'll revert to 2.4.0-test11(final) as the ReiserFS folks are warning that 
-test12-pre5 is unsafe with reiserfs; a fix is in progress.
 
-Steven
+> However the good thing is that somewhere something seems to check that
+> the requested address is indeed one attached to a local interface.
+
+That's not actually checked, but in most simple routing configurations it is
+true.
+
+
+> 
+> > > 	13:43:02 poll([{fd=4, events=POLLERR}], 1, 5) = 0
+> > > 	13:43:02 poll([{fd=4, events=POLLERR}], 1, 5) = 0
+> > > 	13:43:02 poll([{fd=4, events=POLLERR}], 1, 5) = 0
+> > > 	13:43:02 poll([{fd=4, events=POLLERR}], 1, 5) = 0
+> > 
+> > POLLERR is returned until the error queue is empty. I suspect you're
+> > not emptying it properly in all cases. It can contain multiple errors.
+> 
+> But it doesn't return POLLERR. If it was returning it, pollfd.revents
+> would be set. pollfd.events is the event mask that's being passed _into_
+> the poll() call.
+
+Right. I missed your 5ms timeout @)
+
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

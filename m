@@ -1,92 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132620AbRC1Xzh>; Wed, 28 Mar 2001 18:55:37 -0500
+	id <S132614AbRC1Xu1>; Wed, 28 Mar 2001 18:50:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132627AbRC1Xz3>; Wed, 28 Mar 2001 18:55:29 -0500
-Received: from [209.81.55.6] ([209.81.55.6]:26119 "EHLO cyclades.com")
-	by vger.kernel.org with ESMTP id <S132620AbRC1XzR>;
-	Wed, 28 Mar 2001 18:55:17 -0500
-Date: Wed, 28 Mar 2001 16:24:19 -0500 (EST)
-From: Ivan Passos <lists@cyclades.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-cc: Daniela Magri <daniela@cyclades.com>
-Subject: Re: RFC: configuring net interfaces
-In-Reply-To: <m3itkuq6xt.fsf@intrepid.pm.waw.pl>
-Message-ID: <Pine.LNX.4.30.0103281558140.15795-100000@intra.cyclades.com>
+	id <S132620AbRC1XuR>; Wed, 28 Mar 2001 18:50:17 -0500
+Received: from hercules.telenet-ops.be ([195.130.132.33]:28085 "HELO
+	smtp1.pandora.be") by vger.kernel.org with SMTP id <S132614AbRC1XuF>;
+	Wed, 28 Mar 2001 18:50:05 -0500
+Message-ID: <3AC26865.8D034960@pandora.be>
+Date: Thu, 29 Mar 2001 00:40:37 +0200
+From: johan verrept <johan.verrept@pandora.be>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-usb-devel@lists.sourceforge.net
+CC: linux-kernel@vger.kernel.org, Tony Hoyle <tmh@magenta-netlogic.com>
+Subject: Re: [linux-usb-devel] Repeatable lockup on SMP w/usbprocfs
+In-Reply-To: <3AC24EF0.6060800@magenta-netlogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tony Hoyle wrote:
+> 
+> If an application calls the USBDEVFS_SUBMITURB ioctl to submit a read,
+> when the async completion routine is called, the kernel goes into a hard
+> deadlock (no response to ping, etc.).  I've narrowed it down to the
+> async_completed routine in usb.c.  That's the only place where spinlocks
+> are used.  I'm not familiar enough with them to see what the error is,
+> though.
 
-On 28 Mar 2001, Krzysztof Halasa wrote:
->
-> What about a patch like this:
-> That would move interface configuration out of private ioctl range,
-> making it universal for all types of interfaces (now, we have different
-> configuration mechanisms even between different HDLC cards).
+It is async_completed in devio.c btw.
+I have looked at this too, but I am not sure whether this happens when the completion is called or
+when the program does a USBDEVFS_REAPURB(NDELAY).
+I have looked at the code, but I do not see anything obviously wrong.
 
-Yes! This would be great.
+One thing I considered weird is the "wake_up(&ps->wait);" in async_completed().
+This will wake up the program that has submitted the urb, whether is expects to be woken or not. I
+am not sure what the consequences of this are, but it seems harmless enough.
 
-> +struct hdlc_physical		/* 10 bytes */
-> +{
-> +	unsigned int interface;
-> +	unsigned int clock_rate;
-> +	unsigned short clock_type;
-> +};
+> The system runs fine until the packet is returned, then it just locks 
+> solid (On the alcatel USB modem I used for testing it will not respond 
+> until it gets sync, which may be several seconds).
 
-I guess 'interface' means media type (e.g. V.35, RS-232, X.21, etc.).
-Maybe it would be more intuitive to call it 'media'. What do you think?
+I have also noticed this only with the Alcatel SpeedTouch USB driver. I am not aware of any other
+driver that uses this although I am writing one that will be using this. It is very possible the
+program does something wrong (For example the code mixes the async and the sync versions of the urb
+ioctl's...), but even then it is not supposed to be able to lock up the whole machine.
 
-Also, for synchronous cards that have built-in DSU/CSU's (such as the
-Cylades-PC300/TE), it's also necessary to configure T1/E1 parameters
-(e.g. line code, frame mode, active channels, etc.). Should we make these
-parameters also available here or keep them in the driver realm?? I think
-we should have them here too, but maybe you see some problem with this
-that I don't. Please advice.
+> Others have found that just compiling SMP into the kernel is enough to
+> break it, you don't actually need two processors.
 
-> +struct hdlc_protocol		/* 4 bytes */
-> +{
-> +	unsigned int proto;
-> +};
+Probably because when you turn SMP off, spinlocks are disabled so deadlocks are avoided.
 
-What are the possible protocols to be set here?? I imagine PPP, Cisco
-HDLC, Raw HDLC, Frame Relay, X.25, and ... ?? Is that it??
-
-> +struct fr_protocol		/* 12 bytes */
-> +{
-> +	unsigned short lmi_type;
-> +	unsigned short t391;
-> +	unsigned short t392;
-> +	unsigned short n391;
-> +	unsigned short n392;
-> +	unsigned short n393;
-> +};
-
-So we would have hdlc_protocol->proto set to PROTO_FR, and then the
-details about Frame Relay would be set in this separate structure. Is that
-what you have in mind??
-
-> --- linux-2.4.orig/include/linux/sockios.h	Sun Nov 12 04:02:40 2000
-> +++ linux-2.4/include/linux/sockios.h	Wed Mar 28 16:35:23 2001
-> @@ -76,6 +76,12 @@
->  #define SIOCSIFDIVERT	0x8945		/* Set frame diversion options */
->
->  #define SIOCETHTOOL	0x8946		/* Ethtool interface		*/
-> +#define SIOCSHDLC_PHY	0x8947		/* set physical HDLC iface	*/
-> +#define SIOCGHDLC_PHY	0x8948		/* get physical HDLC iface	*/
-> +#define SIOCSHDLC_PROTO 0x8949		/* set HDLC protocol		*/
-> +#define SIOCGHDLC_PROTO 0x894A		/* get HDLC protocol		*/
-> +#define SIOCSFR_PROTO	0x894B		/* set Frame-Relay protocol	*/
-> +#define SIOCGFR_PROTO	0x894C		/* get Frame-Relay protocol	*/
-
-Maybe it's a better idea to have just two ioctl's here (GET and SET), and
-have "subioctl's" inside the structure passed to the HDLC layer (and
-defined by the HDLC layer). This would allow changes in the HDLC layer
-without having to change sockios.h (you'd still have to change HDLC's
-code and definitions, but this would be more self-contained). Again, this
-may be better, or maybe not. What do you think?
-
-Regards,
-Ivan
-
+	J.

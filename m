@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264991AbUH3Wd2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264997AbUH3Wdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264991AbUH3Wd2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 18:33:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264980AbUH3Wd2
+	id S264997AbUH3Wdt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 18:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUH3Wds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 18:33:28 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5248 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264704AbUH3Wcd (ORCPT
+	Mon, 30 Aug 2004 18:33:48 -0400
+Received: from cantor.suse.de ([195.135.220.2]:45761 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264954AbUH3WcN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 18:32:33 -0400
-Date: Mon, 30 Aug 2004 15:31:24 -0700
-From: "David S. Miller" <davem@redhat.com>
+	Mon, 30 Aug 2004 18:32:13 -0400
 To: neroden@fastmail.fm (Nathanael Nerode)
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: TG3(Tigoon) & Kernel 2.4.27
-Message-Id: <20040830153124.03aa84be.davem@redhat.com>
-In-Reply-To: <20040830221638.GA3596@fastmail.fm>
 References: <20040830221638.GA3596@fastmail.fm>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I'm ANN LANDERS!!  I can SHOPLIFT!!
+Date: Tue, 31 Aug 2004 00:32:12 +0200
+In-Reply-To: <20040830221638.GA3596@fastmail.fm> (Nathanael Nerode's message
+ of "Mon, 30 Aug 2004 18:16:38 -0400")
+Message-ID: <jehdqk45qr.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Aug 2004 18:16:38 -0400
-neroden@fastmail.fm (Nathanael Nerode) wrote:
+neroden@fastmail.fm (Nathanael Nerode) writes:
 
-> >I guess if I ran objdump --disassemble on the image and
-> >used the output of that in the tg3 driver and "compiled
-> >that source" they'd be happy.  And this makes the situation
-> >even more ludicrious.
-> 
-> Before you blithely made this claim, you should have actually tried running
-> objdump --disassemble on the image.
+> You can use simple assembler trickery to pack it up into a
+> normal object file *if* you have an assembler for mips *and* you know whether
+> the chip is running little-endian or big-endian (I have no idea). You may
+> need other information as well.  :-P  Then and only then can you try to
+> dissassemble it with objdump.
 
-I was speaking abstractly.  It is well definted which parts of
-the hex arrays are the data, bss, and text sections.  It doesn't
-take a rocket scientist to reconstruct things.
+You don't have to pack it up, objdump can also disassemble raw data (with
+--target=binary, --disassemble-all and suitable --architecture).
+
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

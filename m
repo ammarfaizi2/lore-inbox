@@ -1,83 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268357AbUJSLkg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268142AbUJSLkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268357AbUJSLkg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 07:40:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268142AbUJSLkH
+	id S268142AbUJSLkl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 07:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268216AbUJSLh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 07:40:07 -0400
-Received: from webapps.arcom.com ([194.200.159.168]:37388 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S268185AbUJSLWu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 07:22:50 -0400
-Message-ID: <4174F909.1040804@arcom.com>
-Date: Tue, 19 Oct 2004 12:22:49 +0100
-From: David Vrabel <dvrabel@arcom.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: greg@kroah.com
-Subject: [patch] PCI: Add is_bridge to pci_dev to allow fixups to disable
- bridge functionality.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Oct 2004 11:22:59.0656 (UTC) FILETIME=[FD584480:01C4B5CD]
+	Tue, 19 Oct 2004 07:37:58 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:61071 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S268148AbUJSLGr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 07:06:47 -0400
+Date: Tue, 19 Oct 2004 13:07:55 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
+Message-ID: <20041019110755.GA25246@elte.hu>
+References: <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <1098173546.12223.737.camel@thomas> <20041019090428.GA17204@elte.hu> <1098176615.12223.753.camel@thomas> <20041019093414.GA18086@elte.hu> <1098180746.12223.811.camel@thomas>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1098180746.12223.811.camel@thomas>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-This patch allows device fixups to force the PCI subsystem to ignore 
-bridges and hence not allocate resources to them.
+* Thomas Gleixner <tglx@linutronix.de> wrote:
 
-I have an IXP425 (ARM) board with a CardBus controller on it (of which 
-only the PC card interfaces are used).  The problem is that the PCI 
-memory window is too small to fit in all the bridge resources and the 
-rest of the PCI devices and up being unconfigured.  With this patch, and 
-a fixup to clear is_bridge, this doesn't happen.
+> +        * Wait for the lockd process to start, but since we're holding
+> +        * the lockd semaphore, we can't wait around forever ...
+> +        */
+> +       if (wait_event_interruptible_timeout(lockd_start,
+> +                                            nlmsvc_pid != 0, HZ)) {
+> +               printk(KERN_WARNING
+> +                       "lockd_down: lockd failed to start\n");
 
-The plan was to make the CardBus driver (drivers/pcmcia/yenta_socket.c) 
-honour the is_bridge flag and not bother with CardBus stuff if it's cleared.
+yeah, this is much cleaner. I'd suggest to remove the init_sem() hack
+from lib/rwsem-generic.c, it seems it is a nice facility to find
+semaphore abuses.
 
-2004-10-19  David Vrabel <dvrabel@arcom.com>
-
-	* Add is_bridge to struct pci_dev to allow PCI device fixups to
-	disable bridge functionality.
-
-Index: linux-2.6-armbe/drivers/pci/probe.c
-===================================================================
---- linux-2.6-armbe.orig/drivers/pci/probe.c	2004-10-14 
-11:26:38.000000000 +0100
-+++ linux-2.6-armbe/drivers/pci/probe.c	2004-10-19 12:00:00.000000000 +0100
-@@ -610,6 +610,8 @@
-  	dev->devfn = devfn;
-  	dev->hdr_type = hdr_type & 0x7f;
-  	dev->multifunction = !!(hdr_type & 0x80);
-+	dev->is_bridge = (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE
-+			  || dev->hdr_type == PCI_HEADER_TYPE_CARDBUS);
-  	dev->vendor = l & 0xffff;
-  	dev->device = (l >> 16) & 0xffff;
-  	dev->cfg_size = pci_cfg_space_size(dev);
-@@ -718,8 +720,7 @@
-  	pcibios_fixup_bus(bus);
-  	for (pass=0; pass < 2; pass++)
-  		list_for_each_entry(dev, &bus->devices, bus_list) {
--			if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE ||
--			    dev->hdr_type == PCI_HEADER_TYPE_CARDBUS)
-+			if  (dev->is_bridge)
-  				max = pci_scan_bridge(bus, dev, max, pass);
-  		}
-
-Index: linux-2.6-armbe/include/linux/pci.h
-===================================================================
---- linux-2.6-armbe.orig/include/linux/pci.h	2004-10-14 
-11:26:38.000000000 +0100
-+++ linux-2.6-armbe/include/linux/pci.h	2004-10-14 11:43:24.000000000 +0100
-@@ -532,6 +532,7 @@
-  	/* These fields are used by common fixups */
-  	unsigned int	transparent:1;	/* Transparent PCI bridge */
-  	unsigned int	multifunction:1;/* Part of multi-function device */
-+	unsigned int	is_bridge:1;	/* A PCI or CardBus bridge */
-  	/* keep track of device state */
-  	unsigned int	is_enabled:1;	/* pci_enable_device has been called */
-  	unsigned int	is_busmaster:1; /* device is busmaster */
+	Ingo

@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311239AbSDAJpG>; Mon, 1 Apr 2002 04:45:06 -0500
+	id <S311273AbSDAKCV>; Mon, 1 Apr 2002 05:02:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311244AbSDAJo5>; Mon, 1 Apr 2002 04:44:57 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:11651 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S311239AbSDAJop>;
-	Mon, 1 Apr 2002 04:44:45 -0500
-Message-ID: <3CA82C0B.98CD7275@colorfullife.com>
-Date: Mon, 01 Apr 2002 11:44:43 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre1-ac3 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Jason Czerak <Jason-Czerak@Jasnik.net>, linux-kernel@vger.kernel.org
-Subject: Re: ECC memory and SMP lockups on Gateway 6400 server
+	id <S311269AbSDAKCL>; Mon, 1 Apr 2002 05:02:11 -0500
+Received: from [194.46.8.33] ([194.46.8.33]:21000 "EHLO angusbay.vnl.com")
+	by vger.kernel.org with ESMTP id <S311271AbSDAKCB>;
+	Mon, 1 Apr 2002 05:02:01 -0500
+Date: Mon, 1 Apr 2002 11:14:59 +0100
+From: Dale Amon <amon@vnl.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux needs new leadership.
+Message-ID: <20020401101459.GB18766@vnl.com>
+Mail-Followup-To: Dale Amon <amon@vnl.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.01.2002ApR11F0015.31337-101723@transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux, the choice of a GNU generation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Recently got the goahead to upgrade the Gateway Win2K server to a linux
-> box to replace out old webserver. It's a 6400 server. 2 PIII-733's, 704
-> megs ECC registered ram.. NT ran fine on this box. not a hitch.
-> 
-Could you check /proc/interrupts? Is one number extremely high?
+I nominated Edsger Wybe Dijkstra and feel this is the
+best choice for a number of reasons:
 
-And try to boot with "mem=690M". My sis boards become extremely slow if
-I don't limit the memory. I guess the e820 map is wrong, and one of the
-pages are actually power managmenet registes/NVS.
+	* He's good at concurrency.
 
---
-	Manfred
+	* Would bring a high academic profile to Linux.
+
+	* Good programming practices would be enforced.
+	  We'd take a year off to remove all of our
+	  goto's and rewrite the kernel in Pascal.
+
+	* Enforcement of non-anthropomorphic discussion
+	  of computers and programs.
+
+	* No one can pronounce his name properly, thus
+	  preventing the complacency that would come
+	  with a leader named "Smyth" or "Jones".
+
+-- 
+------------------------------------------------------
+    Nuke bin Laden:           Dale Amon, CEO/MD
+  improve the global          Islandone Society
+     gene pool.               www.islandone.org
+------------------------------------------------------

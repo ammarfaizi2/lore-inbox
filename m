@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129771AbRAZCkv>; Thu, 25 Jan 2001 21:40:51 -0500
+	id <S129398AbRAZCyr>; Thu, 25 Jan 2001 21:54:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129834AbRAZCkm>; Thu, 25 Jan 2001 21:40:42 -0500
-Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:4776 "EHLO
-	smtprelay3.abs.adelphia.net") by vger.kernel.org with ESMTP
-	id <S129771AbRAZCkh>; Thu, 25 Jan 2001 21:40:37 -0500
-Date: Thu, 25 Jan 2001 21:41:12 -0500 (EST)
+	id <S129834AbRAZCyh>; Thu, 25 Jan 2001 21:54:37 -0500
+Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:42483 "EHLO
+	smtprelay2.abs.adelphia.net") by vger.kernel.org with ESMTP
+	id <S129398AbRAZCyZ>; Thu, 25 Jan 2001 21:54:25 -0500
+Date: Thu, 25 Jan 2001 21:55:00 -0500 (EST)
 From: "Steven N. Hirsch" <shirsch@adelphia.net>
-To: Leif Sawyer <lsawyer@gci.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Daniel Phillips <phillips@innominate.de>,
-        Thunder from the hill <thunder@ngforever.de>, alex@foogod.com
-Subject: RE: named streams, extended attributes, and posix
-In-Reply-To: <BF9651D8732ED311A61D00105A9CA31503515880@berkeley.gci.com>
-Message-ID: <Pine.LNX.4.21.0101252139430.27798-100000@pii.fast.net>
+To: "David S. Miller" <davem@redhat.com>
+cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
+Subject: Re: hotmail can't deal with ECN
+In-Reply-To: <14960.31423.938042.486045@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.21.0101252152370.27798-100000@pii.fast.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Jan 2001, Leif Sawyer wrote:
+On Thu, 25 Jan 2001, David S. Miller wrote:
 
-> alex@foogod.com [alex@foogod.com] wrote:
-> > Here's an idea: streams/etc are reached by appending 
-> > "/.../xxx" or some such to paths, thus:
-> >   for streamname on /dir/file, we have "/dir/file/.../streamname" 
-> >  for a directory /dir/dir, we get /dir/dir/.../streamname" 
-> >    -- "..." is a special subdirectory of any directories which have 
+> "test"?  I know exactly whats going to happen, and unless folks like
+> hotmail.com and others get their act together I'll certainly end up
+> removing *@*hotmail.com from the lists by the end of that day.
 > 
-> An interesting point to note here would be that
-> the directory '...'  has been used for many years to 'hide' things
-> from un-skilled sysadmins.
+> That is the whole point of this experiment.
 > 
-> In other words, warez ftp sites pop up all over the place, and this
-> directory name is pretty close to being the number one stash point,
-> right next to ".. "
+> Alan plans on doing similar things to ftp.linux.org.uk and other
+> machines he maintains.
+> 
+> The behavior of these sites is simply intolerable, and I think
+> this is a wonderful way to get our point across.  I cannot see it
+> being argued that these entities have not been given enough notice
+> of the problem.  If they cannot be bothered to get fixed an issue like
+> this after nearly half a year, I cannot be bothered to feel bad for
+> them when all users at their site lose access to the lists.
 
-It's also the implicit root for the global DFS filesystem namespace (from
-Transarc of AFS fame).
-
+Adelphia Communications just blew off my problem complaint (they have a
+router between me and the POP server that DENY's ECN), telling me that
+they "..won't upgrade the router on the basis of one complaint on a Linux
+(read: non-supported by them) system...".
 
 
 

@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279991AbRKIRGb>; Fri, 9 Nov 2001 12:06:31 -0500
+	id <S279990AbRKIRHB>; Fri, 9 Nov 2001 12:07:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279985AbRKIRGV>; Fri, 9 Nov 2001 12:06:21 -0500
-Received: from e24.nc.us.ibm.com ([32.97.136.230]:53150 "EHLO
-	e24.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S279988AbRKIRGJ>; Fri, 9 Nov 2001 12:06:09 -0500
-From: Patrick Mansfield <patmans@us.ibm.com>
-Message-Id: <200111091706.fA9H66R17344@eng2.beaverton.ibm.com>
-Subject: Re: [PATCH] fix 2.4.14 scanning past LUN 7
-To: mbrown@emc.com (Michael F. Brown)
-Date: Fri, 9 Nov 2001 09:06:06 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <20011109103435.A6848@lapi0061> from "Michael F. Brown" at Nov 09, 2001 09:34:35 AM PST
-X-Mailer: ELM [version 2.5 PL3]
+	id <S279993AbRKIRGw>; Fri, 9 Nov 2001 12:06:52 -0500
+Received: from darkwing.uoregon.edu ([128.223.142.13]:21971 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S279990AbRKIRGm>; Fri, 9 Nov 2001 12:06:42 -0500
+Date: Fri, 9 Nov 2001 08:34:59 -0800 (PST)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: <joelja@twin.uoregon.edu>
+To: Jeff Chua <jeffchua@silk.corp.fedex.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, Jeff Chua <jchua@fedex.com>
+Subject: Re: PalmPilot/PocketPC
+In-Reply-To: <Pine.LNX.4.33.0111100011160.10977-100000@boston.corp.fedex.com>
+Message-ID: <Pine.LNX.4.33.0111090834280.9417-100000@twin.uoregon.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+www.handhelds.org
 
-> > The setting of lun0_sl is broken in the current scsi_scan.c - if
-> > we found a LUN 0, the just allocated SDpnt with a SDpnt->scsi_level 
-> > of 0 is used to set lun0_sl.
+joelja
+
+On Sat, 10 Nov 2001, Jeff Chua wrote:
+
 > 
-> While I think your change makes this cleaner, I don't see why the
-> current code is broken.  What difference does it make if 
-> lun0_sl is set after scan_scsis_single() or in scan_scsis_single() 
-> if in both cases it is set to SDpnt->scsi_level?
+> Where can I find help on installing Linux on PalmPilot or PocketPC?
 > 
-
-The problem is that if we find a device, a new SDpnt is allocated,
-*SDpnt2 (SDpnt in scan_scsis()) is set to the new SDpnt, so
-after scan_scsis_single() returns, SDpnt->scsi_level is 0, not
-the value of the just found device.
-
-The fix sets lun0_sl to the newly found devices SDpnt->scsi_level,
-not to the newly allocated SDpnt->scsi_level.
+> Thanks in advance for your help.
+> 
+> 
+> Thanks,
+> Jeff
+> [ jchua@fedex.com ]
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 -- 
-Patrick Mansfield
+-------------------------------------------------------------------------- 
+Joel Jaeggli				       joelja@darkwing.uoregon.edu    
+Academic User Services			     consult@gladstone.uoregon.edu
+     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
+--------------------------------------------------------------------------
+It is clear that the arm of criticism cannot replace the criticism of
+arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
+the right, 1843.
+
+

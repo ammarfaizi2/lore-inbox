@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262205AbUCQX7r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 18:59:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUCQX7q
+	id S262198AbUCRAEP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 19:04:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbUCRAEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 18:59:46 -0500
-Received: from mail.kroah.org ([65.200.24.183]:39651 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262205AbUCQX7p (ORCPT
+	Wed, 17 Mar 2004 19:04:15 -0500
+Received: from ns.suse.de ([195.135.220.2]:53391 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262198AbUCRAEM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 18:59:45 -0500
-Date: Wed, 17 Mar 2004 15:11:35 -0800
-From: Greg KH <greg@kroah.com>
-To: sensors@stimpy.netroedge.com
-Cc: linux-kernel@vger.kernel.org, hunold@convergence.de
-Subject: Re: [RFC][2.6] Additional i2c adapter flags for i2c client isolation
-Message-ID: <20040317231135.GA4970@kroah.com>
-References: <4056C805.8090004@convergence.de> <20040316154454.GA13854@kroah.com> <20040316201426.1d01f1d3.khali@linux-fr.org> <20040316195325.GA22473@kroah.com> <1079515049.405817a9a3da0@imp.gcu.info> <20040317174255.GE19060@kroah.com> <20040317210504.34eb192f.khali@linux-fr.org>
+	Wed, 17 Mar 2004 19:04:12 -0500
+Subject: Re: 2.6.4-mm2
+From: Chris Mason <mason@suse.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: daniel@osdl.org, linux-kernel@vger.kernel.org, linux-aio@kvack.org
+In-Reply-To: <20040317155111.49d09a87.akpm@osdl.org>
+References: <20040314172809.31bd72f7.akpm@osdl.org>
+	 <1079461971.23783.5.camel@ibm-c.pdx.osdl.net>
+	 <1079474312.4186.927.camel@watt.suse.com>
+	 <20040316152106.22053934.akpm@osdl.org>
+	 <20040316152843.667a623d.akpm@osdl.org>
+	 <20040316153900.1e845ba2.akpm@osdl.org>
+	 <1079485055.4181.1115.camel@watt.suse.com>
+	 <1079487710.3100.22.camel@ibm-c.pdx.osdl.net>
+	 <20040316180043.441e8150.akpm@osdl.org>
+	 <1079554288.4183.1938.camel@watt.suse.com>
+	 <20040317123324.46411197.akpm@osdl.org>
+	 <1079563568.4185.1947.camel@watt.suse.com>
+	 <20040317150909.7fd121bd.akpm@osdl.org>
+	 <1079566076.4186.1959.camel@watt.suse.com>
+	 <20040317155111.49d09a87.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1079568387.4186.1964.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040317210504.34eb192f.khali@linux-fr.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 17 Mar 2004 19:06:27 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 17, 2004 at 09:05:04PM +0100, Jean Delvare wrote:
-> > > How would we export the value though? Numerical, with user-space
-> > > headers to be included by user-space applications? Or converted to
-> > > some explicit text strings so that no headers are needed?
-> > 
-> > A text string would be simple enough to use.
+On Wed, 2004-03-17 at 18:51, Andrew Morton wrote:
+> Chris Mason <mason@suse.com> wrote:
+> >
+> > Looks good, but I'm still having problems convincing pagevec_lookup_tag
+> > to return anything other than 0 when called from
+> > wait_on_page_writeback_range (ext2, ext3, reiserfs).  Any ideas?
 > 
-> I'm not sure.  What about a chip driver that would belong to more than
-> one class?  What about the eeprom driver which will belong to all
-> classes?  With a numeric value, a simple binary operation handles all
-> the cases.  With text strings we would end having to parse a possibly
-> multi-valued string, and do string comparisons, with at least one
-> exception to handle.  This is likely to require much more resources,
-> don't you think?
+> This might help.  I'm testing this path now, so there may be more changes..
+> 
 
-Ok, I wasn't really awake when writing that, you are correct.  Other
-devices export "values" that have to be looked up in tables in userspace
-(think device ids).  We can just export a hex number that matches the
-ones in i2c.h
+Well, that's certainly a lot slower ;-)  I've got a direct_read_under
+round going.  While you're at it, there's one more bug.
 
-Anyone want to write a patch?  :)
+The wbc struct used by filemap_fdatawrite doesn't initialize
+wbc.nonblocking to zero.  stack magic might give us a 1 there, leading
+to an early exit from mpage_writepages even when doing a WB_SYNC_ALL.
 
-thanks,
+-chris
 
-greg k-h
+

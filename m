@@ -1,73 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283163AbRLIHSz>; Sun, 9 Dec 2001 02:18:55 -0500
+	id <S283204AbRLIIEw>; Sun, 9 Dec 2001 03:04:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283158AbRLIHSp>; Sun, 9 Dec 2001 02:18:45 -0500
-Received: from [63.150.225.3] ([63.150.225.3]:20747 "HELO smtp.garbersoft.net")
-	by vger.kernel.org with SMTP id <S283163AbRLIHS2>;
-	Sun, 9 Dec 2001 02:18:28 -0500
-Date: Sun, 9 Dec 2001 00:18:24 -0700
-From: Paul Dickson <dickson@permanentmail.com>
-To: Robin Walser <robin.walser@usad.li>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.x problem
-Message-Id: <20011209001824.7897a3b1.dickson@permanentmail.com>
-In-Reply-To: <3C0FA135.80504@usad.li>
-In-Reply-To: <3C0FA135.80504@usad.li>
-X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S283203AbRLIIEm>; Sun, 9 Dec 2001 03:04:42 -0500
+Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:53687 "EHLO
+	swan.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S283200AbRLIIE0>; Sun, 9 Dec 2001 03:04:26 -0500
+Date: Sun, 9 Dec 2001 03:07:29 -0500
+To: Jens Axboe <axboe@suse.de>
+Cc: rwhron@earthlink.net, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: Oops on 2.5.1-pre6 doing mkreiserfs on loop device
+Message-ID: <20011209030729.A7908@earthlink.net>
+In-Reply-To: <20011206233759.A173@earthlink.net> <20011207144836.GF12017@suse.de> <20011207145431.GI12017@suse.de> <20011207150058.GJ12017@suse.de> <20011207114046.A152@earthlink.net> <20011207164431.GA27629@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011207164431.GA27629@suse.de>; from axboe@suse.de on Fri, Dec 07, 2001 at 05:44:31PM +0100
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 06 Dec 2001 17:47:49 +0100, Robin Walser wrote:
+On Fri, Dec 07, 2001 at 05:44:31PM +0100, Jens Axboe wrote:
+> loop can't be trusted yet. btw, updated patch on kernel.org,
+> /pub/linux/kernel/people/axboe/patches/v2.5/2.5.1-pre6
 
-> Hi there,
-> 
-> I didn't know what to do to fix my problem, so I thought I write to 
-> you.... So the following is my Problem: ..
-> 
-> Long years ago, I bought every time, Red Hat Linux lalala.. and so on, 
-> and as I bought Red Hat Linux 7.2 there came the biggest problem I ever 
-> had, when I compile kernels or oder progs then one time to the other the 
-> whole computers down, and I get a message like this ....
-> 
-> www.usad.li/robin/fehler1.jpg
->   //                            fehler2.jpg
->  //                             fehler3.jpg
+mkreiserfs on loop is working again in 2.5.1-pre8.
 
-It would have helped to prefix these lines with:  http://
+Linux test project runalltests.sh finished with no new
+regressions.
 
-> So I didn't knew what to do, in ircnet I asked some people they told me 
-> that it could might be a memory problem, so they said I should make a 
-> memory test with memtest86 ... so I did, but there where no errors, and 
-> the message came every time again, the very strange thing is that this 
-> never happend until i setup red hat 7.2
+growfiles did more iterations in 760 seconds than I've 
+measured before.
 
-The "Machine Check" means "internal error, bus error, or bus error
-detected by external agent".
+-- 
+Randy Hron
 
-Verify that your CPU fan is working and your case is well ventilated. Then
-if it still happens, you can add the boot option "nomce" to disable the
-machine check exception.
-
-Beyond this, you'll have to get help from someone else.
-
-	-Paul
-
-> uname -a
-> Linux firebird 2.4.7-10 #1 Thu Sep 6 16:46:36 EDT 2001 i686 unknown
-> 
-> gcc -v
-> 
-> gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)
-> 
-> My environment :
-> 
-> 
-> AMD xxx 1,2 GHz
-> 512 MB RAM
-> 40 GB Harddisk
-> Riva TNT 2
-> and so on (its a futjsu siemens machine )

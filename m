@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265475AbSLVWNG>; Sun, 22 Dec 2002 17:13:06 -0500
+	id <S265242AbSLVWgZ>; Sun, 22 Dec 2002 17:36:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265477AbSLVWNF>; Sun, 22 Dec 2002 17:13:05 -0500
-Received: from smtp07.iddeo.es ([62.81.186.17]:61830 "EHLO smtp07.retemail.es")
-	by vger.kernel.org with ESMTP id <S265475AbSLVWNF>;
-	Sun, 22 Dec 2002 17:13:05 -0500
-Date: Sun, 22 Dec 2002 23:21:08 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+	id <S265477AbSLVWgZ>; Sun, 22 Dec 2002 17:36:25 -0500
+Received: from p0027.as-l043.contactel.cz ([194.108.242.27]:35569 "EHLO
+	SnowWhite.janik.cz") by vger.kernel.org with ESMTP
+	id <S265242AbSLVWgY> convert rfc822-to-8bit; Sun, 22 Dec 2002 17:36:24 -0500
+To: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Read this and be ashamed ;) or: Awfull performance loss since 2.4.18 to 2.4.21-pre2
-Message-ID: <20021222222108.GA2482@werewolf.able.es>
-References: <200212221439.28075.m.c.p@wolk-project.de> <200212221538.32354.m.c.p@wolk-project.de> <200212221557.11563.m.c.p@wolk-project.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <200212221557.11563.m.c.p@wolk-project.de>; from m.c.p@wolk-project.de on Sun, Dec 22, 2002 at 15:57:11 +0100
-X-Mailer: Balsa 1.4.1
+Subject: Re: parport_serial link order bug, NetMos support
+References: <E18OxWK-0004w8-00@alf.amelek.gda.pl>
+From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
+X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
+ ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
+ iHiAs(t(~b#1.{w.d[=Z
+In-Reply-To: <E18OxWK-0004w8-00@alf.amelek.gda.pl> (Marek Michalkiewicz's
+ message of "Thu, 19 Dec 2002 11:03:12 +0100 (CET)")
+Message-ID: <m3smwpfzaf.fsf@Janik.cz>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i386-suse-linux-gnu)
+Date: Sun, 22 Dec 2002 23:46:04 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-14
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Marek Michalkiewicz <marekm@amelek.gda.pl>
+   Date: Thu, 19 Dec 2002 11:03:12 +0100 (CET)
 
-On 2002.12.22 Marc-Christian Petersen wrote:
->On Sunday 22 December 2002 15:38, Marc-Christian Petersen wrote:
->
->And hi again ^3,
->
->> root@codeman:[/] # uname -r
->> 2.4.20-rmap15b
->> root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 count=131072
->> 131072+0 records in
->> 131072+0 records out
->> 2147483648 bytes transferred in 140.460427 seconds (15288887 bytes/sec)
->
->root@codeman:[/] # uname -r
->2.4.20aa1
->root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 count=131072
->131072+0 records in
->131072+0 records out
->2147483648 bytes transferred in 286.054011 seconds (7507266 bytes/sec)
->
+Hi Marek,
 
-Check you timer...
+   > I've been trying (for quite a long time now, starting around the
+   > time when 2.4.19 was released) to submit the following patches into
+   > the 2.4.x kernel:
 
-werewolf:~> uname -a
-Linux werewolf.able.es 2.4.20-jam2 #2 SMP vie dic 20 22:35:33 CET 2002 i686 unknown unknown GNU/Linux
-werewolf:~> time dd if=/dev/zero of=kk bs=16384 count=131072
-131072+0 records in
-131072+0 records out
-0.51user 60.63system 1:23.73elapsed 73%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (133major+15minor)pagefaults 0swaps
+so why don't you send them to Marcelo?
 
-Box is a dual PII@400, 950Mb of RAM. FS is ext3.
-So about 83 seconds on -jam2, which is mainly just 2.4.20aa1 with ext3 fixes.
-Ah, no special options to ext3 mount (no  data=ordered). That's the point ?
+   > http://www.amelek.gda.pl/linux-patches/2.4.20-pre9/01_netmos
 
-???
+[...]
 
+   > The second patch adds support for NetMos PCI I/O cards, based on
+   > a >1 year old 2.5.x patch by Tim Waugh.  I've been using a few
+   > NM9835-based cards in production use, no problems so far (in 3
+   > machines, one of them is my server with two permanent 115.2k PPP
+   > connections, which have seen quite a few gigabytes of traffic).
+
+We use this patch in a production use here too. Only direct serial traffic
+with miscellaneous devices though but without problems so far.
+
+   > Please, I would really appreciate to see these patches in 2.4.21.
+
++1
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.20-jam2 (gcc 3.2.1 (Mandrake Linux 9.1 3.2.1-2mdk))
+Pavel Janík
+
+printk("??? No FDIV bug? Lucky you...\n");
+                  -- 2.2.16 include/asm-i386/bugs.h

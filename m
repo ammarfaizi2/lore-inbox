@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbUCGPIK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 10:08:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbUCGPIK
+	id S262095AbUCGPUg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 10:20:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbUCGPUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 10:08:10 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:1805 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S262079AbUCGPIJ (ORCPT
+	Sun, 7 Mar 2004 10:20:35 -0500
+Received: from main.gmane.org ([80.91.224.249]:44992 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262095AbUCGPUe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 10:08:09 -0500
-Date: Sun, 7 Mar 2004 16:08:07 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Carlo Orecchia <carlo@numb.darktech.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: KERNEL 2.6.3 and MAXTOR 160 GB
-Message-ID: <20040307150807.GA16436@pclin040.win.tue.nl>
-References: <Pine.LNX.4.44.0403071549260.3262-100000@numb.darktech.org>
+	Sun, 7 Mar 2004 10:20:34 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: GPL 3
+Date: Sun, 07 Mar 2004 16:14:33 +0100
+Message-ID: <yw1xishghep2.fsf@kth.se>
+References: <1078620297.3156.139.camel@nb.suse.de> <20040307125348.GA2020@mars.ravnborg.org>
+ <1078664629.9812.1.camel@laptop.fenrus.com>
+ <1078667199.3594.50.camel@nb.suse.de>
+ <1078668091.9106.1.camel@laptop.fenrus.com>
+ <1078669600.4168.10.camel@nb.suse.de>
+ <6.0.3.0.0.20040307100503.027b73b8@incoming.verizon.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403071549260.3262-100000@numb.darktech.org>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ti211310a080-4136.bb.online.no
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:otCoZgW49beNJm018Qw9dBChTVU=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 07, 2004 at 03:57:11PM +0100, Carlo Orecchia wrote:
+mark kandianis <linux-man@verizon.net> writes:
 
-> I'm running redhat 9 on an XP 1800 and a ASUS A7A266. I recently buy a new 
-> HD a maxtor Diamond Plus 160 with 8 mega cache. The fact is that the kernel that comes 
-> with REDHAT (2.4.20-8) shows the entire size of the disk (163.7 gb) but 
-> the kernel 2.6.1 or 2.6.3 does not. It only shows 137 gb. I'm getting 
-> crazy trying to understand why this is happening! Please let 
-> me know if theres a patch to fix this. I really  found amazing the 2.6 
-> kernel and i don't want to come back to use the 2.4!
-> What can i do? 
+> hi,
+>
+> in all the license discussions that have gone on here, i haven't seen one
+> on the supposed gpl 3 happen in a while, so i was wondering, is this really
+> going to happen?  and does anyone know of the date of it's proposed launch?
+> and where is a copy of this so i can look at it in the meantime?
 
-You can tell us the boot messages that concern your disk.
-You can tell us the CONFIG options that concern IDE.
-For example, did you set CONFIG_IDEDISK_STROKE ?
+This is NOT the proper place to discuss GPL3.  Please let's not have
+another flame war over licenses here.
+
+-- 
+Måns Rullgård
+mru@kth.se
 

@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267988AbUIJDem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267918AbUIJDu3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267988AbUIJDem (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 23:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUIJDck
+	id S267918AbUIJDu3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 23:50:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267939AbUIJDu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 23:32:40 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:55468 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S267918AbUIJD3c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 23:29:32 -0400
-Date: Fri, 10 Sep 2004 12:32:06 +0900 (JST)
-Message-Id: <200409100332.i8A3W6YV007141@mailsv.bs1.fc.nec.co.jp>
-To: akpm@osdl.org, hugh@veritas.com, davem@davemloft.net, ecd@skynet.be,
-       jj@sunsite.ms.mff.cuni.cz, anton@samba.org
-Cc: wli@holomorphy.com, takata.hirokazu@renesas.com, kaigai@ak.jp.nec.com,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] atomic_inc_return() for sparc64[5/5] (Re: atomic_inc_return)
-In-Reply-To: Your message of "Thu, 9 Sep 2004 20:48:27 +0100 (BST)".
-	<Pine.LNX.4.44.0409092005430.14004-100000@localhost.localdomain>
-From: kaigai@ak.jp.nec.com (Kaigai Kohei)
-X-Mailer: mnews [version 1.22PL1] 2000-02/15(Tue)
+	Thu, 9 Sep 2004 23:50:29 -0400
+Received: from gate.crashing.org ([63.228.1.57]:35534 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S267918AbUIJDu2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 23:50:28 -0400
+Subject: [PATCH] ppc: fix sungem NAPI
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, "David S. Miller" <davem@redhat.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1094788157.2543.111.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 10 Sep 2004 13:49:17 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi !
 
-[5/5] atomic_inc_return-linux-2.6.9-rc1.sparc64.patch
-  This patch declares atomic_add_return() as an alias of __atomic_add().
-  atomic64_add_return(),atomic_sub_return() and atomic64_sub_return() are same.
-  This patch has not been tested, since we don't have SPARC64 machine.  
-  I want to let this reviewed by SPARC64 specialists.
+The recent sungem NAPI change introduced a bug: dev_kfree_skb() is called
+within the spinlock, thus triggers all sort of WARN_ON's later on down the
+stack.
 
-Signed-off-by: KaiGai, Kohei <kaigai@ak.jp.nec.com>
---------
-Kai Gai <kaigai@ak.jp.nec.com>
+This patch changes it to dev_kfree_skb_any(), I hope that is fine
+as we aren't really in interrupt, are we ? (I don't know in what
+context NAPI polling occurs, is it a timer IRQ ?)
 
+Ben.
 
-diff -rNU4 linux-2.6.9-rc1/include/asm-sparc64/atomic.h linux-2.6.9-rc1.atomic_inc_return/include/asm-sparc64/atomic.h
---- linux-2.6.9-rc1/include/asm-sparc64/atomic.h	2004-08-24 16:03:32.000000000 +0900
-+++ linux-2.6.9-rc1.atomic_inc_return/include/asm-sparc64/atomic.h	2004-09-10 10:13:25.000000000 +0900
-@@ -39,8 +39,14 @@
+===== drivers/net/sungem.c 1.59 vs edited =====
+--- 1.59/drivers/net/sungem.c	2004-09-08 06:17:59 +10:00
++++ edited/drivers/net/sungem.c	2004-09-10 13:44:18 +10:00
+@@ -651,7 +651,7 @@
+ 		}
  
- #define atomic_inc_return(v) __atomic_add(1, v)
- #define atomic64_inc_return(v) __atomic64_add(1, v)
+ 		gp->net_stats.tx_packets++;
+-		dev_kfree_skb(skb);
++		dev_kfree_skb_any(skb);
+ 	}
+ 	gp->tx_old = entry;
  
-+#define atomic_sub_return(i, v) __atomic_sub(i, v)
-+#define atomic64_sub_return(i, v) __atomic64_sub(i, v)
-+
-+#define atomic_add_return(i, v) __atomic_add(i, v)
-+#define atomic64_add_return(i, v) __atomic64_add(i, v)
-+
- /*
-  * atomic_inc_and_test - increment and test
-  * @v: pointer of type atomic_t
-  *
+
+

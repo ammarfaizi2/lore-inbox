@@ -1,72 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131117AbQLVAgI>; Thu, 21 Dec 2000 19:36:08 -0500
+	id <S131212AbQLVAqb>; Thu, 21 Dec 2000 19:46:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130509AbQLVAf7>; Thu, 21 Dec 2000 19:35:59 -0500
-Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:6409 "EHLO
-	anduin.gondor.com") by vger.kernel.org with ESMTP
-	id <S131117AbQLVAfr>; Thu, 21 Dec 2000 19:35:47 -0500
-Date: Fri, 22 Dec 2000 01:03:35 +0100
-From: Jan Niehusmann <jan@gondor.com>
-To: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
-        adilger@turbolinux.com, Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] Re: fs corruption with invalidate_buffers()
-Message-ID: <20001222010334.A984@gondor.com>
-In-Reply-To: <3A300933.29813DE8@Hell.WH8.TU-Dresden.De> <Pine.GSO.4.21.0012071718330.22281-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0012071718330.22281-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Dec 07, 2000 at 05:26:46PM -0500
+	id <S131388AbQLVAqV>; Thu, 21 Dec 2000 19:46:21 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:3323 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S131212AbQLVAqF>; Thu, 21 Dec 2000 19:46:05 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200012220015.eBM0FPJ20543@webber.adilger.net>
+Subject: Re: strange nfs behavior in 2.2.18 and 2.4.0-test12
+In-Reply-To: <Pine.LNX.4.21.0012211828510.840-100000@ccs.covici.com>
+ "from John Covici at Dec 21, 2000 06:35:30 pm"
+To: John Covici <covici@ccs.covici.com>
+Date: Thu, 21 Dec 2000 17:15:25 -0700 (MST)
+CC: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The file corruption I reported on Dec 6 is still there in test13-pre3.
-(I can only reproduce it easily with the ext2 online resizing patches,
-but I really don't think it is caused by them)
-
-The corruption happens if invalidate_buffers calls put_last_free() on
-buffers that belong to mapped pages. These pages remain valid and may 
-get used later, while the buffers are marked free and may be reused
-by something completely different, immediately causing corruption.
-
-I changed my patch for the problem according to the following advice by
-Al Viro:
-
-On Thu, Dec 07, 2000 at 05:26:46PM -0500, Alexander Viro wrote:
-> That invalidate_buffers() should leave the unhashed ones alone. If it can't
-> be found via getblk() - just leave it as is.
+John Covici writes:
+> Here is my /etc/exports
 > 
-> IOW, let it skip bh if (bh->b_next == NULL && !destroy_dirty_buffers).
-> No warnings needed - it's a normal situation.
+> / ccs2(rw,no_root_squash)
+> /usr ccs2(rw,no_root_squash)
+> /usr/src ccs2(rw,no_root_squash)
+> /home ccs2(rw,no_root_squash)
+> /hard1 ccs2(rw,no_root_squash)
+> /hard2 ccs2(rw,no_root_squash)
+> /hard3 ccs2(rw,no_root_squash)
+> /hard4 ccs2(rw,no_root_squash)
+> /usr/bbs ccs2(rw,no_root_squash)
 
-This is the result - against test12-pre7, but works well with 
-test13-pre3:
+According to your fstab, these are all separate devices, so they should
+export OK.  You trust this "ccs2" machine a lot, however...  Exporting
+root with no_root_squash is a big security hole.
 
+> # /etc/fstab: static file system information.
+> #
+> # <file system>	<mount point>	<type>	<options>			<dump>	<pass>
+> /dev/hda2	/		ext2	defaults,errors=remount-ro 1	1
+> /dev/hdc2	none		swap	sw			0	0
+> /dev/hdc4	none		swap	sw			0	0
 
---- linux-2.4.0-test12-pre7-jn/fs/buffer.c.orig	Fri Dec  8 14:59:28 2000
-+++ linux-2.4.0-test12-pre7-jn/fs/buffer.c	Fri Dec  8 15:05:11 2000
-@@ -502,6 +502,10 @@
- 	struct bh_free_head *head = &free_list[BUFSIZE_INDEX(bh->b_size)];
- 	struct buffer_head **bhp = &head->list;
- 
-+	if(bh->b_page && bh->b_page->mapping) {
-+		panic("put_last_free() on mapped buffer!");
-+	}
-+
- 	bh->b_state = 0;
- 
- 	spin_lock(&head->lock);
-@@ -652,7 +656,8 @@
- 
- 			write_lock(&hash_table_lock);
- 			if (!atomic_read(&bh->b_count) &&
--			    (destroy_dirty_buffers || !buffer_dirty(bh))) {
-+			    (destroy_dirty_buffers || 
-+			      (!buffer_dirty(bh) && bh->b_next!=0) )) {
- 				remove_inode_queue(bh);
- 				__remove_from_queues(bh);
- 				put_last_free(bh);
+Having two swaps configured like this on the same disk is a net performance
+loss.  If anything, you should set one of them to have a lower priority
+(via pri=), so that it will only be used if the first one is full.
+
+> /dev/hdb7	none		swap	sw			0	0
+> proc		/proc		proc	defaults		0	0
+> /dev/fd0	/floppy		auto	defaults,user,noauto	0	0
+> /dev/cdrom	/cdrom		iso9660	defaults,ro,user,noauto	0	0
+> /dev/hdc3	/usr		ext2	rw			1	2
+> /dev/hdb6	/usr/bbs	ext2	rw			1	2
+> /dev/hda3	/usr/src	ext2	rw			1	2
+> /dev/hda4	/home		ext2	rw			1	3
+> 
+> and here are mounts executed out of /etc/rc.local
+> 
+> mount -t vfat /dev/hdb1 /hard2
+> mount -t vfat /dev/hdb5 /hard4
+> mount -t vfat /dev/hdc1 /hard3
+> mount -t vfat /dev/hda1 /hard1
+
+Out of curiosity, why not just put them into /etc/fstab?
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

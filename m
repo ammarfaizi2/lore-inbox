@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264875AbTA1HKY>; Tue, 28 Jan 2003 02:10:24 -0500
+	id <S264931AbTA1HKd>; Tue, 28 Jan 2003 02:10:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264931AbTA1HKY>; Tue, 28 Jan 2003 02:10:24 -0500
-Received: from holomorphy.com ([66.224.33.161]:29352 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S264875AbTA1HKY>;
-	Tue, 28 Jan 2003 02:10:24 -0500
-Date: Mon, 27 Jan 2003 23:18:26 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: kexec reboot code buffer
-Message-ID: <20030128071826.GI780@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
-	"Martin J. Bligh" <mbligh@aracnet.com>
-References: <3E31AC58.2020802@us.ibm.com> <m1znppco1w.fsf@frodo.biederman.org> <3E35AAE4.10204@us.ibm.com> <m1r8ax69ho.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1r8ax69ho.fsf@frodo.biederman.org>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S267322AbTA1HKd>; Tue, 28 Jan 2003 02:10:33 -0500
+Received: from cerberus.stardot-tech.com ([67.105.126.66]:17677 "EHLO
+	cerberus.stardot-tech.com") by vger.kernel.org with ESMTP
+	id <S264931AbTA1HKc>; Tue, 28 Jan 2003 02:10:32 -0500
+Date: Mon, 27 Jan 2003 23:19:41 -0800 (PST)
+From: Jim Treadway <jim@stardot-tech.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: "David S. Miller" <davem@nuts.ninka.net>
+Subject: Re: [TCP]: Add tcp_low_latency sysctl.
+In-Reply-To: <200301280532.h0S5WRI15956@hera.kernel.org>
+Message-ID: <Pine.LNX.4.44.0301272313200.16728-100000@cerberus.stardot-tech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 28, 2003 at 12:04:19AM -0700, Eric W. Biederman wrote:
-> I agree that lowmem for the common case is fine.  For kexec on panic,
-> and a some weird cases using high mem is beneficial.  I don't have
-> a problem with changing it back to just lowmem for the time being.
+On Mon, 27 Jan 2003, Linux Kernel Mailing List wrote:
 
-Well, there is the bit about dropping the PAE bit from %cr4 too.
-Seriously, just plop down the fresh zone type and all will be well.
-It's really incredibly easy.
+> ChangeSet 1.930.3.1, 2003/01/27 15:51:19-08:00, davem@nuts.ninka.net
+
+[SNIPPED]
+
+> diff -Nru a/net/ipv4/sysctl_net_ipv4.c b/net/ipv4/sysctl_net_ipv4.c
+> --- a/net/ipv4/sysctl_net_ipv4.c	Mon Jan 27 21:32:28 2003
+> +++ b/net/ipv4/sysctl_net_ipv4.c	Mon Jan 27 21:32:28 2003
+> @@ -223,6 +223,8 @@
+>  	 &sysctl_tcp_tw_reuse, sizeof(int), 0644, NULL, &proc_dointvec},
+>  	{NET_TCP_FRTO, "tcp_frto",
+>  	 &sysctl_tcp_frto, sizeof(int), 0644, NULL, &proc_dointvec},
+> +	{NET_TCP_FRTO, "tcp_low_latency",
+> +	 &sysctl_tcp_low_latency, sizeof(int), 0644, NULL, &proc_dointvec},
+>  	{0}
+>  };
+
+I think this should be NET_TCP_LOW_LATENCY instead of NET_TCP_FRTO.  I
+don't have a 2.5 kernel here or I'd send a patch, sorry.
+
+Jim
 
 
--- wli
+

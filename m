@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265247AbRF0Eea>; Wed, 27 Jun 2001 00:34:30 -0400
+	id <S265250AbRF0EmV>; Wed, 27 Jun 2001 00:42:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265248AbRF0EeU>; Wed, 27 Jun 2001 00:34:20 -0400
-Received: from m11.boston.juno.com ([64.136.24.74]:51613 "EHLO
-	m11.boston.juno.com") by vger.kernel.org with ESMTP
-	id <S265247AbRF0EeD>; Wed, 27 Jun 2001 00:34:03 -0400
+	id <S265255AbRF0EmM>; Wed, 27 Jun 2001 00:42:12 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:59662 "EHLO paip.net")
+	by vger.kernel.org with ESMTP id <S265250AbRF0El6>;
+	Wed, 27 Jun 2001 00:41:58 -0400
 To: linux-kernel@vger.kernel.org
-Date: Wed, 27 Jun 2001 00:32:53 -0400
-Subject: driver/sound/soundcard.c lock_kernel()/unlock_kernel()
-Message-ID: <20010627.003255.-205571.0.fdavis112@juno.com>
-X-Mailer: Juno 5.0.15
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Juno-Line-Breaks: 0,2,7-10
-From: Frank Davis <fdavis112@juno.com>
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [PATCH] User chroot
+Date: 27 Jun 2001 04:39:38 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <9hbo2a$g77$1@abraham.cs.berkeley.edu>
+In-Reply-To: <E15F3KH-0003fd-00@pmenage-dt.ensim.com> <3B393222.14273547@haque.net>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 993616778 16615 128.32.45.153 (27 Jun 2001 04:39:38 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 27 Jun 2001 04:39:38 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-      I've been looking through the sound drivers in the 2.4.5-ac series
-.  
-drivers/sound/soundcard.c has a few lock_kernel()/unlock_kernel() calls,
-esp. in the read() and write() functions. Could these calls be easily
-replaced with semaphores or spinlock calls? I vaguely remember emails on
-lkml a while ago regarding the removal of lock_kernel()/unlock_kernel(),
-but I'm don't recall what the replacement was (if any).
-Regards,
-Frank
+Mohammad A. Haque wrote:
+>Why do this in the kernel when it's available in userspace?
 
-btw, Sorry in advance if the mailer causes probelms.
+Because the userspace implementations aren't equivalent.
+In particular, it is not so easy for them to enforce the following
+restriction:
+  (*) If a non-root user requested the chroot, then setuid/setgid
+      bits won't have any effect under the new root.
+The proposed kernel patch respects (*), but I'm not aware of any
+user-level application that ensures (*) is followed.
+
+(Also, there is the small matter that the user-level implementations
+are only usable by root, or are setuid root.  The latter is only a
+minor difference, though, IMHO.)

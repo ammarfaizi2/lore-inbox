@@ -1,85 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135550AbRALWqy>; Fri, 12 Jan 2001 17:46:54 -0500
+	id <S135603AbRALWrE>; Fri, 12 Jan 2001 17:47:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135609AbRALWqo>; Fri, 12 Jan 2001 17:46:44 -0500
-Received: from nrg.org ([216.101.165.106]:43280 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S135550AbRALWqg>;
-	Fri, 12 Jan 2001 17:46:36 -0500
-Date: Fri, 12 Jan 2001 14:46:29 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-audio-dev@ginette.musique.umontreal.ca
-Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
-In-Reply-To: <3A5F0706.6A8A8141@uow.edu.au>
-Message-ID: <Pine.LNX.4.05.10101121432270.8988-100000@cosmic.nrg.org>
+	id <S135609AbRALWqy>; Fri, 12 Jan 2001 17:46:54 -0500
+Received: from sc-66-27-47-84.socal.rr.com ([66.27.47.84]:519 "EHLO
+	falcon.bellfamily.org") by vger.kernel.org with ESMTP
+	id <S135603AbRALWqo>; Fri, 12 Jan 2001 17:46:44 -0500
+Message-ID: <3A5F8956.9040305@bellfamily.org>
+Date: Fri, 12 Jan 2001 14:46:46 -0800
+From: "Robert J. Bell" <rob@bellfamily.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: kernel-list <linux-kernel@vger.kernel.org>
+Subject: USB Mass Storage in 2.4.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Jan 2001, Andrew Morton wrote:
-> Nigel Gamble wrote:
-> > Spinlocks should not be held for lots of time.  This adversely affects
-> > SMP scalability as well as latency.  That's why MontaVista's kernel
-> > preemption patch uses sleeping mutex locks instead of spinlocks for the
-> > long held locks.
-> 
-> Nigel,
-> 
-> what worries me about this is the Apache-flock-serialisation saga.
-> 
-> Back in -test8, kumon@fujitsu demonstrated that changing this:
-> 
-> 	lock_kernel()
-> 	down(sem)
-> 	<stuff>
-> 	up(sem)
-> 	unlock_kernel()
-> 
-> into this:
-> 
-> 	down(sem)
-> 	<stuff>
-> 	up(sem)
-> 
-> had the effect of *decreasing* Apache's maximum connection rate
-> on an 8-way from ~5,000 connections/sec to ~2,000 conn/sec.
-> 
-> That's downright scary.
-> 
-> Obviously, <stuff> was very quick, and the CPUs were passing through
-> this section at a great rate.
+I know there has been some talk arround this topic on this list so If I 
+missed the answer I apologize, i just joined the list today. I read 
+through the archive and all I could find relative to mass storage is the 
+scsi dependancy, which I am aware of. Here is my situation.
 
-Yes, this demonstrates that spinlocks are preferable to sleep locks for
-short sections.  However, it looks to me like the implementation of up()
-may be partly to blame.  It looks to me as if it tends to prefer to
-context switch to the woken up process, instead of continuing to run the
-current process.  Surrounding the semaphore with the BKL has the effect
-of enforcing the latter behavior, because the semaphore itself will
-never have any waiters.
+I have a Fujufilm FX-1400 digital camera that uses the USB Mass Storage 
+driver. I know it works because I had it working in 2.4.0-test12, and in 
+2.4.0 however I had a major system failure and lost my new kernel. This 
+time arround I can not get USB Mass Storage to work. I have tried 
+various combinations of the scsi and usb options. I thought maybe I 
+needed SCSI Disk support as well but it didnt seem to matter. I have 
+tried with scsi and usb mass storage as modules and as part of the 
+kernel, still no luck. Here is what happens when I connect the camera :
 
-> How can we be sure that converting spinlocks to semaphores
-> won't do the same thing?  Perhaps for workloads which we
-> aren't testing?
-> 
-> So this needs to be done with caution.
-> 
-> As davem points out, now we know where the problems are
-> occurring, a good next step is to redesign some of those
-> parts of the VM and buffercache.  I don't think this will
-> be too hard, but they have to *want* to change :)
+Jan 10 18:49:05 t20 kernel: hub.c: USB new device connect on bus1/1, 
+assigned device number 3
+Jan 10 18:49:05 t20 kernel: Product: USB Mass Storage
+Jan 10 18:49:05 t20 kernel: SerialNumber: Y-170^^^^^000810X0000003005237
+Jan 10 18:49:06 t20 kernel: scsi0 : SCSI emulation for USB Mass Storage 
+devices
+Jan 10 18:49:06 t20 kernel:   Vendor:  `.À ÀòÏ  Model: \206   Ø\177.À¡# 
+À ÝòÏ  Rev: ÿÿÿÿ
+Jan 10 18:49:06 t20 kernel:   Type:   Scanner                            
+ANSI SCSI revision: 02
 
-Yes, wherever the code can be redesigned to avoid long held locks, that
-would definitely be my preferred solution.  I think everyone would be
-happy if we could end up with a maintainable solution using only
-spinlocks that are held for no longer than a couple of hundred
-microseconds.
+Now this used to detect a scsi disk and all I had to do was mount it. I 
+am sure there must be other conflicting config options but I just dont 
+know what it could be. Any help would be greatly appreciated.
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+Robert.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266905AbUJIRqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267189AbUJIR6F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266905AbUJIRqS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 13:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267165AbUJIRqS
+	id S267189AbUJIR6F (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 13:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267259AbUJIR6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 13:46:18 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:19943 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S266905AbUJIRqR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 13:46:17 -0400
-Message-ID: <416823E6.6020008@free.fr>
-Date: Sat, 09 Oct 2004 19:46:14 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
+	Sat, 9 Oct 2004 13:58:05 -0400
+Received: from main.smets.com ([212.43.237.68]:44942 "EHLO kotoba.storever.com")
+	by vger.kernel.org with ESMTP id S267189AbUJIR57 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 13:57:59 -0400
+From: "Yoshinori K. Okuji" <okuji@gnu.org>
+Organization: FSF
+To: linux-kernel@vger.kernel.org, videolan@videolan.org
+Subject: possible GPL violation by Free
+Date: Sat, 9 Oct 2004 19:58:25 +0200
+User-Agent: KMail/1.6.1
 MIME-Version: 1.0
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Inconsistancies in /proc (status vs statm) leading	to	wrong	documentation
- (proc.txt)
-References: <1097329771.2674.4036.camel@cube>  <4167F0D7.3020502@free.fr>	 <1097339477.2669.4212.camel@cube>  <416815FD.2060502@free.fr> <1097341175.2669.4257.camel@cube>
-In-Reply-To: <1097341175.2669.4257.camel@cube>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410091958.25251.okuji@gnu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan wrote:
+Hello,
 
-> Not quite, but close. Those that know are willing
-> to read the kernel code, including that of past
-> releases, can certainly use the statm file.
+I got information about a possible GPL violation in France. A network
+service company called "Free" provides a kind of ADSL modem named
+"Freebox". This "Freebox" is not only an ADSL modem but also has
+functions of a router, an IP phone and a TV, using video streaming via
+ATM. Although the "Freebox" does not contain any information about GPL,
+a rumor says that this runs Linux as the kernel and VideoLAN for the
+video streaming. And, this company does not provide the source code
+even to those who have Freeboxes. I don't know any other software used
+in Freebox, but at least Linux and VideoLAN are under the term of GPL.
+This information seems to be given by anonymous people working for the
+company.
 
-Sure but it while doing that after readding the official documentation 
-that the trouble began...
+The company Free reasons that they don't need to make the source code
+available, because they don't sell Freebox but merely _rents_ Freebox
+to customers. So the company thinks that customers do not own Freebox
+legally, and so they have no right to claim that they can ask the
+source code.
 
+But, if this is a good reason, I think many other people can refuse to
+publish source code. For example, a distributor who "rents" CDROMs can
+say, "I am not forced to give you the source code, because you do not
+own your CDROM."
 
-> For that, go directly to /proc/*/maps and be happy.
+Unfortunately I have little knowledge on French copyright laws, so I
+cannot judge if this is wrong.
 
-That's a good point. Very usefull for knowing which dynamic library 
-account for what size. I start wondering if dynamic libraries and 
-mlockall works well toghether..
-
-> You may also want the RSS from /proc/*/status.
-
-Well RSS = VmSize after mlockall I guess
-
-Thanks for the maps hint,
-
--- eric
-
-
-
+Regards,
+Okuji

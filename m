@@ -1,54 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271211AbTHCRLz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 13:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271222AbTHCRLz
+	id S271210AbTHCRXH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 13:23:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271222AbTHCRXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 13:11:55 -0400
-Received: from village.ehouse.ru ([193.111.92.18]:26383 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S271211AbTHCRLx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 13:11:53 -0400
-From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: 2.4.22pre6aa1
-Date: Sun, 3 Aug 2003 21:12:00 +0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200307231521.15897.rathamahata@php4.ru> <200307251510.59062.rathamahata@php4.ru> <20030725190220.GD2659@x30.random>
-In-Reply-To: <20030725190220.GD2659@x30.random>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 3 Aug 2003 13:23:07 -0400
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:55821 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S271210AbTHCRXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 13:23:03 -0400
+Date: Sun, 3 Aug 2003 19:23:12 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>,
+       "Greg KH" <greg@kroah.com>
+Cc: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: 2.4.22-pre7 drivers/i2c/i2c-dev.c user/kernel bug and
+ mem leak
+Message-Id: <20030803192312.68762d3c.khali@linux-fr.org>
+Reply-To: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308032112.00185.rathamahata@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrea,
 
-On Friday 25 July 2003 23:02, Andrea Arcangeli wrote:
-> Hi Sergey,
->
-> On Fri, Jul 25, 2003 at 03:10:59PM +0400, Sergey S. Kostyliov wrote:
-> > I doubt it depends on bigpages because they
-> > are not used in my setup. But I can live with that. Rule: do not run
-> > `swapoff -a` under load doesn't sound as impossible in my case (if this
-> > is the only way to trigger this problem).
->
-> can you reproduce it with 2.4.21rc8aa1? If not, then likely it's a
-> 2.5/2.6 bug that went in 2.4 during the backport. I spoke with Hugh an
-> hour ago about this, he will soon look into this too.
+Hi all,
 
-Sorry for late responce. I wasn't able to reproduce neither oops nor
-lockup with 2.4.21rc8aa1.
+Ten days ago, Robert T. Johnson repported two bugs in 2.4's
+drivers/i2c/i2c-dev.c. It also applies to i2c CVS (out of kernel), which
+is intended to become 2.4's soon. Being a member of the LM Sensors dev
+team, I took a look at the repport. My knowledge is somewhat limited but
+I'll do my best to help (unless Greg wants to handle it alone? ;-)).
 
->
-> Andrea
+For the user/kernel bug, I'm not sure I understand how copy_from_user is
+supposed to work. If I understand what the proposed patch does, it
+simply allocates a second buffer, copy_from_user to that buffer instead
+of to the original one, and then copies from that second buffer to the
+original one (kernel to kernel). I just don't see how different it is
+from what the current code does, as far as user/kernel issues are
+concerned. I must be missing something obvious, can someone please bring
+me some light?
+
+For the mem leak bug, it's clearly there. I admit the proposed patch
+fixes it, but I think there is a better way to fix it. Compare what the
+proposed patch does:
+
+--- i2c-dev.c	Sun Aug  3 18:24:33 2003
++++ i2c-dev.c.proposed	Sun Aug  3 19:13:58 2003
+@@ -226,6 +226,7 @@
+ 		res = 0;
+ 		for( i=0; i<rdwr_arg.nmsgs; i++ )
+ 		{
++			rdwr_pa[i].buf = NULL;
+ 		    	if(copy_from_user(&(rdwr_pa[i]),
+ 					&(rdwr_arg.msgs[i]),
+ 					sizeof(rdwr_pa[i])))
+@@ -254,8 +255,9 @@
+ 		}
+ 		if (res < 0) {
+ 			int j;
+-			for (j = 0; j < i; ++j)
+-				kfree(rdwr_pa[j].buf);
++			for (j = 0; j <= i; ++j)
++				if (rdwr_pa[j].buf)
++					kfree(rdwr_pa[j].buf);
+ 			kfree(rdwr_pa);
+ 			return res;
+ 		}
+
+with what I suggest:
+
+--- i2c-dev.c	Sun Aug  3 18:24:33 2003
++++ i2c-dev.c.khali	Sun Aug  3 19:15:04 2003
+@@ -247,8 +247,9 @@
+ 			if(copy_from_user(rdwr_pa[i].buf,
+ 				rdwr_arg.msgs[i].buf,
+ 				rdwr_pa[i].len))
+ 			{
++				kfree(rdwr_pa[i].buf);
+ 			    	res = -EFAULT;
+ 				break;
+ 			}
+ 		}
+
+Contrary to the proposed fix, my fix does not slow down the non-faulty
+cases. I also believe it will increase the code size by fewer bytes than
+the proposed fix (not verified though).
+
+So, what about it?
+
+
+
+PS: I really would like to see Frodo Looijaard's address replaced with
+the LM Sensors mailing list address <sensors@stimpy.netroedge.com> as
+the main I2C contact in MAINTAINERS. Simon Vogl and Frodo Looijaard's
+have been doing a really great job, but they do not work actively on I2C
+anymore, so they end up forwarding every repport to the list anyway.
 
 -- 
-                   Best regards,
-                   Sergey S. Kostyliov <rathamahata@php4.ru>
-                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

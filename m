@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262104AbUCSJ4O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 04:56:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbUCSJ4O
+	id S262329AbUCSJ6y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 04:58:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbUCSJ6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 04:56:14 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19726 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262104AbUCSJ4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 04:56:09 -0500
-Date: Fri, 19 Mar 2004 09:56:00 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>,
-       Greg KH <greg@kroah.com>, David Mosberger <davidm@hpl.hp.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [2/3] Use insert_resource in pci_claim_resource
-Message-ID: <20040319095600.A9678@flint.arm.linux.org.uk>
-Mail-Followup-To: Matthew Wilcox <willy@debian.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>,
-	Greg KH <greg@kroah.com>, David Mosberger <davidm@hpl.hp.com>,
-	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-References: <20040318235024.GH25059@parcelfarce.linux.theplanet.co.uk> <20040318235217.GJ25059@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040318235217.GJ25059@parcelfarce.linux.theplanet.co.uk>; from willy@debian.org on Thu, Mar 18, 2004 at 11:52:17PM +0000
+	Fri, 19 Mar 2004 04:58:54 -0500
+Received: from mail-05.iinet.net.au ([203.59.3.37]:22982 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S262332AbUCSJ6v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 04:58:51 -0500
+Message-ID: <405AC456.1070806@cyberone.com.au>
+Date: Fri, 19 Mar 2004 20:58:46 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [BENCHMARKS] 2.6.4 vs 2.6.4-mm1
+References: <40525C1F.5030705@cyberone.com.au> <20040319095047.GA6301@elte.hu>
+In-Reply-To: <20040319095047.GA6301@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 18, 2004 at 11:52:17PM +0000, Matthew Wilcox wrote:
-> On ia64, the parent resources are not necessarily PCI resources and
-> so won't get found by pci_find_parent_resource.  Use the shiny new
-> insert_resource() function instead, which I think we would have used
-> here had it been available at the time.
 
-I think we want to preserve the existing behaviour rather than change
-it.  We really do want to request the device resource against its
-immediate parent because that is the way PCI works - if a devices
-resources don't fall within the parent bus resources, we want to
-know about it.
 
-May I suggest that ia64 sets the parent bus resources appropriately,
-which should relieve this problem (iow, pci_root_bus->resource[0..3])?
-If pci_find_parent_resource() is returning the wrong thing, its likely
-that other users of this function will also be getting the wrong answer.
+Ingo Molnar wrote:
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+>* Nick Piggin <piggin@cyberone.com.au> wrote:
+>
+>
+>>volanomark (MPS):
+>>This one starts getting huge mmap_sem contention at 150+ coming
+>>from futexes. Don't know what is taking the mmap_sem for writing.
+>>Maybe just brk or mmap.
+>>
+>
+>are you sure it's down_write() contention? down_read() can create
+>contention just as much, simply due to the fact that hundreds of threads
+>and a dozen CPUs are pounding in on the same poor lock.
+>
+>
+
+No I'm not sure actually, it could be just read lock
+contention. IIRC it was all coming from the semaphore's
+spinlock, in up_read...
+
+>i do think there should be a rw-semaphore variant that is per-cpu for
+>the read path. (This would also fix the 4:4 threading overhead.)
+>
+>
+
+That would be interesting, yes. I have (somewhere) a patch
+that wakes up the semaphore's waiters outside its spinlock.
+I think that only gave about 5% or so improvement though.
+

@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318892AbSHSO1o>; Mon, 19 Aug 2002 10:27:44 -0400
+	id <S318893AbSHSOiG>; Mon, 19 Aug 2002 10:38:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318893AbSHSO1o>; Mon, 19 Aug 2002 10:27:44 -0400
-Received: from smtp03.web.de ([217.72.192.158]:20773 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S318892AbSHSO1n> convert rfc822-to-8bit;
-	Mon, 19 Aug 2002 10:27:43 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel panic while cd writing
-References: <20020817203010.GA251@poczta.gazeta.pl>
-X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
- Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
-From: Markus Plail <plail@web.de>
-Date: Mon, 19 Aug 2002 16:30:09 +0200
-Message-ID: <873ctaudji.fsf@plailis.homelinux.net>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
- (i686-pc-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+	id <S318896AbSHSOiG>; Mon, 19 Aug 2002 10:38:06 -0400
+Received: from angband.namesys.com ([212.16.7.85]:50823 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S318893AbSHSOiF>; Mon, 19 Aug 2002 10:38:05 -0400
+Date: Mon, 19 Aug 2002 18:42:08 +0400
+From: Oleg Drokin <green@namesys.com>
+To: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com, viro@math.psu.edu
+Subject: Need more symbols to be exported out of kernel
+Message-ID: <20020819184208.A11022@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Justyna!
+Hello!
 
-* Justyna Bia³a writes:
->Hi.
+   I have implemented file_operations->write() function for reiserfs for
+   linux kernel v2.4, and it seems I need these symbols to be exported
+   out of kernel for a case when reiserfs is built as a module:
+   generic_osync_inode
+   remove_suid
+   block_commit_write
 
->I have LiteOn 40x12x48x cd-writer, linux 2.4.19, cdrecord 1.11a24,
->Duron 1000 MHz, ECS K7S5A with SIS735 chipset. My cd-writer works fine
->only in two cases: 
+   I need block_commit_write just because generic_commit_write is doing
+   some extra stuff I'd better do myself.
+   Will the patch to export these symbols be accepted? (should these be
+   exported as GPL sysmbols or not?).
 
-I also have a ECS K7S5A, but I have an acer 2010A cd-writer.
+   You can look a my current code on top of 2.4.20-pre2+ at
+   ftp://ftp.namesys.com/pub/reiserfs-for-2.4/2.4.19.pending/testing
 
->1. when the speed is not higher than 12x (no matter if the dma is on)
->2. with speed = 32x but only when I turn the dma off with hdparm
-
-My problem was, that the system load was almost unbearable at higher
-speeds, but only when I was burning DAO. Do you burn DAO? Is your
-system load (top) also very high?
-Now I just upgraded to 2.4.20-pre3 and everything is just fine :-) I am
-not really sure if it was only the kernel, because I still have the
-same problem when I tell the kernel to umask the drive's IRQ (hdparm -u1).
-I am not 100% sure if I tried it without umask before.
-But without umask, everything seems to work fine now. There's just a
-few percent CPU load when doing c2scan or writing DAO.
-The only thing is that if I do a c2scan under X, X consumes all my CPU
-time after some time and gets unresponsive. Doing the same in the
-console there's no problem at all. So I am pretty sure this is a X
-problem and not the kernel's.
-
-regards
-Markus
-
+Bye,
+    Oleg

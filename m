@@ -1,81 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbVCLQ2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVCLQfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261949AbVCLQ2g (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 11:28:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVCLQ2f
+	id S261456AbVCLQfe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 11:35:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVCLQfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 11:28:35 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:19884 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261949AbVCLQ23 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 11:28:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Pv3VqMPPOT3Y7oERMWm53BOpyOUj1D3/B+2OeBL9Ma0yiCUHmSh8gO7iTHb+vHxas8MjIrPKmxMtTxjuoZ63JbNUzDkHYrJDt96BocaHOVKgSBuDk3daJf0eqQK+wyF/zhy7yutlLdMP6tMrSUIHQueK/d6Gq4ogOXoP3E4M0jI=
-Message-ID: <9e473391050312082777a02001@mail.gmail.com>
-Date: Sat, 12 Mar 2005 11:27:25 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: User mode drivers: part 1, interrupt handling (patch for 2.6.11)
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050311102920.GB30252@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 12 Mar 2005 11:35:34 -0500
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:32486 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261456AbVCLQf2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 11:35:28 -0500
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: 2.6.11: USB broken on nforce4, ipv6 still broken, centrino speedstep even more broken than in 2.6.10
+Date: Sat, 12 Mar 2005 08:34:50 -0800
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>, Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel@vger.kernel.org,
+       Felix von Leitner <felix-linuxkernel@fefe.de>
+References: <3GZyA-16B-17@gated-at.bofh.it> <423278D6.2090603@shaw.ca> <20050311211908.434baba1.akpm@osdl.org>
+In-Reply-To: <20050311211908.434baba1.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-References: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
-	 <20050311102920.GB30252@elf.ucw.cz>
+Content-Disposition: inline
+Message-Id: <200503120834.50788.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Mar 2005 11:29:20 +0100, Pavel Machek <pavel@ucw.cz> wrote:
-> Hi!
+On Friday 11 March 2005 9:19 pm, Andrew Morton wrote:
 > 
-> > As many of you will be aware, we've been working on infrastructure for
-> > user-mode PCI and other drivers.  The first step is to be able to
-> > handle interrupts from user space. Subsequent patches add
-> > infrastructure for setting up DMA for PCI devices.
+> (Restoring email headers.  Please always use reply-to-all)
+> 
+> Robert Hancock <hancockr@shaw.ca> wrote:
 > >
-> > The user-level interrupt code doesn't depend on the other patches, and
-> > is probably the most mature of this patchset.
-> 
-> Okay, I like it; it means way easier PCI driver development.
+> > Felix von Leitner wrote:
+> > > My new nForce 4 mainboard has 10 or so USB 2.0 outlets.  In Windows,
+> > > they all work.  In Linux, two of them work.  Putting my USB stick or
+> > > anything else in one of the others produces nothing in Linux.
+> > > Apparently no IRQ getting through or something?
+> > 
+> > Likely similar to the problem I reported in this thread on 
+> > linux-usb-devel - the patch that David Brownell posted fixed the problem 
+> > for me..
+> > 
+> > http://sourceforge.net/mailarchive/message.php?msg_id=10755097
+> > 
 
-It won't help with PCI driver development. I tried implementing this
-for UML. If your driver has any bugs it won't get the interrupts
-acknowledged correctly and you'll end up rebooting.
+My thoughts exactly.  However, 2.6.11 includes that fix.  Are you
+sure that dmesg output came from 2.6.11?
 
-Xen just posted patches for using kgdb between two instances but I
-don't see how they get out of the interrupt acknowledge problem
-either.
-
-> 
-> But... how do you handle shared PCI interrupts?
-> 
-> > This patch adds a new file to /proc/irq/<nnn>/ called irq.  Suitably
-> > privileged processes can open this file.  Reading the file returns the
-> > number of interrupts (if any) that have occurred since the last read.
-> > If the file is opened in blocking mode, reading it blocks until
-> > an interrupt occurs.  poll(2) and select(2) work as one would expect, to
-> > allow interrupts to be one of many events to wait for.
-> > (If you didn't like the file, one could have a special system call to
-> > return the file descriptor).
-> 
-> This should go into Documentation/ somewhere.
->                                                                 Pavel
-> 
-> --
-> People were complaining that M$ turns users into beta-testers...
-> ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+To repeat what Alan Stern said yesterday:  provide full "dmesg"
+output, with CONFIG_USB_DEBUG enabled.  I think that falls into
+the category of "how to provide a usable bug report" ... :)
 
 
--- 
-Jon Smirl
-jonsmirl@gmail.com

@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262058AbUKVMPi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbUKVMSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262058AbUKVMPi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 07:15:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbUKVMPh
+	id S262070AbUKVMSE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 07:18:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbUKVMPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 07:15:37 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:29570 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262049AbUKVMOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 07:14:39 -0500
-Date: Mon, 22 Nov 2004 06:14:15 -0600
-From: Robin Holt <holt@sgi.com>
-To: "Deepak Kumar Gupta, Noida" <dkumar@hcltech.com>
-Cc: "'lilbilchow@yahoo.com'" <lilbilchow@yahoo.com>,
-       "'ananth@sgi.com'" <ananth@sgi.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-ia64@vger.kernel.org'" <linux-ia64@vger.kernel.org>
-Subject: Re: smp_call_function/flush_tlb_all hang on large memory system
-Message-ID: <20041122121415.GA13845@lnx-holt.americas.sgi.com>
-References: <267988DEACEC5A4D86D5FCD780313FBB2BFBB4@exch-03.noida.hcltech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <267988DEACEC5A4D86D5FCD780313FBB2BFBB4@exch-03.noida.hcltech.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 22 Nov 2004 07:15:55 -0500
+Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:23302 "EHLO
+	doc.tebibyte.org") by vger.kernel.org with ESMTP id S262047AbUKVMP1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 07:15:27 -0500
+Message-ID: <41A1D850.6090706@tebibyte.org>
+Date: Mon, 22 Nov 2004 13:15:12 +0100
+From: Chris Ross <chris@tebibyte.org>
+Organization: At home (Eindhoven, The Netherlands)
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: pt-br, pt
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: marcelo.tosatti@cyclades.com, andrea@novell.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       piggin@cyberone.com.au, riel@redhat.com,
+       mmokrejs@ribosome.natur.cuni.cz, tglx@linutronix.de
+Subject: Re: [PATCH] fix spurious OOM kills
+References: <20041111112922.GA15948@logos.cnet>	<4193E056.6070100@tebibyte.org>	<4194EA45.90800@tebibyte.org>	<20041113233740.GA4121@x30.random>	<20041114094417.GC29267@logos.cnet>	<20041114170339.GB13733@dualathlon.random>	<20041114202155.GB2764@logos.cnet>	<419A2B3A.80702@tebibyte.org>	<419B14F9.7080204@tebibyte.org> <20041117012346.5bfdf7bc.akpm@osdl.org> <41A0E60C.605@tebibyte.org>
+In-Reply-To: <41A0E60C.605@tebibyte.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22, 2004 at 03:15:00PM +0530, Deepak Kumar Gupta, Noida wrote:
-> Hi William/Rajagopal
-> 
-> I saw your posting related to problem on internet. Just curious to ask you
-> have you got any solution for that or not.. as i am facing same problem on
-> SGI Propack 3 (based on kernel 2.4.18)on 2 CPU IA64 machine..
-> 
-> If you got any solution for this then pls let me know..
-> 
-> Any help in this regard is appreciated.
-> 
-> posting: http://www.cs.helsinki.fi/linux/linux-kernel/2003-11/1153.html
-> 
+Hi Andrew,
 
-Can you provide the output from an L2 "leds" command?  This will tell us
-what the cpus are doing and whether they have interrupts enabled.  Have you
-contacted your support people yet?  I did not see an open case for this,
-but have no idea how your support person exactly filed it.
+Chris Ross escreveu:
+ > Andrew Morton escreveu:
+ >> Please ignore the previous patch and try the below.
+ >
+ > I still get OOM kills with this (well one, anyway). It does seem harder
+ > to trigger though.
 
-Thanks,
-Robin Holt
+Turns out it's not that hard. Sorry for the slight delay, I've been away 
+a few days.
+
+root@sleepy chris # grep Killed /var/log/messages
+Nov 21 22:24:22 sleepy Out of Memory: Killed process 6800 (qmgr).
+Nov 21 22:24:32 sleepy Out of Memory: Killed process 6799 (pickup).
+Nov 21 22:24:57 sleepy Out of Memory: Killed process 6472 (distccd).
+Nov 21 22:25:00 sleepy Out of Memory: Killed process 6473 (distccd).
+Nov 21 22:25:00 sleepy Out of Memory: Killed process 6582 (distccd).
+Nov 21 22:25:00 sleepy Out of Memory: Killed process 6686 (distccd).
+Nov 21 22:25:00 sleepy Out of Memory: Killed process 6687 (ntpd).
+
+If you want to seem the actual oom messages just ask.
+
+This is with 2.6.10-rc2-mm1 + your patch whilst doing an "emerge sync" 
+which isn't ridiculously memory hungry and shouldn't result in oom kills.
+
+Informally I felt I had better results from Marcelo's patch, though I 
+should test both under the same conditions before I say that...
+
+Regards,
+Chris R.
+

@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266652AbUBMBwS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 20:52:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266675AbUBMBwS
+	id S266582AbUBMBq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 20:46:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266619AbUBMBq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 20:52:18 -0500
-Received: from gaia.cela.pl ([213.134.162.11]:22291 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S266652AbUBMBwL (ORCPT
+	Thu, 12 Feb 2004 20:46:29 -0500
+Received: from [212.28.208.94] ([212.28.208.94]:14598 "HELO dewire.com")
+	by vger.kernel.org with SMTP id S266582AbUBMBq2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 20:52:11 -0500
-Date: Fri, 13 Feb 2004 02:52:02 +0100 (CET)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Michael Frank <mhf@linuxmail.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
-In-Reply-To: <20040212153802.65adae84.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.44.0402130244560.11774-100000@gaia.cela.pl>
+	Thu, 12 Feb 2004 20:46:28 -0500
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: Jamie Lokier <jamie@shareable.org>
+Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
+Date: Fri, 13 Feb 2004 02:46:25 +0100
+User-Agent: KMail/1.6.1
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+References: <20040209115852.GB877@schottelius.org> <200402130216.53434.robin.rosenberg.lists@dewire.com> <20040213012326.GA25499@mail.shareable.org>
+In-Reply-To: <20040213012326.GA25499@mail.shareable.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402130246.25005.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> | +Usage of the apostrophe <'> in kernel messages is deprecated
-> | +
-> | +Mis-spellings allowed in kernel messages are:
-> | +
-> | +	dont, cant
-> | +
-> | +Printing numbers in parenthesis ie (%d) is deprecated
+On Friday 13 February 2004 02.23, Jamie Lokier wrote:
+> Robin Rosenberg wrote:
+> > Is there a place to store character set information in these file systems?
 > 
-> I don't know that we reached any concensus on these.  I think
-> that these comments are just noise (IMO of course).
-> I guess I'll spell out "do not" and "cannot".
+> Please don't confuse character set with character encoding.  The
+> problem we are talking about here is about character encoding.
+> Once upon a time the two were muddled; that's why MIME and HTTP use
+> "charset" to mean character encoding.
+I shall try not to mix them in the future. The reason for the name in MIME is
+probably because a (mime)charset does specify a character set (+encoding),
+while the mime-encoding only specifies raw bytes.
 
-Precisely - since are we supposed to now accept "Id" as "I'd", "Ill" as 
-"I'll", etc?  What about cases where the apostrophe can't be decontracted 
-- like Fred's source code - how do we remove the apostrophe there?  Change 
-it to Freds?  That will likely in some cases change the meaning: it's/its, 
-etc to name just one.
+> And the answer is: yes, you can store it wherever you want :)
+I was thinking of the file system meta data so mount or the kernel or the fs could 
+handle it.
 
-This is pointless - you won't manage to remove all single quotes anyway.
+> > Some apps simply don't think non-ascii is relevant. Xmms is one, although
+> > is doesn't crash at least. My guess was that it was a font problem since it
+> > looks like XMMS uses some special fonts.
+> 
+> It's not a font problem.  XMMS simply displays each byte as a separate
+> character because that's what it assumes it should do.  No font will fix that.
+I assumed a font problem because my machine is using ISO-8859-1 and 
+XMMS doesn't display tose non-ascii characters I use; of course it could be both.
 
-One side considers "dont" and "cant" to look like someone illiterate was 
-typing and will do everything in their power to keep the quotes in and 
-perceived spelling errors out.
-The other side obviously considers any single quote to be a source of 
-great eye discomfort will try for the opposite effect.
-
-This is in many ways a pointless debate - you won't manage to convince 
-people either one nor the other way.
-
-These are comments - they can and often do contain 8-bit characters anyway 
-- containing single quotes is not that great a problem - they already 
-contain single backslashes - or should we escape those as well?
-
-Cheers,
-MaZe.
-
-
+-- robin

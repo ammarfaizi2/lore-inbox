@@ -1,59 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261373AbSIZQ5m>; Thu, 26 Sep 2002 12:57:42 -0400
+	id <S261417AbSIZRLX>; Thu, 26 Sep 2002 13:11:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261375AbSIZQ5m>; Thu, 26 Sep 2002 12:57:42 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:10372 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261373AbSIZQ5l> convert rfc822-to-8bit; Thu, 26 Sep 2002 12:57:41 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Updated to kernel 2.4.19 and now ipchains and iptables are broke.
-Date: Thu, 26 Sep 2002 19:02:47 +0200
-User-Agent: KMail/1.4.3
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: "Nathan" <etherwolf@sopris.net>
+	id <S261418AbSIZRLX>; Thu, 26 Sep 2002 13:11:23 -0400
+Received: from www.wotug.org ([194.106.52.201]:51261 "EHLO
+	gatemaster.ivimey.org") by vger.kernel.org with ESMTP
+	id <S261417AbSIZRLW>; Thu, 26 Sep 2002 13:11:22 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+To: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [ANNOUNCE] [patch] kksymoops, in-kernel symbolic oopser, 2.5.38-B0
+Date: Thu, 26 Sep 2002 18:16:27 +0100
+User-Agent: KMail/1.4.2
+Cc: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Arjan van de Ven <arjanv@redhat.com>
+References: <Pine.LNX.4.44.0209252155210.18747-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0209252155210.18747-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209261901.17679.m.c.p@wolk-project.de>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209261816.27194.ruthc@sharra.ivimey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nathan,
+On Wednesday 25 September 2002 20:56, Ingo Molnar wrote:
+> ------------[ cut here ]------------
+> kernel BUG at time.c:99!
+> invalid operand: 0000
+> CPU:    1
+> EIP:    0060:[<c011bd14>]    Not tainted
+> EFLAGS: 00010246
+> EIP is at sys_gettimeofday+0x84/0x90
+> eax: 0000004e   ebx: cef9e000   ecx: 00000000   edx: 00000068
+> esi: 00000000   edi: 00000000   ebp: bffffad8   esp: cef9ffa0
+> ds: 0068   es: 0068   ss: 0068
+> Process gettimeofday (pid: 549, threadinfo=cef9e000 task=cf84d860)
+> Stack: 4001695c bffff414 40156154 00000004 c0112a40 cef9e000 400168e4
 
-> This is surely the greenest of green questions (sorry), but I finally got my
-> kernel re-compiled the way I want it using the 2.4.19 sources from
-> kernel.org. It loads, seems to be working fine, except ipchains and
-> iptables... ipchains insists that it is incompatible with my kernel, and
-> iptables isn't sure what's going on but it thinks maybe something (. Well 
-> fine. I downloaded the latest versions of ipchains/tables from rpmfind and
-> upgraded, same thing.
+Something that's been bugging me of late: the Oops output is quite expensive 
+in lines on the terminal, which means if you get a couple of oops before the 
+kernel stops, you're unlikely to see the one that fired first.
 
-"Incompatible with this kernel" for ipchains seems so that you have compiled 
-Netfilter stuff into your kernel.
+To help with this, would it be good to use the following form for the initial 
+part:
 
-"itself or the kernel needs upgrading" for iptables seems so that you either 
-haven't compiled netfilter as module(s) or static into the kernel and forgot 
-something in the kernel config.
+ kernel BUG at time.c:99, invalid operand: 0000
+ CPU 1: EIP:    0060:[<c011bd14>]    Not tainted
+ EIP is at sys_gettimeofday+0x84/0x90
+ eax: 0000004e   ebx: cef9e000   ecx: 00000000   edx: 00000068
+ esi: 00000000   edi: 00000000   ebp: bffffad8   esp: cef9ffa0
+ ds: 0068   es: 0068   ss: 0068   eflags: 00010246 [textflags]
 
-> I haven't been able to find any actual solutions off google for this... a
-> few people mention the same problem but no fixes. Can someone point this
-> rookie in the right direction to fix my packet filters? :-)
-Check your kernel config. "make menuconfig" or "xconfig" and goto:
+Where [textflags] is some arch-specific representation of the flags word.
 
-Networking options  --->
-  IP: Netfilter Configuration  --->
+Also, in the same vein I would like to be able to say (as a kernel option):
 
-and look if you did it properly.
+if kernel-oops {
+ copy console output to [printer|serial] port
+}
 
--- 
-Kind regards
-        Marc-Christian Petersen
+[printer output == ascii only, of course]
 
-http://sourceforge.net/projects/wolk
+Regards,
 
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.
+Ruth

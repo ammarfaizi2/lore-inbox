@@ -1,54 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263557AbTHZJ7B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 05:59:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263603AbTHZJ7B
+	id S263598AbTHZKLh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 06:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263604AbTHZKLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 05:59:01 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:28100 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263557AbTHZJ67 (ORCPT
+	Tue, 26 Aug 2003 06:11:37 -0400
+Received: from fw.osdl.org ([65.172.181.6]:44215 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263608AbTHZKLa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 05:58:59 -0400
-Date: Tue, 26 Aug 2003 11:58:30 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Christoph Hellwig <hch@infradead.org>,
-       Samphan Raruenrom <samphan@nectec.or.th>, Jens Axboe <axboe@image.dk>,
-       linux-kernel@vger.kernel.org, Linux TLE Team <rdi1@opentle.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] Add MOUNT_STATUS ioctl to cdrom device
-Message-ID: <20030826095830.GA20693@suse.de>
-References: <3F4A53ED.60801@nectec.or.th> <20030825195026.A10305@infradead.org> <3F4B0343.7050605@nectec.or.th> <20030826083249.B20776@infradead.org> <3F4B23E2.8040401@nectec.or.th> <20030826105613.A23356@infradead.org>
+	Tue, 26 Aug 2003 06:11:30 -0400
+Date: Tue, 26 Aug 2003 03:14:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Steve Lord <lord@sgi.com>
+Cc: barryn@pobox.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       linux-xfs@oss.sgi.com, Suparna Bhattacharya <suparna@in.ibm.com>
+Subject: Re: [BUG] 2.6.0-test4-mm1: NFS+XFS=data corruption
+Message-Id: <20030826031412.72785b15.akpm@osdl.org>
+In-Reply-To: <1061852050.25892.195.camel@jen.americas.sgi.com>
+References: <20030824171318.4acf1182.akpm@osdl.org>
+	<20030825193717.GC3562@ip68-4-255-84.oc.oc.cox.net>
+	<20030825124543.413187a5.akpm@osdl.org>
+	<1061852050.25892.195.camel@jen.americas.sgi.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030826105613.A23356@infradead.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 26 2003, Christoph Hellwig wrote:
-> On Tue, Aug 26, 2003 at 04:09:54PM +0700, Samphan Raruenrom wrote:
-> > The only visible feature of this new magicdev is that now
-> > GNOME users can eject there CDs (the discs' icon will
-> > disappear). The eject button now act as 'umount' command.
-> > 
-> > One new requirement from this new magicdev is the question
-> > "will umount failed?". I have no preference on any way to
-> > implement it. Should there be the right way to do it, I'll
-> > do so. I can think of many way to implement it (including
-> > adding a new lazy-lock mode to cdrom device) but since
-> > I have no kernel hacking experience, I need everyone
-> > advices. Novice users need this 'eject' button after all.
+Steve Lord <lord@sgi.com> wrote:
+>
+> > > Is this enough information to help find the cause of the bug? If not,
+>  > > it might be several days (if I'm unlucky, maybe even a week or two)
+>  > > before I have time to do anything more...
+>  > > 
+>  > 
+>  > -mm kernels have O_DIRECT-for-NFS patches in them.  And some versions of
+>  > RPM use O_DIRECT.  Whether O_DIRECT makes any difference at the server end
+>  > I do not know, but it would be useful if you could repeat the test on stock
+>  > 2.6.0-test4.
+>  > 
+>  > Alternatively, run
+>  > 
+>  > 	export LD_ASSUME_KERNEL=2.2.5
+>  > 
+>  > before running RPM.  I think that should tell RPM to not try O_DIRECT.
 > 
-> This doesn't make sense at all.  Just try the unmount and
-> tell the user if it failed - you can't say whether it will
-> fail before trying.
+>  I doubt the NFS client is O_DIRECT capable here, I have run some rpm
+>  builds over nfs to 2.6.0-test4 and an xfs filesystem, everything is
+>  behaving so far. I will try mm1 tomorrow.
+> 
+>  Do we know if this NFS V3 or V2 by the way?
 
-Exactly. You poll media events from the drive, and upon an eject request
-you try and umount it. If it suceeds, you eject the tray. It's pretty
-simple, really.
+OK, sorry for the noise.  It appears that this is due to the AIO patches in
+-mm.  fsx-linux fails instantly on nfsv3 to localhost on XFS.  It's OK on
+ext2 for some reason.
 
-This mount status patch is seriously broken and misguided.
+Binary searching reveals that the offending patch is
+O_SYNC-speedup-nolock-fix.patch
 
--- 
-Jens Axboe
+testcase:
 
+	mkfs.xfs -f /dev/hda5
+	mount /dev/hda5 /mnt/hda5
+	chmod a+rw /mnt/hda5
+	service nfs start
+	mount localhost:/mnt/hda5 /mnt/localhost
+	cd /mnt/localhost
+	fsx-linux foo
+
+
+truncating to largest ever: 0x13e76
+READ BAD DATA: offset = 0x18f13, size = 0xee06, fname = foo
+OFFSET  GOOD    BAD     RANGE
+0x26000 0x02eb  0x0000  0x    0
+operation# (mod 256) for the bad data unknown, check HOLE and EXTEND ops
+0x26001 0xeb02  0x0000  0x    1
+operation# (mod 256) for the bad data unknown, check HOLE and EXTEND ops
+0x26002 0x0228  0x0000  0x    2
+operation# (mod 256) for the bad data unknown, check HOLE and EXTEND ops

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbTJWTyL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 15:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbTJWTyK
+	id S261749AbTJWTzX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 15:55:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbTJWTyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 15:54:10 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:33244 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261748AbTJWTwy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 15:52:54 -0400
-Subject: Re: 2.6.0-test8 mad clock rate drifts and sleeping function ...
-From: john stultz <johnstul@us.ibm.com>
-To: Roland Lezuo <roland.lezuo@chello.at>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200310231044.46668.roland.lezuo@chello.at>
-References: <200310231044.46668.roland.lezuo@chello.at>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1066938672.1119.85.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 23 Oct 2003 12:51:13 -0700
+	Thu, 23 Oct 2003 15:54:14 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:4050 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S261749AbTJWTxY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 15:53:24 -0400
+Message-ID: <3F982FDF.9070007@rackable.com>
+Date: Thu, 23 Oct 2003 12:45:35 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ananda Bhattacharya <anandab@cabm.rutgers.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: HyperThreading and AMD Opteron
+References: <Pine.LNX.4.44.0310222243360.4517-100000@puma.cabm.rutgers.edu>
+In-Reply-To: <Pine.LNX.4.44.0310222243360.4517-100000@puma.cabm.rutgers.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Oct 2003 19:53:22.0642 (UTC) FILETIME=[50879B20:01C3999F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-10-23 at 01:44, Roland Lezuo wrote:
+Ananda Bhattacharya wrote:
+> Just wanted to check on the status of AMD Opteron support on 
+> Linux and also Hyperthreading, will all this be avaialable 
+> on the 2.6 kernel series, and will there be some available 
+> on the 2.4 kernel series too. 
+> 
 
-> I expirience enormous clock rates dirft since using 2.6.0-test8 (upgrade from 
-> 2.4) I can even hear it when xmms is playing a song it suddenlty speed up to 
-> 200% of normal speed, then normal speed for a while, then too slow for a 
-> while...
-
-> And after just 12h of running system time was wrong by 12h, but I'm not 
-> absoluty sure about this (time is not running away while writing this).
+   If your question is does the linux support hyperthreading on the 
+Opteron.  Then the answers is the Opteron doesn't support hyperthreading.
 
 
-So you're seeing time run twice as fast overall? Are you running with
-NTP?  Do you have any sort of hardware power management on the system? 
-Do you have any more details about the system? 
+   Otherwise the answer is yes, but the degree that things work varys.
 
-thanks
--john
-
+-- 
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 

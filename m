@@ -1,66 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263147AbUDMDVS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 23:21:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbUDMDVS
+	id S263154AbUDMDeH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 23:34:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263164AbUDMDeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 23:21:18 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:20674 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S263147AbUDMDVQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 23:21:16 -0400
-Subject: RE: [PATCH] 2.6.5- es7000 subarch update
-From: Len Brown <len.brown@intel.com>
-To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-Cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F888E@hdsmsx403.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615F888E@hdsmsx403.hd.intel.com>
+	Mon, 12 Apr 2004 23:34:07 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:34766 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S263154AbUDMDeF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 23:34:05 -0400
+Subject: Re: [PATCH] eliminate nswap and cnswap
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton OSDL <akpm@osdl.org>, mpm@selenic.com
 Content-Type: text/plain
 Organization: 
-Message-Id: <1081826374.2258.597.camel@dhcppc4>
+Message-Id: <1081827102.1593.227.camel@cube>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 12 Apr 2004 23:19:34 -0400
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 12 Apr 2004 23:31:43 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Natalie,
+> The nswap and cnswap variables counters have never
+> been incremented as Linux doesn't do task swapping.
 
-> ACPI: INT_SRC_OVR (bus 0 bus_irq 15 global_irq 13 high edge)
+I'm pretty sure they were used for paging activity.
+We don't eliminate support for "swap space", do we?
 
-I agree with your description of why the 15->13 override fails.
+Somebody must have broken nswap and cnswap while
+hacking on some vm code. I hate to see the variables
+get completely ripped out of the kernel instead of
+getting fixed.
 
-> ACPI: INT_SRC_OVR (bus 0 bus_irq 4 global_irq 14 high edge)
-> ACPI: INT_SRC_OVR (bus 0 bus_irq 14 global_irq 15 high edge)
 
-These two also create an actual and potential duplicate mp_irqs[] entry.
-
-> ACPI: INT_SRC_OVR (bus 0 bus_irq 6 global_irq 16 high edge)
-> ACPI: INT_SRC_OVR (bus 0 bus_irq 7 global_irq 17 high edge)
-> ACPI: INT_SRC_OVR (bus 0 bus_irq 8 global_irq 18 low edge)
-> ACPI: INT_SRC_OVR (bus 0 bus_irq 12 global_irq 19 high edge)
-> ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 20 high edge)
-> ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 23 high level)
-
-The ES7000 sure is a great tester of the over-ride code!
-
-But I don't like the proposal to selectively invalidate
-existing mp_irqs[] entries.
-
-I think the proper fix is to parse the over-ride entries before
-filling in the (remaining) identity mappings.  This also gets
-rid of the special case for IRQ2, which would be handled exactly
-like the mappings to < 16 on the ES7000 above.
-
-Perhaps I should send you a patch you can test on the ES7000,
-since I don't have one of those?
-
-In any case, I'd prefer that proposed patches to this code come
-through me, since it is ACPI specific.
-
-thanks,
--Len
 
 

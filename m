@@ -1,66 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVC2VYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVC2V3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbVC2VYx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 16:24:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVC2VWK
+	id S261509AbVC2V3O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 16:29:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVC2V3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 16:22:10 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:19850 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261252AbVC2VRt (ORCPT
+	Tue, 29 Mar 2005 16:29:14 -0500
+Received: from smtp1.wanadoo.fr ([193.252.22.30]:3261 "EHLO smtp1.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S261461AbVC2V2k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 16:17:49 -0500
-Date: Tue, 29 Mar 2005 16:17:41 -0500
-From: Neil Horman <nhorman@redhat.com>
-To: jamal <hadi@cyberus.ca>
-Cc: Neil Horman <nhorman@redhat.com>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>, netdev <netdev@oss.sgi.com>
-Subject: Re: [Patch] net: fix build break when CONFIG_NET_CLS_ACT is not set
-Message-ID: <20050329211741.GL22447@hmsendeavour.rdu.redhat.com>
-References: <20050329202506.GI22447@hmsendeavour.rdu.redhat.com> <1112130720.1076.112.camel@jzny.localdomain>
+	Tue, 29 Mar 2005 16:28:40 -0500
+X-ME-UUID: 20050329212834385.5DEF81C00200@mwinf0109.wanadoo.fr
+Subject: Clock 3x too fast on AMD64 laptop [WAS Re: Various issues after
+	rebooting]
+From: Olivier Fourdan <fourdan@xfce.org>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20050328193921.GW30052@alpha.home.local>
+References: <1112039799.6106.16.camel@shuttle>
+	 <20050328192054.GV30052@alpha.home.local> <1112038226.6626.3.camel@shuttle>
+	 <20050328193921.GW30052@alpha.home.local>
+Content-Type: text/plain
+Organization: http://www.xfce.org
+Date: Tue, 29 Mar 2005 23:28:34 +0200
+Message-Id: <1112131714.14248.8.camel@shuttle>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1112130720.1076.112.camel@jzny.localdomain>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29, 2005 at 04:12:01PM -0500, jamal wrote:
-> 
-> This is being discussed on netdev at the moment. Thomas Graf is working
-> on a patch.
-> Thanks for the effort though.
-> 
-> cheers,
-> jamal
-> 
-No worries.  What exactly is the point of contention on netdev? (I'm not
-currently following that list).  My patch seems to follow the common practice
-for CONFIG_NET_CLS_ACT, in that all references to the action member of the
-appropriate struct are themselves ifdef-ed.
-Regards,
-Neil
+Hi all
 
-> On Tue, 2005-03-29 at 15:25, Neil Horman wrote:
-> > Patch to fix build break that occurs when CONFIG_NET_CLS_ACT is not set.
+Following my own thread, I found the following error in dmesg:
+
+    PM-Timer running at invalid rate: 33% of normal - aborting.
+
+I found that interesting because 33% is 1/3 and the clock runs exactly
+3x faster than normal...
+
+A bit of search on google gave me several links to posts from other
+people with the exact same problem on similar hardware (AMD64 laptop)
+but I couldn't find neither the cause nor the fix of that issue (as I
+think it might be related to the other issues I observe when the clock
+goes too fast)
+
+Does that PM-Timer message makes sense to someone knowledgeable?
+
+Thanks in advance,
+
+Cheers,
+Olivier.
+
+On Mon, 2005-03-28 at 21:39 +0200, Willy Tarreau wrote:
+> On Mon, Mar 28, 2005 at 09:30:26PM +0200, Olivier Fourdan wrote:
+> > Hi Willy
 > > 
-> > Signed-off-by: Neil Horman <nhorman@redhat.com>
+> > On Mon, 2005-03-28 at 21:20 +0200, Willy Tarreau wrote:
+> > > Now I have a compaq (nc8000) which does not exhibit such buggy behaviour,
+> > > but you can try disabling the APIC too just in case it's a similar problem
+> > > (at least in 32 bits, I don't know if you can disable it in 64 bits mode).
 > > 
-> >  cls_fw.c      |    3 ++-
-> >  cls_route.c   |    3 ++-
-> >  cls_tcindex.c |    3 ++-
-> >  cls_u32.c     |    2 ++
-> >  4 files changed, 8 insertions(+), 3 deletions(-)
-> > 
+> > Thanks for the hint, but unfortunately, it's one of the first things I
+> > tried, and that makes no difference.
+> 
+> Sorry, at first I only noticed ACPI in your mail, but after reading it
+> again, I also noticed APIC. So now, you can only try not to initialize
+> some peripherals (IDE, network, display, etc...) by removing their drivers
+> from the kernel. You may end up with a kernel panic, but that does not
+> matter is you boot it with "panic=5" so that it automatically reboots
+> 5 seconds after the panic. You should then finally identify the subsystem
+> which is responsible for your problems. Perhaps you'll even need to remove
+> PCI support :-(
+> 
+> Regards,
+> Willy
 > 
 > 
 
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *Red Hat, Inc.
- *nhorman@redhat.com
- *gpg keyid: 1024D / 0x92A74FA1
- *http://pgp.mit.edu
- ***************************************************/
+

@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318460AbSHKXbx>; Sun, 11 Aug 2002 19:31:53 -0400
+	id <S318468AbSHKXkL>; Sun, 11 Aug 2002 19:40:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318464AbSHKXbx>; Sun, 11 Aug 2002 19:31:53 -0400
-Received: from web40305.mail.yahoo.com ([66.218.78.84]:28254 "HELO
-	web40305.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S318460AbSHKXbx>; Sun, 11 Aug 2002 19:31:53 -0400
-Message-ID: <20020811233536.62979.qmail@web40305.mail.yahoo.com>
-Date: Sun, 11 Aug 2002 16:35:36 -0700 (PDT)
-From: Studying MTD <studying_mtd@yahoo.com>
-Subject: kernel BUG at page_alloc.c
-To: linux-kernel <linux-kernel@vger.kernel.org>
+	id <S318469AbSHKXkK>; Sun, 11 Aug 2002 19:40:10 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:42504 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S318468AbSHKXkI>; Sun, 11 Aug 2002 19:40:08 -0400
+Date: Sun, 11 Aug 2002 20:42:16 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Daniel Phillips <phillips@arcor.de>, <frankeh@watson.ibm.com>,
+       <davidm@hpl.hp.com>, David Mosberger <davidm@napali.hpl.hp.com>,
+       "David S. Miller" <davem@redhat.com>, <gh@us.ibm.com>,
+       <Martin.Bligh@us.ibm.com>, William Lee Irwin III <wli@holomorphy.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: large page patch (fwd) (fwd)
+In-Reply-To: <1029113179.16236.101.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44L.0208112041110.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On 12 Aug 2002, Alan Cox wrote:
 
-I am getting kernel BUG when i deal with big files :-
+> Unfortunately the USA forces people to deal with this crap. I'd hope SGI
+> would be decent enough to explicitly state they will license this stuff
+> freely for GPL use
 
-kernel BUG at page_alloc.c:203!
+I seem to remember Apple having a clause for this in
+their Darwin sources, forbidding people who contribute
+code from suing them about patent violations due to
+the code they themselves contributed.
 
-I am using 2.4.1 on SH4 and using only 32 MB RAM
-without hard-disk, so only thing i am using is 32 MB
-RAM .
+kind regards,
 
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-/* page_alloc.c */
-if (BAD_RANGE(zone,page))
-	BUG();
-DEBUG_ADD_PAGE    <--- line no 203
+http://www.surriel.com/		http://distro.conectiva.com/
 
-
-/* linux/swap.h */
-
-#define DEBUG_ADD_PAGE \
-	if (PageActive(page) || PageInactiveDirty(page) || \
-	PageInactiveClean(page)) BUG();
-
-
-Can someone please guide me and let me know the
-work-around for this kernel BUG.
-
-Thanks for your help.
-
-
-__________________________________________________
-Do You Yahoo!?
-HotJobs - Search Thousands of New Jobs
-http://www.hotjobs.com

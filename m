@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262570AbUKLQs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbUKLQqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262570AbUKLQs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 11:48:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbUKLQrQ
+	id S262568AbUKLQqT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 11:46:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbUKLQoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 11:47:16 -0500
-Received: from l247150.ppp.asahi-net.or.jp ([218.219.247.150]:8904 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S262569AbUKLQl7
+	Fri, 12 Nov 2004 11:44:22 -0500
+Received: from l247150.ppp.asahi-net.or.jp ([218.219.247.150]:10440 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S262571AbUKLQmJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 11:41:59 -0500
-Date: Sat, 13 Nov 2004 01:41:56 +0900
-Message-ID: <m2mzxnuii3.wl%ysato@users.sourceforge.jp>
+	Fri, 12 Nov 2004 11:42:09 -0500
+Date: Sat, 13 Nov 2004 01:42:07 +0900
+Message-ID: <m2k6sruihs.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] H8/300 /proc/cpuinfo typo fix
+Subject: [PATCH] H8/300 read{b,w,l} / write{b,w,l} error fix
 User-Agent: Wanderlust/2.11.30 (Wonderwall) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.6 (Marutamachi) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -25,18 +25,41 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Yoshinori Sato <ysato@users.sourceforge.jp>
 
-diff -Nru a/arch/h8300/kernel/setup.c b/arch/h8300/kernel/setup.c
---- a/arch/h8300/kernel/setup.c	2004-11-13 01:12:50 +09:00
-+++ b/arch/h8300/kernel/setup.c	2004-11-13 01:12:50 +09:00
-@@ -218,7 +218,7 @@
- 		   "BogoMips:\t%lu.%02lu\n"
- 		   "Calibration:\t%lu loops\n",
- 	           cpu,mode,
--		   clockfreq/100,clockfreq%100,
-+		   clockfreq/1000,clockfreq%1000,
- 		   (loops_per_jiffy*HZ)/500000,((loops_per_jiffy*HZ)/5000)%100,
- 		   (loops_per_jiffy*HZ));
+diff -Nru a/include/asm-h8300/io.h b/include/asm-h8300/io.h
+--- a/include/asm-h8300/io.h	2004-11-13 01:12:50 +09:00
++++ b/include/asm-h8300/io.h	2004-11-13 01:12:50 +09:00
+@@ -70,15 +70,24 @@
+ }
  
+ #define readb(addr) \
+-    ({ unsigned char __v = (*(volatile unsigned char *) ((addr) & 0x00ffffff)); __v; })
++    ({ unsigned char __v = \
++     *(volatile unsigned char *)((unsigned long)(addr) & 0x00ffffff); \
++     __v; })
+ #define readw(addr) \
+-    ({ unsigned short __v = (*(volatile unsigned short *) ((addr) & 0x00ffffff)); __v; })
++    ({ unsigned short __v = \
++     *(volatile unsigned short *)((unsigned long)(addr) & 0x00ffffff); \
++     __v; })
+ #define readl(addr) \
+-    ({ unsigned int __v = (*(volatile unsigned int *) ((addr) & 0x00ffffff)); __v; })
++    ({ unsigned long __v = \
++     *(volatile unsigned long *)((unsigned long)(addr) & 0x00ffffff); \
++     __v; })
+ 
+-#define writeb(b,addr) (void)((*(volatile unsigned char *) ((addr) & 0x00ffffff)) = (b))
+-#define writew(b,addr) (void)((*(volatile unsigned short *) ((addr) & 0x00ffffff)) = (b))
+-#define writel(b,addr) (void)((*(volatile unsigned int *) ((addr) & 0x00ffffff)) = (b))
++#define writeb(b,addr) (void)((*(volatile unsigned char *) \
++                             ((unsigned long)(addr) & 0x00ffffff)) = (b))
++#define writew(b,addr) (void)((*(volatile unsigned short *) \
++                             ((unsigned long)(addr) & 0x00ffffff)) = (b))
++#define writel(b,addr) (void)((*(volatile unsigned long *) \
++                             ((unsigned long)(addr) & 0x00ffffff)) = (b))
+ #define readb_relaxed(addr) readb(addr)
+ #define readw_relaxed(addr) readw(addr)
+ #define readl_relaxed(addr) readl(addr)
+
 -- 
 Yoshinori Sato
 <ysato@users.sourceforge.jp>

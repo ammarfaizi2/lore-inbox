@@ -1,81 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312119AbSDNMXk>; Sun, 14 Apr 2002 08:23:40 -0400
+	id <S312235AbSDNMZH>; Sun, 14 Apr 2002 08:25:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312181AbSDNMXj>; Sun, 14 Apr 2002 08:23:39 -0400
-Received: from amethyst.es.usyd.edu.au ([129.78.124.28]:10942 "EHLO
-	amethyst.es.usyd.edu.au") by vger.kernel.org with ESMTP
-	id <S312119AbSDNMXi>; Sun, 14 Apr 2002 08:23:38 -0400
-Date: Sun, 14 Apr 2002 22:23:36 +1000 (EST)
-From: ivan <ivan@es.usyd.edu.au>
-To: <linux-kernel@vger.kernel.org>
-Subject: Memory Leaking. Help!
-Message-ID: <Pine.LNX.4.33.0204142204330.19694-100000@dipole.es.usyd.edu.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312219AbSDNMZG>; Sun, 14 Apr 2002 08:25:06 -0400
+Received: from 226.muag.wash.wacdc01r1.dsl.att.net ([12.98.110.226]:27911 "EHLO
+	x.vwx.com") by vger.kernel.org with ESMTP id <S312181AbSDNMZD>;
+	Sun, 14 Apr 2002 08:25:03 -0400
+From: domainmaster@vwx.com
+Subject: SOS VWX.COM
+Date: Sat, 13 Apr 2002 05:08:38 -0400
+Message-ID: <20020413090838875.AEZ2672@x.vwx.com@x.reston01.va.comcast.net>
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ladies and Gentlmen,
 
-I have posted this to linux-mm list but it is a bit quite there, so I
-decided to try this one.
+Please accept my most humble and sincere apologies if this email has
+reached you at a bad moment, or is problem to you in any fashion.
 
-I am running 7.2RedHat kernel 2.4.9-31 on Dell 4400 PowerEdge 
-Server. Dual CPU 990MHz.
+My true email is listed as the return address as a gesture of my sincerity.
 
-The machine was a lemon from the start. We paid for it 16000$, to find out 
-that one SCSI controller and two SCSI disk were broken out of the box. 
+This email is a cry for help at http://vwx.com
 
-It kept crushing a couple time a months with clear logs. (My Desktop 
-Pentium 2 has being running for a year).
+A cry for freedom...
+A cry for rights...
+A cry for Justice...
 
-Machine is under warranty; Dell replaced mum and both CPUs. Still going
-down. They refused to replace RAM (4Gb) asking me to test memory by
-swapping RAM around to see if frequency of crushes will decrease/increase.
-This is despite all my explanations that it was a production server.
+Please help...Please don't report me for sending mass email...
+Your email was selected on a spider done on "Prayer"
 
-I have to admit: "Buy DELL and you in Hell" this is despite all the good
-things Dell developers are doing for the linux community.
-
-10 Days ago I installed DNS and DHCPd servers from RedHat and noticed that 
-"top" shows the amount of consumed memory is slowly and constantly 
-growing. Machine became unstable and a few users complained that their 
-files disappeared. ( we have good backup ). I re-booted 4 days ago and now 
-it looks it is doing it again. Could this be BIND?
-
-
-1) Could you please advice how can I detect memory leaks. ( I guess it is 
-not an easy task on production server.
-
-2) Is there a tool which I can use to log memory usage 
-
-3) Any help will be appreciated.
-
-
-Thank you in advance,
-Ivan.
-
-
-
--- 
-
-There's an old story about the person who wished his computer were as
- easy to use as his telephone. That wish has come true, since I no
- longer know how to use my telephone.
-
-================================================================================
-
-Ivan Teliatnikov,
-F05 David Edgeworth Building,
-Department of Geology and Geophysics,
-School of Geosciences,
-University of Sydney, 2006
-Australia
-
-e-mail: ivan@es.usyd.edu.au
-ph:  061-2-9351-2031 (w)
-fax: 061-2-9351-0184 (w)
-
-===============================================================================
+Sincerely yours,
+Jim Anderson
+http://vwx.com
 

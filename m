@@ -1,62 +1,58 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262376AbVBLKBs (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 12 Feb 2005 05:01:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbVBLKBs
+	id S262300AbVBQQCF (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 17 Feb 2005 11:02:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVBQQCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 05:01:48 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:60825 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262376AbVBLKBq (ORCPT
+	Thu, 17 Feb 2005 11:02:04 -0500
+Received: from [220.234.245.78] ([220.234.245.78]:19981 "EHLO e-hkma.com")
+	by vger.kernel.org with ESMTP id S262294AbVBQQBt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 05:01:46 -0500
-Reply-To: bigpun190000@netscape.net
-From: "Spays S. Entente" <benedict.lawrence1@btinternet.com>
+	Thu, 17 Feb 2005 11:01:49 -0500
+Reply-To: bigr8erfan@yahoo.com
+From: "Intercoms H. Ministries" <bifmalibu@juno.com>
 To: Linux <linux-kernel@vger.kernel.org>
-Subject: FWD: Hi Linux, like to watch real people getting Dirty. No Fees for Life.
-Date: Sat, 12 Feb 2005 10:58:01 +0100
-Message-ID: <100001c510e9$22f4344d$2e630fb5@btinternet.com>
+Subject: Hi Linux, special 0ffer lifetime vip memberships.
+Date: Thu, 17 Feb 2005 16:44:48 +0100
+Message-ID: <110001c51507$9424b51b$6c543573@juno.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-Mailer: Microsoft Outlook, Build 10.0.4024
 Importance: Normal
-X-AntiVirus: OK! AntiVir MailGate Version 2.0.1; AVE: 6.15.0.0; VDF: 6.15.0.6
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.10; AVE: 6.20.0.1; VDF: 6.20.0.46; host: e-hkma.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262376AbVBLKBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262300AbVBQQCF@vger.kernel.org>
 
 Hi Linux,
+  
+Special one time promotion only. No charge membership site for life! Use credit card for age verification purposes only! Then you are in. Their hopes are they get you in then you like it so much you want to upgrade to buy another product. It's up to you! Your choice.  
 
-Do You like watching real live people, getting down and dirty. Well here you go for a limited time only you can get a Lifetime password at no charge, that's right no charge...
-
-voted #1 new website in 2005 by the industry..
-
-http://over.aurilavepoppetleggumdigging.com/369997/rpm/lifetime.html
+http://its.situation.wowthat.com/369997/hxw/index.html
 
 
-A chain is no stronger than its weakest link. 
+You never know what you can do till you try. 
 
 
 
-A light purse makes a heavy heart. . A chain is no stronger than its weakest link. . Anger and hate hinder good counsel. . Hall binks are oft sliddery.     An explanation .
-Make hay while the sun shines. 
+Hasty judgements are generally faulty. . From trivial things, great contests often arise. . Windows will never cease. . It's no use closing the stable door, after the horse has bolted. .
+Oh, what a tangled web site we weave when first we practice. 
 
-Never let the sun go down on your anger. 
+What do you expect from a pig, but a grunt? 
 
 no more?
-http://of.three.aurilavepoppetleggumdigging.com/emms/preference/control.php
+http://it.as.wowthat.com/emms/preference/control.php
 
 
 
 
 
 
+The gods help them that help themselves. . From trivial things, great contests often arise. . As is the gardener so is the garden. .
+A good thing is all the sweeter when won with pain. . Fools rush in where angels fear to tread. . Kill two birds with the one stone. .
 
-
-Different strokes for different folks. . You snooze, you loose. . Actions speak louder than words. .
-The best things in life are free. . Love to live and live to love. . Half a loaf is better than none. .
-
-Before you meet the handsome prince you have to kiss a lot of toads. . A friend to everybody is a friend to nobody. . Good company on the road is the shortest cut. .
+Divide and conquer. . A friend to everybody is a friend to nobody. . Speak clearly, if you speak at all. .
 
 

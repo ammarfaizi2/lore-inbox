@@ -1,108 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264925AbSLMPqt>; Fri, 13 Dec 2002 10:46:49 -0500
+	id <S264956AbSLMPva>; Fri, 13 Dec 2002 10:51:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264944AbSLMPqt>; Fri, 13 Dec 2002 10:46:49 -0500
-Received: from tolkor.SGI.COM ([198.149.18.6]:36767 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S264925AbSLMPqs>;
-	Fri, 13 Dec 2002 10:46:48 -0500
-Date: Fri, 13 Dec 2002 18:08:14 -0500
-From: Christoph Hellwig <hch@sgi.com>
-To: marcelo@conectiva.com.br
-Cc: rml@tech9.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] set_cpus_allowed() for 2.4
-Message-ID: <20021213180814.A2658@sgi.com>
-Mail-Followup-To: Christoph Hellwig <hch@sgi.com>, marcelo@conectiva.com.br,
-	rml@tech9.net, linux-kernel@vger.kernel.org
+	id <S264978AbSLMPva>; Fri, 13 Dec 2002 10:51:30 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:7040 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S264956AbSLMPv3>; Fri, 13 Dec 2002 10:51:29 -0500
+Date: Fri, 13 Dec 2002 17:58:59 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Terje Eggestad <terje.eggestad@scali.com>
+Cc: "J.A. Magallon" <jamagallon@able.es>, Mark Mielke <mark@mark.mielke.cc>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: Intel P6 vs P7 system call performance
+Message-ID: <20021213155859.GC1095@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Terje Eggestad <terje.eggestad@scali.com>,
+	"J.A. Magallon" <jamagallon@able.es>,
+	Mark Mielke <mark@mark.mielke.cc>, "H. Peter Anvin" <hpa@zytor.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Dave Jones <davej@codemonkey.org.uk>
+References: <1039610907.25187.190.camel@pc-16.office.scali.no> <3DF78911.5090107@zytor.com> <1039686176.25186.195.camel@pc-16.office.scali.no> <20021212203646.GA14228@mark.mielke.cc> <20021212205655.GA1658@werewolf.able.es> <1039771270.29298.41.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1039771270.29298.41.camel@pc-16.office.scali.no>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Fri, Dec 13, 2002 at 10:21:11AM +0100, you [Terje Eggestad] wrote:
+>   
+> Well, it does make sense if Intel optimized away rdtsc for more commonly
+> used things, but even that don't seem to be the case. I'm measuring the
+> overhead of doing a syscall on Linux (int 80) to be ~280 cycles on PIII,
+> and Athlon, while it's 1600 cycles on P4.
 
-now that all vendors ship a backport of Ingo's O(1) scheduler, external
-projects like XFS have to track those trees in addition to the mainline kernel.
+Just out of interest, how much would sysenter (or syscall on amd) cost,
+then? (Supposing it can be feasibly implemented.)
 
-Having the common new APIs available in mainline would be a very good thing
-to have for us and others.  Now that 2.4.20 already has a working yield()
-the biggest missing part is set_cpus_allowed() to limit (kernel-)threads
-to a specific CPU or set of CPUs.
+I think I heard WinXP (W2k too?) is using sysenter?
 
---- linux/include/linux/sched.h~	Mon Sep 30 17:41:22 2002
-+++ linux/include/linux/sched.h	Tue Oct  1 18:35:28 2002
-@@ -163,6 +164,12 @@
- extern int start_context_thread(void);
- extern int current_is_keventd(void);
- 
-+#if CONFIG_SMP
-+extern void set_cpus_allowed(struct task_struct *p, unsigned long new_mask);
-+#else
-+# define set_cpus_allowed(p, new_mask) do { } while (0)
-+#endif
-+
- /*
-  * The default fd array needs to be at least BITS_PER_LONG,
-  * as this is the granularity returned by copy_fdset().
---- linux/kernel/ksyms.c~	Mon Sep 30 17:41:22 2002
-+++ linux/kernel/ksyms.c	Tue Oct  1 18:34:41 2002
-@@ -451,6 +451,9 @@
- EXPORT_SYMBOL(interruptible_sleep_on_timeout);
- EXPORT_SYMBOL(schedule);
- EXPORT_SYMBOL(schedule_timeout);
-+#if CONFIG_SMP
-+EXPORT_SYMBOL(set_cpus_allowed);
-+#endif
- EXPORT_SYMBOL(yield);
- EXPORT_SYMBOL(__cond_resched);
- EXPORT_SYMBOL(jiffies);
---- linux/kernel/sched.c~	Mon Sep 30 17:41:22 2002
-+++ linux/kernel/sched.c	Tue Oct  1 18:54:49 2002
-@@ -850,6 +850,45 @@
- 
- void scheduling_functions_end_here(void) { }
- 
-+#if CONFIG_SMP
-+/**
-+ * set_cpus_allowed() - change a given task's processor affinity
-+ * @p: task to bind
-+ * @new_mask: bitmask of allowed processors
-+ *
-+ * Upon return, the task is running on a legal processor.  Note the caller
-+ * must have a valid reference to the task: it must not exit() prematurely.
-+ * This call can sleep; do not hold locks on call.
-+ */
-+void set_cpus_allowed(struct task_struct *p, unsigned long new_mask)
-+{
-+	new_mask &= cpu_online_map;
-+	BUG_ON(!new_mask);
-+
-+	p->cpus_allowed = new_mask;
-+
-+	/*
-+	 * If the task is on a no-longer-allowed processor, we need to move
-+	 * it.  If the task is not current, then set need_resched and send
-+	 * its processor an IPI to reschedule.
-+	 */
-+	if (!(p->cpus_runnable & p->cpus_allowed)) {
-+		if (p != current) {
-+			p->need_resched = 1;
-+			smp_send_reschedule(p->processor);
-+		}
-+
-+		/*
-+		 * Wait until we are on a legal processor.  If the task is
-+		 * current, then we should be on a legal processor the next
-+		 * time we reschedule.  Otherwise, we need to wait for the IPI.
-+		 */
-+		while (!(p->cpus_runnable & p->cpus_allowed))
-+			schedule();
-+	}
-+}
-+#endif /* CONFIG_SMP */
-+
- #ifndef __alpha__
- 
- /*
+
+-- v --
+
+v@iki.fi

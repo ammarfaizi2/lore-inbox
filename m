@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261224AbSJYJ22>; Fri, 25 Oct 2002 05:28:28 -0400
+	id <S261332AbSJYJhB>; Fri, 25 Oct 2002 05:37:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261325AbSJYJ22>; Fri, 25 Oct 2002 05:28:28 -0400
-Received: from cs146114.pp.htv.fi ([213.243.146.114]:44300 "EHLO chip.ath.cx")
-	by vger.kernel.org with ESMTP id <S261224AbSJYJ21>;
-	Fri, 25 Oct 2002 05:28:27 -0400
-Date: Fri, 25 Oct 2002 12:34:20 +0300 (EEST)
-From: Panu Matilainen <pmatilai@welho.com>
-X-X-Sender: pmatilai@chip.ath.cx
-To: Tim Hockin <thockin@sun.com>
-cc: Jesse Pollard <pollard@admin.navo.hpc.mil>,
+	id <S261338AbSJYJhB>; Fri, 25 Oct 2002 05:37:01 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:40901 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261332AbSJYJhA>; Fri, 25 Oct 2002 05:37:00 -0400
+Subject: Re: PCI device order problem
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "H. J. Lu" <hjl@lucon.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH 1/4] fix NGROUPS hard limit (resend)
-In-Reply-To: <3DB59722.2090701@sun.com>
-Message-ID: <Pine.LNX.4.44.0210251233030.23877-100000@chip.ath.cx>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <20021024165631.A22676@lucon.org>
+References: <20021024163945.A21961@lucon.org> <3DB88715.7070203@pobox.com> 
+	<20021024165631.A22676@lucon.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 25 Oct 2002 11:00:31 +0100
+Message-Id: <1035540031.13032.3.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Oct 2002, Tim Hockin wrote:
+On Fri, 2002-10-25 at 00:56, H. J. Lu wrote:
+> It is different from the hardware documentation. The hardware manual says
+> it has 2 NICs, NIC 1 (03:07.0) and NIC2 (03:07.1), which makes senses
+> to me. NIC 1 is a special one which supports IPMI over LAN. Since we
+> only use one NIC now, we'd like to use NIC 1 and call it eth0.
 
-> Jesse Pollard wrote:
-> 
-> > Does it actually work with NFS???? or any networked file system?
-> > Most of them limit ngroups to 16 to 32, and cannot send any data
-> > if there is an overflow, since that overflow would replace all of the
-> > data you try to send/recieve...
-> 
-> NFS has a smaller limit, that is correct.  An unfortunate limitation.
-> 
-> > And I really doubt that anybody has 10000 unique groups (or even
-> > close to that) running under any system. The center I'm at has
-> > some of the largest UNIX systems ever made, and there are only
-> > about 600 unique groups over the entire center. The largest number
-> > of groups a user can be in is 32. And nobody even comes close.
-> 
-> I'm glad it doesn't affect you.  If it was a more common problem, it 
-> would have been solved a long time ago.  It does affect some people, 
-> though.  Maybe they can redesign their group structures, but why not 
-> remove this arbitrary limit, since we can?
-
-This is a real, if not terribly common problem here too. Thanks for 
-addressing the issue...
-
--- 
-	- Panu -
+SIOCSIFNAME ioctl. You can call them "haddock" and "chips" if you really
+want, or swap the eth%d names about. RH 8.0 allows you to bind an
+interface to a mac address too
 

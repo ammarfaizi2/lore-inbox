@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262487AbSI2Obf>; Sun, 29 Sep 2002 10:31:35 -0400
+	id <S262488AbSI2OoT>; Sun, 29 Sep 2002 10:44:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262488AbSI2Obf>; Sun, 29 Sep 2002 10:31:35 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:49137 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262487AbSI2Obe>; Sun, 29 Sep 2002 10:31:34 -0400
-Subject: Re: [PATCH] linux-2.5.39 - i8xx series chipsets patches (patch3)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020929161148.A7376@medelec.uia.ac.be>
-References: <20020929161148.A7376@medelec.uia.ac.be>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 29 Sep 2002 15:42:38 +0100
-Message-Id: <1033310558.13001.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262489AbSI2OoT>; Sun, 29 Sep 2002 10:44:19 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:51118 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262488AbSI2OoS>; Sun, 29 Sep 2002 10:44:18 -0400
+To: James Morris <jmorris@intercode.com.au>
+Cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
+       <linux-security-module@wirex.com>
+Subject: Re: [PATCH] accessfs v0.6 ported to 2.5.35-lsm1 - 1/2
+References: <Mutt.LNX.4.44.0209292236200.27145-100000@blackbird.intercode.com.au>
+From: Olaf Dietsche 
+	<olaf.dietsche--list.linux-security-module@exmail.de>
+Date: Sun, 29 Sep 2002 16:49:12 +0200
+Message-ID: <87it0o4zrr.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-09-29 at 15:11, Wim Van Sebroeck wrote:
-> Hi Linus,
-> 
-> this patch upgrades the i810-tco module to version 0.05. It fixes a possible timer_alive race,
-> adds expect close support, cleans up ioctls, removes some unused stuff and adds support for
-> the 82801DB and 82801E chipsets. patch2 (on pci_ids.h file) needs to be applied first.
+James Morris <jmorris@intercode.com.au> writes:
 
-This code is clearly incorrect. Please work off the current 2.4 driver
-code because all the 2.5 watchdog code is obsolete and has security
-holes. Worse still - you just added another one.
+> On Fri, 27 Sep 2002, Greg KH wrote:
+>
+>> As for the ip_prot_sock hook in general, does it look ok to the other
+>> developers?
+>> 
+>
+> This hook is not necessary: any related access control decision can be
+> made via the more generic and flexible socket_bind() hook (like SELinux).
 
+AFAICS, it looks like you can make _additional_ checks only. You still
+have to grant CAP_NET_BIND_SERVICE for binding to ports below PROT_SOCK.
+So, this doesn't look like a viable solution for me.
 
+Anyway, thanks for this pointer, I'll look into socket_bind().
+
+Regards, Olaf.

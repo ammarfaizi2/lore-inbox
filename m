@@ -1,84 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262874AbUC2NpR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 08:45:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262892AbUC2NpR
+	id S262499AbUC2Ntn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 08:49:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbUC2Ntm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 08:45:17 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:33722 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262882AbUC2MQ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 07:16:57 -0500
-Date: Mon, 29 Mar 2004 04:16:14 -0800
-From: Paul Jackson <pj@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: mbligh@aracnet.com, akpm@osdl.org, wli@holomorphy.com, haveblue@us.ibm.com,
-       colpatch@us.ibm.com
-Subject: [PATCH] mask ADT:  finish physids_complement() conversion  [19/22]
-Message-Id: <20040329041614.6cc97cb7.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Mar 2004 08:49:42 -0500
+Received: from mlf.linux.rulez.org ([192.188.244.13]:25619 "EHLO
+	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S262499AbUC2NsK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 08:48:10 -0500
+Date: Mon, 29 Mar 2004 15:48:01 +0200 (MEST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: ntfs-dev <linux-ntfs-dev@lists.sourceforge.net>,
+       Andries Brouwer <aeb@cwi.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-NTFS-Dev] Geometry determination
+In-Reply-To: <1080564842.5545.19.camel@imp.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.21.0403291512030.6684-100000@mlf.linux.rulez.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch_19_of_22 - Convert physids_complement() to really use both args
-	Provide for specifying distinct source and dest args to the
-	physids_complement().  No one actually uses this macro yet.
-	The physid_mask type would be a good candidate to convert to
-	using this new mask ADT as a base.
 
-diffstat Patch_19_of_22:
- asm-i386/mpspec.h   |    2 +-
- asm-x86_64/mpspec.h |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+On Mon, 29 Mar 2004, Anton Altaparmakov wrote:
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1725  -> 1.1726 
-#	include/asm-i386/mpspec.h	1.18    -> 1.19   
-#	include/asm-x86_64/mpspec.h	1.9     -> 1.10   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 04/03/29	pj@sgi.com	1.1726
-# Change physids_complement() macro to take both source and dest args,
-# inline with underlying bitmap_complement() change.  This change is
-# untested, unreviewed.  Feedback welcome.  Consider changing physid_mask
-# to be based on the new linux/mask.h ADT.
-# --------------------------------------------
-#
-diff -Nru a/include/asm-i386/mpspec.h b/include/asm-i386/mpspec.h
---- a/include/asm-i386/mpspec.h	Mon Mar 29 01:04:04 2004
-+++ b/include/asm-i386/mpspec.h	Mon Mar 29 01:04:04 2004
-@@ -60,7 +60,7 @@
- #define physids_and(dst, src1, src2)		bitmap_and((dst).mask, (src1).mask, (src2).mask, MAX_APICS)
- #define physids_or(dst, src1, src2)		bitmap_or((dst).mask, (src1).mask, (src2).mask, MAX_APICS)
- #define physids_clear(map)			bitmap_clear((map).mask, MAX_APICS)
--#define physids_complement(map)			bitmap_complement((map).mask, (map).mask, MAX_APICS)
-+#define physids_complement(dst, src)		bitmap_complement((dst).mask, (src).mask, MAX_APICS)
- #define physids_empty(map)			bitmap_empty((map).mask, MAX_APICS)
- #define physids_equal(map1, map2)		bitmap_equal((map1).mask, (map2).mask, MAX_APICS)
- #define physids_weight(map)			bitmap_weight((map).mask, MAX_APICS)
-diff -Nru a/include/asm-x86_64/mpspec.h b/include/asm-x86_64/mpspec.h
---- a/include/asm-x86_64/mpspec.h	Mon Mar 29 01:04:04 2004
-+++ b/include/asm-x86_64/mpspec.h	Mon Mar 29 01:04:04 2004
-@@ -214,7 +214,7 @@
- #define physids_and(dst, src1, src2)		bitmap_and((dst).mask, (src1).mask, (src2).mask, MAX_APICS)
- #define physids_or(dst, src1, src2)		bitmap_or((dst).mask, (src1).mask, (src2).mask, MAX_APICS)
- #define physids_clear(map)			bitmap_clear((map).mask, MAX_APICS)
--#define physids_complement(map)			bitmap_complement((map).mask, (map).mask, MAX_APICS)
-+#define physids_complement(dst, src)		bitmap_complement((dst).mask, (src).mask, MAX_APICS)
- #define physids_empty(map)			bitmap_empty((map).mask, MAX_APICS)
- #define physids_equal(map1, map2)		bitmap_equal((map1).mask, (map2).mask, MAX_APICS)
- #define physids_weight(map)			bitmap_weight((map).mask, MAX_APICS)
+> I have been experimenting a little with what Windows / Linux 2.4 / Linux
+> 2.6 think the geometry of a couple of HDs is and the results are not
+> very promising.  )-:
+> 
+> Using Linux 2.4, HDIO_GETGEO ioctl, I get the same Heads and Sectors per
+> Track as Windows on both HDs I tried it on.  This is the good news. 
+> I.e. at least on those two disks mkntfs as it stands now would create
+> Windows bootable partitions.
+> 
+> The bad news is that Linux 2.4, HDIO_GETGEO ioctl returns wrong values
+
+You mean 2.6? That's what I'm saying also for a while. It's a known issue
+and people are complaining about it because kernel breaks things (e.g.
+they can't boot anymore and think Linux thrashed their systems).
+
+I don't know who is the kernel maintainer today but apparently nobody.  
+Old maintainer, Andries Brouwer, only repeates that the geometry doesn't
+exists even if he was/is proved and pointed out to be wrong many times.
+
+The issue was discussed long, several times on linux-kernel without a
+satisfying solution.
+
+	Szaka
+
+> for both HDs.  (It said Heads were 16 both time when Linux 2.4 said 255
+> for one of the HDs and 128 for the other.)
+> 
+> So while mkntfs will work at the moment in a few months/years time it
+> will probably never work any more without user specified geometry.  )-:
+> 
+> I have unfortunately not found _any_ way to get the values returned by
+> Linux 2.4 / Windows on a Linux 2.6 system and I tried looking in
+> /proc/ide, using hdparm, and using .  )-:
+> 
+> This is very annoying to say the least.  )-:
+> 
+> Any ideas?
+> 
+> Of course, this all might have been coincidence and someone else testing
+> a different set of two HDs might find the opposite.
+> 
+> What we really want to know is how Windows determines the geometry? 
+> Anyone know?
+> 
+> Best regards,
+> 
+> 	Anton
+> 
 
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+
+

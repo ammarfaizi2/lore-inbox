@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288331AbSAMX5Q>; Sun, 13 Jan 2002 18:57:16 -0500
+	id <S288333AbSAMX54>; Sun, 13 Jan 2002 18:57:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288333AbSAMX5H>; Sun, 13 Jan 2002 18:57:07 -0500
-Received: from ns.suse.de ([213.95.15.193]:59406 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S288331AbSAMX5B>;
-	Sun, 13 Jan 2002 18:57:01 -0500
-Date: Mon, 14 Jan 2002 00:56:58 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Zilvinas Valinskas <zvalinskas@carolina.rr.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: patch-2.5.1-dj14.diff.gz is broken
-In-Reply-To: <20020113210447.GA8215@clt88-175-140.carolina.rr.com>
-Message-ID: <Pine.LNX.4.33.0201140055320.7131-100000@Appserv.suse.de>
+	id <S288334AbSAMX5h>; Sun, 13 Jan 2002 18:57:37 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:40204 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288333AbSAMX5W>; Sun, 13 Jan 2002 18:57:22 -0500
+Subject: Re: Getting Out of Memory errors at random intervals.
+To: abrink@ns.brink.cx (Andrew Brink)
+Date: Mon, 14 Jan 2002 00:09:14 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20020113233647.GA1198@ns.brink.cx> from "Andrew Brink" at Jan 13, 2002 05:36:47 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Pugc-0008QL-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Jan 2002, Zilvinas Valinskas wrote:
+> On Sun, Jan 13, 2002 at 11:45:42PM +0000, Alan Cox wrote:
+> > Run something that has a sane VM in all the known awkward cases (eg the Red Hat
+> > 2.4.9 tree) and you should be just fine. If not I'd be interested to know
+> 
+> I take it the vanilla 2.4.9 would also do?
 
-> if I do
-> gunzip -t ../patch-2.5.1-dj14.diff.gz
-> gunzip: patch-2.5.1-dj14.diff.gz: unexpected end of file
+Nothing like it. The 2.4.9-RH tree is very different VM wise from the 2.4.9
+base tree. Linus never took the VM updates from it.
 
-Not sure what happened there, but I just put a fixed version
-in place (actually the same one I uploaded, just the mirrored
-copy got broken somehow).
+> > Andrea -aa vm patches or Rik's rmap-11b patch. Both of which seem to help
+> > no end.
+> 
+> As for High loads....these boxes don't even get a load.
 
-Fixed version should be 1582128 bytes, and has the following md5sum
+I suspect they are - possibly only a sudden sharp burst of web traffic
+causing a lot of cgi/mysql/apache process activity.
 
-380ffa46db6c37e22d4780f20e341c57  patch-2.5.1-dj14.diff.gz
-
-Thanks for letting me know.
-
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+Alan

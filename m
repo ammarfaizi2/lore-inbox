@@ -1,84 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265907AbUAKQOj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 11:14:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265914AbUAKQOj
+	id S261875AbUAKQ0M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 11:26:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbUAKQ0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 11:14:39 -0500
-Received: from debian4.unizh.ch ([130.60.73.144]:52402 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S265907AbUAKQOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 11:14:37 -0500
-Date: Sun, 11 Jan 2004 17:14:32 +0100
-From: martin f krafft <madduck@madduck.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.6: can't get 3c575/PCMCIA working - other PCMCIA card work
-Message-ID: <20040111161432.GA10906@piper.madduck.net>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040106111939.GA2046@piper.madduck.net> <20040111120053.C1931@flint.arm.linux.org.uk> <20040111123208.GA4766@piper.madduck.net> <20040111125404.E1931@flint.arm.linux.org.uk> <20040111144343.GA8410@piper.madduck.net> <20040111150223.A8427@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
-Content-Disposition: inline
-In-Reply-To: <20040111150223.A8427@flint.arm.linux.org.uk>
-X-OS: Debian GNU/Linux testing/unstable kernel 2.6.0-piper i686
-X-Mailer: Mutt 1.5.4i (2003-03-19)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-User-Agent: Mutt/1.5.4i
+	Sun, 11 Jan 2004 11:26:12 -0500
+Received: from moutng.kundenserver.de ([212.227.126.173]:36351 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261875AbUAKQ0J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 11:26:09 -0500
+Date: Sun, 11 Jan 2004 17:27:16 +0100 (CET)
+From: =?ISO-8859-1?Q?Gunter_K=F6nigsmann?= <gunter@peterpall.de>
+Reply-To: =?ISO-8859-1?Q?Gunter_K=F6nigsmann?= <gunter.koenigsmann@gmx.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+       Peter Berg Larsen <pebl@math.ku.dk>
+Subject: Re: Synaptics Touchpad workaround for strange behavior after Sync
+ loss (With Patch). (fwd)
+Message-ID: <Pine.LNX.4.53.0401111652510.1271@calcula.uni-erlangen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:6f0b4d165b4faec4675b8267e0f72da4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---PNTmBPCT7hxwcZjr
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Strike! Helps.
 
-also sprach Russell King <rmk+lkml@arm.linux.org.uk> [2004.01.11.1602 +0100=
-]:
-> > Cause the driver gets loaded whether cardmgr is started or not. But in
-> > any case, cardmgr does not configure the interface.
->=20
-> cardmgr doesn't play a part when you've inserted a cardbus card - it
-> doesn't even know that a card has been inserted into the slot.
+No more warnings, no more bad clicks, and a *real* smooth movement.
 
-So with 'PCMCIA' you didn't mean the user-space programs.
+Never thought, a touchpad can work *this* well... ;-)
 
-> The hotplug scripts are then supposed to load the driver as
-> necessary (using /etc/modules.conf) which creates a network
-> interface.  This then causes the hotplug scripts to be invoked
-> again, this time for the new network interface, which should
-> configure it.
+Anyway, I still get those 4 lines  on leaving X, but don't know, if it is
+an error of the kernel, anyway, and doesn't do anything bad exept of
+warning me:
 
-Nifty. I will RTFM and hopefully find my way around in this versatile
-complexity.
+atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
+atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
+atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
+atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
 
-Cheers,
 
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
-=20
-"when faced with a new problem, the wise algorithmist
- will first attempt to classify it as np-complete.
- this will avoid many tears and tantrums as
- algorithm after algorithm fails."
-                                                          -- g. niruta
+Yours,
 
---PNTmBPCT7hxwcZjr
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+	Gunter.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+-- 
+Nasrudin called at a large house to collect for charity.  The servant said
+"My master is out."  Nasrudin replied, "Tell your master that next time he
+goes out, he should not leave his face at the window.  Someone might steal it."
 
-iD8DBQFAAXZoIgvIgzMMSnURAj9uAJ9B6+zoctGVduXlLLxVYKh4RDlilACfWhZd
-9e0oCUwbGhZ4eoS0OmncFXM=
-=FObT
------END PGP SIGNATURE-----
+---------- Forwarded message ----------
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+Date: Sun, 11 Jan 2004 10:34:54 -0500
+To: Gunter Königsmann <gunter.koenigsmann@gmx.de>
+Delivered-To: GMX delivery to gunter.koenigsmann@gmx.de
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+     Peter Berg Larsen <pebl@math.ku.dk>
+Subject: Re: Synaptics Touchpad workaround for strange behavior after Sync
+    loss (With Patch).
 
---PNTmBPCT7hxwcZjr--
+On Sunday 11 January 2004 09:22 am, Vojtech Pavlik wrote:
+> On Sun, Jan 11, 2004 at 01:52:46PM +0100, Peter Berg Larsen wrote:
+> > On Sun, 11 Jan 2004, Gunter Königsmann wrote:
+> > > Hmmm... Now I get an "Reverted to legacy aux mode" after about
+> > > every third resync of the driver, and sometimes odd and sometimes
+> > > even numbers of sync losses...
+> >
+> > How often is that? X/minute. I do not expect many "reverted .."
+> > messages, but if there is, then I believe the mux ver 1.1 has added
+> > some extra error codes that we se as a revert.
+>
+> Or the BIOS powermanagement is touching the controller in a way the MUX
+> mode doesn't like ...
+
+Does booting with i8042.i8042_nomux=1 help? That should keep the MUX in
+legacy mode. (well, depending on the kernel version it's either i8042.nomux
+or i8042.i8042_nomux, -mm1 and my patches use former, in 2.6.1 vanilla uses
+later form).
+
+Dmitry
+

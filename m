@@ -1,30 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267135AbTAKDHf>; Fri, 10 Jan 2003 22:07:35 -0500
+	id <S267132AbTAKDH0>; Fri, 10 Jan 2003 22:07:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267142AbTAKDHf>; Fri, 10 Jan 2003 22:07:35 -0500
-Received: from dsl-65-185-37-21.telocity.com ([65.185.37.21]:19655 "EHLO
-	onevista.com") by vger.kernel.org with ESMTP id <S267135AbTAKDHe>;
-	Fri, 10 Jan 2003 22:07:34 -0500
-Reply-To: johna@onevista.com
-Message-Id: <200301110316.WAA00987@onevista.com>
-Content-Type: text/plain; charset=US-ASCII
-From: John Adams <johna@onevista.com>
-Organization: One Vista Associates
-To: linux-kernel@vger.kernel.org
+	id <S267135AbTAKDH0>; Fri, 10 Jan 2003 22:07:26 -0500
+Received: from mta9.srv.hcvlny.cv.net ([167.206.5.133]:10690 "EHLO
+	mta9.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S267132AbTAKDH0>; Fri, 10 Jan 2003 22:07:26 -0500
+Date: Fri, 10 Jan 2003 22:14:52 -0500
+From: Rob Wilkens <robw@optonline.net>
 Subject: Re: Nvidia and its choice to read the GPL "differently"
-Date: Fri, 10 Jan 2003 22:16:10 -0500
-X-Mailer: KMail [version 1.3.2]
-References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com> <20030111025449.GJ9124@work.bitmover.com> <1042253924.1385.70.camel@RobsPC.RobertWilkens.com>
-In-Reply-To: <1042253924.1385.70.camel@RobsPC.RobertWilkens.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+In-reply-to: <Pine.LNX.4.44.0301102207060.2124-100000@montezuma.mastecende.com>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Larry Sendlosky <Larry.Sendlosky@storigen.com>,
+       Richard Stallman <rms@gnu.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-to: robw@optonline.net
+Message-id: <1042254892.1278.82.camel@RobsPC.RobertWilkens.com>
+Organization: Robert Wilkens
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <Pine.LNX.4.44.0301102207060.2124-100000@montezuma.mastecende.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 January 2003 09:58 pm, Rob Wilkens wrote:
->
-> Of all the things that computer software programmers do, writing
-> operating systems is among the most simplistic of those tasks.
+On Fri, 2003-01-10 at 22:11, Zwane Mwaikambo wrote:
+> Please say you're simply trolling...
 
-I think we have an under-bridge dweller.
+Sorry, started to get a bit off-topic.  Not trolling, though no matter
+what the topic and no matter what the list, people always assume that
+I'm a troll when they first meet me.  I guess they don't realize that I
+think differently.  If you get used to me, you'll realize that I'm just
+crazy and can either ignore me (plonk me as Larry McVoy did) or laugh at
+me.  
+
+Whatever you do, I laugh at myself in the end too, and won't be insulted
+-- I am proud to report that I take four different psychiatric
+medications, and still have hallucinations and delusions regularly, so I
+certainly won't claim to be normal by any standard.
+
+Of course, on an intelligence test given at the hospital (same one that
+diagnosed me as schizoaffective), I was scored as "high superior
+intelligence" which (to you) might mean that there's a chance there's
+something useful that might occasionally come out of my mouth.  It's
+doubtful, but if plonk me, you'll never know.
+
+-Rob
+

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268861AbRHGOta>; Tue, 7 Aug 2001 10:49:30 -0400
+	id <S268017AbRHGPAK>; Tue, 7 Aug 2001 11:00:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270066AbRHGOtT>; Tue, 7 Aug 2001 10:49:19 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:60932 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S268861AbRHGOtH>;
-	Tue, 7 Aug 2001 10:49:07 -0400
-Date: Tue, 7 Aug 2001 17:49:02 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: lk@Aniela.EU.ORG
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Is the mailing list going out?
-Message-ID: <20010807174902.D11046@mea-ext.zmailer.org>
-In-Reply-To: <20010807154537.A11046@mea-ext.zmailer.org> <Pine.LNX.4.33.0108071738240.601-100000@ns1.Aniela.EU.ORG>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0108071738240.601-100000@ns1.Aniela.EU.ORG>; from lk@Aniela.EU.ORG on Tue, Aug 07, 2001 at 05:39:33PM +0300
+	id <S267987AbRHGO77>; Tue, 7 Aug 2001 10:59:59 -0400
+Received: from 64-42-29-14.atgi.net ([64.42.29.14]:11020 "HELO
+	mail.clouddancer.com") by vger.kernel.org with SMTP
+	id <S266673AbRHGO7l>; Tue, 7 Aug 2001 10:59:41 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: tulip driver problem
+In-Reply-To: <9kogt9$l12$1@ns1.clouddancer.com>
+In-Reply-To: <20010806100319.C833@cpe-24-221-152-185.az.sprintbbd.net>    <200108062016.f76KGmG117015@saturn.cs.uml.edu> <20010807124413.A14235@lech.pse.pl> <200108062016.f76KGmG117015@saturn.cs.uml.edu> <9kogt9$l12$1@ns1.clouddancer.com>
+Reply-To: klink@clouddancer.com
+Message-Id: <20010807145951.71904784C1@mail.clouddancer.com>
+Date: Tue,  7 Aug 2001 07:59:51 -0700 (PDT)
+From: klink@clouddancer.com (Colonel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 07, 2001 at 05:39:33PM +0300, lk@Aniela.EU.ORG wrote:
-> I had no ideea that you had more tham one connection to the internet. I
-> said "him" supposing that, just like me, you have only one ISP. My
-> mistake.
+In clouddancer.list.kernel, you wrote:
+>
+>Does eth0 share IRQ with any other card? I got the very same messages
+>when one of my 4-way Adaptec (tulip based) ports got assigned the same
+>IRQ as my SCSI card (53c810a). BTW, that forced me to swich to using
+>de4x5 driver...
+>-- lech7@pse.pl 2:480/33.7          -- REAL programmers use INTEGERS --
 
-   You are not native english speaker, I think.  (Not that I am either.)
-It is about how to use pronouns "he" vs. "they".   An ISP is not a person,
-thus more appropriate pronoun would be "it", but also "they" applies.
 
-I prefer using "your ISP" when writing to people notifying them about
-email system glitches for their address, and referring to that elusive
-group of people making mistakes and screwing up that email reception.
 
-> Regards,
-> /me
+Goto Becker's website and fetch the IRQ sharing info, then patch the
+scsi driver.
 
-/Matti Aarnio
+
+-- 
+Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
+

@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312457AbSFEGSO>; Wed, 5 Jun 2002 02:18:14 -0400
+	id <S313492AbSFEH0A>; Wed, 5 Jun 2002 03:26:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312498AbSFEGSN>; Wed, 5 Jun 2002 02:18:13 -0400
-Received: from david.siemens.de ([192.35.17.14]:38625 "EHLO david.siemens.de")
-	by vger.kernel.org with ESMTP id <S312457AbSFEGSM>;
-	Wed, 5 Jun 2002 02:18:12 -0400
-Message-ID: <6134254DE87BD411908B00A0C99B044F0387211B@mowd019a.mow.siemens.ru>
-From: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: How safe is to add a member to struct super_block?
-Date: Wed, 5 Jun 2002 10:24:58 +0400 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S313505AbSFEHZ7>; Wed, 5 Jun 2002 03:25:59 -0400
+Received: from grunt.ksu.ksu.edu ([129.130.12.17]:32992 "EHLO
+	mailhub.cns.ksu.edu") by vger.kernel.org with ESMTP
+	id <S313492AbSFEHZ7>; Wed, 5 Jun 2002 03:25:59 -0400
+Date: Wed, 5 Jun 2002 02:25:59 -0500
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Build error on 2.5.20 under unstable debian
+Message-ID: <20020605022558.A2745@ksu.edu>
+Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020604103633.A14326@ksu.edu> <20328.1023241142@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+X-School: Kansas State University
+X-vi-or-emacs: vi
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a problem in media revalidation in current supermount - if
-something tries to access device after media change before supermount (a
-reported case was - close tray manually and do eject -t) a "media change"
-flag is lost so supermount never remounts underlying fs.
+Hey, thanks for the nifty tool.  What docs are available so that I can
+  learn the Magic of the Script?  :)
 
-The simplest way to fix it is to unmount filesystem in check_media_change
-(actually in destroy_device where we get superblock). But this needs both a
-"this fs is supermounted" flag and pointer to top-level fs so supermount can
-properly clean up. So I intend to add a member to struct super_block that
-points to super block of top-level (supermount) fs.
+Anyhow, the output for 2.5.20:
 
-Are there any alignment/size constraints on struct super_block to be aware
-of?
+linux-2.5.20:9$ ./reference_discarded.pl 
+Finding objects, 784 objects, ignoring 0 module(s)
+Finding conglomerates, ignoring 102 conglomerate(s)
+Scanning objects
+Error: ./drivers/usb/host/uhci-hcd.o .rodata refers to 00000f98 R_386_32          .text.exit
+Error: ./drivers/usb/host/built-in.o .rodata refers to 00000f98 R_386_32          .text.exit
+Done
 
-TIA
+Looks like uhci-hcd.o and built-in.o are the culprits.  Now, if only
+  I knew what the rest meant.  :)  They're referring to a symbol 
+  R_386_32?  I'm going to assume this is an x86-based bit of stuff
+  included from the x86-specific stuff.  Teach me.  ;)
 
--andrej
+-Joseph
+--
+Joseph======================================================jap3003@ksu.edu
+"Ich bin ein Penguin."  --/. poster mmarlett, responding to news that the
+  Bundestag will move to IBM/SuSE Linux.  
+                      http://slashdot.org/comments.pl?sid=33588&cid=3631032

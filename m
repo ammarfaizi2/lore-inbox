@@ -1,71 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbTIOUW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 16:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbTIOUW6
+	id S261575AbTIOUdw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 16:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbTIOUdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 16:22:58 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:49359 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S261566AbTIOUW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 16:22:56 -0400
-To: jo-lkml@suckfuell.net, hch@infradead.org
-Subject: [PATCH] ide-io.c, kernel 2.4.22 Fix for IO stats in /proc/partitions, was Re: sard/iostat disk I/O statistics/accounting for 2.5.8-pre3
-Cc: linux-kernel@vger.kernel.org
-From: Chad Talbott <ctalbott@google.com>
-Date: 15 Sep 2003 13:21:01 -0700
-Message-ID: <vfxk789refm.fsf@sgi.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Mon, 15 Sep 2003 16:33:52 -0400
+Received: from fw.osdl.org ([65.172.181.6]:46504 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261575AbTIOUdv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 16:33:51 -0400
+Date: Mon, 15 Sep 2003 13:30:40 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test5-mm2: oops when trying to suspend
+In-Reply-To: <1063652209.1330.4.camel@teapot.felipe-alfaro.com>
+Message-ID: <Pine.LNX.4.33.0309151329530.950-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found the cause of ide disks' ios_in_flight going negative in
-/proc/partitions.
 
-It's due to unbalanced calls to up_ios and down_ios.  After an
-explicit drive command, ide-io.c's ide_end_drive_cmd calls
-end_that_request_last which eventually calls down_ios to decrement
-ios_in_flight, however there is no corresponding call to up_ios when
-the command is initiated.
+> I get the following oops when trying to suspend my computer.
+> 
+> Stopping tasks: =====|
+> Unable to handle kernel paging request at virtual address fffffff4
 
-My guess is that ios_in_flight goes negative when the drive is idle
-because many people run hdparm in an init script, and this decrements
-ios_in_flight early on.  It stays off center from there.
+> EIP is at usb_device_suspend+0x24/0x50 [usbcore]
 
-The following hack to ide_end_drive_cmd is a workaround, I would
-rather call up_ios appropriately, so that explicit ide commands are
-properly accounted.  However I'm having a hard time identifying all
-the places that initiate a low-level drive command.  I'll look into a
-proper fix, but someone else probably knows the ide layer better than
-me.
+This is a known problem. Please either remove the usb drivers before 
+suspending, or apply the patch here: 
 
-Chad
+http://marc.theaimsgroup.com/?l=linux-kernel&m=106315363102204&w=2
 
---- linux-2.4.18-old/drivers/ide/ide-io.c	15 Sep 2003 17:41:32 -0000
-+++ linux-2.4.18-new/drivers/ide/ide-io.c	15 Sep 2003 20:11:12 -0000
-@@ -148,6 +148,7 @@
- 	ide_hwif_t *hwif = HWIF(drive);
- 	unsigned long flags;
- 	struct request *rq;
-+	struct completion *waiting;
- 
- 	spin_lock_irqsave(&io_request_lock, flags);
- 	rq = HWGROUP(drive)->rq;
-@@ -221,7 +222,13 @@
- 	spin_lock_irqsave(&io_request_lock, flags);
- 	blkdev_dequeue_request(rq);
- 	HWGROUP(drive)->rq = NULL;
--	end_that_request_last(rq);
-+
-+	waiting = req->waiting;
-+	req_finished_io(req);
-+	blkdev_release_request(req);
-+	if (waiting)
-+		complete(waiting);
-+
- 	spin_unlock_irqrestore(&io_request_lock, flags);
- }
- 
+Thanks,
+
+
+	Pat
+
 

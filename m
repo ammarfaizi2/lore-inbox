@@ -1,44 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312600AbSDPTIj>; Tue, 16 Apr 2002 15:08:39 -0400
+	id <S312855AbSDPTLC>; Tue, 16 Apr 2002 15:11:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312855AbSDPTIi>; Tue, 16 Apr 2002 15:08:38 -0400
-Received: from [194.46.8.33] ([194.46.8.33]:37384 "EHLO angusbay.vnl.com")
-	by vger.kernel.org with ESMTP id <S312600AbSDPTIi>;
-	Tue, 16 Apr 2002 15:08:38 -0400
-Date: Tue, 16 Apr 2002 19:05:06 +0100
-From: Dale Amon <amon@vnl.com>
-To: linux-kernel@vger.kernel.org
-Subject: ETA on Buslogic driver fixes for 2.5?
-Message-ID: <20020416180506.GA15960@vnl.com>
-Mail-Followup-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux, the choice of a GNU generation
+	id <S312983AbSDPTLB>; Tue, 16 Apr 2002 15:11:01 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:38094 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S312855AbSDPTLA>;
+	Tue, 16 Apr 2002 15:11:00 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 16 Apr 2002 21:10:59 +0200 (MEST)
+Message-Id: <UTC200204161910.g3GJAx009370.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, akpm@zip.com.au
+Subject: Re: readahead
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.8 still won't compile for me since my test machine (for that
-matter quite a few of my machines) has a Buslogic SCSI:
+    From: Andrew Morton <akpm@zip.com.au>
 
-init/main.c: In function `start_kernel':
-init/main.c:347: warning: implicit declaration of function `setup_per_cpu_areas'
-ide-proc.c: In function `create_proc_ide_drives':
-ide-proc.c:425: warning: unused variable `ent'
-BusLogic.c:32: #error Please convert me to Documentation/DMA-mapping.txt
-BusLogic.c: In function `BusLogic_QueueCommand':
-BusLogic.c:3406: structure has no member named `address'
-BusLogic.c: In function `BusLogic_BIOSDiskParameters':
-BusLogic.c:4132: warning: implicit declaration of function `scsi_bios_ptable'
-BusLogic.c:4132: warning: assignment makes pointer from integer without a cast
-make[3]: *** [BusLogic.o] Error 1
-make[2]: *** [first_rule] Error 2
-make[1]: *** [_subdir_scsi] Error 2
-make: *** [_dir_drivers] Error 2
+    > In the good old days we had tunable readahead.
+    > Very good, especially for special purposes.
 
-I spoke with Andy about a month ago, but his email address has 
-since gone bad. Is anyone working on the Buslogic and is
-there any time frame on when 2.5 might support it? I'm in
-no rush, I'd just like to play.
+    readahead is tunable, but the window size is stored
+    at the request queue layer.  If it has never been
+    set, or if the device doesn't have a request queue,
+    you get the defaults.
+
+    Do these cards not have a request queue?
+
+The kernel views them as SCSI disks.
+So yes, I can do
+
+   blockdev --setra 0 /dev/sdc
+
+Unfortunately that does not help in the least.
+Indeed, the only user of the readahead info is
+readahead.c: get_max_readahead() and it does
+
+        blk_ra_kbytes = blk_get_readahead(inode->i_dev) / 2;
+        if (blk_ra_kbytes < VM_MIN_READAHEAD)
+                blk_ra_kbytes = VM_MAX_READAHEAD;
+
+We need to distinguish between undefined, and explicily zero.
+Also, overriding the value explicitly given by the user
+is a bad idea.
+     
+    > I recall the days where I tried to get something off
+    > a bad SCSI disk, and the kernel would die in the retries
+    > trying to read a bad block, while the data I needed was
+    > not in the block but just before. Set readahead to zero
+    > and all was fine.
+
+    Yes, but things should be OK as-is.  If the readahead attempt
+    gets an I/O error, do_generic_file_read will notice the non-uptodate
+    page and will issue a single-page read.  So everything up to
+    a page's distance from the bad block should be recoverable.
+    That's the theory; can't say that I've tested it.
+
+It is really important to be able to tell the kernel to read and
+write only the blocks it has been asked to read and write and
+not to touch anything else.
+
+In my SCSI example you go easily past "an I/O error", but what
+this driver would do is retry a few times, reset the device,
+retry again, reset the scsi bus, and then the kernel would crash
+or hang forever. Maybe things are better today, but one does
+not want to depend on complicated subsystems recovering
+from their errors. There must just not be any errors.
+
+In my situation yesterday night entirely different things play a role.
+This card has a mapping from logical to physical blocks, but a
+logical block only has a corresponding physical block when it has
+been written at least once. So readahead will ask for blocks that
+do not exist yet. (The driver that I put on ftp now recognizes this
+situation and returns an all zero block, instead of an error.)
+
+There are other situations where reading something has side effects.
+A very common side effect is time delay.
+
+So, for some devices I want to be able to kill read-ahead, even
+before the kernel looks at the partition table.
+Fortunately, I think that 2.5 will include the code that moves
+partition table reading code out of the kernel, so this is
+really possible.
+
+    If the driver is actually dying over the bad block, well, foo.
+
+    Yup.  Permitting a window size of zero is on my todo list,
+    but it would require that the device have a request queue.
+
+It has.
+
+Andries

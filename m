@@ -1,52 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbULWMgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbULWMjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbULWMgs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 07:36:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbULWMgs
+	id S261168AbULWMjn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 07:39:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbULWMjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 07:36:48 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:39825 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261175AbULWMgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 07:36:44 -0500
-Subject: Re: [PATCH 2.4] Fix rlimit check in precheck_file_write()
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jason Uhlenkott <jasonuhl@sgi.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041222215759.GA217560@dragonfly.engr.sgi.com>
-References: <20041222215759.GA217560@dragonfly.engr.sgi.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1103801367.13188.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 23 Dec 2004 11:29:33 +0000
+	Thu, 23 Dec 2004 07:39:43 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:12930 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261168AbULWMjj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 07:39:39 -0500
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, fastboot <fastboot@lists.osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       dipankar sarma <dipankar@in.ibm.com>
+Subject: Re: [PATCH] Secondary cpus boot-up for non defalut location built kernels
+References: <1103802944.8123.114.camel@2fwv946.in.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 23 Dec 2004 05:38:42 -0700
+In-Reply-To: <1103802944.8123.114.camel@2fwv946.in.ibm.com>
+Message-ID: <m1k6r9ur3h.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-12-22 at 21:57, Jason Uhlenkott wrote:
-> Remove a broken assumption that rlimits are 32 bits which can cause
-> nasty things to happen on 64-bit machines if we try to write past the
-> 2^32-1th character of a file and a larger file size limit exists.
+Vivek Goyal <vgoyal@in.ibm.com> writes:
+
+> Hi,
 > 
-> Signed-off-by: Jason Uhlenkott <jasonuhl@sgi.com>
+> This patch fixes the problem of secondary cpus boot up. This situation
+> is faced when kernel is built for non default locations like 16MB and
+> onwards. In this configuration, only primary cpu (BP) comes and
+> secondary cpus don't boot.
 > 
-> --- linux-2.4.29-pre3.orig/mm/filemap.c	2004-11-17 03:54:22.000000000 -0800
-> +++ linux-2.4.29-pre3/mm/filemap.c	2004-12-22 13:41:46.000000000 -0800
-> @@ -3088,9 +3088,9 @@
->  			send_sig(SIGXFSZ, current, 0);
->  			goto out;
->  		}
-> -		if (pos > 0xFFFFFFFFULL || *count > limit - (u32)pos) {
-> +		if (*count > limit - pos) {
->  			/* send_sig(SIGXFSZ, current, 0); */
-> -			*count = limit - (u32)pos;
-> +			*count = limit - pos;
->  		}
+> Problem occurs because in trampoline code, lgdt is not able to load the
+> GDT as it happens to be situated beyond 16MB. This is due to the fact
+> that cpu is still in real mode and default operand size is 16bit.
 
-Are you sure this is safe for all conceivable 32bit cases as well as
-your 64bit one ? I don't think it is looking at the overflow cases in
-the if that you removed checking of.
+Which means that the cpu will load a 24bit linear address (3 bytes)
+because it is acting like a 286.
+ 
+> This patch uses lgdtl instead of lgdt to force operand size to 32
+> instead of 16.
 
-Alan
+Sounds sane looking at the trampoline I suspect that people thought
+it was using a 32bit address all along.  And the code only worked
+because the data was stored little endian.  We probably want to apply
+the same fix to the ldt instruction just about it.  Just in case
+we ever decide to populate an idt at that point.
 
+But the fix certainly looks good from here.
+
+Eric
+
+
+> Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+> ---
+> 
+>  linux-2.6.10-rc3-mm1-changes-root/arch/i386/kernel/trampoline.S | 8 +++++++-
+> 
+>  1 files changed, 7 insertions(+), 1 deletion(-)
+> 
+> diff -puN arch/i386/kernel/trampoline.S~boot_ap_for_nondefault_kernel
+> arch/i386/kernel/trampoline.S
+> 
+> ---
+> linux-2.6.10-rc3-mm1-changes/arch/i386/kernel/trampoline.S~boot_ap_for_nondefault_kernel
+> 2004-12-22 16:36:50.000000000 +0530
+> 
+> +++ linux-2.6.10-rc3-mm1-changes-root/arch/i386/kernel/trampoline.S 2004-12-22
+> 16:47:54.000000000 +0530
+> 
+> @@ -51,8 +51,14 @@ r_base = .
+>  	movl	$0xA5A5A5A5, trampoline_data - r_base
+>  				# write marker for master knows we're running
+>  
+> +	/* GDT tables in non default location kernel can be beyond 16MB and
+> +	 * lgdt will not be able to load the address as in real mode default
+> +	 * operand size is 16bit. Use lgdtl instead to force operand size
+> +	 * to 32 bit.
+> +	 */
+> +
+>  	lidt	boot_idt - r_base	# load idt with 0, 0
+> -	lgdt	boot_gdt - r_base	# load gdt with whatever is appropriate
+> +	lgdtl	boot_gdt - r_base	# load gdt with whatever is appropriate
+>  
+>  	xor	%ax, %ax
+>  	inc	%ax		# protected mode (PE) bit
+> _

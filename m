@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbTIXOp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 10:45:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbTIXOp2
+	id S261284AbTIXOnp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 10:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbTIXOnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 10:45:28 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:38159 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261289AbTIXOp1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 10:45:27 -0400
-Date: Wed, 24 Sep 2003 16:43:54 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Linus Torvalds <torvalds@osdl.org>
-cc: andrea@kernel.org, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew Wilcox <willy@debian.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Larry McVoy <lm@bitmover.com>
-Subject: Re: log-buf-len dynamic
-In-Reply-To: <Pine.LNX.4.44.0309231924540.27467-100000@home.osdl.org>
-Message-ID: <Pine.LNX.4.44.0309241400250.8124-100000@serv>
-References: <Pine.LNX.4.44.0309231924540.27467-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 24 Sep 2003 10:43:45 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:56521 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261284AbTIXOno
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 10:43:44 -0400
+Subject: [patch] Fix bug in SELinux convert_context
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1064414610.20804.54.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 24 Sep 2003 10:43:30 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This patch fixes a bug introduced by earlier code cleanups in the
+SELinux convert_context code that manifests upon a policy reload that
+removes previously valid security attributes.  Thanks to Magosanyi Arpad
+for reporting the bug.
 
-On Tue, 23 Sep 2003, Linus Torvalds wrote:
+ security/selinux/ss/services.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletion(-)
 
-> See? You're not just being impolite; your complaints are actually morally 
-> offensive.
+Index: linux-2.6/security/selinux/ss/services.c
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/ss/services.c,v
+retrieving revision 1.28
+diff -u -r1.28 services.c
+--- linux-2.6/security/selinux/ss/services.c	17 Jul 2003 11:33:35 -0000	1.28
++++ linux-2.6/security/selinux/ss/services.c	24 Sep 2003 13:08:40 -0000
+@@ -896,13 +896,15 @@
+ 	struct user_datum *usrdatum;
+ 	char *s;
+ 	u32 len;
+-	int rc = -EINVAL;
++	int rc;
+ 
+ 	args = p;
+ 
+ 	rc = context_cpy(&oldc, c);
+ 	if (rc)
+ 		goto out;
++
++	rc = -EINVAL;
+ 
+ 	/* Convert the user. */
+ 	usrdatum = hashtab_search(args->newp->p_users.table,
 
-You think this is impolite? I've been quiet lately in these flame wars, 
-because I couldn't have staid that polite to an arrogant asshole, but I 
-won't stay quiet when Larry can now insult other developers and gets away 
-with it. If someone is whining around here, then it's only Larry. A lot of 
-people are contributing to the kernel, but he is the only one constantly 
-whining around that he should be treated special and makes silly threats.
-Can we please get cause and effect right here? Of course Larry is 
-completely free to choose whatever license he wants, but advertising a 
-stupid license in a free software environment will of course cause 
-disagreement and complaints. There is _nothing_ anyone but Larry can do 
-anything about it, but amazingly enough Larry manages to take every single 
-complaint as personal insult and makes all of the bk flame wars worse 
-than they already are.
-Andreas sig is about as offensive as a "Don't drink and drive" spot. The 
-bk license is problematic for a number of developers and it's very 
-important that new developers are made aware of the problems and not just 
-think it's cool to use bk because the mighty Linus is using it.
 
-bye, Roman
-
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

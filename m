@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262293AbSJDQMW>; Fri, 4 Oct 2002 12:12:22 -0400
+	id <S262102AbSJDPpg>; Fri, 4 Oct 2002 11:45:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262294AbSJDQMW>; Fri, 4 Oct 2002 12:12:22 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:9365 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S262293AbSJDQMU>; Fri, 4 Oct 2002 12:12:20 -0400
-Date: Fri, 4 Oct 2002 10:17:34 -0600
-Message-Id: <200210041617.g94GHY008334@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Greg KH <greg@kroah.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, hch@infradead.org
-Subject: Re: [BK PATCH] minor devfs cleanup for 2.5.40
-In-Reply-To: <20021003213908.GB1388@kroah.com>
-References: <20021003213908.GB1388@kroah.com>
+	id <S262103AbSJDPpg>; Fri, 4 Oct 2002 11:45:36 -0400
+Received: from 62-190-219-121.pdu.pipex.net ([62.190.219.121]:60168 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S262102AbSJDPpg>; Fri, 4 Oct 2002 11:45:36 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210041559.g94FxHmx007026@darkstar.example.net>
+Subject: Re: dont feed the trolls! Re: [lkml] an open letter to George Soros
+To: gmack@innerfire.net (Gerhard Mack)
+Date: Fri, 4 Oct 2002 16:59:17 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0210040958210.26375-100000@innerfire.net> from "Gerhard Mack" at Oct 04, 2002 09:59:58 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH writes:
-> Here's a changeset from Christoph Hellwig that removes some unneeded
-> code from the kernel core.  This was leftover from before devfs became
-> part of the main kernel tree, and was trying to do some naming fixups in
-> kernelspace.  If anyone still has machines using these names, their
-> startup scripts should be modified to use the "standard" devfs names.
+> > > Admittedly, I am exactly the disgruntled, bitter malcontent that would
+> > > raise such accusations. By the same token, such are the people that see
+> > > such things. I submit my technical works, and thier utter lack of
+> > > proliferation, for the interested reader to guage the validity of my
+> > > accusations, and whether my bitterness is sui generis or justified.
+> > > [...]
+> >
+> > Trolls got chops!
+> > ian
 > 
-> Please pull from:  http://linuxusb.bkbits.net/devfs-2.5
+> Esay fix:
+> 
+> :0 W
+> * ^(((From):)|( )).*rickh@Capaccess\.org
+> /dev/null
 
-NO! Dammit, you'll break everyone who is using these compact names to
-mount the root FS. Look more closely at the code you're trying to
-remove, and you'll see it's *not* used to avoid work in startup
-scripts. It's only used to create the devfs entry for the root FS.
+Sorry if this is off topic, but what on earth was this all about anyway?  Was it just trolling, or is their any truth in any of what he said?  Somebody please explain...
 
-This change is gratuitous. The code is __init code anyway, so doesn't
-contribute to bloat. And forcing people to migrate to the longer names
-isn't reasonable, as it chews up precious space on the kernel command
-line. I've had times where I ran out of space when I had too many
-options.
-
-Linus, please don't apply.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+John.

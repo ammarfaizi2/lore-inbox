@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264862AbUEJQru@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264867AbUEJQsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264862AbUEJQru (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 12:47:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264867AbUEJQru
+	id S264867AbUEJQsO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 12:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264868AbUEJQsD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 12:47:50 -0400
-Received: from ns.suse.de ([195.135.220.2]:47251 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264862AbUEJQrs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 12:47:48 -0400
-Subject: Re: Distributions vs kernel development
-From: Chris Mason <mason@suse.com>
-To: James Morris <jmorris@redhat.com>
-Cc: Andi Kleen <ak@muc.de>, Stephen Hemminger <shemminger@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Xine.LNX.4.44.0405101137310.1943-100000@thoron.boston.redhat.com>
-References: <Xine.LNX.4.44.0405101137310.1943-100000@thoron.boston.redhat.com>
-Content-Type: text/plain
-Message-Id: <1084207748.2583.36.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 10 May 2004 12:49:08 -0400
-Content-Transfer-Encoding: 7bit
+	Mon, 10 May 2004 12:48:03 -0400
+Received: from emulex.emulex.com ([138.239.112.1]:27320 "EHLO
+	emulex.emulex.com") by vger.kernel.org with ESMTP id S264867AbUEJQr5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 12:47:57 -0400
+Message-ID: <3356669BBE90C448AD4645C843E2BF28034F9304@xbl.ma.emulex.com>
+From: "Smart, James" <James.Smart@Emulex.com>
+To: "'Matthew Wilcox'" <willy@debian.org>
+Cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: [(re)Announce] Emulex LightPulse Device Driver
+Date: Mon, 10 May 2004 12:47:41 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-05-10 at 11:39, James Morris wrote:
-> On Fri, 7 May 2004, Andi Kleen wrote:
+The driver module name (in the sources, etc)is "lpfc". Only the project on
+SourceForge has the "lpfcxxxx" name.
+
+-- james
+
+> -----Original Message-----
+> From: Matthew Wilcox [mailto:willy@debian.org]
+> Sent: Monday, May 10, 2004 12:35 PM
+> To: Smart, James
+> Cc: 'linux-scsi@vger.kernel.org'; 'linux-kernel@vger.kernel.org'
+> Subject: Re: [(re)Announce] Emulex LightPulse Device Driver
 > 
-> > The reiserfs attribute patch has been submitted many times,
-> > but rejected for totally bogus reasons. You know who to complain to.
 > 
-> I'd really like to see the xattr + SELinux stuff go in, so that SELinux 
-> users can have filesystem labeling under Reiserfs.  I'll volunteer to help 
-> maintain this part of the code in mainline.
-
-Thanks James.  Andrew wanted to wait until 2.6.7-pre before sending the
-reiserfs acl bits to mainline; they have been sent up to Linus now.
-
--chris
-
-
+> On Sun, May 09, 2004 at 12:33:35AM -0400, Smart, James wrote:
+> > The source for the driver can be downloaded from it's 
+> project page on source
+> > forge - http://sourceforge.net/projects/lpfcxxxx/ . Be sure 
+> to download the
+> > 20040507 snapshot - and the version for the 2.6 kernel.
+> 
+> You might want to consider changing the name of this driver.  aic7xxx
+> trips a number of spamfilters, so maybe just lpfc would be a good name
+> for it?
+> 
+> -- 
+> "Next the statesmen will invent cheap lies, putting the blame upon 
+> the nation that is attacked, and every man will be glad of those
+> conscience-soothing falsities, and will diligently study 
+> them, and refuse
+> to examine any refutations of them; and thus he will by and 
+> by convince 
+> himself that the war is just, and will thank God for the better sleep 
+> he enjoys after this process of grotesque self-deception." -- 
+> Mark Twain
+> 

@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277247AbRJIOX0>; Tue, 9 Oct 2001 10:23:26 -0400
+	id <S277252AbRJIOZ4>; Tue, 9 Oct 2001 10:25:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277248AbRJIOXQ>; Tue, 9 Oct 2001 10:23:16 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:35857 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S277247AbRJIOXG>; Tue, 9 Oct 2001 10:23:06 -0400
-Date: Tue, 9 Oct 2001 11:01:31 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: BALBIR SINGH <balbir.singh@wipro.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: pre6 VM issues
-In-Reply-To: <3BC30701.2060908@wipro.com>
-Message-ID: <Pine.LNX.4.21.0110091057470.5604-100000@freak.distro.conectiva>
+	id <S277255AbRJIOZi>; Tue, 9 Oct 2001 10:25:38 -0400
+Received: from barn.holstein.com ([198.134.143.193]:43526 "EHLO holstein.com")
+	by vger.kernel.org with ESMTP id <S277252AbRJIOZ1>;
+	Tue, 9 Oct 2001 10:25:27 -0400
+Date: Tue, 9 Oct 2001 09:42:15 -0400
+Message-Id: <200110091342.f99DgFK02306@pcx4168.holstein.com>
+From: "Todd M. Roy" <troy@holstein.com>
+To: kaos@ocs.com.au
+Cc: todd_m_roy@yahoo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <27179.1002601458@kao2.melbourne.sgi.com> (message from Keith
+	Owens on Tue, 09 Oct 2001 14:24:18 +1000)
+Subject: Re: jbd_preclean_buffer_check.
+Reply-To: troy@holstein.com
+In-Reply-To: <27179.1002601458@kao2.melbourne.sgi.com>
+X-MIMETrack: Itemize by SMTP Server on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
+ 10/09/2001 10:24:53 AM,
+	Serialize by Router on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
+ 10/09/2001 10:24:54 AM,
+	Serialize complete at 10/09/2001 10:24:54 AM
+X-Priority: 3 (Normal)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yup.  Thanks a lot.  Sorry to waste your time.
+
+-- todd --
+
+>  X-Apparently-To: todd_m_roy@yahoo.com via web13603.mail.yahoo.com; 08 Oct 2001 21:24:27 -0700 (PDT)
+>  X-Track: 1: 40
+>  From: Keith Owens <kaos@ocs.com.au>
+>  Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+>     Andrew Morton <andrewm@uow.edu.au>
+>  Content-Type: text/plain; charset=us-ascii
+>  Date: Tue, 09 Oct 2001 14:24:18 +1000
+>  
+>  On Mon, 8 Oct 2001 21:05:51 -0700 (PDT), 
+>  Todd Roy <todd_m_roy@yahoo.com> wrote:
+>  >Sorry if this is old guys, but I just noticed
+>  >that modules loop.o and md.o are broken in at least
+>  >2.4.10-ac9
+>  >and ac10, if  CONFIG_EXT3_FS=Y, JBD_CONFIG=Y and
+>  >CONFIG_JBD_DEBUG=Y:
+>  >
+>  >typical modprobe output:
+>  >/lib/modules/2.4.10-ac10/kernel/drivers/md/md.o:
+>  >unresolved symbol jbd_preclean_buffer_check
+>  
+>  Work for me.  Did you get bitten by http://www.tux.org/lkml/#s8-8?  If
+>  that does not fix it, I need your complete .config plus your
+>  /proc/ksyms.
+>  
 
 
-On Tue, 9 Oct 2001, BALBIR SINGH wrote:
-
-> Most of the traditional unices maintained a pool for each subsystem
-> (this is really useful when u have the memory to spare), so not matter
-> what they use memory only from their pool (and if needed peek outside),
-> but nobody else used the memory from the pool.
-> 
-> I have seen cases where, I have run out of physical memory on my system,
-> so I try to log in using the serial console, but since the serial driver
-> does get_free_page (this most likely fails) and the driver complains back.
-> So, I had suggested a while back that important subsystems should maintain
-> their own pool (it will take a new thread to discuss the right size of
-> each pool).
-> 
-> Why can't Linux follow the same approach? especially on systems with a lot
-> of memory.
-
-There is nothing which avoids us from doing that (there is one reserved
-pool I remeber right now: the highmem bounce buffering pool, but that one
-is a special case due to the way Linux does IO in high memory and its only
-needed on _real_ emergencies --- it will be removed in 2.5, I hope).
-
-In general, its a better approach to share the memory and have a unified
-pool. If a given subsystem is not using its own "reversed" memory, another
-subsystems can use it.
-
-The problem we are seeing now can be fixed even without the reserved
-pools.
-
-
+**********************************************************************
+This footnote confirms that this email message has been swept by 
+MIMEsweeper for the presence of computer viruses.
+**********************************************************************

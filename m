@@ -1,70 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266322AbTAKJfE>; Sat, 11 Jan 2003 04:35:04 -0500
+	id <S266379AbTAKJfy>; Sat, 11 Jan 2003 04:35:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266379AbTAKJfE>; Sat, 11 Jan 2003 04:35:04 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:20187 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S266322AbTAKJfD>; Sat, 11 Jan 2003 04:35:03 -0500
-Date: Sat, 11 Jan 2003 10:43:45 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.56
-Message-ID: <20030111094345.GI10486@fs.tum.de>
-References: <Pine.LNX.4.44.0301101222510.1856-100000@penguin.transmeta.com>
+	id <S266460AbTAKJfy>; Sat, 11 Jan 2003 04:35:54 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14854 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266379AbTAKJfw>; Sat, 11 Jan 2003 04:35:52 -0500
+Date: Sat, 11 Jan 2003 09:44:35 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Alexander Koch <efraim@clues.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: getting my serial ports back? ;-)
+Message-ID: <20030111094435.A14987@flint.arm.linux.org.uk>
+Mail-Followup-To: Alexander Koch <efraim@clues.de>,
+	linux-kernel@vger.kernel.org
+References: <20030111101241.GA3589@clues.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301101222510.1856-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030111101241.GA3589@clues.de>; from efraim@clues.de on Sat, Jan 11, 2003 at 11:12:42AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 10, 2003 at 12:26:56PM -0800, Linus Torvalds wrote:
+On Sat, Jan 11, 2003 at 11:12:42AM +0100, Alexander Koch wrote:
+> devfs: v1.22 (20021013) Richard Gooch (rgooch@atnf.csiro.au)
+> devfs: boot_options: 0x1
+> pnp: the driver 'serial' has been registered
+> pnp: pnp: match found with the PnP device '00:0f' and the driver 'serial'
+> pnp: the device '00:0f' has been activated
+> devfs_register(tts/2): could not append to parent, err: -17
+> tts/2 at I/O 0x3e8 (irq = 4) is a 16550A
+> pnp: pnp: match found with the PnP device '00:10' and the driver 'serial'
+> pnp: the device '00:10' has been activated
+> devfs_register(tts/3): could not append to parent, err: -17
+> tts/3 at I/O 0x2e8 (irq = 3) is a 16550A
 
->...
-> Summary of changes from v2.5.55 to v2.5.56
-> ============================================
->...
-> Dave Jones <davej@codemonkey.org.uk>:
->...
->   o [WATCHDOG] Add several new watchdog drivers from 2.4
->...
+Argh.  What I suspect has happened here is:
 
-FYI:
+- the serial driver probed the ports tts/0 and tts/1 at I/O 0x3f8 and
+  0x2f8, and found two UARTS there.  So it claimed IO resources at
+  these addresses.
 
-drivers/char/watchdog/sc1200wdt.c doesn't compile:
+  (please show earlier messages in the boot log to confirm this.)
 
-<--  snip  -->
+- PNP came along, and noticed that 0x3f8 and 0x2f8 were used, so re-
+  located the ports to 0x3e8 and 0x2e8, and told the serial driver
+  about them.
 
-...
-  gcc -Wp,-MD,drivers/char/watchdog/.sc1200wdt.o.d -D__KERNEL__ 
--Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=k6 -Iinclude/asm-i386/mach-default 
--nostdinc -iwithprefix include    -DKBUILD_BASENAME=sc1200wdt 
--DKBUILD_MODNAME=sc1200wdt   -c -o drivers/char/watchdog/sc1200wdt.o 
-drivers/char/watchdog/sc1200wdt.c
-drivers/char/watchdog/sc1200wdt.c: In function `sc1200wdt_isapnp_probe':
-drivers/char/watchdog/sc1200wdt.c:339: warning: implicit declaration of function `isapnp_find_dev'
-drivers/char/watchdog/sc1200wdt.c:339: warning: assignment makes pointer from integer without a cast
-drivers/char/watchdog/sc1200wdt.c:343: structure has no member named `prepare'
-drivers/char/watchdog/sc1200wdt.c:353: structure has no member named `activate'
-drivers/char/watchdog/sc1200wdt.c: In function `sc1200wdt_init':
-drivers/char/watchdog/sc1200wdt.c:427: structure has no member named `deactivate'
-drivers/char/watchdog/sc1200wdt.c: In function `sc1200wdt_exit':
-drivers/char/watchdog/sc1200wdt.c:440: structure has no member named `deactivate'
-make[3]: *** [drivers/char/watchdog/sc1200wdt.o] Error 1
+Since the serial driver knew there were ports at tts/0 and tts/1, it
+allocated tts/2 and tts/3 to the "PNP" ports.
 
-<--  snip  -->
+However, the original ports found are no longer at 0x3f8 and 0x2f8,
+and therefore no longer work.
 
-cu
-Adrian
+> That's coming from gpm startup, at least one of it, although
+> I have /dev/tts/0 in my gpm.conf... Ah, it's hardcoded in the
+> binary, it seems (doing a strings on it).
+
+A "get you working" fix should be to tell gpm.conf to use /dev/tts/2
+
+As for the -17 (EEXIST) error with devfs, I'd need to see the other
+serial messages earlier in the boot log to work out what's going on,
+as well as the kernel version the messages came from.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

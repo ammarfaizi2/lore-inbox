@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319115AbSIJNcf>; Tue, 10 Sep 2002 09:32:35 -0400
+	id <S319118AbSIJNh1>; Tue, 10 Sep 2002 09:37:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319118AbSIJNcf>; Tue, 10 Sep 2002 09:32:35 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:4861 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319115AbSIJNcf>; Tue, 10 Sep 2002 09:32:35 -0400
-Subject: Re: [PATCH] 2.4.20-pre5-ac4: Add support for ALi 5451 gameport
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@redhat.com>
-In-Reply-To: <20020910073838.A6113@ucw.cz>
-References: <Pine.LNX.4.44.0209100118170.1462-100000@neptune.sol.net> 
-	<20020910073838.A6113@ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 10 Sep 2002 14:40:12 +0100
-Message-Id: <1031665212.31787.49.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S319121AbSIJNh1>; Tue, 10 Sep 2002 09:37:27 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:63970 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S319118AbSIJNh0>;
+	Tue, 10 Sep 2002 09:37:26 -0400
+Date: Tue, 10 Sep 2002 09:42:03 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Helge Hafting <helgehaf@aitel.hist.no>,
+       Rusty Russell <rusty@rustcorp.com.au>, Jens Axboe <axboe@suse.de>,
+       andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: Missing IDE partition 3 of 3 on 2.5.34?
+In-Reply-To: <3D7DE25F.3269EBF7@aitel.hist.no>
+Message-ID: <Pine.GSO.4.21.0209100940330.5825-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-10 at 06:38, Vojtech Pavlik wrote:
-> Very nice. I think this is for Alan. For normal 2.4, as you said,
-> the pcigame.c code isn't much useful, because doesn't cooperate well
-> with the trident.c code. For 2.5, pcigame code is embedded into
-> trident.c to make things simpler.
 
-I fixed that in 2.4 by making pcigame look for devices if the sound card
-isnt compiled in for them, otherwise provide pcigame_attach and
-pcigame_release functions that drivers can use to attach pci mmio
-joystick interfaces to their hardware. Works very nicely and saves
-embedded one completely in the other.
 
-Alan
+On Tue, 10 Sep 2002, Helge Hafting wrote:
+
+> I see the same thing.  Both of my IDE drives comes up without
+> the last partition. (Missing ide/host0/bus0/target0/lun0/part3
+> and ide/host0/bus1/target0/lun0/part7, loosing /usr and /usr/src
+> in my case.)
+> 
+> There's lots of updates in code that deals with partitions
+> and devfs, I couldn't find anything obvious wrong though.
+
+devfs side.  Fix:
+
+--- C34/fs/partitions/check.c	Mon Sep  9 20:39:52 2002
++++ /tmp/check.c	Tue Sep 10 09:39:47 2002
+@@ -327,7 +327,7 @@
+ 	devfs_auto_unregister(dev->disk_de, slave);
+ 	if (!(dev->flags & GENHD_FL_DEVFS))
+ 		devfs_auto_unregister (slave, dir);
+-	for (part = 1, p++; part < max_p; part++, p++)
++	for (part = 1; part < max_p; part++, p++)
+ 		if (p->nr_sects)
+ 			devfs_register_partition(dev, part);
+ #endif
 

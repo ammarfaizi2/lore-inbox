@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264290AbTLKBFb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 20:05:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264291AbTLKBFb
+	id S264285AbTLKBEA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 20:04:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTLKBEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 20:05:31 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:51212 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264290AbTLKBEe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 20:04:34 -0500
+	Wed, 10 Dec 2003 20:04:00 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:51695 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264285AbTLKBD6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 20:03:58 -0500
+Message-Id: <200312110103.hBB13sK05386@zeus.kernel.org>
+Reply-To: "Patrick Noel" <patrick@wineparis.com>
+From: "Patrick Noel" <patrick@wineparis.com>
 To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: ide-scsi scheduling while atomic in linux-2.6.0-test11
-Date: 11 Dec 2003 00:53:13 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <br8f5p$uv7$1@gatekeeper.tmr.com>
-References: <3FD6AF84.5010805@samwel.tk>
-X-Trace: gatekeeper.tmr.com 1071103993 31719 192.168.12.62 (11 Dec 2003 00:53:13 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+Subject: OUHAOU !!!!!!!!!!!
+Date: Thu, 11 Dec 2003 02:03:50 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii";
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3FD6AF84.5010805@samwel.tk>, Bart Samwel  <bart@samwel.tk> wrote:
-| [1.] One line summary of the problem:
-| 
-| ide-scsi scheduling while atomic in linux-2.6.0-test11
-| 
-| [2.] Full description of the problem/report:
-| 
-| ide-scsi gives me "scheduling while atomic" while burning a CDRW in 
-| linux-2.6.0-test11, when an interrupt is lost. I have no clue what 
-| caused this; I was writing a CDRW that might have been faulty, but 
-| otherwise nothing unusual. The CDRW is a Samsung SW-408B on the 
-| secondary slave. While burning, I was extracting audio data from a CD in 
-| the DVD player that was on the secondary master.
 
-I can believe you might have lost an interrupt...
-| 
-| [3.] Keywords (i.e., modules, networking, kernel):
-| 
-| ide-scsi, cd-writing
-| 
-| [4.] Kernel version (from /proc/version):
-| 
-| Linux version 2.6.0-test11 (root@samwel.tk) (gcc version 3.3.2 (Debian)) 
-| #6 Sun Nov 30 22:25:31 CET 2003
+*** French ***
+Vous savez pourquoi la litière de votre chat sent mauvais ?
+Vous savez pourquoi votre chien n'a pas la forme ?
+Vous aimeriez éliminer les odeurs nauséabondes de la fumée de cigarettes ?
+Vous aimeriez avoir un chauffeur personnel 24h/24/ 7j/7 chauffeur/guide/homme à tout faire ? (pas chers) pour 1,2,3 personnes par voiture
+les prix restent identiques !!
+Venez voir ce tout nouveau site mais SERIEUX !!
+Et bien visitez nous !!
+http://www.wineparis.com
+PATRICK NOEL
 
-Linus posted a patch, which I hope has made it into bk by now, which may
-or may not help, but you are better investigating any issue using the
-lastest version.
-| 
-| [5.] Output of Oops.. message (if applicable) with symbolic information
-|       resolved (see Documentation/oops-tracing.txt)
-
-	[...snip...]
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+***english***
+Do you know what your dog and cat nedds ?
+You would like having a driver/guide in paris 7 days on 7 24hours on 24hours ? (cheap !) for 1,2,3 persons on a car the prices
+are the same !!!
+Well, visit this new but serious site !!!
+http://www.wineparis.com
+PATRICK NOEL

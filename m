@@ -1,70 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265141AbUBEM30 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 07:29:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbUBEM30
+	id S265149AbUBEMfb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 07:35:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265177AbUBEMfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 07:29:26 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:23745 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S265141AbUBEM3Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 07:29:24 -0500
-Date: Thu, 5 Feb 2004 13:29:21 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IPV4 as module?
-Message-ID: <20040205122921.GB28571@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040204200610.GB3802@localhost.localdomain>
+	Thu, 5 Feb 2004 07:35:31 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:58381 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265149AbUBEMf2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 07:35:28 -0500
+Date: Thu, 5 Feb 2004 12:35:25 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.2 and INI9100U
+Message-ID: <20040205123525.A31968@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Wojciech 'Sas' Cieciwa <cieciwa@alpha.zarz.agh.edu.pl>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58L.0402051400320.18104@alpha.zarz.agh.edu.pl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lUFOiBjYbj2M+tdK"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040204200610.GB3802@localhost.localdomain>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58L.0402051400320.18104@alpha.zarz.agh.edu.pl>; from cieciwa@alpha.zarz.agh.edu.pl on Thu, Feb 05, 2004 at 02:01:46PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 05, 2004 at 02:01:46PM +0100, Wojciech 'Sas' Cieciwa wrote:
+> 
+> Can anyone tell me why this driver is marked as broken ?
+> I build this, and this works fine.
 
---lUFOiBjYbj2M+tdK
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There's no error handling, so as soon as you hit some kind of bus
+error you're screwed.
 
-On Wed, 2004-02-04 23:06:10 +0300, Andrey Borzenkov <arvidjaar@mail.ru>
-wrote in message <20040204200610.GB3802@localhost.localdomain>:
-> Any technical reaon IPV4 cannot be built as module? Current kernel
-> barely fits on floopy (even with IDE as module); factoring out IPV4
-> would allow to reduce size even more.
-
-Some hard work need to be done to do that, but why shouldn't a kernel
-fit onto a floppy? My vmlinuz'es are at about 600 to 900 KB for i386 and
-a floppy can handle nearly about twice that size...
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---lUFOiBjYbj2M+tdK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAIjchHb1edYOZ4bsRAmolAJ9DDstwvdT5ukheKnJ/ZZkfiyTn/wCcCfNe
-FyHQguBdVvAVh6ecwsu9O00=
-=mC2A
------END PGP SIGNATURE-----
-
---lUFOiBjYbj2M+tdK--

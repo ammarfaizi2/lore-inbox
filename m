@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318891AbSHEWjP>; Mon, 5 Aug 2002 18:39:15 -0400
+	id <S318912AbSHEWlW>; Mon, 5 Aug 2002 18:41:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318900AbSHEWjP>; Mon, 5 Aug 2002 18:39:15 -0400
-Received: from RJ226120.user.veloxzone.com.br ([200.165.226.120]:10624 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S318891AbSHEWjO>; Mon, 5 Aug 2002 18:39:14 -0400
-Subject: Re: Bug at page_alloc.c:183
-From: Victor Bogado da Silva Lins <victor@bogado.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1028485038.14196.37.camel@irongate.swansea.linux.org.uk>
-References: <1028479242.2599.28.camel@victor.bogado> 
-	<1028485038.14196.37.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 05 Aug 2002 19:43:06 -0300
-Message-Id: <1028587386.1761.4.camel@victor.bogado>
-Mime-Version: 1.0
+	id <S318913AbSHEWlW>; Mon, 5 Aug 2002 18:41:22 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:47822 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S318912AbSHEWlV>; Mon, 5 Aug 2002 18:41:21 -0400
+Date: Tue, 6 Aug 2002 00:44:51 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Alan Cox <alan@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-ac4
+In-Reply-To: <200208051147.g75Blh720012@devserv.devel.redhat.com>
+Message-ID: <Pine.NEB.4.44.0208060039100.27501-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-08-04 at 15:17, Alan Cox wrote:
-> On Sun, 2002-08-04 at 17:40, Victor Bogado da Silva Lins wrote:
-> > Aug  4 12:44:59 victor kernel: invalid operand: 0000
-> > Aug  4 12:44:59 victor kernel: CPU:    0
-> > Aug  4 12:44:59 victor kernel: EIP:    0010:[<c0130031>]    Tainted: P
-> 
-> Take it up with Nvidia or duplicate the problem on a box that has never
-> had the module loaded from a cold boot onwards
+Hi Alan,
 
-Made the same test without the NVidia card at all, I booted in single
-user mode with a PCI all in wonder board I had here, started the network
-and tried again I got a similar kernel bug, since I didn't have a logger
-deamon running I just got a few lines of the bug :
+trying to compile a kernel with CONFIG_BLK_DEV_HD enabled fails with the
+following error:
 
-kernel BUG at page_alloc.c:183!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c0130031>]    Not tainted
-EFLAGS: 00010086
-eax: 0000007e   ebx: c10005f0   ecx: 00000000   edx: 0000001f
-esi: c0283f00   edi: 00000001   ebp: 00000000   esp: cae39ee0
-ds: 0018   es: 0018   ss: 0018
-Process tar (pid: 4227, stackpage=cae39000)
+<--  snip  -->
 
-	This test was made in run level 1, with almost nothing runing beside
-the garnome compilation.
+...
+gcc -D__KERNEL__
+-I/home/bunk/linux/kernel-2.4/linux-2.4.19-full-nohotplug/inclu
+de -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
+-fno-common
+ -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc -I
+/usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=hd  -c -o hd.o hd.c
+hd.c: In function `dump_status':
+hd.c:210: warning: implicit declaration of function `IN_BYTE'
+...
+        --end-group \
+        -o vmlinux
+drivers/ide/idedriver.o: In function `dump_status':
+drivers/ide/idedriver.o(.text+0x68): undefined reference to `IN_BYTE'
+drivers/ide/idedriver.o: In function `reset_controller':
+drivers/ide/idedriver.o(.text+0x55e): undefined reference to `IN_BYTE'
+make: *** [vmlinux] Error 1
+
+<--  snip  -->
+
+
+cu
+Adrian
 
 -- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

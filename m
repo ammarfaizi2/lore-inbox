@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318794AbSHRAvT>; Sat, 17 Aug 2002 20:51:19 -0400
+	id <S318809AbSHRAxg>; Sat, 17 Aug 2002 20:53:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318796AbSHRAvS>; Sat, 17 Aug 2002 20:51:18 -0400
-Received: from bitmover.com ([192.132.92.2]:58018 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S318794AbSHRAvS>;
-	Sat, 17 Aug 2002 20:51:18 -0400
-Date: Sat, 17 Aug 2002 17:55:17 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>, Dax Kelson <dax@gurulabs.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Does Solaris really scale this well?
-Message-ID: <20020817175517.A31128@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
-	Matti Aarnio <matti.aarnio@zmailer.org>,
-	Dax Kelson <dax@gurulabs.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20020817182715.GC32427@mea-ext.zmailer.org> <Pine.LNX.4.44.0208172358460.3111-100000@sharra.ivimey.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0208172358460.3111-100000@sharra.ivimey.org>; from Ruth.Ivimey-Cook@ivimey.org on Sun, Aug 18, 2002 at 12:03:24AM +0100
+	id <S318816AbSHRAxg>; Sat, 17 Aug 2002 20:53:36 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:5129 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S318809AbSHRAxg>; Sat, 17 Aug 2002 20:53:36 -0400
+Date: Sun, 18 Aug 2002 10:57:06 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Alan Cox <alan@redhat.com>
+cc: Jeff Dike <jdike@karaya.com>, "David S. Miller" <davem@redhat.com>,
+       <kuznet@ms2.inr.ac.ru>, Andi Kleen <ak@muc.de>,
+       <linux-kernel@vger.kernel.org>, Matthew Wilcox <willy@debian.org>
+Subject: Re: [PATCH][RFC] sigurg/sigio cleanup for 2.5.31
+In-Reply-To: <200208171816.g7HIGl611376@devserv.devel.redhat.com>
+Message-ID: <Mutt.LNX.4.44.0208181055390.6481-100000@blackbird.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 18, 2002 at 12:03:24AM +0100, Ruth Ivimey-Cook wrote:
-> >> "When you take a 99-way UltraSPARC III machine and add a 100th processor, 
-> >> you get 94 percent linear scalability. You can't get 94 percent linear 
-> >> scalability on your first Intel chip. It's very, very hard to do, and they 
-> >> have not done it."
-> 
-> I've seen scientific reports of scalability that good in non-shared memory
-> computers (mostly in transputer arrays) where (with a scalable algorithm)
-> unless you got >90% you were doing something wrong.  However, if you insist on
-> sharing main memory, I still don't believe you can get anywhere near that...
-> IMO 30% is doing very well once past the first few CPUs.
+On Sat, 17 Aug 2002, Alan Cox wrote:
 
-Please reconsider your opinion.  Both Sun and SGI scale past 100 CPUs on
-reasonable workloads in shared memory.  Where "reasonable" != easy to do.
+> Looks like the lock is needed - oh well
+> 
+
+It's still lockless in the sigio delivery path, which is where it 
+matters.
+
+
+- James
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+James Morris
+<jmorris@intercode.com.au>
+
+

@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316235AbSHOA5x>; Wed, 14 Aug 2002 20:57:53 -0400
+	id <S316223AbSHOA5H>; Wed, 14 Aug 2002 20:57:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316258AbSHOA5x>; Wed, 14 Aug 2002 20:57:53 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:41722 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316235AbSHOA5w>; Wed, 14 Aug 2002 20:57:52 -0400
-Subject: Re: RedHat 7.3 kernel fix
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matt Simonsen <matt_lists@careercast.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1029371653.26279.39.camel@mattswork>
-References: <1029371653.26279.39.camel@mattswork>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 15 Aug 2002 02:00:01 +0100
-Message-Id: <1029373201.28236.2.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S316235AbSHOA5H>; Wed, 14 Aug 2002 20:57:07 -0400
+Received: from central.caverock.net.nz ([210.55.207.1]:23827 "EHLO
+	central.caverock.net.nz") by vger.kernel.org with ESMTP
+	id <S316223AbSHOA5G>; Wed, 14 Aug 2002 20:57:06 -0400
+Date: Thu, 15 Aug 2002 11:45:40 +1200 (NZST)
+From: Eric Gillespie <viking@flying-brick.caverock.net.nz>
+To: Edward Coffey <ecoffey@alphalink.com.au>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: devfs_find_and_unregister fix (was Re: Linux 2.5.31)
+In-Reply-To: <20020814093927.GA361@spunk>
+Message-ID: <Pine.LNX.4.21.0208151142390.1877-100000@brick.flying-brick.caverock.net.nz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-15 at 01:34, Matt Simonsen wrote:
-> I did not install 2.4.18-4 which mentions the SMP kernel panic
-> explicitly - should I have installed this before the -5 kernel? From the
-> errata it seems the -4 is superseded by -5 implying I didn't need it.
+On Wed, 14 Aug 2002, Edward Coffey wrote:
 
-Correct
+:On Wed, Aug 14, 2002 at 08:09:05PM +1200, Eric Gillespie wrote:
+:> 
+:> In reply to:
+:> ecoffey at alphalink dot com dot au
+:> >devfs problem, make modules_install fails with
+:> > if [ -r System.map ]; then /sbin/depmod -ae -F System.map 2.5.31; fi
+:> >depmod: *** Unresolved symbols in
+:> >/lib/modules/2.5.31/kernel/sound/core/snd.o
+:> >depmod: devfs_find_and_unregister
+:> 
+:> fs/devfs/base.c,  Line 2315, add this:
+:> 
+:> --- fs/devfs/base_orig.c	Wed Aug 14 20:02:09 2002
+:> +++ fs/devfs/base.c	Tue Aug 13 18:51:23 2002
+:> @@ -2312,6 +2312,7 @@
+:>  EXPORT_SYMBOL(devfs_mk_symlink);
+:>  EXPORT_SYMBOL(devfs_mk_dir);
+:>  EXPORT_SYMBOL(devfs_get_handle);
+:> +EXPORT_SYMBOL(devfs_find_and_unregister);
+:>  EXPORT_SYMBOL(devfs_get_flags);
+:>  EXPORT_SYMBOL(devfs_set_flags);
+:>  EXPORT_SYMBOL(devfs_get_maj_min);
+:
+:Thanks :?) 
+:
 
-> Also, should I be using the drivers on Compaq's site? My previous setup
+Whoops - it's a patch file - sorry.  You know how to patch?
+Basically, the line number is mentioned, as well as the lines to ADD.
 
-Shouldnt need to for standard PC hardware
+I notice someone else on the list put the same thing up, so this is only
+duplication <grin> - my apologies if I threw you off guard.
 
-> At this point the machine known good hardware, although I moved some RAM
-> into it along with the OS move and I'm just not sure where to go. It's
+I'll CC: this to the kernel list too, just so they know I read it too 8-)
 
-So you moved some RAM and it started crashing randomly. Does it pass
-memtest 86 (3.0 or higher for ECC RAM)
-
-Alan
+-- 
+ /|   _,.:*^*:.,   |\           Cheers from the Viking family, 
+| |_/'  viking@ `\_| |            including Pippin, our cat
+|    flying-brick    | $FunnyMail  Bilbo   : Now far ahead the Road has gone,
+ \_.caverock.net.nz_/     5.39    in LOTR  : Let others follow it who can!
 

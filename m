@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262764AbUJ0Wth@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262674AbUJ0UMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262764AbUJ0Wth (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 18:49:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbUJ0WsW
+	id S262674AbUJ0UMf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 16:12:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbUJ0TzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 18:48:22 -0400
-Received: from gate.crashing.org ([63.228.1.57]:18411 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262746AbUJ0Won (ORCPT
+	Wed, 27 Oct 2004 15:55:12 -0400
+Received: from smtp.dei.uc.pt ([193.137.203.228]:44781 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S262628AbUJ0Txc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 18:44:43 -0400
-Subject: Re: Strange IO behaviour on wakeup from sleep
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <417FAE3F.20908@vmware.com>
-References: <417FAE3F.20908@vmware.com>
-Content-Type: text/plain
-Date: Thu, 28 Oct 2004 08:40:31 +1000
-Message-Id: <1098916831.9478.27.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Oct 2004 15:53:32 -0400
+Date: Wed, 27 Oct 2004 20:27:50 +0100 (WEST)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: hzhong@cisco.com, "'John Richard Moser'" <nigelenki@comcast.net>,
+       =?gb2312?B?J0VzcGVuIEZqZWxsduZyIE9sc2VuJw==?= <espenfjo@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: RE: My thoughts on the "new development model"
+In-Reply-To: <1098896367.6990.24.camel@laptop.fenrus.org>
+Message-ID: <Pine.LNX.4.61.0410272026450.11962@student.dei.uc.pt>
+References: <014d01c4bb7d$0baba180$ca41cb3f@amer.cisco.com>
+ <1098896367.6990.24.camel@laptop.fenrus.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UC-FCTUC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-FCTUC-DEI-MailScanner: Found to be clean
+X-MailScanner-From: marado@student.dei.uc.pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-27 at 07:18 -0700, Zachary Amsden wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> I would tend to be very suspicious of DMA not being restored correctly 
-> because on some systems, prior to or during suspend, DMA may be shutdown 
-> to conserve power.  There are changes afloat that touch suspend/resume, 
-> and there have been historical problems with DMA not being restored 
-> properly after wakeup on some laptops.
+On Wed, 27 Oct 2004, Arjan van de Ven wrote:
 
-DMA is restored, and the resulting is way slower than what PIO would
-explain anyway. I get less than 100Kb/sec !
+> I wouldn't mind doing some sort of bugfix kernel series it if people
+> think it'd be useful... but that's a big if.... the hard part of any
+> such tree is finding people who help testing, and yet the customers of
+> such a tree are those who only want proven stable stuff ;)
 
-(I wrote the IDE suspend/resume code and the driver for this chipset, so
-I'm fairly sure that side is ok, it didn't change for a while, but I'll
-double check in case Bart latest updates broke something).
+You're going to have testers/users for sure, specially if you're relases appear
+in kernel.org... That won't be your problem.
 
-> Although this may be another shot in the dark, it might rule out the DMA 
-> problem:  try cat /proc/ide/yourchipset before and after suspend and 
-> note any changes.  Failing that, use hdparm to turn off DMA before 
-> suspend and see if the performance suffers to the same degree as after 
-> wakeup.
+Mind Booster Noori
 
-Tried all of that.
+- -- 
+/* *************************************************************** */
+    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
+    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
+    () Join the ASCII ribbon campaign against html email, Microsoft
+    /\ attachments and Software patents.   They endanger the World.
+    Sign a petition against patents:  http://petition.eurolinux.org
+/* *************************************************************** */
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
 
-Ben.
-
+iD8DBQFBf/a4mNlq8m+oD34RAlSDAKDP5gtubpS6lH+ziMEzsCfjr+X4pwCeO37A
+F4Uw354WqtakT9fPJSIX0D4=
+=Gsrs
+-----END PGP SIGNATURE-----
 

@@ -1,36 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131828AbQKKStn>; Sat, 11 Nov 2000 13:49:43 -0500
+	id <S132101AbQKKS6d>; Sat, 11 Nov 2000 13:58:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131942AbQKKStd>; Sat, 11 Nov 2000 13:49:33 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:41234 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131828AbQKKSt3>;
-	Sat, 11 Nov 2000 13:49:29 -0500
-Date: Sat, 11 Nov 2000 19:47:07 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-Cc: Tigran Aivazian <tigran@veritas.com>, "H. Peter Anvin" <hpa@transmeta.com>,
-        Max Inux <maxinux@bigfoot.com>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
+	id <S132036AbQKKS6X>; Sat, 11 Nov 2000 13:58:23 -0500
+Received: from proxy4.ba.best.com ([206.184.139.15]:25874 "EHLO
+	proxy4.ba.best.com") by vger.kernel.org with ESMTP
+	id <S131942AbQKKS6K>; Sat, 11 Nov 2000 13:58:10 -0500
+Message-ID: <3A0D9690.E55465F4@best.com>
+Date: Sat, 11 Nov 2000 10:57:20 -0800
+From: Robert Lynch <rmlynch@best.com>
+Reply-To: rmlynch@best.com
+Organization: Carpe per diem
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, Peter Samuelson <peter@cadcamlab.org>
 Subject: Re: bzImage ~ 900K with i386 test11-pre2
-Message-ID: <20001111194707.A831@inspiron.suse.de>
-In-Reply-To: <20001111172610.A9140@inspiron.suse.de> <Pine.LNX.4.21.0011111644110.1036-100000@saturn.homenet>
-Mime-Version: 1.0
+In-Reply-To: <3A0C86B3.62DA04A2@best.com> <20001110234750.B28057@wire.cadcamlab.org> <20001111153036.A28928@gruyere.muc.suse.de> <3A0D89F7.1CDC3B68@best.com> <20001111193012.A30963@gruyere.muc.suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0011111644110.1036-100000@saturn.homenet>; from tigran@aivazian.fsnet.co.uk on Sat, Nov 11, 2000 at 04:46:09PM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 11, 2000 at 04:46:09PM +0000, Tigran Aivazian wrote:
-> I understand and agree with what you say except the number 4M. It is not
-> 4M but 8M, imho. See arch/i386/kernel/head.S
+Andi Kleen wrote:
+> 
+> On Sat, Nov 11, 2000 at 10:03:35AM -0800, Robert Lynch wrote:
+> > sys_nfsservctl                      80     1060     980  +1225.0
+> > dump_extended_fpu                    8       84      76  +950.00
+> > get_fpregs                          36      372     336  +933.33
+> > schedule_tail                       16      144     128  +800.00
+> > set_fpregs                          36      272     236  +655.56
+> > tty_release                         16      108      92  +575.00
+> > ext2_write_inode                    20      108      88  +440.00
+> > ...
+> >
+> > I have surpressed my momentary urge to post the whole thing, so
+> > as not to arouse the legendary ire of this list. :)
+> 
+> Ordering by byte delta is more useful than by Change to get the real
+> pigs, because Change gives high values even for relatively small changes
+> (like 8 -> 84)
+> 
+> Also note that some of the output is bogus due to inaccurate nm output
+> (bloat-o-meter relies on nm)
+> 
+> -Andi
 
-You're reading 2.4.x, I was reading 2.2.x.
+Yer right, here's a biggie I missed:
 
-Andrea
+stext_lock                        4344    29395   25051  +576.68
+
+Bob L. 
+-- 
+Robert Lynch-Berkeley CA USA-rmlynch@best.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbUBTRPA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 12:15:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbUBTRPA
+	id S261350AbUBTRXc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 12:23:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbUBTRXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 12:15:00 -0500
-Received: from fw.osdl.org ([65.172.181.6]:36804 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261348AbUBTRO6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 12:14:58 -0500
-Date: Fri, 20 Feb 2004 09:19:45 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Tridge <tridge@samba.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Jamie Lokier <jamie@shareable.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: explicit dcache <-> user-space cache coherency, sys_mark_dir_clean(),
- O_CLEAN
-In-Reply-To: <20040220170438.GA19722@elte.hu>
-Message-ID: <Pine.LNX.4.58.0402200911260.2533@ppc970.osdl.org>
-References: <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org>
- <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org>
- <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org>
- <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
- <20040220120417.GA4010@elte.hu> <Pine.LNX.4.58.0402200733350.1107@ppc970.osdl.org>
- <20040220170438.GA19722@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Feb 2004 12:23:32 -0500
+Received: from 104.engsoc.carleton.ca ([134.117.69.104]:49285 "EHLO
+	quickman.certainkey.com") by vger.kernel.org with ESMTP
+	id S261350AbUBTRXa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 12:23:30 -0500
+Date: Fri, 20 Feb 2004 12:14:27 -0500
+From: Jean-Luc Cooke <jlcooke@certainkey.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christophe Saout <christophe@saout.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
+Message-ID: <20040220171427.GD9266@certainkey.com>
+References: <20040219170228.GA10483@leto.cs.pocnet.net> <20040219111835.192d2741.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040219111835.192d2741.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 19, 2004 at 11:18:35AM -0800, Andrew Morton wrote:
+> Christophe Saout <christophe@saout.de> wrote:
+> >
+> > Hello,
+> > 
+> > since some people keep complaining that the IV generation mechanisms
+> > supplied in cryptoloop (and now dm-crypt) are insecure, which they
+> > somewhat are, I just hacked a small digest based IV generation mechanism.
+> > 
+> > It simply hashes the sector number and the key and uses it as IV.
+> > 
+> > You can specify the encryption mode as "cipher-digest" like aes-md5 or
+> > serpent-sha1 or some other combination.
 
+As for naming the cipher-hash as "aes-sha256", why not just go all the way
+and specify the mode of operation as well?
 
-On Fri, 20 Feb 2004, Ingo Molnar wrote:
+cipher-hash-modeop example: aes-sha256-cbc
+
+As for hashing the hey etc.  You should be using HMAC for that.
+  Christophe - would you like to change your patch to use HMACs?
+  http://www.faqs.org/rfcs/rfc2104.html
+
+Cheers,
+
+JLC
+
+> hmm.
 > 
-> there's another class of problems: is it an issue that directory renames
-> that move this directory (higher up in the directory hierarchy of this
-> directory) do not invalidate the cache? In that case there's no dnotify
-> event either.
+> > Consider this as a proposal, I'm not a crypto expert.
+> 
+> Me either.  But I believe that there are crypto-savvy people reading this
+> list.  Help would be appreciated.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-This is one of the reasons why I worry about user-space caching. It's just 
-damn hard to get right. 
-
-It's hard in kernel space too, of course, but we've had smart people
-working on the dcache for years. So if we can sanely avoid duplication, 
-that would be a good thing.
-
-		Linus
+-- 
+http://www.certainkey.com
+Suite 4560 CTTC
+1125 Colonel By Dr.
+Ottawa ON, K1S 5B6

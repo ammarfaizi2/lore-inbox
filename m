@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275079AbTHGFjD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 01:39:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275080AbTHGFjD
+	id S275103AbTHGFo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 01:44:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275105AbTHGFo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 01:39:03 -0400
-Received: from angband.namesys.com ([212.16.7.85]:60081 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S275079AbTHGFir
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 01:38:47 -0400
-Date: Thu, 7 Aug 2003 09:38:46 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Spurious -EIO when reading a file being written with O_DIRECT?
-Message-ID: <20030807053846.GC19048@namesys.com>
-References: <20030806110805.GG14457@namesys.com> <20030806144206.12a18557.akpm@osdl.org>
+	Thu, 7 Aug 2003 01:44:26 -0400
+Received: from ALille-209-1-12-194.w81-249.abo.wanadoo.fr ([81.249.41.194]:5649
+	"EHLO lenhof.homelinux.net") by vger.kernel.org with ESMTP
+	id S275103AbTHGFoZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 01:44:25 -0400
+Subject: Re: [2.6] system is very slow during disk access
+From: Jean-Yves LENHOF <jean-yves@lenhof.eu.org>
+To: linux-kernel@vger.kernel.org
+Cc: fsdeveloper@yahoo.de
+Content-Type: text/plain
+Message-Id: <1060235110.618.5.camel@mydebian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030806144206.12a18557.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 07 Aug 2003 07:45:10 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> I have massive problems with linux-2.6.0-test2. 
+> When some process writes something to disk, it's very hard 
+> to go on working with the system. 
+> 
+> 
+> Some test-szenario: 
+> $ dd if=/dev/zero of=./test.file 
+> 
+> 
+> While dd is running, xmms skips playing every now and then 
+> and the mouse is near to be unusable. The Mouse-cursor 
+> behaves some kind of very lazy and some times it jumps 
+> from one point on the display to another. 
+> When I stop disk-access, it works again quite fine. 
+> 
+> 
+> Would be cool, if you could give me some point to start 
+> for tracking this down. 
 
-On Wed, Aug 06, 2003 at 02:42:06PM -0700, Andrew Morton wrote:
-> >    We were reported a problem where if a file being written in directio mode
-> >     and being read at the same time (in "normal/buffered" mode), then reading
-> >     process gets -EIO when near the end of file.
-> > 
-> >     Initially I thought this is reiserfs-only problemm and digged in that
-> >     direction, but then it turned out reiserfs does everything correctly
-> >     and the VFS itself seems to be racey (my current suspiction is directio
-> >     process uses get_block() that extends the file <schedule> reading process
-> >     gets the buffer and submits io, then waits for page to become uptodate
-> >     <schedule> direct io process unmaps buffer's metadata
-> >     As a result - that page never becomes uptodate and we get -EIO from do_generic_file_read. )
-> >     If I take i_sem around call to do_generic_file_read in generic_file_read (in 2.4.21-pre10),
-> >     that of course helps (this is of course not a correct fix, but just a demonstration
-> >     that some VFS race is in place).
-> >     The same problem can be observed on ext2 in both 2.4.21-pre10 and in 2.6.0-test2
-> >     Attached is test_directio.c program, compile it and run with some filename as argument,
-> >     immediately start "tail" with same filename and you'd get almost immediate
-> >     I/O error from tail on 2.4 and you'd get same I/O error in 2.6 only after some more waiting.
-> >     Is this something known and expected (or may be somebody have a fix already? ;) )?
-> Test a current 2.4 kernel - it has lots of redone O_DIRECT-vs-buffered
-> locking.
+Maybe this is this one again...
 
-Stupid me.
-I mean I tested with 2.4.22-pre10 which is pretty current.
-I mean, there were no changes to buffers code in between 2.4.22-pre10 .. 2.4.22-rc1
+http://www.ussg.iu.edu/hypermail/linux/kernel/0307.1/2552.html
 
-> A 2.6 forward-port of that was done by Badari but I lost it and need to
-> find it again.
+Regards,
 
-Since it did not help 2.4.22 code, I think 2.6.0 won't benefit from it too.
-The testcase is really easy and everyone can reproduce the problem easily.
+Jean-Yves
 
-Bye,
-    Oleg

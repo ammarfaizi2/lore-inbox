@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264864AbSKEPhF>; Tue, 5 Nov 2002 10:37:05 -0500
+	id <S264877AbSKEPtY>; Tue, 5 Nov 2002 10:49:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264867AbSKEPhF>; Tue, 5 Nov 2002 10:37:05 -0500
-Received: from delphin.mathe.tu-freiberg.de ([139.20.24.12]:40201 "EHLO
-	delphin.mathe.tu-freiberg.de") by vger.kernel.org with ESMTP
-	id <S264864AbSKEPhC> convert rfc822-to-8bit; Tue, 5 Nov 2002 10:37:02 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Michael Dreher <dreher@math.tu-freiberg.de>
-To: Manuel Serrano <Manuel.Serrano@sophia.inria.fr>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Problem with USB-OHCI (2.4.20-pre10-ac2) and Sony Picturebook PCG-C1MHP
-Date: Tue, 5 Nov 2002 16:43:45 +0100
-X-Mailer: KMail [version 1.4]
-References: <20021105103602.7c1282fa.Manuel.Serrano@sophia.inria.fr>
-In-Reply-To: <20021105103602.7c1282fa.Manuel.Serrano@sophia.inria.fr>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211051643.45929.dreher@math.tu-freiberg.de>
+	id <S264878AbSKEPtY>; Tue, 5 Nov 2002 10:49:24 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:62352 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S264877AbSKEPtX>;
+	Tue, 5 Nov 2002 10:49:23 -0500
+Date: Tue, 5 Nov 2002 16:55:59 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tytso@mit.edu
+Subject: Re: naive but spectacular ext3 HTREE+Orlov benchmark
+Message-ID: <20021105155559.GA6765@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	tytso@mit.edu
+References: <20021105151702.GA5894@outpost.ds9a.nl> <1036512604.4827.93.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1036512604.4827.93.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Nov 05, 2002 at 04:10:04PM +0000, Alan Cox wrote:
+> On Tue, 2002-11-05 at 15:17, bert hubert wrote:
+> > Congratulations everybody, this is a major result! You can in fact *hear*
+> > the difference. With the Orlov allocator, seeks are much more higher pitched
+> > as if they are generally over shorter distances - which they probably are.
+> 
+> How does the Orlov allocator do if you continually randomly use and
+> reuse the file space for a long period of time - the current allocator
+> is pretty stable, does Orlov behave the same or degenerate ?
 
+This fs is in daily use, I'll keep an eye on it and rerun the benchmark
+above every once in a while. Luckily 2.5 is stable enough for me to run on
+my main computer.
 
+Although all my important stuff lives in cvs anyhow.
 
-> Here is the description of my third problems with my Sony Picturebook
-> PCG-C1MHP computer. 
+Regards,
 
->
-> [1.] One line summary of the problem:
-> =====================================
->
-> USB error message at boot-time and the USB mouse randomly disappears.
+bert
 
-
->
-> The second thing I'm doing is using an USB mouse.
-> This works but at a certain moment I "loose" the mouse. That is, after
-> a certain amount time that varies from one session to another (it can
-> be 5 minutes or event 5 hours). That is, after a certain period X does
-> not handle the USB mouse anymore. When this occurs, if I quite X and
-> restart X, the USB mouse re-work!
-
-I know this. (PCG-C1MRX). Did you try unplugging the mouse, and plugging 
-it back 3 seconds later ? This has always helped for me.
-
-
-Michael
-
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

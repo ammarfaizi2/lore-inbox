@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316088AbSHXMxk>; Sat, 24 Aug 2002 08:53:40 -0400
+	id <S316089AbSHXNH3>; Sat, 24 Aug 2002 09:07:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316089AbSHXMxk>; Sat, 24 Aug 2002 08:53:40 -0400
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:6278 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S316088AbSHXMxk>; Sat, 24 Aug 2002 08:53:40 -0400
-Message-ID: <3D6781AB.526434F6@wanadoo.fr>
-Date: Sat, 24 Aug 2002 14:52:59 +0200
+	id <S316113AbSHXNH3>; Sat, 24 Aug 2002 09:07:29 -0400
+Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:3028 "EHLO
+	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S316089AbSHXNH3>; Sat, 24 Aug 2002 09:07:29 -0400
+Message-ID: <3D6784F7.330E509C@wanadoo.fr>
+Date: Sat, 24 Aug 2002 15:07:03 +0200
 From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-pre2 i586)
 X-Accept-Language: fr-FR, en
@@ -38,17 +38,10 @@ Alan Cox wrote:
 > If so then my guess is there is a bug in the changing of the pci setup
 > code in 2.4.20pre2-ac3, which shouldnt be hard to figure out
 
-sorry for the late answer, I was not @home for one week.
+Sorry, I forgot,
 
-Attached to my ide ports are :
-on the primary channel : 1 ide disk,  QUANTUM FIREBALLP LM30
-                         1 ide disk,  ST3491A
+2.4.19 enables DMA correctly, as well as 2.4.20-pre1
 
-on the secondary channel : 1 cdrom reader, CREATIVECD3621E
-                           1 cdrom burner, GoldStar CD-RW CED-8083B
-
-The second HDD is not DMA
-
--------
-regards
+---------
+Regards
 	Jean-Luc

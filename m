@@ -1,81 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129314AbQLKX0b>; Mon, 11 Dec 2000 18:26:31 -0500
+	id <S129906AbQLKX3v>; Mon, 11 Dec 2000 18:29:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130801AbQLKX0X>; Mon, 11 Dec 2000 18:26:23 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:50682 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S129314AbQLKX0N>;
-	Mon, 11 Dec 2000 18:26:13 -0500
-Date: Mon, 11 Dec 2000 14:57:18 -0800
-From: Greg KH <greg@wirex.com>
-To: stackguard@immunix.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Patch for stackguard compiler and 2.2.18
-Message-ID: <20001211145718.E1273@wirex.com>
-Mail-Followup-To: Greg KH <greg@wirex.com>, stackguard@immunix.org,
-	linux-kernel@vger.kernel.org
+	id <S130067AbQLKX3l>; Mon, 11 Dec 2000 18:29:41 -0500
+Received: from freya.yggdrasil.com ([209.249.10.20]:9196 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S129906AbQLKX3b>; Mon, 11 Dec 2000 18:29:31 -0500
+Date: Mon, 11 Dec 2000 14:59:01 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: PATCH: linux-2.4.0-test12pre8/include/linux/module.h breaks sysklogd compilation
+Message-ID: <20001211145901.A8047@baldur.yggdrasil.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="2iBwrppp/7QCDedR"
+Content-Type: multipart/mixed; boundary="Nq2Wo0NMKNjxTN9z"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux 2.2.18-immunix (i686)
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---2iBwrppp/7QCDedR
+--Nq2Wo0NMKNjxTN9z
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Here's an update for my patch to enable the just released 2.2.18 kernel
-to compile with any of the different versions of the StackGuard
-compiler.
 
-If anyone has any problems with it, please let me know,
+	linux-2.4.0test12pre8/include/linux/module.h contains some
+kernel-specific declarations that now reference struct list_head, which
+which is only defined when __KERNEL__ is set.  This causes sysklogd
+and probably any other user level program that needs to include
+<linux/module.h> to fail to compile.
 
-greg k-h
+	The following patch brackets the (unused) offending declarations
+in #ifdef __KERNEL__...#endif.
 
 -- 
-greg@(kroah|wirex).com
-http://immunix.org/~greg
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
---2iBwrppp/7QCDedR
+--Nq2Wo0NMKNjxTN9z
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="canary-2.2.18.diff"
+Content-Disposition: attachment; filename="modules.diff"
 
-diff -Naur -X /home/greg/linux/dontdiff linux-2.2.18/Makefile linux-2.2.18-greg/Makefile
---- linux-2.2.18/Makefile	Sun Dec 10 16:49:41 2000
-+++ linux-2.2.18-greg/Makefile	Mon Dec 11 14:17:12 2000
-@@ -97,6 +97,12 @@
+Index: linux/include/linux/module.h
+===================================================================
+RCS file: /usr/src.repository/repository/linux/include/linux/module.h,v
+retrieving revision 1.2
+diff -u -r1.2 module.h
+--- linux/include/linux/module.h	2000/12/04 11:57:16	1.2
++++ linux/include/linux/module.h	2000/12/11 22:54:20
+@@ -168,6 +168,7 @@
+  * Keith Owens <kaos@ocs.com.au> 28 Oct 2000.
+  */
  
- CFLAGS = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
++#ifdef __KERNEL__
+ #define HAVE_INTER_MODULE
+ extern void inter_module_register(const char *, struct module *, const void *);
+ extern void inter_module_unregister(const char *);
+@@ -183,6 +184,7 @@
+ };
  
-+# if we have a StackGuard compiler, then we need to turn off the canary death handler stuff
-+CFLAGS		+= $(shell if $(CC) -fno-canary-all-functions -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-fno-canary-all-functions"; fi)
-+HOSTCFLAGS	+= $(shell if $(CC) -fno-canary-all-functions -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-fno-canary-all-functions"; fi)
-+CFLAGS		+= $(shell if $(CC) -mno-terminator-canary -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-mno-terminator-canary"; fi)
-+HOSTCFLAGS	+= $(shell if $(CC) -mno-terminator-canary -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-mno-terminator-canary"; fi)
-+
- # use '-fno-strict-aliasing', but only if the compiler can take it
- CFLAGS += $(shell if $(CC) -fno-strict-aliasing -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-fno-strict-aliasing"; fi)
+ extern int try_inc_mod_count(struct module *mod);
++#endif
  
-diff -Naur -X /home/greg/linux/dontdiff linux-2.2.18/arch/i386/boot/compressed/Makefile linux-2.2.18-greg/arch/i386/boot/compressed/Makefile
---- linux-2.2.18/arch/i386/boot/compressed/Makefile	Tue Jan  4 10:12:11 2000
-+++ linux-2.2.18-greg/arch/i386/boot/compressed/Makefile	Mon Dec 11 14:17:12 2000
-@@ -10,6 +10,11 @@
- OBJECTS = $(HEAD) misc.o
+ #if defined(MODULE) && !defined(__GENKSYMS__)
  
- CFLAGS = -O2 -DSTDC_HEADERS
-+
-+# if we have a StackGuard compiler, then we need to turn off the canary death handler stuff
-+CFLAGS += $(shell if $(CC) -fno-canary-all-functions -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-fno-canary-all-functions"; fi)
-+CFLAGS += $(shell if $(CC) -mno-terminator-canary -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-mno-terminator-canary"; fi)
-+
- ZLDFLAGS = -e startup_32
- 
- #
 
---2iBwrppp/7QCDedR--
+--Nq2Wo0NMKNjxTN9z--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

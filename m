@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286582AbRLUV3U>; Fri, 21 Dec 2001 16:29:20 -0500
+	id <S286592AbRLUVeU>; Fri, 21 Dec 2001 16:34:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286594AbRLUV3D>; Fri, 21 Dec 2001 16:29:03 -0500
-Received: from waste.org ([209.173.204.2]:57221 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S286582AbRLUV2u>;
-	Fri, 21 Dec 2001 16:28:50 -0500
-Date: Fri, 21 Dec 2001 15:28:41 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: Chris Wedgwood <cw@f00f.org>, "Eric S. Raymond" <esr@thyrsus.com>,
-        David Garfield <garfield@irving.iisd.sra.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy
-In-Reply-To: <20011221153136.G15926@redhat.com>
-Message-ID: <Pine.LNX.4.43.0112211438360.16844-100000@waste.org>
+	id <S286594AbRLUVeK>; Fri, 21 Dec 2001 16:34:10 -0500
+Received: from ns2.cypress.com ([157.95.67.5]:54685 "EHLO ns2.cypress.com")
+	by vger.kernel.org with ESMTP id <S286592AbRLUVeE>;
+	Fri, 21 Dec 2001 16:34:04 -0500
+Message-ID: <3C23AAC0.2030406@cypress.com>
+Date: Fri, 21 Dec 2001 15:33:52 -0600
+From: Thomas Dodd <ted@cypress.com>
+Organization: Cypress Semiconductor
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:0.9.6+) Gecko/20011211
+X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux KernelList <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help editorial policy
+In-Reply-To: <20011221153136.G15926@redhat.com> <Pine.LNX.4.33L.0112211835440.28489-100000@duckman.distro.conectiva> <20011221154750.I15926@redhat.com> <20011221210017.GB32465@weta.f00f.org> <20011221161030.L15926@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Dec 2001, Benjamin LaHaise wrote:
 
-> On Sat, Dec 22, 2001 at 09:10:33AM +1300, Chris Wedgwood wrote:
-> > And disks by the GB where GB == 1000^3 so I don't see any problem in
-> > moving from KB to KiB and friends ESPECIALLY AS THEY ARE STANDARDIZED
-> > BEYOND THE KERNEL and nothing will change this.
->
-> If you think GB == 1000^3, then please go "correct" all the DRAM
-> manufacturers out in the world.  They just sent me 1GB of ram and
-> it's coming up as 1073741824 bytes.  Please help!  They have no
-> option for GiB!!!
 
-If you think GB == 1024^3, then please go "correct" all the disk
-manufacturers out in the world.  They just sent me 1GB of disk and
-it's coming up as 1000000000 bytes.  Please help!  They have no
-option for GiB!!!
+Benjamin LaHaise wrote:
 
-It's already clear that the terminology is internally inconsistent, now we
-can either clarify it or live with the existing confusion.
+> GiB is not a useful standard because NOBODY USES IT.  When it's in 
+> common use, then consider applying it to the kernel, but please, 
+> not before then.
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+
+What better place to start "common use" then the kernel source.
+Let's lead the way, not wait around to follow others.
+
+Somebody has to be first, why not us?
+Then once it get more common, we will have
+been a leader forging into a brave new world :)
+
+	-Thomas
+
+Just my 2.8 KiB worth :)
+
+
 

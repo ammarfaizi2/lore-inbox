@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131412AbRAYQr7>; Thu, 25 Jan 2001 11:47:59 -0500
+	id <S131455AbRAYQst>; Thu, 25 Jan 2001 11:48:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131455AbRAYQrj>; Thu, 25 Jan 2001 11:47:39 -0500
-Received: from webmail.metabyte.com ([216.218.208.53]:29719 "EHLO
-	webmail.metabyte.com") by vger.kernel.org with ESMTP
-	id <S131412AbRAYQrh>; Thu, 25 Jan 2001 11:47:37 -0500
-Message-ID: <3A70588B.4692D937@metabyte.com>
-Date: Thu, 25 Jan 2001 08:47:07 -0800
-From: Pete Zaitcev <zaitcev@metabyte.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: patchlet for cs46xx
+	id <S132264AbRAYQsj>; Thu, 25 Jan 2001 11:48:39 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:10947 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131455AbRAYQsa>;
+	Thu, 25 Jan 2001 11:48:30 -0500
+Date: Thu, 25 Jan 2001 16:44:32 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: V Ganesh <ganesh@veritas.com>
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br, sct@redhat.com
+Subject: Re: inode->i_dirty_buffers redundant ?
+Message-ID: <20010125164432.A12984@redhat.com>
+In-Reply-To: <200101251047.QAA16434@vxindia.veritas.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Jan 2001 16:47:34.0967 (UTC) FILETIME=[847FA470:01C086EE]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200101251047.QAA16434@vxindia.veritas.com>; from ganesh@veritas.com on Thu, Jan 25, 2001 at 04:17:30PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for the nitpicking, bust since 2.4 is now "stable"...
--- Pete
+Hi,
 
-diff -ur -X dontdiff linux-2.4.0-ac9/drivers/sound/cs46xx.c linux-2.4.0-ac9-p3/drivers/sound/cs46xx.c
---- linux-2.4.0-ac9/drivers/sound/cs46xx.c	Sun Jan 14 15:27:58 2001
-+++ linux-2.4.0-ac9-p3/drivers/sound/cs46xx.c	Wed Jan 24 21:28:30 2001
-@@ -2726,7 +2726,7 @@
- 			cinfo.blocks = dmabuf->count/dmabuf->divisor >> dmabuf->fragshift;
- 			cinfo.ptr = dmabuf->hwptr/dmabuf->divisor;
- 			spin_unlock_irqrestore(&state->card->lock, flags);
--			return copy_to_user((void *)arg, &cinfo, sizeof(cinfo));
-+			return copy_to_user((void *)arg, &cinfo, sizeof(cinfo)) ? -EFAULT : 0;
- 		}
- 		return -ENODEV;
- 
-@@ -2757,7 +2757,7 @@
- 			    "cs46xx: GETOPTR bytes=%d blocks=%d ptr=%d\n",
- 				cinfo.bytes,cinfo.blocks,cinfo.ptr) );
- 			spin_unlock_irqrestore(&state->card->lock, flags);
--			return copy_to_user((void *)arg, &cinfo, sizeof(cinfo));
-+			return copy_to_user((void *)arg, &cinfo, sizeof(cinfo)) ? -EFAULT : 0;
- 		}
- 		return -ENODEV;
+On Thu, Jan 25, 2001 at 04:17:30PM +0530, V Ganesh wrote:
+
+> so i_dirty_buffers contains buffer_heads of pages coming from write() as
+> well as metadata buffers from mark_buffer_dirty_inode(). a dirty MAP_SHARED
+> page which has been write()n to will potentially exist in both lists.
+> won't doing a set_dirty_page() instead of buffer_insert_inode_queue() in
+> __block_commit_write() make things much simpler ? then we'd have i_dirty_buffers
+> having _only_ metadata, and all data pages in the i_mapping->*_pages lists.
+
+That would only complicate things: it would mean we'd have to scan
+both lists on fsync instead of just the one, for example.  There are a
+number of places where we need buffer lists for dirty data anyway,
+such as for bdflush's background sync to disk.  We also maintain the
+per-page buffer lists as caches of the virtual-to-physical mapping to
+avoid redundant bmap()ping.  So, removing the buffer_heads which alias
+the page cache data isn't an option.  Given that, it's as well to keep
+all the inode's dirty buffers in the one place.
+
+Cheers,
+ Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

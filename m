@@ -1,62 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270695AbTG0Iy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 04:54:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270696AbTG0Iy3
+	id S270697AbTG0JCB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 05:02:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270699AbTG0JCB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 04:54:29 -0400
-Received: from mailf.telia.com ([194.22.194.25]:60899 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id S270695AbTG0Iy2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 04:54:28 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-Cc: Oliver Neukum <oliver@neukum.org>,
-       USB Developers <linux-usb-devel@lists.sourceforge.net>,
-       Kernel Developer List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] System stalls using usb-storage
-References: <20030723200051.C18354@one-eyed-alien.net>
-	<200307270824.44851.oliver@neukum.org>
-	<20030726233545.B20751@one-eyed-alien.net>
-From: Peter Osterlund <petero2@telia.com>
-Date: 27 Jul 2003 11:09:22 +0200
-In-Reply-To: <20030726233545.B20751@one-eyed-alien.net>
-Message-ID: <m27k64z67x.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 27 Jul 2003 05:02:01 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:44302 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id S270697AbTG0JB7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 05:01:59 -0400
+Subject: Re: [PATCH] nvidia nforce 1.0-261 nvnet for kernel 2.5
+From: Laurens <masterpe@xs4all.nl>
+To: Rahul Karnik <rahul@genebrew.com>
+Cc: Marcelo Penna Guerra <eu@marcelopenna.org>,
+       Andrew de Quincey <adq_dvb@lidskialf.net>,
+       lkml <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <3F236A4A.2090302@genebrew.com>
+References: <200307262309.20074.adq_dvb@lidskialf.net>
+	 <3F235B73.70701@genebrew.com> <200307262326.49638.eu@marcelopenna.org>
+	 <3F236A4A.2090302@genebrew.com>
+Content-Type: text/plain
+Message-Id: <1059297415.3631.3.camel@lawbox.int.mpe.xs4all.nl>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 27 Jul 2003 11:16:55 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dharm <mdharm-kernel@one-eyed-alien.net> writes:
+Did you guys try out the patch for nvnet which can be found here:
 
-> On Sun, Jul 27, 2003 at 08:24:44AM +0200, Oliver Neukum wrote:
-> > Am Donnerstag, 24. Juli 2003 05:00 schrieb Matthew Dharm:
-> > > The question is, what is the best way to handle this.  I'm guessing that
-> > > increasing the priority of the usb-storage control thread will help, but
-> > > that's just a guess.  I'm not even sure how to go about doing that, tho...
-> > 
-> > A kernel thread in the block io path has to have a higher priority than
-> > any user task. Otherwise a priority inversion is possible.
-> 
-> Reasonable.  So, other than renice at the command line, how does one go
-> about setting this?
+http://www.nforcershq.com/forum/viewtopic.php?t=24127&sid=c91eb257d6f67e0346a33b9664cea22f
 
-Try this patch. The loop device thread is doing the same thing.
+This one worked flawless for me, dhcpcd (which is MAC dependend here)
+worked fine aswell.
 
-diff -puN drivers/usb/storage/usb.c~usb-priority drivers/usb/storage/usb.c
---- linux/drivers/usb/storage/usb.c~usb-priority	Sun Jul 27 10:56:02 2003
-+++ linux-petero/drivers/usb/storage/usb.c	Sun Jul 27 10:56:47 2003
-@@ -302,6 +302,8 @@ static int usb_stor_control_thread(void 
- 
- 	current->flags |= PF_IOTHREAD;
- 
-+	set_user_nice(current, -20);
-+
- 	unlock_kernel();
- 
- 	/* signal that we've started the thread */
+Laurens
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340

@@ -1,338 +1,179 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262149AbUCODNv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 22:13:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbUCODNu
+	id S262135AbUCODMa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 22:12:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbUCODMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 22:13:50 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:7025 "EHLO
-	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S262149AbUCODN3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 22:13:29 -0500
-Date: Sun, 14 Mar 2004 19:08:26 -0800
-From: Ya`akov N Miles <yehudi2@shaw.ca>
-Subject: Re: Fw: vidmode >0 causes CLI scrolling to not work properly
-In-reply-to: <20040314144139.3ecb4f24.akpm@osdl.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: James Simmons <jsimmons@infradead.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "Ya`akov N. Miles" <yehudi2@shaw.ca>
-Message-id: <40551E2A.30104@shaw.ca>
-Organization: Linux Kernel Hackers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-References: <20040314144139.3ecb4f24.akpm@osdl.org>
+	Sun, 14 Mar 2004 22:12:30 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48309 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262135AbUCODMZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 22:12:25 -0500
+Date: Sun, 14 Mar 2004 19:07:24 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Nivedita Singhvi <niv@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org, davem@redhat.com,
+       netdev@oss.sgi.com
+Subject: Re: [patch/RFC] networking menus
+Message-Id: <20040314190724.1af1f11d.rddunlap@osdl.org>
+In-Reply-To: <4055122D.8030809@us.ibm.com>
+References: <20040314163327.53102f46.rddunlap@osdl.org>
+	<4055122D.8030809@us.ibm.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> How does one "Set Vidmode > 0"?  What command is used?
-> 
-> Begin forwarded message:
-> 
-> Date: Sun, 14 Mar 2004 11:31:45 -0800
-> From: Ya`akov N Miles <yehudi2@shaw.ca>
-> To: linux-kernel@vger.kernel.org
-> Cc: "Ya`akov N. Miles" <yehudi2@shaw.ca>
-> Subject: vidmode >0 causes CLI scrolling to not work properly
-[snip]
-I like a vidmode 3 which gives 28 lines on the screen instead
-of the default vidmode 0 which only shows 24 linwa.  For the
-vidmode action to be successful you must have answered Y to
-"Video Mode Selection Support (VIDEO_SELECT) [Y/n/?]"
-when you did your 'make config' and answered all the questions.
-You can
-      # vidmode bzImage 3      Patches bzImage to video mode 3
-or add the kernal boot parameter
-      vga=3                    Kernel option parameter sets video mode 3
-to the kernal boot line as a kernel parameter.
-Symptoms are, I get 28 lines on the screen as asked for, but the cursor
-does not scroll when it reaches the bottom of the screen, rather, it
-disappears below the bottom of the screen, and you can't see what you
-are typing in.  Very annoying, as I find only vidmode 0 works for me,
-and it gives a 24-line tiny screen.
-> ------------------------------------------------------------------------
-> 
-> [1] Setting Vidmode > 0 causes BASH scrolling to hide the current line.
-> [2] Setting Vidmode > 0 with either rdev or as an argument to kernel mode
->     causes BASH scrolling to hide the most recent lines.  The screen starts
->     behaving OK, but then the cursor drops below the page of text and vanishes
->     taking the current line (on which you are typing) with it.
-> [3] Video Mode, scrolling, CLI interface, Bash
-> [4] I am running kernel linux-2.6.4
-> [5] Not an OOPs so not applicable.
-> [6] Not applicable
-> [7.1] Processor
-> Linux pentium1 2.6.4 #8 Sun Mar 14 02:08:26 PST 2004 i686 unknown
->  
-> Gnu C                  2.95.3
-> Gnu make               3.79.1
-> util-linux             2.11r
-> mount                  2.11r
-> module-init-tools      0.9.14
-> e2fsprogs              1.27
-> jfsutils               1.0.18
-> reiserfsprogs          3.x.1b
-> xfsprogs               2.0.3
-> pcmcia-cs              3.1.33
-> quota-tools            3.09.
-> PPP                    2.4.1
-> nfs-utils              0.3.3
-> Linux C Library        2.2.5
-> Dynamic linker (ldd)   2.2.5
-> Procps                 100.
-> Net-tools              1.60
-> Kbd                    1.06
-> Sh-utils               2.0
-> Modules Loaded         sb sb_lib uart401 v_midi
-> pentium1:/usr/src/linux-2.6.4# exit
-> exit
-> 
-> [7.2] cpu_info
-> Script started on Sun Mar 14 11:05:12 2004
-> pentium1:/usr/src/linux-2.6.4# cat /proc/cpuinfo
-> processor	: 0
-> vendor_id	: GenuineIntel
-> cpu family	: 6
-> model		: 8
-> model name	: Pentium III (Coppermine)
-> stepping	: 10
-> cpu MHz		: 998.638
-> cache size	: 256 KB
-> fdiv_bug	: no
-> hlt_bug		: no
-> f00f_bug	: no
-> coma_bug	: no
-> fpu		: yes
-> fpu_exception	: yes
-> cpuid level	: 2
-> wp		: yes
-> flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-> bogomips	: 1966.08
-> 
-> [7.3] Loaded Modules
-> pentium1:/usr/src/linux-2.6.4# cat /proc/modules
-> sb 3936 1 - Live 0xf08f2000
-> sb_lib 43664 1 sb, Live 0xf090d000
-> uart401 9348 1 sb_lib, Live 0xf08fb000
-> v_midi 6596 0 - Live 0xf08ef000
-> pentium1:/usr/src/linux-2.6.4# exit
-> exit
-> 
-> Script done on Sun Mar 14 11:06:08 2004
-> 
-> [7.4] ioports and iomem
-> Script started on Sun Mar 14 11:06:21 2004
-> pentium1:/usr/src/linux-2.6.4# cat /proc/ioports
-> 0000-001f : dma1
-> 0020-0021 : pic1
-> 0040-005f : timer
-> 0060-006f : keyboard
-> 0080-008f : dma page reg
-> 00a0-00a1 : pic2
-> 00c0-00df : dma2
-> 00f0-00ff : fpu
-> 0170-0177 : ide1
-> 01f0-01f7 : ide0
-> 0220-022f : soundblaster
-> 02f8-02ff : serial
-> 0376-0376 : ide1
-> 0378-037a : parport0
-> 03c0-03df : vga+
-> 03f6-03f6 : ide0
-> 03f8-03ff : serial
-> 0400-040f : 0000:00:07.4
-> 0c00-0c7f : 0000:00:07.4
-> 0cf8-0cff : PCI conf1
-> 7000-8fff : PCI Bus #01
->   8800-88ff : 0000:01:00.0
-> c400-c4ff : 0000:00:0c.0
->   c400-c4ff : tulip
-> c800-c80f : 0000:00:0b.0
->   c800-c807 : ide2
->   c808-c80f : ide3
-> cc00-cc03 : 0000:00:0b.0
-> d000-d007 : 0000:00:0b.0
-> d400-d403 : 0000:00:0b.0
->   d402-d402 : ide2
-> d800-d807 : 0000:00:0b.0
->   d800-d807 : ide2
-> dc00-dcff : 0000:00:09.0
->   dc00-dcff : aic7xxx
-> ffa0-ffaf : 0000:00:07.1
->   ffa0-ffa7 : ide0
->   ffa8-ffaf : ide1
-> pentium1:/usr/src/linux-2.6.4# cat /pro oc/iomem
-> 00000000-0009fbff : System RAM
-> 0009fc00-0009ffff : reserved
-> 000a0000-000bffff : Video RAM area
-> 000c8000-000cc7ff : Extension ROM
-> 000cc800-000cefff : Extension ROM
-> 000f0000-000fffff : System ROM
-> 00100000-2ffeffff : System RAM
->   00100000-002dc1c5 : Kernel code
->   002dc1c6-003a1edf : Kernel data
-> 2fff0000-2fff7fff : ACPI Tables
-> 2fff8000-2fffffff : ACPI Non-volatile Storage
-> ddc00000-ddcfffff : PCI Bus #01
-> dde00000-dfefffff : PCI Bus #01
->   de000000-deffffff : 0000:01:00.0
->   dfeff000-dfefffff : 0000:01:00.0
-> dfff8000-dfffbfff : 0000:00:0b.0
-> dfffef00-dfffefff : 0000:00:0c.0
->   dfffef00-dfffefff : tulip
-> dffff000-dfffffff : 0000:00:09.0
->   dffff000-dfffffff : aic7xxx
-> e0000000-e3ffffff : 0000:00:00.0
-> fec00000-fec00fff : reserved
-> fee00000-fee00fff : reserved
-> ffff0000-ffffffff : reserved
-> pentium1:/usr/src/linux-2.6.4# exit
-> exit
-> 
-> Script done on Sun Mar 14 11:06:39 2004
-> 
-> [7.5] pci
-> Script started on Sun Mar 14 11:07:20 2004
-> pentium1:/usr/src/linux-2.6.4# lspci -vvv
-> 00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x] (rev c4)
-> 	Subsystem: Giga-byte Technology: Unknown device 5000
-> 	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-> 	Latency: 8
-> 	Region 0: Memory at e0000000 (32-bit, prefetchable) [size=64M]
-> 	Capabilities: [a0] AGP version 2.0
-> 		Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
-> 		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-> 	Capabilities: [c0] Power Management version 2
-> 		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP] (prog-if 00 [Normal decode])
-> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-> 	Latency: 0
-> 	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-> 	I/O behind bridge: 00007000-00008fff
-> 	Memory behind bridge: dde00000-dfefffff
-> 	Prefetchable memory behind bridge: ddc00000-ddcfffff
-> 	BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B-
-> 	Capabilities: [80] Power Management version 2
-> 		Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
-> 	Subsystem: Giga-byte Technology: Unknown device 5001
-> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
-> 	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 0
-> 	Capabilities: [c0] Power Management version 2
-> 		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06) (prog-if 8a [Master SecP PriP])
-> 	Subsystem: Giga-byte Technology: Unknown device 5002
-> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 32
-> 	Region 4: I/O ports at ffa0 [size=16]
-> 	Capabilities: [c0] Power Management version 2
-> 		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 00:07.4 SMBus: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
-> 	Subsystem: Giga-byte Technology: Unknown device 5003
-> 	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Interrupt: pin ? routed to IRQ 9
-> 	Capabilities: [68] Power Management version 2
-> 		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 00:09.0 SCSI storage controller: Adaptec AHA-2940U/UW/D / AIC-7881U
-> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 64 (2000ns min, 2000ns max), cache line size 08
-> 	Interrupt: pin A routed to IRQ 10
-> 	Region 0: I/O ports at dc00 [size=256]
-> 	Region 1: Memory at dffff000 (32-bit, non-prefetchable) [size=4K]
-> 	Expansion ROM at dffe0000 [disabled] [size=64K]
-> 
-> 00:0b.0 Unknown mass storage controller: Promise Technology, Inc. 20269 (rev 02) (prog-if 85)
-> 	Subsystem: Promise Technology, Inc.: Unknown device 4d68
-> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 64 (1000ns min, 4500ns max), cache line size 08
-> 	Interrupt: pin A routed to IRQ 9
-> 	Region 0: I/O ports at d800 [size=8]
-> 	Region 1: I/O ports at d400 [size=4]
-> 	Region 2: I/O ports at d000 [size=8]
-> 	Region 3: I/O ports at cc00 [size=4]
-> 	Region 4: I/O ports at c800 [size=16]
-> 	Region 5: Memory at dfff8000 (32-bit, non-prefetchable) [size=16K]
-> 	Expansion ROM at dffd0000 [disabled] [size=16K]
-> 	Capabilities: [60] Power Management version 1
-> 		Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 00:0c.0 Ethernet controller: Lite-On Communications Inc LNE100TX [Linksys EtherFast 10/100] (rev 25)
-> 	Subsystem: Lite-On Communications Inc: Unknown device c001
-> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR+ FastB2B-
-> 	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 64 (2000ns min, 14000ns max), cache line size 08
-> 	Interrupt: pin A routed to IRQ 11
-> 	Region 0: I/O ports at c400 [size=256]
-> 	Region 1: Memory at dfffef00 (32-bit, non-prefetchable) [size=256]
-> 	Expansion ROM at dffc0000 [disabled] [size=64K]
-> 	Capabilities: [44] Power Management version 1
-> 		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=220mA PME(D0-,D1+,D2+,D3hot+,D3cold+)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 1X/2X (rev 5c) (prog-if 00 [VGA])
-> 	Subsystem: ATI Technologies Inc Rage Pro Turbo AGP 2X
-> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
-> 	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Latency: 64 (2000ns min), cache line size 08
-> 	Interrupt: pin A routed to IRQ 11
-> 	Region 0: Memory at de000000 (32-bit, non-prefetchable) [size=16M]
-> 	Region 1: I/O ports at 8800 [size=256]
-> 	Region 2: Memory at dfeff000 (32-bit, non-prefetchable) [size=4K]
-> 	Expansion ROM at dfec0000 [disabled] [size=128K]
-> 	Capabilities: [50] AGP version 1.0
-> 		Status: RQ=255 SBA+ 64bit- FW- Rate=x1,x2
-> 		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-> 
-> pentium1:/usr/src/linux-2.6.4# exit
-> exit
-> 
-> Script done on Sun Mar 14 11:07:30 2004
-> 
-> [7.6] scsi
-> Script started on Sun Mar 14 11:08:48 2004
-> pentium1:/usr/src/linux-2.6.4# cat /proc/scsi/scsi
-> Attached devices:
-> Host: scsi0 Channel: 00 Id: 00 Lun: 00
->   Vendor: IBM      Model: DNES-309170W     Rev: SA30
->   Type:   Direct-Access                    ANSI SCSI revision: 03
-> Host: scsi0 Channel: 00 Id: 01 Lun: 00
->   Vendor: SEAGATE  Model: ST19171W         Rev: 0024
->   Type:   Direct-Access                    ANSI SCSI revision: 02
-> Host: scsi0 Channel: 00 Id: 02 Lun: 00
->   Vendor: ARCHIVE  Model: Python 04106-XXX Rev: 7270
->   Type:   Sequential-Access                ANSI SCSI revision: 02
-> Host: scsi0 Channel: 00 Id: 03 Lun: 00
->   Vendor: PLEXTOR  Model: CD-R   PX-W1210S Rev: 1.01
->   Type:   CD-ROM                           ANSI SCSI revision: 02
-> pentium1:/usr/src/linux-2.6.4# exit
-> exit
-> 
-> Script done on Sun Mar 14 11:08:56 2004
+On Sun, 14 Mar 2004 18:17:17 -0800 Nivedita Singhvi <niv@us.ibm.com> wrote:
 
--- 
-Linux -  In a world without walls and fences, who needs Windows and Gates?
-ftp site ftp.yehudi.ca <== Fast anonymous downloads of Linux Distributions
-web site http://www.sem40.ru  <== Russian language news site.  Cool scoops
-web site http://www.yaakov.ca <== Now powered by shaw.ca - Linux CDs $1 ea
+| Randy.Dunlap wrote:
+| 
+| > This is just a first pass/RFC.  It moves "Networking support" out of
+| > the "Device Drivers" menu, which seems helpful to me.  However,
+| > ISTM that it should really just be the "Networking options" here
+| > and not include Amateur Radio, IrDA, and Bluetooth support.
+| > I.e., I think that those latter 3 should fall under Device Drivers.
+| > Does that make sense to anyone else?
+| 
+| Just a comment that those 3 subsystems are not just
+| device drivers, they have non-trivial amount of code
+| in the protocol stack under ../net/. So would moving
+| them to device drivers be misleading in any way?
+| 
+| I can see pulling out Networking support from under
+| device drivers, though.
+
+Agreed, I looked again and those 3 should stay under
+"Networking support."  I'm still looking for other items
+to move to make it all easier to navigate.
+
+| > Does this need to be discussed on netdev (also)?
+| 
+| Yes. :)
+
+OK.  Thanks for cc-ing it.
+
+| thanks,
+| Nivedita
+| 
+| > 
+| > // Linux 2.6.4
+| > // Rearrange networking menus so that Networking support/options
+| > // isn't buried inside Device Drivers.
+|  >
+| > diffstat:=
+| >  drivers/Kconfig       |    4 +++-
+| >  init/Kconfig          |    0
+| >  net/Kconfig           |    6 ++----
+| >  net/ax25/Kconfig      |    7 ++-----
+| >  net/bluetooth/Kconfig |    4 +---
+| >  net/irda/Kconfig      |    6 ++----
+| >  6 files changed, 10 insertions(+), 17 deletions(-)
+| > 
+| > 
+| > diff -Naurp ./drivers/Kconfig~net_config ./drivers/Kconfig
+| > --- ./drivers/Kconfig~net_config	2004-03-10 18:55:44.000000000 -0800
+| > +++ ./drivers/Kconfig	2004-03-12 15:20:39.000000000 -0800
+| > @@ -1,5 +1,7 @@
+| >  # drivers/Kconfig
+| >  
+| > +source "net/Kconfig"
+| > +
+| >  menu "Device Drivers"
+| >  
+| >  source "drivers/base/Kconfig"
+| > @@ -28,7 +30,7 @@ source "drivers/message/i2o/Kconfig"
+| >  
+| >  source "drivers/macintosh/Kconfig"
+| >  
+| > -source "net/Kconfig"
+| > +source "drivers/net/Kconfig"
+| >  
+| >  source "drivers/isdn/Kconfig"
+| >  
+| > diff -Naurp ./net/bluetooth/Kconfig~net_config ./net/bluetooth/Kconfig
+| > --- ./net/bluetooth/Kconfig~net_config	2004-03-10 18:55:43.000000000 -0800
+| > +++ ./net/bluetooth/Kconfig	2004-03-12 15:41:42.000000000 -0800
+| > @@ -2,10 +2,8 @@
+| >  # Bluetooth subsystem configuration
+| >  #
+| >  
+| > -menu "Bluetooth support"
+| > +menuconfig BT
+| >  	depends on NET
+| > -
+| > -config BT
+| >  	tristate "Bluetooth subsystem support"
+| >  	help
+| >  	  Bluetooth is low-cost, low-power, short-range wireless technology.
+| > diff -Naurp ./net/irda/Kconfig~net_config ./net/irda/Kconfig
+| > --- ./net/irda/Kconfig~net_config	2004-03-10 18:55:27.000000000 -0800
+| > +++ ./net/irda/Kconfig	2004-03-12 15:39:39.000000000 -0800
+| > @@ -2,11 +2,9 @@
+| >  # IrDA protocol configuration
+| >  #
+| >  
+| > -menu "IrDA (infrared) support"
+| > +menuconfig IRDA
+| >  	depends on NET
+| > -
+| > -config IRDA
+| > -	tristate "IrDA subsystem support"
+| > +	tristate "IrDA (infrared) subsystem support"
+| >  	---help---
+| >  	  Say Y here if you want to build support for the IrDA (TM) protocols.
+| >  	  The Infrared Data Associations (tm) specifies standards for wireless
+| > diff -Naurp ./net/ax25/Kconfig~net_config ./net/ax25/Kconfig
+| > --- ./net/ax25/Kconfig~net_config	2004-03-10 18:55:44.000000000 -0800
+| > +++ ./net/ax25/Kconfig	2004-03-12 15:40:01.000000000 -0800
+| > @@ -6,9 +6,8 @@
+| >  #		Joerg Reuter DL1BKE <jreuter@yaina.de>
+| >  # 19980129	Moved to net/ax25/Config.in, sourcing device drivers.
+| >  
+| > -menu "Amateur Radio support"
+| > -
+| > -config HAMRADIO
+| > +menuconfig HAMRADIO
+| > +	depends on NET
+| >  	bool "Amateur Radio support"
+| >  	help
+| >  	  If you want to connect your Linux box to an amateur radio, answer Y
+| > @@ -109,5 +108,3 @@ source "drivers/net/hamradio/Kconfig"
+| >  
+| >  endmenu
+| >  
+| > -endmenu
+| > -
+| > diff -Naurp ./net/Kconfig~net_config ./net/Kconfig
+| > --- ./net/Kconfig~net_config	2004-03-10 18:55:21.000000000 -0800
+| > +++ ./net/Kconfig	2004-03-12 15:24:30.000000000 -0800
+| > @@ -2,9 +2,9 @@
+| >  # Network configuration
+| >  #
+| >  
+| > -menu "Networking support"
+| > +###menu "Networking support"
+| >  
+| > -config NET
+| > +menuconfig NET
+| >  	bool "Networking support"
+| >  	---help---
+| >  	  Unless you really know what you are doing, you should say Y here.
+| > @@ -650,8 +650,6 @@ endmenu
+| >  
+| >  endmenu
+| >  
+| > -source "drivers/net/Kconfig"
+| > -
+| >  source "net/ax25/Kconfig"
+| >  
+| >  source "net/irda/Kconfig"
+| > diff -Naurp ./init/Kconfig~net_config ./init/Kconfig
+| > -
+
+
+--
+~Randy

@@ -1,79 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265839AbRGFHIg>; Fri, 6 Jul 2001 03:08:36 -0400
+	id <S265562AbRGFHfb>; Fri, 6 Jul 2001 03:35:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264857AbRGFHI0>; Fri, 6 Jul 2001 03:08:26 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:28349 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S264193AbRGFHIQ>;
-	Fri, 6 Jul 2001 03:08:16 -0400
-Message-ID: <3B4563D5.89A1ACA3@mandrakesoft.com>
-Date: Fri, 06 Jul 2001 03:08:05 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
+	id <S265580AbRGFHfV>; Fri, 6 Jul 2001 03:35:21 -0400
+Received: from s2.relay.oleane.net ([195.25.12.49]:33035 "HELO
+	s2.relay.oleane.net") by vger.kernel.org with SMTP
+	id <S265562AbRGFHfH>; Fri, 6 Jul 2001 03:35:07 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [Acpi] Re: ACPI fundamental locking problems
+Date: Fri, 6 Jul 2001 09:34:59 +0200
+Message-Id: <20010706073459.5593@smtp.adsl.oleane.com>
+In-Reply-To: <Pine.LNX.4.33.0107050810400.22053-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0107050810400.22053-100000@penguin.transmeta.com>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
-To: Ville Nummela <ville.nummela@mail.necsom.com>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: tasklets in 2.4.6
-In-Reply-To: <7an16iy2wa.fsf@necsom.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ville Nummela wrote:
-> In kernel/softirq.c, line 178:
-> 
->                 if (test_bit(TASKLET_STATE_SCHED, &t->state))
->                         tasklet_schedule(t);
-> 
-> What's the idea behind this line? If the tasklet is already scheduled,
-> schedule it again? This does not make much sense to me.
-> 
-> Also, few lines before:
-> 
->                        if (test_bit(TASKLET_STATE_SCHED, &t->state))
->                                 goto repeat;
-> 
-> Here we'll loop forever if the tasklet should schedule itself.
+>
+>Nope.
+>
+>I do not want to maintain two interfaces. If we make user space the way to
+>do these things, then we will do pretty much most of the driver setup etc
+>in user space. We'd have to: we'd enter user space before drivers have had
+>a chance to initialize, exactly because "features like these" can change
+>the device mappings etc.
+>
+>And I don't want to have two completely different bootup paths.
 
-hmmm, it looks almost ok to me.
+I agree. Also, having this userland step would help for things like
+booting from an FireWire or USB hard disk. I hacked the SBP2 (FW)
+driver to be useable as a boot device, but this involved adding an
+ugly schedule() loop for a couple of seconds before mouting root
+in order to leave some time for the drive to be probed. Also, on
+such dynamic busses, you can't really know which device major/minor
+a given drive will be assigned.
 
-The tasklet is locked before the "repeat" label, so any tasklet
-scheduling itself will set the bit, but NOT actually schedule iteself. 
-For this see the tasket_schedule code, for the case where the bit is not
-set, but the tasklet is locked.
+Having a userland mecanism here would allow waiting for all devices
+to be probed, reading of the disk GUID (on fw at least) to figure
+out where is the real root device, etc... Even displaying a nice
+UI to let the user pick a root device is none is found, etc...
 
-The first statement above schedules the tasklet if the bit was set while
-the tasklet was locked.  The second statement, as the comment right
-above it indicates, causes the tasklet to repeat itself.
+So your idea fixes more than just the ACPI problems ;)
 
-The only thing that appears fishy is that if the tasklet constantly
-reschedules itself, it will never leave the loop AFAICS.  This affects
-tasklet_hi_action as well as tasklet_action.
-
-> repeat:
->                 if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
->                         BUG();
->                 if (!atomic_read(&t->count)) {
->                         local_irq_enable();
->                         t->func(t->data);
->                         local_irq_disable();
->                         /*
->                          * One more run if the tasklet got reactivated:
->                          */
->                         if (test_bit(TASKLET_STATE_SCHED, &t->state))
->                                 goto repeat;
->                 }
+Ben.
 
 
-	Jeff
-
-
--- 
-Jeff Garzik      | A recent study has shown that too much soup
-Building 1024    | can cause malaise in laboratory mice.
-MandrakeSoft     |

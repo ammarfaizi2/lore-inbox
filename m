@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVBHRTS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVBHRXu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbVBHRTS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 12:19:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbVBHRSM
+	id S261582AbVBHRXu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 12:23:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVBHRXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 12:18:12 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:17413 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261592AbVBHRRp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 12:17:45 -0500
-Message-Id: <200502081717.j18HHUoK011681@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Stelian Pop <stelian@popies.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto 
-In-Reply-To: Your message of "Tue, 08 Feb 2005 17:15:53 +0100."
-             <Pine.LNX.4.61.0502081714410.30794@scrub.home> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050203033459.GA29409@bitmover.com> <20050203220059.GD5028@deep-space-9.dsnet> <20050203222854.GC20914@bitmover.com> <20050204130127.GA3467@crusoe.alcove-fr> <20050204160631.GB26748@bitmover.com> <Pine.LNX.4.61.0502060025020.6118@scrub.home> <20050206173910.GB24160@bitmover.com> <Pine.LNX.4.61.0502061859000.30794@scrub.home> <20050207021030.GA25673@bitmover.com> <Pine.LNX.4.61.0502071516100.30794@scrub.home> <9e47339105020807585a5c4fc@mail.gmail.com>
-            <Pine.LNX.4.61.0502081714410.30794@scrub.home>
+	Tue, 8 Feb 2005 12:23:49 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:50100 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261582AbVBHRX0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 12:23:26 -0500
+Subject: Re: VM disk cache behavior.
+From: Robert Love <rml@novell.com>
+To: jon ross <jonross@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <e130a7170502080906596561d7@mail.gmail.com>
+References: <e130a7170502080906596561d7@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 08 Feb 2005 12:18:03 -0500
+Message-Id: <1107883084.23409.7.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1107883050_3999P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-Date: Tue, 08 Feb 2005 12:17:30 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1107883050_3999P
-Content-Type: text/plain; charset=us-ascii
+On Tue, 2005-02-08 at 12:06 -0500, jon ross wrote:
+> I have an app with a small fixed memory footprint that does a lot of
+> random reads from a large file. I thought if I added more memory to
+> the machine the VM would do more caching of the disk, but added memory
+> does not seem to make any difference. I played with some of the params
+> in /proc/sys/vm and none of them seem to have any effect.
+> 
+> I tired both a 2.4.20 & 2.6.10 kernels with no difference.
+> 
+> The machine is a Dell 2560. I tired memory configs of 512M, 1G, 4G and
+> the average read-times do not change.
+> 
+> Do I need to set/compile anything to allow the VM to use the memory?
+> If is was a way to tell how much memory the VM is using for a drive
+> cache I could at least tell if my kernel is miss-configured or my app
+> sucks.
 
-On Tue, 08 Feb 2005 17:15:53 +0100, Roman Zippel said:
+More memory will allow the kernel to keep more cache in memory.  You can
+see how much memory the kernel is using for cache with free(1).
 
-> Why should I pay for something, I could easily do myself in less time?
+That does not sound like your problem, though.  It sounds like you want
+the kernel to do more _read-ahead_, e.g. cache things _before_ you even
+need them (and then you might want more memory to actually keep all of
+the stuff alive in the cache, but that is a secondary problem).
+Unfortunately, since you are doing random reads, it is very hard for the
+kernel to do intelligent read-ahead.
 
-Why does the phrase "Shut up and code..." suddenly wander through my mind???
+What you can do is pre-fault the entire file into memory.  This is not a
+bad idea if you know you are going to ultimately read much of the file.
 
---==_Exmh_1107883050_3999P
-Content-Type: application/pgp-signature
+You can prefault the file automatically and asynchronously using
+posix_fadvise().  Example:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+	if (posix_fadvise (fd, 0, 0, POSIX_FADV_WILLNEED))
+		perror ("posix_fadvise");
 
-iD8DBQFCCPQpcC3lWbTT17ARAgphAKCGLcilzpXNfragok86/nUhk+2EQgCg0mUh
-bvytX59zwp2QoVkCPABc/yU=
-=lMUr
------END PGP SIGNATURE-----
+See posix_fadvise(2) for more information.
 
---==_Exmh_1107883050_3999P--
+It might also be faster to use mmap(1) over read(2).  Then you can use
+madvise().
+
+Best,
+
+	Robert Love
+
+

@@ -1,96 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261694AbSJAQwU>; Tue, 1 Oct 2002 12:52:20 -0400
+	id <S262255AbSJARKj>; Tue, 1 Oct 2002 13:10:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262194AbSJAQuR>; Tue, 1 Oct 2002 12:50:17 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:11535 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262183AbSJAQtf>; Tue, 1 Oct 2002 12:49:35 -0400
-Date: Tue, 1 Oct 2002 17:55:00 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: Re: [RFC] LSM changes for 2.5.38
-Message-ID: <20021001175500.A26635@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org,
-	linux-security-module@wirex.com
-References: <20020927003210.A2476@sgi.com> <Pine.GSO.4.33.0209270743170.22771-100000@raven> <20020927175510.B32207@infradead.org> <200209271809.g8RI92e6002126@turing-police.cc.vt.edu> <20020927191943.A2204@infradead.org> <200209271854.g8RIsPe6002510@turing-police.cc.vt.edu> <20020927195919.A4635@infradead.org> <200209301419.g8UEJI6E001699@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200209301419.g8UEJI6E001699@turing-police.cc.vt.edu>; from Valdis.Kletnieks@vt.edu on Mon, Sep 30, 2002 at 10:19:18AM -0400
+	id <S262252AbSJARK3>; Tue, 1 Oct 2002 13:10:29 -0400
+Received: from dsl-213-023-043-077.arcor-ip.net ([213.23.43.77]:23708 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S262239AbSJARIw>;
+	Tue, 1 Oct 2002 13:08:52 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: 2.4 mm trouble [possible lru race]
+Date: Tue, 1 Oct 2002 19:10:20 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Richard.Zidlicky@stud.informatik.uni-erlangen.de, <zippel@linux-m68k.org>,
+       <linux-m68k@lists.linux-m68k.org>, <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L.0210011356300.653-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.44L.0210011356300.653-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17wQXN-0005vL-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 30, 2002 at 10:19:18AM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 27 Sep 2002 19:59:19 BST, Christoph Hellwig said:
+On Tuesday 01 October 2002 18:56, Rik van Riel wrote:
+> On Tue, 1 Oct 2002, Daniel Phillips wrote:
+> > On Tuesday 01 October 2002 16:20, Richard.Zidlicky@stud.informatik.uni-erlangen.de wrote:
 > 
-> > insmod doesn't require modules to be in /lib/modules.
+> > > no preempt or anything fancy, m68k vanila 2.4.19 (well almost).
+> >
+> > Vanilla would be CONFIG_SMP=y, is that what you have?
 > 
-> This would probably be closed by this code in sys_create_module():
-> 
->         /* check that we have permission to do this */
->         error = security_ops->module_ops->create_module(name, size);
->         if (error)
->                 goto err1;
-> 
+> Somehow I doubt Linux supports m68k SMP machines ;)
 
-It wouldn't.  sys_create_module doesn't get the absolute path of the module passed.
+CONFIG_SMP=y works perfectly well on single cpu machines - it forces
+the spinlocks to actually exist.  It's not supposed to change any
+behaviour, but you never know.  Behaviour is obviously changing here.
 
-> Similarly, there are other hooks that will stop renaming of the interface (I
-> have to admit I haven't had enough caffeine to verify whether doing a /bin/mv
-> to rename an interface will change the name that's presented to the iptables
-> rulesets), or did you have other "rename" methods in mind?
-
-For gods sake, what interface do you want to /bin/mv?  network device don't have
-associated special files in Linux (or BSD).  I'm talking about SIOCSIFNAME.
-
-> However, you're missing the point - I was using that as *AN EXAMPLE* of "you
-> might want to check what parameters are being passed".  Are you prepared to
-> make the same sort of analysis for *EVERY* parameter of *every* module, and
-> every combination thereof (including interacting parameters of different
-> modules)?
-
-If I wanted to implement a trusted system: yes.  I you wanted and paid me
-enough for it: also yes.  And that's exactly my point.  If you want a
-trusted system you're not done by adding a few hooks in places that look
-strategic, you have to a proper audit of _all_ code in your project.
-
-Let me repeat _ALL_ code.  Yes, you have to understand WTF is going on,
-and that's where LSM fail miserably.
-
-> In order to assert that the hook to check parameters in module loading is
-> useless, you'd have to verify that there exist *NO* modules that can have their
-> security status changed by changing the parameters.
-
-Noooh!  You got something very wrong.  You (or rather the LSM people) want to
-add a new feature, and they have to prove it useful.  An as long as there is no
-standard on what a specific string in a module option means for the kernel
-in the end such a check is pretty damn useless.
-
-> And even more importantly,
-> you'd have to make this a permanent restriction on module parameters,
-> which puts the onus on "getting it right" on the module author, rather than
-> on the LSM author who's in a better position to know what is/isn't acceptable
-> for his module.
-
-How does the lsm author know what the option x=y means for my module?  In my
-module a it means print lots of nice windowish nagscreen, but in my friend
-Paul's module (who works for the German BND) it means scribble all over my
-disk because only someone who has stolen the notebook might be stupid
-enough to use such a silly option.
-
-See what I mean?
-
-
-> And quite a bit of thought *did* go into it - a *LOT* of those hooks got added
-> along the way precisely *because* the writers of a module found that they were
-> trying to enforce a policy, and found it could be backdoored by means like
-> module parameters.
-
->From my reading of the LSM lists a hgook usually got added because author A
-of the unaudited module B though that it might help him in imlpementing what
-he and only he thinks his module should do if it worked properly.
-
+-- 
+Daniel

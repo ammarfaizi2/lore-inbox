@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268295AbRHAVUz>; Wed, 1 Aug 2001 17:20:55 -0400
+	id <S268305AbRHAVWf>; Wed, 1 Aug 2001 17:22:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268310AbRHAVUr>; Wed, 1 Aug 2001 17:20:47 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:13040 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S268295AbRHAVUg>; Wed, 1 Aug 2001 17:20:36 -0400
-Message-ID: <3B68728C.7D23FFBC@mvista.com>
-Date: Wed, 01 Aug 2001 14:20:12 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: No 100 HZ timer !
-In-Reply-To: <3B683AC4.E0F2BF9E@mvista.com> <3B6859B2.F1E2C95B@nortelnetworks.com>
+	id <S268280AbRHAVWR>; Wed, 1 Aug 2001 17:22:17 -0400
+Received: from ns.caldera.de ([212.34.180.1]:7112 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S268305AbRHAVVI>;
+	Wed, 1 Aug 2001 17:21:08 -0400
+Date: Wed, 1 Aug 2001 23:18:55 +0200
+From: Christoph Hellwig <hch@caldera.de>
+To: Andries.Brouwer@cwi.nl
+Cc: alan@lxorguk.ukuu.org.uk, hch@caldera.de, torvalds@transmeta.com,
+        viro@math.psu.edu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vxfs fix
+Message-ID: <20010801231855.A16333@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk,
+	torvalds@transmeta.com, viro@math.psu.edu,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200108012103.VAA93890@vlet.cwi.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200108012103.VAA93890@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Wed, Aug 01, 2001 at 09:03:20PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen wrote:
+On Wed, Aug 01, 2001 at 09:03:20PM +0000, Andries.Brouwer@cwi.nl wrote:
+> Dear Linus, Alan, Al, Christoph, all,
 > 
-> george anzinger wrote:
-> 
-> > The testing I have done seems to indicate a lower overhead on a lightly
-> > loaded system, about the same overhead with some load, and much more
-> > overhead with a heavy load.  To me this seems like the wrong thing to
-> 
-> What about something that tries to get the best of both worlds?  How about a
-> tickless system that has a max frequency for how often it will schedule?  This
+> If one mounts without specifying a type, mount will try
+> all available types. After having tried vxfs the next type
+> will cause
+> 	set_blocksize: b_count 1 ...
+> since vxfs forgets to free a block.
+> The patch below adds the missing brelse().
+> (In fact there are more resources that are never freed there -
+> maybe the maintainer can have a look some time -
+> I only added a comment.)
 
-How would you do this?  Larger time slices?  But _most_ context switches
-are not related to end of slice.   Refuse to switch?  This just idles
-the cpu.
+Yes, I already hit that one time but forgot to fix it.
+I'll update vxfs to free all resources somewhen later this week.
 
-> would give the tickless advantage for big iron running many lightly loaded
-> virtual instances, but have some kind of cap on the overhead under heavy load.
-> 
-> Does this sound feasable?
-> 
-I don't think so.  The problem is that the test to see if the system
-should use one or the other way of doing things would, it self, eat into
-the overhead.
+Thanks for the catch!
 
-Note that we are talking about 0.12% over head for a ticked system.  Is
-it really worth it for what amounts to less than 0.05% (if that much)?
+> When mount continues to try all types, it may try V7.
+> That always succeeds, there is no test for magic or so,
+> and after garbage has been mounted as a V7 filesystem,
+> the kernel crashes or hangs or fails in other sad ways.
+> Have not tried to debug.
 
-George
+Maybe some sanity checks should be added?
+
+I'd like to propose:
+
+	s_nfree <= V7_NICFREE
+	s_ninode <= V7_NICINOD
+	s_time != 0
+
+Christoph
+
+-- 
+Of course it doesn't work. We've performed a software upgrade.

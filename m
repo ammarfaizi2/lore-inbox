@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbUDZPom@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262634AbUDZPvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262398AbUDZPom (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 11:44:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUDZPol
+	id S262634AbUDZPvN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 11:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbUDZPvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 11:44:41 -0400
-Received: from web41402.mail.yahoo.com ([66.218.93.68]:8622 "HELO
-	web41402.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262398AbUDZPoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 11:44:38 -0400
-Message-ID: <20040426154437.67657.qmail@web41402.mail.yahoo.com>
-Date: Mon, 26 Apr 2004 08:44:37 -0700 (PDT)
-From: Parag Nemade <cranium2003@yahoo.com>
-Subject: ping takes much time to myself?
-To: net dev <netdev@oss.sgi.com>
-Cc: kernerl mail <linux-kernel@vger.kernel.org>,
-       linux net <linux-net@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 26 Apr 2004 11:51:13 -0400
+Received: from mail.tmr.com ([216.238.38.203]:32787 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S262634AbUDZPvL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 11:51:11 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: Unable to read UDF fs on a DVD
+Date: Mon, 26 Apr 2004 11:52:25 -0400
+Organization: TMR Associates, Inc
+Message-ID: <408D3039.6090604@tmr.com>
+References: <20040423195004.GA1885@dreamland.darkstar.lan> <1082751675.3163.106.camel@patibmrh9> <20040424194727.GA3353@dreamland.darkstar.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1082994507 24391 192.168.12.100 (26 Apr 2004 15:48:27 GMT)
+X-Complaints-To: abuse@tmr.com
+Cc: Pat LaVarre <p.lavarre@ieee.org>, linux_udf@hpesjro.fc.hp.com,
+       linux-kernel@vger.kernel.org
+To: kronos@kronoz.cjb.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+In-Reply-To: <20040424194727.GA3353@dreamland.darkstar.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
-     i want to add my own variables with icmp header.
-so i modified icmp header and added 2 variables to
-make icmp header len is 16 bytes. but when i build
-kernel image and boot it and then ping to myself why
-am i still getting 8 bytes header i.e. 84 bytes packet
-and why not 92 bytes packet?
-56 bytes data + 16 bytes icmp header + 20 bytes ip
-header = 92 bytes
-also ping results shown below takes much time to ping
-myself. what gone wrong? how to make it behave like
-normal ping?
+Kronos wrote:
+> Il Fri, Apr 23, 2004 at 02:21:15PM -0600, Pat LaVarre ha scritto: 
+> 
+>>P.S. Five postscripts:
+>>
+>>1)
+>>
+>>
+>>>even with ide-scsi, though.
+>>
+>>Whoa.  You weren't engaging in the taboo act of running ide-scsi in 2.6
+>>back when ls failed, were you?
+> 
+> 
+> No, I wasn't. I'm aware that ide-scsi is not needed with 2.6. I had to
+> recompile the kernel with ide-scsi to make Philips fsck happy.
 
-[root@localhost root]# ping localhost
-PING localhost.localdomain (127.0.0.1) 56(84) bytes of
-data.
-64 bytes from localhost.localdomain (127.0.0.1):
-icmp_seq=1 ttl=64 time=1488806
-ms
-64 bytes from localhost.localdomain (127.0.0.1):
-icmp_seq=2 ttl=64 time=1489805
-ms
+I believe that it would be more correct to say that ide-scsi is not 
+required to burn CDs and DVDs, providing you use cdrecord which has been 
+modified to work with ide-cd. Since that's the major use it equates to 
+"not needed" if that's all you do.
 
---- localhost.localdomain ping statistics ---
-2 packets transmitted, 2 received, 0% packet loss,
-time 999ms
-rtt min/avg/max/mdev =
-1488806.484/1489305.976/1489805.469/500.981 ms
-[root@localhost root]#
-regards,
-parag.
+As you seem to note, some DVD burners don't work without ide-scsi unless 
+you have some tricks and/or patches, but do work with ide-scsi. Yes, 
+even in 2.6.
+
+I totally agree you should try to run without it, but I'd compile it as 
+a module in case you need some additional data points.
 
 
-	
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Photos: High-quality 4x6 digital prints for 25¢
-http://photos.yahoo.com/ph/print_splash
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292936AbSCFB0I>; Tue, 5 Mar 2002 20:26:08 -0500
+	id <S292901AbSCFB2I>; Tue, 5 Mar 2002 20:28:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292901AbSCFBZ6>; Tue, 5 Mar 2002 20:25:58 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:268 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292966AbSCFBZr>; Tue, 5 Mar 2002 20:25:47 -0500
-Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
-To: dalecki@evision-ventures.com (Martin Dalecki)
-Date: Wed, 6 Mar 2002 01:40:16 +0000 (GMT)
-Cc: aia21@cam.ac.uk (Anton Altaparmakov),
-        zwane@linux.realnet.co.sz (Zwane Mwaikambo),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <3C84BFA6.2000800@evision-ventures.com> from "Martin Dalecki" at Mar 05, 2002 01:52:54 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16iQPg-00058v-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S292958AbSCFB16>; Tue, 5 Mar 2002 20:27:58 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:29967 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S292901AbSCFB1p>; Tue, 5 Mar 2002 20:27:45 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: frankeh@watson.ibm.com
+Cc: davidel@xmailserver.org, rml@tech9.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fast Userspace Mutexes III. 
+In-Reply-To: Your message of "Tue, 05 Mar 2002 10:15:44 CDT."
+             <20020305151439.457E03FE06@smtp.linux.ibm.com> 
+Date: Wed, 06 Mar 2002 12:31:01 +1100
+Message-Id: <E16iQGk-0005ds-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But is a short time ago that IDE problems appeared in 2.4.18...
+In message <20020305151439.457E03FE06@smtp.linux.ibm.com> you write:
+> I agree to put it there if its not used as a means to define whether
+> user locks are permitted or not. If that is the intention, then the current 
+> futex will need to check every access through find_vma(), which we
+> both know nobody wants to do.
+> 
+> So it can only be used for architectural hints, agreed ?
 
-2.4.18 base doesn't have this code so that smells like manure to me.
+Yes.  It *might* work if you don't PROT_SEM the page the semaphore is
+on, but it's still a bug waiting to happen.  OTOH, it'd be nice if
+PROT_SEM returns EINVAL was a reliably indicator of no futex support.
+This way you actually need to call the futex syscall once to see if it
+works.
 
-Irrespective of the implementation you need the functionality. If you want
-to say "hey this implementation sucks" - I agree in part. If you want to
-remove it then its time for the big flashing "BOGUS" sign 
-
+Cheers!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

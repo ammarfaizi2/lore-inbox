@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262188AbREQV3G>; Thu, 17 May 2001 17:29:06 -0400
+	id <S262186AbREQVcg>; Thu, 17 May 2001 17:32:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262189AbREQV24>; Thu, 17 May 2001 17:28:56 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47110 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262188AbREQV2u>; Thu, 17 May 2001 17:28:50 -0400
-Subject: Re: VIA/PDC/Athlon
-To: jlaako@pp.htv.fi (Jussi Laako)
-Date: Thu, 17 May 2001 22:25:49 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), vojtech@suse.cz (Vojtech Pavlik),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3B043481.A394D98D@pp.htv.fi> from "Jussi Laako" at May 17, 2001 11:28:49 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S262187AbREQVc0>; Thu, 17 May 2001 17:32:26 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:19973 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262186AbREQVcL>;
+	Thu, 17 May 2001 17:32:11 -0400
+Date: Thu, 17 May 2001 23:31:34 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-Kernel Archive: ATA overlap/queuing support ?
+Message-ID: <20010517233134.D3227@suse.de>
+In-Reply-To: <3B043FA1.D45D3B2B@linux-ide.org> <Pine.LNX.4.10.10105171417550.2341-100000@master.linux-ide.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E150VHJ-0006Ak-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10105171417550.2341-100000@master.linux-ide.org>; from andre@linux-ide.org on Thu, May 17, 2001 at 02:22:45PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ummm... Here's stripped dmesg of both kernels... Is this compiler thingie or
-> Athlon optimizations?
+On Thu, May 17 2001, Andre Hedrick wrote:
+> ATA-overlap or ATAPI-overlap?  The later is known as DSC based on
+> SFF-8020/8070/8090, I have forgotten where it is located but I have the
+> docs, and it is supported in ide-floppy and ide-tape.
 
-Neither by the look of it
+And ide-cd
 
-> Notice also different detected PDC20265 BIOS settings! So 2.4.4-ac9 detects
-> those BIOS settings correctly and 2.4.2-2 doesn't. That's probably reason
-> why 2.4.2-2 works?
-
-Could be.
-
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-
-CRC errors are cable errors so that bit is reasonable in itself
-
+-- 
+Jens Axboe
 

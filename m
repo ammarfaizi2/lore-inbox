@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272257AbTGYSWj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 14:22:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272292AbTGYSWj
+	id S272260AbTGYSZY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 14:25:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272269AbTGYSZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 14:22:39 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:39841 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S272257AbTGYSWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 14:22:37 -0400
-Date: Fri, 25 Jul 2003 14:26:42 -0400
-From: Ben Collins <bcollins@debian.org>
-To: gaxt <gaxt@rogers.com>
-Cc: Torrey Hoffman <thoffman@arnor.net>, Sam Bromley <sbromley@cogeco.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux firewire devel <linux1394-devel@lists.sourceforge.net>
-Subject: Re: Firewire
-Message-ID: <20030725182642.GD607@phunnypharm.org>
-References: <20030725133438.GZ1512@phunnypharm.org> <20030725142907.GI23196@ruvolo.net> <20030725142926.GD1512@phunnypharm.org> <20030725154009.GF1512@phunnypharm.org> <20030725160706.GK23196@ruvolo.net> <20030725161803.GJ1512@phunnypharm.org> <1059155483.2525.16.camel@torrey.et.myrio.com> <20030725181303.GO23196@ruvolo.net> <20030725181252.GA607@phunnypharm.org> <3F217A39.2020803@rogers.com>
+	Fri, 25 Jul 2003 14:25:24 -0400
+Received: from smtp.terra.es ([213.4.129.129]:21663 "EHLO tsmtp7.mail.isp")
+	by vger.kernel.org with ESMTP id S272260AbTGYSZU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 14:25:20 -0400
+Date: Fri, 25 Jul 2003 20:24:18 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Catalin BOIE <util@deuroconsult.ro>
+Cc: herbert@13thfloor.at, manjunathan_py@yahoo.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.0-test1 refuses to boot on a PC with AMD Athlon XP
+ 1800+ (another one)
+Message-Id: <20030725202418.51f9a769.diegocg@teleline.es>
+In-Reply-To: <Pine.LNX.4.53.0307251533040.1571@hosting.rdsbv.ro>
+References: <20030725065507.26549.qmail@web14208.mail.yahoo.com>
+	<Pine.LNX.4.53.0307251012230.1571@hosting.rdsbv.ro>
+	<20030725123122.GB15999@www.13thfloor.at>
+	<Pine.LNX.4.53.0307251533040.1571@hosting.rdsbv.ro>
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F217A39.2020803@rogers.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 25, 2003 at 02:43:05PM -0400, gaxt wrote:
-> Do we put this on virgin ieee1394 or on top of the last patch?
+El Fri, 25 Jul 2003 15:36:42 +0300 (EEST) Catalin BOIE <util@deuroconsult.ro> escribió:
 
-Either way should work.
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
+http://www.codemonkey.org.uk/post-halloween-2.5.txt
+
+There's a section about a particular case where a misconfiguration
+will lead you to a black screen.
+

@@ -1,27 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270681AbRHJXPV>; Fri, 10 Aug 2001 19:15:21 -0400
+	id <S270682AbRHJXRU>; Fri, 10 Aug 2001 19:17:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270682AbRHJXPB>; Fri, 10 Aug 2001 19:15:01 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17669 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270681AbRHJXOz>; Fri, 10 Aug 2001 19:14:55 -0400
-Subject: Re: [PATCH] 2.4.7-ac11: Updated emu10k1 driver
-To: rml@tech9.net (Robert Love)
-Date: Sat, 11 Aug 2001 00:17:15 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <997485043.692.23.camel@phantasy> from "Robert Love" at Aug 10, 2001 07:10:29 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S270684AbRHJXRK>; Fri, 10 Aug 2001 19:17:10 -0400
+Received: from star.atlas-iap.es ([194.224.1.2]:18448 "EHLO star.atlas-iap.es")
+	by vger.kernel.org with ESMTP id <S270682AbRHJXRA>;
+	Fri, 10 Aug 2001 19:17:00 -0400
+From: "Ricardo Galli" <gallir@uib.es>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Remotely rebooting a machine with state 'D' processes, how?
+Date: Sat, 11 Aug 2001 01:25:33 +0200
+Message-ID: <LOEGIBFACGNBNCDJMJMOEEEICNAA.gallir@uib.es>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15VLWl-0001qB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan, please consider merging this.  I know it is big but how else will
-> we ever get it back in sync?  I will work to keep it up to date if it
-> falls behind again.
+> > >man 2 reboot
+> > How do you do this when the process in the D state is holding the BKL?
+> 
+> OK. What about console_lock since reboot(2) insists on doing a printk?
 
-Is there ar reason the maintainer hasnt submitted it yet ?
+reboot -n -f ?
+
+--ricardo
+http://m3d.uib.es/~gallir/ 

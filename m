@@ -1,68 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312494AbSDXSKW>; Wed, 24 Apr 2002 14:10:22 -0400
+	id <S312498AbSDXSLA>; Wed, 24 Apr 2002 14:11:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312491AbSDXSKV>; Wed, 24 Apr 2002 14:10:21 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:3208 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S312494AbSDXSKU>; Wed, 24 Apr 2002 14:10:20 -0400
-Date: Wed, 24 Apr 2002 19:10:07 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Robert_Hentosh@dell.com
-Cc: linux-kernel@vger.kernel.org, johnsonm@redhat.com, alan@redhat.com,
-        arjanv@redhat.com
-Subject: Re: [PATCH] reboot=bios is invalidating cache incorrectly
-Message-ID: <20020424191007.A22278@kushida.apsleyroad.org>
-In-Reply-To: <Pine.LNX.4.44.0204191651160.32269-100000@humbolt.us.dell.com>
+	id <S312491AbSDXSK7>; Wed, 24 Apr 2002 14:10:59 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:12454 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S312495AbSDXSK5>;
+	Wed, 24 Apr 2002 14:10:57 -0400
+Date: Wed, 24 Apr 2002 14:10:55 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Ben Greear <greearb@candelatech.com>
+Cc: "David S. Miller" <davem@redhat.com>, jd@epcnet.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: AW: Re: AW: Re: VLAN and Network Drivers 2.4.x
+Message-ID: <20020424141055.A20763@havoc.gtf.org>
+In-Reply-To: <20020424.093515.82125943.davem@redhat.com> <721506265.avixxmail@nexxnet.epcnet.de> <20020424.095951.43413800.davem@redhat.com> <3CC6EBF1.9060902@candelatech.com> <20020424134933.A17852@havoc.gtf.org> <3CC6F3BF.8050504@candelatech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hentosh wrote:
-> The hand assembled routine contained in the array "real_mode_switch" 
-> contains INVD which invalidates the CPU caches, unfortunately the routine 
-> was just previously copied via memcpy and is contained in the cache.  This 
-> leads to unexpected results.  The following patch replaces INVD with 
-> WBINVD which will insure that the routine is written to RAM before 
-> invalidating the cache, providing more reliable reboots.
+On Wed, Apr 24, 2002 at 11:04:47AM -0700, Ben Greear wrote:
+> Jeff Garzik wrote:
+> 
+> > On Wed, Apr 24, 2002 at 10:31:29AM -0700, Ben Greear wrote:
+> > 
+> >>Also, is there any good reason that we can't get at least a compile
+> >>time change into some of the drivers like tulip where we know we can
+> >>get at least MOST of the cards supported with a small change?
+> >>
+> > 
+> > The tulip patch is butt-ugly - the oversized allocation isn't needed,
+> > and it just flat-out turns off large packet protection.  That's really
+> > not what you want to do, even for the best tulip cards.  If an oversized
+> > gram (non-VLAN) makes it into a network which such a patched tulip
+> > driver, you can DoS.  So, I view the current tulip patch as unacceptable
+> > too -- for security reasons, we should not even take it as a compile
+> > time patch.  (and I recommend against using that patch on production
+> > machines, for the same security reasons)
+> 
+> 
+> I can DOS a tulip card with very small packets too ;)
 
-Hi Robert,
+A tulip card?  Or the stack?
 
-I wrote that code originally.
+Can you DoS it when CONFIG_NET_HW_FLOWCONTROL is enabled?
+That's basically NAPI without the fancy acronym...
 
-I wasn't sure that `wbinvd' was safe with the cache disabled, but I've
-looked more closely at some Intel docs, and it seems that CD and NW
-simply change the behaviour of the cache -- the cache is still used, but
-it has slightly different behaviour.
 
-There is another bug with both `wbinvd' and `invd': it is possible (on
-some 486s at least) that a cache line fill is in progress when the
-`wbinvd' executes, and that line won't be flushed.  In particular, the
-i-cache line containing the `wbinvd' instruction itself is quite likely
-to be being filled at the time.
+> > The proper tulip patch does not need to change packet allocation size
+> > at all (it's already plenty big enough), and it needs to copy the RX
+> > fragment handling code from 8139cp (which is admittedly ugly, slow path)
+> > or write fresh fragment handling code.  Along with that fragment
+> > handling code comes a safe way to do VLAN, and non-standard large MTUs
+> > in general.
+> 
+> In the general case, where the packets are only 1518 (ie no DoS or mis-configured
+> hardware is in effect), is there a need for the "ugly, slow path" code to run?
 
-The process will access filled cache lines even with CD ("cache
-disable") and NW set in CR0, yet it won't fill write back changes to
-RAM.  (It's a rarely used capability to allow execution from cache
-without external bus traffic).  This is quite a nasty state for the BIOS
-to inherit.
+It depends on the chip, but most generally: no
 
-I think that this will occur in practice, if the bug is still present on
-real CPUs: we have just copied the real mode code, so the copy is dirty
-in the d-cache which means that it is definitely not valid in the
-i-cache.  And so the cache line containing the `wbinvd' instruction may
-still be filling when the instruction executes.
+	Jeff
 
-http://ivs.cs.uni-magdeburg.de/~zbrog/asm/86bugs.html shows how to fix
-this.  It's a bit fiddly, and involves a PC-relative address so the code
-isn't a two-liner.  So I'm not going to write that fix.
 
-Summary to all Cc'd: please do apply Robert's patch.  It would make
-sense on the 2.2 stable branch too, after some user testing on 2.4/2.5
-has verified that its ok for everyone.
 
-cheers,
--- Jamie

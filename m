@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265818AbTGDHNS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 03:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265820AbTGDHNS
+	id S265822AbTGDHRc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 03:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265823AbTGDHRb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 03:13:18 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:56588 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265818AbTGDHNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 03:13:14 -0400
-Date: Fri, 4 Jul 2003 03:16:31 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Boszormenyi Zoltan <zboszor@freemail.hu>
-Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
-       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.74-mm1
-In-Reply-To: <3F0528CF.6040703@freemail.hu>
-Message-ID: <Pine.LNX.4.53.0307040315480.24383@montezuma.mastecende.com>
-References: <3F0407D1.8060506@freemail.hu> <3F042AEE.2000202@freemail.hu>
- <20030703122243.51a6d581.akpm@osdl.org> <20030703200858.GA31084@hh.idb.hist.no>
- <20030703141508.796e4b82.akpm@osdl.org> <20030704055315.GW26348@holomorphy.com>
- <3F0528CF.6040703@freemail.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 4 Jul 2003 03:17:31 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:39662 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S265822AbTGDHRa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 03:17:30 -0400
+Subject: Re: [PATCH] Re: VIA PCI IRQ router bug fix
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>,
+       linux-kernel@vger.kernel.org, mj@ucw.cz, alan@redhat.com
+In-Reply-To: <3F04C1AA.80107@pobox.com>
+References: <5F106036E3D97448B673ED7AA8B2B6B36C352C@scl-exch2k.phoenix.com>
+	 <3F04C1AA.80107@pobox.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1TiRWJnp0s5QHXncQQCX"
+Organization: Red Hat, Inc.
+Message-Id: <1057303907.5801.0.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 04 Jul 2003 09:31:47 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jul 2003, Boszormenyi Zoltan wrote:
 
-> [zozo@catv-50622120 zozo]$ gcc -v
-> Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/3.2.2/specs
-> Configured with: ../configure --prefix=/usr --mandir=/usr/share/man 
-> --infodir=/usr/share/info --enable-shared --enable-threads=posix 
-> --disable-checking --with-system-zlib --enable-__cxa_atexit 
-> --host=i386-redhat-linux
-> Thread model: posix
-> gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)
+--=-1TiRWJnp0s5QHXncQQCX
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Yes looks like what ships with RH9 (my build box is also RH9)
 
--- 
-function.linuxpower.ca
+> =20
+>  static int pirq_via_set(struct pci_dev *router, struct pci_dev *dev, int=
+ pirq, int irq)
+>  {
+> -	write_config_nybble(router, 0x55, pirq, irq);
+> +	write_config_nybble(router, 0x55, pirq =3D=3D 4 ? 5 : pirq, irq);
+>  	return 1;
+>  }
+
+
+you missed the=20
+> +        return (x >> 4);
+in the original patch... so your code is NOT identical.=20
+
+--=-1TiRWJnp0s5QHXncQQCX
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/BS1jxULwo51rQBIRAhg4AJ0bAzQSsdz+TGsPuOGiUzVU8qZ1zwCfRwHN
+lrFmlTyOCxnW8tzO2KCopVI=
+=7ELe
+-----END PGP SIGNATURE-----
+
+--=-1TiRWJnp0s5QHXncQQCX--

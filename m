@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285093AbSADXMe>; Fri, 4 Jan 2002 18:12:34 -0500
+	id <S285498AbSADXSE>; Fri, 4 Jan 2002 18:18:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285498AbSADXMQ>; Fri, 4 Jan 2002 18:12:16 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:10003 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S285093AbSADXMJ>; Fri, 4 Jan 2002 18:12:09 -0500
-Message-ID: <3C3635A8.447EE52E@zip.com.au>
-Date: Fri, 04 Jan 2002 15:07:20 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
+	id <S285704AbSADXRo>; Fri, 4 Jan 2002 18:17:44 -0500
+Received: from colorfullife.com ([216.156.138.34]:48906 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S285498AbSADXRc>;
+	Fri, 4 Jan 2002 18:17:32 -0500
+Message-ID: <000701c19575$fed79ca0$010411ac@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: "\"Kevin P. Fleming\"" <kevin@labsysgrp.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: How to debug very strange packet delivery problem?
+Date: Sat, 5 Jan 2002 00:17:27 +0100
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel@vger.kernel.org, riel@surriel.com, mjc@kernel.org,
-        bcrl@redhat.com
-Subject: Re: hashed waitqueues
-In-Reply-To: <20020104094049.A10326@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> 
-> This is a long-discussed space optimization for the VM system, with
-> what is expected to be a minor time tradeoff.
+> - watched the packets leave from the source machine with tcpdump on
+> the outbound interface, and the packets arrive intact at the problem
+> machine with tcpdump on the ppp interface
 
-Nice code.
+Have you dumped the complete packet on both ends, and checked that it
+arrives really unchanged? (except the IP checksum and the ttl).
+IIRC the option should be -x -s 1500
 
-> ...
-> +       /*
-> +        * Although the default semantics of wake_up() are
-> +        * to wake all, here the specific function is used
-> +        * to make it even more explicit that a number of
-> +        * pages are being waited on here.
-> +        */
-> +       if(waitqueue_active(page_waitqueue(page)))
-> +               wake_up_all(page_waitqueue(page));
+Perhaps some traffic shaper/firewall corrupts incomming SYN packets?
 
-Does the compiler CSE these two calls to page_waitqueue()?
-All versions?   I'd be inclined to do CSE-by-hand here.
+--
+    Manfred
 
-Also, why wake_up_all()?  That will wake all tasks which are sleeping
-in __lock_page(), even though they've asked for exclusive wakeup
-semantics.  Will a bare wake_up() here not suffice?
-
--

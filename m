@@ -1,101 +1,232 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265382AbTL3WDA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 17:03:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265803AbTL3WDA
+	id S265810AbTL3WMt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 17:12:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265804AbTL3WMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 17:03:00 -0500
-Received: from mail.kroah.org ([65.200.24.183]:42688 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265382AbTL3WCy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 17:02:54 -0500
-Date: Tue, 30 Dec 2003 14:02:57 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: [BK PATCH] i2c driver fixes for 2.6.0
-Message-ID: <20031230220257.GA2408@kroah.com>
+	Tue, 30 Dec 2003 17:12:33 -0500
+Received: from mail.kroah.org ([65.200.24.183]:48577 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265856AbTL3WGa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 17:06:30 -0500
+Subject: Re: [PATCH] i2c driver fixes for 2.6.0
+In-Reply-To: <10728219701628@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 30 Dec 2003 14:06:11 -0800
+Message-Id: <1072821971560@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ChangeSet 1.1496.8.32, 2003/12/17 16:04:29-08:00, mhoffman@lightlink.com
 
-Here are some i2c driver fixes and updates for 2.6.0.  There are a
-number of bug fixes here, a big documentation update, and a new i2c chip
-driver was added.
+[PATCH] I2C: remove initialization of limits by w83781d driver
 
-Please pull from:  bk://linuxusb.bkbits.net/i2c-devel-2.6
+This patch is from the lm_sensors project CVS, from this revision:
 
-Individual patches will follow, sent to the sensors and linux-kernel
-lists.
+	1.111 (mds) remove initialization of limits by driver
 
-thanks,
+It is better to set these limits by a combination of /etc/sensors.conf
+and 'sensors -s'; "mechanism not policy." And what's not to like about
+a patch that removes 163 lines?
 
-greg k-h
 
- Documentation/i2c/i2c-velleman    |   16 -
- Documentation/i2c/porting-clients |  121 ++++++++++
- Documentation/i2c/summary         |    2 
- Documentation/i2c/sysfs-interface |   33 +-
- Documentation/i2c/writing-clients |   57 ----
- drivers/i2c/algos/i2c-algo-bit.c  |   96 ++++----
- drivers/i2c/algos/i2c-algo-ite.c  |   36 ---
- drivers/i2c/busses/Kconfig        |   12 -
- drivers/i2c/busses/i2c-amd756.c   |   35 +-
- drivers/i2c/busses/i2c-amd8111.c  |    2 
- drivers/i2c/busses/i2c-ibm_iic.c  |   34 --
- drivers/i2c/busses/i2c-piix4.c    |   39 ++-
- drivers/i2c/busses/i2c-savage4.c  |   12 -
- drivers/i2c/busses/i2c-velleman.c |    2 
- drivers/i2c/busses/i2c-viapro.c   |    8 
- drivers/i2c/chips/Kconfig         |   27 +-
- drivers/i2c/chips/Makefile        |    1 
- drivers/i2c/chips/it87.c          |   11 
- drivers/i2c/chips/lm75.c          |   40 ---
- drivers/i2c/chips/lm75.h          |   49 ++++
- drivers/i2c/chips/lm78.c          |    4 
- drivers/i2c/chips/lm83.c          |  450 +++++++++++++++++++++++++++++++++++---
- drivers/i2c/chips/via686a.c       |   46 +--
- drivers/i2c/chips/w83781d.c       |  221 ++----------------
- drivers/pcmcia/sa1100_stork.c     |    1 
- include/linux/i2c-id.h            |    2 
- 26 files changed, 845 insertions(+), 512 deletions(-)
------
+ drivers/i2c/chips/w83781d.c |  173 --------------------------------------------
+ 1 files changed, 173 deletions(-)
 
-Greg Kroah-Hartman:
-  o I2C: removed #include <linux/i2c.h> from sa1100_stork.c as it's not needed
 
-Jean Delvare:
-  o I2C: lm83 driver updates
-  o I2C: velleman typo
-  o I2C: Fix SCx200 dependancies
-  o I2C: remove bus scan logic from i2c chip drivers
-  o I2C: restore support for AMD8111 in i2c-amd756 driver
-  o I2C: fix i2c-amd8111 driver
-  o I2C: it87 and via686a alarms
-  o I2C: add KT600 support to i2c-viapro driver
-  o I2C: add Serverworks CSB6 support to i2c-piix4
-  o I2C: fix author of i2c-savage4.c driver
-  o I2C: make I2C chipset drivers use temp_hyst[1-3]
-  o I2C: sysfs interface documentation
-  o I2C: Fix i2c-algo-bit for adapers that cannot read SCL back
-  o I2C: i2c documentation (2 of 2)
-  o I2C: i2c documentation (1 of 2)
-  o I2C: Add lm83 chip driver
-
-Mark D. Studebaker:
-  o I2C: fix amd756 byte writes
-
-Mark M. Hoffman:
-  o I2C: lm75 chip driver conversion routine fixes
-  o I2C: remove initialization of limits by lm75 driver
-  o I2C: remove initialization of limits by w83781d driver
-  o I2C: improve chip detection in w83781d.c driver
-
-Tom Rini:
-  o I2C: make i2c-piix4 fix optional
+diff -Nru a/drivers/i2c/chips/w83781d.c b/drivers/i2c/chips/w83781d.c
+--- a/drivers/i2c/chips/w83781d.c	Tue Dec 30 12:30:26 2003
++++ b/drivers/i2c/chips/w83781d.c	Tue Dec 30 12:30:26 2003
+@@ -208,72 +208,6 @@
+ 	return ((u8) i);
+ }
+ 
+-/* Initial limits */
+-#define W83781D_INIT_IN_0		(vid == 3500 ? 280 : vid / 10)
+-#define W83781D_INIT_IN_1		(vid == 3500 ? 280 : vid / 10)
+-#define W83781D_INIT_IN_2		330
+-#define W83781D_INIT_IN_3		(((500)   * 100) / 168)
+-#define W83781D_INIT_IN_4		(((1200)  * 10) / 38)
+-#define W83781D_INIT_IN_5		(((-1200) * -604) / 2100)
+-#define W83781D_INIT_IN_6		(((-500)  * -604) / 909)
+-#define W83781D_INIT_IN_7		(((500)   * 100) / 168)
+-#define W83781D_INIT_IN_8		300
+-/* Initial limits for 782d/783s negative voltages */
+-/* Note level shift. Change min/max below if you change these. */
+-#define W83782D_INIT_IN_5		((((-1200) + 1491) * 100)/514)
+-#define W83782D_INIT_IN_6		((( (-500)  + 771) * 100)/314)
+-
+-#define W83781D_INIT_IN_PERCENTAGE	10
+-#define W83781D_INIT_IN_MIN(val)	(val - val * W83781D_INIT_IN_PERCENTAGE / 100)
+-#define W83781D_INIT_IN_MAX(val)	(val + val * W83781D_INIT_IN_PERCENTAGE / 100)
+-
+-#define W83781D_INIT_IN_MIN_0		W83781D_INIT_IN_MIN(W83781D_INIT_IN_0)
+-#define W83781D_INIT_IN_MAX_0		W83781D_INIT_IN_MAX(W83781D_INIT_IN_0)
+-#define W83781D_INIT_IN_MIN_1		W83781D_INIT_IN_MIN(W83781D_INIT_IN_1)
+-#define W83781D_INIT_IN_MAX_1		W83781D_INIT_IN_MAX(W83781D_INIT_IN_1)
+-#define W83781D_INIT_IN_MIN_2		W83781D_INIT_IN_MIN(W83781D_INIT_IN_2)
+-#define W83781D_INIT_IN_MAX_2		W83781D_INIT_IN_MAX(W83781D_INIT_IN_2)
+-#define W83781D_INIT_IN_MIN_3		W83781D_INIT_IN_MIN(W83781D_INIT_IN_3)
+-#define W83781D_INIT_IN_MAX_3		W83781D_INIT_IN_MAX(W83781D_INIT_IN_3)
+-#define W83781D_INIT_IN_MIN_4		W83781D_INIT_IN_MIN(W83781D_INIT_IN_4)
+-#define W83781D_INIT_IN_MAX_4		W83781D_INIT_IN_MAX(W83781D_INIT_IN_4)
+-#define W83781D_INIT_IN_MIN_5		W83781D_INIT_IN_MIN(W83781D_INIT_IN_5)
+-#define W83781D_INIT_IN_MAX_5		W83781D_INIT_IN_MAX(W83781D_INIT_IN_5)
+-#define W83781D_INIT_IN_MIN_6		W83781D_INIT_IN_MIN(W83781D_INIT_IN_6)
+-#define W83781D_INIT_IN_MAX_6		W83781D_INIT_IN_MAX(W83781D_INIT_IN_6)
+-#define W83781D_INIT_IN_MIN_7		W83781D_INIT_IN_MIN(W83781D_INIT_IN_7)
+-#define W83781D_INIT_IN_MAX_7		W83781D_INIT_IN_MAX(W83781D_INIT_IN_7)
+-#define W83781D_INIT_IN_MIN_8		W83781D_INIT_IN_MIN(W83781D_INIT_IN_8)
+-#define W83781D_INIT_IN_MAX_8		W83781D_INIT_IN_MAX(W83781D_INIT_IN_8)
+-
+-/* Initial limits for 782d/783s negative voltages */
+-/* These aren't direct multiples because of level shift */
+-/* Beware going negative - check */
+-#define W83782D_INIT_IN_MIN_5_TMP \
+-	(((-1200 * (100 + W83781D_INIT_IN_PERCENTAGE)) + (1491 * 100))/514)
+-#define W83782D_INIT_IN_MIN_5 \
+-	((W83782D_INIT_IN_MIN_5_TMP > 0) ? W83782D_INIT_IN_MIN_5_TMP : 0)
+-#define W83782D_INIT_IN_MAX_5 \
+-	(((-1200 * (100 - W83781D_INIT_IN_PERCENTAGE)) + (1491 * 100))/514)
+-#define W83782D_INIT_IN_MIN_6_TMP \
+-	((( -500 * (100 + W83781D_INIT_IN_PERCENTAGE)) +  (771 * 100))/314)
+-#define W83782D_INIT_IN_MIN_6 \
+-	((W83782D_INIT_IN_MIN_6_TMP > 0) ? W83782D_INIT_IN_MIN_6_TMP : 0)
+-#define W83782D_INIT_IN_MAX_6 \
+-	((( -500 * (100 - W83781D_INIT_IN_PERCENTAGE)) +  (771 * 100))/314)
+-
+-#define W83781D_INIT_FAN_MIN_1		3000
+-#define W83781D_INIT_FAN_MIN_2		3000
+-#define W83781D_INIT_FAN_MIN_3		3000
+-
+-/* temp = value / 100 */
+-#define W83781D_INIT_TEMP_OVER		6000
+-#define W83781D_INIT_TEMP_HYST		12700	/* must be 127 for ALARM to work */
+-#define W83781D_INIT_TEMP2_OVER		6000
+-#define W83781D_INIT_TEMP2_HYST		5000
+-#define W83781D_INIT_TEMP3_OVER		6000
+-#define W83781D_INIT_TEMP3_HYST		5000
+-
+ /* There are some complications in a module like this. First off, W83781D chips
+    may be both present on the SMBus and the ISA bus, and we have to handle
+    those cases separately at some places. Second, there might be several
+@@ -1688,113 +1622,6 @@
+ #endif				/* W83781D_RT */
+ 
+ 	if (init) {
+-		w83781d_write_value(client, W83781D_REG_IN_MIN(0),
+-				    IN_TO_REG(W83781D_INIT_IN_MIN_0));
+-		w83781d_write_value(client, W83781D_REG_IN_MAX(0),
+-				    IN_TO_REG(W83781D_INIT_IN_MAX_0));
+-		if (type != w83783s && type != w83697hf) {
+-			w83781d_write_value(client, W83781D_REG_IN_MIN(1),
+-					    IN_TO_REG(W83781D_INIT_IN_MIN_1));
+-			w83781d_write_value(client, W83781D_REG_IN_MAX(1),
+-					    IN_TO_REG(W83781D_INIT_IN_MAX_1));
+-		}
+-
+-		w83781d_write_value(client, W83781D_REG_IN_MIN(2),
+-				    IN_TO_REG(W83781D_INIT_IN_MIN_2));
+-		w83781d_write_value(client, W83781D_REG_IN_MAX(2),
+-				    IN_TO_REG(W83781D_INIT_IN_MAX_2));
+-		w83781d_write_value(client, W83781D_REG_IN_MIN(3),
+-				    IN_TO_REG(W83781D_INIT_IN_MIN_3));
+-		w83781d_write_value(client, W83781D_REG_IN_MAX(3),
+-				    IN_TO_REG(W83781D_INIT_IN_MAX_3));
+-		w83781d_write_value(client, W83781D_REG_IN_MIN(4),
+-				    IN_TO_REG(W83781D_INIT_IN_MIN_4));
+-		w83781d_write_value(client, W83781D_REG_IN_MAX(4),
+-				    IN_TO_REG(W83781D_INIT_IN_MAX_4));
+-		if (type == w83781d || type == as99127f) {
+-			w83781d_write_value(client, W83781D_REG_IN_MIN(5),
+-					    IN_TO_REG(W83781D_INIT_IN_MIN_5));
+-			w83781d_write_value(client, W83781D_REG_IN_MAX(5),
+-					    IN_TO_REG(W83781D_INIT_IN_MAX_5));
+-		} else {
+-			w83781d_write_value(client, W83781D_REG_IN_MIN(5),
+-					    IN_TO_REG(W83782D_INIT_IN_MIN_5));
+-			w83781d_write_value(client, W83781D_REG_IN_MAX(5),
+-					    IN_TO_REG(W83782D_INIT_IN_MAX_5));
+-		}
+-		if (type == w83781d || type == as99127f) {
+-			w83781d_write_value(client, W83781D_REG_IN_MIN(6),
+-					    IN_TO_REG(W83781D_INIT_IN_MIN_6));
+-			w83781d_write_value(client, W83781D_REG_IN_MAX(6),
+-					    IN_TO_REG(W83781D_INIT_IN_MAX_6));
+-		} else {
+-			w83781d_write_value(client, W83781D_REG_IN_MIN(6),
+-					    IN_TO_REG(W83782D_INIT_IN_MIN_6));
+-			w83781d_write_value(client, W83781D_REG_IN_MAX(6),
+-					    IN_TO_REG(W83782D_INIT_IN_MAX_6));
+-		}
+-		if ((type == w83782d) || (type == w83627hf) ||
+-		    (type == w83697hf)) {
+-			w83781d_write_value(client, W83781D_REG_IN_MIN(7),
+-					    IN_TO_REG(W83781D_INIT_IN_MIN_7));
+-			w83781d_write_value(client, W83781D_REG_IN_MAX(7),
+-					    IN_TO_REG(W83781D_INIT_IN_MAX_7));
+-			w83781d_write_value(client, W83781D_REG_IN_MIN(8),
+-					    IN_TO_REG(W83781D_INIT_IN_MIN_8));
+-			w83781d_write_value(client, W83781D_REG_IN_MAX(8),
+-					    IN_TO_REG(W83781D_INIT_IN_MAX_8));
+-			w83781d_write_value(client, W83781D_REG_VBAT,
+-					    (w83781d_read_value
+-					     (client,
+-					      W83781D_REG_VBAT) | 0x01));
+-		}
+-		w83781d_write_value(client, W83781D_REG_FAN_MIN(1),
+-				    FAN_TO_REG(W83781D_INIT_FAN_MIN_1, 2));
+-		w83781d_write_value(client, W83781D_REG_FAN_MIN(2),
+-				    FAN_TO_REG(W83781D_INIT_FAN_MIN_2, 2));
+-		if (type != w83697hf) {
+-			w83781d_write_value(client, W83781D_REG_FAN_MIN(3),
+-					    FAN_TO_REG(W83781D_INIT_FAN_MIN_3,
+-						       2));
+-		}
+-
+-		w83781d_write_value(client, W83781D_REG_TEMP_OVER(1),
+-				    TEMP_TO_REG(W83781D_INIT_TEMP_OVER));
+-		w83781d_write_value(client, W83781D_REG_TEMP_HYST(1),
+-				    TEMP_TO_REG(W83781D_INIT_TEMP_HYST));
+-
+-		if (type == as99127f) {
+-			w83781d_write_value(client, W83781D_REG_TEMP_OVER(2),
+-					    AS99127_TEMP_ADD_TO_REG
+-					    (W83781D_INIT_TEMP2_OVER));
+-			w83781d_write_value(client, W83781D_REG_TEMP_HYST(2),
+-					    AS99127_TEMP_ADD_TO_REG
+-					    (W83781D_INIT_TEMP2_HYST));
+-		} else {
+-			w83781d_write_value(client, W83781D_REG_TEMP_OVER(2),
+-					    TEMP_ADD_TO_REG
+-					    (W83781D_INIT_TEMP2_OVER));
+-			w83781d_write_value(client, W83781D_REG_TEMP_HYST(2),
+-					    TEMP_ADD_TO_REG
+-					    (W83781D_INIT_TEMP2_HYST));
+-		}
+-		w83781d_write_value(client, W83781D_REG_TEMP2_CONFIG, 0x00);
+-
+-		if (type == as99127f) {
+-			w83781d_write_value(client, W83781D_REG_TEMP_OVER(3),
+-					    AS99127_TEMP_ADD_TO_REG
+-					    (W83781D_INIT_TEMP3_OVER));
+-			w83781d_write_value(client, W83781D_REG_TEMP_HYST(3),
+-					    AS99127_TEMP_ADD_TO_REG
+-					    (W83781D_INIT_TEMP3_HYST));
+-		} else if (type != w83783s && type != w83697hf) {
+-			w83781d_write_value(client, W83781D_REG_TEMP_OVER(3),
+-					    TEMP_ADD_TO_REG
+-					    (W83781D_INIT_TEMP3_OVER));
+-			w83781d_write_value(client, W83781D_REG_TEMP_HYST(3),
+-					    TEMP_ADD_TO_REG
+-					    (W83781D_INIT_TEMP3_HYST));
+-		}
+ 		if (type != w83783s && type != w83697hf) {
+ 			w83781d_write_value(client, W83781D_REG_TEMP3_CONFIG,
+ 					    0x00);
 

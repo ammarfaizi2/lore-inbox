@@ -1,68 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263909AbUAHIHW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 03:07:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263895AbUAHIHW
+	id S263537AbUAHIBd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 03:01:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbUAHIBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 03:07:22 -0500
-Received: from ns1.wanfear.com ([207.212.57.1]:9924 "EHLO ns1.wanfear.com")
-	by vger.kernel.org with ESMTP id S263836AbUAHIHS (ORCPT
+	Thu, 8 Jan 2004 03:01:33 -0500
+Received: from AGrenoble-101-1-4-93.w217-128.abo.wanadoo.fr ([217.128.202.93]:27559
+	"EHLO awak.dyndns.org") by vger.kernel.org with ESMTP
+	id S263537AbUAHIBa convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 03:07:18 -0500
-Message-ID: <3FFD0FAE.8050705@candelatech.com>
-Date: Thu, 08 Jan 2004 00:07:10 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: Stephan von Krawczynski <skraw@ithnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org
-Subject: Re: Problem with 2.4.24 e1000 and keepalived
-References: <20040107200556.0d553c40.skraw@ithnet.com> <20040107210255.GA545@alpha.home.local> <3FFCC430.4060804@candelatech.com> <20040108052000.GA8829@alpha.home.local>
-In-Reply-To: <20040108052000.GA8829@alpha.home.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jan 2004 03:01:30 -0500
+Subject: Re: removable media revalidation - udev vs. devfs or static /dev
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Greg KH <greg@kroah.com>,
+       Andrey Borzenkov <arvidjaar@mail.ru>,
+       linux-hotplug-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0401071941390.2131@home.osdl.org>
+References: <200401012333.04930.arvidjaar@mail.ru>
+	 <20040103055847.GC5306@kroah.com>
+	 <Pine.LNX.4.58.0401071036560.12602@home.osdl.org>
+	 <20040108031357.A1396@pclin040.win.tue.nl>
+	 <Pine.LNX.4.58.0401071815320.12602@home.osdl.org>
+	 <20040108034906.A1409@pclin040.win.tue.nl>
+	 <Pine.LNX.4.58.0401071854500.2131@home.osdl.org>
+	 <20040108043506.A1555@pclin040.win.tue.nl>
+	 <Pine.LNX.4.58.0401071941390.2131@home.osdl.org>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1073548840.6189.144.camel@nomade>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 08 Jan 2004 09:00:41 +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> Hi Ben,
+Le jeu 08/01/2004 à 04:43, Linus Torvalds a écrit :
+> On Thu, 8 Jan 2004, Andries Brouwer wrote:
+> > 
+> > I am even happy in a somewhat more general situation that you are.
+> > If the kernel autopartitions (and make recognition of new partitions
+> > hotplug events so that udev can create the device nodes), all is well.
 > 
-> On Wed, Jan 07, 2004 at 06:45:04PM -0800, Ben Greear wrote:
->  
+> Yes. We _could_ do that, by just making a "we noticed the disk change" be
+> a hotplug event. However, I'm loath to do that, because some devices
+> literally don't even have an easily read disk change signal, so what they
+> do is
 > 
->>You have to bring the interface 'UP' before it will detect link,
->>with something like:  ifconfig eth2 up
+>  - assume the disk _always_ changed on open
+>  - do a quick IO to verify it
 > 
-> 
-> Don't you mean "after" instead of "before" here ? Because the case where
-> it doesn't work is when everything is set up while the cable is unplugged,
-> but conversely, if the system goes up with the cable plugged, setting the
-> interface UP detects the link as UP and works. I believe that the problem
-> is related to setting the interface UP with nothing plugged into it.
+> and I'd be nervous about that kind of thing resulting in hotplug being 
+> called constantly if somebody rude just has an endless loop of 
+> "open()/close()".
 
-No, I meant what I said:  You have to tell many drivers to bring the interface
-up before they will attempt (or at least report) link negotiation.
-You do NOT have to give it an IP address or add any routes to it.
+Theses devices are kind of broken anyway, aren't they ? I see no safe
+way of handling disk changes on them, except having a "I changed disk in
+this drive" button on the desktop and rely on the user's good behavior.
+Currently the kernel will may have a wrong idea of what's in the drive
+if it doesn't poll, and that may wreak havoc.
 
-But, I don't know about your particular program, I just suspect it
-is related to detecting link state.  I think tg3 detects link when
-the interface is not UP, if you have some tg3 nics maybe you could
-try with them?
-
-Ben
-
-> 
-> Cheers,
-> Willy
-> 
-
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+	Xav
 

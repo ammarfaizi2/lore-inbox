@@ -1,89 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbTJFUVb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 16:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbTJFUVb
+	id S261684AbTJFUYl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 16:24:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbTJFUYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 16:21:31 -0400
-Received: from harris.CNS.CWRU.Edu ([129.22.104.63]:31054 "EHLO
-	harris.CNS.CWRU.Edu") by vger.kernel.org with ESMTP id S261661AbTJFUV1
+	Mon, 6 Oct 2003 16:24:41 -0400
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:26297 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S261684AbTJFUYi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 16:21:27 -0400
-Date: Mon, 06 Oct 2003 16:21:25 -0400
-From: Justin Hibbits <jrh29@po.cwru.edu>
-Subject: Re: regression between 2.4.18 and 2.4.21/22
-In-reply-to: <200310062106.31958.bzolnier@elka.pw.edu.pl>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <A901F612-F83A-11D7-A402-000A95841F44@po.cwru.edu>
-MIME-version: 1.0
-X-Mailer: Apple Mail (2.552)
-Content-type: text/plain; format=flowed; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	Mon, 6 Oct 2003 16:24:38 -0400
+Date: Tue, 7 Oct 2003 01:56:56 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Maneesh Soni <maneesh@in.ibm.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Greg KH <gregkh@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC 0/6] Backing Store for sysfs
+Message-ID: <20031006202656.GB9908@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20031006192713.GE1788@in.ibm.com> <Pine.LNX.4.44.0310061224230.985-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310061224230.985-100000@localhost.localdomain>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, Oct 6, 2003, at 15:06 America/New_York, Bartlomiej 
-Zolnierkiewicz wrote:
+On Mon, Oct 06, 2003 at 12:33:19PM -0700, Patrick Mochel wrote:
+> It's not a realistic requirement for me to solve your customer problems. 
+> :) I've been involved in this argument before, and the arguments have been 
+> the same, pretty much along party lines of IBM vs. Everyone else. I'm not 
+> here to point fingers, but you must heed the fact that we've been here 
+> before. 
 
->
-> Your /dev/hda (IBM DeskStar 60GXP) is not in DMA mode because
-> you don't have support for your IDE controller compiled-in.
-> Going from 2.4.21 you have to explicitely enable support for IDE 
-> chipsets.
-> Assumption that current .config file will work with future kernel 
-> versions
-> is not true.  Please compile kernel with driver for your on-board IDE 
-> chipset
-> (I deducted from your dmesg that it is VIA82CXXX IDE driver).
->
-> Please report back if this cures your problem,
->
-> Thanks,
-> --bartlomiej
->
-> On Monday 06 of October 2003 01:38, Justin Hibbits wrote:
->> On Sunday, Oct 5, 2003, at 19:22 America/New_York, Bartlomiej
->>
->> Zolnierkiewicz wrote:
->>> Please narrow down kernel version if you want your problem to be 
->>> cared.
->>>
->>> Try 2.4.19, 2.4.20.  There are also intermediate prepatches at
->>> http://www.kernel.org/pub/linux/kernel/v2.4/testing/old/
->>>
->>> dmesg output and .config can also be useful.
->>>
->>> --bartlomiej
->>>
->>> On Sunday 05 of October 2003 22:21, Justin Hibbits wrote:
->>>> Something very strange is going on with my machine.  With 2.4.18, I
->>>> was
->>>> getting 38MB/s on my main system disk (IBM Deskstar 60gxp), and 35 
->>>> for
->>>> the other drives (Western Digital).  The IBM drive is on a Promise 
->>>> IDE
->>>> controller (ASUS A7V266-E motherboard), and the others are on a
->>>> PROMISE
->>>> 2069 UDMA133 controller.  However, with 2.4.21 and 2.4.22, it will 
->>>> not
->>>> set the using_dma flag for my IBM drive, but sets it for the others,
->>>> which now get sustained transfer rates of 46MB/s or greater.  I'm
->>>> using
->>>> the same options for all 3 kernels (at least, for the ATA/IDE
->>>> options).
->>>>   Any help would be appreciated, and I'll see if maybe I could do
->>>> something with it when I get time.
->>
->> Ok, I tried 2.4.19, which I thought was pretty bad because it randomly
->> crashed all the time, and it worked just fine with all my drives.
->> 2.4.20 with the wolk-4.0 patch also worked.  So, I'm guessing it was
->> between 2.4.20 and 2.4.21....I could try all the prepatches as well,
->> and narrow down exact prepatch, will take some time.  dmesg output for
->> 2.4.21 follows (uses a patchset for XFS, sensors, etc), along with my
->> config, both compressed.
+Well, I didn't mention the c-word, Pat, you did :-) I would much
+rather help figure out the best possible way to implement dentry/inode
+ageing in sysfs.
 
-Thanks Bartlomeij, building that driver helped.  Curious though, since 
-it's using the PROMISE chip, or should be, since, according to my 
-motherboard's manual, the PROMISE chip is the only IDE chip there.
+> > Besides that think about the added complexity of lookups due to
+> > all those pinned dentries forever residing in dentry hash table.
+> 
+> Well, along with more memory and more devices, I would expect your 
+> customers to also be paying for the fastest processors. :) 
 
+Again, more than customers, it is a question of DTRT.
+
+> > sysfs currently uses dentries to represent filesystem hierarchy.
+> > We want to create the dentries on the fly and age them out.
+> > So, we can no longer use dentries to represent filesystem hierarchy.
+> > Now, *something* has to represent the actual filesystem
+> > hierarchy, so that dentries/inodes can be created on a lookup
+> > miss based on that. So, what do you do here ? kobject and
+> > its associates already represent most of the information necessary
+> > for a backing store. 
+> 
+> I understand what you're trying to do, and I say it's the wrong approach. 
+> You're overloading kobjects in a manner unintended, and in a way that is 
+> not welcome. I do not have an alternative solution, but my last email gave 
+> some hints of where to look. Don't get bitter because I disagree. 
+
+The overloading kobject argument is much better. Gregkh has also
+indicated that non-sysfs kobjects will increase. That definitely
+puts things in a different perspective. Fair enough.
+
+> > > You can also use the assumption that an attribute group exists for all the 
+> > > kobjects in a kset, and that a kobject knows what kset it belongs to. And
+> > > that eventually, all attributes should be added as part of an attribute 
+> > > group..
+> > 
+> > As I said before, no matter how much you save on kobjects and attrs,
+> > I can't see how you can account for ageing of dentries and inodes.
+> > Please look at it from the VFS angle and see if there is a better
+> > way to represent kobjects/attrs in order to create dentries/inodes
+> > on demand and age later.
+> 
+> That's what I told you, only reversed - try again. The patch posted in 
+> unacceptable, though I'm willing to look at alternatives. I don't have or 
+
+Viro's suggestion of pinning the non-leaf dentries only seems like
+a very good first alternative to try out.
+
+> see a problem with the current situation, so your arguments are going to 
+> have to be a bit stronger. 
+
+By not pinning dentries, you save several hundreds of KBs of lowmem
+in a common case low-end system with six disks, much reduced number of dentries
+in the hash table and huge savings in large systems. I would hope that
+is a good argument. Granted you don't like Maneesh's patch as it is now,
+but those things will change as more feedbacks come in.
+
+Thanks
+Dipankar

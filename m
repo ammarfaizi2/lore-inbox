@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263149AbRFIDfK>; Fri, 8 Jun 2001 23:35:10 -0400
+	id <S263674AbRFIDow>; Fri, 8 Jun 2001 23:44:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263674AbRFIDfA>; Fri, 8 Jun 2001 23:35:00 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:3337 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S263257AbRFIDey>;
-	Fri, 8 Jun 2001 23:34:54 -0400
-Date: Sat, 9 Jun 2001 00:34:40 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: John Stoffel <stoffel@casc.com>, Tobias Ringstrom <tori@unhappy.mine.nu>,
-        Jonathan Morton <chromi@cyberspace.org>, Shane Nay <shane@minirl.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
+	id <S263257AbRFIDom>; Fri, 8 Jun 2001 23:44:42 -0400
+Received: from www.wen-online.de ([212.223.88.39]:9742 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S263674AbRFIDod>;
+	Fri, 8 Jun 2001 23:44:33 -0400
+Date: Sat, 9 Jun 2001 05:43:03 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Jonathan Morton <chromi@cyberspace.org>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        John Stoffel <stoffel@casc.com>,
+        Tobias Ringstrom <tori@unhappy.mine.nu>, Shane Nay <shane@minirl.com>,
         "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
         Sean Hunter <sean@dev.sportingbet.com>,
         Xavier Bestel <xavier.bestel@free.fr>,
-        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+        lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
 Subject: Re: VM Report was:Re: Break 2.4 VM in five easy steps
-In-Reply-To: <Pine.LNX.4.33.0106081853400.418-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.21.0106090033080.10415-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+In-Reply-To: <l0313032bb7471092da13@[192.168.239.105]>
+Message-ID: <Pine.LNX.4.33.0106090541370.480-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Jun 2001, Mike Galbraith wrote:
-> On Fri, 8 Jun 2001, John Stoffel wrote:
+On Sat, 9 Jun 2001, Jonathan Morton wrote:
 
-> > I agree, this isn't really a good test case.  I'd rather see what
-> > happens when you fire up a gimp session to edit an image which is
-> > *almost* the size of RAM, or even just 50% the size of ram.
-> 
-> OK, riddle me this.  If this test is a crummy test, just how is it
+> On the subject of Mike Galbraith's kernel compilation test, how much
+> physical RAM does he have for his machine, what type of CPU is it, and what
+> (approximate) type of device does he use for swap?  I'll see if I can
+> partially duplicate his results at this end.  So far all my tests have been
+> done with a fast CPU - perhaps I should try the P166/MMX or even try
+> loading linux-pmac onto my 8100.
 
-Personally, I'd like to see BOTH of these tests, and many many
-more.
+It's a PIII/500 with one ide disk.
 
-Preferably, handed to the VM hackers in various colourful
-graphs that allow even severely undercaffeinated hackers to
-see how things changed for the good or the bad between kernel
-revisions.
-
-cheers,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+	-Mike
 

@@ -1,30 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286683AbRLVFH6>; Sat, 22 Dec 2001 00:07:58 -0500
+	id <S286688AbRLVFRk>; Sat, 22 Dec 2001 00:17:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286684AbRLVFHs>; Sat, 22 Dec 2001 00:07:48 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:10138 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S286683AbRLVFHj>;
-	Sat, 22 Dec 2001 00:07:39 -0500
-Date: Fri, 21 Dec 2001 21:06:55 -0800 (PST)
-Message-Id: <20011221.210655.91756024.davem@redhat.com>
-To: pizza@shaftnet.org
+	id <S286687AbRLVFRb>; Sat, 22 Dec 2001 00:17:31 -0500
+Received: from svr3.applink.net ([206.50.88.3]:13843 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S286689AbRLVFRU>;
+	Sat, 22 Dec 2001 00:17:20 -0500
+Message-Id: <200112220517.fBM5HASr022859@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Metrics: OK, Jefferson was not first but a leader during his era
+Date: Fri, 21 Dec 2001 23:13:28 -0600
+X-Mailer: KMail [version 1.3.2]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] - 2.4.17 - if_arp.h - Add the Prism2 ARP type
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011222000105.A22554@shaftnet.org>
-In-Reply-To: <20011222000105.A22554@shaftnet.org>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Stuffed Crust <pizza@shaftnet.org>
-   Date: Sat, 22 Dec 2001 00:01:05 -0500
 
-   Hey, this one-line patch (I diffed it against 2.4.17-rc2) defines the
-   ARPHRD_IEEE80211_PRISM arp type.
+A chronology of the SI metric system
+Important dates in the history of the modern metric system:
+1585
+In his book "The Tenth" Simon Stevin suggests that a decimal system should be 
+used for weights and measures, coinage, and divisions of the degree of arc.
+1670
+Authorities give credit for originating the metric system to Gabriel Mouton, 
+a French vicar, on about this date.
+1790
+Thomas Jefferson proposed a decimal-based measurement system for the United 
+States.
+France's Louis XVI authorized scientific investigations aimed at a reform of 
+French weights and measures.  These investigations led to the development of 
+the first "metric" system.
+1792
+The U.S. Mint was formed to produce the world's first decimal currency (the 
+U.S. dollar consisting of 100 cents).
+1795
+France officially adopted the metric system.
+1812
+Napoleon temporarily suspended the compulsory provisions of the 1795 metric 
+system adoption.
+1840
+The metric system reinstated as the compulsory system in France.
 
-Is the allocation of this number standardized somewhere?
+-- 
+timothy.covell@ashavan.org.

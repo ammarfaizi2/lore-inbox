@@ -1,51 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbUB0Dgh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 22:36:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUB0Dgh
+	id S261681AbUB0Dht (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 22:37:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbUB0Dht
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 22:36:37 -0500
-Received: from thunk.org ([140.239.227.29]:52385 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261438AbUB0Dgg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 22:36:36 -0500
-Date: Thu, 26 Feb 2004 22:36:30 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       drepper@redhat.com
-Subject: Re: [PATCH] Add getdents32t syscall
-Message-ID: <20040227033630.GB8645@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Jakub Jelinek <jakub@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-	drepper@redhat.com
-References: <20040226193819.GA3501@sunsite.ms.mff.cuni.cz> <Pine.LNX.4.58.0402261411420.7830@ppc970.osdl.org> <Pine.LNX.4.58.0402261415590.7830@ppc970.osdl.org> <20040226223212.GA31589@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040226223212.GA31589@devserv.devel.redhat.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+	Thu, 26 Feb 2004 22:37:49 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:41895 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261681AbUB0Dhp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 22:37:45 -0500
+Message-ID: <403EBB87.2070504@namesys.com>
+Date: Fri, 27 Feb 2004 06:37:43 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nikita Danilov <Nikita@Namesys.COM>
+CC: markw@osdl.org, piggin@cyberone.com.au, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: AS performance with reiser4 on 2.6.3
+References: <200402261748.i1QHmJE12429@mail.osdl.org> <16446.13520.5837.193556@laputa.namesys.com>
+In-Reply-To: <16446.13520.5837.193556@laputa.namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 05:32:26PM -0500, Jakub Jelinek wrote:
-> (since 1997 or so), so with the extended getdents syscall glibc would need
-> to memmove every name by 1 byte.
+Nikita Danilov wrote:
 
-Glibc will have to have the code to play the memmove game for
-compatibility with existing kernels.  So the question is whether or
-not the memmove by one byte will actually be noticeable for most
-application.  Has anyone checked to see whether or not it would even
-be noticeable on a profiling run?
+>markw@osdl.org writes:
+> > Hi Nick,
+> > 
+> > I started getting some results with dbt-2 on 2.6.3 and saw that reiser4
+> > is doing a bit worse with the AS elevator.  Although reiser4 wasn't
+> > doing well to begin with, compared to the other filesystems.  I have
+> > links to the STP results on our 4-ways and 8-ways here:
+> > 	http://developer.osdl.org/markw/fs/dbt2_stp_results.html
+>
+>There were no changes between 2.6.2 and 2.6.3 that could affect reiser4
+>performance, so it is not clear why numbers are so different. Probably
+>results should be averaged over several runs.
+>
+The differences don't "feel" like testing error, and in any event 
+something is seriously wrong.  That something is either poor fsync 
+performance, or poor scalability.  In any event, please investigate, and 
+please try such things as using capture on copy.  Mark, does this 
+benchmark like to use fsync?
 
-						- Ted
+Thanks much mark for bringing this to our attention.
+
+> Also can you run test with
+>
+>http://www.namesys.com/snapshots/2004.02.25/extra/e_05-proc-sleep.patch
+>
+>applied? To use it turn CONFIG_PROC_SLEEP on (depends on
+>CONFIG_FRAME_POINTER), and do "cat /proc/sleep" before and after test
+>run.
+>
+> > 
+> > -- 
+> > Mark Wong - - markw@osdl.org
+>
+>Nikita.
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
+
+
+-- 
+Hans
+
+

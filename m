@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261312AbSJHTef>; Tue, 8 Oct 2002 15:34:35 -0400
+	id <S261449AbSJHTmC>; Tue, 8 Oct 2002 15:42:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263441AbSJHTdc>; Tue, 8 Oct 2002 15:33:32 -0400
-Received: from kim.it.uu.se ([130.238.12.178]:54969 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S261489AbSJHTcb>;
-	Tue, 8 Oct 2002 15:32:31 -0400
-Date: Tue, 8 Oct 2002 21:38:11 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200210081938.VAA25893@kim.it.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.41] Oops on reboot in device_remove_file
+	id <S261371AbSJHTk6>; Tue, 8 Oct 2002 15:40:58 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:27842 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S261477AbSJHTNP>;
+	Tue, 8 Oct 2002 15:13:15 -0400
+Date: Tue, 8 Oct 2002 21:18:54 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Alexander Viro <viro@math.psu.edu>, Patrick Mochel <mochel@osdl.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] IDE driver model update
+Message-ID: <20021008191854.GA21688@win.tue.nl>
+References: <Pine.GSO.4.21.0210080813030.2894-100000@weyl.math.psu.edu> <1034082337.26477.96.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1034082337.26477.96.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-10-07 20:55:28, Burton Windle wrote:
->2.5.41, after "Rebooting..." is printed, I get this oops:
->
-> printing eip:
->c015b1a2
->*pde = 00000000
->Oops: 0002
->CPU:    0
->EIP:    0060:[<c015b1a2>]    Not tainted
->EFLAGS: 00010246
->EIP is at driverfs_remove_file+0x22/0x80
+On Tue, Oct 08, 2002 at 02:05:37PM +0100, Alan Cox wrote:
 
-Me too :-( I just got the same oops while rebooting a server which had
-done a trial run with 2.5.41. None of my other boxes has had this oops
-yet, but the only unique features of the server are that (a) it has two
-NICs, and (b) the disks are connected to an add-on PDC20267 card and
-I'm using the PDC202XX_OLD driver for it -- PIIX is also enabled but
-it only handles the CD-ROM.
+> USB scsi does the whole reconnect thing and seems to get it right
 
-/Mikael
+You are an optimist.

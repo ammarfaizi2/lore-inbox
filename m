@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVCUSRW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVCUSSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbVCUSRW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 13:17:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVCUSRW
+	id S261428AbVCUSSj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 13:18:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVCUSSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 13:17:22 -0500
-Received: from are.twiddle.net ([64.81.246.98]:47747 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id S261426AbVCUSRT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 13:17:19 -0500
-Date: Mon, 21 Mar 2005 10:16:18 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
-       chas williams - CONTRACTOR <chas@cmf.nrl.navy.mil>,
-       Leendert van Doorn <leendert@watson.ibm.com>,
-       Reiner Sailer <sailer@watson.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] alpha build fixes
-Message-ID: <20050321181618.GA7136@twiddle.net>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-	Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
-	chas williams - CONTRACTOR <chas@cmf.nrl.navy.mil>,
-	Leendert van Doorn <leendert@watson.ibm.com>,
-	Reiner Sailer <sailer@watson.ibm.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <423BABBF.6030103@pobox.com> <20050319231116.GA4114@twiddle.net> <1111416728.14833.20.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Mon, 21 Mar 2005 13:18:39 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:4102 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261445AbVCUSSR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 13:18:17 -0500
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] FAT: set MS_NOATIME to msdos
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 22 Mar 2005 03:17:47 +0900
+Message-ID: <87mzsw2790.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1111416728.14833.20.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 21, 2005 at 02:52:10PM +0000, Alan Cox wrote:
-> The issue is bigger - it's needed for the CMD controllers on PA-RISC for
-> example it appears - and anything else where IDE legacy IRQ is wired
-> oddly.
+Hi,
 
-Sure, but who queries this information?  That's my question.
+These patches is fixes and improvements for ->adate of msdos.
+
+Please apply.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
 
-r~
+
+MSDOS doesn't have atime, so this sets MS_NOATIME to msdos in order
+that we don't get unnecessary writes.
+
+Signed-off-by: Werner Almesberger <werner@almesberger.net>
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+---
+
+ fs/fat/inode.c   |    3 ++-
+ fs/msdos/namei.c |    1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff -puN fs/fat/inode.c~fat_msdos-use-noatime fs/fat/inode.c
+--- linux-2.6.11/fs/fat/inode.c~fat_msdos-use-noatime	2005-03-16 11:11:45.000000000 +0900
++++ linux-2.6.11-hirofumi/fs/fat/inode.c	2005-03-16 11:13:30.000000000 +0900
+@@ -431,7 +431,8 @@ static void __exit fat_destroy_inodecach
+ 
+ static int fat_remount(struct super_block *sb, int *flags, char *data)
+ {
+-	*flags |= MS_NODIRATIME;
++	struct msdos_sb_info *sbi = MSDOS_SB(sb);
++	*flags |= MS_NODIRATIME | (sbi->options.isvfat ? 0 : MS_NOATIME);
+ 	return 0;
+ }
+ 
+diff -puN fs/msdos/namei.c~fat_msdos-use-noatime fs/msdos/namei.c
+--- linux-2.6.11/fs/msdos/namei.c~fat_msdos-use-noatime	2005-03-16 11:12:11.000000000 +0900
++++ linux-2.6.11-hirofumi/fs/msdos/namei.c	2005-03-16 11:13:38.000000000 +0900
+@@ -671,6 +671,7 @@ static int msdos_fill_super(struct super
+ 	if (res)
+ 		return res;
+ 
++	sb->s_flags |= MS_NOATIME;
+ 	sb->s_root->d_op = &msdos_dentry_operations;
+ 	return 0;
+ }
+_

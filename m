@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292835AbSCDUBu>; Mon, 4 Mar 2002 15:01:50 -0500
+	id <S292612AbSCDUJc>; Mon, 4 Mar 2002 15:09:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292836AbSCDUBk>; Mon, 4 Mar 2002 15:01:40 -0500
-Received: from ua194d37hel.dial.kolumbus.fi ([62.248.234.194]:64407 "EHLO
-	porkkala.uworld.dyndns.org") by vger.kernel.org with ESMTP
-	id <S292835AbSCDUBX>; Mon, 4 Mar 2002 15:01:23 -0500
-Message-ID: <3C83D27C.99BB636D@kolumbus.fi>
-Date: Mon, 04 Mar 2002 22:01:00 +0200
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: J Sloan <joe@tmsusa.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: latency & real-time-ness.
-In-Reply-To: <E16hd1T-0005QW-00@the-village.bc.nu> <3C82A702.1030803@candelatech.com> <3C82CA19.9000702@tmsusa.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S292609AbSCDUJX>; Mon, 4 Mar 2002 15:09:23 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:55334 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S292555AbSCDUJC>; Mon, 4 Mar 2002 15:09:02 -0500
+Date: Mon, 4 Mar 2002 14:08:46 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200203042008.OAA00849@tomcat.admin.navo.hpc.mil>
+To: jstrand1@rochester.rr.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: ext3 and undeletion
+In-Reply-To: <1015269436.17583.25.camel@hedwig.strandboge.cxm>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J Sloan wrote:
+James D Strandboge <jstrand1@rochester.rr.com>:
+> On Mon, 2002-03-04 at 10:12, Alan Cox wrote:
+> > > Modifying unlink will probably suffice.
+> I am working on a preliminary patch that does this.  My current
+> implementaion (which is not ready to submit-- but works) added a line to
+> sys_unlink in fs/namei.c that calls my vfs_undel_link().  The
+> vfs_undel_link() function is based on the logic of sys_link, and creates
+> a hard link from the deleted file to one in the "stuff we deleted"
+> directory.  Then vfs_undel_link returns to sys_unlink and original link
+> is deleted, leaving only the one in the "stuff we deleted" directory.
 > 
-> The full-on low latency patch from Andrew Morton?
+> > You would need to hook the truncate/unlink paths in the file system. If=20
+> > you are doing it within the fs it becomes cheap (at least for ext2) - as
+> > you can simply reassign the data blocks to a new inode, stuff the new ino=
+> de
+> > into the magic "stuff we deleted" directory and continue.
+> After much consideration, my implementation does not deal with
+> truncate/overwrite because it would fill up the filesystem and be very
+> slow in VFS since there would have to be a full copy.  Also, staying
+> high level in VFS makes the patch work over any fs that uses VFS.
 > 
-> You might want to make some diffs available
-> since AFIK that would have involved quite a bit
-> of hand editing to fix rejects...
+> When I submit, I will make sure to add RFC to get more input on the
+> implementation, and possibly dealing with truncate.
+> 
+> Jamie Strandboge
 
-There is also patch against 2.4.18 with following:
+How do you handle "rm dir1/main.c dir2/main.c" ??? Both files have the
+same name. And how about VFAT (no inode numbers...).
 
- - Latest Andre's IDE driver
- - Latest Lionel's SiS IDE driver
- - Latest Rik's rmap
- - Latest Ingo's O(1)
- - Andrew's full and mini lowlatency
- - My DRM lowlatency fixes (r128, radeon, mga) (in -ll)
+If you create a shadow directory tree, how do you handle the quota problem?
 
+What happens to files deleted by fsck? (which depends on the disk
+implementation of the FS and not the VFS)
 
-Available at http://www.pp.song.fi/~visitor/linux/
+Is there a design document or FAQ somewhere ?
 
+(I did have to deal with VMS for a while - our solution: Don't do that...
+recovery was just too much of a hassle)
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
- - Jussi Laako
-
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
-
+Any opinions expressed are solely my own.

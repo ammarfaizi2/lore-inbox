@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268722AbUH3SEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268791AbUH3SIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268722AbUH3SEL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 14:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266895AbUH3SDO
+	id S268791AbUH3SIz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 14:08:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268758AbUH3SFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 14:03:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20413 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268723AbUH3R77
+	Mon, 30 Aug 2004 14:05:14 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:12691 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S268707AbUH3SDn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 13:59:59 -0400
-Message-ID: <41336B0E.1090000@pobox.com>
-Date: Mon, 30 Aug 2004 13:59:42 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Brad Campbell <brad@wasp.net.au>
-CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] libata ATA vs SATA detection and workaround.
-References: <41320DAF.2060306@wasp.net.au> <41321288.4090403@pobox.com> <413216CC.5080100@wasp.net.au> <4132198B.8000504@pobox.com> <41321F7F.7050300@pobox.com> <41333CDC.5040106@wasp.net.au> <41334058.4050902@wasp.net.au> <413350A2.1000003@pobox.com> <41335723.40907@wasp.net.au> <413357AE.3000009@pobox.com> <41336141.7010407@wasp.net.au>
-In-Reply-To: <41336141.7010407@wasp.net.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 30 Aug 2004 14:03:43 -0400
+Subject: Re: [RFC][PATCH] fix target_cpus() for summit subarch
+From: john stultz <johnstul@us.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>, James <jamesclv@us.ibm.com>,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
+In-Reply-To: <79750000.1093673866@[10.10.2.4]>
+References: <1093652688.14662.16.camel@cog.beaverton.ibm.com>
+	 <79750000.1093673866@[10.10.2.4]>
+Content-Type: text/plain
+Message-Id: <1093888987.14662.69.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 30 Aug 2004 11:03:07 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brad Campbell wrote:
-> Pretty new at kernel code. (And C for that matter)
-
-Since you've been so helpful, I choose to disbelieve this ;-)
-
-
-> I did note that it appears it's not going to do the right thing if we 
-> have more than one device per host, but I guess thats not going to be an 
-> issue for SATA for the near future anyway.
+On Fri, 2004-08-27 at 23:17, Martin J. Bligh wrote:
+> --john stultz <johnstul@us.ibm.com> wrote (on Friday, August 27, 2004 17:24:48 -0700):
 > 
-> How's this grab you?
+> > I've been hunting down a bug affecting IBM x440/x445 systems where the
+> > floppy driver would get spurious interrupts and would not initialize
+> > properly. 
+> > 
+> > After digging James Cleverdon pointed out that target_cpus() is routing
+> > the interrupts to the clustered apic broadcast mask. This was causing
+> > multiple interrupts to show up, breaking the floppy init code. 
+> > 
+> > This one-liner fix simply routes interrupts to the first cpu to resolve
+> > this issue.
+> 
+> I'd say that means your hardware is horribly broken ... but I guess this
+> might be a suitable workaround given we're going to reprogram them all
+> later.
 
-Looks perfect.
+Ok, then my patch probably isn't correct. Let me grab James and we'll
+sit down and work this out later today.
 
-Confirm for me that it solves your problem, and I'll push it upstream.
-
-	Jeff
+thanks
+-john
 
 

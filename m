@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268582AbRHFOJL>; Mon, 6 Aug 2001 10:09:11 -0400
+	id <S268598AbRHFONB>; Mon, 6 Aug 2001 10:13:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268598AbRHFOJA>; Mon, 6 Aug 2001 10:09:00 -0400
-Received: from weta.f00f.org ([203.167.249.89]:62352 "EHLO weta.f00f.org")
-	by vger.kernel.org with ESMTP id <S268582AbRHFOIt>;
-	Mon, 6 Aug 2001 10:08:49 -0400
-Date: Tue, 7 Aug 2001 02:09:44 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Lech Szychowski <lech.szychowski@pse.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: getty problems
-Message-ID: <20010807020944.A24146@weta.f00f.org>
-In-Reply-To: <20010806142703.A25428@lech.pse.pl> <20010807003043.C23937@weta.f00f.org> <20010806154530.A26776@lech.pse.pl>
-Mime-Version: 1.0
+	id <S268599AbRHFOMv>; Mon, 6 Aug 2001 10:12:51 -0400
+Received: from zero.aec.at ([195.3.98.22]:57098 "HELO zero.aec.at")
+	by vger.kernel.org with SMTP id <S268598AbRHFOMb>;
+	Mon, 6 Aug 2001 10:12:31 -0400
+To: root@iligan.com (rtviado)
+cc: linux-kernel@vger.kernel.org
+Subject: Re: load balancing on more than 1 default routes
+In-Reply-To: <3B6A2B9A.6E88D0E8@theOffice.net> <Pine.LNX.4.33.0108031752040.907-100000@localhost.localdomain>
+From: Andi Kleen <ak@muc.de>
+Date: 06 Aug 2001 16:12:40 +0200
+In-Reply-To: root@iligan.com's message of "Fri, 3 Aug 2001 09:56:23 +0000 (UTC)"
+Message-ID: <k2bslte0pz.fsf@zero.aec.at>
+User-Agent: Gnus/5.0700000000000003 (Pterodactyl Gnus v0.83) Emacs/20.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010806154530.A26776@lech.pse.pl>
-User-Agent: Mutt/1.3.20i
-X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 06, 2001 at 03:45:30PM +0200, Lech Szychowski wrote:
+In article <Pine.LNX.4.33.0108031752040.907-100000@localhost.localdomain>,
+root@iligan.com (rtviado) writes:
+> Hello,
 
-    2.4.7-ac7:
-    ----------
-    
-     /proc/devices
-    
-     Character devices:
-       1 mem
-       2 pty
-       3 ttyp
-       4 ttyS
-       5 cua
-       7 vcs
-      10 misc
-     128 ptm
-     136 pts
-     162 raw
+> 	I just want to ask if there is a facility in the kernel that load
+> balance to different default routes, since i'm using this routes for
+> uplink purposes only (my downlink is via satellite, it doesn't matter
+> where i send my packets uplink as long as it reaches the internet
+> backbone).
 
-Are you use this kernel isn't devfs inflicted?
+2.2+ support multipath routing with load balancing per route. You can configure
+it by specifying multiple nexthops with iproute2.
 
+-Andi
 
-
-
-  --cw

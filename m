@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261506AbSKBXvr>; Sat, 2 Nov 2002 18:51:47 -0500
+	id <S261517AbSKBXx4>; Sat, 2 Nov 2002 18:53:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261507AbSKBXvr>; Sat, 2 Nov 2002 18:51:47 -0500
-Received: from [212.45.9.156] ([212.45.9.156]:8066 "EHLO null.ru")
-	by vger.kernel.org with ESMTP id <S261506AbSKBXvq>;
-	Sat, 2 Nov 2002 18:51:46 -0500
-Message-ID: <3DC46643.5060909@yahoo.com>
-Date: Sun, 03 Nov 2002 02:56:51 +0300
-From: Stas Sergeev <stssppnn@yahoo.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021014
-X-Accept-Language: ru, en
+	id <S261515AbSKBXx4>; Sat, 2 Nov 2002 18:53:56 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:21256 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261518AbSKBXxz>; Sat, 2 Nov 2002 18:53:55 -0500
+Date: Sun, 3 Nov 2002 00:59:49 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Nero <neroz@iinet.net.au>
+cc: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Kconfig (qt) -> Gconfig (gtk)
+In-Reply-To: <200211030943.13730.neroz@iinet.net.au>
+Message-ID: <Pine.LNX.4.44.0211030052410.13258-100000@serv>
+References: <1036274342.16803.27.camel@irongate.swansea.linux.org.uk>
+ <Pine.LNX.4.44.0211021652470.16432-100000@ibm-ps850.purdueriots.com>
+ <20021102232836.GD731@gallifrey> <200211030943.13730.neroz@iinet.net.au>
 MIME-Version: 1.0
-To: "Benjamin LaHaise" <bcrl@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Larger IO bitmap?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Hi,
 
-Benjamin LaHaise wrote:
->> you are using megabytes for your TSS's only !
-> Keep in mind that a task's io bitmap is now lazily allocated, so by 
-> default no memory will be allocated for it.
-Thanks, indeed browsing the 2.5 sources
-at BK I see it is already done that way.
-Had to upgrade before asking, as it doesn't
-seem to be the case for 2.4(.19).
-But then what are the reasons for the IO
-bitmap to still be small at all? Are there
-any reasons left?
+On Sun, 3 Nov 2002, Nero wrote:
 
-> A similar enhancement 
-> for large vs small io bitmaps could be made by allowing the task io 
-> bitmap to be a variable size.
-But is it really important?
+> OR, we could use the logical choice. GTK+ is on most systems, has hardly any 
+> dependancies, is relatively small (compared to Qt) and doesn't require a C++ 
+> compiler. Really, I think the only people being religious here are the ones 
+> voting for Qt, as it just doesn't make sense to use it for such a thing.
+
+Show me the source and we can continue this discussion. Right now qconf is 
+included as replacement for the old xconfig. It shouldn't take to much 
+effort to package it seperately. As soon as someone is interested in doing 
+this for a distribtion I'll add the few missing bits.
+
+bye, Roman
 

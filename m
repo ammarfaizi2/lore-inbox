@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266131AbRGDSuV>; Wed, 4 Jul 2001 14:50:21 -0400
+	id <S266130AbRGDSrl>; Wed, 4 Jul 2001 14:47:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266134AbRGDSuL>; Wed, 4 Jul 2001 14:50:11 -0400
-Received: from host213-123-128-204.btopenworld.com ([213.123.128.204]:44809
-	"EHLO ambassador.mathewson.int") by vger.kernel.org with ESMTP
-	id <S266131AbRGDSt5>; Wed, 4 Jul 2001 14:49:57 -0400
-Message-Id: <200107041849.f64InoE12398@ambassador.mathewson.int>
-Subject: [OT] Suitable Athlon Motherboard for Linux
-To: linux-kernel@vger.kernel.org
-From: Joseph Mathewson <joe@mathewson.co.uk>
-Reply-to: joe.mathewson@btinternet.com
-Date: Wed, 04 Jul 2001 19:49:50 +0100
-X-Mailer: TiM infinity-ALPHA6-pre1
-X-TiM-Client: deschutes [192.168.0.202]
-Content-Transfer-Encoding: quoted-printable
+	id <S266131AbRGDSrc>; Wed, 4 Jul 2001 14:47:32 -0400
+Received: from paloma17.e0k.nbg-hannover.de ([62.159.219.17]:35479 "HELO
+	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S266130AbRGDSrN>; Wed, 4 Jul 2001 14:47:13 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.6-ac1
+Date: Wed, 4 Jul 2001 20:46:45 +0200
+X-Mailer: KMail [version 1.2.2]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010704184721Z266130-17721+8429@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Having heard the various horror stories about the VIA PCI data corruption
-bugs, and watching one Via based machine destroy itself with a Mandrake 8.0
- 2.4.3, I was just wondering if anyone had a suggestion for an Athlon
-motherboard that works reliably under Linux (I don't think all the issues
-have been cleared up in the kernel yet?).  There must be quite a few Linux
-Athlon users out there - what boards are you using and with what success?
+Sorry if someone else send this but you know all Lists are down...
 
-I can't see much alternative to Via chipsets in the Ahtlon market, other
-than all-in-one-graphics-sound-network jobbies that, from previous
-experience (namely the i810), are also best avoided.
+Unresolved symbols in parport_pc.o (PNP).
 
-Joe.
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.6-ac1/kernel/drivers/parport/parport_pc.o
+depmod:         pnpbios_find_device_R95f3c49a
+depmod:         init_pnp040x/
 
-+-------------------------------------------------+
-| Joseph Mathewson <joe@mathewson.co.uk>          |
-+-------------------------------------------------+
+Regards,
+		Dieter
+

@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267357AbUHMU1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267375AbUHMUgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267357AbUHMU1y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 16:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267411AbUHMUZj
+	id S267375AbUHMUgP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 16:36:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267503AbUHMUdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 16:25:39 -0400
-Received: from [66.45.74.15] ([66.45.74.15]:30170 "EHLO sluggardy.net")
-	by vger.kernel.org with ESMTP id S267477AbUHMUVD (ORCPT
+	Fri, 13 Aug 2004 16:33:46 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:4533 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S267502AbUHMUae (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 16:21:03 -0400
-Message-ID: <411D2227.2060500@sluggardy.net>
-Date: Fri, 13 Aug 2004 13:18:47 -0700
-From: Nick Palmer <nick@sluggardy.net>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040405)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: select implementation not POSIX compliant?
-References: <411A8646.1030205@colorfullife.com>
-In-Reply-To: <411A8646.1030205@colorfullife.com>
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Aug 2004 16:30:34 -0400
+Date: Fri, 13 Aug 2004 22:30:29 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Jonathan Stanton <jonathan@cnds.jhu.edu>, sdake@mvista.com,
+       Discussion of clustering software components including
+	 GFS <linux-cluster@redhat.com>
+Cc: Chris Wright <chrisw@osdl.org>, dcl_discussion@osdl.org,
+       cgl_discussion@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-cluster] Re: [cgl_discussion] Re: [dcl_discussion] Clustersummit materials
+Message-ID: <20040813203029.GW4161@marowsky-bree.de>
+References: <3689AF909D816446BA505D21F1461AE4C75110@cacexc04.americas.cpqcorp.net> <1092249962.4717.21.camel@persist.az.mvista.com> <20040812095736.GE4096@marowsky-bree.de> <1092332536.7315.1.camel@persist.az.mvista.com> <20040812203738.GK9722@marowsky-bree.de> <1092351549.7315.5.camel@persist.az.mvista.com> <20040813155441.GA16662@cnds.jhu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040813155441.GA16662@cnds.jhu.edu>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
+On 2004-08-13T11:54:41,
+   Jonathan Stanton <jonathan@cnds.jhu.edu> said:
 
- > Could you post the test case for this behavior: I assume your test app
- > is buggy: a select call that is executed after close returned must
- > return EBADF, everything else would be a bug.
+> If you havn't looked at it already, you might want to try out the Spread
+> group communication system. 
+> 
+> http://www.spread.org/
 
-Actually Solaris and Linux are consistent in terms of the behavior of
-select in this respect. I suspect that the first select is blocking the
-socket from being used at all, so the second select can't tell that it
-is closed.
+The intel lawyers have identified the Spread license to be
+GPL-incompatible.
 
- > Regarding your main point: The return result from select/poll is
- > undefined in Linux if you close a descriptor while another thread polls
- > or selects it.
- > This is consistent with the behavior of other Unices - for example HP UX
- > kills the process if you replace a descriptor that is being polled with
- > dup2.
+Otherwise, I agree, Spread is very nice. If those issues could be
+resolved, that may be an interesting option too.
 
-Right, hence my feeling that select is over all fairly broken. The big
-difference between Solaris and Linux though is that close will call
-recv* calls to return on Solaris, and close doesn't do that on Linux.
-The work around is to use shutdown on Linux before calling close. This
-also works on Solaris, though it makes the recv set errno differently.
+(I think the advertising clause and something else clash with the
+(L)GPL; I can put you in contact with the Intel folks if you wish to
+resolve this.)
 
-Thanks for looking at this issue,
--Nick
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering	    \        This space          /
+SUSE Labs, Research and Development |       intentionally        |
+SUSE LINUX AG - A Novell company    \        left blank          /

@@ -1,28 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267040AbRGSHmG>; Thu, 19 Jul 2001 03:42:06 -0400
+	id <S267046AbRGSHxA>; Thu, 19 Jul 2001 03:53:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267046AbRGSHl4>; Thu, 19 Jul 2001 03:41:56 -0400
-Received: from t2.redhat.com ([199.183.24.243]:26351 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S267040AbRGSHlk>; Thu, 19 Jul 2001 03:41:40 -0400
-To: "Brian J. Watson" <Brian.J.Watson@compaq.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] read/write semaphore trylock routines - 2.4.6 
-In-Reply-To: Message from "Brian J. Watson" <Brian.J.Watson@compaq.com> 
-   of "Wed, 18 Jul 2001 16:22:56 PDT." <3B561A50.A1B35FBC@compaq.com> 
-Date: Thu, 19 Jul 2001 08:41:43 +0100
-Message-ID: <2297.995528503@warthog.cambridge.redhat.com>
-From: David Howells <dhowells@redhat.com>
+	id <S267048AbRGSHwv>; Thu, 19 Jul 2001 03:52:51 -0400
+Received: from [213.98.126.44] ([213.98.126.44]:46853 "HELO trasno.org")
+	by vger.kernel.org with SMTP id <S267046AbRGSHwo>;
+	Thu, 19 Jul 2001 03:52:44 -0400
+To: Gareth Hughes <gareth.hughes@acm.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 4.1.0 DRM (was Re: Linux 2.4.6-ac3)
+In-Reply-To: <E15Lnrk-00047x-00@the-village.bc.nu> <3B52438B.3CC6E1BC@acm.org>
+	<m2itgs5dl5.fsf@mandrakesoft.com> <3B55517E.1733E2D5@acm.org>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <3B55517E.1733E2D5@acm.org>
+Date: 18 Jul 2001 12:21:25 -0400
+Message-ID: <m2hewa4396.fsf@mandrakesoft.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "gareth" == Gareth Hughes <gareth.hughes@acm.org> writes:
 
-> Is this patch ready to go into the kernel? Is there anything else I
-> should do to get it ready? I noticed it didn't make it into
-> 2.4.7-pre7.
+gareth> Juan Quintela wrote:
+>> 
+gareth> You could argue that it's less important
+gareth> when building many drivers into the kernel, but how many people do that?
+>> 
+>> All the people that use distributions.
 
-It looks reasonable, though I haven't tried it myself (I presume you have
-though). You might want to try sending it direct to Linus.
+gareth> I would have thought the distros would build almost every driver as a
+gareth> module.  Perhaps I'm mistaken.
 
-David
+argh, I misread your first sentence.  You are right.  I read it as
+"nobody compiles more that one drm driver".
+
+Later, Juan "returning to his English lessons".
+
+
+-- 
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

@@ -1,66 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269236AbUICHSZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269204AbUICHWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269236AbUICHSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 03:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269113AbUICHSY
+	id S269204AbUICHWL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 03:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269264AbUICHWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 03:18:24 -0400
-Received: from [139.30.44.16] ([139.30.44.16]:28836 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S269387AbUICHR4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 03:17:56 -0400
-Date: Fri, 3 Sep 2004 09:15:14 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-cc: george@mvista.com, john stultz <johnstul@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>,
-       albert@users.sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
-       voland@dmz.com.pl, nicolas.george@ens.fr, david+powerix@blue-labs.org
-Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
-In-Reply-To: <87u0uggxme.fsf@devron.myhome.or.jp>
-Message-ID: <Pine.LNX.4.53.0409030910140.20165@gockel.physik3.uni-rostock.de>
-References: <87smcf5zx7.fsf@devron.myhome.or.jp> <20040816124136.27646d14.akpm@osdl.org>
- <Pine.LNX.4.53.0408172207520.24814@gockel.physik3.uni-rostock.de>
- <412285A5.9080003@mvista.com> <1092782243.2429.254.camel@cog.beaverton.ibm.com>
- <Pine.LNX.4.53.0408180051540.25366@gockel.physik3.uni-rostock.de>
- <1092787863.2429.311.camel@cog.beaverton.ibm.com> <1092781172.2301.1654.camel@cube>
- <1092791363.2429.319.camel@cog.beaverton.ibm.com>
- <Pine.LNX.4.53.0408180927450.14935@gockel.physik3.uni-rostock.de>
- <20040819191537.GA24060@elektroni.ee.tut.fi> <20040826040436.360f05f7.akpm@osdl.org>
- <Pine.LNX.4.53.0408261311040.21236@gockel.physik3.uni-rostock.de>
- <Pine.LNX.4.53.0408310037280.5596@gockel.physik3.uni-rostock.de>
- <1093916047.14662.144.camel@cog.beaverton.ibm.com>
- <Pine.LNX.4.53.0408310757430.6523@gockel.physik3.uni-rostock.de>
- <87fz61yf75.fsf@devron.myhome.or.jp> <4137896E.5080802@mvista.com>
- <87u0uggxme.fsf@devron.myhome.or.jp>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Sep 2004 03:22:10 -0400
+Received: from castle.nmd.msu.ru ([193.232.112.53]:25864 "HELO
+	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S269204AbUICHVi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 03:21:38 -0400
+Message-ID: <20040903112133.A1834@castle.nmd.msu.ru>
+Date: Fri, 3 Sep 2004 11:21:33 +0400
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: exec: atomic MAY_EXEC check and SUID/SGID handling
+References: <20040902174521.A13656@castle.nmd.msu.ru> <20040902133109.H1973@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <20040902133109.H1973@build.pdx.osdl.net>; from "Chris Wright" on Thu, Sep 02, 2004 at 01:31:09PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Sep 2004, OGAWA Hirofumi wrote:
-
-> Since INITIAL_JIFFIES is -5 minutes, so I though tv.tv_nsec should be 0.
-> The cause of this is
+On Thu, Sep 02, 2004 at 01:31:09PM -0700, Chris Wright wrote:
+> * Andrey Savochkin (saw@saw.sw.com.sg) wrote:
+> > There is a time window between permission(MAY_EXEC) check in
+> > open_exec() and S_ISUID check plus bprm->e_uid setting in prepare_binprm().
+> > And S_ISUID is checked and bprm->e_uid is copied from the inode without
+> > any serialization with attribute updates.
+> > 
+> > That means that some executable may have permissions
+> > -rwxr-xr-x    root     disk     /bin/file
+> > at the moment of MAY_EXEC check and
+> > -rwsr-x---    root     disk     /bin/file
+> > at the moment of S_ISUID check, providing lucky users starting /bin/file at
+> > the moment of permission change with a setuid-root program.
+> > 
+> > It's arguable whether it's a big security issue, but certainly such behavior
+> > is not what administrators may expect.
 > 
->      INITIAL_JIFFIES % HZ (4294667296 % 1000)
-> 
-> because INITIAL_JIFFIES is unsigned long.
-> 
-> So, I guessed this is not intention.
-> Looks like this should be (-300*1000) % 1000.
+> If you can find a way for a user to exploit this it's an issue.  Looks
 
-I think actually the whole xtime initialisation
+Exploiting it requires waiting for the administrator to change file
+permissions...  May be, some social engineering.
+But THERE IS a race, which may result in user having more permissions than
+he is expected to have.
+I'm not comfortable living with such a race.
 
-        xtime.tv_nsec = (INITIAL_JIFFIES % HZ) * (NSEC_PER_SEC / HZ);
+Instead of
+	inode->i_mode = attr->ia_mode;
+we can write inode_setattr() as
+	inode->i_mode |= 06777;
+	inode->i_mode &= attr->ia_mode;
 
-is bogus. INITIAL_JIFFIES should not be connected to any actual time, so 
-this should really just be
+Will it be easily exploitable?  I guess, no.
+Will I be comfortable if the code is vulnerable in this way?  No.
 
-        xtime.tv_nsec = 0;
+> like it's not, and doesn't warrant such a big change as your patch.
+> The fact that you introduce a new field and then almost always supply it
+> with NULL is a clue that it's not the right direction IMO.  Something
+> simple (as you mentioned) that grabs i_sem and rechecks during suid
+> setup in binprm_prepare is sufficient.  Worth it?  Guess I'm not
+> convinced.
 
-I'll try to do a patch later on, and see what happens. Have to do some  
-work-related things now.
+I explained my arguments against re-checking permissions:
+ - the locking convention where ->permission() method may be called with or
+   without i_sem doesn't look suberb;
+ - it's better to avoid calling permission() with the same arguments for
+   the second time, especially if it does something complicated in
+   security_inode_permission(), with ACLs or in case of a remote filesystem.
 
-Tim
+	Andrey

@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271322AbTGQQjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 12:39:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271327AbTGQQjM
+	id S271290AbTGQQ0q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 12:26:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271327AbTGQQZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 12:39:12 -0400
-Received: from smtp013.mail.yahoo.com ([216.136.173.57]:27405 "HELO
-	smtp013.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S271322AbTGQQZT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 12:25:19 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: devfsd
-Date: Thu, 17 Jul 2003 18:38:59 +0200
-User-Agent: KMail/1.5.2
-References: <20030715214610.GA21238@core.citynetwireless.net> <20030717165603.A8369@infradead.org>
-In-Reply-To: <20030717165603.A8369@infradead.org>
-Cc: Ro0tSiEgE LKML <lkml@ro0tsiege.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	Thu, 17 Jul 2003 12:25:24 -0400
+Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:18639 "EHLO
+	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S271319AbTGQQYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 12:24:44 -0400
+Date: Thu, 17 Jul 2003 18:38:32 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] s390 (3/6): dasd driver.
+Message-ID: <20030717163831.GD2045@mschwid3.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307171839.10951.fsdeveloper@yahoo.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Remove put_disk from dasd_destroy_partitions. This is done in dasd_free_device.
 
-On Thursday 17 July 2003 17:56, Christoph Hellwig wrote:
-> On Tue, Jul 15, 2003 at 04:46:10PM -0500, Ro0tSiEgE LKML wrote:
-> > Why is devfsd still tagged as EXPERIMENTAL even in 2.6.0-test1 ? Is
-> > there something wrong with it, or has it just not been changed?
->
-> It's still there because we don't have a BROKEN tag.
+diffstat:
+ drivers/s390/block/dasd_genhd.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
 
-Hm, should we introduce a BROKEN tag? (I'm not kidding. :) )
-Because in a development tree, many things are known broken
-and with this tag we may reduce the same bug-reports on
-this list over and over again.
-
-- -- 
-Regards Michael Buesch
-http://www.8ung.at/tuxsoft
-Penguin on this machine:  Linux 2.4.21  - i386
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/FtEuoxoigfggmSgRAvvxAJ4oeM9wSBYh9zSMESK90bFR+JfLXgCfWiDU
-BZdHfen1MsXcNv6OicXSr9w=
-=wrz0
------END PGP SIGNATURE-----
-
+diff -urN linux-2.6.0-test1/drivers/s390/block/dasd_genhd.c linux-2.6.0-s390/drivers/s390/block/dasd_genhd.c
+--- linux-2.6.0-test1/drivers/s390/block/dasd_genhd.c	Mon Jul 14 05:36:47 2003
++++ linux-2.6.0-s390/drivers/s390/block/dasd_genhd.c	Thu Jul 17 17:27:31 2003
+@@ -9,7 +9,7 @@
+  *
+  * Dealing with devices registered to multiple major numbers.
+  *
+- * $Revision: 1.29 $
++ * $Revision: 1.31 $
+  */
+ 
+ #include <linux/config.h>
+@@ -200,7 +200,6 @@
+ dasd_destroy_partitions(struct dasd_device * device)
+ {
+ 	del_gendisk(device->gdp);
+-	put_disk(device->gdp);
+ }
+ 
+ int

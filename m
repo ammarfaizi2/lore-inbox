@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275743AbRJBDHC>; Mon, 1 Oct 2001 23:07:02 -0400
+	id <S275784AbRJBDQE>; Mon, 1 Oct 2001 23:16:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275784AbRJBDGx>; Mon, 1 Oct 2001 23:06:53 -0400
-Received: from mail.mbi-berlin.de ([194.95.11.12]:11408 "EHLO
-	mail.mbi-berlin.de") by vger.kernel.org with ESMTP
-	id <S275743AbRJBDGm> convert rfc822-to-8bit; Mon, 1 Oct 2001 23:06:42 -0400
-Date: Tue, 2 Oct 2001 05:09:32 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] when accessing ide-scsi emulated cd-rw
-Message-ID: <20011002050932.A14625@bart>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011001205643.C548@dok.org>
-Mime-Version: 1.0
+	id <S275789AbRJBDPz>; Mon, 1 Oct 2001 23:15:55 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62842 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S275784AbRJBDPq>; Mon, 1 Oct 2001 23:15:46 -0400
+To: Nilmoni Deb <ndeb@ece.cmu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fs/ext2/namei.c: dir link/unlink bug? [Re: mv changes dir timestamp
+In-Reply-To: <Pine.LNX.3.96L.1011001150851.16650A-100000@d-alg.ece.cmu.edu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 01 Oct 2001 21:06:44 -0600
+In-Reply-To: <Pine.LNX.3.96L.1011001150851.16650A-100000@d-alg.ece.cmu.edu>
+Message-ID: <m1vghy3fln.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20011001205643.C548@dok.org>
-User-Agent: Mutt/1.3.22i
-From: Viktor Rosenfeld <rosenfel@informatik.hu-berlin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J Troy Piper wrote:
+Nilmoni Deb <ndeb@ece.cmu.edu> writes:
 
-> paranoia kernel: hdd: timeout waiting for DMA
-> paranoia kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+> On 1 Oct 2001, Eric W. Biederman wrote:
+> 
+> > Or vice versa, as touch will also go back in time.
+> 
+> This is not a good idea because once the user has to remember the exact
+> time stamp before the move and put that on the moved dir using touch.
 
-I had the same problem.  Deactivating DMA on the CD RW (hdparm -d 0
-<device) fixed it for me, although the drive is supposed to support DMA
-transfers.
+You add a mv -p option to do it for you.
+ 
+> > My question is which semantics are desirable, and why.  I conceed
+> > that something has changed.  And that changing the functionality back
+> > to the way it was before may be desireable.  But given that the
+> > directory is in fact changed my gut reaction is that the new behavior
+> > is more correct than the old behavior.
+> 
+> U r right but most users won't care too much about the ".." link inside
+> each dir. Its the other files that really count. If the other files
+> remain unchanged then they consider the dir as unchanged.
 
-Good luck,
-Viktor
--- 
-Viktor Rosenfeld
-WWW: http://www.informatik.hu-berlin.de/~rosenfel/
+O.k. So nothing breaks and we just have a suprising change to more
+correct behavior.  Given that I don't see the case for making a special
+case in the code.  
+
+Eric

@@ -1,64 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130444AbRCCKlS>; Sat, 3 Mar 2001 05:41:18 -0500
+	id <S130459AbRCFLGk>; Tue, 6 Mar 2001 06:06:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130447AbRCCKlI>; Sat, 3 Mar 2001 05:41:08 -0500
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.59.198]:26947 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S130444AbRCCKkw>; Sat, 3 Mar 2001 05:40:52 -0500
-Message-ID: <3AA0CA2E.70208@blue-labs.org>
-Date: Sat, 03 Mar 2001 02:40:46 -0800
-From: David <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-ac3 i686; en-US; 0.9) Gecko/20010302
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4 VM question
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S130458AbRCFLG3>; Tue, 6 Mar 2001 06:06:29 -0500
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:10500 "EHLO
+	bug.ucw.cz") by vger.kernel.org with ESMTP id <S130430AbRCFLGR>;
+	Tue, 6 Mar 2001 06:06:17 -0500
+Date: Fri, 2 Mar 2001 00:52:26 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Daniel Ridge <newt@scyld.com>
+Cc: beowulf@beowulf.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Will Mosix go into the standard kernel?
+Message-ID: <20010302005226.A35@(none)>
+In-Reply-To: <Pine.LNX.4.33.0102271829030.5502-100000@duckman.distro.conectiva> <Pine.LNX.4.21.0102281732210.22184-100000@eleanor.wdhq.scyld.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.21.0102281732210.22184-100000@eleanor.wdhq.scyld.com>; from newt@scyld.com on Wed, Feb 28, 2001 at 06:06:37PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a particular reason why 2.4 insists on stuffing as much as 
-possible into swap?
+Hi!
 
-It's particularly frustrating to experience the slowdown and lag while 
-the disk grinds.  I have 256M in this machine.  Right now I have 180+ 
-megs free and I am 120 megs into swap.  Netscape and Mozilla are slow 
-enough as it is without having to pull pages off the disk.  Running GIMP 
-as well brings the system nearly to a crawl as I start opening up some 
-large pictures.
+> The Scyld system is based on BProc -- which requires only a 1K patch to
+> the kernel. This patch adds 339 net lines to the kernel, and changes 38
+> existing lines.
+> 
+> The Scyld 2-kernel-monte kernel inplace reboot facility is a 600-line
+> module which doesn't require any patches whatsoever.
 
-Mind you however, I still have -plenty- of free memory in 
-buffers/cache.  The filesystem is also reiserfs.
+There might be big difference in *complexity* of those patches. Distributions
+only change "unimportant" stuff. And 600 lines module is not small, either..
 
-I would also like to point out that it's rather irritating to swapoff 
-and basically everything flat out stalls until all the pages are back in 
-memory.  It is also worthy of mention that it takes about 4 minutes to 
-swapoff the first 64M file.  This is on a pIII 350.  The second 64M file 
-took 5 minutes.
-
-# uname -r
-2.4.2-ac3
-
-# free
-            total       used       free     shared    buffers     cached
-Mem:        253876     250360       3516          0      36448      86484
--/+ buffers/cache:     127428     126448
-Swap:        65532      65496         36
-
-# time swapoff /swapfile
-
-real    5m21.080s
-user    0m0.000s
-sys     2m59.370s
-
-Now that everything is forcibly paged back in, the system is once again 
-responsive and quick.
-
-Is there a particular VM quirk?  A bug?  As I see it there are two 
-issues, a) the insistence of the kernel to page everything out, and b) 
-the stall to page things back in, including the time frame.
-
--d
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

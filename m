@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271254AbRHZDlF>; Sat, 25 Aug 2001 23:41:05 -0400
+	id <S271267AbRHZDsf>; Sat, 25 Aug 2001 23:48:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271261AbRHZDk4>; Sat, 25 Aug 2001 23:40:56 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:44050 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271254AbRHZDkm>;
-	Sat, 25 Aug 2001 23:40:42 -0400
-Date: Sun, 26 Aug 2001 00:40:03 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: John Stoffel <stoffel@casc.com>
-Cc: "Marc A. Lehmann" <pcg@goof.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-In-Reply-To: <15240.18121.972361.669914@gargle.gargle.HOWL>
-Message-ID: <Pine.LNX.4.33L.0108260032490.5646-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269221AbRHZDs0>; Sat, 25 Aug 2001 23:48:26 -0400
+Received: from mail.intrex.net ([209.42.192.246]:14603 "EHLO intrex.net")
+	by vger.kernel.org with ESMTP id <S271267AbRHZDsV>;
+	Sat, 25 Aug 2001 23:48:21 -0400
+Date: Sat, 25 Aug 2001 23:48:50 -0400
+From: jlnance@intrex.net
+To: "Marti, Felix" <fmarti@desanasystems.com>, linux-kernel@vger.kernel.org
+Subject: Re: userspace implementation of tcp/ip
+Message-ID: <20010825234850.A23528@bessie.localdomain>
+In-Reply-To: <1DF71FB881F4D311A6B700C04FA06A1AC437D0@orca.desanasystems.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1DF71FB881F4D311A6B700C04FA06A1AC437D0@orca.desanasystems.com>; from fmarti@desanasystems.com on Sat, Aug 25, 2001 at 11:47:20AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Aug 2001, John Stoffel wrote:
+On Sat, Aug 25, 2001 at 11:47:20AM -0700, Marti, Felix wrote:
+> Hi there,
+> 
+> I remember that somebody ported the linux tcp/ip stack to userspace a long
+> time ago. Does anybody have a link to that project?
 
-> Ummm... is this really more of an agreement that Daniel's used-once
-> patch is a good idea on a system.  Keep a page around if it's used
-> once, but drop it quickly if only used once?
+There is a package called KA9Q which I believe does what you are talking about.
+I have not heard anything about it for years, but if you do a google search
+you might find something.
 
-There's a very big difference, though.  With use-once we'll
-also quickly drop the pages we have not yet used, that is,
-the pages we _are about to use_.
+Thanks,
 
-Drop-behind specifically drops the pages we have already
-used, giving better protection to the pages we are about
-to use.
-
-http://linux-mm.org/wiki/moin.cgi/StreamingIo
-
-regards,
-
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
-
+Jim

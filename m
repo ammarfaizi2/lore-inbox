@@ -1,80 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbUC2WDR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 17:03:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263149AbUC2WDR
+	id S263147AbUC2WCS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 17:02:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263149AbUC2WCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 17:03:17 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:57473 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S263152AbUC2WDK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 17:03:10 -0500
-Message-ID: <40689E95.7010108@tmr.com>
-Date: Mon, 29 Mar 2004 17:09:25 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
+	Mon, 29 Mar 2004 17:02:18 -0500
+Received: from hoemail2.lucent.com ([192.11.226.163]:22406 "EHLO
+	hoemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S263147AbUC2WCR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 17:02:17 -0500
 MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: Jad Saklawi <jad@saklawi.info>, linux-kernel@vger.kernel.org,
-       hisham@hisham.cc, llug-users@greencedars.org
-Subject: Re: Fwd: MAC / IP conflict
-References: <405D239B.30602@mail.portland.co.uk> <40679ED8.1060502@tmr.com> <20040329045942.GC1276@alpha.home.local>
-In-Reply-To: <20040329045942.GC1276@alpha.home.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16488.40157.474575.545711@gargle.gargle.HOWL>
+Date: Mon, 29 Mar 2004 17:02:05 -0500
+From: "John Stoffel" <stoffel@lucent.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: John Stoffel <stoffel@lucent.com>, Andrew Morton <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.5-rc2-mm1 - swapoff dies with OOM, why?
+In-Reply-To: <Pine.LNX.4.44.0403291708001.18667-100000@localhost.localdomain>
+References: <16488.14980.884442.349267@gargle.gargle.HOWL>
+	<Pine.LNX.4.44.0403291708001.18667-100000@localhost.localdomain>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> Hi,
-> 
-> On Sun, Mar 28, 2004 at 10:58:16PM -0500, Bill Davidsen wrote:
-> 
->>Jad Saklawi wrote:
->>
->>>----- Forwarded message from Hisham Mardam Bey -----
->>>  Date: Sun, 21 Mar 2004 13:52:59 +0200
->>>
->>>In short, I need to detect when someone on the network uses my MAC and
->>>my IP address.
->>>
->>>Longer story follows. I am on a LAN which might have some potentially
->>>dangerous users. Those users might spoof my MAC address and additionally
->>>use my IP address, thus forcing my box to go offline, and not be able to
->>>communicate with my gateway. What I need is a passive way to check for
->>>something of the sort, and perhaps a notofication into syslog (the
->>>latter is not very important).
->>
->>Use arpwatch, it detects ALL changes of IP<=>MAC mapping.
-> 
-> 
-> It won't tell him when someone else uses both IP and MAC. The real solution
-> is to lock the MAC on the switch if possible. Another one is to use a second
-> host to launch regular ARP requests and count how many replies it gets. Note
-> that it is also possible to do this from his host, but he will need arping
-> and tcpdump in promiscuous mode, because the reply address will have to be
-> a fake one (MAC and IP) so that the switch forwards the reply on all ports.
+>>>>> "Hugh" == Hugh Dickins <hugh@veritas.com> writes:
 
-If he sees the packet it should alert on the local MAC or IP on an 
-external packet. As noted you won't get the external packet in all cases.
-> 
-> Completely passive solution will not always detect the event. The attacker
-> might send packets to another host or even to the switch itself, which will
-> not propagate to other ports (eg: ethernet loopback with SA=DA= his MAC).
-> But if they make a mistake, then listening to all incoming packets and logging
-> their source MAC when it's the same as his host might work. This can be
-> implemented very easily with arptables but just for ARP requests. ebtables
-> might be better suited, but needs to configure a bridge which is dangerous.
+Hugh> On Mon, 29 Mar 2004, John Stoffel wrote:
+>> 
+>> I'm still wondering why swapoff dies though.  Shouldn't it complete,
+>> or at least have some way *to* complete if needed?  I realize, with a
+>> memory leak in the filesystem, it's a hard thing to deal with.  
 
-I like the idea of sending ARP after changing the MAC. I would hope to 
-have an option in the switch which prevents MAC takeover by locking the 
-MAC to a port as long as the link is up. This doesn't prevent sending a 
-packet to another host with the real (evil) MAC and spoofed IP, to set 
-the arptable in a single host. In the long run help from the switch is 
-probably needed to do it right.
+Hugh> If there's not enough freeable memory for what's out on swap,
+Hugh> swapoff cannot very well complete.  Either it can hang while
+Hugh> other processes get killed by the OOM killer once swapoff has
+Hugh> filled memory (as 2.4), until there's enough memory free to take
+Hugh> in what's still needed from swap; or the OOM killer can kill it
+Hugh> off (as 2.6).  I much prefer the 2.6 behaviour - unlike many
+Hugh> processes, swapoff can safely be restarted.  So the admin can
+Hugh> then choose what else to kill, or add replacement swap, then try
+Hugh> the original swapoff again.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+But in this case, there was no way to force the turning off of swap,
+since the ext3 bug in 2.6.5-rc2-mm1 had filled the cache, and wasn't
+going away.  Is this right?  
+
+I wonder if there's a way to tell swap to 'go away when you can, don't
+allow more swap (kill new requests), and generally work on pushing
+stuff back to memory, or other swap partitions.'
+
+This doesn't have to be the default, but it would be nice to have a
+big hammer to beat on the system at times.
+
+Thanks for the feedback Hugh, I do appreciate it.
+
+John

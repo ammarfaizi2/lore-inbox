@@ -1,32 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266583AbRG1Mf1>; Sat, 28 Jul 2001 08:35:27 -0400
+	id <S266586AbRG1Mqr>; Sat, 28 Jul 2001 08:46:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266586AbRG1MfR>; Sat, 28 Jul 2001 08:35:17 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62993 "EHLO
+	id <S266603AbRG1Mqi>; Sat, 28 Jul 2001 08:46:38 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:7954 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266583AbRG1MfB>; Sat, 28 Jul 2001 08:35:01 -0400
-Subject: Re: 2.4.7-ac2: jffs2.o compile error
-To: fdavis@andrew.cmu.edu (Frank Davis)
-Date: Sat, 28 Jul 2001 13:36:22 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, fdavis112@juno.com
-In-Reply-To: <Pine.GSO.4.21L-021.0107280130230.22991-100000@unix13.andrew.cmu.edu> from "Frank Davis" at Jul 28, 2001 01:35:22 AM
+	id <S266586AbRG1MqY>; Sat, 28 Jul 2001 08:46:24 -0400
+Subject: Re: VIA KT133A / athlon / MMX
+To: dlang@diginsite.com (David Lang)
+Date: Sat, 28 Jul 2001 13:47:40 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), cw@f00f.org, ppeiffer@free.fr,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0107271718550.29714-100000@dlang.diginsite.com> from "David Lang" at Jul 27, 2001 05:23:07 PM
 X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15QTKQ-0007Xv-00@the-village.bc.nu>
+Message-Id: <E15QTVN-0007bK-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.7-ac2/kernel/fs/jffs2/jffs2.o
-> depmod:  up_and_exit
-> 
-> up_and_exit is used in fs/jffs2/background.c 
+> I have a 1u box at my des that has two MSI boards in it with 1.2G athlons.
+> at the moment they are both running 2.4.5 (athlon optimized), one box has
+> no problems at all while the other dies (no video, no keyboard, etc)
+> within an hour of being booted.
 
-Yes. It needs changing to use complete_and_exit. 
+Same bios, same bios settings ?
 
-Alan
+lspci -vxx on both show the same settings ?
+

@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316578AbSFDIwF>; Tue, 4 Jun 2002 04:52:05 -0400
+	id <S316568AbSFDItX>; Tue, 4 Jun 2002 04:49:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316579AbSFDIwF>; Tue, 4 Jun 2002 04:52:05 -0400
-Received: from pandora.cantech.net.au ([203.26.6.29]:12292 "EHLO
+	id <S316577AbSFDItW>; Tue, 4 Jun 2002 04:49:22 -0400
+Received: from pandora.cantech.net.au ([203.26.6.29]:5892 "EHLO
 	pandora.cantech.net.au") by vger.kernel.org with ESMTP
-	id <S316578AbSFDIvt>; Tue, 4 Jun 2002 04:51:49 -0400
-Date: Tue, 4 Jun 2002 16:51:40 +0800 (WST)
+	id <S316568AbSFDItH>; Tue, 4 Jun 2002 04:49:07 -0400
+Date: Tue, 4 Jun 2002 16:48:58 +0800 (WST)
 From: "Anthony J. Breeds-Taurima" <tony@cantech.net.au>
-To: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+To: lkml <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
         Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Subject: [PATCH] 2.2.21 s/Efoo/-Efoo/ drivers/char/rio/*.c
-Message-ID: <Pine.LNX.4.44.0206041649020.32156-100000@thor.cantech.net.au>
+Subject: [PATCH] 2.4.19-pre10 s/Efoo/-Efoo/ drivers/char/rio/*.c
+Message-ID: <Pine.LNX.4.44.0206041643070.32156-100000@thor.cantech.net.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello All,
-	Backport of changes in 2.5 and (hopefully) in 2.4 to 2.2.
-Intent is to keep code base as similar as possible.
+	This is another cleanup patch changing positive return values into
+negative's.
 
 
 Yours Tony
 
 Jan 22-26 2003      Linux.Conf.AU       http://conf.linux.org.au/
          The Australian Linux Technical Conference!
+
 --------------------------------------------------------------------------------
-diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/rio_linux.c linux-2.2.21/drivers/char/rio/rio_linux.c
---- linux-2.2.21.clean/drivers/char/rio/rio_linux.c	Thu May 30 11:50:37 2002
-+++ linux-2.2.21/drivers/char/rio/rio_linux.c	Tue Jun  4 16:23:52 2002
-@@ -723,7 +723,7 @@
+diff -X dontdiff -urN linux-2.4.19-pre10.clean/drivers/char/rio/rio_linux.c linux-2.4.19-pre10/drivers/char/rio/rio_linux.c
+--- linux-2.4.19-pre10.clean/drivers/char/rio/rio_linux.c	Tue Apr 30 13:22:07 2002
++++ linux-2.4.19-pre10/drivers/char/rio/rio_linux.c	Tue Jun  4 16:27:36 2002
+@@ -702,7 +702,7 @@
    func_enter();
  
    /* The "dev" argument isn't used. */
@@ -39,10 +41,10 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/rio_linux.c linux-2.2.
  
    func_exit ();
    return rc;
-diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/rioboot.c linux-2.2.21/drivers/char/rio/rioboot.c
---- linux-2.2.21.clean/drivers/char/rio/rioboot.c	Thu May 30 11:49:21 2002
-+++ linux-2.2.21/drivers/char/rio/rioboot.c	Tue Jun  4 16:23:52 2002
-@@ -128,7 +128,7 @@
+diff -X dontdiff -urN linux-2.4.19-pre10.clean/drivers/char/rio/rioboot.c linux-2.4.19-pre10/drivers/char/rio/rioboot.c
+--- linux-2.4.19-pre10.clean/drivers/char/rio/rioboot.c	Tue Apr 30 13:22:07 2002
++++ linux-2.4.19-pre10/drivers/char/rio/rioboot.c	Tue Jun  4 16:27:37 2002
+@@ -129,7 +129,7 @@
  		p->RIOError.Error = HOST_FILE_TOO_LARGE;
  		/* restore(oldspl); */
  		func_exit ();
@@ -51,7 +53,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/rioboot.c linux-2.2.21
  	}
  
  	if ( p->RIOBooting ) {
-@@ -136,7 +136,7 @@
+@@ -137,7 +137,7 @@
  		p->RIOError.Error = BOOT_IN_PROGRESS;
  		/* restore(oldspl); */
  		func_exit ();
@@ -60,7 +62,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/rioboot.c linux-2.2.21
  	}
  
  	/*
-@@ -164,7 +164,7 @@
+@@ -165,7 +165,7 @@
  		p->RIOError.Error = COPYIN_FAILED;
  		/* restore(oldspl); */
  		func_exit ();
@@ -69,7 +71,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/rioboot.c linux-2.2.21
  	}
  
  	/*
-@@ -294,7 +294,7 @@
+@@ -295,7 +295,7 @@
  			rio_dprintk (RIO_DEBUG_BOOT, "Bin too large\n");
  			p->RIOError.Error = HOST_FILE_TOO_LARGE;
  			func_exit ();
@@ -78,7 +80,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/rioboot.c linux-2.2.21
  		}
  		/*
  		** Ensure that the host really is stopped.
-@@ -321,7 +321,7 @@
+@@ -322,7 +322,7 @@
  				rio_dprintk (RIO_DEBUG_BOOT, "No system memory available\n");
  				p->RIOError.Error = NOT_ENOUGH_CORE_FOR_PCI_COPY;
  				func_exit ();
@@ -87,7 +89,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/rioboot.c linux-2.2.21
  			}
  			bzero(DownCode, rbp->Count);
  
-@@ -329,7 +329,7 @@
+@@ -330,7 +330,7 @@
  				rio_dprintk (RIO_DEBUG_BOOT, "Bad copyin of host data\n");
  				p->RIOError.Error = COPYIN_FAILED;
  				func_exit ();
@@ -96,7 +98,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/rioboot.c linux-2.2.21
  			}
  
  			HostP->Copy( DownCode, StartP, rbp->Count );
-@@ -340,7 +340,7 @@
+@@ -341,7 +341,7 @@
  			rio_dprintk (RIO_DEBUG_BOOT, "Bad copyin of host data\n");
  			p->RIOError.Error = COPYIN_FAILED;
  			func_exit ();
@@ -105,10 +107,10 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/rioboot.c linux-2.2.21
  		}
  
  		rio_dprintk (RIO_DEBUG_BOOT, "Copy completed\n");
-diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riocmd.c linux-2.2.21/drivers/char/rio/riocmd.c
---- linux-2.2.21.clean/drivers/char/rio/riocmd.c	Thu May 30 11:49:21 2002
-+++ linux-2.2.21/drivers/char/rio/riocmd.c	Tue Jun  4 16:23:52 2002
-@@ -99,7 +99,7 @@
+diff -X dontdiff -urN linux-2.4.19-pre10.clean/drivers/char/rio/riocmd.c linux-2.4.19-pre10/drivers/char/rio/riocmd.c
+--- linux-2.4.19-pre10.clean/drivers/char/rio/riocmd.c	Tue Apr 30 13:22:07 2002
++++ linux-2.4.19-pre10/drivers/char/rio/riocmd.c	Tue Jun  4 16:27:37 2002
+@@ -98,7 +98,7 @@
  
  	if ( !CmdBlkP ) {
  		rio_dprintk (RIO_DEBUG_CMD, "FOAD RTA: GetCmdBlk failed\n");
@@ -117,7 +119,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riocmd.c linux-2.2.21/
  	}
  
  	CmdBlkP->Packet.dest_unit = MapP->ID;
-@@ -114,7 +114,7 @@
+@@ -113,7 +113,7 @@
  
  	if ( RIOQueueCmdBlk( HostP, MapP->ID-1, CmdBlkP) == RIO_FAIL ) {
  		rio_dprintk (RIO_DEBUG_CMD, "FOAD RTA: Failed to queue foad command\n");
@@ -126,7 +128,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riocmd.c linux-2.2.21/
  	}
  	return 0;
  }
-@@ -132,7 +132,7 @@
+@@ -131,7 +131,7 @@
  
  	if ( !CmdBlkP ) {
  		rio_dprintk (RIO_DEBUG_CMD, "ZOMBIE RTA: GetCmdBlk failed\n");
@@ -135,7 +137,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riocmd.c linux-2.2.21/
  	}
  
  	CmdBlkP->Packet.dest_unit = MapP->ID;
-@@ -147,7 +147,7 @@
+@@ -146,7 +146,7 @@
  
  	if ( RIOQueueCmdBlk( HostP, MapP->ID-1, CmdBlkP) == RIO_FAIL ) {
  		rio_dprintk (RIO_DEBUG_CMD, "ZOMBIE RTA: Failed to queue zombie command\n");
@@ -144,7 +146,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riocmd.c linux-2.2.21/
  	}
  	return 0;
  }
-@@ -193,7 +193,7 @@
+@@ -192,7 +192,7 @@
  			}
  		}
  	}
@@ -153,7 +155,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riocmd.c linux-2.2.21/
  }
  
  
-@@ -207,7 +207,7 @@
+@@ -206,7 +206,7 @@
  	if ( copyin( (int)arg, (caddr_t)&IdRta, sizeof(IdRta) ) == COPYFAIL ) {
  		rio_dprintk (RIO_DEBUG_CMD, "RIO_IDENTIFY_RTA copy failed\n");
  		p->RIOError.Error = COPYIN_FAILED;
@@ -162,7 +164,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riocmd.c linux-2.2.21/
  	}
  
  	for ( Host = 0 ; Host < p->RIONumHosts; Host++ ) {
-@@ -239,7 +239,7 @@
+@@ -238,7 +238,7 @@
  
  						if ( !CmdBlkP ) {
  							rio_dprintk (RIO_DEBUG_CMD, "IDENTIFY RTA: GetCmdBlk failed\n");
@@ -171,7 +173,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riocmd.c linux-2.2.21/
  						}
  		
  						CmdBlkP->Packet.dest_unit = MapP->ID;
-@@ -253,7 +253,7 @@
+@@ -252,7 +252,7 @@
  		
  						if ( RIOQueueCmdBlk( HostP, MapP->ID-1, CmdBlkP) == RIO_FAIL ) {
  							rio_dprintk (RIO_DEBUG_CMD, "IDENTIFY RTA: Failed to queue command\n");
@@ -180,7 +182,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riocmd.c linux-2.2.21/
  						}
  						return 0;
  					}
-@@ -261,7 +261,7 @@
+@@ -260,7 +260,7 @@
  			}
  		}
  	} 
@@ -189,7 +191,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riocmd.c linux-2.2.21/
  }
  
  
-@@ -280,17 +280,17 @@
+@@ -279,17 +279,17 @@
  	if ( copyin( (int)arg, (caddr_t)&KillUnit, sizeof(KillUnit) ) == COPYFAIL ) {
  		rio_dprintk (RIO_DEBUG_CMD, "RIO_KILL_NEIGHBOUR copy failed\n");
  		p->RIOError.Error = COPYIN_FAILED;
@@ -210,7 +212,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riocmd.c linux-2.2.21/
  	}
  
  	CmdBlkP->Packet.dest_unit = 0;
-@@ -311,7 +311,7 @@
+@@ -310,7 +310,7 @@
  			if ( RIOQueueCmdBlk( HostP, RTAS_PER_HOST+KillUnit.Link,
  							CmdBlkP) == RIO_FAIL ) {
  				rio_dprintk (RIO_DEBUG_CMD, "UFOAD: Failed queue command\n");
@@ -219,7 +221,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riocmd.c linux-2.2.21/
  			}
  			return 0;
  		}
-@@ -321,14 +321,14 @@
+@@ -320,14 +320,14 @@
  				CmdBlkP->Packet.dest_unit = ID+1;
  				if ( RIOQueueCmdBlk( HostP, ID, CmdBlkP) == RIO_FAIL ) {
  					rio_dprintk (RIO_DEBUG_CMD, "UFOAD: Failed queue command\n");
@@ -236,7 +238,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riocmd.c linux-2.2.21/
  }
  
  int
-@@ -345,7 +345,7 @@
+@@ -344,7 +344,7 @@
  
  	if ( !CmdBlkP ) {
  		rio_dprintk (RIO_DEBUG_CMD, "SUSPEND BOOT ON RTA: GetCmdBlk failed\n");
@@ -245,7 +247,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riocmd.c linux-2.2.21/
  	}
  
  	CmdBlkP->Packet.dest_unit = ID;
-@@ -360,7 +360,7 @@
+@@ -359,7 +359,7 @@
  
  	if ( RIOQueueCmdBlk( HostP, ID - 1, CmdBlkP) == RIO_FAIL ) {
  		rio_dprintk (RIO_DEBUG_CMD, "SUSPEND BOOT ON RTA: Failed to queue iwait command\n");
@@ -254,9 +256,9 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riocmd.c linux-2.2.21/
  	}
  	return 0;
  }
-diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/rioctrl.c linux-2.2.21/drivers/char/rio/rioctrl.c
---- linux-2.2.21.clean/drivers/char/rio/rioctrl.c	Mon Sep 11 14:48:44 2000
-+++ linux-2.2.21/drivers/char/rio/rioctrl.c	Tue Jun  4 16:23:52 2002
+diff -X dontdiff -urN linux-2.4.19-pre10.clean/drivers/char/rio/rioctrl.c linux-2.4.19-pre10/drivers/char/rio/rioctrl.c
+--- linux-2.4.19-pre10.clean/drivers/char/rio/rioctrl.c	Tue Apr 30 13:22:07 2002
++++ linux-2.4.19-pre10/drivers/char/rio/rioctrl.c	Tue Jun  4 16:27:37 2002
 @@ -230,7 +230,7 @@
  						}
  					}
@@ -1234,9 +1236,9 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/rioctrl.c linux-2.2.21
  }
  
  /*
-diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riotable.c linux-2.2.21/drivers/char/rio/riotable.c
---- linux-2.2.21.clean/drivers/char/rio/riotable.c	Thu May 30 11:49:21 2002
-+++ linux-2.2.21/drivers/char/rio/riotable.c	Tue Jun  4 16:25:45 2002
+diff -X dontdiff -urN linux-2.4.19-pre10.clean/drivers/char/rio/riotable.c linux-2.4.19-pre10/drivers/char/rio/riotable.c
+--- linux-2.4.19-pre10.clean/drivers/char/rio/riotable.c	Tue Apr 30 13:22:09 2002
++++ linux-2.4.19-pre10/drivers/char/rio/riotable.c	Tue Jun  4 16:27:37 2002
 @@ -125,7 +125,7 @@
  	rio_dprintk (RIO_DEBUG_TABLE, "RIONewTable: entering(1)\n"); 
  	if ( p->RIOSystemUp ) {		/* (1) */
@@ -1355,7 +1357,7 @@ diff -X dontdiff -urN linux-2.2.21.clean/drivers/char/rio/riotable.c linux-2.2.2
 @@ -530,7 +530,7 @@
  						rio_dprintk (RIO_DEBUG_TABLE, "Entry is in use and cannot be deleted!\n");
  						p->RIOError.Error = UNIT_IS_IN_USE;
- 						rio_spin_unlock_irqrestore( &HostP->HostLock, flags);
+ 						rio_spin_unlock_irqrestore( &HostP->HostLock, lock_flags);
 -						return EBUSY;
 +						return -EBUSY;
  					}

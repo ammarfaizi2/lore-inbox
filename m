@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265620AbRGOBuV>; Sat, 14 Jul 2001 21:50:21 -0400
+	id <S265575AbRGOCHp>; Sat, 14 Jul 2001 22:07:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265592AbRGOBuL>; Sat, 14 Jul 2001 21:50:11 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:23557 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S265571AbRGOBuC>; Sat, 14 Jul 2001 21:50:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: [PATCH] 64 bit scsi read/write
-Date: Sun, 15 Jul 2001 03:53:54 +0200
-X-Mailer: KMail [version 1.2]
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-lvm@sistina.com
-In-Reply-To: <E15LL3Y-0000yJ-00@the-village.bc.nu> <0107142211300W.00409@starship> <3B50F000.53EAB651@uow.edu.au>
-In-Reply-To: <3B50F000.53EAB651@uow.edu.au>
+	id <S265647AbRGOCHf>; Sat, 14 Jul 2001 22:07:35 -0400
+Received: from 64.5.206.104 ([64.5.206.104]:7174 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S265575AbRGOCH2>; Sat, 14 Jul 2001 22:07:28 -0400
+Date: Sat, 14 Jul 2001 22:07:17 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: <aset@bellatlantic.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux USB boot hang
+In-Reply-To: <3B509CA6.6E7EE91@bellatlantic.com>
+Message-ID: <Pine.LNX.4.33.0107142205040.3475-100000@terbidium.openservices.net>
 MIME-Version: 1.0
-Message-Id: <01071503535411.00409@starship>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 15 July 2001 03:21, Andrew Morton wrote:
-> Daniel Phillips wrote:
-> > On Saturday 14 July 2001 16:50, Chris Wedgwood wrote:
-> > > On Sat, Jul 14, 2001 at 09:45:44AM +0100, Alan Cox wrote:
-> > >
-> > >     As far as I can tell none of them at least in the IDE world
-> > >
-> > > SCSI disk must, or at least some... if not, how to peopel like
-> > > NetApp get these cool HA certifications?
-> >
-> > Atomic commit.  The superblock, which references the updated
-> > version of the filesystem, carries a sequence number and a
-> > checksum.  It is written to one of two alternating locations.  On
-> > restart, both locations are read and the highest numbered
-> > superblock with a correct checksum is chosen as the new filesystem
-> > root.
->
-> But this assumes that it is the most-recently-written sector/block
-> which gets lost in a power failure.
->
-> The disk will be reordering writes - so when it fails it may have
-> written the commit block but *not* the data which that block is
-> committing.
->
-> You need a barrier or a full synchronous flush prior to writing
-> the commit block.  A `don't-reorder-past-me' barrier is very much
-> preferable, of course.
+On Sat, 14 Jul 2001 aset@bellatlantic.com wrote:
 
-Oh yes, absolutely, that's very much part of the puzzle.  Any disk
-that doesn't support a real write barrier or write cache flush is
-fundamentally broken as far as failsafe operation goes.  A disk that
-claims to provide such support and doesn't is an even worse offender.
-I find Alan's comment there worrisome.  We need to know which disks
-devliver on this and which don't.
+> Hello,
+>
+> I compiled and installed Linux-2.4.5smp on a dual 300 MHz Pentium II
+> running Red Hat 7.0 with gcc 2.96. The motherboard has two sets of USB
+> headers but there are no USB ports. If I configure the kernel with USB
+> modules, at boot linux complains repeatedly:
+>
+>     hub.c: Cannot  enable port 1 of hub 1, disabling port.
+>     hub.c: Maybe USB cable is bad?
+>     hub.c: Cannot enable port 2 of hub 1, disabling port.
+>     hub.c: Maybe USB cable is bad?
+>
+>  I don't know how to get out of this, so I just wait for it to time out
+> to finish booting. If I don't configure the kernel for a USB controller
+> then the during the boot process it complains that it can't find the
+> usb-uhci module and the boot process hangs at sendmail. Again I wait for
+> the time-out for the boot process to finish.  How do I fix this dilemma.
+> Is there some way I can modifiy hub.c to stop looking for ports 1 and 2?
+>
+> Thanks, from a Linux newbie.
+>
+> Don Werder
+> aset@bellatlantic.net
 
---
-Daniel
+Add "append=nousb" to lilo.conf. RH looks for this and skips loading the USB
+module if it exists.
+
+It's not hanging at sendmail; it just can't find the IP address for your
+machine.
+
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+

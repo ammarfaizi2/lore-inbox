@@ -1,87 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbUKBRrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbUKBRrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbUKBRrq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 12:47:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbUKBRpu
+	id S261321AbUKBRrp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 12:47:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbUKBRpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 12:45:50 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5032 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261295AbUKBRlZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 12:41:25 -0500
-Date: Tue, 2 Nov 2004 12:44:29 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
+	Tue, 2 Nov 2004 12:45:24 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:14857 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261284AbUKBReL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 12:34:11 -0500
+Date: Tue, 2 Nov 2004 18:33:37 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Christian <evil@g-house.de>
 Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: __GFP flags and kmalloc failures
-Message-ID: <20041102144429.GG32054@logos.cnet>
-References: <4187AC80.6050409@drzeus.cx>
+Subject: Re: 5 compile errors for 2.4-BK
+Message-ID: <20041102173337.GG4978@stusta.de>
+References: <41879488.10601@g-house.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4187AC80.6050409@drzeus.cx>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <41879488.10601@g-house.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 02, 2004 at 04:49:20PM +0100, Pierre Ossman wrote:
-> I'm trying to allocate a buffer to be used for ISA DMA and I'm 
-> experiencing some difficulties.
-> 
-> I'm allocating a 64kB buffer (max size for low ISA DMA) using:
-> 
-> kmalloc(65536, GFP_KERNEL | GFP_DMA);
-> 
-> The choice of flags are from another driver that does ISA DMA so I 
-> didn't put too much thought into them at first.
-> 
-> The problem is now that this allocation doesn't always succeed. When it 
-> fails I get:
-> 
-> insmod: page allocation failure. order:4, mode:0x11
+On Tue, Nov 02, 2004 at 03:07:04PM +0100, Christian wrote:
 
-This is a big allocation and the kernel is having problem finding such a 
-big page, due to memory fragmentation (as you mention below).
+> every day my scripts compile several kernel from the latest -BK tree,
+> since oct, 30. there are 5 compile errors shown in:
+> 
+> make[3]: [neighbour.o] Error 1 (ignored)
+> make[3]: [core.o] Error 1 (ignored)
+> make[3]: [arp.o] Error 1 (ignored)
+> make[3]: [ipv4.o] Error 1 (ignored)
+> make[1]: [first_rule] Error 2 (ignored)
+> 
+> [and that's why these 2 occur too:]
+> 
+> make: [vmlinux] Error 1 (ignored)
+> make: [zImage] Error 2 (ignored)
 
-What kernel version are you using?
+This part of the errors alone is useless.
 
--mm contains a series of patches from Nick which should make the situation 
-better, have you tried it? Currently kswapd doenst honour high order 
-page shortage.
+> full make logs, configs here:
+>...
+> this is all with debian/unstable, using gcc-3.4.2, binutils-2.15 (both
+>...
 
-> and a nice little stack dump.
-> 
-> Digging around in gfp.h to see if I have the proper flags I find that I 
-> currently have the following:
-> 
-> * __GFP_WAIT : This seems to indicate that the process should be put to 
-> sleep until the allocation can succeed. Doesn't seem to work that way 
-> though.
-> 
-> * __GFP_IO : What is meant with physical IO? PCI DMA? This buffer needs 
-> only be read by the ISA DMA controller and the driver in kernel space. 
-> Any useful data is copied to other buffers.
-> 
-> * __GFP_FS : Since the data is copied before use this probably isn't needed.
-> 
-> * __GFP_DMA : From what I've been told, this flags causes the allocator 
-> to do the magic required for the buffer to end up i memory accessible 
-> from the ISA DMA controller. So this seems to be the only flag that 
-> actually does anything useful.
-> 
-> My question is now, why does the allocation fail (sometimes) and what 
-> should I do about it?
-> 
-> Memory fragmentation and overusage seems like reasons to why but why 
-> doesn't the kernel throw out cache pages and reorganise user pages so 
-> that the allocation can succeed?
+Did you manually change your gcc link or are you using gcc 3.3 ?
 
-We're working on that.
+> maybe someone may find this useful...
 
-> As for solutions I've tried using __GFP_REPEAT which seems to do the 
-> trick. But the double underscore indicates (at least to me) that these 
-> are internal defines that shouldn't be used except for very special 
-> cases. What is the policy about these?
+Other people already do similar things.
 
-Its OK to use these flags externally. They might change in future major kernel
-versions though, or even future v2.6 release.  ie its not a stable API.
+The interesting thing is the exact error message. Your 5 errors are 
+actually only two (similar) compile errors.
+
+For being really useful, a posting of the error messages of the two 
+actual error messages would be useful. If you trace down who is "guilty" 
+for the compile error and Cc the person in question it's even better 
+(but please check linux-kernel before being the tenth person reporting 
+the same issue).
+
+> thanks,
+> Christian.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
+

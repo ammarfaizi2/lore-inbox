@@ -1,27 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132795AbRAaBc5>; Tue, 30 Jan 2001 20:32:57 -0500
+	id <S130461AbRAaBlA>; Tue, 30 Jan 2001 20:41:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133098AbRAaBcr>; Tue, 30 Jan 2001 20:32:47 -0500
-Received: from quechua.inka.de ([212.227.14.2]:2149 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S132795AbRAaBcf>;
-	Tue, 30 Jan 2001 20:32:35 -0500
-From: Bernd Eckenfels <inka-user@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Request: increase in PCI bus limit
-Message-Id: <E14Nm8S-0001P6-00@sites.inka.de>
-Date: Wed, 31 Jan 2001 02:32:36 +0100
+	id <S130515AbRAaBku>; Tue, 30 Jan 2001 20:40:50 -0500
+Received: from shell.cyberus.ca ([209.195.95.7]:48823 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S130461AbRAaBkf>;
+	Tue, 30 Jan 2001 20:40:35 -0500
+Date: Tue, 30 Jan 2001 20:39:42 -0500 (EST)
+From: jamal <hadi@cyberus.ca>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Ion Badulescu <ionut@cs.columbia.edu>, Andrew Morton <andrewm@uow.edu.au>,
+        lkml <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: Still not sexy! (Re: sendfile+zerocopy: fairly sexy (nothing to
+ do with ECN)
+In-Reply-To: <Pine.LNX.4.30.0101310213400.13467-100000@elte.hu>
+Message-ID: <Pine.GSO.4.30.0101302037080.3017-100000@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A775FEB.D7614D98@Hell.WH8.TU-Dresden.De> you wrote:
-> I guess the cleanest solution would be to allow variable setting of the
-> maximum number of PCI busses in the config file, similar to the
-> CONFIG_UNIX98_PTY_COUNT setting, so that "exotic" users with 32+ PCI
-> busses can boost the standard value according to their needs, without
-> having to increase kernel size for the normal users.
 
-May even decrease the kernel for systems < 4 busses.
+
+On Wed, 31 Jan 2001, Ingo Molnar wrote:
+
+>
+> On Tue, 30 Jan 2001, jamal wrote:
+>
+> > > - is this UDP or TCP based? (UDP i guess)
+> > >
+> > TCP
+>
+> well then i'd suggest to do:
+>
+> 	echo 100000 100000 100000 > /proc/sys/net/ipv4/tcp_wmem
+>
+> does this make any difference?
+
+According to my notes, i dont see this.
+however, 262144 into /proc/sys/net/core/*mem_max/default.
+
+I have access to my h/ware this weekend. Hopefully i should get something
+better than ttcp to use.
+
+cheers,
+jamal
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

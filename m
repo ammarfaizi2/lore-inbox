@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316821AbSGBQaC>; Tue, 2 Jul 2002 12:30:02 -0400
+	id <S316824AbSGBQra>; Tue, 2 Jul 2002 12:47:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316822AbSGBQaB>; Tue, 2 Jul 2002 12:30:01 -0400
-Received: from OL65-148.fibertel.com.ar ([24.232.148.65]:42710 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S316821AbSGBQaB>;
-	Tue, 2 Jul 2002 12:30:01 -0400
-Date: Tue, 2 Jul 2002 13:36:58 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
+	id <S316825AbSGBQr3>; Tue, 2 Jul 2002 12:47:29 -0400
+Received: from s1.relay.oleane.net ([195.25.12.48]:27333 "HELO
+	s1.relay.oleane.net") by vger.kernel.org with SMTP
+	id <S316824AbSGBQr3>; Tue, 2 Jul 2002 12:47:29 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Werner Almesberger <wa@almesberger.net>, Keith Owens <kaos@ocs.com.au>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: [OKS] Module removal
-Message-ID: <20020702133658.I2295@almesberger.net>
-References: <3D212757.5040709@quark.didntduck.org> <32193.1025585595@kao2.melbourne.sgi.com> <20020702024322.F2295@almesberger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020702024322.F2295@almesberger.net>; from wa@almesberger.net on Tue, Jul 02, 2002 at 02:43:22AM -0300
+Date: Tue, 2 Jul 2002 18:50:19 +0200
+Message-Id: <20020702165019.29700@smtp.adsl.oleane.com>
+In-Reply-To: <20020702133658.I2295@almesberger.net>
+References: <20020702133658.I2295@almesberger.net>
+X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
-> It's not really just the module information. If I can, say, get
-> callbacks from something even after I unregister, I may well
-> have destroyed the data I need to process the callbacks, and
-> oops or worse.
+>> It's not really just the module information. If I can, say, get
+>> callbacks from something even after I unregister, I may well
+>> have destroyed the data I need to process the callbacks, and
+>> oops or worse.
+>
+>Actually, if module exit synchronizes properly, even the
+>return-after-removal case shouldn't exist, because we'd simply
+>wait for this call to return.
+>
+>Hmm, interesting. Did I just make the whole problem go away,
+>or is travel fatigue playing tricks on my brain ? :-)
 
-Actually, if module exit synchronizes properly, even the
-return-after-removal case shouldn't exist, because we'd simply
-wait for this call to return.
+That was one of the solutions proposed by Rusty, that is basically
+waiting for all CPUs to have scheduled upon exit from module_exit
+and before doing the actual removal.
 
-Hmm, interesting. Did I just make the whole problem go away,
-or is travel fatigue playing tricks on my brain ? :-)
+Ben.
 
-- Werner
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://icapeople.epfl.ch/almesber/_____________________________________/

@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267668AbUJGVHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268254AbUJGVOT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267668AbUJGVHA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 17:07:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267700AbUJGS1S
+	id S268254AbUJGVOT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 17:14:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268231AbUJGVNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 14:27:18 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:62136 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S267705AbUJGSYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 14:24:04 -0400
-Subject: [patch 1/1] use offsetof for rb_entry
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Thu, 07 Oct 2004 19:53:42 +0200
-Message-Id: <20041007175343.AE28944CD@zion.localdomain>
+	Thu, 7 Oct 2004 17:13:36 -0400
+Received: from fw.osdl.org ([65.172.181.6]:15818 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267890AbUJGUgW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 16:36:22 -0400
+Date: Thu, 7 Oct 2004 13:39:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: 2.6.9-rc3-mm3 fails to detect aic7xxx
+Message-Id: <20041007133956.39c2427e.akpm@osdl.org>
+In-Reply-To: <4165A369.60306@cybsft.com>
+References: <1097178019.24355.39.camel@localhost>
+	<4165A369.60306@cybsft.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"K.R. Foley" <kr@cybsft.com> wrote:
+>
+> Dave Hansen wrote:
+> > I just booted 2.6.9-rc3-mm3 and got the good ol' 
+> > 
+> > VFS: Cannot open root device "sda2" or unknown-block(0,0)
+> > Please append a correct "root=" boot option
+> > Kernel panic - not syncing: VFS: Unable to mount root fs on
+> > unknown-block(0,0)
+> > 
+> > backing out bk-scsi.patch seems to fix it.  I believe this worked in
+> > 2.6.9-rc3-mm2.
+> > 
+> > -- Dave
+> 
+> While I can't verify that backing out bk-scsi.patch fixes it for me yet, 
+> I can verify that I get the exact same error trying to boot this kernel. 
+> I too am using the aic7xxx.
+> 
 
-Use, in the rb_entry definition, the offsetof macro instead of reinventing the
-wheel.
+Were some earlier messages printed out, during the scsi bringup stage?
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
-
- linux-2.6.9-current-paolo/include/linux/rbtree.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN include/linux/rbtree.h~use-offsetof-rb_entry include/linux/rbtree.h
---- linux-2.6.9-current/include/linux/rbtree.h~use-offsetof-rb_entry	2004-10-07 16:11:27.590555976 +0200
-+++ linux-2.6.9-current-paolo/include/linux/rbtree.h	2004-10-07 16:11:27.592555672 +0200
-@@ -114,7 +114,7 @@ struct rb_root
- 
- #define RB_ROOT	(struct rb_root) { NULL, }
- #define	rb_entry(ptr, type, member)					\
--	((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
-+	((type *)((char *)(ptr) - offsetof(type, member)))
- 
- extern void rb_insert_color(struct rb_node *, struct rb_root *);
- extern void rb_erase(struct rb_node *, struct rb_root *);
-_
+A full dmesg dump would be nice.

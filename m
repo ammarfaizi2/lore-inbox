@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266984AbSLDQyN>; Wed, 4 Dec 2002 11:54:13 -0500
+	id <S266976AbSLDQv5>; Wed, 4 Dec 2002 11:51:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266986AbSLDQyN>; Wed, 4 Dec 2002 11:54:13 -0500
-Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:24673 "HELO
-	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id <S266983AbSLDQyM>; Wed, 4 Dec 2002 11:54:12 -0500
-From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
-To: "'Shane Helms'" <shanehelms@eircom.net>, <linux-kernel@vger.kernel.org>
-Subject: RE: is KERNEL developement finished, yet ???
-Date: Wed, 4 Dec 2002 11:01:45 -0600
-Message-ID: <001901c29bb6$d4f98270$6c873841@joe>
+	id <S266977AbSLDQv5>; Wed, 4 Dec 2002 11:51:57 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:23174 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S266976AbSLDQv4>; Wed, 4 Dec 2002 11:51:56 -0500
+Date: Wed, 4 Dec 2002 12:01:44 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Mike Galbraith <efault@gmx.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Duncan Sands <baldrick@wanadoo.fr>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Reserving physical memory at boot time
+In-Reply-To: <5.1.1.6.2.20021204165742.00c6a180@pop.gmx.net>
+Message-ID: <Pine.LNX.3.95.1021204115837.29419B-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <200212041526.57501.shanehelms@eircom.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My question is, is there, yet, any area at this low
-> level to be discovered and developed on ? or as most
-> ppl say, are the interesting parts over and it's just
-> now into patches, bugs and slight
-> enhancements/optimizations/securities ?
+On Wed, 4 Dec 2002, Mike Galbraith wrote:
 
-Ha ha ha. Kernel development over.  That's rich.  I can't speak for the
-Linux kernel developers; they're a vindictive group (and the "to-do"
-list of their vision for future kernel development is no where to be
-found).
+> At 08:25 AM 12/4/2002 -0500, Richard B. Johnson wrote:
+> >On 3 Dec 2002, Alan Cox wrote:
+> >
+> > > On Tue, 2002-12-03 at 21:11, Richard B. Johnson wrote:
+> > > > If you need a certain page reserved at boot-time you are out-of-luck.
+> > >
+> > > Wrong - you can specify the precise memory map of a box as well as use
+> > > mem= to set the top of used memory. Its a painful way of marking a page
+> > > and it only works for a page the kernel isnt loaded into.
+> > >
+> >
+> >If you are refering to the "reserve=" kernel parameter, I don't
+> >think it works for memory addresses that are inside existing RAM.
+> >I guess if you used the "mem=" parameter to keep the kernel from
+> >using that RAM, the combination might work, but I have never
+> >tried it.
+> 
+> reserve= is for IO ports (kernel/resource.c). I think Alan was referring to 
+> mem=exactmap.
+> 
+> If Duncan didn't have the pesky requirement that his module work in an 
+> unmodified kernel, it would be easy to use __alloc_bootmem() to reserve an 
+> address range and expose via /proc.  But alas...
+> 
+>          -Mike
+> 
 
-However, I know Mach and GNU Hurd, which are both microkernels, have
-plenty of room for low-level pioneers.
+Well that parameter is not documented in:
 
-Personally, I think the most interesting aspects of kernel development
-and research are taking place on microkernels.
+        .../linux-2.4.18/Documentation/kernel-parameters.txt.
 
-> need to know, whether it's worth going into Computer
-> Architecture Group as my main career, or shall I stir
-> towards a another area like networking which is still
-> in developement, and plenty of jobs (but not as
-> interssting as kernel/OS programming) ?????
+Perhaps it's a 2.5.++ thing.
 
-Do both.  Or, ask yourself this: Would I rather do something I love and
-risk being unemployed, or have plenty of job security with only
-moderately entertaining tasks?  It's up to you, and maybe the job market
-for kernel development isn't that bad.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+   Bush : The Fourth Reich of America
 
-Another aspect of computer science you might want to consider is
-compilers; that's always low level, and they may need those people for
-all those hand- held devices.
-
-Joseph Wagner
 

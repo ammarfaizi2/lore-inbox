@@ -1,21 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290658AbSBLAyb>; Mon, 11 Feb 2002 19:54:31 -0500
+	id <S290657AbSBLAxv>; Mon, 11 Feb 2002 19:53:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290659AbSBLAyW>; Mon, 11 Feb 2002 19:54:22 -0500
-Received: from smtp1.libero.it ([193.70.192.51]:28371 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id <S290658AbSBLAyH> convert rfc822-to-8bit;
-	Mon, 11 Feb 2002 19:54:07 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Bauno <bauno@inwind.it>
-Organization: Bauno Engineering
-To: linux-kernel@vger.kernel.org
-Date: Tue, 12 Feb 2002 01:53:32 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S290658AbSBLAxn>; Mon, 11 Feb 2002 19:53:43 -0500
+Received: from balu.sch.bme.hu ([152.66.208.40]:63477 "EHLO balu.sch.bme.hu")
+	by vger.kernel.org with ESMTP id <S290657AbSBLAxY>;
+	Mon, 11 Feb 2002 19:53:24 -0500
+Date: Tue, 12 Feb 2002 01:53:06 +0100 (MET)
+From: Pozsar Balazs <pozsy@sch.bme.hu>
+To: Alan Cox <alan@redhat.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18-pre9-ac1
+In-Reply-To: <200202112301.g1BN1Th00942@devserv.devel.redhat.com>
+Message-ID: <Pine.GSO.4.30.0202120151410.7871-100000@balu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020212005334.0CB262028@bauniga.baita>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-auth 59294933 subscribe linux-kernel bauno@inwind.it
+
+> Linux 2.4.18pre9-ac1
+...
+
+Does it contain rmap-12e or still only 12a (as per the changelog)?
+
+-- 
+Balazs Pozsar
+

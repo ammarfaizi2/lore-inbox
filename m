@@ -1,57 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264848AbRFTGah>; Wed, 20 Jun 2001 02:30:37 -0400
+	id <S264849AbRFTGi3>; Wed, 20 Jun 2001 02:38:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264849AbRFTGaS>; Wed, 20 Jun 2001 02:30:18 -0400
-Received: from web13908.mail.yahoo.com ([216.136.175.71]:5137 "HELO
-	web13908.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S264848AbRFTGaJ>; Wed, 20 Jun 2001 02:30:09 -0400
-Message-ID: <20010620063008.93936.qmail@web13908.mail.yahoo.com>
-Date: Tue, 19 Jun 2001 23:30:08 -0700 (PDT)
-From: Jun Sun <julian_sun@yahoo.com>
-Subject: I hit the BUG() in schedule() ...
+	id <S264850AbRFTGiJ>; Wed, 20 Jun 2001 02:38:09 -0400
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:45373 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S264849AbRFTGiE>; Wed, 20 Jun 2001 02:38:04 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+Subject: fs/namei.c lookup_flags is misleading
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Wed, 20 Jun 2001 16:37:54 +1000
+Message-ID: <31086.993019074@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.4.6-pre3 and earlier.  fs/namei.c:lookup_flags() checks for O_CREATE,
+it even has a comment saying that O_CREATE|O_EXCL is a special case.
+But the only place lookup_flags() is called has
 
-I am running a MIPS machine and hit the following BUG() in
-kernel/sched.c:650:
+if (!(flag & O_CREAT)) {
+	if (path_init(pathname, lookup_flags(flag), nd))
 
-        prepare_to_switch();
-        {
-                struct mm_struct *mm = next->mm;
-                struct mm_struct *oldmm = prev->active_mm;
-                if (!mm) {
-                        if (next->active_mm) BUG();           <======
-                        next->active_mm = oldmm;
-                        atomic_inc(&oldmm->mm_count);
-                        enter_lazy_tlb(oldmm, next, this_cpu);
-                } else {
-                        if (next->active_mm != mm) BUG();
-                        switch_mm(oldmm, mm, next, this_cpu);
-                }
+so O_CREATE can never be set.  Not a bug, just misleading.  It does not
+help that path_walk() has a variable called lookup_flags.
 
-
-The "next" processor is swapper.
-
-I have not looked at it hard enough, but an initial investigation seems
-to reveal the cause trivially.  
-
-In include/linux/sched.h, the "swapper" task is set such that 'mm' is
-NULL and 'active_mm' is &init_mm.  So obviously when we switch back to
-"swapper" task, we will hit the BUG().  
-
-That sounds little too obvious to be true.  What am I missing here? 
-
-Thanks in advance.  Please cc your reply to this email account.  I
-appreciate that.
-
-Jun
-
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail
-http://personal.mail.yahoo.com/

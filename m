@@ -1,80 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264693AbTE1Lq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 07:46:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264694AbTE1Lq5
+	id S264692AbTE1L56 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 07:57:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264694AbTE1L55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 07:46:57 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2319 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264693AbTE1Lpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 07:45:40 -0400
-Date: Wed, 28 May 2003 12:58:53 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [RFC] Two patches - ptrace single stepping + modpost.c
-Message-ID: <20030528125853.A30380@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+	Wed, 28 May 2003 07:57:57 -0400
+Received: from mailgate.rz.uni-karlsruhe.de ([129.13.64.97]:64527 "EHLO
+	mailgate.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
+	id S264692AbTE1L54 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 07:57:56 -0400
+Date: Wed, 28 May 2003 14:10:40 +0200
+From: Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: axboe@suse.de, m.c.p@wolk-project.de, kernel@kolivas.org,
+       manish@storadinc.com, andrea@suse.de, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Message-ID: <20030528121040.GA1193@rz.uni-karlsruhe.de>
+Mail-Followup-To: Andrew Morton <akpm@digeo.com>, axboe@suse.de,
+	m.c.p@wolk-project.de, kernel@kolivas.org, manish@storadinc.com,
+	andrea@suse.de, marcelo@conectiva.com.br,
+	linux-kernel@vger.kernel.org
+References: <3ED2DE86.2070406@storadinc.com> <200305281713.24357.kernel@kolivas.org> <20030528071355.GO845@suse.de> <200305280930.48810.m.c.p@wolk-project.de> <20030528073544.GR845@suse.de> <20030528005156.1fda5710.akpm@digeo.com> <20030528101348.GA804@rz.uni-karlsruhe.de> <20030528032315.679e77b0.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030528032315.679e77b0.akpm@digeo.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, here's two patches I'd like to get sorted out and merged into
-2.5 or whatever.
+On Wed, May 28, 2003 at 03:23:15AM -0700, Andrew Morton wrote:
+> Could you please work out which change caused it?  Go back to stock 2.4 and
+> then apply this:
+> 
+> 
+> diff -puN drivers/block/ll_rw_blk.c~1 drivers/block/ll_rw_blk.c
+> --- 24/drivers/block/ll_rw_blk.c~1	2003-05-28 03:20:42.000000000 -0700
+> +++ 24-akpm/drivers/block/ll_rw_blk.c	2003-05-28 03:20:57.000000000 -0700
+> @@ -590,10 +590,10 @@ static struct request *__get_request_wai
+>  	register struct request *rq;
+>  	DECLARE_WAITQUEUE(wait, current);
+>  
+> -	generic_unplug_device(q);
+>  	add_wait_queue_exclusive(&q->wait_for_requests[rw], &wait);
+>  	do {
+>  		set_current_state(TASK_UNINTERRUPTIBLE);
+> +		generic_unplug_device(q);
+>  		if (q->rq[rw].count == 0)
+>  			schedule();
+>  		spin_lock_irq(&io_request_lock);
+> 
+> 
+> 
+> then this:
+> 
+> diff -puN drivers/block/ll_rw_blk.c~2 drivers/block/ll_rw_blk.c
+> --- 24/drivers/block/ll_rw_blk.c~2	2003-05-28 03:21:03.000000000 -0700
+> +++ 24-akpm/drivers/block/ll_rw_blk.c	2003-05-28 03:21:09.000000000 -0700
+> @@ -590,7 +590,7 @@ static struct request *__get_request_wai
+>  	register struct request *rq;
+>  	DECLARE_WAITQUEUE(wait, current);
+>  
+> -	add_wait_queue_exclusive(&q->wait_for_requests[rw], &wait);
+> +	add_wait_queue(&q->wait_for_requests[rw], &wait);
+>  	do {
+>  		set_current_state(TASK_UNINTERRUPTIBLE);
+>  		generic_unplug_device(q);
+> 
+> 
+> Then this (totally unlikely, don't bother):
+> 
+> diff -puN drivers/block/ll_rw_blk.c~3 drivers/block/ll_rw_blk.c
+> --- 24/drivers/block/ll_rw_blk.c~3	2003-05-28 03:21:15.000000000 -0700
+> +++ 24-akpm/drivers/block/ll_rw_blk.c	2003-05-28 03:21:39.000000000 -0700
+> @@ -829,8 +829,7 @@ void blkdev_release_request(struct reque
+>  	 */
+>  	if (q) {
+>  		list_add(&req->queue, &q->rq[rw].free);
+> -		if (++q->rq[rw].count >= q->batch_requests &&
+> -				waitqueue_active(&q->wait_for_requests[rw]))
+> +		if (++q->rq[rw].count >= q->batch_requests)
+>  			wake_up(&q->wait_for_requests[rw]);
+>  	}
+>  }
+> 
+> _
 
-The first: add a flag to tsk->ptrace to indicate whether we're
-single stepping or not.  This is used by the ARM ptrace code in
-arch/arm/kernel/signal.c to decide whether we need to halt the
-process for the debugger during signal processing, or remove
-and set single stepping breakpoints.
+Tested all of them and some combinations:
+patch 1 alone: still mouse hangs
+patch 2 alone: still mouse hangs
+patch 3 alone: no hangs, but I get some zombie process (starting a lot of
+               xterms results in zombie xterms, not noticed with vanilla
+               and the other patches)
+patch 1+2: no mouse hangs
+patch 1+2+3: no mouse hangs, no zombies
 
-Other architectures which use similar schemes (eg, alpha) might also
-like this; it looks like Alpha may be a little buggy; it appears
-to carry the single stepping status across signal handling.  What
-happens if the debugger decides to disable single stepping when
-the debugged process receives a signal?
-
---- orig/include/linux/ptrace.h	Tue May 27 10:05:43 2003
-+++ linux/include/linux/ptrace.h	Tue May 27 10:14:30 2003
-@@ -65,6 +65,7 @@
- #define PT_TRACE_EXIT	0x00000200
- 
- #define PT_TRACE_MASK	0x000003f4
-+#define PT_SINGLESTEP	0x80000000	/* single stepping (used on ARM) */
- 
- #include <linux/compiler.h>		/* For unlikely.  */
- #include <linux/sched.h>		/* For struct task_struct.  */
-
-
-The second: this allows modpost.c to build on ARM.  For some unknown
-reason, EM_SPARC* are not present in my system headers.  This isn't
-the right solution since it would interfere with cross-building SPARC.
-Are EM_SPARC* normally defined as preprocessor macros or enums?
-
---- orig/scripts/modpost.c	Mon May  5 17:40:29 2003
-+++ linux/scripts/modpost.c	Thu May  8 16:40:46 2003
-@@ -296,13 +296,14 @@
- 		/* ignore global offset table */
- 		if (strcmp(symname, "_GLOBAL_OFFSET_TABLE_") == 0)
- 			break;
-+#if defined(__sparc__) || defined(__sparc_v9__)
- 		if (info->hdr->e_machine == EM_SPARC ||
- 		    info->hdr->e_machine == EM_SPARCV9) {
- 			/* Ignore register directives. */
- 			if (ELF_ST_TYPE(sym->st_info) == STT_REGISTER)
- 				break;
- 		}
--		
-+#endif
- 		if (memcmp(symname, MODULE_SYMBOL_PREFIX,
- 			   strlen(MODULE_SYMBOL_PREFIX)) == 0) {
- 			s = alloc_symbol(symname + 
-
+Bye,
+Matthias
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Matthias.Mueller@rz.uni-karlsruhe.de
+Rechenzentrum Universitaet Karlsruhe
+Abteilung Netze

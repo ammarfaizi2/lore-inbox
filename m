@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266058AbUFDW6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266035AbUFDW63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266058AbUFDW6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 18:58:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266038AbUFDWzV
+	id S266035AbUFDW63 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 18:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266046AbUFDW44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 18:55:21 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:36481 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S266040AbUFDWwu (ORCPT
+	Fri, 4 Jun 2004 18:56:56 -0400
+Received: from mail.kroah.org ([65.200.24.183]:56010 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266035AbUFDWwj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 18:52:50 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       davidm@hpl.hp.com, akpm@osdl.org, willy@debian.org
-Subject: [PATCH] ia64 MAINTAINERS update
-Date: Fri, 4 Jun 2004 15:51:25 -0700
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
+	Fri, 4 Jun 2004 18:52:39 -0400
+Date: Fri, 4 Jun 2004 15:51:35 -0700
+From: Greg KH <greg@kroah.com>
+To: Jonathan Corbet <corbet@lwn.net>
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: [PATCH] Module section offsets in /sys/module
+Message-ID: <20040604225135.GA14176@kroah.com>
+References: <20040603213946.31209.qmail@lwn.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_tzPwA9DosQhBL93"
-Message-Id: <200406041551.25405.jbarnes@engr.sgi.com>
+In-Reply-To: <20040603213946.31209.qmail@lwn.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 03, 2004 at 03:39:46PM -0600, Jonathan Corbet wrote:
+> 
+> Currently, this feature is absent if CONFIG_KALLSYMS is not set.  I do
+> wonder if CONFIG_DEBUG_INFO might not be a better choice, now that I think
+> about it.  Section names are unmunged, so "ls -a" is needed to see most of
+> them. 
+> 
+> Applies to 2.6.7-rc2.  Comments?
 
---Boundary-00=_tzPwA9DosQhBL93
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Nice, I like this.  I've added it to my driver-2.6 tree to have it show
+up in the next -mm release.
 
-Dave Hansen pointed out that linux-ia64@linuxia64.org is broken.  Since the 
-list has moved and the domain is gone, update the list address and kill the 
-URL.  I think willy has a new domain for ia64 Linux, but it was down for me, 
-so I'll let him update the file later with the new URL if he wants to.
+If you want to change the config option, feel free to send a patch on
+top of this one.
 
-Jesse
+thanks,
 
---Boundary-00=_tzPwA9DosQhBL93
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="ia64-maintainers-update.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="ia64-maintainers-update.patch"
-
-===== MAINTAINERS 1.216 vs edited =====
---- 1.216/MAINTAINERS	Mon May 31 18:02:57 2004
-+++ edited/MAINTAINERS	Fri Jun  4 15:49:17 2004
-@@ -944,15 +944,14 @@
- IA64 (Itanium) PLATFORM
- P:	David Mosberger-Tang
- M:	davidm@hpl.hp.com
--L:	linux-ia64@linuxia64.org
--W:	http://www.linuxia64.org/
-+L:	linux-ia64@vger.kernel.org
- S:	Maintained
- 
- SN-IA64 (Itanium) SUB-PLATFORM
- P:	Jesse Barnes
- M:	jbarnes@sgi.com
- L:	linux-altix@sgi.com
--L:	linux-ia64@linuxia64.org
-+L:	linux-ia64@vger.kernel.org
- W:	http://www.sgi.com/altix
- S:	Maintained
- 
-
---Boundary-00=_tzPwA9DosQhBL93--
+greg k-h

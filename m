@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278712AbRJZPs0>; Fri, 26 Oct 2001 11:48:26 -0400
+	id <S278658AbRJZPwG>; Fri, 26 Oct 2001 11:52:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278666AbRJZPsR>; Fri, 26 Oct 2001 11:48:17 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:49828 "EHLO
-	mjc.meridian.redhat.com") by vger.kernel.org with ESMTP
-	id <S278646AbRJZPsG>; Fri, 26 Oct 2001 11:48:06 -0400
-Date: Fri, 26 Oct 2001 11:48:42 -0400 (EDT)
-From: Alex Larsson <alexl@redhat.com>
-X-X-Sender: <alexl@mjc.meridian.redhat.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: dnotify semantics
-Message-ID: <Pine.LNX.4.33.0110261139190.10309-100000@mjc.meridian.redhat.com>
+	id <S278675AbRJZPv5>; Fri, 26 Oct 2001 11:51:57 -0400
+Received: from sj-msg-core-3.cisco.com ([171.70.157.152]:6787 "EHLO
+	sj-msg-core-3.cisco.com") by vger.kernel.org with ESMTP
+	id <S278658AbRJZPvr>; Fri, 26 Oct 2001 11:51:47 -0400
+Message-ID: <3BD9867D.382CCC36@cisco.com>
+Date: Fri, 26 Oct 2001 21:21:25 +0530
+From: Manik Raina <manik@cisco.com>
+Organization: Cisco Systems Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Tom Rini <trini@kernel.crashing.org>
+CC: linux-kernel@vger.kernel.org, azu@sysgo.de
+Subject: Re: [PATCH] : preventing multiple includes of the same header file
+In-Reply-To: <Pine.GSO.4.33.0110231618100.29108-100000@cbin2-view1.cisco.com> <20011023080936.A13088@cpe-24-221-152-185.az.sprintbbd.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently when monitoring a directory using dnotify you get notifications 
-whenever some file in the directory changes, or is added/removed. But when 
-the directory itself is changed (i.e. chmoded) you don't get any notification.
+> I've changed _PPC_xxx_H to _ASM_xxx_H to match the rest of the headers.
+> This is now in the PPC bk tree, and will eventually hit Linus' tree,
+> thanks!
+>
 
-Reading Documentation/dnotify.txt it does not seem clear what the expected 
-behaviour is, it says:
+Would point your kind attention towards some others files in the same
+directory
+(include/asm-ppc) which dont follow _PPC_XXX_H convention either.....
 
- The intention of directory notification is to allow user applications
- to be notified when a directory, or any of the files in it, are changed.
+residual.h
+rxplite.h
+rpxhiox.h
 
-But then:
+and a few more ....
 
-        DN_ACCESS       A file in the directory was accessed (read)
-        DN_MODIFY       A file in the directory was modified (write,truncate)
-        DN_CREATE       A file was created in the directory
-        DN_DELETE       A file was unlinked from directory
-        DN_RENAME       A file in the directory was renamed
-        DN_ATTRIB       A file in the directory had its attributes
-                        changed (chmod,chown)
+thanks
+Manik
 
- (i.e. no directory was changed event)
 
-This is somewhat of a problem for me, implementing fam using dnotify. When 
-monitoring a directory i need to send events also when the directory 
-changes. The only way this can be done with the current semantics would be 
-to monitor both the directory and it's parent. Unfortunately this could
-create many spurious events/stats, and is not possible to do for the root 
-directory.
-
-Is there any chance that we can get a change in semantics so that changes 
-to the directory itself also causes a notification?
-
-/ Alex
-
-(Please CC me, I'm not on the linux-kernel list)
 

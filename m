@@ -1,79 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbTCaGtz>; Mon, 31 Mar 2003 01:49:55 -0500
+	id <S261442AbTCaHcV>; Mon, 31 Mar 2003 02:32:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261432AbTCaGtz>; Mon, 31 Mar 2003 01:49:55 -0500
-Received: from pop.gmx.net ([213.165.64.20]:54380 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261427AbTCaGty>;
-	Mon, 31 Mar 2003 01:49:54 -0500
-Message-Id: <5.2.0.9.2.20030331085710.01aa6d30@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Mon, 31 Mar 2003 09:05:44 +0200
-To: Jens Axboe <axboe@suse.de>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: Bad interactive behaviour in 2.5.65-66 (sched.c)
-Cc: Con Kolivas <kernel@kolivas.org>, Robert Love <rml@tech9.net>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Peter Lundkvist <p.lundkvist@telia.com>, akpm@digeo.com, mingo@elte.hu,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030331063548.GQ917@suse.de>
-References: <5.2.0.9.2.20030331033120.00cf0d08@pop.gmx.net>
- <20030330141404.GG917@suse.de>
- <3E8610EA.8080309@telia.com>
- <1048992365.13757.23.camel@localhost>
- <20030330141404.GG917@suse.de>
- <5.2.0.9.2.20030331033120.00cf0d08@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S261443AbTCaHcV>; Mon, 31 Mar 2003 02:32:21 -0500
+Received: from mailproxy.de.uu.net ([192.76.144.34]:39377 "EHLO
+	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
+	id <S261442AbTCaHcU>; Mon, 31 Mar 2003 02:32:20 -0500
+Message-ID: <7A5D4FEED80CD61192F2001083FC1CF906514C@CHARLY>
+From: "Filipau, Ihar" <ifilipau@sussdd.de>
+To: "'linux@horizon.com'" <linux@horizon.com>,
+       "'Ingo Oeser'" <ingo.oeser@informatik.tu-chemnitz.de>,
+       "'Jonathan Lundell'" <linux@lundell-bros.com>,
+       "'Pavel Machek'" <pavel@ucw.cz>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: inw/outw performance
+Date: Mon, 31 Mar 2003 09:41:17 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="koi8-r"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:35 AM 3/31/2003 +0200, Jens Axboe wrote:
->On Mon, Mar 31 2003, Mike Galbraith wrote:
-> > At 07:06 AM 3/31/2003 +1000, Con Kolivas wrote:
-> > >On Mon, 31 Mar 2003 00:14, Jens Axboe wrote:
-> > >> On Sat, Mar 29 2003, Robert Love wrote:
-> > >> > On Sat, 2003-03-29 at 21:33, Con Kolivas wrote:
-> > >> > > Are you sure this should be called a bug? Basically X is an
-> > >interactive
-> > >> > > process. If it now is "interactive for a priority -10 process" then
-> > >it
-> > >> > > should be hogging the cpu time no? The priority -10 was a workaround
-> > >> > > for lack of interactivity estimation on the old scheduler.
-> > >> >
-> > >> > Well, I do not necessarily think that renicing X is the problem.  Just
-> > >> > an idea.
-> > >>
-> > >> I see the exact same behaviour here (systems appears fine, cpu intensive
-> > >> app running, attempting to start anything _new_ stalls for ages), and I
-> > >> definitely don't play X renice tricks.
-> > >>
-> > >> It basically made 2.5 unusable here, waiting minutes for an ls to even
-> > >> start displaying _anything_ is totally unacceptable.
-> > >
-> > >I guess I should have trusted my own benchmark that was showing this was
-> > >worse
-> > >for system responsiveness.
-> >
-> > I don't think it's really bad for system responsiveness.  I think the
->
->What drugs are you on? 2.5.65/66 is the worst interactive kernel I've
->ever used, it would be _embarassing_ to release a 2.6-test with such a
->rudimentary flaw in it. IOW, a big show stopper.
+Hello All!
 
-It's only horrible when you trigger the problems, otherwise it's wonderful.
+  Thanks every-one for your replies - it was really helpful.
+  I gave our HW guys more job ;-)
 
-> > problem is just that the sample is too small.  The proof is that simply
-> > doing sleep_time %= HZ cures most of my woes.  WRT contest and it's
->
->Irk, that sounds like a really ugly bandaid.
+  The only question I have left - and what is really more 
+  linux-kernel related: is it okay to have ~200-400us IRQs
+  disabled? I cannot effectively clear interrupt on device 
+   - but I can disable interrupt on our PCI bridge, and later 
+  in BH, after clearing irq on device, reenable irq line on
+  bridge.
 
-Nope, it's a really ugly _tourniquet_ ;-)
+2Linux@Horizon: home of PLX PCI 9052 - www.plxtech.com
+                PCI bridge for custom devices.
 
->I'm wondering why the scheduler guys aren't all over this problem,
->getting it fixed.
+2Pavel: got not response - looks like you have enough of your 
+        own unemployed ;-)
 
-I think they are.
+--- Regards&Wishes! With respect  Ihar "Philips" Filipau, and Phil for
+friends
 
-         -Mike  
-
+- - - - - - - - - - - - - - - - - - - - - - - - -
+MCS/Mathematician - System Programmer
+Ihar Filipau 
+Software entwickler @ SUSS MicroTec Test Systems GmbH, 
+Suss-Strasse 1, D-01561 Sacka (bei Dresden)
+e-mail: ifilipau@sussdd.de  tel: +49-(0)-352-4073-327
+fax: +49-(0)-352-4073-700   web: http://www.suss.com/

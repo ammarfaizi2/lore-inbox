@@ -1,65 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292302AbSBPA64>; Fri, 15 Feb 2002 19:58:56 -0500
+	id <S292304AbSBPBPk>; Fri, 15 Feb 2002 20:15:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292303AbSBPA6r>; Fri, 15 Feb 2002 19:58:47 -0500
-Received: from taifun.devconsult.de ([212.15.193.29]:15621 "EHLO
-	taifun.devconsult.de") by vger.kernel.org with ESMTP
-	id <S292302AbSBPA6h>; Fri, 15 Feb 2002 19:58:37 -0500
-Date: Sat, 16 Feb 2002 01:58:34 +0100
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S292305AbSBPBPd>; Fri, 15 Feb 2002 20:15:33 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:12306 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S292304AbSBPBPY>;
+	Fri, 15 Feb 2002 20:15:24 -0500
+Date: Fri, 15 Feb 2002 17:10:48 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: How to check the kernel compile options ?
-Message-ID: <20020216015834.D28176@devcon.net>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1020213180951.12448L-100000@gatekeeper.tmr.com> <Pine.LNX.4.33L2.0202140836210.1530-300000@dragon.pdx.osdl.net> <20020215155143.I14054@lynx.adilger.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020215155143.I14054@lynx.adilger.int>; from adilger@turbolabs.com on Fri, Feb 15, 2002 at 03:51:43PM -0700
-Organization: dev/consulting GmbH
-X-NCC-RegID: de.devcon
+In-Reply-To: <Pine.LNX.4.33L2.0202151501220.11494-100000@dragon.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.33L2.0202151657230.11494-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 15, 2002 at 03:51:43PM -0700, Andreas Dilger wrote:
-> 
-> Note also that it is enough to store the config options without the
-> leading CONFIG_ part, and then use 'grep "[A-Z0-9]*=[ym]$"' to get
-> the actual config strings.  You can add a final 'sed "s/^/CONFIG_/"'
-> step to return it to the original format.  So:
+On Fri, 15 Feb 2002, Randy.Dunlap wrote:
 
-Note that you also need some way to keep the config symbols which are
-set to "n" and commented out in the .config. Otherwise you will have
-to answer a lot of questions on "make oldconfig" ("yes n | make
-oldconfig" isn't an option, as this doesn't tell you which config
-symbols have been added).
+| On Fri, 15 Feb 2002, Andreas Dilger wrote:
+|
+| | On Feb 14, 2002  08:48 -0800, Randy.Dunlap wrote:
+| | > gziphdr=`binoffset $1 0x1f 0x8b 0x08 0x0`
+| | > # increment by 1 since tail offsets are 1-based, not 0-based
+| | > gziphdr=$((gziphdr + 1))
+| | >
+| | > tail -c +$gziphdr $1 | gunzip > $1.tmp
+| | > strings $1.tmp | grep CONFIG_ > $1.old.config
+| | > rm $1.tmp
+| |
+| | How about something like the below (avoids writing a multi-MB temp file):
+| |
+| | HDR=`binoffset $1 0x1f 0x8b 0x08 0x0`
+| | dd if=$1 bs=1 skip=$HDR | zcat | strings /dev/stdin | grep CONFIG_
+|
+| I tried that, but I didn't know about /dev/stdin,
+| so I agree with you.
+| I had tried 'strings -', but strings didn't like that.  :(
+|
+| | Note also that it is enough to store the config options without the
+| | leading CONFIG_ part, and then use 'grep "[A-Z0-9]*=[ym]$"' to get
+| | the actual config strings.  You can add a final 'sed "s/^/CONFIG_/"'
+| | step to return it to the original format.  So:
+| |
+| | dd if=$1 bs=1 skip=$HDR | zcat | strings /dev/stdin | grep "[A-Z0-9]=[ym]$" \
+| | 	| sed "s/^//CONFIG_"
+| | --
+|
+| Yes, I said that I intended to remove the leading "CONFIG_".
+| I'll do that soon and package it all up and repost it.
+| Oh, and make it a CONFIG option.
+|
+| Thanks for your help.
 
+Interim report:  I agree with the spirit of no temp. file, but one of
+zcat or strings isn't working for me when I use only pipes.  The final
+output file is empty (length = 0).
 
+Hers's the current script:
 
-I have actually done my own patch to include the .config into the
-kernel image some time ago. It provides the .config via
-/proc/config{,.gz,.bz2} (the compression method to use is
-configurable). Apart from compression, it doesn't try to do anything
-special to reduce size, because I don't have any machines where it
-actually matters if the kernel needs some kB more or less memory.
+HDR=`binoffset $1 0x1f 0x8b 0x08 0x0`
+dd if=$1 bs=1 skip=$HDR | zcat - | strings /dev/stdin \
+  | grep "[A-Za-z_0-9]=[ym]$" | sed "s/^/CONFIG_/" > $1.old.config
 
-I didn't bother to submit the patch because of the discussions on this
-topic in the past, instead I keep patching kernel sources myself
-before compiling a kernel. Anyone interested can get the patch from
-<http://www.myipv6.de/patches/kconfig/>. Patches for new kernel
-versions are uploaded occasionally, everytime I don't forget to rediff
-it before applying other patches to the source tree ;-) (possibly
-conflicting parts for other kernel versions are Makefiles, config.in
-or Configure.help, which can all be hand-applied easily, even if you
-are not a kernel hacker ;-). It works for both 2.2 and 2.4 (probably
-2.5 also, didn't test yet).
+with the error output:
 
-Any comments on the patch are welcome ;-)
+++ binoffset bzImage 0x1f 0x8b 0x08 0x0
+filesize: 1086399
+number of pattern matches = 1
+19268
++ HDR=19268
++ dd if=bzImage bs=1 skip=19268
++ zcat -
++ strings /dev/stdin
+32769+0 records in
+32768+0 records out
+/home/rddunlap/bin/extract-config: line 9: 13783 Broken pipe
+dd if=$1 bs=1 skip=$HDR
+     13784                       | zcat -
+     13785 Segmentation fault      | strings /dev/stdin >$1.strings
 
-Andreas
+This one works (no surprise):
+
+HDR=`binoffset $1 0x1f 0x8b 0x08 0x0`
+dd if=$1 bs=1 skip=$HDR | zcat - > $1.vmlin.tmp
+strings $1.vmlin.tmp | grep "[A-Za-z_0-9]=[ym]$" \
+  | sed "s/^/CONFIG_/" > $1.old.config
+  rm $1.vmlin.tmp
+
+any ideas or suggestions about this segfault problem?
+
+thanks,
 -- 
-       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
-     ---------------------------------------------------------
-         +49 521 1365800 - af@devcon.net - www.devcon.net
+~Randy
+

@@ -1,40 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbULOJHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262277AbULOJJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261811AbULOJHE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 04:07:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262239AbULOJHE
+	id S262277AbULOJJk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 04:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbULOJJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 04:07:04 -0500
-Received: from yue.linux-ipv6.org ([203.178.140.15]:35588 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261811AbULOJG7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 04:06:59 -0500
-Date: Wed, 15 Dec 2004 18:08:39 +0900 (JST)
-Message-Id: <20041215.180839.93043538.yoshfuji@linux-ipv6.org>
-To: dj@outpost24.com
-Cc: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: Re: Linux kernel IGMP vulnerabilities
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <41BFF931.6030205@outpost24.com>
-References: <41BFF931.6030205@outpost24.com>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Wed, 15 Dec 2004 04:09:39 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:47793 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262277AbULOJJZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 04:09:25 -0500
+Date: Wed, 15 Dec 2004 10:09:00 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
+Message-ID: <20041215090900.GC13551@elte.hu>
+References: <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu> <20041214132834.GA32390@elte.hu> <1103066516.12659.377.camel@cmn37.stanford.edu> <1103072952.17186.0.camel@krustophenia.net> <1103076261.12657.709.camel@cmn37.stanford.edu>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1103076261.12657.709.camel@cmn37.stanford.edu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <41BFF931.6030205@outpost24.com> (at Wed, 15 Dec 2004 09:43:29 +0100), David Jacoby <dj@outpost24.com> says:
 
-> Any advice about how people can patch this security issue?
+* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
 
-http://linux.bkbits.net:8080/linux-2.6/cset@41bf39b1RGfvOMInGewwDyzfcuL2OQ
+> On Tue, 2004-12-14 at 17:09, Lee Revell wrote:
+> > On Tue, 2004-12-14 at 15:21 -0800, Fernando Lopez-Lezcano wrote:
+> > > I don't know which change did it, but I have network connectivity in my
+> > > athlon64 test box with 0.7.33-0! Woohoo! [*]
+> > 
+> > Wait, this works on x84-64 now?  There was a recent report on LAU that
+> > it didn't compile.
+> 
+> The machine has an athlon64 but it is running 32 bit fc2. I have not
+> tried to build (yet) on 64 bit fcx.
 
---yoshfuji
+x64 wont work for now, it needs some work to make threaded timer IRQs
+work.
+
+	Ingo

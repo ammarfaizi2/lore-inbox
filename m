@@ -1,78 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263210AbTCWU6k>; Sun, 23 Mar 2003 15:58:40 -0500
+	id <S263216AbTCWVBK>; Sun, 23 Mar 2003 16:01:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263211AbTCWU6k>; Sun, 23 Mar 2003 15:58:40 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:35856
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S263210AbTCWU6i>; Sun, 23 Mar 2003 15:58:38 -0500
-Date: Sun, 23 Mar 2003 13:07:26 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE todo list
-In-Reply-To: <1048352492.9219.4.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10303231306490.8000-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263233AbTCWVBJ>; Sun, 23 Mar 2003 16:01:09 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:7590
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263216AbTCWVBH>; Sun, 23 Mar 2003 16:01:07 -0500
+Subject: Re: Ptrace hole / Linux 2.2.25
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: Martin Mares <mj@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <87znnlakmc.fsf@deneb.enyo.de>
+References: <20030323194012$6886@gated-at.bofh.it>
+	 <20030323194014$66c3@gated-at.bofh.it>
+	 <20030323195010$5026@gated-at.bofh.it>
+	 <20030323195012$6f30@gated-at.bofh.it>
+	 <20030323200029$737b@gated-at.bofh.it>
+	 <20030323202005$2a74@gated-at.bofh.it>  <87znnlakmc.fsf@deneb.enyo.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048458288.10712.78.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Mar 2003 22:24:49 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Mar 2003, Alan Cox wrote:
+On Sun, 2003-03-23 at 20:33, Florian Weimer wrote:
+> Well, this is a problem which will be fixed over time.  Amorphous
+> distributions such as Debian will no longer be notified first, and
 
-> (Minus some stuff which is NDA'd because it involves unreleased chips
-> etc)
-> 
-> -	Promise 20376
-> -	Audit Promise drivers
-> -	BIOS timing stuff
-> -	Simplex mode reassignment intelligence
-> -	IDE-SCSI crashes on 2.5
-> -	IDE-SCSI/reset race on 2.4/2.5
-> -	Forward port remaining drivers to 2.5
-> -	Add ATAPI virtual DMA
-> -	Add DMA active irq poll trick
-> -	Clock switching for Highpoint 372N
-> -	Support for SATA bridge on HPT
-> -	Intel ICH5 errata audit
-> -	Intel Centrino idents and errata audit		[Merged for 2.5]
-> -	Explain rather than just fix the CMD680 mmio collision problem
-> -	Finish hotplug handling
-> -	Revert identify hacks now ide-default is present
-> -	Allow multiple driver binding for ide-cd/ide-scsi etc
-> -	Locking for unload driver
-> -	Locking for modular load onto a busy interface
-> -	ADMA full support
-> -	Mark Lord/Andre ideas on LBA28/LBA48
-> -	Finish verifying 256 sector I/O or larger on LBA48
-> 	[How to handle change dynamically on hotplug ?]
-> -	Clean up ide_unregister paths
-> -	Finish ide pcmcia code hot unplug interface registers 
-> -	Finish ide pcmcia unregister path retry logic
-> -	IRQ detect broken for some setups
-> -	Check full PCI clocking info on HPT37x
-> -	Rewrite HPT37x controller type logic
-> -	Debug TRM290
-> -	Fix up the hwif based sectors per transfer limit
-> -	How to handle generic class IDE devices by class only
-> -	Opti support for the 558 ?
-> -	Can we resolve NDA's with SiS ?
-> -	Audit ALi driver use of config register bits on bridge
-> -	Document the calling properties for each driver function
-> -	Work out how to fix up all the TCQ crashes
-> -	Does taskfile I/O now work after the bug fixes ?
-> 		[do we care 8))]
-> -	Multiple taskfile load support for controllers that have it
-> 		[big performance win]
-> -	IDE specification issue - mishandling error abort on ATA6
-> -	20276 with i960 SX6000 mishandling
-> -	Investigate breakage in ide-floppy on 2.4
-> -	Merge new ACPI + relax into the -ac tree
-> -	Get Arjan's info on IDE violations in simulator
+Why would anyone do that. Debian is a bunch of amateurs true, but
+they happen to be a bunch of extremely professional amateurs when it
+comes to security.
 
-Erm, where is this simulator?
+The problem vendor-sec has is with all the tiny little groups, because
+its hard to know if they are going to act securely or not. Now I trust
+Russell but thats because I know him, many of the others are hard
+choices.
 
-
-Andre Hedrick
-LAD Storage Consulting Group
+If you get it wrong stuff leaks, take a look at the latest CERT fiasco
 

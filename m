@@ -1,96 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265362AbSIRGAZ>; Wed, 18 Sep 2002 02:00:25 -0400
+	id <S265339AbSIRF4o>; Wed, 18 Sep 2002 01:56:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265417AbSIRGAZ>; Wed, 18 Sep 2002 02:00:25 -0400
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:47614 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S265362AbSIRGAX>; Wed, 18 Sep 2002 02:00:23 -0400
-Date: Wed, 18 Sep 2002 02:05:19 -0400 (EDT)
-From: Albert Cranford <ac9410@attbi.com>
-X-X-Sender: ac9410@home1
-Reply-To: Albert Cranford <ac9410@attbi.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [patch 2/3] 2.5.36 i2c new adapter id's
-Message-ID: <Pine.LNX.4.44.0209180203150.358-200000@home1>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="0-1339493514-1032329119=:358"
+	id <S265346AbSIRF4o>; Wed, 18 Sep 2002 01:56:44 -0400
+Received: from users.linvision.com ([62.58.92.114]:24442 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S265339AbSIRF4m>; Wed, 18 Sep 2002 01:56:42 -0400
+Date: Wed, 18 Sep 2002 08:01:34 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Thomas Dodd <ted@cypress.com>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org,
+       linux-usb-users@lists.sourceforge.net
+Subject: Re: Problems accessing USB Mass Storage
+Message-ID: <20020918080134.A5804@bitwizard.nl>
+References: <1032261937.1170.13.camel@stimpy.angelnet.internal> <20020917151816.GB2144@kroah.com> <3D876861.9000601@cypress.com> <20020917174631.GD2569@kroah.com> <20020917234302.A26741@bitwizard.nl> <3D87A6E3.5090407@cypress.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D87A6E3.5090407@cypress.com>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Tue, Sep 17, 2002 at 05:04:19PM -0500, Thomas Dodd wrote:
+> Rogier Wolff wrote:
+> >On Tue, Sep 17, 2002 at 10:46:31AM -0700, Greg KH wrote:
+> >
+> >>On Tue, Sep 17, 2002 at 12:37:37PM -0500, Thomas Dodd wrote:
+> >>
+> >>>I get the feeling it's not a true mass storage device.
+> >>
+> >>Sounds like it.
+> >
+> >
+> >Nope. Sure does sound like it's a mass storage device. And it works
+> >too. 
+> >
+> >The kernel managed to read the partition table off it, and got
+> >one valid partition: sda1. 
+> 
+> Accept that you cannot read data from the device. At all.
+> Even dd fails. And the windows drivers work (using XP
+> in vmware it think it was) correctly on this same device.
 
---0-1339493514-1032329119=:358
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+If the kernel can't read the first block, you get to see something
+like: 
 
-Hello Linus,
-patch adds new adapter and driver id's to i2c.
-Albert
+sda: <io error on device 8:00> 
+unable to read parttion table.
+
+and I don't know how the kernel could  come up with an "sda1" all
+by itself.......
+
+			Roger. 
+
 -- 
-ac9410@attbi.com
-
---0-1339493514-1032329119=:358
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN; name=2-i2c-includes-patch
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0209180205190.358@home1>
-Content-Description: 
-Content-Disposition: attachment; filename=2-i2c-includes-patch
-
-LS0tIGxpbnV4LTIuNS4zNi9pbmNsdWRlL2xpbnV4L2kyYy1pZC5oLm9yaWcJ
-MjAwMi0wOS0wOSAxMzozNTowMS4wMDAwMDAwMDAgLTA0MDANCisrKyBsaW51
-eC9pbmNsdWRlL2xpbnV4L2kyYy1pZC5oCTIwMDItMDgtMjQgMTY6MTk6Mzku
-MDAwMDAwMDAwIC0wNDAwDQpAQCAtMjAsNyArMjAsNyBAQA0KICAgICBGb3Vu
-ZGF0aW9uLCBJbmMuLCA2NzUgTWFzcyBBdmUsIENhbWJyaWRnZSwgTUEgMDIx
-MzksIFVTQS4JCSAgICAgKi8NCiAvKiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tICovDQogDQotLyogJElkOiBpMmMtaWQuaCx2IDEuNTIgMjAwMi8w
-Ny8xMCAxMzoyODo0NCBhYnogRXhwICQgKi8NCisvKiAkSWQ6IGkyYy1pZC5o
-LHYgMS41NSAyMDAyLzA4LzI0IDIwOjE5OjM5IG1kcyBFeHAgJCAqLw0KIA0K
-ICNpZm5kZWYgSTJDX0lEX0gNCiAjZGVmaW5lIEkyQ19JRF9IDQpAQCAtMTQz
-LDYgKzE0Myw3IEBADQogI2RlZmluZSBJMkNfRFJJVkVSSURfU01TQzQ3TTEg
-MTAzMQ0KICNkZWZpbmUgSTJDX0RSSVZFUklEX1ZUMTIxMSAxMDMyDQogI2Rl
-ZmluZSBJMkNfRFJJVkVSSURfTE05MiAxMDMzDQorI2RlZmluZSBJMkNfRFJJ
-VkVSSURfVlQ4MjMxIDEwMzQNCiANCiAvKg0KICAqIC0tLS0gQWRhcHRlciB0
-eXBlcyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tDQpAQCAtMTYxLDYgKzE2Miw3IEBADQogI2RlZmluZSBJ
-MkNfQUxHT19BQ0IgCTB4MDcwMDAwCS8qIEFDQ0VTUy5idXMgYWxnb3JpdGht
-ICAgICAgICAgKi8NCiAjZGVmaW5lIEkyQ19BTEdPX0lJQyAgICAweDA4MDAw
-MCAJLyogSVRFIElJQyBidXMgKi8NCiAjZGVmaW5lIEkyQ19BTEdPX1NBQTcx
-MzQgMHgwOTAwMDANCisjZGVmaW5lIEkyQ19BTEdPX01QQzgyNFggMHgwYTAw
-MDAJLyogTW90b3JvbGEgODI0MCAvIDgyNDUgICAgICAgICAqLw0KICNkZWZp
-bmUgSTJDX0FMR09fRUMgICAgIDB4MTAwMDAwICAgICAgICAvKiBBQ1BJIGVt
-YmVkZGVkIGNvbnRyb2xsZXIgICAgICovDQogDQogI2RlZmluZSBJMkNfQUxH
-T19NUEM4WFggMHgxMTAwMDAJLyogTVBDOHh4IFBvd2VyUEMgSTJDIGFsZ29y
-aXRobSAqLw0KQEAgLTIwNiw2ICsyMDgsOSBAQA0KIC8qIC0tLSBBQ1BJIEVt
-YmVkZGVkIGNvbnRyb2xsZXIgYWxnb3JpdGhtcyAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICovDQogI2RlZmluZSBJMkNfSFdfQUNQSV9FQyAgICAg
-ICAgICAweDAwDQogDQorLyogLS0tIE1QQzgyNHggUG93ZXJQQyBhZGFwdGVy
-cwkJCQkJCSovDQorI2RlZmluZSBJMkNfSFdfTVBDODI0WCAweDAwCS8qIE1v
-dG9yb2xhIDgyNDAgLyA4MjQ1ICAgICAgICAgICAgICAgICAqLw0KKw0KIC8q
-IC0tLSBNUEM4eHggUG93ZXJQQyBhZGFwdGVycwkJCQkJCSovDQogI2RlZmlu
-ZSBJMkNfSFdfTVBDOFhYX0VQT04gMHgwMAkvKiBFcG9ueW1vdXMgTVBDOHh4
-IEkyQyBhZGFwdGVyIAkqLw0KIA0KQEAgLTIyNSw2ICsyMzAsOCBAQA0KICNk
-ZWZpbmUgSTJDX0hXX1NNQlVTX0FNRDc1NgkweDA1DQogI2RlZmluZSBJMkNf
-SFdfU01CVVNfU0lTNTU5NQkweDA2DQogI2RlZmluZSBJMkNfSFdfU01CVVNf
-QUxJMTUzNQkweDA3DQorI2RlZmluZSBJMkNfSFdfU01CVVNfU0lTNjMwCTB4
-MDgNCisjZGVmaW5lIEkyQ19IV19TTUJVU19TSVM2NDUJMHgwOQ0KIA0KIC8q
-IC0tLSBJU0EgcHNldWRvLWFkYXB0ZXIJCQkJCQkqLw0KICNkZWZpbmUgSTJD
-X0hXX0lTQSAweDAwDQotLS0gbGludXgtMi41LjM2L2luY2x1ZGUvbGludXgv
-aTJjLmgub3JpZwkyMDAyLTA5LTA5IDEzOjM1OjA0LjAwMDAwMDAwMCAtMDQw
-MA0KKysrIGxpbnV4L2luY2x1ZGUvbGludXgvaTJjLmgJMjAwMi0wOS0xNSAy
-MDozOToxNy4wMDAwMDAwMDAgLTA0MDANCkBAIC0yMywxMyArMjMsMTMgQEAN
-CiAvKiBXaXRoIHNvbWUgY2hhbmdlcyBmcm9tIEt59nN0aSBN5Gxra2kgPGtt
-YWxra2lAY2MuaHV0LmZpPiBhbmQNCiAgICBGcm9kbyBMb29pamFhcmQgPGZy
-b2RvbEBkZHMubmw+ICovDQogDQotLyogJElkOiBpMmMuaCx2IDEuNTkgMjAw
-Mi8wNy8xOSAyMDo1Mzo0NSBwaGlsIEV4cCAkICovDQorLyogJElkOiBpMmMu
-aCx2IDEuNjAgMjAwMi8wOS8xNiAwMDozOToxNyBwaGlsIEV4cCAkICovDQog
-DQogI2lmbmRlZiBJMkNfSA0KICNkZWZpbmUgSTJDX0gNCiANCi0jZGVmaW5l
-IEkyQ19EQVRFICIyMDAyMDcxOSINCi0jZGVmaW5lIEkyQ19WRVJTSU9OICIy
-LjYuNCINCisjZGVmaW5lIEkyQ19EQVRFICIyMDAyMDkxNSINCisjZGVmaW5l
-IEkyQ19WRVJTSU9OICIyLjYuNSINCiANCiAjaW5jbHVkZSA8bGludXgvaTJj
-LWlkLmg+CS8qIGlkIHZhbHVlcyBvZiBhZGFwdGVycyBldC4gYWwuIAkqLw0K
-ICNpbmNsdWRlIDxsaW51eC90eXBlcy5oPg0K
---0-1339493514-1032329119=:358--
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* The Worlds Ecosystem is a stable system. Stable systems may experience *
+* excursions from the stable situation. We are currenly in such an       * 
+* excursion: The stable situation does not include humans. ***************

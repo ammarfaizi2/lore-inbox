@@ -1,105 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269980AbUICXig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269973AbUICXlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269980AbUICXig (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 19:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269982AbUICXif
+	id S269973AbUICXlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 19:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269985AbUICXlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 19:38:35 -0400
-Received: from spy23.spymac.net ([213.218.8.223]:37840 "EHLO spy23.spymac.net")
-	by vger.kernel.org with ESMTP id S269973AbUICXiL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 19:38:11 -0400
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
+	Fri, 3 Sep 2004 19:41:16 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:51973 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269973AbUICXk2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 19:40:28 -0400
+Date: Sat, 4 Sep 2004 00:40:24 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>, Patrick Gefre <pfg@sgi.com>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Latest Altix I/O code reorganization code
+Message-ID: <20040904004024.A10459@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Patrick Gefre <pfg@sgi.com>, linux-ia64@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <200408042014.i74KE8fD141211@fsgi900.americas.sgi.com> <20040806141836.A9854@infradead.org> <411AAABB.8070707@sgi.com> <412F4EC9.7050003@sgi.com> <20040827165443.A32567@infradead.org> <20040827172131.A473@infradead.org>
 Mime-Version: 1.0
-From: <d_a_m_revok@spymac.com>
-To: linux-kernel@vger.kernel.org
-Subject: Licensing bug, and...
-Reply-To: d_a_m_revok@spymac.com
-X-Mailer: AtMail 4.01
-X-Origin: 24.157.94.37
-X-Uidl: 10942546893135261
-Date: Fri, 03 Sep 2004 17:38:09 -0600
-Message-Id: <20040903233810.AD77438067@spy23.spymac.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040827172131.A473@infradead.org>; from hch@infradead.org on Fri, Aug 27, 2004 at 05:21:31PM +0100
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Possible:
-users ( SuSE, Kondara, Yggdrasil... ) of the Linux kernel are /required/ to
-inform the kernel-developers of discovered-bugs, if they didn't already know (
-search of archives of the list, or whatever ), and also are /required/ to forward
-any bugfix to the kernel-developers when said user commits it to their own
-system/distro, if the kernel-developers haven't corrected-it already.
+Crosscheck of your new code vs the review:
 
-Currently:
-users of the Linux kernel can keep-quiet about discovered-bugs & develop their
-own fixes to 'em, posting them obscurely, so as to attack the /entire/ rest of
-the Linux community, in-order to leverage their position /in/ the community,
-against ( inadvertently ) the community itself.
+> io_init.c:
+> 
+>  - sal_get_hubdev_info
+> 	umm, you're getting a kernel pointer by a SAL
+>  	call.  I wonders how this is supposed to work when the kernel
+> 	changes it's VA layout.  (Dito for a bunch of other functions)
 
+Still not explanation
 
-The "Possible" version makes the kernel, and integrity, primary, and is the
-paradigm knowing Linux's competition against undealt-with defects.
+>  - sn_io_init
+> 	what's going on here?
 
-The "Current" version ignores that the kernel is crucial and damages Linux for
-sake of fragmentation-based "position"al leverage.
+gone
 
+> iomv.c:
+> 
+>  - okay, could use some reformatting to fit 80 chars
 
-I'd rather see the kernel be /coherently/ improved, and this has bugged,
-at-least, the Gentoo groons ( in their direct experience, of having to study many
-distros' updates to discover fixes to the kernel that GPL allows to be "released"
-in a way that doesn't /directly make/ kernel-integrity ), and knowlege-types like
-me who can't stand broken algorithms, wherever they be.
+ok
 
-Is DNS is based on mathematical-root with reason?  I believe so...
+> pci_dma.c:
+> 
+>  - still using all those indirections althoug there's only a single backend
 
-=========================================
+this comment is fixed, but the one later sent in private (stupid choice
+of interface beteen upper pci dma code and pcibr code ignored)
 
-I /believe/ that the kernel balances reads evenly across all RAID-1 components,
-but...
+> pci_extension.c:
+> 
+>  - dito.  Why does this single function need a separate file?
 
-Why not have /asymmetrical/ RAID-1, like this:
+Not addressed.  In general your file organization is mess still.
 
-(ECC) RAM-disk    \
-                       RAID-1
-RAID-6 array      /
+Just do arch/ia64/sn/pci/ for all pci code and move the rest to
+arch/ia64/sn/kernel.  That how most arches work.
 
-with ALL reads done from RAM, and writes going to both?
+> pcibr_ate.c:
+> 
+>  - doesn't look to bad, but should probably merged into pcibr_dma.c.  And
+>    the trivial < 10 line function opencoded in their only callers.
 
-Incredible speed coupled-with reliability, that TTBOMK, nothing else can
-compete-with.
+Not addressed or commented on yet.
 
-Maybe this already is the case, but I simply haven't found-out otherwise, so...
+> pcibr_provider.c
+> 
+>  actual code code looks okay, but:
+> 
+>   - sal_pcibr_slot_enable/sal_pcibr_slot_disabl are completely unused
 
-=========================================
+you still have typedefs for these around
 
-Why don't any linux-type-developers make a 3D engine using stereogram-based display?
+>   - the pci_provider abstraction is right now completely useless, please
+>     add such abstractions only when you need them (and if you'll ever need
+>     that a few hints:  stop that casting of methods silliness but use
+>     container_of, use C99 initializers, stop the typedef abuse)
 
-Like the XMMS wine-dependent plugin Fishmatic.
+ok
 
-It'd make engineering-walkthroughs of complex complexes have visceral validity,
-though it'd eat Opterons like potato-chips, I guess...
+>   - request_irq return value needs checking
 
-Good for Games, too: Depth-perception through a normal monitor.
+ok
 
-Just asking...
+> 
+> pcibr_reg.c:
+> 
+>  - all this casting is rather horrible.  At least keep a pointer to each
+>    of struct tiocp and pic_s (and kill the _s postifx) in syruct pcibus_info.
+>    the volatiles looks bogus, if you need it you're missing memorry barries.
 
------------------------------------------
+the type pointer isn't done.  Any specific reason?
 
-I've kept-quiet about these for years, not being a coder, figuring everyone's
-/not/-doing 'em for good reason, but 
-What The Heck?
+> xtalk_providers.c:
+> 
+>  - bogus indirection again.  if you actually do have different lowlevel
+>    implementations they should be hidden inside the prom.  While at it I think
+>    the two calls could just move to arch/ia64/sn/kernel/irq.c
 
-Do with these ideas what you will, & I wish youse well, and
-I only read Kernel Traffic, not subscribe, so if you want to get me, e-mail,
-please: I cannot afford the web-mail space right now, and have no 'net
-connection, and am not getting yet-a-bloody-'nother e-mail address, since my
-password-remembering braincells are almost all gone...
+ok
 
-Cheers
+More items:
 
+ - sal_pcibr_rrb_alloc should be merged into its only caller
+ - io_init.c still has KDB ifdefs
+ - sn_pci_set_vchan should absolutely _not_ be placed in qla1280.c,
+   and while you're at it there extern for snia_pcibr_rrb_alloc should
+   move to a header
+ - kill HUBREG_CAST instead of touching it
+ - please don't put your ASSERT into asm/ headers.  In general you
+   should use BUG_ON
+ - why do you add a pfn_t typedef that's not used anywhere
+ - the patch adds include/asm-ia64/sn/xtalk/xtalk_provider.h but there's
+   no more xtalk providers
 
-
-
----- Introducing Spymac MailPro: http://www.spymac.com/mailpro/
+Your headers are still a complete mess.  There's no point exposing tons
+of defails about the pci interface in include/asm - just keep and
+pci_extensions.h there for non-standard PCI APIs, and the rest should
+stay private inisde arch/ia64/sn/pci/.

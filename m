@@ -1,100 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266175AbUIEDs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266181AbUIEDwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266175AbUIEDs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 23:48:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUIEDs5
+	id S266181AbUIEDwG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 23:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266183AbUIEDwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 23:48:57 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:16807 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S266175AbUIEDsx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 23:48:53 -0400
-Date: Sat, 4 Sep 2004 20:48:50 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: ak@muc.de, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix argument checking in sched_setaffinity
-Message-Id: <20040904204850.48b7cfbd.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.58.0409041827280.2331@ppc970.osdl.org>
-References: <m3zn4bidlx.fsf@averell.firstfloor.org>
-	<20040831183655.58d784a3.pj@sgi.com>
-	<20040904133701.GE33964@muc.de>
-	<20040904171417.67649169.pj@sgi.com>
-	<Pine.LNX.4.58.0409041717230.4735@ppc970.osdl.org>
-	<20040904180548.2dcdd488.pj@sgi.com>
-	<Pine.LNX.4.58.0409041827280.2331@ppc970.osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 4 Sep 2004 23:52:06 -0400
+Received: from mta1.wss.scd.yahoo.com ([66.218.85.32]:53713 "EHLO
+	mta1.wss.scd.yahoo.com") by vger.kernel.org with ESMTP
+	id S266181AbUIEDwA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 23:52:00 -0400
+Message-ID: <413A8D50.1040304@putzin.net>
+Date: Sat, 04 Sep 2004 22:51:44 -0500
+From: Pete <pete@putzin.net>
+User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arne Henrichsen <ahenric@yahoo.com>
+CC: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: sys_sem* undefined
+References: <20040827092605.63433.qmail@web41504.mail.yahoo.com>
+In-Reply-To: <20040827092605.63433.qmail@web41504.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus wrote:
->	/* We just assume that 8k CPU's aren't going to happen */
+Arne Henrichsen wrote:
 
-SGI doesn't so assume ;).
+>>From an application (userspace) or from inside the
+>>kernel?
+>>    
+>>
+>
+>I need to do the syscalls from kernel space. Basically
+>I am porting our custom vxWorks driver to Linux. We
+>want to basically keep the structure of the vxWorks
+>driver the same, so I am porting the individual
+>vxWorks functions such as semBcreate, semGive etc.
+>Thats why I want to use the SysV IPC semaphores, as
+>they seem to most closely resemble the vxWorks ones. I
+>know that there are much better ways of writing a
+>driver, but that wouldn't fit in with the currect
+>structure we have at the moment.
+>
+>Now if I want to call lets say sys_semget() from
+>kernel space, must I use the _syscall3() function? I
+>saw some people using this. 
+>
+>Thanks for the help.
+>Arne
+>
+>
+>	
+>  
+>
+Speaking as someone who has traveled down this road previously, I would 
+suggest that you re-engineer your driver instead of going with your 
+current plan. I realize that you think this would be quicker and easier, 
+but the maintenance headaches are pretty heavy as you get further into 
+this. Doing a driver the "right" way to fit the kernel makes sense 
+because it becomes very easy to maintain, whereas your method will 
+require much more work for changes to kernel versions, or changes to 
+core logic. I'm guessing the driver is pretty mature at this point, but 
+you still live with maintaining with the kernel.
 
+As a side note, there are a lot of things that you might assume should 
+be a driver because that's sort of how it works in the VxWorks system, 
+but may map just as well to userspace, or some combo of userspace and 
+kernel space. Essentially, all software in VxWorks is part of the 
+kernel, so it's easy to just assume that what you are doing must be in 
+the kernel as well. Again, I've been working on a project for 5+ years 
+that was 3+ years of VxWorks, and is now migrating to Linux. I had to go 
+through a lot of this stuff as well.
 
-> but it's just a lot easier to do the "getaffinity" thing - if it fails,
-> you can double the size of your buffer and try again. O(log(n)) rather
-> than O(n) ;)
+Basically, I'm saying that there are better ways to do what you want to 
+do, but it's gonna involve some more up front work for you. I'd be 
+willing to chat more about this if you feel the urge off the list.
 
-I agree.  That's what my cpumask sizing loop does.
+Pete Buelow
 
-Well ... did.
-
-Now it reads /sys/devices/system/node/node0/cpumap and computes the
-size of the cpumask as an arithmetic function of the number of bytes
-read (the ascii format uses 9 chars for each 32 bits of mask).
-
-Either way works ...
-
-My nodemask sizing code loops on get_mempolicy() calls of increasing
-size, until they stop failing -EINVAL.
-
-
-> Well, historically we _have_ required sizes to match.
-
-I'm not sure what history you're looking at here, Linus.
-
-Last weeks sys_sched_setaffinity didn't seem to require matching size,
-only that user size is >= kernel size.  The kernel ignored the extra
-user bits.
-
-For nodemask_t, well let me just say the mbind/mempolicy calls are different.
-
-If we want to go in the direction of requiring sizes to match in the
-'set' calls, then instead of this weeks changes to sys_sched_setaffinity
-allowing user size < kernel size, shouldn't we be going the other way,
-and tightening the check in kernel/sched.c:sys_sched_setaffinity(), from
-what it was a week ago:
-
-        if (len < sizeof(new_mask))
-                return -EINVAL;
-
-to:
-
-        if (len != sizeof(new_mask))
-                return -EINVAL;
-
-Or at least reverting this last weeks changes back to the '<' check?
-
-
-> I don't know how to sanely expose the damn things
-
-How about:
-
-	$ cd /proc/sys/kernel
-	$ head sizeof*
-	==> sizeof_cpumask <==
-	64
-
-	==> sizeof_nodemask <==
-	32
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,81 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265143AbTLFMjg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 07:39:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265148AbTLFMjg
+	id S265141AbTLFMwh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 07:52:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbTLFMwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 07:39:36 -0500
-Received: from law9-f31.law9.hotmail.com ([64.4.9.31]:23819 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S265143AbTLFMjd (ORCPT
+	Sat, 6 Dec 2003 07:52:34 -0500
+Received: from karmafish.net ([217.160.141.155]:33934 "EHLO karmafish.net")
+	by vger.kernel.org with ESMTP id S265141AbTLFMwd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 07:39:33 -0500
-X-Originating-IP: [80.74.198.136]
-X-Originating-Email: [tero1001@hotmail.com]
-From: "Tero Knuutila" <tero1001@hotmail.com>
+	Sat, 6 Dec 2003 07:52:33 -0500
+Message-ID: <3FD1D11C.309@gmx.net>
+Date: Sat, 06 Dec 2003 13:52:44 +0100
+From: Paulus Esterhazy <pesterhazy@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: cdrecord hangs my computer
-Date: Sat, 06 Dec 2003 14:39:31 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Law9-F31pOlJrMjfF5N00011ce9@hotmail.com>
-X-OriginalArrivalTime: 06 Dec 2003 12:39:32.0182 (UTC) FILETIME=[FF579F60:01C3BBF5]
+Subject: Bug report: sound playback slow-down/speed-up
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, John, Ethan and others!
+Hello,
 
-I tried everything suggested. First I compiled my kernel to use ide-cd 
-instead of ide-scsi. No success, cdrecord did hang. Fortunately the whole 
-machine did not hang.
+after switching to 2.6.0-test10 using acpi, I'm experiencing strange 
+sound artefacts when
+playing music on my Sony-notebook using the alsa intel8x0-driver. Whereas it
+all works ok and I don't get any error messages, sound playback seems to
+slow down or speed up occasionally, i.e. an mp3 file plays normally, then it
+sounds as if the frequency goes up resulting in a higher-pitched voice 
+etc., then
+I get strange noises, then it works again as expected. This is not 
+dependant to the
+used output (alsa/OSSemu). I also disabled the cpufreq option, which didn't
+change much. The problem didn't exist in 2.4.x where the alsa driver 
+worked flawlessly;
+I didn't update to -test11 as I didn't see any related changes.
 
-Then I tried apply a patch Linus send me. So I changed settings so that HP 
-7200 ide burner is seen as ide-scsi device. After that cdrecord still 
-freezes totally my machine.
-I forgot to mention earlier: I tried cdrecord with older 2.4 kernel and it 
-works fine (as ide-scsi device).
+I include some system info:
 
-So I try to give more accurate info so You can debug this ide-scsi thing 
-which is broken. I repeat already mentioned things so that "everything" is 
-on one mail:
+00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 Audio 
+Controller (rev 02)
+   Subsystem: Sony Corporation: Unknown device 80fa
+   Flags: bus master, medium devsel, latency 0, IRQ 9
+   I/O ports at 1c00 [size=256]
+   I/O ports at 18c0 [size=64]
 
-- Kernel 2.6.0-test11 with one patch on ide-scsi.c
-- AMD Duron(tm) processor AuthenticAMD GNU/Linux
-- Soltek motherboard: SL-75DRV
-- Another CDROM drive: LG GCR-8520B idereader
-- HP7200 Ide burner:
-cat /proc/scsi/scsi
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: HP       Model: CD-Writer+ 7200  Rev: 3.01
-  Type:   CD-ROM                           ANSI SCSI revision: 02
+The only relevant kernel messages (as far as I get tell):
+kernel: intel8x0: clocking to 48000
+Modules Loaded         vfat fat ppp_deflate zlib_deflate zlib_inflate 
+bsd_comp ppp_async hsfmc97ali hsfmc97via hsfmc97ich hsfpcibasic2 
+hsfserial serial_core hsfengine hsfosspec hsfsoar ipv6 radeon irda 
+snd_seq_oss snd_seq_midi_event snd_seq nls_iso8859_1 ntfs snd_intel8x0 
+snd_ac97_codec snd_mpu401_uart snd_rawmidi snd_seq_device snd_pcm_oss 
+snd_pcm snd_page_alloc snd_timer snd_mixer_oss snd soundcore uhci_hcd 
+pppox ppp_generic slhc sd_mod visor usbserial usb_storage scsi_mod 
+thermal processor fan button battery ac e100 agpgart hid usbkbd usbcore
 
-And then I guess this is useful too:
--------
-lspci
-00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333 
-AGP]
-00:08.0 VGA compatible controller: nVidia Corporation NV5M64 [RIVA TNT2 
-Model 64/Model 64 Pro] (rev 15)
-00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
-RTL-8139/8139C/8139C+ (rev 10)
-00:0b.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 0a)
-00:0b.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 
-0a)
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8233A ISA Bridge
-00:11.1 IDE interface: VIA Technologies, Inc. 
-VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
-00:11.2 USB Controller: VIA Technologies, Inc. USB (rev 23)
-00:11.3 USB Controller: VIA Technologies, Inc. USB (rev 23)
--------
+I can supply further information if needed.
+Please CC me for replies as I am not subscribed to the kernel mailing list.
 
-So here's everything I could find. Please let me know what other useful info 
-I may submit. I am not guru like You are, so I need advices what to do.
-
-With best regards,
-     Tero Knuutila
-
-_________________________________________________________________
-Help STOP SPAM with the new MSN 8 and get 2 months FREE*  
-http://join.msn.com/?page=features/junkmail
+Regards,
+Paulus Esterhazy
 

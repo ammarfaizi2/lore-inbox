@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282330AbRKWTqG>; Fri, 23 Nov 2001 14:46:06 -0500
+	id <S282311AbRKWTqq>; Fri, 23 Nov 2001 14:46:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282294AbRKWTpq>; Fri, 23 Nov 2001 14:45:46 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:26121 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S282223AbRKWTpS> convert rfc822-to-8bit; Fri, 23 Nov 2001 14:45:18 -0500
-Date: Fri, 23 Nov 2001 16:27:48 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Martin Eriksson <nitrax@giron.wox.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: IDE is still crap.. or something
-In-Reply-To: <012101c17452$9ac11550$0201a8c0@HOMER>
-Message-ID: <Pine.LNX.4.21.0111231627020.11090-100000@freak.distro.conectiva>
+	id <S282280AbRKWTqe>; Fri, 23 Nov 2001 14:46:34 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:45189 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S282317AbRKWTqA>;
+	Fri, 23 Nov 2001 14:46:00 -0500
+Message-ID: <3BFEA76F.3FA487A6@pobox.com>
+Date: Fri, 23 Nov 2001 11:45:51 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.15-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: gcc vs intel's cc
+In-Reply-To: <Pine.LNX.4.30.0111231535500.553-100000@mustard.heime.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roy Sigurd Karlsbakk wrote:
 
-Any previous kernel gave you good performance ? 
+> hi all
+>
+> have anyone tried Intel's commercial compiler and tried to compare the
+> results with gcc?
 
-On Fri, 23 Nov 2001, Martin Eriksson wrote:
+yes and no.
 
-> Well, just wanted to tell you that 2.4.15 still slows down to a crawl when
-> copying a 500MB file between two hard drives (running ext3). I have tried
-> any of the -c -u -m -W settings in hdparm. I even applied the 2.4.14 IDE
-> patch (after fixing the rejects) but no go.
-> 
-> Even iptables is affected, because it takes forever to surf the internet
-> from my behind-linux-firewall windows computer.
-> 
-> I'm right now trying to apply the preemptive-kernel patch to 2.4.15 but it
-> had some strange rejects so it will be exciting to see if it works. I get
-> good response from the -ac kernel series though.
-> 
-> _____________________________________________________
-> |  Martin Eriksson <nitrax@giron.wox.org>
-> |  MSc CSE student, department of Computing Science
-> |  Umeå University, Sweden
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+The intel compiler has shown better performance
+for userspace programs - however it is incapable
+of compiling the kernel.
+
+cu
+
+jjs
 

@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264651AbTE1LAm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 07:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264652AbTE1LAm
+	id S264652AbTE1LBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 07:01:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264671AbTE1LBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 07:00:42 -0400
-Received: from holomorphy.com ([66.224.33.161]:39296 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264651AbTE1LAk (ORCPT
+	Wed, 28 May 2003 07:01:15 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:35209 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S264652AbTE1LBG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 07:00:40 -0400
-Date: Wed, 28 May 2003 04:13:45 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.67-mm1 bootcrash, possibly IDE or RAID
-Message-ID: <20030528111345.GU8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Helge Hafting <helgehaf@aitel.hist.no>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030408042239.053e1d23.akpm@digeo.com> <3ED49A14.2020704@aitel.hist.no>
+	Wed, 28 May 2003 07:01:06 -0400
+Date: Wed, 28 May 2003 13:14:01 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Milton Miller <miltonm@bga.com>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: [PATCH] fix oops on resume from apm bios initiated suspend
+Message-ID: <20030528111401.GB342@elf.ucw.cz>
+References: <200305280643.h4S6hRQF028038@sullivan.realtime.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3ED49A14.2020704@aitel.hist.no>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200305280643.h4S6hRQF028038@sullivan.realtime.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28, 2003 at 01:14:28PM +0200, Helge Hafting wrote:
-> 2.5.69-mm8 is fine, 2.5.67-mm1 dies before mounting anything read-write.
-> The early kernel boot is fine, the penguin appear,
-> a bunch of the usual messages scroll by too fast to read,
-> and then it hangs.
-> The kernel is UP, with preempt & devfs.  All filesystems
-> are ext2. This kernel has no module support.
-> Root is on raid-1, there are two
-> ide disks connected to this controller on separate cables:
-> 00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE]
+Hi!
 
-Well, bugs were fixed since 2.5.67-mm1. Just upgrade to the most recent
-kernel (2.5.70-mm1).
+> Didn't know if you caught this one, but it fixes it for me and others
+> who responded on the list.  
+> 
+> mm is NULL for kernel threads without their own context.  active_mm is
+> maintained the one we lazly switch from.
+> 
+> Without this patch, apm bios initiated suspend events (eg panel close) 
+> cause an oops on resume in the LDT restore, killing kapmd, which causes
+> further events to not be polled.
 
+Ouch, okay, this looks good. Andrew please apply.
 
--- wli
+[I guess this is trivial enough for trivial patch monkey if andrew
+does not want to take it...]
+								Pavel
+
+> ===== arch/i386/kernel/suspend.c 1.16 vs edited =====
+> --- 1.16/arch/i386/kernel/suspend.c	Sat May 17 16:09:37 2003
+> +++ edited/arch/i386/kernel/suspend.c	Sat May 24 05:00:02 2003
+> @@ -114,7 +114,7 @@
+>          cpu_gdt_table[cpu][GDT_ENTRY_TSS].b &= 0xfffffdff;
+>  
+>  	load_TR_desc();				/* This does ltr */
+> -	load_LDT(&current->mm->context);	/* This does lldt */
+> +	load_LDT(&current->active_mm->context);	/* This does lldt */
+>  
+>  	/*
+>  	 * Now maybe reload the debug registers
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

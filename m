@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311612AbSCNSCR>; Thu, 14 Mar 2002 13:02:17 -0500
+	id <S311635AbSCNSD1>; Thu, 14 Mar 2002 13:03:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311635AbSCNSCI>; Thu, 14 Mar 2002 13:02:08 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:39181 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S311612AbSCNSB5>; Thu, 14 Mar 2002 13:01:57 -0500
-Message-ID: <3C90E53B.2A49A6A6@zip.com.au>
-Date: Thu, 14 Mar 2002 10:00:27 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
+	id <S311699AbSCNSDR>; Thu, 14 Mar 2002 13:03:17 -0500
+Received: from ciani.phy.uic.edu ([131.193.191.66]:3968 "EHLO
+	ciani.phy.uic.edu") by vger.kernel.org with ESMTP
+	id <S311635AbSCNSDC>; Thu, 14 Mar 2002 13:03:02 -0500
+Date: Thu, 14 Mar 2002 12:02:57 -0600 (CST)
+From: "Anthony J. Ciani" <tony@ciani.phy.uic.edu>
+To: linux-kernel@vger.kernel.org
+Subject: do_BUG undefined in 3c509.o and (v)fat.o
+Message-ID: <Pine.LNX.4.21.0203141155560.23653-100000@ciani.phy.uic.edu>
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre3aa2
-In-Reply-To: <20020314032801.C1273@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> ...
-> Only in 2.4.19pre3aa2: 10_vm-32
-> 
->         Fixed ext3 deadlock and "theorical" mainline SMP race for
->         some arch.
-> 
+When compiling 2.4.16 with verbose BUG() modules 3c509.o, fat.o and vfat.o
+compiled with do_BUG as an undefined symbol.
+nm /lib/modules/2.4.16/kernel/drivers/net/3c509.o |grep BUG returns
+U do_BUG
+Same for fat.o and vfat.o. 
 
-That works fine.  ext3 is happy again.
+nm /usr/src/linux/vmlinux |grep BUG returns
+c01e6833 ? __kstrtab_do_BUG 
+c01ed7e0 ? __ksymtab_do_BUG
+c0110474 T do_BUG
 
--
+The modules and kernel were built at the same time (modules following
+kernel)
+
+-- 
+------------------------------------------------------------
+              Anthony Ciani (aciani1@uic.edu)
+             Computational Solid State Physics
+   Department of Physics, University of Illinois, Chicago
+              http://ciani.phy.uic.edu/~tony
+------------------------------------------------------------
+

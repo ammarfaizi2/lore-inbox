@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319476AbSIGMXs>; Sat, 7 Sep 2002 08:23:48 -0400
+	id <S319477AbSIGMic>; Sat, 7 Sep 2002 08:38:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319477AbSIGMXs>; Sat, 7 Sep 2002 08:23:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33029 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319476AbSIGMXr>;
-	Sat, 7 Sep 2002 08:23:47 -0400
-Message-ID: <3D79F0CC.6000702@mandrakesoft.com>
-Date: Sat, 07 Sep 2002 08:27:56 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: LMbench2.0 results
-References: <20020907121854.10290.qmail@linuxmail.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S319478AbSIGMib>; Sat, 7 Sep 2002 08:38:31 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:6864 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S319477AbSIGMib>; Sat, 7 Sep 2002 08:38:31 -0400
+Message-ID: <20020907124021.23083.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Date: Sat, 07 Sep 2002 20:40:20 +0800
+Subject: Re: LMbench2.0 results
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paolo Ciarrocchi wrote:
-> Comments?
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
 
-Yeah:  "ouch" because I don't see a single category that's faster.
+> Paolo Ciarrocchi wrote:
+> > Comments?
+> 
+> Yeah:  "ouch" because I don't see a single category that's faster.
+Indeed!!
+ 
+> Oh well, it still needs to be tuned....
+Yes, but it seems to me really strange...
 
-Oh well, it still needs to be tuned....
+Ciao,
+         Paolo
+-- 
+Get your free email from www.linuxmail.org 
 
 
+Powered by Outblaze

@@ -1,94 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265476AbUAJWDc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 17:03:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265477AbUAJWDc
+	id S265477AbUAJWEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 17:04:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265488AbUAJWEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 17:03:32 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:49361 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id S265476AbUAJWD3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 17:03:29 -0500
-Date: Sat, 10 Jan 2004 22:59:54 +0100
-From: Harald Welte <laforge@netfilter.org>
-To: Patrick McHardy <kaber@trash.net>
-Cc: Wilmer van der Gaast <lintux@lintux.cx>, linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: 2.4.23 masquerading broken?
-Message-ID: <20040110215954.GC20706@sunbeam.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
-	Patrick McHardy <kaber@trash.net>,
-	Wilmer van der Gaast <lintux@lintux.cx>,
-	linux-kernel@vger.kernel.org,
-	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>
-References: <20031202165653.GJ615@gaast.net> <3FCCCB02.5070203@trash.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QRj9sO5tAVLaXnSD"
-Content-Disposition: inline
-In-Reply-To: <3FCCCB02.5070203@trash.net>
-User-Agent: Mutt/1.5.4i
-X-Spam-Score: 0.0 (/)
+	Sat, 10 Jan 2004 17:04:15 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:5598 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S265477AbUAJWEF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 17:04:05 -0500
+Date: Sat, 10 Jan 2004 23:05:23 +0100 (CET)
+From: =?ISO-8859-1?Q?Gunter_K=F6nigsmann?= <gunter@peterpall.de>
+Reply-To: =?ISO-8859-1?Q?Gunter_K=F6nigsmann?= <gunter.koenigsmann@gmx.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+cc: Gunter =?iso-8859-1?q?K=F6nigsmann?= <gunter@peterpall.de>,
+       linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/2] Synaptics rate switching
+In-Reply-To: <200401100345.17211.dtor_core@ameritech.net>
+Message-ID: <Pine.LNX.4.53.0401102241130.1980@calcula.uni-erlangen.de>
+References: <Pine.LNX.4.53.0401091101170.1050@calcula.uni-erlangen.de>
+ <200401100344.03758.dtor_core@ameritech.net> <200401100345.17211.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:6f0b4d165b4faec4675b8267e0f72da4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---QRj9sO5tAVLaXnSD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Tried it. Doesn't change a thing. Means: I get about half the number of
+warning messages, but that just corresponds to half the number of packets.
 
-On Tue, Dec 02, 2003 at 06:25:22PM +0100, Patrick McHardy wrote:
-> Wilmer van der Gaast wrote:
->=20
-> >For security reasons, I upgraded to 2.4.23 last night. Now, suddenly, IP
-> >masquerading seems to be broken. When I use SNAT instead of
-> >masquerading, everything works.
-> >
-> >Unfortunately, I think it's hard to reproduce the problem. Right after
-> >booting .23 for the first time, everything seemed to be okay. The
-> >problems started just an hour ago, after having the server running for
-> >fifteen hours without any problems.
-> >
-> >Unfortunately there's not much more information I can provide. I can
-> >attach my iptables/rule/route file and keep my machine running in case
-> >anyone needs/wants more information. For now I'll just stick with SNAT.
-> >It works good enough for me.
 
-This seems to be the same as=20
-http://www.ussg.iu.edu/hypermail/linux/kernel/0312.0/0465.html
-and https://bugzilla.netfilter.org/cgi-bin/bugzilla/show_bug.cgi?id=3D144
+What helps a lot, but not to 100% (get bad keypresses anyway) is
+totally deactivating the ACPI. Killing all processes that access /proc/acpi
+seems again to help a bit.
 
-I've committed the proposed fix (from #144) into patch-o-matic/pending.
+And The number of Warnings seemingly increases with the labtop
+temperature... In a really cold room I get nearly no warnings at all.
+Jitter? Hardware, that is simply broken?
 
-Comments?
 
-> Patrick
+Anyway, --- with Dmitrys patches I get hardly ever little bad events, just
+warnings --- and --- well... I can live with them,
 
-Patrick,=20
 
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
+	Gunter.
 
---QRj9sO5tAVLaXnSD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQFAAHXaXaXGVTD0i/8RApnTAJ9BPiyzvYufU5wLgQy4FzBhrZoafgCgsZS9
-3KIOH6AlBZsrCsM/GbQBOHc=
-=JRqR
------END PGP SIGNATURE-----
 
---QRj9sO5tAVLaXnSD--
+
+
+
+
+On Today, Dmitry Torokhov wrote:
+
+>From: Dmitry Torokhov <dtor_core@ameritech.net>
+>Date: Sat, 10 Jan 2004 03:45:13 -0500
+>To: Gunter Königsmann <gunter.koenigsmann@gmx.de>,
+>     Gunter Königsmann <gunter@peterpall.de>
+>Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+>     Andrew Morton <akpm@osdl.org>
+>Subject: [PATCH 1/2] Synaptics rate switching
+>
+>===================================================================
+>
+>
+>ChangeSet@1.1512, 2004-01-10 02:42:42-05:00, dtor_core@ameritech.net
+>  Input: Allow switching between high and low reporting rate for Synaptics
+>         touchpads in native mode. Synaptics support 2 report rates - 40
+>         and 80 packets/sec; report rate must be set using Synaptics mode
+>         set command. Rate is controlled by psmouse.rate parameter, values
+>         greater or equal 80 will set 'high' rate. (psmouse.rate defaults
+>         to 100)
+>
+>         Using low report rate should help slower systems or systems
+>         spending too much time in SCI (ACPI).
+>
+>
+> psmouse.h   |    1 +
+> synaptics.c |    4 +++-
+> 2 files changed, 4 insertions(+), 1 deletion(-)
+>
+>
+>===================================================================
+>
+>
+>
+>diff -Nru a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+>--- a/drivers/input/mouse/psmouse.h	Sat Jan 10 03:22:26 2004
+>+++ b/drivers/input/mouse/psmouse.h	Sat Jan 10 03:22:26 2004
+>@@ -67,6 +67,7 @@
+> int psmouse_command(struct psmouse *psmouse, unsigned char *param, int command);
+>
+> extern int psmouse_smartscroll;
+>+extern unsigned int psmouse_rate;
+> extern unsigned int psmouse_resetafter;
+>
+> #endif /* _PSMOUSE_H */
+>diff -Nru a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+>--- a/drivers/input/mouse/synaptics.c	Sat Jan 10 03:22:26 2004
+>+++ b/drivers/input/mouse/synaptics.c	Sat Jan 10 03:22:26 2004
+>@@ -214,7 +214,9 @@
+> {
+> 	struct synaptics_data *priv = psmouse->private;
+>
+>-	mode |= SYN_BIT_ABSOLUTE_MODE | SYN_BIT_HIGH_RATE;
+>+	mode |= SYN_BIT_ABSOLUTE_MODE;
+>+	if (psmouse_rate >= 80)
+>+		mode |= SYN_BIT_HIGH_RATE;
+> 	if (SYN_ID_MAJOR(priv->identity) >= 4)
+> 		mode |= SYN_BIT_DISABLE_GESTURE;
+> 	if (SYN_CAP_EXTENDED(priv->capabilities))
+>
+
+-- 
+The best ways are the most straightforward ways.  When you're sitting around
+scamming these things out, all kinds of James Bondian ideas come forth, but
+when it gets down to the reality of it, the simplest and most straightforward
+way is usually the best, and the way that attracts the least attention.
+Also, pouring gasoline on the water and lighting it like James Bond doesn't
+work either.... They tried it during Prohibition.
+                -- Thomas King Forcade, marijuana smuggler

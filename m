@@ -1,40 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267511AbUIOEgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267480AbUIOEiU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267511AbUIOEgr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 00:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUIOEgr
+	id S267480AbUIOEiU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 00:38:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267588AbUIOEiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 00:36:47 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:2515 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S267511AbUIOEgp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 00:36:45 -0400
-Message-ID: <4147C6D6.30508@nortelnetworks.com>
-Date: Tue, 14 Sep 2004 22:36:38 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@clusterfs.com>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>, Anton Blanchard <anton@samba.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>, paulus@samba.org
-Subject: Re: offtopic: how to break huge patch into smaller independent patches?
-References: <41474B15.8040302@nortelnetworks.com> <20040915002023.GD5615@krispykreme> <119340000.1095209242@flay> <414799D1.7050609@nortelnetworks.com> <20040915014711.GA30607@schnapps.adilger.int>
-In-Reply-To: <20040915014711.GA30607@schnapps.adilger.int>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 15 Sep 2004 00:38:19 -0400
+Received: from out007pub.verizon.net ([206.46.170.107]:19942 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S267480AbUIOEiD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 00:38:03 -0400
+Date: Tue, 14 Sep 2004 21:37:13 -0700
+From: "Randy.Dunlap" <randy.dunlap@verizon.net>
+To: Arnout Engelen <arnouten@bzzt.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: truncated lines in /proc/net/tcp
+Message-Id: <20040914213713.14ce5348.randy.dunlap@verizon.net>
+In-Reply-To: <20040910163003.GT11646@bzzt.net>
+References: <20040910163003.GT11646@bzzt.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [4.5.49.23] at Tue, 14 Sep 2004 23:38:02 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
+On Fri, 10 Sep 2004 18:30:03 +0200 Arnout Engelen wrote:
 
-> Consider using a source-control tool next time ;-/.  
+Note:  netdev@oss.sgi.com would be more appropriate for this.
 
-We used a source control tool.  Its just not very useful when people do a port 
-from one kernel version to the next and submit it as one giant patch against the 
-new kernel rather than new versions of the original individual patches.
 
-I'm the one planning how to avoid this problem in our next development cycle.
+| Hi,
+| 
+| I noticed lines in the output of /proc/net/tcp sometimes appear 'truncated', like
+| this:
+| 
+|   52: 010310AC:9D95 030310AC:1770 06 00000000:00000000 03:0000146C
+|   00000000     0        0 0 2 c4e3f0c0
+| 
+| (also notice that the inode is '0' instead of some large integer)
+| 
+| This is print by the code at:
+| 
+|   http://lxr.linux.no/source/net/ipv4/tcp_ipv4.c?v=2.6.8.1#L2504
 
-Chris
+That line is used/printed if socket state is case TCP_SEQ_STATE_ESTABLISHED:
+or case TCP_SEQ_STATE_LISTENING:
+(line 2559).  However, if socket state is case TCP_SEQ_STATE_OPENREQ:,
+get_openreq4() is called to print the info, and if socket state is
+case TCP_SEQ_STATE_TIME_WAIT:, get_timewait4_sock() is called to
+print the info.  The first case includes 5 fields after the %p (pointer),
+while the 2nd and 3rd cases do not.  Is that the truncation that you
+are referring to?
+
+| Maybe the value of 'tp' gets invalidated at some point during the
+| gathering of the data to be printed there?
+
+That doesn't quite explain it.
+
+| (note that I'm not myself a kernel developer. I ran into this when
+| writing a userspace application and decided I wanted to know why this
+| happened. I saw this behaviour on a 2.4.26 kernel, but the code 
+| doesn't appear to be significantly different in 2.6. I'm not subscribed 
+| to the LKML, so if you want to ask me something please CC me personally).
+
+Expect different output formats depending on socket state.
+
+--
+~Randy

@@ -1,94 +1,172 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318922AbSHFDDI>; Mon, 5 Aug 2002 23:03:08 -0400
+	id <S318969AbSHFDOx>; Mon, 5 Aug 2002 23:14:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318923AbSHFDDI>; Mon, 5 Aug 2002 23:03:08 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:25801 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318922AbSHFDDH>;
-	Mon, 5 Aug 2002 23:03:07 -0400
-Date: Mon, 05 Aug 2002 20:04:26 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: john stultz <johnstul@us.ibm.com>, Christoph Hellwig <hch@infradead.org>
-cc: marcelo <marcelo@conectiva.com.br>, lkml <linux-kernel@vger.kernel.org>,
-       Leah Cunningham <leahc@us.ibm.com>, wilhelm.nuesser@sap.com,
-       paramjit@us.ibm.com, msw@redhat.com
-Subject: Re: [PATCH] tsc-disable_B7
-Message-ID: <1201883206.1028577864@[10.10.2.3]>
-In-Reply-To: <1028592257.1073.81.camel@cog>
-References: <1028592257.1073.81.camel@cog>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S318971AbSHFDOx>; Mon, 5 Aug 2002 23:14:53 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:49103 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318969AbSHFDOs>;
+	Mon, 5 Aug 2002 23:14:48 -0400
+Message-Id: <200208060317.g763Hx825104@w-gaughen.beaverton.ibm.com>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+Reply-to: gone@us.ibm.com
+From: Patricia Gaughen <gone@us.ibm.com>
+To: marcelo@conectiva.com.br
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] modularization of mem_init() for 2.4.20pre1
+Mime-Version: 1.0
+Content-Type: multipart/mixed ;
+	boundary="==_Exmh_-19820764880"
+Date: Mon, 05 Aug 2002 20:17:59 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> What's the difference between CONFIG_X86_NUMA and CONFIG_MULTIQUAD?
->> 
->> If CONFIG_X86_NUMA is for numaq boxens please use CONFIG_X86_NUMAQ as
->> in pat's patch.
-> 
-> Well, at the moment CONFIG_MULTIQUAD ~= numaq specific stuff + generic
-> x86 numa stuff, so James and Martin are starting to break out the
-> generic stuff out of MULTIQUAD and put the NUMAQ specific stuff under
-> X86_NUMAQ.
+This is a multipart MIME message.
 
-The current differentiation is a mess, which is my fault.
-CONFIG_MULTIQUAD started off life as clustered apic mode,
-and grew from there to be a catchall for the NUMA-Q machine.
-I can't help but think this is a bad idea, with the benefit
-of hindsight. So we'll try to convert everything to more
-meaningful config options, where the top level "machine type"
-config option turns on the support features that machine needs.
+--==_Exmh_-19820764880
+Content-Type: text/plain; charset=us-ascii
 
-I know the following looks a little verbose, but it's fairly
-straightforward, and is a lot more logical than the current,
-errm ... mess.
 
-I'll submit a patch to convert the existing code over unless
-someone screams pretty loudly (and suggests a better idea ;-))
+Please consider this patch for inclusion into the 2.4.20pre tree.
+It was accepted into the 2.4.19pre6aa1, with slight modifications 
+by Andrea that I have incorporated those changes into my patch.  
+This patch, along with the modularization of setup_arch, and the 
+{node,zone}_start_paddr to {node,zone}_start_pfn change, are the
+patches that my i386 discontigmem patch depends on.
 
-M.
+This patch restructures mem_init() for i386 to make it easier to
+include the i386 numa changes (for CONFIG_DISCONTIGMEM) I've been 
+working on.  It also makes mem_init() easier to read.  
 
-PS. Looking at the below again, we probably ought to rename
-the remaining CONFIG_MULTIQUAD to CONFIG_CLUSTERED_APIC or 
-something ... but I'm sure I'll get lynched in the morning 
-for that one.
+This patch does not depend on the other patches I'm submitting today, but 
+my discontigmem patch does depend on this one. 
+
+I've tested this patch on the following configurations: UP, SMP, SMP PAE, 
+multiquad, multiquad PAE, multiquad DISCONTIGMEM, multiquad DISCONTIGMEM PAE.
+
+Any and all feedback regarding this patch is greatly appreciated.
+
+Thanks,
+Pat
+
+-- 
+Patricia Gaughen (gone@us.ibm.com)
+IBM Linux Technology Center
+http://www.ibm.com/linux/ltc/
+
+
+
+--==_Exmh_-19820764880
+Content-Type: application/x-patch ; name="linux-2.4.20-pre1_meminit_A2.patch"
+Content-Description: linux-2.4.20-pre1_meminit_A2.patch
+Content-Disposition: attachment; filename="linux-2.4.20-pre1_meminit_A2.patch"
+
+diff -Nru a/arch/i386/mm/init.c b/arch/i386/mm/init.c
+--- a/arch/i386/mm/init.c	Mon Aug  5 18:17:32 2002
++++ b/arch/i386/mm/init.c	Mon Aug  5 18:17:32 2002
+@@ -444,18 +444,58 @@
+ 	return 0;
+ }
+ 	
+-void __init mem_init(void)
++void __init init_one_highpage(struct page *page, int pfn, int bad_ppro)
++{
++	if (!page_is_ram(pfn)) {
++		SetPageReserved(page);
++		return;
++	}
++	
++	if (bad_ppro && page_kills_ppro(pfn)) {
++		SetPageReserved(page);
++		return;
++	}
++	
++	ClearPageReserved(page);
++	set_bit(PG_highmem, &page->flags);
++	atomic_set(&page->count, 1);
++	__free_page(page);
++	totalhigh_pages++;
++}
++
++static int __init mem_init_free_pages(void)
+ {
+ 	extern int ppro_with_ram_bug(void);
++	int bad_ppro, reservedpages, pfn;
++
++	bad_ppro = ppro_with_ram_bug();
++
++	/* this will put all low memory onto the freelists */
++	totalram_pages += free_all_bootmem();
++
++	reservedpages = 0;
++	for (pfn = 0; pfn < max_low_pfn; pfn++) {
++		/*
++		 * Only count reserved RAM pages
++		 */
++		if (page_is_ram(pfn) && PageReserved(mem_map+pfn))
++			reservedpages++;
++	}
++#ifdef CONFIG_HIGHMEM
++	for (pfn = highend_pfn-1; pfn >= highstart_pfn; pfn--)
++		init_one_highpage((struct page *) (mem_map + pfn), pfn, bad_ppro);
++	totalram_pages += totalhigh_pages;
++#endif
++	return reservedpages;
++}
++
++void __init mem_init(void)
++{
+ 	int codesize, reservedpages, datasize, initsize;
+-	int tmp;
+-	int bad_ppro;
  
-> We're trying to all move to something close to:
-> 
->    bool 'Multi-node NUMA system support' CONFIG_X86_NUMA
->    if [ "$CONFIG_X86_NUMA" = "y" ]; then
->       #Platform Choices
->       bool 'Multiquad (IBM/Sequent) NUMAQ support' CONFIG_X86_NUMAQ
->       if [ "$CONFIG_X86_NUMAQ" = "y" ]; then
->          define_bool CONFIG_MULTIQUAD y
->          define_bool CONFIG_X86_TSC_DISABLE y
->       fi
->       bool 'IBM x440 Summit support' CONFIG_X86_SUMMIT_NUMA
->       if [ "$CONFIG_X86_SUMMIT_NUMA" = "y" ]; then
->          define_bool CONFIG_X86_TSC_DISABLE y
->       fi
->       # Common NUMA Features
->       if [ "$CONFIG_X86_NUMAQ" = "y" -o "$CONFIG_X86_SUMMIT_NUMA" = "y" ]; then
->          bool 'Numa Memory Allocation Support' CONFIG_NUMA
->          if [ "$CONFIG_NUMA" = "y" ]; then
->             define_bool CONFIG_DISCONTIGMEM y
->             define_bool CONFIG_HAVE_ARCH_BOOTMEM_NODE y
->          fi
->          #[XXX - future] 
->          #bool 'NUMA API support' CONFIG_WHATEVER
->          #bool 'Enable NUMA Scheduler' CONFIG_WHATEVER
->       fi
->    fi
-> 
->>  else
->> -   bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
->> +	bool 'Multi-node NUMA system support' CONFIG_X86_NUMA
->> +	if [ "$CONFIG_X86_NUMA" = "y" ]; then
->> +		bool 'Multiquad (IBM/Sequent) NUMAQ support' CONFIG_MULTIQUAD
->> +	fi
->>  fi
+ 	if (!mem_map)
+ 		BUG();
+ 	
+-	bad_ppro = ppro_with_ram_bug();
+-
+ #ifdef CONFIG_HIGHMEM
+ 	highmem_start_page = mem_map + highstart_pfn;
+ 	max_mapnr = num_physpages = highend_pfn;
+@@ -468,37 +508,8 @@
+ 	/* clear the zero-page */
+ 	memset(empty_zero_page, 0, PAGE_SIZE);
+ 
+-	/* this will put all low memory onto the freelists */
+-	totalram_pages += free_all_bootmem();
++	reservedpages = mem_init_free_pages();
+ 
+-	reservedpages = 0;
+-	for (tmp = 0; tmp < max_low_pfn; tmp++)
+-		/*
+-		 * Only count reserved RAM pages
+-		 */
+-		if (page_is_ram(tmp) && PageReserved(mem_map+tmp))
+-			reservedpages++;
+-#ifdef CONFIG_HIGHMEM
+-	for (tmp = highstart_pfn; tmp < highend_pfn; tmp++) {
+-		struct page *page = mem_map + tmp;
+-
+-		if (!page_is_ram(tmp)) {
+-			SetPageReserved(page);
+-			continue;
+-		}
+-		if (bad_ppro && page_kills_ppro(tmp))
+-		{
+-			SetPageReserved(page);
+-			continue;
+-		}
+-		ClearPageReserved(page);
+-		set_bit(PG_highmem, &page->flags);
+-		atomic_set(&page->count, 1);
+-		__free_page(page);
+-		totalhigh_pages++;
+-	}
+-	totalram_pages += totalhigh_pages;
+-#endif
+ 	codesize =  (unsigned long) &_etext - (unsigned long) &_text;
+ 	datasize =  (unsigned long) &_edata - (unsigned long) &_etext;
+ 	initsize =  (unsigned long) &__init_end - (unsigned long) &__init_begin;
+
+--==_Exmh_-19820764880--
+
 

@@ -1,90 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270110AbRHGGya>; Tue, 7 Aug 2001 02:54:30 -0400
+	id <S269015AbRHGG5o>; Tue, 7 Aug 2001 02:57:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270111AbRHGGyO>; Tue, 7 Aug 2001 02:54:14 -0400
-Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:7117 "EHLO
-	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S270110AbRHGGyI>;
-	Tue, 7 Aug 2001 02:54:08 -0400
-Message-Id: <200108070654.f776sOl25211@www.2ka.mipt.ru>
-Date: Tue, 7 Aug 2001 10:57:03 +0400
-From: Evgeny Polyakov <johnpol@2ka.mipt.ru>
-To: Crutcher Dunnavant <crutcher@datastacks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Encrypted Swap
-In-Reply-To: <20010807024101.B2399@mueller.datastacks.com>
-In-Reply-To: <Pine.LNX.4.33L2.0108070106390.7542-100000@localhost.localdomain> <Pine.LNX.4.33.0108062239550.5316-100000@mackman.net> <200108070624.f776Ofl21096@www.2ka.mipt.ru>
-	<20010807024101.B2399@mueller.datastacks.com>
-Reply-To: johnpol@2ka.mipt.ru
-X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.7; Linux 2.4.7-ac7; i686)
-Organization: MIPT
-Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+	id <S268919AbRHGG5e>; Tue, 7 Aug 2001 02:57:34 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:52753 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S269015AbRHGG5X>;
+	Tue, 7 Aug 2001 02:57:23 -0400
+Date: Tue, 7 Aug 2001 07:57:04 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 3c509: broken(verified)
+In-Reply-To: <E15Tvju-0001ta-00@infradead.org>
+Message-ID: <Pine.LNX.4.33.0108070747400.11557-100000@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Hi Dieter.
 
-On Tue, 7 Aug 2001 02:41:01 -0400
-Crutcher Dunnavant <crutcher@datastacks.com> wrote:
+ >>>> You mention the problem is being unable to change the media, I
+ >>>> was unaware this was even possible with the current 3c509
+ >>>> driver, and most people do it on 3c509's and other PNP cards of
+ >>>> this sort (such as NE2000 clones)  by using a DOS boot diskette
+ >>>> and the DOS utilities provided by the manufacturer.
 
-CD> ++ 07/08/01 10:27 +0400 - John Polyakov:
->> Hello.
->> 
->> On Mon, 6 Aug 2001 22:55:19 -0700 (PDT)
->> Ryan Mack <rmack@mackman.net> wrote:
->> 
->> RM> Apparently some of you have missed the point.  Currently, the only way
->> to
->> RM> write any form of encryption application is to have it run setuid root
->> so
->> RM> it can lock pages in RAM.  Otherwise, files (or keys) that are
->> encrypted
->> RM> on disk may be left in an unencrypted state on swap, allowing for
->> RM> potential recovery by anyone with hardware access.  Encrypted swap
->> makes
->> RM> locking pages unnecessary, which relieves many sysadmins from the
->> anxiety
->> RM> of having yet-another-setuid application installed on their server in
->> RM> addition to freeing up additional pages to be swapped.
->> 
->> Hmmm, let us suppose, that i copy your crypted partition per bit to my
->> disk.
->> After it I will disassemble your decrypt programm and will find a key....
->> 
->> In any case, if anyone have crypted data, he MUST decrypt them.
->> And for it he MUST have some key.
->> If this is a software key, it MUST NOT be encrypted( it's obviously,
->> becouse in other case, what will decrypt this key?) and anyone, who have
->> PHYSICAL access to the machine, can get this key.
->> Am I wrong?
+ >>> That's what I did. I've set it to "auto mode" and it works with
+ >>> RJ45 cable. But I can't verify if "full duplex" worked right.
 
-CD> Yes, you are wrong. The encryption key for the swap space can be created
-CD> at boot time. We can wait for the hardware to give us enough entropy
-CD> into the random number gen, and make a key. Then we mount the swap
-CD> space, and all reads/writes go through that key. But the key is never
-CD> recorded. The swap data is gone, even to legitimate users of the system,
-CD> after a reboot.
+ >> What transfer speed do you get doing an FTP transfer across the
+ >> link?
 
-And what program will access to timer or any other clock or any other hardware?
-What programm will generate this key?
-This program and key generation algorithm can not be encrypted.
-Yes?
-If this is true, we read this one and generate our key.
-Am wrong again?
+ > Don't know. I have to plug a laptop or something on it to test.
+ > Perhaps Dad's PC (but the latter is still connected via switched
+ > 100 Mbits ;-)
 
-P.S. We don't look at the e-cards and other removable devices, isn't it?
+Nodz...
 
-CD> It is thus perfectly reasonable to wish to encrypt swap. In addition,
-CD> there are good reasons to move in the direction of a non-All-Powerful
-CD> root user. This is what the work in capabilities begins to approach.
-CD> So simply waving your hands and saying that root can see it, so what
-CD> does it matter, is not a long term solution to the problem.
+ >> 10base is theoretically capable of one meg per second,
 
-CD> Crutcher        <crutcher@datastacks.com>
-CD> GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
-CD> R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$
+ > 1.25 MByte/sec (max)
 
----
-WBR. //s0mbre
+Given perfectly accurate clocks at both ends, yes, but when is that
+achieved?
+
+ >> and experience indicates that a 10baseT link normally shows just
+ >> under 500k per second flat out, presumably due to the half
+ >> duplex nature of the 10baseT protocol. I'd expect 10base2 half
+ >> duplex to be similar, and 10base2 full duplex to be somewhat
+ >> faster.
+
+ > I thought it should read 10baseT (with RJ45 cable) can reach
+ > 1.25 MByte/sec full duplex (switched)?
+
+The choice of base2 or baseT decides the cable used - see below.
+
+ >>> So I changed it under Win to "10baseT" for which the 3Com
+ >>> utilities say "full duplex" enabled.
+
+ >> One slight problem - 10baseT uses CoAxial cable, not RJ45 - and,
+ >> as far as I'm aware, 10baseT is strictly half duplex whereas
+ >> 10base2 (which uses RJ45 twisted pair cable) is capable of
+ >> either half or full duplex.
+
+ > See above.
+
+See my reply to Mark Hahn a few minutes ago for a fuller discussion.
+
+Best wishes from Riley.
+
+

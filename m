@@ -1,53 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265963AbUFDUnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265988AbUFDUnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265963AbUFDUnj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 16:43:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUFDUnj
+	id S265988AbUFDUnq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 16:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265998AbUFDUnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 16:43:39 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:60130 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S265963AbUFDUnh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 16:43:46 -0400
+Received: from fw.osdl.org ([65.172.181.6]:34020 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265988AbUFDUnh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 4 Jun 2004 16:43:37 -0400
-Message-ID: <40C0DEC0.90805@blue-labs.org>
-Date: Fri, 04 Jun 2004 16:42:40 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040412
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [boot hang] 2.6.7-rc2, VIA VT8237
-References: <40C0D8FE.7040009@blue-labs.org> <200406042238.04100.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200406042238.04100.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Fri, 4 Jun 2004 13:42:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: mike.miller@hp.com
+Cc: mikem@beardog.cca.cpqcorp.net, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: cciss update for 2.6.7-rc1
+Message-Id: <20040604134251.70a1ffef.akpm@osdl.org>
+In-Reply-To: <20040602201326.GA1346@beardog.cca.cpqcorp.net>
+References: <20040602201326.GA1346@beardog.cca.cpqcorp.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-neither of these two options affect the outcome and the only known 
-kernel that works on this are the Gentoo 2004.1 LiveCD (2.6.5 gentoo 
-built) kernels.  I can't get a vanilla kernel to work on here.  I'm 
-trying repeated versions and stripping everything possible out of the 
-builds.  So far no luck.
+mikem@beardog.cca.cpqcorp.net wrote:
+>
+> 
+> This patch provides a conversion routine for 32-bit user space apps that
+> call into a 64-bit kernel on x86_64 architectures.  This is required for
+> the HP Array Configuration utility and the HP management agents.  Without
+> this patch the apps will not function.  The 2 ioctls affected are the cciss
+> pass thru ioctls.
+> 
+> Caveat: it spits out 2 warnings during compilation.  I've tried everything
+> I can think of to clean them up, but...  If anyone has any helpful
+> suggestions I'm all ears.
 
-David
+The below fixes up the warnings.  Please test it?
 
-Bartlomiej Zolnierkiewicz wrote:
+It's very unusual for a disk driver to have `#ifdef __x86_64__' stuff in
+it.  Is this problem really unique to x86_64 or should the new code be
+enabled for all 64-bit architectures?
 
->On Friday 04 of June 2004 22:18, David Ford wrote:
->
->  
->
->>This is a brand new mobo w/ an Opteron 148 on it.  SK8V.  The Gentoo
->>LiveCD is a 2.6.5 kernel and it boots ok on it.  I'm starting to do
->>tests to see what I can do to get it to function.
->>    
->>
->
->Can you try booting with "noapic" and/or "acpi=off"?
->
->If it doesn't work, please do binary search to
->check what is the last working kernel version.
->  
->
+
+--- 25-x86_64/drivers/block/cciss.c~cciss-update-warning-fix	Fri Jun  4 13:40:20 2004
++++ 25-x86_64-akpm/drivers/block/cciss.c	Fri Jun  4 13:42:22 2004
+@@ -532,13 +532,16 @@ int cciss_ioctl32_passthru(unsigned int 
+ 	IOCTL_Command_struct arg64;
+ 	mm_segment_t old_fs;
+ 	int err;
++	unsigned long cp;
+ 
+ 	err = 0;
+ 	err |= copy_from_user(&arg64.LUN_info, &arg32->LUN_info, sizeof(arg64.LUN_info));
+ 	err |= copy_from_user(&arg64.Request, &arg32->Request, sizeof(arg64.Request));
+ 	err |= copy_from_user(&arg64.error_info, &arg32->error_info, sizeof(arg64.error_info));
+ 	err |= get_user(arg64.buf_size, &arg32->buf_size);
+-	err |= get_user(arg64.buf, &arg32->buf);
++	err |= get_user(cp, &arg32->buf);
++	arg64.buf = (BYTE *)cp;
++
+ 	if (err)
+ 		return -EFAULT;
+ 
+@@ -561,6 +564,7 @@ int cciss_ioctl32_big_passthru(unsigned 
+ 	BIG_IOCTL_Command_struct arg64;
+ 	mm_segment_t old_fs;
+ 	int err;
++	unsigned long cp;
+ 
+ 	err = 0;
+ 	err |= copy_from_user(&arg64.LUN_info, &arg32->LUN_info, sizeof(arg64.LUN_info));
+@@ -568,8 +572,12 @@ int cciss_ioctl32_big_passthru(unsigned 
+ 	err |= copy_from_user(&arg64.error_info, &arg32->error_info, sizeof(arg64.error_info));
+ 	err |= get_user(arg64.buf_size, &arg32->buf_size);
+ 	err |= get_user(arg64.malloc_size, &arg32->malloc_size);
+-	err |= get_user(arg64.buf, &arg32->buf);
+-	if (err) return -EFAULT;
++	err |= get_user(cp, &arg32->buf);
++	arg64.buf = (BYTE *)cp;
++
++	if (err)
++		return -EFAULT;
++
+ 	old_fs = get_fs();
+ 	set_fs(KERNEL_DS);
+ 	err = sys_ioctl(fd, CCISS_BIG_PASSTHRU, (unsigned long) &arg64);
+_
+

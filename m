@@ -1,63 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265030AbUEYSP6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUEYSP6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265030AbUEYSP6 (ORCPT <rfc822;willy@w.ods.org>);
+	id S265029AbUEYSP6 (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 25 May 2004 14:15:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265029AbUEYSPI
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265032AbUEYSOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 14:15:08 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:20112 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S265023AbUEYSMr
+	Tue, 25 May 2004 14:14:49 -0400
+Received: from elektroni.ee.tut.fi ([130.230.131.11]:6274 "HELO
+	elektroni.ee.tut.fi") by vger.kernel.org with SMTP id S265029AbUEYSNp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 14:12:47 -0400
-Message-ID: <40B38CEB.6000807@tmr.com>
-Date: Tue, 25 May 2004 14:14:03 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: "Laughlin, Joseph V" <Joseph.V.Laughlin@boeing.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Modifying kernel so that non-root users have some root capabilities
-References: <67B3A7DA6591BE439001F2736233351202B47E6F@xch-nw-28.nw.nos.boeing.com> <Pine.LNX.4.53.0405250724490.2512@chaos>
-In-Reply-To: <Pine.LNX.4.53.0405250724490.2512@chaos>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 25 May 2004 14:13:45 -0400
+Date: Tue, 25 May 2004 21:13:44 +0300
+From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: System clock running too fast
+Message-ID: <20040525181344.GA4487@elektroni.ee.tut.fi>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200405251939.47165.mbuesch@freenet.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405251939.47165.mbuesch@freenet.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> On Mon, 24 May 2004, Laughlin, Joseph V wrote:
-> 
-> 
->>(not sure if this is a duplicate or not.. Apologies in advance.)
->>
->>I've been tasked with modifying a 2.4 kernel so that a non-root user can
->>do the following:
->>
->>Dynamically change the priorities of processes (up and down)
->>Lock processes in memory
->>Can change process cpu affinity
->>
->>Anyone got any ideas about how I could start doing this?  (I'm new to
->>kernel development, btw.)
->>
->>Thanks,
-> 
-> 
-> You don't modify an operating system to do that!! You just make
-> a priviliged program (setuid) that does the things you want.
+On Tue, May 25, 2004 at 07:39:45PM +0200, Michael Buesch wrote:
+> I've got the problem with my server, that the system-clock
+> is running really fast. It's running over one second too
+> fast in one hour (aproximately).
 
-Dick, it's called capabilities, and people have already modified the 
-operating system to do that, it just doesn't work quite as intended in 
-some cases. Setuid is the keys to the kingdom, you really don't want to 
-use setuid root unless there's no other way.
-
-Remember when everything used to take the BKL? Then people saw a better 
-way. Capabilities is the same kind of progression, save the big hammer 
-for the big nail.
-
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Try tickadj (comes with ntpd):
+  tickadj 9997

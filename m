@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVBLUrV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVBLUwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbVBLUrV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 15:47:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVBLUrV
+	id S261203AbVBLUwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 15:52:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVBLUwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 15:47:21 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:406 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261196AbVBLUrS (ORCPT
+	Sat, 12 Feb 2005 15:52:25 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:44958 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261171AbVBLUwQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 15:47:18 -0500
-Date: Sat, 12 Feb 2005 15:47:07 -0500
-From: Dave Jones <davej@redhat.com>
-To: Marcus Hartig <m.f.h@web.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: How to disable slow agpgart in kernel config?
-Message-ID: <20050212204707.GC18180@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Marcus Hartig <m.f.h@web.de>,
-	Arjan van de Ven <arjan@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <420E4812.7000006@web.de> <1108232773.4056.120.camel@localhost.localdomain> <420E5AAD.7080206@web.de>
+	Sat, 12 Feb 2005 15:52:16 -0500
+Date: Sat, 12 Feb 2005 12:51:51 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: arjan@infradead.org, raybry@sgi.com, taka@valinux.co.jp, hugh@veritas.com,
+       akpm@osdl.org, haveblue@us.ibm.com, marcello@cyclades.com,
+       raybry@austin.rr.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC 2.6.11-rc2-mm2 7/7] mm: manual page migration --
+ sys_page_migrate
+Message-Id: <20050212125151.57033c06.pj@sgi.com>
+In-Reply-To: <20050212144835.GC16075@wotan.suse.de>
+References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
+	<20050212032620.18524.15178.29731@tomahawk.engr.sgi.com>
+	<1108211672.4056.10.camel@localhost.localdomain>
+	<20050212144835.GC16075@wotan.suse.de>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <420E5AAD.7080206@web.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 12, 2005 at 08:36:13PM +0100, Marcus Hartig wrote:
- > Arjan van de Ven wrote:
- > 
- > >hmm I wonder.. .could you collect lspci -vxxx settings for the AGP
- > >device (lspci -vxxx gives you lots of devices, but only one is relevant)
- > >in both cases, maybe the difference between the two shows something
- > >useful...
- > 
- > Hmmm...only the latency at the VGA card.
+Andi wrote:
+> They're already exposed through mbind/set_mempolicy/get_mempolicy and sysfs
+> of course.
 
-Was there any differnces in the devices at 00:00.0 and 00:01.0 ?
-(host & pci bridges)
+And soon I hope through cpusets ;).
 
-		Dave
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401

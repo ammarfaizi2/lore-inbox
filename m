@@ -1,47 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267002AbRGMKqR>; Fri, 13 Jul 2001 06:46:17 -0400
+	id <S267005AbRGMK6K>; Fri, 13 Jul 2001 06:58:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267005AbRGMKqH>; Fri, 13 Jul 2001 06:46:07 -0400
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:40165 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S267002AbRGMKpu>; Fri, 13 Jul 2001 06:45:50 -0400
-Date: Fri, 13 Jul 2001 11:45:45 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [initramfs] wait_for_keypress() and ->wait_key()
-Message-ID: <20010713114545.C970@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.GSO.4.21.0107121851430.15756-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0107121851430.15756-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Jul 12, 2001 at 08:00:27PM -0400
+	id <S267009AbRGMK6B>; Fri, 13 Jul 2001 06:58:01 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:50560 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S267005AbRGMK5t>;
+	Fri, 13 Jul 2001 06:57:49 -0400
+Date: Fri, 13 Jul 2001 06:57:51 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: malfet@gw.mipt.sw.ru, linux-kernel@vger.kernel.org
+Subject: Re: Question about ext2
+In-Reply-To: <3B4EB493.DC805F45@uow.edu.au>
+Message-ID: <Pine.GSO.4.21.0107130623510.17323-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 12, 2001 at 08:00:27PM -0400, Alexander Viro wrote:
-> ... On some of them (e.g. serial console) it actually
-> eats the character it had receieved.
-> ...
-> 	Better yet, attach a VT220 to serial console and press any key that
-> would send multiple characters. Yup, that will eat one of them. Have fun
-> if you call wait_for_keypress() more than once. (On a normal keyboard
-> the effect will differ - next call will block).
 
-We could get round this easily by draining the serial port of charactesr
-on entry to the wait_key method.  This would mean that the user would
-have to press the key after the message has been displayed, which I don't
-think is unreasonable, and probably reflects the keyboard behaviour more
-accurately.
 
-Note that as long as the device (whether it be VT or serial port) isn't
-actually open, the characters pressed will be discarded in both the serial
-port and keyboard case, so its not like you're storing up trouble later on.
-Currently that is the case.
+On Fri, 13 Jul 2001, Andrew Morton wrote:
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+> I recently spent an hour decrypting this function.  Here is
+> a commented version which may prove helpful. It is from a
+> non-mainline branch of ext3, but it's much the same.
+
+<raised brows> OK, here's an algorithm used in rename() - hopefully it
+answers "dunno why" part.
+
+	find directory entry of source or fail (-ENOENT)
+
+	if moving directory
+		find directory entry of ".." in object we move or fail (-EIO)
+
+	if there is a victim
+		if moving directory and victim is not empty - fail (-ENOTEMPTY)
+
+		find directory entry of victim or fail (-ENOENT)
+
+		grab a reference to old_inode and redirect that entry to it
+		if victim is a directory
+			drop reference to victim twice
+		else
+			drop reference to victim once
+	else
+		if moving directory
+			check that we can grab an extra reference to new parent
+			or fail with -EMLINK
+		grab a reference to old inode
+		create a link to old_inode (with new name)
+		if link creation failed
+			drop a reference we've just got and fail
+		if it was a directory
+			grab a reference to new parent
+
+	/*
+		Now we had created a new link to object we are moving
+		and link to victim (if any) is destroyed.
+	 */
+
+	delete old link and drop the reference held by it.
+
+	if moving directory
+		redirect ".." to new parent and drop reference to old parent
+
+Notice that we always grab a reference before creating a link and drop it
+only after the link removal. All checks are done before any directory
+modifications start - that way we can bail out if they fail.
+
+The only really obscure part is dropping an extra reference if victim is
+a directory - then we know that we are cannibalizing the last external
+link to it and the only link that remains is victim's ".". We don't want
+it to prevent victim's removal, so we drive i_nlink of victim to zero.
 

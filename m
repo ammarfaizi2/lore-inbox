@@ -1,31 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264438AbRFIILd>; Sat, 9 Jun 2001 04:11:33 -0400
+	id <S264440AbRFIIQx>; Sat, 9 Jun 2001 04:16:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264439AbRFIILX>; Sat, 9 Jun 2001 04:11:23 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:64260 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S264438AbRFIILN>;
-	Sat, 9 Jun 2001 04:11:13 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200106090811.f598BBB505292@saturn.cs.uml.edu>
-Subject: checker suggestion
-To: engler@csl.Stanford.EDU (Dawson Engler)
-Date: Sat, 9 Jun 2001 04:11:11 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-In-Reply-To: <200106090759.AAA15771@csl.Stanford.EDU> from "Dawson Engler" at Jun 09, 2001 12:59:24 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S264439AbRFIIQn>; Sat, 9 Jun 2001 04:16:43 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:47633 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S264440AbRFIIQa>;
+	Sat, 9 Jun 2001 04:16:30 -0400
+Date: Sat, 9 Jun 2001 05:16:25 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: "Mike A. Harris" <mharris@opensourceadvocate.org>
+Cc: "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
+        Sean Hunter <sean@dev.sportingbet.com>,
+        Xavier Bestel <xavier.bestel@free.fr>, linux-kernel@vger.kernel.org
+Subject: Re: Break 2.4 VM in five easy steps
+In-Reply-To: <Pine.LNX.4.33.0106062010210.26171-100000@asdf.capslock.lan>
+Message-ID: <Pine.LNX.4.21.0106090515080.14934-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Struct padding is a problem. Really, there shouldn't be any
-implicit padding. This causes:
+On Wed, 6 Jun 2001, Mike A. Harris wrote:
 
-1. security leaks when such structs are copied to userspace
-   (the implicit padding is uninitialized, and so may contain
-   a chunk of somebody's private key or password)
+> Why are half the people here trying to hide behind this diskspace
+> is cheap argument?  If we rely on that, then Linux sucks shit.
 
-2. bloat, when struct members could be reordered to eliminate
-   the need for padding
+Never mind them, I haven't seen any of them contribute
+VM code, even ;)
+
+OTOH, disk space _is_ cheap, so the other VM - performance
+related - VM bugs do have a somewhat higher priority at the
+moment.
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

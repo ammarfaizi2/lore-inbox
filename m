@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268312AbUIBNdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268311AbUIBNeY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268312AbUIBNdM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 09:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268315AbUIBNdM
+	id S268311AbUIBNeY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 09:34:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268321AbUIBNeX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 09:33:12 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:3094 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268312AbUIBNdI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 09:33:08 -0400
-Message-ID: <93e09f0104090206334a708289@mail.gmail.com>
-Date: Thu, 2 Sep 2004 19:03:08 +0530
-From: Rohit Neupane <rohitneupane@gmail.com>
-Reply-To: Rohit Neupane <rohitneupane@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Weird Problem with TCP
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1094122617.4966.0.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <93e09f0104090202216403c08d@mail.gmail.com> <1094122617.4966.0.camel@localhost.localdomain>
+	Thu, 2 Sep 2004 09:34:23 -0400
+Received: from bos-gate2.raytheon.com ([199.46.198.231]:13500 "EHLO
+	bos-gate2.raytheon.com") by vger.kernel.org with ESMTP
+	id S268311AbUIBNeN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 09:34:13 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q7
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>,
+       Thomas Charbonnel <thomas@undata.org>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF8D80E555.AA8A5E5E-ON86256F03.00497F6B@raytheon.com>
+From: Mark_H_Johnson@Raytheon.com
+Date: Thu, 2 Sep 2004 08:33:27 -0500
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 09/02/2004 08:33:35 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 02 Sep 2004 11:56:59 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > * Everything works fine for about 5-10 mins then all of a sudden TCP services
-> > are not accessable.
-> > * For some reason TCP times out. However at the same time ping,traceroute and
-> > dns trace works without any problem.
-> > * The connected TCP sokets keeps working without any problem. I verified this
-> > by using Msn chat. I observerd that I chat session ( which I had started
-> > when everything was normal) continued without any problem however I was not
-> > able to initiate a new chat session.
-> 
-> Are you using session tracking. The symptoms you describe are
-> classically those of session tracking nat/firewalling/whatever running
-> out of table entries and being unable to allow new connections.
-> 
-No, it is not running any session tracking (ip_conntrack) neither it
-does nat. It is just a firewall with around 1600 rules in FORWARD
-mangle table and around 1500 rules in FORWARD filter table. Out of
-1500 rules , 1377 rules are MAC filter rules.
-And it had 3 alias address for the interface conneted to the wirelss.
-
-regards,
-Rohit
-
-
+>> I also looked briefly at find_first_bit since it appears in a number
+>> of traces. Just curious, but the coding for the i386 version is MUCH
+>> different in style than several other architectures (e.g, PPC64,
+>> SPARC). Is there some reason why it is recursive on the x86 and a loop
+>> in the others?
 >
+>what do you mean by recursive? It uses the SCAS (scan string) x86
+>instruction.
+
+Never mind. In bitops.c I misread "find_first_bit" (the call near the end)
+as "find_next_bit" and thought there was recursion here.
+
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
+

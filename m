@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263163AbUETLS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265079AbUETLhh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263163AbUETLS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 07:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUETLS7
+	id S265079AbUETLhh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 07:37:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265091AbUETLhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 07:18:59 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:38277 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S263163AbUETLSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 07:18:55 -0400
-Message-ID: <40AC947E.2050706@grupopie.com>
-Date: Thu, 20 May 2004 12:20:30 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: GrupoPIE
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Thu, 20 May 2004 07:37:36 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:47054 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S265079AbUETLhf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 07:37:35 -0400
+Date: Thu, 20 May 2004 12:37:33 +0100 (IST)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Calculating cumulative stack usage
+Message-ID: <Pine.LNX.4.58.0405201228400.16822@skynet>
 MIME-Version: 1.0
-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Dynamic fan clock divider changes (long)
-References: <20040516222809.2c3d1ea2.khali@linux-fr.org>
-In-Reply-To: <20040516222809.2c3d1ea2.khali@linux-fr.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.25.0.3; VDF: 6.25.0.73; host: bipbip)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare wrote:
-> The user still doesn't have to care, which is fine, but if the user has
-> a fan speed between 2000 and 5000 RPM, with low limit set to 1500 RPM,
-> he/she will have a "bad" accuracy at 5000 RPM (+/- 104 RPM). I see this
-> as the low limit "nailing" the divider ;)
+I am not on the list at the moment or following the issues except on rare
+occasions. I saw on LWN though that people were looking for an automatic
+way of calculating cumulative stack usage. Codeviz
+(http://www.csn.ul.ie/~mel/projects/codeviz) is able to do something like
+this.
 
-This doesn't sound so bad at all. And this seems to be the simplest approach.
+Without going into it in a lot of detail, it's a two stage process. Stack
+usage is calculated at the same time as generating the call graph with
+something like
 
-> This is what I implemented in my new pc87360 driver (after trying #1). I
-> use 85 and 224 as the arbitrary limits for changing dividers.
+genfull --pp-stack
 
-This confused me a bit. It seems that a direct consequence of implementation #2 
-is that the divider will be set in a way that the low limit will be between 128 
-and 255, and that there is no point in changing the divider, because it will 
-only get worse. This leads directly to implementation #4. Am I missing something?
+Then to generate a call graph with cumulative usage, it would be something
+like
 
-Anyway, if the user is really concerned about accuracy an average of several 
-measurements should increase precision in this kind of problem. See the 
-following ascii art:
+gengraph -f somefunc
+--pp-cstack="showcumulative=somefunc-someotherfunc,largeusage=3182"
 
-clock:
-     ___     ___     ___     ___     ___     ___     ___     ___
-___|   |___|   |___|   |___|   |___|   |___|   |___|   |___|   |__
+This would generate a callgraph (in postscript) that showed the cumulative
+usage in the bubbles between somefunc() and someotherfunc(). It had to be
+between two functions because there was no easy way to calculate all
+paths.
 
-fan complete turn pulse:
+This would be a fairly manual process though and you would need to have an
+idea of where large usage paths might be. However, as the amount of stack
+every function uses is in the full.graph file, it would be possible to
+identify canditates.
 
-____________________|_____________________|_____________________|
-
-So the first measurement is 3 (assuming rising edge counting), but some of the 
-period will slip into the second measurement giving a count of only 2, and so 
-on. So the jitter on the counts is actually correlated with the fan speed.
-
-Just my 2 cents,
+The documentation on how to do this is virtually non-existant because I
+did not think there would be users of it but it can be written up.
 
 -- 
-Paulo Marques - www.grupopie.com
-"In a world without walls and fences who needs windows and gates?"
+Mel Gorman

@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286687AbRLVFRk>; Sat, 22 Dec 2001 00:17:40 -0500
+	id <S286692AbRLVF3W>; Sat, 22 Dec 2001 00:29:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286685AbRLVFRa>; Sat, 22 Dec 2001 00:17:30 -0500
-Received: from ns2.cih.com ([204.69.206.3]:28307 "HELO cih.com")
-	by vger.kernel.org with SMTP id <S286687AbRLVFRT>;
-	Sat, 22 Dec 2001 00:17:19 -0500
-Date: Fri, 21 Dec 2001 21:19:30 -0800 (PST)
-From: "Craig I. Hagan" <hagan@cih.com>
-To: David Relson <relson@osagesoftware.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: re: Linux 2.4.17
-In-Reply-To: <4.3.2.7.2.20011221193149.00ca6f00@mail.osagesoftware.com>
-Message-ID: <Pine.LNX.4.33.0112212118190.16124-100000@svr.cih.com>
+	id <S286693AbRLVF3N>; Sat, 22 Dec 2001 00:29:13 -0500
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:55680 "EHLO
+	phalynx") by vger.kernel.org with ESMTP id <S286692AbRLVF3B>;
+	Sat, 22 Dec 2001 00:29:01 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB =?iso-8859-1?q?in	Configure=2Ehelp=2E?=
+Date: Fri, 21 Dec 2001 21:29:00 -0800
+X-Mailer: KMail [version 1.3.2]
+Cc: timothy.covell@ashavan.org
+In-Reply-To: <3C234CC100020E25@mta13n.bluewin.ch> <200112220214.fBM2EsSr022402@svr3.applink.net>
+In-Reply-To: <200112220214.fBM2EsSr022402@svr3.applink.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16HeiS-0000Cd-00@phalynx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> I agree with releasing an extra -rc and waiting the extra day for -final.
-> 
-> My thought is that the _only_ difference between the last -rc and -final is 
-> correctly setting "EXTRAVERSION=" in Makefile.
+On December 21, 2001 18:11, Timothy Covell wrote:
+> As concerns the use of Traditional Units being weird, I would say that the
+> motivation made a lot of since.   The units were based on commonly
+> available natural units of measure, eg.
+>
+> one inch = 1 thumb = 1 pouce
+> one foot  = size of a foot = 1 pied
+Oh, and things like having 0 degrees being the temperature of -frozen water- 
+isn't really that natural... no, we'd be much better off using averagish 
+sizes of human body parts as a reference.
 
-I've lots of thoughts as well as things i would have liked to have seen in
-2.4.17. However, This is Marcelo's show. It is his call to make, and I support
-what he did. It has got to be a tough job to know that *you* are the one who
-says "This is good (enough)."
+> Also, as is very appropriate to this discussion, the English Units
+> made use of powers of two and three. Eg.
+>
+> 1 inch, 1/2 inch, 1/4 inch, 1/8 inch
+Oh, that's right, only users of the Imperial system can use these new-fangled 
+"fractions". If only someone would invent a 1/4 centimeter, the metric system 
+would be a viable replacement!
 
--- craig
+How about this: Seeing there is no commonly used unit smaller than an inch, 
+people had to resort to using fractions of an inch to describe sizes. It 
+works in metric too, but people just don't, because there are a wider range 
+of metric units.
 
+> 3 feet equals a yard.
+>
+> So, the English units were more attuned to nature.  The only thing
+> natural about base ten is that the majority of us have 10 fingers and
+> 10 toes.
+Yes, and three is a magical number decreed by God himself. You do have a good 
+point, though, the Imperial system fits in quite well with our 
+base-two-but-sometimes-three number system.
 
+> Finally, Farhenheit units are smaller so that they make more convenient
+> divisions: Eg.
+Brilliant. The system with the smallest units wins. Let me introduce you to 
+the yocto-centigrade, where the boiling point is 10^26 degrees. Combined with 
+the revolutionary new "decimal point", you can obtain never before seen 
+precision in describing temperatures! 
 
--------------------------------------------------------------------------------
-Craig I. Hagan     "It's a small world, but I wouldn't want to back it up"
-hagan(at)cih.com        "True hackers don't die, their ttl expires"
-  	"It takes a village to raise an idiot, but an idiot can raze a village"
-
-	Stop the spread of spam, use a sendmail condom!
-	     http://www.cih.com/~hagan/smtpd-hacks
-
-                       In Bandwidth we trust
-
+-Ryan

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265589AbSKAE0N>; Thu, 31 Oct 2002 23:26:13 -0500
+	id <S265598AbSKAE0k>; Thu, 31 Oct 2002 23:26:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265596AbSKAE0N>; Thu, 31 Oct 2002 23:26:13 -0500
-Received: from 12-222-92-50.client.insightBB.com ([12.222.92.50]:38552 "EHLO
-	lucky") by vger.kernel.org with ESMTP id <S265589AbSKAE0N>;
-	Thu, 31 Oct 2002 23:26:13 -0500
-Date: Thu, 31 Oct 2002 23:32:37 -0500
-To: Vagn Scott <vagn@ranok.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What's left over. 700 1-port console server
-Message-ID: <20021101043237.GC11169@lucky>
-Reply-To: shuey@purdue.edu
-References: <3DC1FDC2.8E64C099@ranok.com>
+	id <S265601AbSKAE0j>; Thu, 31 Oct 2002 23:26:39 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:39693 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S265598AbSKAE0h>; Thu, 31 Oct 2002 23:26:37 -0500
+Date: Fri, 1 Nov 2002 04:33:04 +0000
+From: John Levon <levon@movementarian.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: weigand@immd1.informatik.uni-erlangen.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [8/7] oprofile - dcookies need to use u32
+Message-ID: <20021101043304.GA7421@compsoc.man.ac.uk>
+References: <20021019002645.GA16882@compsoc.man.ac.uk> <20021018.172327.11877875.davem@redhat.com> <20021019003415.GA17016@compsoc.man.ac.uk> <20021018.173128.11570989.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DC1FDC2.8E64C099@ranok.com>
-User-Agent: Mutt/1.4i
-From: Michael Shuey <shuey@fmepnet.org>
+In-Reply-To: <20021018.173128.11570989.davem@redhat.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 11:06:26PM -0500, Vagn Scott wrote:
-> > Do you feel like donating a 700-port console server? Right, so it's LKCD 
-> > for me then. 
+On Fri, Oct 18, 2002 at 05:31:28PM -0700, David S. Miller wrote:
+
+> That would be a great way to do this portably.
 > 
-> You already have 700 1-port console servers.
-> Plug each machine into it's neighbor with a null modem.
-> Teach mgetty to do something useful with serial dumps.
+> I suspect oprofile won't be the only situation where this value
+> would be useful, perhaps /proc/sys/kernel/pointer_size?
 
-And how, praytell, am I supposed to do that when most of my cluster nodes
-only have one (1) serial port?  Buy 700 serial cards, or a half-ton of USB
-serial port dongles?
+The problem is this would trivially break cross-compilation. Would it
+not be better to stick something in the glibc's bits/types.h
+per-platform ?
 
-Do you feel like donating 700 serial ports?  Right, so it's LKCD for me then.
+Not that I particularly fancy going near glibc...
+
+regards
+john
 
 -- 
-Mike Shuey
+"My first thought was I don't have any makeup. How will I survive
+without my makeup ? My second thought was I didn't have any identification.
+Who am I ?"
+	- Earthquake victim

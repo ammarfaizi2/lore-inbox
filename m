@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268440AbRGXTdO>; Tue, 24 Jul 2001 15:33:14 -0400
+	id <S268442AbRGXTle>; Tue, 24 Jul 2001 15:41:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268439AbRGXTdF>; Tue, 24 Jul 2001 15:33:05 -0400
-Received: from jcwren-1.dsl.speakeasy.net ([216.254.53.52]:65015 "EHLO
-	jcwren.com") by vger.kernel.org with ESMTP id <S268440AbRGXTc6>;
-	Tue, 24 Jul 2001 15:32:58 -0400
-Reply-To: <jcwren@jcwren.com>
-From: "John Chris Wren" <jcwren@jcwren.com>
+	id <S268441AbRGXTlY>; Tue, 24 Jul 2001 15:41:24 -0400
+Received: from smtp1.legato.com ([137.69.200.1]:30419 "EHLO smtp1.legato.com")
+	by vger.kernel.org with ESMTP id <S268439AbRGXTlN>;
+	Tue, 24 Jul 2001 15:41:13 -0400
+Message-ID: <01dc01c11478$9a529920$5c044589@legato.com>
+From: "David E. Weekly" <dweekly@legato.com>
 To: <linux-kernel@vger.kernel.org>
-Subject: Question about termios parameters
-Date: Tue, 24 Jul 2001 15:32:57 -0400
-Message-ID: <NDBBKBJHGFJMEMHPOPEGOEAGCPAA.jcwren@jcwren.com>
+In-Reply-To: <Pine.LNX.4.33L.0107241514160.20326-100000@duckman.distro.conectiva>
+Subject: Is /dev/epoll scheduled for official inclusion anytime soon?
+Date: Tue, 24 Jul 2001 12:41:15 -0700
+Organization: Legato Systems, Inc.
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
+X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.10.10107242047320.4963-100000@luxik.cdi.cz>
-Importance: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
 X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-	This may not be the best place to ask this, but I've done the research,
-can't come up with an answer, and don't know a better group of people to
-ask.
+Hello all.
 
-	I have an embedded Linux device (2.2.12 kernel, BlueCat distro) that uses a
-serial port for the console.  When the box comes up, rc.sysinit starts the
-application as a detached process (my_program&).  When the program spits out
-periodic status reports, the \n is not being mapped to CR-LF (i.e., I'm
-getting only linefeeds).
+I've been playing around with Davide Libenzi's "/dev/epoll" patch and have
+been very impressed by the performance figures (see his paper at
+http://www.xmailserver.org/linux-patches/nio-improve.html for some
+numbers) - it seems to exhibit really excellent scaling.
 
-	Once you log on to the box (via login, into bash), the output becomes
-correctly cooked.
+Given the sheer utility of using /dev/epoll in a largescale server, are
+there any plans to roll it into the mainline kernel at any point? If not,
+why / is there an equivalent scheduled for inclusion?
 
-	I've tried twiddling termios parameters for OPOST and ONLCR, but it has no
-effect.  Trying to have the application run "stty -a" via a system() call
-reports an error regarding it can't get the parameters for stdin.
+Clearly, IMHO, Linux needs something that can scale as well as BSD's kqueue
+and Solaris's /dev/poll. /dev/epoll seems to be an excellent answer.
 
-	What parameters are required to be set for a detached process started via
-init to correctly have it's output mapped from \n to CR-NL?
 
-	--John
+Sincerely,
+ David E. Weekly
+
+PS: Cheers to Anton Altaparmikov's work on NTFS: In 2.4.7, we now have
+rather robust read/write support of NT filesystems!
 
 

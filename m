@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269681AbUJGENX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269679AbUJGER7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269681AbUJGENX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 00:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269683AbUJGENX
+	id S269679AbUJGER7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 00:17:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269683AbUJGER7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 00:13:23 -0400
-Received: from bluebox.CS.Princeton.EDU ([128.112.136.38]:52649 "EHLO
-	bluebox.CS.Princeton.EDU") by vger.kernel.org with ESMTP
-	id S269681AbUJGENW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 00:13:22 -0400
-From: "Marc E. Fiuczynski" <mef@CS.Princeton.EDU>
-To: <colpatch@us.ibm.com>, "Paul Jackson" <pj@sgi.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, "Andrew Morton" <akpm@osdl.org>,
-       <ckrm-tech@lists.sourceforge.net>,
-       "LSE Tech" <lse-tech@lists.sourceforge.net>,
-       "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "LKML" <linux-kernel@vger.kernel.org>, <simon.derr@bull.net>,
-       <frankeh@watson.ibm.com>
-Subject: RE: [ckrm-tech] [RFC PATCH] scheduler: Dynamic sched_domains
-Date: Thu, 7 Oct 2004 00:12:27 -0400
-Message-ID: <NIBBJLJFDHPDIBEEKKLPIEMNCHAA.mef@cs.princeton.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 7 Oct 2004 00:17:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:56015 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269679AbUJGER5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 00:17:57 -0400
+Date: Wed, 6 Oct 2004 21:16:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Matt_Domsch@dell.com, linux-kernel@vger.kernel.org, alan@redhat.com,
+       david.balazic@hermes.si
+Subject: Re: [PATCH 2.6.9-rc3-mm2] EDD: use EXTENDED READ command, add
+ CONFIG_EDD_SKIP_MBR
+Message-Id: <20041006211605.17c1cb41.akpm@osdl.org>
+In-Reply-To: <4164BF82.2040608@pobox.com>
+References: <20041004214803.GC2989@lists.us.dell.com>
+	<4164BF82.2040608@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
-Importance: Normal
-In-Reply-To: <1097110266.4907.187.camel@arrakis>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ... thus making supporting interesting NUMA machines
-> and SMT machines easier.
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> > This also adds CONFIG_EDD_SKIP_MBR to eliminate reading the MBR on
+>  > each BIOS-presented disk, in case there are further problems in this
+>  > area.
+> 
+> 
+>  Build fails on x86-64:
+> 
+>  [...]
+>     SYSMAP  System.map
+>     SYSMAP  .tmp_System.map
+>     AS      arch/x86_64/boot/setup.o
+>  In file included from arch/x86_64/boot/setup.S:536:
+>  arch/i386/boot/edd.S:17: macro names must be identifiers
+>  make[1]: *** [arch/x86_64/boot/setup.o] Error 1
+>  make: *** [bzImage] Error 2
 
-Would you be so kind and elaborate on the SMT part.
+hm, works OK here.
 
-Marc
+Is it missing config.h?

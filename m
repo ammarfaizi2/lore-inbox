@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291774AbSBHTpY>; Fri, 8 Feb 2002 14:45:24 -0500
+	id <S291776AbSBHTvQ>; Fri, 8 Feb 2002 14:51:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291775AbSBHTpP>; Fri, 8 Feb 2002 14:45:15 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44809 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291774AbSBHTo6>;
-	Fri, 8 Feb 2002 14:44:58 -0500
-Message-ID: <3C642A90.751BB750@zip.com.au>
-Date: Fri, 08 Feb 2002 11:44:16 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9 i686)
-X-Accept-Language: en
+	id <S291775AbSBHTvG>; Fri, 8 Feb 2002 14:51:06 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31251 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S291776AbSBHTuy>; Fri, 8 Feb 2002 14:50:54 -0500
+Date: Fri, 8 Feb 2002 13:36:27 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Alexander Viro <viro@math.psu.edu>, Andrew Morton <akpm@zip.com.au>,
+        Martin Wirth <Martin.Wirth@dlr.de>, Robert Love <rml@tech9.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        haveblue <haveblue@us.ibm.com>
+Subject: Re: [RFC] New locking primitive for 2.5
+In-Reply-To: <Pine.LNX.4.33.0202082221500.17064-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0202081328060.1095-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-CC: Jens Axboe <axboe@suse.de>, Ingo Molnar <mingo@elte.hu>,
-        Robert Love <rml@tech9.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] get_request starvation fix
-In-Reply-To: <200202081932.GAA05943@mangalore.zipworld.com.au>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dieter Nützel wrote:
-> 
-> On Fri, Feb 08 2002, Andrew Morton wrote:
-> > Here's a patch which addresses the get_request starvation problem.
-> 
-> [snip]
-> 
-> > Also, you noted the other day that a LILO run *never* terminated when
-> > there was a dbench running.  This is in fact not due to request
-> > starvation.  It's due to livelock in invalidate_bdev(), which is called
-> > via ioctl(BLKFLSBUF) by LILO.  invalidate_bdev() will never terminate
-> > as long as another task is generating locked buffers against the
-> > device.
-> [snip]
-> 
-> Could this below related?
-> I get system looks through lilo (bzlilo) from time to time with all latest
-> kernels + O(1) + -aa + preempt
-> 
 
-Depends what you mean by "system locks".  The invalidate_bdev() problem
-won't lock the machine.  Its symptoms are merely that the ioctl will
-not terminate until the process which is writing to disk stops.
 
-In other words: if you run dbench, then lilo, lilo will not complete
-until after dbench terminates.
+On Fri, 8 Feb 2002, Ingo Molnar wrote:
+>
+> and regarding the reintroduction of BKL, *please* do not just use a global
+> locks around such pieces of code, lock bouncing sucks on SMP, even if
+> there is no overhead.
 
-If you're seeing actual have-to-hit-reset lockups then that'll
-be due to something quite different.
+I'd suggest not having a lock at all, but instead add two functions: one
+to read a 64-bit value atomically, the other to write it atomically (and
+they'd be atomic only wrt each other, no memory barriers etc implied).
 
--
+On 64-bit architectures that's just a direct dereference, and even on x86
+it's just a "cmpxchg8b".
+
+		Linus
+

@@ -1,76 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266174AbUFIU5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265959AbUFIU5A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266174AbUFIU5A (ORCPT <rfc822;willy@w.ods.org>);
+	id S265959AbUFIU5A (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 9 Jun 2004 16:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbUFIU43
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266168AbUFIU4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 16:56:29 -0400
-Received: from mail.inter-page.com ([12.5.23.93]:23057 "EHLO
-	mail.inter-page.com") by vger.kernel.org with ESMTP id S265985AbUFIUyC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 16:54:02 -0400
-From: "Robert White" <rwhite@casabyte.com>
-To: "'Jesse Pollard'" <jesse@cats-chateau.net>,
-       "'Ingo Molnar'" <mingo@elte.hu>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Mike McCormack'" <mike@codeweavers.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-Date: Wed, 9 Jun 2004 13:53:16 -0700
-Organization: Casabyte, Inc.
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAdFYhVEbxb0Kgbx4hvCgIkQEAAAAA@casabyte.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <04060911530500.08612@tabby>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Importance: Normal
+	Wed, 9 Jun 2004 16:56:36 -0400
+Received: from smtp1.pp.htv.fi ([213.243.153.34]:53645 "EHLO smtp1.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S265959AbUFIUzx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 16:55:53 -0400
+Subject: Re: [PATCH] ALSA: Remove subsystem-specific malloc (1/8)
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: arjanv@redhat.com
+Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
+       tiwai@suse.de
+In-Reply-To: <1086812486.2810.21.camel@laptop.fenrus.com>
+References: <200406082124.i58LOuOL016163@melkki.cs.helsinki.fi>
+	 <20040609113455.U22989@build.pdx.osdl.net>
+	 <1086812001.13026.63.camel@cherry>
+	 <1086812486.2810.21.camel@laptop.fenrus.com>
+Content-Type: text/plain
+Message-Id: <1086814663.13026.70.camel@cherry>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 09 Jun 2004 23:57:43 +0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Which is why I, later in the same message, wrote:
+On Wed, 2004-06-09 at 23:21, Arjan van de Ven wrote:
+> how about making sure n*size doesn't overflow an int in this function?
+> We had a few security holes due to that happening a while ago; might as
+> well prevent it from happening entirely
 
-Architecturally the easy-application-accessible switch should be something more than
-a syscall to prevent a return-address-twiddle invoking the call directly.  I'd make
-it a /proc/self something, or put it in a separate include-only-if-used shared
-library or something.  If the minimal distance is opening and writing a
-normally-untouched file then you get a nice support matrix.  (e.g. no file means no
-feature, file plus action means executable stack, no action means system default (old
-can, new cannot), hacks would require a variable (fd) and executing arbitrary code to
-open and write that file, programs/programmers that want/need the old behavior can
-achieve it without having to know how to manipulate their ELF headers or tool-chains,
-etc.)
+Sure.
 
-Which is not susceptible to the 1-2 attack you mention below because the open and
-write cannot be done on a protected stack or heap, since it would then have to be
-(er... ) executed to perform the hack.
+		Pekka
 
-Ahhhh, yes...
-
------Original Message-----
-From: Jesse Pollard [mailto:jesse@cats-chateau.net] 
-Sent: Wednesday, June 09, 2004 9:53 AM
-To: Robert White; 'Ingo Molnar'; 'Christoph Hellwig'; 'Mike McCormack';
-linux-kernel@vger.kernel.org
-Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-
-On Tuesday 08 June 2004 16:50, Robert White wrote:
-> I would think that having an easy call to disable the NX modification would
-> be both safe and effective.  That is, adding a syscall (or whatever) that
-> would let you mark your heap and/or stack executable while leaving the new
-> default as NX, is "just as safe" as flagging the executable in the first
-> place.
-
-ahhhh no.
-
-The first attack against a vulerable server  would be to load a string
-on the stack that would:
-1. have address of the syscall to turn off NX, then return to the stack.
-2. have normal worm/virus code following.
-
+diff -urN linux-2.6.6/include/linux/slab.h kcalloc-2.6.6/include/linux/slab.h
+--- linux-2.6.6/include/linux/slab.h	2004-06-09 22:56:11.874249056 +0300
++++ kcalloc-2.6.6/include/linux/slab.h	2004-06-09 23:03:10.597593432 +0300
+@@ -95,6 +95,7 @@
+ 	return __kmalloc(size, flags);
+ }
+ 
++extern void *kcalloc(size_t, size_t, int);
+ extern void kfree(const void *);
+ extern unsigned int ksize(const void *);
+ 
+diff -urN linux-2.6.6/mm/slab.c kcalloc-2.6.6/mm/slab.c
+--- linux-2.6.6/mm/slab.c	2004-06-09 22:59:13.081701336 +0300
++++ kcalloc-2.6.6/mm/slab.c	2004-06-09 23:50:06.592497136 +0300
+@@ -2332,6 +2332,25 @@
+ EXPORT_SYMBOL(kmem_cache_free);
+ 
+ /**
++ * kcalloc - allocate memory for an array. The memory is set to zero.
++ * @n: number of elements.
++ * @size: element size.
++ * @flags: the type of memory to allocate.
++ */
++void *kcalloc(size_t n, size_t size, int flags)
++{
++	if (n != 0 && size > INT_MAX / n)
++		return NULL;
++
++	void *ret = kmalloc(n * size, flags);
++	if (ret)
++		memset(ret, 0, n * size);
++	return ret;
++}
++
++EXPORT_SYMBOL(kcalloc);
++
++/**
+  * kfree - free previously allocated memory
+  * @objp: pointer returned by kmalloc.
+  *
 
 

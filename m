@@ -1,158 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbUKGRqy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbUKGRsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbUKGRqy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 12:46:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUKGRqx
+	id S261662AbUKGRsX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 12:48:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbUKGRsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 12:46:53 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:527 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261654AbUKGRqr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 12:46:47 -0500
-Date: Sun, 7 Nov 2004 18:46:09 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] small drivers/media/radio/ cleanups
-Message-ID: <20041107174609.GO14308@stusta.de>
+	Sun, 7 Nov 2004 12:48:22 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:24989 "EHLO midnight.suse.cz")
+	by vger.kernel.org with ESMTP id S261662AbUKGRrx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 12:47:53 -0500
+Date: Sun, 7 Nov 2004 18:47:57 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       linux-input@atrey.karlin.mff.cuni.cz,
+       linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] small input cleanup
+Message-ID: <20041107174757.GA10086@ucw.cz>
+References: <20041107031256.GD14308@stusta.de> <200411062249.54887.dtor_core@ameritech.net> <20041107172929.GM14308@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041107172929.GM14308@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the patch below makes the following cleanups under drivers/media/radio/ :
-- remove two unused global variables
-- make some needlessly global code static
+On Sun, Nov 07, 2004 at 06:29:29PM +0100, Adrian Bunk wrote:
+> On Sat, Nov 06, 2004 at 10:49:54PM -0500, Dmitry Torokhov wrote:
+> 
+> > Hi,
+> 
+> Hi Dmitry,
+> 
+> > On Saturday 06 November 2004 10:12 pm, Adrian Bunk wrote:
+> > > The patch below does the following cleanups under drivers/input/ :
+> > > - make some needlessly global code static
+> > > - remove the completely unused EXPORT_SYMBOL'ed function gameport_rescan
+> > 
+> > It will be used (but in some transformed) once I finish gameport sysfs
+> > support, but it probably need not be exported.
+> >  
+> > > - make the EXPORT_SYMBOL'ed function ps2_sendbyte static since it isn't
+> > >   used outside the file where it's defined
+> > 
+> > libps2 is a library for communicating with standard PS/2 device and while
+> > the function is not currently used it is part of the interface. I would
+> > like to leave the function as is.
+> 
+> my personal opinions:
+> - if gameport_rescan will not be needed in it's current form, there's
+>   no need for it (you can always add the "real" function when it's 
+>   required
 
+Well, it works in its current form, and drivers should call it when
+their reinit logic fails to reinitialize the device. They don't, which
+is a bug, and should be fixed. I don't think removing gameport_rescan()
+will help fixing them.
 
-diffstat output:
- drivers/media/radio/radio-aimslab.c   |    4 ++--
- drivers/media/radio/radio-cadet.c     |    4 ++--
- drivers/media/radio/radio-gemtek.c    |    2 +-
- drivers/media/radio/radio-maestro.c   |    4 ++--
- drivers/media/radio/radio-maxiradio.c |    4 ++--
- drivers/media/radio/radio-terratec.c  |    2 +-
- drivers/media/radio/radio-zoltrix.c   |    4 ++--
- 7 files changed, 12 insertions(+), 12 deletions(-)
+> - could ps2_sendbyte be #ifdef 0'ed until it's required?
+>   this way, it wouldn't make the kernel bigger today
+ 
+It is used, just not outside libps2. Does the EXPORT_SYMBOL() make the
+kernel so much bigger?
 
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm3-full/drivers/media/radio/radio-aimslab.c.old	2004-11-07 16:12:57.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/media/radio/radio-aimslab.c	2004-11-07 16:13:14.000000000 +0100
-@@ -130,7 +130,7 @@
-  * and bit 4 (+16) is to keep the signal strength meter enabled
-  */
- 
--void send_0_byte(int port, struct rt_device *dev)
-+static void send_0_byte(int port, struct rt_device *dev)
- {
- 	if ((dev->curvol == 0) || (dev->muted)) {
- 		outb_p(128+64+16+  1, port);   /* wr-enable + data low */
-@@ -143,7 +143,7 @@
- 	sleep_delay(1000); 
- }
- 
--void send_1_byte(int port, struct rt_device *dev)
-+static void send_1_byte(int port, struct rt_device *dev)
- {
- 	if ((dev->curvol == 0) || (dev->muted)) {
- 		outb_p(128+64+16+4  +1, port);   /* wr-enable+data high */
---- linux-2.6.10-rc1-mm3-full/drivers/media/radio/radio-cadet.c.old	2004-11-07 16:13:42.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/media/radio/radio-cadet.c	2004-11-07 16:25:30.000000000 +0100
-@@ -46,7 +46,7 @@
- static int tunestat=0;
- static int sigstrength=0;
- static wait_queue_head_t read_queue;
--struct timer_list tunertimer,rdstimer,readtimer;
-+static struct timer_list readtimer;
- static __u8 rdsin=0,rdsout=0,rdsstat=0;
- static unsigned char rdsbuf[RDS_BUFFER];
- static spinlock_t cadet_io_lock;
-@@ -280,7 +280,7 @@
- 	spin_unlock(&cadet_io_lock);
- }  
- 
--void cadet_handler(unsigned long data)
-+static void cadet_handler(unsigned long data)
- {
- 	/*
- 	 * Service the RDS fifo
---- linux-2.6.10-rc1-mm3-full/drivers/media/radio/radio-gemtek.c.old	2004-11-07 16:14:26.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/media/radio/radio-gemtek.c	2004-11-07 16:14:43.000000000 +0100
-@@ -127,7 +127,7 @@
- 	return 0;
- }
- 
--int gemtek_getsigstr(struct gemtek_device *dev)
-+static int gemtek_getsigstr(struct gemtek_device *dev)
- {
- 	spin_lock(&lock);
- 	inb(io);
---- linux-2.6.10-rc1-mm3-full/drivers/media/radio/radio-maestro.c.old	2004-11-07 16:14:52.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/media/radio/radio-maestro.c	2004-11-07 16:15:08.000000000 +0100
-@@ -256,12 +256,12 @@
- MODULE_DESCRIPTION("Radio driver for the Maestro PCI sound card radio.");
- MODULE_LICENSE("GPL");
- 
--void __exit maestro_radio_exit(void)
-+static void __exit maestro_radio_exit(void)
- {
- 	video_unregister_device(&maestro_radio);
- }
- 
--int __init maestro_radio_init(void)
-+static int __init maestro_radio_init(void)
- {
- 	register __u16 found=0;
- 	struct pci_dev *pcidev = NULL;
---- linux-2.6.10-rc1-mm3-full/drivers/media/radio/radio-maxiradio.c.old	2004-11-07 16:15:17.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/media/radio/radio-maxiradio.c	2004-11-07 16:15:30.000000000 +0100
-@@ -335,12 +335,12 @@
- 	.remove		= __devexit_p(maxiradio_remove_one),
- };
- 
--int __init maxiradio_radio_init(void)
-+static int __init maxiradio_radio_init(void)
- {
- 	return pci_module_init(&maxiradio_driver);
- }
- 
--void __exit maxiradio_radio_exit(void)
-+static void __exit maxiradio_radio_exit(void)
- {
- 	pci_unregister_driver(&maxiradio_driver);
- }
---- linux-2.6.10-rc1-mm3-full/drivers/media/radio/radio-terratec.c.old	2004-11-07 16:15:43.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/media/radio/radio-terratec.c	2004-11-07 16:15:57.000000000 +0100
-@@ -175,7 +175,7 @@
-   	return 0;
- }
- 
--int tt_getsigstr(struct tt_device *dev)		/* TODO */
-+static int tt_getsigstr(struct tt_device *dev)		/* TODO */
- {
- 	if (inb(io) & 2)	/* bit set = no signal present	*/
- 		return 0;
---- linux-2.6.10-rc1-mm3-full/drivers/media/radio/radio-zoltrix.c.old	2004-11-07 16:16:18.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/media/radio/radio-zoltrix.c	2004-11-07 16:16:34.000000000 +0100
-@@ -169,7 +169,7 @@
- 
- /* Get signal strength */
- 
--int zol_getsigstr(struct zol_device *dev)
-+static int zol_getsigstr(struct zol_device *dev)
- {
- 	int a, b;
- 
-@@ -194,7 +194,7 @@
-  	return (0);
- }
- 
--int zol_is_stereo (struct zol_device *dev)
-+static int zol_is_stereo (struct zol_device *dev)
- {
- 	int x1, x2;
- 
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

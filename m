@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262317AbVCBPrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262321AbVCBPtr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262317AbVCBPrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 10:47:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVCBPrJ
+	id S262321AbVCBPtr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 10:49:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbVCBPtq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 10:47:09 -0500
-Received: from ns.suse.de ([195.135.220.2]:9150 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262317AbVCBPpy (ORCPT
+	Wed, 2 Mar 2005 10:49:46 -0500
+Received: from cantor.suse.de ([195.135.220.2]:53951 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262321AbVCBPtD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 10:45:54 -0500
-Subject: Re: 2.6.11-rc5-mm1
+	Wed, 2 Mar 2005 10:49:03 -0500
+Subject: Re: [nfsacl v2 15/16] ACL umask handling workaround in nfs client
 From: Andreas Gruenbacher <agruen@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: =?ISO-8859-1?Q?Aur=E9lien?= Francillon <aurel@naurel.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Olaf Kirch <okir@suse.de>
-In-Reply-To: <20050302005344.1c3420db.akpm@osdl.org>
-References: <20050301012741.1d791cd2.akpm@osdl.org>
-	 <4224A905.7060801@naurel.org>  <20050302005344.1c3420db.akpm@osdl.org>
-Content-Type: multipart/mixed; boundary="=-aJipZPpxc9/tvR7wR6Ct"
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>, Olaf Kirch <okir@suse.de>,
+       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+       Andrew Morton <akpm@osdl.org>,
+       =?ISO-8859-1?Q?Aur=E9lien?= Francillon <aurel@naurel.org>
+In-Reply-To: <20050227170317.243461000@blunzn.suse.de>
+References: <20050227165954.566746000@blunzn.suse.de>
+	 <20050227170317.243461000@blunzn.suse.de>
+Content-Type: multipart/mixed; boundary="=-UXoiKRVH+U0gIZ+4NLNJ"
 Organization: SUSE Labs
-Message-Id: <1109778352.22077.155.camel@winden.suse.de>
+Message-Id: <1109778541.22077.161.camel@winden.suse.de>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 02 Mar 2005 16:45:53 +0100
+Date: Wed, 02 Mar 2005 16:49:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-aJipZPpxc9/tvR7wR6Ct
+--=-UXoiKRVH+U0gIZ+4NLNJ
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Hello,
-
-On Wed, 2005-03-02 at 09:53, Andrew Morton wrote:
-> Aurélien Francillon <aurel@naurel.org> wrote:
-> > [...]
-> > cvs diff Makefile 
-> >              cvs diff: cannot create read lock in repository 
-> > `/mnt/iseran/roca/cvsroot/ldpc': No such file or directory
-> > cvs [diff aborted]: read lock failed - giving up
-> > 
-> > but the file is created and i can "cat " it without problem ...
-
-This fixes it:
+Aurélien Francillon <aurel@naurel.org> found a bug in this patch. The
+delta is:
 
 Index: linux-2.6.11/fs/nfs/nfs3proc.c
 ===================================================================
@@ -61,23 +52,21 @@ Index: linux-2.6.11/fs/nfs/nfs3proc.c
  out:
         return ERR_PTR(status);
 
-I'll reply to this message with an updated patch:
-
-  Re: [nfsacl v2 15/16] ACL umask handling workaround in nfs client
+Please find the fixed patch attached.
 
 Regards,
 -- 
 Andreas Gruenbacher <agruen@suse.de>
 SUSE Labs, SUSE LINUX GMBH
 
---=-aJipZPpxc9/tvR7wR6Ct
+--=-UXoiKRVH+U0gIZ+4NLNJ
 Content-Disposition: attachment; filename=nfsacl-acl-umask-handling-workaround-in-nfs-client-3.patch
 Content-Type: message/rfc822; name=nfsacl-acl-umask-handling-workaround-in-nfs-client-3.patch
 
 From: Andreas Gruenbacher <agruen@suse.de>
 Subject: ACL umask handling workaround in nfs client
-Date: Wed, 02 Mar 2005 16:41:47 +0100
-Message-Id: <1109778107.22077.150.camel@winden.suse.de>
+Date: Wed, 02 Mar 2005 16:47:48 +0100
+Message-Id: <1109778468.22077.159.camel@winden.suse.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 
@@ -243,5 +232,5 @@ Index: linux-2.6.11/fs/nfs/inode.c
  #endif
  	if (server->flags & NFS_MOUNT_VER3) {
 
---=-aJipZPpxc9/tvR7wR6Ct--
+--=-UXoiKRVH+U0gIZ+4NLNJ--
 

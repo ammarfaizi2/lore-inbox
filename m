@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266756AbUH2U6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268311AbUH2U7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266756AbUH2U6P (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 16:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266836AbUH2U6P
+	id S268311AbUH2U7x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 16:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268305AbUH2U7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 16:58:15 -0400
-Received: from verein.lst.de ([213.95.11.210]:1976 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S266756AbUH2U6N (ORCPT
+	Sun, 29 Aug 2004 16:59:53 -0400
+Received: from verein.lst.de ([213.95.11.210]:3000 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S266836AbUH2U7u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 16:58:13 -0400
-Date: Sun, 29 Aug 2004 22:58:08 +0200
+	Sun, 29 Aug 2004 16:59:50 -0400
+Date: Sun, 29 Aug 2004 22:59:46 +0200
 From: Christoph Hellwig <hch@lst.de>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] hfs/hfsplus is missing .sendfile
-Message-ID: <20040829205808.GA5136@lst.de>
+Subject: [PATCH] mark pcxx as broken
+Message-ID: <20040829205946.GB5136@lst.de>
 Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
 	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
@@ -25,27 +25,19 @@ X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There seem to be some crazy mac users that want to use the loop driver
-on hfsplus.
+It's already marked BROKEN_ON_SMP, but even a UP compile yields tons of
+errors.  While those aren't deeply complicated to fix having them for
+over a year now is a pretty good indicator no one cares.
 
 
---- 1.16/fs/hfs/inode.c	2004-05-25 11:53:05 +02:00
-+++ edited/fs/hfs/inode.c	2004-08-29 22:30:51 +02:00
-@@ -609,6 +609,7 @@
- 	.read		= generic_file_read,
- 	.write		= generic_file_write,
- 	.mmap		= generic_file_mmap,
-+	.sendfile	= generic_file_sendfile,
- 	.fsync		= file_fsync,
- 	.open		= hfs_file_open,
- 	.release	= hfs_file_release,
---- 1.5/fs/hfsplus/inode.c	2004-07-12 10:00:54 +02:00
-+++ edited/fs/hfsplus/inode.c	2004-08-29 22:31:05 +02:00
-@@ -308,6 +308,7 @@
- 	.read		= generic_file_read,
- 	.write		= generic_file_write,
- 	.mmap		= generic_file_mmap,
-+	.sendfile	= generic_file_sendfile,
- 	.fsync		= file_fsync,
- 	.open		= hfsplus_file_open,
- 	.release	= hfsplus_file_release,
+--- 1.49/drivers/char/Kconfig	2004-08-28 19:04:06 +02:00
++++ edited/drivers/char/Kconfig	2004-08-29 22:39:10 +02:00
+@@ -138,7 +138,7 @@
+ 
+ config DIGIEPCA
+ 	tristate "Digiboard Intelligent Async Support"
+-	depends on SERIAL_NONSTANDARD && BROKEN_ON_SMP
++	depends on SERIAL_NONSTANDARD && BROKEN
+ 	---help---
+ 	  This is a driver for Digi International's Xx, Xeve, and Xem series
+ 	  of cards which provide multiple serial ports. You would need

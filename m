@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129115AbRBVO2L>; Thu, 22 Feb 2001 09:28:11 -0500
+	id <S129766AbRBVOaK>; Thu, 22 Feb 2001 09:30:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129283AbRBVO2A>; Thu, 22 Feb 2001 09:28:00 -0500
-Received: from limes.hometree.net ([194.231.17.49]:38742 "EHLO
-	limes.hometree.net") by vger.kernel.org with ESMTP
-	id <S129115AbRBVO1x>; Thu, 22 Feb 2001 09:27:53 -0500
+	id <S129705AbRBVOaA>; Thu, 22 Feb 2001 09:30:00 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:42717 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129283AbRBVO3q>;
+	Thu, 22 Feb 2001 09:29:46 -0500
+Posted-Date: Thu, 22 Feb 2001 15:26:49 +0100 (MET)
+Date: Thu, 22 Feb 2001 15:26:21 +0100
+From: f5ibh <f5ibh@db0bm.ampr.org>
+Message-Id: <200102221426.PAA05054@db0bm.ampr.org>
 To: linux-kernel@vger.kernel.org
-Date: Thu, 22 Feb 2001 14:24:04 +0000 (UTC)
-From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
-Message-ID: <9737e4$o35$1@forge.intermeta.de>
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-In-Reply-To: <14996.37528.486223.118752@notabene.cse.unsw.edu.au>
-Reply-To: hps@tanstaafl.de
-Subject: Re: TESTERS PLEASE - improvements to knfsd for 2.4.2
+Subject: HDD good choice ?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-neilb@cse.unsw.edu.au (Neil Brown) writes:
+Hi !
+I'm running 2.4.x or 2.2.19 (2.4.x is fine but I experienced a bad Oops using
+my hamradio packet radio system with it ... and nobody seems interested by my
+reports .. sniff).
 
-> I am looking forward to seeing lots of downloads and absolutely no
-> problem reports.... but is seems unlikely.
+I would like to change my HDD.
+My motherboard is a Asus P5A with a K6-2 500 (overcloked to 550hz .. in test).
+The chipset is an Ali one.
 
-> Alan Cox has suggested that these changes may not be appropriate for
-> 2.4, so we might have to wait for 2.5 to see them on kernel.org, but
-> we don't have to wait till then to find the bugs.
+What is a good choice for a new HDD for linux ?
 
-Oh, please not again a stable kernel series with NFS problems, we're
-locked in for ages. 2.2 was bad enough up to 2.2.18. We have ReiserFS
-in 2.4.1 (and not in 2.4.0), could we _please_ get NFS-exportable
-ReiserFS in 2.4.4 or 2.4.5?
+Seagate, Barracuda ST330630A, 30.6 Go, 7200 t/min
+IBM, DTLA-305020, 20.5 Go, UDMA 100
+Western Digital, CAVIAR WD307AA, 30.7 Go
 
-Yes, will test. :-) Though I won't touch any 2.4 release in production
-up to at least 2.4.5 (first really usable 2.0 was around this, first
-2.2 too. =:-)
+After seeing some messages related to the DMA behaviour of some disks together
+with some chipsets with kernel 2.4, I would like some advices.
 
-	Regards
-		Henning
+---------------
+Best regards
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+	Jean-Luc

@@ -1,53 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262603AbTCZWeK>; Wed, 26 Mar 2003 17:34:10 -0500
+	id <S262597AbTCZWhq>; Wed, 26 Mar 2003 17:37:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262605AbTCZWeK>; Wed, 26 Mar 2003 17:34:10 -0500
-Received: from [12.47.58.223] ([12.47.58.223]:12345 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id <S262603AbTCZWeJ>; Wed, 26 Mar 2003 17:34:09 -0500
-Date: Wed, 26 Mar 2003 16:49:38 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Cc: Andries.Brouwer@cwi.nl, corryk@us.ibm.com, linux-kernel@vger.kernel.org,
-       lvm-devel@sistina.com
-Subject: Re: struct dm_ioctl
-Message-Id: <20030326164938.6558a2c5.akpm@digeo.com>
-In-Reply-To: <35A0ECE4-5F89-11D7-BBDF-000393CA5730@fib011235813.fsnet.co.uk>
-References: <UTC200303261127.h2QBRTt05048.aeb@smtp.cwi.nl>
-	<35A0ECE4-5F89-11D7-BBDF-000393CA5730@fib011235813.fsnet.co.uk>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Mar 2003 22:45:15.0511 (UTC) FILETIME=[5E514870:01C2F3E9]
+	id <S262598AbTCZWhq>; Wed, 26 Mar 2003 17:37:46 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:50180
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S262597AbTCZWho>; Wed, 26 Mar 2003 17:37:44 -0500
+Date: Wed, 26 Mar 2003 14:32:06 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Lincoln Dale <ltd@cisco.com>
+cc: Jeff Garzik <jgarzik@pobox.com>, Matt Mackall <mpm@selenic.com>,
+       ptb@it.uc3m.es, Justin Cormack <justin@street-vision.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ENBD for 2.5.64
+In-Reply-To: <5.1.0.14.2.20030327091610.04aa7128@mira-sjcm-3.cisco.com>
+Message-ID: <Pine.LNX.4.10.10303261422580.25072-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Thornber <joe@fib011235813.fsnet.co.uk> wrote:
->
+On Thu, 27 Mar 2003, Lincoln Dale wrote:
+
+> while the iSCSI spec has the concept of a "network portal" that can have 
+> multiple TCP streams for i/o, in the real world, i'm yet to see anything 
+> actually use those multiple streams.
+
+Want a DEMO?  It is call Sync-WAN-Raid-Relay.
+
+> the reason why goes back to how SCSI works.  take a ethereal trace of iSCSI 
+> and you'll see the way that 2 round-trips are used before any typical i/o 
+> operation (read or write op) occurs.
+> multiple TCP streams for a given iSCSI session could potentially be used to 
+> achieve greater performance when the maximum-window-size of a single TCP 
+> stream is being hit.
+> but its quite rare for this to happen.
 > 
-> On Wednesday, March 26, 2003, at 11:27 AM, Andries.Brouwer@cwi.nl wrote:
-> 
-> > One is struct dm_ioctl. Google tells me that it was
-> > noticed already that it defined a broken interface,
-> > and Kevin Corry submitted a patch against 2.5.51.
-> > Today this has not been applied yet.
+> in reality, if you had multiple TCP streams, its more likely you're doing 
+> it for high-availability reasons (i.e. multipathing).
+> if you're multipathing, the chances are you want to multipath down two 
+> separate paths to two different iSCSI gateways.  (assuming you're talking 
+> to traditional SAN storage and you're gatewaying into Fibre Channel).
+
+Why a SAN gateway switch, they are all LAN limited.
+
+> handling multipathing in that manner is well beyond the scope of what an 
+> iSCSI driver in the kernel should be doing.
+> determining the policy (read-preferred / write-preferred / round-robin / 
+> ratio-of-i/o / sync-preferred+async-fallback / ...) on how those paths are 
+> used is most definitely something that should NEVER be in the kernel.
+
+Only "NEVER" if you are depending on classic bloated SAN
+hardware/gateways.  The very operations you are calling never, is done in
+the gateways which is nothing more or less than an embedded system on
+crack.  So if this is an initiator which can manage sequencing streams, it
+is far superior than dealing with the SAN traps of today.
+
+> btw, the performance of iSCSI over a single TCP stream is also a moot one also.
+> from a single host (IBM x335 Server i think?) communicating with a FC disk 
+> via an iSCSI gateway:
+>          mds# sh int gig2/1
+>          GigabitEthernet2/1 is up
+>              Hardware is GigabitEthernet, address is xxxx.xxxx.xxxx
+>              Internet address is xxx.xxx.xxx.xxx/24
+>              MTU 1500  bytes, BW 1000000 Kbit
+>              Port mode is IPS
+>              Speed is 1 Gbps
+>              Beacon is turned off
+>              5 minutes input rate 21968640 bits/sec, 2746080 bytes/sec, 
+> 40420 frames/sec
+>              5 minutes output rate 929091696 bits/sec, 116136462 bytes/sec, 
+> 80679 frames/sec
+>                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>              74228360 packets input, 13218256042 bytes
+>                15409 multicast frames, 0 compressed
+>                0 input errors, 0 frame, 0 overrun 0 fifo
+>              169487726 packets output, 241066793565 bytes, 0 underruns
+>                0 output errors, 0 collisions, 0 fifo
+>                0 carrier errors
+
+What do you have for real iSCSI and no FC junk not supporting 
+interoperability?
+
+FC is dying and nobody who has wasted money on FC junk will be interested
+in iSCSI.  They wasted piles of money and have to justify it.
+
+> not bad for a single TCP stream and a software iSCSI stack. :-)
+> (kernel is 2.4.20)
+
+Nice numbers, now do it over WAN.
+
+> >>>Both iSCSI and ENBD currently have issues with pending writes during
+> >>>network outages. The current I/O layer fails to report failed writes
+> >>>to fsync and friends.
 > >
-> > What is the status? Should I resubmit that patch?
+> >...not if your iSCSI implementation is up to spec.  ;-)
+> >
+> >>these are not "iSCSI" or "ENBD" issues.  these are issues with VFS.
+> >
+> >VFS+VM.  But, agreed.
 > 
-> The patch is queued, and should be merged very soon.  The only reason I 
-> delayed was that I wanted to update both the 2.4 and 2.5 releases at 
-> the same time so that people can continue to switch back and forth 
-> between kernels.  That said, I have left it too long, sorry.
+> sure - the devil is in the details - but the issue holds true for 
+> traditional block devices at this point also.
 
-Please send me a copy.  I'd like to get all the required bits and pieces for
-this conversion queued up in one place so we can actually look at it,
-evaluate its impact and test it.  The current process of creeping revelations
-is quite confusing.
+Sweet kicker here, if you only allow the current rules of SAN to apply.
+This is what the big dogs want, and no new ideas allowed.
 
-Also if userspace tools need upgrading please send me the URLs so I can make
-people well aware of the upgrade requirements and process.
+Cheers,
 
-Thanks.
+Andre Hedrick
+LAD Storage Consulting Group
+
+PS poking back at you for fun and serious points.
 

@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263208AbTCYRhF>; Tue, 25 Mar 2003 12:37:05 -0500
+	id <S263212AbTCYRiE>; Tue, 25 Mar 2003 12:38:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263212AbTCYRhF>; Tue, 25 Mar 2003 12:37:05 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:27149 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S263208AbTCYRhC>; Tue, 25 Mar 2003 12:37:02 -0500
-Date: Tue, 25 Mar 2003 17:48:10 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Stephen Tweedie <sct@redhat.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, ext2-devel@lists.sourceforge.net
-Subject: Re: [Patch 2/8] 2.4: Fix for enormous numbers of buffers on BUF_LOCKED
-Message-ID: <20030325174810.A4002@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Stephen Tweedie <sct@redhat.com>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-	ext2-devel@lists.sourceforge.net
-References: <200303251739.h2PHdeR3006892@sisko.scot.redhat.com>
-Mime-Version: 1.0
+	id <S263213AbTCYRiE>; Tue, 25 Mar 2003 12:38:04 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:62931 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S263212AbTCYRiB>; Tue, 25 Mar 2003 12:38:01 -0500
+Date: Tue, 25 Mar 2003 09:49:09 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: David van Hoose <davidvh@cox.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.66 hanging after exiting KDE
+Message-ID: <130800000.1048614548@[10.10.2.4]>
+In-Reply-To: <3E809256.4040608@cox.net>
+References: <3E809256.4040608@cox.net>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200303251739.h2PHdeR3006892@sisko.scot.redhat.com>; from sct@redhat.com on Tue, Mar 25, 2003 at 05:39:40PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 25, 2003 at 05:39:40PM +0000, Stephen Tweedie wrote:
-> +/*
-> + * Do some IO post-processing here!!!
+> After loading up with 2.5.66 my system started to have odd behavior upon
+> exiting KDE. It spontaneously rebooted once, but hangs the rest of the
+> time. Not even SysRq works. I updated to the bk this morning, but the
+> problem is still present. Not sure even where to start looking. Any ideas
+> on where I should start to look?
 
-Do we really need to shout at each other !?!?!?!?!?
+Does this imply that 2.5.65 worked? Or you've upgraded from 2.4? I think
+nmi_watchdog (or maybe kgdb) is the standard course in such cases ...
+
+M.
 

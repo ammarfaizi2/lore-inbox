@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265058AbSKSB0t>; Mon, 18 Nov 2002 20:26:49 -0500
+	id <S265096AbSKSB0k>; Mon, 18 Nov 2002 20:26:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265114AbSKSB0s>; Mon, 18 Nov 2002 20:26:48 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:56715 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S265058AbSKSB0r>; Mon, 18 Nov 2002 20:26:47 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 18 Nov 2002 17:34:13 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Dan Kegel <dank@kegel.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S265058AbSKSB0k>; Mon, 18 Nov 2002 20:26:40 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:45955 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265096AbSKSB0j>;
+	Mon, 18 Nov 2002 20:26:39 -0500
+Date: Tue, 19 Nov 2002 01:34:00 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Ulrich Drepper <drepper@redhat.com>, Mark Mielke <mark@mark.mielke.cc>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [rfc] epoll interface change and glibc bits ...
-In-Reply-To: <3DD98B79.20102@kegel.com>
-Message-ID: <Pine.LNX.4.44.0211181733070.979-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20021119013400.GC4377@bjl1.asuk.net>
+References: <20021118225625.GB3939@bjl1.asuk.net> <Pine.LNX.4.44.0211181553430.979-100000@blue1.dev.mcafeelabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211181553430.979-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Nov 2002, Dan Kegel wrote:
+Davide Libenzi wrote:
+> > 1. Fwiw, I would really like to see epoll extended beyond fds, to a more
+> > general edge-triggered event collector - signals, timers, aios.  I've
+> > written about this before as you know (but been too busy lately to
+> > pursue the idea).  I'm not going to say any more about this until I
+> > have time to code something...
+> 
+> Anything that "exposes" a file* interface that support f_op->poll() is
+> usable with epoll. File rocks !! :)
 
-> Davide Libenzi wrote:
-> >>I'd be happy to contribute better doc... has the man page
-> >>for sys_epoll been written yet?
-> >
-> > http://www.xmailserver.org/linux-patches/epoll.2
-> > http://www.xmailserver.org/linux-patches/epoll_create.2
-> > http://www.xmailserver.org/linux-patches/epoll_ctl.2
-> > http://www.xmailserver.org/linux-patches/epoll_wait.2
-> >
-> > it is going to change though with the latest talks about the interface.
->
-> Hmm.  Right off the bat, I see a terminology problem.
-> The man page says
->
-> .SH NAME
-> epoll \- edge triggered asynchronous I/O facility
->
-> That's going to confuse some users.  They might think
-> epoll can actually initiate I/O.  Better to say
->
-> epoll \- edge triggered I/O readiness notification facility
+I agree, fds are pretty good, and it's nice that they work equally
+well with poll/select/sigio as with epoll.
 
-Yes, maybe sounds better ...
+It's just that to write an ideal, general event loop, pollable fds
+need to be created on the fly for futexes, signals, timers and aio
+requests at least.  Currently this is already done for futexes.  In
+addition, some kinds of event result need to return a few words of
+data with each event (for example, SIGCHLD events).
 
+Perhaps it's not a bad idea, but I do wonder whether fds created on
+the fly for every requested event, and events than can only report
+"readable" not anything richer than that are a good solution.
 
-> Second, epoll_ctl(2) doesn't define the meaning of the
-> event mask.  It should give the allowed bits and define
-> their meanings.  If we use the traditional POLLIN etc, we
-> can say
->    POLLIN - the fd has become ready for reading
->    POLLOUT - the fd has become ready for writing
->    Note: If epoll tells you e.g. POLLIN, it means that
->             poll will tell you the same thing,
->             since poll gives the current status,
->             and epoll gives changes in status.
-
-I will have to change man pages also to fit EPOLL* definitions.
-
-
-
-- Davide
-
-
+-- Jamie

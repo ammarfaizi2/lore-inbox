@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261410AbTCGHwH>; Fri, 7 Mar 2003 02:52:07 -0500
+	id <S261413AbTCGHv1>; Fri, 7 Mar 2003 02:51:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261424AbTCGHwH>; Fri, 7 Mar 2003 02:52:07 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:57316 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261410AbTCGHwB>; Fri, 7 Mar 2003 02:52:01 -0500
-Date: Fri, 07 Mar 2003 00:02:22 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][RFT] noirqbalance still doesn't do anything
-Message-ID: <323650000.1047024141@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.50.0303070224190.18716-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0303070224190.18716-100000@montezuma.mastecende.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S261424AbTCGHv1>; Fri, 7 Mar 2003 02:51:27 -0500
+Received: from divine.city.tvnet.hu ([195.38.100.154]:53116 "EHLO
+	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
+	id <S261413AbTCGHv0>; Fri, 7 Mar 2003 02:51:26 -0500
+Date: Fri, 7 Mar 2003 08:52:42 +0100 (MET)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: <aia21@cantab.net>, <linux-kernel@vger.kernel.org>,
+       <linux-ntfs-dev@lists.sourceforge.net>
+Subject: Re: [Linux-NTFS-Dev] ntfs OOPS (2.5.63)
+In-Reply-To: <32995.4.64.238.61.1047023411.squirrel@www.osdl.org>
+Message-ID: <Pine.LNX.4.30.0303070845130.32-100000@divine.city.tvnet.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I didn't get a response to my other patch to do this so i'm guessing that 
-> people want a simpler patch(??) This one simply sets TARGET_CPUS to 
-> cpu_callout_map instead of cpu_online_map so that when we finally do boot 
-> we actually use the other cpus for servicing interrupts.
 
-Actually, I think your first patch is correct. TARGET_CPUS seems like the 
-wrong thing to be changing (for example, if we take a CPU offline later)
-However, doesn't this:
+On Thu, 6 Mar 2003, Randy.Dunlap wrote:
 
-> +/*
-> + * This function currently is only a helper for the i386 smp boot process where 
-> + * we need to reprogram the ioredtbls to cater for the cpus which have come online
-> + * so mask in all cases should simply be TARGET_CPUS
-> + */
-> +void __devinit set_ioapic_logical_dest (unsigned long mask)
-> +{
-> +	struct IO_APIC_route_entry entry;
-> +	unsigned long flags;
-> +	int apic, pin;
-> +
-> +	spin_lock_irqsave(&ioapic_lock, flags);
-> +	for (apic = 0; apic < nr_ioapics; apic++) {
-> +		for (pin = 0; pin < nr_ioapic_registers[apic]; pin++) {
-> +			*(((int *)&entry)+0) = io_apic_read(apic, 0x10+pin*2);
-> +			*(((int *)&entry)+1) = io_apic_read(apic, 0x11+pin*2);
-> +			entry.dest.logical.logical_dest = mask;
-> +			io_apic_write(apic, 0x10 + 2 * pin, *(((int *)&entry) + 0));
-> +			io_apic_write(apic, 0x11 + 2 * pin, *(((int *)&entry) + 1));
-> +		}
-> +
-> +	}
-> +	spin_unlock_irqrestore(&ioapic_lock, flags);
-> +}
+> I tried to decode the disassembly, got lots of it done,
+> but I bogged down on something that may be outside of the
+> NTFS realm.  I have ALL kernel hacking options enabled
+> (=y), and it's a bit hairy (for me) to decode all of the
+> extra/added code, and this may be where the oops is
+> happening.  Dunno really, just wanted to warn you.
 
-do more or less the same as set_ioapic_affinity? And even if not, don't
-you have to do "mask << 24" instead of "mask" ... or am I just confused?
+This was one of the issues I suspected (lots of hacking option) and
+asked for .config also. Your __ntfs_init_inode was *huge* and the oops
+Code didn't resembled to any of written in __ntfs_init_inode ...
+unless you have some hardware issue (bit flips, memory/CPU, etc). When
+I have time I'll also take a closer look. I don't exclude some
+alignment issues either ...
 
-
-M.
-
+	Szaka
 

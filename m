@@ -1,55 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262112AbRETRbN>; Sun, 20 May 2001 13:31:13 -0400
+	id <S262113AbRETRex>; Sun, 20 May 2001 13:34:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262113AbRETRbD>; Sun, 20 May 2001 13:31:03 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:33050 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S262112AbRETRau>; Sun, 20 May 2001 13:30:50 -0400
-Date: Sun, 20 May 2001 19:30:43 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: root <root@nospam.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5pre2aa1 panic during boot
-Message-ID: <20010520193043.B30738@athlon.random>
-In-Reply-To: <3B07F7ED.7C22DAFD@nospam.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B07F7ED.7C22DAFD@nospam.com>; from root@nospam.com on Mon, May 21, 2001 at 01:59:25AM +0900
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S262114AbRETRen>; Sun, 20 May 2001 13:34:43 -0400
+Received: from 204-118-157-8.aculink.net ([204.118.157.8]:3845 "EHLO
+	ganymede.aculink.net") by vger.kernel.org with ESMTP
+	id <S262113AbRETReg>; Sun, 20 May 2001 13:34:36 -0400
+Date: Sun, 20 May 2001 11:38:04 -0600
+Message-Id: <200105201738.f4KHc4w21592@cdm01.deedsmiscentral.net>
+X-no-archive: yes
+From: SoloCDM <deedsmis@aculink.net>
+Subject: Lost Interrupt
+Reply-To: <deedsmis@aculink.net>, <linux-kernel@vger.kernel.org>
+To: Linux-Kernel (Majordomo) <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 21, 2001 at 01:59:25AM +0900, root wrote:
-> Andrea told us that he will not care for anything
-> compiled with gcc-2.95 or version lower than that.
+The present system has operated without any changes to the hardware
+with Win9.x, RH5.2, and LM7.0.  This problem only started when I
+upgraded to LM8.0 and still no hardware changes have been made.
 
-I said I don't care about bugreport of alpha kernel crashes if the
-_alpha_ kernel was compiled with gcc 2.95.*. 2.95 is fine on the x86,
-but it's broken on the alpha. In short:
+I use the 420Mb drive as a swap disk, connected along with the
+CD-ROM to the secondary port.  I can't bring myself to throw the
+420Mb drive out.
 
-	x86 2.4 kernels		->	use 2.95.[34] or egcs 1.1.2 (I
-					use 2.95.4 from the
-					gcc_2_95_branch of CVS)
-	alpha 2.4 kernel	->	use egcs 1.1.2 or 2.96 with some
-					houndred of patches (I
-					personally still use the egcs
-					1.1.2)
+The following errors occur during boot-up:
 
-> However, it seems that this kernel panic has anything
-> to do with gcc-2.95.
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+VP_IDE: IDE controller on PCI bus 00 dev 39
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+VP_IDE: VIA vt82c586a (rev 27) IDE UDMA33 controller on pci00:07.1
+    ide0: BM-DMA at 0x6000-0x6007, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0x6008-0x600f, BIOS settings: hdc:pio, hdd:pio
+ide6: Creative SB32 PnP IDE interface
+hdb: WDC AC33100H, ATA DISK drive
+hdc: Conner Peripherals 420MB - CFS420A, ATA DISK drive
+hdc: IRQ probe failed (0xfffffff8)
+hdd: CD-ROM 32X/AKU, ATAPI CD/DVD-ROM drive
+hdd: IRQ probe failed (0xfffffff8)
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 16408224 sectors (8401 MB) w/256KiB Cache, CHS=1021/255/63,
+UDMA(33)
+hdb: 6185088 sectors (3167 MB) w/128KiB Cache, CHS=767/128/63, DMA
+hdc: 832608 sectors (426 MB) w/64KiB Cache, CHS=826/16/63, DMA
+hdd: lost interrupt
+hdd: lost interrupt
+hdd: lost interrupt
+hdd: lost interrupt
+hdd: lost interrupt
+hdd: ATAPI 32X CD-ROM drive, 128kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.12
+Partition check:
+hda: hda1 hda2 < hda5 hda6 hda7 >
+hdb: hdb1 hdb2
+hdc:hdc: lost interrupt
+hdc: lost interrupt
+hdc: lost interrupt
+hdc: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hdc: irq timeout: status=0x50 { DriveReady SeekComplete }
+hdc: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hdc: irq timeout: status=0x50 { DriveReady SeekComplete }
+hdc: lost interrupt
+hdc: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hdc: irq timeout: status=0x50 { DriveReady SeekComplete }
+hdc: timeout waiting for DMA
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+hdc: irq timeout: status=0x50 { DriveReady SeekComplete }
+hdc: DMA disabled
+hdd: DMA disabled
+ide1: reset: success
+hdc: lost interrupt
+hdc: lost interrupt
+hdc: lost interrupt
+hdc: lost interrupt
+hdc1 hdc2 <hdc: lost interrupt
+hdc: lost interrupt
+hdc5 >
+hdc: lost interrupt
+hdc: lost interrupt
 
-Please try to reproduce with egcs 1.1.2 to be sure.
+Why does this happen and how can it be resolved?
 
-> Anyway, gcc-2.95 is still the official release of gcc.
-> Even SuSE-7.1 has this version only.  I wish SuSE puts
+Note: When you reply to this message, please include the mailing
+      list/newsgroup address and my email address in To:.
 
-x86 and alpha are completly different issues with regard to the
-compiler. I never heard of problems with 2.95.4 on x86 and I would never
-replace 2.95.4 from the gcc_2_95_branch for the latest 2.96 on my x86
-boxes, I'd instead try again gcc 3.0 after the inline asm fixes for "+="
-constranints on local variables are done.
-
-Andrea
+*********************************************************************
+Signed,
+SoloCDM

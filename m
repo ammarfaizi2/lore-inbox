@@ -1,90 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265102AbTBKTaO>; Tue, 11 Feb 2003 14:30:14 -0500
+	id <S265305AbTBKTbp>; Tue, 11 Feb 2003 14:31:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265081AbTBKTaO>; Tue, 11 Feb 2003 14:30:14 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:15760 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S265058AbTBKTaN> convert rfc822-to-8bit; Tue, 11 Feb 2003 14:30:13 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <brand@jupiter.cs.uni-dortmund.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Tue, 11 Feb 2003 11:39:57 -0800
-In-Reply-To: <200302110742.h1B7gQqE011999@eeyore.valparaiso.cl>
-Subject: Re: Monta Vista software license terms
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <20030211193959.AAA14852@shell.webmaster.com@whenever>
+	id <S265361AbTBKTbp>; Tue, 11 Feb 2003 14:31:45 -0500
+Received: from mail016.syd.optusnet.com.au ([210.49.20.174]:18581 "EHLO
+	mail016.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S265305AbTBKTbm>; Tue, 11 Feb 2003 14:31:42 -0500
+From: Con Kolivas <ckolivas@yahoo.com.au>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] 2.5.60-mm1 with contest
+Date: Wed, 12 Feb 2003 06:41:27 +1100
+User-Agent: KMail/1.5
+Cc: Andrew Morton <akpm@digeo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200302120641.27220.ckolivas@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Feb 2003 08:42:26 +0100, Horst von Brand wrote:
+no_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   79      93.7    0.0     0.0     1.00
+2.5.59-mm10         3   79      93.7    0.0     0.0     1.00
+2.5.59-mm8          3   79      93.7    0.0     0.0     1.00
+2.5.60              2   79      94.9    0.0     0.0     1.00
+2.5.60-mm1          3   79      94.9    0.0     0.0     1.00
+cacherun:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   76      97.4    0.0     0.0     0.96
+2.5.59-mm10         3   76      97.4    0.0     0.0     0.96
+2.5.59-mm8          3   76      97.4    0.0     0.0     0.96
+2.5.60              2   75      98.7    0.0     0.0     0.95
+2.5.60-mm1          3   75      100.0   0.0     0.0     0.95
+process_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   92      81.5    29.7    17.4    1.16
+2.5.59-mm10         3   187     39.6    194.0   58.8    2.37
+2.5.59-mm8          3   193     38.9    200.3   60.1    2.44
+2.5.60              2   93      80.6    30.5    17.2    1.18
+2.5.60-mm1          3   91      78.0    32.3    18.7    1.15
+ctar_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   98      80.6    2.0     5.1     1.24
+2.5.59-mm10         3   99      78.8    1.7     4.0     1.25
+2.5.59-mm8          3   98      79.6    2.0     5.1     1.24
+2.5.60              2   99      78.8    1.0     4.0     1.25
+2.5.60-mm1          3   98      79.6    1.0     4.1     1.24
+xtar_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   102     74.5    1.0     3.9     1.29
+2.5.59-mm10         3   100     76.0    1.0     4.0     1.27
+2.5.59-mm8          3   101     75.2    1.0     4.0     1.28
+2.5.60              2   101     76.2    1.0     5.0     1.28
+2.5.60-mm1          3   108     70.4    1.0     3.7     1.37
+io_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   152     50.0    34.1    13.1    1.92
+2.5.59-mm10         3   148     51.4    35.2    14.2    1.87
+2.5.59-mm8          3   155     49.0    35.6    12.9    1.96
+2.5.60              2   139     54.7    29.0    12.1    1.76
+2.5.60-mm1          3   112     67.0    15.7    7.1     1.42
+io_other:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   89      84.3    11.2    5.6     1.13
+2.5.59-mm10         3   115     66.1    35.0    18.3    1.46
+2.5.59-mm8          3   115     67.0    33.4    17.4    1.46
+2.5.60              2   90      83.3    10.8    5.5     1.14
+2.5.60-mm1          3   89      84.3    10.5    5.6     1.13
+read_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   101     77.2    6.5     5.0     1.28
+2.5.59-mm10         3   93      81.7    2.8     2.2     1.18
+2.5.59-mm8          3   93      81.7    2.8     2.2     1.18
+2.5.60              2   103     74.8    6.2     6.8     1.30
+2.5.60-mm1          3   93      81.7    2.8     2.2     1.18
+list_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   95      80.0    0.0     6.3     1.20
+2.5.59-mm10         3   97      79.4    0.0     6.2     1.23
+2.5.59-mm8          3   97      79.4    0.0     6.2     1.23
+2.5.60              2   95      80.0    0.0     6.3     1.20
+2.5.60-mm1          3   96      79.2    0.0     6.2     1.22
+mem_load:
+Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+2.5.59              3   95      82.1    52.7    2.1     1.20
+2.5.59-mm10         3   97      79.4    53.7    2.0     1.23
+2.5.59-mm8          3   100     78.0    57.7    2.0     1.27
+2.5.60              2   98      79.6    53.0    2.0     1.24
+2.5.60-mm1          3   95      82.1    51.7    2.1     1.20
 
->>On Mon, 10 Feb 2003 11:42:45 -0600, Oliver Xymoron wrote:
-
->>>I certainly agree, but the problem is the NDA puts the shoe on the
->>>other foot and now it's the customer that has to consult a lawyer
->>>or
->>>risk a nuisance suit before proceeding. So while it may not
->>>forbid, >it
->>>certainly discourages and impedes. Let me point out that I never
->>>saw
->>>the NDA in question but said coworker was sufficiently intimidated
->>>>by
->>>it that he was unwilling to give me a copy of the kernel and gcc
->>>sources because of it.
-
->>    I believe such a provision would, unfortunately, by considered
->>legally enforceable. The rationale would be that the rights you
->>(the
->>recipient of the derived work) have under the GPL would only apply
->>if
->>the distributor were bound by the GPL. The only way the distributor
->>
->>could be bound by the GPL was if he or she did something that he
->>didn't have the right to do without the GPL to give him or her such
->>a
->>right.
-
->The GPL gives me the right to distribute modified versions _only if 
->I
->comply with the GPL_. And GPL forbids further restrictions when
->distributing.
-
-	I realize that. But that has nothing to do with what I said, which 
-analyzes only those rights you have without agreeing to the GPL by 
-virtue of the fact that you possess the work and were not subject to 
-any restrictions in the process of acquiring and using it.
-
->If your bizarre interpretation was right, no software licence at all
->would
->have any validity. In particular, I'd be more than very surprised if
->the
->GPL was so sloppily written. It was written with the input of 
->eminent lawyers, after all.
-
-	Your generalization doesn't apply because of several major 
-differences between most software licenses and the GPL:
-
-	1) Most software licenses do not grant everyone the right to use the 
-work covered.
-
-	2) Most software licenses do not grant anyone the right to create 
-derived works.
-
-	3) Most software licenses require your assent before you can use the 
-covered work, in fact, most require your assent before you have the 
-right to possess the covered work.
-
-	However, one sticky point is that the GPL talks about 'modifying' a 
-work. You can create derived works without modifying the original 
-work and the GPL is unclear in this respect. However, I would argue 
-that linking to a library file is using it and including a header 
-file in your C code is using it. After all, there is nothing else you 
-can do with such files.
-
-	DS
-
-
+Con

@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274368AbRJEXIq>; Fri, 5 Oct 2001 19:08:46 -0400
+	id <S274427AbRJEXKg>; Fri, 5 Oct 2001 19:10:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274405AbRJEXIh>; Fri, 5 Oct 2001 19:08:37 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39947 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274368AbRJEXIW>; Fri, 5 Oct 2001 19:08:22 -0400
-Subject: Re: Desperately missing a working "pselect()" or similar...
-To: alex@pennace.org (Alex Pennace)
-Date: Sat, 6 Oct 2001 00:13:39 +0100 (BST)
-Cc: ecki@lina.inka.de (Bernd Eckenfels), linux-kernel@vger.kernel.org
-In-Reply-To: <20011005190523.A6516@buick.pennace.org> from "Alex Pennace" at Oct 05, 2001 07:05:23 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S274424AbRJEXK0>; Fri, 5 Oct 2001 19:10:26 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:10120 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S274405AbRJEXKO>;
+	Fri, 5 Oct 2001 19:10:14 -0400
+Date: Fri, 05 Oct 2001 16:10:24 -0700 (PDT)
+Message-Id: <20011005.161024.104033411.davem@redhat.com>
+To: kernel@ddx.a2000.nu
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.rutgers.edu
+Subject: Re: sun + gigabit nic
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.40.0110051319300.4011-100000@ddx.a2000.nu>
+In-Reply-To: <Pine.LNX.4.40.0110051319300.4011-100000@ddx.a2000.nu>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15pe9z-0007yv-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The select system call doesn't return EINTR when the signal is caught
-> prior to entry into select.
+   From: kernel@ddx.a2000.nu
+   Date: Fri, 5 Oct 2001 13:22:40 +0200 (CEST)
 
-Your friend there is siglongjmp/sigsetjmp - the same problem was true
-with old versions of alarm that did
+   for my sun ultrasparc 10 with linux i wanted to upgrade to a gigabit card
+   but when looking in the menuconfig i only see : (kernel 2.2.20pre10)
+   
+   MyriCOM Gigabit Ethernet support
+   
+   does anyone know which cards are supported ? (with patches?)
+   it has to be 1000base-T
+   
+No patches needed, 2.2.x (and 2.4.x) supports Syskonnect gigabit cards
+out of the box.
 
-	alarm(num)
-	pause()
+Acenic is supported in 2.4.x, although I don't know why not in 2.2.x
+as that should be trivial to make work...
 
-on a heavily loaded box.
-
-Using siglongjmp cures that
+Franks a lot,
+David S. Miller
+davem@redhat.com

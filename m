@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282938AbRK0Uos>; Tue, 27 Nov 2001 15:44:48 -0500
+	id <S282940AbRK0UpM>; Tue, 27 Nov 2001 15:45:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282941AbRK0Uoj>; Tue, 27 Nov 2001 15:44:39 -0500
-Received: from zero.tech9.net ([209.61.188.187]:59657 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S282938AbRK0UoZ>;
-	Tue, 27 Nov 2001 15:44:25 -0500
-Subject: Re: [PATCH] proc-based cpu affinity user interface
-From: Robert Love <rml@tech9.net>
-To: mingo@elte.hu
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0111271247120.9992-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.33.0111271247120.9992-100000@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
-Date: 27 Nov 2001 15:44:53 -0500
-Message-Id: <1006893895.815.0.camel@phantasy>
-Mime-Version: 1.0
+	id <S282941AbRK0Uov>; Tue, 27 Nov 2001 15:44:51 -0500
+Received: from mailgate.FH-Aachen.DE ([149.201.10.254]:8690 "EHLO
+	mailgate.fh-aachen.de") by vger.kernel.org with ESMTP
+	id <S282940AbRK0Uoi>; Tue, 27 Nov 2001 15:44:38 -0500
+Posted-Date: Tue, 27 Nov 2001 21:36:11 GMT
+Date: Tue, 27 Nov 2001 21:44:29 +0100
+From: f5ibh <f5ibh@db0bm.ampr.org>
+Message-Id: <200111272044.fARKiTv13653@db0bm.ampr.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.1-pre2 does not compile
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-11-27 at 06:52, Ingo Molnar wrote:
-> two comments. First, this has already been done - Andrew Morton has
-> written such a patch.
+Hi,
 
-I didn't know this until after I started, but it is irrelevant.  Use
-Andrew's if you want.  However, I have incorporated some useful bits
-from your patch and such that I think are superior.
+I've the following error :
 
-> Second, as i've repeatedly said it, it's a failure to do this over /proc.
-> What if /proc is not mounted? What if the process is in a chroot()
-> environment, should it not be able to set its own affinity? This is a
-> fundamental limitation of your approach, and *if* we want to export the
-> cpus_allowed affinity to user-space (which is up to discussion), then the
-> right way (TM) to do it is via a syscall.
+gcc -D__KERNEL__ -I/usr/src/kernel-sources-2.5.1-pre2/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6
+-DMODULE -DMODVERSIONS -include
+/usr/src/kernel-sources-2.5.1-pre2/include/linux/modversions.h   -c -o
+aha1542.o aha1542.c
+aha1542.c: In function `do_aha1542_intr_handle':
+aha1542.c:423: `io_request_lock' undeclared (first use in this function)
+aha1542.c:423: (Each undeclared identifier is reported only once
+aha1542.c:423: for each function it appears in.)
+aha1542.c: In function `aha1542_bus_reset':
+aha1542.c:1479: `io_request_lock' undeclared (first use in this function)
+aha1542.c: In function `aha1542_host_reset':
+aha1542.c:1543: `io_request_lock' undeclared (first use in this function)
+aha1542.c: At top level:
+aha1542.c:114: warning: `setup_str' defined but not used
+make[3]: *** [aha1542.o] Erreur 1
+make[3]: Leaving directory `/usr/src/kernel-sources-2.5.1-pre2/drivers/scsi'
+make[2]: *** [_modsubdir_scsi] Erreur 2
+make[2]: Leaving directory `/usr/src/kernel-sources-2.5.1-pre2/drivers'
+make[1]: *** [_mod_drivers] Erreur 2
+make[1]: Leaving directory `/usr/src/kernel-sources-2.5.1-pre2'
+make: *** [stamp-build] Erreur 2
 
-OK OK OK ... we can argue all day over syscall vs. proc.  Personally, I
-don't find any of the arguments fruitful -- we make all sorts of
-restrictions and "Don't do thats" in the kernel.  Requiring procfs isn't
-the end of the world.
-
-When you posted your initial patch, I commented I liked it but was
-interested in a proc variant.  Some people were interested.  Even you
-said it wasn't a huge deal.
-
-It doesn't matter to me, let's just expose _some_ interface to
-userspace.  Personally, I prefer procfs, but both implementations are
-nicely done.  I respect you too much to argue religion like this.  I'll
-push for either variant.
-
-	Robert Love
-
+-------
+Regards
+		Jean-Luc

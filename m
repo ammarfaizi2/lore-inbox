@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315544AbSECDHb>; Thu, 2 May 2002 23:07:31 -0400
+	id <S315546AbSECDO7>; Thu, 2 May 2002 23:14:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315545AbSECDHa>; Thu, 2 May 2002 23:07:30 -0400
-Received: from saltbush.adelaide.edu.au ([129.127.43.5]:43413 "EHLO
-	saltbush.adelaide.edu.au") by vger.kernel.org with ESMTP
-	id <S315544AbSECDHa>; Thu, 2 May 2002 23:07:30 -0400
-From: "Hong-Gunn Chew" <hgchewML@optusnet.com.au>
-To: "'Hong-Gunn Chew'" <hgchewML@optusnet.com.au>,
-        "'Petr Vandrovec'" <VANDROVE@vc.cvut.cz>,
-        "'Andrea Arcangeli'" <andrea@suse.de>
-Cc: "'Linux kernel mailing list'" <linux-kernel@vger.kernel.org>,
-        <riel@conectiva.com.br>
-Subject: RE: Memory corruption when running VMware. (was File curruption when running VMware)
-Date: Fri, 3 May 2002 12:37:18 +0930
-Message-ID: <002301c1f24f$a2d4ae70$241d7f81@hgclaptop>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-In-Reply-To: 
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S315547AbSECDO6>; Thu, 2 May 2002 23:14:58 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:27408 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S315546AbSECDO5>; Thu, 2 May 2002 23:14:57 -0400
+Date: Thu, 2 May 2002 20:14:49 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IDE hotplug support?
+Message-ID: <20020502201449.F3458@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3CD19D16.7070605@rackable.com> <Pine.LNX.4.44.0205030230030.31927-100000@mustard.heime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi Petr, Andrea,
+On Fri, May 03, 2002 at 02:31:40AM +0200, Roy Sigurd Karlsbakk wrote:
+> >   Why not just grab a pair of 8 port 3ware cards?  Run raid 5 on each 
+> > card, and throw 0 or linear via the md driver on top?
 > 
-> I have been trying different kernel configurations to 
-> overcome this problem.  I found that turning on APIC seem to 
-> work properly.  However turning on IO-APIC causes it to hang 
-> just after X is started, which seems to be during the startup 
-> of gdm. 
-An added note is that with Local APIC on and IO-APIC off, 
-I am able to start the system up, but swtiching from X to a virtual
-console during a session, as well as during shutdown, causes the system
-to hang.  There are no error messages that I can find.
-Does anyone know the cause of the problem?
+> because I don't need the speed. and because they cost $1200 a piece
+> 
 
-Recap of my system:
-CPU:		P4 2.0A 2.0GHz
-RAM:		4x256MB RDRAM PC800
-MB:		ASUS P4-TE firmware:1005
-		Intel i850
-Disk:		IBM Deskstar 120GXP 80GB
-Graphics:	ATI 7500 OEM
+Whoever gave you that price is over-charging.
 
-Distri:	RedHat 7.2
-Kernel:	2.4.18
-X:		Xfree 4.2.0
-glibc:	2.2.4-19.3
+I just now went to 3ware.com and clicked through
+where-to-buy and the first mail-order place i tried had the
+8 port 7000 for US$455.99 each.
 
-Thanks,
-Hong-Gunn
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
+		Remember Cernan and Schmitt

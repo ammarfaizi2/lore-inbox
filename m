@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131536AbRAJIaY>; Wed, 10 Jan 2001 03:30:24 -0500
+	id <S132436AbRAJIbO>; Wed, 10 Jan 2001 03:31:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132436AbRAJIaO>; Wed, 10 Jan 2001 03:30:14 -0500
-Received: from gnu.in-berlin.de ([192.109.42.4]:50954 "EHLO gnu.in-berlin.de")
-	by vger.kernel.org with ESMTP id <S131536AbRAJIaE>;
-	Wed, 10 Jan 2001 03:30:04 -0500
-X-Envelope-From: news@goldbach.in-berlin.de
+	id <S132360AbRAJIbE>; Wed, 10 Jan 2001 03:31:04 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:16777 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S132436AbRAJIbD>; Wed, 10 Jan 2001 03:31:03 -0500
+Message-ID: <3A5C1F64.99C611F2@uow.edu.au>
+Date: Wed, 10 Jan 2001 19:37:56 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Path: kraxel
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
 Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-Date: 10 Jan 2001 07:51:11 GMT
-Organization: Strusel 007
-Message-ID: <slrn95o53b.ve.kraxel@bogomips.masq.in-berlin.de>
-In-Reply-To: <Pine.LNX.3.96.1010109175317.7868A-100000@kanga.kvack.org> <Pine.LNX.4.10.10101091540130.2815-100000@penguin.transmeta.com>
-NNTP-Posting-Host: bogomips.masq.in-berlin.de
-X-Trace: goldbach.masq.in-berlin.de 979113071 23633 192.168.69.77 (10 Jan 2001 07:51:11 GMT)
-X-Complaints-To: news@goldbach.in-berlin.de
-NNTP-Posting-Date: 10 Jan 2001 07:51:11 GMT
-User-Agent: slrn/0.9.6.3 (Linux)
+In-Reply-To: <20010110084235.A365@caldera.de> <Pine.LNX.4.10.10101100003560.3520-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Please tell me what you think the right interface is that provides a hook
-> > on io completion and is asynchronous.
+Linus Torvalds wrote:
 > 
-> Suggested fix to kiovec's: get rid of them. Immediately. Replace them with
-> kiobuf's that can handle scatter-gather pages. kiobuf's have 90% of that
-> support already.
-> 
-> Never EVER have a "struct page **" interface. It is never the valid thing
-> to do.
+> De gustibus non disputandum.
 
-Hmm, /me is quite happy with it.  It's fine for *big* chunks of memory like
-video frames:  I just need a large number of pages, length and offset.  If
-someone wants to have a look: a rewritten bttv version which uses kiobufs
-is available at http://www.strusel007.de/linux/bttv/bttv-0.8.8.tar.gz
+http://cogprints.soton.ac.uk/documents/disk0/00/00/07/57/
 
-It does _not_ use kiovecs throuth (to be exact: kiovecs with just one single
-kiobuf in there).
+	"ingestion of the afterbirth during delivery"
 
-> You should have
-> 
-> 	struct fragment {
-> 		struct page *page;
-> 		__u16 offset, length;
-> 	}
+eh?
 
-What happens with big memory blocks?  Do all pages but the first and last
-get offset=0 and length=PAGE_SIZE then?
 
-  Gerd
+http://www.degustibus.co.uk/
 
--- 
-Get back there in front of the computer NOW. Christmas can wait.
-	-- Linus "the Grinch" Torvalds,  24 Dec 2000 on linux-kernel
+	"Award winning artisan breadmakers."
+
+Ah.  That'll be it.
+
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

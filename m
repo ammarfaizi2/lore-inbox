@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264307AbRFLKqc>; Tue, 12 Jun 2001 06:46:32 -0400
+	id <S264318AbRFLKz5>; Tue, 12 Jun 2001 06:55:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264312AbRFLKqN>; Tue, 12 Jun 2001 06:46:13 -0400
-Received: from motgate3.mot.com ([144.189.100.103]:7323 "EHLO motgate3.mot.com")
-	by vger.kernel.org with ESMTP id <S264307AbRFLKpx>;
-	Tue, 12 Jun 2001 06:45:53 -0400
-Message-Id: <3B25F227.5A5EEBB4@crm.mot.com>
-Date: Tue, 12 Jun 2001 12:42:47 +0200
-From: Emmanuel Varagnat <varagnat@crm.mot.com>
-Organization: Motorola
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: sk_buff allocation
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264323AbRFLKzq>; Tue, 12 Jun 2001 06:55:46 -0400
+Received: from mgw-x3.nokia.com ([131.228.20.26]:26077 "EHLO mgw-x3.nokia.com")
+	by vger.kernel.org with ESMTP id <S264318AbRFLKzk>;
+	Tue, 12 Jun 2001 06:55:40 -0400
+Date: Tue, 12 Jun 2001 13:53:56 +0300
+To: ext Emmanuel Varagnat <varagnat@crm.mot.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: sk_buff allocation
+Message-ID: <20010612135356.A31447@Hews1193nrc>
+In-Reply-To: <3B25F227.5A5EEBB4@crm.mot.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <3B25F227.5A5EEBB4@crm.mot.com>
+User-Agent: Mutt/1.3.18i
+From: alexey.vyskubov@nokia.com (Alexey Vyskubov)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I'm writing a module that is able to modify outgoing packets.
+> This is done by registering a new entry in ptype_all.
+> But my problem is that in dev_queue_xmit_nit the sk_buff is
+> cloned and that my function get this clone. So my modification
+> on skb->data isn't take into account by the ethernet driver.
 
-I'm writing a module that is able to modify outgoing packets.
-This is done by registering a new entry in ptype_all.
-But my problem is that in dev_queue_xmit_nit the sk_buff is
-cloned and that my function get this clone. So my modification
-on skb->data isn't take into account by the ethernet driver.
+Why don't you use netfilter hooks? Write your hook for NF_IP_POST_ROUTING; it
+will receive sk_buff **pskb, so you can completely replace old skbuff with new.
 
-My idea was to do my modifications and then copy all my datas
-starting at skb->data so that nothing in the sk_buff is modified.
-
-But what am I doing if the buffer doesn't have enough room to
-support the new/modified data ?
-skb_cow or skb_copy_expand, for example, will return me a new
-sk_buff with a new buffer but how could I tell the system that
-it must "replace" the old sk_buff by this one ?
-
-Thanks
-
--Emmanuel Varagnat
+-- 
+Alexey

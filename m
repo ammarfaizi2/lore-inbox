@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263107AbUEWPx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263101AbUEWP4s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbUEWPx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 11:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUEWPx5
+	id S263101AbUEWP4s (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 11:56:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbUEWP4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 11:53:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:47081 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263107AbUEWPxy (ORCPT
+	Sun, 23 May 2004 11:56:48 -0400
+Received: from zasran.com ([198.144.206.234]:35968 "EHLO zasran.com")
+	by vger.kernel.org with ESMTP id S263101AbUEWP4o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 11:53:54 -0400
-Date: Sun, 23 May 2004 08:53:41 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFD] Explicitly documenting patch submission
-In-Reply-To: <1085299337.2781.5.camel@laptop.fenrus.com>
-Message-ID: <Pine.LNX.4.58.0405230840520.25502@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org>
- <1085299337.2781.5.camel@laptop.fenrus.com>
+	Sun, 23 May 2004 11:56:44 -0400
+Message-ID: <40B0C9BB.4020304@bigfoot.com>
+Date: Sun, 23 May 2004 08:56:43 -0700
+From: Erik Steffl <steffl@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: udev and /dev/sda1 not found during boot (it's there right after
+ boot)
+References: <408A1945.1030506@bigfoot.com> <20040424155507.GA11273@kroah.com>
+In-Reply-To: <20040424155507.GA11273@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 23 May 2004, Arjan van de Ven wrote:
+Greg KH wrote:
+> On Sat, Apr 24, 2004 at 12:37:41AM -0700, Erik Steffl wrote:
 > 
-> Can we make this somewhat less cumbersome even by say, allowing
-> developers to file a gpg key and sign a certificate saying "all patches
-> that I sign with that key are hereby under this regime". I know you hate
-> it but the FSF copyright assignment stuff at least has such "do it once
-> for forever" mechanism making the pain optionally only once.
+>>  just moved to udev and everything seems to be working OK except of 
+>>SATA drive (visible as /dev/sda1) when fsck checks it during boot (it 
+>>works fine right after that).
+> 
+> 
+> This is a Debian specific bug/issue.  I suggest you file it against the
+> Debian udev package, as it is not a kernel issue.
 
-One reason that I'd prefer not to is simply the question of "who maintains 
-the certificates?"
+   why would you think it's debian specific issue?
 
-I certainly don't want to maintain any stateful paperwork with lots of
-people. This is why I personally would prefer it all to be totally
-state-less.
+   btw if I add sleep at the beginning of /etc/init.d/checkfs.sh (runs 
+fsck for all filesystems) everythings works. Which I guess confirms that 
+there is some delay between when the module is loaded and when the 
+device is available in userspace. Is that how udev works? How can this 
+issue be solved?
 
-Also, there is a _fundamental_ problem with signing a patch in a global 
-setting: the patches _do_ get modified as they move through the system 
-(maybe just bug-fixes, maybe addign a missing piece, maybe removing a 
-controversial part). So the signature ends up being valid only on your 
-part of the communication, and then after that it needs something else. 
+   kernel 2.6.5, udev 0.024, debian unstable
 
-And what I do _not_ want to see is a system where if somebody makes a 
-trivial change, it then has to go back to you to be re-signed. That just 
-would be horrible.
-
-With those (pretty basic) caveats in mind, I don't see any fundamental
-problem in a PGP key approach, if it's a "local" thing between developers.  
-In fact, I think PGP-signed patches are something we may want to look at
-from a "trust the email" standpoint, but I think it should be a _local_
-trust. And part of that "local" trust might be a private agreement between
-ddevelopers that "it's ok to add the sign-off line for Arjan when the
-patch has come with that PGP signature" when the patch is passed on.
-
-So to me, the sign-off procedure is really about documenting the path, and 
-if a PGP key is there in certain parts of the path, then that would be a 
-good thing, but I think it's a separate thing from what I'm looking for.
-
-		Linus
+	erik

@@ -1,37 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbUKSWfx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbUKSWlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261619AbUKSWfx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 17:35:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbUKSWeg
+	id S261673AbUKSWlN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 17:41:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUKSWeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 17:34:36 -0500
-Received: from ozlabs.org ([203.10.76.45]:49031 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261667AbUKSWa7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 17:30:59 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 19 Nov 2004 17:34:11 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:37072 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261666AbUKSWdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 17:33:11 -0500
+Subject: Re: 2.6.9
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: linux dude <dude_linux@yahoo.com>
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0411191742560.14261@yvahk01.tjqt.qr>
+References: <20041119091240.4927.qmail@web90006.mail.scd.yahoo.com>
+	 <Pine.LNX.4.61.0411190912360.7201@musoma.fsmlabs.com>
+	 <Pine.LNX.4.53.0411191742560.14261@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Message-Id: <1100903340.25900.22.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sat, 20 Nov 2004 09:29:11 +1100
 Content-Transfer-Encoding: 7bit
-Message-ID: <16798.29733.364848.474665@cargo.ozlabs.ibm.com>
-Date: Sat, 20 Nov 2004 09:31:01 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Adrian Bunk <bunk@stusta.de>, ak@suse.de, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: let x86_64 no longer define X86
-In-Reply-To: <s5hoehuaxyg.wl@alsa2.suse.de>
-References: <20041119005117.GM4943@stusta.de>
-	<s5hoehuaxyg.wl@alsa2.suse.de>
-X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai writes:
+Hi.
 
-> If we do this for x86-64, shouldn't we do the same for ppc64 and sh64,
-> too?  (only sparc64 seems not defining 32bit config.)
+On Sat, 2004-11-20 at 03:45, Jan Engelhardt wrote:
+> >> My question is I already did make odlconfig;make;make
+> >> modules;make modules_install; updated grub,image,
+> >> system.map. Is there any thing missing because of
+> 
+> You first update the image, then the system.map and then the bootloader.
+> 
+> >> which
+> >> it is trying to load module from old
+> >> /lib/modules/2.6.4-52/....
+> >> And Why it is not picking up from 2.6.9/.../ .
 
-Both ppc32 and ppc64 define CONFIG_PPC already.
+Are you sure you copied the new bzImage to the right place?
 
-Paul.
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+

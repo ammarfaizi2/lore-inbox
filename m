@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262613AbTIJLrx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 07:47:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbTIJLrx
+	id S262591AbTIJLvD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 07:51:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbTIJLvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 07:47:53 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34733 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262613AbTIJLru
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 07:47:50 -0400
-Date: Wed, 10 Sep 2003 12:47:49 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Marc Zyngier <mzyngier@freesurf.fr>
-Cc: Matthew Wilcox <willy@debian.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, Ralf Baechle <ralf@gnu.org>,
-       Richard Henderson <rth@twiddle.net>
-Subject: Re: [PATCH] Move EISA_bus
-Message-ID: <20030910114749.GR18654@parcelfarce.linux.theplanet.co.uk>
-References: <20030909222937.GH18654@parcelfarce.linux.theplanet.co.uk> <wrpbrttyztg.fsf@hina.wild-wind.fr.eu.org>
+	Wed, 10 Sep 2003 07:51:03 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:14474 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262591AbTIJLvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 07:51:01 -0400
+Subject: Re: [PM] Passing suspend level down to drivers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Pavel Machek <pavel@suse.cz>, mochel@osdl.org, benh@kernel.crashing.org,
+       axboe@suse.de, torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030910161243.42808c95.sfr@canb.auug.org.au>
+References: <20030909225410.GD211@elf.ucw.cz>
+	 <Pine.LNX.4.44.0309091604070.695-100000@cherise>
+	 <20030909230755.GG211@elf.ucw.cz>
+	 <20030910161243.42808c95.sfr@canb.auug.org.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063194489.32730.13.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <wrpbrttyztg.fsf@hina.wild-wind.fr.eu.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Wed, 10 Sep 2003 12:48:10 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 10, 2003 at 07:31:23AM +0200, Marc Zyngier wrote:
-> While we're at it, why not setting EISA_bus as 'deprecated', so people
-> will know they'd better move the driver to the EISA probing API ?
+On Mer, 2003-09-10 at 07:12, Stephen Rothwell wrote:
+> On another note, APM does allow for individual device power management
+> (i.e. you can tell the BIOS "suspend the first disk" or "power off
+> all displays").  I have been wondering if we want to disable the BIOS's
+> device power management now that we are begining to do it ourselves.
 
-I'd rather not.  It'll cause warnings in arch code that's making
-perfectly legitimate use of it, eg arch/i386/kernel/traps.c that sets
-it or arch/parisc/kernel/pci.c that keys off EISA_bus to know whether
-to direct port access to the EISA or PCI bus adapters.
+APM knows more about the system than we do, certainly for laptops and it
+can do stuff we can't do without ACPI. Most BIOSes also don't bother
+supporting most of the "suspend first foo", or for that matter always
+agree with us what is first.
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+

@@ -1,40 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130529AbQLOAhi>; Thu, 14 Dec 2000 19:37:38 -0500
+	id <S135373AbQLOAk6>; Thu, 14 Dec 2000 19:40:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135305AbQLOAh3>; Thu, 14 Dec 2000 19:37:29 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:48648 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130529AbQLOAhI>; Thu, 14 Dec 2000 19:37:08 -0500
-Date: Thu, 14 Dec 2000 16:06:01 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Stephen Frost <sfrost@snowman.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Netfilter <netfilter@us5.samba.org>
-Subject: Re: test13-pre1 changelog
-In-Reply-To: <20001214185620.P26953@ns>
-Message-ID: <Pine.LNX.4.10.10012141603100.12695-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135305AbQLOAkj>; Thu, 14 Dec 2000 19:40:39 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:18864 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S133105AbQLOAkh>; Thu, 14 Dec 2000 19:40:37 -0500
+Date: Thu, 14 Dec 2000 19:09:30 -0500
+From: Bill Nottingham <notting@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com, chaffee@cs.berkeley.edu
+Subject: PATCH: fix FAT32 filesystems on 64-bit platforms
+Message-ID: <20001214190930.C12088@nostromo.devel.redhat.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+	chaffee@cs.berkeley.edu
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="PEIAKu/WMn1b1Hv9"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Thu, 14 Dec 2000, Stephen Frost wrote:
-> 
-> 	This go around I compiled everything into the kernel, actually.
-> If it would be useful I can compile them as modules reboot and then see
-> what happens...
+This fixes FAT32 on 64-bit platforms (notably, IA-64 and Alpha);
+without this you can't mount any FAT32 filesystems. A similar patch
+is already in 2.2.18.
 
-Even when compiled into the kernel, you might just ifdown/ifup the device.
-That will re-initialize most of the driver state.
+Bill
 
-Is this ppp over serial.c, or what?
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-2.4.0-test12-vfat.patch"
 
-			Linus
+--- linux/fs/fat/cache.c.foo	Sat Nov 25 16:30:47 2000
++++ linux/fs/fat/cache.c	Sat Nov 25 16:32:29 2000
+@@ -70,7 +70,7 @@
+ 	}
+ 	if (MSDOS_SB(sb)->fat_bits == 32) {
+ 		p_first = p_last = NULL; /* GCC needs that stuff */
+-		next = CF_LE_L(((unsigned long *) bh->b_data)[(first &
++		next = CF_LE_L(((__u32 *) bh->b_data)[(first &
+ 		    (SECTOR_SIZE-1)) >> 2]);
+ 		/* Fscking Microsoft marketing department. Their "32" is 28. */
+ 		next &= 0xfffffff;
+@@ -79,12 +79,12 @@
+ 
+ 	} else if (MSDOS_SB(sb)->fat_bits == 16) {
+ 		p_first = p_last = NULL; /* GCC needs that stuff */
+-		next = CF_LE_W(((unsigned short *) bh->b_data)[(first &
++		next = CF_LE_W(((__u16 *) bh->b_data)[(first &
+ 		    (SECTOR_SIZE-1)) >> 1]);
+ 		if (next >= 0xfff7) next = -1;
+ 	} else {
+-		p_first = &((unsigned char *) bh->b_data)[first & (SECTOR_SIZE-1)];
+-		p_last = &((unsigned char *) bh2->b_data)[(first+1) &
++		p_first = &((__u8 *) bh->b_data)[first & (SECTOR_SIZE-1)];
++		p_last = &((__u8 *) bh2->b_data)[(first+1) &
+ 		    (SECTOR_SIZE-1)];
+ 		if (nr & 1) next = ((*p_first >> 4) | (*p_last << 4)) & 0xfff;
+ 		else next = (*p_first+(*p_last << 8)) & 0xfff;
+@@ -92,10 +92,10 @@
+ 	}
+ 	if (new_value != -1) {
+ 		if (MSDOS_SB(sb)->fat_bits == 32) {
+-			((unsigned long *) bh->b_data)[(first & (SECTOR_SIZE-1)) >>
++			((__u32 *) bh->b_data)[(first & (SECTOR_SIZE-1)) >>
+ 			    2] = CT_LE_L(new_value);
+ 		} else if (MSDOS_SB(sb)->fat_bits == 16) {
+-			((unsigned short *) bh->b_data)[(first & (SECTOR_SIZE-1)) >>
++			((__u16 *) bh->b_data)[(first & (SECTOR_SIZE-1)) >>
+ 			    1] = CT_LE_W(new_value);
+ 		} else {
+ 			if (nr & 1) {
 
+--PEIAKu/WMn1b1Hv9--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

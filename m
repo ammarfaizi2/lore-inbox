@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270280AbRHHCyj>; Tue, 7 Aug 2001 22:54:39 -0400
+	id <S270279AbRHHCw7>; Tue, 7 Aug 2001 22:52:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270281AbRHHCy3>; Tue, 7 Aug 2001 22:54:29 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:37604 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S270280AbRHHCyR>;
-	Tue, 7 Aug 2001 22:54:17 -0400
-Message-ID: <3B70A9E1.E9D1F48C@candelatech.com>
-Date: Tue, 07 Aug 2001 19:54:25 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Stuart Duncan <sety@perth.wni.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ARP's frustrating behavior
-In-Reply-To: <5.1.0.14.0.20010808094513.00ab72c8@mailhost> <5.1.0.14.0.20010808103510.00aafbb0@mailhost>
+	id <S270280AbRHHCwk>; Tue, 7 Aug 2001 22:52:40 -0400
+Received: from alcove.wittsend.com ([130.205.0.20]:34221 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S270279AbRHHCwT>; Tue, 7 Aug 2001 22:52:19 -0400
+Date: Tue, 7 Aug 2001 22:51:51 -0400
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+Cc: s0mbre <johnpol@2ka.mipt.ru>, linux-kernel@vger.kernel.org
+Subject: Re: Encrypted Swap (random off-topic snippet)
+Message-ID: <20010807225151.A12335@alcove.wittsend.com>
+Mail-Followup-To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>,
+	s0mbre <johnpol@2ka.mipt.ru>, linux-kernel@vger.kernel.org
+In-Reply-To: <12735.010807@2ka.mipt.ru> <Pine.LNX.4.33.0108071920520.23797-100000@sol.compendium-tech.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.2i
+In-Reply-To: <Pine.LNX.4.33.0108071920520.23797-100000@sol.compendium-tech.com>; from kernel@blackhole.compendium-tech.com on Tue, Aug 07, 2001 at 07:24:50PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stuart Duncan wrote:
-> 
-> >Evidently, this is considered a feature.  However, to turn it off:
-> >echo 1 > /proc/sys/net/ipv4/conf/all/arp_filter
-> 
-> I've tried this and it doesn't work.  I understand that arp_filter uses
-> routing tables to determine which interfaces should respond to ARP
-> queries.  In my case, both interfaces are on the same network.
-> 
-> There isn't a lot of documentation available for the use of arp_filter.
-> 
+On Tue, Aug 07, 2001 at 07:24:50PM -0700, Dr. Kelsey Hudson wrote:
+> I really shouldn't pollute the list like this.
 
-I put interfaces on the same network too, and it works for me.  I do
-use source-based routing (using the 'ip' command) though, which
-may be why it works for me...
+	Perfect.  :-)
 
-Ben
+	It's what we, sometimes, refer to as "rubber hose security"
+and what Bruce Schneier has been heard to refer to as "rubber hose
+cryptography".  You grap someone and beat the #$@#$# out of them with
+a rubber hose till they tell you what they want to know.  The BEST we
+can hope for is to raise the secuity to the point where they (whoever
+"THEY" are) can do no better than that.  :-/  If we HAVEN'T raised it
+that far, we still have more we can, and should, do.
 
+
+>  Kelsey Hudson                                           khudson@ctica.com
+>  Software Engineer
+>  Compendium Technologies, Inc                               (619) 725-0771
+> ---------------------------------------------------------------------------
+
+	Mike
 -- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+

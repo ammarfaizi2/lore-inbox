@@ -1,65 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263639AbTKLSbK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 13:31:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbTKLSbK
+	id S264282AbTKLSqR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 13:46:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264285AbTKLSqR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 13:31:10 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:14048 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263639AbTKLSbG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 13:31:06 -0500
-Date: Wed, 12 Nov 2003 19:31:05 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-Message-ID: <20031112183105.GR21141@suse.de>
-References: <Pine.LNX.4.44.0311111706530.1694-100000@home.osdl.org> <Pine.LNX.4.44.0311121910010.983-100000@neptune.local>
+	Wed, 12 Nov 2003 13:46:17 -0500
+Received: from ACaen-202-1-7-4.w81-248.abo.wanadoo.fr ([81.248.160.4]:7234
+	"HELO Genesyme.localdomain") by vger.kernel.org with SMTP
+	id S264282AbTKLSqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 13:46:15 -0500
+Subject: Re: reiserfs 3.6 problem with test9
+From: Philippe <rouquier.p@wanadoo.fr>
+To: Samium Gromoff <deepfire@ibe.miee.ru>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <87smkt63xu.wl@drakkar.ibe.miee.ru>
+References: <87smkt63xu.wl@drakkar.ibe.miee.ru>
+Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <1068663075.17051.12.camel@Genesyme>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311121910010.983-100000@neptune.local>
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 12 Nov 2003 19:51:16 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 12 2003, Pascal Schmidt wrote:
-> On Tue, 11 Nov 2003, Linus Torvalds wrote:
+Le mer 12/11/2003 à 15:45, Samium Gromoff a écrit :
+> > > Last time I had a box with similar problems it was memory.  I'd put
+> > > your system through a memtest.
+> >
+> > thanks for your answer.
+> > I did as you said but no problem (memtest 3.0).
 > 
-> > Does it work if you change the order of those two things in ide-cd.c (or
-> > just remove the call to "cdrom_get_last_written()" entirely, so that it
-> > always just does the sane thing).
+> For how long did you run the test?
 > 
-> I've moved the cdrom_read_capacity() to the top of cdrom_read_toc and
-> now the capacity gets set correctly and everything seems to work just 
-> fine.
+> It is known that often a 24-hour memtest is not enough to find real world
+> memory failures.
 > 
-> dd to and from the raw device works, as do mke2fs and e2fsck. I could
-> also mount the disk read-write, write a 10MB file to it, and umount
-> again without problems. Then I rebooted into 2.4 and verified that the
-> filesystem is okay and the 10MB file made it to disk correctly.
+> Also it is known that gcc (yeah you`ll wonder) is much better at finding them,
+> so there`s the question: do you compile stuff often, and if so, whether
+> gcc bails out with "internal error" messages sometimes?
 > 
-> Lookin' good so far.
-
-Great! Can you please send a diff for review? It speaks more clearly
-than 1000 descriptions of what a patch does :)
-
-> Now, assuming there is a reason that the cdrom_read_capacity() function
-> is only used as a fallback for normal ide-cd devices, my change might
-
-Fall back?
-
-> break non-MO devices. I also don't know what to do when read_capacity
-> fails - setting capacity to 0 obviously breaks as we've seen before,
-> so maybe setting it to the lowest possible MO size (128M) would be a
-> good way to handle that situation.
+> Also, if i were you i would do the following:
 > 
-> Jens, what do you think?
+> bash-2.05b$ dd if=/dev/urandom of=test bs=1048576 count=1024
+> bash-2.05b$ bzip2 test
+> bash-2.05b$ bunzip2 test.bz2
+> 
+> And if you have a memory failure bzip2 checksumming would show that up on the
+> bunzip2 stage.
+> 
+> regards, Samium Gromoff
 
-Do what it currently does, set it to some high value? Then we'll just
-rely on the drive properly failing read requests. Better than not being
-able to reach the files.
+thanks for your answer.
+I ran memtest for a whole night yesterday (again) : nothing.
+I have never had any problem with gcc. execpt that sometimes after a big
+compiling I have some files damaged but _they_are_not_the_ones_used_
+by_gcc_. they always are in another directory.
+I ran the test with dd and bzip2 : no problem.
 
--- 
-Jens Axboe
+Yet I'm afraid it is too late. I switched to ext3 today as my all system
+was gradually becoming unusable after compiling large apps. I was fed up
+with rebuilding partitions.
+
+Now, it runs fine. but it might not mean anything about my hardware ...
+I 'll try this.
+
+Anyway I'm willing to explore the problem; in particular because some
+other people seem to have the same problem.
+Moreover reiserfs is faster. I liked it and I'd like to come back to it.
+
+Note: I kept the original reiserfs partition with the errors. So if
+someone needs any log to figure out where the problem comes from I have
+everything at hand. I'm also willing to perform other tests. 
+
+regards.
+Philippe Rouquier.
 

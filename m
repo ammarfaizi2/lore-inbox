@@ -1,68 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264963AbTL1Dln (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 22:41:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264966AbTL1Dln
+	id S264966AbTL1DnW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 22:43:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbTL1DnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 22:41:43 -0500
-Received: from fw.osdl.org ([65.172.181.6]:54149 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264963AbTL1Dll (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 22:41:41 -0500
-Date: Sat, 27 Dec 2003 19:41:44 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Calin Szonyi <caszonyi@rdslink.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory management problem with 2.6.0
-Message-Id: <20031227194144.54d052d1.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.53.0312271912350.511@grinch.ro>
-References: <Pine.LNX.4.53.0312271912350.511@grinch.ro>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 27 Dec 2003 22:43:22 -0500
+Received: from viriato2.servicios.retecal.es ([212.89.0.45]:13552 "EHLO
+	viriato2.servicios.retecal.es") by vger.kernel.org with ESMTP
+	id S264966AbTL1DnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 22:43:20 -0500
+Subject: [PATCH] Re: 2.6.0-mm1
+From: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <rrey@ranty.pantax.net>
+Reply-To: ramon.rey@hispalinux.es
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <20031222211131.70a963fb.akpm@osdl.org>
+References: <20031222211131.70a963fb.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-h6z3fSPBRGjpeZjSg1AZ"
+Message-Id: <1072582996.6822.24.camel@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 28 Dec 2003 04:43:17 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-caszonyi@rdslink.ro wrote:
->
-> I have a small script:
->  #!/bin/sh
->  umount /mnt/cdrom
->  eject /dev/hdb
->  echo "Invalid system disk"
->  echo "Insert and press any key when ready"
->  read junk
->  eject -t /dev/hdb
->  sleep 1
->  mount /mnt/cdrom
->  /usr/sbin/hdparm -E 10 /dev/hdb
-> 
->  It works all the time but today gave me this:
-> 
->  sony@grinch -19:06:39- 0 jobs, ver 2.05b.0 1
->  /~ $ cdin
->  umount: /mnt/cdrom is not mounted (according to mtab)
->  eject: unable to find or open device for: `/dev/hdb'
->  Invalid system disk
->  Insert and press any key when ready
-> 
->  eject: unable to find or open device for: `/dev/hdb'
->  mount: Cannot allocate memory
->  /dev/hdb: Cannot allocate memory
-> 
->  The permissions on the device are
-> 
->  sony@grinch -19:07:54- 0 jobs, ver 2.05b.0 1
->    /~ $ ls -l /dev/hdb
->    brw-rw----    1 root     disk       3,  64 iun  9  2002 /dev/hdb
-> 
->  In the logs I had:
->  Dec 27 19:06:16 grinch kernel: eject: page allocation failure. order:4,
->  mode:0xd0
 
-Please, try
+--=-h6z3fSPBRGjpeZjSg1AZ
+Content-Type: multipart/mixed; boundary="=-YmRVpP8k+PUGm34xqqUD"
 
-	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0/2.6.0-mm1/broken-out/cdrom-allocation-try-harder.patch
 
-and let me know?
+--=-YmRVpP8k+PUGm34xqqUD
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
+
+El mar, 23-12-2003 a las 06:11, Andrew Morton escribi=F3:
+
+> +mt-ranier-support.patch
+>=20
+>  Mt Ranier support in the CDROM uniform layer.
+
+Somebody forgot this WAIT_CMD-to-ATAPI_WAIT_PC change
+--=20
+Ram=F3n Rey Vicente       <ramon dot rey at hispalinux dot es>
+        jabber ID       <rreylinux at jabber dot org>
+GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
+
+--=-YmRVpP8k+PUGm34xqqUD
+Content-Disposition: inline; filename=fix_idecd_seek_timeout_macro.patch
+Content-Type: text/x-patch; name=fix_idecd_seek_timeout_macro.patch;
+	charset=iso-8859-15
+Content-Transfer-Encoding: base64
+
+LS0tIGxpbnV4LTIuNi4wLW9yaWcvZHJpdmVycy9pZGUvaWRlLWNkLmMJMjAwMy0xMi0yOCAwNDoy
+NjozMS4wMDAwMDAwMDAgKzAxMDANCisrKyBsaW51eC0yLjYvZHJpdmVycy9pZGUvaWRlLWNkLmMJ
+MjAwMy0xMi0yOCAwMzo1NDoxOC4wMDAwMDAwMDAgKzAxMDANCkBAIC0xMzE4LDcgKzEzMTgsNyBA
+QA0KIA0KICNkZWZpbmUgSURFQ0RfU0VFS19USFJFU0hPTEQJKDEwMDApCQkJLyogMTAwMCBibG9j
+a3MgKi8NCiAjZGVmaW5lIElERUNEX1NFRUtfVElNRVIJKDUgKiBXQUlUX01JTl9TTEVFUCkJLyog
+MTAwIG1zICovDQotI2RlZmluZSBJREVDRF9TRUVLX1RJTUVPVVQJKDIgKiBXQUlUX0NNRCkJCS8q
+IDIwIHNlYyAqLw0KKyNkZWZpbmUgSURFQ0RfU0VFS19USU1FT1VUCSgyICogQVRBUElfV0FJVF9Q
+QykJLyogMjAgc2VjICovDQogDQogc3RhdGljIGlkZV9zdGFydHN0b3BfdCBjZHJvbV9zZWVrX2lu
+dHIgKGlkZV9kcml2ZV90ICpkcml2ZSkNCiB7DQo=
+
+--=-YmRVpP8k+PUGm34xqqUD--
+
+--=-h6z3fSPBRGjpeZjSg1AZ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/7lFURGk68b69cdURAkDbAJ93VbAw9OYUp86QeD2gkLjZRer9CwCdHSu+
+pq9yNfxoIH4e5jPxs435+zY=
+=b4kC
+-----END PGP SIGNATURE-----
+
+--=-h6z3fSPBRGjpeZjSg1AZ--
+

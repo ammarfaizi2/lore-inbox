@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266712AbTAAD5e>; Tue, 31 Dec 2002 22:57:34 -0500
+	id <S266717AbTAAEGs>; Tue, 31 Dec 2002 23:06:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266717AbTAAD5e>; Tue, 31 Dec 2002 22:57:34 -0500
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:21501 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S266712AbTAAD5d>; Tue, 31 Dec 2002 22:57:33 -0500
-From: "Sowmya Adiga" <sowmya.adiga@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.5.53mm2 for AIMbench
-Date: Wed, 1 Jan 2003 09:35:37 +0530
-Organization: Wipro Technologies
-Message-ID: <002c01c2b14b$0ecd8a10$6009720a@wipro.com>
+	id <S266763AbTAAEGs>; Tue, 31 Dec 2002 23:06:48 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:16295 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S266717AbTAAEGr>; Tue, 31 Dec 2002 23:06:47 -0500
+Message-ID: <3E126B33.7000807@iku-ag.de>
+Date: Wed, 01 Jan 2003 05:14:43 +0100
+From: Kurt Huwig <k.huwig@iku-ag.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Oops with 2.4.20 when accessing SVCDs
+References: <3E11B976.3010306@iku-ag.de> <200301010150.13274.m.c.p@wolk-project.de>
+In-Reply-To: <3E11B976.3010306@iku-ag.de>
+X-Enigmail-Version: 0.70.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-x-mimeole: Produced By Microsoft MimeOLE V6.00.2462.0000
-Importance: Normal
-X-OriginalArrivalTime: 01 Jan 2003 04:05:44.0925 (UTC) FILETIME=[0ED440D0:01C2B14B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
- 
-      I gave 60 second for each test while running AIM bench for
-2.5.53mm2 patch.But it ran each test for only 6 second.Is there any
-change in kernel frequency with this release?
- 
-Regards
-sowmya adiga
-      
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Marc-Christian Petersen wrote:
+
+| On Tuesday 31 December 2002 16:36, Kurt Huwig wrote:
+|
+|> I got the attached oops when copying a file from a SVCD using
+|> cdfs-0.5c I mounted a SVCD using mount -t cdfs /dev/cdbrenner
+|> /cdbrenner using the cdfs driver from
+|> http://www.elis.rug.ac.be/~ronsse/cdfs/cdfs.html
+|
+| Can you reproduce this w/o cdfs? I've heard alot of problems with
+| cdfs is oopsing and crashing with recent kernels so this might be a
+| problem of cdfs, not the kernel itself.
+
+Without cdfs, I don't know how to access SVCDs ;-) Images of "normal"
+CDs work fine.
+
+Kurt
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE+EmsyTDL5CJndlGgRAly0AKDiYdySKrd9BjjvyraEbnCSoj5KOACfdNx8
+HXytM2/pTawxXZeKyWcurcA=
+=Yp1F
+-----END PGP SIGNATURE-----
 

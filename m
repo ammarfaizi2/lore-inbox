@@ -1,107 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261707AbSJQQps>; Thu, 17 Oct 2002 12:45:48 -0400
+	id <S261724AbSJQQtR>; Thu, 17 Oct 2002 12:49:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261708AbSJQQps>; Thu, 17 Oct 2002 12:45:48 -0400
-Received: from mithra.wirex.com ([65.102.14.2]:58890 "EHLO mail.wirex.com")
-	by vger.kernel.org with ESMTP id <S261707AbSJQQpq>;
-	Thu, 17 Oct 2002 12:45:46 -0400
-Message-ID: <3DAEEA7A.6000803@wirex.com>
-Date: Thu, 17 Oct 2002 09:51:06 -0700
-From: Crispin Cowan <crispin@wirex.com>
-Organization: WireX Communications, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+	id <S261726AbSJQQtR>; Thu, 17 Oct 2002 12:49:17 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55312 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261724AbSJQQtP>;
+	Thu, 17 Oct 2002 12:49:15 -0400
+Message-ID: <3DAEEB59.2000000@pobox.com>
+Date: Thu, 17 Oct 2002 12:54:49 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make LSM register functions GPLonly exports
-References: <20021017153505.A27998@infradead.org> <20021017150740.GA31056@kroah.com>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-md5;
- protocol="application/pgp-signature";
- boundary="------------enigF14B24A9121C81991429F048"
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+CC: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Device-mapper submission 6/7
+References: <20021015175858.GA28170@fib011235813.fsnet.co.uk> <3DAC5B47.7020206@pobox.com> <20021015214420.GA28738@fib011235813.fsnet.co.uk> <3DAD75AE.7010405@pobox.com> <20021016152047.GA11422@fib011235813.fsnet.co.uk> <3DAD8CC9.9020302@pobox.com> <20021017080552.GA2418@fib011235813.fsnet.co.uk> <m3fzv5pj23.fsf@averell.firstfloor.org> <20021017085045.GA2651@fib011235813.fsnet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigF14B24A9121C81991429F048
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Greg KH wrote:
-
->On Thu, Oct 17, 2002 at 03:35:05PM +0100, Christoph Hellwig wrote:
->  
->
->>These exports have the power to change the implementations of all
->>syscalls and I've seen people exploiting this "feature".
->>
->>Make the exports GPLonly (which some LSM folks agreed to
->>when it was merged initially to avoid that).
->>    
->>
->I would really, really, really like to make this change.  Unfortunatly,
->one of the current copyright holders of this file does not agree with
->it.
->
->Crispin, for the benifit of the lkml readers, can you explain why WireX
->does not want this change?
->
-Here's the monster flame-war we had the last time this issue was debated 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0109.3/0102.html
-
-My argument against the intent of this change is that no, I do not think 
-we should restrict LSM modules to be GPL-only. LSM is an API for loading 
-externally developed packages of software, similar to syscalls. There is 
-benefit in permitting proprietary modules (you get additional modules 
-that you would not get otherwise) just as there is benefit in permitting 
-proprietary applications (you get Oracle, DB2, and WordPerfect).
-
-My argument against the implementation technique of dropping in these 
-export GPLonly symbols is that my read of the GPL itself means that they 
-have no legal impact. The crux of the matter is whether a *court* finds 
-that LSM is "linking" (in the GPL sense) or is an "interface":
-
-    * If it is "linking": then all LSM modules end up GPL'd, regardless
-      of what any of us want.
-    * If it is "an interface": then the GPL specifically *prohibits* you
-      from imposing additional restrictions, such as requiring someone
-      else's module to be GPL'd, to wit:
-          o Clause 4: "You may not copy, modify, sublicense, or
-            distribute the Program except as expressly provided under
-            this License."
-          o Clause 6: "... You may not impose any further restrictions
-            on the recipients' exercise of the rights granted herein."
-
-Therefore, the EXPORT_SYMBOL_GPL is just a bunch of useless bloat, with 
-no legal standing what so ever. If kernel module interfaces are held by 
-a court to be linking, then export symbols are redundant. If kernel 
-module interfaces are held by a court to be an interface, then the 
-export symbols are just wrong.
-
-Crispin
-
--- 
-Crispin Cowan, Ph.D.
-Chief Scientist, WireX                      http://wirex.com/~crispin/
-Security Hardened Linux Distribution:       http://immunix.org
-Available for purchase: http://wirex.com/Products/Immunix/purchase.html
+Joe Thornber wrote:
+> The thing I'm not sure about is how to map the supend/resume semantics
+> onto the fs.  It is tempting to bind suspend to an writeable open of
+> the TABLE file, and resume to the closing of the device.  However that
+> means that closing the device both indicates the end of the table and
+> a resume, I'm not sure that is good enough, eg, if the table is bogus
+> we don't neccessarily want to automatically resume the old table.  So
+> this leads us to start thinking about a sepearate SUSPENDED file that
+> we write a 1 or 0 to, yuck.
 
 
---------------enigF14B24A9121C81991429F048
-Content-Type: application/pgp-signature
+A popular way which also resolves atomicity issues is to just have a 
+'control' file, to which you write(2) a command code and 
+command-specific data, and read(2) results of the operation (if any). 
+This would allow you to do a new-table command, a suspend command, a 
+resume-with-existing-table command, a resume-with-new-table command, 
+etc.  In other words, a more flexible ioctl(2) ;-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Preferred method of data input is always ASCII, but if that is 
+unreasonable, make sure your binary data is fixed-endian and fixed-size 
+on all architectures.
 
-iD8DBQE9ruqC5ZkfjX2CNDARAb9oAJ0Rfcs1AmzFcThwMu6LwjYk53kNFgCg3Pr7
-ZRqO8UZlVjmiWuDqa1W7XUM=
-=5oBb
------END PGP SIGNATURE-----
+	Jeff
 
---------------enigF14B24A9121C81991429F048--
+
 

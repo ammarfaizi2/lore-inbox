@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270640AbRIJLZQ>; Mon, 10 Sep 2001 07:25:16 -0400
+	id <S270634AbRIJL3g>; Mon, 10 Sep 2001 07:29:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270585AbRIJLZG>; Mon, 10 Sep 2001 07:25:06 -0400
-Received: from frank.gwc.org.uk ([212.240.16.7]:37647 "EHLO frank.gwc.org.uk")
-	by vger.kernel.org with ESMTP id <S270640AbRIJLY4>;
-	Mon, 10 Sep 2001 07:24:56 -0400
-Date: Mon, 10 Sep 2001 12:25:15 +0100 (BST)
-From: Alistair Riddell <ali@gwc.org.uk>
-To: Phillip Susi <psusi@cfl.rr.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: New SCSI subsystem in 2.4, and scsi idle patch
-In-Reply-To: <200109092229.f89MT3M07627@smtp-server2.tampabay.rr.com>
-Message-ID: <Pine.LNX.4.21.0109101216030.14338-100000@frank.gwc.org.uk>
-X-foo: bar
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270585AbRIJL3Q>; Mon, 10 Sep 2001 07:29:16 -0400
+Received: from ns1.yggdrasil.com ([209.249.10.20]:40929 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S270634AbRIJL3M>; Mon, 10 Sep 2001 07:29:12 -0400
+Date: Mon, 10 Sep 2001 04:29:32 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Cc: eokerson@quicknet.net
+Subject: linux-2.4.10-pre7/drivers/telephony/ixj{,_pcmcia}.c does not compile
+Message-ID: <20010910042932.A893@adam.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Sep 2001, Phillip Susi wrote:
 
-> I'm trying to get my 2.4.9 system to spin down my scsi disk(s) when idle.  
-> Aparently, this is supported on IDE disks, but not SCSI.  I found an old 
-
-AFAIK, the spinning down of IDE disks is done by the disks themselves
-rather than by the kernel. The software support consists of a method to
-tell the disk controller what idle period to wait before spinning down.
-
-I don't know whether SCSI disks have a similar feature. But if they did it
-would be easier to make use of that than to implemement a software
-timer...
+	linux-2.4.10-pre7/drivers/telphony/ixj.h refers to an
+undefined type IXJ_SIGDEF, preventing ixj_pcmcia.c and ixj.c in
+that directory from compiling.
 
 -- 
-Alistair Riddell - BOFH
-IT Manager, George Watson's College, Edinburgh
-Tel: +44 131 447 7931 Ext 176       Fax: +44 131 452 8594
-Microsoft - because god hates us
-
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

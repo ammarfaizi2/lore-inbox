@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317647AbSFLGrw>; Wed, 12 Jun 2002 02:47:52 -0400
+	id <S317649AbSFLGz5>; Wed, 12 Jun 2002 02:55:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317648AbSFLGrw>; Wed, 12 Jun 2002 02:47:52 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5892 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317647AbSFLGrv>; Wed, 12 Jun 2002 02:47:51 -0400
-Subject: Re: bandwidth 'depredation'
-To: marco@esi.it (Marco Colombo)
-Date: Wed, 12 Jun 2002 08:08:49 +0100 (BST)
-Cc: pochini@shiny.it (Giuliano Pochini), raul@pleyades.net (DervishD),
-        linux-kernel@vger.kernel.org (Linux-kernel)
-In-Reply-To: <Pine.LNX.4.44.0206111628280.17534-100000@Megathlon.ESI> from "Marco Colombo" at Jun 11, 2002 04:38:01 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S317650AbSFLGz4>; Wed, 12 Jun 2002 02:55:56 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:51194 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S317649AbSFLGz4>; Wed, 12 Jun 2002 02:55:56 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Wed, 12 Jun 2002 00:54:17 -0600
+To: Alan <alan@clueserver.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Status of FAT CVF?
+Message-ID: <20020612065417.GE30507@clusterfs.com>
+Mail-Followup-To: Alan <alan@clueserver.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1023856708.2934.9.camel@summanulla.clueserver.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17I2FN-0006y7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But so how is QoS going to change things? It's the output queue of
-> the router on the other side of the ADLS link that needs management
-> (and maybe you need to speak some protocol like RSVP), or am I missing
-> something? How can you control the rate of *incoming* packets per
-> connection / protocol? 
+On Jun 11, 2002  21:38 -0700, Alan wrote:
+> What is the status of fat_cvf in 2.4.x?  Is the code abandoned?
+> Supported? Working? Not working? Pining for the fnords?
+> 
+> I have an old drive I am trying to get data off of and mounting the
+> compressed partition via loopback does something strange.  The mount
+> point shows no files, but "df" shows the correct amount for data used. 
+> (The compressed DriveSpace 3.x partition does contain data.)
+> 
+> Not urgent.  (I can get the data other ways.)  Just wanting to know how
+> bad it is before I start wading into the code.
 
-For  tcp it works fine. You drop stuff late but it still triggers
-backoffs as needed
+There was a patch posted last week to l-k which basically removed CVF
+support from the kernel entirely, because it was totally non-functional.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
+

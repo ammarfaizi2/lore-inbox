@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291846AbSBNToR>; Thu, 14 Feb 2002 14:44:17 -0500
+	id <S291853AbSBNTn5>; Thu, 14 Feb 2002 14:43:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291851AbSBNToI>; Thu, 14 Feb 2002 14:44:08 -0500
-Received: from steam.colabnet.com ([198.165.224.35]:15877 "EHLO
-	torsus.hive.colabnet.com") by vger.kernel.org with ESMTP
-	id <S291846AbSBNTny>; Thu, 14 Feb 2002 14:43:54 -0500
-Subject: Re: Promise SuperTrak100 Oops/Kernel Panic
-From: Rob Lake <rlake@colabnet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16bRV1-0000ro-00@the-village.bc.nu>
-In-Reply-To: <E16bRV1-0000ro-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 14 Feb 2002 16:17:21 -0330
-Message-Id: <1013716041.2048.0.camel@sphere878.hive.colabnet.com>
-Mime-Version: 1.0
+	id <S291851AbSBNTnr>; Thu, 14 Feb 2002 14:43:47 -0500
+Received: from mark.staudinger.net ([207.252.75.224]:9735 "EHLO
+	mark.staudinger.net") by vger.kernel.org with ESMTP
+	id <S291846AbSBNTnj>; Thu, 14 Feb 2002 14:43:39 -0500
+Message-Id: <200202141955.g1EJtwoX036235@mark.staudinger.net>
+Date: Thu, 14 Feb 2002 19:55:58 -0000
+To: "Drew P. Vogel" <dvogel@intercarve.net>
+Subject: Re: 2.4.12 on Pentium?
+From: "Mark Staudinger" <mark@staudinger.net>
+X-Mailer: TWIG 2.6.2
+In-Reply-To: <Pine.LNX.4.33.0202141233100.22263-100000@northface.intercarve.net>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: mark@staudinger.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No need to try any longer.  I upgraded the firmware and can mount device
-now.  Thanks for you help and time.
+"Drew P. Vogel" <dvogel@intercarve.net> said:
 
-Rob
+> On Thu, 14 Feb 2002, Mark Staudinger wrote:
+> 
+> >
+> >Is there any known problem with running kernel 2.4.12 on a P54/P55 CPU?  
+I'm
+> >unable to get a 2.4.12 kernel to boot on a pentium class machine, 
+regardless
+> >of what I choose for the "Processor Family" support in the config.
+> >
+> >A similar (if not identical) config of kernel 2.4.5 works just fine, even 
+if
+> >compiled for 686/Celeron processor family.
+> 
+> copy the .config from the 2.4.5 directory and do a 'make oldconfig' just
+> to be sure.
+> 
+> --Drew Vogel
 
-On Thu, 2002-02-14 at 15:54, Alan Cox wrote:
-> > > > Feb 13 21:52:17 sphere878 kernel:  i2o/hda:r 3
-> > > > Feb 13 21:52:17 sphere878 kernel: I2O: Spurious reply to handler 3
-> > > > Feb 13 21:52:17 sphere878 last message repeated 454 times
-> > > 
-> > > Then things seem to go a little mad, and its getting bogus messages to
-> > > a drivert that has been unloaded
-> > 
-> > Is there a driver I should be loading pre i2o_block?
-> 
-> i2o_block will load i2o_pci and i2o_core which is all that are needed.
-> So far I've not been able to duplicate your problem. 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Done.  Still the same symptom (reset during kernel load). I take it this isn't 
+a known problem then?
+
+-=Mark
 
 

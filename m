@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264581AbTLQV6p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 16:58:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264583AbTLQV6p
+	id S264568AbTLQWCl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 17:02:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbTLQWCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 16:58:45 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:45837 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264581AbTLQV6o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 16:58:44 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: no atapi cdrecord burning with 2.6.0-test11-bk10 / bk13
-Date: 17 Dec 2003 21:47:12 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <brqit0$7p7$1@gatekeeper.tmr.com>
-References: <Pine.LNX.4.21.0312171721420.32339-100000@needs-no.brain.uni-freiburg.de> <200312171141.18132.gene.heskett@verizon.net> <20031217164933.GB2495@suse.de> <200312171227.53913.gene.heskett@verizon.net>
-X-Trace: gatekeeper.tmr.com 1071697632 7975 192.168.12.62 (17 Dec 2003 21:47:12 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Wed, 17 Dec 2003 17:02:41 -0500
+Received: from atlrel6.hp.com ([156.153.255.205]:32387 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S264568AbTLQWCj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 17:02:39 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: [PATCH] Fix 2.4 EFI RTC oops
+Date: Wed, 17 Dec 2003 15:02:37 -0700
+User-Agent: KMail/1.5.4
+Cc: trini@mvista.com, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312171502.37511.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200312171227.53913.gene.heskett@verizon.net>,
-Gene Heskett  <gene.heskett@verizon.net> wrote:
+This recent change to 2.4:
 
-| I'm using /dev/hdc for burning in the k3b configuration screens, 
-| however that path may actually be defined.  I haven't quite "grok"ed 
-| all the details, but it works, and works with <10% of the cpu 
-| involved when burning.
-| 
-| To me, thats a roaring success :-)
+	ChangeSet@1.1069.155.3, 2003-12-10 18:30:50-02:00, trini@mvista.com
+	  [PATCH] Fix rtc leak
 
-I'm burning on a 2.4 kernel, using ide-scsi, and taking <1% CPU at 16x
-burn, so you might check if your CD is set to use DMA, or if it's still
-doing PIO. I use about 10% doing an audio burn, which does use PIO in
-2.4 AFAIK.
+	  ===== arch/cris/drivers/ds1302.c 1.6 vs edited =====
 
-You may be able to drop the CPU a good bit more.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+broke efirtc.c (it causes a null pointer dereference on ia64).
+The fix is below.  Please apply.
+
+Bjorn
+
+P.S.  The changeset above doesn't appear to be in 2.6 yet.  If/when
+you submit it for 2.6, you might consider using this style:
+
+	memset(&wtime, 0, sizeof(wtime));
+	memset(wtime, 0, sizeof(*wtime));
+
+which is more obviously correct than:
+
+	memset(&wtime, 0, sizeof(struct rtc_time));
+	memset(wtime, 0, sizeof(struct rtc_time));
+
+
+===== drivers/char/efirtc.c 1.6 vs edited =====
+--- 1.6/drivers/char/efirtc.c	Fri Oct 24 04:35:10 2003
++++ edited/drivers/char/efirtc.c	Wed Dec 17 14:33:08 2003
+@@ -118,7 +118,7 @@
+ static void
+ convert_from_efi_time(efi_time_t *eft, struct rtc_time *wtime)
+ {
+-	memset(&wtime, 0, sizeof(struct rtc_time));
++	memset(wtime, 0, sizeof(struct rtc_time));
+ 	wtime->tm_sec  = eft->second;
+ 	wtime->tm_min  = eft->minute;
+ 	wtime->tm_hour = eft->hour;
+

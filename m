@@ -1,251 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264686AbUEaQ0D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264669AbUEaQiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264686AbUEaQ0D (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 12:26:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264688AbUEaQ0D
+	id S264669AbUEaQiK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 12:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264677AbUEaQiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 12:26:03 -0400
-Received: from homepage-center.de ([216.121.32.142]:24330 "EHLO
-	homepage-center.de") by vger.kernel.org with ESMTP id S264686AbUEaQZy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 12:25:54 -0400
-Message-ID: <008501c4472c$44596960$0600a8c0@blackbox>
-From: "Christian Gmeiner" <christian@visual-page.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: Problem with dvb-sysfs patch
-Date: Mon, 31 May 2004 18:20:58 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Mon, 31 May 2004 12:38:10 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:42668 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S264669AbUEaQiD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 12:38:03 -0400
+Date: Mon, 31 May 2004 18:38:01 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Resume enhancement: restore pci config space
+Message-ID: <20040531163801.GW20632@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040526203524.GF2057@devserv.devel.redhat.com> <20040530184031.GF997@openzaurus.ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TOkWJigZa0YodlBE"
+Content-Disposition: inline
+In-Reply-To: <20040530184031.GF997@openzaurus.ucw.cz>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I mailinglist.
 
-I am writing a sysfs patch for the dvb driver (linuxtv.org). I get some very
-nice stuff runnning:
+--TOkWJigZa0YodlBE
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-vdr root # ls -Rl /sys/class/dvb
-/sys/class/dvb:
-total 0
-drwxr-xr-x  6 root root 0 May 31 17:11 adapter0
+On Sun, 2004-05-30 20:40:31 +0200, Pavel Machek <pavel@ucw.cz>
+wrote in message <20040530184031.GF997@openzaurus.ucw.cz>:
+> > One can rightfully argue that the driver resume method should do this, =
+and
+> > yes that is right. So the patch only does it for devices that don't hav=
+e a
+> > resume method. Like the main PCI bridge on my testbox of which the bios=
+ so
+> > nicely forgets to restore the bus master bit during resume.. With this =
+patch
+> > my testbox resumes just fine while it, well, wasn't all too happy as yo=
+u can
+> > imagine without a busmaster pci bridge.
 
-/sys/class/dvb/adapter0:
-total 0
-drwxr-xr-x  2 root root    0 May 31 17:11 demux0
-drwxr-xr-x  2 root root    0 May 31 17:11 dvr0
--r--r--r--  1 root root 4096 May 31 17:11 frontend
-drwxr-xr-x  2 root root    0 May 31 17:11 frontend0
--r--r--r--  1 root root 4096 May 31 17:11 name
-drwxr-xr-x  2 root root    0 May 31 17:11 net0
+All that reminds me... The PCI subsystem should probably record any PCI
+device's initial configuration state after boot-up and restore those
+settings before system reboot. Code like that was already in place
+(during 2.2.x cycle IIRC) for Alphas, but got lost somewhen (and was
+never added again). Upon reboot, Alphas (with current 2.6.x) running SRM
+firmware might crash horribly because of "misconfigured" PCI devices.
 
-/sys/class/dvb/adapter0/demux0:
-total 0
--r--r--r--  1 root root 4096 May 31 17:11 adap
--r--r--r--  1 root root 4096 May 31 17:11 dev
+MfG, JBG
 
-/sys/class/dvb/adapter0/dvr0:
-total 0
--r--r--r--  1 root root 4096 May 31 17:11 adap
--r--r--r--  1 root root 4096 May 31 17:11 dev
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
 
-/sys/class/dvb/adapter0/frontend0:
-total 0
--r--r--r--  1 root root 4096 May 31 17:11 adap
--r--r--r--  1 root root 4096 May 31 17:11 dev
+--TOkWJigZa0YodlBE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-/sys/class/dvb/adapter0/net0:
-total 0
--r--r--r--  1 root root 4096 May 31 17:11 adap
--r--r--r--  1 root root 4096 May 31 17:11 dev
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-vdr root # ls -Rl /dev/dvb
-/dev/dvb:
-total 0
-drwxr-xr-x  2 root root 0 May 31 17:11 adapter0
+iD8DBQFAu19pHb1edYOZ4bsRApajAJ9alM6APZ4Z5RcBiWU6oD3FnKU6UgCeOVzP
+J1oV6HoR2fZhXpUQ4nxFyHk=
+=BIBy
+-----END PGP SIGNATURE-----
 
-/dev/dvb/adapter0:
-total 0
-crw-rw----  1 root video 250, 7 May 31 17:11 adapter0
-crw-rw----  1 root video 250, 4 May 31 17:11 demux0
-crw-rw----  1 root video 250, 5 May 31 17:11 dvr0
-crw-rw----  1 root video 250, 3 May 31 17:11 frontend0
-crw-rw----  1 root video 250, 7 May 31 17:11 net0
-
-
-But it is not possible for me to acces the device:
-
-vdr root # ls /dev/dvb/adapter0/frontend0
-/dev/dvb/adapter0/frontend0
-vdr root # cat /dev/dvb/adapter0/frontend0
-cat: /dev/dvb/adapter0/frontend0: No such device or address
-
-I am using a 2.6.6 Kernel.
-
-So here are now the programming stuff:
-
-I have written an abstract interface to support devfs, sysfs and procfs. So
-i have functions to un/register
-adapters and devices
-
-#ifndef DVB_SYSFS_DIR
-#define DVB_SYSFS_DIR "dvb" //-> /sys/class/dvb/...
-#endif
-
-static struct class dvb_class = {
- .name = DVB_SYSFS_DIR
-};
-
-static ssize_t show_name(struct class_device *cd, char *buf)
-{
- struct dvb_adapter *adap = container_of(cd, struct dvb_adapter, class_dev);
- sprintf(buf, "%s\n", adap->name);
- return strlen(buf) + 1;
-}
-
-static CLASS_DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
-
-static ssize_t show_frontend(struct class_device *cd, char *buf)
-{
- struct dvb_adapter *adap = container_of(cd, struct dvb_adapter, class_dev);
- sprintf(buf, "%s\n", adap->frontend);
- return strlen(buf) + 1;
-}
-
-static CLASS_DEVICE_ATTR(frontend, S_IRUGO, show_frontend, NULL);
-
-static ssize_t show_devnum(struct class_device *cd, char *buf)
-{
- struct dvb_device *dvbdev = container_of(cd, struct dvb_device, class_dev);
-
- sprintf(buf, "%d:%d\n", DVB_MAJOR, nums2minor(dvbdev->adapter->num,
-dvbdev->type, dvbdev->id));
- return strlen(buf) + 1;
-}
-
-static CLASS_DEVICE_ATTR(dev, S_IRUGO, show_devnum, NULL);
-
-static ssize_t show_adap(struct class_device *cd, char *buf)
-{
- struct dvb_device *dvbdev = container_of(cd, struct dvb_device, class_dev);
- sprintf(buf, "adapter%d\n", dvbdev->adapter->num);
- return strlen(buf) + 1;
-}
-
-static CLASS_DEVICE_ATTR(adap, S_IRUGO, show_adap, NULL);
-
-
-static struct class_device_attribute *dvb_adapter_attrs[] = {
- &class_device_attr_name,
- &class_device_attr_frontend,
- NULL
-};
-
-static struct class_device_attribute *dvb_device_attrs[] = {
- &class_device_attr_dev,
- &class_device_attr_adap,
- NULL
-};
-
-static void dvb_sysfs_register_adapter(struct dvb_adapter *adap)
-{
- char name[64] = "";
- int i;
-
- adap->class_dev.class = &dvb_class;
- adap->class_dev.dev = NULL;
- adap->class_dev.class_data = adap;
-
- sprintf(name,"adapter%d", adap->num);
- strcpy(adap->class_dev.class_id, name);
-
- if (class_device_register(&adap->class_dev))
-  printk(KERN_ERR "Unable to register dvb class device\n");
-
- for (i = 0; dvb_adapter_attrs[i]; i++)
-  class_device_create_file(&(adap->class_dev), dvb_adapter_attrs[i]);
-}
-
-static void dvb_sysfs_unregister_adapter(struct dvb_adapter *adap)
-{
- class_device_unregister(&(adap->class_dev));
-}
-
-static void dvb_sysfs_register_device(struct dvb_device *dvbdev)
-{
- int i;
- char name[64] = "";
- struct class_device *class_dev = &(dvbdev->class_dev);
-
- sprintf(name,"%s%d", dnames[dvbdev->type], dvbdev->adapter->num);
-
- class_dev->class = &dvb_class;
- class_dev->class_data = dvbdev;
- strcpy(class_dev->class_id, name);
-
- kobject_init(&class_dev->kobj);
- strcpy(class_dev->kobj.name, name);
- class_dev->kobj.parent = &dvbdev->adapter->class_dev.kobj;
- class_dev->kobj.kset = dvbdev->adapter->class_dev.kobj.kset;
- class_dev->kobj.ktype = dvbdev->adapter->class_dev.kobj.ktype;
- class_dev->kobj.dentry = dvbdev->adapter->class_dev.kobj.dentry;
- kobject_register(&class_dev->kobj);
-
- for (i = 0; dvb_device_attrs[i]; i++)
-  class_device_create_file(class_dev, dvb_device_attrs[i]);
-
- printk("DVB: register device %s\n", name);
-}
-
-static void dvb_sysfs_unregister_device(struct dvb_device *dvbdev)
-{
- kobject_unregister(&dvbdev->class_dev.kobj);
-}
-
-static int dvb_sysfs_init(void)
-{
- printk("DVB: Using sysfs funtions2\n");
-
- if (class_register(&dvb_class) != 0) {
-  printk("DVB: adapter class failed to register properly");
-  return -1;
- }
-
- return 0;
-}
-
-static void dvb_sysfs_exit(void)
-{
- class_unregister(&dvb_class);
-}
-
-struct dvb_registrar_s dvb_sysfs_registrar =
-{
- .register_adapter = &dvb_sysfs_register_adapter,
- .unregister_adapter = &dvb_sysfs_unregister_adapter,
- .register_device = &dvb_sysfs_register_device,
- .unregister_device = &dvb_sysfs_unregister_device,
- .dvbdev_init  = &dvb_sysfs_init,
- .dvbdev_exit  = &dvb_sysfs_exit,
-};
-
-
-So.. how are the functions called?
-
-register_adapter -> /sys/class/adapter0
-
-register_devices -> /sys/class/adapter0/DEVICENAME(ID)
-
-But why can't i access the devices?
-
-I hope you got enough infos about my programming problem, and maybe somebody
-can help me out.
-
-Greets, Christian
-
-
+--TOkWJigZa0YodlBE--

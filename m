@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129115AbRBLJtl>; Mon, 12 Feb 2001 04:49:41 -0500
+	id <S129230AbRBLJtl>; Mon, 12 Feb 2001 04:49:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129230AbRBLJtc>; Mon, 12 Feb 2001 04:49:32 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62224 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129115AbRBLJtY>; Mon, 12 Feb 2001 04:49:24 -0500
-Subject: Re: [OT] Major Clock Drift
-To: andrewm@uow.edu.au (Andrew Morton)
-Date: Mon, 12 Feb 2001 09:48:47 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), pavel@suse.cz (Pavel Machek),
-        teastep@seattlefirewall.dyndns.org (Tom Eastep),
-        fd0man@crosswinds.net (Michael B. Trausch),
-        jbm@joshisanerd.com (Josh Myer), linux-kernel@vger.kernel.org
-In-Reply-To: <3A871252.45974FFF@uow.edu.au> from "Andrew Morton" at Feb 11, 2001 10:29:38 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129261AbRBLJtc>; Mon, 12 Feb 2001 04:49:32 -0500
+Received: from ns.suse.de ([213.95.15.193]:16648 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129230AbRBLJtY>;
+	Mon, 12 Feb 2001 04:49:24 -0500
+To: Rogerio Brito <rbrito@iname.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+In-Reply-To: <E14S01O-0004Su-00@the-village.bc.nu> <oupvgqhkn8f.fsf@pigdrop.muc.suse.de> <20010212001757.C4457@iname.com>
+From: Andi Kleen <ak@suse.de>
+Date: 12 Feb 2001 10:49:17 +0100
+In-Reply-To: Rogerio Brito's message of "12 Feb 2001 03:23:14 +0100"
+Message-ID: <oupr914kz8i.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14SFbG-0006WR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Why are interrupts being disabled for vesafb scrolling anyway ?
+Rogerio Brito <rbrito@iname.com> writes:
+
+> On Feb 11 2001, Andi Kleen wrote:
+> > The reiserfs nfs problem in standard 2.4 is very simple -- it'll
+> > barf as soon as you run out of file handle/inode cache. Any workload
+> > that accesses enough files in parallel can trigger it.
 > 
-> Console writes happen under spin_lock_irq(console_lock).
-> 
-> The only reason for this which I can see: the kernel
-> can call printk() from interrupt context.
+> 	I'm just trying to evaluate if I should use reiserfs here or
+> 	not: is this phenomenon that you describe above happening
+> 	independently of whether I choose the knfsd or userspace nfsd?
 
-We certainly need to be able to call printk from interrupt context so that
-bit is in itself reasonable, but not the cost.
+This should be all covered extensively in the reiserfs FAQ and list archives, 
+here a last time:
 
-Suppose vesafb did something like this, dropping the printk lock
+It only applies to knfsd, but unfsd unfortunately has different problems
+with reiserfs. It makes assumptions about the inode space by the underlying
+filesystem by assuming that it can encode a dev_t in upper bits. Reiserfs
+unlike ext2 periodically cycles through the full 31bit of inode values, and
+after some weeks on a busy file system unfsd starts to complain about 
+conflicts. There is a patch at ftp.suse.com:/pub/people/ak/nfs/unfsd*
+that works around the problem when you specify --no-cross-mounts (but 
+you cannot export trees of multiple file systems then with a single mount
+anymore) 
 
-	if(test_and_set_bit(0, &vesafb_lock))
-	{
-		if(in_interrupt())
-		{
-			// remember which bit of the dmesg ring to queue
-			queued_writes=1;
-			return;
-		}
-	}
-	/* for the re-entry case this will block */
-	down(&vesafb_mutex);
-again:
-	do the usual stuff 
-	if(queued_writes)
-	{
-		dequeue_write_buffer();
-		goto again;
-	}
-	up(&vesafb_mutex);
-	clear_bit(0, &vesafb_lock);
+Please also note that the patch also adds a rather obscure bug, which triggers
+very seldom (patch partly exists, but not really tested yet)
+
+Another alternative is to use knfsd with Chris Mason's 2.4 knfsd patches.
 
 
-	
+-Andi
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

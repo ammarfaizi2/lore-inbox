@@ -1,80 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268261AbRGWPS7>; Mon, 23 Jul 2001 11:18:59 -0400
+	id <S268264AbRGWPYl>; Mon, 23 Jul 2001 11:24:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268262AbRGWPSs>; Mon, 23 Jul 2001 11:18:48 -0400
-Received: from datpx.datinfor.pt ([194.38.135.2]:55825 "EHLO datpx.datinfor.pt")
-	by vger.kernel.org with ESMTP id <S268261AbRGWPSh> convert rfc822-to-8bit;
-	Mon, 23 Jul 2001 11:18:37 -0400
-Message-ID: <5D478FF55EA3D311ACBF00062938832FFE51@DATPT01>
-From: Jaime Alexandre Bastos <JaimeAlex@DATINFOR.pt>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RedHat 7.1 - Network messages
-Date: Mon, 23 Jul 2001 15:57:37 +0100
+	id <S268266AbRGWPYb>; Mon, 23 Jul 2001 11:24:31 -0400
+Received: from woodynet.siscom.net ([209.251.13.244]:45478 "EHLO hackswell.com")
+	by vger.kernel.org with ESMTP id <S268264AbRGWPYQ>;
+	Mon, 23 Jul 2001 11:24:16 -0400
+Date: Mon, 23 Jul 2001 11:24:30 -0400 (EDT)
+From: Sir Woody Hackswell <woody@hackswell.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Athlon and 2.4.x not booting
+Message-ID: <Pine.LNX.4.33.0107231120001.8449-100000@hackswell.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-hi guys
-I have got a Pentium Celeron, 64Mb RAM, IDE Disk, 2 D-LINK FX-530 PCI
-Network´s installed with Linux RedHat 7.1 working as a firewall.
-I made a new kernel, and now I usually get some messages from the kernel
-which repeats a lot of times while the system is working.
-The messages are:
+Hello, all!
 
-Jul 23 09:14:13 datdnn kernel: eth0: Oversized Ethernet frame spanned
-multiple buffers, entry 0xe length 0 status 00000600!
-Jul 23 09:14:13 datdnn kernel: eth0: Oversized Ethernet frame c37740e0 vs
-c37740e0.
-Jul 23 09:14:13 datdnn kernel: eth1: Oversized Ethernet frame spanned
-multiple buffers, entry 0x2 length 0 status 00000600!
-Jul 23 09:14:13 datdnn kernel: eth1: Oversized Ethernet frame c382c020 vs
-c382c020.
+I have RedHat7.1, and an athlon 1.0GHz on an ASUS with ALi chipset (ASUS
+A7A266 DDR), and I've been having problems getting my kernel configured
+properly.  I've tried using the gcc 2.96 that comes with RH7.1 and also some
+rpms of gcc 3.0 to no success.
 
-Jul 23 11:10:24 datdnn kernel: NET: 9 messages suppressed.
-Jul 23 11:10:24 datdnn kernel: NET: 13 messages suppressed.
+If I compile 2.4.x as a K6-III, my machine will boot fine, but when I try to
+optimize the kernel and compile it as Athlon, I compile fine with no
+warnings, but when I install the kernel and boot, I decompresses the kernel
+and hangs. No errors, no crash dump - nothing.
 
-Jul 19 11:17:09 datdnn kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jul 19 11:17:09 datdnn kernel: eth1: Transmit timed out, status 0000, PHY
-status 782d, resetting...
-Jul 19 11:17:30 datdnn kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Jul 19 11:17:30 datdnn kernel: eth0: Transmit timed out, status 0000, PHY
-status 782d, resetting...
-Jul 19 11:17:34 datdnn kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Jul 19 11:17:34 datdnn kernel: eth0: Transmit timed out, status 0000, PHY
-status 782d, resetting...
-Jul 19 11:17:37 datdnn kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jul 19 11:17:37 datdnn kernel: eth1: Transmit timed out, status 0000, PHY
-status 782d, resetting...
-Jul 19 11:17:40 datdnn kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Jul 19 11:17:40 datdnn kernel: eth0: Transmit timed out, status 0000, PHY
-status 782d, resetting...
-Jul 19 11:17:49 datdnn kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jul 19 11:17:49 datdnn kernel: eth1: Transmit timed out, status 0000, PHY
-status 782d, resetting...
-Jul 19 11:20:32 datdnn kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Jul 19 11:20:32 datdnn kernel: eth0: Transmit timed out, status 0000, PHY
-status 782d, resetting...
+Is there a problem with my hardware?  Or is this a known problem?  Any way
+to turn on more debugging?  Thanks!
 
-Please, I would like to know if this messages means everything bad in terms
-of fine function of the system and if so, what I should do to resolve the
-problem.
-I have the idea that specially when the last messages appear the system lose
-communication. 
-Sometimes I have to power off the system to get it fine again.
+-Woody!
 
-Thanks for you possible help.
 
-My best Regards
+-----
+There is no OS but Linux,
+and Torvalds is its prophet.
+(Peace be upon His soul)
 
-Jaime Alexandre
-Datinfor - Informática Serviços e Estudos, Lda 
-Tel.  351-226051700   Fax . 351-226051710
-Address Mail.  JaimeAlex@datinfor.pt
-
+Sir.Woody@Hackswell.com       http://sir.woody.hackswell.com
 

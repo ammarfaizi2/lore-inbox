@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313639AbSEARGS>; Wed, 1 May 2002 13:06:18 -0400
+	id <S313660AbSEARQ1>; Wed, 1 May 2002 13:16:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313660AbSEARGR>; Wed, 1 May 2002 13:06:17 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:1152 "HELO gherkin.frus.com")
-	by vger.kernel.org with SMTP id <S313639AbSEARGQ>;
-	Wed, 1 May 2002 13:06:16 -0400
-Message-Id: <m172xYI-0005khC@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob_Tracy)
-Subject: Re: SEVERE Problems in 2.5.12 at uid0 access
-In-Reply-To: <5.1.0.14.2.20020501130602.00cabaf0@192.168.2.131>
- "from system_lists@nullzone.org at May 1, 2002 01:14:25 pm"
-To: system_lists@nullzone.org
-Date: Wed, 1 May 2002 12:06:02 -0500 (CDT)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	id <S313690AbSEARQ0>; Wed, 1 May 2002 13:16:26 -0400
+Received: from [212.18.235.99] ([212.18.235.99]:13583 "EHLO street-vision.com")
+	by vger.kernel.org with ESMTP id <S313660AbSEARQ0>;
+	Wed, 1 May 2002 13:16:26 -0400
+From: Justin Cormack <kernel@street-vision.com>
+Message-Id: <200205011716.g41HGNS24162@street-vision.com>
+Subject: Re: raid1 performance
+To: kentborg@borg.org (Kent Borg)
+Date: Wed, 1 May 2002 18:16:22 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020501130127.A10936@borg.org> from "Kent Borg" at May 01, 2002 01:01:27 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-system_lists@nullzone.org wrote:
-> server01:/var/log# ls -laF
-> <snip>
-> drwxr-s---    2 mail     adm           104 Mar 12 23:29 exim/
-> <snip>
+
+> Lemme see if I am getting closer.  
 > 
-> server01:/var/log# ls -laF exim
-> ls: exim/.: Permission denied
-> ls: exim/..: Permission denied
-> ls: exim/rejectlog: Permission denied
-> ls: exim/mainlog: Permission denied
-> total 0
-> server01:/var/log# whoami
-> root
-> server01:/var/log# id
-> uid=0(root) gid=0(root) groups=0(root)
-> server01:/var/log#
+> When reading the disk there will be head seeks necessary.  When there
+> are two disks, each with its own complete copy of all the data, there
+> is no reason to keep the two disks' heads in the same place.  If their
+> heads are in different places, a read can be issued to the disk whose
+> heads are closer to the desired location.
 
-Confirmed on a 2.5.11 system as well.  Talk about your basic heart
-attack!  I'd just installed Postfix and found that I couldn't access
-any of the directories under /var/spool/postfix.  Fortunately (?),
-I've got older kernels to fall back on, and that's one of the hazards
-of running on the bleeding edge I reckon.
+yes. Look at raid1.c: the code is quite clear. Older versions didnt.
 
-Oh yeah...  ext2 filesystem.  I think this bug is at least mostly
-independent of the filesystem type.
+> This then brings up two more questions:
+> 
+>   1. Does the OS even know where the heads are in a modern IDE disk?
 
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+Not really. But there is probably a vague correspondence. Especially if
+you havent remapped any bad sectors.
+
+>   2. Is "closer" any more finely grained than a binary
+>      positioned/not-positioned?
+
+I think so. You can see different performance regions on disks (ie they
+are faster on the outside for example). You could of course write a program
+to test seek times from different areas and build up a real locality map.
+It might not be worth it though.
+
+> And I guess another question: How much does RAID 1 help and under what
+> kinds of usage?
+
+the latency is noticeably less in some cases, as the seeks should be smaller
+on average. I have found this useful sometimes.
+
+Justin

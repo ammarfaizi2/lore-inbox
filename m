@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbUB2Rc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 12:32:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbUB2Rc7
+	id S262094AbUB2RwL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 12:52:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbUB2RwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 12:32:59 -0500
-Received: from main.gmane.org ([80.91.224.249]:12980 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262085AbUB2RcZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 12:32:25 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Dropping CONFIG_PM_DISK?
-Date: Sun, 29 Feb 2004 18:32:21 +0100
-Message-ID: <yw1x4qt93i6y.fsf@kth.se>
-References: <1ulUA-33w-3@gated-at.bofh.it> <20040229161721.GA16688@hell.org.pl>
- <20040229162317.GC283@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sun, 29 Feb 2004 12:52:11 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:38068 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S262094AbUB2RwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 12:52:09 -0500
+Date: Mon, 01 Mar 2004 01:51:53 +0800
+From: "Michael Frank" <mhf@linuxmail.org>
+To: "Guennadi Liakhovetski" <g.liakhovetski@gmx.de>,
+       =?utf-8?Q?M=C3=A5ns_Rullg=C3=A5rd?= <mru@kth.se>
+Subject: Re: [OT] Copyright infringement by Walmart?
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0402291814100.1976-100000@poirot.grange>
+Content-Type: text/plain; format=flowed; delsp=yes; charset=utf-8
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ti211310a080-4136.bb.online.no
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:MS5LE5xwK87fk1D3hnbdbotrpnA=
+Message-ID: <opr347wrva4evsfm@smtp.pacific.net.th>
+In-Reply-To: <Pine.LNX.4.44.0402291814100.1976-100000@poirot.grange>
+User-Agent: Opera M2/7.50 (Linux, build 600)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> writes:
+On Sun, 29 Feb 2004 18:23:23 +0100 (CET), Guennadi Liakhovetski <g.liakhovetski@gmx.de> wrote:
 
-> Hi!
+> On Sun, 29 Feb 2004, [iso-8859-1] MÐ•ns RullgÐ•rd wrote:
+>> This web page has a list of non-OS Unixes:
+>> http://cm.bell-labs.com/cm/cs/who/dmr/otherunix.html
 >
->> > Would there be any major screaming if I tried to drop CONFIG_PM_DISK?
->> > It seems noone is maintaining it, equivalent functionality is provided
->> > by swsusp, and it is confusing users...
->> 
->> It may be ugly, it may be unmaintained, but I get the impression that it
->> works for some people for whom swsusp doesn't. So unless swsusp works for
->> everyone or Nigel's swsusp2 is merged, I'd suggest leaving that in.
+> Thanks for all clarifications. I knew I was absolutely incompetent in all
+> legal issues, I even confused "copyright" with "trademark"!:-) But that's
+> interesting information, that trademarks can be registered only in a
+> specific area. So, anybody could produce, say, toilet paper and call it,
+> for example, "Microsoft"?:-) Or is this a globally registered trademark?
+> No. I don't really want to know the answer.
 >
-> Do you have example when pmdisk works and swsusp does not? I'm not
-> aware of any in recent history...
+> Anyway, I'll keep the ad:-)
+>
 
-For me, none of them (pmdisk, swsusp and swsusp2) work.  I did manage
-to get pmdisk to resume once, and swsusp2 makes it half-way through
-the resume.  The old swsusp doesn't even get that far.
+Thanks anyway and the above link is cute too :)
 
--- 
-Måns Rullgård
-mru@kth.se
-
+Regards
+Michael

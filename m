@@ -1,33 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275014AbRJAMyd>; Mon, 1 Oct 2001 08:54:33 -0400
+	id <S275032AbRJANAd>; Mon, 1 Oct 2001 09:00:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275017AbRJAMyX>; Mon, 1 Oct 2001 08:54:23 -0400
-Received: from sushi.toad.net ([162.33.130.105]:17812 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S275014AbRJAMyJ>;
-	Mon, 1 Oct 2001 08:54:09 -0400
-Subject: Re: [PATCH] PnPBIOS 2.4.9-ac1[56] Vaio fix
-To: linux-kernel@vger.kernel.org
-Date: Mon, 1 Oct 2001 08:54:01 -0400 (EDT)
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+	id <S275021AbRJANAY>; Mon, 1 Oct 2001 09:00:24 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:32273 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S275020AbRJANAQ>; Mon, 1 Oct 2001 09:00:16 -0400
+Date: Mon, 1 Oct 2001 08:37:26 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Rob Fuller <rfuller@nsisoftware.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: broken VM in 2.4.10-pre9
+In-Reply-To: <20010927014431.C2164@bug.ucw.cz>
+Message-ID: <Pine.LNX.4.21.0110010835500.4491-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20011001125401.9684B8BF@thanatos.toad.net>
-From: jdthood@home.dhs.org (Thomas Hood)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian: Okay, thanks for testing it.
 
-Stelian and others:  So the fix works using is_sony_vaio_laptop
-to set the pnp_bios_dont_use_current_config flag.  (Alan can
-shorten this name if he wants ;)  The is_sony_vaio_laptop
-flag is only found in the i386 and x86_64 arches.  Is the
-pnpbios driver used on other arches?  If so then we'll have
-to provide the flag in those arches or pnpbios won't link.
-Alan?
 
-Thomas
--- 
-(Don't reply to the From: address but to jdthood_AT_yahoo.co.uk)
+On Thu, 27 Sep 2001, Pavel Machek wrote:
+
+> Hi!
+> 
+> > > > > So my suggestion was to look at getting anonymous pages backed by what
+> > > > > amounts to a shared memory segment.  In that vein.  By using an extent
+> > > > > based data structure we can get the cost down under the current 8 bits
+> > > > > per page that we have for the swap counts, and make allocating swap
+> > > > > pages faster.  And we want to cluster related swap pages anyway so
+> > > > > an extent based system is a natural fit.
+> > > >
+> > > > Much of this goes away if you get rid of both the swap and anonymous page
+> > > > special cases. Back anonymous pages with the "whoops everything I write here
+> > > > vanishes mysteriously" file system and swap with a swapfs
+> > >
+> > > What exactly is anonymous memory? I thought it is what you do when you
+> > > want to malloc(), but you want to back that up by swap, not /dev/null.
+> >
+> > Anonymous memory is memory which is not backed by a filesystem or a
+> > device. eg: malloc()ed memory, shmem, mmap(MAP_PRIVATE) on a file (which
+> > will create anonymous memory as soon as the program which did the mmap
+> > writes to the mapped memory (COW)), etc.
+> 
+> So... how can alan propose to back anonymous memory with /dev/null?
+
+I guess he means anonymous memory backed up by /dev/null means anonymous
+memory backep up by nothing.
+
+> [see above] It should be backed by swap, no?
+
+Not necessarily. As soon as we need to swapout anon memory, we have to
+back it up by swap. (mm/vmscan.c:try_to_swap_out() job)
+

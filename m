@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269379AbUJLAPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269392AbUJLASv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269379AbUJLAPl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 20:15:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269381AbUJLAPl
+	id S269392AbUJLASv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 20:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269377AbUJLARR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 20:15:41 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:43154 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269379AbUJLAPi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 20:15:38 -0400
-Message-ID: <35fb2e5904101117156b033f6b@mail.gmail.com>
-Date: Tue, 12 Oct 2004 01:15:34 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Subject: Re: how do you call userspace syscalls (e.g. sys_rename) from inside kernel
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041008130442.GE5551@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041008130442.GE5551@lkcl.net>
+	Mon, 11 Oct 2004 20:17:17 -0400
+Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:10627
+	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
+	id S269380AbUJLAQ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 20:16:56 -0400
+Subject: [patch 4/6] uml: don't declare cpu_online - fix compilation error
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
+From: blaisorblade_spam@yahoo.it
+Date: Tue, 12 Oct 2004 02:16:31 +0200
+Message-Id: <20041012001631.60C75868F@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Oct 2004 14:04:42 +0100, Luke Kenneth Casson Leighton
-<lkcl@lkcl.net> wrote:
-> could someone kindly advise me on the location of some example code in
-> the kernel which calls one of the userspace system calls from inside the
-> kernel?
 
-Hi Luke,
+Avoid redeclaring again (resulting in a compilation error) cpu_online and
+cpu_*_map, which are now declared elsewhere.
 
-I enjoyed your recent talk at OxLUG in which you mentioned this
-briefly. Could you please send me the source that you are working on
-so that I can take a look and make suggestions if tha'ts useful - I
-posted to the OxLUG list but you're not actually on it and although I
-now have your address from someone, this post reminded me.
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
 
-I've copied lkml for two reasons - a). Someone else might want to take
-a look. b). I sat and talked with Luke for a while about this, he's
-not a typical "I want to do stuff in the kernel I should be doing from
-userspace" kind of person in my opinion (there might still be a better
-way but until I see more what he's actually doing then I can't work
-out what).
+ linux-2.6.9-current-paolo/include/asm-um/smp.h |    6 ------
+ 1 files changed, 6 deletions(-)
 
-Jon.
+diff -puN include/asm-um/smp.h~uml-no-decl-cpu_online include/asm-um/smp.h
+--- linux-2.6.9-current/include/asm-um/smp.h~uml-no-decl-cpu_online	2004-10-12 01:18:02.531646720 +0200
++++ linux-2.6.9-current-paolo/include/asm-um/smp.h	2004-10-12 01:18:02.533646416 +0200
+@@ -8,10 +8,6 @@
+ #include "asm/current.h"
+ #include "linux/cpumask.h"
+ 
+-extern cpumask_t cpu_online_map;
+-extern cpumask_t cpu_possible_map;
+-
+-
+ #define smp_processor_id() (current_thread->cpu)
+ #define cpu_logical_map(n) (n)
+ #define cpu_number_map(n) (n)
+@@ -19,8 +15,6 @@ extern cpumask_t cpu_possible_map;
+ extern int hard_smp_processor_id(void);
+ #define NO_PROC_ID -1
+ 
+-#define cpu_online(cpu) cpu_isset(cpu, cpu_online_map)
+-
+ extern int ncpus;
+ 
+ 
+_

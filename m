@@ -1,831 +1,597 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129170AbRBVAbq>; Wed, 21 Feb 2001 19:31:46 -0500
+	id <S129756AbRBVAg1>; Wed, 21 Feb 2001 19:36:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129785AbRBVAbh>; Wed, 21 Feb 2001 19:31:37 -0500
-Received: from munch-it.turbolinux.com ([38.170.88.129]:23543 "EHLO
-	mail.us.tlan") by vger.kernel.org with ESMTP id <S129170AbRBVAba>;
-	Wed, 21 Feb 2001 19:31:30 -0500
-Date: Wed, 21 Feb 2001 16:35:14 -0800
-From: Prasanna P Subash <psubash@turbolinux.com>
+	id <S129785AbRBVAgS>; Wed, 21 Feb 2001 19:36:18 -0500
+Received: from smtp.bellnexxia.net ([209.226.175.26]:5054 "EHLO
+	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S129756AbRBVAgD>; Wed, 21 Feb 2001 19:36:03 -0500
+From: Ed Tomlinson <tomlins@cam.org>
+Subject: Re: [rfc] Near-constant time directory index for Ext2
 To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: ext2 superblock issue on 2.4.1-ac20
-Message-ID: <20010221163514.A671@turbolinux.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
+Date: Wed, 21 Feb 2001 19:35:40 -0500
+In-Reply-To: <E14VNAU-00014j-00@the-village.bc.nu> <20010221023515.6DF8E18C99@oscar.casa.dyndns.org> <971i36$180$1@penguin.transmeta.com>
+Organization: me
+User-Agent: KNode/0.4beta4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <20010222003540.C51A518608@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@transmeta.com> wrote:
+>
+> Ed Tomlinson  <tomlins@cam.org> wrote:
+> >The default in reiserfs is now the R5 hash, but you are right that lots of
+> > efforts went into finding this hash.  This includes testing various
+> > hashes on real directory structures to see which one worked best.  R5
+> > won.
+>
+> That's interesting.  The R5 hash is easily also the only one of the
+> reiser hashes that might be useable for the generic VFS hashing.  It's
+> not so different in spirit from the current one, and if you've done the
+> work to test it, it's bound to be a lot better.
+
+It was not me personally.   I just remembered the thread (from june 2000) on 
+the reiserfs list...  I have summerized the results for you below.
+
+For the program see: http://www.jedi.claranet.fr/hash_torture.tar.gz
+
+Ed 
+
+PS.  I am still seeing hangs with (2.4.2pre2 then I switched to ac7 or so and 
+have had hangs with all pre and ac(s) tried and that is most of them)  ac20 
+plus the latest reiserfs fixes has stayed up 8 hours so far - it can take two 
+or three days  to trigger the hang though.  When it hangs it really dead,  a 
+UPS connected via a serial port cannot shut it down.   pings to the box fail. 
+A+SysRQ is dead, and the software watchdog does not trigger a reboot.  
+ideas?
+
+> (The current VFS name hash is probably _really_ stupid - I think it's
+> still my original one, and nobody probably ever even tried to run it
+> through any testing.  For example, I bet that using a shift factor of 4
+> is really bad, because it evenly divides a byte, which together with the
+> xor means that you can really easily generate trivial bad cases).
+>
+> What did you use for a test-case? Real-life directory contents? Did you
+> do any worst-case analysis too?
+>
+>                Linus
+
+
+some test results from june 2000 with Hans's summary first.
+---------------------------------------------------------------
+(reiserfs) Re: r5 hash
+From: Hans Reiser <hans@reiser.to>
+To: "Yury Yu. Rupasov" <yura@yura.polnet.botik.ru>
+Cc: Jedi/Sector One <j@4u.net>, Petru Paler <ppetru@coltronix.com>, 
+"reiserfs@devlinux.com" <reiserfs@devlinux.com>, Yury Shevchuk 
+<sizif@botik.ru>
+
+
+Ok, based on this benchmark let's put rupasov5 in, and warn users who choose 
+the
+currently used rupasov1 hash that rupasov5 has obsoleted it.  Do this in both
+3.6 and 3.5, and fix the the delimiting key check in 3.5 REISERFS_CHECK bug at
+the same time.  Cut the patch, start testing, and see if you can release by
+Monday.  Make rupasov5 the default.  sizif, review the documentation he 
+creates
+for users.
+
+Jedi, if you disagree with the benchmarks let me know.  You might try
+concatenating two filenames together instead of adding a digit to them, or
+running find on a really large FS, to improve these tests.  Thanks for helping
+us with analyzing the different hash methods available Jedi.
+
+Hans
+
+---------------------------------------------------------------
+(reiserfs) Re: r5 hash
+From: "Yury Yu. Rupasov" <yura@yura.polnet.botik.ru>
+To: Hans Reiser <hans@reiser.to>
+Cc: Jedi/Sector One <j@4u.net>, Petru Paler <ppetru@coltronix.com>, 
+"reiserfs@devlinux.com" <reiserfs@devlinux.com>, Yury Shevchuk 
+<sizif@botik.ru>
+
+
+Hans Reiser wrote:
+> 
+> What is the speed of the real filenames, not just the number of collisions.
+> 
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hello lkml,
-	I just oldconfiged linux kernel with my 2.4.1 .config. When I boot the new
-2.4.1-ac20 kernel, I get a message saying that my ext2 superblock is corrup=
-ted.
-I get a message asking me to run e2fsck -b 8193 <...hdd dev..>
-My 2.4.0-ac4 that I've been running for more than 2-3 weeks now has no prob=
-lems
-booting though.
-
-	What am I doing wrong ? I would be glad to give more info.
-
-Here is the ver_linux output of 2.4.0-ac24 kernel. Every thing but the kern=
-el must=20
-be same.
-
--- Versions installed: (if some fields are empty or look
--- unusual then possibly you have very old versions)
-Linux psubash.dev.us.tlan 2.4.0-ac4 #1 Tue Jan 9 12:01:27 PST 2001 i686 unk=
-nown
-Kernel modules         2.3.7
-Gnu C                  2.95.2
-Gnu Make               3.78.1
-Binutils               2.9.1.0.25
-Linux C Library        2.1.2
-Dynamic linker         ldd (GNU libc) 2.1.2
-Linux C++ Library      ..
-Procps                 2.0.6
-Mount                  2.10f
-Net-tools              1.53
-Kbd                    0.99
-Sh-utils               2.0
-Modules Loaded        =20
-
-
-Here is the .config of the 2.4.1-ac20 kernel.
-
-#
-# Automatically generated by make menuconfig: don't edit
-#
-CONFIG_X86=3Dy
-CONFIG_ISA=3Dy
-# CONFIG_SBUS is not set
-CONFIG_UID16=3Dy
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=3Dy
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=3Dy
-CONFIG_MODVERSIONS=3Dy
-CONFIG_KMOD=3Dy
-
-#
-# Processor type and features
-#
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-# CONFIG_M686 is not set
-CONFIG_MPENTIUMIII=3Dy
-# CONFIG_MPENTIUM4 is not set
-# CONFIG_MK6 is not set
-# CONFIG_MK7 is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-CONFIG_X86_WP_WORKS_OK=3Dy
-CONFIG_X86_INVLPG=3Dy
-CONFIG_X86_CMPXCHG=3Dy
-CONFIG_X86_BSWAP=3Dy
-CONFIG_X86_POPAD_OK=3Dy
-CONFIG_X86_L1_CACHE_SHIFT=3D5
-CONFIG_X86_TSC=3Dy
-CONFIG_X86_GOOD_APIC=3Dy
-CONFIG_X86_PGE=3Dy
-CONFIG_X86_USE_PPRO_CHECKSUM=3Dy
-# CONFIG_TOSHIBA is not set
-# CONFIG_MICROCODE is not set
-# CONFIG_X86_MSR is not set
-# CONFIG_X86_CPUID is not set
-CONFIG_NOHIGHMEM=3Dy
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM64G is not set
-# CONFIG_MATH_EMULATION is not set
-CONFIG_MTRR=3Dy
-# CONFIG_SMP is not set
-# CONFIG_X86_UP_APIC is not set
-# CONFIG_X86_UP_IOAPIC is not set
-
-#
-# General setup
-#
-CONFIG_NET=3Dy
-# CONFIG_VISWS is not set
-CONFIG_PCI=3Dy
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=3Dy
-CONFIG_PCI_BIOS=3Dy
-CONFIG_PCI_DIRECT=3Dy
-CONFIG_PCI_NAMES=3Dy
-# CONFIG_EISA is not set
-# CONFIG_MCA is not set
-CONFIG_HOTPLUG=3Dy
-
-#
-# PCMCIA/CardBus support
-#
-CONFIG_PCMCIA=3Dy
-CONFIG_CARDBUS=3Dy
-# CONFIG_I82365 is not set
-# CONFIG_TCIC is not set
-CONFIG_SYSVIPC=3Dy
-# CONFIG_BSD_PROCESS_ACCT is not set
-CONFIG_SYSCTL=3Dy
-CONFIG_KCORE_ELF=3Dy
-# CONFIG_KCORE_AOUT is not set
-CONFIG_BINFMT_AOUT=3Dy
-CONFIG_BINFMT_ELF=3Dy
-CONFIG_BINFMT_MISC=3Dy
-CONFIG_PM=3Dy
-CONFIG_ACPI=3Dy
-# CONFIG_APM is not set
-
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-
-#
-# Parallel port support
-#
-# CONFIG_PARPORT is not set
-
-#
-# Plug and Play configuration
-#
-# CONFIG_PNP is not set
-# CONFIG_ISAPNP is not set
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=3Dy
-# CONFIG_BLK_DEV_XD is not set
-# CONFIG_PARIDE is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-CONFIG_BLK_DEV_LOOP=3Dy
-# CONFIG_BLK_DEV_NBD is not set
-# CONFIG_BLK_DEV_RAM is not set
-# CONFIG_BLK_DEV_INITRD is not set
-
-#
-# Multi-device support (RAID and LVM)
-#
-# CONFIG_MD is not set
-# CONFIG_BLK_DEV_MD is not set
-# CONFIG_MD_LINEAR is not set
-# CONFIG_MD_RAID0 is not set
-# CONFIG_MD_RAID1 is not set
-# CONFIG_MD_RAID5 is not set
-# CONFIG_BLK_DEV_LVM is not set
-
-#
-# Networking options
-#
-CONFIG_PACKET=3Dy
-CONFIG_PACKET_MMAP=3Dy
-CONFIG_NETLINK=3Dy
-CONFIG_RTNETLINK=3Dy
-CONFIG_NETLINK_DEV=3Dy
-CONFIG_NETFILTER=3Dy
-CONFIG_NETFILTER_DEBUG=3Dy
-CONFIG_FILTER=3Dy
-CONFIG_UNIX=3Dy
-CONFIG_INET=3Dy
-CONFIG_IP_MULTICAST=3Dy
-# CONFIG_IP_ADVANCED_ROUTER is not set
-# CONFIG_IP_PNP is not set
-# CONFIG_NET_IPIP is not set
-# CONFIG_NET_IPGRE is not set
-# CONFIG_IP_MROUTE is not set
-# CONFIG_ARPD is not set
-# CONFIG_INET_ECN is not set
-# CONFIG_SYN_COOKIES is not set
-
-#
-#   IP: Netfilter Configuration
-#
-CONFIG_IP_NF_CONNTRACK=3Dy
-CONFIG_IP_NF_FTP=3Dy
-CONFIG_IP_NF_QUEUE=3Dy
-CONFIG_IP_NF_IPTABLES=3Dy
-CONFIG_IP_NF_MATCH_LIMIT=3Dy
-CONFIG_IP_NF_MATCH_MAC=3Dy
-CONFIG_IP_NF_MATCH_MARK=3Dy
-CONFIG_IP_NF_MATCH_MULTIPORT=3Dy
-CONFIG_IP_NF_MATCH_TOS=3Dy
-# CONFIG_IP_NF_MATCH_TCPMSS is not set
-CONFIG_IP_NF_MATCH_STATE=3Dy
-CONFIG_IP_NF_MATCH_UNCLEAN=3Dy
-CONFIG_IP_NF_MATCH_OWNER=3Dy
-CONFIG_IP_NF_FILTER=3Dy
-CONFIG_IP_NF_TARGET_REJECT=3Dy
-CONFIG_IP_NF_TARGET_MIRROR=3Dy
-CONFIG_IP_NF_NAT=3Dy
-CONFIG_IP_NF_NAT_NEEDED=3Dy
-CONFIG_IP_NF_TARGET_MASQUERADE=3Dy
-CONFIG_IP_NF_TARGET_REDIRECT=3Dy
-CONFIG_IP_NF_NAT_FTP=3Dy
-CONFIG_IP_NF_MANGLE=3Dy
-CONFIG_IP_NF_TARGET_TOS=3Dy
-CONFIG_IP_NF_TARGET_MARK=3Dy
-CONFIG_IP_NF_TARGET_LOG=3Dy
-# CONFIG_IP_NF_TARGET_TCPMSS is not set
-# CONFIG_IPV6 is not set
-# CONFIG_KHTTPD is not set
-# CONFIG_ATM is not set
-# CONFIG_IPX is not set
-# CONFIG_ATALK is not set
-# CONFIG_DECNET is not set
-# CONFIG_BRIDGE is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_LLC is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-# CONFIG_NET_FASTROUTE is not set
-# CONFIG_NET_HW_FLOWCONTROL is not set
-
-#
-# QoS and/or fair queueing
-#
-# CONFIG_NET_SCHED is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-# CONFIG_PHONE_IXJ is not set
-
-#
-# ATA/IDE/MFM/RLL support
-#
-CONFIG_IDE=3Dy
-
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=3Dy
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=3Dy
-# CONFIG_IDEDISK_MULTI_MODE is not set
-# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
-# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
-# CONFIG_BLK_DEV_IDEDISK_IBM is not set
-# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
-# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
-# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
-# CONFIG_BLK_DEV_IDEDISK_WD is not set
-# CONFIG_BLK_DEV_COMMERIAL is not set
-# CONFIG_BLK_DEV_TIVO is not set
-# CONFIG_BLK_DEV_IDECS is not set
-CONFIG_BLK_DEV_IDECD=3Dy
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-# CONFIG_BLK_DEV_IDESCSI is not set
-CONFIG_BLK_DEV_CMD640=3Dy
-# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
-# CONFIG_BLK_DEV_ISAPNP is not set
-CONFIG_BLK_DEV_RZ1000=3Dy
-CONFIG_BLK_DEV_IDEPCI=3Dy
-CONFIG_IDEPCI_SHARE_IRQ=3Dy
-# CONFIG_BLK_DEV_IDEDMA_PCI is not set
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_IDEDMA_PCI_AUTO is not set
-# CONFIG_BLK_DEV_IDEDMA is not set
-# CONFIG_IDEDMA_PCI_WIP is not set
-# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_AEC62XX_TUNING is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_WDC_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD7409 is not set
-# CONFIG_AMD7409_OVERRIDE is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_HPT34X_AUTODMA is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_PIIX is not set
-# CONFIG_PIIX_TUNING is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC202XX is not set
-# CONFIG_PDC202XX_BURST is not set
-# CONFIG_BLK_DEV_OSB4 is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-# CONFIG_IDE_CHIPSETS is not set
-# CONFIG_IDEDMA_AUTO is not set
-# CONFIG_DMA_NONPCI is not set
-CONFIG_BLK_DEV_IDE_MODES=3Dy
-
-#
-# SCSI support
-#
-# CONFIG_SCSI is not set
-
-#
-# Fusion MPT device support
-#
-# CONFIG_FUSION is not set
-# CONFIG_FUSION_BOOT is not set
-# CONFIG_FUSION_ISENSE is not set
-# CONFIG_FUSION_CTL is not set
-# CONFIG_FUSION_LAN is not set
-
-#
-# IEEE 1394 (FireWire) support
-#
-# CONFIG_IEEE1394 is not set
-
-#
-# I2O device support
-#
-# CONFIG_I2O is not set
-# CONFIG_I2O_PCI is not set
-# CONFIG_I2O_BLOCK is not set
-# CONFIG_I2O_LAN is not set
-# CONFIG_I2O_SCSI is not set
-# CONFIG_I2O_PROC is not set
-
-#
-# Network device support
-#
-CONFIG_NETDEVICES=3Dy
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-CONFIG_DUMMY=3Dm
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-# CONFIG_TUN is not set
-# CONFIG_ETHERTAP is not set
-# CONFIG_NET_SB1000 is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=3Dy
-CONFIG_NET_VENDOR_3COM=3Dy
-# CONFIG_EL1 is not set
-# CONFIG_EL2 is not set
-# CONFIG_ELPLUS is not set
-# CONFIG_EL16 is not set
-CONFIG_EL3=3Dy
-# CONFIG_3C515 is not set
-# CONFIG_ELMC is not set
-# CONFIG_ELMC_II is not set
-CONFIG_VORTEX=3Dy
-# CONFIG_LANCE is not set
-# CONFIG_NET_VENDOR_SMC is not set
-# CONFIG_NET_VENDOR_RACAL is not set
-# CONFIG_AT1700 is not set
-# CONFIG_DEPCA is not set
-# CONFIG_HP100 is not set
-# CONFIG_NET_ISA is not set
-CONFIG_NET_PCI=3Dy
-# CONFIG_PCNET32 is not set
-# CONFIG_ADAPTEC_STARFIRE is not set
-# CONFIG_AC3200 is not set
-# CONFIG_APRICOT is not set
-# CONFIG_CS89x0 is not set
-# CONFIG_TULIP is not set
-# CONFIG_DE4X5 is not set
-# CONFIG_DGRS is not set
-# CONFIG_DM9102 is not set
-CONFIG_EEPRO100=3Dy
-# CONFIG_EEPRO100_PM is not set
-# CONFIG_LNE390 is not set
-# CONFIG_NATSEMI is not set
-# CONFIG_NE2K_PCI is not set
-# CONFIG_NE3210 is not set
-# CONFIG_ES3210 is not set
-# CONFIG_8139TOO is not set
-# CONFIG_SIS900 is not set
-# CONFIG_EPIC100 is not set
-# CONFIG_SUNDANCE is not set
-# CONFIG_TLAN is not set
-# CONFIG_VIA_RHINE is not set
-# CONFIG_WINBOND_840 is not set
-# CONFIG_HAPPYMEAL is not set
-# CONFIG_NET_POCKET is not set
-
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_SK98LIN is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-# CONFIG_PPP is not set
-# CONFIG_SLIP is not set
-
-#
-# Wireless LAN (non-hamradio)
-#
-# CONFIG_NET_RADIO is not set
-
-#
-# Token Ring devices
-#
-# CONFIG_TR is not set
-# CONFIG_NET_FC is not set
-# CONFIG_RCPCI is not set
-# CONFIG_SHAPER is not set
-
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-
-#
-# PCMCIA network device support
-#
-CONFIG_NET_PCMCIA=3Dy
-# CONFIG_PCMCIA_3C589 is not set
-# CONFIG_PCMCIA_3C574 is not set
-# CONFIG_PCMCIA_FMVJ18X is not set
-CONFIG_PCMCIA_PCNET=3Dy
-# CONFIG_PCMCIA_NMCLAN is not set
-# CONFIG_PCMCIA_SMC91C92 is not set
-# CONFIG_PCMCIA_XIRC2PS is not set
-# CONFIG_ARCNET_COM20020_CS is not set
-# CONFIG_PCMCIA_IBMTR is not set
-# CONFIG_PCMCIA_XIRTULIP is not set
-CONFIG_NET_PCMCIA_RADIO=3Dy
-CONFIG_PCMCIA_RAYCS=3Dy
-# CONFIG_PCMCIA_NETWAVE is not set
-# CONFIG_PCMCIA_WAVELAN is not set
-# CONFIG_AIRONET4500_CS is not set
-CONFIG_PCMCIA_NETCARD=3Dy
-
-#
-# Amateur Radio support
-#
-# CONFIG_HAMRADIO is not set
-
-#
-# IrDA (infrared) support
-#
-# CONFIG_IRDA is not set
-
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN is not set
-
-#
-# Old CD-ROM drivers (not SCSI, not IDE)
-#
-# CONFIG_CD_NO_IDESCSI is not set
-
-#
-# Input core support
-#
-CONFIG_INPUT=3Dy
-# CONFIG_INPUT_KEYBDEV is not set
-# CONFIG_INPUT_MOUSEDEV is not set
-# CONFIG_INPUT_JOYDEV is not set
-# CONFIG_INPUT_EVDEV is not set
-
-#
-# Character devices
-#
-CONFIG_VT=3Dy
-CONFIG_VT_CONSOLE=3Dy
-CONFIG_SERIAL=3Dy
-# CONFIG_SERIAL_CONSOLE is not set
-# CONFIG_SERIAL_EXTENDED is not set
-# CONFIG_SERIAL_NONSTANDARD is not set
-CONFIG_UNIX98_PTYS=3Dy
-CONFIG_UNIX98_PTY_COUNT=3D256
-
-#
-# I2C support
-#
-# CONFIG_I2C is not set
-
-#
-# Mice
-#
-# CONFIG_BUSMOUSE is not set
-CONFIG_MOUSE=3Dy
-CONFIG_PSMOUSE=3Dy
-# CONFIG_82C710_MOUSE is not set
-# CONFIG_PC110_PAD is not set
-
-#
-# Joysticks
-#
-# CONFIG_JOYSTICK is not set
-# CONFIG_QIC02_TAPE is not set
-
-#
-# Watchdog Cards
-#
-# CONFIG_WATCHDOG is not set
-# CONFIG_INTEL_RNG is not set
-# CONFIG_NVRAM is not set
-# CONFIG_RTC is not set
-# CONFIG_DTLK is not set
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_FTAPE is not set
-CONFIG_AGP=3Dy
-CONFIG_AGP_INTEL=3Dy
-# CONFIG_AGP_I810 is not set
-# CONFIG_AGP_VIA is not set
-# CONFIG_AGP_AMD is not set
-# CONFIG_AGP_SIS is not set
-# CONFIG_AGP_ALI is not set
-CONFIG_DRM=3Dy
-CONFIG_DRM_TDFX=3Dy
-# CONFIG_DRM_GAMMA is not set
-# CONFIG_DRM_R128 is not set
-# CONFIG_DRM_RADEON is not set
-# CONFIG_DRM_I810 is not set
-# CONFIG_DRM_MGA is not set
-CONFIG_PCMCIA_SERIAL=3Dy
-
-#
-# PCMCIA character device support
-#
-# CONFIG_PCMCIA_SERIAL_CS is not set
-# CONFIG_PCMCIA_SERIAL_CB is not set
-
-#
-# Multimedia devices
-#
-# CONFIG_VIDEO_DEV is not set
-
-#
-# File systems
-#
-# CONFIG_QUOTA is not set
-# CONFIG_AUTOFS_FS is not set
-CONFIG_AUTOFS4_FS=3Dy
-# CONFIG_REISERFS_FS is not set
-# CONFIG_REISERFS_CHECK is not set
-# CONFIG_ADFS_FS is not set
-# CONFIG_ADFS_FS_RW is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_BFS_FS is not set
-CONFIG_FAT_FS=3Dy
-CONFIG_MSDOS_FS=3Dy
-CONFIG_UMSDOS_FS=3Dy
-CONFIG_VFAT_FS=3Dy
-# CONFIG_EFS_FS is not set
-# CONFIG_JFFS_FS is not set
-# CONFIG_CRAMFS is not set
-# CONFIG_TMPFS is not set
-# CONFIG_RAMFS is not set
-CONFIG_ISO9660_FS=3Dy
-# CONFIG_JOLIET is not set
-# CONFIG_MINIX_FS is not set
-# CONFIG_NTFS_FS is not set
-# CONFIG_NTFS_RW is not set
-# CONFIG_HPFS_FS is not set
-CONFIG_PROC_FS=3Dy
-CONFIG_DEVFS_FS=3Dy
-CONFIG_DEVFS_MOUNT=3Dy
-CONFIG_DEVFS_DEBUG=3Dy
-CONFIG_DEVPTS_FS=3Dy
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_QNX4FS_RW is not set
-# CONFIG_ROMFS_FS is not set
-CONFIG_EXT2_FS=3Dy
-# CONFIG_SYSV_FS is not set
-# CONFIG_SYSV_FS_WRITE is not set
-# CONFIG_UDF_FS is not set
-# CONFIG_UDF_RW is not set
-# CONFIG_UFS_FS is not set
-# CONFIG_UFS_FS_WRITE is not set
-
-#
-# Network File Systems
-#
-# CONFIG_CODA_FS is not set
-CONFIG_NFS_FS=3Dy
-# CONFIG_NFS_V3 is not set
-# CONFIG_ROOT_NFS is not set
-CONFIG_NFSD=3Dy
-# CONFIG_NFSD_V3 is not set
-CONFIG_SUNRPC=3Dy
-CONFIG_LOCKD=3Dy
-CONFIG_SMB_FS=3Dy
-# CONFIG_SMB_NLS_DEFAULT is not set
-# CONFIG_NCP_FS is not set
-# CONFIG_NCPFS_PACKET_SIGNING is not set
-# CONFIG_NCPFS_IOCTL_LOCKING is not set
-# CONFIG_NCPFS_STRONG is not set
-# CONFIG_NCPFS_NFS_NS is not set
-# CONFIG_NCPFS_OS2_NS is not set
-# CONFIG_NCPFS_SMALLDOS is not set
-# CONFIG_NCPFS_NLS is not set
-# CONFIG_NCPFS_EXTRAS is not set
-
-#
-# Partition Types
-#
-# CONFIG_PARTITION_ADVANCED is not set
-CONFIG_MSDOS_PARTITION=3Dy
-CONFIG_SMB_NLS=3Dy
-CONFIG_NLS=3Dy
-
-#
-# Native Language Support
-#
-CONFIG_NLS_DEFAULT=3D"iso8859-1"
-# CONFIG_NLS_CODEPAGE_437 is not set
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-# CONFIG_NLS_CODEPAGE_850 is not set
-# CONFIG_NLS_CODEPAGE_852 is not set
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-# CONFIG_NLS_CODEPAGE_860 is not set
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-# CONFIG_NLS_ISO8859_1 is not set
-# CONFIG_NLS_ISO8859_2 is not set
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-# CONFIG_NLS_ISO8859_15 is not set
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_UTF8 is not set
-
-#
-# Console drivers
-#
-CONFIG_VGA_CONSOLE=3Dy
-CONFIG_VIDEO_SELECT=3Dy
-# CONFIG_MDA_CONSOLE is not set
-
-#
-# Frame-buffer support
-#
-CONFIG_FB=3Dy
-CONFIG_DUMMY_CONSOLE=3Dy
-# CONFIG_FB_RIVA is not set
-# CONFIG_FB_CLGEN is not set
-# CONFIG_FB_PM2 is not set
-# CONFIG_FB_CYBER2000 is not set
-# CONFIG_FB_VESA is not set
-# CONFIG_FB_VGA16 is not set
-# CONFIG_FB_HGA is not set
-CONFIG_VIDEO_SELECT=3Dy
-# CONFIG_FB_MATROX is not set
-# CONFIG_FB_ATY is not set
-# CONFIG_FB_ATY128 is not set
-CONFIG_FB_3DFX=3Dy
-# CONFIG_FB_SIS is not set
-# CONFIG_FB_VIRTUAL is not set
-# CONFIG_FBCON_ADVANCED is not set
-CONFIG_FBCON_CFB8=3Dy
-CONFIG_FBCON_CFB16=3Dy
-CONFIG_FBCON_CFB32=3Dy
-# CONFIG_FBCON_FONTWIDTH8_ONLY is not set
-# CONFIG_FBCON_FONTS is not set
-CONFIG_FONT_8x8=3Dy
-CONFIG_FONT_8x16=3Dy
-
-#
-# Sound
-#
-CONFIG_SOUND=3Dy
-# CONFIG_SOUND_CMPCI is not set
-CONFIG_SOUND_EMU10K1=3Dy
-# CONFIG_SOUND_FUSION is not set
-# CONFIG_SOUND_CS4281 is not set
-# CONFIG_SOUND_ES1370 is not set
-# CONFIG_SOUND_ES1371 is not set
-# CONFIG_SOUND_ESSSOLO1 is not set
-# CONFIG_SOUND_MAESTRO is not set
-# CONFIG_SOUND_MAESTRO3 is not set
-# CONFIG_SOUND_ICH is not set
-# CONFIG_SOUND_SONICVIBES is not set
-# CONFIG_SOUND_TRIDENT is not set
-# CONFIG_SOUND_MSNDCLAS is not set
-# CONFIG_SOUND_MSNDPIN is not set
-# CONFIG_SOUND_VIA82CXXX is not set
-# CONFIG_SOUND_OSS is not set
-# CONFIG_SOUND_TVMIXER is not set
-
-#
-# USB support
-#
-CONFIG_USB=3Dy
-# CONFIG_USB_DEBUG is not set
-# CONFIG_USB_DEVICEFS is not set
-# CONFIG_USB_BANDWIDTH is not set
-CONFIG_USB_UHCI_ALT=3Dy
-# CONFIG_USB_OHCI is not set
-# CONFIG_USB_AUDIO is not set
-# CONFIG_USB_BLUETOOTH is not set
-# CONFIG_USB_STORAGE is not set
-# CONFIG_USB_ACM is not set
-# CONFIG_USB_PRINTER is not set
-# CONFIG_USB_HID is not set
-# CONFIG_USB_KBD is not set
-# CONFIG_USB_MOUSE is not set
-# CONFIG_USB_WACOM is not set
-# CONFIG_USB_DC2XX is not set
-# CONFIG_USB_MDC800 is not set
-# CONFIG_USB_SCANNER is not set
-# CONFIG_USB_MICROTEK is not set
-# CONFIG_USB_HP5300 is not set
-# CONFIG_USB_IBMCAM is not set
-# CONFIG_USB_OV511 is not set
-# CONFIG_USB_DSBR is not set
-# CONFIG_USB_DABUSB is not set
-# CONFIG_USB_PLUSB is not set
-# CONFIG_USB_PEGASUS is not set
-# CONFIG_USB_KAWETH is not set
-# CONFIG_USB_USBNET is not set
-# CONFIG_USB_USS720 is not set
-
-#
-# USB Serial Converter support
-#
-# CONFIG_USB_SERIAL is not set
-# CONFIG_USB_RIO500 is not set
-
-#
-# Kernel hacking
-#
-CONFIG_MAGIC_SYSRQ=3Dy
-
-
---=20
-Prasanna Subash   ---   psubash@turbolinux.com   ---     TurboLinux, INC
-------------------------------------------------------------------------
-Linux, the choice          | "Mind if I smoke?"  "Yes, I'd like to see
-of a GNU generation   -o)  | that, does it come out of your ears or
-Kernel 2.4.0-ac4      /\\  | what?"=20
-on a i686            _\\_v |=20
-                           |=20
-------------------------------------------------------------------------
-
---LZvS9be/3tNcYl/X
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.2 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6lF7C5UrYeFg/7bURArYuAJ9v8V97opJoFerrwFcyyIzOPoIljwCfR7ri
-FrtXAk7oasrgIZj5hnyFhCs=
-=Dv/z
------END PGP SIGNATURE-----
-
---LZvS9be/3tNcYl/X--
+
+
+Ok, here is the results for real names :
+# find / -type d -exec ls {} \; | sort | uniq > allfiles.txt
+
+# wc -l allfiles.txt
+161101 allfiles.txt
+
+Collisions for 161 101 names:
+
+tea_hash  : 784 total,  2 dangerous
+jedi_hash2: 957 total,  2 dangerous 
+r5_hash   :1191 total,  2 dangerous 
+r7_hash   :8439 total, 18 dangerous
+
+
+The speed for 161 101 real names :
+
+create 161101 files of 10 bytes with names from allfiles.txt
+
+# time create d1 allfiles.txt
+# time cp d1 d2 -r
+# time rm d1 -r
+
+              create      copy        remove 
+             --------------------------------
+tea_hash   : 1m27.223s   5m43.069s  2m33.449s
+jedi_hash2 : 1m26.062s   5m40.872s  2m32.795s
+r5_hash    : 1m16.729s   4m14.967s  1m53.037s
+r7_hash    : 1m10.665s   3m34.950s  1m39.756s
+
+
+As you can see the results are differ, but not too much. :)
+The situation changes dramatically if we will test 1 million files.
+
+The same test, but at the end of each name from allfiles.txt 
+added numbers from 0 to 6 (1 127 707 files):
+ 
+              create      copy        remove 
+             --------------------------------
+tea_hash   : 81m44.449s  
+jedi_hash2 : 79m46.419s
+r5_hash    : 15m56.037s
+r7_hash    : 15m30.680s
+
+Dual Celeron 500, 128 MB RAM, 8 GB scsi HDD
+Reiserfs-3.5.21, Linux-2.2.15
+
+Thanks,
+Yura.
+---------------------------------------------------------------
+body { font-family: "helvetica" } p { font-size: 12pt } a { color: #0000ff; 
+text-decoration: none; }(reiserfs) Torture results
+From: Jedi/Sector One <j@4u.net>
+To: reiserfs@devlinux.com
+
+
+  Here are the results of the hash torture on a Celeron 300.
+  Once again, you can substract 1 from the dangerous collisions numbers.
+  Xuan, can you provide a test for the case Rupasov hash was designed
+for ?
+  Anyway, I don't really see why large directories should have similar
+file names, rather that keywords.
+
+  Best regards,
+-- 
+         Frank DENIS aka Jedi/Sector One aka DJ Chrysalis <j@4u.net>
+                 -> Software : http://www.jedi.claranet.fr <-
+      If Bill Gates had a dime for every time a Windows box crashed...
+                  ...oh, wait a minute -- he already does.
+
+
+********************** /usr/dict/words test **********************
+
+Trying with   45402 words
+
+
+-------------[Benchmarking tea hash]-------------
+
+Collisions : 45
+Dangerous :       1      ffff980
+Timing :
+
+real     0m0.145s
+user     0m0.120s
+sys      0m0.010s
+
+-------------[Benchmarking rupasov hash]-------------
+
+Collisions : 553
+Dangerous :       1      ffffe00
+Timing :
+
+real     0m0.297s
+user     0m0.260s
+sys      0m0.020s
+
+-------------[Benchmarking r5 hash]-------------
+
+Collisions : 185
+Dangerous :       1      ffae000
+Timing :
+
+real     0m0.124s
+user     0m0.080s
+sys      0m0.030s
+
+-------------[Benchmarking r7 hash]-------------
+
+Collisions : 2528
+Dangerous :       1      fffd400
+Timing :
+
+real     0m0.121s
+user     0m0.100s
+sys      0m0.000s
+
+-------------[Benchmarking jedi hash]-------------
+
+Collisions : 54
+Dangerous :       1      fff9780
+Timing :
+
+real     0m0.122s
+user     0m0.100s
+sys      0m0.010s
+
+-------------[Benchmarking jedi2 hash]-------------
+
+Collisions : 93
+Dangerous :       1      fff9780
+Timing :
+
+real     0m0.122s
+user     0m0.090s
+sys      0m0.020s
+
+-------------[Benchmarking lookup2 hash]-------------
+
+Collisions : 63
+Dangerous :       1      ffff480
+Timing :
+
+real     0m0.123s
+user     0m0.100s
+sys      0m0.000s
+
+********************** Squid names test **********************
+
+Trying with  458752 squid cache entries
+
+-------------[Benchmarking tea hash]-------------
+
+Collisions : 6237
+Dangerous :       1      fffff80
+Timing :
+
+real     0m1.138s
+user     0m1.090s
+sys      0m0.030s
+
+-------------[Benchmarking rupasov hash]-------------
+
+Collisions : 377520
+Dangerous :       1      e32700
+Timing :
+
+real     0m2.588s
+user     0m2.550s
+sys      0m0.020s
+
+-------------[Benchmarking r5 hash]-------------
+
+Collisions : 309991
+Dangerous :       1      55406b80
+Timing :
+
+real     0m0.940s
+user     0m0.880s
+sys      0m0.040s
+
+-------------[Benchmarking r7 hash]-------------
+
+Collisions : 449006
+Dangerous :       2      22b16580
+Timing :
+
+real     0m0.928s
+user     0m0.840s
+sys      0m0.070s
+
+-------------[Benchmarking jedi hash]-------------
+
+Collisions : 2771
+Dangerous :       1      fffef80
+Timing :
+
+real     0m0.928s
+user     0m0.860s
+sys      0m0.050s
+
+-------------[Benchmarking jedi2 hash]-------------
+
+Collisions : 0
+Dangerous :       1      ffff80
+Timing :
+
+real     0m0.879s
+user     0m0.810s
+sys      0m0.050s
+
+-------------[Benchmarking lookup2 hash]-------------
+
+Collisions : 6203
+Dangerous :       1      fffdc00
+Timing :
+
+real     0m0.930s
+user     0m0.840s
+sys      0m0.080s
+
+********************** Real names test **********************
+
+Trying with   89830 files
+
+-------------[Benchmarking tea hash]-------------
+
+Collisions : 237
+Dangerous :       1      fff5580
+Timing :
+
+real     0m0.276s
+user     0m0.250s
+sys      0m0.000s
+
+-------------[Benchmarking rupasov hash]-------------
+
+Collisions : 6288
+Dangerous :       1      ffee080
+Timing :
+
+real     0m0.582s
+user     0m0.560s
+sys      0m0.010s
+
+-------------[Benchmarking r5 hash]-------------
+
+Collisions : 3920
+Dangerous :       1      fff4600
+Timing :
+
+real     0m0.230s
+user     0m0.190s
+sys      0m0.020s
+
+-------------[Benchmarking r7 hash]-------------
+
+Collisions : 11801
+Dangerous :       1      fff580
+Timing :
+
+real     0m0.225s
+user     0m0.180s
+sys      0m0.030s
+
+-------------[Benchmarking jedi hash]-------------
+
+Collisions : 269
+Dangerous :       1      fff9f80
+Timing :
+
+real     0m0.226s
+user     0m0.200s
+sys      0m0.010s
+
+-------------[Benchmarking jedi2 hash]-------------
+
+Collisions : 415
+Dangerous :       1      fff9f80
+Timing :
+
+real     0m0.225s
+user     0m0.200s
+sys      0m0.010s
+
+-------------[Benchmarking lookup2 hash]-------------
+
+Collisions : 223
+Dangerous :       1      ffff480
+Timing :
+
+real     0m0.230s
+user     0m0.210s
+sys      0m0.000s
+
+----------------------------------------------------------------------------------------
+
+body { font-family: "helvetica" } p { font-size: 12pt } a { color: #0000ff; 
+text-decoration: none; }(reiserfs) hash torture results
+From: Petru Paler <ppetru@coltronix.com>
+To: reiserfs@devlinux.com
+
+
+Machine: AMD Athlon/650MHz, 128Mb RAM, Quantum Fireball lct15 IDE hdd
+(UDMA/66 but that doesn't matter). Kernel 2.4.0-test1-ac10.
+
+The results are interesting, but more interesting would be to see how fast
+reiserfs actually is with each of these hashes.
+
+Script output:
+
+********************** /usr/dict/words test **********************
+
+Trying with   45402 words
+
+
+-------------[Benchmarking tea hash]-------------
+
+Collisions : 45
+Dangerous :       1      ffff980
+Timing :
+0.00user 0.01system 0:00.08elapsed 11%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking rupasov hash]-------------
+
+Collisions : 553
+Dangerous :       1      ffffe00
+Timing :
+0.00user 0.00system 0:00.18elapsed 0%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking r5 hash]-------------
+
+Collisions : 185
+Dangerous :       1      ffae000
+Timing :
+0.00user 0.00system 0:00.08elapsed 0%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking r7 hash]-------------
+
+Collisions : 2528
+Dangerous :       1      fffd400
+Timing :
+0.00user 0.01system 0:00.07elapsed 12%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking jedi hash]-------------
+
+Collisions : 54
+Dangerous :       1      fff9780
+Timing :
+0.00user 0.00system 0:00.08elapsed 0%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking jedi2 hash]-------------
+
+Collisions : 93
+Dangerous :       1      fff9780
+Timing :
+0.00user 0.00system 0:00.07elapsed 0%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking lookup2 hash]-------------
+
+Collisions : 63
+Dangerous :       1      ffff480
+Timing :
+0.00user 0.00system 0:00.07elapsed 0%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+********************** Squid names test **********************
+
+Trying with  262144 squid cache entries
+
+-------------[Benchmarking tea hash]-------------
+
+Collisions : 2019
+Dangerous :       1      ffff880
+Timing :
+0.00user 0.01system 0:00.47elapsed 2%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking rupasov hash]-------------
+
+Collisions : 210912
+Dangerous :       1      a88f00
+Timing :
+0.00user 0.02system 0:01.03elapsed 1%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking r5 hash]-------------
+
+Collisions : 171912
+Dangerous :       1      54ca7680
+Timing :
+0.00user 0.03system 0:00.41elapsed 7%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking r7 hash]-------------
+
+Collisions : 256171
+Dangerous :       6      22aa0600
+Timing :
+0.00user 0.03system 0:00.41elapsed 7%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking jedi hash]-------------
+
+Collisions : 589
+Dangerous :       1      fffda00
+Timing :
+0.00user 0.02system 0:00.42elapsed 4%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking jedi2 hash]-------------
+
+Collisions : 0
+Dangerous :       1      ffff80
+Timing :
+0.00user 0.00system 0:00.40elapsed 0%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking lookup2 hash]-------------
+
+Collisions : 2041
+Dangerous :       1      fffdc00
+Timing :
+0.00user 0.01system 0:00.40elapsed 2%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+********************** Real names test **********************
+
+find: /proc/31112/fd/4: No such file or directory
+Trying with   94836 files
+
+-------------[Benchmarking tea hash]-------------
+
+Collisions : 235
+Dangerous :       1      fff5e80
+Timing :
+0.00user 0.00system 0:00.20elapsed 0%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking rupasov hash]-------------
+
+Collisions : 2016
+Dangerous :       1      fffab80
+Timing :
+0.01user 0.00system 0:00.46elapsed 2%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking r5 hash]-------------
+
+Collisions : 495
+Dangerous :       1      fff8780
+Timing :
+0.00user 0.00system 0:00.17elapsed 0%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking r7 hash]-------------
+
+Collisions : 8162
+Dangerous :       1      fff580
+Timing :
+0.00user 0.02system 0:00.17elapsed 11%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking jedi hash]-------------
+
+Collisions : 331
+Dangerous :       1      ffe400
+Timing :
+0.00user 0.00system 0:00.17elapsed 0%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking jedi2 hash]-------------
+
+Collisions : 341
+Dangerous :       1      ffe400
+Timing :
+0.00user 0.00system 0:00.17elapsed 0%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-------------[Benchmarking lookup2 hash]-------------
+
+Collisions : 298
+Dangerous :       1      fffb700
+Timing :
+0.00user 0.00system 0:00.17elapsed 0%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (83major+13minor)pagefaults 0swaps
+
+-Petru
+

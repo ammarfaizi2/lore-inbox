@@ -1,75 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbUKITk3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbUKITmf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbUKITk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 14:40:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbUKITk3
+	id S261648AbUKITmf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 14:42:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbUKITme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 14:40:29 -0500
-Received: from mail.kroah.org ([69.55.234.183]:14215 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261642AbUKITkR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 14:40:17 -0500
-Date: Tue, 9 Nov 2004 11:39:47 -0800
-From: Greg KH <greg@kroah.com>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /sys/devices/system/timer registered twice
-Message-ID: <20041109193947.GA5758@kroah.com>
-References: <20041109193043.GA8767@vrfy.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041109193043.GA8767@vrfy.org>
-User-Agent: Mutt/1.5.6i
+	Tue, 9 Nov 2004 14:42:34 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:42738 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261644AbUKITlb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 14:41:31 -0500
+Message-ID: <41911D4F.5080606@nortelnetworks.com>
+Date: Tue, 09 Nov 2004 13:41:03 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Blaisorblade <blaisorblade_spam@yahoo.it>
+CC: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
+       linux-kernel@vger.kernel.org, cw@f00f.org
+Subject: Re: Synchronization primitives in UML
+References: <200411052036.55541.blaisorblade_spam@yahoo.it> <200411091844.44218.blaisorblade_spam@yahoo.it> <200411092048.iA9Kmjg9004223@ccure.user-mode-linux.org> <200411092015.10544.blaisorblade_spam@yahoo.it>
+In-Reply-To: <200411092015.10544.blaisorblade_spam@yahoo.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 09, 2004 at 08:30:43PM +0100, Kay Sievers wrote:
-> Hi,
-> I got this on a Centrino box with the latest bk:
-> 
->   [kay@pim linux.kay]$ ls -l /sys/devices/system/
->   total 0
->   drwxr-xr-x  7 root root 0 Nov  8 15:12 .
->   drwxr-xr-x  5 root root 0 Nov  8 15:12 ..
->   drwxr-xr-x  3 root root 0 Nov  8 15:12 cpu
->   drwxr-xr-x  3 root root 0 Nov  8 15:12 i8259
->   drwxr-xr-x  2 root root 0 Nov  8 15:12 ioapic
->   drwxr-xr-x  3 root root 0 Nov  8 15:12 irqrouter
->   ?---------  ? ?    ?    ?            ? timer
-> 
-> 
-> It is caused by registering two devices with the name "timer" from:
-> 
->   arch/i386/kernel/time.c
->   arch/i386/kernel/timers/timer_pit.c
-> 
-> If I change one of the names, I get two correct looking sysfs entries.
-> 
-> Greg, shouldn't the driver core prevent the corruption of the first
-> device if another one tries to register with the same name?
+Blaisorblade wrote:
 
-Yes, we should handle this.  Can you try the patch below?  I just sent
-it to Linus, as it fixes a bug that was recently introduced.
+> Yes, I would like that, too, but futexes are 2.6 only, and probably also 
+> NPTL-only (we are going to fix that, at least for SKAS mode), but faster than 
+> anything else. Nothing apart this.
 
-The second registration should fail, and this patch will make it fail,
-and recover properly.
+Actually, you can use raw futexes directly without needing any thread library. 
+There is even some helper code available if you search around a bit.
 
-thanks,
-
-greg k-h
-
---- a/lib/kobject.c	2004-11-05 10:06:33 -08:00
-+++ b/lib/kobject.c	2004-11-08 23:58:02 -08:00
-@@ -181,10 +181,10 @@ int kobject_add(struct kobject * kobj)
- 
- 	error = create_dir(kobj);
- 	if (error) {
-+		/* Does the kobject_put() for us */
- 		unlink(kobj);
- 		if (parent)
- 			kobject_put(parent);
--		kobject_put(kobj);
- 	} else {
- 		kobject_hotplug(kobj, KOBJ_ADD);
- 	}
+Chris

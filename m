@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265077AbUFAOEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265073AbUFAOD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265077AbUFAOEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 10:04:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUFAOEQ
+	id S265073AbUFAOD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 10:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUFAOD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 10:04:16 -0400
-Received: from main.gmane.org ([80.91.224.249]:5004 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265065AbUFAOAt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 10:00:49 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Gabriel Ebner <ge@gabrielebner.at>
-Subject: Re: 2.6.7-rc2-mm1
-Date: Tue, 01 Jun 2004 15:58:19 +0200
-Message-ID: <1763198.2IkDi1GkbE@schnecke2.gabrielebner.at>
-References: <20040601021539.413a7ad7.akpm@osdl.org> <15751764.P3t0zfFIzn@schnecke2.gabrielebner.at> <20040601110532.GE25943@pazke>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: chello212186175067.4.14.vie.surfer.at
-User-Agent: KNode/0.7.7
+	Tue, 1 Jun 2004 10:03:56 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:3333 "EHLO
+	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S265073AbUFAODD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 10:03:03 -0400
+Message-ID: <40BC8C49.4020602@steeleye.com>
+Date: Tue, 01 Jun 2004 10:01:45 -0400
+From: Paul Clements <paul.clements@steeleye.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] nbd: fix device names
+References: <4034FDD0.33BC57AF@SteelEye.com>
+In-Reply-To: <4034FDD0.33BC57AF@SteelEye.com>
+Content-Type: multipart/mixed;
+ boundary="------------040201010704020000030600"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This is a multi-part message in MIME format.
+--------------040201010704020000030600
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Andrey Panin wrote:
-> Try the attached patch, it should fix DMI related problem.
+It seems more appropriate to call the devices "nbX" rather than "nbdX",
+since that's what the device nodes are actually named.
 
-Yes, it fixes most of the DMI related problems, some persist however:
+--
+Paul
 
-  LD      .tmp_vmlinux1
-arch/x86_64/kernel/built-in.o(.init.text+0x4236): In function
-`dmi_disable_acpi':
-: undefined reference to `acpi_force'
-arch/x86_64/kernel/built-in.o(.init.text+0x42a7): In function
-`force_acpi_ht':
-: undefined reference to `acpi_force'
-arch/x86_64/ia32/built-in.o(.data+0x898): In function `ia32_sys_call_table':
-: undefined reference to `compat_get_mempolicy'
-make: *** [.tmp_vmlinux1] Fehler 1
 
-        Gabriel.
 
--- 
-Gabriel Ebner - reverse "ta.renbeleirbag@eg"
 
+
+--------------040201010704020000030600
+Content-Type: text/plain;
+ name="nbd_nb_devname.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nbd_nb_devname.diff"
+
+--- linux/drivers/block/nbd.c.PRISTINE      Thu Apr 15 13:40:18 2004
++++ linux/drivers/block/nbd.c       Thu Apr 15 13:53:18 2004
+@@ -713,7 +753,7 @@ static int __init nbd_init(void)
+ 		disk->fops = &nbd_fops;
+ 		disk->private_data = &nbd_dev[i];
+ 		disk->flags |= GENHD_FL_SUPPRESS_PARTITION_INFO;
+-		sprintf(disk->disk_name, "nbd%d", i);
++		sprintf(disk->disk_name, "nb%d", i);
+ 		sprintf(disk->devfs_name, "nbd/%d", i);
+ 		set_capacity(disk, 0x7ffffc00ULL << 1); /* 2 TB */
+ 		add_disk(disk);
+
+
+--------------040201010704020000030600--

@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313790AbSD0TOh>; Sat, 27 Apr 2002 15:14:37 -0400
+	id <S314285AbSD0TRY>; Sat, 27 Apr 2002 15:17:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314285AbSD0TOg>; Sat, 27 Apr 2002 15:14:36 -0400
-Received: from host213-122-101-216.in-addr.btopenworld.com ([213.122.101.216]:46210
-	"EHLO Wasteland") by vger.kernel.org with ESMTP id <S313790AbSD0TOf>;
-	Sat, 27 Apr 2002 15:14:35 -0400
-Message-Id: <m171Yag-000Ga6C@Wasteland>
-Content-Type: text/plain; charset=US-ASCII
-From: Matthew M <matthew.macleod@btinternet.com>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Subject: Re: Microcode update driver
-Date: Sat, 27 Apr 2002 21:14:27 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0204272056480.2557-100000@mustard.heime.net>
-X-Operating-System: Debian GNU/Linux
+	id <S314404AbSD0TRX>; Sat, 27 Apr 2002 15:17:23 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:3592 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S314285AbSD0TRW>;
+	Sat, 27 Apr 2002 15:17:22 -0400
+Date: Sat, 27 Apr 2002 16:14:43 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Jerry McBride <mcbrides9@comcast.net>
+Cc: Christoph Lameter <christoph@lameter.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.10-dj1 compilation failure
+In-Reply-To: <20020427140950.789adbb1.mcbrides9@comcast.net>
+Message-ID: <Pine.LNX.4.44L.0204271614040.1960-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, 27 Apr 2002, Jerry McBride wrote:
 
-On Saturday 27 April 2002 7:57 pm, Roy Sigurd Karlsbakk wrote:
-> Sorry if this is a FAQ, but where's the microcode.dat supposed to be
-> placed? I can't find any information about that in the doc.
+> I appreciate the efforts going into the new kernel tree. I really look
+> forward to it becoming main stream... but MY GOD, at least I wish they
+> would try to compile the thing BEFORE it gets posted for download!
 
-/usr/share/misc/microcode.dat
+Who exactly are "they" ?
 
-*MatthewM*
-- -- 
- 
-Failure is more frequently from want of energy than want of capital.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+And could "they" try to compile the kernel before being able
+to download it ?
 
-iD8DBQE8ywaloVQMDIAmueURAkfHAJ45eNlJ7NsOiEnRUQTjs0OFRlYp9gCcCeyI
-nCPiNidQN+LULkRcO9dQGo0=
-=fs4b
------END PGP SIGNATURE-----
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

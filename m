@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261486AbSJUOrM>; Mon, 21 Oct 2002 10:47:12 -0400
+	id <S261490AbSJUOuq>; Mon, 21 Oct 2002 10:50:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261485AbSJUOrM>; Mon, 21 Oct 2002 10:47:12 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:62375 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S261486AbSJUOrK>;
-	Mon, 21 Oct 2002 10:47:10 -0400
-Date: Mon, 21 Oct 2002 16:53:16 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: [PATCH] kallsyms leaves cruft behind
-Message-ID: <20021021145316.GA14919@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>, mingo@elte.hu,
-	linux-kernel@vger.kernel.org
+	id <S261497AbSJUOup>; Mon, 21 Oct 2002 10:50:45 -0400
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:30984 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261495AbSJUOuo>;
+	Mon, 21 Oct 2002 10:50:44 -0400
+Date: Mon, 21 Oct 2002 07:55:48 -0700
+From: Greg KH <greg@kroah.com>
+To: Peter <pk@q-leap.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: oops still occurs with usb-serial converter
+Message-ID: <20021021145548.GA30857@kroah.com>
+References: <S.0001127744@wolnet.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <S.0001127744@wolnet.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arguably, this should be cleaned up just after making vmlinux but the rules
-look complicated and I'm unsure it is worth the effort to complicate them
-further.
+On Mon, Oct 21, 2002 at 12:02:38PM +0200, Peter wrote:
+> Hello,
+> 
+> The attached kernel oops still occurs (was reported with kernel 2.4.19
+> on July, 29th):
+> 
+> Hardware:
+>   Dell Inspiron 2600 Laptop
+>   USB-Serial Converter: UC-232A
+> 
+> Software:
+>   minicom (V1.82.1)
+>   kernel: 2.4.20-pre11
+> 
+> modules loaded:
+> pl2303                 10104   1
+> usbserial              17468   0 [pl2303]
+> uhci                   23600   0 (unused)
 
---- linux-2.5.44/Makefile~	Mon Oct 21 16:10:58 2002
-+++ linux-2.5.44/Makefile	Mon Oct 21 16:24:45 2002
-@@ -675,7 +675,8 @@
- # make distclean Remove editor backup files, patch leftover files and the like
- 
- # Files removed with 'make clean'
--CLEAN_FILES += vmlinux System.map MC*
-+CLEAN_FILES += vmlinux System.map .tmp_vmlinux1 .tmp_kallsyms1.o \
-+	.tmp_vmlinux2 .tmp_kallsyms2.o .tmpver.2 .tmpver.1 MC*
- 
- # Files removed with 'make mrproper'
- MRPROPER_FILES += \
+Does the same problem happen with usb-uhci instead of uhci?
 
+thanks,
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+greg k-h

@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130539AbRALJ4x>; Fri, 12 Jan 2001 04:56:53 -0500
+	id <S130282AbRALKEZ>; Fri, 12 Jan 2001 05:04:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130745AbRALJ4n>; Fri, 12 Jan 2001 04:56:43 -0500
-Received: from mx7.sac.fedex.com ([199.81.194.38]:2052 "EHLO mx7.sac.fedex.com")
-	by vger.kernel.org with ESMTP id <S130539AbRALJ40>;
-	Fri, 12 Jan 2001 04:56:26 -0500
-Date: Fri, 12 Jan 2001 17:54:27 +0800 (SGT)
-From: Jeff Chua <jeffchua@fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.1-pre3 says 2.4.1-pre2 
-Message-ID: <Pine.LNX.4.31.0101121751500.2623-100000@boston.corp.fedex.com>
+	id <S130376AbRALKEP>; Fri, 12 Jan 2001 05:04:15 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:35589 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130282AbRALKEE>; Fri, 12 Jan 2001 05:04:04 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: khttpd beaten by boa
+Date: 12 Jan 2001 02:03:32 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <93mkpk$98k$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0101071655090.1110-100000@home.lameter.com> <Pine.LNX.4.21.0101112214040.22231-100000@home.lameter.com> <20010112084259.B441@marowsky-bree.de> <14942.48157.259491.78067@pizda.ninka.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <14942.48157.259491.78067@pizda.ninka.net>
+By author:    "David S. Miller" <davem@redhat.com>
+In newsgroup: linux.dev.kernel
+> 
+> Lars Marowsky-Bree writes:
+>  > This just goes on to show that khttpd is unnecessary kernel bloat
+>  > and can be "just as well" handled by a userspace application, minus
+>  > some rather very special cases which do not justify its inclusion
+>  > into the main kernel.
+> 
+> My take on this is that khttpd is unmaintained garbage.
+> 
+> TUX is evidence that khttpd can be done properly and
+> beat the pants off of anything done in userspace.
+> 
 
-patch-2.4.1-pre3.bz2 didn't update Makefile correctly.
+Then why don't we unload khttpd and put in Tux?
 
-Should be +EXTRAVERSION =-pre3 instead of -pre2
-
-
-diff -u --recursive --new-file v2.4.0/linux/Makefile linux/Makefile
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 4
--SUBLEVEL = 0
--EXTRAVERSION =
-+SUBLEVEL = 1
-+EXTRAVERSION =-pre2
-
-
-Thanks,
-Jeff Chua
-[ jchua@fedex.com ]
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

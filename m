@@ -1,71 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278968AbRKMVDF>; Tue, 13 Nov 2001 16:03:05 -0500
+	id <S279144AbRKMVIp>; Tue, 13 Nov 2001 16:08:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278986AbRKMVC4>; Tue, 13 Nov 2001 16:02:56 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48649 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S278968AbRKMVCt>; Tue, 13 Nov 2001 16:02:49 -0500
-Message-ID: <3BF18A58.9080804@zytor.com>
-Date: Tue, 13 Nov 2001 13:02:16 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en, sv
+	id <S279156AbRKMVIf>; Tue, 13 Nov 2001 16:08:35 -0500
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:15503 "HELO
+	openlab.rtlab.org") by vger.kernel.org with SMTP id <S279144AbRKMVIZ> convert rfc822-to-8bit;
+	Tue, 13 Nov 2001 16:08:25 -0500
+Date: Tue, 13 Nov 2001 16:08:24 -0500 (EST)
+From: "Calin A. Culianu" <calin@ajvar.org>
+To: Martin Eriksson <nitrax@giron.wox.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: What Athlon chipset is most stable in Linux?
+In-Reply-To: <001201c16c45$dc2b6820$0201a8c0@HOMER>
+Message-ID: <Pine.LNX.4.30.0111131559580.8219-100000@rtlab.med.cornell.edu>
 MIME-Version: 1.0
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: fdutils.
-In-Reply-To: <Pine.GSO.3.96.1011113214448.11222E-100000@delta.ds2.pg.gda.pl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki wrote:
+On Tue, 13 Nov 2001, Martin Eriksson wrote:
 
-> 
->>> Hmm, Sun used to have a software-controlled standard floppy drives years
->>>ago... 
->>>
->>I'm not talking about Suns.
-> 
->  I'm just pointing out there used to be no problem with making a
-> software-controlled eject for a legacy floppy device even long ago if one
-> wanted to. 
-> 
+> I'm hearing rumours about my University wanting to set up a cluster with AMD
+> Athlon XP+DDR computers, so I wonder what chipset is most stable under
+> Linux?
+>
+> I assume it's the AMD DDR chipset, but I want to be pretty sure.
+>
+> Btw, do compilators currently optimize for the third floating-point unit in
+> Athlon XP processors?
 
+Well, here's my little anecdote:
 
-Macs have had them since, what, 1984?  It's never been a question of it
-being a problem, but it hasn't caught on on the PC.
+We bought 33 1.4 GHz AMD Athlons (non-XP) with the slightly deprecated VIA
+KT266 Chipset (Spacewalker AK31 motherboards.. not exactly the Lexus of
+the M/B world but oh well)..
 
+Anyway, after trying various (2.4) kernel versions, both with and without
+the new VM, both with and without Alan's magik, I can say that the only
+way we got 99% uptime on these systems (as opposed to like the 70% uptime
+I was getting from random kernel oopses) was to turn any Athlon and/or
+Pentium optimizations off when compiling the kernel.  With any form of
+compilation for a CPU >386, the kernel would crash on at least 2 of the
+boxes per day.  The oops stack trace seemed to always indicate a crash
+when in the paging code.. so it was a virtual memory problem? (I can only
+speculate and I haven't bothered to investigate much further).  I am not
+sure if I encountered some unknown bug in my motherboard that needs some
+yet undiscovered workaround or what.  All I can say is stay away from the
+KT266 chipset (however the newer KT266A seems to work fine based on what I
+have seen and am told) if you can.  But then again I may be crazy and/or
+there may be workarounds or bios fixes for my problem, if it was really
+kernel-related. (I suspect it was, but haven't bothered to figure out
+exactly how to reproduce it so as to submit a patch.. the systems would
+crash randomly and invesitigating it futher seemed onerous).
 
-> 
->>> Based on local obervations hardly anyone uses floppies anymore...  They
->>>are mostly used for system rescue purposes, where the kind of a device
->>>doesn't really matter.
->>>
->>... except that you no longer can fit a reasonable system rescue/install
->>setup on a floppy, so it *defintitely* matters.  Also, the floppy device
->>is like a rash all over the hardware; it maintains a highly undesirable
->>legacy.
->>
-> 
->  You only confirm what I wrote -- hardly anyone uses floppies, so there is
-> no need to keep mechanical compatibility in devices -- a complete dump of
-> 1.44" FD support would be almost harmless.  Hence whether a Zip or a
-> LS-120 -- it doesn't really matter.  You need new media anyway. 
-> 
+-Calin
 
-
-Unfortunately other people don't seem to see it that way, and so it
-doesn't happen.  People ship USB floppies with new laptops, so there is
-clearly a demand for them.  I believe that if LS-120 had been where the
-Zip drive was for a brief while, it would have stuck, just because of the
-compatibility issue.
-
-	-hpa
-
- 
-
+>
+> _____________________________________________________
+> |  Martin Eriksson <nitrax@giron.wox.org>
+> |  MSc CSE student, department of Computing Science
+> |  Umeå University, Sweden
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

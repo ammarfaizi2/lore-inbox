@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbUAFL7D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 06:59:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbUAFL7D
+	id S261953AbUAFMAj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 07:00:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbUAFMAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 06:59:03 -0500
-Received: from cibs9.sns.it ([192.167.206.29]:1038 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id S261931AbUAFL7A (ORCPT
+	Tue, 6 Jan 2004 07:00:38 -0500
+Received: from math.ut.ee ([193.40.5.125]:37011 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S261956AbUAFMAb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 06:59:00 -0500
-Date: Tue, 6 Jan 2004 12:58:46 +0100 (CET)
-From: venom@sns.it
-To: Hans Reiser <reiser@namesys.com>
-cc: Steve Glines <sglines@is-cs.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: file system technical comparisons
-In-Reply-To: <3FF99C62.6010608@namesys.com>
-Message-ID: <Pine.LNX.4.43.0401061258030.13594-100000@cibs9.sns.it>
+	Tue, 6 Jan 2004 07:00:31 -0500
+Date: Tue, 6 Jan 2004 14:00:20 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PPC & 2.6.0-test3: wrong mem size & hang on ifconfig
+In-Reply-To: <20031224212022.GN4023@stop.crashing.org>
+Message-ID: <Pine.GSO.4.44.0401061353370.28417-100000@math.ut.ee>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > >  			if (getprop(dev_handle, "reg", mem_info,
+> > > -						sizeof(mem_info) != 8))
+> > > +						sizeof(mem_info) != 8)) {
 
-That there is something I am not really sure I understood.
+> 	if ((n = getprop(dev_handle, "reg", mem_info, sizeof(mem_info))
+> 	!= 8) {
 
-Luigi
+I tried it (applied it by hand and fixed parens) and it did not print n
+and found the right RAM size with todays BK (2.4.24-pre3 by Makefile). I
+was confused but did read the patch 3 times. Now I see it - one closing
+parenthesis was in the wrong place. Seems you have fixed it in 2.4 tree
+already since it's ok in BK.
 
-On Mon, 5 Jan 2004, Hans Reiser wrote:
+So 2.4 is OK again on my Motorola Powerstack II Pro4000 (prep, no
+residual, OF present). Thanks! dmesg now tells
+Memory BAT mapping: BAT2=64Mb, BAT3=0Mb, residual: 0Mb
+Total memory = 64MB; using 128kB for hash table (at c0240000)
 
-> Date: Mon, 05 Jan 2004 20:18:26 +0300
-> From: Hans Reiser <reiser@namesys.com>
-> To: venom@sns.it
-> Cc: Steve Glines <sglines@is-cs.com>, linux-kernel@vger.kernel.org
-> Subject: Re: file system technical comparisons
->
-> venom@sns.it wrote:
->
-> >I already gave a look to reiser4, but I have some difficoultis with dancing
-> >tree structure.
-> >
-> >
-> >
-> Difficulties meaning that you don't think it is a good
-> structure/algorithm, or that you don't find the docs understandable?
->
-> --
-> Hans
->
->
+2.6 probably needs the same fix (current 2.6 is not OK).
+
+Additionally, 2.6 still has the problem with hard hang (no sysrq) when I
+do ifconfig eth0 up (21140 driven by tulip or de4x5). I have heard other
+people have the same problem - 21140 and 3com on powerstack and some
+NIC with tulip driver on another arch (alpha?).
+
+-- 
+Meelis Roos (mroos@linux.ee)
 

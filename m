@@ -1,53 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262269AbVCBLip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbVCBLoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262269AbVCBLip (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 06:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262276AbVCBLin
+	id S262274AbVCBLoL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 06:44:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbVCBLoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 06:38:43 -0500
-Received: from smail4.alcatel.fr ([62.23.212.167]:3221 "EHLO smail4.alcatel.fr")
-	by vger.kernel.org with ESMTP id S262269AbVCBLf7 (ORCPT
+	Wed, 2 Mar 2005 06:44:11 -0500
+Received: from mivlgu.ru ([81.18.140.87]:18333 "EHLO mail.mivlgu.ru")
+	by vger.kernel.org with ESMTP id S262275AbVCBLhc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 06:35:59 -0500
-Message-ID: <4225A4F6.2000106@linux-fr.org>
-Date: Wed, 02 Mar 2005 12:35:18 +0100
-From: Jean Delvare <khali@linux-fr.org>
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.8a5) Gecko/20041222
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
-To: Ben Castricum <lk@bencastricum.nl>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Robert Hancock <hancockr@shaw.ca>, khali@linux-fr.org
-Subject: Re: 2.6.11-rc4 doubles CPU temperature
-References: <007801c51ddf$271d95d0$0602a8c0@links>
-In-Reply-To: <007801c51ddf$271d95d0$0602a8c0@links>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Alcanet-MTA-scanned-and-authorized: yes
+	Wed, 2 Mar 2005 06:37:32 -0500
+Date: Wed, 2 Mar 2005 14:37:17 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Panagiotis Issaris <panagiotis.issaris@mech.kuleuven.ac.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] raw1394 missing failure handling
+Message-Id: <20050302143717.1ea9f57e.vsu@altlinux.ru>
+In-Reply-To: <42259F3A.8000206@mech.kuleuven.ac.be>
+References: <42259F3A.8000206@mech.kuleuven.ac.be>
+X-Mailer: Sylpheed version 1.0.0beta4 (GTK+ 1.2.10; i586-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Wed__2_Mar_2005_14_37_17_+0300_fjukvIWwjgJikp1T"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ben,
+--Signature=_Wed__2_Mar_2005_14_37_17_+0300_fjukvIWwjgJikp1T
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Ben Castricum wrote:
-> For some weird reason, 2.6.11-rc4 up to the current BK tree about 
-> doubles my CPU temperature from 20 degrees Celcius to 40 while
-> everything else is unchanged (load/processes/config). The system
-> does seem a bit more sluggish, but that may just be a feeling. 
-> (...)
-> I haven't got a clue on how to analyse this problem so I really appreciate
-> any info or suggestions I get. Please help me.
+On Wed, 02 Mar 2005 12:10:50 +0100 Panagiotis Issaris wrote:
 
-If you have an Asus AS99127F chip, the value reported before in sysfs 
-were not correct, the new ones are.
+> In the raw1394 driver the failure handling for
+> a __copy_to_user call is missing.
+> 
+> With friendly regards,
+> Takis
+> 
+> -- 
+>   K.U.Leuven, Mechanical Eng.,  Mechatronics & Robotics Research Group
+>   http://people.mech.kuleuven.ac.be/~pissaris/
+> 
+> 
+> 
+> [pi-20050302T114855-linux_2_6_11-raw1394_copy_to_user_failure_handling.diff  text/x-patch (922 bytes)]
+> diff -pruN linux-2.6.11/drivers/ieee1394/raw1394.c linux-2.6.11-pi/drivers/ieee1394/raw1394.c
+> --- linux-2.6.11/drivers/ieee1394/raw1394.c	2005-03-02 11:44:26.000000000 +0100
+> +++ linux-2.6.11-pi/drivers/ieee1394/raw1394.c	2005-03-02 11:47:38.000000000 +0100
+> @@ -443,7 +443,8 @@ static ssize_t raw1394_read(struct file 
+>                          req->req.error = RAW1394_ERROR_MEMFAULT;
+>                  }
+>          }
+> -        __copy_to_user(buffer, &req->req, sizeof(req->req));
+> +        if (__copy_to_user(buffer, &req->req, sizeof(req->req)))
+> +                return -EFAULT;
 
-http://archives.andrew.net.au/lm-sensors/msg29730.html
+Bug: "req" is not freed in the failure case.
 
-40 degrees C is a fairly reasonable temperature for a CPU diode, there's 
-nothing to be afraid of. At any rate it's more reasonable than the 
-incredibly low 20 degrees C temperature you had before, as Robert 
-Hancock noticed in an earlier post.
+>  
+>          free_pending_request(req);
+>          return sizeof(struct raw1394_request);
+> 
 
-Hope that helps,
--- 
-Jean Delvare
+--Signature=_Wed__2_Mar_2005_14_37_17_+0300_fjukvIWwjgJikp1T
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFCJaVwW82GfkQfsqIRAqwDAJ9nIkVFmkrWB8eCKVdDxKxOSiCbZQCgjqII
+/4WRwUdRSJuXr4WRWAB4rs8=
+=IhXF
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__2_Mar_2005_14_37_17_+0300_fjukvIWwjgJikp1T--

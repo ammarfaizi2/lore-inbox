@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315423AbSE2S76>; Wed, 29 May 2002 14:59:58 -0400
+	id <S315427AbSE2TBv>; Wed, 29 May 2002 15:01:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315429AbSE2S75>; Wed, 29 May 2002 14:59:57 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:5787 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S315423AbSE2S74>;
-	Wed, 29 May 2002 14:59:56 -0400
-Date: Wed, 29 May 2002 11:59:15 -0700 (PDT)
-From: Nivedita Singhvi <niv@us.ibm.com>
-X-X-Sender: <nivedita@w-nivedita2.des.beaverton.ibm.com>
-To: Ben Greear <greearb@candelatech.com>
-cc: Nivedita Singhvi <niv@us.ibm.com>, <cfriesen@nortelnetworks.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: how to get per-socket stats on udp rx buffer overflow?
-In-Reply-To: <3CF4F421.1040908@candelatech.com>
-Message-ID: <Pine.LNX.4.33.0205291149350.5686-100000@w-nivedita2.des.beaverton.ibm.com>
+	id <S315429AbSE2TBu>; Wed, 29 May 2002 15:01:50 -0400
+Received: from [213.187.195.158] ([213.187.195.158]:57583 "EHLO
+	kokeicha.ingate.se") by vger.kernel.org with ESMTP
+	id <S315427AbSE2TBs>; Wed, 29 May 2002 15:01:48 -0400
+To: linux-net@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Loosing packets with Dlink DFE-580TX and SMC 9462TX
+From: Marcus Sundberg <marcus@ingate.com>
+Date: 29 May 2002 21:01:47 +0200
+Message-ID: <ved6vepylg.fsf@inigo.ingate.se>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 May 2002, Ben Greear wrote:
+Hi,
 
-> Integer increments are usually pretty cheap.  Considering
-> accuracy is not absolutely needed (imho), then there is no
-> need to lock or use special atomic increments.
+I'm seeing severe packet-loss with two different types of network
+cards:
+D-link DFE-580TX (DL10050B aka OEM:ed Sundance ST201 chip) and
+SMC 9462TX (NS83820 chip)
 
-Cool!
+The machine is an Athlon XP1800+ with VIA KT266 chipset and what
+I'm doing is to send several bi-directional streams of small UDP
+packets through the machine. Each stream consists of 50 UDP
+packets per second in each direction, with 200 bytes payload.
 
-> So, I view the performance issue as not that big of a deal.  Space
-> may be a bigger deal, and the /proc interface and/or IOCTLs to read
-> the counters...
+Using either Intel 21143 based cards (tulip driver) or Intel 82559
+(eepro100 driver) I can send 100 such streams through the machine
+with no packet loss (the load generators starts walking on their
+knees a bit over 100). This equals 10000 packets/second or about
+19 Mbit/s.
 
-You could consider per-cpu interrupt/process context buckets
-the way the current MIB counter increments are, if space isnt
-an issue, although that might be overkill. 
+However using either the Dlink cards or the SMC cards I start getting
+severe packet loss at between 50 and 70 streams. After fixing the
+sundance driver so it doesn't turn off interrupts for 3.2ms whenever
+the boguscnt counter in the interrupt handler happens to reach zero
+I can't find anything particularly bad neither in the driver nor
+in the ST201 chip spec, but packets keep getting dropped.
+(The 83820-driver I haven't looked at at all)
 
-> If/when I do implement, I'll be sure to make it a selectable option
-> in the kernel config process...
+Before digging further into this I'd like to know if anyone have
+had similiar problems, or are using any of these cards/drivers
+without problems, or have an idea if it is the chips or the drivers
+which are broken? Or can just tell me whether these cards are
+exceptionally bad or if eepro100/tulip are exceptionally good?
 
-Cool :).
+I migh also take the opportunity to ask if anyone can recommend
+another 4-port (or more) 100Mbit ethernet card than the DFE-580TX?
 
-> Ben
-> 
-
-thanks,
-Nivedita
-
+//Marcus
+-- 
+---------------------------------------+--------------------------
+  Marcus Sundberg <marcus@ingate.com>  | Firewalls with SIP & NAT
+ Firewall Developer, Ingate Systems AB |  http://www.ingate.com/

@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264288AbUE3RzZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264304AbUE3SEU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264288AbUE3RzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 13:55:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264301AbUE3RzZ
+	id S264304AbUE3SEU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 14:04:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264306AbUE3SEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 13:55:25 -0400
-Received: from mxfep01.bredband.com ([195.54.107.70]:56008 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S264288AbUE3RzV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 13:55:21 -0400
-Message-ID: <40BA1FD5.9080902@minimum.se>
-Date: Sun, 30 May 2004 19:54:29 +0200
-From: Martin Olsson <mnemo@minimum.se>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7b) Gecko/20040316
-X-Accept-Language: en-us, en, sv
+	Sun, 30 May 2004 14:04:20 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22435 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264304AbUE3SEP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 14:04:15 -0400
+Message-ID: <40BA2213.1090209@pobox.com>
+Date: Sun, 30 May 2004 14:04:03 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Why is proper NTFS-driver difficult?
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Andries Brouwer <aebr@win.tue.nl>, Arjan van de Ven <arjanv@redhat.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: 2.6.x partition breakage and dual booting
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+
+So it seems that the 2.6.x geometry code breaks dual booting, since 
+Windows wants "sane" CHS values.  See the thread on slashdot, or 
+http://www.redhat.com/archives/fedora-devel-list/2004-May/msg00908.html
+
+Although Fedora Core is current taking grief for this, it's really a 
+2.6.x kernel problem AFAICT.
+
+Has anybody taken the time to hunt down the csets that cause this 
+massive partition table breakage?  If so, it will save me some time 
+tracking this down.
+
+	Jeff
 
 
-I was wondering why is there no Linux NTFS-driver which allows full 
-writing etc? Is there something that makes this particular difficult to 
-implement? I mean Linux supports so many file systems, why has proper 
-NTFS support been neglected?
 
-Is there any file system I can use which satisfies these criteria:
-A) works in both Linux and Windows
-B) handle >4GB files
-C) handle 120GB partitions
-
-
-Sincerly,
-/m

@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUGCEig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264904AbUGCFMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265044AbUGCEig (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 00:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265047AbUGCEig
+	id S264904AbUGCFMn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 01:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbUGCFMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 00:38:36 -0400
-Received: from bay16-f42.bay16.hotmail.com ([65.54.186.92]:12043 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S265044AbUGCEif
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 00:38:35 -0400
-X-Originating-IP: [220.224.27.225]
-X-Originating-Email: [kartik_me@hotmail.com]
-From: "kartikey bhatt" <kartik_me@hotmail.com>
-To: jmorris@intercode.com.au, jmorris@redhat.com, linux-kernel@vger.kernel.org
-Subject: socket association
-Date: Sat, 03 Jul 2004 10:08:34 +0530
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY16-F42SHmFssIhJP000042b9@hotmail.com>
-X-OriginalArrivalTime: 03 Jul 2004 04:38:34.0618 (UTC) FILETIME=[99A44DA0:01C460B7]
+	Sat, 3 Jul 2004 01:12:43 -0400
+Received: from ozlabs.org ([203.10.76.45]:36057 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S264904AbUGCFMm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 01:12:42 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16614.16478.9599.463185@cargo.ozlabs.ibm.com>
+Date: Sat, 3 Jul 2004 15:13:02 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: linas@austin.ibm.com
+Cc: linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6 PPC64 EEH unbalanced dev_get/put calls
+In-Reply-To: <20040702134539.W21634@forte.austin.ibm.com>
+References: <20040702134539.W21634@forte.austin.ibm.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sure there is one who will help
+Linas,
 
-in freebsd when a socket is created,
-the process  structure of the process creating socket
-is passed as an argument to socreate function.
-is there any mechanism in linux kernel where we can
-associate the process creating socket with the socket.
-or we can fetch the process structure of the owning
-process given the socket or sock data structure.
+> This patch fixes some unbalanaced usage of pci_dev_get()/pci_dev_put() calls
+> in the eeh code.  The old code had too many calls to dev_put, which could
+> cause memory structs to be freed prematurely, possibly leading to bad
+> bad pointer derefs in certain cases.
 
---kartikey
+When I apply this I end up with one pci_dev_get() call in
+__pci_addr_cache_insert_device and no pci_dev_put() calls.  That can't
+be right, surely?  If it is it needs a big fat comment explaining why.
 
-_________________________________________________________________
-Get Citibank Home Loan ! http://go.msnserver.com/IN/52043.asp At an 
-unbelievably low interest rate.
+> Cross-ref LTC bug 9283
 
+Confused - that's the bug about not using ibm,fw-phb-id.
+
+Paul.

@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313504AbSDYWV1>; Thu, 25 Apr 2002 18:21:27 -0400
+	id <S313508AbSDYXTQ>; Thu, 25 Apr 2002 19:19:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313505AbSDYWV0>; Thu, 25 Apr 2002 18:21:26 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:51935 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S313504AbSDYWVZ>;
-	Thu, 25 Apr 2002 18:21:25 -0400
-Message-ID: <3CC88074.D6F112E6@vnet.ibm.com>
-Date: Thu, 25 Apr 2002 17:17:24 -0500
-From: Tom Gall <tom_gall@vnet.ibm.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2 ppc)
-X-Accept-Language: en
+	id <S313509AbSDYXTP>; Thu, 25 Apr 2002 19:19:15 -0400
+Received: from khms.westfalen.de ([62.153.201.243]:8669 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S313508AbSDYXTP>; Thu, 25 Apr 2002 19:19:15 -0400
+Date: 25 Apr 2002 22:53:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8NZtBMJXw-B@khms.westfalen.de>
+In-Reply-To: <20020422165327.A914@redhat.com>
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+X-Mailer: CrossPoint v3.12d.kh9 R/C435
 MIME-Version: 1.0
-To: Santiago Garcia Mantinan <manty@manty.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: pcnet32 on 2.4.18 doesn't init on IBM rs/6000 B50 (powerpc)
-In-Reply-To: <20020425220402.GA3654@man.beta.es>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Organization: Organisation? Me?! Are you kidding?
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Santiago,
+dledford@redhat.com (Doug Ledford)  wrote on 22.04.02 in <20020422165327.A914@redhat.com>:
 
+> On Sun, Apr 21, 2002 at 10:29:19PM +0200, Daniel Phillips wrote:
+> > On Monday 22 April 2002 21:53, Doug Ledford wrote:
+> > > On Sun, Apr 21, 2002 at 07:34:49PM +0200, Daniel Phillips wrote:
+> > > > How about a URL instead?  Any objection?
+> > >
+> > > Yes.  Why should I have to cut and paste (assuming I'm in X) or
+> > > write down
+> >
+> > What???   What kind of system are you running?  Err... redhat supports
+> > cut and paste I thought. <-- funnny.
+>
+> Depends on what you use to read the file containing the URL.  Obviously,
+> if I'm Al Viro I'm on a text console and wouldn't use a mouse if you
+> cemented it in my hand, so cut and paste isn't an option.
 
+I have no idea about Al, but while I do spend most of my time on the  
+console, I do use a mouse there for cut and paste. Long live gpm.
 
-Santiago Garcia Mantinan wrote:
-<lots of PCnet 32 debug>
- 
-> I saw a patch for solving this but it is old, so I supposed it should be on
-> this kernel (2.4.18), but it isn't, so I tried to apply it by hand as it
-> doesn't work like it is. The resulting code didn't work either, I'll try to
-> have a deeper look at it and see what I can find, but I think I did the
-> proper changes acording to the original patch :-(
+> real docs, switch to X or install lynx on my system, go to URL.  It's a
 
-I'd recommend you grab the pcnet32 out of the larger ppc64 patch.
-For pSeries (AKA Rs/6000) we have pcnet32 cards all over the place and
-have
-had to "fix" some things with the driver from time to time.  
+You don't have lynx installed on a development machine?! *boggle*
 
-See www.linuxppc64.org for the patches. 
-(Grab say like the 2.4.18 patch, gunzip it and then
-edit the patch by had, delete all the lives above and below 
-the specific patch for pcnet32, save it and then apply that)
+How about links? W3m? Hell, wget?
 
-> If anybody has any clue on this I'd appreciate any help.
+> Those were the relevant points you blithely skipped because you know they
+> are true and hurt your position.  Selective response is something you've
+> been practicing in this entire thread.
 
-regards,
+The debating tactics used in this thread - on more than one side - are  
+nothing to be proud about.
 
-Tom
+Could we not try to figure out ways to make Linux better, instead of  
+digging for ways to make each other look bad?
 
--- 
-Tom Gall - [embedded] [PPC64 | PPC32] Code Monkey
-Peace, Love &                  "Where's the ka-boom? There was
-Linux Technology Center         supposed to be an earth
-http://www.ibm.com/linux/ltc/   shattering ka-boom!"
-(w) tom_gall@vnet.ibm.com       -- Marvin Martian
-(w) 507-253-4558
-(h) tgall@rochcivictheatre.org
+MfG Kai

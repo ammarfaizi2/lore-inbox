@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbUDISV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 14:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUDISVZ
+	id S261610AbUDISW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 14:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUDISW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 14:21:25 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:36035 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S261358AbUDISVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 14:21:24 -0400
-Date: Fri, 9 Apr 2004 14:21:41 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Stefano Rivoir <s.rivoir@gts.it>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.5-mc3] radeon module not working anymore
-In-Reply-To: <200404091344.47822.s.rivoir@gts.it>
-Message-ID: <Pine.LNX.4.58.0404091419330.16677@montezuma.fsmlabs.com>
-References: <200404091344.47822.s.rivoir@gts.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.58.0404091419332.16677@montezuma.fsmlabs.com>
-Content-Disposition: INLINE
+	Fri, 9 Apr 2004 14:22:57 -0400
+Received: from mail.kroah.org ([65.200.24.183]:48560 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261610AbUDISWy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 14:22:54 -0400
+Date: Fri, 9 Apr 2004 11:22:41 -0700
+From: Greg KH <greg@kroah.com>
+To: Steven Walter <srwalt2@uky.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB/BlueTooth oops in 2.6.5
+Message-ID: <20040409182241.GA16660@kroah.com>
+References: <4076E38D.7030102@uky.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4076E38D.7030102@uky.edu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Apr 2004, Stefano Rivoir wrote:
+On Fri, Apr 09, 2004 at 01:55:25PM -0400, Steven Walter wrote:
+> I get a very similar oops backtrace, but from a different cause.  
+> Whenever I plug in my Zaurus for the /second/ time (i.e., plug it in, 
+> let usbnet find it, unplug it, then plug it in again), I get the 
+> attached oops backtrace.  This did not occur with 2.6.3; unsure about 2.6.4.
 
->
-> Hi all.
->
-> When using radeon DRM module I get these on syslog:
->
-> Apr  9 10:14:15 nbsteu kernel: [drm:radeon_cp_init] *ERROR* radeon_cp_init
-> called without lock held
-> Apr  9 10:14:15 nbsteu kernel: [drm:radeon_unlock] *ERROR* Process 1602 using
-> kernel context 0
->
-> Then the module is regularly shown by lsmod, but DRI in X doesn't work. This
-> didn't happen in 2.6.4-mm2: I thought it was a matter of CONFIG_4KSTACKS, but
-> in 2.6.5-mc3 it defaults to "no"...
+Does it occur in the latest -mm kernel?
 
-Have you had a look at /var/log/XFree86.0.log? That may yield more
-information. Does it work built into the kernel?
+thanks,
 
+greg k-h

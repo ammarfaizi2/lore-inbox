@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263303AbTLJB2m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 20:28:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbTLJB2l
+	id S262055AbTLJBpN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 20:45:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTLJBpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 20:28:41 -0500
-Received: from email-out2.iomega.com ([147.178.1.83]:60545 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S263303AbTLJB2i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 20:28:38 -0500
-Subject: Re: partially encrypted filesystem
-From: Pat LaVarre <p.lavarre@ieee.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       Phillip Lougher <phillip@lougher.demon.co.uk>,
-       Matthew Wilcox <willy@debian.org>, Erez Zadok <ezk@cs.sunysb.edu>,
-       =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Kallol Biswas <kbiswas@neoscale.com>, linux-kernel@vger.kernel.org,
-       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-In-Reply-To: <20031210000759.GA618@elf.ucw.cz>
-References: <20031205191447.GC29469@parcelfarce.linux.theplanet.co.uk>
-	 <200312051947.hB5Jlupp030878@agora.fsl.cs.sunysb.edu>
-	 <20031205202838.GD29469@parcelfarce.linux.theplanet.co.uk>
-	 <3FD127D4.9030007@lougher.demon.co.uk>
-	 <1070883425.31993.80.camel@hades.cambridge.redhat.com>
-	 <20031210000759.GA618@elf.ucw.cz>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1071019703.24032.26.camel@patibmrh9>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 09 Dec 2003 18:28:23 -0700
+	Tue, 9 Dec 2003 20:45:13 -0500
+Received: from 66-141-88-11.ded.swbell.net ([66.141.88.11]:35854 "EHLO
+	lcisp.com") by vger.kernel.org with ESMTP id S262055AbTLJBpJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 20:45:09 -0500
+From: "Kevin Krieser" <kkrieser@lcisp.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: very large FAT16 partition not readable on 2.6.0-test11
+Date: Tue, 9 Dec 2003 19:45:12 -0600
+Message-ID: <NDBBLFLJADKDMBPPNBALOEDBCLAB.kkrieser@lcisp.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Dec 2003 01:28:37.0777 (UTC) FILETIME=[EF7FE010:01C3BEBC]
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+In-Reply-To: <3FD65CCA.3000408@triphoenix.de>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Even if you were going to admit to having a block size of 64KiB to the
-> > layers above you, you just can't _do_ atomic replacement of blocks,
-> > which is required for normal file systems to operate correctly.
-> 
-> Are those assumptions needed for something else than [1] recovery after
-> crash/powerdown? [i.e., afaics 64K ext2 should work on flash, but fsck
-> might have some troubles...]
+Actually, there is an extension to 4GB that NT used in the 4.0 days (maybe
+earlier?).
 
-2) Space occupied divided by space usable.  Rounding up file sizes to 64
-KiB can waste much space.
+Don't know if the Linux driver supports it.
 
-3) Thruput.  Read 64 KiB to overlay one byte to write back as 64 KiB can
-be slow, especially in devices that spin slowly (e.g. 10,000rpm) to
-reach the 64 KiB block again.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Dennis
+Bliefernicht
+Sent: Tuesday, December 09, 2003 5:38 PM
+To: linux-kernel@vger.kernel.org
+Subject: Re: very large FAT16 partition not readable on 2.6.0-test11
 
-4) ... anyone know?
 
-Pat LaVarre
+Greg KH wrote:
+> I just bought a new USB/Firewire external drive.  It comes pre-formatted
+> as FAT16 (or so shows fdisk) as one big 80Gb partition.  Unfortunately,
+> Linux can't seem to mount this partition, and I get the following dmesg
+> output when trying to mount the partition:
+> 	FAT: bogus number of reserved sectors
+> 	VFS: Can't find a valid FAT filesystem on dev sdb1.
+
+Well, according to my sources FAT16 cannot sustain any partition larger
+than 2GiB, so 80GiB is probably a lot more than it can handle. Anyway,
+sdb1 is lacking any type of header and sdb containt something, but not a
+FAT header afaik. So probably theres just a partition table entry but
+not formatted.
 
 

@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132316AbRDPVwV>; Mon, 16 Apr 2001 17:52:21 -0400
+	id <S132327AbRDPVyw>; Mon, 16 Apr 2001 17:54:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132327AbRDPVwL>; Mon, 16 Apr 2001 17:52:11 -0400
-Received: from mail.reutershealth.com ([204.243.9.36]:39596 "EHLO
-	mail.reutershealth.com") by vger.kernel.org with ESMTP
-	id <S132316AbRDPVv6>; Mon, 16 Apr 2001 17:51:58 -0400
-Message-ID: <3ADB69BF.7040305@reutershealth.com>
-Date: Mon, 16 Apr 2001 17:53:03 -0400
-From: John Cowan <jcowan@reutershealth.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; 0.8) Gecko/20010215
-X-Accept-Language: en
-MIME-Version: 1.0
-To: esr@thyrsus.com
-CC: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+	id <S132337AbRDPVym>; Mon, 16 Apr 2001 17:54:42 -0400
+Received: from spc2.esa.lanl.gov ([128.165.67.191]:2432 "HELO
+	spc2.esa.lanl.gov") by vger.kernel.org with SMTP id <S132327AbRDPVyh>;
+	Mon, 16 Apr 2001 17:54:37 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
 Subject: Re: [kbuild-devel] CML2 1.1.3 is available
+Date: Mon, 16 Apr 2001 16:00:38 -0600
+X-Mailer: KMail [version 1.2]
 In-Reply-To: <20010416174223.A21689@thyrsus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20010416174223.A21689@thyrsus.com>
+Cc: elenstev@mesatop.com
+MIME-Version: 1.0
+Message-Id: <01041616003800.01249@spc2.esa.lanl.gov>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric S. Raymond wrote:
-
-> 				CML2 NEWS
-> 
+On Monday 16 April 2001 15:42, Eric S. Raymond wrote:
+> CML2 NEWS
+>
 > The latest version is always available at http://www.tuxedo.org/~esr/cml2/
-> 
-> Release 1.1.3: 
+>
+> Release 1.1.3:
 > 	* Freeze color changed from cyan to blue.
+> 	* Tom Rini's network-configuration patches.
+> 	* Better detection of set variables to be colored green.
+> 	* Minor resize and scrolling fixes in menuconfig.
+> 	* Fixed a rather nasty bug involving side-effect computation
+> 	  that showed up if you set, unset, and reset a symbol in a
+> 	  choices menu.
+> 	* In non-choice menus, select bar is now advanced after [ymn].
+>
+> Point release -- bug fixes and UI cleanups.
 
-I suggest you stop dinking the colors.  There will always be some
-colors, for some screens, for some eyes, that are illegible,
-culturally unacceptable, or otherwise bogus.
+Whoops,  I just tried out 1.1.3 using make xconfig, and now all the option labels
+are dark green, not just the ones set to y.
 
-Instead, read the colors from the .Xdefaults system.
+Thanks for changing the freeze color to blue.  That is much more readable against
+the silver background for make xconfig.
 
--- 
-There is / one art             || John Cowan <jcowan@reutershealth.com>
-no more / no less              || http://www.reutershealth.com
-to do / all things             || http://www.ccil.org/~cowan
-with art- / lessness           \\ -- Piet Hein
-
+Steven

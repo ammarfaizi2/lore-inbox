@@ -1,78 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270499AbTHQTMD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 15:12:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270501AbTHQTMD
+	id S270520AbTHQTSJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 15:18:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270524AbTHQTSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 15:12:03 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:24023 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S270499AbTHQTMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 15:12:00 -0400
-Message-ID: <3F3FD2E7.9030808@intel.com>
-Date: Sun, 17 Aug 2003 22:09:27 +0300
-From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] Re: Kernel threads resource leakage
-X-Enigmail-Version: 0.76.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 17 Aug 2003 15:18:08 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:25472 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S270520AbTHQTSA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 15:18:00 -0400
+Date: Sun, 17 Aug 2003 20:17:39 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Jan Rychter <jan@rychter.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Centrino support
+Message-ID: <20030817191739.GA3305@mail.jlokier.co.uk>
+References: <m2wude3i2y.fsf@tnuctip.rychter.com> <1060972810.29086.8.camel@serpentine.internal.keyresearch.com> <3F3D469B.2020507@yahoo.com> <20030816123410.56cbb550.skraw@ithnet.com> <m2isoxgys4.fsf@tnuctip.rychter.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m2isoxgys4.fsf@tnuctip.rychter.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I do not subscribed to the list, thus please in your reply CC me 
-(vladimir.kondratiev@intel.com)
+Jan Rychter wrote:
+> >>>>> "Stephan" == Stephan von Krawczynski <skraw@ithnet.com>:
+>  Stephan> I think I have read in an earlier thread something the like.
+>  Stephan> But I cannot understand how this can be logically linked to
+>  Stephan> releasing docs. If all companies would follow this thought
+>  Stephan> e.g. Siemens would never have released the docs for ISDN
+>  Stephan> chipsets and therefore no ISDN drivers would be in the
+>  Stephan> kernel. I'd rather say someone with money is afraid ...
+> 
+> Yes, that sounds rather ridiculous. Sooner or later someone is going to
+> reverse-engineer the thing, so not releasing drivers or specs just
+> delays this moment. If there's a manager at Intel that thinks this way,
+> he doesn't understand much about security.
 
-Some time ago, I reported problem WRT resource leakage in kernel_thread. 
-(2.4.20) To demonstrate it, I submitted program that uses /proc file to 
-display some info and to start/stop kernel thread. I don't want to 
-re-post this code again.
+Let's be fair to Intel for a moment.
 
-Finally, I found that resource leak present only if you create 
-kernel_thread as non-root. With my previous example, do "insmod" as 
-root, while perform actual thread creation/destruction (echo "+" 
- >/proc/kthread etc.) as non-root.
+With hardware radios, anyone can open it up, fiddle with electronics,
+and make it do something illegal, possibly dangerous.  Manufacturers
+aren't required to make them impregnable!
 
-To demonstrate it better, I added to /proc 'read' procedure content of 
-"struct user_struct" (current->user).
-It makes clear, that in this case current->user->processes do not 
-decremented when thread destroyed, and eventually reaches user limit 
-(usually 4k processes). At this point, this user can do nothing.
+All manufacturers have to do is not put any knobs on the front which
+can make the radio do unapproved things.
 
-Problem leaves in "reparent_to_init" code in kernel/sched.c; there 
-current->user is simply changed to point to INIT_USER without proper 
-resource management.
+Folk are allowed to fiddle with radio electronics, with care, as long
+as they get themselves a radio license and stick to the rules.
 
-Does it worth inclusion in 2.4.22?
+They can even sell an altered device, if they take it through the FCC
+approval process.
 
-Following patch fixes this bug. I verified that with this patch applied, 
-kernel_thread behaves properly.
+With a software radio, it's analagous.  The manufacturer doesn't have
+to make it _impossible_ to reprogram, they just have to make it hard
+enough that ordinary users won't do it.
 
---- kernel/sched.c.orig    2003-08-17 20:12:14.000000000 +0300
-+++ kernel/sched.c    2003-08-17 21:21:08.000000000 +0300
-@@ -1274,8 +1274,16 @@
-     this_task->cap_permitted = CAP_FULL_SET;
-     this_task->keep_capabilities = 0;
-     memcpy(this_task->rlim, init_task.rlim, sizeof(*(this_task->rlim)));
--    this_task->user = INIT_USER;
--
-+    if (this_task->uid) { /* not root? switch user */
-+        struct user_struct *old_user = this_task->user,
-+            *new_user = INIT_USER;
-+        this_task->uid = 0;
-+        this_task->user = new_user;
-+        atomic_inc(&new_user->__count);
-+        atomic_inc(&new_user->processes);
-+        atomic_dec(&old_user->processes);
-+        free_uid(old_user);
-+    }
-     spin_unlock(&runqueue_lock);
-     write_unlock_irq(&tasklist_lock);
- }
+Releasing the source code may or may not result in ordinary users
+reprograming their radios in harmful ways.  Though, you can imagine
+people would circulate patches to boost the power in no time.
 
+At least there is some hope for the expert hobbyist: they _can_
+reverse engineer the device.  It is good that this is possible.
 
+If Intel build a crypto-based authentication mechanism into their
+software radios, then there is no hope for the amateur radio hobbyist
+to fiddle with their radios.
+
+So, really, Intel has done the amateur radio community a favour by
+leaving the tantalising possibility of reverse engineering the driver,
+compared with a DRM solution which totally prevents even expert tinkering.
+
+-- Jamie

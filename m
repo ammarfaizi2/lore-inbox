@@ -1,28 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132966AbQKZXRH>; Sun, 26 Nov 2000 18:17:07 -0500
+        id <S132996AbQKZXTR>; Sun, 26 Nov 2000 18:19:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131530AbQKZXQ5>; Sun, 26 Nov 2000 18:16:57 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19034 "EHLO
-        the-village.bc.nu") by vger.kernel.org with ESMTP
-        id <S131338AbQKZXQn>; Sun, 26 Nov 2000 18:16:43 -0500
-Subject: Re: [PATCH] modutils 2.3.20 and beyond
-To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
-Date: Sun, 26 Nov 2000 22:46:35 +0000 (GMT)
+        id <S132994AbQKZXTH>; Sun, 26 Nov 2000 18:19:07 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:27920 "EHLO
+        vger.timpanogas.org") by vger.kernel.org with ESMTP
+        id <S131530AbQKZXTC>; Sun, 26 Nov 2000 18:19:02 -0500
+Date: Sun, 26 Nov 2000 16:45:56 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001126163655.A1637@vger.timpanogas.org> from "Jeff V. Merkey" at Nov 26, 2000 04:36:55 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+Subject: Re: [PATCH] modutils 2.3.20 and beyond
+Message-ID: <20001126164556.B1665@vger.timpanogas.org>
+In-Reply-To: <20001126163655.A1637@vger.timpanogas.org> <E140AZB-0002Qh-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E140AZB-0002Qh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E140AZB-0002Qh-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Nov 26, 2000 at 10:46:35PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +		{"ignore-versions", 0, 0, 'i'},
+On Sun, Nov 26, 2000 at 10:46:35PM +0000, Alan Cox wrote:
+> > +		{"ignore-versions", 0, 0, 'i'},
+> 
+> I dont think we should encourage anyone to ignore symbol versions
 
-I dont think we should encourage anyone to ignore symbol versions
+Anaconda will barf and require over 850+ changes to the scripts without
+it.  If you look at the patch, you will note that it's a silent switch
+that's only there to avoid a noisy error message from depmod.  It 
+actually does nothing other than set a flag that also does nothing.  
+-m simply maps to -F.
+
+:-)
+
+Jeff
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

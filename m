@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271296AbTGRIUM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 04:20:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271307AbTGRIUM
+	id S269958AbTGRInR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 04:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270441AbTGRInR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 04:20:12 -0400
-Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:65460 "EHLO
-	gagarin.0x63.nu") by vger.kernel.org with ESMTP id S271296AbTGRIUJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 04:20:09 -0400
-Date: Fri, 18 Jul 2003 10:34:58 +0200
-To: linux-kernel@vger.kernel.org
-Cc: gibbs@scsiguy.com
-Subject: 2.6.0-test1 gets corrupted data when loading init
-Message-ID: <20030718083458.GC5964@h55p111.delphi.afb.lu.se>
+	Fri, 18 Jul 2003 04:43:17 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:13322 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S269958AbTGRInQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 04:43:16 -0400
+Date: Fri, 18 Jul 2003 10:58:10 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Walt H <waltabbyh@comcast.net>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       arjanv@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       davzaffiro@tasking.nl
+Subject: Re: [PATCH] pdcraid and weird IDE geometry
+Message-ID: <20030718105810.A2925@pclin040.win.tue.nl>
+References: <3F160965.7060403@comcast.net> <1058431742.5775.0.camel@laptop.fenrus.com> <3F16B49E.8070901@comcast.net> <1058453918.9055.12.camel@dhcp22.swansea.linux.org.uk> <20030717173413.A2393@pclin040.win.tue.nl> <3F175C5C.3030708@comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Anders Gustafsson <andersg@0x63.nu>
-X-Scanner: exiscan *19dQhe-0002SR-00*OXAeLmoGgh2*0x63.nu
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F175C5C.3030708@comcast.net>; from waltabbyh@comcast.net on Thu, Jul 17, 2003 at 07:33:00PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Jul 17, 2003 at 07:33:00PM -0700, Walt H wrote:
 
-with 2.6.0-test1 I get error like unresolved symbol in libs used by init or
-bad elf-file. Sometimes init manages to start and there are same type of
-errors in bash when it tries to run initscripts. This is on a dual xeon, no
-highmem (512M), ServerWorks chipset, aic79xx scsi, / on scsi.
+> OK. Just got home from work. I've tried booting and specifying geometry
+> via hdg=79780,16,63 hdg=noprobe etc... The geometry is accepted,
+> however, drive access fails when trying to read the disk. This geometry
+> is the geometry reported by hde (my old drive without screwy geometry).
+>  The code in calc_pdcblock_offset to calculate the offset is unchanged
+> in my patch (except the date type conversion to float) and calls
+> get_info_ptr for geometry.
 
-It breaks between 2.5.70 and 2.5.70-bk1, which contains a update in the
-aic79xx-drivers, so my guess is related to that.
+I don't understand. Did you introduce some float? Remove it immediately.
 
-Scsi-related hardware in machine:
+You just replace
 
-scsi0 : Adaptec AIC79XX PCI-X SCSI HBA DRIVER, Rev 1.3.0
-        <Adaptec AIC7902 Ultra320 SCSI adapter>
-        aic7902: Ultra320 Wide Channel A, SCSI Id=7, PCI 33 or 66Mhz, 512 SCBs
+        lba = (ideinfo->capacity / (ideinfo->head*ideinfo->sect));
+        lba = lba * (ideinfo->head*ideinfo->sect);
+        lba = lba - ideinfo->sect;
 
-scsi1 : Adaptec AIC79XX PCI-X SCSI HBA DRIVER, Rev 1.3.0
-        <Adaptec AIC7902 Ultra320 SCSI adapter>
-        aic7902: Ultra320 Wide Channel B, SCSI Id=7, PCI 33 or 66Mhz, 512 SCBs
+by
 
-(scsi1:A:0): 320.000MB/s transfers (160.000MHz DT|IU|QAS, 16bit)
-  Vendor: SEAGATE   Model: ST373307LW        Rev: 0002
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-    
+	lba = ideinfo->capacity - 63;
 
--- 
-Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/
+Then everything works for you, I suppose.
+Subsequently we wait for other people with the same hardware
+and see how the 63 varies as a function of their setup.
+(Or maybe you can go into the BIOS and specify different
+translations yourself?)
+
+(By the way, didnt your boot parameters lead to ideinfo->head = 16
+and ideinfo->sect = 63?)
+
+Andries
+

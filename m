@@ -1,78 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282914AbRLGQmX>; Fri, 7 Dec 2001 11:42:23 -0500
+	id <S282917AbRLGQpU>; Fri, 7 Dec 2001 11:45:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282916AbRLGQmN>; Fri, 7 Dec 2001 11:42:13 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:40075 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S282912AbRLGQmC>; Fri, 7 Dec 2001 11:42:02 -0500
-Date: Fri, 7 Dec 2001 09:41:51 -0700
-Message-Id: <200112071641.fB7GfpS14840@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Rene Rebe <rene.rebe@gmx.net>
-Cc: linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
-Subject: Re: devfs unable to handle permission: 2.4.17-pre[4,5] / ALSA-0.9.0beta[9,10]
-In-Reply-To: <20011207084910.7ec3b9c3.rene.rebe@gmx.net>
-In-Reply-To: <20011207003528.1448673e.rene.rebe@gmx.net>
-	<200112070609.fB769Eo08508@vindaloo.ras.ucalgary.ca>
-	<20011207084910.7ec3b9c3.rene.rebe@gmx.net>
+	id <S282916AbRLGQoy>; Fri, 7 Dec 2001 11:44:54 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:1033 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S282907AbRLGQoj>;
+	Fri, 7 Dec 2001 11:44:39 -0500
+Date: Fri, 7 Dec 2001 17:44:31 +0100
+From: Jens Axboe <axboe@suse.de>
+To: rwhron@earthlink.net
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: Oops on 2.5.1-pre6 doing mkreiserfs on loop device
+Message-ID: <20011207164431.GA27629@suse.de>
+In-Reply-To: <20011206233759.A173@earthlink.net> <20011207144836.GF12017@suse.de> <20011207145431.GI12017@suse.de> <20011207150058.GJ12017@suse.de> <20011207114046.A152@earthlink.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011207114046.A152@earthlink.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Rebe writes:
-> On Thu, 6 Dec 2001 23:09:14 -0700
-> Richard Gooch <rgooch@ras.ucalgary.ca> wrote:
+On Fri, Dec 07 2001, rwhron@earthlink.net wrote:
+> On Fri, Dec 07, 2001 at 04:00:58PM +0100, Jens Axboe wrote:
+> > > argh, that should read 'i' and not '0' of course.
+> > 
+> > Updated patch follows.
 > 
-> > Rene Rebe writes:
-> > > At least since 2.4.17-pre4 and -pre5 devfs is not handling
-> > > permissions in the right way with ALSA:
-[...]
-> > > rene@jackson:/dev > l dsp sound/dsp 
-> > > ls: sound/dsp: Permission denied
-> > > lr-xr-xr-x   1 root     root            9 Dec  7 00:14 dsp -> sound/dsp
-> > > rene@jackson:/dev > cd sound/
-> > > bash: cd: sound/: Permission denied
-> > > rene@jackson:/dev > 
-> > > 
-> > > rene@jackson:/dev > l snd
-> > > ls: snd/..: Permission denied
-> > > ls: snd/.: Permission denied
-> > > ls: snd/controlC0: Permission denied
-> > > ls: snd/controlC1: Permission denied
-> > > ls: snd/timer: Permission denied
-> > > ls: snd/midiC0D0: Permission denied
-> > > ls: snd/pcmC0D2p: Permission denied
-> > > ls: snd/pcmC0D1c: Permission denied
-> > > ls: snd/pcmC0D0p: Permission denied
-> > > ls: snd/pcmC0D0c: Permission denied
-> > > ls: snd/midiC1D0: Permission denied
-> > > ls: snd/pcmC1D0p: Permission denied
-> > > ls: snd/pcmC1D0c: Permission denied
-> > > total 0
-> > > 
-> > > They all have 666 (or 777 for dirs)!
+> I got a very similar oops during mkreiserfs /dev/loop0 on this
+> HIGHMEM machine.
 
-Are you positive the directory has 777 permissions?
+loop can't be trusted yet. btw, updated patch on kernel.org,
+/pub/linux/kernel/people/axboe/patches/v2.5/2.5.1-pre6
 
-Thomas Hood may have found your problem:
-> Some devfs permission problems may have arisen because of the
-> fact that devfs now notifies devfsd of the creation of
-> directories.  Many people have devfsd configured to set
-> permissions to all devices matching a certain regular
-> expression --- e.g., all devices with "sound" in their
-> pathname.  The problem is that the "sound" directory itself
-> matches this regular expression, and so will have its perm
-> bits set exactly like the device files' perm bits---e.g.,
-> with the eXamine bit cleared.  The solution is to edit the
-> devfsd config so that it excludes the directory.  E.g.,
-> instead of:
->     REGISTER sound PERMISSIONS root.audio 0664
-> (which worked before but won't any more) do:
->     REGISTER ^sound/.* PERMISSIONS root.audio 0664
-> or something similar.
+-- 
+Jens Axboe
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

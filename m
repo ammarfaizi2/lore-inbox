@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266639AbUGVIVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266806AbUGVIYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266639AbUGVIVq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 04:21:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266805AbUGVIVq
+	id S266806AbUGVIYe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 04:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266805AbUGVIYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 04:21:46 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:62932 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S266639AbUGVIVp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 04:21:45 -0400
-In-Reply-To: <200407211607.11915.jbarnes@engr.sgi.com>
-References: <20040721091249.GA1336@suse.de> <1090421466.2002.24.camel@gaston> <200407211607.11915.jbarnes@engr.sgi.com>
-Mime-Version: 1.0 (Apple Message framework v618)
-Message-Id: <3156F76B-DBB8-11D8-9237-000A95A4DC02@kernel.crashing.org>
-Cc: Olaf Hering <olh@suse.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Paul Mackeras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: reserve legacy io regions on powermac
-Date: Thu, 22 Jul 2004 10:21:55 +0200
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-X-Mailer: Apple Mail (2.618)
-X-MIMETrack: Itemize by SMTP Server on D12ML064/12/M/IBM(Release 6.0.2CF2HF259 | March
- 11, 2004) at 22/07/2004 10:21:10,
-	Serialize by Router on D12ML064/12/M/IBM(Release 6.0.2CF2HF259 | March 11, 2004) at
- 22/07/2004 10:21:11,
-	Serialize complete at 22/07/2004 10:21:11
+	Thu, 22 Jul 2004 04:24:34 -0400
+Received: from twix.hotpop.com ([38.113.3.71]:14826 "EHLO twix.hotpop.com")
+	by vger.kernel.org with ESMTP id S266806AbUGVIYc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 04:24:32 -0400
+Subject: unresloved systems /drm/sis.o
+From: "Joel n.solanki" <zealous@bonbon.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1090484680.2312.5.camel@joel.d2visp.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 22 Jul 2004 13:54:41 +0530
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Note that this is still all workarounds... Nothing prevents you (and 
->> some
->> people actually do that) to put a PCI card with legacy serial ports 
->> on it
->> inside a pmac....
->
-> Can you actually support this?  Will it work?
+Dear kernel gurus..
 
-It works fine with Darwin, so it should work with Linux, too...
+My system is Redhat 9.0 
+I have compiled 2.4.21 kernel downloaded from kernel.org
+all things went good according to my choice.
+But when doing make modules_install i got the error for Unresolved
+sysmbols.
 
-I don't know if Linux likes to have a device sit at I/O address
-0x0 -- this might give some problems.
+Result of depmod -a
 
 
-Segher
+[root@joel root]# depmod -a
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.21/kernel/drivers/char/drm/sis.o
+
+
+So what should i enable in this kernel so that i can not see error
+again.
+Searched for this error on google but cant find appropriate answer.
+it says "SIS DRM requires SIS frame buffer, known problem"
+
+but i didnt got solution from above sentence. i am very new to kernel
+compilation.
+
+Any ideas,
+
+Regards,
+Joel
+
 

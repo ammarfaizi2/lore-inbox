@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbUKJM6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbUKJNDN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbUKJM6c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 07:58:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbUKJM6c
+	id S261788AbUKJNDN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 08:03:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUKJNDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 07:58:32 -0500
-Received: from nibbel.kulnet.kuleuven.ac.be ([134.58.240.41]:29338 "EHLO
-	nibbel.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id S261717AbUKJM6a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 07:58:30 -0500
-Date: Wed, 10 Nov 2004 13:58:29 +0100
+	Wed, 10 Nov 2004 08:03:13 -0500
+Received: from bay22-f22.bay22.hotmail.com ([64.4.16.72]:10933 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261788AbUKJNDJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 08:03:09 -0500
+X-Originating-IP: [24.91.61.77]
+X-Originating-Email: [jwseigh_055@hotmail.com]
+From: "Joseph Seigh" <jwseigh_055@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4 virtual terminal timing
-Message-ID: <20041110125828.GB15767@zzz.i>
+Subject: Futex wake behavior question
+Date: Wed, 10 Nov 2004 08:02:56 -0500
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
-From: Tom Schouten <doelie@zzz.kotnet.org>
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY22-F224OPXok84FT00006346@hotmail.com>
+X-OriginalArrivalTime: 10 Nov 2004 13:03:02.0757 (UTC) FILETIME=[9C8F4950:01C4C725]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(2nd try at posting this.  from different email acct this time)
 
-hi all,
+I have a question about futex wake behavior.  On a uniprocessor is
+it supposed to preempt the caller and dispatch the woken thread if
+all threads in question have equal priority?
 
-kernel noob first post beware..
-i am using a virtual terminal on i386 arch to do reaction time measurement
-for a perception psychology vision/hearing experiment.
+I was playing around with an experimental lock-free implementation
+of condvars (no internal lock) and I got a 30% performance improvement
+over NPTL's implementation which I didn't expect since the mutex the
+condvar is bound to tends to be the gating factor.  I did getrusage()
+to get some stats and noticed the context switching was proportional
+to the condvar signaling, the difference between the NPTL and lock-free
+versions being one context switch which I attribute to NPTL's internal
+mutex.
 
-i am trying to find out if there is a direct path in 2.4.x from
-keyboard interrupt, through console/tty stuff to process wakeup,
-for a 2 thread process with one thread blocking on tty read, 
-running SCHED_FIFO, or a single thread process with async IO.
+As a side note, since wait morphing doesn't appear to be currently
+implemented in NPTL, you get a performance boost from signaling while
+not holding the mutex since the first thing the woken thread does is
+try to get the lock.  Even with this technique, the lock-free condvar
+does better.
 
-i suspect there is no direct path to wakeup or SIGIO delivery,
-so i walked the tty/console code for a day and i can't tell really. 
-i got very confused. i'm not using 2.6 yet (other scheduling problems).
+This behavior would also cause problems for semaphores and tend to turn
+semaphore calls into expensive coroutine calls.
 
-so, questions: 
-- where exactly does wake-up after keyboard interrupt happen?
-- if no direct path, how can i get reasonable timing from keyboard?
-- anyone has keyboard driver code or incredibly dirty hack replacing tty code
-  that can record time stamps for keys pressed/released?
-- any pointers to documentation or other hints that could put me on the right track??
+So the question is, is this a feature or a bug?  I'm on Suse 9.2 on
+a uniprocessor.  The kernel is 2.6.8-24 and NPTL is 2.3.3.
 
-i'm a bit lost
 
-cheers
-tom
+Joe Seigh
+
+_________________________________________________________________
+Express yourself instantly with MSN Messenger! Download today - it's FREE! 
+http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
+

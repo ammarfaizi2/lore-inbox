@@ -1,67 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264932AbTF3Sp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 14:45:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbTF3Sp5
+	id S264921AbTF3Svv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 14:51:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbTF3Svv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 14:45:57 -0400
-Received: from mx2.idealab.com ([64.208.8.4]:28909 "EHLO butch.idealab.com")
-	by vger.kernel.org with ESMTP id S264932AbTF3Sp4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 14:45:56 -0400
-X-Qmail-Scanner-Mail-From: srini@omnilux.net via butch.idealab.com
-X-Qmail-Scanner: 1.03 (Clean. Processed in 6.134806 secs)
-From: "Srini" <srini@omnilux.net>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: Process Termination Indication in the Device Driver
-Date: Mon, 30 Jun 2003 12:01:53 -0700
-Message-ID: <GOEALIFINNJACMGKPLKLGEDMCEAA.srini@omnilux.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <1056828251.6296.36.camel@dhcp22.swansea.linux.org.uk>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-Importance: Normal
+	Mon, 30 Jun 2003 14:51:51 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:20565 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S264921AbTF3Svt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 14:51:49 -0400
+Date: Mon, 30 Jun 2003 15:06:09 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Pete Zaitcev <zaitcev@redhat.com>, Ernie Petrides <petrides@redhat.com>
+Subject: Re: semtimedop() support on s390/s390x
+Message-ID: <20030630150609.K13329@devserv.devel.redhat.com>
+References: <200306301833.h5UIXSrS028891@pasta.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200306301833.h5UIXSrS028891@pasta.boston.redhat.com>; from petrides@redhat.com on Mon, Jun 30, 2003 at 02:33:28PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
-   		Thanks for the Reply. Using multiple instances of driver, which inturn
-causes the kernel to closes the driver when the application dies is the
-approach we
-have planned to go about.
+> Date: Mon, 30 Jun 2003 14:33:28 -0400
+> From: Ernie Petrides <petrides@redhat.com>
 
-Thanks Again
-Srini
+> On Friday, 27-Jun-2003 at 23:5 EDT, Pete Zaitcev wrote:
 
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-Sent: Saturday, June 28, 2003 12:24 PM
-To: Srini
-Cc: Linux Kernel Mailing List
-Subject: Re: Process Termination Indication in the Device Driver
+> > > +-	if (call <= SEMCTL)
+> > > ++	if (call <= SEMTIMEDOP)
+> > >   		switch (call) {
+> > >  +		case SEMTIMEDOP:
+> > 
+> > I guess this is the reason for the ENOSYS. Good catch!
+> 
+> Thanks ... there's no substitute for actual testing.  :)
+> 
+> That odd "switch-optimization" sequence in the s390x compat code
+> is also in several 2.5.73 (....) architectures, but none of
+> them have yet implemented semtimedop() support:
+> 
+> 	h8300, m68k, m68knommu, sh, sparc, sparc64
+> 
+> They'll all hit the same problem if/when they ever do semtimedop().
 
+What do folks think about the attached patch, then?
 
-On Sad, 2003-06-28 at 00:02, Srini wrote:
-> 	I am new to Linux Kernel. I am experimenting with Device Driver in Kernel
-> version 2.4. Is there a method by which the device driver could be
-indicated
-> by the
-> kernel of the termination of a "user process" asynchronously.
->
-> I know of the function find_task_by_pid that the driver could call to get
-> the task
-> structure given the pid.
+Linus was making noises that he wishes to throttle "cleanups",
+and this is a cleanup. But still... It's contained in arch code.
+I'm pretty sure I can slip it in quietly if there's a sense
+it is likely to save us the same problem in the future.
 
-If the application has files open then your device will receive flush
-events (and/or release events if its the last open) for each file handle
-as it is closed. Linux drivers dont normally care about process exit
-information in the general case therefore since the OS will ensure
-drivers get told when handles are cleaned up
+Also, I hate "<=" irrationally for some reason. I always
+use "<" and ">=". This has something to do with programming
+in pseudo-code and compiling by hand. On some brain-dead CPUs
+and with some data types it is a better comparison.
 
+I'll replicate to s390 and see if s390 -S output changes
+if the source level looks ok to Martin's & Ulrich's eyes.
 
+-- Pete
+
+diff -urN -X dontdiff linux-2.5.73-bk7/arch/sparc/kernel/sys_sparc.c linux-2.5.73-bk7-sparc/arch/sparc/kernel/sys_sparc.c
+--- linux-2.5.73-bk7/arch/sparc/kernel/sys_sparc.c	2003-05-26 18:00:38.000000000 -0700
++++ linux-2.5.73-bk7-sparc/arch/sparc/kernel/sys_sparc.c	2003-06-30 11:53:29.000000000 -0700
+@@ -120,7 +120,7 @@
+ 	version = call >> 16; /* hack for backward compatibility */
+ 	call &= 0xffff;
+ 
+-	if (call <= SEMCTL)
++	if (call < SEM_LIM)
+ 		switch (call) {
+ 		case SEMOP:
+ 			err = sys_semop (first, (struct sembuf __user *)ptr, second);
+@@ -143,7 +143,7 @@
+ 			err = -ENOSYS;
+ 			goto out;
+ 		}
+-	if (call <= MSGCTL) 
++	if (call < MSG_LIM) 
+ 		switch (call) {
+ 		case MSGSND:
+ 			err = sys_msgsnd (first, (struct msgbuf __user *) ptr, 
+@@ -176,7 +176,7 @@
+ 			err = -ENOSYS;
+ 			goto out;
+ 		}
+-	if (call <= SHMCTL) 
++	if (call < SHM_LIM) 
+ 		switch (call) {
+ 		case SHMAT:
+ 			switch (version) {
+diff -urN -X dontdiff linux-2.5.73-bk7/include/asm-sparc/ipc.h linux-2.5.73-bk7-sparc/include/asm-sparc/ipc.h
+--- linux-2.5.73-bk7/include/asm-sparc/ipc.h	2003-05-26 18:00:22.000000000 -0700
++++ linux-2.5.73-bk7-sparc/include/asm-sparc/ipc.h	2003-06-30 11:52:31.000000000 -0700
+@@ -14,14 +14,17 @@
+ #define SEMOP		 1
+ #define SEMGET		 2
+ #define SEMCTL		 3
++#define SEM_LIM		 4	/* Top of SEMFOO numbers */
+ #define MSGSND		11
+ #define MSGRCV		12
+ #define MSGGET		13
+ #define MSGCTL		14
++#define MSG_LIM		15	/* Top of MSGFOO numbers */
+ #define SHMAT		21
+ #define SHMDT		22
+ #define SHMGET		23
+ #define SHMCTL		24
++#define SHM_LIM		25	/* Top of SHMFOO numbers */
+ 
+ /* Used by the DIPC package, try and avoid reusing it */
+ #define DIPC            25

@@ -1,115 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265881AbUAQM52 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 07:57:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265963AbUAQM51
+	id S265292AbUAQNN0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 08:13:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265465AbUAQNN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 07:57:27 -0500
-Received: from pengo.systems.pipex.net ([62.241.160.193]:57488 "EHLO
-	pengo.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S265881AbUAQM5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 07:57:25 -0500
-Date: Sat, 17 Jan 2004 13:00:34 +0000
-From: James Stone <stone1@btinternet.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: sound usb related kernel panic on reboot
-Message-ID: <20040117130034.GA705@moon.base>
-References: <20040116224446.GA758@moon.base>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040116224446.GA758@moon.base>
-User-Agent: Mutt/1.5.4i
+	Sat, 17 Jan 2004 08:13:26 -0500
+Received: from [24.35.117.106] ([24.35.117.106]:54922 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265292AbUAQNNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 08:13:21 -0500
+Date: Sat, 17 Jan 2004 08:13:12 -0500 (EST)
+From: Thomas Molina <tmolina@cablespeed.com>
+X-X-Sender: tmolina@localhost.localdomain
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@osdl.org>
+Subject: 2.6.1-mm4
+Message-ID: <Pine.LNX.4.58.0401170708280.14572@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have found the soultion to the problem. It was entirely unrelated to
-the kernel- sorry!
+I issued a reboot command under -mm4 and received the following oops some 
+time after the "Sending all processes the TERM signal" message.  This 
+message did not make it into syslog.  Following this oops are one 
+"sleeping function called from invalid context at 
+include/linux/rwsem.h:43" and one "bad: scheduling while atomic!" message.  
+Then I get the message "no more processes left in this runlevel", after 
+which processing stops.  Nothing further appears to happen, but I can 
+still use <SHIFT><PAGE [UP|DOWN]> to scroll screen.
 
-I was running the kernel alsa modules but I had different versions of
-the alsa tools and alsa lib installed. Although it _seemed_ to work, it
-also led to the kernel panics on shutdown.
+I've typed this in by hand so there may be errors.  This machine is a 
+Presario 12XL325 laptop and does not have a serial port to use as a remote 
+console.  This oops is reproducable, but does not happen on every reboot.
 
-James
+Unable to handle kernel paging request at virtual address c778c950
+ printing eip:
+c0130555
+*pde = 0001a063
+*pte = 0778c000
+Oops: 0000 (#1]
+PREEMPT DEBUG_PAGEALLOC
+CPU:	0
+EIP:	0060:[<c0130555>]    Not tainted VLI
+EFLAGS: 00010086
+EIP is at __tasklet_schedule+0x35/0x50
+eax: c6e9c000   ebx: 00000046   ecx: 00000186   edx: c778c950
+esi: 00000000   edi: c6eb6950   ebp: c6e9de74   esp: c6e9de70
+ds: 007b   es: 007b   ss: 0068
+Process S01reboot (pid: 3322, threadinfo=c6e9c000 task=c6eb6950)
+Stack: 00000000 c6e9dea8 c012267e 00000000 00000000 c2213fc4 c6e9dec0 
+13aaa68c
+       00895486 3f33cb49 00001640 00000000 c6e9c000 401610c8 c6e9dec0 
+c012212c
+       00000000 00000000 c2117950 c6eb6fe0 c6e9df20 c0128880 00000000 
+01200011
+Call Trace:
+[<c012267e>] scheduler_tick+0x6e/0x6b0
+[<c012212c>] sched_fork+0xbc/0xe0
+[<c0128880>] copy_process+0x5e0/0xfe0
+[<c01292cd>] do_fork+0x4d/0x1c1
+[<c013bba7>] sigprocmask+0xf7/0x2a0
+[<c017b54a>] generic_file_llseek+0x3a/0xf0
+[<c017bc90>] sys_llseek+0xd0/0x100
+[<c0109cef>] sys_clone+0x3f/0x50
+[<c02ec24a>] sysenter_past_esp+0x43/0x65
 
+Code: 0a 3c c0 89 10 83 0d 20 0a 3c c0 20 a3 00 0a 3c c0 b8 00 e0 ff ff 21 
+e0 f7 40 14 00 ff ff 00 75 15 8b 15 40 0b 3c c0 85 d2 74 0b <8b> 02 85 c0 
+75 0a 90 8d 74 26 00 53 9d 5b 5d c3 89 d0 e8 b4 1a
+<6>note: S01reboot[2352] exited with preempt_count 1
 
-On Fri, Jan 16, 2004 at 10:44:46PM +0000, James Stone wrote:
-> Please cc me with any replies.
-> 
-> I have been getting the already reported kernel panic on shutdown/reboot
-> which seems to be related in some way to the modem_run userspace driver
-> for the alcatel speedtouch modem. I have now noticed another one which
-> is also related to USB in some way.. 
-> 
-> I have a midi keyboard (evolution MK-249C) attached via USB and when it
-> is switched on, I get the kernel panic on shutdown. I can supply the
-> full trace if required although it will require me writing it by hand as
-> it does not seem to be recorded in any logs.
-> 
-> The output from /var/log/kernel is as follows:
-> 
-> Jan 16 19:17:18 moon kernel: agpgart: Putting AGP V2 device at 
-> 0000:00:00.0 into 4x mode
-> Jan 16 19:17:18 moon kernel: agpgart: Putting AGP V2 device at
-> 0000:01:00.0 into 4x mode
-> Jan 16 19:17:18 moon kernel: atkbd.c: Unknown key released (translated
-> set 2, code 0x7a on isa0060/serio0).
-> Jan 16 19:17:18 moon kernel: atkbd.c: Unknown key released (translated
-> set 2, code 0x7a on isa0060/serio0).
-> Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
-> driver usb-storage
-> Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
-> driver visor
-> Jan 16 19:17:27 moon kernel: drivers/usb/serial/usb-serial.c: USB
-> Serial deregistering driver Handspring Visor / Palm OS
-> Jan 16 19:17:27 moon kernel: drivers/usb/serial/usb-serial.c: USB
-> Serial deregistering driver Sony Clie 3.5
-> Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
-> driver usbserial
-> Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
-> driver usblp
-> Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.0: remove, state 1
-> Jan 16 19:17:27 moon kernel: usb usb1: USB disconnect, address 1
-> Jan 16 19:17:27 moon kernel: usb 1-2: USB disconnect, address 2
-> Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.0: USB bus 1
-> deregistered
-> Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.1: remove, state 1
-> Jan 16 19:17:27 moon kernel: usb usb2: USB disconnect, address 1
-> Jan 16 19:17:27 moon kernel: usb 2-1: USB disconnect, address 2
-> Jan 16 19:17:27 moon kernel: pci_pool_destroy 0000:00:10.1/uhci_td,
-> ddb60000 busy
-> Jan 16 19:17:27 moon kernel: pci_pool_destroy 0000:00:10.1/uhci_td,
-> ddb5a000 busy
-> Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.1: USB bus 2
-> deregistered
-> Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.2: remove, state 1
-> Jan 16 19:17:27 moon kernel: usb usb3: USB disconnect, address 1
-> Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.2: USB bus 3
-> deregistered
-> Jan 16 19:17:27 moon kernel: slab error in kmem_cache_destroy(): cache
-> `uhci_urb_priv': Can't free all objects
-> Jan 16 19:17:27 moon kernel: Call Trace:
-> Jan 16 19:17:27 moon kernel:  [kmem_cache_destroy+152/288]
-> kmem_cache_destroy+0x98/0x120
-> Jan 16 19:17:27 moon kernel:  [_end+542256840/1069502828]
-> uhci_hcd_cleanup+0x1c/0x5
-> 9 [uhci_hcd]
-> Jan 16 19:17:27 moon kernel:  [sys_delete_module+284/320]
-> sys_delete_module+0x11c/0
-> x140
-> Jan 16 19:17:27 moon kernel:  [sys_munmap+68/112] sys_munmap+0x44/0x70
-> Jan 16 19:17:27 moon kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-> Jan 16 19:17:27 moon kernel: 
-> Jan 16 19:17:27 moon kernel: uhci: not all urb_priv's were freed
-> Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
-> driver snd-usb-audio
-> Jan 16 19:17:32 moon kernel: drivers/usb/core/usb.c: registered new
-> driver snd-usb-audio
-> Jan 16 19:17:33 moon kernel: drivers/usb/core/usb.c: deregistering
-> driver snd-usb-audio
-> Jan 16 19:17:35 moon kernel: Kernel logging (proc) stopped.
-> Jan 16 19:17:35 moon kernel: Kernel log daemon terminating.
-> 
-> Regards,
-> 
-> James Stone

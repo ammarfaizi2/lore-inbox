@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264147AbUHSIsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263980AbUHSIsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbUHSIsU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 04:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUHSIq7
+	id S263980AbUHSIsn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 04:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUHSIsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 04:46:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31421 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263971AbUHSIq2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 04:46:28 -0400
-Subject: Re: PF_MEMALLOC in 2.6
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Alan Cox <alan@redhat.com>,
-       Greg KH <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Rik van Riel <riel@redhat.com>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20040818235523.383737cd@lembas.zaitcev.lan>
-References: <20040818235523.383737cd@lembas.zaitcev.lan>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1092905178.2038.0.camel@sisko.scot.redhat.com>
+	Thu, 19 Aug 2004 04:48:42 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64273 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263980AbUHSIrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 04:47:06 -0400
+Date: Thu, 19 Aug 2004 09:47:02 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Karel Gardas <kgardas@objectsecurity.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IBM T22/APM suspend does not work with yenta_socket module loaded on 2.6.8.1
+Message-ID: <20040819094702.A546@flint.arm.linux.org.uk>
+Mail-Followup-To: Karel Gardas <kgardas@objectsecurity.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.43.0408191011030.1006-100000@thinkpad.gardas.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 19 Aug 2004 09:46:18 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.43.0408191011030.1006-100000@thinkpad.gardas.net>; from kgardas@objectsecurity.com on Thu, Aug 19, 2004 at 10:16:04AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Aug 19, 2004 at 10:16:04AM +0200, Karel Gardas wrote:
+> I've found that APM suspend is not working on my IBM T22 properly, when
+> cardbus services are loaded. I've identified the problematic piece of code
+> as a yenta_socket module -- when I stop cardmgr and unload this module,
+> suspend starts to work.
 
-On Thu, 2004-08-19 at 07:55, Pete Zaitcev wrote:
-> The PF_MEMALLOC is required on usb-storage threads in 2.4, because ext3
-> will deadlock and otherwise misbehave when it's trying to write out
-> dirty pages under memory pressure.
+So it doesn't even work with cardmgr stopped and yenta loaded?
+Have you tried removing any cards plugged in to the sockets?
 
-> I received a bug report today from an FC3T1 user with same symptoms
-> as 2.4. But I'm entirely clueless in the way VM operates. Comments?
+You could try grabbing the cbdump program from pcmcia.arm.linux.org.uk
+and trying to identify whether there's any differences in the register
+settings of the Cardbus bridges - between having no yenta module loaded
+and having yenta loaded with the sockets suspended using:
 
+echo 3 > /sys/class/pcmcia_socket/pcmcia_socket0/device/power/state
+echo 3 > /sys/class/pcmcia_socket/pcmcia_socket1/device/power/state
 
-> @@ -285,7 +285,7 @@ static int usb_stor_control_thread(void 
-> -	current->flags |= PF_NOFREEZE;
-> +	current->flags |= PF_NOFREEZE|PF_MEMALLOC;
+(echo 0 to these files to resume the sockets.)
 
-Looks entirely reasonable to me.
-
---Stephen
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

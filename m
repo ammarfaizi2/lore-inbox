@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262599AbTDQDgq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 23:36:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262671AbTDQDgq
+	id S262671AbTDQDlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 23:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262734AbTDQDlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 23:36:46 -0400
-Received: from dp.samba.org ([66.70.73.150]:22461 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262599AbTDQDgp (ORCPT
+	Wed, 16 Apr 2003 23:41:09 -0400
+Received: from granite.he.net ([216.218.226.66]:16403 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S262671AbTDQDlI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 23:36:45 -0400
-Date: Thu, 17 Apr 2003 13:48:25 +1000
-From: "'David Gibson'" <david@gibson.dropbear.id.au>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'ranty@debian.org'" <ranty@debian.org>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: firmware separation filesystem (fwfs)
-Message-ID: <20030417034825.GG9219@zax>
-Mail-Followup-To: 'David Gibson' <david@gibson.dropbear.id.au>,
-	"Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-	'Alan Cox' <alan@lxorguk.ukuu.org.uk>,
-	"'ranty@debian.org'" <ranty@debian.org>,
-	'Linux Kernel Mailing List' <linux-kernel@vger.kernel.org>
-References: <A46BBDB345A7D5118EC90002A5072C780C262E38@orsmsx116.jf.intel.com>
+	Wed, 16 Apr 2003 23:41:08 -0400
+Date: Wed, 16 Apr 2003 20:54:31 -0700
+From: Greg KH <greg@kroah.com>
+To: Philippe =?iso-8859-1?Q?Gramoull=E9?= 
+	<philippe.gramoulle@mmania.com>
+Cc: Patrick Mochel <mochel@osdl.org>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.67-mm3: Bad: scheduling while atomic with IEEE1394 then hard freeze ( lockup on CPU0)
+Message-ID: <20030417035431.GA2201@kroah.com>
+References: <20030416055402.GC15860@kroah.com> <Pine.LNX.4.44.0304160951160.912-100000@cherise> <20030417014051.60f6b9b3.philippe.gramoulle@mmania.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780C262E38@orsmsx116.jf.intel.com>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030417014051.60f6b9b3.philippe.gramoulle@mmania.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, Apr 16, 2003 at 07:00:00PM -0700, Perez-Gonzalez, Inaky wrote:
+On Thu, Apr 17, 2003 at 01:40:51AM +0200, Philippe Gramoullé wrote:
 > 
-> > From: David Gibson [mailto:david@gibson.dropbear.id.au]
-> > 
-> > Incidentally another approach that also avoids nasty ioctl()s would be
-> > to invoke the userland helper with specially set up FD 1, which lets
-> > the kernel capture the program's stdout. 
+> Hello,
 > 
-> I think this makes too many assumptions specially taking into
-> account that most hotplug stuff are shell scripts - they are
-> probably going to be writing all kinds of stuff to stdout.
+> On Wed, 16 Apr 2003 09:58:36 -0700 (PDT)
+> Patrick Mochel <mochel@osdl.org> wrote:
 > 
-> With the risk of repeating myself (again) and being a PITA,
-> I really think it'd be easier to copy the firmware file to a 
-> /sysfs binary file registered by the device driver during 
-> initialization; then the driver can wait for the file to be
-> written with a valid firmware before finishing the init
-> sequence. The infrastructure is already there (or isn't ... 
-> is it?).
+>   | In short, I think we can remove the locks entirely. We can at least see 
+>   | what happens.. 
+> 
+> Reverting Andrew's patch and applying yours resulted in not being able to boot:
 
-Well, I guess that would be basically what I mean by an equivalent
-sysfs thing.  I haven't looked at the binary file support in sysfs, as
-yet.
+Same for me, looks like people are grabbing this lock before it's
+initialized :(
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+greg k-h

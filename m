@@ -1,49 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262489AbVCVE6e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262367AbVCVFC0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262489AbVCVE6e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 23:58:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbVCVE0p
+	id S262367AbVCVFC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 00:02:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbVCVE6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 23:26:45 -0500
-Received: from mail.kroah.org ([69.55.234.183]:30176 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262375AbVCVETm (ORCPT
+	Mon, 21 Mar 2005 23:58:55 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:28536 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262487AbVCVE6G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 23:19:42 -0500
-Date: Mon, 21 Mar 2005 20:02:11 -0800
-From: Greg KH <greg@kroah.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>, Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: current linus bk, error mounting root
-Message-ID: <20050322040211.GB13745@kroah.com>
-References: <9e47339105030909031486744f@mail.gmail.com> <20050321154131.30616ed0.akpm@osdl.org> <9e473391050321155735fc506d@mail.gmail.com> <20050321161925.76c37a7f.akpm@osdl.org> <5dab45539e663d50b9e3e5d05fc11336@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5dab45539e663d50b9e3e5d05fc11336@mac.com>
-User-Agent: Mutt/1.5.8i
+	Mon, 21 Mar 2005 23:58:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=uqQCAxIsW8TLf4umZrC9pPPR+QWtsHScEJDFRJrqJdLAINLgQfb9R/C9XqJBTSQepO00b7TtxHXU0VaiIFP0v9o8Ke/wtF2hmfNsaUicUwuCnqogYE6pQqw/W4lvnS85G4aA3JpKLV/qxLiedVtghRkq+LwlBJfbhKYBjWzS5gE=
+Message-ID: <423FA59E.5030406@gmail.com>
+Date: Tue, 22 Mar 2005 13:57:02 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050118)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: dtor_core@ameritech.net
+Cc: mochel@digitalimplant.org, James.Bottomley@steeleye.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] driver model/scsi: synchronize pm calls with probe/remove
+References: <20050321091846.GA25933@htj.dyndns.org> <d120d500050321064028e255fe@mail.gmail.com>
+In-Reply-To: <d120d500050321064028e255fe@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 21, 2005 at 08:14:29PM -0500, Kyle Moffett wrote:
-> On Mar 21, 2005, at 19:19, Andrew Morton wrote:
-> >Jon Smirl <jonsmirl@gmail.com> wrote:
-> >>Jens is right that this is a user space issue, but how many people are
-> >>going to find this out the hard way when their root drives stop
-> >>mounting. Since no one is complaining I have to assume that most
-> >>kernel developers have their root device drivers built into the
-> >>kernel. I was loading mine as a module since for a long time Redhat
-> >>was not shipping kernels with SATA built in.
-> >
-> >I don't agree that this is a userspace issue.  It's just not sane for a
-> >driver to be in an unusable state for an arbitrary length of time after
-> >modprobe returns.
+  Hi, Dmitry.
+
+Dmitry Torokhov wrote:
+> On Mon, 21 Mar 2005 18:18:46 +0900, Tejun Heo <htejun@gmail.com> wrote:
 > 
-> What about if I'm booting from a USB drive?
+>>Hello, Dmitry, Mochel and James.
+>>
+>>I've been looking at sd code and found seemingly bogus 'if (!sdkp)'
+>>tests with /* this can happen */ comment.  I've digged changelog and
+>>found out that this was to prevent oops which occurs if some driver
+>>gets stuck inside ->probe and the machine goes down and calls back
+>>->remove.  IMHO, we should avoid this problem by fixing driver ->probe
+>>or ->remove callbacks instead of detecting and bypassing
+>>half-initialized/destroyed devices in pm callbacks.
+>>
+>>This patch read-locks a device's bus using device_pm_down_read_bus()
+>>before invoking any pm callback.
+> 
+> 
+> Hi Tejun,
+> 
+> There are talks about getting rid of bus's rwsem and replacing it with
+> a per-device semaphore to serialize probe, remove, suspend and resume.
+> This should resolve entire host of problems including this one, if I
+> unrerstand it correctly.
+> 
+> Please take a look here:
+> http://seclists.org/lists/linux-kernel/2005/Mar/5847.html
+> 
 
-That's a different issue, as you stated.  There are other patches
-floating around that address this.
+  Yeap, sounds great.  Hmmm.. as the final result will (and should) be 
+the same for inidividual drivers (no overlapping callback invocations), 
+how about incorporating my patch before implementing the proposed fix 
+such that we can get rid of the awkward semantic first?  The proposed 
+change should change the same part of code anyway, so I don't think this 
+would be a hassle.
 
-thanks,
+  Thanks.
 
-greg k-h
+-- 
+tejun
+

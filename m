@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131724AbRDJMzW>; Tue, 10 Apr 2001 08:55:22 -0400
+	id <S131691AbRDJM5C>; Tue, 10 Apr 2001 08:57:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131806AbRDJMzN>; Tue, 10 Apr 2001 08:55:13 -0400
-Received: from ns.suse.de ([213.95.15.193]:6668 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131691AbRDJMzA>;
-	Tue, 10 Apr 2001 08:55:00 -0400
-Date: Tue, 10 Apr 2001 14:54:53 +0200
-From: Andi Kleen <ak@suse.de>
-To: Mark Salisbury <mbs@mc.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+	id <S131806AbRDJM4x>; Tue, 10 Apr 2001 08:56:53 -0400
+Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:56483 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S131691AbRDJM4h> convert rfc822-to-8bit; Tue, 10 Apr 2001 08:56:37 -0400
+From: schwidefsky@de.ibm.com
+X-Lotus-FromDomain: IBMDE
+To: Andi Kleen <ak@suse.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
+        Mark Salisbury <mbs@mc.com>, Jeff Dike <jdike@karaya.com>,
+        linux-kernel@vger.kernel.org
+Message-ID: <C1256A2A.0046E317.00@d12mta07.de.ibm.com>
+Date: Tue, 10 Apr 2001 14:54:31 +0200
 Subject: Re: No 100 HZ timer !
-Message-ID: <20010410145453.A16448@gruyere.muc.suse.de>
-In-Reply-To: <200104091830.NAA03017@ccure.karaya.com> <01041008110318.01893@pc-eng24.mc.com> <20010410144554.A16207@gruyere.muc.suse.de> <0104100846101E.01893@pc-eng24.mc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <0104100846101E.01893@pc-eng24.mc.com>; from mbs@mc.com on Tue, Apr 10, 2001 at 08:42:33AM -0400
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 10, 2001 at 08:42:33AM -0400, Mark Salisbury wrote:
-> On Tue, 10 Apr 2001, Andi Kleen wrote:
-> > .... Also generally the kernel has quite a lot of timers. 
-> 
-> are these generaly of the long interval, failure timeout type?
 
-A lot of them are, but not all.
 
--Andi
+>Does not sound very attractive all at all on non virtual machines (I see
+the point on
+>UML/VM):
+>making system entry/context switch/interrupts slower, making add_timer
+slower, just to
+>process a few less timer interrupts. That's like robbing the fast paths
+for a slow path.
+The system entry/exit/context switch is slower. The add_timer/mod_timer is
+only
+a little bit slower in the case a new soonest timer event has been created.
+ I
+think you can forget the additional overhead for add_timer/mod_timer, its
+the
+additional path length on the system entry/exit that might be problematic.
+
+blue skies,
+   Martin
+
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
+
+

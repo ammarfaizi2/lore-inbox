@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262591AbTLIDAD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 22:00:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTLIDAD
+	id S262603AbTLIDHV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 22:07:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262608AbTLIDHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 22:00:03 -0500
-Received: from mail.jlokier.co.uk ([81.29.64.88]:46977 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262591AbTLIDAA
+	Mon, 8 Dec 2003 22:07:21 -0500
+Received: from mhub-c5.tc.umn.edu ([160.94.128.35]:19852 "EHLO
+	mhub-c5.tc.umn.edu") by vger.kernel.org with ESMTP id S262603AbTLIDHU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 22:00:00 -0500
-Date: Tue, 9 Dec 2003 02:59:52 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Nikita Danilov <Nikita@Namesys.COM>, Arnd Bergmann <arnd@arndb.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: const versus __attribute__((const))
-Message-ID: <20031209025952.GA26439@mail.shareable.org>
-References: <200312081646.42191.arnd@arndb.de> <3FD4B9E6.9090902@zytor.com> <16340.49791.585097.389128@laputa.namesys.com> <3FD4C375.2060803@zytor.com>
+	Mon, 8 Dec 2003 22:07:20 -0500
+Subject: Re: Kernel include file
+From: Matthew Reppert <repp0017@tc.umn.edu>
+To: weeteck@linux.net
+Cc: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+In-Reply-To: <20031207161929.7E0953951@sitemail.everyone.net>
+References: <20031207161929.7E0953951@sitemail.everyone.net>
+Content-Type: text/plain
+Message-Id: <1070939237.24409.5.camel@minerva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FD4C375.2060803@zytor.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 08 Dec 2003 21:07:17 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Actually, the reason it doesn't use it for the inlines is because it 
-> doesn't need to -- it already has full visibility, so it doesn't need it 
-> to be spelled out.
+On Sun, 2003-12-07 at 10:19, Neo Wee Teck wrote:
+> Hmm... wrong idea...
+> 
+> <new kernel>/include/linux
+> 
+> update to..
+> 
+> /usr/include/linux
+> 
+> Should I?
 
-Until a few minutes ago, I disagreed.  I thought GCC wouldn't
-eliminate calls to inline functions which contain an inline asm, such
-as current_thread_info().
+No.
 
-But having just looked, multiple calls to current_thread_info() are
-eliminated.  GCC inspects the arguments of the inline asm which is the
-body of this function, and concludes that the asm itself is to be
-optimised like a const function, depending only on its input operands.
+The headers in /usr/include/linux "belong to" glibc and should never be
+changed, as it may cause newly compiled programs to break in nasty and
+subtle ways.
 
-In fact to get GCC to _not_ optimise away inline asms, or even to
-behave like "pure" (allowing memory to be read) instead of "const",
-they must be declared volatile, or have no outputs.  Putting "memory"
-in the clobber list says only that the asm clobbers memory, not that
-it reads memory.
+kernelnewbies.org has a nice FAQ item on this.
 
-It would be nice to have a way to declare an asm like "pure" not
-"const", so that it's allowed to read memory but multiple calls can be
-eliminated; I don't know of a way to express that.
+Matt
 
--- Jamie

@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131587AbRCOF3z>; Thu, 15 Mar 2001 00:29:55 -0500
+	id <S131653AbRCOHYm>; Thu, 15 Mar 2001 02:24:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131649AbRCOF3q>; Thu, 15 Mar 2001 00:29:46 -0500
-Received: from falcon.prod.itd.earthlink.net ([207.217.120.74]:59584 "EHLO
-	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S131587AbRCOF3g>; Thu, 15 Mar 2001 00:29:36 -0500
-Date: Wed, 14 Mar 2001 13:30:03 -0800 (PST)
-From: James Simmons <jsimmons@linux-fbdev.org>
-X-X-Sender: <jsimmons@linux.local>
-To: Brad Douglas <brad@neruo.com>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] [RFC] fbdev & power management
-Message-ID: <Pine.LNX.4.31.0103141321040.779-100000@linux.local>
+	id <S131654AbRCOHYd>; Thu, 15 Mar 2001 02:24:33 -0500
+Received: from list.framfab.se ([195.54.96.202]:42249 "EHLO list.framfab.se")
+	by vger.kernel.org with ESMTP id <S131653AbRCOHYX> convert rfc822-to-8bit;
+	Thu, 15 Mar 2001 02:24:23 -0500
+Message-ID: <E6D22E487D45D411931B00508BCF93E75C0326@storeg001.framfab.se>
+From: Mårten Wikström <Marten.Wikstrom@framfab.se>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: How to optimize routing performance
+Date: Thu, 15 Mar 2001 08:23:37 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've performed a test on the routing capacity of a Linux 2.4.2 box versus a
+FreeBSD 4.2 box. I used two Pentium Pro 200Mhz computers with 64Mb memory,
+and two DEC 100Mbit ethernet cards. I used a Smartbits test-tool to measure
+the packet throughput and the packet size was set to 64 bytes. Linux dropped
+no packets up to about 27000 packets/s, but then it started to drop packets
+at higher rates. Worse yet, the output rate actually decreased, so at the
+input rate of 40000 packets/s almost no packets got through. The behaviour
+of FreeBSD was different, it showed a steadily increased output rate up to
+about 70000 packets/s before the output rate decreased. (Then the output
+rate was apprx. 40000 packets/s).
+I have not made any special optimizations, aside from not having any
+background processes running.
 
->But wouldn't falling back to dummycon prevent the driver specific
->suspend/resume calls from working?  Or at a minimum, make handling those
->calls more complex?
+So, my question is: are these figures true, or is it possible to optimize
+the kernel somehow? The only changes I have made to the kernel config was to
+disable advanced routing.
 
-Not if suspend/resume are handled on the fbdev driver level. Dummycon
-would only shutdown fbcon on explict open of /dev/fb. Also note it will be
-possible to have only a serial console and use /dev/fb by itself. In this
-case we don't even need dummycon since their is no VT support present.
+Thanks,
 
->No, there does not need to be graphical images of the text console -- a
->simply text buffer would suffice.
-
-See email to Ben.
-
->But what about things like GTKFb and
->Embedded QT?  They would certainly benefit from having a backup screen
->image, right?  I do not believe there is any way to determine if the
->console is in fact in a 'text' or graphical state.
-
-Yes and it would not be hard to do this. I have the basic idea in the
-email to Ben. As for console in text or graphical state take a look at
-vt_ioctl.c:vt_ioctl() for KDGETMODE. You get back KD_TEXT or KD_GRAPHICS.
-
-
-MS: (n) 1. A debilitating and surprisingly widespread affliction that
-renders the sufferer barely able to perform the simplest task. 2. A disease.
-
-James Simmons  [jsimmons@linux-fbdev.org]               ____/|
-fbdev/console/gfx developer                             \ o.O|
-http://www.linux-fbdev.org                               =(_)=
-http://linuxgfx.sourceforge.net                            U
-http://linuxconsole.sourceforge.net
+Mårten
 

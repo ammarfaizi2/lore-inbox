@@ -1,50 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263116AbVCDXna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263704AbVCEEfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263116AbVCDXna (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 18:43:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263236AbVCDXjY
+	id S263704AbVCEEfs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 23:35:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263379AbVCDXUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 18:39:24 -0500
-Received: from mail.kroah.org ([69.55.234.183]:19385 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263209AbVCDVnU (ORCPT
+	Fri, 4 Mar 2005 18:20:32 -0500
+Received: from fire.osdl.org ([65.172.181.4]:49818 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263233AbVCDVRT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 16:43:20 -0500
-Date: Fri, 4 Mar 2005 13:43:11 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, chrisw@osdl.org, torvalds@osdl.org
-Subject: Re: Linux 2.6.11.1
-Message-ID: <20050304214309.GA898@kroah.com>
-References: <20050304175302.GA29289@kroah.com> <20050304124431.676fd7cf.akpm@osdl.org> <20050304205842.GA32232@kroah.com> <20050304131537.7039ca10.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050304131537.7039ca10.akpm@osdl.org>
-User-Agent: Mutt/1.5.8i
+	Fri, 4 Mar 2005 16:17:19 -0500
+Message-Id: <200503042117.j24LHGrx017967@shell0.pdx.osdl.net>
+Subject: [patch 2/5] setup_per_zone_lowmem_reserve() oops fix
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+From: akpm@osdl.org
+Date: Fri, 04 Mar 2005 13:16:55 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 01:15:37PM -0800, Andrew Morton wrote:
-> Greg KH <greg@kroah.com> wrote:
-> >
-> > > Here's the list of things which we might choose to put into 2.6.11.2.  I was
-> >  > planning on sending them in for 2.6.12 when that was going to be
-> >  > errata-only.
-> > 
-> >  Ok, care to forward them on?
-> 
-> Sure.  How do they get to Linus?
 
-Hm, either he pulls them from our new 2.6.x.y tree, or they go to him
-through you.  Either way, I'd recommend sending them to him for now,
-until we get this whole "procedure" worked out.
 
-> >  Hm, odds are the nfsd one doesn't fit our list of "acceptable things",
-> 
-> Was there such a list?  It's kinda what I'm asking about here.
+If you do 'echo 0 0 > /proc/sys/vm/lowmem_reserve_ratio' the kernel gets a
+divide-by-zero.
 
-There is, I'll post an initial version of it in a bit.
+Prevent that, and fiddle with some whitespace too.
 
-thanks,
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-greg k-h
+ 25-akpm/mm/page_alloc.c |   21 +++++++++++++++------
+ 1 files changed, 15 insertions(+), 6 deletions(-)
+
+diff -puN mm/page_alloc.c~setup_per_zone_lowmem_reserve-oops-fix mm/page_alloc.c
+--- 25/mm/page_alloc.c~setup_per_zone_lowmem_reserve-oops-fix	2005-03-04 13:16:10.000000000 -0800
++++ 25-akpm/mm/page_alloc.c	2005-03-04 13:16:10.000000000 -0800
+@@ -37,13 +37,17 @@
+ #include <asm/tlbflush.h>
+ #include "internal.h"
+ 
+-/* MCD - HACK: Find somewhere to initialize this EARLY, or make this initializer cleaner */
++/*
++ * MCD - HACK: Find somewhere to initialize this EARLY, or make this
++ * initializer cleaner
++ */
+ nodemask_t node_online_map = { { [0] = 1UL } };
+ nodemask_t node_possible_map = NODE_MASK_ALL;
+ struct pglist_data *pgdat_list;
+ unsigned long totalram_pages;
+ unsigned long totalhigh_pages;
+ long nr_swap_pages;
++
+ /*
+  * results with 256, 32 in the lowmem_reserve sysctl:
+  *	1G machine -> (16M dma, 800M-16M normal, 1G-800M high)
+@@ -1924,15 +1928,20 @@ static void setup_per_zone_lowmem_reserv
+ 
+ 	for_each_pgdat(pgdat) {
+ 		for (j = 0; j < MAX_NR_ZONES; j++) {
+-			struct zone * zone = pgdat->node_zones + j;
++			struct zone *zone = pgdat->node_zones + j;
+ 			unsigned long present_pages = zone->present_pages;
+ 
+ 			zone->lowmem_reserve[j] = 0;
+ 
+ 			for (idx = j-1; idx >= 0; idx--) {
+-				struct zone * lower_zone = pgdat->node_zones + idx;
++				struct zone *lower_zone;
++
++				if (sysctl_lowmem_reserve_ratio[idx] < 1)
++					sysctl_lowmem_reserve_ratio[idx] = 1;
+ 
+-				lower_zone->lowmem_reserve[j] = present_pages / sysctl_lowmem_reserve_ratio[idx];
++				lower_zone = pgdat->node_zones + idx;
++				lower_zone->lowmem_reserve[j] = present_pages /
++					sysctl_lowmem_reserve_ratio[idx];
+ 				present_pages += lower_zone->present_pages;
+ 			}
+ 		}
+@@ -2039,7 +2048,7 @@ module_init(init_per_zone_pages_min)
+  *	changes.
+  */
+ int min_free_kbytes_sysctl_handler(ctl_table *table, int write, 
+-		struct file *file, void __user *buffer, size_t *length, loff_t *ppos)
++	struct file *file, void __user *buffer, size_t *length, loff_t *ppos)
+ {
+ 	proc_dointvec(table, write, file, buffer, length, ppos);
+ 	setup_per_zone_pages_min();
+@@ -2056,7 +2065,7 @@ int min_free_kbytes_sysctl_handler(ctl_t
+  * if in function of the boot time zone sizes.
+  */
+ int lowmem_reserve_ratio_sysctl_handler(ctl_table *table, int write,
+-		 struct file *file, void __user *buffer, size_t *length, loff_t *ppos)
++	struct file *file, void __user *buffer, size_t *length, loff_t *ppos)
+ {
+ 	proc_dointvec_minmax(table, write, file, buffer, length, ppos);
+ 	setup_per_zone_lowmem_reserve();
+_

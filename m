@@ -1,74 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266356AbTAJSzA>; Fri, 10 Jan 2003 13:55:00 -0500
+	id <S266645AbTAJTDX>; Fri, 10 Jan 2003 14:03:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266257AbTAJSyC>; Fri, 10 Jan 2003 13:54:02 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:57269 "HELO palrel10.hp.com")
-	by vger.kernel.org with SMTP id <S266353AbTAJSxN>;
-	Fri, 10 Jan 2003 13:53:13 -0500
-Date: Fri, 10 Jan 2003 11:00:30 -0800
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Paul Mackerras <paulus@samba.org>,
-       davidm@hpl.hp.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       greg@kroah.com
-Subject: Re: [patch 2.5] 2-pass PCI probing, generic part
-Message-ID: <20030110190030.GA23108@cup.hp.com>
-References: <20030110021904.A15863@localhost.park.msu.ru> <Pine.LNX.4.44.0301091531260.1506-100000@penguin.transmeta.com> <20030110010906.GC18141@cup.hp.com> <m1y95tzbdq.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1y95tzbdq.fsf@frodo.biederman.org>
-User-Agent: Mutt/1.4i
-From: grundler@cup.hp.com (Grant Grundler)
+	id <S266930AbTAJTDT>; Fri, 10 Jan 2003 14:03:19 -0500
+Received: from mailout.nordcom.net ([213.168.202.90]:31696 "HELO
+	mailout.nordcom.net") by vger.kernel.org with SMTP
+	id <S266971AbTAJTCZ>; Fri, 10 Jan 2003 14:02:25 -0500
+Date: Fri, 10 Jan 2003 20:11:08 +0100 (CET)
+From: Pascal Schmidt <der.eremit@email.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20-acpi: NMI received for unknown reason 2d/3d
+Message-ID: <Pine.LNX.4.44.0301102002160.1120-100000@neptune.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 10, 2003 at 12:56:17AM -0700, Eric W. Biederman wrote:
-> For what it is worth these cards exist though.
 
-yes.
+Hi all,
 
-> Quadris cards have a 256MB bar, and dolphin cards default to having a 512MB bar.
-> Both are high performance I/O adapters.
+Kernel is 2.4.20 with akpm's ext3 fixes and acpi-20021212-2.4.20.diff.gz
+patched in.
 
-I'm not familiar with "dolphin" cards.
-I'm aware of "Quadrics" but I've not heard anyone try those with parisc-linux.
-Quadrics cards do work on ia64 (for some definition of "work").
+I just upgraded from a Duron 1 GHz processor to an Athlon XP 1700+. The
+only other change to the system is an updated BIOS to support the new
+processor.
 
-> If someone leaves a big enough hole for hotplug cards I guess it can work...
+Motherboard is a Soyo K7ADA, using the ALi Magik 1 chipset.
 
-Or dynamically assigns windows to PCI Bus controllers as PCI devices
-are brought on-line. For PCI Hotplug, the role of managing MMIO/IRQ
-resources has moved to the OS since these services are needed
-after the OS has taken control of the box.
+Since the CPU and BIOS upgrade, I get the following message(s) from
+the kernel:
 
-> How you define a potential boot device, and what it saves you to not assign
-> it resources I don't know.  
+> Uhhuh. NMI received for unknown reason 2d.
+> Dazed and confused, but trying to continue
+> Do you have a strange power saving mode enabled?
 
-You have it backwards. firmware only assigns resources to boot devices
-and "console" devices. ie firmware does minimal configuration.
-Why? An OS with hotplug support can do it anyway.
+The reason is 2d most of the time, with a few 3d inbetween. About 8 of
+these messages pile up in dmesg until my system (Red Hat 7.2) is
+completely done running sysinit. After that, new messages only appear
+seldomly and minutes apart with no pattern I could regocnize.
 
-A "potential boot device" has firmware support which the primary boot
-loader can use to load the OS or a secondary boot loader. But firmware
-only needs to configure a single boot/console device that is
-actually being used.
+I don't think it's a memory problem because memtest86 (I only tried a
+single run since the memory worked fine before) doesn't show up errors
+and memory-related NMIs are not "unknown reason"s to the kernel as far
+as I know.
 
+Everything that shows up in the BIOS setup related to power management
+is turned off.
 
-> I am still recovering from putting a 256MB bar and 4GB of ram in a 4GB hole,
-> with minimal loss on x86, so my imagination of what can be sanely done
-> on a 64bit arch may be a little stunted..
+Running with or without local APIC support does not change anything. Same 
+for ACPI support or not.
 
-both ia64 and later parisc boxes from HP reserve GB's of LMMIO address space
-for IO uses (LMMIO == MMIO < 4GB). AFAIK, physical memory behind that address
-space gets remapped to higher "physical" addresses by the memory controller.
-But making 256MB still fit in that space can still be a challenge.
-One 256MB BAR isn't so bad. It's when the customer wants to have a central
-server that has 2 or more such cards...64-bit BARs on 64-bit architecture
-make life alot easier.
+What can this be? Do I have to worry or is this just some fancy power
+management stuff supported by the AthlonXP that the kernel does not know
+about?
 
-grant
+Again, this is an AthlonXP 1700+ (CPU family 6, model 8, stepping 0).
+
+-- 
+Ciao,
+Pascal
+

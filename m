@@ -1,86 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265778AbUBCEKW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 23:10:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265780AbUBCEKW
+	id S265711AbUBCEf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 23:35:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265794AbUBCEf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 23:10:22 -0500
-Received: from wblv-254-118.telkomadsl.co.za ([165.165.254.118]:62343 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S265778AbUBCEKR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 23:10:17 -0500
-Subject: Re: udev depends on /usr
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Greg KH <greg@kroah.com>
-Cc: "J.A. Magallon" <jamagallon@able.es>,
-       linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040202224419.GA1158@kroah.com>
-References: <20040126215036.GA6906@kroah.com>
-	 <20040202223221.GC2748@werewolf.able.es>  <20040202224419.GA1158@kroah.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-cOrtb3RS8G68KiTACUvG"
-Message-Id: <1075781426.6931.120.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 03 Feb 2004 06:10:26 +0200
+	Mon, 2 Feb 2004 23:35:56 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:52609
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S265711AbUBCEfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 23:35:55 -0500
+Message-ID: <401F251C.2090300@redhat.com>
+Date: Mon, 02 Feb 2004 20:35:40 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040118
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
+References: <1075344395.1592.87.camel@cog.beaverton.ibm.com> <401894DA.7000609@redhat.com> <20040201012803.GN26076@dualathlon.random>
+In-Reply-To: <20040201012803.GN26076@dualathlon.random>
+X-Enigmail-Version: 0.83.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrea Arcangeli wrote:
+> I definitely call it a great success,
 
---=-cOrtb3RS8G68KiTACUvG
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+You got to be kidding.  Some object fixed in the address space which can
+perform system calls.  Nothing is more welcome to somebody trying to
+exploit some bugs.
 
-On Tue, 2004-02-03 at 00:44, Greg KH wrote:
-> On Mon, Feb 02, 2004 at 11:32:21PM +0100, J.A. Magallon wrote:
-> >=20
-> > On 2004.01.26, Greg KH wrote:
-> > > I've released the 015 version of udev.  It can be found at:
-> > >  	kernel.org/pub/linux/utils/kernel/hotplug/udev-015.tar.gz
-> > >=20
-> >=20
-> > Little problem ;)
-> > I have some modules in /etc/modprobe.preload. Subject of this mail is
-> > ide-cd.
-> >=20
-> > When ide-cd gets loaded, the kernel/udev chain calls
-> > /etc/udev/scripts/ide-devfs.sh, wich uses 'expr'. I my system
-> > (Mandrake 10) and on a RedHat 9 'expr' lives in /usr/bin, and /usr can
-> > be still unmounted when rc.modules is called...
-> >=20
-> > Solution ? Change udev, change coreutils locations...
->=20
+The vdso must be randomized.  This is completely impossible with this
+stupid fixed address scheme and it must be changed as soon as possible.
 
-Maybe try to change:
-
- HOST=3D`expr ${HOST} - 1`
-
-to
-
- Host=3D$((HOST - 1))
-
-?  It should be sh compatible, but having used bash too long, I
-am not sure 8) (although sh -c 'foo=3D2; echo $((foo + 1))' work
-with bash in sh mode ..)
-
-
-Cheers,
-
---=20
-Martin Schlemmer
-
---=-cOrtb3RS8G68KiTACUvG
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAHx8yqburzKaJYLYRAgqEAJ0ZX7DoL5URVfKb3kwknS5Mw8SCwgCeP0T3
-LKLfKua+rwkIgJ9WhOAodOk=
-=Rd3y
------END PGP SIGNATURE-----
-
---=-cOrtb3RS8G68KiTACUvG--
-
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265776AbTIFKDu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 06:03:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265796AbTIFKDu
+	id S265470AbTIFKFK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 06:05:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265522AbTIFKFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 06:03:50 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:26314 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S265776AbTIFKDs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 06:03:48 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: "John Yau" <jyau_kernel_dev@hotmail.com>
-Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
-Date: Sat, 6 Sep 2003 12:03:35 +0200
-User-Agent: KMail/1.5.3
-References: <Law12-F124jgZ3Vxq7b00024eb1@hotmail.com>
-In-Reply-To: <Law12-F124jgZ3Vxq7b00024eb1@hotmail.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	Sat, 6 Sep 2003 06:05:10 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:6030 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S265470AbTIFKFE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 06:05:04 -0400
+Date: Sat, 6 Sep 2003 11:04:56 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Move local_irq_enable() out of poll_idle()
+Message-ID: <20030906100456.GA9928@mail.jlokier.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309061203.46746.mbuesch@freenet.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Patch: irq_idle-2.6.0-test4-01jl
 
-On Saturday 06 September 2003 11:46, John Yau wrote:
-> Hi folks,
+Scheduling is not allowed with interrupts disabled.  So we know that
+when schedule() returns, local irqs are enabled.  So poll_idle() doesn't
+need to enable them.
 
-Hi John,
+I suggest this change, to remove any confusion over whether the
+individual idle routines need to disable irqs themselves.  (As seen
+recently in a thread about mwait_idle):
 
-> xmms still completely hangs every once in a while for me.  However I
-> suspect it's due to a bug in xmms that deadlocks.  Anyone else experiencing
-> hangs with xmms while tuning into Shoutcast???
+        - remove the local_irq_enable() from poll_idle().
 
-Yes, that's (was?) a bug of xmms.
+        - add local_irq_enable() at the start of cpu_idle(), before the loop.
 
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
-Animals on this machine: some GNUs and Penguin 2.6.0-test4-bk2
+-- Jamie
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/WbD/oxoigfggmSgRAs5qAJ99vZeNeMEXhl72VvVlGFMWh55HVgCeLK0R
-MgWcMSUSdEYL+OeehfDNBCc=
-=TdCG
------END PGP SIGNATURE-----
-
+diff -urN --exclude-from=dontdiff orig-2.6.0-test4/arch/i386/kernel/process.c idle_irqs-2.6.0-test4/arch/i386/kernel/process.c
+--- orig-2.6.0-test4/arch/i386/kernel/process.c	2003-09-02 23:05:06.000000000 +0100
++++ idle_irqs-2.6.0-test4/arch/i386/kernel/process.c	2003-09-06 10:50:59.000000000 +0100
+@@ -105,8 +105,6 @@
+ {
+ 	int oldval;
+ 
+-	local_irq_enable();
+-
+ 	/*
+ 	 * Deal with another CPU just having chosen a thread to
+ 	 * run here:
+@@ -136,6 +134,8 @@
+  */
+ void cpu_idle (void)
+ {
++	local_irq_enable();
++
+ 	/* endless idle loop with no priority at all */
+ 	while (1) {
+ 		while (!need_resched()) {

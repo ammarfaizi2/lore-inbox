@@ -1,63 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266182AbUAQTwR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 14:52:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266184AbUAQTwR
+	id S266204AbUAQTzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 14:55:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266205AbUAQTzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 14:52:17 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:16865 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S266182AbUAQTwM
+	Sat, 17 Jan 2004 14:55:15 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:41463 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S266204AbUAQTzG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 14:52:12 -0500
-Date: Sat, 17 Jan 2004 11:51:51 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Condor <condor@vereya.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.24 may be bug in prints.c:341
-Message-ID: <20040117195151.GY1748@srv-lnx2600.matchmail.com>
-Mail-Followup-To: Condor <condor@vereya.net>, linux-kernel@vger.kernel.org
-References: <00e201c3dd32$25bde0d0$8648493e@ixip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <00e201c3dd32$25bde0d0$8648493e@ixip.net>
-User-Agent: Mutt/1.5.4i
+	Sat, 17 Jan 2004 14:55:06 -0500
+Message-ID: <40099301.6000202@mvista.com>
+Date: Sat, 17 Jan 2004 11:54:41 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+CC: Pavel Machek <pavel@suse.cz>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
+       Matt Mackall <mpm@selenic.com>, discuss@x86-64.org
+Subject: Re: KGDB 2.0.3 with fixes and development in ethernet interface
+References: <200401161759.59098.amitkale@emsyssoft.com> <20040116215144.GA208@elf.ucw.cz> <40088E9D.1010908@mvista.com> <200401171459.01794.amitkale@emsyssoft.com>
+In-Reply-To: <200401171459.01794.amitkale@emsyssoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 17, 2004 at 09:42:46PM +0200, Condor wrote:
-> Hello all,
+Amit S. Kale wrote:
+> On Saturday 17 Jan 2004 6:53 am, George Anzinger wrote:
 > 
-> 1. My server stop work after trying to access hard drives.
-> 2. My server have kernel panic when trying to access hard drives. I don't
-> now what is the real problem,
+>>Pavel Machek wrote:
+>>
+>>>Hi!
+>>>
+>>>
+>>>>KGDB 2.0.3 is available at
+>>>>http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.0.3.tar.bz2
+>>>>
+>>>>Ethernet interface still doesn't work. It responds to gdb for a couple of
+>>>>packets and then panics. gdb log for ethernet interface is pasted below.
+>>>>
+>>>>It panics and enter kgdb_handle_exception recursively and silently. To
+>>>>see the panic on screen make kgdb_handle_exception return immediately if
+>>>>kgdb_connected is non-zero.
+>>>>
+>>>>Panic trace is pasted below. It panics in skb_release_data. Looks like
+>>>>skb handling will have to changed to be have kgdb specific buffers.
+>>>
+>>>This seems to be needed (if I unselect CONFIG_KGDB_THREAD, I get
+>>>compile error on x86-64).
+>>
+>>Amit, could you explain why this is an option?  It seems very useful and
+>>not really too much code...
+> 
+> 
+> It saves all registers before switch_to. It does that two times at present. 
+> Once (implicit) register save by gcc and an explicit register save in 
+> arch/<proc>/kernel/entry.S Second register save in kern_schedule generates a 
+> pt_regs structure which gdb can get all registers at once from. If it's 
+> omited, gdb has to figure out where gcc has saved registers from the 
+> non-standards code in switch_to, which it can't do correctly all the time.
+> 
+> We can have a check for (a new variable) debugger_enabled before calling 
+> kern_schedule. That'll be add negligible overhead and will allow extra thread 
+> info to be saved only when a debugger is enabled. There will not be any need 
+> for CONFIG_KGDB_THREAD also.
 
-Did you run fsck on the filesystem?
+I don't seem to have such a problem with the mm kgdb.  No kern_schedule there...
 
-> Jan 16 01:55:19 heaven kernel: kernel BUG at prints.c:341!
-> Jan 16 01:55:19 heaven kernel: invalid operand: 0000
-> Jan 16 01:55:19 heaven kernel: CPU:    1
-> Jan 16 01:55:19 heaven kernel: EIP:    0010:[<c01a3eb8>]    Not tainted
-> Jan 16 01:55:19 heaven kernel: EFLAGS: 00010286
-> Jan 16 01:55:19 heaven kernel: eax: 0000004a   ebx: eac82800   ecx: 00000000
-> edx: f6febf7c
-> Jan 16 01:55:19 heaven kernel: esi: 00000000   edi: c2849ed4   ebp: 00000002
-> esp: c2849e24
-> Jan 16 01:55:19 heaven kernel: ds: 0018   es: 0018   ss: 0018
-> Jan 16 01:55:19 heaven kernel: Process kupdated (pid: 7, stackpage=c2849000)
-> Jan 16 01:55:19 heaven kernel: Stack: c0270d4d c0324fc0 c0323560 eac82800
-> c01b33f9 eac82800 c027b9a0 00001295
-> Jan 16 01:55:19 heaven kernel:        00000296 00000001 00000004 eac82800
-> 00000006 c2849ed4 00000000 c01b39e7
-> Jan 16 01:55:19 heaven kernel:        c2849ed4 eac82800 00000001 00000006
-> f899d38c 00000000 00000024 00000004
-> Jan 16 01:55:19 heaven kernel: Call Trace:    [<c01b33f9>] [<c01b39e7>]
-> [<c01b30e7>] [<c01a0c50>] [<c014785c>]
-> Jan 16 01:55:19 heaven kernel:   [<c014684c>] [<c0146c02>] [<c0107652>]
-> [<c0146ac0>] [<c0105000>] [<c01058be>]
-> Jan 16 01:55:19 heaven kernel:   [<c0146ac0>]
-> Jan 16 01:55:19 heaven kernel:
-> Jan 16 01:55:19 heaven kernel: Code: 0f 0b 55 01 60 0d 27 c0 85 db 74 0e 0f
-> b7 43 08 89 04 24 e8
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 
-You didn't run it through ksymoops...

@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264931AbUEQIPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264930AbUEQIh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264931AbUEQIPt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 04:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264930AbUEQIPt
+	id S264930AbUEQIh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 04:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264934AbUEQIh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 04:15:49 -0400
-Received: from disk.smurf.noris.de ([192.109.102.53]:54732 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S264933AbUEQIOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 04:14:50 -0400
+	Mon, 17 May 2004 04:37:27 -0400
+Received: from [62.241.33.80] ([62.241.33.80]:62993 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S264930AbUEQIhZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 04:37:25 -0400
+From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
+Organization: Linux-Systeme GmbH
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Re: RE :[BUG 2.6.6mm2] bk-input is broken on AMD
-Date: Mon, 17 May 2004 10:12:32 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2004.05.17.08.12.32.815021@smurf.noris.de>
-References: <1084527815.6644.2.camel@bluerhyme.real3>
-NNTP-Posting-Host: kiste.smurf.noris.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Trace: server.smurf.noris.de 1084781551 31891 192.109.102.35 (17 May 2004 08:12:31 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Mon, 17 May 2004 08:12:31 +0000 (UTC)
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+Subject: Re: VM documentation and book
+Date: Mon, 17 May 2004 10:35:28 +0200
+User-Agent: KMail/1.6.2
+Cc: Mel Gorman <mel@csn.ul.ie>,
+       Linux Memory Management List <linux-mm@kvack.org>
+References: <Pine.LNX.4.58.0405152152110.14376@skynet>
+In-Reply-To: <Pine.LNX.4.58.0405152152110.14376@skynet>
+X-Operating-System: Linux 2.6.5-wolk3.0 i686 GNU/Linux
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200405171035.28170@WOLK>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, FabF wrote:
-> 	No response for that thread...Whose the right person to ctx for problem
-> in bk-input ? No one noticed the same problem (keyboard non-functionning
-> with bk-input in mm2) ?
-> 
-Happened to me yesterday a few times, including once after the cat walked
-over the keyboard.  :-/
+On Saturday 15 May 2004 22:56, Mel Gorman wrote:
 
-Unplugging the keyboard for a second made the problem go away.
+Hi Mel,
 
-2.6.6-mm2; no PS/2 mouse.
+> http://www.csn.ul.ie/~mel/projects/vm . I am happy to announce that this
+> book is finished and now available in online stores
+> (http://www.phptr.com/title/0131453483). Yes, this is a plug! It is
+> published under the OPL as per the criteria of the Bruce Perens Open Book
+> Series (http://www.perens.com/books) meaning it will be available for free
+> download after 90 days. In other words, I intended for it to be easily
+> available like the online documentation was but the option of having your
+> own shiny printed copy is there :)
 
--- 
-Matthias Urlichs
+I can't say how much I appreciate this and your effort. Thanks alot!
+
+
+> It has been fun and I hope people enjoy the final result.
+
+I'm gonna buy that book this week.
+
+ciao, Marc

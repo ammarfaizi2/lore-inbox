@@ -1,44 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288765AbSANE7r>; Sun, 13 Jan 2002 23:59:47 -0500
+	id <S288760AbSANE7D>; Sun, 13 Jan 2002 23:59:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288767AbSANE7f>; Sun, 13 Jan 2002 23:59:35 -0500
-Received: from dsl081-053-223.sfo1.dsl.speakeasy.net ([64.81.53.223]:38784
-	"EHLO starship.berlin") by vger.kernel.org with ESMTP
-	id <S288765AbSANE7Z>; Sun, 13 Jan 2002 23:59:25 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Mon, 14 Jan 2002 06:03:43 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <3C41A545.A903F24C@linux-m68k.org> <20020113153602.GA19130@fenrus.demon.nl>
-In-Reply-To: <20020113153602.GA19130@fenrus.demon.nl>
+	id <S288765AbSANE6y>; Sun, 13 Jan 2002 23:58:54 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:59289 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S288760AbSANE6g>;
+	Sun, 13 Jan 2002 23:58:36 -0500
+Date: Sun, 13 Jan 2002 20:40:37 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE Patches bring amazing performance gain!!!
+In-Reply-To: <5.1.0.14.2.20020114013246.04c1d330@pop.cus.cam.ac.uk>
+Message-ID: <Pine.LNX.4.10.10201131940530.18550-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16PzHb-00006g-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 13, 2002 04:36 pm, Arjan van de Ven wrote:
-> On Sun, Jan 13, 2002 at 04:18:29PM +0100, Roman Zippel wrote:
+
+There is one outstanding bad report in private.  This report effects the
+Promise PDC20262 Ultra66 host only.  I tested it w/ a 1.13 BIOS and it
+worked.  I suggested the individual upgrade to the lastest version from
+Promise.  One should note this is a 48-bit addressing exception, for old
+hardware.
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
+
+On Mon, 14 Jan 2002, Anton Altaparmakov wrote:
+
+> As a heads up, Andre Hedrick's (Andre sorry for the misspelling 
+> previously!) IDE patch improved the performance of my 7200rpm ATA100 IBM 
+> IDE hd from 28Mb/s to 38Mb/s as measured by hdparm -t /dev/hda, which is 
+> quite an improvement by anyones standards! Also hitting the disk with a lot 
+> of io maintains low latency and my mp3s aren't dropping out and my X 
+> session maintains interactivity. (-:
 > 
-> > What somehow got lost in this discussion, that both patches don't
-> > necessarily conflict with each other, they both attack the same problem
-> > with different approaches, which complement each other. I prefer to get
-> > the best of both patches.
+> Considering I have seen many good reports and ZERO bad reports about the 
+> IDE patches it is really astonishing that the patches are not being applied 
+> to the 2.4.x kernel series... (especially as they were in the -ac series 
+> previously already)
 > 
-> If you do this (and I've seen the results of doing both at once vs only
-> either of then vs pure) then there's NO benifit for the preemption left.
+> Best regards,
+> 
+> Anton
+> 
+> At 01:07 14/01/02, Anton Altaparmakov wrote:
+> >Alan's -ac series is back! To celebrate this I added in the IDE patches 
+> >and an NTFS update which dramatically reduces the number of vmalloc()s and 
+> >have posted the resulting (tested) patch (to be applied on top of 
+> >2.4.18pre3-ac1) at below URL.
+> >
+> >http://www-stu.christs.cam.ac.uk/~aia21/linux/patch-2.4.18-pre3-ac1-aia1.bz2
+> >http://www-stu.christs.cam.ac.uk/~aia21/linux/patch-2.4.18-pre3-ac1-aia1.gz
+> >
+> >
+> >Linux 2.4.18pre3-ac1-aia1
+> >
+> >o       IDE patch (taskfile, lba-48, ata133, etc)       Andre Hedrick
+> >o       Configure help entries for above                Andre Hedrick, Rob 
+> >Radez
+> >o       Small IDE cleanups (code beauty only)           Pavel Machek, me
+> >o       Reduce NTFS vmalloc() use (NTFS 1.1.22)         me
+> >
+> >Enjoy,
+> >
+> >Anton
+> 
+> -- 
+>    "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+> -- 
+> Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+> Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+> ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Sorry, that's incorrect.  I stated why earlier in this thread and akpm signed 
-off on it.  With preempt you get ASAP (i.e., as soon as the outermost 
-spinlock is done) process scheduling.  With hand-coded scheduling points you 
-get 'as soon as it happens to hit a scheduling point'.
 
-That is not the only benefit, just the most obvious one.
-
---
-Daniel

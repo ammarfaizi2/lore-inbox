@@ -1,29 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267452AbSLLKDs>; Thu, 12 Dec 2002 05:03:48 -0500
+	id <S267463AbSLLKIl>; Thu, 12 Dec 2002 05:08:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267454AbSLLKDs>; Thu, 12 Dec 2002 05:03:48 -0500
-Received: from packet.digeo.com ([12.110.80.53]:29170 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267452AbSLLKDr>;
-	Thu, 12 Dec 2002 05:03:47 -0500
-Message-ID: <3DF860BF.CF41042E@digeo.com>
-Date: Thu, 12 Dec 2002 02:11:11 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S267470AbSLLKIl>; Thu, 12 Dec 2002 05:08:41 -0500
+Received: from elixir.e.kth.se ([130.237.48.5]:49414 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S267463AbSLLKIk>;
+	Thu, 12 Dec 2002 05:08:40 -0500
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: "Serge Kuznetsov" <serge@wcom.ca>,
+       "Joseph D. Wagner" <wagnerjd@prodigy.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Is this going to be true ?
+References: <001801c2a0a9$02613f40$2e863841@joe>
+	<071a01c2a137$a8646460$9c094d8e@wcom.ca>
+	<200212111826.06737.roy@karlsbakk.net>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 12 Dec 2002 11:16:09 +0100
+In-Reply-To: Roy Sigurd Karlsbakk's message of "Wed, 11 Dec 2002 18:26:06 +0100"
+Message-ID: <yw1xvg1zfspi.fsf@tophat.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>,
-       "linux-audio-dev@music.columbia.edu" 
-	<linux-audio-dev@music.columbia.edu>
-Subject: 2.4.20 low-latency patch
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Dec 2002 10:11:27.0270 (UTC) FILETIME=[D5396460:01C2A1C6]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roy Sigurd Karlsbakk <roy@karlsbakk.net> writes:
 
-At http://www.zip.com.au/~akpm/linux/2.4.20-low-latency.patch.gz
+> > What I can say is what Linux kernel development outperforms
+> > M$-Windows development in timeline by many parameters.
+> >
+> > That what I know for sure.
+> >
+> > For this moment M$ have only nice and comfy GUI, but I hope it will change
+> > very soon.
+> 
+> You've had to have stood with your head in the sand for a few years
+> not to see that Microsoft actually has a good OS as well. Win2k
+> _does_ have nice features and runs fast. The main problem with
 
-Very much in sustaining mode.  It includes a fix for a livelock
-problem in fsync() from Stephen Tweedie.
+Find some text about process scheduling in Windows.  You'll have a
+good laugh.
+
+> comparing unices and Windoze, is the question "What is an operating
+> system"? Is the kernel the OS? Are the libraries part of it as well?
+
+IMHO, the operating system is whatever is reached through system
+calls, i.e traps.  MS seems to define it as whatever they bundle on
+the CD.
+
+-- 
+Måns Rullgård
+mru@users.sf.net

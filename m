@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269137AbRHFXBF>; Mon, 6 Aug 2001 19:01:05 -0400
+	id <S269143AbRHFXFe>; Mon, 6 Aug 2001 19:05:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269133AbRHFXAy>; Mon, 6 Aug 2001 19:00:54 -0400
-Received: from paloma12.e0k.nbg-hannover.de ([62.159.219.12]:507 "HELO
-	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S269127AbRHFXAm>; Mon, 6 Aug 2001 19:00:42 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 3c509: broken(verified)
-Date: Tue, 7 Aug 2001 01:00:40 +0200
-X-Mailer: KMail [version 1.2.3]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S269133AbRHFXFY>; Mon, 6 Aug 2001 19:05:24 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:42215 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S269143AbRHFXFH>;
+	Mon, 6 Aug 2001 19:05:07 -0400
+Message-ID: <3B6F14E2.3030209@ftel.co.uk>
+Date: Mon, 06 Aug 2001 23:06:26 +0100
+From: Paul Flinders <ptf@ftel.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010725
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010806230051Z269127-28344+2074@vger.kernel.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SIS 630E perf problems?
+In-Reply-To: <200108061713.f76HDaj16575@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 August 2001 22:30:12, Nicholas Knight wrote:
-> You mention the problem is being unable to change the media, I was 
-> unaware this was even possible with the current 3c509 driver, and most 
-> people do it on 3c509's and other PNP cards of this sort (such as NE2000 
-> clones)  by using a DOS boot diskette and the DOS utilities provided by 
-> the manufacturer.
+Larry McVoy wrote:
 
-That's what I did. I've set it to "auto mode" and it works with RJ45 cable.
-But I can't verify if "full duplex" worked right. So I changed it under Win 
-to "10baseT" for which the 3Com utilities say "full duplex" enabled.
+>I use bookpcs - all in one, really nice form factor - for build machines,
+>firewalls (with a USB ethernet), etc.  I used the first generation which
+>had intel i810 graphics (sucked) but had fairly typical performance, 
+>competitive for kernel builds with other current platforms at the time.
+>
+>I recently bought a couple of the second generation of these boxes, these
+>have an SIS 630E based motherboard.  This has a much better graphics interface,
+>quite reasonable at 1280x1024, and all the other bits work fine under RH 7.1
+>without tweaking.
+>
+>Performance sucks, however.  I did an LMbench run to try and figure out why
+>and it's obvious - the memory latencies are 430 ns - that's 2x more than
+>what is reasonable.  I tweaked the various bios settings a bit and could
+>not get it to change much, maybe 20ns but not the 200ns I was looking for.
+>The fact that this system is running a celeron with a dinky cache makes it
+>feel really slow.  These boxes with a 633Mhz celeron feel slower than the
+>old boxes with a 400Mhz celeron.
+>
+If there is a problem it appears to be OS, and even processor independent.
 
-Now I get this for my ADSL NIC.
-My first NIC (Ethernet Pro 100+) is for the LAN.
+I have one of these and had made essentially the same observation as Larry
+- that memory bandwidth seems extremely poor.
 
-eth1: 3c5x9 at 0x220, 10baseT port, address  00 a0 24 87 4a a6, IRQ 5.
-3c509.c:1.18 12Mar2001 becker@scyld.com
-http://www.scyld.com/network/3c509.html
-eth1: Setting Rx mode to 1 addresses.
-eth1: Setting Rx mode to 2 addresses.
-eth1: Setting Rx mode to 3 addresses.
+Larry's mail prompted me to have another look so I installed Win 2k and
+ran the Sandra benchmarks - which came up with a memory bandwidth of
+130MB/s, about 1/3 of it's reference value for a SiS 630S.
 
-But I am not smarter 'cause there is no full duplex mode mentioned in the 
-logs.
+Disk throughput was poor as well, about 8MB/s for a 10G 5400 Seagate
+running in Ultra DMA 66. Presumably this is secondary to the lousy memory
+bandwidth and (?) points to a bottleneck between chipset & RAM
 
-Thanks,
-	Dieter
+Mine has a 667Mhz Citrix (Samual I core) and normally runs RH 7.1,
 
-BTW Is DMA (channel 6 for example) possible with this hardware/driver?
+Does anybody else have one?
+
+

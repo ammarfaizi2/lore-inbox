@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272943AbTHKR7P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 13:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273031AbTHKR66
+	id S273001AbTHKR6m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 13:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272945AbTHKR4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 13:58:58 -0400
-Received: from mail.convergence.de ([212.84.236.4]:21454 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S272963AbTHKR4p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 13:56:45 -0400
-Date: Mon, 11 Aug 2003 19:56:42 +0200
-From: Johannes Stezenbach <js@convergence.de>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Flameeyes <dgp85@users.sourceforge.net>, Pavel Machek <pavel@suse.cz>,
-       Christoph Bartelmus <columbus@hit.handshake.de>,
-       LIRC list <lirc-list@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
-Message-ID: <20030811175642.GC2053@convergence.de>
-Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
-	Gerd Knorr <kraxel@bytesex.org>,
-	Flameeyes <dgp85@users.sourceforge.net>,
-	Pavel Machek <pavel@suse.cz>,
-	Christoph Bartelmus <columbus@hit.handshake.de>,
-	LIRC list <lirc-list@lists.sourceforge.net>,
-	LKML <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-References: <1060616931.8472.22.camel@defiant.flameeyes> <20030811163913.GA16568@bytesex.org>
+	Mon, 11 Aug 2003 13:56:12 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:40855 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S272943AbTHKRxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 13:53:13 -0400
+Date: Mon, 11 Aug 2003 18:52:38 +0100
+From: Dave Jones <davej@redhat.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove useless assertions from reiserfs
+Message-ID: <20030811175237.GA1402@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <E19mFqr-00068B-00@tetrachloride> <3F37D63A.8010500@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030811163913.GA16568@bytesex.org>
+In-Reply-To: <3F37D63A.8010500@pobox.com>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr wrote:
-> 
-> > We can drop /dev/lirc*, and use input events with received codes, but I
-> > think that lircd is still needed to translate them into userland
-> > commands...
-> 
-> That translation isn't done by lircd, but by the lirc_client library.
-> This is no reason for keeping lircd as event dispatcher, the input layer
-> would do equally well (with liblirc_client picking up events from
-> /dev/input/event<x> instead of lircd).
+On Mon, Aug 11, 2003 at 01:45:30PM -0400, Jeff Garzik wrote:
+ > Why are these useless?
 
-IMHO there's one problem:
+read the code not the diff.
 
-If a remote control has e.g. a "1" key this doesn't mean that a user
-wants a "1" to be written into your editor while editing source code.
-The "1" key on a remote control simply has a differnt _meaning_ than
-the "1" key on your keyboard -- depending of course on what the user
-thinks this key should mean.
+ > >@@ -90,10 +90,6 @@ u32 keyed_hash(const signed char *msg, i
+ > > 
+ > > 	if (len >= 12)
+ > > 	{
+ > >-	    	//assert(len < 16);
+ > >-		if (len >= 16)
+ > >-		    BUG();
+ > >-
+ > > 		a = (u32)msg[ 0]      |
+ > > 		    (u32)msg[ 1] << 8 |
+ > > 		    (u32)msg[ 2] << 16|
+ > 
+ > Seems like a valid check to me...
 
-- users should be able to prevent remote keys from being fed into
-  the normal keyboard input queue; non lirc aware programs should
-  not recieve these events
-  (OTOH, if you use an IR keyboard...)
-- IR events should reach the applications independant of X keyboard
-  focus (well, maybe; the user should be able to decide)
+Above this loop is another loop which we don't exit until len < 16
 
-With the current input subsystem, the only possiblity is lircd
-grabbing the remote events with EVIOCGRAB, and passing them
-on to the applications.
+	Dave
 
-
-Johannes
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

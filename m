@@ -1,107 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267987AbRHGQ0V>; Tue, 7 Aug 2001 12:26:21 -0400
+	id <S269134AbRHGQiL>; Tue, 7 Aug 2001 12:38:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269041AbRHGQ0N>; Tue, 7 Aug 2001 12:26:13 -0400
-Received: from [217.89.38.238] ([217.89.38.238]:3835 "HELO schottelius.org")
-	by vger.kernel.org with SMTP id <S269001AbRHGQZy>;
-	Tue, 7 Aug 2001 12:25:54 -0400
-Message-ID: <3B70165F.D72E09AD@pcsystems.de>
-Date: Tue, 07 Aug 2001 18:25:03 +0200
-From: Nico Schottelius <nicos@pcsystems.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
+	id <S269002AbRHGQiC>; Tue, 7 Aug 2001 12:38:02 -0400
+Received: from [64.38.173.150] ([64.38.173.150]:24068 "EHLO chicago.cheek.com")
+	by vger.kernel.org with ESMTP id <S269001AbRHGQh6>;
+	Tue, 7 Aug 2001 12:37:58 -0400
+Message-ID: <3B7018C8.30101@cheek.com>
+Date: Tue, 07 Aug 2001 09:35:20 -0700
+From: Joseph Cheek <joseph@cheek.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010712
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: cpu not detected(x86) (ACPI!)
-In-Reply-To: <3B7004B2.6351C900@pcsystems.de>
-Content-Type: text/plain; charset=us-ascii
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: eepro100 (PCI ID 82820) lockups/failure
+In-Reply-To: <20010806022727.A25793@saw.sw.com.sg> <Pine.LNX.4.10.10108060846230.14815-100000@chicago.cheek.com> <20010807034810.A10311@saw.sw.com.sg>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's me again. Running without ACPI seems to
-fix the problem. Possibly this bugs comes from
-acpi.
+once i changed the udelay() to 10 i was able to see the wait_for_timeout 
+errors others have reported.  with the udelay at 1 i saw nothing on the 
+screen before the lockup.
 
-Can someone check that ?
+thanks!
 
-Nico
+joe
 
-Nico Schottelius wrote:
+Andrey Savochkin wrote:
 
-> Hello!
+>On Mon, Aug 06, 2001 at 08:48:22AM -0700, Joseph Cheek wrote:
 >
-> I am trying to run 2.4.7 and have heavily problems with my cpu.
-> The kernel retected another speed at every start! I attached
-> three times CPUINFO. The cpu in reality is a p3 650 mhz speedstep.
-> (may switch down to 500 mhz, but 126 _not_).
+>>i applied the usleep(1) patch and i still get lockups on 2.4.7-ac5.  not
+>>sure how i could get you the info you need, but i would certainly be
+>>willing to help.
+>>
+>>my machine locks hard before anything gets to syslog.
+>>
 >
-> Who changed something in the 2.4.7 source ?
-> I am more or less unable to run X with netscape to write this email
-> with 126 Mhz!
+>Are you able to check the screen?
+>Had the driver printed anything before the lockup?
 >
-> What to do, where to fix ? Please help asap!
+>	Andrey
 >
-> Nico
->
->   ------------------------------------------------------------------------
-> processor       : 0
-> vendor_id       : GenuineIntel
-> cpu family      : 6
-> model           : 8
-> model name      : Pentium III (Coppermine)
-> stepping        : 6
-> cpu MHz         : 161.858
-> cache size      : 256 KB
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 2
-> wp              : yes
-> flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-> bogomips        : 330.95
->
->   ------------------------------------------------------------------------
-> processor       : 0
-> vendor_id       : GenuineIntel
-> cpu family      : 6
-> model           : 8
-> model name      : Pentium III (Coppermine)
-> stepping        : 6
-> cpu MHz         : 127.553
-> cache size      : 256 KB
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 2
-> wp              : yes
-> flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-> bogomips        : 244.94
->
->   ------------------------------------------------------------------------
-> processor       : 0
-> vendor_id       : GenuineIntel
-> cpu family      : 6
-> model           : 8
-> model name      : Pentium III (Coppermine)
-> stepping        : 6
-> cpu MHz         : 162.371
-> cache size      : 256 KB
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 2
-> wp              : yes
-> flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-> bogomips        : 317.84
+
 

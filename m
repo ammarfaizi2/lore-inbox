@@ -1,95 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbVANVc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262182AbVANVaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262187AbVANVc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 16:32:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVANVbA
+	id S262182AbVANVaO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 16:30:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbVANV3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 16:31:00 -0500
-Received: from fw.osdl.org ([65.172.181.6]:18114 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262124AbVANVaJ (ORCPT
+	Fri, 14 Jan 2005 16:29:37 -0500
+Received: from gw.goop.org ([64.81.55.164]:10903 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S262124AbVANV04 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 16:30:09 -0500
-Date: Fri, 14 Jan 2005 13:29:59 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Oeser <ioe-lkml@axxeo.de>
-cc: linux@horizon.com, Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Make pipe data structure be a circular list of pages, rather
-In-Reply-To: <200501142203.44720.ioe-lkml@axxeo.de>
-Message-ID: <Pine.LNX.4.58.0501141318030.2310@ppc970.osdl.org>
-References: <20050108082535.24141.qmail@science.horizon.com>
- <200501132246.37289.ioe-lkml@axxeo.de> <Pine.LNX.4.58.0501131429400.2310@ppc970.osdl.org>
- <200501142203.44720.ioe-lkml@axxeo.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 14 Jan 2005 16:26:56 -0500
+Subject: 2.6.10-mm3: lseek broken on /proc/self/maps
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Prasanna Meda <pmeda@akamai.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-yf84UKA4oQa58A8+hP99"
+Date: Fri, 14 Jan 2005 13:23:39 -0800
+Message-Id: <1105737819.11209.9.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 (2.0.3-0.mozer.1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-yf84UKA4oQa58A8+hP99
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Fri, 14 Jan 2005, Ingo Oeser wrote:
-> 
-> But we have currently no suitable interface for this.
-> 
-> We have socketpair(), we have pipe(), but we don't have
-> dev_pipe() creating a pipe with the driver sitting in the middle.
+lseek doesn't seem to have any effect on /proc/<pid>/maps.  It should
+either work as expected, or fail.
 
-Not exactly that, no.
+I've attached a test program which uses a doubling buffer policy to try
+to read the whole buffer.  If it runs out of buffer, it simply allocates
+a new one, lseeks back to the beginning of the buffer, and tries again.
+However, the lseek seems to have no effect, because the next read
+continues from where the previous one (before the lseek) left off.
 
-But realize that what you are asking for is actually a _much_ simpler 
-thing than even "fifo_open()". What you ask for (if somebody really starts 
-doing this, and I'd love to see it) is not much more difficult than
+Re-opening the file between each attempt works as expected.
 
-	int device_open(struct inode *inode, struct file *filp)
-	{
-		if (!pipe_new(inode))
-			return -ENOMEM;
+$ tm &
+$ ./readmap $!
+b7dea000-b7deb000 r-xp b7dea000 00:00 0
+b7deb000-b7dec000 ---p b7deb000 00:00 0
+b7dec000-b7ded000 r-xp b7dec000 00:00 0
+b7ded000-b7dee000 ---p b7ded000 00:00 0
+b7dee000-b7def000 r-xp b7dee000 00:00 0
+b7def000-b7df0000 ---p b7def000 00:00 0
+b7df0000-b7df1000 r-xp b7df0000 00:00 0
+[...]
+$ gcc -o readmap -DREOPEN readmap.c
+$ ./readmap $!
+08048000-08049000 r-xp 00000000 03:07 3868140    /home/jeremy/tm
+08049000-0804a000 rwxp 00000000 03:07 3868140    /home/jeremy/tm
+b7ae6000-b7ae7000 r-xp b7ae6000 00:00 0
+b7ae7000-b7ae8000 ---p b7ae7000 00:00 0
+b7ae8000-b7ae9000 r-xp b7ae8000 00:00 0
+b7ae9000-b7aea000 ---p b7ae9000 00:00 0
+b7aea000-b7aeb000 r-xp b7aea000 00:00 0
+b7aeb000-b7aec000 ---p b7aeb000 00:00 0
 
-		/* The hardware is a writer */
-		PIPE_WRITERS(*inode)++;
+	J
 
-		/* The new fd is a reader of the data the hardware generates */
-		file->f_op = read_fifo_fops;
+--=-yf84UKA4oQa58A8+hP99
+Content-Disposition: attachment; filename=readmap.c
+Content-Type: text/x-csrc; name=readmap.c; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-		/*
-		 * This starts the hardware capture - although in real
-		 * life there might be a "start it" ioctl or something
-		 * that actually does that together with the parameters
-		 * for capture..
-		 */
-		start_capture_process(inode);
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 
-		return 0;
+#ifndef REOPEN
+#define REOPEN	0
+#endif
+
+int main(int argc, char **argv)
+{
+	int bufsize = 1024;
+	char *buf = NULL;
+	int bufused;
+	int got;
+	int fd = -1;
+	char path[100];
+
+	if (argc <= 1)
+		strcpy(path, "/proc/self/maps");
+	else
+		sprintf(path, "/proc/%s/maps", argv[1]);
+
+  again:
+	if (fd == -1)
+		fd = open(path, O_RDONLY);
+
+	if (fd == -1) {
+		perror("open");
+		exit(1);
 	}
 
-ie we're definitely not talking rocket science here.
+	if (lseek(fd, 0, SEEK_SET) == -1) {
+		perror("lseek");
+		exit(1);
+	}
+	bufused = 0;
+	if (buf == NULL)
+		buf = malloc(bufsize);
 
-(Yes, I'm sure there are some details missing in the above, but you get 
-the idea: the infrastructure really _is_ pretty much there, and any lack 
-comes from the fact that nobody has actually ever _used_ it).
+	do {
+		int want = bufsize - bufused;
+		got = read(fd, &buf[bufused],
+			       want > 4000 ? 4000 : want); /* work around other bug */
+		if (got < 0) {
+			perror("read");
+			exit(1);
+		}
+		bufused += got;
+	} while(bufused < bufsize && got != 0);
 
-> Usage: "processing devices" like crypto processors, DSPs, 
->  MPEG-Encoding/-Decoding hardware, smart cards and the like.
-> 
-> Synopsys: int dev_pipe(const char *dev_path, int fd_vec[2]);
+	if (bufused == bufsize) {
+		free(buf);
+		buf = NULL;
+		bufsize *= 2;
+		if (REOPEN) {
+			/* reopen */
+			close(fd);
+			fd = -1;
+		}
+		goto again;
+	}
+	close(fd);
 
-No, I do NOT think that's what you'd want. 
+	write(1, buf, bufused);
 
-What you want is more of a
+	return 0;
+}
 
-	fd = open("/dev/mpeginput", O_RDONLY);
+--=-yf84UKA4oQa58A8+hP99
+Content-Disposition: attachment; filename=tm.c
+Content-Type: text/x-csrc; name=tm.c; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-and then that device driver open just does the thing outlined above.
+#include <sys/mman.h>
+#include <unistd.h>
+int main()
+{
+	int i;
+	char *m = mmap(0, 1000*4096, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+	char *p = m;
 
-> We also don't have wire_fds(), which would wire up two fds by 
-> connecting the underlying file pointers with each other and closing the fds.
+	for(i = 0; i < 1000; i+=2) {
+		mprotect(p, 4096, PROT_READ);
+		p += 8192;
+	}
 
-But that is _exactly_ what splice() would do.
+	pause();
 
-So you could have the above open of "/dev/mpeginput", and then you just 
-sit and splice the result into a file or whatever.
+	return 0;
+}
 
-See?
+--=-yf84UKA4oQa58A8+hP99--
 
-(Or maybe it's me who doesn't see what it is you want).
-
-			Linus

@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313898AbSHIPS5>; Fri, 9 Aug 2002 11:18:57 -0400
+	id <S313743AbSHIPSh>; Fri, 9 Aug 2002 11:18:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314078AbSHIPS5>; Fri, 9 Aug 2002 11:18:57 -0400
-Received: from dsl-213-023-043-103.arcor-ip.net ([213.23.43.103]:34956 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S313898AbSHIPS4>;
-	Fri, 9 Aug 2002 11:18:56 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: frankeh@watson.ibm.com, davidm@hpl.hp.com,
-       David Mosberger <davidm@napali.hpl.hp.com>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: large page patch (fwd) (fwd)
-Date: Fri, 9 Aug 2002 17:20:52 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, torvalds@transmeta.com,
-       gh@us.ibm.com, Martin.Bligh@us.ibm.com, wli@holomorpy.com,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0208031240270.9758-100000@home.transmeta.com> <15692.37018.693984.745251@napali.hpl.hp.com> <200208041319.05210.frankeh@watson.ibm.com>
-In-Reply-To: <200208041319.05210.frankeh@watson.ibm.com>
+	id <S313898AbSHIPSh>; Fri, 9 Aug 2002 11:18:37 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:4001 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S313743AbSHIPSg>;
+	Fri, 9 Aug 2002 11:18:36 -0400
+Date: Fri, 09 Aug 2002 08:19:53 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Paul Larson <plars@austin.ibm.com>, Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: daily 2.5 BK snapshots
+Message-ID: <1505209847.1028881191@[10.10.2.3]>
+In-Reply-To: <1028903778.19435.348.camel@plars.austin.ibm.com>
+References: <1028903778.19435.348.camel@plars.austin.ibm.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17dBZN-0001Ng-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 August 2002 19:19, Hubertus Franke wrote:
-> "General Purpose Operating System Support for Multiple Page Sizes"
-> htpp://www.usenix.org/publications/library/proceedings/usenix98/full_papers/ganapathy/ganapathy.pdf
+> I probably won't be using this since my scripts already do a nightly
+> pull, but I'd also like to see what people think of this.  I have a
+> setup that does a nightly pull of 2.5, builds it for UP and SMP, pushes
+> to two machines (UP and SMP) and runs LTP on it.  Then sends me back the
+> results of all of it.  Of course if something fails that didn't fail the
+> previous day, I have a limited set of Changesets as culprits so it's
+> easier for me to find the cause of problems when I do more frequent
+> testing like this.  Any major problems are reported immediatly of
+> course, but would anyone be interested in seeing the results of this
+> more often?  I don't know if I have enough space on the LTP website to
+> post all the data that's gathered every single day (It would add up
+> REALLY fast), but would a weekly rollup to lkml be something people
+> would like to see?
 
-This reference describes roughly what I had in mind for active 
-defragmentation, which depends on reverse mapping.  The main additional
-wrinkle I'd contemplated is introducing a new ZONE_LARGE, and GPF_LARGE,
-which means the caller promises not to pin the allocation unit for long
-periods and does not mind if the underlying physical page changes
-spontaneously.  Defragmenting in this zone is straightforward.
+Personally, I'd love to see the *changes* in what passed and failed
+posted every day - the whole result set is obviously too big. The 
+quicker people know what's wrong, the quicker it gets fixed, before
+we build more on top of an unstable foundation.
 
--- 
-Daniel
+M.
+

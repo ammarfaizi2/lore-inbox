@@ -1,31 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282079AbRKWGu6>; Fri, 23 Nov 2001 01:50:58 -0500
+	id <S282075AbRKWGss>; Fri, 23 Nov 2001 01:48:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282078AbRKWGus>; Fri, 23 Nov 2001 01:50:48 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:24987 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S282076AbRKWGu3>; Fri, 23 Nov 2001 01:50:29 -0500
-Date: Fri, 23 Nov 2001 08:57:19 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: <pavel@suse.cz>
-Cc: <macro@ds2.pg.gda.pl>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Disabling FPU, MMX, SSE units?
-Message-ID: <Pine.LNX.4.33.0111230847240.17123-100000@netfinity.realnet.co.sz>
+	id <S282076AbRKWGsi>; Fri, 23 Nov 2001 01:48:38 -0500
+Received: from mail6.speakeasy.net ([216.254.0.206]:53987 "EHLO
+	mail6.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S282075AbRKWGse>; Fri, 23 Nov 2001 01:48:34 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: safemode <safemode@speakeasy.net>
+To: linux-kernel@vger.kernel.org
+Subject: fstab swap options obscolete?
+Date: Fri, 23 Nov 2001 01:48:33 -0500
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20011123064837Z282075-17408+17667@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can't disable MMX/SSE because its used to optimise, if you don't want
-to use SSE/MMX select a non-SSE/MMX cpu in the kernel config, that way
-you'll lose those assembly optimisations. If you want to impare your CPU
-even more (as seems the case) consider using 486 as a CPU target and perhaps also
-cripple your cpu caches (ie set bit 0x1E (CD) in cr0).
-
-
-Cheers,
-	Zwane Mwaikambo
-
-
+In order to get multiple swap partitions/files to work at the same priority, 
+you'd use the pri=NUM option in /etc/fstab.   
+Now i've set this (pri=-1) on both and dmesg shows that they still get added 
+at different priorities.  first -1, second -2.   Now if i swapoff them and 
+swapon them  it starts at -3   even though there is no longer a -1 or -2.  Is 
+this correct behavior?     
+I'm kinda going on the assumption that loading multiple swap partitions 
+together at the same priority will basically make the kernel use them in a 
+striping mode.  Is this the case?   If not, how would i specifiy priority 
+besides merely the order they're placed in /etc/fstab  ?

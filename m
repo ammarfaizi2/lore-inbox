@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266888AbTATTkw>; Mon, 20 Jan 2003 14:40:52 -0500
+	id <S266777AbTATTiN>; Mon, 20 Jan 2003 14:38:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266848AbTATTkX>; Mon, 20 Jan 2003 14:40:23 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:128 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id <S266795AbTATTi5>; Mon, 20 Jan 2003 14:38:57 -0500
-From: "Folkert van Heusden" <folkert@vanheusden.com>
-To: "'Rik van Riel'" <riel@conectiva.com.br>,
-       "'Jean-Eric Cuendet'" <jean-eric.cuendet@linkvest.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Disabling file system caching 
-Date: Mon, 20 Jan 2003 20:47:52 +0100
-Message-ID: <004001c2c0bc$d1e69750$3640a8c0@boemboem>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <Pine.LNX.4.50L.0301192303130.18171-100000@imladris.surriel.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	id <S266805AbTATTiN>; Mon, 20 Jan 2003 14:38:13 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:3076 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S266777AbTATTiL>;
+	Mon, 20 Jan 2003 14:38:11 -0500
+Date: Sun, 19 Jan 2003 19:28:31 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Wolfgang Fritz <wolfgang.fritz@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swsuspend: possible with VIA Eden processor? Or alternatives?
+Message-ID: <20030119182831.GA16599@elf.ucw.cz>
+References: <b0c20t$rt$1@fritz38552.news.dfncis.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b0c20t$rt$1@fritz38552.news.dfncis.de>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Is it possible to disable file caching for a given partition or mount?
-> No, if you do that mmap(), read(), write() etc. would be impossible.
+Hi!
 
-Hmmm, maybe there's some way to explicitly flush the read/write-cache?
-Ok, sync will do nice for the write-cache, but for the read-one?
+> the swsuspend mini howto says that a processor with pse/pse36 feature is 
+> required for swsupend in 2.4.
+> 
+> The VIA Eden processor on my EPIA ME6000 board gives:
+> 
+> vdr:~ # cat /proc/cpuinfo
+> processor       : 0
+> vendor_id       : CentaurHauls
+> cpu family      : 6
+> model           : 7
+> model name      : VIA Samuel 2
+> stepping        : 3
+> cpu MHz         : 599.731
+> cache size      : 64 KB
+> fdiv_bug        : no
+> hlt_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 1
+> wp              : yes
+> flags           : fpu de tsc msr cx8 mtrr pge mmx 3dnow
+> bogomips        : 1196.03
+> 
+> So I am obviously out of luck with 2.4 kernels, but what about 2.5 (the 
+> mini-howto is silent here)?
 
-
+Same there. With some hacking, it may be possile to fix it.
+								Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

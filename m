@@ -1,100 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267882AbUHPSrV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267859AbUHPSqt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267882AbUHPSrV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 14:47:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267880AbUHPSrB
+	id S267859AbUHPSqt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 14:46:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267871AbUHPSqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 14:47:01 -0400
-Received: from maximus.kcore.de ([213.133.102.235]:22137 "EHLO
-	maximus.kcore.de") by vger.kernel.org with ESMTP id S267863AbUHPSpY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 14:45:24 -0400
-Message-ID: <41210098.4080904@gmx.net>
-Date: Mon, 16 Aug 2004 20:44:40 +0200
-From: Oliver Feiler <kiza@gmx.net>
-User-Agent: Mozilla Thunderbird 0.7 (Macintosh/20040616)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Len Brown <len.brown@intel.com>
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Marcelo Tosatti <marcelo@hera.kernel.org>, linux-kernel@vger.kernel.org
-Subject: Re: eth*: transmit timed out since .27
-References: <566B962EB122634D86E6EE29E83DD808182C3236@hdsmsx403.hd.intel.com> <1092678734.23057.18.camel@dhcppc4>
-In-Reply-To: <1092678734.23057.18.camel@dhcppc4>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Aug 2004 14:46:49 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:63983 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S267859AbUHPSpX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 14:45:23 -0400
+Date: Mon, 16 Aug 2004 20:43:06 +0200 (MEST)
+Message-Id: <200408161843.i7GIh68m009609@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: lef@freil.com, linux-kernel@vger.kernel.org
+Subject: Re: Serious Kernel slowdown with HIMEM (4Gig) in 2.6.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Len,
+On Mon, 16 Aug 2004 09:23:40 -0400, Lawrence E. Freil wrote:
+>Iteresting idea, here is the /proc/mtrr output:
+>
+>reg00: base=0x00000000 (   0MB), size= 512MB: write-back, count=1
+>reg01: base=0x20000000 ( 512MB), size= 256MB: write-back, count=1
+>reg02: base=0x30000000 ( 768MB), size= 128MB: write-back, count=1
+>reg03: base=0x38000000 ( 896MB), size=  64MB: write-back, count=1
+>reg04: base=0x3c000000 ( 960MB), size=  32MB: write-back, count=1
+>reg05: base=0x3e000000 ( 992MB), size=  16MB: write-back, count=1
+>reg06: base=0xf0000000 (3840MB), size=   2MB: write-combining, count=1
+>
+>The memory in question is the block from 896 to 1Gig.  Looks pretty
+>normal.
 
-Len Brown wrote:
+How does the E820 memory map look? (At the top of the dmesg log.)
 
-> Oliver,
-> I'm glad that turning off "pci=noacpi" fixed your system.
-> I don't know why the legacy irqrouter didn't work, but
-> as ACPI works, I'm not going to worry about it;-)
+Your BIOS left the [1008MB,1024MB[ range uncached. Try booting
+with "mem=1008M". If that fixes the performance problem,
+complain to your mainboard vendor that their BIOS is broken.
 
-Well, it did work with 2.4.26, but I agree that it's better to get the 
-new stuff to work correctly. ;) I just noticed that /proc/interrupts and 
-/proc/pci, lspci still disagree on the IRQ of the IDE device.
-
-            CPU0
-   0:     112337    IO-APIC-edge  timer
-   1:          2    IO-APIC-edge  keyboard
-   8:          1    IO-APIC-edge  rtc
-   9:          0   IO-APIC-level  acpi
-  14:       9296    IO-APIC-edge  ide0
-  15:       9078    IO-APIC-edge  ide1
-  17:         24   IO-APIC-level  eth1
-  18:     125085   IO-APIC-level  eth0
-  21:          0   IO-APIC-level  usb-uhci, usb-uhci, usb-uhci
-  22:          0   IO-APIC-level  via82cxxx
-  23:       2976   IO-APIC-level  eth2
-NMI:          0
-LOC:     112313
-ERR:          0
-MIS:         42
-
-
-vs.
-
-00:11.1 IDE interface: VIA Technologies, Inc. 
-VT82C586A/B/VT82C686/A/B/VT823x/A/C/VT8235 PIPC Bus Master IDE (rev 06) 
-(prog-if 8a [Master SecP PriP])
-         Subsystem: Unknown device 1849:0571
-         Flags: bus master, medium devsel, latency 32, IRQ 255
-         I/O ports at fc00 [size=16]
-         Capabilities: <available only to root>
-
-This probably has to do with this boot message:
-PCI: No IRQ known for interrupt pin A of device 00:11.1
-
-I have found absolutely nothing that explains if this is an error or 
-just some sort of debug message one can ignore.
-
-> 
-> I expect the "acpi=off" experiment would behave the same as
-> "pci=noacpi", but it looks like in your experiment you
-> mis-spelled that parameter as apci=off, so instead it was the
-> same as the default ACPI-enabled case.
-
-Oh, thanks for noticing. Stupid me.
-
-> 
-> Re: lots of interrupts on the same IRQ.
-> There are boot params to balance out the IRQs in PIC mode,
-> but what you want to do on this system is enable the IOAPIC
-> in your kernel config.  The existence of the MADT in your
-> ACPI tables suggests you may have one.  An IOAPIC will bring
-> additional interrupt pins to bear, usually allowing
-> the PCI interrupts to use IRQs > 16 where they may
-> not have to share so much.
-
-Ok, I've turned on the IOAPIC and it seems to work perfectly fine. 
-Except for that IRQ 255 thing I've noticed no oddities. Thanks for the 
-hint. :)
-
-cu
-	Oliver
-
+/Mikael

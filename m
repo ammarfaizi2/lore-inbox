@@ -1,29 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267241AbRGZLmO>; Thu, 26 Jul 2001 07:42:14 -0400
+	id <S267314AbRGZL6H>; Thu, 26 Jul 2001 07:58:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267314AbRGZLmE>; Thu, 26 Jul 2001 07:42:04 -0400
-Received: from pc40.e18.physik.tu-muenchen.de ([129.187.154.153]:56583 "EHLO
-	pc40.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S267241AbRGZLlv>; Thu, 26 Jul 2001 07:41:51 -0400
-Date: Thu, 26 Jul 2001 13:41:34 +0200 (CEST)
-From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: another arp problem
-Message-ID: <Pine.LNX.4.31.0107261332360.23779-100000@pc40.e18.physik.tu-muenchen.de>
+	id <S267732AbRGZL54>; Thu, 26 Jul 2001 07:57:56 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:11788 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S267314AbRGZL5q>; Thu, 26 Jul 2001 07:57:46 -0400
+Subject: Re: IGMP join/leave time variability
+To: nat.ersoz@myrio.com (Nat Ersoz)
+Date: Thu, 26 Jul 2001 12:59:01 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "Nat Ersoz" at Jul 25, 2001 07:04:32 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15PjnB-0003bw-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi folks!
+> ASAP with respect to the user mode calls.
+> 1. What would be the harm if I set IGMP_Initial_Report_Delay to something
+> very small like 5 to 10 (jiffies)?  No need for net_random() I'de expect in
+> that case?
 
-My machine has two NICs, eth0 is official, eth1 on a private subnet. When
-arping 192.168.1.254 (scope link on eth1) from the official side I get a
-reply which should not be there (that's the sense in "private", right?).
-Setting /proc/sys/net/ipv4/conf/*/arp_filter doesn't help...
-
-Ciao,
-					Roland
-
+Read the IGMP RFC documents they discuss in detail the cases where time
+delays and randomness are needed and important. 

@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268954AbUJKNpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268968AbUJKNsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268954AbUJKNpW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 09:45:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268959AbUJKNpW
+	id S268968AbUJKNsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 09:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268959AbUJKNsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 09:45:22 -0400
-Received: from nef.ens.fr ([129.199.96.32]:47890 "EHLO nef.ens.fr")
-	by vger.kernel.org with ESMTP id S268954AbUJKNpP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 09:45:15 -0400
-Subject: Re: possible GPL violation by Free
-From: Eric Rannaud <eric.rannaud@ens.fr>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20041011091411.1335746c@pirandello>
-References: <1097456379.27877.51.camel@frenchenigma>
-	 <20041011091411.1335746c@pirandello>
-Content-Type: text/plain
-Date: Mon, 11 Oct 2004 15:45:08 +0200
-Message-Id: <1097502309.27877.124.camel@frenchenigma>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.3.3 (nef.ens.fr [129.199.96.32]); Mon, 11 Oct 2004 15:45:14 +0200 (CEST)
+	Mon, 11 Oct 2004 09:48:09 -0400
+Received: from cmail.srv.hcvlny.cv.net ([167.206.112.40]:3794 "EHLO
+	cmail.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S268968AbUJKNr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 09:47:59 -0400
+Date: Mon, 11 Oct 2004 09:12:03 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+Subject: Re: [PATCH] Fix readw/writew warnings in drivers/net/wireless/hermes.h
+In-reply-to: <Pine.LNX.4.61.0410110702590.7899@linaeum.absolutedigital.net>
+X-X-Sender: proski@portland.hansa.lan
+To: Cal Peake <cp@absolutedigital.net>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       David Gibson <hermes@gibson.dropbear.id.au>
+Message-id: <Pine.LNX.4.61.0410110858350.4733@portland.hansa.lan>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-transfer-encoding: 7BIT
+References: <Pine.LNX.4.61.0410110702590.7899@linaeum.absolutedigital.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-11 at 09:14 +0200, Colin Leroy wrote:
-> Hi,
-> 
-> I think you just scanned the router, or whatever network appliance it is,
-> behind the freebox :-)
-> 
-> The freebox is quite transparent when it's plugged to the network. Try to 
-> just plug in to your computer and assign it an IP using arp -s...
-> 
-> (not sure, however)
+On Mon, 11 Oct 2004, Cal Peake wrote:
 
-Ermmm, indeed, that's quite possible :-{ I've been lured by the MAC
-address, which was correct. But that didn't mean anything.
-The problem is that once the freebox is disconnected from the xDSL line,
-it becomes completely silent on the network. nmap -O -P0 is meaningless.
+> This patch fixes several dozen warnings spit out when compiling the hermes
+> wireless driver.
 
-It does seem to act like a bridge, indeed.
+I noticed them too.
 
-Mathieu wrote:
-> Are you sure you don't scan your computer : the freebox v1 don't have
-> router mode and act like a bridge.
+By the way, it would be nice to move the discussion to the mailing list of 
+the driver, orinoco-devel@lists.sourceforge.net.  Sorry that it wasn't 
+mentioned in the MAINTAINERS file.  I've just submitted a patch to add the 
+mailing lists to that file.
 
-No, my computer doesn't look like that.
+> @@ -364,12 +364,12 @@
+> /* Register access convenience macros */
+> #define hermes_read_reg(hw, off) ((hw)->io_space ? \
+> 	inw((hw)->iobase + ( (off) << (hw)->reg_spacing )) : \
+> -	readw((hw)->iobase + ( (off) << (hw)->reg_spacing )))
+> +	readw((void __iomem *)(hw)->iobase + ( (off) << (hw)->reg_spacing )))
 
-I have asked Free for more information about the OS running on the
-freebox. I don't know what kind of tests could be performed on such a
-device. If you have any suggestion.
+The HEAD version of the driver aims to support Linux starting with version 
+2.4.10, so you need to add some magic in kcompat.h to define __iomem.
 
-   /er.
+HostAP driver uses cast to (void *), which compiles without warnings.  I 
+believe it's sufficient because the call to readw() would cast the 
+argument to whatever readw() needs.
+
+Another, more sophisticated solution would be to use union for iobase:
+
+typedef struct hermes {
+         union {
+                 unsigned long io;
+                 void *mem;
+         } base;
+         int io_space; /* 1 if we IO-mapped IO, 0 for memory-mapped IO? */
+ 	...
+}
 
 -- 
-Eric Rannaud <eric.rannaud@ens.fr>
-http://www.eleves.ens.fr/home/rannaud/
-
+Regards,
+Pavel Roskin

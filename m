@@ -1,42 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272303AbTHEVOY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 17:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272361AbTHEVOY
+	id S270688AbTHEVIL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 17:08:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270691AbTHEVIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 17:14:24 -0400
-Received: from colin2.muc.de ([193.149.48.15]:37903 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S272303AbTHEVOU (ORCPT
+	Tue, 5 Aug 2003 17:08:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39329 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270688AbTHEVIG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 17:14:20 -0400
-Date: 5 Aug 2003 23:14:16 +0200
-Date: Tue, 5 Aug 2003 23:14:16 +0200
-From: Andi Kleen <ak@colin2.muc.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+	Tue, 5 Aug 2003 17:08:06 -0400
+Date: Tue, 5 Aug 2003 14:07:53 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: Andi Kleen <ak@colin2.muc.de>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@muc.de>, <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] Export touch_nmi_watchdog
-Message-ID: <20030805211416.GD31598@colin2.muc.de>
-References: <20030805203137.E30256@devserv.devel.redhat.com> <Pine.LNX.4.44.0308051402300.2835-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308051402300.2835-100000@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030805203137.E30256@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0308051402300.2835-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Otherwise this will just keep on expanding. 
 
-It does expand on i386 exactly because the watchdog is disabled by default.
+On Tue, 5 Aug 2003, Arjan van de Ven wrote:
+> On Tue, Aug 05, 2003 at 01:25:09PM -0700, Linus Torvalds wrote:
+> > 
+> >  - either fix the driver
+> > or
+> >  - disable the watchdog entirely.
+> 
+> In principle you are soooo right. Just that it sometimes is HARD to fix
+> such long delays...
 
-Looks like a mistake to me. It should be on because having usable backtraces
-on a deadlock/hang is useful enough that it outweights any other possible
-disadvantages. That's especially true for kernels out there at user's boxes,
-not just special debugging kernels run by developers.
+That's why I said "disable the watchdog".
 
-[if there should be any hardware where it doesn't work it should be blacklisted
-there]
+The thing is, if you start doing things like this in drivers, then you 
+just hide the problem to the point where users end up not even being 
+_aware_ of the problem. 
 
--Andi
+Do you _really_ think most users will think of "Oh, let's grep for
+'touch_nmi_watchdog' in that driver" when they have latency issues?
+
+No. Obviously they won't. Instead, they'll scratch their head about
+occasional bad packet routing latency, report it as a networking bug, and
+just generally look in the wrong place. And enabling lockup debugging will
+do zero for them.
+
+So this is a case of trying to paper over the symptoms. Which is perfectly 
+ok in the sense that "we don't have the resources to fix it right now, so 
+let's just give it two aspirins and ask it to call in the morning". That's 
+fine.
+
+But since the whole _point_ of watchdogging is to find places like this, 
+when you paper over _these_ symptoms, you end up killing the whole idea.
+
+Which is why I'd suggest making it a more conscious decision: just turn
+off watchdog support. And if somebody needs watchdog support with a broken 
+driver, maybe, just _maybe_, he'll find the energy to fix the frigging 
+thing.
+
+Otherwise this will just keep on expanding. 
+
+		Linus
 

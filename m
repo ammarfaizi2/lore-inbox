@@ -1,66 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280941AbRKLTWY>; Mon, 12 Nov 2001 14:22:24 -0500
+	id <S280956AbRKLTVE>; Mon, 12 Nov 2001 14:21:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280944AbRKLTWQ>; Mon, 12 Nov 2001 14:22:16 -0500
-Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:14312 "HELO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with SMTP
-	id <S280941AbRKLTWH>; Mon, 12 Nov 2001 14:22:07 -0500
-Subject: Re: [PATCH] VIA timer fix was removed?
-From: Nils Philippsen <nils@wombat.dialup.fht-esslingen.de>
-To: Jeronimo Pellegrini <pellegrini@mpcnet.com.br>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011112170026.A7310@socrates>
-In-Reply-To: <20011112111409.A2617@socrates>
-	<200111121448.PAA01060@green.mif.pg.gda.pl>
-	<20011112140530.A23866@socrates> <1005590954.23106.1.camel@wombat> 
-	<20011112170026.A7310@socrates>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-ynCwk7gWLdwbNPq+c8dM"
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 12 Nov 2001 20:21:58 +0100
-Message-Id: <1005592918.7932.0.camel@wombat>
-Mime-Version: 1.0
+	id <S280949AbRKLTU5>; Mon, 12 Nov 2001 14:20:57 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:46601 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S280952AbRKLTUw>; Mon, 12 Nov 2001 14:20:52 -0500
+Message-ID: <3BF02D72.CB8D1A41@evision-ventures.com>
+Date: Mon, 12 Nov 2001 21:13:38 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+Reply-To: dalecki@evision.ag
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: BUG BUG hunt the bugs!!! patch-2.4.15-pre5
+In-Reply-To: <Pine.LNX.4.33.0111120838110.15242-100000@penguin.transmeta.com> <3BF01A14.26A5F78@evision-ventures.com> <3BF02B94.5E10B132@evision-ventures.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hallo out there!
 
---=-ynCwk7gWLdwbNPq+c8dM
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Same symptom from patch-2.4.15-pre4:
 
-On Mon, 2001-11-12 at 20:00, Jeronimo Pellegrini wrote:
-> > I have seen IBM machines (Netfinity 6000R) where this code got triggere=
-d
-> > even though they didn't have VIA chipsets/timers. Seems to have caused
-> > some problems there and I removed the code (in the custom kernel runnin=
-g
-> > on those machines).
->=20
-> #ifdefs and a question in config, maybe?
+diff -u --recursive --new-file v2.4.14/linux/net/irda/irda_device.c
+linux/net/irda/irda_device.c
+--- v2.4.14/linux/net/irda/irda_device.c	Sun Sep 23 11:41:02 2001
++++ linux/net/irda/irda_device.c	Sun Nov 11 10:20:21 2001
+ 
+bla bla bla...
 
-It wasn't something that left those machines. People with more intimate
-knowledge of this code and maybe those IBMs should take care.
+@@ -124,6 +127,12 @@
+ #ifdef CONFIG_WINBOND_FIR
+ 	w83977af_init();
+ #endif
++#ifdef CONFIG_SA1100_FIR
++	sa1100_irda_init();
++#endif
++#ifdef CONFIG_SA1100_FIR
++	sa1100_irda_init();
++#endif
+ #ifdef CONFIG_NSC_FIR
+ 	nsc_ircc_init();
+ #endif
+@@ -151,6 +160,12 @@
+ #ifdef CONFIG_OLD_BELKIN
+  	old_belkin_init();
+ #endif
++#ifdef CONFIG_EP7211_IR
++ 	ep7211_ir_init();
++#endif
++#ifdef CONFIG_EP7211_IR
++ 	ep7211_ir_init();
++#endif
+ 	return 0;
 
-Nils
---=20
- Nils Philippsen / Berliner Stra=DFe 39 / D-71229 Leonberg //
-+49.7152.209647
-nils@wombat.dialup.fht-esslingen.de / nils@redhat.de /
-nils@fht-esslingen.de
-        Ever noticed that common sense isn't really all that common?
-
---=-ynCwk7gWLdwbNPq+c8dM
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA78CFWR9ibZWlRMBERAs0fAJ46NIx2l4jEFXcAambhIoWWbaLCVgCgm9tV
-eCDWNG2y/Hqyf0Ji1/j6CDA=
-=YqoU
------END PGP SIGNATURE-----
-
---=-ynCwk7gWLdwbNPq+c8dM--
-
+You see the initialization done twice!

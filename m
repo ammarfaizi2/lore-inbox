@@ -1,87 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263664AbTDGVHz (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 17:07:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbTDGVHy (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 17:07:54 -0400
-Received: from cpt-dial-196-30-179-42.mweb.co.za ([196.30.179.42]:43648 "EHLO
-	nosferatu.lan") by vger.kernel.org with ESMTP id S263664AbTDGVHx (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 17:07:53 -0400
-Subject: [PATCH-2.5] Fix w83781d sensor to use Milli-Volt for in_* in sysfs
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Greg KH <greg@kroah.com>
-Cc: KML <linux-kernel@vger.kernel.org>, sensors@Stimpy.netroedge.com
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-eQaywIlurV3tThY64XPo"
-Organization: 
-Message-Id: <1049750163.4174.35.camel@nosferatu.lan>
+	id S263673AbTDGVOx (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 17:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263675AbTDGVOx (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 17:14:53 -0400
+Received: from mail-7.tiscali.it ([195.130.225.153]:38520 "EHLO
+	mail.tiscali.it") by vger.kernel.org with ESMTP id S263673AbTDGVOw (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 17:14:52 -0400
+Date: Mon, 7 Apr 2003 23:25:43 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Rik van Riel <riel@surriel.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@digeo.com>, mingo@elte.hu, hugh@veritas.com,
+       dmccr@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, Bill Irwin <wli@holomorphy.com>
+Subject: Re: subobj-rmap
+Message-ID: <20030407212543.GM5750@dualathlon.random>
+References: <Pine.LNX.4.44.0304061737510.2296-100000@chimarrao.boston.redhat.com> <1600000.1049666582@[10.10.2.4]> <20030406221547.GP1326@dualathlon.random> <2640000.1049667906@[10.10.2.4]>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 07 Apr 2003 23:16:03 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2640000.1049667906@[10.10.2.4]>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Apr 06, 2003 at 03:25:08PM -0700, Martin J. Bligh wrote:
+> >> We can always leave the sys_remap_file_pages stuff using pte_chains,
+> > 
+> > not sure why you want still to have the vm to know about the
+> > mmap(VM_NONLINEAR) hack at all.
+> > 
+> > that's a vm bypass. I can bet the people who wants to use it for running
+> > faster on the the 32bit archs will definitely prefer zero overhead and
+> > full hardware speed with only the pagetable and tlb flushing trash, and
+> > zero additional kernel internal overhead. that's just a vm bypass that
+> > could otherwise sit in kernel module, not a real kernel API.
+> 
+> Well, you don't get zero overhead whatever you do. You either pay the
+> cost at remap time of manipulating sub-objects, or the cost at page-touch
+> time of the pte_chains stuff. I suspect sub-objects are cheaper if we
+> read /write the 32K chunks, not if people mostly just touch one page
+> per remap though.
+> 
+> What do you think about using this for the linear stuff though?
 
---=-eQaywIlurV3tThY64XPo
-Content-Type: multipart/mixed; boundary="=-amCC7BocVSBTjgquXDUA"
+I think at this only for the linear stuff. it would solve Andrew's
+exploit against objrmap, for each page we would walk only the vmas
+matching the pagetables mapping to the page. However those sub-objects
+have a cost, the cost will be 8bytes per fragment. the slowest part
+should be the split of the subobject when a new mapping happens and the
+possible flood of list_add/list_del. I'm unsure it worth.
 
+However it would be nice to se how the current 2.4 pte walking clock
+algorithm does compared to objrmap and rmap when ext2 is used because
+ext3 generated an I/O bound behaviour at least for my tree, that made
+any vm-side comparison invalid.
 
---=-amCC7BocVSBTjgquXDUA
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Hi
-
-I did the w83781d sysfs update as per the old spec, which was not
-milli-volt.  This patch should fix it.
-
-
-Regards,
-
---=20
-
-Martin Schlemmer
-
-
-
---=-amCC7BocVSBTjgquXDUA
-Content-Disposition: attachment; filename=w83781d-in_milli-volt.patch
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; name=w83781d-in_milli-volt.patch; charset=ISO-8859-1
-
---- drivers/i2c/chips/w83781d.c.orig	2003-04-07 22:53:37.000000000 +0200
-+++ drivers/i2c/chips/w83781d.c	2003-04-07 22:53:34.000000000 +0200
-@@ -364,7 +364,7 @@
- 	 \
- 	w83781d_update_client(client); \
- 	 \
--	return sprintf(buf,"%ld\n", (long)IN_FROM_REG(data->reg[nr] * 10)); \
-+	return sprintf(buf,"%ld\n", (long)IN_FROM_REG(data->reg[nr])); \
- }
- show_in_reg(in);
- show_in_reg(in_min);
-@@ -378,7 +378,7 @@
- 	u32 val; \
- 	 \
- 	val =3D simple_strtoul(buf, NULL, 10); \
--	data->in_##reg[nr] =3D (IN_TO_REG(val) / 10); \
-+	data->in_##reg[nr] =3D IN_TO_REG(val); \
- 	w83781d_write_value(client, W83781D_REG_IN_##REG(nr), data->in_##reg[nr])=
-; \
- 	 \
- 	return count; \
-
---=-amCC7BocVSBTjgquXDUA--
-
---=-eQaywIlurV3tThY64XPo
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+keqTqburzKaJYLYRAi0SAJ4t9KkzDgJJUmAWXwhZGbYwAKJ7nACeLVt2
-wK7rWrSset8qmmICyj4vwcc=
-=20ff
------END PGP SIGNATURE-----
-
---=-eQaywIlurV3tThY64XPo--
-
+Andrea

@@ -1,49 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272571AbTHBKiu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 06:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272572AbTHBKiu
+	id S263752AbTHBKrx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 06:47:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272457AbTHBKrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 06:38:50 -0400
-Received: from smtp1.libero.it ([193.70.192.51]:43910 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id S272571AbTHBKie (ORCPT
+	Sat, 2 Aug 2003 06:47:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:58335 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263752AbTHBKrp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 06:38:34 -0400
-Subject: [PATCH] lirc for 2.5/2.6 kernels - 20030802
-From: Flameeyes <dgp85@users.sourceforge.net>
-To: LKML <linux-kernel@vger.kernel.org>,
-       LIRC list <lirc-list@lists.sourceforge.net>
-Content-Type: text/plain
-Message-Id: <1059820741.3116.24.camel@laurelin>
+	Sat, 2 Aug 2003 06:47:45 -0400
+Date: Sat, 2 Aug 2003 03:48:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2/3] writes: use flags in address space
+Message-Id: <20030802034843.21cb8564.akpm@osdl.org>
+In-Reply-To: <20030802041823.GB22824@waste.org>
+References: <20030802041823.GB22824@waste.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 02 Aug 2003 12:39:11 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-This is the fourth version of my patch for use LIRC drivers under
-2.5/2.6 kernels.
+Oliver Xymoron <oxymoron@waste.org> wrote:
+>
+> Combine mapping->error and ->gfp_mask into ->flags
 
-As usual, you can find it at
-http://flameeyes.web.ctonet.it/lirc/patch-lirc-20030802.diff.bz2
+Some tweaks here too.
 
-I changed the naming scheme, because I tried and the patch applies also
-in earliers and (probably) futures kernels, and call it only
-"patch-lirc.diff" will confuse about the versions. I think a datestamp
-is the best choice for now.
 
-This version includes minor changes, but an important one, Koos Vriezen
-sent me another fixes for lirc_serial driver (thanks, at the moment I
-haven't a serial device, and the electronic shops are closed, so I can't
-test it directly).
-Also I removed the .Makefile.swp present in the last patch (I forgot to
-close KVim before do the diff).
 
-This is also the first patch I post to the official lirc mailing list,
-HTH other lirc users that want to pass to 2.5/2.6 kernels.
+- Robustify the logic a bit.  At present if writepage() returns an error
+  which is not -EIO or -ENOSPC we lose track of it.
 
--- 
-Flameeyes <dgp85@users.sf.net>
+  So instead, treat all unknown errors as -EIO.
+
+
+
+ fs/mpage.c  |   12 ++++++------
+ mm/vmscan.c |    6 +++---
+ 2 files changed, 9 insertions(+), 9 deletions(-)
+
+diff -puN fs/mpage.c~awe-use-gfp_flags-fixes fs/mpage.c
+--- 25/fs/mpage.c~awe-use-gfp_flags-fixes	2003-08-02 03:40:29.000000000 -0700
++++ 25-akpm/fs/mpage.c	2003-08-02 03:40:29.000000000 -0700
+@@ -566,10 +566,10 @@ confused:
+ 	/*
+ 	 * The caller has a ref on the inode, so *mapping is stable
+ 	 */
+-	if (*ret == -EIO)
+-		set_bit(AS_EIO, &mapping->flags);
+-	else if (*ret == -ENOSPC)
++	if (*ret == -ENOSPC)
+ 		set_bit(AS_ENOSPC, &mapping->flags);
++	else
++		set_bit(AS_EIO, &mapping->flags);
+ out:
+ 	return bio;
+ }
+@@ -671,10 +671,10 @@ mpage_writepages(struct address_space *m
+ 					test_clear_page_dirty(page)) {
+ 			if (writepage) {
+ 				ret = (*writepage)(page, wbc);
+-				if (ret == -EIO)
+-					set_bit(AS_EIO, &mapping->flags);
+-				else if (ret == -ENOSPC)
++				if (ret == -ENOSPC)
+ 					set_bit(AS_ENOSPC, &mapping->flags);
++				else
++					set_bit(AS_EIO, &mapping->flags);
+ 			} else {
+ 				bio = mpage_writepage(bio, page, get_block,
+ 					&last_block_in_bio, &ret, wbc);
+diff -puN mm/vmscan.c~awe-use-gfp_flags-fixes mm/vmscan.c
+--- 25/mm/vmscan.c~awe-use-gfp_flags-fixes	2003-08-02 03:40:29.000000000 -0700
++++ 25-akpm/mm/vmscan.c	2003-08-02 03:40:29.000000000 -0700
+@@ -252,10 +252,10 @@ static void handle_write_error(struct ad
+ {
+ 	lock_page(page);
+ 	if (page->mapping == mapping) {
+-		if (error == -EIO)
+-			set_bit(AS_EIO, &mapping->flags);
+-		else if (error == -ENOSPC)
++		if (error == -ENOSPC)
+ 			set_bit(AS_ENOSPC, &mapping->flags);
++		else
++			set_bit(AS_EIO, &mapping->flags);
+ 	}
+ 	unlock_page(page);
+ }
+
+_
 

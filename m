@@ -1,74 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267235AbUIARkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267397AbUIARkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267235AbUIARkN (ORCPT <rfc822;willy@w.ods.org>);
+	id S267397AbUIARkN (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 1 Sep 2004 13:40:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267393AbUIARg7
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267235AbUIARhr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 13:36:59 -0400
-Received: from fed1rmmtao06.cox.net ([68.230.241.33]:49880 "EHLO
-	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
-	id S267382AbUIARfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 13:35:43 -0400
-Date: Wed, 1 Sep 2004 10:35:09 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.9-rc1-mm2
-Message-ID: <20040901173509.GC19730@smtp.west.cox.net>
-References: <20040830235426.441f5b51.akpm@osdl.org> <200408311454.48673.gene.heskett@verizon.net> <20040831194135.GB19724@mars.ravnborg.org>
+	Wed, 1 Sep 2004 13:37:47 -0400
+Received: from holomorphy.com ([207.189.100.168]:63174 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267383AbUIARfe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 13:35:34 -0400
+Date: Wed, 1 Sep 2004 10:35:29 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Kirill Korotaev <kksx@mail.ru>
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [6/7] back out renaming of ->pid_chain
+Message-ID: <20040901173529.GJ5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Kirill Korotaev <kksx@mail.ru>, akpm@osdl.org, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <E1C2TZ1-000JZr-00.kksx-mail-ru@f7.mail.ru> <20040901153624.GA5492@holomorphy.com> <20040901165808.GD5492@holomorphy.com> <20040901172710.GE5492@holomorphy.com> <20040901172839.GF5492@holomorphy.com> <20040901173027.GG5492@holomorphy.com> <20040901173218.GH5492@holomorphy.com> <20040901173327.GI5492@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040831194135.GB19724@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6+20040818i
+In-Reply-To: <20040901173327.GI5492@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 31, 2004 at 09:41:35PM +0200, Sam Ravnborg wrote:
-> On Tue, Aug 31, 2004 at 02:54:48PM -0400, Gene Heskett wrote:
-> > make modules_install
-> > /usr/src/linux-2.6.9-rc1-mm2/scripts/Makefile.modinst:24: target 
-> > `fs/nls/nls_koi8-r.ko' given more than once in the same rule.
-> > /usr/src/linux-2.6.9-rc1-mm2/scripts/Makefile.modinst:24: target 
-> > `fs/nls/nls_koi8-ru.ko' given more than once in the same rule.
-> > /usr/src/linux-2.6.9-rc1-mm2/scripts/Makefile.modinst:24: target 
-> > `fs/nls/nls_koi8-u.ko' given more than once in the same rule.
-> 
-> Thanks!
-> Know issue (reported off-list) - can be fixed with below patch.
-> 
-> 	Sam
-> 
-> # This is a BitKeeper generated diff -Nru style patch.
-> #
-> # ChangeSet
-> #   2004/08/31 21:36:26+02:00 sam@mars.ravnborg.org 
-> #   kbuild: Fix modules_install
-> #   
-> #   modules_install failed for modules with 'ko' in their name.
-> #   Fixes this.
-> #   
-> #   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-> # 
-> # scripts/Makefile.modinst
-> #   2004/08/31 21:36:09+02:00 sam@mars.ravnborg.org +1 -1
-> #   Fix installing of modules with ko in their name - do not find too many filenames in $(MODVERDIR)
-> # 
-> diff -Nru a/scripts/Makefile.modinst b/scripts/Makefile.modinst
-> --- a/scripts/Makefile.modinst	2004-08-31 21:40:31 +02:00
-> +++ b/scripts/Makefile.modinst	2004-08-31 21:40:31 +02:00
-> @@ -9,7 +9,7 @@
->  
->  #
->  
-> -__modules := $(sort $(shell grep -h .ko /dev/null $(wildcard $(MODVERDIR)/*.mod)))
-> +__modules := $(sort $(shell grep -h '\.ko' /dev/null $(wildcard $(MODVERDIR)/*.mod)))
->  modules := $(patsubst %.o,%.ko,$(wildcard $(__modules:.ko=.o)))
->  
->  .PHONY: $(modules)
+On Wed, Sep 01, 2004 at 10:33:27AM -0700, William Lee Irwin III wrote:
+> The renaming of struct pid was spurious; the following patch backs out
+> this renaming.
 
-D'oh...  Wouldn't .modpost need the same change?
+The renaming of ->pid_chain was spurious; the following patch backs it out.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+
+Index: kirill-2.6.9-rc1-mm2/include/linux/pid.h
+===================================================================
+--- kirill-2.6.9-rc1-mm2.orig/include/linux/pid.h	2004-09-01 09:28:48.595832976 -0700
++++ kirill-2.6.9-rc1-mm2/include/linux/pid.h	2004-09-01 10:13:28.949357304 -0700
+@@ -12,9 +12,9 @@
+ 
+ struct pid
+ {
+-	/* Try to keep hash_list in the same cacheline as nr for find_pid */
++	/* Try to keep pid_chain in the same cacheline as nr for find_pid */
+ 	int nr;
+-	struct hlist_node hash_list;
++	struct hlist_node pid_chain;
+ 	/* list of pids with the same nr, only one of them is in the hash */
+ 	struct list_head pid_list;
+ };
+Index: kirill-2.6.9-rc1-mm2/kernel/pid.c
+===================================================================
+--- kirill-2.6.9-rc1-mm2.orig/kernel/pid.c	2004-09-01 09:31:25.972908024 -0700
++++ kirill-2.6.9-rc1-mm2/kernel/pid.c	2004-09-01 10:16:27.524209800 -0700
+@@ -154,7 +154,7 @@
+ 	struct pid *pid;
+ 
+ 	hlist_for_each_entry(pid, elem,
+-			&pid_hash[type][pid_hashfn(nr)], hash_list) {
++			&pid_hash[type][pid_hashfn(nr)], pid_chain) {
+ 		if (pid->nr == nr)
+ 			return pid;
+ 	}
+@@ -168,11 +168,11 @@
+ 	task_pid = &task->pids[type];
+ 	pid = find_pid(type, nr);
+ 	if (pid == NULL) {
+-		hlist_add_head(&task_pid->hash_list,
++		hlist_add_head(&task_pid->pid_chain,
+ 				&pid_hash[type][pid_hashfn(nr)]);
+ 		INIT_LIST_HEAD(&task_pid->pid_list);
+ 	} else {
+-		INIT_HLIST_NODE(&task_pid->hash_list);
++		INIT_HLIST_NODE(&task_pid->pid_chain);
+ 		list_add_tail(&task_pid->pid_list, &pid->pid_list);
+ 	}
+ 	task_pid->nr = nr;
+@@ -186,13 +186,13 @@
+ 	int nr;
+ 
+ 	pid = &task->pids[type];
+-	if (!hlist_unhashed(&pid->hash_list)) {
+-		hlist_del(&pid->hash_list);
++	if (!hlist_unhashed(&pid->pid_chain)) {
++		hlist_del(&pid->pid_chain);
+ 		if (!list_empty(&pid->pid_list)) {
+ 			pid_next = list_entry(pid->pid_list.next,
+ 						struct pid, pid_list);
+ 			/* insert next pid from pid_list to hash */
+-			hlist_add_head(&pid_next->hash_list,
++			hlist_add_head(&pid_next->pid_chain,
+ 				&pid_hash[type][pid_hashfn(pid_next->nr)]);
+ 		}
+ 	}

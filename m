@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267488AbTGTQo5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 12:44:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267504AbTGTQo5
+	id S267451AbTGTQuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 12:50:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267475AbTGTQuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 12:44:57 -0400
-Received: from [200.104.148.52] ([200.104.148.52]:14722 "EHLO
-	sleipnir.valparaiso.cl") by vger.kernel.org with ESMTP
-	id S267488AbTGTQo4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 12:44:56 -0400
-Message-Id: <200307201659.h6KGxX912617@sleipnir.valparaiso.cl>
-To: John Bradford <john@grabjohn.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] HURD vs Linux/HURD 
-In-reply-to: Your message of "Sun, 20 Jul 2003 14:49:43 +0100."
-             <200307201349.h6KDnhXj002101@81-2-122-30.bradfords.org.uk> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Sun, 20 Jul 2003 12:59:33 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Sun, 20 Jul 2003 12:50:25 -0400
+Received: from ws-han1.win-ip.dfn.de ([193.174.75.150]:37326 "EHLO
+	ws-han1.win-ip.dfn.de") by vger.kernel.org with ESMTP
+	id S267451AbTGTQuY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 12:50:24 -0400
+Date: Sun, 20 Jul 2003 19:05:23 +0200
+Message-ID: <vines.sxdD+Gjg4zA@SZKOM.BFS.DE>
+X-Priority: 3 (Normal)
+To: <linux-kernel@vger.kernel.org>
+From: <WHarms@bfs.de> (Walter Harms)
+Reply-To: <WHarms@bfs.de>
+Subject: problem linux-2.6.0-test1 on alpha
+X-Incognito-SN: 25185
+X-Incognito-Version: 5.1.0.84
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Cc: list chopped down to size]
-John Bradford <john@grabjohn.com> said:
+hi list,
+ i have a problem with GNU linker for alpha. it crashes when
+linking. ( I compiled with gcc 2.96.)
+ 
+  LD      .tmp_vmlinux1
+make: *** [.tmp_vmlinux1] Fehler 139
 
-[...]
+I have tried 2.12,2.13,2.14 sofar, no success at all. did anyone else tried 2.6 on alpha ?
 
-> This discussion is nothing to do with Bit Keeper, (anymore).
+walter
 
-That stuff is wildly off-topic.
-
->                                                              We are
-> discussing what parts of the Hurd and GNU Mach contain code derived
-> from Linux.  That's actually quite interesting, and on-topic.
-
-Why? Are you planing to take anything from Hurd? Or complain that they
-(legally!) are taking GPLed code and use it elsewhere? In the fist case,
-discussion about the _technical_ merit of the code to swipe is on-topic,
-all else isn't. The second case is none of your business, (unless you wrote
-the code and did not GPL it).
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
-
+ps: i have alread reported this as a bug to binutils

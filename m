@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318844AbSH1OMq>; Wed, 28 Aug 2002 10:12:46 -0400
+	id <S318858AbSH1OUN>; Wed, 28 Aug 2002 10:20:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318848AbSH1OMk>; Wed, 28 Aug 2002 10:12:40 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:26358 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318844AbSH1OMi>; Wed, 28 Aug 2002 10:12:38 -0400
-Subject: Re: Writing files to remote storage
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kevin Liao <kevinliao@iei.com.tw>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <00cf01c24e6b$678127e0$1d0d11ac@ieileb9wqxg5qq>
-References: <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com>
-	<20020828081412.GA1496@spunk> 
-	<00cf01c24e6b$678127e0$1d0d11ac@ieileb9wqxg5qq>
-Content-Type: text/plain
+	id <S318859AbSH1OUN>; Wed, 28 Aug 2002 10:20:13 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:27134 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S318858AbSH1OUM>; Wed, 28 Aug 2002 10:20:12 -0400
+Date: Wed, 28 Aug 2002 09:24:23 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: problems with changing UID/GID
+Message-ID: <19220000.1030544663@baldur.austin.ibm.com>
+In-Reply-To: <200208280009.03090.trond.myklebust@fys.uio.no>
+References: <Pine.LNX.4.44.0208260855480.3234-100000@hawkeye.luckynet.adm>
+ <shsvg5wqemp.fsf@charged.uio.no> <20020827200110.GB8985@tapu.f00f.org>
+ <200208280009.03090.trond.myklebust@fys.uio.no>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 28 Aug 2002 15:18:42 +0100
-Message-Id: <1030544322.7290.20.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-28 at 09:17, Kevin Liao wrote:
-> If I mount a remote linux partition through smb or nfs and write one file to
-> that partition. How could I make sure that that file is really written to
-> the remote disk successfully? I know that some cache mechanisms existed in
-> linux kernel. So I guess there may be two possibilities as below:
 
-For NFS at least do an fsync(). Fsync should ensure the data hits the
-server. Whether the server commits to stable storage is protocol and
-configuration dependant (NFS says yes, some implementations fudge it)
- 
+--On Wednesday, August 28, 2002 12:09:03 AM +0200 Trond Myklebust
+<trond.myklebust@fys.uio.no> wrote:
+
+> FYI a BSD ucred is basically a structure of the form
+> 
+> struct ucred {
+> 	int	counter;		/* Reference counter */
+> 	uid_t	uid;			/* task->fsuid */
+> 	gid_t	gid;			/* task->fsgid */
+> 	int	ngroups;		/* task->ngroups */
+> 	gid_t	*groups;		/* task->groups */
+> };
+
+Shouldn't the Linux cred structure include the capabilities, as well?  What
+about places that want to see both uid and euid?  Shouldn't euid/egid also
+be in the structure?  I realize that for file operations they're not
+strictly necessary, but we should make the structure useful across all
+parts of the kernel that want to see credentials.
+
+BTW, you've convinced me that your approach is the right way to go.  I'll
+make another stab at CLONE_CRED after the VFS changes are made, which will
+make it a 2.7 item, I'm sure.
+
+Dave McCracken
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

@@ -1,58 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVCaOPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbVCaORW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbVCaOPj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 09:15:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVCaOPj
+	id S261460AbVCaORW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 09:17:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVCaORW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 09:15:39 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:22733 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261456AbVCaOPd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 09:15:33 -0500
-Date: Thu, 31 Mar 2005 16:14:41 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
-       Linus Torvalds <torvalds@osdl.org>, "'Andrew Morton'" <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Industry db benchmark result on recent 2.6 kernels
-Message-ID: <20050331141441.GA2384@elte.hu>
-References: <424A0172.2010609@yahoo.com.au> <200503300138.j2U1cJg03717@unix-os.sc.intel.com>
+	Thu, 31 Mar 2005 09:17:22 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:17815 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261460AbVCaORA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 09:17:00 -0500
+Date: Thu, 31 Mar 2005 16:17:26 +0200
+From: DervishD <lkml@dervishd.net>
+To: Mariusz Mazur <mmazur@kernel.pl>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: linux-libc-headers scsi headers vs libc scsi headers
+Message-ID: <20050331141726.GA654@DervishD>
+Mail-Followup-To: Mariusz Mazur <mmazur@kernel.pl>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20050330162114.GA1028@DervishD> <200503302240.08200.mmazur@kernel.pl> <20050331074526.GA8614@DervishD> <200503311426.48435.mmazur@kernel.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200503300138.j2U1cJg03717@unix-os.sc.intel.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200503311426.48435.mmazur@kernel.pl>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi Mariusz :)
 
-* Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
+ * Mariusz Mazur <mmazur@kernel.pl> dixit:
+> >     I don't know which set of headers will work, and in fact I don't
+> > know if I must follow 'Linux From Scratch' advice and use raw kernel
+> > headers for building glibc and LLH headers for any other thing. I
+> > think I probably will use the LLH headers (including scsi) for
+> > everything since glibc passes the 'make check' doing that... If I
+> > screw my system badly, I have lotsa backups at hand.
+> Like I've said, you're unable to break your system this way.
 
-> > If it is doing a lot of mapping/unmapping (or fork/exit), then that
-> > might explain why 2.6.11 is worse.
-> >
-> > Fortunately there are more patches to improve this on the way.
-> 
-> Once benchmark reaches steady state, there is no mapping/unmapping 
-> going on.  Actually, the virtual address space for all the processes 
-> are so stable at steady state that we don't even see it grow or 
-> shrink.
+    I think so... 
 
-is there any idle time on the system, in steady state (it's a sign of 
-under-balancing)? Idle balancing (and wakeup balancing) is one of the 
-things that got tuned back and forth alot. Also, do you know what the 
-total number of context-switches is during the full test on each kernel?  
-Too many context-switches can be an indicator of over-balancing. Another 
-sign of migration gone bad can be relative increase of userspace time 
-vs. system time. (due to cache trashing, on DB workloads, where most of 
-the cache contents are userspace's.)
+> And I don't see any point in LFS suggesting using raw kernel
+> headers to compile glibc
 
-	Ingo
+    I don't know their reasons because I haven't read any rationale
+(if any exists at all). Anyway, I've used LLH (including the scsi
+part) for building my new glibc and 'make check' passes. In fact, I'm
+answering this email from the system I've upgraded, so glibc seems to
+work ok ;)
+
+> (no you can't* screw up your system by using llh unless I
+> *specifically switch ioctls so apps remove files instead of opening
+> them; I just can't see any possibility to do it by accident).
+ 
+    That's what I thought. Apps must, first, use glibc headers, not
+kernel ones, and that cannot be broken by using llh, and in fact I
+rely on llh because mistakes in the kernel headers will probably be
+noticed very, very fast.
+ 
+> And I'll add an entry to the llh FAQ to clear this matter up.
+
+    Thank you :) BTW, you've done a great work with llh. I really
+like it and that's the reason I chose llh and not raw kernel headers
+in the first place. Keep on doing such a great job :)
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.dervishd.net & http://www.pleyades.net/
+It's my PC and I'll cry if I want to...

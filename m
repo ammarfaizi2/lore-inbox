@@ -1,77 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265093AbUF1RLz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265096AbUF1RNr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265093AbUF1RLz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 13:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265095AbUF1RLz
+	id S265096AbUF1RNr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 13:13:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265098AbUF1RNr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 13:11:55 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:20998 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S265093AbUF1RLx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 13:11:53 -0400
-Subject: Re: [PATCH] Staircase scheduler v7.4
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Willy Tarreau <willy@w.ods.org>
-In-Reply-To: <40E00AEA.4050709@kolivas.org>
-References: <200406251840.46577.mbuesch@freenet.de>
-	 <200406261929.35950.mbuesch@freenet.de>
-	 <1088363821.1698.1.camel@teapot.felipe-alfaro.com>
-	 <200406272128.57367.mbuesch@freenet.de>
-	 <1088373352.1691.1.camel@teapot.felipe-alfaro.com>
-	 <Pine.LNX.4.58.0406281013590.11399@kolivas.org>
-	 <1088412045.1694.3.camel@teapot.felipe-alfaro.com>
-	 <40DFDBB2.7010800@yahoo.com.au>
-	 <1088423626.1699.0.camel@teapot.felipe-alfaro.com>
-	 <40E00AEA.4050709@kolivas.org>
-Content-Type: text/plain
-Date: Mon, 28 Jun 2004 19:11:45 +0200
-Message-Id: <1088442705.1699.7.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.2 (1.5.9.2-1) 
+	Mon, 28 Jun 2004 13:13:47 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:19346 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S265096AbUF1RNl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 13:13:41 -0400
+Message-ID: <40E051D0.3070203@pacbell.net>
+Date: Mon, 28 Jun 2004 10:13:52 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: Oliver Neukum <oliver@neukum.org>
+CC: Alan Stern <stern@rowland.harvard.edu>, Pete Zaitcev <zaitcev@redhat.com>,
+       greg@kroah.com, arjanv@redhat.com, jgarzik@redhat.com,
+       tburke@redhat.com, linux-kernel@vger.kernel.org,
+       mdharm-usb@one-eyed-alien.net
+Subject: Re: drivers/block/ub.c
+References: <Pine.LNX.4.44L0.0406281155140.1598-100000@ida.rowland.org> <40E045FE.1070104@pacbell.net> <200406281846.34486.oliver@neukum.org>
+In-Reply-To: <200406281846.34486.oliver@neukum.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-06-28 at 22:11 +1000, Con Kolivas wrote:
+Oliver Neukum wrote:
 
-> The design of staircase would make renicing normal interactive things
-> - -ve values bad for the latency of other nice 0 tasks s is not
-> recommended for X or games etc. Initial scheduling latency is very
-> dependent on nice value in staircase. If you set a cpu hog to nice -5 it
-> will hurt audio at nice 0 and so on. Nicing latency unimportant things
-> with +ve values is more useful with this design. If you run X and
-> evolution at the same nice value they will get equal cpu share for
-> example so moving windows means redrawing evolution and X moving get
-> equal cpu. Nicing evolution +ve will make X smoother compared to
-> evolution redrawing and so on...
+>>>I have to object to the reasoning here.  That same sort of argument could 
+>>>be applied to almost any part of the Linux kernel.
+>>
+>>I was also tempted to point out that the tone was objectionable.
+>>The implication that only Pete and Havoc have useful standards
+>>when it comes to code quality was ... offensive.  Looks like I
+>>just gave into that temptation, eh?  :)
+> 
+> 
+> Deep down in the blackest parts of your soul do you really think
+> differently about your own standards of quality ;-) ?
 
-OK, just a few thoughts...
+Certainly I do.
 
-1. Both -mm3 and -np2 suffer from delays when redrawing "damaged"
-windows (windows which were covered and now are being exposed): while
-moving heavily a window over the screen, "damaged" windows are not
-redrawn. I would say this is a sign of starvation. However, this does
-not happen with -ck3 that is able to redraw "damaged' windows even while
-heavily moving a window all over the screen.
+- Dave
 
-I can see this by looking at some icons that are lying on my desktop.
-With -mm3 and -np2, they are hardly redrawn while heavily moving a
-window all around. With -ck3, I can see the icons and their respective
-labels all the time.
-
-2. Both -mm3 and -np2 show a very smooth behavior when moving windows
-all around the screen. However, -ck3 is somewhat a little bit jerky. I
-think this is a consequence of point number 1.
-
-3. Both -mm3 and -ck3 are inmune to CPU hogs when mantaining
-interactivity: running "while true; do a=2; done" doesn't seem to affect
-the interactive behavior of them. I check this by running this CPU hog
-and hovering my mouse over KXDocker, which is a nice applet for KDE
-similar to the Mac OS X docker. KXDocker is another CPU hog by itself,
-but plays nicely with the "while true" loop. However, -np2 seems to
-suffer a little bit from starvation, as KXDocker animations don't feel
-smooth.
 

@@ -1,64 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbVCaVT5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVCaVep@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbVCaVT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 16:19:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbVCaVT5
+	id S261339AbVCaVep (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 16:34:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVCaVep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 16:19:57 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:16655 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262006AbVCaVTn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 16:19:43 -0500
-Date: Thu, 31 Mar 2005 23:19:41 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Roland Dreier <roland@topspin.com>
-Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Yum Rayan <yum.rayan@gmail.com>, linux-kernel@vger.kernel.org,
-       mvw@planets.elm.net
-Subject: Re: Stack usage tasks
-Message-ID: <20050331211941.GJ3185@stusta.de>
-References: <df35dfeb05033023394170d6cc@mail.gmail.com> <20050331150548.GC19294@wohnheim.fh-wedel.de> <20050331203010.GF3185@stusta.de> <52ll83mtqd.fsf@topspin.com>
+	Thu, 31 Mar 2005 16:34:45 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:17999 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261339AbVCaVem (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 16:34:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Vn6pOyEJGhaFMYKlev3pxGsNKq12cgycOmY/aHu4EI65OBYTWT2a9kDiiuEjHdzFrq8aOCVMWWE9qjiue/+AjTNsvUYfi9BzvI8PIOMRT/mJ9TUU3wJcB9vcSzi8WS0aAMP3x8zvyveLEhrObgDdZgULC6vZ1dM/pjD0ACSRLWs=
+Message-ID: <40f323d005033113347abcdeb2@mail.gmail.com>
+Date: Thu, 31 Mar 2005 16:34:41 -0500
+From: Benoit Boissinot <bboissin@gmail.com>
+Reply-To: Benoit Boissinot <bboissin@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6 patch] sound/oss/: cleanups
+Cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
+In-Reply-To: <20050328220307.GO4285@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <52ll83mtqd.fsf@topspin.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <20050306220747.GP5070@stusta.de>
+	 <40f323d00503281255124bd0c8@mail.gmail.com>
+	 <20050328220307.GO4285@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 31, 2005 at 12:43:38PM -0800, Roland Dreier wrote:
->     > The task I'm suggesting was therefore:
->     > - remove the -fno-unit-at-a-time in arch/i386/Makefile in your private
->     >   kernel sources
->     > - use gcc 3.4
->     > - reduce the stack usages in call paths > 3kB
+On Tue, 29 Mar 2005 00:03:07 +0200, Adrian Bunk <bunk@stusta.de> wrote:
+> On Mon, Mar 28, 2005 at 03:55:36PM -0500, Benoit Boissinot wrote:
+> > On Sun, 6 Mar 2005 23:07:47 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> > > This patch contains cleanups including the following:
+> > > - make needlessly global code static
+> > >
+> That's a different problem.
+> Please apply the patch below on top of my other patch.
+>  
+> <--  snip  -->
 > 
-> This is a good idea.  However, I might suggest using gcc 4.0 (you'll
-> have to use a snapshot now, but the release should only be a few weeks
-> away).  A patch went into gcc 4.0 that makes gcc more intelligent
-> about sharing stack for variables that cannot be alive at the same
-> time, and therefore it may be more feasible to make unit-at-a-time
-> work for the i386 kernels.
+> Rearrange sound/oss/nm256_audio.c and to drop nm256_debug from nm256.h
+> since it confuses gcc 4.0 .
 
-That's one option.
+Could this patch go in -mm (it is needed for allyesconfig and gcc-4).
 
-Jörn, can you send a list of call paths with a stack usage > 3kB when 
-compiling with gcc 3.4 and unit-at-a-time (or tell me how to generate 
-these lists)?
+Thanks,
 
-If fixing a handful of places was sufficient, it was IMHO worth it for 
-enabling unit-at-a-time with gcc 3.4 .
-
->  - R.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Benoit
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.12-rc1-mm3-full/sound/oss/nm256.h.old     2005-03-28 23:49:39.000000000 +0200
+> +++ linux-2.6.12-rc1-mm3-full/sound/oss/nm256.h 2005-03-28 23:51:33.000000000 +0200
+> @@ -128,9 +128,6 @@
+>      struct nm256_info *next_card;
+>  };
+> 
+> -/* Debug flag--bigger numbers mean more output. */
+> -extern int nm256_debug;
+> -
+>  /* The BIOS signature. */
+>  #define NM_SIGNATURE 0x4e4d0000
+>  /* Signature mask. */
+> --- linux-2.6.12-rc1-mm3-full/sound/oss/nm256_audio.c.old       2005-03-28 23:51:53.000000000 +0200
+> +++ linux-2.6.12-rc1-mm3-full/sound/oss/nm256_audio.c   2005-03-28 23:52:19.000000000 +0200
+> @@ -28,12 +28,13 @@
+>  #include <linux/delay.h>
+>  #include <linux/spinlock.h>
+>  #include "sound_config.h"
+> -#include "nm256.h"
+> -#include "nm256_coeff.h"
+> 
+>  static int nm256_debug;
+>  static int force_load;
+> 
+> +#include "nm256.h"
+> +#include "nm256_coeff.h"
+> +
+>  /*
+>   * The size of the playback reserve.  When the playback buffer has less
+>   * than NM256_PLAY_WMARK_SIZE bytes to output, we request a new
+> 
+>

@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288867AbSAIRhG>; Wed, 9 Jan 2002 12:37:06 -0500
+	id <S288862AbSAIRgg>; Wed, 9 Jan 2002 12:36:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288902AbSAIRg4>; Wed, 9 Jan 2002 12:36:56 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45839 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288845AbSAIRgu>; Wed, 9 Jan 2002 12:36:50 -0500
-Subject: Re: Where's all my memory going?
-To: matt@bodgit-n-scarper.com (Matt Dainty)
-Date: Wed, 9 Jan 2002 17:47:44 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020109173633.A26559@mould.bodgit-n-scarper.com> from "Matt Dainty" at Jan 09, 2002 05:36:33 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S288845AbSAIRg0>; Wed, 9 Jan 2002 12:36:26 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:3087 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S288862AbSAIRgK>; Wed, 9 Jan 2002 12:36:10 -0500
+Date: Wed, 9 Jan 2002 14:22:53 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Nathan Myers <ncm-nospam@cantrip.org>
+Cc: linux-kernel@vger.kernel.org, deischen@iworks.InterWorks.org
+Subject: Re: bad patch in aic7xxx_linux.c
+In-Reply-To: <20020109090628.A18526@cantrip.org>
+Message-ID: <Pine.LNX.4.21.0201091421560.21034-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16OMpF-0001pj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> However, over time, (30-45 minutes), more and more memory seems to just
-> disappear from the system until it looks like this, (note that swap is
-> hardly ever touched):
 
-I don't see any disappearing memory. Remember that Linux will intentionally
-keep memory filled with cache pages when it is possible. The rest I can't
-help with - Im not familiar enough with qmail to know what limits it places
-internally or where the points it and/or the kernel might interact to
-cause bottlenecks are 
+
+On Wed, 9 Jan 2002, Nathan Myers wrote:
+
+> Marcelo,
+> 
+> In patch-2.4.17-pre2, a nonsensical change was made in 
+> linux/drivers/scsi/aic7xxx/aic7xxx_linux.c .  While apparently 
+> harmless, it suggests to me that you had intended to fold in an 
+> entirely different patch, and "missed".
+> 
+> I don't find a current maintainer for aic7xxx listed in MAINTAINERS.
+
+Its not nonsensical: It fixes a critical bug as David pointed out.
+
+

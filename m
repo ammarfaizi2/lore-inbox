@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUGEWGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUGEWH0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbUGEWGx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 18:06:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUGEWGx
+	id S261682AbUGEWH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 18:07:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUGEWH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 18:06:53 -0400
-Received: from fmmailgate03.web.de ([217.72.192.234]:45793 "EHLO
-	fmmailgate03.web.de") by vger.kernel.org with ESMTP id S261426AbUGEWGu
+	Mon, 5 Jul 2004 18:07:26 -0400
+Received: from fmmailgate01.web.de ([217.72.192.221]:62915 "EHLO
+	fmmailgate01.web.de") by vger.kernel.org with ESMTP id S261682AbUGEWHU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 18:06:50 -0400
-Date: Tue, 06 Jul 2004 00:06:44 +0200
-Message-Id: <971513340@web.de>
+	Mon, 5 Jul 2004 18:07:20 -0400
+Date: Tue, 6 Jul 2004 00:07:19 +0200
+Message-Id: <200407052207.i65M78bh007202@fmmailgate01.web.de>
 MIME-Version: 1.0
 From: "Michael Thonke" <TK-SHOCKWAVE@web.de>
 To: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.7-mm6 usb lockup also with reverted bk-usb.path and usb-locking-fix
 Organization: http://freemail.web.de/
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="---SKER1089065209--";
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="---SKER1089065239--";
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is MIME
 
------SKER1089065209--
+-----SKER1089065239--
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 
@@ -44,10 +44,10 @@ Andrew Morton <akpm@osdl.org> schrieb am 05.07.04 23:53:05:
 > Could you try reverting bk-acpi as well?
 
 
-_______________________________________________________
-WEB.DE Video-Mail - Sagen Sie mehr mit bewegten Bildern
-Informationen unter: http://freemail.web.de/?mc=021199
------SKER1089065209--
+________________________________________________________________
+Verschicken Sie romantische, coole und witzige Bilder per SMS!
+Jetzt neu bei WEB.DE FreeMail: http://freemail.web.de/?mc=021193
+-----SKER1089065239--
 Content-Type: application/x-pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="smime.p7s"
@@ -79,9 +79,9 @@ PcDcX74ocMSqgzQBKCdZvzGCAWwwggFoAgEBMIGpMIGgMQswCQYDVQQGEwJERTES
 MBAGA1UEChMJV0VCLkRFIEFHMRUwEwYDVQQLEwxUcnVzdCBDZW50ZXIxGjAYBgNV
 BAcTEUQtNzYyMjcgS2FybHNydWhlMS0wKwYDVQQDEyRXRUIuREUgVHJ1c3RDZW50
 ZXIgRU1haWwtWmVydGlmaWthdGUxGzAZBgkqhkiG9w0BCQEWDHRydXN0QHdlYi5k
-ZQIEAlpoPTAJBgUrDgMCGgUAMA0GCSqGSIb3DQEBAQUABIGAshTUUV9NDDxSa/cu
-c6jfyxg5P4Gq7+pFJXaw/orK4yaTX61xXGBJP5744q2li/9br5TDaXKvJtRrHl1b
-JJe553U6A9q2/GFc2WP76GjKQOgYSmk5I6v9zZyCntsiadhAPVV/JhN7x3Yz17Jh
-ckpHSrX+L3KvyEEasPDfGty4aGmhGjAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcB
------SKER1089065209----
+ZQIEAlpoPTAJBgUrDgMCGgUAMA0GCSqGSIb3DQEBAQUABIGAcl01uUb9KX6+OUSg
+VSg5Vb3rlNhyNFBMlsxVC8S+D7vGn1Il1TwFbPmvHFGbUIO23dD3BHgworHWLzoS
+uom7ghTMVu/Ed/NsEvSstqXzyl5sHjhIfXB14oXQElOlCGvSPHuDBjAXO/M7l5B4
+Lu1bGsxF7IZztvudSUWFRVzFzuKhGjAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcB
+-----SKER1089065239----
 

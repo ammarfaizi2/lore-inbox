@@ -1,81 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316705AbSEVTqz>; Wed, 22 May 2002 15:46:55 -0400
+	id <S316709AbSEVTvp>; Wed, 22 May 2002 15:51:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316711AbSEVTqy>; Wed, 22 May 2002 15:46:54 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:14345 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S316705AbSEVTqx>; Wed, 22 May 2002 15:46:53 -0400
-To: Jan Kara <jack@suse.cz>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        Nathan Scott <nathans@wobbly.melbourne.sgi.com>
-Subject: Re: Quota patches
-In-Reply-To: <20020520135530.GB9209@atrey.karlin.mff.cuni.cz>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Thu, 23 May 2002 04:46:28 +0900
-Message-ID: <87bsb86k4r.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S316711AbSEVTvo>; Wed, 22 May 2002 15:51:44 -0400
+Received: from mail11b.verio-web.com ([161.58.148.19]:28756 "HELO
+	mail-fwd.verio-web.com") by vger.kernel.org with SMTP
+	id <S316709AbSEVTvo>; Wed, 22 May 2002 15:51:44 -0400
+Message-ID: <017201c201ca$13054810$320e10ac@irvine.hnc.com>
+Reply-To: "Kirk" <kirk@scriptdoggie.com>
+From: "Kirk" <kirk@scriptdoggie.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Ambrish Verma" <averma@marantinetworks.com>
+In-Reply-To: <003301c201c5$04af5620$3701a8c0@maranti.com>
+Subject: Re: ipfwadm problems
+Date: Wed, 22 May 2002 12:51:32 -0700
+Organization: ScriptDoggie Inc
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Loop-Detect: 1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Does iptables have or allow IP Masqurading?  This is really what I'm trying
+to do as I have a network behind my linux server (acting as a router) and
+need to forward packets from 192.168.0.x to my WAN port on the same Linux
+server.  I had this working with ipchains until the upgrade to 2.4.18.
 
-Jan Kara <jack@suse.cz> writes:
+Thanks,
+Kirk
 
->   Hello,
-> 
->   In following mails I'll send (because patches are big, I'll post them just
-> diretly to Linus - others see ftp below) quota patches for 2.5.15 (patches
-> apply well on 2.5.16 too). Currently they implement:
->   * new quota format (allows 32 uids, accounting in bytes -> mainly for
->     Reiserfs)
->   * needed infrastructure for XFS quota
->   * quota statistics in /proc (we can drop Q_GETSTATS call; it's a lot
->     easier to change in future)
->   * implements correct syncing of quota
->   * introduces interface which allows usage of both quota formats in kernel
->   * implemented filesystem callback function on certain quota operations
->     (needed for journaled quota, Ext3)
->   * implements ioctl() for reporting occupied space in bytes (not just blocks)
-> 
->   The patches can be downloaded at:
-> ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/v2.5/2.5.15/
-> 
->   Old quota tools should work with patches if you configure old quota interface
-> in '.config'. There are also quota utilities capable of communicating with new
-> generic interface. You can download them at:
-> 
-> http://www.sf.net/projects/linuxquota/
-> 
-> or you can checkout version from SourceForge CVS.
-> 
->   Any comments & bugreports welcome.
 
-What do you think of the following patches for kernel without
-quota support? We already have weak symbol for sys_quotactl(). 
+----- Original Message -----
+From: "Ambrish Verma" <averma@marantinetworks.com>
+To: <kirk@scriptdoggie.com>
+Sent: Wednesday, May 22, 2002 12:15 PM
+Subject: Re: ipfwadm problems
 
---- linux-bk/fs/Makefile        Wed May 22 01:17:48 2002
-+++ linux-2.5.17/fs/Makefile    Thu May 23 03:23:30 2002
-@@ -15,7 +15,7 @@
-                namei.o fcntl.o ioctl.o readdir.o select.o fifo.o locks.o \
-                dcache.o inode.o attr.o bad_inode.o file.o iobuf.o dnotify.o \
-                filesystems.o namespace.o seq_file.o xattr.o libfs.o \
--               fs-writeback.o quota.o
-+               fs-writeback.o
 
- ifneq ($(CONFIG_NFSD),n)
- ifneq ($(CONFIG_NFSD),)
-@@ -81,7 +81,7 @@
+In the new kernels ipchains is not included by default (probably if you put
+some effort you can include it.).
+There is an alternate for ipchains is available called iptables, with which
+you should be able to do most of the things you expect from ipchains.
 
- obj-$(CONFIG_BINFMT_ELF)       += binfmt_elf.o
+--
+Ambrish
 
--obj-$(CONFIG_QUOTA) += dquot.o
-+obj-$(CONFIG_QUOTA) += dquot.o quota.o
- obj-$(CONFIG_QFMT_V1) += quota_v1.o
- obj-$(CONFIG_QFMT_V2) += quota_v2.o
 
-Regards.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+"Kirk" <kirk@scriptdoggie.com> wrote in message
+news:011101c201bd$91ccccc0$320e10ac@irvine.hnc.com...
+> I'm trying to issue an "ipfwadm" to create ipchains and am getting:
+>
+> > Generic IP Firewall Chains not in this kernel
+>
+> Looking for help with re-compiling the 2.4.18-2 (latest from CD's 7.3
+> install).  Can someone point me in the right direction?
+>
+> Thanks
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+

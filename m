@@ -1,73 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262879AbUCRTAl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 14:00:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262886AbUCRTAl
+	id S262866AbUCRTCN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 14:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262885AbUCRTCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 14:00:41 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:49025
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262879AbUCRTAi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 14:00:38 -0500
-Date: Thu, 18 Mar 2004 20:01:26 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mjy@geizhals.at, linux-kernel@vger.kernel.org
+	Thu, 18 Mar 2004 14:02:13 -0500
+Received: from fw.osdl.org ([65.172.181.6]:15829 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262866AbUCRTCB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 14:02:01 -0500
+Date: Thu, 18 Mar 2004 11:01:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: andrea@suse.de, mjy@geizhals.at, linux-kernel@vger.kernel.org
 Subject: Re: CONFIG_PREEMPT and server workloads
-Message-ID: <20040318190126.GA2022@dualathlon.random>
-References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <20040318015004.227fddfb.akpm@osdl.org> <20040318145129.GA2246@dualathlon.random> <20040318093902.3513903e.akpm@osdl.org> <20040318175855.GB2536@dualathlon.random> <20040318102623.04e4fadb.akpm@osdl.org> <20040318183844.GD32573@dualathlon.random> <20040318104729.0de30117.akpm@osdl.org>
+Message-Id: <20040318110159.321754d8.akpm@osdl.org>
+In-Reply-To: <s5hlllycgz3.wl@alsa2.suse.de>
+References: <40591EC1.1060204@geizhals.at>
+	<20040318060358.GC29530@dualathlon.random>
+	<s5hlllycgz3.wl@alsa2.suse.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040318104729.0de30117.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 18, 2004 at 10:47:29AM -0800, Andrew Morton wrote:
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> >
-> > > hand so we should only fall into the kmap() if the page was suddenly stolen
-> >  > again.
+Takashi Iwai <tiwai@suse.de> wrote:
+>
+> > These fixes from Takashi Iwai brings 2.6 back in line with 2.4, I
+> > suggested to use EIP dumps from interrupts to get the hotspots, he
+> > promptly used the RTC for that and he could fixup all the spots, great
+> > job he did since now we've a very low worst case sched latency in 2.6
+> > too:
 > > 
-> >  Oh so you mean the page fault insn't only interrupting the copy-user
-> >  atomically, but the page fault is also going to sleep and pagein the
-> >  page? I though you didn't want to allow other tasks to steal the kmap
-> >  before you effectively run the kunmap_atomic. I see it can be safe if
-> >  kunmap_atomic is a noop though, but you're effectively allowing
-> >  scheduling inside a kmap this way.
+> > --- linux/fs/mpage.c-dist	2004-03-10 16:26:54.293647478 +0100
+> > +++ linux/fs/mpage.c	2004-03-10 16:27:07.405673634 +0100
+> > @@ -695,6 +695,7 @@ mpage_writepages(struct address_space *m
+> >  			unlock_page(page);
+> >  		}
+> >  		page_cache_release(page);
+> > +		cond_resched();
+> >  		spin_lock(&mapping->page_lock);
+> >  	}
+> >  	/*
 > 
-> No, we don't schedule with the atomic kmap held.  What I meant was:
+> the above one is the major source of RT-latency.
 
-good to hear this (even scheduling inside an atomic kmap could be made
-to work but I would find it less obviously safe since kumap_atomic would
-need to be a noop for example).
+This one's fine.
 
+> for ext3, these two spots are relevant.
 > 
-> 	get_user(page);		/* fault it in */
-> 	kmap_atomic(page);
-> 	if (copy_from_user(page))
-> 		goto slow_path;
-> 	kunmap_atomic(page);
-> 
-> 	...
-> 
-> slow_path:
-> 	kunmap_atomic(page);
-> 	kmap(page);
-> 	copy_from_user(page);
-> 	kunmap(page);
+> --- linux-2.6.4-8/fs/jbd/commit.c-dist	2004-03-16 23:00:40.000000000 +0100
+> +++ linux-2.6.4-8/fs/jbd/commit.c	2004-03-18 02:42:41.043448624 +0100
+> @@ -290,6 +290,9 @@ write_out_data_locked:
+>  			commit_transaction->t_sync_datalist = jh;
+>  			break;
+>  		}
+> +
+> +		if (need_resched())
+> +			break;
+>  	} while (jh != last_jh);
+>  
+>  	if (bufs || need_resched()) {
+
+This one I need to think about.  Perhaps we can remove the yield point a
+few lines above.
+
+One needs to be really careful with the lock-dropping trick - there are
+weird situations in which the kernel fails to make any forward progress. 
+I've been meaning to do another round of latency tuneups for ages, so I'll
+check this one out, thanks.
+
+There's also the SMP problem: this CPU could be spinning on a lock with
+need_resched() true, but the other CPU is hanging on the lock for ages
+because its need_resched() is false.  In the 2.4 ll patch I solved that via
+the scary hack of broadcasting a reschedule instruction to all CPUs if an
+rt-prio task just became runnable.  In 2.6-preempt we use
+preempt_spin_lock().
+
+But in 2.6 non-preempt we have no solution to this, so worst-case
+scheduling latencies on 2.6 SMP CONFIG_PREEMPT=n are high.
+
+
+Last time I looked the worst-case latency is in fact over in the ext3
+checkpoint code.  It's under spinlock and tricky to fix.
+
+> --- linux-2.6.4-8/fs/ext3/inode.c-dist	2004-03-18 02:33:38.000000000 +0100
+> +++ linux-2.6.4-8/fs/ext3/inode.c	2004-03-18 02:33:40.000000000 +0100
+> @@ -1987,6 +1987,7 @@ static void ext3_free_branches(handle_t 
+>  	if (is_handle_aborted(handle))
+>  		return;
+>  
+> +	cond_resched();
+>  	if (depth--) {
+>  		struct buffer_head *bh;
+>  		int addr_per_block = EXT3_ADDR_PER_BLOCK(inode->i_sb);
 > 
 
-I see what you mean now, so you suggest to run an unconditional
-get_user(). It's hard to tell here, I agree the cost would be nearly
-zero since the loaded byte from memory it'll go into l1 cache and it
-would avoid a page fault in some unlikely case compared to what I
-proposed, but I don't like too much it because I really like to optimize
-as much as possible for the fast path always, so I still like to keep
-the get_user out of the fast path. But you're right to argue since it's
-hard to tell what's better in practice (certainly one could write a
-malicious load where the additional pagefault could be measurable, while
-the get_user would always be hardly measurable).
+This one's OK.
+
+btw, several months ago we discussed the idea of adding a sysctl to the
+ALSA drivers which would cause a dump_stack() to be triggered if the audio
+ISR detected a sound underrun.
+
+This would be a very useful feature, because it increases the number of
+low-latency developers from O(2) to O(lots).  If some user is complaining
+of underruns we can just ask them to turn on the sysctl and we get a trace
+pointing at the culprit code.
+
+And believe me, we need the coverage.  There are all sorts of weird code
+paths which were found during the development of the 2.4 low-latency patch.
+i2c drivers, fbdev drivers, all sorts of things which you and I don't
+test.
+
+I know it's a matter of
+
+	if (sysctl_is_set)
+		dump_stack();
+
+in snd_pcm_update_hw_ptr_post() somewhere, but my brain burst when working
+out the ALSA sysctl architecture.
+
+Is this something you could add please?
+

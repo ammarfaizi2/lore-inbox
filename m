@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262815AbRFCGng>; Sun, 3 Jun 2001 02:43:36 -0400
+	id <S262825AbRFCHw7>; Sun, 3 Jun 2001 03:52:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262816AbRFCGnZ>; Sun, 3 Jun 2001 02:43:25 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:61568 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S262815AbRFCGnW>;
-	Sun, 3 Jun 2001 02:43:22 -0400
-Message-ID: <3B19E4D0.885C50CA@candelatech.com>
-Date: Sun, 03 Jun 2001 00:18:40 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S262823AbRFCHwt>; Sun, 3 Jun 2001 03:52:49 -0400
+Received: from shell.ca.us.webchat.org ([216.152.64.152]:50159 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S262825AbRFCHwi>; Sun, 3 Jun 2001 03:52:38 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: <jcwren@jcwren.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: select() - Linux vs. BSD
+Date: Sun, 3 Jun 2001 00:52:36 -0700
+Message-ID: <NCBBLIEPOCNJOAEKBEAKMEKIPHAA.davids@webmaster.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Compile problem with ov511.c (Kernel 2.4.5)
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <NDBBKBJHGFJMEMHPOPEGIEBCCIAA.jcwren@jcwren.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -D__KERNEL__ -I/home/greear/kernel/2.4/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686
--DMODULE -DMODVERSIONS -include /home/greear/kernel/2.4/linux/include/linux/modversions.h   -c -o ov511.o ov511.c
-ov511.c: In function `ov511_read_proc':
-ov511.c:340: `version' undeclared (first use in this function)
-ov511.c:340: (Each undeclared identifier is reported only once
-ov511.c:340: for each function it appears in.)
-make[2]: *** [ov511.o] Error 1
-make[2]: Leaving directory `/home/greear/kernel/2.4/linux/drivers/usb'
-make[1]: *** [_modsubdir_usb] Error 2
-make[1]: Leaving directory `/home/greear/kernel/2.4/linux/drivers'
-make: *** [_mod_drivers] Error 2
 
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+> I would have said just the opposite.  That if it you have a large
+> number of
+> handles you're waiting on, and you have to go back through and
+> set the bits
+> everytime you timeout that you would incur a larger overhead.  From the
+> perspective of my application, it would have been more efficient
+> to not zero
+> them (I was waiting on a number of serial channels, and the
+> timeout was used
+> to periodically pump more data to the serial channel.  When I
+> received data,
+> I buffered it, and another thread took care of processing it).
+
+	The usual implementation is you have a 'permanent' fd_set and a 'temporary'
+fd_set. Before each call to select, you memcpy the permanent fd_set into the
+temporary and pass the temporary to select. If you wish to stop selecting
+for read or write on a given socket, you remove it from the appropriate
+permanent set. This way you don't have to twiddle too many bits.
+
+	DS
+

@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132462AbRDAOVw>; Sun, 1 Apr 2001 10:21:52 -0400
+	id <S132479AbRDAOfC>; Sun, 1 Apr 2001 10:35:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132508AbRDAOVm>; Sun, 1 Apr 2001 10:21:42 -0400
-Received: from out1.prserv.net ([32.97.166.31]:58342 "EHLO prserv.net")
-	by vger.kernel.org with ESMTP id <S132462AbRDAOV2>;
-	Sun, 1 Apr 2001 10:21:28 -0400
-Message-Id: <m14jf1U-001PKaC@mozart>
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Rob Landley <telomerase@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Original destination of transparent proxied connections? 
-In-Reply-To: Your message of "Thu, 29 Mar 2001 22:11:49 PST."
-             <20010330061149.6234.qmail@web5203.mail.yahoo.com> 
-Date: Sun, 01 Apr 2001 20:23:52 +1000
+	id <S132492AbRDAOew>; Sun, 1 Apr 2001 10:34:52 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:34248 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S132479AbRDAOeo>;
+	Sun, 1 Apr 2001 10:34:44 -0400
+Message-ID: <3AC73AE6.9070701@optibase.com>
+Date: Sun, 01 Apr 2001 16:27:50 +0200
+From: Constantine Gavrilov <const-g@optibase.com>
+Organization: Optibase
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-ac26customSMP i686; en-US; 0.8) Gecko/20010211
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Anton.Safonov@bestlinux.net
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PCMCIA problems on IBM ThinkPad 600X
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20010330061149.6234.qmail@web5203.mail.yahoo.com> you write:
+There are problems with some PCMCIA drivers included in the kernel. For 
+example, support for cardbus 3com cards was moved to 3c59x.o driver. It 
+works (on 600X at least) only of you compile it in. It will not work as 
+a module.
 
-[ cut 50 lines ]
+I think a much better solution right now is to use drivers from 
+pcmcia-cs package. It always works. If you do not configure any support 
+for pcmcia in your kernel, when you build pcmcia-cs it will build kernel 
+drivers from its own source tree. Just make sure you use the latest 
+version. This also allows configuration files interoperbility with 2.2.x 
+kernel, if you wish to use that as well.
 
-> If I were to perhaps send linuxdoc.org a check or
-> something, might a day come to pass when learning to
-> do seemingly obvious things under linux does NOT
-> require fairly good forensic investigation skills?  I
-> ask merely for information.
+You just need to make sure you are using "ordinary" configuration files 
+if you use pcmcia-cs, since 2.4 uses different names for some of pcmcia 
+drivers.  Stock pcmcia-cs package will do nicely.
 
-And you wonder why my EMail address is not on the HOWTO?  Perhaps
-because there's a netfilter-devel list which can respond far more
-quickly than I can...
+-- 
+----------------------------------------
+Constantine Gavrilov
+Linux Leader
+Optibase Ltd
+7 Shenkar St, Herzliya 46120, Israel
+Phone: (972-9)-970-9140
+Fax:   (972-9)-958-6099
+----------------------------------------
 
-Summary: you had to use a *search engine* to find an obscure piece of
-coding information.
-
-Shocked!
-Rusty.
---
-Premature optmztion is rt of all evl. --DK

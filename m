@@ -1,109 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272800AbTG3IL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 04:11:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272805AbTG3IL5
+	id S272811AbTG3I0W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 04:26:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272812AbTG3I0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 04:11:57 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:64466 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S272800AbTG3ILz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 04:11:55 -0400
-Message-Id: <5.1.0.14.2.20030730101141.00a891a0@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 30 Jul 2003 10:13:12 +0200
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: Re: Linux 2.4.22-pre9
+	Wed, 30 Jul 2003 04:26:22 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:10209
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S272811AbTG3I0V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 04:26:21 -0400
+Date: Wed, 30 Jul 2003 10:28:48 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linas@austin.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Race in 2.6.0-test2 timer code
+Message-ID: <20030730082848.GC23835@dualathlon.random>
+References: <20030730073458.GA23835@dualathlon.random> <Pine.LNX.4.44.0307300932560.433-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Seen: false
-X-ID: TzfPO2ZDoetkK4MkHDUM5yeXsSkzsyCI+lOg4krSR-BSS8tsmzDw0E
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0307300932560.433-100000@localhost.localdomain>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following warnings/erors excerpts maybe cause for concern ?
+On Wed, Jul 30, 2003 at 09:34:40AM +0200, Ingo Molnar wrote:
+> 
+> On Wed, 30 Jul 2003, Andrea Arcangeli wrote:
+> 
+> > The thing triggered simply by running setitimer in one function, while
+> > the it_real_fn was running in the other cpu. I don't see how 2.6 can
+> > have fixed this, it_real_fun can still trivially call add_timer while
+> > you run inside do_setitimer in 2.6 too. [...]
+> 
+> This is not a race that can happen. itimer does this:
+> 
+> 	del_timer_sync();
+> 	add_timer();
+> 
+> how can the add_timer() still happen while it_real_fn is still running on 
+> another CPU?
 
-siimage.c: In function `pdev_is_sata':
-siimage.c:65: warning: control reaches end of non-void function
+it's not add_timer against add_timer in this case, it's del_timer_sync
+against add_timer.
 
-tipar.c:76:1: warning: "minor" redefined
-In file included from /var/tmp/linux-2.4.21/include/linux/fs.h:16,
-                  from /var/tmp/linux-2.4.21/include/linux/capability.h:17,
-                  from /var/tmp/linux-2.4.21/include/linux/binfmts.h:5,
-                  from /var/tmp/linux-2.4.21/include/linux/sched.h:9,
-                  from tipar.c:49:
-/var/tmp/linux-2.4.21/include/linux/kdev_t.h:81:1: warning: this is the 
-location
-  of the previous definition
 
-applicom.c:268:2: warning: #warning "LEAK"
-applicom.c:532:2: warning: #warning "Je suis stupide. DW. - copy*user in cli"
+	cpu0			cpu1
+	------------		--------------------
 
-i2o_pci.c:393:1: warning: no newline at end of file
+	do_setitimer
+				it_real_fn
+	del_timer_sync		add_timer	-> crash
 
-cfi_cmdset_0020.c: In function `do_write_buffer':
-cfi_cmdset_0020.c:491: warning: unsigned int format, different type arg (arg 3)
-cfi_cmdset_0020.c: In function `do_erase_oneblock':
-cfi_cmdset_0020.c:851: warning: unsigned int format, different type arg (arg 3)
-cfi_cmdset_0020.c: In function `do_lock_oneblock':
-cfi_cmdset_0020.c:1137: warning: unsigned int format, different type arg 
-(arg 3)
-cfi_cmdset_0020.c: In function `do_unlock_oneblock':
-cfi_cmdset_0020.c:1286: warning: unsigned int format, different type arg 
-(arg 3)
-cfi_cmdset_0001.c: In function `do_write_oneword':
-cfi_cmdset_0001.c:826: warning: unsigned int format, different type arg (arg 2)
-cfi_cmdset_0001.c: In function `do_write_buffer':
-cfi_cmdset_0001.c:1135: warning: unsigned int format, different type arg 
-(arg 2)
-cfi_cmdset_0001.c:1165: warning: unsigned int format, different type arg 
-(arg 2)
-
-crc32.c:91: warning: static declaration for `fn_calc_memory_chunk_crc32' 
-follows
-  non-static
-
-cardbus.c: In function `cb_scan_slot':
-cardbus.c:240: warning: implicit declaration of function `pci_scan_device'
-cardbus.c:240: warning: assignment makes pointer from integer without a cast
-cardbus.c:226: warning: unused variable `bus'
-cardbus.c: In function `program_bridge':
-cardbus.c:405: warning: control reaches end of non-void function
-
-In file included from yenta.c:837:
-ti113x.h: In function `ti_intctl':
-ti113x.h:182: warning: suggest parentheses around comparison in operand of &
-
-qlogicfas.c: In function `qlogicfas_detect':
-qlogicfas.c:650: warning: passing arg 1 of `scsi_unregister' from incompatible
-pointer type
-
-cpqfcTSi2c.c:62: warning: `i2c_delay' declared `static' but never defined
-
-../qlogicfas.c: In function `qlogicfas_detect':
-../qlogicfas.c:650: warning: passing arg 1 of `scsi_unregister' from
-  incompatible pointer type
-
-pm3fb.c: In function `cleanup_module':
-pm3fb.c:3835: warning: passing arg 2 of `__release_region' makes integer
-from pointer without a cast
-
-matroxfb_g450.c:134: warning: duplicate `const'
-matroxfb_g450.c:135: warning: duplicate `const'
-
-matroxfb_maven.c:359: warning: duplicate `const'
-matroxfb_maven.c:360: warning: duplicate `const'
-
-fs.c:852: warning: deprecated use of label at end of compound statement
-
-sock.c:64: warning: static declaration for `sockfd_lookup' follows non-static
-sock.c:56: warning: static declaration for `sockfd_lookup' follows non-static
-
-And of course :-)
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.22-pre9/kernel/drivers/net/wan/comx.o
-depmod:         proc_get_inode
-
-Margit 
-
+Andrea

@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275017AbTHQCTn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 22:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275021AbTHQCTm
+	id S274997AbTHQCRe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 22:17:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275000AbTHQCRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 22:19:42 -0400
-Received: from holomorphy.com ([66.224.33.161]:23008 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S275017AbTHQCTl (ORCPT
+	Sat, 16 Aug 2003 22:17:34 -0400
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:17280 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S274997AbTHQCRd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 22:19:41 -0400
-Date: Sat, 16 Aug 2003 19:20:54 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Paul Dickson <dickson@permanentmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]O14int
-Message-ID: <20030817022054.GP32488@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Paul Dickson <dickson@permanentmail.com>,
-	linux-kernel@vger.kernel.org
-References: <200308090149.25688.kernel@kolivas.org> <200308120033.32391.kernel@kolivas.org> <1060615179.13255.133.camel@workshop.saharacpt.lan> <200308121545.52042.kernel@kolivas.org> <20030814061953.GL32488@holomorphy.com> <20030815164010.09651254.dickson@permanentmail.com>
+	Sat, 16 Aug 2003 22:17:33 -0400
+Date: Sat, 16 Aug 2003 22:16:43 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Ram?n Rey Vicente???? <ramon.rey@hispalinux.es>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.0-test3-current] drivers/pnp/core.c:72: error: structure has	no member named `name'
+Message-ID: <20030816221642.GA7704@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Ram?n Rey Vicente???? <ramon.rey@hispalinux.es>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <1061076005.1304.34.camel@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030815164010.09651254.dickson@permanentmail.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <1061076005.1304.34.camel@debian>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Aug 2003 23:19:53 -0700, William Lee Irwin III wrote:
->> I found some strange SMP artifacts that seemed to show a dromedary-like
->> throughput curve with respect to tasks, with one peak at 4 tasks/cpu and
->> another peak at 16 tasks/cpu on a 16x box (for kernel compiles).
+On Sun, Aug 17, 2003 at 01:20:07AM +0200, Ram?n Rey Vicente???? wrote:
+> Hi.
+> 
+> It seems the struct dev.name was removed from include/linux/device.h and
+> should be implemented for every susbsystem. 
 
-On Fri, Aug 15, 2003 at 04:40:10PM -0700, Paul Dickson wrote:
-> "Dromedary-like" is a bell-shaped curve.  Perhaps you meant "bactrian-like".
-> Sorry.  I couldn't resist posting this.   :-)
+This has been corrected in the current bk tree.
 
-Doh. Yes.
-
-
--- wli
+Thanks,
+Adam

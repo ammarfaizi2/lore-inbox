@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVASIea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVASIho@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbVASIea (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 03:34:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVASIeB
+	id S261662AbVASIho (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 03:37:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVASIer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 03:34:01 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:43456 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261673AbVASIYv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 03:24:51 -0500
-Date: Wed, 19 Jan 2005 09:24:33 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Chris Wright <chrisw@osdl.org>, Matt Mackall <mpm@selenic.com>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Lee Revell <rlrevell@joe-job.com>, arjanv@redhat.com,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050119082433.GE29037@elte.hu>
-References: <87fz15j325.fsf@sulphur.joq.us> <20050115134922.GA10114@elte.hu> <874qhiwb1q.fsf@sulphur.joq.us> <871xcmuuu4.fsf@sulphur.joq.us> <20050116231307.GC24610@elte.hu> <87vf9xdj18.fsf@sulphur.joq.us> <20050117100633.GA3311@elte.hu> <87llaruy6m.fsf@sulphur.joq.us> <20050118080218.GB615@elte.hu> <87pt02pt0r.fsf@sulphur.joq.us>
+	Wed, 19 Jan 2005 03:34:47 -0500
+Received: from alcatraz.copyleft.no ([66.154.115.120]:41223 "EHLO
+	mail9.copyleft.no") by vger.kernel.org with ESMTP id S261679AbVASI0I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 03:26:08 -0500
+Subject: dmesg output for Transcend 6-in-1 USB card reader
+From: Joakim Ziegler <joakim@avmaria.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 19 Jan 2005 02:25:58 -0600
+Message-Id: <1106123158.5270.108.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87pt02pt0r.fsf@sulphur.joq.us>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I needed to make scsi_mod probe all luns on this device to be able to
+use it. After some Googling, it seems it's encouraged to send dmesg
+output to this list to get the device added to the list of devices which
+should have all luns probed automatically. If I'm mistaken about that,
+my apologies. dmesg output follows:
 
-* Jack O'Quin <joq@io.com> wrote:
+usb 2-1: new full speed USB device using address 8
+scsi1 : SCSI emulation for USB Mass Storage devices
+  Vendor:           Model: USB Card Reader   Rev: 1.0a
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+Attached scsi removable disk sda at scsi1, channel 0, id 0, lun 0
+  Vendor:           Model: USB Card Reader   Rev: 1.0a
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+Attached scsi removable disk sdc at scsi1, channel 0, id 0, lun 1
+  Vendor:           Model: USB Card Reader   Rev: 1.0a
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+Attached scsi removable disk sde at scsi1, channel 0, id 0, lun 2
+  Vendor:           Model: USB Card Reader   Rev: 1.0a
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+Attached scsi removable disk sdf at scsi1, channel 0, id 0, lun 3
+USB Mass Storage device found at 8
 
-> Adding a tid field is relatively easy.  Fixing the race condition
-> between setting it in the new thread and using it in the creating
-> thread is harder, but not impossible.  But, even setting it in the new
-> thread would create an incompatible interface.  With hundreds of JACK
-> client applications, binary compatibility is a serious consideration.
 
-i'm not suggesting that this is the way to go, it's just to test how
-nice--20 tasks would perform (on the hacked kernel). We still dont have
-this data, because in the other tests you tried, some non-highprio
-threads got nice--20 priority as well, which can (and apparently do)
-interfere with the highprio threads.
+And /proc/bus/usb/devices:
 
-is it possible to call a function from the highprio-threads (and only
-from them) themselves, during the setup of those threads? If this is
-possible then all you need to add is a nice(-20); function call, which
-only affects the current thread. (you dont have to know the TID or PID
-and dont have to extend any Jack APIs and structures for this hack.)
+T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  8 Spd=12  MxCh= 0
+D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0d7d ProdID=0240 Rev= 1.00
+S:  Manufacturer=
+S:  Product=USB Reader
+S:  SerialNumber=30370A0030B9
+C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=350mA
+I:  If#= 0 Alt= 0 #EPs= 3 Cls=08(stor.) Sub=06 Prot=50 Driver=usb-
+storage
+E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=83(I) Atr=03(Int.) MxPS=   2 Ivl=1ms
 
-('highprio threads' are the ones that normally get SCHED_FIFO priority
-with -R, 'lowprio threads' are the other client-side threads, if any.)
 
-	Ingo
+Hope this is useful. Not a member of the list, Cc: me on replies, etc.
+
+-- 
+Joakim Ziegler <joakim@avmaria.com>
+

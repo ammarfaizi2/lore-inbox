@@ -1,90 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287946AbSACBGE>; Wed, 2 Jan 2002 20:06:04 -0500
+	id <S287915AbSACBJy>; Wed, 2 Jan 2002 20:09:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287915AbSACBF4>; Wed, 2 Jan 2002 20:05:56 -0500
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:42184 "EHLO
-	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S288046AbSACBFq>; Wed, 2 Jan 2002 20:05:46 -0500
-Date: Thu, 03 Jan 2002 01:04:11 UTC
-From: Bill <billnvd@hotpop.com>
-Subject: Slowdowns and Systems Pauses with 2.4.x.
-To: linux-kernel@vger.kernel.org
-Message-ID: <TradeClient.0.9.0.Linux-2.4.7.020102190411FFFFFFFC.1007@gx100.localhost.localdomain>
-Organization: 
-X-Mailer: TradeClient 0.9.0 [en] Linux 2.4.7
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-Importance: Normal
-X-Accept-Language: en
-Sensitivity: Public-Document
+	id <S288094AbSACBJo>; Wed, 2 Jan 2002 20:09:44 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:7588 "EHLO
+	VL-MS-MR003.sc1.videotron.ca") by vger.kernel.org with ESMTP
+	id <S287915AbSACBJh>; Wed, 2 Jan 2002 20:09:37 -0500
+Message-ID: <3C33AF4F.7000703@videotron.ca>
+Date: Wed, 02 Jan 2002 20:09:35 -0500
+From: Roger Leblanc <r_leblanc@videotron.ca>
+Organization: General DataComm
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010914
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Deadlock in kernel on USB shutdown
+In-Reply-To: <3C33A22F.40906@videotron.ca> <20020103001816.GB4162@kroah.com> <3C33A4EC.1040300@videotron.ca> <20020103002827.GA4462@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have seen a lot of reports about 2.4.x having all sorts of slowdowns
-and VM issues.  While way out of my league here, I wanted to comment on
-some good behavior I noticed.  During my most recent recompile of 2.4.7,
-my system performance went way up.  Responsiveness is excellent nearly
-regardless of what I throw at it.  I am no programmer and I am not sure
-if any information I can provide would be useful to anyone, but I would
-be willing to offer whatever I can to aid kernel hackers in tracking
-down what seems to be hitting a lot of people with 2.4.x.
+Hi,
 
-System: Dell GX100
-566 Celeron w/192meg, 184meg swap
-ATA66 10gig WD 102BB (ext2fs)
-ATAPI CDROM (not sure of brand)
-onboard i810 4meg agp
-onboard 3com905c
-ES 1371
+>>Greg KH wrote:
+>>
+>>>Have you unloaded your scanner module before unloading the usb-uhci
+>>>module?
+>>>
+>>No. Actually, I don't even know how it's called. How can I find out?
+>>
+>
+>I think it's called "scanner".  Just look for any module that the
+>usbcore module shows as "Used by".
+>
+Mmmm, I should have guessed that one. Scanner is quite a good name for a 
+scanner module ;-). Anyway, I moved things around so "scanner" and all 
+the other device specific modules are unloaded before usb-uhci but yet, 
+it doesn't help. It still freeses when unload usb-uhci. Any idea?
 
-Linux version 2.4.7(no patches), (gcc version 2.95.3 19991030
-(prerelease))
-XFree86 4.0.1, IceWM 1.0.4. 
+Thanks
 
-This compile was with no module support(first time I tried it that way)
-and no devfs.  I really don't know what information to supply without
-posting huge amounts of potentially worthless data, but let me give an
-example of the responsiveness.
+Roger
 
-Simultaneous user processes:
-cp a 675meg file to new dir in xterm(bash),
-ftp to remote system via ethernet averaging about 4MB/s, file size
->600meg,
-accept incoming ftp using inetd/wuftpd via ethernet averaging about
-4MB/s, file size > 600meg,
-edge enhance a 5000 x 4000 jpg with gimp
-xmms playing ogg files
-cdparanoia ripping cd at 1x (the rip was successful)
-Opera and Netscape both up with lkml archives, several pages each.
-licq online
-tradeclient email - retrieving from 3 servers
-launched a second gimp and opened a 400x400 jpg
 
-and finally ogg encoder kicked in via grip
-
-Until the ogg encoder kicked in the cpu load was about 5.5 and the xmms
-was playing perfect.  The encoder started to cause a skip and the mouse
-picked up a occasional, very short pause <1/4sec, but the the system
-remained very useable.  During the slightly over 3 minutes of ftp in
-both directions, switching desktops, opening new xterms, command line
-access, scrolling and changing pages in browerrs, etc were all
-responsive.  Slower of course, but considering the load was now over 7
-it was not even near painful.  Average delays were maybe 1/2 - 3/4
-second.
-
-Based on previous configs with this system using 2.2.17, 2.2.19, 2.4.7
-and 2.4.17, the above would have made this thing roll over and die for
-10 minutes.  I don't know what I changed that caused this, but I like
-it.
-
-During this process, the system also swapped over 80 meg to disk with
-all the other reads and writes going on.  Again, if any of my config
-would be useful, please request whatever info/tests you need.
-
-Bill
-
-Best Regards,
-Bill
